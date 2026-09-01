@@ -1,0 +1,200 @@
+### =====================================================================
+### JLAS - .gitignore
+### Covers: Maven, Spring Boot, Java, IntelliJ IDEA, VSCode,
+###         Cursor, Antigravity IDE, OS files
+### =====================================================================
+
+# -----------------------------------------------------------------------
+# MAVEN BUILD OUTPUT
+# -----------------------------------------------------------------------
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# -----------------------------------------------------------------------
+# SPRING BOOT / APPLICATION CONFIG SECRETS
+# -----------------------------------------------------------------------
+# Never commit real secrets - use application-local.yaml / properties instead
+src/main/resources/application-local.properties
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-*-local.properties
+src/main/resources/application-*-local.yml
+src/main/resources/application-*-local.yaml
+src/main/resources/application-prod.properties
+src/main/resources/application-prod.yml
+src/main/resources/application-prod.yaml
+src/main/resources/application-dev.properties
+src/main/resources/application-dev.yml
+src/main/resources/application-dev.yaml
+*.env
+.env
+.env.*
+!.env.example
+
+# -----------------------------------------------------------------------
+# INTELLIJ IDEA
+# -----------------------------------------------------------------------
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+# Uncomment to ignore Gradle or Maven wrapper files:
+# gradle-app.setting
+# !gradle-wrapper.jar
+
+# -----------------------------------------------------------------------
+# VSCODE
+# -----------------------------------------------------------------------
+.vscode/
+*.code-workspace
+# VSCode Java extension generated files
+.classpath
+.project
+.settings/
+.factorypath
+bin/
+
+# -----------------------------------------------------------------------
+# CURSOR IDE
+# -----------------------------------------------------------------------
+.cursor/
+.cursorignore
+.cursorindexingignore
+.cursorrules
+# Cursor AI context cache
+.cursor-tutor/
+
+# -----------------------------------------------------------------------
+# ANTIGRAVITY / GEMINI IDE
+# -----------------------------------------------------------------------
+.gemini/
+.antigravity/
+.agents/
+# Antigravity context & brain files
+antigravity-context/
+*.agctx
+
+# -----------------------------------------------------------------------
+# ECLIPSE
+# -----------------------------------------------------------------------
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# -----------------------------------------------------------------------
+# NETBEANS
+# -----------------------------------------------------------------------
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# -----------------------------------------------------------------------
+# JAVA COMPILED / PACKAGED
+# -----------------------------------------------------------------------
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# -----------------------------------------------------------------------
+# LOGS
+# -----------------------------------------------------------------------
+*.log
+logs/
+log/
+spring.log
+
+# -----------------------------------------------------------------------
+# OS FILES
+# -----------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# -----------------------------------------------------------------------
+# DOCKER
+# -----------------------------------------------------------------------
+docker-compose.override.yml
+.docker/
+
+# -----------------------------------------------------------------------
+# DATABASE / MIGRATIONS LOCAL
+# -----------------------------------------------------------------------
+*.sql.bak
+data_full.sql
+# Keep schema but not data
+# jlas_schema.sql  <- keep this tracked
+
+# -----------------------------------------------------------------------
+# NODE (if any frontend exists)
+# -----------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# -----------------------------------------------------------------------
+# MISC / TEMP
+# -----------------------------------------------------------------------
+*.swp
+*.swo
+*~
+.tmp/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.DS_Store

@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: jlas
+
+  # ── Datasource ──────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:mysql://localhost:3306/jlas_merged_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+    username: root
+    # password: đặt trong application-local.yaml (không commit lên git)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: JlasHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # ── JPA / Hibernate ─────────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: validate          # chỉ validate schema, KHÔNG tạo/sửa bảng
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+
+  # ── Profiles ────────────────────────────────────────────────────────────────
+  profiles:
+    include: local                # load application-local.yaml để override password
+
+# ── Server ───────────────────────────────────────────────────────────────────
+server:
+  port: 8080
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.jlas: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
