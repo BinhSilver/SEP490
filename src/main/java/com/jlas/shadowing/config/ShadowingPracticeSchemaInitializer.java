@@ -1,0 +1,74 @@
+package com.jlas.shadowing.config;
+
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+/** Local compatibility. Shared deployments should apply sql/shadowing_practice.sql explicitly. */
+@Component
+@Profile("!test")
+@Order(3)
+public class ShadowingPracticeSchemaInitializer implements ApplicationRunner {
+    private final JdbcTemplate jdbc;
+
+    public ShadowingPracticeSchemaInitializer(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_exercise_analysis ("
+                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, subtitle_id BIGINT UNSIGNED NOT NULL, "
+                + "source_hash CHAR(64) NOT NULL, prompt_version VARCHAR(40) NOT NULL, "
+                + "vocabulary_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, grammar_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, "
+                + "listening_speed_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, script_complexity_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, "
+                + "listening_traps_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, sentence_difficulty TINYINT UNSIGNED NOT NULL, "
+                + "analysis_source VARCHAR(20) NOT NULL, analyzed_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), "
+                + "updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), "
+                + "CONSTRAINT fk_shadowing_exercise_analysis_subtitle FOREIGN KEY (subtitle_id) REFERENCES subtitle(id) ON DELETE CASCADE, "
+                + "UNIQUE KEY uk_shadowing_exercise_analysis_subtitle (subtitle_id), "
+                + "INDEX idx_shadowing_exercise_analysis_difficulty (sentence_difficulty, subtitle_id), "
+                + "INDEX idx_shadowing_exercise_analysis_version (prompt_version, source_hash))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_cloze_candidate ("
+                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, analysis_id BIGINT UNSIGNED NOT NULL, "
+                + "candidate_order SMALLINT UNSIGNED NOT NULL, answer_text VARCHAR(500) NOT NULL, reading_text VARCHAR(500) NULL, "
+                + "occurrence_index SMALLINT UNSIGNED NOT NULL DEFAULT 1, candidate_type VARCHAR(30) NOT NULL, jlpt_level VARCHAR(10) NULL, "
+                + "importance_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, grammar_complexity_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, "
+                + "context_predictability_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, acoustic_confusability_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, "
+                + "confidence_factor TINYINT UNSIGNED NOT NULL DEFAULT 0, difficulty_score TINYINT UNSIGNED NOT NULL, "
+                + "generation_source VARCHAR(20) NOT NULL, created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), "
+                + "CONSTRAINT fk_shadowing_cloze_candidate_analysis FOREIGN KEY (analysis_id) REFERENCES shadowing_exercise_analysis(id) ON DELETE CASCADE, "
+                + "UNIQUE KEY uk_shadowing_cloze_candidate_order (analysis_id, candidate_order), "
+                + "INDEX idx_shadowing_cloze_candidate_difficulty (difficulty_score, analysis_id))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_practice_session ("
+                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, user_id BIGINT UNSIGNED NOT NULL, video_id BIGINT UNSIGNED NOT NULL, "
+                + "practice_mode VARCHAR(20) NOT NULL, question_order VARCHAR(20) NOT NULL, requested_count INT UNSIGNED NOT NULL, "
+                + "total_questions INT UNSIGNED NOT NULL, current_position INT UNSIGNED NOT NULL DEFAULT 0, "
+                + "correct_count INT UNSIGNED NOT NULL DEFAULT 0, score_total INT UNSIGNED NOT NULL DEFAULT 0, random_seed BIGINT NOT NULL, "
+                + "status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', started_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), completed_at TIMESTAMP(6) NULL, "
+                + "CONSTRAINT fk_shadowing_practice_session_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, "
+                + "CONSTRAINT fk_shadowing_practice_session_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE, "
+                + "INDEX idx_shadowing_practice_session_user_video (user_id, video_id, started_at), "
+                + "INDEX idx_shadowing_practice_session_user_status (user_id, status, started_at))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_practice_item ("
+                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, session_id BIGINT UNSIGNED NOT NULL, subtitle_id BIGINT UNSIGNED NOT NULL, "
+                + "cloze_candidate_id BIGINT UNSIGNED NULL, position_index INT UNSIGNED NOT NULL, difficulty_score TINYINT UNSIGNED NOT NULL, "
+                + "answered_at TIMESTAMP(6) NULL, "
+                + "CONSTRAINT fk_shadowing_practice_item_session FOREIGN KEY (session_id) REFERENCES shadowing_practice_session(id) ON DELETE CASCADE, "
+                + "CONSTRAINT fk_shadowing_practice_item_subtitle FOREIGN KEY (subtitle_id) REFERENCES subtitle(id) ON DELETE CASCADE, "
+                + "CONSTRAINT fk_shadowing_practice_item_candidate FOREIGN KEY (cloze_candidate_id) REFERENCES shadowing_cloze_candidate(id) ON DELETE SET NULL, "
+                + "UNIQUE KEY uk_shadowing_practice_item_position (session_id, position_index), "
+                + "INDEX idx_shadowing_practice_item_subtitle (subtitle_id), INDEX idx_shadowing_practice_item_candidate (cloze_candidate_id))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_practice_answer ("
+                + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, practice_item_id BIGINT UNSIGNED NOT NULL, "
+                + "attempt_number SMALLINT UNSIGNED NOT NULL, user_answer TEXT NOT NULL, normalized_answer TEXT NOT NULL, "
+                + "answer_result VARCHAR(20) NOT NULL, score TINYINT UNSIGNED NOT NULL, feedback VARCHAR(1000) NOT NULL, "
+                + "answered_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), "
+                + "CONSTRAINT fk_shadowing_practice_answer_item FOREIGN KEY (practice_item_id) REFERENCES shadowing_practice_item(id) ON DELETE CASCADE, "
+                + "UNIQUE KEY uk_shadowing_practice_answer_attempt (practice_item_id, attempt_number), "
+                + "INDEX idx_shadowing_practice_answer_result (answer_result, answered_at))");
+    }
+}

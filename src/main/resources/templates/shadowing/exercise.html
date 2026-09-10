@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện nghe điền từ | JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/theme-bridge.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260831-layout12">
+    <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="icon" href="/images/jlab.png" type="image/png">
+</head>
+<body id="jlabBasePage" class="page-shadowing-exercise">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent">
+    <input id="exercise-session-id" type="hidden" th:value="${sessionId}">
+    <div id="exercise-shell">
+        <header id="exercise-header">
+            <a id="exercise-back-link" href="/shadowing">Chọn lại chế độ</a>
+            <div id="exercise-title-row">
+            <div><span id="exercise-mode-label">Luyện nghe</span><h1 id="exercise-video-title">Đang tải…</h1></div>
+                <span id="exercise-difficulty">--</span>
+            </div>
+        </header>
+
+        <section id="exercise-workspace" hidden>
+            <div id="exercise-media-panel">
+                <video id="exercise-media" playsinline preload="metadata"></video>
+                <div id="exercise-video-timeline" aria-label="Tiến trình video và các điểm dừng">
+                    <span id="exercise-video-progress"></span>
+                    <div id="exercise-stop-markers"></div>
+                </div>
+                <div id="exercise-media-controls">
+                    <button id="exercise-listen-button" type="button"><i class="fa-solid fa-play"></i><span>Phát bài</span></button>
+                    <div id="exercise-speed-control">
+                        <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+                        <button id="exercise-speed-toggle" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Tốc độ phát">
+                            <span id="exercise-speed-label">1×</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div id="exercise-speed-menu" role="listbox" hidden>
+                            <button type="button" data-speed="0.75" role="option" aria-selected="false">0.75×</button>
+                            <button type="button" data-speed="1" role="option" aria-selected="true" class="is-active">1×</button>
+                            <button type="button" data-speed="1.25" role="option" aria-selected="false">1.25×</button>
+                            <button type="button" data-speed="1.5" role="option" aria-selected="false">1.5×</button>
+                            <button type="button" data-speed="1.75" role="option" aria-selected="false">1.75×</button>
+                            <button type="button" data-speed="2" role="option" aria-selected="false">2×</button>
+                        </div>
+                        <input id="exercise-speed" type="hidden" value="1">
+                    </div>
+                    <span id="exercise-video-clock">0:00 / 0:00</span>
+                </div>
+                <div id="exercise-live-subtitle" aria-live="polite">
+                    <p id="exercise-live-japanese" lang="ja">Bấm Phát bài để bắt đầu nghe từ đầu.</p>
+                    <p id="exercise-live-translation"></p>
+                </div>
+            </div>
+
+            <div id="exercise-question-panel">
+                <section id="exercise-transcript-box" aria-labelledby="exercise-transcript-title">
+                    <div id="exercise-transcript-heading"><strong id="exercise-transcript-title"><i class="fa-solid fa-list"></i> Phụ đề cả bài</strong><span><i class="fa-solid fa-flag"></i> Câu có điểm dừng</span></div>
+                    <div id="exercise-transcript"></div>
+                </section>
+
+                <section id="exercise-answer-box" aria-live="polite">
+                    <div id="exercise-waiting-state">
+                        <i class="fa-solid fa-headphones-simple" aria-hidden="true"></i>
+                        <div>
+                            <strong id="exercise-waiting-title">Đang chờ câu hỏi xuất hiện</strong>
+                            <p id="exercise-waiting-text">Video đang phát. Khi đến câu có cờ, video sẽ tự dừng để bạn làm bài.</p>
+                        </div>
+                    </div>
+                    <div id="exercise-answer-dock" hidden>
+                    <div id="exercise-kitsu-tip" hidden>
+                        <video id="exercise-kitsu-video" muted loop playsinline preload="metadata" poster="/images/kitsu.png" aria-hidden="true">
+                            <source src="/videos/ganbare-alpha.webm?v=20260831-ganbare1" type="video/webm">
+                        </video>
+                        <p id="exercise-instruction">Sắp đến câu có cờ. Cố lên, nghe thật kỹ nhé!</p>
+                    </div>
+                    <p id="exercise-prompt" lang="ja" hidden></p>
+                    <textarea id="exercise-answer" rows="2" maxlength="2000" lang="ja" autocomplete="off" spellcheck="false" disabled hidden placeholder="Nhập từ hoặc cụm từ còn thiếu…"></textarea>
+                    <p id="exercise-normalization-note" hidden><i class="fa-solid fa-circle-info"></i> Dấu câu và khoảng trắng không ảnh hưởng kết quả.</p>
+                    <div id="exercise-actions" hidden>
+                        <button id="exercise-submit" type="button" disabled><i class="fa-solid fa-check"></i> Kiểm tra</button>
+                        <button id="exercise-next" type="button" hidden>Tiếp tục video <i class="fa-solid fa-play"></i></button>
+                    </div>
+                    <p id="exercise-status" aria-live="polite"></p>
+
+                    <section id="exercise-result" hidden aria-live="polite">
+                        <div id="exercise-result-heading"><div><span>Kết quả</span><strong id="exercise-result-score">--</strong></div><p id="exercise-feedback"></p></div>
+                        <div id="exercise-answer-comparison">
+                            <div><span>Câu mẫu</span><p id="exercise-expected-answer" lang="ja"></p><div id="exercise-expected-diff"></div></div>
+                            <div><span>Bạn nhập</span><p id="exercise-user-answer" lang="ja"></p><div id="exercise-user-diff"></div></div>
+                        </div>
+                        <p id="exercise-translation"></p>
+                    </section>
+                </div>
+                </section>
+            </div>
+        </section>
+
+        <section id="exercise-complete" hidden>
+            <img src="/images/kitsu.png" alt="Kitsu-chan">
+            <div><span>Hoàn thành phiên học</span><h2 id="exercise-complete-title">Bạn đã làm xong!</h2><p id="exercise-complete-summary"></p></div>
+            <button id="exercise-restart" type="button">Chọn phiên mới <i class="fa-solid fa-rotate-right"></i></button>
+        </section>
+    </div>
+</main>
+<script src="/js/auth-session.js"></script>
+<script src="/js/jlab-base-shell.js"></script>
+<script src="/shadowing/js/client.js"></script>
+<script src="/shadowing/js/exercise.js?v=20260831-layout12"></script>
+</body>
+</html>
