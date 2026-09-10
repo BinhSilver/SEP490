@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Học thẻ từ — JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/inputs.css" />
+  <link rel="stylesheet" href="/css/components/forms.css" />
+  <link rel="stylesheet" href="/css/components/toast.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20260910-rating" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+</head>
+
+<body id="jlabBasePage" class="flashcard-page flashcard-page--study">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="page">
+
+  <div class="main study-main">
+      <div class="container container-wide study-wrap">
+        <div class="study-top">
+          <a href="/flashcard/library.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Thư
+            viện</a>
+          <h1 class="study-title" id="study-title">Học thẻ</h1>
+          <span class="sr-only" id="study-progress">0 / 0</span>
+        </div>
+        <section class="study-set-summary" id="study-set-summary" hidden aria-label="Thông tin bộ thẻ">
+          <h2 id="study-set-title">Bộ Flashcard</h2>
+          <div class="study-set-summary__meta">
+            <span><i class="fa-solid fa-chart-line" aria-hidden="true"></i> <strong id="study-set-study-count">0</strong> lượt học</span>
+            <button type="button" class="study-set-rating" id="btn-open-rating" aria-haspopup="dialog">
+              <i class="fa-solid fa-star" aria-hidden="true"></i>
+              <strong id="study-set-rating-value">Chưa có</strong>
+              <span id="study-set-rating-count">(0 đánh giá)</span>
+            </button>
+          </div>
+        </section>
+        <nav class="study-mode-nav" aria-label="Chế độ học">
+          <button type="button" class="study-mode-tab" data-study-mode="BROWSE"><i class="fa-solid fa-clone"></i> Lướt thẻ</button>
+          <button type="button" class="study-mode-tab" data-study-mode="RECALL"><i class="fa-solid fa-brain"></i> Ghi nhớ</button>
+          <button type="button" class="study-mode-tab" id="btn-quiz-nav">Kiểm tra</button>
+          <button type="button" class="study-mode-tab study-settings-tab" id="btn-settings" title="Cài đặt mặt thẻ" aria-label="Cài đặt mặt thẻ"><i class="fa-solid fa-sliders"></i></button>
+        </nav>
+        <div class="study-session-progress" aria-hidden="true"><span id="study-progress-fill"></span></div>
+        <div id="study-empty" class="lib-empty" hidden>
+          <i class="fa-solid fa-inbox"></i>
+          <p>Chọn bộ thẻ từ thư viện để học.</p>
+          <a class="btn btn-primary" href="/flashcard/library.html">Mở thư viện</a>
+        </div>
+
+        <div id="study-stage" class="study-stage" hidden>
+          <button type="button" class="study-nav-btn" id="btn-prev" aria-label="Thẻ trước"><i
+              class="fa-solid fa-chevron-left"></i></button>
+          <div class="flip-card" id="flip-card" tabindex="0" role="button" aria-label="Lật thẻ">
+            <div class="flip-card__inner" id="flip-inner">
+              <div class="flip-card__face flip-card__front">
+                <div class="flip-label">Mặt trước</div>
+                <button type="button" class="study-speak-btn" id="btn-speak" title="Đọc tiếng Nhật" aria-label="Đọc tiếng Nhật">
+                  <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <div class="flip-text" id="face-front"></div>
+                <img id="face-image" class="flip-image" alt="" hidden />
+              </div>
+              <div class="flip-card__face flip-card__back">
+                <div class="flip-label">Mặt sau</div>
+                <div class="flip-text" id="face-back"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="study-nav-btn" id="btn-next" aria-label="Thẻ sau"><i
+              class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <p class="muted study-quality-help" id="quality-help">Đánh giá mức độ ghi nhớ · 0 = không nhớ · 5 = rất dễ</p>
+        <div class="study-actions" id="study-actions" hidden>
+          <div class="study-quality" id="study-quality-actions" aria-label="Đánh giá mức độ nhớ từ 0 đến 5">
+            <button type="button" class="btn btn-wrong" data-quality="0" title="Không nhớ"><i class="fa-solid fa-0"></i></button>
+            <button type="button" class="btn btn-wrong" data-quality="1" title="Sai, rất khó"><i class="fa-solid fa-1"></i></button>
+            <button type="button" class="btn btn-wrong" data-quality="2" title="Sai nhưng quen"><i class="fa-solid fa-2"></i></button>
+            <button type="button" class="btn btn-ghost" id="btn-flip"><i class="fa-solid fa-rotate"></i> Lật</button>
+            <button type="button" class="btn btn-correct" data-quality="3" title="Đúng nhưng khó"><i class="fa-solid fa-3"></i></button>
+            <button type="button" class="btn btn-correct" data-quality="4" title="Đúng"><i class="fa-solid fa-4"></i></button>
+            <button type="button" class="btn btn-correct" data-quality="5" title="Rất dễ"><i class="fa-solid fa-5"></i></button>
+          </div>
+          <div class="study-browse-actions" id="study-browse-actions" hidden aria-label="Đánh dấu kết quả thẻ">
+            <button type="button" class="btn btn-wrong" data-browse-result="NOT_REMEMBERED"><i class="fa-solid fa-xmark"></i> Chưa thuộc</button>
+            <button type="button" class="btn btn-ghost" id="btn-browse-flip"><i class="fa-solid fa-rotate"></i> Lật</button>
+            <button type="button" class="btn btn-correct" data-browse-result="REMEMBERED"><i class="fa-solid fa-check"></i> Đã nhớ</button>
+          </div>
+        </div>
+        <p class="muted study-hint" id="study-hint">Phím cách = lật · ← / → = chuyển thẻ</p>
+
+        <section class="study-card-list" id="study-card-list" hidden aria-labelledby="study-card-list-title">
+          <div class="study-card-list__heading">
+            <div>
+              <h2 id="study-card-list-title">Danh sách thẻ</h2>
+              <p class="muted">Xem nhanh toàn bộ nội dung trong bộ thẻ.</p>
+            </div>
+            <span class="study-card-list__count" id="study-card-list-count">0 thẻ</span>
+          </div>
+          <div class="study-card-list__items" id="study-card-list-items"></div>
+        </section>
+
+        <section id="study-complete" class="study-complete" hidden>
+          <div class="complete-grid">
+            <div class="complete-col complete-col--progress card">
+              <!-- Danh ngôn JP — cùng box Tiến độ, phía trên -->
+              <article class="quote-card" id="quote-card" aria-label="Danh ngôn tiếng Nhật">
+                <div class="quote-card__rule" aria-hidden="true"></div>
+                <p class="quote-card__title" id="quote-title">Danh ngôn</p>
+                <p class="quote-card__ja" id="quote-ja" lang="ja"></p>
+                <p class="quote-card__furi" id="quote-furi" lang="ja"></p>
+                <p class="quote-card__vi" id="quote-vi"></p>
+                <div class="quote-card__rule" aria-hidden="true"></div>
+              </article>
+
+              <h3 class="complete-col-title" id="complete-progress-title">Tiến độ</h3>
+              <div class="complete-progress-row">
+                <div class="ring" id="progress-ring" style="--pct:0">
+                  <span id="progress-pct">0%</span>
+                </div>
+                <ul class="stat-list">
+                  <li><span class="dot dot-mastered"></span> <span id="stat-mastered-label">Đã biết</span> <strong id="stat-mastered">0</strong></li>
+                  <li><span class="dot dot-learning"></span> <span id="stat-learning-label">Đang học</span> <strong id="stat-learning">0</strong></li>
+                  <li><span class="dot dot-new"></span> <span id="stat-new-label">Còn lại</span> <strong id="stat-new">0</strong></li>
+                </ul>
+              </div>
+              <div class="session-stats">
+                <div class="session-stat"><span>Tổng số thẻ</span><strong id="ss-total">0</strong></div>
+                <div class="session-stat"><span id="ss-pct-label">Tỷ lệ hoàn thành</span><strong id="ss-pct">0%</strong></div>
+                <div class="session-stat"><span>Thời gian học</span><strong id="ss-time">0 phút</strong></div>
+                <div class="session-stat"><span id="ss-flips-label">Lật thẻ</span><strong id="ss-flips">0 lần</strong></div>
+              </div>
+            </div>
+
+            <div class="complete-col complete-col--next card">
+              <h3 class="complete-col-title">Bước tiếp theo</h3>
+              <div class="next-actions">
+                <button type="button" class="next-btn next-btn--primary" id="btn-quiz-learning">
+                  <i class="fa-solid fa-bolt"></i>
+                  <span>Ôn luyện bằng trắc nghiệm</span>
+                  <small>Toàn bộ thẻ trong bộ</small>
+                </button>
+                <button type="button" class="next-btn" id="btn-study-learning">
+                  <i class="fa-solid fa-brain"></i>
+                  <span>Chỉ học các thẻ chưa nhớ</span>
+                  <small>Lọc thẻ đang học / chưa nhớ</small>
+                </button>
+                <button type="button" class="next-btn" id="btn-study-all">
+                  <i class="fa-solid fa-rotate-right"></i>
+                  <span>Học lại toàn bộ</span>
+                  <small>Phiên mới · giữ tiến độ</small>
+                </button>
+                <button type="button" class="next-btn next-btn--danger" id="btn-reset-progress">
+                  <i class="fa-solid fa-trash-can"></i>
+                  <span>Đặt lại tiến độ</span>
+                  <small>Mọi thẻ về trạng thái mới</small>
+                </button>
+              </div>
+              <a class="btn btn-ghost complete-back" href="/flashcard/library.html">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại thư viện thẻ
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+  </div>
+</main>
+
+  <div class="modal-backdrop" id="rating-modal" hidden>
+    <div class="modal modal-sm study-rating-modal" role="dialog" aria-modal="true" aria-labelledby="rating-title">
+      <div class="modal-header">
+        <h3 id="rating-title">Bạn đánh giá bộ thẻ này thế nào?</h3>
+        <button type="button" class="btn-icon" id="btn-close-rating" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="muted">Chọn từ 1 đến 5 sao. Bạn có thể thay đổi đánh giá sau.</p>
+        <div class="study-rating-stars" id="study-rating-stars" role="radiogroup" aria-label="Số sao đánh giá"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--secondary" id="btn-cancel-rating">Hủy</button>
+        <button type="button" class="btn btn--primary" id="btn-save-rating" disabled>Gửi đánh giá</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="settings-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-header">
+        <h3 id="settings-title"><i class="fa-solid fa-sliders"></i> Cài đặt học & Vị trí Hán Việt</h3>
+        <button type="button" class="btn-icon" id="btn-close-settings" aria-label="Đóng"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="muted settings-description">Chọn vị trí hiển thị của Hán Việt hoặc tùy chỉnh trường hiển thị 2 mặt thẻ.</p>
+
+        <!-- Chọn nhanh vị trí Hán Việt -->
+        <div class="study-quick-setting">
+          <span class="field__label study-quick-setting__label"><i class="fa-solid fa-wand-magic-sparkles"></i> Chọn nhanh vị trí Hán Việt</span>
+          <div class="form__row study-quick-setting__options">
+            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-front"><i class="fa-solid fa-arrow-up"></i> Hán Việt ở Mặt trước</button>
+            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-back"><i class="fa-solid fa-arrow-down"></i> Hán Việt ở Mặt sau</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="study-mode-field">Chế độ học</label>
+          <select class="select" id="study-mode-field">
+            <option value="BROWSE">Lướt thẻ · nhớ hoặc chưa thuộc</option>
+            <option value="RECALL">Ghi nhớ · chấm mức độ 0–5</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="face-front-field">Mặt trước hiển thị</label>
+          <select class="select" id="face-front-field">
+            <option value="FRONT">Kanji (mặt trước)</option>
+            <option value="HAN_VIET">🌸 Hán Việt (ở mặt trước)</option>
+            <option value="BACK">Nghĩa tiếng Việt (mặt trước)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="face-back-field">Mặt sau hiển thị</label>
+          <select class="select" id="face-back-field">
+            <option value="BACK" selected>Nghĩa tiếng Việt (mặt sau)</option>
+            <option value="HAN_VIET">🌸 Hán Việt (ở mặt sau)</option>
+            <option value="FRONT">Kanji (mặt sau)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--secondary" id="btn-cancel-settings">Hủy</button>
+        <button type="button" class="btn btn--primary" id="btn-apply-settings">Áp dụng</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="reset-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> Đặt lại tiến độ</h3>
+        <button type="button" class="btn-icon" id="btn-close-reset" aria-label="Đóng"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc muốn đặt lại toàn bộ tiến độ? Mọi thẻ sẽ trở về trạng thái <strong>Mới</strong>.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-reset">Hủy</button>
+        <button type="button" class="btn btn-wrong" id="btn-confirm-reset">Đặt lại</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/flashcard/js/api-client.js"></script>
+  <script src="/flashcard/js/shell.js"></script>
+  <script src="/flashcard/js/study-page.js"></script>
+</body>
+
+</html>
