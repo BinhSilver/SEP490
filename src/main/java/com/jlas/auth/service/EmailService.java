@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Async;
 
 @Service
 @Slf4j
@@ -20,6 +21,7 @@ public class EmailService {
     @Value("${jlas.auth.verification-token-ttl:900}")
     private long verificationTokenTtl;
 
+    @Async
     public void sendVerificationEmail(String toEmail, String fullName, String otp) {
         String name = fullName == null || fullName.isBlank() ? "Learner" : fullName;
         String subject = "[JLAS] Ma OTP xac thuc tai khoan";
@@ -44,11 +46,12 @@ public class EmailService {
         }
     }
 
-    public void sendPasswordResetEmail(String toEmail, String fullName, String token) {
+    @Async
+    public void sendPasswordResetOtp(String toEmail, String fullName, String otp) {
         String name = fullName == null || fullName.isBlank() ? "Learner" : fullName;
-        String resetUrl = "http://localhost:8080/reset-password?token=" + token;
-        send(toEmail, "[JLAS] Dat lai mat khau",
-                "Xin chao %s,%n%nMo lien ket sau de dat lai mat khau:%n%s%n".formatted(name, resetUrl), token);
+        send(toEmail, "[JLAS] Ma OTP dat lai mat khau",
+                "Xin chao %s,%n%nMa OTP dat lai mat khau cua ban la: %s%nMa co hieu luc trong 15 phut.%n"
+                        .formatted(name, otp), otp);
     }
 
     private void send(String toEmail, String subject, String body, String developmentValue) {

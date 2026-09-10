@@ -4,6 +4,7 @@ import lombok.Data;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -28,6 +29,10 @@ public class RegisterRequest {
 
     @NotBlank
     @Size(min = 2, max = 150)
+    @Pattern(
+            regexp = "^[\\p{IsLatin}][\\p{IsLatin}\\p{M}]*(?: [\\p{IsLatin}][\\p{IsLatin}\\p{M}]*)*$",
+            message = "Full name must contain Latin letters and single spaces only"
+    )
     private String fullName;
 
     @Size(max = 10)

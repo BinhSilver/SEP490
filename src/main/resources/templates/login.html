@@ -46,6 +46,12 @@
         color: #000000 !important;
     }
 
+    #jlabBaseContent .card__title {
+        font-size: clamp(1.8rem, 4vw, 2.25rem) !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+    }
+
     #jlabBaseContent .btn--primary .btn__label {
         color: #ffffff !important;
     }
@@ -82,8 +88,6 @@
                     <h1 id="loginTitle" class="card__title">Đăng nhập</h1>
                 </div>
 
-                <div th:replace="~{fragments/components/alert :: alert('alert')}"></div>
-
                 <form id="loginForm" class="form" novalidate>
                     <div class="field">
                         <label for="email" class="field__label">Email</label>
@@ -115,6 +119,9 @@
                             </button>
                         </div>
                         <p id="passwordError" class="field__error" aria-live="polite"></p>
+                        <p id="capsLockWarning" class="caps-lock-warning" role="status" hidden>
+                            Caps Lock đang bật.
+                        </p>
                     </div>
 
                     <button id="submitBtn" type="submit" class="btn btn--primary btn--block">

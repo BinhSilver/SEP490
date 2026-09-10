@@ -1,6 +1,11 @@
 package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties(AuthProperties.class)
 public class SecurityConfig {
@@ -27,20 +34,29 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint((request, response, exception) ->
+                                handleUnauthenticated(request, response))
+                        .accessDeniedHandler((request, response, exception) ->
+                                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                                        "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN")))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/moderation.html", "/api/admin/moderation/**")
+                        .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/goals", "/learning/goals", "/streak", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/videos/**", "/voices/**", "/flashcard/**", "/shadowing/css/**",
-                                "/shadowing/js/**", "/shadowing/icon/**", "/admin/**",
+                                "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
-                                "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/google").permitAll()
+                                "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
                         .requestMatchers(
                                 "/shadowing", "/shadowing/", "/shadowing/upload",
                                 "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/practice/**",
@@ -58,5 +74,29 @@ public class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    private static void writeSecurityError(HttpServletResponse response, int status, String message, String code)
+            throws IOException {
+        response.setStatus(status);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json");
+        response.getWriter().write("{\"success\":false,\"message\":\"" + message
+                + "\",\"data\":null,\"errors\":null,\"code\":\"" + code + "\"}");
+    }
+
+    private static void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        if (!request.getRequestURI().startsWith("/api/")) {
+            String returnUrl = request.getRequestURI();
+            if (request.getQueryString() != null && !request.getQueryString().isBlank()) {
+                returnUrl += "?" + request.getQueryString();
+            }
+            response.sendRedirect("/login?redirect=" + URLEncoder.encode(returnUrl, StandardCharsets.UTF_8));
+            return;
+        }
+
+        writeSecurityError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                "Vui lòng đăng nhập để tiếp tục.", "UNAUTHORIZED");
     }
 }

@@ -11,6 +11,8 @@ import com.jlas.auth.dto.ResendVerificationRequest;
 import com.jlas.auth.dto.ChangePasswordRequest;
 import com.jlas.auth.dto.GoogleLoginRequest;
 import com.jlas.auth.dto.ForgotPasswordRequest;
+import com.jlas.auth.dto.ResetPasswordRequest;
+import com.jlas.auth.dto.VerifyPasswordResetOtpRequest;
 import com.jlas.auth.entity.AuthToken;
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
@@ -22,6 +24,7 @@ import com.jlas.auth.repository.UserRepository;
 import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.EmailService;
 import com.jlas.auth.service.GoogleTokenService;
+import com.jlas.auth.service.LoginAttemptThrottle;
 import com.jlas.auth.util.JwtUtil;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
@@ -52,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int VERIFICATION_RESEND_LIMIT_PER_HOUR = 5;
     private static final int VERIFICATION_RESEND_COOLDOWN_MINUTES = 3;
+    private static final long PASSWORD_RESET_OTP_TTL_MINUTES = 15;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -61,18 +65,25 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final EmailService emailService;
     private final GoogleTokenService googleTokenService;
+    private final LoginAttemptThrottle loginAttemptThrottle;
 
     @Value("${jlas.auth.verification-token-ttl:900}")
     private long verificationTokenTtl;
 
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request, String clientIp) {
         String email = normalizeEmail(request.getEmail());
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> unauthorized("Invalid email or password"));
-        if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+        loginAttemptThrottle.assertAllowed(email, clientIp);
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            loginAttemptThrottle.recordFailure(email, clientIp);
             throw unauthorized("Invalid email or password");
         }
+        if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            loginAttemptThrottle.recordFailure(email, clientIp);
+            throw unauthorized("Invalid email or password");
+        }
+        loginAttemptThrottle.recordSuccess(email, clientIp);
         if (!Boolean.TRUE.equals(user.getIsVerified())) {
             throw new ApiException(ErrorCode.EMAIL_UNVERIFIED,
                     "Email is not verified. Please verify your email before logging in.");
@@ -223,15 +234,37 @@ public class AuthServiceImpl implements AuthService {
     public void forgotPassword(ForgotPasswordRequest request) {
         userRepository.findByEmail(normalizeEmail(request.getEmail())).ifPresent(user -> {
             authTokenRepository.deleteByUser_IdAndTokenType(user.getId(), RESET_PASSWORD);
-            String token = randomToken();
+            String otp = String.format(Locale.ROOT, "%06d", RANDOM.nextInt(1_000_000));
             authTokenRepository.save(AuthToken.builder()
                     .user(user)
                     .tokenType(RESET_PASSWORD)
-                    .tokenHash(hash(token))
-                    .expiresAt(LocalDateTime.now().plusMinutes(30))
+                    .tokenHash(hash(randomToken()))
+                    .otpHash(hash(otp))
+                    .expiresAt(LocalDateTime.now().plusMinutes(PASSWORD_RESET_OTP_TTL_MINUTES))
                     .build());
-            emailService.sendPasswordResetEmail(user.getEmail(), user.getFullName(), token);
+            emailService.sendPasswordResetOtp(user.getEmail(), user.getFullName(), otp);
         });
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        AuthToken resetToken = findPasswordResetToken(request.getEmail(), request.getOtp());
+
+        User user = resetToken.getUser();
+        if (user.getPasswordHash() != null && passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Mật khẩu mới phải khác mật khẩu hiện tại.");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        resetToken.setUsedAt(LocalDateTime.now());
+        userRepository.save(user);
+        authTokenRepository.save(resetToken);
+        authTokenRepository.deleteByUser_IdAndTokenType(user.getId(), REFRESH);
+    }
+
+    @Override
+    public void verifyPasswordResetOtp(VerifyPasswordResetOtpRequest request) {
+        findPasswordResetToken(request.getEmail(), request.getOtp());
     }
 
     @Override
@@ -274,6 +307,15 @@ public class AuthServiceImpl implements AuthService {
         return authTokenRepository.findByTokenTypeAndOtpHashAndUser_EmailAndUsedAtIsNullAndRevokedAtIsNull(
                 VERIFY_EMAIL, hash(otp), normalizeEmail(email))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP code"));
+    }
+
+    private AuthToken findPasswordResetToken(String email, String otp) {
+        return authTokenRepository
+                .findByTokenTypeAndOtpHashAndUser_EmailAndUsedAtIsNullAndRevokedAtIsNull(
+                        RESET_PASSWORD, hash(otp), normalizeEmail(email))
+                .filter(token -> token.getExpiresAt().isAfter(LocalDateTime.now()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Mã OTP không đúng hoặc đã hết hạn."));
     }
 
     private void issueAndSendVerification(User user, boolean enforceResendLimit) {

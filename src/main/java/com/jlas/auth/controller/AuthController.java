@@ -12,9 +12,12 @@ import com.jlas.auth.dto.UserResponse;
 import com.jlas.auth.dto.VerifyEmailRequest;
 import com.jlas.auth.dto.GoogleLoginRequest;
 import com.jlas.auth.dto.ForgotPasswordRequest;
+import com.jlas.auth.dto.ResetPasswordRequest;
+import com.jlas.auth.dto.VerifyPasswordResetOtpRequest;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.AvatarUploadService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -49,8 +52,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
-        return authResponse("Login successful", authService.login(request));
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest servletRequest) {
+        return authResponse("Login successful", authService.login(request, servletRequest.getRemoteAddr()));
     }
 
     @PostMapping("/google")
@@ -62,7 +67,19 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         authService.forgotPassword(request);
         return ResponseEntity.ok(ApiResponse.ok(
-                "If an account exists for that email, a password reset link has been sent."));
+                "Nếu email này thuộc một tài khoản, mã OTP đặt lại mật khẩu đã được gửi."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.ok("Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại."));
+    }
+
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<ApiResponse<Void>> verifyPasswordResetOtp(@Valid @RequestBody VerifyPasswordResetOtpRequest request) {
+        authService.verifyPasswordResetOtp(request);
+        return ResponseEntity.ok(ApiResponse.ok("Mã OTP hợp lệ."));
     }
 
     @PostMapping("/refresh")

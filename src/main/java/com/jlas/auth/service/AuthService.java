@@ -11,6 +11,8 @@ import com.jlas.auth.dto.ResendVerificationRequest;
 import com.jlas.auth.dto.ChangePasswordRequest;
 import com.jlas.auth.dto.GoogleLoginRequest;
 import com.jlas.auth.dto.ForgotPasswordRequest;
+import com.jlas.auth.dto.ResetPasswordRequest;
+import com.jlas.auth.dto.VerifyPasswordResetOtpRequest;
 
 /**
  * Service xử lý nghiệp vụ xác thực và quản lý người dùng.
@@ -23,7 +25,7 @@ public interface AuthService {
      * @param request thông tin đăng nhập
      * @return token và thông tin user
      */
-    LoginResponse login(LoginRequest request);
+    LoginResponse login(LoginRequest request, String clientIp);
 
     /**
      * Đăng ký tài khoản mới.
@@ -48,6 +50,10 @@ public interface AuthService {
     LoginResponse loginWithGoogle(GoogleLoginRequest request);
 
     void forgotPassword(ForgotPasswordRequest request);
+
+    void resetPassword(ResetPasswordRequest request);
+
+    void verifyPasswordResetOtp(VerifyPasswordResetOtpRequest request);
 
     /**
      * Đăng xuất – vô hiệu hoá token hiện tại.

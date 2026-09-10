@@ -1,8 +1,10 @@
 /* Shared authentication-page foundations */
 
 .page-login .app-main--auth,
-.page-register-body .app-main--auth {
+.page-register-body .app-main--auth,
+.app-body--auth .app-main--auth {
   align-items: center;
+  min-height: calc(100dvh - var(--header-height, 0px));
   padding-top: var(--space-4);
 }
 
@@ -126,10 +128,17 @@
   font-weight: 600;
 }
 
-.page-login .field__error,
+.field__error,
+.page-login .field__error {
+  margin: 0;
+  color: var(--color-error, #ba1a1a);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
 .page-register-body .field__error {
   margin: 0;
-  color: #ffb4ab;
+  color: var(--color-error, #ba1a1a);
   font-size: var(--text-xs);
   line-height: 1.4;
 }

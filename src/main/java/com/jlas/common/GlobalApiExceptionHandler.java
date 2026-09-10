@@ -25,9 +25,9 @@ public class GlobalApiExceptionHandler {
     ResponseEntity<ApiResponse<Void>> validation(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new LinkedHashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(error ->
-                errors.putIfAbsent(error.getField(), error.getDefaultMessage()));
+                errors.putIfAbsent(error.getField(), vietnamese(error.getDefaultMessage())));
         exception.getBindingResult().getGlobalErrors().forEach(error ->
-                errors.putIfAbsent(error.getObjectName(), error.getDefaultMessage()));
+                errors.putIfAbsent(error.getObjectName(), vietnamese(error.getDefaultMessage())));
         String message = errors.values().stream().findFirst().orElse("Dữ liệu không hợp lệ");
         return ResponseEntity.badRequest()
                 .body(ApiResponse.fail(message, "VALIDATION_ERROR", errors));
@@ -35,7 +35,7 @@ public class GlobalApiExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     ResponseEntity<ApiResponse<Void>> status(ResponseStatusException exception) {
-        String message = exception.getReason() == null ? "Request failed" : exception.getReason();
+        String message = vietnamese(exception.getReason() == null ? "Request failed" : exception.getReason());
         return ResponseEntity.status(exception.getStatusCode())
                 .body(ApiResponse.fail(message, codeFor(message), null));
     }
@@ -43,7 +43,7 @@ public class GlobalApiExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<ApiResponse<Void>> unreadableBody(HttpMessageNotReadableException exception) {
         return ResponseEntity.badRequest()
-                .body(ApiResponse.fail("Malformed JSON request", "MALFORMED_REQUEST", null));
+                .body(ApiResponse.fail("Dữ liệu gửi lên không đúng định dạng.", "MALFORMED_REQUEST", null));
     }
 
     private static String codeFor(String message) {
@@ -52,5 +52,20 @@ public class GlobalApiExceptionHandler {
         if (normalized.contains("expired")) return "EXPIRED_TOKEN";
         if (normalized.contains("invalid")) return "INVALID_REQUEST";
         return null;
+    }
+
+    private static String vietnamese(String message) {
+        if (message == null || message.isBlank()) return "Yêu cầu không hợp lệ.";
+        String normalized = message.toLowerCase();
+        if (normalized.contains("invalid email or password")) return "Email hoặc mật khẩu không chính xác.";
+        if (normalized.equals("forbidden") || normalized.contains("access denied")) return "Bạn không có quyền thực hiện thao tác này.";
+        if (normalized.contains("unauthorized")) return "Vui lòng đăng nhập để tiếp tục.";
+        if (normalized.contains("invalid otp") || normalized.contains("otp must")) return "Mã OTP phải gồm đúng 6 chữ số.";
+        if (normalized.contains("otp") && normalized.contains("expired")) return "Mã OTP không đúng hoặc đã hết hạn.";
+        if (normalized.contains("must not be blank") || normalized.contains("must not be null")) return "Vui lòng điền đầy đủ thông tin bắt buộc.";
+        if (normalized.contains("email must") || normalized.contains("well-formed email")) return "Email chưa đúng định dạng.";
+        if (normalized.contains("password confirmation")) return "Xác nhận mật khẩu chưa khớp.";
+        if (normalized.equals("request failed")) return "Yêu cầu không thành công.";
+        return message;
     }
 }
