@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Verify Email - JLAS', 'verify-email')}"></head>
+<body id="jlabBasePage" class="app-body app-body--auth">
+
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="app-main app-main--auth">
+    <div class="page-verify">
+        <div class="card card--accent-top" style="max-width: 440px; margin: 0 auto;">
+            <div class="card__body">
+                <div class="card__header card__header--center">
+                    <div class="icon-circle" style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-primary-light, #e0f2fe); color: var(--color-primary, #0284c7); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                        <span class="material-symbols-outlined" style="font-size: 32px;">mark_email_read</span>
+                    </div>
+                    <h1 class="card__title" style="font-size: 1.5rem; font-weight: 700;">Xác thực Email</h1>
+                    <p class="card__subtitle" style="margin-top: 6px; color: var(--color-text-secondary, #64748b);">
+                        Nhập mã OTP 6 chữ số bạn đã nhận. Nếu cần, hãy chọn “Gửi lại mã OTP”.
+                    </p>
+                </div>
+
+                <div th:replace="~{fragments/components/alert :: alert('alert')}"></div>
+
+                <form id="verifyForm" class="form" novalidate style="margin-top: 20px;">
+                    <div class="field">
+                        <label for="email" class="field__label">Địa chỉ Email</label>
+                        <div class="input-wrap">
+                            <span class="input-wrap__icon"><span class="material-symbols-outlined">mail</span></span>
+                            <input id="email" name="email" type="email" class="input input--with-icon"
+                                   th:value="${email}" placeholder="name@example.com" required />
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top: 16px;">
+                        <label class="field__label" style="display: flex; justify-content: space-between;">
+                            <span>Mã OTP (6 chữ số)</span>
+                            <span id="timerText" style="font-size: 0.85rem; color: var(--color-text-muted, #94a3b8);"></span>
+                        </label>
+                        <div class="otp-inputs" style="display: flex; gap: 8px; justify-content: space-between; margin-top: 8px;">
+                            <input type="text" maxlength="1" class="input otp-digit" pattern="[0-9]*" inputmode="numeric" style="width: 48px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: 700; border-radius: 8px;" autofocus />
+                            <input type="text" maxlength="1" class="input otp-digit" pattern="[0-9]*" inputmode="numeric" style="width: 48px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: 700; border-radius: 8px;" />
+                            <input type="text" maxlength="1" class="input otp-digit" pattern="[0-9]*" inputmode="numeric" style="width: 48px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: 700; border-radius: 8px;" />
+                            <input type="text" maxlength="1" class="input otp-digit" pattern="[0-9]*" inputmode="numeric" style="width: 48px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: 700; border-radius: 8px;" />
+                            <input type="text" maxlength="1" class="input otp-digit" pattern="[0-9]*" inputmode="numeric" style="width: 48px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: 700; border-radius: 8px;" />
+                            <input type="text" maxlength="1" class="input otp-digit" pattern="[0-9]*" inputmode="numeric" style="width: 48px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: 700; border-radius: 8px;" />
+                        </div>
+                    </div>
+
+                    <button id="submitBtn" type="submit" class="btn btn--primary btn--block" style="margin-top: 24px;">Xác nhận OTP</button>
+                </form>
+
+                <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                    <button id="resendBtn" type="button" class="btn btn--ghost btn--sm" style="padding: 0; color: var(--color-primary, #0284c7); cursor: pointer;">
+                        Gửi lại mã OTP
+                    </button>
+                    <a th:href="@{/login}" style="color: var(--color-text-secondary, #64748b);">Quay lại Đăng nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/components/toast :: toast-host}"></div>
+<script th:src="@{/js/components.js}"></script>
+<script>
+    const alertEl = document.getElementById('alert');
+    const verifyForm = document.getElementById('verifyForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    const timerText = document.getElementById('timerText');
+    const otpDigits = Array.from(document.querySelectorAll('.otp-digit'));
+
+    let cooldownSeconds = 0;
+    let timerInterval = null;
+
+    function getOtpCode() {
+        return otpDigits.map(input => input.value.trim()).join('');
+    }
+
+    // Auto focus & navigation for OTP inputs
+    otpDigits.forEach((digitInput, idx) => {
+        digitInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (!/^[0-9]$/.test(val)) {
+                e.target.value = '';
+                return;
+            }
+            if (val && idx < otpDigits.length - 1) {
+                otpDigits[idx + 1].focus();
+            }
+        });
+
+        digitInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                otpDigits[idx - 1].focus();
+            }
+        });
+
+        digitInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+            if (/^\d{6}$/.test(pasted)) {
+                pasted.split('').forEach((char, i) => {
+                    if (otpDigits[i]) otpDigits[i].value = char;
+                });
+                otpDigits[5].focus();
+            }
+        });
+    });
+
+    function startCooldown(seconds) {
+        cooldownSeconds = seconds;
+        resendBtn.disabled = true;
+        resendBtn.style.opacity = '0.6';
+        resendBtn.style.cursor = 'not-allowed';
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            if (cooldownSeconds <= 0) {
+                clearInterval(timerInterval);
+                resendBtn.disabled = false;
+                resendBtn.style.opacity = '1';
+                resendBtn.style.cursor = 'pointer';
+                timerText.textContent = '';
+                resendBtn.textContent = 'Gửi lại mã OTP';
+            } else {
+                timerText.textContent = `Gửi lại sau ${cooldownSeconds}s`;
+                resendBtn.textContent = `Gửi lại mã OTP (${cooldownSeconds}s)`;
+                cooldownSeconds--;
+            }
+        }, 1000);
+    }
+
+    resendBtn.addEventListener('click', async () => {
+        const email = document.getElementById('email').value.trim();
+        if (!email) {
+            JlasUI.showAlert(alertEl, 'Vui lòng nhập địa chỉ email trước', 'error');
+            return;
+        }
+        JlasUI.hideAlert(alertEl);
+        resendBtn.disabled = true;
+        try {
+            const res = await fetch('/api/auth/resend-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            const json = await res.json();
+            if (!res.ok || !json.success) {
+                JlasUI.showAlert(alertEl, json.message || 'Không thể gửi lại mã OTP', 'error');
+                resendBtn.disabled = false;
+                return;
+            }
+            JlasUI.showAlert(alertEl, 'Đã gửi lại mã OTP tới email của bạn!', 'success');
+            JlasUI.toast('Đã gửi mã OTP', 'success');
+            startCooldown(60);
+        } catch (err) {
+            JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ', 'error');
+            resendBtn.disabled = false;
+        }
+    });
+
+    verifyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        JlasUI.hideAlert(alertEl);
+        const email = document.getElementById('email').value.trim();
+        const otp = getOtpCode();
+
+        if (!email) {
+            JlasUI.showAlert(alertEl, 'Vui lòng nhập email', 'error');
+            return;
+        }
+        if (otp.length !== 6) {
+            JlasUI.showAlert(alertEl, 'Vui lòng nhập đủ 6 chữ số OTP', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang xác thực...';
+
+        try {
+            const res = await fetch('/api/auth/verify-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, otp: otp })
+            });
+            const json = await res.json();
+            if (!res.ok || !json.success) {
+                JlasUI.showAlert(alertEl, json.message || 'Xác thực mã OTP thất bại', 'error');
+                return;
+            }
+
+            // Save tokens and user data if returned
+            if (json.data && json.data.accessToken) {
+                localStorage.setItem('accessToken', json.data.accessToken);
+                localStorage.setItem('refreshToken', json.data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(json.data.user));
+                document.cookie = 'accessToken=' + json.data.accessToken + '; path=/; max-age=604800; SameSite=Lax';
+            }
+
+            JlasUI.showAlert(alertEl, 'Xác thực tài khoản thành công! Đang chuyển hướng...', 'success');
+            JlasUI.toast('Xác thực thành công!', 'success');
+            setTimeout(() => { window.location.href = '/'; }, 1000);
+        } catch (err) {
+            JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Xác nhận OTP';
+        }
+    });
+</script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

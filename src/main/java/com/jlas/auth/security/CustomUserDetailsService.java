@@ -8,27 +8,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Triển khai {@link UserDetailsService} để Spring Security load user từ DB.
- */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-
     private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPasswordHash() != null ? user.getPasswordHash() : "",
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()))
-        );
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        String role = user.getRole() == null ? "LEARNER" : user.getRole().getName();
+        return new UserPrincipal(user.getId(), user.getEmail(), user.getPasswordHash(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }
 }

@@ -4,9 +4,7 @@ spring:
 
   # ── Datasource ──────────────────────────────────────────────────────────────
   datasource:
-    url: jdbc:mysql://localhost:3306/jlas_merged_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
-    username: root
-    # password: đặt trong application-local.yaml (không commit lên git)
+    # url, username and password live in ignored application-local.yaml.
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: JlasHikariPool
@@ -33,9 +31,135 @@ spring:
   profiles:
     include: local                # load application-local.yaml để override password
 
+  jackson:
+    default-property-inclusion: non_null
+
 # ── Server ───────────────────────────────────────────────────────────────────
 server:
   port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+  mail:
+    from: ${MAIL_FROM:${spring.mail.username:no-reply@localhost}}
+
+upload:
+  path:
+    avatar: ${AVATAR_UPLOAD_PATH:uploads/avatar}
+    flashcard: ${FLASHCARD_UPLOAD_PATH:uploads/flashcard}
+    video: ${VIDEO_UPLOAD_PATH:uploads/video/}
+    audio: ${AUDIO_UPLOAD_PATH:uploads/audio/}
+    thumbnail: ${THUMBNAIL_UPLOAD_PATH:uploads/thumbnails/}
+
+ffmpeg:
+  bin:
+    path: ${FFMPEG_BIN_PATH:ffmpeg}
+  audio:
+    bitrate: ${FFMPEG_AUDIO_BITRATE:32k}
+
+yt-dlp:
+  bin:
+    path: ${YT_DLP_BIN_PATH:yt-dlp}
+
+youtube:
+  max:
+    duration:
+      no-subtitle:
+        seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
+
+deepgram:
+  api:
+    key: ${DEEPGRAM_API_KEY:}
+  upload:
+    max-retries: ${DEEPGRAM_MAX_RETRIES:5}
+    delay-between-ms: ${DEEPGRAM_RETRY_DELAY_MS:2000}
+    split:
+      min-seconds: ${DEEPGRAM_SPLIT_MIN_SECONDS:60}
+  http:
+    connect-timeout-ms: ${DEEPGRAM_CONNECT_TIMEOUT_MS:60000}
+    read-timeout-ms: ${DEEPGRAM_READ_TIMEOUT_MS:600000}
+
+openrouter:
+  api:
+    key: ${OPENROUTER_API_KEY:}
+    url: ${OPENROUTER_API_URL:https://openrouter.ai/api/v1}
+  site:
+    url: ${OPENROUTER_SITE_URL:http://localhost:8080}
+    name: ${OPENROUTER_SITE_NAME:JLAS}
+  model: ${OPENROUTER_MODEL:openai/gpt-4o-mini}
+  shadowing:
+    model: ${OPENROUTER_SHADOWING_MODEL:${openrouter.model}}
+    max-tokens: ${OPENROUTER_SHADOWING_MAX_TOKENS:8192}
+    exercise:
+      model: ${OPENROUTER_SHADOWING_EXERCISE_MODEL:${openrouter.shadowing.model}}
+  temperature: ${OPENROUTER_TEMPERATURE:0}
+  top-p: ${OPENROUTER_TOP_P:0.9}
+
+azure:
+  speech:
+    pronunciation:
+      key: ${AZURE_SPEECH_PRONUNCIATION_KEY:}
+      region: ${AZURE_SPEECH_PRONUNCIATION_REGION:}
+      locale: ${AZURE_SPEECH_PRONUNCIATION_LOCALE:ja-JP}
+      max-audio-bytes: ${AZURE_SPEECH_MAX_AUDIO_BYTES:5242880}
+      max-audio-seconds: ${AZURE_SPEECH_MAX_AUDIO_SECONDS:30}
+      requests-per-minute: ${AZURE_SPEECH_REQUESTS_PER_MINUTE:20}
+
+pronunciation:
+  storage:
+    provider: ${PRONUNCIATION_STORAGE_PROVIDER:local}
+    local:
+      root: ${PRONUNCIATION_STORAGE_ROOT:storage/pronunciation}
+
+video:
+  max:
+    duration:
+      seconds: ${VIDEO_MAX_DURATION_SECONDS:0}
+
+processing:
+  ai:
+    max:
+      duration:
+        seconds: ${PROCESSING_AI_MAX_DURATION_SECONDS:1200}
+    batch:
+      size: ${PROCESSING_AI_BATCH_SIZE:6}
+    json:
+      max-retries: ${PROCESSING_AI_JSON_MAX_RETRIES:2}
+
+shadowing:
+  practice:
+    ai:
+      max-subtitles-per-session: ${SHADOWING_PRACTICE_AI_MAX_SUBTITLES:120}
+
+moderation:
+  enabled: ${MODERATION_ENABLED:true}
+  image:
+    enabled: ${MODERATION_IMAGE_ENABLED:true}
+    model: ${MODERATION_IMAGE_MODEL:}
+    fallback-model: ${MODERATION_IMAGE_FALLBACK_MODEL:}
+    timeout-ms: ${MODERATION_IMAGE_TIMEOUT_MS:45000}
+    max-tokens: ${MODERATION_IMAGE_MAX_TOKENS:256}
+  video:
+    enabled: ${MODERATION_VIDEO_ENABLED:true}
+    quick-scan: ${MODERATION_VIDEO_QUICK_SCAN:true}
+    targeted-scan: ${MODERATION_VIDEO_TARGETED_SCAN:true}
+    frame-max-width: ${MODERATION_VIDEO_FRAME_MAX_WIDTH:768}
+    temp-dir: ${MODERATION_VIDEO_TEMP_DIR:uploads/moderation-frames/}
+  rate-limit:
+    comment-per-minute: ${MODERATION_COMMENT_PER_MINUTE:30}
+    image-per-hour: ${MODERATION_IMAGE_PER_HOUR:40}
+    publish-per-hour: ${MODERATION_PUBLISH_PER_HOUR:20}
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging:

@@ -4,6 +4,13 @@ import com.jlas.auth.dto.LoginRequest;
 import com.jlas.auth.dto.LoginResponse;
 import com.jlas.auth.dto.RegisterRequest;
 import com.jlas.auth.dto.UserResponse;
+import com.jlas.auth.dto.RefreshTokenRequest;
+import com.jlas.auth.dto.UpdateProfileRequest;
+import com.jlas.auth.dto.VerifyEmailRequest;
+import com.jlas.auth.dto.ResendVerificationRequest;
+import com.jlas.auth.dto.ChangePasswordRequest;
+import com.jlas.auth.dto.GoogleLoginRequest;
+import com.jlas.auth.dto.ForgotPasswordRequest;
 
 /**
  * Service xử lý nghiệp vụ xác thực và quản lý người dùng.
@@ -25,6 +32,22 @@ public interface AuthService {
      * @return thông tin user vừa tạo
      */
     UserResponse register(RegisterRequest request);
+
+    LoginResponse refresh(RefreshTokenRequest request);
+
+    UserResponse getCurrentUser(Long userId);
+
+    UserResponse updateProfile(Long userId, UpdateProfileRequest request);
+
+    LoginResponse verifyEmail(VerifyEmailRequest request);
+
+    void resendVerification(ResendVerificationRequest request);
+
+    void changePassword(Long userId, ChangePasswordRequest request);
+
+    LoginResponse loginWithGoogle(GoogleLoginRequest request);
+
+    void forgotPassword(ForgotPasswordRequest request);
 
     /**
      * Đăng xuất – vô hiệu hoá token hiện tại.

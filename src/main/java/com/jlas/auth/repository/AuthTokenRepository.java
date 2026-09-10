@@ -4,6 +4,8 @@ import com.jlas.auth.entity.AuthToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,5 +16,16 @@ public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
 
     Optional<AuthToken> findByTokenHash(String tokenHash);
 
-    void deleteByUser_Id(Long userId);
+    Optional<AuthToken> findByTokenTypeAndTokenHash(String tokenType, String tokenHash);
+
+    Optional<AuthToken> findByTokenTypeAndOtpHashAndUser_EmailAndUsedAtIsNullAndRevokedAtIsNull(
+            String tokenType, String otpHash, String email);
+
+    Optional<AuthToken> findFirstByUser_EmailAndTokenTypeOrderByCreatedAtDesc(String email, String tokenType);
+
+    List<AuthToken> findByUser_IdAndTokenTypeAndUsedAtIsNullAndRevokedAtIsNull(Long userId, String tokenType);
+
+    long countByUser_IdAndTokenTypeAndCreatedAtAfter(Long userId, String tokenType, LocalDateTime createdAfter);
+
+    void deleteByUser_IdAndTokenType(Long userId, String tokenType);
 }

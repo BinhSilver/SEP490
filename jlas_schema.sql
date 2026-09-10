@@ -1,6 +1,6 @@
 -- =============================================================================
--- J-LAS COMPLETE RUNTIME SCHEMA (MySQL 8.0.16+)
--- Canonical one-shot schema for jlas_merged_db.
+-- JLAS COMPLETE RUNTIME SCHEMA (MySQL 8.0.16+)
+-- Canonical one-shot schema for jlas.
 -- Includes the merged core plus Shadowing series, pronunciation history,
 -- listening practice, and retention onboarding columns.
 --
@@ -10,11 +10,11 @@
 --   mysql -u root -p < sql/data_full.sql
 -- =============================================================================
 
-CREATE DATABASE IF NOT EXISTS jlas_merged_db
+CREATE DATABASE IF NOT EXISTS jlas
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE jlas_merged_db;
+USE jlas;
 SET NAMES utf8mb4;
 
 -- =============================================================================
@@ -1411,14 +1411,31 @@ CREATE TABLE user_lesson_recommendation (
 -- 6) FLASHCARD
 -- #############################################################################
 
+-- Thu muc ca nhan de moi user phan loai bo the.
+CREATE TABLE flashcard_folder (
+    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    owner_id   BIGINT UNSIGNED NOT NULL,
+    name       VARCHAR(100) NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_flashcard_folder_owner_name (owner_id, name),
+    KEY idx_flashcard_folder_owner (owner_id),
+    CONSTRAINT fk_flashcard_folder_owner FOREIGN KEY (owner_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Bo flashcard do user/admin tao; metadata clone nam ngay tren set.
 CREATE TABLE flashcard_set (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     owner_id              BIGINT UNSIGNED NOT NULL,
+    folder_id             BIGINT UNSIGNED NULL,
     title                 VARCHAR(100) NOT NULL,
     description           VARCHAR(500) NULL,
     thumbnail_url         VARCHAR(500) NULL,
     visibility            VARCHAR(20) NOT NULL DEFAULT 'PRIVATE',
+    is_draft              TINYINT(1) NOT NULL DEFAULT 0,
     moderation_status     VARCHAR(20) NOT NULL DEFAULT 'NOT_SCANNED',
     moderation_checked_at DATETIME(6) NULL,
     moderation_summary    VARCHAR(500) NULL,
@@ -1432,12 +1449,16 @@ CREATE TABLE flashcard_set (
     PRIMARY KEY (id),
     KEY idx_flashcard_set_owner (owner_id, deleted_at),
     KEY idx_flashcard_set_public (visibility, deleted_at, created_at),
+    KEY idx_flashcard_set_folder (folder_id, deleted_at),
     KEY idx_flashcard_set_source (source_set_id),
     CONSTRAINT fk_flashcard_set_owner FOREIGN KEY (owner_id)
         REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_flashcard_set_folder FOREIGN KEY (folder_id)
+        REFERENCES flashcard_folder(id) ON DELETE SET NULL,
     CONSTRAINT fk_flashcard_set_source FOREIGN KEY (source_set_id)
         REFERENCES flashcard_set(id) ON DELETE SET NULL,
-    CONSTRAINT chk_flashcard_set_visibility CHECK (visibility IN ('PUBLIC','PRIVATE'))
+    CONSTRAINT chk_flashcard_set_visibility CHECK (visibility IN ('PUBLIC','PRIVATE')),
+    CONSTRAINT chk_flashcard_set_draft CHECK (is_draft IN (0,1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Chan set tu clone chinh no; MySQL khong cho CHECK tren self FK co referential action.
@@ -1465,8 +1486,8 @@ DELIMITER ;
 CREATE TABLE flashcard_card (
     id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     set_id     BIGINT UNSIGNED NOT NULL,
-    front      VARCHAR(500) NOT NULL,
-    back       VARCHAR(500) NOT NULL,
+    front      VARCHAR(500) NULL,
+    back       VARCHAR(500) NULL,
     reading    VARCHAR(255) NULL,
     meaning    VARCHAR(500) NULL,
     han_viet   VARCHAR(255) NULL,
@@ -2346,5 +2367,31 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
     INDEX idx_shadowing_practice_answer_result (answer_result, answered_at)
 );
 
+-- Apply once to an existing JLAS MySQL database.
+CREATE TABLE flashcard_folder (
+    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    owner_id   BIGINT UNSIGNED NOT NULL,
+    name       VARCHAR(100) NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_flashcard_folder_owner_name (owner_id, name),
+    KEY idx_flashcard_folder_owner (owner_id),
+    CONSTRAINT fk_flashcard_folder_owner FOREIGN KEY (owner_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE flashcard_set
+    ADD COLUMN folder_id BIGINT UNSIGNED NULL AFTER owner_id,
+    ADD COLUMN is_draft TINYINT(1) NOT NULL DEFAULT 0 AFTER visibility,
+    ADD KEY idx_flashcard_set_folder (folder_id, deleted_at),
+    ADD CONSTRAINT fk_flashcard_set_folder FOREIGN KEY (folder_id)
+        REFERENCES flashcard_folder(id) ON DELETE SET NULL,
+    ADD CONSTRAINT chk_flashcard_set_draft CHECK (is_draft IN (0,1));
+
+ALTER TABLE flashcard_card
+    MODIFY COLUMN front VARCHAR(500) NULL,
+    MODIFY COLUMN back VARCHAR(500) NULL;
 
 -- End of canonical schema.

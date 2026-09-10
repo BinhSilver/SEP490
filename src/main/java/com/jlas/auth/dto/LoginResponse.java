@@ -16,6 +16,10 @@ public class LoginResponse {
     /** Loại token (Bearer). */
     private String tokenType;
 
+    private long expiresIn;
+
+    private String refreshToken;
+
     /** Thông tin người dùng vừa đăng nhập. */
     private UserResponse user;
 }

@@ -1,0 +1,189 @@
+/* Shared authentication-page foundations */
+
+.page-login .app-main--auth,
+.page-register-body .app-main--auth {
+  align-items: center;
+  padding-top: var(--space-4);
+}
+
+.page-login .card:hover,
+.page-register-body .card:hover {
+  transform: none;
+  border-color: var(--color-outline-variant) !important;
+  box-shadow: 0 8px 32px rgba(22, 29, 31, 0.10) !important;
+}
+
+/* Auth forms sit directly on the animated page background. */
+.page-login .card,
+.page-register-body .card {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.page-login .card__body,
+.page-register-body .card__body {
+  padding: var(--space-6);
+}
+
+.page-login .card__title,
+.page-register-body .card__title {
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-3xl));
+}
+
+.page-login .card__subtitle,
+.page-register-body .card__subtitle {
+  max-width: 38rem;
+  margin-inline: auto;
+  line-height: 1.55;
+}
+
+.page-login .alert.is-visible,
+.page-register-body .alert.is-visible {
+  margin-bottom: var(--space-4);
+}
+
+.page-login .alert__link,
+.page-register-body .alert__link {
+  color: currentColor;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.page-login .input-wrap,
+.page-register-body .input-wrap {
+  position: relative;
+}
+
+.page-login .input,
+.page-login .select,
+.page-register-body .input,
+.page-register-body .select {
+  min-height: 48px;
+}
+
+.page-login .input-wrap__icon,
+.page-register-body .input-wrap__icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-4);
+  z-index: 1;
+  width: 18px;
+  color: var(--color-outline);
+  font-size: 16px;
+  text-align: center;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.page-login .input--with-icon,
+.page-register-body .input--with-icon,
+.page-register-body .select--with-icon {
+  padding-left: 46px;
+}
+
+.page-login .input--with-action,
+.page-register-body .input--with-action {
+  padding-right: 52px;
+}
+
+.page-login .input-wrap__action,
+.page-register-body .input-wrap__action {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-on-surface-variant);
+  background: transparent;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.page-login .input-wrap__action:hover,
+.page-register-body .input-wrap__action:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-fixed);
+}
+
+.page-login .field__label-row,
+.page-register-body .field__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.page-login .field__link,
+.page-register-body .field__link {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.page-login .field__error,
+.page-register-body .field__error {
+  margin: 0;
+  color: #ffb4ab;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+.page-login .field__error:empty,
+.page-register-body .field__error:empty {
+  display: none;
+}
+
+.page-login .has-error .input,
+.page-register-body .has-error .input,
+.page-register-body .has-error .select,
+.page-register-body .otp-fieldset.has-error .otp-digit {
+  border-color: var(--color-error) !important;
+}
+
+.page-login .btn,
+.page-register-body .btn,
+.page-login .input-wrap__action,
+.page-register-body .input-wrap__action {
+  min-height: 44px;
+}
+
+.page-login .btn.is-loading i,
+.page-register-body .btn.is-loading i {
+  display: none;
+}
+
+.page-login .btn.is-loading::after,
+.page-register-body .btn.is-loading::after {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: auth-spin 700ms linear infinite;
+}
+
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 520px) {
+  .page-login .card__body,
+  .page-register-body .card__body {
+    padding: var(--space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-login *,
+  .page-register-body * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

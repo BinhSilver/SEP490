@@ -20,12 +20,21 @@ public class UserMapper {
         if (user == null) return null;
         return UserResponse.builder()
                 .id(user.getId())
+                .userId(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
+                .avatar(user.getAvatarUrl())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender())
+                .loginType(user.getLoginType())
                 .role(user.getRole() != null ? user.getRole().getName() : null)
                 .japaneseLevel(user.getJapaneseLevel())
+                .creditBalance(user.getCreditBalance())
+                .isVerified(user.getIsVerified())
+                .lastLogin(user.getLastLoginAt())
+                .premiumExpiredAt(user.getPremiumExpiredAt())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
