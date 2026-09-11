@@ -1,0 +1,5 @@
+package com.jlas.shadowing.model;
+
+public enum ProcessingStep {
+    UPLOADED, YOUTUBE_DOWNLOAD, SUBTITLE_DOWNLOAD, EXTRACTING_AUDIO, TRANSCRIBING, AI_PROCESSING, THUMBNAIL, DONE
+}
