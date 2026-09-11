@@ -3,7 +3,11 @@ package com.jlas.shadowing.service;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
+import com.jlas.moderation.dto.ModerationResult;
+import com.jlas.moderation.model.ModerationVerdict;
 import com.jlas.common.event.LearningActivityCompleted;
+import com.jlas.moderation.service.ContentModerationPort;
+import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.CommentRepository;
@@ -42,6 +46,9 @@ public class VideoService {
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private YoutubeImportService youtubeImportService;
+    @Autowired private ContentModerationPort moderationPort;
+    @Autowired private VideoModerationService videoModerationService;
+    @Autowired private UserActionPolicyPort actionPolicy;
     @Autowired private ApplicationEventPublisher eventPublisher;
 
     @Value("${upload.path.video}")
@@ -84,7 +91,7 @@ public class VideoService {
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        CurrentUser.requireUserId();
+        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
@@ -423,7 +430,7 @@ public class VideoService {
     public Video publish(Long id) {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
-        CurrentUser.requireUserId();
+        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         boolean wasPublic = video.getVisibility() == VideoVisibility.PUBLIC;
         Map<String, Object> validation = subtitleService.validate(id);
         // Only hard errors block publish — warnings (gaps, missing translation) are ignored here
@@ -434,7 +441,59 @@ public class VideoService {
         }
         video.setStatus(VideoStatus.READY);
 
+        Long me = CurrentUser.currentUserId().orElse(null);
+        if (me != null) {
+            moderationPort.checkPublish(String.valueOf(me));
+        }
+
+        // Full pipeline (text + quick/targeted frames) — re-run if never scanned or stale
+        String ms = video.getModerationStatus();
+        boolean needScan = ms == null || ms.isBlank()
+                || "NOT_SCANNED".equalsIgnoreCase(ms)
+                || "ERROR".equalsIgnoreCase(ms)
+                // Re-check BLOCKED so older false-positive decisions do not remain permanent.
+                || "BLOCKED".equalsIgnoreCase(ms);
+        ModerationResult mod;
+        if (needScan) {
+            mod = videoModerationService.moderateVideo(id);
+            video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        } else {
+            try {
+                mod = ModerationResult.builder()
+                        .verdict(ModerationVerdict.valueOf(ms.toUpperCase(Locale.ROOT)))
+                        .summary(video.getModerationSummary())
+                        .confidence(0.9)
+                        .categories(List.of())
+                        .modelName("cached")
+                        .build();
+            } catch (Exception e) {
+                mod = videoModerationService.moderateVideo(id);
+                video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+            }
+        }
+
+        if (mod.isBlocked() || "BLOCKED".equalsIgnoreCase(video.getModerationStatus())) {
+            video.setVisibility(VideoVisibility.PRIVATE);
+            videoRepository.save(video);
+            throw new ApiException(ErrorCode.CONTENT_BLOCKED,
+                    mod.getSummary() != null ? mod.getSummary()
+                            : "Nội dung không phù hợp — không thể công khai.");
+        }
+        if (mod.needsReview() || "REVIEW".equalsIgnoreCase(video.getModerationStatus())
+                || mod.getVerdict() == ModerationVerdict.ERROR) {
+            video.setVisibility(VideoVisibility.PRIVATE);
+            video.setModerationStatus(ModerationVerdict.REVIEW.name());
+            Long moderationLogId = moderationPort.persistLog(
+                    "VIDEO", id, video.getOwnerId(), "PUBLISH",
+                    video.getModerationSummary(), mod);
+            moderationPort.enqueueReview(moderationLogId, "VIDEO", id, video.getOwnerId(),
+                    video.getTitle(), mod.getSummary());
+            return NullSafe.ref(videoRepository.save(video));
+        }
+
+        // SAFE only
         video.setVisibility(VideoVisibility.PUBLIC);
+        video.setModerationStatus(ModerationVerdict.SAFE.name());
         Video published = NullSafe.ref(videoRepository.save(video));
         if (!wasPublic && published.getOwnerId() != null) {
             eventPublisher.publishEvent(LearningActivityCompleted.shadowingPublished(

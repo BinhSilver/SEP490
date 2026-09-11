@@ -28,6 +28,7 @@ public class ProcessingJobService {
     @Autowired private FfmpegService ffmpegService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
+    @Autowired private VideoModerationService videoModerationService;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -71,6 +72,11 @@ public class ProcessingJobService {
             video.setProgressPercent(100);
             video.setErrorMessage(null);
             videoRepository.save(video);
+            try {
+                videoModerationService.moderateVideo(videoId);
+            } catch (Exception modEx) {
+                System.err.println("regenerateTranscript: moderation failed id=" + videoId + " " + modEx.getMessage());
+            }
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
                 Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
@@ -137,6 +143,13 @@ public class ProcessingJobService {
             video.setProgressPercent(100);
             video.setErrorMessage(null);
             videoRepository.save(video);
+
+            // Text + quick/targeted vision (async-friendly; runs after DRAFT ready)
+            try {
+                videoModerationService.moderateVideo(videoId);
+            } catch (Exception modEx) {
+                System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
+            }
 
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
