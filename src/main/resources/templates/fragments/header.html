@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="notification-center">
+    <div class="dropdown notification-center">
+        <button type="button" class="icon-btn notification-center__trigger" data-dropdown-toggle
+            aria-label="Mở thông báo" aria-haspopup="dialog" aria-expanded="false">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            <span class="notification-center__badge" hidden>0</span>
+        </button>
+        <section class="dropdown__menu notification-popover" role="dialog" aria-label="Thông báo">
+            <div class="notification-popover__header">
+                <h2>Thông báo</h2>
+            </div>
+            <div class="notification-popover__empty">
+                <span class="notification-popover__empty-icon" aria-hidden="true">
+                    <i class="fa-regular fa-bell-slash"></i>
+                </span>
+                <strong>Bạn chưa có thông báo</strong>
+                <p>Các cập nhật mới sẽ xuất hiện tại đây.</p>
+            </div>
+        </section>
+    </div>
+</th:block>
+
+<!-- Marketing / full header -->
+<header th:fragment="header-marketing" class="site-header">
+    <div class="site-header__inner">
+        <a th:replace="~{fragments/brand :: logo}"></a>
+
+        <nav class="site-header__nav jlas-platform-nav__links" aria-label="Primary">
+            <th:block th:replace="~{fragments/nav :: platform-links(${activePage != null ? activePage : 'home'})}"></th:block>
+                <a href="#about">Giới thiệu</a>
+        </nav>
+
+        <div class="site-header__actions">
+            <div class="user-actions" data-auth-guest>
+                <a th:href="@{/login}" class="btn btn--secondary btn--sm">Đăng nhập</a>
+                <a th:href="@{/register}" class="btn btn--primary btn--sm">Đăng ký</a>
+            </div>
+
+            <div class="user-actions" data-auth-user hidden>
+                <th:block th:replace="~{fragments/header :: notification-center}"></th:block>
+                <div class="dropdown">
+                    <button type="button" class="user-avatar" data-dropdown-toggle data-user-avatar
+                        aria-label="Mở menu tài khoản" aria-haspopup="menu" aria-expanded="false">
+                        <span class="user-avatar__initials">?</span>
+                    </button>
+                    <div class="dropdown__menu profile-menu" role="menu">
+                        <div class="profile-menu__header">
+                            <div class="user-avatar" data-user-avatar>
+                                <span class="user-avatar__initials">?</span>
+                            </div>
+                            <div>
+                                <strong data-user-name>Người dùng</strong>
+                                <span data-user-email>email@example.com</span>
+                            </div>
+                        </div>
+                        <a th:href="@{/profile}" class="dropdown__item" role="menuitem">
+                            <span class="material-symbols-outlined">person</span>
+                            Hồ sơ
+                        </a>
+                        <a th:href="@{/goals}" class="dropdown__item" role="menuitem">
+                            <span class="material-symbols-outlined">local_fire_department</span>
+                            Mục tiêu &amp; chuỗi ngày
+                        </a>
+                        <a th:href="@{/profile(tab='security')}" class="dropdown__item" role="menuitem">
+                            <span class="material-symbols-outlined">shield_lock</span>
+                            Cài đặt
+                        </a>
+                        <div class="dropdown__divider"></div>
+                        <button type="button" class="dropdown__item" role="menuitem" data-auth-logout>
+                            <span class="material-symbols-outlined">logout</span>
+                            Đăng xuất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Auth pages -->
+<header th:fragment="header-auth(backHref, backLabel)" class="site-header site-header--auth">
+    <div class="site-header__inner">
+        <a th:replace="~{fragments/brand :: logo-sm}"></a>
+        <div class="site-header__spacer" aria-hidden="true"></div>
+        <a th:href="${backHref}" class="btn btn--ghost btn--sm">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            <span th:text="${backLabel}">Back</span>
+        </a>
+    </div>
+</header>
+
+<!-- App / profile shell -->
+<header th:fragment="header-app" class="jlas-platform-nav">
+    <div class="site-header__inner">
+        <a th:replace="~{fragments/brand :: logo}"></a>
+
+        <div class="site-header__actions">
+            <th:block th:fragment="user-actions-block">
+                <div class="user-actions" data-auth-guest>
+                    <a th:href="@{/login}" class="btn btn--secondary btn--sm">Đăng nhập</a>
+                    <a th:href="@{/register}" class="btn btn--primary btn--sm">Đăng ký</a>
+                </div>
+
+                <div class="user-actions" data-auth-user hidden>
+                    <th:block th:replace="~{fragments/header :: notification-center}"></th:block>
+                    <div class="dropdown">
+                        <button type="button" class="user-avatar" data-dropdown-toggle data-user-avatar
+                            aria-label="Mở menu tài khoản" aria-haspopup="menu" aria-expanded="false">
+                            <span class="user-avatar__initials">?</span>
+                        </button>
+                        <div class="dropdown__menu profile-menu" role="menu">
+                            <div class="profile-menu__header">
+                                <div class="user-avatar" data-user-avatar>
+                                    <span class="user-avatar__initials">?</span>
+                                </div>
+                                <div>
+                                <strong data-user-name>Người dùng</strong>
+                                    <span data-user-email>email@example.com</span>
+                                </div>
+                            </div>
+                            <a th:href="@{/profile}" class="dropdown__item" role="menuitem">
+                                <span class="material-symbols-outlined">person</span>
+                                Hồ sơ
+                            </a>
+                            <a th:href="@{/goals}" class="dropdown__item" role="menuitem">
+                                <span class="material-symbols-outlined">local_fire_department</span>
+                                Mục tiêu &amp; chuỗi ngày
+                            </a>
+                            <a th:href="@{/profile(tab='security')}" class="dropdown__item" role="menuitem">
+                                <span class="material-symbols-outlined">shield_lock</span>
+                                Cài đặt
+                            </a>
+                            <div class="dropdown__divider"></div>
+                            <button type="button" class="dropdown__item" role="menuitem" data-auth-logout>
+                                <span class="material-symbols-outlined">logout</span>
+                                Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+        </div>
+    </div>
+</header>
+
+</html>

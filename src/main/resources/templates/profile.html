@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Hồ sơ cá nhân - JLAS', 'profile')}"></head>
+<body id="jlabBasePage" class="app-body page-profile-body">
+
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="page-profile">
+    <!-- Sidebar (nav tài khoản) -->
+    <aside class="profile-sidebar">
+        <div class="profile-sidebar__card">
+            <div class="profile-sidebar__avatar-wrap" id="sidebarAvatarWrap" style="cursor:pointer" title="Bấm để đổi ảnh đại diện">
+                <div class="user-avatar user-avatar--lg" data-user-avatar>
+                    <span class="user-avatar__initials">?</span>
+                </div>
+                <button type="button" class="profile-sidebar__camera" id="sidebarCameraBtn" title="Cập nhật ảnh đại diện">
+                    <span class="material-symbols-outlined" style="font-size:16px">photo_camera</span>
+                </button>
+            </div>
+            <h2 class="profile-sidebar__name" data-user-name>Tài khoản</h2>
+            <p class="profile-sidebar__email" data-user-email>—</p>
+            <div class="profile-badges">
+                <span class="badge badge--muted"><span class="material-symbols-outlined" style="font-size:14px">school</span> <span data-user-role>Học viên</span></span>
+                <span class="badge badge--level" data-user-level>—</span>
+            </div>
+            <div class="profile-meta">
+                <div class="profile-meta__row"><span>Tham gia từ</span><strong id="metaCreated">—</strong></div>
+                <div class="profile-meta__row"><span>Đăng nhập cuối</span><strong id="metaLastLogin">—</strong></div>
+            </div>
+            <div class="profile-progress">
+                <div class="profile-progress__label">
+                    <span>Mức độ hoàn thiện hồ sơ</span>
+                    <span id="completionPct">0%</span>
+                </div>
+                <div class="profile-progress__bar">
+                    <div class="profile-progress__fill" id="completionFill" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="profile-nav" aria-label="Các mục hồ sơ">
+            <button type="button" class="profile-nav__item is-active" data-tab="overview">
+                <span class="material-symbols-outlined">person</span> Tổng quan hồ sơ
+            </button>
+            <button type="button" class="profile-nav__item" data-tab="personal">
+                <span class="material-symbols-outlined">badge</span> Thông tin cá nhân
+            </button>
+            <a th:href="@{/goals}" class="profile-nav__item">
+                        <i class="fa-solid fa-fire" aria-hidden="true"></i> Mục tiêu &amp; chuỗi ngày
+            </a>
+            <button type="button" class="profile-nav__item" data-tab="security">
+                <span class="material-symbols-outlined">shield_lock</span> Bảo mật tài khoản
+            </button>
+            <button type="button" class="profile-nav__item" data-tab="premium">
+                        <span class="material-symbols-outlined">workspace_premium</span> Gói cao cấp
+            </button>
+        </nav>
+
+        <button type="button" class="btn btn--primary btn--block" data-tab="premium">
+            <span class="material-symbols-outlined">rocket_launch</span>
+            Nâng cấp lên Pro
+        </button>
+    </aside>
+
+    <div class="profile-main">
+        <div class="profile-mobile-tabs">
+            <button type="button" class="profile-nav__item is-active" data-tab="overview">Tổng quan</button>
+            <button type="button" class="profile-nav__item" data-tab="personal">Thông tin cá nhân</button>
+                    <a th:href="@{/goals}" class="profile-nav__item">Mục tiêu &amp; chuỗi ngày</a>
+            <button type="button" class="profile-nav__item" data-tab="security">Bảo mật</button>
+                    <button type="button" class="profile-nav__item" data-tab="premium">Gói cao cấp</button>
+        </div>
+
+        <!-- Tổng quan -->
+        <section class="profile-panel is-active" id="panel-overview" data-panel="overview">
+            <h1 class="profile-main__title">Hồ sơ cá nhân</h1>
+                    <p class="profile-main__desc">Quản lý thông tin cá nhân, cài đặt bảo mật và thông tin gói đăng ký cao cấp của bạn.</p>
+
+            <div class="profile-grid profile-grid--overview">
+                <div class="profile-card">
+                    <div class="profile-card__head profile-card__head--actions">
+                        <div class="profile-card__head-left">
+                            <div class="profile-card__icon"><span class="material-symbols-outlined">badge</span></div>
+                            <h3 class="profile-card__title">Thông tin chi tiết</h3>
+                        </div>
+                        <button type="button" class="btn btn--primary btn--sm" id="btnEditPersonal" data-tab="personal">
+                            <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+                            Chỉnh sửa thông tin
+                        </button>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-item__label">Họ và tên</span>
+                            <span class="detail-item__value" data-user-name>—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item__label">Địa chỉ Email (Chỉ đọc)</span>
+                            <span class="detail-item__value">
+                                <span data-user-email>—</span>
+                                <span class="material-symbols-outlined" style="font-size:16px;color:var(--color-tertiary)" id="verifiedIcon">check_circle</span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item__label">Số điện thoại</span>
+                            <span class="detail-item__value" id="ovPhone">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item__label">Giới tính</span>
+                            <span class="detail-item__value" id="ovGender">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item__label">Mục tiêu JLPT</span>
+                            <span class="detail-item__value" id="ovLevel">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-item__label">Loại đăng nhập</span>
+                            <span class="detail-item__value" id="ovLoginType">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon" style="background:rgba(0,133,91,0.12);color:var(--color-tertiary)">
+                            <span class="material-symbols-outlined">shield_lock</span>
+                        </div>
+                        <h3 class="profile-card__title">Trạng thái tài khoản</h3>
+                    </div>
+                    <div class="status-row">
+                        <span>Xác minh email</span>
+                        <span class="status-pill status-pill--ok" id="stVerified">—</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Trạng thái khóa</span>
+                        <span class="status-pill" id="stBan">—</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Vai trò</span>
+                        <span class="badge badge--muted" data-user-role>Học viên</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Hạn dùng gói cao cấp</span>
+                        <strong id="stPremium">—</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chỉnh sửa thông tin cá nhân -->
+        <section class="profile-panel" id="panel-personal" data-panel="personal" hidden>
+            <h1 class="profile-main__title">Chỉnh sửa thông tin cá nhân</h1>
+            <p class="profile-main__desc">Cập nhật chi tiết thông tin cá nhân và mục tiêu học tập. Chỉnh sửa các trường bên dưới và bấm Lưu thay đổi.</p>
+
+            <div class="profile-card">
+                <div id="profileAlert" class="alert" role="alert"></div>
+
+                <form id="profileForm" class="form" novalidate>
+                    <div class="avatar-edit">
+                        <div class="user-avatar user-avatar--md" data-user-avatar>
+                            <span class="user-avatar__initials">?</span>
+                        </div>
+                        <div>
+                            <h4 style="font-size:var(--text-md);font-weight:600;margin-bottom:6px;color:var(--color-on-surface)">Ảnh đại diện</h4>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                                <input type="file" id="avatarFileInput" accept="image/*" style="display:none"/>
+                                <input type="hidden" id="avatarUrl" name="avatarUrl"/>
+                                <button type="button" class="btn btn--secondary btn--sm" id="uploadAvatarBtn">
+                                    <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">upload</span>
+                                    Tải ảnh lên
+                                </button>
+                                <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn">Gỡ ảnh</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form__grid form__grid--2">
+                        <div class="field">
+                            <label class="field__label" for="fullName">Họ và tên</label>
+                            <input class="input" id="fullName" type="text" required minlength="2" maxlength="150" placeholder="Nhập họ và tên..."/>
+                        </div>
+                        <div class="field">
+                            <label class="field__label" for="phoneNumber">Số điện thoại</label>
+                            <input class="input" id="phoneNumber" type="tel" maxlength="30" placeholder="+84..."/>
+                        </div>
+                        <div class="field">
+                            <label class="field__label" for="gender">Giới tính</label>
+                            <select class="select" id="gender">
+                                <option value="">Chưa chọn</option>
+                                <option value="MALE">Nam</option>
+                                <option value="FEMALE">Nữ</option>
+                                <option value="OTHER">Khác</option>
+                                <option value="PREFER_NOT_TO_SAY">Không muốn tiết lộ</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label class="field__label" for="japaneseLevel">Mục tiêu trình độ JLPT</label>
+                            <select class="select" id="japaneseLevel">
+                                <option value="UNKNOWN">Chưa xác định</option>
+                                <option value="N5">N5</option>
+                                <option value="N4">N4</option>
+                                <option value="N3">N3</option>
+                                <option value="N2">N2</option>
+                                <option value="N1">N1</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form__grid form__grid--2" style="opacity:0.85">
+                        <div class="field">
+                            <label class="field__label">Email <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">lock</span></label>
+                            <input class="input" id="emailReadonly" type="email" readonly disabled/>
+                        </div>
+                        <div class="field">
+                            <label class="field__label">Ngày tạo tài khoản</label>
+                            <input class="input" id="createdReadonly" type="text" readonly disabled/>
+                        </div>
+                    </div>
+
+                    <div class="form__row" style="justify-content:flex-end;gap:12px;margin-top:8px">
+                        <button type="button" class="btn btn--secondary" data-tab="overview" id="btnCancelEdit">Hủy</button>
+                        <button type="submit" class="btn btn--primary" id="saveProfileBtn">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Bảo mật -->
+        <section class="profile-panel" id="panel-learning" data-panel="learning" hidden>
+            <div id="retentionHeader">
+                <div>
+                    <h1 class="profile-main__title">Trung tâm học tập hằng ngày</h1>
+                    <p class="profile-main__desc">Theo dõi mục tiêu, hoàn thành nhiệm vụ và duy trì chuỗi học mỗi ngày.</p>
+                </div>
+                <div id="retentionCreditBadge" aria-label="Số dư điểm">
+                    <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                    <strong id="retentionCredit">0</strong>
+                    <span>Điểm</span>
+                </div>
+            </div>
+
+            <div id="retentionLoading" role="status">
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Đang tải dữ liệu học tập...
+            </div>
+            <div id="retentionError" class="alert" role="alert" hidden></div>
+
+            <div id="retentionContent" hidden>
+                <div id="retentionSummaryGrid">
+                    <article id="dailyGoalCard" class="profile-card retention-summary-card">
+                        <div id="dailyGoalRing" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div><strong id="dailyGoalPercent">0%</strong><span>mục tiêu ngày</span></div>
+                        </div>
+                        <div id="dailyGoalMetrics">
+                            <div><span>Từ mới</span><strong id="dailyVocabProgress">0/15</strong></div>
+                            <div><span>Trắc nghiệm</span><strong id="dailyQuizProgress">0/1</strong></div>
+                            <div><span>Phút học</span><strong id="dailyMinutesProgress">0/20</strong></div>
+                        </div>
+                    </article>
+
+                    <article id="streakCard" class="profile-card retention-summary-card">
+                        <div id="streakFlame"><i class="fa-solid fa-fire" aria-hidden="true"></i></div>
+                        <div>
+                            <span class="retention-eyebrow">Chuỗi hiện tại</span>
+                            <strong id="currentStreak">0 ngày</strong>
+                            <p id="streakMilestone">Bắt đầu học hôm nay để tạo chuỗi.</p>
+                        </div>
+                        <div id="streakStats">
+                            <span>Kỷ lục <strong id="longestStreak">0</strong></span>
+                            <span>Freeze <strong id="freezeCount">0</strong></span>
+                        </div>
+                        <button type="button" class="btn btn--secondary btn--sm" id="useFreezeBtn">
+                            <i class="fa-solid fa-snowflake" aria-hidden="true"></i> Bảo vệ hôm nay
+                        </button>
+                        <button type="button" class="btn btn--ghost btn--sm" id="retentionJourneyBtn">
+                            <i class="fa-solid fa-route" aria-hidden="true"></i> Xem hành trình Chuỗi
+                        </button>
+                    </article>
+                </div>
+
+                <div id="retentionMainGrid">
+                    <section id="dailyMissionsCard" class="profile-card">
+                        <div class="retention-section-head">
+                            <div>
+                                <span class="retention-eyebrow">Làm mới mỗi ngày</span>
+                                <h2>Nhiệm vụ hằng ngày</h2>
+                            </div>
+                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                        </div>
+                        <div id="dailyMissionList" aria-live="polite"></div>
+                    </section>
+
+                    <section id="targetSettingsCard" class="profile-card">
+                        <div class="retention-section-head">
+                            <div>
+                                <span class="retention-eyebrow">Cá nhân hóa</span>
+                                <h2>Mục tiêu của bạn</h2>
+                            </div>
+                            <i class="fa-solid fa-bullseye" aria-hidden="true"></i>
+                        </div>
+                        <form id="dailyTargetForm" novalidate>
+                            <label for="dailyVocabTarget">Từ mới mỗi ngày</label>
+                            <input id="dailyVocabTarget" class="input" type="number" min="5" max="100" required>
+                            <label for="dailyQuizTarget">Số bài Quiz</label>
+                            <input id="dailyQuizTarget" class="input" type="number" min="1" max="20" required>
+                            <label for="dailyStudyMinutes">Thời lượng học (phút)</label>
+                            <input id="dailyStudyMinutes" class="input" type="number" min="5" max="180" required>
+                            <button type="submit" class="btn btn--primary btn--block" id="saveTargetBtn">
+                                <i class="fa-solid fa-check" aria-hidden="true"></i> Lưu mục tiêu
+                            </button>
+                        </form>
+                    </section>
+                </div>
+
+                <section id="retentionLeaderboardCard" class="retention-leaderboard" aria-labelledby="retentionLeaderboardTitle">
+                    <div class="retention-leaderboard__head">
+                        <div>
+                            <span class="retention-eyebrow">Cùng nhau tiến bộ</span>
+                            <h2 id="retentionLeaderboardTitle">Bảng xếp hạng điểm</h2>
+                        </div>
+                        <i class="fa-solid fa-ranking-star" aria-hidden="true"></i>
+                    </div>
+                    <div id="retentionLeaderboardList" class="retention-leaderboard__list" aria-live="polite"></div>
+                    <p id="retentionLeaderboardMeta" class="retention-leaderboard__meta"></p>
+                </section>
+
+                <div id="retentionLiveOnboarding" class="retention-live-onboarding" hidden>
+                    <div class="retention-live-onboarding__backdrop" aria-hidden="true"></div>
+                    <div class="demo-device retention-live-onboarding__device">
+                        <div class="demo-device__topbar"><span></span><span></span><span></span><em>JLAS</em></div>
+                        <div class="demo-device__screen">
+                            <div class="demo-appbar"><span class="demo-appbar__avatar">K</span><span>Buổi học hôm nay</span><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></div>
+                            <div class="demo-backdrop-card"><span>Daily goal</span><strong>100%</strong><div><i></i></div></div>
+                            <div th:replace="~{retention-demo :: retentionOnboarding}"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="profile-panel" id="panel-security" data-panel="security" hidden>
+            <h1 class="profile-main__title">Cài đặt bảo mật</h1>
+            <p class="profile-main__desc">Quản lý mật khẩu và các phương thức đăng nhập để giữ tài khoản của bạn an toàn.</p>
+
+            <div class="profile-grid profile-grid--overview">
+                <div class="profile-card">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon"><span class="material-symbols-outlined">password</span></div>
+                        <h3 class="profile-card__title">Đổi mật khẩu</h3>
+                    </div>
+                    <div id="securityAlert" class="alert" role="alert"></div>
+                    <form id="changePasswordForm" class="form" novalidate>
+                        <div class="field">
+                            <label class="field__label" for="currentPassword">Mật khẩu hiện tại</label>
+                            <input class="input" id="currentPassword" type="password" required autocomplete="current-password"/>
+                        </div>
+                        <div class="field">
+                            <label class="field__label" for="newPassword">Mật khẩu mới</label>
+                            <input class="input" id="newPassword" type="password" required autocomplete="new-password"/>
+                        </div>
+                        <div class="field">
+                            <label class="field__label" for="confirmNewPassword">Xác nhận mật khẩu mới</label>
+                            <input class="input" id="confirmNewPassword" type="password" required autocomplete="new-password"/>
+                        </div>
+                        <p class="field__hint">Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt.</p>
+                        <button type="submit" class="btn btn--primary" id="changePwBtn">Cập nhật mật khẩu</button>
+                    </form>
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon"><span class="material-symbols-outlined">devices</span></div>
+                        <h3 class="profile-card__title">Phiên đăng nhập</h3>
+                    </div>
+                    <p class="field__hint" style="margin-bottom:var(--space-3)">
+                        Danh sách thiết bị đang lưu phiên làm việc. Bạn có thể đăng xuất khỏi trình duyệt này bất cứ lúc nào.
+                    </p>
+                    <button type="button" class="btn btn--secondary btn--block" data-auth-logout>
+                        <span class="material-symbols-outlined">logout</span>
+                        Đăng xuất khỏi thiết bị này
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gói Premium -->
+        <section class="profile-panel" id="panel-premium" data-panel="premium" hidden>
+            <h1 class="profile-main__title">Thành viên gói cao cấp</h1>
+            <p class="profile-main__desc">Quản lý gói đăng ký của bạn và khám phá các đặc quyền hấp dẫn từ gói Pro.</p>
+
+            <div class="profile-card">
+                <div class="profile-card__head">
+                    <div class="profile-card__icon" style="background:rgba(33,112,228,0.12)">
+                        <span class="material-symbols-outlined">star</span>
+                    </div>
+                    <h3 class="profile-card__title">Gói hiện tại</h3>
+                </div>
+                <div class="status-row">
+                    <span>Trạng thái gói</span>
+                    <span class="status-pill status-pill--ok" id="premiumStatus">Miễn phí (Free)</span>
+                </div>
+                <div class="status-row">
+                    <span>Ngày hết hạn</span>
+                    <strong id="premiumExpires">—</strong>
+                </div>
+                <ul style="margin:var(--space-4) 0;padding-left:1.2rem;color:var(--color-secondary);font-size:var(--text-sm);line-height:1.7">
+                    <li>Hệ thống bài học JLPT lộ trình chuẩn hóa</li>
+                    <li>Theo dõi và phân tích tiến độ học chi tiết</li>
+                    <li>Hỗ trợ ưu tiên riêng biệt (Gói Pro)</li>
+                </ul>
+                <button type="button" class="btn btn--primary"
+                        onclick="JlasUI.toast('Tính năng đăng ký gói Pro đang được phát triển!', 'info')">
+                    Nâng cấp lên Pro
+                </button>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/components/toast :: toast-host}"></div>
+<script th:src="@{/js/components.js}"></script>
+<script th:inline="javascript">
+    window.INITIAL_TAB = /*[[${activeTab}]]*/ 'overview';
+</script>
+<script>
+(function () {
+    if (typeof JlasAuth === 'undefined') {
+        console.error('JlasAuth missing — /js/auth-session.js failed to load');
+        document.body.insertAdjacentHTML('afterbegin',
+            '<div style="padding:12px;background:#ffdad6;color:#ba1a1a;text-align:center">Lỗi tải tập tin xác thực Auth. Vui lòng tải lại trang (Ctrl+F5).</div>');
+        return;
+    }
+    if (!JlasAuth.requireLogin('/profile')) return;
+
+    function fmtDate(iso) {
+        if (!iso) return '—';
+        try { return new Date(iso).toLocaleString('vi-VN'); } catch (e) { return iso; }
+    }
+
+    function fmtGender(g) {
+        if (!g || g === 'PREFER_NOT_TO_SAY') return 'Chưa tiết lộ';
+        if (g === 'MALE') return 'Nam';
+        if (g === 'FEMALE') return 'Nữ';
+        if (g === 'OTHER') return 'Khác';
+        return g;
+    }
+
+    function completion(user) {
+        var fields = [user.fullName, user.email, user.phoneNumber, user.gender, user.japaneseLevel, user.avatar];
+        var filled = fields.filter(function (v) {
+            return v != null && String(v).trim() !== '' && v !== 'UNKNOWN' && v !== 'PREFER_NOT_TO_SAY';
+        }).length;
+        return Math.round((filled / fields.length) * 100);
+    }
+
+    function fillUser(user) {
+        JlasAuth.applyNav();
+        document.getElementById('metaCreated').textContent = user.createdAt
+            ? new Date(user.createdAt).getFullYear() : '—';
+        document.getElementById('metaLastLogin').textContent = fmtDate(user.lastLogin);
+        document.getElementById('ovPhone').textContent = user.phoneNumber || '—';
+        document.getElementById('ovGender').textContent = fmtGender(user.gender);
+        document.getElementById('ovLevel').textContent =
+            user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN' ? 'Trình độ ' + user.japaneseLevel : '—';
+        document.getElementById('ovLoginType').textContent = user.loginType || 'Email';
+
+        var verified = !!user.isVerified;
+        var verEl = document.getElementById('stVerified');
+        verEl.textContent = verified ? 'Đã xác minh' : 'Chưa xác minh';
+        verEl.className = 'status-pill ' + (verified ? 'status-pill--ok' : 'status-pill--warn');
+        document.getElementById('verifiedIcon').style.display = verified ? 'inline' : 'none';
+
+        var banEl = document.getElementById('stBan');
+        banEl.textContent = user.isBan ? 'Đã khóa' : 'Hoạt động';
+        banEl.className = 'status-pill ' + (user.isBan ? 'status-pill--warn' : 'status-pill--ok');
+        document.getElementById('stPremium').textContent = fmtDate(user.premiumExpiredAt);
+
+        var pct = completion(user);
+        document.getElementById('completionPct').textContent = pct + '%';
+        document.getElementById('completionFill').style.width = pct + '%';
+
+        document.getElementById('fullName').value = user.fullName || '';
+        document.getElementById('phoneNumber').value = user.phoneNumber || '';
+        document.getElementById('gender').value = user.gender || '';
+        document.getElementById('japaneseLevel').value = user.japaneseLevel || 'UNKNOWN';
+        document.getElementById('avatarUrl').value = user.avatar || '';
+        document.getElementById('emailReadonly').value = user.email || '';
+        document.getElementById('createdReadonly').value = fmtDate(user.createdAt);
+
+        var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
+        document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Pro (Đang dùng)' : 'Gói Miễn phí';
+        document.getElementById('premiumExpires').textContent = fmtDate(user.premiumExpiredAt);
+    }
+
+    /** Hiển thị 1 tab panel + highlight menu điều hướng */
+    function switchTab(tab) {
+        tab = tab || 'overview';
+        var panels = document.querySelectorAll('.profile-panel');
+        panels.forEach(function (panel) {
+            var on = panel.getAttribute('data-panel') === tab;
+            panel.classList.toggle('is-active', on);
+            if (on) {
+                panel.removeAttribute('hidden');
+                panel.style.display = 'block';
+            } else {
+                panel.setAttribute('hidden', 'hidden');
+                panel.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('[data-tab]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-tab') === tab);
+        });
+
+        var url = new URL(window.location.href);
+        if (tab === 'overview') url.searchParams.delete('tab');
+        else url.searchParams.set('tab', tab);
+        history.replaceState(null, '', url.pathname + url.search);
+
+        if (tab === 'personal') {
+            var nameInput = document.getElementById('fullName');
+            if (nameInput) {
+                setTimeout(function () { nameInput.focus(); }, 50);
+            }
+        }
+    }
+
+    window.switchProfileTab = switchTab;
+
+    document.querySelectorAll('[data-tab]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            switchTab(el.getAttribute('data-tab'));
+        });
+    });
+
+    var params = new URLSearchParams(window.location.search);
+    var tabFromUrl = params.get('tab') || window.INITIAL_TAB || 'overview';
+    switchTab(tabFromUrl);
+
+    JlasAuth.refreshUser().then(function (user) {
+        if (!user) {
+            window.location.href = '/login?redirect=/profile';
+            return;
+        }
+        fillUser(user);
+    });
+
+    var uploadBtn = document.getElementById('uploadAvatarBtn');
+    var fileInput = document.getElementById('avatarFileInput');
+    var sidebarAvatarWrap = document.getElementById('sidebarAvatarWrap');
+    var sidebarCameraBtn = document.getElementById('sidebarCameraBtn');
+
+    function triggerAvatarUpload() {
+        if (fileInput) fileInput.click();
+    }
+
+    if (uploadBtn) uploadBtn.addEventListener('click', triggerAvatarUpload);
+    if (sidebarAvatarWrap) sidebarAvatarWrap.addEventListener('click', triggerAvatarUpload);
+    if (sidebarCameraBtn) sidebarCameraBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        triggerAvatarUpload();
+    });
+
+    if (fileInput) {
+        fileInput.addEventListener('change', async function (e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var formData = new FormData();
+            formData.append('file', file);
+            var token = JlasAuth.getAccessToken();
+            try {
+                if (window.JlasUI) JlasUI.toast('Đang tải ảnh đại diện lên...', 'info');
+                var res = await fetch('/api/auth/avatar', {
+                    method: 'POST',
+                    headers: { Authorization: 'Bearer ' + token },
+                    body: formData
+                });
+                var json = await res.json();
+                if (json.success && json.data && json.data.avatar) {
+                    var newAvatarUrl = json.data.avatar;
+                    document.getElementById('avatarUrl').value = newAvatarUrl;
+
+                    // Auto-update profile with new avatar URL
+                    var updateBody = {
+                        fullName: document.getElementById('fullName').value.trim() || 'User',
+                        phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                        gender: document.getElementById('gender').value || 'PREFER_NOT_TO_SAY',
+                        japaneseLevel: document.getElementById('japaneseLevel').value || 'UNKNOWN',
+                        avatar: newAvatarUrl
+                    };
+                    var saveRes = await fetch('/api/auth/profile', {
+                        method: 'PUT',
+                        headers: JlasAuth.authHeaders(),
+                        body: JSON.stringify(updateBody)
+                    });
+                    var saveJson = await saveRes.json();
+                    if (saveJson.success && saveJson.data) {
+                        localStorage.setItem('user', JSON.stringify(saveJson.data));
+                        fillUser(saveJson.data);
+                    }
+                    if (window.JlasAuth) await JlasAuth.refreshUser();
+                    if (window.JlasUI) JlasUI.toast('Tải và cập nhật ảnh đại diện thành công! 🌸', 'success');
+                } else {
+                    if (window.JlasUI) JlasUI.toast(json.message || 'Tải ảnh đại diện thất bại', 'error');
+                }
+            } catch (err) {
+                if (window.JlasUI) JlasUI.toast('Tải ảnh đại diện thất bại', 'error');
+            }
+        });
+    }
+
+    document.getElementById('removeAvatarBtn').addEventListener('click', function () {
+        document.getElementById('avatarUrl').value = '';
+        if (window.JlasUI) JlasUI.toast('Đã gỡ ảnh đại diện (nhấn Lưu thay đổi để xác nhận)', 'info');
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var alertEl = document.getElementById('profileAlert');
+        var btn = document.getElementById('saveProfileBtn');
+        if (window.JlasUI) JlasUI.hideAlert(alertEl);
+        btn.disabled = true;
+        btn.textContent = 'Đang lưu...';
+        try {
+            var body = {
+                fullName: document.getElementById('fullName').value.trim(),
+                phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                gender: document.getElementById('gender').value || 'PREFER_NOT_TO_SAY',
+                japaneseLevel: document.getElementById('japaneseLevel').value || 'UNKNOWN',
+                avatar: document.getElementById('avatarUrl').value.trim()
+            };
+            if (!body.fullName || body.fullName.length < 2) {
+                if (window.JlasUI) JlasUI.showAlert(alertEl, 'Vui lòng nhập họ và tên (tối thiểu 2 ký tự)', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Lưu thay đổi';
+                return;
+            }
+            var res = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: JlasAuth.authHeaders(),
+                body: JSON.stringify(body)
+            });
+            var json = await res.json();
+            if (!res.ok || !json.success) {
+                var msg = json.message || 'Cập nhật thất bại';
+                if (json.errors) msg += ': ' + Object.values(json.errors).join(', ');
+                if (window.JlasUI) JlasUI.showAlert(alertEl, msg, 'error');
+                else alert(msg);
+                return;
+            }
+            localStorage.setItem('user', JSON.stringify(json.data));
+            fillUser(json.data);
+            if (window.JlasUI) {
+                JlasUI.showAlert(alertEl, 'Cập nhật hồ sơ thành công!', 'success');
+                JlasUI.toast('Đã cập nhật hồ sơ', 'success');
+            }
+        } catch (err) {
+            if (window.JlasUI) JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ', 'error');
+            else alert('Không thể kết nối đến máy chủ');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Lưu thay đổi';
+        }
+    });
+
+    document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var alertEl = document.getElementById('securityAlert');
+        var btn = document.getElementById('changePwBtn');
+        if (window.JlasUI) JlasUI.hideAlert(alertEl);
+        var password = document.getElementById('newPassword').value;
+        var confirmPassword = document.getElementById('confirmNewPassword').value;
+        if (password !== confirmPassword) {
+            if (window.JlasUI) JlasUI.showAlert(alertEl, 'Mật khẩu xác nhận không trùng khớp', 'error');
+            return;
+        }
+        btn.disabled = true;
+        try {
+            var res = await fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: JlasAuth.authHeaders(),
+                body: JSON.stringify({
+                    currentPassword: document.getElementById('currentPassword').value,
+                    password: password,
+                    confirmPassword: confirmPassword
+                })
+            });
+            var json = await res.json();
+            if (!res.ok || !json.success) {
+                var msg = json.message || 'Đổi mật khẩu thất bại';
+                if (json.errors) msg += ': ' + Object.values(json.errors).join(', ');
+                if (window.JlasUI) JlasUI.showAlert(alertEl, msg, 'error');
+                return;
+            }
+            if (window.JlasUI) {
+                JlasUI.showAlert(alertEl, json.message || 'Đổi mật khẩu thành công', 'success');
+                JlasUI.toast('Đã cập nhật mật khẩu', 'success');
+            }
+            document.getElementById('changePasswordForm').reset();
+        } catch (err) {
+            if (window.JlasUI) JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ', 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+})();
+</script>
+<template id="retentionKitsuTemplate">
+    <div th:replace="~{fragments/components/kitsu-guide :: guide(
+        'Kitsu-chan chúc mừng!',
+        'Bạn đã hoàn thành mục tiêu hôm nay.')}"></div>
+</template>
+<script th:src="@{/js/components/retention-reward.js?v=20260903-motion}"></script>
+<script th:src="@{/js/pages/retention-demo.js?v=13-live}"></script>
+<script th:src="@{/js/pages/profile-retention.js?v=20260903-retention}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

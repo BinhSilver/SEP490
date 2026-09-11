@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<button th:fragment="primary(text, type, extraClass, id)"
+        th:type="${type != null ? type : 'button'}"
+        th:id="${id}"
+        class="btn btn--primary"
+        th:classappend="${extraClass != null ? ' ' + extraClass : ''}"
+        th:text="${text}">Button</button>
+
+<button th:fragment="secondary(text, type, extraClass, id)"
+        th:type="${type != null ? type : 'button'}"
+        th:id="${id}"
+        class="btn btn--secondary"
+        th:classappend="${extraClass != null ? ' ' + extraClass : ''}"
+        th:text="${text}">Button</button>
+
+<a th:fragment="link-primary(text, href, extraClass, icon)"
+   th:href="${href}"
+   class="btn btn--primary"
+   th:classappend="${extraClass != null ? ' ' + extraClass : ''}">
+    <span th:if="${icon != null and !#strings.isEmpty(icon)}"
+          class="material-symbols-outlined"
+          th:text="${icon}">login</span>
+    <span th:text="${text}">Link</span>
+</a>
+
+<a th:fragment="link-secondary(text, href, extraClass, icon)"
+   th:href="${href}"
+   class="btn btn--secondary"
+   th:classappend="${extraClass != null ? ' ' + extraClass : ''}">
+    <span th:if="${icon != null and !#strings.isEmpty(icon)}"
+          class="material-symbols-outlined"
+          th:text="${icon}">link</span>
+    <span th:text="${text}">Link</span>
+</a>
+
+</html>

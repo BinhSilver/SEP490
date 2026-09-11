@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Không thể mở trang · JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/arena/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/arena/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}">
+    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}">
+    <link rel="stylesheet" th:href="@{/css/components/header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/brand.css}">
+    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}">
+    <link rel="stylesheet" th:href="@{/css/components/user-menu.css}">
+    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}">
+    <script th:src="@{/js/auth-session.js}"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <style>
+        .error-page {
+            display: grid;
+            min-height: 100vh;
+            place-items: center;
+            padding: var(--sp-5);
+            background:
+                radial-gradient(circle at 25% 20%, var(--sakura-glow), transparent 24rem),
+                radial-gradient(circle at 80% 70%, var(--cyan-glow), transparent 26rem),
+                var(--bg-base);
+        }
+        .error-card {
+            width: min(560px, 100%);
+            padding: clamp(28px, 6vw, 52px);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--r-xl);
+            background: var(--surface-glass);
+            color: var(--text-hi);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(18px);
+        }
+        .error-card__code {
+            display: block;
+            margin-bottom: var(--sp-3);
+            color: var(--sakura-300);
+            font: 800 var(--fs-sm)/1 var(--font-mono);
+            letter-spacing: .16em;
+        }
+        #errorKitsuGuide { margin: 0 0 var(--sp-5); text-align: left; }
+        #errorKitsuGuide .kitsu-guide__bubble { background: rgba(255, 255, 255, .94); }
+        #errorKitsuGuide .kitsu-guide__message { margin: 4px 0 0; }
+        .error-card h1 { margin: 0 0 var(--sp-3); font-size: clamp(1.8rem, 6vw, 3rem); }
+        .error-card p { margin: 0 auto var(--sp-5); color: var(--text-mid); line-height: 1.65; }
+        .error-card__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-3); }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}">
+</head>
+<body id="jlabBasePage">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="error-page">
+    <section class="error-card">
+        <span class="error-card__code"
+              th:text="${status != null and status != 999 ? 'ERROR ' + status : 'JLAS'}">JLAS</span>
+        <div id="errorKitsuGuide">
+            <div th:replace="~{fragments/components/kitsu-guide :: guide(
+                'Kitsu-chan đang ở đây',
+                'Trang này đang đi lạc một chút. Mình sẽ giúp bạn quay về nơi an toàn để tiếp tục học!')}"></div>
+        </div>
+        <h1>Không thể mở trang này</h1>
+        <p th:text="${status == 404} ? 'Đường dẫn không tồn tại hoặc đã được thay đổi.' :
+                    'Phiên truy cập hoặc dịch vụ vừa gặp sự cố. Hãy quay về sảnh và thử lại.'">
+            Phiên truy cập hoặc dịch vụ vừa gặp sự cố. Hãy quay về sảnh và thử lại.
+        </p>
+        <div class="error-card__actions">
+            <a class="btn btn--primary" th:href="@{/}">Về trang chủ</a>
+            <button class="btn btn--ghost" type="button" onclick="window.location.reload()">Thử lại</button>
+        </div>
+    </section>
+</main>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="standard(pageTitle, pageCss)">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${pageTitle}">JLAS</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Noto+Serif:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Shared design system (index = source of truth) -->
+    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/layout.css}" />
+    <link rel="stylesheet" th:href="@{/css/sakura-background.css}" />
+
+    <!-- Shared components -->
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/cards.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/inputs.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/forms.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/toast.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/user-menu.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
+
+    <!-- Page-specific CSS (optional) -->
+    <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
+        th:href="@{'/css/pages/' + ${pageCss} + '.css'}" />
+    <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
+    <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+
+    <script th:src="@{/js/auth-session.js}"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/sakura-background.js}"></script>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+</head>
+
+<!-- Compact feature-module head (aicall / learning / etc.) -->
+
+<head th:fragment="feature(pageTitle, extraCss)">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${pageTitle}">JLAS</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/layout.css}" />
+    <link rel="stylesheet" th:href="@{/css/sakura-background.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/cards.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
+    <link th:if="${extraCss != null and !#strings.isEmpty(extraCss)}" rel="stylesheet" th:href="@{${extraCss}}" />
+    <script th:src="@{/js/sakura-background.js}"></script>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+</head>
+
+</html>

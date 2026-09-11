@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kết quả · JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/app.css}" />
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+</head>
+
+<body id="jlabBasePage">
+    <div id="jlabBaseShellMount"></div>
+    <main id="jlabBaseContent">
+
+    <section class="container" style="padding:40px 0 64px;max-width:820px">
+        <div class="panel" style="text-align:center">
+            <div class="badge badge-done"><i class="fa-solid fa-trophy"></i> Hoàn thành nhiệm vụ</div>
+            <h1 style="margin:12px 0" th:text="${scenario.title}">Kịch bản</h1>
+
+            <div th:if="${score != null}">
+                <div style="font-size:3rem;font-weight:800;color:var(--accent);margin:12px 0"
+                    th:text="${score.overallScore}">90</div>
+                <div style="color:var(--muted)">Điểm tổng</div>
+                <p th:text="${score.suggestions}" style="color:var(--text-secondary);margin-top:12px"></p>
+                <p style="color:var(--muted)">
+                    Thời gian:
+                    <span
+                        th:text="${chatSession.durationSeconds != null ? chatSession.durationSeconds + ' giây' : '—'}">—</span>
+                    · Số lỗi:
+                    <span th:text="${score.mistakesCount}">0</span>
+                </p>
+                <pre th:if="${score.detailsJson != null}"
+                    style="text-align:left;background:var(--surface-2);padding:12px;border-radius:12px;margin-top:16px;overflow:auto;border:1px solid var(--border)"
+                    th:text="${score.detailsJson}"></pre>
+            </div>
+            <div th:if="${score == null}" style="margin:20px 0;color:var(--muted)">
+                Phiên đã kết thúc. Điểm sẽ hiển thị khi hệ thống ghi nhận hoàn thành.
+            </div>
+
+            <div th:if="${feedbacks != null && !#lists.isEmpty(feedbacks)}" style="text-align:left;margin-top:20px">
+                <h3><i class="fa-solid fa-spell-check"></i> Các lỗi đã sửa</h3>
+                <ul class="list-clean" style="margin-top:10px">
+                    <li th:each="f : ${feedbacks}">
+                        <div style="color:var(--wrong)" th:text="${f.originalText}"></div>
+                        <div style="color:var(--correct)" th:text="${f.correctedText}"></div>
+                        <div style="color:var(--muted)" th:text="${f.reason}"></div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="hero-actions" style="justify-content:center;margin-top:24px">
+                <a class="btn btn-primary" th:href="@{'/scenario/' + ${scenario.id} + '/start'}">
+                    <i class="fa-solid fa-rotate-left"></i> Luyện lại
+                </a>
+                <a class="btn btn-secondary" th:href="@{'/category/' + ${scenario.category.id}}">
+                    <i class="fa-solid fa-forward"></i> Kịch bản khác
+                </a>
+                <a class="btn btn-ghost" th:href="@{/ai-call}">
+                    <i class="fa-solid fa-house"></i> Trang chủ
+                </a>
+            </div>
+        </div>
+    </section>
+    </main>
+    <script th:src="@{/js/auth-session.js}"></script>
+    <script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+
+</html>
