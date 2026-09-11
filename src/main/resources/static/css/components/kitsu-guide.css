@@ -1,0 +1,79 @@
+.kitsu-guide {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+  width: 100%;
+}
+
+.kitsu-guide__mascot {
+  width: 92px;
+  overflow: hidden;
+}
+
+.kitsu-guide__mascot .fox-mascot,
+.kitsu-guide__mascot svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.kitsu-guide__bubble {
+  position: relative;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(79, 55, 138, .2);
+  border-radius: 16px 16px 16px 5px;
+  background: var(--color-primary-fixed, #e9ddff);
+  color: var(--color-on-surface, #161d1f);
+  box-shadow: 0 8px 24px rgba(79, 55, 138, .08);
+}
+
+.kitsu-guide__bubble::before {
+  position: absolute;
+  left: -8px;
+  bottom: 12px;
+  width: 14px;
+  height: 14px;
+  border-bottom: 1px solid rgba(79, 55, 138, .2);
+  border-left: 1px solid rgba(79, 55, 138, .2);
+  background: inherit;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.kitsu-guide__title {
+  display: block;
+  color: var(--color-primary, #4f378a);
+  font-family: var(--font-headline, "Hanken Grotesk", system-ui, sans-serif);
+  font-size: 16px;
+}
+
+.kitsu-guide__message {
+  margin: 4px 0 0;
+  color: var(--color-on-surface-variant, #494551);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@media (max-width: 560px) {
+  .kitsu-guide {
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .kitsu-guide__mascot {
+    width: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kitsu-guide .bobbing-fox,
+  .kitsu-guide .left-paw,
+  .kitsu-guide .right-paw,
+  .kitsu-guide .left-ear,
+  .kitsu-guide .right-ear,
+  .kitsu-guide .leaf-sway {
+    animation: none !important;
+  }
+}

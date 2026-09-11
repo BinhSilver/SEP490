@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html class="home-html" lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: standard('JLAS - Master Japanese', 'home')}"></head>
+
+<body id="jlabBasePage" class="app-body app-body--marketing page-home">
+
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="app-main page-home-main">
+        <section class="home-hero" aria-labelledby="home-hero-title">
+            <div class="home-hero__content">
+                <h1 id="home-hero-title" class="home-hero__title">
+                    <span class="home-hero__line">Học thêm <span class="home-hero__accent">1</span> ngôn ngữ,</span>
+                    <span class="home-hero__line">sống thêm <span class="home-hero__accent">1</span> đời.</span>
+                </h1>
+                <div class="home-hero__actions">
+                    <a class="home-hero__button home-hero__button--primary" th:href="@{/learning}">
+                        <span>Bắt đầu học</span>
+                        <span class="home-hero__arrow" aria-hidden="true"></span>
+                    </a>
+                    <a class="home-hero__button home-hero__button--secondary" th:href="@{/shadowing}">
+                        <span>Khám phá</span>
+                        <span class="material-symbols-outlined home-hero__explore" aria-hidden="true">explore</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/jlab-base-shell.js}"></script>
+
+</body>
+
+</html>
