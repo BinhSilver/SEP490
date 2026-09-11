@@ -1,0 +1,669 @@
+/* Air Defence page theme.
+   The game UI is delivered by a compiled bundle, so this file adapts its
+   generated utility classes to the shared JLAS component tokens. */
+
+body.air-defense-page {
+    width: 100%;
+    min-width: 320px;
+    height: 100dvh;
+    overflow: hidden;
+    padding-top: var(--header-height, 72px) !important;
+    color: var(--color-on-surface);
+    background: var(--color-surface) !important;
+}
+
+body.air-defense-page .site-header {
+    z-index: var(--z-header, 50);
+}
+
+body.air-defense-page #root,
+body.air-defense-page .air-defense-mount {
+    width: 100%;
+    height: calc(100dvh - var(--header-height, 72px)) !important;
+    min-height: 0 !important;
+    overflow: hidden;
+}
+
+/* The bundle's outer flex shell uses h-screen. Constrain it to the space
+   below the shared fixed header so the game never hides behind the header. */
+body.air-defense-page #root > div {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden;
+    color: var(--color-on-surface) !important;
+    background:
+        radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--color-primary-fixed) 72%, transparent), transparent 28rem),
+        radial-gradient(circle at 92% 100%, color-mix(in srgb, var(--color-secondary-container) 62%, transparent), transparent 30rem),
+        linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-low) 58%, var(--color-surface) 100%) !important;
+}
+
+body.air-defense-page #root > div::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image:
+        linear-gradient(color-mix(in srgb, var(--color-primary) 7%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 7%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, black, transparent 92%);
+}
+
+body.air-defense-page #root > div > aside,
+body.air-defense-page #root > div > main {
+    position: relative;
+    z-index: 1;
+}
+
+body.air-defense-page #root > div > aside {
+    flex-shrink: 0;
+    border-color: var(--color-outline-variant) !important;
+    background: color-mix(in srgb, var(--color-surface-lowest) 88%, transparent) !important;
+    box-shadow: var(--shadow-1);
+}
+
+body.air-defense-page #root > div > main {
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--space-5) !important;
+}
+
+/* Bundle panels become the shared card/panel surface. */
+body.air-defense-page #root .panel {
+    border: 1px solid var(--color-outline-variant) !important;
+    border-radius: var(--radius-lg) !important;
+    background: color-mix(in srgb, var(--color-surface-lowest) 94%, transparent) !important;
+    color: var(--color-on-surface) !important;
+    box-shadow: var(--shadow-1) !important;
+    transition: var(--transition);
+}
+
+body.air-defense-page #root .panel:hover {
+    border-color: var(--color-primary-container) !important;
+    box-shadow: var(--shadow-2) !important;
+}
+
+/* Typography and semantic accents. */
+body.air-defense-page #root .font-display {
+    font-family: var(--font-body) !important;
+}
+
+body.air-defense-page #root .font-mono {
+    font-family: var(--font-mono) !important;
+}
+
+body.air-defense-page #root .text-slate-100,
+body.air-defense-page #root .text-slate-200,
+body.air-defense-page #root .text-slate-300 {
+    color: var(--color-on-surface) !important;
+}
+
+body.air-defense-page #root .text-slate-400,
+body.air-defense-page #root .text-slate-500 {
+    color: var(--color-on-surface-variant) !important;
+}
+
+body.air-defense-page #root .text-slate-950 {
+    color: var(--color-on-primary) !important;
+}
+
+body.air-defense-page #root .text-cyan,
+body.air-defense-page #root [class*="text-cyan-"] {
+    color: var(--color-primary) !important;
+}
+
+body.air-defense-page #root .text-violet-200,
+body.air-defense-page #root [class*="text-[#b990ff]"],
+body.air-defense-page #root [class*="text-[#c3a6ff]"] {
+    color: var(--color-primary-container) !important;
+}
+
+body.air-defense-page #root [class*="text-[#ffc857]"],
+body.air-defense-page #root [class*="text-amber-"] {
+    color: var(--color-tertiary) !important;
+}
+
+body.air-defense-page #root [class*="text-[#ff6d86]"],
+body.air-defense-page #root [class*="text-[#ff8ba0]"],
+body.air-defense-page #root [class*="text-rose-"] {
+    color: var(--color-error) !important;
+}
+
+/* Generated translucent surfaces and state tints. */
+body.air-defense-page #root [class*="bg-black/"],
+body.air-defense-page #root [class*="bg-white/5"],
+body.air-defense-page #root [class*="bg-white/10"],
+body.air-defense-page #root [class*="bg-[#080f21]"] {
+    background: color-mix(in srgb, var(--color-surface-low) 86%, transparent) !important;
+}
+
+body.air-defense-page #root [class*="bg-cyan-300/"] {
+    background: color-mix(in srgb, var(--color-primary-fixed) 72%, transparent) !important;
+}
+
+body.air-defense-page #root [class*="bg-violet-"] {
+    background: color-mix(in srgb, var(--color-primary-fixed) 76%, transparent) !important;
+}
+
+body.air-defense-page #root [class*="bg-rose-"] {
+    background: color-mix(in srgb, var(--color-error-container) 70%, transparent) !important;
+}
+
+body.air-defense-page #root [class*="border-white/"],
+body.air-defense-page #root [class*="border-slate-"] {
+    border-color: var(--color-outline-variant) !important;
+}
+
+body.air-defense-page #root [class*="border-cyan-"] {
+    border-color: color-mix(in srgb, var(--color-primary) 62%, var(--color-outline-variant)) !important;
+}
+
+body.air-defense-page #root [class*="border-violet-"] {
+    border-color: color-mix(in srgb, var(--color-primary-container) 62%, var(--color-outline-variant)) !important;
+}
+
+body.air-defense-page #root [class*="border-rose-"] {
+    border-color: color-mix(in srgb, var(--color-error) 56%, var(--color-outline-variant)) !important;
+}
+
+body.air-defense-page #root [class*="border-amber-"] {
+    border-color: color-mix(in srgb, var(--color-tertiary) 56%, var(--color-outline-variant)) !important;
+}
+
+/* Game controls follow the shared button interaction rules. */
+body.air-defense-page #root button {
+    border-radius: var(--radius-md) !important;
+    font-family: var(--font-body) !important;
+    color: inherit;
+    transition: var(--transition);
+}
+
+body.air-defense-page #root main button[class*="bg-cyan-300 "] {
+    border-color: var(--color-primary) !important;
+    background: var(--color-primary) !important;
+    color: var(--color-on-primary) !important;
+    box-shadow: var(--shadow-1) !important;
+}
+
+body.air-defense-page #root main button[class*="bg-cyan-300 "]:hover {
+    border-color: var(--color-primary-container) !important;
+    background: var(--color-primary-container) !important;
+    color: var(--color-on-primary) !important;
+    box-shadow: var(--shadow-2) !important;
+    transform: translateY(-1px);
+}
+
+body.air-defense-page #root button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+body.air-defense-page #root button:focus-visible,
+body.air-defense-page #root input:focus-visible,
+body.air-defense-page #root select:focus-visible,
+body.air-defense-page #root textarea:focus-visible {
+    outline: 2px solid var(--color-primary) !important;
+    outline-offset: 3px;
+}
+
+/* Inputs are not present on every game screen, but gameplay screens can
+   mount them dynamically and should still use the shared input treatment. */
+body.air-defense-page #root input,
+body.air-defense-page #root select,
+body.air-defense-page #root textarea {
+    min-height: 42px;
+    border: 1px solid var(--color-outline) !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--color-surface-lowest) !important;
+    color: var(--color-on-surface) !important;
+}
+
+@media (max-width: 900px) {
+    body.air-defense-page #root > div > main {
+        padding: var(--space-4) !important;
+    }
+}
+
+@media (max-width: 640px) {
+    body.air-defense-page #root > div > main {
+        padding: var(--space-3) !important;
+    }
+}
+
+/* The shared header reserves 80px on non-home pages. Keep the game shell
+   inside the remaining viewport instead of leaving an 8px vertical overflow. */
+body.air-defense-page {
+    --air-defense-top-offset: 80px;
+    padding-top: var(--air-defense-top-offset) !important;
+    height: 100dvh;
+}
+
+body.air-defense-page #root,
+body.air-defense-page .air-defense-mount {
+    height: calc(100dvh - var(--air-defense-top-offset)) !important;
+    max-height: calc(100dvh - var(--air-defense-top-offset));
+}
+
+/* The gameplay sidebar is intentionally icon-only. Convert the pilot card to
+   a compact status icon so its labels cannot overflow the 68px rail. */
+body.air-defense-page #root > div > aside > div:last-child {
+    position: relative;
+    display: grid !important;
+    place-items: center;
+    align-self: center;
+    width: 52px;
+    min-width: 52px;
+    min-height: 42px;
+    margin-inline: auto;
+    padding: 0 !important;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 34%, transparent) !important;
+    background: rgba(8, 15, 33, 0.72) !important;
+    overflow: visible;
+}
+
+body.air-defense-page #root > div > aside > div:last-child::before {
+    content: "◉";
+    color: var(--color-primary);
+    font: 700 18px/1 var(--font-display);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 70%, transparent);
+}
+
+body.air-defense-page #root > div > aside > div:last-child > * {
+    display: none !important;
+}
+
+body.air-defense-page #root > div > aside > div:last-child:hover::after {
+    content: "PILOT_01  ·  1200 CREDITS";
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    width: max-content;
+    max-width: 190px;
+    padding: 7px 10px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-sm);
+    background: #070b16;
+    color: #eef7ff;
+    box-shadow: var(--shadow-2);
+    font: 600 var(--text-xs) / 1.3 var(--font-body);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+@media (max-width: 640px) {
+    body.air-defense-page #root > div > aside > div:last-child {
+        width: 48px;
+        min-width: 48px;
+    }
+}
+
+body.air-defense-page #root .hud-meter-strip {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    min-width: 170px;
+}
+
+body.air-defense-page #root .hud-meter {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 170px;
+}
+
+body.air-defense-page #root .hud-meter__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    color: #eef7ff;
+    font: 700 10px / 1 var(--font-mono);
+    letter-spacing: 0.14em;
+}
+
+body.air-defense-page #root .hud-meter__head span:last-child {
+    color: #9cb5d7;
+    letter-spacing: 0.04em;
+}
+
+body.air-defense-page #root .hud-meter__track {
+    width: 100%;
+    height: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(85, 244, 255, 0.48);
+    background: rgba(5, 15, 29, 0.88);
+    clip-path: polygon(0 0, 100% 0, 97% 100%, 0 100%);
+}
+
+body.air-defense-page #root .hud-meter__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #55f4ff, #69c4ff);
+    box-shadow: 0 0 12px rgba(85, 244, 255, 0.7);
+    transition: width 180ms ease;
+}
+
+body.air-defense-page #root .hud-meter__shield {
+    color: var(--color-tertiary);
+    font: 600 9px / 1 var(--font-mono);
+    letter-spacing: 0.1em;
+}
+
+body.air-defense-page #root .air-hit-reveal {
+    position: absolute;
+    z-index: 35;
+    display: flex;
+    min-width: 118px;
+    transform: translate(-50%, -115%);
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 12px;
+    border: 1px solid color-mix(in srgb, var(--color-success) 72%, transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-inverse-surface) 90%, transparent);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--color-success) 38%, transparent);
+    color: var(--color-surface-lowest);
+    pointer-events: none;
+    animation: air-hit-reveal 650ms ease-out both;
+    white-space: nowrap;
+}
+
+body.air-defense-page #root .air-hit-reveal__word {
+    color: var(--color-primary);
+    font: 700 1.45rem / 1.1 var(--font-body);
+}
+
+body.air-defense-page #root .air-hit-reveal__reading,
+body.air-defense-page #root .air-hit-reveal__romaji {
+    color: color-mix(in srgb, var(--color-surface-lowest) 84%, transparent);
+    font: 500 10px / 1.3 var(--font-mono);
+}
+
+body.air-defense-page #root .air-hit-reveal__status {
+    margin-top: 3px;
+    color: var(--color-success);
+    font: 700 9px / 1 var(--font-mono);
+    letter-spacing: 0.12em;
+}
+
+@keyframes air-hit-reveal {
+    0% { opacity: 0; transform: translate(-50%, -100%) scale(0.88); }
+    18% { opacity: 1; transform: translate(-50%, -115%) scale(1.04); }
+    100% { opacity: 0; transform: translate(-50%, -132%) scale(1); }
+}
+
+/* Keep the game shell dark and cinematic; the website header remains owned by
+   the shared JLAS header component above it. */
+body.air-defense-page #root > div {
+    color: #eef7ff !important;
+    background:
+        radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--color-primary) 24%, transparent), transparent 28rem),
+        radial-gradient(circle at 92% 100%, color-mix(in srgb, var(--color-primary-container) 18%, transparent), transparent 30rem),
+        linear-gradient(135deg, #070a12 0%, #0a1222 58%, #070a12 100%) !important;
+}
+
+body.air-defense-page #root > div > aside {
+    border-color: color-mix(in srgb, var(--color-primary) 32%, transparent) !important;
+    background: color-mix(in srgb, #070b16 92%, transparent) !important;
+    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.22);
+}
+
+body.air-defense-page #root .panel {
+    border-color: color-mix(in srgb, var(--color-primary) 26%, #69c4ff) !important;
+    background: linear-gradient(135deg, rgba(23, 42, 79, 0.78), rgba(9, 17, 35, 0.82)) !important;
+    color: #eef7ff !important;
+    box-shadow: inset 0 1px rgba(220, 255, 255, 0.06), 0 18px 50px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.air-defense-page #root .text-slate-100,
+body.air-defense-page #root .text-slate-200,
+body.air-defense-page #root .text-slate-300 {
+    color: #eef7ff !important;
+}
+
+body.air-defense-page #root .text-slate-400,
+body.air-defense-page #root .text-slate-500 {
+    color: #9cb5d7 !important;
+}
+
+body.air-defense-page #root [class*="bg-black/"],
+body.air-defense-page #root [class*="bg-white/5"],
+body.air-defense-page #root [class*="bg-white/10"],
+body.air-defense-page #root [class*="bg-[#080f21]"] {
+    background: rgba(8, 15, 33, 0.72) !important;
+}
+
+body.air-defense-page #root .air-hit-reveal {
+    background: rgba(7, 10, 18, 0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.air-defense-page #root *,
+    body.air-defense-page #root *::before,
+    body.air-defense-page #root *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* Gameplay mode: keep the navigation available without letting it compete
+   with the arena. The labels remain in the DOM and become hover tooltips. */
+body.air-defense-page #root > div > aside {
+    width: 68px !important;
+    padding: var(--space-4) 8px !important;
+}
+
+body.air-defense-page #root > div > aside > button:first-child {
+    width: 52px;
+    justify-content: center;
+    margin-inline: auto;
+}
+
+body.air-defense-page #root > div > aside nav {
+    align-items: center;
+}
+
+body.air-defense-page #root > div > aside nav button,
+body.air-defense-page #root > div > aside > div a {
+    position: relative;
+    width: 52px;
+    min-width: 52px;
+    justify-content: center;
+    padding-inline: 0 !important;
+}
+
+body.air-defense-page #root > div > aside nav button > span:last-child,
+body.air-defense-page #root > div > aside > div a > span:last-child {
+    display: none !important;
+    position: absolute;
+    left: calc(100% + 10px);
+    z-index: 20;
+    width: max-content;
+    max-width: 180px;
+    padding: 7px 10px;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-lowest);
+    color: var(--color-on-surface);
+    box-shadow: var(--shadow-2);
+    font: 600 var(--text-xs) / 1.3 var(--font-body);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+@media (hover: hover) {
+    body.air-defense-page #root > div > aside nav button:hover > span:last-child,
+    body.air-defense-page #root > div > aside > div a:hover > span:last-child {
+        display: block !important;
+    }
+}
+
+body.air-defense-page #root > div > aside nav button:hover,
+body.air-defense-page #root > div > aside > div a:hover {
+    background: color-mix(in srgb, var(--color-primary-fixed) 72%, transparent) !important;
+    color: var(--color-primary) !important;
+}
+
+/* The arena is the visual anchor. Let it consume all remaining height and
+   keep the existing space canvas untouched. */
+body.air-defense-page #root > div > main > div {
+    gap: var(--space-3) !important;
+}
+
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+}
+
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] > div {
+    position: relative !important;
+    isolation: isolate;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline-variant)) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 12%, transparent), var(--shadow-2) !important;
+}
+
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] canvas {
+    position: absolute !important;
+    inset: 0;
+    display: block !important;
+    z-index: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* HUD overlays sit on the arena edge instead of reading like floating web
+   cards. The meter bars themselves are rendered by the game bundle. */
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] > div > div[class*="absolute"][class*="top-3"] {
+    top: var(--space-4) !important;
+    left: var(--space-5) !important;
+    right: var(--space-5) !important;
+}
+
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] > div > div[class*="absolute"][class*="top-3"] > div {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+}
+
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] > div > div[class*="absolute"][class*="top-3"] > div:last-child {
+    align-items: flex-start;
+}
+
+body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] > div > div[class*="absolute"][class*="top-3"] > div:last-child > div {
+    width: clamp(150px, 20vw, 240px);
+    padding: 0 !important;
+}
+
+/* One command bar: the outer panel is only a layout wrapper; the input row
+   owns the single visible border. */
+body.air-defense-page #root section.panel:has(input) {
+    padding: 0.5rem !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body.air-defense-page #root section.panel:has(input) > div {
+    gap: var(--space-3) !important;
+    min-height: 52px;
+    padding: 6px 8px 6px 14px !important;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 64%, var(--color-outline-variant)) !important;
+    border-radius: var(--radius-lg) !important;
+    background: color-mix(in srgb, var(--color-surface-lowest) 7%, var(--color-inverse-surface)) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 8%, transparent) !important;
+}
+
+body.air-defense-page #root section.panel:has(input) > div > div:has(> input) {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 38px;
+    border: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+body.air-defense-page #root section.panel:has(input) input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    color: var(--color-surface-lowest) !important;
+    box-shadow: none !important;
+}
+
+body.air-defense-page #root section.panel:has(input) > div:focus-within {
+    border-color: var(--color-primary-container) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent) !important;
+}
+
+body.air-defense-page #root section.panel:has(input) button {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding-inline: var(--space-4) !important;
+    border-color: var(--color-primary) !important;
+    background: var(--color-primary) !important;
+    color: var(--color-on-primary) !important;
+}
+
+body.air-defense-page #root section.panel:has(input) button:hover {
+    background: var(--color-primary-container) !important;
+}
+
+/* Development-only controls are opt-in via .is-dev on localhost. */
+body.air-defense-page #root > div > main > div > div:last-child > button:nth-child(1),
+body.air-defense-page #root > div > main > div > div:last-child > button:nth-child(2) {
+    display: none !important;
+}
+
+body.air-defense-page.is-dev #root > div > main > div > div:last-child > button:nth-child(1),
+body.air-defense-page.is-dev #root > div > main > div > div:last-child > button:nth-child(2) {
+    display: inline-flex !important;
+}
+
+body.air-defense-page #root > div > main > div > div:last-child > button:last-child {
+    padding: 7px 12px !important;
+    border: 1px solid color-mix(in srgb, var(--color-error) 58%, var(--color-outline-variant)) !important;
+    border-radius: var(--radius-md) !important;
+    background: color-mix(in srgb, var(--color-error-container) 54%, transparent) !important;
+    color: var(--color-error) !important;
+    font: 600 var(--text-xs) / 1.2 var(--font-body) !important;
+}
+
+@media (max-width: 640px) {
+    body.air-defense-page #root > div > aside {
+        width: 60px !important;
+        padding-inline: 4px !important;
+    }
+
+    body.air-defense-page #root > div > aside nav button,
+    body.air-defense-page #root > div > aside > div a,
+    body.air-defense-page #root > div > aside > button:first-child {
+        width: 48px;
+        min-width: 48px;
+    }
+
+    body.air-defense-page #root > div > main > div > div[class*="flex-1"][class*="min-h-0"] > div > div[class*="absolute"][class*="top-3"] {
+        left: var(--space-3) !important;
+        right: var(--space-3) !important;
+    }
+}

@@ -1,0 +1,60 @@
+/* Input / Select / Textarea — v0 template dark glass aesthetics */
+
+.input,
+.select,
+.textarea,
+select {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--color-surface-lowest) !important;
+  border: 1px solid var(--color-outline-variant) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--color-on-surface) !important;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: all 300ms ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.select option,
+select option {
+  background-color: var(--color-surface-lowest) !important;
+  color: var(--color-on-surface) !important;
+  padding: 8px 12px;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-outline) !important;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus,
+select:focus {
+  outline: none !important;
+  background: var(--color-surface-low) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(79, 55, 138, 0.16) !important;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+}
+
+.field__label--caps {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-outline);
+}

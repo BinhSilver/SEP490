@@ -1,0 +1,203 @@
+/* JLAS moderation admin page. Uses shared tokens and the shared shell. */
+
+#jlabBasePage.page-moderation {
+  background: var(--color-surface, #f4fafd) !important;
+  color: var(--color-on-surface, #161d1f);
+}
+
+#jlabBasePage.page-moderation #jlabBaseContent.admin-wrap {
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 40px 0 64px;
+}
+
+#jlabBasePage.page-moderation .admin-wrap > h1 {
+  margin: 0;
+  color: var(--color-primary, #4f378a);
+  font: 700 clamp(28px, 4vw, 42px)/1.2 var(--font-headline, Georgia, serif);
+  letter-spacing: -0.025em;
+}
+
+#jlabBasePage.page-moderation .admin-wrap > p {
+  color: var(--color-on-surface-variant, #494551);
+}
+
+#jlabBasePage.page-moderation .admin-wrap > p a {
+  color: var(--color-primary, #4f378a);
+  font-weight: 600;
+}
+
+#jlabBasePage.page-moderation #queue {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+#jlabBasePage.page-moderation .admin-item {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: var(--radius-lg, 1rem);
+  background: var(--color-surface-lowest, #fff);
+  box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, .08));
+}
+
+#jlabBasePage.page-moderation .admin-item:hover {
+  box-shadow: var(--shadow-2, 0 10px 40px rgba(22, 29, 31, .14));
+}
+
+#jlabBasePage.page-moderation .admin-item h3 {
+  margin: 0;
+  color: var(--color-on-surface, #161d1f);
+  font-size: 19px;
+}
+
+#jlabBasePage.page-moderation .moderation-item-head,
+#jlabBasePage.page-moderation .moderation-item-meta,
+#jlabBasePage.page-moderation .moderation-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#jlabBasePage.page-moderation .moderation-item-head {
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+#jlabBasePage.page-moderation .moderation-type,
+#jlabBasePage.page-moderation .moderation-risk,
+#jlabBasePage.page-moderation .moderation-source {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#jlabBasePage.page-moderation .moderation-type {
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+}
+
+#jlabBasePage.page-moderation .moderation-risk {
+  color: var(--color-warning, #765b00);
+  background: var(--color-warning-soft, #fff4c7);
+}
+
+#jlabBasePage.page-moderation .moderation-source {
+  color: var(--color-secondary, #63597c);
+  background: var(--color-surface-container, #e8eff1);
+}
+
+#jlabBasePage.page-moderation .moderation-item-meta {
+  margin-top: 10px;
+  color: var(--color-on-surface-variant, #494551);
+  font-size: 13px;
+}
+
+#jlabBasePage.page-moderation .moderation-summary {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-primary, #4f378a);
+  border-radius: 0 var(--radius-md, .75rem) var(--radius-md, .75rem) 0;
+  color: var(--color-on-surface, #161d1f);
+  background: var(--color-surface-container-low, #eef5f7);
+  line-height: 1.55;
+}
+
+#jlabBasePage.page-moderation .moderation-preview {
+  margin: 12px 0 0;
+  color: var(--color-on-surface, #161d1f);
+  font-size: 15px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#jlabBasePage.page-moderation .moderation-target-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  color: var(--color-primary, #4f378a);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#jlabBasePage.page-moderation .moderation-item-actions {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBasePage.page-moderation .moderation-item-actions .note-input {
+  flex: 1 1 260px;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: var(--radius-md, .75rem);
+  color: var(--color-on-surface, #161d1f);
+  background: var(--color-surface-lowest, #fff);
+}
+
+#jlabBasePage.page-moderation .moderation-item-actions .note-input:focus {
+  outline: 0;
+  border-color: var(--color-primary, #4f378a);
+  box-shadow: 0 0 0 3px var(--color-primary-fixed, #e9ddff);
+}
+
+#jlabBasePage.page-moderation .moderation-item-actions .btn {
+  min-height: 40px;
+  padding: 9px 14px;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+}
+
+#jlabBasePage.page-moderation .moderation-item-actions .btn-primary {
+  color: var(--color-on-primary, #fff);
+  border: 1px solid var(--color-primary, #4f378a);
+  background: var(--color-primary, #4f378a);
+}
+
+#jlabBasePage.page-moderation .moderation-item-actions .btn-ghost {
+  color: var(--color-error, #ba1a1a);
+  border: 1px solid var(--color-error-container, #ffdad6);
+  background: var(--color-surface-lowest, #fff);
+}
+
+#jlabBasePage.page-moderation #empty {
+  padding: 32px;
+  color: var(--color-on-surface-variant, #494551);
+  text-align: center;
+  border: 1px dashed var(--color-outline-variant, #cbc4d2);
+  border-radius: var(--radius-lg, 1rem);
+  background: rgba(255, 255, 255, .55);
+}
+
+#jlabBasePage.page-moderation .moderation-error {
+  padding: 16px;
+  color: var(--color-error, #ba1a1a);
+  border: 1px solid var(--color-error-container, #ffdad6);
+  border-radius: var(--radius-md, .75rem);
+  background: var(--color-error-container, #ffdad6);
+}
+
+@media (max-width: 640px) {
+  #jlabBasePage.page-moderation #jlabBaseContent.admin-wrap {
+    width: calc(100% - 32px);
+    padding-top: 28px;
+  }
+
+  #jlabBasePage.page-moderation .moderation-item-head {
+    flex-direction: column;
+  }
+
+  #jlabBasePage.page-moderation .moderation-item-actions .btn {
+    flex: 1;
+  }
+}
