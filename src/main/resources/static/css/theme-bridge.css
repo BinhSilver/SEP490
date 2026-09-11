@@ -1,0 +1,148 @@
+/**
+ * Maps legacy feature CSS variables  JLAS index design tokens.
+ * Load AFTER tokens.css so all modules share the same look.
+ */
+
+:root {
+  /* ── Aicall / conversation legacy ── */
+  --bg: var(--color-surface);
+  --bg-base: var(--color-surface);
+  --surface: var(--color-surface-lowest);
+  --bg-surface: var(--color-surface-lowest);
+  --surface-2: var(--color-surface-low);
+  --bg-elevated: var(--color-surface-low);
+  --border: var(--color-outline-variant);
+  --border-strong: var(--color-outline);
+  --text: var(--color-on-surface);
+  --text-primary: var(--color-on-surface);
+  --text-secondary: var(--color-secondary);
+  --muted: var(--color-secondary);
+  --text-muted: var(--color-outline);
+  --accent: var(--color-primary);
+  --accent-2: var(--color-primary-container);
+  --accent-soft: rgba(79, 55, 138, 0.10);
+  --correct: var(--color-success);
+  --correct-bg: var(--color-success-bg);
+  --wrong: var(--color-error);
+  --wrong-bg: rgba(186, 26, 26, 0.08);
+  --warning: #d97706;
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: 0 16px 40px rgba(22, 29, 31, 0.10);
+  --font-display: var(--font-headline);
+  --font-jp: "Noto Sans JP", var(--font-body);
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --r-xl: 1rem;
+  --r-full: var(--radius-full);
+  --nav-h: var(--header-height);
+  --sp-1: var(--space-1);
+  --sp-2: var(--space-2);
+  --sp-3: var(--space-3);
+  --sp-4: var(--space-4);
+  --sp-5: var(--space-5);
+  --sp-6: var(--space-6);
+  --sp-8: var(--space-6);
+  --sp-10: var(--space-7);
+  --sp-12: var(--space-8);
+
+  /* ── Learning (onyomi) legacy purple theme  primary blue ── */
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-container);
+  --secondary: var(--color-primary-container);
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --surface-base: var(--color-surface);
+  --surface: var(--color-surface-lowest);
+
+  /* ── Shadowing aliases already close; tighten to tokens ── */
+  --color-bg: var(--color-surface);
+  --color-card: var(--color-surface-lowest);
+  --color-primary-hover: var(--color-primary-container);
+  --color-primary-soft: var(--color-surface-low);
+  --color-primary-ring: rgba(79, 55, 138, 0.18);
+  --color-success-soft: var(--color-success-bg);
+  --color-warning: var(--color-tertiary);
+  --color-warning-soft: #fff4c7;
+  --color-danger: var(--color-error);
+  --color-danger-soft: var(--color-error-container);
+  --color-border: var(--color-outline-variant);
+  --color-divider: var(--color-outline-variant);
+  --color-text: var(--color-on-surface);
+  --color-text-secondary: var(--color-secondary);
+  --color-text-muted: var(--color-outline);
+  --font-family: var(--font-body);
+  --shadow-card: var(--shadow-1);
+  --shadow-card-hover: var(--shadow-2);
+  --shadow-primary: 0 4px 16px rgba(79, 55, 138, 0.20);
+
+  /* Flashcard light defaults (override dark theme) */
+  --bg-sidebar: var(--color-surface-lowest);
+  --star: #eab308;
+  --overlay: rgba(11, 28, 48, 0.45);
+  --shadow-glow: 0 0 20px rgba(0, 88, 190, 0.15);
+}
+
+/* Force flashcard pages to light JLAS look even if data-theme=dark */
+html[data-theme="dark"],
+html[data-theme="light"],
+:root {
+  --bg-base: var(--color-surface);
+  --bg-surface: var(--color-surface-lowest);
+  --bg-elevated: var(--color-surface-low);
+  --accent: var(--color-primary);
+  --accent-soft: rgba(0, 88, 190, 0.1);
+  --text-primary: var(--color-on-surface);
+  --text-secondary: var(--color-secondary);
+  --text-muted: var(--color-outline);
+  --border: var(--color-outline-variant);
+  --border-strong: var(--color-outline);
+}
+
+/* Shared page shell for feature modules */
+.jlas-page {
+  min-height: 100dvh;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+}
+
+.jlas-page__main {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-4) var(--space-7);
+}
+
+.jlas-page__title {
+  font-family: var(--font-headline);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-on-surface);
+  margin: 0 0 var(--space-2);
+}
+
+.jlas-page__title span {
+  color: var(--color-primary);
+}
+
+.jlas-page__subtitle {
+  color: var(--color-secondary);
+  font-size: var(--text-md);
+  margin: 0 0 var(--space-5);
+  max-width: 40rem;
+}
+
+.jlas-card {
+  background: var(--color-surface-lowest);
+  border: 1px solid rgba(194, 198, 214, 0.45);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  padding: var(--space-5);
+}
+
+.jlas-card--accent {
+  border-top: 3px solid var(--color-primary);
+}

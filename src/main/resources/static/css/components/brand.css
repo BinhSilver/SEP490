@@ -1,0 +1,90 @@
+/* JLAS brand mark (logo + wordmark) */
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none !important;
+  color: var(--color-primary);
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.brand-logo:hover {
+  color: var(--color-primary-container);
+}
+
+.brand-logo:hover .brand-logo__text {
+  color: var(--color-primary-container);
+}
+
+.brand-logo__img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.brand-logo__text {
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.brand-logo--sm .brand-logo__img {
+  width: 28px;
+  height: 28px;
+}
+
+.brand-logo--sm {
+  font-size: var(--text-lg);
+  gap: 8px;
+}
+
+/* site-header brand uses same mark */
+.site-header__brand.brand-logo {
+  font-size: var(--text-xl);
+}
+
+/* platform nav brand */
+.jlas-platform-nav__brand.brand-logo,
+a.jlas-platform-nav__brand.brand-logo {
+  font-size: var(--text-lg);
+}
+
+.jlas-platform-nav__brand .brand-logo__img,
+.brand-logo.jlas-platform-nav__brand .brand-logo__img {
+  width: 32px;
+  height: 32px;
+}
+
+/* aicall site-nav brand */
+.site-nav .brand.brand-logo,
+.site-nav a.brand.brand-logo {
+  gap: 10px;
+}
+
+.site-nav .brand-logo__img {
+  width: 42px;
+  height: 42px;
+}
+
+.site-nav .brand-mark {
+  display: none; /* replaced by img logo */
+}
+
+/* On dark/colored panels (register aside) */
+.brand-logo--on-dark,
+.brand-logo--on-dark .brand-logo__text {
+  color: #ffffff;
+}
+
+.brand-logo--on-dark:hover,
+.brand-logo--on-dark:hover .brand-logo__text {
+  color: #e8f0ff;
+}

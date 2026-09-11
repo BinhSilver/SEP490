@@ -1,0 +1,267 @@
+.retention-leaderboard {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 18px;
+  background: linear-gradient(145deg, var(--color-surface), color-mix(in srgb, var(--color-primary) 5%, var(--color-surface)));
+}
+
+.retention-leaderboard__head,
+.retention-leaderboard__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.retention-leaderboard__head {
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.retention-leaderboard__head h2 {
+  margin: 3px 0 0;
+  color: var(--color-on-surface);
+  font-size: 1.1rem;
+}
+
+.retention-leaderboard__head > i {
+  color: var(--color-tertiary);
+  font-size: 22px;
+}
+
+.retention-leaderboard__list {
+  display: grid;
+  gap: 8px;
+}
+
+.retention-leaderboard__row {
+  min-height: 48px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.retention-leaderboard__row.is-current {
+  background: color-mix(in srgb, var(--color-primary) 11%, var(--color-surface));
+  color: var(--color-on-surface);
+  box-shadow: inset 3px 0 var(--color-primary);
+}
+
+.retention-leaderboard__rank {
+  width: 28px;
+  color: var(--color-secondary);
+  font-weight: 800;
+  text-align: center;
+}
+
+.retention-leaderboard__avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-secondary-container);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.retention-leaderboard__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.retention-leaderboard__name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.retention-leaderboard__points {
+  color: var(--color-tertiary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.retention-leaderboard__meta,
+.retention-leaderboard__empty {
+  margin: 12px 0 0;
+  color: var(--color-secondary);
+  font-size: 0.82rem;
+}
+
+.retention-live-onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: auto;
+}
+
+.retention-live-onboarding[hidden] {
+  display: none;
+}
+
+.retention-live-onboarding__backdrop {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, #fff4df 0, #ece9ff 42%, #252a35 150%);
+}
+
+.retention-live-onboarding__device {
+  position: relative;
+  z-index: 1;
+  width: min(590px, calc(100vw - 32px));
+  margin: auto;
+  transform: none;
+  animation: retention-live-device-in .65s cubic-bezier(.16, 1.2, .3, 1) both;
+}
+
+.retention-live-onboarding__device .demo-device__screen {
+  min-height: 680px;
+}
+
+body.retention-live-open {
+  overflow: hidden;
+}
+
+@keyframes retention-live-device-in {
+  from { opacity: 0; transform: translateY(34px) scale(.94) rotate(-1deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+#retentionRewardOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, rgba(255, 239, 188, .72), rgba(46, 49, 66, .58) 72%);
+  backdrop-filter: blur(3px);
+}
+
+#retentionRewardCard {
+  position: relative;
+  z-index: 2;
+  width: min(430px, 100%);
+  padding: 34px 28px 28px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 28px;
+  background: linear-gradient(160deg, #fffdf8, var(--color-surface));
+  color: var(--color-on-surface);
+  text-align: center;
+  box-shadow: 0 28px 90px rgba(22, 29, 31, .24);
+  animation: retention-reward-pop .45s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.retention-reward__icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #fff1ba, #ffe0d3);
+  color: #ff684d;
+  font-size: 32px;
+  box-shadow: 0 10px 26px rgba(255, 104, 77, .2);
+}
+
+.retention-reward__eyebrow {
+  margin: 0 0 7px;
+  color: #ff684d;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.retention-reward__points {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: clamp(38px, 9vw, 56px);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.retention-reward__title {
+  margin: 12px 0 7px;
+  color: var(--color-on-surface);
+  font-size: 1.2rem;
+}
+
+.retention-reward__message,
+.retention-reward__balance {
+  margin: 0;
+  color: var(--color-secondary);
+  font-size: .92rem;
+}
+
+.retention-reward__balance {
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+#retentionRewardClose {
+  width: 100%;
+  margin-top: 22px;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #17202b;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-family: inherit;
+  transition: transform .2s ease, background .2s ease;
+}
+
+#retentionRewardClose:hover {
+  background: #e95435;
+  transform: translateY(-2px);
+}
+
+.retention-firework {
+  position: absolute;
+  left: var(--origin-x);
+  top: var(--origin-y);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--particle-color);
+  box-shadow: 0 0 8px var(--particle-color), 0 0 18px var(--particle-color);
+  animation: retention-firework-burst 2.2s ease-out var(--particle-delay) infinite;
+}
+
+@keyframes retention-reward-pop {
+  from { opacity: 0; transform: translateY(20px) scale(.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes retention-firework-burst {
+  0% { opacity: 0; transform: translate(0, 0) scale(.2); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--particle-x), var(--particle-y)) scale(.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retention-live-onboarding__device,
+  #retentionRewardCard,
+  .retention-firework {
+    animation-duration: .01ms;
+    animation-iteration-count: 1;
+  }
+}

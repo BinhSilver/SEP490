@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="welcome-modal">
+    <div id="welcome-overlay" class="welcome-overlay" style="display:none;">
+        <div class="welcome-modal">
+            <button class="welcome-close" onclick="closeWelcome()" aria-label="Đóng">&times;</button>
+            <h2>Chào mừng 👋</h2>
+
+            <section class="welcome-section">
+                <h3>Phương pháp này là gì?</h3>
+                <p>Đây là phương pháp học giúp bạn <strong>đoán âm On (Onyomi)</strong> của Kanji thông qua âm Hán Việt.</p>
+                <div class="welcome-examples">
+                    <div class="welcome-ex-row"><span>Quốc</span><span class="arrow">↓</span><span class="onyomi">Koku</span></div>
+                    <div class="welcome-ex-row"><span>Học</span><span class="arrow">↓</span><span class="onyomi">Gaku</span></div>
+                    <div class="welcome-ex-row"><span>Sinh</span><span class="arrow">↓</span><span class="onyomi">Sei</span></div>
+                </div>
+            </section>
+
+            <section class="welcome-section">
+                <h3>Tại sao hiệu quả?</h3>
+                <p>Bạn <strong>KHÔNG</strong> cần học thuộc từng âm On riêng lẻ. Thay vào đó, bạn sẽ nhận ra các quy luật lặp lại:</p>
+                <div class="welcome-rules">
+                    <span class="rule-chip">Âm đầu H  K/G</span>
+                    <span class="rule-chip">Âm đầu QU  K</span>
+                    <span class="rule-chip">Âm đầu TR  CH</span>
+                </div>
+                <p class="welcome-muted">Sau vài trăm ví dụ, não sẽ tự hình thành phản xạ.</p>
+            </section>
+
+            <section class="welcome-section welcome-two-col">
+                <div>
+                    <h3>Khi nào nên học?</h3>
+                    <ul class="welcome-list ok">
+                        <li>Đã biết khoảng 300~500 Kanji</li>
+                        <li>Đang học JLPT N4~N2</li>
+                        <li>Muốn đọc từ ghép nhanh hơn</li>
+                        <li>Muốn tự đoán cách đọc Kanji</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Khi nào KHÔNG nên học?</h3>
+                    <ul class="welcome-list no">
+                        <li>Mới học Hiragana</li>
+                        <li>Chưa biết Kanji cơ bản</li>
+                    </ul>
+                    <p class="welcome-muted">Hãy học Kanji trước. Phương pháp này phù hợp khi bạn đã có nền tảng.</p>
+                </div>
+            </section>
+
+            <section class="welcome-section">
+                <h3>Lưu ý</h3>
+                <p>Đây <strong>KHÔNG</strong> phải quy luật tuyệt đối. Có những ngoại lệ. Website sẽ chỉ dạy những quy luật xuất hiện nhiều nhất.</p>
+            </section>
+
+            <button class="welcome-start-btn" onclick="closeWelcome()">Bắt đầu học</button>
+        </div>
+    </div>
+
+    <style>
+        /* Keep the modal below the fixed 72px site header. The old full-screen
+           overlay started at 0 and let the header cover its title/close button. */
+        #welcome-overlay {
+            position: fixed;
+            top: calc(var(--header-height, 72px) + var(--space-2, 8px));
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: var(--z-modal, 100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4, 16px);
+            overflow: auto;
+            background: rgba(22, 29, 31, 0.32);
+            backdrop-filter: blur(3px);
+        }
+        #welcome-overlay .welcome-modal {
+            box-sizing: border-box;
+            position: relative;
+            width: min(760px, 100%);
+            max-height: calc(100dvh - var(--header-height, 72px) - 48px);
+            overflow-y: auto;
+            padding: var(--space-5, 24px);
+            color: var(--color-on-surface, #161d1f);
+            background: var(--color-surface-lowest, #ffffff);
+            border: 1px solid var(--color-outline-variant, #cbc4d2);
+            border-radius: var(--radius-lg, 1rem);
+            box-shadow: var(--shadow-2, 0 10px 40px rgba(22, 29, 31, 0.14));
+        }
+        #welcome-overlay .welcome-modal h2 {
+            margin: 0 40px var(--space-4, 16px) 0;
+            color: var(--color-primary, #4f378a);
+            font-family: var(--font-headline, 'Hanken Grotesk', system-ui, sans-serif);
+            font-size: var(--text-3xl, 2rem);
+            line-height: 1.15;
+        }
+        #welcome-overlay .welcome-modal h3 {
+            margin: 0 0 var(--space-2, 8px);
+            color: var(--color-primary, #4f378a);
+            font-family: var(--font-body, system-ui, sans-serif);
+            font-size: var(--text-lg, 1.125rem);
+            line-height: 1.3;
+        }
+        #welcome-overlay .welcome-section { margin-bottom: var(--space-4, 16px); }
+        #welcome-overlay .welcome-section p {
+            margin: 0 0 var(--space-2, 8px);
+            color: var(--color-on-surface-variant, #494551);
+            font-family: var(--font-body, system-ui, sans-serif);
+            font-size: var(--text-sm, 0.875rem);
+            line-height: 1.5;
+        }
+        #welcome-overlay .welcome-close {
+            position: absolute;
+            top: var(--space-3, 12px);
+            right: var(--space-3, 12px);
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-on-surface-variant, #494551);
+            background: var(--color-surface-low, #eef5f7);
+            border: 1px solid var(--color-outline-variant, #cbc4d2);
+            border-radius: var(--radius-full, 9999px);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        #welcome-overlay .welcome-close:hover {
+            color: var(--color-primary, #4f378a);
+            border-color: var(--color-primary, #4f378a);
+        }
+        #welcome-overlay .welcome-examples {
+            padding: var(--space-3, 12px);
+            background: var(--color-surface-low, #eef5f7);
+            border: 1px solid var(--color-outline-variant, #cbc4d2);
+            border-radius: var(--radius-md, 0.75rem);
+        }
+        #welcome-overlay .welcome-ex-row { display: flex; align-items: center; gap: var(--space-3, 12px); padding: 4px 0; font-weight: 700; }
+        #welcome-overlay .welcome-ex-row .arrow { color: var(--color-on-surface-variant, #494551); }
+        #welcome-overlay .welcome-ex-row .onyomi { color: var(--color-primary, #4f378a); font-family: var(--font-mono, monospace); }
+        #welcome-overlay .welcome-rules { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); margin: var(--space-2, 8px) 0; }
+        #welcome-overlay .rule-chip {
+            padding: 6px 10px;
+            color: var(--color-primary, #4f378a);
+            background: var(--color-primary-fixed, #e9ddff);
+            border-radius: var(--radius-sm, 0.375rem);
+            font-size: var(--text-xs, 0.75rem);
+            font-weight: 600;
+        }
+        #welcome-overlay .welcome-muted { color: var(--color-on-surface-variant, #494551) !important; font-size: var(--text-xs, 0.75rem) !important; }
+        #welcome-overlay .welcome-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4, 16px); }
+        #welcome-overlay .welcome-list { list-style: none; padding: 0; margin: 0; color: var(--color-on-surface, #161d1f); font-size: var(--text-xs, 0.75rem); }
+        #welcome-overlay .welcome-list li { padding: 3px 0 3px 22px; position: relative; }
+        #welcome-overlay .welcome-list.ok li::before { content: '✔'; position: absolute; left: 0; color: var(--color-success, #006947); }
+        #welcome-overlay .welcome-list.no li::before { content: '✘'; position: absolute; left: 0; color: var(--color-error, #ba1a1a); }
+        #welcome-overlay .welcome-start-btn {
+            width: 100%;
+            padding: 10px var(--space-4, 16px);
+            color: var(--color-on-primary, #ffffff);
+            background: var(--color-primary, #4f378a);
+            border: 0;
+            border-radius: var(--radius-md, 0.75rem);
+            cursor: pointer;
+            font-family: var(--font-body, system-ui, sans-serif);
+            font-size: var(--text-sm, 0.875rem);
+            font-weight: 700;
+            margin-top: var(--space-2, 8px);
+        }
+        #welcome-overlay .welcome-start-btn:hover { background: var(--color-primary-container, #6750a4); }
+        @media (max-width: 600px) {
+            #welcome-overlay { padding: var(--space-2, 8px); }
+            #welcome-overlay .welcome-modal { max-height: calc(100dvh - var(--header-height, 72px) - 32px); padding: var(--space-4, 16px); }
+            #welcome-overlay .welcome-two-col { grid-template-columns: 1fr; gap: var(--space-3, 12px); }
+        }
+    </style>
+
+    <button id="welcome-reopen-btn" class="welcome-reopen-btn" onclick="openWelcome()" title="Phương pháp học này là gì?">
+        <i class="fa-regular fa-circle-question"></i>
+    </button>
+
+    <style>
+        #welcome-reopen-btn {
+            position: fixed; bottom: var(--space-4, 16px); right: var(--space-4, 16px); z-index: calc(var(--z-modal, 100) - 1);
+            width: 40px; height: 40px; border-radius: var(--radius-full, 9999px);
+            border: 1px solid var(--color-outline-variant, #cbc4d2); cursor: pointer;
+            background: var(--color-surface-lowest, #ffffff) !important;
+            color: var(--color-primary, #4f378a); font-size: 18px;
+            box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, 0.08));
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #welcome-reopen-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-2, 0 10px 40px rgba(22, 29, 31, 0.14));
+            background: var(--color-primary-fixed, #e9ddff) !important;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <script>
+        function openWelcome() {
+            document.getElementById('welcome-overlay').style.display = 'flex';
+        }
+        function closeWelcome() {
+            document.getElementById('welcome-overlay').style.display = 'none';
+            localStorage.setItem('onyomi_welcome_seen', 'true');
+        }
+        (function() {
+            if (!localStorage.getItem('onyomi_welcome_seen')) {
+                document.getElementById('welcome-overlay').style.display = 'flex';
+            }
+        })();
+    </script>
+</div>
+</body>
+</html>
