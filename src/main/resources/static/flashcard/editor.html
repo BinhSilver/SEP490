@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tạo / Sửa thẻ từ — JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/inputs.css" />
+  <link rel="stylesheet" href="/css/components/toast.css" />
+  <link rel="stylesheet" href="/css/components/ai-progress.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/flashcard/editor-theme.css" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+</head>
+
+<body id="jlabBasePage" class="flashcard-page flashcard-page--editor">
+  <div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="page">
+  <aside class="fc-stitch-sidebar" aria-label="Thư viện Flashcard">
+    <div class="fc-stitch-sidebar__label">Thư viện</div>
+    <nav class="fc-stitch-sidebar__nav">
+      <a data-sidebar-tab="public" href="/flashcard/library.html"><i class="fa-regular fa-rectangle-list"></i> Bộ thẻ công khai</a>
+      <a data-sidebar-tab="my" href="/flashcard/library.html?tab=my"><i class="fa-regular fa-folder-open"></i> Bộ thẻ của tôi</a>
+      <span class="fc-stitch-sidebar__item is-muted" aria-disabled="true"><i class="fa-regular fa-star"></i> Yêu thích</span>
+    </nav>
+  </aside>
+
+  <div class="main">
+      <div class="container container-wide editor-wrap editor-sheet">
+        <header class="editor-sheet__header">
+          <div class="editor-sheet__heading">
+            <a class="editor-back-link" href="/flashcard/library.html"><i class="fa-solid fa-arrow-left"></i> Quay lại thư viện</a>
+            <div class="eyebrow"><i class="fa-solid fa-pen-ruler"></i> Trình tạo thẻ từ</div>
+            <h1 class="section-title" id="editor-title"><i class="fa-solid fa-layer-group"></i> Tạo bộ thẻ từ</h1>
+            <p class="muted">Quản lý nội dung học tập. Thêm, sửa hoặc nhập dữ liệu hàng loạt để xây dựng bộ thẻ hoàn chỉnh.</p>
+          </div>
+          <div class="editor-sheet__actions">
+            <span id="draft-save-status" class="draft-save-status" aria-live="polite">Chưa có thay đổi</span>
+            <button type="button" class="btn btn--secondary btn-ghost" id="btn-appeal" hidden><i class="fa-solid fa-scale-balanced"></i> Kháng cáo</button>
+            <a class="btn btn--secondary btn-ghost" id="btn-study" href="#" hidden><i class="fa-solid fa-play"></i> Học thử</a>
+            <button type="button" class="btn btn--primary btn-primary" id="btn-save"><i class="fa-solid fa-floppy-disk"></i> Lưu bộ thẻ</button>
+          </div>
+        </header>
+
+        <div id="validation-banner" class="validation-banner" role="alert" aria-live="assertive" hidden>
+          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          <div><strong>Chưa thể công khai</strong><div id="validation-message"></div></div>
+        </div>
+
+        <section class="editor-section editor-meta editor-meta--sheet" aria-labelledby="set-info-heading">
+          <div class="editor-section__heading">
+            <span class="editor-step"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+            <div>
+              <h2 id="set-info-heading">Thông tin bộ thẻ</h2>
+            </div>
+          </div>
+          <div class="editor-meta__top-row">
+            <div class="form-group editor-meta__title">
+              <label class="label" for="set-title">Tên bộ thẻ <span class="required-mark">*</span></label>
+              <div class="input-wrap"><input class="input" id="set-title" type="text" placeholder="Ví dụ: Từ vựng N5 · Bài 1" minlength="3" maxlength="100" data-validate="min:3" />
+              </div>
+              <p class="field-help">Từ 3–100 ký tự.</p>
+            </div>
+            <div class="form-group editor-meta__privacy">
+              <label class="label" for="set-visibility">Quyền riêng tư</label>
+              <div class="input-wrap">
+                <select class="select" id="set-visibility">
+                  <option value="PRIVATE">Chỉ mình tôi</option>
+                  <option value="PUBLIC">Công khai cho mọi người</option>
+                </select>
+              </div>
+              <p class="field-help">Bộ công khai sẽ được kiểm tra nội dung trước khi hiển thị.</p>
+            </div>
+          </div>
+          <div class="form-group editor-meta__description">
+            <label class="label" for="set-desc">Mô tả <span class="optional-label">Không bắt buộc</span></label>
+            <div class="input-wrap"><textarea id="set-desc" class="textarea" rows="2" maxlength="500" data-validate="max:500"
+                placeholder="Bộ thẻ này gồm nội dung gì và phù hợp với ai?"></textarea></div>
+            <p class="field-help">Tối đa 500 ký tự.</p>
+          </div>
+        </section>
+
+        <section class="editor-section editor-table-card" aria-labelledby="cards-heading">
+          <div class="editor-toolbar editor-toolbar--sheet">
+            <div class="editor-toolbar__title">
+              <h2 id="cards-heading">Danh sách thẻ</h2>
+              <span class="editor-card-count" id="card-count">0 thẻ</span>
+            </div>
+            <div class="editor-toolbar__group">
+              <label class="chk"><input type="checkbox" id="chk-all" /> Chọn tất cả</label>
+              <span class="toolbar-divider" aria-hidden="true"></span>
+              <div id="batch-actions" class="editor-toolbar__group" hidden>
+                <span id="selected-count-badge" class="tag tag-public">Đã chọn 0</span>
+                <button type="button" class="btn btn-ghost btn-sm" id="btn-gen-batch" title="AI điền Nghĩa + Hán Việt cho các thẻ được chọn">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> AI điền ô đã chọn
+                </button>
+                <button type="button" class="btn btn-wrong btn-sm" id="btn-delete-batch" title="Xóa các thẻ được chọn">
+                  <i class="fa-solid fa-trash"></i> Xóa đã chọn
+                </button>
+                <span class="toolbar-divider" aria-hidden="true"></span>
+              </div>
+              <button type="button" class="btn btn--secondary btn-ghost btn-sm" id="btn-import"><i class="fa-solid fa-file-import"></i> Nhập nhanh từ danh sách</button>
+              <button type="button" class="btn btn--primary btn-primary btn-sm" id="btn-add-card"><i class="fa-solid fa-plus"></i> Thêm thẻ</button>
+            </div>
+          </div>
+
+          <div class="editor-table-scroll">
+            <div id="card-list" class="card-list" aria-live="polite"></div>
+          </div>
+          <div class="editor-table-footer">
+            <span><i class="fa-solid fa-circle-info"></i> Mẹo: nhấn <kbd>Enter</kbd> để chuyển trường và thêm thẻ tiếp theo.</span>
+            <button type="button" class="editor-add-row" id="btn-add-card-bottom"><i class="fa-solid fa-plus"></i> Thêm thẻ mới</button>
+          </div>
+        </section>
+      </div>
+  </div>
+</main>
+
+  <div class="modal-backdrop" id="import-modal" hidden>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+      <div class="modal-header">
+        <h3 id="import-modal-title"><i class="fa-solid fa-file-import"></i> Nhập từ</h3>
+        <button type="button" class="btn-icon" id="btn-close-import" aria-label="Đóng"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="muted import-guide">
+          Nhập danh sách từ vựng theo cú pháp: Kanji - Cách đọc : Nghĩa (Hán Việt)
+        </p>
+        <p class="muted import-example">
+          Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN)
+        </p>
+        <div class="form-group">
+          <label class="label" for="import-text">Danh sách từ</label>
+          <div class="input-wrap">
+            <textarea id="import-text" class="textarea" rows="8"
+              placeholder="Nhập hoặc dán danh sách từ vựng theo mẫu ở trên..."></textarea>
+          </div>
+        </div>
+        <div class="import-actions">
+          <button type="button" class="btn btn-ghost" id="btn-import-ai">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Hán Việt bằng AI
+          </button>
+        </div>
+        <p class="muted import-result-note">
+          Sau khi áp dụng, hệ thống tạo thẻ: Mặt trước (Kanji), Mặt sau (hiragana — nghĩa), Hán Việt (nếu có).
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-import">Hủy</button>
+        <button type="button" class="btn btn-primary" id="btn-apply-import">
+          <i class="fa-solid fa-check"></i> Áp dụng vào danh sách thẻ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="appeal-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="appeal-title">
+      <div class="modal-header"><h3 id="appeal-title">Kháng cáo kiểm duyệt</h3></div>
+      <div class="modal-body">
+        <label class="label" for="appeal-reason">Lý do (10–500 ký tự)</label>
+        <textarea id="appeal-reason" class="textarea" minlength="10" maxlength="500" rows="5"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="cancel-appeal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="submit-appeal">Gửi kháng cáo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="ai-review-modal" hidden>
+    <div class="modal modal-md ai-review-modal" role="dialog" aria-modal="true" aria-labelledby="ai-review-title">
+      <div class="modal-header">
+        <div>
+          <h3 id="ai-review-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem trước hoạt động AI</h3>
+          <p>Kiểm tra Cách đọc và Hán Việt trước khi áp dụng. Kanji gốc luôn được giữ nguyên.</p>
+        </div>
+        <button type="button" class="btn-icon" id="btn-close-ai-review" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="ai-review-list" class="ai-review-list" aria-live="polite"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-ai-review">Hủy, không áp dụng</button>
+        <button type="button" class="btn btn-primary" id="btn-apply-ai-review"><i class="fa-solid fa-check"></i> Áp dụng kết quả đã chọn</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/flashcard/js/api-client.js"></script>
+  <script src="/flashcard/js/shell.js"></script>
+  <script src="/flashcard/js/prevalidation.js"></script>
+  <script src="/flashcard/js/editor-page.js"></script>
+</body>
+
+</html>

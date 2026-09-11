@@ -1692,6 +1692,24 @@ CREATE TABLE video_user_state (
 
 -- Comment da hinh thay flashcard_comment va video_comment.
 -- target ton tai duoc service/trigger kiem tra vi MySQL khong co FK da hinh.
+CREATE TABLE user_notification (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id     BIGINT UNSIGNED NOT NULL,
+    type        VARCHAR(40) NOT NULL,
+    title       VARCHAR(160) NOT NULL,
+    message     VARCHAR(1000) NOT NULL,
+    target_url  VARCHAR(500) NULL,
+    event_key   VARCHAR(160) NULL,
+    read_at     DATETIME(6) NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_notification_event (user_id, event_key),
+    KEY idx_user_notification_feed (user_id, created_at),
+    KEY idx_user_notification_unread (user_id, read_at),
+    CONSTRAINT fk_user_notification_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE content_comment (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK.
@@ -2366,32 +2384,5 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
     UNIQUE KEY uk_shadowing_practice_answer_attempt (practice_item_id, attempt_number),
     INDEX idx_shadowing_practice_answer_result (answer_result, answered_at)
 );
-
--- Apply once to an existing JLAS MySQL database.
-CREATE TABLE flashcard_folder (
-    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    owner_id   BIGINT UNSIGNED NOT NULL,
-    name       VARCHAR(100) NOT NULL,
-    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
-               ON UPDATE CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_flashcard_folder_owner_name (owner_id, name),
-    KEY idx_flashcard_folder_owner (owner_id),
-    CONSTRAINT fk_flashcard_folder_owner FOREIGN KEY (owner_id)
-        REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-ALTER TABLE flashcard_set
-    ADD COLUMN folder_id BIGINT UNSIGNED NULL AFTER owner_id,
-    ADD COLUMN is_draft TINYINT(1) NOT NULL DEFAULT 0 AFTER visibility,
-    ADD KEY idx_flashcard_set_folder (folder_id, deleted_at),
-    ADD CONSTRAINT fk_flashcard_set_folder FOREIGN KEY (folder_id)
-        REFERENCES flashcard_folder(id) ON DELETE SET NULL,
-    ADD CONSTRAINT chk_flashcard_set_draft CHECK (is_draft IN (0,1));
-
-ALTER TABLE flashcard_card
-    MODIFY COLUMN front VARCHAR(500) NULL,
-    MODIFY COLUMN back VARCHAR(500) NULL;
 
 -- End of canonical schema.

@@ -1,0 +1,902 @@
+/* Stitch editor screen — information rail + card-row workspace. */
+
+#jlabBasePage.flashcard-page--editor .editor-sheet {
+  display: grid;
+  grid-template-columns: 355px minmax(0, 1fr);
+  gap: 84px 48px;
+  max-width: 1280px;
+  padding: 86px 48px 100px;
+  color: var(--fc-on-surface);
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__header,
+#jlabBasePage.flashcard-page--editor .validation-banner {
+  grid-column: 1 / -1;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: end;
+  margin: 0 0 22px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-back-link {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 24px;
+  color: var(--fc-on-variant);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-back-link:hover { color: var(--fc-primary); }
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__heading .eyebrow { display: none; }
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__heading .section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__heading .section-title i { display: none; }
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__heading .muted {
+  max-width: 720px;
+  margin: 0;
+  color: var(--fc-on-variant);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#jlabBasePage.flashcard-page--editor .draft-save-status {
+  color: var(--fc-on-variant);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page--editor .draft-save-status.is-saving { color: var(--fc-primary); }
+#jlabBasePage.flashcard-page--editor .draft-save-status.is-saved { color: var(--fc-success); }
+#jlabBasePage.flashcard-page--editor .draft-save-status.is-error { color: var(--fc-error); }
+
+#jlabBasePage.flashcard-page--editor .editor-card-count {
+  display: none;
+  min-height: 36px;
+  align-items: center;
+  padding: 7px 12px;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-section {
+  min-width: 0;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(199,196,215,.32);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet {
+  position: sticky;
+  top: calc(var(--header-height) + 24px);
+  align-self: start;
+  margin: 0;
+  padding: 30px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table-card {
+  align-self: start;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-section__heading {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-section__heading--cards {
+  display: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-step {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-section__heading h2 {
+  margin: 0 0 4px;
+  font-size: 19px;
+  line-height: 1.35;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-section__heading p {
+  margin: 0;
+  color: var(--fc-on-variant);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+#jlabBasePage.flashcard-page--editor .form-group { min-width: 0; margin: 0; }
+
+#jlabBasePage.flashcard-page--editor .label,
+#jlabBasePage.flashcard-page--editor .chk {
+  color: var(--fc-on-surface);
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page--editor .label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 9px;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+#jlabBasePage.flashcard-page--editor .optional-label {
+  padding: 2px 7px;
+  color: var(--fc-on-variant);
+  background: var(--fc-surface-low);
+  border-radius: 999px;
+  font-size: 9px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#jlabBasePage.flashcard-page--editor .required-mark { color: var(--fc-error); }
+
+#jlabBasePage.flashcard-page--editor .field-help {
+  margin: 6px 2px 0;
+  color: var(--fc-on-variant);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .input-wrap {
+  padding: 0;
+  overflow: hidden;
+  background: var(--fc-surface) !important;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: var(--fc-radius-sm) !important;
+  box-shadow: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .input-wrap:focus-within {
+  border-color: var(--fc-primary) !important;
+  box-shadow: 0 0 0 3px rgba(70,72,212,.12);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .input,
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .select,
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .textarea {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .textarea { min-height: 136px; resize: vertical; }
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar--sheet {
+  display: flex;
+  min-height: 114px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 28px;
+  padding: 22px 26px;
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(199,196,215,.32);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar__group {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar--sheet > .editor-toolbar__group::before {
+  color: var(--fc-primary);
+  content: "Danh sách thẻ";
+  margin-right: 12px;
+  font: 600 18px/1.3 "Hanken Grotesk", sans-serif;
+}
+
+#jlabBasePage.flashcard-page--editor .toolbar-divider {
+  width: 1px;
+  min-height: 26px;
+  align-self: center;
+  background: var(--fc-outline-soft);
+}
+
+#jlabBasePage.flashcard-page--editor #selected-count-badge {
+  padding: 5px 9px;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table-scroll { overflow: visible; }
+
+#jlabBasePage.flashcard-page--editor .editor-table {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border-collapse: separate;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table thead,
+#jlabBasePage.flashcard-page--editor .editor-table tbody { display: block; }
+
+#jlabBasePage.flashcard-page--editor .editor-table thead tr,
+#jlabBasePage.flashcard-page--editor .editor-table tbody tr {
+  display: grid;
+  grid-template-columns: 40px 48px minmax(140px, 1.1fr) minmax(160px, 1.2fr) minmax(110px, .75fr) 78px 110px;
+  gap: 10px;
+  align-items: center;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table thead tr {
+  margin-bottom: 16px;
+  padding: 0 18px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table th {
+  display: block;
+  padding: 0;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table tbody {
+  display: grid;
+  gap: 16px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table tbody tr {
+  min-height: 104px;
+  padding: 16px 18px;
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(199,196,215,.3);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table tbody tr:hover {
+  box-shadow: var(--fc-shadow-hover);
+  transform: translateY(-1px);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table td {
+  display: block;
+  height: auto;
+  padding: 0;
+  color: var(--fc-on-surface);
+  background: transparent;
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table .input-wrap {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--fc-surface) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--fc-radius-sm) !important;
+  box-shadow: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table .input-wrap:focus-within {
+  background: #fff !important;
+  border-color: var(--fc-primary) !important;
+  box-shadow: 0 0 0 3px rgba(70,72,212,.11);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table input[data-f] {
+  min-height: 52px;
+  padding: 10px 12px;
+  color: var(--fc-on-surface);
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table input[data-f="front"] {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 23px;
+  font-weight: 500;
+  text-align: center;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table__select,
+#jlabBasePage.flashcard-page--editor .editor-table__number,
+#jlabBasePage.flashcard-page--editor .editor-table__image { text-align: center !important; }
+
+#jlabBasePage.flashcard-page--editor td.editor-table__number span {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: var(--fc-on-variant);
+  background: var(--fc-surface-low);
+  border-radius: 50%;
+  font: 700 11px/1 var(--font-mono);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table__actions { text-align: right !important; white-space: nowrap; }
+
+#jlabBasePage.flashcard-page--editor .edit-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: var(--fc-radius-sm);
+}
+
+#jlabBasePage.flashcard-page--editor .table-icon-btn {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  margin: 1px;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--fc-radius-sm);
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--editor .table-icon-btn:hover,
+#jlabBasePage.flashcard-page--editor .table-icon-btn--ai {
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+}
+
+#jlabBasePage.flashcard-page--editor .table-icon-btn--danger:hover {
+  color: var(--fc-error);
+  background: var(--fc-error-soft);
+}
+
+#jlabBasePage.flashcard-page--editor .table-icon-btn input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 16px 18px;
+  color: var(--fc-on-variant);
+  background: var(--fc-surface-low);
+  border: 1px dashed rgba(70,72,212,.28);
+  border-radius: var(--fc-radius-md);
+  font-size: 12px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-add-row {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border: 0;
+  border-radius: var(--fc-radius-sm);
+  font: 700 13px/1 "Inter", sans-serif;
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--editor kbd {
+  padding: 2px 6px;
+  color: var(--fc-on-variant);
+  background: #fff;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: 4px;
+  font: 600 .78em/1 var(--font-mono);
+}
+
+#jlabBasePage.flashcard-page--editor .validation-banner {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  color: #93000a;
+  background: var(--fc-error-soft);
+  border: 1px solid var(--fc-error);
+  border-radius: var(--fc-radius-md);
+}
+
+#jlabBasePage.flashcard-page--editor .denylist-invalid,
+#jlabBasePage.flashcard-page--editor .is-invalid {
+  border-color: var(--fc-error) !important;
+  background: var(--fc-error-soft) !important;
+}
+
+#jlabBasePage.flashcard-page--editor .import-guide { margin-bottom: 6px; }
+#jlabBasePage.flashcard-page--editor .import-example { margin-bottom: 12px; font-size: .88rem; }
+#jlabBasePage.flashcard-page--editor .import-result-note { margin-top: 10px; font-size: .85rem; }
+
+@media (max-width: 1100px) {
+  #jlabBasePage.flashcard-page--editor .editor-sheet {
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 28px;
+    padding-inline: 24px;
+  }
+  #jlabBasePage.flashcard-page--editor .editor-table thead { display: none; }
+  #jlabBasePage.flashcard-page--editor .editor-table tbody tr {
+    grid-template-columns: 38px 42px minmax(140px, 1fr) minmax(160px, 1.2fr);
+  }
+  #jlabBasePage.flashcard-page--editor .editor-table td:nth-child(n+5) { grid-column: span 1; }
+}
+
+@media (max-width: 820px) {
+  #jlabBasePage.flashcard-page--editor .editor-sheet { grid-template-columns: 1fr; }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__header,
+  #jlabBasePage.flashcard-page--editor .validation-banner { grid-column: 1; }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__header { grid-template-columns: 1fr; }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__actions { justify-content: flex-start; }
+  #jlabBasePage.flashcard-page--editor .editor-meta--sheet { position: static; }
+}
+
+@media (max-width: 640px) {
+  #jlabBasePage.flashcard-page--editor .editor-sheet { padding: 28px 16px 80px; }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__actions .btn { flex: 1; }
+  #jlabBasePage.flashcard-page--editor .editor-toolbar--sheet,
+  #jlabBasePage.flashcard-page--editor .editor-toolbar__group { align-items: stretch; flex-direction: column; }
+  #jlabBasePage.flashcard-page--editor .toolbar-divider { display: none; }
+  #jlabBasePage.flashcard-page--editor .editor-toolbar__group .btn { width: 100%; }
+  #jlabBasePage.flashcard-page--editor .editor-table tbody tr {
+    display: block;
+    padding: 50px 16px 16px;
+  }
+  #jlabBasePage.flashcard-page--editor .editor-table td { margin-bottom: 12px; }
+  #jlabBasePage.flashcard-page--editor .editor-table td::before {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--fc-on-variant);
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  #jlabBasePage.flashcard-page--editor td.editor-table__select,
+  #jlabBasePage.flashcard-page--editor td.editor-table__number { position: absolute; top: 16px; }
+  #jlabBasePage.flashcard-page--editor td.editor-table__select { left: 16px; }
+  #jlabBasePage.flashcard-page--editor td.editor-table__number { left: 50px; }
+  #jlabBasePage.flashcard-page--editor td.editor-table__select::before,
+  #jlabBasePage.flashcard-page--editor td.editor-table__number::before { display: none; }
+  #jlabBasePage.flashcard-page--editor .editor-table tbody tr { position: relative; }
+  #jlabBasePage.flashcard-page--editor .editor-table-footer { align-items: stretch; flex-direction: column; }
+  #jlabBasePage.flashcard-page--editor .editor-add-row { justify-content: center; }
+}
+
+/* Vertical editor flow: set information first, then the card workspace. */
+#jlabBasePage.flashcard-page--editor .editor-sheet {
+  display: block;
+  max-width: 1280px;
+  padding: 36px 48px 100px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-sheet__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .validation-banner {
+  margin-bottom: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet {
+  position: static;
+  display: block;
+  margin-bottom: 24px;
+  padding: 22px 26px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-section__heading {
+  margin-bottom: 14px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-step {
+  width: 32px;
+  height: 32px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-meta__top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(210px, .8fr);
+  gap: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-meta__privacy .select {
+  min-width: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-meta__description {
+  margin-top: 16px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .field-help {
+  display: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-meta--sheet .textarea {
+  min-height: 50px;
+  resize: vertical;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-modal {
+  width: min(760px, 100%);
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-modal .modal-header {
+  align-items: flex-start;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-modal .modal-header p {
+  margin: 5px 0 0;
+  color: var(--fc-on-variant);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-list {
+  display: grid;
+  gap: 12px;
+  max-height: min(52vh, 520px);
+  overflow: auto;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-item {
+  display: grid;
+  grid-template-columns: auto minmax(110px, .7fr) minmax(130px, 1fr) minmax(130px, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface);
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: var(--fc-radius-sm);
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-item__value {
+  min-width: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-item__value span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--fc-on-variant);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-item__value strong {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-item__value--meaning {
+  grid-column: 2 / -1;
+}
+
+#jlabBasePage.flashcard-page--editor .ai-review-item__warning {
+  grid-column: 2 / -1;
+  margin: -2px 0 0;
+  color: var(--fc-error);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-table-card {
+  overflow: visible;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar--sheet {
+  min-height: 70px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 14px 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar__title h2 {
+  margin: 0;
+  color: var(--fc-on-surface);
+  font: 600 20px/1.3 "Hanken Grotesk", sans-serif;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar__title .editor-card-count {
+  display: inline-flex;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar--sheet > .editor-toolbar__group::before {
+  display: none;
+  content: none;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-toolbar--sheet > .editor-toolbar__group {
+  justify-content: flex-end;
+}
+
+#jlabBasePage.flashcard-page--editor #card-list {
+  display: grid;
+  gap: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card {
+  min-width: 0;
+  padding: 24px 28px 26px;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(199,196,215,.32);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card:hover {
+  box-shadow: var(--fc-shadow-hover);
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__head {
+  min-height: 36px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__identity,
+#jlabBasePage.flashcard-page--editor .edit-card__actions,
+#jlabBasePage.flashcard-page--editor .edit-card__select {
+  display: inline-flex;
+  align-items: center;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__identity {
+  gap: 12px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__number {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border-radius: 50%;
+  font: 700 12px/1 var(--font-mono);
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__select {
+  gap: 7px;
+  color: var(--fc-on-variant);
+  font-size: 12px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__actions {
+  gap: 6px;
+  margin-left: auto;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__actions .table-icon-btn {
+  width: auto;
+  height: 36px;
+  gap: 7px;
+  margin: 0;
+  padding: 0 10px;
+  color: var(--fc-primary);
+  border-radius: var(--fc-radius-sm);
+  font: 700 12px/1 "Inter", sans-serif;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__actions .table-icon-btn--danger {
+  width: 36px;
+  padding: 0;
+  color: var(--fc-on-variant);
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__fields {
+  display: grid;
+  gap: 18px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__fields--primary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__fields--secondary {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+  margin-top: 18px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field {
+  min-width: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field .label {
+  margin-bottom: 7px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field .input-wrap {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--fc-surface) !important;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: var(--fc-radius-sm) !important;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field .input-wrap:focus-within {
+  border-color: var(--fc-primary) !important;
+  box-shadow: 0 0 0 3px rgba(70,72,212,.11);
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field input[data-f] {
+  width: 100%;
+  min-height: 50px;
+  padding: 10px 12px;
+  color: var(--fc-on-surface);
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field input[data-f="front"] {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 21px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__image-control {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  gap: 8px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__image-control .table-icon-btn {
+  position: relative;
+  display: inline-flex;
+  width: auto;
+  min-height: 42px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 0 13px;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border: 0;
+  border-radius: var(--fc-radius-sm);
+  font: 700 12px/1 "Inter", sans-serif;
+  white-space: nowrap;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__image-control .table-icon-btn input[type="file"] {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  clip-path: none;
+  opacity: 0;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__image-control > button.table-icon-btn {
+  width: 36px;
+  padding: 0;
+  background: transparent;
+}
+
+@media (max-width: 900px) {
+  #jlabBasePage.flashcard-page--editor .editor-sheet { padding-inline: 24px; }
+  #jlabBasePage.flashcard-page--editor .edit-card__fields--primary,
+  #jlabBasePage.flashcard-page--editor .edit-card__fields--secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #jlabBasePage.flashcard-page--editor .edit-card__fields--secondary { margin-top: 18px; }
+}
+
+@media (max-width: 640px) {
+  #jlabBasePage.flashcard-page--editor .editor-sheet { padding: 28px 16px 80px; }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__header,
+  #jlabBasePage.flashcard-page--editor .editor-meta__top-row,
+  #jlabBasePage.flashcard-page--editor .edit-card__fields--primary,
+  #jlabBasePage.flashcard-page--editor .edit-card__fields--secondary {
+    grid-template-columns: 1fr;
+  }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__header { gap: 16px; }
+  #jlabBasePage.flashcard-page--editor .editor-sheet__actions { justify-content: flex-start; }
+  #jlabBasePage.flashcard-page--editor .editor-toolbar--sheet {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  #jlabBasePage.flashcard-page--editor .editor-toolbar--sheet > .editor-toolbar__group {
+    justify-content: stretch;
+  }
+  #jlabBasePage.flashcard-page--editor .editor-toolbar--sheet > .editor-toolbar__group > .btn {
+    flex: 1;
+  }
+  #jlabBasePage.flashcard-page--editor .edit-card { padding: 20px 18px; }
+  #jlabBasePage.flashcard-page--editor .edit-card__head { align-items: flex-start; }
+  #jlabBasePage.flashcard-page--editor .edit-card__actions { flex-wrap: wrap; }
+  #jlabBasePage.flashcard-page--editor .ai-review-item { grid-template-columns: auto 1fr; }
+  #jlabBasePage.flashcard-page--editor .ai-review-item__value { grid-column: 2; }
+  #jlabBasePage.flashcard-page--editor .ai-review-item__warning { grid-column: 2; }
+}

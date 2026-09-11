@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo bài học | JLAS Shadowing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/theme-bridge.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260830-kitsu-mascot">
+    <link rel="icon" href="/images/jlab.png" type="image/png"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+</head>
+<body id="jlabBasePage" class="page-shadowing page-shadowing-create">
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="container">
+        <section>
+            <header class="section-header">
+                <h1 class="hero-display">Tạo bài học mới.</h1>
+                <p class="caption" style="margin-top:8px;opacity:0.9">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Nội dung công khai sẽ được kiểm tra an toàn
+                    (không chứa dung khiêu dâm, thù ghét, bạo lực…).
+                </p>
+            </header>
+
+            <div class="create-mode-tabs" role="tablist">
+                <button type="button" class="create-mode-tab active" data-mode="file" role="tab" aria-selected="true">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Tải file lên
+                </button>
+                <button type="button" class="create-mode-tab" data-mode="youtube" role="tab" aria-selected="false">
+                    <i class="fa-brands fa-youtube"></i> Link YouTube
+                </button>
+            </div>
+
+            <!-- Tải file (video hoặc audio) -->
+            <div id="panel-file" class="store-utility-card create-panel" role="tabpanel">
+                <div id="dropzone" class="upload-dropzone">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px; color: var(--primary); margin-bottom: 12px;"></i>
+                    <p class="tagline" style="margin: 0 0 4px;">Kéo thả video hoặc audio vào đây</p>
+                    <p class="caption">Video: MP4, MOV, WebM · Audio: MP3, WAV, M4A, OGG — tối đa 5 phút, 100MB</p>
+                    <input type="file" id="video-file" accept="video/*,audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac,.mp3,.wav,.m4a,.ogg,.flac,.aac,.opus" hidden>
+                    <p id="file-info" class="caption" style="margin-top: 12px;"></p>
+                </div>
+
+                <div class="form-group" style="margin-top: 24px;">
+                    <label class="form-label" for="title-input">Tiêu đề</label>
+                    <input type="text" id="title-input" class="form-input" placeholder="Nhập tiêu đề bài học">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="thumbnail-file">Ảnh bìa</label>
+                    <div id="thumb-dropzone" class="upload-dropzone" style="padding: 20px; min-height: auto;">
+                        <i class="fa-solid fa-image" style="font-size: 24px; color: var(--primary); margin-bottom: 8px;"></i>
+                        <p class="caption" style="margin: 0;">Chọn ảnh đại diện (JPG, PNG, WebP — tối đa 5MB)</p>
+                        <input type="file" id="thumbnail-file" accept="image/jpeg,image/png,image/webp" hidden>
+                        <div id="thumb-preview" style="margin-top: 12px; display: none;">
+                            <img id="thumb-preview-img" alt="Xem trước" style="max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: cover;">
+                        </div>
+                        <p id="thumb-info" class="caption" style="margin-top: 8px;"></p>
+                    </div>
+                </div>
+
+                <div class="create-shared-options">
+                    <div class="form-group">
+                        <label class="form-label" for="file-category-select">Thể loại</label>
+                        <select id="file-category-select" class="form-input form-select">
+                            <option value="Podcast">Podcast</option>
+                            <option value="Anime">Anime</option>
+                            <option value="Drama">Phim kịch</option>
+                            <option value="News">Tin tức</option>
+                            <option value="Speech">Bài phát biểu</option>
+                            <option value="Daily" selected>Hàng ngày</option>
+                            <option value="Story">Truyện</option>
+                            <option value="JLPT">JLPT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="file-lang-select">Dịch sang</label>
+                        <select id="file-lang-select" class="form-input form-select">
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="en">Tiếng Anh</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label class="form-check furigana-option" for="file-furigana-check">
+                    <input type="checkbox" id="file-furigana-check">
+                    <span><strong>Tạo furigana + dịch bằng AI</strong> — chậm, <em>tối đa 20 phút</em>. Tắt = không gọi AI, không giới hạn 20 phút (chỉ file/STT).</span>
+                </label>
+
+                <div class="form-actions">
+                    <button onclick="window.location.href='/shadowing'" class="text-link"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                    <button id="upload-btn" class="button-primary" disabled><i class="fa-solid fa-play"></i> Bắt đầu xử lý</button>
+                </div>
+                <p id="file-status" class="caption create-status"></p>
+            </div>
+
+            <!-- YouTube -->
+            <div id="panel-youtube" class="store-utility-card create-panel" role="tabpanel" hidden>
+                <div class="youtube-url-field">
+                    <label class="form-label" for="youtube-url-input"><i class="fa-brands fa-youtube"></i> Dán link YouTube</label>
+                    <input type="url" id="youtube-url-input" class="form-input" placeholder="https://www.youtube.com/watch?v=... hoặc https://youtu.be/...">
+                    <p class="caption">Hỗ trợ youtube.com/watch, youtu.be, shorts. Phân tích trước — chỉ tải khi bạn xác nhận.</p>
+                </div>
+
+                <div class="form-actions youtube-analyze-actions">
+                    <button id="analyze-btn" class="button-primary"><i class="fa-solid fa-magnifying-glass"></i> Phân tích video</button>
+                </div>
+                <p id="youtube-status" class="caption create-status"></p>
+
+                <div id="analyze-result" class="youtube-analyze-result" hidden>
+                    <div class="youtube-preview">
+                        <img id="preview-thumb" alt="" class="youtube-preview-thumb">
+                        <div class="youtube-preview-meta">
+                            <h3 id="preview-title" class="title-truncate"></h3>
+                            <p id="preview-channel" class="caption"></p>
+                            <p id="preview-duration" class="caption"></p>
+                            <ul id="preview-badges" class="youtube-preview-badges"></ul>
+                        </div>
+                    </div>
+
+                    <div id="language-check-panel" class="language-check-panel" hidden aria-live="polite">
+                        <img id="language-check-mascot" src="/images/kitsu.png" alt="Kitsu-chan">
+                        <div>
+                            <strong id="language-check-title">Kiểm tra ngôn ngữ</strong>
+                            <p id="language-check-message"></p>
+                        </div>
+                    </div>
+
+                    <div class="create-shared-options">
+                        <div class="form-group">
+                            <label class="form-label" for="yt-category-select">Thể loại</label>
+                            <select id="yt-category-select" class="form-input form-select">
+                                <option value="Podcast">Podcast</option>
+                                <option value="Anime">Anime</option>
+                                <option value="Drama">Phim kịch</option>
+                                <option value="News">Tin tức</option>
+                                <option value="Speech">Bài phát biểu</option>
+                                <option value="Daily" selected>Hàng ngày</option>
+                                <option value="Story">Truyện</option>
+                                <option value="JLPT">JLPT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="yt-lang-select">Dịch sang</label>
+                            <select id="yt-lang-select" class="form-input form-select">
+                                <option value="vi">Tiếng Việt</option>
+                                <option value="en">Tiếng Anh</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="form-check furigana-option" for="yt-furigana-check">
+                        <input type="checkbox" id="yt-furigana-check">
+                        <span><strong>Tạo furigana + dịch bằng AI</strong> — mặc định tắt. Tắt = chỉ dùng phụ đề YouTube, <em>không gọi AI</em>.</span>
+                    </label>
+
+                    <div class="form-actions">
+                        <button id="import-btn" class="button-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Shadowing</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/auth-session.js"></script>
+    <script src="/js/jlab-base-shell.js"></script>
+    <script src="/shadowing/js/client.js?v=20260718"></script>
+    <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
+    <script src="/shadowing/js/upload.js?v=20260830-kitsu-wording"></script>
+</body>
+</html>

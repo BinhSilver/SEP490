@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết bộ thẻ — JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/inputs.css" />
+  <link rel="stylesheet" href="/css/components/toast.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css">
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css">
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/flashcard/set-theme.css" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+</head>
+
+<body id="jlabBasePage" class="flashcard-page flashcard-page--set">
+  <div id="jlabBaseShellMount"></div>
+  <main id="jlabBaseContent" class="page">
+    <aside class="fc-stitch-sidebar" aria-label="Thư viện Flashcard">
+      <div class="fc-stitch-sidebar__label">Thư viện</div>
+      <nav class="fc-stitch-sidebar__nav">
+        <a data-sidebar-tab="public" href="/flashcard/library.html"><i class="fa-regular fa-rectangle-list"></i> Bộ thẻ công khai</a>
+        <a data-sidebar-tab="my" href="/flashcard/library.html?tab=my"><i class="fa-regular fa-folder-open"></i> Bộ thẻ của tôi</a>
+        <span class="fc-stitch-sidebar__item is-muted" aria-disabled="true"><i class="fa-regular fa-star"></i> Yêu thích</span>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <div class="container container-wide set-detail-wrap">
+        <a href="/flashcard/library.html" class="btn btn-ghost btn-sm set-back">
+          <i class="fa-solid fa-arrow-left"></i> Thư viện
+        </a>
+
+        <div id="set-loading" class="lib-loading"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải...</div>
+        <div id="set-error" class="lib-empty" hidden>
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p id="set-error-msg">Không tải được bộ thẻ.</p>
+          <a class="btn btn-primary" href="/flashcard/library.html">Về thư viện</a>
+        </div>
+
+        <article id="set-main" hidden>
+          <header class="set-hero card">
+            <div class="set-hero__text">
+              <h1 class="set-title" id="set-title">—</h1>
+              <p class="set-meta muted" id="set-meta"></p>
+              <p class="set-desc" id="set-desc"></p>
+              <div class="set-rating-summary" id="set-rating-summary"></div>
+            </div>
+            <div class="set-hero__actions">
+              <a class="btn btn-primary btn-lg" id="btn-study" href="#"><i class="fa-solid fa-graduation-cap"></i> Học
+                ngay</a>
+              <button type="button" class="btn btn-ghost btn-lg" id="btn-quiz"><i class="fa-solid fa-bolt"></i>
+                Kiểm tra</button>
+              <button type="button" class="btn btn-ghost" id="btn-clone"><i class="fa-solid fa-clone"></i> Nhân
+                bản</button>
+              <button type="button" class="btn btn-ghost" id="btn-fav" title="Yêu thích"><i
+                  class="fa-regular fa-heart"></i></button>
+              <a class="btn btn-ghost" id="btn-edit" hidden href="#"><i class="fa-solid fa-pen"></i> Sửa</a>
+            </div>
+          </header>
+
+          <section class="card set-section">
+            <h2 class="set-section-title"><i class="fa-solid fa-table-list"></i> Xem trước thẻ</h2>
+            <div class="set-preview-table-wrap">
+              <table class="set-preview-table">
+                <thead>
+                  <tr>
+                    <th>Mặt trước</th>
+                    <th>Mặt sau</th>
+                    <th>Hán Việt</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-body"></tbody>
+              </table>
+            </div>
+            <p class="muted" id="preview-more" hidden></p>
+          </section>
+
+          <section class="card set-section">
+            <h2 class="set-section-title">
+              <i class="fa-solid fa-comments"></i> Bình luận
+              <span class="muted" id="comment-count-label">(0)</span>
+            </h2>
+            <div class="comment-form" id="comment-form-wrap">
+              <textarea id="comment-text" class="comment-textarea" rows="3" maxlength="2000"
+                placeholder="Viết nhận xét về bộ thẻ..."></textarea>
+              <div class="comment-form-row">
+                <div>
+                  <span class="caption">Sao kèm (tuỳ chọn):</span>
+                  <div class="star-rating interactive star-rating--sm" id="comment-stars"></div>
+                </div>
+                <button type="button" class="btn btn-primary" id="btn-send-comment"><i
+                    class="fa-solid fa-paper-plane"></i> Gửi</button>
+              </div>
+              <p class="field-error" id="comment-error" hidden></p>
+            </div>
+            <div id="comment-list" class="comment-list"></div>
+          </section>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="login-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3>Đăng nhập để đánh giá</h3>
+        <button type="button" class="btn-icon" id="btn-close-login" aria-label="Đóng"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="muted">Bạn cần đăng nhập để chấm sao hoặc gửi bình luận.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-login">Đóng</button>
+        <a class="btn btn-primary" href="/login">Đăng nhập</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/flashcard/js/api-client.js"></script>
+  <script src="/flashcard/js/shell.js"></script>
+  <script src="/flashcard/js/set-page.js"></script>
+</body>
+
+</html>

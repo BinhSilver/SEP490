@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang xử lý | JLAS Shadowing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/theme-bridge.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260829">
+    <link rel="icon" href="/images/jlab.png" type="image/png"/>
+    <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260910-processing"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+</head>
+<body id="jlabBasePage" class="page-shadowing page-shadowing-processing">
+    <div id="jlabBaseShellMount"></div>
+
+    <input type="hidden" id="video-id" th:value="${videoId}">
+
+    <main id="jlabBaseContent" class="container">
+        <section>
+            <header class="section-header">
+                <h1 class="hero-display" id="video-title">Đang xử lý...</h1>
+            </header>
+
+            <div id="processingWorkspace">
+                <aside id="processingKitsuGuide" role="status" aria-live="polite">
+                    <div th:replace="~{fragments/components/kitsu-guide :: guide(
+                        'Kitsu-chan đang chuẩn bị bài học',
+                        'Bạn có thể rời trang và quay lại sau. Mình sẽ tiếp tục theo dõi quá trình xử lý!')}"></div>
+                </aside>
+
+                <div id="processingProgressCard" class="store-utility-card">
+                <ul class="progress-steps" id="steps">
+                    <li data-step="UPLOADED"><span class="step-icon fa-regular fa-circle"></span> Bắt đầu</li>
+                    <li data-step="YOUTUBE_DOWNLOAD"><span class="step-icon fa-regular fa-circle"></span> Tải video</li>
+                    <li data-step="SUBTITLE_DOWNLOAD"><span class="step-icon fa-regular fa-circle"></span> Tải / tạo phụ đề</li>
+                    <li data-step="EXTRACTING_AUDIO"><span class="step-icon fa-regular fa-circle"></span> Tách âm thanh</li>
+                    <li data-step="TRANSCRIBING"><span class="step-icon fa-regular fa-circle"></span> Nhận dạng giọng nói</li>
+                    <li data-step="AI_PROCESSING"><span class="step-icon fa-regular fa-circle"></span> Furigana &amp; dịch (AI)</li>
+                </ul>
+
+                <div class="progress-bar" style="margin: 16px 0;">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+                <p class="caption" id="progress-text" style="text-align: center;">0%</p>
+                <p id="step-status" class="caption" style="text-align: center; margin-top: 8px;"></p>
+                <p id="error-msg" class="caption" style="color: var(--danger); text-align: center; display: none;"></p>
+
+                <div style="text-align: center; margin-top: 24px; display: flex; gap: 12px; justify-content: center;">
+                    <button id="processing-done-button" type="button" onclick="window.location.href='/shadowing'" class="button-primary" hidden>
+                        <i class="fa-solid fa-check"></i> Bài học đã hoàn tất — về thư viện Shadowing
+                    </button>
+                    <button id="retry-btn" class="button-secondary" style="display: none;"><i class="fa-solid fa-rotate-right"></i> Thử lại</button>
+                </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/auth-session.js"></script>
+    <script src="/js/jlab-base-shell.js"></script>
+    <script src="/shadowing/js/client.js?v=20260711"></script>
+    <script src="/shadowing/js/processing.js?v=20260910-processing-state" ></script>
+    <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->
+    <script src="http://localhost:35729/livereload.js?snipver=1" defer></script>
+</body>
+</html>

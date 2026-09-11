@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chọn cách học | JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/theme-bridge.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260831-layout12">
+    <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="icon" href="/images/jlab.png" type="image/png">
+</head>
+<body id="jlabBasePage" class="page-shadowing-practice-select">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent">
+    <input id="practice-video-id" type="hidden" th:value="${videoId}">
+    <div id="practice-select-shell">
+        <a id="practice-library-link" href="/shadowing">Thư viện</a>
+        <header id="practice-select-header">
+            <div>
+                <span id="practice-eyebrow">Bắt đầu bài học</span>
+                <h1 id="practice-video-title">Đang tải bài học…</h1>
+                <p><span id="practice-subtitle-count">-- câu</span> · Chọn cách bạn muốn luyện hôm nay.</p>
+            </div>
+            <img src="/images/kitsu.png" alt="Kitsu-chan" id="practice-kitsu">
+        </header>
+
+        <section id="practice-mode-section" aria-labelledby="practice-mode-heading">
+            <h2 id="practice-mode-heading">Chọn chế độ</h2>
+            <div id="practice-mode-grid">
+                <button type="button" class="practice-mode-card is-selected" data-mode="SHADOWING" aria-pressed="true">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span><strong>Shadowing</strong><small>Nghe, đọc theo, thu âm và chấm phát âm như hiện tại.</small></span>
+                    <em>Hiện có</em>
+                </button>
+                <button type="button" class="practice-mode-card" data-mode="CLOZE" aria-pressed="false">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span><strong>Điền từ hoặc cụm</strong><small>AI che phần quan trọng; bạn nghe rồi điền đúng nội dung còn thiếu.</small></span>
+                    <em>Nghe chọn lọc</em>
+                </button>
+                <button type="button" class="practice-mode-card" data-mode="DICTATION" aria-pressed="false">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <span><strong>Điền cả câu</strong><small>Ẩn toàn bộ phụ đề. Dấu câu và khoảng trắng không ảnh hưởng kết quả.</small></span>
+                    <em>Nghe chuyên sâu</em>
+                </button>
+            </div>
+        </section>
+
+        <section id="practice-options" hidden aria-labelledby="practice-options-heading">
+            <h2 id="practice-options-heading">Thiết lập phiên học</h2>
+            <div id="practice-option-grid">
+                <fieldset id="practice-order-options">
+                    <legend>Thứ tự độ khó</legend>
+                    <label><input type="radio" name="practice-order" value="PROGRESSIVE" checked><span><strong>Tăng dần</strong><small>AI chọn các điểm dừng tăng dần độ khó theo tiến trình video.</small></span></label>
+                    <label><input type="radio" name="practice-order" value="RANDOM"><span><strong>Ngẫu nhiên có trọng số</strong><small>AI chọn điểm dừng rải trong bài, ưu tiên câu trung bình và khó.</small></span></label>
+                </fieldset>
+                <fieldset id="practice-count-options">
+                    <legend>Số câu muốn làm</legend>
+                    <div id="practice-count-presets">
+                        <label><input type="radio" name="practice-count" value="5"><span>5</span></label>
+                        <label><input type="radio" name="practice-count" value="10" checked><span>10</span></label>
+                        <label><input type="radio" name="practice-count" value="20"><span>20</span></label>
+                        <label><input type="radio" name="practice-count" value="ALL"><span>Hết bài</span></label>
+                        <label><input type="radio" name="practice-count" value="CUSTOM"><span>Tùy chọn</span></label>
+                    </div>
+                    <input id="practice-custom-count" type="number" min="1" max="500" value="10" hidden aria-label="Số câu tùy chọn">
+                </fieldset>
+            </div>
+        </section>
+
+        <div id="practice-start-row">
+            <p id="practice-status" aria-live="polite"></p>
+            <button id="practice-start-button" type="button">
+                <video id="practice-start-kitsu" muted loop playsinline preload="metadata"
+                       poster="/images/kitsu.png" aria-hidden="true" hidden>
+                    <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
+                </video>
+                <span>Bắt đầu Shadowing</span>
+            </button>
+        </div>
+    </div>
+</main>
+<script src="/js/auth-session.js"></script>
+<script src="/js/jlab-base-shell.js"></script>
+<script src="/shadowing/js/client.js"></script>
+<script src="/shadowing/js/practice-select.js?v=20260831-kitsu-video4"></script>
+</body>
+</html>

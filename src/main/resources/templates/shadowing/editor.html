@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa phụ đề | JLAS Shadowing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/theme-bridge.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="icon" href="/images/jlab.png" type="image/png"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260910-editor-play-button"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+</head>
+<body id="jlabBasePage" class="page-shadowing page-shadowing-editor">
+    <div id="jlabBaseShellMount"></div>
+
+    <input type="hidden" id="video-id" th:value="${videoId}">
+
+    <main id="jlabBaseContent" class="container">
+        <div class="editor-toolbar">
+            <div>
+                <h1 class="tagline" id="editor-title" title="Nhấn để sửa tiêu đề">Tiêu đề: …</h1>
+                <span class="save-indicator synced" id="save-indicator" title="Mọi thay đổi đã được lưu">
+                    <i class="fa-solid fa-cloud-arrow-up save-indicator-icon"></i>
+                    <span class="save-indicator-text">Đã lưu</span>
+                </span>
+            </div>
+            <div class="editor-toolbar-actions">
+                <button id="undo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-left"></i> Hoàn tác</button>
+                <button id="redo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-right"></i> Làm lại</button>
+                <button id="focus-mode-btn" class="button-secondary btn-sm"><i class="fa-solid fa-crosshairs"></i> Tập trung</button>
+                <button id="regenerate-all-btn" class="button-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại phụ đề</button>
+                <button id="validate-btn" class="button-secondary btn-sm"><i class="fa-solid fa-clipboard-check"></i> Kiểm tra</button>
+                <button id="publish-btn" class="button-primary"><i class="fa-solid fa-upload"></i> Xuất bản</button>
+            </div>
+        </div>
+
+        <div id="metadata-panel" class="store-utility-card metadata-panel" style="display:none; margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">Tiêu đề</label>
+                <input type="text" id="meta-title" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="meta-category">Thể loại</label>
+                <select id="meta-category" class="form-input form-select">
+                    <option value="Podcast">Podcast</option>
+                    <option value="Anime">Anime</option>
+                    <option value="Drama">Phim kịch</option>
+                    <option value="News">Tin tức</option>
+                    <option value="Speech">Bài phát biểu</option>
+                    <option value="Daily">Hàng ngày</option>
+                    <option value="Story">Truyện</option>
+                    <option value="JLPT">JLPT</option>
+                </select>
+            </div>
+            <button id="save-meta-btn" class="button-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Lưu thông tin</button>
+        </div>
+
+        <div class="editor-layout" id="editor-layout">
+            <div class="editor-video-col">
+                <div class="video-container">
+                    <div class="video-surface">
+                        <video id="editor-video"></video>
+                    </div>
+                    <div class="player-controls" style="justify-content: center;">
+                        <button id="editor-play-btn" class="control-btn play-main">
+                            <i class="fa-solid fa-play" id="editor-play-icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="timeline-card">
+                    <p class="caption" style="margin:0 0 8px;"><i class="fa-solid fa-chart-gantt"></i> Dòng thời gian</p>
+                    <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="editor-list-col" id="subtitle-editor-list"></div>
+        </div>
+
+    </main>
+
+    <script src="/js/auth-session.js"></script>
+    <script src="/js/jlab-base-shell.js"></script>
+    <script src="/shadowing/js/client.js?v=20260712"></script>
+    <script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
+    <script src="/flashcard/js/prevalidation.js"></script>
+    <script src="/shadowing/js/editor.js?v=20260910-publish-copy"></script>
+    <script>
+      // BR-11 — Pre-validation cho tiêu đề video Shadowing
+      document.addEventListener('DOMContentLoaded', function () {
+        var t = document.getElementById('meta-title');
+        if (t && window.PreValidation) {
+          PreValidation.bind(t, ['required', 'max:255']);
+        }
+      });
+    </script>
+    <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->
+    <script src="http://localhost:35729/livereload.js?snipver=1" defer></script>
+</body>
+</html>
