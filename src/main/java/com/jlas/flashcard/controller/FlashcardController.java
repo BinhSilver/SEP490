@@ -4,7 +4,9 @@ import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.flashcard.dto.FlashcardDtos.*;
 import com.jlas.flashcard.service.FlashcardService;
+import com.jlas.moderation.service.ContentModerationService;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController @RequestMapping("/api") @RequiredArgsConstructor
 public class FlashcardController {
     private final FlashcardService flashcards;
+    private final ContentModerationService moderation;
     @GetMapping("/flashcards/public") public ResponseEntity<ApiResponse<PageResponse<SetSummaryDto>>> publicSets(@RequestParam(required=false) String title,@RequestParam(defaultValue="NEWEST") String sort,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="12") int size,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.publicSets(title,sort,page,size,id(user)));}
     @GetMapping("/flashcards/my") public ResponseEntity<ApiResponse<PageResponse<SetSummaryDto>>> mine(@RequestParam(required=false) String title,@RequestParam(required=false) Long folderId,@RequestParam(defaultValue="NEWEST") String sort,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="12") int size,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.mySets(title,sort,page,size,folderId,id(user)));}
     @GetMapping("/flashcards/{setId}") public ResponseEntity<ApiResponse<SetDetailDto>> set(@PathVariable Long setId,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.set(setId,id(user)));}
@@ -39,6 +42,17 @@ public class FlashcardController {
     @PostMapping("/flashcards/cards/enrich-batch") public ResponseEntity<ApiResponse<List<EnrichResponse>>> enrichBatch(@RequestBody EnrichBatchRequest request){return ok("Generated",flashcards.enrichBatch(request.getKanjis()));}
     @PostMapping("/flashcards/cards/{cardId}/generate-hanviet") public ResponseEntity<ApiResponse<CardDto>> enrichSaved(@PathVariable Long cardId,@AuthenticationPrincipal UserPrincipal user){return ok("Generated",flashcards.enrichCard(cardId,id(user)));}
     @PostMapping("/flashcards/cards/generate-hanviet") public ResponseEntity<ApiResponse<List<CardDto>>> enrichSavedBatch(@RequestBody BatchHanVietRequest request,@AuthenticationPrincipal UserPrincipal user){return ok("Generated",flashcards.enrichCards(request,id(user)));}
+    /** Denylist pre-check used by the editor before a public set is saved. */
+    @PostMapping("/v1/flashcards/validate-realtime") public ResponseEntity<ApiResponse<RealtimeValidationResponse>> validateRealtime(@RequestBody RealtimeValidationRequest request){
+        List<RealtimeViolation> violations=new ArrayList<>();
+        addViolations(violations,"title",null,request.title());
+        addViolations(violations,"description",null,request.description());
+        if(request.cards()!=null) for(int i=0;i<request.cards().size();i++){
+            RealtimeCard card=request.cards().get(i);
+            if(card!=null){addViolations(violations,"front",i,card.front());addViolations(violations,"back",i,card.back());}
+        }
+        return ok("OK",new RealtimeValidationResponse(violations.isEmpty(),violations));
+    }
     @GetMapping("/study/{setId}") public ResponseEntity<ApiResponse<StudySessionDto>> study(@PathVariable Long setId,@RequestParam(defaultValue="ALL") String mode,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.study(setId,mode,id(user)));}
     @PostMapping("/study/review") public ResponseEntity<ApiResponse<StudySummaryDto>> review(@RequestBody ReviewRequest request,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.review(request,id(user)));}
     @GetMapping("/study/{setId}/summary") public ResponseEntity<ApiResponse<StudySummaryDto>> summary(@PathVariable Long setId,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.summary(setId,id(user)));}
@@ -64,5 +78,10 @@ public class FlashcardController {
     @GetMapping("/vocab/sets/{setId}/by-kanji") public List<CardDto> byKanji(@PathVariable Long setId,@RequestParam(defaultValue="") String q,@AuthenticationPrincipal UserPrincipal user){return flashcards.set(setId,id(user)).getCards().stream().filter(card->card.getKanji()!=null&&card.getKanji().contains(q)).toList();}
     @GetMapping("/vocab/sets/{setId}/by-hanviet") public List<CardDto> byHanViet(@PathVariable Long setId,@RequestParam(defaultValue="") String q,@AuthenticationPrincipal UserPrincipal user){return flashcards.set(setId,id(user)).getCards().stream().filter(card->card.getHanViet()!=null&&card.getHanViet().toLowerCase().contains(q.toLowerCase())).toList();}
     @PatchMapping("/vocab/cards/{cardId}/progress") public CardDto progress(@PathVariable Long cardId,@RequestBody ProgressRequest request,@AuthenticationPrincipal UserPrincipal user){return flashcards.updateProgress(cardId,request,id(user));}
+    private void addViolations(List<RealtimeViolation> violations,String field,Integer cardIndex,String value){for(ContentModerationService.DenylistMatch match:moderation.findDenylistMatches(value))violations.add(new RealtimeViolation(field,cardIndex,match.term(),match.start(),match.end()));}
     private Long id(UserPrincipal user){return user==null?null:user.userId();} private <T> ResponseEntity<ApiResponse<T>> ok(String message,T body){return ResponseEntity.ok(ApiResponse.ok(message,body));}
+    public record RealtimeValidationRequest(String title,String description,List<RealtimeCard> cards){}
+    public record RealtimeCard(String front,String back){}
+    public record RealtimeValidationResponse(boolean valid,List<RealtimeViolation> violations){}
+    public record RealtimeViolation(String field,Integer cardIndex,String term,int start,int end){}
 }
