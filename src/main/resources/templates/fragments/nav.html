@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="platform-links(active)">
+    <a th:href="@{/}" th:classappend="${active == 'home'} ? ' is-active'" title="Trang chủ JLAS">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        <span>Trang chủ</span>
+    </a>
+    <a th:href="@{/learning/path}" th:classappend="${active == 'onyomi'} ? ' is-active'" title="Lộ trình Hán Việt  On">
+        <i class="fa-solid fa-route" aria-hidden="true"></i>
+        <span>Onyomi</span>
+    </a>
+    <button type="button" class="platform-nav-disabled" aria-disabled="true" title="Tính năng tra cứu đã tắt">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span>Tra cứu</span>
+    </button>
+    <a th:href="@{/games}" th:classappend="${active == 'game'} ? ' is-active'" title="Chơi game luyện tiếng Nhật">
+        <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
+        <span>Game</span>
+    </a>
+    <div class="dropdown nav-tools-dropdown">
+        <button type="button" class="nav-tools-trigger" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
+            th:classappend="${active == 'aicall' or active == 'flashcard' or active == 'shadowing'} ? ' is-active'">
+            <i class="fa-solid fa-grid-2" aria-hidden="true"></i>
+            <span>Công cụ</span>
+            <i class="fa-solid fa-chevron-down nav-tools-trigger__chevron" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown__menu nav-tools-menu" role="menu">
+            <a th:href="@{/ai-call}" class="dropdown__item" role="menuitem">
+                <i class="fa-solid fa-comments" aria-hidden="true"></i> AI Call
+            </a>
+            <a th:href="@{/flashcard/library.html}" class="dropdown__item" role="menuitem">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i> Flashcard
+            </a>
+            <a th:href="@{/shadowing}" class="dropdown__item" role="menuitem">
+                <i class="fa-solid fa-headphones" aria-hidden="true"></i> Shadowing
+            </a>
+        </div>
+    </div>
+</th:block>
+
+<header th:fragment="platform-bar(active)" th:replace="~{fragments/header :: header-marketing}"></header>
+
+</html>
