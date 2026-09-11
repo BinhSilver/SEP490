@@ -17,6 +17,7 @@
   var confirmPasswordInput = document.getElementById('confirmPassword');
   var otpDigits = Array.from(document.querySelectorAll('.otp-digit'));
   var REGISTER_FIELDS = ['fullName', 'email', 'password', 'confirmPassword'];
+  var FULL_NAME_PATTERN = /^\p{Script=Latin}[\p{Script=Latin}\p{M}]*(?: \p{Script=Latin}[\p{Script=Latin}\p{M}]*)*$/u;
   var PASSWORD_RULES = {
     length: function (value) { return value.length >= 8 && value.length <= 100; },
     case: function (value) { return /[a-z]/.test(value) && /[A-Z]/.test(value); },
@@ -60,6 +61,10 @@
     });
   }
 
+  function isFullNameValid(value) {
+    return FULL_NAME_PATTERN.test(value);
+  }
+
   function validateRegistration() {
     JLabAuth.clearFieldErrors(REGISTER_FIELDS);
     var fullName = fullNameInput.value.trim();
@@ -69,6 +74,8 @@
       JLabAuth.setFieldError('fullName', 'Vui lòng nhập họ và tên.');
     } else if (fullName.length < 2) {
       JLabAuth.setFieldError('fullName', 'Họ và tên cần có ít nhất 2 ký tự.');
+    } else if (!isFullNameValid(fullName)) {
+      JLabAuth.setFieldError('fullName', 'Họ và tên chỉ được gồm chữ cái tiếng Việt và khoảng trắng giữa các từ.');
     }
     if (!email) {
       JLabAuth.setFieldError('email', 'Vui lòng nhập email.');
@@ -201,12 +208,26 @@
     var name = fullNameInput.value.trim();
     if (!name) JLabAuth.setFieldError('fullName', 'Vui lòng nhập họ và tên.');
     else if (name.length < 2) JLabAuth.setFieldError('fullName', 'Họ và tên cần có ít nhất 2 ký tự.');
+    else if (!isFullNameValid(name)) JLabAuth.setFieldError('fullName', 'Họ và tên chỉ được gồm chữ cái tiếng Việt và khoảng trắng giữa các từ.');
+    else JLabAuth.setFieldError('fullName', '');
+  });
+  fullNameInput.addEventListener('blur', function () {
+    var name = fullNameInput.value.trim();
+    if (!name) return;
+    if (name.length < 2) JLabAuth.setFieldError('fullName', 'Họ và tên cần có ít nhất 2 ký tự.');
+    else if (!isFullNameValid(name)) JLabAuth.setFieldError('fullName', 'Họ và tên chỉ được gồm chữ cái tiếng Việt và khoảng trắng giữa các từ.');
     else JLabAuth.setFieldError('fullName', '');
   });
   emailInput.addEventListener('input', function () {
     if (emailInput.getAttribute('aria-invalid') !== 'true') return;
     if (!emailInput.value.trim()) JLabAuth.setFieldError('email', 'Vui lòng nhập email.');
     else if (!emailInput.validity.valid) JLabAuth.setFieldError('email', 'Email chưa đúng định dạng.');
+    else JLabAuth.setFieldError('email', '');
+  });
+  emailInput.addEventListener('blur', function () {
+    var email = emailInput.value.trim();
+    if (!email) return;
+    if (!emailInput.validity.valid) JLabAuth.setFieldError('email', 'Email chưa đúng định dạng.');
     else JLabAuth.setFieldError('email', '');
   });
 

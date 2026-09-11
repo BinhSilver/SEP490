@@ -1,0 +1,179 @@
+/* Header / Top nav — exact v0.app template (Auw4otwlr20) design */
+
+:root {
+  --charcoal: #161d1f;
+  --charcoal-2: #494551;
+  --pink-deep: #4f378a;
+  --pink-accent: #6750a4;
+  --sakura: #e9ddff;
+  --ivory: #f4fafd;
+  --bg-gradient-static: linear-gradient(135deg, #f4fafd 0%, #eef5f7 64%, #e9ddff 100%);
+  --bg-gradient-animated: linear-gradient(135deg, #f4fafd, #eef5f7, #e9ddff);
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header, 100);
+  height: 72px;
+  display: flex;
+  align-items: center;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+  transition: all 300ms ease;
+}
+
+/* Ensure all page content starts cleanly below fixed 72px header on non-home pages */
+body:not(.page-home) {
+  padding-top: 80px !important;
+}
+
+/* Non-home pages need an opaque fixed bar so scrolling content never shows through it. */
+body:not(.page-home) .site-header {
+  position: fixed;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--color-outline-variant) !important;
+  box-shadow: 0 5px 20px rgba(22, 29, 31, 0.08);
+}
+
+.site-header__inner {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding: 0 var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.site-header__brand {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary) !important;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-header__brand span.tm {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-outline);
+}
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.site-header__nav a,
+.site-header__nav button.platform-nav-disabled,
+.nav-link {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-on-surface-variant) !important;
+  text-decoration: none;
+  position: relative;
+  transition: color 300ms ease;
+}
+
+.site-header__nav button.platform-nav-disabled {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+  opacity: 0.7;
+}
+
+.site-header__nav a:hover,
+.site-header__nav button.platform-nav-disabled:hover,
+.nav-link:hover {
+  color: var(--color-primary) !important;
+}
+
+.site-header__nav a::after,
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-primary);
+  transition: width 300ms ease;
+}
+
+.site-header__nav a:hover::after,
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-tools-dropdown {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-tools-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: color 300ms ease;
+}
+
+.nav-tools-trigger:hover,
+.nav-tools-trigger.is-active,
+.dropdown.is-open .nav-tools-trigger {
+  color: var(--color-primary);
+}
+
+.nav-tools-trigger__chevron {
+  font-size: 0.7em;
+  transition: transform 180ms ease;
+}
+
+.dropdown.is-open .nav-tools-trigger__chevron {
+  transform: rotate(180deg);
+}
+
+.nav-tools-menu {
+  top: calc(100% + 10px);
+  right: auto;
+  left: 0;
+  min-width: 184px;
+}
+
+.nav-tools-menu .dropdown__item {
+  gap: 10px;
+}
+
+.nav-tools-menu .dropdown__item i {
+  width: 18px;
+  color: inherit;
+  text-align: center;
+}
+
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.site-header__spacer {
+  flex: 1;
+}

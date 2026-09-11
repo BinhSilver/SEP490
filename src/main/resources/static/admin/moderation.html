@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duyệt nội dung — Admin JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/tokens.css"/>
+  <link rel="stylesheet" href="/css/theme-bridge.css"/>
+  <link rel="stylesheet" href="/css/base.css"/>
+  <link rel="stylesheet" href="/flashcard/styles.css">
+  <link rel="stylesheet" href="/css/components/brand.css"/>
+  <link rel="stylesheet" href="/css/components/header.css"/>
+  <link rel="stylesheet" href="/css/components/dropdowns.css"/>
+  <link rel="stylesheet" href="/css/components/user-menu.css"/>
+  <link rel="stylesheet" href="/css/components/platform-nav.css"/>
+  <link rel="stylesheet" href="/css/pages/moderation.css"/>
+  <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+  <link rel="icon" href="/images/jlab.png" type="image/png"/>
+</head>
+<body id="jlabBasePage" class="page-moderation">
+  <div id="jlabBaseShellMount"></div>
+  <main id="jlabBaseContent" class="admin-wrap">
+    <h1><i class="fa-solid fa-shield-halved"></i> Hàng đợi duyệt nội dung</h1>
+    <p class="muted">Dành cho MODERATOR và ADMIN. Video/bộ thẻ được duyệt sẽ công khai; bình luận được duyệt sẽ hiển thị lại.</p>
+    <p><a href="/flashcard/library.html">← Thư viện thẻ</a></p>
+    <div id="queue"></div>
+    <p id="empty" hidden>Không có mục OPEN.</p>
+  </main>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/flashcard/js/api-client.js"></script>
+  <script>
+    (async function () {
+      var queue = document.getElementById('queue');
+      var empty = document.getElementById('empty');
+      try {
+        var items = await FlashApi.get('/api/admin/moderation/queue');
+        if (!items || !items.length) {
+          empty.hidden = false;
+          return;
+        }
+        queue.innerHTML = items.map(function (it) {
+          var isComment = it.targetType === 'VIDEO_COMMENT' || it.targetType === 'FLASHCARD_COMMENT';
+          var approveLabel = isComment ? 'Hiện bình luận' : 'Duyệt public';
+          var typeLabel = typeName(it.targetType);
+          var confidence = Number.isFinite(Number(it.confidence))
+            ? Math.round(Number(it.confidence) * 100) + '%'
+            : '—';
+          var targetLink = it.targetUrl
+            ? '<a class="moderation-target-link" href="' + escAttr(it.targetUrl) + '" target="_blank" rel="noopener">' +
+                '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Mở nội dung liên quan</a>'
+            : '';
+          var preview = it.contentPreview
+            ? '<p class="moderation-preview"><strong>Nội dung:</strong> ' + esc(it.contentPreview) + '</p>'
+            : '';
+          return (
+            '<article class="admin-item" data-id="' + escAttr(it.id) + '">' +
+              '<div class="moderation-item-head">' +
+                '<div><h3>' + esc(it.titleSnapshot || '(không tiêu đề)') + '</h3>' +
+                  '<div class="moderation-item-meta">' +
+                    '<span class="moderation-type">' + esc(typeLabel) + '</span>' +
+                    '<span>Target #' + esc(it.targetId) + '</span>' +
+                    '<span>Owner #' + esc(it.ownerUserId || '—') + '</span>' +
+                  '</div></div>' +
+                '<div class="moderation-item-meta">' +
+                  '<span class="moderation-risk">Confidence ' + confidence + '</span>' +
+                  '<span class="moderation-source">' + esc(it.source || 'moderation') +
+                    (it.modelName ? ' · ' + esc(it.modelName) : '') + '</span>' +
+                '</div>' +
+              '</div>' +
+              (it.summary ? '<p class="moderation-summary"><strong>Lý do:</strong> ' + esc(it.summary) + '</p>' : '') +
+              preview +
+              (it.categoriesJson ? '<div class="moderation-item-meta">Nhóm: ' + esc(it.categoriesJson) + '</div>' : '') +
+              targetLink +
+              '<div class="moderation-item-actions">' +
+                '<input type="text" placeholder="Ghi chú xử lý (tuỳ chọn)" class="note-input" aria-label="Ghi chú xử lý"/>' +
+                '<button type="button" class="btn btn-primary" data-ok="1">' + approveLabel + '</button>' +
+                '<button type="button" class="btn btn-ghost" data-ok="0">Từ chối</button>' +
+              '</div>' +
+            '</article>'
+          );
+        }).join('');
+        queue.querySelectorAll('.admin-item').forEach(function (row) {
+          var id = row.getAttribute('data-id');
+          row.querySelectorAll('button[data-ok]').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+              var approve = btn.getAttribute('data-ok') === '1';
+              var note = row.querySelector('.note-input').value;
+              try {
+                await FlashApi.post('/api/admin/moderation/queue/' + id + '/resolve', {
+                  approve: approve,
+                  note: note || null
+                });
+                row.remove();
+                if (!queue.children.length) empty.hidden = false;
+              } catch (e) {
+                alert(e.message || 'Lỗi');
+              }
+            });
+          });
+        });
+      } catch (e) {
+        queue.innerHTML = '<p class="moderation-error">Lỗi: ' + esc(e.message || 'Cần đăng nhập với quyền moderator/admin') + '</p>';
+      }
+      function esc(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+      function escAttr(s) {
+        return esc(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+      function typeName(type) {
+        return {
+          VIDEO: 'Video',
+          VIDEO_COMMENT: 'Bình luận video',
+          FLASHCARD_SET: 'Bộ flashcard',
+          FLASHCARD_COMMENT: 'Bình luận flashcard',
+          WORD_CONTRIBUTION: 'Đóng góp từ vựng'
+        }[type] || type || 'Nội dung';
+      }
+    })();
+  </script>
+</body>
+</html>
