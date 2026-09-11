@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard('Lobby · Game Arena', 'lobby')}"></head>
+<body id="jlabBasePage" class="lobby-page">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="lobby-shell">
+    <div class="lobby-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="lobby-layout">
+        <div class="lobby-actions">
+            <section class="card lobby-card lobby-card--create">
+                <div class="lobby-card__accent"></div>
+                <div class="lobby-card__heading"><span aria-hidden="true">✚</span><div><span class="lobby-card__eyebrow">Bắt đầu ngay</span><h2>Tạo phòng</h2></div></div>
+                <form class="lobby-form" data-create-form>
+                    <div class="field"><label class="field__label" for="lobby-game">Chế độ chơi</label><select class="select" id="lobby-game" name="gameType"></select></div>
+                    <div class="lobby-form__row">
+                        <div class="field"><label class="field__label" for="lobby-level">Cấp độ</label><select class="select" id="lobby-level" name="questionLevel"><option value="N5">N5</option><option value="N4">N4</option><option value="N3">N3</option><option value="N2">N2</option><option value="N1">N1</option></select></div>
+                        <div class="field"><label class="field__label" for="lobby-visibility">Quyền riêng tư</label><select class="select" id="lobby-visibility" name="visibility"><option value="PUBLIC">Công khai</option><option value="PRIVATE">Riêng tư</option></select></div>
+                    </div>
+                    <div class="field"><label class="field__label" for="lobby-source">Nguồn câu hỏi</label><select class="select" id="lobby-source" name="questionSource"><option value="GLOBAL_VOCABULARY">Từ vựng toàn hệ thống</option><option value="FLASHCARD_SET">Flashcard của tôi</option></select></div>
+                    <div class="field" data-lobby-flashcard-settings hidden><label class="field__label" for="lobby-flashcard">Bộ flashcard</label><select class="select" id="lobby-flashcard" name="flashcardSetId" disabled><option value="">Đang tải bộ flashcard…</option></select></div>
+                    <button type="submit" class="btn btn--primary lobby-btn lobby-btn--warm"><span aria-hidden="true">🚀</span> Tạo phòng</button>
+                </form>
+            </section>
+
+            <section class="card lobby-card lobby-card--join">
+                <div class="lobby-card__heading"><span aria-hidden="true">⌕</span><div><span class="lobby-card__eyebrow">Bạn đã có lời mời?</span><h2>Vào bằng mã phòng</h2></div></div>
+                <form class="lobby-join-form" data-join-form>
+                    <label class="sr-only" for="lobby-code">Mã phòng</label>
+                    <input class="input input--code" id="lobby-code" name="roomCode" maxlength="9" placeholder="Nhập mã phòng…" autocomplete="off">
+                    <button type="submit" class="btn btn--secondary lobby-btn lobby-btn--ice">Vào phòng <span aria-hidden="true">➜</span></button>
+                </form>
+            </section>
+        </div>
+
+        <section class="card lobby-card lobby-card--rooms">
+            <div class="lobby-card__heading lobby-card__heading--rooms">
+                <div><span class="lobby-card__eyebrow">Đang hoạt động</span><h2>Phòng công khai</h2></div>
+                <button type="button" class="btn btn--ghost lobby-refresh" data-refresh-rooms><span aria-hidden="true">↻</span> Làm mới</button>
+            </div>
+            <div class="lobby-room-list" data-room-list>
+                <div class="state"><div class="spinner" aria-hidden="true"></div><p>Đang tải danh sách phòng…</p></div>
+            </div>
+            <div class="lobby-empty-tip"><span aria-hidden="true">❄</span> Phòng công khai sẽ xuất hiện ở đây khi có người mở phòng.</div>
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: toast}"></div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script th:src="@{/arena/js/lobby-page.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

@@ -8,5 +8,5 @@ import java.util.List;
 /** Repository cho {@link ContentComment}. */
 @Repository
 public interface ContentCommentRepository extends JpaRepository<ContentComment, Long> {
-    List<ContentComment> findByContentItemIdOrderByCreatedAtDesc(Long contentItemId);
+    List<ContentComment> findByTargetIdOrderByCreatedAtDesc(Long targetId);
 }

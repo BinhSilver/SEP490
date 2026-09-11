@@ -1,0 +1,104 @@
+/* Master layout shell */
+
+.app-body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-body--auth {
+  background: transparent;
+}
+
+.app-body--marketing {
+  background: var(--color-surface);
+  position: relative;
+  /* do NOT set overflow-x:hidden here — clips sticky header nav & blocks clicks */
+  overflow-x: clip; /* modern: clip x without creating scroll container that breaks sticky */
+}
+
+@supports not (overflow: clip) {
+  .app-body--marketing {
+    overflow-x: visible;
+  }
+}
+
+.app-shell {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.app-shell__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Feature shortcut buttons on home — always clickable above blobs */
+.hero__actions {
+  position: relative;
+  z-index: 2;
+}
+
+.hero__actions a,
+.hero__actions .btn {
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+/* Auth main: center card */
+.app-main--auth {
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-4) var(--space-6);
+}
+
+.app-main--auth-inner {
+  width: 100%;
+  max-width: 440px;
+}
+
+.app-main--wide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px var(--space-4) var(--space-5);
+}
+
+/* Decorative blobs (shared) — never intercept clicks */
+.bg-blob {
+  position: fixed;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 9999px;
+  filter: blur(100px);
+  pointer-events: none !important;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.bg-blob--primary {
+  top: -10%;
+  left: -5%;
+  background: var(--color-primary-fixed);
+}
+
+.bg-blob--tertiary {
+  bottom: -10%;
+  right: -5%;
+  background: var(--color-tertiary-fixed);
+  opacity: 0.3;
+}
+
+.app-main { position: relative; z-index: 1; }
