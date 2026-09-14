@@ -27,6 +27,8 @@ public interface AuthService {
      */
     LoginResponse login(LoginRequest request, String clientIp);
 
+    LoginResponse login(LoginRequest request, String clientIp, String deviceInfo);
+
     /**
      * Đăng ký tài khoản mới.
      *
@@ -48,6 +50,8 @@ public interface AuthService {
     void changePassword(Long userId, ChangePasswordRequest request);
 
     LoginResponse loginWithGoogle(GoogleLoginRequest request);
+
+    LoginResponse loginWithGoogle(GoogleLoginRequest request, String clientIp, String deviceInfo);
 
     void forgotPassword(ForgotPasswordRequest request);
 

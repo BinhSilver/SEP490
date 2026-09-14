@@ -97,9 +97,6 @@
     streakLink: 'jlabBaseStreakLink',
     streakIcon: 'jlabBaseStreakIcon',
     streakLabel: 'jlabBaseStreakLabel',
-    securityLink: 'jlabBaseSecurityLink',
-    securityIcon: 'jlabBaseSecurityIcon',
-    securityLabel: 'jlabBaseSecurityLabel',
     accountDivider: 'jlabBaseAccountDivider',
     logoutButton: 'jlabBaseLogoutButton',
     logoutIcon: 'jlabBaseLogoutIcon',
@@ -110,6 +107,53 @@
 
   function byId(id) {
     return document.getElementById(id);
+  }
+
+  // The base shell appears on standalone pages too. Keep its icons inline so
+  // navigation does not depend on a CDN-hosted icon font being available.
+  function icon(id, name, extraClass) {
+    var paths = {
+      home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"></path><path d="M9 21v-6h6v6"></path>',
+      learning: '<path d="m2 10 10-5 10 5-10 5Z"></path><path d="M6 12v5c3 2 9 2 12 0v-5"></path>',
+      search: '<circle cx="11" cy="11" r="6"></circle><path d="m20 20-4.2-4.2"></path>',
+      game: '<path d="M6 9h12a4 4 0 0 1 3.9 4.9l-1 4A3 3 0 0 1 18 20H6a3 3 0 0 1-2.9-2.1l-1-4A4 4 0 0 1 6 9Z"></path><path d="M8 14h4M10 12v4M16 14h.01M18 16h.01"></path>',
+      grid: '<rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect>',
+      chevron: '<path d="m6 9 6 6 6-6"></path>',
+      message: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.5 9.8 9.8 0 0 1-4.2-1L3 20l1.3-4A8 8 0 1 1 21 11.5Z"></path>',
+      layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"></path><path d="m3 12 9 5 9-5"></path><path d="m3 16 9 5 9-5"></path>',
+      headphones: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"></path><path d="M4 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H4Z"></path><path d="M20 14h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2Z"></path>',
+      bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path>',
+      bellOff: '<path d="m3 3 18 18"></path><path d="M17 17H3c0-2 3-2 3-9a6 6 0 0 1 9.5-4.9"></path><path d="M18 8c0 3.2.6 5 1.4 6.1"></path><path d="M10 21h4"></path>',
+      user: '<circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>',
+      flame: '<path d="M12 22c4 0 7-2.7 7-6.7 0-3.8-2.5-6.1-5.3-9.3.2 2.8-1.1 4.4-3.2 5.8.1-2.8-1.1-4.9-2.9-6.8C6.6 7.8 5 10.2 5 13.2 5 18.1 8 22 12 22Z"></path>',
+      shield: '<path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7Z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path>',
+      logout: '<path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M21 3v18"></path>'
+    };
+    return '<svg' + (id ? ' id="' + id + '"' : '') + ' class="jlab-base-icon' + (extraClass ? ' ' + extraClass : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + paths[name] + '</svg>';
+  }
+
+  function replaceIcon(id, name, extraClass) {
+    var element = byId(id);
+    if (element) element.outerHTML = icon(id, name, extraClass);
+  }
+
+  function replaceShellIcons() {
+    replaceIcon(ids.homeIcon, 'home');
+    replaceIcon(ids.learningPathIcon, 'learning');
+    replaceIcon(ids.lookupIcon, 'search');
+    replaceIcon(ids.gameIcon, 'game');
+    replaceIcon(ids.toolsIcon, 'grid');
+    replaceIcon(ids.toolsChevron, 'chevron', 'jlab-base-icon--chevron');
+    replaceIcon(ids.aiCallIcon, 'message');
+    replaceIcon(ids.flashcardIcon, 'layers');
+    replaceIcon(ids.shadowingIcon, 'headphones');
+    replaceIcon(ids.notificationIcon, 'bell');
+    replaceIcon(ids.profileIcon, 'user');
+    replaceIcon(ids.streakIcon, 'flame');
+    replaceIcon(ids.logoutIcon, 'logout');
+
+    var emptyNotificationIcon = byId(ids.notificationEmptyIcon);
+    if (emptyNotificationIcon) emptyNotificationIcon.innerHTML = icon('', 'bellOff');
   }
 
   function shellMarkup() {
@@ -127,9 +171,6 @@
             '<a id="' + ids.learningPathLink + '" href="/learning/path" title="Lộ trình Hán Việt  On">' +
               '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
             '</a>' +
-            '<button id="' + ids.lookupLink + '" type="button" aria-disabled="true" title="Tính năng tra cứu đã tắt">' +
-              '<i id="' + ids.lookupIcon + '" aria-hidden="true"></i><span id="' + ids.lookupLabel + '">Tra cứu</span>' +
-            '</button>' +
             '<a id="' + ids.gameLink + '" href="/games" title="Chơi game luyện tiếng Nhật">' +
               '<i id="' + ids.gameIcon + '" aria-hidden="true"></i><span id="' + ids.gameLabel + '">Game</span>' +
             '</a>' +
@@ -156,8 +197,7 @@
                   '<i id="' + ids.notificationIcon + '" class="fa-solid fa-bell" aria-hidden="true"></i>' +
                   '<span id="' + ids.notificationBadge + '" class="notification-center__badge" hidden>0</span>' +
                 '</button>' +
-                '<section id="' + ids.notificationPanel + '" class="dropdown__menu notification-popover" role="dialog" aria-labelledby="' + ids.notificationTitle + '" hidden>' +
-                  '<div id="' + ids.notificationPanelHeader + '" class="notification-popover__header"><h2 id="' + ids.notificationTitle + '">Thông báo</h2></div>' +
+                '<section id="' + ids.notificationPanel + '" class="dropdown__menu notification-popover" role="dialog" aria-label="Thông báo" hidden>' +
                   '<div id="' + ids.notificationList + '" class="notification-popover__list" hidden></div>' +
                   '<div id="' + ids.notificationEmpty + '" class="notification-popover__empty">' +
                     '<span id="' + ids.notificationEmptyIcon + '" class="notification-popover__empty-icon" aria-hidden="true"><i class="fa-regular fa-bell-slash"></i></span>' +
@@ -182,9 +222,8 @@
                       '<span id="' + ids.accountEmail + '"></span>' +
                     '</div>' +
                   '</div>' +
-                  '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ</span></a>' +
+                  '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
-                  '<a id="' + ids.securityLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.securityIcon + '" class="material-symbols-outlined" aria-hidden="true">shield_lock</span><span id="' + ids.securityLabel + '">Cài đặt</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
                 '</div>' +
@@ -230,6 +269,7 @@
       path === '/flashcard/set' ||
       path === '/flashcard/study' ||
       path === '/flashcard/quiz' ||
+      path.indexOf('/flashcard/speed-recall') === 0 ||
       path.indexOf('/flashcard/editor/') === 0 ||
       path.indexOf('/flashcard/set/') === 0 ||
       path.indexOf('/flashcard/study/') === 0;
@@ -549,6 +589,7 @@
     }
 
     mountPoint.innerHTML = shellMarkup();
+    replaceShellIcons();
     state.mounted = true;
     bindEvents();
     syncActiveLink();

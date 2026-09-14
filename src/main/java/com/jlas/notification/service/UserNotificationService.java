@@ -45,7 +45,18 @@ public class UserNotificationService implements UserNotificationPort {
 
     private NotificationDto dto(UserNotification item) {
         return NotificationDto.builder().id(item.getId()).type(item.getType()).title(item.getTitle())
-                .message(item.getMessage()).targetUrl(item.getTargetUrl()).read(item.getReadAt() != null)
+                .message(displayMessage(item)).targetUrl(displayTargetUrl(item)).read(item.getReadAt() != null)
                 .createdAt(item.getCreatedAt()).build();
+    }
+
+    private static String displayMessage(UserNotification item) {
+        String message = item.getMessage();
+        if (message == null || !"SECURITY".equals(item.getType())) return message;
+        return message.replaceFirst("\\s*·\\s*IP\\s+[^.]+(?=\\.)", "");
+    }
+
+    private static String displayTargetUrl(UserNotification item) {
+        return "SECURITY".equals(item.getType()) && "/profile?tab=security".equals(item.getTargetUrl())
+                ? "/profile/security/login-alerts" : item.getTargetUrl();
     }
 }

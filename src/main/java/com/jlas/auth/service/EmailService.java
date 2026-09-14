@@ -54,6 +54,27 @@ public class EmailService {
                         .formatted(name, otp), otp);
     }
 
+    @Async
+    public void sendEmailChangeOtp(String toEmail, String fullName, String otp, boolean newAddress) {
+        String name = fullName == null || fullName.isBlank() ? "bạn" : fullName;
+        String address = newAddress ? "email mới" : "email hiện tại";
+        send(toEmail, "[JLAS] Xác nhận đổi email",
+                "Xin chào %s,%n%nMã OTP xác nhận gửi tới %s là: %s%n"
+                        .formatted(name, address, otp)
+                        + "Mã có hiệu lực trong 15 phút. Không chia sẻ mã này với bất kỳ ai.\n",
+                otp);
+    }
+
+    @Async
+    public void sendEmailChangedNotice(String toEmail, String fullName, String newEmail) {
+        String name = fullName == null || fullName.isBlank() ? "bạn" : fullName;
+        send(toEmail, "[JLAS] Email tài khoản đã được thay đổi",
+                "Xin chào %s,%n%nEmail đăng nhập JLAS đã được đổi thành %s.%n"
+                        .formatted(name, newEmail)
+                        + "Nếu bạn không thực hiện thay đổi này, hãy liên hệ hỗ trợ ngay.\n",
+                newEmail);
+    }
+
     private void send(String toEmail, String subject, String body, String developmentValue) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         if (mailSender == null) {

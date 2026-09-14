@@ -1,7 +1,7 @@
 /* JLAS design tokens - Komorebi light palette. */
 :root {
   /* Surfaces */
-  --color-surface-lowest: #ffffff;
+  --color-surface-lowest: #fbfaf7;
   --color-surface: #f4fafd;
   --color-surface-low: #eef5f7;
   --color-surface-mid: #e8eff1;
@@ -45,6 +45,7 @@
   --color-on-error: #ffffff;
   --color-success: #006947;
   --color-success-bg: #d6f5e7;
+  --color-focus: #4f378a;
 
   /* Typography */
   --font-headline: "Instrument Serif", "Hanken Grotesk", Georgia, serif;
@@ -77,19 +78,28 @@
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-full: 9999px;
+  --radius-control: 0.625rem;
 
   /* Quiet elevation for light surfaces */
   --shadow-1: 0 4px 20px rgba(22, 29, 31, 0.08);
   --shadow-2: 0 10px 40px rgba(22, 29, 31, 0.14);
+  --shadow-action: 0 4px 14px rgba(79, 55, 138, 0.18);
+  --shadow-action-hover: 0 6px 20px rgba(79, 55, 138, 0.24);
+  --focus-ring: 0 0 0 3px rgba(79, 55, 138, 0.16);
 
   --header-height: 72px;
   --sidebar-width: 260px;
   --max-width: 1400px;
-  --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-short: 180ms;
+  --dur-medium: 300ms;
+  --transition: var(--dur-medium) var(--ease-out);
+  --z-background: -1;
   --z-header: 50;
   --z-sidebar: 45;
   --z-modal: 100;
   --z-toast: 110;
+  --z-overlay: 120;
 
   /* Shared background aliases used by older modules. */
   --bg-gradient-static: linear-gradient(135deg, #f4fafd 0%, #eef5f7 64%, #e9ddff 100%);

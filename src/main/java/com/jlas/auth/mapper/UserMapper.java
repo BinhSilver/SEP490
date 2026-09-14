@@ -29,6 +29,8 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .gender(user.getGender())
                 .loginType(user.getLoginType())
+                .googleLinked(user.getGoogleId() != null && !user.getGoogleId().isBlank())
+                .hasPassword(user.getPasswordHash() != null && !user.getPasswordHash().isBlank())
                 .role(user.getRole() != null ? user.getRole().getName() : null)
                 .japaneseLevel(user.getJapaneseLevel())
                 .creditBalance(user.getCreditBalance())
