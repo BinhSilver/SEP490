@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Hồ sơ cá nhân - JLAS', 'profile')}"></head>
-<body id="jlabBasePage" class="app-body page-profile-body">
+<body id="jlabBasePage" class="app-body page-profile-body"
+      th:attr="data-google-client-id=${googleClientId != null ? googleClientId : ''}">
 
 <div id="jlabBaseShellMount"></div>
 
@@ -9,10 +10,13 @@
     <!-- Sidebar (nav tài khoản) -->
     <aside class="profile-sidebar">
         <div class="profile-sidebar__card">
-            <div class="profile-sidebar__avatar-wrap">
+            <div class="profile-sidebar__avatar-wrap" id="sidebarAvatarWrap" style="cursor:pointer" title="Bấm để đổi ảnh đại diện">
                 <div class="user-avatar user-avatar--lg" data-user-avatar>
                     <span class="user-avatar__initials">?</span>
                 </div>
+                <button type="button" class="profile-sidebar__camera" id="sidebarCameraBtn" title="Cập nhật ảnh đại diện">
+                    <span class="material-symbols-outlined" style="font-size:16px">photo_camera</span>
+                </button>
             </div>
             <h2 class="profile-sidebar__name" data-user-name>Tài khoản</h2>
             <div class="profile-progress">
@@ -33,9 +37,19 @@
             <a th:href="@{/goals}" class="profile-nav__item">
                         <i class="fa-solid fa-fire" aria-hidden="true"></i> Mục tiêu &amp; chuỗi ngày
             </a>
-            <button type="button" class="profile-nav__item" data-tab="security">
-                <span class="material-symbols-outlined">shield_lock</span> Bảo mật tài khoản
-            </button>
+            <div class="profile-security-flyout">
+                <button type="button" class="profile-nav__item profile-security-flyout__trigger"
+                        aria-haspopup="menu" aria-expanded="false" aria-controls="sidebarSecurityMenu">
+                    <span class="material-symbols-outlined">shield_lock</span> Bảo mật tài khoản
+                    <i class="fa-solid fa-chevron-right profile-security-flyout__chevron" aria-hidden="true"></i>
+                </button>
+                <div class="profile-security-flyout__menu" id="sidebarSecurityMenu" role="menu" aria-label="Tác vụ bảo mật" aria-hidden="true" inert>
+                    <a th:href="@{/profile/security/password}" role="menuitem"><i class="fa-solid fa-key" aria-hidden="true"></i> Đổi mật khẩu</a>
+                    <a th:href="@{/profile/security/email}" role="menuitem"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Đổi email đăng nhập</a>
+                    <a th:href="@{/profile/security/google}" role="menuitem"><i class="fa-brands fa-google" aria-hidden="true"></i> Liên kết Google</a>
+                    <a th:href="@{/profile/security/login-alerts}" role="menuitem"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Lịch sử đăng nhập</a>
+                </div>
+            </div>
             <button type="button" class="profile-nav__item" data-tab="premium">
                         <span class="material-symbols-outlined">workspace_premium</span> Gói cao cấp
             </button>
@@ -46,7 +60,7 @@
             Nâng cấp lên Pro
         </button>
         <button type="button" class="btn btn--primary btn--block" data-auth-logout>
-            <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+            <span class="material-symbols-outlined">logout</span>
             Đăng xuất
         </button>
     </aside>
@@ -55,26 +69,45 @@
         <div class="profile-mobile-tabs">
             <button type="button" class="profile-nav__item is-active" data-tab="overview">Tổng quan</button>
             <a th:href="@{/goals}" class="profile-nav__item">Mục tiêu &amp; chuỗi ngày</a>
-            <button type="button" class="profile-nav__item" data-tab="security">Bảo mật</button>
+            <div class="profile-security-flyout profile-security-flyout--mobile">
+                <button type="button" class="profile-nav__item profile-security-flyout__trigger"
+                        aria-haspopup="menu" aria-expanded="false" aria-controls="mobileSecurityMenu">
+                    Bảo mật tài khoản <i class="fa-solid fa-chevron-down profile-security-flyout__chevron" aria-hidden="true"></i>
+                </button>
+                <div class="profile-security-flyout__menu" id="mobileSecurityMenu" role="menu" aria-label="Tác vụ bảo mật" aria-hidden="true" inert>
+                    <a th:href="@{/profile/security/password}" role="menuitem"><i class="fa-solid fa-key" aria-hidden="true"></i> Đổi mật khẩu</a>
+                    <a th:href="@{/profile/security/email}" role="menuitem"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Đổi email đăng nhập</a>
+                    <a th:href="@{/profile/security/google}" role="menuitem"><i class="fa-brands fa-google" aria-hidden="true"></i> Liên kết Google</a>
+                    <a th:href="@{/profile/security/login-alerts}" role="menuitem"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Lịch sử đăng nhập</a>
+                </div>
+            </div>
                     <button type="button" class="profile-nav__item" data-tab="premium">Gói cao cấp</button>
         </div>
 
         <!-- Tổng quan -->
         <section class="profile-panel is-active" id="panel-overview" data-panel="overview">
-            <div class="profile-grid">
+            <div class="profile-grid profile-grid--overview">
                 <div class="profile-card">
                     <div class="profile-card__head">
-                        <div class="profile-card__icon"><span class="material-symbols-outlined">person</span></div>
-                        <h3 class="profile-card__title">Hồ sơ của bạn</h3>
+                        <div class="profile-card__head-left">
+                            <div class="profile-card__icon"><span class="material-symbols-outlined">badge</span></div>
+                            <h2 class="profile-card__title">Thông tin chi tiết</h2>
+                        </div>
                     </div>
                     <div id="profileAlert" class="alert" role="alert"></div>
-                    <form id="profileForm" class="form" novalidate>
+                    <form id="profileForm" class="form profile-details-form" novalidate>
                         <div class="avatar-edit">
-                            <div class="user-avatar user-avatar--md" data-user-avatar>
-                                <span class="user-avatar__initials">?</span>
+                            <div class="profile-avatar-seal-wrap">
+                                <div class="user-avatar user-avatar--md" data-user-avatar>
+                                    <span class="user-avatar__initials">?</span>
+                                </div>
+                                <span class="jlpt-seal" aria-label="Mục tiêu JLPT">
+                                    <span>JLPT</span>
+                                    <strong id="jlptSealLevel">—</strong>
+                                </span>
                             </div>
                             <div>
-                                <h4 class="avatar-edit__title">Ảnh đại diện</h4>
+                                <h3 class="avatar-edit__title">Ảnh đại diện</h3>
                                 <div class="avatar-edit__actions">
                                     <input type="file" id="avatarFileInput" accept="image/*" hidden/>
                                     <input type="hidden" id="avatarUrl" name="avatarUrl"/>
@@ -117,30 +150,102 @@
                                     <option value="N1">N1</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="form__grid form__grid--2 profile-form__account-meta">
-                            <div class="field">
-                                <label class="field__label" for="emailReadonly">Email</label>
+                            <div class="field profile-details-form__email">
+                                <label class="field__label" for="emailReadonly">
+                                    Email
+                                    <span class="material-symbols-outlined" aria-hidden="true" id="verifiedIcon">check_circle</span>
+                                </label>
                                 <input class="input" id="emailReadonly" type="email" readonly disabled/>
                             </div>
-                            <div class="field">
-                                <label class="field__label" for="createdReadonly">Tham gia từ</label>
-                                <input class="input" id="createdReadonly" type="text" readonly disabled/>
+                        </div>
+
+                        <div class="detail-grid profile-details-form__meta">
+                            <div class="detail-item">
+                                <span class="detail-item__label">Tham gia từ</span>
+                                <span class="detail-item__value" id="ovCreated">—</span>
                             </div>
-                            <div class="field">
-                                <label class="field__label" for="lastLoginReadonly">Đăng nhập cuối</label>
-                                <input class="input" id="lastLoginReadonly" type="text" readonly disabled/>
+                            <div class="detail-item">
+                                <span class="detail-item__label">Đăng nhập cuối</span>
+                                <span class="detail-item__value" id="ovLastLogin">—</span>
                             </div>
                         </div>
 
-                        <div class="profile-form__actions">
+                        <div class="form__row profile-details-form__actions">
                             <button type="submit" class="btn btn--primary" id="saveProfileBtn">Lưu thay đổi</button>
                         </div>
                     </form>
                 </div>
 
+                <div class="profile-card">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon" style="background:rgba(0,133,91,0.12);color:var(--color-tertiary)">
+                            <span class="material-symbols-outlined">shield_lock</span>
+                        </div>
+                        <h2 class="profile-card__title">Trạng thái tài khoản</h2>
+                    </div>
+                    <div class="status-row">
+                        <span>Xác minh email</span>
+                        <span class="status-pill status-pill--ok" id="stVerified">—</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Trạng thái khóa</span>
+                        <span class="status-pill" id="stBan">—</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Vai trò</span>
+                        <span class="badge badge--muted" data-user-role>Học viên</span>
+                    </div>
+                    <div class="status-row">
+                        <span>Hạn dùng gói cao cấp</span>
+                        <strong id="stPremium">—</strong>
+                    </div>
+                </div>
             </div>
+
+            <section class="profile-card profile-dashboard" aria-labelledby="dashboardTitle">
+                <div class="profile-card__head profile-card__head--actions">
+                    <div class="profile-card__head-left">
+                        <div class="profile-card__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></div>
+                        <div>
+                            <h2 class="profile-card__title" id="dashboardTitle">Nhịp học của bạn</h2>
+                            <p class="profile-card__subtitle">Tóm tắt hôm nay và số dư Credit</p>
+                        </div>
+                    </div>
+                    <a class="btn btn--secondary btn--sm" th:href="@{/goals}">Xem mục tiêu</a>
+                </div>
+                <div id="dashboardLoading" class="profile-inline-status" role="status">Đang tải dữ liệu...</div>
+                <div id="dashboardContent" hidden>
+                    <div class="profile-stat-strip">
+                        <div class="profile-stat"><span>Chuỗi hiện tại</span><strong id="dashCurrentStreak">0 ngày</strong></div>
+                        <div class="profile-stat"><span>Chuỗi dài nhất</span><strong id="dashLongestStreak">0 ngày</strong></div>
+                        <div class="profile-stat"><span>Credit hiện có</span><strong id="dashCreditBalance">0</strong></div>
+                    </div>
+                    <div class="profile-dashboard__columns">
+                        <section aria-labelledby="todayProgressTitle">
+                            <h3 id="todayProgressTitle">Tiến độ hôm nay</h3>
+                            <div class="profile-progress-list">
+                                <div class="profile-progress-row">
+                                    <div><span>Từ đã học</span><strong id="dashVocabValue">0 / 15</strong></div>
+                                    <progress id="dashVocabProgress" max="15" value="0"></progress>
+                                </div>
+                                <div class="profile-progress-row">
+                                    <div><span>Quiz hoàn tất</span><strong id="dashQuizValue">0 / 1</strong></div>
+                                    <progress id="dashQuizProgress" max="1" value="0"></progress>
+                                </div>
+                                <div class="profile-progress-row">
+                                    <div><span>Phút học</span><strong id="dashMinutesValue">0 / 20</strong></div>
+                                    <progress id="dashMinutesProgress" max="20" value="0"></progress>
+                                </div>
+                            </div>
+                        </section>
+                        <section aria-labelledby="creditHistoryTitle">
+                            <h3 id="creditHistoryTitle">Biến động Credit gần đây</h3>
+                            <div class="profile-ledger" id="creditHistoryList"></div>
+                        </section>
+                    </div>
+                </div>
+                <div id="dashboardError" class="alert" role="alert" hidden></div>
+            </section>
         </section>
 
         <!-- Bảo mật -->
@@ -243,13 +348,8 @@
 
                 <div id="retentionLiveOnboarding" class="retention-live-onboarding" hidden>
                     <div class="retention-live-onboarding__backdrop" aria-hidden="true"></div>
-                    <div class="demo-device retention-live-onboarding__device">
-                        <div class="demo-device__topbar"><span></span><span></span><span></span><em>JLAS</em></div>
-                        <div class="demo-device__screen">
-                            <div class="demo-appbar"><span class="demo-appbar__avatar">K</span><span>Buổi học hôm nay</span><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></div>
-                            <div class="demo-backdrop-card"><span>Daily goal</span><strong>100%</strong><div><i></i></div></div>
-                            <div th:replace="~{retention-demo :: retentionOnboarding}"></div>
-                        </div>
+                    <div class="demo-workspace retention-live-onboarding__device">
+                        <div th:replace="~{retention-demo :: retentionOnboarding}"></div>
                     </div>
                 </div>
 
@@ -257,14 +357,17 @@
         </section>
 
         <section class="profile-panel" id="panel-security" data-panel="security" hidden>
-            <h1 class="profile-main__title">Cài đặt bảo mật</h1>
-            <p class="profile-main__desc">Quản lý mật khẩu và các phương thức đăng nhập để giữ tài khoản của bạn an toàn.</p>
-
-            <div class="profile-grid">
-                <div class="profile-card">
+            <div class="profile-security-view" data-security-view="password"
+                 th:hidden="${securitySection != 'password'}">
+                <a class="profile-security-back" th:href="@{/profile}">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
+                </a>
+                <h1 class="profile-main__title">Đổi mật khẩu</h1>
+                <p class="profile-main__desc">Tạo mật khẩu mới khác mật khẩu hiện tại.</p>
+                <div class="profile-card profile-security-detail">
                     <div class="profile-card__head">
                         <div class="profile-card__icon"><span class="material-symbols-outlined">password</span></div>
-                        <h3 class="profile-card__title">Đổi mật khẩu</h3>
+                        <h2 class="profile-card__title">Thông tin mật khẩu</h2>
                     </div>
                     <div id="securityAlert" class="alert" role="alert"></div>
                     <form id="changePasswordForm" class="form" novalidate>
@@ -284,7 +387,104 @@
                         <button type="submit" class="btn btn--primary" id="changePwBtn">Cập nhật mật khẩu</button>
                     </form>
                 </div>
+            </div>
 
+            <div class="profile-security-view" data-security-view="email"
+                 th:hidden="${securitySection != 'email'}">
+                <a class="profile-security-back" th:href="@{/profile}">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
+                </a>
+                <h1 class="profile-main__title">Đổi email đăng nhập</h1>
+                <p class="profile-main__desc">Hai địa chỉ email đều phải được xác nhận trước khi thay đổi.</p>
+                <div class="profile-card profile-card--email-change profile-security-detail">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></div>
+                        <div>
+                            <h2 class="profile-card__title">Xác nhận địa chỉ mới</h2>
+                            <p class="profile-card__subtitle">Cần xác nhận ở cả địa chỉ cũ và mới</p>
+                        </div>
+                    </div>
+                    <div id="emailChangeAlert" class="alert" role="alert"></div>
+                    <form id="emailChangeRequestForm" class="form" novalidate>
+                        <div class="field">
+                            <label class="field__label" for="newEmail">Email mới</label>
+                            <input class="input" id="newEmail" type="email" required autocomplete="email" maxlength="255">
+                        </div>
+                        <div class="field" id="emailChangePasswordField">
+                            <label class="field__label" for="emailChangePassword">Mật khẩu hiện tại</label>
+                            <input class="input" id="emailChangePassword" type="password" autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="btn btn--primary" id="requestEmailChangeBtn">Gửi hai mã OTP</button>
+                    </form>
+                    <form id="emailChangeConfirmForm" class="form email-change-confirm" novalidate hidden>
+                        <div class="email-change-confirm__note">
+                            Nhập mã từ email hiện tại và email mới. Mỗi mã gồm 6 chữ số và có hiệu lực 15 phút.
+                        </div>
+                        <div class="form__grid form__grid--2">
+                            <div class="field">
+                                <label class="field__label" for="oldEmailOtp">OTP email hiện tại</label>
+                                <input class="input otp-input" id="oldEmailOtp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="newEmailOtp">OTP email mới</label>
+                                <input class="input otp-input" id="newEmailOtp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+                        </div>
+                        <div class="form__row">
+                            <button type="button" class="btn btn--secondary" id="cancelEmailChangeBtn">Đổi địa chỉ khác</button>
+                            <button type="submit" class="btn btn--primary" id="confirmEmailChangeBtn">Xác nhận đổi email</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="profile-security-view" data-security-view="google"
+                 th:hidden="${securitySection != 'google'}">
+                <a class="profile-security-back" th:href="@{/profile}">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
+                </a>
+                <h1 class="profile-main__title">Liên kết Google</h1>
+                <p class="profile-main__desc">Quản lý phương thức đăng nhập nhanh bằng tài khoản Google.</p>
+                <div class="profile-card profile-security-detail">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon"><i class="fa-brands fa-google" aria-hidden="true"></i></div>
+                        <div>
+                            <h2 class="profile-card__title">Đăng nhập bằng Google</h2>
+                            <p class="profile-card__subtitle" id="googleLinkStatus">Đang kiểm tra trạng thái...</p>
+                        </div>
+                    </div>
+                    <div id="googleLinkAlert" class="alert" role="alert"></div>
+                    <div id="googleLinkButton" class="google-link-button"></div>
+                    <button type="button" class="btn btn--secondary" id="unlinkGoogleBtn" hidden>Hủy liên kết Google</button>
+                    <p class="field__hint">Google phải dùng cùng địa chỉ email với hồ sơ. Hủy liên kết chỉ khả dụng khi tài khoản đã có mật khẩu.</p>
+                </div>
+            </div>
+
+            <div class="profile-security-view" data-security-view="login-alerts"
+                 th:hidden="${securitySection != 'login-alerts'}">
+                <a class="profile-security-back" th:href="@{/profile}">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
+                </a>
+                <h1 class="profile-main__title">Lịch sử đăng nhập</h1>
+                <p class="profile-main__desc">Xem những thiết bị và địa chỉ IP gần đây đã truy cập tài khoản của bạn.</p>
+                <div class="profile-card profile-security-detail">
+                    <div class="profile-card__head">
+                        <div class="profile-card__icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></div>
+                        <div>
+                            <h2 class="profile-card__title">Hoạt động gần đây</h2>
+                            <p class="profile-card__subtitle">Tối đa 20 lần đăng nhập mới nhất</p>
+                        </div>
+                    </div>
+                    <div class="login-history-state" id="loginHistoryLoading" role="status">Đang tải lịch sử đăng nhập...</div>
+                    <div class="login-history-list" id="loginHistoryList" aria-live="polite" aria-label="Lịch sử đăng nhập"></div>
+                    <button type="button" class="btn btn--secondary btn--sm login-history-more" id="loginHistoryMore" aria-controls="loginHistoryList" hidden></button>
+                    <div id="loginHistoryAlert" class="alert" role="alert" hidden></div>
+                    <div class="profile-security-tip login-history-tip">
+                        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                        <p>JLAS gửi cảnh báo khi phát hiện thiết bị hoặc IP mới. Nếu không nhận ra một lần đăng nhập, hãy đổi mật khẩu ngay.</p>
+                    </div>
+                    <a class="btn btn--secondary" th:href="@{/profile/security/password}">Đi tới đổi mật khẩu</a>
+                </div>
             </div>
         </section>
 
@@ -298,11 +498,15 @@
                     <div class="profile-card__icon" style="background:rgba(33,112,228,0.12)">
                         <span class="material-symbols-outlined">star</span>
                     </div>
-                    <h3 class="profile-card__title">Gói hiện tại</h3>
+                    <h2 class="profile-card__title">Gói hiện tại</h2>
                 </div>
                 <div class="status-row">
                     <span>Trạng thái gói</span>
                     <span class="status-pill status-pill--ok" id="premiumStatus">Miễn phí (Free)</span>
+                </div>
+                <div class="status-row">
+                    <span>Tên gói</span>
+                    <strong id="premiumPlanName">Miễn phí</strong>
                 </div>
                 <div class="status-row">
                     <span>Ngày hết hạn</span>
@@ -318,14 +522,27 @@
                     Nâng cấp lên Pro
                 </button>
             </div>
+
+            <div class="profile-card profile-payment-history">
+                <div class="profile-card__head">
+                    <div class="profile-card__icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></div>
+                    <h2 class="profile-card__title">Lịch sử thanh toán</h2>
+                </div>
+                <div class="profile-ledger" id="paymentHistoryList">
+                    <p class="profile-empty">Đang tải lịch sử...</p>
+                </div>
+            </div>
         </section>
     </div>
 </main>
 
 <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 <script th:src="@{/js/components.js}"></script>
+<script th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}"
+        src="https://accounts.google.com/gsi/client" async defer></script>
 <script th:inline="javascript">
     window.INITIAL_TAB = /*[[${activeTab}]]*/ 'overview';
+    window.INITIAL_SECURITY_SECTION = /*[[${securitySection}]]*/ 'home';
 </script>
 <script>
 (function () {
@@ -335,7 +552,7 @@
             '<div style="padding:12px;background:#ffdad6;color:#ba1a1a;text-align:center">Lỗi tải tập tin xác thực Auth. Vui lòng tải lại trang (Ctrl+F5).</div>');
         return;
     }
-    if (!JlasAuth.requireLogin('/profile')) return;
+    if (!JlasAuth.requireLogin(window.location.pathname + window.location.search)) return;
 
     function fmtDate(iso) {
         if (!iso) return '—';
@@ -352,6 +569,19 @@
 
     function fillUser(user) {
         JlasAuth.applyNav();
+        document.getElementById('ovCreated').textContent = user.createdAt
+            ? new Date(user.createdAt).getFullYear() : '—';
+        document.getElementById('ovLastLogin').textContent = fmtDate(user.lastLogin);
+
+        var verified = !!user.isVerified;
+        var verEl = document.getElementById('stVerified');
+        verEl.textContent = verified ? 'Đã xác minh' : 'Chưa xác minh';
+        verEl.className = 'status-pill ' + (verified ? 'status-pill--ok' : 'status-pill--warn');
+        document.getElementById('verifiedIcon').style.display = verified ? 'inline' : 'none';
+        var banEl = document.getElementById('stBan');
+        banEl.textContent = user.isBan ? 'Đã khóa' : 'Hoạt động';
+        banEl.className = 'status-pill ' + (user.isBan ? 'status-pill--warn' : 'status-pill--ok');
+        document.getElementById('stPremium').textContent = fmtDate(user.premiumExpiredAt);
 
         var pct = completion(user);
         document.getElementById('completionPct').textContent = pct + '%';
@@ -361,19 +591,28 @@
         document.getElementById('phoneNumber').value = user.phoneNumber || '';
         document.getElementById('gender').value = user.gender || '';
         document.getElementById('japaneseLevel').value = user.japaneseLevel || 'UNKNOWN';
+        document.getElementById('jlptSealLevel').textContent = user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN'
+            ? user.japaneseLevel : '—';
         document.getElementById('avatarUrl').value = user.avatar || '';
         document.getElementById('emailReadonly').value = user.email || '';
-        document.getElementById('createdReadonly').value = fmtDate(user.createdAt);
-        document.getElementById('lastLoginReadonly').value = fmtDate(user.lastLogin);
 
         var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
         document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Pro (Đang dùng)' : 'Gói Miễn phí';
         document.getElementById('premiumExpires').textContent = fmtDate(user.premiumExpiredAt);
     }
 
+    document.getElementById('japaneseLevel').addEventListener('change', function (event) {
+        document.getElementById('jlptSealLevel').textContent = event.target.value === 'UNKNOWN' ? '—' : event.target.value;
+    });
+
     /** Hiển thị 1 tab panel + highlight menu điều hướng */
     function switchTab(tab) {
         tab = tab || 'overview';
+        // "Bảo mật tài khoản" is now a navigation flyout, not a standalone panel.
+        // Keep old /profile?tab=security links useful by returning them to the overview.
+        var onSecurityPage = window.location.pathname.indexOf('/profile/security/') === 0;
+        if (!onSecurityPage && tab === 'security') tab = 'overview';
+        if (!document.querySelector('.profile-panel[data-panel="' + tab + '"]')) tab = 'overview';
         var panels = document.querySelectorAll('.profile-panel');
         panels.forEach(function (panel) {
             var on = panel.getAttribute('data-panel') === tab;
@@ -391,10 +630,12 @@
             btn.classList.toggle('is-active', btn.getAttribute('data-tab') === tab);
         });
 
-        var url = new URL(window.location.href);
-        if (tab === 'overview') url.searchParams.delete('tab');
-        else url.searchParams.set('tab', tab);
-        history.replaceState(null, '', url.pathname + url.search);
+        if (!onSecurityPage) {
+            var url = new URL(window.location.href);
+            if (tab === 'overview') url.searchParams.delete('tab');
+            else url.searchParams.set('tab', tab);
+            history.replaceState(null, '', url.pathname + url.search);
+        }
 
     }
 
@@ -403,7 +644,70 @@
     document.querySelectorAll('[data-tab]').forEach(function (el) {
         el.addEventListener('click', function (e) {
             e.preventDefault();
-            switchTab(el.getAttribute('data-tab'));
+            var tab = el.getAttribute('data-tab');
+            if (window.location.pathname.indexOf('/profile/security/') === 0) {
+                window.location.href = tab === 'overview' ? '/profile' : '/profile?tab=' + encodeURIComponent(tab);
+                return;
+            }
+            switchTab(tab);
+        });
+    });
+
+    document.querySelectorAll('.profile-security-flyout').forEach(function (flyout) {
+        var trigger = flyout.querySelector('.profile-security-flyout__trigger');
+        var menu = flyout.querySelector('.profile-security-flyout__menu');
+        var closeTimer;
+        if (!trigger || !menu) return;
+        function setFlyout(open) {
+            flyout.classList.toggle('is-open', open);
+            trigger.setAttribute('aria-expanded', String(open));
+            menu.inert = !open;
+            menu.setAttribute('aria-hidden', String(!open));
+        }
+        function cancelPendingClose() {
+            window.clearTimeout(closeTimer);
+        }
+        function closeAfterPointerLeaves() {
+            cancelPendingClose();
+            // A brief grace period keeps the menu open while the pointer crosses
+            // from its sidebar trigger into the floating panel.
+            closeTimer = window.setTimeout(function () { setFlyout(false); }, 180);
+        }
+        trigger.addEventListener('click', function () {
+            // Focus enters before click on touch devices. Always opening here avoids
+            // that focus event immediately turning the mobile menu back off.
+            setFlyout(true);
+        });
+        flyout.addEventListener('pointerenter', function (event) {
+            if (event.pointerType === 'mouse') {
+                cancelPendingClose();
+                setFlyout(true);
+            }
+        });
+        flyout.addEventListener('pointerleave', function (event) {
+            if (event.pointerType === 'mouse') closeAfterPointerLeaves();
+        });
+        menu.addEventListener('pointerenter', function (event) {
+            if (event.pointerType === 'mouse') {
+                cancelPendingClose();
+                setFlyout(true);
+            }
+        });
+        menu.addEventListener('pointerleave', function (event) {
+            if (event.pointerType === 'mouse') closeAfterPointerLeaves();
+        });
+        flyout.addEventListener('focusin', function () { setFlyout(true); });
+        flyout.addEventListener('focusout', function () {
+            window.setTimeout(function () {
+                if (!flyout.contains(document.activeElement)) setFlyout(false);
+            }, 0);
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && flyout.classList.contains('is-open')) {
+                cancelPendingClose();
+                setFlyout(false);
+                trigger.focus();
+            }
         });
     });
 
@@ -421,12 +725,19 @@
 
     var uploadBtn = document.getElementById('uploadAvatarBtn');
     var fileInput = document.getElementById('avatarFileInput');
+    var sidebarAvatarWrap = document.getElementById('sidebarAvatarWrap');
+    var sidebarCameraBtn = document.getElementById('sidebarCameraBtn');
 
     function triggerAvatarUpload() {
         if (fileInput) fileInput.click();
     }
 
     if (uploadBtn) uploadBtn.addEventListener('click', triggerAvatarUpload);
+    if (sidebarAvatarWrap) sidebarAvatarWrap.addEventListener('click', triggerAvatarUpload);
+    if (sidebarCameraBtn) sidebarCameraBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        triggerAvatarUpload();
+    });
 
     if (fileInput) {
         fileInput.addEventListener('change', async function (e) {
@@ -517,6 +828,11 @@
             }
             localStorage.setItem('user', JSON.stringify(json.data));
             fillUser(json.data);
+            var savedForm = document.getElementById('profileForm');
+            savedForm.classList.remove('is-saved');
+            void savedForm.offsetWidth;
+            savedForm.classList.add('is-saved');
+            window.setTimeout(function () { savedForm.classList.remove('is-saved'); }, 520);
             if (window.JlasUI) {
                 JlasUI.toast('Đã cập nhật hồ sơ', 'success');
             }
@@ -579,6 +895,7 @@
 <script th:src="@{/js/components/retention-reward.js?v=20260903-motion}"></script>
 <script th:src="@{/js/pages/retention-demo.js?v=13-live}"></script>
 <script th:src="@{/js/pages/profile-retention.js?v=20260903-retention}"></script>
+<script th:src="@{/js/pages/profile-account.js?v=20260914-account}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

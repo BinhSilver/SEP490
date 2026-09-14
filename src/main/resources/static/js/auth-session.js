@@ -200,10 +200,21 @@
       var avatar = JlasAuth.avatarUrl(user);
       var initials = JlasAuth.initials(user);
       document.querySelectorAll('[data-user-avatar]').forEach(function (el) {
+        function showInitials() {
+          var fallback = document.createElement('span');
+          fallback.className = 'user-avatar__initials';
+          fallback.textContent = initials;
+          el.replaceChildren(fallback);
+        }
         if (avatar) {
-          el.innerHTML = '<img src="' + avatar + '" alt="" class="user-avatar__img"/>';
+          var image = document.createElement('img');
+          image.src = avatar;
+          image.alt = '';
+          image.className = 'user-avatar__img';
+          image.addEventListener('error', showInitials, { once: true });
+          el.replaceChildren(image);
         } else {
-          el.innerHTML = '<span class="user-avatar__initials">' + initials + '</span>';
+          showInitials();
         }
       });
 
