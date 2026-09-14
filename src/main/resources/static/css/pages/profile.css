@@ -92,20 +92,6 @@
   color: var(--color-on-surface);
 }
 
-.profile-sidebar__email {
-  font-size: var(--text-sm);
-  color: var(--color-secondary);
-  word-break: break-all;
-}
-
-.profile-badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin-top: var(--space-2);
-}
-
 .badge {
   display: inline-flex;
   align-items: center;
@@ -132,27 +118,6 @@
   background: var(--color-secondary-container);
   color: var(--color-primary);
   font-weight: 700;
-}
-
-.profile-meta {
-  width: 100%;
-  font-size: var(--text-sm);
-  color: var(--color-secondary);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: var(--space-3);
-}
-
-.profile-meta__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.profile-meta__row strong {
-  color: var(--color-on-surface);
-  font-weight: 500;
 }
 
 .profile-progress {
@@ -265,17 +230,17 @@
   display: block !important;
 }
 
-/* Ensure form fields are always usable when edit panel is open */
-#panel-personal .form .field,
-#panel-personal .form .input,
-#panel-personal .form .select {
+/* Keep the consolidated profile form usable on every viewport. */
+#profileForm .field,
+#profileForm .input,
+#profileForm .select {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-#panel-personal .form .input,
-#panel-personal .form .select {
+#profileForm .input,
+#profileForm .select {
   display: block;
   min-height: 44px;
   pointer-events: auto;
@@ -463,7 +428,7 @@
   }
 
   .profile-main {
-    padding: var(--space-6) var(--space-8);
+    padding: 0 var(--space-8) var(--space-6);
   }
 }
 
@@ -485,6 +450,31 @@
   padding-bottom: var(--space-4);
   margin-bottom: var(--space-4);
   border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.avatar-edit__title {
+  margin: 0 0 6px;
+  color: var(--color-on-surface);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+.avatar-edit__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.profile-form__account-meta {
+  margin-top: var(--space-4);
+  opacity: 0.85;
+}
+
+.profile-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-4);
 }
 
 /* G12 retention panel - scoped to its page id to avoid cross-page overrides. */
