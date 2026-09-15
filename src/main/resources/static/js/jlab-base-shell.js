@@ -518,6 +518,20 @@
     }, 3200);
   }
 
+  function redirectToolGuestToLogin(link) {
+    var destination = link && link.getAttribute('href');
+    if (!destination || destination.charAt(0) !== '/') destination = '/';
+    window.location.href = '/login?redirect=' + encodeURIComponent(destination);
+  }
+
+  function guardToolNavigation(event) {
+    if (authState().loggedIn) return;
+
+    event.preventDefault();
+    closeAllMenus();
+    redirectToolGuestToLogin(event.currentTarget);
+  }
+
   function bindEvents() {
     if (state.eventsBound) return;
     state.eventsBound = true;
@@ -525,6 +539,11 @@
     byId(ids.toolsButton).addEventListener('click', function () {
       closeMenu(ids.notificationPanel, ids.notificationButton);
       toggleMenu(ids.toolsMenu, ids.toolsButton, ids.accountMenu, ids.avatarButton, ids.aiCallLink);
+    });
+
+    [ids.aiCallLink, ids.flashcardLink, ids.shadowingLink].forEach(function (linkId) {
+      var toolLink = byId(linkId);
+      if (toolLink) toolLink.addEventListener('click', guardToolNavigation);
     });
 
     byId(ids.avatarButton).addEventListener('click', function () {
