@@ -29,10 +29,10 @@
     var el = document.createElement('div');
     el.className = 'toast toast--' + type;
     el.dataset.toastMessage = normalizedMessage;
-    el.setAttribute('role', 'status');
+    el.setAttribute('role', type === 'error' ? 'alert' : 'status');
     el.innerHTML =
       '<span class="material-symbols-outlined" style="font-size:18px">' +
-      (type === 'error' ? 'error' : type === 'success' ? 'check_circle' : 'info') +
+      (type === 'error' ? 'error' : type === 'success' ? 'check_circle' : type === 'warning' ? 'warning' : 'info') +
       '</span><span>' + escapeHtml(message) + '</span>' +
       '<button type="button" class="toast__close" aria-label="Đóng">' +
       '<span class="material-symbols-outlined" style="font-size:16px">close</span></button>';
@@ -123,20 +123,24 @@
     }
   });
 
-  /* ---------- Alert helper (inline forms) ---------- */
+  /* ---------- Alert helper (toast-only form feedback) ---------- */
   JlasUI.showAlert = function (alertEl, message, type) {
-    if (!alertEl) return;
-    type = type || 'error';
-    alertEl.className = 'alert is-visible alert--' + (type === 'ok' || type === 'success' ? 'success' : type === 'info' ? 'info' : 'error');
-    alertEl.innerHTML =
-      '<span class="material-symbols-outlined">' +
-      (type === 'error' ? 'error' : type === 'info' ? 'info' : 'check_circle') +
-      '</span><span>' + escapeHtml(message) + '</span>';
-    alertEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    var toastType = type === 'ok' ? 'success' : (type || 'error');
+
+    // Older forms reserve an alert area above the form. Keep it empty so all
+    // request feedback uses the same popup treatment without moving the page.
+    if (alertEl) {
+      alertEl.hidden = true;
+      alertEl.className = 'alert';
+      alertEl.innerHTML = '';
+    }
+
+    return JlasUI.toast(message, toastType);
   };
 
   JlasUI.hideAlert = function (alertEl) {
     if (!alertEl) return;
+    alertEl.hidden = true;
     alertEl.className = 'alert';
     alertEl.innerHTML = '';
   };
