@@ -27,10 +27,10 @@ public class FlashcardCard {
             foreignKey = @ForeignKey(name = "fk_flashcard_card_set"))
     private FlashcardSet set;
 
-    @Column(name = "front", nullable = false, length = 500)
+    @Column(name = "front", length = 500)
     private String front;
 
-    @Column(name = "back", nullable = false, length = 500)
+    @Column(name = "back", length = 500)
     private String back;
 
     @Column(name = "reading", length = 255)
