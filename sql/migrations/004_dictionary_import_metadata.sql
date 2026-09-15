@@ -62,9 +62,11 @@ INSERT IGNORE INTO dictionary_source
     (code, name, source_url, license_name, license_url, is_active)
 VALUES
     ('JMDICT', 'JMdict', 'https://www.edrdg.org/jmdict/j_jmdict.html',
-     'EDRDG Electronic Dictionary Licence', 'https://www.edrdg.org/edrdg/licence.html', 1),
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
     ('KANJIDIC2', 'KANJIDIC2', 'https://www.edrdg.org/wiki/index.php/KANJIDIC_Project',
-     'EDRDG Electronic Dictionary Licence', 'https://www.edrdg.org/edrdg/licence.html', 1),
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
     ('KANJIVG', 'KanjiVG', 'https://kanjivg.tagaini.net/',
      'Creative Commons Attribution-ShareAlike 3.0',
      'https://creativecommons.org/licenses/by-sa/3.0/', 1);
