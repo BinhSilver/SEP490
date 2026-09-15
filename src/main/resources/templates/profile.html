@@ -359,9 +359,6 @@
         <section class="profile-panel" id="panel-security" data-panel="security" hidden>
             <div class="profile-security-view" data-security-view="password"
                  th:hidden="${securitySection != 'password'}">
-                <a class="profile-security-back" th:href="@{/profile}">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
-                </a>
                 <h1 class="profile-main__title">Đổi mật khẩu</h1>
                 <p class="profile-main__desc">Tạo mật khẩu mới khác mật khẩu hiện tại.</p>
                 <div class="profile-card profile-security-detail">
@@ -391,9 +388,6 @@
 
             <div class="profile-security-view" data-security-view="email"
                  th:hidden="${securitySection != 'email'}">
-                <a class="profile-security-back" th:href="@{/profile}">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
-                </a>
                 <h1 class="profile-main__title">Đổi email đăng nhập</h1>
                 <p class="profile-main__desc">Hai địa chỉ email đều phải được xác nhận trước khi thay đổi.</p>
                 <div class="profile-card profile-card--email-change profile-security-detail">
@@ -440,9 +434,6 @@
 
             <div class="profile-security-view" data-security-view="google"
                  th:hidden="${securitySection != 'google'}">
-                <a class="profile-security-back" th:href="@{/profile}">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
-                </a>
                 <h1 class="profile-main__title">Liên kết Google</h1>
                 <p class="profile-main__desc">Quản lý phương thức đăng nhập nhanh bằng tài khoản Google.</p>
                 <div class="profile-card profile-security-detail">
@@ -456,15 +447,11 @@
                     <div id="googleLinkAlert" class="alert" role="alert"></div>
                     <div id="googleLinkButton" class="google-link-button"></div>
                     <button type="button" class="btn btn--secondary" id="unlinkGoogleBtn" hidden>Hủy liên kết Google</button>
-                    <p class="field__hint">Google phải dùng cùng địa chỉ email với hồ sơ. Hủy liên kết chỉ khả dụng khi tài khoản đã có mật khẩu.</p>
                 </div>
             </div>
 
             <div class="profile-security-view" data-security-view="login-alerts"
                  th:hidden="${securitySection != 'login-alerts'}">
-                <a class="profile-security-back" th:href="@{/profile}">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Hồ sơ
-                </a>
                 <h1 class="profile-main__title">Lịch sử đăng nhập</h1>
                 <p class="profile-main__desc">Xem những thiết bị và địa chỉ IP gần đây đã truy cập tài khoản của bạn.</p>
                 <div class="profile-card profile-security-detail">

@@ -12,9 +12,7 @@
   display: none;
   width: 288px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #fff;
   border-right: 1px solid var(--color-outline-variant);
   padding: var(--space-5);
   flex-direction: column;
@@ -1110,22 +1108,6 @@
   font-size: 13px;
 }
 
-.profile-security-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  margin-bottom: var(--space-3);
-  color: var(--color-primary);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.profile-security-back:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
 .profile-security-detail {
   width: min(100%, 720px);
 }
@@ -1172,6 +1154,10 @@
 
 .login-history-more {
   margin-top: var(--space-4);
+}
+
+#loginHistoryMore[hidden] {
+  display: none !important;
 }
 
 .login-history-item {
@@ -1288,7 +1274,8 @@
 
 .email-change-confirm[hidden],
 #emailChangeRequestForm[hidden],
-#googleLinkButton[hidden] {
+#googleLinkButton[hidden],
+#unlinkGoogleBtn[hidden] {
   display: none !important;
 }
 
