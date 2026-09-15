@@ -9,7 +9,7 @@
 -- Then load data once:
 --   mysql -u root -p < sql/data_full.sql
 -- =============================================================================
-
+DROP DATABASE IF EXISTS jlas;
 CREATE DATABASE IF NOT EXISTS jlas
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
