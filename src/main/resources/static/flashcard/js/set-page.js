@@ -123,6 +123,8 @@
       ' · <i class="fa-solid fa-comment"></i> ' + (s.commentCount || 0);
 
     document.getElementById('btn-study').href = '/flashcard/study.html?setId=' + s.id;
+    document.getElementById('btn-speed-recall').href = '/flashcard/speed-recall.html?setId=' + s.id;
+    document.getElementById('btn-speed-recall').hidden = !!s.draft;
     var quizButton = document.getElementById('btn-quiz');
     var canQuiz = (s.totalCards || (s.cards || []).length) >= 4;
     quizButton.disabled = !canQuiz;

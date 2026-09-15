@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gõ phản xạ · Flashcard JLAS</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/theme-bridge.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/flashcard/speed-recall.css">
+  <link rel="stylesheet" href="/css/jlab-base-shell.css">
+</head>
+<body id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
+  <div id="jlabBaseShellMount"></div>
+  <main id="jlabBaseContent" class="sr-main">
+    <p id="loading" role="status">Đang tải bộ thẻ…</p>
+    <div id="error-box" class="sr-error" role="alert" hidden>
+      <p id="error-message"></p>
+      <button id="retry-request" type="button" class="sr-button">Thử lại</button>
+    </div>
+
+    <section id="setup" class="sr-setup" aria-labelledby="set-title" hidden>
+      <h1 id="set-title" class="sr-set-title"></h1>
+      <p class="sr-lead">Luyện đọc từ trong bộ thẻ của bạn. Mỗi câu bắt đầu với 6 giây; chuỗi đúng càng dài, nhịp học càng nhanh.</p>
+      <p id="eligible-count"></p>
+      <form id="setup-form">
+        <div class="sr-fields">
+          <label>Thẻ muốn luyện
+            <select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="STARRED">Thẻ đánh dấu sao</option></select>
+          </label>
+          <label><span id="count-label">Số câu hỏi</span> <input id="count" type="number" min="1" step="1" inputmode="numeric" value="1" required></label>
+        </div>
+        <p class="sr-help">Bật bàn phím tiếng Nhật (IME) và gõ cách đọc bằng kana.</p>
+        <button id="start" class="sr-button sr-primary" type="submit">Bắt đầu luyện</button>
+      </form>
+    </section>
+
+    <section id="playing" aria-labelledby="question-word" hidden>
+      <div class="sr-game-hud" aria-label="Trạng thái phiên học">
+        <span class="sr-game-hud__stat"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span class="sr-only">Tiến độ </span><strong id="round"></strong></span>
+        <span class="sr-game-hud__stat"><i class="fa-solid fa-star" aria-hidden="true"></i><span class="sr-only">Điểm </span><strong id="score">0</strong></span>
+        <span class="sr-game-hud__stat"><i class="fa-solid fa-fire" aria-hidden="true"></i><span class="sr-only">Chuỗi đúng </span><strong id="streak">0</strong></span>
+        <div class="sr-game-hud__actions">
+          <button id="pause" type="button" class="sr-game-control"><i class="fa-solid fa-pause" aria-hidden="true"></i> Dừng</button>
+          <button id="abandon" type="button" class="sr-game-control sr-game-control--end"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Kết thúc</button>
+        </div>
+      </div>
+      <div class="sr-question">
+        <h1 id="question-word" lang="ja"></h1>
+        <p>Nhập cách đọc bằng kana</p>
+        <div class="sr-game-timer">
+          <div class="sr-game-timer__head"><span><i class="fa-regular fa-clock" aria-hidden="true"></i> Thời gian</span><strong id="time-left">6.0s</strong></div>
+          <div class="sr-game-timer__track" aria-hidden="true"><div id="timer-bar"></div></div>
+        </div>
+        <div id="typing-slots" class="sr-slots" role="button" tabindex="0" aria-label="Chạm để nhập cách đọc bằng kana"></div>
+        <input id="typing-input" class="sr-typing-capture" type="text" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false"
+               aria-label="Nhập cách đọc bằng kana" maxlength="500" enterkeyhint="done">
+      </div>
+      <div id="feedback" class="sr-feedback" role="status" hidden>
+        <strong id="feedback-title"></strong><span id="feedback-score"></span>
+        <p><span id="feedback-word" lang="ja"></span> · <span id="feedback-reading" lang="ja"></span></p>
+        <p id="feedback-meaning"></p><p id="feedback-answer"></p>
+        <button id="next-question" type="button" class="sr-game-next" hidden>Câu tiếp <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      </div>
+    </section>
+
+    <section id="result" aria-labelledby="result-title" hidden>
+      <p id="result-set" class="sr-set-title"></p>
+      <h1 id="result-title">Một lượt học, thêm một bước nhớ.</h1>
+      <p id="result-status"></p>
+      <dl class="sr-stats">
+        <div><dt>Điểm</dt><dd id="result-score"></dd></div>
+        <div><dt>Độ chính xác</dt><dd id="result-accuracy"></dd></div>
+        <div><dt>Phản hồi trung bình</dt><dd id="result-time"></dd></div>
+        <div><dt>Chuỗi đúng dài nhất</dt><dd id="result-streak"></dd></div>
+        <div><dt>Số câu đúng</dt><dd id="result-correct"></dd></div>
+      </dl>
+      <p id="personal-best" class="sr-help"></p>
+      <h2 id="review-title">Các từ cần ôn lại</h2>
+      <ul id="review-list" class="sr-review"></ul>
+      <p id="no-mistakes" hidden>Bạn đã trả lời đúng tất cả các câu đã hoàn thành.</p>
+      <div class="sr-actions">
+        <button id="retry-wrong" class="sr-button sr-primary" type="button">Luyện lại từ sai</button>
+        <a id="new-session" class="sr-button" href="#">Học tiếp</a>
+        <a id="result-back" class="sr-link" href="#">Về bộ thẻ</a>
+      </div>
+    </section>
+
+    <section id="history" aria-labelledby="history-title" hidden>
+      <h1 id="history-title">Những lượt bạn đã học</h1>
+      <p id="history-set" class="sr-set-title"></p>
+      <ul id="history-list" class="sr-history"></ul>
+      <p id="history-empty" hidden>Chưa có phiên gõ phản xạ nào trong bộ thẻ này.</p>
+      <div class="sr-actions"><button id="previous-page" class="sr-button" type="button">Trang trước</button><span id="history-page"></span><button id="next-page" class="sr-button" type="button">Trang sau</button></div>
+      <a id="history-start" class="sr-link" href="#">Bắt đầu luyện →</a>
+    </section>
+    <p id="live-announcement" class="sr-only" aria-live="polite"></p>
+  <dialog id="pause-dialog" class="sr-dialog" aria-labelledby="pause-title">
+    <h2 id="pause-title">Đã tạm dừng</h2>
+    <p>Thời gian còn lại được giữ nguyên. Tiếp tục khi bạn sẵn sàng.</p>
+    <button id="resume" class="sr-button sr-primary" type="button">Tiếp tục học</button>
+  </dialog>
+  </main>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/flashcard/js/api-client.js"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js"></script>
+</body>
+</html>

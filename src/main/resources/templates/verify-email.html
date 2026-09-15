@@ -153,7 +153,6 @@
                 return;
             }
             JlasUI.showAlert(alertEl, 'Đã gửi lại mã OTP tới email của bạn!', 'success');
-            JlasUI.toast('Đã gửi mã OTP', 'success');
             startCooldown(60);
         } catch (err) {
             JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ', 'error');
@@ -200,7 +199,6 @@
             }
 
             JlasUI.showAlert(alertEl, 'Xác thực tài khoản thành công! Đang chuyển hướng...', 'success');
-            JlasUI.toast('Xác thực thành công!', 'success');
             setTimeout(() => { window.location.href = '/'; }, 1000);
         } catch (err) {
             JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ', 'error');
