@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260831-layout12">
+<link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260915-digits-only">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
@@ -25,7 +25,9 @@
                 <h1 id="practice-video-title">Đang tải bài học…</h1>
                 <p><span id="practice-subtitle-count">-- câu</span> · Chọn cách bạn muốn luyện hôm nay.</p>
             </div>
-            <img src="/images/kitsu.png" alt="Kitsu-chan" id="practice-kitsu">
+            <video id="practice-kitsu" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+                <source src="/videos/linhvat-alpha.webm?v=20260915" type="video/webm">
+            </video>
         </header>
 
         <section id="practice-mode-section" aria-labelledby="practice-mode-heading">
@@ -54,19 +56,12 @@
             <div id="practice-option-grid">
                 <fieldset id="practice-order-options">
                     <legend>Thứ tự độ khó</legend>
-                    <label><input type="radio" name="practice-order" value="PROGRESSIVE" checked><span><strong>Tăng dần</strong><small>AI chọn các điểm dừng tăng dần độ khó theo tiến trình video.</small></span></label>
-                    <label><input type="radio" name="practice-order" value="RANDOM"><span><strong>Ngẫu nhiên có trọng số</strong><small>AI chọn điểm dừng rải trong bài, ưu tiên câu trung bình và khó.</small></span></label>
+                    <label><input type="radio" name="practice-order" value="PROGRESSIVE" checked><span><strong>Tăng dần</strong></span></label>
+                    <label><input type="radio" name="practice-order" value="RANDOM"><span><strong>Ngẫu nhiên</strong></span></label>
                 </fieldset>
                 <fieldset id="practice-count-options">
-                    <legend>Số câu muốn làm</legend>
-                    <div id="practice-count-presets">
-                        <label><input type="radio" name="practice-count" value="5"><span>5</span></label>
-                        <label><input type="radio" name="practice-count" value="10" checked><span>10</span></label>
-                        <label><input type="radio" name="practice-count" value="20"><span>20</span></label>
-                        <label><input type="radio" name="practice-count" value="ALL"><span>Hết bài</span></label>
-                        <label><input type="radio" name="practice-count" value="CUSTOM"><span>Tùy chọn</span></label>
-                    </div>
-                    <input id="practice-custom-count" type="number" min="1" max="500" value="10" hidden aria-label="Số câu tùy chọn">
+                    <legend>Số câu</legend>
+                    <input id="practice-custom-count" type="number" min="1" max="500" step="1" inputmode="numeric" autocomplete="off" value="5" aria-label="Số câu tùy chọn">
                 </fieldset>
             </div>
         </section>
@@ -86,6 +81,6 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
-<script src="/shadowing/js/practice-select.js?v=20260831-kitsu-video4"></script>
+<script src="/shadowing/js/practice-select.js?v=20260915-digits-only"></script>
 </body>
 </html>
