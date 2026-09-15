@@ -670,10 +670,10 @@ CREATE TABLE vocabulary_external_reference (
 INSERT INTO dictionary_source
     (code, name, source_url, license_name, license_url, is_active)
 VALUES
-    ('JMDICT', 'JMdict', 'https://www.edrdg.org/jmdict/j_jmdict.html',
+    ('JMDICT', 'JMdict', 'https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html',
      'Creative Commons Attribution-ShareAlike 4.0',
      'https://www.edrdg.org/edrdg/licence.html', 1),
-    ('KANJIDIC2', 'KANJIDIC2', 'https://www.edrdg.org/wiki/index.php/KANJIDIC_Project',
+    ('KANJIDIC2', 'KANJIDIC2', 'https://www.edrdg.org/wiki/KANJIDIC_Project.html',
      'Creative Commons Attribution-ShareAlike 4.0',
      'https://www.edrdg.org/edrdg/licence.html', 1),
     ('KANJIVG', 'KanjiVG', 'https://kanjivg.tagaini.net/',

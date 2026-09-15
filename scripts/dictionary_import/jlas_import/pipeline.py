@@ -22,6 +22,10 @@ class ImportMetadata:
     checksum: str
     dry_run: bool = False
 
+    def __post_init__(self):
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", self.checksum):
+            raise ValueError("checksum must be a 64-character SHA-256 hex digest")
+
 
 @dataclass(frozen=True, slots=True)
 class ImportOutcome:
@@ -114,6 +118,8 @@ class ImportPipeline:
                     except Exception as error:  # one bad source record is recoverable
                         self.store.rollback_to_savepoint(savepoint)
                         self.store.release_savepoint(savepoint)
+                        if self.store.is_fatal_error(error):
+                            raise
                         summary = replace(summary, failed=summary.failed + 1)
                         self._report(
                             batch_id,
@@ -143,11 +149,21 @@ class ImportPipeline:
         except Exception as error:  # malformed stream/connection loss is fatal
             self.store.rollback()
             message = sanitize_error(error)
+            committed_inserted = max(0, summary.inserted - pending_inserted)
+            committed_updated = max(0, summary.updated - pending_updated)
+            failed = max(
+                summary.failed,
+                summary.total
+                - committed_inserted
+                - committed_updated
+                - summary.skipped,
+            )
             summary = replace(
                 summary,
                 status="FAILED",
-                inserted=max(0, summary.inserted - pending_inserted),
-                updated=max(0, summary.updated - pending_updated),
+                inserted=committed_inserted,
+                updated=committed_updated,
+                failed=failed,
                 error_message=message,
             )
             if not metadata.dry_run:

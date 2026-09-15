@@ -16,10 +16,15 @@ class MemoryReport:
         self.events.append((batch_id, source_code, record_id, severity, code, message))
 
 
+class FatalConnectionError(RuntimeError):
+    pass
+
+
 class RecordingStore:
-    def __init__(self, completed=False, fail_ids=()):
+    def __init__(self, completed=False, fail_ids=(), fatal_ids=()):
         self.completed = completed
         self.fail_ids = set(fail_ids)
+        self.fatal_ids = set(fatal_ids)
         self.batch_statuses = []
         self.mutated_ids = []
         self.rolled_back_records = []
@@ -48,6 +53,8 @@ class RecordingStore:
         return name
 
     def import_record(self, source_id, record):
+        if record.record_id in self.fatal_ids:
+            raise FatalConnectionError("connection lost")
         if record.record_id in self.fail_ids:
             raise ValueError(f"bad record {record.record_id}")
         self.mutated_ids.append(record.record_id)
@@ -64,6 +71,9 @@ class RecordingStore:
 
     def rollback(self):
         self.full_rollbacks += 1
+
+    def is_fatal_error(self, error):
+        return isinstance(error, FatalConnectionError)
 
     def finish_batch(self, batch_id, summary, error_message=None):
         self.batch_statuses.append(summary.status)
@@ -85,6 +95,10 @@ def fatal_records():
 class ImportPipelineTest(unittest.TestCase):
 
     metadata = ImportMetadata("JMDICT", "2026-09", "a" * 64)
+
+    def test_import_metadata_requires_sha256_checksum(self):
+        with self.assertRaisesRegex(ValueError, "SHA-256"):
+            ImportMetadata("JMDICT", "2026-09", "not-a-checksum")
 
     def test_identical_completed_checksum_creates_skipped_audit_batch(self):
         store = RecordingStore(completed=True)
@@ -136,11 +150,26 @@ class ImportPipelineTest(unittest.TestCase):
         )
 
         self.assertEqual("FAILED", summary.status)
-        self.assertEqual((2, 0, 0, 0), summary.mutation_counters)
+        self.assertEqual(3, summary.total)
+        self.assertEqual((2, 0, 0, 1), summary.mutation_counters)
         self.assertEqual(1, store.full_rollbacks)
         self.assertEqual(["RUNNING", "FAILED"], store.batch_statuses)
         self.assertNotIn("password", summary.error_message.lower())
         self.assertNotIn("must-not-leak", summary.error_message)
+
+    def test_connection_failure_stops_processing_instead_of_skipping_one_record(self):
+        store = RecordingStore(fatal_ids={"disconnect"})
+
+        summary = ImportPipeline(store, MemoryReport(), chunk_size=10).run(
+            self.metadata,
+            [Record("one"), Record("disconnect"), Record("must-not-run")],
+        )
+
+        self.assertEqual("FAILED", summary.status)
+        self.assertEqual(2, summary.total)
+        self.assertEqual((0, 0, 0, 2), summary.mutation_counters)
+        self.assertEqual(["one"], store.mutated_ids)
+        self.assertEqual(1, store.full_rollbacks)
 
 
 if __name__ == "__main__":

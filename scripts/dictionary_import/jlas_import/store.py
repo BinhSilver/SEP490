@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from typing import Any
+
+from mysql.connector import errors as mysql_errors
 
 from .models import (
     CatalogValue,
@@ -35,7 +38,7 @@ def kanji_positions(expression: str) -> tuple[tuple[str, int], ...]:
 def radical_character(number: int) -> str:
     if not 1 <= number <= 214:
         raise ValueError("radical number must be between 1 and 214")
-    return chr(0x2F00 + number - 1)
+    return unicodedata.normalize("NFKC", chr(0x2F00 + number - 1))
 
 
 class MySqlDictionaryStore:
@@ -99,6 +102,12 @@ class MySqlDictionaryStore:
     def begin_dry_run(self) -> None:
         if not getattr(self.connection, "in_transaction", False):
             self.connection.start_transaction()
+
+    @staticmethod
+    def is_fatal_error(error: BaseException) -> bool:
+        return isinstance(error, mysql_errors.InterfaceError) or getattr(
+            error, "errno", None
+        ) in {2006, 2013, 2055}
 
     def savepoint(self, name: str) -> str:
         if not _SAVEPOINT_NAME.fullmatch(name):
@@ -239,9 +248,11 @@ class MySqlDictionaryStore:
                 ) > 0
 
         changed |= self._execute(
-            "INSERT IGNORE INTO vocabulary_external_reference "
+            "INSERT INTO vocabulary_external_reference "
             "(vocabulary_id, source_id, external_entry_id, imported_at, updated_at) "
-            "VALUES (%s, %s, %s, CURRENT_TIMESTAMP(6), CURRENT_TIMESTAMP(6))",
+            "VALUES (%s, %s, %s, CURRENT_TIMESTAMP(6), CURRENT_TIMESTAMP(6)) "
+            "ON DUPLICATE KEY UPDATE vocabulary_id = VALUES(vocabulary_id), "
+            "updated_at = CURRENT_TIMESTAMP(6)",
             (vocabulary_id, source_id, record.external_id),
         ) > 0
 

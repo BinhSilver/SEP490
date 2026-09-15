@@ -177,7 +177,7 @@ class MySqlImportIntegrationTest(unittest.TestCase):
         )
 
         self.assertEqual(("COMPLETED", 1, 0), (kanji.status, kanji.inserted, kanji.failed))
-        self.assertEqual(("COMPLETED", 5, 1, 0), (first.status, first.inserted, first.updated, first.failed))
+        self.assertEqual(("COMPLETED", 6, 1, 0), (first.status, first.inserted, first.updated, first.failed))
         self.assertEqual("SKIPPED", second.status)
         self.assertEqual(before, after)
         self.assertEqual(("COMPLETED", 0, 1, 1), (svg.status, svg.inserted, svg.updated, svg.skipped))

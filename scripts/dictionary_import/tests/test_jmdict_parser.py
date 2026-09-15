@@ -24,10 +24,20 @@ class JmDictParserTest(unittest.TestCase):
             tuple((gloss.language_code, gloss.text) for gloss in school.senses[0].glosses),
         )
         self.assertEqual(("n",), tuple(item.code for item in school.senses[0].parts_of_speech))
+        self.assertEqual(("n",), tuple(item.code for item in school.senses[1].parts_of_speech))
         self.assertEqual(
             {"comp", "law", "med"},
             {item.code for item in school.senses[0].domains},
         )
+
+    def test_kana_only_reading_is_not_selected_for_a_written_expression(self):
+        records = list(iter_jmdict(FIXTURES / "jmdict.xml"))
+        today = next(row for row in records if row.external_id == "1000007")
+
+        self.assertEqual("今日", today.expression)
+        self.assertEqual("こんにち", today.reading)
+        self.assertEqual("きょう", today.alternate_readings[0].reading)
+        self.assertEqual("kana-only", today.alternate_readings[0].usage_note)
 
     def test_keeps_restrictions_in_notes_and_emits_lossy_mapping_warning(self):
         school = list(iter_jmdict(FIXTURES / "jmdict.xml"))[0]

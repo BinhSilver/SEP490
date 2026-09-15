@@ -153,7 +153,15 @@ def iter_kanjivg(
     """Yield stable URI mappings from one KanjiVG SVG or a directory tree."""
 
     source_path = Path(path)
-    files = [source_path] if source_path.is_file() else sorted(source_path.rglob("*.svg"))
+    files = (
+        [source_path]
+        if source_path.is_file()
+        else sorted(
+            candidate
+            for candidate in source_path.rglob("*.svg")
+            if _KANJIVG_FILENAME.fullmatch(candidate.name)
+        )
+    )
     prefix = uri_prefix.rstrip("/")
     for svg_file in files:
         try:
@@ -191,12 +199,16 @@ def _parse_jmdict_entry(
         raise RecordValidationError(fallback_id, "JMdict external ID is required")
 
     written_forms = _non_empty_texts(element.findall("k_ele/keb"))
-    raw_readings: list[tuple[str, tuple[str, ...]]] = []
+    raw_readings: list[tuple[str, tuple[str, ...], bool]] = []
     for reading_element in element.findall("r_ele"):
         reading = _text(reading_element.find("reb"))
         if reading:
             raw_readings.append(
-                (reading, tuple(_non_empty_texts(reading_element.findall("re_restr"))))
+                (
+                    reading,
+                    tuple(_non_empty_texts(reading_element.findall("re_restr"))),
+                    reading_element.find("re_nokanji") is not None,
+                )
             )
     if not raw_readings:
         raise RecordValidationError(external_id, "JMdict reading is required")
@@ -205,8 +217,9 @@ def _parse_jmdict_entry(
     primary_index = next(
         (
             index
-            for index, (_, restrictions) in enumerate(raw_readings)
-            if not restrictions or expression in restrictions
+            for index, (_, restrictions, no_kanji) in enumerate(raw_readings)
+            if (not written_forms or not no_kanji)
+            and (not restrictions or expression in restrictions)
         ),
         0,
     )
@@ -215,14 +228,22 @@ def _parse_jmdict_entry(
     warnings: list[ImportWarning] = []
     alternate_readings: list[VocabularyReadingRecord] = []
     has_reading_restriction = False
-    for index, (alternate, restrictions) in enumerate(raw_readings):
-        if restrictions:
+    for index, (alternate, restrictions, no_kanji) in enumerate(raw_readings):
+        if restrictions or no_kanji:
             has_reading_restriction = True
         if index != primary_index:
+            notes = tuple(
+                note
+                for note in (
+                    "kana-only" if no_kanji else None,
+                    _restriction_note("written forms", restrictions),
+                )
+                if note
+            )
             alternate_readings.append(
                 VocabularyReadingRecord(
                     reading=alternate,
-                    usage_note=_restriction_note("written forms", restrictions),
+                    usage_note="; ".join(notes) or None,
                 )
             )
     if has_reading_restriction:
@@ -235,6 +256,7 @@ def _parse_jmdict_entry(
 
     senses: list[VocabularySenseRecord] = []
     has_sense_restriction = False
+    inherited_parts_of_speech: tuple[CatalogValue, ...] = ()
     for order, sense_element in enumerate(element.findall("sense"), start=1):
         written_restrictions = tuple(_non_empty_texts(sense_element.findall("stagk")))
         reading_restrictions = tuple(_non_empty_texts(sense_element.findall("stagr")))
@@ -256,14 +278,17 @@ def _parse_jmdict_entry(
             for gloss in sense_element.findall("gloss")
             if _text(gloss)
         )
+        current_parts_of_speech = _catalog_values(
+            sense_element.findall("pos"), entity_names
+        )
+        if current_parts_of_speech:
+            inherited_parts_of_speech = current_parts_of_speech
         senses.append(
             VocabularySenseRecord(
                 order=order,
                 usage_note="; ".join(notes) or None,
                 glosses=glosses,
-                parts_of_speech=_catalog_values(
-                    sense_element.findall("pos"), entity_names
-                ),
+                parts_of_speech=inherited_parts_of_speech,
                 domains=_catalog_values(sense_element.findall("field"), entity_names),
             )
         )
