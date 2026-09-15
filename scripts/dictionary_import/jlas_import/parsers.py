@@ -308,7 +308,7 @@ def _catalog_values(
 
 
 def _catalog_fallback_code(value: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")[:80]
+    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")[:50]
 
 
 def _read_internal_entities(path: Path) -> dict[str, str]:
