@@ -85,10 +85,15 @@ class ImportWarning:
     message: str
 
 
+@dataclass(frozen=True, slots=True)
+class InvalidRecord:
+    record_id: str
+    message: str
+
+
 class RecordValidationError(ValueError):
     """A recoverable source-record error with a traceable source identifier."""
 
     def __init__(self, record_id: str, message: str):
         super().__init__(message)
         self.record_id = record_id
-
