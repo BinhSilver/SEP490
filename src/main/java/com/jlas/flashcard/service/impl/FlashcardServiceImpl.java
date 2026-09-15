@@ -12,6 +12,14 @@ import com.jlas.flashcard.repository.*;
 import com.jlas.flashcard.service.FlashcardService;
 import com.jlas.moderation.entity.ContentComment;
 import com.jlas.moderation.entity.ContentCommentRating;
+import com.jlas.moderation.dto.ModerationResult;
+import com.jlas.moderation.repository.ContentCommentRatingRepository;
+import com.jlas.moderation.repository.ContentCommentRepository;
+import com.jlas.moderation.service.ContentModerationPort;
+import com.jlas.moderation.service.UserActionPolicyPort;
+import com.jlas.notification.service.UserNotificationPort;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -43,8 +51,10 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final FlashcardCardProgressRepository progress; private final FlashcardUserSetStateRepository states;
     private final FlashcardStudySessionRepository sessions; private final FlashcardStudySessionItemRepository sessionItems;
     private final UserRepository users; private final HanVietAiService hanVietAiService;
-    private final FlashcardContentCommentRepository comments;
-    private final FlashcardContentCommentRatingRepository ratings;
+    private final ContentCommentRepository comments; private final ContentCommentRatingRepository ratings;
+    private final ContentModerationPort moderation;
+    private final UserActionPolicyPort actionPolicy;
+    private final UserNotificationPort notifications;
     @Value("${upload.path.flashcard:uploads/flashcard}") private String uploadPath;
 
     @Override @Transactional(readOnly = true)
@@ -60,15 +70,17 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override @Transactional(readOnly = true)
     public SetDetailDto set(Long id, Long userId) { return detail(readable(id, userId), userId); }
     @Override public SetDetailDto create(SetRequest request, Long userId) {
+        actionPolicy.assertCanAct(login(userId));
         validateComplete(request, null);
         FlashcardSet set = sets.save(FlashcardSet.builder().owner(user(userId)).title(required(request.getTitle(), "Tên bộ thẻ"))
                 .description(blank(request.getDescription())).thumbnailUrl(blank(request.getThumbnail())).visibility(visibility(request.getVisibility())).draft(false).build());
-        replaceCards(set, request.getCards()); return detail(set, userId);
+        replaceCards(set, request.getCards()); moderateSetIfPublic(set, userId); return detail(set, userId);
     }
     @Override public SetDetailDto update(Long id, SetRequest request, Long userId) {
+        actionPolicy.assertCanAct(login(userId));
         FlashcardSet set = owner(id, userId); validateComplete(request, set); set.setTitle(required(request.getTitle(), "Tên bộ thẻ"));
         set.setDescription(blank(request.getDescription())); set.setThumbnailUrl(blank(request.getThumbnail())); set.setVisibility(visibility(request.getVisibility()));
-        set.setDraft(false); sets.save(set); if (request.getCards() != null) replaceCards(set, request.getCards()); return detail(set, userId);
+        set.setDraft(false); sets.save(set); if (request.getCards() != null) replaceCards(set, request.getCards()); moderateSetIfPublic(set, userId); return detail(set, userId);
     }
     @Override public void delete(Long id, Long userId) { FlashcardSet set = owner(id, userId); set.setVisibility("PRIVATE"); set.setDeletedAt(LocalDateTime.now()); sets.save(set); }
     @Override public SetDetailDto createDraft(DraftRequest request, Long userId) {
@@ -209,9 +221,48 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override public QuizSummaryDto finishQuiz(Long sessionId,Long userId) { FlashcardStudySession session=quiz(sessionId,userId);List<FlashcardStudySessionItem> all=sessionItems.findBySessionIdOrderByPositionAsc(sessionId);int right=(int)all.stream().filter(a->Boolean.TRUE.equals(a.getIsCorrect())).count(),wrong=(int)all.stream().filter(a->Boolean.FALSE.equals(a.getIsCorrect())).count();session.setStatus("COMPLETED");session.setFinishedAt(LocalDateTime.now());sessions.save(session);int seconds=(int)Duration.between(session.getStartedAt(),session.getFinishedAt()).toSeconds();Map<Long,FlashcardCardProgress> map=progressMap(userId,session.getSet().getId());return QuizSummaryDto.builder().sessionId(sessionId).total(all.size()).correct(right).wrong(wrong).percentage(all.isEmpty()?0:right*100.0/all.size()).durationSeconds(seconds).avgSecondsPerQuestion(all.isEmpty()?0:(double)seconds/all.size()).wrongCards(all.stream().filter(a->Boolean.FALSE.equals(a.getIsCorrect())).map(a->dto(a.getCard(),map.get(a.getCard().getId()))).toList()).build(); }
     @Override @Transactional(readOnly = true)
     public PageResponse<CommentDto> comments(Long setId,int page,int size,Long userId){readable(setId,userId);Page<ContentComment> result=comments.findByTargetTypeAndTargetIdAndIsHiddenFalseOrderByCreatedAtDesc(TARGET,setId,PageRequest.of(Math.max(0,page),Math.min(Math.max(1,size),100)));Map<Long,ContentCommentRating> map=new HashMap<>();ratings.findAllById(result.getContent().stream().map(ContentComment::getId).toList()).forEach(r->map.put(r.getCommentId(),r));return PageResponse.<CommentDto>builder().content(result.getContent().stream().map(c->commentDto(c,map.get(c.getId()),userId)).toList()).page(result.getNumber()).size(result.getSize()).totalElements(result.getTotalElements()).totalPages(result.getTotalPages()).first(result.isFirst()).last(result.isLast()).build();}
-    @Override public CommentDto comment(Long setId,CommentRequest request,Long userId){FlashcardSet set=readable(setId,userId);ContentComment comment=comments.save(ContentComment.builder().targetType(TARGET).targetId(setId).user(user(userId)).content(required(request.getContent(),"Nội dung")).build());ContentCommentRating rating=null;if(request.getRating()!=null){if(request.getRating()<1||request.getRating()>5)throw bad("Đánh giá từ 1 đến 5");rating=ratings.save(ContentCommentRating.builder().commentId(comment.getId()).rating(request.getRating()).build());}return commentDto(comment,rating,userId);}
+    @Override
+    public CommentDto comment(Long setId, CommentRequest request, Long userId) {
+        FlashcardSet set = readable(setId, userId);
+        actionPolicy.assertCanAct(login(userId));
+        String text = required(request.getContent(), "Nội dung");
+        moderation.checkComment(String.valueOf(login(userId)));
+        ModerationResult result = moderation.scanText(text);
+        if (result.isBlocked()) {
+            moderation.persistLog("FLASHCARD_COMMENT", setId, userId, "COMMENT", text, result);
+            throw new ApiException(ErrorCode.CONTENT_BLOCKED, result.getSummary());
+        }
+        boolean pending = result.needsReview();
+        ContentComment comment = comments.save(ContentComment.builder().targetType(TARGET).targetId(setId)
+                .user(user(userId)).content(text).isHidden(pending).build());
+        Long logId = moderation.persistLog("FLASHCARD_COMMENT", comment.getId(), userId,
+                "COMMENT", text, result);
+        if (pending) {
+            moderation.enqueueReview(logId, "FLASHCARD_COMMENT", comment.getId(), userId,
+                    "Bình luận bộ thẻ " + set.getTitle(), result.getSummary());
+        }
+        if (!pending && !set.getOwner().getId().equals(userId)) {
+            String commenter = StringUtils.hasText(comment.getUser().getFullName())
+                    ? comment.getUser().getFullName() : comment.getUser().getUsername();
+            notifications.notifyUser(set.getOwner().getId(), "FLASHCARD_COMMENT", "Bình luận mới về bộ thẻ",
+                    commenter + " đã bình luận về bộ thẻ “" + set.getTitle() + "”.",
+                    "/flashcard/set.html?id=" + setId, "FLASHCARD_COMMENT_" + comment.getId());
+        }
+        ContentCommentRating rating = null;
+        if (!pending && request.getRating() != null) {
+            if (request.getRating() < 1 || request.getRating() > 5) throw bad("Đánh giá từ 1 đến 5");
+            rating = ratings.save(ContentCommentRating.builder().commentId(comment.getId())
+                    .rating(request.getRating()).build());
+        }
+        return commentDto(comment, rating, userId);
+    }
     @Override public void deleteComment(Long id,Long userId){ContentComment comment=comments.findById(id).orElseThrow(()->missing("Không tìm thấy bình luận"));if(!comment.getUser().getId().equals(login(userId)))throw forbidden("Không có quyền xóa bình luận");ratings.deleteById(id);comments.delete(comment);}
     @Override public FavoriteResponse favorite(Long setId,Long userId){FlashcardUserSetState state=state(userId,readable(setId,userId));state.setIsFavorite(!Boolean.TRUE.equals(state.getIsFavorite()));states.save(state);return FavoriteResponse.builder().favorited(state.getIsFavorite()).build();}
+    @Override public SetSummaryDto rate(Long setId, SetRatingRequest request, Long userId){
+        FlashcardSet set=readable(setId,userId);Long current=login(userId);if(set.getOwner().getId().equals(current))throw bad("Không thể tự đánh giá bộ thẻ của mình");
+        int value=request==null||request.getRating()==null?0:request.getRating();if(value<1||value>5)throw bad("Đánh giá phải từ 1 đến 5 sao");
+        FlashcardUserSetState state=state(current,set);state.setRating((byte)value);states.save(state);return summary(set,current);
+    }
     @Override public CardDto updateProgress(Long cardId,ProgressRequest request,Long userId){
         FlashcardCard card=cards.findById(cardId).orElseThrow(()->missing("Không tìm thấy thẻ")); readable(card.getSet().getId(),userId); FlashcardCardProgress p=stateProgress(userId,card);
         if(request!=null&&request.getStarred()!=null)p.setIsStarred(request.getStarred());
@@ -242,9 +293,35 @@ public class FlashcardServiceImpl implements FlashcardService {
         if(current==null)throw bad("Bộ thẻ phải có ít nhất 1 thẻ");List<FlashcardCard> existing=cards.findBySetIdOrderByPositionAscIdAsc(current.getId());if(existing.isEmpty())throw bad("Bộ thẻ phải có ít nhất 1 thẻ");int row=1;for(FlashcardCard card:existing){if(!StringUtils.hasText(card.getFront())||!StringUtils.hasText(card.getReading())||!StringUtils.hasText(card.getMeaning()))throw bad("Thẻ "+row+" còn thiếu Kanji, cách đọc hoặc nghĩa");row++;}
     }
     private void validateCompleteCard(CardInput input,int row){if(input==null||!StringUtils.hasText(input.getFront())||!StringUtils.hasText(input.getReading())||!StringUtils.hasText(input.getMeaning()))throw bad("Thẻ "+row+" còn thiếu Kanji, cách đọc hoặc nghĩa");}
+    private void moderateSetIfPublic(FlashcardSet set, Long userId) {
+        if (!"PUBLIC".equals(set.getVisibility())) return;
+        moderation.checkPublish(String.valueOf(login(userId)));
+        StringBuilder content = new StringBuilder(set.getTitle());
+        if (StringUtils.hasText(set.getDescription())) content.append('\n').append(set.getDescription());
+        cards.findBySetIdOrderByPositionAscIdAsc(set.getId()).forEach(card -> {
+            content.append('\n').append(Optional.ofNullable(card.getFront()).orElse(""));
+            content.append(' ').append(Optional.ofNullable(card.getReading()).orElse(""));
+            content.append(' ').append(Optional.ofNullable(card.getMeaning()).orElse(""));
+        });
+        ModerationResult result = moderation.scanText(content.toString());
+        if (result.isBlocked()) {
+            throw new ApiException(ErrorCode.CONTENT_BLOCKED, result.getSummary());
+        }
+        set.setModerationStatus(result.getVerdict().name());
+        set.setModerationSummary(result.getSummary());
+        set.setModerationCheckedAt(LocalDateTime.now());
+        if (result.needsReview()) set.setVisibility("PRIVATE");
+        sets.save(set);
+        Long logId = moderation.persistLog("FLASHCARD_SET", set.getId(), userId,
+                "PUBLISH", content.toString(), result);
+        if (result.needsReview()) {
+            moderation.enqueueReview(logId, "FLASHCARD_SET", set.getId(), userId,
+                    set.getTitle(), result.getSummary());
+        }
+    }
     private PageResponse<SetSummaryDto> page(Page<FlashcardSet> source,Long userId){return PageResponse.<SetSummaryDto>builder().content(source.getContent().stream().map(set->summary(set,userId)).toList()).page(source.getNumber()).size(source.getSize()).totalElements(source.getTotalElements()).totalPages(source.getTotalPages()).first(source.isFirst()).last(source.isLast()).build();}
-    private SetSummaryDto summary(FlashcardSet set,Long userId){List<ContentComment> commentList=comments.findByTargetIdOrderByCreatedAtDesc(set.getId()).stream().filter(c->TARGET.equals(c.getTargetType())&&!Boolean.TRUE.equals(c.getIsHidden())).toList();List<ContentCommentRating> ratingList=ratings.findAllById(commentList.stream().map(ContentComment::getId).toList());Double average=ratingList.isEmpty()?null:ratingList.stream().mapToInt(ContentCommentRating::getRating).average().orElse(0);boolean favorite=userId!=null&&states.findByUserIdAndSetId(userId,set.getId()).map(FlashcardUserSetState::getIsFavorite).orElse(false);String name=StringUtils.hasText(set.getOwner().getFullName())?set.getOwner().getFullName():set.getOwner().getUsername();long cardCount=cards.countBySetId(set.getId());return SetSummaryDto.builder().id(set.getId()).title(set.getTitle()).name(set.getTitle()).description(set.getDescription()).thumbnail(set.getThumbnailUrl()).visibility(set.getVisibility()).moderationStatus(set.getModerationStatus()).ownerId(set.getOwner().getId()).ownerName(name).folderId(set.getFolder()==null?null:set.getFolder().getId()).folderName(set.getFolder()==null?null:set.getFolder().getName()).draft(set.isDraft()).totalCards(cardCount).cardCount(cardCount).studyCount(sessions.countBySetIdAndStatus(set.getId(),"COMPLETED")).avgRating(average).ratingCount(ratingList.size()).commentCount(commentList.size()).ownedByMe(userId!=null&&userId.equals(set.getOwner().getId())).favorited(favorite).createdAt(set.getCreatedAt()).updatedAt(set.getUpdatedAt()).build();}
-    private SetDetailDto detail(FlashcardSet set,Long userId){SetSummaryDto base=summary(set,userId);SetDetailDto dto=new SetDetailDto();dto.setId(base.getId());dto.setTitle(base.getTitle());dto.setName(base.getName());dto.setDescription(base.getDescription());dto.setThumbnail(base.getThumbnail());dto.setVisibility(base.getVisibility());dto.setModerationStatus(base.getModerationStatus());dto.setOwnerId(base.getOwnerId());dto.setOwnerName(base.getOwnerName());dto.setFolderId(base.getFolderId());dto.setFolderName(base.getFolderName());dto.setDraft(base.isDraft());dto.setTotalCards(base.getTotalCards());dto.setCardCount(base.getCardCount());dto.setStudyCount(base.getStudyCount());dto.setAvgRating(base.getAvgRating());dto.setRatingCount(base.getRatingCount());dto.setCommentCount(base.getCommentCount());dto.setOwnedByMe(base.isOwnedByMe());dto.setFavorited(base.isFavorited());dto.setCreatedAt(base.getCreatedAt());dto.setUpdatedAt(base.getUpdatedAt());Map<Long,FlashcardCardProgress> map=progressMap(userId,set.getId());dto.setCards(cards.findBySetIdOrderByPositionAscIdAsc(set.getId()).stream().map(card->dto(card,map.get(card.getId()))).toList());return dto;}
+    private SetSummaryDto summary(FlashcardSet set,Long userId){List<ContentComment> commentList=comments.findByTargetIdOrderByCreatedAtDesc(set.getId()).stream().filter(c->TARGET.equals(c.getTargetType())&&!Boolean.TRUE.equals(c.getIsHidden())).toList();List<FlashcardUserSetState> ratingStates=states.findBySetIdAndRatingIsNotNull(set.getId());Double average=ratingStates.isEmpty()?null:ratingStates.stream().mapToInt(row->row.getRating()).average().orElse(0);FlashcardUserSetState mine=userId==null?null:states.findByUserIdAndSetId(userId,set.getId()).orElse(null);boolean favorite=mine!=null&&Boolean.TRUE.equals(mine.getIsFavorite());String name=StringUtils.hasText(set.getOwner().getFullName())?set.getOwner().getFullName():set.getOwner().getUsername();long cardCount=cards.countBySetId(set.getId());return SetSummaryDto.builder().id(set.getId()).title(set.getTitle()).name(set.getTitle()).description(set.getDescription()).thumbnail(set.getThumbnailUrl()).visibility(set.getVisibility()).moderationStatus(set.getModerationStatus()).ownerId(set.getOwner().getId()).ownerName(name).folderId(set.getFolder()==null?null:set.getFolder().getId()).folderName(set.getFolder()==null?null:set.getFolder().getName()).draft(set.isDraft()).totalCards(cardCount).cardCount(cardCount).studyCount(sessions.countBySetIdAndStatus(set.getId(),"COMPLETED")).avgRating(average).ratingCount(ratingStates.size()).commentCount(commentList.size()).ownedByMe(userId!=null&&userId.equals(set.getOwner().getId())).favorited(favorite).myRating(mine==null||mine.getRating()==null?null:(int)mine.getRating()).createdAt(set.getCreatedAt()).updatedAt(set.getUpdatedAt()).build();}
+    private SetDetailDto detail(FlashcardSet set,Long userId){SetSummaryDto base=summary(set,userId);SetDetailDto dto=new SetDetailDto();dto.setId(base.getId());dto.setTitle(base.getTitle());dto.setName(base.getName());dto.setDescription(base.getDescription());dto.setThumbnail(base.getThumbnail());dto.setVisibility(base.getVisibility());dto.setModerationStatus(base.getModerationStatus());dto.setOwnerId(base.getOwnerId());dto.setOwnerName(base.getOwnerName());dto.setFolderId(base.getFolderId());dto.setFolderName(base.getFolderName());dto.setDraft(base.isDraft());dto.setTotalCards(base.getTotalCards());dto.setCardCount(base.getCardCount());dto.setStudyCount(base.getStudyCount());dto.setAvgRating(base.getAvgRating());dto.setRatingCount(base.getRatingCount());dto.setCommentCount(base.getCommentCount());dto.setOwnedByMe(base.isOwnedByMe());dto.setFavorited(base.isFavorited());dto.setMyRating(base.getMyRating());dto.setCreatedAt(base.getCreatedAt());dto.setUpdatedAt(base.getUpdatedAt());Map<Long,FlashcardCardProgress> map=progressMap(userId,set.getId());dto.setCards(cards.findBySetIdOrderByPositionAscIdAsc(set.getId()).stream().map(card->dto(card,map.get(card.getId()))).toList());return dto;}
     private FolderDto folderDto(FlashcardFolder folder){return FolderDto.builder().id(folder.getId()).name(folder.getName()).setCount(sets.countByFolderIdAndDeletedAtIsNull(folder.getId())).build();}
     private CardDto dto(FlashcardCard card,FlashcardCardProgress state){return CardDto.builder().id(card.getId()).front(card.getFront()).back(card.getBack()).kanji(card.getFront()).hiragana(card.getReading()).reading(card.getReading()).meaning(card.getMeaning()).hanViet(card.getHanViet()).image(card.getImageUrl()).jlptLevel(card.getJlptLevel()).wordType(card.getWordType()).exampleJa(card.getExampleJa()).exampleVi(card.getExampleVi()).position(Optional.ofNullable(card.getPosition()).orElse(0)).starred(state!=null&&Boolean.TRUE.equals(state.getIsStarred())).memoryStatus(memoryStatus(state)).build();}
     private String memoryStatus(FlashcardCardProgress state){if(state==null)return "NEW";return "MASTERED".equals(state.getStatus())?"REMEMBERED":"LEARNING".equals(state.getStatus())?"NOT_REMEMBERED":"NEW";}

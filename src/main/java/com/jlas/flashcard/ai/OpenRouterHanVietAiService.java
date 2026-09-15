@@ -183,8 +183,15 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
                     for (JsonNode n : arr) {
                         int id = n.path("id").asInt(-1);
                         String originalK = id >= 0 && id < kanjiList.size() ? kanjiList.get(id) : "";
-                        String k = textOr(n, "kanji", originalK);
-                        if (k.isBlank()) k = originalK;
+                        String returnedK = textOr(n, "kanji", originalK);
+                        if (!sameKanji(returnedK, originalK)) {
+                            log.warn("Ignoring batch AI item {} because returned kanji '{}' differs from requested '{}'",
+                                    id, returnedK, originalK);
+                            continue;
+                        }
+                        // The request's Kanji is the immutable key. AI may only
+                        // enrich its reading, meaning and Hán Việt.
+                        String k = originalK;
 
                         String reading = textOr(n, "reading", "");
                         String meaning = textOr(n, "meaning", "");
@@ -468,6 +475,11 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
 
     private static String nullToEmpty(String s) {
         return s == null ? "" : s;
+    }
+
+    private static boolean sameKanji(String left, String right) {
+        return nullToEmpty(left).replaceAll("\\s+", "")
+                .equals(nullToEmpty(right).replaceAll("\\s+", ""));
     }
 
     private static String textOr(JsonNode n, String field, String fallback) {

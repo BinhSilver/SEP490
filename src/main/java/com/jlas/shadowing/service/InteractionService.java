@@ -1,7 +1,12 @@
 package com.jlas.shadowing.service;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.auth.service.UserDirectoryPort;
+import com.jlas.moderation.dto.ModerationResult;
+import com.jlas.moderation.service.ContentModerationPort;
+import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.notification.service.UserNotificationPort;
 import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.*;
@@ -26,6 +31,9 @@ public class InteractionService {
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private VideoRepository videoRepository;
     @Autowired private UserDirectoryPort userDirectory;
+    @Autowired private ContentModerationPort moderationPort;
+    @Autowired private UserActionPolicyPort actionPolicy;
+    @Autowired private ShadowingUnlockService unlockService;
     @Autowired private UserNotificationPort notifications;
 
     public Set<Long> getFavoriteVideoIds(String clientId) {
@@ -111,10 +119,20 @@ public class InteractionService {
     @Transactional
     public CommentDto addComment(Long videoId, CommentRequest req) {
         Long userId = CurrentUser.requireUserId();
+        actionPolicy.assertCanAct(userId);
         if (req.getContent() == null || req.getContent().isBlank()) {
             throw new IllegalArgumentException("Nội dung bình luận không được để trống");
         }
         String text = req.getContent().trim();
+        String rlKey = String.valueOf(userId);
+        moderationPort.checkComment(rlKey);
+        ModerationResult mod = moderationPort.scanText(text);
+        if (mod.isBlocked()) {
+            moderationPort.persistLog("VIDEO_COMMENT", videoId, userId, "COMMENT", text, mod);
+            throw new ApiException(ErrorCode.CONTENT_BLOCKED,
+                    mod.getSummary() != null ? mod.getSummary() : "Nội dung không phù hợp");
+        }
+        boolean pendingReview = mod.needsReview();
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
         Comment comment = new Comment();
         comment.setTargetId(video.getId());
@@ -122,16 +140,21 @@ public class InteractionService {
         comment.setClientId(String.valueOf(userId));
         comment.setDisplayName(resolveCommentDisplayName(userId));
         comment.setContent(text);
-        comment.setHidden(false);
-        if (req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
+        comment.setHidden(pendingReview);
+        if (!pendingReview && req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
             comment.setRating(req.getRating());
             saveRating(String.valueOf(userId), videoId, req.getRating());
         }
         Comment saved = commentRepository.save(comment);
-        if (req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
+        if (!pendingReview && req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
             commentRatingRepository.save(saved.getId(), req.getRating());
         }
-        if (video.getOwnerId() != null && !video.getOwnerId().equals(userId)) {
+        var logEntity = moderationPort.persistLog("VIDEO_COMMENT", saved.getId(), userId, "COMMENT", text, mod);
+        if (pendingReview) {
+            moderationPort.enqueueReview(logEntity, "VIDEO_COMMENT", saved.getId(), userId,
+                    "Video comment #" + videoId, mod.getSummary());
+        }
+        if (!pendingReview && video.getOwnerId() != null && !video.getOwnerId().equals(userId)) {
             notifications.notifyUser(video.getOwnerId(), "SHADOWING_COMMENT", "Bình luận mới về bài Shadowing",
                     saved.getDisplayName() + " đã bình luận về “" + video.getTitle() + "”.",
                     "/shadowing/player/" + video.getId(), "SHADOWING_COMMENT_" + saved.getId());
@@ -180,6 +203,8 @@ public class InteractionService {
             videoRepository.save(video);
             newlyCounted = true;
 
+            // BR-03 — cộng credit cho creator khi user khác xem hoàn tất
+            unlockService.onCompletedView(video, currentUserId);
         }
 
         watchSessionRepository.save(session);
