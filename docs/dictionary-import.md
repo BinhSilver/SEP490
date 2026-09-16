@@ -11,7 +11,7 @@ Use only the official distributions:
 
 - [JMdict project and download documentation](https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html),
   with the full multilingual file at
-  [JMdict.gz](https://ftp.edrdg.org/pub/Nihongo/JMdict.gz). Do not use
+  [JMdict.gz](https://www.edrdg.org/pub/Nihongo/JMdict.gz). Do not use
   `JMdict_e.gz`, because that edition contains only English glosses.
 - [KANJIDIC2 project](https://www.edrdg.org/wiki/KANJIDIC_Project.html) and
   [kanjidic2.xml.gz](https://www.edrdg.org/kanjidic/kanjidic2.xml.gz).
@@ -42,7 +42,7 @@ Example PowerShell commands:
 
 ```powershell
 New-Item -ItemType Directory -Force data | Out-Null
-Invoke-WebRequest https://ftp.edrdg.org/pub/Nihongo/JMdict.gz -OutFile data/JMdict.gz
+Invoke-WebRequest https://www.edrdg.org/pub/Nihongo/JMdict.gz -OutFile data/JMdict.gz
 Invoke-WebRequest https://www.edrdg.org/kanjidic/kanjidic2.xml.gz -OutFile data/kanjidic2.xml.gz
 ```
 
@@ -82,7 +82,7 @@ $env:DB_USERNAME = 'jlas_importer'
 $env:DB_PASSWORD = '<local secret>'
 ```
 
-The MySQL account needs `SELECT`, `INSERT`, `UPDATE`, and `DELETE` only for the
+The MySQL account needs `SELECT`, `INSERT`, and `UPDATE` only for the
 tables involved in import. Schema application requires a separate account with
 DDL permission.
 
@@ -108,7 +108,7 @@ python scripts/dictionary_import/import_data.py --source kanjidic2 --file data/k
 
 python scripts/dictionary_import/import_data.py --source jmdict --file data/JMdict.xml --source-version 2026-09 --chunk-size 500
 
-python scripts/dictionary_import/import_data.py --source kanjivg --file data/kanjivg/kanji --source-version r20260714 --svg-uri-prefix /assets/kanjivg/kanji --chunk-size 500
+python scripts/dictionary_import/import_data.py --source kanjivg --file data/kanjivg-20250816/kanji --source-version r20250816 --svg-uri-prefix /assets/kanjivg/kanji --chunk-size 500
 ```
 
 Use the actual dataset generation date/release tag as `--source-version`. When
@@ -155,6 +155,13 @@ Warnings and record failures are written as UTF-8 JSON Lines. Each line has
 `batch_id`, `source`, `record_id`, `severity`, `code`, and a sanitized message.
 Passwords, tokens, and similar values are redacted. The database batch field
 contains only a bounded fatal summary, never a stack trace.
+
+Reports are append-only, so a rerun does not erase earlier evidence. Prefer a
+different `--report-file` for each source/run for easier review. The CLI rejects
+a report path equal to an input file or located inside a KanjiVG input directory,
+because either choice could corrupt the source or change its checksum. A source
+that yields zero importable records fails instead of producing a misleading
+zero-record `COMPLETED` batch.
 
 Fix the source record or normalization rule, choose an accurate version, and
 rerun the command. Stable external IDs and existing unique keys prevent

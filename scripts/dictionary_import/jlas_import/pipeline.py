@@ -9,8 +9,12 @@ from typing import Iterable
 from .models import ImportWarning, InvalidRecord
 
 
-_SECRET = re.compile(
-    r"(?i)\b(?:password|passwd|pwd|secret|token|api[_-]?key)\s*[:=]\s*[^\s,;]+"
+_KEYED_SECRET = re.compile(
+    r'''(?ix)\b(?:password|passwd|pwd|secret|token|api[_-]?key)\s*[:=]\s*'''
+    r'''(?:"[^"]*"|'[^']*'|[^,;\r\n]+)'''
+)
+_CREDENTIAL_URI = re.compile(
+    r"(?i)\b([a-z][a-z0-9+.-]*://)[^/\s@]+@"
 )
 _WHITESPACE = re.compile(r"\s+")
 
@@ -54,12 +58,13 @@ class ImportSummary:
 
 
 class ImportPipeline:
-    def __init__(self, store, report_writer, chunk_size: int = 500):
+    def __init__(self, store, report_writer, chunk_size: int = 500, secrets=()):
         if chunk_size <= 0:
             raise ValueError("chunk_size must be positive")
         self.store = store
         self.report_writer = report_writer
         self.chunk_size = chunk_size
+        self.secrets = tuple(secret for secret in secrets if secret)
 
     def run(self, metadata: ImportMetadata, records: Iterable) -> ImportSummary:
         source_id = self.store.require_active_source(metadata.source_code)
@@ -127,7 +132,7 @@ class ImportPipeline:
                             record_id,
                             "ERROR",
                             "RECORD_IMPORT_FAILED",
-                            sanitize_error(error),
+                            sanitize_error(error, self.secrets),
                         )
 
                 if processed_in_chunk >= self.chunk_size:
@@ -137,6 +142,8 @@ class ImportPipeline:
                     pending_inserted = 0
                     pending_updated = 0
 
+            if summary.inserted + summary.updated + summary.skipped == 0:
+                raise ValueError("source produced no importable records")
             if processed_in_chunk and not metadata.dry_run:
                 self.store.commit_chunk(batch_id, summary)
             status = "COMPLETED_WITH_ERRORS" if summary.failed else "COMPLETED"
@@ -148,7 +155,7 @@ class ImportPipeline:
             return summary
         except Exception as error:  # malformed stream/connection loss is fatal
             self.store.rollback()
-            message = sanitize_error(error)
+            message = sanitize_error(error, self.secrets)
             committed_inserted = max(0, summary.inserted - pending_inserted)
             committed_updated = max(0, summary.updated - pending_updated)
             failed = max(
@@ -206,14 +213,20 @@ class ImportPipeline:
             str(record_id),
             severity,
             code,
-            sanitize_message(message),
+            sanitize_message(message, self.secrets),
         )
 
 
-def sanitize_error(error: BaseException) -> str:
-    return sanitize_message(str(error) or error.__class__.__name__)
+def sanitize_error(error: BaseException, secrets=()) -> str:
+    return sanitize_message(str(error) or error.__class__.__name__, secrets)
 
 
-def sanitize_message(message: str) -> str:
-    redacted = _SECRET.sub("[redacted]", message or "")
+def sanitize_message(message: str, secrets=()) -> str:
+    redacted = message or ""
+    for secret in sorted(
+        {secret for secret in secrets if secret}, key=len, reverse=True
+    ):
+        redacted = redacted.replace(secret, "[redacted]")
+    redacted = _CREDENTIAL_URI.sub(r"\1[redacted]@", redacted)
+    redacted = _KEYED_SECRET.sub("[redacted]", redacted)
     return _WHITESPACE.sub(" ", redacted).strip()[:2000]

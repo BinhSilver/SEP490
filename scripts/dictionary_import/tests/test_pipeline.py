@@ -112,6 +112,35 @@ class ImportPipelineTest(unittest.TestCase):
         self.assertEqual([], store.mutated_ids)
         self.assertEqual(["SKIPPED"], store.batch_statuses)
 
+    def test_empty_source_fails_instead_of_completing_zero_records(self):
+        store = RecordingStore()
+
+        summary = ImportPipeline(store, MemoryReport(), chunk_size=2).run(
+            self.metadata, []
+        )
+
+        self.assertEqual("FAILED", summary.status)
+        self.assertEqual(0, summary.total)
+        self.assertIn("no importable records", summary.error_message)
+        self.assertEqual(["RUNNING", "FAILED"], store.batch_statuses)
+
+    def test_all_invalid_records_fail_instead_of_completing_with_errors(self):
+        store = RecordingStore()
+
+        summary = ImportPipeline(store, MemoryReport(), chunk_size=2).run(
+            self.metadata,
+            [
+                InvalidRecord("bad-1", "reading required"),
+                InvalidRecord("bad-2", "expression required"),
+            ],
+        )
+
+        self.assertEqual("FAILED", summary.status)
+        self.assertEqual(2, summary.total)
+        self.assertEqual(2, summary.failed)
+        self.assertIn("no importable records", summary.error_message)
+        self.assertEqual(["RUNNING", "FAILED"], store.batch_statuses)
+
     def test_failed_record_rolls_back_only_its_savepoint_and_continues(self):
         store = RecordingStore(fail_ids={"bad"})
         report = MemoryReport()

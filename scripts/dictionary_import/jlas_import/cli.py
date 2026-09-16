@@ -67,16 +67,33 @@ def main(
         print("error: chunk size must be positive", file=err)
         return 2
 
+    input_resolved = input_path.resolve()
+    report_resolved = Path(args.report_file).resolve()
+    if report_resolved == input_resolved:
+        print("error: report file must not overwrite the input", file=err)
+        return 2
+    if input_path.is_dir():
+        try:
+            report_resolved.relative_to(input_resolved)
+        except ValueError:
+            pass
+        else:
+            print("error: report file must be outside the input directory", file=err)
+            return 2
+
     required = ("DB_NAME", "DB_USERNAME", "DB_PASSWORD")
     missing = [name for name in required if not environment.get(name)]
     if missing:
         print(f"error: missing environment variable(s): {', '.join(missing)}", file=err)
         return 2
+    secrets = (environment["DB_PASSWORD"],)
 
     try:
         checksum = compute_checksum(input_path)
     except OSError as error:
-        print(f"error: cannot read input: {sanitize_error(error)}", file=err)
+        print(
+            f"error: cannot read input: {sanitize_error(error, secrets)}", file=err
+        )
         return 2
 
     connection = None
@@ -99,7 +116,7 @@ def main(
         )
         with JsonlReportWriter(args.report_file) as report:
             summary = ImportPipeline(
-                MySqlDictionaryStore(connection), report, args.chunk_size
+                MySqlDictionaryStore(connection), report, args.chunk_size, secrets
             ).run(metadata, records)
         print(
             json.dumps(
@@ -120,7 +137,7 @@ def main(
         )
         return 1 if summary.status == "FAILED" else 0
     except Exception as error:
-        print(f"error: {sanitize_error(error)}", file=err)
+        print(f"error: {sanitize_error(error, secrets)}", file=err)
         return 1
     finally:
         if connection is not None:
@@ -149,4 +166,3 @@ def compute_checksum(path: str | Path) -> str:
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                 digest.update(chunk)
     return digest.hexdigest()
-

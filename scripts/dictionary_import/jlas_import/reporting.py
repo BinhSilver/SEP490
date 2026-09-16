@@ -13,7 +13,7 @@ class JsonlReportWriter:
 
     def __enter__(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self._stream = self.path.open("w", encoding="utf-8", newline="\n")
+        self._stream = self.path.open("a", encoding="utf-8", newline="\n")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -42,4 +42,3 @@ class JsonlReportWriter:
         }
         self._stream.write(json.dumps(event, ensure_ascii=False) + "\n")
         self._stream.flush()
-
