@@ -45,6 +45,9 @@ public class LearningServiceImpl implements LearningService {
     private final ObjectProvider<LearningScopeSource> scopeSources;
     private final EntityManager em;
 
+    /** Synthetic assessment attempt id used only by the local demo adapter to seed a path on view. */
+    private static final long LOCAL_DEMO_ATTEMPT_ID = 1L;
+
     @Override
     @Transactional
     public CreateLearningPathResult create(Long userId, Long assessmentAttemptId) {
@@ -118,12 +121,25 @@ public class LearningServiceImpl implements LearningService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public LearningPathResponse current(Long userId) {
         requirePositiveUserId(userId);
         return paths.findByUserIdAndStatus(userId, "ACTIVE")
                 .map(this::loadResponse)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "No learning path has been generated yet."));
+                .orElseGet(() -> generateLocalDemoPath(userId));
+    }
+
+    /**
+     * Demo convenience for the {@code local-seed} profile: on first view, fabricate a ready-made
+     * path so the learning-path page shows a real two-phase schedule instead of an empty create
+     * state. This runs only when the local demo adapter is the active profile source; with a real
+     * source (or none), reading a missing path stays {@link ErrorCode#NOT_FOUND}.
+     */
+    private LearningPathResponse generateLocalDemoPath(Long userId) {
+        if (!(profileSources.getIfAvailable() instanceof LocalLearningProfileSource)) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "No learning path has been generated yet.");
+        }
+        return create(userId, LOCAL_DEMO_ATTEMPT_ID).path();
     }
 
     private LearningPathResponse loadResponse(UserLearningPath path) {
