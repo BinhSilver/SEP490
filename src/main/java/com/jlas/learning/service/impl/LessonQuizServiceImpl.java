@@ -22,6 +22,7 @@ import com.jlas.learning.repository.LessonQuizAttemptDetailRepository;
 import com.jlas.learning.repository.LessonQuizAttemptRepository;
 import com.jlas.learning.repository.LessonQuizQuestionRepository;
 import com.jlas.learning.repository.LessonQuizRepository;
+import com.jlas.learning.service.LearningProgressService;
 import com.jlas.learning.service.LessonQuizService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
@@ -47,12 +48,14 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     private static final String MULTIPLE_CHOICE = "MULTIPLE_CHOICE";
     private static final String FILL_BLANK = "FILL_BLANK";
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
+    private static final BigDecimal PASS_THRESHOLD = BigDecimal.valueOf(60);
 
     private final LessonQuizRepository lessonQuizRepository;
     private final LessonQuizQuestionRepository questionRepository;
     private final LessonQuizAttemptRepository attemptRepository;
     private final LessonQuizAttemptDetailRepository attemptDetailRepository;
     private final LessonQuizAnswerRepository answerRepository;
+    private final LearningProgressService learningProgress;
     private final EntityManager em;
     private final ApplicationEventPublisher events;
 
@@ -61,6 +64,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     public QuizStartResponse start(Long userId, Long lessonId) {
         AssessmentQuiz quiz = lessonQuizRepository.findPublishedLessonQuiz(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz not found for this lesson."));
+        learningProgress.start(userId, lessonId);
         List<AssessmentQuizQuestion> links = questionRepository.findWithQuestionByQuizId(quiz.getId());
         AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                 .user(em.getReference(User.class, userId))
@@ -132,6 +136,12 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         quizAttempt.setScorePercent(scorePercent);
         attemptDetailRepository.save(quizAttempt);
         events.publishEvent(LearningActivityCompleted.quizCompleted(userId, quizAttempt.getQuiz().getId()));
+        if (scorePercent.compareTo(PASS_THRESHOLD) >= 0) {
+            Long lessonId = lessonIdOf(quizAttempt);
+            if (lessonId != null) {
+                learningProgress.complete(userId, lessonId);
+            }
+        }
         return new QuizSubmitResponse(attemptId, scorePercent, correctCount, links.size());
     }
 
@@ -165,6 +175,12 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         }
         return attemptRepository.findOwnedAttempt(attemptId, userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Attempt not found."));
+    }
+
+    /** Resolves the owning lesson of a LESSON quiz attempt, when one exists. */
+    private Long lessonIdOf(AssessmentQuizAttempt quizAttempt) {
+        AssessmentQuiz quiz = quizAttempt.getQuiz();
+        return quiz.getLesson() == null ? null : quiz.getLesson().getId();
     }
 
     private Map<Long, QuizAnswerSubmission> indexSubmissions(QuizSubmitRequest request) {

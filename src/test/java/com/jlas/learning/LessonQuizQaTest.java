@@ -17,6 +17,7 @@ import com.jlas.dictionary.entity.Unit;
 import com.jlas.learning.dto.QuizAnswerSubmission;
 import com.jlas.learning.dto.QuizSubmitRequest;
 import com.jlas.learning.service.LessonQuizService;
+import com.jlas.learning.service.impl.LearningProgressServiceImpl;
 import com.jlas.learning.service.impl.LessonQuizServiceImpl;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -47,7 +48,7 @@ class LessonQuizQaTest {
     @Configuration(proxyBeanMethods = false)
     @EntityScan("com.jlas")
     @EnableJpaRepositories(basePackages = "com.jlas.learning.repository")
-    @Import(LessonQuizServiceImpl.class)
+    @Import({LessonQuizServiceImpl.class, LearningProgressServiceImpl.class})
     static class QaTestConfiguration { }
 
     @Autowired EntityManager em;

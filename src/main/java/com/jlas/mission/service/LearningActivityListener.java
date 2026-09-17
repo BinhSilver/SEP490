@@ -17,6 +17,7 @@ public class LearningActivityListener {
         String type = event.activityType();
         if ("COMPLETE_LESSON".equals(type)) {
             dailyGoal.recordStudyMinutes(event.userId(), Math.max(0, event.minutes()));
+            dailyGoal.recordVocabulary(event.userId(), Math.max(0, event.vocabularyCount()));
         } else if ("COMPLETE_QUIZ".equals(type)) {
             dailyGoal.recordQuiz(event.userId());
         } else if ("PUBLISH_SHADOWING".equals(type)) {

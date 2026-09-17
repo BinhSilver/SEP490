@@ -32,4 +32,11 @@ public interface LearningLessonContentRepository extends Repository<LessonSectio
             order by g.orderIndex, g.id
             """)
     List<GrammarPoint> findGrammarPoints(@Param("lessonId") Long lessonId);
+
+    /** Distinct vocabulary entries attached to the lesson's content items, used to credit the daily goal. */
+    @Query("""
+            select count(distinct cv.vocabularyEntry.id) from ContentVocabulary cv
+            where cv.contentItem.section.lesson.id = :lessonId
+            """)
+    long countVocabularyByLessonId(@Param("lessonId") Long lessonId);
 }

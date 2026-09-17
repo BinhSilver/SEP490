@@ -9,9 +9,11 @@ import com.jlas.learning.dto.LessonProgressResponse;
 import com.jlas.learning.entity.LessonProgress;
 import com.jlas.learning.enums.LessonStatus;
 import com.jlas.learning.repository.LearningCatalogRepository;
+import com.jlas.learning.repository.LearningLessonContentRepository;
 import com.jlas.learning.repository.LessonProgressRepository;
 import com.jlas.learning.service.LearningProgressService;
 import jakarta.persistence.EntityManager;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LearningProgressServiceImpl implements LearningProgressService {
     private final LessonProgressRepository progressRepository;
     private final LearningCatalogRepository catalog;
+    private final LearningLessonContentRepository contentRepository;
     private final EntityManager em;
     private final ApplicationEventPublisher events;
 
@@ -48,12 +51,17 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         LessonProgress progress = progressRepository.findByUserIdAndLessonId(userId, lessonId)
                 .orElseGet(() -> newProgress(userId, lesson));
         if (!LessonStatus.COMPLETED.name().equals(progress.getStatus())) {
+            LocalDateTime startedAt = progress.getStartedAt() == null
+                    ? LocalDateTime.now() : progress.getStartedAt();
+            LocalDateTime completedAt = LocalDateTime.now();
             progress.setStatus(LessonStatus.COMPLETED.name());
-            progress.setStartedAt(progress.getStartedAt() == null ? LocalDateTime.now() : progress.getStartedAt());
-            progress.setCompletedAt(LocalDateTime.now());
+            progress.setStartedAt(startedAt);
+            progress.setCompletedAt(completedAt);
             progressRepository.save(progress);
+            int creditedMinutes = creditedMinutes(startedAt, completedAt, lesson.getEstimatedMinutes());
+            int vocabularyCount = (int) contentRepository.countVocabularyByLessonId(lessonId);
             events.publishEvent(LearningActivityCompleted.lessonCompleted(
-                    userId, lessonId, lesson.getEstimatedMinutes() == null ? 0 : lesson.getEstimatedMinutes()));
+                    userId, lessonId, creditedMinutes, vocabularyCount));
         }
         return toResponse(progress);
     }
@@ -81,6 +89,16 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         }
         return catalog.findPublishedLessonDetail(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found."));
+    }
+
+    /** Credits the actual time spent on the lesson, capped at its estimate so fast passes never over-count. */
+    private static int creditedMinutes(LocalDateTime startedAt, LocalDateTime completedAt, Integer estimatedMinutes) {
+        long elapsed = Duration.between(startedAt, completedAt).toMinutes();
+        long minutes = Math.max(0, elapsed);
+        if (estimatedMinutes != null && estimatedMinutes > 0) {
+            minutes = Math.min(minutes, estimatedMinutes);
+        }
+        return (int) minutes;
     }
 
     private static LessonProgressResponse toResponse(LessonProgress progress) {

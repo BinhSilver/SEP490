@@ -19,7 +19,9 @@ import com.jlas.dictionary.entity.Unit;
 import com.jlas.learning.dto.QuizAnswerSubmission;
 import com.jlas.learning.dto.QuizSubmitRequest;
 import com.jlas.learning.repository.LessonQuizAttemptRepository;
+import com.jlas.learning.service.LearningProgressService;
 import com.jlas.learning.service.LessonQuizService;
+import com.jlas.learning.service.impl.LearningProgressServiceImpl;
 import com.jlas.learning.service.impl.LessonQuizServiceImpl;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -46,12 +48,13 @@ class LessonQuizServiceTest {
     @Configuration(proxyBeanMethods = false)
     @EntityScan("com.jlas")
     @EnableJpaRepositories(basePackages = "com.jlas.learning.repository")
-    @Import(LessonQuizServiceImpl.class)
+    @Import({LessonQuizServiceImpl.class, LearningProgressServiceImpl.class})
     static class QuizTestConfiguration { }
 
     @Autowired EntityManager em;
     @Autowired LessonQuizService service;
     @Autowired LessonQuizAttemptRepository attemptRepository;
+    @Autowired LearningProgressService learningProgress;
 
     private int userSeq = 0;
     private int tagSeq = 0;
@@ -177,6 +180,50 @@ class LessonQuizServiceTest {
 
         assertApiError(ErrorCode.VALIDATION_FAILED, () -> service.submit(user.getId(), started.attemptId(),
                 new QuizSubmitRequest(List.of(new QuizAnswerSubmission(question.getId(), null, "   ")))));
+    }
+
+    @Test
+    void startingQuizMarksLessonInProgress() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        seedQuiz(lesson, "LESSON", "PUBLISHED");
+        em.flush();
+
+        service.start(user.getId(), lesson.getId());
+
+        assertEquals("IN_PROGRESS", learningProgress.status(user.getId(), lesson.getId()).status());
+    }
+
+    @Test
+    void passingQuizCompletesLesson() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        var question = seedMultipleChoice("Chọn trợ từ", 1);
+        link(quiz, question, 1);
+        em.flush();
+        var started = service.start(user.getId(), lesson.getId());
+
+        service.submit(user.getId(), started.attemptId(),
+                new QuizSubmitRequest(List.of(new QuizAnswerSubmission(question.getId(), 1, null))));
+
+        assertEquals("COMPLETED", learningProgress.status(user.getId(), lesson.getId()).status());
+    }
+
+    @Test
+    void failingQuizDoesNotCompleteLesson() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        var question = seedMultipleChoice("Chọn trợ từ", 1);
+        link(quiz, question, 1);
+        em.flush();
+        var started = service.start(user.getId(), lesson.getId());
+
+        service.submit(user.getId(), started.attemptId(),
+                new QuizSubmitRequest(List.of(new QuizAnswerSubmission(question.getId(), 4, null))));
+
+        assertEquals("IN_PROGRESS", learningProgress.status(user.getId(), lesson.getId()).status());
     }
 
     private void assertApiError(ErrorCode code, Executable action) {
