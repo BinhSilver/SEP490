@@ -1888,6 +1888,11 @@ CREATE TABLE user_credit_transaction (
     note           VARCHAR(200) NULL,
     created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    -- NOTE (JLAS-W0127): Unique backstop so two concurrent awards of the same reference
+    -- cannot double-credit (the app also locks the user row before the idempotency check).
+    -- NULL reference_type/reference_id are treated as distinct, so reason-only awards
+    -- (reference columns NULL) still apply every time.
+    UNIQUE KEY uk_credit_transaction_reference (user_id, reason, reference_type, reference_id),
     KEY idx_credit_user_created (user_id, created_at),
     KEY idx_credit_reference (reference_type, reference_id),
     CONSTRAINT fk_credit_transaction_user FOREIGN KEY (user_id)

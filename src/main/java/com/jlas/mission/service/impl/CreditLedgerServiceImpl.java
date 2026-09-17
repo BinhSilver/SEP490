@@ -33,12 +33,15 @@ public class CreditLedgerServiceImpl implements CreditLedgerService {
         }
 
         boolean referenced = referenceType != null && referenceId != null;
-        if (referenced && transactionRepository.existsReference(userId, reason, referenceType, referenceId)) {
-            return balance(userId);
-        }
 
+        // Lock the user row first so the idempotency check below is serialized against
+        // concurrent awards of the same reference; the DB unique key is the final backstop.
         User user = userRepository.findForCreditUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "User not found."));
+
+        if (referenced && transactionRepository.existsReference(userId, reason, referenceType, referenceId)) {
+            return currentBalance(user);
+        }
 
         transactionRepository.save(UserCreditTransaction.builder()
                 .user(user)
