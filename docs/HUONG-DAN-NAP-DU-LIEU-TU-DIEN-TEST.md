@@ -4,6 +4,37 @@ Tài liệu này dành cho thành viên nhận source code từ Git và cần m�
 có đầy đủ dữ liệu Dictionary/Kanji để phát triển hoặc kiểm thử các chức năng
 khác. Không cần chạy lại quá trình import JMdict kéo dài khoảng 40 phút.
 
+## 0. Chạy nhanh sau khi `git pull`
+
+Sau khi pull nhánh này về, chỉ cần chạy **đúng một lệnh** để có đủ dữ liệu:
+
+```powershell
+git lfs pull
+
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r scripts/dictionary_import/requirements.txt
+
+$env:DB_HOST = 'localhost'
+$env:DB_PORT = '3306'
+$env:DB_USERNAME = 'root'
+$env:DB_PASSWORD = '<mật khẩu MySQL local>'
+
+.\.venv\Scripts\python.exe scripts/dictionary_import/seed_bootstrap.py
+```
+
+Lệnh cuối cùng, `seed_bootstrap.py`, là file duy nhất cần chạy. Hai file
+`data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz` và
+`data/dictionary-seed/kanjivg-r20250816.zip` chỉ là **dữ liệu đầu vào** mà
+script này tự đọc, tự verify checksum, tự giải nén và tự import — không tự tay
+`mysql < ...` file `.sql.gz`, không tự giải nén file `.zip` bằng tay. Ba dòng
+đầu (`python -m venv`, `pip install`) chỉ cần làm một lần trên mỗi máy; các
+lần sau chỉ cần set lại biến môi trường `DB_PASSWORD` rồi chạy lại
+`seed_bootstrap.py`.
+
+Kết quả mong đợi là `"status": "INSTALLED"` (lần đầu) hoặc
+`"status": "ALREADY_INSTALLED"` (nếu chạy lại và dữ liệu đã đủ). Chi tiết từng
+bước, cách kiểm tra và xử lý lỗi nằm ở các mục bên dưới.
+
 ## 1. Kết quả sau khi hoàn thành
 
 Sau khi làm hết các bước, máy local sẽ có:
