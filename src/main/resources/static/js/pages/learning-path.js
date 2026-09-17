@@ -172,22 +172,6 @@
       '<h1>Đang tải lộ trình</h1><p>JLAS đang chuẩn bị hành trình học của bạn.</p></section>';
   }
 
-  function renderEmpty(attemptId, inlineMessage) {
-    var hint = attemptId
-      ? 'Kết quả Smart Test đã sẵn sàng. Bạn có thể tạo lộ trình ngay.'
-      : 'Hoàn thành Smart Test để JLAS xác định phần cần ôn và mục tiêu tiếp theo.';
-    return '<section class="lp-state lp-state--empty">' +
-      '<span class="lp-state__icon" aria-hidden="true">道</span>' +
-      '<p class="lp-eyebrow">Lộ trình cá nhân hóa</p>' +
-      '<h1>Bắt đầu hành trình phù hợp với bạn</h1>' +
-      '<p>' + escapeHtml(hint) + '</p>' +
-      (inlineMessage ? '<div class="lp-inline-message" role="alert">' + escapeHtml(inlineMessage) + '</div>' : '') +
-      '<button class="lp-button lp-button--primary" type="button" data-action="create-path">' +
-        icon('route') + '<span>Tạo lộ trình</span></button>' +
-      '<a class="lp-text-link" href="/profile">Kiểm tra mục tiêu học tập</a>' +
-      '</section>';
-  }
-
   function renderError(code, message) {
     return '<section class="lp-state lp-state--error" role="alert">' +
       '<span class="lp-state__icon">!</span><p class="lp-eyebrow">Chưa tải được lộ trình</p>' +
@@ -291,7 +275,7 @@
       resolveAssessmentAttemptId('', window.localStorage);
 
     function paint() {
-      root.innerHTML = state.path ? renderPath(createViewModel(state.path), state.filters) : renderEmpty(state.attemptId);
+      root.innerHTML = renderPath(createViewModel(state.path), state.filters);
       root.setAttribute('aria-busy', 'false');
     }
 
@@ -306,8 +290,7 @@
         var response = await fetch('/api/learning/paths/current', { headers: window.JlasAuth.authHeaders() });
         var body = await readBody(response);
         if (response.status === 404 || body.code === 'NOT_FOUND') {
-          state.path = null;
-          paint();
+          await createPath();
           return;
         }
         if (!response.ok || body.success === false || !body.data) {
@@ -325,7 +308,8 @@
 
     async function createPath() {
       if (!state.attemptId) {
-        root.innerHTML = renderEmpty(null, 'Chưa tìm thấy kết quả Smart Test đã hoàn tất. Hãy quay lại sau khi hoàn thành bài đánh giá.');
+        root.innerHTML = renderError(null, 'Chưa tìm thấy kết quả Smart Test đã hoàn tất. Hãy quay lại sau khi hoàn thành bài đánh giá.');
+        root.setAttribute('aria-busy', 'false');
         return;
       }
       root.setAttribute('aria-busy', 'true');
@@ -360,7 +344,6 @@
       }
       if (!action) return;
       if (action.dataset.action === 'retry') load();
-      if (action.dataset.action === 'create-path') createPath();
       if (action.dataset.action === 'toggle-day') {
         var card = action.closest('.lp-day');
         var details = card && card.querySelector('.lp-day__details');
@@ -386,7 +369,6 @@
     resolveAssessmentAttemptId: resolveAssessmentAttemptId,
     errorMessage: errorMessage,
     renderPath: renderPath,
-    renderEmpty: renderEmpty,
     renderError: renderError,
     mount: mount
   };

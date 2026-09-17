@@ -130,10 +130,9 @@ public class LearningServiceImpl implements LearningService {
     }
 
     /**
-     * Demo convenience for the {@code local-seed} profile: on first view, fabricate a ready-made
-     * path so the learning-path page shows a real two-phase schedule instead of an empty create
-     * state. This runs only when the local demo adapter is the active profile source; with a real
-     * source (or none), reading a missing path stays {@link ErrorCode#NOT_FOUND}.
+     * Demo convenience: on first view, fabricate a ready-made path so the learning-path page
+     * shows a real two-phase schedule instead of an empty create state. The local demo adapter
+     * is the default profile source until the real survey/Smart Test flow ships.
      */
     private LearningPathResponse generateLocalDemoPath(Long userId) {
         if (!(profileSources.getIfAvailable() instanceof LocalLearningProfileSource)) {

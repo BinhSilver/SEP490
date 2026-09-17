@@ -6,15 +6,13 @@ import com.jlas.learning.service.LearningScopeSource;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * Local demo adapter (profile {@code local-seed}): resolves the two-phase curriculum scope
- * from configuration. Textbook ids must point at seeded published textbooks. Never active in production.
+ * Default demo adapter: resolves the two-phase curriculum scope from configuration. Textbook
+ * ids must point at seeded published textbooks.
  */
 @Component
-@Profile("local-seed")
 public class LocalLearningScopeSource implements LearningScopeSource {
     private final List<Long> warmUpBookIds;
     private final List<Long> goalBookIds;

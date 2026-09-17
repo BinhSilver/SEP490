@@ -9,16 +9,14 @@ import com.jlas.learning.dto.TagAssessmentResult;
 import com.jlas.learning.service.LearningProfileSource;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * Local demo adapter (profile {@code local-seed}): fabricates a finalized profile from the
- * authenticated user so the flow can run before the survey/Smart Test modules are delivered.
- * Never active in production.
+ * Default demo adapter: fabricates a finalized profile from the authenticated user so the
+ * flow can run before the survey/Smart Test modules are delivered. Until a real profile
+ * source ships, any signed-in learner gets a ready-made demo path on first view.
  */
 @Component
-@Profile("local-seed")
 @RequiredArgsConstructor
 public class LocalLearningProfileSource implements LearningProfileSource {
     private static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
@@ -28,7 +26,8 @@ public class LocalLearningProfileSource implements LearningProfileSource {
     public LearningProfileSnapshot loadForUser(Long userId, Long assessmentAttemptId) {
         User user = users.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "User not found."));
-        String assessed = LEVELS.contains(user.getJapaneseLevel()) ? user.getJapaneseLevel() : "N4";
+        String japaneseLevel = user.getJapaneseLevel();
+        String assessed = japaneseLevel != null && LEVELS.contains(japaneseLevel) ? japaneseLevel : "N4";
         return new LearningProfileSnapshot(userId, assessmentAttemptId, 1L, "local-demo-v1",
                 true, true, assessed, targetFor(assessed), "JLPT", 30,
                 List.of(new TagAssessmentResult("PARTICLE", 5, 4), new TagAssessmentResult("VERB", 5, 2)));
