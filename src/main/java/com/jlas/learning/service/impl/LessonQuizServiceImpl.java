@@ -9,8 +9,10 @@ import com.jlas.assessment.entity.AssessmentQuizQuestion;
 import com.jlas.auth.entity.User;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.learning.dto.QuizAnswerDetailResponse;
 import com.jlas.learning.dto.QuizAnswerSubmission;
 import com.jlas.learning.dto.QuizQuestionResponse;
+import com.jlas.learning.dto.QuizResultResponse;
 import com.jlas.learning.dto.QuizStartResponse;
 import com.jlas.learning.dto.QuizSubmitRequest;
 import com.jlas.learning.dto.QuizSubmitResponse;
@@ -107,7 +109,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                     .attempt(attempt)
                     .question(question)
                     .selectedOption(submission.selectedOption())
-                    .answerText(submission.answerText())
+                    .answerText(submission.answerText() == null ? null : submission.answerText().trim())
                     .isCorrect(correct)
                     .answeredAt(LocalDateTime.now())
                     .build());
@@ -127,6 +129,30 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         quizAttempt.setScorePercent(scorePercent);
         attemptDetailRepository.save(quizAttempt);
         return new QuizSubmitResponse(attemptId, scorePercent, correctCount, links.size());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public QuizResultResponse result(Long userId, Long attemptId) {
+        AssessmentAttempt attempt = ownedAttempt(userId, attemptId);
+        if (!STATUS_SUBMITTED.equals(attempt.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Quiz has not been submitted yet.");
+        }
+        AssessmentQuizAttempt quizAttempt = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz attempt not found."));
+        List<AssessmentAnswer> answers = answerRepository.findWithQuestionByAttemptId(attemptId);
+        int correctCount = (int) answers.stream()
+                .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect()))
+                .count();
+        BigDecimal scorePercent = attempt.getScorePercent() != null ? attempt.getScorePercent() : BigDecimal.ZERO;
+        return new QuizResultResponse(
+                attemptId,
+                quizAttempt.getQuiz().getId(),
+                quizAttempt.getQuiz().getTitle(),
+                scorePercent,
+                correctCount,
+                answers.size(),
+                answers.stream().map(this::toDetail).toList());
     }
 
     private AssessmentAttempt ownedAttempt(Long userId, Long attemptId) {
@@ -184,6 +210,22 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 optionsOf(question));
     }
 
+    private QuizAnswerDetailResponse toDetail(AssessmentAnswer answer) {
+        AssessmentQuestion question = answer.getQuestion();
+        List<String> options = optionsOf(question);
+        return new QuizAnswerDetailResponse(
+                question.getId(),
+                question.getQuestionType(),
+                question.getQuestionText(),
+                options,
+                answer.getSelectedOption(),
+                answer.getAnswerText(),
+                question.getCorrectOption(),
+                correctAnswerText(question, options),
+                answer.getIsCorrect(),
+                question.getExplanation());
+    }
+
     private List<String> optionsOf(AssessmentQuestion question) {
         List<String> options = new ArrayList<>(4);
         addOption(options, question.getOption1());
@@ -197,5 +239,17 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         if (value != null && !value.isBlank()) {
             options.add(value);
         }
+    }
+
+    private String correctAnswerText(AssessmentQuestion question, List<String> options) {
+        if (FILL_BLANK.equals(question.getQuestionType())) {
+            return question.getAnswerText();
+        }
+        if (question.getCorrectOption() != null
+                && question.getCorrectOption() >= 1
+                && question.getCorrectOption() <= options.size()) {
+            return options.get(question.getCorrectOption() - 1);
+        }
+        return null;
     }
 }
