@@ -64,8 +64,12 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     public QuizStartResponse start(Long userId, Long lessonId) {
         AssessmentQuiz quiz = lessonQuizRepository.findPublishedLessonQuiz(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz not found for this lesson."));
-        learningProgress.start(userId, lessonId);
         List<AssessmentQuizQuestion> links = questionRepository.findWithQuestionByQuizId(quiz.getId());
+        List<AssessmentQuizQuestion> supported = supportedQuestions(links);
+        if (supported.isEmpty()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Quiz has no supported questions.");
+        }
+        learningProgress.start(userId, lessonId);
         AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                 .user(em.getReference(User.class, userId))
                 .attemptType(ATTEMPT_TYPE_QUIZ)
@@ -80,7 +84,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 quiz.getId(),
                 quiz.getTitle(),
                 lessonId,
-                links.stream().map(this::toQuestion).toList());
+                supported.stream().map(this::toQuestion).toList());
     }
 
     @Override
@@ -93,16 +97,17 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         AssessmentQuizAttempt quizAttempt = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz attempt not found."));
         List<AssessmentQuizQuestion> links = questionRepository.findWithQuestionByQuizId(quizAttempt.getQuiz().getId());
-        if (links.isEmpty()) {
+        List<AssessmentQuizQuestion> supported = supportedQuestions(links);
+        if (supported.isEmpty()) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Quiz has no questions to submit.");
         }
 
         Map<Long, QuizAnswerSubmission> submissions = indexSubmissions(request);
-        List<AssessmentAnswer> answers = new ArrayList<>(links.size());
+        List<AssessmentAnswer> answers = new ArrayList<>(supported.size());
         BigDecimal totalScore = BigDecimal.ZERO;
         BigDecimal earnedScore = BigDecimal.ZERO;
         int correctCount = 0;
-        for (AssessmentQuizQuestion link : links) {
+        for (AssessmentQuizQuestion link : supported) {
             AssessmentQuestion question = link.getQuestion();
             QuizAnswerSubmission submission = submissions.remove(question.getId());
             boolean correct = grade(question, submission);
@@ -142,7 +147,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 learningProgress.complete(userId, lessonId);
             }
         }
-        return new QuizSubmitResponse(attemptId, scorePercent, correctCount, links.size());
+        return new QuizSubmitResponse(attemptId, scorePercent, correctCount, supported.size());
     }
 
     @Override
@@ -183,6 +188,44 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         return quiz.getLesson() == null ? null : quiz.getLesson().getId();
     }
 
+    /** Keeps only question types the lesson quiz can render and grade. */
+    private List<AssessmentQuizQuestion> supportedQuestions(List<AssessmentQuizQuestion> links) {
+        return links.stream()
+                .filter(link -> link.getQuestion() != null
+                        && (MULTIPLE_CHOICE.equals(link.getQuestion().getQuestionType())
+                            || FILL_BLANK.equals(link.getQuestion().getQuestionType())))
+                .toList();
+    }
+
+    /** 1-based index of the correct option within the compacted options list, or 0 when none exists. */
+    private int correctOptionIndex(AssessmentQuestion question) {
+        Integer correct = question.getCorrectOption();
+        if (correct == null || correct < 1 || correct > 4 || isBlank(rawOption(question, correct))) {
+            return 0;
+        }
+        int index = 1;
+        for (int position = 1; position < correct; position++) {
+            if (!isBlank(rawOption(question, position))) {
+                index++;
+            }
+        }
+        return index;
+    }
+
+    private String rawOption(AssessmentQuestion question, int position) {
+        return switch (position) {
+            case 1 -> question.getOption1();
+            case 2 -> question.getOption2();
+            case 3 -> question.getOption3();
+            case 4 -> question.getOption4();
+            default -> null;
+        };
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
     private Map<Long, QuizAnswerSubmission> indexSubmissions(QuizSubmitRequest request) {
         Map<Long, QuizAnswerSubmission> map = new LinkedHashMap<>();
         if (request == null || request.answers() == null) {
@@ -207,7 +250,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED,
                         "Missing choice for question " + question.getId() + ".");
             }
-            return submission.selectedOption().equals(question.getCorrectOption());
+            return submission.selectedOption().equals(correctOptionIndex(question));
         }
         if (FILL_BLANK.equals(question.getQuestionType())) {
             if (submission.answerText() == null || submission.answerText().isBlank()) {
@@ -217,7 +260,8 @@ public class LessonQuizServiceImpl implements LessonQuizService {
             return question.getAnswerText() != null
                     && submission.answerText().trim().equalsIgnoreCase(question.getAnswerText().trim());
         }
-        return false;
+        throw new ApiException(ErrorCode.BAD_REQUEST,
+                "Unsupported question type " + question.getQuestionType() + ".");
     }
 
     private QuizQuestionResponse toQuestion(AssessmentQuizQuestion link) {
@@ -265,11 +309,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         if (FILL_BLANK.equals(question.getQuestionType())) {
             return question.getAnswerText();
         }
-        if (question.getCorrectOption() != null
-                && question.getCorrectOption() >= 1
-                && question.getCorrectOption() <= options.size()) {
-            return options.get(question.getCorrectOption() - 1);
-        }
-        return null;
+        int index = correctOptionIndex(question);
+        return index >= 1 && index <= options.size() ? options.get(index - 1) : null;
     }
 }

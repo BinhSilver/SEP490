@@ -186,7 +186,8 @@ class LessonQuizServiceTest {
     void startingQuizMarksLessonInProgress() {
         var user = seedUser();
         var lesson = seedLesson("PUBLISHED");
-        seedQuiz(lesson, "LESSON", "PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        link(quiz, seedMultipleChoice("Câu 1", 1), 1);
         em.flush();
 
         service.start(user.getId(), lesson.getId());
@@ -224,6 +225,52 @@ class LessonQuizServiceTest {
                 new QuizSubmitRequest(List.of(new QuizAnswerSubmission(question.getId(), 4, null))));
 
         assertEquals("IN_PROGRESS", learningProgress.status(user.getId(), lesson.getId()).status());
+    }
+
+    @Test
+    void multipleChoiceGradesByCompactedOptionWhenLeadingOptionIsBlank() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        var question = seedMultipleChoiceWithGap("Chọn trợ từ", 3);
+        link(quiz, question, 1);
+        em.flush();
+        var started = service.start(user.getId(), lesson.getId());
+
+        // "Đáp án 3" becomes the 2nd visible option once the blank option1 is dropped.
+        var submit = service.submit(user.getId(), started.attemptId(),
+                new QuizSubmitRequest(List.of(new QuizAnswerSubmission(question.getId(), 2, null))));
+
+        assertEquals(1, submit.correctCount());
+        assertEquals(0, submit.scorePercent().compareTo(new java.math.BigDecimal("100.00")));
+    }
+
+    @Test
+    void startExcludesUnsupportedQuestionTypes() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        var multiple = seedMultipleChoice("Câu 1", 1);
+        var matching = seedMatching("Nối cặp");
+        link(quiz, multiple, 1);
+        link(quiz, matching, 2);
+        em.flush();
+
+        var result = service.start(user.getId(), lesson.getId());
+
+        assertEquals(1, result.questions().size());
+        assertEquals(multiple.getId(), result.questions().get(0).questionId());
+    }
+
+    @Test
+    void startRejectsQuizWithNoSupportedQuestions() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        link(quiz, seedMatching("Nối cặp"), 1);
+        em.flush();
+
+        assertApiError(ErrorCode.BAD_REQUEST, () -> service.start(user.getId(), lesson.getId()));
     }
 
     private void assertApiError(ErrorCode code, Executable action) {
@@ -286,6 +333,31 @@ class LessonQuizServiceTest {
                 .questionType("FILL_BLANK")
                 .questionText(text)
                 .answerText(answer)
+                .explanation("Giải thích.").build();
+        em.persist(question);
+        return question;
+    }
+
+    private AssessmentQuestion seedMultipleChoiceWithGap(String text, int correctOption) {
+        AssessmentQuestion question = AssessmentQuestion.builder()
+                .knowledgeTag(knowledgeTag())
+                .questionType("MULTIPLE_CHOICE")
+                .questionText(text)
+                .option1(null)
+                .option2("Đáp án 2")
+                .option3("Đáp án 3")
+                .option4("Đáp án 4")
+                .correctOption(correctOption)
+                .explanation("Giải thích.").build();
+        em.persist(question);
+        return question;
+    }
+
+    private AssessmentQuestion seedMatching(String text) {
+        AssessmentQuestion question = AssessmentQuestion.builder()
+                .knowledgeTag(knowledgeTag())
+                .questionType("MATCHING")
+                .questionText(text)
                 .explanation("Giải thích.").build();
         em.persist(question);
         return question;

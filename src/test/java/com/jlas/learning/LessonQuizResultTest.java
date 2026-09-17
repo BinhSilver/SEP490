@@ -105,6 +105,28 @@ class LessonQuizResultTest {
     }
 
     @Test
+    void correctAnswerTextReflectsCompactedOptionsWhenLeadingOptionIsBlank() {
+        var user = seedUser();
+        var lesson = seedLesson();
+        var quiz = seedQuiz(lesson);
+        var question = seedMultipleChoiceWithGap("Chọn trợ từ", 3);
+        link(quiz, question, 1);
+        em.flush();
+        var started = service.start(user.getId(), lesson.getId());
+        service.submit(user.getId(), started.attemptId(),
+                new QuizSubmitRequest(List.of(new QuizAnswerSubmission(question.getId(), 2, null))));
+
+        var result = service.result(user.getId(), started.attemptId());
+        var detail = answerFor(result.answers(), question.getId());
+
+        // correctOption=3 is "Đáp án 3", the 2nd of 3 visible options once option1 is blank.
+        assertEquals(3, detail.options().size());
+        assertEquals("Đáp án 3", detail.correctAnswerText());
+        assertEquals(Integer.valueOf(2), detail.selectedOption());
+        assertTrue(detail.isCorrect());
+    }
+
+    @Test
     void wrongAnswerIsMarkedIncorrectWithExplanation() {
         var user = seedUser();
         var lesson = seedLesson();
@@ -223,6 +245,21 @@ class LessonQuizResultTest {
                 .questionType("FILL_BLANK")
                 .questionText(text)
                 .answerText(answer)
+                .explanation("Giải thích.").build();
+        em.persist(question);
+        return question;
+    }
+
+    private AssessmentQuestion seedMultipleChoiceWithGap(String text, int correctOption) {
+        AssessmentQuestion question = AssessmentQuestion.builder()
+                .knowledgeTag(knowledgeTag())
+                .questionType("MULTIPLE_CHOICE")
+                .questionText(text)
+                .option1(null)
+                .option2("Đáp án 2")
+                .option3("Đáp án 3")
+                .option4("Đáp án 4")
+                .correctOption(correctOption)
                 .explanation("Giải thích.").build();
         em.persist(question);
         return question;
