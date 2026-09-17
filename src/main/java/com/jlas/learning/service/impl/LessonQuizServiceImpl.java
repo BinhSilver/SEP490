@@ -7,6 +7,7 @@ import com.jlas.assessment.entity.AssessmentQuiz;
 import com.jlas.assessment.entity.AssessmentQuizAttempt;
 import com.jlas.assessment.entity.AssessmentQuizQuestion;
 import com.jlas.auth.entity.User;
+import com.jlas.common.event.LearningActivityCompleted;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.QuizAnswerDetailResponse;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     private final LessonQuizAttemptDetailRepository attemptDetailRepository;
     private final LessonQuizAnswerRepository answerRepository;
     private final EntityManager em;
+    private final ApplicationEventPublisher events;
 
     @Override
     @Transactional
@@ -128,6 +131,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         attemptRepository.save(attempt);
         quizAttempt.setScorePercent(scorePercent);
         attemptDetailRepository.save(quizAttempt);
+        events.publishEvent(LearningActivityCompleted.quizCompleted(userId, quizAttempt.getQuiz().getId()));
         return new QuizSubmitResponse(attemptId, scorePercent, correctCount, links.size());
     }
 

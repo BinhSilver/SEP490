@@ -1,6 +1,7 @@
 package com.jlas.learning.service.impl;
 
 import com.jlas.auth.entity.User;
+import com.jlas.common.event.LearningActivityCompleted;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.entity.Lesson;
@@ -13,6 +14,7 @@ import com.jlas.learning.service.LearningProgressService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     private final LessonProgressRepository progressRepository;
     private final LearningCatalogRepository catalog;
     private final EntityManager em;
+    private final ApplicationEventPublisher events;
 
     @Override
     @Transactional
@@ -49,6 +52,8 @@ public class LearningProgressServiceImpl implements LearningProgressService {
             progress.setStartedAt(progress.getStartedAt() == null ? LocalDateTime.now() : progress.getStartedAt());
             progress.setCompletedAt(LocalDateTime.now());
             progressRepository.save(progress);
+            events.publishEvent(LearningActivityCompleted.lessonCompleted(
+                    userId, lessonId, lesson.getEstimatedMinutes() == null ? 0 : lesson.getEstimatedMinutes()));
         }
         return toResponse(progress);
     }
