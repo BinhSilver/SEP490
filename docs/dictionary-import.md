@@ -203,3 +203,38 @@ mvn test
 At normal Spring Boot startup, no importer runs. Dictionary runtime behavior
 reads the imported MySQL tables and does not call JMdict, KANJIDIC2, KanjiVG,
 or any other external dictionary service.
+
+## Fast test bootstrap from Git LFS
+
+Developers who only need a complete test database do not need to rerun the
+full upstream import. The repository tracks a compressed, versioned snapshot
+and KanjiVG archive through Git LFS:
+
+```powershell
+git lfs install
+git lfs pull
+$env:DB_USERNAME = 'root'
+$env:DB_PASSWORD = '<local password>'
+.\.venv\Scripts\python.exe scripts/dictionary_import/seed_bootstrap.py
+```
+
+Linux/macOS (Bash):
+
+```bash
+git lfs install
+git lfs pull
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r scripts/dictionary_import/requirements.txt
+export DB_USERNAME=root
+export DB_PASSWORD='<local password>'
+python scripts/dictionary_import/seed_bootstrap.py
+```
+
+The command only accepts a database ending in `_test` (default:
+`jlas_dictionary_test`), verifies SHA-256 and byte sizes, restores all schema
+definitions plus only Dictionary/Kanji data, verifies exact row counts, and
+extracts 11,661 KanjiVG SVG files. It is idempotent when the installed counts
+match. A partial database is rejected; `--replace` is an explicit destructive
+rebuild of only the selected `_test` database. See
+[`data/dictionary-seed/README.md`](../data/dictionary-seed/README.md).

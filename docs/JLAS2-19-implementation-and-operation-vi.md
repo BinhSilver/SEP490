@@ -750,11 +750,11 @@ Lệnh:
 Kết quả gần nhất:
 
 ```text
-Ran 32 tests
+Ran 44 tests
 OK (skipped=1)
 ```
 
-Tức là 31 test pass và 1 MySQL integration test được skip có chủ đích vì không chạy fixture có cleanup phá dữ liệu trên database `jlas` đã import thật.
+Tức là 43 test pass và 1 MySQL integration test được skip có chủ đích vì không chạy fixture có cleanup phá dữ liệu trên database `jlas` đã import thật.
 
 ### 17.2. MySQL integration test tùy chọn
 
@@ -873,9 +873,9 @@ Các edge cases sửa ở commit cuối gồm:
 
 ### Test/release review
 
-- [x] Chạy toàn bộ 32 Python tests: 31 pass, 1 MySQL fixture test skip có chủ đích.
+- [x] Chạy toàn bộ 44 Python tests: 43 pass, 1 MySQL fixture test skip có chủ đích.
 - [ ] Bật và chạy MySQL integration test trên database `_test`.
-- [ ] Chạy `mvn test`.
+- [x] Chạy `mvn test`: 1 test pass, `BUILD SUCCESS`.
 - [ ] Dry-run ba nguồn trên dữ liệu thật.
 - [ ] Review JSONL warnings/errors.
 - [ ] Đối chiếu counts và orphan queries sau import.
@@ -1029,7 +1029,64 @@ Các report, file dữ liệu nguồn, backup và SVG đều bị Git ignore. Ch
 
 ### 24.9. Test cuối sau khi import
 
-- Python: `32` test được phát hiện, `31` pass và `1` skip. Test bị skip là MySQL fixture test có cơ chế bảo vệ bắt buộc database kết thúc bằng `_test`; không chạy test xóa fixture trên database `jlas` đã có dữ liệu thật.
+- Python: `44` test được phát hiện, `43` pass và `1` skip. Test bị skip là MySQL fixture test có cơ chế bảo vệ bắt buộc database kết thúc bằng `_test`; không chạy test xóa fixture trên database `jlas` đã có dữ liệu thật.
 - Java/Maven: `1` test chạy, `0` failure, `0` error, `0` skip; kết quả `BUILD SUCCESS`.
 - `git diff --check`: dùng để kiểm tra whitespace/error của phần thay đổi trước khi bàn giao.
 - Ngoài automated tests, lần import thật, truy vấn duplicate/orphan/blank, đối chiếu URI SVG và ba batch rerun `SKIPPED` là integration evidence trực tiếp trên MySQL local.
+
+## 25. Snapshot test phân phối qua Git LFS
+
+Để người khác clone repository và có đầy đủ dữ liệu kiểm thử mà không phải chờ
+import JMdict khoảng 40 phút, repository có thêm hai artifact Git LFS trong
+`data/dictionary-seed/`:
+
+- `jlas-dictionary-test-seed-20260916.sql.gz`: `45.488.556` byte, SHA-256
+  `28f4f1edfab533684956380338c41c8fae7a4993893802b39b6d90e43ec430a2`,
+  chứa DDL của 109 bảng + 4 view và data của đúng 16 bảng Dictionary/Kanji.
+  Scan dump xác nhận
+  không có `INSERT` vào account, profile, user progress, content hoặc bảng
+  nghiệp vụ khác; không chứa `CREATE DATABASE`, `USE` hoặc `DEFINER`. Cả 4 view
+  dùng `SQL SECURITY INVOKER`, nên không phụ thuộc tài khoản `root@localhost`
+  của máy tạo snapshot.
+- `kanjivg-r20250816.zip`: `22.803.150` byte, chứa 11.661 SVG với đường dẫn
+  ZIP chuẩn dùng được trên Windows và Linux.
+- `manifest.json`: giữ SHA-256, kích thước artifact, source version và exact
+  row count để bootstrap tự xác minh.
+
+Lệnh cài đặt:
+
+```powershell
+git lfs install
+git lfs pull
+$env:DB_USERNAME = 'root'
+$env:DB_PASSWORD = '<local password>'
+.\.venv\Scripts\python.exe scripts/dictionary_import/seed_bootstrap.py
+```
+
+Trên Linux/macOS dùng Bash:
+
+```bash
+git lfs install
+git lfs pull
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r scripts/dictionary_import/requirements.txt
+export DB_USERNAME=root
+export DB_PASSWORD='<mật khẩu local>'
+python scripts/dictionary_import/seed_bootstrap.py
+```
+
+Bootstrap mặc định tạo `jlas_dictionary_test`, chỉ chấp nhận tên kết thúc bằng
+`_test`, và không chạm vào database `jlas` đang dùng. Nó từ chối database đã có
+dữ liệu một phần; `--replace` là lựa chọn phá hủy rõ ràng chỉ dành cho database
+`_test`. Password được truyền cho MySQL qua environment, không nằm trong command
+line. Trước khi kết luận đã cài xong, bootstrap đối chiếu fingerprint của đủ 113
+schema object, exact row count của 16 bảng Dictionary/Kanji và xác nhận các bảng
+nghiệp vụ khác có 0 dòng. KanjiVG được kiểm tra đủ 11.661 file trước rồi mới thay
+nguyên tử cả cây asset, vì vậy file SVG cũ không thể sót lại.
+
+Snapshot đã được restore thử từ artifact vào `jlas_dictionary_seed_test` trong
+94,8 giây. Kết quả có đủ 109 bảng + 4 view, đúng toàn bộ counts trong manifest,
+0 row ở các bảng ngoài Dictionary/Kanji, 4 view đều là `INVOKER` và đủ 11.661
+SVG. Lần chạy thứ hai trả `ALREADY_INSTALLED` trong 13 giây. Database và thư mục asset kiểm chứng
+tạm đã được xóa sau khi test; hai artifact Git LFS vẫn được giữ để commit/push.
