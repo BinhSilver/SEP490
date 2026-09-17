@@ -11,6 +11,6 @@ public interface StreakService {
      */
     int recordCompletion(Long userId);
 
-    /** Returns the current streak state (zeros when the user has no streak row yet). */
+    /** Returns the current streak state; a streak not completed today or yesterday reads as zero (decayed). */
     StreakSnapshot snapshot(Long userId);
 }

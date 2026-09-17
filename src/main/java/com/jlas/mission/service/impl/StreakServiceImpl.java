@@ -43,8 +43,18 @@ public class StreakServiceImpl implements StreakService {
     @Transactional(readOnly = true)
     public StreakSnapshot snapshot(Long userId) {
         return streaksRepository.findByUserId(userId)
-                .map(streak -> new StreakSnapshot(value(streak.getCurrentStreak()), value(streak.getLongestStreak())))
+                .map(streak -> new StreakSnapshot(effectiveCurrentStreak(streak), value(streak.getLongestStreak())))
                 .orElse(new StreakSnapshot(0, 0));
+    }
+
+    /** The current streak decays to zero once a full day passes without a completion. */
+    private int effectiveCurrentStreak(UserStreaks streak) {
+        LocalDate last = streak.getLastCompletedDate();
+        if (last == null) {
+            return 0;
+        }
+        LocalDate today = LocalDate.now(clock);
+        return last.isBefore(today.minusDays(1)) ? 0 : value(streak.getCurrentStreak());
     }
 
     private UserStreaks streakOrNew(Long userId) {

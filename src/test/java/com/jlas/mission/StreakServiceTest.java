@@ -131,6 +131,35 @@ class StreakServiceTest {
         assertEquals(0, snapshot.longestStreak());
     }
 
+    @Test
+    void snapshotKeepsStreakForTodayAndYesterdayCompletion() {
+        var user = seedUser();
+        em.flush();
+        service.recordCompletion(user.getId()); // day 17 -> 1
+        clock.set(LocalDate.of(2026, 9, 18));
+        service.recordCompletion(user.getId()); // day 18 -> 2
+
+        assertEquals(2, service.snapshot(user.getId()).currentStreak());
+
+        clock.set(LocalDate.of(2026, 9, 19));
+        assertEquals(2, service.snapshot(user.getId()).currentStreak());
+    }
+
+    @Test
+    void snapshotDecaysCurrentStreakAfterMissedDay() {
+        var user = seedUser();
+        em.flush();
+        service.recordCompletion(user.getId()); // day 17 -> 1
+        clock.set(LocalDate.of(2026, 9, 18));
+        service.recordCompletion(user.getId()); // day 18 -> 2
+
+        clock.set(LocalDate.of(2026, 9, 20)); // day 19 skipped
+        var snapshot = service.snapshot(user.getId());
+
+        assertEquals(0, snapshot.currentStreak());
+        assertEquals(2, snapshot.longestStreak());
+    }
+
     private User seedUser() {
         Role role = Role.builder().name("LEARNER").build();
         em.persist(role);
