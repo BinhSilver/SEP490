@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,16 @@ public class LessonQuizServiceImpl implements LessonQuizService {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Quiz has no supported questions.");
         }
         learningProgress.start(userId, lessonId);
+        Optional<AssessmentQuizAttempt> resumed = attemptDetailRepository
+                .findInProgressByUserIdAndQuizId(userId, quiz.getId());
+        if (resumed.isPresent()) {
+            return new QuizStartResponse(
+                    resumed.get().getAttemptId(),
+                    quiz.getId(),
+                    quiz.getTitle(),
+                    lessonId,
+                    supported.stream().map(this::toQuestion).toList());
+        }
         AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                 .user(em.getReference(User.class, userId))
                 .attemptType(ATTEMPT_TYPE_QUIZ)
@@ -90,7 +101,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     @Override
     @Transactional
     public QuizSubmitResponse submit(Long userId, Long attemptId, QuizSubmitRequest request) {
-        AssessmentAttempt attempt = ownedAttempt(userId, attemptId);
+        AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
         if (!STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
             throw new ApiException(ErrorCode.CONFLICT, "Quiz has already been submitted.");
         }
@@ -179,6 +190,15 @@ public class LessonQuizServiceImpl implements LessonQuizService {
             throw new ApiException(ErrorCode.NOT_FOUND, "Attempt not found.");
         }
         return attemptRepository.findOwnedAttempt(attemptId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Attempt not found."));
+    }
+
+    /** Like {@link #ownedAttempt}, but takes a pessimistic-write lock so concurrent submits serialize. */
+    private AssessmentAttempt ownedAttemptForUpdate(Long userId, Long attemptId) {
+        if (attemptId == null || attemptId <= 0) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "Attempt not found.");
+        }
+        return attemptRepository.findOwnedAttemptForUpdate(attemptId, userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Attempt not found."));
     }
 

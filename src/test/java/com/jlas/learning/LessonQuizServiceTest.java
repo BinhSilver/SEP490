@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jlas.assessment.entity.AssessmentAttempt;
 import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.entity.AssessmentQuiz;
 import com.jlas.assessment.entity.AssessmentQuizQuestion;
@@ -271,6 +272,25 @@ class LessonQuizServiceTest {
         em.flush();
 
         assertApiError(ErrorCode.BAD_REQUEST, () -> service.start(user.getId(), lesson.getId()));
+    }
+
+    @Test
+    void startResumesInProgressAttemptInsteadOfStacking() {
+        var user = seedUser();
+        var lesson = seedLesson("PUBLISHED");
+        var quiz = seedQuiz(lesson, "LESSON", "PUBLISHED");
+        link(quiz, seedMultipleChoice("Câu 1", 1), 1);
+        em.flush();
+
+        var first = service.start(user.getId(), lesson.getId());
+        var second = service.start(user.getId(), lesson.getId());
+
+        assertEquals(first.attemptId(), second.attemptId());
+        long attempts = em.createQuery(
+                        "select count(a) from AssessmentAttempt a where a.user.id = :userId", Long.class)
+                .setParameter("userId", user.getId())
+                .getSingleResult();
+        assertEquals(1L, attempts);
     }
 
     private void assertApiError(ErrorCode code, Executable action) {

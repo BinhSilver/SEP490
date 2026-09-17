@@ -17,4 +17,15 @@ public interface LessonQuizAttemptDetailRepository extends JpaRepository<Assessm
             where link.attempt.id = :attemptId
             """)
     Optional<AssessmentQuizAttempt> findWithQuizByAttemptId(@Param("attemptId") Long attemptId);
+
+    /** An open attempt the user can resume for a quiz, so opening it again reuses the same attempt. */
+    @Query("""
+            select link from AssessmentQuizAttempt link
+            join link.attempt attempt
+            where attempt.user.id = :userId
+              and attempt.status = 'IN_PROGRESS'
+              and link.quiz.id = :quizId
+            """)
+    Optional<AssessmentQuizAttempt> findInProgressByUserIdAndQuizId(
+            @Param("userId") Long userId, @Param("quizId") Long quizId);
 }
