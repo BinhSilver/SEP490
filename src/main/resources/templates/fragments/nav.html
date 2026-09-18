@@ -10,10 +10,10 @@
         <i class="fa-solid fa-route" aria-hidden="true"></i>
         <span>Onyomi</span>
     </a>
-    <button type="button" class="platform-nav-disabled" aria-disabled="true" title="Tính năng tra cứu đã tắt">
+    <a th:href="@{/dictionary/index.html}" th:classappend="${active == 'dictionary'} ? ' is-active'" title="Tra cứu từ điển">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <span>Tra cứu</span>
-    </button>
+    </a>
     <a th:href="@{/games}" th:classappend="${active == 'game'} ? ' is-active'" title="Chơi game luyện tiếng Nhật">
         <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
         <span>Game</span>

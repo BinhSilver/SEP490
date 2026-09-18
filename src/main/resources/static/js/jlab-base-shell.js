@@ -171,6 +171,9 @@
             '<a id="' + ids.learningPathLink + '" href="/learning/path" title="Lộ trình Hán Việt  On">' +
               '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
             '</a>' +
+            '<a id="' + ids.lookupLink + '" href="/dictionary/index.html" title="Tra cứu từ điển">' +
+              '<i id="' + ids.lookupIcon + '" aria-hidden="true"></i><span id="' + ids.lookupLabel + '">Tra cứu</span>' +
+            '</a>' +
             '<a id="' + ids.gameLink + '" href="/games" title="Chơi game luyện tiếng Nhật">' +
               '<i id="' + ids.gameIcon + '" aria-hidden="true"></i><span id="' + ids.gameLabel + '">Game</span>' +
             '</a>' +
@@ -257,6 +260,8 @@
       path.indexOf('/learning/rules') === 0 ||
       path.indexOf('/learning/flashcards') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
+    var isDictionary = path === '/dictionary/index' || path === '/dictionary' ||
+      path.indexOf('/dictionary/') === 0;
     var isAiCall = path === '/ai-call' ||
       path.indexOf('/ai-call/') === 0 ||
       path.indexOf('/category/') === 0 ||
@@ -278,6 +283,7 @@
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.learningPathLink, isLearningPath);
+    markCurrent(ids.lookupLink, isDictionary);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
