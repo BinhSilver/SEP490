@@ -42,6 +42,9 @@
     textbooksLink: 'jlabBaseTextbooksLink',
     textbooksIcon: 'jlabBaseTextbooksIcon',
     textbooksLabel: 'jlabBaseTextbooksLabel',
+    examsWrapper: 'jlabBaseExamsWrapper',
+    examsButton: 'jlabBaseExamsButton',
+    examsMenu: 'jlabBaseExamsMenu',
     testBuilderWrapper: 'jlabBaseTestBuilderWrapper',
     testBuilderButton: 'jlabBaseTestBuilderButton',
     testBuilderIcon: 'jlabBaseTestBuilderIcon',
@@ -49,8 +52,6 @@
     testBuilderChevron: 'jlabBaseTestBuilderChevron',
     testBuilderMenu: 'jlabBaseTestBuilderMenu',
     smartTestItem: 'jlabBaseSmartTestItem',
-    smartTestIcon: 'jlabBaseSmartTestIcon',
-    smartTestLabel: 'jlabBaseSmartTestLabel',
     jlptItem: 'jlabBaseJlptItem',
     jlptIcon: 'jlabBaseJlptIcon',
     jlptLabel: 'jlabBaseJlptLabel',
@@ -172,6 +173,13 @@
               '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
             '</a>' +
             // "Tạo đề": chỉ CONTENT_CREATOR (NAV_ROLES) — render `hidden`, syncNavRoles() bật. Khung theo đúng "Công cụ".
+            '<div id="' + ids.examsWrapper + '" class="dropdown nav-tools-dropdown">' +
+              '<button id="' + ids.examsButton + '" class="nav-tools-trigger" aria-label="Bài Thi" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.examsMenu + '"><i id="jlabBaseExamsIcon" aria-hidden="true"></i><span id="jlabBaseExamsLabel">Bài Thi</span><i id="jlabBaseExamsChevron" aria-hidden="true"></i></button>' +
+              '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
+                '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="jlabBaseExamSmartTestIcon" aria-hidden="true"></i><span>Smart Test</span></a>' +
+                '<button id="jlabBaseExamJlptItem" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span><span class="nav-soon">sắp có</span></button>' +
+              '</div>' +
+            '</div>' +
             '<div id="' + ids.testBuilderWrapper + '" class="dropdown nav-tools-dropdown" hidden>' +
               '<button id="' + ids.testBuilderButton + '" class="nav-tools-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.testBuilderMenu + '">' +
                 '<i id="' + ids.testBuilderIcon + '" aria-hidden="true"></i><span id="' + ids.testBuilderLabel + '">Tạo đề</span><i id="' + ids.testBuilderChevron + '" aria-hidden="true"></i>' +
@@ -198,10 +206,9 @@
                 '<a id="' + ids.aiCallLink + '" class="dropdown__item" href="/ai-call" role="menuitem"><i id="' + ids.aiCallIcon + '" aria-hidden="true"></i><span id="' + ids.aiCallLabel + '">AI Call</span></a>' +
                 '<a id="' + ids.flashcardLink + '" class="dropdown__item" href="/flashcard/library.html" role="menuitem"><i id="' + ids.flashcardIcon + '" aria-hidden="true"></i><span id="' + ids.flashcardLabel + '">Flashcard</span></a>' +
                 '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
-                '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
               '</div>' +
             '</div>' +
-            '<a id="' + ids.aboutLink + '" href="/#about"><span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
+            '<a id="' + ids.aboutLink + '" href="/#about" aria-label="Giới thiệu"><span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
           '</nav>' +
           '<div id="' + ids.actions + '" class="site-header__actions">' +
             '<div id="' + ids.guestActions + '" class="user-actions" data-auth-guest>' +
@@ -308,12 +315,13 @@
 
     var toolsButton = byId(ids.toolsButton);
     if (toolsButton) {
-      if (isAiCall || isFlashcard || isShadowing || isSmartTest) {
+      if (isAiCall || isFlashcard || isShadowing) {
         toolsButton.setAttribute('aria-current', 'page');
       } else {
         toolsButton.removeAttribute('aria-current');
       }
     }
+    markCurrent(ids.examsButton, isSmartTest);
   }
 
   function fallbackUser() {
@@ -511,6 +519,7 @@
       : menuId === ids.notificationPanel ? ids.notificationWrapper : null;
     var wrapper = wrapperId ? byId(wrapperId) : null;
     if (!wrapper && menuId === ids.testBuilderMenu) wrapper = byId(ids.testBuilderWrapper);
+    if (!wrapper && menuId === ids.examsMenu) wrapper = byId(ids.examsWrapper);
     if (menu) menu.hidden = true;
     if (wrapper) wrapper.classList.remove('is-open');
     if (button) {
@@ -524,6 +533,7 @@
     closeMenu(ids.accountMenu, ids.avatarButton, restoreFocusId === ids.avatarButton);
     closeMenu(ids.notificationPanel, ids.notificationButton, restoreFocusId === ids.notificationButton);
     closeMenu(ids.testBuilderMenu, ids.testBuilderButton, restoreFocusId === ids.testBuilderButton);
+    closeMenu(ids.examsMenu, ids.examsButton, restoreFocusId === ids.examsButton);
   }
 
   function toggleMenu(menuId, buttonId, otherMenuId, otherButtonId, firstItemId) {
@@ -533,6 +543,7 @@
       : menuId === ids.accountMenu ? ids.accountWrapper : null;
     var wrapper = wrapperId ? byId(wrapperId) : null;
     if (!wrapper && menuId === ids.testBuilderMenu) wrapper = byId(ids.testBuilderWrapper);
+    if (!wrapper && menuId === ids.examsMenu) wrapper = byId(ids.examsWrapper);
     if (!menu || !button) return;
 
     var willOpen = menu.hidden;
@@ -609,6 +620,14 @@
       if (header && !header.contains(event.target)) closeAllMenus();
     });
 
+    byId(ids.examsButton).addEventListener('click', function () {
+      var willOpen = byId(ids.examsMenu).hidden;
+      closeAllMenus();
+      if (willOpen) toggleMenu(ids.examsMenu, ids.examsButton, ids.toolsMenu, ids.toolsButton, ids.smartTestLink);
+    });
+    [ids.toolsButton, ids.avatarButton, ids.notificationButton, ids.testBuilderButton].forEach(function (buttonId) {
+      byId(buttonId).addEventListener('click', function () { closeMenu(ids.examsMenu, ids.examsButton); });
+    });
     // "Tạo đề": cùng khuôn "Công cụ"; đóng chéo với 3 menu cũ (listener bổ sung, không sửa handler cũ).
     byId(ids.testBuilderButton).addEventListener('click', function () {
       closeMenu(ids.notificationPanel, ids.notificationButton);
@@ -629,9 +648,10 @@
       var toolsOpen = byId(ids.toolsMenu) && !byId(ids.toolsMenu).hidden;
       var accountOpen = byId(ids.accountMenu) && !byId(ids.accountMenu).hidden;
       var notificationsOpen = byId(ids.notificationPanel) && !byId(ids.notificationPanel).hidden;
+      var examsOpen = byId(ids.examsMenu) && !byId(ids.examsMenu).hidden;
       closeAllMenus(toolsOpen ? ids.toolsButton
         : accountOpen ? ids.avatarButton
-        : notificationsOpen ? ids.notificationButton : null);
+        : notificationsOpen ? ids.notificationButton : examsOpen ? ids.examsButton : null);
     });
 
     window.addEventListener('popstate', syncActiveLink);

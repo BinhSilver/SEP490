@@ -732,6 +732,25 @@
  * Khối riêng, mirror đúng rule của "Công cụ" (#jlabBaseTools*) để không sửa selector cũ.
  * Khi fa712cb (SVG icon, grid 4 cột) merge: dựng lại khối này trên khuôn mới.
  * ============================================================================= */
+#jlabBaseExamsWrapper { position:relative; }
+#jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; cursor:pointer; }
+#jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
+#jlabBaseExamsIcon,#jlabBaseExamsChevron,#jlabBaseExamSmartTestIcon,#jlabBaseExamJlptIcon { display:inline-block; width:18px; font-family:"Font Awesome 6 Free"; font-weight:900; font-style:normal; }
+#jlabBaseExamsIcon::before { content:"\f15c"; }
+#jlabBaseExamsChevron::before { content:"\f078"; }
+#jlabBaseExamSmartTestIcon::before { content:"\f5dc"; }
+#jlabBaseExamJlptIcon::before { content:"\f0a3"; }
+#jlabBaseExamsChevron { width:auto; font-size:.7em; transition:transform .18s; }
+#jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
+#jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:rgba(255,255,255,.96); box-shadow:0 10px 40px rgba(22,29,31,.14); }
+#jlabBaseExamsMenu[hidden] { display:none; }
+#jlabBaseExamJlptItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; text-align:left; opacity:.6; cursor:default; }
+#jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
+#jlabBaseExamsButton:focus-visible,#jlabBaseExamJlptItem:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+@media(max-width:560px) { #jlabBaseExamsWrapper{display:flex;justify-content:center} #jlabBaseExamsLabel{display:none} #jlabBaseExamsMenu{position:fixed;top:108px;left:12px;right:12px;min-width:0;max-height:calc(100dvh - 128px);overflow-y:auto} }
+
+@media(max-width:560px){#jlabBaseAboutLabel{display:none}#jlabBaseAboutLink::before{content:"\f05a";font-family:"Font Awesome 6 Free";font-weight:900}}
+
 #jlabBaseTestBuilderWrapper {
   position: relative;
 }

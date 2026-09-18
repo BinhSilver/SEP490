@@ -10,6 +10,20 @@
         <i class="fa-solid fa-route" aria-hidden="true"></i>
         <span>Onyomi</span>
     </a>
+    <a th:href="@{/textbooks}" th:classappend="${active == 'textbooks'} ? ' is-active'">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Giáo trình</span>
+    </a>
+    <div class="dropdown nav-tools-dropdown">
+        <button type="button" class="nav-tools-trigger" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
+                th:classappend="${active == 'smart-test' or active == 'jlpt'} ? ' is-active'">
+            <i class="fa-solid fa-file-lines" aria-hidden="true"></i><span>Bài Thi</span>
+            <i class="fa-solid fa-chevron-down nav-tools-trigger__chevron" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown__menu nav-tools-menu" role="menu">
+            <a th:href="@{/survey}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-brain" aria-hidden="true"></i> Smart Test</a>
+            <button type="button" class="dropdown__item" role="menuitem" aria-disabled="true" title="Sắp có"><i class="fa-solid fa-certificate" aria-hidden="true"></i> JLPT <span class="nav-soon">sắp có</span></button>
+        </div>
+    </div>
     <button type="button" class="platform-nav-disabled" aria-disabled="true" title="Tính năng tra cứu đã tắt">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <span>Tra cứu</span>
@@ -20,7 +34,7 @@
     </a>
     <div class="dropdown nav-tools-dropdown">
         <button type="button" class="nav-tools-trigger" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
-            th:classappend="${active == 'aicall' or active == 'flashcard' or active == 'shadowing' or active == 'smart-test'} ? ' is-active'">
+            th:classappend="${active == 'aicall' or active == 'flashcard' or active == 'shadowing'} ? ' is-active'">
             <i class="fa-solid fa-grid-2" aria-hidden="true"></i>
             <span>Công cụ</span>
             <i class="fa-solid fa-chevron-down nav-tools-trigger__chevron" aria-hidden="true"></i>
@@ -34,9 +48,6 @@
             </a>
             <a th:href="@{/shadowing}" class="dropdown__item" role="menuitem">
                 <i class="fa-solid fa-headphones" aria-hidden="true"></i> Shadowing
-            </a>
-            <a th:href="@{/survey}" class="dropdown__item" role="menuitem">
-                <i class="fa-solid fa-brain" aria-hidden="true"></i> Smart Test
             </a>
         </div>
     </div>

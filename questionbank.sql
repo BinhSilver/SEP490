@@ -8,12 +8,14 @@ SET SESSION SQL_SAFE_UPDATES = 0;
 SET NAMES utf8mb4;
 START TRANSACTION;
 
--- Shared situation tags selected for the Smart Test question bank.
-INSERT INTO tag (code, name, tag_type) VALUES
-('JLPT','Luyện thi JLPT','SITUATION'),
-('BRSE','Kỹ sư cầu nối','SITUATION'),
-('TRAVEL','Du lịch','SITUATION'),
-('DAILY_LIFE','Đời sống hằng ngày','SITUATION')
+-- Reserved Smart Test tag IDs: 1001-1004; textbook seed uses 1-63.
+-- Rebuild order: schema -> textbook upgrade -> textbook seed -> this file.
+-- Existing tags with matching codes keep their IDs; questions resolve tags by code.
+INSERT INTO tag (id, code, name, tag_type) VALUES
+(1001,'JLPT','Luyện thi JLPT','SITUATION'),
+(1002,'BRSE','Kỹ sư cầu nối','SITUATION'),
+(1003,'TRAVEL','Du lịch','SITUATION'),
+(1004,'DAILY_LIFE','Đời sống hằng ngày','SITUATION')
 ON DUPLICATE KEY UPDATE name=VALUES(name), tag_type=VALUES(tag_type);
 
 -- Reclassify only this Smart Test seed family; shared tags used elsewhere are retained.
