@@ -396,7 +396,10 @@ CREATE TABLE kanji_reading (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh cach doc.
     kanji_id     BIGINT UNSIGNED NOT NULL,                -- FK -> kanji.id; Kanji so huu cach doc.
     reading_type VARCHAR(20) NOT NULL,                     -- ON/KUN/NANORI/OTHER.
-    reading_text VARCHAR(100) NOT NULL,                    -- Noi dung cach doc, vi du カン hoac あいだ.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: cung ly do voi vocabulary — cach doc Kanji phan
+    -- biet nhau boi dakuten (ダイ/タイ, ジョウ/ショウ, ブン/フン); utf8mb4_unicode_ci coi
+    -- chung la mot nen unique key uk_kanji_reading chan mat 53 cach doc that khi seed.
+    reading_text VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Noi dung cach doc, vi du カン hoac あいだ.
     is_common    TINYINT(1) NOT NULL DEFAULT 0,            -- 1 neu la cach doc thuong dung.
     PRIMARY KEY (id),
     UNIQUE KEY uk_kanji_reading (kanji_id, reading_type, reading_text), -- Chong trung reading.
@@ -417,9 +420,15 @@ CREATE TABLE kanji_reading (
 CREATE TABLE vocabulary_entry (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh tu vung.
     expression            VARCHAR(255) NOT NULL,                   -- Dang viet, vi du 時間.
-    normalized_expression VARCHAR(255) NOT NULL,                   -- Dang chuan hoa de tim/chong trung.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_expression VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Dang chuan hoa de tim/chong trung.
     reading               VARCHAR(255) NOT NULL,                   -- Cach doc chinh, vi du じかん.
-    normalized_reading    VARCHAR(255) NOT NULL,                   -- Cach doc da chuan hoa.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_reading    VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Cach doc da chuan hoa.
     reading_romaji        VARCHAR(255) NULL,                       -- Romaji cua cach doc chinh.
     meaning               TEXT NULL,                               -- Nghia tom tat cho noi dung giao trinh.
     word_type             VARCHAR(50) NULL,                        -- Tu loai tom tat cho giao trinh.
@@ -454,7 +463,10 @@ CREATE TABLE vocabulary_reading (
     id                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh reading bo sung.
     vocabulary_id      BIGINT UNSIGNED NOT NULL,                -- FK -> vocabulary_entry.id.
     reading            VARCHAR(255) NOT NULL,                    -- Cach doc khac cua tu.
-    normalized_reading VARCHAR(255) NOT NULL,                    -- Cach doc phu da chuan hoa.
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_reading VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Cach doc phu da chuan hoa.
     reading_romaji     VARCHAR(255) NULL,                        -- Romaji cua cach doc phu.
     usage_note         VARCHAR(255) NULL,                        -- Ghi chu ngu canh/cach dung cua reading.
     PRIMARY KEY (id),
@@ -470,7 +482,10 @@ CREATE TABLE vocabulary_variant (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     vocabulary_id         BIGINT UNSIGNED NOT NULL,
     variant_expression    VARCHAR(255) NOT NULL,
-    normalized_expression VARCHAR(255) NOT NULL,
+    -- [JLAS-W0070] utf8mb4_0900_as_cs: utf8mb4_unicode_ci khong phan biet dau, voi
+    -- tieng Nhat nghia la bo qua dakuten nen MySQL coi mata = mada, dareka = darega,
+    -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
+    normalized_expression VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
     variant_type          VARCHAR(30) NOT NULL DEFAULT 'OTHER',
     PRIMARY KEY (id),
     UNIQUE KEY uk_vocabulary_variant (vocabulary_id, normalized_expression),
@@ -726,12 +741,14 @@ CREATE TABLE content_item (
     id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     section_id      BIGINT UNSIGNED NOT NULL,
     content_type    VARCHAR(20) NOT NULL,    -- READING/GRAMMAR/LISTENING.
+    grammar_point_id BIGINT UNSIGNED NULL,   -- [JLAS-W0070] Cau vi du (GRAMMAR) minh hoa mau ngu phap nao; NULL = khong gan.
     title           VARCHAR(255) NOT NULL,
     content         MEDIUMTEXT NULL,
     translated_text MEDIUMTEXT NULL,         -- Ban dich cua noi dung co dinh.
     order_index     INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uk_content_item_order (section_id, order_index),
+    KEY idx_content_item_grammar (grammar_point_id),
     CONSTRAINT fk_content_item_section FOREIGN KEY (section_id)
         REFERENCES lesson_section(id) ON DELETE CASCADE,
     CONSTRAINT chk_content_item_type
@@ -757,6 +774,14 @@ CREATE TABLE grammar_point (
         REFERENCES tag(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0070] FK content_item -> grammar_point dat sau vi content_item duoc tao truoc grammar_point
+-- (dat inline trong CREATE TABLE content_item gay loi 1824: bang tham chieu chua ton tai).
+-- 2493/2498 cau vi du trong du lieu nguon minh hoa mot mau ngu phap cu the; cot noi de giao dien
+-- gom cau vi du vao dung mau thay vi liet ke roi (lap voi vi du cua tung mau).
+ALTER TABLE content_item
+    ADD CONSTRAINT fk_content_item_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE SET NULL;
+
 -- Bridge noi dung lesson voi tu dien tu vung.
 CREATE TABLE content_vocabulary (
     content_item_id BIGINT UNSIGNED NOT NULL,
@@ -767,6 +792,98 @@ CREATE TABLE content_vocabulary (
         REFERENCES content_item(id) ON DELETE CASCADE,
     CONSTRAINT fk_content_vocab_vocabulary FOREIGN KEY (vocabulary_id)
         REFERENCES vocabulary_entry(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- #############################################################################
+-- 3b) AUDIO VA CAU TRUC HOI THOAI   [JLAS-W0070]
+-- #############################################################################
+
+-- Bo noi dung so hoa co 33.318 file mp3 (6 giong doc) gan voi tung tu vung,
+-- tung cau vi du va tung loi thoai; hoi thoai con co vai dien, toa do bong bong
+-- va phan tach cau thanh cum kem nghia. Schema cu chi co
+-- assessment_question.audio_url nen khong co cho luu nhung thu nay.
+--
+-- Loi thoai VAN la content_item (content_type = 'LISTENING'); 3 bang dialogue
+-- chi bo sung phan content_item khong chua duoc, khong pha logic hien co.
+
+CREATE TABLE IF NOT EXISTS content_voice (
+    code        VARCHAR(32)  NOT NULL,        -- chuan-nu, chuan-nam, nam-tre, nu-tre, ong-cu, tinh-nghich.
+    name        VARCHAR(100) NOT NULL,
+    gender      VARCHAR(10)  NULL,            -- MALE/FEMALE.
+    description VARCHAR(255) NULL,
+    is_default  TINYINT(1)   NOT NULL DEFAULT 0,
+    PRIMARY KEY (code),
+    CONSTRAINT chk_content_voice_gender
+        CHECK (gender IS NULL OR gender IN ('MALE','FEMALE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- owner_id la khoa da hinh (tro toi vocabulary_entry hoac content_item tuy
+-- owner_type) nen khong dat duoc FK; rang buoc do importer va service giu.
+-- merged_url/start_ms/end_ms phuc vu phat lien mach tu file gop ca bai.
+CREATE TABLE IF NOT EXISTS content_audio (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    owner_type  VARCHAR(30)  NOT NULL,        -- VOCABULARY_WORD / CONTENT_ITEM.
+    owner_id    BIGINT UNSIGNED NOT NULL,
+    voice_code  VARCHAR(32)  NOT NULL,
+    audio_url   VARCHAR(500) NOT NULL,        -- duong dan tuong doi trong kho audio.
+    merged_url  VARCHAR(500) NULL,
+    start_ms    INT UNSIGNED NULL,
+    end_ms      INT UNSIGNED NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_content_audio_owner_voice (owner_type, owner_id, voice_code),
+    KEY idx_content_audio_lookup (owner_type, owner_id),
+    CONSTRAINT fk_content_audio_voice FOREIGN KEY (voice_code)
+        REFERENCES content_voice(code),
+    CONSTRAINT chk_content_audio_owner_type
+        CHECK (owner_type IN ('VOCABULARY_WORD','CONTENT_ITEM')),
+    CONSTRAINT chk_content_audio_range
+        CHECK (start_ms IS NULL OR end_ms IS NULL OR end_ms >= start_ms)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS dialogue_role (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id   BIGINT UNSIGNED NOT NULL,
+    code        VARCHAR(64)  NOT NULL,        -- ma vai, duy nhat trong pham vi bai.
+    name_vi     VARCHAR(255) NOT NULL,
+    name_ja     VARCHAR(255) NULL,
+    description TEXT NULL,
+    voice_code  VARCHAR(32)  NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_role_lesson_code (lesson_id, code),
+    CONSTRAINT fk_dialogue_role_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_role_voice FOREIGN KEY (voice_code)
+        REFERENCES content_voice(code) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS dialogue_line_detail (
+    content_item_id  BIGINT UNSIGNED NOT NULL,
+    dialogue_role_id BIGINT UNSIGNED NULL,
+    scene_code       VARCHAR(64) NULL,
+    bubble_side      VARCHAR(10) NULL,        -- trai/phai.
+    bubble_x         SMALLINT NULL,
+    bubble_y         SMALLINT NULL,
+    PRIMARY KEY (content_item_id),
+    KEY idx_dialogue_line_detail_role (dialogue_role_id),
+    CONSTRAINT fk_dialogue_detail_item FOREIGN KEY (content_item_id)
+        REFERENCES content_item(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_detail_role FOREIGN KEY (dialogue_role_id)
+        REFERENCES dialogue_role(id) ON DELETE SET NULL,
+    CONSTRAINT chk_dialogue_bubble_side
+        CHECK (bubble_side IS NULL OR bubble_side IN ('trai','phai'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS dialogue_line_chunk (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    content_item_id BIGINT UNSIGNED NOT NULL,
+    order_index     INT UNSIGNED NOT NULL,
+    surface         VARCHAR(255) NOT NULL,    -- cum tieng Nhat.
+    meaning_vi      VARCHAR(512) NULL,        -- NULL voi dau cau.
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_chunk_order (content_item_id, order_index),
+    CONSTRAINT fk_dialogue_chunk_item FOREIGN KEY (content_item_id)
+        REFERENCES content_item(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- #############################################################################

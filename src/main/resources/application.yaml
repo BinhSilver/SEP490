@@ -64,6 +64,12 @@ upload:
     audio: ${AUDIO_UPLOAD_PATH:uploads/audio/}
     thumbnail: ${THUMBNAIL_UPLOAD_PATH:uploads/thumbnails/}
 
+# Audio giáo trình số hoá (content_audio.audio_url là đường dẫn tương đối trong thư mục này).
+# Khác với upload.path.audio (audio người dùng tải lên). Phục vụ tại /uploads/content-audio/**.
+content:
+  audio:
+    path: ${CONTENT_AUDIO_PATH:uploads/content-audio/}
+
 ffmpeg:
   bin:
     path: ${FFMPEG_BIN_PATH:ffmpeg}

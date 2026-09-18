@@ -9,24 +9,12 @@
     <!-- Sidebar (nav tài khoản) -->
     <aside class="profile-sidebar">
         <div class="profile-sidebar__card">
-            <div class="profile-sidebar__avatar-wrap" id="sidebarAvatarWrap" style="cursor:pointer" title="Bấm để đổi ảnh đại diện">
+            <div class="profile-sidebar__avatar-wrap">
                 <div class="user-avatar user-avatar--lg" data-user-avatar>
                     <span class="user-avatar__initials">?</span>
                 </div>
-                <button type="button" class="profile-sidebar__camera" id="sidebarCameraBtn" title="Cập nhật ảnh đại diện">
-                    <span class="material-symbols-outlined" style="font-size:16px">photo_camera</span>
-                </button>
             </div>
             <h2 class="profile-sidebar__name" data-user-name>Tài khoản</h2>
-            <p class="profile-sidebar__email" data-user-email>—</p>
-            <div class="profile-badges">
-                <span class="badge badge--muted"><span class="material-symbols-outlined" style="font-size:14px">school</span> <span data-user-role>Học viên</span></span>
-                <span class="badge badge--level" data-user-level>—</span>
-            </div>
-            <div class="profile-meta">
-                <div class="profile-meta__row"><span>Tham gia từ</span><strong id="metaCreated">—</strong></div>
-                <div class="profile-meta__row"><span>Đăng nhập cuối</span><strong id="metaLastLogin">—</strong></div>
-            </div>
             <div class="profile-progress">
                 <div class="profile-progress__label">
                     <span>Mức độ hoàn thiện hồ sơ</span>
@@ -41,9 +29,6 @@
         <nav class="profile-nav" aria-label="Các mục hồ sơ">
             <button type="button" class="profile-nav__item is-active" data-tab="overview">
                 <span class="material-symbols-outlined">person</span> Tổng quan hồ sơ
-            </button>
-            <button type="button" class="profile-nav__item" data-tab="personal">
-                <span class="material-symbols-outlined">badge</span> Thông tin cá nhân
             </button>
             <a th:href="@{/goals}" class="profile-nav__item">
                         <i class="fa-solid fa-fire" aria-hidden="true"></i> Mục tiêu &amp; chuỗi ngày
@@ -60,167 +45,101 @@
             <span class="material-symbols-outlined">rocket_launch</span>
             Nâng cấp lên Pro
         </button>
+        <button type="button" class="btn btn--primary btn--block" data-auth-logout>
+            <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+            Đăng xuất
+        </button>
     </aside>
 
     <div class="profile-main">
         <div class="profile-mobile-tabs">
             <button type="button" class="profile-nav__item is-active" data-tab="overview">Tổng quan</button>
-            <button type="button" class="profile-nav__item" data-tab="personal">Thông tin cá nhân</button>
-                    <a th:href="@{/goals}" class="profile-nav__item">Mục tiêu &amp; chuỗi ngày</a>
+            <a th:href="@{/goals}" class="profile-nav__item">Mục tiêu &amp; chuỗi ngày</a>
             <button type="button" class="profile-nav__item" data-tab="security">Bảo mật</button>
                     <button type="button" class="profile-nav__item" data-tab="premium">Gói cao cấp</button>
         </div>
 
         <!-- Tổng quan -->
         <section class="profile-panel is-active" id="panel-overview" data-panel="overview">
-            <h1 class="profile-main__title">Hồ sơ cá nhân</h1>
-                    <p class="profile-main__desc">Quản lý thông tin cá nhân, cài đặt bảo mật và thông tin gói đăng ký cao cấp của bạn.</p>
-
-            <div class="profile-grid profile-grid--overview">
-                <div class="profile-card">
-                    <div class="profile-card__head profile-card__head--actions">
-                        <div class="profile-card__head-left">
-                            <div class="profile-card__icon"><span class="material-symbols-outlined">badge</span></div>
-                            <h3 class="profile-card__title">Thông tin chi tiết</h3>
-                        </div>
-                        <button type="button" class="btn btn--primary btn--sm" id="btnEditPersonal" data-tab="personal">
-                            <span class="material-symbols-outlined" style="font-size:18px">edit</span>
-                            Chỉnh sửa thông tin
-                        </button>
-                    </div>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <span class="detail-item__label">Họ và tên</span>
-                            <span class="detail-item__value" data-user-name>—</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-item__label">Địa chỉ Email (Chỉ đọc)</span>
-                            <span class="detail-item__value">
-                                <span data-user-email>—</span>
-                                <span class="material-symbols-outlined" style="font-size:16px;color:var(--color-tertiary)" id="verifiedIcon">check_circle</span>
-                            </span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-item__label">Số điện thoại</span>
-                            <span class="detail-item__value" id="ovPhone">—</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-item__label">Giới tính</span>
-                            <span class="detail-item__value" id="ovGender">—</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-item__label">Mục tiêu JLPT</span>
-                            <span class="detail-item__value" id="ovLevel">—</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-item__label">Loại đăng nhập</span>
-                            <span class="detail-item__value" id="ovLoginType">—</span>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="profile-grid">
                 <div class="profile-card">
                     <div class="profile-card__head">
-                        <div class="profile-card__icon" style="background:rgba(0,133,91,0.12);color:var(--color-tertiary)">
-                            <span class="material-symbols-outlined">shield_lock</span>
-                        </div>
-                        <h3 class="profile-card__title">Trạng thái tài khoản</h3>
+                        <div class="profile-card__icon"><span class="material-symbols-outlined">person</span></div>
+                        <h3 class="profile-card__title">Hồ sơ của bạn</h3>
                     </div>
-                    <div class="status-row">
-                        <span>Xác minh email</span>
-                        <span class="status-pill status-pill--ok" id="stVerified">—</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Trạng thái khóa</span>
-                        <span class="status-pill" id="stBan">—</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Vai trò</span>
-                        <span class="badge badge--muted" data-user-role>Học viên</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Hạn dùng gói cao cấp</span>
-                        <strong id="stPremium">—</strong>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Chỉnh sửa thông tin cá nhân -->
-        <section class="profile-panel" id="panel-personal" data-panel="personal" hidden>
-            <h1 class="profile-main__title">Chỉnh sửa thông tin cá nhân</h1>
-            <p class="profile-main__desc">Cập nhật chi tiết thông tin cá nhân và mục tiêu học tập. Chỉnh sửa các trường bên dưới và bấm Lưu thay đổi.</p>
-
-            <div class="profile-card">
-                <div id="profileAlert" class="alert" role="alert"></div>
-
-                <form id="profileForm" class="form" novalidate>
-                    <div class="avatar-edit">
-                        <div class="user-avatar user-avatar--md" data-user-avatar>
-                            <span class="user-avatar__initials">?</span>
-                        </div>
-                        <div>
-                            <h4 style="font-size:var(--text-md);font-weight:600;margin-bottom:6px;color:var(--color-on-surface)">Ảnh đại diện</h4>
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                                <input type="file" id="avatarFileInput" accept="image/*" style="display:none"/>
-                                <input type="hidden" id="avatarUrl" name="avatarUrl"/>
-                                <button type="button" class="btn btn--secondary btn--sm" id="uploadAvatarBtn">
-                                    <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">upload</span>
-                                    Tải ảnh lên
-                                </button>
-                                <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn">Gỡ ảnh</button>
+                    <div id="profileAlert" class="alert" role="alert"></div>
+                    <form id="profileForm" class="form" novalidate>
+                        <div class="avatar-edit">
+                            <div class="user-avatar user-avatar--md" data-user-avatar>
+                                <span class="user-avatar__initials">?</span>
+                            </div>
+                            <div>
+                                <h4 class="avatar-edit__title">Ảnh đại diện</h4>
+                                <div class="avatar-edit__actions">
+                                    <input type="file" id="avatarFileInput" accept="image/*" hidden/>
+                                    <input type="hidden" id="avatarUrl" name="avatarUrl"/>
+                                    <button type="button" class="btn btn--secondary btn--sm" id="uploadAvatarBtn">
+                                        <span class="material-symbols-outlined" aria-hidden="true">upload</span>
+                                        Tải ảnh lên
+                                    </button>
+                                    <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn">Gỡ ảnh</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form__grid form__grid--2">
-                        <div class="field">
-                            <label class="field__label" for="fullName">Họ và tên</label>
-                            <input class="input" id="fullName" type="text" required minlength="2" maxlength="150" placeholder="Nhập họ và tên..."/>
+                        <div class="form__grid form__grid--2">
+                            <div class="field">
+                                <label class="field__label" for="fullName">Họ và tên</label>
+                                <input class="input" id="fullName" type="text" required minlength="2" maxlength="150" placeholder="Nhập họ và tên..."/>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="phoneNumber">Số điện thoại</label>
+                                <input class="input" id="phoneNumber" type="tel" maxlength="30" placeholder="+84..."/>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="gender">Giới tính</label>
+                                <select class="select" id="gender">
+                                    <option value="">Chưa chọn</option>
+                                    <option value="MALE">Nam</option>
+                                    <option value="FEMALE">Nữ</option>
+                                    <option value="OTHER">Khác</option>
+                                    <option value="PREFER_NOT_TO_SAY">Không muốn tiết lộ</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="japaneseLevel">Mục tiêu trình độ JLPT</label>
+                                <select class="select" id="japaneseLevel">
+                                    <option value="UNKNOWN">Chưa xác định</option>
+                                    <option value="N5">N5</option>
+                                    <option value="N4">N4</option>
+                                    <option value="N3">N3</option>
+                                    <option value="N2">N2</option>
+                                    <option value="N1">N1</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label class="field__label" for="phoneNumber">Số điện thoại</label>
-                            <input class="input" id="phoneNumber" type="tel" maxlength="30" placeholder="+84..."/>
-                        </div>
-                        <div class="field">
-                            <label class="field__label" for="gender">Giới tính</label>
-                            <select class="select" id="gender">
-                                <option value="">Chưa chọn</option>
-                                <option value="MALE">Nam</option>
-                                <option value="FEMALE">Nữ</option>
-                                <option value="OTHER">Khác</option>
-                                <option value="PREFER_NOT_TO_SAY">Không muốn tiết lộ</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label class="field__label" for="japaneseLevel">Mục tiêu trình độ JLPT</label>
-                            <select class="select" id="japaneseLevel">
-                                <option value="UNKNOWN">Chưa xác định</option>
-                                <option value="N5">N5</option>
-                                <option value="N4">N4</option>
-                                <option value="N3">N3</option>
-                                <option value="N2">N2</option>
-                                <option value="N1">N1</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <div class="form__grid form__grid--2" style="opacity:0.85">
-                        <div class="field">
-                            <label class="field__label">Email <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">lock</span></label>
-                            <input class="input" id="emailReadonly" type="email" readonly disabled/>
+                        <div class="form__grid form__grid--2 profile-form__account-meta">
+                            <div class="field">
+                                <label class="field__label" for="emailReadonly">Email</label>
+                                <input class="input" id="emailReadonly" type="email" readonly disabled/>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="createdReadonly">Tham gia từ</label>
+                                <input class="input" id="createdReadonly" type="text" readonly disabled/>
+                            </div>
+                            <div class="field">
+                                <label class="field__label" for="lastLoginReadonly">Đăng nhập cuối</label>
+                                <input class="input" id="lastLoginReadonly" type="text" readonly disabled/>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label class="field__label">Ngày tạo tài khoản</label>
-                            <input class="input" id="createdReadonly" type="text" readonly disabled/>
-                        </div>
-                    </div>
 
-                    <div class="form__row" style="justify-content:flex-end;gap:12px;margin-top:8px">
-                        <button type="button" class="btn btn--secondary" data-tab="overview" id="btnCancelEdit">Hủy</button>
-                        <button type="submit" class="btn btn--primary" id="saveProfileBtn">Lưu thay đổi</button>
-                    </div>
-                </form>
+                        <div class="profile-form__actions">
+                            <button type="submit" class="btn btn--primary" id="saveProfileBtn">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </section>
 
@@ -341,7 +260,7 @@
             <h1 class="profile-main__title">Cài đặt bảo mật</h1>
             <p class="profile-main__desc">Quản lý mật khẩu và các phương thức đăng nhập để giữ tài khoản của bạn an toàn.</p>
 
-            <div class="profile-grid profile-grid--overview">
+            <div class="profile-grid">
                 <div class="profile-card">
                     <div class="profile-card__head">
                         <div class="profile-card__icon"><span class="material-symbols-outlined">password</span></div>
@@ -366,19 +285,6 @@
                     </form>
                 </div>
 
-                <div class="profile-card">
-                    <div class="profile-card__head">
-                        <div class="profile-card__icon"><span class="material-symbols-outlined">devices</span></div>
-                        <h3 class="profile-card__title">Phiên đăng nhập</h3>
-                    </div>
-                    <p class="field__hint" style="margin-bottom:var(--space-3)">
-                        Danh sách thiết bị đang lưu phiên làm việc. Bạn có thể đăng xuất khỏi trình duyệt này bất cứ lúc nào.
-                    </p>
-                    <button type="button" class="btn btn--secondary btn--block" data-auth-logout>
-                        <span class="material-symbols-outlined">logout</span>
-                        Đăng xuất khỏi thiết bị này
-                    </button>
-                </div>
             </div>
         </section>
 
@@ -436,14 +342,6 @@
         try { return new Date(iso).toLocaleString('vi-VN'); } catch (e) { return iso; }
     }
 
-    function fmtGender(g) {
-        if (!g || g === 'PREFER_NOT_TO_SAY') return 'Chưa tiết lộ';
-        if (g === 'MALE') return 'Nam';
-        if (g === 'FEMALE') return 'Nữ';
-        if (g === 'OTHER') return 'Khác';
-        return g;
-    }
-
     function completion(user) {
         var fields = [user.fullName, user.email, user.phoneNumber, user.gender, user.japaneseLevel, user.avatar];
         var filled = fields.filter(function (v) {
@@ -454,25 +352,6 @@
 
     function fillUser(user) {
         JlasAuth.applyNav();
-        document.getElementById('metaCreated').textContent = user.createdAt
-            ? new Date(user.createdAt).getFullYear() : '—';
-        document.getElementById('metaLastLogin').textContent = fmtDate(user.lastLogin);
-        document.getElementById('ovPhone').textContent = user.phoneNumber || '—';
-        document.getElementById('ovGender').textContent = fmtGender(user.gender);
-        document.getElementById('ovLevel').textContent =
-            user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN' ? 'JLPT ' + user.japaneseLevel : '—';
-        document.getElementById('ovLoginType').textContent = user.loginType || 'Email';
-
-        var verified = !!user.isVerified;
-        var verEl = document.getElementById('stVerified');
-        verEl.textContent = verified ? 'Đã xác minh' : 'Chưa xác minh';
-        verEl.className = 'status-pill ' + (verified ? 'status-pill--ok' : 'status-pill--warn');
-        document.getElementById('verifiedIcon').style.display = verified ? 'inline' : 'none';
-
-        var banEl = document.getElementById('stBan');
-        banEl.textContent = user.isBan ? 'Đã khóa' : 'Hoạt động';
-        banEl.className = 'status-pill ' + (user.isBan ? 'status-pill--warn' : 'status-pill--ok');
-        document.getElementById('stPremium').textContent = fmtDate(user.premiumExpiredAt);
 
         var pct = completion(user);
         document.getElementById('completionPct').textContent = pct + '%';
@@ -485,6 +364,7 @@
         document.getElementById('avatarUrl').value = user.avatar || '';
         document.getElementById('emailReadonly').value = user.email || '';
         document.getElementById('createdReadonly').value = fmtDate(user.createdAt);
+        document.getElementById('lastLoginReadonly').value = fmtDate(user.lastLogin);
 
         var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
         document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Pro (Đang dùng)' : 'Gói Miễn phí';
@@ -516,12 +396,6 @@
         else url.searchParams.set('tab', tab);
         history.replaceState(null, '', url.pathname + url.search);
 
-        if (tab === 'personal') {
-            var nameInput = document.getElementById('fullName');
-            if (nameInput) {
-                setTimeout(function () { nameInput.focus(); }, 50);
-            }
-        }
     }
 
     window.switchProfileTab = switchTab;
@@ -547,19 +421,12 @@
 
     var uploadBtn = document.getElementById('uploadAvatarBtn');
     var fileInput = document.getElementById('avatarFileInput');
-    var sidebarAvatarWrap = document.getElementById('sidebarAvatarWrap');
-    var sidebarCameraBtn = document.getElementById('sidebarCameraBtn');
 
     function triggerAvatarUpload() {
         if (fileInput) fileInput.click();
     }
 
     if (uploadBtn) uploadBtn.addEventListener('click', triggerAvatarUpload);
-    if (sidebarAvatarWrap) sidebarAvatarWrap.addEventListener('click', triggerAvatarUpload);
-    if (sidebarCameraBtn) sidebarCameraBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        triggerAvatarUpload();
-    });
 
     if (fileInput) {
         fileInput.addEventListener('change', async function (e) {
@@ -651,7 +518,6 @@
             localStorage.setItem('user', JSON.stringify(json.data));
             fillUser(json.data);
             if (window.JlasUI) {
-                JlasUI.showAlert(alertEl, 'Cập nhật hồ sơ thành công!', 'success');
                 JlasUI.toast('Đã cập nhật hồ sơ', 'success');
             }
         } catch (err) {
