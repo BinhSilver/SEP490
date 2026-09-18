@@ -114,6 +114,7 @@
 
 #jlabBaseHomeLink,
 #jlabBaseLearningPathLink,
+#jlabBaseTextbooksLink,
 #jlabBaseLookupLink,
 #jlabBaseGameLink,
 #jlabBaseAboutLink {
@@ -137,11 +138,13 @@
 
 #jlabBaseHomeLink:hover,
 #jlabBaseLearningPathLink:hover,
+#jlabBaseTextbooksLink:hover,
 #jlabBaseLookupLink:hover,
 #jlabBaseGameLink:hover,
 #jlabBaseAboutLink:hover,
 #jlabBaseHomeLink[aria-current="page"],
 #jlabBaseLearningPathLink[aria-current="page"],
+#jlabBaseTextbooksLink[aria-current="page"],
 #jlabBaseLookupLink[aria-current="page"],
 #jlabBaseGameLink[aria-current="page"] {
   color: var(--color-primary, #4f378a);
@@ -149,6 +152,7 @@
 
 #jlabBaseHomeLink[aria-current="page"]::after,
 #jlabBaseLearningPathLink[aria-current="page"]::after,
+#jlabBaseTextbooksLink[aria-current="page"]::after,
 #jlabBaseLookupLink[aria-current="page"]::after,
 #jlabBaseGameLink[aria-current="page"]::after {
   content: "";
@@ -196,6 +200,7 @@
 #jlabBaseRegisterLink:focus-visible,
 #jlabBaseHomeLink:focus-visible,
 #jlabBaseLearningPathLink:focus-visible,
+#jlabBaseTextbooksLink:focus-visible,
 #jlabBaseLookupLink:focus-visible,
 #jlabBaseGameLink:focus-visible,
 #jlabBaseAboutLink:focus-visible,
@@ -211,6 +216,7 @@
 
 #jlabBaseHomeIcon,
 #jlabBaseLearningPathIcon,
+#jlabBaseTextbooksIcon,
 #jlabBaseLookupIcon,
 #jlabBaseGameIcon,
 #jlabBaseToolsIcon,
@@ -232,6 +238,7 @@
 
 #jlabBaseHomeIcon::before { content: "\f015"; }
 #jlabBaseLearningPathIcon::before { content: "\f4d7"; }
+#jlabBaseTextbooksIcon::before { content: "\f02d"; }
 #jlabBaseLookupIcon::before { content: "\f002"; }
 #jlabBaseGameIcon::before { content: "\f11b"; }
 #jlabBaseToolsIcon::before { content: "\f00a"; }
@@ -648,12 +655,13 @@
 
   #jlabBasePrimaryNav {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 4px;
   }
 
   #jlabBaseHomeLink,
   #jlabBaseLearningPathLink,
+  #jlabBaseTextbooksLink,
   #jlabBaseLookupLink,
   #jlabBaseGameLink,
   #jlabBaseAboutLink,
@@ -664,6 +672,7 @@
 
   #jlabBaseHomeLabel,
   #jlabBaseLearningPathLabel,
+  #jlabBaseTextbooksLabel,
   #jlabBaseLookupLabel,
   #jlabBaseGameLabel,
   #jlabBaseToolsLabel {
@@ -709,5 +718,191 @@
   #jlabBaseNotice {
     right: 12px;
     bottom: 12px;
+  }
+}
+
+/* =============================================================================
+ * [JLAS] Nav "Tạo đề" (chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
+ * Khối riêng, mirror đúng rule của "Công cụ" (#jlabBaseTools*) để không sửa selector cũ.
+ * Khi fa712cb (SVG icon, grid 4 cột) merge: dựng lại khối này trên khuôn mới.
+ * ============================================================================= */
+#jlabBaseTestBuilderWrapper {
+  position: relative;
+}
+
+/* RULE CHUNG cho nav theo role (NAV_ROLES trong jlab-base-shell.js) — KHÔNG phải rule per-id như xung quanh:
+ * áp cho MỌI mục con trực tiếp của nav bị syncNavRoles() đặt `hidden`, hiện tại là Tạo đề / Game / Công cụ và
+ * mọi mục khai báo về sau. Cần thiết vì các rule per-id (`display: inline-flex`, mobile `display: flex`) đè
+ * `[hidden]` của trình duyệt; specificity (1,1,0) của rule này thắng per-id (1,0,0). ĐỪNG xoá dù thấy trùng. */
+#jlabBasePrimaryNav > [hidden] {
+  display: none;
+}
+
+#jlabBaseTestBuilderWrapper[hidden] {
+  display: none; /* bắt buộc: rule mobile `display: flex` bên dưới sẽ đè [hidden] của UA */
+}
+
+#jlabBaseTestBuilderButton {
+  min-width: max-content;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+#jlabBaseTestBuilderButton:hover,
+#jlabBaseTestBuilderButton[aria-expanded="true"],
+#jlabBaseTestBuilderButton[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+}
+
+#jlabBaseTestBuilderButton:focus-visible,
+#jlabBaseSmartTestItem:focus-visible,
+#jlabBaseJlptItem:focus-visible {
+  outline: 2px solid var(--color-primary, #4f378a);
+  outline-offset: 3px;
+}
+
+#jlabBaseTestBuilderIcon,
+#jlabBaseTestBuilderChevron,
+#jlabBaseSmartTestIcon,
+#jlabBaseJlptIcon {
+  display: inline-block;
+  width: 18px;
+  color: inherit;
+  font-family: "Font Awesome 6 Free";
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Glyph FA 6.5.1 Free (đã đối chiếu all.min.css): file-pen, wand-magic-sparkles, certificate */
+#jlabBaseTestBuilderIcon::before { content: "\f31c"; }
+#jlabBaseTestBuilderChevron::before { content: "\f078"; }
+#jlabBaseSmartTestIcon::before { content: "\e2ca"; }
+#jlabBaseJlptIcon::before { content: "\f0a3"; }
+
+#jlabBaseTestBuilderChevron {
+  width: auto;
+  font-size: 0.7em;
+  transition: transform 180ms ease;
+}
+
+#jlabBaseTestBuilderButton[aria-expanded="true"] #jlabBaseTestBuilderChevron {
+  transform: rotate(180deg);
+}
+
+#jlabBaseTestBuilderMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 2147483002;
+  min-width: 208px;
+  padding: 8px;
+  display: grid;
+  gap: 3px;
+  color: var(--color-on-surface, #161d1f);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(22, 29, 31, 0.14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-sizing: border-box;
+}
+
+#jlabBaseTestBuilderMenu[hidden] {
+  display: none;
+}
+
+#jlabBaseSmartTestItem,
+#jlabBaseJlptItem {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+#jlabBaseSmartTestItem:hover,
+#jlabBaseJlptItem:hover,
+#jlabBaseSmartTestItem[aria-current="page"],
+#jlabBaseJlptItem[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+}
+
+/* Item chưa có trang: vô hiệu (theo tiền lệ "Tra cứu" aria-disabled), hover không đổi màu, nhãn "sắp có" */
+#jlabBaseSmartTestItem[aria-disabled="true"],
+#jlabBaseJlptItem[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+#jlabBaseSmartTestItem[aria-disabled="true"]:hover,
+#jlabBaseJlptItem[aria-disabled="true"]:hover {
+  color: var(--color-on-surface-variant, #494551);
+  background: transparent;
+}
+
+#jlabBaseSmartTestLabel,
+#jlabBaseJlptLabel {
+  white-space: nowrap;
+}
+
+#jlabBaseTestBuilderMenu .nav-soon {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-on-surface-variant, #494551);
+  background: var(--color-surface-container, #e8eff1);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  /* Số cột = số mục đang hiện (syncNavRoles đặt --jlab-nav-count): learner/ADMIN vẫn 7 cột như cũ, CONTENT_CREATOR 8 */
+  #jlabBasePrimaryNav[data-nav-count] {
+    grid-template-columns: repeat(var(--jlab-nav-count, 7), minmax(0, 1fr));
+  }
+
+  #jlabBaseTestBuilderWrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  #jlabBaseTestBuilderLabel {
+    display: none;
+  }
+
+  #jlabBaseTestBuilderMenu {
+    position: fixed;
+    top: 108px;
+    right: 12px;
+    left: 12px;
+    min-width: 0;
+    max-height: calc(100dvh - 128px);
+    overflow-y: auto;
   }
 }

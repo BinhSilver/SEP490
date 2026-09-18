@@ -29,6 +29,13 @@ public class ContentItem {
     @Column(name = "content_type", nullable = false, length = 20)
     private String contentType;
 
+    /**
+     * [JLAS-W0070] Câu ví dụ (GRAMMAR) minh hoạ mẫu ngữ pháp nào (grammar_point.id, cùng bài); NULL = không gắn.
+     * Giữ id thuần thay vì @ManyToOne: chỉ cần gom nhóm ở giao diện, không kéo thêm query.
+     */
+    @Column(name = "grammar_point_id")
+    private Long grammarPointId;
+
     @Column(name = "title", nullable = false, length = 255)
     private String title;
 

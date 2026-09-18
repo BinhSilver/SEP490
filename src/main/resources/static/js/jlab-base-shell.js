@@ -39,6 +39,21 @@
     learningPathLink: 'jlabBaseLearningPathLink',
     learningPathIcon: 'jlabBaseLearningPathIcon',
     learningPathLabel: 'jlabBaseLearningPathLabel',
+    textbooksLink: 'jlabBaseTextbooksLink',
+    textbooksIcon: 'jlabBaseTextbooksIcon',
+    textbooksLabel: 'jlabBaseTextbooksLabel',
+    testBuilderWrapper: 'jlabBaseTestBuilderWrapper',
+    testBuilderButton: 'jlabBaseTestBuilderButton',
+    testBuilderIcon: 'jlabBaseTestBuilderIcon',
+    testBuilderLabel: 'jlabBaseTestBuilderLabel',
+    testBuilderChevron: 'jlabBaseTestBuilderChevron',
+    testBuilderMenu: 'jlabBaseTestBuilderMenu',
+    smartTestItem: 'jlabBaseSmartTestItem',
+    smartTestIcon: 'jlabBaseSmartTestIcon',
+    smartTestLabel: 'jlabBaseSmartTestLabel',
+    jlptItem: 'jlabBaseJlptItem',
+    jlptIcon: 'jlabBaseJlptIcon',
+    jlptLabel: 'jlabBaseJlptLabel',
     lookupLink: 'jlabBaseLookupLink',
     lookupIcon: 'jlabBaseLookupIcon',
     lookupLabel: 'jlabBaseLookupLabel',
@@ -108,6 +123,29 @@
     noticeText: 'jlabBaseNoticeText'
   };
 
+  /**
+   * Nav theo role — cách dùng (thêm mục mới KHÔNG phải sửa logic):
+   *   1. Khai báo ở đây: khóa = tên trong `ids` của phần tử nav, giá trị là MỘT trong hai dạng:
+   *        { only:   ['ROLE', ...] }  → CHỈ hiện với các role này (khách/không role → ẩn).
+   *                                     Phần tử phải render với thuộc tính `hidden` trong shellMarkup()
+   *                                     (mặc định ẩn, không lộ dù một khung hình).
+   *        { except: ['ROLE', ...] }  → hiện với MỌI người TRỪ các role này (khách vẫn thấy).
+   *                                     Phần tử render như bình thường (không `hidden`).
+   *      Giá trị role = roles.name trong DB (users.role). Mục KHÔNG khai báo = ai cũng thấy.
+   *   2. Không cần sửa CSS: rule chung `#jlabBasePrimaryNav > [hidden]` ẩn mọi mục con; syncNavRoles() đặt
+   *      --jlab-nav-count = số mục đang hiện để lưới mobile tự chia cột, và gắn class
+   *      `is-role-<role viết thường, _ → ->` lên #jlabBasePrimaryNav (ví dụ is-role-content-creator).
+   *   3. Mục là dropdown (có [role=menu] + nút [aria-controls]) bị ẩn thì menu tự đóng.
+   * Role lấy từ JlasAuth.getUser().role (cache localStorage, làm mới mỗi lần tải trang qua /api/auth/me) và
+   * chỉ tính khi còn đăng nhập (token chưa hết hạn). Đây chỉ là ẩn/hiện giao diện, KHÔNG phải phân quyền:
+   * route thật của mục phải tự chặn ở backend (@PreAuthorize), vì gõ thẳng URL vẫn vào được.
+   */
+  var NAV_ROLES = {
+    testBuilderWrapper: { only: ['CONTENT_CREATOR'] },
+    gameLink: { except: ['CONTENT_CREATOR'] },
+    toolsWrapper: { except: ['CONTENT_CREATOR'] }
+  };
+
   function byId(id) {
     return document.getElementById(id);
   }
@@ -127,6 +165,22 @@
             '<a id="' + ids.learningPathLink + '" href="/learning/path" title="Lộ trình Hán Việt  On">' +
               '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
             '</a>' +
+            '<a id="' + ids.textbooksLink + '" href="/textbooks" title="Giáo trình số hoá theo cấp độ">' +
+              '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
+            '</a>' +
+            // "Tạo đề": chỉ CONTENT_CREATOR (NAV_ROLES) — render `hidden`, syncNavRoles() bật. Khung theo đúng "Công cụ".
+            '<div id="' + ids.testBuilderWrapper + '" class="dropdown nav-tools-dropdown" hidden>' +
+              '<button id="' + ids.testBuilderButton + '" class="nav-tools-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.testBuilderMenu + '">' +
+                '<i id="' + ids.testBuilderIcon + '" aria-hidden="true"></i><span id="' + ids.testBuilderLabel + '">Tạo đề</span><i id="' + ids.testBuilderChevron + '" aria-hidden="true"></i>' +
+              '</button>' +
+              '<div id="' + ids.testBuilderMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
+                // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
+                //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
+                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
+                // TODO(JLPT): như trên.
+                '<button id="' + ids.jlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
+              '</div>' +
+            '</div>' +
             '<button id="' + ids.lookupLink + '" type="button" aria-disabled="true" title="Tính năng tra cứu đã tắt">' +
               '<i id="' + ids.lookupIcon + '" aria-hidden="true"></i><span id="' + ids.lookupLabel + '">Tra cứu</span>' +
             '</button>' +
@@ -217,6 +271,7 @@
       path.indexOf('/learning/quiz/') === 0 ||
       path.indexOf('/learning/rules') === 0 ||
       path.indexOf('/learning/flashcards') === 0;
+    var isTextbooks = path === '/textbooks' || path.indexOf('/textbooks/') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
     var isAiCall = path === '/ai-call' ||
       path.indexOf('/ai-call/') === 0 ||
@@ -238,6 +293,7 @@
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.learningPathLink, isLearningPath);
+    markCurrent(ids.textbooksLink, isTextbooks);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
@@ -329,6 +385,32 @@
     }
   }
 
+
+  /** Ẩn/hiện mục nav theo NAV_ROLES (xem chú thích ở khai báo), rồi cập nhật số cột + class role trên nav. */
+  function syncNavRoles(current) {
+    var role = current.loggedIn && current.user && current.user.role ? String(current.user.role) : '';
+    Object.keys(NAV_ROLES).forEach(function (key) {
+      var element = byId(ids[key]);
+      if (!element) return;
+      var rule = NAV_ROLES[key];
+      var visible = rule.only ? (!!role && rule.only.indexOf(role) !== -1) : !(rule.except && rule.except.indexOf(role) !== -1);
+      element.hidden = !visible;
+      if (!visible) {
+        var menu = element.querySelector('[role="menu"]');
+        var trigger = element.querySelector('[aria-controls]');
+        if (menu && trigger) closeMenu(menu.id, trigger.id);
+      }
+    });
+    var nav = byId(ids.primaryNav);
+    if (!nav) return;
+    var visibleCount = Array.prototype.filter.call(nav.children, function (child) { return !child.hidden; }).length;
+    nav.style.setProperty('--jlab-nav-count', String(visibleCount));
+    nav.setAttribute('data-nav-count', String(visibleCount));
+    Array.prototype.slice.call(nav.classList).forEach(function (name) {
+      if (name.indexOf('is-role-') === 0) nav.classList.remove(name);
+    });
+    if (role) nav.classList.add('is-role-' + role.toLowerCase().replace(/_/g, '-'));
+  }
   function syncAuth() {
     if (!state.mounted) return;
 
@@ -337,6 +419,7 @@
     var account = byId(ids.userActions);
     if (guest) guest.hidden = current.loggedIn;
     if (account) account.hidden = !current.loggedIn;
+    syncNavRoles(current);
 
     if (!current.loggedIn) {
       closeMenu(ids.accountMenu, ids.avatarButton);
@@ -421,6 +504,7 @@
       : menuId === ids.accountMenu ? ids.accountWrapper
       : menuId === ids.notificationPanel ? ids.notificationWrapper : null;
     var wrapper = wrapperId ? byId(wrapperId) : null;
+    if (!wrapper && menuId === ids.testBuilderMenu) wrapper = byId(ids.testBuilderWrapper);
     if (menu) menu.hidden = true;
     if (wrapper) wrapper.classList.remove('is-open');
     if (button) {
@@ -433,6 +517,7 @@
     closeMenu(ids.toolsMenu, ids.toolsButton, restoreFocusId === ids.toolsButton);
     closeMenu(ids.accountMenu, ids.avatarButton, restoreFocusId === ids.avatarButton);
     closeMenu(ids.notificationPanel, ids.notificationButton, restoreFocusId === ids.notificationButton);
+    closeMenu(ids.testBuilderMenu, ids.testBuilderButton, restoreFocusId === ids.testBuilderButton);
   }
 
   function toggleMenu(menuId, buttonId, otherMenuId, otherButtonId, firstItemId) {
@@ -441,6 +526,7 @@
     var wrapperId = menuId === ids.toolsMenu ? ids.toolsWrapper
       : menuId === ids.accountMenu ? ids.accountWrapper : null;
     var wrapper = wrapperId ? byId(wrapperId) : null;
+    if (!wrapper && menuId === ids.testBuilderMenu) wrapper = byId(ids.testBuilderWrapper);
     if (!menu || !button) return;
 
     var willOpen = menu.hidden;
@@ -515,6 +601,21 @@
     document.addEventListener('click', function (event) {
       var header = byId(ids.header);
       if (header && !header.contains(event.target)) closeAllMenus();
+    });
+
+    // "Tạo đề": cùng khuôn "Công cụ"; đóng chéo với 3 menu cũ (listener bổ sung, không sửa handler cũ).
+    byId(ids.testBuilderButton).addEventListener('click', function () {
+      closeMenu(ids.notificationPanel, ids.notificationButton);
+      closeMenu(ids.accountMenu, ids.avatarButton);
+      toggleMenu(ids.testBuilderMenu, ids.testBuilderButton, ids.toolsMenu, ids.toolsButton, ids.smartTestItem);
+    });
+    byId(ids.toolsButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
+    byId(ids.avatarButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
+    byId(ids.notificationButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      var menu = byId(ids.testBuilderMenu);
+      if (menu && !menu.hidden) closeMenu(ids.testBuilderMenu, ids.testBuilderButton, true);
     });
 
     document.addEventListener('keydown', function (event) {
