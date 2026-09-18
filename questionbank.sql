@@ -6,6 +6,22 @@
 SET @jlas_smart_test_previous_safe_updates = @@SESSION.SQL_SAFE_UPDATES;
 SET SESSION SQL_SAFE_UPDATES = 0;
 SET NAMES utf8mb4;
+
+-- Survey storage must exist before starting the updated application.
+-- Keep DDL before START TRANSACTION: MySQL CREATE TABLE causes an implicit commit.
+CREATE TABLE IF NOT EXISTS user_learning_survey (
+    user_id BIGINT UNSIGNED NOT NULL,
+    goal VARCHAR(30) NOT NULL,
+    target_level VARCHAR(10) NULL,
+    self_reported_level VARCHAR(20) NOT NULL,
+    study_duration_months INT NULL,
+    daily_study_minutes INT NULL,
+    skills VARCHAR(100) NOT NULL,
+    completed_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_learning_survey_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 START TRANSACTION;
 
 -- Reserved Smart Test tag IDs: 1001-1004; textbook seed uses 1-63.
