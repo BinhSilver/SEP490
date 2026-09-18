@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/goals", "/learning/goals", "/streak", "/retention-demo", "/error").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**", "/audio/**",
                                 "/videos/**", "/voices/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()

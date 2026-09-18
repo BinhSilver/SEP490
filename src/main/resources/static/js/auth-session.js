@@ -298,7 +298,20 @@
     JlasAuth.highlightActiveNav();
     JlasAuth.applyNav();
     if (JlasAuth.isLoggedIn()) {
-      JlasAuth.refreshUser();
+      JlasAuth.refreshUser().then(async function (user) {
+        var path = window.location.pathname.replace(/\/$/, '') || '/';
+        var authPages = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/survey'];
+        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0
+            || user.role === 'ADMIN' || user.role === 'MODERATOR') return;
+        try {
+          var response = await fetch('/api/assessment/survey', { headers: JlasAuth.authHeaders() });
+          if (!response.ok) return;
+          var payload = await response.json();
+          if (payload.success && payload.data && payload.data.completed === false) {
+            window.location.replace('/survey');
+          }
+        } catch (error) { /* Keep the current page available when the server cannot be reached. */ }
+      });
     }
   });
 

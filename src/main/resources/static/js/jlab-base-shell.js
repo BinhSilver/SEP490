@@ -60,6 +60,9 @@
     shadowingLink: 'jlabBaseShadowingLink',
     shadowingIcon: 'jlabBaseShadowingIcon',
     shadowingLabel: 'jlabBaseShadowingLabel',
+    smartTestLink: 'jlabBaseSmartTestLink',
+    smartTestIcon: 'jlabBaseSmartTestIcon',
+    smartTestLabel: 'jlabBaseSmartTestLabel',
     aboutLink: 'jlabBaseAboutLink',
     aboutLabel: 'jlabBaseAboutLabel',
     actions: 'jlabBaseActions',
@@ -141,6 +144,7 @@
                 '<a id="' + ids.aiCallLink + '" class="dropdown__item" href="/ai-call" role="menuitem"><i id="' + ids.aiCallIcon + '" aria-hidden="true"></i><span id="' + ids.aiCallLabel + '">AI Call</span></a>' +
                 '<a id="' + ids.flashcardLink + '" class="dropdown__item" href="/flashcard/library.html" role="menuitem"><i id="' + ids.flashcardIcon + '" aria-hidden="true"></i><span id="' + ids.flashcardLabel + '">Flashcard</span></a>' +
                 '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
+                '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
               '</div>' +
             '</div>' +
             '<a id="' + ids.aboutLink + '" href="/#about"><span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
@@ -234,6 +238,7 @@
       path.indexOf('/flashcard/set/') === 0 ||
       path.indexOf('/flashcard/study/') === 0;
     var isShadowing = path === '/shadowing' || path.indexOf('/shadowing/') === 0;
+    var isSmartTest = path === '/smart-test' || path === '/survey';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
 
     markCurrent(ids.homeLink, isHome);
@@ -242,11 +247,12 @@
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
     markCurrent(ids.shadowingLink, isShadowing);
+    markCurrent(ids.smartTestLink, isSmartTest);
     markCurrent(ids.streakLink, isGoals);
 
     var toolsButton = byId(ids.toolsButton);
     if (toolsButton) {
-      if (isAiCall || isFlashcard || isShadowing) {
+      if (isAiCall || isFlashcard || isShadowing || isSmartTest) {
         toolsButton.setAttribute('aria-current', 'page');
       } else {
         toolsButton.removeAttribute('aria-current');

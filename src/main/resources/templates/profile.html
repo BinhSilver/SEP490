@@ -460,7 +460,7 @@
         document.getElementById('ovPhone').textContent = user.phoneNumber || '—';
         document.getElementById('ovGender').textContent = fmtGender(user.gender);
         document.getElementById('ovLevel').textContent =
-            user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN' ? 'Trình độ ' + user.japaneseLevel : '—';
+            user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN' ? 'JLPT ' + user.japaneseLevel : '—';
         document.getElementById('ovLoginType').textContent = user.loginType || 'Email';
 
         var verified = !!user.isVerified;

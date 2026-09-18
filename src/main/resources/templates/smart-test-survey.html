@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Khảo sát học tập - JLAS', 'smart-test')}"></head>
+<body id="jlabBasePage" class="app-body smart-test-body"><div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="survey-page">
+    <div id="surveyWizard" class="survey-wizard">
+        <header class="survey-progress-header">
+            <button id="surveyBackButton" class="survey-back" type="button" aria-label="Quay lại"><span class="material-symbols-outlined">arrow_back</span></button>
+            <div class="survey-progress-track"><div id="surveyProgress" class="survey-progress-value"></div></div>
+            <span id="surveyStepCounter" class="survey-step-counter">1/6</span>
+        </header>
+        <div id="surveyNotice" class="smart-test-notice" role="alert" hidden></div>
+        <section id="surveyInvitation" class="survey-invitation" hidden aria-live="polite">
+            <div class="survey-invitation__mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
+            <div class="survey-invitation__content">
+                <span class="survey-eyebrow">Kitsu đã ghi nhớ mục tiêu của bạn</span>
+                <h1>Sẵn sàng khám phá trình độ của bạn?</h1>
+                <p>Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.</p>
+                <div class="survey-invitation__actions">
+                    <button id="surveyStartTest" class="smart-test-primary" type="button">Chọn kỹ năng để làm test <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>
+                    <button id="surveyGoHome" class="smart-test-secondary" type="button">Để sau, về trang chủ</button>
+                </div>
+                <button id="surveyEdit" class="survey-edit-link" type="button">Chỉnh lại khảo sát</button>
+            </div>
+        </section>
+        <form id="smartTestSurveyForm" novalidate>
+            <div class="survey-shared-mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
+            <section class="survey-slide is-active" data-survey-step="goal">
+                <div class="survey-question"><div><span class="survey-eyebrow">Mục tiêu học tập</span><h1>Bạn học tiếng Nhật để làm gì?</h1><p>Chọn mục tiêu gần nhất với kế hoạch của bạn.</p></div></div>
+                <div class="survey-options survey-options--grid">
+                    <label class="survey-option"><input type="radio" name="goal" value="JLPT"><span class="survey-option__icon">🏅</span><span><strong>Thi JLPT</strong><small>Chuẩn bị cho kỳ thi năng lực</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="goal" value="BRSE"><span class="survey-option__icon">🌉</span><span><strong>Kỹ sư cầu nối</strong><small>Tiếng Nhật cho công việc BRSE</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="goal" value="TRAVEL"><span class="survey-option__icon">✈️</span><span><strong>Du lịch</strong><small>Giao tiếp tự tin khi đi Nhật</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="goal" value="DAILY_LIFE"><span class="survey-option__icon">🏠</span><span><strong>Đời sống hằng ngày</strong><small>Giao tiếp trong các tình huống thường ngày</small></span><i class="survey-radio"></i></label>
+                </div>
+            </section>
+            <section class="survey-slide" data-survey-step="target">
+                <div class="survey-question"><div><span class="survey-eyebrow">Đích đến</span><h1>Bạn đang hướng tới cấp độ JLPT nào?</h1><p>Đừng lo, đây chỉ là mục tiêu để J-LAS hiểu kế hoạch của bạn.</p></div></div>
+                <div class="survey-options survey-options--levels">
+                    <label class="survey-option"><input type="radio" name="targetLevel" value="N5"><span class="level-mark">N5</span><span><strong>N5 · Nhập môn</strong><small>Nền tảng cơ bản đầu tiên</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="targetLevel" value="N4"><span class="level-mark">N4</span><span><strong>N4 · Cơ bản</strong><small>Giao tiếp trong tình huống quen thuộc</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="targetLevel" value="N3"><span class="level-mark">N3</span><span><strong>N3 · Trung cấp</strong><small>Hiểu tiếng Nhật trong đời sống</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="targetLevel" value="N2"><span class="level-mark">N2</span><span><strong>N2 · Nâng cao</strong><small>Sử dụng trong học tập và công việc</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="targetLevel" value="N1"><span class="level-mark">N1</span><span><strong>N1 · Thành thạo</strong><small>Mục tiêu cao nhất của JLPT</small></span><i class="survey-radio"></i></label>
+                </div>
+            </section>
+            <section class="survey-slide" data-survey-step="level">
+                <div class="survey-question"><div><span class="survey-eyebrow">Trình độ hiện tại</span><h1>Bạn đang ở đâu trên hành trình này?</h1><p>Smart Test sẽ bắt đầu quanh mức bạn lựa chọn.</p></div></div>
+                <div class="survey-options survey-options--levels">
+                    <label class="survey-option"><input type="radio" name="selfLevel" value="UNKNOWN"><span class="level-bars level-bars--0">▂▂▂▂</span><span><strong>Mới bắt đầu</strong><small>Chưa biết hoặc mới làm quen</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="selfLevel" value="N5"><span class="level-bars level-bars--1">▂▂▂▂</span><span><strong>Nhập môn · N5</strong><small>Biết bảng chữ cái và mẫu câu đơn giản</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="selfLevel" value="N4"><span class="level-bars level-bars--2">▂▄▂▂</span><span><strong>Cơ bản · N4</strong><small>Hiểu hội thoại quen thuộc</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="selfLevel" value="N3"><span class="level-bars level-bars--3">▂▄▆▂</span><span><strong>Trung cấp · N3</strong><small>Đọc hiểu nội dung thường ngày</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="selfLevel" value="N2"><span class="level-bars level-bars--4">▂▄▆█</span><span><strong>Nâng cao · N2 trở lên</strong><small>Sử dụng tiếng Nhật khá thành thạo</small></span><i class="survey-radio"></i></label>
+                </div>
+            </section>
+            <section class="survey-slide" data-survey-step="duration">
+                <div class="survey-question"><div><span class="survey-eyebrow">Kinh nghiệm</span><h1>Bạn đã học tiếng Nhật bao lâu?</h1><p>Thời gian học giúp kết quả đánh giá có thêm ngữ cảnh.</p></div></div>
+                <div class="survey-options">
+                    <label class="survey-option"><input type="radio" name="duration" value="0"><span class="survey-option__icon">🌱</span><span><strong>Chưa bắt đầu</strong><small>Mình đang tìm điểm xuất phát</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="duration" value="3"><span class="survey-option__icon">📅</span><span><strong>Dưới 6 tháng</strong><small>Đang xây nền tảng</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="duration" value="9"><span class="survey-option__icon">📚</span><span><strong>6–12 tháng</strong><small>Đã có thói quen học ổn định</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="duration" value="24"><span class="survey-option__icon">🎓</span><span><strong>Trên 1 năm</strong><small>Đã học trong thời gian dài</small></span><i class="survey-radio"></i></label>
+                </div>
+            </section>
+            <section class="survey-slide" data-survey-step="minutes">
+                <div class="survey-question"><div><span class="survey-eyebrow">Thời gian học</span><h1>Bạn muốn học bao lâu mỗi ngày?</h1><p>Chọn thời lượng phù hợp với lịch sinh hoạt của bạn.</p></div></div>
+                <div class="survey-options">
+                    <label class="survey-option"><input type="radio" name="minutes" value="15"><span class="time-ring time-ring--15">15</span><span><strong>15 phút</strong><small>Nhẹ nhàng và dễ duy trì</small></span><em>Đề xuất</em><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="minutes" value="30"><span class="time-ring time-ring--30">30</span><span><strong>30 phút</strong><small>Tiến bộ đều mỗi ngày</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option"><input type="radio" name="minutes" value="45"><span class="time-ring time-ring--45">45</span><span><strong>45 phút</strong><small>Học chuyên sâu hơn</small></span><i class="survey-radio"></i></label>
+                </div>
+            </section>
+            <section class="survey-slide" data-survey-step="skills">
+                <div class="survey-question"><div><span class="survey-eyebrow">Nội dung đánh giá</span><h1>Bạn muốn kiểm tra những kỹ năng nào?</h1><p>Các phần được thực hiện tuần tự và phần sau bắt đầu từ kết quả phần trước.</p></div></div>
+                <div class="survey-options survey-options--skills">
+                    <label class="survey-option"><input type="checkbox" name="skill" value="KANJI"><span class="survey-option__icon">漢</span><span><strong>Kanji</strong><small>Nhận biết và sử dụng chữ Hán</small></span><i class="survey-check">✓</i></label>
+                    <label class="survey-option"><input type="checkbox" name="skill" value="VOCABULARY"><span class="survey-option__icon">あ</span><span><strong>Từ vựng</strong><small>Hiểu nghĩa và cách dùng từ</small></span><i class="survey-check">✓</i></label>
+                    <label class="survey-option"><input type="checkbox" name="skill" value="GRAMMAR"><span class="survey-option__icon">文</span><span><strong>Ngữ pháp</strong><small>Cấu trúc câu tiếng Nhật</small></span><i class="survey-check">✓</i></label>
+                    <label class="survey-option"><input type="checkbox" name="skill" value="READING"><span class="survey-option__icon">読</span><span><strong>Đọc hiểu</strong><small>Hiểu đoạn văn và ngữ cảnh</small></span><i class="survey-check">✓</i></label>
+                    <label class="survey-option"><input type="checkbox" name="skill" value="LISTENING"><span class="survey-option__icon">聴</span><span><strong>Nghe hiểu</strong><small>Nắm bắt nội dung hội thoại</small></span><i class="survey-check">✓</i></label>
+                </div>
+            </section>
+            <footer class="survey-wizard-footer"><button id="surveyNextButton" class="smart-test-primary survey-next" type="button" disabled><span>Tiếp tục</span><span class="material-symbols-outlined">arrow_forward</span></button></footer>
+        </form>
+    </div>
+</main>
+<script th:src="@{/js/jlab-base-shell.js}"></script><script th:src="@{/js/pages/smart-test-survey.js}"></script>
+</body></html>

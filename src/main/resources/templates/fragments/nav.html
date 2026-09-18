@@ -20,7 +20,7 @@
     </a>
     <div class="dropdown nav-tools-dropdown">
         <button type="button" class="nav-tools-trigger" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
-            th:classappend="${active == 'aicall' or active == 'flashcard' or active == 'shadowing'} ? ' is-active'">
+            th:classappend="${active == 'aicall' or active == 'flashcard' or active == 'shadowing' or active == 'smart-test'} ? ' is-active'">
             <i class="fa-solid fa-grid-2" aria-hidden="true"></i>
             <span>Công cụ</span>
             <i class="fa-solid fa-chevron-down nav-tools-trigger__chevron" aria-hidden="true"></i>
@@ -34,6 +34,9 @@
             </a>
             <a th:href="@{/shadowing}" class="dropdown__item" role="menuitem">
                 <i class="fa-solid fa-headphones" aria-hidden="true"></i> Shadowing
+            </a>
+            <a th:href="@{/survey}" class="dropdown__item" role="menuitem">
+                <i class="fa-solid fa-brain" aria-hidden="true"></i> Smart Test
             </a>
         </div>
     </div>

@@ -1135,6 +1135,19 @@ CREATE TABLE jlpt_section_result (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Profile va ket qua cap cao cua Smart Test; user/status/thoi gian dung tu attempt cha.
+CREATE TABLE user_learning_survey (
+    user_id BIGINT UNSIGNED NOT NULL,
+    goal VARCHAR(30) NOT NULL,
+    target_level VARCHAR(10) NULL,
+    self_reported_level VARCHAR(20) NOT NULL,
+    study_duration_months INT NULL,
+    daily_study_minutes INT NULL,
+    skills VARCHAR(100) NOT NULL,
+    completed_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_learning_survey_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE smart_test_session (
     attempt_id              BIGINT UNSIGNED NOT NULL,
     goal                    VARCHAR(30) NOT NULL,

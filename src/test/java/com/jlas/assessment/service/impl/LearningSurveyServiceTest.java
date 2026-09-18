@@ -1,0 +1,89 @@
+package com.jlas.assessment.service.impl;
+
+import com.jlas.assessment.dto.SmartTestStartRequest;
+import com.jlas.assessment.entity.UserLearningSurvey;
+import com.jlas.assessment.repository.*;
+import com.jlas.auth.entity.User;
+import com.jlas.auth.repository.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
+import java.util.Optional;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class LearningSurveyServiceTest {
+    @Mock UserRepository users;
+    @Mock AssessmentAttemptRepository attempts;
+    @Mock AssessmentQuestionRepository questions;
+    @Mock AssessmentAnswerRepository answers;
+    @Mock SmartTestSessionRepository sessions;
+    @Mock SmartTestSessionQuestionRepository issued;
+    @Mock SmartTestSkillResultRepository results;
+    @Mock UserLearningSurveyRepository surveys;
+    @InjectMocks AssessmentServiceImpl service;
+
+    @Test void newAccountNeedsSurvey() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        var response = service.getLearningSurvey(7L);
+        assertThat(response.completed()).isFalse();
+        assertThat(response.survey()).isNull();
+    }
+
+    @Test void savingSurveyDoesNotCreateATestAndPreservesUnknownLevel() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        var response = service.saveLearningSurvey(7L, request("DAILY_LIFE", null, "UNKNOWN"));
+        assertThat(response.completed()).isTrue();
+        assertThat(response.survey().selfReportedLevel()).isEqualTo("UNKNOWN");
+        assertThat(response.survey().skills()).containsExactly("KANJI", "READING");
+        verify(surveys).saveAndFlush(argThat(s -> s.getUser().getId() == 7L
+                && s.getSkills().equals("KANJI,READING") && s.getCompletedAt() != null));
+        verifyNoInteractions(attempts, questions, answers, sessions, issued, results);
+    }
+
+    @Test void completedSurveyCanBeLoadedAcrossSessions() {
+        when(surveys.findById(7L)).thenReturn(Optional.of(UserLearningSurvey.builder()
+                .goal("JLPT").targetLevel("N2").selfReportedLevel("N3")
+                .skills("KANJI,READING").studyDurationMonths(9).dailyStudyMinutes(30).build()));
+        var response = service.getLearningSurvey(7L);
+        assertThat(response.completed()).isTrue();
+        assertThat(response.survey().targetLevel()).isEqualTo("N2");
+        assertThat(response.survey().skills()).containsExactly("KANJI", "READING");
+    }
+
+    @Test void updatingSurveyKeepsOneProfileAndClearsIrrelevantTarget() {
+        var existing = UserLearningSurvey.builder().userId(7L).goal("JLPT").targetLevel("N2").build();
+        when(surveys.findById(7L)).thenReturn(Optional.of(existing));
+        service.saveLearningSurvey(7L, request("TRAVEL", "N2", "N4"));
+        verify(surveys).saveAndFlush(existing);
+        assertThat(existing.getTargetLevel()).isNull();
+        assertThat(existing.getGoal()).isEqualTo("TRAVEL");
+        verifyNoInteractions(users, attempts);
+    }
+
+    @Test void jlptRequiresATargetBeforeAnythingIsSaved() {
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", null, "N3")))
+                .isInstanceOf(ResponseStatusException.class);
+        verifyNoInteractions(surveys, users, attempts);
+    }
+
+    @Test void jlptSurveySynchronizesTheProfileGoalNotTheSelfAssessedLevel() {
+        var user = User.builder().id(7L).japaneseLevel("N5").build();
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(user));
+        service.saveLearningSurvey(7L, request("JLPT", "N2", "N3"));
+        assertThat(user.getJapaneseLevel()).isEqualTo("N2");
+        verify(users).save(user);
+        verify(surveys).saveAndFlush(argThat(s -> s.getSelfReportedLevel().equals("N3")));
+    }
+
+    private SmartTestStartRequest request(String goal, String target, String self) {
+        return new SmartTestStartRequest(goal, target, self, 9, 30, List.of("READING", "KANJI", "KANJI"));
+    }
+}
