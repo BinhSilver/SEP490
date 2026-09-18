@@ -1,7 +1,7 @@
 ### =====================================================================
 ### JLAS - .gitignore
 ### Covers: Maven, Spring Boot, Java, IntelliJ IDEA, VSCode,
-###         Cursor, Antigravity IDE, OS files
+###         AI Assistants (Claude, Codex, Cursor, Gemini...), OS files
 ### =====================================================================
 
 # -----------------------------------------------------------------------
@@ -58,8 +58,30 @@ out/
 bin/
 
 # -----------------------------------------------------------------------
-# CURSOR IDE
+# AI ASSISTANTS & CODING AGENTS (Claude, Codex, Cursor, Gemini, etc.)
 # -----------------------------------------------------------------------
+# Claude (Claude Code / Anthropic)
+.claude/
+.claude.json
+.claude*
+CLAUDE.md
+CLAUDE.local.md
+claude.md
+*.claude
+
+# OpenAI / Codex / ChatGPT
+.codex/
+.codex*
+CODEX.md
+codex.md
+.openai/
+.chatgpt/
+
+# GitHub Copilot
+.copilot/
+.copilot-chat/
+
+# Cursor IDE
 .cursor/
 .cursorignore
 .cursorindexingignore
@@ -67,15 +89,20 @@ bin/
 # Cursor AI context cache
 .cursor-tutor/
 
-# -----------------------------------------------------------------------
-# ANTIGRAVITY / GEMINI IDE
-# -----------------------------------------------------------------------
+# Antigravity / Gemini IDE
 .gemini/
 .antigravity/
 .agents/
 # Antigravity context & brain files
 antigravity-context/
 *.agctx
+
+# Other AI Coding Tools (Aider, Continue, Cline, Roo Code, Windsurf)
+.aider*
+.continue/
+.cline/
+.roo/
+.windsurf/
 
 # -----------------------------------------------------------------------
 # ECLIPSE
