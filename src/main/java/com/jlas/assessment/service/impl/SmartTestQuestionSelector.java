@@ -38,10 +38,16 @@ final class SmartTestQuestionSelector {
         List<AssessmentQuestion> shuffled = new ArrayList<>(pool);
         Collections.shuffle(shuffled, random);
         // Stable sort retains the random order within each goal-priority tier.
+        // A question matches the goal when its primary tag OR one of its additional_tags is preferred.
         shuffled.sort(Comparator.comparingInt(question -> {
-            String tag = question.getKnowledgeTag() == null ? null : question.getKnowledgeTag().getCode();
-            int rank = preferredTags.indexOf(tag);
-            return rank < 0 ? preferredTags.size() : rank;
+            int rank = preferredTags.size();
+            if (question.getKnowledgeTag() != null && question.getKnowledgeTag().getCode() != null) {
+                rank = Math.min(rank, tagRank(question.getKnowledgeTag().getCode(), preferredTags));
+            }
+            for (String additional : additionalTags(question)) {
+                rank = Math.min(rank, tagRank(additional, preferredTags));
+            }
+            return rank;
         }));
         List<AssessmentQuestion> selected = new ArrayList<>();
         for (AssessmentQuestion question : shuffled) {
@@ -68,5 +74,27 @@ final class SmartTestQuestionSelector {
         Matcher matcher = EXPLANATION_WORD.matcher(
                 question.getExplanation() == null ? "" : question.getExplanation());
         return matcher.find() ? matcher.group(1) : "question:" + question.getId();
+    }
+
+    private static int tagRank(String tag, List<String> preferredTags) {
+        int index = preferredTags.indexOf(tag);
+        return index < 0 ? preferredTags.size() : index;
+    }
+
+    /** Các tag tình huống phụ (context_json.additional_tags) dùng để khớp mục tiêu. */
+    private static List<String> additionalTags(AssessmentQuestion question) {
+        try {
+            JsonNode context = JSON.readTree(question.getContextJson());
+            JsonNode additional = context == null ? null : context.path("additional_tags");
+            List<String> tags = new ArrayList<>();
+            if (additional != null && additional.isArray()) {
+                for (JsonNode node : additional) {
+                    if (node.isTextual() && !node.asText().isBlank()) tags.add(node.asText());
+                }
+            }
+            return tags;
+        } catch (Exception ignored) {
+            return List.of();
+        }
     }
 }

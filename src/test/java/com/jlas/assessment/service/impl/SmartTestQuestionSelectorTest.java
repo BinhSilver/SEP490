@@ -65,6 +65,16 @@ class SmartTestQuestionSelectorTest {
                 List.of("JLPT"), new Random(1))).containsExactlyInAnyOrder(a, b);
     }
 
+    @Test
+    void prefersQuestionWhoseAdditionalTagMatchesTheGoal() {
+        var situation = question(1, "JLPT", "旅行");
+        situation.setContextJson("{\"lexeme\":\"旅行\",\"additional_tags\":[\"TRAVEL\"]}");
+        var knowledge = question(2, "JLPT", "試験");
+        knowledge.setContextJson("{\"lexeme\":\"試験\",\"additional_tags\":[\"JLPT\"]}");
+        assertThat(SmartTestQuestionSelector.select(List.of(knowledge, situation), List.of(), 1,
+                List.of("TRAVEL"), new Random(1))).containsExactly(situation);
+    }
+
     private AssessmentQuestion question(long id, String tag, String word) {
         return AssessmentQuestion.builder().id(id).skill("KANJI").jlptLevel("N3")
                 .contextJson("{\"lexeme\":\"" + word + "\"}")
