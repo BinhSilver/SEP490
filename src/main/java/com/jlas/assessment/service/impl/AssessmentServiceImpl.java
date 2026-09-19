@@ -36,7 +36,6 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -57,7 +56,6 @@ public class AssessmentServiceImpl implements AssessmentService {
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
     private static final List<String> SKILL_ORDER = List.of(
             "KANJI", "VOCABULARY", "GRAMMAR", "READING", "LISTENING");
-    private static final Set<String> SKILLS = Set.copyOf(SKILL_ORDER);
 
     private final UserRepository userRepository;
     private final AssessmentAttemptRepository attemptRepository;
@@ -75,8 +73,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         return surveyRepository.findById(userId).map(value ->
                 new com.jlas.assessment.dto.LearningSurveyResponse(true, new SmartTestStartRequest(
                         value.getGoal(), value.getTargetLevel(), value.getSelfReportedLevel(),
-                        value.getStudyDurationMonths(), value.getDailyStudyMinutes(),
-                        List.of(value.getSkills().split(",")))))
+                        value.getStudyDurationMonths(), value.getDailyStudyMinutes())))
                 .orElseGet(() -> new com.jlas.assessment.dto.LearningSurveyResponse(false, null));
     }
 
@@ -88,10 +85,6 @@ public class AssessmentServiceImpl implements AssessmentService {
         if ("JLPT".equals(goal) && target == null) throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         String self = allowed(request.selfReportedLevel(), Set.of("UNKNOWN", "N5", "N4", "N3", "N2", "N1"),
                 "Level tự đánh giá không hợp lệ.");
-        Set<String> chosen = request.skills().stream()
-                .map(skill -> allowed(skill, SKILLS, "Kỹ năng không hợp lệ.")).collect(Collectors.toSet());
-        if (chosen.isEmpty()) throw badRequest("Vui lòng chọn ít nhất một kỹ năng.");
-        List<String> ordered = SKILL_ORDER.stream().filter(chosen::contains).toList();
         com.jlas.assessment.entity.UserLearningSurvey survey = surveyRepository.findById(userId)
                 .orElseGet(() -> com.jlas.assessment.entity.UserLearningSurvey.builder()
                         .user(userRepository.findById(userId).orElseThrow(() ->
@@ -101,7 +94,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         survey.setSelfReportedLevel(self);
         survey.setStudyDurationMonths(request.studyDurationMonths());
         survey.setDailyStudyMinutes(request.dailyStudyMinutes());
-        survey.setSkills(String.join(",", ordered));
+        survey.setSkills(String.join(",", SKILL_ORDER));
         survey.setCompletedAt(LocalDateTime.now());
         surveyRepository.saveAndFlush(survey);
         if ("JLPT".equals(goal)) {
@@ -110,7 +103,7 @@ public class AssessmentServiceImpl implements AssessmentService {
             userRepository.save(user);
         }
         return new com.jlas.assessment.dto.LearningSurveyResponse(true, new SmartTestStartRequest(
-                goal, survey.getTargetLevel(), self, request.studyDurationMonths(), request.dailyStudyMinutes(), ordered));
+                goal, survey.getTargetLevel(), self, request.studyDurationMonths(), request.dailyStudyMinutes()));
     }
 
     @Override
@@ -123,12 +116,6 @@ public class AssessmentServiceImpl implements AssessmentService {
         if ("JLPT".equals(goal) && targetLevel == null) {
             throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         }
-
-        Set<String> requestedSkills = new LinkedHashSet<>(request.skills().stream()
-                .map(value -> allowed(value, SKILLS, "Kỹ năng không hợp lệ."))
-                .toList());
-        if (requestedSkills.isEmpty()) throw badRequest("Vui lòng chọn ít nhất một kỹ năng.");
-        List<String> skills = SKILL_ORDER.stream().filter(requestedSkills::contains).toList();
 
         AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                 .user(userRepository.findById(userId)
@@ -147,7 +134,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .build());
 
         List<SmartTestSessionQuestion> questions = new ArrayList<>();
-        for (String skill : skills) appendBatch(session, skill, selfLevel, 1, questions);
+        for (String skill : SKILL_ORDER) appendBatch(session, skill, selfLevel, 1, questions);
         return buildResponse(session, questions, List.of());
     }
 

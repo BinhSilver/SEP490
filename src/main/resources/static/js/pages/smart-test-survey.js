@@ -1,15 +1,12 @@
 (function () {
   'use strict';
   var ACTIVE_ATTEMPT_KEY = 'jlasSmartTestAttemptId';
-  var SELECTED_SKILLS_KEY = 'jlasSmartTestSelectedSkills';
-  var SKILL_ORDER = ['KANJI', 'VOCABULARY', 'GRAMMAR', 'READING', 'LISTENING'];
   var slides = Array.from(document.querySelectorAll('.survey-slide'));
   var nextButton = document.getElementById('surveyNextButton');
   var backButton = document.getElementById('surveyBackButton');
   var notice = document.getElementById('surveyNotice');
   var currentIndex = 0;
   var savedSurvey = null;
-  var skillSelection = false;
   var wizard = document.getElementById('surveyWizard');
   var form = document.getElementById('smartTestSurveyForm');
   var progressHeader = document.querySelector('.survey-progress-header');
@@ -21,9 +18,7 @@
   function visibleSlides() {
     var goal = document.querySelector('input[name="goal"]:checked');
     return slides.filter(function (slide) {
-      if (skillSelection) return slide.dataset.surveyStep === 'skills';
-      return slide.dataset.surveyStep !== 'skills'
-        && (slide.dataset.surveyStep !== 'target' || !goal || goal.value === 'JLPT');
+      return slide.dataset.surveyStep !== 'target' || !goal || goal.value === 'JLPT';
     });
   }
 
@@ -31,7 +26,6 @@
 
   function hasAnswer(slide) {
     if (!slide) return false;
-    if (slide.dataset.surveyStep === 'skills') return slide.querySelectorAll('input:checked').length > 0;
     return Boolean(slide.querySelector('input:checked'));
   }
 
@@ -45,8 +39,8 @@
     document.getElementById('surveyStepCounter').textContent = (currentIndex + 1) + '/' + activeSlides.length;
     backButton.disabled = currentIndex === 0;
     nextButton.disabled = !hasAnswer(active);
-    nextButton.querySelector('span').textContent = skillSelection ? 'Bắt đầu Smart Test'
-      : currentIndex === activeSlides.length - 1 ? 'Hoàn thành khảo sát' : 'Tiếp tục';
+    nextButton.querySelector('span').textContent =
+      currentIndex === activeSlides.length - 1 ? 'Hoàn thành khảo sát' : 'Tiếp tục';
     notice.hidden = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -64,20 +58,6 @@
     startTest.focus();
   }
 
-  function showSkills(survey) {
-    savedSurvey = survey;
-    skillSelection = true;
-    fillSurvey(survey);
-    wizard.classList.remove('survey-wizard--invitation');
-    wizard.classList.add('survey-wizard--skills');
-    invitation.hidden = true;
-    form.hidden = false;
-    progressHeader.hidden = false;
-    backButton.hidden = true;
-    currentIndex = 0;
-    render();
-  }
-
   function fillSurvey(survey) {
     var values = { goal: survey.goal, targetLevel: survey.targetLevel, selfLevel: survey.selfReportedLevel,
       duration: survey.studyDurationMonths, minutes: survey.dailyStudyMinutes };
@@ -86,20 +66,28 @@
         input.checked = String(input.value) === String(values[name]);
       });
     });
-    form.querySelectorAll('input[name="skill"]').forEach(function (input) {
-      input.checked = survey.skills.indexOf(input.value) >= 0;
-    });
   }
 
-  startTest.addEventListener('click', function () { if (savedSurvey) showSkills(savedSurvey); });
+  async function beginTest(survey) {
+    startTest.disabled = true;
+    startTest.querySelector('span').textContent = 'Đang tạo bài...';
+    try {
+      var test = await api('/api/assessment/smart-tests', { method: 'POST', body: JSON.stringify(survey) });
+      localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
+      window.location.assign('/smart-test');
+    } catch (error) { showError(error.message); }
+    finally { startTest.disabled = false; startTest.querySelector('span').textContent = 'Bắt đầu Smart Test'; }
+  }
+
+  startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
   goHome.addEventListener('click', function () { window.location.assign('/'); });
   document.getElementById('surveyEdit').addEventListener('click', function () {
+    if (savedSurvey) fillSurvey(savedSurvey);
     invitation.hidden = true;
     form.hidden = false;
     progressHeader.hidden = false;
-    skillSelection = false;
     backButton.hidden = false;
-    wizard.classList.remove('survey-wizard--invitation', 'survey-wizard--skills');
+    wizard.classList.remove('survey-wizard--invitation');
     currentIndex = 0;
     render();
   });
@@ -118,23 +106,6 @@
     var activeSlides = visibleSlides();
     if (!hasAnswer(activeSlides[currentIndex])) return;
     if (currentIndex < activeSlides.length - 1) { currentIndex++; render(); return; }
-    if (skillSelection) {
-      var chosen = Array.from(form.querySelectorAll('input[name="skill"]')).filter(function (input) { return input.checked; })
-        .map(function (input) { return input.value; });
-      var testSurvey = Object.assign({}, savedSurvey, { skills: SKILL_ORDER.filter(function (skill) { return chosen.includes(skill); }) });
-      nextButton.disabled = true;
-      nextButton.querySelector('span').textContent = 'Đang tạo bài...';
-      try {
-        var updated = await api('/api/assessment/survey', { method: 'POST', body: JSON.stringify(testSurvey) });
-        savedSurvey = updated.survey;
-        var test = await api('/api/assessment/smart-tests', { method: 'POST', body: JSON.stringify(savedSurvey) });
-        localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
-        localStorage.setItem(SELECTED_SKILLS_KEY, JSON.stringify(savedSurvey.skills));
-        window.location.assign('/smart-test');
-      } catch (error) { showError(error.message); }
-      finally { nextButton.disabled = false; nextButton.querySelector('span').textContent = 'Bắt đầu Smart Test'; }
-      return;
-    }
     var goal = document.querySelector('input[name="goal"]:checked').value;
     var target = document.querySelector('input[name="targetLevel"]:checked');
     var body = {
@@ -142,8 +113,7 @@
       targetLevel: goal === 'JLPT' ? target.value : null,
       selfReportedLevel: document.querySelector('input[name="selfLevel"]:checked').value,
       studyDurationMonths: Number(document.querySelector('input[name="duration"]:checked').value),
-      dailyStudyMinutes: Number(document.querySelector('input[name="minutes"]:checked').value),
-      skills: savedSurvey ? savedSurvey.skills : SKILL_ORDER.slice()
+      dailyStudyMinutes: Number(document.querySelector('input[name="minutes"]:checked').value)
     };
     nextButton.disabled = true; nextButton.querySelector('span').textContent = 'Đang lưu khảo sát...';
     try {
@@ -155,6 +125,6 @@
   });
   render();
   api('/api/assessment/survey').then(function (data) {
-    if (data.completed && data.survey) { showSkills(data.survey); }
+    if (data.completed && data.survey) { showInvitation(data.survey); }
   }).catch(function (error) { showError(error.message); });
 })();

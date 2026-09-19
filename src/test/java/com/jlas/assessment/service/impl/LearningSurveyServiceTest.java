@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,9 +40,8 @@ class LearningSurveyServiceTest {
         var response = service.saveLearningSurvey(7L, request("DAILY_LIFE", null, "UNKNOWN"));
         assertThat(response.completed()).isTrue();
         assertThat(response.survey().selfReportedLevel()).isEqualTo("UNKNOWN");
-        assertThat(response.survey().skills()).containsExactly("KANJI", "READING");
         verify(surveys).saveAndFlush(argThat(s -> s.getUser().getId() == 7L
-                && s.getSkills().equals("KANJI,READING") && s.getCompletedAt() != null));
+                && s.getSkills().equals("KANJI,VOCABULARY,GRAMMAR,READING,LISTENING") && s.getCompletedAt() != null));
         verifyNoInteractions(attempts, questions, answers, sessions, issued, results);
     }
 
@@ -54,7 +52,6 @@ class LearningSurveyServiceTest {
         var response = service.getLearningSurvey(7L);
         assertThat(response.completed()).isTrue();
         assertThat(response.survey().targetLevel()).isEqualTo("N2");
-        assertThat(response.survey().skills()).containsExactly("KANJI", "READING");
     }
 
     @Test void updatingSurveyKeepsOneProfileAndClearsIrrelevantTarget() {
@@ -84,6 +81,6 @@ class LearningSurveyServiceTest {
     }
 
     private SmartTestStartRequest request(String goal, String target, String self) {
-        return new SmartTestStartRequest(goal, target, self, 9, 30, List.of("READING", "KANJI", "KANJI"));
+        return new SmartTestStartRequest(goal, target, self, 9, 30);
     }
 }
