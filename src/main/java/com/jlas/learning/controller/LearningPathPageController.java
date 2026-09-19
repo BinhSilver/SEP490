@@ -4,13 +4,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** Controller trang đề xuất lộ trình học cho người chưa cần làm Smart Test. */
+/** Serves the authenticated personalized learning-path page. */
 @Controller
-public class LearningPageController {
+public class LearningPathPageController {
 
-    @GetMapping("/learning-path")
+    @GetMapping("/learning/path")
     public String learningPath(Model model) {
         model.addAttribute("layoutMode", "app");
-        return "learning-path";
+        return "learning/path";
     }
 }

@@ -106,7 +106,7 @@
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
-  goHome.addEventListener('click', function () { window.location.assign(noTest ? '/learning-path' : '/'); });
+  goHome.addEventListener('click', function () { window.location.assign(noTest ? '/learning/path' : '/'); });
   document.getElementById('surveyEdit').addEventListener('click', function () {
     if (savedSurvey) fillSurvey(savedSurvey);
     invitation.hidden = true;
