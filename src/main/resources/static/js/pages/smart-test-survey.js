@@ -13,6 +13,7 @@
   var invitation = document.getElementById('surveyInvitation');
   var startTest = document.getElementById('surveyStartTest');
   var goHome = document.getElementById('surveyGoHome');
+  var noTest = false;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/survey')) return;
 
   function visibleSlides() {
@@ -22,6 +23,7 @@
       var step = slide.dataset.surveyStep;
       if (step === 'target') return !!goal && goal.value === 'JLPT';
       if (step === 'level') return !!studied && studied.value === 'YES';
+      if (step === 'duration') return !!studied && studied.value === 'YES';
       return true;
     });
   }
@@ -69,7 +71,10 @@
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
     }
     startTest.hidden = needsPathOnly;
-    goHome.textContent = needsPathOnly ? 'Về trang chủ' : 'Để sau, về trang chủ';
+    noTest = needsPathOnly;
+    goHome.textContent = needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
+    goHome.classList.toggle('smart-test-primary', needsPathOnly);
+    goHome.classList.toggle('smart-test-secondary', !needsPathOnly);
     wizard.classList.add('survey-wizard--invitation');
     form.hidden = true;
     progressHeader.hidden = true;
@@ -101,7 +106,7 @@
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
-  goHome.addEventListener('click', function () { window.location.assign('/'); });
+  goHome.addEventListener('click', function () { window.location.assign(noTest ? '/learning-path' : '/'); });
   document.getElementById('surveyEdit').addEventListener('click', function () {
     if (savedSurvey) fillSurvey(savedSurvey);
     invitation.hidden = true;
@@ -134,7 +139,7 @@
       goal: goal,
       targetLevel: goal === 'JLPT' ? target.value : null,
       selfReportedLevel: studied === 'YES' ? document.querySelector('input[name="selfLevel"]:checked').value : 'FROM_ZERO',
-      studyDurationMonths: Number(document.querySelector('input[name="duration"]:checked').value),
+      studyDurationMonths: studied === 'YES' ? Number(document.querySelector('input[name="duration"]:checked').value) : 0,
       dailyStudyMinutes: Number(document.querySelector('input[name="minutes"]:checked').value)
     };
     nextButton.disabled = true; nextButton.querySelector('span').textContent = 'Đang lưu khảo sát...';
