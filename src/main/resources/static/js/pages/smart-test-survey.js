@@ -55,20 +55,27 @@
   function showInvitation(survey) {
     savedSurvey = survey;
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
-    document.getElementById('inviteTitle').textContent = fromZero
-      ? 'Bạn sẽ bắt đầu từ con số 0!'
-      : 'Sẵn sàng khám phá trình độ của bạn?';
-    document.getElementById('inviteText').textContent = fromZero
-      ? 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. J-LAS sẽ xây lộ trình học từ đầu cho bạn.'
-      : 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
-    startTest.hidden = fromZero;
-    goHome.textContent = fromZero ? 'Về trang chủ' : 'Để sau, về trang chủ';
+    var usageUnderSixMonths = (survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')
+      && (survey.studyDurationMonths == null || survey.studyDurationMonths <= 6);
+    var needsPathOnly = fromZero || usageUnderSixMonths;
+    if (fromZero) {
+      document.getElementById('inviteTitle').textContent = 'Bạn sẽ bắt đầu từ con số 0!';
+      document.getElementById('inviteText').textContent = 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. J-LAS sẽ xây lộ trình học từ đầu cho bạn.';
+    } else if (usageUnderSixMonths) {
+      document.getElementById('inviteTitle').textContent = 'Lộ trình học của bạn đã sẵn sàng!';
+      document.getElementById('inviteText').textContent = 'Với mục tiêu này, bạn mới học dưới 6 tháng nên chưa cần đánh giá trình độ. J-LAS sẽ gợi ý lộ trình phù hợp để bạn bắt đầu ngay.';
+    } else {
+      document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
+      document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
+    }
+    startTest.hidden = needsPathOnly;
+    goHome.textContent = needsPathOnly ? 'Về trang chủ' : 'Để sau, về trang chủ';
     wizard.classList.add('survey-wizard--invitation');
     form.hidden = true;
     progressHeader.hidden = true;
     invitation.hidden = false;
     notice.hidden = true;
-    (fromZero ? goHome : startTest).focus();
+    (needsPathOnly ? goHome : startTest).focus();
   }
 
   function fillSurvey(survey) {

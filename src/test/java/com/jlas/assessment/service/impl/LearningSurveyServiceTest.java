@@ -94,7 +94,17 @@ class LearningSurveyServiceTest {
         verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
     }
 
+    @Test void usageGoalUnderSixMonthsCannotStartSmartTest() {
+        assertThatThrownBy(() -> service.startSmartTest(7L, request("TRAVEL", null, "N5", 3)))
+                .isInstanceOf(ResponseStatusException.class);
+        verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
+    }
+
     private SmartTestStartRequest request(String goal, String target, String self) {
         return new SmartTestStartRequest(goal, target, self, 9, 30);
+    }
+
+    private SmartTestStartRequest request(String goal, String target, String self, int months) {
+        return new SmartTestStartRequest(goal, target, self, months, 30);
     }
 }

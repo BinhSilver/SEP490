@@ -51,6 +51,8 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     private static final Set<String> GOALS = Set.of(
             "JLPT", "BA", "TRAVEL", "DAILY_LIFE");
+    /** Mục tiêu thiên về sử dụng thực tế (tình huống) thay vì thi cử kiến thức. */
+    private static final Set<String> USAGE_GOALS = Set.of("TRAVEL", "DAILY_LIFE");
     private static final Map<String, List<String>> GOAL_TAG_PRIORITY = Map.of(
             "JLPT", List.of("JLPT"), "BA", List.of("BA"),
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
@@ -114,6 +116,10 @@ public class AssessmentServiceImpl implements AssessmentService {
         String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS, "Level tự đánh giá không hợp lệ.");
         if ("FROM_ZERO".equals(self)) {
             throw badRequest("Bạn chưa từng học tiếng Nhật nên không cần làm Smart Test.");
+        }
+        if (USAGE_GOALS.contains(goal)
+                && (request.studyDurationMonths() == null || request.studyDurationMonths() <= 6)) {
+            throw badRequest("Với mục tiêu " + goal + ", bạn cần học tiếng Nhật trên 6 tháng mới cần làm Smart Test.");
         }
         String selfLevel = normalizeLevel(self);
         String targetLevel = request.targetLevel() == null || request.targetLevel().isBlank()
