@@ -17,8 +17,12 @@
 
   function visibleSlides() {
     var goal = document.querySelector('input[name="goal"]:checked');
+    var studied = document.querySelector('input[name="studied"]:checked');
     return slides.filter(function (slide) {
-      return slide.dataset.surveyStep !== 'target' || !goal || goal.value === 'JLPT';
+      var step = slide.dataset.surveyStep;
+      if (step === 'target') return !!goal && goal.value === 'JLPT';
+      if (step === 'level') return !!studied && studied.value === 'YES';
+      return true;
     });
   }
 
@@ -50,16 +54,26 @@
 
   function showInvitation(survey) {
     savedSurvey = survey;
+    var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
+    document.getElementById('inviteTitle').textContent = fromZero
+      ? 'Bạn sẽ bắt đầu từ con số 0!'
+      : 'Sẵn sàng khám phá trình độ của bạn?';
+    document.getElementById('inviteText').textContent = fromZero
+      ? 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. J-LAS sẽ xây lộ trình học từ đầu cho bạn.'
+      : 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
+    startTest.hidden = fromZero;
+    goHome.textContent = fromZero ? 'Về trang chủ' : 'Để sau, về trang chủ';
     wizard.classList.add('survey-wizard--invitation');
     form.hidden = true;
     progressHeader.hidden = true;
     invitation.hidden = false;
     notice.hidden = true;
-    startTest.focus();
+    (fromZero ? goHome : startTest).focus();
   }
 
   function fillSurvey(survey) {
-    var values = { goal: survey.goal, targetLevel: survey.targetLevel, selfLevel: survey.selfReportedLevel,
+    var values = { studied: survey.selfReportedLevel === 'FROM_ZERO' ? 'NO' : 'YES',
+      goal: survey.goal, targetLevel: survey.targetLevel, selfLevel: survey.selfReportedLevel,
       duration: survey.studyDurationMonths, minutes: survey.dailyStudyMinutes };
     Object.keys(values).forEach(function (name) {
       form.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
@@ -107,11 +121,12 @@
     if (!hasAnswer(activeSlides[currentIndex])) return;
     if (currentIndex < activeSlides.length - 1) { currentIndex++; render(); return; }
     var goal = document.querySelector('input[name="goal"]:checked').value;
+    var studied = document.querySelector('input[name="studied"]:checked').value;
     var target = document.querySelector('input[name="targetLevel"]:checked');
     var body = {
       goal: goal,
       targetLevel: goal === 'JLPT' ? target.value : null,
-      selfReportedLevel: document.querySelector('input[name="selfLevel"]:checked').value,
+      selfReportedLevel: studied === 'YES' ? document.querySelector('input[name="selfLevel"]:checked').value : 'FROM_ZERO',
       studyDurationMonths: Number(document.querySelector('input[name="duration"]:checked').value),
       dailyStudyMinutes: Number(document.querySelector('input[name="minutes"]:checked').value)
     };

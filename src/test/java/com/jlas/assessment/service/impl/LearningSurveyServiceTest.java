@@ -80,6 +80,20 @@ class LearningSurveyServiceTest {
         verify(surveys).saveAndFlush(argThat(s -> s.getSelfReportedLevel().equals("N3")));
     }
 
+    @Test void savingSurveyPreservesFromZeroLevel() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        var response = service.saveLearningSurvey(7L, request("TRAVEL", null, "FROM_ZERO"));
+        assertThat(response.survey().selfReportedLevel()).isEqualTo("FROM_ZERO");
+        verify(surveys).saveAndFlush(argThat(s -> "FROM_ZERO".equals(s.getSelfReportedLevel())));
+    }
+
+    @Test void fromZeroCannotStartSmartTest() {
+        assertThatThrownBy(() -> service.startSmartTest(7L, request("TRAVEL", null, "FROM_ZERO")))
+                .isInstanceOf(ResponseStatusException.class);
+        verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
+    }
+
     private SmartTestStartRequest request(String goal, String target, String self) {
         return new SmartTestStartRequest(goal, target, self, 9, 30);
     }

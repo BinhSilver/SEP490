@@ -56,6 +56,8 @@ public class AssessmentServiceImpl implements AssessmentService {
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
     private static final List<String> SKILL_ORDER = List.of(
             "KANJI", "VOCABULARY", "GRAMMAR", "READING", "LISTENING");
+    private static final Set<String> CURRENT_LEVELS = Set.of(
+            "FROM_ZERO", "UNKNOWN", "N5", "N4", "N3", "N2", "N1");
 
     private final UserRepository userRepository;
     private final AssessmentAttemptRepository attemptRepository;
@@ -83,7 +85,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         String target = request.targetLevel() == null || request.targetLevel().isBlank() ? null
                 : allowed(request.targetLevel(), Set.copyOf(SmartTestAdaptivePolicy.LEVELS), "Level mục tiêu không hợp lệ.");
         if ("JLPT".equals(goal) && target == null) throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
-        String self = allowed(request.selfReportedLevel(), Set.of("UNKNOWN", "N5", "N4", "N3", "N2", "N1"),
+        String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS,
                 "Level tự đánh giá không hợp lệ.");
         com.jlas.assessment.entity.UserLearningSurvey survey = surveyRepository.findById(userId)
                 .orElseGet(() -> com.jlas.assessment.entity.UserLearningSurvey.builder()
@@ -109,7 +111,11 @@ public class AssessmentServiceImpl implements AssessmentService {
     @Override
     public SmartTestResponse startSmartTest(Long userId, SmartTestStartRequest request) {
         String goal = allowed(request.goal(), GOALS, "Mục tiêu không hợp lệ.");
-        String selfLevel = normalizeLevel(request.selfReportedLevel());
+        String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS, "Level tự đánh giá không hợp lệ.");
+        if ("FROM_ZERO".equals(self)) {
+            throw badRequest("Bạn chưa từng học tiếng Nhật nên không cần làm Smart Test.");
+        }
+        String selfLevel = normalizeLevel(self);
         String targetLevel = request.targetLevel() == null || request.targetLevel().isBlank()
                 ? null : allowed(request.targetLevel(), Set.copyOf(SmartTestAdaptivePolicy.LEVELS),
                 "Mục tiêu JLPT không hợp lệ.");
