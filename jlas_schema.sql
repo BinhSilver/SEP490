@@ -9,6 +9,12 @@
 -- Then load data once:
 --   mysql -u root -p < sql/data_full.sql
 -- =============================================================================
+--
+-- [JLAS2-24] Smart Test: "vừa bài vừa điểm ngữ pháp".
+--   - assessment_question.grammar_point_id : mẫu ngữ pháp CHÍNH (nullable, chỉ GRAMMAR).
+--   - question_grammar_point               : bridge mẫu ngữ pháp PHỤ.
+--   Dữ liệu re-tag câu hỏi nằm ở seed riêng, không trộn vào file schema này.
+-- =============================================================================
 
 CREATE DATABASE IF NOT EXISTS jlas
   CHARACTER SET utf8mb4
@@ -979,6 +985,7 @@ CREATE TABLE assessment_question (
     id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     conversion_rule_id  BIGINT UNSIGNED NULL,     -- Chi dung khi cau hoi gan rule Amon.
     knowledge_tag_id    BIGINT UNSIGNED NOT NULL, -- Knowledge point chinh de gom weakness.
+    grammar_point_id    BIGINT UNSIGNED NULL,     -- [JLAS2-24] Mau ngu phap CHINH (nullable; chi GRAMMAR).
     skill               VARCHAR(20) NOT NULL DEFAULT 'KANJI',
     jlpt_level          VARCHAR(10) NOT NULL DEFAULT 'N5',
     difficulty          VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
@@ -1008,10 +1015,13 @@ CREATE TABLE assessment_question (
         (skill, jlpt_level, difficulty, is_active),
     KEY idx_assessment_question_rule (conversion_rule_id),
     KEY idx_assessment_question_knowledge (knowledge_tag_id),
+    KEY idx_assessment_question_grammar (grammar_point_id),
     CONSTRAINT fk_assessment_question_rule FOREIGN KEY (conversion_rule_id)
         REFERENCES conversion_rule(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_knowledge FOREIGN KEY (knowledge_tag_id)
         REFERENCES tag(id),
+    CONSTRAINT fk_assessment_question_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_legacy_quiz FOREIGN KEY (quiz_id)
         REFERENCES assessment_quiz(id) ON DELETE SET NULL,
     CONSTRAINT chk_assessment_question_skill
@@ -1050,6 +1060,20 @@ CREATE TABLE question_tag (
         REFERENCES assessment_question(id) ON DELETE CASCADE,
     CONSTRAINT fk_question_tag_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-24] Bridge cau hoi -> mau ngu phap PHU (mau chinh nam o
+-- assessment_question.grammar_point_id). Dung cho diem ngu phap, khong phai tag;
+-- knowledge_tag_id + question_tag van giu vai tro tag bai/tag phu nhu cu.
+CREATE TABLE question_grammar_point (
+    question_id      BIGINT UNSIGNED NOT NULL,
+    grammar_point_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (question_id, grammar_point_id),
+    KEY idx_question_grammar_point_gp (grammar_point_id),
+    CONSTRAINT fk_qgp_question FOREIGN KEY (question_id)
+        REFERENCES assessment_question(id) ON DELETE CASCADE,
+    CONSTRAINT fk_qgp_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Cap dung cho cau MATCHING.

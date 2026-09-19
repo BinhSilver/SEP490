@@ -1,10 +1,13 @@
 package com.jlas.assessment.entity;
 
+import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.dictionary.entity.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Ngân hàng câu hỏi dùng chung cho Amon, JLPT mock test và Smart Test.
@@ -34,6 +37,21 @@ public class AssessmentQuestion {
     @JoinColumn(name = "knowledge_tag_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_assessment_question_knowledge"))
     private Tag knowledgeTag;
+
+    /** [JLAS2-24] Mẫu ngữ pháp CHÍNH — chỉ câu GRAMMAR; dùng để gom điểm yếu theo mẫu. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grammar_point_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_grammar"))
+    private GrammarPoint grammarPoint;
+
+    /** [JLAS2-24] Mẫu ngữ pháp PHỤ — chỉ để hiển thị, không tính điểm. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "question_grammar_point",
+            joinColumns = @JoinColumn(name = "question_id",
+                    foreignKey = @ForeignKey(name = "fk_qgp_question")),
+            inverseJoinColumns = @JoinColumn(name = "grammar_point_id",
+                    foreignKey = @ForeignKey(name = "fk_qgp_grammar")))
+    private Set<GrammarPoint> grammarPoints = new LinkedHashSet<>();
 
     /** VOCABULARY/GRAMMAR/READING/LISTENING/KANJI. */
     @Column(name = "skill", nullable = false, length = 20)

@@ -3,6 +3,7 @@ package com.jlas.assessment.service.impl;
 import com.jlas.assessment.dto.SmartTestAnswerRequest;
 import com.jlas.assessment.dto.SmartTestResponse;
 import com.jlas.assessment.dto.SmartTestResponse.BatchResultView;
+import com.jlas.assessment.dto.SmartTestResponse.GrammarPointResultView;
 import com.jlas.assessment.dto.SmartTestResponse.QuestionView;
 import com.jlas.assessment.dto.SmartTestResponse.ResultView;
 import com.jlas.assessment.dto.SmartTestResponse.SkillResultView;
@@ -22,6 +23,7 @@ import com.jlas.assessment.repository.SmartTestSkillResultRepository;
 import com.jlas.assessment.service.AssessmentService;
 import com.jlas.assessment.service.impl.SmartTestAdaptivePolicy.BatchScore;
 import com.jlas.assessment.service.impl.SmartTestAdaptivePolicy.Decision;
+import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -465,7 +467,8 @@ public class AssessmentServiceImpl implements AssessmentService {
                     String band = abilityBand(value.getEstimatedLevel(), batches, partialSkill);
                     return new SkillResultView(skill, value.getEstimatedLevel(), band, value.getMasteryScore(),
                             confidence, correct, skillAnswers.size(),
-                            recommendation(value.getEstimatedLevel(), band, batches, partialSkill), batches);
+                            recommendation(value.getEstimatedLevel(), band, batches, partialSkill), batches,
+                            grammarPointResults(skillAnswers));
                 }).toList();
         int correct = (int) answers.stream().filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect())).count();
         boolean partial = answers.size() < questions.size() || skills.size() < selectedSkills(questions).size();
@@ -504,6 +507,33 @@ public class AssessmentServiceImpl implements AssessmentService {
                 })
                 .filter(batch -> batch.totalQuestions() > 0)
                 .toList();
+    }
+
+    /** [JLAS2-24] Gom điểm yếu theo mẫu ngữ pháp CHÍNH (mẫu phụ không tính điểm). */
+    private static List<GrammarPointResultView> grammarPointResults(List<AssessmentAnswer> skillAnswers) {
+        Map<Long, List<AssessmentAnswer>> grouped = skillAnswers.stream()
+                .filter(answer -> answer.getQuestion().getGrammarPoint() != null)
+                .collect(Collectors.groupingBy(answer -> answer.getQuestion().getGrammarPoint().getId()));
+        return grouped.entrySet().stream()
+                .map(entry -> {
+                    GrammarPoint point = entry.getValue().get(0).getQuestion().getGrammarPoint();
+                    int correct = (int) entry.getValue().stream()
+                            .filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect())).count();
+                    return new GrammarPointResultView(point.getId(), point.getPattern(),
+                            lessonCode(point), lessonTitle(point), correct, entry.getValue().size(),
+                            percent(correct, entry.getValue().size()));
+                })
+                .sorted(Comparator.comparing(GrammarPointResultView::masteryScore)
+                        .thenComparing(GrammarPointResultView::pattern))
+                .toList();
+    }
+
+    private static String lessonCode(GrammarPoint point) {
+        return point.getLesson().getKnowledgeTag().getCode();
+    }
+
+    private static String lessonTitle(GrammarPoint point) {
+        return point.getLesson().getTitle();
     }
 
     private static String confidenceForCompletedHistory(List<BatchScore> history, String estimatedLevel) {

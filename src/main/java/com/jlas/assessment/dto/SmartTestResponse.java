@@ -52,7 +52,8 @@ public record SmartTestResponse(
             int correctAnswers,
             int totalQuestions,
             String recommendation,
-            List<BatchResultView> batches
+            List<BatchResultView> batches,
+            List<GrammarPointResultView> grammarPoints
     ) { }
 
     public record BatchResultView(
@@ -60,5 +61,16 @@ public record SmartTestResponse(
             String level,
             int correctAnswers,
             int totalQuestions
+    ) { }
+
+    /** [JLAS2-24] Điểm yếu theo từng mẫu ngữ pháp (chỉ mẫu chính được tính điểm). */
+    public record GrammarPointResultView(
+            Long grammarPointId,
+            String pattern,
+            String lessonCode,
+            String lessonTitle,
+            int correctAnswers,
+            int totalQuestions,
+            BigDecimal masteryScore
     ) { }
 }
