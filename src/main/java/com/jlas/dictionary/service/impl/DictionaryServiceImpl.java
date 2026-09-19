@@ -5,6 +5,8 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.dto.*;
 import com.jlas.dictionary.entity.*;
+import com.jlas.dictionary.handwriting.KanjiStrokeIndex;
+import com.jlas.dictionary.handwriting.StrokeMatcher;
 import com.jlas.dictionary.mapper.DictionaryMapper;
 import com.jlas.dictionary.repository.*;
 import com.jlas.dictionary.service.DictionaryService;
@@ -39,6 +41,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     private static final int MAX_TOTAL_CANDIDATES = 200;
     private static final int KANJI_RESULT_LIMIT = 8;
     private static final int RELATED_VOCABULARY_LIMIT = 50;
+    private static final int HANDWRITING_CANDIDATE_LIMIT = 5;
 
     private final VocabularyEntryRepository vocabularyEntryRepository;
     private final VocabularyKanjiRepository vocabularyKanjiRepository;
@@ -51,6 +54,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     private final SensePartOfSpeechRepository sensePartOfSpeechRepository;
     private final SenseDomainRepository senseDomainRepository;
     private final UserRepository userRepository;
+    private final KanjiStrokeIndex kanjiStrokeIndex;
     private final DictionaryMapper mapper;
 
     @Override
@@ -119,6 +123,41 @@ public class DictionaryServiceImpl implements DictionaryService {
         KanjiResponse response = mapper.toKanjiResponse(kanji, readings);
         response.setRelatedVocabulary(toVocabularyResponses(related));
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<KanjiResponse> recognizeHandwriting(HandwritingRequest request) {
+        double scaleX = StrokeMatcher.FRAME / request.getWidth();
+        double scaleY = StrokeMatcher.FRAME / request.getHeight();
+        List<List<double[]>> strokes = new ArrayList<>();
+        for (List<double[]> stroke : request.getStrokes()) {
+            List<double[]> scaled = new ArrayList<>(stroke.size());
+            for (double[] point : stroke) {
+                if (!(point[0] >= 0 && point[0] <= request.getWidth() && point[1] >= 0 && point[1] <= request.getHeight())) {
+                    throw new ApiException(ErrorCode.VALIDATION_FAILED, "Toạ độ nét vẽ nằm ngoài canvas");
+                }
+                scaled.add(new double[]{point[0] * scaleX, point[1] * scaleY});
+            }
+            strokes.add(scaled);
+        }
+
+        List<String> ranked = StrokeMatcher.rank(kanjiStrokeIndex.refs(), strokes, HANDWRITING_CANDIDATE_LIMIT);
+        if (ranked.isEmpty()) return List.of();
+
+        Map<String, Kanji> byCharacter = new HashMap<>();
+        for (Kanji kanji : kanjiRepository.findByCharacterIn(ranked)) byCharacter.put(kanji.getCharacter(), kanji);
+        Map<Long, List<KanjiReadingResponse>> readings = groupReadings(
+                byCharacter.values().stream().map(Kanji::getId).toList());
+
+        List<KanjiResponse> candidates = new ArrayList<>();
+        for (String character : ranked) {
+            Kanji kanji = byCharacter.get(character);
+            if (kanji != null) {
+                candidates.add(mapper.toKanjiResponse(kanji, readings.getOrDefault(kanji.getId(), List.of())));
+            }
+        }
+        return candidates;
     }
 
     @Override

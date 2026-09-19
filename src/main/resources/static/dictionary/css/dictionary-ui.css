@@ -2234,7 +2234,7 @@
 .dict-modal__toolbar {
   width: min(360px, 100%);
   display: grid;
-  grid-template-columns: 1fr 1fr 40px;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
@@ -2286,10 +2286,27 @@
   color: var(--color-tertiary);
 }
 
+.dict-handwriting-status {
+  margin: 0 0 var(--space-2);
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-xs);
+}
+
+.dict-handwriting-status.is-error {
+  color: var(--color-error);
+}
+
+/* Giữ chiều cao cố định để danh sách ứng viên đổi liên tục không làm modal nhảy. */
 .dict-handwriting-candidates {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
+  min-height: 92px;
+  align-content: start;
+}
+
+.dict-handwriting-candidates.is-loading {
+  opacity: 0.6;
 }
 
 .dict-handwriting-candidate {
@@ -2365,11 +2382,6 @@
   color: var(--color-tertiary);
 }
 
-.dict-modal__submit {
-  flex: 0 0 auto;
-  min-height: 44px;
-  gap: var(--space-2);
-}
 
 .dict-modal button:focus-visible {
   outline: none;
@@ -2423,10 +2435,6 @@
     align-items: stretch;
     flex-direction: column;
     gap: var(--space-3);
-  }
-
-  .dict-modal__submit {
-    width: 100%;
   }
 }
 

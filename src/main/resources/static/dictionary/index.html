@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20260918-5" />
+  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20260919-1" />
 </head>
 <body id="jlabBasePage" class="dictionary-page">
   <div id="jlabBaseShellMount"></div>
@@ -201,7 +201,7 @@
         <div class="dict-modal__canvas-stage">
           <div class="dict-modal__grid" aria-hidden="true"></div>
           <span class="dict-modal__canvas-label">Canvas 360 × 360</span>
-          <span id="dict-hw-stroke-count" class="dict-modal__stroke-count">7 nét</span>
+          <span id="dict-hw-stroke-count" class="dict-modal__stroke-count">0 nét</span>
           <canvas id="dict-handwriting-canvas" width="360" height="360"
                   aria-label="Khung vẽ chữ Kanji"></canvas>
         </div>
@@ -210,12 +210,11 @@
           <button type="button" id="dict-hw-undo" class="dict-modal__tool-button">
             <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Hoàn tác
           </button>
+          <button type="button" id="dict-hw-redo" class="dict-modal__tool-button">
+            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Làm lại
+          </button>
           <button type="button" id="dict-hw-clear" class="dict-modal__tool-button">
             <i class="fa-regular fa-trash-can" aria-hidden="true"></i> Xóa hết
-          </button>
-          <button type="button" id="dict-hw-reset" class="dict-modal__tool-button dict-modal__tool-button--icon"
-                  title="Khôi phục chữ mẫu" aria-label="Khôi phục chữ mẫu">
-            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -223,38 +222,14 @@
       <div class="dict-modal__candidates-section">
         <div class="dict-modal__section-heading">
           <span>Ứng viên nhận diện</span>
-          <span>Xếp theo độ tin cậy</span>
+          <span>Khớp nhất ở đầu</span>
         </div>
-        <div class="dict-handwriting-candidates" aria-label="Chọn Kanji cần tìm">
-          <button type="button" class="dict-handwriting-candidate is-selected" data-kanji="作" aria-pressed="true">
-            <span class="dict-handwriting-candidate__kanji">作</span>
-            <strong>98,4%</strong><small>Làm / tạo</small>
-          </button>
-          <button type="button" class="dict-handwriting-candidate" data-kanji="昨" aria-pressed="false">
-            <span class="dict-handwriting-candidate__kanji">昨</span>
-            <strong>82,1%</strong><small>Trước / hôm qua</small>
-          </button>
-          <button type="button" class="dict-handwriting-candidate" data-kanji="体" aria-pressed="false">
-            <span class="dict-handwriting-candidate__kanji">体</span>
-            <strong>65,0%</strong><small>Cơ thể</small>
-          </button>
-          <button type="button" class="dict-handwriting-candidate" data-kanji="件" aria-pressed="false">
-            <span class="dict-handwriting-candidate__kanji">件</span>
-            <strong>54,2%</strong><small>Việc / trường hợp</small>
-          </button>
-          <button type="button" class="dict-handwriting-candidate" data-kanji="休" aria-pressed="false">
-            <span class="dict-handwriting-candidate__kanji">休</span>
-            <strong>42,0%</strong><small>Nghỉ ngơi</small>
-          </button>
-        </div>
+        <p id="dict-hw-status" class="dict-handwriting-status" role="status">Vẽ một nét để xem gợi ý.</p>
+        <div id="dict-hw-candidates" class="dict-handwriting-candidates" aria-label="Chọn Kanji cần tìm" aria-live="polite"></div>
       </div>
 
       <div class="dict-modal__footer">
-        <p><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Ứng viên minh họa · OCR đang phát triển</p>
-        <button type="button" id="dict-hw-submit" class="btn btn--primary dict-modal__submit">
-          <span id="dict-hw-submit-label">Tra từ điển với “作”</span>
-          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-        </button>
+        <p><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Nhận diện theo hình dạng nét, không cần đúng thứ tự nét; vẽ dở vẫn có gợi ý.</p>
       </div>
     </div>
   </div>
@@ -265,7 +240,8 @@
   <!-- romaji.js: chuyển Romaji -> Hiragana khi Enter, tách khỏi dictionary-page.js -->
   <script src="/dictionary/js/romaji.js"></script>
   <!-- handwriting.js: bảng vẽ Kanji bằng canvas, tách khỏi dictionary-page.js -->
-  <script src="/dictionary/js/handwriting.js?v=20260918-2"></script>
+  <script src="/dictionary/js/handwriting-core.js?v=20260919-2"></script>
+  <script src="/dictionary/js/handwriting.js?v=20260919-2"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/js/components.js"></script>
   <script src="/dictionary/js/api-client.js"></script>

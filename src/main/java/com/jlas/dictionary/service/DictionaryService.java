@@ -1,5 +1,6 @@
 package com.jlas.dictionary.service;
 
+import com.jlas.dictionary.dto.HandwritingRequest;
 import com.jlas.dictionary.dto.KanjiResponse;
 import com.jlas.dictionary.dto.SearchHistoryResponse;
 import com.jlas.dictionary.dto.SearchResultResponse;
@@ -26,6 +27,12 @@ public interface DictionaryService {
 
     /** Chi tiết một Kanji, kèm danh sách vocabulary liên quan qua vocabulary_kanji. */
     KanjiResponse getKanjiDetail(String character);
+
+    /**
+     * Nhận diện Kanji từ các nét vẽ tay (kể cả vẽ dở, sai thứ tự nét); khớp nhất đứng đầu.
+     * Chỉ là một cách nhập: chọn ứng viên xong FE dùng lại {@link #search}, không có luồng riêng.
+     */
+    List<KanjiResponse> recognizeHandwriting(HandwritingRequest request);
 
     /** Lịch sử tra cứu gần nhất của user; rỗng nếu chưa đăng nhập. */
     List<SearchHistoryResponse> getRecentHistory(Long userId);

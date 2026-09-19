@@ -40,6 +40,17 @@
     kanjiDetail: function (character) {
       return fetch('/api/dictionary/kanji/' + encodeURIComponent(character), { headers: authHeaders() }).then(parse);
     },
+    /** Nhận diện Kanji vẽ tay: payload = { width, height, strokes: [[[x, y], ...], ...] }. */
+    recognizeHandwriting: function (payload, signal) {
+      var headers = authHeaders();
+      headers['Content-Type'] = 'application/json';
+      return fetch('/api/dictionary/handwriting/recognize', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload),
+        signal: signal
+      }).then(parse);
+    },
     history: function () {
       return fetch('/api/dictionary/history', { headers: authHeaders() }).then(parse);
     }
