@@ -58,6 +58,9 @@ public class AssessmentServiceImpl implements AssessmentService {
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
     private static final List<String> SKILL_ORDER = List.of(
             "KANJI", "VOCABULARY", "GRAMMAR", "READING", "LISTENING");
+    /** Thứ tự kỹ năng cho bài kiểm tra thiên về sử dụng thực tế: READING/LISTENING lên trước. */
+    private static final List<String> USAGE_SKILL_ORDER = List.of(
+            "READING", "LISTENING", "VOCABULARY", "GRAMMAR", "KANJI");
     private static final Set<String> CURRENT_LEVELS = Set.of(
             "FROM_ZERO", "UNKNOWN", "N5", "N4", "N3", "N2", "N1");
 
@@ -146,7 +149,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .build());
 
         List<SmartTestSessionQuestion> questions = new ArrayList<>();
-        for (String skill : SKILL_ORDER) appendBatch(session, skill, selfLevel, 1, questions);
+        for (String skill : skillOrder(goal)) appendBatch(session, skill, selfLevel, 1, questions);
         return buildResponse(session, questions, List.of());
     }
 
@@ -169,7 +172,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 sessionQuestionRepository.findAllForAttempt(attemptId));
         List<SmartTestSkillResult> completedBeforeAnswer = skillResultRepository
                 .findBySessionAttemptIdOrderByIdSkillAsc(attemptId);
-        String activeSkill = activeSkill(questions, completedBeforeAnswer);
+        String activeSkill = activeSkill(session.getGoal(), questions, completedBeforeAnswer);
         SmartTestSessionQuestion answeredItem = questions.stream()
                 .filter(item -> item.getQuestion().getId().equals(request.questionId()))
                 .findFirst()
@@ -195,11 +198,11 @@ public class AssessmentServiceImpl implements AssessmentService {
 
         List<SmartTestSkillResult> completedSkills = skillResultRepository
                 .findBySessionAttemptIdOrderByIdSkillAsc(attemptId);
-        int skillCount = selectedSkills(questions).size();
+        int skillCount = selectedSkills(session.getGoal(), questions).size();
         if (completedSkills.size() == skillCount) {
             finishAttempt(session, questions, answers, completedSkills);
         } else if (completedSkills.size() > completedBeforeAnswer.size()) {
-            String nextSkill = activeSkill(questions, completedSkills);
+            String nextSkill = activeSkill(session.getGoal(), questions, completedSkills);
             String inheritedLevel = completedSkills.stream()
                     .filter(result -> result.getId().getSkill().equals(activeSkill))
                     .findFirst()
@@ -365,7 +368,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 
         session.setEstimatedOverallLevel(SmartTestAdaptivePolicy.LEVELS.get(overallIndex));
         session.setOverallMasteryScore(overall);
-        boolean partial = answers.size() < questions.size() || results.size() < selectedSkills(questions).size();
+        boolean partial = answers.size() < questions.size() || results.size() < selectedSkills(session.getGoal(), questions).size();
         session.setReadinessLevel(persistedReadiness(
                 readiness(session.getTargetLevel(), averageLevel - 1, partial)));
         session.getAttempt().setScorePercent(overall);
@@ -394,7 +397,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         List<SmartTestSkillResult> completed = skillResultRepository
                 .findBySessionAttemptIdOrderByIdSkillAsc(session.getAttemptId());
         String activeSkill = "SUBMITTED".equals(session.getAttempt().getStatus())
-                ? null : activeSkill(questions, completed);
+                ? null : activeSkill(session.getGoal(), questions, completed);
         QuestionView current = questions.stream()
                 .filter(item -> item.getQuestion().getSkill().equals(activeSkill))
                 .filter(item -> !answeredIds.contains(item.getQuestion().getId()))
@@ -408,7 +411,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .filter(item -> !answeredIds.contains(item.getQuestion().getId()))
                 .count();
         return new SmartTestResponse(session.getAttemptId(), session.getAttempt().getStatus(), answers.size(),
-                visibleTotal, selectedSkills(questions),
+                visibleTotal, selectedSkills(session.getGoal(), questions),
                 current == null ? null : withDisplayNumber(current, answers.size() + 1), result);
     }
 
@@ -418,19 +421,19 @@ public class AssessmentServiceImpl implements AssessmentService {
                 question.imageUrl(), question.questionText(), question.options());
     }
 
-    private static List<String> selectedSkills(List<SmartTestSessionQuestion> questions) {
+    private static List<String> selectedSkills(String goal, List<SmartTestSessionQuestion> questions) {
         Set<String> selected = questions.stream()
                 .map(item -> item.getQuestion().getSkill())
                 .collect(Collectors.toSet());
-        return SKILL_ORDER.stream().filter(selected::contains).toList();
+        return skillOrder(goal).stream().filter(selected::contains).toList();
     }
 
-    private static String activeSkill(List<SmartTestSessionQuestion> questions,
+    private static String activeSkill(String goal, List<SmartTestSessionQuestion> questions,
                                       List<SmartTestSkillResult> completed) {
         Set<String> completedNames = completed.stream()
                 .map(result -> result.getId().getSkill())
                 .collect(Collectors.toSet());
-        return selectedSkills(questions).stream()
+        return selectedSkills(goal, questions).stream()
                 .filter(skill -> !completedNames.contains(skill))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Không còn kỹ năng đang kiểm tra."));
@@ -450,7 +453,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         Map<String, SmartTestSkillResult> saved = skillResultRepository
                 .findBySessionAttemptIdOrderByIdSkillAsc(session.getAttemptId()).stream()
                 .collect(Collectors.toMap(item -> item.getId().getSkill(), Function.identity()));
-        List<SkillResultView> skills = SKILL_ORDER.stream()
+        List<SkillResultView> skills = skillOrder(session.getGoal()).stream()
                 .filter(saved::containsKey)
                 .map(skill -> {
                     SmartTestSkillResult value = saved.get(skill);
@@ -470,7 +473,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                             grammarPointResults(skillAnswers));
                 }).toList();
         int correct = (int) answers.stream().filter(answer -> Boolean.TRUE.equals(answer.getIsCorrect())).count();
-        boolean partial = answers.size() < questions.size() || skills.size() < selectedSkills(questions).size();
+        boolean partial = answers.size() < questions.size() || skills.size() < selectedSkills(session.getGoal(), questions).size();
         String confidence = overallConfidence(skills, partial);
         String band = overallAbilityBand(skills);
         String readiness = readiness(session.getTargetLevel(), overallAbilityPosition(skills), partial);
@@ -481,7 +484,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .toList();
         return new ResultView(session.getEstimatedOverallLevel(), band, session.getOverallMasteryScore(),
                 confidence, readiness, session.getTargetLevel(), partial,
-                correct, answers.size(), selectedSkills(questions).size(), recommendations, skills);
+                correct, answers.size(), selectedSkills(session.getGoal(), questions).size(), recommendations, skills);
     }
 
     private static List<BatchResultView> batchResults(String skill,
@@ -692,6 +695,11 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     static List<String> preferredTags(String goal) {
         return GOAL_TAG_PRIORITY.getOrDefault(goal, List.of());
+    }
+
+    /** Thứ tự kỹ năng kiểm tra theo mục tiêu: thi cử nặng kiến thức, thực tế nặng dùng. */
+    static List<String> skillOrder(String goal) {
+        return USAGE_GOALS.contains(goal) ? USAGE_SKILL_ORDER : SKILL_ORDER;
     }
 
     private static String allowed(String value, Set<String> allowed, String message) {
