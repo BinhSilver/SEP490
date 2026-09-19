@@ -50,9 +50,9 @@ import java.util.stream.Collectors;
 public class AssessmentServiceImpl implements AssessmentService {
 
     private static final Set<String> GOALS = Set.of(
-            "JLPT", "BRSE", "TRAVEL", "DAILY_LIFE");
+            "JLPT", "BA", "TRAVEL", "DAILY_LIFE");
     private static final Map<String, List<String>> GOAL_TAG_PRIORITY = Map.of(
-            "JLPT", List.of("JLPT"), "BRSE", List.of("BRSE"),
+            "JLPT", List.of("JLPT"), "BA", List.of("BA"),
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
     private static final List<String> SKILL_ORDER = List.of(
             "KANJI", "VOCABULARY", "GRAMMAR", "READING", "LISTENING");

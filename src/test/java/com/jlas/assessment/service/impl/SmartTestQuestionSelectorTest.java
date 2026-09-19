@@ -14,11 +14,11 @@ class SmartTestQuestionSelectorTest {
     @Test
     void prioritizesGoalButRandomizesWhichQuestionsArePicked() {
         List<AssessmentQuestion> pool = new ArrayList<>();
-        for (long id = 1; id <= 40; id++) pool.add(question(id, id <= 20 ? "BRSE" : "JLPT", "word" + id));
+        for (long id = 1; id <= 40; id++) pool.add(question(id, id <= 20 ? "BA" : "JLPT", "word" + id));
         Set<List<Long>> outcomes = new HashSet<>();
         for (int seed = 0; seed < 20; seed++) {
-            var batch = SmartTestQuestionSelector.select(pool, List.of(), 5, List.of("BRSE"), new Random(seed));
-            assertThat(batch).hasSize(5).allMatch(q -> "BRSE".equals(q.getKnowledgeTag().getCode()));
+            var batch = SmartTestQuestionSelector.select(pool, List.of(), 5, List.of("BA"), new Random(seed));
+            assertThat(batch).hasSize(5).allMatch(q -> "BA".equals(q.getKnowledgeTag().getCode()));
             outcomes.add(batch.stream().map(AssessmentQuestion::getId).toList());
         }
         assertThat(outcomes.size()).isGreaterThan(1);
@@ -28,28 +28,28 @@ class SmartTestQuestionSelectorTest {
     @Test
     void fallsBackWhenGoalPoolHasTooFewDistinctWords() {
         var batch = SmartTestQuestionSelector.select(List.of(
-                question(1, "BRSE", "確認"), question(2, "BRSE", "確認"),
-                question(3, "BRSE", "説明"), question(4, "JLPT", "試験"),
+                question(1, "BA", "確認"), question(2, "BA", "確認"),
+                question(3, "BA", "説明"), question(4, "JLPT", "試験"),
                 question(5, "TRAVEL", "旅行"), question(6, "DAILY_LIFE", "買物")),
-                List.of(), 5, List.of("BRSE"), new Random(1));
+                List.of(), 5, List.of("BA"), new Random(1));
         assertThat(batch).hasSize(5);
-        assertThat(batch.subList(0, 2)).allMatch(q -> "BRSE".equals(q.getKnowledgeTag().getCode()));
+        assertThat(batch.subList(0, 2)).allMatch(q -> "BA".equals(q.getKnowledgeTag().getCode()));
         assertThat(batch.stream().map(SmartTestQuestionSelector::kanjiWord)).doesNotHaveDuplicates();
     }
 
     @Test
     void excludesEarlierWordEvenWithDifferentIdOrLevel() {
-        var old = question(1, "BRSE", "確認");
-        var repeated = question(2, "BRSE", "確認");
+        var old = question(1, "BA", "確認");
+        var repeated = question(2, "BA", "確認");
         repeated.setJlptLevel("N2");
-        var fresh = question(3, "BRSE", "説明");
+        var fresh = question(3, "BA", "説明");
         assertThat(SmartTestQuestionSelector.select(List.of(old, repeated, fresh), List.of(old),
-                5, List.of("BRSE"), new Random(1))).containsExactly(fresh);
+                5, List.of("BA"), new Random(1))).containsExactly(fresh);
     }
 
     @Test
     void recognizesHistoricalRowsWithoutLexeme() {
-        var old = question(1, "BRSE", "確認");
+        var old = question(1, "BA", "確認");
         old.setContextJson("{}");
         old.setExplanation("確認（かくにん）nghĩa là xác nhận.");
         assertThat(SmartTestQuestionSelector.kanjiWord(old)).isEqualTo("確認");
