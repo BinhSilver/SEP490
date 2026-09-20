@@ -82,7 +82,7 @@ class DictionaryServiceImplHandwritingTest {
         List<KanjiResponse> candidates = service.recognizeHandwriting(requestFor('日'));
 
         assertEquals("日", candidates.get(0).getCharacter());
-        assertEquals(5, candidates.size());
+        assertEquals(8, candidates.size());
     }
 
     @Test

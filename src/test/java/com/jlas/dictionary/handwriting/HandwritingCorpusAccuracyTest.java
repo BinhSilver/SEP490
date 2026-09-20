@@ -52,7 +52,8 @@ class HandwritingCorpusAccuracyTest {
                 // KanjiVG cũng chứa kana, chữ Latin, dấu câu; bảng kanji của J-LAS chỉ có chữ Hán.
                 if (Character.UnicodeScript.of(codePoint) != Character.UnicodeScript.HAN) continue;
                 String character = new String(Character.toChars(codePoint));
-                if (allowed != null ? !allowed.contains(character) : (++position % 3 != 0)) continue;
+                if (allowed != null ? !allowed.contains(character)
+                        : (++position % 3 != 0 && !"口".equals(character))) continue;
                 List<List<double[]>> strokes = KanjiVgPath.strokesOf(Files.readString(file, StandardCharsets.UTF_8));
                 if (!strokes.isEmpty()) strokesByChar.put(character, strokes);
             }
@@ -154,6 +155,39 @@ class HandwritingCorpusAccuracyTest {
                         TestDrawings.handDrawn(TestDrawings.mergeConsecutivePairs(s), r, 3)));
 
         assertTrue(merged[1] >= 0.70, "merged-stroke top8 = " + merged[1]);
+    }
+
+    @Test
+    void mouthOutlineRanksFirstAcrossOneTwoThreeAndFourStrokeBoundariesInTheCorpus() {
+        int strokeCount = 0;
+        for (List<List<double[]>> drawing : TestDrawings.mouthOutlineDrawings()) {
+            strokeCount++;
+            List<String> ranked = StrokeMatcher.rank(index, drawing, 8);
+            assertTrue(strokeCount < 4
+                            ? !ranked.isEmpty() && "口".equals(ranked.get(0))
+                            : ranked.contains("口"),
+                    strokeCount + " strokes -> " + ranked);
+        }
+    }
+
+    @Test
+    void handDrawnMouthRectangleRanksFirstAcrossStrokeBoundariesInTheCorpus() {
+        int strokeCount = 0;
+        for (List<List<double[]>> dense : TestDrawings.mouthRectangleDrawings()) {
+            strokeCount++;
+            List<List<double[]>> drawing = TestDrawings.frontendSimplified(dense);
+            List<String> ranked = StrokeMatcher.rank(index, drawing, 8);
+            assertTrue(!ranked.isEmpty() && "口".equals(ranked.get(0)), strokeCount + " strokes -> " + ranked);
+        }
+    }
+
+    @Test
+    void recognisesSameInkWhenEveryStrokeIsSplitAtAnExtraPenLift() {
+        double[] splitEveryStroke = evaluate("every stroke split",
+                (s, r) -> TestDrawings.frontendSimplified(
+                        TestDrawings.handDrawn(TestDrawings.splitEveryStroke(s), r, 3)));
+
+        assertTrue(splitEveryStroke[1] >= 0.80, "every-stroke-split top8 = " + splitEveryStroke[1]);
     }
 
     @Test

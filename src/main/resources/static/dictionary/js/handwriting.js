@@ -158,11 +158,6 @@
     redraw();
   }
 
-  function redo() {
-    session.redo();
-    redraw();
-  }
-
   function clear() {
     activePointer = null;
     currentStroke = null;
@@ -191,7 +186,6 @@
     canvas.addEventListener('pointercancel', onPointerEnd);
 
     document.getElementById('dict-hw-undo').addEventListener('click', undo);
-    document.getElementById('dict-hw-redo').addEventListener('click', redo);
     document.getElementById('dict-hw-clear').addEventListener('click', clear);
     clear();
   }

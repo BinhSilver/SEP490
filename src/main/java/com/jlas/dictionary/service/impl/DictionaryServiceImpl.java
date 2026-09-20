@@ -41,7 +41,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     private static final int MAX_TOTAL_CANDIDATES = 200;
     private static final int KANJI_RESULT_LIMIT = 8;
     private static final int RELATED_VOCABULARY_LIMIT = 50;
-    private static final int HANDWRITING_CANDIDATE_LIMIT = 5;
+    private static final int HANDWRITING_CANDIDATE_LIMIT = 8;
 
     private final VocabularyEntryRepository vocabularyEntryRepository;
     private final VocabularyKanjiRepository vocabularyKanjiRepository;

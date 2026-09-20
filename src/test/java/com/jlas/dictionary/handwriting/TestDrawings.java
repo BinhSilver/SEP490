@@ -106,6 +106,53 @@ public final class TestDrawings {
         return out;
     }
 
+    /** Tách mọi nét có đủ điểm làm đôi mà không thêm hay bỏ đường mực. */
+    static List<List<double[]>> splitEveryStroke(List<List<double[]>> strokes) {
+        List<List<double[]>> out = new ArrayList<>();
+        for (List<double[]> stroke : strokes) {
+            if (stroke.size() < 4) {
+                out.add(new ArrayList<>(stroke));
+                continue;
+            }
+            int cut = stroke.size() / 2;
+            out.add(new ArrayList<>(stroke.subList(0, cut + 1)));
+            out.add(new ArrayList<>(stroke.subList(cut, stroke.size())));
+        }
+        return out;
+    }
+
+    /** Cùng đường bao của 口, chỉ khác các vị trí người viết nhấc bút. */
+    static List<List<List<double[]>>> mouthOutlineDrawings() {
+        List<List<double[]>> strokes = canonical('口');
+        List<double[]> left = strokes.get(0);
+        List<double[]> topAndRight = strokes.get(1);
+        List<double[]> bottom = strokes.get(2);
+        List<double[]> rightAndTopReversed = reversed(topAndRight);
+
+        List<double[]> oneStroke = merge(left, bottom, rightAndTopReversed);
+        List<List<double[]>> twoStrokes = List.of(merge(left, bottom), rightAndTopReversed);
+
+        int cut = bottom.size() / 2;
+        List<List<double[]>> fourStrokes = List.of(left, topAndRight,
+                new ArrayList<>(bottom.subList(0, cut + 1)),
+                new ArrayList<>(bottom.subList(cut, bottom.size())));
+        return List.of(List.of(oneStroke), twoStrokes, strokes, fourStrokes);
+    }
+
+    /** Hình 口 vẽ tay hơi lệch như trên canvas; bốn biến thể có cùng đường mực tuyệt đối. */
+    static List<List<List<double[]>>> mouthRectangleDrawings() {
+        double[] topLeft = {39, 31}, bottomLeft = {39, 75}, bottomRight = {75, 74}, topRight = {74, 31};
+        List<double[]> left = List.of(topLeft, new double[]{38, 43}, new double[]{38.5, 58}, bottomLeft);
+        List<double[]> bottom = List.of(bottomLeft, new double[]{49, 75.5}, new double[]{62, 75}, bottomRight);
+        List<double[]> right = List.of(bottomRight, new double[]{75, 61}, new double[]{75.5, 45}, topRight);
+        List<double[]> top = List.of(topRight, new double[]{62, 30}, new double[]{50, 31}, topLeft);
+        return List.of(
+                List.of(merge(left, bottom, right, top)),
+                List.of(left, merge(reversed(top), reversed(right), reversed(bottom))),
+                List.of(left, merge(top, TestDrawings.reversed(right)), bottom),
+                List.of(left, bottom, right, top));
+    }
+
     static List<List<double[]>> mergeConsecutivePairs(List<List<double[]>> strokes) {
         List<List<double[]>> out = new ArrayList<>();
         for (int i = 0; i < strokes.size(); i += 2) {

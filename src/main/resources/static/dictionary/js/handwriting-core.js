@@ -79,7 +79,6 @@
     var delay = options.delay == null ? DEFAULT_DELAY_MS : options.delay;
     var timers = options.timers || { setTimeout: setTimeout.bind(null), clearTimeout: clearTimeout.bind(null) };
     var strokes = [];
-    var undoneStrokes = [];
     var candidates = [];
     var status = 'idle';
     var error = null;
@@ -142,23 +141,16 @@
       addStroke: function (points) {
         if (!points || !points.length || strokes.length >= MAX_STROKES) return false;
         strokes.push(points.slice(0, 5000)); // chặn cứng bộ nhớ nếu một nét quá dài
-        undoneStrokes = [];
         schedule();
         return true;
       },
       undo: function () {
         if (!strokes.length) return;
-        undoneStrokes.push(strokes.pop());
-        schedule();
-      },
-      redo: function () {
-        if (!undoneStrokes.length || strokes.length >= MAX_STROKES) return;
-        strokes.push(undoneStrokes.pop());
+        strokes.pop();
         schedule();
       },
       clear: function () {
         strokes = [];
-        undoneStrokes = [];
         schedule();
       },
       strokes: function () { return strokes; },

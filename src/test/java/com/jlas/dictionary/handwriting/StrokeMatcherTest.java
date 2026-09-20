@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StrokeMatcherTest {
 
-    private static final String ALL = "日作休体本木末未三二一川土士目白語";
+    private static final String ALL = "口日作休体本木末未三二一川土士目白語";
     private static final List<StrokeMatcher.Ref> INDEX = TestDrawings.index(ALL);
 
     private static List<String> rank(List<List<double[]>> drawing) {
@@ -57,7 +57,8 @@ class StrokeMatcherTest {
     @Test
     void everyFixtureKanjiIsRecognisedFromItsOwnHandDrawnStrokes() {
         for (char kanji : ALL.toCharArray()) {
-            List<String> ranked = rank(drawn(kanji, 7));
+            List<List<double[]>> drawing = drawn(kanji, 7);
+            List<String> ranked = rank(drawing);
             assertEquals(String.valueOf(kanji), ranked.get(0), "top-1 for " + kanji + " but got " + ranked);
         }
     }
@@ -72,6 +73,29 @@ class StrokeMatcherTest {
     @Test
     void sunIsRecognisedWithCanonicalStrokeBoundaries() {
         assertEquals("日", rank(TestDrawings.canonical('日')).get(0));
+    }
+
+    @Test
+    void mouthOutlineIsRecognisedRegardlessOfOneTwoThreeOrFourStrokeBoundaries() {
+        int strokeCount = 0;
+        for (List<List<double[]>> drawing : TestDrawings.mouthOutlineDrawings()) {
+            strokeCount++;
+            List<String> ranked = rank(drawing);
+            assertFalse(ranked.isEmpty(), strokeCount + " strokes returned no candidates");
+            assertEquals("口", ranked.get(0), strokeCount + " strokes -> " + ranked);
+        }
+    }
+
+    @Test
+    void handDrawnMouthRectangleIsRecognisedAcrossOneTwoThreeAndFourStrokeBoundaries() {
+        int strokeCount = 0;
+        for (List<List<double[]>> dense : TestDrawings.mouthRectangleDrawings()) {
+            strokeCount++;
+            List<List<double[]>> drawing = TestDrawings.frontendSimplified(dense);
+            List<String> ranked = rank(drawing);
+            assertFalse(ranked.isEmpty(), strokeCount + " strokes returned no candidates");
+            assertEquals("口", ranked.get(0), strokeCount + " strokes -> " + ranked);
+        }
     }
 
     @Test

@@ -46,20 +46,20 @@ public final class StrokeMatcher {
     private static final int INK_GRID = 110;
     private static final double INK_POINT_SPACING = 2.5;
     private static final int MAX_USER_INK_POINTS = 2048;
-    private static final double MAX_INK_COVERAGE_ERROR = 0.22;
-    private static final double INK_RESCUE_MEAN_COST = 0.08;
+    private static final double MAX_INK_COVERAGE_ERROR = 0.32;
+    private static final double MAX_MERGED_INK_COVERAGE_ERROR = 0.22;
     private static final double MAX_FITTED_RETRY_ERROR = 0.45;
+    private static final double MAX_SHORT_DRAWING_FITTED_RETRY_ERROR = 0.60;
+    private static final double INK_RESCUE_MEAN_COST = 0.08;
+    private static final double INK_TAIL_WEIGHT = 0.5;
+    private static final double INK_STROKE_SCORE_WEIGHT = 0.12;
+    private static final double MAX_INK_RESCUE_SCORE = 0.18;
+    private static final int INK_RESCUE_CANDIDATES_PER_SIGNAL = 64;
     /** Dải co giãn chấp nhận được giữa khung bao bản vẽ và khung bao chữ chuẩn. */
     private static final double MIN_FIT_SCALE = 0.5;
     private static final double MAX_FIT_SCALE = 2.0;
     /** Dung sai khung bao của bộ lọc thô cho đường cứu hộ (đơn vị KanjiVG). */
     private static final double BOX_TOLERANCE = 3 * INK_TOLERANCE;
-    /**
-     * Chặn trên số nét chuẩn mà một nét vẽ được phép gộp. Sàn {@link #MIN_MERGED_STROKES} để bản vẽ
-     * một nét liền (người mới học hay vẽ liền mạch) vẫn với tới được chữ nhiều nét như 目/田/回.
-     */
-    private static final int MAX_MERGED_STROKES = 2;
-    private static final int MIN_MERGED_STROKES = 8;
     private static final int MAX_MERGE_ALLOWANCE = 2;
     /**
      * Sai lệch trung bình tối đa (chia cho khung 109) của các nét đã ghép. Đo trên 2.136 Kanji: chữ đúng
@@ -84,13 +84,17 @@ public final class StrokeMatcher {
     record Scored(String character, double score, double meanCost, boolean inkRescue) {
     }
 
-    private record InkScore(double meanDistance, double coverageError) {
+    private record InkScore(double meanDistance, double tailDistance, double coverageError) {
     }
 
     /** Chấm đường mực; chỉ tính khoảng cách khi độ phủ đã qua ngưỡng, vì phép tính này đắt hơn. */
     private static InkScore scoreInk(double error, double[][] userInk, byte[] userMap, Ref ref) {
-        if (error > MAX_INK_COVERAGE_ERROR) return new InkScore(Double.MAX_VALUE, error);
-        return new InkScore(inkMeanDistance(userInk, userMap, ref.strokes(), ref.inkDistanceMap()), error);
+        if (error > MAX_INK_COVERAGE_ERROR) {
+            return new InkScore(Double.MAX_VALUE, Double.MAX_VALUE, error);
+        }
+        return new InkScore(inkMeanDistance(userInk, userMap, ref.strokes(), ref.inkDistanceMap()),
+                Math.max(inkTailMeanDistance(userInk, ref.inkDistanceMap(), 0.25),
+                        inkTailMeanDistance(ref.strokes(), userMap, 0.25)), error);
     }
 
     /**
@@ -137,62 +141,150 @@ public final class StrokeMatcher {
             candidates.add(ref);
         }
 
-        int k = user.length;
-        int bestStrokeMatch = -1;
-        for (int i = 0; i < scored.size(); i++) {
-            if (scored.get(i).meanCost() <= MAX_MEAN_COST
-                    && (bestStrokeMatch < 0 || scored.get(i).score() < scored.get(bestStrokeMatch).score())) {
-                bestStrokeMatch = i;
-            }
-        }
-        // Đường ghép nét đã giải thích tốt bản vẽ (kể cả khi lệch vài nét do tách/thừa nét) thì KHÔNG
-        // chạy cứu hộ: cứu hộ chỉ so mực nên luôn cho điểm thấp, sẽ chen lên trước ứng viên đúng.
-        if (bestStrokeMatch >= 0 && scored.get(bestStrokeMatch).meanCost() <= INK_RESCUE_MEAN_COST) return scored;
-
         double[][] userInk = input.stream().map(StrokeMatcher::flatten).toArray(double[][]::new);
         double[][] userInkGeometry = densify(input);
         double[] inkBounds = bounds(userInk);
         double userInkLength = inkLength(userInk);
         BitSet userInkMask = inkMask(userInkGeometry);
         byte[] userDistanceMap = inkDistanceMap(userInkGeometry);
+        int userStrokeCount = user.length;
+        boolean likelySplitBoundaries = hasLikelySplitBoundaries(input);
+        boolean closedInk = hasClosedInk(input);
+        int maxMergedReferenceStrokes = userStrokeCount == 1 ? 8 : userStrokeCount * 2;
+        int bestStrokeCandidate = -1;
         for (int i = 0; i < scored.size(); i++) {
+            if (scored.get(i).meanCost() <= MAX_MEAN_COST
+                    && (bestStrokeCandidate < 0
+                    || scored.get(i).score() < scored.get(bestStrokeCandidate).score())) {
+                bestStrokeCandidate = i;
+            }
+        }
+        boolean strongStrokeMatch = bestStrokeCandidate >= 0
+                && scored.get(bestStrokeCandidate).meanCost() <= INK_RESCUE_MEAN_COST;
+        if (strongStrokeMatch && !likelySplitBoundaries) return scored;
+        List<Integer> mergedCandidates = new ArrayList<>();
+        List<Integer> splitCandidates = new ArrayList<>();
+        double[] rawCoverage = new double[scored.size()];
+        java.util.Arrays.fill(rawCoverage, Double.MAX_VALUE);
+        for (int i = 0; i < scored.size(); i++) {
+            int referenceStrokeCount = candidates.get(i).strokes().length;
+            boolean merged = referenceStrokeCount * 2 >= userStrokeCount * 3
+                    && referenceStrokeCount <= maxMergedReferenceStrokes;
+            boolean split = likelySplitBoundaries && userStrokeCount > referenceStrokeCount;
+            if ((split || (merged && scored.get(i).meanCost() > INK_RESCUE_MEAN_COST))
+                    && inkCouldMatch(inkBounds, userInkLength, candidates.get(i))) {
+                rawCoverage[i] = inkCoverageError(
+                        userInk, userInkMask, candidates.get(i).strokes(), candidates.get(i).inkMask());
+                if (merged) mergedCandidates.add(i);
+                else splitCandidates.add(i);
+            }
+        }
+        // Nhánh gộp giữ đúng dải tỷ lệ đã được kiểm chứng trên corpus. Nhánh tách có thể chứa nhiều chữ ít nét,
+        // nên lấy shortlist kép theo điểm nét và độ phủ mực để chi phí không tăng theo toàn bộ index.
+        boolean[] selected = new boolean[scored.size()];
+        boolean[] mergedSelection = new boolean[scored.size()];
+        for (int i : mergedCandidates) {
+            selected[i] = true;
+            mergedSelection[i] = true;
+        }
+        splitCandidates.sort(Comparator.comparingDouble(i -> scored.get(i).score()));
+        for (int position = 0; position < Math.min(INK_RESCUE_CANDIDATES_PER_SIGNAL, splitCandidates.size()); position++) {
+            selected[splitCandidates.get(position)] = true;
+        }
+        splitCandidates.sort(Comparator.comparingDouble(i -> rawCoverage[i]));
+        for (int position = 0; position < Math.min(INK_RESCUE_CANDIDATES_PER_SIGNAL, splitCandidates.size()); position++) {
+            selected[splitCandidates.get(position)] = true;
+        }
+        for (int i = 0; i < selected.length; i++) {
+            if (!selected[i]) continue;
             Ref ref = candidates.get(i);
             Scored best = scored.get(i);
-            int n = ref.strokes().length;
-            // Cứu hộ khi số nét chuẩn nhiều hơn HẲN số nét vẽ (>= 1,5 lần) — dấu hiệu đã gộp nét.
-            // Bản vẽ LIỀN MỘT NÉT được nới rộng hơn vì người mới học hay vẽ cả chữ không nhấc bút.
-            int maxReferenceStrokes = k == 1 ? MIN_MERGED_STROKES : k * MAX_MERGED_STROKES;
-            if (best.meanCost() > INK_RESCUE_MEAN_COST && n * 2 >= k * 3 && n <= maxReferenceStrokes
-                    && inkCouldMatch(inkBounds, userInkLength, ref)) {
-                double cover = inkCoverageError(userInk, userInkMask, ref.strokes(), ref.inkMask());
-                InkScore ink = scoreInk(cover, userInk, userDistanceMap, ref);
-                double inkPenalty = 0;
-                // Trần trên: nhánh này dựng lại mask + distance map nên rất đắt; chỉ thử khi bản vẽ
-                // còn có cơ hội khớp sau khi chuẩn hoá khung.
-                double[][] fitted = k <= 4 && ink.coverageError() > MAX_INK_COVERAGE_ERROR
-                        && ink.coverageError() <= MAX_FITTED_RETRY_ERROR
-                        ? fit(userInk, inkBounds, ref.bounds()) : null;
-                if (fitted != null) {
-                    double[][] fittedGeometry = fit(userInkGeometry, inkBounds, ref.bounds());
-                    double fittedCover = inkCoverageError(fitted, inkMask(fittedGeometry),
-                            ref.strokes(), ref.inkMask());
-                    InkScore fittedInk = scoreInk(fittedCover, fitted, inkDistanceMap(fittedGeometry), ref);
-                    boolean fittedPasses = fittedInk.coverageError() <= MAX_INK_COVERAGE_ERROR;
-                    boolean rawPasses = ink.coverageError() <= MAX_INK_COVERAGE_ERROR;
-                    if ((fittedPasses && !rawPasses) || (fittedPasses == rawPasses
-                            && fittedInk.meanDistance() + FIT_PENALTY * FRAME < ink.meanDistance())) {
-                        ink = fittedInk;
-                        inkPenalty = FIT_PENALTY;
-                    }
+            // Khi phép ghép từng nét không giải thích tốt bản vẽ, chấm thêm toàn bộ đường mực theo hình học.
+            // Cách này không phụ thuộc số lần nhấc bút, nên xử lý đối xứng cả nét bị gộp lẫn nét bị tách.
+            double cover = rawCoverage[i];
+            InkScore ink = scoreInk(cover, userInk, userDistanceMap, ref);
+            double inkPenalty = 0;
+            double coverageThreshold = mergedSelection[i] && !closedInk
+                    ? MAX_MERGED_INK_COVERAGE_ERROR : MAX_INK_COVERAGE_ERROR;
+            // Bộ lọc khung bao/độ dài ở trên đã xác nhận ứng viên còn có thể khớp. Nếu kích thước hoặc vị trí
+            // canvas làm độ phủ thô trượt ngưỡng, chuẩn hoá khung rồi chấm lại thay vì loại sớm.
+            double fittedRetryLimit = mergedSelection[i] && !closedInk
+                    ? MAX_FITTED_RETRY_ERROR : MAX_SHORT_DRAWING_FITTED_RETRY_ERROR;
+            boolean allowFittedRetry = !mergedSelection[i] || closedInk || userStrokeCount <= 4;
+            double[][] fitted = allowFittedRetry && ink.coverageError() > coverageThreshold
+                    && ink.coverageError() <= fittedRetryLimit
+                    ? (closedInk || !mergedSelection[i]
+                            ? fitInk(userInk, inkBounds, ref.bounds())
+                            : fit(userInk, inkBounds, ref.bounds()))
+                    : null;
+            if (fitted != null) {
+                double[][] fittedGeometry = closedInk || !mergedSelection[i]
+                        ? fitInk(userInkGeometry, inkBounds, ref.bounds())
+                        : fit(userInkGeometry, inkBounds, ref.bounds());
+                double fittedCover = inkCoverageError(fitted, inkMask(fittedGeometry),
+                        ref.strokes(), ref.inkMask());
+                InkScore fittedInk = scoreInk(fittedCover, fitted, inkDistanceMap(fittedGeometry), ref);
+                boolean fittedPasses = fittedInk.coverageError() <= coverageThreshold;
+                boolean rawPasses = ink.coverageError() <= coverageThreshold;
+                if ((fittedPasses && !rawPasses) || (fittedPasses == rawPasses
+                        && fittedInk.meanDistance() + FIT_PENALTY * FRAME < ink.meanDistance())) {
+                    ink = fittedInk;
+                    inkPenalty = FIT_PENALTY;
                 }
-                if (ink.coverageError() <= MAX_INK_COVERAGE_ERROR) {
-                    double rescue = ink.meanDistance() / FRAME + inkPenalty;
-                    if (rescue < best.score()) best = new Scored(ref.character(), rescue, best.meanCost(), true);
+            }
+            if (ink.coverageError() <= coverageThreshold) {
+                // Phần đuôi khoảng cách chặn mực thừa/thiếu bị trung bình toàn chữ che lấp. Nhánh tách giữ thêm
+                // một phần điểm ghép nét để chữ ít nét không chen lên chỉ nhờ có đường mực gần giống.
+                double rescue = (ink.meanDistance() + INK_TAIL_WEIGHT * ink.tailDistance()) / FRAME
+                        + inkPenalty
+                        + (mergedSelection[i] ? 0 : INK_STROKE_SCORE_WEIGHT * best.score());
+                if (rescue <= MAX_INK_RESCUE_SCORE && rescue < best.score()) {
+                    best = new Scored(ref.character(), rescue, best.meanCost(), true);
                 }
             }
             scored.set(i, best);
         }
         return scored;
+    }
+
+    /** Nhiều ranh giới có hai đầu gần trùng nhau là dấu hiệu một nét liền đã bị nhấc bút giữa chừng. */
+    private static boolean hasLikelySplitBoundaries(List<List<double[]>> input) {
+        if (input.size() < 2) return false;
+        int nearby = 0;
+        for (int i = 1; i < input.size(); i++) {
+            List<double[]> previous = input.get(i - 1);
+            List<double[]> current = input.get(i);
+            if (previous.isEmpty() || current.isEmpty()) continue;
+            double[] end = previous.get(previous.size() - 1);
+            double[] start = current.get(0);
+            double gap = Math.hypot(end[0] - start[0], end[1] - start[1]);
+            if (gap <= 2 * INK_TOLERANCE) nearby++;
+        }
+        return nearby * 2 >= input.size() - 1;
+    }
+
+    /** Đường kín có mọi đầu nét nối được với một đầu nét khác; cho phép chuẩn hoá hai trục an toàn. */
+    private static boolean hasClosedInk(List<List<double[]>> input) {
+        List<double[]> endpoints = new ArrayList<>(input.size() * 2);
+        for (List<double[]> stroke : input) {
+            if (stroke.isEmpty()) continue;
+            endpoints.add(stroke.get(0));
+            endpoints.add(stroke.get(stroke.size() - 1));
+        }
+        if (endpoints.size() < 2) return false;
+        for (int i = 0; i < endpoints.size(); i++) {
+            boolean joined = false;
+            for (int j = 0; j < endpoints.size(); j++) {
+                if (i == j) continue;
+                if (Math.hypot(endpoints.get(i)[0] - endpoints.get(j)[0],
+                        endpoints.get(i)[1] - endpoints.get(j)[1]) <= 2 * INK_TOLERANCE) {
+                    joined = true;
+                    break;
+                }
+            }
+            if (!joined) return false;
+        }
+        return true;
     }
 
     /** Bộ lọc thô cho đường cứu hộ: khung bao và lượng mực có thể khớp nhau không. */
@@ -289,6 +381,12 @@ public final class StrokeMatcher {
     }
 
     private static double inkMeanDistance(double[][] user, byte[] userMap, double[][] ref, byte[] refMap) {
+        double[] directional = inkDirectionalMeanDistance(user, userMap, ref, refMap);
+        return (directional[0] + directional[1]) / 2;
+    }
+
+    private static double[] inkDirectionalMeanDistance(double[][] user, byte[] userMap,
+                                                        double[][] ref, byte[] refMap) {
         double userDistance = 0, refDistance = 0;
         for (double[] stroke : user) {
             for (int p = 0; p < stroke.length; p += 2) {
@@ -301,7 +399,23 @@ public final class StrokeMatcher {
             }
         }
         int userPoints = pointCount(user), refPoints = pointCount(ref);
-        return (userDistance / userPoints + refDistance / refPoints) / 2;
+        return new double[]{userDistance / userPoints, refDistance / refPoints};
+    }
+
+    /** Trung bình phần khoảng cách tệ nhất; phát hiện mực thừa hoặc thiếu mà trung bình toàn chữ che lấp. */
+    private static double inkTailMeanDistance(double[][] ink, byte[] otherMap, double fraction) {
+        double[] distances = new double[pointCount(ink)];
+        int index = 0;
+        for (double[] stroke : ink) {
+            for (int p = 0; p < stroke.length; p += 2) {
+                distances[index++] = gridDistance(otherMap, stroke[p], stroke[p + 1]);
+            }
+        }
+        java.util.Arrays.sort(distances);
+        int first = Math.max(0, distances.length - Math.max(1, (int) Math.ceil(distances.length * fraction)));
+        double sum = 0;
+        for (int i = first; i < distances.length; i++) sum += distances[i];
+        return sum / (distances.length - first);
     }
 
     private static byte[] inkDistanceMap(double[][] ink) {
@@ -478,6 +592,28 @@ public final class StrokeMatcher {
                 s[p + 1] = (s[p + 1] - fromY) * scale + toY;
             }
             out[i] = s;
+        }
+        return out;
+    }
+
+    /** Chuẩn hoá riêng hai trục cho so khớp toàn bộ đường mực; chữ viết tay thường hẹp/rộng hơn mẫu KanjiVG. */
+    private static double[][] fitInk(double[][] user, double[] from, double[] to) {
+        double fromWidth = from[2] - from[0], fromHeight = from[3] - from[1];
+        double toWidth = to[2] - to[0], toHeight = to[3] - to[1];
+        if (fromWidth < 1e-6 || fromHeight < 1e-6 || toWidth < 1e-6 || toHeight < 1e-6) return null;
+        double scaleX = toWidth / fromWidth, scaleY = toHeight / fromHeight;
+        if (scaleX < MIN_FIT_SCALE || scaleX > MAX_FIT_SCALE
+                || scaleY < MIN_FIT_SCALE || scaleY > MAX_FIT_SCALE) return null;
+        double fromX = (from[0] + from[2]) / 2, fromY = (from[1] + from[3]) / 2;
+        double toX = (to[0] + to[2]) / 2, toY = (to[1] + to[3]) / 2;
+        double[][] out = new double[user.length][];
+        for (int i = 0; i < user.length; i++) {
+            double[] stroke = user[i].clone();
+            for (int p = 0; p < stroke.length; p += 2) {
+                stroke[p] = (stroke[p] - fromX) * scaleX + toX;
+                stroke[p + 1] = (stroke[p + 1] - fromY) * scaleY + toY;
+            }
+            out[i] = stroke;
         }
         return out;
     }

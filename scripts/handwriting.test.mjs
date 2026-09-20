@@ -142,24 +142,6 @@ test('undo re-recognises the remaining strokes; undoing the last stroke goes idl
   assert.equal(calls.length, 2, 'no request for an empty canvas');
 });
 
-test('redo restores the last undone stroke and a new stroke clears redo history', async () => {
-  const calls = [];
-  const { session, timers } = newSession(async (p) => { calls.push(p.strokes.length); return []; });
-
-  session.addStroke(line);
-  session.addStroke(line);
-  session.undo();
-  session.redo();
-  timers.fire(); await tick();
-  assert.deepEqual(calls, [2], 'redo restores and recognises both strokes');
-
-  session.undo();
-  session.addStroke(stroke([10, 20], [100, 20]));
-  session.redo();
-  timers.fire(); await tick();
-  assert.deepEqual(calls, [2, 2], 'drawing after undo discards the old redo branch');
-});
-
 test('clear cancels the pending timer and the in-flight request, and resets state', async () => {
   const signals = [];
   const { session, timers, last } = newSession((_, s) => { signals.push(s); return new Promise(() => {}); });
@@ -228,7 +210,7 @@ class FakeElement {
 
 function loadHandwritingUi(recognizeImpl) {
   const ids = ['dict-handwriting-canvas', 'dict-hw-stroke-count', 'dict-hw-status', 'dict-hw-candidates',
-    'dict-hw-undo', 'dict-hw-redo', 'dict-hw-clear', 'dict-search-input'];
+    'dict-hw-undo', 'dict-hw-clear', 'dict-search-input'];
   const elements = Object.fromEntries(ids.map((id) => [id, new FakeElement(id.includes('canvas') ? 'canvas' : 'div')]));
   elements['dict-handwriting-canvas'].width = 360;
   elements['dict-handwriting-canvas'].height = 360;
@@ -310,7 +292,7 @@ test('UI: candidates render (ON reading preferred), selecting one clears, closes
   assert.equal(chips(ui).length, 0);
 });
 
-test('UI: candidates change as more strokes are drawn; undo, redo and clear update the panel', async () => {
+test('UI: candidates change as more strokes are drawn; undo and clear update the panel', async () => {
   const answers = [[{ character: '一', strokeCount: 1 }], [{ character: '二', strokeCount: 2 }]];
   const ui = loadHandwritingUi(async () => answers.shift() || []);
 
@@ -319,12 +301,6 @@ test('UI: candidates change as more strokes are drawn; undo, redo and clear upda
   ui.drawStroke([[10, 60], [150, 60]]); await sleep(300);
   assert.deepEqual(chips(ui).map((c) => c.dataset.kanji), ['二']);
   assert.equal(ui.requests[1].strokes.length, 2);
-
-  ui.elements['dict-hw-undo'].dispatchEvent({ type: 'click' });
-  assert.equal(ui.elements['dict-hw-stroke-count'].textContent, '1 nét');
-
-  ui.elements['dict-hw-redo'].dispatchEvent({ type: 'click' });
-  assert.equal(ui.elements['dict-hw-stroke-count'].textContent, '2 nét');
 
   ui.elements['dict-hw-undo'].dispatchEvent({ type: 'click' });
   assert.equal(ui.elements['dict-hw-stroke-count'].textContent, '1 nét');
