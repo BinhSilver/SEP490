@@ -989,6 +989,7 @@ CREATE TABLE assessment_question (
     conversion_rule_id  BIGINT UNSIGNED NULL,     -- Chi dung khi cau hoi gan rule Amon.
     knowledge_tag_id    BIGINT UNSIGNED NOT NULL, -- Knowledge point chinh de gom weakness.
     grammar_point_id    BIGINT UNSIGNED NULL,     -- [JLAS2-24] Mau ngu phap CHINH (nullable; chi GRAMMAR).
+    vocabulary_entry_id BIGINT UNSIGNED NULL,     -- [JLAS-W0091] Tu vung cu the (nullable; chi KANJI/VOCABULARY).
     skill               VARCHAR(20) NOT NULL DEFAULT 'KANJI',
     jlpt_level          VARCHAR(10) NOT NULL DEFAULT 'N5',
     difficulty          VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
@@ -1019,12 +1020,15 @@ CREATE TABLE assessment_question (
     KEY idx_assessment_question_rule (conversion_rule_id),
     KEY idx_assessment_question_knowledge (knowledge_tag_id),
     KEY idx_assessment_question_grammar (grammar_point_id),
+    KEY idx_assessment_question_vocab (vocabulary_entry_id),
     CONSTRAINT fk_assessment_question_rule FOREIGN KEY (conversion_rule_id)
         REFERENCES conversion_rule(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_knowledge FOREIGN KEY (knowledge_tag_id)
         REFERENCES tag(id),
     CONSTRAINT fk_assessment_question_grammar FOREIGN KEY (grammar_point_id)
         REFERENCES grammar_point(id) ON DELETE SET NULL,
+    CONSTRAINT fk_assessment_question_vocabulary FOREIGN KEY (vocabulary_entry_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_legacy_quiz FOREIGN KEY (quiz_id)
         REFERENCES assessment_quiz(id) ON DELETE SET NULL,
     CONSTRAINT chk_assessment_question_skill
