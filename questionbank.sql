@@ -7,20 +7,7 @@ SET @jlas_smart_test_previous_safe_updates = @@SESSION.SQL_SAFE_UPDATES;
 SET SESSION SQL_SAFE_UPDATES = 0;
 SET NAMES utf8mb4;
 
--- Survey storage must exist before starting the updated application.
--- Keep DDL before START TRANSACTION: MySQL CREATE TABLE causes an implicit commit.
-CREATE TABLE IF NOT EXISTS user_learning_survey (
-    user_id BIGINT UNSIGNED NOT NULL,
-    goal VARCHAR(30) NOT NULL,
-    target_level VARCHAR(10) NULL,
-    self_reported_level VARCHAR(20) NOT NULL,
-    study_duration_months INT NULL,
-    daily_study_minutes INT NULL,
-    skills VARCHAR(100) NOT NULL,
-    completed_at DATETIME(6) NOT NULL,
-    PRIMARY KEY (user_id),
-    CONSTRAINT fk_learning_survey_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--  được tạo trong jlas_schema.sql (không lặp DDL ở đây).
 
 START TRANSACTION;
 
@@ -9129,6 +9116,3037 @@ AND NOT EXISTS (SELECT 1 FROM assessment_question aq WHERE JSON_UNQUOTE(JSON_EXT
 INSERT IGNORE INTO question_tag (question_id, tag_id)
 SELECT q.id, t.id FROM assessment_question q JOIN tag t ON t.id=q.knowledge_tag_id
 WHERE JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.seed_batch'))='LISTENING_N5_N1_V1';
+
+
+
+-- ============================================================================
+-- [JLAS-W0091] Retag: gan vocabulary_entry_id cho 1.500 cau KANJI/VOCABULARY
+-- ============================================================================
+-- ============================================================================
+-- [JLAS-W0091] seed_smart_test_retag_vocab.sql — gan vocabulary_entry_id cho cau KANJI/VOCABULARY
+--
+-- Chay SAU: seed_data_jlas.sql (da chua catalog OpenJLPT vocab + supplement)
+--           va sau cac cau questionbank.sql da seed ben tren.
+-- Dong tu ます -> dang tu dien; tu thuan kana -> reading ''. Idempotent.
+-- ============================================================================
+
+UPDATE assessment_question aq
+JOIN (
+  SELECT 'KANJI-DIVERSE-N5-001' AS sk, '学校' AS ne, 'がっこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-002' AS sk, '先生' AS ne, 'せんせい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-003' AS sk, '名前' AS ne, 'なまえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-004' AS sk, '大学' AS ne, 'だいがく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-005' AS sk, '小学校' AS ne, 'しょうがっこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-006' AS sk, '入口' AS ne, 'いりぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-007' AS sk, '出口' AS ne, 'でぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-008' AS sk, '電車' AS ne, 'でんしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-009' AS sk, '西口' AS ne, 'にしぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-010' AS sk, '東京' AS ne, 'とうきょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-011' AS sk, '来年' AS ne, 'らいねん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-012' AS sk, '火曜日' AS ne, 'かようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-013' AS sk, '水曜日' AS ne, 'すいようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-014' AS sk, '土曜日' AS ne, 'どようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-015' AS sk, '時間' AS ne, 'じかん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-016' AS sk, '夕方' AS ne, 'ゆうがた' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-017' AS sk, '牛肉' AS ne, 'ぎゅうにく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-018' AS sk, 'お茶' AS ne, 'おちゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-019' AS sk, '百円' AS ne, 'ひゃくえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-020' AS sk, '千円' AS ne, 'せんえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-021' AS sk, '三人' AS ne, 'さんにん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-022' AS sk, '木曜日' AS ne, 'もくようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-023' AS sk, '金曜日' AS ne, 'きんようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-024' AS sk, '日曜日' AS ne, 'にちようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-025' AS sk, '外国人' AS ne, 'がいこくじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-026' AS sk, '花火' AS ne, 'はなび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-027' AS sk, '大雨' AS ne, 'おおあめ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-028' AS sk, '日本語' AS ne, 'にほんご' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-029' AS sk, '飲む' AS ne, 'のむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-030' AS sk, '買う' AS ne, 'かう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-031' AS sk, '読む' AS ne, 'よむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-032' AS sk, '聞く' AS ne, 'きく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-033' AS sk, '帰る' AS ne, 'かえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-034' AS sk, '新しい' AS ne, 'あたらしい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-035' AS sk, '外国' AS ne, 'がいこく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-036' AS sk, '母' AS ne, 'はは' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-037' AS sk, '父' AS ne, 'ちち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-038' AS sk, '男の子' AS ne, 'おとこのこ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-039' AS sk, '女の人' AS ne, 'おんなのひと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-040' AS sk, '山' AS ne, 'やま' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-041' AS sk, '川' AS ne, 'かわ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-042' AS sk, '雨' AS ne, 'あめ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-043' AS sk, '上' AS ne, 'うえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-044' AS sk, '下' AS ne, 'した' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-045' AS sk, '左' AS ne, 'ひだり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-046' AS sk, '右' AS ne, 'みぎ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-047' AS sk, '休み' AS ne, 'やすみ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-048' AS sk, '安い' AS ne, 'やすい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-049' AS sk, '多い' AS ne, 'おおい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-050' AS sk, '元気' AS ne, 'げんき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-051' AS sk, '学校' AS ne, 'がっこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-052' AS sk, '先生' AS ne, 'せんせい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-053' AS sk, '名前' AS ne, 'なまえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-054' AS sk, '大学' AS ne, 'だいがく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-055' AS sk, '小学校' AS ne, 'しょうがっこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-056' AS sk, '入口' AS ne, 'いりぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-057' AS sk, '出口' AS ne, 'でぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-058' AS sk, '電車' AS ne, 'でんしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-059' AS sk, '西口' AS ne, 'にしぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-060' AS sk, '東京' AS ne, 'とうきょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-061' AS sk, '来年' AS ne, 'らいねん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-062' AS sk, '火曜日' AS ne, 'かようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-063' AS sk, '水曜日' AS ne, 'すいようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-064' AS sk, '土曜日' AS ne, 'どようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-065' AS sk, '時間' AS ne, 'じかん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-066' AS sk, '夕方' AS ne, 'ゆうがた' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-067' AS sk, '牛肉' AS ne, 'ぎゅうにく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-068' AS sk, 'お茶' AS ne, 'おちゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-069' AS sk, '百円' AS ne, 'ひゃくえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-070' AS sk, '千円' AS ne, 'せんえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-071' AS sk, '三人' AS ne, 'さんにん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-072' AS sk, '木曜日' AS ne, 'もくようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-073' AS sk, '金曜日' AS ne, 'きんようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-074' AS sk, '日曜日' AS ne, 'にちようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-075' AS sk, '外国人' AS ne, 'がいこくじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-076' AS sk, '花火' AS ne, 'はなび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-077' AS sk, '大雨' AS ne, 'おおあめ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-078' AS sk, '日本語' AS ne, 'にほんご' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-079' AS sk, '飲む' AS ne, 'のむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-080' AS sk, '買う' AS ne, 'かう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-081' AS sk, '読む' AS ne, 'よむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-082' AS sk, '聞く' AS ne, 'きく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-083' AS sk, '帰る' AS ne, 'かえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-084' AS sk, '新しい' AS ne, 'あたらしい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-085' AS sk, '外国' AS ne, 'がいこく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-086' AS sk, '母' AS ne, 'はは' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-087' AS sk, '父' AS ne, 'ちち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-088' AS sk, '男の子' AS ne, 'おとこのこ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-089' AS sk, '女の人' AS ne, 'おんなのひと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-090' AS sk, '山' AS ne, 'やま' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-091' AS sk, '川' AS ne, 'かわ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-092' AS sk, '雨' AS ne, 'あめ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-093' AS sk, '上' AS ne, 'うえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-094' AS sk, '下' AS ne, 'した' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-095' AS sk, '左' AS ne, 'ひだり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-096' AS sk, '右' AS ne, 'みぎ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-097' AS sk, '休み' AS ne, 'やすみ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-098' AS sk, '安い' AS ne, 'やすい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-099' AS sk, '多い' AS ne, 'おおい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-100' AS sk, '元気' AS ne, 'げんき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-101' AS sk, '学校' AS ne, 'がっこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-102' AS sk, '先生' AS ne, 'せんせい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-103' AS sk, '名前' AS ne, 'なまえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-104' AS sk, '大学' AS ne, 'だいがく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-105' AS sk, '小学校' AS ne, 'しょうがっこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-106' AS sk, '入口' AS ne, 'いりぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-107' AS sk, '出口' AS ne, 'でぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-108' AS sk, '電車' AS ne, 'でんしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-109' AS sk, '西口' AS ne, 'にしぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-110' AS sk, '東京' AS ne, 'とうきょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-111' AS sk, '来年' AS ne, 'らいねん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-112' AS sk, '火曜日' AS ne, 'かようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-113' AS sk, '水曜日' AS ne, 'すいようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-114' AS sk, '土曜日' AS ne, 'どようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-115' AS sk, '時間' AS ne, 'じかん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-116' AS sk, '夕方' AS ne, 'ゆうがた' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-117' AS sk, '牛肉' AS ne, 'ぎゅうにく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-118' AS sk, 'お茶' AS ne, 'おちゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-119' AS sk, '百円' AS ne, 'ひゃくえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-120' AS sk, '千円' AS ne, 'せんえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-121' AS sk, '三人' AS ne, 'さんにん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-122' AS sk, '木曜日' AS ne, 'もくようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-123' AS sk, '金曜日' AS ne, 'きんようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-124' AS sk, '日曜日' AS ne, 'にちようび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-125' AS sk, '外国人' AS ne, 'がいこくじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-126' AS sk, '花火' AS ne, 'はなび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-127' AS sk, '大雨' AS ne, 'おおあめ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-128' AS sk, '日本語' AS ne, 'にほんご' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-129' AS sk, '飲む' AS ne, 'のむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-130' AS sk, '買う' AS ne, 'かう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-131' AS sk, '読む' AS ne, 'よむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-132' AS sk, '聞く' AS ne, 'きく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-133' AS sk, '帰る' AS ne, 'かえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-134' AS sk, '新しい' AS ne, 'あたらしい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-135' AS sk, '外国' AS ne, 'がいこく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-136' AS sk, '母' AS ne, 'はは' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-137' AS sk, '父' AS ne, 'ちち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-138' AS sk, '男の子' AS ne, 'おとこのこ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-139' AS sk, '女の人' AS ne, 'おんなのひと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-140' AS sk, '山' AS ne, 'やま' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-141' AS sk, '川' AS ne, 'かわ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-142' AS sk, '雨' AS ne, 'あめ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-143' AS sk, '上' AS ne, 'うえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-144' AS sk, '下' AS ne, 'した' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-145' AS sk, '左' AS ne, 'ひだり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-146' AS sk, '右' AS ne, 'みぎ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-147' AS sk, '休み' AS ne, 'やすみ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-148' AS sk, '安い' AS ne, 'やすい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-149' AS sk, '多い' AS ne, 'おおい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N5-150' AS sk, '元気' AS ne, 'げんき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-001' AS sk, '家族' AS ne, 'かぞく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-002' AS sk, '両親' AS ne, 'りょうしん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-003' AS sk, '兄弟' AS ne, 'きょうだい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-004' AS sk, '姉妹' AS ne, 'しまい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-005' AS sk, '主人' AS ne, 'しゅじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-006' AS sk, '奥さん' AS ne, 'おくさん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-007' AS sk, '料理' AS ne, 'りょうり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-008' AS sk, '食事' AS ne, 'しょくじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-009' AS sk, '台所' AS ne, 'だいどころ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-010' AS sk, '野菜' AS ne, 'やさい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-011' AS sk, '果物' AS ne, 'くだもの' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-012' AS sk, '牛乳' AS ne, 'ぎゅうにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-013' AS sk, '朝食' AS ne, 'ちょうしょく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-014' AS sk, '夕食' AS ne, 'ゆうしょく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-015' AS sk, '建物' AS ne, 'たてもの' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-016' AS sk, '住所' AS ne, 'じゅうしょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-017' AS sk, '部屋' AS ne, 'へや' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-018' AS sk, '階段' AS ne, 'かいだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-019' AS sk, '窓' AS ne, 'まど' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-020' AS sk, '庭' AS ne, 'にわ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-021' AS sk, '近所' AS ne, 'きんじょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-022' AS sk, '地図' AS ne, 'ちず' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-023' AS sk, '駅員' AS ne, 'えきいん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-024' AS sk, '乗車' AS ne, 'じょうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-025' AS sk, '運転' AS ne, 'うんてん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-026' AS sk, '通勤' AS ne, 'つうきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-027' AS sk, '旅行' AS ne, 'りょこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-028' AS sk, '旅館' AS ne, 'りょかん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-029' AS sk, '空港' AS ne, 'くうこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-030' AS sk, '発車' AS ne, 'はっしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-031' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-032' AS sk, '会社員' AS ne, 'かいしゃいん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-033' AS sk, '工場' AS ne, 'こうじょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-034' AS sk, '会議' AS ne, 'かいぎ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-035' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-036' AS sk, '仕事' AS ne, 'しごと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-037' AS sk, '勉強' AS ne, 'べんきょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-038' AS sk, '宿題' AS ne, 'しゅくだい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-039' AS sk, '試験' AS ne, 'しけん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-040' AS sk, '質問' AS ne, 'しつもん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-041' AS sk, '病院' AS ne, 'びょういん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-042' AS sk, '医者' AS ne, 'いしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-043' AS sk, '薬' AS ne, 'くすり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-044' AS sk, '健康' AS ne, 'けんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-045' AS sk, '天気' AS ne, 'てんき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-046' AS sk, '台風' AS ne, 'たいふう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-047' AS sk, '季節' AS ne, 'きせつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-048' AS sk, '春' AS ne, 'はる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-049' AS sk, '秋' AS ne, 'あき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-050' AS sk, '冬' AS ne, 'ふゆ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-051' AS sk, '家族' AS ne, 'かぞく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-052' AS sk, '両親' AS ne, 'りょうしん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-053' AS sk, '兄弟' AS ne, 'きょうだい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-054' AS sk, '姉妹' AS ne, 'しまい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-055' AS sk, '主人' AS ne, 'しゅじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-056' AS sk, '奥さん' AS ne, 'おくさん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-057' AS sk, '料理' AS ne, 'りょうり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-058' AS sk, '食事' AS ne, 'しょくじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-059' AS sk, '台所' AS ne, 'だいどころ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-060' AS sk, '野菜' AS ne, 'やさい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-061' AS sk, '果物' AS ne, 'くだもの' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-062' AS sk, '牛乳' AS ne, 'ぎゅうにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-063' AS sk, '朝食' AS ne, 'ちょうしょく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-064' AS sk, '夕食' AS ne, 'ゆうしょく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-065' AS sk, '建物' AS ne, 'たてもの' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-066' AS sk, '住所' AS ne, 'じゅうしょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-067' AS sk, '部屋' AS ne, 'へや' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-068' AS sk, '階段' AS ne, 'かいだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-069' AS sk, '窓' AS ne, 'まど' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-070' AS sk, '庭' AS ne, 'にわ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-071' AS sk, '近所' AS ne, 'きんじょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-072' AS sk, '地図' AS ne, 'ちず' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-073' AS sk, '駅員' AS ne, 'えきいん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-074' AS sk, '乗車' AS ne, 'じょうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-075' AS sk, '運転' AS ne, 'うんてん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-076' AS sk, '通勤' AS ne, 'つうきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-077' AS sk, '旅行' AS ne, 'りょこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-078' AS sk, '旅館' AS ne, 'りょかん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-079' AS sk, '空港' AS ne, 'くうこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-080' AS sk, '発車' AS ne, 'はっしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-081' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-082' AS sk, '会社員' AS ne, 'かいしゃいん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-083' AS sk, '工場' AS ne, 'こうじょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-084' AS sk, '会議' AS ne, 'かいぎ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-085' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-086' AS sk, '仕事' AS ne, 'しごと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-087' AS sk, '勉強' AS ne, 'べんきょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-088' AS sk, '宿題' AS ne, 'しゅくだい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-089' AS sk, '試験' AS ne, 'しけん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-090' AS sk, '質問' AS ne, 'しつもん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-091' AS sk, '病院' AS ne, 'びょういん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-092' AS sk, '医者' AS ne, 'いしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-093' AS sk, '薬' AS ne, 'くすり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-094' AS sk, '健康' AS ne, 'けんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-095' AS sk, '天気' AS ne, 'てんき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-096' AS sk, '台風' AS ne, 'たいふう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-097' AS sk, '季節' AS ne, 'きせつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-098' AS sk, '春' AS ne, 'はる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-099' AS sk, '秋' AS ne, 'あき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-100' AS sk, '冬' AS ne, 'ふゆ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-101' AS sk, '家族' AS ne, 'かぞく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-102' AS sk, '両親' AS ne, 'りょうしん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-103' AS sk, '兄弟' AS ne, 'きょうだい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-104' AS sk, '姉妹' AS ne, 'しまい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-105' AS sk, '主人' AS ne, 'しゅじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-106' AS sk, '奥さん' AS ne, 'おくさん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-107' AS sk, '料理' AS ne, 'りょうり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-108' AS sk, '食事' AS ne, 'しょくじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-109' AS sk, '台所' AS ne, 'だいどころ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-110' AS sk, '野菜' AS ne, 'やさい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-111' AS sk, '果物' AS ne, 'くだもの' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-112' AS sk, '牛乳' AS ne, 'ぎゅうにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-113' AS sk, '朝食' AS ne, 'ちょうしょく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-114' AS sk, '夕食' AS ne, 'ゆうしょく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-115' AS sk, '建物' AS ne, 'たてもの' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-116' AS sk, '住所' AS ne, 'じゅうしょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-117' AS sk, '部屋' AS ne, 'へや' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-118' AS sk, '階段' AS ne, 'かいだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-119' AS sk, '窓' AS ne, 'まど' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-120' AS sk, '庭' AS ne, 'にわ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-121' AS sk, '近所' AS ne, 'きんじょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-122' AS sk, '地図' AS ne, 'ちず' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-123' AS sk, '駅員' AS ne, 'えきいん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-124' AS sk, '乗車' AS ne, 'じょうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-125' AS sk, '運転' AS ne, 'うんてん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-126' AS sk, '通勤' AS ne, 'つうきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-127' AS sk, '旅行' AS ne, 'りょこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-128' AS sk, '旅館' AS ne, 'りょかん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-129' AS sk, '空港' AS ne, 'くうこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-130' AS sk, '発車' AS ne, 'はっしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-131' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-132' AS sk, '会社員' AS ne, 'かいしゃいん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-133' AS sk, '工場' AS ne, 'こうじょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-134' AS sk, '会議' AS ne, 'かいぎ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-135' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-136' AS sk, '仕事' AS ne, 'しごと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-137' AS sk, '勉強' AS ne, 'べんきょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-138' AS sk, '宿題' AS ne, 'しゅくだい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-139' AS sk, '試験' AS ne, 'しけん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-140' AS sk, '質問' AS ne, 'しつもん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-141' AS sk, '病院' AS ne, 'びょういん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-142' AS sk, '医者' AS ne, 'いしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-143' AS sk, '薬' AS ne, 'くすり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-144' AS sk, '健康' AS ne, 'けんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-145' AS sk, '天気' AS ne, 'てんき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-146' AS sk, '台風' AS ne, 'たいふう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-147' AS sk, '季節' AS ne, 'きせつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-148' AS sk, '春' AS ne, 'はる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-149' AS sk, '秋' AS ne, 'あき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N4-150' AS sk, '冬' AS ne, 'ふゆ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-001' AS sk, '起床' AS ne, 'きしょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-002' AS sk, '寝坊' AS ne, 'ねぼう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-003' AS sk, '入浴' AS ne, 'にゅうよく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-004' AS sk, '熱湯' AS ne, 'ねっとう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-005' AS sk, '洗濯' AS ne, 'せんたく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-006' AS sk, '乾燥' AS ne, 'かんそう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-007' AS sk, '清潔' AS ne, 'せいけつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-008' AS sk, '燃える' AS ne, 'もえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-009' AS sk, 'ごみ袋' AS ne, 'ごみぶくろ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-010' AS sk, '収集' AS ne, 'しゅうしゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-011' AS sk, '翌日' AS ne, 'よくじつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-012' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-013' AS sk, '用事' AS ne, 'ようじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-014' AS sk, '押す' AS ne, 'おす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-015' AS sk, '引く' AS ne, 'ひく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-016' AS sk, '取る' AS ne, 'とる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-017' AS sk, '消す' AS ne, 'けす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-018' AS sk, '窓口' AS ne, 'まどぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-019' AS sk, '階段' AS ne, 'かいだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-020' AS sk, '廊下' AS ne, 'ろうか' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-021' AS sk, '家庭' AS ne, 'かてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-022' AS sk, '家賃' AS ne, 'やちん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-023' AS sk, '留守' AS ne, 'るす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-024' AS sk, '訪問' AS ne, 'ほうもん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-025' AS sk, '職場' AS ne, 'しょくば' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-026' AS sk, '給料' AS ne, 'きゅうりょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-027' AS sk, '残業' AS ne, 'ざんぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-028' AS sk, '勤務' AS ne, 'きんむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-029' AS sk, '求人' AS ne, 'きゅうじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-030' AS sk, '面接' AS ne, 'めんせつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-031' AS sk, '通勤' AS ne, 'つうきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-032' AS sk, '乗客' AS ne, 'じょうきゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-033' AS sk, '事故' AS ne, 'じこ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-034' AS sk, '運賃' AS ne, 'うんちん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-035' AS sk, '道路' AS ne, 'どうろ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-036' AS sk, '信号' AS ne, 'しんごう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-037' AS sk, '駐車' AS ne, 'ちゅうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-038' AS sk, '免許' AS ne, 'めんきょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-039' AS sk, '禁止' AS ne, 'きんし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-040' AS sk, '速度' AS ne, 'そくど' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-041' AS sk, '招待' AS ne, 'しょうたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-042' AS sk, '祝う' AS ne, 'いわう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-043' AS sk, '結婚' AS ne, 'けっこん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-044' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-045' AS sk, '連絡' AS ne, 'れんらく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-046' AS sk, '相談' AS ne, 'そうだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-047' AS sk, '説明' AS ne, 'せつめい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-048' AS sk, '確認' AS ne, 'かくにん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-049' AS sk, '必要' AS ne, 'ひつよう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-050' AS sk, '経験' AS ne, 'けいけん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-051' AS sk, '起床' AS ne, 'きしょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-052' AS sk, '寝坊' AS ne, 'ねぼう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-053' AS sk, '入浴' AS ne, 'にゅうよく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-054' AS sk, '熱湯' AS ne, 'ねっとう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-055' AS sk, '洗濯' AS ne, 'せんたく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-056' AS sk, '乾燥' AS ne, 'かんそう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-057' AS sk, '清潔' AS ne, 'せいけつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-058' AS sk, '燃える' AS ne, 'もえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-059' AS sk, 'ごみ袋' AS ne, 'ごみぶくろ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-060' AS sk, '収集' AS ne, 'しゅうしゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-061' AS sk, '翌日' AS ne, 'よくじつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-062' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-063' AS sk, '用事' AS ne, 'ようじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-064' AS sk, '押す' AS ne, 'おす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-065' AS sk, '引く' AS ne, 'ひく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-066' AS sk, '取る' AS ne, 'とる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-067' AS sk, '消す' AS ne, 'けす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-068' AS sk, '窓口' AS ne, 'まどぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-069' AS sk, '階段' AS ne, 'かいだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-070' AS sk, '廊下' AS ne, 'ろうか' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-071' AS sk, '家庭' AS ne, 'かてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-072' AS sk, '家賃' AS ne, 'やちん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-073' AS sk, '留守' AS ne, 'るす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-074' AS sk, '訪問' AS ne, 'ほうもん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-075' AS sk, '職場' AS ne, 'しょくば' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-076' AS sk, '給料' AS ne, 'きゅうりょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-077' AS sk, '残業' AS ne, 'ざんぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-078' AS sk, '勤務' AS ne, 'きんむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-079' AS sk, '求人' AS ne, 'きゅうじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-080' AS sk, '面接' AS ne, 'めんせつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-081' AS sk, '通勤' AS ne, 'つうきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-082' AS sk, '乗客' AS ne, 'じょうきゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-083' AS sk, '事故' AS ne, 'じこ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-084' AS sk, '運賃' AS ne, 'うんちん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-085' AS sk, '道路' AS ne, 'どうろ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-086' AS sk, '信号' AS ne, 'しんごう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-087' AS sk, '駐車' AS ne, 'ちゅうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-088' AS sk, '免許' AS ne, 'めんきょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-089' AS sk, '禁止' AS ne, 'きんし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-090' AS sk, '速度' AS ne, 'そくど' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-091' AS sk, '招待' AS ne, 'しょうたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-092' AS sk, '祝う' AS ne, 'いわう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-093' AS sk, '結婚' AS ne, 'けっこん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-094' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-095' AS sk, '連絡' AS ne, 'れんらく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-096' AS sk, '相談' AS ne, 'そうだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-097' AS sk, '説明' AS ne, 'せつめい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-098' AS sk, '確認' AS ne, 'かくにん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-099' AS sk, '必要' AS ne, 'ひつよう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-100' AS sk, '経験' AS ne, 'けいけん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-101' AS sk, '起床' AS ne, 'きしょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-102' AS sk, '寝坊' AS ne, 'ねぼう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-103' AS sk, '入浴' AS ne, 'にゅうよく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-104' AS sk, '熱湯' AS ne, 'ねっとう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-105' AS sk, '洗濯' AS ne, 'せんたく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-106' AS sk, '乾燥' AS ne, 'かんそう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-107' AS sk, '清潔' AS ne, 'せいけつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-108' AS sk, '燃える' AS ne, 'もえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-109' AS sk, 'ごみ袋' AS ne, 'ごみぶくろ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-110' AS sk, '収集' AS ne, 'しゅうしゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-111' AS sk, '翌日' AS ne, 'よくじつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-112' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-113' AS sk, '用事' AS ne, 'ようじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-114' AS sk, '押す' AS ne, 'おす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-115' AS sk, '引く' AS ne, 'ひく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-116' AS sk, '取る' AS ne, 'とる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-117' AS sk, '消す' AS ne, 'けす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-118' AS sk, '窓口' AS ne, 'まどぐち' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-119' AS sk, '階段' AS ne, 'かいだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-120' AS sk, '廊下' AS ne, 'ろうか' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-121' AS sk, '家庭' AS ne, 'かてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-122' AS sk, '家賃' AS ne, 'やちん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-123' AS sk, '留守' AS ne, 'るす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-124' AS sk, '訪問' AS ne, 'ほうもん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-125' AS sk, '職場' AS ne, 'しょくば' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-126' AS sk, '給料' AS ne, 'きゅうりょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-127' AS sk, '残業' AS ne, 'ざんぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-128' AS sk, '勤務' AS ne, 'きんむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-129' AS sk, '求人' AS ne, 'きゅうじん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-130' AS sk, '面接' AS ne, 'めんせつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-131' AS sk, '通勤' AS ne, 'つうきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-132' AS sk, '乗客' AS ne, 'じょうきゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-133' AS sk, '事故' AS ne, 'じこ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-134' AS sk, '運賃' AS ne, 'うんちん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-135' AS sk, '道路' AS ne, 'どうろ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-136' AS sk, '信号' AS ne, 'しんごう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-137' AS sk, '駐車' AS ne, 'ちゅうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-138' AS sk, '免許' AS ne, 'めんきょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-139' AS sk, '禁止' AS ne, 'きんし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-140' AS sk, '速度' AS ne, 'そくど' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-141' AS sk, '招待' AS ne, 'しょうたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-142' AS sk, '祝う' AS ne, 'いわう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-143' AS sk, '結婚' AS ne, 'けっこん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-144' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-145' AS sk, '連絡' AS ne, 'れんらく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-146' AS sk, '相談' AS ne, 'そうだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-147' AS sk, '説明' AS ne, 'せつめい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-148' AS sk, '確認' AS ne, 'かくにん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-149' AS sk, '必要' AS ne, 'ひつよう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N3-150' AS sk, '経験' AS ne, 'けいけん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-001' AS sk, '配達' AS ne, 'はいたつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-002' AS sk, '届ける' AS ne, 'とどける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-003' AS sk, '招待' AS ne, 'しょうたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-004' AS sk, '贈る' AS ne, 'おくる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-005' AS sk, '含む' AS ne, 'ふくむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-006' AS sk, '混ぜる' AS ne, 'まぜる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-007' AS sk, '溶ける' AS ne, 'とける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-008' AS sk, '汁' AS ne, 'しる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-009' AS sk, '盛る' AS ne, 'もる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-010' AS sk, '契約' AS ne, 'けいやく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-011' AS sk, '越す' AS ne, 'こす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-012' AS sk, '賃貸' AS ne, 'ちんたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-013' AS sk, '仮定' AS ne, 'かてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-014' AS sk, '証明' AS ne, 'しょうめい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-015' AS sk, '地域' AS ne, 'ちいき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-016' AS sk, '雑誌' AS ne, 'ざっし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-017' AS sk, '刊行' AS ne, 'かんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-018' AS sk, '並ぶ' AS ne, 'ならぶ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-019' AS sk, '巻' AS ne, 'かん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-020' AS sk, '著者' AS ne, 'ちょしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-021' AS sk, '居間' AS ne, 'いま' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-022' AS sk, '庭園' AS ne, 'ていえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-023' AS sk, '清掃' AS ne, 'せいそう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-024' AS sk, '掃除' AS ne, 'そうじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-025' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-026' AS sk, '汚れる' AS ne, 'よごれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-027' AS sk, '駐車' AS ne, 'ちゅうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-028' AS sk, '車輪' AS ne, 'しゃりん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-029' AS sk, '港' AS ne, 'みなと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-030' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-031' AS sk, '途中' AS ne, 'とちゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-032' AS sk, '通過' AS ne, 'つうか' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-033' AS sk, '符号' AS ne, 'ふごう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-034' AS sk, '停車' AS ne, 'ていしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-035' AS sk, '標識' AS ne, 'ひょうしき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-036' AS sk, '時刻' AS ne, 'じこく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-037' AS sk, '違反' AS ne, 'いはん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-038' AS sk, '漁業' AS ne, 'ぎょぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-039' AS sk, '製造' AS ne, 'せいぞう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-040' AS sk, '郵便' AS ne, 'ゆうびん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-041' AS sk, '航空' AS ne, 'こうくう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-042' AS sk, '融資' AS ne, 'ゆうし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-043' AS sk, '預金' AS ne, 'よきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-044' AS sk, '振込' AS ne, 'ふりこみ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-045' AS sk, '両替' AS ne, 'りょうがえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-046' AS sk, '銀行' AS ne, 'ぎんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-047' AS sk, '産業' AS ne, 'さんぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-048' AS sk, '輸出' AS ne, 'ゆしゅつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-049' AS sk, '輸入' AS ne, 'ゆにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-050' AS sk, '貿易' AS ne, 'ぼうえき' AS nr
+) m ON JSON_UNQUOTE(JSON_EXTRACT(aq.context_json, '$.seed_key')) = m.sk
+JOIN vocabulary_entry ve ON ve.normalized_expression = m.ne AND ve.normalized_reading = m.nr
+SET aq.vocabulary_entry_id = ve.id
+WHERE aq.skill IN ('KANJI', 'VOCABULARY');
+
+UPDATE assessment_question aq
+JOIN (
+  SELECT 'KANJI-DIVERSE-N2-051' AS sk, '配達' AS ne, 'はいたつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-052' AS sk, '届ける' AS ne, 'とどける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-053' AS sk, '招待' AS ne, 'しょうたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-054' AS sk, '贈る' AS ne, 'おくる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-055' AS sk, '含む' AS ne, 'ふくむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-056' AS sk, '混ぜる' AS ne, 'まぜる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-057' AS sk, '溶ける' AS ne, 'とける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-058' AS sk, '汁' AS ne, 'しる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-059' AS sk, '盛る' AS ne, 'もる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-060' AS sk, '契約' AS ne, 'けいやく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-061' AS sk, '越す' AS ne, 'こす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-062' AS sk, '賃貸' AS ne, 'ちんたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-063' AS sk, '仮定' AS ne, 'かてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-064' AS sk, '証明' AS ne, 'しょうめい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-065' AS sk, '地域' AS ne, 'ちいき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-066' AS sk, '雑誌' AS ne, 'ざっし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-067' AS sk, '刊行' AS ne, 'かんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-068' AS sk, '並ぶ' AS ne, 'ならぶ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-069' AS sk, '巻' AS ne, 'かん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-070' AS sk, '著者' AS ne, 'ちょしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-071' AS sk, '居間' AS ne, 'いま' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-072' AS sk, '庭園' AS ne, 'ていえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-073' AS sk, '清掃' AS ne, 'せいそう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-074' AS sk, '掃除' AS ne, 'そうじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-075' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-076' AS sk, '汚れる' AS ne, 'よごれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-077' AS sk, '駐車' AS ne, 'ちゅうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-078' AS sk, '車輪' AS ne, 'しゃりん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-079' AS sk, '港' AS ne, 'みなと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-080' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-081' AS sk, '途中' AS ne, 'とちゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-082' AS sk, '通過' AS ne, 'つうか' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-083' AS sk, '符号' AS ne, 'ふごう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-084' AS sk, '停車' AS ne, 'ていしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-085' AS sk, '標識' AS ne, 'ひょうしき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-086' AS sk, '時刻' AS ne, 'じこく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-087' AS sk, '違反' AS ne, 'いはん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-088' AS sk, '漁業' AS ne, 'ぎょぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-089' AS sk, '製造' AS ne, 'せいぞう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-090' AS sk, '郵便' AS ne, 'ゆうびん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-091' AS sk, '航空' AS ne, 'こうくう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-092' AS sk, '融資' AS ne, 'ゆうし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-093' AS sk, '預金' AS ne, 'よきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-094' AS sk, '振込' AS ne, 'ふりこみ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-095' AS sk, '両替' AS ne, 'りょうがえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-096' AS sk, '銀行' AS ne, 'ぎんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-097' AS sk, '産業' AS ne, 'さんぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-098' AS sk, '輸出' AS ne, 'ゆしゅつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-099' AS sk, '輸入' AS ne, 'ゆにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-100' AS sk, '貿易' AS ne, 'ぼうえき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-101' AS sk, '配達' AS ne, 'はいたつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-102' AS sk, '届ける' AS ne, 'とどける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-103' AS sk, '招待' AS ne, 'しょうたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-104' AS sk, '贈る' AS ne, 'おくる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-105' AS sk, '含む' AS ne, 'ふくむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-106' AS sk, '混ぜる' AS ne, 'まぜる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-107' AS sk, '溶ける' AS ne, 'とける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-108' AS sk, '汁' AS ne, 'しる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-109' AS sk, '盛る' AS ne, 'もる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-110' AS sk, '契約' AS ne, 'けいやく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-111' AS sk, '越す' AS ne, 'こす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-112' AS sk, '賃貸' AS ne, 'ちんたい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-113' AS sk, '仮定' AS ne, 'かてい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-114' AS sk, '証明' AS ne, 'しょうめい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-115' AS sk, '地域' AS ne, 'ちいき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-116' AS sk, '雑誌' AS ne, 'ざっし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-117' AS sk, '刊行' AS ne, 'かんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-118' AS sk, '並ぶ' AS ne, 'ならぶ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-119' AS sk, '巻' AS ne, 'かん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-120' AS sk, '著者' AS ne, 'ちょしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-121' AS sk, '居間' AS ne, 'いま' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-122' AS sk, '庭園' AS ne, 'ていえん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-123' AS sk, '清掃' AS ne, 'せいそう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-124' AS sk, '掃除' AS ne, 'そうじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-125' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-126' AS sk, '汚れる' AS ne, 'よごれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-127' AS sk, '駐車' AS ne, 'ちゅうしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-128' AS sk, '車輪' AS ne, 'しゃりん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-129' AS sk, '港' AS ne, 'みなと' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-130' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-131' AS sk, '途中' AS ne, 'とちゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-132' AS sk, '通過' AS ne, 'つうか' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-133' AS sk, '符号' AS ne, 'ふごう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-134' AS sk, '停車' AS ne, 'ていしゃ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-135' AS sk, '標識' AS ne, 'ひょうしき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-136' AS sk, '時刻' AS ne, 'じこく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-137' AS sk, '違反' AS ne, 'いはん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-138' AS sk, '漁業' AS ne, 'ぎょぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-139' AS sk, '製造' AS ne, 'せいぞう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-140' AS sk, '郵便' AS ne, 'ゆうびん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-141' AS sk, '航空' AS ne, 'こうくう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-142' AS sk, '融資' AS ne, 'ゆうし' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-143' AS sk, '預金' AS ne, 'よきん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-144' AS sk, '振込' AS ne, 'ふりこみ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-145' AS sk, '両替' AS ne, 'りょうがえ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-146' AS sk, '銀行' AS ne, 'ぎんこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-147' AS sk, '産業' AS ne, 'さんぎょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-148' AS sk, '輸出' AS ne, 'ゆしゅつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-149' AS sk, '輸入' AS ne, 'ゆにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N2-150' AS sk, '貿易' AS ne, 'ぼうえき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-001' AS sk, '為替' AS ne, 'かわせ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-002' AS sk, '抜擢' AS ne, 'ばってき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-003' AS sk, '抵抗' AS ne, 'ていこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-004' AS sk, '掲示' AS ne, 'けいじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-005' AS sk, '挑戦' AS ne, 'ちょうせん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-006' AS sk, '操作' AS ne, 'そうさ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-007' AS sk, '磨く' AS ne, 'みがく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-008' AS sk, '奪う' AS ne, 'うばう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-009' AS sk, '妨害' AS ne, 'ぼうがい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-010' AS sk, '遮断' AS ne, 'しゃだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-011' AS sk, '伴う' AS ne, 'ともなう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-012' AS sk, '揺れる' AS ne, 'ゆれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-013' AS sk, '尽くす' AS ne, 'つくす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-014' AS sk, '諦める' AS ne, 'あきらめる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-015' AS sk, '誓う' AS ne, 'ちかう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-016' AS sk, '悟る' AS ne, 'さとる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-017' AS sk, '避ける' AS ne, 'さける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-018' AS sk, '耐える' AS ne, 'たえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-019' AS sk, '焦る' AS ne, 'あせる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-020' AS sk, '慌てる' AS ne, 'あわてる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-021' AS sk, '尋ねる' AS ne, 'たずねる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-022' AS sk, '促進' AS ne, 'そくしん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-023' AS sk, '誘惑' AS ne, 'ゆうわく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-024' AS sk, '謙虚' AS ne, 'けんきょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-025' AS sk, '陥る' AS ne, 'おちいる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-026' AS sk, '迫る' AS ne, 'せまる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-027' AS sk, '遂行' AS ne, 'すいこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-028' AS sk, '抽選' AS ne, 'ちゅうせん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-029' AS sk, '覆す' AS ne, 'くつがえす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-030' AS sk, '偽造' AS ne, 'ぎぞう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-031' AS sk, '輝く' AS ne, 'かがやく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-032' AS sk, '控える' AS ne, 'ひかえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-033' AS sk, '砕く' AS ne, 'くだく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-034' AS sk, '削減' AS ne, 'さくげん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-035' AS sk, '挟む' AS ne, 'はさむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-036' AS sk, '挿入' AS ne, 'そうにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-037' AS sk, '懸念' AS ne, 'けねん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-038' AS sk, '示唆' AS ne, 'しさ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-039' AS sk, '緻密' AS ne, 'ちみつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-040' AS sk, '漠然' AS ne, 'ばくぜん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-041' AS sk, '脆弱' AS ne, 'ぜいじゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-042' AS sk, '講じる' AS ne, 'こうじる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-043' AS sk, '鑑みる' AS ne, 'かんがみる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-044' AS sk, '免れる' AS ne, 'まぬかれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-045' AS sk, '損なう' AS ne, 'そこなう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-046' AS sk, '躊躇' AS ne, 'ちゅうちょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-047' AS sk, '折衝' AS ne, 'せっしょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-048' AS sk, '踏襲' AS ne, 'とうしゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-049' AS sk, '打開' AS ne, 'だかい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-050' AS sk, '顕著' AS ne, 'けんちょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-051' AS sk, '為替' AS ne, 'かわせ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-052' AS sk, '抜擢' AS ne, 'ばってき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-053' AS sk, '抵抗' AS ne, 'ていこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-054' AS sk, '掲示' AS ne, 'けいじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-055' AS sk, '挑戦' AS ne, 'ちょうせん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-056' AS sk, '操作' AS ne, 'そうさ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-057' AS sk, '磨く' AS ne, 'みがく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-058' AS sk, '奪う' AS ne, 'うばう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-059' AS sk, '妨害' AS ne, 'ぼうがい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-060' AS sk, '遮断' AS ne, 'しゃだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-061' AS sk, '伴う' AS ne, 'ともなう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-062' AS sk, '揺れる' AS ne, 'ゆれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-063' AS sk, '尽くす' AS ne, 'つくす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-064' AS sk, '諦める' AS ne, 'あきらめる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-065' AS sk, '誓う' AS ne, 'ちかう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-066' AS sk, '悟る' AS ne, 'さとる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-067' AS sk, '避ける' AS ne, 'さける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-068' AS sk, '耐える' AS ne, 'たえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-069' AS sk, '焦る' AS ne, 'あせる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-070' AS sk, '慌てる' AS ne, 'あわてる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-071' AS sk, '尋ねる' AS ne, 'たずねる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-072' AS sk, '促進' AS ne, 'そくしん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-073' AS sk, '誘惑' AS ne, 'ゆうわく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-074' AS sk, '謙虚' AS ne, 'けんきょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-075' AS sk, '陥る' AS ne, 'おちいる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-076' AS sk, '迫る' AS ne, 'せまる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-077' AS sk, '遂行' AS ne, 'すいこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-078' AS sk, '抽選' AS ne, 'ちゅうせん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-079' AS sk, '覆す' AS ne, 'くつがえす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-080' AS sk, '偽造' AS ne, 'ぎぞう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-081' AS sk, '輝く' AS ne, 'かがやく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-082' AS sk, '控える' AS ne, 'ひかえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-083' AS sk, '砕く' AS ne, 'くだく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-084' AS sk, '削減' AS ne, 'さくげん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-085' AS sk, '挟む' AS ne, 'はさむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-086' AS sk, '挿入' AS ne, 'そうにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-087' AS sk, '懸念' AS ne, 'けねん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-088' AS sk, '示唆' AS ne, 'しさ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-089' AS sk, '緻密' AS ne, 'ちみつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-090' AS sk, '漠然' AS ne, 'ばくぜん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-091' AS sk, '脆弱' AS ne, 'ぜいじゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-092' AS sk, '講じる' AS ne, 'こうじる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-093' AS sk, '鑑みる' AS ne, 'かんがみる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-094' AS sk, '免れる' AS ne, 'まぬかれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-095' AS sk, '損なう' AS ne, 'そこなう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-096' AS sk, '躊躇' AS ne, 'ちゅうちょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-097' AS sk, '折衝' AS ne, 'せっしょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-098' AS sk, '踏襲' AS ne, 'とうしゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-099' AS sk, '打開' AS ne, 'だかい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-100' AS sk, '顕著' AS ne, 'けんちょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-101' AS sk, '為替' AS ne, 'かわせ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-102' AS sk, '抜擢' AS ne, 'ばってき' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-103' AS sk, '抵抗' AS ne, 'ていこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-104' AS sk, '掲示' AS ne, 'けいじ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-105' AS sk, '挑戦' AS ne, 'ちょうせん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-106' AS sk, '操作' AS ne, 'そうさ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-107' AS sk, '磨く' AS ne, 'みがく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-108' AS sk, '奪う' AS ne, 'うばう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-109' AS sk, '妨害' AS ne, 'ぼうがい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-110' AS sk, '遮断' AS ne, 'しゃだん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-111' AS sk, '伴う' AS ne, 'ともなう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-112' AS sk, '揺れる' AS ne, 'ゆれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-113' AS sk, '尽くす' AS ne, 'つくす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-114' AS sk, '諦める' AS ne, 'あきらめる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-115' AS sk, '誓う' AS ne, 'ちかう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-116' AS sk, '悟る' AS ne, 'さとる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-117' AS sk, '避ける' AS ne, 'さける' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-118' AS sk, '耐える' AS ne, 'たえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-119' AS sk, '焦る' AS ne, 'あせる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-120' AS sk, '慌てる' AS ne, 'あわてる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-121' AS sk, '尋ねる' AS ne, 'たずねる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-122' AS sk, '促進' AS ne, 'そくしん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-123' AS sk, '誘惑' AS ne, 'ゆうわく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-124' AS sk, '謙虚' AS ne, 'けんきょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-125' AS sk, '陥る' AS ne, 'おちいる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-126' AS sk, '迫る' AS ne, 'せまる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-127' AS sk, '遂行' AS ne, 'すいこう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-128' AS sk, '抽選' AS ne, 'ちゅうせん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-129' AS sk, '覆す' AS ne, 'くつがえす' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-130' AS sk, '偽造' AS ne, 'ぎぞう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-131' AS sk, '輝く' AS ne, 'かがやく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-132' AS sk, '控える' AS ne, 'ひかえる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-133' AS sk, '砕く' AS ne, 'くだく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-134' AS sk, '削減' AS ne, 'さくげん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-135' AS sk, '挟む' AS ne, 'はさむ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-136' AS sk, '挿入' AS ne, 'そうにゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-137' AS sk, '懸念' AS ne, 'けねん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-138' AS sk, '示唆' AS ne, 'しさ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-139' AS sk, '緻密' AS ne, 'ちみつ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-140' AS sk, '漠然' AS ne, 'ばくぜん' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-141' AS sk, '脆弱' AS ne, 'ぜいじゃく' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-142' AS sk, '講じる' AS ne, 'こうじる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-143' AS sk, '鑑みる' AS ne, 'かんがみる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-144' AS sk, '免れる' AS ne, 'まぬかれる' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-145' AS sk, '損なう' AS ne, 'そこなう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-146' AS sk, '躊躇' AS ne, 'ちゅうちょ' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-147' AS sk, '折衝' AS ne, 'せっしょう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-148' AS sk, '踏襲' AS ne, 'とうしゅう' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-149' AS sk, '打開' AS ne, 'だかい' AS nr
+UNION ALL
+  SELECT 'KANJI-DIVERSE-N1-150' AS sk, '顕著' AS ne, 'けんちょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-001' AS sk, '先生' AS ne, 'せんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-002' AS sk, '学生' AS ne, 'がくせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-003' AS sk, '会社員' AS ne, 'かいしゃいん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-004' AS sk, '医者' AS ne, 'いしゃ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-005' AS sk, '教室' AS ne, 'きょうしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-006' AS sk, '食堂' AS ne, 'しょくどう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-007' AS sk, '事務所' AS ne, 'じむしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-008' AS sk, '会議室' AS ne, 'かいぎしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-009' AS sk, '起きる' AS ne, 'おきる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-010' AS sk, '寝る' AS ne, 'ねる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-011' AS sk, '働く' AS ne, 'はたらく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-012' AS sk, '休む' AS ne, 'やすむ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-013' AS sk, '買う' AS ne, 'かう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-014' AS sk, '借りる' AS ne, 'かりる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-015' AS sk, '貸す' AS ne, 'かす' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-016' AS sk, 'もらう' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-017' AS sk, '電車' AS ne, 'でんしゃ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-018' AS sk, '地下鉄' AS ne, 'ちかてつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-019' AS sk, '新幹線' AS ne, 'しんかんせん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-020' AS sk, '飛行機' AS ne, 'ひこうき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-021' AS sk, '右' AS ne, 'みぎ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-022' AS sk, '左' AS ne, 'ひだり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-023' AS sk, '前' AS ne, 'まえ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-024' AS sk, '後ろ' AS ne, 'うしろ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-025' AS sk, '暑い' AS ne, 'あつい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-026' AS sk, '寒い' AS ne, 'さむい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-027' AS sk, '熱い' AS ne, 'あつい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-028' AS sk, '冷たい' AS ne, 'つめたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-029' AS sk, '近い' AS ne, 'ちかい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-030' AS sk, '遠い' AS ne, 'とおい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-031' AS sk, '速い' AS ne, 'はやい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-032' AS sk, '遅い' AS ne, 'おそい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-033' AS sk, '多い' AS ne, 'おおい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-034' AS sk, '少ない' AS ne, 'すくない' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-035' AS sk, '大きい' AS ne, 'おおきい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-036' AS sk, '小さい' AS ne, 'ちいさい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-037' AS sk, '上手' AS ne, 'じょうず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-038' AS sk, '下手' AS ne, 'へた' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-039' AS sk, '好き' AS ne, 'すき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-040' AS sk, '嫌い' AS ne, 'きらい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-041' AS sk, '静か' AS ne, 'しずか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-042' AS sk, 'にぎやか' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-043' AS sk, '有名' AS ne, 'ゆうめい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-044' AS sk, '親切' AS ne, 'しんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-045' AS sk, '先生' AS ne, 'せんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-046' AS sk, '学生' AS ne, 'がくせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-047' AS sk, '会社員' AS ne, 'かいしゃいん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-048' AS sk, '医者' AS ne, 'いしゃ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-049' AS sk, '教室' AS ne, 'きょうしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-050' AS sk, '食堂' AS ne, 'しょくどう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-051' AS sk, '事務所' AS ne, 'じむしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-052' AS sk, '会議室' AS ne, 'かいぎしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-053' AS sk, '起きる' AS ne, 'おきる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-054' AS sk, '寝る' AS ne, 'ねる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-055' AS sk, '働く' AS ne, 'はたらく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-056' AS sk, '休む' AS ne, 'やすむ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-057' AS sk, '買う' AS ne, 'かう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-058' AS sk, '借りる' AS ne, 'かりる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-059' AS sk, '貸す' AS ne, 'かす' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-060' AS sk, 'もらう' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-061' AS sk, '電車' AS ne, 'でんしゃ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-062' AS sk, '地下鉄' AS ne, 'ちかてつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-063' AS sk, '新幹線' AS ne, 'しんかんせん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-064' AS sk, '飛行機' AS ne, 'ひこうき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-065' AS sk, '右' AS ne, 'みぎ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-066' AS sk, '左' AS ne, 'ひだり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-067' AS sk, '前' AS ne, 'まえ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-068' AS sk, '後ろ' AS ne, 'うしろ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-069' AS sk, '暑い' AS ne, 'あつい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-070' AS sk, '寒い' AS ne, 'さむい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-071' AS sk, '熱い' AS ne, 'あつい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-072' AS sk, '冷たい' AS ne, 'つめたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-073' AS sk, '近い' AS ne, 'ちかい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-074' AS sk, '遠い' AS ne, 'とおい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-075' AS sk, '速い' AS ne, 'はやい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-076' AS sk, '遅い' AS ne, 'おそい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-077' AS sk, '多い' AS ne, 'おおい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-078' AS sk, '少ない' AS ne, 'すくない' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-079' AS sk, '大きい' AS ne, 'おおきい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-080' AS sk, '小さい' AS ne, 'ちいさい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-081' AS sk, '上手' AS ne, 'じょうず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-082' AS sk, '下手' AS ne, 'へた' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-083' AS sk, '好き' AS ne, 'すき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-084' AS sk, '嫌い' AS ne, 'きらい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-085' AS sk, '静か' AS ne, 'しずか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-086' AS sk, 'にぎやか' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-087' AS sk, '有名' AS ne, 'ゆうめい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-088' AS sk, '親切' AS ne, 'しんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-089' AS sk, '先生' AS ne, 'せんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-090' AS sk, '学生' AS ne, 'がくせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-091' AS sk, '会社員' AS ne, 'かいしゃいん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-092' AS sk, '医者' AS ne, 'いしゃ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-093' AS sk, '教室' AS ne, 'きょうしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-094' AS sk, '食堂' AS ne, 'しょくどう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-095' AS sk, '事務所' AS ne, 'じむしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-096' AS sk, '会議室' AS ne, 'かいぎしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-097' AS sk, '起きる' AS ne, 'おきる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-098' AS sk, '寝る' AS ne, 'ねる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-099' AS sk, '働く' AS ne, 'はたらく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-100' AS sk, '休む' AS ne, 'やすむ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-101' AS sk, '買う' AS ne, 'かう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-102' AS sk, '借りる' AS ne, 'かりる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-103' AS sk, '貸す' AS ne, 'かす' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-104' AS sk, 'もらう' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-105' AS sk, '電車' AS ne, 'でんしゃ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-106' AS sk, '地下鉄' AS ne, 'ちかてつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-107' AS sk, '新幹線' AS ne, 'しんかんせん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-108' AS sk, '飛行機' AS ne, 'ひこうき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-109' AS sk, '右' AS ne, 'みぎ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-110' AS sk, '左' AS ne, 'ひだり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-111' AS sk, '前' AS ne, 'まえ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-112' AS sk, '後ろ' AS ne, 'うしろ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-113' AS sk, '暑い' AS ne, 'あつい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-114' AS sk, '寒い' AS ne, 'さむい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-115' AS sk, '熱い' AS ne, 'あつい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-116' AS sk, '冷たい' AS ne, 'つめたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-117' AS sk, '近い' AS ne, 'ちかい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-118' AS sk, '遠い' AS ne, 'とおい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-119' AS sk, '速い' AS ne, 'はやい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-120' AS sk, '遅い' AS ne, 'おそい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-121' AS sk, '多い' AS ne, 'おおい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-122' AS sk, '少ない' AS ne, 'すくない' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-123' AS sk, '大きい' AS ne, 'おおきい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-124' AS sk, '小さい' AS ne, 'ちいさい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-125' AS sk, '上手' AS ne, 'じょうず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-126' AS sk, '下手' AS ne, 'へた' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-127' AS sk, '好き' AS ne, 'すき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-128' AS sk, '嫌い' AS ne, 'きらい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-129' AS sk, '静か' AS ne, 'しずか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-130' AS sk, 'にぎやか' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-131' AS sk, '有名' AS ne, 'ゆうめい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-132' AS sk, '親切' AS ne, 'しんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-133' AS sk, 'たくさん' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-134' AS sk, 'すぐ' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-135' AS sk, 'きれい' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-136' AS sk, '簡単' AS ne, 'かんたん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-137' AS sk, '近く' AS ne, 'ちかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-138' AS sk, 'ときどき' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-139' AS sk, 'たくさん' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-140' AS sk, 'すぐ' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-141' AS sk, 'きれい' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-142' AS sk, '簡単' AS ne, 'かんたん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-143' AS sk, '近く' AS ne, 'ちかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-144' AS sk, 'ときどき' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-145' AS sk, 'たくさん' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-146' AS sk, 'すぐ' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-147' AS sk, 'きれい' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-148' AS sk, '簡単' AS ne, 'かんたん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-149' AS sk, '近く' AS ne, 'ちかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N5-150' AS sk, 'ときどき' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-001' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-002' AS sk, '約束' AS ne, 'やくそく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-003' AS sk, '予約' AS ne, 'よやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-004' AS sk, '都合' AS ne, 'つごう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-005' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-006' AS sk, '用意' AS ne, 'ようい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-007' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-008' AS sk, '片付け' AS ne, 'かたづけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-009' AS sk, '連絡' AS ne, 'れんらく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-010' AS sk, '相談' AS ne, 'そうだん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-011' AS sk, '報告' AS ne, 'ほうこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-012' AS sk, '説明' AS ne, 'せつめい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-013' AS sk, '出発' AS ne, 'しゅっぱつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-014' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-015' AS sk, '乗り換え' AS ne, 'のりかえ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-016' AS sk, '途中' AS ne, 'とちゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-017' AS sk, '故障' AS ne, 'こしょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-018' AS sk, '事故' AS ne, 'じこ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-019' AS sk, '間違い' AS ne, 'まちがい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-020' AS sk, '問題' AS ne, 'もんだい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-021' AS sk, '選ぶ' AS ne, 'えらぶ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-022' AS sk, '決める' AS ne, 'きめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-023' AS sk, '比べる' AS ne, 'くらべる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-024' AS sk, '調べる' AS ne, 'しらべる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-025' AS sk, '続ける' AS ne, 'つづける' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-026' AS sk, '始める' AS ne, 'はじめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-027' AS sk, '止める' AS ne, 'とめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-028' AS sk, '終わる' AS ne, 'おわる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-029' AS sk, '増える' AS ne, 'ふえる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-030' AS sk, '減る' AS ne, 'へる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-031' AS sk, '上がる' AS ne, 'あがる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-032' AS sk, '下がる' AS ne, 'さがる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-033' AS sk, '安全' AS ne, 'あんぜん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-034' AS sk, '危険' AS ne, 'きけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-035' AS sk, '安心' AS ne, 'あんしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-036' AS sk, '心配' AS ne, 'しんぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-037' AS sk, '丁寧' AS ne, 'ていねい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-038' AS sk, '親切' AS ne, 'しんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-039' AS sk, '真面目' AS ne, 'まじめ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-040' AS sk, '熱心' AS ne, 'ねっしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-041' AS sk, '必要' AS ne, 'ひつよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-042' AS sk, '無理' AS ne, 'むり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-043' AS sk, '自由' AS ne, 'じゆう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-044' AS sk, '十分' AS ne, 'じゅうぶん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-045' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-046' AS sk, '約束' AS ne, 'やくそく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-047' AS sk, '予約' AS ne, 'よやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-048' AS sk, '都合' AS ne, 'つごう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-049' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-050' AS sk, '用意' AS ne, 'ようい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-051' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-052' AS sk, '片付け' AS ne, 'かたづけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-053' AS sk, '連絡' AS ne, 'れんらく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-054' AS sk, '相談' AS ne, 'そうだん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-055' AS sk, '報告' AS ne, 'ほうこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-056' AS sk, '説明' AS ne, 'せつめい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-057' AS sk, '出発' AS ne, 'しゅっぱつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-058' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-059' AS sk, '乗り換え' AS ne, 'のりかえ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-060' AS sk, '途中' AS ne, 'とちゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-061' AS sk, '故障' AS ne, 'こしょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-062' AS sk, '事故' AS ne, 'じこ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-063' AS sk, '間違い' AS ne, 'まちがい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-064' AS sk, '問題' AS ne, 'もんだい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-065' AS sk, '選ぶ' AS ne, 'えらぶ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-066' AS sk, '決める' AS ne, 'きめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-067' AS sk, '比べる' AS ne, 'くらべる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-068' AS sk, '調べる' AS ne, 'しらべる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-069' AS sk, '続ける' AS ne, 'つづける' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-070' AS sk, '始める' AS ne, 'はじめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-071' AS sk, '止める' AS ne, 'とめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-072' AS sk, '終わる' AS ne, 'おわる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-073' AS sk, '増える' AS ne, 'ふえる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-074' AS sk, '減る' AS ne, 'へる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-075' AS sk, '上がる' AS ne, 'あがる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-076' AS sk, '下がる' AS ne, 'さがる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-077' AS sk, '安全' AS ne, 'あんぜん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-078' AS sk, '危険' AS ne, 'きけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-079' AS sk, '安心' AS ne, 'あんしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-080' AS sk, '心配' AS ne, 'しんぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-081' AS sk, '丁寧' AS ne, 'ていねい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-082' AS sk, '親切' AS ne, 'しんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-083' AS sk, '真面目' AS ne, 'まじめ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-084' AS sk, '熱心' AS ne, 'ねっしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-085' AS sk, '必要' AS ne, 'ひつよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-086' AS sk, '無理' AS ne, 'むり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-087' AS sk, '自由' AS ne, 'じゆう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-088' AS sk, '十分' AS ne, 'じゅうぶん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-089' AS sk, '予定' AS ne, 'よてい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-090' AS sk, '約束' AS ne, 'やくそく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-091' AS sk, '予約' AS ne, 'よやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-092' AS sk, '都合' AS ne, 'つごう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-093' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-094' AS sk, '用意' AS ne, 'ようい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-095' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-096' AS sk, '片付け' AS ne, 'かたづけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-097' AS sk, '連絡' AS ne, 'れんらく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-098' AS sk, '相談' AS ne, 'そうだん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-099' AS sk, '報告' AS ne, 'ほうこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-100' AS sk, '説明' AS ne, 'せつめい' AS nr
+) m ON JSON_UNQUOTE(JSON_EXTRACT(aq.context_json, '$.seed_key')) = m.sk
+JOIN vocabulary_entry ve ON ve.normalized_expression = m.ne AND ve.normalized_reading = m.nr
+SET aq.vocabulary_entry_id = ve.id
+WHERE aq.skill IN ('KANJI', 'VOCABULARY');
+
+UPDATE assessment_question aq
+JOIN (
+  SELECT 'VOCAB-EXPANDED-N4-101' AS sk, '出発' AS ne, 'しゅっぱつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-102' AS sk, '到着' AS ne, 'とうちゃく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-103' AS sk, '乗り換え' AS ne, 'のりかえ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-104' AS sk, '途中' AS ne, 'とちゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-105' AS sk, '故障' AS ne, 'こしょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-106' AS sk, '事故' AS ne, 'じこ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-107' AS sk, '間違い' AS ne, 'まちがい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-108' AS sk, '問題' AS ne, 'もんだい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-109' AS sk, '選ぶ' AS ne, 'えらぶ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-110' AS sk, '決める' AS ne, 'きめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-111' AS sk, '比べる' AS ne, 'くらべる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-112' AS sk, '調べる' AS ne, 'しらべる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-113' AS sk, '続ける' AS ne, 'つづける' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-114' AS sk, '始める' AS ne, 'はじめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-115' AS sk, '止める' AS ne, 'とめる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-116' AS sk, '終わる' AS ne, 'おわる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-117' AS sk, '増える' AS ne, 'ふえる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-118' AS sk, '減る' AS ne, 'へる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-119' AS sk, '上がる' AS ne, 'あがる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-120' AS sk, '下がる' AS ne, 'さがる' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-121' AS sk, '安全' AS ne, 'あんぜん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-122' AS sk, '危険' AS ne, 'きけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-123' AS sk, '安心' AS ne, 'あんしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-124' AS sk, '心配' AS ne, 'しんぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-125' AS sk, '丁寧' AS ne, 'ていねい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-126' AS sk, '親切' AS ne, 'しんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-127' AS sk, '真面目' AS ne, 'まじめ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-128' AS sk, '熱心' AS ne, 'ねっしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-129' AS sk, '必要' AS ne, 'ひつよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-130' AS sk, '無理' AS ne, 'むり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-131' AS sk, '自由' AS ne, 'じゆう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-132' AS sk, '十分' AS ne, 'じゅうぶん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-133' AS sk, 'たぶん' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-134' AS sk, 'しばらく' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-135' AS sk, 'きちんと' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-136' AS sk, '特に' AS ne, 'とくに' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-137' AS sk, '間に合う' AS ne, 'まにあう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-138' AS sk, '直す' AS ne, 'なおす' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-139' AS sk, 'たぶん' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-140' AS sk, 'しばらく' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-141' AS sk, 'きちんと' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-142' AS sk, '特に' AS ne, 'とくに' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-143' AS sk, '間に合う' AS ne, 'まにあう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-144' AS sk, '直す' AS ne, 'なおす' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-145' AS sk, 'たぶん' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-146' AS sk, 'しばらく' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-147' AS sk, 'きちんと' AS ne, '' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-148' AS sk, '特に' AS ne, 'とくに' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-149' AS sk, '間に合う' AS ne, 'まにあう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N4-150' AS sk, '直す' AS ne, 'なおす' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-001' AS sk, '先輩' AS ne, 'せんぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-002' AS sk, '後輩' AS ne, 'こうはい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-003' AS sk, '上司' AS ne, 'じょうし' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-004' AS sk, '相手' AS ne, 'あいて' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-005' AS sk, '就職' AS ne, 'しゅうしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-006' AS sk, '退職' AS ne, 'たいしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-007' AS sk, '失業' AS ne, 'しつぎょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-008' AS sk, '残業' AS ne, 'ざんぎょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-009' AS sk, '合格' AS ne, 'ごうかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-010' AS sk, '進学' AS ne, 'しんがく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-011' AS sk, '退学' AS ne, 'たいがく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-012' AS sk, '受験' AS ne, 'じゅけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-013' AS sk, '参加' AS ne, 'さんか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-014' AS sk, '出席' AS ne, 'しゅっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-015' AS sk, '欠席' AS ne, 'けっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-016' AS sk, '遅刻' AS ne, 'ちこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-017' AS sk, '計画' AS ne, 'けいかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-018' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-019' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-020' AS sk, '計算' AS ne, 'けいさん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-021' AS sk, '成功' AS ne, 'せいこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-022' AS sk, '失敗' AS ne, 'しっぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-023' AS sk, '目的' AS ne, 'もくてき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-024' AS sk, '結果' AS ne, 'けっか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-025' AS sk, '賛成' AS ne, 'さんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-026' AS sk, '反対' AS ne, 'はんたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-027' AS sk, '希望' AS ne, 'きぼう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-028' AS sk, '意見' AS ne, 'いけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-029' AS sk, '遠慮' AS ne, 'えんりょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-030' AS sk, '我慢' AS ne, 'がまん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-031' AS sk, '迷惑' AS ne, 'めいわく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-032' AS sk, '冗談' AS ne, 'じょうだん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-033' AS sk, '身長' AS ne, 'しんちょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-034' AS sk, '体重' AS ne, 'たいじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-035' AS sk, '怪我' AS ne, 'けが' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-036' AS sk, '健康' AS ne, 'けんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-037' AS sk, '観光' AS ne, 'かんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-038' AS sk, '帰国' AS ne, 'きこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-039' AS sk, '帰省' AS ne, 'きせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-040' AS sk, '帰宅' AS ne, 'きたく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-041' AS sk, '給料' AS ne, 'きゅうりょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-042' AS sk, '面接' AS ne, 'めんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-043' AS sk, '学歴' AS ne, 'がくれき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-044' AS sk, '経験' AS ne, 'けいけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-045' AS sk, '先輩' AS ne, 'せんぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-046' AS sk, '後輩' AS ne, 'こうはい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-047' AS sk, '上司' AS ne, 'じょうし' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-048' AS sk, '相手' AS ne, 'あいて' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-049' AS sk, '就職' AS ne, 'しゅうしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-050' AS sk, '退職' AS ne, 'たいしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-051' AS sk, '失業' AS ne, 'しつぎょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-052' AS sk, '残業' AS ne, 'ざんぎょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-053' AS sk, '合格' AS ne, 'ごうかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-054' AS sk, '進学' AS ne, 'しんがく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-055' AS sk, '退学' AS ne, 'たいがく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-056' AS sk, '受験' AS ne, 'じゅけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-057' AS sk, '参加' AS ne, 'さんか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-058' AS sk, '出席' AS ne, 'しゅっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-059' AS sk, '欠席' AS ne, 'けっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-060' AS sk, '遅刻' AS ne, 'ちこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-061' AS sk, '計画' AS ne, 'けいかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-062' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-063' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-064' AS sk, '計算' AS ne, 'けいさん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-065' AS sk, '成功' AS ne, 'せいこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-066' AS sk, '失敗' AS ne, 'しっぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-067' AS sk, '目的' AS ne, 'もくてき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-068' AS sk, '結果' AS ne, 'けっか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-069' AS sk, '賛成' AS ne, 'さんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-070' AS sk, '反対' AS ne, 'はんたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-071' AS sk, '希望' AS ne, 'きぼう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-072' AS sk, '意見' AS ne, 'いけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-073' AS sk, '遠慮' AS ne, 'えんりょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-074' AS sk, '我慢' AS ne, 'がまん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-075' AS sk, '迷惑' AS ne, 'めいわく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-076' AS sk, '冗談' AS ne, 'じょうだん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-077' AS sk, '身長' AS ne, 'しんちょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-078' AS sk, '体重' AS ne, 'たいじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-079' AS sk, '怪我' AS ne, 'けが' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-080' AS sk, '健康' AS ne, 'けんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-081' AS sk, '観光' AS ne, 'かんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-082' AS sk, '帰国' AS ne, 'きこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-083' AS sk, '帰省' AS ne, 'きせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-084' AS sk, '帰宅' AS ne, 'きたく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-085' AS sk, '給料' AS ne, 'きゅうりょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-086' AS sk, '面接' AS ne, 'めんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-087' AS sk, '学歴' AS ne, 'がくれき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-088' AS sk, '経験' AS ne, 'けいけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-089' AS sk, '先輩' AS ne, 'せんぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-090' AS sk, '後輩' AS ne, 'こうはい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-091' AS sk, '上司' AS ne, 'じょうし' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-092' AS sk, '相手' AS ne, 'あいて' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-093' AS sk, '就職' AS ne, 'しゅうしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-094' AS sk, '退職' AS ne, 'たいしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-095' AS sk, '失業' AS ne, 'しつぎょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-096' AS sk, '残業' AS ne, 'ざんぎょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-097' AS sk, '合格' AS ne, 'ごうかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-098' AS sk, '進学' AS ne, 'しんがく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-099' AS sk, '退学' AS ne, 'たいがく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-100' AS sk, '受験' AS ne, 'じゅけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-101' AS sk, '参加' AS ne, 'さんか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-102' AS sk, '出席' AS ne, 'しゅっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-103' AS sk, '欠席' AS ne, 'けっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-104' AS sk, '遅刻' AS ne, 'ちこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-105' AS sk, '計画' AS ne, 'けいかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-106' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-107' AS sk, '整理' AS ne, 'せいり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-108' AS sk, '計算' AS ne, 'けいさん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-109' AS sk, '成功' AS ne, 'せいこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-110' AS sk, '失敗' AS ne, 'しっぱい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-111' AS sk, '目的' AS ne, 'もくてき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-112' AS sk, '結果' AS ne, 'けっか' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-113' AS sk, '賛成' AS ne, 'さんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-114' AS sk, '反対' AS ne, 'はんたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-115' AS sk, '希望' AS ne, 'きぼう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-116' AS sk, '意見' AS ne, 'いけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-117' AS sk, '遠慮' AS ne, 'えんりょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-118' AS sk, '我慢' AS ne, 'がまん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-119' AS sk, '迷惑' AS ne, 'めいわく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-120' AS sk, '冗談' AS ne, 'じょうだん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-121' AS sk, '身長' AS ne, 'しんちょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-122' AS sk, '体重' AS ne, 'たいじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-123' AS sk, '怪我' AS ne, 'けが' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-124' AS sk, '健康' AS ne, 'けんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-125' AS sk, '観光' AS ne, 'かんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-126' AS sk, '帰国' AS ne, 'きこく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-127' AS sk, '帰省' AS ne, 'きせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-128' AS sk, '帰宅' AS ne, 'きたく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-129' AS sk, '給料' AS ne, 'きゅうりょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-130' AS sk, '面接' AS ne, 'めんせつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-131' AS sk, '学歴' AS ne, 'がくれき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-132' AS sk, '経験' AS ne, 'けいけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-133' AS sk, '故郷' AS ne, 'こきょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-134' AS sk, '欠席' AS ne, 'けっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-135' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-136' AS sk, '目的' AS ne, 'もくてき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-137' AS sk, '我慢' AS ne, 'がまん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-138' AS sk, '賛成' AS ne, 'さんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-139' AS sk, '故郷' AS ne, 'こきょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-140' AS sk, '欠席' AS ne, 'けっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-141' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-142' AS sk, '目的' AS ne, 'もくてき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-143' AS sk, '我慢' AS ne, 'がまん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-144' AS sk, '賛成' AS ne, 'さんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-145' AS sk, '故郷' AS ne, 'こきょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-146' AS sk, '欠席' AS ne, 'けっせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-147' AS sk, '準備' AS ne, 'じゅんび' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-148' AS sk, '目的' AS ne, 'もくてき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-149' AS sk, '我慢' AS ne, 'がまん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N3-150' AS sk, '賛成' AS ne, 'さんせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-001' AS sk, '親戚' AS ne, 'しんせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-002' AS sk, '夫婦' AS ne, 'ふうふ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-003' AS sk, '双子' AS ne, 'ふたご' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-004' AS sk, '他人' AS ne, 'たにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-005' AS sk, '才能' AS ne, 'さいのう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-006' AS sk, '能力' AS ne, 'のうりょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-007' AS sk, '長所' AS ne, 'ちょうしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-008' AS sk, '個性' AS ne, 'こせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-009' AS sk, '睡眠' AS ne, 'すいみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-010' AS sk, '食欲' AS ne, 'しょくよく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-011' AS sk, '疲労' AS ne, 'ひろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-012' AS sk, '寿命' AS ne, 'じゅみょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-013' AS sk, '共働き' AS ne, 'ともばたらき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-014' AS sk, '出勤' AS ne, 'しゅっきん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-015' AS sk, '出世' AS ne, 'しゅっせ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-016' AS sk, '地位' AS ne, 'ちい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-017' AS sk, '受験' AS ne, 'じゅけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-018' AS sk, '専攻' AS ne, 'せんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-019' AS sk, '支度' AS ne, 'したく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-020' AS sk, '履歴' AS ne, 'りれき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-021' AS sk, '話題' AS ne, 'わだい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-022' AS sk, '秘密' AS ne, 'ひみつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-023' AS sk, '言い訳' AS ne, 'いいわけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-024' AS sk, '世辞' AS ne, 'せじ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-025' AS sk, '尊敬' AS ne, 'そんけい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-026' AS sk, '謙遜' AS ne, 'けんそん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-027' AS sk, '期待' AS ne, 'きたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-028' AS sk, '苦労' AS ne, 'くろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-029' AS sk, '材料' AS ne, 'ざいりょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-030' AS sk, '服装' AS ne, 'ふくそう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-031' AS sk, '名簿' AS ne, 'めいぼ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-032' AS sk, '日程' AS ne, 'にってい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-033' AS sk, '手続き' AS ne, 'てつづき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-034' AS sk, '順序' AS ne, 'じゅんじょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-035' AS sk, '日付' AS ne, 'ひづけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-036' AS sk, '時期' AS ne, 'じき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-037' AS sk, '採用' AS ne, 'さいよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-038' AS sk, '雇用' AS ne, 'こよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-039' AS sk, '所属' AS ne, 'しょぞく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-040' AS sk, '待遇' AS ne, 'たいぐう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-041' AS sk, '指図' AS ne, 'さしず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-042' AS sk, '操縦' AS ne, 'そうじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-043' AS sk, '派遣' AS ne, 'はけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-044' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-045' AS sk, '親戚' AS ne, 'しんせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-046' AS sk, '夫婦' AS ne, 'ふうふ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-047' AS sk, '双子' AS ne, 'ふたご' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-048' AS sk, '他人' AS ne, 'たにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-049' AS sk, '才能' AS ne, 'さいのう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-050' AS sk, '能力' AS ne, 'のうりょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-051' AS sk, '長所' AS ne, 'ちょうしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-052' AS sk, '個性' AS ne, 'こせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-053' AS sk, '睡眠' AS ne, 'すいみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-054' AS sk, '食欲' AS ne, 'しょくよく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-055' AS sk, '疲労' AS ne, 'ひろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-056' AS sk, '寿命' AS ne, 'じゅみょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-057' AS sk, '共働き' AS ne, 'ともばたらき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-058' AS sk, '出勤' AS ne, 'しゅっきん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-059' AS sk, '出世' AS ne, 'しゅっせ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-060' AS sk, '地位' AS ne, 'ちい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-061' AS sk, '受験' AS ne, 'じゅけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-062' AS sk, '専攻' AS ne, 'せんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-063' AS sk, '支度' AS ne, 'したく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-064' AS sk, '履歴' AS ne, 'りれき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-065' AS sk, '話題' AS ne, 'わだい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-066' AS sk, '秘密' AS ne, 'ひみつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-067' AS sk, '言い訳' AS ne, 'いいわけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-068' AS sk, '世辞' AS ne, 'せじ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-069' AS sk, '尊敬' AS ne, 'そんけい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-070' AS sk, '謙遜' AS ne, 'けんそん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-071' AS sk, '期待' AS ne, 'きたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-072' AS sk, '苦労' AS ne, 'くろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-073' AS sk, '材料' AS ne, 'ざいりょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-074' AS sk, '服装' AS ne, 'ふくそう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-075' AS sk, '名簿' AS ne, 'めいぼ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-076' AS sk, '日程' AS ne, 'にってい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-077' AS sk, '手続き' AS ne, 'てつづき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-078' AS sk, '順序' AS ne, 'じゅんじょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-079' AS sk, '日付' AS ne, 'ひづけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-080' AS sk, '時期' AS ne, 'じき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-081' AS sk, '採用' AS ne, 'さいよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-082' AS sk, '雇用' AS ne, 'こよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-083' AS sk, '所属' AS ne, 'しょぞく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-084' AS sk, '待遇' AS ne, 'たいぐう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-085' AS sk, '指図' AS ne, 'さしず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-086' AS sk, '操縦' AS ne, 'そうじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-087' AS sk, '派遣' AS ne, 'はけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-088' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-089' AS sk, '親戚' AS ne, 'しんせき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-090' AS sk, '夫婦' AS ne, 'ふうふ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-091' AS sk, '双子' AS ne, 'ふたご' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-092' AS sk, '他人' AS ne, 'たにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-093' AS sk, '才能' AS ne, 'さいのう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-094' AS sk, '能力' AS ne, 'のうりょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-095' AS sk, '長所' AS ne, 'ちょうしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-096' AS sk, '個性' AS ne, 'こせい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-097' AS sk, '睡眠' AS ne, 'すいみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-098' AS sk, '食欲' AS ne, 'しょくよく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-099' AS sk, '疲労' AS ne, 'ひろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-100' AS sk, '寿命' AS ne, 'じゅみょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-101' AS sk, '共働き' AS ne, 'ともばたらき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-102' AS sk, '出勤' AS ne, 'しゅっきん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-103' AS sk, '出世' AS ne, 'しゅっせ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-104' AS sk, '地位' AS ne, 'ちい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-105' AS sk, '受験' AS ne, 'じゅけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-106' AS sk, '専攻' AS ne, 'せんこう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-107' AS sk, '支度' AS ne, 'したく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-108' AS sk, '履歴' AS ne, 'りれき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-109' AS sk, '話題' AS ne, 'わだい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-110' AS sk, '秘密' AS ne, 'ひみつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-111' AS sk, '言い訳' AS ne, 'いいわけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-112' AS sk, '世辞' AS ne, 'せじ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-113' AS sk, '尊敬' AS ne, 'そんけい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-114' AS sk, '謙遜' AS ne, 'けんそん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-115' AS sk, '期待' AS ne, 'きたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-116' AS sk, '苦労' AS ne, 'くろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-117' AS sk, '材料' AS ne, 'ざいりょう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-118' AS sk, '服装' AS ne, 'ふくそう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-119' AS sk, '名簿' AS ne, 'めいぼ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-120' AS sk, '日程' AS ne, 'にってい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-121' AS sk, '手続き' AS ne, 'てつづき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-122' AS sk, '順序' AS ne, 'じゅんじょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-123' AS sk, '日付' AS ne, 'ひづけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-124' AS sk, '時期' AS ne, 'じき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-125' AS sk, '採用' AS ne, 'さいよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-126' AS sk, '雇用' AS ne, 'こよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-127' AS sk, '所属' AS ne, 'しょぞく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-128' AS sk, '待遇' AS ne, 'たいぐう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-129' AS sk, '指図' AS ne, 'さしず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-130' AS sk, '操縦' AS ne, 'そうじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-131' AS sk, '派遣' AS ne, 'はけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-132' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-133' AS sk, '長所' AS ne, 'ちょうしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-134' AS sk, '苦労' AS ne, 'くろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-135' AS sk, '期待' AS ne, 'きたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-136' AS sk, '支度' AS ne, 'したく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-137' AS sk, '日程' AS ne, 'にってい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-138' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-139' AS sk, '長所' AS ne, 'ちょうしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-140' AS sk, '苦労' AS ne, 'くろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-141' AS sk, '期待' AS ne, 'きたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-142' AS sk, '支度' AS ne, 'したく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-143' AS sk, '日程' AS ne, 'にってい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-144' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-145' AS sk, '長所' AS ne, 'ちょうしょ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-146' AS sk, '苦労' AS ne, 'くろう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-147' AS sk, '期待' AS ne, 'きたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-148' AS sk, '支度' AS ne, 'したく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-149' AS sk, '日程' AS ne, 'にってい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N2-150' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-001' AS sk, '青春' AS ne, 'せいしゅん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-002' AS sk, '晩年' AS ne, 'ばんねん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-003' AS sk, '世帯' AS ne, 'せたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-004' AS sk, '庶民' AS ne, 'しょみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-005' AS sk, '身振り' AS ne, 'みぶり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-006' AS sk, '素質' AS ne, 'そしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-007' AS sk, '良心' AS ne, 'りょうしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-008' AS sk, '好意' AS ne, 'こうい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-009' AS sk, '用心' AS ne, 'ようじん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-010' AS sk, '予感' AS ne, 'よかん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-011' AS sk, '迷信' AS ne, 'めいしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-012' AS sk, 'ため息' AS ne, 'ためいき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-013' AS sk, '使い捨て' AS ne, 'つかいすて' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-014' AS sk, '下取り' AS ne, 'したどり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-015' AS sk, '倹約' AS ne, 'けんやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-016' AS sk, '出費' AS ne, 'しゅっぴ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-017' AS sk, '採用' AS ne, 'さいよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-018' AS sk, '雇用' AS ne, 'こよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-019' AS sk, '待遇' AS ne, 'たいぐう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-020' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-021' AS sk, '指図' AS ne, 'さしず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-022' AS sk, '操縦' AS ne, 'そうじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-023' AS sk, '主食' AS ne, 'しゅしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-024' AS sk, '食物' AS ne, 'しょくもつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-025' AS sk, '豊作' AS ne, 'ほうさく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-026' AS sk, '種' AS ne, 'たね' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-027' AS sk, '毒' AS ne, 'どく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-028' AS sk, '収穫' AS ne, 'しゅうかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-029' AS sk, '一括' AS ne, 'いっかつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-030' AS sk, '単位' AS ne, 'たんい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-031' AS sk, '桁' AS ne, 'けた' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-032' AS sk, '欄' AS ne, 'らん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-033' AS sk, '分裂' AS ne, 'ぶんれつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-034' AS sk, '振動' AS ne, 'しんどう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-035' AS sk, '沸騰' AS ne, 'ふっとう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-036' AS sk, '循環' AS ne, 'じゅんかん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-037' AS sk, '回収' AS ne, 'かいしゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-038' AS sk, '獲得' AS ne, 'かくとく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-039' AS sk, '派遣' AS ne, 'はけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-040' AS sk, '配属' AS ne, 'はいぞく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-041' AS sk, '縁' AS ne, 'ふち' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-042' AS sk, '隅' AS ne, 'すみ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-043' AS sk, '塊' AS ne, 'かたまり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-044' AS sk, '丈' AS ne, 'たけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-045' AS sk, '青春' AS ne, 'せいしゅん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-046' AS sk, '晩年' AS ne, 'ばんねん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-047' AS sk, '世帯' AS ne, 'せたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-048' AS sk, '庶民' AS ne, 'しょみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-049' AS sk, '身振り' AS ne, 'みぶり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-050' AS sk, '素質' AS ne, 'そしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-051' AS sk, '良心' AS ne, 'りょうしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-052' AS sk, '好意' AS ne, 'こうい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-053' AS sk, '用心' AS ne, 'ようじん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-054' AS sk, '予感' AS ne, 'よかん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-055' AS sk, '迷信' AS ne, 'めいしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-056' AS sk, 'ため息' AS ne, 'ためいき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-057' AS sk, '使い捨て' AS ne, 'つかいすて' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-058' AS sk, '下取り' AS ne, 'したどり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-059' AS sk, '倹約' AS ne, 'けんやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-060' AS sk, '出費' AS ne, 'しゅっぴ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-061' AS sk, '採用' AS ne, 'さいよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-062' AS sk, '雇用' AS ne, 'こよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-063' AS sk, '待遇' AS ne, 'たいぐう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-064' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-065' AS sk, '指図' AS ne, 'さしず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-066' AS sk, '操縦' AS ne, 'そうじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-067' AS sk, '主食' AS ne, 'しゅしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-068' AS sk, '食物' AS ne, 'しょくもつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-069' AS sk, '豊作' AS ne, 'ほうさく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-070' AS sk, '種' AS ne, 'たね' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-071' AS sk, '毒' AS ne, 'どく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-072' AS sk, '収穫' AS ne, 'しゅうかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-073' AS sk, '一括' AS ne, 'いっかつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-074' AS sk, '単位' AS ne, 'たんい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-075' AS sk, '桁' AS ne, 'けた' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-076' AS sk, '欄' AS ne, 'らん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-077' AS sk, '分裂' AS ne, 'ぶんれつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-078' AS sk, '振動' AS ne, 'しんどう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-079' AS sk, '沸騰' AS ne, 'ふっとう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-080' AS sk, '循環' AS ne, 'じゅんかん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-081' AS sk, '回収' AS ne, 'かいしゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-082' AS sk, '獲得' AS ne, 'かくとく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-083' AS sk, '派遣' AS ne, 'はけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-084' AS sk, '配属' AS ne, 'はいぞく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-085' AS sk, '縁' AS ne, 'ふち' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-086' AS sk, '隅' AS ne, 'すみ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-087' AS sk, '塊' AS ne, 'かたまり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-088' AS sk, '丈' AS ne, 'たけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-089' AS sk, '青春' AS ne, 'せいしゅん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-090' AS sk, '晩年' AS ne, 'ばんねん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-091' AS sk, '世帯' AS ne, 'せたい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-092' AS sk, '庶民' AS ne, 'しょみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-093' AS sk, '身振り' AS ne, 'みぶり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-094' AS sk, '素質' AS ne, 'そしつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-095' AS sk, '良心' AS ne, 'りょうしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-096' AS sk, '好意' AS ne, 'こうい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-097' AS sk, '用心' AS ne, 'ようじん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-098' AS sk, '予感' AS ne, 'よかん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-099' AS sk, '迷信' AS ne, 'めいしん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-100' AS sk, 'ため息' AS ne, 'ためいき' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-101' AS sk, '使い捨て' AS ne, 'つかいすて' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-102' AS sk, '下取り' AS ne, 'したどり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-103' AS sk, '倹約' AS ne, 'けんやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-104' AS sk, '出費' AS ne, 'しゅっぴ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-105' AS sk, '採用' AS ne, 'さいよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-106' AS sk, '雇用' AS ne, 'こよう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-107' AS sk, '待遇' AS ne, 'たいぐう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-108' AS sk, '赴任' AS ne, 'ふにん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-109' AS sk, '指図' AS ne, 'さしず' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-110' AS sk, '操縦' AS ne, 'そうじゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-111' AS sk, '主食' AS ne, 'しゅしょく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-112' AS sk, '食物' AS ne, 'しょくもつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-113' AS sk, '豊作' AS ne, 'ほうさく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-114' AS sk, '種' AS ne, 'たね' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-115' AS sk, '毒' AS ne, 'どく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-116' AS sk, '収穫' AS ne, 'しゅうかく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-117' AS sk, '一括' AS ne, 'いっかつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-118' AS sk, '単位' AS ne, 'たんい' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-119' AS sk, '桁' AS ne, 'けた' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-120' AS sk, '欄' AS ne, 'らん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-121' AS sk, '分裂' AS ne, 'ぶんれつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-122' AS sk, '振動' AS ne, 'しんどう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-123' AS sk, '沸騰' AS ne, 'ふっとう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-124' AS sk, '循環' AS ne, 'じゅんかん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-125' AS sk, '回収' AS ne, 'かいしゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-126' AS sk, '獲得' AS ne, 'かくとく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-127' AS sk, '派遣' AS ne, 'はけん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-128' AS sk, '配属' AS ne, 'はいぞく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-129' AS sk, '縁' AS ne, 'ふち' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-130' AS sk, '隅' AS ne, 'すみ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-131' AS sk, '塊' AS ne, 'かたまり' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-132' AS sk, '丈' AS ne, 'たけ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-133' AS sk, '倹約' AS ne, 'けんやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-134' AS sk, '獲得' AS ne, 'かくとく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-135' AS sk, '庶民' AS ne, 'しょみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-136' AS sk, '用心' AS ne, 'ようじん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-137' AS sk, '回収' AS ne, 'かいしゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-138' AS sk, '分裂' AS ne, 'ぶんれつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-139' AS sk, '倹約' AS ne, 'けんやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-140' AS sk, '獲得' AS ne, 'かくとく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-141' AS sk, '庶民' AS ne, 'しょみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-142' AS sk, '用心' AS ne, 'ようじん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-143' AS sk, '回収' AS ne, 'かいしゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-144' AS sk, '分裂' AS ne, 'ぶんれつ' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-145' AS sk, '倹約' AS ne, 'けんやく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-146' AS sk, '獲得' AS ne, 'かくとく' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-147' AS sk, '庶民' AS ne, 'しょみん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-148' AS sk, '用心' AS ne, 'ようじん' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-149' AS sk, '回収' AS ne, 'かいしゅう' AS nr
+UNION ALL
+  SELECT 'VOCAB-EXPANDED-N1-150' AS sk, '分裂' AS ne, 'ぶんれつ' AS nr
+) m ON JSON_UNQUOTE(JSON_EXTRACT(aq.context_json, '$.seed_key')) = m.sk
+JOIN vocabulary_entry ve ON ve.normalized_expression = m.ne AND ve.normalized_reading = m.nr
+SET aq.vocabulary_entry_id = ve.id
+WHERE aq.skill IN ('KANJI', 'VOCABULARY');
 
 COMMIT;
 SET SESSION SQL_SAFE_UPDATES = @jlas_smart_test_previous_safe_updates;
