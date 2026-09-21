@@ -28,6 +28,11 @@ public class FlashcardSet {
             foreignKey = @ForeignKey(name = "fk_flashcard_set_owner"))
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "folder_id",
+            foreignKey = @ForeignKey(name = "fk_flashcard_set_folder"))
+    private FlashcardFolder folder;
+
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
@@ -41,6 +46,10 @@ public class FlashcardSet {
     @Column(name = "visibility", nullable = false, length = 20)
     @Builder.Default
     private String visibility = "PRIVATE";
+
+    @Column(name = "is_draft", nullable = false)
+    @Builder.Default
+    private boolean draft = false;
 
     /** NOT_SCANNED/SAFE/UNSAFE. */
     @Column(name = "moderation_status", nullable = false, length = 20)
