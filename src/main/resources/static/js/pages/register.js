@@ -297,7 +297,6 @@
 
       showOtpStep();
       JlasUI.showAlert(alertEl, 'Mã xác minh đã được gửi đến ' + targetEmail + '.', 'success');
-      JlasUI.toast('Đã gửi mã xác minh', 'success');
     } catch (error) {
       JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ. Vui lòng thử lại.', 'error');
     } finally {
@@ -332,7 +331,6 @@
       verificationCompleted = true;
       JLabAuth.saveSession(json.data);
       JlasUI.showAlert(alertEl, 'Xác minh thành công. Đang chuyển hướng…', 'success');
-      JlasUI.toast('Tài khoản đã được xác minh', 'success');
       window.setTimeout(function () { window.location.href = '/'; }, 600);
     } catch (error) {
       JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ. Vui lòng thử lại.', 'error');
@@ -368,7 +366,6 @@
       startCooldown(RESEND_COOLDOWN_SECONDS);
       otpDigits[0].focus();
       JlasUI.showAlert(alertEl, 'Đã gửi mã xác minh mới đến ' + targetEmail + '.', 'success');
-      JlasUI.toast('Đã gửi lại mã xác minh', 'success');
     } catch (error) {
       JlasUI.showAlert(alertEl, 'Không thể kết nối đến máy chủ. Vui lòng thử lại.', 'error');
       updateCooldownButton();

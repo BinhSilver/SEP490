@@ -21,13 +21,13 @@
   max-width: none;
   box-sizing: border-box;
   margin-inline: auto;
-  background: #ffffff !important;
+  background: var(--color-surface-lowest, #ffffff) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
   font-family: var(--font-body, Inter, system-ui, sans-serif);
   color: var(--color-on-surface);
-  transition: all 500ms ease;
+  transition: background-color var(--dur-medium, 300ms) ease, border-color var(--dur-medium, 300ms) ease, box-shadow var(--dur-medium, 300ms) ease;
 }
 
 /* Unified nav: semi-transparent dark backdrop ensures white text is always
@@ -38,7 +38,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: #ffffff !important;
+  background: var(--color-surface-lowest, #ffffff) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   pointer-events: none;

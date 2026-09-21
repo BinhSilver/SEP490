@@ -1,6 +1,7 @@
 package com.jlas.auth.dto;
 
 import lombok.Data;
+import lombok.ToString;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -22,9 +23,11 @@ public class RegisterRequest {
 
     @NotBlank
     @Size(min = 8, max = 72)
+    @ToString.Exclude
     private String password;
 
     @NotBlank
+    @ToString.Exclude
     private String confirmPassword;
 
     @NotBlank

@@ -55,6 +55,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final ContentModerationPort moderation;
     private final UserActionPolicyPort actionPolicy;
     private final UserNotificationPort notifications;
+    private final com.jlas.flashcard.service.FlashcardStudyAccess studyAccess;
     @Value("${upload.path.flashcard:uploads/flashcard}") private String uploadPath;
 
     @Override @Transactional(readOnly = true)
@@ -272,8 +273,8 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override public UploadResponse upload(MultipartFile file,Long userId){login(userId);if(file==null||file.isEmpty())throw bad("Cần chọn ảnh");String type=Optional.ofNullable(file.getContentType()).orElse("").toLowerCase(Locale.ROOT);if(!Set.of("image/jpeg","image/png","image/gif","image/webp").contains(type)||file.getSize()>5*1024*1024)throw bad("Ảnh phải là JPEG/PNG/GIF/WEBP và không quá 5MB");String ext=type.equals("image/png")?".png":type.equals("image/gif")?".gif":type.equals("image/webp")?".webp":".jpg",name=UUID.randomUUID()+ext;try{Path directory=Paths.get(uploadPath).toAbsolutePath().normalize();Files.createDirectories(directory);file.transferTo(directory.resolve(name));}catch(IOException exception){throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Không thể lưu ảnh",exception);}return UploadResponse.builder().filename(name).url("/uploads/flashcard/"+name).build();}
 
     private FlashcardSet active(Long id){FlashcardSet set=sets.findById(id).orElseThrow(()->missing("Không tìm thấy bộ thẻ"));if(set.getDeletedAt()!=null)throw missing("Không tìm thấy bộ thẻ");return set;}
-    private FlashcardSet readable(Long id,Long userId){FlashcardSet set=active(id);if((userId!=null&&set.getOwner().getId().equals(userId))||(!set.isDraft()&&"PUBLIC".equals(set.getVisibility())))return set;throw forbidden("Bộ thẻ là riêng tư");}
-    private FlashcardSet studyable(Long id,Long userId){FlashcardSet set=readable(id,userId);if(set.isDraft())throw bad("Bản nháp chưa thể học hoặc kiểm tra");return set;}
+    private FlashcardSet readable(Long id,Long userId){return studyAccess.readable(id,userId);}
+    private FlashcardSet studyable(Long id,Long userId){return studyAccess.studyable(id,userId);}
     private FlashcardSet owner(Long id,Long userId){FlashcardSet set=active(id);if(set.getOwner().getId().equals(login(userId)))return set;throw forbidden("Chỉ chủ sở hữu được thay đổi");}
     private FlashcardFolder folder(Long id,Long userId){return folders.findByIdAndOwnerId(id,login(userId)).orElseThrow(()->missing("Không tìm thấy thư mục"));}
     private FlashcardFolder folderOrNull(Long id,Long userId){return id==null||id==0?null:folder(id,userId);}
