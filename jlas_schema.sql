@@ -1282,7 +1282,8 @@ CREATE TABLE jlpt_section_result (
     CONSTRAINT chk_jlpt_section_result_score CHECK (score >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Profile va ket qua cap cao cua Smart Test; user/status/thoi gian dung tu attempt cha.
+-- [JLAS-W0108] Snapshot khảo sát đầu vào (goal/target_level/self_reported_level + thời lượng học),
+-- là đầu vào cho sinh learning path cá nhân hoá và khởi tạo Smart Test.
 CREATE TABLE user_learning_survey (
     user_id BIGINT UNSIGNED NOT NULL,
     goal VARCHAR(30) NOT NULL,
@@ -1296,6 +1297,7 @@ CREATE TABLE user_learning_survey (
     CONSTRAINT fk_learning_survey_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Profile va ket qua cap cao cua Smart Test; user/status/thoi gian dung tu attempt cha.
 CREATE TABLE smart_test_session (
     attempt_id              BIGINT UNSIGNED NOT NULL,
     goal                    VARCHAR(30) NOT NULL,
@@ -1456,6 +1458,8 @@ CREATE TABLE user_learning_path (
     goal         VARCHAR(20) NULL,
     target_level VARCHAR(10) NULL,
     current_level VARCHAR(10) NULL,
+    -- [JLAS-W0108] Snapshot nguồn sinh path (survey + Smart Test attempt) + policy version để
+    -- tái sinh path hai pha (warm-up → goal) không mất lịch sử; không FK để tránh vòng tham chiếu.
     survey_id             BIGINT UNSIGNED NULL,  -- Survey snapshot reference (no FK yet).
     assessment_attempt_id BIGINT UNSIGNED NULL,  -- Smart Test attempt snapshot (no FK yet).
     assessment_revision   VARCHAR(50) NULL,
@@ -1487,6 +1491,8 @@ CREATE TABLE user_learning_path_item (
     lesson_id        BIGINT UNSIGNED NOT NULL,
     order_index      INT UNSIGNED NOT NULL,
     reason           TEXT NULL,
+    -- [JLAS-W0108] Item hai pha (WARM_UP → GOAL_LEARNING): phase + reason_code + day_number
+    -- sắp lịch lộ trình; kind để NULL cho item hai pha, giữ tương thích item cũ.
     kind             VARCHAR(20) NULL,           -- CURRICULUM/REVIEW (legacy); NULL for two-phase items.
     phase            VARCHAR(20) NULL,           -- WARM_UP / GOAL_LEARNING.
     reason_code      VARCHAR(50) NULL,
