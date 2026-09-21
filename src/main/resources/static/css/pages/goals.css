@@ -1,0 +1,378 @@
+/* ==========================================================================
+   JLAS Goals & Retention Page Styles (goals.css)
+   Complies with skillcode.md ID-based styling & theme synchronization rules.
+   ========================================================================== */
+
+#goalsApp {
+  min-height: calc(100dvh - 72px);
+  background: transparent;
+  color: var(--color-on-surface, #161d1f);
+}
+
+#goalsContainer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-6, 32px) var(--space-4, 16px);
+}
+
+#goalsHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 24px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--color-surface-lowest), var(--color-secondary-container));
+  backdrop-filter: blur(12px);
+}
+
+#goalsHeaderIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--color-tertiary-fixed-dim), var(--color-tertiary-container));
+  box-shadow: 0 8px 24px rgba(201, 167, 77, 0.20);
+  color: var(--color-on-tertiary-container);
+  font-size: 26px;
+}
+
+#goalsHeaderTitle {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-family: var(--font-heading, "Hanken Grotesk", sans-serif);
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+#goalsHeaderDesc {
+  margin: 4px 0 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+#retentionLoading {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+#retentionLoading i {
+  color: var(--color-primary);
+  font-size: 2.2rem;
+}
+
+#retentionError {
+  margin-bottom: 24px;
+  border-radius: 14px;
+}
+
+#retentionTopGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+#dailyProgressCard,
+#streakCard,
+#dailyMissionsCard,
+#targetSettingsCard {
+  position: relative;
+  padding: 24px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 20px;
+  background: var(--color-surface-lowest);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+#dailyProgressCard:hover,
+#streakCard:hover,
+#dailyMissionsCard:hover,
+#targetSettingsCard:hover {
+  border-color: var(--color-primary-container);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
+}
+
+#dailyProgressRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 16px 0 20px;
+}
+
+#dailyGoalRing {
+  --goal: 0deg;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 110px;
+  height: 110px;
+  flex: 0 0 110px;
+  border-radius: 50%;
+  background: conic-gradient(var(--color-tertiary-container) var(--goal), var(--color-surface-container) 0);
+  box-shadow: 0 0 20px rgba(201, 167, 77, 0.20);
+}
+
+#dailyGoalRing::before {
+  content: "";
+  position: absolute;
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: var(--color-surface-low);
+}
+
+#dailyGoalPercent {
+  position: relative;
+  z-index: 1;
+  color: var(--color-tertiary);
+  font-family: var(--font-heading, "Hanken Grotesk", sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+#dailyGoalMetrics {
+  display: grid;
+  gap: 12px;
+}
+
+#dailyGoalMetrics > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--color-surface-low);
+}
+
+#dailyGoalMetrics span {
+  color: var(--color-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+#dailyGoalMetrics strong {
+  color: var(--color-on-surface);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+#streakCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(145deg, var(--color-surface-lowest), rgba(231, 195, 101, 0.18));
+}
+
+#streakFlame {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--color-tertiary), var(--color-tertiary-container));
+  box-shadow: 0 8px 24px rgba(201, 167, 77, 0.28);
+  color: var(--color-on-tertiary);
+  font-size: 32px;
+  animation: goals-flame-bounce 2.2s ease-in-out infinite;
+}
+
+#currentStreak {
+  display: block;
+  margin: 4px 0 2px;
+  color: var(--color-on-surface);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+#streakMilestone {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+#streakStats {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--color-surface-low);
+}
+
+#streakStats span {
+  color: var(--color-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+#streakStats strong {
+  color: var(--color-tertiary);
+  font-size: 1rem;
+}
+
+#useFreezeBtn {
+  grid-column: 1 / -1;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 600;
+
+  gap: 8px;
+}
+
+#retentionMainGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+.retention-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.retention-section-head h2 {
+  margin: 4px 0 0;
+  color: var(--color-on-surface);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.retention-section-head i {
+  color: var(--color-primary);
+  font-size: 22px;
+}
+
+#dailyMissionList {
+  display: grid;
+  gap: 12px;
+}
+
+.retention-mission {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 14px;
+  background: var(--color-surface-lowest);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.retention-mission:hover {
+  border-color: var(--color-primary-container);
+  background: var(--color-primary-fixed);
+}
+
+.retention-mission.is-complete {
+  border-color: rgba(0, 105, 71, 0.40);
+  background: var(--color-success-bg);
+}
+
+.retention-mission__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-secondary-container);
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.retention-mission h3 {
+  margin: 0 0 4px;
+  color: var(--color-on-surface);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.retention-mission p {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.retention-mission__reward {
+  color: var(--color-tertiary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+#dailyTargetForm {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  align-items: center;
+  gap: 12px 14px;
+}
+
+#dailyTargetForm label {
+  color: var(--color-on-surface-variant);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+#dailyTargetForm input {
+  height: 40px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+#saveTargetBtn {
+  grid-column: 1 / -1;
+  height: 44px;
+  margin-top: 8px;
+  border-radius: 12px;
+  font-weight: 600;
+
+  gap: 8px;
+}
+
+@keyframes goals-flame-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.05); }
+}
+
+@media (max-width: 860px) {
+  #retentionTopGrid,
+  #retentionMainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+#retentionCelebration {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(22, 29, 31, .34);
+  backdrop-filter: blur(5px);
+}
+
+#retentionCelebrationCard {
+  width: min(440px, 100%);
+  padding: 28px;
+  border-radius: 24px;
+  background: var(--color-surface, #fff);
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(22, 29, 31, .18);
+}
+
+#retentionCelebrationCard .kitsu-guide {
+  margin-bottom: 20px;
+  text-align: left;
+}

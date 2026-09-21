@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiểm tra Flashcard · JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/inputs.css" />
+  <link rel="stylesheet" href="/css/components/forms.css" />
+  <link rel="stylesheet" href="/css/components/dropdowns.css" />
+  <link rel="stylesheet" href="/css/components/toast.css" />
+  <link rel="stylesheet" href="/css/components/footer.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/flashcard/quiz-theme.css?v=20260903-6" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+</head>
+<body id="jlabBasePage" class="flashcard-page flashcard-page--quiz">
+  <div id="jlabBaseShellMount"></div>
+  <main id="jlabBaseContent" class="app-main app-main--wide">
+    <div id="quiz-hero-root"></div>
+    <div id="quiz-toolbar-root"></div>
+    <div class="page-body quiz-workspace">
+      <aside class="sidebar quiz-sidebar" aria-label="Tùy chọn bài kiểm tra">
+        <div class="sidebar-block quiz-sidebar__block">
+          <div class="sidebar-title"><i class="fa-solid fa-sliders"></i> Bộ lọc thẻ <button type="button" class="quiz-reset-filters" id="btn-reset-filters">Đặt lại</button></div>
+          <div class="field quiz-set-field">
+            <label class="field__label" for="set-selector">Bộ đang kiểm tra</label>
+            <select id="set-selector" class="field-select select quiz-set-selector" aria-label="Chọn bộ từ"></select>
+          </div>
+          <div class="quiz-filter-section">
+            <span class="field__label">Cấp độ JLPT</span>
+            <div class="quiz-chip-grid" data-filter-group="jlpt">
+              <button type="button" class="quiz-filter-chip" data-filter-key="jlpt" data-filter-value="">Tất cả</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="jlpt" data-filter-value="N5">N5</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="jlpt" data-filter-value="N4">N4</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="jlpt" data-filter-value="N3">N3</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="jlpt" data-filter-value="N2">N2</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="jlpt" data-filter-value="N1">N1</button>
+            </div>
+            <select id="filter-jlpt" class="field-select select quiz-filter-source" aria-hidden="true" tabindex="-1">
+              <option value="">Tất cả</option><option value="N5">N5</option><option value="N4">N4</option><option value="N3">N3</option><option value="N2">N2</option><option value="N1">N1</option>
+            </select>
+          </div>
+          <div class="quiz-filter-section">
+            <span class="field__label">Loại từ</span>
+            <div class="quiz-chip-list" data-filter-group="wordType">
+              <button type="button" class="quiz-filter-chip" data-filter-key="wordType" data-filter-value="">Tất cả</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="wordType" data-filter-value="NOUN">Danh từ</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="wordType" data-filter-value="VERB">Động từ</button>
+              <button type="button" class="quiz-filter-chip" data-filter-key="wordType" data-filter-value="ADJ">Tính từ</button>
+            </div>
+            <select id="filter-word-type" class="field-select select quiz-filter-source" aria-hidden="true" tabindex="-1">
+              <option value="">Tất cả</option><option value="NOUN">Danh từ</option><option value="VERB">Động từ</option><option value="ADJ">Tính từ</option><option value="KANJI">Kanji</option><option value="OTHER">Khác</option>
+            </select>
+          </div>
+          <div class="quiz-filter-section">
+            <label class="field__label" for="filter-lesson">Bài học</label>
+            <select id="filter-lesson" class="field-select select"><option value="">Tất cả</option></select>
+          </div>
+          <div class="quiz-filter-section quiz-filter-toggles">
+            <label class="toggle-row"><span><i class="fa-solid fa-star"></i> Chỉ thẻ đã đánh dấu sao</span><input type="checkbox" id="toggle-starred-filter"><span class="toggle-ui"></span></label>
+            <label class="toggle-row"><span><i class="fa-solid fa-circle-exclamation"></i> Chỉ thẻ chưa nhớ</span><input type="checkbox" id="toggle-not-remembered"><span class="toggle-ui"></span></label>
+          </div>
+          <button type="button" class="btn btn--secondary btn-block quiz-filter-button" id="btn-apply-filter"><i class="fa-solid fa-check"></i> Áp dụng lọc</button>
+        </div>
+
+        <div class="sidebar-block quiz-sidebar__block">
+          <div class="sidebar-title"><i class="fa-solid fa-list-check"></i> Cấu hình câu hỏi</div>
+          <label class="quiz-field-label" for="quiz-question-field">Câu hỏi bằng</label>
+          <select class="select quiz-field-select" id="quiz-question-field">
+            <option value="" selected disabled>Chọn nội dung...</option>
+            <option value="KANJI">Kanji</option>
+            <option value="MEANING">Nghĩa tiếng Việt</option>
+            <option value="HIRAGANA">Hiragana</option>
+          </select>
+          <label class="quiz-field-label" for="quiz-answer-field">Đáp án bằng</label>
+          <select class="select quiz-field-select" id="quiz-answer-field">
+            <option value="" selected disabled>Chọn nội dung...</option>
+            <option value="KANJI">Kanji</option>
+            <option value="MEANING">Nghĩa tiếng Việt</option>
+            <option value="HIRAGANA">Hiragana</option>
+          </select>
+        </div>
+
+        <div class="sidebar-block quiz-sidebar__block quiz-shortcuts">
+          <div class="sidebar-title"><i class="fa-solid fa-keyboard"></i> Phím tắt</div>
+          <div class="kbd-list">
+            <div><kbd>1</kbd>–<kbd>4</kbd> Chọn đáp án</div>
+            <div><kbd>→</kbd> / <kbd>Enter</kbd> Câu tiếp</div>
+          </div>
+          <button type="button" class="btn btn--ghost btn-block quiz-help-button" id="btn-help" title="Phím tắt" aria-label="Phím tắt"><i class="fa-solid fa-keyboard"></i> Xem đầy đủ phím tắt</button>
+        </div>
+      </aside>
+
+      <section class="main">
+        <div class="study-layout" id="study-layout">
+          <div class="study-col">
+          <div class="container container-wide" id="page-root"></div>
+          </div>
+          <div class="ai-col" id="ai-col" hidden>
+            <div class="ai-panel">
+              <div class="ai-header">
+                <div class="ai-tabs" role="tablist" aria-label="Chế độ AI">
+                  <button type="button" class="ai-tab is-active" data-ai="explain" role="tab">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Giải thích
+                  </button>
+                  <button type="button" class="ai-tab" data-ai="examples" role="tab">
+                    <i class="fa-solid fa-comments"></i> Ví dụ
+                  </button>
+                  <button type="button" class="ai-tab" data-ai="kanji" role="tab">
+                    <i class="fa-solid fa-language"></i> Phân tích Kanji
+                  </button>
+                </div>
+                <button type="button" class="btn-icon" id="btn-close-ai" aria-label="Đóng AI">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div class="ai-messages" id="ai-messages" aria-live="polite"></div>
+              <form class="ai-composer" id="ai-composer">
+                <input type="text" id="ai-input" placeholder="Hỏi AI về câu hiện tại..." autocomplete="off"
+                  aria-label="Hỏi AI">
+                <button type="submit" class="btn btn-primary" aria-label="Gửi">
+                  <i class="fa-solid fa-paper-plane"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="quiz-footer"><span>© 2024 JLPT Master. All rights reserved.</span></footer>
+
+  <div class="modal-backdrop" id="help-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-keyboard"></i> Phím tắt kiểm tra Flashcard</h3>
+        <button type="button" class="btn-icon" data-close-help aria-label="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="kbd-grid">
+          <div><kbd>1</kbd>–<kbd>4</kbd> Chọn A–D</div>
+          <div><kbd>A</kbd>–<kbd>D</kbd> Chọn đáp án</div>
+          <div><kbd>→</kbd> Câu tiếp</div>
+          <div><kbd>Enter</kbd> Câu tiếp</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/flashcard/js/common.js?v=20260913-envelope"></script>
+  <script src="/flashcard/js/quiz-page.js?v=20260913-envelope"></script>
+</body>
+</html>

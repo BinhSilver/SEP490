@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
  * Table: flashcard_study_session
  */
 @Entity
-@Table(name = "flashcard_study_session")
+@Table(name = "flashcard_study_session", uniqueConstraints = @UniqueConstraint(
+        name = "uk_flashcard_session_creation", columnNames = {"user_id", "creation_request_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,7 +34,13 @@ public class FlashcardStudySession {
             foreignKey = @ForeignKey(name = "fk_flashcard_session_set"))
     private FlashcardSet set;
 
-    /** FLASHCARD/QUIZ. */
+    @Column(name = "creation_request_id", length = 36)
+    private String creationRequestId;
+
+    @Column(name = "creation_fingerprint", length = 64)
+    private String creationFingerprint;
+
+    /** FLASHCARD/QUIZ/SPEED_RECALL. */
     @Column(name = "session_type", nullable = false, length = 20)
     private String sessionType;
 

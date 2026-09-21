@@ -1,0 +1,1020 @@
+/* Stitch focused study screen. */
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(225,224,255,.55), transparent 340px),
+    var(--fc-surface);
+}
+
+#jlabBasePage.flashcard-page--study .study-wrap {
+  width: min(100%, 720px);
+  min-height: calc(100vh - var(--header-height));
+  padding: 34px 24px 90px;
+}
+
+#jlabBasePage.flashcard-page--study .study-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+#jlabBasePage.flashcard-page--study .study-top > a,
+#jlabBasePage.flashcard-page--study .study-title {
+  display: none;
+}
+
+#jlabBasePage.flashcard-page--study .study-top {
+  grid-template-columns: 1fr auto;
+  width: min(100%, 520px);
+  margin-inline: auto;
+}
+
+#jlabBasePage.flashcard-page--study .study-title {
+  margin: 0;
+  overflow: hidden;
+  font-size: 18px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#jlabBasePage.flashcard-page--study .study-progress-text {
+  min-width: 62px;
+  color: var(--fc-on-variant);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+}
+
+#jlabBasePage.flashcard-page--study .study-session-stats {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--fc-on-variant);
+  font-size: 14px;
+}
+
+#jlabBasePage.flashcard-page--study .study-session-stats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+#jlabBasePage.flashcard-page--study .study-session-stats b { font-weight: 600; }
+
+#jlabBasePage.flashcard-page--study .study-session-stats #btn-settings {
+  margin-left: auto;
+  color: var(--fc-primary);
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--study .study-session-progress {
+  width: min(100%, 520px);
+  height: 5px;
+  margin: 0 auto 86px;
+  overflow: hidden;
+  background: #d8e7ff;
+  border-radius: 999px;
+}
+
+#jlabBasePage.flashcard-page--study .study-session-progress > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #4edea3;
+  border-radius: 999px;
+  transition: width .3s ease;
+}
+
+#jlabBasePage.flashcard-page--study .study-stage {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 480px) 48px;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 120px;
+}
+
+#jlabBasePage.flashcard-page--study .study-nav-btn {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-mid);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+#jlabBasePage.flashcard-page--study .study-nav-btn:hover {
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+}
+
+#jlabBasePage.flashcard-page--study .flip-card {
+  width: 100%;
+  height: 360px;
+  perspective: 1400px;
+}
+
+#jlabBasePage.flashcard-page--study .flip-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform .5s cubic-bezier(.4,0,.2,1);
+  transform-style: preserve-3d;
+}
+
+#jlabBasePage.flashcard-page--study .flip-card__inner.is-flipped { transform: rotateY(180deg); }
+
+#jlabBasePage.flashcard-page--study .flip-card__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 42px;
+  overflow: hidden;
+  color: var(--fc-on-surface);
+  background:
+    radial-gradient(circle at 85% 12%, rgba(70,72,212,.07), transparent 32%),
+    var(--fc-surface-lowest);
+  border: 1px solid rgba(199,196,215,.45);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: 0 18px 46px rgba(33,49,69,.13);
+  backface-visibility: hidden;
+  text-align: center;
+}
+
+#jlabBasePage.flashcard-page--study .flip-card__back { transform: rotateY(180deg); }
+
+#jlabBasePage.flashcard-page--study .flip-label {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  color: var(--fc-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+#jlabBasePage.flashcard-page--study .flip-text {
+  color: var(--fc-on-surface);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+#jlabBasePage.flashcard-page--study .flip-image {
+  max-width: 78%;
+  max-height: 130px;
+  margin-top: 18px;
+  object-fit: contain;
+  border-radius: var(--fc-radius-sm);
+}
+
+#jlabBasePage.flashcard-page--study .study-quality-help {
+  margin: 0 0 8px;
+  color: var(--fc-on-variant);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 1.25fr repeat(3, 1fr);
+  gap: 6px;
+  width: min(100%, 520px);
+  margin: 0 auto 34px;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions .btn {
+  min-width: 0;
+  min-height: 72px !important;
+  padding: 8px;
+  border-radius: var(--fc-radius-sm) !important;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions .btn-wrong {
+  color: #a74343;
+  background: #ffe6e8;
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions .btn-correct {
+  color: var(--fc-success);
+  background: var(--fc-success-soft);
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions [data-quality="5"] {
+  color: #fff;
+  background: #74c8ae;
+}
+
+#jlabBasePage.flashcard-page--study #btn-flip {
+  color: #fff !important;
+  background: var(--fc-primary) !important;
+  box-shadow: 0 5px 14px rgba(70,72,212,.2) !important;
+}
+
+#jlabBasePage.flashcard-page--study .study-hint {
+  width: min(100%, 520px);
+  margin: 0;
+  color: var(--fc-on-variant);
+  font-size: 12px;
+  text-align: center;
+}
+
+#jlabBasePage.flashcard-page--study .lib-empty {
+  padding: 60px 24px;
+  color: var(--fc-on-variant);
+  background: #fff;
+  border: 1px dashed var(--fc-outline-soft);
+  border-radius: var(--fc-radius-lg);
+  text-align: center;
+}
+
+#jlabBasePage.flashcard-page--study .study-complete { margin-top: 34px; }
+
+#jlabBasePage.flashcard-page--study .complete-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 24px;
+}
+
+#jlabBasePage.flashcard-page--study .complete-col {
+  padding: 26px;
+  color: var(--fc-on-surface);
+  background: #fff;
+  border-color: rgba(199,196,215,.35);
+}
+
+#jlabBasePage.flashcard-page--study .complete-col-title { color: var(--fc-on-surface); }
+
+#jlabBasePage.flashcard-page--study .quote-card {
+  margin-bottom: 22px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--fc-outline-soft);
+  text-align: center;
+}
+
+#jlabBasePage.flashcard-page--study .quote-card__ja {
+  color: var(--fc-on-surface);
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+#jlabBasePage.flashcard-page--study .ring {
+  background: conic-gradient(var(--fc-success-strong) calc(var(--pct) * 1%), #d8e7ff 0);
+}
+
+#jlabBasePage.flashcard-page--study .session-stat,
+#jlabBasePage.flashcard-page--study .next-btn {
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-low);
+  border-color: transparent;
+}
+
+#jlabBasePage.flashcard-page--study .next-btn--primary { color: #fff; background: var(--fc-primary); }
+#jlabBasePage.flashcard-page--study .next-btn--danger { color: var(--fc-error); background: var(--fc-error-soft); }
+
+#jlabBasePage.flashcard-page--study .study-quick-setting {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-surface-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+}
+
+#jlabBasePage.flashcard-page--study .study-quick-setting__label {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-on-surface-variant);
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal {
+  width: min(560px, calc(100% - (var(--space-4) * 2)));
+  max-height: calc(100dvh - (var(--space-4) * 2));
+  overflow: auto;
+  color: var(--color-on-surface);
+  background: var(--color-surface-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal-header,
+#jlabBasePage.flashcard-page--study #settings-modal .modal-body,
+#jlabBasePage.flashcard-page--study #settings-modal .modal-footer {
+  padding: 16px 20px;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: var(--color-surface-low);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal-header h3 {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-family: var(--font-headline);
+  font-size: var(--text-xl);
+  line-height: 1.15;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal-body {
+  display: grid;
+  gap: var(--space-4);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .settings-description {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-quick-setting__options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-quick-setting__options .btn {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  white-space: normal;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .field__label {
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .select {
+  min-height: 44px;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  background: var(--color-surface-low);
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+@media (max-width: 560px) {
+  #jlabBasePage.flashcard-page--study #settings-modal .study-face-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #jlabBasePage.flashcard-page--study #settings-modal .modal-header,
+  #jlabBasePage.flashcard-page--study #settings-modal .modal-body,
+  #jlabBasePage.flashcard-page--study #settings-modal .modal-footer {
+    padding: var(--space-4);
+  }
+  #jlabBasePage.flashcard-page--study #settings-modal .study-quick-setting__options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  #jlabBasePage.flashcard-page--study .study-wrap { padding-inline: 16px; }
+  #jlabBasePage.flashcard-page--study .study-session-progress { margin-bottom: 44px; }
+  #jlabBasePage.flashcard-page--study .study-stage {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    gap: 8px;
+  }
+  #jlabBasePage.flashcard-page--study .study-nav-btn { width: 40px; height: 40px; }
+  #jlabBasePage.flashcard-page--study .flip-card { height: 320px; }
+  #jlabBasePage.flashcard-page--study .flip-card__face { padding: 30px; }
+  #jlabBasePage.flashcard-page--study .study-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #jlabBasePage.flashcard-page--study #btn-flip { grid-column: 1 / -1; grid-row: 1; }
+  #jlabBasePage.flashcard-page--study .complete-grid { grid-template-columns: 1fr; }
+  #jlabBasePage.flashcard-page--study .study-session-stats { gap: 10px; font-size: 12px; }
+  #jlabBasePage.flashcard-page--study .study-session-stats > span:nth-child(2) { display: none; }
+}
+
+/* Quizlet-style study workspace: compact header, wide card, focused controls. */
+#jlabBasePage.flashcard-page--study .study-wrap {
+  width: min(100%, 920px);
+  min-height: calc(100vh - var(--header-height));
+  padding: 0 30px 70px;
+}
+
+#jlabBasePage.flashcard-page--study .study-top {
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+#jlabBasePage.flashcard-page--study .study-mode-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 10px;
+  width: min(100%, 840px);
+  margin: 0 auto 9px;
+}
+
+#jlabBasePage.flashcard-page--study .study-mode-tab {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-mid);
+  border: 1px solid rgba(199,196,215,.32);
+  border-radius: var(--fc-radius-sm);
+  font: 700 14px/1 "Inter", sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--study .study-mode-tab.is-active {
+  color: #fff;
+  background: var(--fc-primary);
+  border-color: var(--fc-primary);
+  box-shadow: 0 8px 18px rgba(70,72,212,.2);
+}
+
+#jlabBasePage.flashcard-page--study .study-mode-tab span {
+  padding: 4px 8px;
+  color: var(--fc-primary);
+  background: #65d5ff;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+#jlabBasePage.flashcard-page--study .study-mode-tab.is-active span { color: var(--fc-primary); }
+
+#jlabBasePage.flashcard-page--study .study-settings-tab {
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  align-self: center;
+  padding: 0;
+  color: var(--fc-primary);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+#jlabBasePage.flashcard-page--study .study-settings-tab:hover {
+  color: var(--fc-primary-hover);
+  background: transparent;
+}
+
+#jlabBasePage.flashcard-page--study .study-settings-tab:focus-visible {
+  outline: 2px solid var(--fc-primary);
+  outline-offset: 2px;
+}
+
+#jlabBasePage.flashcard-page--study .study-settings-label {
+  display: none;
+}
+
+#jlabBasePage.flashcard-page--study .study-session-progress {
+  width: min(100%, 720px);
+  margin-bottom: 10px;
+}
+
+#jlabBasePage.flashcard-page--study .study-stage {
+  grid-template-columns: 40px minmax(0, 720px) 40px;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+#jlabBasePage.flashcard-page--study .flip-card {
+  height: 380px;
+}
+
+#jlabBasePage.flashcard-page--study .flip-card__face {
+  padding: 36px;
+}
+
+#jlabBasePage.flashcard-page--study .flip-text {
+  font-size: clamp(30px, 4vw, 48px);
+}
+
+#jlabBasePage.flashcard-page--study .study-nav-btn {
+  width: 40px;
+  height: 40px;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions .btn {
+  min-height: 56px !important;
+  padding: 7px 10px;
+  font-size: var(--text-sm);
+}
+
+#jlabBasePage.flashcard-page--study .study-speak-btn {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--study .study-speak-btn:hover {
+  color: #fff;
+  background: var(--fc-primary);
+}
+
+#jlabBasePage.flashcard-page--study .study-quality-help {
+  margin-top: 0;
+}
+
+#jlabBasePage.flashcard-page--study .study-actions {
+  width: min(100%, 720px);
+  margin-bottom: 14px;
+}
+
+#jlabBasePage.flashcard-page--study .session-stat {
+  background: transparent;
+}
+
+@media (max-width: 720px) {
+  #jlabBasePage.flashcard-page--study .study-wrap { padding: 0 16px 60px; }
+  #jlabBasePage.flashcard-page--study .study-mode-nav { gap: 8px; margin-bottom: 9px; }
+  #jlabBasePage.flashcard-page--study .study-mode-tab {
+    min-height: 50px;
+    gap: 6px;
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+  #jlabBasePage.flashcard-page--study .study-mode-tab i { display: none; }
+  #jlabBasePage.flashcard-page--study .study-settings-tab i { display: inline-block; }
+  #jlabBasePage.flashcard-page--study .study-settings-label { display: none; }
+  #jlabBasePage.flashcard-page--study .study-session-progress { margin-bottom: 10px; }
+  #jlabBasePage.flashcard-page--study .study-stage { margin-bottom: 24px; }
+  #jlabBasePage.flashcard-page--study .flip-card { height: 320px; }
+  #jlabBasePage.flashcard-page--study .flip-card__face { padding: 30px; }
+}
+
+/* Study mode controls: the two modes share the same compact card stage. */
+#jlabBasePage.flashcard-page--study .study-actions {
+  display: block;
+}
+
+#jlabBasePage.flashcard-page--study .study-quality,
+#jlabBasePage.flashcard-page--study .study-browse-actions {
+  display: grid;
+  width: 100%;
+  gap: 6px;
+}
+
+#jlabBasePage.flashcard-page--study .study-quality {
+  grid-template-columns: repeat(3, 1fr) 1.25fr repeat(3, 1fr);
+}
+
+#jlabBasePage.flashcard-page--study .study-browse-actions {
+  grid-template-columns: 1fr 1.15fr 1fr;
+}
+
+#jlabBasePage.flashcard-page--study .study-quality .btn,
+#jlabBasePage.flashcard-page--study .study-browse-actions .btn {
+  min-height: 50px !important;
+  padding: 6px 10px;
+  font-size: var(--text-sm);
+}
+
+#jlabBasePage.flashcard-page--study .study-browse-actions .btn-wrong {
+  color: #a74343;
+  background: #ffe6e8;
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--study .study-browse-actions .btn-correct {
+  color: var(--fc-success);
+  background: var(--fc-success-soft);
+  border: 0;
+}
+
+/* Set context and rating stay close to the study card without bringing back the legacy dark layout. */
+#jlabBasePage.flashcard-page--study .study-set-summary {
+  width: min(100%, 720px);
+  margin: 0 auto 2px;
+  color: var(--fc-on-surface);
+}
+
+#jlabBasePage.flashcard-page--study .study-set-summary h2 {
+  margin: 0 0 2px;
+  font-size: clamp(24px, 3.3vw, 33px);
+  line-height: 1.2;
+}
+
+#jlabBasePage.flashcard-page--study .study-set-summary__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 5px;
+  color: var(--fc-on-surface-muted);
+  font-size: 14px;
+}
+
+#jlabBasePage.flashcard-page--study .study-set-summary__meta > span,
+#jlabBasePage.flashcard-page--study .study-set-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#jlabBasePage.flashcard-page--study .study-set-rating {
+  padding: 0;
+  color: var(--fc-on-surface);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+#jlabBasePage.flashcard-page--study .study-set-rating i { color: #f2b744; }
+#jlabBasePage.flashcard-page--study .study-set-rating:hover:not(:disabled) { color: var(--fc-primary); }
+#jlabBasePage.flashcard-page--study .study-set-rating:disabled { cursor: default; opacity: .68; }
+
+#jlabBasePage.flashcard-page--study .study-card-list {
+  width: min(100%, 720px);
+  margin: 34px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--fc-border);
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list h2 { margin: 0 0 4px; font-size: 20px; }
+#jlabBasePage.flashcard-page--study .study-card-list p { margin: 0; }
+#jlabBasePage.flashcard-page--study .study-card-list__count { color: var(--fc-on-surface-muted); white-space: nowrap; }
+
+#jlabBasePage.flashcard-page--study .study-card-list__table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--fc-border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__table th,
+#jlabBasePage.flashcard-page--study .study-card-list__table td {
+  padding: 14px 16px;
+  overflow-wrap: anywhere;
+  text-align: left;
+  vertical-align: middle;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__table thead th {
+  color: var(--fc-on-surface-muted);
+  background: var(--fc-surface-mid);
+  border-bottom: 1px solid var(--fc-border);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__table tbody tr + tr > * {
+  border-top: 1px solid var(--fc-border);
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__index-heading,
+#jlabBasePage.flashcard-page--study .study-card-list__number {
+  width: 42px;
+  text-align: center !important;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__number {
+  color: var(--fc-on-surface-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__kanji {
+  color: var(--fc-on-surface);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__hiragana {
+  color: var(--fc-on-surface);
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__han-viet {
+  color: var(--fc-on-surface-muted);
+}
+
+/* Modals start below the fixed navigation and keep their controls compact. */
+#settings-modal,
+#rating-modal {
+  z-index: 1100;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: calc(var(--header-height) + 18px) 16px 24px;
+}
+
+#settings-modal .modal,
+#rating-modal .modal {
+  max-height: calc(100dvh - var(--header-height) - 42px);
+  margin: 0 auto;
+}
+
+#settings-modal .modal-body { gap: var(--space-2); }
+#settings-modal .settings-description { margin: 0 0 var(--space-2); }
+#settings-modal .study-quick-setting { padding: var(--space-3); }
+#settings-modal .field { gap: 4px; }
+
+#jlabBasePage.flashcard-page--study .study-rating-modal .modal-body { gap: 14px; }
+#jlabBasePage.flashcard-page--study .study-rating-stars { display: flex; gap: 10px; }
+#jlabBasePage.flashcard-page--study .study-rating-star {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  color: #a4adc0;
+  background: var(--fc-surface-mid);
+  border: 1px solid var(--fc-border);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 23px;
+}
+#jlabBasePage.flashcard-page--study .study-rating-star:hover,
+#jlabBasePage.flashcard-page--study .study-rating-star.is-selected { color: #e8a725; background: #fff7df; border-color: #f0c45b; }
+
+/* Rating stays within one lavender paper surface; stars communicate state with color, not a second panel. */
+#jlabBasePage.flashcard-page--study #rating-modal {
+  --study-rating-paper: #f7f3fd;
+  --study-rating-ink: #241640;
+  --study-rating-primary: #5b36b8;
+  --study-rating-border: #d9ceee;
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .modal,
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header,
+#jlabBasePage.flashcard-page--study #rating-modal .modal-body,
+#jlabBasePage.flashcard-page--study #rating-modal .modal-footer {
+  color: var(--study-rating-ink);
+  background: var(--study-rating-paper) !important;
+  border-color: var(--study-rating-border);
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .modal {
+  border: 1px solid var(--study-rating-border);
+  box-shadow: 0 24px 56px rgba(39, 21, 85, .22);
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header h3 { color: var(--study-rating-ink); }
+#jlabBasePage.flashcard-page--study #rating-modal .modal-body .muted { color: #62577a; }
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header { border-bottom: 0; }
+#jlabBasePage.flashcard-page--study #rating-modal .modal-footer { border-top: 0; }
+
+#jlabBasePage.flashcard-page--study #rating-modal .btn-icon {
+  color: var(--study-rating-primary);
+  background: transparent;
+  border-color: var(--study-rating-border);
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .btn-icon:hover {
+  color: #ffffff;
+  background: var(--study-rating-primary);
+  border-color: var(--study-rating-primary);
+}
+
+#jlabBasePage.flashcard-page--study .study-rating-star {
+  color: #9689b4;
+  background: transparent;
+  border-color: transparent;
+}
+
+#jlabBasePage.flashcard-page--study .study-rating-star:hover,
+#jlabBasePage.flashcard-page--study .study-rating-star.is-selected {
+  color: #d28b12;
+  background: transparent;
+  border-color: transparent;
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .btn--secondary {
+  color: var(--study-rating-primary);
+  background: transparent;
+  border-color: var(--study-rating-border);
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .btn--primary {
+  color: #ffffff;
+  background: var(--study-rating-primary);
+  border-color: var(--study-rating-primary);
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .btn--primary:disabled {
+  color: #81769b;
+  background: #e6dff2;
+  border-color: #e6dff2;
+}
+
+/* Settings follows the shared JLAS paper surface instead of mixing legacy cyan and lavender layers. */
+#jlabBasePage.flashcard-page--study #settings-modal {
+  --study-settings-surface: #ffffff;
+  --study-settings-border: var(--color-outline-variant);
+  --study-settings-ink: var(--color-on-surface);
+  --study-settings-muted: var(--color-on-surface-variant);
+  --study-settings-primary: var(--color-primary);
+  padding: 25px 16px 24px;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .modal,
+#jlabBasePage.flashcard-page--study #settings-modal .modal-header,
+#jlabBasePage.flashcard-page--study #settings-modal .modal-body,
+#jlabBasePage.flashcard-page--study #settings-modal .modal-footer,
+#jlabBasePage.flashcard-page--study #settings-modal .study-quick-setting,
+#jlabBasePage.flashcard-page--study #settings-modal .select {
+  color: var(--study-settings-ink);
+  background: var(--study-settings-surface) !important;
+  border-color: var(--study-settings-border);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .settings-description,
+#jlabBasePage.flashcard-page--study #settings-modal .field__label,
+#jlabBasePage.flashcard-page--study #settings-modal .study-quick-setting__label {
+  color: var(--study-settings-muted);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .btn--secondary,
+#jlabBasePage.flashcard-page--study #settings-modal .btn-icon {
+  color: var(--study-settings-primary);
+  background: transparent;
+  border-color: var(--study-settings-border);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .btn--primary {
+  color: #ffffff;
+  background: var(--study-settings-primary);
+  border-color: var(--study-settings-primary);
+}
+
+/* Custom listboxes avoid browser-owned option menus while the native selects retain the saved values. */
+#jlabBasePage.flashcard-page--study #settings-modal .modal,
+#jlabBasePage.flashcard-page--study #settings-modal .modal-body { overflow: visible; }
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__native {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select { position: relative; }
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  color: var(--study-settings-ink);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid var(--study-settings-border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__trigger[aria-expanded="true"] {
+  color: var(--study-settings-primary);
+  border-color: var(--study-settings-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--study-settings-primary) 16%, transparent);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__listbox {
+  position: absolute;
+  display: grid;
+  gap: 6px;
+  z-index: 3;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid var(--study-settings-border);
+  border-radius: 12px;
+  box-shadow: 0 14px 32px rgba(30, 20, 60, .16);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  color: var(--study-settings-ink);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid var(--study-settings-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__option:hover,
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__option:focus-visible {
+  color: var(--study-settings-primary);
+  background: var(--color-surface-low);
+  border-color: var(--study-settings-primary);
+  outline: 2px solid transparent;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__option.is-selected {
+  border-color: var(--study-settings-primary);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-select__option.is-selected::after {
+  margin-left: auto;
+  content: "✓";
+  color: var(--study-settings-primary);
+  font-weight: 800;
+}
+
+@media (max-width: 560px) {
+  #jlabBasePage.flashcard-page--study #settings-modal .modal,
+  #jlabBasePage.flashcard-page--study #settings-modal .modal-body { overflow: auto; }
+}
+
+@media (max-width: 720px) {
+  #jlabBasePage.flashcard-page--study .study-quality,
+  #jlabBasePage.flashcard-page--study .study-browse-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  #jlabBasePage.flashcard-page--study .study-quality #btn-flip,
+  #jlabBasePage.flashcard-page--study .study-browse-actions #btn-browse-flip {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  #jlabBasePage.flashcard-page--study .study-card-list__table-wrap { border-radius: 12px; }
+  #jlabBasePage.flashcard-page--study .study-rating-star { width: 42px; height: 42px; font-size: 20px; }
+}

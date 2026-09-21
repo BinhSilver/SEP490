@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư viện luyện nghe | JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/theme-bridge.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="icon" href="/images/logo.png" type="image/png"/>
+    <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260901-library-compact9"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20260901-no-bell-hover"/>
+</head>
+<body id="jlabBasePage" class="page-shadowing page-shadowing-library">
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="container">
+        <section>
+            <div class="search-bar">
+                <input type="text" id="search-input" class="search-input" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
+                <select id="category-filter" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                    <option value="">Tất cả thể loại</option>
+                    <option value="Podcast">Podcast</option>
+                    <option value="Anime">Anime</option>
+                    <option value="Drama">Phim kịch</option>
+                    <option value="News">Tin tức</option>
+                    <option value="Speech">Bài phát biểu</option>
+                    <option value="Daily">Hàng ngày</option>
+                    <option value="Story">Truyện</option>
+                    <option value="JLPT">JLPT</option>
+                </select>
+                <select id="sort-select" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                    <option value="newest">Mới nhất</option>
+                    <option value="title">Tên A-Z</option>
+                    <option value="rating">Nổi bật (sao cao)</option>
+                    <option value="views">Lượt xem nhiều</option>
+                </select>
+            </div>
+
+            <div class="library-navigation">
+                <!-- Giống Flashcard: Công khai / Của tôi -->
+                <div class="library-tabs library-tabs-scope" role="tablist">
+                    <button type="button" class="tab-btn active" data-scope="public" role="tab">
+                        <i class="fa-solid fa-globe"></i> Công khai
+                    </button>
+                    <button type="button" class="tab-btn" data-scope="my" role="tab">
+                        <i class="fa-solid fa-user"></i> Của tôi
+                    </button>
+                    <button type="button" class="tab-btn" data-scope="favorites" role="tab">
+                        <i class="fa-solid fa-star"></i> Yêu thích
+                    </button>
+                    <button type="button" class="tab-btn" id="series-tab" role="tab">
+                        <i class="fa-solid fa-list"></i> Danh sách
+                    </button>
+                </div>
+
+                <!-- Lọc trạng thái — chủ yếu cho tab Của tôi -->
+                <div class="library-tabs library-tabs-status" id="status-tabs" hidden>
+                    <button type="button" class="tab-btn active" data-status="">Tất cả</button>
+                    <button type="button" class="tab-btn" data-status="READY">Sẵn sàng</button>
+                    <button type="button" class="tab-btn" data-status="DRAFT">Bản nháp</button>
+                    <button type="button" class="tab-btn" data-status="PROCESSING">Đang xử lý</button>
+                </div>
+
+                <div class="library-tabs__actions">
+                    <button type="button" id="create-series-btn" class="button-icon-circular" title="Tạo series từ video của tôi" aria-label="Tạo series">
+                        <i class="fa-solid fa-list-check"></i>
+                    </button>
+                    <button type="button" onclick="window.location.href='/shadowing/upload'" class="button-icon-circular" title="Tạo mới" aria-label="Tạo mới">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="video-grid" class="video-grid"></div>
+            <div id="series-grid" class="video-grid" hidden></div>
+            <section id="video-empty-state" hidden>
+                <div th:replace="~{fragments/components/kitsu-guide :: guide(
+                    'Kitsu-chan chưa tìm thấy video',
+                    'Bạn có thể đổi bộ lọc hoặc tạo video Shadowing đầu tiên của mình.')}"></div>
+                <a id="video-empty-action" class="button-primary" href="/shadowing/upload">Tạo video đầu tiên</a>
+            </section>
+            <section id="series-empty-state" hidden>
+                <div th:replace="~{fragments/components/kitsu-guide :: guide(
+                    'Kitsu-chan chưa tìm thấy series',
+                    'Hãy gom các video sẵn sàng của bạn thành một lộ trình luyện nghe liền mạch.')}"></div>
+                <button id="empty-create-series-btn" type="button" class="button-primary">Tạo series đầu tiên</button>
+            </section>
+        </section>
+    </main>
+
+    <dialog id="series-dialog" class="series-dialog">
+        <form method="dialog" id="series-form" class="store-utility-card">
+            <button type="button" id="series-dialog-close" class="dialog-close" aria-label="Đóng">×</button>
+            <h2>Tạo chuỗi luyện nghe</h2>
+            <p class="caption">Gom các video đã tạo thành một danh sách học như playlist.</p>
+            <input id="series-title" class="form-input" required maxlength="255" placeholder="Tên series, ví dụ: Luyện nghe gọi món ramen">
+            <textarea id="series-description" class="form-input" rows="2" placeholder="Mô tả ngắn (tùy chọn)"></textarea>
+            <div class="series-form-grid">
+                <select id="series-level" class="form-input form-select">
+                    <option value="">Chưa xác định trình độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option>
+                </select>
+                <select id="series-visibility" class="form-input form-select"><option value="PRIVATE">Riêng tư</option><option value="PUBLIC">Công khai</option></select>
+            </div>
+            <label class="caption">Chọn video sẵn sàng của bạn</label>
+            <div id="series-video-picker" class="series-video-picker"></div>
+            <button type="submit" class="button-primary">Tạo series</button>
+        </form>
+    </dialog>
+
+    <footer class="footer">
+        <p class="fine-print">© 2026 JLAS — Luyện shadowing tiếng Nhật</p>
+    </footer>
+
+    <script src="/js/auth-session.js"></script>
+    <script src="/js/jlab-base-shell.js?v=20260901-logo3"></script>
+    <script src="/shadowing/js/client.js"></script>
+    <script src="/shadowing/js/confirm-modal.js"></script>
+    <script src="/shadowing/js/library.js?v=20260829-kitsu"></script>
+    <script src="/shadowing/js/series-library.js?v=20260829-kitsu"></script>
+</body>
+</html>

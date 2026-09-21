@@ -1,0 +1,466 @@
+/* Stitch: JLAS Flashcard UI Redesign — Komorebi Professional.
+ * Feature-scoped so the shared JLAS navigation remains untouched. */
+
+#jlabBasePage.flashcard-page #jlabBaseContent,
+#jlabBasePage.flashcard-page > .modal-backdrop,
+#jlabBasePage.flashcard-page > .toast {
+  --fc-surface: #f8f9ff;
+  --fc-surface-lowest: #ffffff;
+  --fc-surface-low: #eff4ff;
+  --fc-surface-mid: #e5eeff;
+  --fc-surface-high: #dce9ff;
+  --fc-on-surface: #0b1c30;
+  --fc-on-variant: #464554;
+  --fc-outline: #767586;
+  --fc-outline-soft: #dce3f0;
+  --fc-primary: #4648d4;
+  --fc-primary-hover: #3739bd;
+  --fc-primary-soft: #e1e0ff;
+  --fc-primary-soft-2: #dbe2fa;
+  --fc-success: #006c49;
+  --fc-success-strong: #00885d;
+  --fc-success-soft: #d8f8e9;
+  --fc-error: #ba1a1a;
+  --fc-error-soft: #ffdad6;
+  --fc-shadow: 0 4px 20px rgba(73, 75, 214, .07);
+  --fc-shadow-hover: 0 14px 34px rgba(73, 75, 214, .14);
+  --fc-radius-sm: 8px;
+  --fc-radius-md: 12px;
+  --fc-radius-lg: 16px;
+  --fc-radius-xl: 24px;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent {
+  min-height: calc(100vh - var(--header-height));
+  color: var(--fc-on-surface);
+  background: var(--fc-surface) !important;
+  font-family: "Inter", var(--font-body);
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent,
+#jlabBasePage.flashcard-page--editor #jlabBaseContent,
+#jlabBasePage.flashcard-page--set #jlabBaseContent {
+  padding-left: 256px;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar {
+  position: fixed;
+  z-index: 30;
+  top: var(--header-height);
+  bottom: 0;
+  left: 0;
+  width: 256px;
+  padding: 30px 14px;
+  overflow-y: auto;
+  color: var(--fc-on-surface);
+  background: transparent;
+  border-right: 0;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__label {
+  margin: 0 16px 20px;
+  color: var(--fc-on-variant);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__label--second { margin-top: 38px; }
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav {
+  display: grid;
+  gap: 5px;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a,
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__item {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: var(--fc-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a:hover {
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-low);
+  border-color: var(--fc-outline);
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a.is-active {
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft-2);
+  border-color: var(--fc-primary);
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a:focus-visible {
+  outline: 3px solid var(--fc-primary-soft);
+  outline-offset: 2px;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav i {
+  width: 20px;
+  color: inherit;
+  text-align: center;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__item.is-muted { opacity: .62; }
+
+#jlabBasePage.flashcard-page #jlabBaseContent .container-wide {
+  width: min(100%, 1280px);
+  margin-inline: auto;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .section-title,
+#jlabBasePage.flashcard-page #jlabBaseContent .study-title,
+#jlabBasePage.flashcard-page #jlabBaseContent .set-title,
+#jlabBasePage.flashcard-page #jlabBaseContent h1,
+#jlabBasePage.flashcard-page #jlabBaseContent h2,
+#jlabBasePage.flashcard-page #jlabBaseContent h3 {
+  color: var(--fc-on-surface);
+  font-family: "Hanken Grotesk", var(--font-body);
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .muted,
+#jlabBasePage.flashcard-page #jlabBaseContent .caption {
+  color: var(--fc-on-variant);
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn {
+  min-height: 40px;
+  border-radius: var(--fc-radius-sm) !important;
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn-primary,
+#jlabBasePage.flashcard-page #jlabBaseContent .btn--primary {
+  color: #fff !important;
+  background: var(--fc-primary) !important;
+  border-color: var(--fc-primary) !important;
+  box-shadow: 0 5px 14px rgba(70, 72, 212, .2) !important;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn-primary:hover,
+#jlabBasePage.flashcard-page #jlabBaseContent .btn--primary:hover {
+  color: #fff !important;
+  background: var(--fc-primary-hover) !important;
+  border-color: var(--fc-primary-hover) !important;
+  box-shadow: 0 8px 18px rgba(70, 72, 212, .25) !important;
+  transform: translateY(-1px);
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn-ghost,
+#jlabBasePage.flashcard-page #jlabBaseContent .btn--secondary {
+  color: var(--fc-primary) !important;
+  background: var(--fc-surface-mid) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn-ghost:hover,
+#jlabBasePage.flashcard-page #jlabBaseContent .btn--secondary:hover {
+  color: var(--fc-primary-hover) !important;
+  background: var(--fc-surface-high) !important;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn--ghost {
+  color: var(--fc-on-variant) !important;
+  background: transparent !important;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn--ghost:hover {
+  color: var(--fc-primary) !important;
+  background: var(--fc-surface-low) !important;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn-sm {
+  min-height: 36px;
+  padding: 7px 13px;
+  font-size: 12px;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .btn-lg {
+  min-height: 48px;
+  padding: 12px 26px;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .card,
+#jlabBasePage.flashcard-page > .modal-backdrop .modal {
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(199, 196, 215, .38);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent .input-wrap,
+#jlabBasePage.flashcard-page #jlabBaseContent .field-select,
+#jlabBasePage.flashcard-page #jlabBaseContent .comment-textarea,
+#jlabBasePage.flashcard-page > .modal-backdrop input,
+#jlabBasePage.flashcard-page > .modal-backdrop textarea,
+#jlabBasePage.flashcard-page > .modal-backdrop select {
+  color: var(--fc-on-surface) !important;
+  background: var(--fc-surface) !important;
+  border-color: var(--fc-outline-soft) !important;
+  border-radius: var(--fc-radius-sm) !important;
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent :focus-visible,
+#jlabBasePage.flashcard-page > .modal-backdrop :focus-visible {
+  outline: 3px solid rgba(70, 72, 212, .22);
+  outline-offset: 2px;
+}
+
+#jlabBasePage.flashcard-page [hidden] {
+  display: none !important;
+}
+
+#jlabBasePage.flashcard-page > .modal-backdrop {
+  inset: var(--header-height) 0 0;
+  color: var(--fc-on-surface);
+  background: rgba(33, 49, 69, .42);
+  backdrop-filter: blur(6px);
+}
+
+#jlabBasePage.flashcard-page > #toast {
+  top: calc(var(--header-height) + 16px);
+}
+
+@media (max-width: 600px) {
+  #jlabBasePage.flashcard-page > #toast {
+    top: calc(var(--header-height) + 12px);
+  }
+}
+
+#jlabBasePage.flashcard-page > .modal-backdrop .modal-header,
+#jlabBasePage.flashcard-page > .modal-backdrop .modal-footer {
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-low);
+  border-color: var(--fc-outline-soft);
+}
+
+/* Set detail */
+#jlabBasePage.flashcard-page--set .set-detail-wrap {
+  padding: 40px 48px 80px;
+}
+
+#jlabBasePage.flashcard-page--set .set-back {
+  margin-bottom: 20px;
+}
+
+#jlabBasePage.flashcard-page--set .set-hero {
+  position: relative;
+  gap: 32px;
+  margin-inline: calc(50% - 50vw);
+  margin-bottom: 40px;
+  padding: 48px max(48px, calc((100vw - 1184px) / 2));
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255,255,255,.55), transparent 28%),
+    linear-gradient(135deg, #d4e1ff, #e1e7ff 55%, #d8edfa);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#jlabBasePage.flashcard-page--set .set-hero::after {
+  position: absolute;
+  right: 5%;
+  bottom: -55%;
+  width: 360px;
+  height: 360px;
+  content: "学";
+  color: rgba(70, 72, 212, .055);
+  font: 500 290px/1 "Noto Sans JP", sans-serif;
+}
+
+#jlabBasePage.flashcard-page--set .set-hero__text,
+#jlabBasePage.flashcard-page--set .set-hero__actions {
+  position: relative;
+  z-index: 1;
+}
+
+#jlabBasePage.flashcard-page--set .set-title {
+  margin-bottom: 12px;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.18;
+}
+
+#jlabBasePage.flashcard-page--set .set-desc {
+  max-width: 760px;
+  color: var(--fc-on-variant);
+  line-height: 1.65;
+}
+
+#jlabBasePage.flashcard-page--set .set-section {
+  margin-top: 24px;
+  padding: clamp(20px, 3vw, 30px);
+}
+
+#jlabBasePage.flashcard-page--set .set-section-title {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+#jlabBasePage.flashcard-page--set .set-preview-table-wrap {
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--fc-radius-md);
+}
+
+#jlabBasePage.flashcard-page--set .set-preview-table {
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+#jlabBasePage.flashcard-page--set .set-preview-table thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+#jlabBasePage.flashcard-page--set .set-preview-table td {
+  padding: 18px 20px;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface);
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--set .set-preview-table td:first-child {
+  border-radius: var(--fc-radius-md) 0 0 var(--fc-radius-md);
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 18px;
+}
+
+#jlabBasePage.flashcard-page--set .set-preview-table td:last-child {
+  border-radius: 0 var(--fc-radius-md) var(--fc-radius-md) 0;
+}
+
+/* Quiz shell */
+#jlabBasePage.flashcard-page--quiz .page-body {
+  display: grid;
+  grid-template-columns: 256px minmax(0, 1fr);
+  gap: 32px;
+  width: min(100%, 1280px);
+  margin-inline: auto;
+  padding: 32px 48px 72px;
+}
+
+#jlabBasePage.flashcard-page--quiz .sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + 24px);
+  width: auto;
+  height: fit-content;
+  max-height: calc(100vh - var(--header-height) - 48px);
+  overflow-y: auto;
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(199, 196, 215, .4);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+}
+
+#jlabBasePage.flashcard-page--quiz .sidebar-block {
+  padding: 20px;
+}
+
+#jlabBasePage.flashcard-page--quiz .sidebar-block + .sidebar-block {
+  border-top: 1px solid var(--fc-outline-soft);
+}
+
+#jlabBasePage.flashcard-page--quiz .sidebar-title {
+  color: var(--fc-on-surface);
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--quiz .toggle-row,
+#jlabBasePage.flashcard-page--quiz .kbd-list,
+#jlabBasePage.flashcard-page--quiz .label {
+  color: var(--fc-on-variant);
+}
+
+#jlabBasePage.flashcard-page--quiz .ai-panel {
+  color: var(--fc-on-surface);
+  background: var(--fc-surface-lowest);
+  border: 1px solid rgba(70, 72, 212, .18);
+  border-radius: var(--fc-radius-lg);
+  box-shadow: var(--fc-shadow);
+}
+
+#jlabBasePage.flashcard-page--quiz .ai-header,
+#jlabBasePage.flashcard-page--quiz .ai-tabs {
+  background: var(--fc-surface-low);
+  border-color: var(--fc-outline-soft);
+}
+
+#jlabBasePage.flashcard-page--quiz .ai-tab.is-active {
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+}
+
+@media (max-width: 900px) {
+  #jlabBasePage.flashcard-page--library #jlabBaseContent,
+  #jlabBasePage.flashcard-page--editor #jlabBaseContent,
+  #jlabBasePage.flashcard-page--set #jlabBaseContent {
+    padding-left: 0;
+  }
+
+  #jlabBasePage.flashcard-page .fc-stitch-sidebar { display: none; }
+
+  #jlabBasePage.flashcard-page--set .set-detail-wrap {
+    padding-inline: 24px;
+  }
+
+  #jlabBasePage.flashcard-page--set .set-hero {
+    margin-inline: -24px;
+    padding-inline: 24px;
+  }
+
+  #jlabBasePage.flashcard-page--quiz .page-body {
+    grid-template-columns: 1fr;
+    padding: 20px 16px 64px;
+  }
+
+  #jlabBasePage.flashcard-page--quiz .sidebar {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  #jlabBasePage.flashcard-page #jlabBaseContent .container,
+  #jlabBasePage.flashcard-page #jlabBaseContent .container-wide {
+    padding-inline: 16px;
+  }
+
+  #jlabBasePage.flashcard-page--set .set-detail-wrap {
+    padding-inline: 16px;
+  }
+
+  #jlabBasePage.flashcard-page--set .set-hero {
+    margin-inline: -16px;
+    padding: 32px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #jlabBasePage.flashcard-page #jlabBaseContent *,
+  #jlabBasePage.flashcard-page #jlabBaseContent *::before,
+  #jlabBasePage.flashcard-page #jlabBaseContent *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

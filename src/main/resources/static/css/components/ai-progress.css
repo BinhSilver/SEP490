@@ -1,0 +1,500 @@
+/* Sakura AI progress — lightweight, readable and reusable. */
+:root {
+  --sakura-ink: #161d1f;
+  --sakura-muted: #494551;
+  --sakura-pink: #4f378a;
+  --sakura-pink-dark: #6750a4;
+  --sakura-pink-soft: #e9ddff;
+  --sakura-line: #cbc4d2;
+}
+
+.sakura-progress-backdrop {
+  position: fixed;
+  top: var(--header-height, 0px);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--font-body);
+  color: var(--sakura-ink);
+  background:
+    linear-gradient(135deg, rgba(244, 250, 253, 0.96), rgba(233, 221, 255, 0.72)),
+    radial-gradient(circle at 15% 18%, #ffffff 0 9%, transparent 34%),
+    radial-gradient(circle at 88% 78%, #e7c365 0 10%, transparent 34%),
+    #f4fafd;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.sakura-progress-backdrop.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.sakura-scenery {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sakura-sun {
+  position: absolute;
+  top: 10%;
+  right: 13%;
+  width: min(30vw, 330px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 34%, rgba(255, 207, 223, 0.36) 35% 54%, transparent 55%);
+}
+
+.sakura-branch {
+  position: absolute;
+  width: 48vw;
+  height: 170px;
+  border-bottom: 18px solid #494551;
+  border-radius: 0 0 58% 12%;
+  opacity: 0.13;
+}
+
+.sakura-branch::before,
+.sakura-branch::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 70% 30% 65% 35%;
+  background: #6750a4;
+  box-shadow:
+    54px -25px 0 -3px #cfbcff,
+    110px 17px 0 -2px #e7c365,
+    175px -18px 0 -4px #e0d2ff,
+    240px 12px 0 -3px #c9a74d,
+    310px -21px 0 -4px #cfbcff;
+}
+
+.sakura-branch::before {
+  top: 132px;
+  left: 12%;
+}
+
+.sakura-branch::after {
+  right: 8%;
+  bottom: -14px;
+  transform: rotate(110deg) scale(0.75);
+}
+
+.sakura-branch--left {
+  top: -2%;
+  left: -13%;
+  transform: rotate(13deg);
+}
+
+.sakura-branch--right {
+  right: -17%;
+  bottom: -1%;
+  transform: rotate(166deg);
+}
+
+.sakura-falling-petal {
+  --petal-duration: 15s;
+  --petal-delay: 0s;
+  --petal-opacity: 0.28;
+  --petal-scale: 1;
+  --petal-drift: 70px;
+  position: absolute;
+  top: -32px;
+  width: 12px;
+  height: 18px;
+  border-radius: 72% 28% 72% 28% / 66% 34% 66% 34%;
+  background: linear-gradient(145deg, #e0d2ff, #6750a4);
+  opacity: var(--petal-opacity);
+  animation: sakuraPetalFall var(--petal-duration) linear var(--petal-delay) infinite;
+  will-change: transform;
+}
+
+@keyframes sakuraPetalFall {
+  from {
+    transform: translate3d(0, -5vh, 0) rotate(0deg) scale(var(--petal-scale));
+  }
+  to {
+    transform: translate3d(var(--petal-drift), 112vh, 0) rotate(420deg) scale(var(--petal-scale));
+  }
+}
+
+.sakura-progress-card {
+  position: relative;
+  width: min(620px, 100%);
+  padding: 34px 36px 30px;
+  overflow: hidden;
+  color: var(--sakura-ink);
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(223, 95, 141, 0.2);
+  border-radius: 26px;
+  box-shadow: 0 24px 70px rgba(111, 57, 76, 0.18), 0 3px 12px rgba(111, 57, 76, 0.08);
+  transform: translateY(16px) scale(0.985);
+  opacity: 0;
+  transition: transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 240ms ease;
+}
+
+.sakura-progress-backdrop.is-visible .sakura-progress-card {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.sakura-progress-card::before {
+  content: "";
+  position: absolute;
+  top: -62px;
+  right: 32px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  background:
+    radial-gradient(ellipse at 50% 18%, var(--sakura-pink) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 82% 48%, var(--sakura-pink) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 66% 82%, var(--sakura-pink) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 32% 82%, var(--sakura-pink) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 18% 46%, var(--sakura-pink) 0 18%, transparent 19%);
+  transform: rotate(10deg);
+}
+
+.sakura-close-btn {
+  position: absolute;
+  top: 17px;
+  right: 18px;
+  z-index: 5;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  place-items: center;
+  color: #8b6877;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  background: #fff7fa;
+  border: 1px solid #f1d7e0;
+  border-radius: 50%;
+  transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.sakura-close-btn:hover {
+  color: #fff;
+  background: var(--sakura-pink-dark);
+  transform: rotate(4deg) scale(1.04);
+}
+
+.sakura-close-btn:focus-visible {
+  outline: 3px solid rgba(223, 95, 141, 0.25);
+  outline-offset: 2px;
+}
+
+.sakura-progress-card .header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-right: 34px;
+  margin-bottom: 8px;
+}
+
+.sakura-progress-card .lesson-label {
+  margin-bottom: 7px;
+  color: var(--sakura-pink-dark);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sakura-progress-card .title {
+  color: var(--sakura-ink);
+  font-size: clamp(20px, 4vw, 25px);
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.sakura-progress-card .progress-number {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  min-width: 76px;
+  justify-content: flex-end;
+  color: var(--sakura-pink-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.sakura-progress-card .progress-number strong {
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.sakura-progress-card .progress-number span {
+  margin-left: 3px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sakura-progress-card .subtitle {
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+  margin-bottom: 28px;
+  color: var(--sakura-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.sakura-progress-card .progress-area {
+  position: relative;
+  z-index: 1;
+}
+
+.sakura-progress-card .track {
+  position: relative;
+  height: 14px;
+  margin: 0 12px;
+  overflow: visible;
+  background: #f8e7ed;
+  border: 1px solid #efd2dd;
+  border-radius: 999px;
+  box-shadow: inset 0 2px 4px rgba(116, 65, 83, 0.06);
+}
+
+.sakura-progress-card .fill {
+  position: absolute;
+  inset: -1px;
+  right: auto;
+  width: calc(100% + 2px);
+  overflow: hidden;
+  background: linear-gradient(90deg, #ef9eba 0%, #e86594 56%, #d9437a 100%);
+  border-radius: inherit;
+  box-shadow: 0 4px 13px rgba(213, 66, 120, 0.22);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.sakura-progress-card .fill::after {
+  content: "";
+  position: absolute;
+  inset: 2px 10px auto;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+}
+
+.sakura-progress-card .progress-bloom {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 2;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  font-size: 23px;
+  filter: drop-shadow(0 5px 6px rgba(129, 55, 83, 0.22));
+  transform: translate3d(-50%, -50%, 0);
+  will-change: left;
+}
+
+.sakura-progress-card .stage-list {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0 0;
+  color: #a58b96;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.sakura-progress-card .stage {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  transition: color 180ms ease;
+}
+
+.sakura-progress-card .stage i {
+  width: 7px;
+  height: 7px;
+  background: #e3ccd5;
+  border-radius: 50%;
+  transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.sakura-progress-card .stage.is-active {
+  color: var(--sakura-pink-dark);
+}
+
+.sakura-progress-card .stage.is-active i {
+  background: var(--sakura-pink);
+  box-shadow: 0 0 0 4px rgba(223, 95, 141, 0.13);
+}
+
+.sakura-progress-card .stage.is-done {
+  color: #745762;
+}
+
+.sakura-progress-card .stage.is-done i {
+  background: #745762;
+}
+
+.sakura-progress-card .bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 22px;
+  margin-top: 21px;
+  color: var(--sakura-muted);
+  font-size: 12px;
+  border-top: 1px solid #f3e4e9;
+}
+
+.sakura-progress-card .workload,
+.sakura-progress-card .status-pill {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.sakura-progress-card .workload-dot {
+  width: 8px;
+  height: 8px;
+  background: #f0a5be;
+  border-radius: 50%;
+}
+
+.sakura-progress-card .status-pill {
+  max-width: 68%;
+  padding: 8px 12px;
+  color: #684b57;
+  background: #fff5f8;
+  border: 1px solid #f2d9e2;
+  border-radius: 999px;
+}
+
+.sakura-progress-card .status-pill strong {
+  overflow: hidden;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sakura-progress-card .status-spinner {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f0bfd0;
+  border-top-color: var(--sakura-pink-dark);
+  border-radius: 50%;
+  animation: sakuraSpinner 850ms linear infinite;
+}
+
+@keyframes sakuraSpinner {
+  to { transform: rotate(360deg); }
+}
+
+.sakura-progress-card .complete-message {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #7d3150;
+  font-size: 21px;
+  font-weight: 800;
+  text-align: center;
+  background: rgba(255, 250, 252, 0.98);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.98);
+  transition: opacity 180ms ease, transform 240ms ease;
+}
+
+.sakura-progress-card .complete-message span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: #fff;
+  background: var(--sakura-pink-dark);
+  border-radius: 50%;
+}
+
+.sakura-progress-card .complete-message.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (max-width: 600px) {
+  .sakura-progress-backdrop {
+    padding: 16px;
+  }
+
+  .sakura-progress-card {
+    padding: 28px 20px 22px;
+    border-radius: 22px;
+  }
+
+  .sakura-progress-card .header {
+    gap: 12px;
+    padding-right: 28px;
+  }
+
+  .sakura-progress-card .progress-number {
+    min-width: 62px;
+  }
+
+  .sakura-progress-card .progress-number strong {
+    font-size: 30px;
+  }
+
+  .sakura-progress-card .bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sakura-progress-card .status-pill {
+    max-width: 100%;
+  }
+
+  .sakura-branch {
+    width: 72vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sakura-progress-backdrop,
+  .sakura-progress-card,
+  .sakura-progress-card *,
+  .sakura-falling-petal {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .sakura-falling-petal {
+    display: none;
+  }
+}

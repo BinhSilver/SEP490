@@ -1,0 +1,695 @@
+@import url("/css/components/dropdowns.css");
+@import url("/css/components/user-menu.css?v=20260825-unified-bell");
+
+/*
+ * JLAS shared feature shell.
+ * Load this file after every page/module stylesheet.
+ * Every selector is ID-scoped to prevent legacy module CSS collisions.
+ * Contract: docs/navigation-contract.md. /learning/path is the reference page.
+ * Page CSS must stay under #jlabBaseContent and must not override jlabBase* IDs.
+ */
+
+#jlabBaseDocument {
+  overflow-x: clip !important;
+}
+
+#jlabBasePage {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  overflow-x: clip !important;
+  padding-top: 84px !important;
+  background: var(--jlab-base-page-background, transparent) !important;
+  animation: none !important;
+}
+
+#jlabBasePage::before {
+  content: none !important;
+  animation: none !important;
+}
+
+#jlabBaseContent {
+  background: transparent !important;
+  background-image: none !important;
+  background-attachment: initial !important;
+  animation: none !important;
+}
+
+#jlabBaseShellMount {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  font-family: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+#jlabBaseBackground {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100dvh;
+  pointer-events: none;
+  background: var(--color-background, #f4fafd);
+  background-size: 100% 100%;
+  animation: none !important;
+}
+
+#jlabBaseHeader {
+  position: fixed;
+  top: 10px;
+  right: clamp(12px, 2vw, 32px);
+  left: clamp(12px, 2vw, 32px);
+  z-index: var(--z-header, 50);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  color: var(--color-on-surface, #161d1f);
+  /* The global navigation is a consistent white surface. The landing page
+     deliberately overrides this to transparent so it can sit on its hero. */
+  background: #fff;
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, 0.08));
+}
+
+#jlabBaseHeaderInner {
+  width: min(1400px, 100%);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+#jlabBaseBrand {
+  min-width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-primary, #4f378a);
+  font: 700 1.25rem/1 "Instrument Serif", "Hanken Grotesk", Georgia, serif;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+#jlabBaseBrandLogo {
+  width: 42px;
+  height: 42px;
+  display: block;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+#jlabBasePrimaryNav {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 2vw, 24px);
+}
+
+#jlabBaseHomeLink,
+#jlabBaseLearningPathLink,
+#jlabBaseLookupLink,
+#jlabBaseGameLink,
+#jlabBaseAboutLink {
+  position: relative;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 180ms ease;
+}
+
+#jlabBaseLookupLink {
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+#jlabBaseHomeLink:hover,
+#jlabBaseLearningPathLink:hover,
+#jlabBaseLookupLink:hover,
+#jlabBaseGameLink:hover,
+#jlabBaseAboutLink:hover,
+#jlabBaseHomeLink[aria-current="page"],
+#jlabBaseLearningPathLink[aria-current="page"],
+#jlabBaseLookupLink[aria-current="page"],
+#jlabBaseGameLink[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+}
+
+#jlabBaseHomeLink[aria-current="page"]::after,
+#jlabBaseLearningPathLink[aria-current="page"]::after,
+#jlabBaseLookupLink[aria-current="page"]::after,
+#jlabBaseGameLink[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 1px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-primary, #4f378a);
+}
+
+#jlabBaseToolsWrapper,
+#jlabBaseNotificationWrapper,
+#jlabBaseAccountWrapper {
+  position: relative;
+}
+
+#jlabBaseToolsButton {
+  min-width: max-content;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+#jlabBaseToolsButton:hover,
+#jlabBaseToolsButton[aria-expanded="true"],
+#jlabBaseToolsButton[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+}
+
+#jlabBaseToolsButton:focus-visible,
+#jlabBaseAvatarButton:focus-visible,
+#jlabBaseNotificationButton:focus-visible,
+#jlabBaseLogoutButton:focus-visible,
+#jlabBaseLoginLink:focus-visible,
+#jlabBaseRegisterLink:focus-visible,
+#jlabBaseHomeLink:focus-visible,
+#jlabBaseLearningPathLink:focus-visible,
+#jlabBaseLookupLink:focus-visible,
+#jlabBaseGameLink:focus-visible,
+#jlabBaseAboutLink:focus-visible,
+#jlabBaseAiCallLink:focus-visible,
+#jlabBaseFlashcardLink:focus-visible,
+#jlabBaseQuizLink:focus-visible,
+#jlabBaseShadowingLink:focus-visible,
+#jlabBaseProfileLink:focus-visible,
+#jlabBaseSecurityLink:focus-visible {
+  outline: 2px solid var(--color-primary, #4f378a);
+  outline-offset: 3px;
+}
+
+#jlabBasePage .jlab-base-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: inherit;
+}
+
+#jlabBasePage .jlab-base-icon--chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 180ms ease;
+}
+
+#jlabBaseToolsButton[aria-expanded="true"] #jlabBaseToolsChevron {
+  transform: rotate(180deg);
+}
+
+#jlabBaseToolsMenu,
+#jlabBaseAccountMenu {
+  position: absolute;
+  z-index: var(--z-overlay, 120);
+  padding: 8px;
+  display: grid;
+  gap: 3px;
+  color: var(--color-on-surface, #161d1f);
+  background: var(--color-surface-lowest, #ffffff);
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2, 0 10px 40px rgba(22, 29, 31, 0.14));
+  box-sizing: border-box;
+}
+
+#jlabBaseToolsMenu {
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 184px;
+}
+
+#jlabBaseAccountMenu {
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 240px;
+}
+
+#jlabBaseAccountDivider {
+  margin: 2px 0;
+}
+
+#jlabBaseToolsMenu[hidden],
+#jlabBaseAccountMenu[hidden],
+#jlabBaseNotificationPanel[hidden],
+#jlabBaseGuestActions[hidden],
+#jlabBaseUserActions[hidden],
+#jlabBaseNotificationBadge[hidden],
+#jlabBaseAvatarButtonImage[hidden],
+#jlabBaseAvatarButtonInitials[hidden],
+#jlabBaseAccountAvatarImage[hidden],
+#jlabBaseAccountAvatarInitials[hidden] {
+  display: none;
+}
+
+#jlabBaseAiCallLink,
+#jlabBaseFlashcardLink,
+#jlabBaseQuizLink,
+#jlabBaseShadowingLink,
+#jlabBaseProfileLink,
+#jlabBaseSecurityLink,
+#jlabBaseLogoutButton {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+#jlabBaseAiCallLink:hover,
+#jlabBaseFlashcardLink:hover,
+#jlabBaseQuizLink:hover,
+#jlabBaseShadowingLink:hover,
+#jlabBaseProfileLink:hover,
+#jlabBaseSecurityLink:hover,
+#jlabBaseLogoutButton:hover,
+#jlabBaseAiCallLink[aria-current="page"],
+#jlabBaseFlashcardLink[aria-current="page"],
+#jlabBaseQuizLink[aria-current="page"],
+#jlabBaseShadowingLink[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+}
+
+#jlabBaseActions,
+#jlabBaseGuestActions,
+#jlabBaseUserActions {
+  min-width: max-content;
+  display: flex;
+  align-items: center;
+}
+
+#jlabBaseUserActions {
+  gap: 8px;
+}
+
+#jlabBaseGuestActions {
+  gap: 8px;
+}
+
+#jlabBaseLoginLink,
+#jlabBaseRegisterLink {
+  min-height: 38px;
+  padding: 9px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-primary, #ffffff) !important;
+  font: 600 0.8125rem/1 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-decoration: none;
+  border: 1px solid var(--color-primary, #4f378a);
+  border-radius: 9px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+#jlabBaseLoginLink {
+  background: var(--color-primary, #4f378a);
+}
+
+#jlabBaseRegisterLink {
+  color: var(--color-primary, #4f378a) !important;
+  background: var(--color-primary-fixed, #e9ddff);
+  border-color: var(--color-primary-fixed, #e9ddff);
+}
+
+#jlabBaseLoginLink:hover {
+  background: var(--color-primary-container, #6750a4);
+}
+
+#jlabBaseRegisterLink:hover {
+  background: var(--color-secondary-container, #e1d4fd);
+}
+
+#jlabBaseAvatarButton,
+#jlabBaseAccountAvatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--color-primary, #4f378a);
+  font: 700 0.8rem/1 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  background: var(--color-surface-lowest, #ffffff);
+  border: 2px solid var(--color-primary, #4f378a);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+#jlabBaseAvatarButton {
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(22, 29, 31, 0.12);
+}
+
+#jlabBaseNotificationButton {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: var(--color-primary, #4f378a);
+  background: var(--color-surface-low, #eef5f7);
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: none;
+}
+
+#jlabBaseNotificationButton:hover,
+#jlabBaseNotificationButton[aria-expanded="true"] {
+  background: var(--color-primary-fixed, #e9ddff);
+  transform: none;
+}
+
+/* Hover keeps the bell visually still; the expanded state remains visible after click. */
+#jlabBaseNotificationButton.notification-center__trigger:hover:not([aria-expanded="true"]) {
+  color: var(--color-on-surface, #161d1f) !important;
+  background: var(--color-surface-high, #dfe7e9) !important;
+  transform: none !important;
+}
+
+#jlabBaseNotificationIcon {
+  font-size: 18px;
+}
+
+#jlabBaseNotificationBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  color: var(--color-on-primary, #ffffff);
+  font: 700 0.625rem/16px -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: center;
+  background: var(--color-primary, #4f378a);
+  border: 2px solid var(--color-primary-container, #6750a4);
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+
+#jlabBaseNotificationPanel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: var(--z-overlay, 120);
+  width: min(360px, calc(100vw - 24px));
+  overflow: hidden;
+  color: var(--color-on-surface, #161d1f);
+  background: var(--color-surface-lowest, #ffffff);
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 18px;
+  box-shadow: 0 14px 42px rgba(22, 29, 31, 0.14);
+  box-sizing: border-box;
+}
+
+#jlabBaseNotificationPanelHeader {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationTitle {
+  margin: 0;
+  color: var(--color-on-surface, #161d1f);
+  font: 700 1.25rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+#jlabBaseNotificationEmpty {
+  padding: 34px 22px 38px;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+#jlabBaseNotificationEmptyIcon {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--color-outline, #7a7582);
+  font-size: 23px;
+  background: var(--color-surface-low, #eef5f7);
+  border-radius: 50%;
+}
+
+#jlabBaseNotificationEmptyTitle {
+  color: var(--color-on-surface, #161d1f);
+  font: 700 0.95rem/1.35 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+#jlabBaseNotificationEmptyText {
+  margin: 5px 0 0;
+  color: var(--color-on-surface-variant, #494551);
+  font: 400 0.8125rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+#jlabBaseAvatarButtonImage,
+#jlabBaseAccountAvatarImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+#jlabBaseAvatarButtonInitials,
+#jlabBaseAccountAvatarInitials {
+  color: var(--color-primary-container, #6750a4);
+  font: inherit;
+  text-transform: uppercase;
+}
+
+#jlabBaseAccountSummary {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+  margin-bottom: 5px;
+}
+
+#jlabBaseAccountIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+#jlabBaseAccountName {
+  max-width: 170px;
+  overflow: hidden;
+  color: var(--color-on-surface, #161d1f);
+  font: 650 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#jlabBaseAccountEmail {
+  max-width: 170px;
+  overflow: hidden;
+  color: var(--color-on-surface-variant, #494551);
+  font: 400 0.75rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#jlabBaseAccountDivider {
+  height: 1px;
+  margin: 5px 8px;
+  background: var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseLogoutButton {
+  color: var(--color-error, #ba1a1a);
+}
+
+#jlabBaseProfileIcon,
+#jlabBaseStreakIcon,
+#jlabBaseSecurityIcon,
+#jlabBaseLogoutIcon {
+  width: 20px;
+  color: var(--color-on-surface-variant, #494551);
+  font-family: "Material Symbols Outlined";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+}
+
+#jlabBaseNotice {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: var(--z-toast, 110);
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 12px 16px;
+  color: var(--color-on-primary, #ffffff);
+  font: 500 0.875rem/1.4 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  background: var(--color-inverse-surface, #2b3234);
+  border: 1px solid rgba(203, 196, 210, 0.45);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(22, 29, 31, 0.18);
+}
+
+#jlabBaseNotice[hidden] {
+  display: none;
+}
+
+@keyframes jlabBaseBackgroundPan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (max-width: 900px) {
+  #jlabBasePage {
+    padding-top: 122px !important;
+  }
+
+  #jlabBaseHeader {
+    top: 8px;
+    right: 12px;
+    left: 12px;
+    height: 106px;
+  }
+
+  #jlabBaseHeaderInner {
+    padding: 10px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: 46px 40px;
+    gap: 6px 14px;
+  }
+
+  #jlabBasePrimaryNav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    justify-content: center;
+  }
+
+  #jlabBaseActions {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  #jlabBaseHeaderInner {
+    padding-inline: 14px;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+
+  #jlabBasePrimaryNav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  #jlabBaseHomeLink,
+  #jlabBaseLearningPathLink,
+  #jlabBaseGameLink,
+  #jlabBaseToolsWrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  #jlabBaseHomeLabel,
+  #jlabBaseLearningPathLabel,
+  #jlabBaseGameLabel,
+  #jlabBaseToolsLabel,
+  #jlabBaseAboutLabel {
+    display: none;
+  }
+
+  #jlabBaseToolsButton {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  #jlabBaseGuestActions {
+    gap: 5px;
+  }
+
+  #jlabBaseLoginLink,
+  #jlabBaseRegisterLink {
+    padding-inline: 8px;
+    font-size: 0.75rem;
+  }
+
+  #jlabBaseToolsMenu,
+  #jlabBaseAccountMenu {
+    position: fixed;
+    right: 12px;
+    left: 12px;
+    min-width: 0;
+    max-height: calc(100dvh - 128px);
+    overflow-y: auto;
+  }
+
+  #jlabBaseToolsMenu {
+    top: 120px;
+  }
+
+  #jlabBaseAccountMenu {
+    top: 64px;
+  }
+
+  #jlabBaseNotificationPanel {
+    position: fixed;
+    top: 64px;
+    right: 12px;
+    left: auto;
+    width: min(360px, calc(100vw - 24px));
+  }
+
+  #jlabBaseNotice {
+    right: 12px;
+    bottom: 12px;
+  }
+}

@@ -1,0 +1,251 @@
+/* JLAS platform nav — unified with site-header (matches index / marketing design) */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block');
+@import url('./dropdowns.css');
+@import url('./user-menu.css');
+
+/* Navigation bar display setting across pages */
+
+.jlas-platform-nav {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header, 40);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 16px);
+  height: var(--header-height, 72px);
+  padding: 0 var(--space-6, 32px);
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin-inline: auto;
+  background: var(--color-surface-lowest, #ffffff) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+  font-family: var(--font-body, Inter, system-ui, sans-serif);
+  color: var(--color-on-surface);
+  transition: background-color var(--dur-medium, 300ms) ease, border-color var(--dur-medium, 300ms) ease, box-shadow var(--dur-medium, 300ms) ease;
+}
+
+/* Unified nav: semi-transparent dark backdrop ensures white text is always
+   readable regardless of sakura gradient position at top of page.
+   Note: z-index:-1 puts it behind nav content; position:absolute ensures
+   the ::before fills the nav height set by parent. */
+.jlas-platform-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-surface-lowest, #ffffff) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.jlas-platform-nav__brand {
+  flex-shrink: 0;
+  font-family: var(--font-headline, "Instrument Serif", serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.04em;
+  color: var(--color-primary) !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.jlas-platform-nav__brand:hover {
+  color: var(--color-primary) !important;
+}
+
+.jlas-platform-nav__brand .brand-logo__img {
+  width: 36px;
+  height: 36px;
+}
+
+.jlas-platform-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: nowrap;
+  justify-content: center;
+  flex: 1;
+  margin: 0;
+}
+
+.jlas-platform-nav__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border-radius: 0;
+  font-family: var(--font-body, Inter, system-ui, sans-serif);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-on-surface-variant) !important;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 300ms ease;
+  position: relative;
+  cursor: pointer;
+  pointer-events: auto;
+  background: transparent !important;
+}
+
+.jlas-platform-nav__links a:hover {
+  color: var(--color-primary) !important;
+  background: transparent !important;
+}
+
+.jlas-platform-nav__links a.is-active {
+  color: var(--color-primary) !important;
+  background: transparent !important;
+}
+
+.jlas-platform-nav__links a.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-primary);
+}
+
+.jlas-platform-nav__links a::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #ffffff;
+  transition: width 300ms ease;
+}
+
+.jlas-platform-nav__links a:hover::after {
+  width: 100%;
+}
+
+.jlas-platform-nav__links a i {
+  font-size: 0.95em;
+  opacity: 1;
+}
+
+/* Actions slot (right side: theme toggle, set selector, back, …) */
+.jlas-platform-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: 0;
+}
+
+.jlas-platform-nav__actions a,
+.jlas-platform-nav__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border-radius: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-on-surface-variant) !important;
+  text-decoration: none;
+  white-space: nowrap;
+  background: transparent !important;
+  border: none;
+  cursor: pointer;
+  transition: color 300ms ease;
+}
+
+.jlas-platform-nav__actions a:hover,
+.jlas-platform-nav__actions button:hover {
+  color: var(--color-primary) !important;
+  background: transparent !important;
+}
+
+.jlas-platform-nav__actions .btn,
+.jlas-platform-nav__actions .button-secondary,
+.jlas-platform-nav__actions .button-primary,
+.jlas-platform-nav__actions .button-icon-circular,
+.jlas-platform-nav__actions .btn-icon,
+.jlas-platform-nav__actions .set-select,
+.jlas-platform-nav__actions .badge {
+  flex-shrink: 0;
+}
+
+/* Light page variant (used on flashcard light pages) */
+.jlas-platform-nav--light,
+.jlas-platform-nav--flashcard {
+  color: var(--color-on-surface, #161d1f);
+}
+
+.jlas-platform-nav--light .jlas-platform-nav__brand,
+.jlas-platform-nav--flashcard .jlas-platform-nav__brand {
+  color: var(--color-primary) !important;
+}
+
+.jlas-platform-nav--light .jlas-platform-nav__links a,
+.jlas-platform-nav--flashcard .jlas-platform-nav__links a {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.jlas-platform-nav--light .jlas-platform-nav__links a:hover,
+.jlas-platform-nav--light .jlas-platform-nav__links a.is-active,
+.jlas-platform-nav--flashcard .jlas-platform-nav__links a:hover,
+.jlas-platform-nav--flashcard .jlas-platform-nav__links a.is-active {
+  color: var(--color-primary) !important;
+}
+
+.jlas-platform-nav--light .jlas-platform-nav__links a::after,
+.jlas-platform-nav--flashcard .jlas-platform-nav__links a::after {
+  background: var(--color-primary);
+}
+
+.jlas-platform-nav--light .jlas-platform-nav__actions a,
+.jlas-platform-nav--light .jlas-platform-nav__actions button,
+.jlas-platform-nav--flashcard .jlas-platform-nav__actions a,
+.jlas-platform-nav--flashcard .jlas-platform-nav__actions button {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.jlas-platform-nav--light .jlas-platform-nav__actions a:hover,
+.jlas-platform-nav--light .jlas-platform-nav__actions button:hover,
+.jlas-platform-nav--flashcard .jlas-platform-nav__actions a:hover,
+.jlas-platform-nav--flashcard .jlas-platform-nav__actions button:hover {
+  color: var(--color-primary) !important;
+}
+
+@media (max-width: 900px) {
+  .jlas-platform-nav {
+    height: auto;
+    min-height: var(--header-height, 72px);
+    padding: var(--space-3, 12px) var(--space-4, 16px);
+    flex-wrap: wrap;
+    gap: var(--space-2, 8px);
+  }
+
+  .jlas-platform-nav__links {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: var(--space-4, 16px);
+  }
+
+  .jlas-platform-nav__links a {
+    flex-shrink: 0;
+  }
+
+  .jlas-platform-nav__actions {
+    margin-left: auto;
+  }
+}

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện shadowing | JLAS Shadowing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/theme-bridge.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260901-player-title-18-22">
+    <link rel="icon" href="/images/jlab.png" type="image/png"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260901-player-spacing-aicall-assets"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+</head>
+<body id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
+    <div id="jlabBaseShellMount"></div>
+    <main id="jlabBaseContent">
+
+    <input type="hidden" id="video-id" th:value="${videoId}">
+
+    <!-- Media element luôn có; audio-mode: không nằm trong layout visual -->
+    <video id="main-video" playsinline preload="metadata" class="media-engine"></video>
+
+    <div class="container" id="player-container">
+        <header class="player-page-header">
+            <div class="player-header-top">
+                <h1 class="player-title" id="lesson-title">Tiêu đề: …</h1>
+                <div class="player-header-actions">
+                    <button id="favorite-btn" class="pill-btn toggle-btn" title="Yêu thích"><i class="fa-regular fa-star"></i></button>
+                    <button id="share-btn" class="pill-btn toggle-btn" title="Chia sẻ"><i class="fa-solid fa-share-nodes"></i></button>
+                </div>
+            </div>
+            <div class="player-rating-row">
+                <div class="player-rating-summary">
+                    <span id="rating-summary"></span>
+                </div>
+                <div class="player-badges player-rating-meta" aria-label="Thông tin bài học">
+                    <span class="badge badge-lesson" id="lesson-views-badge"><i class="fa-solid fa-eye"></i> 0 lượt xem</span>
+                    <span class="badge badge-lesson badge-green" id="lesson-duration-badge"><i class="fa-regular fa-clock"></i> — phút</span>
+                    <span class="badge badge-lesson" id="lesson-category-badge"><i class="fa-solid fa-folder"></i> Hàng ngày</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="player-layout">
+            <div class="main-column">
+                <div class="player-stage-layout" id="player-stage-layout">
+                    <div class="video-container premium-player" id="player-shell">
+                    <div class="video-column">
+                        <!-- VIDEO layout: khung video + timeline -->
+                        <div class="video-media-row" id="video-media-row">
+                            <div class="video-stack">
+                                <div class="video-surface" id="video-surface">
+                                    <!-- video gắn vào đây khi là video; audio thì media-engine ở ngoài -->
+                                </div>
+                                <div class="video-timeline" id="video-timeline">
+                                    <div class="timeline-track" id="timeline-track">
+                                        <div class="timeline-fill" id="timeline-fill"></div>
+                                    </div>
+                                    <span class="timeline-time" id="timeline-time">0:00 / 0:00</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Khung lời — audio: hero full; video: dưới media (không cover/meta) -->
+                        <div id="large-subtitle-viewer" class="subtitle-viewer-card subtitle-viewer-inline lyrics-stage">
+                            <div id="viewer-japanese" class="viewer-japanese"></div>
+                            <div id="viewer-translation" class="viewer-translation"></div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="player-controls-slot" id="player-controls-slot">
+                    <aside class="player-controls glass-toolbar floating-toolbar" id="player-controls" aria-label="Điều khiển phát">
+                    <button type="button" class="toolbar-collapse-btn" id="player-controls-toggle"
+                            title="Thu gọn công cụ" aria-label="Thu gọn công cụ"
+                            aria-expanded="true" aria-controls="player-controls-content">
+                        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        <span class="sr-only">Thu gọn công cụ</span>
+                    </button>
+                    <div id="player-controls-content" class="player-controls-content">
+                        <div class="toolbar-group toolbar-nav">
+                            <span class="toolbar-label">Điều hướng</span>
+                            <button id="prev-btn" class="control-btn" title="Câu trước"><i class="fa-solid fa-backward-step"></i></button>
+                            <button id="replay-btn" class="control-btn" title="Phát lại câu hiện tại"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button id="play-btn" class="control-btn play-main" title="Phát / Tạm dừng"><i class="fa-solid fa-play" id="play-icon"></i></button>
+                            <button id="next-btn" class="control-btn" title="Câu tiếp theo"><i class="fa-solid fa-forward-step"></i></button>
+                        </div>
+
+                        <div class="toolbar-divider"></div>
+
+                        <div class="toolbar-group toolbar-loop">
+                            <span class="toolbar-label">Lặp lại</span>
+                            <button id="loop-btn" class="control-btn control-btn-loop" title="Bật lặp câu"><i class="fa-solid fa-repeat"></i></button>
+                            <select id="loop-count" class="pill-btn loop-select" title="Số lần lặp">
+                                <option value="0">∞</option>
+                                <option value="3">×3</option>
+                                <option value="5">×5</option>
+                                <option value="10">×10</option>
+                            </select>
+                        </div>
+
+                        <div class="toolbar-divider"></div>
+
+                        <div class="toolbar-group toolbar-speed">
+                            <span class="toolbar-label">Tốc độ</span>
+                            <div class="speed-dropdown">
+                                <button type="button" id="speed-toggle-btn" class="pill-btn speed-toggle" title="Tốc độ phát" aria-expanded="false" aria-haspopup="listbox">
+                                    <span id="speed-toggle-label">1×</span>
+                                    <i class="fa-solid fa-chevron-down speed-chevron"></i>
+                                </button>
+                                <div id="speed-menu" class="speed-menu" role="listbox" hidden>
+                                    <button type="button" class="speed-btn" data-speed="0.5">0.5×</button>
+                                    <button type="button" class="speed-btn" data-speed="0.75">0.75×</button>
+                                    <button type="button" class="speed-btn active" data-speed="1">1×</button>
+                                    <button type="button" class="speed-btn" data-speed="1.25">1.25×</button>
+                                    <button type="button" class="speed-btn" data-speed="1.5">1.5×</button>
+                                    <button type="button" class="speed-btn" data-speed="2">2×</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="toolbar-divider"></div>
+
+                        <div class="toolbar-group toolbar-display">
+                            <span class="toolbar-label">Hiển thị</span>
+                            <button id="translation-toggle-btn" class="pill-btn toggle-btn active" title="Hiện bản dịch">
+                                <i class="fa-solid fa-language"></i><span>Dịch</span>
+                            </button>
+                            <button id="furigana-toggle-btn" class="pill-btn toggle-btn active" title="Hiện cách đọc">
+                                <i class="fa-solid fa-book-open"></i><span>Cách đọc</span>
+                            </button>
+                        </div>
+                    </div>
+                    </aside>
+                    </div>
+                </div>
+            </div>
+
+                <div class="player-footer-links">
+                    <button onclick="window.location.href='/editor/' + document.getElementById('video-id').value" class="text-link">
+                        <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa phụ đề
+                    </button>
+                    <button onclick="window.location.href='/shadowing'" class="text-link">
+                        Thư viện
+                    </button>
+                </div>
+
+                <!-- BR — Self-recording UI: thu giọng đọc theo phụ đề + nghe lại -->
+                <div class="record-panel store-utility-card" id="record-panel">
+                    <div class="record-header">
+                        <h3><i class="fa-solid fa-microphone"></i> Thu âm giọng đọc theo phụ đề</h3>
+                        <span class="caption" id="record-status">Sẵn sàng</span>
+                    </div>
+                    <div class="record-target" id="record-target" aria-live="polite">
+                        <div class="record-target-heading">
+                            <span><i class="fa-solid fa-bullseye"></i> Câu đang luyện</span>
+                            <strong id="record-target-number">Chưa chọn</strong>
+                        </div>
+                        <p id="record-target-text" lang="ja">Chọn một câu trong danh sách phụ đề để bắt đầu.</p>
+                        <p id="record-target-translation" hidden></p>
+                    </div>
+                    <div class="record-controls">
+                        <button id="btn-record-start" class="button-primary btn-sm">
+                            <i class="fa-solid fa-circle"></i> Bắt đầu thu
+                        </button>
+                        <button id="btn-record-stop" class="button-secondary btn-sm" disabled>
+                            <i class="fa-solid fa-stop"></i> Dừng
+                        </button>
+                        <button id="btn-pronunciation-score" class="button-primary btn-sm" disabled>
+                            <i class="fa-solid fa-chart-simple"></i> Chấm phát âm
+                        </button>
+                        <span class="record-timer" id="record-timer">00:00</span>
+                    </div>
+                    <div class="record-visualizer" id="record-visualizer">
+                        <canvas id="record-canvas" width="600" height="60"></canvas>
+                    </div>
+                    <div class="record-playback" id="record-playback" hidden>
+                        <audio id="record-audio" controls></audio>
+                        <a id="record-download" class="button-secondary btn-sm">
+                            <i class="fa-solid fa-download"></i> Tải về
+                        </a>
+                    </div>
+                    <section id="pronunciation-result" aria-live="polite" hidden>
+                        <div id="pronunciation-result-heading">
+                            <div>
+                                <span class="caption">Điểm phát âm</span>
+                                <strong id="pronunciation-overall-score">--</strong>
+                            </div>
+                            <p id="pronunciation-feedback"></p>
+                        </div>
+                        <div id="pronunciation-metrics">
+                            <div><span>Chính xác</span><strong id="pronunciation-accuracy-score">--</strong></div>
+                            <div><span>Trôi chảy</span><strong id="pronunciation-fluency-score">--</strong></div>
+                            <div><span>Đầy đủ</span><strong id="pronunciation-completeness-score">--</strong></div>
+                            <div id="pronunciation-prosody-metric" hidden><span>Ngữ điệu</span><strong id="pronunciation-prosody-score">--</strong></div>
+                        </div>
+                        <div id="pronunciation-recognized-row">
+                            <div id="pronunciation-kitsu">
+                                <div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div>
+                            </div>
+                            <div id="pronunciation-kitsu-bubble">
+                                <span class="caption">Kitsu-chan nghe được:</span>
+                                <span id="pronunciation-recognized-text"></span>
+                            </div>
+                        </div>
+                        <div id="pronunciation-word-scores" aria-label="Điểm theo từng từ"></div>
+                    </section>
+                    <p id="pronunciation-privacy-hint" class="caption">
+                        <i class="fa-solid fa-paw"></i> <strong>Mẹo từ Kitsu-chan:</strong> chọn một câu phụ đề, nghe mẫu một lần rồi thu khi bạn đã bắt được nhịp. Chỉ khi bấm <strong>Chấm phát âm</strong>, bản thu mới được gửi tới dịch vụ chấm và lưu riêng theo tài khoản để bạn xem lại trên thiết bị khác.
+                    </p>
+                </div>
+
+                <div class="comments-panel store-utility-card">
+                    <div class="comments-header">
+                        <h3><i class="fa-solid fa-comments"></i> Bình luận <span id="comment-count" class="caption">(0)</span></h3>
+                    </div>
+                    <div class="comment-form">
+                        <div class="comment-rating-field">
+                            <span class="caption"><i class="fa-solid fa-star"></i> Đánh giá sao (tùy chọn):</span>
+                            <div id="comment-stars"></div>
+                        </div>
+                        <textarea id="comment-input" class="form-input" rows="2" placeholder="Viết bình luận về bài học này..."></textarea>
+                        <button id="comment-submit-btn" class="button-primary btn-sm" style="margin-top:8px;"><i class="fa-solid fa-paper-plane"></i> Gửi bình luận</button>
+                    </div>
+                    <div id="comment-list" class="comment-list"></div>
+                </div>
+
+            <div class="transcript-column">
+                <div class="transcript-header">
+                    <h2><i class="fa-solid fa-list-ul"></i> Phụ đề</h2>
+                    <span class="transcript-count" id="transcript-count">0 câu</span>
+                </div>
+                <div id="subtitle-list" class="subtitle-list"></div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <script src="/js/auth-session.js"></script>
+    <script src="/js/jlab-base-shell.js"></script>
+    <script src="/shadowing/js/client.js?v=20260712"></script>
+    <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
+    <script src="/shadowing/js/recorder.js?v=20260831-pronunciation-actionable-feedback1"></script>
+    <script src="/shadowing/js/app.js?v=20260901-comment-account-name"></script>
+    <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->
+    <script src="http://localhost:35729/livereload.js?snipver=1" defer></script>
+</body>
+</html>

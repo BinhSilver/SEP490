@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="guide(title, message)" class="kitsu-guide">
+    <div class="kitsu-guide__mascot">
+        <div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div>
+    </div>
+    <div class="kitsu-guide__bubble">
+        <strong class="kitsu-guide__title" th:text="${title}">Kitsu-chan</strong>
+        <p class="kitsu-guide__message" th:text="${message}">Mình sẽ đồng hành cùng bạn.</p>
+    </div>
+</div>
+</body>
+</html>

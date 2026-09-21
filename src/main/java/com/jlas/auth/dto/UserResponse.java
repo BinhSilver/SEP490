@@ -14,6 +14,8 @@ public class UserResponse {
 
     private Long id;
 
+    private Long userId;
+
     private String email;
 
     private String username;
@@ -22,9 +24,29 @@ public class UserResponse {
 
     private String avatarUrl;
 
+    private String avatar;
+
+    private String phoneNumber;
+
+    private String gender;
+
+    private String loginType;
+
+    private Boolean googleLinked;
+
+    private Boolean hasPassword;
+
     private String role;
 
     private String japaneseLevel;
+
+    private Integer creditBalance;
+
+    private Boolean isVerified;
+
+    private LocalDateTime lastLogin;
+
+    private LocalDateTime premiumExpiredAt;
 
     private LocalDateTime createdAt;
 }

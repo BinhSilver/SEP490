@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retention Onboarding Demo · JLAS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+</head>
+<body id="jlabBasePage" class="retention-demo-body">
+    <div id="jlabBaseShellMount"></div>
+    <main id="jlabBaseContent">
+    <div class="demo-noise" aria-hidden="true"></div>
+
+    <header class="demo-header">
+        <a class="demo-brand" href="/" aria-label="JLAS trang chủ">
+            <span class="demo-brand__mark"><i class="fa-solid fa-sparkles" aria-hidden="true"></i></span>
+            <span>JLAS <small>/ UI LAB</small></span>
+        </a>
+        <span class="demo-header__status"><span></span> Interactive prototype</span>
+    </header>
+
+    <div class="demo-layout">
+        <section class="demo-intro">
+            <p class="demo-kicker">Retention onboarding · visual prototype</p>
+            <h1>Một màn chúc mừng khiến người học muốn quay lại.</h1>
+            <p class="demo-intro__lead">Đây là bản demo UI thuần frontend. Bấm qua từng màn hình để xem nhịp chuyển cảnh, micro-interaction và cách lựa chọn mục tiêu thay đổi nội dung.</p>
+
+            <div class="demo-feature-list">
+                <div><span><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span><p><strong>Motion có chủ đích</strong><br />Mỗi bước xuất hiện theo một nhịp riêng.</p></div>
+                <div><span><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span><p><strong>Progressive reveal</strong><br />Thông tin được mở dần, không làm người học quá tải.</p></div>
+                <div><span><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i></span><p><strong>Phản hồi tức thì</strong><br />Hover, chọn mục tiêu và reward đều có phản hồi ngay.</p></div>
+            </div>
+
+            <div class="demo-controls">
+                <button id="demoRestart" class="demo-button demo-button--primary" type="button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Xem lại từ đầu</button>
+            </div>
+            <p class="demo-hint"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i> Mẹo: thử đổi mục tiêu ở màn hình số 4.</p>
+        </section>
+
+        <section class="demo-stage" aria-label="Retention onboarding UI demo">
+            <figure class="demo-workspace">
+                    <div id="demoOnboarding" class="demo-onboarding" th:fragment="retentionOnboarding" role="dialog" aria-modal="false" aria-labelledby="demoStepTitle">
+                        <div class="demo-onboarding__top">
+                            <div id="demoProgress" class="demo-progress" aria-label="Tiến trình demo"></div>
+                            <span id="demoStepCounter" class="demo-step-counter">01 / 07</span>
+                        </div>
+
+                        <div class="demo-scenes">
+                            <article class="demo-scene is-active" data-demo-scene="0">
+                                <div class="scene-art scene-art--check"><i class="fa-solid fa-book-open" aria-hidden="true"></i><b></b><b></b><b></b></div>
+                                <h2 id="demoStepTitle">Buổi học hoàn tất!</h2>
+                                <div class="result-progress"><span></span></div>
+                                <p class="scene-copy">Cần thêm 100 từ để nâng cấp độ tiếp theo</p>
+                                <div class="scene-rewards"><span><i class="fa-solid fa-bolt" aria-hidden="true"></i><strong>+10</strong><small>Điểm</small></span><span><i class="fa-solid fa-gem" aria-hidden="true"></i><strong>+20</strong><small>Thưởng</small></span><span><i class="fa-regular fa-clock" aria-hidden="true"></i><strong>00:09</strong><small>Thời gian</small></span></div>
+                            </article>
+
+                            <article class="demo-scene" data-demo-scene="1">
+                                <div class="scene-art scene-art--flame"><span class="flame-ring"></span><i class="fa-solid fa-fire" aria-hidden="true"></i><b></b><b></b></div>
+                                <div class="demo-fox demo-fox--streak"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
+                                <div class="streak-speech">Hãy cố gắng học đều và biến nó thành thói quen nhé!</div>
+                                <strong class="scene-number">1</strong>
+                                <h2>Ngày streak</h2>
+                                <div class="week-strip"><span class="is-today">T2<br /><i class="fa-solid fa-fire"></i></span><span>T3<br /><i></i></span><span>T4<br /><i></i></span><span>T5<br /><i></i></span><span>T6<br /><i></i></span><span>T7<br /><i></i></span><span>CN<br /><i></i></span></div>
+                            </article>
+
+                            <article class="demo-scene" data-demo-scene="2">
+                                <div class="goal-illustration"><i class="fa-solid fa-calendar-check"></i><b class="goal-flame"><i class="fa-solid fa-fire"></i></b></div>
+                                <div class="goal-speech">Chọn mục tiêu chuỗi ngày học liên tiếp. Hoàn thành để nhận “Bảo vệ chuỗi”.</div>
+                                <p class="scene-eyebrow">Make it yours</p>
+                                <h2>Chọn mục tiêu của bạn</h2>
+                                <p class="scene-copy scene-copy--compact">Mục tiêu càng rõ, động lực quay lại càng mạnh.</p>
+                                <div class="goal-options" id="demoGoalOptions">
+                                    <button type="button" data-goal="7" class="is-selected"><strong>7</strong><span>ngày</span><em>+1 Freeze</em></button>
+                                    <button type="button" data-goal="14"><strong>14</strong><span>ngày</span><em>+2 Freeze</em></button>
+                                    <button type="button" data-goal="30"><strong>30</strong><span>ngày</span><em>+5 Freeze</em></button>
+                                </div>
+                            </article>
+
+                            <article class="demo-scene" data-demo-scene="3">
+                                <div class="timeline-duo"><div class="demo-fox demo-fox--timeline"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div><i class="fa-solid fa-fire"></i></div>
+                                <p class="scene-eyebrow">Your next milestones</p>
+                                <h2 id="demoTimelineTitle">Liệu bạn có thể đạt 7 ngày?</h2>
+                                <div class="milestone-path" id="demoMilestonePath"><span class="path-line"></span><b class="is-complete">1<i class="fa-solid fa-check"></i></b><b>3<i class="fa-solid fa-star"></i></b><b>7<i class="fa-solid fa-trophy"></i></b></div>
+                                <p class="scene-copy">Mỗi chấm sáng là một lần bạn tự chứng minh rằng mình có thể tiếp tục.</p>
+                            </article>
+
+                            <article class="demo-scene" data-demo-scene="4">
+                                <div class="scene-art scene-art--freeze"><i class="fa-solid fa-snowflake" aria-hidden="true"></i></div>
+                                <p class="scene-eyebrow">A little safety net</p>
+                                <strong id="demoFreezeReward" class="freeze-number">+1</strong>
+                                <h2>Bảo vệ chuỗi ngày</h2>
+                                <p class="scene-copy">Một ngày bận rộn không nhất thiết phải xóa đi nỗ lực bạn đã xây dựng.</p>
+                                <div class="freeze-card"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i><span>Được dùng khi bạn bỏ lỡ một ngày</span><b>SẴN SÀNG</b></div>
+                            </article>
+
+                            <article class="demo-scene" data-demo-scene="5">
+                                <div class="scene-art scene-art--trophy"><i class="fa-solid fa-trophy" aria-hidden="true"></i></div>
+                                <p class="scene-eyebrow">Learn together</p>
+                                <h2>Đua cùng cộng đồng</h2>
+                                <p class="scene-copy scene-copy--compact">Hãy kiếm thêm <strong>21 KN</strong> để vượt qua người phía trên bạn.</p>
+                                <div class="leaderboard leaderboard--scroll"><div><b>09</b><span class="rank-avatar rank-avatar--pink">A</span><strong>akari.jp</strong><em>30 KN</em></div><div><b>10</b><span class="rank-avatar rank-avatar--yellow">M</span><strong>momo_learn</strong><em>30 KN</em></div><div class="leaderboard__you"><b>11</b><span class="rank-avatar rank-avatar--blue">K</span><strong>Bạn</strong><em>20 KN</em></div><div><b>12</b><span class="rank-avatar rank-avatar--pink">H</span><strong>anh.quan</strong><em>19 KN</em></div><div><b>13</b><span class="rank-avatar rank-avatar--yellow">D</span><strong>duc.truong</strong><em>18 KN</em></div></div>
+                            </article>
+
+                            <article class="demo-scene" data-demo-scene="6">
+                                <p class="reminder-heading">Hẹn gặp lại bạn vào “Thời điểm vàng”</p>
+                                <div class="reminder-world"><span class="reminder-sun"></span><span class="reminder-cloud"></span><span class="reminder-hill reminder-hill--one"></span><span class="reminder-hill reminder-hill--two"></span><div class="demo-fox demo-fox--reminder"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div><span class="reminder-clock"><i></i></span></div>
+                                <p class="scene-eyebrow">Make tomorrow easier</p>
+                                <h2>Chuẩn bị ôn tập: <span class="reminder-count">12</span></h2>
+                                <label class="demo-time-field" for="demoReminder"><i class="fa-regular fa-bell" aria-hidden="true"></i><span>Giờ học mỗi ngày</span><input id="demoReminder" type="time" value="20:00" /></label>
+                                <div class="done-note"><i class="fa-solid fa-sparkles" aria-hidden="true"></i> Học từ mới</div>
+                            </article>
+                        </div>
+
+                        <div class="demo-onboarding__footer"><button id="demoBack" class="demo-back" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Quay lại</span></button><span id="demoFooterHint">Một khoảnh khắc đáng tự hào</span><button id="demoNext" class="demo-next" type="button"><span>Tiếp tục</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>
+                    </div>
+                <figcaption class="demo-stage__caption"><span></span> Live preview · click để tương tác</figcaption>
+            </figure>
+        </section>
+    </div>
+    </main>
+
+    <script th:src="@{/js/auth-session.js}"></script>
+    <script th:src="@{/js/jlab-base-shell.js}"></script>
+    <script th:src="@{/js/pages/retention-demo.js?v=13}"></script>
+</body>
+</html>

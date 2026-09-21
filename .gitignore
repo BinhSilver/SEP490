@@ -1,7 +1,7 @@
 ### =====================================================================
 ### JLAS - .gitignore
 ### Covers: Maven, Spring Boot, Java, IntelliJ IDEA, VSCode,
-###         Cursor, Antigravity IDE, OS files
+###         AI Assistants (Claude, Codex, Cursor, Gemini...), OS files
 ### =====================================================================
 
 # -----------------------------------------------------------------------
@@ -58,8 +58,30 @@ out/
 bin/
 
 # -----------------------------------------------------------------------
-# CURSOR IDE
+# AI ASSISTANTS & CODING AGENTS (Claude, Codex, Cursor, Gemini, etc.)
 # -----------------------------------------------------------------------
+# Claude (Claude Code / Anthropic)
+.claude/
+.claude.json
+.claude*
+CLAUDE.md
+CLAUDE.local.md
+claude.md
+*.claude
+
+# OpenAI / Codex / ChatGPT
+.codex/
+.codex*
+CODEX.md
+codex.md
+.openai/
+.chatgpt/
+
+# GitHub Copilot
+.copilot/
+.copilot-chat/
+
+# Cursor IDE
 .cursor/
 .cursorignore
 .cursorindexingignore
@@ -67,15 +89,24 @@ bin/
 # Cursor AI context cache
 .cursor-tutor/
 
-# -----------------------------------------------------------------------
-# ANTIGRAVITY / GEMINI IDE
-# -----------------------------------------------------------------------
+# Antigravity / Gemini IDE
 .gemini/
 .antigravity/
 .agents/
 # Antigravity context & brain files
 antigravity-context/
 *.agctx
+
+# Graphify output & cache
+graphify-out/
+.graphify*
+
+# Other AI Coding Tools (Aider, Continue, Cline, Roo Code, Windsurf)
+.aider*
+.continue/
+.cline/
+.roo/
+.windsurf/
 
 # -----------------------------------------------------------------------
 # ECLIPSE
@@ -172,8 +203,14 @@ docker-compose.override.yml
 # -----------------------------------------------------------------------
 *.sql.bak
 data_full.sql
+.jlas-backups/
 # Keep schema but not data
 # jlas_schema.sql  <- keep this tracked
+
+# -----------------------------------------------------------------------
+# TEAM-ONLY DOCUMENTS
+# -----------------------------------------------------------------------
+doc/QUY ĐỊNH TEAM_JLAS.docx
 
 # -----------------------------------------------------------------------
 # NODE (if any frontend exists)
@@ -184,6 +221,21 @@ yarn-debug.log*
 yarn-error.log*
 .pnp
 .pnp.js
+
+# -----------------------------------------------------------------------
+# PYTHON IMPORT TOOLING
+# -----------------------------------------------------------------------
+.venv/
+__pycache__/
+*.py[cod]
+dictionary-import-report*.jsonl
+/data/JMdict*
+/data/kanjidic2*
+/data/kanjivg*
+!/data/dictionary-seed/
+!/data/dictionary-seed/jlas-dictionary-test-seed-20260916.sql.gz
+!/data/dictionary-seed/kanjivg-r20250816.zip
+/src/main/resources/static/assets/kanjivg/
 
 # -----------------------------------------------------------------------
 # MISC / TEMP
@@ -198,3 +250,14 @@ temp/
 *.bak
 *.orig
 *.DS_Store
+# Local configuration and generated runtime uploads must never be pushed.
+src/main/resources/application-local.properties
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-test.properties
+src/main/resources/application-test.yml
+src/main/resources/application-test.yaml
+uploads/
+
+# Team-only policy document.
+doc/QUY ĐỊNH TEAM_JLAS.docx

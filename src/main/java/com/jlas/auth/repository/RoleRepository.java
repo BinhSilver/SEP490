@@ -10,7 +10,7 @@ import java.util.Optional;
  * Repository thao tác dữ liệu cho {@link Role}.
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Integer> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
 
     Optional<Role> findByName(String name);
 }

@@ -1,6 +1,6 @@
 -- =============================================================================
--- J-LAS COMPLETE RUNTIME SCHEMA (MySQL 8.0.16+)
--- Canonical one-shot schema for jlas_merged_db.
+-- JLAS COMPLETE RUNTIME SCHEMA (MySQL 8.0.16+)
+-- Canonical one-shot schema for jlas.
 -- Includes the merged core plus Shadowing series, pronunciation history,
 -- listening practice, and retention onboarding columns.
 --
@@ -10,11 +10,11 @@
 --   mysql -u root -p < sql/data_full.sql
 -- =============================================================================
 
-CREATE DATABASE IF NOT EXISTS jlas_merged_db
+CREATE DATABASE IF NOT EXISTS jlas
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE jlas_merged_db;
+USE jlas;
 SET NAMES utf8mb4;
 
 -- =============================================================================
@@ -173,6 +173,25 @@ CREATE TABLE auth_tokens (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_auth_token_type
         CHECK (token_type IN ('REFRESH','VERIFY_EMAIL','RESET_PASSWORD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Yeu cau doi email: chi luu hash cua hai OTP, khong luu ma ro.
+CREATE TABLE email_change_requests (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id        BIGINT UNSIGNED NOT NULL,
+    new_email      VARCHAR(255) NOT NULL,
+    old_otp_hash   CHAR(64) NOT NULL,
+    new_otp_hash   CHAR(64) NOT NULL,
+    attempt_count  INT UNSIGNED NOT NULL DEFAULT 0,
+    expires_at     DATETIME(6) NOT NULL,
+    confirmed_at   DATETIME(6) NULL,
+    revoked_at     DATETIME(6) NULL,
+    created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_email_change_user_active (user_id, confirmed_at, revoked_at, created_at),
+    KEY idx_email_change_expiry (expires_at),
+    CONSTRAINT fk_email_change_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- #############################################################################
@@ -1411,14 +1430,31 @@ CREATE TABLE user_lesson_recommendation (
 -- 6) FLASHCARD
 -- #############################################################################
 
+-- Thu muc ca nhan de moi user phan loai bo the.
+CREATE TABLE flashcard_folder (
+    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    owner_id   BIGINT UNSIGNED NOT NULL,
+    name       VARCHAR(100) NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_flashcard_folder_owner_name (owner_id, name),
+    KEY idx_flashcard_folder_owner (owner_id),
+    CONSTRAINT fk_flashcard_folder_owner FOREIGN KEY (owner_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Bo flashcard do user/admin tao; metadata clone nam ngay tren set.
 CREATE TABLE flashcard_set (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     owner_id              BIGINT UNSIGNED NOT NULL,
+    folder_id             BIGINT UNSIGNED NULL,
     title                 VARCHAR(100) NOT NULL,
     description           VARCHAR(500) NULL,
     thumbnail_url         VARCHAR(500) NULL,
     visibility            VARCHAR(20) NOT NULL DEFAULT 'PRIVATE',
+    is_draft              TINYINT(1) NOT NULL DEFAULT 0,
     moderation_status     VARCHAR(20) NOT NULL DEFAULT 'NOT_SCANNED',
     moderation_checked_at DATETIME(6) NULL,
     moderation_summary    VARCHAR(500) NULL,
@@ -1432,12 +1468,16 @@ CREATE TABLE flashcard_set (
     PRIMARY KEY (id),
     KEY idx_flashcard_set_owner (owner_id, deleted_at),
     KEY idx_flashcard_set_public (visibility, deleted_at, created_at),
+    KEY idx_flashcard_set_folder (folder_id, deleted_at),
     KEY idx_flashcard_set_source (source_set_id),
     CONSTRAINT fk_flashcard_set_owner FOREIGN KEY (owner_id)
         REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_flashcard_set_folder FOREIGN KEY (folder_id)
+        REFERENCES flashcard_folder(id) ON DELETE SET NULL,
     CONSTRAINT fk_flashcard_set_source FOREIGN KEY (source_set_id)
         REFERENCES flashcard_set(id) ON DELETE SET NULL,
-    CONSTRAINT chk_flashcard_set_visibility CHECK (visibility IN ('PUBLIC','PRIVATE'))
+    CONSTRAINT chk_flashcard_set_visibility CHECK (visibility IN ('PUBLIC','PRIVATE')),
+    CONSTRAINT chk_flashcard_set_draft CHECK (is_draft IN (0,1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Chan set tu clone chinh no; MySQL khong cho CHECK tren self FK co referential action.
@@ -1465,8 +1505,8 @@ DELIMITER ;
 CREATE TABLE flashcard_card (
     id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     set_id     BIGINT UNSIGNED NOT NULL,
-    front      VARCHAR(500) NOT NULL,
-    back       VARCHAR(500) NOT NULL,
+    front      VARCHAR(500) NULL,
+    back       VARCHAR(500) NULL,
     reading    VARCHAR(255) NULL,
     meaning    VARCHAR(500) NULL,
     han_viet   VARCHAR(255) NULL,
@@ -1536,6 +1576,8 @@ CREATE TABLE flashcard_study_session (
     user_id      BIGINT UNSIGNED NOT NULL,
     set_id       BIGINT UNSIGNED NOT NULL,
     session_type VARCHAR(20) NOT NULL,
+    creation_request_id VARCHAR(36) NULL,
+    creation_fingerprint VARCHAR(64) NULL,
     mode         VARCHAR(30) NOT NULL,
     status       VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS',
     started_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -1547,7 +1589,9 @@ CREATE TABLE flashcard_study_session (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_flashcard_session_set FOREIGN KEY (set_id)
         REFERENCES flashcard_set(id) ON DELETE CASCADE,
-    CONSTRAINT chk_flashcard_session_type CHECK (session_type IN ('FLASHCARD','QUIZ')),
+    UNIQUE KEY uk_flashcard_session_creation (user_id, creation_request_id),
+    KEY idx_flashcard_session_history (user_id, set_id, session_type, started_at),
+    CONSTRAINT chk_flashcard_session_type CHECK (session_type IN ('FLASHCARD','QUIZ','SPEED_RECALL')),
     CONSTRAINT chk_flashcard_session_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABANDONED')),
     CONSTRAINT chk_flashcard_session_time CHECK (finished_at IS NULL OR finished_at >= started_at)
@@ -1576,6 +1620,69 @@ CREATE TABLE flashcard_study_session_item (
 
 -- #############################################################################
 -- 7) SHADOWING
+-- Speed Recall extensions are declared here after the canonical flashcard tables.
+CREATE TABLE flashcard_speed_recall_session (
+    session_id BIGINT UNSIGNED NOT NULL,
+    state VARCHAR(24) NOT NULL,
+    paused_from VARCHAR(24) NULL,
+    current_question_index INT NOT NULL DEFAULT 0,
+    total_questions INT NOT NULL,
+    correct_count INT NOT NULL DEFAULT 0,
+    wrong_count INT NOT NULL DEFAULT 0,
+    timeout_count INT NOT NULL DEFAULT 0,
+    score INT NOT NULL DEFAULT 0,
+    streak INT NOT NULL DEFAULT 0,
+    best_streak INT NOT NULL DEFAULT 0,
+    total_response_ms BIGINT NOT NULL DEFAULT 0,
+    rules_version VARCHAR(32) NOT NULL,
+    content_version VARCHAR(64) NOT NULL,
+    selection_filter VARCHAR(16) NOT NULL,
+    auto_submit BOOLEAN NOT NULL DEFAULT FALSE,
+    retry_of_session_id BIGINT UNSIGNED NULL,
+    feedback_until DATETIME(6) NULL,
+    paused_remaining_ms BIGINT NULL,
+    created_at DATETIME(6) NOT NULL,
+    last_activity_at DATETIME(6) NOT NULL,
+    expires_at DATETIME(6) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (session_id),
+    KEY idx_sr_expiry (state, expires_at),
+    CONSTRAINT fk_sr_study FOREIGN KEY (session_id) REFERENCES flashcard_study_session(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sr_retry FOREIGN KEY (retry_of_session_id) REFERENCES flashcard_speed_recall_session(session_id) ON DELETE SET NULL,
+    CONSTRAINT chk_sr_total CHECK (total_questions >= 1),
+    CONSTRAINT chk_sr_counts CHECK (correct_count >= 0 AND wrong_count >= 0 AND timeout_count >= 0
+        AND timeout_count <= wrong_count AND correct_count + wrong_count <= total_questions)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE flashcard_speed_recall_answer (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    session_id BIGINT UNSIGNED NOT NULL,
+    flashcard_card_id BIGINT UNSIGNED NULL,
+    question_index INT NOT NULL,
+    question_text VARCHAR(500) NOT NULL,
+    expected_answer VARCHAR(500) NOT NULL,
+    reading VARCHAR(255) NOT NULL,
+    meaning TEXT NULL,
+    outcome VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+    user_answer VARCHAR(500) NULL,
+    normalized_answer VARCHAR(500) NULL,
+    response_ms INT NULL,
+    score_awarded INT NOT NULL DEFAULT 0,
+    time_limit_ms INT NULL,
+    streak_before INT NULL,
+    issued_at DATETIME(6) NULL,
+    deadline_at DATETIME(6) NULL,
+    resolved_at DATETIME(6) NULL,
+    answer_request_id VARCHAR(36) NULL,
+    request_fingerprint VARCHAR(64) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_sr_question_position (session_id, question_index),
+    KEY idx_sr_review (session_id, outcome),
+    CONSTRAINT fk_sr_answer_session FOREIGN KEY (session_id) REFERENCES flashcard_speed_recall_session(session_id) ON DELETE CASCADE,
+    CONSTRAINT fk_sr_answer_card FOREIGN KEY (flashcard_card_id) REFERENCES flashcard_card(id) ON DELETE SET NULL,
+    CONSTRAINT chk_sr_answer_outcome CHECK (outcome IN ('PENDING','ACTIVE','CORRECT','WRONG','TIMEOUT'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- #############################################################################
 
 -- Video/audio shadowing va trang thai xu ly.
@@ -1671,6 +1778,24 @@ CREATE TABLE video_user_state (
 
 -- Comment da hinh thay flashcard_comment va video_comment.
 -- target ton tai duoc service/trigger kiem tra vi MySQL khong co FK da hinh.
+CREATE TABLE user_notification (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id     BIGINT UNSIGNED NOT NULL,
+    type        VARCHAR(40) NOT NULL,
+    title       VARCHAR(160) NOT NULL,
+    message     VARCHAR(1000) NOT NULL,
+    target_url  VARCHAR(500) NULL,
+    event_key   VARCHAR(160) NULL,
+    read_at     DATETIME(6) NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_notification_event (user_id, event_key),
+    KEY idx_user_notification_feed (user_id, created_at),
+    KEY idx_user_notification_unread (user_id, read_at),
+    CONSTRAINT fk_user_notification_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE content_comment (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK.
@@ -2345,6 +2470,5 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
     UNIQUE KEY uk_shadowing_practice_answer_attempt (practice_item_id, attempt_number),
     INDEX idx_shadowing_practice_answer_result (answer_result, answered_at)
 );
-
 
 -- End of canonical schema.

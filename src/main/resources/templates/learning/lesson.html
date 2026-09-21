@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Bài ' + ${lesson?.displayOrder} + ' - Học Onyomi'">Bài học</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}" />
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
+    <style>
+        :root {
+            --primary: #0058be;
+            --secondary: #2170e4;
+            --surface: #f8f9ff;
+            --text: #0b1c30;
+            --muted: #6B7280;
+            --success: #22C55E;
+            --danger: #EF4444;
+            --warn-bg: #FFFBEB;
+            --warn-border: #FDE68A;
+            --intro-bg: #eff4ff;
+            --line: #cbd5e1;
+            --line-strong: #94a3b8;
+            --radius: 24px;
+            --sidebar-w: 260px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: var(--font-headline, 'Hanken Grotesk', system-ui, sans-serif);
+            font-weight: 700;
+        }
+
+        /* Layout */
+        .course-layout {
+            display: flex;
+            max-width: 1280px;
+            margin: 0 auto;
+            gap: 40px;
+            padding: 32px 24px 100px;
+        }
+
+        .course-sidebar {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            position: sticky;
+            top: 24px;
+            align-self: flex-start;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+
+        .course-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-nav a:hover {
+            background: #eff4ff;
+            color: var(--primary);
+        }
+
+        .sidebar-nav a.active {
+            background: #eff4ff;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .sidebar-nav a i {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Breadcrumb */
+        .course-breadcrumb {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        .course-breadcrumb a {
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+        .course-breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .course-breadcrumb .sep {
+            color: #D1D5DB;
+        }
+
+        /* Hero */
+        .lesson-hero {
+            border-radius: 28px;
+            padding: 40px;
+            background: #eaf2ff !important;
+            color: var(--text);
+            margin-bottom: 40px;
+            box-shadow: none;
+            border: 1px solid var(--line-strong);
+            backdrop-filter: blur(8px);
+        }
+
+        .lesson-hero-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .lesson-hero-icon i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .lesson-hero h1 {
+            font-size: 40px;
+            margin: 0 0 6px;
+            color: var(--text);
+        }
+
+        .lesson-hero-type {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .lesson-hero-rules {
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            opacity: 0.95;
+        }
+
+        .lesson-hero-desc {
+            font-size: 16px;
+            opacity: 0.92;
+            max-width: 520px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .lesson-hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .lesson-hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lesson-hero-meta i {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Sections */
+        .course-section {
+            margin-bottom: 48px;
+            scroll-margin-top: 24px;
+            animation: fadeUp 0.2s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-head {
+            margin-bottom: 24px;
+        }
+
+        .section-head h2 {
+            font-size: 28px;
+            margin: 0 0 6px;
+            color: var(--text);
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .section-card {
+            background: transparent !important;
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: none;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+        }
+
+        /* S1 Intro */
+        .intro-card {
+            background: transparent !important;
+            border-radius: var(--radius);
+            padding: 32px;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+        }
+
+        .intro-card h3 {
+            color: var(--primary);
+            font-size: 20px;
+            margin: 0 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .intro-goals {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .intro-goals li {
+            padding: 10px 0 10px 28px;
+            position: relative;
+            font-size: 15px;
+            color: inherit;
+        }
+
+        .intro-goals li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* S2 Rules */
+        .rule-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .rule-card {
+            display: grid;
+            grid-template-columns: minmax(220px, 0.9fr) minmax(280px, 1.1fr);
+            align-items: start;
+            gap: clamp(24px, 4vw, 48px);
+            background: transparent !important;
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            box-shadow: none;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+        }
+
+        .rule-card:hover {
+            transform: none;
+        }
+
+        .rule-card-convert {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .rule-card-heading,
+        .rule-examples-heading {
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .rule-card-mapping {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(16px, 4vw, 32px);
+        }
+
+        .rule-card-term {
+            display: flex;
+            min-width: 76px;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rule-card-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rule-card-sound {
+            font-size: 30px;
+            font-weight: 800;
+            font-family: inherit;
+            padding: 0;
+            border: 0 !important;
+            border-radius: 0;
+            background: transparent !important;
+        }
+
+        .rule-card-sound.src {
+            color: var(--secondary);
+        }
+
+        .rule-card-sound.tgt {
+            color: var(--primary);
+        }
+
+        .rule-card-arrow {
+            font-size: 24px;
+            color: #64748B;
+            font-weight: 700;
+        }
+
+        .rule-card-summary {
+            max-width: 280px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .rule-card-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .rule-explain h4 {
+            font-size: 15px;
+            color: var(--primary);
+            margin: 0 0 8px;
+        }
+
+        .rule-explain p {
+            margin: 0;
+            font-size: 15px;
+            color: inherit;
+            line-height: 1.6;
+        }
+
+        .rule-examples {
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .rule-examples-heading {
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .rule-explain-body {
+            font-size: 15px;
+            color: inherit;
+            line-height: 1.6;
+        }
+
+        .rule-explain-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+
+        .rule-explain-body th,
+        .rule-explain-body td {
+            border: 1px solid var(--line);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .rule-explain-body th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .rule-explain-body hr {
+            border: none;
+            border-top: 1px dashed var(--line-strong);
+            margin: 12px 0;
+        }
+
+        .rule-explain-body b {
+            color: var(--primary);
+        }
+
+        .rule-tip {
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: rgba(254, 249, 195, 0.15);
+            border: 1px solid rgba(254, 249, 195, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            color: inherit;
+        }
+
+        .rule-tip strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* S3 Reasoning */
+        .demo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .demo-panel {
+            display: grid;
+            grid-template-columns: 32px minmax(48px, auto) 14px minmax(58px, 1fr) 28px;
+            align-items: center;
+            gap: 8px;
+            min-height: 32px;
+            padding: 2px 0;
+            border: 0;
+            border-radius: 0;
+            background: none !important;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        .demo-kanji {
+            color: var(--text);
+            font-size: 23px;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .demo-example-hv {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .demo-example-onyomi {
+            color: var(--primary);
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .demo-play-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: rgba(0, 88, 190, 0.08);
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 11px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .demo-play-btn i,
+        .demo-play-btn svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        .demo-play-btn:hover {
+            background: rgba(0, 88, 190, 0.14);
+        }
+
+        .demo-steps {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .demo-step {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .demo-step.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .demo-step-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .demo-step-val {
+            font-size: clamp(16px, 1.8vw, 18px);
+            font-weight: 800;
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+        }
+
+        .demo-step.val-success .demo-step-val {
+            color: var(--success);
+        }
+
+        .demo-arrow {
+            color: #CBD5E1;
+            font-size: 14px;
+        }
+
+        .demo-kanji-box {
+            text-align: center;
+            padding: clamp(8px, 1.5vw, 12px);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            min-width: clamp(72px, 10vw, 84px);
+        }
+
+        .demo-kanji-box .demo-kanji {
+            font-size: 34px;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .demo-onyomi-side {
+            font-size: clamp(14px, 1.6vw, 16px);
+            font-weight: 800;
+            color: var(--primary);
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+        }
+
+        /* S4 Flashcards (Carousel format) */
+        .flashcard-carousel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .flashcard-slider {
+            width: 100%;
+            position: relative;
+        }
+
+        .flashcard-item {
+            display: none;
+            width: 100%;
+        }
+
+        .flashcard-item.active {
+            display: block;
+            animation: fadeUp 0.25s ease;
+        }
+
+        .flashcard-wrap {
+            width: 100%;
+            height: clamp(300px, 66.666vw, 320px);
+            perspective: 1200px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .flashcard-wrap:hover {
+            transform: translateY(-2px);
+        }
+
+        .flashcard-wrap:hover .flashcard-face {
+            border-color: rgba(0, 88, 190, 0.28);
+            box-shadow: 0 10px 28px rgba(0, 88, 190, 0.08);
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: var(--radius);
+            padding: 22px 26px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            text-align: center;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 18px rgba(0, 88, 190, 0.035);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .flashcard-front {
+            background: transparent !important;
+        }
+
+        .flashcard-back {
+            background: rgba(255, 255, 255, 0.15) !important;
+            transform: rotateY(180deg);
+        }
+
+        .fc-face-header {
+            width: 100%;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .fc-face-label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .fc-face-content {
+            width: 100%;
+            min-height: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .fc-hv {
+            color: var(--secondary);
+            font-size: clamp(28px, 6vw, 32px);
+            font-weight: 800;
+            line-height: 1.05;
+            text-transform: uppercase;
+        }
+
+        .fc-kanji {
+            color: var(--text);
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: clamp(82px, 18vw, 94px);
+            font-weight: 500;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .fc-onyomi {
+            color: var(--primary);
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: clamp(28px, 6vw, 32px);
+            font-weight: 800;
+            line-height: 1.05;
+            text-transform: uppercase;
+        }
+
+        .fc-kana {
+            min-height: 22px;
+            color: var(--muted);
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .fc-rule {
+            color: var(--text);
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .fc-flip-hint {
+            min-height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #94A3B8;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .fc-flip-hint i,
+        .fc-flip-hint svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .fc-audio-btn {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            color: var(--primary);
+            background: transparent;
+            cursor: pointer;
+            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .fc-audio-btn:hover {
+            border-color: var(--primary);
+            background: rgba(0, 88, 190, 0.08);
+        }
+
+        .fc-audio-btn i,
+        .fc-audio-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .flashcard-nav-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--line);
+            background: transparent !important;
+            backdrop-filter: blur(8px);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .flashcard-nav-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.08);
+        }
+
+        .flashcard-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .flashcard-counter {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--muted);
+            font-family: var(--font-headline, 'Hanken Grotesk', system-ui, sans-serif);
+        }
+
+        /* S5 Insight */
+        .insight-card {
+            background: transparent !important;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            border-radius: var(--radius);
+            padding: 32px;
+            backdrop-filter: blur(8px);
+        }
+
+        .insight-card h3 {
+            color: #B45309;
+            font-size: 20px;
+            margin: 0 0 16px;
+        }
+
+        .insight-card p {
+            margin: 0;
+            font-size: 16px;
+            color: inherit;
+            line-height: 1.7;
+        }
+
+        .insight-highlight {
+            display: inline-block;
+            font-weight: 800;
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            color: var(--secondary);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        /* S6 Quiz Duolingo */
+        .quiz-flow {
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .quiz-card {
+            background: transparent !important;
+            border-radius: var(--radius);
+            padding: 36px;
+            box-shadow: none;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+            animation: fadeUp 0.2s ease;
+        }
+
+        .quiz-prompt {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .quiz-word {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .quiz-prompt-sub {
+            font-size: 16px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-opt {
+            padding: 18px 20px;
+            border-radius: 16px;
+            border: 2px solid var(--line-strong);
+            background: transparent !important;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 700;
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            text-align: center;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .quiz-opt:hover:not(:disabled) {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 88, 190, 0.12);
+        }
+
+        .quiz-opt:disabled {
+            cursor: default;
+        }
+
+        .quiz-opt.correct {
+            background: var(--success) !important;
+            border-color: var(--success);
+            color: white;
+        }
+
+        .quiz-opt.wrong {
+            background: var(--danger) !important;
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .quiz-feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 14px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+            animation: fadeUp 0.2s ease;
+        }
+
+        .quiz-feedback.correct-fb {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .quiz-feedback.wrong-fb {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .quiz-feedback h4 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .quiz-feedback-steps {
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .quiz-next-btn {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .quiz-counter {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        /* Compact the regular Onyomi quiz by roughly 15%. */
+        #quiz-flow {
+            max-width: 476px;
+        }
+
+        #quiz-flow .quiz-card {
+            padding: 31px;
+        }
+
+        #quiz-flow .quiz-prompt {
+            margin-bottom: 24px;
+        }
+
+        #quiz-flow .quiz-word {
+            font-size: 31px;
+        }
+
+        #quiz-flow .quiz-prompt-sub {
+            margin-top: 7px;
+            font-size: 14px;
+        }
+
+        #quiz-flow .quiz-options {
+            gap: 10px;
+        }
+
+        #quiz-flow .quiz-opt {
+            padding: 15px 17px;
+            border-radius: 14px;
+            font-size: 15px;
+        }
+
+        #quiz-flow .quiz-feedback {
+            margin-top: 17px;
+            padding: 17px;
+            border-radius: 12px;
+        }
+
+        #quiz-flow .quiz-feedback h4 {
+            margin-bottom: 0;
+            font-size: 15px;
+        }
+
+        #quiz-flow .quiz-next-btn {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        #quiz-flow .quiz-counter {
+            margin-bottom: 14px;
+            font-size: 11px;
+        }
+
+        /* S7 Compound */
+        .compound-card .quiz-word {
+            font-size: 28px;
+        }
+
+        .compound-parts {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .compound-part {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .compound-q {
+            font-size: 32px;
+            color: var(--muted);
+        }
+
+        /* S8 Summary */
+        .summary-card {
+            background: transparent !important;
+            border-radius: var(--radius);
+            padding: 36px;
+            box-shadow: none;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+            text-align: center;
+        }
+
+        .summary-rules {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px;
+            text-align: left;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .summary-rules li {
+            padding: 8px 0 8px 28px;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .summary-rules li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+        }
+
+        .summary-insight {
+            max-width: 520px;
+            margin: 0 auto 24px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .summary-insight p {
+            margin: 0;
+        }
+
+        .summary-insight i,
+        .summary-insight svg {
+            width: 16px;
+            height: 16px;
+            margin: 6px 0;
+            color: var(--primary);
+        }
+
+        .summary-insight strong {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .summary-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border-radius: 16px;
+            text-decoration: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .summary-cta:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 991px) {
+            .course-sidebar {
+                display: none;
+            }
+
+            .course-layout {
+                padding: 20px 16px 80px;
+            }
+
+            .demo-panel {
+                gap: 6px;
+                padding: 2px 0;
+            }
+
+            .lesson-hero h1 {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .rule-card {
+                grid-template-columns: 1fr;
+                gap: 22px;
+                padding: 20px;
+            }
+
+            .rule-examples-heading {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+</head>
+
+<body id="jlabBasePage">
+
+    <div id="jlabBaseShellMount"></div>
+    <div th:replace="~{learning/fragments/welcome-modal :: welcome-modal}"></div>
+
+<main id="jlabBaseContent" class="course-layout">
+        <!-- Sidebar -->
+        <aside class="course-sidebar d-none d-lg-block">
+            <div class="sidebar-title" th:text="'Bài ' + ${lesson?.displayOrder}">Bài 1</div>
+            <ul class="sidebar-nav" id="sidebar-nav">
+                <li><a href="#s-rules" data-section="s-rules"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Quy tắc</a></li>
+                <li><a href="#s-flashcards" data-section="s-flashcards"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Thẻ ghi nhớ</a></li>
+                <li><a href="#s-quiz" data-section="s-quiz"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Trắc nghiệm</a></li>
+                <li><a href="#s-compound" data-section="s-compound"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i> Ghép từ</a></li>
+                <li><a href="#s-summary" data-section="s-summary"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Tổng kết</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main -->
+        <div class="course-main" th:with="
+            catName=${lesson.category.name},
+            isDau=${#strings.contains(lesson.title, 'ĐẦU') or #strings.contains(catName, 'đầu')},
+            isCuoi=${#strings.contains(lesson.title, 'CUỐI') or #strings.contains(catName, 'cuối')},
+            ruleCount=${#lists.size(lesson.rules)},
+            exCount=${#aggregates.sum(lesson.rules.![#lists.size(examples)])},
+            quizCount=${#aggregates.sum(lesson.rules.![#lists.size(quizItems)])},
+            rulesSummary=${#strings.listJoin(lesson.rules.![sourceSound], ' • ')},
+            typeLabel=${isDau ? 'Âm đầu' : (isCuoi ? 'Âm cuối' : 'Chuyển vần')},
+            srcLabel=${isDau ? 'ÂM ĐẦU HÁN VIỆT' : (isCuoi ? 'ÂM CUỐI HÁN VIỆT' : 'VẦN HÁN VIỆT')},
+            tgtMid=${isDau ? 'ÂM ĐẦU ONYOMI' : (isCuoi ? 'ÂM CUỐI ONYOMI' : 'VẦN ONYOMI')},
+            heroDesc=${isDau ? 'Học cách chuyển âm đầu của âm Hán Việt thành âm đầu Onyomi.' : (isCuoi ? 'Học cách chuyển âm cuối của âm Hán Việt thành âm cuối Onyomi.' : 'Học cách chuyển vần Hán Việt thành vần Onyomi tương ứng.')}
+        ">
+
+            <!-- Breadcrumb -->
+            <nav class="course-breadcrumb">
+                <span th:text="${lesson.category.name}">Giai đoạn 1</span><span class="sep">›</span>
+                <span style="color:var(--primary);font-weight:600;" th:text="'Bài ' + ${lesson.displayOrder}">Bài
+                    1</span>
+            </nav>
+
+            <!-- Hero -->
+            <div class="lesson-hero">
+                <div class="lesson-hero-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Bài học</div>
+                <h1 th:text="'Bài ' + ${lesson.displayOrder}">Bài 1</h1>
+                <div class="lesson-hero-type" th:text="${typeLabel}">Âm đầu</div>
+                <div class="lesson-hero-rules" th:text="${rulesSummary}">C • K • QU</div>
+                <p class="lesson-hero-desc" th:text="${heroDesc}">Học cách chuyển...</p>
+                <div class="lesson-hero-meta">
+                    <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> <span th:text="${ruleCount} + ' Quy tắc'">3 Quy
+                            tắc</span></span>
+                    <span><i class="fa-solid fa-book-bookmark" aria-hidden="true"></i> <span th:text="${exCount} + ' Ví dụ'">15 Ví dụ</span></span>
+                    <span><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span
+                            th:text="${quizCount > 0 ? quizCount : ruleCount * 5} + ' Bài tập'">5 Bài tập</span></span>
+                    <span><i class="fa-regular fa-clock" aria-hidden="true"></i> 5–10 phút</span>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Rules -->
+            <section class="course-section" id="s-rules">
+                <div class="section-head">
+                    <h2>Quy tắc</h2>
+                </div>
+                <div class="rule-cards">
+                    <div th:each="rule : ${lesson.rules}" class="rule-card">
+                        <div class="rule-card-convert">
+                            <div class="rule-card-heading">Quy tắc</div>
+                            <div class="rule-card-mapping">
+                                <div class="rule-card-term">
+                                    <span class="rule-card-sound src" th:text="${rule.sourceSound}">C</span>
+                                    <span class="rule-card-label">Âm HV</span>
+                                </div>
+                                <span class="rule-card-arrow" aria-hidden="true"></span>
+                                <div class="rule-card-term">
+                                    <span class="rule-card-sound tgt" th:text="${rule.targetSound}">K</span>
+                                    <span class="rule-card-label">Onyomi</span>
+                                </div>
+                            </div>
+                            <p class="rule-card-summary"
+                                th:text="${rule.sourceSound + ' thường tương ứng với âm ' + rule.targetSound + ' trong Onyomi.'}">
+                                C thường tương ứng với âm K trong Onyomi.
+                            </p>
+                        </div>
+
+                        <div class="rule-examples" th:if="${rule.examples != null and !rule.examples.isEmpty()}">
+                            <div class="rule-examples-heading">Ví dụ</div>
+                            <div class="demo-list">
+                                <div th:each="ex, exStat : ${rule.examples}" th:if="${exStat.index < 2}"
+                                    class="demo-panel" role="group" th:attr="aria-label=${'Ví dụ ' + ex.hv}">
+                                    <strong class="demo-kanji" th:text="${ex.kanji ?: '?'}">国</strong>
+                                    <span class="demo-example-hv" th:text="${ex.hv}">Quốc</span>
+                                    <span class="demo-arrow" aria-hidden="true"></span>
+                                    <strong class="demo-example-onyomi" th:text="${ex.onyomi}">Koku</strong>
+                                    <button type="button" class="demo-play-btn"
+                                        th:attr="data-speak=${ex.onyomi},aria-label=${'Phát âm ' + ex.onyomi}">
+                                        <i class="fa-solid fa-play" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Flashcards -->
+            <section class="course-section" id="s-flashcards">
+                <div class="section-head">
+                    <h2>Ví dụ — Thẻ ghi nhớ</h2>
+                    <p>Nhấn thẻ để lật và xem Onyomi + quy tắc</p>
+                </div>
+                <div class="flashcard-carousel">
+                    <div class="flashcard-slider" id="flashcard-slider">
+                        <th:block th:each="rule : ${lesson.rules}">
+                            <div th:each="ex : ${rule.examples}" class="flashcard-item">
+                                <div class="flashcard-wrap"
+                                    onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                    <div class="flashcard">
+                                        <div class="flashcard-face flashcard-front">
+                                            <div class="fc-face-header">
+                                                <span class="fc-face-label">Âm Hán Việt</span>
+                                                <span class="flashcard-counter">1 / 1</span>
+                                            </div>
+                                            <div class="fc-face-content">
+                                                <div class="fc-kanji" th:text="${ex.kanji ?: '?'}">各</div>
+                                                <div class="fc-hv" th:text="${ex.hv}">Các</div>
+                                                <div class="fc-rule"
+                                                    th:text="${rule.sourceSound} + '  ?'">C  ?</div>
+                                            </div>
+                                            <div class="fc-flip-hint">
+                                                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+                                                <span>Nhấn để kiểm tra</span>
+                                            </div>
+                                        </div>
+                                        <div class="flashcard-face flashcard-back">
+                                            <div class="fc-face-header">
+                                                <span class="fc-face-label">On'yomi</span>
+                                                <button type="button" class="fc-audio-btn"
+                                                    onclick="event.stopPropagation()"
+                                                    th:attr="data-speak=${ex.onyomi},aria-label=${'Phát âm ' + ex.onyomi}">
+                                                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                            <div class="fc-face-content">
+                                                <div class="fc-kanji" th:text="${ex.kanji ?: '?'}">各</div>
+                                                <div class="fc-onyomi" th:text="${ex.onyomi}">Kaku</div>
+                                                <div class="fc-kana"
+                                                    th:text="${ex.kanjiEntity?.onyomi ?: ''}">かく</div>
+                                                <div class="fc-rule"
+                                                    th:text="${rule.sourceSound} + '  ' + ${rule.targetSound}">C  K</div>
+                                            </div>
+                                            <div class="fc-flip-hint">
+                                                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                                                <span>Nhấn để lật lại</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                    <div class="flashcard-controls">
+                        <button type="button" class="flashcard-nav-btn" id="fc-prev-btn" onclick="prevFlashcard()" aria-label="Thẻ trước">
+                            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="flashcard-nav-btn" id="fc-next-btn" onclick="nextFlashcard()" aria-label="Thẻ tiếp">
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 6: Quiz -->
+            <section class="course-section" id="s-quiz">
+                <div class="section-head">
+                    <h2>Luyện tập</h2>
+                    <p>Chọn đáp án đúng</p>
+                </div>
+                <div class="quiz-flow" id="quiz-flow">
+                    <div class="quiz-counter" id="quiz-counter">Câu 1 / <span
+                            th:text="${shuffledQuiz?.size() ?: 0}">5</span></div>
+                    <div th:each="q, stat : ${shuffledQuiz}" class="quiz-card"
+                        th:classappend="${stat.index == 0} ? 'active' : ''"
+                        th:attr="data-index=${stat.index}, data-correct=${q.correctAnswer}">
+                        <div class="quiz-prompt">
+                            <div class="quiz-word" th:text="${q.kanji ?: '？'}">国</div>
+                            <div class="quiz-prompt-sub" th:if="${q.kanji != null}" th:text="${q.questionText}">Câu hỏi
+                            </div>
+                            <div class="quiz-prompt-sub">Onyomi là?</div>
+                        </div>
+                        <div class="quiz-options">
+                            <button type="button" class="quiz-opt" th:attr="data-choice='A'" th:text="${q.optionA}"
+                                onclick="answerQuiz(this)"></button>
+                            <button type="button" class="quiz-opt" th:attr="data-choice='B'" th:text="${q.optionB}"
+                                onclick="answerQuiz(this)"></button>
+                            <button type="button" class="quiz-opt" th:attr="data-choice='C'" th:text="${q.optionC}"
+                                onclick="answerQuiz(this)"></button>
+                            <button type="button" class="quiz-opt" th:attr="data-choice='D'" th:text="${q.optionD}"
+                                onclick="answerQuiz(this)"></button>
+                        </div>
+                        <div class="quiz-feedback">
+                            <h4 class="quiz-fb-title"></h4>
+                            <button type="button" class="quiz-next-btn" onclick="nextQuiz()">Tiếp tục </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7: Compound words -->
+            <section class="course-section" id="s-compound" th:if="${shuffledQuiz != null}">
+                <div class="section-head">
+                    <h2>Ghép từ</h2>
+                    <p>Đoán cách đọc từ ghép Kanji</p>
+                </div>
+                <div class="quiz-flow" id="compound-flow">
+                    <th:block th:each="q, stat : ${shuffledQuiz}">
+                        <!-- Chỉ từ ghép 2+ kanji; bỏ qua ghép dạng "Bước 1:..." của quiz đơn -->
+                        <div th:if="${q.kanji != null and #strings.length(q.kanji) >= 2}"
+                            class="quiz-card compound-card"
+                            th:attr="data-correct=${q.correctAnswer}, data-kanji=${q.kanji}, data-nghia=${q.meaning}">
+                            <div class="quiz-explanation-src" hidden th:utext="${q.explanation}"></div>
+                            <div class="quiz-prompt">
+                                <div class="quiz-word" th:text="${q.kanji}">国家</div>
+                                <div class="quiz-prompt-sub" th:if="${q.compoundWord != null and q.compoundWord.contains('+')}"
+                                    th:text="${q.compoundWord}">Koku + Ka</div>
+                                <div class="quiz-prompt-sub" style="margin-top:4px;">Cách đọc Onyomi từ ghép?</div>
+                            </div>
+                            <div class="quiz-options">
+                                <button type="button" class="quiz-opt" data-choice="A" th:text="${q.optionA}"
+                                    onclick="answerCompound(this)"></button>
+                                <button type="button" class="quiz-opt" data-choice="B" th:text="${q.optionB}"
+                                    onclick="answerCompound(this)"></button>
+                                <button type="button" class="quiz-opt" data-choice="C" th:text="${q.optionC}"
+                                    onclick="answerCompound(this)"></button>
+                                <button type="button" class="quiz-opt" data-choice="D" th:text="${q.optionD}"
+                                    onclick="answerCompound(this)"></button>
+                            </div>
+                            <div class="quiz-feedback">
+                                <h4 class="compound-fb-title"></h4>
+                                <p class="compound-fb-detail" style="margin:8px 0;font-weight:700;"></p>
+                                <button type="button" class="quiz-next-btn" onclick="nextCompound()">Tiếp tục </button>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </section>
+
+            <!-- SECTION 8: Summary -->
+            <section class="course-section" id="s-summary">
+                <div class="section-head">
+                    <h2>Tổng kết</h2>
+                </div>
+                <div class="summary-card">
+                    <p style="font-size:18px;font-weight:700;margin-bottom:16px;">Bạn vừa học</p>
+                    <ul class="summary-rules">
+                        <li th:each="rule : ${lesson.rules}"
+                            th:text="${rule.sourceSound} + '  ' + ${rule.targetSound}">C  K</li>
+                    </ul>
+                    <div class="summary-insight">
+                        <p>
+                            Các ví dụ trên đều có
+                            <strong th:text="${isDau ? 'âm đầu' : (isCuoi ? 'âm cuối' : 'vần')}">âm đầu</strong>
+                            <strong th:text="${rulesSummary}">C • K • QU</strong>
+                        </p>
+                        <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+                        <p>
+                            Onyomi đều bắt đầu bằng
+                            <strong th:text="${lesson.rules[0].targetSound}">K</strong>
+                            <span th:if="${ruleCount > 1}">(các quy tắc trong bài đều về âm này)</span>
+                        </p>
+                    </div>
+                    <a th:if="${nextLesson}" th:href="@{'/learning/lesson/' + ${nextLesson.id}}" class="summary-cta">
+                        Tiếp tục Bài <span th:text="${nextLesson.displayOrder}">2</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a th:unless="${nextLesson}" href="/learning/path" class="summary-cta">
+                        Về lộ trình học <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        const lessonId = [[${ lesson?.id }]];
+        const totalQuiz = [[${ shuffledQuiz?.size() ?: 0}]];
+        let currentQuiz = 0;
+        let quizCorrect = 0;
+        let quizCompletionSubmitted = false;
+
+        /* ── Sidebar follows the section currently viewed ── */
+        const sections = Array.from(document.querySelectorAll('.course-section'));
+        const navLinks = Array.from(document.querySelectorAll('.sidebar-nav a'));
+
+        function setActiveSection(sectionId) {
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.dataset.section === sectionId);
+            });
+        }
+
+        function updateActiveSection() {
+            if (!sections.length) return;
+
+            const marker = window.innerHeight * 0.35;
+            let current = sections[0];
+            sections.forEach(section => {
+                if (section.getBoundingClientRect().top <= marker) current = section;
+            });
+            setActiveSection(current.id);
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => setActiveSection(link.dataset.section));
+        });
+        window.addEventListener('scroll', updateActiveSection, { passive: true });
+        window.addEventListener('resize', updateActiveSection);
+        updateActiveSection();
+
+        /* ── Reasoning demos ── */
+        function buildDemoSteps(panel) {
+            const stepsEl = panel.querySelector('.demo-steps');
+            const hv = panel.dataset.hv || '';
+            const onyomi = panel.dataset.onyomi || '';
+            const breakdown = panel.dataset.breakdown || '';
+            const stepData = panel.dataset.steps || '';
+            const patternWord = (panel.dataset.patternWord || '').toUpperCase();
+            const source = panel.dataset.source || '';
+            const target = panel.dataset.target || '';
+            const steps = [];
+            const hvUp = hv.toUpperCase();
+
+            steps.push({ label: 'Âm Hán Việt', value: hvUp });
+
+            // Ưu tiên breakdown riêng của từng ví dụ
+            if (breakdown) {
+                breakdown.split('|').forEach(part => {
+                    const m = part.trim().match(/(.+?)\s*\s*(.+)/);
+                    if (m) steps.push({ label: m[1].trim(), value: m[2].trim(), success: true });
+                });
+            }
+            // Chỉ dùng rule_pattern khi pattern khớp ví dụ này (VD: QUỐC cho Quốc)
+            else if (stepData && patternWord && hvUp === patternWord) {
+                stepData.split('||').filter(Boolean).forEach(p => {
+                    const idx = p.indexOf('::');
+                    if (idx > 0) {
+                        const title = p.substring(0, idx);
+                        const content = p.substring(idx + 2);
+                        if (title !== 'Âm Hán Việt') {
+                            steps.push({ label: title, value: content, success: title.includes('Onyomi') || title.includes('Ghép') });
+                        }
+                    }
+                });
+            }
+            // Fallback: quy tắc đơn giản
+            else if (source && target) {
+                steps.push({ label: 'Âm Hán Việt', value: source, success: true });
+                steps.push({ label: 'Âm Onyomi', value: target, success: true });
+            }
+
+            const finalUp = onyomi.toUpperCase();
+            if (!steps.some(s => s.value.toUpperCase() === finalUp)) {
+                steps.push({ label: 'Kết quả', value: finalUp, success: true });
+            }
+
+            stepsEl.innerHTML = '';
+            steps.forEach((step, i) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = 'demo-step' + (step.success ? ' val-success' : '');
+                    div.innerHTML = '<div class="demo-step-label">' + step.label + '</div><div class="demo-step-val">' + step.value + '</div>';
+                    stepsEl.appendChild(div);
+                    if (i < steps.length - 1) {
+                        const arr = document.createElement('div');
+                        arr.className = 'demo-arrow';
+                        arr.textContent = '↓';
+                        stepsEl.appendChild(arr);
+                    }
+                    requestAnimationFrame(() => div.classList.add('show'));
+                }, i * 450);
+            });
+        }
+
+        document.querySelectorAll('.demo-play-btn, .fc-audio-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const text = btn.dataset.speak;
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                    const u = new SpeechSynthesisUtterance(text);
+                    u.lang = 'ja-JP';
+                    u.rate = 0.85;
+                    speechSynthesis.speak(u);
+                }
+            });
+        });
+
+        /* ── Quiz (Duolingo style) ── */
+        function answerQuiz(btn) {
+            const card = btn.closest('.quiz-card');
+            if (card.classList.contains('answered')) return;
+            card.classList.add('answered');
+            const correct = card.dataset.correct;
+            const choice = btn.dataset.choice;
+            const isCorrect = choice === correct;
+            if (isCorrect) quizCorrect++;
+
+            card.querySelectorAll('.quiz-opt').forEach(b => {
+                b.disabled = true;
+                if (b.dataset.choice === correct) b.classList.add('correct');
+            });
+            if (!isCorrect) btn.classList.add('wrong');
+
+            const fb = card.querySelector('.quiz-feedback');
+            const title = fb.querySelector('.quiz-fb-title');
+            fb.classList.add('show');
+            fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+            title.textContent = isCorrect ? '✔ Chính xác!' : '❌ Chưa đúng';
+
+        }
+
+        function nextQuiz() {
+            const cards = document.querySelectorAll('#quiz-flow .quiz-card');
+            cards[currentQuiz].classList.remove('active');
+            currentQuiz++;
+            if (currentQuiz < cards.length) {
+                cards[currentQuiz].classList.add('active');
+                document.getElementById('quiz-counter').textContent = 'Câu ' + (currentQuiz + 1) + ' / ' + totalQuiz;
+            } else {
+                document.getElementById('quiz-counter').textContent = 'Hoàn thành!';
+                submitAmonLessonCompletion();
+                document.getElementById('s-summary').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function submitAmonLessonCompletion() {
+            if (quizCompletionSubmitted || !lessonId || totalQuiz <= 0) return;
+            quizCompletionSubmitted = true;
+            const params = new URLSearchParams({
+                lessonId: String(lessonId),
+                correct: String(quizCorrect),
+                total: String(totalQuiz)
+            });
+            fetch('/learning/quiz/submit-lesson?' + params.toString(), {
+                method: 'POST',
+                credentials: 'same-origin'
+            }).then(response => {
+                if (!response.ok) throw new Error('Không thể ghi nhận hoàn thành bài Amon');
+                return response.json();
+            }).then(payload => {
+                const reward = payload && payload.data;
+                if (payload && payload.success && reward && !reward.alreadyClaimed && window.RetentionReward) {
+                    window.RetentionReward.show({
+                        points: reward.rewardPoints,
+                        balance: reward.creditBalance,
+                        missionTitle: 'Hoàn thành một bài Amon'
+                    });
+                }
+            }).catch(error => {
+                quizCompletionSubmitted = false;
+                console.warn('Không ghi nhận được hoàn thành bài Amon:', error);
+            });
+        }
+
+        /* ── Compound quiz ── */
+        const compoundCards = () => Array.from(document.querySelectorAll('#compound-flow .compound-card')).slice(0, 3);
+        let compoundIdx = 0;
+        (function initCompound() {
+            const cards = compoundCards();
+            if (!cards.length) {
+                const sec = document.getElementById('s-compound');
+                if (sec) sec.style.display = 'none';
+                document.querySelector('.sidebar-nav a[data-section="s-compound"]')?.parentElement?.remove();
+            } else {
+                cards.forEach((c, i) => c.classList.toggle('active', i === 0));
+            }
+        })();
+
+        function answerCompound(btn) {
+            const card = btn.closest('.quiz-card');
+            if (card.classList.contains('answered')) return;
+            card.classList.add('answered');
+            const correct = card.dataset.correct;
+            const choice = btn.dataset.choice;
+            const isCorrect = choice === correct;
+            card.querySelectorAll('.quiz-opt').forEach(b => {
+                b.disabled = true;
+                if (b.dataset.choice === correct) b.classList.add('correct');
+            });
+            if (!isCorrect) btn.classList.add('wrong');
+            const fb = card.querySelector('.quiz-feedback');
+            fb.classList.add('show', isCorrect ? 'correct-fb' : 'wrong-fb');
+            fb.querySelector('.compound-fb-title').textContent = isCorrect ? '✔ ' + card.dataset.kanji : '❌ Chưa đúng';
+            const explSrc = card.querySelector('.quiz-explanation-src');
+            fb.querySelector('.compound-fb-detail').innerHTML = explSrc
+                ? explSrc.innerHTML
+                : ((card.dataset.nghia || '') + ' — ' + (card.querySelector('.quiz-opt.correct')?.textContent || ''));
+        }
+
+        function nextCompound() {
+            const cards = compoundCards();
+            if (!cards.length) return;
+            cards[compoundIdx]?.classList.remove('active');
+            compoundIdx++;
+            if (compoundIdx < cards.length) cards[compoundIdx].classList.add('active');
+            else document.getElementById('s-summary').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* ── Flashcard carousel logic ── */
+        let fcCurrentIdx = 0;
+        function getFcItems() {
+            return document.querySelectorAll('#flashcard-slider .flashcard-item');
+        }
+
+        function updateFlashcardDisplay() {
+            const items = getFcItems();
+            if (!items.length) return;
+            if (fcCurrentIdx >= items.length) fcCurrentIdx = items.length - 1;
+            if (fcCurrentIdx < 0) fcCurrentIdx = 0;
+
+            items.forEach((item, idx) => {
+                const isCurrent = idx === fcCurrentIdx;
+                item.classList.toggle('active', isCurrent);
+                if (!isCurrent) {
+                    item.querySelector('.flashcard')?.classList.remove('flipped');
+                }
+            });
+
+            document.querySelectorAll('#flashcard-slider .flashcard-counter').forEach(counterEl => {
+                counterEl.textContent = (fcCurrentIdx + 1) + ' / ' + items.length;
+            });
+
+            const prevBtn = document.getElementById('fc-prev-btn');
+            const nextBtn = document.getElementById('fc-next-btn');
+            if (prevBtn) prevBtn.disabled = fcCurrentIdx === 0;
+            if (nextBtn) nextBtn.disabled = fcCurrentIdx === items.length - 1;
+        }
+
+        function prevFlashcard() {
+            if (fcCurrentIdx > 0) {
+                fcCurrentIdx--;
+                updateFlashcardDisplay();
+            }
+        }
+
+        function nextFlashcard() {
+            const items = getFcItems();
+            if (fcCurrentIdx < items.length - 1) {
+                fcCurrentIdx++;
+                updateFlashcardDisplay();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFlashcardDisplay();
+        });
+        updateFlashcardDisplay();
+
+    </script>
+    <script th:src="@{/js/auth-session.js}"></script>
+    <script th:src="@{/js/components/retention-reward.js?v=20260903-motion}"></script>
+    <script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+
+</html>

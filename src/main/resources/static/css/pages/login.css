@@ -1,0 +1,335 @@
+@import url("./auth.css");
+
+/* Login page */
+
+/* Login chỉ giữ lại nút quay về trang chủ, không dùng auth header. */
+.login-home-link {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-6);
+  z-index: var(--z-header, 100);
+}
+
+/* Không chừa một dải nền riêng cho header đã được tối giản. */
+body.page-login {
+  padding-top: 0 !important;
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    135deg,
+    #f8fbff 0%,
+    #eef5ff 48%,
+    #dbeafe 100%
+  ) !important;
+  animation: none !important;
+}
+
+body.page-login::before {
+  display: none !important;
+}
+
+.login-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100dvh;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    #f8fbff 0%,
+    #eef5ff 48%,
+    #dbeafe 100%
+  );
+  animation: none;
+  will-change: background-position;
+}
+
+@keyframes login-background-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.page-login .app-main.app-main--auth {
+  background: transparent !important;
+  animation: none !important;
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  padding: clamp(4.5rem, 8vh, 6rem) 1.5rem 2.5rem;
+}
+
+.page-login .login-layout {
+  display: grid;
+  width: min(1120px, 100%);
+  grid-template-columns: minmax(0, 0.84fr) minmax(420px, 1.16fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  margin: 0 auto;
+}
+
+.page-login .login-mascot-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.page-login .login-mascot-copy {
+  margin-bottom: clamp(0.25rem, 1vw, 0.75rem);
+}
+
+.page-login .login-mascot-kicker {
+  margin: 0 0 0.35rem;
+  color: #6c351b !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.page-login .login-mascot-copy h2 {
+  margin: 0;
+  color: #111827 !important;
+  font-size: clamp(1.8rem, 4vw, 3.1rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.06 !important;
+}
+
+.page-login .login-mascot-copy p:last-child {
+  margin: 0.75rem 0 0;
+  color: #374151 !important;
+  font-size: 1rem !important;
+}
+
+.page-login .fox-mascot {
+  display: block;
+  width: min(100%, 530px);
+  aspect-ratio: 1024 / 631;
+}
+
+.page-login .fox-mascot > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.page-login .fox-mascot .bobbing-fox,
+.page-login .fox-mascot .left-paw,
+.page-login .fox-mascot .right-paw,
+.page-login .fox-mascot .left-ear,
+.page-login .fox-mascot .right-ear,
+.page-login .fox-mascot .leaf-sway {
+  transform-box: view-box;
+  will-change: transform;
+}
+
+.page-login .fox-mascot .bobbing-fox {
+  transform-origin: 425px 580px;
+  animation: login-fox-bob 1.2s ease-in-out infinite;
+}
+
+.page-login .fox-mascot .left-paw {
+  transform-origin: 268px 413px;
+  animation: login-fox-left-wave 0.72s ease-in-out infinite;
+}
+
+.page-login .fox-mascot .right-paw {
+  transform-origin: 582px 413px;
+  animation: login-fox-right-wave 1.2s ease-in-out infinite;
+}
+
+.page-login .fox-mascot .left-ear {
+  transform-origin: 365px 198px;
+  animation: login-fox-left-ear 2.8s ease-in-out infinite;
+}
+
+.page-login .fox-mascot .right-ear {
+  transform-origin: 520px 211px;
+  animation: login-fox-right-ear 2.8s ease-in-out infinite;
+}
+
+.page-login .fox-mascot .leaf-sway {
+  transform-origin: 449px 94px;
+  animation: login-fox-leaf 1.8s ease-in-out infinite;
+}
+
+@keyframes login-fox-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px) scaleY(1.008); }
+}
+
+@keyframes login-fox-left-wave {
+  0%, 100% { transform: rotate(20deg); }
+  28% { transform: rotate(48deg); }
+  55% { transform: rotate(14deg); }
+  78% { transform: rotate(43deg); }
+}
+
+@keyframes login-fox-right-wave {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(-14deg); }
+}
+
+@keyframes login-fox-left-ear {
+  0%, 63%, 100% { transform: rotate(0deg); }
+  69% { transform: rotate(-7deg); }
+  75% { transform: rotate(4deg); }
+  81% { transform: rotate(-3deg); }
+  87% { transform: rotate(0deg); }
+}
+
+@keyframes login-fox-right-ear {
+  0%, 66%, 100% { transform: rotate(0deg); }
+  72% { transform: rotate(7deg); }
+  78% { transform: rotate(-4deg); }
+  84% { transform: rotate(3deg); }
+  90% { transform: rotate(0deg); }
+}
+
+@keyframes login-fox-leaf {
+  0%, 100% { transform: rotate(-4deg); }
+  32% { transform: rotate(8deg) skewX(2deg); }
+  67% { transform: rotate(-7deg) skewX(-2deg); }
+}
+
+.page-login .login-layout > .app-main--auth-inner {
+  width: 100%;
+  max-width: 560px;
+  justify-self: center;
+}
+
+.page-login .login-layout .login-card {
+  border: 1px solid #d7e1ee !important;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 20px 55px rgba(15, 23, 42, 0.12) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.page-login .login-layout .login-card .card__body {
+  padding: clamp(2rem, 3vw, 3rem);
+}
+
+.page-login .toast--login-progress span:nth-child(2) {
+  white-space: pre-line;
+}
+
+.page-login .password-rules {
+  display: grid;
+  gap: 2px;
+  margin: 5px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-on-surface-variant);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.page-login .password-rules li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.page-login .password-rules i {
+  width: 14px;
+  font-size: 0.7rem;
+  text-align: center;
+  color: var(--color-error);
+}
+
+.page-login .password-rules .is-valid i {
+  color: var(--color-success);
+}
+
+.page-login .caps-lock-warning {
+  margin: 4px 0 0;
+  color: #000;
+  font-size: var(--text-xs);
+}
+
+.page-login #submitBtn.is-rate-limited {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.page-login .app-main--auth-inner {
+  max-width: 440px;
+}
+
+.page-login #googleSection {
+  margin-top: var(--space-4);
+}
+
+.page-login #googleBtnContainer {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  justify-content: center;
+}
+
+/* Google GIS gắn width:400px inline vào wrapper; ép wrapper bám đúng form. */
+.page-login #googleBtnContainer > div,
+.page-login #googleBtnContainer [role="button"],
+.page-login #googleBtnContainer iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.page-login .form-divider {
+  color: var(--color-on-surface);
+  font-weight: 600;
+}
+
+/* Login keeps a neutral border and a blue accessibility ring, never purple. */
+.page-login .input:focus,
+.page-login .select:focus,
+.page-login .textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16) !important;
+}
+
+.page-login :focus-visible {
+  outline-color: #2563eb;
+}
+
+@media (max-width: 900px) {
+  .page-login .app-main.app-main--auth {
+    padding-top: 4.5rem;
+  }
+
+  .page-login .login-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .page-login .login-mascot-panel {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .page-login .login-mascot-copy h2 {
+    font-size: clamp(1.55rem, 7vw, 2.2rem) !important;
+  }
+
+  .page-login .login-mascot-copy p:last-child {
+    margin-top: 0.45rem;
+    font-size: 0.9rem !important;
+  }
+
+  .page-login .fox-mascot {
+    width: min(100%, 340px);
+  }
+
+  .page-login .login-layout > .app-main--auth-inner {
+    justify-self: center;
+  }
+}

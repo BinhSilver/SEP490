@@ -1,0 +1,98 @@
+/* Button components — v0.app template (Auw4otwlr20) styling */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control) !important;
+  /* Pill rounded-full like v0 template */
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  line-height: 1.25;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+  text-decoration: none;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.btn:disabled,
+.btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary Button (Solid White with Dark Text, like v0 template 'Deploy agent') */
+.btn--primary {
+  background: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: var(--shadow-action) !important;
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-container) !important;
+  color: var(--color-on-primary) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-action-hover) !important;
+}
+
+/* Secondary Button (Translucent Glass with border, like v0 'Sign in') */
+.btn--secondary {
+  background: transparent !important;
+  color: var(--color-primary) !important;
+  border: 1px solid var(--color-outline) !important;
+}
+
+.btn--secondary:hover {
+  background: var(--color-primary-fixed) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Sakura Accent Button (Rose Pink Glow) */
+.btn--accent,
+.btn--sakura {
+  background: var(--color-tertiary-container) !important;
+  color: var(--color-on-tertiary-container) !important;
+  border-color: var(--color-tertiary-container) !important;
+  box-shadow: var(--shadow-1) !important;
+}
+
+.btn--accent:hover,
+.btn--sakura:hover {
+  background: var(--color-tertiary-fixed-dim) !important;
+  box-shadow: var(--shadow-2) !important;
+  transform: translateY(-1px);
+}
+
+.btn--ghost {
+  background: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border-color: transparent !important;
+  padding-inline: 12px;
+}
+
+.btn--ghost:hover {
+  color: var(--color-primary) !important;
+  background: var(--color-primary-fixed) !important;
+}
+
+.btn--sm {
+  padding: 6px 16px;
+  font-size: var(--text-xs);
+}
+
+.btn--lg {
+  padding: 14px 32px;
+  font-size: var(--text-md);
+}
+
+.btn--block {
+  width: 100%;
+}
