@@ -92,6 +92,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         if ("JLPT".equals(goal) && target == null) throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS,
                 "Level tự đánh giá không hợp lệ.");
+        Integer duration = normalizeStudyDuration(self, request.studyDurationMonths());
         com.jlas.assessment.entity.UserLearningSurvey survey = surveyRepository.findById(userId)
                 .orElseGet(() -> com.jlas.assessment.entity.UserLearningSurvey.builder()
                         .user(userRepository.findById(userId).orElseThrow(() ->
@@ -99,7 +100,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         survey.setGoal(goal);
         survey.setTargetLevel("JLPT".equals(goal) ? target : null);
         survey.setSelfReportedLevel(self);
-        survey.setStudyDurationMonths(request.studyDurationMonths());
+        survey.setStudyDurationMonths(duration);
         survey.setDailyStudyMinutes(request.dailyStudyMinutes());
         survey.setSkills(String.join(",", SKILL_ORDER));
         survey.setCompletedAt(LocalDateTime.now());
@@ -110,7 +111,7 @@ public class AssessmentServiceImpl implements AssessmentService {
             userRepository.save(user);
         }
         return new com.jlas.assessment.dto.LearningSurveyResponse(true, new SmartTestStartRequest(
-                goal, survey.getTargetLevel(), self, request.studyDurationMonths(), request.dailyStudyMinutes()));
+                goal, survey.getTargetLevel(), self, duration, request.dailyStudyMinutes()));
     }
 
     @Override
@@ -691,6 +692,19 @@ public class AssessmentServiceImpl implements AssessmentService {
     private static String normalizeLevel(String value) {
         String normalized = value.trim().toUpperCase(Locale.ROOT);
         return SmartTestAdaptivePolicy.LEVELS.contains(normalized) ? normalized : "N5";
+    }
+
+    /**
+     * Chuẩn hoá thời lượng học theo trình độ tự khai: người chưa từng học (FROM_ZERO)
+     * bắt buộc 0 tháng; người đã học phải chọn một khoảng lớn hơn 0. Chống request
+     * thủ công gửi tổ hợp mâu thuẫn (FROM_ZERO + duration > 0, hoặc đã học + duration 0/null).
+     */
+    private static Integer normalizeStudyDuration(String selfLevel, Integer duration) {
+        if ("FROM_ZERO".equals(selfLevel)) return 0;
+        if (duration == null || duration <= 0) {
+            throw badRequest("Vui lòng chọn khoảng thời gian đã học.");
+        }
+        return duration;
     }
 
     static List<String> preferredTags(String goal) {

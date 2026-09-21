@@ -100,6 +100,27 @@ class LearningSurveyServiceTest {
         verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
     }
 
+    @Test void fromZeroNormalizesStudyDurationToZero() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        service.saveLearningSurvey(7L, request("TRAVEL", null, "FROM_ZERO", 24));
+        verify(surveys).saveAndFlush(argThat(s -> s.getStudyDurationMonths() != null
+                && s.getStudyDurationMonths() == 0));
+    }
+
+    @Test void studiedLearnerRequiresPositiveStudyDuration() {
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N3", "N5", 0)))
+                .isInstanceOf(ResponseStatusException.class);
+        verifyNoInteractions(surveys, users);
+    }
+
+    @Test void studiedLearnerWithNullDurationIsRejected() {
+        var req = new SmartTestStartRequest("TRAVEL", null, "N5", null, 30);
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, req))
+                .isInstanceOf(ResponseStatusException.class);
+        verifyNoInteractions(surveys, users);
+    }
+
     private SmartTestStartRequest request(String goal, String target, String self) {
         return new SmartTestStartRequest(goal, target, self, 9, 30);
     }

@@ -48,7 +48,32 @@
     nextButton.querySelector('span').textContent =
       currentIndex === activeSlides.length - 1 ? 'Hoàn thành khảo sát' : 'Tiếp tục';
     notice.hidden = true;
+    applyRecommendation();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function recommendedMinutes() {
+    var goal = document.querySelector('input[name="goal"]:checked');
+    var studied = document.querySelector('input[name="studied"]:checked');
+    var level = null;
+    if (goal && goal.value === 'JLPT') {
+      var target = document.querySelector('input[name="targetLevel"]:checked');
+      level = target ? target.value : null;
+    } else if (studied && studied.value === 'YES') {
+      var self = document.querySelector('input[name="selfLevel"]:checked');
+      level = self ? self.value : null;
+    }
+    if (level === 'N2' || level === 'N1') return '45';
+    if (level === 'N3') return '30';
+    return '15';
+  }
+
+  function applyRecommendation() {
+    var rec = recommendedMinutes();
+    document.querySelectorAll('input[name="minutes"]').forEach(function (input) {
+      var em = input.closest('.survey-option').querySelector('.survey-recommend');
+      if (em) em.hidden = input.value !== rec;
+    });
   }
 
   function showError(message) { notice.textContent = message || 'Không thể tạo bài kiểm tra. Vui lòng thử lại.'; notice.hidden = false; }
@@ -121,7 +146,12 @@
   slides.forEach(function (slide) {
     slide.querySelectorAll('input').forEach(function (input) {
       input.addEventListener('change', function () {
-        nextButton.disabled = !hasAnswer(currentSlide());
+        if (input.name === 'studied' || input.name === 'goal') {
+          render();
+        } else {
+          nextButton.disabled = !hasAnswer(currentSlide());
+          if (input.name === 'targetLevel' || input.name === 'selfLevel') applyRecommendation();
+        }
         if (input.type === 'radio') window.setTimeout(function () { if (!nextButton.disabled) nextButton.focus(); }, 120);
       });
     });
