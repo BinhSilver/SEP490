@@ -27,7 +27,7 @@ public final class FlashcardDtos {
         private String visibility; private String moderationStatus; private Long ownerId; private String ownerName;
         private Long folderId; private String folderName; private boolean draft;
         private long totalCards; private long cardCount; private long studyCount; private Double avgRating; private long ratingCount;
-        private long commentCount; private boolean ownedByMe; private boolean favorited; private LocalDateTime createdAt; private LocalDateTime updatedAt;
+        private long commentCount; private boolean ownedByMe; private boolean favorited; private Integer myRating; private LocalDateTime createdAt; private LocalDateTime updatedAt;
     }
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class SetDetailDto extends SetSummaryDto { private List<CardDto> cards; }
@@ -82,6 +82,7 @@ public final class FlashcardDtos {
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class QuizSummaryDto { private Long sessionId; private int total; private int correct; private int wrong; private double percentage; private int durationSeconds; private double avgSecondsPerQuestion; private List<CardDto> wrongCards; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class CommentDto { private Long id; private Long userId; private String displayName; private String content; private Integer rating; private boolean ownedByMe; private LocalDateTime createdAt; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class CommentRequest { @NotBlank @Size(max = 2000) private String content; private Integer rating; }
+    @Data @NoArgsConstructor @AllArgsConstructor public static class SetRatingRequest { private Integer rating; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class FavoriteResponse { private boolean favorited; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class ProgressRequest { private Boolean starred; private String memoryStatus; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class SyncPreviewResponse { private long newCardCount; private String originalTitle; }

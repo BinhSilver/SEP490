@@ -24,6 +24,6 @@ public interface FlashcardService {
     AnswerResultDto answer(AnswerRequest request, Long userId); QuizSummaryDto finishQuiz(Long sessionId, Long userId);
     PageResponse<CommentDto> comments(Long setId, int page, int size, Long userId);
     CommentDto comment(Long setId, CommentRequest request, Long userId); void deleteComment(Long commentId, Long userId);
-    FavoriteResponse favorite(Long setId, Long userId); UploadResponse upload(MultipartFile file, Long userId);
+    FavoriteResponse favorite(Long setId, Long userId); SetSummaryDto rate(Long setId, SetRatingRequest request, Long userId); UploadResponse upload(MultipartFile file, Long userId);
     CardDto updateProgress(Long cardId, ProgressRequest request, Long userId);
 }
