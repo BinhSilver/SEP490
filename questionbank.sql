@@ -1,7 +1,7 @@
 -- Complete Smart Test question seed: expanded Kanji/Vocabulary plus the preserved Grammar/Reading/Listening banks.
 -- KANJI and VOCABULARY: 150 questions per level. Other skills: 50 per level (2,250 questions total).
 -- Safe to rerun: source question inserts use stable seed_key checks.
--- Select the existing J-LAS database, then execute this ENTIRE file in one session.
+-- Select the existing J2106-LAS database, then execute this ENTIRE file in one session.
 -- Save/restore the session option; Workbench Preferences do not need changing.
 SET @jlas_smart_test_previous_safe_updates = @@SESSION.SQL_SAFE_UPDATES;
 SET SESSION SQL_SAFE_UPDATES = 0;
