@@ -24,12 +24,10 @@
   const kitsuVideo = document.getElementById('exercise-kitsu-video');
   const prompt = document.getElementById('exercise-prompt');
   const answerInput = document.getElementById('exercise-answer');
-  const normalizationNote = document.getElementById('exercise-normalization-note');
   const actions = document.getElementById('exercise-actions');
   const submitButton = document.getElementById('exercise-submit');
   const nextButton = document.getElementById('exercise-next');
   const status = document.getElementById('exercise-status');
-  const resultPanel = document.getElementById('exercise-result');
   const completePanel = document.getElementById('exercise-complete');
   const workspace = document.getElementById('exercise-workspace');
   const videoProgress = document.getElementById('exercise-video-progress');
@@ -56,6 +54,7 @@
   let finishingRemainder = false;
   let pendingStartTime = null;
   let autoplayPending = false;
+  let advancingAfterSeek = false;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -106,6 +105,26 @@
     if (!stop || isStopDone(stop)) return subtitle.text || '';
     if (isCurrentStop(stop) && session?.mode === 'CLOZE') return question?.promptText || '＿＿＿';
     return '••••••  Câu kiểm tra #' + stop.number;
+  }
+
+  function renderPrompt(expectedAnswer) {
+    const promptText = question?.promptText || '';
+    prompt.replaceChildren();
+    const blank = /[＿_]{3,}/.exec(promptText);
+    if (!blank) {
+      prompt.textContent = promptText;
+      return;
+    }
+
+    prompt.append(document.createTextNode(promptText.slice(0, blank.index)));
+    const answerSlot = document.createElement('span');
+    answerSlot.className = 'exercise-answer-slot';
+    answerSlot.setAttribute('aria-label', expectedAnswer ? 'Đáp án: ' + expectedAnswer : 'Chỗ trống cần điền');
+    if (expectedAnswer) {
+      answerSlot.classList.add('is-revealed');
+      answerSlot.textContent = expectedAnswer;
+    }
+    prompt.append(answerSlot, document.createTextNode(promptText.slice(blank.index + blank[0].length)));
   }
 
   function renderMarkers() {
@@ -223,9 +242,7 @@
       kitsuTip.hidden = false;
       prompt.hidden = true;
       answerInput.hidden = true;
-      normalizationNote.hidden = true;
       actions.hidden = true;
-      resultPanel.hidden = true;
       setStatus('Sắp đến câu có cờ #' + pendingStop.number + '…', false);
       const playback = kitsuVideo.play();
       if (playback?.catch) playback.catch(function () { /* poster remains visible */ });
@@ -283,6 +300,11 @@
   function seekTo(time, resumePlayback) {
     const duration = timelineDuration();
     const target = Math.max(0, Math.min(Number(time) || 0, duration || Number(time) || 0));
+    if (question?.answered && !finishingRemainder
+      && target >= Number(question.endTime) - 0.04) {
+      advanceAfterAnsweredSeek(target);
+      return;
+    }
     const pendingQuestionEnd = question && !question.answered ? Number(question.endTime) : null;
     replayMode = Boolean(question && !question.answered && stoppedAtQuestion
       && target >= Number(question.startTime) - 0.04
@@ -311,6 +333,29 @@
     }
   }
 
+  async function advanceAfterAnsweredSeek(target) {
+    if (advancingAfterSeek) return;
+    advancingAfterSeek = true;
+    media.pause();
+    nextButton.disabled = true;
+    setStatus('Đang mở câu hỏi tiếp theo…', false);
+    try {
+      const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId) + '/next', {
+        method: 'POST', headers: headers(), body: '{}'
+      });
+      const data = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(data.message || data.error || 'Không chuyển được câu');
+      // Seeking beyond an answered stop has the same intent as "Tiếp tục video".
+      // Start from the chosen timestamp so the next unanswered stop is still enforced.
+      renderSession(data, true, target);
+    } catch (error) {
+      nextButton.disabled = false;
+      setStatus(error.message || 'Không chuyển được câu', true);
+    } finally {
+      advancingAfterSeek = false;
+    }
+  }
+
   function resumeTimeForCurrentQuestion() {
     if (!question || question.number <= 1) return 0;
     const previous = stops[question.number - 2];
@@ -330,7 +375,6 @@
     kitsuVideo.pause();
     prompt.hidden = true;
     answerInput.hidden = true;
-    normalizationNote.hidden = true;
     actions.hidden = true;
     answerInput.value = '';
     answerInput.disabled = true;
@@ -338,8 +382,9 @@
     submitButton.hidden = false;
     nextButton.hidden = true;
     nextButton.disabled = false;
-    resultPanel.hidden = true;
-    setStatus('Video sẽ tự dừng ở cuối câu được đánh dấu.', false);
+    answerInput.classList.remove('is-correct', 'is-incorrect');
+    answerDock.scrollTop = 0;
+    setStatus('', false);
   }
 
   function renderSession(view, autoResume, explicitResumeTime) {
@@ -364,9 +409,7 @@
     completePanel.hidden = true;
     question = view.question;
     resetQuestionUi();
-    document.getElementById('exercise-difficulty').textContent =
-      question.difficultyLabel + ' · ' + question.difficulty;
-    prompt.textContent = question.promptText || '';
+    renderPrompt();
     answerInput.rows = view.mode === 'CLOZE' ? 2 : 4;
     answerInput.placeholder = view.mode === 'CLOZE'
       ? 'Video dừng xong, nhập từ hoặc cụm từ còn thiếu…'
@@ -400,7 +443,6 @@
     kitsuVideo.pause();
     prompt.hidden = false;
     answerInput.hidden = false;
-    normalizationNote.hidden = false;
     actions.hidden = false;
     answerInput.disabled = false;
     submitButton.disabled = false;
@@ -556,18 +598,6 @@
     else if (question && !question.answered) unlockAnswer();
   });
 
-  function appendDiff(container, differences, side) {
-    container.replaceChildren();
-    (differences || []).forEach(function (part) {
-      const value = side === 'expected' ? part.expected : part.actual;
-      if (!value) return;
-      const span = document.createElement('span');
-      span.dataset.diff = part.type;
-      span.textContent = value;
-      container.appendChild(span);
-    });
-  }
-
   function renderResult(result) {
     if (question) question.answered = true;
     questionPanel.classList.remove('is-waiting');
@@ -578,26 +608,17 @@
     kitsuVideo.pause();
     prompt.hidden = false;
     answerInput.hidden = false;
-    normalizationNote.hidden = false;
     actions.hidden = false;
-    resultPanel.hidden = false;
     answerInput.disabled = true;
     submitButton.hidden = true;
     nextButton.hidden = false;
-    document.getElementById('exercise-result-score').textContent = result.score + '/100';
-    document.getElementById('exercise-result-score').style.color = result.result === 'CORRECT'
-      ? '#087443' : result.result === 'READING_MATCH' ? '#8a5100' : '#ba1a1a';
-    document.getElementById('exercise-feedback').textContent = result.feedback || '';
-    document.getElementById('exercise-expected-answer').textContent = result.expectedAnswer || '';
-    document.getElementById('exercise-user-answer').textContent = result.userAnswer || '';
-    document.getElementById('exercise-translation').textContent = result.translation
-      ? 'Nghĩa: ' + result.translation : '';
-    appendDiff(document.getElementById('exercise-expected-diff'), result.differences, 'expected');
-    appendDiff(document.getElementById('exercise-user-diff'), result.differences, 'actual');
+    const isCorrect = result.result === 'CORRECT';
+    renderPrompt(result.expectedAnswer || '');
+    answerInput.classList.toggle('is-correct', isCorrect);
+    answerInput.classList.toggle('is-incorrect', !isCorrect);
     renderMarkers();
     renderTranscript();
     showLiveSubtitle(subtitles.find(function (item) { return Number(item.id) === Number(question?.subtitleId); }));
-    answerDock.scrollTo({ top: answerDock.scrollHeight, behavior: 'smooth' });
   }
 
   submitButton.addEventListener('click', async function () {
@@ -620,7 +641,7 @@
       const data = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(data.message || data.error || 'Không chấm được đáp án');
       renderResult(data);
-      setStatus('Bấm Tiếp tục video để nghe đến điểm dừng kế tiếp.', false);
+      setStatus('', false);
     } catch (error) {
       submitButton.disabled = false;
       setStatus(error.message || 'Không chấm được đáp án', true);
@@ -635,6 +656,7 @@
   });
 
   nextButton.addEventListener('click', async function () {
+    if (advancingAfterSeek) return;
     const resumeFrom = Number(question?.endTime) + 0.02;
     nextButton.disabled = true;
     try {
@@ -643,7 +665,6 @@
       });
       const data = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(data.message || data.error || 'Không chuyển được câu');
-      resultPanel.hidden = true;
       renderSession(data, true, resumeFrom);
     } catch (error) {
       nextButton.disabled = false;
@@ -659,7 +680,6 @@
     replayMode = false;
     workspace.hidden = false;
     completePanel.hidden = true;
-    resultPanel.hidden = true;
     questionPanel.classList.remove('is-waiting');
     questionPanel.classList.add('is-finishing');
     questionPanel.classList.add('is-listening');
@@ -667,7 +687,6 @@
     waitingState.hidden = false;
     setWaitingState('Đang phát phần còn lại', 'Bạn đã hoàn thành các điểm dừng. Video sẽ tiếp tục đến hết bài.');
     answerInput.hidden = true;
-    normalizationNote.hidden = true;
     actions.hidden = true;
     prompt.textContent = 'Bạn đã làm xong các điểm dừng. Hãy nghe nốt phần còn lại của video.';
     document.getElementById('exercise-instruction').textContent =
@@ -687,7 +706,6 @@
     media.pause();
     finishingRemainder = false;
     workspace.hidden = true;
-    resultPanel.hidden = true;
     completePanel.hidden = false;
     document.getElementById('exercise-complete-summary').textContent =
       'Bạn trả lời đúng ' + view.correctCount + '/' + view.totalQuestions

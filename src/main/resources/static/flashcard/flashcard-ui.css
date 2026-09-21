@@ -53,8 +53,8 @@
   padding: 30px 14px;
   overflow-y: auto;
   color: var(--fc-on-surface);
-  background: var(--fc-surface-lowest);
-  border-right: 1px solid rgba(199,196,215,.32);
+  background: transparent;
+  border-right: 0;
 }
 
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__label {
@@ -81,6 +81,8 @@
   gap: 12px;
   padding: 11px 16px;
   color: var(--fc-on-variant);
+  background: transparent;
+  border: 1px solid var(--fc-outline-soft);
   border-radius: var(--fc-radius-sm);
   font-size: 14px;
   font-weight: 500;
@@ -90,12 +92,19 @@
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a:hover {
   color: var(--fc-on-surface);
   background: var(--fc-surface-low);
+  border-color: var(--fc-outline);
 }
 
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a.is-active {
-  color: var(--fc-on-variant);
+  color: var(--fc-primary);
   background: var(--fc-primary-soft-2);
+  border-color: var(--fc-primary);
   font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a:focus-visible {
+  outline: 3px solid var(--fc-primary-soft);
+  outline-offset: 2px;
 }
 
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__nav i {

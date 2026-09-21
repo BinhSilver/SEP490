@@ -52,6 +52,11 @@ async function parseApiResponse(response) {
     error.body = body;
     throw error;
   }
+  // New Flashcard endpoints use the shared ApiResponse envelope while legacy
+  // compatibility endpoints return their payload directly.
+  if (body && typeof body === 'object' && 'success' in body) {
+    return body.data !== undefined ? body.data : body;
+  }
   return body;
 }
 

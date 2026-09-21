@@ -21,6 +21,7 @@
   var faceFields = { front: 'FRONT', back: 'BACK' };
   var setDetail = null;
   var pendingRating = 0;
+  var settingsListboxes = [];
 
   document.addEventListener('DOMContentLoaded', function () {
     // Học thẻ bắt buộc đăng nhập (để đếm study_count + lưu tiến độ)
@@ -33,6 +34,7 @@
     document.getElementById('btn-cancel-settings').addEventListener('click', closeSettings);
     document.getElementById('btn-apply-settings').addEventListener('click', applySettings);
     document.getElementById('study-mode-field').value = studyMode;
+    setupSettingsListboxes();
     updateStudyModeUi();
     document.querySelectorAll('[data-study-mode]').forEach(function (button) {
       button.addEventListener('click', function () { selectStudyMode(button.getAttribute('data-study-mode')); });
@@ -42,7 +44,8 @@
       btnHvFront.addEventListener('click', function () {
         document.getElementById('face-front-field').value = 'HAN_VIET';
         document.getElementById('face-back-field').value = 'BACK';
-        FlashShell.showToast('Đã chọn: Hán Việt ở Mặt trước 🌸', 'info');
+        syncSettingsListboxes();
+        FlashShell.showToast('Đã chọn: Hán Việt ở Mặt trước', 'info');
       });
     }
     var btnHvBack = document.getElementById('btn-hv-back');
@@ -50,7 +53,8 @@
       btnHvBack.addEventListener('click', function () {
         document.getElementById('face-front-field').value = 'FRONT';
         document.getElementById('face-back-field').value = 'HAN_VIET';
-        FlashShell.showToast('Đã chọn: Hán Việt ở Mặt sau 🌸', 'info');
+        syncSettingsListboxes();
+        FlashShell.showToast('Đã chọn: Hán Việt ở Mặt sau', 'info');
       });
     }
     document.getElementById('btn-prev').addEventListener('click', function () { go(-1); });
@@ -64,6 +68,10 @@
     });
     var btnQuizNav = document.getElementById('btn-quiz-nav');
     if (btnQuizNav) btnQuizNav.addEventListener('click', startQuiz);
+    var btnSpeedRecallNav = document.getElementById('btn-speed-recall-nav');
+    if (btnSpeedRecallNav) btnSpeedRecallNav.addEventListener('click', function () {
+      location.href = '/flashcard/speed-recall.html?setId=' + encodeURIComponent(setId);
+    });
     document.querySelectorAll('[data-browse-result]').forEach(function (button) {
       button.addEventListener('click', function () {
         markBrowse(button.getAttribute('data-browse-result') === 'REMEMBERED');
@@ -141,19 +149,18 @@
     if (session.backField) faceFields.back = session.backField;
     document.getElementById('face-front-field').value = faceFields.front;
     document.getElementById('face-back-field').value = faceFields.back;
+    syncSettingsListboxes();
 
     document.getElementById('study-complete').hidden = true;
     if (!cards.length) {
       document.getElementById('study-empty').hidden = false;
       document.getElementById('study-stage').hidden = true;
       document.getElementById('study-actions').hidden = true;
-      document.getElementById('study-hint').hidden = true;
       return;
     }
     document.getElementById('study-empty').hidden = true;
     document.getElementById('study-stage').hidden = false;
     document.getElementById('study-actions').hidden = false;
-    document.getElementById('study-hint').hidden = false;
     renderCard();
   }
 
@@ -313,7 +320,6 @@
     if (elapsedTimer) clearInterval(elapsedTimer);
     document.getElementById('study-stage').hidden = true;
     document.getElementById('study-actions').hidden = true;
-    document.getElementById('study-hint').hidden = true;
     document.getElementById('study-complete').hidden = false;
 
     var studyTime = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
@@ -437,18 +443,21 @@
     container.replaceChildren();
     count.textContent = setCards.length + ' thẻ';
     setCards.forEach(function (card, cardIndex) {
-      var item = document.createElement('article');
-      item.className = 'study-card-list__item';
-      var number = document.createElement('span');
+      var item = document.createElement('tr');
+      var number = document.createElement('th');
+      number.scope = 'row';
       number.className = 'study-card-list__number';
       number.textContent = String(cardIndex + 1);
-      var front = document.createElement('div');
-      front.className = 'study-card-list__front';
-      front.textContent = card.front || card.kanji || '—';
-      var back = document.createElement('div');
-      back.className = 'study-card-list__back';
-      back.textContent = card.back || card.meaning || card.reading || '—';
-      item.append(number, front, back);
+      var kanji = document.createElement('td');
+      kanji.className = 'study-card-list__kanji';
+      kanji.textContent = card.front || card.kanji || '—';
+      var hiragana = document.createElement('td');
+      hiragana.className = 'study-card-list__hiragana';
+      hiragana.textContent = card.hiragana || card.reading || '—';
+      var hanViet = document.createElement('td');
+      hanViet.className = 'study-card-list__han-viet';
+      hanViet.textContent = card.hanViet || '—';
+      item.append(number, kanji, hiragana, hanViet);
       container.appendChild(item);
     });
   }
@@ -619,13 +628,9 @@
     var help = document.getElementById('quality-help');
     if (quality) quality.hidden = isBrowse;
     if (browse) browse.hidden = !isBrowse;
-    if (help) {
-      help.textContent = isBrowse
-        ? 'Lướt thẻ · dùng mũi tên để chuyển · không chọn = chưa thuộc'
-        : 'Đánh giá mức độ ghi nhớ · 0 = không nhớ · 5 = rất dễ';
-    }
     var modeField = document.getElementById('study-mode-field');
     if (modeField) modeField.value = studyMode;
+    syncSettingsListboxes();
   }
 
   function selectStudyMode(nextMode) {
@@ -635,6 +640,124 @@
     localStorage.setItem('jlab.flashcard.studyMode', studyMode);
     updateStudyModeUi();
     if (setId) load();
+  }
+
+  function setupSettingsListboxes() {
+    var modal = document.getElementById('settings-modal');
+    if (!modal || settingsListboxes.length) return;
+
+    modal.querySelectorAll('select.select').forEach(function (select) {
+      var field = select.closest('.field');
+      var label = field && field.querySelector('label');
+      if (!field || !label) return;
+
+      var labelId = label.id || (select.id + '-label');
+      label.id = labelId;
+      select.classList.add('study-select__native');
+      select.setAttribute('aria-hidden', 'true');
+      select.tabIndex = -1;
+
+      var control = document.createElement('div');
+      control.className = 'study-select';
+      var trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'study-select__trigger';
+      trigger.setAttribute('aria-haspopup', 'listbox');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('aria-labelledby', labelId);
+
+      var listbox = document.createElement('div');
+      listbox.className = 'study-select__listbox';
+      listbox.id = select.id + '-listbox';
+      listbox.setAttribute('role', 'listbox');
+      listbox.setAttribute('aria-labelledby', labelId);
+      listbox.hidden = true;
+      trigger.setAttribute('aria-controls', listbox.id);
+
+      function update() {
+        var selected = select.options[select.selectedIndex];
+        trigger.textContent = selected ? selected.text : '';
+        Array.prototype.forEach.call(listbox.querySelectorAll('[role="option"]'), function (option) {
+          var isSelected = option.dataset.value === select.value;
+          option.classList.toggle('is-selected', isSelected);
+          option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        });
+      }
+
+      function close() {
+        listbox.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+
+      function open(focusSelected) {
+        settingsListboxes.forEach(function (controller) { controller.close(); });
+        listbox.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        if (focusSelected) {
+          var selectedOption = listbox.querySelector('[aria-selected="true"]');
+          if (selectedOption) selectedOption.focus();
+        }
+      }
+
+      function choose(value, focusTrigger) {
+        select.value = value;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        update();
+        close();
+        if (focusTrigger) trigger.focus();
+      }
+
+      Array.prototype.forEach.call(select.options, function (nativeOption) {
+        var option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'study-select__option';
+        option.setAttribute('role', 'option');
+        option.dataset.value = nativeOption.value;
+        option.textContent = nativeOption.text;
+        option.addEventListener('click', function () { choose(nativeOption.value, true); });
+        option.addEventListener('keydown', function (event) {
+          var options = Array.prototype.slice.call(listbox.querySelectorAll('[role="option"]'));
+          var at = options.indexOf(option);
+          if (event.key === 'Escape') { event.preventDefault(); close(); trigger.focus(); }
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); choose(nativeOption.value, true); }
+          if (event.key === 'ArrowDown' && options[at + 1]) { event.preventDefault(); options[at + 1].focus(); }
+          if (event.key === 'ArrowUp' && options[at - 1]) { event.preventDefault(); options[at - 1].focus(); }
+          if (event.key === 'Home' && options[0]) { event.preventDefault(); options[0].focus(); }
+          if (event.key === 'End' && options.length) { event.preventDefault(); options[options.length - 1].focus(); }
+        });
+        listbox.appendChild(option);
+      });
+
+      trigger.addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (listbox.hidden) open(false); else close();
+      });
+      trigger.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          open(true);
+        }
+        if (event.key === 'Escape') close();
+      });
+      listbox.addEventListener('click', function (event) { event.stopPropagation(); });
+      select.addEventListener('change', update);
+
+      control.appendChild(trigger);
+      control.appendChild(listbox);
+      select.insertAdjacentElement('afterend', control);
+      settingsListboxes.push({ close: close, sync: update, contains: function (target) { return control.contains(target); } });
+      update();
+    });
+
+    document.addEventListener('click', function (event) {
+      settingsListboxes.forEach(function (controller) {
+        if (!controller.contains(event.target)) controller.close();
+      });
+    });
+  }
+
+  function syncSettingsListboxes() {
+    settingsListboxes.forEach(function (controller) { controller.sync(); });
   }
 
   async function startQuiz(event) {
@@ -648,6 +771,7 @@
 
   function openSettings() {
     document.getElementById('study-mode-field').value = studyMode;
+    syncSettingsListboxes();
     document.getElementById('settings-modal').hidden = false;
   }
   function closeSettings() {

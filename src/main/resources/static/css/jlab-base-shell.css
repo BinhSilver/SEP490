@@ -10,15 +10,15 @@
  */
 
 #jlabBaseDocument {
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 
 #jlabBasePage {
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
-  overflow-x: hidden !important;
-  padding-top: 72px !important;
+  overflow-x: clip !important;
+  padding-top: 84px !important;
   background: var(--jlab-base-page-background, transparent) !important;
   animation: none !important;
 }
@@ -53,24 +53,26 @@
   height: 100dvh;
   pointer-events: none;
   background: var(--color-background, #f4fafd);
-  background-size: 400% 400%;
-  animation: jlabBaseBackgroundPan 15s ease infinite !important;
-  will-change: background-position;
+  background-size: 100% 100%;
+  animation: none !important;
 }
 
 #jlabBaseHeader {
   position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 2147483001;
-  height: 72px;
+  top: 10px;
+  right: clamp(12px, 2vw, 32px);
+  left: clamp(12px, 2vw, 32px);
+  z-index: var(--z-header, 50);
+  height: 64px;
   display: flex;
   align-items: center;
   color: var(--color-on-surface, #161d1f);
-  background: #ffffff;
-  border-bottom: 1px solid rgba(203, 196, 210, 0.65);
-  box-shadow: 0 5px 20px rgba(22, 29, 31, 0.08);
+  /* The global navigation is a consistent white surface. The landing page
+     deliberately overrides this to transparent so it can sit on its hero. */
+  background: #fff;
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, 0.08));
 }
 
 #jlabBaseHeaderInner {
@@ -81,7 +83,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   box-sizing: border-box;
 }
 
@@ -109,7 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: clamp(14px, 2vw, 24px);
 }
 
 #jlabBaseHomeLink,
@@ -215,45 +217,17 @@
   outline-offset: 3px;
 }
 
-#jlabBaseHomeIcon,
-#jlabBaseLearningPathIcon,
-#jlabBaseTextbooksIcon,
-#jlabBaseLookupIcon,
-#jlabBaseGameIcon,
-#jlabBaseToolsIcon,
-#jlabBaseToolsChevron,
-#jlabBaseAiCallIcon,
-#jlabBaseFlashcardIcon,
-#jlabBaseQuizIcon,
-#jlabBaseShadowingIcon,
-#jlabBaseSmartTestIcon {
+#jlabBasePage .jlab-base-icon {
   display: inline-block;
   width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
   color: inherit;
-  font-family: "Font Awesome 6 Free";
-  font-size: 0.875rem;
-  font-style: normal;
-  font-weight: 900;
-  line-height: 1;
-  text-align: center;
 }
 
-#jlabBaseHomeIcon::before { content: "\f015"; }
-#jlabBaseLearningPathIcon::before { content: "\f4d7"; }
-#jlabBaseTextbooksIcon::before { content: "\f02d"; }
-#jlabBaseLookupIcon::before { content: "\f002"; }
-#jlabBaseGameIcon::before { content: "\f11b"; }
-#jlabBaseToolsIcon::before { content: "\f00a"; }
-#jlabBaseToolsChevron::before { content: "\f078"; }
-#jlabBaseAiCallIcon::before { content: "\f086"; }
-#jlabBaseFlashcardIcon::before { content: "\f5fd"; }
-#jlabBaseQuizIcon::before { content: "\f0e7"; }
-#jlabBaseShadowingIcon::before { content: "\f025"; }
-#jlabBaseSmartTestIcon::before { content: "\f5dc"; }
-
-#jlabBaseToolsChevron {
-  width: auto;
-  font-size: 0.7em;
+#jlabBasePage .jlab-base-icon--chevron {
+  width: 14px;
+  height: 14px;
   transition: transform 180ms ease;
 }
 
@@ -264,17 +238,15 @@
 #jlabBaseToolsMenu,
 #jlabBaseAccountMenu {
   position: absolute;
-  z-index: 2147483002;
+  z-index: var(--z-overlay, 120);
   padding: 8px;
   display: grid;
   gap: 3px;
   color: var(--color-on-surface, #161d1f);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--color-surface-lowest, #ffffff);
   border: 1px solid var(--color-outline-variant, #cbc4d2);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(22, 29, 31, 0.14);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-2, 0 10px 40px rgba(22, 29, 31, 0.14));
   box-sizing: border-box;
 }
 
@@ -475,7 +447,7 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  z-index: 2147483003;
+  z-index: var(--z-overlay, 120);
   width: min(360px, calc(100vw - 24px));
   overflow: hidden;
   color: var(--color-on-surface, #161d1f);
@@ -602,7 +574,7 @@
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 2147483003;
+  z-index: var(--z-toast, 110);
   max-width: min(360px, calc(100vw - 32px));
   padding: 12px 16px;
   color: var(--color-on-primary, #ffffff);
@@ -625,11 +597,14 @@
 
 @media (max-width: 900px) {
   #jlabBasePage {
-    padding-top: 116px !important;
+    padding-top: 122px !important;
   }
 
   #jlabBaseHeader {
-    height: 116px;
+    top: 8px;
+    right: 12px;
+    left: 12px;
+    height: 106px;
   }
 
   #jlabBaseHeaderInner {
@@ -670,7 +645,6 @@
   #jlabBaseTextbooksLink,
   #jlabBaseLookupLink,
   #jlabBaseGameLink,
-  #jlabBaseAboutLink,
   #jlabBaseToolsWrapper {
     display: flex;
     justify-content: center;
@@ -681,8 +655,14 @@
   #jlabBaseTextbooksLabel,
   #jlabBaseLookupLabel,
   #jlabBaseGameLabel,
-  #jlabBaseToolsLabel {
+  #jlabBaseToolsLabel,
+  #jlabBaseAboutLabel {
     display: none;
+  }
+
+  #jlabBaseToolsButton {
+    min-width: 0;
+    padding-inline: 8px;
   }
 
   #jlabBaseGuestActions {
@@ -706,7 +686,7 @@
   }
 
   #jlabBaseToolsMenu {
-    top: 108px;
+    top: 120px;
   }
 
   #jlabBaseAccountMenu {
@@ -728,19 +708,14 @@
 }
 
 /* =============================================================================
- * [JLAS] Nav "Tạo đề" (chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
- * Khối riêng, mirror đúng rule của "Công cụ" (#jlabBaseTools*) để không sửa selector cũ.
- * Khi fa712cb (SVG icon, grid 4 cột) merge: dựng lại khối này trên khuôn mới.
+ * [JLAS] Nav "Bài Thi"/"Tạo đề" (Tạo đề chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
+ * Icon render bằng inline SVG (khuôn của fa712cb, xem replaceShellIcons trong jlab-base-shell.js),
+ * không dùng Font Awesome ::before glyph; kích thước theo .jlab-base-icon / .jlab-base-icon--chevron.
  * ============================================================================= */
 #jlabBaseExamsWrapper { position:relative; }
 #jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; cursor:pointer; }
 #jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
-#jlabBaseExamsIcon,#jlabBaseExamsChevron,#jlabBaseExamSmartTestIcon,#jlabBaseExamJlptIcon { display:inline-block; width:18px; font-family:"Font Awesome 6 Free"; font-weight:900; font-style:normal; }
-#jlabBaseExamsIcon::before { content:"\f15c"; }
-#jlabBaseExamsChevron::before { content:"\f078"; }
-#jlabBaseExamSmartTestIcon::before { content:"\f5dc"; }
-#jlabBaseExamJlptIcon::before { content:"\f0a3"; }
-#jlabBaseExamsChevron { width:auto; font-size:.7em; transition:transform .18s; }
+#jlabBaseExamsChevron { transition: transform 180ms ease; }
 #jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
 #jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:rgba(255,255,255,.96); box-shadow:0 10px 40px rgba(22,29,31,.14); }
 #jlabBaseExamsMenu[hidden] { display:none; }
@@ -795,30 +770,7 @@
   outline-offset: 3px;
 }
 
-#jlabBaseTestBuilderIcon,
-#jlabBaseTestBuilderChevron,
-#jlabBaseSmartTestIcon,
-#jlabBaseJlptIcon {
-  display: inline-block;
-  width: 18px;
-  color: inherit;
-  font-family: "Font Awesome 6 Free";
-  font-size: 0.875rem;
-  font-style: normal;
-  font-weight: 900;
-  line-height: 1;
-  text-align: center;
-}
-
-/* Glyph FA 6.5.1 Free (đã đối chiếu all.min.css): file-pen, wand-magic-sparkles, certificate */
-#jlabBaseTestBuilderIcon::before { content: "\f31c"; }
-#jlabBaseTestBuilderChevron::before { content: "\f078"; }
-#jlabBaseSmartTestIcon::before { content: "\e2ca"; }
-#jlabBaseJlptIcon::before { content: "\f0a3"; }
-
 #jlabBaseTestBuilderChevron {
-  width: auto;
-  font-size: 0.7em;
   transition: transform 180ms ease;
 }
 

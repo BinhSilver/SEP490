@@ -231,8 +231,12 @@
             dashboardLoaded = true;
             content.hidden = false;
         } catch (error) {
-            errorBox.textContent = error.message;
-            errorBox.hidden = false;
+            if (window.JlasUI && typeof JlasUI.toast === 'function') {
+                JlasUI.toast(error.message, 'error');
+            } else if (errorBox) {
+                errorBox.textContent = error.message;
+                errorBox.hidden = false;
+            }
         } finally {
             loading.hidden = true;
         }

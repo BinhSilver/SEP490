@@ -11,10 +11,49 @@
   const startButton = document.getElementById('practice-start-button');
   const startLabel = startButton.querySelector('span');
   const startKitsu = document.getElementById('practice-start-kitsu');
+  const headerKitsu = document.getElementById('practice-kitsu');
   const status = document.getElementById('practice-status');
   const customCount = document.getElementById('practice-custom-count');
   let selectedMode = 'SHADOWING';
   let subtitleCount = 0;
+
+  function playHeaderKitsu() {
+    if (!headerKitsu || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    const playback = headerKitsu.play();
+    if (playback && typeof playback.catch === 'function') {
+      playback.catch(function () {
+        // Muted autoplay is normally allowed; the next browser interaction retries playback.
+      });
+    }
+  }
+
+  if (headerKitsu) {
+    headerKitsu.addEventListener('loadeddata', playHeaderKitsu, { once: true });
+    headerKitsu.addEventListener('canplay', playHeaderKitsu, { once: true });
+    document.addEventListener('pointerdown', playHeaderKitsu, { once: true, passive: true });
+    playHeaderKitsu();
+  }
+
+  function validQuestionCount(value) {
+    const numeric = Number(String(value || '').replace(/\D/g, ''));
+    const fallback = 5;
+    const limit = subtitleCount || 500;
+    return Math.max(1, Math.min(limit, Number.isFinite(numeric) && numeric > 0 ? numeric : fallback));
+  }
+
+  customCount?.addEventListener('beforeinput', function (event) {
+    if (event.data && !/^\d+$/.test(event.data)) event.preventDefault();
+  });
+
+  customCount?.addEventListener('input', function () {
+    const digitsOnly = this.value.replace(/\D/g, '');
+    if (this.value !== digitsOnly) this.value = digitsOnly;
+  });
+
+  customCount?.addEventListener('blur', function () {
+    this.value = String(validQuestionCount(this.value));
+  });
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -46,13 +85,6 @@
     card.addEventListener('click', function () { selectMode(card.dataset.mode); });
   });
 
-  document.querySelectorAll('input[name="practice-count"]').forEach(function (input) {
-    input.addEventListener('change', function () {
-      customCount.hidden = input.value !== 'CUSTOM';
-      if (!customCount.hidden) customCount.focus();
-    });
-  });
-
   async function loadLesson() {
     try {
       const responses = await Promise.all([
@@ -65,7 +97,6 @@
       title.textContent = video.title || 'Bài luyện nghe';
       subtitleCount = Array.isArray(subtitles) ? subtitles.filter(item => item.text?.trim()).length : 0;
       countLabel.textContent = subtitleCount + ' câu';
-      customCount.max = String(Math.max(1, subtitleCount));
     } catch (error) {
       message(error.message || 'Không tải được bài học', true);
       startButton.disabled = true;
@@ -73,10 +104,7 @@
   }
 
   function selectedCount() {
-    const choice = document.querySelector('input[name="practice-count"]:checked')?.value || '10';
-    if (choice === 'ALL') return { allQuestions: true, questionCount: null };
-    const raw = choice === 'CUSTOM' ? Number(customCount.value) : Number(choice);
-    const value = Math.max(1, Math.min(subtitleCount || 500, Number.isFinite(raw) ? raw : 10));
+    const value = validQuestionCount(customCount?.value);
     return { allQuestions: false, questionCount: value };
   }
 
@@ -93,7 +121,7 @@
     const mascotPlayback = startKitsu.play();
     if (mascotPlayback?.catch) mascotPlayback.catch(function () { /* poster remains visible */ });
     startLabel.textContent = 'Kitsu-chan đang chuẩn bị…';
-    message('AI chỉ phân tích các câu chưa có trong ngân hàng; bước đầu có thể mất một lúc.');
+    message('');
     try {
       const response = await fetch('/api/shadowing-practice/sessions', {
         method: 'POST',
