@@ -2,6 +2,7 @@ package com.jlas.assessment.service.impl;
 
 import com.jlas.assessment.dto.SmartTestAnswerRequest;
 import com.jlas.assessment.dto.SmartTestResponse;
+import com.jlas.assessment.dto.SmartTestResponse.AnswerReviewView;
 import com.jlas.assessment.dto.SmartTestResponse.BatchResultView;
 import com.jlas.assessment.dto.SmartTestResponse.GrammarPointResultView;
 import com.jlas.assessment.dto.SmartTestResponse.QuestionView;
@@ -485,7 +486,8 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .toList();
         return new ResultView(session.getEstimatedOverallLevel(), band, session.getOverallMasteryScore(),
                 confidence, readiness, session.getTargetLevel(), partial,
-                correct, answers.size(), selectedSkills(session.getGoal(), questions).size(), recommendations, skills);
+                correct, answers.size(), selectedSkills(session.getGoal(), questions).size(), recommendations, skills,
+                answerReview(answers));
     }
 
     private static List<BatchResultView> batchResults(String skill,
@@ -537,6 +539,28 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     private static String lessonTitle(GrammarPoint point) {
         return point.getLesson().getTitle();
+    }
+
+    /** [JLAS-W0090] Ôn tập từng câu đã trả lời theo đúng thứ tự trình bày, kèm giải thích (không lộ tag nội bộ). */
+    private static List<AnswerReviewView> answerReview(List<AssessmentAnswer> answers) {
+        List<AssessmentAnswer> ordered = answers.stream()
+                .sorted(Comparator.comparing(AssessmentAnswer::getId))
+                .toList();
+        List<AnswerReviewView> review = new ArrayList<>(ordered.size());
+        for (int index = 0; index < ordered.size(); index++) {
+            AssessmentAnswer answer = ordered.get(index);
+            AssessmentQuestion question = answer.getQuestion();
+            review.add(new AnswerReviewView(
+                    question.getId(), index + 1, question.getSkill(), question.getJlptLevel(),
+                    text(question.getQuestionText()),
+                    List.of(text(question.getOption1()), text(question.getOption2()),
+                            text(question.getOption3()), text(question.getOption4())),
+                    question.getCorrectOption(), answer.getSelectedOption(),
+                    Boolean.TRUE.equals(answer.getIsCorrect()), text(question.getExplanation()),
+                    question.getGrammarPoint() == null ? null : question.getGrammarPoint().getPattern(),
+                    question.getGrammarPoint() == null ? null : question.getGrammarPoint().getMeaning()));
+        }
+        return review;
     }
 
     private static String confidenceForCompletedHistory(List<BatchScore> history, String estimatedLevel) {

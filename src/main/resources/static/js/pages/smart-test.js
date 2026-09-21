@@ -191,7 +191,78 @@
       resultWrap.appendChild(level);
       row.append(identity, resultWrap); target.appendChild(row);
     });
+    renderReview(result.review);
     show(resultView);
+  }
+
+  function renderReview(review) {
+    var list = document.getElementById('reviewList');
+    var wrapper = document.getElementById('questionReview');
+    list.innerHTML = '';
+    if (!Array.isArray(review) || !review.length) { wrapper.hidden = true; return; }
+    wrapper.hidden = false;
+    review.forEach(function (item) { list.appendChild(buildReviewItem(item)); });
+  }
+
+  function buildReviewItem(item) {
+    var article = document.createElement('article');
+    article.className = 'review-item' + (item.correct ? ' review-item--correct' : ' review-item--wrong');
+
+    var header = document.createElement('header');
+    header.className = 'review-item__head';
+    var number = document.createElement('span');
+    number.className = 'review-item__number';
+    number.textContent = 'Câu ' + item.number;
+    var meta = document.createElement('span');
+    meta.className = 'review-item__meta';
+    meta.textContent = (labels[item.skill] || item.skill) + ' · ' + item.jlptLevel;
+    var verdict = document.createElement('span');
+    verdict.className = 'review-item__verdict';
+    verdict.innerHTML = item.correct
+      ? '<span class="material-symbols-outlined">check_circle</span>Đúng'
+      : '<span class="material-symbols-outlined">cancel</span>Sai';
+    header.append(number, meta, verdict);
+
+    var question = document.createElement('p');
+    question.className = 'review-item__question';
+    question.textContent = item.questionText || '';
+    article.append(header, question);
+
+    var options = document.createElement('ul');
+    options.className = 'review-options';
+    (item.options || []).forEach(function (option, index) {
+      var optionNumber = index + 1;
+      var li = document.createElement('li');
+      li.className = 'review-option';
+      if (optionNumber === item.correctOption) li.classList.add('is-correct');
+      if (optionNumber === item.selectedOption && optionNumber !== item.correctOption) li.classList.add('is-selected-wrong');
+      var mark = document.createElement('span');
+      mark.className = 'review-option__mark';
+      mark.textContent = String.fromCharCode(65 + index);
+      li.append(mark, document.createTextNode(option));
+      options.appendChild(li);
+    });
+    article.appendChild(options);
+
+    if (item.grammarPattern || item.explanation) {
+      var explanation = document.createElement('div');
+      explanation.className = 'review-item__explanation';
+      if (item.grammarPattern) {
+        var pattern = document.createElement('strong');
+        pattern.className = 'review-item__pattern';
+        pattern.textContent = item.grammarPattern + (item.grammarMeaning ? ' — ' + item.grammarMeaning : '');
+        explanation.appendChild(pattern);
+      }
+      if (item.explanation) {
+        var note = document.createElement('p');
+        note.className = 'review-item__note';
+        note.textContent = item.explanation;
+        explanation.appendChild(note);
+      }
+      article.appendChild(explanation);
+    }
+
+    return article;
   }
 
   function renderSpiderChart(skills, positions, overallPosition) {

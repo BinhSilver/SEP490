@@ -40,7 +40,8 @@ public record SmartTestResponse(
             int totalQuestions,
             int selectedSkillCount,
             List<String> recommendations,
-            List<SkillResultView> skills
+            List<SkillResultView> skills,
+            List<AnswerReviewView> review
     ) { }
 
     public record SkillResultView(
@@ -72,5 +73,21 @@ public record SmartTestResponse(
             int correctAnswers,
             int totalQuestions,
             BigDecimal masteryScore
+    ) { }
+
+    /** [JLAS-W0090] Ôn tập từng câu đã trả lời: đúng/sai + giải thích (không lộ tag nội bộ). */
+    public record AnswerReviewView(
+            Long id,
+            int number,
+            String skill,
+            String jlptLevel,
+            String questionText,
+            List<String> options,
+            Integer correctOption,
+            Integer selectedOption,
+            boolean correct,
+            String explanation,
+            String grammarPattern,
+            String grammarMeaning
     ) { }
 }
