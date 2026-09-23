@@ -70,6 +70,36 @@ WHERE id > 0 AND skill='KANJI' AND (
 
 
 -- ============================================================
+-- [JLAS-W0095] Grammar-point linkage (N5): gắn grammar_point_id cho câu GRAMMAR
+-- theo đúng bài dạy mẫu trong sách Sekai N5 (lesson → tag N5-Bxx).
+-- Đối chiếu form context_json.grammar_point ↔ grammar_point (seed_data_jlas.sql).
+-- Chỉ gắn form có điểm ngữ pháp DUY NHẤT trong sách. Giữ NULL: trợ từ mơ hồ
+-- (は/が/を/に/で/へ/と/も/まで/から), liên từ (そして/それから/でも/または),
+-- "語順" (word-order), ぐらい/しか/ので (ngoài sách N5), và câu N4-N1
+-- (sách chỉ tới N4). Chạy sau seed_data_jlas.sql (cần bảng grammar_point).
+-- ============================================================
+UPDATE assessment_question q
+JOIN (
+    SELECT 'てください' AS form, 81 AS gp_id            -- bài 14 → N5-B14
+    UNION ALL SELECT 'てもいい', 85                     -- bài 15 → N5-B15
+    UNION ALL SELECT 'てはいけません', 86               -- bài 15 → N5-B15
+    UNION ALL SELECT 'たい', 77                         -- bài 13 → N5-B13
+    UNION ALL SELECT 'たいです', 77                     -- bài 13 → N5-B13
+    UNION ALL SELECT 'たり', 105                        -- bài 19 → N5-B19
+    UNION ALL SELECT 'だけ', 69                         -- bài 11 → N5-B11
+    UNION ALL SELECT 'があります', 60                   -- bài 10 → N5-B10
+    UNION ALL SELECT 'がいます', 61                     -- bài 10 → N5-B10
+    UNION ALL SELECT 'ことができます', 98               -- bài 18 → N5-B18
+    UNION ALL SELECT 'ですから', 56                     -- bài 9  → N5-B09
+    UNION ALL SELECT 'なければなりません', 94           -- bài 17 → N5-B17
+    UNION ALL SELECT 'いちばん', 72                     -- bài 12 → N5-B12
+    UNION ALL SELECT 'より', 71                         -- bài 12 → N5-B12
+    UNION ALL SELECT 'もう', 45                         -- bài 7  → N5-B07
+) m ON JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.grammar_point')) = m.form
+SET q.grammar_point_id = m.gp_id
+WHERE q.skill = 'GRAMMAR' AND q.jlpt_level = 'N5';
+
+-- ============================================================
 -- KANJI: 150 questions per level (750 total)
 -- Source: kanji_questions_n5_n1.sql
 -- ============================================================

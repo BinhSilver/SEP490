@@ -19,6 +19,10 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
 
     Optional<Textbook> findByIdAndStatus(Long id, String status);
 
+    /** JLPT curriculum textbooks (published, level in range); {@code id < idLessThan} excludes the local demo seed. */
+    List<Textbook> findByJlptLevelInAndStatusAndIdLessThanOrderByIdAsc(
+            List<String> jlptLevels, String status, Long idLessThan);
+
     /** Số unit theo textbook cho một tập textbook, 1 query; mỗi phần tử là [textbookId, count]. */
     @Query("""
             select u.textbook.id, count(u.id) from Unit u

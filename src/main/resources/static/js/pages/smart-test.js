@@ -404,6 +404,15 @@
     }
   });
 
+  var createPathButton = document.getElementById('createPathButton');
+  if (createPathButton) {
+    createPathButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      if (!state.attemptId) return;
+      window.location.assign('/learning/path?assessmentAttemptId=' + state.attemptId);
+    });
+  }
+
   document.getElementById('restartButton').addEventListener('click', function () {
     state = { attemptId: null, currentQuestion: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
