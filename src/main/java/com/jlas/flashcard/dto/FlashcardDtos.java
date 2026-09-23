@@ -47,7 +47,7 @@ public final class FlashcardDtos {
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class SetRequest {
         @NotBlank(message = "Tên bộ thẻ không được để trống") @Size(max = 100) private String title; @Size(max = 500) private String description;
-        private String thumbnail; private String visibility; @Valid private List<CardInput> cards;
+        private String thumbnail; private String visibility; private Long folderId; @Valid private List<CardInput> cards;
     }
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class DraftRequest {
@@ -74,7 +74,7 @@ public final class FlashcardDtos {
     @Data @NoArgsConstructor @AllArgsConstructor public static class ReviewRequest { private Long setId; private Long cardId; private Integer quality; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class StudySessionDto { private Long setId; private String title; private String mode; private List<CardDto> cards; private int total; private int learning; private int mastered; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class StudySummaryDto { private int remembered; private int notRemembered; private int total; private int starred; private List<CardDto> notRememberedCards; }
-    @Data @NoArgsConstructor @AllArgsConstructor public static class StartQuizRequest { private Long setId; private List<Long> selectedCardIds; private boolean wrongOnly; }
+    @Data @NoArgsConstructor @AllArgsConstructor public static class StartQuizRequest { private Long setId; private List<Long> selectedCardIds; private boolean wrongOnly; private String questionField; private String answerField; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class QuizQuestionDto { private Long sessionId; private Long cardId; private String question; private List<OptionDto> options; private int questionIndex; private int totalQuestions; private String reading; private String meaning; private String hanViet; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class OptionDto { private Long cardId; private String label; private String text; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class AnswerRequest { private Long sessionId; private Long cardId; private Long chosenCardId; }

@@ -217,61 +217,54 @@ function render() {
 function renderQuickSetup(root) {
   const total = (state.activeSet.cards || []).length;
   ensureAnswerField();
+  const fields = availableQuizFields();
   const options = [4, 10, 20].filter(n => n <= total);
   if (total && !options.includes(total)) options.push(total);
   options.sort((a, b) => a - b);
   if (state.questionCount === 'ALL' && total >= 4) state.questionCount = options.includes(20) ? 20 : options[options.length - 1];
   if (!options.includes(Number(state.questionCount))) state.questionCount = options[options.length - 1] || 'ALL';
+  const modeButtons = (target, selected, disabled) => fields.map(value => `
+    <button type="button" class="${selected === value ? 'is-active' : ''}" data-quick-${target}="${value}" aria-pressed="${selected === value}" ${disabled === value ? 'disabled' : ''}>${QUIZ_FIELD_LABELS[value]}</button>
+  `).join('');
 
   root.innerHTML = `
-    <div class="quiz-quick-setup">
-      <section class="quiz-setup-dialog card" role="dialog" aria-modal="true" aria-labelledby="quiz-setup-title">
-        <a class="quiz-dialog-close" href="${flashcardBackUrl()}" aria-label="Quay lại bộ Flashcard"><i class="fa-solid fa-xmark"></i></a>
-        <div class="quiz-dialog-set">${esc(cleanSetName(state.activeSet.name))}</div>
-        <h1 id="quiz-setup-title">Thiết lập bài kiểm tra</h1>
-        <p class="quiz-dialog-subtitle">Chọn cách kiểm tra và số câu hỏi cho bộ Flashcard này.</p>
-
-        <div class="quiz-dialog-field">
-          <label for="quiz-question-count">Số câu hỏi <small>(tối đa ${total})</small></label>
-          <select id="quiz-question-count" class="select">
+    <section class="quiz-quick-setup sr-setup" aria-labelledby="quiz-setup-title">
+      <header class="sr-setup__heading">
+        <h1 id="quiz-setup-title" class="sr-set-title">${esc(cleanSetName(state.activeSet.name))}</h1>
+      </header>
+      <form id="quiz-quick-form" class="sr-setup__card">
+        <div class="sr-setup__grid">
+          <label class="sr-setup__field">Thẻ
+            <span class="sr-setup__control"><select disabled aria-label="Phạm vi thẻ"><option>Tất cả thẻ hợp lệ</option></select></span>
+          </label>
+          <label class="sr-setup__field">Số câu
+            <span class="sr-setup__control"><select id="quiz-question-count" aria-label="Số câu hỏi">
             ${options.map(n => `<option value="${n}" ${Number(state.questionCount) === n ? 'selected' : ''}>${n} câu</option>`).join('')}
             ${total >= 4 ? `<option value="ALL" ${state.questionCount === 'ALL' ? 'selected' : ''}>Toàn bộ ${total} câu</option>` : ''}
-          </select>
+            </select></span>
+          </label>
+          <div class="sr-setup__field"><span>Hỏi bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${fields.length}" role="group" aria-label="Nội dung câu hỏi">${modeButtons('question', state.questionField, '')}</div></div>
+          <div class="sr-setup__field"><span>Đáp bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${fields.length}" role="group" aria-label="Nội dung đáp án">${modeButtons('answer', state.answerField, state.questionField)}</div></div>
         </div>
-
-        <div class="quiz-dialog-field quiz-field-pair">
-          <label for="quick-question-field">Nội dung câu hỏi</label>
-          <select id="quick-question-field" class="select">${quizFieldOptions(state.questionField, state.answerField)}</select>
-          <small>${quizFieldDescription(state.questionField)}</small>
-        </div>
-
-        <div class="quiz-dialog-field quiz-field-pair">
-          <label for="quick-answer-field">Nội dung đáp án</label>
-          <select id="quick-answer-field" class="select">${quizFieldOptions(state.answerField, state.questionField)}</select>
-          <small>Chọn một loại khác với nội dung câu hỏi.</small>
-        </div>
-
-        <div class="quiz-dialog-actions">
-          <span class="quiz-dialog-hint">${total < 4 ? 'Cần ít nhất 4 thẻ để bắt đầu.' : `${total} thẻ đã sẵn sàng`}</span>
-          <button type="button" class="btn btn--primary" id="start-quick-quiz" ${total < 4 || !state.questionField || !state.answerField ? 'disabled' : ''}>Bắt đầu kiểm tra</button>
-        </div>
-      </section>
-    </div>
+        <button type="submit" class="sr-button sr-primary" id="start-quick-quiz" ${total < 4 || fields.length < 2 ? 'disabled' : ''}>Bắt đầu kiểm tra</button>
+      </form>
+    </section>
   `;
 
   root.querySelector('#quiz-question-count').onchange = event => {
     state.questionCount = event.target.value === 'ALL' ? 'ALL' : Number(event.target.value);
   };
-  root.querySelector('#quick-question-field').onchange = event => {
-    state.questionField = event.target.value;
+  root.querySelectorAll('[data-quick-question]').forEach(button => button.onclick = () => {
+    state.questionField = button.dataset.quickQuestion;
     ensureAnswerField();
     renderQuickSetup(root);
-  };
-  root.querySelector('#quick-answer-field').onchange = event => {
-    state.answerField = event.target.value;
+  });
+  root.querySelectorAll('[data-quick-answer]').forEach(button => button.onclick = () => {
+    if (button.disabled) return;
+    state.answerField = button.dataset.quickAnswer;
     renderQuickSetup(root);
-  };
-  root.querySelector('#start-quick-quiz').onclick = () => startQuiz(false);
+  });
+  root.querySelector('#quiz-quick-form').onsubmit = event => { event.preventDefault(); startQuiz(false); };
 }
 
 function bindQuizSidebar() {
@@ -334,15 +327,23 @@ function cleanSetName(name) {
 
 const QUIZ_FIELD_LABELS = {
   KANJI: 'Kanji',
-  MEANING: 'Nghĩa tiếng Việt',
-  HIRAGANA: 'Hiragana'
+  MEANING: 'Nghĩa',
+  HIRAGANA: 'Hiragana',
+  HAN_VIET: 'Hán Việt'
 };
+
+function availableQuizFields() {
+  const cards = state.activeSet?.cards || [];
+  const fields = ['KANJI', 'HIRAGANA', 'MEANING'];
+  if (cards.length && cards.every(card => String(card.hanViet || '').trim())) fields.push('HAN_VIET');
+  return fields;
+}
 
 function quizFieldOptions(selected, exclude) {
   const placeholder = selected ? '' : '<option value="" selected disabled>Chọn nội dung...</option>';
-  return placeholder + Object.entries(QUIZ_FIELD_LABELS)
-    .filter(([value]) => value !== exclude)
-    .map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`)
+  return placeholder + availableQuizFields()
+    .filter(value => value !== exclude)
+    .map(value => `<option value="${value}" ${value === selected ? 'selected' : ''}>${QUIZ_FIELD_LABELS[value]}</option>`)
     .join('');
 }
 
@@ -354,9 +355,12 @@ function quizFieldDescription(field) {
 }
 
 function ensureAnswerField() {
+  const fields = availableQuizFields();
+  if (!fields.includes(state.questionField)) state.questionField = fields[0] || '';
+  if (!fields.includes(state.answerField)) state.answerField = fields.find(value => value !== state.questionField) || '';
   if (!state.questionField || !state.answerField) return;
   if (state.answerField === state.questionField) {
-    state.answerField = Object.keys(QUIZ_FIELD_LABELS).find(value => value !== state.questionField);
+    state.answerField = fields.find(value => value !== state.questionField) || '';
   }
 }
 
@@ -366,7 +370,7 @@ function quizModeValue() {
 
 function flashcardBackUrl() {
   return sourceSetId
-    ? `/flashcard/set.html?id=${encodeURIComponent(sourceSetId)}`
+    ? `/flashcard/study.html?setId=${encodeURIComponent(sourceSetId)}`
     : '/flashcard/library.html';
 }
 
@@ -420,25 +424,7 @@ function renderSummaryHero(root) {
 }
 
 function renderPlayingToolbar(root) {
-  const q = state.currentQuestion;
-  if (!q) {
-    root.innerHTML = '';
-    return;
-  }
-  const completed = Math.max(0, q.questionIndex - 1);
-  root.innerHTML = `
-    <section class="quiz-playing-toolbar quiz-global-toolbar">
-      <div class="quiz-global-toolbar__inner">
-        <div class="quiz-live-stats">
-          <span class="quiz-stat quiz-stat--progress"><strong>${completed}</strong> / ${q.totalQuestions}</span>
-        </div>
-        <div class="quiz-toolbar-actions">
-          <button class="btn btn--primary btn--sm quiz-ai-trigger ${state.aiOpen ? 'is-on' : ''}" id="btn-ai" title="Mở AI hỗ trợ" aria-label="Mở AI hỗ trợ" aria-expanded="${state.aiOpen}"><i class="fa-solid fa-wand-magic-sparkles"></i> AI hỗ trợ</button>
-        </div>
-      </div>
-    </section>
-  `;
-  root.querySelector('#btn-ai').onclick = () => openAi('explain');
+  root.innerHTML = '';
 }
 
 function renderSetup(root) {
@@ -592,21 +578,23 @@ function renderPlaying(root) {
   root.innerHTML = `
     <div class="quiz-state quiz-state--playing animate-up">
       <section class="quiz-question-card card">
-        <span class="quiz-question-eyebrow">JLPT Flashcard</span>
-        <p class="quiz-question-prompt">Chọn đáp án đúng cho nội dung sau</p>
+        <div class="quiz-question-meta"><span>${q.questionIndex}/${q.totalQuestions}</span></div>
         <div class="quiz-question-term fc-kanji">${esc(q.question)}</div>
         <button type="button" class="btn btn--ghost btn--sm quiz-speak-button" id="btn-quiz-speak" title="Nghe phát âm" aria-label="Nghe phát âm">
           <i class="fa-solid fa-volume-high"></i>
         </button>
+        <div class="quiz-answer-area">
+          <p class="quiz-answer-label">Chọn đáp án đúng</p>
+          <div class="quiz-options" id="quiz-options">
+            ${q.options.map(opt => `
+              <button type="button" class="quiz-option" data-id="${opt.cardId}">
+                <span class="opt-label">${esc(opt.label)}</span>
+                <span class="quiz-option__text">${esc(opt.text)}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
       </section>
-      <div class="quiz-options" id="quiz-options">
-        ${q.options.map(opt => `
-          <button type="button" class="quiz-option" data-id="${opt.cardId}">
-            <span class="opt-label">${esc(opt.label)}</span>
-            <span class="quiz-option__text">${esc(opt.text)}</span>
-          </button>
-        `).join('')}
-      </div>
     </div>
   `;
 
@@ -729,7 +717,7 @@ async function submitAnswer(chosenId) {
       next.type = 'button';
       next.id = 'quiz-next-question';
       next.className = 'btn btn--primary quiz-next-question';
-      next.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Câu tiếp theo';
+      next.textContent = 'Câu tiếp theo';
       next.onclick = () => fetchNextQuestion();
       options.insertAdjacentElement('afterend', next);
       next.focus();

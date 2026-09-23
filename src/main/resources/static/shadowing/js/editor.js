@@ -298,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="caption drag-handle" title="Kéo để sắp xếp"><i class="fa-solid fa-grip-vertical"></i> #${index + 1} ${aiBadge}</span>
                     <div class="editor-time-inputs">
                         <input type="number" step="0.1" class="time-start" value="${sub.startTime}">
-                        <span><i class="fa-solid fa-arrow-right" style="font-size:10px;opacity:0.5;"></i></span>
                         <input type="number" step="0.1" class="time-end" value="${sub.endTime}">
                         <button class="control-btn play-segment" title="Nghe" style="width:28px;height:28px;">
                             <i class="fa-solid fa-play" style="font-size:12px;"></i>

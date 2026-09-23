@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=4" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
 </head>
 <body id="jlabBasePage" class="flashcard-page flashcard-page--library">
@@ -96,11 +96,16 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="lib-context-menu" class="lib-context-menu" hidden role="menu" aria-label="Thao tác với bộ thẻ">
+    <button type="button" role="menuitem" data-context-action="edit"><i class="fa-solid fa-pen" aria-hidden="true"></i> Sửa bộ thẻ</button>
+    <button type="button" role="menuitem" data-context-action="visibility"><i class="fa-solid fa-eye" aria-hidden="true"></i> Đổi chế độ hiển thị</button>
+    <button type="button" role="menuitem" data-context-action="delete" class="is-danger"><i class="fa-solid fa-trash" aria-hidden="true"></i> Xóa bộ thẻ</button>
+  </div>
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/js/components.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
   <script src="/flashcard/js/shell.js"></script>
-  <script src="/flashcard/js/library-page.js"></script>
+  <script src="/flashcard/js/library-page.js?v=6"></script>
 </body>
 </html>

@@ -94,6 +94,9 @@
     profileLink: 'jlabBaseProfileLink',
     profileIcon: 'jlabBaseProfileIcon',
     profileLabel: 'jlabBaseProfileLabel',
+    progressLink: 'jlabBaseProgressLink',
+    progressIcon: 'jlabBaseProgressIcon',
+    progressLabel: 'jlabBaseProgressLabel',
     streakLink: 'jlabBaseStreakLink',
     streakIcon: 'jlabBaseStreakIcon',
     streakLabel: 'jlabBaseStreakLabel',
@@ -127,6 +130,7 @@
       user: '<circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>',
       flame: '<path d="M12 22c4 0 7-2.7 7-6.7 0-3.8-2.5-6.1-5.3-9.3.2 2.8-1.1 4.4-3.2 5.8.1-2.8-1.1-4.9-2.9-6.8C6.6 7.8 5 10.2 5 13.2 5 18.1 8 22 12 22Z"></path>',
       shield: '<path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7Z"></path><rect x="9" y="11" width="6" height="5" rx="1"></rect><path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"></path>',
+      chart: '<path d="M4 19V5"></path><path d="M4 19h16"></path><path d="m7 15 3-4 3 2 4-6"></path>',
       logout: '<path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M21 3v18"></path>'
     };
     return '<svg' + (id ? ' id="' + id + '"' : '') + ' class="jlab-base-icon' + (extraClass ? ' ' + extraClass : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + paths[name] + '</svg>';
@@ -149,6 +153,7 @@
     replaceIcon(ids.shadowingIcon, 'headphones');
     replaceIcon(ids.notificationIcon, 'bell');
     replaceIcon(ids.profileIcon, 'user');
+    replaceIcon(ids.progressIcon, 'chart');
     replaceIcon(ids.streakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
 
@@ -223,6 +228,7 @@
                     '</div>' +
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
+                  '<a id="' + ids.progressLink + '" class="dropdown__item" href="/progress" role="menuitem"><span id="' + ids.progressIcon + '" class="material-symbols-outlined" aria-hidden="true">monitoring</span><span id="' + ids.progressLabel + '">Tiến độ học tập</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
@@ -275,6 +281,7 @@
       path.indexOf('/flashcard/study/') === 0;
     var isShadowing = path === '/shadowing' || path.indexOf('/shadowing/') === 0;
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
+    var isProgress = path === '/progress';
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.learningPathLink, isLearningPath);
@@ -282,6 +289,7 @@
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
     markCurrent(ids.shadowingLink, isShadowing);
+    markCurrent(ids.progressLink, isProgress);
     markCurrent(ids.streakLink, isGoals);
 
     var toolsButton = byId(ids.toolsButton);

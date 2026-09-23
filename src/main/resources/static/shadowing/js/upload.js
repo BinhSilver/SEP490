@@ -389,9 +389,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-                youtubeStatus.textContent = data.error || 'Không phân tích được video.';
+                const message = data.error || 'Không phân tích được video. Hãy kiểm tra link hoặc chọn video khác.';
+                youtubeStatus.textContent = message;
+                youtubeStatus.classList.add('is-error');
+                showAlert({ title: 'Không thể phân tích video', message, variant: 'error' });
                 return;
             }
+            youtubeStatus.classList.remove('is-error');
             youtubeStatus.textContent = 'Phân tích xong — xem kết quả bên dưới.';
             renderAnalyzeResult(data);
         } catch {
@@ -446,7 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const id = data.lessonId || data.jobId;
                 window.location.href = `/shadowing/create/${id}/processing`;
             } else {
-                youtubeStatus.textContent = data.error || 'Không thể tạo bài học.';
+                const message = data.error || 'Không thể tạo bài học. Hãy kiểm tra link hoặc chọn video khác.';
+                youtubeStatus.textContent = message;
+                youtubeStatus.classList.add('is-error');
+                showAlert({ title: 'Không thể tạo bài shadowing', message, variant: 'error' });
                 importBtn.disabled = false;
                 analyzeBtn.disabled = false;
             }
@@ -460,5 +467,6 @@ document.addEventListener('DOMContentLoaded', () => {
     urlInput.addEventListener('input', () => {
         resetYoutubeResult();
         youtubeStatus.textContent = '';
+        youtubeStatus.classList.remove('is-error');
     });
 });

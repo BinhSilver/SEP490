@@ -30,12 +30,12 @@ public class FlashcardModerationTargetHandler implements ModerationTargetHandler
         if ("FLASHCARD_SET".equals(targetType)) {
             return sets.findById(targetId)
                     .map(set -> new ModerationTargetSnapshot(set.getDescription(),
-                            "/flashcard/set.html?id=" + set.getId()))
+                            "/flashcard/study.html?setId=" + set.getId()))
                     .orElseGet(ModerationTargetSnapshot::empty);
         }
         return comments.findById(targetId)
                 .map(comment -> new ModerationTargetSnapshot(comment.getContent(),
-                        "/flashcard/set.html?id=" + comment.getTargetId()))
+                        "/flashcard/study.html?setId=" + comment.getTargetId()))
                 .orElseGet(ModerationTargetSnapshot::empty);
     }
 

@@ -13,8 +13,10 @@
     folders: []
   };
 
-  var grid, empty, pager, pageLabel, searchInput, sortSelect, folderPanel, folderList;
+  var grid, empty, pager, pageLabel, searchInput, sortSelect, folderPanel, folderList, contextMenu;
   var pendingDeleteId = null;
+  var contextSetId = null;
+  var contextSetVisibility = null;
 
   document.addEventListener('DOMContentLoaded', function () {
     var redirectTarget = window.location.pathname + window.location.search;
@@ -33,6 +35,7 @@
     sortSelect = document.getElementById('lib-sort');
     folderPanel = document.getElementById('folder-panel');
     folderList = document.getElementById('folder-list');
+    contextMenu = document.getElementById('lib-context-menu');
     if (new URLSearchParams(window.location.search).get('tab') === 'my') {
       state.tab = 'my';
     }
@@ -40,6 +43,31 @@
     document.getElementById('confirm-delete-set').addEventListener('click', confirmDelete);
     document.getElementById('delete-set-modal').addEventListener('click', function (event) {
       if (event.target === this) closeDeleteModal();
+    });
+    contextMenu.addEventListener('click', function (event) {
+      var action = event.target.closest('[data-context-action]');
+      if (!action) return;
+      handleContextAction(action.getAttribute('data-context-action'));
+    });
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('#lib-context-menu')) closeContextMenu();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeContextMenu();
+    });
+    window.addEventListener('resize', closeContextMenu);
+    window.addEventListener('scroll', closeContextMenu, true);
+    grid.addEventListener('contextmenu', function (event) {
+      var card = event.target.closest('.lib-card[data-set-id]');
+      if (!card || card.getAttribute('data-set-owned') !== 'true') return;
+      event.preventDefault();
+      openContextMenu(
+        Number(card.getAttribute('data-set-id')),
+        card.getAttribute('data-set-visibility'),
+        card.getAttribute('data-set-draft') === 'true',
+        event.clientX,
+        event.clientY
+      );
     });
 
     var searchTimer;
@@ -205,17 +233,9 @@
     return options;
   }
 
-  function ratingLine(s) {
+  function ratingBadge(s) {
     var avg = s.avgRating != null ? Number(s.avgRating).toFixed(1) : '—';
-    var rc = s.ratingCount || 0;
-    var cc = s.commentCount || 0;
-    return (
-      '<div class="lib-card__social">' +
-        '<span title="Đánh giá"><i class="fa-solid fa-star" style="color:#f5a623"></i> ' + avg +
-        ' <span class="muted">(' + rc + ')</span></span>' +
-        '<span title="Bình luận"><i class="fa-solid fa-comment"></i> ' + cc + '</span>' +
-      '</div>'
-    );
+    return '<span class="lib-card__rating" title="Đánh giá ' + avg + ' trên 5"><i class="fa-solid fa-star" aria-hidden="true"></i> ' + avg + '</span>';
   }
 
   function moderationBadge(s) {
@@ -243,54 +263,44 @@
 
     grid.innerHTML = items.map(function (s) {
       var totalCards = s.totalCards || 0;
-      var quizDisabled = s.draft || totalCards < 4;
       var setTitle = s.title || 'Bản nháp chưa đặt tên';
-      var setHref = s.draft ? '/flashcard/editor.html?id=' + s.id : '/flashcard/set.html?id=' + s.id;
+      var setHref = s.draft ? '/flashcard/editor.html?id=' + s.id : '/flashcard/study.html?setId=' + s.id;
       var thumb = s.thumbnail
         ? '<img src="' + FlashShell.esc(s.thumbnail) + '" alt="" class="lib-card__thumb"/>'
-        : '<div class="lib-card__thumb lib-card__thumb--ph"><i class="fa-solid fa-layer-group"></i></div>';
+        : '';
       var vis = s.visibility === 'PUBLIC'
         ? '<span class="tag tag-public">Công khai</span>'
         : '<span class="tag tag-private">Riêng tư</span>';
       var draftBadge = s.draft ? '<span class="tag tag-draft">Bản nháp</span>' : '';
       var folderBadge = s.folderName ? '<span class="tag tag-folder"><i class="fa-solid fa-folder"></i> ' + FlashShell.esc(s.folderName) + '</span>' : '';
       var actions = '';
-      if (s.ownedByMe) {
+      if (!s.ownedByMe) {
         actions =
-          '<div class="lib-card__owner-actions" aria-label="Quản lý bộ thẻ">' +
-            '<a class="btn btn--ghost btn-ghost btn-sm lib-icon-action" href="/flashcard/editor.html?id=' + s.id + '" title="Sửa bộ thẻ" aria-label="Sửa bộ thẻ"><i class="fa-solid fa-pen"></i></a>' +
-            (s.draft ? '' : '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-vis="' + s.id + '" data-cur="' + s.visibility + '" title="Đổi chế độ hiển thị" aria-label="Đổi chế độ hiển thị"><i class="fa-solid fa-eye"></i></button>') +
-            '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action lib-icon-action--danger" data-del="' + s.id + '" title="Xóa bộ thẻ" aria-label="Xóa bộ thẻ"><i class="fa-solid fa-trash"></i></button>' +
-          '</div>';
-      } else {
-        actions =
-          '<button type="button" class="btn btn--ghost btn-ghost btn-sm" data-clone="' + s.id + '"><i class="fa-solid fa-clone"></i> Lưu bản sao</button>';
+            '<button type="button" class="btn btn--ghost btn-ghost btn-sm" data-clone="' + s.id + '"><i class="fa-solid fa-clone"></i> Lưu bản sao</button>';
       }
-      return (
-        '<article class="lib-card">' +
-          '<a class="lib-card__link" href="' + setHref + '" aria-label="Xem bộ ' + FlashShell.esc(setTitle) + '">' +
+      var cardVisual = s.thumbnail
+        ? '<a class="lib-card__link" href="' + setHref + '" aria-label="Xem bộ ' + FlashShell.esc(setTitle) + '">' +
             thumb +
-            '<div class="lib-card__meta">' + vis + draftBadge + folderBadge + moderationBadge(s) + '</div>' +
-            '<span class="lib-card__count"><i class="fa-solid fa-layer-group"></i> ' + totalCards + ' thẻ</span>' +
-          '</a>' +
+            '<div class="lib-card__meta">' + ratingBadge(s) + '</div>' +
+          '</a>'
+        : '<div class="lib-card__meta lib-card__meta--no-thumb">' + ratingBadge(s) + '</div>';
+      return (
+        '<article class="lib-card' + (s.thumbnail ? '' : ' lib-card--no-thumb') + '" data-set-id="' + s.id + '" data-set-owned="' + Boolean(s.ownedByMe) + '" data-set-visibility="' + FlashShell.esc(s.visibility || 'PRIVATE') + '" data-set-draft="' + Boolean(s.draft) + '">' +
+          cardVisual +
           '<div class="lib-card__body">' +
             '<h3 class="lib-card__title"><a href="' + setHref + '">' +
               FlashShell.esc(setTitle) + '</a></h3>' +
-            '<p class="lib-card__desc">' + FlashShell.esc(s.description || 'Chưa có mô tả cho bộ thẻ này.') + '</p>' +
-            '<div class="lib-card__foot">' +
-              '<span class="lib-card__owner"><span class="lib-card__avatar"><i class="fa-solid fa-user"></i></span>' + FlashShell.esc(s.ownerName || 'Người học JLAS') + '</span>' +
-              '<span class="lib-card__usage" title="Số lượt hoàn thành"><i class="fa-solid fa-graduation-cap"></i> ' + (s.studyCount || 0) + ' lượt học</span>' +
-            '</div>' +
-            ratingLine(s) +
+            '<div class="lib-card__count">' + totalCards + ' từ</div>' +
             (s.ownedByMe && state.tab === 'my' ? '<label class="lib-folder-select"><span>Thư mục</span><select data-move-set="' + s.id + '">' + folderOptions(s.folderId) + '</select></label>' : '') +
             '<div class="lib-card__actions">' +
               (s.draft
                 ? '<a class="btn btn--primary btn-primary btn-sm" href="/flashcard/editor.html?id=' + s.id + '"><i class="fa-solid fa-pen"></i> Tiếp tục soạn</a>'
                 : '<a class="btn btn--primary btn-primary btn-sm" href="/flashcard/study.html?setId=' + s.id + '"><i class="fa-solid fa-play"></i> Học ngay</a>') +
-              '<button type="button" class="btn btn--secondary btn-ghost btn-sm" data-quiz="' + s.id + '" ' +
-                (quizDisabled ? 'disabled title="' + (s.draft ? 'Hoàn tất bản nháp trước khi kiểm tra' : 'Cần ít nhất 4 thẻ để kiểm tra') + '"' : 'title="Kiểm tra kiến thức từ bộ thẻ này"') + '>' +
-                '<i class="fa-solid fa-bolt"></i> Kiểm tra</button>' +
               actions +
+            '</div>' +
+            '<div class="lib-card__foot">' +
+              '<span class="lib-card__owner"><span class="lib-card__avatar"><i class="fa-solid fa-user"></i></span>' + FlashShell.esc(s.ownerName || 'Người học JLAS') + '</span>' +
+              '<span class="lib-card__usage" title="Số lượt hoàn thành"><i class="fa-solid fa-graduation-cap"></i> ' + (s.studyCount || 0) + ' lượt học</span>' +
             '</div>' +
           '</div>' +
         '</article>'
@@ -300,24 +310,39 @@
     grid.querySelectorAll('[data-clone]').forEach(function (btn) {
       btn.addEventListener('click', function () { doClone(Number(btn.getAttribute('data-clone'))); });
     });
-    grid.querySelectorAll('[data-quiz]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        FlashShell.openFlashcardQuiz(Number(btn.getAttribute('data-quiz')), { button: btn });
-      });
-    });
-    grid.querySelectorAll('[data-del]').forEach(function (btn) {
-      btn.addEventListener('click', function () { doDelete(Number(btn.getAttribute('data-del'))); });
-    });
-    grid.querySelectorAll('[data-vis]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        toggleVis(Number(btn.getAttribute('data-vis')), btn.getAttribute('data-cur'));
-      });
-    });
     grid.querySelectorAll('[data-move-set]').forEach(function (select) {
       select.addEventListener('change', function () {
         moveSetToFolder(Number(select.getAttribute('data-move-set')), select.value);
       });
     });
+  }
+
+  function openContextMenu(id, visibility, draft, x, y) {
+    contextSetId = id;
+    contextSetVisibility = visibility;
+    contextMenu.querySelector('[data-context-action="visibility"]').hidden = draft;
+    contextMenu.hidden = false;
+    var left = Math.min(x, window.innerWidth - contextMenu.offsetWidth - 10);
+    var top = Math.min(y, window.innerHeight - contextMenu.offsetHeight - 10);
+    contextMenu.style.left = Math.max(10, left) + 'px';
+    contextMenu.style.top = Math.max(10, top) + 'px';
+  }
+
+  function closeContextMenu() {
+    if (!contextMenu) return;
+    contextMenu.hidden = true;
+    contextSetId = null;
+    contextSetVisibility = null;
+  }
+
+  function handleContextAction(action) {
+    var id = contextSetId;
+    var visibility = contextSetVisibility;
+    closeContextMenu();
+    if (!id) return;
+    if (action === 'edit') window.location.href = '/flashcard/editor.html?id=' + id;
+    if (action === 'visibility') toggleVis(id, visibility);
+    if (action === 'delete') doDelete(id);
   }
 
   async function doClone(id) {
