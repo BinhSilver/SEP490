@@ -9,4 +9,8 @@ import java.util.List;
 @Repository
 public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry, Long> {
     List<VocabularyEntry> findByReadingContainingIgnoreCase(String keyword);
+
+    /** Published entries with the same spelling, shown to moderators to avoid duplicates. */
+    List<VocabularyEntry> findTop5ByNormalizedExpressionAndDictionaryStatusAndIdNot(
+            String normalizedExpression, String dictionaryStatus, Long id);
 }
