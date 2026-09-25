@@ -3,6 +3,7 @@ package com.jlas.auth.controller;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.dto.ChangePasswordRequest;
 import com.jlas.auth.dto.LoginRequest;
+import com.jlas.auth.dto.LoginHistoryItem;
 import com.jlas.auth.dto.LoginResponse;
 import com.jlas.auth.dto.RefreshTokenRequest;
 import com.jlas.auth.dto.RegisterRequest;
@@ -14,9 +15,12 @@ import com.jlas.auth.dto.GoogleLoginRequest;
 import com.jlas.auth.dto.ForgotPasswordRequest;
 import com.jlas.auth.dto.ResetPasswordRequest;
 import com.jlas.auth.dto.VerifyPasswordResetOtpRequest;
+import com.jlas.auth.dto.ConfirmEmailChangeRequest;
+import com.jlas.auth.dto.RequestEmailChangeRequest;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.AvatarUploadService;
+import com.jlas.auth.service.AccountSecurityService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,6 +49,7 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
     private final AvatarUploadService avatarUploadService;
+    private final AccountSecurityService accountSecurityService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
@@ -55,12 +62,16 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest servletRequest) {
-        return authResponse("Login successful", authService.login(request, servletRequest.getRemoteAddr()));
+        return authResponse("Login successful", authService.login(request,
+                clientIp(servletRequest), servletRequest.getHeader("User-Agent")));
     }
 
     @PostMapping("/google")
-    public ResponseEntity<ApiResponse<LoginResponse>> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
-        return authResponse("Google login successful", authService.loginWithGoogle(request));
+    public ResponseEntity<ApiResponse<LoginResponse>> googleLogin(
+            @Valid @RequestBody GoogleLoginRequest request,
+            HttpServletRequest servletRequest) {
+        return authResponse("Google login successful", authService.loginWithGoogle(request,
+                clientIp(servletRequest), servletRequest.getHeader("User-Agent")));
     }
 
     @PostMapping("/forgot-password")
@@ -122,6 +133,49 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Password changed successfully"));
     }
 
+    @PostMapping("/email-change/request")
+    public ResponseEntity<ApiResponse<Void>> requestEmailChange(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody RequestEmailChangeRequest request) {
+        if (principal == null) return unauthorized();
+        accountSecurityService.requestEmailChange(principal.userId(), request);
+        return ResponseEntity.ok(ApiResponse.ok("Đã gửi mã OTP tới cả email hiện tại và email mới."));
+    }
+
+    @PostMapping("/email-change/confirm")
+    public ResponseEntity<ApiResponse<Void>> confirmEmailChange(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody ConfirmEmailChangeRequest request) {
+        if (principal == null) return unauthorized();
+        accountSecurityService.confirmEmailChange(principal.userId(), request);
+        return ResponseEntity.ok(ApiResponse.ok("Đổi email thành công. Vui lòng đăng nhập lại."));
+    }
+
+    @PostMapping("/google/link")
+    public ResponseEntity<ApiResponse<UserResponse>> linkGoogle(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody GoogleLoginRequest request) {
+        if (principal == null) return unauthorized();
+        return ResponseEntity.ok(ApiResponse.ok("Đã liên kết tài khoản Google.",
+                accountSecurityService.linkGoogle(principal.userId(), request)));
+    }
+
+    @DeleteMapping("/google/link")
+    public ResponseEntity<ApiResponse<UserResponse>> unlinkGoogle(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) return unauthorized();
+        return ResponseEntity.ok(ApiResponse.ok("Đã hủy liên kết tài khoản Google.",
+                accountSecurityService.unlinkGoogle(principal.userId())));
+    }
+
+    @GetMapping("/login-history")
+    public ResponseEntity<ApiResponse<List<LoginHistoryItem>>> loginHistory(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) return unauthorized();
+        return ResponseEntity.ok(ApiResponse.ok("Lịch sử đăng nhập",
+                accountSecurityService.loginHistory(principal.userId())));
+    }
+
     @PostMapping(value = "/avatar", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadAvatar(
             @AuthenticationPrincipal UserPrincipal principal,
@@ -180,5 +234,11 @@ public class AuthController {
 
     private static <T> ResponseEntity<ApiResponse<T>> unauthorized() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail("Unauthorized"));
+    }
+
+    private static String clientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) return forwarded.split(",", 2)[0].trim();
+        return request.getRemoteAddr();
     }
 }

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'Bài ' + ${lesson?.displayOrder} + ' - Học Onyomi'">Bài học</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" th:href="@{/css/tokens.css}" />
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
     <link rel="stylesheet" th:href="@{/css/base.css}" />
@@ -95,7 +94,7 @@
             color: var(--muted);
             font-size: 14px;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: color 0.2s ease, background-color 0.2s ease;
             margin-bottom: 4px;
         }
 
@@ -823,7 +822,7 @@
             justify-content: center;
             font-size: 18px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
         }
 
         .flashcard-nav-btn:hover:not(:disabled) {
@@ -932,7 +931,7 @@
             font-weight: 700;
             font-family: var(--font-mono, 'JetBrains Mono', monospace);
             text-align: center;
-            transition: all 0.2s;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
 
         .quiz-opt:hover:not(:disabled) {
@@ -1224,11 +1223,11 @@
         <aside class="course-sidebar d-none d-lg-block">
             <div class="sidebar-title" th:text="'Bài ' + ${lesson?.displayOrder}">Bài 1</div>
             <ul class="sidebar-nav" id="sidebar-nav">
-                <li><a href="#s-rules" data-section="s-rules"><i data-lucide="book-open"></i> Quy tắc</a></li>
-                <li><a href="#s-flashcards" data-section="s-flashcards"><i data-lucide="layers"></i> Thẻ ghi nhớ</a></li>
-                <li><a href="#s-quiz" data-section="s-quiz"><i data-lucide="circle-help"></i> Trắc nghiệm</a></li>
-                <li><a href="#s-compound" data-section="s-compound"><i data-lucide="puzzle"></i> Ghép từ</a></li>
-                <li><a href="#s-summary" data-section="s-summary"><i data-lucide="circle-check"></i> Tổng kết</a></li>
+                <li><a href="#s-rules" data-section="s-rules"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Quy tắc</a></li>
+                <li><a href="#s-flashcards" data-section="s-flashcards"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Thẻ ghi nhớ</a></li>
+                <li><a href="#s-quiz" data-section="s-quiz"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Trắc nghiệm</a></li>
+                <li><a href="#s-compound" data-section="s-compound"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i> Ghép từ</a></li>
+                <li><a href="#s-summary" data-section="s-summary"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Tổng kết</a></li>
             </ul>
         </aside>
 
@@ -1256,18 +1255,18 @@
 
             <!-- Hero -->
             <div class="lesson-hero">
-                <div class="lesson-hero-icon"><i data-lucide="book-open"></i> Bài học</div>
+                <div class="lesson-hero-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Bài học</div>
                 <h1 th:text="'Bài ' + ${lesson.displayOrder}">Bài 1</h1>
                 <div class="lesson-hero-type" th:text="${typeLabel}">Âm đầu</div>
                 <div class="lesson-hero-rules" th:text="${rulesSummary}">C • K • QU</div>
                 <p class="lesson-hero-desc" th:text="${heroDesc}">Học cách chuyển...</p>
                 <div class="lesson-hero-meta">
-                    <span><i data-lucide="graduation-cap"></i> <span th:text="${ruleCount} + ' Quy tắc'">3 Quy
+                    <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> <span th:text="${ruleCount} + ' Quy tắc'">3 Quy
                             tắc</span></span>
-                    <span><i data-lucide="book-marked"></i> <span th:text="${exCount} + ' Ví dụ'">15 Ví dụ</span></span>
-                    <span><i data-lucide="circle-help"></i> <span
+                    <span><i class="fa-solid fa-book-bookmark" aria-hidden="true"></i> <span th:text="${exCount} + ' Ví dụ'">15 Ví dụ</span></span>
+                    <span><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span
                             th:text="${quizCount > 0 ? quizCount : ruleCount * 5} + ' Bài tập'">5 Bài tập</span></span>
-                    <span><i data-lucide="clock"></i> 5–10 phút</span>
+                    <span><i class="fa-regular fa-clock" aria-hidden="true"></i> 5–10 phút</span>
                 </div>
             </div>
 
@@ -1308,7 +1307,7 @@
                                     <strong class="demo-example-onyomi" th:text="${ex.onyomi}">Koku</strong>
                                     <button type="button" class="demo-play-btn"
                                         th:attr="data-speak=${ex.onyomi},aria-label=${'Phát âm ' + ex.onyomi}">
-                                        <i data-lucide="play"></i>
+                                        <i class="fa-solid fa-play" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1342,7 +1341,7 @@
                                                     th:text="${rule.sourceSound} + '  ?'">C  ?</div>
                                             </div>
                                             <div class="fc-flip-hint">
-                                                <i data-lucide="rotate-cw"></i>
+                                                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
                                                 <span>Nhấn để kiểm tra</span>
                                             </div>
                                         </div>
@@ -1352,7 +1351,7 @@
                                                 <button type="button" class="fc-audio-btn"
                                                     onclick="event.stopPropagation()"
                                                     th:attr="data-speak=${ex.onyomi},aria-label=${'Phát âm ' + ex.onyomi}">
-                                                    <i data-lucide="volume-2"></i>
+                                                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
                                                 </button>
                                             </div>
                                             <div class="fc-face-content">
@@ -1364,7 +1363,7 @@
                                                     th:text="${rule.sourceSound} + '  ' + ${rule.targetSound}">C  K</div>
                                             </div>
                                             <div class="fc-flip-hint">
-                                                <i data-lucide="rotate-ccw"></i>
+                                                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
                                                 <span>Nhấn để lật lại</span>
                                             </div>
                                         </div>
@@ -1375,10 +1374,10 @@
                     </div>
                     <div class="flashcard-controls">
                         <button type="button" class="flashcard-nav-btn" id="fc-prev-btn" onclick="prevFlashcard()" aria-label="Thẻ trước">
-                            <i data-lucide="chevron-left"></i>
+                            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
                         </button>
                         <button type="button" class="flashcard-nav-btn" id="fc-next-btn" onclick="nextFlashcard()" aria-label="Thẻ tiếp">
-                            <i data-lucide="chevron-right"></i>
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -1476,7 +1475,7 @@
                             <strong th:text="${isDau ? 'âm đầu' : (isCuoi ? 'âm cuối' : 'vần')}">âm đầu</strong>
                             <strong th:text="${rulesSummary}">C • K • QU</strong>
                         </p>
-                        <i data-lucide="arrow-down" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
                         <p>
                             Onyomi đều bắt đầu bằng
                             <strong th:text="${lesson.rules[0].targetSound}">K</strong>
@@ -1485,10 +1484,10 @@
                     </div>
                     <a th:if="${nextLesson}" th:href="@{'/learning/lesson/' + ${nextLesson.id}}" class="summary-cta">
                         Tiếp tục Bài <span th:text="${nextLesson.displayOrder}">2</span>
-                        <i data-lucide="arrow-right"></i>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </a>
                     <a th:unless="${nextLesson}" href="/learning/path" class="summary-cta">
-                        Về lộ trình học <i data-lucide="arrow-right"></i>
+                        Về lộ trình học <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
             </section>
@@ -1501,8 +1500,6 @@
         let currentQuiz = 0;
         let quizCorrect = 0;
         let quizCompletionSubmitted = false;
-
-        lucide.createIcons();
 
         /* ── Sidebar follows the section currently viewed ── */
         const sections = Array.from(document.querySelectorAll('.course-section'));

@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20260910-rating" />
+  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20260914-study-card-table" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
 </head>
 
@@ -52,6 +52,7 @@
           <button type="button" class="study-mode-tab" data-study-mode="BROWSE"><i class="fa-solid fa-clone"></i> Lướt thẻ</button>
           <button type="button" class="study-mode-tab" data-study-mode="RECALL"><i class="fa-solid fa-brain"></i> Ghi nhớ</button>
           <button type="button" class="study-mode-tab" id="btn-quiz-nav">Kiểm tra</button>
+          <button type="button" class="study-mode-tab" id="btn-speed-recall-nav"><i class="fa-solid fa-keyboard" aria-hidden="true"></i> Gõ phản xạ</button>
           <button type="button" class="study-mode-tab study-settings-tab" id="btn-settings" title="Cài đặt mặt thẻ" aria-label="Cài đặt mặt thẻ"><i class="fa-solid fa-sliders"></i></button>
         </nav>
         <div class="study-session-progress" aria-hidden="true"><span id="study-progress-fill"></span></div>
@@ -84,7 +85,6 @@
               class="fa-solid fa-chevron-right"></i></button>
         </div>
 
-        <p class="muted study-quality-help" id="quality-help">Đánh giá mức độ ghi nhớ · 0 = không nhớ · 5 = rất dễ</p>
         <div class="study-actions" id="study-actions" hidden>
           <div class="study-quality" id="study-quality-actions" aria-label="Đánh giá mức độ nhớ từ 0 đến 5">
             <button type="button" class="btn btn-wrong" data-quality="0" title="Không nhớ"><i class="fa-solid fa-0"></i></button>
@@ -96,12 +96,11 @@
             <button type="button" class="btn btn-correct" data-quality="5" title="Rất dễ"><i class="fa-solid fa-5"></i></button>
           </div>
           <div class="study-browse-actions" id="study-browse-actions" hidden aria-label="Đánh dấu kết quả thẻ">
-            <button type="button" class="btn btn-wrong" data-browse-result="NOT_REMEMBERED"><i class="fa-solid fa-xmark"></i> Chưa thuộc</button>
-            <button type="button" class="btn btn-ghost" id="btn-browse-flip"><i class="fa-solid fa-rotate"></i> Lật</button>
-            <button type="button" class="btn btn-correct" data-browse-result="REMEMBERED"><i class="fa-solid fa-check"></i> Đã nhớ</button>
+            <button type="button" class="btn btn-wrong" data-browse-result="NOT_REMEMBERED" aria-label="Chưa thuộc" title="Chưa thuộc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-ghost" id="btn-browse-flip" aria-label="Lật thẻ" title="Lật thẻ"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-correct" data-browse-result="REMEMBERED" aria-label="Đã nhớ" title="Đã nhớ"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
           </div>
         </div>
-        <p class="muted study-hint" id="study-hint">Phím cách = lật · ← / → = chuyển thẻ</p>
 
         <section class="study-card-list" id="study-card-list" hidden aria-labelledby="study-card-list-title">
           <div class="study-card-list__heading">
@@ -111,7 +110,19 @@
             </div>
             <span class="study-card-list__count" id="study-card-list-count">0 thẻ</span>
           </div>
-          <div class="study-card-list__items" id="study-card-list-items"></div>
+          <div class="study-card-list__table-wrap" tabindex="0" aria-label="Bảng danh sách thẻ">
+            <table class="study-card-list__table">
+              <thead>
+                <tr>
+                  <th scope="col" class="study-card-list__index-heading">#</th>
+                  <th scope="col">Kanji</th>
+                  <th scope="col">Hiragana</th>
+                  <th scope="col">Hán Việt</th>
+                </tr>
+              </thead>
+              <tbody id="study-card-list-items"></tbody>
+            </table>
+          </div>
         </section>
 
         <section id="study-complete" class="study-complete" hidden>
@@ -187,7 +198,6 @@
         <button type="button" class="btn-icon" id="btn-close-rating" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p class="muted">Chọn từ 1 đến 5 sao. Bạn có thể thay đổi đánh giá sau.</p>
         <div class="study-rating-stars" id="study-rating-stars" role="radiogroup" aria-label="Số sao đánh giá"></div>
       </div>
       <div class="modal-footer">
@@ -209,10 +219,10 @@
 
         <!-- Chọn nhanh vị trí Hán Việt -->
         <div class="study-quick-setting">
-          <span class="field__label study-quick-setting__label"><i class="fa-solid fa-wand-magic-sparkles"></i> Chọn nhanh vị trí Hán Việt</span>
+          <span class="field__label study-quick-setting__label">Chọn nhanh vị trí Hán Việt</span>
           <div class="form__row study-quick-setting__options">
-            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-front"><i class="fa-solid fa-arrow-up"></i> Hán Việt ở Mặt trước</button>
-            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-back"><i class="fa-solid fa-arrow-down"></i> Hán Việt ở Mặt sau</button>
+            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-front">Hán Việt ở Mặt trước</button>
+            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-back">Hán Việt ở Mặt sau</button>
           </div>
         </div>
 
@@ -224,22 +234,24 @@
           </select>
         </div>
 
-        <div class="field">
-          <label class="field__label" for="face-front-field">Mặt trước hiển thị</label>
-          <select class="select" id="face-front-field">
-            <option value="FRONT">Kanji (mặt trước)</option>
-            <option value="HAN_VIET">🌸 Hán Việt (ở mặt trước)</option>
-            <option value="BACK">Nghĩa tiếng Việt (mặt trước)</option>
-          </select>
-        </div>
+        <div class="study-face-fields" aria-label="Nội dung hai mặt thẻ">
+          <div class="field">
+            <label class="field__label" for="face-front-field">Mặt trước hiển thị</label>
+            <select class="select" id="face-front-field">
+              <option value="FRONT">Kanji</option>
+              <option value="HAN_VIET">Hán Việt</option>
+              <option value="BACK">Nghĩa tiếng Việt</option>
+            </select>
+          </div>
 
-        <div class="field">
-          <label class="field__label" for="face-back-field">Mặt sau hiển thị</label>
-          <select class="select" id="face-back-field">
-            <option value="BACK" selected>Nghĩa tiếng Việt (mặt sau)</option>
-            <option value="HAN_VIET">🌸 Hán Việt (ở mặt sau)</option>
-            <option value="FRONT">Kanji (mặt sau)</option>
-          </select>
+          <div class="field">
+            <label class="field__label" for="face-back-field">Mặt sau hiển thị</label>
+            <select class="select" id="face-back-field">
+              <option value="BACK" selected>Nghĩa tiếng Việt</option>
+              <option value="HAN_VIET">Hán Việt</option>
+              <option value="FRONT">Kanji</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -272,7 +284,7 @@
   <script src="/js/components.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
   <script src="/flashcard/js/shell.js"></script>
-  <script src="/flashcard/js/study-page.js"></script>
+  <script src="/flashcard/js/study-page.js?v=20260914-study-card-table"></script>
 </body>
 
 </html>

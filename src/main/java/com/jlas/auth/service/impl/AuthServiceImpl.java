@@ -25,6 +25,7 @@ import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.EmailService;
 import com.jlas.auth.service.GoogleTokenService;
 import com.jlas.auth.service.LoginAttemptThrottle;
+import com.jlas.notification.service.UserNotificationPort;
 import com.jlas.auth.util.JwtUtil;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
@@ -66,12 +67,18 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final GoogleTokenService googleTokenService;
     private final LoginAttemptThrottle loginAttemptThrottle;
+    private final UserNotificationPort notifications;
 
     @Value("${jlas.auth.verification-token-ttl:900}")
     private long verificationTokenTtl;
 
     @Override
     public LoginResponse login(LoginRequest request, String clientIp) {
+        return login(request, clientIp, null);
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request, String clientIp, String deviceInfo) {
         String email = normalizeEmail(request.getEmail());
         loginAttemptThrottle.assertAllowed(email, clientIp);
         User user = userRepository.findByEmail(email).orElse(null);
@@ -89,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
                     "Email is not verified. Please verify your email before logging in.");
         }
         user.setLastLoginAt(LocalDateTime.now());
-        return issueTokens(user);
+        return issueTokens(user, clientIp, deviceInfo);
     }
 
     @Override
@@ -135,7 +142,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> unauthorized("Invalid or expired refresh token"));
         stored.setUsedAt(LocalDateTime.now());
         stored.setRevokedAt(LocalDateTime.now());
-        return issueTokens(stored.getUser());
+        return issueTokens(stored.getUser(), stored.getIpAddress(), stored.getDeviceInfo());
     }
 
     @Override
@@ -205,9 +212,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse loginWithGoogle(GoogleLoginRequest request) {
+        return loginWithGoogle(request, null, null);
+    }
+
+    @Override
+    public LoginResponse loginWithGoogle(GoogleLoginRequest request, String clientIp, String deviceInfo) {
         GoogleTokenService.GoogleUserInfo googleUser = googleTokenService.verify(request.getIdToken());
         String email = normalizeEmail(googleUser.email());
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByGoogleId(googleUser.googleId())
+                .orElseGet(() -> userRepository.findByEmail(email).orElse(null));
         if (user == null) {
             Role learner = roleRepository.findByName("LEARNER")
                     .orElseGet(() -> roleRepository.save(Role.builder().name("LEARNER").description("Learner").build()));
@@ -226,8 +239,9 @@ public class AuthServiceImpl implements AuthService {
             if (blankToNull(user.getAvatarUrl()) == null) user.setAvatarUrl(blankToNull(googleUser.avatar()));
             user.setIsVerified(true);
         }
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
-        return issueTokens(user);
+        return issueTokens(user, clientIp, deviceInfo);
     }
 
     @Override
@@ -276,12 +290,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginResponse issueTokens(User user) {
+        return issueTokens(user, null, null);
+    }
+
+    private LoginResponse issueTokens(User user, String clientIp, String deviceInfo) {
+        String normalizedIp = truncate(blankToNull(clientIp), 45);
+        String normalizedDevice = truncate(blankToNull(deviceInfo), 255);
+        notifyOnNewLogin(user, normalizedIp, normalizedDevice);
         String accessToken = JwtUtil.generateToken(user.getEmail(), authProperties.jwtSecret(), authProperties.accessTokenTtl());
         String refreshToken = randomToken();
         authTokenRepository.save(AuthToken.builder()
                 .user(user)
                 .tokenType(REFRESH)
                 .tokenHash(hash(refreshToken))
+                .ipAddress(normalizedIp)
+                .deviceInfo(normalizedDevice)
                 .expiresAt(LocalDateTime.now().plusSeconds(authProperties.refreshTokenTtl()))
                 .build());
         return LoginResponse.builder()
@@ -291,6 +314,46 @@ public class AuthServiceImpl implements AuthService {
                 .expiresIn(authProperties.accessTokenTtl())
                 .user(userMapper.toResponse(user))
                 .build();
+    }
+
+    private void notifyOnNewLogin(User user, String clientIp, String deviceInfo) {
+        if (clientIp == null && deviceInfo == null) return;
+        List<AuthToken> previous = authTokenRepository
+                .findTop20ByUser_IdAndTokenTypeOrderByCreatedAtDesc(user.getId(), REFRESH);
+        List<AuthToken> comparable = previous.stream()
+                .filter(token -> token.getIpAddress() != null || token.getDeviceInfo() != null)
+                .toList();
+        if (comparable.isEmpty()) return;
+        boolean knownIp = clientIp == null || comparable.stream().anyMatch(token -> clientIp.equals(token.getIpAddress()));
+        boolean knownDevice = deviceInfo == null || comparable.stream().anyMatch(token -> deviceInfo.equals(token.getDeviceInfo()));
+        if (knownIp && knownDevice) return;
+
+        String deviceLabel = describeDevice(deviceInfo);
+        String eventKey = "NEW_LOGIN_" + hash((clientIp == null ? "" : clientIp)
+                + "|" + (deviceInfo == null ? "" : deviceInfo)).substring(0, 20);
+        notifications.notifyUser(user.getId(), "SECURITY", "Phát hiện đăng nhập mới",
+                "Tài khoản vừa đăng nhập trên " + deviceLabel
+                        + ". Nếu không phải bạn, hãy đổi mật khẩu ngay.",
+                "/profile/security/login-alerts", eventKey);
+    }
+
+    private static String describeDevice(String userAgent) {
+        if (userAgent == null) return "thiết bị mới";
+        String lower = userAgent.toLowerCase(Locale.ROOT);
+        String platform = lower.contains("android") ? "Android"
+                : lower.contains("iphone") || lower.contains("ipad") ? "iPhone/iPad"
+                : lower.contains("windows") ? "Windows"
+                : lower.contains("mac os") || lower.contains("macintosh") ? "macOS"
+                : lower.contains("linux") ? "Linux" : "thiết bị mới";
+        String browser = lower.contains("edg/") ? "Edge"
+                : lower.contains("firefox/") ? "Firefox"
+                : lower.contains("chrome/") ? "Chrome"
+                : lower.contains("safari/") ? "Safari" : null;
+        return browser == null ? platform : browser + " trên " + platform;
+    }
+
+    private static String truncate(String value, int limit) {
+        return value == null || value.length() <= limit ? value : value.substring(0, limit);
     }
 
     private AuthToken resolveVerificationToken(VerifyEmailRequest request) {

@@ -25,6 +25,8 @@ public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
 
     List<AuthToken> findByUser_IdAndTokenTypeAndUsedAtIsNullAndRevokedAtIsNull(Long userId, String tokenType);
 
+    List<AuthToken> findTop20ByUser_IdAndTokenTypeOrderByCreatedAtDesc(Long userId, String tokenType);
+
     long countByUser_IdAndTokenTypeAndCreatedAtAfter(Long userId, String tokenType, LocalDateTime createdAfter);
 
     void deleteByUser_IdAndTokenType(Long userId, String tokenType);
