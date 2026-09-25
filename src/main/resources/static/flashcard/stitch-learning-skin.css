@@ -830,7 +830,7 @@
   padding: 48px 24px 42px;
 }
 #jlabBasePage.speed-recall-page #playing .sr-question::before {
-  content: "KANJI  →  HIRAGANA";
+  content: attr(data-mode-label); /* set by speed-recall/page.js from the session mode */
   display: inline-flex;
   margin-bottom: 20px;
   padding: 6px 13px;
@@ -866,7 +866,7 @@
 #jlabBasePage.speed-recall-page #playing .sr-slot { width: 62px; height: 62px; color: #1d1d1f; border-color: #dfe3f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(29, 29, 31, .05); }
 #jlabBasePage.speed-recall-page #playing .sr-slot.is-active { color: #4f46a5; border-color: #6256b9; box-shadow: 0 0 0 4px rgba(98, 86, 185, .13); }
 #jlabBasePage.speed-recall-page #playing .sr-feedback { width: min(calc(100% - 48px), 640px); margin: -22px auto 32px; border: 1px solid #cdebdc; border-left: 3px solid #21775a; border-radius: 12px; }
-#jlabBasePage.speed-recall-page #playing::after { content: "Phiên phản xạ nhanh  •  Gõ kana để trả lời"; display: block; padding: 13px 24px; color: #7a7a85; background: #fafafc; border-top: 1px solid rgba(29, 29, 31, .06); font-size: 12px; text-align: center; }
+#jlabBasePage.speed-recall-page #playing::after { content: "Phiên phản xạ nhanh  •  " attr(data-answer-hint); display: block; padding: 13px 24px; color: #7a7a85; background: #fafafc; border-top: 1px solid rgba(29, 29, 31, .06); font-size: 12px; text-align: center; }
 
 /* Stitch result composition. */
 #jlabBasePage.speed-recall-page #result {
@@ -1239,3 +1239,55 @@
   #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-answer-area { margin-top: 80px !important; }
   #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-options { grid-template-columns: 1fr !important; gap: 14px !important; }
 }
+
+/* Speed Recall "Hỏi bằng / Đáp bằng" pickers are real buttons; same look as the quiz setup. */
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__segments button {
+  width: 100% !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  display: grid !important;
+  place-items: center !important;
+  box-sizing: border-box !important;
+  color: #7a7a85 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  font: 500 14px/1.2 "Plus Jakarta Sans", sans-serif !important;
+  cursor: pointer;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__segments button:hover:not(:disabled):not(.is-active) { color: #4d4d57 !important; background: rgba(98,86,185,.06) !important; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__segments button.is-active {
+  color: #6256b9 !important;
+  background: #fff !important;
+  border-color: rgba(98,86,185,.2) !important;
+  box-shadow: 0 1px 3px rgba(29,29,31,.06) !important;
+  font-weight: 600 !important;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__segments button:disabled { opacity: .35; cursor: not-allowed; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__segments button:focus-visible { outline: 2px solid #6256b9; outline-offset: -2px; }
+
+/* Free-text answers (Kanji / Nghĩa / Hán Việt): one wide box instead of per-character slots. */
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-slots.is-free { display: flex; justify-content: center; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-free-answer {
+  min-width: min(420px, 100%);
+  min-height: 60px;
+  padding: 14px 18px;
+  display: grid;
+  place-items: center;
+  color: #1d1d1f;
+  background: #fff;
+  border: 2px solid #6256b9;
+  border-radius: 14px;
+  box-shadow: 0 0 0 4px rgba(98,86,185,.12);
+  font: 600 22px/1.3 "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  overflow-wrap: anywhere;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-free-answer.is-empty { color: #a0a0aa; font-weight: 500; font-size: 17px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-slots.is-free.is-mistake .sr-free-answer { border-color: #d64545; box-shadow: 0 0 0 4px rgba(214,69,69,.14); }
+
+/* Quiz card picker: rows that lack the chosen question/answer field are skipped. */
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-quick-card-row.is-skipped td,
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-quick-card-row.is-skipped th { opacity: .45; }
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-quick-card-row.is-skipped td:first-child { opacity: 1; }

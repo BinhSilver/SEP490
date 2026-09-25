@@ -1,6 +1,6 @@
 import { createApi } from './api.js';
 import { RecallEngine } from './engine.js';
-import { isKanaAnswer, normalizeAnswer } from './rules.js';
+import { isKanaAnswer, normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
 
@@ -17,6 +17,98 @@ const setUrl = '/flashcard/study.html?setId=' + encodeURIComponent(setId || '');
 const terminal = state => ['FINISHED', 'ABANDONED', 'EXPIRED'].includes(state);
 const labels = { READY: 'Chưa bắt đầu', PLAYING: 'Đang học', ANSWER_FEEDBACK: 'Đang học', PAUSED: 'Tạm dừng', FINISHED: 'Đã hoàn tất', ABANDONED: 'Đã kết thúc sớm', EXPIRED: 'Phiên đã hết hạn' };
 const filters = { ALL: 'Tất cả thẻ', LEARNING: 'Thẻ mới / chưa nhớ', STARRED: 'Thẻ có sao', RETRY: 'Luyện lại từ sai' };
+
+// ── Question / answer mode ─────────────────────────────────────────────
+// Any card field can be asked and any other one answered. A card joins a mode only when it has both
+// fields (the server decides and reports counts per mode); choices with no usable card are disabled.
+const FIELDS = ['KANJI', 'HIRAGANA', 'MEANING', 'HAN_VIET'];
+const FIELD_NAMES = { KANJI: 'Kanji', HIRAGANA: 'Hiragana', MEANING: 'Nghĩa', HAN_VIET: 'Hán Việt' };
+const FIELD_LABELS = { KANJI: 'Kanji', HIRAGANA: 'cách đọc', MEANING: 'nghĩa', HAN_VIET: 'âm Hán Việt' };
+const ANSWER_PROMPTS = {
+  HIRAGANA: 'Nhập cách đọc bằng kana',
+  KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật, Enter để kiểm tra',
+  MEANING: 'Gõ nghĩa tiếng Việt (có dấu hay không đều được), Enter để kiểm tra',
+  HAN_VIET: 'Gõ âm Hán Việt (có dấu hay không đều được), Enter để kiểm tra'
+};
+const ANSWER_HINTS = {
+  HIRAGANA: 'Gõ bằng kana', KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật',
+  MEANING: 'Gõ nghĩa, có dấu hay không dấu đều được', HAN_VIET: 'Gõ âm Hán Việt, có dấu hay không dấu đều được'
+};
+const MODE_KEY = 'jlas.speedRecall.mode';
+let mode = { question: 'KANJI', answer: 'HIRAGANA' };
+// The original mode is named KANJI_TO_READING, so a Hiragana answer is "READING" on the wire.
+function modeName(m = mode) { return m.question + '_TO_' + (m.answer === 'HIRAGANA' ? 'READING' : m.answer); }
+function parseMode(name) {
+  const match = /^(KANJI|HIRAGANA|MEANING|HAN_VIET)_TO_(READING|KANJI|MEANING|HAN_VIET)$/.exec(name || '');
+  return match ? { question: match[1], answer: match[2] === 'READING' ? 'HIRAGANA' : match[2] } : { question: 'KANJI', answer: 'HIRAGANA' };
+}
+function modeCount(m) {
+  if (m.question === m.answer) return 0;
+  const counts = options?.modeCounts;
+  return counts ? counts[modeName(m)] || 0 : 1; // unknown yet: do not block
+}
+function validMode(m) { return m.question !== m.answer && modeCount(m) > 0; }
+function modeLabel(name) {
+  const m = parseMode(name);
+  return FIELD_NAMES[m.question] + ' → ' + FIELD_NAMES[m.answer];
+}
+/** Closest usable mode: keep the question if possible, else the first question that has any answer. */
+function nearestMode(preferred) {
+  const answers = q => [preferred.answer, 'HIRAGANA', 'MEANING', 'HAN_VIET', 'KANJI'].map(a => ({ question: q, answer: a }));
+  for (const q of [preferred.question, ...FIELDS]) {
+    const found = answers(q).find(validMode);
+    if (found) return found;
+  }
+  return preferred;
+}
+function loadSavedMode() {
+  try {
+    const saved = parseMode(localStorage.getItem(MODE_KEY));
+    if (saved.question !== saved.answer) mode = saved;
+  } catch (e) { /* storage may be blocked */ }
+}
+function saveMode() { try { localStorage.setItem(MODE_KEY, modeName()); } catch (e) { /* optional */ } }
+function renderModePicker() {
+  document.querySelectorAll('[data-question]').forEach(button => {
+    const q = button.dataset.question, on = q === mode.question;
+    button.classList.toggle('is-active', on); button.setAttribute('aria-pressed', String(on));
+    const usable = FIELDS.some(a => validMode({ question: q, answer: a }));
+    button.disabled = !usable;
+    button.title = usable ? '' : 'Bộ thẻ chưa có thẻ nào đủ ' + FIELD_LABELS[q] + ' để hỏi';
+  });
+  document.querySelectorAll('[data-answer]').forEach(button => {
+    const a = button.dataset.answer, on = a === mode.answer;
+    button.classList.toggle('is-active', on); button.setAttribute('aria-pressed', String(on));
+    const same = a === mode.question, usable = validMode({ question: mode.question, answer: a });
+    button.disabled = !usable;
+    button.title = same ? 'Không thể hỏi và đáp cùng một nội dung'
+      : usable ? '' : 'Không có thẻ nào có đủ ' + FIELD_LABELS[mode.question] + ' và ' + FIELD_LABELS[a];
+  });
+  text('mode-summary', 'Nhìn ' + FIELD_LABELS[mode.question] + ', gõ ' + FIELD_LABELS[mode.answer] + '.');
+  text('answer-hint', ANSWER_HINTS[mode.answer]);
+}
+async function changeMode(next) {
+  if (!validMode(next)) next = nearestMode(next);
+  if (next.question === mode.question && next.answer === mode.answer) return;
+  mode = next; saveMode(); renderModePicker();
+  // Eligible card counts depend on the mode (e.g. cards without Hán Việt drop out).
+  await run(async () => { options = await api.options(modeName()); optionSummary(); renderModePicker(); });
+}
+/** Applies the answer type of the session being played (it may differ from the picker, e.g. history links). */
+function applySessionMode(name) {
+  const m = parseMode(name);
+  engine.type = ANSWER_TYPES[m.answer];
+  if (!$('playing') || !$('typing-input')) return; // result/history pages have no play surface
+  // Read by CSS (::before / ::after) for the mode chip and the footer line.
+  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name).toUpperCase().replace(' → ', '  →  ');
+  $('playing').dataset.answerHint = ANSWER_HINTS[m.answer] + ' để trả lời';
+  $('question-word').lang = m.question === 'KANJI' || m.question === 'HIRAGANA' ? 'ja' : 'vi';
+  const input = $('typing-input');
+  input.lang = ANSWER_TYPES[m.answer].lang;
+  text('answer-prompt', ANSWER_PROMPTS[m.answer]);
+  input.setAttribute('aria-label', ANSWER_PROMPTS[m.answer]);
+  $('typing-slots').setAttribute('aria-label', 'Chạm để nhập đáp án');
+}
 function on(id, event, fn) {
   const element = $(id);
   if (element) element.addEventListener(event, fn, { signal: events.signal });
@@ -81,6 +173,7 @@ async function run(operation) {
   }
 }
 function accept(view) {
+  applySessionMode(view.mode);
   engine.setView(view); sessionId = String(view.id);
   canAdvance = view.state === 'ANSWER_FEEDBACK' && remaining(view.feedbackUntil, view.serverNow) === 0;
   const path = terminal(view.state) ? '/flashcard/speed-recall-result.html' : '/flashcard/speed-recall.html';
@@ -123,7 +216,9 @@ function render() {
     const a = v.feedback;
     text('feedback-title', a.result === 'CORRECT' ? 'Chính xác' : a.result === 'TIMEOUT' ? 'Hết giờ' : 'Chưa đúng');
     text('feedback-score', '+' + a.scoreAwarded + ' điểm');
-    text('feedback-word', a.question); text('feedback-reading', a.reading); text('feedback-meaning', a.meaning);
+    text('feedback-word', a.question); text('feedback-reading', a.expectedAnswer || a.reading);
+    // When the question already is the meaning, repeating it adds nothing.
+    text('feedback-meaning', parseMode(v.mode).question === 'MEANING' ? '' : a.meaning);
     text('feedback-answer', 'Bạn nhập: ' + (a.userAnswer || '(trống)'));
   }
   controls();
@@ -169,6 +264,16 @@ function updateInput() {
   }
   engine.input = input.value;
   slots($('typing-slots'), engine.slots());
+  if (!retryOperation && engine.view?.state === 'PLAYING' && engine.type.free) {
+    // Free-text answers are never judged by length: Vietnamese IMEs pass through partial words
+    // ("thưc" before "thực") and kanji IMEs pass through kana. Submit on a match, otherwise on Enter.
+    if (!engine.composing && engine.matches()) {
+      submit(false);
+      return;
+    }
+    controls();
+    return;
+  }
   if (!retryOperation && engine.view?.state === 'PLAYING') {
     const answer = normalizeAnswer(engine.input);
     const expected = normalizeAnswer(engine.view.question?.expectedAnswer);
@@ -206,6 +311,25 @@ function updateInput() {
   }
   controls();
 }
+/** Enter on a wrong free-text answer: same "wrong, try again" reveal as a wrong kana answer. */
+function rejectTypedAnswer() {
+  const input = $('typing-input'), slotSurface = $('typing-slots');
+  slotSurface.classList.remove('is-mistake');
+  void slotSurface.offsetWidth;
+  slotSurface.classList.add('is-mistake');
+  text('live-announcement', 'Chưa đúng.');
+  input.disabled = true;
+  incorrectResetTimer = window.setTimeout(() => {
+    incorrectResetTimer = undefined;
+    if (engine.view?.state !== 'PLAYING' || engine.busy || retryOperation) return;
+    engine.input = ''; input.value = '';
+    slots(slotSurface, engine.slots());
+    slotSurface.classList.remove('is-mistake');
+    controls();
+    input.focus({ preventScroll: true });
+    text('live-announcement', 'Hãy nhập lại.');
+  }, INCORRECT_REVEAL_MS);
+}
 function submit(timeout) {
   if (engine.busy || retryOperation || (!timeout && !engine.canSubmit())) return;
   const v = engine.view;
@@ -222,7 +346,7 @@ async function loadHistory() {
     const row = document.createElement('li'), link = document.createElement('a'), detail = document.createElement('p');
     link.href = studyUrl + '&sessionId=' + item.id;
     link.textContent = new Date(item.startedAt).toLocaleString('vi-VN') + ' · ' + labels[item.state];
-    detail.textContent = filters[item.filter] + ' · ' + (item.autoSubmit ? 'Tự kiểm tra' : 'Nhấn Enter') + ' · ' +
+    detail.textContent = modeLabel(item.mode) + ' · ' + filters[item.filter] + ' · ' + (item.autoSubmit ? 'Tự kiểm tra' : 'Nhấn Enter') + ' · ' +
       (item.stats.correct + item.stats.wrong) + '/' + item.stats.total + ' câu · ' + item.stats.score + ' điểm · ' + item.stats.accuracy + '% đúng';
     row.append(link, detail); list.append(row);
   }
@@ -234,7 +358,7 @@ on('setup-form', 'submit', event => {
   if (!available()) return;
   const count = validQuestionCount(true);
   if (count === null) return;
-  const body = { requestId: crypto.randomUUID(), filter: $('filter').value, count, autoSubmit: true };
+  const body = { requestId: crypto.randomUUID(), filter: $('filter').value, count, autoSubmit: true, mode: modeName() };
   void run(async () => accept(await api.create(body)));
 });
 on('filter', 'change', optionSummary);
@@ -247,8 +371,18 @@ on('typing-input', 'keydown', event => {
   if (event.key === 'Enter' && (event.isComposing || engine.composing || event.keyCode === 229 || performance.now() - compositionEnded <= 80)) {
     // Do not prevent the native IME commit while composing.
     if (!event.isComposing && !engine.composing && event.keyCode !== 229) event.preventDefault();
+    return;
+  }
+  if (event.key === 'Enter' && engine.type.free && !incorrectResetTimer
+      && engine.view?.state === 'PLAYING' && normalizeAnswer(engine.input) !== '') {
+    event.preventDefault();
+    rejectTypedAnswer();
   }
 });
+document.querySelectorAll('[data-question]').forEach(button =>
+  button.addEventListener('click', () => void changeMode({ question: button.dataset.question, answer: mode.answer }), { signal: events.signal }));
+document.querySelectorAll('[data-answer]').forEach(button =>
+  button.addEventListener('click', () => void changeMode({ question: mode.question, answer: button.dataset.answer }), { signal: events.signal }));
 on('typing-slots', 'click', () => $('typing-input').focus({ preventScroll: true }));
 on('typing-slots', 'keydown', event => {
   if (event.key === 'Enter' || event.key === ' ') {
@@ -284,12 +418,16 @@ window.addEventListener('pageshow', event => { if (event.persisted) location.rel
 links();
 void run(async () => {
   if (!setId || !/^\d+$/.test(setId)) throw new Error('Đường dẫn thiếu mã bộ thẻ hợp lệ.');
-  options = await api.options(); text('set-title', options.title); optionSummary();
+  loadSavedMode();
+  options = await api.options(modeName());
+  // The remembered mode may have no usable card in this set: fall back to the closest one that has.
+  if (!validMode(mode)) { mode = nearestMode(mode); options = await api.options(modeName()); }
+  renderModePicker(); text('set-title', options.title); optionSummary();
   if (location.pathname.endsWith('speed-recall-history.html')) await loadHistory();
   else if (sessionId) accept(await api.state(sessionId));
   else if (autoStart) {
     const count = available();
     if (!count) throw new Error('Bộ thẻ này chưa có thẻ hợp lệ để luyện phản xạ.');
-    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: true }));
+    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: true, mode: modeName() }));
   } else section('setup');
 });

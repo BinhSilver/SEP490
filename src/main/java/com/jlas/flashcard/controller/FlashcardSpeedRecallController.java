@@ -14,8 +14,9 @@ public class FlashcardSpeedRecallController {
     private final SpeedRecallService service;
     private Long uid(UserPrincipal user) { return user == null ? null : user.userId(); }
     @GetMapping("/options")
-    ApiResponse<Options> options(@PathVariable Long setId, @AuthenticationPrincipal UserPrincipal user) {
-        return ApiResponse.ok("OK", service.options(setId, uid(user)));
+    ApiResponse<Options> options(@PathVariable Long setId, @RequestParam(required = false) String mode,
+                                 @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", service.options(setId, uid(user), mode));
     }
     @PostMapping("/sessions")
     ApiResponse<View> create(@PathVariable Long setId, @AuthenticationPrincipal UserPrincipal user, @Valid @RequestBody CreateRequest body) {
