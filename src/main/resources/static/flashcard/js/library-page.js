@@ -13,10 +13,11 @@
     folders: []
   };
 
-  var grid, empty, pager, pageLabel, searchInput, sortSelect, folderPanel, folderList, contextMenu;
+  var grid, empty, pager, pageLabel, searchInput, sortSelect, folderPanel, folderList, contextMenu, exportModal;
   var pendingDeleteId = null;
   var contextSetId = null;
   var contextSetVisibility = null;
+  var exportSet = null;
 
   document.addEventListener('DOMContentLoaded', function () {
     var redirectTarget = window.location.pathname + window.location.search;
@@ -36,6 +37,7 @@
     folderPanel = document.getElementById('folder-panel');
     folderList = document.getElementById('folder-list');
     contextMenu = document.getElementById('lib-context-menu');
+    exportModal = document.getElementById('export-modal');
     if (new URLSearchParams(window.location.search).get('tab') === 'my') {
       state.tab = 'my';
     }
@@ -49,11 +51,14 @@
       if (!action) return;
       handleContextAction(action.getAttribute('data-context-action'));
     });
+    bindExportModal();
     document.addEventListener('click', function (event) {
       if (!event.target.closest('#lib-context-menu')) closeContextMenu();
     });
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeContextMenu();
+      if (event.key !== 'Escape') return;
+      closeContextMenu();
+      closeExportModal();
     });
     window.addEventListener('resize', closeContextMenu);
     window.addEventListener('scroll', closeContextMenu, true);
@@ -279,6 +284,16 @@
         actions =
             '<button type="button" class="btn btn--ghost btn-ghost btn-sm" data-clone="' + s.id + '"><i class="fa-solid fa-clone"></i> Lưu bản sao</button>';
       }
+      actions +=
+          '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-export="' + s.id + '" title="Xuất bộ thẻ" aria-label="Xuất bộ thẻ" aria-haspopup="dialog"><i class="fa-solid fa-download"></i></button>';
+      if (!s.draft) {
+        // Only public sets can be opened by other people, so only they get a share link.
+        var shareable = s.visibility === 'PUBLIC';
+        actions +=
+            '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-share="' + s.id + '"' +
+            (shareable ? ' title="Chia sẻ link bộ thẻ"' : ' disabled title="Chỉ chia sẻ được bộ thẻ công khai"') +
+            ' aria-label="Chia sẻ bộ thẻ"><i class="fa-solid fa-share-nodes"></i></button>';
+      }
       var cardVisual = s.thumbnail
         ? '<a class="lib-card__link" href="' + setHref + '" aria-label="Xem bộ ' + FlashShell.esc(setTitle) + '">' +
             thumb +
@@ -310,6 +325,12 @@
 
     grid.querySelectorAll('[data-clone]').forEach(function (btn) {
       btn.addEventListener('click', function () { doClone(Number(btn.getAttribute('data-clone'))); });
+    });
+    grid.querySelectorAll('[data-export]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openExportModal(Number(btn.getAttribute('data-export'))); });
+    });
+    grid.querySelectorAll('[data-share]').forEach(function (btn) {
+      btn.addEventListener('click', function () { doShare(Number(btn.getAttribute('data-share'))); });
     });
     grid.querySelectorAll('[data-move-set]').forEach(function (select) {
       select.addEventListener('change', function () {
@@ -344,6 +365,251 @@
     if (action === 'edit') window.location.href = '/flashcard/editor.html?id=' + id;
     if (action === 'visibility') toggleVis(id, visibility);
     if (action === 'delete') doDelete(id);
+  }
+
+  /* ── Xuất bộ thẻ: xem trước kiểu Quizlet cho Văn bản / Excel / CSV ── */
+  var TERM_SEPARATORS = { tab: '\t', comma: ',' };
+  var ROW_SEPARATORS = { newline: '\n', semicolon: ';' };
+  var EXPORT_ICONS = { text: 'fa-file-lines', xlsx: 'fa-file-excel', csv: 'fa-file-csv' };
+  var exportTab = 'text';
+  var exportCsv = null; // { hanViet, name, blob, text } — the exact file shown in the CSV preview
+  var exportCsvRequest = 0;
+
+  function bindExportModal() {
+    document.getElementById('export-close').addEventListener('click', closeExportModal);
+    document.getElementById('export-cancel').addEventListener('click', closeExportModal);
+    exportModal.addEventListener('click', function (event) {
+      if (event.target === exportModal) closeExportModal();
+    });
+    exportModal.querySelectorAll('[data-export-tab]').forEach(function (tab) {
+      tab.addEventListener('click', function () { selectExportTab(tab.getAttribute('data-export-tab')); });
+      tab.addEventListener('keydown', onExportTabKey);
+    });
+    exportModal.querySelectorAll('input[type="radio"]').forEach(function (input) {
+      input.addEventListener('change', renderExportPreview);
+    });
+    document.getElementById('export-hanviet').addEventListener('change', renderExportPreview);
+    ['export-term-custom', 'export-row-custom'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', renderExportPreview);
+    });
+    document.getElementById('export-copy').addEventListener('click', copyExportText);
+    document.getElementById('export-txt').addEventListener('click', downloadExportText);
+    document.getElementById('export-xlsx').addEventListener('click', function () {
+      if (exportSet) doExport(exportSet.id, 'xlsx');
+    });
+    document.getElementById('export-csv-download').addEventListener('click', downloadExportCsv);
+  }
+
+  async function openExportModal(id) {
+    closeContextMenu();
+    exportSet = null;
+    exportCsv = null;
+    document.getElementById('export-title').textContent = 'Xuất bộ thẻ';
+    document.getElementById('export-preview').value = '';
+    document.getElementById('export-csv').value = '';
+    document.getElementById('export-table').innerHTML = '';
+    document.getElementById('export-meta').textContent = 'Đang tải bộ thẻ...';
+    setExportBusy(true);
+    selectExportTab('text', true);
+    exportModal.hidden = false;
+    try {
+      var set = await FlashApi.get('/api/flashcards/' + id);
+      if (exportModal.hidden) return;
+      exportSet = set;
+      document.getElementById('export-title').textContent = 'Xuất bộ thẻ: ' + (set.title || 'Chưa đặt tên');
+      setExportBusy(false);
+      renderExportPreview();
+      document.getElementById('export-tab-text').focus();
+    } catch (e) {
+      document.getElementById('export-meta').textContent = e.message || 'Không tải được bộ thẻ';
+    }
+  }
+
+  function closeExportModal() {
+    if (!exportModal || exportModal.hidden) return;
+    exportModal.hidden = true;
+    exportSet = null;
+    exportCsv = null;
+  }
+
+  function setExportBusy(busy) {
+    exportModal.querySelectorAll('[data-export-for]').forEach(function (btn) { btn.disabled = busy; });
+  }
+
+  function selectExportTab(tab, silent) {
+    exportTab = tab;
+    // The header badge follows the selected format (colour comes from CSS via data-format).
+    document.getElementById('export-dialog').setAttribute('data-format', tab);
+    document.getElementById('export-badge-icon').className = 'fa-solid ' + EXPORT_ICONS[tab];
+    exportModal.querySelectorAll('[data-export-tab]').forEach(function (button) {
+      var active = button.getAttribute('data-export-tab') === tab;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    exportModal.querySelectorAll('[data-export-panel]').forEach(function (panel) {
+      panel.hidden = panel.getAttribute('data-export-panel') !== tab;
+    });
+    exportModal.querySelectorAll('[data-export-for]').forEach(function (button) {
+      button.hidden = button.getAttribute('data-export-for').split(' ').indexOf(tab) < 0;
+    });
+    if (!silent) renderExportPreview();
+  }
+
+  function onExportTabKey(event) {
+    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+    var tabs = Array.prototype.slice.call(exportModal.querySelectorAll('[data-export-tab]'));
+    var index = tabs.indexOf(event.currentTarget) + (event.key === 'ArrowRight' ? 1 : -1);
+    var next = tabs[(index + tabs.length) % tabs.length];
+    selectExportTab(next.getAttribute('data-export-tab'));
+    next.focus();
+    event.preventDefault();
+  }
+
+  function withHanViet() {
+    return document.getElementById('export-hanviet').checked;
+  }
+
+  function selectedSeparator(name, presets, customId) {
+    var choice = exportModal.querySelector('input[name="' + name + '"]:checked').value;
+    var custom = document.getElementById(customId);
+    custom.disabled = choice !== 'custom';
+    // An empty custom separator falls back to the first preset so cards never run together.
+    if (choice === 'custom') return custom.value || presets[Object.keys(presets)[0]];
+    return presets[choice];
+  }
+
+  function flattenCell(value) {
+    return String(value || '').replace(/\s*[\r\n]+\s*/g, ' ').trim();
+  }
+
+  /* Same columns and fallback as the server export: front, back (or reading — meaning), Hán Việt. */
+  function exportRows() {
+    return ((exportSet && exportSet.cards) || []).map(function (card) {
+      var back = card.back || [card.reading, card.meaning].filter(Boolean).join(' — ');
+      var cells = [card.front, back];
+      if (withHanViet()) cells.push(card.hanViet);
+      return cells.map(flattenCell);
+    });
+  }
+
+  function buildExportText() {
+    if (!exportSet) return '';
+    var termSep = selectedSeparator('export-term-sep', TERM_SEPARATORS, 'export-term-custom');
+    var rowSep = selectedSeparator('export-row-sep', ROW_SEPARATORS, 'export-row-custom');
+    return exportRows().map(function (cells) {
+      // Drop an empty trailing Hán Việt cell so the line does not end with a separator.
+      while (cells.length > 2 && !cells[cells.length - 1]) cells.pop();
+      return cells.join(termSep);
+    }).join(rowSep);
+  }
+
+  function buildExportTable() {
+    var header = ['#', 'Mặt trước', 'Mặt sau'];
+    if (withHanViet()) header.push('Hán Việt');
+    var body = exportRows().map(function (cells, index) {
+      return '<tr><th scope="row">' + (index + 1) + '</th>' +
+        cells.map(function (cell) { return '<td>' + FlashShell.esc(cell) + '</td>'; }).join('') + '</tr>';
+    }).join('');
+    return '<thead><tr>' + header.map(function (name) { return '<th scope="col">' + name + '</th>'; }).join('') + '</tr></thead>' +
+      '<tbody>' + body + '</tbody>';
+  }
+
+  function renderExportPreview() {
+    if (!exportSet) return;
+    var count = (exportSet.cards || []).length;
+    document.getElementById('export-meta').textContent = count + ' thẻ';
+    if (exportTab === 'text') document.getElementById('export-preview').value = buildExportText();
+    if (exportTab === 'xlsx') document.getElementById('export-table').innerHTML = buildExportTable();
+    if (exportTab === 'csv') loadExportCsv();
+  }
+
+  /* The CSV preview is the server file itself, so what the user sees is exactly what gets saved. */
+  async function loadExportCsv() {
+    var hanViet = withHanViet();
+    if (exportCsv && exportCsv.hanViet === hanViet) {
+      document.getElementById('export-csv').value = exportCsv.text;
+      return;
+    }
+    var request = ++exportCsvRequest;
+    var setId = exportSet.id;
+    var preview = document.getElementById('export-csv');
+    preview.value = '';
+    document.getElementById('export-meta').textContent = 'Đang tạo file CSV...';
+    setExportBusy(true);
+    try {
+      var file = await FlashApi.fetchFile('/api/flashcards/' + setId + '/export?format=csv&hanViet=' + hanViet, 'flashcards.csv');
+      var text = (await file.blob.text()).replace(/^\uFEFF/, '');
+      if (request !== exportCsvRequest || !exportSet || exportSet.id !== setId) return;
+      exportCsv = { hanViet: hanViet, name: file.name, blob: file.blob, text: text };
+      preview.value = text;
+      document.getElementById('export-meta').textContent = (exportSet.cards || []).length + ' thẻ';
+    } catch (e) {
+      if (request === exportCsvRequest) document.getElementById('export-meta').textContent = e.message || 'Không tạo được file CSV';
+    } finally {
+      if (request === exportCsvRequest) setExportBusy(false);
+    }
+  }
+
+  async function copyExportText() {
+    var preview = document.getElementById(exportTab === 'csv' ? 'export-csv' : 'export-preview');
+    if (await copyText(preview.value)) {
+      FlashShell.showToast('Đã sao chép nội dung', 'ok');
+    } else {
+      FlashShell.showToast('Không sao chép được, hãy bôi đen và nhấn Ctrl+C', 'err');
+    }
+  }
+
+  function downloadExportText() {
+    if (!exportSet) return;
+    var name = (exportSet.title || 'flashcards').replace(/[\\/:*?"<>|\r\n\t]+/g, '_').trim() + '.txt';
+    FlashApi.saveFile(new Blob([buildExportText()], { type: 'text/plain;charset=utf-8' }), name);
+    FlashShell.showToast('Đã xuất ' + name, 'ok');
+  }
+
+  function downloadExportCsv() {
+    if (!exportCsv) return;
+    FlashApi.saveFile(exportCsv.blob, exportCsv.name);
+    FlashShell.showToast('Đã xuất ' + exportCsv.name, 'ok');
+  }
+
+  async function doExport(id, format) {
+    try {
+      var path = '/api/flashcards/' + id + '/export?format=' + encodeURIComponent(format) + '&hanViet=' + withHanViet();
+      var name = await FlashApi.download(path, 'flashcards.' + format);
+      FlashShell.showToast('Đã xuất ' + (name || 'file'), 'ok');
+    } catch (e) {
+      FlashShell.showToast(e.message || 'Xuất file thất bại', 'err');
+    }
+  }
+
+  async function doShare(id) {
+    var url = window.location.origin + '/flashcard/study.html?setId=' + id;
+    if (await copyText(url)) {
+      FlashShell.showToast('Đã sao chép link chia sẻ', 'ok');
+    } else {
+      window.prompt('Sao chép link chia sẻ:', url);
+    }
+  }
+
+  /* Clipboard API needs HTTPS or localhost; fall back to a hidden textarea on plain HTTP. */
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var copied = false;
+      try { copied = document.execCommand('copy'); } catch (ignored) { copied = false; }
+      area.remove();
+      return copied;
+    }
   }
 
   async function doClone(id) {
