@@ -174,6 +174,18 @@
   font-size: 13px;
 }
 
+/* Always-visible entry to the editor (the empty-state button only shows when the list is empty). */
+#jlabBasePage.flashcard-page--library .library-create-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  #jlabBasePage.flashcard-page--library .library-results-heading { flex-wrap: wrap; align-items: center; gap: 12px; }
+  #jlabBasePage.flashcard-page--library .library-create-btn { width: 100%; justify-content: center; }
+}
+
 #jlabBasePage.flashcard-page--library .lib-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -365,29 +377,40 @@
   border-radius: 50%;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__actions {
+/* One row of equal icon-only actions: study (filled), clone, export, share. Labels live in title/aria-label. */
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions {
   display: flex;
   align-items: stretch;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 5px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__actions > .btn:not(.lib-icon-action) {
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-icon-action {
+  flex: 1 1 0;
   min-width: 0;
-  flex: 1 1 100px;
-  white-space: normal;
-  text-align: center;
-}
-
-#jlabBasePage.flashcard-page--library .lib-card__actions > .lib-icon-action {
-  flex: 0 0 auto;
-  min-width: 36px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 !important;
   justify-content: center;
-  padding-inline: 10px;
+  font-size: 15px;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__actions > .lib-icon-action:disabled {
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .btn-ghost {
+  /* !important: flashcard-ui.css and buttons.css force ghost buttons transparent with !important. */
+  color: var(--fc-on-surface) !important;
+  background: var(--fc-surface-lowest) !important;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: var(--fc-radius-sm) !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .btn-ghost:hover:not(:disabled) {
+  color: var(--fc-primary) !important;
+  background: var(--fc-primary-soft) !important;
+  border-color: var(--fc-primary) !important;
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-icon-action:disabled {
   opacity: .45;
   cursor: not-allowed;
 }
@@ -539,11 +562,12 @@
   display: grid;
   flex: 0 0 auto;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  padding: 4px;
+  gap: 0;
+  padding: 0;
   margin-bottom: 15px;
-  background: #fbfaff;
-  border: 1px solid var(--lx-line);
+  overflow: hidden;
+  background: #f5f2fd;
+  border: 0;
   border-radius: 12px;
 }
 
@@ -555,25 +579,24 @@
   gap: 8px;
   color: #3d3852;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 9px;
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
   font: 600 var(--lx-text)/1.2 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
 }
 
 .lib-export__tab i { color: #6b6680; }
-.lib-export__tab:hover { background: #f5f2fd; }
+.lib-export__tab:hover { background: #ebe4fb; }
 
 .lib-export__tab.is-active {
   color: var(--lx-accent-strong);
-  background: var(--lx-accent-soft);
-  border-color: var(--lx-accent-line);
-  box-shadow: 0 2px 8px rgba(106, 63, 214, .12);
+  background: #e2d6fb;
 }
 
 .lib-export__tab.is-active i { color: var(--lx-accent); }
 
-.lib-export__tab:focus-visible,
+.lib-export__tab:focus-visible { outline: 2px solid var(--lx-accent); outline-offset: -2px; }
+
 .lib-export__close:focus-visible,
 .lib-export__btn:focus-visible,
 .lib-export__sheet:focus-visible {

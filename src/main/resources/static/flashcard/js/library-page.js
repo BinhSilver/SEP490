@@ -280,9 +280,14 @@
       var draftBadge = s.draft ? '<span class="tag tag-draft">Bản nháp</span>' : '';
       var folderBadge = s.folderName ? '<span class="tag tag-folder"><i class="fa-solid fa-folder"></i> ' + FlashShell.esc(s.folderName) + '</span>' : '';
       var actions = '';
+      if (s.ownedByMe && !s.draft) {
+        // Drafts already open the editor from the main button.
+        actions =
+            '<a class="btn btn--ghost btn-ghost btn-sm lib-icon-action" href="/flashcard/editor.html?id=' + s.id + '" title="Sửa bộ thẻ" aria-label="Sửa bộ thẻ"><i class="fa-solid fa-pen" aria-hidden="true"></i></a>';
+      }
       if (!s.ownedByMe) {
         actions =
-            '<button type="button" class="btn btn--ghost btn-ghost btn-sm" data-clone="' + s.id + '"><i class="fa-solid fa-clone"></i> Lưu bản sao</button>';
+            '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-clone="' + s.id + '" title="Lưu bản sao" aria-label="Lưu bản sao"><i class="fa-solid fa-clone" aria-hidden="true"></i></button>';
       }
       actions +=
           '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-export="' + s.id + '" title="Xuất bộ thẻ" aria-label="Xuất bộ thẻ" aria-haspopup="dialog"><i class="fa-solid fa-download"></i></button>';
@@ -310,8 +315,8 @@
             (s.ownedByMe && state.tab === 'my' ? '<label class="lib-folder-select"><span>Thư mục</span><select data-move-set="' + s.id + '">' + folderOptions(s.folderId) + '</select></label>' : '') +
             '<div class="lib-card__actions">' +
               (s.draft
-                ? '<a class="btn btn--primary btn-primary btn-sm" href="/flashcard/editor.html?id=' + s.id + '"><i class="fa-solid fa-pen"></i> Tiếp tục soạn</a>'
-                : '<a class="btn btn--primary btn-primary btn-sm" href="/flashcard/study.html?setId=' + s.id + '"><i class="fa-solid fa-play"></i> Học ngay</a>') +
+                ? '<a class="btn btn--primary btn-primary btn-sm lib-icon-action" href="/flashcard/editor.html?id=' + s.id + '" title="Tiếp tục soạn" aria-label="Tiếp tục soạn"><i class="fa-solid fa-pen" aria-hidden="true"></i></a>'
+                : '<a class="btn btn--primary btn-primary btn-sm lib-icon-action" href="/flashcard/study.html?setId=' + s.id + '" title="Học ngay" aria-label="Học ngay"><i class="fa-solid fa-play" aria-hidden="true"></i></a>') +
               actions +
             '</div>' +
             '<div class="lib-card__foot">' +
