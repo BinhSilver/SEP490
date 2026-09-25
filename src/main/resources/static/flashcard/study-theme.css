@@ -250,9 +250,13 @@
   display: grid;
   grid-template-columns: 1.15fr .85fr;
   gap: 24px;
+  align-items: stretch;
 }
 
 #jlabBasePage.flashcard-page--study .complete-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   padding: 26px;
   color: var(--fc-on-surface);
   background: #fff;
@@ -263,9 +267,13 @@
 
 #jlabBasePage.flashcard-page--study .quote-card {
   margin-bottom: 22px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--fc-outline-soft);
+  padding-bottom: 0;
+  border-bottom: 0;
   text-align: center;
+}
+
+#jlabBasePage.flashcard-page--study .quote-card__rule {
+  display: none;
 }
 
 #jlabBasePage.flashcard-page--study .quote-card__ja {
@@ -284,8 +292,12 @@
   border-color: transparent;
 }
 
-#jlabBasePage.flashcard-page--study .next-btn--primary { color: #fff; background: var(--fc-primary); }
 #jlabBasePage.flashcard-page--study .next-btn--danger { color: var(--fc-error); background: var(--fc-error-soft); }
+
+#jlabBasePage.flashcard-page--study .complete-col--progress .session-stats,
+#jlabBasePage.flashcard-page--study .complete-col--next .complete-back {
+  margin-top: auto;
+}
 
 #jlabBasePage.flashcard-page--study .study-quick-setting {
   margin: 0;

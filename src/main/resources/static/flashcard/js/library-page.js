@@ -98,17 +98,18 @@
       button.addEventListener('click', function () { selectFolder(button.getAttribute('data-folder-filter')); });
     });
 
+    folderPanel.hidden = false;
     if (state.tab === 'my') {
-      folderPanel.hidden = false;
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-folder-open"></i></span> Bộ thẻ của tôi';
       document.getElementById('library-subheading').textContent = 'Bản nháp và các bộ thẻ được sắp xếp theo thư mục của bạn.';
-      loadFolders().then(load).catch(function (e) {
-        FlashShell.showToast(e.message || 'Không tải được thư mục', 'err');
-        load();
-      });
     } else {
-      load();
+      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-rectangle-list"></i></span> Bộ thẻ công khai';
+      document.getElementById('library-subheading').textContent = 'Khám phá các bộ thẻ được chia sẻ bởi cộng đồng.';
     }
+    loadFolders().then(load).catch(function (e) {
+      FlashShell.showToast(e.message || 'Không tải được thư mục', 'err');
+      load();
+    });
   });
 
   async function load() {
