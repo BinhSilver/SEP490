@@ -9,6 +9,8 @@ import com.jlas.flashcard.entity.*;
 import com.jlas.flashcard.entity.FlashcardCardProgress.FlashcardCardProgressId;
 import com.jlas.flashcard.entity.FlashcardUserSetState.FlashcardUserSetStateId;
 import com.jlas.flashcard.repository.*;
+import com.jlas.flashcard.service.FlashcardFileCodec;
+import com.jlas.flashcard.service.FlashcardFileCodec.CardRow;
 import com.jlas.flashcard.service.FlashcardService;
 import com.jlas.moderation.entity.ContentComment;
 import com.jlas.moderation.entity.ContentCommentRating;
@@ -57,6 +59,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final UserActionPolicyPort actionPolicy;
     private final UserNotificationPort notifications;
     private final com.jlas.flashcard.service.FlashcardStudyAccess studyAccess;
+    private final FlashcardFileCodec fileCodec;
     @Value("${upload.path.flashcard:uploads/flashcard}") private String uploadPath;
 
     @Override @Transactional(readOnly = true)
@@ -154,6 +157,18 @@ public class FlashcardServiceImpl implements FlashcardService {
         }).toList();
         if (inputs.isEmpty()) throw bad("Không có dòng hợp lệ. Dùng: Kanji - Hiragana : Nghĩa (Hán Việt)");
         return create(new SetRequest(request.getTitle(),request.getDescription(),null,request.getVisibility(),null,inputs),userId);
+    }
+    @Override @Transactional(readOnly = true) public ExportFileDto export(Long id, String format, boolean includeHanViet, Long userId) {
+        FlashcardSet set = readable(id, userId); FlashcardFileCodec.Format type = FlashcardFileCodec.Format.of(format);
+        List<CardRow> rows = cards.findBySetIdOrderByPositionAscIdAsc(set.getId()).stream()
+                .map(card -> new CardRow(card.getFront(), StringUtils.hasText(card.getBack()) ? card.getBack() : back(card.getReading(), card.getMeaning()), card.getHanViet())).toList();
+        String name = StringUtils.hasText(set.getTitle()) ? set.getTitle().replaceAll("[\\\\/:*?\"<>|\r\n\t]+", "_").trim() : "flashcards";
+        return ExportFileDto.builder().filename(name + "." + type.extension).contentType(type.contentType).content(fileCodec.write(rows, type, includeHanViet)).build();
+    }
+    @Override @Transactional(readOnly = true) public ImportFileResponse importFile(MultipartFile file, Long userId) {
+        login(userId); if (file == null || file.isEmpty()) throw bad("Cần chọn file");
+        try { String text = fileCodec.toImportText(file.getOriginalFilename(), file.getBytes()); return ImportFileResponse.builder().text(text).lineCount(text.isEmpty() ? 0 : (int) text.lines().count()).build(); }
+        catch (IOException exception) { throw bad("Không đọc được file"); }
     }
     @Override @Transactional(readOnly = true)
     public ImportHanVietResponse enrichImport(String text) {

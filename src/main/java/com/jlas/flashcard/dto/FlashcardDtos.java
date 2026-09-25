@@ -88,6 +88,8 @@ public final class FlashcardDtos {
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class SyncPreviewResponse { private long newCardCount; private String originalTitle; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class SyncResponse { private long addedCount; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class UploadResponse { private String url; private String filename; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class ExportFileDto { private String filename; private String contentType; private byte[] content; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class ImportFileResponse { private String text; private int lineCount; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class AiRequest { private Long cardId; private String term; private String type; private String context; private String message; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class AiResponse { private String type; private String term; private String reading; private String meaning; private String hanViet; private String reply; private boolean mock; }
 }

@@ -14,6 +14,7 @@ public interface FlashcardService {
     FolderDto updateFolder(Long id, FolderRequest request, Long userId); void deleteFolder(Long id, Long userId);
     SetDetailDto moveToFolder(Long setId, MoveFolderRequest request, Long userId);
     SetDetailDto cloneSet(Long id, Long userId); SetDetailDto importText(ImportRequest request, Long userId);
+    ExportFileDto export(Long id, String format, boolean includeHanViet, Long userId); ImportFileResponse importFile(MultipartFile file, Long userId);
     SyncPreviewResponse syncPreview(Long id, Long userId); SyncResponse sync(Long id, Long userId);
     ImportHanVietResponse enrichImport(String text); EnrichResponse enrich(String term);
     List<EnrichResponse> enrichBatch(List<String> terms); CardDto enrichCard(Long cardId, Long userId);
