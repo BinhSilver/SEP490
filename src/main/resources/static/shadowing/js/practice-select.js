@@ -9,13 +9,18 @@
   const cards = Array.from(document.querySelectorAll('.practice-mode-card'));
   const options = document.getElementById('practice-options');
   const startButton = document.getElementById('practice-start-button');
+  const startRow = document.getElementById('practice-start-row');
   const startLabel = startButton.querySelector('span');
+  const startIcon = document.getElementById('practice-start-icon');
   const startKitsu = document.getElementById('practice-start-kitsu');
   const headerKitsu = document.getElementById('practice-kitsu');
   const status = document.getElementById('practice-status');
   const customCount = document.getElementById('practice-custom-count');
   let selectedMode = 'SHADOWING';
   let subtitleCount = 0;
+  let creatingSession = false;
+  let creationPaused = false;
+  let createdSessionId = null;
 
   function playHeaderKitsu() {
     if (!headerKitsu || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
@@ -43,11 +48,27 @@
   }
 
   customCount?.addEventListener('beforeinput', function (event) {
-    if (event.data && !/^\d+$/.test(event.data)) event.preventDefault();
+    if (event.inputType.startsWith('insert') && event.data != null && /\D/.test(event.data)) {
+      event.preventDefault();
+    }
+  });
+
+  customCount?.addEventListener('keydown', function (event) {
+    if (event.key.length === 1 && !/\d/.test(event.key) && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+    }
+  });
+
+  customCount?.addEventListener('paste', function (event) {
+    event.preventDefault();
+    const digits = (event.clipboardData?.getData('text') || '').replace(/\D/g, '');
+    if (!digits) return;
+    this.value = digits.slice(0, 3);
+    this.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
   customCount?.addEventListener('input', function () {
-    const digitsOnly = this.value.replace(/\D/g, '');
+    const digitsOnly = this.value.replace(/\D/g, '').slice(0, 3);
     if (this.value !== digitsOnly) this.value = digitsOnly;
   });
 
@@ -64,7 +85,29 @@
     status.style.color = error ? '#a71919' : '';
   }
 
+  function startText() {
+    return selectedMode === 'SHADOWING' ? 'Bắt đầu Shadowing'
+      : selectedMode === 'CLOZE' ? 'Bắt đầu điền từ' : 'Bắt đầu điền cả câu';
+  }
+
+  function setAction(label, icon) {
+    startLabel.textContent = label;
+    startIcon.className = 'fa-solid fa-' + icon;
+  }
+
+  function showPreparing(show) {
+    startKitsu.hidden = !show;
+    startRow.classList.toggle('has-mascot', show);
+    if (!show) {
+      startKitsu.pause();
+      return;
+    }
+    const playback = startKitsu.play();
+    if (playback?.catch) playback.catch(function () { /* The poster remains visible. */ });
+  }
+
   function selectMode(mode) {
+    if (creatingSession) return;
     selectedMode = mode;
     cards.forEach(function (card) {
       const selected = card.dataset.mode === mode;
@@ -72,12 +115,9 @@
       card.setAttribute('aria-pressed', String(selected));
     });
     options.hidden = mode === 'SHADOWING';
-    startLabel.textContent = mode === 'SHADOWING'
-      ? 'Bắt đầu Shadowing'
-      : mode === 'CLOZE' ? 'Bắt đầu điền từ' : 'Bắt đầu điền cả câu';
-    startKitsu.pause();
+    setAction(startText(), 'play');
+    showPreparing(false);
     try { startKitsu.currentTime = 0; } catch (_) { /* metadata may not be loaded yet */ }
-    startKitsu.hidden = true;
     message('');
   }
 
@@ -109,19 +149,34 @@
   }
 
   startButton.addEventListener('click', async function () {
+    if (creatingSession) {
+      creationPaused = !creationPaused;
+      if (creationPaused) {
+        showPreparing(false);
+        setAction('Tiếp tục', 'play');
+        message(createdSessionId ? 'Phiên học đã sẵn sàng.' : 'Đã dừng chuẩn bị phiên học.');
+      } else if (createdSessionId) {
+        location.href = '/shadowing/exercise/' + encodeURIComponent(createdSessionId);
+      } else {
+        showPreparing(true);
+        setAction('Dừng', 'stop');
+        message('Kitsu-chan đang chuẩn bị...');
+      }
+      return;
+    }
     if (selectedMode === 'SHADOWING') {
       location.href = '/shadowing/player/' + encodeURIComponent(videoId) + '?mode=shadowing';
       return;
     }
     const count = selectedCount();
     const order = document.querySelector('input[name="practice-order"]:checked')?.value || 'PROGRESSIVE';
-    startButton.disabled = true;
-    startKitsu.hidden = false;
+    creatingSession = true;
+    creationPaused = false;
+    createdSessionId = null;
     try { startKitsu.currentTime = 0; } catch (_) { /* metadata may not be loaded yet */ }
-    const mascotPlayback = startKitsu.play();
-    if (mascotPlayback?.catch) mascotPlayback.catch(function () { /* poster remains visible */ });
-    startLabel.textContent = 'Kitsu-chan đang chuẩn bị…';
-    message('');
+    showPreparing(true);
+    setAction('Dừng', 'stop');
+    message('Kitsu-chan đang chuẩn bị...');
     try {
       const response = await fetch('/api/shadowing-practice/sessions', {
         method: 'POST',
@@ -136,13 +191,19 @@
       });
       const data = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(data.message || data.error || 'Không tạo được phiên học');
-      location.href = '/shadowing/exercise/' + encodeURIComponent(data.sessionId);
+      createdSessionId = data.sessionId;
+      if (creationPaused) {
+        message('Phiên học đã sẵn sàng.');
+        return;
+      }
+      location.href = '/shadowing/exercise/' + encodeURIComponent(createdSessionId);
     } catch (error) {
       message(error.message || 'Không tạo được phiên học', true);
-      startButton.disabled = false;
-      startKitsu.pause();
-      startKitsu.hidden = true;
-      startLabel.textContent = selectedMode === 'CLOZE' ? 'Bắt đầu điền từ' : 'Bắt đầu điền cả câu';
+      creatingSession = false;
+      creationPaused = false;
+      createdSessionId = null;
+      showPreparing(false);
+      setAction(startText(), 'play');
     }
   });
 

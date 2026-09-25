@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260915-equal-panels">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260924-pause-resume">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
@@ -23,6 +23,10 @@
             <div id="exercise-title-row">
             <div><span id="exercise-mode-label">Luyện nghe</span><h1 id="exercise-video-title">Đang tải…</h1></div>
             </div>
+            <div id="exercise-session-actions" hidden aria-label="Điều khiển phiên học">
+                <button id="exercise-pause-button" type="button"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tạm dừng</button>
+                <button id="exercise-resume-button" type="button" hidden><i class="fa-solid fa-play" aria-hidden="true"></i> Tiếp tục</button>
+            </div>
         </header>
 
         <section id="exercise-workspace" hidden>
@@ -33,7 +37,9 @@
                     <div id="exercise-stop-markers"></div>
                 </div>
                 <div id="exercise-media-controls">
-                    <button id="exercise-listen-button" type="button"><i class="fa-solid fa-play"></i><span>Phát bài</span></button>
+                    <button id="exercise-listen-button" type="button" aria-label="Phát bài" title="Phát bài"><i class="fa-solid fa-play"></i></button>
+                    <button id="exercise-furigana-toggle" class="exercise-media-toggle" type="button" aria-pressed="false" aria-label="Hiện furigana" title="Hiện furigana"><i class="fa-solid fa-book-open" aria-hidden="true"></i></button>
+                    <button id="exercise-subtitle-toggle" class="exercise-media-toggle is-active" type="button" aria-pressed="true" aria-label="Ẩn phụ đề" title="Ẩn phụ đề"><i class="fa-solid fa-closed-captioning" aria-hidden="true"></i></button>
                     <div id="exercise-speed-control">
                         <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
                         <button id="exercise-speed-toggle" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Tốc độ phát">
@@ -100,6 +106,6 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
-<script src="/shadowing/js/exercise.js?v=20260915-helper-removed"></script>
+<script src="/shadowing/js/exercise.js?v=20260924-pause-resume"></script>
 </body>
 </html>

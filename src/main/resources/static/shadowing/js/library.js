@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clientId = getClientId();
 
     let currentScope = 'public'; // public | my | favorites
-    let currentStatus = '';     // '' | READY | DRAFT | PROCESSING
+    let currentStatus = '';     // '' | READY | DRAFT | PROCESSING | FAILED
     let allVideos = [];
     let searchTimer = null;
 
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 PROCESSING: '<span class="badge badge-processing">Đang xử lý</span>',
                 DRAFT: '<span class="badge badge-draft">Bản nháp</span>',
                 READY: '<span class="badge badge-ready">Sẵn sàng</span>',
-                FAILED: '<span class="badge badge-failed">Lỗi</span>'
+                FAILED: '<span class="badge badge-failed">Đã dừng / lỗi</span>'
             }[v.status] || '';
 
             const visBadge = v.visibility === 'PUBLIC'

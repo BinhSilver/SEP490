@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 @Service
 public class VideoService {
 
+    private static final String USER_CANCELLED_MESSAGE = "Đã dừng xử lý theo yêu cầu.";
+    private static final String USER_ABANDONED_MESSAGE = "Đã bỏ tiến trình tạo bài.";
+
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private TagRepository tagRepository;
@@ -46,6 +49,7 @@ public class VideoService {
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private YoutubeImportService youtubeImportService;
+    @Autowired private YoutubeImportJobService youtubeImportJobService;
     @Autowired private ContentModerationPort moderationPort;
     @Autowired private VideoModerationService videoModerationService;
     @Autowired private UserActionPolicyPort actionPolicy;
@@ -525,6 +529,62 @@ public class VideoService {
         } else {
             processingJobService.retryProcessing(id);
         }
+    }
+
+    public void resumeProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        actionPolicy.assertCanAct(CurrentUser.requireUserId());
+        if (video.getStatus() != VideoStatus.FAILED
+                || video.getErrorMessage() == null
+                || !video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE)) {
+            throw new IllegalStateException("Chỉ có thể tiếp tục bài học đã được bạn dừng.");
+        }
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        if (video.getSourceUrl() != null && !video.getSourceUrl().isBlank()) {
+            youtubeImportService.resumeImport(id);
+        } else {
+            processingJobService.resumeProcessing(id);
+        }
+    }
+
+    @Transactional
+    public void abandonProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        actionPolicy.assertCanAct(CurrentUser.requireUserId());
+        boolean isRunning = video.getStatus() == VideoStatus.PROCESSING;
+        boolean isPaused = video.getStatus() == VideoStatus.FAILED
+                && video.getErrorMessage() != null
+                && video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE);
+        if (!isRunning && !isPaused) {
+            throw new IllegalStateException("Chỉ có thể bỏ một tiến trình đang chạy hoặc đang tạm dừng.");
+        }
+        if (isRunning) {
+            processingJobService.cancel(id);
+            youtubeImportJobService.cancel(id);
+        }
+        video.setStatus(VideoStatus.FAILED);
+        video.setErrorMessage(USER_ABANDONED_MESSAGE
+                + " Bản nháp được giữ lại; bạn có thể tạo lại từ đầu khi quay lại.");
+        videoRepository.save(video);
+    }
+
+    @Transactional
+    public void cancelProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        actionPolicy.assertCanAct(CurrentUser.requireUserId());
+        if (video.getStatus() != VideoStatus.PROCESSING) {
+            throw new IllegalStateException("Bài học này không còn trong quá trình xử lý.");
+        }
+        processingJobService.cancel(id);
+        youtubeImportJobService.cancel(id);
+        video.setStatus(VideoStatus.FAILED);
+        video.setErrorMessage(USER_CANCELLED_MESSAGE + " Bạn có thể tiếp tục với thiết lập hiện tại hoặc tạo bài mới.");
+        videoRepository.save(video);
     }
 
     private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds,

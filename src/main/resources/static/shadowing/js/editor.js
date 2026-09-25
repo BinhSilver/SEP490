@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editorLayout = document.getElementById('editor-layout');
 
     let subtitles = [];
+    let qualityReviews = {};
     let videoData = null;
     let saveTimer = null;
     let focusedId = null;
@@ -61,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_UNDO = 10;
 
     async function init() {
-        const [vRes, sRes] = await Promise.all([
+        const [vRes, sRes, qRes] = await Promise.all([
             fetch(`/api/videos/${videoId}`, { headers: headers() }),
-            fetch(`/api/videos/${videoId}/subtitles`, { headers: headers() })
+            fetch(`/api/videos/${videoId}/subtitles`, { headers: headers() }),
+            fetch(`/api/videos/${videoId}/subtitle-quality`, { headers: headers() })
         ]);
         if (!vRes.ok) {
             const err = await vRes.json().catch(() => ({}));
@@ -80,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         videoData = await vRes.json();
         subtitles = sRes.ok ? await sRes.json() : [];
+        qualityReviews = qRes.ok ? await qRes.json() : {};
         updateEditorTitle(videoData.title);
         metaTitle.value = videoData.title || '';
         const cat = videoData.category
@@ -293,6 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const aiBadge = sub.aiStatus === 'PENDING' ? '<span class="badge badge-processing"><i class="fa-solid fa-spinner fa-spin"></i> AI đang xử lý</span>'
                 : sub.aiStatus === 'FAILED' ? '<span class="badge badge-failed"><i class="fa-solid fa-circle-xmark"></i> AI lỗi</span>' : '';
 
+            const qualityReview = qualityReviews[sub.id];
+
             item.innerHTML = `
                 <div class="editor-sub-header">
                     <span class="caption drag-handle" title="Kéo để sắp xếp"><i class="fa-solid fa-grip-vertical"></i> #${index + 1} ${aiBadge}</span>
@@ -308,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="editor-field"><label><i class="fa-solid fa-language"></i> Tiếng Nhật</label><textarea class="field-text" rows="2">${esc(sub.text || '')}</textarea></div>
                 <div class="editor-field"><label><i class="fa-solid fa-book-open"></i> Cách đọc</label><textarea class="field-furigana" rows="2">${esc(sub.furigana || '')}</textarea></div>
                 <div class="editor-field"><label><i class="fa-solid fa-font"></i> Bản dịch</label><textarea class="field-translation" rows="2">${esc(sub.translation || '')}</textarea></div>
+                ${qualityReviewPanel(qualityReview)}
                 <div class="editor-actions">
                     <button class="button-secondary regenerate-btn btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại AI</button>
                     ${index < subtitles.length - 1 ? '<button class="button-secondary merge-btn btn-sm"><i class="fa-solid fa-object-group"></i> Gộp câu tiếp</button>' : ''}
@@ -383,6 +389,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = false;
                 setSaveStatus('saved');
             });
+
+            const sourceChoice = item.querySelector('.quality-use-source');
+            const audioChoice = item.querySelector('.quality-use-audio');
+            const approveChoice = item.querySelector('.quality-approve');
+            sourceChoice?.addEventListener('click', () => approveQualityReview(sub, item, qualityReview.sourceText));
+            audioChoice?.addEventListener('click', () => approveQualityReview(sub, item, qualityReview.transcriptionText));
+            approveChoice?.addEventListener('click', () => approveQualityReview(
+                sub, item, item.querySelector('.field-text').value));
 
             const mergeBtn = item.querySelector('.merge-btn');
             if (mergeBtn) {
@@ -475,9 +489,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (textEl) textEl.textContent = cfg.text;
     }
 
+    function qualityReviewPanel(review) {
+        if (!review) return '';
+        const score = Math.round((Number(review.similarityScore) || 0) * 100);
+        if (review.status === 'NEEDS_REVIEW') {
+            return `<section class="subtitle-quality-review" aria-label="Xác nhận phụ đề theo audio">
+                <p class="subtitle-quality-review__title"><i class="fa-solid fa-triangle-exclamation"></i> Cần xác nhận câu này</p>
+                <p class="subtitle-quality-review__copy">Phụ đề và phần nghe chỉ khớp ${score}%. Hãy nghe đoạn này rồi chọn nội dung đúng.</p>
+                <div class="subtitle-quality-review__source"><strong>Phụ đề YouTube</strong><span>${esc(review.sourceText || '')}</span></div>
+                <div class="subtitle-quality-review__source"><strong>Nhận dạng từ audio</strong><span>${esc(review.transcriptionText || 'Không nhận được nội dung trùng thời điểm.')}</span></div>
+                <div class="subtitle-quality-review__actions">
+                    <button type="button" class="button-secondary btn-sm quality-use-source">Dùng phụ đề YouTube</button>
+                    <button type="button" class="button-secondary btn-sm quality-use-audio" ${review.transcriptionText ? '' : 'disabled'}>Dùng phần nghe</button>
+                    <button type="button" class="button-primary btn-sm quality-approve">Xác nhận nội dung đã sửa</button>
+                </div>
+            </section>`;
+        }
+        const label = review.status === 'APPROVED' ? 'Đã xác nhận' : 'Đã đối chiếu';
+        return `<p class="subtitle-quality-status"><i class="fa-solid fa-circle-check"></i> ${label} với audio (${score}%)</p>`;
+    }
+
+    async function approveQualityReview(subtitle, item, text) {
+        const buttons = item.querySelectorAll('.subtitle-quality-review button');
+        buttons.forEach(button => { button.disabled = true; });
+        try {
+            const response = await fetch(`/api/subtitles/${subtitle.id}/quality-review/approve`, {
+                method: 'PUT', headers: headers(), body: JSON.stringify({ text })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || data.error || 'Không thể xác nhận câu phụ đề.');
+            subtitle.text = text;
+            qualityReviews[subtitle.id] = data;
+            notify('Đã xác nhận câu phụ đề.', 'success');
+            renderList();
+        } catch (error) {
+            notify(error.message || 'Không thể xác nhận câu phụ đề.', 'error');
+            buttons.forEach(button => { button.disabled = false; });
+        }
+    }
+
+    function notify(message, type) {
+        if (window.JlasUI && typeof window.JlasUI.toast === 'function') {
+            window.JlasUI.toast(message, type);
+        }
+    }
+
     async function reloadSubs() {
-        const res = await fetch(`/api/videos/${videoId}/subtitles`, { headers: headers() });
-        subtitles = await res.json();
+        const [subtitlesResponse, reviewsResponse] = await Promise.all([
+            fetch(`/api/videos/${videoId}/subtitles`, { headers: headers() }),
+            fetch(`/api/videos/${videoId}/subtitle-quality`, { headers: headers() })
+        ]);
+        subtitles = await subtitlesResponse.json();
+        qualityReviews = reviewsResponse.ok ? await reviewsResponse.json() : qualityReviews;
         renderList();
     }
 

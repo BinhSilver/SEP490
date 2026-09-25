@@ -51,6 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let analyzedUrl = null;
     let analyzeData = null;
+    let analyzeAbortController = null;
+
+    if (new URLSearchParams(window.location.search).has('cancelled')
+            && window.JlasUI && typeof window.JlasUI.toast === 'function') {
+        window.JlasUI.toast('Đã dừng xử lý. Bạn có thể thay đổi thiết lập rồi tạo bài mới.', 'info');
+    }
 
     const YT_ID_RE = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/;
 
@@ -297,6 +303,14 @@ document.addEventListener('DOMContentLoaded', () => {
         importBtn.disabled = false;
     }
 
+    function setAnalyzing(isAnalyzing) {
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = isAnalyzing
+            ? '<i class="fa-solid fa-stop"></i> Dừng phân tích'
+            : '<i class="fa-solid fa-magnifying-glass"></i> Phân tích video';
+        analyzeBtn.setAttribute('aria-label', isAnalyzing ? 'Dừng phân tích video' : 'Phân tích video');
+    }
+
     function validateClientUrl(url) {
         if (!url.trim()) return 'Vui lòng nhập link YouTube.';
         if (!looksLikeYoutube(url)) return 'Link không phải YouTube. Dùng youtube.com hoặc youtu.be.';
@@ -370,6 +384,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     analyzeBtn.addEventListener('click', async () => {
+        if (analyzeAbortController) {
+            analyzeAbortController.abort();
+            return;
+        }
         const url = urlInput.value.trim();
         const err = validateClientUrl(url);
         if (err) {
@@ -379,13 +397,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         resetYoutubeResult();
         youtubeStatus.textContent = 'Đang phân tích video...';
-        analyzeBtn.disabled = true;
+        analyzeAbortController = new AbortController();
+        setAnalyzing(true);
 
         try {
             const res = await fetch('/api/youtube/analyze', {
                 method: 'POST',
                 headers: authHeaders(),
-                body: JSON.stringify({ url })
+                body: JSON.stringify({ url }),
+                signal: analyzeAbortController.signal
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
@@ -398,10 +418,13 @@ document.addEventListener('DOMContentLoaded', () => {
             youtubeStatus.classList.remove('is-error');
             youtubeStatus.textContent = 'Phân tích xong — xem kết quả bên dưới.';
             renderAnalyzeResult(data);
-        } catch {
-            youtubeStatus.textContent = 'Lỗi kết nối máy chủ.';
+        } catch (error) {
+            youtubeStatus.textContent = error.name === 'AbortError'
+                ? 'Đã dừng phân tích. Bạn có thể thay đổi link hoặc thiết lập.'
+                : 'Lỗi kết nối máy chủ.';
         } finally {
-            analyzeBtn.disabled = false;
+            analyzeAbortController = null;
+            setAnalyzing(false);
         }
     });
 
@@ -429,6 +452,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             return;
         }
+
+        const confirmed = typeof window.showConfirm === 'function'
+            ? await window.showConfirm({
+                title: 'Tạo bài Shadowing?',
+                message: 'Hệ thống sẽ bắt đầu tạo bài với video và thiết lập bạn đã chọn.',
+                confirmText: 'Tạo Shadowing',
+                cancelText: 'Quay lại chỉnh sửa',
+                variant: 'primary'
+            })
+            : window.confirm('Tạo bài Shadowing với thiết lập hiện tại?');
+        if (!confirmed) return;
 
         youtubeStatus.textContent = 'Đang bắt đầu tạo shadowing...';
         importBtn.disabled = true;

@@ -115,6 +115,24 @@ public class VideoController {
         return ResponseEntity.ok(Map.of("message", "Retry started"));
     }
 
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long id) {
+        videoService.cancelProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đã dừng xử lý bài học."));
+    }
+
+    @PostMapping("/{id}/resume")
+    public ResponseEntity<?> resume(@PathVariable Long id) {
+        videoService.resumeProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đang tiếp tục xử lý từ bước đã lưu."));
+    }
+
+    @PostMapping("/{id}/abandon")
+    public ResponseEntity<?> abandon(@PathVariable Long id) {
+        videoService.abandonProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đã bỏ tiến trình. Bản nháp vẫn được giữ lại để tạo lại từ đầu."));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         videoService.deleteVideo(id);

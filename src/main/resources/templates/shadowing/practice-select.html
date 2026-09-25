@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260915-digits-only">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260925-single-action-2">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
@@ -51,36 +51,39 @@
             </div>
         </section>
 
-        <section id="practice-options" hidden aria-labelledby="practice-options-heading">
-            <h2 id="practice-options-heading">Thiết lập phiên học</h2>
-            <div id="practice-option-grid">
-                <fieldset id="practice-order-options">
-                    <legend>Thứ tự độ khó</legend>
-                    <label><input type="radio" name="practice-order" value="PROGRESSIVE" checked><span><strong>Tăng dần</strong></span></label>
-                    <label><input type="radio" name="practice-order" value="RANDOM"><span><strong>Ngẫu nhiên</strong></span></label>
-                </fieldset>
-                <fieldset id="practice-count-options">
-                    <legend>Số câu</legend>
-                    <input id="practice-custom-count" type="number" min="1" max="500" step="1" inputmode="numeric" autocomplete="off" value="5" aria-label="Số câu tùy chọn">
-                </fieldset>
-            </div>
-        </section>
+        <div id="practice-session-controls">
+            <section id="practice-options" hidden aria-labelledby="practice-options-heading">
+                <h2 id="practice-options-heading">Thiết lập phiên học</h2>
+                <div id="practice-option-grid">
+                    <fieldset id="practice-order-options">
+                        <legend>Thứ tự độ khó</legend>
+                        <label><input type="radio" name="practice-order" value="PROGRESSIVE" checked><span><strong>Tăng dần</strong></span></label>
+                        <label><input type="radio" name="practice-order" value="RANDOM"><span><strong>Ngẫu nhiên</strong></span></label>
+                    </fieldset>
+                    <fieldset id="practice-count-options">
+                        <legend>Số câu</legend>
+                        <input id="practice-custom-count" type="number" min="1" max="500" step="1" inputmode="numeric" autocomplete="off" value="5" aria-label="Số câu tùy chọn">
+                    </fieldset>
+                </div>
+            </section>
 
-        <div id="practice-start-row">
-            <p id="practice-status" aria-live="polite"></p>
-            <button id="practice-start-button" type="button">
+            <div id="practice-start-row">
                 <video id="practice-start-kitsu" muted loop playsinline preload="metadata"
                        poster="/images/kitsu.png" aria-hidden="true" hidden>
                     <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
                 </video>
-                <span>Bắt đầu Shadowing</span>
-            </button>
+                <button id="practice-start-button" type="button">
+                    <i id="practice-start-icon" class="fa-solid fa-play" aria-hidden="true"></i>
+                    <span>Bắt đầu Shadowing</span>
+                </button>
+                <p id="practice-status" aria-live="polite"></p>
+            </div>
         </div>
     </div>
 </main>
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
-<script src="/shadowing/js/practice-select.js?v=20260915-digits-only"></script>
+<script src="/shadowing/js/practice-select.js?v=20260925-single-action-2"></script>
 </body>
 </html>
