@@ -58,6 +58,10 @@
     document.getElementById('btn-close-import').addEventListener('click', closeImport);
     document.getElementById('btn-cancel-import').addEventListener('click', closeImport);
     document.getElementById('btn-import-ai').addEventListener('click', importGenerateAi);
+    document.getElementById('btn-import-file').addEventListener('click', function () {
+      document.getElementById('import-file').click();
+    });
+    document.getElementById('import-file').addEventListener('change', importFromFile);
     document.getElementById('btn-apply-import').addEventListener('click', applyImport);
     document.getElementById('btn-close-ai-review').addEventListener('click', closeAiReview);
     document.getElementById('btn-cancel-ai-review').addEventListener('click', closeAiReview);
@@ -634,6 +638,34 @@
       });
     });
     return out;
+  }
+
+  /* Server converts CSV/TXT/XLSX into the same text the textarea accepts, so the user can review before applying. */
+  async function importFromFile(event) {
+    var input = event.target;
+    var file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+    if (!/\.(xlsx|csv|txt|tsv)$/i.test(file.name)) {
+      FlashShell.showToast('Chỉ hỗ trợ file .xlsx, .csv hoặc .txt', 'err');
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      FlashShell.showToast('File không được vượt quá 1MB', 'err');
+      return;
+    }
+    try {
+      var res = await FlashApi.upload('/api/flashcards/import/file', file);
+      if (!res || !res.text) {
+        FlashShell.showToast('File không có dòng dữ liệu nào', 'err');
+        return;
+      }
+      var textarea = document.getElementById('import-text');
+      textarea.value = textarea.value.trim() ? textarea.value.trim() + '\n' + res.text : res.text;
+      FlashShell.showToast('Đã đọc ' + res.lineCount + ' dòng từ ' + file.name + '. Kiểm tra rồi bấm Áp dụng', 'ok');
+    } catch (e) {
+      FlashShell.showToast(e.message || 'Không đọc được file', 'err');
+    }
   }
 
   async function importGenerateAi() {
