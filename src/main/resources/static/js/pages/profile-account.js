@@ -83,7 +83,7 @@
       DAILY_CHECKIN: 'Điểm danh hằng ngày', STUDY_REWARD: 'Thưởng học tập',
       QUIZ_REWARD: 'Thưởng hoàn thành Quiz', SHADOWING_REWARD: 'Thưởng luyện Shadowing',
       STREAK_MILESTONE_REWARD: 'Thưởng chuỗi ngày', STREAK_FREEZE: 'Dùng bảo vệ chuỗi',
-      VIDEO_UNLOCK: 'Mở khóa video', WORD_CONTRIBUTION_REWARD: 'Thưởng đóng góp từ',
+      VIDEO_UNLOCK: 'Mở khóa video', WORD_CONTRIBUTION_REWARD: 'Thưởng đóng góp từ', WORD_CONTRIBUTION_REVOKED: 'Thu hồi thưởng đóng góp từ',
       REFUND: 'Hoàn Credit'
     };
     return labels[reason] || 'Biến động Credit';
