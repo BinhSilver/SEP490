@@ -1,5 +1,7 @@
 package com.jlas.flashcard.service.impl;
 
+import com.jlas.flashcard.util.KanaWords;
+
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
 import com.jlas.flashcard.ai.HanVietAiService;
@@ -49,7 +51,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class FlashcardServiceImpl implements FlashcardService {
     private static final int MAX_INTERVAL_DAYS = 36500;
     private static final String TARGET = "FLASHCARD_SET";
-    private static final Pattern IMPORT = Pattern.compile("^\\s*(.+?)\\s*-\\s*(.+?)\\s*:\\s*(.+?)(?:\\s*\\(([^)]*)\\))?\\s*$");
     private final FlashcardSetRepository sets; private final FlashcardCardRepository cards; private final FlashcardFolderRepository folders;
     private final FlashcardCardProgressRepository progress; private final FlashcardUserSetStateRepository states;
     private final FlashcardStudySessionRepository sessions; private final FlashcardStudySessionItemRepository sessionItems;
@@ -75,7 +76,8 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override @Transactional(readOnly = true)
     public SetDetailDto set(Long id, Long userId) { return detail(readable(id, userId), userId); }
     @Override public SetDetailDto create(SetRequest request, Long userId) {
-        actionPolicy.assertCanAct(login(userId));
+        // A muted user may still build private sets for studying; only public sets are community content.
+        if ("PUBLIC".equals(visibility(request.getVisibility()))) actionPolicy.assertCanAct(login(userId));
         validateComplete(request, null);
         FlashcardSet set = sets.save(FlashcardSet.builder().owner(user(userId)).title(required(request.getTitle(), "Tên bộ thẻ"))
                 .description(blank(request.getDescription())).thumbnailUrl(blank(request.getThumbnail())).visibility(visibility(request.getVisibility()))
@@ -83,7 +85,7 @@ public class FlashcardServiceImpl implements FlashcardService {
         replaceCards(set, request.getCards()); moderateSetIfPublic(set, userId); return detail(set, userId);
     }
     @Override public SetDetailDto update(Long id, SetRequest request, Long userId) {
-        actionPolicy.assertCanAct(login(userId));
+        if ("PUBLIC".equals(visibility(request.getVisibility()))) actionPolicy.assertCanAct(login(userId));
         FlashcardSet set = owner(id, userId); validateComplete(request, set); set.setTitle(required(request.getTitle(), "Tên bộ thẻ"));
         set.setDescription(blank(request.getDescription())); set.setThumbnailUrl(blank(request.getThumbnail())); set.setVisibility(visibility(request.getVisibility()));
         set.setFolder(folderOrNull(request.getFolderId(), userId));
@@ -155,7 +157,7 @@ public class FlashcardServiceImpl implements FlashcardService {
         List<CardInput> inputs = parse(request.getText()).stream().filter(ParsedLineDto::isValid).map(row -> {
             CardInput input = new CardInput(); input.setFront(row.getFront()); input.setReading(row.getReading()); input.setMeaning(row.getBack()); input.setBack(back(row.getReading(),row.getBack())); input.setHanViet(row.getHanViet()); return input;
         }).toList();
-        if (inputs.isEmpty()) throw bad("Không có dòng hợp lệ. Dùng: Kanji - Hiragana : Nghĩa (Hán Việt)");
+        if (inputs.isEmpty()) throw bad("Không có dòng hợp lệ. Dùng: Từ - Cách đọc : Nghĩa (Hán Việt); từ Katakana/Kana có thể bỏ cách đọc");
         return create(new SetRequest(request.getTitle(),request.getDescription(),null,request.getVisibility(),null,inputs),userId);
     }
     @Override @Transactional(readOnly = true) public ExportFileDto export(Long id, String format, boolean includeHanViet, Long userId) {
@@ -177,7 +179,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     }
     @Override @Transactional(readOnly = true)
     public EnrichResponse enrich(String term) {
-        CardEnrichResult result = hanVietAiService.enrichFromKanji(required(term, "Kanji"));
+        CardEnrichResult result = hanVietAiService.enrichFromKanji(required(term, "Từ vựng"));
         return EnrichResponse.builder().front(result.kanji()).reading(result.reading()).meaning(result.meaning())
                 .back(result.back()).hanViet(result.hanViet()).build();
     }
@@ -257,16 +259,17 @@ public class FlashcardServiceImpl implements FlashcardService {
             moderation.persistLog("FLASHCARD_COMMENT", setId, userId, "COMMENT", text, result);
             throw new ApiException(ErrorCode.CONTENT_BLOCKED, result.getSummary());
         }
-        boolean pending = result.needsReview();
+        // JLAS-W0250: community comments publish immediately; a REVIEW verdict only queues a post-hoc check.
+        boolean flagged = result.needsReview();
         ContentComment comment = comments.save(ContentComment.builder().targetType(TARGET).targetId(setId)
-                .user(user(userId)).content(text).isHidden(pending).build());
+                .user(user(userId)).content(text).isHidden(false).build());
         Long logId = moderation.persistLog("FLASHCARD_COMMENT", comment.getId(), userId,
                 "COMMENT", text, result);
-        if (pending) {
+        if (flagged) {
             moderation.enqueueReview(logId, "FLASHCARD_COMMENT", comment.getId(), userId,
                     "Bình luận bộ thẻ " + set.getTitle(), result.getSummary());
         }
-        if (!pending && !set.getOwner().getId().equals(userId)) {
+        if (!set.getOwner().getId().equals(userId)) {
             String commenter = StringUtils.hasText(comment.getUser().getFullName())
                     ? comment.getUser().getFullName() : comment.getUser().getUsername();
             notifications.notifyUser(set.getOwner().getId(), "FLASHCARD_COMMENT", "Bình luận mới về bộ thẻ",
@@ -274,7 +277,7 @@ public class FlashcardServiceImpl implements FlashcardService {
                     "/flashcard/study.html?setId=" + setId, "FLASHCARD_COMMENT_" + comment.getId());
         }
         ContentCommentRating rating = null;
-        if (!pending && request.getRating() != null) {
+        if (request.getRating() != null) {
             if (request.getRating() < 1 || request.getRating() > 5) throw bad("Đánh giá từ 1 đến 5");
             rating = ratings.save(ContentCommentRating.builder().commentId(comment.getId())
                     .rating(request.getRating()).build());
@@ -309,15 +312,16 @@ public class FlashcardServiceImpl implements FlashcardService {
     private String draftTitle(String value){String title=blank(value);return title==null?"":title;}
     private void validateDraft(DraftRequest request){
         length(request.getTitle(),100,"Tên bộ thẻ"); length(request.getDescription(),500,"Mô tả"); length(request.getThumbnail(),500,"Ảnh đại diện");
-        if(request.getCards()==null)return;int row=1;for(CardInput input:request.getCards()){if(input!=null){length(input.getFront(),500,"Kanji thẻ "+row);length(input.getBack(),500,"Mặt sau thẻ "+row);length(input.getReading(),255,"Cách đọc thẻ "+row);length(input.getMeaning(),500,"Nghĩa thẻ "+row);length(input.getHanViet(),255,"Hán Việt thẻ "+row);length(input.getImage(),500,"Ảnh thẻ "+row);}row++;}
+        if(request.getCards()==null)return;int row=1;for(CardInput input:request.getCards()){if(input!=null){length(input.getFront(),500,"Từ vựng thẻ "+row);length(input.getBack(),500,"Mặt sau thẻ "+row);length(input.getReading(),255,"Cách đọc thẻ "+row);length(input.getMeaning(),500,"Nghĩa thẻ "+row);length(input.getHanViet(),255,"Hán Việt thẻ "+row);length(input.getImage(),500,"Ảnh thẻ "+row);}row++;}
     }
     private void length(String value,int max,String label){if(value!=null&&value.length()>max)throw bad(label+" không được vượt quá "+max+" ký tự");}
     private void validateComplete(SetRequest request,FlashcardSet current){
         if(request==null)throw bad("Thiếu dữ liệu bộ thẻ");required(request.getTitle(),"Tên bộ thẻ");
         if(request.getCards()!=null){if(request.getCards().isEmpty())throw bad("Bộ thẻ phải có ít nhất 1 thẻ");int row=1;for(CardInput input:request.getCards()){validateCompleteCard(input,row++);}return;}
-        if(current==null)throw bad("Bộ thẻ phải có ít nhất 1 thẻ");List<FlashcardCard> existing=cards.findBySetIdOrderByPositionAscIdAsc(current.getId());if(existing.isEmpty())throw bad("Bộ thẻ phải có ít nhất 1 thẻ");int row=1;for(FlashcardCard card:existing){if(!StringUtils.hasText(card.getFront())||!StringUtils.hasText(card.getReading())||!StringUtils.hasText(card.getMeaning()))throw bad("Thẻ "+row+" còn thiếu Kanji, cách đọc hoặc nghĩa");row++;}
+        if(current==null)throw bad("Bộ thẻ phải có ít nhất 1 thẻ");List<FlashcardCard> existing=cards.findBySetIdOrderByPositionAscIdAsc(current.getId());if(existing.isEmpty())throw bad("Bộ thẻ phải có ít nhất 1 thẻ");int row=1;for(FlashcardCard card:existing){if(!StringUtils.hasText(card.getFront())||!StringUtils.hasText(card.getMeaning()))throw bad("Thẻ "+row+" còn thiếu từ vựng hoặc nghĩa");row++;}
     }
-    private void validateCompleteCard(CardInput input,int row){if(input==null||!StringUtils.hasText(input.getFront())||!StringUtils.hasText(input.getReading())||!StringUtils.hasText(input.getMeaning()))throw bad("Thẻ "+row+" còn thiếu Kanji, cách đọc hoặc nghĩa");}
+    /** Only the word and its meaning are required; reading, Hán Việt and image are optional. */
+    private void validateCompleteCard(CardInput input,int row){if(input==null||!StringUtils.hasText(input.getFront())||!StringUtils.hasText(input.getMeaning()))throw bad("Thẻ "+row+" còn thiếu từ vựng hoặc nghĩa");}
     private void moderateSetIfPublic(FlashcardSet set, Long userId) {
         if (!"PUBLIC".equals(set.getVisibility())) return;
         moderation.checkPublish(String.valueOf(login(userId)));
@@ -364,11 +368,13 @@ public class FlashcardServiceImpl implements FlashcardService {
     private String back(String reading,String meaning){if(!StringUtils.hasText(reading))return meaning;if(!StringUtils.hasText(meaning))return reading;return reading+" — "+meaning;}private String display(FlashcardCard card){return StringUtils.hasText(card.getMeaning())?card.getMeaning():card.getBack();}
     private String quizField(String value){String field=value==null?"KANJI":value.trim().toUpperCase(Locale.ROOT);if(!Set.of("KANJI","HIRAGANA","MEANING","HAN_VIET").contains(field))throw bad("Mode kiểm tra không hợp lệ");return field;}
     private String[] quizFields(FlashcardStudySession session){String mode=Optional.ofNullable(session.getMode()).orElse("");if(mode.startsWith("QUIZ_")&&mode.contains("_TO_")){String[] parts=mode.substring(5).split("_TO_",2);return new String[]{quizField(parts[0]),quizField(parts[1])};}return new String[]{"KANJI","MEANING"};}
-    private String quizValue(FlashcardCard card,String field){return switch(field){case "KANJI"->card.getFront();case "HIRAGANA"->card.getReading();case "MEANING"->StringUtils.hasText(card.getMeaning())?card.getMeaning():card.getBack();case "HAN_VIET"->card.getHanViet();default->"";};}
+    /** Kana-only words (e.g. katakana) have no kanji: their front is the reading, so they skip Kanji questions and answers. */
+    private String quizValue(FlashcardCard card,String field){return switch(field){case "KANJI"->KanaWords.hasKanji(card.getFront())?card.getFront():"";case "HIRAGANA"->card.getReading();case "MEANING"->StringUtils.hasText(card.getMeaning())?card.getMeaning():card.getBack();case "HAN_VIET"->card.getHanViet();default->"";};}
     private Map<Long,FlashcardCardProgress> progressMap(Long userId,Long setId){if(userId==null)return Map.of();Map<Long,FlashcardCardProgress> result=new HashMap<>();progress.findByUserIdAndCardSetId(userId,setId).forEach(p->result.put(p.getCard().getId(),p));return result;}
     private FlashcardCardProgress stateProgress(Long userId,FlashcardCard card){FlashcardCardProgressId id=new FlashcardCardProgressId(login(userId),card.getId());return progress.findById(id).orElseGet(()->FlashcardCardProgress.builder().id(id).user(user(userId)).card(card).nextReviewAt(LocalDateTime.now()).build());}
     private void apply(FlashcardCardProgress p,int quality){int value=Math.max(0,Math.min(5,quality));int repetitions=Optional.ofNullable(p.getRepetitionCount()).orElse(0),interval=Math.min(MAX_INTERVAL_DAYS,Math.max(0,Optional.ofNullable(p.getIntervalDays()).orElse(0)));if(value<3){repetitions=0;interval=1;p.setStatus("LEARNING");}else{repetitions++;interval=repetitions==1?1:repetitions==2?6:Math.min(MAX_INTERVAL_DAYS,Math.max(1,interval*2));p.setStatus(repetitions>=3?"MASTERED":"LEARNING");}p.setRepetitionCount(repetitions);p.setIntervalDays(interval);p.setReviewCount(Optional.ofNullable(p.getReviewCount()).orElse(0)+1);p.setLastQuality((byte)value);p.setLastReviewedAt(LocalDateTime.now());p.setNextReviewAt(LocalDateTime.now().plusDays(interval));if(p.getEasinessFactor()==null)p.setEasinessFactor(new BigDecimal("2.50"));}
     private FlashcardUserSetState state(Long userId,FlashcardSet set){FlashcardUserSetStateId id=new FlashcardUserSetStateId(login(userId),set.getId());return states.findById(id).orElseGet(()->FlashcardUserSetState.builder().id(id).user(user(userId)).set(set).build());}private void accessed(Long userId,FlashcardSet set){if(userId==null)return;FlashcardUserSetState state=state(userId,set);state.setLastAccessedAt(LocalDateTime.now());states.save(state);}
     private CommentDto commentDto(ContentComment comment,ContentCommentRating rating,Long userId){String name=StringUtils.hasText(comment.getUser().getFullName())?comment.getUser().getFullName():comment.getUser().getUsername();return CommentDto.builder().id(comment.getId()).userId(comment.getUser().getId()).displayName(name).content(comment.getContent()).rating(rating==null?null:rating.getRating()).ownedByMe(userId!=null&&userId.equals(comment.getUser().getId())).createdAt(comment.getCreatedAt()).build();}
-    private List<ParsedLineDto> parse(String text){if(!StringUtils.hasText(text))return List.of();List<ParsedLineDto> result=new ArrayList<>();for(String raw:text.split("\\R")){if(!StringUtils.hasText(raw))continue;Matcher matcher=IMPORT.matcher(raw.trim());if(!matcher.matches()){result.add(ParsedLineDto.builder().raw(raw.trim()).valid(false).build());continue;}result.add(ParsedLineDto.builder().front(matcher.group(1).trim()).reading(matcher.group(2).trim()).back(matcher.group(3).trim()).hanViet(blank(matcher.group(4))).raw(raw.trim()).valid(true).build());}return result;}
+    /** Import lines: "Từ - Cách đọc : Nghĩa (Hán Việt)"; a kana word may omit its reading (see KanaWords). */
+    private List<ParsedLineDto> parse(String text){if(!StringUtils.hasText(text))return List.of();List<ParsedLineDto> result=new ArrayList<>();for(String raw:text.split("\\R")){if(!StringUtils.hasText(raw))continue;Optional<KanaWords.ImportLine> line=KanaWords.parseImportLine(raw);if(line.isEmpty()){result.add(ParsedLineDto.builder().raw(raw.trim()).valid(false).build());continue;}KanaWords.ImportLine row=line.get();result.add(ParsedLineDto.builder().front(row.front()).reading(row.reading()).back(row.meaning()).hanViet(row.hanViet()).raw(raw.trim()).valid(true).build());}return result;}
 }
