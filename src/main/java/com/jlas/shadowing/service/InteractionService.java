@@ -132,7 +132,8 @@ public class InteractionService {
             throw new ApiException(ErrorCode.CONTENT_BLOCKED,
                     mod.getSummary() != null ? mod.getSummary() : "Nội dung không phù hợp");
         }
-        boolean pendingReview = mod.needsReview();
+        // JLAS-W0250: community comments publish immediately; a REVIEW verdict only queues a post-hoc check.
+        boolean flagged = mod.needsReview();
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
         Comment comment = new Comment();
         comment.setTargetId(video.getId());
@@ -140,21 +141,21 @@ public class InteractionService {
         comment.setClientId(String.valueOf(userId));
         comment.setDisplayName(resolveCommentDisplayName(userId));
         comment.setContent(text);
-        comment.setHidden(pendingReview);
-        if (!pendingReview && req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
+        comment.setHidden(false);
+        if (req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
             comment.setRating(req.getRating());
             saveRating(String.valueOf(userId), videoId, req.getRating());
         }
         Comment saved = commentRepository.save(comment);
-        if (!pendingReview && req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
+        if (req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
             commentRatingRepository.save(saved.getId(), req.getRating());
         }
         var logEntity = moderationPort.persistLog("VIDEO_COMMENT", saved.getId(), userId, "COMMENT", text, mod);
-        if (pendingReview) {
+        if (flagged) {
             moderationPort.enqueueReview(logEntity, "VIDEO_COMMENT", saved.getId(), userId,
                     "Video comment #" + videoId, mod.getSummary());
         }
-        if (!pendingReview && video.getOwnerId() != null && !video.getOwnerId().equals(userId)) {
+        if (video.getOwnerId() != null && !video.getOwnerId().equals(userId)) {
             notifications.notifyUser(video.getOwnerId(), "SHADOWING_COMMENT", "Bình luận mới về bài Shadowing",
                     saved.getDisplayName() + " đã bình luận về “" + video.getTitle() + "”.",
                     "/shadowing/player/" + video.getId(), "SHADOWING_COMMENT_" + saved.getId());

@@ -19,6 +19,9 @@ public class UserSanctionService implements UserActionPolicyPort {
 
     private final UserSanctionRepository sanctions;
     private final UserRepository users;
+    private final ModerationAuditService audit;
+    private final ModerationNotifier notifier;
+    private final SanctionStatusService status;
 
     public enum SanctionType { MUTE, BAN }
 
@@ -33,33 +36,84 @@ public class UserSanctionService implements UserActionPolicyPort {
         if (userId.equals(actorId)) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Không thể tự áp dụng chế tài");
         }
+        String why = ModerationAuditService.requireReason(reason);
         int days = duration(type, durationDays);
         User user = requiredUser(userId);
         User actor = requiredUser(actorId);
         LocalDateTime now = LocalDateTime.now();
 
-        sanctions.findActiveByUserIdAndType(userId, type.name(), now)
-                .ifPresent(existing -> existing.setRevokedAt(now));
+        sanctions.findActiveByUserIdAndType(userId, type.name(), now).ifPresent(existing -> {
+            existing.setRevokedAt(now);
+            audit.record(actorId, new ModerationAuditService.Entry("SANCTION_REPLACE", "USER_SANCTION",
+                    existing.getId(), "ACTIVE", "REVOKED", why, null));
+        });
 
         UserSanction sanction = UserSanction.builder()
                 .user(user)
                 .createdBy(actor)
                 .sanctionType(type.name())
-                .reason(trimToNull(reason))
+                .reason(why)
                 .endsAt(type == SanctionType.BAN && durationDays == null ? null : now.plusDays(days))
                 .build();
-        return view(sanctions.save(sanction));
+        UserSanction saved = sanctions.save(sanction);
+        status.invalidate(userId);
+        notifier.sanctionApplied(userId, saved.getId(), type.name(), saved.getEndsAt(), why);
+        audit.record(actorId, new ModerationAuditService.Entry("SANCTION_APPLY", "USER", userId,
+                null, type.name() + (saved.getEndsAt() == null ? ":PERMANENT" : ":" + days + "D"), why, null));
+        return view(saved);
     }
 
     @Transactional
-    public SanctionView revoke(Long sanctionId, Long actorId) {
+    public SanctionView revoke(Long sanctionId, Long actorId, String reason) {
+        return revoke(sanctionId, actorId, reason, null);
+    }
+
+    /** Revokes an active sanction; {@code caseId} links the audit row to an appeal when there is one. */
+    @Transactional
+    public SanctionView revoke(Long sanctionId, Long actorId, String reason, Long caseId) {
+        String why = ModerationAuditService.requireReason(reason);
         requiredUser(actorId);
         UserSanction sanction = sanctions.findById(sanctionId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy chế tài"));
-        if (sanction.getRevokedAt() == null) {
-            sanction.setRevokedAt(LocalDateTime.now());
+        if (sanction.getRevokedAt() != null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Chế tài đã được gỡ trước đó");
         }
+        sanction.setRevokedAt(LocalDateTime.now());
+        status.invalidate(sanction.getUser().getId());
+        audit.record(actorId, new ModerationAuditService.Entry("SANCTION_REVOKE", "USER_SANCTION",
+                sanction.getId(), "ACTIVE", "REVOKED", why, caseId));
+        // An approved appeal sends its own notification, so only direct revokes notify here.
+        if (caseId == null) notifier.sanctionRevoked(sanction.getUser().getId(), sanction.getId());
         return view(sanctions.save(sanction));
+    }
+
+    /**
+     * Undoes a revoke when an approved appeal is revised to rejected. Returns false when the sanction
+     * already ran out: there is nothing left to put back.
+     */
+    @Transactional
+    public boolean reinstate(Long sanctionId, Long actorId, String reason, Long caseId) {
+        String why = ModerationAuditService.requireReason(reason);
+        UserSanction sanction = sanctions.findById(sanctionId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy chế tài"));
+        if (sanction.getRevokedAt() == null) return true;
+        if (sanction.getEndsAt() != null && !sanction.getEndsAt().isAfter(LocalDateTime.now())) return false;
+        sanction.setRevokedAt(null);
+        sanctions.save(sanction);
+        status.invalidate(sanction.getUser().getId());
+        audit.record(actorId, new ModerationAuditService.Entry("SANCTION_REINSTATE", "USER_SANCTION",
+                sanction.getId(), "REVOKED", "ACTIVE", why, caseId));
+        return true;
+    }
+
+    @Transactional(readOnly = true)
+    public List<SanctionView> history(Long userId) {
+        return sanctions.findByUserIdOrderByCreatedAtDesc(userId).stream().map(this::view).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SanctionView> allActive() {
+        return sanctions.findAllActive(LocalDateTime.now()).stream().map(this::view).toList();
     }
 
     @Transactional(readOnly = true)

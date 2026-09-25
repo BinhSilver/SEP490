@@ -38,4 +38,13 @@ public interface UserSanctionRepository extends JpaRepository<UserSanction, Long
     Optional<UserSanction> findActiveByUserIdAndType(@Param("userId") Long userId,
                                                       @Param("type") String type,
                                                       @Param("now") LocalDateTime now);
+
+    List<UserSanction> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    @Query("""
+            select s from UserSanction s join fetch s.user
+            where s.revokedAt is null and (s.endsAt is null or s.endsAt > :now)
+            order by s.createdAt desc
+            """)
+    List<UserSanction> findAllActive(@Param("now") LocalDateTime now);
 }
