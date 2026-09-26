@@ -173,7 +173,7 @@
             '<a id="' + ids.homeLink + '" href="/" title="Trang chủ JLAS">' +
               '<i id="' + ids.homeIcon + '" aria-hidden="true"></i><span id="' + ids.homeLabel + '">Trang ch\u1ee7</span>' +
             '</a>' +
-            '<a id="' + ids.learningPathLink + '" href="/learning/path" title="Lộ trình Hán Việt  On">' +
+            '<a id="' + ids.learningPathLink + '" href="/learning/onyomi" title="Lộ trình Hán Việt → On">' +
               '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
             '</a>' +
             '<a id="' + ids.gameLink + '" href="/games" title="Chơi game luyện tiếng Nhật">' +
@@ -260,11 +260,8 @@
   function syncActiveLink() {
     var path = normalizePath(window.location.pathname);
     var isHome = path === '/' || path === '/index';
-    var isLearningPath = path === '/learning/path' ||
-      path.indexOf('/learning/lesson/') === 0 ||
-      path.indexOf('/learning/quiz/') === 0 ||
-      path.indexOf('/learning/rules') === 0 ||
-      path.indexOf('/learning/flashcards') === 0;
+    var isLearningPath = path === '/learning/onyomi' ||
+      path.indexOf('/learning/onyomi/') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
     var isAiCall = path === '/ai-call' ||
       path.indexOf('/ai-call/') === 0 ||
