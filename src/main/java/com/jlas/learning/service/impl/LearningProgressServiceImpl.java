@@ -12,9 +12,11 @@ import com.jlas.learning.repository.LearningCatalogRepository;
 import com.jlas.learning.repository.LearningLessonContentRepository;
 import com.jlas.learning.repository.LessonProgressRepository;
 import com.jlas.learning.service.LearningProgressService;
+import com.jlas.learning.service.LessonAccessPolicy;
 import jakarta.persistence.EntityManager;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     private final LessonProgressRepository progressRepository;
     private final LearningCatalogRepository catalog;
     private final LearningLessonContentRepository contentRepository;
+    private final List<LessonAccessPolicy> accessPolicies;
     private final EntityManager em;
     private final ApplicationEventPublisher events;
 
@@ -65,6 +68,13 @@ public class LearningProgressServiceImpl implements LearningProgressService {
                     userId, lessonId, creditedMinutes, vocabularyCount));
         }
         return toResponse(progress);
+    }
+
+    @Override
+    @Transactional
+    public LessonProgressResponse completeByLearner(Long userId, Long lessonId) {
+        accessPolicies.forEach(policy -> policy.checkManualCompletion(userId, lessonId));
+        return complete(userId, lessonId);
     }
 
     @Override
