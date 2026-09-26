@@ -5,7 +5,7 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.model.ModerationVerdict;
-import com.jlas.common.event.LearningActivityCompleted;
+import com.jlas.common.event.LearningEvent;
 import com.jlas.moderation.service.ContentModerationPort;
 import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.shadowing.dto.*;
@@ -496,7 +496,7 @@ public class VideoService {
         video.setModerationStatus(ModerationVerdict.SAFE.name());
         Video published = NullSafe.ref(videoRepository.save(video));
         if (!wasPublic && published.getOwnerId() != null) {
-            eventPublisher.publishEvent(LearningActivityCompleted.shadowingPublished(
+            eventPublisher.publishEvent(LearningEvent.shadowingPublished(
                     published.getOwnerId(), published.getId()));
         }
         return published;

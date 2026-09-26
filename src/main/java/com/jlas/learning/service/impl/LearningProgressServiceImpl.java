@@ -1,7 +1,7 @@
 package com.jlas.learning.service.impl;
 
 import com.jlas.auth.entity.User;
-import com.jlas.common.event.LearningActivityCompleted;
+import com.jlas.common.event.LearningEvent;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.entity.Lesson;
@@ -40,6 +40,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
             progress.setStatus(LessonStatus.IN_PROGRESS.name());
             progress.setStartedAt(LocalDateTime.now());
             progressRepository.save(progress);
+            events.publishEvent(LearningEvent.lessonStarted(userId, lessonId));
         }
         return toResponse(progress);
     }
@@ -60,7 +61,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
             progressRepository.save(progress);
             int creditedMinutes = creditedMinutes(startedAt, completedAt, lesson.getEstimatedMinutes());
             int vocabularyCount = (int) contentRepository.countVocabularyByLessonId(lessonId);
-            events.publishEvent(LearningActivityCompleted.lessonCompleted(
+            events.publishEvent(LearningEvent.lessonCompleted(
                     userId, lessonId, creditedMinutes, vocabularyCount));
         }
         return toResponse(progress);
