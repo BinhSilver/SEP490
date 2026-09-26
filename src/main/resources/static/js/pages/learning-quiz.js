@@ -253,6 +253,7 @@
           return;
         }
         await loadResult();
+        if (window.RewardFX) window.RewardFX.checkPending();
       } catch (error) {
         showSubmitError('Không thể kết nối tới máy chủ. Vui lòng thử lại.');
       } finally {

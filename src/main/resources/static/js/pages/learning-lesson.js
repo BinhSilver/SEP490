@@ -210,6 +210,8 @@
           return;
         }
         paint(renderState(body.data));
+        // Completing a lesson may finish a mission, the daily goal or a streak day.
+        if (window.RewardFX) window.RewardFX.checkPending();
       } catch (error) {
         paint(renderError());
       }

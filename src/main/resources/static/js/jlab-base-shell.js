@@ -67,6 +67,10 @@
     loginLink: 'jlabBaseLoginLink',
     registerLink: 'jlabBaseRegisterLink',
     userActions: 'jlabBaseUserActions',
+    rewardChip: 'jlabBaseRewardChip',
+    rewardStreak: 'jlabBaseRewardStreak',
+    rewardStreakIcon: 'jlabBaseRewardStreakIcon',
+    rewardCredits: 'jlabBaseRewardCredits',
     notificationWrapper: 'jlabBaseNotificationWrapper',
     notificationButton: 'jlabBaseNotificationButton',
     notificationIcon: 'jlabBaseNotificationIcon',
@@ -150,6 +154,7 @@
     replaceIcon(ids.notificationIcon, 'bell');
     replaceIcon(ids.profileIcon, 'user');
     replaceIcon(ids.streakIcon, 'flame');
+    replaceIcon(ids.rewardStreakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
 
     var emptyNotificationIcon = byId(ids.notificationEmptyIcon);
@@ -192,6 +197,10 @@
               '<a id="' + ids.registerLink + '" href="/register">\u0110\u0103ng k\u00fd</a>' +
             '</div>' +
             '<div id="' + ids.userActions + '" class="user-actions" data-auth-user hidden>' +
+              '<a id="' + ids.rewardChip + '" class="reward-chip" href="/goals" data-reward-chip-root hidden aria-label="Chuỗi ngày và điểm CP" title="Mục tiêu &amp; chuỗi ngày">' +
+                '<span id="' + ids.rewardStreak + '" class="reward-chip__part reward-chip__streak is-cold" data-reward-chip="streak"><i id="' + ids.rewardStreakIcon + '" aria-hidden="true"></i><b data-reward-chip-value="streak">0</b></span>' +
+                '<span id="' + ids.rewardCredits + '" class="reward-chip__part" data-reward-chip="credits"><span class="reward-chip__coin" aria-hidden="true"></span><b data-reward-chip-value="credits">0</b></span>' +
+              '</a>' +
               '<div id="' + ids.notificationWrapper + '" class="dropdown notification-center">' +
                 '<button id="' + ids.notificationButton + '" class="icon-btn notification-center__trigger" type="button" data-dropdown-toggle aria-label="Mở thông báo" aria-haspopup="dialog" aria-expanded="false" aria-controls="' + ids.notificationPanel + '">' +
                   '<i id="' + ids.notificationIcon + '" class="fa-solid fa-bell" aria-hidden="true"></i>' +
@@ -382,6 +391,8 @@
       closeMenu(ids.accountMenu, ids.avatarButton);
       closeMenu(ids.notificationPanel, ids.notificationButton);
       renderNotifications({ items: [], unreadCount: 0 });
+      var chip = byId(ids.rewardChip);
+      if (chip) chip.hidden = true;
       return;
     }
 
@@ -396,6 +407,35 @@
     renderAvatar(ids.avatarButtonImage, ids.avatarButtonInitials, avatar, label);
     renderAvatar(ids.accountAvatarImage, ids.accountAvatarInitials, avatar, label);
     loadNotifications();
+    loadRewardFx();
+  }
+
+  // Streak/CP chip and reward animations load on every page for signed-in learners, so rewards
+  // earned anywhere are celebrated on the next page the learner opens.
+  function loadRewardFx() {
+    if (window.RewardFX) {
+      window.RewardFX.boot();
+      return;
+    }
+    if (state.rewardFxLoading) return;
+    state.rewardFxLoading = true;
+    if (!document.querySelector('link[href*="font-awesome"]')) {
+      addStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
+    }
+    if (!document.querySelector('link[href*="reward-fx.css"]')) {
+      addStylesheet('/css/components/reward-fx.css?v=20260926y');
+    }
+    var script = document.createElement('script');
+    script.src = '/js/components/reward-fx.js?v=20260927c';
+    script.onload = function () { if (window.RewardFX) window.RewardFX.boot(); };
+    document.head.appendChild(script);
+  }
+
+  function addStylesheet(href) {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
   }
 
   function notificationHeaders() {

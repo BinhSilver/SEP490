@@ -9,15 +9,15 @@ import com.jlas.auth.repository.UserRepository;
 import com.jlas.mission.entity.UserDailyProgress;
 import com.jlas.mission.entity.UserLearningTargets;
 import com.jlas.mission.entity.UserStreaks;
+import com.jlas.mission.config.MissionClock;
 import com.jlas.mission.repository.UserDailyProgressRepository;
 import com.jlas.mission.repository.UserLearningTargetsRepository;
 import com.jlas.mission.repository.UserStreaksRepository;
+import com.jlas.mission.service.UserZoneService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +31,14 @@ public class ProfileDashboardService {
     private final UserLearningTargetsRepository targets;
     private final UserDailyProgressRepository dailyProgress;
     private final PaymentRepository payments;
-
-    @Value("${retention.zone-id:Asia/Ho_Chi_Minh}")
-    private String zoneId;
+    private final UserZoneService zones;
+    private final MissionClock clock;
 
     @Transactional(readOnly = true)
     public ProfileDashboardResponse get(Long userId) {
         User user = users.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng."));
-        LocalDate today = LocalDate.now(ZoneId.of(zoneId));
+        LocalDate today = clock.today(zones.zoneOf(userId));
         UserStreaks streak = streaks.findById(userId).orElse(null);
         UserLearningTargets target = targets.findById(userId).orElse(null);
         UserDailyProgress progress = dailyProgress.findByUserIdAndProgressDate(userId, today).orElse(null);
