@@ -11,6 +11,7 @@ public final class UserCreditTransaction {
         QUIZ_REWARD,
         SHADOWING_REWARD,
         STREAK_MILESTONE_REWARD,
+        DAILY_GOAL_REWARD,
         STREAK_FREEZE,
         VIDEO_UNLOCK,
         ADMIN_GRANT,
