@@ -1,5 +1,6 @@
 package com.jlas.learning;
 
+import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.LessonTag;
 import com.jlas.dictionary.entity.Tag;
@@ -11,7 +12,7 @@ import com.jlas.learning.service.impl.LearningResourceSelectionServiceImpl;
 import com.jlas.learning.service.impl.WeakTagPolicy;
 import com.jlas.learning.dto.LearningCatalogScope;
 import com.jlas.learning.dto.LearningProfileSnapshot;
-import com.jlas.learning.dto.TagAssessmentResult;
+import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.enums.LearningPhase;
 import com.jlas.learning.service.impl.JpaLearningCatalogSource;
 import jakarta.persistence.EntityManager;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LearningCatalogSourceTest {
     @Configuration(proxyBeanMethods = false)
     @EntityScan("com.jlas")
-    @EnableJpaRepositories(basePackages = "com.jlas.learning.repository")
+    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.dictionary.repository"})
     @Import({JpaLearningCatalogSource.class, LearningResourceSelectionServiceImpl.class, WeakTagPolicy.class})
     static class CatalogTestConfiguration { }
 
@@ -60,7 +61,8 @@ class LearningCatalogSourceTest {
         em.flush();
         em.clear();
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30, List.of(new TagAssessmentResult(weakTag.getCode(), 5, 4)));
+                "N4", "N4", "JLPT", 30,
+                List.of(WeaknessEvidence.grammar(weakTag.getId(), weakTag.getCode(), weakTag.getId(), 5, 4)));
         var result = selector.select(7L, profile,
                 new LearningCatalogScope(List.of(foundationBook.getId()), List.of(goalBook.getId())));
         assertEquals(List.of(foundation.getId(), goal.getId()),
@@ -79,7 +81,8 @@ class LearningCatalogSourceTest {
         em.flush();
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
                 "N5", "N5", "JLPT", 30,
-                List.of(new TagAssessmentResult(lesson.getKnowledgeTag().getCode(), 3, 3)));
+                List.of(WeaknessEvidence.grammar(lesson.getKnowledgeTag().getId(),
+                        lesson.getKnowledgeTag().getCode(), lesson.getKnowledgeTag().getId(), 3, 3)));
         var result = selector.select(7L, profile, new LearningCatalogScope(List.of(book.getId()), List.of(book.getId())));
         assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
         assertEquals("INSUFFICIENT_ASSESSMENT", result.coverageGaps().getFirst().reasonCode());
@@ -120,10 +123,80 @@ class LearningCatalogSourceTest {
         assertTrue(catalog.findPublishedLessons(List.of()).isEmpty());
     }
 
+    @Test void findGrammarPointResolvesPublishedPatternToFocusedResource() {
+        var book = book("PUBLISHED");
+        var lesson = lesson(book, "PUBLISHED", "KNOWLEDGE");
+        var point = GrammarPoint.builder().lesson(lesson)
+                .pattern("～てください").meaning("vui lòng hãy làm").orderIndex(1).build();
+        em.persist(point);
+        em.flush();
+        Long pointId = point.getId();
+        em.clear();
+        var result = catalog.findGrammarPoint(pointId);
+        assertTrue(result.isPresent());
+        assertEquals(lesson.getId(), result.get().lessonId());
+        assertEquals("～てください", result.get().title());
+        assertEquals(pointId, result.get().grammarPointId());
+        assertEquals(10, result.get().estimatedMinutes());
+    }
+
+    @Test void findGrammarPointSkipsUnpublishedLessonOrTextbook() {
+        var draftBook = book("DRAFT");
+        var draftLesson = lesson(draftBook, "PUBLISHED", "KNOWLEDGE");
+        var point = GrammarPoint.builder().lesson(draftLesson)
+                .pattern("～ても").meaning("dù cho").orderIndex(1).build();
+        em.persist(point);
+        em.flush();
+        Long pointId = point.getId();
+        em.clear();
+        assertTrue(catalog.findGrammarPoint(pointId).isEmpty());
+    }
+
+    @Test void findComprehensionLessonPrefersExactLevel() {
+        var n4Book = book("PUBLISHED");
+        n4Book.setJlptLevel("N4");
+        var n4Reading = lessonWithSkill(n4Book, "PUBLISHED", "READING");
+        lessonWithSkill(book("PUBLISHED"), "PUBLISHED", "READING"); // N5 (đúng level N4 là N4)
+        em.flush();
+        em.clear();
+        var result = catalog.findComprehensionLesson("READING", "N4");
+        assertTrue(result.isPresent());
+        assertEquals(n4Reading.getId(), result.get().lessonId());
+    }
+
+    @Test void findComprehensionLessonFallsBackToNearestLevel() {
+        // Không có bài N4: N5 (cách 1, dễ hơn) được ưu tiên hơn N3 (cách 1, khó hơn).
+        var n5Reading = lessonWithSkill(book("PUBLISHED"), "PUBLISHED", "READING");
+        var n3Book = book("PUBLISHED");
+        n3Book.setJlptLevel("N3");
+        lessonWithSkill(n3Book, "PUBLISHED", "READING");
+        em.flush();
+        em.clear();
+        var result = catalog.findComprehensionLesson("READING", "N4");
+        assertTrue(result.isPresent());
+        assertEquals(n5Reading.getId(), result.get().lessonId());
+    }
+
+    @Test void findComprehensionLessonEmptyWhenNoPublishedSkillLesson() {
+        lesson(book("PUBLISHED"), "PUBLISHED", "KNOWLEDGE"); // chỉ có GRAMMAR
+        em.flush();
+        em.clear();
+        assertTrue(catalog.findComprehensionLesson("READING", "N4").isEmpty());
+    }
+
     private Textbook book(String status) {
         var book = Textbook.builder().title("Test textbook").status(status).jlptLevel("N5").build();
         em.persist(book);
         return book;
+    }
+
+    private Lesson lessonWithSkill(Textbook book, String status, String skill) {
+        var unit = Unit.builder().textbook(book).title("Unit").orderIndex(1).build();
+        em.persist(unit);
+        var lesson = Lesson.builder().unit(unit).knowledgeTag(tag("KNOWLEDGE")).title("Test lesson")
+                .status(status).estimatedMinutes(15).orderIndex(1).lessonType("CURRICULUM").skill(skill).build();
+        em.persist(lesson);
+        return lesson;
     }
 
     private Lesson lesson(Textbook book, String status, String tagType) {

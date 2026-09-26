@@ -51,10 +51,15 @@ public class LearningMapper {
         }
         completed = (int) items.stream().filter(item -> completedLessonIds.contains(item.getLesson().getId())).count();
         int totalDays = items.stream().mapToInt(UserLearningPathItem::getDayNumber).max().orElse(0);
-        return new LearningPathResponse(path.getId(), path.getUser().getId(), path.getGoal(), path.getTargetLevel(),
+        boolean warmUpCompleted = items.stream().anyMatch(item -> LearningPhase.WARM_UP.name().equals(item.getPhase()))
+                && items.stream().filter(item -> LearningPhase.WARM_UP.name().equals(item.getPhase()))
+                        .allMatch(item -> completedLessonIds.contains(item.getLesson().getId()));
+        return new LearningPathResponse(path.getId(), path.getUser().getId(), path.getAssessmentAttemptId(),
+                path.getGoal(), path.getTargetLevel(),
                 path.getCurrentLevel(), path.getMinutesPerDay(), path.getStatus(), path.getVersion(), path.getCreatedAt(),
                 groups, readCoverageGaps(path.getCoverageGapsJson()),
-                totalLessons, totalMinutes, totalDays, completed);
+                totalLessons, totalMinutes, totalDays, completed,
+                warmUpCompleted, path.getGatePassedAt() != null);
     }
 
     private LearningPathItemDto toItem(UserLearningPathItem item, boolean completed) {
@@ -69,9 +74,38 @@ public class LearningMapper {
                 level = lesson.getUnit().getTextbook().getJlptLevel();
             }
         }
-        return new LearningPathItemDto(lesson.getId(), lesson.getTitle(), textbookId, unitId, level,
+        // [JLAS-W0108] Điểm kiến thức chính (knowledge tag) để nhóm và trình bày lộ trình
+        // theo từng điểm kiến thức thay vì liệt kê tuần tự theo giáo trình.
+        String knowledgePointCode = lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getCode();
+        String knowledgePointName = lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getName();
+        // [JLAS-W0108] Warm-up GRAMMAR trỏ tới đúng mẫu ngữ pháp đã sai; lúc đó title = pattern.
+        var grammarPoint = item.getGrammarPoint();
+        Long grammarPointId = grammarPoint == null ? null : grammarPoint.getId();
+        String grammarPointPattern = grammarPoint == null ? null : grammarPoint.getPattern();
+        String grammarPointMeaning = grammarPoint == null ? null : grammarPoint.getMeaning();
+        // [JLAS-W0108] Warm-up KANJI/VOCAB trỏ tới đúng từ vựng đã sai; lúc đó title = expression.
+        var vocabularyEntry = item.getVocabularyEntry();
+        Long vocabularyEntryId = vocabularyEntry == null ? null : vocabularyEntry.getId();
+        String vocabularyExpression = vocabularyEntry == null ? null : vocabularyEntry.getExpression();
+        String vocabularyReading = vocabularyEntry == null ? null : vocabularyEntry.getReading();
+        String vocabularyMeaning = vocabularyEntry == null ? null : vocabularyEntry.getMeaning();
+        String title = grammarPoint != null ? grammarPoint.getPattern()
+                : vocabularyEntry != null ? vocabularyEntry.getExpression() : personalLessonTitle(lesson);
+        return new LearningPathItemDto(lesson.getId(), title, textbookId, unitId, level,
                 item.getReasonCode(), item.getReason(), readMatchedTags(item.getMatchedTagCodes()),
+                knowledgePointCode, knowledgePointName,
+                grammarPointId, grammarPointPattern, grammarPointMeaning,
+                vocabularyEntryId, vocabularyExpression, vocabularyReading, vocabularyMeaning,
                 item.getDayNumber(), item.getOrderIndex(), item.getEstimatedMinutes(), completed);
+    }
+
+    // [JLAS-W0108] Lát D — bỏ số thứ tự "Bài N:" khỏi title của bài học goal/đọc/nghe để lộ trình
+    // đọc thành các chủ đề kiến thức thay vì một danh sách đánh số giáo trình ("Bài 1, 2, 3…").
+    private String personalLessonTitle(com.jlas.dictionary.entity.Lesson lesson) {
+        String title = lesson.getTitle();
+        if (title == null || title.isBlank()) return title;
+        String stripped = title.replaceFirst("(?i)^bài\\s*\\d+\\s*[:：]\\s*", "").trim();
+        return stripped.isEmpty() ? title : stripped;
     }
 
     public String writeMatchedTags(Set<String> tags) {
@@ -90,7 +124,7 @@ public class LearningMapper {
         }
     }
 
-    private List<String> readMatchedTags(String json) {
+    public List<String> readMatchedTags(String json) {
         if (json == null || json.isBlank()) return List.of();
         try {
             return OBJECT_MAPPER.readValue(json, STRING_LIST);

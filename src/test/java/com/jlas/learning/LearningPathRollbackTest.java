@@ -8,7 +8,7 @@ import com.jlas.auth.entity.User;
 import com.jlas.learning.dto.LearningCatalogScope;
 import com.jlas.learning.dto.LearningProfileSnapshot;
 import com.jlas.learning.dto.LearningResourceCandidate;
-import com.jlas.learning.dto.TagAssessmentResult;
+import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.service.LearningCatalogSource;
@@ -56,7 +56,8 @@ class LearningPathRollbackTest {
 
     @Configuration(proxyBeanMethods = false)
     @EntityScan("com.jlas")
-    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository"})
+    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository",
+            "com.jlas.dictionary.repository", "com.jlas.assessment.repository"})
     @Import({WeakTagPolicy.class, LearningResourceSelectionServiceImpl.class,
             LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class})
     static class RollbackConfiguration {
@@ -99,9 +100,9 @@ class LearningPathRollbackTest {
             long bookId = textbookIds.get(0);
             return List.of(
                     new LearningResourceCandidate(999_999L, "Ghost warm-up", bookId, 1L,
-                            Set.of("PARTICLE"), "N4", 15, 1, 1),
+                            Set.of("PARTICLE"), "N4", 15, 1, 1, null, null),
                     new LearningResourceCandidate(999_998L, "Ghost goal", bookId, 1L,
-                            Set.of("TARGET"), "N4", 20, 1, 2));
+                            Set.of("TARGET"), "N4", 20, 1, 2, null, null));
         }
     }
 
@@ -154,6 +155,6 @@ class LearningPathRollbackTest {
 
     private LearningProfileSnapshot profile(Long userId, Long attemptId, String revision) {
         return new LearningProfileSnapshot(userId, attemptId, 10L, revision, true, true,
-                "N4", "N4", "JLPT", 30, List.of(new TagAssessmentResult("PARTICLE", 5, 4)));
+                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
     }
 }

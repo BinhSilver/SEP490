@@ -12180,3 +12180,143 @@ WHERE aq.skill IN ('KANJI', 'VOCABULARY');
 
 COMMIT;
 SET SESSION SQL_SAFE_UPDATES = @jlas_smart_test_previous_safe_updates;
+
+-- =====================================================================
+-- [JLAS-W0108] Gộp từ migration 007: grammar linkage N4-N1 + question-side topic/outcome mapping.
+-- Chạy sau seed_data_jlas.sql (cần tag/outcome/grammar_point + câu hỏi đã nạp). Idempotent.
+SET NAMES utf8mb4;
+SET SESSION SQL_SAFE_UPDATES = 0;
+-- 4b) N4/N3/N2/N1 — 74 form (report §8: đề xuất A exact-unique + B dạng chia)
+UPDATE assessment_question q
+JOIN (
+    SELECT 'かたがた' AS form, 579 AS gp_id
+    UNION ALL SELECT 'が早いか', 576
+    UNION ALL SELECT 'くらい', 410
+    UNION ALL SELECT 'ことから', 445
+    UNION ALL SELECT 'ことなく', 649
+    UNION ALL SELECT 'ことはない', 444
+    UNION ALL SELECT 'たりとも', 600
+    UNION ALL SELECT 'ておきます', 158
+    UNION ALL SELECT 'てみます', 219
+    UNION ALL SELECT 'でも', 401
+    UNION ALL SELECT 'とあって', 597
+    UNION ALL SELECT 'というものだ', 484
+    UNION ALL SELECT 'といえども', 638
+    UNION ALL SELECT 'として', 300
+    UNION ALL SELECT 'とはいえ', 636
+    UNION ALL SELECT 'どころか', 447
+    UNION ALL SELECT 'ながら', 145
+    UNION ALL SELECT 'なら', 326
+    UNION ALL SELECT 'ならでは', 571
+    UNION ALL SELECT 'なり', 578
+    UNION ALL SELECT 'にすぎない', 481
+    UNION ALL SELECT 'について', 298
+    UNION ALL SELECT 'にとって', 502
+    UNION ALL SELECT 'にもかかわらず', 464
+    UNION ALL SELECT 'によって', 297
+    UNION ALL SELECT 'によると', 330
+    UNION ALL SELECT 'に伴って', 495
+    UNION ALL SELECT 'に先立って', 426
+    UNION ALL SELECT 'に加えて', 551
+    UNION ALL SELECT 'に反して', 463
+    UNION ALL SELECT 'に基づいて', 430
+    UNION ALL SELECT 'に堪えない', 567
+    UNION ALL SELECT 'に対して', 299
+    UNION ALL SELECT 'に応じて', 532
+    UNION ALL SELECT 'に比べて', 335
+    UNION ALL SELECT 'に沿って', 431
+    UNION ALL SELECT 'に越したことはない', 628
+    UNION ALL SELECT 'に違いない', 314
+    UNION ALL SELECT 'のに', 331
+    UNION ALL SELECT 'ばかりか', 449
+    UNION ALL SELECT 'ばかりでなく', 530
+    UNION ALL SELECT 'べく', 595
+    UNION ALL SELECT 'ほど', 409
+    UNION ALL SELECT 'までもない', 627
+    UNION ALL SELECT 'ものの', 442
+    UNION ALL SELECT 'ものを', 604
+    UNION ALL SELECT 'ゆえに', 596
+    UNION ALL SELECT 'わけがない', 386
+    UNION ALL SELECT 'わけにはいかない', 451
+    UNION ALL SELECT 'をおいて', 559
+    UNION ALL SELECT 'をめぐって', 427
+    UNION ALL SELECT 'をものともせず', 561
+    UNION ALL SELECT 'をよそに', 560
+    UNION ALL SELECT 'を問わず', 491
+    UNION ALL SELECT 'を皮切りに', 610
+    UNION ALL SELECT 'を踏まえて', 611
+    UNION ALL SELECT '一方で', 461
+    UNION ALL SELECT '予定です', 747
+    UNION ALL SELECT '次第', 710
+    UNION ALL SELECT 'ことにしました', 317
+    UNION ALL SELECT 'ことになりました', 318
+    UNION ALL SELECT 'すぎました', 351
+    UNION ALL SELECT 'てあげました', 125
+    UNION ALL SELECT 'わけです', 285
+    UNION ALL SELECT 'わけではありません', 512
+    UNION ALL SELECT 'ようにします', 286
+    UNION ALL SELECT '続けています', 349
+    UNION ALL SELECT 'はずです', 284
+    UNION ALL SELECT '前に', 101
+    UNION ALL SELECT 'てもらいました', 127
+    UNION ALL SELECT 'でくれました', 126
+    UNION ALL SELECT 'ようとした', 384
+    UNION ALL SELECT 'せいで', 329
+) m ON JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.grammar_point')) = m.form
+SET q.grammar_point_id = m.gp_id
+WHERE q.skill = 'GRAMMAR' AND q.jlpt_level IN ('N4','N3','N2','N1');
+
+-- ============================================================
+-- 5) Question-side topic mapping
+-- ============================================================
+
+-- 5a) Reading: genre -> topic (5 genre, 1:1, 0 unmatched)
+UPDATE assessment_question aq
+JOIN tag t ON t.code = CASE JSON_UNQUOTE(JSON_EXTRACT(aq.context_json, '$.genre'))
+        WHEN 'schedule' THEN '予定'
+        WHEN 'email'    THEN 'メール'
+        WHEN 'story'    THEN '物語'
+        WHEN 'service'  THEN '案内'
+        WHEN 'opinion'  THEN '意見'
+    END
+    AND t.tag_type = 'TOPIC'
+SET aq.topic_tag_id = t.id
+WHERE aq.skill = 'READING';
+
+-- 5b) Listening: audio_group scenario -> topic (25 scenario -> 13 topic; 5 JLPT -> NULL)
+UPDATE assessment_question aq
+JOIN tag t ON t.code = CASE RIGHT(JSON_UNQUOTE(JSON_EXTRACT(aq.context_json, '$.audio_group')), 2)
+        WHEN '01' THEN '料理'  WHEN '02' THEN '移動'  WHEN '03' THEN NULL
+        WHEN '04' THEN '会議'  WHEN '05' THEN '研修'  WHEN '06' THEN '買い物'
+        WHEN '07' THEN '食事'  WHEN '08' THEN NULL    WHEN '09' THEN '報告'
+        WHEN '10' THEN '出張'  WHEN '11' THEN '施設'  WHEN '12' THEN '観光'
+        WHEN '13' THEN NULL    WHEN '14' THEN '開発'  WHEN '15' THEN '会議'
+        WHEN '16' THEN '施設'  WHEN '17' THEN '移動'  WHEN '18' THEN NULL
+        WHEN '19' THEN '運用'  WHEN '20' THEN '運用'  WHEN '21' THEN '地域'
+        WHEN '22' THEN '観光'  WHEN '23' THEN NULL    WHEN '24' THEN '開発'
+        WHEN '25' THEN '研修'
+    END
+    AND t.tag_type = 'TOPIC'
+SET aq.topic_tag_id = t.id
+WHERE aq.skill = 'LISTENING';
+
+-- ============================================================
+-- 6) Question-side outcome mapping (format -> outcome, 1:1, 0 unmatched)
+-- ============================================================
+UPDATE assessment_question aq
+JOIN outcome o ON o.code = CASE JSON_UNQUOTE(JSON_EXTRACT(aq.context_json, '$.format'))
+        WHEN 'DETAIL'                 THEN 'READ_DETAIL'
+        WHEN 'INFORMATION_RETRIEVAL'  THEN 'READ_INFO_RETRIEVAL'
+        WHEN 'MAIN_IDEA'              THEN 'READ_MAIN_IDEA'
+        WHEN 'REASON'                 THEN 'READ_REASON'
+        WHEN 'REQUIRED_ACTION'        THEN 'READ_REQUIRED_ACTION'
+        WHEN 'MATCHING'               THEN 'READ_MATCHING'
+        WHEN 'INFERENCE'              THEN 'READ_INFERENCE'
+        WHEN 'TASK_COMPREHENSION'     THEN 'LISTEN_TASK_COMPREHENSION'
+        WHEN 'POINT_COMPREHENSION'    THEN 'LISTEN_POINT_COMPREHENSION'
+        WHEN 'GENERAL_OUTLINE'        THEN 'LISTEN_GENERAL_OUTLINE'
+        WHEN 'INTEGRATED_COMPREHENSION' THEN 'LISTEN_INTEGRATED_COMPREHENSION'
+    END
+SET aq.outcome_id = o.id
+WHERE aq.skill IN ('READING','LISTENING');
+SET SESSION SQL_SAFE_UPDATES = 1;

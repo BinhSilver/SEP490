@@ -5,6 +5,8 @@ import com.jlas.assessment.entity.UserLearningSurvey;
 import com.jlas.assessment.repository.*;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -74,10 +76,33 @@ class LearningSurveyServiceTest {
         var user = User.builder().id(7L).japaneseLevel("N5").build();
         when(surveys.findById(7L)).thenReturn(Optional.empty());
         when(users.findById(7L)).thenReturn(Optional.of(user));
-        service.saveLearningSurvey(7L, request("JLPT", "N2", "N3"));
-        assertThat(user.getJapaneseLevel()).isEqualTo("N2");
+        service.saveLearningSurvey(7L, request("JLPT", "N3", "N4"));
+        assertThat(user.getJapaneseLevel()).isEqualTo("N3");
         verify(users).save(user);
-        verify(surveys).saveAndFlush(argThat(s -> s.getSelfReportedLevel().equals("N3")));
+        verify(surveys).saveAndFlush(argThat(s -> s.getSelfReportedLevel().equals("N4")));
+    }
+
+    @Test void unavailableTargetLevelIsRejectedBeforeSurveyIsSaved() {
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N2", "N3")))
+                .isInstanceOf(ApiException.class)
+                .extracting(ex -> ((ApiException) ex).getErrorCode())
+                .isEqualTo(ErrorCode.TARGET_NOT_AVAILABLE);
+        verifyNoInteractions(surveys, users, attempts);
+    }
+
+    @Test void unavailableTargetLevelIsRejectedBeforeSmartTestStarts() {
+        assertThatThrownBy(() -> service.startSmartTest(7L, request("JLPT", "N1", "N2")))
+                .isInstanceOf(ApiException.class)
+                .extracting(ex -> ((ApiException) ex).getErrorCode())
+                .isEqualTo(ErrorCode.TARGET_NOT_AVAILABLE);
+        verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
+    }
+
+    @Test void supportedTargetLevelIsAccepted() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        var response = service.saveLearningSurvey(7L, request("JLPT", "N3", "N4"));
+        assertThat(response.survey().targetLevel()).isEqualTo("N3");
     }
 
     @Test void savingSurveyPreservesFromZeroLevel() {

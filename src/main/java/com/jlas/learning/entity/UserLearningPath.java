@@ -62,6 +62,14 @@ public class UserLearningPath {
     @Column(name = "coverage_gaps_json", columnDefinition = "TEXT")
     private String coverageGapsJson;
 
+    /** [JLAS-W0113] Thời điểm vượt qua gate quiz tổng kết warm-up; null = chưa vượt. */
+    @Column(name = "gate_passed_at")
+    private LocalDateTime gatePassedAt;
+
+    /** [JLAS-W0108] Id bộ flashcard warm-up gộp Kanji+Từ vựng đã sai (soft-link, null = chưa sinh). */
+    @Column(name = "warm_up_flashcard_set_id")
+    private Long warmUpFlashcardSetId;
+
     /** ACTIVE/SUPERSEDED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

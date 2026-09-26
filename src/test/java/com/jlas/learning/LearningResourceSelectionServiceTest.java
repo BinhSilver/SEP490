@@ -11,7 +11,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -28,8 +30,8 @@ class LearningResourceSelectionServiceTest {
     private final LearningCatalogScope scope = new LearningCatalogScope(List.of(1L), List.of(2L));
 
     @Test void selectsWeakFoundationsBeforeGoalLessonsEvenBelowAssessedLevel() {
-        var result = select(new TagAssessmentResult("PARTICLE", 5, 4),
-                new TagAssessmentResult("VERB", 5, 2), new TagAssessmentResult("UNKNOWN", 1, 1));
+        var result = select(tag("PARTICLE", 5, 4),
+                tag("VERB", 5, 2), tag("UNKNOWN", 1, 1));
         assertEquals(List.of(11L, 21L), ids(result));
         assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
                 result.resources().stream().map(SelectedLearningResource::phase).toList());
@@ -41,8 +43,8 @@ class LearningResourceSelectionServiceTest {
 
     @Test void prioritizesErrorRatioThenWrongCountThenStableTagCode() {
         lessons.add(lesson(13, 1, "N5", 10, 3, "ADJECTIVE"));
-        var result = select(new TagAssessmentResult("PARTICLE", 10, 6),
-                new TagAssessmentResult("VERB", 4, 3), new TagAssessmentResult("ADJECTIVE", 4, 3));
+        var result = select(tag("PARTICLE", 10, 6),
+                tag("VERB", 4, 3), tag("ADJECTIVE", 4, 3));
         assertEquals(List.of(13L, 12L, 11L, 21L), ids(result));
         assertEquals(45, result.resources().get(1).resource().estimatedMinutes());
     }
@@ -50,13 +52,13 @@ class LearningResourceSelectionServiceTest {
     @ParameterizedTest
     @CsvSource({"2,2,false", "3,1,false", "4,2,true", "3,2,true", "0,0,false"})
     void respectsSampleAndRatioBoundaries(int assessed, int wrong, boolean weak) {
-        var result = select(new TagAssessmentResult("PARTICLE", assessed, wrong));
+        var result = select(tag("PARTICLE", assessed, wrong));
         assertEquals(weak ? List.of(11L, 21L) : List.of(21L), ids(result));
         assertEquals(assessed < 3 ? 1 : 0, result.coverageGaps().size());
     }
 
     @Test void thresholdsAreConfigurableAndIncludedInPolicyIdentity() {
-        var profile = profile(List.of(new TagAssessmentResult("PARTICLE", 2, 1)));
+        var profile = profile(List.of(tag("PARTICLE", 2, 1)));
         var relaxed = selector(2, "0.5").select(7L, profile, scope);
         var stricter = selector(2, "0.75").select(7L, profile, scope);
         assertEquals(List.of(11L, 21L), ids(relaxed));
@@ -71,28 +73,101 @@ class LearningResourceSelectionServiceTest {
     }
 
     @Test void fullyAssessedProfileWithoutWeakTagsStartsAtGoalLearning() {
-        var result = select(new TagAssessmentResult("PARTICLE", 5, 0));
+        var result = select(tag("PARTICLE", 5, 0));
         assertEquals(List.of(21L), ids(result));
         assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
         assertTrue(result.coverageGaps().isEmpty());
     }
 
     @Test void missingWarmUpResourcesAreReportedWithoutInventingLessons() {
-        var result = select(new TagAssessmentResult("MISSING", 5, 4));
+        var result = select(tag("MISSING", 5, 4));
         assertEquals(List.of(21L), ids(result));
         assertEquals(List.of(new CoverageGap("MISSING", "MISSING_WARM_UP_RESOURCE")), result.coverageGaps());
     }
 
+    @Test void grammarWeaknessWarmUpResolvesTheSpecificGrammarPoint() {
+        var grammarCatalog = new LearningCatalogSource() {
+            @Override
+            public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
+                return lessons.stream().filter(lesson -> textbookIds.contains(lesson.textbookId())).toList();
+            }
+
+            @Override
+            public Optional<LearningResourceCandidate> findGrammarPoint(Long grammarPointId) {
+                if (grammarPointId == null) return Optional.empty();
+                return Optional.of(new LearningResourceCandidate(11L, "～てください", 1L, 10L,
+                        Set.of("PARTICLE"), "N5", 10, 1, 1, grammarPointId, null));
+            }
+        };
+        var grammarSelector = new LearningResourceSelectionServiceImpl(
+                grammarCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var result = grammarSelector.select(7L, profile(List.of(WeaknessEvidence.grammar(77L, "PARTICLE", 1L, 5, 4))), scope);
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals(LearningPhase.WARM_UP, result.resources().getFirst().phase());
+        assertEquals("WEAK_GRAMMAR_POINT", result.resources().getFirst().reasonCode());
+        assertEquals(77L, result.resources().getFirst().resource().grammarPointId());
+        assertEquals("～てください", result.resources().getFirst().resource().title());
+        assertTrue(result.coverageGaps().isEmpty());
+    }
+
+    @Test void aboveLevelWeaknessIsNotWarmedUpNorReportedAsGap() {
+        var above = WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4, "N3");
+        var result = select(above);
+        assertEquals(List.of(21L), ids(result));
+        assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
+        assertTrue(result.coverageGaps().isEmpty());
+    }
+
+    @Test void vocabWeaknessWarmUpResolvesTheSpecificVocabularyEntry() {
+        var vocabCatalog = new LearningCatalogSource() {
+            @Override
+            public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
+                return lessons.stream().filter(lesson -> textbookIds.contains(lesson.textbookId())).toList();
+            }
+
+            @Override
+            public Optional<LearningResourceCandidate> findVocabularyItem(Long vocabularyEntryId) {
+                if (vocabularyEntryId == null) return Optional.empty();
+                return Optional.of(new LearningResourceCandidate(11L, "学校", 1L, 10L,
+                        Set.of("PARTICLE"), "N5", 5, 1, 1, null, vocabularyEntryId));
+            }
+        };
+        var vocabSelector = new LearningResourceSelectionServiceImpl(
+                vocabCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var result = vocabSelector.select(7L, profile(List.of(WeaknessEvidence.item(
+                WeaknessEvidence.SKILL_KANJI, "KANJI:学校", 5, 4, "N5", 77L))), scope);
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals(LearningPhase.WARM_UP, result.resources().getFirst().phase());
+        assertEquals("WEAK_KANJI_ITEM", result.resources().getFirst().reasonCode());
+        assertEquals(77L, result.resources().getFirst().resource().vocabularyEntryId());
+        assertEquals("学校", result.resources().getFirst().resource().title());
+        assertTrue(result.coverageGaps().isEmpty());
+    }
+
+    @Test void vocabWeaknessWithoutLessonReportsGap() {
+        var result = select(WeaknessEvidence.item(
+                WeaknessEvidence.SKILL_VOCABULARY, "VOCAB:ときどき", 5, 4, "N5", 99L));
+        assertEquals(List.of(21L), ids(result));
+        assertEquals(List.of(new CoverageGap("VOCAB:ときどき", "MISSING_WARM_UP_RESOURCE")), result.coverageGaps());
+    }
+
+    @Test void atOrBelowLevelWeaknessIsStillWarmedUp() {
+        var below = WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4, "N5");
+        var result = select(below);
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals(LearningPhase.WARM_UP, result.resources().getFirst().phase());
+    }
+
     @Test void oneLessonCanCoverMultipleWeakTagsWithoutDuplicatingIt() {
         lessons.set(0, lesson(11, 1, "N5", 15, 1, "PARTICLE", "VERB"));
-        var result = select(new TagAssessmentResult("PARTICLE", 5, 5), new TagAssessmentResult("VERB", 5, 4));
+        var result = select(tag("PARTICLE", 5, 5), tag("VERB", 5, 4));
         assertEquals(List.of(11L, 21L), ids(result));
         assertEquals(Set.of("PARTICLE", "VERB"), result.resources().getFirst().matchedTagCodes());
     }
 
     @Test void lessonSharedByBothPhasesAppearsOnlyInWarmUp() {
         var sharedScope = new LearningCatalogScope(List.of(2L), List.of(2L));
-        var result = selector.select(7L, profile(List.of(new TagAssessmentResult("TARGET", 5, 4))), sharedScope);
+        var result = selector.select(7L, profile(List.of(tag("TARGET", 5, 4))), sharedScope);
         assertEquals(List.of(21L), ids(result));
         assertEquals(LearningPhase.WARM_UP, result.resources().getFirst().phase());
         assertTrue(result.coverageGaps().isEmpty());
@@ -102,24 +177,24 @@ class LearningResourceSelectionServiceTest {
         lessons.add(lesson(22, 2, "N3", 20, 0, "ADVANCED"));
         lessons.add(lesson(23, 2, "UNKNOWN", 20, 0, "UNKNOWN"));
         lessons.add(lesson(24, 2, null, 20, 0, "UNCLASSIFIED"));
-        assertEquals(List.of(21L), ids(select(new TagAssessmentResult("PARTICLE", 5, 0))));
+        assertEquals(List.of(21L), ids(select(tag("PARTICLE", 5, 0))));
     }
 
     @Test void noGoalResourcesIsNotFoundEvenWhenWarmUpExists() {
         lessons.removeIf(lesson -> lesson.textbookId() == 2L);
-        assertError(ErrorCode.NOT_FOUND, () -> select(new TagAssessmentResult("PARTICLE", 5, 4)));
+        assertError(ErrorCode.NOT_FOUND, () -> select(tag("PARTICLE", 5, 4)));
     }
 
     @Test void catalogOrderIsDeterministicRegardlessOfSourceOrder() {
         lessons.add(lesson(22, 2, "N4", 20, 2, "SECOND"));
         lessons.add(lesson(23, 2, "N4", 20, 2, "THIRD"));
         java.util.Collections.reverse(lessons);
-        assertEquals(List.of(21L, 22L, 23L), ids(select(new TagAssessmentResult("PARTICLE", 5, 0))));
+        assertEquals(List.of(21L, 22L, 23L), ids(select(tag("PARTICLE", 5, 0))));
     }
 
     @Test void selectedLessonWithInvalidDurationFailsInsteadOfMakingAnImpossibleSchedule() {
         lessons.set(2, lesson(21, 2, "N4", 0, 1, "TARGET"));
-        assertError(ErrorCode.CONFLICT, () -> select(new TagAssessmentResult("PARTICLE", 5, 0)));
+        assertError(ErrorCode.CONFLICT, () -> select(tag("PARTICLE", 5, 0)));
     }
 
     @Test void rejectsForeignProfile() {
@@ -138,17 +213,22 @@ class LearningResourceSelectionServiceTest {
         }
     }
 
-    @Test void rejectsMissingTagResultsInsteadOfTreatingThemAsMastery() {
-        assertError(ErrorCode.CONFLICT, () -> selector.select(7L, profile(List.of()), scope));
-        assertError(ErrorCode.CONFLICT, () -> selector.select(7L, profile(null), scope));
+    @Test void missingTagEvidenceStillYieldsGoalLearningWithCoverageGap() {
+        for (var tags : Arrays.asList(List.<WeaknessEvidence>of(), null)) {
+            var result = selector.select(7L, profile(tags), scope);
+            assertEquals(List.of(21L), ids(result));
+            assertEquals(List.of(new CoverageGap("ASSESSMENT", "NO_ASSESSMENT_EVIDENCE")), result.coverageGaps());
+        }
     }
 
     @Test void rejectsInvalidAndDuplicateTagEvidence() {
-        for (var tags : List.of(List.of(new TagAssessmentResult("PARTICLE", 2, 3)),
-                List.of(new TagAssessmentResult("PARTICLE", -1, 0)),
-                List.of(new TagAssessmentResult("PARTICLE", 3, -1)),
-                List.of(new TagAssessmentResult(" ", 3, 2)),
-                List.of(new TagAssessmentResult("PARTICLE", 3, 2), new TagAssessmentResult("PARTICLE", 3, 3)))) {
+        for (var tags : List.of(
+                List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 2, 3)),
+                List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, -1, 0)),
+                List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 3, -1)),
+                List.of(new WeaknessEvidence("", "GP:1", 3, 2, null, null, null, null, null, null, null, null)),
+                List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 3, 2),
+                        WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 3, 3)))) {
             assertError(ErrorCode.VALIDATION_FAILED, () -> selector.select(7L, profile(tags), scope));
         }
     }
@@ -177,7 +257,7 @@ class LearningResourceSelectionServiceTest {
     }
 
     @Test void resultDoesNotExposeMutableSelectionLists() {
-        var result = select(new TagAssessmentResult("PARTICLE", 5, 4));
+        var result = select(tag("PARTICLE", 5, 4));
         assertThrows(UnsupportedOperationException.class, () -> result.resources().clear());
         assertThrows(UnsupportedOperationException.class, () -> result.coverageGaps().clear());
     }
@@ -186,21 +266,29 @@ class LearningResourceSelectionServiceTest {
         return new LearningResourceSelectionServiceImpl(catalog, new WeakTagPolicy(minimum, new BigDecimal(threshold)));
     }
 
-    private LearningSelectionResult select(TagAssessmentResult... tags) {
+    private LearningSelectionResult select(WeaknessEvidence... tags) {
         return selector.select(7L, profile(Arrays.asList(tags)), scope);
     }
 
-    private static List<TagAssessmentResult> validTags() {
-        return List.of(new TagAssessmentResult("PARTICLE", 5, 4));
+    /** Grammar evidence với grammarPointId duy nhất; tagCode dùng để khớp lesson warm-up. */
+    private static final AtomicLong GP_SEQ = new AtomicLong();
+
+    private static WeaknessEvidence tag(String code, int assessed, int wrong) {
+        long id = GP_SEQ.incrementAndGet();
+        return WeaknessEvidence.grammar(id, code, id, assessed, wrong);
     }
 
-    private static LearningProfileSnapshot profile(List<TagAssessmentResult> tags) {
+    private static List<WeaknessEvidence> validTags() {
+        return List.of(tag("PARTICLE", 5, 4));
+    }
+
+    private static LearningProfileSnapshot profile(List<WeaknessEvidence> tags) {
         return new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true, "N4", "N4", "JLPT", 30, tags);
     }
 
     private static LearningResourceCandidate lesson(long id, long book, String level, int minutes, int order, String... tags) {
         return new LearningResourceCandidate(id, "Lesson " + id, book, book * 10,
-                Set.of(tags), level, minutes, 1, order);
+                Set.of(tags), level, minutes, 1, order, null, null);
     }
 
     private static List<Long> ids(LearningSelectionResult result) {

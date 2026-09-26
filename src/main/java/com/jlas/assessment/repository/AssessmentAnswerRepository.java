@@ -12,15 +12,18 @@ public interface AssessmentAnswerRepository extends JpaRepository<AssessmentAnsw
 
     List<AssessmentAnswer> findByAttemptId(Long attemptId);
 
-    /** GRAMMAR answers with their primary grammar point's lesson tag fetched, for per-tag aggregation. */
+    /** [JLAS-W0108] Toàn bộ đáp án của attempt với ngữ cảnh câu hỏi (grammarPoint/lesson/tag/topic/outcome)
+     *  để gom evidence điểm yếu theo 5 skill. Các khóa bổ sung (topic/outcome) chỉ có với Reading/Listening. */
     @Query("""
             select a from AssessmentAnswer a
             join fetch a.question q
-            join fetch q.grammarPoint gp
-            join fetch gp.lesson l
-            join fetch l.knowledgeTag t
+            left join fetch q.grammarPoint gp
+            left join fetch gp.lesson l
+            left join fetch l.knowledgeTag t
+            left join fetch q.topicTag tt
+            left join fetch q.outcome o
+            left join fetch q.vocabularyEntry ve
             where a.attempt.id = :attemptId
-              and q.skill = 'GRAMMAR'
             """)
-    List<AssessmentAnswer> findGrammarWithLessonTagByAttemptId(@Param("attemptId") Long attemptId);
+    List<AssessmentAnswer> findWithQuestionContextByAttemptId(@Param("attemptId") Long attemptId);
 }

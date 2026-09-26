@@ -12,7 +12,7 @@ import com.jlas.dictionary.entity.Unit;
 import com.jlas.learning.dto.CreateLearningPathResult;
 import com.jlas.learning.dto.LearningCatalogScope;
 import com.jlas.learning.dto.LearningProfileSnapshot;
-import com.jlas.learning.dto.TagAssessmentResult;
+import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.service.LearningProfileSource;
 import com.jlas.learning.service.LearningScopeSource;
@@ -60,7 +60,8 @@ class LearningPathConcurrencyTest {
 
     @Configuration(proxyBeanMethods = false)
     @EntityScan("com.jlas")
-    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository"})
+    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository",
+            "com.jlas.dictionary.repository", "com.jlas.assessment.repository"})
     @Import({JpaLearningCatalogSource.class, WeakTagPolicy.class, LearningResourceSelectionServiceImpl.class,
             LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class})
     static class ConcurrencyConfiguration {
@@ -188,7 +189,7 @@ class LearningPathConcurrencyTest {
 
     private LearningProfileSnapshot profile(Long userId, Long attemptId, String revision) {
         return new LearningProfileSnapshot(userId, attemptId, 10L, revision, true, true,
-                "N4", "N4", "JLPT", 30, List.of(new TagAssessmentResult("PARTICLE", 5, 4)));
+                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
     }
 
     private record Fixture(Long userId, Long warmBookId, Long goalBookId, Long warmLessonId, Long goalLessonId) { }

@@ -48,6 +48,39 @@ class LearningScheduleServiceTest {
                 () -> scheduler.schedule(List.of(warm(10)), 0)).getErrorCode());
     }
 
+    @Test void warmUpGrammarChunksThreePerDayThenGoalFreshDay() {
+        var resources = new java.util.ArrayList<SelectedLearningResource>();
+        for (int i = 0; i < 5; i++) resources.add(grammar(10)); // 5 mẫu -> 3 + 2
+        resources.add(goal(15));
+        var result = scheduler.schedule(resources, 1000);
+        assertEquals(List.of(1, 1, 1, 2, 2, 3),
+                result.stream().map(ScheduledLearningResource::dayNumber).toList());
+    }
+
+    @Test void warmUpReadingAndListeningLimitedToOneEachPerDay() {
+        var result = scheduler.schedule(List.of(reading(15), reading(15), listening(15), listening(15)), 1000);
+        assertEquals(List.of(1, 2, 2, 3),
+                result.stream().map(ScheduledLearningResource::dayNumber).toList());
+    }
+
+    @Test void warmUpGrammarChunkStillRespectsMinuteBudget() {
+        // 2 grammar (10' mỗi cái) + budget 15: mỗi grammar tự thành 1 ngày do vượt ngân sách.
+        var result = scheduler.schedule(List.of(grammar(10), grammar(10)), 15);
+        assertEquals(List.of(1, 2), result.stream().map(ScheduledLearningResource::dayNumber).toList());
+    }
+
+    private static SelectedLearningResource grammar(int minutes) {
+        return selection(LearningPhase.WARM_UP, "WEAK_GRAMMAR_POINT", "GRAMMAR", minutes);
+    }
+
+    private static SelectedLearningResource reading(int minutes) {
+        return selection(LearningPhase.WARM_UP, "WEAK_READING_ITEM", "READING", minutes);
+    }
+
+    private static SelectedLearningResource listening(int minutes) {
+        return selection(LearningPhase.WARM_UP, "WEAK_LISTENING_ITEM", "LISTENING", minutes);
+    }
+
     private static SelectedLearningResource warm(int minutes) {
         return selection(LearningPhase.WARM_UP, "WEAK_TAG", "PARTICLE", minutes);
     }
@@ -58,7 +91,7 @@ class LearningScheduleServiceTest {
 
     private static SelectedLearningResource selection(LearningPhase phase, String reason, String tag, int minutes) {
         var candidate = new LearningResourceCandidate((long) minutes, "Lesson " + minutes, 1L, 1L,
-                Set.of(tag), "N5", minutes, 1, 1);
+                Set.of(tag), "N5", minutes, 1, 1, null, null);
         return new SelectedLearningResource(candidate, phase, reason, reason + " text", Set.of(tag));
     }
 }

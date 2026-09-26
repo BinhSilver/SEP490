@@ -6,5 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record SmartTestAnswerRequest(
         @NotNull Long questionId,
-        @NotNull @Min(1) @Max(4) Integer selectedOption
+        /** null = bỏ qua câu (hết giờ), không bị chấm đúng/sai. */
+        @Min(1) @Max(4) Integer selectedOption
 ) { }

@@ -15,6 +15,7 @@ import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.entity.SmartTestSession;
 import com.jlas.assessment.entity.SmartTestSessionQuestion;
 import com.jlas.assessment.entity.SmartTestSkillResult;
+import com.jlas.assessment.enums.JlptLevel;
 import com.jlas.assessment.repository.AssessmentAnswerRepository;
 import com.jlas.assessment.repository.AssessmentAttemptRepository;
 import com.jlas.assessment.repository.AssessmentQuestionRepository;
@@ -26,6 +27,8 @@ import com.jlas.assessment.service.impl.SmartTestAdaptivePolicy.BatchScore;
 import com.jlas.assessment.service.impl.SmartTestAdaptivePolicy.Decision;
 import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.auth.repository.UserRepository;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -64,6 +67,8 @@ public class AssessmentServiceImpl implements AssessmentService {
             "READING", "LISTENING", "VOCABULARY", "GRAMMAR", "KANJI");
     private static final Set<String> CURRENT_LEVELS = Set.of(
             "FROM_ZERO", "UNKNOWN", "N5", "N4", "N3", "N2", "N1");
+    /** [JLAS-W0108] Mục tiêu có target JLPT (JLPT/BRSE); N2/N1 đang phát triển, bị chặn ở API. */
+    private static final Set<String> GOALS_WITH_TARGET = Set.of("JLPT", "BA");
 
     private final UserRepository userRepository;
     private final AssessmentAttemptRepository attemptRepository;
@@ -90,6 +95,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         String goal = allowed(request.goal(), GOALS, "Mục tiêu không hợp lệ.");
         String target = request.targetLevel() == null || request.targetLevel().isBlank() ? null
                 : allowed(request.targetLevel(), Set.copyOf(SmartTestAdaptivePolicy.LEVELS), "Level mục tiêu không hợp lệ.");
+        if (GOALS_WITH_TARGET.contains(goal)) requireAvailableTarget(target);
         if ("JLPT".equals(goal) && target == null) throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS,
                 "Level tự đánh giá không hợp lệ.");
@@ -130,6 +136,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         String targetLevel = request.targetLevel() == null || request.targetLevel().isBlank()
                 ? null : allowed(request.targetLevel(), Set.copyOf(SmartTestAdaptivePolicy.LEVELS),
                 "Mục tiêu JLPT không hợp lệ.");
+        if (GOALS_WITH_TARGET.contains(goal)) requireAvailableTarget(targetLevel);
         if ("JLPT".equals(goal) && targetLevel == null) {
             throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         }
@@ -191,7 +198,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .attempt(session.getAttempt())
                 .question(question)
                 .selectedOption(request.selectedOption())
-                .isCorrect(request.selectedOption().equals(question.getCorrectOption()))
+                .isCorrect(request.selectedOption() != null && request.selectedOption().equals(question.getCorrectOption()))
                 .answeredAt(LocalDateTime.now())
                 .build());
 
@@ -309,10 +316,15 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     private boolean appendBatch(SmartTestSession session, String skill, String level, int batchNumber,
                                 List<SmartTestSessionQuestion> questions) {
+        List<String> tags = preferredTags(session.getGoal());
+        // [JLAS-W0108] Lọc cứng theo mục tiêu: chỉ phục vụ câu khớp tag mục tiêu (chính hoặc phụ),
+        // không trộn câu của mục tiêu khác (vd JLPT không lẫn BA/DAILY_LIFE).
+        List<AssessmentQuestion> pool = questionRepository.findByIsActiveTrueAndSkillAndJlptLevel(skill, level)
+                .stream().filter(question -> SmartTestQuestionSelector.matchesGoal(question, tags)).toList();
         List<AssessmentQuestion> candidates = SmartTestQuestionSelector.select(
-                questionRepository.findByIsActiveTrueAndSkillAndJlptLevel(skill, level),
+                pool,
                 questions.stream().map(SmartTestSessionQuestion::getQuestion).toList(),
-                SmartTestAdaptivePolicy.BATCH_SIZE, preferredTags(session.getGoal()));
+                SmartTestAdaptivePolicy.BATCH_SIZE, tags);
         if (candidates.size() < SmartTestAdaptivePolicy.BATCH_SIZE) {
             if (batchNumber == 1) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -400,10 +412,11 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .findBySessionAttemptIdOrderByIdSkillAsc(session.getAttemptId());
         String activeSkill = "SUBMITTED".equals(session.getAttempt().getStatus())
                 ? null : activeSkill(session.getGoal(), questions, completed);
+        List<String> goalTags = preferredTags(session.getGoal());
         QuestionView current = questions.stream()
                 .filter(item -> item.getQuestion().getSkill().equals(activeSkill))
                 .filter(item -> !answeredIds.contains(item.getQuestion().getId()))
-                .findFirst().map(this::toQuestion).orElse(null);
+                .findFirst().map(item -> toQuestion(item, goalTags)).orElse(null);
         ResultView result = "SUBMITTED".equals(session.getAttempt().getStatus())
                 ? toResult(session, questions, answers) : null;
         int visibleTotal = "SUBMITTED".equals(session.getAttempt().getStatus())
@@ -441,13 +454,23 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .orElseThrow(() -> new IllegalStateException("Không còn kỹ năng đang kiểm tra."));
     }
 
-    private QuestionView toQuestion(SmartTestSessionQuestion item) {
+    private QuestionView toQuestion(SmartTestSessionQuestion item, List<String> preferredTags) {
         AssessmentQuestion question = item.getQuestion();
         return new QuestionView(question.getId(), item.getOrderIndex(), item.getBatchNumber(), question.getSkill(),
-                question.getJlptLevel(), question.getKnowledgeTag().getCode(), question.getDifficulty(), question.getTitle(), question.getPassageHtml(),
+                question.getJlptLevel(), displayTag(question, preferredTags), question.getDifficulty(), question.getTitle(), question.getPassageHtml(),
                 question.getAudioUrl(), question.getImageUrl(), question.getQuestionText(),
                 List.of(text(question.getOption1()), text(question.getOption2()),
                         text(question.getOption3()), text(question.getOption4())));
+    }
+
+    /** [JLAS-W0108] Nhãn hiển thị theo mục tiêu: ưu tiên tag chính, nếu lệch mục tiêu thì dùng additional tag khớp. */
+    private static String displayTag(AssessmentQuestion question, List<String> preferredTags) {
+        String primary = question.getKnowledgeTag() == null ? null : question.getKnowledgeTag().getCode();
+        if (preferredTags == null || preferredTags.isEmpty() || primary == null || preferredTags.contains(primary)) {
+            return primary;
+        }
+        return SmartTestQuestionSelector.additionalTags(question).stream()
+                .filter(preferredTags::contains).findFirst().orElse(primary);
     }
 
     private ResultView toResult(SmartTestSession session, List<SmartTestSessionQuestion> questions,
@@ -744,6 +767,14 @@ public class AssessmentServiceImpl implements AssessmentService {
         String normalized = value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
         if (!allowed.contains(normalized)) throw badRequest(message);
         return normalized;
+    }
+
+    /** [JLAS-W0108] Chặn target N2/N1 ở tầng API/domain cho mục tiêu thi cử (JLPT/BRSE). */
+    private static void requireAvailableTarget(String target) {
+        if (target != null && !JlptLevel.isAvailableForLearning(target)) {
+            throw new ApiException(ErrorCode.TARGET_NOT_AVAILABLE,
+                    "Cấp độ " + target + " đang được phát triển. Hiện chỉ hỗ trợ N5, N4 và N3.");
+        }
     }
 
     private static String text(String value) {

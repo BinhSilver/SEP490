@@ -361,7 +361,19 @@ CREATE TABLE tag (
     UNIQUE KEY uk_tag_code (code),
     KEY idx_tag_type_name (tag_type, name),
     CONSTRAINT chk_tag_type
-        CHECK (tag_type IN ('VIDEO','KNOWLEDGE','SITUATION','SKILL'))
+        CHECK (tag_type IN ('VIDEO','KNOWLEDGE','SITUATION','SKILL','TOPIC')) -- [JLAS-W0108] them TOPIC cho topic Reading/Listening.
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Outcome Reading/Listening (map tu context_json.format cua cau hoi, theo skill).
+CREATE TABLE outcome (
+    id      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code    VARCHAR(50)  NOT NULL,   -- READ_MAIN_IDEA / LISTEN_TASK_COMPREHENSION ...
+    name_vi VARCHAR(255) NOT NULL,
+    name_ja VARCHAR(255) NULL,
+    skill   VARCHAR(20)  NOT NULL,   -- READING hoac LISTENING.
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_outcome_code (code),
+    CONSTRAINT chk_outcome_skill CHECK (skill IN ('READING','LISTENING'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Danh muc bo thu Kanji.
@@ -713,7 +725,7 @@ CREATE TABLE lesson (
     estimated_minutes INT UNSIGNED NULL,
     lesson_type       VARCHAR(20) NOT NULL,       -- CURRICULUM/AMON/REVIEW.
     skill             VARCHAR(20) NOT NULL,       -- Ky nang/noi dung chinh.
-    situation_tag     VARCHAR(50) NULL,           -- TRAVEL/WORK/FOUNDATION cho goal-based path.
+    situation_tag     VARCHAR(50) NULL,           -- TRAVEL/BA/FOUNDATION cho goal-based path. [JLAS-W0108] WORK da doi thanh BA.
     is_review         TINYINT(1) NOT NULL DEFAULT 0,
     status            VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -733,7 +745,7 @@ CREATE TABLE lesson (
         CHECK (skill IN ('VOCABULARY','GRAMMAR','READING','LISTENING','SPEAKING','ONYOMI','KUNYOMI')),
     CONSTRAINT chk_lesson_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
     CONSTRAINT chk_lesson_situation_tag
-        CHECK (situation_tag IS NULL OR situation_tag IN ('TRAVEL','WORK','FOUNDATION')),
+        CHECK (situation_tag IS NULL OR situation_tag IN ('TRAVEL','BA','FOUNDATION')), -- [JLAS-W0108] WORK -> BA
     CONSTRAINT chk_lesson_minutes CHECK (estimated_minutes IS NULL OR estimated_minutes > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -770,6 +782,7 @@ CREATE TABLE content_item (
     section_id      BIGINT UNSIGNED NOT NULL,
     content_type    VARCHAR(20) NOT NULL,    -- READING/GRAMMAR/LISTENING.
     grammar_point_id BIGINT UNSIGNED NULL,   -- [JLAS-W0070] Cau vi du (GRAMMAR) minh hoa mau ngu phap nao; NULL = khong gan.
+    topic_tag_id     BIGINT UNSIGNED NULL,   -- [JLAS-W0108] Topic (Reading/Listening) cho content-side mapping.
     title           VARCHAR(255) NOT NULL,
     content         MEDIUMTEXT NULL,
     translated_text MEDIUMTEXT NULL,         -- Ban dich cua noi dung co dinh.
@@ -777,8 +790,11 @@ CREATE TABLE content_item (
     PRIMARY KEY (id),
     UNIQUE KEY uk_content_item_order (section_id, order_index),
     KEY idx_content_item_grammar (grammar_point_id),
+    KEY idx_content_item_topic (topic_tag_id),                           -- [JLAS-W0108]
     CONSTRAINT fk_content_item_section FOREIGN KEY (section_id)
         REFERENCES lesson_section(id) ON DELETE CASCADE,
+    CONSTRAINT fk_content_item_topic FOREIGN KEY (topic_tag_id)           -- [JLAS-W0108]
+        REFERENCES tag(id) ON DELETE SET NULL,
     CONSTRAINT chk_content_item_type
         CHECK (content_type IN ('READING','GRAMMAR','LISTENING'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -820,6 +836,35 @@ CREATE TABLE content_vocabulary (
         REFERENCES content_item(id) ON DELETE CASCADE,
     CONSTRAINT fk_content_vocab_vocabulary FOREIGN KEY (vocabulary_id)
         REFERENCES vocabulary_entry(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Identity yeu -> tai nguyen hoc READING/LISTENING (5 doc + 5 nghe warm-up).
+CREATE TABLE resource_mapping (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    skill             VARCHAR(20)  NOT NULL,   -- READING/LISTENING
+    situation_tag_id  BIGINT UNSIGNED NOT NULL,-- FK -> tag (SITUATION: JLPT/BA/TRAVEL/DAILY_LIFE)
+    outcome_id        BIGINT UNSIGNED NOT NULL,-- FK -> outcome
+    jlpt_level        VARCHAR(10)  NOT NULL,   -- N5..N1 (GHIM level — khong NULL)
+    topic_tag_id      BIGINT UNSIGNED NULL,    -- FK -> tag (TOPIC); NULL = JLPT listening
+    content_item_id   BIGINT UNSIGNED NOT NULL,-- FK -> content_item (READING/LISTENING)
+    reason_code       VARCHAR(50)  NOT NULL,   -- vi sao chon (vd SAME_OUTCOME_DIFF_PASSAGE)
+    blueprint_version VARCHAR(30)  NOT NULL,   -- version blueprint (audit)
+    status            VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
+    created_at        DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                          ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_resource_mapping
+        (skill, situation_tag_id, outcome_id, jlpt_level,
+         (COALESCE(topic_tag_id, 0)), content_item_id),
+    KEY idx_rm_lookup (skill, situation_tag_id, outcome_id, jlpt_level, topic_tag_id, status),
+    KEY idx_rm_content (content_item_id),
+    CONSTRAINT fk_rm_situation FOREIGN KEY (situation_tag_id) REFERENCES tag(id),
+    CONSTRAINT fk_rm_outcome   FOREIGN KEY (outcome_id)       REFERENCES outcome(id),
+    CONSTRAINT fk_rm_topic     FOREIGN KEY (topic_tag_id)     REFERENCES tag(id) ON DELETE SET NULL,
+    CONSTRAINT fk_rm_content   FOREIGN KEY (content_item_id)  REFERENCES content_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_rm_skill CHECK (skill IN ('READING','LISTENING')),
+    CONSTRAINT chk_rm_level CHECK (jlpt_level IN ('N5','N4','N3','N2','N1'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- #############################################################################
@@ -1007,6 +1052,8 @@ CREATE TABLE assessment_question (
     id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     conversion_rule_id  BIGINT UNSIGNED NULL,     -- Chi dung khi cau hoi gan rule Amon.
     knowledge_tag_id    BIGINT UNSIGNED NOT NULL, -- Knowledge point chinh de gom weakness.
+    topic_tag_id        BIGINT UNSIGNED NULL,     -- [JLAS-W0108] Topic (Reading/Listening) cho weak evidence.
+    outcome_id          BIGINT UNSIGNED NULL,     -- [JLAS-W0108] Outcome (Reading/Listening) cho weak evidence.
     grammar_point_id    BIGINT UNSIGNED NULL,     -- [JLAS2-24] Mau ngu phap CHINH (nullable; chi GRAMMAR).
     vocabulary_entry_id BIGINT UNSIGNED NULL,     -- [JLAS-W0091] Tu vung cu the (nullable; chi KANJI/VOCABULARY).
     skill               VARCHAR(20) NOT NULL DEFAULT 'KANJI',
@@ -1038,12 +1085,18 @@ CREATE TABLE assessment_question (
         (skill, jlpt_level, difficulty, is_active),
     KEY idx_assessment_question_rule (conversion_rule_id),
     KEY idx_assessment_question_knowledge (knowledge_tag_id),
+    KEY idx_assessment_question_topic (topic_tag_id),          -- [JLAS-W0108]
+    KEY idx_assessment_question_outcome (outcome_id),          -- [JLAS-W0108]
     KEY idx_assessment_question_grammar (grammar_point_id),
     KEY idx_assessment_question_vocab (vocabulary_entry_id),
     CONSTRAINT fk_assessment_question_rule FOREIGN KEY (conversion_rule_id)
         REFERENCES conversion_rule(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_knowledge FOREIGN KEY (knowledge_tag_id)
         REFERENCES tag(id),
+    CONSTRAINT fk_assessment_question_topic FOREIGN KEY (topic_tag_id)          -- [JLAS-W0108]
+        REFERENCES tag(id) ON DELETE SET NULL,
+    CONSTRAINT fk_assessment_question_outcome FOREIGN KEY (outcome_id)          -- [JLAS-W0108]
+        REFERENCES outcome(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_grammar FOREIGN KEY (grammar_point_id)
         REFERENCES grammar_point(id) ON DELETE SET NULL,
     CONSTRAINT fk_assessment_question_vocabulary FOREIGN KEY (vocabulary_entry_id)
@@ -1485,6 +1538,11 @@ CREATE TABLE user_learning_path (
     policy_version        VARCHAR(100) NULL,
     minutes_per_day       INT UNSIGNED NULL,
     coverage_gaps_json    TEXT NULL,             -- JSON array of coverage gaps.
+    -- [JLAS-W0113] Thoi diem vuot gate quiz tong ket warm-up; NULL = chua vuot, chan giai doan theo muc tieu.
+    gate_passed_at        DATETIME(6) NULL,
+    -- [JLAS-W0108] Cache id bo flashcard warm-up gop Kanji+Tu vung sai Smart Test; NULL = chua sinh.
+    -- Soft-link toi flashcard_set (khong FK, giu learning decoupled khoi flashcard).
+    warm_up_flashcard_set_id BIGINT UNSIGNED NULL,
     status       VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     version      INT UNSIGNED NOT NULL DEFAULT 1,
     created_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -1508,6 +1566,9 @@ CREATE TABLE user_learning_path_item (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
     lesson_id        BIGINT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] Item warm-up trỏ tới đúng kiến thức đã sai (nullable; NULL = cả bài).
+    grammar_point_id  BIGINT UNSIGNED NULL,       -- Warm-up GRAMMAR: mẫu ngữ pháp đã sai.
+    vocabulary_entry_id BIGINT UNSIGNED NULL,     -- Warm-up KANJI/VOCAB: từ vựng đã sai.
     order_index      INT UNSIGNED NOT NULL,
     reason           TEXT NULL,
     -- [JLAS-W0108] Item hai pha (WARM_UP → GOAL_LEARNING): phase + reason_code + day_number
@@ -1521,10 +1582,16 @@ CREATE TABLE user_learning_path_item (
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_path_item_order (learning_path_id, order_index),
     KEY idx_learning_path_item_lesson (lesson_id),
+    KEY idx_learning_path_item_grammar (grammar_point_id),
+    KEY idx_learning_path_item_vocab (vocabulary_entry_id),
     CONSTRAINT fk_learning_path_item_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_path_item_lesson FOREIGN KEY (lesson_id)
         REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_learning_path_item_grammar FOREIGN KEY (grammar_point_id)
+        REFERENCES grammar_point(id) ON DELETE SET NULL,
+    CONSTRAINT fk_learning_path_item_vocab FOREIGN KEY (vocabulary_entry_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
     CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1555,30 +1622,68 @@ CREATE TABLE lesson_progress (
 CREATE TABLE user_knowledge_weakness (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id       BIGINT UNSIGNED NOT NULL,
-    tag_id        BIGINT UNSIGNED NOT NULL,
+    tag_id        BIGINT UNSIGNED NULL,        -- [JLAS-W0108] nullable: KANJI/VOCAB key theo canonical_item.
     skill         VARCHAR(20) NULL,            -- Fallback khi chua tim duoc lesson khop tag.
+    jlpt_level    VARCHAR(10) NULL,            -- [JLAS-W0108]
+    topic_tag_id  BIGINT UNSIGNED NULL,        -- [JLAS-W0108]
+    outcome_id    BIGINT UNSIGNED NULL,        -- [JLAS-W0108]
+    canonical_item VARCHAR(255) NULL,          -- [JLAS-W0108] KANJI:<c> / VOCAB:<c> / GP:<id>.
+    wrong_count   INT NOT NULL DEFAULT 0,      -- [JLAS-W0108]
+    mastery_score DECIMAL(5,2) NULL,           -- [JLAS-W0108]
     score_percent DECIMAL(5,2) NULL,
     severity      VARCHAR(30) NOT NULL,
+    status        VARCHAR(20) NOT NULL DEFAULT 'OPEN', -- [JLAS-W0108] OPEN/REVIEWED/MASTERED.
     source        VARCHAR(255) NULL,
     detected_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    last_reviewed_at DATETIME(6) NULL,         -- [JLAS-W0108]
     updated_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                   ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    UNIQUE KEY uk_user_knowledge_weakness (user_id, tag_id),
+    UNIQUE KEY uk_user_knowledge_weakness (
+        user_id,
+        (COALESCE(tag_id, 0)),
+        (COALESCE(canonical_item, '')),
+        (COALESCE(jlpt_level, '')),
+        (COALESCE(topic_tag_id, 0)),
+        (COALESCE(outcome_id, 0))
+    ),
     KEY idx_weakness_tag_severity (tag_id, severity),
+    KEY idx_weakness_level (jlpt_level),       -- [JLAS-W0108]
+    KEY idx_weakness_topic (topic_tag_id),     -- [JLAS-W0108]
+    KEY idx_weakness_outcome (outcome_id),     -- [JLAS-W0108]
     CONSTRAINT fk_weakness_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_weakness_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE,
+    CONSTRAINT fk_weakness_topic FOREIGN KEY (topic_tag_id)      -- [JLAS-W0108]
+        REFERENCES tag(id) ON DELETE SET NULL,
+    CONSTRAINT fk_weakness_outcome FOREIGN KEY (outcome_id)      -- [JLAS-W0108]
+        REFERENCES outcome(id) ON DELETE SET NULL,
     CONSTRAINT chk_weakness_score
         CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100),
     CONSTRAINT chk_weakness_severity
         CHECK (severity IN ('WEAK','NEEDS_REINFORCEMENT')),
+    CONSTRAINT chk_weakness_status CHECK (status IN ('OPEN','REVIEWED','MASTERED')), -- [JLAS-W0108]
+    CONSTRAINT chk_weakness_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')), -- [JLAS-W0108]
     CONSTRAINT chk_weakness_skill CHECK (
         skill IS NULL OR skill IN (
-            'VOCABULARY','GRAMMAR','READING','LISTENING','SPEAKING','ONYOMI','KUNYOMI'
+            'VOCABULARY','GRAMMAR','READING','LISTENING','SPEAKING','ONYOMI','KUNYOMI','KANJI' -- [JLAS-W0108] them KANJI
         )
     )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Gioi han 5 luot quiz/ngay (gate quiz + lesson quiz); log moi lan nop.
+CREATE TABLE quiz_attempt (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id      BIGINT UNSIGNED NOT NULL,
+    quiz_type    VARCHAR(20) NOT NULL COMMENT 'GATE/LESSON',
+    lesson_id    BIGINT UNSIGNED NULL COMMENT 'null cho GATE',
+    attempted_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_quiz_attempt_user (user_id, quiz_type, lesson_id, attempted_at),
+    CONSTRAINT fk_quiz_attempt_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_quiz_attempt_type CHECK (quiz_type IN ('GATE','LESSON'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.

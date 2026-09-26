@@ -1,7 +1,9 @@
 package com.jlas.assessment.entity;
 
 import com.jlas.dictionary.entity.GrammarPoint;
+import com.jlas.dictionary.entity.Outcome;
 import com.jlas.dictionary.entity.Tag;
+import com.jlas.dictionary.entity.VocabularyEntry;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,6 +54,24 @@ public class AssessmentQuestion {
             inverseJoinColumns = @JoinColumn(name = "grammar_point_id",
                     foreignKey = @ForeignKey(name = "fk_qgp_grammar")))
     private Set<GrammarPoint> grammarPoints = new LinkedHashSet<>();
+
+    /** [JLAS-W0108] Topic câu hỏi (tag_type='TOPIC') — chỉ Reading/Listening; JLPT listening = NULL. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_tag_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_topic"))
+    private Tag topicTag;
+
+    /** [JLAS-W0108] Outcome câu hỏi (READING/LISTENING) — cầu nối identity yếu. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "outcome_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_outcome"))
+    private Outcome outcome;
+
+    /** [JLAS-W0091] Từ vựng cụ thể câu KANJI/VOCABULARY hỏi tới (nullable; chỉ KANJI/VOCABULARY). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vocabulary_entry_id",
+            foreignKey = @ForeignKey(name = "fk_assessment_question_vocabulary"))
+    private VocabularyEntry vocabularyEntry;
 
     /** VOCABULARY/GRAMMAR/READING/LISTENING/KANJI. */
     @Column(name = "skill", nullable = false, length = 20)

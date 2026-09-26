@@ -32,24 +32,82 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
         if (goals.isEmpty()) {
             throw new ApiException(ErrorCode.NOT_FOUND, "No published lessons match the selected JLPT curriculum and levels.");
         }
-        var weakTags = profile.tagResults().stream().filter(policy::isWeak)
-                .sorted(this::compareWeakness).toList();
+        var weaknesses = profile.weaknesses() == null ? List.<WeaknessEvidence>of() : profile.weaknesses();
+        var weak = weaknesses.stream().filter(policy::isWeak).sorted(this::compareWeakness).toList();
         var gaps = new ArrayList<CoverageGap>();
-        profile.tagResults().stream().filter(tag -> !policy.hasEnoughEvidence(tag))
-                .sorted(Comparator.comparing(TagAssessmentResult::tagCode))
-                .forEach(tag -> gaps.add(new CoverageGap(tag.tagCode(), "INSUFFICIENT_ASSESSMENT")));
+        weaknesses.stream().filter(e -> !policy.hasEnoughEvidence(e))
+                .sorted(Comparator.comparing(WeaknessEvidence::sortKey))
+                .forEach(e -> gaps.add(new CoverageGap(e.sortKey(), "INSUFFICIENT_ASSESSMENT")));
+        if (weaknesses.isEmpty()) {
+            gaps.add(new CoverageGap("ASSESSMENT", "NO_ASSESSMENT_EVIDENCE"));
+        }
         var resources = new ArrayList<SelectedLearningResource>();
         var selectedIds = new HashSet<Long>();
-        if (!weakTags.isEmpty()) {
+        if (!weak.isEmpty()) {
             var warmUp = candidates(scope.warmUpTextbookIds(), 0, rank(profile.assessedLevel()));
             var uncovered = new LinkedHashSet<String>();
-            weakTags.forEach(tag -> uncovered.add(tag.tagCode()));
-            for (var tag : weakTags) {
-                if (!uncovered.contains(tag.tagCode())) continue;
-                var match = warmUp.stream().filter(lesson -> lesson.knowledgeTagCodes().contains(tag.tagCode()))
+            var comprehensionResolved = new HashSet<String>();
+            weak.forEach(e -> {
+                if (e.tagCode() != null) uncovered.add(e.tagCode());
+            });
+            for (var e : weak) {
+                // [JLAS-W0108] Lát 2.5b — item sai ở mức CAO HƠN trình độ kết luận (estimated) là
+                // "chưa từng học" -> KHÔNG warm-up (phủ bởi GOAL_LEARNING), và không báo gap
+                // (không phải thiếu học liệu). Warm-up chỉ nhận item <= trình độ kết luận.
+                if (e.jlptLevel() != null && rank(e.jlptLevel()) > rank(profile.assessedLevel())) {
+                    continue;
+                }
+                // [JLAS-W0108] Lát 2.5 — GRAMMAR: warm-up theo đúng grammar point đã sai (không phải cả bài).
+                // Nếu point chưa có trong catalog thì fallback xuống khớp theo tag lesson bên dưới.
+                if (WeaknessEvidence.SKILL_GRAMMAR.equals(e.skill()) && e.grammarPointId() != null) {
+                    var point = catalog.findGrammarPoint(e.grammarPointId());
+                    if (point.isPresent()) {
+                        selectedIds.add(point.get().lessonId());
+                        addGrammarWarmUp(point.get(), resources);
+                        continue;
+                    }
+                }
+                // [JLAS-W0108] Lát 2.5e — KANJI/VOCAB: warm-up theo đúng từ đã sai (không phải cả bài).
+                // Nếu từ chưa có bài dạy trong catalog (từ bổ sung DICTIONARY) thì báo gap rõ ràng.
+                if ((WeaknessEvidence.SKILL_KANJI.equals(e.skill())
+                        || WeaknessEvidence.SKILL_VOCABULARY.equals(e.skill()))
+                        && e.vocabularyEntryId() != null) {
+                    var item = catalog.findVocabularyItem(e.vocabularyEntryId());
+                    if (item.isPresent()) {
+                        selectedIds.add(item.get().lessonId());
+                        addItemWarmUp(item.get(), e.skill(), resources);
+                        continue;
+                    }
+                    gaps.add(new CoverageGap(e.sortKey(), "MISSING_WARM_UP_RESOURCE"));
+                    continue;
+                }
+                // [JLAS-W0108] Lát B — READING/LISTENING: warm-up bằng một bài luyện đọc/nghe cùng
+                // cấp sai (ưu tiên content_item qua lesson.skill; fallback question bank xử lý ở
+                // gate quiz Lát C). Mỗi skill chỉ tạo một item (5 đọc + 5 nghe là nội dung trong bài).
+                if (WeaknessEvidence.SKILL_READING.equals(e.skill())
+                        || WeaknessEvidence.SKILL_LISTENING.equals(e.skill())) {
+                    if (!comprehensionResolved.add(e.skill())) continue;
+                    String level = e.jlptLevel() != null ? e.jlptLevel() : profile.assessedLevel();
+                    var lesson = catalog.findComprehensionLesson(e.skill(), level);
+                    if (lesson.isPresent()) {
+                        selectedIds.add(lesson.get().lessonId());
+                        addComprehensionWarmUp(lesson.get(), e.skill(), resources);
+                    } else {
+                        gaps.add(new CoverageGap(e.sortKey(), "MISSING_WARM_UP_RESOURCE"));
+                    }
+                    continue;
+                }
+                // [JLAS-W0108] Kanji/Vocab thiếu anchor (vocabularyEntryId null) cần content-side mapping
+                // (content_item -> topic/outcome) — đầu việc data riêng, chưa nạp -> báo gap rõ ràng.
+                if (e.tagCode() == null) {
+                    gaps.add(new CoverageGap(e.sortKey(), "CONTENT_MAPPING_PENDING"));
+                    continue;
+                }
+                if (!uncovered.contains(e.tagCode())) continue;
+                var match = warmUp.stream().filter(lesson -> lesson.knowledgeTagCodes().contains(e.tagCode()))
                         .findFirst();
                 if (match.isEmpty()) {
-                    gaps.add(new CoverageGap(tag.tagCode(), "MISSING_WARM_UP_RESOURCE"));
+                    gaps.add(new CoverageGap(e.tagCode(), "MISSING_WARM_UP_RESOURCE"));
                     continue;
                 }
                 var lesson = match.get();
@@ -69,7 +127,29 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                     "Study the selected JLPT curriculum from " + profile.assessedLevel()
                             + " to " + profile.targetLevel() + ".", lesson.knowledgeTagCodes()));
         }
-        return new LearningSelectionResult(resources, gaps, policy.version());
+        return new LearningSelectionResult(resources, gaps, policy.version(), weak);
+    }
+
+    private void addGrammarWarmUp(LearningResourceCandidate point, List<SelectedLearningResource> resources) {
+        requireDuration(point);
+        resources.add(new SelectedLearningResource(point, LearningPhase.WARM_UP, "WEAK_GRAMMAR_POINT",
+                "Ôn lại mẫu ngữ pháp đã sai trong Smart Test.", point.knowledgeTagCodes()));
+    }
+
+    private void addItemWarmUp(LearningResourceCandidate item, String skill, List<SelectedLearningResource> resources) {
+        requireDuration(item);
+        String reasonCode = WeaknessEvidence.SKILL_KANJI.equals(skill) ? "WEAK_KANJI_ITEM" : "WEAK_VOCAB_ITEM";
+        resources.add(new SelectedLearningResource(item, LearningPhase.WARM_UP, reasonCode,
+                "Ôn lại từ đã sai trong Smart Test.", item.knowledgeTagCodes()));
+    }
+
+    private void addComprehensionWarmUp(LearningResourceCandidate lesson, String skill,
+            List<SelectedLearningResource> resources) {
+        requireDuration(lesson);
+        String reasonCode = WeaknessEvidence.SKILL_READING.equals(skill) ? "WEAK_READING_ITEM" : "WEAK_LISTENING_ITEM";
+        String label = WeaknessEvidence.SKILL_READING.equals(skill) ? "đọc hiểu" : "nghe hiểu";
+        resources.add(new SelectedLearningResource(lesson, LearningPhase.WARM_UP, reasonCode,
+                "Luyện " + label + " cùng cấp độ còn yếu trong Smart Test.", lesson.knowledgeTagCodes()));
     }
 
     private List<LearningResourceCandidate> candidates(List<Long> books, int minimumLevel, int maximumLevel) {
@@ -86,13 +166,13 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                 .toList();
     }
 
-    private int compareWeakness(TagAssessmentResult first, TagAssessmentResult second) {
+    private int compareWeakness(WeaknessEvidence first, WeaknessEvidence second) {
         // Cross-multiplication avoids rounding different error ratios into a tie.
         int ratio = Long.compare((long) second.wrongCount() * first.assessedCount(),
                 (long) first.wrongCount() * second.assessedCount());
         if (ratio != 0) return ratio;
         int wrong = Integer.compare(second.wrongCount(), first.wrongCount());
-        return wrong != 0 ? wrong : first.tagCode().compareTo(second.tagCode());
+        return wrong != 0 ? wrong : first.sortKey().compareTo(second.sortKey());
     }
 
     private void validate(Long userId, LearningProfileSnapshot profile, LearningCatalogScope scope) {
@@ -115,15 +195,15 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                 || profile.minutesPerDay() == null || profile.minutesPerDay() < 5 || profile.minutesPerDay() > 180) {
             invalid("Valid assessed/target levels and 5 to 180 daily study minutes are required.");
         }
-        if (profile.tagResults() == null || profile.tagResults().isEmpty()) {
-            throw new ApiException(ErrorCode.CONFLICT, "Finalized results must include tag assessment evidence.");
-        }
-        Set<String> tags = new HashSet<>();
-        for (var tag : profile.tagResults()) {
-            if (tag == null || tag.tagCode() == null || tag.tagCode().isBlank()
-                    || !tag.tagCode().equals(tag.tagCode().trim()) || !tags.add(tag.tagCode())
-                    || tag.assessedCount() < 0 || tag.wrongCount() < 0 || tag.wrongCount() > tag.assessedCount()) {
-                invalid("Tag evidence must have unique stable codes and valid assessed/wrong counts.");
+        if (profile.weaknesses() != null) {
+            Set<String> keys = new HashSet<>();
+            for (var e : profile.weaknesses()) {
+                if (e == null || e.skill() == null || e.skill().isBlank()
+                        || e.canonicalId() == null || e.canonicalId().isBlank()
+                        || !keys.add(e.skill() + "\u0000" + e.canonicalId())
+                        || e.assessedCount() < 0 || e.wrongCount() < 0 || e.wrongCount() > e.assessedCount()) {
+                    invalid("Weakness evidence must have unique stable skill/canonical keys and valid assessed/wrong counts.");
+                }
             }
         }
         if (scope == null || !validBooks(scope.warmUpTextbookIds()) || !validBooks(scope.goalTextbookIds())

@@ -15,7 +15,7 @@ import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.entity.Unit;
 import com.jlas.learning.dto.LearningCatalogScope;
 import com.jlas.learning.dto.LearningProfileSnapshot;
-import com.jlas.learning.dto.TagAssessmentResult;
+import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.entity.LessonProgress;
 import com.jlas.learning.enums.LearningPhase;
 import com.jlas.learning.mapper.LearningMapper;
@@ -53,7 +53,8 @@ import org.springframework.test.context.ContextConfiguration;
 class LearningPathApiTest {
     @Configuration(proxyBeanMethods = false)
     @EntityScan("com.jlas")
-    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository"})
+    @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository",
+            "com.jlas.dictionary.repository", "com.jlas.assessment.repository"})
     @Import({JpaLearningCatalogSource.class, WeakTagPolicy.class, LearningResourceSelectionServiceImpl.class,
             LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class})
     static class ApiTestConfiguration {
@@ -152,7 +153,7 @@ class LearningPathApiTest {
     void rejectsProfileOwnedByAnotherUser() {
         var fixture = seedFixture();
         profileSource.snapshot = new LearningProfileSnapshot(999L, 91L, 10L, "rev-1", true, true,
-                "N4", "N4", "JLPT", 30, List.of(new TagAssessmentResult("PARTICLE", 5, 4)));
+                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
         scopeSource.scope = scope(fixture.warmBook, fixture.goalBook);
 
         assertError(ErrorCode.FORBIDDEN, () -> service.create(fixture.user.getId(), 91L));
@@ -162,7 +163,7 @@ class LearningPathApiTest {
     void rejectsNonFinalizedAssessment() {
         var fixture = seedFixture();
         profileSource.snapshot = new LearningProfileSnapshot(fixture.user.getId(), 91L, 10L, "rev-1", true, false,
-                "N4", "N4", "JLPT", 30, List.of(new TagAssessmentResult("PARTICLE", 5, 4)));
+                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
         scopeSource.scope = scope(fixture.warmBook, fixture.goalBook);
 
         assertError(ErrorCode.CONFLICT, () -> service.create(fixture.user.getId(), 91L));
@@ -279,7 +280,7 @@ class LearningPathApiTest {
 
     private LearningProfileSnapshot profile(Long userId, Long attemptId, String revision) {
         return new LearningProfileSnapshot(userId, attemptId, 10L, revision, true, true,
-                "N4", "N4", "JLPT", 30, List.of(new TagAssessmentResult("PARTICLE", 5, 4)));
+                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
     }
 
     private LearningCatalogScope scope(Textbook warmBook, Textbook goalBook) {

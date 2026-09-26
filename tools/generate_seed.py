@@ -126,7 +126,80 @@ def load_kana_data(path):
     return json.load(open(path, encoding='utf-8'))
 
 
-def build(input_dir, kanji_data=None, kana_data=None):
+WORDS_PER_LESSON = 30
+LESSONS_PER_VOCAB_UNIT = 10
+
+
+def load_vocab_review(path):
+    """Nap tu vung N3/N2/N1 DA DUYET tu bang tu_vung_N3_N1_duyet.xlsx.
+
+    Chi lay dong co Trang thai = DA_DUYET va co Nghia tieng Viet. Dong CHUA_DUYET
+    va BO_QUA bi bo qua, de noi dung chua kiem khong bao gio den tay nguoi hoc.
+    Can openpyxl: pip install openpyxl
+    """
+    if not path or not os.path.exists(path):
+        return None
+    try:
+        from openpyxl import load_workbook
+    except ImportError:
+        print('CANH BAO: thieu openpyxl (pip install openpyxl) -> bo qua tu vung N3-N1')
+        return None
+    wb = load_workbook(path, read_only=True, data_only=True)
+    out = {}
+    for lv in ('N3', 'N2', 'N1'):
+        if lv not in wb.sheetnames:
+            continue
+        rows = []
+        for r in wb[lv].iter_rows(min_row=2, values_only=True):
+            if not r or len(r) < 6:
+                continue
+            _, word, reading, meaning_en, meaning_vi, status = r[:6]
+            topic = r[7] if len(r) > 7 else None      # cot "Chu de"
+            # Seed moi tu DA co nghia tieng Viet; bai hoc van de DRAFT nen hoc vien
+            # khong thay. Truoc day chi lay DA_DUYET, nhung nhu vay khong khop voi
+            # cach xu ly ngu phap/hoi thoai (cung CHUA_DUYET ma van seed dang DRAFT).
+            if status == 'BO_QUA' or not meaning_vi or not word:
+                continue
+            rows.append({'word': str(word).strip(), 'reading': str(reading or word).strip(),
+                         'meaning_vi': str(meaning_vi).strip(),
+                         'meaning_en': (str(meaning_en).strip() if meaning_en else None),
+                         'topic': (str(topic).strip() if topic else None)})
+        out[lv] = rows
+    return out
+
+
+GRAMMAR_PER_LESSON = 10
+
+
+def load_grammar_packs(paths):
+    """Nap grammar_n3/n2/n1.json. Tra ve {level: du lieu}.
+
+    LUU Y: noi dung nay do soan tay va CHUA duoc nguoi doc duoc tieng Nhat kiem
+    (review_status = CHUA_DUYET). Bai hoc sinh ra deu de DRAFT nen hoc vien khong
+    thay; chi nguoi bien soan xem duoc de kiem roi moi cong bo.
+    """
+    out = {}
+    for path in paths or []:
+        if not os.path.exists(path):
+            continue
+        d = json.load(open(path, encoding='utf-8'))
+        out[d['meta']['level']] = d
+    return out
+
+
+def load_it_pack(path):
+    """Nap bo tieng Nhat chuyen nganh IT (tu vung / kanji / hoi thoai BrSE).
+
+    Nghia tieng Viet la noi dung goc cua nguoi soan; 19 tu nhom 'manual' chua co
+    trong JMdict nen can nguoi ra soat. Bai sinh ra de DRAFT.
+    """
+    if not path or not os.path.exists(path):
+        return None
+    return json.load(open(path, encoding='utf-8'))
+
+
+def build(input_dir, kanji_data=None, kana_data=None, vocab_review=None,
+          grammar_packs=None, it_pack=None, domain_packs=None, topic_vocab=None):
     b = OrderedDict()
     b['roles'] = Batch('roles', ['name', 'description'])
     b['tag'] = Batch('tag', ['id', 'code', 'name', 'tag_type'])
@@ -212,7 +285,7 @@ def build(input_dir, kanji_data=None, kana_data=None):
 
     # ---------------------------------------------------------------------
     # Chu de hoc (tag_type='SITUATION'). Gan o muc BAI HOC qua bang lesson_tag,
-    # KHONG dung cot lesson.situation_tag vi CHECK chi nhan TRAVEL/WORK/FOUNDATION.
+    # KHONG dung cot lesson.situation_tag vi CHECK chi nhan TRAVEL/BA/FOUNDATION.
     #
     # DAILY : toan bo N5/N4 Sekai la noi dung sinh hoat hang ngay -> gan het.
     # TRAVEL: chi gan bai co it nhat 2 tu vung du lich (19/50 bai).
@@ -236,6 +309,32 @@ def build(input_dir, kanji_data=None, kana_data=None):
         t_id = nid('tag')
         topic_ids[code] = t_id
         b['tag'].add(t_id, code, name, 'SITUATION')
+
+    def add_kanji(ch, default_level, source):
+        """Them mot chu Kanji (kem cach doc) neu chua co. Tra ve kanji_id."""
+        if ch in kanji_index:
+            return kanji_index[ch]
+        k_id = nid('kanji')
+        kanji_index[ch] = k_id
+        kd = (kanji_data or {}).get('kanji', {}).get(ch)
+        if kd:
+            b['kanji'].add(k_id, ch, kd['unicode'],
+                           radical_ids.get(kd.get('radical_number')),
+                           kd.get('stroke_count'), kd.get('han_viet'),
+                           kd.get('jlpt_level') or default_level)
+            for rtype, rkey in (('ON', 'readings_on'), ('KUN', 'readings_kun')):
+                seen_r = set()
+                for r in kd.get(rkey) or []:
+                    if r['text'] in seen_r:
+                        continue
+                    seen_r.add(r['text'])
+                    b['kanji_reading'].add(nid('reading'), k_id, rtype,
+                                           r['text'], 1 if r['common'] else 0)
+        else:
+            b['kanji'].add(k_id, ch, '{:04X}'.format(ord(ch)), None, None, None, default_level)
+            warnings.append({'file': source, 'type': 'kanji_khong_co_trong_kanjidic',
+                             'character': ch})
+        return k_id
 
     VOICE_META = {
         'chuan-nu':    ('Gi\u1ecdng n\u1eef chu\u1ea9n', 'FEMALE', 'Gi\u1ecdng \u0111\u1ecdc chu\u1ea9n, d\u00f9ng m\u1eb7c \u0111\u1ecbnh', 1),
@@ -371,28 +470,7 @@ def build(input_dir, kanji_data=None, kana_data=None):
                         if not is_kanji(ch):
                             continue
                         if ch not in kanji_index:
-                            k_id = nid('kanji')
-                            kanji_index[ch] = k_id
-                            kd = (kanji_data or {}).get('kanji', {}).get(ch)
-                            if kd:
-                                b['kanji'].add(k_id, ch, kd['unicode'],
-                                               radical_ids.get(kd.get('radical_number')),
-                                               kd.get('stroke_count'), kd.get('han_viet'),
-                                               kd.get('jlpt_level') or level)
-                                for rtype, rkey in (('ON', 'readings_on'), ('KUN', 'readings_kun')):
-                                    seen_r = set()
-                                    for r in kd.get(rkey) or []:
-                                        if r['text'] in seen_r:
-                                            continue
-                                        seen_r.add(r['text'])
-                                        b['kanji_reading'].add(nid('reading'), k_id, rtype,
-                                                               r['text'], 1 if r['common'] else 0)
-                            else:
-                                b['kanji'].add(k_id, ch, '{:04X}'.format(ord(ch)),
-                                               None, None, None, level)
-                                warnings.append({'file': os.path.basename(path),
-                                                 'type': 'kanji_khong_co_trong_kanjidic',
-                                                 'character': ch})
+                            add_kanji(ch, level, os.path.basename(path))
                         b['vocabulary_kanji'].add(v_id, kanji_index[ch], pos)
                 v_id = vocab_index[key]
                 add_audio('VOCABULARY_WORD', v_id, t.get('tu'), level_dir, timing_for(t.get('tu')))
@@ -489,6 +567,190 @@ def build(input_dir, kanji_data=None, kana_data=None):
                     warnings.append({'file': os.path.basename(path), 'type': 'vocab_missing_audio',
                                      'word': t.get('kana'), 'voices': missing})
 
+    def add_vocab_lessons(tb_id, level, words, start_unit=1):
+        """Sinh unit/bai tu vung cho mot cap. Bai de DRAFT."""
+        chunks = [words[i:i + WORDS_PER_LESSON] for i in range(0, len(words), WORDS_PER_LESSON)]
+        unit_id = None
+        for li, chunk in enumerate(chunks):
+            if li % LESSONS_PER_VOCAB_UNIT == 0:
+                unit_no = start_unit + li // LESSONS_PER_VOCAB_UNIT
+                unit_id = nid('unit')
+                b['unit'].add(unit_id, tb_id, '{} \u2014 Ph\u1ea7n {}'.format(level, unit_no),
+                              'B\u00e0i {} \u0111\u1ebfn {}'.format(li + 1, min(li + LESSONS_PER_VOCAB_UNIT, len(chunks))),
+                              unit_no)
+            lesson_no = li + 1
+            v_tag = nid('tag')
+            b['tag'].add(v_tag, '{}-V{:03d}'.format(level, lesson_no),
+                         'T\u1eeb v\u1ef1ng {} b\u00e0i {}'.format(level, lesson_no), 'KNOWLEDGE')
+            v_les = nid('lesson')
+            b['lesson'].add(v_les, unit_id, v_tag, 'B\u00e0i {}: T\u1eeb v\u1ef1ng {}'.format(lesson_no, level),
+                            None, li % LESSONS_PER_VOCAB_UNIT + 1, 30,
+                            'CURRICULUM', 'VOCABULARY', 'FOUNDATION', 0, 'DRAFT')
+            b['lesson_tag'].add(v_les, v_tag)
+            v_sec = nid('section')
+            b['lesson_section'].add(v_sec, v_les, 'T\u1eeb v\u1ef1ng', 'EXPLANATION', 1)
+            v_item = nid('item')
+            b['content_item'].add(v_item, v_sec, 'READING', None,
+                                  'Danh s\u00e1ch t\u1eeb v\u1ef1ng b\u00e0i {}'.format(lesson_no),
+                                  'B\u00e0i {} c\u00f3 {} t\u1eeb v\u1ef1ng.'.format(lesson_no, len(chunk)), None, 1)
+            seen_in_lesson = set()
+            for w in chunk:
+                key = (norm(w['word']), norm(w['reading']))
+                if key not in vocab_index:
+                    vid = nid('vocab')
+                    vocab_index[key] = vid
+                    vocab_written[vid] = {w['word']}
+                    b['vocabulary_entry'].add(vid, w['word'], key[0], w['reading'], key[1],
+                                              w['meaning_vi'], None, level, None, None,
+                                              'TEXTBOOK', 'PUBLISHED')
+                    sid = nid('sense')
+                    b['vocabulary_sense'].add(sid, vid, 1, None)
+                    b['vocabulary_gloss'].add(nid('gloss'), sid, 'vi', w['meaning_vi'])
+                    if w['meaning_en']:
+                        b['vocabulary_gloss'].add(nid('gloss'), sid, 'en', w['meaning_en'])
+                    pos = 0
+                    for ch in w['word']:
+                        pos += 1
+                        if is_kanji(ch):
+                            add_kanji(ch, level, 'vocab_review')
+                            b['vocabulary_kanji'].add(vid, kanji_index[ch], pos)
+                vid = vocab_index[key]
+                if vid not in seen_in_lesson:
+                    seen_in_lesson.add(vid)
+                    b['content_vocabulary'].add(v_item, vid)
+
+    def add_topic_vocab_unit(tb_id, level, vpack, unit_no):
+        """Sinh 1 unit tu vung chia theo chu de cho cap N3/N2/N1."""
+        by_topic = {}
+        for w in vpack['vocabulary']:
+            by_topic.setdefault(w['topic'], []).append(w)
+        v_unit = nid('unit')
+        b['unit'].add(v_unit, tb_id, '{} \u2014 T\u1eeb v\u1ef1ng theo ch\u1ee7 \u0111\u1ec1'.format(level),
+                      '{} t\u1eeb, {} nh\u00f3m ch\u1ee7 \u0111\u1ec1.'.format(len(vpack['vocabulary']), len(by_topic)),
+                      unit_no)
+        for ti, (tcode, words) in enumerate(by_topic.items(), start=1):
+            tm = vpack['meta']['topics'].get(tcode, {})
+            t_tag = nid('tag')
+            b['tag'].add(t_tag, '{}-T-{}'.format(level, tcode),
+                         '{} t\u1eeb v\u1ef1ng: {}'.format(level, tm.get('vi') or tcode), 'KNOWLEDGE')
+            les = nid('lesson')
+            b['lesson'].add(les, v_unit, t_tag, 'B\u00e0i {}: {}'.format(ti, tm.get('vi') or tcode),
+                            tm.get('ja'), ti, 25, 'CURRICULUM', 'VOCABULARY', 'FOUNDATION', 0, 'DRAFT')
+            b['lesson_tag'].add(les, t_tag)
+            sec = nid('section')
+            b['lesson_section'].add(sec, les, 'T\u1eeb v\u1ef1ng', 'EXPLANATION', 1)
+            item = nid('item')
+            b['content_item'].add(item, sec, 'READING', None, 'Danh s\u00e1ch t\u1eeb v\u1ef1ng',
+                                  '{} t\u1eeb thu\u1ed9c nh\u00f3m {}.'.format(len(words), tm.get('vi') or tcode),
+                                  None, 1)
+            seen = set()
+            for w in words:
+                key = (norm(w['word']), norm(w['reading']))
+                if key not in vocab_index:
+                    vid = nid('vocab')
+                    vocab_index[key] = vid
+                    vocab_written[vid] = {w['word']}
+                    b['vocabulary_entry'].add(vid, w['word'], key[0], w['reading'], key[1],
+                                              w['meaning_vi'], None, level, None, None,
+                                              'BOTH', 'PUBLISHED')
+                    sid = nid('sense')
+                    b['vocabulary_sense'].add(sid, vid, 1, '{}: {}'.format(level, tm.get('vi') or tcode))
+                    b['vocabulary_gloss'].add(nid('gloss'), sid, 'vi', w['meaning_vi'])
+                    pos = 0
+                    for ch in w['word']:
+                        pos += 1
+                        if is_kanji(ch):
+                            add_kanji(ch, level, 'vocab_' + level)
+                            b['vocabulary_kanji'].add(vid, kanji_index[ch], pos)
+                vid = vocab_index[key]
+                if vid not in seen:
+                    seen.add(vid)
+                    b['content_vocabulary'].add(item, vid)
+        return unit_no + 1
+
+    def add_grammar_pack(tb_id, level, pack, unit_offset=1):
+        """Sinh unit/bai cho ngu phap va hoi thoai N3-N1. Tat ca de DRAFT."""
+        voices = list(VOICE_META.keys())
+        chunks = [pack['grammar'][i:i + GRAMMAR_PER_LESSON]
+                  for i in range(0, len(pack['grammar']), GRAMMAR_PER_LESSON)]
+        g_unit = nid('unit')
+        b['unit'].add(g_unit, tb_id, '{} \u2014 Ng\u1eef ph\u00e1p'.format(level),
+                      '{} m\u1eabu, chia {} b\u00e0i.'.format(len(pack['grammar']), len(chunks)), unit_offset)
+        for li, chunk in enumerate(chunks, start=1):
+            g_tag = nid('tag')
+            b['tag'].add(g_tag, '{}-G{:03d}'.format(level, li),
+                         'Ng\u1eef ph\u00e1p {} b\u00e0i {}'.format(level, li), 'KNOWLEDGE')
+            g_les = nid('lesson')
+            b['lesson'].add(g_les, g_unit, g_tag,
+                            'B\u00e0i {}: Ng\u1eef ph\u00e1p {}'.format(li, level),
+                            None, li, 30, 'CURRICULUM', 'GRAMMAR', 'FOUNDATION', 0, 'DRAFT')
+            b['lesson_tag'].add(g_les, g_tag)
+            g_sec = nid('section')
+            b['lesson_section'].add(g_sec, g_les, 'Ng\u1eef ph\u00e1p', 'EXPLANATION', 1)
+            e_sec = nid('section')
+            b['lesson_section'].add(e_sec, g_les, 'C\u00e2u v\u00ed d\u1ee5', 'EXAMPLE', 2)
+            ex_no = 0
+            for gi, gp in enumerate(chunk, start=1):
+                gp_id = nid('grammar')
+                b['grammar_point'].add(gp_id, g_les, g_tag, gp['pattern'],
+                                       '{} \u2014 {}'.format(gp['name'], gp['meaning']),
+                                       gp['examples'][0]['ja'], gp['note'], gi)
+                for e in gp['examples']:
+                    ex_no += 1
+                    b['content_item'].add(nid('item'), e_sec, 'GRAMMAR', gp_id,
+                                          'V\u00ed d\u1ee5 {}'.format(ex_no),
+                                          e['ja'], e['vi'], ex_no)
+        if not pack['dialogues']:
+            return
+        d_unit = nid('unit')
+        b['unit'].add(d_unit, tb_id, '{} \u2014 H\u1ed9i tho\u1ea1i'.format(level),
+                      '{} b\u00e0i h\u1ed9i tho\u1ea1i.'.format(len(pack['dialogues'])), unit_offset + 1)
+        for li, dl in enumerate(pack['dialogues'], start=1):
+            d_tag = nid('tag')
+            b['tag'].add(d_tag, '{}-D{:03d}'.format(level, li),
+                         'H\u1ed9i tho\u1ea1i {} b\u00e0i {}'.format(level, li), 'KNOWLEDGE')
+            d_les = nid('lesson')
+            b['lesson'].add(d_les, d_unit, d_tag,
+                            'B\u00e0i {}: {}'.format(li, dl['title']),
+                            dl.get('context'), li, 20, 'CURRICULUM', 'LISTENING',
+                            'FOUNDATION', 0, 'DRAFT')
+            b['lesson_tag'].add(d_les, d_tag)
+            d_sec = nid('section')
+            # section_type chi nhan EXPLANATION/EXAMPLE/EXERCISE (chk_section_type),
+            # nen hoi thoai dung EXAMPLE giong bo N5/N4.
+            b['lesson_section'].add(d_sec, d_les, 'H\u1ed9i tho\u1ea1i: {}'.format(dl['title']),
+                                    'EXAMPLE', 1)
+            role_ids = {}
+            for ri, r in enumerate(dl['roles']):
+                r_id = nid('drole')
+                role_ids[r['code']] = r_id
+                b['dialogue_role'].add(r_id, d_les, r['code'], r.get('name_vi'),
+                                       r.get('name_ja'), r.get('description'),
+                                       voices[ri % len(voices)])
+            for oi, line in enumerate(dl['lines'], start=1):
+                item = nid('item')
+                b['content_item'].add(item, d_sec, 'LISTENING', None,
+                                      dl['roles'][0].get('name_vi') if False else
+                                      next((r.get('name_vi') for r in dl['roles']
+                                            if r['code'] == line['role']), line['role']),
+                                      line['ja'], line['vi'], oi)
+                # chk_dialogue_bubble_side chi nhan 'trai'/'phai'. Vai dau tien cua
+                # bai luon nam ben trai cho nhat quan ca doan hoi thoai.
+                side = 'trai' if line['role'] == dl['roles'][0]['code'] else 'phai'
+                b['dialogue_line_detail'].add(item, role_ids[line['role']], dl['code'],
+                                              side, None, None)
+                for ci, c in enumerate(line['chunks'], start=1):
+                    b['dialogue_line_chunk'].add(nid('chunk'), item, ci, c['t'], c.get('vi'))
+
+    # -------------------------------------------------------------------------
+    # Tu dien Kanji day du N5..N1. Cac chu chua xuat hien trong tu vung giao trinh
+    # van duoc them vao bang kanji de phuc vu tra cuu. Cap do lay theo danh sach
+    # JLPT cua Jonathan Waller (qua OpenJLPT); chi tiet lay tu KANJIDIC2.
+    # -------------------------------------------------------------------------
+    if kanji_data:
+        for kd in kanji_data.get('kanji', {}).values():
+            add_kanji(kd['character'], kd.get('jlpt_level'), 'kanji_data')
+
     # -------------------------------------------------------------------------
     # Giao trinh bang chu cai. Bo crawl Sekai khong co noi dung nay -- du lieu
     # duoi day tu soan, bang chu cai la kien thuc pho thong nen khong vuong
@@ -528,9 +790,177 @@ def build(input_dir, kanji_data=None, kana_data=None):
     # du lieu, khong hard-code N5/N4. Khi co giao trinh that thi seed noi dung vao.
     # Dat SAU vong lap LEVELS de N5 giu id 1, N4 id 2 -- code va test dang dua vao.
     for level in ('N3', 'N2', 'N1'):
-        b['textbook'].add(nid('textbook'), 'Gi\u00e1o tr\u00ecnh ti\u1ebfng Nh\u1eadt {}'.format(level),
-                          'Ch\u01b0a c\u00f3 n\u1ed9i dung. Khung gi\u00e1o tr\u00ecnh \u0111\u1ec3 ki\u1ec3m ch\u1ee9ng '
-                          'h\u1ec7 th\u1ed1ng x\u1eed l\u00fd \u0111\u1ee7 5 c\u1ea5p JLPT.', level, 'DRAFT')
+        words = (vocab_review or {}).get(level) or []
+        pack = (grammar_packs or {}).get(level)
+        tb_id = nid('textbook')
+        if not words and not pack:
+            b['textbook'].add(tb_id, 'Gi\u00e1o tr\u00ecnh ti\u1ebfng Nh\u1eadt {}'.format(level),
+                              'Ch\u01b0a c\u00f3 n\u1ed9i dung. Khung gi\u00e1o tr\u00ecnh \u0111\u1ec3 ki\u1ec3m ch\u1ee9ng '
+                              'h\u1ec7 th\u1ed1ng x\u1eed l\u00fd \u0111\u1ee7 5 c\u1ea5p JLPT.', level, 'DRAFT')
+            continue
+        if pack or words:
+            nv = 0
+            ng = len(pack['grammar']) if pack else 0
+            nd = len(pack['dialogues']) if pack else 0
+            b['textbook'].add(tb_id, 'Ti\u1ebfng Nh\u1eadt {}'.format(level),
+                              '{} t\u1eeb v\u1ef1ng theo ch\u1ee7 \u0111\u1ec1, {} m\u1eabu ng\u1eef ph\u00e1p, {} h\u1ed9i tho\u1ea1i. '
+                              'N\u1ed9i dung so\u1ea1n tay, c\u00e1ch \u0111\u1ecdc \u0111\u00e3 \u0111\u1ed1i chi\u1ebfu JMdict; '
+                              'ngh\u0129a v\u00e0 ng\u1eef ph\u00e1p CH\u01afA \u0111\u01b0\u1ee3c ng\u01b0\u1eddi \u0111\u1ecdc \u0111\u01b0\u1ee3c ti\u1ebfng Nh\u1eadt ki\u1ec3m.'
+                              .format(nv + len(words), ng, nd), level, 'DRAFT')
+            unit_no = 1
+            # Tu co cot "Chu de" -> gom thanh bai theo chu de; con lai chia tuan tu.
+            topical = [w for w in words if w.get('topic')]
+            plain = [w for w in words if not w.get('topic')]
+            if topical:
+                groups = {}
+                for w in topical:
+                    groups.setdefault(w['topic'], []).append(w)
+                vpk = {'meta': {'topics': {k: {'vi': k, 'ja': None} for k in groups}},
+                       'vocabulary': topical}
+                unit_no = add_topic_vocab_unit(tb_id, level, vpk, unit_no)
+            if plain:
+                add_vocab_lessons(tb_id, level, plain, start_unit=unit_no)
+                n_les = -(-len(plain) // WORDS_PER_LESSON)
+                unit_no += -(-n_les // LESSONS_PER_VOCAB_UNIT)
+            if pack:
+                add_grammar_pack(tb_id, level, pack, unit_offset=unit_no)
+            continue
+        if not words and pack:
+            b['textbook'].add(tb_id, 'Ng\u1eef ph\u00e1p v\u00e0 h\u1ed9i tho\u1ea1i {}'.format(level),
+                              '{} m\u1eabu ng\u1eef ph\u00e1p v\u00e0 {} h\u1ed9i tho\u1ea1i {}. N\u1ed9i dung so\u1ea1n tay, '
+                              'CH\u01afA \u0111\u01b0\u1ee3c ng\u01b0\u1eddi \u0111\u1ecdc \u0111\u01b0\u1ee3c ti\u1ebfng Nh\u1eadt ki\u1ec3m.'
+                              .format(len(pack['grammar']), len(pack['dialogues']), level), level, 'DRAFT')
+            add_grammar_pack(tb_id, level, pack)
+            continue
+        # Co tu vung da duyet -> dung giao trinh tu vung. Moi thu de DRAFT: nguoi
+        # bien soan kiem lai tren giao dien roi moi cong bo.
+        b['textbook'].add(tb_id, 'T\u1eeb v\u1ef1ng {}'.format(level),
+                          'T\u1eeb v\u1ef1ng {} theo danh s\u00e1ch JLPT, {} t\u1eeb \u0111\u00e3 duy\u1ec7t ngh\u0129a ti\u1ebfng Vi\u1ec7t.'
+                          .format(level, len(words)), level, 'DRAFT')
+        add_vocab_lessons(tb_id, level, words, start_unit=1)
+
+    # -------------------------------------------------------------------------
+    # Giao trinh tieng Nhat chuyen nganh IT (BrSE). Lap dung cho chu de TOPIC-IT
+    # von dang rong. jlpt_level de NULL vi day la phan theo chuyen nganh, khong
+    # phai theo cap JLPT. Tat ca de DRAFT: 19 tu nhom 'manual' can nguoi ra soat.
+    # -------------------------------------------------------------------------
+    def add_domain_pack(dpack, tb_title, tb_desc, topic_code, code_prefix):
+        voices = list(VOICE_META.keys())
+        it_pack = dpack
+        it_tb = nid('textbook')
+        cnt = it_pack['meta']['counts']
+        b['textbook'].add(it_tb, tb_title, tb_desc, None, 'DRAFT')
+        _ = """
+        """
+        it_topic = topic_ids.get(topic_code)
+
+        # --- Unit 1: tu vung theo chu de cong viec ---
+        v_unit = nid('unit')
+        b['unit'].add(v_unit, it_tb, 'T\u1eeb v\u1ef1ng theo ch\u1ee7 \u0111\u1ec1',
+                      '{} t\u1eeb, chia theo 7 nh\u00f3m c\u00f4ng vi\u1ec7c.'.format(cnt['vocabulary']), 1)
+        by_topic = {}
+        for w in it_pack['vocabulary']:
+            by_topic.setdefault(w['topic'], []).append(w)
+        for ti, (tcode, words) in enumerate(by_topic.items(), start=1):
+            tmeta = it_pack['meta']['topics'].get(tcode, {})
+            t_tag = nid('tag')
+            b['tag'].add(t_tag, '{}-V-{}'.format(code_prefix, tcode),
+                         '{}: {}'.format(code_prefix, tmeta.get('vi') or tcode), 'KNOWLEDGE')
+            les = nid('lesson')
+            b['lesson'].add(les, v_unit, t_tag,
+                            'B\u00e0i {}: {}'.format(ti, tmeta.get('vi') or tcode),
+                            tmeta.get('ja'), ti, 25, 'CURRICULUM', 'VOCABULARY',
+                            'FOUNDATION' if code_prefix != 'IT' else 'BA', 0, 'DRAFT')
+            b['lesson_tag'].add(les, t_tag)
+            if it_topic:
+                b['lesson_tag'].add(les, it_topic)
+            sec = nid('section')
+            b['lesson_section'].add(sec, les, 'T\u1eeb v\u1ef1ng', 'EXPLANATION', 1)
+            item = nid('item')
+            b['content_item'].add(item, sec, 'READING', None,
+                                  'Danh s\u00e1ch t\u1eeb v\u1ef1ng',
+                                  '{} t\u1eeb thu\u1ed9c nh\u00f3m {}.'.format(len(words), tmeta.get('vi') or tcode),
+                                  None, 1)
+            seen = set()
+            for w in words:
+                key = (norm(w['word']), norm(w['reading']))
+                if key not in vocab_index:
+                    vid = nid('vocab')
+                    vocab_index[key] = vid
+                    vocab_written[vid] = {w['word']}
+                    b['vocabulary_entry'].add(vid, w['word'], key[0], w['reading'], key[1],
+                                              w['meaning_vi'], None, None, None, None,
+                                              'BOTH', 'PUBLISHED')
+                    sid = nid('sense')
+                    b['vocabulary_sense'].add(sid, vid, 1,
+                                              '{}: {}'.format(code_prefix, tmeta.get('vi') or tcode))
+                    b['vocabulary_gloss'].add(nid('gloss'), sid, 'vi', w['meaning_vi'])
+                    if w.get('gloss_en'):
+                        b['vocabulary_gloss'].add(nid('gloss'), sid, 'en', '; '.join(w['gloss_en'][:4]))
+                    pos = 0
+                    for ch in w['word']:
+                        pos += 1
+                        if is_kanji(ch):
+                            add_kanji(ch, 'N1', code_prefix)
+                            b['vocabulary_kanji'].add(vid, kanji_index[ch], pos)
+                vid = vocab_index[key]
+                if vid not in seen:
+                    seen.add(vid)
+                    b['content_vocabulary'].add(item, vid)
+
+        # --- Unit 2: hoi thoai BrSE ---
+        d_unit = nid('unit')
+        b['unit'].add(d_unit, it_tb, 'H\u1ed9i tho\u1ea1i BrSE',
+                      '{} b\u00e0i h\u1ed9i tho\u1ea1i t\u00ecnh hu\u1ed1ng c\u00f4ng vi\u1ec7c.'.format(cnt['dialogues']), 2)
+        for di, dl in enumerate(it_pack['dialogues'], start=1):
+            d_tag = nid('tag')
+            b['tag'].add(d_tag, '{}-D{:02d}'.format(code_prefix, di),
+                         '{} h\u1ed9i tho\u1ea1i {}'.format(code_prefix, di), 'KNOWLEDGE')
+            les = nid('lesson')
+            b['lesson'].add(les, d_unit, d_tag,
+                            'B\u00e0i {}: {}'.format(di, dl['title_vi']),
+                            dl.get('situation_vi'), di, 20, 'CURRICULUM', 'LISTENING',
+                            'FOUNDATION' if code_prefix != 'IT' else 'BA', 0, 'DRAFT')
+            b['lesson_tag'].add(les, d_tag)
+            if it_topic:
+                b['lesson_tag'].add(les, it_topic)
+            sec = nid('section')
+            b['lesson_section'].add(sec, les, dl['title_ja'], 'EXAMPLE', 1)
+            speakers = []
+            for line in dl['lines']:
+                if line['speaker'] not in speakers:
+                    speakers.append(line['speaker'])
+            role_ids = {}
+            for ri, sp in enumerate(speakers):
+                r_id = nid('drole')
+                role_ids[sp] = r_id
+                b['dialogue_role'].add(r_id, les, 'sp{}'.format(ri + 1), sp, sp,
+                                       it_pack['meta']['characters'].get(sp),
+                                       voices[ri % len(voices)])
+            for line in dl['lines']:
+                item = nid('item')
+                b['content_item'].add(item, sec, 'LISTENING', None, line['speaker'],
+                                      line['ja'], line['vi'], line['order'])
+                b['dialogue_line_detail'].add(item, role_ids[line['speaker']], dl['id'],
+                                              'trai' if line['speaker'] == speakers[0] else 'phai',
+                                              None, None)
+            # mau cau chinh cua bai -> grammar_point
+            g_sec = nid('section')
+            b['lesson_section'].add(g_sec, les, 'M\u1eabu c\u00e2u ch\u00ednh', 'EXPLANATION', 2)
+            for ki, kp in enumerate(dl.get('key_phrases') or [], start=1):
+                gp = nid('grammar')
+                b['grammar_point'].add(gp, les, d_tag, kp['ja'], kp['vi'],
+                                       kp.get('reading'), kp.get('note'), ki)
+
+    if it_pack:
+        c = it_pack['meta']['counts']
+        add_domain_pack(it_pack, 'Ti\u1ebfng Nh\u1eadt chuy\u00ean ng\u00e0nh IT',
+                        '{} t\u1eeb v\u1ef1ng, {} h\u1ed9i tho\u1ea1i BrSE theo 7 ch\u1ee7 \u0111\u1ec1 c\u00f4ng vi\u1ec7c. '
+                        'Ngh\u0129a ti\u1ebfng Vi\u1ec7t l\u00e0 n\u1ed9i dung g\u1ed1c, 19 t\u1eeb gh\u00e9p c\u1ea7n ng\u01b0\u1eddi r\u00e0 so\u00e1t.'
+                        .format(c['vocabulary'], c['dialogues']), 'TOPIC-IT', 'IT')
+    for dp, tb_title, tb_desc_tpl, tcode, pref in (domain_packs or []):
+        c = dp['meta']['counts']
+        add_domain_pack(dp, tb_title, tb_desc_tpl.format(c['vocabulary'], c['dialogues']), tcode, pref)
 
     return b, stats, warnings, {'vocab_unique': len(vocab_index), 'kanji_unique': len(kanji_index)}
 
@@ -540,8 +970,20 @@ def main():
     ap.add_argument('--input', required=True)
     ap.add_argument('--out', required=True)
     ap.add_argument('--report', default='validation.json')
-    ap.add_argument('--kanji-data', default='kanji_data_n5n4.json',
+    ap.add_argument('--kanji-data', default='kanji_data.json',
                     help='File du lieu Kanji trich tu KANJIDIC2')
+    ap.add_argument('--vocab-review', default='tu_vung_N3_N1_duyet.xlsx',
+                    help='Bang duyet tu vung N3-N1; chi dong DA_DUYET duoc seed')
+    ap.add_argument('--grammar', nargs='*',
+                    default=['grammar_n3.json', 'grammar_n2.json', 'grammar_n1.json'],
+                    help='Cac tep ngu phap + hoi thoai N3-N1')
+    ap.add_argument('--topic-vocab', nargs='*',
+                    default=['vocab_n3.json', 'vocab_n2.json', 'vocab_n1.json'],
+                    help='Tu vung N3/N2/N1 chia theo chu de')
+    ap.add_argument('--travel-data', default='travel_data.json')
+    ap.add_argument('--daily-data', default='daily_data.json')
+    ap.add_argument('--it-data', default='it_data.json',
+                    help='Bo tieng Nhat chuyen nganh IT (BrSE)')
     ap.add_argument('--kana-data', default='kana_data.json',
                     help='File du lieu bang chu cai Hiragana/Katakana')
     args = ap.parse_args()
@@ -552,7 +994,41 @@ def main():
     kana_data = load_kana_data(args.kana_data)
     if kana_data is None:
         print('CANH BAO: khong thay {} -> bo qua giao trinh bang chu cai'.format(args.kana_data))
-    batches, stats, warnings, extra = build(args.input, kanji_data, kana_data)
+    vocab_review = load_vocab_review(args.vocab_review)
+    if vocab_review is not None:
+        print('Tu vung N3-N1 da duyet:', {k: len(v) for k, v in vocab_review.items()})
+    grammar_packs = load_grammar_packs(args.grammar)
+    if grammar_packs:
+        print('Ngu phap N3-N1:', {k: '{} mau / {} hoi thoai'.format(len(v['grammar']), len(v['dialogues']))
+                                  for k, v in grammar_packs.items()})
+    it_pack = load_it_pack(args.it_data)
+    if it_pack:
+        print('Bo IT:', it_pack['meta']['counts'])
+    domain_packs = []
+    for path, title, desc, tcode, pref in (
+            (args.travel_data, 'Ti\u1ebfng Nh\u1eadt du l\u1ecbch',
+             '{} t\u1eeb v\u1ef1ng, {} h\u1ed9i tho\u1ea1i t\u00ecnh hu\u1ed1ng \u0111i l\u1ea1i, l\u01b0u tr\u00fa, mua s\u1eafm v\u00e0 s\u1ef1 c\u1ed1. '
+             'C\u00e1ch \u0111\u1ecdc \u0111\u00e3 \u0111\u1ed1i chi\u1ebfu JMdict; ngh\u0129a v\u00e0 h\u1ed9i tho\u1ea1i ch\u01b0a \u0111\u01b0\u1ee3c ki\u1ec3m.',
+             'TOPIC-TRAVEL', 'TRV'),
+            (args.daily_data, 'Ti\u1ebfng Nh\u1eadt \u0111\u1eddi s\u1ed1ng',
+             '{} t\u1eeb v\u1ef1ng, {} h\u1ed9i tho\u1ea1i sinh ho\u1ea1t h\u1eb1ng ng\u00e0y. '
+             'C\u00e1ch \u0111\u1ecdc \u0111\u00e3 \u0111\u1ed1i chi\u1ebfu JMdict; ngh\u0129a v\u00e0 h\u1ed9i tho\u1ea1i ch\u01b0a \u0111\u01b0\u1ee3c ki\u1ec3m.',
+             'TOPIC-DAILY', 'DLY')):
+        dp = load_it_pack(path)
+        if dp:
+            domain_packs.append((dp, title, desc, tcode, pref))
+    if domain_packs:
+        print('Bo chu de:', [(x[4], x[0]['meta']['counts']) for x in domain_packs])
+    topic_vocab = {}
+    for path in args.topic_vocab or []:
+        if os.path.exists(path):
+            v = json.load(open(path, encoding='utf-8'))
+            topic_vocab[v['meta']['level']] = v
+    if topic_vocab:
+        print('Tu vung theo chu de:', {k: v['meta']['counts']['vocabulary'] for k, v in topic_vocab.items()})
+    batches, stats, warnings, extra = build(args.input, kanji_data, kana_data,
+                                            vocab_review, grammar_packs, it_pack,
+                                            domain_packs, topic_vocab)
 
     header = [
         '-- =====================================================================',
@@ -567,6 +1043,8 @@ def main():
         '-- =====================================================================',
         'SET NAMES utf8mb4;',
         'SET FOREIGN_KEY_CHECKS = 0;',
+        # Cho phep chay trong MySQL Workbench (mac dinh Safe Updates = 1 chan DELETE khong WHERE).
+        'SET SQL_SAFE_UPDATES = 0;',
         '',
         '-- Xoa du lieu seed cu theo thu tu nguoc FK (khong dung TRUNCATE, khong dung toi users/roles).',
         'DELETE FROM content_audio;',
@@ -590,13 +1068,17 @@ def main():
         'DELETE FROM unit;',
         'DELETE FROM textbook;',
         "DELETE FROM tag WHERE tag_type = 'KNOWLEDGE'"
-        "  AND (code REGEXP '^N[45]-B[0-9]{2}$' OR code LIKE 'KANA-%');",
+        "  AND (code REGEXP '^N[45]-B[0-9]{2}$' OR code LIKE 'KANA-%'"
+        "       OR code REGEXP '^N[123]-V[0-9]{3}$'"
+        "       OR code REGEXP '^N[123]-[GD][0-9]{3}$'"
+        "       OR code REGEXP '^(IT|TRV|DLY)-'"
+        "       OR code REGEXP '^N[123]-T-');",
         "DELETE FROM tag WHERE tag_type = 'SITUATION' AND code LIKE 'TOPIC-%';",
         'DELETE FROM content_voice;',
         '',
     ]
     body = [batches[k].render() for k in batches]
-    footer = ['', 'SET FOREIGN_KEY_CHECKS = 1;', '']
+    footer = ['', 'SET SQL_SAFE_UPDATES = 1;', 'SET FOREIGN_KEY_CHECKS = 1;', '']
 
     with open(args.out, 'w', encoding='utf-8') as f:
         f.write('\n'.join(header) + '\n'.join(body) + '\n'.join(footer))

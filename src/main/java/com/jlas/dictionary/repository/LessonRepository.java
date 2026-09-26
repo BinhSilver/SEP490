@@ -86,4 +86,28 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             order by t.id, u.orderIndex, u.id, l.orderIndex, l.id
             """)
     List<Lesson> findByTagCodeAndStatus(@Param("tagCode") String tagCode, @Param("status") String status);
+
+    /** [JLAS-W0108] Bài luyện đọc/nghe đã xuất bản ở một cấp độ (skill READING/LISTENING) cho warm-up. */
+    @Query("""
+            select l from Lesson l
+              join fetch l.unit u
+              join fetch u.textbook t
+              join fetch l.knowledgeTag
+            where t.jlptLevel = :jlptLevel and l.skill = :skill
+              and l.status = 'PUBLISHED' and t.status = 'PUBLISHED'
+            order by t.id, u.orderIndex, u.id, l.orderIndex, l.id
+            """)
+    List<Lesson> findPublishedByJlptLevelAndSkill(@Param("jlptLevel") String jlptLevel,
+                                                  @Param("skill") String skill);
+
+    /** [JLAS-W0108] Bài luyện đọc/nghe đã xuất bản ở MỌI cấp độ — fallback khi cấp độ chính xác thiếu học liệu. */
+    @Query("""
+            select l from Lesson l
+              join fetch l.unit u
+              join fetch u.textbook t
+              join fetch l.knowledgeTag
+            where l.skill = :skill and l.status = 'PUBLISHED' and t.status = 'PUBLISHED'
+            order by t.id, u.orderIndex, u.id, l.orderIndex, l.id
+            """)
+    List<Lesson> findPublishedBySkill(@Param("skill") String skill);
 }

@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Randomize within each goal-priority tier, excluding issued IDs and repeated Kanji words. */
-final class SmartTestQuestionSelector {
+public final class SmartTestQuestionSelector {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final Pattern EXPLANATION_WORD = Pattern.compile(
             "^([\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}ー々]+)\\s*(?:[（(]|đọc)");
@@ -59,6 +59,22 @@ final class SmartTestQuestionSelector {
         return selected;
     }
 
+    /** [JLAS-W0108] Trích lexeme/word chuẩn hóa từ context_json để làm canonical item KANJI/VOCAB. */
+    public static String lexeme(AssessmentQuestion question) {
+        try {
+            JsonNode context = JSON.readTree(question.getContextJson());
+            if (context != null) {
+                for (String key : List.of("lexeme", "word")) {
+                    String value = context.path(key).asText("").trim();
+                    if (!value.isEmpty()) return value;
+                }
+            }
+        } catch (Exception ignored) {
+            // Historical seed rows may have no context; canonical item is then underivable.
+        }
+        return null;
+    }
+
     static String kanjiWord(AssessmentQuestion question) {
         try {
             JsonNode context = JSON.readTree(question.getContextJson());
@@ -81,8 +97,16 @@ final class SmartTestQuestionSelector {
         return index < 0 ? preferredTags.size() : index;
     }
 
+    /** [JLAS-W0108] Câu khớp mục tiêu khi tag chính HOẶC một additional tag nằm trong preferred tags. */
+    static boolean matchesGoal(AssessmentQuestion question, List<String> preferredTags) {
+        if (preferredTags == null || preferredTags.isEmpty()) return true;
+        if (question.getKnowledgeTag() != null && question.getKnowledgeTag().getCode() != null
+                && preferredTags.contains(question.getKnowledgeTag().getCode())) return true;
+        return additionalTags(question).stream().anyMatch(preferredTags::contains);
+    }
+
     /** Các tag tình huống phụ (context_json.additional_tags) dùng để khớp mục tiêu. */
-    private static List<String> additionalTags(AssessmentQuestion question) {
+    static List<String> additionalTags(AssessmentQuestion question) {
         try {
             JsonNode context = JSON.readTree(question.getContextJson());
             JsonNode additional = context == null ? null : context.path("additional_tags");
