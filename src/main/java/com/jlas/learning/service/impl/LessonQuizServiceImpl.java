@@ -1,5 +1,8 @@
 package com.jlas.learning.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.assessment.entity.AssessmentAnswer;
 import com.jlas.assessment.entity.AssessmentAttempt;
 import com.jlas.assessment.entity.AssessmentQuestion;
@@ -11,6 +14,7 @@ import com.jlas.common.event.LearningEvent;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.QuizAnswerDetailResponse;
+import com.jlas.learning.dto.QuizAnswerFeedbackResponse;
 import com.jlas.learning.dto.QuizAnswerSubmission;
 import com.jlas.learning.dto.QuizQuestionResponse;
 import com.jlas.learning.dto.QuizResultResponse;
@@ -23,6 +27,7 @@ import com.jlas.learning.repository.LessonQuizAttemptRepository;
 import com.jlas.learning.repository.LessonQuizQuestionRepository;
 import com.jlas.learning.repository.LessonQuizRepository;
 import com.jlas.learning.service.LearningProgressService;
+import com.jlas.learning.service.LessonAccessPolicy;
 import com.jlas.learning.service.LessonQuizService;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
@@ -30,6 +35,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,14 +52,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class LessonQuizServiceImpl implements LessonQuizService {
 
     private static final String ATTEMPT_TYPE_QUIZ = "QUIZ";
+    private static final String QUIZ_TYPE_LESSON = "LESSON";
     private static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
     private static final String STATUS_SUBMITTED = "SUBMITTED";
+    private static final String STATUS_ABANDONED = "ABANDONED";
     private static final String MULTIPLE_CHOICE = "MULTIPLE_CHOICE";
     private static final String FILL_BLANK = "FILL_BLANK";
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
-    private static final BigDecimal PASS_THRESHOLD = BigDecimal.valueOf(60);
-    /** Quizzes with a larger question bank show this many questions per attempt. */
-    private static final int QUESTIONS_PER_ATTEMPT = 20;
+    private static final BigDecimal PASS_THRESHOLD = BigDecimal.valueOf(PASS_PERCENT);
 
     private final LessonQuizRepository lessonQuizRepository;
     private final LessonQuizQuestionRepository questionRepository;
@@ -61,45 +67,53 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     private final LessonQuizAttemptDetailRepository attemptDetailRepository;
     private final LessonQuizAnswerRepository answerRepository;
     private final LearningProgressService learningProgress;
+    private final List<LessonAccessPolicy> accessPolicies;
+    private final ObjectMapper objectMapper;
     private final EntityManager em;
     private final ApplicationEventPublisher events;
 
     @Override
     @Transactional
     public QuizStartResponse start(Long userId, Long lessonId) {
+        accessPolicies.forEach(policy -> policy.checkLesson(userId, lessonId));
         AssessmentQuiz quiz = lessonQuizRepository.findPublishedLessonQuiz(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz not found for this lesson."));
-        List<AssessmentQuizQuestion> links = questionRepository.findWithQuestionByQuizId(quiz.getId());
-        List<AssessmentQuizQuestion> supported = supportedQuestions(links);
-        if (supported.isEmpty()) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "Quiz has no supported questions.");
-        }
+        List<AssessmentQuizQuestion> supported = supportedQuestionsOf(quiz);
         learningProgress.start(userId, lessonId);
-        Optional<AssessmentQuizAttempt> resumed = attemptDetailRepository
-                .findInProgressByUserIdAndQuizId(userId, quiz.getId());
-        if (resumed.isPresent()) {
-            return new QuizStartResponse(
-                    resumed.get().getAttemptId(),
-                    quiz.getId(),
-                    quiz.getTitle(),
-                    lessonId,
-                    forAttempt(resumed.get().getAttemptId(), supported).stream().map(this::toQuestion).toList());
+        return open(userId, quiz, lessonId, supported);
+    }
+
+    @Override
+    @Transactional
+    public QuizStartResponse startUnitFinal(Long userId, Long unitId) {
+        accessPolicies.forEach(policy -> policy.checkUnitFinal(userId, unitId));
+        AssessmentQuiz quiz = lessonQuizRepository.findPublishedUnitFinals(unitId).stream().findFirst()
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Final test not found for this unit."));
+        return open(userId, quiz, null, supportedQuestionsOf(quiz));
+    }
+
+    @Override
+    @Transactional
+    public QuizAnswerFeedbackResponse answer(Long userId, Long attemptId, QuizAnswerSubmission submission) {
+        if (submission == null || submission.questionId() == null) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "The answer must reference a question.");
         }
-        AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
-                .user(em.getReference(User.class, userId))
-                .attemptType(ATTEMPT_TYPE_QUIZ)
-                .status(STATUS_IN_PROGRESS)
-                .build());
-        attemptDetailRepository.save(AssessmentQuizAttempt.builder()
-                .attempt(attempt)
-                .quiz(quiz)
-                .build());
-        return new QuizStartResponse(
-                attempt.getId(),
-                quiz.getId(),
-                quiz.getTitle(),
-                lessonId,
-                forAttempt(attempt.getId(), supported).stream().map(this::toQuestion).toList());
+        AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
+        if (!STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Quiz has already been submitted.");
+        }
+        Optional<AssessmentAnswer> recorded = answerRepository
+                .findWithQuestionByAttemptIdAndQuestionId(attemptId, submission.questionId());
+        if (recorded.isPresent()) {
+            return toFeedback(recorded.get());
+        }
+        AssessmentQuestion question = questionsOfAttempt(attemptId).stream()
+                .map(AssessmentQuizQuestion::getQuestion)
+                .filter(candidate -> candidate.getId().equals(submission.questionId()))
+                .findFirst()
+                .orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED,
+                        "Answer references a question outside this quiz."));
+        return toFeedback(answerRepository.save(gradedAnswer(attempt, question, submission)));
     }
 
     @Override
@@ -118,28 +132,28 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         }
 
         Map<Long, QuizAnswerSubmission> submissions = indexSubmissions(request);
-        List<AssessmentAnswer> answers = new ArrayList<>(supported.size());
+        Map<Long, AssessmentAnswer> recorded = new HashMap<>();
+        answerRepository.findWithQuestionByAttemptId(attemptId)
+                .forEach(answer -> recorded.put(answer.getQuestion().getId(), answer));
+        List<AssessmentAnswer> newAnswers = new ArrayList<>(supported.size());
         BigDecimal totalScore = BigDecimal.ZERO;
         BigDecimal earnedScore = BigDecimal.ZERO;
         int correctCount = 0;
         for (AssessmentQuizQuestion link : supported) {
             AssessmentQuestion question = link.getQuestion();
             QuizAnswerSubmission submission = submissions.remove(question.getId());
-            boolean correct = grade(question, submission);
+            // an answer already checked during the attempt keeps its result
+            AssessmentAnswer answer = recorded.get(question.getId());
+            if (answer == null) {
+                answer = gradedAnswer(attempt, question, submission);
+                newAnswers.add(answer);
+            }
             BigDecimal rawScore = link.getRawScore() != null ? link.getRawScore() : BigDecimal.ONE;
             totalScore = totalScore.add(rawScore);
-            if (correct) {
+            if (Boolean.TRUE.equals(answer.getIsCorrect())) {
                 earnedScore = earnedScore.add(rawScore);
                 correctCount++;
             }
-            answers.add(AssessmentAnswer.builder()
-                    .attempt(attempt)
-                    .question(question)
-                    .selectedOption(submission.selectedOption())
-                    .answerText(submission.answerText() == null ? null : submission.answerText().trim())
-                    .isCorrect(correct)
-                    .answeredAt(LocalDateTime.now())
-                    .build());
         }
         if (!submissions.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Answer references a question outside this quiz.");
@@ -148,7 +162,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         BigDecimal scorePercent = totalScore.signum() > 0
                 ? earnedScore.multiply(ONE_HUNDRED).divide(totalScore, 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
-        answerRepository.saveAll(answers);
+        answerRepository.saveAll(newAnswers);
         attempt.setStatus(STATUS_SUBMITTED);
         attempt.setSubmittedAt(LocalDateTime.now());
         attempt.setScorePercent(scorePercent);
@@ -156,13 +170,24 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         quizAttempt.setScorePercent(scorePercent);
         attemptDetailRepository.save(quizAttempt);
         events.publishEvent(LearningEvent.lessonQuizCompleted(userId, attemptId));
-        if (scorePercent.compareTo(PASS_THRESHOLD) >= 0) {
-            Long lessonId = lessonIdOf(quizAttempt);
+        boolean passed = scorePercent.compareTo(PASS_THRESHOLD) >= 0;
+        if (passed) {
+            Long lessonId = completedLessonOf(quizAttempt);
             if (lessonId != null) {
                 learningProgress.complete(userId, lessonId);
             }
         }
-        return new QuizSubmitResponse(attemptId, scorePercent, correctCount, supported.size());
+        return new QuizSubmitResponse(attemptId, scorePercent, correctCount, supported.size(), passed);
+    }
+
+    @Override
+    @Transactional
+    public void abandon(Long userId, Long attemptId) {
+        AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
+        if (STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
+            attempt.setStatus(STATUS_ABANDONED);
+            attemptRepository.save(attempt);
+        }
     }
 
     @Override
@@ -189,6 +214,55 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 answers.stream().map(this::toDetail).toList());
     }
 
+    /** The supported questions of a quiz; a quiz with none cannot be opened. */
+    private List<AssessmentQuizQuestion> supportedQuestionsOf(AssessmentQuiz quiz) {
+        List<AssessmentQuizQuestion> supported = supportedQuestions(questionRepository.findWithQuestionByQuizId(quiz.getId()));
+        if (supported.isEmpty()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Quiz has no supported questions.");
+        }
+        return supported;
+    }
+
+    /** Resumes the user's open attempt on the quiz, or creates one, and returns its questions. */
+    private QuizStartResponse open(Long userId, AssessmentQuiz quiz, Long lessonId,
+                                   List<AssessmentQuizQuestion> supported) {
+        Optional<AssessmentQuizAttempt> resumed = attemptDetailRepository
+                .findInProgressByUserIdAndQuizId(userId, quiz.getId());
+        Long attemptId;
+        List<QuizAnswerFeedbackResponse> answered;
+        if (resumed.isPresent()) {
+            attemptId = resumed.get().getAttemptId();
+            answered = answerRepository.findWithQuestionByAttemptId(attemptId).stream().map(this::toFeedback).toList();
+        } else {
+            AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
+                    .user(em.getReference(User.class, userId))
+                    .attemptType(ATTEMPT_TYPE_QUIZ)
+                    .status(STATUS_IN_PROGRESS)
+                    .build());
+            attemptDetailRepository.save(AssessmentQuizAttempt.builder()
+                    .attempt(attempt)
+                    .quiz(quiz)
+                    .build());
+            attemptId = attempt.getId();
+            answered = List.of();
+        }
+        return new QuizStartResponse(
+                attemptId,
+                quiz.getId(),
+                quiz.getTitle(),
+                lessonId,
+                forAttempt(attemptId, supported).stream().map(this::toQuestion).toList(),
+                answered);
+    }
+
+    /** The questions an attempt shows, in the same order as when it was opened. */
+    private List<AssessmentQuizQuestion> questionsOfAttempt(Long attemptId) {
+        AssessmentQuizAttempt quizAttempt = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz attempt not found."));
+        return forAttempt(attemptId, supportedQuestions(
+                questionRepository.findWithQuestionByQuizId(quizAttempt.getQuiz().getId())));
+    }
+
     private AssessmentAttempt ownedAttempt(Long userId, Long attemptId) {
         if (attemptId == null || attemptId <= 0) {
             throw new ApiException(ErrorCode.NOT_FOUND, "Attempt not found.");
@@ -206,10 +280,13 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Attempt not found."));
     }
 
-    /** Resolves the owning lesson of a LESSON quiz attempt, when one exists. */
-    private Long lessonIdOf(AssessmentQuizAttempt quizAttempt) {
+    /** The lesson a passed attempt completes: only a lesson's own LESSON quiz completes it. */
+    private Long completedLessonOf(AssessmentQuizAttempt quizAttempt) {
         AssessmentQuiz quiz = quizAttempt.getQuiz();
-        return quiz.getLesson() == null ? null : quiz.getLesson().getId();
+        if (!QUIZ_TYPE_LESSON.equals(quiz.getQuizType()) || quiz.getLesson() == null) {
+            return null;
+        }
+        return quiz.getLesson().getId();
     }
 
     /** Keeps only question types the lesson quiz can render and grade. */
@@ -300,6 +377,19 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         return map;
     }
 
+    private AssessmentAnswer gradedAnswer(AssessmentAttempt attempt, AssessmentQuestion question,
+                                          QuizAnswerSubmission submission) {
+        boolean correct = grade(question, submission);
+        return AssessmentAnswer.builder()
+                .attempt(attempt)
+                .question(question)
+                .selectedOption(submission.selectedOption())
+                .answerText(submission.answerText() == null ? null : submission.answerText().trim())
+                .isCorrect(correct)
+                .answeredAt(LocalDateTime.now())
+                .build();
+    }
+
     private boolean grade(AssessmentQuestion question, QuizAnswerSubmission submission) {
         if (submission == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED,
@@ -331,7 +421,35 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 question.getQuestionType(),
                 question.getQuestionText(),
                 question.getPassageHtml(),
-                optionsOf(question));
+                optionsOf(question),
+                focusOf(question));
+    }
+
+    /** The {@code focus} of the question's context: the kanji or word shown large, never the answer. */
+    private String focusOf(AssessmentQuestion question) {
+        String context = question.getContextJson();
+        if (context == null || context.isBlank()) {
+            return null;
+        }
+        try {
+            JsonNode focus = objectMapper.readTree(context).get("focus");
+            return focus != null && focus.isTextual() && !focus.asText().isBlank() ? focus.asText() : null;
+        } catch (JsonProcessingException exception) {
+            return null;
+        }
+    }
+
+    private QuizAnswerFeedbackResponse toFeedback(AssessmentAnswer answer) {
+        AssessmentQuestion question = answer.getQuestion();
+        int correctIndex = correctOptionIndex(question);
+        return new QuizAnswerFeedbackResponse(
+                question.getId(),
+                Boolean.TRUE.equals(answer.getIsCorrect()),
+                answer.getSelectedOption(),
+                answer.getAnswerText(),
+                MULTIPLE_CHOICE.equals(question.getQuestionType()) && correctIndex > 0 ? correctIndex : null,
+                correctAnswerText(question, optionsOf(question)),
+                question.getExplanation());
     }
 
     private QuizAnswerDetailResponse toDetail(AssessmentAnswer answer) {
