@@ -6,7 +6,14 @@
 The lint splits every Hán Việt syllable into initial / rhyme / final and checks that each example
 really belongs to its rule, and that its reading has the shape the rule teaches. Questions are
 generated deterministically (fixed seed), so re-running gives the same SQL.
+
+Every question has the same shape: read an example word ("Từ 外国 (nước ngoài) đọc là gì?"), four
+readings in hiragana that differ only in the kanji the rule is about. Each lesson gets a LESSON quiz
+of these questions, one per example and exception; each unit gets a UNIT_FINAL quiz drawn from the
+LESSON quizzes of its lessons. The old compound-word quizzes ("Ghép từ", RULE_PRACTICE) are removed.
+The Onyomi section of sql/seeds/jlas_seed_all.sql is refreshed with the same SQL.
 """
+import copy
 import json
 import os
 import random
@@ -17,7 +24,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 SOURCE = os.path.join(HERE, 'onyomi_rules.json')
 OUTPUT = os.path.join(ROOT, 'sql', 'seeds', 'onyomi_canonical.sql')
+SEED_ALL = os.path.join(ROOT, 'sql', 'seeds', 'jlas_seed_all.sql')
 SEED = 20260926
+PRACTICE_SEED = SEED + 2
 
 # ── Kana ────────────────────────────────────────────────────────────────────
 VOWELS = 'aiueo'
@@ -200,8 +209,12 @@ def onset_of(romaji):
 
 # ── Data model ──────────────────────────────────────────────────────────────
 class Example:
-    def __init__(self, rule, row):
+    """A kanji of a rule. `practice` marks one that is not on the flashcards: it only shows up in the
+    practice questions, so the learner applies the rule to a kanji they have not seen."""
+
+    def __init__(self, rule, row, practice=False):
         self.rule = rule
+        self.practice = practice
         (self.kanji, self.hv, self.romaji, self.alts, self.word, self.word_reading,
          self.meaning, self.jlpt) = row[:8]
         self.variant = row[8] if len(row) > 8 else ''
@@ -245,17 +258,23 @@ def rule_matches(rule, hv, romaji):
 def lint(data):
     errors, warnings = [], []
     readings = {}
+    flashcards = {}
     for rule in data['rules']:
         rule['examples_'] = [Example(rule, row) for row in rule['examples']]
+        rule['practice_'] = [Example(rule, row, practice=True) for row in rule.get('practice', [])]
         rule['exceptions_'] = [Exception_(rule, e) for e in rule.get('exceptions', [])]
+        flashcards.setdefault(lesson_key(rule), set()).update(ex.kanji for ex in rule['examples_'])
+    for rule in data['rules']:
         if len(rule['examples_']) < 2:
             errors.append('%s: needs at least 2 examples' % rule['code'])
         seen = set()
-        for ex in rule['examples_']:
+        for ex in rule['examples_'] + rule['practice_']:
             where = '%s %s (%s)' % (rule['code'], ex.kanji, ex.hv)
             if ex.kanji in seen:
                 errors.append(where + ': duplicate kanji in rule')
             seen.add(ex.kanji)
+            if ex.practice and ex.kanji in flashcards[lesson_key(rule)]:
+                errors.append(where + ': practice kanji is already on the flashcards of this lesson')
             vn_ok, on_ok = rule_matches(rule, ex.hv, ex.romaji)
             if not vn_ok:
                 errors.append(where + ': Hán Việt %r does not fit %s (parsed %r)'
@@ -289,30 +308,64 @@ def display(kana):
     return '%s (%s)' % (kana, to_romaji(kana))
 
 
-def reading_distractors(ex, all_readings):
-    """Three wrong readings aimed at what the rule teaches."""
-    rule, taken = ex.rule, set(all_readings.get(ex.kanji, set())) | ex.all_kana
-    candidates = []
+def lesson_key(rule):
+    return rule['unit'], rule['lesson']
+
+
+def taught_by(rule, rules):
+    """Rules of the same kind taught up to this rule's lesson: this lesson first, then the earlier
+    lessons, nearest first, since the course is learned in order."""
+    taught = [r for r in rules if r['kind'] == rule['kind'] and lesson_key(r) <= lesson_key(rule)]
+    return sorted(taught, key=lesson_key, reverse=True)
+
+
+# target sounds of the rules (their 'on' lists) written the way each kind of change takes them
+ONSET_OF_TARGET = {'ts': 't0', 'f': 'h'}
+TAIL_OF_TARGET = {'n': 'n', 'ku': 'ku', 'ki': 'ki', 'tsu': 'tsu', 'chi': 'chi', 'uu': 'u', 'ou': 'u'}
+
+
+def reading_distractors(ex, all_readings, rules, count=3):
+    """Wrong readings that change only what the rule teaches (the initial, final or rhyme of the kanji)
+    and keep the rest of the reading. They use first the sounds of rules already taught, nearest lesson
+    first; the rule's own traps fill in when too few are taught yet (the first lesson teaches only K).
+    None of them may be a sound the rule itself gives, so exactly one option follows the rule.
+    Three, or up to `count` when spares are wanted."""
+    rule = ex.rule
+    taught = [target for r in taught_by(rule, rules) for target in r['on']]
     if rule['kind'] == 'initial':
-        candidates = [with_onset(ex.kana, code) for code in rule['traps']]
+        def codes(targets):
+            return [ONSET_OF_TARGET.get(t, t) for t in targets]
+        own_rows = {ONSET_CODES[c][0] for c in codes(rule['on'])} | {first_mora(ex.kana)[0]}
+
+        def change(code):
+            return None if ONSET_CODES[code][0] in own_rows else with_onset(ex.kana, code)
+        # P comes last: after a doubled consonant (日記 にっき) only K, S, T and P can follow
+        steps = codes(taught) + list(rule['traps']) + ['k', 'h', 's', 't', 'n', 'm', 'r', 'g', 'p']
     elif rule['kind'] == 'final':
-        candidates = [with_tail(ex.kana, tail) for tail in rule['tails']]
+        def tails(targets):
+            return [TAIL_OF_TARGET.get(t, t) for t in targets]
+        own = set(tails(rule['on'])) | {t for t, kana in TAILS.items() if ex.kana.endswith(kana)}
+
+        def change(tail):
+            return None if tail in own else with_tail(ex.kana, tail)
+        steps = tails(taught) + list(rule['tails']) + list(TAILS)
     else:
-        candidates = [with_rhyme(ex.kana, rhyme) for rhyme in rule['rhymes']]
+        own = set(rule['on'])
+
+        def change(rhyme):
+            return None if rhyme in own else with_rhyme(ex.kana, rhyme)
+        steps = [t for t in taught if t in RHYMES] + list(rule['rhymes']) + list(RHYMES)
+    taken = set(all_readings.get(ex.kanji, set())) | ex.all_kana
     out = []
-    for kana in candidates:
+    for step in steps:
+        kana = change(step)
         if kana and kana not in taken and kana not in out:
             out.append(kana)
-    # top up with generic onset swaps if a rule's own list ran short
-    for code in ('k', 'h', 's', 't', 'n', 'm', 'r', 'g'):
-        if len(out) >= 3:
+        if len(out) >= count:
             break
-        kana = with_onset(ex.kana, code)
-        if kana and kana not in taken and kana not in out:
-            out.append(kana)
     if len(out) < 3:
         raise ValueError('not enough distractors for %s %s' % (rule['code'], ex.kanji))
-    return out[:3]
+    return out[:count]
 
 
 def word_segments(ex):
@@ -327,93 +380,100 @@ def mcq(rng, correct, wrong):
 
 
 class Question:
-    def __init__(self, rule, ex, qtype, difficulty, text, answer, explanation, options=None, correct=None):
+    def __init__(self, rule, ex, qtype, difficulty, text, answer, explanation, options, correct, context=None):
         self.rule, self.ex, self.qtype, self.difficulty = rule, ex, qtype, difficulty
         self.text, self.answer, self.explanation = text, answer, explanation
         self.options, self.correct = options, correct
+        self.context = context
 
 
-def explanation_for(rule, ex):
-    parts = ['%s (%s) → %s. %s: %s' % (ex.kanji, ex.hv, display(ex.kana), rule['title'], rule['description'])]
-    if ex.variant:
-        parts.append('Lưu ý: ' + ex.variant)
-    if ex.word:
-        parts.append('Từ ví dụ: %s %s – %s.' % (ex.word, ''.join(word_segments(ex)), ex.meaning))
-    return ' '.join(parts)
+def word_parts(word_reading):
+    """The reading of each kanji of an example word, in katakana: 'gai|koku' → ['ガイ', 'コク']."""
+    return [to_katakana(s) for s in word_reading.split('|')]
 
 
-def questions_for(rule, ex, data, all_readings, rng):
-    out = []
-    wrong = reading_distractors(ex, all_readings)
-    explanation = explanation_for(rule, ex)
-
-    text = rng.choice([
-        'Âm Hán Việt “%s” (%s) đọc theo âm On là gì?' % (ex.hv, ex.kanji),
-        'Theo quy tắc %s, chữ %s (%s) đọc là gì?' % (rule['title'], ex.kanji, ex.hv),
-        'Chọn âm On đúng của chữ %s, Hán Việt “%s”.' % (ex.kanji, ex.hv),
-    ])
-    options, correct = mcq(rng, display(ex.kana), [display(k) for k in wrong])
-    out.append(Question(rule, ex, 'HV_TO_ON', 'EASY', text, display(ex.kana), explanation, options, correct))
-
-    text = rng.choice(['Chữ %s có âm On là gì?' % ex.kanji,
-                       'Đọc âm On của chữ %s:' % ex.kanji])
-    options, correct = mcq(rng, ex.kana, wrong)
-    out.append(Question(rule, ex, 'KANJI_TO_ON', 'MEDIUM', text, ex.kana, explanation, options, correct))
-
-    unit_rules = [r for r in data['rules'] if r['unit'] == rule['unit'] and r is not rule]
-    others = [r for r in unit_rules if r['lesson'] == rule['lesson']] + \
-             [r for r in unit_rules if r['lesson'] != rule['lesson']]
-    others = [r for r in others if not all(rule_matches(r, ex.hv, ex.romaji))]
-    picks = others[:1] + rng.sample(others[1:], min(2, len(others) - 1)) if others else []
-    if len(picks) == 3:
-        text = '%s (%s → %s) là ví dụ của quy tắc nào?' % (ex.kanji, ex.hv, ex.kana)
-        options, correct = mcq(rng, rule['title'], [r['title'] for r in picks])
-        out.append(Question(rule, ex, 'WHICH_RULE', 'MEDIUM', text, rule['title'], explanation, options, correct))
-
-    pool = [e for r in data['rules'] if r['unit'] == rule['unit'] for e in r['examples_']
-            if e.kanji != ex.kanji and ex.kana not in all_readings.get(e.kanji, set())]
-    unique = {}
-    for e in pool:
-        unique.setdefault(e.kanji, e)
-    if len(unique) >= 3:
-        picks = rng.sample(sorted(unique.values(), key=lambda e: e.kanji), 3)
-        text = 'Chữ nào có âm On là %s theo quy tắc %s?' % (display(ex.kana), rule['title'])
-        label = '%s (%s)' % (ex.kanji, ex.hv)
-        options, correct = mcq(rng, label, ['%s (%s)' % (e.kanji, e.hv) for e in picks])
-        out.append(Question(rule, ex, 'ON_TO_KANJI', 'MEDIUM', text, label, explanation, options, correct))
-
-    text = 'Gõ âm On của chữ %s (Hán Việt “%s”). Có thể gõ Katakana, Hiragana hoặc romaji.' % (ex.kanji, ex.hv)
-    out.append(Question(rule, ex, 'TYPE_ON', 'HARD', text, ex.kana, explanation))
-
-    if ex.word:
-        segments = ex.word_reading.split('|')
-        index = ex.word.index(ex.kanji)
-        if segments[index] == ex.romaji:
-            hira = word_segments(ex)
-            right = ''.join(hira)
-            wrongs = []
-            for kana in wrong:
-                variant = list(hira)
-                variant[index] = to_hiragana(kana)
-                if ''.join(variant) != right:
-                    wrongs.append(''.join(variant))
-            if len(wrongs) == 3:
-                text = 'Từ %s (%s) đọc là gì?' % (ex.word, ex.meaning)
-                options, correct = mcq(rng, right, wrongs)
-                out.append(Question(rule, ex, 'WORD', 'HARD', text, right, explanation, options, correct))
-    return out
+def pronounceable(kana):
+    # a doubled consonant (ッ) only comes before K, S, T or P; にっひ would give the answer away
+    for i, ch in enumerate(kana):
+        if ch == 'ッ':
+            following = KANA_POS.get(kana[i + 1]) if i + 1 < len(kana) else None
+            if following is None or following[0] not in ('k', 's', 't', 'p'):
+                return False
+    return True
 
 
-def exception_questions(rule, exc, rng):
-    wrong = [to_katakana(p) for p in exc.predicted]
-    text = ('Chữ %s (Hán Việt “%s”) là ngoại lệ của quy tắc %s. Âm On thông dụng của nó là gì?'
-            % (exc.kanji, exc.hv, rule['title']))
-    options, correct = mcq(rng, display(exc.kana), [display(k) for k in wrong])
-    word = ''.join(to_hiragana(to_katakana(s)) for s in exc.word_reading.split('|'))
-    explanation = '%s (%s) → %s. %s Từ ví dụ: %s %s – %s.' % (
-        exc.kanji, exc.hv, display(exc.kana), exc.note, exc.word, word, exc.meaning)
+def word_options(parts, index, traps, rng):
+    """The four readings of a word: the right one and three that swap the part at `index` for a trap.
+    None when fewer than three traps give a different, pronounceable word."""
+    right = ''.join(parts)
+    wrong = []
+    for trap in traps:
+        variant = ''.join(parts[:index] + [trap] + parts[index + 1:])
+        if variant != right and variant not in wrong and pronounceable(variant):
+            wrong.append(variant)
+    if len(wrong) < 3:
+        return None
+    options, correct = mcq(rng, to_hiragana(right), [to_hiragana(k) for k in wrong[:3]])
+    return to_hiragana(right), options, correct
+
+
+def word_breakdown(word, parts, meaning, sources):
+    """外国 = 外 (Ngoại → がい) + 国 (Quốc → こく) → がいこく: nước ngoài."""
+    steps = ' + '.join('%s (%s → %s)' % (ch, sources[ch].hv, to_hiragana(part)) if ch in sources
+                       else '%s (%s)' % (ch, to_hiragana(part)) for ch, part in zip(word, parts))
+    return '%s = %s → %s: %s.' % (word, steps, to_hiragana(''.join(parts)), meaning)
+
+
+def word_question(rule, ex, data, all_readings, sources, rng):
+    """Reads the example word of `ex`; the wrong readings change only this kanji's part, as
+    reading_distractors builds them, so exactly one option applies the rule. None when the word
+    cannot show the rule: no word, or a sound change inside the word that hides what the rule
+    teaches (法 ホウ → ポウ in 文法)."""
+    if not ex.word:
+        return None
+    parts = word_parts(ex.word_reading)
+    index = ex.word.index(ex.kanji)
+    part = parts[index]
+    notes = ['Lưu ý: ' + ex.variant] if ex.variant else []
+    if part == ex.kana:
+        base = ex
+    elif rule['kind'] == 'initial' and first_mora(part)[0] == first_mora(ex.kana)[0]:
+        # the sound changes in the word (決 ケツ → ケッ in 決定) but keeps the initial the rule is about
+        base = copy.copy(ex)
+        base.kana, base.alt_kana = part, []
+        notes.append('Trong từ này %s đọc thành %s (vốn là %s).' % (ex.kanji, to_hiragana(part), to_hiragana(ex.kana)))
+    else:
+        return None
+    built = word_options(parts, index, reading_distractors(base, all_readings, data['rules'], count=12), rng)
+    if built is None:
+        return None
+    answer, options, correct = built
+    explanation = ' '.join([word_breakdown(ex.word, parts, ex.meaning, sources),
+                            '%s (%s) → %s theo quy tắc %s: %s' % (ex.kanji, ex.hv, to_hiragana(ex.kana),
+                                                                  rule['title'], rule['description'])] + notes)
+    text = 'Từ %s (%s) đọc là gì?' % (ex.word, ex.meaning)
+    return Question(rule, ex, 'WORD', 'MEDIUM', text, answer, explanation, options, correct)
+
+
+def exception_question(rule, exc, sources, rng):
+    """The same question for an exception's word; the wrong readings are what the rule would predict."""
+    parts = word_parts(exc.word_reading)
+    index = exc.word.index(exc.kanji)
+    if parts[index] != exc.kana:
+        return None
+    built = word_options(parts, index, [to_katakana(p) for p in exc.predicted], rng)
+    if built is None:
+        return None
+    answer, options, correct = built
+    explanation = '%s %s (%s) là ngoại lệ của quy tắc %s: %s' % (
+        word_breakdown(exc.word, parts, exc.meaning, sources), exc.kanji, exc.hv, rule['title'], exc.note)
     fake = Example(rule, [exc.kanji, exc.hv, exc.romaji, exc.alts, exc.word, exc.word_reading, exc.meaning, 'N3'])
-    return [Question(rule, fake, 'EXCEPTION', 'HARD', text, display(exc.kana), explanation, options, correct)]
+    # the lesson page lists a rule's exceptions straight from this context
+    context = {'type': 'EXCEPTION', 'rule': rule['code'], 'kanji': exc.kanji, 'hanViet': exc.hv,
+               'reading': exc.kana, 'romaji': to_romaji(exc.kana), 'note': exc.note, 'word': exc.word,
+               'wordReading': answer, 'meaning': exc.meaning}
+    text = 'Từ %s (%s) đọc là gì?' % (exc.word, exc.meaning)
+    return Question(rule, fake, 'EXCEPTION', 'HARD', text, answer, explanation, options, correct, context)
 
 
 # ── SQL ─────────────────────────────────────────────────────────────────────
@@ -430,7 +490,7 @@ def build_sql(data):
     rules, units, lessons = data['rules'], data['units'], data['lessons']
     all_readings = {}
     for rule in rules:
-        for ex in rule['examples_']:
+        for ex in rule['examples_'] + rule['practice_']:
             all_readings.setdefault(ex.kanji, set()).update(ex.all_kana)
         for exc in rule['exceptions_']:
             all_readings.setdefault(exc.kanji, set()).update({exc.kana, *exc.alt_kana})
@@ -477,26 +537,46 @@ def build_sql(data):
     w('SET @onyomi_first_lesson = @onyomi_lesson_1_1;')
     w('')
 
-    # quizzes: one practice quiz per lesson
+    # quizzes: per lesson a practice quiz (LESSON)
     for l in lessons:
         var = '@onyomi_quiz_%d_%d' % (l['unit'], l['order'])
         lvar = '@onyomi_lesson_%d_%d' % (l['unit'], l['order'])
         title = 'Luyện tập: ' + l['title']
         # LESSON is the type the learning path's lesson quiz looks up (LessonQuizRepository); older
-        # seeds used RULE_PRACTICE, so such a quiz is reused and switched over.
-        w("SET %s = (SELECT MIN(id) FROM assessment_quiz WHERE lesson_id = %s AND quiz_type IN ('LESSON', 'RULE_PRACTICE'));"
-          % (var, lvar))
+        # seeds used RULE_PRACTICE, so such a quiz is reused and switched over when no LESSON quiz exists.
+        w("SET %s = (SELECT id FROM assessment_quiz WHERE lesson_id = %s AND quiz_type IN ('LESSON', 'RULE_PRACTICE')"
+          " ORDER BY quiz_type = 'LESSON' DESC, id LIMIT 1);" % (var, lvar))
         w("INSERT INTO assessment_quiz (lesson_id, unit_id, title, quiz_type, status)")
         w("SELECT %s, NULL, %s, 'LESSON', 'PUBLISHED' FROM DUAL WHERE %s IS NULL;" % (lvar, q(title), var))
         w('SET %s = COALESCE(%s, LAST_INSERT_ID());' % (var, var))
         w("UPDATE assessment_quiz SET title = %s, quiz_type = 'LESSON', status = 'PUBLISHED' WHERE id = %s;" % (q(title), var))
+    # quizzes: per unit a final test (UNIT_FINAL) over the practice questions of its lessons
+    for u in units:
+        fvar = '@onyomi_final_%d' % u['order']
+        ftitle = 'Kiểm tra cuối: ' + u['title']
+        w("SET %s = (SELECT MIN(id) FROM assessment_quiz WHERE unit_id = @onyomi_unit_%d AND quiz_type = 'UNIT_FINAL');"
+          % (fvar, u['order']))
+        w("INSERT INTO assessment_quiz (lesson_id, unit_id, title, quiz_type, status)")
+        w("SELECT NULL, @onyomi_unit_%d, %s, 'UNIT_FINAL', 'PUBLISHED' FROM DUAL WHERE %s IS NULL;"
+          % (u['order'], q(ftitle), fvar))
+        w('SET %s = COALESCE(%s, LAST_INSERT_ID());' % (fvar, fvar))
+        w("UPDATE assessment_quiz SET title = %s, status = 'PUBLISHED' WHERE id = %s;" % (q(ftitle), fvar))
     quiz_vars = ['@onyomi_quiz_%d_%d' % (l['unit'], l['order']) for l in lessons]
-    quiz_list = ', '.join(quiz_vars)
+    final_vars = ['@onyomi_final_%d' % u['order'] for u in units]
+    quiz_list = ', '.join(quiz_vars + final_vars)
     lesson_list = ', '.join(lesson_vars)
+    # every RULE_PRACTICE quiz left on these lessons is an old compound-word quiz ("Ghép từ"): the
+    # practice quiz above has just been switched to LESSON
+    old_compound = "(quiz.quiz_type = 'RULE_PRACTICE' AND quiz.lesson_id IN (%s))" % lesson_list
     w('')
-    w('-- Xoá câu hỏi cũ của các bài này (kể cả bộ 450 câu cũ) cùng các lượt làm quiz trên chúng.')
+    w('-- Xoá câu hỏi cũ của các bài này (kể cả bộ 450 câu cũ) cùng các lượt làm quiz trên chúng')
+    w('-- (quiz luyện tập và bài kiểm tra cuối giai đoạn), rồi xoá hẳn các quiz Ghép từ cũ (RULE_PRACTICE):')
+    w('-- phần Ghép từ đã bỏ, vì mọi câu hỏi giờ đều là đọc cả từ.')
     w('DELETE FROM assessment_attempt WHERE id IN (')
-    w('    SELECT attempt_id FROM (SELECT attempt_id FROM assessment_quiz_attempt WHERE quiz_id IN (%s)) old_attempts);' % quiz_list)
+    w('    SELECT attempt_id FROM (SELECT link.attempt_id FROM assessment_quiz_attempt link')
+    w('    JOIN assessment_quiz quiz ON quiz.id = link.quiz_id')
+    w('    WHERE quiz.id IN (%s) OR %s) old_attempts);' % (quiz_list, old_compound))
+    w('DELETE quiz FROM assessment_quiz quiz WHERE %s;' % old_compound)
     w('DELETE FROM assessment_quiz_question WHERE quiz_id IN (%s);' % quiz_list)
     w('DELETE a FROM assessment_answer a JOIN assessment_question qn ON qn.id = a.question_id')
     w(' WHERE qn.quiz_id IN (%s)' % quiz_list)
@@ -592,26 +672,47 @@ def build_sql(data):
     w(') e JOIN kanji k ON k.`character` = e.ch COLLATE utf8mb4_unicode_ci;')
     w('')
 
-    # questions
-    questions = []
+    # questions: one per example, exception and practice kanji, all reading an example word
+    sources = {}
     for rule in rules:
         for ex in rule['examples_']:
-            questions.extend(questions_for(rule, ex, data, all_readings, rng))
+            sources.setdefault(ex.kanji, ex)
         for exc in rule['exceptions_']:
-            questions.extend(exception_questions(rule, exc, rng))
+            sources.setdefault(exc.kanji, exc)
+    for rule in rules:
+        for ex in rule['practice_']:
+            sources.setdefault(ex.kanji, ex)
+    # the practice kanji shuffle their options with their own generator, so adding some leaves the others as they are
+    practice_rng = random.Random(PRACTICE_SEED)
+    questions, skipped = [], []
+    for rule in rules:
+        for ex in rule['examples_']:
+            question = word_question(rule, ex, data, all_readings, sources, rng)
+            (questions if question else skipped).append(question or '%s %s' % (rule['code'], ex.kanji))
+        for exc in rule['exceptions_']:
+            question = exception_question(rule, exc, sources, rng)
+            (questions if question else skipped).append(question or '%s %s (ngoại lệ)' % (rule['code'], exc.kanji))
+    for rule in rules:
+        for ex in rule['practice_']:
+            question = word_question(rule, ex, data, all_readings, sources, practice_rng)
+            (questions if question else skipped).append(question or '%s %s (luyện tập)' % (rule['code'], ex.kanji))
     order_in_quiz = {}
     rows = []
-    for n, question in enumerate(questions, 1):
+    for question in questions:
         rule = question.rule
         quiz_var = '@onyomi_quiz_%d_%d' % (rule['unit'], rule['lesson'])
         order_in_quiz[quiz_var] = order_in_quiz.get(quiz_var, 0) + 1
-        opts = (question.options or []) + [None] * (4 - len(question.options or []))
-        context = json.dumps({'type': question.qtype, 'rule': rule['code'], 'kanji': question.ex.kanji,
-                              'hanViet': question.ex.hv, 'reading': question.ex.kana,
-                              'romaji': to_romaji(question.ex.kana)}, ensure_ascii=False)
-        rows.append('    (%s, @onyomi_tag_%d, \'KANJI\', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %s)' % (
+        context = question.context or {
+            'type': question.qtype, 'rule': rule['code'], 'kanji': question.ex.kanji,
+            'hanViet': question.ex.hv, 'reading': question.ex.kana,
+            'romaji': to_romaji(question.ex.kana)}
+        # focus: what the quiz card shows large, the word to read
+        context['focus'] = question.ex.word
+        context = json.dumps(context, ensure_ascii=False)
+        opts = question.options
+        rows.append("    (%s, @onyomi_tag_%d, 'KANJI', %s, %s, 'MULTIPLE_CHOICE', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %s)" % (
             rule['var'], rule['unit'], q(question.ex.jlpt or 'N3'), q(question.difficulty),
-            q('MULTIPLE_CHOICE' if question.options else 'FILL_BLANK'), q(question.text), q(question.answer),
+            q(question.text), q(question.answer),
             q(opts[0]), q(opts[1]), q(opts[2]), q(opts[3]), q(question.correct), q(question.explanation), q(context),
             quiz_var, order_in_quiz[quiz_var], q('onyomi:%s:%s:%s' % (rule['code'], question.ex.kanji, question.qtype))))
     header = ('INSERT INTO assessment_question (conversion_rule_id, knowledge_tag_id, skill, jlpt_level, difficulty,\n'
@@ -622,7 +723,51 @@ def build_sql(data):
         w(',\n'.join(rows[start:start + 100]) + ';')
     # The schema trigger trg_assessment_question_legacy_bridge links every question that has a quiz_id
     # to its quiz (assessment_quiz_question). Options live in option_1..4, which the lesson quiz reads.
-    return '\n'.join(lines) + '\n', questions
+    w('')
+    w('-- Bài kiểm tra cuối giai đoạn dùng lại câu hỏi luyện tập của các bài trong giai đoạn.')
+    for u in units:
+        unit_quizzes = ', '.join('@onyomi_quiz_%d_%d' % (l['unit'], l['order']) for l in lessons if l['unit'] == u['order'])
+        w('INSERT INTO assessment_quiz_question (quiz_id, question_id, order_index)')
+        w('SELECT @onyomi_final_%d, linked.question_id,' % u['order'])
+        w('       ROW_NUMBER() OVER (ORDER BY linked.quiz_id, linked.order_index, linked.question_id)')
+        w('  FROM assessment_quiz_question linked WHERE linked.quiz_id IN (%s);' % unit_quizzes)
+    return '\n'.join(lines) + '\n', questions, skipped
+
+
+SEED_ALL_START = '-- 4) Giáo trình Onyomi'
+SEED_ALL_END = '-- 5) '
+
+# Only the standalone file gets these; jlas_seed_all.sql sets them once around all its sections.
+STANDALONE_START = """-- Chạy riêng được (mysql CLI hoặc MySQL Workbench): chọn DB jlas và tạm tắt safe update mode,
+-- vì các lệnh DELETE theo subquery bên dưới bị safe update mode chặn (lỗi 1175).
+USE jlas;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET @onyomi_previous_safe_updates = @@SQL_SAFE_UPDATES;
+SET SQL_SAFE_UPDATES = 0;
+"""
+STANDALONE_END = 'SET SQL_SAFE_UPDATES = @onyomi_previous_safe_updates;\n'
+
+
+def standalone(sql):
+    """Wraps the section SQL so the file runs on its own: after the header comment, before the statements."""
+    header, _, body = sql.partition('\n\n')
+    return header + '\n\n' + STANDALONE_START + '\n' + body + '\n' + STANDALONE_END
+
+
+def update_seed_all(sql):
+    """Replaces the Onyomi section (4) of jlas_seed_all.sql with the freshly generated SQL."""
+    if not os.path.exists(SEED_ALL):
+        return False
+    with open(SEED_ALL, encoding='utf-8') as f:
+        lines = f.read().splitlines()
+    start = next(i for i, line in enumerate(lines) if line.startswith(SEED_ALL_START))
+    end = next(i for i, line in enumerate(lines) if line.startswith(SEED_ALL_END))
+    # keep the '====' rule under the section title and the one above the next section's title
+    body = [''] if lines[end - 2] == '' else []
+    lines[start + 2:end - 1] = sql.rstrip('\n').split('\n') + body
+    with open(SEED_ALL, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(lines) + '\n')
+    return True
 
 
 def main():
@@ -637,17 +782,22 @@ def main():
     if errors:
         sys.exit('%d lint error(s)' % len(errors))
     examples = sum(len(r['examples_']) for r in data['rules'])
-    print('lint ok: %d rules, %d examples, %d exceptions'
-          % (len(data['rules']), examples, sum(len(r['exceptions_']) for r in data['rules'])))
+    print('lint ok: %d rules, %d examples, %d practice kanji, %d exceptions'
+          % (len(data['rules']), examples, sum(len(r['practice_']) for r in data['rules']),
+             sum(len(r['exceptions_']) for r in data['rules'])))
     if '--lint' in sys.argv:
         return
-    sql, questions = build_sql(data)
+    sql, questions, skipped = build_sql(data)
     with open(OUTPUT, 'w', encoding='utf-8', newline='\n') as f:
-        f.write(sql)
+        f.write(standalone(sql))
     by_type = {}
     for question in questions:
         by_type[question.qtype] = by_type.get(question.qtype, 0) + 1
     print('wrote %s: %d questions %s' % (os.path.relpath(OUTPUT, ROOT), len(questions), by_type))
+    if skipped:
+        print('no question (no word, or the word changes the sound the rule is about): ' + ', '.join(skipped))
+    if update_seed_all(sql):
+        print('refreshed the Onyomi section of %s' % os.path.relpath(SEED_ALL, ROOT))
 
 
 if __name__ == '__main__':
