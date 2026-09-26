@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
+<body id="jlabBasePage" class="app-body onyomi-body">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="oy-page" th:with="rule=${page.rule}">
+    <div class="oy-narrow">
+        <nav class="oy-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/learning/onyomi}">Onyomi</a>
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <a th:href="@{/learning/onyomi/lessons/{id}(id=${page.lessonId})}"
+               th:text="'Giai đoạn ' + ${page.stageOrder} + ' · Bài ' + ${page.lessonOrder}">Bài 1</a>
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <span aria-current="page" th:text="${rule.title}">Quy tắc</span>
+        </nav>
+
+        <article class="oy-panel oy-rule" style="margin-bottom:32px">
+            <div>
+                <span class="oy-eyebrow" th:text="${page.lessonTitle}">Âm đầu C, K, QU → K</span>
+                <div class="oy-rule__map" aria-hidden="true" style="margin-top:12px">
+                    <div class="oy-rule__sound"><strong th:text="${rule.sourceSound}">C</strong><span>Hán Việt</span></div>
+                    <i class="fa-solid fa-arrow-right oy-rule__arrow"></i>
+                    <div class="oy-rule__sound oy-rule__sound--target"><strong th:text="${rule.targetSound}">K</strong><span>Âm On</span></div>
+                </div>
+                <h1 style="font-size:var(--text-2xl);margin:0 0 8px" th:text="${rule.title}">Âm đầu C → K</h1>
+                <p class="oy-rule__desc" th:text="${rule.description}">Mô tả</p>
+            </div>
+            <div>
+                <ol class="oy-steps" th:if="${!#lists.isEmpty(rule.steps)}">
+                    <li th:each="step : ${rule.steps}">
+                        <strong th:text="${step.title}">Nhận diện</strong>
+                        <span th:text="${step.content}">Nội dung</span>
+                    </li>
+                </ol>
+                <div class="oy-tip" th:if="${rule.tip != null}"><strong>Mẹo nhớ:</strong> <span th:text="${rule.tip}">Mẹo</span></div>
+                <div class="oy-tip" th:if="${rule.note != null}"><strong>Lưu ý:</strong> <span th:text="${rule.note}">Lưu ý</span></div>
+            </div>
+        </article>
+
+        <section class="oy-section" aria-labelledby="rule-examples-title">
+            <div class="oy-section__head">
+                <h2 id="rule-examples-title">Ví dụ</h2>
+                <p th:text="${#lists.size(rule.examples)} + ' chữ theo đúng quy tắc này.'">8 chữ</p>
+            </div>
+            <div class="oy-panel oy-table-wrap">
+                <table class="oy-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Chữ</th>
+                        <th scope="col">Hán Việt</th>
+                        <th scope="col">Âm On</th>
+                        <th scope="col">Từ ví dụ</th>
+                        <th scope="col"><span class="sr-only">Nghe</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ex : ${rule.examples}">
+                        <td class="oy-example__kanji" lang="ja" th:text="${ex.kanji}">工</td>
+                        <td th:text="${ex.hanViet}">Công</td>
+                        <td><span class="oy-jp" lang="ja" th:text="${ex.reading}">コウ</span> <small th:text="${ex.romaji}">kou</small></td>
+                        <td><th:block th:if="${ex.word != null}"><span class="oy-jp" lang="ja" th:text="${ex.word} + ' ' + ${ex.wordReading}">工場 こうじょう</span><br><small th:text="${ex.meaning}">nhà máy</small></th:block></td>
+                        <td><button type="button" class="oy-speak" th:attr="data-speak=${ex.reading},aria-label=${'Nghe ' + ex.reading}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="oy-section" th:if="${!#lists.isEmpty(rule.exceptions)}" aria-labelledby="rule-exceptions-title">
+            <div class="oy-section__head">
+                <h2 id="rule-exceptions-title">Ngoại lệ</h2>
+                <p>Những chữ có âm Hán Việt khớp quy tắc nhưng âm On lại khác.</p>
+            </div>
+            <ul class="oy-examples">
+                <li th:each="ex : ${rule.exceptions}" class="oy-example oy-example--exception">
+                    <span class="oy-example__kanji" lang="ja" th:text="${ex.kanji}">和</span>
+                    <span class="oy-example__hv"><span th:text="${ex.hanViet}">Hòa</span>
+                        <small th:text="${ex.note}">Ghi chú</small>
+                        <small th:if="${ex.word != null}" lang="ja" th:text="${ex.word} + ' ' + ${ex.wordReading} + ': ' + ${ex.meaning}">平和</small></span>
+                    <span class="oy-example__reading" lang="ja"><span th:text="${ex.reading}">ワ</span><small th:text="${ex.romaji}">wa</small></span>
+                    <button type="button" class="oy-speak" th:attr="data-speak=${ex.reading},aria-label=${'Nghe ' + ex.reading}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+                </li>
+            </ul>
+        </section>
+
+        <div class="oy-summary__next">
+            <a class="oy-button" th:href="@{/learning/onyomi/lessons/{id}(id=${page.lessonId})}">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về bài học
+            </a>
+            <a class="oy-button oy-button--primary" th:href="${'/learning/onyomi/lessons/' + page.lessonId + '#s-quiz'}">
+                <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Luyện tập bài này
+            </a>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/pages/onyomi-page.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
