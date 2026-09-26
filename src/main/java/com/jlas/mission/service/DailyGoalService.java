@@ -1,16 +1,17 @@
 package com.jlas.mission.service;
 
 import com.jlas.mission.dto.DailyGoalProgress;
+import com.jlas.mission.dto.LearningTargetsRequest;
+import java.time.LocalDate;
 
-/** Records daily learning activity and completes the daily goal when all targets are met. */
+/** Daily goal: activity totals per learner-day and the one-time reward when all targets are met. */
 public interface DailyGoalService {
 
-    void recordVocabulary(Long userId, int count);
+    /** Adds activity to {@code day}; joins the caller's transaction. Completing the goal queues the reward. */
+    void addActivity(Long userId, LocalDate day, int vocabulary, int quizzes, int minutes);
 
-    void recordQuiz(Long userId);
+    DailyGoalProgress progress(Long userId, LocalDate day);
 
-    void recordStudyMinutes(Long userId, int minutes);
-
-    /** Returns today's progress against the learner's targets. */
-    DailyGoalProgress summary(Long userId);
+    /** Saves new targets and re-checks today, since lower targets can complete the goal. */
+    DailyGoalProgress updateTargets(Long userId, LearningTargetsRequest request);
 }
