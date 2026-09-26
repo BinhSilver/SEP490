@@ -17,7 +17,15 @@
   };
   var skillOrder = ['KANJI', 'VOCABULARY', 'GRAMMAR', 'READING', 'LISTENING'];
   var levelValue = { N5: 1, N4: 2, N3: 3, N2: 4, N1: 5 };
+  var readinessCopy = {
+    READY: function (target) { return 'Bạn đã sẵn sàng cho mục tiêu ' + target + ' — hãy chuyển sang lộ trình học để chinh phục cấp độ này.'; },
+    NEAR: function (target) { return 'Bạn đang tiến rất gần mục tiêu ' + target + ' — cần củng cố thêm một số điểm yếu là đạt.'; },
+    BUILDING: function (target) { return 'Bạn đang xây dựng nền tảng để đạt mục tiêu ' + target + ' — lộ trình sẽ bắt đầu từ phần ôn tập.'; },
+    STABLE: function () { return 'Trình độ hiện tại của bạn đã ổn định — tiếp tục duy trì và mở rộng vùng kiến thức.'; },
+    PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
+  };
   var state = { attemptId: null, currentQuestion: null };
+  var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
   var emptyView = document.getElementById('emptyView');
@@ -36,6 +44,96 @@
   function showError(message) {
     notice.textContent = message || 'Không thể thực hiện yêu cầu. Vui lòng thử lại.';
     notice.hidden = false;
+  }
+
+  function stripHtml(html) {
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html || '';
+    return (tmp.textContent || '').trim();
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  // Thời lượng làm bài theo kỹ năng: đọc tính theo độ dài đoạn văn, còn lại cố định.
+  function timeLimitFor(q) {
+    if (q.skill === 'READING') {
+      var textLen = stripHtml(q.passageHtml).length;
+      return clamp(60, 240, 30 + Math.ceil(textLen / 2));
+    }
+    return 45;
+  }
+
+  function clearTimer() {
+    if (timer.interval) { clearInterval(timer.interval); timer.interval = null; }
+    if (timer.fallback) { clearTimeout(timer.fallback); timer.fallback = null; }
+    timer.started = false;
+  }
+
+  function updateTimerBadge() {
+    var badge = document.getElementById('questionTimer');
+    if (!badge) return;
+    var value = badge.querySelector('b');
+    var minutes = Math.floor(timer.remaining / 60);
+    var seconds = timer.remaining % 60;
+    value.textContent = (minutes > 0 ? minutes + ':' : '') + (seconds < 10 ? '0' + seconds : seconds);
+    badge.classList.toggle('is-warning', timer.remaining <= 15);
+  }
+
+  function startCountdown(seconds) {
+    clearTimer();
+    timer.remaining = Math.max(1, Math.round(seconds));
+    timer.started = true;
+    updateTimerBadge();
+    timer.interval = setInterval(function () {
+      timer.remaining -= 1;
+      updateTimerBadge();
+      if (timer.remaining <= 0) {
+        clearTimer();
+        skipCurrentQuestion();
+      }
+    }, 1000);
+  }
+
+  function scheduleTimer(q) {
+    clearTimer();
+    if (q.skill === 'LISTENING') {
+      var audio = document.querySelector('#questionMedia audio');
+      if (audio) {
+        var started = false;
+        var begin = function () {
+          if (started) return;
+          var duration = audio.duration;
+          if (!duration || !isFinite(duration)) return;
+          started = true;
+          startCountdown(Math.max(45, Math.round(duration) + 10));
+        };
+        audio.addEventListener('loadedmetadata', begin);
+        audio.addEventListener('durationchange', begin);
+        timer.fallback = setTimeout(function () { if (!timer.started) startCountdown(60); }, 3000);
+        return;
+      }
+      startCountdown(60);
+      return;
+    }
+    startCountdown(timeLimitFor(q));
+  }
+
+  async function skipCurrentQuestion() {
+    if (!state.attemptId || !state.currentQuestion) return;
+    var button = document.getElementById('answerButton');
+    button.disabled = true;
+    try {
+      var data = await api('/api/assessment/smart-tests/' + state.attemptId + '/answers', {
+        method: 'POST',
+        body: JSON.stringify({ questionId: state.currentQuestion.id, selectedOption: null })
+      });
+      render(data);
+    } catch (error) {
+      showError(error.message);
+      button.disabled = !document.querySelector('input[name="answer"]:checked');
+    }
   }
 
   async function api(url, options) {
@@ -131,7 +229,7 @@
     } else if (q.audioUrl) {
       var audio = document.createElement('audio');
       audio.controls = true;
-      audio.preload = 'none';
+      audio.preload = 'metadata';
       audio.src = q.audioUrl;
       media.appendChild(audio);
     } else if (q.imageUrl) {
@@ -150,10 +248,12 @@
       label.append(input, marker, text); list.appendChild(label);
     });
     document.getElementById('answerButton').disabled = true;
+    scheduleTimer(q);
     show(questionView);
   }
 
   function renderResult(result) {
+    clearTimer();
     var skillsByName = {};
     (result.skills || []).forEach(function (skill) { skillsByName[skill.skill] = skill; });
     var testedSkills = skillOrder.map(function (name) { return skillsByName[name]; }).filter(Boolean);
@@ -191,8 +291,59 @@
       resultWrap.appendChild(level);
       row.append(identity, resultWrap); target.appendChild(row);
     });
+    renderFeedback(result);
     renderReview(result.review);
     show(resultView);
+  }
+
+  function renderFeedback(result) {
+    var section = document.getElementById('feedbackSection');
+    var banner = document.getElementById('readinessBanner');
+    var list = document.getElementById('recommendationList');
+    var weakness = document.getElementById('grammarWeakness');
+    var weaknessList = document.getElementById('grammarWeaknessList');
+
+    var recommendations = result.recommendations || [];
+    var grammarPoints = [];
+    (result.skills || []).forEach(function (skill) {
+      (skill.grammarPoints || []).forEach(function (gp) {
+        if (gp.totalQuestions > 0 && gp.correctAnswers < gp.totalQuestions) grammarPoints.push(gp);
+      });
+    });
+
+    section.hidden = !result.readinessLevel && !recommendations.length && !grammarPoints.length;
+
+    banner.hidden = true; banner.innerHTML = '';
+    var copy = readinessCopy[result.readinessLevel];
+    if (copy) {
+      var icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined';
+      icon.textContent = 'flag';
+      var text = document.createElement('p');
+      text.textContent = copy(result.targetLevel || '');
+      banner.append(icon, text);
+      banner.hidden = false;
+    }
+
+    list.innerHTML = '';
+    recommendations.forEach(function (rec) {
+      var li = document.createElement('li');
+      li.textContent = rec;
+      list.appendChild(li);
+    });
+
+    weakness.hidden = !grammarPoints.length;
+    weaknessList.innerHTML = '';
+    grammarPoints.forEach(function (gp) {
+      var chip = document.createElement('span');
+      chip.className = 'grammar-weakness__chip';
+      var pattern = document.createElement('strong');
+      pattern.textContent = gp.pattern || '';
+      var detail = document.createElement('small');
+      detail.textContent = (gp.lessonCode ? gp.lessonCode + ' · ' : '') + gp.correctAnswers + '/' + gp.totalQuestions + ' đúng';
+      chip.append(pattern, detail);
+      weaknessList.appendChild(chip);
+    });
   }
 
   function renderReview(review) {
@@ -218,9 +369,11 @@
     meta.textContent = (labels[item.skill] || item.skill) + ' · ' + item.jlptLevel;
     var verdict = document.createElement('span');
     verdict.className = 'review-item__verdict';
-    verdict.innerHTML = item.correct
-      ? '<span class="material-symbols-outlined">check_circle</span>Đúng'
-      : '<span class="material-symbols-outlined">cancel</span>Sai';
+    verdict.innerHTML = item.selectedOption == null
+      ? '<span class="material-symbols-outlined">schedule</span>Bỏ qua'
+      : (item.correct
+        ? '<span class="material-symbols-outlined">check_circle</span>Đúng'
+        : '<span class="material-symbols-outlined">cancel</span>Sai');
     header.append(number, meta, verdict);
 
     var question = document.createElement('p');

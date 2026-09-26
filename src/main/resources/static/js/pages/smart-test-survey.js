@@ -114,6 +114,7 @@
       duration: survey.studyDurationMonths, minutes: survey.dailyStudyMinutes };
     Object.keys(values).forEach(function (name) {
       form.querySelectorAll('input[name="' + name + '"]').forEach(function (input) {
+        if (input.disabled) return; // N2/N1 target bị khóa (đang phát triển) — không pre-check để tránh kẹt
         input.checked = String(input.value) === String(values[name]);
       });
     });

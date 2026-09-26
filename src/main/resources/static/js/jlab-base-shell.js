@@ -12,6 +12,18 @@
 (function () {
   'use strict';
 
+  // Set the active theme before first paint to avoid a light→dark flash.
+  // The original SVG cord is mounted separately by theme.js. Resolve the same
+  // saved/system preference here before the shared navigation is mounted.
+  (function () {
+    var stored = null;
+    try { stored = localStorage.getItem('jlas-theme'); } catch (error) { stored = null; }
+    var theme = stored === 'dark' || stored === 'light' ? stored : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  })();
+
   if (window.JLabBaseShell) {
     window.JLabBaseShell.mount();
     return;
@@ -62,6 +74,9 @@
     examJlptItem: 'jlabBaseExamJlptItem',
     examJlptIcon: 'jlabBaseExamJlptIcon',
     examJlptLabel: 'jlabBaseExamJlptLabel',
+    learnPathItem: 'jlabBaseLearnPathItem',
+    learnPathItemIcon: 'jlabBaseLearnPathItemIcon',
+    learnPathItemLabel: 'jlabBaseLearnPathItemLabel',
     lookupLink: 'jlabBaseLookupLink',
     lookupIcon: 'jlabBaseLookupIcon',
     lookupLabel: 'jlabBaseLookupLabel',
@@ -120,6 +135,9 @@
     profileLink: 'jlabBaseProfileLink',
     profileIcon: 'jlabBaseProfileIcon',
     profileLabel: 'jlabBaseProfileLabel',
+    myLearningPathLink: 'jlabBaseMyLearningPathLink',
+    myLearningPathIcon: 'jlabBaseMyLearningPathIcon',
+    myLearningPathLabel: 'jlabBaseMyLearningPathLabel',
     streakLink: 'jlabBaseStreakLink',
     streakIcon: 'jlabBaseStreakIcon',
     streakLabel: 'jlabBaseStreakLabel',
@@ -164,6 +182,7 @@
     var paths = {
       home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"></path><path d="M9 21v-6h6v6"></path>',
       learning: '<path d="m2 10 10-5 10 5-10 5Z"></path><path d="M6 12v5c3 2 9 2 12 0v-5"></path>',
+      route: '<circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="5" r="2"></circle><path d="M8 19h1a4 4 0 0 0 4-4V9a4 4 0 0 1 4-4h1"></path>',
       book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>',
       clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>',
       clipboardCheck: '<rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="m9 14 2 2 4-4"></path>',
@@ -193,14 +212,15 @@
 
   function replaceShellIcons() {
     replaceIcon(ids.homeIcon, 'home');
-    replaceIcon(ids.learningPathIcon, 'learning');
+    replaceIcon(ids.learningPathIcon, 'route');
     replaceIcon(ids.textbooksIcon, 'book');
     replaceIcon(ids.lookupIcon, 'search');
     replaceIcon(ids.gameIcon, 'game');
-    replaceIcon(ids.examsIcon, 'clipboard');
+    replaceIcon(ids.examsIcon, 'learning');
     replaceIcon(ids.examsChevron, 'chevron', 'jlab-base-icon--chevron');
     replaceIcon(ids.examSmartTestIcon, 'clipboardCheck');
     replaceIcon(ids.examJlptIcon, 'graduation');
+    replaceIcon(ids.learnPathItemIcon, 'route');
     replaceIcon(ids.testBuilderIcon, 'filePlus');
     replaceIcon(ids.testBuilderChevron, 'chevron', 'jlab-base-icon--chevron');
     replaceIcon(ids.smartTestIcon, 'clipboardCheck');
@@ -231,20 +251,21 @@
             '<a id="' + ids.homeLink + '" href="/" title="Trang chủ JLAS">' +
               '<i id="' + ids.homeIcon + '" aria-hidden="true"></i><span id="' + ids.homeLabel + '">Trang ch\u1ee7</span>' +
             '</a>' +
-            '<a id="' + ids.learningPathLink + '" href="/learning/path" title="Lộ trình Hán Việt  On">' +
+            '<button id="' + ids.learningPathLink + '" type="button" aria-disabled="true" title="Tính năng Onyomi đang phát triển">' +
               '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
-            '</a>' +
+            '</button>' +
             '<a id="' + ids.textbooksLink + '" href="/textbooks" title="Giáo trình số hoá theo cấp độ">' +
               '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
             '</a>' +
-            // "Bài Thi" (Smart Test): dropdown cùng khuôn "Công cụ".
+            // "Học tập" (Smart Test / JLPT / Lộ Trình học): dropdown cùng khuôn "Công cụ".
             '<div id="' + ids.examsWrapper + '" class="dropdown nav-tools-dropdown">' +
-              '<button id="' + ids.examsButton + '" class="nav-tools-trigger" aria-label="Bài Thi" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.examsMenu + '">' +
-                '<i id="' + ids.examsIcon + '" aria-hidden="true"></i><span id="' + ids.examsLabel + '">Bài Thi</span><i id="' + ids.examsChevron + '" aria-hidden="true"></i>' +
+              '<button id="' + ids.examsButton + '" class="nav-tools-trigger" aria-label="Học tập" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.examsMenu + '">' +
+                '<i id="' + ids.examsIcon + '" aria-hidden="true"></i><span id="' + ids.examsLabel + '">Học tập</span><i id="' + ids.examsChevron + '" aria-hidden="true"></i>' +
               '</button>' +
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
                 '<button id="' + ids.examJlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.examJlptIcon + '" aria-hidden="true"></i><span id="' + ids.examJlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
+                '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning/path" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
               '</div>' +
             '</div>' +
             // "Tạo đề": chỉ CONTENT_CREATOR (NAV_ROLES) — render `hidden`, syncNavRoles() bật. Khung theo đúng "Công cụ".
@@ -315,6 +336,7 @@
                     '</div>' +
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
+                  '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
@@ -371,13 +393,13 @@
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
 
     markCurrent(ids.homeLink, isHome);
-    markCurrent(ids.learningPathLink, isLearningPath);
     markCurrent(ids.textbooksLink, isTextbooks);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
     markCurrent(ids.shadowingLink, isShadowing);
     markCurrent(ids.smartTestLink, isSmartTest);
+    markCurrent(ids.learnPathItem, isLearningPath);
     markCurrent(ids.streakLink, isGoals);
 
     var toolsButton = byId(ids.toolsButton);
@@ -388,7 +410,7 @@
         toolsButton.removeAttribute('aria-current');
       }
     }
-    markCurrent(ids.examsButton, isSmartTest);
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath);
   }
 
   function fallbackUser() {
@@ -648,6 +670,15 @@
     }, 3200);
   }
 
+  function bindThemeCord() {
+    if (window.JlasTheme) { window.JlasTheme.init(); return; }
+    if (document.getElementById('jlasThemeScript')) return;
+    var script = document.createElement('script');
+    script.id = 'jlasThemeScript';
+    script.src = '/js/theme.js';
+    document.head.appendChild(script);
+  }
+
   function redirectToolGuestToLogin(link) {
     var destination = link && link.getAttribute('href');
     if (!destination || destination.charAt(0) !== '/') destination = '/';
@@ -665,6 +696,8 @@
   function bindEvents() {
     if (state.eventsBound) return;
     state.eventsBound = true;
+
+    bindThemeCord();
 
     byId(ids.toolsButton).addEventListener('click', function () {
       closeMenu(ids.notificationPanel, ids.notificationButton);

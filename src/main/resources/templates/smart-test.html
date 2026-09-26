@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Smart Test - JLAS', 'smart-test')}"></head>
-<body id="jlabBasePage" class="app-body smart-test-body"><div id="jlabBaseShellMount"></div>
+<body id="jlabBasePage" class="app-body smart-test-body journey-ui"><div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="smart-test-page"><div class="smart-test-wrap smart-test-wrap--exam">
     <header class="assessment-header assessment-header--compact">
         <div class="assessment-header__icon"><span class="material-symbols-outlined">psychology</span></div>
@@ -24,7 +24,7 @@
             </div>
         </aside>
         <article class="assessment-card exam-card">
-            <div class="question-topbar"><div class="question-context"><span id="questionSkill" class="question-badge">Kỹ năng</span><span id="questionLevel" class="question-badge question-badge--level">N3</span><span id="questionTag" class="question-badge question-badge--tag">GENERAL</span></div></div>
+            <div class="question-topbar"><div class="question-context"><span id="questionSkill" class="question-badge">Kỹ năng</span><span id="questionLevel" class="question-badge question-badge--level">N3</span><span id="questionTag" class="question-badge question-badge--tag">GENERAL</span></div><span id="questionTimer" class="question-timer" role="timer" aria-label="Thời gian còn lại"><span class="material-symbols-outlined">timer</span><b>--:--</b></span></div>
             <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
             <div id="questionMedia" class="question-media" hidden></div><div id="questionPassage" class="question-passage" hidden></div>
             <p id="questionTitle" class="question-kicker"></p><h2 id="questionText" class="question-text"></h2>
@@ -55,6 +55,15 @@
                 <div id="skillResults" class="spider-skill-list" aria-label="So sánh trình độ từng kỹ năng với trình độ tổng quát"></div>
             </section>
         </div>
+        <section id="feedbackSection" class="result-recommendations" aria-labelledby="feedbackTitle" hidden>
+            <div class="result-section-heading"><span>Gợi ý từ hệ thống</span><h3 id="feedbackTitle">Đề xuất cải thiện</h3></div>
+            <div id="readinessBanner" class="readiness-banner" hidden></div>
+            <ul id="recommendationList"></ul>
+            <div id="grammarWeakness" class="grammar-weakness" hidden>
+                <div class="result-section-heading"><span>Ngữ pháp</span><h4>Điểm ngữ pháp cần ôn lại</h4></div>
+                <div id="grammarWeaknessList" class="grammar-weakness__list"></div>
+            </div>
+        </section>
         <div id="resultNote" class="result-note"><span class="material-symbols-outlined">info</span><p>Mức JLPT là ước lượng từ các câu đã làm; đây chưa phải chứng chỉ JLPT chính thức.</p></div>
         <section id="questionReview" class="result-review" aria-labelledby="reviewTitle" hidden>
             <div class="result-section-heading"><span>Xem lại bài làm</span><h3 id="reviewTitle">Đáp án & giải thích từng câu</h3></div>
