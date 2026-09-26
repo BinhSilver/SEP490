@@ -7,7 +7,7 @@ import com.jlas.assessment.entity.AssessmentQuiz;
 import com.jlas.assessment.entity.AssessmentQuizAttempt;
 import com.jlas.assessment.entity.AssessmentQuizQuestion;
 import com.jlas.auth.entity.User;
-import com.jlas.common.event.LearningActivityCompleted;
+import com.jlas.common.event.LearningEvent;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.QuizAnswerDetailResponse;
@@ -29,10 +29,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,8 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     private static final String FILL_BLANK = "FILL_BLANK";
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
     private static final BigDecimal PASS_THRESHOLD = BigDecimal.valueOf(60);
+    /** Quizzes with a larger question bank show this many questions per attempt. */
+    private static final int QUESTIONS_PER_ATTEMPT = 20;
 
     private final LessonQuizRepository lessonQuizRepository;
     private final LessonQuizQuestionRepository questionRepository;
@@ -79,7 +83,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                     quiz.getId(),
                     quiz.getTitle(),
                     lessonId,
-                    supported.stream().map(this::toQuestion).toList());
+                    forAttempt(resumed.get().getAttemptId(), supported).stream().map(this::toQuestion).toList());
         }
         AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                 .user(em.getReference(User.class, userId))
@@ -95,7 +99,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 quiz.getId(),
                 quiz.getTitle(),
                 lessonId,
-                supported.stream().map(this::toQuestion).toList());
+                forAttempt(attempt.getId(), supported).stream().map(this::toQuestion).toList());
     }
 
     @Override
@@ -108,7 +112,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         AssessmentQuizAttempt quizAttempt = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Quiz attempt not found."));
         List<AssessmentQuizQuestion> links = questionRepository.findWithQuestionByQuizId(quizAttempt.getQuiz().getId());
-        List<AssessmentQuizQuestion> supported = supportedQuestions(links);
+        List<AssessmentQuizQuestion> supported = forAttempt(attemptId, supportedQuestions(links));
         if (supported.isEmpty()) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Quiz has no questions to submit.");
         }
@@ -151,7 +155,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         attemptRepository.save(attempt);
         quizAttempt.setScorePercent(scorePercent);
         attemptDetailRepository.save(quizAttempt);
-        events.publishEvent(LearningActivityCompleted.quizCompleted(userId, quizAttempt.getQuiz().getId()));
+        events.publishEvent(LearningEvent.lessonQuizCompleted(userId, attemptId));
         if (scorePercent.compareTo(PASS_THRESHOLD) >= 0) {
             Long lessonId = lessonIdOf(quizAttempt);
             if (lessonId != null) {
@@ -217,6 +221,42 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 .toList();
     }
 
+    /**
+     * The questions of one attempt. A quiz with a large question bank (the Onyomi practice quizzes hold
+     * about a hundred) shows {@link #QUESTIONS_PER_ATTEMPT} of them, drawn in turn from each conversion rule
+     * so every rule of the lesson is practised. The draw is seeded by the attempt id, so resuming and
+     * submitting an attempt see the same questions while a new attempt gets a different set.
+     */
+    private List<AssessmentQuizQuestion> forAttempt(Long attemptId, List<AssessmentQuizQuestion> supported) {
+        if (supported.size() <= QUESTIONS_PER_ATTEMPT) {
+            return supported;
+        }
+        Random random = new Random(attemptId);
+        Map<Long, List<AssessmentQuizQuestion>> byRule = new LinkedHashMap<>();
+        for (AssessmentQuizQuestion link : supported) {
+            Long ruleId = link.getQuestion().getConversionRule() == null
+                    ? 0L : link.getQuestion().getConversionRule().getId();
+            byRule.computeIfAbsent(ruleId, key -> new ArrayList<>()).add(link);
+        }
+        List<List<AssessmentQuizQuestion>> groups = new ArrayList<>(byRule.values());
+        groups.forEach(group -> Collections.shuffle(group, random));
+        List<AssessmentQuizQuestion> picked = new ArrayList<>(QUESTIONS_PER_ATTEMPT);
+        for (int round = 0; picked.size() < QUESTIONS_PER_ATTEMPT; round++) {
+            boolean added = false;
+            for (List<AssessmentQuizQuestion> group : groups) {
+                if (round < group.size() && picked.size() < QUESTIONS_PER_ATTEMPT) {
+                    picked.add(group.get(round));
+                    added = true;
+                }
+            }
+            if (!added) {
+                break;
+            }
+        }
+        Collections.shuffle(picked, random);
+        return picked;
+    }
+
     /** 1-based index of the correct option within the compacted options list, or 0 when none exists. */
     private int correctOptionIndex(AssessmentQuestion question) {
         Integer correct = question.getCorrectOption();
@@ -277,8 +317,8 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED,
                         "Missing text for question " + question.getId() + ".");
             }
-            return question.getAnswerText() != null
-                    && submission.answerText().trim().equalsIgnoreCase(question.getAnswerText().trim());
+            // kana answer keys also accept hiragana and romaji (コウ = こう = kou)
+            return KanaAnswerMatcher.matches(question.getAnswerText(), submission.answerText());
         }
         throw new ApiException(ErrorCode.BAD_REQUEST,
                 "Unsupported question type " + question.getQuestionType() + ".");
