@@ -84,7 +84,7 @@
       QUIZ_REWARD: 'Thưởng hoàn thành Quiz', SHADOWING_REWARD: 'Thưởng luyện Shadowing',
       STREAK_MILESTONE_REWARD: 'Thưởng chuỗi ngày', STREAK_FREEZE: 'Dùng bảo vệ chuỗi',
       VIDEO_UNLOCK: 'Mở khóa video', WORD_CONTRIBUTION_REWARD: 'Thưởng đóng góp từ',
-      REFUND: 'Hoàn Credit'
+      REFUND: 'Hoàn Credit', GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi'
     };
     return labels[reason] || 'Biến động Credit';
   }

@@ -16,6 +16,7 @@ public final class UserCreditTransaction {
         VIDEO_UNLOCK,
         ADMIN_GRANT,
         WORD_CONTRIBUTION_REWARD,
-        REFUND
+        REFUND,
+        GAME_ITEM_PURCHASE
     }
 }
