@@ -201,6 +201,22 @@ cloning, run `git lfs pull`, then follow
 fully populated `jlas_dictionary_test` database and install KanjiVG assets.
 The snapshot contains no account or user/business rows.
 
+### System Admin (JLAS2-51)
+
+On an existing database, run `sql/migrations/028_system_admin_core.sql` once
+**before starting the app** (`ddl-auto: validate`); it adds the account-lock
+columns, the `admin_audit_log` table and the `SUPER_ADMIN` role. Fresh
+databases get them from `jlas_schema.sql`. Promote the first System Admin:
+
+```sql
+UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'SUPER_ADMIN')
+WHERE email = '<email>';
+```
+
+System Admin pages live under `/admin/system/**` and APIs under
+`/api/admin/system/**` (`SUPER_ADMIN` only); moderation stays with
+`MODERATOR`/`ADMIN`.
+
 ---
 
 ## 7. Application Configuration
