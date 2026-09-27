@@ -1,53 +1,79 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head th:replace="~{fragments/head :: standard('Lobby · Game Arena', 'lobby')}"></head>
-<body id="jlabBasePage" class="lobby-page">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'arena')}"></head>
+<body id="jlabBasePage" class="app-body arena-body">
 <div id="jlabBaseShellMount"></div>
 
-<main id="jlabBaseContent" class="lobby-shell">
-    <div class="lobby-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="lobby-layout">
-        <div class="lobby-actions">
-            <section class="card lobby-card lobby-card--create">
-                <div class="lobby-card__accent"></div>
-                <div class="lobby-card__heading"><span aria-hidden="true">✚</span><div><span class="lobby-card__eyebrow">Bắt đầu ngay</span><h2>Tạo phòng</h2></div></div>
-                <form class="lobby-form" data-create-form>
-                    <div class="field"><label class="field__label" for="lobby-game">Chế độ chơi</label><select class="select" id="lobby-game" name="gameType"></select></div>
-                    <div class="lobby-form__row">
-                        <div class="field"><label class="field__label" for="lobby-level">Cấp độ</label><select class="select" id="lobby-level" name="questionLevel"><option value="N5">N5</option><option value="N4">N4</option><option value="N3">N3</option><option value="N2">N2</option><option value="N1">N1</option></select></div>
-                        <div class="field"><label class="field__label" for="lobby-visibility">Quyền riêng tư</label><select class="select" id="lobby-visibility" name="visibility"><option value="PUBLIC">Công khai</option><option value="PRIVATE">Riêng tư</option></select></div>
+<main id="jlabBaseContent" class="ar-page ar-setup">
+    <div class="ar-shell">
+        <nav class="ar-crumbs" aria-label="Đường dẫn">
+            <a th:href="@{/games}">Trò chơi</a><span aria-hidden="true">/</span><span aria-current="page">Thiết lập trận</span>
+        </nav>
+
+        <header class="ar-setup-head">
+            <h1 data-setup-title>Ghép trận nhanh</h1>
+        </header>
+
+        <div class="ar-setup-flow">
+            <div class="ar-setup-top">
+                <section class="ar-step ar-card" aria-labelledby="ar-step-game">
+                    <h2 id="ar-step-game"><span class="ar-step__no">1</span> Chọn game</h2>
+                    <div class="ar-seg ar-mode-seg" role="radiogroup" aria-label="Chế độ chơi" data-mode-seg>
+                        <button type="button" role="radio" aria-checked="true" data-value="QUICK">
+                            <i class="fa-solid fa-bolt" aria-hidden="true"></i> Ghép trận nhanh
+                        </button>
+                        <button type="button" role="radio" aria-checked="false" data-value="VERSUS">
+                            <i class="fa-solid fa-user-group" aria-hidden="true"></i> Phòng với bạn bè
+                        </button>
+                        <button type="button" role="radio" aria-checked="false" data-value="SOLO">
+                            <i class="fa-solid fa-user" aria-hidden="true"></i> Luyện tập một mình
+                        </button>
                     </div>
-                    <div class="field"><label class="field__label" for="lobby-source">Nguồn câu hỏi</label><select class="select" id="lobby-source" name="questionSource"><option value="GLOBAL_VOCABULARY">Từ vựng toàn hệ thống</option><option value="FLASHCARD_SET">Flashcard của tôi</option></select></div>
-                    <div class="field" data-lobby-flashcard-settings hidden><label class="field__label" for="lobby-flashcard">Bộ flashcard</label><select class="select" id="lobby-flashcard" name="flashcardSetId" disabled><option value="">Đang tải bộ flashcard…</option></select></div>
-                    <button type="submit" class="btn btn--primary lobby-btn lobby-btn--warm"><span aria-hidden="true">🚀</span> Tạo phòng</button>
-                </form>
+                    <div class="ar-game-picker" role="radiogroup" aria-labelledby="ar-step-game" data-game-picker></div>
+                </section>
+
+                <section class="ar-step ar-card ar-step--deck" aria-labelledby="ar-step-deck">
+                    <h2 id="ar-step-deck"><span class="ar-step__no">2</span> Chọn bộ flashcard</h2>
+                    <div data-deck-picker></div>
+                    <div class="ar-setup-actions">
+                        <p class="ar-summary__problem" data-summary-problem role="status" hidden></p>
+                        <button type="button" class="ar-btn ar-btn--primary ar-btn--lg ar-btn--block" data-submit disabled>Tìm đối thủ</button>
+                    </div>
+                </section>
+            </div>
+
+            <section class="ar-step ar-card" aria-labelledby="ar-step-fields" data-step-fields>
+                <h2 id="ar-step-fields"><span class="ar-step__no">3</span> Hỏi gì, đáp gì?</h2>
+                <div data-field-picker><p class="ar-muted">Chọn bộ flashcard trước, rồi chọn phần hỏi và phần đáp ở đây.</p></div>
             </section>
 
-            <section class="card lobby-card lobby-card--join">
-                <div class="lobby-card__heading"><span aria-hidden="true">⌕</span><div><span class="lobby-card__eyebrow">Bạn đã có lời mời?</span><h2>Vào bằng mã phòng</h2></div></div>
-                <form class="lobby-join-form" data-join-form>
-                    <label class="sr-only" for="lobby-code">Mã phòng</label>
-                    <input class="input input--code" id="lobby-code" name="roomCode" maxlength="9" placeholder="Nhập mã phòng…" autocomplete="off">
-                    <button type="submit" class="btn btn--secondary lobby-btn lobby-btn--ice">Vào phòng <span aria-hidden="true">➜</span></button>
-                </form>
+            <section class="ar-step ar-card" aria-labelledby="ar-step-options" data-step-options>
+                <h2 id="ar-step-options"><span class="ar-step__no">4</span> Tuỳ chọn</h2>
+                <div data-options></div>
             </section>
         </div>
+    </div>
 
-        <section class="card lobby-card lobby-card--rooms">
-            <div class="lobby-card__heading lobby-card__heading--rooms">
-                <div><span class="lobby-card__eyebrow">Đang hoạt động</span><h2>Phòng công khai</h2></div>
-                <button type="button" class="btn btn--ghost lobby-refresh" data-refresh-rooms><span aria-hidden="true">↻</span> Làm mới</button>
-            </div>
-            <div class="lobby-room-list" data-room-list>
-                <div class="state"><div class="spinner" aria-hidden="true"></div><p>Đang tải danh sách phòng…</p></div>
-            </div>
-            <div class="lobby-empty-tip"><span aria-hidden="true">❄</span> Phòng công khai sẽ xuất hiện ở đây khi có người mở phòng.</div>
-        </section>
+    <div class="ar-mobile-bar">
+        <button type="button" class="ar-btn ar-btn--primary ar-btn--lg" data-submit disabled>Tìm đối thủ</button>
+    </div>
+
+    <div class="ar-search-overlay" data-search-overlay hidden role="dialog" aria-modal="true" aria-labelledby="ar-search-title">
+        <div class="ar-search-overlay__panel">
+            <div class="ar-search-overlay__radar" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p class="ar-search-overlay__kicker" data-search-game>Ghép trận nhanh</p>
+            <h2 id="ar-search-title">Đang tìm đối thủ…</h2>
+            <p class="ar-search-overlay__deck">Bộ <strong data-search-deck>—</strong></p>
+            <p class="ar-search-overlay__time" aria-live="off"><span data-search-time>0:00</span></p>
+            <p class="ar-search-overlay__hint" data-search-hint aria-live="polite">Chờ người chọn cùng game và cùng bộ thẻ.</p>
+            <button type="button" class="ar-btn ar-btn--lg" data-search-cancel>Huỷ tìm trận</button>
+        </div>
     </div>
 </main>
 
-<div th:replace="~{fragments/layout :: toast}"></div>
-<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script th:src="@{/arena/js/arena-client.js}"></script>
+<script th:src="@{/arena/js/arena-setup-kit.js}"></script>
+<script th:src="@{/arena/js/game-previews.js}"></script>
 <script th:src="@{/arena/js/lobby-page.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
