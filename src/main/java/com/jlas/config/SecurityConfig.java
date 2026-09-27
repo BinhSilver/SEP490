@@ -1,6 +1,7 @@
 package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -41,6 +42,8 @@ public class SecurityConfig {
                                 writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
                                         "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN")))
                 .authorizeHttpRequests(auth -> auth
+                        // Luồng SSE (Game Arena) kết thúc bằng một lượt dispatch ASYNC của request đã được xác thực.
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/moderation.html", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
