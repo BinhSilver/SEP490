@@ -20,6 +20,7 @@ import com.jlas.learning.entity.UserKnowledgeWeakness;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.mapper.LearningMapper;
+import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.impl.JpaLearningCatalogSource;
 import com.jlas.learning.service.impl.LearningReplanService;
 import com.jlas.learning.service.impl.LearningScheduleServiceImpl;
@@ -53,6 +54,7 @@ class LearningReplanServiceTest {
 
     @Autowired EntityManager em;
     @Autowired LearningReplanService replanService;
+    @Autowired UserLearningPathRepository paths;
 
     @Test
     void remediateAddsReinforcementAndBumpsVersion() {
@@ -124,6 +126,28 @@ class LearningReplanServiceTest {
         var preview = replanService.preview(fixture.user.getId(), LearningReplanService.MODE_ACCELERATE);
         assertFalse(preview.changesApply());
         assertEquals(0, preview.masteredRemoved());
+    }
+
+    @Test
+    void replanKeepsSingleActiveGenerationLookup() {
+        // [JLAS-W0122] Regression: replan giữ nguyên generation identity qua các version, nên cùng
+        // (user, attempt, revision, policy) tồn tại 2 hàng (SUPERSEDED + ACTIVE). Lookup idempotency
+        // phải lọc theo ACTIVE để trả đúng 1 hàng, không ném NonUniqueResultException.
+        var fixture = seed();
+        replanService.apply(fixture.user.getId(),
+                new ReplanRequest(LearningReplanService.MODE_REMEDIATE, true));
+
+        var active = paths.findByUserIdAndAssessmentAttemptIdAndAssessmentRevisionAndPolicyVersionAndStatus(
+                fixture.user.getId(), 91L, "rev-1", "v1", "ACTIVE");
+        assertTrue(active.isPresent());
+        assertEquals(2, active.get().getVersion());
+
+        long generationRows = em.createQuery(
+                "select count(p) from UserLearningPath p where p.user.id = :uid "
+                        + "and p.assessmentAttemptId = 91 and p.assessmentRevision = 'rev-1' "
+                        + "and p.policyVersion = 'v1'", Long.class)
+                .setParameter("uid", fixture.user.getId()).getSingleResult();
+        assertEquals(2L, generationRows, "replan phải giữ 2 hàng cùng generation identity");
     }
 
     private Fixture seed() {

@@ -88697,3 +88697,38 @@ VALUES
   ('陥る', '陥る', 'おちいる', 'おちいる', 'to fall into (a state)', 'N1', 'DICTIONARY', 'PUBLISHED'),
   ('顕著', '顕著', 'けんちょ', 'けんちょ', 'remarkable; prominent; conspicuous', 'N1', 'DICTIONARY', 'PUBLISHED')
 ON DUPLICATE KEY UPDATE id = id;
+
+-- ============================================================================
+-- [JLAS-W0108] 2.5e — data content-side Reading/Listening (26/09/2026)
+-- ============================================================================
+-- Phản chiếu 3 thay đổi data đã áp dụng vào DB local (để reseed tái lập được).
+-- Idempotent: chạy lại không lỗi (đã gộp vào seed_data_jlas.sql, 27/09/2026).
+-- KHÔNG đụng schema (jlas_schema.sql) — chỉ data (tag/lesson/textbook).
+-- ============================================================================
+SET NAMES utf8mb4;
+
+-- 1) Mở rộng taxonomy BA: thêm 2 topic 交渉/人事 (code UNIQUE -> chỉ insert khi chưa có).
+INSERT INTO tag (tag_type, code, name)
+SELECT 'TOPIC', '交渉', 'Đàm phán/thương lượng'
+WHERE NOT EXISTS (SELECT 1 FROM tag WHERE code = '交渉');
+
+INSERT INTO tag (tag_type, code, name)
+SELECT 'TOPIC', '人事', 'Nhân sự & phỏng vấn'
+WHERE NOT EXISTS (SELECT 1 FROM tag WHERE code = '人事');
+
+-- 2) Situation re-classify 65 lesson LISTENING FOUNDATION -> BA/TRAVEL.
+--    Lưu ý: lesson.situation_tag chỉ có CHECK IN (TRAVEL, BA, FOUNDATION) — không có
+--    bucket DAILY_LIFE, nên 21 bài "đời sống" giữ FOUNDATION (DAILY_LIFE ghi ở
+--    resource_mapping.situation_tag_id sau, không phải trên lesson.situation_tag).
+UPDATE lesson SET situation_tag = 'BA'
+WHERE skill = 'LISTENING'
+  AND (id BETWEEN 240 AND 255 OR id BETWEEN 390 AND 405 OR id IN (139, 151));
+
+UPDATE lesson SET situation_tag = 'TRAVEL'
+WHERE skill = 'LISTENING'
+  AND (id BETWEEN 433 AND 440 OR id IN (144, 154));
+
+-- 3) Publish 6 textbook (N3/N2/N1 + IT/TRV/DLY) + 79 lesson LISTENING.
+--    Chỉ publish lesson LISTENING; vocab/grammar trong textbook 4/5/6 vẫn DRAFT.
+UPDATE textbook SET status = 'PUBLISHED' WHERE id IN (4, 5, 6, 7, 8, 9);
+UPDATE lesson SET status = 'PUBLISHED' WHERE skill = 'LISTENING' AND status = 'DRAFT';

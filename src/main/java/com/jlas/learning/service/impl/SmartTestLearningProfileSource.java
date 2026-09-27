@@ -17,6 +17,7 @@ import com.jlas.dictionary.entity.Outcome;
 import com.jlas.dictionary.entity.Tag;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import com.jlas.learning.dto.LearningProfileSnapshot;
+import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.service.LearningProfileSource;
 import java.util.ArrayList;
@@ -42,6 +43,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SmartTestLearningProfileSource implements LearningProfileSource {
     private static final String ASSESSMENT_REVISION = "smart-test-v1";
+    /** [JLAS-W0108] Revision identity cho lộ trình from-zero (không có attempt). */
+    private static final String FROM_ZERO_REVISION = "from-zero-v1";
+    /** [JLAS-W0108] Cấp kết luận cho người chưa từng học: dưới N5, bắt đầu từ bảng chữ cái. */
+    private static final String FROM_ZERO_LEVEL = "BELOW_N5";
+    /** [JLAS-W0108] Giá trị survey lưu cho trình độ tự khai "chưa từng học" (khác với cấp kết luận). */
+    private static final String FROM_ZERO_SELF_REPORTED = "FROM_ZERO";
+
+    /** [JLAS-W0108] Thứ tự ổn định 5 skill khi ghi điểm số (deterministic trong snapshot). */
+    private static final List<String> SKILL_ORDER = List.of(
+            WeaknessEvidence.SKILL_KANJI, WeaknessEvidence.SKILL_VOCABULARY, WeaknessEvidence.SKILL_GRAMMAR,
+            WeaknessEvidence.SKILL_READING, WeaknessEvidence.SKILL_LISTENING);
 
     private final AssessmentAttemptRepository attempts;
     private final SmartTestSessionRepository sessions;
@@ -65,7 +77,36 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 ASSESSMENT_REVISION, survey.getCompletedAt() != null, true,
                 assessedLevel(session), targetLevel(session, survey), session.getGoal(),
                 session.getDailyStudyMinutes() != null ? session.getDailyStudyMinutes() : survey.getDailyStudyMinutes(),
-                aggregateWeaknesses(assessmentAttemptId));
+                aggregateWeaknesses(assessmentAttemptId),
+                aggregateSkillScores(assessmentAttemptId));
+    }
+
+    /**
+     * [JLAS-W0108] Tạo profile from-zero từ survey đã hoàn thành (self-reported FROM_ZERO):
+     * không cần Smart Test, assessed = BELOW_N5, không có điểm yếu/điểm skill.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public LearningProfileSnapshot loadFromSurvey(Long userId) {
+        UserLearningSurvey survey = surveys.findById(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Learning survey not found."));
+        if (survey.getCompletedAt() == null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Complete the survey first.");
+        }
+        if (!FROM_ZERO_SELF_REPORTED.equals(survey.getSelfReportedLevel())) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "A Smart Test is required to build a learning path for this learner.");
+        }
+        if (!"JLPT".equals(survey.getGoal())) {
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE,
+                    "A from-zero learning path is only available for the JLPT goal.");
+        }
+        if (survey.getTargetLevel() == null || survey.getTargetLevel().isBlank()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "A JLPT target level is required.");
+        }
+        return new LearningProfileSnapshot(userId, null, userId, FROM_ZERO_REVISION,
+                true, true, FROM_ZERO_LEVEL, survey.getTargetLevel(), survey.getGoal(),
+                survey.getDailyStudyMinutes(), List.of(), List.of());
     }
 
     private static String assessedLevel(SmartTestSession session) {
@@ -90,6 +131,26 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         result.addAll(grammarEvidence(bySkill.get(WeaknessEvidence.SKILL_GRAMMAR)));
         result.addAll(comprehensionEvidence(bySkill.get(WeaknessEvidence.SKILL_READING), WeaknessEvidence.SKILL_READING));
         result.addAll(comprehensionEvidence(bySkill.get(WeaknessEvidence.SKILL_LISTENING), WeaknessEvidence.SKILL_LISTENING));
+        return result;
+    }
+
+    /** [JLAS-W0108] Điểm số từng skill trên TOÀN BỘ câu trả lời (kể cả câu đúng, không lọc bỏ). */
+    private List<SkillScore> aggregateSkillScores(Long attemptId) {
+        Map<String, int[]> counts = new LinkedHashMap<>();
+        for (AssessmentAnswer answer : answers.findWithQuestionContextByAttemptId(attemptId)) {
+            String skill = answer.getQuestion().getSkill();
+            if (skill == null || skill.isBlank()) continue;
+            int[] count = counts.computeIfAbsent(skill, key -> new int[2]);
+            count[0]++;
+            if (isWrong(answer)) count[1]++;
+        }
+        List<SkillScore> result = new ArrayList<>();
+        for (String skill : SKILL_ORDER) {
+            int[] count = counts.remove(skill);
+            if (count != null) result.add(new SkillScore(skill, count[0], count[1]));
+        }
+        counts.entrySet().stream().sorted(Map.Entry.comparingByKey())
+                .forEach(e -> result.add(new SkillScore(e.getKey(), e.getValue()[0], e.getValue()[1])));
         return result;
     }
 

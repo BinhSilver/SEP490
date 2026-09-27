@@ -48,6 +48,7 @@
     .wu-complete__inner { padding: 32px 24px; }
     .wu-complete h2 { margin: 0 0 8px; font-size: 24px; }
     .wu-complete p { color: var(--text-muted, #6b7280); margin-bottom: 24px; }
+    .wu-complete__actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   </style>
 </head>
 
@@ -93,13 +94,18 @@
         <button type="button" class="btn btn-correct" id="wu-remembered" aria-label="Đã nhớ" title="Đã nhớ"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
       </div>
     </div>
+    <p id="wu-save-status" role="status" aria-live="polite">Lật thẻ trước khi đánh dấu đã nhớ hoặc chưa thuộc.</p>
+    <a class="btn btn-ghost" th:href="@{/learning/path}">Lưu và quay lại lộ trình</a>
   </section>
 
   <section class="wu-complete" id="wu-complete" hidden>
     <div class="wu-complete__inner card">
-      <h2>Ôn tập xong!</h2>
+      <h2>Đã hoàn thành ôn tập flashcard!</h2>
       <p id="wu-complete-summary"></p>
-      <a class="btn btn-primary" th:href="@{/learning/path}">Quay lại lộ trình</a>
+      <div class="wu-complete__actions">
+        <button type="button" class="btn btn-primary" id="wu-review-again"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Ôn lại thẻ</button>
+        <a class="btn btn-ghost" th:href="@{/learning/path}">Quay lại lộ trình</a>
+      </div>
     </div>
   </section>
 </main>

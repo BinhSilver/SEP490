@@ -181,6 +181,24 @@
       point.progressPercent = percentage(point.completedLessons, point.items.length);
     });
 
+    // [JLAS-W0108] Gemini narrative (tăng cường): overview + chiến lược từng giai đoạn. Null/absent
+    // -> UI vẫn chạy bình thường không có narrative (Gemini lỗi/rate-limit không chặn trang).
+    var aiPlan = data.aiPlan;
+    var aiOverview = null;
+    var aiPhases = [];
+    if (aiPlan && typeof aiPlan === 'object') {
+      aiOverview = aiPlan.overview ? String(aiPlan.overview).trim() : '';
+      aiPhases = (Array.isArray(aiPlan.phases) ? aiPlan.phases : []).map(function (phase) {
+        return {
+          phase: phase && phase.phase ? phase.phase : null,
+          strategy: phase && phase.strategy ? String(phase.strategy).trim() : '',
+          focus: phase && phase.focus ? String(phase.focus).trim() : '',
+          tips: phase && phase.tips ? String(phase.tips).trim() : ''
+        };
+      }).filter(function (phase) { return phase.strategy || phase.focus || phase.tips; });
+    }
+    var aiPlanModel = (aiOverview || aiPhases.length) ? { overview: aiOverview, phases: aiPhases } : null;
+
     return {
       id: data.id,
       goal: data.goal || 'Mục tiêu học tập',
@@ -205,6 +223,7 @@
         href: '/learning/path/gate-quiz'
       },
       coverageGaps: Array.isArray(data.coverageGaps) ? data.coverageGaps.slice() : [],
+      aiPlan: aiPlanModel,
       textbookCount: new Set(rawPhases.flatMap(function (phase) {
         return (phase.items || []).map(function (item) { return item.textbookId; }).filter(Boolean);
       })).size
@@ -321,19 +340,16 @@
     return lines.join('');
   }
 
+  function lessonHref(item) {
+    if (item.vocabularyEntryId) return '/learning/warm-up/flashcard';
+    if (item.grammarPointId) return '/learning/grammar/' + encodeURIComponent(item.grammarPointId);
+    return '/learning/lesson/' + encodeURIComponent(item.lessonId);
+  }
+
   function actionForLesson(item, dayStatus) {
     if (dayStatus === 'LOCKED') return '<span class="lp-lesson__lock">' + icon('lock') + '<span>Khóa</span></span>';
-    // [JLAS-W0108] Warm-up mở đúng tài nguyên đã sai: KANJI/VOCAB -> flashcard,
-    // GRAMMAR -> màn xem mẫu ngữ pháp, READING/LISTENING + goal -> bài học.
     var isVocabularyItem = !!item.vocabularyEntryId;
-    var href;
-    if (isVocabularyItem) {
-      href = '/learning/warm-up/flashcard';
-    } else if (item.grammarPointId) {
-      href = '/learning/grammar/' + encodeURIComponent(item.grammarPointId);
-    } else {
-      href = '/learning/lesson/' + encodeURIComponent(item.lessonId);
-    }
+    var href = lessonHref(item);
     var open = '<a class="lp-lesson__action" href="' + href + '">' +
       (item.completed ? 'Ôn lại' : 'Bắt đầu') + '</a>';
     if (item.completed || isVocabularyItem) return open;
@@ -346,7 +362,8 @@
     // [JLAS-W0108] Nhãn theo loại item: ngữ pháp -> kanji/từ vựng -> đọc/nghe -> bài học.
     var isReading = item.reasonCode === 'WEAK_READING_ITEM';
     var isListening = item.reasonCode === 'WEAK_LISTENING_ITEM';
-    var kindLabel = item.grammarPointId ? 'Ngữ pháp'
+    var kindLabel = item.reasonCode === 'WARM_UP_FLASHCARDS' ? 'Bộ flashcard'
+      : item.grammarPointId ? 'Ngữ pháp'
       : (item.vocabularyEntryId ? (item.reasonCode === 'WEAK_KANJI_ITEM' ? 'Kanji' : 'Từ vựng')
       : (isReading ? 'Đọc hiểu' : (isListening ? 'Nghe hiểu' : 'Bài học')));
     var subtitle = item.grammarPointId
@@ -410,14 +427,38 @@
         : '<div class="lp-no-results">Chưa có điểm kiến thức nào trong giai đoạn này.</div>') + '</section>';
   }
 
+  // [JLAS-W0108] Narrative Gemini (nếu có): overview + chiến lược/trọng tâm/mẹo từng giai đoạn.
+  function renderAiPlan(aiPlan) {
+    if (!aiPlan || !aiPlan.overview) return '';
+    var phaseBlocks = (Array.isArray(aiPlan.phases) ? aiPlan.phases : []).map(function (phase) {
+      var title = phase.phase === 'WARM_UP' ? 'Giai đoạn khởi động'
+        : phase.phase === 'GOAL_LEARNING' ? 'Giai đoạn chinh phục mục tiêu'
+        : (phase.phase || 'Giai đoạn');
+      var lines = [];
+      if (phase.strategy) lines.push('<p class="lp-ai-phase__line"><strong>Chiến lược</strong><span>' + escapeHtml(phase.strategy) + '</span></p>');
+      if (phase.focus) lines.push('<p class="lp-ai-phase__line"><strong>Trọng tâm</strong><span>' + escapeHtml(phase.focus) + '</span></p>');
+      if (phase.tips) lines.push('<p class="lp-ai-phase__line"><strong>Mẹo</strong><span>' + escapeHtml(phase.tips) + '</span></p>');
+      return '<div class="lp-ai-phase"><h4>' + escapeHtml(title) + '</h4>' + lines.join('') + '</div>';
+    }).join('');
+    return '<section class="lp-ai-plan" aria-label="Kế hoạch học cho riêng bạn">' +
+      '<div class="lp-ai-plan__head">' + icon('auto_awesome') + '<div><h2>Kế hoạch học cho riêng bạn</h2>' +
+      '<p>' + escapeHtml(aiPlan.overview) + '</p></div></div>' +
+      (phaseBlocks ? '<div class="lp-ai-plan__phases">' + phaseBlocks + '</div>' : '') +
+      '</section>';
+  }
+
   function renderPath(view, filters) {
     filters = filters || { phase: 'ALL', status: 'ALL' };
     var visibleDays = view.days.filter(function (day) {
       return (filters.phase === 'ALL' || day.phase === filters.phase) &&
         (filters.status === 'ALL' || day.status === filters.status);
     });
-    var target = view.goal === 'JLPT' ? 'JLPT ' + view.currentLevel + ' → ' + view.targetLevel : view.goal;
-    var currentHref = view.currentLesson ? '/learning/lesson/' + encodeURIComponent(view.currentLesson.lessonId) : '#roadmap';
+    var target = view.goal === 'JLPT'
+      ? (view.currentLevel === 'BELOW_N5'
+        ? 'JLPT ' + view.targetLevel + ' (từ bảng chữ cái)'
+        : 'JLPT ' + view.currentLevel + ' → ' + view.targetLevel)
+      : view.goal;
+    var currentHref = view.currentLesson ? lessonHref(view.currentLesson) : '#roadmap';
     // [JLAS-W0108] The goal-learning phase is presented as extracted knowledge points (not a raw
     // curriculum list); the warm-up phase and the combined view keep the day-by-day schedule.
     var roadmapHtml = filters.phase === 'GOAL_LEARNING'
@@ -434,6 +475,7 @@
       (view.currentLesson ? '<a class="lp-button lp-button--primary" href="' + currentHref + '">Tiếp tục học ' + icon('arrow_forward') + '</a>' : '') +
       '<button type="button" class="lp-button lp-button--ghost" data-action="open-replan">' + icon('auto_fix_high') + '<span>Lên kế hoạch lại</span></button>' + '</div></section>' +
       (view.gate && view.gate.required ? renderGateBanner() : '') +
+      renderAiPlan(view.aiPlan) +
       '<div class="lp-layout"><div class="lp-main"><section class="lp-phases" aria-label="Các giai đoạn">' + view.phases.map(renderPhase).join('') + '</section>' +
       '<div class="lp-toolbar"><div class="lp-tabs" aria-label="Lọc giai đoạn">' +
       '<button type="button" data-filter-phase="ALL" class="' + (filters.phase === 'ALL' ? 'is-active' : '') + '">Tất cả</button>' +
@@ -500,18 +542,15 @@
     }
 
     async function createPath() {
-      if (!state.attemptId) {
-        root.innerHTML = renderError(null, 'Chưa tìm thấy kết quả Smart Test đã hoàn tất. Hãy quay lại sau khi hoàn thành bài đánh giá.');
-        root.setAttribute('aria-busy', 'false');
-        return;
-      }
+      // [JLAS-W0108] Không có attempt -> lộ trình from-zero (người mới học bảng chữ cái).
+      var fromZero = !state.attemptId;
       root.setAttribute('aria-busy', 'true');
       root.innerHTML = renderLoading();
       try {
-        var response = await fetch('/api/learning/paths', {
+        var response = await fetch(fromZero ? '/api/learning/paths/from-zero' : '/api/learning/paths', {
           method: 'POST',
           headers: window.JlasAuth.authHeaders(),
-          body: JSON.stringify({ assessmentAttemptId: state.attemptId })
+          body: fromZero ? '{}' : JSON.stringify({ assessmentAttemptId: state.attemptId })
         });
         var body = await readBody(response);
         if (!response.ok || body.success === false || !body.data) {

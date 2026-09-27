@@ -7,7 +7,9 @@
     cards: [],
     index: 0,
     remembered: 0,
-    flipped: false
+    flipped: false,
+    saving: false,
+    reviewing: false
   };
 
   function el(id) { return document.getElementById(id); }
@@ -29,29 +31,71 @@
   function setFlipped(value) {
     state.flipped = value;
     el('wu-flip-inner').classList.toggle('is-flipped', value);
+    el('wu-remembered').disabled = !value || state.saving;
+    el('wu-not-remembered').disabled = !value || state.saving;
   }
 
   function render() {
     var card = state.cards[state.index] || {};
     el('wu-face-front').textContent = card.front || card.kanji || '';
     el('wu-face-back').innerHTML = cardBack(card);
-    el('wu-progress-label').textContent = (state.index + 1) + ' / ' + state.cards.length;
-    el('wu-progress-fill').style.width = ((state.index / state.cards.length) * 100) + '%';
+    state.remembered = state.cards.filter(function (c) { return c.memoryStatus === 'REMEMBERED'; }).length;
+    if (state.reviewing) {
+      el('wu-progress-label').textContent = 'Ôn lại ' + (state.index + 1) + ' / ' + state.cards.length;
+      el('wu-progress-fill').style.width = (((state.index + 1) / state.cards.length) * 100) + '%';
+    } else {
+      el('wu-progress-label').textContent = 'Đã nhớ ' + state.remembered + ' / ' + state.cards.length;
+      el('wu-progress-fill').style.width = ((state.remembered / state.cards.length) * 100) + '%';
+    }
     setFlipped(false);
   }
 
-  function next(result) {
-    if (result === 'REMEMBERED') state.remembered++;
-    state.index++;
-    if (state.index >= state.cards.length) { finish(); return; }
-    render();
+  async function next(result) {
+    if (!state.flipped || state.saving || !state.cards[state.index]) return;
+    state.saving = true;
+    setFlipped(true);
+    el('wu-save-status').textContent = 'Đang lưu…';
+    try {
+      var card = state.cards[state.index];
+      await global.FlashApi.post('/api/learning/warm-up/flashcards/' + encodeURIComponent(state.setId) +
+        '/cards/' + encodeURIComponent(card.id) + '/progress', { memoryStatus: result });
+      card.memoryStatus = result;
+      state.remembered = state.cards.filter(function (c) { return c.memoryStatus === 'REMEMBERED'; }).length;
+      state.saving = false;
+      if (state.reviewing) {
+        // Ôn lại: lướt tuần tự qua mọi thẻ (kể cả thẻ đã nhớ), hết bộ thì quay về màn hoàn thành.
+        state.index = state.index + 1;
+        if (state.index >= state.cards.length) { finish(); return; }
+        render();
+        el('wu-save-status').textContent = 'Đã lưu.';
+      } else {
+        if (state.remembered === state.cards.length) { finish(); return; }
+        do { state.index = (state.index + 1) % state.cards.length; }
+        while (state.cards[state.index].memoryStatus === 'REMEMBERED');
+        render();
+        el('wu-save-status').textContent = result === 'NOT_REMEMBERED'
+          ? 'Đã lưu. Những thẻ chưa thuộc sẽ tiếp tục được ôn lại.' : 'Đã lưu tiến độ.';
+      }
+    } catch (err) {
+      state.saving = false;
+      setFlipped(true);
+      el('wu-save-status').textContent = (err.message || 'Không lưu được tiến độ.') + ' Hãy thử lại.';
+    }
   }
 
   function finish() {
     el('wu-stage').hidden = true;
     el('wu-complete').hidden = false;
     el('wu-complete-summary').textContent =
-      'Bạn đã ôn xong ' + state.cards.length + ' thẻ, nhớ ' + state.remembered + ' thẻ.';
+      'Đã lưu: bạn đã nhớ đủ ' + state.cards.length + ' thẻ. Quay lại lộ trình để tiếp tục; bài kiểm tra vẫn được đánh giá riêng.';
+  }
+
+  function review() {
+    el('wu-complete').hidden = true;
+    el('wu-stage').hidden = false;
+    state.reviewing = true;
+    state.index = 0;
+    render();
   }
 
   function fail(message) {
@@ -65,7 +109,7 @@
       global.location.replace('/learning/path');
       return;
     }
-    global.FlashApi.get('/api/flashcards/' + state.setId)
+    return global.FlashApi.get('/api/flashcards/' + state.setId)
       .then(function (data) {
         state.cards = (data && data.cards) || [];
         if (!state.cards.length) {
@@ -73,6 +117,8 @@
           return;
         }
         el('wu-loading').hidden = true;
+        state.index = state.cards.findIndex(function (card) { return card.memoryStatus !== 'REMEMBERED'; });
+        if (state.index < 0) { state.remembered = state.cards.length; finish(); return; }
         el('wu-stage').hidden = false;
         render();
       })
@@ -92,8 +138,9 @@
     event.stopPropagation();
     setFlipped(!state.flipped);
   });
-  el('wu-remembered').addEventListener('click', function () { next('REMEMBERED'); });
-  el('wu-not-remembered').addEventListener('click', function () { next('NOT_REMEMBERED'); });
+  el('wu-remembered').addEventListener('click', function () { return next('REMEMBERED'); });
+  el('wu-not-remembered').addEventListener('click', function () { return next('NOT_REMEMBERED'); });
+  el('wu-review-again').addEventListener('click', review);
 
   global.WarmUpFlashcard = { boot: boot };
   document.addEventListener('DOMContentLoaded', boot);

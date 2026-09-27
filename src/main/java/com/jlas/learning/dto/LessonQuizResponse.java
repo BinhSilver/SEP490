@@ -4,8 +4,11 @@ import java.util.List;
 
 /**
  * [JLAS-W0113] Câu hỏi quiz của một lesson (không lộ đáp án chuẩn cho client).
+ *
+ * [JLAS-W0108] {@code attemptId} là id của session đề thi đã phát; client phải gửi lại đúng id này
+ * khi nộp bài để server chấm theo snapshot đã phát (hợp đồng đề thi bất biến).
  */
-public record LessonQuizResponse(Long lessonId, String lessonTitle, List<LessonQuizQuestion> questions) {
+public record LessonQuizResponse(Long attemptId, Long lessonId, String lessonTitle, List<LessonQuizQuestion> questions) {
     public LessonQuizResponse {
         questions = List.copyOf(questions);
     }
@@ -19,7 +22,8 @@ public record LessonQuizResponse(Long lessonId, String lessonTitle, List<LessonQ
             String audioUrl,
             String imageUrl,
             String questionText,
-            List<String> options
+            List<String> options,
+            String questionType
     ) {
         public LessonQuizQuestion {
             options = List.copyOf(options);

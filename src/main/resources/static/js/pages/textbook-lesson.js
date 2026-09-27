@@ -12,6 +12,8 @@
   var main = document.getElementById('jlabBaseContent');
   var textbookId = main ? main.getAttribute('data-textbook-id') : null;
   var lessonId = main ? main.getAttribute('data-lesson-id') : null;
+  // Chỉ trang lộ trình (path-lesson.html) mới có cờ này → nút "Học bằng flashcard" chỉ hiện ở lộ trình, không đụng giáo trình.
+  var isLearningPath = main ? main.getAttribute('data-learning-path') === 'true' : false;
 
   var loadingEl = document.getElementById('lessonLoading');
   var errorEl = document.getElementById('lessonError');
@@ -354,10 +356,95 @@
       if (!bySection[key]) { bySection[key] = { title: it.sectionTitle || '', items: [] }; groups.push(bySection[key]); }
       bySection[key].items.push(it);
     });
-    panel.innerHTML = groups.map(function (g) {
-      return (g.title && groups.length > 1 ? '<h3 class="dialogue-scene__title">' + escapeHtml(g.title) + '</h3>' : '') +
-        '<div class="kana-grid">' + g.items.map(kanaTile).join('') + '</div>';
-    }).join('') + '<p class="kana-hint">Bấm vào chữ để nghe cách đọc.</p>';
+    panel.innerHTML = (isLearningPath
+        ? '<div class="kana-toolbar">' +
+            '<button type="button" class="btn btn--primary btn--sm" id="kanaFlashcardBtn">' +
+              '<i class="fa-solid fa-layer-group" aria-hidden="true"></i> Học bằng flashcard' +
+            '</button>' +
+          '</div>'
+        : '') +
+      groups.map(function (g) {
+        return (g.title && groups.length > 1 ? '<h3 class="dialogue-scene__title">' + escapeHtml(g.title) + '</h3>' : '') +
+          '<div class="kana-grid">' + g.items.map(kanaTile).join('') + '</div>';
+      }).join('') + '<p class="kana-hint">Bấm vào chữ để nghe cách đọc.</p>';
+  }
+
+  /* ---------- Flashcard bảng chữ (nút "Học bằng flashcard") ----------
+   * Overlay lật thẻ: mặt trước = kana, mặt sau = romaji; ←/→ lướt, xáo trộn tùy chọn.
+   * Không thay thế lưới chữ (kana-grid) — là chế độ ôn bổ sung, dùng lại đúng kanaItems().
+   */
+  var kanaFc = { items: [], index: 0, flipped: false };
+
+  function kanaRomaji(item) { return item.textVi || item.title || ''; }
+
+  function renderKanaFlashcard() {
+    var item = kanaFc.items[kanaFc.index];
+    var card = document.getElementById('kanaFcCard');
+    if (!card) return;
+    card.querySelector('.kana-fc__front').textContent = item.textJa || '';
+    card.querySelector('.kana-fc__back').textContent = kanaRomaji(item);
+    document.getElementById('kanaFcCount').textContent = (kanaFc.index + 1) + ' / ' + kanaFc.items.length;
+    card.classList.toggle('is-flipped', kanaFc.flipped);
+  }
+
+  function openKanaFlashcard() {
+    var items = kanaItems();
+    if (!items.length) return;
+    kanaFc.items = items.slice();
+    kanaFc.index = 0;
+    kanaFc.flipped = false;
+    document.getElementById('kanaFlashcardOverlay').hidden = false;
+    renderKanaFlashcard();
+  }
+
+  function closeKanaFlashcard() {
+    var overlay = document.getElementById('kanaFlashcardOverlay');
+    if (overlay) overlay.hidden = true;
+  }
+
+  function stepKanaFlashcard(delta) {
+    if (!kanaFc.items.length) return;
+    kanaFc.index = (kanaFc.index + delta + kanaFc.items.length) % kanaFc.items.length;
+    kanaFc.flipped = false;
+    renderKanaFlashcard();
+  }
+
+  function shuffleKanaFlashcard() {
+    if (!kanaFc.items.length) return;
+    for (var i = kanaFc.items.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = kanaFc.items[i]; kanaFc.items[i] = kanaFc.items[j]; kanaFc.items[j] = t;
+    }
+    kanaFc.index = 0;
+    kanaFc.flipped = false;
+    renderKanaFlashcard();
+  }
+
+  function setupKanaFlashcard() {
+    var overlay = document.getElementById('kanaFlashcardOverlay');
+    var close = document.getElementById('kanaFcClose');
+    var card = document.getElementById('kanaFcCard');
+    var prev = document.getElementById('kanaFcPrev');
+    var next = document.getElementById('kanaFcNext');
+    var shuffle = document.getElementById('kanaFcShuffle');
+    if (close) close.addEventListener('click', closeKanaFlashcard);
+    if (card) card.addEventListener('click', function () {
+      kanaFc.flipped = !kanaFc.flipped;
+      card.classList.toggle('is-flipped', kanaFc.flipped);
+    });
+    if (prev) prev.addEventListener('click', function () { stepKanaFlashcard(-1); });
+    if (next) next.addEventListener('click', function () { stepKanaFlashcard(1); });
+    if (shuffle) shuffle.addEventListener('click', shuffleKanaFlashcard);
+    if (overlay) {
+      // Bấm phông nền (ngoài thẻ) để đóng.
+      overlay.addEventListener('click', function (event) { if (event.target === overlay) closeKanaFlashcard(); });
+      document.addEventListener('keydown', function (event) {
+        if (overlay.hidden) return;
+        if (event.key === 'Escape') closeKanaFlashcard();
+        else if (event.key === 'ArrowLeft') stepKanaFlashcard(-1);
+        else if (event.key === 'ArrowRight') stepKanaFlashcard(1);
+      });
+    }
   }
 
   /* ---------- Kanji (dữ liệu KANJIDIC2 — EDRDG, CC BY-SA 4.0) ---------- */
@@ -688,6 +775,11 @@
   setupTabs();
   initTtsVoices();
   setupStatusToggles();
+  setupKanaFlashcard();
   contentEl.addEventListener('click', onSpeakClick);
+  // Nút "Học bằng flashcard" được render động trong renderKana() → dùng delegation.
+  contentEl.addEventListener('click', function (event) {
+    if (event.target.closest('#kanaFlashcardBtn')) openKanaFlashcard();
+  });
   load();
 })();

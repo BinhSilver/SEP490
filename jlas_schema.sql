@@ -1543,13 +1543,19 @@ CREATE TABLE user_learning_path (
     -- [JLAS-W0108] Cache id bo flashcard warm-up gop Kanji+Tu vung sai Smart Test; NULL = chua sinh.
     -- Soft-link toi flashcard_set (khong FK, giu learning decoupled khoi flashcard).
     warm_up_flashcard_set_id BIGINT UNSIGNED NULL,
+    -- [JLAS-W0108] Kế hoạch lộ trình cá nhân hoá do Gemini sinh (JSON: overview + phases[]);
+    -- NULL = chưa sinh (Gemini lỗi/rate-limit), UI vẫn chạy bình thường không cần narrative.
+    ai_plan_json TEXT NULL,
     status       VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     version      INT UNSIGNED NOT NULL DEFAULT 1,
     created_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                  ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    UNIQUE KEY uk_learning_path_generation (user_id, assessment_attempt_id, assessment_revision, policy_version),
+    -- [JLAS-W0122] Bỏ UNIQUE KEY uk_learning_path_generation (user_id, assessment_attempt_id,
+    -- assessment_revision, policy_version): replan tạo version mới với CÙNG generation identity
+    -- nên key cũ chặn insert bản v2 (hàng SUPERSEDED còn giữ key). Uniqueness giờ do
+    -- uk_learning_path_user_version (user_id, version) + idempotency check tầng service đảm bảo.
     UNIQUE KEY uk_learning_path_user_version (user_id, version),
     KEY idx_learning_path_user_status (user_id, status, updated_at),
     CONSTRAINT fk_learning_path_user FOREIGN KEY (user_id)
@@ -1593,6 +1599,40 @@ CREATE TABLE user_learning_path_item (
     CONSTRAINT fk_learning_path_item_vocab FOREIGN KEY (vocabulary_entry_id)
         REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
     CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Câu hỏi quiz do Gemini sinh để BÙ phần ngân hàng câu thiếu, scoped theo learning path.
+-- Tách bạch khỏi assessment_question (ngân hàng Smart Test) để không nhiễm nội dung AI vào ngân hàng.
+CREATE TABLE learning_generated_question (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id BIGINT UNSIGNED NOT NULL,
+    -- Anchor nội dung đã ôn mà câu hỏi bám vào: GRAMMAR_POINT / VOCABULARY_ENTRY / KNOWLEDGE_TAG.
+    anchor_type      VARCHAR(30) NOT NULL,
+    -- Id (số, dạng chuỗi) cho GRAMMAR_POINT/VOCABULARY_ENTRY; code cho KNOWLEDGE_TAG. Soft-link, không FK.
+    anchor_id        VARCHAR(64) NOT NULL,
+    skill            VARCHAR(20) NOT NULL DEFAULT 'GRAMMAR',
+    jlpt_level       VARCHAR(10) NULL,
+    question_text    TEXT NOT NULL,
+    option_1         VARCHAR(255) NOT NULL,
+    option_2         VARCHAR(255) NOT NULL,
+    option_3         VARCHAR(255) NOT NULL,
+    option_4         VARCHAR(255) NOT NULL,
+    correct_option   INT NOT NULL,           -- Chỉ số đáp án đúng từ 1 đến 4.
+    explanation      TEXT NULL,
+    status           VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                     ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    -- Idempotent: mỗi anchor chỉ sinh đúng một câu cho một path (getGateQuiz tái gọi không nhân bản).
+    UNIQUE KEY uk_learning_generated_question (learning_path_id, anchor_type, anchor_id),
+    KEY idx_learning_generated_question_path (learning_path_id),
+    CONSTRAINT fk_learning_generated_question_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_generated_question_correct
+        CHECK (correct_option BETWEEN 1 AND 4),
+    CONSTRAINT chk_learning_generated_question_anchor
+        CHECK (anchor_type IN ('GRAMMAR_POINT','VOCABULARY_ENTRY','KNOWLEDGE_TAG'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Nguon tien do lesson duy nhat, giu mo hinh more.txt.
@@ -1684,6 +1724,34 @@ CREATE TABLE quiz_attempt (
     CONSTRAINT fk_quiz_attempt_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_quiz_attempt_type CHECK (quiz_type IN ('GATE','LESSON'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] Hop dong de thi bat bien: khi phat quiz, server chup snapshot cau hoi + dap an vao session;
+-- luc nop chi cham theo snapshot (mau so = toan bo cau da phat), nop lai tra ket qua da luu, khong ton them luot.
+CREATE TABLE learning_quiz_session (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id          BIGINT UNSIGNED NOT NULL,
+    quiz_type        VARCHAR(20) NOT NULL COMMENT 'GATE/LESSON',
+    lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE',
+    path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON',
+    path_version     INT NULL COMMENT 'snapshot version cua lo trinh khi phat GATE quiz',
+    status           VARCHAR(20) NOT NULL DEFAULT 'ISSUED' COMMENT 'ISSUED/SUBMITTED',
+    questions_json   TEXT NOT NULL COMMENT 'JSON mang cau hoi da phat (khong chua dap an)',
+    answer_key_json  TEXT NOT NULL COMMENT 'JSON map questionId -> {correctOption, explanation}',
+    question_count   INT NOT NULL COMMENT 'mau so: tong so cau da phat',
+    correct_count    INT NULL,
+    score_percent    INT NULL,
+    passed           TINYINT(1) NULL,
+    result_json      TEXT NULL COMMENT 'JSON ket qua da cham de tra lai khi nop lai (idempotent)',
+    issued_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    submitted_at     DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    KEY idx_quiz_session_user (user_id, quiz_type, lesson_id, status),
+    CONSTRAINT fk_quiz_session_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON')),
+    CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
+    CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.
@@ -2755,5 +2823,8 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
     UNIQUE KEY uk_shadowing_practice_answer_attempt (practice_item_id, attempt_number),
     INDEX idx_shadowing_practice_answer_result (answer_result, answered_at)
 );
+
+
+ALTER TABLE learning_generated_question MODIFY correct_option INT NOT NULL;
 
 -- End of canonical schema.

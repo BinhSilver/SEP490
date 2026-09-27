@@ -280,7 +280,7 @@ class LearningPathApiTest {
 
     private LearningProfileSnapshot profile(Long userId, Long attemptId, String revision) {
         return new LearningProfileSnapshot(userId, attemptId, 10L, revision, true, true,
-                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
+                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 3)));
     }
 
     private LearningCatalogScope scope(Textbook warmBook, Textbook goalBook) {

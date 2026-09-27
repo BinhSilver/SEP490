@@ -43,6 +43,16 @@ public class LearningController {
                         result.path()));
     }
 
+    /** [JLAS-W0108] Tạo lộ trình from-zero từ survey đã hoàn thành (không cần Smart Test). */
+    @PostMapping("/paths/from-zero")
+    public ResponseEntity<ApiResponse<LearningPathResponse>> createFromZero(
+            @AuthenticationPrincipal UserPrincipal user) {
+        CreateLearningPathResult result = learningService.createFromSurvey(user.userId());
+        return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK)
+                .body(ApiResponse.ok(result.created() ? "Learning path created" : "Learning path already exists",
+                        result.path()));
+    }
+
     @GetMapping("/paths/current")
     public ResponseEntity<ApiResponse<LearningPathResponse>> current(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", learningService.current(user.userId())));

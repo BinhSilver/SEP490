@@ -7,8 +7,8 @@ import java.util.Set;
 public enum JlptLevel {
     N5, N4, N3, N2, N1;
 
-    /** [JLAS-W0108] Cấp độ đã phát hành cho lộ trình học. N2/N1 đang phát triển, chưa tạo path/đề/chứng nhận. */
-    private static final Set<String> AVAILABLE_FOR_LEARNING = Set.of("N5", "N4", "N3");
+    /** [JLAS-W0108] Cấp độ đã phát hành cho lộ trình học. N5→N1 đều có giáo trình + ngân hàng câu hỏi. */
+    private static final Set<String> AVAILABLE_FOR_LEARNING = Set.of("N5", "N4", "N3", "N2", "N1");
 
     /** True nếu level này được hỗ trợ tạo lộ trình/đề. N2/N1 trả về false ở cả UI lẫn API. */
     public static boolean isAvailableForLearning(String level) {

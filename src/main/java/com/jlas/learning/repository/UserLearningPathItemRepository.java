@@ -29,6 +29,7 @@ public interface UserLearningPathItemRepository extends JpaRepository<UserLearni
     @Query("""
             select distinct item.vocabularyEntry.id from UserLearningPathItem item
             where item.learningPath.id = :learningPathId
+              and item.phase = 'WARM_UP'
               and item.reasonCode in :reasonCodes
               and item.vocabularyEntry is not null
             order by item.vocabularyEntry.id
@@ -45,5 +46,17 @@ public interface UserLearningPathItemRepository extends JpaRepository<UserLearni
             order by item.grammarPoint.id
             """)
     List<Long> findGrammarPointIdsIn(@Param("learningPathId") Long learningPathId,
+            @Param("reasonCodes") List<String> reasonCodes);
+
+    /** [JLAS-W0108] Id bài học của warm-up item theo reasonCode (WEAK_READING_ITEM / WEAK_LISTENING_ITEM). */
+    @Query("""
+            select distinct item.lesson.id from UserLearningPathItem item
+            where item.learningPath.id = :learningPathId
+              and item.phase = 'WARM_UP'
+              and item.reasonCode in :reasonCodes
+              and item.lesson is not null
+            order by item.lesson.id
+            """)
+    List<Long> findLessonIdsIn(@Param("learningPathId") Long learningPathId,
             @Param("reasonCodes") List<String> reasonCodes);
 }

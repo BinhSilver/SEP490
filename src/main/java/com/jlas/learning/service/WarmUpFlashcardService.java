@@ -11,6 +11,10 @@ import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import java.util.List;
+import java.util.LinkedHashMap;
+import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.flashcard.dto.FlashcardDtos.ProgressRequest;
+import com.jlas.flashcard.dto.FlashcardDtos.CardDto;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +30,37 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class WarmUpFlashcardService {
     public static final List<String> WARM_UP_WEAK_REASON_CODES =
-            List.of("WEAK_KANJI_ITEM", "WEAK_VOCAB_ITEM");
+            List.of("WEAK_KANJI_ITEM", "WEAK_VOCAB_ITEM", "REMEDIATION_KANJI_ITEM", "REMEDIATION_VOCAB_ITEM");
+
+    public static boolean isFlashcardItem(UserLearningPathItem item) {
+        return "WARM_UP".equals(item.getPhase()) && item.getVocabularyEntry() != null
+                && WARM_UP_WEAK_REASON_CODES.contains(item.getReasonCode());
+    }
+
+    /** Activity completion only: this does not grant mastery or complete a source lesson. */
+    @Transactional(readOnly = true)
+    public boolean isCompleted(UserLearningPath path) {
+        if (path.getWarmUpFlashcardSetId() == null) return false;
+        var summary = flashcards.summary(path.getWarmUpFlashcardSetId(), path.getUser().getId());
+        return summary != null && summary.getTotal() > 0 && summary.getRemembered() == summary.getTotal();
+    }
+
+    @Transactional
+    public CardDto remember(Long userId, Long setId, Long cardId, String memoryStatus) {
+        var path = paths.findActiveForFlashcardUpdate(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        if (!setId.equals(path.getWarmUpFlashcardSetId())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Bộ thẻ không thuộc lộ trình hiện tại. Hãy tải lại lộ trình.");
+        }
+        var set = flashcards.set(setId, userId);
+        if (set.getCards().stream().noneMatch(card -> cardId.equals(card.getId()))) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Thẻ không thuộc bộ ôn tập.");
+        }
+        if (!"REMEMBERED".equals(memoryStatus) && !"NOT_REMEMBERED".equals(memoryStatus)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED);
+        }
+        return flashcards.updateProgress(cardId, new ProgressRequest(null, memoryStatus), userId);
+    }
 
     private final FlashcardService flashcards;
     private final UserLearningPathRepository paths;
@@ -38,17 +72,20 @@ public class WarmUpFlashcardService {
         if (userId == null || userId <= 0) {
             throw new ApiException(ErrorCode.UNAUTHORIZED);
         }
-        UserLearningPath path = paths.findByUserIdAndStatus(userId, "ACTIVE")
+        UserLearningPath path = paths.findActiveForFlashcardUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "No active learning path found."));
 
         if (path.getWarmUpFlashcardSetId() != null) {
             return path.getWarmUpFlashcardSetId();
         }
 
-        List<VocabularyEntry> entries = vocabulary
+        var distinct = new LinkedHashMap<String, VocabularyEntry>();
+        vocabulary
                 .findAllById(items.findVocabularyEntryIdsIn(path.getId(), WARM_UP_WEAK_REASON_CODES)).stream()
                 .filter(WarmUpFlashcardService::hasCardContent)
-                .toList();
+                .forEach(entry -> distinct.putIfAbsent(entry.getExpression().strip() + "\u0000"
+                        + entry.getReading().strip(), entry));
+        List<VocabularyEntry> entries = List.copyOf(distinct.values());
         if (entries.isEmpty()) {
             return null;
         }

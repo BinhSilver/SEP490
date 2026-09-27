@@ -39,6 +39,15 @@ function pathFixture() {
   };
 }
 
+test('continue learning opens the same warm-up flashcard activity as the roadmap', () => {
+  const fixture = pathFixture();
+  fixture.phases[1].items = [{ lessonId: 101, vocabularyEntryId: 42,
+    title: 'Ôn tập Kanji & Từ vựng', reasonCode: 'WARM_UP_FLASHCARDS',
+    dayNumber: 1, orderIndex: 1, estimatedMinutes: 10, completed: false }];
+  const html = LearningPathPage.renderPath(LearningPathPage.createViewModel(fixture));
+  assert.match(html, /href="\/learning\/warm-up\/flashcard">Tiếp tục học/);
+});
+
 test('orders phases and lessons according to the persisted schedule', () => {
   const view = LearningPathPage.createViewModel(pathFixture());
 
@@ -86,6 +95,29 @@ test('reads assessment attempt only from an explicit integration source', () => 
   assert.equal(LearningPathPage.resolveAssessmentAttemptId('?assessmentAttemptId=91', storage), 91);
   assert.equal(LearningPathPage.resolveAssessmentAttemptId('', storage), 92);
   assert.equal(LearningPathPage.resolveAssessmentAttemptId('?assessmentAttemptId=invalid', { getItem: () => null }), null);
+});
+
+test('renders the Gemini aiPlan narrative without blocking the page when absent', () => {
+  const withoutPlan = LearningPathPage.renderPath(LearningPathPage.createViewModel(pathFixture()));
+  assert.doesNotMatch(withoutPlan, /lp-ai-plan/);
+
+  const fixture = pathFixture();
+  fixture.aiPlan = {
+    overview: 'Bạn yếu trợ từ, cần ôm gọn nền tảng N5 trước khi lên N4.',
+    phases: [
+      { phase: 'WARM_UP', strategy: 'Ôn lại toàn bộ trợ từ N5.', focus: 'Trợ từ は/が/を.', tips: 'Làm lại bài đã sai.' },
+      { phase: 'GOAL_LEARNING', strategy: 'Luyện đọc hiểu N4.', focus: 'Đọc theo chủ đề.', tips: 'Nghe kèm để nhớ lâu.' }
+    ]
+  };
+  const html = LearningPathPage.renderPath(LearningPathPage.createViewModel(fixture));
+
+  assert.match(html, /lp-ai-plan/);
+  assert.match(html, /Bạn yếu trợ từ/);
+  assert.match(html, /Giai đoạn khởi động/);
+  assert.match(html, /Giai đoạn chinh phục mục tiêu/);
+  assert.match(html, /Ôn lại toàn bộ trợ từ N5\./);
+  assert.match(html, /Trọng tâm/);
+  assert.match(html, /Mẹo/);
 });
 
 test('maps API errors to actionable Vietnamese messages', () => {

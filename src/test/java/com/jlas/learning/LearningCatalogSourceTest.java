@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
         "jlas.learning.selection.minimum-assessed-questions=4",
-        "jlas.learning.selection.wrong-ratio-threshold=0.75"
+        "jlas.learning.selection.wrong-ratio-threshold=0.5"
 })
 @ContextConfiguration(classes = LearningCatalogSourceTest.CatalogTestConfiguration.class)
 class LearningCatalogSourceTest {
@@ -62,7 +62,7 @@ class LearningCatalogSourceTest {
         em.clear();
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
                 "N4", "N4", "JLPT", 30,
-                List.of(WeaknessEvidence.grammar(weakTag.getId(), weakTag.getCode(), weakTag.getId(), 5, 4)));
+                List.of(WeaknessEvidence.grammar(weakTag.getId(), weakTag.getCode(), weakTag.getId(), 5, 3)));
         var result = selector.select(7L, profile,
                 new LearningCatalogScope(List.of(foundationBook.getId()), List.of(goalBook.getId())));
         assertEquals(List.of(foundation.getId(), goal.getId()),
@@ -177,8 +177,36 @@ class LearningCatalogSourceTest {
         assertEquals(n5Reading.getId(), result.get().lessonId());
     }
 
+    @Test void findComprehensionLessonPrefersComprehensiveLessonAtExactLevelOverForeignSkillLesson() {
+        // [JLAS-W0108] N5/N4 không có bài chuyên READING/LISTENING riêng — mỗi bài GRAMMAR là bài
+        // tổng hợp chứa sẵn phần đọc + nghe. Khi không có bài READING đúng cấp, phải chọn bài tổng
+        // hợp ĐÚNG cấp (N4) thay vì lạc sang bài READING cấp khác (N3) không liên quan như trước.
+        var n4Book = book("PUBLISHED");
+        n4Book.setJlptLevel("N4");
+        var n4Comprehensive = lesson(n4Book, "PUBLISHED", "KNOWLEDGE"); // GRAMMAR tổng hợp N4
+        var n3Book = book("PUBLISHED");
+        n3Book.setJlptLevel("N3");
+        lessonWithSkill(n3Book, "PUBLISHED", "READING"); // READING N3 — không được chọn
+        em.flush();
+        em.clear();
+        var result = catalog.findComprehensionLesson("READING", "N4");
+        assertTrue(result.isPresent());
+        assertEquals(n4Comprehensive.getId(), result.get().lessonId());
+    }
+
     @Test void findComprehensionLessonEmptyWhenNoPublishedSkillLesson() {
         lesson(book("PUBLISHED"), "PUBLISHED", "KNOWLEDGE"); // chỉ có GRAMMAR
+        em.flush();
+        em.clear();
+        assertTrue(catalog.findComprehensionLesson("READING", "N4").isEmpty());
+    }
+
+    @Test void findComprehensionLessonSkipsNullLevelKanaLessons() {
+        // [JLAS-W0108] Bài Kana (textbook jlpt_level NULL) không phải passage đọc hiểu -> warm-up
+        // READING phải báo thiếu, không chọn nhầm bài Kana (§12.6).
+        var kanaBook = book("PUBLISHED");
+        kanaBook.setJlptLevel(null);
+        lessonWithSkill(kanaBook, "PUBLISHED", "READING");
         em.flush();
         em.clear();
         assertTrue(catalog.findComprehensionLesson("READING", "N4").isEmpty());

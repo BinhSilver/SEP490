@@ -8,9 +8,13 @@ import com.jlas.learning.dto.CoverageGap;
 import com.jlas.learning.dto.LearningPathItemDto;
 import com.jlas.learning.dto.LearningPathResponse;
 import com.jlas.learning.dto.LearningPhaseGroup;
+import com.jlas.learning.dto.LessonQuizResponse;
+import com.jlas.learning.dto.LessonQuizResult;
+import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.enums.LearningPhase;
+import com.jlas.learning.service.WarmUpFlashcardService;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +28,10 @@ import org.springframework.stereotype.Component;
 public class LearningMapper {
     private static final TypeReference<List<String>> STRING_LIST = new TypeReference<>() { };
     private static final TypeReference<List<CoverageGap>> GAP_LIST = new TypeReference<>() { };
+    // [JLAS-W0108] Snapshot đề thi bất biến (learning_quiz_session).
+    private static final TypeReference<List<LessonQuizResponse.LessonQuizQuestion>> QUIZ_QUESTION_LIST =
+            new TypeReference<>() { };
+    private static final TypeReference<Map<Long, QuizAnswerKey>> QUIZ_ANSWER_KEY = new TypeReference<>() { };
 
     // The app does not expose a Spring-managed ObjectMapper (webmvc starter without starter-json),
     // so this mapper owns its own instance for the small JSON snapshot columns it persists.
@@ -31,6 +39,11 @@ public class LearningMapper {
 
     public LearningPathResponse toResponse(UserLearningPath path, List<UserLearningPathItem> items,
             Set<Long> completedLessonIds) {
+        return toResponse(path, items, completedLessonIds, false);
+    }
+
+    public LearningPathResponse toResponse(UserLearningPath path, List<UserLearningPathItem> items,
+            Set<Long> completedLessonIds, boolean flashcardsCompleted) {
         Map<LearningPhase, List<UserLearningPathItem>> byPhase = new LinkedHashMap<>();
         for (var item : items) {
             byPhase.computeIfAbsent(LearningPhase.valueOf(item.getPhase()), key -> new ArrayList<>()).add(item);
@@ -40,26 +53,46 @@ public class LearningMapper {
         int totalMinutes = 0;
         int completed = 0;
         for (var entry : byPhase.entrySet()) {
-            List<LearningPathItemDto> dtos = entry.getValue().stream()
-                    .map(item -> toItem(item, completedLessonIds.contains(item.getLesson().getId())))
-                    .toList();
+            List<LearningPathItemDto> dtos = new ArrayList<>();
+            var cardItems = entry.getValue().stream().filter(WarmUpFlashcardService::isFlashcardItem).toList();
+            boolean addedCards = false;
+            for (var item : entry.getValue()) {
+                if (WarmUpFlashcardService.isFlashcardItem(item)) {
+                    if (!addedCards) dtos.add(toFlashcardGroup(cardItems, flashcardsCompleted));
+                    addedCards = true;
+                } else {
+                    dtos.add(toItem(item, completedLessonIds.contains(item.getLesson().getId())));
+                }
+            }
             int minutes = dtos.stream().mapToInt(LearningPathItemDto::estimatedMinutes).sum();
             long dayCount = dtos.stream().mapToInt(LearningPathItemDto::dayNumber).distinct().count();
             groups.add(new LearningPhaseGroup(entry.getKey(), dtos, dtos.size(), minutes, (int) dayCount));
             totalLessons += dtos.size();
             totalMinutes += minutes;
+            completed += (int) dtos.stream().filter(LearningPathItemDto::completed).count();
         }
-        completed = (int) items.stream().filter(item -> completedLessonIds.contains(item.getLesson().getId())).count();
-        int totalDays = items.stream().mapToInt(UserLearningPathItem::getDayNumber).max().orElse(0);
-        boolean warmUpCompleted = items.stream().anyMatch(item -> LearningPhase.WARM_UP.name().equals(item.getPhase()))
-                && items.stream().filter(item -> LearningPhase.WARM_UP.name().equals(item.getPhase()))
-                        .allMatch(item -> completedLessonIds.contains(item.getLesson().getId()));
+        int totalDays = groups.stream().flatMap(group -> group.items().stream())
+                .mapToInt(LearningPathItemDto::dayNumber).max().orElse(0);
+        boolean warmUpCompleted = groups.stream().filter(group -> group.phase() == LearningPhase.WARM_UP)
+                .anyMatch(group -> !group.items().isEmpty() && group.items().stream().allMatch(LearningPathItemDto::completed));
         return new LearningPathResponse(path.getId(), path.getUser().getId(), path.getAssessmentAttemptId(),
                 path.getGoal(), path.getTargetLevel(),
                 path.getCurrentLevel(), path.getMinutesPerDay(), path.getStatus(), path.getVersion(), path.getCreatedAt(),
                 groups, readCoverageGaps(path.getCoverageGapsJson()),
                 totalLessons, totalMinutes, totalDays, completed,
-                warmUpCompleted, path.getGatePassedAt() != null);
+                warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()));
+    }
+
+    private LearningPathItemDto toFlashcardGroup(List<UserLearningPathItem> items, boolean completed) {
+        var first = items.stream().min(java.util.Comparator.comparing(UserLearningPathItem::getOrderIndex)).orElseThrow();
+        var source = toItem(first, completed);
+        int minutes = items.stream().mapToInt(UserLearningPathItem::getEstimatedMinutes).sum();
+        return new LearningPathItemDto(source.lessonId(), "Ôn tập Kanji & Từ vựng", source.textbookId(),
+                source.unitId(), source.level(), "WARM_UP_FLASHCARDS",
+                "Một bộ thẻ tổng hợp kiến thức còn yếu. Lật thẻ và đánh dấu đã nhớ để hoàn thành ôn tập.",
+                source.matchedTagCodes(), source.knowledgePointCode(), source.knowledgePointName(),
+                null, null, null, source.vocabularyEntryId(), null, null, null,
+                source.dayNumber(), source.orderIndex(), minutes, completed);
     }
 
     private LearningPathItemDto toItem(UserLearningPathItem item, boolean completed) {
@@ -139,6 +172,73 @@ public class LearningMapper {
             return OBJECT_MAPPER.readValue(json, GAP_LIST);
         } catch (Exception exception) {
             throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read coverage gaps snapshot.");
+        }
+    }
+
+    /** [JLAS-W0108] Parse kế hoạch narrative Gemini; {@code null} nếu chưa sinh/JSON hỏng (UI fallback). */
+    private com.fasterxml.jackson.databind.JsonNode readAiPlan(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return OBJECT_MAPPER.readTree(json);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    /** [JLAS-W0108] Serialize snapshot câu hỏi đã phát (không chứa đáp án) vào session đề thi. */
+    public String writeQuizQuestions(List<LessonQuizResponse.LessonQuizQuestion> questions) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(questions);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to serialize quiz questions.");
+        }
+    }
+
+    /** [JLAS-W0108] Đọc lại snapshot câu hỏi đã phát. */
+    public List<LessonQuizResponse.LessonQuizQuestion> readQuizQuestions(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            return OBJECT_MAPPER.readValue(json, QUIZ_QUESTION_LIST);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read quiz questions snapshot.");
+        }
+    }
+
+    /** [JLAS-W0108] Serialize đáp án (questionId -> correctOption/explanation) vào snapshot đề thi. */
+    public String writeQuizAnswerKey(Map<Long, QuizAnswerKey> answerKey) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(answerKey);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to serialize quiz answer key.");
+        }
+    }
+
+    /** [JLAS-W0108] Đọc lại đáp án snapshot. */
+    public Map<Long, QuizAnswerKey> readQuizAnswerKey(String json) {
+        if (json == null || json.isBlank()) return Map.of();
+        try {
+            return OBJECT_MAPPER.readValue(json, QUIZ_ANSWER_KEY);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read quiz answer key snapshot.");
+        }
+    }
+
+    /** [JLAS-W0108] Serialize kết quả đã chấm để trả lại nguyên vẹn khi nộp lại (idempotent). */
+    public String writeQuizResult(LessonQuizResult result) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(result);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to serialize quiz result.");
+        }
+    }
+
+    /** [JLAS-W0108] Đọc lại kết quả đã chấm. */
+    public LessonQuizResult readQuizResult(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return OBJECT_MAPPER.readValue(json, LessonQuizResult.class);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read quiz result snapshot.");
         }
     }
 }

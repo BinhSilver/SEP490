@@ -50,6 +50,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class LearningReplanService {
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.service.WarmUpFlashcardService warmUpFlashcards;
 
     public static final String MODE_REMEDIATE = "REMEDIATE";
     public static final String MODE_ACCELERATE = "ACCELERATE";
@@ -329,7 +331,8 @@ public class LearningReplanService {
         UserLearningPath active = paths.findByUserIdAndStatus(userId, STATUS_ACTIVE)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy lộ trình đang hoạt động."));
         return mapper.toResponse(active, items.findWithLessonByLearningPathId(active.getId()),
-                progress.findCompletedLessonIds(userId));
+                progress.findCompletedLessonIds(userId),
+                warmUpFlashcards != null && warmUpFlashcards.isCompleted(active));
     }
 
     private static int budget(UserLearningPath active) {

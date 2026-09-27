@@ -97,6 +97,20 @@ class WarmUpFlashcardServiceTest {
     }
 
     @Test
+    void duplicateVocabularyAcrossLessonsProducesOneCard() {
+        var fixture = seed();
+        var duplicate = vocabulary("学校", "がっこう", "trường học");
+        em.persist(duplicate);
+        var sourceLesson = em.createQuery("select l from Lesson l", Lesson.class).getResultList().get(0);
+        em.persist(item(em.find(UserLearningPath.class, fixture.path.getId()), sourceLesson,
+                "WEAK_VOCAB_ITEM", duplicate, 4));
+        em.flush();
+        stubCreate(500L);
+        service.ensureSet(fixture.user.getId());
+        assertEquals(2, capturedRequest(fixture.user.getId()).getCards().size());
+    }
+
+    @Test
     void ensureSetReturnsNullWhenNoWeakItems() {
         var fixture = seedEmptyPath();
 
@@ -110,6 +124,39 @@ class WarmUpFlashcardServiceTest {
         dto.setId(setId);
         Mockito.when(flashcardService.create(Mockito.any(SetRequest.class), Mockito.anyLong()))
                 .thenReturn(dto);
+    }
+
+    @Test
+    void progressIsSavedOnlyForCardsInTheActivePathsSet() {
+        var fixture = seed();
+        stubCreate(500L);
+        service.ensureSet(fixture.user.getId());
+        var card = com.jlas.flashcard.dto.FlashcardDtos.CardDto.builder().id(81L).build();
+        var set = new SetDetailDto();
+        set.setCards(java.util.List.of(card));
+        Mockito.when(flashcardService.set(500L, fixture.user.getId())).thenReturn(set);
+        service.remember(fixture.user.getId(), 500L, 81L, "REMEMBERED");
+        Mockito.verify(flashcardService).updateProgress(Mockito.eq(81L),
+                Mockito.argThat(request -> "REMEMBERED".equals(request.getMemoryStatus())),
+                Mockito.eq(fixture.user.getId()));
+        org.junit.jupiter.api.Assertions.assertThrows(com.jlas.common.exception.ApiException.class,
+                () -> service.remember(fixture.user.getId(), 501L, 81L, "REMEMBERED"));
+        org.junit.jupiter.api.Assertions.assertThrows(com.jlas.common.exception.ApiException.class,
+                () -> service.remember(fixture.user.getId(), 500L, 82L, "REMEMBERED"));
+    }
+
+    @Test
+    void completionRequiresAllPersistedCardsRememberedAndANonemptySet() {
+        var fixture = seed();
+        stubCreate(500L);
+        service.ensureSet(fixture.user.getId());
+        var path = em.find(UserLearningPath.class, fixture.path.getId());
+        for (int[] counts : new int[][] {{0, 0}, {2, 1}, {2, 2}}) {
+            Mockito.when(flashcardService.summary(500L, fixture.user.getId())).thenReturn(
+                    com.jlas.flashcard.dto.FlashcardDtos.StudySummaryDto.builder()
+                            .total(counts[0]).remembered(counts[1]).build());
+            assertEquals(counts[0] > 0 && counts[0] == counts[1], service.isCompleted(path));
+        }
     }
 
     private SetRequest capturedRequest(Long userId) {

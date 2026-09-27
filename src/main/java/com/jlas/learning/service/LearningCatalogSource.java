@@ -41,4 +41,14 @@ public interface LearningCatalogSource {
     default Optional<LearningResourceCandidate> findVocabularyItemByExpression(String expression) {
         return Optional.empty();
     }
+
+    /**
+     * [JLAS-W0108] Lát D (§12.2) — phân rã các bài học GOAL ngữ pháp thành từng mẫu ngữ pháp
+     * ("mục kiến thức") thay vì cả bài. Trả về một candidate cho mỗi grammar point (title = pattern,
+     * {@code grammarPointId} set, {@code lessonId} vẫn là bài gốc). Mặc định {@link List#of()} giữ
+     * caller không có catalog (unit test, demo adapter) hoạt động; production JPA source override.
+     */
+    default List<LearningResourceCandidate> findGrammarPointsByLessons(List<Long> lessonIds) {
+        return List.of();
+    }
 }

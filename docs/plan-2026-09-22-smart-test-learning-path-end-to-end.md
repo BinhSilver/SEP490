@@ -1,7 +1,11 @@
 # Kế hoạch công việc 2026-09-22 — Hoàn thiện luồng Smart Test → Lộ trình học → Sách số hóa
 
+> **Đầu mối mới ngày 27/09/2026:** xem [Plan nghiệp vụ JLPT N5–N1](superpowers/plans/2026-09-27-jlpt-n5-n1-business-master-plan.md) để tiếp tục. Bản mới đối chiếu working tree, bổ sung hướng A, quiz từng hoạt động warm-up/bài target, chặng N5–N1, readiness dữ liệu và thứ tự P0–P8. Tài liệu này giữ lịch sử; trạng thái code/test cũ không phải nghiệm thu cho policy mới. Quy tắc đề xuất chưa chốt được ghi riêng trong bản mới.
+
 > Nhánh làm việc: `feat/JLAS-W0090-smart-test-fix`. Người thực hiện: TNguyen47.
 > Mục đích: chốt luồng end-to-end trước khi báo cáo mentor, đủ để review + PR + Jira theo quy trình team.
+
+> **Cách đọc bản cập nhật:** §12 là quyết định nghiệp vụ mới nhất, được người dùng đồng ý ngày 26/09/2026; ưu tiên §12 khi khác với thiết kế cũ ở §0–11 hoặc tài liệu triển khai trước đó. Phạm vi sprint giữ theo §11.5. Các trạng thái hoàn thành trong phần lịch sử không thay thế việc nghiệm thu theo rule mới.
 
 ## 0. Tóm tắt 1 dòng cho mentor
 
@@ -242,3 +246,209 @@ Luồng gộp tự nhiên: việc đã làm session trước (resolve KANJI/VOCA
 ### 10.4 Ghi chú (để lần sau không lặp)
 
 - Lỗi (3) "Kiểm tra chưa có" **không phải chưa làm** — W0113 đã cài đủ backend + frontend (`lesson-quiz.js`, `LearningQuizPageController`, `get/submitGateQuiz`). Gate quiz chỉ hiện sau `warmUpCompleted === true` (`learning-path.js:127`), và quiz lấy câu theo knowledge tag chứ không theo đúng item sai → "có nhưng không khớp ý". Lát C sửa đúng chỗ này.
+
+## 11. (26/09) Đối chiếu business spec "full learning journey" — gap chiến lược
+
+> Nguồn: `docs/superpowers/plans/2026-09-24-full-learning-journey-business-spec.md` (spec do mình soạn, hiện ở nhánh chưa commit). Spec nêu 5 nhóm vấn đề ở tầm toàn learning journey: quiz tương tác, script readiness, foundation vs warm-up, khác biệt theo goal, quiz→roadmap feedback. Đối chiếu để plan không bỏ sót gap chiến lược — **chưa phải việc làm hôm nay**, chỉ ghi lại hướng cho các sprint sau.
+
+### 11.1 Đối chiếu spec ↔ plan hiện tại
+
+| Vấn đề trong spec | §spec | Plan hiện tại | Kết luận |
+|---|---|---|---|
+| Warm-up = kiến thức đã học nhưng yếu, ôn trước bài mới | §17 | Lát A/B (flashcard + content-item) | ✅ Đã phủ |
+| Quiz result quay lại điều chỉnh lộ trình | §20, §22-R7 | W0122 replan (proposal + confirm) | ✅ Đã phủ ở mức lộ trình |
+| Quiz không chỉ MCQ, mà theo skill | §3–9 | W0113 đang MCQ thuần | ❌ **Gap 1 — Interactive Quiz System** |
+| Foundation ≠ Warm-up (prerequisite ≠ weakness) | §17 | Plan chỉ có Warm-up | ❌ **Gap 2 — Foundation stage** |
+| Người mới chưa biết Kana → Script Readiness | §12 | Chưa có | ❌ **Gap 2 — Script Readiness** |
+| Foundation khác theo goal (Travel/Daily vs JLPT/BRSE) | §13–16 | Lát D goal personalization (dang dở) | ❌ **Gap 3 — goal-based Foundation** |
+| Roadmap có bước 0 (Readiness/Foundation) trước Warm-up | §18, §21 | Roadmap hiện: Warm-up → Main → gate | ⚠️ Thiếu bước 0 |
+
+### 11.2 Ba gap chiến lược (chưa có story trên board — cần triage Jira)
+
+**Gap 1 — Interactive Quiz System (quiz type theo skill).** Hiện `assessment_question` + W0113 chỉ là MCQ. Spec §3–9 đề xuất `Skill × Context × Interaction Type`: Vocabulary V1–V5, Kanji K1–K4, Grammar G1–G4, Reading (đọc đoạn/T-F/tìm ý), Listening L1–L5, Speaking S1–S2, Situation. Điều này cần mở rộng **model** quiz (thêm `interaction_type`, `context`, `media`) chứ không chỉ thêm câu hỏi. **MVP (spec §23):** MCQ, Matching, Sentence Ordering, Listening→Choose, Listen&Repeat, Situation→Response; Dictation/Image/Conversation/Adaptive để sau.
+
+**Gap 2 — Script Readiness + Foundation (người mới hoàn toàn).** Spec §12: 3 mức NONE / BASIC_RECOGNITION / KANA_READY. §14–16: 3 con đường Foundation — Quick Start (Travel/Daily), Kana Lite (Hiragana+Katakana nhẹ), Full Foundation (JLPT/BRSE: Hiragana→Katakana→Dakuten/Handakuten→拗音→長音→促音→đọc). Cần: readiness check trước khi sinh roadmap, và Foundation stage chèn trước Warm-up khi prerequisite thiếu.
+
+**Gap 3 — Goal-based Foundation depth.** Spec §13 + memory `learning-path-multi-goal-design` ("non-JLPT path = feature riêng"): Travel/Daily **không ép Full Kana** (Quick Start + Kana Lite), JLPT/BRSE **bắt buộc Full Foundation**. Đây là mở rộng của Lát D nhưng ở tầng Foundation, không chỉ tầng tài nguyên.
+
+### 11.3 Điểm mấu chốt (để không lặp lỗi)
+
+- Foundation = "chưa đủ điều kiện học" (prerequisite); Warm-up = "đủ điều kiện nhưng yếu" (weakness) — §17, đừng nhầm hai khái niệm.
+- Không sinh roadmap chỉ từ Goal + Target Level (§22-R1): cần thêm Current Level, Script Readiness, Assessment Result, Learning Time, Context.
+- Quiz type phụ thuộc loại kiến thức + mục tiêu (§22-R4); Travel/Daily ưu tiên situational practice (§22-R5); JLPT gần dạng đề thi (§22-R6).
+
+### 11.4 Hướng triển khai (theo thứ tự, không phải hôm nay)
+
+1. Hoàn tất Lát A/B/C/D + W0113/W0122/W0127/W0132 (plan §8.2/§10.3) — đây là nền để gap 1–3 đứng lên.
+2. **Gap 1** — nâng cấp quiz model + sinh quiz theo skill, sau khi W0113 chạy ổn; chốt schema `interaction_type` với team.
+3. **Gap 2 + 3** — mở rộng "non-JLPT path = feature riêng"; thêm readiness check + Foundation stage; chốt scope Foundation theo goal với mentor trước khi sinh story.
+
+### 11.5 (26/09) Chốt scope — sprint này vs sprint sau
+
+> Quyết định đã chốt với user: các gap chiến lược **và** phần state machine còn lại đều để sprint sau, không phải việc hoàn thiện luồng hiện tại. **Chi tiết rule từng việc + thứ tự nghiệm thu xem §12 (duyệt 26/09); §12.11 là thứ tự thực hiện chuẩn.**
+
+**Sprint này — hoàn thiện luồng hiện tại (4 việc):**
+1. **Lát D** — goal personalization: chọn tài nguyên ở mức **kiến thức/hoạt động học** (không lấy nguyên bài), trình bày thành **buổi học có tên + mục tiêu + thời lượng**, giữ kiến thức chưa đánh giá, chỉ rút gọn phần đã vững có bằng chứng (§12.1–12.2).
+2. **Data content-side R/L** — nạp `content_item.topic_tag_id` + `resource_mapping`, kèm báo cáo khớp/chưa khớp/mơ hồ + người duyệt (§12.3/§12.6).
+3. **W0127** — Daily Goal + Credit Points + Streak, đối chiếu rule module gamification chung trước khi nối sự kiện (§12.8).
+4. **W0132** — Learning Path E2E (§8.2; bổ sung tình huống thiếu bằng chứng/thiếu học liệu/nộp lặp/hết lượt theo §12.11.4).
+
+**Sprint sau (5 việc, chưa có story):**
+5. **Gap 1** — Interactive Quiz System (§11.2, §12.9).
+6. **Gap 2** — Script Readiness + Foundation stage (§11.2, §12.9).
+7. **Gap 3** — goal-based Foundation depth (§11.2, §12.9).
+8. **Lát 4** — Travel/Daily Life path (§12.9).
+9. **State machine còn lại** — Progress Quiz mỗi 20% + mastery projection + Final Mock + Certificate (§12.9).
+
+## 12. (26/09) Quyết định nghiệp vụ sau khi duyệt định hướng toàn hành trình
+
+**Nguồn xác nhận:** người dùng đồng ý toàn bộ hướng đề xuất trong phiên trao đổi và yêu cầu cập nhật vào plan. Mục này ghi lại các hướng đã được duyệt; những câu hỏi chưa có giá trị cụ thể được liệt kê riêng ở §12.10, không tự coi là đã chốt con số hay thuật toán.
+
+**Phạm vi:** cập nhật kế hoạch, chưa phải xác nhận code đã đáp ứng. Không mở rộng sprint hiện tại vượt bốn việc ở §11.5; các rule liên quan được dùng để nghiệm thu hoặc ghi nhận gap, không mặc nhiên kéo toàn bộ state machine/quiz mới vào sprint này.
+
+### 12.1 Bằng chứng kiến thức: chưa đủ bằng chứng / cần ôn / đã vững
+
+- Phân biệt tối thiểu ba trạng thái nghiệp vụ: **chưa đủ bằng chứng**, **cần ôn**, **đã vững**. Đây là trạng thái nghiệp vụ, chưa ấn định tên enum/schema.
+- Không có câu sai không đồng nghĩa đã vững; không được bỏ kiến thức chỉ vì chưa từng được đánh giá.
+- **MVP: giữ kiến thức chưa đủ bằng chứng trong lộ trình.** Kiểm tra nhanh để được bỏ qua là khả năng bổ sung sau, không thuộc MVP hiện tại.
+- Chỉ loại/rút ngắn nội dung dựa trên bằng chứng đã vững. Rule xác định điểm yếu và rule xác nhận thành thạo được định nghĩa riêng.
+- Giữ rule điểm yếu đã chốt: Kanji/từ vựng theo item; ngữ pháp theo mẫu; ngữ pháp và đọc/nghe dùng cửa sổ đánh giá hợp lệ theo spec (sai 4–5/5); bỏ trống tính sai, lỗi kỹ thuật loại khỏi mẫu, thiếu mẫu ghi PARTIAL/MISSING.
+- Ví dụ: chưa kiểm tra mẫu A → vẫn giữ A; trả lời sai từ B → đưa B vào ôn; chỉ bỏ phần C khi có bằng chứng thành thạo theo policy đã xác nhận.
+- Cần đặc tả tiếp ngưỡng thành thạo, lượng bằng chứng, cách kết hợp kết quả cũ/mới và thời hạn hiệu lực (§12.10).
+
+### 12.2 Đơn vị chọn nội dung và cách trình bày lộ trình — đầu vào Lát D
+
+- Chọn tài nguyên ở mức **mục kiến thức hoặc hoạt động học**; không mặc định lấy nguyên bài giáo trình cho mọi người.
+- Trình bày thành **buổi học có tên, mục tiêu và thời lượng**. Giáo trình là nguồn nội dung và căn cứ thứ tự kiến thức tiên quyết.
+- Một bài có phần đã vững và phần chưa vững: bỏ/rút ngắn phần có bằng chứng đã vững, giữ phần còn thiếu; không bỏ toàn bài chỉ vì một phần đã đạt.
+- Phối hợp tài nguyên phù hợp với mục tiêu, sắp theo prerequisite, phân bổ theo thời gian học mỗi ngày.
+- Ví dụ cách hiển thị: “Hỏi đường: ôn từ vựng, học mẫu chỉ vị trí, luyện nghe hội thoại”; số lượng tài nguyên phải theo dữ liệu và thời lượng thực tế, không cố định theo ví dụ.
+- Nghiệm thu Lát D: hai hồ sơ có bằng chứng khác nhau có thể nhận nội dung khác nhau; kiến thức chưa đánh giá vẫn được giữ; tên mục thể hiện nội dung; không loại phần chưa vững khi rút gọn bài.
+
+### 12.3 Warm-up phải xử lý đúng điểm yếu
+
+- Kanji/từ vựng ôn đúng item sai bằng bộ flashcard tương ứng, tái sử dụng module flashcard hiện có.
+- Ngữ pháp phải có hoạt động luyện trực tiếp mẫu yếu; chỉ cùng cấp độ là chưa đủ.
+- Đọc/nghe khớp kỹ năng, cấp độ và mục tiêu luyện; khớp chủ đề khi mục tiêu học yêu cầu chủ đề.
+- **5 bài đọc + 5 bài nghe áp dụng cho nhánh ôn có điểm yếu tương ứng**, không bắt mọi người làm cả hai kỹ năng khi không có nhu cầu tương ứng. Khi đủ học liệu, mỗi nhánh tương ứng có 5 bài; thiếu học liệu xử lý theo §12.6.
+- Số bài đã luyện không tự chứng minh điểm yếu đã được khắc phục. Quiz sau ôn kiểm tra lại kiến thức cần cải thiện bằng câu khác câu đã dùng để đánh giá/luyện.
+- Ví dụ: chỉ yếu nghe → không tự thêm 5 bài đọc chỉ để đủ bộ; yếu mẫu điều kiện → phải luyện mẫu đó, không thay bằng bài cùng cấp nhưng không kiểm tra mẫu đó.
+- Mục này điều chỉnh cách hiểu quy tắc “5 đọc + 5 nghe” ở §10.1/§10.3.
+
+### 12.4 Tách thực hiện hoạt động, đạt kiểm tra và đủ điều kiện đi tiếp
+
+- **Đã thực hiện hoạt động:** hoàn tất yêu cầu học/xem/luyện của hoạt động.
+- **Đạt kiểm tra:** đạt tiêu chí đánh giá kiến thức tương ứng.
+- **Đủ điều kiện đi tiếp:** đáp ứng các yêu cầu bắt buộc của giai đoạn.
+- Không tự chuyển “đã xem hết nội dung/lật hết thẻ” thành “đã vững”.
+- Người không có điểm yếu **và có đủ bằng chứng đánh giá** được bỏ warm-up. Người thiếu bằng chứng không được tự động coi là đủ năng lực; giữ kiến thức chưa đánh giá theo §12.1.
+- Nghiệm thu: việc mở/xem học liệu không tự tạo bằng chứng thành thạo; chuyển giai đoạn phải theo rule gate được xác định, không chỉ theo trạng thái giao diện.
+- Điều kiện hoàn thành flashcard, yêu cầu quiz bắt buộc và ngưỡng gate theo tổng điểm/từng kỹ năng còn cần đặc tả (§12.10); không tự thay ngưỡng hiện có bằng một con số mới.
+
+### 12.5 Vai trò quiz và hạn mức lượt
+
+- Phân biệt **quiz luyện tập** với **đánh giá để chuyển giai đoạn/xác nhận năng lực**. Kết quả luyện có giá trị phản hồi nhưng không mặc định có cùng trọng lượng với đánh giá bằng câu chưa gặp.
+- Không dùng điểm cao do làm lại cùng câu như bằng chứng duy nhất để bỏ kiến thức khỏi lộ trình.
+- Giữ hạn mức đã chốt: **5 lượt/ngày dùng chung cho gate quiz và quiz bài target**. Việc tách vai trò quiz không tự thay đổi phạm vi hạn mức này.
+- **Tính lượt khi bài nộp được xử lý hợp lệ**; retry cùng bài nộp không trừ thêm lượt. Lỗi kỹ thuật không được bị tính như một lượt nộp hợp lệ; cần cơ chế xử lý/khôi phục rõ.
+- Hết lượt kiểm tra vẫn được tiếp tục ôn bằng học liệu/flashcard; lượt kiểm tra tiếp theo theo ngày áp dụng.
+- Ví dụ: mất kết nối sau khi server đã ghi nhận bài → gửi lại trả kết quả đã có, không cộng thêm một lượt.
+- Cần chốt múi giờ đổi ngày, cách đổi đề/độ khó, trọng số kết quả và quy trình lỗi âm thanh/mất mạng trước khi hoàn thiện policy.
+
+### 12.6 Thiếu học liệu và chất lượng mapping — đầu việc dữ liệu đọc/nghe
+
+Thứ tự tìm tài nguyên:
+
+1. Khớp kiến thức/kỹ năng, cấp độ và mục tiêu luyện; chủ đề theo yêu cầu mục tiêu học.
+2. Nội dung tương đương về mục tiêu luyện trong phạm vi thay thế đã được quy định.
+3. Nguồn dự phòng từ ngân hàng câu hỏi theo quyết định §10, vẫn phải đáp ứng mục tiêu luyện và rule không lặp câu đánh giá.
+4. Nếu vẫn thiếu: báo thiếu học liệu và chưa xác nhận hoàn thành phần đó.
+
+- Không tự đổi cấp độ chỉ để đủ số bài. Khi chưa có rule cho phép nới điều kiện, không tự mở rộng điều kiện khớp.
+- Mapping mơ hồ phải có trạng thái chờ duyệt; kết quả khớp tự động không mặc định là dữ liệu đã xác nhận.
+- Đầu ra data task: mapping content-side, báo cáo khớp/chưa khớp/mơ hồ, nguồn dữ liệu và kết quả duyệt; xác định người phụ trách duyệt trước khi sử dụng mapping mơ hồ.
+- Nghiệm thu: có trường hợp đủ nội dung, dùng nguồn dự phòng và thiếu nội dung; không lấy sai cấp để bù số lượng; không đánh dấu đạt vì thiếu tài nguyên.
+
+### 12.7 Replan thích ứng nhưng bảo toàn bằng chứng
+
+- Giữ luồng **đề xuất → xem trước lý do/thay đổi → người học xác nhận → áp dụng**; xem trước không thay đổi path.
+- Giữ ngưỡng gợi ý hiện có: >90% đề xuất tăng tốc, <60% đề xuất ôn bổ sung. Đây là ngưỡng gợi ý, không tự chứng minh từng kiến thức đã vững.
+- Giữ thời gian học mỗi ngày làm giới hạn mặc định. Khi thêm phần ôn, điều chỉnh thời gian dự kiến hoàn thành thay vì tự tăng khối lượng hằng ngày.
+- Bỏ/rút ngắn nội dung chỉ dựa trên bằng chứng đã vững; tổng điểm một quiz không đủ để tùy ý bỏ các kiến thức chưa được đánh giá.
+- Bảo toàn phần đã hoàn thành, lịch sử attempt, CP và streak; áp dụng lặp không tạo phiên bản hay thưởng trùng.
+- Phân biệt thay đổi lịch học với làm lại đánh giá đầu vào. Rule khóa Survey/Smart Test khi path ACTIVE không được mặc định diễn giải thành khóa mọi điều chỉnh thời gian học; thay đổi lịch nếu được hỗ trợ phải đi qua luồng riêng có xác nhận.
+- Cần đặc tả tiếp mức thay đổi tối đa từ một kết quả, cách đề xuất lại sau khi bị từ chối và thao tác đổi thời gian học.
+
+### 12.8 Daily Goal, CP và streak — W0127
+
+- Streak gắn với hoạt động học đủ điều kiện, không chỉ đăng nhập hoặc mở trang.
+- CP áp dụng rule chung của module gamification hiện có; không xây một bộ mức thưởng mâu thuẫn trong Learning Path.
+- Chống cộng lặp theo sự kiện và nội dung theo policy thưởng. Retry hoặc replan không tự cấp lại thưởng cho cùng hoạt động đã ghi nhận.
+- Phân biệt tiến độ hoạt động với bằng chứng thành thạo: có hoạt động được ghi nhận không đồng nghĩa được bỏ nội dung trong roadmap.
+- Trước khi nối W0127, đối chiếu với người phụ trách module: đơn vị Daily Goal, sự kiện đủ điều kiện, mức thưởng, thưởng khi luyện lại, điều kiện streak và múi giờ thống nhất.
+- Nghiệm thu: hoạt động đủ điều kiện cập nhật đúng mục tiêu/CP/streak; sự kiện lặp không cộng lại; replan bảo toàn số liệu; kiểm tra ranh giới ngày theo múi giờ được chọn.
+
+### 12.9 Sprint sau: thứ tự thiết kế và ranh giới
+
+- **Script Readiness/Foundation:** chốt bộ đánh giá Kana, ngưỡng phân loại, điều kiện bỏ qua và hoàn thành. Giữ Foundation là bổ sung prerequisite, Warm-up là ôn kiến thức yếu.
+- **Foundation theo goal:** giữ Quick Start/Kana Lite cho Travel/Daily; Full Foundation theo yêu cầu JLPT/BRSE, đồng thời cần xác định cách công nhận nền tảng đã có.
+- **Travel/Daily Life:** chốt danh sách tình huống MVP và đầu ra thực hành; tự xác định mức/đánh giá tùy chọn, phản hồi tiến bộ, không cơ chế đỗ/trượt hay chứng nhận JLPT.
+- **Quiz tương tác:** chốt dạng bài MVP, cách chấm mỗi dạng và hợp đồng tích hợp module của thành viên khác trước khi mở rộng schema; không mặc nhiên triển khai mọi dạng cùng lúc.
+- **Checkpoint mỗi 20%:** phải chốt mẫu số tiến độ và trọng số hoạt động trước khi triển khai. Không mặc định một flashcard và một bài đọc dài có cùng trọng số; quy định cách giữ mốc khi replan.
+- **Final Mock/Certificate:** cần chốt cấu trúc bài, ngưỡng đạt, thi lại và ý nghĩa chứng nhận của hệ thống trước khi viết acceptance criteria cuối cùng.
+
+### 12.10 Chi tiết còn cần đặc tả — không tự suy diễn từ việc duyệt hướng
+
+| Nhóm | Chi tiết chưa có giá trị chốt | Thời điểm cần làm rõ |
+|---|---|---|
+| Thành thạo | Ngưỡng, số bằng chứng, kết hợp cũ/mới, hết hạn; nguồn bằng chứng được công nhận | Trước khi dùng để loại nội dung trong Lát D; thiếu policy thì giữ nội dung |
+| Hoàn thành/gate | Hoàn thành flashcard, quiz bắt buộc, tổng điểm hay từng kỹ năng | Trước thay đổi hành vi hoàn thành/gate |
+| Quiz | Đổi đề, độ khó, chọn kết quả, múi giờ, quy trình phục hồi lỗi | Trước thay đổi policy quiz/counter |
+| Mapping | Phạm vi tương đương được phép và người duyệt | Trước áp dụng mapping mơ hồ hoặc nới điều kiện |
+| Replan | Mức thay đổi, đề xuất lại, UX đổi thời gian học | Trước mở rộng replan |
+| Daily Goal/CP/Streak | Đơn vị đo, sự kiện, mức thưởng, luyện lại, điều kiện ngày hợp lệ | Trước tích hợp W0127; đối chiếu module chung |
+| Sprint sau | Readiness, Foundation, quiz tương tác, trọng số checkpoint, Final Mock/Certificate | Khi thiết kế sprint sau |
+
+Việc người dùng duyệt hướng ở §12 không biến các câu hỏi trong bảng này thành thông số đã được lựa chọn. Ưu tiên lấy rule đã xác nhận từ module/tài liệu hiện có; nếu không có thì chốt trước phần triển khai phụ thuộc.
+
+### 12.11 Thứ tự thực hiện và truy vết nghiệm thu
+
+1. **Lát D:** áp dụng §12.1–12.2; giữ kiến thức chưa đánh giá, chỉ rút gọn phần đã vững có bằng chứng.
+2. **Data đọc/nghe:** áp dụng §12.3/§12.6; mapping đúng mục tiêu, có nguồn dự phòng và thông báo thiếu.
+3. **W0127:** áp dụng §12.8; thống nhất rule với module chung rồi nối sự kiện.
+4. **W0132:** kiểm chứng luồng Smart Test → điểm yếu → roadmap → học/quiz → CP/streak → replan; thêm tình huống thiếu bằng chứng, thiếu học liệu, nộp lặp, hết lượt và bảo toàn dữ liệu. Gap ngoài sprint được ghi lại, không tự kéo vào scope.
+5. **Sprint sau:** đặc tả §12.9 theo dependency: trạng thái kiến thức/tiến độ → điều kiện/gate/quiz → Foundation/đa mục tiêu → checkpoint/Final Mock/Certificate.
+
+Mỗi policy cụ thể cần ghi rõ: **rule, ví dụ bình thường, trường hợp ngoại lệ, acceptance criteria và nguồn quyết định**. Không gắn trạng thái “đã triển khai” chỉ vì đã cập nhật plan.
+
+## 13. (27/09) Sửa warm-up flashcard theo phản hồi thực tế
+
+Quyết định mới thay phần “hai bộ Kanji/từ vựng” ở §10: **một bộ flashcard gộp Kanji + từ vựng cho warm-up của lộ trình**, hiển thị một hoạt động duy nhất thay vì nhiều mục từ đều mở cùng bộ.
+
+- Lật thẻ rồi chọn “Đã nhớ”/“Chưa thuộc” phải lưu tiến độ từng thẻ; tải lại tiếp tục từ thẻ chưa nhớ.
+- Chỉ tự hoàn thành **hoạt động ôn flashcard** khi tất cả thẻ đã được đánh dấu nhớ và lưu thành công. Thẻ chưa thuộc tiếp tục vòng ôn; lỗi lưu giữ nguyên thẻ và cho thử lại.
+- Hoàn thành flashcard không hoàn thành bài giáo trình nguồn, không xác nhận mastery của Learning Path và không tự vượt gate quiz.
+- Nút “Tiếp tục học” và mục trong roadmap phải mở cùng đúng tài nguyên.
+- Tái sử dụng progress API/service của module flashcard; không tạo schema tiến độ song song. Get-or-create khóa path để tránh sinh bộ trùng khi mở đồng thời; bộ mới khử trùng theo expression + reading.
+- Lộ trình cũ được gộp ở API read model, giữ nguyên item nguồn và lịch sử dữ liệu; không yêu cầu tạo lại path. Bộ đã tồn tại được giữ nguyên để bảo toàn tiến độ.
+- Kiểm thử: grouping/tổng số hoạt động, tách completion khỏi bài nguồn và gate, lưu trạng thái đúng user/set/card, chống tạo bộ lặp, resume và lỗi mạng; xác nhận giao diện trên bản ứng dụng chạy lại sau build vẫn là bước kiểm chứng thực tế.
+
+## 14. (27/09) Lượng ôn đọc/nghe theo điểm đầu vào — quyết định mới nhất
+
+Theo trao đổi mới: chỉ tách ngữ pháp theo mẫu; Kanji/từ vựng gom các mục sai thành một bộ flashcard. Đọc/nghe chọn các passage/audio nguyên vẹn từ ngân hàng, đúng cấp và năng lực cần luyện; bài luyện khác bài kiểm tra.
+
+Người dùng chốt >50–70% đúng ôn 4 bài, >70% đúng bỏ ôn; cho phép giảm tải nhóm thấp. Chọn phân bố hài hòa như sau, tính riêng từng kỹ năng:
+
+| Tỷ lệ đúng | Bài ôn | Số ngày tối thiểu nếu chỉ ôn một kỹ năng |
+|---|---:|---:|
+| >70% | 0 | 0 |
+| >50% đến 70% | 4 | 2 |
+| >40% đến 50% | 6 | 3 |
+| 0–40% | 8 | 4 |
+
+- Tối đa 2 bài đọc/nghe **tổng cộng** mỗi ngày, giảm thêm nếu vượt ngân sách phút; không dồn 4 bài/ngày khi yếu cả hai kỹ năng.
+- Điểm đúng 40/50/70% lần lượt nhận 8/6/4 bài. Thiếu bằng chứng không quy thành 0%.
+- Không tự giao học lại toàn giáo trình chỉ vì điểm đọc hoặc nghe thấp; phần học lại diện rộng cần policy riêng đủ bằng chứng.
+- Bảng này thay số lượng cố định 5 đọc + 5 nghe ở §10/§12.3; các rule khác về nguồn phù hợp, thiếu học liệu và quyền truy cập giữ nguyên.
+- Ngưỡng giao bài đầu vào khác ngưỡng đạt đầu ra. Không áp bảng mastery ≥85% để bắt người >70% quay lại ôn đọc/nghe.
+- Chi tiết, ví dụ phối lịch và test biên: [hướng dẫn triển khai §8.1](superpowers/plans/2026-09-27-knowledge-based-learning-path-implementation.md#81-giao-bài-ôn-đọcnghe-từ-điểm-đầu-vào--cập-nhật-sau-cùng). Đây là cập nhật nghiệp vụ/tài liệu, chưa triển khai selector/scheduler theo ngưỡng mới.

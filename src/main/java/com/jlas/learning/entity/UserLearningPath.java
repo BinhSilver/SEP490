@@ -70,6 +70,11 @@ public class UserLearningPath {
     @Column(name = "warm_up_flashcard_set_id")
     private Long warmUpFlashcardSetId;
 
+    /** [JLAS-W0108] Kế hoạch lộ trình cá nhân hoá do Gemini sinh (JSON: overview + phases[]);
+     *  null = chưa sinh (Gemini lỗi/rate-limit), UI vẫn chạy bình thường không cần narrative. */
+    @Column(name = "ai_plan_json", columnDefinition = "TEXT")
+    private String aiPlanJson;
+
     /** ACTIVE/SUPERSEDED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

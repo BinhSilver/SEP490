@@ -2,11 +2,15 @@ package com.jlas.learning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.Tag;
@@ -40,6 +44,9 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * [JLAS-W0113 / W0116] QA cho lesson quiz và warm-up gate: quiz lấy đúng câu theo knowledge tag,
  * chấm theo answer key, ngưỡng 60%, đạt thì complete lesson / mở khóa GOAL_LEARNING.
+ *
+ * [JLAS-W0108] Hợp đồng đề thi bất biến (P1): mỗi lần phát đề là một {@code attemptId}; nộp theo snapshot
+ * đã phát (mẫu số = toàn bộ câu đã phát, từ chối câu ngoài đề / trùng id, nộp lại chỉ trả kết quả đã lưu).
  */
 @DataJpaTest(properties = {
         "spring.profiles.include=",
@@ -99,6 +106,7 @@ class LearningQuizAndGateTest {
 
         var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
 
+        assertNotNull(quiz.attemptId());
         assertEquals(fixture.warmLesson.getId(), quiz.lessonId());
         assertEquals(3, quiz.questions().size());
         for (var question : quiz.questions()) {
@@ -110,9 +118,10 @@ class LearningQuizAndGateTest {
     @Test
     void submitLessonQuizAllCorrectPassesAndCompletesLesson() {
         var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
 
         var result = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
-                new LessonQuizSubmitRequest(correctAnswers(fixture)));
+                new LessonQuizSubmitRequest(quiz.attemptId(), correctAnswers(fixture)));
 
         assertTrue(result.passed());
         assertEquals(3, result.correctAnswers());
@@ -129,14 +138,10 @@ class LearningQuizAndGateTest {
     @Test
     void submitLessonQuizWrongAnswersFail() {
         var fixture = seed();
-
-        var answers = fixture.questions.stream()
-                .map(question -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(question.getId(),
-                        question.getCorrectOption() == 1 ? 2 : 1))
-                .toList();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
 
         var result = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
-                new LessonQuizSubmitRequest(answers));
+                new LessonQuizSubmitRequest(quiz.attemptId(), wrongAnswers(fixture)));
 
         assertFalse(result.passed());
         assertEquals(0, result.correctAnswers());
@@ -146,6 +151,7 @@ class LearningQuizAndGateTest {
     @Test
     void submitLessonQuizSkippedCountsAsWrong() {
         var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
 
         var answers = List.of(
                 new LessonQuizSubmitRequest.LessonQuizAnswerRequest(fixture.questions.get(0).getId(),
@@ -154,7 +160,7 @@ class LearningQuizAndGateTest {
                 new LessonQuizSubmitRequest.LessonQuizAnswerRequest(fixture.questions.get(2).getId(), null));
 
         var result = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
-                new LessonQuizSubmitRequest(answers));
+                new LessonQuizSubmitRequest(quiz.attemptId(), answers));
 
         assertEquals(1, result.correctAnswers());
         assertEquals(33, result.scorePercent());
@@ -168,6 +174,7 @@ class LearningQuizAndGateTest {
 
         var quiz = service.getGateQuiz(fixture.user.getId());
 
+        assertNotNull(quiz.attemptId());
         assertEquals(3, quiz.questions().size());
         assertEquals("Kiểm tra tổng kết khởi động", quiz.lessonTitle());
     }
@@ -176,8 +183,10 @@ class LearningQuizAndGateTest {
     void submitGateQuizPassUnlocksGoalPhase() {
         var fixture = seed();
         assertFalse(service.current(fixture.user.getId()).gatePassed());
+        var quiz = service.getGateQuiz(fixture.user.getId());
 
-        var result = service.submitGateQuiz(fixture.user.getId(), new LessonQuizSubmitRequest(correctAnswers(fixture)));
+        var result = service.submitGateQuiz(fixture.user.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), correctAnswers(fixture)));
 
         assertTrue(result.passed());
         assertEquals(3, result.correctAnswers());
@@ -187,13 +196,10 @@ class LearningQuizAndGateTest {
     @Test
     void submitGateQuizFailKeepsGoalLocked() {
         var fixture = seed();
+        var quiz = service.getGateQuiz(fixture.user.getId());
 
-        var answers = fixture.questions.stream()
-                .map(question -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(question.getId(),
-                        question.getCorrectOption() == 1 ? 2 : 1))
-                .toList();
-
-        var result = service.submitGateQuiz(fixture.user.getId(), new LessonQuizSubmitRequest(answers));
+        var result = service.submitGateQuiz(fixture.user.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), wrongAnswers(fixture)));
 
         assertFalse(result.passed());
         assertFalse(service.current(fixture.user.getId()).gatePassed());
@@ -203,16 +209,15 @@ class LearningQuizAndGateTest {
     void submitGateQuizFailTwiceRequiresRelearn() {
         var fixture = seed();
 
-        var wrong = fixture.questions.stream()
-                .map(question -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(question.getId(),
-                        question.getCorrectOption() == 1 ? 2 : 1))
-                .toList();
-
-        var first = service.submitGateQuiz(fixture.user.getId(), new LessonQuizSubmitRequest(wrong));
+        var firstQuiz = service.getGateQuiz(fixture.user.getId());
+        var first = service.submitGateQuiz(fixture.user.getId(),
+                new LessonQuizSubmitRequest(firstQuiz.attemptId(), wrongAnswers(fixture)));
         assertFalse(first.passed());
         assertFalse(first.relearnRequired());
 
-        var second = service.submitGateQuiz(fixture.user.getId(), new LessonQuizSubmitRequest(wrong));
+        var secondQuiz = service.getGateQuiz(fixture.user.getId());
+        var second = service.submitGateQuiz(fixture.user.getId(),
+                new LessonQuizSubmitRequest(secondQuiz.attemptId(), wrongAnswers(fixture)));
         assertFalse(second.passed());
         assertTrue(second.relearnRequired());
     }
@@ -279,10 +284,114 @@ class LearningQuizAndGateTest {
                 .anyMatch(question -> question.questionId().equals(grammarQuestion.getId())));
     }
 
+    // === [JLAS-W0108] P1: hợp đồng đề thi bất biến ===
+
+    @Test
+    void submitLessonQuizOmittingQuestionsUsesFullIssuedDenominator() {
+        var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
+
+        // Chỉ trả lời đúng 1 câu, bỏ hẳn 2 câu còn lại: mẫu số phải là 3 (toàn bộ đề đã phát), không phải 1.
+        var answers = List.of(new LessonQuizSubmitRequest.LessonQuizAnswerRequest(
+                fixture.questions.get(0).getId(), fixture.questions.get(0).getCorrectOption()));
+
+        var result = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), answers));
+
+        assertEquals(3, result.totalQuestions());
+        assertEquals(1, result.correctAnswers());
+        assertEquals(33, result.scorePercent());
+        assertFalse(result.passed());
+    }
+
+    @Test
+    void submitLessonQuizDuplicateQuestionIdRejected() {
+        var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
+
+        var questionId = fixture.questions.get(0).getId();
+        var answers = List.of(
+                new LessonQuizSubmitRequest.LessonQuizAnswerRequest(questionId, 1),
+                new LessonQuizSubmitRequest.LessonQuizAnswerRequest(questionId, 2));
+
+        var exception = assertThrows(ApiException.class, () -> service.submitLessonQuiz(
+                fixture.user.getId(), fixture.warmLesson.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), answers)));
+
+        assertEquals(ErrorCode.VALIDATION_FAILED, exception.getErrorCode());
+    }
+
+    @Test
+    void submitLessonQuizOutOfExamQuestionRejected() {
+        var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
+
+        var answers = List.of(new LessonQuizSubmitRequest.LessonQuizAnswerRequest(999_999L, 1));
+
+        var exception = assertThrows(ApiException.class, () -> service.submitLessonQuiz(
+                fixture.user.getId(), fixture.warmLesson.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), answers)));
+
+        assertEquals(ErrorCode.VALIDATION_FAILED, exception.getErrorCode());
+    }
+
+    @Test
+    void submitLessonQuizDoubleSubmitReturnsSameResultAndConsumesSingleQuota() {
+        var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
+
+        var first = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), correctAnswers(fixture)));
+        assertTrue(first.passed());
+        assertEquals(100, first.scorePercent());
+
+        // Nộp lại cùng attemptId nhưng với đáp án sai: phải trả kết quả đã lưu, không chấm lại.
+        var second = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), wrongAnswers(fixture)));
+        assertTrue(second.passed());
+        assertEquals(100, second.scorePercent());
+
+        // Chỉ tốn đúng 1 lượt quiz.
+        assertEquals(1L, em.createQuery(
+                        "select count(a) from QuizAttempt a where a.user.id = :uid", Long.class)
+                .setParameter("uid", fixture.user.getId())
+                .getSingleResult());
+    }
+
+    @Test
+    void submitLessonQuizGradesAgainstIssueTimeSnapshot() {
+        var fixture = seed();
+        var quiz = service.getLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId());
+
+        // Chụp đáp án gốc trước khi đổi ngân hàng.
+        var original = correctAnswers(fixture);
+
+        // Đổi đáp án chuẩn trong ngân hàng SAU khi đã phát đề.
+        for (var question : fixture.questions) {
+            var managed = em.find(AssessmentQuestion.class, question.getId());
+            managed.setCorrectOption(managed.getCorrectOption() == 1 ? 2 : 1);
+        }
+        em.flush();
+
+        // Nộp theo đáp án gốc: vẫn phải đạt 100% vì chấm theo snapshot lúc phát, không theo ngân hàng hiện tại.
+        var result = service.submitLessonQuiz(fixture.user.getId(), fixture.warmLesson.getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), original));
+
+        assertTrue(result.passed());
+        assertEquals(100, result.scorePercent());
+    }
+
     private List<LessonQuizSubmitRequest.LessonQuizAnswerRequest> correctAnswers(Fixture fixture) {
         return fixture.questions.stream()
                 .map(question -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(question.getId(),
                         question.getCorrectOption()))
+                .toList();
+    }
+
+    private List<LessonQuizSubmitRequest.LessonQuizAnswerRequest> wrongAnswers(Fixture fixture) {
+        return fixture.questions.stream()
+                .map(question -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(question.getId(),
+                        question.getCorrectOption() == 1 ? 2 : 1))
                 .toList();
     }
 

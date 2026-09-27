@@ -48,7 +48,7 @@ public class JpaLearningCatalogSource implements LearningCatalogSource {
         return lessons.stream().map(lesson -> new LearningResourceCandidate(lesson.getId(), lesson.getTitle(),
                 lesson.getUnit().getTextbook().getId(), lesson.getUnit().getId(), tags.get(lesson.getId()),
                 lesson.getUnit().getTextbook().getJlptLevel(), lesson.getEstimatedMinutes(),
-                lesson.getUnit().getOrderIndex(), lesson.getOrderIndex(), null, null)).toList();
+                lesson.getUnit().getOrderIndex(), lesson.getOrderIndex(), null, null, lesson.getSkill())).toList();
     }
 
     @Override
@@ -102,12 +102,59 @@ public class JpaLearningCatalogSource implements LearningCatalogSource {
     }
 
     @Override
+    public List<LearningResourceCandidate> findGrammarPointsByLessons(List<Long> lessonIds) {
+        if (lessonIds == null || lessonIds.isEmpty()) return List.of();
+        return grammarPoints.findByLessonIds(lessonIds).stream()
+                .filter(point -> "PUBLISHED".equals(point.getLesson().getStatus()))
+                .filter(point -> "PUBLISHED".equals(point.getLesson().getUnit().getTextbook().getStatus()))
+                .map(point -> {
+                    var lesson = point.getLesson();
+                    var textbook = lesson.getUnit().getTextbook();
+                    var tags = lesson.getKnowledgeTag() == null
+                            ? Set.<String>of() : Set.of(lesson.getKnowledgeTag().getCode());
+                    return new LearningResourceCandidate(lesson.getId(), point.getPattern(),
+                            textbook.getId(), lesson.getUnit().getId(), tags,
+                            textbook.getJlptLevel(), GRAMMAR_POINT_MINUTES,
+                            lesson.getUnit().getOrderIndex(), lesson.getOrderIndex(), point.getId(), null);
+                })
+                .toList();
+    }
+
+    @Override
     public Optional<LearningResourceCandidate> findComprehensionLesson(String skill, String level) {
         if (skill == null || level == null) return Optional.empty();
-        var published = lessons.findPublishedBySkill(skill);
+        // [JLAS-W0108] Chỉ lấy bài có cấp JLPT — loại bỏ bài Kana/foundation (textbook jlpt_level NULL)
+        // vì đó không phải passage đọc hiểu/nghe hiểu.
+        // 1) Ưu tiên bài chuyên READING/LISTENING ĐÚNG cấp (N3/N2/N1 có bài nghe riêng).
+        var exactSkill = lessons.findPublishedByJlptLevelAndSkill(level, skill).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .toList();
+        if (!exactSkill.isEmpty()) {
+            return exactSkill.stream().findFirst().map(this::toComprehensionCandidate);
+        }
+        // 2) [JLAS-W0108] Không có bài chuyên kĩ năng đúng cấp -> lấy bài ĐÚNG cấp có chứa
+        //    content_item đúng loại (READING/LISTENING). Ở N5/N4 phần đọc/nghe nằm trong
+        //    content_item của bài tổng hợp GRAMMAR — đây là nguồn dữ liệu thật theo cấp độ,
+        //    không bịa bài học hay gắn nhầm dữ liệu vào sách.
+        var contentLessons = lessons.findPublishedByJlptLevelAndContentType(level, skill).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .toList();
+        if (!contentLessons.isEmpty()) {
+            return contentLessons.stream().findFirst().map(this::toComprehensionCandidate);
+        }
+        // 3) Không có content_item riêng -> lấy bài học tổng hợp ĐÚNG cấp (N5/N4: mỗi bài
+        //    GRAMMAR đều chứa sẵn phần đọc + nghe) thay vì lạc sang bài N3 không liên quan như trước.
+        var exactAny = lessons.findPublishedByTextbookJlptLevel(level).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .toList();
+        if (!exactAny.isEmpty()) {
+            return exactAny.stream().findFirst().map(this::toComprehensionCandidate);
+        }
+        // 4) Fallback cấp gần nhất theo skill (tie-break ưu tiên cấp dễ hơn).
+        var published = lessons.findPublishedBySkill(skill).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .toList();
         if (published.isEmpty()) return Optional.empty();
-        // [JLAS-W0108] Ưu tiên đúng cấp, rồi cấp gần nhất (tie-break ưu tiên cấp dễ hơn) để warm-up
-        // không còn báo "thiếu học liệu" chỉ vì cấp độ chính xác chưa có bài READING/LISTENING.
         return published.stream()
                 .min(Comparator
                         .comparingInt((Lesson lesson) -> levelDistance(lesson, level))

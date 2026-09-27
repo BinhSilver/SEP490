@@ -1,5 +1,6 @@
 package com.jlas.learning.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public record LearningPathResponse(Long id, Long userId, Long assessmentAttemptI
         String currentLevel, Integer minutesPerDay, String status, int version, LocalDateTime createdAt,
         List<LearningPhaseGroup> phases, List<CoverageGap> coverageGaps,
         int totalLessons, int totalMinutes, int totalDays, int completedLessons,
-        boolean warmUpCompleted, boolean gatePassed) {
+        boolean warmUpCompleted, boolean gatePassed, JsonNode aiPlan) {
     public LearningPathResponse {
         phases = List.copyOf(phases);
         coverageGaps = List.copyOf(coverageGaps);

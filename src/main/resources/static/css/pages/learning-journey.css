@@ -64,6 +64,18 @@
 .journey-ui #jlabBaseContent .lp-tabs button.is-active { background:var(--color-primary); color:var(--color-on-primary); }
 .journey-ui #jlabBaseContent .lp-side-card--tint { background:var(--color-success-bg); border-color:var(--color-journey-action); }
 .journey-ui #jlabBaseContent .lp-gate { background:var(--color-primary-fixed); border:1px solid var(--color-primary); border-radius:12px; }
+/* [JLAS-W0108] AI-generated personalized plan narrative (Gemini enhancement). */
+.journey-ui #jlabBaseContent .lp-ai-plan { display:grid; gap:16px; padding:20px; margin:0 0 20px; background:var(--color-surface-lowest); border:1px solid var(--color-outline-variant); border-radius:16px; }
+.journey-ui #jlabBaseContent .lp-ai-plan__head { display:flex; gap:14px; align-items:flex-start; }
+.journey-ui #jlabBaseContent .lp-ai-plan__head .material-symbols-outlined { color:var(--color-primary); font-size:24px; }
+.journey-ui #jlabBaseContent .lp-ai-plan__head h2 { margin:0 0 6px; font-family:var(--font-headline); color:var(--color-on-surface); }
+.journey-ui #jlabBaseContent .lp-ai-plan__head p { margin:0; color:var(--color-on-surface-variant); }
+.journey-ui #jlabBaseContent .lp-ai-plan__phases { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; }
+.journey-ui #jlabBaseContent .lp-ai-phase { padding:14px 16px; border:1px solid var(--color-outline-variant); border-radius:12px; background:var(--color-surface); }
+.journey-ui #jlabBaseContent .lp-ai-phase h4 { margin:0 0 10px; font-family:var(--font-headline); font-size:14px; color:var(--color-primary); }
+.journey-ui #jlabBaseContent .lp-ai-phase__line { display:flex; gap:8px; margin:6px 0; font-size:13px; line-height:1.5; }
+.journey-ui #jlabBaseContent .lp-ai-phase__line strong { flex:0 0 auto; color:var(--color-primary); font-weight:600; }
+.journey-ui #jlabBaseContent .lp-ai-phase__line span { color:var(--color-on-surface-variant); }
 
 /* Current textbook viewer is the actual destination of learning/lesson/{id}. */
 .journey-ui.page-lesson #jlabBaseContent { width:min(1240px,calc(100% - 48px)); margin-inline:auto; padding:28px 0 72px; }
@@ -89,6 +101,12 @@
 .journey-ui #jlabBaseContent .journey-outline-card button[aria-current] { background:var(--color-primary-fixed); border-left-color:var(--color-primary); color:var(--color-primary); font-weight:700; }
 .journey-ui #jlabBaseContent .journey-outline-card p { font-size:14px; line-height:1.7; color:var(--color-on-surface-variant); }
 .journey-ui #jlabBaseContent .journey-outline-card a { display:block; margin-top:16px; color:var(--color-primary); font-size:14px; }
+.journey-ui #jlabBaseContent .lp-lesson-complete { margin-top:24px; }
+.journey-ui #jlabBaseContent .lp-lesson-complete__inner { padding:28px; text-align:center; border-radius:14px; background:var(--color-surface-lowest); border:1px solid var(--color-outline-variant); box-shadow:none; }
+.journey-ui #jlabBaseContent .lp-lesson-complete__inner h2 { margin:0 0 8px; font-size:20px; color:var(--color-on-surface); }
+.journey-ui #jlabBaseContent .lp-lesson-complete__inner p { margin:0 0 20px; color:var(--color-on-surface-variant); font-size:14px; }
+.journey-ui #jlabBaseContent .lp-lesson-complete__actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.journey-ui #jlabBaseContent .lp-lesson-complete #lp-lesson-status { margin-top:14px; font-size:13px; color:var(--color-on-surface-variant); min-height:18px; }
 .journey-ui #jlabBaseContent :is(.gp-card,.flip-card__face,.wu-complete__inner) { color:var(--color-on-surface); background:var(--color-surface-lowest); border:1px solid var(--color-secondary-fixed-dim); box-shadow:none; border-radius:14px; }
 .journey-ui #jlabBaseContent .gp-card__head { padding:24px; }
 .journey-ui #jlabBaseContent :is(.gp-card__example,.gp-card__note) { color:var(--color-on-surface); background:var(--color-surface); border-color:var(--color-outline-variant); }

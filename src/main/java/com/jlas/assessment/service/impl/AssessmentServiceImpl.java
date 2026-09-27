@@ -504,7 +504,6 @@ public class AssessmentServiceImpl implements AssessmentService {
         String readiness = readiness(session.getTargetLevel(), overallAbilityPosition(skills), partial);
         List<String> recommendations = skills.stream()
                 .sorted(Comparator.comparingDouble(AssessmentServiceImpl::abilityPosition))
-                .limit(2)
                 .map(skill -> skillLabel(skill.skill()) + ": " + skill.recommendation())
                 .toList();
         return new ResultView(session.getEstimatedOverallLevel(), band, session.getOverallMasteryScore(),
@@ -683,14 +682,21 @@ public class AssessmentServiceImpl implements AssessmentService {
     private static String recommendation(String level, String band, List<BatchResultView> batches,
                                          boolean partial) {
         if (partial) return "Hoàn thành thêm một vòng để kết quả đủ tin cậy.";
-        if (band.endsWith("Thành thạo") && !"N1".equals(level)) {
-            return "Củng cố chắc " + level + " rồi luyện dần câu hỏi ở cấp kế tiếp.";
+        if (band.endsWith("Thành thạo")) {
+            return "N1".equals(level)
+                    ? "Duy trì luyện đề N1 và tăng độ chính xác trong ngữ cảnh khó."
+                    : "Đã vững " + level + " — có thể chuyển sang luyện câu hỏi cấp kế tiếp.";
+        }
+        if (band.endsWith("Nhập môn")) {
+            return "Mới làm quen " + level + " — hãy ôn lại kiến thức nền tảng trước khi tăng độ khó.";
+        }
+        if (band.endsWith("Căn bản")) {
+            return "Đang ở mức căn bản của " + level + " — luyện thêm để ổn định trước khi lên cấp.";
         }
         BatchResultView last = batches.isEmpty() ? null : batches.get(batches.size() - 1);
         if (last != null && last.correctAnswers() <= 2) {
             return "Ôn lại các điểm nền tảng của " + level + " trước khi tăng độ khó.";
         }
-        if ("N1".equals(level)) return "Duy trì luyện đề N1 và tăng độ chính xác trong ngữ cảnh khó.";
         return "Tiếp tục luyện ở " + level + " để ổn định trước khi thử cấp cao hơn.";
     }
 
@@ -769,11 +775,11 @@ public class AssessmentServiceImpl implements AssessmentService {
         return normalized;
     }
 
-    /** [JLAS-W0108] Chặn target N2/N1 ở tầng API/domain cho mục tiêu thi cử (JLPT/BRSE). */
+    /** [JLAS-W0108] Chặn target chưa phát hành ở tầng API/domain cho mục tiêu thi cử (JLPT/BRSE). */
     private static void requireAvailableTarget(String target) {
         if (target != null && !JlptLevel.isAvailableForLearning(target)) {
             throw new ApiException(ErrorCode.TARGET_NOT_AVAILABLE,
-                    "Cấp độ " + target + " đang được phát triển. Hiện chỉ hỗ trợ N5, N4 và N3.");
+                    "Cấp độ " + target + " chưa được phát hành cho lộ trình học.");
         }
     }
 

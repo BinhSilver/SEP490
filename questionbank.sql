@@ -77,27 +77,10 @@ WHERE id > 0 AND skill='KANJI' AND (
 -- (は/が/を/に/で/へ/と/も/まで/から), liên từ (そして/それから/でも/または),
 -- "語順" (word-order), ぐらい/しか/ので (ngoài sách N5), và câu N4-N1
 -- (sách chỉ tới N4). Chạy sau seed_data_jlas.sql (cần bảng grammar_point).
+--
+-- CHÚ Ý: khối UPDATE này PHẢI chạy SAU khi câu GRAMMAR N5 được INSERT (ở phía dưới),
+-- nên đã được chuyển xuống cạnh khối linkage N4-N1 (bước 4c). Không đặt lại ở đây.
 -- ============================================================
-UPDATE assessment_question q
-JOIN (
-    SELECT 'てください' AS form, 81 AS gp_id            -- bài 14 → N5-B14
-    UNION ALL SELECT 'てもいい', 85                     -- bài 15 → N5-B15
-    UNION ALL SELECT 'てはいけません', 86               -- bài 15 → N5-B15
-    UNION ALL SELECT 'たい', 77                         -- bài 13 → N5-B13
-    UNION ALL SELECT 'たいです', 77                     -- bài 13 → N5-B13
-    UNION ALL SELECT 'たり', 105                        -- bài 19 → N5-B19
-    UNION ALL SELECT 'だけ', 69                         -- bài 11 → N5-B11
-    UNION ALL SELECT 'があります', 60                   -- bài 10 → N5-B10
-    UNION ALL SELECT 'がいます', 61                     -- bài 10 → N5-B10
-    UNION ALL SELECT 'ことができます', 98               -- bài 18 → N5-B18
-    UNION ALL SELECT 'ですから', 56                     -- bài 9  → N5-B09
-    UNION ALL SELECT 'なければなりません', 94           -- bài 17 → N5-B17
-    UNION ALL SELECT 'いちばん', 72                     -- bài 12 → N5-B12
-    UNION ALL SELECT 'より', 71                         -- bài 12 → N5-B12
-    UNION ALL SELECT 'もう', 45                         -- bài 7  → N5-B07
-) m ON JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.grammar_point')) = m.form
-SET q.grammar_point_id = m.gp_id
-WHERE q.skill = 'GRAMMAR' AND q.jlpt_level = 'N5';
 
 -- ============================================================
 -- KANJI: 150 questions per level (750 total)
@@ -12265,6 +12248,28 @@ JOIN (
 ) m ON JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.grammar_point')) = m.form
 SET q.grammar_point_id = m.gp_id
 WHERE q.skill = 'GRAMMAR' AND q.jlpt_level IN ('N4','N3','N2','N1');
+
+-- 4c) N5 — 15 form (chuyển từ đầu file xuống đây để chạy SAU khi câu GRAMMAR N5 được INSERT).
+UPDATE assessment_question q
+JOIN (
+    SELECT 'てください' AS form, 81 AS gp_id            -- bài 14 → N5-B14
+    UNION ALL SELECT 'てもいい', 85                     -- bài 15 → N5-B15
+    UNION ALL SELECT 'てはいけません', 86               -- bài 15 → N5-B15
+    UNION ALL SELECT 'たい', 77                         -- bài 13 → N5-B13
+    UNION ALL SELECT 'たいです', 77                     -- bài 13 → N5-B13
+    UNION ALL SELECT 'たり', 105                        -- bài 19 → N5-B19
+    UNION ALL SELECT 'だけ', 69                         -- bài 11 → N5-B11
+    UNION ALL SELECT 'があります', 60                   -- bài 10 → N5-B10
+    UNION ALL SELECT 'がいます', 61                     -- bài 10 → N5-B10
+    UNION ALL SELECT 'ことができます', 98               -- bài 18 → N5-B18
+    UNION ALL SELECT 'ですから', 56                     -- bài 9  → N5-B09
+    UNION ALL SELECT 'なければなりません', 94           -- bài 17 → N5-B17
+    UNION ALL SELECT 'いちばん', 72                     -- bài 12 → N5-B12
+    UNION ALL SELECT 'より', 71                         -- bài 12 → N5-B12
+    UNION ALL SELECT 'もう', 45                         -- bài 7  → N5-B07
+) m ON JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.grammar_point')) = m.form
+SET q.grammar_point_id = m.gp_id
+WHERE q.skill = 'GRAMMAR' AND q.jlpt_level = 'N5';
 
 -- ============================================================
 -- 5) Question-side topic mapping

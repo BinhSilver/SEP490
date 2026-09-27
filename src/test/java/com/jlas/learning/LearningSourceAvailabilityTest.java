@@ -10,10 +10,12 @@ import com.jlas.auth.repository.UserRepository;
 import com.jlas.assessment.repository.AssessmentQuestionRepository;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.dictionary.repository.ContentItemRepository;
 import com.jlas.dictionary.repository.LessonRepository;
 import com.jlas.learning.dto.LearningProfileSnapshot;
 import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.mapper.LearningMapper;
+import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.LessonProgressRepository;
 import com.jlas.learning.repository.QuizAttemptRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
@@ -72,6 +74,8 @@ class LearningSourceAvailabilityTest {
                 mock(LessonRepository.class),
                 mock(AssessmentQuestionRepository.class),
                 mock(QuizAttemptRepository.class),
+                mock(LearningQuizSessionRepository.class),
+                mock(ContentItemRepository.class),
                 mock(LearningResourceSelectionService.class),
                 mock(LearningScheduleService.class),
                 mock(LearningMapper.class),

@@ -11,6 +11,12 @@ public interface LearningService {
     /** Creates a path for a finalized assessment attempt, or returns the existing one on retry. */
     CreateLearningPathResult create(Long userId, Long assessmentAttemptId);
 
+    /**
+     * [JLAS-W0108] Creates a from-zero path from a completed survey (no Smart Test needed), or
+     * returns the existing one on retry. The path warms up with the kana foundation before the goal.
+     */
+    CreateLearningPathResult createFromSurvey(Long userId);
+
     /** Returns the user's active path; empty state is NOT_FOUND. */
     LearningPathResponse current(Long userId);
 
