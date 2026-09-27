@@ -335,7 +335,8 @@ function cleanSetName(name) {
 const QUIZ_FIELD_LABELS = {
   KANJI: 'Kanji',
   MEANING: 'Nghĩa tiếng Việt',
-  HIRAGANA: 'Hiragana'
+  HIRAGANA: 'Hiragana',
+  HAN_VIET: 'Hán Việt'
 };
 
 function quizFieldOptions(selected, exclude) {
@@ -350,7 +351,8 @@ function quizFieldDescription(field) {
   return !field ? 'Chọn nội dung câu hỏi.'
     : field === 'KANJI' ? 'Hiển thị chữ Kanji để người học trả lời.'
       : field === 'HIRAGANA' ? 'Hiển thị cách đọc tiếng Nhật để người học trả lời.'
-        : 'Hiển thị nghĩa tiếng Việt để người học trả lời.';
+        : field === 'HAN_VIET' ? 'Hiển thị âm Hán Việt (chỉ dùng các thẻ có Hán Việt).'
+          : 'Hiển thị nghĩa tiếng Việt để người học trả lời.';
 }
 
 function ensureAnswerField() {
@@ -594,7 +596,7 @@ function renderPlaying(root) {
       <section class="quiz-question-card card">
         <span class="quiz-question-eyebrow">JLPT Flashcard</span>
         <p class="quiz-question-prompt">Chọn đáp án đúng cho nội dung sau</p>
-        <div class="quiz-question-term fc-kanji">${esc(q.question)}</div>
+        <div class="quiz-question-term ${state.questionField === 'MEANING' || state.questionField === 'HAN_VIET' ? 'quiz-question-term--text' : 'fc-kanji'}">${esc(q.question)}</div>
         <button type="button" class="btn btn--ghost btn--sm quiz-speak-button" id="btn-quiz-speak" title="Nghe phát âm" aria-label="Nghe phát âm">
           <i class="fa-solid fa-volume-high"></i>
         </button>
