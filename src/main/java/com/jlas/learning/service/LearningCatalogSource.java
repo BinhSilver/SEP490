@@ -35,6 +35,15 @@ public interface LearningCatalogSource {
     }
 
     /**
+     * [JLAS-W0108] P3 — danh sách bài luyện đọc/nghe ĐÚNG cấp (dedup theo lessonId), KHÔNG fallback
+     * cấp gần nhất. Selector dùng để chọn đủ số bài theo bảng % đúng (§6.1); thiếu đủ số thì báo gap.
+     * Mặc định {@link List#of()} (caller không có catalog); production JPA source override.
+     */
+    default List<LearningResourceCandidate> findComprehensionLessons(String skill, String level) {
+        return findComprehensionLesson(skill, level).map(List::of).orElse(List.of());
+    }
+
+    /**
      * [JLAS-W0122] Resolve một từ vựng/Kanji theo expression (lexeme) khi chỉ biết chữ mặt chữ
      * (notebook canonical_item). Mặc định {@link Optional#empty()}; production JPA source override.
      */

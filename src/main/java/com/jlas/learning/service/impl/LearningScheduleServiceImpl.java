@@ -25,6 +25,8 @@ public class LearningScheduleServiceImpl implements LearningScheduleService {
     private static final String REASON_READING = "WEAK_READING_ITEM";
     private static final String REASON_LISTENING = "WEAK_LISTENING_ITEM";
     private static final int MAX_GRAMMAR_PER_DAY = 3;
+    /** [JLAS-W0108] P3 — tổng bài đọc + nghe tối đa mỗi ngày (cho phép 2 đọc hoặc 2 nghe, không bắt 1+1). */
+    private static final int MAX_COMPREHENSION_PER_DAY = 2;
 
     @Override
     public List<ScheduledLearningResource> schedule(List<SelectedLearningResource> resources, int minutesPerDay) {
@@ -40,8 +42,8 @@ public class LearningScheduleServiceImpl implements LearningScheduleService {
         LearningPhase currentPhase = null;
         int order = 0;
         int grammarInDay = 0;
-        boolean readingInDay = false;
-        boolean listeningInDay = false;
+        int readingInDay = 0;
+        int listeningInDay = 0;
         for (var selection : resources) {
             int minutes = selection.resource().estimatedMinutes();
             String reason = selection.reasonCode();
@@ -50,25 +52,25 @@ public class LearningScheduleServiceImpl implements LearningScheduleService {
                 dayMinutes = 0;
                 currentPhase = selection.phase();
                 grammarInDay = 0;
-                readingInDay = false;
-                listeningInDay = false;
+                readingInDay = 0;
+                listeningInDay = 0;
             } else if (dayMinutes > 0 && dayMinutes + minutes > minutesPerDay) {
                 day++;
                 dayMinutes = 0;
                 grammarInDay = 0;
-                readingInDay = false;
-                listeningInDay = false;
+                readingInDay = 0;
+                listeningInDay = 0;
             } else if (exceedsDailySkillQuota(reason, grammarInDay, readingInDay, listeningInDay)) {
                 day++;
                 dayMinutes = 0;
                 grammarInDay = 0;
-                readingInDay = false;
-                listeningInDay = false;
+                readingInDay = 0;
+                listeningInDay = 0;
             }
             dayMinutes += minutes;
             if (REASON_GRAMMAR_POINT.equals(reason)) grammarInDay++;
-            if (REASON_READING.equals(reason)) readingInDay = true;
-            if (REASON_LISTENING.equals(reason)) listeningInDay = true;
+            if (REASON_READING.equals(reason)) readingInDay++;
+            if (REASON_LISTENING.equals(reason)) listeningInDay++;
             scheduled.add(new ScheduledLearningResource(selection.resource(), selection.phase(),
                     selection.reasonCode(), selection.reasonText(), selection.matchedTagCodes(),
                     day, ++order, minutes));
@@ -76,12 +78,13 @@ public class LearningScheduleServiceImpl implements LearningScheduleService {
         return List.copyOf(scheduled);
     }
 
-    /** [JLAS-W0108] Đã chạm trần kỹ năng trong ngày (3 ngữ pháp, 1 đọc, 1 nghe) thì sang ngày mới. */
+    /** [JLAS-W0108] Đã chạm trần kỹ năng trong ngày (3 ngữ pháp; tổng đọc+nghe tối đa 2) thì sang ngày mới. */
     private static boolean exceedsDailySkillQuota(String reason, int grammarInDay,
-            boolean readingInDay, boolean listeningInDay) {
+            int readingInDay, int listeningInDay) {
         if (REASON_GRAMMAR_POINT.equals(reason)) return grammarInDay >= MAX_GRAMMAR_PER_DAY;
-        if (REASON_READING.equals(reason)) return readingInDay;
-        if (REASON_LISTENING.equals(reason)) return listeningInDay;
+        if (REASON_READING.equals(reason) || REASON_LISTENING.equals(reason)) {
+            return readingInDay + listeningInDay >= MAX_COMPREHENSION_PER_DAY;
+        }
         return false;
     }
 }

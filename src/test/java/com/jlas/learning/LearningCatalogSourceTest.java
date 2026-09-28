@@ -212,6 +212,24 @@ class LearningCatalogSourceTest {
         assertTrue(catalog.findComprehensionLesson("READING", "N4").isEmpty());
     }
 
+    @Test void findComprehensionLessonsReturnsAllExactLevelWithoutFallback() {
+        // [JLAS-W0108] P3 — danh sách (số nhiều) trả đủ bài ĐÚNG cấp N4, KHÔNG lạc sang bài N3
+        // (khác singular findComprehensionLesson vẫn giữ fallback cấp gần nhất cho replan).
+        var n4Book = book("PUBLISHED");
+        n4Book.setJlptLevel("N4");
+        var n4ReadingA = lessonWithSkill(n4Book, "PUBLISHED", "READING");
+        var n4ReadingB = lessonWithSkill(n4Book, "PUBLISHED", "READING");
+        var n3Book = book("PUBLISHED");
+        n3Book.setJlptLevel("N3");
+        lessonWithSkill(n3Book, "PUBLISHED", "READING");
+        em.flush();
+        em.clear();
+        var results = catalog.findComprehensionLessons("READING", "N4");
+        assertEquals(Set.of(n4ReadingA.getId(), n4ReadingB.getId()),
+                results.stream().map(r -> r.lessonId()).collect(java.util.stream.Collectors.toSet()));
+        assertEquals(2, results.size());
+    }
+
     private Textbook book(String status) {
         var book = Textbook.builder().title("Test textbook").status(status).jlptLevel("N5").build();
         em.persist(book);

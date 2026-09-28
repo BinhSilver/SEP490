@@ -7,9 +7,11 @@ import com.jlas.learning.repository.LearningGrammarPointRepository;
 import com.jlas.learning.repository.LearningVocabularyRepository;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.repository.LessonRepository;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -160,6 +162,35 @@ public class JpaLearningCatalogSource implements LearningCatalogSource {
                         .comparingInt((Lesson lesson) -> levelDistance(lesson, level))
                         .thenComparingInt(lesson -> JLPT_LEVELS.indexOf(lesson.getUnit().getTextbook().getJlptLevel())))
                 .map(this::toComprehensionCandidate);
+    }
+
+    /**
+     * [JLAS-W0108] P3 — danh sách bài luyện đọc/nghe ĐÚNG cấp (dedup theo lessonId, giữ thứ tự ưu tiên
+     * bài chuyên skill → bài chứa content_item → bài tổng hợp cùng cấp). KHÔNG fallback cấp gần nhất:
+     * thiếu đủ số bài đúng cấp thì selector báo gap thay vì dùng tài nguyên sai cấp (§6.1).
+     */
+    @Override
+    public List<LearningResourceCandidate> findComprehensionLessons(String skill, String level) {
+        if (skill == null || level == null) return List.of();
+        Map<Long, LearningResourceCandidate> byId = new LinkedHashMap<>();
+        for (Lesson lesson : orderedComprehensionLessons(skill, level)) {
+            byId.putIfAbsent(lesson.getId(), toComprehensionCandidate(lesson));
+        }
+        return List.copyOf(byId.values());
+    }
+
+    private List<Lesson> orderedComprehensionLessons(String skill, String level) {
+        List<Lesson> ordered = new ArrayList<>();
+        lessons.findPublishedByJlptLevelAndSkill(level, skill).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .forEach(ordered::add);
+        lessons.findPublishedByJlptLevelAndContentType(level, skill).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .forEach(ordered::add);
+        lessons.findPublishedByTextbookJlptLevel(level).stream()
+                .filter(lesson -> lesson.getUnit().getTextbook().getJlptLevel() != null)
+                .forEach(ordered::add);
+        return ordered;
     }
 
     private static int levelDistance(Lesson lesson, String targetLevel) {

@@ -7,6 +7,7 @@ import com.jlas.learning.enums.LearningPhase;
 import com.jlas.learning.service.LearningCatalogSource;
 import com.jlas.learning.service.LearningResourceSelectionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -26,16 +27,12 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
     private static final String BELOW_N5 = "BELOW_N5";
     /** [JLAS-W0108] Reason code cho warm-up nền tảng bảng chữ cái (from-zero). */
     private static final String REASON_KANA_FOUNDATION = "KANA_FOUNDATION";
-    /** [JLAS-W0108] Tổng % đúng > ngưỡng này → pass cấp hiện tại (cấp tự chọn trong survey), bỏ warm-up. */
-    private static final double PASS_CORRECT_RATIO = 0.60;
-    /** [JLAS-W0108] Kỹ năng đúng < ngưỡng này → "rất yếu", ôn TOÀN BỘ kỹ năng đó ở cấp hiện tại. */
-    private static final double FULL_REVIEW_CORRECT_RATIO = 0.40;
-    /** [JLAS-W0108] Chỉ kỹ năng có bài học chuyên biệt mới hỗ trợ "ôn toàn bộ" (lesson-based).
-     *  Đọc/nghe KHÔNG có bài chuyên biệt ở N5/N4 (bài tổng hợp GRAMMAR chứa sẵn phần đọc + nghe)
-     *  nên được xử lý riêng bằng comprehension lesson ở {@link #addComprehensionWarmUps}. */
-    private static final List<String> FULL_REVIEWABLE_SKILLS = List.of(WeaknessEvidence.SKILL_GRAMMAR);
     private final LearningCatalogSource catalog;
     private final WeakTagPolicy policy;
+    /** [JLAS-W0108] P3 — D1 (gợi ý xác minh nền tảng) gác sau feature policy CHƯA kích hoạt đến khi chốt.
+     *  Bật cờ này mới sinh gap {@code FOUNDATION_VERIFICATION_SUGGESTED}; KHÔNG tự giao 70–100% sách. */
+    @Value("${jlas.learning.selection.full-review-enabled:false}")
+    private boolean fullReviewEnabled;
 
     @Override
     public LearningSelectionResult select(Long userId, LearningProfileSnapshot profile, LearningCatalogScope scope) {
@@ -62,17 +59,13 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
             return new LearningSelectionResult(resources, gaps, policy.version(), List.of());
         }
 
-        if (passesCurrentLevel(skillScores)) {
-            // [JLAS-W0108] Tổng % đúng > 60% → pass cấp hiện tại (cấp tự chọn trong survey): bỏ warm-up, vào thẳng GOAL.
-            addGoals(goals, selectedIds, resources, profile);
-            return new LearningSelectionResult(resources, gaps, policy.version(), List.of());
-        }
+        // [JLAS-W0108] P3 — KHÔNG còn bỏ warm-up toàn cục theo Σcorrect/Σassessed > 60%, và KHÔNG tự giao
+        // "ôn toàn bộ" theo một skill thấp (D1). Duyệt từng skill: từ/Kanji sai luôn giữ dù skill cao;
+        // đọc/nghe theo bảng % đúng (§6.1); grammar theo policy yếu.
+        suggestFoundationVerification(skillScores, gaps);
 
-        Set<String> fullReviewSkills = fullReviewSkills(skillScores);
-        Set<String> passedSkills = passedSkills(skillScores);
         var weak = weaknesses.stream()
                 .filter(policy::isWeak)
-                .filter(e -> !passedSkills.contains(e.skill()))
                 .sorted(this::compareWeakness)
                 .toList();
         weaknesses.stream().filter(e -> !policy.hasEnoughEvidence(e))
@@ -82,23 +75,10 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
             gaps.add(new CoverageGap("ASSESSMENT", "NO_ASSESSMENT_EVIDENCE"));
         }
 
-        // (1) [JLAS-W0108] Kỹ năng rất yếu (<40% đúng) → ôn TOÀN BỘ bài của skill đó ở cấp hiện tại.
-        for (String skill : fullReviewSkills) {
-            for (var lesson : candidates(scope.warmUpTextbookIds(), 0, rank(profile.assessedLevel()))) {
-                if (!skill.equals(lesson.skill())) continue;
-                requireDuration(lesson);
-                selectedIds.add(lesson.lessonId());
-                resources.add(new SelectedLearningResource(lesson, LearningPhase.WARM_UP, "FULL_SKILL_REVIEW",
-                        "Ôn lại toàn bộ kỹ năng " + skillLabel(skill) + " cấp " + profile.assessedLevel()
-                                + " trước khi học cấp mục tiêu.", lesson.knowledgeTagCodes()));
-            }
-        }
-
-        // (1b) [JLAS-W0108] Đọc/nghe warm-up theo ĐIỂM SKILL (không phụ thuộc weakness evidence):
-        // skill có đánh giá nhưng chưa đạt -> ôn 1 bài comprehension cùng cấp đánh giá.
+        // (1) [JLAS-W0108] P3 — Đọc/nghe warm-up theo bảng % đúng (p-table), riêng từng skill, đủ mẫu.
         addComprehensionWarmUps(skillScores, profile, selectedIds, resources, gaps);
 
-        // (2) [JLAS-W0108] Kỹ năng 40–60% đúng → ôn đúng item/điểm sai (skill đã full-review hoặc đã pass thì bỏ).
+        // (2) [JLAS-W0108] Ôn đúng item/điểm sai: từ/Kanji luôn giữ dù skill cao; grammar theo policy yếu.
         if (!weak.isEmpty()) {
             var warmUp = candidates(scope.warmUpTextbookIds(), 0, rank(profile.assessedLevel()));
             var uncovered = new LinkedHashSet<String>();
@@ -106,9 +86,8 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                 if (e.tagCode() != null) uncovered.add(e.tagCode());
             });
             for (var e : weak) {
-                if (fullReviewSkills.contains(e.skill()) || passedSkills.contains(e.skill())) continue;
-                // [JLAS-W0108] Đọc/nghe đã xử lý riêng ở addComprehensionWarmUps (theo điểm skill),
-                // không qua nhánh tag/grammar/vocab bên dưới.
+                // [JLAS-W0108] Đọc/nghe đã xử lý riêng ở p-table (theo điểm skill), không qua nhánh
+                // tag/grammar/vocab bên dưới.
                 if (WeaknessEvidence.SKILL_READING.equals(e.skill())
                         || WeaknessEvidence.SKILL_LISTENING.equals(e.skill())) {
                     continue;
@@ -186,43 +165,22 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
         }
     }
 
-    /** [JLAS-W0108] Tổng % đúng > {@value #PASS_CORRECT_RATIO} → pass cấp hiện tại (bỏ warm-up). */
-    private static boolean passesCurrentLevel(List<SkillScore> scores) {
+    /**
+     * [JLAS-W0108] P3 — D1: tổng trung bình < 40% VÀ ≥ 3/5 skill < 40% + đủ mẫu → chỉ GỢI Ý kiểm tra
+     * xác minh nền tảng (gap), KHÔNG tự giao ôn toàn bộ 70–100% sách. Gác sau
+     * {@code jlas.learning.selection.full-review-enabled} (mặc định false) đến khi D1 được chốt.
+     */
+    private void suggestFoundationVerification(List<SkillScore> scores, List<CoverageGap> gaps) {
+        if (!fullReviewEnabled) return;
         int assessed = scores.stream().mapToInt(SkillScore::assessedCount).sum();
-        int correct = scores.stream().mapToInt(SkillScore::correctCount).sum();
-        return assessed > 0 && (double) correct / assessed > PASS_CORRECT_RATIO;
-    }
-
-    /** [JLAS-W0108] Kỹ năng rất yếu (&lt; {@value #FULL_REVIEW_CORRECT_RATIO} đúng) hỗ trợ ôn toàn bộ. */
-    private static Set<String> fullReviewSkills(List<SkillScore> scores) {
-        Set<String> result = new HashSet<>();
-        for (var score : scores) {
-            if (FULL_REVIEWABLE_SKILLS.contains(score.skill()) && score.assessedCount() > 0
-                    && score.correctRatio() < FULL_REVIEW_CORRECT_RATIO) {
-                result.add(score.skill());
-            }
+        if (assessed <= 0) return;
+        double overall = (double) scores.stream().mapToInt(SkillScore::correctCount).sum() / assessed;
+        long veryWeakSkills = scores.stream()
+                .filter(score -> score.assessedCount() > 0 && score.correctRatio() < 0.40)
+                .count();
+        if (overall < 0.40 && veryWeakSkills >= 3) {
+            gaps.add(new CoverageGap("ASSESSMENT", "FOUNDATION_VERIFICATION_SUGGESTED"));
         }
-        return result;
-    }
-
-    /** [JLAS-W0108] Kỹ năng đạt (&gt; {@value #PASS_CORRECT_RATIO} đúng) → bỏ ôn, không ghi nhận yếu. */
-    private static Set<String> passedSkills(List<SkillScore> scores) {
-        Set<String> result = new HashSet<>();
-        for (var score : scores) {
-            if (score.assessedCount() > 0 && score.correctRatio() > PASS_CORRECT_RATIO) {
-                result.add(score.skill());
-            }
-        }
-        return result;
-    }
-
-    private static String skillLabel(String skill) {
-        return switch (skill) {
-            case WeaknessEvidence.SKILL_GRAMMAR -> "ngữ pháp";
-            case WeaknessEvidence.SKILL_READING -> "đọc hiểu";
-            case WeaknessEvidence.SKILL_LISTENING -> "nghe hiểu";
-            default -> skill;
-        };
     }
 
     private void addGrammarWarmUp(LearningResourceCandidate point, List<SelectedLearningResource> resources) {
@@ -248,21 +206,31 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
     }
 
     /**
-     * [JLAS-W0108] Đọc/nghe warm-up theo ĐIỂM SKILL (không phụ thuộc weakness evidence): skill có
-     * đánh giá nhưng chưa đạt (&le; {@value #PASS_CORRECT_RATIO} đúng) → ôn 1 bài comprehension
-     * cùng cấp đánh giá. Ở N5/N4 bài tổng hợp GRAMMAR chứa sẵn phần đọc + nghe.
+     * [JLAS-W0108] P3 — Đọc/nghe warm-up theo bảng % đúng (§6.1), riêng từng skill. Số bài =
+     * {@link WeakTagPolicy#comprehensionLessonCount}; không có mẫu → INSUFFICIENT_EVIDENCE (không phải 0%).
+     * Chỉ dùng bài ĐÚNG cấp (không fallback sai cấp); thiếu đủ số bài → gap MISSING_WARM_UP_RESOURCE.
      */
     private void addComprehensionWarmUps(List<SkillScore> skillScores, LearningProfileSnapshot profile,
             HashSet<Long> selectedIds, List<SelectedLearningResource> resources, List<CoverageGap> gaps) {
         for (String skill : List.of(WeaknessEvidence.SKILL_READING, WeaknessEvidence.SKILL_LISTENING)) {
             var score = skillScores.stream().filter(s -> skill.equals(s.skill())).findFirst();
-            if (score.isEmpty() || score.get().assessedCount() <= 0) continue;
-            if (score.get().correctRatio() > PASS_CORRECT_RATIO) continue;
-            var lesson = catalog.findComprehensionLesson(skill, profile.assessedLevel());
-            if (lesson.isPresent()) {
-                selectedIds.add(lesson.get().lessonId());
-                addComprehensionWarmUp(lesson.get(), skill, resources);
-            } else {
+            if (score.isEmpty()) continue;
+            int count = WeakTagPolicy.comprehensionLessonCount(score.get());
+            if (count < 0) {
+                gaps.add(new CoverageGap("SKILL:" + skill, "INSUFFICIENT_EVIDENCE"));
+                continue;
+            }
+            if (count == 0) continue;
+            var lessons = catalog.findComprehensionLessons(skill, profile.assessedLevel());
+            int added = 0;
+            for (var lesson : lessons) {
+                if (added >= count) break;
+                if (!selectedIds.add(lesson.lessonId())) continue;
+                requireDuration(lesson);
+                addComprehensionWarmUp(lesson, skill, resources);
+                added++;
+            }
+            if (added < count) {
                 gaps.add(new CoverageGap("SKILL:" + skill, "MISSING_WARM_UP_RESOURCE"));
             }
         }

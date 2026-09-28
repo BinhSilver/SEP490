@@ -1,6 +1,7 @@
 package com.jlas.learning.service.impl;
 
 import java.math.BigDecimal;
+import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -59,8 +60,24 @@ public class WeakTagPolicy {
         };
     }
 
+    /**
+     * [JLAS-W0108] P3 — bảng số bài đọc/nghe theo % đúng của skill (spec §6.1):
+     * p = 100 × correct/valid. p ∈ (70,100] → 0; (50,70] → 4; (40,50] → 6; [0,40] → 8.
+     * Biên đúng 40→8, 50→6, 70→4; không làm tròn trước phân nhánh. Trả -1 khi không có mẫu
+     * ({@code assessedCount <= 0}) — INSUFFICIENT_EVIDENCE, không phải 0%.
+     */
+    public static int comprehensionLessonCount(SkillScore score) {
+        if (score.assessedCount() <= 0) return -1;
+        double p = 100.0 * score.correctCount() / score.assessedCount();
+        if (p > 70.0) return 0;
+        if (p > 50.0) return 4;
+        if (p > 40.0) return 6;
+        return 8;
+    }
+
     public String version() {
-        return "jlpt-per-skill-v2:min=" + minimumQuestions + ":ratio=" + threshold.toPlainString()
-                + ":window=" + COMPREHENSION_WINDOW + "/" + COMPREHENSION_WRONG_MIN;
+        return "jlpt-per-skill-v3:min=" + minimumQuestions + ":ratio=" + threshold.toPlainString()
+                + ":window=" + COMPREHENSION_WINDOW + "/" + COMPREHENSION_WRONG_MIN
+                + ":comprehension=8/6/4/0@40/50/70";
     }
 }

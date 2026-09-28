@@ -57,10 +57,26 @@ class LearningScheduleServiceTest {
                 result.stream().map(ScheduledLearningResource::dayNumber).toList());
     }
 
-    @Test void warmUpReadingAndListeningLimitedToOneEachPerDay() {
+    @Test void warmUpReadingAndListeningLimitedToTwoCombinedPerDay() {
+        // [JLAS-W0108] P3 — tổng đọc+nghe tối đa 2/ngày: 2 đọc + 2 nghe = 2 ngày (không còn giới hạn 1 đọc + 1 nghe).
         var result = scheduler.schedule(List.of(reading(15), reading(15), listening(15), listening(15)), 1000);
-        assertEquals(List.of(1, 2, 2, 3),
+        assertEquals(List.of(1, 1, 2, 2),
                 result.stream().map(ScheduledLearningResource::dayNumber).toList());
+    }
+
+    @Test void twoComprehensionPerDayAllowedButThirdBlocked() {
+        var result = scheduler.schedule(List.of(reading(15), reading(15), listening(15)), 1000);
+        assertEquals(List.of(1, 1, 2), result.stream().map(ScheduledLearningResource::dayNumber).toList());
+    }
+
+    @Test void fourReadingAndEightListeningNeedAtLeastSixDays() {
+        // [JLAS-W0108] P3 — ví dụ §6.2: 4 đọc + 8 nghe (15 phút/bài, 45 phút/ngày) → ít nhất 6 ngày.
+        var resources = new java.util.ArrayList<SelectedLearningResource>();
+        for (int i = 0; i < 4; i++) resources.add(reading(15));
+        for (int i = 0; i < 8; i++) resources.add(listening(15));
+        var result = scheduler.schedule(resources, 45);
+        assertEquals(12, result.size());
+        assertEquals(6, result.stream().mapToInt(ScheduledLearningResource::dayNumber).max().orElse(0));
     }
 
     @Test void warmUpGrammarChunkStillRespectsMinuteBudget() {
