@@ -66,6 +66,11 @@ public class UserLearningPath {
     @Column(name = "gate_passed_at")
     private LocalDateTime gatePassedAt;
 
+    /** [JLAS-W0108] Thời điểm lộ trình hoàn thành (chặng cuối đạt final); null = chưa hoàn thành.
+     *  Dùng làm ngày cấp chứng chỉ thành tựu nội bộ, không suy từ updated_at. */
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     /** [JLAS-W0108] Id bộ flashcard warm-up gộp Kanji+Từ vựng đã sai (soft-link, null = chưa sinh). */
     @Column(name = "warm_up_flashcard_set_id")
     private Long warmUpFlashcardSetId;
@@ -84,7 +89,7 @@ public class UserLearningPath {
     @Column(name = "ai_plan_json", columnDefinition = "TEXT")
     private String aiPlanJson;
 
-    /** ACTIVE/SUPERSEDED. */
+    /** ACTIVE/SUPERSEDED/COMPLETED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private String status = "ACTIVE";

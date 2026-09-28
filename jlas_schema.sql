@@ -1540,6 +1540,9 @@ CREATE TABLE user_learning_path (
     coverage_gaps_json    TEXT NULL,             -- JSON array of coverage gaps.
     -- [JLAS-W0113] Thoi diem vuot gate quiz tong ket warm-up; NULL = chua vuot, chan giai doan theo muc tieu.
     gate_passed_at        DATETIME(6) NULL,
+    -- [JLAS-W0108] Thời điểm lộ trình hoàn thành (chặng cuối đạt final); NULL = chưa hoàn thành.
+    -- Dùng làm ngày cấp chứng chỉ thành tựu nội bộ, không suy từ updated_at (có thể đổi vì lý do khác).
+    completed_at          DATETIME(6) NULL,
     -- [JLAS-W0108] Cache id bo flashcard warm-up gop Kanji+Tu vung sai Smart Test; NULL = chua sinh.
     -- Soft-link toi flashcard_set (khong FK, giu learning decoupled khoi flashcard).
     warm_up_flashcard_set_id BIGINT UNSIGNED NULL,
@@ -1566,7 +1569,7 @@ CREATE TABLE user_learning_path (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_path_goal
         CHECK (goal IS NULL OR goal IN ('JLPT','TRAVEL','BA','FROM_ZERO')),
-    CONSTRAINT chk_learning_path_status CHECK (status IN ('ACTIVE','SUPERSEDED')),
+    CONSTRAINT chk_learning_path_status CHECK (status IN ('ACTIVE','SUPERSEDED','COMPLETED')),
     CONSTRAINT chk_learning_path_target
         CHECK (target_level IS NULL OR target_level IN ('N5','N4','N3','N2','N1'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
