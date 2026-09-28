@@ -45,6 +45,10 @@ public interface LearningService {
     /** [JLAS-W0113] Grades the gate quiz; on pass unlocks the GOAL_LEARNING phase (records gate_passed_at). */
     LessonQuizResult submitGateQuiz(Long userId, LessonQuizSubmitRequest request);
 
+    /** [JLAS-W0108] Lấy bài final cuối chặng (5 kỹ năng, gộp 1 phiên); chỉ phát khi chặng ACTIVE và
+     *  mọi item goal-learning của chặng đã STUDIED. */
+    LessonQuizResponse getStageFinalQuiz(Long userId, Long stageId);
+
     /**
      * [JLAS-W0108] P4 — warm-up grammar quiz: retest đúng mẫu ngữ pháp đã sai (5 câu khác câu đầu vào,
      * cùng mẫu). Câu từ ngân hàng gắn {@code grammarPointId}; thiếu câu -> QUIZ_NOT_READY (BLOCKED_CONTENT).

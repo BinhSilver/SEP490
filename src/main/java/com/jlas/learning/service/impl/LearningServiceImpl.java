@@ -129,6 +129,24 @@ public class LearningServiceImpl implements LearningService {
     private static final String QUIZ_TYPE_LESSON = "LESSON";
     private static final String QUIZ_TYPE_GRAMMAR = "GRAMMAR";
     private static final String QUIZ_TYPE_FLASHCARD = "FLASHCARD";
+    private static final String QUIZ_TYPE_STAGE_FINAL = "STAGE_FINAL";
+    /** [JLAS-W0108] 5 kỹ năng bắt buộc của bài final cuối chặng, theo đúng thứ tự hiển thị. */
+    private static final List<String> STAGE_FINAL_SKILLS =
+            List.of(WeaknessEvidence.SKILL_KANJI, WeaknessEvidence.SKILL_VOCABULARY,
+                    WeaknessEvidence.SKILL_GRAMMAR, WeaknessEvidence.SKILL_READING,
+                    WeaknessEvidence.SKILL_LISTENING);
+    /** [JLAS-W0108] Số câu tối thiểu/kỹ năng để bài final đủ điều kiện chấm (§0.7 "Đầu ra JLPT nội bộ").
+     *  Phát đúng số này (không dư) để ngưỡng {@code STAGE_FINAL_SKILL_PASS_PERCENT} khớp số nguyên,
+     *  không lệch do làm tròn ceil của {@code requiredCorrect} (vd 12 câu × 70% ceil ra 9/12 = 75%,
+     *  không phải 70% — 10 câu × 70% ceil ra đúng 7/10 = 70%). */
+    private static final int STAGE_FINAL_QUESTIONS_PER_SKILL = 10;
+    /** [JLAS-W0108] Ngưỡng đạt tổng trung bình 5 kỹ năng (%). */
+    private static final int STAGE_FINAL_PASS_PERCENT = 80;
+    /** [JLAS-W0108] Ngưỡng đạt từng kỹ năng (%). Truyền riêng vào {@link #gradeAgainstKey} (tham số
+     *  {@code groupPassPercent}) thay vì tái dùng {@code LESSON_QUIZ_GROUP_PASS_PERCENT} — hai ngưỡng
+     *  tình cờ cùng giá trị hôm nay nhưng là hai chính sách độc lập (lesson quiz vs final); đổi một
+     *  cái không được âm thầm đổi cái kia. */
+    private static final int STAGE_FINAL_SKILL_PASS_PERCENT = 70;
     /** [JLAS-W0108] Số câu tối đa cho warm-up grammar quiz (retest đúng mẫu ngữ pháp đã sai). */
     private static final int GRAMMAR_QUIZ_SIZE = 5;
     /** [JLAS-W0108] P4 — ngưỡng đạt warm-up grammar quiz: đúng 4/5 (80%). */
@@ -542,6 +560,82 @@ public class LearningServiceImpl implements LearningService {
         requirePositiveUserId(userId);
         LearningQuizSession session = loadOwnedSession(userId, QUIZ_TYPE_FLASHCARD, null, request.attemptId());
         return submitSession(session, request);
+    }
+
+    /**
+     * [JLAS-W0108] Bài final cuối chặng: gộp 1 phiên, 5 kỹ năng, chấm theo nhóm (mỗi kỹ năng một
+     * GroupResult, tái dùng {@link #gradeAgainstKey}). Chỉ phát khi chặng ACTIVE (chặng PENDING/
+     * COMPLETED không thể phát — CONFLICT) và mọi item goal-learning của chặng đã STUDIED.
+     */
+    @Override
+    @Transactional
+    public LessonQuizResponse getStageFinalQuiz(Long userId, Long stageId) {
+        requirePositiveUserId(userId);
+        UserLearningStage stage = requireOwnedStage(userId, stageId);
+        if (!"ACTIVE".equals(stage.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Chặng này không ở trạng thái có thể làm bài tổng kết.");
+        }
+        requireStageItemsStudied(stage);
+        QuizData data = buildStageFinalQuiz(stage.getLevel());
+        Long attemptId = issueActivitySession(userId, QUIZ_TYPE_STAGE_FINAL, stageId, data);
+        return new LessonQuizResponse(attemptId, null,
+                "Bài tổng kết cấp " + stage.getLevel(), data.questions());
+    }
+
+    private UserLearningStage requireOwnedStage(Long userId, Long stageId) {
+        if (stageId == null || stageId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "A stage is required.");
+        }
+        return stageRepository.findByIdAndLearningPathUserId(stageId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Stage not found."));
+    }
+
+    /** [JLAS-W0108] Chặn phát/nộp bài final khi còn item goal-learning của chặng chưa STUDIED. */
+    private void requireStageItemsStudied(UserLearningStage stage) {
+        boolean incomplete = items.findByLearningPathIdAndStageId(
+                        stage.getLearningPath().getId(), stage.getId()).stream()
+                .anyMatch(item -> !"STUDIED".equals(item.getStudyStatus()));
+        if (incomplete) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
+                    "Hãy học hết nội dung của chặng này trước khi làm bài tổng kết.");
+        }
+    }
+
+    /** [JLAS-W0108] Dựng đề final: 5 kỹ năng, mỗi kỹ năng {@value #STAGE_FINAL_QUESTIONS_PER_SKILL}
+     *  câu ngân hàng theo đúng level của chặng; thiếu đủ câu một kỹ năng -> QUIZ_NOT_READY (không phát
+     *  đề thiếu kỹ năng rồi chấm sai). groupKey = skill để {@link #gradeAgainstKey} tự tính điểm
+     *  từng kỹ năng qua GroupResult. */
+    private QuizData buildStageFinalQuiz(String level) {
+        List<LessonQuizResponse.LessonQuizQuestion> questions = new ArrayList<>();
+        Map<Long, QuizAnswerKey> answerKey = new LinkedHashMap<>();
+        for (String skill : STAGE_FINAL_SKILLS) {
+            List<AssessmentQuestion> bank = questionRepository
+                    .findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(skill, level);
+            if (bank.size() < STAGE_FINAL_QUESTIONS_PER_SKILL) {
+                throw new ApiException(ErrorCode.QUIZ_NOT_READY);
+            }
+            // [JLAS-W0108] KHÔNG shuffle: bank đã OrderByIdAsc, lấy N câu đầu để đề tái lập được
+            // (khớp "hợp đồng đề thi bất biến" đã áp cho GATE/LESSON).
+            String label = stageFinalSkillLabel(skill);
+            bank.stream().limit(STAGE_FINAL_QUESTIONS_PER_SKILL).forEach(question -> {
+                questions.add(toQuizQuestion(question));
+                answerKey.put(question.getId(), new QuizAnswerKey(question.getCorrectOption(),
+                        question.getExplanation(), skill, label));
+            });
+        }
+        return new QuizData(questions, answerKey);
+    }
+
+    private static String stageFinalSkillLabel(String skill) {
+        return switch (skill) {
+            case "KANJI" -> "Kanji";
+            case "VOCABULARY" -> "Từ vựng";
+            case "GRAMMAR" -> "Ngữ pháp";
+            case "READING" -> "Đọc hiểu";
+            case "LISTENING" -> "Nghe hiểu";
+            default -> skill;
+        };
     }
 
     /**
