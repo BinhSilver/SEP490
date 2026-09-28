@@ -42,4 +42,12 @@ public class LearningQuizPageController {
         model.addAttribute("quizMode", "flashcard");
         return "learning/lesson-quiz";
     }
+
+    /** [JLAS-W0108] Bài final cuối chặng (5 kỹ năng, gộp 1 phiên). */
+    @GetMapping("/learning/stages/{stageId}/final-quiz")
+    public String stageFinalQuiz(@PathVariable Long stageId, Model model) {
+        model.addAttribute("quizMode", "stage-final");
+        model.addAttribute("quizStageId", stageId);
+        return "learning/lesson-quiz";
+    }
 }

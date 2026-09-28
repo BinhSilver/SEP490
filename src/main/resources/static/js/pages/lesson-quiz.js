@@ -53,6 +53,21 @@
     return '<span class="material-symbols-outlined" aria-hidden="true">' + name + '</span>';
   }
 
+  function quizUrl(cfg) {
+    if (cfg.mode === 'gate') return '/api/learning/paths/gate-quiz';
+    if (cfg.mode === 'grammar') return '/api/learning/grammar/' + encodeURIComponent(cfg.grammarPointId) + '/quiz';
+    if (cfg.mode === 'flashcard') return '/api/learning/paths/flashcard-quiz';
+    if (cfg.mode === 'stage-final') return '/api/learning/stages/' + encodeURIComponent(cfg.stageId) + '/final-quiz';
+    return '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz';
+  }
+  function submitUrl(cfg) {
+    if (cfg.mode === 'gate') return '/api/learning/paths/gate-quiz/submit';
+    if (cfg.mode === 'grammar') return '/api/learning/grammar/' + encodeURIComponent(cfg.grammarPointId) + '/quiz/submit';
+    if (cfg.mode === 'flashcard') return '/api/learning/paths/flashcard-quiz/submit';
+    if (cfg.mode === 'stage-final') return '/api/learning/stages/' + encodeURIComponent(cfg.stageId) + '/final-quiz/submit';
+    return '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz/submit';
+  }
+
   function skillBadge(skill, level) {
     var skillName = escapeHtml(skill || '');
     var levelName = escapeHtml(level || '');
@@ -123,6 +138,8 @@
       hint = 'Trả lời tất cả câu hỏi. Đạt 4/5 câu đúng để ghi nhận đã ôn lại mẫu ngữ pháp.';
     } else if (cfg && cfg.mode === 'flashcard') {
       hint = 'Chọn nghĩa đúng của từng từ/Kanji. Trả lời đúng hết 100% để ghi nhận đã nhớ.';
+    } else if (cfg && cfg.mode === 'stage-final') {
+      hint = 'Trả lời tất cả câu hỏi. Đạt trung bình 80% và mỗi kỹ năng 70% để hoàn thành chặng này.';
     }
     return '<section class="lq-card">' +
       '<header class="lq-card__head">' +
@@ -279,6 +296,7 @@
     var isGate = cfg.mode === 'gate';
     var isGrammar = cfg.mode === 'grammar';
     var isFlashcard = cfg.mode === 'flashcard';
+    var isStageFinal = cfg.mode === 'stage-final';
     var score = result.scorePercent;
     var review = (result.review || []).map(renderReview).join('');
     var groups = renderGroups(result.groupResults);
@@ -292,10 +310,14 @@
           ? 'Mẫu ngữ pháp đã được ghi nhận ôn lại. Hãy tiếp tục hành trình của bạn!'
           : isFlashcard
             ? 'Bạn đã nhớ đủ từ và Kanji. Hãy tiếp tục hành trình của bạn!'
-            : 'Bài học đã được ghi nhận hoàn thành.';
+            : isStageFinal
+              ? 'Chúc mừng bạn đã hoàn thành chặng này!'
+              : 'Bài học đã được ghi nhận hoàn thành.';
       action = isGate
         ? '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('arrow_forward') + '<span>Tiếp tục đến giai đoạn mục tiêu</span></a>'
-        : '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('arrow_forward') + '<span>Quay lại lộ trình</span></a>';
+        : isStageFinal
+          ? '<a class="lq-button lq-button--primary" href="/learning/stages/' + cfg.stageId + '/complete">' + icon('arrow_forward') + '<span>Xem kết quả</span></a>'
+          : '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('arrow_forward') + '<span>Quay lại lộ trình</span></a>';
     } else if (isGate && relearn) {
       note = 'Bạn đã làm chưa đạt 2 lần. Hãy ôn lại phần khởi động trước khi thử lại nhé.';
       action = '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('menu_book') + '<span>Ôn lại phần khởi động</span></a>';
@@ -307,8 +329,8 @@
     }
 
     // [JLAS-W0122] Điểm rất cao -> gợi ý tăng tốc lộ trình; điểm thấp -> gợi ý ôn tập điểm yếu.
-    // Chỉ áp dụng cho lesson quiz (grammar/flashcard/gate có ngưỡng riêng, không gợi ý replan).
-    var isLesson = !isGate && !isGrammar && !isFlashcard;
+    // Chỉ áp dụng cho lesson quiz (grammar/flashcard/gate/stage-final có ngưỡng riêng, không gợi ý replan).
+    var isLesson = !isGate && !isGrammar && !isFlashcard && !isStageFinal;
     var suggestion = '';
     if (isLesson && passed && score > 90) {
       suggestion = '<a class="lq-button lq-button--ghost" href="/learning/path?replan=ACCELERATE">' + icon('auto_fix_high') + '<span>Tăng tốc lộ trình</span></a>';
@@ -335,21 +357,10 @@
     var cfg = {
       mode: root.getAttribute('data-quiz-mode') || 'lesson',
       lessonId: positiveInteger(Number(root.getAttribute('data-lesson-id'))),
-      grammarPointId: positiveInteger(Number(root.getAttribute('data-grammar-point-id')))
+      grammarPointId: positiveInteger(Number(root.getAttribute('data-grammar-point-id'))),
+      stageId: positiveInteger(Number(root.getAttribute('data-stage-id')))
     };
 
-    function quizUrl() {
-      if (cfg.mode === 'gate') return '/api/learning/paths/gate-quiz';
-      if (cfg.mode === 'grammar') return '/api/learning/grammar/' + encodeURIComponent(cfg.grammarPointId) + '/quiz';
-      if (cfg.mode === 'flashcard') return '/api/learning/paths/flashcard-quiz';
-      return '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz';
-    }
-    function submitUrl() {
-      if (cfg.mode === 'gate') return '/api/learning/paths/gate-quiz/submit';
-      if (cfg.mode === 'grammar') return '/api/learning/grammar/' + encodeURIComponent(cfg.grammarPointId) + '/quiz/submit';
-      if (cfg.mode === 'flashcard') return '/api/learning/paths/flashcard-quiz/submit';
-      return '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz/submit';
-    }
     function errorMessage(code, fallback) {
       var messages = {
         FORBIDDEN: 'Bạn không có quyền truy cập bài kiểm tra này.',
@@ -367,7 +378,7 @@
       root.setAttribute('aria-busy', 'true');
       root.innerHTML = renderLoading();
       try {
-        var response = await fetch(quizUrl(), { headers: window.JlasAuth.authHeaders() });
+        var response = await fetch(quizUrl(cfg), { headers: window.JlasAuth.authHeaders() });
         var body = await readBody(response);
         if (!response.ok || body.success === false || !body.data) {
           root.innerHTML = renderError(errorMessage(body.code, body.message));
@@ -449,7 +460,7 @@
       if (unanswered > 0 && !window.confirm('Còn ' + unanswered + ' câu chưa trả lời. Nộp bài luôn?')) return;
       root.setAttribute('aria-busy', 'true');
       try {
-        var response = await fetch(submitUrl(), {
+        var response = await fetch(submitUrl(cfg), {
           method: 'POST',
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: state.quiz.attemptId, answers: answers })
@@ -495,5 +506,5 @@
     load();
   }
 
-  return { mount: mount };
+  return { mount: mount, quizUrl: quizUrl, submitUrl: submitUrl };
 });
