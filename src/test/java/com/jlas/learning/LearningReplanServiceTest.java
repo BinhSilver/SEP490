@@ -124,6 +124,17 @@ class LearningReplanServiceTest {
     }
 
     @Test
+    void previewRejectsWhenThePathIsAlreadyCompleted() {
+        var fixture = seed();
+        var path = paths.findByUserIdAndStatus(fixture.user.getId(), "ACTIVE").orElseThrow();
+        path.setStatus("COMPLETED");
+        paths.save(path);
+
+        assertError(ErrorCode.NOT_FOUND,
+                () -> replanService.preview(fixture.user.getId(), LearningReplanService.MODE_REMEDIATE));
+    }
+
+    @Test
     void accelerateNoOpWithoutReviewItems() {
         var fixture = seed();
         var preview = replanService.preview(fixture.user.getId(), LearningReplanService.MODE_ACCELERATE);
