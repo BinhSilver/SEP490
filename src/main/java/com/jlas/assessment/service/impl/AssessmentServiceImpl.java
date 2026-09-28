@@ -67,7 +67,7 @@ public class AssessmentServiceImpl implements AssessmentService {
             "READING", "LISTENING", "VOCABULARY", "GRAMMAR", "KANJI");
     private static final Set<String> CURRENT_LEVELS = Set.of(
             "FROM_ZERO", "UNKNOWN", "N5", "N4", "N3", "N2", "N1");
-    /** [JLAS-W0108] Mục tiêu có target JLPT (JLPT/BRSE); N2/N1 đang phát triển, bị chặn ở API. */
+    /** [JLAS-W0108] Mục tiêu có target JLPT (JLPT/BRSE); N2/N1 được phép chọn, readiness kiểm ở lộ trình (P6/P8). */
     private static final Set<String> GOALS_WITH_TARGET = Set.of("JLPT", "BA");
 
     private final UserRepository userRepository;
@@ -775,7 +775,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         return normalized;
     }
 
-    /** [JLAS-W0108] Chặn target chưa phát hành ở tầng API/domain cho mục tiêu thi cử (JLPT/BRSE). */
+    /** [JLAS-W0108] Hook readiness target chưa phát hành (hiện N5→N1 đều mở); P8 ghim theo manifest readiness. */
     private static void requireAvailableTarget(String target) {
         if (target != null && !JlptLevel.isAvailableForLearning(target)) {
             throw new ApiException(ErrorCode.TARGET_NOT_AVAILABLE,

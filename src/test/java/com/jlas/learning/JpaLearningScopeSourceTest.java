@@ -1,5 +1,7 @@
 package com.jlas.learning;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.Tag;
 import com.jlas.dictionary.entity.Textbook;
@@ -39,21 +41,17 @@ class JpaLearningScopeSourceTest {
     @Autowired LearningScopeSource scope;
 
     @Test
-    void fallsBackToDemoSeedWhenNoRealTextbookCoversALevel() {
-        // Real published textbooks only cover N5 and N4; N3/N2/N1 are still being digitized.
-        var n5 = book("N5", "Sekai N5");
-        var n4 = book("N4", "Sekai N4");
-        demoBook(9003L, "N3");
-        demoBook(9004L, "N2");
-        demoBook(9005L, "N1");
+    void missingMiddleLevelThrowsBlockedContentInsteadOfDemoFallback() {
+        // Real published textbooks only cover N5 and N4; N3 has no real content yet.
+        book("N5", "Sekai N5");
+        book("N4", "Sekai N4");
+        demoBook(9003L, "N3"); // demo seed KHÔNG được dùng thay học liệu thật (P6/R6)
         em.flush();
         em.clear();
 
-        var profile = snapshot("N5", "N1");
-        var result = scope.resolve(7L, profile);
-
-        assertEquals(List.of(n5.getId(), n4.getId(), 9003L, 9004L, 9005L),
-                result.goalTextbookIds());
+        var exception = assertThrows(ApiException.class,
+                () -> scope.resolve(7L, snapshot("N5", "N3")));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, exception.getErrorCode());
     }
 
     @Test
@@ -67,7 +65,10 @@ class JpaLearningScopeSourceTest {
 
         var result = scope.resolve(7L, snapshot("N5", "N3"));
 
-        assertEquals(List.of(n5.getId(), n4.getId(), n3.getId()), result.goalTextbookIds());
+        // Goal chỉ gồm cấp TRÊN assessed (N4+N3), không trộn N5; demo bị loại.
+        assertEquals(List.of(n4.getId(), n3.getId()), result.goalTextbookIds());
+        assertEquals(List.of(n5.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of("N4", "N3"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     @Test
@@ -81,6 +82,54 @@ class JpaLearningScopeSourceTest {
 
         assertEquals(List.of(kana.getId()), result.warmUpTextbookIds());
         assertEquals(List.of(n5.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N5"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void n5ToN3ProducesTwoSequentialStages() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        var n3 = book("N3", "Sekai N3");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N5", "N3"));
+
+        assertEquals(List.of(n5.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n4.getId(), n3.getId()), result.goalTextbookIds());
+        assertEquals(2, result.stages().size());
+        assertEquals("N4", result.stages().get(0).level());
+        assertEquals(List.of(n4.getId()), result.stages().get(0).goalTextbookIds());
+        assertEquals("N3", result.stages().get(1).level());
+        assertEquals(List.of(n3.getId()), result.stages().get(1).goalTextbookIds());
+    }
+
+    @Test
+    void n2ToN1ProducesSingleN1Stage() {
+        var n2 = book("N2", "Sekai N2");
+        var n1 = book("N1", "Sekai N1");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N2", "N1"));
+
+        assertEquals(List.of(n2.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n1.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N1"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void n1ToN1ProducesConsolidationStage() {
+        var n1 = book("N1", "Sekai N1");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N1", "N1"));
+
+        // Củng cố chính cấp N1: warm-up và goal cùng cấp, một chặng N1.
+        assertEquals(List.of(n1.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n1.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N1"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     /** [JLAS-W0108] Sách nền tảng bảng chữ cái: jlpt_level NULL + bài gắn tag {@code KANA-*}. */

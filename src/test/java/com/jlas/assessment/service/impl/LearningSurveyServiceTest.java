@@ -5,8 +5,6 @@ import com.jlas.assessment.entity.UserLearningSurvey;
 import com.jlas.assessment.repository.*;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
-import com.jlas.common.exception.ApiException;
-import com.jlas.common.exception.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -82,20 +80,19 @@ class LearningSurveyServiceTest {
         verify(surveys).saveAndFlush(argThat(s -> s.getSelfReportedLevel().equals("N4")));
     }
 
-    @Test void unavailableTargetLevelIsRejectedBeforeSurveyIsSaved() {
-        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N2", "N3")))
-                .isInstanceOf(ApiException.class)
-                .extracting(ex -> ((ApiException) ex).getErrorCode())
-                .isEqualTo(ErrorCode.TARGET_NOT_AVAILABLE);
-        verifyNoInteractions(surveys, users, attempts);
+    @Test void n2TargetLevelIsAcceptedForJlptSurvey() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        var response = service.saveLearningSurvey(7L, request("JLPT", "N2", "N3"));
+        assertThat(response.survey().targetLevel()).isEqualTo("N2");
     }
 
-    @Test void unavailableTargetLevelIsRejectedBeforeSmartTestStarts() {
+    @Test void n1TargetLevelIsNotBlockedAtTargetValidationForSmartTest() {
+        // N1 không còn bị chặn ở bước target (readiness kiểm sau ở lộ trình); request đi tiếp tới tra user.
         assertThatThrownBy(() -> service.startSmartTest(7L, request("JLPT", "N1", "N2")))
-                .isInstanceOf(ApiException.class)
-                .extracting(ex -> ((ApiException) ex).getErrorCode())
-                .isEqualTo(ErrorCode.TARGET_NOT_AVAILABLE);
-        verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Không tìm thấy người dùng");
+        verifyNoInteractions(attempts, questions, answers, sessions, issued, results);
     }
 
     @Test void supportedTargetLevelIsAccepted() {

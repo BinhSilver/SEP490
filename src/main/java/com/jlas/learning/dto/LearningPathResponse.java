@@ -12,9 +12,10 @@ public record LearningPathResponse(Long id, Long userId, Long assessmentAttemptI
         String currentLevel, Integer minutesPerDay, String status, int version, LocalDateTime createdAt,
         List<LearningPhaseGroup> phases, List<CoverageGap> coverageGaps,
         int totalLessons, int totalMinutes, int totalDays, int completedLessons,
-        boolean warmUpCompleted, boolean gatePassed, JsonNode aiPlan) {
+        boolean warmUpCompleted, boolean gatePassed, JsonNode aiPlan, List<LearningStageResponse> stages) {
     public LearningPathResponse {
         phases = List.copyOf(phases);
         coverageGaps = List.copyOf(coverageGaps);
+        stages = List.copyOf(stages);
     }
 }
