@@ -107,15 +107,25 @@ public class LearningMapper {
         boolean warmUpCompleted = groups.stream().filter(group -> group.phase() == LearningPhase.WARM_UP)
                 .anyMatch(group -> !group.items().isEmpty() && group.items().stream().allMatch(LearningPathItemDto::completed));
         List<LearningStageResponse> stageResponses = stages.stream()
-                .map(stage -> new LearningStageResponse(stage.getLevel(), stage.getStageIndex(),
-                        stage.getStatus(), stage.getCurriculumVersion(), stage.getAssessmentCycle()))
+                .map(stage -> new LearningStageResponse(stage.getId(), stage.getLevel(), stage.getStageIndex(),
+                        stage.getStatus(), stage.getCurriculumVersion(), stage.getAssessmentCycle(),
+                        stageFinalAvailable(stage, items)))
                 .toList();
         return new LearningPathResponse(path.getId(), path.getUser().getId(), path.getAssessmentAttemptId(),
                 path.getGoal(), path.getTargetLevel(),
                 path.getCurrentLevel(), path.getMinutesPerDay(), path.getStatus(), path.getVersion(), path.getCreatedAt(),
                 groups, readCoverageGaps(path.getCoverageGapsJson()),
                 totalLessons, totalMinutes, totalDays, completed,
-                warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()), stageResponses);
+                warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()), stageResponses,
+                path.getCompletedAt());
+    }
+
+    /** [JLAS-W0108] Chặng ACTIVE và mọi item của chặng đã STUDIED -> bài final sẵn sàng phát. */
+    private static boolean stageFinalAvailable(UserLearningStage stage, List<UserLearningPathItem> items) {
+        if (!"ACTIVE".equals(stage.getStatus())) return false;
+        return items.stream()
+                .filter(item -> stage.getId().equals(item.getStageId()))
+                .allMatch(item -> "STUDIED".equals(item.getStudyStatus()));
     }
 
     private LearningPathItemDto toFlashcardGroup(List<UserLearningPathItem> items, boolean completed) {
