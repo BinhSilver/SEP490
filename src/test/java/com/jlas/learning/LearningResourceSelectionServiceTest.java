@@ -220,48 +220,113 @@ class LearningResourceSelectionServiceTest {
         assertEquals(LearningPhase.WARM_UP, result.resources().getFirst().phase());
     }
 
-    @Test void severelyWeakGrammarReviewsAllGrammarLessonsOfCurrentLevel() {
-        // [JLAS-W0108] Kỹ năng rất yếu (<40% đúng) → ôn TOÀN BỘ bài ngữ pháp cấp hiện tại
-        // (FULL_SKILL_REVIEW), thay vì chỉ vài item sai.
+    @Test void severelyWeakGrammarWarmsUpSpecificPointNotFullLevelReview() {
+        // [JLAS-W0108] P3 — kỹ năng ngữ pháp rất yếu KHÔNG tự ôn toàn bộ cấp (D1 chưa kích hoạt);
+        // chỉ ôn đúng điểm/tag yếu, phần còn lại giữ cho GOAL.
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
                 "N4", "N4", "JLPT", 30,
                 List.of(tag("PARTICLE", 5, 4)),
                 List.of(new SkillScore("GRAMMAR", 5, 4)));
         var result = selector.select(7L, profile, scope);
-        assertEquals(List.of(11L, 12L, 21L), ids(result));
-        assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
                 result.resources().stream().map(SelectedLearningResource::phase).toList());
-        assertEquals(List.of("FULL_SKILL_REVIEW", "FULL_SKILL_REVIEW", "GOAL_TARGET"),
+        assertEquals(List.of("WEAK_TAG", "GOAL_TARGET"),
                 result.resources().stream().map(SelectedLearningResource::reasonCode).toList());
         assertTrue(result.coverageGaps().isEmpty());
     }
 
-    @Test void overallAboveSixtyPercentCorrectSkipsWarmUp() {
-        // [JLAS-W0108] Tổng % đúng > 60% → pass cấp hiện tại (cấp tự chọn survey), vào thẳng GOAL.
+    @Test void totalHighButWeakListeningStillGetsComprehensionLessons() {
+        // [JLAS-W0108] P3 — tổng % đúng cao KHÔNG che kỹ năng yếu: nghe 40% vẫn nhận 8 bài luyện nghe
+        // (p-table §6.1), dù các skill khác gần như trọn vẹn.
+        var compSelector = new LearningResourceSelectionServiceImpl(
+                comprehensionCatalog(10, 10), new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
                 "N4", "N4", "JLPT", 30,
-                List.of(tag("PARTICLE", 5, 1)),
-                List.of(new SkillScore("KANJI", 5, 0),
-                        new SkillScore("VOCABULARY", 5, 1),
-                        new SkillScore("GRAMMAR", 5, 1),
-                        new SkillScore("READING", 5, 2),
-                        new SkillScore("LISTENING", 5, 1)));
-        var result = selector.select(7L, profile, scope);
-        assertEquals(List.of(21L), ids(result));
-        assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
+                List.of(tag("PARTICLE", 5, 0)),
+                List.of(new SkillScore("KANJI", 10, 0),
+                        new SkillScore("VOCABULARY", 10, 1),
+                        new SkillScore("GRAMMAR", 10, 1),
+                        new SkillScore("READING", 10, 1),
+                        new SkillScore("LISTENING", 10, 6)));
+        var result = compSelector.select(7L, profile, scope);
+        assertEquals(8, result.resources().stream()
+                .filter(item -> "WEAK_LISTENING_ITEM".equals(item.reasonCode())).count());
+        assertEquals(0, result.resources().stream()
+                .filter(item -> "WEAK_READING_ITEM".equals(item.reasonCode())).count());
         assertTrue(result.coverageGaps().isEmpty());
     }
 
-    @Test void passedSkillIsSkippedEvenWithWrongItems() {
-        // [JLAS-W0108] VOCAB 80% đúng → đạt; dù có item sai vẫn KHÔNG warm-up (flashcard) và
-        // không báo gap, vì kỹ năng đã pass (>60% đúng).
+    @ParameterizedTest
+    @CsvSource({"10,6,8", "10,5,6", "10,3,4", "10,2,0", "1000,599,6", "1000,499,4", "1000,299,0"})
+    void comprehensionCountFollowsPercentTable(int assessed, int wrong, int expected) {
+        // [JLAS-W0108] P3 — biên §6.1: p40→8, p50→6, p70→4, p40.1→6, p50.1→4, p70.1→0.
+        var compSelector = new LearningResourceSelectionServiceImpl(
+                comprehensionCatalog(10, 10), new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N4", "N4", "JLPT", 30,
+                List.of(tag("PARTICLE", 5, 0)),
+                List.of(new SkillScore("READING", assessed, wrong)));
+        var result = compSelector.select(7L, profile, scope);
+        assertEquals(expected, result.resources().stream()
+                .filter(item -> "WEAK_READING_ITEM".equals(item.reasonCode())).count());
+    }
+
+    @Test void insufficientComprehensionSampleIsNotTreatedAsZeroPercent() {
+        // [JLAS-W0108] P3 — không có mẫu đọc (assessedCount 0) là INSUFFICIENT_EVIDENCE, KHÔNG phải
+        // "0% đúng → 8 bài".
+        var compSelector = new LearningResourceSelectionServiceImpl(
+                comprehensionCatalog(10, 10), new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N4", "N4", "JLPT", 30,
+                List.of(tag("PARTICLE", 5, 0)),
+                List.of(new SkillScore("READING", 0, 0)));
+        var result = compSelector.select(7L, profile, scope);
+        assertEquals(0, result.resources().stream()
+                .filter(item -> "WEAK_READING_ITEM".equals(item.reasonCode())).count());
+        assertTrue(result.coverageGaps().contains(new CoverageGap("SKILL:READING", "INSUFFICIENT_EVIDENCE")));
+    }
+
+    @Test void insufficientComprehensionLessonsReportGapWithoutWrongLevelFallback() {
+        // [JLAS-W0108] P3 — đủ số bài đúng cấp; thiếu (3 < 8) thì thêm bài sẵn có + gap, KHÔNG fallback
+        // cấp gần nhất để đủ số.
+        var compSelector = new LearningResourceSelectionServiceImpl(
+                comprehensionCatalog(3, 0), new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N4", "N4", "JLPT", 30,
+                List.of(tag("PARTICLE", 5, 0)),
+                List.of(new SkillScore("READING", 10, 6)));
+        var result = compSelector.select(7L, profile, scope);
+        assertEquals(3, result.resources().stream()
+                .filter(item -> "WEAK_READING_ITEM".equals(item.reasonCode())).count());
+        assertTrue(result.coverageGaps().contains(new CoverageGap("SKILL:READING", "MISSING_WARM_UP_RESOURCE")));
+    }
+
+    @Test void wrongVocabItemKeptEvenWhenSkillPasses() {
+        // [JLAS-W0108] P3 — VOCAB 80% đúng KHÔNG còn loại từ sai: item sai vẫn được giữ làm warm-up
+        // (từ/Kanji sai luôn giữ dù skill cao), trái với policy cũ bỏ qua skill >60%.
+        var vocabCatalog = new LearningCatalogSource() {
+            @Override
+            public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
+                return lessons.stream().filter(lesson -> textbookIds.contains(lesson.textbookId())).toList();
+            }
+
+            @Override
+            public Optional<LearningResourceCandidate> findVocabularyItem(Long vocabularyEntryId) {
+                if (vocabularyEntryId == null) return Optional.empty();
+                return Optional.of(new LearningResourceCandidate(11L, "学校", 1L, 10L,
+                        Set.of("PARTICLE"), "N5", 5, 1, 1, null, vocabularyEntryId));
+            }
+        };
+        var vocabSelector = new LearningResourceSelectionServiceImpl(
+                vocabCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
                 "N4", "N4", "JLPT", 30,
                 List.of(WeaknessEvidence.item("VOCABULARY", "VOCAB:学校", 10, 2, "N5", 77L)),
                 List.of(new SkillScore("VOCABULARY", 10, 2)));
-        var result = selector.select(7L, profile, scope);
-        assertEquals(List.of(21L), ids(result));
-        assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
+        var result = vocabSelector.select(7L, profile, scope);
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals("WEAK_VOCAB_ITEM", result.resources().getFirst().reasonCode());
         assertTrue(result.coverageGaps().isEmpty());
     }
 
@@ -360,7 +425,7 @@ class LearningResourceSelectionServiceTest {
                 List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 2, 3)),
                 List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, -1, 0)),
                 List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 3, -1)),
-                List.of(new WeaknessEvidence("", "GP:1", 3, 2, null, null, null, null, null, null, null, null)),
+                List.of(new WeaknessEvidence("", "GP:1", 3, 2, null, null, null, null, null, null, List.of())),
                 List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 3, 2),
                         WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 3, 3)))) {
             assertError(ErrorCode.VALIDATION_FAILED, () -> selector.select(7L, profile(tags), scope));
@@ -423,6 +488,30 @@ class LearningResourceSelectionServiceTest {
     private static LearningResourceCandidate lesson(long id, long book, String level, int minutes, int order, String... tags) {
         return new LearningResourceCandidate(id, "Lesson " + id, book, book * 10,
                 Set.of(tags), level, minutes, 1, order, null, null, "GRAMMAR");
+    }
+
+    /** [JLAS-W0108] P3 — catalog giả lập trả đủ {@code readingCount}/{@code listeningCount} bài
+     *  comprehension ĐÚNG cấp N4 (id tách biệt để không đụng GOAL lesson 21). */
+    private LearningCatalogSource comprehensionCatalog(int readingCount, int listeningCount) {
+        List<LearningResourceCandidate> reading = new ArrayList<>();
+        List<LearningResourceCandidate> listening = new ArrayList<>();
+        for (int i = 0; i < readingCount; i++) reading.add(comp(100L + i, "READING"));
+        for (int i = 0; i < listeningCount; i++) listening.add(comp(200L + i, "LISTENING"));
+        return new LearningCatalogSource() {
+            @Override
+            public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
+                return lessons.stream().filter(lesson -> textbookIds.contains(lesson.textbookId())).toList();
+            }
+
+            @Override
+            public List<LearningResourceCandidate> findComprehensionLessons(String skill, String level) {
+                return "READING".equals(skill) ? reading : listening;
+            }
+        };
+    }
+
+    private static LearningResourceCandidate comp(long id, String skill) {
+        return new LearningResourceCandidate(id, "Comp " + id, 1L, 1L, Set.of(skill), "N4", 15, 1, (int) id, null, null, skill);
     }
 
     private static List<Long> ids(LearningSelectionResult result) {

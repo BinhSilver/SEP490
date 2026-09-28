@@ -1,5 +1,8 @@
 package com.jlas.learning.dto;
 
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * [JLAS-W0108] Evidence điểm yếu theo skill với canonical ID (spec §2.1 + §2.2).
  *
@@ -21,12 +24,18 @@ public record WeaknessEvidence(
         int wrongCount,         // số câu sai (gồm NO_RESPONSE do hết giờ)
         String tagCode,         // grammar: tag lesson; reading/listening: tag SITUATION (nullable)
         Long tagId,             // FK tag.id (nullable — KANJI/VOCAB không có tag)
-        String outcomeCode,     // reading/listening (nullable)
-        Long outcomeId,         // FK outcome.id (nullable)
         String topicTagCode,    // reading/listening (nullable; JLPT listening = null)
         Long topicTagId,        // FK tag.id TOPIC (nullable)
         String jlptLevel,       // cấp độ JLPT của item/point/skill (để chặn warm-up trên mức kết luận)
-        Long vocabularyEntryId) { // KANJI/VOCAB: FK vocabulary_entry.id (nullable — anchor resolve warm-up)
+        Long vocabularyEntryId, // KANJI/VOCAB: FK vocabulary_entry.id (nullable — anchor resolve warm-up)
+        List<OutcomeBreakdown> outcomeBreakdown) { // reading/listening: MỌI outcome đã sai, không chỉ outcome dominant
+
+    public WeaknessEvidence {
+        outcomeBreakdown = List.copyOf(outcomeBreakdown);
+    }
+
+    /** [JLAS-W0108][MP01] Một outcome reading/listening đã sai, giữ assessed/wrong riêng của outcome đó. */
+    public record OutcomeBreakdown(String outcomeCode, Long outcomeId, int assessedCount, int wrongCount) { }
 
     public static final String SKILL_KANJI = "KANJI";
     public static final String SKILL_VOCABULARY = "VOCABULARY";
@@ -49,7 +58,7 @@ public record WeaknessEvidence(
     public static WeaknessEvidence item(String skill, String canonicalId, int assessedCount, int wrongCount,
             String jlptLevel, Long vocabularyEntryId) {
         return new WeaknessEvidence(skill, canonicalId, assessedCount, wrongCount,
-                null, null, null, null, null, null, jlptLevel, vocabularyEntryId);
+                null, null, null, null, jlptLevel, vocabularyEntryId, List.of());
     }
 
     /** GRAMMAR gom theo grammarPointId, tag lesson là phân loại bổ sung. */
@@ -62,16 +71,18 @@ public record WeaknessEvidence(
     public static WeaknessEvidence grammar(long grammarPointId, String tagCode, Long tagId,
             int assessedCount, int wrongCount, String jlptLevel) {
         return new WeaknessEvidence(SKILL_GRAMMAR, "GP:" + grammarPointId, assessedCount, wrongCount,
-                tagCode, tagId, null, null, null, null, jlptLevel, null);
+                tagCode, tagId, null, null, jlptLevel, null, List.of());
     }
 
-    /** READING/LISTENING gom cấp skill theo cửa sổ 5 câu; outcome/topic/situation yếu kèm theo. */
+    /** [JLAS-W0108][MP01] READING/LISTENING gom cấp skill theo cửa sổ 5 câu (assessed/wrong dùng để
+     * xét ngưỡng yếu theo skill); {@code outcomeBreakdown} giữ MỌI outcome đã sai riêng, không chỉ
+     * outcome sai nhiều nhất — topic/situation/level vẫn là giá trị dominant (đơn, chưa tách theo B05). */
     public static WeaknessEvidence comprehension(String skill, int assessedCount, int wrongCount,
-            String tagCode, Long tagId, String outcomeCode, Long outcomeId,
+            String tagCode, Long tagId, List<OutcomeBreakdown> outcomeBreakdown,
             String topicTagCode, Long topicTagId, String jlptLevel) {
         return new WeaknessEvidence(skill, skill.equals(SKILL_READING) ? "READ" : "LISTEN",
-                assessedCount, wrongCount, tagCode, tagId, outcomeCode, outcomeId,
-                topicTagCode, topicTagId, jlptLevel, null);
+                assessedCount, wrongCount, tagCode, tagId,
+                topicTagCode, topicTagId, jlptLevel, null, outcomeBreakdown);
     }
 
     /** Khóa ổn định để sắp xếp/báo gap khi không có tag code (KANJI/VOCAB/READING/LISTENING). */
@@ -87,5 +98,23 @@ public record WeaknessEvidence(
         } catch (NumberFormatException exception) {
             return null;
         }
+    }
+
+    /** [JLAS-W0108][MP01] Outcome sai nhiều nhất trong {@link #outcomeBreakdown()} — tương thích với
+     * WeaknessNotebook, vốn ghi một dòng/skill theo đúng outcome này. Dùng {@code outcomeBreakdown()}
+     * ở nơi cần giữ đủ mọi outcome, không chỉ outcome này. */
+    public String outcomeCode() {
+        return dominantOutcome().map(OutcomeBreakdown::outcomeCode).orElse(null);
+    }
+
+    /** @see #outcomeCode() */
+    public Long outcomeId() {
+        return dominantOutcome().map(OutcomeBreakdown::outcomeId).orElse(null);
+    }
+
+    private java.util.Optional<OutcomeBreakdown> dominantOutcome() {
+        return outcomeBreakdown.stream()
+                .max(Comparator.comparingInt(OutcomeBreakdown::wrongCount)
+                        .thenComparing(Comparator.comparing(OutcomeBreakdown::outcomeCode).reversed()));
     }
 }

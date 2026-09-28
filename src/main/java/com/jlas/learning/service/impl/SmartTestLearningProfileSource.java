@@ -21,6 +21,7 @@ import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.service.LearningProfileSource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -206,13 +207,15 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         return result;
     }
 
-    /** READING/LISTENING: cửa sổ 5 câu cấp skill; ghi outcome/topic/situation/level yếu (chiếm đa số câu sai). */
+    /** [JLAS-W0108][MP01] READING/LISTENING: cửa sổ 5 câu cấp skill quyết định ngưỡng yếu (assessed/wrong
+     * skill-wide, không đổi); {@code outcomeBreakdown} giữ MỌI outcome đã sai riêng (không chỉ dominant)
+     * để không mất bằng chứng khi có ≥2 outcome sai gần/bằng nhau. Topic/situation/level vẫn lấy dominant. */
     private List<WeaknessEvidence> comprehensionEvidence(List<AssessmentAnswer> answers, String skill) {
         if (answers == null || answers.isEmpty()) return List.of();
         int assessed = 0;
         int wrong = 0;
-        Map<String, Integer> wrongByOutcome = new HashMap<>();
-        Map<String, Long> outcomeIdByCode = new HashMap<>();
+        Map<String, int[]> byOutcome = new LinkedHashMap<>(); // [assessedCount, wrongCount]
+        Map<String, Long> outcomeIdByCode = new LinkedHashMap<>();
         Map<String, Integer> wrongByTopic = new HashMap<>();
         Map<String, Long> topicIdByCode = new HashMap<>();
         Map<String, Integer> wrongBySituation = new HashMap<>();
@@ -222,13 +225,17 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         for (AssessmentAnswer answer : answers) {
             AssessmentQuestion question = answer.getQuestion();
             assessed++;
-            if (!isWrong(answer)) continue;
-            wrong++;
+            boolean wasWrong = isWrong(answer);
+            if (wasWrong) wrong++;
+
             Outcome outcome = question.getOutcome();
             if (outcome != null) {
-                wrongByOutcome.merge(outcome.getCode(), 1, Integer::sum);
+                int[] count = byOutcome.computeIfAbsent(outcome.getCode(), key -> new int[2]);
+                count[0]++;
+                if (wasWrong) count[1]++;
                 outcomeIdByCode.putIfAbsent(outcome.getCode(), outcome.getId());
             }
+            if (!wasWrong) continue;
             Tag topic = question.getTopicTag();
             if (topic != null) {
                 wrongByTopic.merge(topic.getCode(), 1, Integer::sum);
@@ -244,12 +251,16 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
             }
         }
 
-        String outcomeCode = dominant(wrongByOutcome);
+        List<WeaknessEvidence.OutcomeBreakdown> outcomeBreakdown = byOutcome.entrySet().stream()
+                .filter(entry -> entry.getValue()[1] >= 1)
+                .map(entry -> new WeaknessEvidence.OutcomeBreakdown(entry.getKey(),
+                        outcomeIdByCode.get(entry.getKey()), entry.getValue()[0], entry.getValue()[1]))
+                .sorted(Comparator.comparing(WeaknessEvidence.OutcomeBreakdown::outcomeCode))
+                .toList();
         String topicCode = dominant(wrongByTopic);
         String situationCode = dominant(wrongBySituation);
         return List.of(WeaknessEvidence.comprehension(skill, assessed, wrong,
-                situationCode, situationIdByCode.get(situationCode),
-                outcomeCode, outcomeIdByCode.get(outcomeCode),
+                situationCode, situationIdByCode.get(situationCode), outcomeBreakdown,
                 topicCode, topicIdByCode.get(topicCode),
                 dominant(wrongByLevel)));
     }
