@@ -57,3 +57,23 @@ test('does not link a locked Grammar activity', () => {
   const html = page.render(path());
   assert.doesNotMatch(html, /\/learning\/v2\/grammar\?activity=3/);
 });
+
+test('links an unlocked Dialogue activity to its own study page (Task 7)', () => {
+  const data = path();
+  data.packages[0].activities[0].state = 'STUDYING';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/dialogue\?activity=1"/);
+});
+
+test('does not link a locked Dialogue activity', () => {
+  const html = page.render(path());
+  assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1/);
+});
+
+test('marks a completed Dialogue activity as done without a link (Dialogue has no micro-check state)', () => {
+  const data = path();
+  data.packages[0].activities[0].state = 'COMPLETED';
+  const html = page.render(data);
+  assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1/);
+  assert.match(html, /is-done/);
+});

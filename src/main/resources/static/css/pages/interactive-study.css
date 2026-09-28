@@ -98,3 +98,30 @@
 .ilp-practice__feedback.is-correct{background:#f7ffe9;border:1px solid #bde86c;color:#56732a}
 .ilp-practice__feedback.is-incorrect{background:#fff7ec;border:1px solid #ffd7a8;color:#8a5a14}
 @media(max-width:520px){.ilp-components{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}.ilp-fill__input{width:100%}}
+
+/* [JLAS-W0193] Task 7 — Dialogue: read-only chat-style script + a persistent server-timed progress panel.
+   Same purple/lime tokens and containerless posture as Grammar; the script itself is a plain <ol>, not cards
+   nested inside cards. */
+.ilp-dialogue{display:grid;gap:28px}
+.ilp-dialogue__script{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.ilp-dialogue__line{display:grid;gap:4px;max-width:640px}
+.ilp-dialogue__line.is-left{justify-items:start;justify-self:start}
+.ilp-dialogue__line.is-right{justify-items:end;justify-self:end;margin-left:auto}
+.ilp-dialogue__role{font:800 11px ui-monospace,monospace;color:var(--ilp-muted);text-transform:uppercase;letter-spacing:.04em}
+.ilp-dialogue__bubble{position:relative;display:grid;gap:6px;padding:14px 18px;border-radius:16px;background:#fff;border:1px solid var(--ilp-line)}
+.ilp-dialogue__line.is-left .ilp-dialogue__bubble{border-top-left-radius:4px}
+.ilp-dialogue__line.is-right .ilp-dialogue__bubble{border-top-right-radius:4px;background:var(--ilp-purple-soft,#faf5ff)}
+.ilp-dialogue__ja{margin:0;font:600 19px 'Noto Serif',serif}
+.ilp-dialogue__vi{margin:0;color:var(--ilp-muted)}
+.ilp-dialogue__audio{justify-self:start;border:1px solid var(--ilp-line);background:#fff;border-radius:999px;width:36px;height:36px;min-width:44px;min-height:44px;display:grid;place-items:center;cursor:pointer;font-size:16px}
+.ilp-dialogue__audio:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:3px}
+.ilp-dialogue__sentinel{height:1px}
+.ilp-dialogue__progress{position:sticky;bottom:16px;display:grid;gap:10px;padding:18px 20px;border-radius:16px;background:#fff;border:1px solid var(--ilp-line);box-shadow:0 8px 24px rgba(21,26,45,.08)}
+.ilp-dialogue__note{margin:0;color:var(--ilp-ink,#151a2d);font-weight:600}
+.ilp-dialogue__evidence{list-style:none;margin:0;padding:0;display:flex;gap:16px;flex-wrap:wrap;font:700 12px ui-monospace,monospace;color:var(--ilp-muted)}
+.ilp-dialogue__evidence li{padding-left:20px;position:relative}
+.ilp-dialogue__evidence li::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:#e4e9ef}
+.ilp-dialogue__evidence li.is-done{color:#4c9200}
+.ilp-dialogue__evidence li.is-done::before{background:var(--ilp-lime)}
+@media(max-width:520px){.ilp-dialogue__line{max-width:100%}.ilp-dialogue__progress{position:static}}
+@media(prefers-reduced-motion:reduce){.ilp-dialogue__progress{box-shadow:none}}

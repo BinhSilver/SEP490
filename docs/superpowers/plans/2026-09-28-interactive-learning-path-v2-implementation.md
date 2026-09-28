@@ -90,11 +90,11 @@ GET  /learning/path/v2
 - [x] Require two fresh approved questions per point and reject verbatim practice reuse — `MEANING_MATCH` + `USAGE_SELECT` per point, sourced from different canonical fields/framing than the ordering/fill practice artifacts; proven by `InteractiveGrammarServiceTest#issueProducesAtLeastTwoNonVerbatimQuestionsPerPointOnceGateSatisfied`.
 - [x] Build the reference grammar page and immediate explanatory feedback without runtime AI — `/learning/v2/grammar`, purple/lime light-tech design reusing the shared `interactive-study.css` (also fixed a Task 5 bug where Kanji's page silently loaded no stylesheet at all).
 
-### Task 7 — Dialogue with trustworthy completion (70%)
+### Task 7 — Dialogue with trustworthy completion (70%) — ✅ complete
 
-- [ ] Add a Learning Path page backed by a read-only canonical dialogue adapter; never redirect to textbooks.
-- [ ] Validate visible heartbeats server-side, cap each at 20 seconds, reset gaps >30 seconds and persist bottom evidence.
-- [ ] Complete only at 180 active seconds plus bottom reached; test ownership and idempotency.
+- [x] Add a Learning Path page backed by a read-only canonical dialogue adapter; never redirect to textbooks — `GET /learning/v2/dialogue`, reads `DialogueLineDetailRepository`/`ContentAudioRepository` (dictionary module, unmodified) through `InteractiveDialogueServiceImpl`.
+- [x] Validate visible heartbeats server-side, cap each at 20 seconds, reset gaps >30 seconds and persist bottom evidence — server-clock-only gap measurement, no client-supplied duration/timestamp anywhere; bottom-reached is a dedicated event rejected without prior heartbeat evidence.
+- [x] Complete only at 180 active seconds plus bottom reached; test ownership and idempotency — `completed_at` set exactly once, both conditions AND-gated; owner/type-scoped via `findOwnedByIdForUpdate`; heartbeat replay (token match) and reached-bottom repeat calls are both idempotent.
 
 ### Task 8 — Package completion and next action (80%)
 

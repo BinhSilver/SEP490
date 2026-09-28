@@ -37,4 +37,10 @@ public class LearningPathPageController {
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-grammar-study";
     }
+
+    @GetMapping("/learning/v2/dialogue")
+    public String interactiveDialogue(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-dialogue-study";
+    }
 }

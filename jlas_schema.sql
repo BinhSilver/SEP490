@@ -1957,6 +1957,33 @@ CREATE TABLE learning_grammar_practice_progress (
         REFERENCES user_learning_path_item(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0193] Task 7 - bang chung hoan thanh Dialogue: 1 dong/activity DIALOGUE. accumulated_seconds chi
+-- tang bang gia tri server tu tinh (cap 20s/heartbeat, reset chuoi khi khoang cach heartbeat > 30s) - khong
+-- bao gio nhan tong so giay hoac co "completed" tu client. reached_bottom_at la bang chung cuon-den-cuoi
+-- rieng, ghi mot lan qua endpoint /reached-bottom (yeu cau da co it nhat 1 heartbeat truoc do). completed_at
+-- chi duoc set khi ca hai dieu kien (>=180s VA reached_bottom_at khac null) cung dung, va khong bao gio bi
+-- xoa/ghi de sau do. last_heartbeat_token la nonce client-sinh de tu choi mot heartbeat gui lai (replay)
+-- khong cho cong them thoi gian lan thu hai. source_revision di theo learning_activity_member.source_revision
+-- cung quy tac reset-khi-doi-revision nhu learning_grammar_practice_progress.
+CREATE TABLE learning_dialogue_progress (
+    id                     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id       BIGINT UNSIGNED NOT NULL,
+    source_revision        VARCHAR(64) NOT NULL,
+    accumulated_seconds    INT UNSIGNED NOT NULL DEFAULT 0,
+    last_heartbeat_at      DATETIME(6) NULL,
+    last_heartbeat_token   VARCHAR(80) NULL,
+    reached_bottom_at      DATETIME(6) NULL,
+    completed_at           DATETIME(6) NULL,
+    row_version            BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at             DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at             DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                           ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_progress_activity (activity_item_id),
+    CONSTRAINT fk_dialogue_progress_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Goi y lesson on tap tu mot weakness.
 CREATE TABLE user_lesson_recommendation (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
