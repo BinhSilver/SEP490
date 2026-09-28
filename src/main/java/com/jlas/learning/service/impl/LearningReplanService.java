@@ -109,7 +109,8 @@ public class LearningReplanService {
         int completionMoved = 0;
         for (var item : current) {
             boolean warmUp = LearningPhase.WARM_UP.name().equals(item.getPhase());
-            boolean completed = completedLessonIds.contains(item.getLesson().getId());
+            // [JLAS-W0108][MP10] P2c — item neo grammarPoint/vocabularyEntry có lesson=null hợp lệ.
+            boolean completed = item.getLesson() != null && completedLessonIds.contains(item.getLesson().getId());
             if (warmUp || completed) {
                 verbatim.add(item);
                 if (!warmUp) completionMoved++;
@@ -125,7 +126,14 @@ public class LearningReplanService {
                 future.stream().map(this::toSelection).collect(Collectors.toCollection(ArrayList::new));
 
         if (MODE_REMEDIATE.equals(mode)) {
+            // [JLAS-W0122][MP10] Weakness đã có item ôn tập trong lịch (từ lần replan trước) không
+            // được thêm lại — nếu không, gọi lại REMEDIATE khi weakness vẫn OPEN sẽ nhân đôi item.
+            Set<String> alreadyScheduled = future.stream()
+                    .map(this::canonicalOf).filter(Objects::nonNull).collect(Collectors.toSet());
             for (var weakness : weaknesses.findByUserIdAndStatusNot(userId, STATUS_MASTERED)) {
+                if (alreadyScheduled.contains(weakness.getCanonicalItem())) {
+                    continue;
+                }
                 Remediation remediation = resolveWeakness(weakness);
                 if (remediation != null) {
                     selections.add(remediation.selection());
@@ -176,7 +184,7 @@ public class LearningReplanService {
         var gp = item.getGrammarPoint();
         var v = item.getVocabularyEntry();
         Set<String> tags = new LinkedHashSet<>(mapper.readMatchedTags(item.getMatchedTagCodes()));
-        var candidate = new LearningResourceCandidate(item.getLesson().getId(), itemTitle(item),
+        var candidate = new LearningResourceCandidate(lessonIdOf(item), itemTitle(item),
                 null, null, tags, null,
                 item.getEstimatedMinutes() == null ? 0 : item.getEstimatedMinutes(),
                 null, null, gp == null ? null : gp.getId(), v == null ? null : v.getId());
@@ -185,13 +193,18 @@ public class LearningReplanService {
     }
 
     private PlanItem toPlanItem(UserLearningPathItem item, int orderIndex) {
-        return new PlanItem(LearningPhase.valueOf(item.getPhase()), item.getLesson().getId(),
+        return new PlanItem(LearningPhase.valueOf(item.getPhase()), lessonIdOf(item),
                 item.getGrammarPoint() == null ? null : item.getGrammarPoint().getId(),
                 item.getVocabularyEntry() == null ? null : item.getVocabularyEntry().getId(),
                 item.getReasonCode(), item.getReason(),
                 new LinkedHashSet<>(mapper.readMatchedTags(item.getMatchedTagCodes())),
                 item.getEstimatedMinutes() == null ? 0 : item.getEstimatedMinutes(),
                 item.getDayNumber(), orderIndex, itemTitle(item));
+    }
+
+    /** [JLAS-W0108][MP10] P2c — item warm-up neo grammar/vocab hợp lệ không có lesson. */
+    private static Long lessonIdOf(UserLearningPathItem item) {
+        return item.getLesson() == null ? null : item.getLesson().getId();
     }
 
     /** Resolve một điểm yếu đang mở (chưa MASTERED) thành một tài nguyên ôn tập có thể đưa vào lịch. */
@@ -266,7 +279,7 @@ public class LearningReplanService {
         if (gp != null) return gp.getPattern();
         var v = item.getVocabularyEntry();
         if (v != null) return v.getExpression();
-        return item.getLesson().getTitle();
+        return item.getLesson() == null ? null : item.getLesson().getTitle();
     }
 
     private static Long parseGrammarPointId(String canonical) {
@@ -303,6 +316,10 @@ public class LearningReplanService {
                 .coverageGapsJson(active.getCoverageGapsJson())
                 .gatePassedAt(active.getGatePassedAt())
                 .warmUpFlashcardSetId(active.getWarmUpFlashcardSetId())
+                // [JLAS-W0108] P2d — copy fingerprint membership forward để WarmUpFlashcardService phát
+                // hiện membership thay đổi (replan thêm mục yếu mới): fingerprint khác => regenerate bộ,
+                // giữ tiến độ các thẻ cũ và thêm mục mới ở trạng thái chưa nhớ.
+                .warmUpFlashcardVersion(active.getWarmUpFlashcardVersion())
                 .status(STATUS_ACTIVE)
                 .version(nextVersion)
                 .build();
@@ -313,7 +330,7 @@ public class LearningReplanService {
         var pathRef = em.getReference(UserLearningPath.class, next.getId());
         var entities = ordered.stream().map(p -> UserLearningPathItem.builder()
                 .learningPath(pathRef)
-                .lesson(em.getReference(Lesson.class, p.lessonId()))
+                .lesson(p.lessonId() == null ? null : em.getReference(Lesson.class, p.lessonId()))
                 .grammarPoint(p.grammarPointId() == null ? null : em.getReference(GrammarPoint.class, p.grammarPointId()))
                 .vocabularyEntry(p.vocabularyEntryId() == null ? null : em.getReference(VocabularyEntry.class, p.vocabularyEntryId()))
                 .orderIndex(p.orderIndex())

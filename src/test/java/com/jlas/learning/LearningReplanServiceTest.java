@@ -2,6 +2,7 @@ package com.jlas.learning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,6 +21,7 @@ import com.jlas.learning.entity.UserKnowledgeWeakness;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.mapper.LearningMapper;
+import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.impl.JpaLearningCatalogSource;
 import com.jlas.learning.service.impl.LearningReplanService;
@@ -55,6 +57,7 @@ class LearningReplanServiceTest {
     @Autowired EntityManager em;
     @Autowired LearningReplanService replanService;
     @Autowired UserLearningPathRepository paths;
+    @Autowired UserLearningPathItemRepository items;
 
     @Test
     void remediateAddsReinforcementAndBumpsVersion() {
@@ -148,6 +151,70 @@ class LearningReplanServiceTest {
                         + "and p.policyVersion = 'v1'", Long.class)
                 .setParameter("uid", fixture.user.getId()).getSingleResult();
         assertEquals(2L, generationRows, "replan phải giữ 2 hàng cùng generation identity");
+    }
+
+    /** [JLAS-W0122][MP10] Gọi REMEDIATE hai lần liên tiếp với cùng weakness còn OPEN không được tạo
+     * hai item ôn tập trùng nhau, và replay không tạo version mới khi không còn gì để thêm. */
+    @Test
+    void remediateDoesNotDuplicateReinforcementWhenWeaknessStaysOpen() {
+        var fixture = seed();
+
+        replanService.apply(fixture.user.getId(), new ReplanRequest(LearningReplanService.MODE_REMEDIATE, true));
+        int versionAfterFirst = paths.findByUserIdAndStatus(fixture.user.getId(), "ACTIVE").orElseThrow().getVersion();
+
+        var second = replanService.apply(fixture.user.getId(),
+                new ReplanRequest(LearningReplanService.MODE_REMEDIATE, true));
+
+        assertEquals(versionAfterFirst, second.version(),
+                "Weakness vẫn OPEN nhưng đã có item ôn tập trong lịch — replay không được tạo version mới");
+        long reinforcementCount = items.findWithLessonByLearningPathId(
+                        paths.findByUserIdAndStatus(fixture.user.getId(), "ACTIVE").orElseThrow().getId())
+                .stream().filter(i -> "REMEDIATION_GRAMMAR_POINT".equals(i.getReasonCode())).count();
+        assertEquals(1, reinforcementCount, "Không được nhân đôi item ôn tập khi weakness vẫn mở");
+    }
+
+    /** [JLAS-W0108][MP10] P2c — warm-up item neo theo grammarPoint/vocabularyEntry có lesson=null hợp
+     * lệ theo schema. compute() không được NPE khi item trong path không có lesson. */
+    @Test
+    void replanDoesNotCrashWhenWarmUpItemHasNoLessonAnchor() {
+        var fixture = seedWithGrammarAnchoredWarmUp();
+
+        var preview = replanService.preview(fixture.user.getId(), LearningReplanService.MODE_REMEDIATE);
+
+        assertNotNull(preview);
+    }
+
+    private Fixture seedWithGrammarAnchoredWarmUp() {
+        var user = seedUser();
+        var tag = seedTag("PARTICLE");
+        var book = seedTextbook("N4", "Goal book");
+        var unit = seedUnit(book);
+        var goalLesson = seedLesson(unit, tag, "Goal lesson", 20);
+        var point = GrammarPoint.builder().lesson(goalLesson).pattern("～てください").meaning("vui lòng hãy làm")
+                .orderIndex(1).build();
+        em.persist(point);
+
+        var path = UserLearningPath.builder()
+                .user(user).title("JLPT N4").goal("JLPT").targetLevel("N4").currentLevel("N4")
+                .assessmentAttemptId(92L).assessmentRevision("rev-1").policyVersion("v1")
+                .minutesPerDay(30).status("ACTIVE").version(1).build();
+        em.persist(path);
+
+        em.persist(UserLearningPathItem.builder()
+                .learningPath(path).grammarPoint(point).orderIndex(1).phase("WARM_UP")
+                .reasonCode("WEAK_GRAMMAR_POINT").reason("review").dayNumber(1).estimatedMinutes(15).build());
+        em.persist(UserLearningPathItem.builder()
+                .learningPath(path).lesson(goalLesson).orderIndex(2).phase("GOAL_LEARNING")
+                .reasonCode("GOAL_TARGET").reason("study").dayNumber(2).estimatedMinutes(20).build());
+
+        var weakness = UserKnowledgeWeakness.builder()
+                .user(user).canonicalItem("GP:" + point.getId()).skill("GRAMMAR").jlptLevel("N4")
+                .severity("WEAK").status("OPEN").source("SMART_TEST:92").build();
+        em.persist(weakness);
+
+        em.flush();
+        em.clear();
+        return new Fixture(user, weakness);
     }
 
     private Fixture seed() {
