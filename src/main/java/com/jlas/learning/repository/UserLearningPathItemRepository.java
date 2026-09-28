@@ -11,6 +11,12 @@ import org.springframework.stereotype.Repository;
 /** Repository cho {@link UserLearningPathItem}. */
 @Repository
 public interface UserLearningPathItemRepository extends JpaRepository<UserLearningPathItem, Long> {
+    @Query("select coalesce(max(item.orderIndex), 0) from UserLearningPathItem item where item.learningPath.id = :pathId")
+    int findMaxOrderIndexByLearningPathId(@Param("pathId") Long pathId);
+
+    @Query("select coalesce(max(item.dayNumber), 0) from UserLearningPathItem item where item.learningPath.id = :pathId")
+    int findMaxDayNumberByLearningPathId(@Param("pathId") Long pathId);
+
     List<UserLearningPathItem> findByLearningPackageIdOrderByOrderIndex(Long packageId);
 
     @Query("""

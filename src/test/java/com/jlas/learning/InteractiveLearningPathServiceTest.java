@@ -1,6 +1,7 @@
 package com.jlas.learning;
 
 import com.jlas.auth.entity.User;
+import com.jlas.dictionary.entity.Lesson;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.entity.LearningPathPackage;
@@ -105,6 +106,7 @@ class InteractiveLearningPathServiceTest {
 
     private LearningPathPackage learningPackage(UserLearningPath path, Long id, int order, LearningPackageStatus status) {
         return LearningPathPackage.builder().id(id).learningPath(path).phase("GOAL_LEARNING")
+                .sourceLesson(Lesson.builder().id(100L + id).build()).contentRevision("revision")
                 .dayNumber(order).orderIndex(order).title("Ngày " + order).estimatedMinutes(30).status(status).build();
     }
 

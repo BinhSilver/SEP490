@@ -3,10 +3,12 @@ package com.jlas.learning;
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
 import com.jlas.learning.entity.LearningPathPackage;
+import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.enums.*;
 import com.jlas.learning.repository.LearningPathPackageRepository;
+import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ class InteractiveLearningPersistenceTest {
     @Autowired EntityManager em;
     @Autowired LearningPathPackageRepository packages;
     @Autowired UserLearningPathItemRepository items;
+    @Autowired LearningActivityMemberRepository members;
 
     @Test void storesVersionedPackagesAndScopesReadsToOwner() {
         var role = Role.builder().name("LEARNER").build(); em.persist(role);
@@ -44,11 +47,14 @@ class InteractiveLearningPersistenceTest {
                 .title("Ngày 1").estimatedMinutes(30).status(LearningPackageStatus.AVAILABLE).build(); em.persist(pkg);
         var activity = UserLearningPathItem.builder().learningPath(path).learningPackage(pkg).orderIndex(1)
                 .activityType(LearningActivityType.VOCABULARY).activityState(LearningActivityState.LOCKED).build(); em.persist(activity);
+        em.persist(LearningActivityMember.builder().activity(activity).memberType(LearningMemberType.VOCABULARY_ENTRY)
+                .canonicalId(42L).orderIndex(1).sourceRevision("revision").build());
         em.flush(); em.clear();
 
         assertTrue(packages.findOwnedById(pkg.getId(), owner.getId()).isPresent());
         assertTrue(packages.findOwnedById(pkg.getId(), stranger.getId()).isEmpty());
         assertEquals(LearningActivityType.VOCABULARY,
                 items.findByLearningPackageIdOrderByOrderIndex(pkg.getId()).getFirst().getActivityType());
+        assertEquals(42L, members.findByActivityIdOrderByOrderIndex(activity.getId()).getFirst().getCanonicalId());
     }
 }

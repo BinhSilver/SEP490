@@ -1582,6 +1582,8 @@ CREATE TABLE user_learning_path (
 CREATE TABLE learning_path_package (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
+    source_lesson_id BIGINT UNSIGNED NULL,
+    content_revision VARCHAR(64) NULL,
     stage_id BIGINT UNSIGNED NULL,
     phase VARCHAR(20) NOT NULL,
     day_number INT UNSIGNED NOT NULL,
@@ -1597,9 +1599,12 @@ CREATE TABLE learning_path_package (
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_package_path_day (learning_path_id, day_number),
     UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
+    UNIQUE KEY uk_learning_package_path_source (learning_path_id, source_lesson_id),
     KEY idx_learning_package_status (learning_path_id, status, order_index),
     CONSTRAINT fk_learning_package_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT fk_learning_package_source_lesson FOREIGN KEY (source_lesson_id)
+        REFERENCES lesson(id) ON DELETE RESTRICT,
     CONSTRAINT chk_learning_package_phase CHECK (phase IN ('WARM_UP','GOAL_LEARNING')),
     CONSTRAINT chk_learning_package_status CHECK (status IN ('LOCKED','AVAILABLE','IN_PROGRESS','COMPLETED')),
     CONSTRAINT chk_learning_package_minutes CHECK (estimated_minutes > 0)
@@ -1666,6 +1671,23 @@ CREATE TABLE user_learning_path_item (
     -- MySQL 8.0.16+ cấm cột trong CHECK đồng thời nằm trong FK có referential action
     -- (grammar_point_id / vocabulary_entry_id dùng ON DELETE SET NULL) → lỗi 3823.
     -- Ràng buộc này do tầng ứng dụng đảm bảo (LearningServiceImpl chọn đúng anchor).
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Immutable canonical membership; content remains dictionary-owned.
+CREATE TABLE learning_activity_member (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id BIGINT UNSIGNED NOT NULL,
+    member_type VARCHAR(30) NOT NULL,
+    canonical_id BIGINT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    source_revision VARCHAR(64) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_activity_member_identity (activity_item_id, member_type, canonical_id),
+    KEY idx_learning_activity_member_order (activity_item_id, order_index),
+    CONSTRAINT fk_learning_activity_member_item FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_activity_member_type CHECK
+        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] P6 — một chặng (stage) trong lộ trình JLPT nhiều cấp (D5). Mỗi chặng gắn đúng một

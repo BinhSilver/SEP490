@@ -302,3 +302,11 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
 | Final pass mỗi kỹ năng | 70% | `STAGE_FINAL_SKILL_PASS_PERCENT` |
 | Final số câu/kỹ năng (phát đúng, không dư) | 10 | `STAGE_FINAL_QUESTIONS_PER_SKILL` |
 | Replan gợi ý | >90% tăng tốc / <60% ôn bổ sung | §2.7 |
+
+## Interactive Learning Path V2 composition [JLAS-W0193]
+
+- V2 generation is controlled by `learning.interactive-v2.enabled` and remains disabled by default until all activity pages are released.
+- A target package is publishable only when its source lesson and textbook are `PUBLISHED`, the expected JLPT level matches, and it has published vocabulary, contextual Kanji with readings, one to three grammar points with examples, and dialogue script plus audio.
+- Missing, unpublished, duplicate or wrong-level content produces explicit coverage-gap codes. The composer publishes no package from an incomplete batch and never substitutes arbitrary lessons or runtime AI output.
+- Package membership stores canonical IDs and a SHA-256 source revision. Canonical lesson/dictionary content remains owned by the dictionary module; Learning Path does not copy it into a second source of truth.
+- Composition is transactional and idempotent per path. It preserves existing warm-up item order/day values, attaches target packages to their stage, and emits exactly four ordered activities: Vocabulary, Kanji, Grammar, Dialogue.

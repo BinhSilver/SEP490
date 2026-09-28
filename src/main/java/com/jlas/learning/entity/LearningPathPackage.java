@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import com.jlas.dictionary.entity.Lesson;
 
 /** [JLAS-W0193] One resumable day package in an interactive learning path. */
 @Entity
@@ -26,6 +27,15 @@ public class LearningPathPackage {
     @JoinColumn(name = "learning_path_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_learning_package_path"))
     private UserLearningPath learningPath;
+
+    /** Nullable only for rows created before migration 011; every newly composed V2 package sets it. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_lesson_id", foreignKey = @ForeignKey(name = "fk_learning_package_source_lesson"))
+    private Lesson sourceLesson;
+
+    /** Canonical membership fingerprint; nullable only for pre-011 compatibility. */
+    @Column(name = "content_revision", length = 64)
+    private String contentRevision;
 
     @Column(name = "stage_id")
     private Long stageId;

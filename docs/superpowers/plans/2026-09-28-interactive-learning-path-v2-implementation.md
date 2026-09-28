@@ -27,7 +27,7 @@
 
 ## Delivery map
 
-### Task 1 — Versioned package/activity persistence (10%)
+### Task 1 — Versioned package/activity persistence (10%) — ✅ complete (`3b6bb77`)
 
 **Files:** `jlas_schema.sql`, `sql/migrations/009_interactive_learning_path_v2.sql`, `UserLearningPath`, `UserLearningPathItem`, new `LearningPathPackage`, four V2 enums, repositories, and `InteractiveLearningPersistenceTest`.
 
@@ -39,7 +39,7 @@
 - [ ] Run `./mvnw test -Dtest=InteractiveLearningPersistenceTest`.
 - [ ] Commit `feat(JLAS-W0193): add versioned learning packages`.
 
-### Task 2 — Owned V2 roadmap and server-owned resume (20% checkpoint)
+### Task 2 — Owned V2 roadmap and server-owned resume (20% checkpoint) — ✅ complete (`09e0312`)
 
 **Files:** new V2 activity/package/path response records, `InteractiveLearningPathService` + implementation, controller, page route, `interactive-path.html`, page CSS/JS, service/controller tests and `interactive-learning-path.test.cjs`.
 
@@ -63,11 +63,11 @@ GET  /learning/path/v2
 
 **20% exit criteria:** backward-compatible schema; only owners can read/start V2 packages; resume is server-derived and idempotent; legacy behavior is unchanged; roadmap follows the visual contract; all tests pass. V2 generation remains disabled until canonical coverage is validated in Task 3.
 
-### Task 3 — Composer and data readiness gate (30%)
+### Task 3 — Composer and data readiness gate (30%) — ✅ complete
 
-- [ ] Compose versioned snapshots from canonical IDs and reject target packages missing any of four published components.
-- [ ] Record coverage gaps; never fill them with arbitrary lessons or runtime AI.
-- [ ] Activate V2 creation behind a feature flag and test duplicates, wrong levels, unpublished and incomplete content.
+- [x] Compose versioned membership snapshots from canonical IDs and reject target packages missing any of four published components.
+- [x] Return machine-readable coverage gaps; never fill them with arbitrary lessons or runtime AI.
+- [x] Activate V2 composition behind `learning.interactive-v2.enabled` (default `false`) and test duplicates, wrong levels, unpublished and incomplete content.
 
 ### Task 4 — Vocabulary study and micro-check (40%)
 

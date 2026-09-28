@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface LearningPathPackageRepository extends JpaRepository<LearningPathPackage, Long> {
     List<LearningPathPackage> findByLearningPathIdOrderByOrderIndex(Long learningPathId);
+    boolean existsByLearningPathId(Long learningPathId);
 
     @Query("select p from LearningPathPackage p where p.id = :id and p.learningPath.user.id = :userId")
     Optional<LearningPathPackage> findOwnedById(@Param("id") Long id, @Param("userId") Long userId);

@@ -49,6 +49,9 @@ import com.jlas.learning.service.LearningScheduleService;
 import com.jlas.learning.service.LearningScopeSource;
 import com.jlas.learning.service.LearningService;
 import com.jlas.learning.service.WarmUpFlashcardService;
+import com.jlas.learning.service.InteractivePackageComposer;
+import com.jlas.learning.config.InteractiveLearningV2Properties;
+import com.jlas.learning.enums.LearningExperienceVersion;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -87,6 +90,10 @@ public class LearningServiceImpl implements LearningService {
     private com.jlas.dictionary.repository.ContentVocabularyRepository contentVocabularies;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.jlas.dictionary.repository.VocabularyEntryRepository vocabularyEntries;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private InteractivePackageComposer interactivePackageComposer;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private InteractiveLearningV2Properties interactiveV2Properties;
     private final UserRepository users;
     private final UserLearningPathRepository paths;
     private final UserLearningPathItemRepository items;
@@ -253,6 +260,8 @@ public class LearningServiceImpl implements LearningService {
                 .policyVersion(selection.policyVersion())
                 .minutesPerDay(profile.minutesPerDay())
                 .coverageGapsJson(mapper.writeCoverageGaps(selection.coverageGaps()))
+                .experienceVersion(interactiveV2Enabled()
+                        ? LearningExperienceVersion.INTERACTIVE_V2 : LearningExperienceVersion.LEGACY_V1)
                 .status("ACTIVE")
                 .version(nextVersion)
                 .build();
@@ -268,6 +277,9 @@ public class LearningServiceImpl implements LearningService {
 
         List<UserLearningPathItem> persisted = new ArrayList<>();
         for (var scheduled : schedule) {
+            // [JLAS-W0193] V2 target items are composed only after all four canonical components pass
+            // readiness. Warm-up remains on the compatible model until Task 9 migrates that phase.
+            if (interactiveV2Enabled() && scheduled.phase() == LearningPhase.GOAL_LEARNING) continue;
             Long grammarPointId = scheduled.resource().grammarPointId();
             Long vocabularyEntryId = scheduled.resource().vocabularyEntryId();
             persisted.add(UserLearningPathItem.builder()
@@ -288,6 +300,20 @@ public class LearningServiceImpl implements LearningService {
                     .build());
         }
         items.saveAll(persisted);
+
+        if (interactiveV2Enabled()) {
+            if (interactivePackageComposer == null) {
+                throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Interactive package composer is unavailable.");
+            }
+            var composition = interactivePackageComposer.compose(path, schedule);
+            if (!composition.published()) {
+                var allGaps = new ArrayList<>(selection.coverageGaps());
+                allGaps.addAll(composition.gaps());
+                path.setCoverageGapsJson(mapper.writeCoverageGaps(allGaps));
+                throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                        "Lộ trình V2 chưa được phát hành vì thiếu học liệu: " + composition.gaps());
+            }
+        }
 
         // [JLAS-W0108] Lớp AI Gemini best-effort: narrative lộ trình. Quiz sinh deterministic từ nội
         // dung bài (không dùng Gemini); chạy sau khi đã lưu path/items, lỗi không làm hỏng tạo lộ trình.
@@ -1493,5 +1519,9 @@ public class LearningServiceImpl implements LearningService {
         if (userId == null || userId <= 0) {
             throw new ApiException(ErrorCode.UNAUTHORIZED);
         }
+    }
+
+    private boolean interactiveV2Enabled() {
+        return interactiveV2Properties != null && interactiveV2Properties.isEnabled();
     }
 }

@@ -105,6 +105,11 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
 
     private void validateTargetPackage(LearningPathPackage learningPackage, List<UserLearningPathItem> activities) {
         if (!"GOAL_LEARNING".equals(learningPackage.getPhase())) return;
+        if (learningPackage.getSourceLesson() == null || learningPackage.getContentRevision() == null
+                || learningPackage.getContentRevision().isBlank()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "Package chưa có snapshot nguồn canonical hợp lệ.");
+        }
         EnumSet<LearningActivityType> actual = EnumSet.noneOf(LearningActivityType.class);
         activities.forEach(item -> {
             if (item.getActivityType() != null) actual.add(item.getActivityType());
