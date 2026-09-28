@@ -30,6 +30,8 @@ class InteractivePackageComposerTest {
     @BeforeEach void setUp(){properties=new InteractiveLearningV2Properties(); properties.setEnabled(true);
         composer=new InteractivePackageComposerImpl(properties,catalog,packages,items,members,stages);
         lenient().when(packages.existsByLearningPathId(anyLong())).thenReturn(false);
+        lenient().when(packages.existsByLearningPathIdAndPhase(anyLong(),anyString())).thenReturn(false);
+        lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
         lenient().when(items.findMaxOrderIndexByLearningPathId(anyLong())).thenReturn(0);
         lenient().when(items.findMaxDayNumberByLearningPathId(anyLong())).thenReturn(0);
         lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of());
@@ -58,10 +60,33 @@ class InteractivePackageComposerTest {
     }
 
     @Test void retryReturnsExistingPackagesWithoutRecomposing(){
-        when(packages.existsByLearningPathId(5L)).thenReturn(true);
-        when(packages.findByLearningPathIdOrderByOrderIndex(5L)).thenReturn(List.of(LearningPathPackage.builder().build()));
+        when(packages.existsByLearningPathIdAndPhase(5L,"GOAL_LEARNING")).thenReturn(true);
+        when(packages.findByLearningPathIdOrderByOrderIndex(5L)).thenReturn(
+                List.of(LearningPathPackage.builder().phase("GOAL_LEARNING").build()));
         var result=composer.compose(path(),List.of(seed(10L,1)));
         assertTrue(result.published()); assertEquals(1,result.packageCount()); verifyNoInteractions(catalog,items,members,stages);
+    }
+
+    /** [JLAS-W0193] Task 9 regression: a real bug found while wiring Warm-up B — an unscoped
+     * {@code existsByLearningPathId} check made this composer wrongly believe target packages already
+     * existed (because warm-up ones did) and silently compose zero GOAL_LEARNING packages for every V2
+     * path that has any warm-up content. The idempotency check must be scoped to GOAL_LEARNING only. */
+    @Test void composesTargetPackagesEvenWhenWarmUpPackagesAlreadyExistForThePath(){
+        when(packages.existsByLearningPathId(5L)).thenReturn(true);
+        when(packages.existsByLearningPathIdAndPhase(5L,"GOAL_LEARNING")).thenReturn(false);
+        when(packages.findByLearningPathIdOrderByOrderIndex(5L)).thenReturn(
+                List.of(LearningPathPackage.builder().orderIndex(1).phase("WARM_UP").build()));
+        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
+
+        var result=composer.compose(path(),List.of(seed(10L,1)));
+
+        assertTrue(result.published()); assertEquals(1,result.packageCount());
+        var captor=ArgumentCaptor.forClass(LearningPathPackage.class);
+        verify(packages).save(captor.capture());
+        // order_index continues after the existing warm-up package (1) instead of colliding with it.
+        assertEquals(2,captor.getValue().getOrderIndex());
+        // Not AVAILABLE: a warm-up package precedes it, so it must start LOCKED (spec §5.6).
+        assertEquals(LearningPackageStatus.LOCKED,captor.getValue().getStatus());
     }
 
     private UserLearningPath path(){return UserLearningPath.builder().id(5L).user(User.builder().id(7L).build())

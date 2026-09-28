@@ -199,6 +199,61 @@ class InteractiveLearningPathServiceTest {
         assertFalse(second.justCompleted());
     }
 
+    // ---- Task 9: Warm-up B completion gate (dynamic activity set, never all four/Dialogue) ----
+
+    @Test void warmUpPackageCompletesWhenEveryOneOfItsOwnActivitiesIsPassed() {
+        var pkg = warmUpPackage(11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY, LearningActivityType.KANJI);
+        activities.forEach(a -> a.setActivityState(LearningActivityState.PASSED));
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.status());
+        assertTrue(result.justCompleted());
+    }
+
+    @Test void warmUpPackageDoesNotCompleteWhileAnyOfItsOwnActivitiesIsStillInProgress() {
+        var pkg = warmUpPackage(11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY, LearningActivityType.GRAMMAR);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.STUDYING);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.IN_PROGRESS, result.status());
+        verifyNoInteractions(creditService);
+    }
+
+    @Test void warmUpPackageWithASingleActivityCompletesAndUnlocksTheNextPackage() {
+        var path = interactivePath();
+        var pkg = LearningPathPackage.builder().id(11L).learningPath(path).phase("WARM_UP")
+                .dayNumber(1).orderIndex(1).title("Ôn tập điểm yếu: từ vựng").estimatedMinutes(5)
+                .status(LearningPackageStatus.IN_PROGRESS).build();
+        var target = LearningPathPackage.builder().id(12L).learningPath(path).phase("GOAL_LEARNING")
+                .sourceLesson(Lesson.builder().id(200L).build()).contentRevision("revision")
+                .dayNumber(2).orderIndex(2).title("Ngày 1").estimatedMinutes(30)
+                .status(LearningPackageStatus.LOCKED).build();
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg, target));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.status());
+        assertEquals(LearningPackageStatus.AVAILABLE, target.getStatus());
+        assertEquals(12L, result.nextAvailablePackageId());
+    }
+
     // ---- Task 8: score aggregation ----
 
     @Test void scoreIsPooledCorrectTotalAcrossBatchesNotAverageOfPercentages() {
@@ -364,6 +419,19 @@ class InteractiveLearningPathServiceTest {
         return LearningPathPackage.builder().id(id).learningPath(path).phase("GOAL_LEARNING")
                 .sourceLesson(Lesson.builder().id(100L + id).build()).contentRevision("revision")
                 .dayNumber(order).orderIndex(order).title("Ngày " + order).estimatedMinutes(30).status(status).build();
+    }
+
+    private LearningPathPackage warmUpPackage(Long id, int order, LearningPackageStatus status) {
+        return LearningPathPackage.builder().id(id).learningPath(interactivePath()).phase("WARM_UP")
+                .dayNumber(order).orderIndex(order).title("Ôn tập điểm yếu").estimatedMinutes(5)
+                .status(status).build();
+    }
+
+    private List<UserLearningPathItem> warmUpActivities(LearningPathPackage pkg, LearningActivityType... types) {
+        return new java.util.ArrayList<>(java.util.stream.IntStream.range(0, types.length).mapToObj(index ->
+                UserLearningPathItem.builder().id((long) index + 1).learningPath(pkg.getLearningPath())
+                        .learningPackage(pkg).orderIndex(index + 1).phase("WARM_UP")
+                        .activityType(types[index]).activityState(LearningActivityState.LOCKED).build()).toList());
     }
 
     private List<UserLearningPathItem> activities(LearningPathPackage pkg) {

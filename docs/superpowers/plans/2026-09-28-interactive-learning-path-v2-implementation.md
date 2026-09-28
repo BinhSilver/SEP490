@@ -112,12 +112,24 @@ GET  /learning/path/v2
   flag so it shows exactly once per completion; last-package routes to a new `GET /learning/path/v2/summary`
   placeholder page (Task 10 builds its real content).
 
-### Task 9 — Warm-up B personalization (90%)
+### Task 9 — Warm-up B personalization (90%) — ✅ Vocabulary/Kanji/Grammar complete; Reading/Listening banding
+designed+tested but not yet wired into persisted activities (see completion handoff)
 
-- [ ] Convert proven Smart Test weaknesses to target-level activities without whole lessons.
-- [ ] Apply Reading/Listening bands: `>70=0`, `>50–70=4`, `>40–50=6`, `0–40=8`; missing evidence requires verification.
-- [ ] Limit Reading/Listening to two total per day within the learner's time budget.
-- [ ] Remove V2 warm-up gate/daily quiz links while retaining legacy records/endpoints.
+- [x] Convert proven Smart Test weaknesses to target-level activities without whole lessons — new
+  `WarmUpBComposerImpl` reads `WeaknessEvidence` directly (never a `ScheduledLearningResource`/lesson) and
+  writes ordinary `learning_activity_member` rows reusing the unchanged Task 4/5/6 engine/pages.
+- [x] Apply Reading/Listening bands: `>70=0`, `>50–70=4`, `>40–50=6`, `0–40=8`; missing evidence requires
+  verification — `ComprehensionWarmUpPlanner.band(...)` reuses `WeakTagPolicy.comprehensionLessonCount`
+  verbatim, all five boundaries + missing-evidence tested. **Banding decision + packing logic are real and
+  tested; not yet wired into a persisted Reading/Listening activity type this session** (needs new
+  `LearningActivityType`/`LearningMemberType` + pages — deferred, see handoff).
+- [x] Limit Reading/Listening to two total per day within the learner's time budget —
+  `ComprehensionWarmUpPlanner.packIntoDays(...)`, tested for the 2/day cap and the minutes-per-day budget
+  (same deferred-wiring caveat as above).
+- [x] Remove V2 warm-up gate/daily quiz links while retaining legacy records/endpoints — V2 Warm-up B
+  activities complete purely via their own micro-check (no gate/daily/lesson/stage-final quiz anywhere in
+  the new code path); legacy V1 warm-up flashcard/gate-quiz tables and endpoints are untouched and still
+  covered by the existing legacy test suite (verified via full regression, not just assumed).
 
 ### Task 10 — Summary, certificate and release hardening (100%)
 

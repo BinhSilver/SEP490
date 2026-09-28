@@ -14,6 +14,11 @@ public interface LearningPathPackageRepository extends JpaRepository<LearningPat
     List<LearningPathPackage> findByLearningPathIdOrderByOrderIndex(Long learningPathId);
     boolean existsByLearningPathId(Long learningPathId);
 
+    /** [JLAS-W0193] Task 9 — Warm-up B composes independently of GOAL_LEARNING packages and needs its own
+     * idempotency check (retrying path creation must not duplicate warm-up packages even though target
+     * packages may already exist, or vice versa). */
+    boolean existsByLearningPathIdAndPhase(Long learningPathId, String phase);
+
     @Query("select p from LearningPathPackage p where p.id = :id and p.learningPath.user.id = :userId")
     Optional<LearningPathPackage> findOwnedById(@Param("id") Long id, @Param("userId") Long userId);
 

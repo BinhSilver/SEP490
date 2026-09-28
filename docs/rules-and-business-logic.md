@@ -406,3 +406,82 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
   pattern `InteractiveStudyEngine.studyState` already established (`STUDYING → CHECK_READY` on load).
 - Schema: `learning_path_package.score_percent` (nullable `INT`, additive) —
   `sql/migrations/015_interactive_package_completion.sql`.
+
+### 2.16 Warm-up B personalization (V2, Task 9, 90%) [JLAS-W0193]
+
+- **Weakness evidence is read exclusively through the existing `LearningProfileSource.loadForUser(...)`**
+  (Smart Test's own read API, unchanged) — `WarmUpBComposerImpl` never queries Smart Test's tables
+  directly and never accepts weakness data from request JSON. `LearningProfileSnapshot.weaknesses()`
+  (`WeaknessEvidence`, pre-existing from JLAS-W0108) is the sole source for Vocabulary/Kanji/Grammar;
+  `LearningProfileSnapshot.skillScores()` (`SkillScore`) is the source for Reading/Listening banding.
+- **Vocabulary/Kanji/Grammar reuse the Task 4/5/6 engine unchanged via a smaller, weakness-scoped
+  membership** — `WarmUpBComposerImpl` is a new, independent composition step (deliberately *not* an
+  extension of Task 3's lesson-based `InteractivePackageComposer`, since a warm-up target must never be a
+  whole lesson) that writes ordinary `learning_activity_member` rows (`VOCABULARY_ENTRY`/`KANJI`/
+  `GRAMMAR_POINT`) under ordinary `WARM_UP`-phase `UserLearningPathItem` activities. The existing
+  Vocabulary/Kanji/Grammar study/micro-check pages and `InteractiveStudyEngine` need zero changes — they
+  already operate purely on an activity's own membership rows, regardless of how those rows were composed.
+  No new schema was needed.
+- **Item resolution, never a whole lesson:** Vocabulary uses `WeaknessEvidence.vocabularyEntryId()`
+  directly (the assessment question's own vocabulary anchor) after confirming the entry is still
+  `PUBLISHED`. Kanji resolves the evidence's lexeme (parsed from `canonicalId = "KANJI:<lexeme>"`) via
+  `KanjiRepository.findByCharacter(...)` — only a single-character lexeme can resolve to one `kanji.id`; a
+  multi-character lexeme (or any unresolvable anchor) is reported as a `CONTENT_MAPPING_PENDING` gap and
+  skipped, never guessed. Grammar uses `WeaknessEvidence.grammarPointId()` after re-applying
+  `WeakTagPolicy.isWeak(...)` (grammar evidence is not pre-filtered by wrong ratio the way Kanji/
+  Vocabulary evidence already is at the source). All three additionally apply the existing warm-up level
+  bound (§2.2: an item above the learner's assessed level is "never learned" and belongs to GOAL, not
+  warm-up) and dedupe by resolved canonical id.
+- **Reading/Listening banding reuses `WeakTagPolicy.comprehensionLessonCount(SkillScore)` verbatim** — the
+  same approved `0/4/6/8` boundary function (`p>70→0`, `(50,70]→4`, `(40,50]→6`, `[0,40]→8`,
+  `assessedCount<=0→-1` = insufficient evidence, never treated as 0%) V1 already uses (§5 "P3"). Wrapped by
+  the new `ComprehensionWarmUpPlanner.band(SkillScore)`; a `-1` result becomes
+  `ComprehensionBand.needsVerification() == true` with `lessonCount() == 0` — a distinct outcome from a
+  proven weakness, never silently collapsed into "0% correct."
+- **Reading/Listening packing** (`ComprehensionWarmUpPlanner.packIntoDays(...)`) caps at two combined
+  Reading+Listening lessons per day (design spec §5.4) and additionally respects `minutesPerDay` via a
+  documented per-lesson minute estimate, interleaving Reading/Listening within a day and never splitting a
+  single lesson across days (same precedent as §2.4's "a lesson longer than the budget still takes the
+  whole day"). **Not yet wired into persisted activities** — see the Task 9 completion handoff for the
+  explicit scope decision (needs a new `LearningActivityType`/`LearningMemberType` + dedicated pages, a
+  slice comparable in size to Task 4/6 by itself).
+- **Grammar's per-day cap (design spec §5.3: at most 3 grammar points per warm-up day)** is enforced by
+  chunking the deduped, sorted weak-point id list into groups of 3; the first chunk joins day 1 alongside
+  Vocabulary/Kanji, and any remaining chunks each become their own subsequent `WARM_UP` package
+  (Grammar-only, `day_number` incrementing) — never all lumped into one activity.
+- **Provenance ("vì sao tôi học nội dung này") reuses the pre-existing
+  `user_learning_path_item.reason`/`reason_code` columns** (already on the table since W0108, currently
+  null for V2 `GOAL_LEARNING` activities) — no schema change. `WarmUpBComposerImpl` sets `reasonCode` to
+  the existing V1 reason codes (`WEAK_VOCAB_ITEM`/`WEAK_KANJI_ITEM`/`WEAK_GRAMMAR_POINT`) and a Vietnamese
+  `reason` sentence naming the count of items, matching the design spec's own example wording. Surfaced in
+  the API via two new fields on `InteractiveLearningActivityResponse` (`reasonCode`, `reason`; both `null`
+  for non-warm-up activities).
+- **Warm-up package completion is a dynamic-activity-count sibling of Task 8's fixed four-activity gate.**
+  `InteractiveLearningPathServiceImpl.refresh(...)` now branches on `learningPackage.getPhase()`:
+  `GOAL_LEARNING` keeps Task 8's `allRequiredActivitiesDone` (exactly Vocabulary+Kanji+Grammar+Dialogue,
+  all terminal); `WARM_UP` uses a new `allWarmUpActivitiesDone` that only requires every activity the
+  package *actually has* (any non-empty subset of Vocabulary/Kanji/Grammar; Warm-up B never schedules
+  Dialogue) to reach `PASSED`. This was explicitly anticipated by Task 8's own doc note ("warm-up packages,
+  when Task 9 adds them, are not forced through this four-activity gate"). Score aggregation, exactly-once
+  reward/streak, and next-package unlock are all reused unchanged — they were already phase-agnostic.
+- **Ordering/scheduling relative to target packages:** `WarmUpBComposerImpl` composes before
+  `InteractivePackageComposerImpl` in `LearningServiceImpl.createPath`, so warm-up occupies the earliest
+  `day_number`/`order_index`, and target packages continue numbering after it (design spec §5.6: warm-up
+  and target never share a day). The very first package overall starts `AVAILABLE`; every later package —
+  including the first *target* package once any warm-up package exists — starts `LOCKED` and unlocks only
+  through the existing next-package-unlock mechanism once its predecessor completes.
+- **Two genuine integration bugs, found while wiring this and fixed narrowly (Task 3 scope, not Task 4-8):**
+  `InteractivePackageComposerImpl`'s idempotency/retry check (`existsByLearningPathId`) was unscoped, so
+  once any `WARM_UP` package existed for a path it made the target composer wrongly believe target packages
+  already existed and silently compose zero of them — fixed to check `existsByLearningPathIdAndPhase(...,
+  "GOAL_LEARNING")`. Its package `order_index` numbering also unconditionally restarted at 1, which would
+  collide with an existing warm-up package's `order_index` (`uk_learning_package_path_order` is unique per
+  path) — fixed to continue from the path's existing max package `order_index`. Both are covered by
+  regression tests (`InteractivePackageComposerTest#composesTargetPackagesEvenWhenWarmUpPackagesAlreadyExistForThePath`).
+- **Legacy V1 compatibility:** the legacy per-lesson-anchor persistence loop in `LearningServiceImpl` now
+  also skips `WARM_UP`-phase scheduled resources when V2 is enabled (previously only `GOAL_LEARNING` was
+  skipped — warm-up silently kept using the V1 model even under V2). This only changes behavior inside the
+  `interactiveV2Enabled()` branch; `LEGACY_V1` path creation, and every legacy warm-up flashcard/gate-quiz
+  table/endpoint, is untouched and still exercised unchanged by the existing legacy test suite.
+- V2 continues to have no warm-up gate quiz, daily quiz, lesson quiz or stage-final quiz — Warm-up B
+  activities complete purely via their own micro-check, same as every other V2 activity.

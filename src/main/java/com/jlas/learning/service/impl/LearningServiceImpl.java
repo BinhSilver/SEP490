@@ -17,6 +17,7 @@ import com.jlas.mission.repository.UserStreaksRepository;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import com.jlas.moderation.credit.service.UserCreditService;
 import com.jlas.learning.ai.LearningPathPlanGenerator;
+import com.jlas.learning.dto.CoverageGap;
 import com.jlas.learning.dto.CreateLearningPathResult;
 import com.jlas.learning.dto.LearningCatalogScope;
 import com.jlas.learning.dto.LearningPathResponse;
@@ -50,6 +51,7 @@ import com.jlas.learning.service.LearningScopeSource;
 import com.jlas.learning.service.LearningService;
 import com.jlas.learning.service.WarmUpFlashcardService;
 import com.jlas.learning.service.InteractivePackageComposer;
+import com.jlas.learning.service.WarmUpBComposer;
 import com.jlas.learning.config.InteractiveLearningV2Properties;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import jakarta.persistence.EntityManager;
@@ -92,6 +94,10 @@ public class LearningServiceImpl implements LearningService {
     private com.jlas.dictionary.repository.VocabularyEntryRepository vocabularyEntries;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private InteractivePackageComposer interactivePackageComposer;
+    // [JLAS-W0193] Task 9 — composes WARM_UP packages from weakness evidence; optional so slice tests that
+    // never enable V2 don't need to wire it, same pattern as interactivePackageComposer above.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private WarmUpBComposer warmUpBComposer;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private InteractiveLearningV2Properties interactiveV2Properties;
     private final UserRepository users;
@@ -277,9 +283,15 @@ public class LearningServiceImpl implements LearningService {
 
         List<UserLearningPathItem> persisted = new ArrayList<>();
         for (var scheduled : schedule) {
-            // [JLAS-W0193] V2 target items are composed only after all four canonical components pass
-            // readiness. Warm-up remains on the compatible model until Task 9 migrates that phase.
-            if (interactiveV2Enabled() && scheduled.phase() == LearningPhase.GOAL_LEARNING) continue;
+            // [JLAS-W0193] V2 target AND warm-up items are both composed from scratch by the dedicated V2
+            // composers below (Task 3's InteractivePackageComposer / Task 9's WarmUpBComposer) instead of
+            // this legacy per-lesson-anchor model. Warm-up B never schedules a whole lesson for one wrong
+            // answer (rules doc "Interactive Learning Path V2 composition"), which the V1 schedule's
+            // lesson-shaped WARM_UP ScheduledLearningResource entries are unsuited for.
+            if (interactiveV2Enabled()
+                    && (scheduled.phase() == LearningPhase.GOAL_LEARNING || scheduled.phase() == LearningPhase.WARM_UP)) {
+                continue;
+            }
             Long grammarPointId = scheduled.resource().grammarPointId();
             Long vocabularyEntryId = scheduled.resource().vocabularyEntryId();
             persisted.add(UserLearningPathItem.builder()
@@ -302,16 +314,33 @@ public class LearningServiceImpl implements LearningService {
         items.saveAll(persisted);
 
         if (interactiveV2Enabled()) {
+            // [JLAS-W0193] Task 9 — Warm-up B composes first (before target packages) so its packages/days
+            // occupy the earliest order_index/day_number and the target composer below naturally continues
+            // numbering after it (design spec §5.6: warm-up and target never share a day). Missing or
+            // insufficient weakness evidence is never fatal here — an empty/partial warm-up is a legitimate
+            // outcome (e.g. the learner passed their current level and has nothing to warm up), unlike a
+            // target package's all-or-nothing readiness gate.
+            var warmUpGaps = new ArrayList<CoverageGap>();
+            if (warmUpBComposer != null) {
+                var warmUpComposition = warmUpBComposer.composeWarmUp(path, profile);
+                warmUpGaps.addAll(warmUpComposition.gaps());
+            }
             if (interactivePackageComposer == null) {
                 throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Interactive package composer is unavailable.");
             }
             var composition = interactivePackageComposer.compose(path, schedule);
             if (!composition.published()) {
                 var allGaps = new ArrayList<>(selection.coverageGaps());
+                allGaps.addAll(warmUpGaps);
                 allGaps.addAll(composition.gaps());
                 path.setCoverageGapsJson(mapper.writeCoverageGaps(allGaps));
                 throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                         "Lộ trình V2 chưa được phát hành vì thiếu học liệu: " + composition.gaps());
+            }
+            if (!warmUpGaps.isEmpty()) {
+                var allGaps = new ArrayList<>(selection.coverageGaps());
+                allGaps.addAll(warmUpGaps);
+                path.setCoverageGapsJson(mapper.writeCoverageGaps(allGaps));
             }
         }
 

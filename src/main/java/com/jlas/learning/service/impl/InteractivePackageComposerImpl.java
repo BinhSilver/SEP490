@@ -25,8 +25,18 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
     public InteractiveCompositionResult compose(UserLearningPath path, List<ScheduledLearningResource> schedule) {
         if (!properties.isEnabled()) throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Learning Path V2 chưa được bật.");
         if (path.getExperienceVersion()!=LearningExperienceVersion.INTERACTIVE_V2) throw new ApiException(ErrorCode.CONFLICT,"Composer V2 chỉ nhận path INTERACTIVE_V2.");
-        if (packages.existsByLearningPathId(path.getId())) return new InteractiveCompositionResult(true,
-                packages.findByLearningPathIdOrderByOrderIndex(path.getId()).size(), List.of());
+        // [JLAS-W0193] Task 9 fix: this idempotency/retry check must be scoped to GOAL_LEARNING packages
+        // only. Warm-up B (WarmUpBComposerImpl) now composes WARM_UP packages for the same path BEFORE
+        // this composer runs; an unscoped existsByLearningPathId would make this composer wrongly believe
+        // target packages already exist (because warm-up ones do) and silently compose zero target
+        // packages for every V2 path that has any warm-up content — a genuine integration-blocking bug,
+        // not a hypothetical one, caught while wiring Task 9.
+        boolean anyPackageExistsAlready = packages.existsByLearningPathId(path.getId());
+        if (packages.existsByLearningPathIdAndPhase(path.getId(), LearningPhase.GOAL_LEARNING.name())) {
+            long existingTargetCount = packages.findByLearningPathIdOrderByOrderIndex(path.getId()).stream()
+                    .filter(p -> LearningPhase.GOAL_LEARNING.name().equals(p.getPhase())).count();
+            return new InteractiveCompositionResult(true, (int) existingTargetCount, List.of());
+        }
 
         Map<Long,ScheduledLearningResource> targets=new LinkedHashMap<>();
         if(schedule!=null) schedule.stream().filter(s->s.phase()==LearningPhase.GOAL_LEARNING)
@@ -40,14 +50,25 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
 
         int packageOrder=0; int activityOrder=items.findMaxOrderIndexByLearningPathId(path.getId());
         int firstTargetDay=items.findMaxDayNumberByLearningPathId(path.getId());
+        // [JLAS-W0193] Task 9 fix: package order_index must continue after any Warm-up B packages already
+        // saved for this path (uk_learning_package_path_order is unique per path) — restarting at 1 here
+        // would collide with an existing warm-up package's order_index.
+        int packageOrderBase = packages.findByLearningPathIdOrderByOrderIndex(path.getId()).stream()
+                .mapToInt(LearningPathPackage::getOrderIndex).max().orElse(0);
         Map<String,Long> stageByLevel=new HashMap<>();
         stages.findByLearningPathIdOrderByStageIndexAsc(path.getId()).forEach(s->stageByLevel.put(s.getLevel(),s.getId()));
         for(var entry:inspected){
             var seed=entry.getKey(); var snapshot=entry.getValue(); packageOrder++;
             var learningPackage=packages.save(LearningPathPackage.builder().learningPath(path).sourceLesson(snapshot.lesson())
                     .contentRevision(snapshot.revision()).stageId(stageByLevel.get(seed.resource().level())).phase(LearningPhase.GOAL_LEARNING.name())
-                    .dayNumber(firstTargetDay+packageOrder).orderIndex(packageOrder).title(seed.resource().title())
-                    .status(packageOrder==1?LearningPackageStatus.AVAILABLE:LearningPackageStatus.LOCKED)
+                    .dayNumber(firstTargetDay+packageOrder).orderIndex(packageOrderBase+packageOrder).title(seed.resource().title())
+                    // [JLAS-W0193] Task 9 fix: only AVAILABLE when this is truly the first package in the
+                    // whole path (no Warm-up B package precedes it) — otherwise the learner would see both
+                    // a warm-up package and a target package startable at once, contradicting design spec
+                    // §5.6 ("không gộp warm-up và target vào cùng ngày"). When warm-up packages exist, the
+                    // first target package starts LOCKED and unlocks via the existing next-package-unlock
+                    // mechanism (Task 8) once the last warm-up package completes.
+                    .status(packageOrder==1&&!anyPackageExistsAlready?LearningPackageStatus.AVAILABLE:LearningPackageStatus.LOCKED)
                     .estimatedMinutes(Math.max(1,seed.estimatedMinutes())).build());
             activityOrder=saveActivity(path,learningPackage,LearningActivityType.VOCABULARY,LearningMemberType.VOCABULARY_ENTRY,snapshot.vocabularyIds(),snapshot.revision(),activityOrder);
             activityOrder=saveActivity(path,learningPackage,LearningActivityType.KANJI,LearningMemberType.KANJI,snapshot.kanjiIds(),snapshot.revision(),activityOrder);

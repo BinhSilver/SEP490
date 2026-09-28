@@ -162,8 +162,20 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             List<LearningPathPackage> siblings) {
         cascadeUnlock(activities);
         if (learningPackage.getStatus() == LearningPackageStatus.COMPLETED) return false;
-        if (!"GOAL_LEARNING".equals(learningPackage.getPhase())) return false;
-        if (!allRequiredActivitiesDone(activities)) return false;
+        String phase = learningPackage.getPhase();
+        boolean requiredDone;
+        if ("GOAL_LEARNING".equals(phase)) {
+            requiredDone = allRequiredActivitiesDone(activities);
+        } else if ("WARM_UP".equals(phase)) {
+            // [JLAS-W0193] Task 9 — a Warm-up B package's activity set is dynamic (only the skills that
+            // actually had weak evidence: any of Vocabulary/Kanji/Grammar, never Dialogue), unlike a
+            // GOAL_LEARNING package's fixed four. It completes once EVERY activity it actually has reaches
+            // its terminal state; an empty activity list is defensively never considered complete.
+            requiredDone = allWarmUpActivitiesDone(activities);
+        } else {
+            requiredDone = false;
+        }
+        if (!requiredDone) return false;
         Integer score = computePackageScore(activities);
         learningPackage.setStatus(LearningPackageStatus.COMPLETED);
         learningPackage.setCompletedAt(LocalDateTime.now());
@@ -193,6 +205,20 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         LearningActivityState required = activity.getActivityType() == LearningActivityType.DIALOGUE
                 ? LearningActivityState.COMPLETED : LearningActivityState.PASSED;
         return activity.getActivityState() == required;
+    }
+
+    /** [JLAS-W0193] Task 9 — Warm-up B completion: unlike {@link #allRequiredActivitiesDone}, the set of
+     * activity types is not fixed (a warm-up day may have only Vocabulary, or Vocabulary+Grammar, etc.,
+     * depending on which skills actually had weak evidence) — completion just requires every activity the
+     * package actually has to be at its own terminal state (always PASSED here; Warm-up B never schedules
+     * Dialogue). An empty list is never complete (a package with zero activities should not exist, but this
+     * is defensive, not assumed). */
+    private boolean allWarmUpActivitiesDone(List<UserLearningPathItem> activities) {
+        if (activities.isEmpty()) return false;
+        for (UserLearningPathItem activity : activities) {
+            if (activity.getActivityType() == null || !isActivityDone(activity)) return false;
+        }
+        return true;
     }
 
     private boolean allRequiredActivitiesDone(List<UserLearningPathItem> activities) {
@@ -353,7 +379,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted) {
         List<InteractiveLearningActivityResponse> activityViews = activities.stream()
                 .map(item -> new InteractiveLearningActivityResponse(item.getId(), item.getActivityType(),
-                        item.getActivityState(), item.getOrderIndex()))
+                        item.getActivityState(), item.getOrderIndex(), item.getReasonCode(), item.getReason()))
                 .toList();
         int completed = (int) activityViews.stream()
                 .filter(view -> view.state() != null && DONE.contains(view.state())).count();
