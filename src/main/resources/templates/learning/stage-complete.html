@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Hoàn thành chặng - JLAS', 'stage-complete')}"></head>
+<body id="jlabBasePage" class="app-body stage-complete-body journey-ui">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="stage-complete-page">
+    <div id="stageCompleteRoot" class="sc-root" aria-live="polite" th:attr="data-stage-id=${stageId}">
+        <section class="sc-card sc-card--loading">
+            <p>Đang tải kết quả...</p>
+        </section>
+    </div>
+</main>
+
+<link rel="stylesheet" th:href="@{/css/pages/stage-complete.css}">
+<script th:src="@{/js/pages/stage-complete.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
