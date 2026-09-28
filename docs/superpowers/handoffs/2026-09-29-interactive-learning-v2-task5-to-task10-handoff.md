@@ -5,8 +5,15 @@ Tiếp nhận và hoàn thành phần còn lại của J-LAS Interactive Learnin
 
 `C:\Users\LAPTOP LENOVO\.codex\worktrees\interactive-learning-v2\SEP490`
 
-Task 4 do một AI khác triển khai. Không triển khai lại hoặc mở rộng Task 4. Chỉ sửa lỗi Task 4 khi lỗi đó làm Task 5
-không thể tích hợp hoặc làm sai contract đã duyệt; phải ghi rõ bằng chứng và giữ bản sửa ở phạm vi hẹp nhất.
+Task 4 đã được AI khác hoàn thành và bàn giao tại mốc 40%:
+
+- `e4bc44f` — `feat(JLAS-W0193): add vocabulary study and micro-check`.
+- `05481f7` — `docs(JLAS-W0193): record vocabulary micro-check state machine and Task 4 completion handoff`.
+- Baseline đã xác minh: Maven 293 test, 0 failure/error, 22 skipped; frontend 40/40; speed recall 4/4;
+  personalized path 8/8.
+
+Không triển khai lại hoặc mở rộng Task 4. Chỉ sửa lỗi Task 4 khi lỗi đó làm Task 5 không thể tích hợp hoặc làm sai
+contract đã duyệt; phải có test tái hiện, ghi rõ bằng chứng và giữ bản sửa ở phạm vi hẹp nhất.
 
 Không thao tác checkout chính `D:\FALL26_FPT\SEP490` vì có thể chứa code chưa commit của người khác. Không reset,
 clean, stash, rebase, merge, push hoặc force-push khi chưa được người dùng yêu cầu.
@@ -20,10 +27,12 @@ Trước khi viết code Task 5:
 3. Đọc `docs/superpowers/specs/2026-09-28-interactive-learning-path-v2-design.md`.
 4. Đọc `docs/superpowers/plans/2026-09-28-interactive-learning-path-v2-implementation.md`.
 5. Đọc `docs/superpowers/handoffs/2026-09-29-interactive-learning-v2-30-percent-handoff.md`.
-6. Đọc handoff Task 4 mới nhất nếu AI Task 4 tạo thêm file.
+6. Đọc đầy đủ
+   `docs/superpowers/handoffs/2026-09-29-interactive-learning-v2-task4-completion-handoff.md`, đặc biệt §5–§11.
 7. Xem visual contract trong `docs/superpowers/assets/interactive-learning-v2/`.
 8. Kiểm tra `git status`, `git log` và diff của commit Task 4; không đoán mã commit.
-9. Xác minh Task 4 đạt exit criteria 40% bằng focused tests và các test liên quan trực tiếp tới vocabulary engine.
+9. Xác minh `HEAD` chứa `e4bc44f` và `05481f7`; `git status` chỉ được phép còn `.superpowers/` là workspace scratch.
+10. Chạy focused tests liên quan trực tiếp tới Vocabulary để xác nhận baseline trước khi refactor seam dùng chung.
 
 Task 5 chỉ được bắt đầu khi Task 4 đã cung cấp được các contract nền sau:
 
@@ -32,11 +41,20 @@ Task 5 chỉ được bắt đầu khi Task 4 đã cung cấp được các cont
 - Immutable question/answer snapshot; answer key chỉ tồn tại phía server.
 - Server-owned eligibility, score, attempt cycle, review requirement và cooldown.
 - Pass từ `70%`; tối đa ba submit hợp lệ mỗi cycle; lần ba không đạt khóa 60 phút.
-- First/latest/best score; issue/submit idempotency; request lỗi hoặc trùng không tốn lượt.
+- First/latest/best score; **submit** idempotent; request submit lỗi hoặc trùng không tốn lượt.
 - Owner scope đi theo principal → path → package → activity → membership/session.
 
-Nếu một contract trên chưa đạt, báo đây là **blocker đầu vào Task 5**, đưa test hoặc đoạn code làm bằng chứng và hoàn thiện
-mọi phần Task 5 độc lập không phụ thuộc blocker. Không âm thầm thiết kế một engine thứ hai để né Task 4.
+Các contract này đã được Task 4 xác nhận đạt và không có blocker đầu vào Task 5. Ba giới hạn đã biết phải được hiểu đúng:
+
+- Issue chưa idempotent chặt: double-click có thể tạo snapshot `ISSUED` mồ côi nhưng không tiêu hao attempt; submit đã
+  idempotent. Không tuyên bố issue idempotent nếu chưa bổ sung lookup/key và test tương ứng.
+- Sau fail lần 1/2, review là soft-nudge và người học có thể practice lại ngay; chỉ sau fail lần 3 mới bắt buộc review
+  cùng cooldown 60 phút, theo spec §4.2/§4.3 và ruling đã ghi trong ledger.
+- State/data layer content-agnostic nhưng chưa có shared engine class. Task 5 phải extract seam/strategy tối thiểu từ
+  `InteractiveVocabularyServiceImpl`, giữ nguyên Vocabulary regression, rồi thêm Kanji strategy; không copy state machine.
+
+Nếu khi kiểm tra lại phát hiện contract khác không đạt, báo **blocker đầu vào Task 5**, đưa test hoặc đoạn code làm bằng
+chứng và hoàn thiện mọi phần độc lập không phụ thuộc blocker.
 
 ## Phạm vi phải hoàn thành
 
@@ -59,7 +77,9 @@ hoàn thành và phương án hẹp nhất để tiếp tục. Không tự bịa
 
 ## Task 5 — Kanji study và micro-check (50%)
 
-Tái sử dụng engine Task 4 qua abstraction chung; không copy-paste thành một state machine Kanji riêng.
+Tái sử dụng state/data contract Task 4 bằng cách extract abstraction/strategy chung tối thiểu từ
+`InteractiveVocabularyServiceImpl`; không copy-paste thành một state machine Kanji riêng. Giữ nguyên hành vi và toàn bộ
+Vocabulary tests trong lúc refactor.
 
 ### Nghiệp vụ
 
@@ -72,8 +92,8 @@ Tái sử dụng engine Task 4 qua abstraction chung; không copy-paste thành m
 6. Micro-check phủ toàn bộ target theo batch tối đa 10, phối hợp Kanji→reading, reading→Kanji, Kanji→meaning và matching.
 7. Distractor phải lấy từ canonical membership/approved bank phù hợp, không gây nhiều đáp án đúng và không sinh runtime
    bằng AI.
-8. Giữ nguyên contract Task 4: snapshot bất biến, pass `>=70%`, first/latest/best, ba lượt mỗi cycle, review target sai,
-   cooldown 60 phút, idempotency và server clock.
+8. Giữ nguyên contract Task 4: snapshot bất biến, pass `>=70%`, first/latest/best, ba lượt mỗi cycle, soft-nudge review
+   sau fail 1/2, bắt buộc review + cooldown 60 phút sau fail 3, submit idempotency và server clock.
 9. Hoàn thành Kanji activity khi micro-check đạt; điểm Kanji không bù hoặc ghi đè điểm Vocabulary.
 10. UI dùng visual contract: thẻ lớn, tiến độ rõ, trạng thái lật, số thẻ còn ôn, trạng thái retry/cooldown và CTA do
     server eligibility điều khiển; hỗ trợ keyboard, mobile, contrast và reduced motion.
@@ -89,10 +109,15 @@ Tái sử dụng engine Task 4 qua abstraction chung; không copy-paste thành m
 - Bốn dạng câu hỏi dùng đúng target; mỗi target được phủ; batch không quá 10.
 - Không lộ answer key; sửa score/attempt/state/cooldown từ client không có tác dụng.
 - Biên 69% fail, 70% pass; first/latest/best đúng.
-- Duplicate issue/submit không tạo thêm attempt; request lỗi không tốn lượt.
-- Fail lần ba tạo cooldown 60 phút; server clock chặn sớm; review target sai là bắt buộc.
+- Duplicate issue không tạo attempt; duplicate submit trả kết quả cũ và không tạo thêm attempt; request lỗi không tốn lượt.
+- Fail lần 1/2 trả target sai và cho practice lại; fail lần ba tạo cooldown 60 phút, server clock chặn sớm và review
+  target sai là bắt buộc.
 - Concurrent submit không tăng attempt hai lần hoặc phát thưởng hai lần.
 - UI resume, empty-safe rendering, keyboard/mobile/reduced-motion hoạt động.
+
+Nếu Task 5 chọn bổ sung issue idempotency chặt cho shared engine, phải áp dụng đồng thời cho Vocabulary và Kanji, có
+idempotency-conflict semantics, cleanup/migration phù hợp và regression test. Đây là hardening có ích, không phải blocker
+để bắt đầu Task 5.
 
 Hoàn tất Task 5 bằng commit riêng, cập nhật plan lên 50%, rồi tiếp tục Task 6.
 
@@ -103,7 +128,8 @@ Hoàn tất Task 5 bằng commit riêng, cập nhật plan lên 50%, rồi tiế
 3. Người học phải hoàn thành ordering cùng fill/select practice cho từng point trước micro-check.
 4. Micro-check có ít nhất hai câu approved mới cho mỗi point và không lặp nguyên văn practice vừa làm.
 5. Phản hồi ngay phải giải thích vì sao đúng/sai bằng nội dung đã duyệt; AI không sinh câu hoặc chấm runtime.
-6. Áp dụng cùng attempt/score/review/cooldown/idempotency contract của Task 4.
+6. Áp dụng cùng attempt/score/cooldown, soft-nudge review sau fail 1/2, bắt buộc review sau fail 3 và submit-idempotency
+   contract của Task 4.
 7. Giao diện bám `grammar-reference.png`, containerless/borderless ở bố cục chính và chỉ dùng card cho thành phần tương tác
    hoặc dày thông tin.
 8. Test coverage từng point, sentence ordering integrity, normalized fill/select answer, snapshot, ownership, tampering,
