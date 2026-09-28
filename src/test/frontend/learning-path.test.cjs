@@ -39,6 +39,53 @@ function pathFixture() {
   };
 }
 
+test('exposes the first ACTIVE stage whose final is ready, ignoring stages that are not', () => {
+  const fixture = pathFixture();
+  fixture.stages = [
+    { id: 10, level: 'N4', stageIndex: 0, status: 'COMPLETED', finalAvailable: false },
+    { id: 11, level: 'N3', stageIndex: 1, status: 'ACTIVE', finalAvailable: true },
+    { id: 12, level: 'N2', stageIndex: 2, status: 'PENDING', finalAvailable: false }
+  ];
+
+  const view = LearningPathPage.createViewModel(fixture);
+
+  assert.equal(view.stageFinal.level, 'N3');
+  assert.equal(view.stageFinal.href, '/learning/stages/11/final-quiz');
+});
+
+test('stageFinal is null when no stage currently has a ready final', () => {
+  const fixture = pathFixture();
+  fixture.stages = [
+    { id: 10, level: 'N4', stageIndex: 0, status: 'ACTIVE', finalAvailable: false }
+  ];
+
+  const view = LearningPathPage.createViewModel(fixture);
+
+  assert.equal(view.stageFinal, null);
+});
+
+test('stageFinal is null when the path has no stages at all (single-phase legacy paths)', () => {
+  const view = LearningPathPage.createViewModel(pathFixture());
+
+  assert.equal(view.stageFinal, null);
+});
+
+test('renders a clickable stage-final banner on the path page when a stage is ready', () => {
+  const fixture = pathFixture();
+  fixture.stages = [{ id: 11, level: 'N3', stageIndex: 0, status: 'ACTIVE', finalAvailable: true }];
+
+  const html = LearningPathPage.renderPath(LearningPathPage.createViewModel(fixture));
+
+  assert.match(html, /href="\/learning\/stages\/11\/final-quiz"/);
+  assert.match(html, /Làm bài tổng kết/);
+});
+
+test('does not render the stage-final banner when no stage is ready', () => {
+  const html = LearningPathPage.renderPath(LearningPathPage.createViewModel(pathFixture()));
+
+  assert.doesNotMatch(html, /final-quiz/);
+});
+
 test('continue learning opens the same warm-up flashcard activity as the roadmap', () => {
   const fixture = pathFixture();
   fixture.phases[1].items = [{ lessonId: 101, vocabularyEntryId: 42,

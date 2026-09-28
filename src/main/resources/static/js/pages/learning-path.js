@@ -226,6 +226,13 @@
         passed: data.gatePassed === true,
         href: '/learning/path/gate-quiz'
       },
+      // [JLAS-W0108] Chặng đầu tiên (nếu có) mà bài final đã sẵn sàng (mọi item goal-learning đã
+      // STUDIED) — dẫn người học tới đúng chặng, không phải chỉ báo "có final đâu đó".
+      stageFinal: (function () {
+        var stages = Array.isArray(data.stages) ? data.stages : [];
+        var ready = stages.find(function (stage) { return stage.finalAvailable === true; });
+        return ready ? { level: ready.level, href: '/learning/stages/' + ready.id + '/final-quiz' } : null;
+      })(),
       coverageGaps: Array.isArray(data.coverageGaps) ? data.coverageGaps.slice() : [],
       aiPlan: aiPlanModel,
       textbookCount: new Set(rawPhases.flatMap(function (phase) {
@@ -296,6 +303,16 @@
       '<p>Bạn đã hoàn thành phần ôn tập. Vượt bài kiểm tra tổng kết để mở khóa giai đoạn theo mục tiêu.</p></div></div>' +
       '<a class="lp-button lp-button--primary" href="/learning/path/gate-quiz">' +
         'Làm bài kiểm tra ' + icon('arrow_forward') + '</a></section>';
+  }
+
+  // [JLAS-W0108] Chặng đã học xong nội dung, sẵn sàng làm bài tổng kết cuối chặng.
+  function renderStageFinalBanner(stageFinal) {
+    return '<section class="lp-gate" role="region" aria-label="Bài tổng kết cuối chặng">' +
+      '<div class="lp-gate__copy">' + icon('emoji_events') +
+      '<div><h2>Bạn đã học xong chặng ' + escapeHtml(stageFinal.level) + '</h2>' +
+      '<p>Làm bài tổng kết để hoàn thành chặng này và tiếp tục hành trình của bạn.</p></div></div>' +
+      '<a class="lp-button lp-button--primary" href="' + stageFinal.href + '">' +
+        'Làm bài tổng kết ' + icon('arrow_forward') + '</a></section>';
   }
 
   function renderReplanModal() {
@@ -487,6 +504,7 @@
       (view.currentLesson ? '<a class="lp-button lp-button--primary" href="' + currentHref + '">Tiếp tục học ' + icon('arrow_forward') + '</a>' : '') +
       '<button type="button" class="lp-button lp-button--ghost" data-action="open-replan">' + icon('auto_fix_high') + '<span>Lên kế hoạch lại</span></button>' + '</div></section>' +
       (view.gate && view.gate.required ? renderGateBanner() : '') +
+      (view.stageFinal ? renderStageFinalBanner(view.stageFinal) : '') +
       renderAiPlan(view.aiPlan) +
       '<div class="lp-layout"><div class="lp-main"><section class="lp-phases" aria-label="Các giai đoạn">' + view.phases.map(renderPhase).join('') + '</section>' +
       '<div class="lp-toolbar"><div class="lp-tabs" aria-label="Lọc giai đoạn">' +
