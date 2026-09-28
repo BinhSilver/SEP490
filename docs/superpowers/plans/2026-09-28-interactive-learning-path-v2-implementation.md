@@ -77,11 +77,11 @@ GET  /learning/path/v2
 - [x] Store immutable snapshots, first/latest/best, three attempts, review requirement and 60-minute server cooldown.
 - [x] Build the complete large-card UI with counts and an eligibility-controlled check action.
 
-### Task 5 — Kanji study and micro-check (50%)
+### Task 5 — Kanji study and micro-check (50%) — ✅ complete
 
-- [ ] Reuse the engine with distinct Kanji membership/evidence.
-- [ ] Cover Kanji→reading, reading→Kanji, Kanji→meaning and matching.
-- [ ] Show approved contextual reading/examples and preserve resume/cooldown semantics.
+- [x] Reuse the engine with distinct Kanji membership/evidence — extracted `InteractiveStudyEngine<T>` + `InteractiveContentAdapter<T>` from Task 4's `InteractiveVocabularyServiceImpl` (no state-machine copy); Vocabulary's own 20 tests stayed green unchanged through the extract.
+- [x] Cover Kanji→reading, reading→Kanji, Kanji→meaning and matching — deterministic, no-AI question generation with real-data-only fallbacks (no reading ⇒ falls back to Kanji→meaning; no `meaning_vi` ⇒ matching skipped for that target).
+- [x] Show approved contextual reading/examples and preserve resume/cooldown semantics — `KanjiStudyState` renders character/hanViet/meaningVi/jlptLevel/strokeCount/onReadings/kunReadings, omitting (never fabricating) any field without real data; resume/flip/remember/attempt-cycle/cooldown/review/idempotent-submit are the unchanged engine contract, proven by `InteractiveKanjiServiceTest`/`ControllerTest`/`PersistenceTest` (17 new tests) plus `interactive-kanji-study.test.cjs` (9 new frontend tests).
 
 ### Task 6 — Grammar interaction (60%)
 

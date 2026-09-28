@@ -33,3 +33,15 @@ test('omits optional intensity when the API has no value', () => {
   const html = page.render(path({ minutesPerDay: null }));
   assert.doesNotMatch(html, /phút\/ngày/);
 });
+
+test('links an unlocked Kanji activity to its own study page (Task 5)', () => {
+  const data = path();
+  data.packages[0].activities[3].state = 'STUDYING';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/kanji\?activity=4"/);
+});
+
+test('does not link a locked Kanji activity', () => {
+  const html = page.render(path());
+  assert.doesNotMatch(html, /\/learning\/v2\/kanji\?activity=4/);
+});
