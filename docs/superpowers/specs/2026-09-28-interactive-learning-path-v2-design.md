@@ -434,16 +434,122 @@ Mọi response dùng `ApiResponse<T>`. Business errors dùng `ApiException(Error
 
 ## 10. UI/UX
 
-### 10.1 Bố cục
+### 10.1 Visual contract
 
-- Containerless, borderless: nội dung chính nằm trực tiếp trên nền trang.
-- Dùng khoảng trắng, typography, divider và nền chuyển nhẹ để phân đoạn.
-- Card chỉ dùng cho flashcard, vùng tương tác, feedback hoặc summary dày thông tin.
-- Không quay lại bố cục năm tab của trang sách.
-- Có progress rail rõ bốn phần và trạng thái `Đang học / Sẵn sàng kiểm tra / Cần ôn / Chờ / Hoàn thành`.
-- Mobile-first; điều khiển không bị che, target chạm đủ lớn, focus keyboard rõ, hỗ trợ reduced motion.
+Ba ảnh sau là tài liệu tham chiếu bắt buộc cho bố cục, nhịp thông tin và ngôn ngữ thị giác:
 
-### 10.2 Flashcard hoàn chỉnh
+- [`roadmap-reference.png`](../assets/interactive-learning-v2/roadmap-reference.png): roadmap và trạng thái ngày học.
+- [`grammar-reference.png`](../assets/interactive-learning-v2/grammar-reference.png): trang chi tiết package và cách trình bày Grammar.
+- [`micro-check-reference.png`](../assets/interactive-learning-v2/micro-check-reference.png): bố cục từng micro-check.
+
+Ảnh chỉ là visual reference, không phải nguồn nghiệp vụ hoặc dữ liệu. UI chỉ render field/action có trong contract thật. Thành phần trong ảnh không tồn tại trong V2 phải bị bỏ hoàn toàn; không để card rỗng, số giả, CTA chết hoặc placeholder trang trí.
+
+Ánh xạ bắt buộc:
+
+| Thành phần ảnh | Ánh xạ V2 |
+|---|---|
+| Roadmap theo ngày và chặng | Warm-up/target package thật từ path API |
+| Bốn bước trong trang ngày | `Từ vựng → Kanji → Ngữ pháp → Hội thoại` |
+| Quiz cuối bài / mini quiz | Micro-check riêng của activity hiện tại |
+| Luyện nghe trong ảnh mẫu | Không tạo step target nếu contract V2 không có; Listening chỉ xuất hiện trong warm-up được giao |
+| Điểm, timer, XP, streak | Chỉ hiển thị khi backend trả field thật và rule thưởng đã được lưu thành công |
+| Ghi chú cá nhân / tải giáo trình / bookmark | Chỉ hiển thị nếu chức năng và API hiện hữu được audit; nếu không thì bỏ |
+| Tab kết quả/state phụ | Chỉ render state thực sự có dữ liệu; không tạo tab cho màn trống |
+
+### 10.2 Hệ thị giác
+
+Giữ tinh thần light-tech tím–xanh trong ảnh, dùng token tập trung thay vì hard-code rải rác:
+
+| Token | Giá trị định hướng | Vai trò |
+|---|---|---|
+| `--lp-canvas` | `#F5F8FC` | Nền xanh xám rất nhạt |
+| `--lp-ink` | `#151A2D` | Tiêu đề và nội dung chính |
+| `--lp-muted` | `#718096` | Metadata và nội dung phụ |
+| `--lp-purple` | `#8A36F0` | Activity hiện tại, focus và cấu trúc Grammar |
+| `--lp-purple-soft` | `#F4ECFF` | Nền trạng thái tím |
+| `--lp-lime` | `#7ED600` | CTA chính, hoàn thành và đáp án đúng |
+| `--lp-lime-soft` | `#F1FFDB` | Nền success/ready |
+| `--lp-line` | `#DCE5EF` | Divider và outline có ý nghĩa |
+| `--lp-danger` | token error hiện có | Sai/blocked; không dùng làm trang trí |
+
+- Dùng font UI hiện có của dự án (Hanken Grotesk/Inter) và `Noto Sans JP` cho tiếng Nhật; monospace chỉ dành cho mã ngày, trạng thái, thời gian và metadata kỹ thuật ngắn.
+- Tiêu đề dùng sentence case. Chữ hoa/terminal label chỉ dùng cho status hoặc mã tuần tự có ý nghĩa, không đặt eyebrow trang trí trên mọi khối.
+- Nền có thể dùng grid cực nhạt như roadmap reference, nhưng contrast phải đủ thấp để không tranh với nội dung và phải tắt khi `prefers-reduced-transparency`/theme hiện tại cần nền phẳng.
+- Bo góc phân cấp: hero/panel lớn 18–22px, interaction 12–16px, chip 6–8px. Không dùng cùng một card/shadow cho mọi phần.
+- Shadow rất nhẹ chỉ cho hero, panel đang active, sticky action và popup. Các hàng activity dùng divider/nền nhẹ để tránh “mỗi thứ một card”.
+- Tím biểu thị focus/đang học; xanh lime biểu thị hành động chính/đã đạt. Không dùng xanh để giả trạng thái hoàn thành chưa được server xác nhận.
+
+### 10.3 Roadmap
+
+Bố cục desktop bám `roadmap-reference.png`:
+
+```text
+Breadcrumb
+Hero lộ trình: mục tiêu + metadata                 Tiến độ tổng
+Stage switcher
+Danh sách tuần/ngày và package                    Goal + điểm cần tập trung
+```
+
+- Hero có headline, level transition, số ngày/package, phút/ngày và progress thật.
+- Stage switcher thể hiện `ACTIVE / QUEUED / COMPLETED` bằng text và màu, không dựa riêng vào màu.
+- Cột chính ưu tiên ngày hiện tại; package hiện tại mở rộng để hiện bốn activity và CTA `Tiếp tục học`.
+- Ngày hoàn thành thu gọn thành một hàng; ngày khóa giảm tương phản nhưng vẫn đọc được lý do khóa.
+- Sidebar chỉ chứa mục tiêu hiện tại và weakness/next-action có evidence thật. Bỏ panel tải giáo trình hoặc nội dung quảng bá nếu contract không có.
+- Với V2, hàng package không hiển thị `Mini quiz cuối bài`; trạng thái của từng Vocabulary/Kanji/Grammar/Dialogue nằm ngay trong package.
+- Mobile chuyển thành một cột: hero → stage switcher ngang có scroll snap → ngày hiện tại → ngày khác → insight. Sidebar không sticky và không chen giữa activity đang học.
+
+### 10.4 Trang chi tiết package
+
+Bố cục desktop bám `grammar-reference.png`:
+
+```text
+Breadcrumb
+Hero ngày học + metadata                          Progress hôm nay + CTA
+Progress rail: Vocabulary | Kanji | Grammar | Dialogue
+Activity trước/hiện tại/tiếp theo
+Nội dung tương tác chính                           Mục lục + trạng thái
+Sticky save/next bar
+```
+
+- Progress rail luôn dùng đúng bốn bước V2, thể hiện completed/current/locked/cooldown bằng icon, label và text.
+- Activity hiện tại có outline tím rõ; activity hoàn thành dùng xanh lime; activity khóa có lý do và thời điểm mở nếu có.
+- Sidebar mục lục chỉ liệt kê section thực sự có trong activity hiện tại. Trên màn nhỏ, sidebar trở thành nút `Mục lục` mở drawer.
+- Thanh cuối màn hình hiển thị trạng thái lưu server và CTA phù hợp. Không dùng `Hoàn thành phần này` để bypass micro-check; CTA phải là `Tiếp tục luyện`, `Bắt đầu kiểm tra`, `Ôn phần vừa sai` hoặc `Sang phần tiếp theo` theo state server.
+- Không hiển thị “4 chặng”, số phút, XP hoặc reward nếu backend không có giá trị thật.
+
+### 10.5 Trang Grammar
+
+Grammar phải trình bày theo thứ tự nhận thức trong `grammar-reference.png`, không chỉ là một danh sách text:
+
+1. **Mục tiêu:** một câu nói người học sẽ dùng được mẫu để làm gì.
+2. **Công thức trực quan:** pattern được tách thành các token A/particle/B/copula với màu tím–xanh có ý nghĩa.
+3. **Phân tích thành phần:** mỗi token có vai trò, cách đọc và ràng buộc dùng.
+4. **Lưu ý:** pronunciation/exception/cách dùng dễ nhầm; chỉ hiển thị khi data có nội dung.
+5. **Ví dụ thực tế:** tiếng Nhật, cách đọc, nghĩa; nút audio chỉ có khi audio hợp lệ.
+6. **Practice tương tác:** chọn đáp án, xếp câu, điền chỗ trống hoặc chọn cách dùng theo manifest.
+7. **Feedback tại chỗ:** giải thích vì sao đúng/sai, giữ ngữ cảnh và focus.
+8. **Micro-check:** mở sau khi mọi grammar point/practice bắt buộc đã hoàn thành.
+
+- Mỗi grammar point là một section nối tiếp trong cùng activity; progress như `2/3 mẫu` phải lấy từ server.
+- Sentence arrangement hỗ trợ tap và keyboard; drag chỉ là enhancement, không phải đường thao tác duy nhất.
+- Token tiếng Nhật không bị cắt ký tự ở mobile; furigana/reading giữ line-height đủ.
+- Ghi chú học viên chỉ xuất hiện khi audit xác nhận có API lưu/autosave; nếu không thì bỏ khỏi V2 đầu tiên.
+- Nút audio/bookmark/report chỉ xuất hiện khi contract thật tương ứng tồn tại.
+
+### 10.6 Micro-check
+
+Mỗi micro-check dùng bố cục của `micro-check-reference.png` nhưng chỉ chứa câu của activity/batch hiện tại:
+
+- Header tóm tắt skill, batch, số câu, attempts còn lại và cooldown state.
+- Không gọi là `Quiz cuối bài`; tiêu đề dùng `Kiểm tra nhanh Từ vựng/Kanji/Ngữ pháp`.
+- Question list có thể chứa chọn đáp án, điền từ, ghép câu hoặc nối cặp theo blueprint.
+- Mỗi question block có số thứ tự, loại tương tác và điểm/weight chỉ khi nghiệp vụ thực sự dùng weight.
+- Sticky submit bar hiển thị `đã trả lời/ tổng`, trạng thái sẵn sàng và CTA `Nộp kiểm tra`.
+- Không hiển thị countdown nếu micro-check không có time limit. Cooldown countdown là một state riêng do server cấp.
+- Không hiển thị reward trước khi backend đã xác nhận reward contract; pass result mới được trình bày reward đã lưu.
+- Sau submit, feedback theo target/dimension vừa sai và CTA theo state; không biến màn kết quả thành một quiz tổng hợp mới.
+
+### 10.7 Flashcard hoàn chỉnh
 
 - Vùng thẻ lớn, mặt trước/sau rõ và hỗ trợ tiếng Nhật.
 - Nhãn nút đầy đủ: `Chưa nhớ`, `Lật thẻ`, `Đã nhớ`; không chỉ dùng icon.
@@ -453,12 +559,26 @@ Mọi response dùng `ApiResponse<T>`. Business errors dùng `ApiException(Error
 - Khi hoàn tất tự chuyển sang completion state có nút `Bắt đầu kiểm tra` nổi bật.
 - Reload giữ đúng membership, vị trí hợp lý và trạng thái server.
 
-### 10.3 Feedback và cooldown
+Flashcard áp dụng cùng visual system: hero/progress gọn ở trên, một interaction surface nổi bật ở giữa, action group cố định theo nhịp ngón tay ở mobile. Không đặt toàn bộ nội dung trong nhiều card lồng nhau.
+
+### 10.8 Feedback, cooldown và popup
 
 - Sau submit, feedback gắn với target/dimension vừa sai, không chỉ báo điểm tổng.
 - Cooldown dùng server timestamp và hiển thị countdown tham khảo; khi hết giờ phải hỏi lại server.
 - Trong cooldown, CTA chính là `Ôn lại phần vừa sai`.
 - Không dùng màu đỏ hoặc câu chữ mang tính trách phạt cho việc chưa đạt.
+- Popup hoàn thành ngày dùng cùng tím–xanh, focus trap, Escape/close an toàn và ba CTA có thứ bậc: `Học vượt` là primary, `Trở về lộ trình` là secondary, `Nghỉ ngơi` là quiet action.
+
+### 10.9 Responsive và accessibility acceptance
+
+- Kiểm tra tối thiểu ở 360px, 768px, 1024px và 1440px; không chỉ thu nhỏ desktop.
+- Không có horizontal overflow ngoài stage switcher có chủ đích.
+- Sticky bar không che câu hỏi, feedback hoặc nút cuối trang; chừa safe-area cho mobile.
+- Touch target tối thiểu 44×44px; trạng thái focus nhìn rõ trên tím, lime và nền trắng.
+- Mọi trạng thái màu có icon/text tương ứng; contrast đạt WCAG AA cho text và control.
+- Screen reader nhận progress, locked reason, cooldown và kết quả submit qua semantic HTML/ARIA phù hợp.
+- `prefers-reduced-motion` bỏ flip/slide không cần thiết; thao tác vẫn hiểu được qua state tĩnh.
+- Sau validate sai, focus chuyển đến lỗi đầu tiên; sau submit, focus tới result summary; khi popup mở, focus nằm trong popup và được trả về đúng trigger khi đóng.
 
 ## 11. Security, integrity và phân quyền
 
@@ -526,6 +646,11 @@ Không dùng số click, thời gian tab nền hoặc số thẻ tự nhận “
 18. Reading/Listening áp đúng các biên 40/50/70 và thiếu evidence không bị coi là 0%.
 19. Path V2 không gọi lesson quiz, daily quiz, warm-up gate hoặc stage-final legacy.
 20. Chứng nhận ghi rõ hoàn thành J-LAS và link thi thử dùng contract của owner khác.
+21. Roadmap và package detail bám visual contract, nhưng không render XP, timer, tải giáo trình, ghi chú hoặc action không có contract thật.
+22. Progress rail target hiển thị đúng `Từ vựng → Kanji → Ngữ pháp → Hội thoại`; không giữ step Luyện nghe/Mini quiz từ ảnh mẫu.
+23. Grammar render mục tiêu, công thức, phân tích thành phần, ví dụ và practice theo đúng dữ liệu có; section thiếu dữ liệu tùy chọn được bỏ sạch thay vì để placeholder.
+24. Micro-check dùng layout tham chiếu cho đúng activity/batch, không được đổi tên hoặc tái tạo thành quiz cuối bài.
+25. Các màn roadmap, package, Grammar, flashcard và micro-check đạt responsive/a11y acceptance ở §10.9 và được kiểm tra bằng screenshot desktop/mobile.
 
 ## 15. Phạm vi không làm trong lát kiến trúc này
 
