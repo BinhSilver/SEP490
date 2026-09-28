@@ -411,6 +411,31 @@ public class LearningServiceImpl implements LearningService {
         }
     }
 
+    /**
+     * [JLAS-W0108] Đạt bài final: hoàn thành chặng, mở chặng kế tiếp (nếu có) hoặc hoàn thành cả
+     * lộ trình nếu đây là chặng cuối. Item của mọi chặng đã được lên lịch sẵn từ lúc tạo path
+     * ({@code createStages}/{@code stageIdFor}) nên không cần sinh lại lịch ở đây.
+     */
+    private void completeStage(Long stageId) {
+        UserLearningStage stage = stageRepository.findById(stageId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Stage not found."));
+        stage.setStatus("COMPLETED");
+        stageRepository.save(stage);
+        Long pathId = stage.getLearningPath().getId();
+        var next = stageRepository.findByLearningPathIdAndStageIndex(pathId, stage.getStageIndex() + 1);
+        if (next.isPresent()) {
+            var nextStage = next.get();
+            nextStage.setStatus("ACTIVE");
+            stageRepository.save(nextStage);
+            return;
+        }
+        UserLearningPath path = paths.findById(pathId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Path not found."));
+        path.setStatus("COMPLETED");
+        path.setCompletedAt(clock.now());
+        paths.save(path);
+    }
+
     /** [JLAS-W0108] Ghi streak + credit khi hoàn thành bài/activity. Các phụ thuộc là optional để slice test không cần dựng. */
     private void recordStreakAndCredit(Long userId, String referenceType, Long referenceId, String note) {
         if (streakRepository != null) {
@@ -583,6 +608,22 @@ public class LearningServiceImpl implements LearningService {
                 "Bài tổng kết cấp " + stage.getLevel(), data.questions());
     }
 
+    @Override
+    @Transactional
+    public LessonQuizResult submitStageFinalQuiz(Long userId, Long stageId, LessonQuizSubmitRequest request) {
+        requirePositiveUserId(userId);
+        UserLearningStage stage = requireOwnedStage(userId, stageId);
+        if (!"ACTIVE".equals(stage.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Chặng này không ở trạng thái có thể nộp bài tổng kết.");
+        }
+        LearningQuizSession session = quizSessions
+                .findOwnedByActivity(request.attemptId(), userId, QUIZ_TYPE_STAGE_FINAL, stageId)
+                .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN,
+                        "Bài kiểm tra không hợp lệ hoặc đã hết hạn."));
+        return submitSession(session, request);
+    }
+
     private UserLearningStage requireOwnedStage(Long userId, Long stageId) {
         if (stageId == null || stageId <= 0) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "A stage is required.");
@@ -742,6 +783,7 @@ public class LearningServiceImpl implements LearningService {
         }
 
         boolean gate = QUIZ_TYPE_GATE.equals(fresh.getQuizType());
+        boolean stageFinal = QUIZ_TYPE_STAGE_FINAL.equals(fresh.getQuizType());
         boolean pathAnchored = gate || QUIZ_TYPE_FLASHCARD.equals(fresh.getQuizType());
         UserLearningPath path = null;
         if (pathAnchored) {
@@ -756,12 +798,25 @@ public class LearningServiceImpl implements LearningService {
                 requireWarmUpComplete(path);
             }
         }
+        if (stageFinal) {
+            // [JLAS-W0108] Chặn nộp khi chặng đã rời ACTIVE (đã hoàn thành bởi lần nộp khác, ví dụ
+            // hai tab) TRƯỚC quota nên không mất lượt cho một lần nộp vốn dĩ sẽ bị từ chối.
+            UserLearningStage freshStage = stageRepository.findById(fresh.getActivityId())
+                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Stage not found."));
+            if (!"ACTIVE".equals(freshStage.getStatus())) {
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Chặng này không còn ở trạng thái có thể nộp bài tổng kết.");
+            }
+        }
 
         Map<Long, QuizAnswerKey> answerKey = mapper.readQuizAnswerKey(fresh.getAnswerKeyJson());
-        GradeOutcome outcome = gradeAgainstKey(request.answers(), answerKey);
+        GradeOutcome outcome = gradeAgainstKey(request.answers(), answerKey,
+                stageFinal ? STAGE_FINAL_SKILL_PASS_PERCENT : LESSON_QUIZ_GROUP_PASS_PERCENT);
 
-        // [JLAS-W0108] Quota khoá theo activity (grammarPointId) cho GRAMMAR quiz, theo lessonId cho các loại khác.
-        Long quotaAnchor = QUIZ_TYPE_GRAMMAR.equals(fresh.getQuizType()) ? fresh.getActivityId() : fresh.getLessonId();
+        // [JLAS-W0108] Quota khoá theo activity (grammarPointId/stageId) cho GRAMMAR/STAGE_FINAL, theo
+        // lessonId cho các loại khác.
+        Long quotaAnchor = QUIZ_TYPE_GRAMMAR.equals(fresh.getQuizType()) || stageFinal
+                ? fresh.getActivityId() : fresh.getLessonId();
         assertQuizAttemptAllowed(userId, fresh.getQuizType(), quotaAnchor);
         recordQuizAttempt(userId, fresh.getQuizType(), quotaAnchor);
 
@@ -780,6 +835,12 @@ public class LearningServiceImpl implements LearningService {
             // [JLAS-W0108] P4/D3 — flashcard quiz đạt khi đúng hết membership (sai → vòng ôn lại đến đúng).
             passThreshold = FLASHCARD_QUIZ_PASS_PERCENT;
             passed = score >= FLASHCARD_QUIZ_PASS_PERCENT;
+        } else if (stageFinal) {
+            // [JLAS-W0108] Final: đạt khi TRUNG BÌNH 5 kỹ năng >=80% VÀ TỪNG kỹ năng >=70% (điểm tổng
+            // cao không bù được một kỹ năng yếu — §0.7 "Đầu ra JLPT nội bộ").
+            passThreshold = STAGE_FINAL_PASS_PERCENT;
+            passed = score >= STAGE_FINAL_PASS_PERCENT
+                    && outcome.groupResults().stream().allMatch(LessonQuizResult.GroupResult::passed);
         } else {
             // [JLAS-W0108] P4/D2 — lesson quiz: đạt tổng >= 80% VÀ từng nhóm mục tiêu >= 70% (điểm tổng không
             // che nhóm chưa đạt).
@@ -797,14 +858,17 @@ public class LearningServiceImpl implements LearningService {
             } else if (QUIZ_TYPE_FLASHCARD.equals(fresh.getQuizType())) {
                 // [JLAS-W0108] P4/D3 — đạt flashcard quiz ghi assessment PASSED trên mọi item từ/Kanji.
                 markFlashcardQuizPassed(userId, fresh.getPathId());
+            } else if (stageFinal) {
+                completeStage(fresh.getActivityId());
             } else {
                 // [JLAS-W0108] P4 — đạt quiz ghi assessment PASSED trên item, KHÔNG hoàn thành study
                 // (study ≠ PASSED). Nút "hoàn thành nội dung" (completeItem/completeLesson) giữ study.
                 markLessonQuizPassed(userId, fresh.getLessonId());
             }
         }
-        boolean relearnRequired = gate && !passed
-                && gateFailuresToday(userId) >= MAX_GATE_FAILURES_BEFORE_RELEARN;
+        boolean relearnRequired = (gate && !passed
+                && gateFailuresToday(userId) >= MAX_GATE_FAILURES_BEFORE_RELEARN)
+                || (stageFinal && !passed && stageFinalNotImprovingTwice(fresh.getActivityId(), score));
 
         LessonQuizResult result = new LessonQuizResult(outcome.total(), outcome.correct(), score, passed,
                 passThreshold, relearnRequired, outcome.review(), outcome.groupResults());
@@ -819,10 +883,11 @@ public class LearningServiceImpl implements LearningService {
         return result;
     }
 
-    /** [JLAS-W0108] Nạp lại session dưới khoá user; GRAMMAR quiz khóa theo activity_id, còn lại theo lesson_id. */
+    /** [JLAS-W0108] Nạp lại session dưới khoá user; GRAMMAR/STAGE_FINAL quiz khóa theo activity_id,
+     *  còn lại theo lesson_id. */
     private java.util.Optional<LearningQuizSession> reloadOwned(Long userId, String quizType, Long lessonId,
             Long activityId, Long attemptId) {
-        if (QUIZ_TYPE_GRAMMAR.equals(quizType)) {
+        if (QUIZ_TYPE_GRAMMAR.equals(quizType) || QUIZ_TYPE_STAGE_FINAL.equals(quizType)) {
             return quizSessions.findOwnedByActivity(attemptId, userId, quizType, activityId);
         }
         return quizSessions.findOwned(attemptId, userId, quizType, lessonId);
@@ -830,9 +895,11 @@ public class LearningServiceImpl implements LearningService {
 
     /**
      * [JLAS-W0108] Chấm theo đáp án snapshot: mẫu số = toàn bộ câu đã phát; từ chối câu ngoài đề / trùng id.
+     * {@code groupPassPercent} là ngưỡng đạt của từng nhóm (GroupResult) — truyền tường minh theo loại
+     * quiz để STAGE_FINAL không âm thầm theo ngưỡng của LESSON quiz (xem STAGE_FINAL_SKILL_PASS_PERCENT).
      */
     private GradeOutcome gradeAgainstKey(List<LessonQuizSubmitRequest.LessonQuizAnswerRequest> answers,
-            Map<Long, QuizAnswerKey> answerKey) {
+            Map<Long, QuizAnswerKey> answerKey, int groupPassPercent) {
         if (answers == null || answers.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Vui lòng trả lời ít nhất một câu.");
         }
@@ -869,7 +936,7 @@ public class LearningServiceImpl implements LearningService {
         List<LessonQuizResult.GroupResult> groups = new ArrayList<>(groupTotal.size());
         for (String key : groupTotal.keySet()) {
             int groupQuestionCount = groupTotal.get(key);
-            int required = requiredCorrect(groupQuestionCount, LESSON_QUIZ_GROUP_PASS_PERCENT);
+            int required = requiredCorrect(groupQuestionCount, groupPassPercent);
             int groupScore = groupCorrect.getOrDefault(key, 0);
             groups.add(new LessonQuizResult.GroupResult(key, groupLabel.get(key), groupScore,
                     groupQuestionCount, required, groupScore >= required));
@@ -1010,6 +1077,22 @@ public class LearningServiceImpl implements LearningService {
      * đạt rồi thì không thi lại). */
     private long gateFailuresToday(Long userId) {
         return quizAttempts.countSince(userId, QUIZ_TYPE_GATE, null, clock.today().atStartOfDay());
+    }
+
+    /**
+     * [JLAS-W0108] D7 — 2 lần retest liên tiếp của bài final cùng chặng vẫn không cải thiện điểm
+     * (delta ≤ 0 so với lần liền trước) thì gợi ý kiểm tra lại kiến thức nền. Chỉ là gợi ý (hint
+     * qua {@code relearnRequired}), KHÔNG khóa lượt làm tiếp — khác gate quiz fail-2-lần.
+     */
+    private boolean stageFinalNotImprovingTwice(Long stageId, int newScore) {
+        var recent = quizSessions.findTop2ByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                stageId, QUIZ_TYPE_STAGE_FINAL, QUIZ_STATUS_SUBMITTED);
+        if (recent.size() < 2) {
+            return false;
+        }
+        int mostRecentScore = recent.get(0).getScorePercent();
+        int secondMostRecentScore = recent.get(1).getScorePercent();
+        return newScore <= mostRecentScore && mostRecentScore <= secondMostRecentScore;
     }
 
     /** [JLAS-W0108][MP-gate] Đã fail đủ {@value #MAX_GATE_FAILURES_BEFORE_RELEARN} lần gate quiz hôm

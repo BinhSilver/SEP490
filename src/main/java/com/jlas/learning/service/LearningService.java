@@ -49,6 +49,10 @@ public interface LearningService {
      *  mọi item goal-learning của chặng đã STUDIED. */
     LessonQuizResponse getStageFinalQuiz(Long userId, Long stageId);
 
+    /** [JLAS-W0108] Chấm bài final cuối chặng; đạt (avg≥80%, mỗi kỹ năng≥70%) thì hoàn thành chặng
+     *  và mở chặng kế tiếp hoặc hoàn thành cả lộ trình nếu là chặng cuối. */
+    LessonQuizResult submitStageFinalQuiz(Long userId, Long stageId, LessonQuizSubmitRequest request);
+
     /**
      * [JLAS-W0108] P4 — warm-up grammar quiz: retest đúng mẫu ngữ pháp đã sai (5 câu khác câu đầu vào,
      * cùng mẫu). Câu từ ngân hàng gắn {@code grammarPointId}; thiếu câu -> QUIZ_NOT_READY (BLOCKED_CONTENT).

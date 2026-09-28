@@ -118,6 +118,14 @@ public class LearningController {
         return ResponseEntity.ok(ApiResponse.ok("OK", learningService.getStageFinalQuiz(user.userId(), stageId)));
     }
 
+    /** [JLAS-W0108] Chấm bài final cuối chặng; đạt thì hoàn thành chặng/lộ trình. */
+    @PostMapping("/stages/{stageId}/final-quiz/submit")
+    public ResponseEntity<ApiResponse<LessonQuizResult>> submitStageFinalQuiz(@PathVariable Long stageId,
+            @Valid @RequestBody LessonQuizSubmitRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK",
+                learningService.submitStageFinalQuiz(user.userId(), stageId, request)));
+    }
+
     /** [JLAS-W0108] P4 — lấy warm-up grammar quiz (retest mẫu ngữ pháp đã sai, không lộ đáp án). */
     @GetMapping("/grammar/{grammarPointId}/quiz")
     public ResponseEntity<ApiResponse<LessonQuizResponse>> getGrammarQuiz(@PathVariable Long grammarPointId,

@@ -1,6 +1,7 @@
 package com.jlas.learning.repository;
 
 import com.jlas.learning.entity.LearningQuizSession;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +36,9 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
             """)
     Optional<LearningQuizSession> findOwnedByActivity(@Param("id") Long id, @Param("userId") Long userId,
             @Param("quizType") String quizType, @Param("activityId") Long activityId);
+
+    /** [JLAS-W0108] 2 lần nộp bài final gần nhất cùng chặng, để kiểm điểm có cải thiện qua các lần
+     *  retest hay không (D7). */
+    List<LearningQuizSession> findTop2ByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+            Long activityId, String quizType, String status);
 }

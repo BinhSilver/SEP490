@@ -1,6 +1,7 @@
 package com.jlas.learning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,6 +15,9 @@ import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.Tag;
 import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.entity.Unit;
+import com.jlas.learning.dto.LessonQuizResponse;
+import com.jlas.learning.dto.LessonQuizResult;
+import com.jlas.learning.dto.LessonQuizSubmitRequest;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.entity.UserLearningStage;
@@ -175,5 +179,131 @@ class StageFinalQuizTest {
                 () -> service.getStageFinalQuiz(fixture.user().getId(), reloadedStage.getId()));
 
         assertEquals(ErrorCode.QUIZ_NOT_READY, ex.getErrorCode());
+    }
+
+    private LessonQuizSubmitRequest allCorrectAnswers(LessonQuizResponse quiz) {
+        var answers = quiz.questions().stream()
+                .map(q -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(q.questionId(), 1))
+                .toList();
+        return new LessonQuizSubmitRequest(quiz.attemptId(), answers);
+    }
+
+    @Test
+    void passingFinalOnTheOnlyStageCompletesTheWholePath() {
+        var fixture = seed(true);
+        var quiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+
+        var result = service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                allCorrectAnswers(quiz));
+
+        assertTrue(result.passed());
+        assertEquals(5, result.groupResults().size());
+        for (var group : result.groupResults()) assertTrue(group.passed());
+
+        var reloadedStage = stages.findById(fixture.stage().getId()).orElseThrow();
+        assertEquals("COMPLETED", reloadedStage.getStatus());
+        var reloadedPath = paths.findById(fixture.path().getId()).orElseThrow();
+        assertEquals("COMPLETED", reloadedPath.getStatus());
+        assertTrue(reloadedPath.getCompletedAt() != null);
+    }
+
+    @Test
+    void passingFinalWithANextStageActivatesItInsteadOfCompletingThePath() {
+        var fixture = seed(true);
+        var nextStage = UserLearningStage.builder().learningPath(fixture.path()).level("N3")
+                .stageIndex(1).status("PENDING").build();
+        stages.save(nextStage);
+        var quiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+
+        service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                allCorrectAnswers(quiz));
+
+        var reloadedNext = stages.findById(nextStage.getId()).orElseThrow();
+        assertEquals("ACTIVE", reloadedNext.getStatus());
+        var reloadedPath = paths.findById(fixture.path().getId()).orElseThrow();
+        assertEquals("ACTIVE", reloadedPath.getStatus());
+    }
+
+    @Test
+    void oneWeakSkillFailsDespiteAHighAverage() {
+        var fixture = seed(true);
+        var quiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+        var answers = quiz.questions().stream()
+                .map(q -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(
+                        q.questionId(), "LISTENING".equals(q.skill()) ? 2 : 1))
+                .toList();
+
+        var result = service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                new LessonQuizSubmitRequest(quiz.attemptId(), answers));
+
+        assertTrue(result.scorePercent() >= STAGE_FINAL_AVERAGE_WOULD_PASS_ALONE());
+        assertFalse(result.passed());
+        var listening = result.groupResults().stream()
+                .filter(g -> "LISTENING".equals(g.groupKey())).findFirst().orElseThrow();
+        assertFalse(listening.passed());
+    }
+
+    private static int STAGE_FINAL_AVERAGE_WOULD_PASS_ALONE() {
+        // 4/5 skills fully correct, 1 skill fully wrong -> 80% overall average, which alone would
+        // clear the 80% total threshold; the test's real assertion is that it still fails overall.
+        return 80;
+    }
+
+    @Test
+    void submittingAfterTheStageAlreadyCompletedIsRejectedAndDoesNotConsumeQuota() {
+        var fixture = seed(true);
+        var quiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+        fixture.stage().setStatus("COMPLETED");
+        stages.save(fixture.stage());
+
+        var ex = assertThrows(ApiException.class, () -> service.submitStageFinalQuiz(
+                fixture.user().getId(), fixture.stage().getId(), allCorrectAnswers(quiz)));
+        assertEquals(ErrorCode.CONFLICT, ex.getErrorCode());
+
+        // Proves quota was NOT consumed by the rejected submit: flip the stage back to ACTIVE and
+        // confirm all MAX_QUIZ_ATTEMPTS_PER_DAY (5) attempts are still available, not 4.
+        fixture.stage().setStatus("ACTIVE");
+        stages.save(fixture.stage());
+        for (int i = 0; i < 5; i++) {
+            var retryQuiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+            service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                    lowScoreAnswers(retryQuiz));
+        }
+        // The 6th would exceed the 5/day cap; if the earlier rejected submit HAD consumed one,
+        // this 5-loop above would already have thrown before completing.
+    }
+
+    /** All-wrong answers except one skill, so score stays identical and non-passing across retries. */
+    private LessonQuizSubmitRequest lowScoreAnswers(LessonQuizResponse quiz) {
+        var answers = quiz.questions().stream()
+                .map(q -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(q.questionId(), 2))
+                .toList();
+        return new LessonQuizSubmitRequest(quiz.attemptId(), answers);
+    }
+
+    @Test
+    void twoNonImprovingRetestsSurfaceAPrerequisiteHintWithoutLockingFurtherAttempts() {
+        var fixture = seed(true);
+
+        var firstQuiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+        var firstResult = service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                lowScoreAnswers(firstQuiz));
+        assertFalse(firstResult.passed());
+
+        var secondQuiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+        var secondResult = service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                lowScoreAnswers(secondQuiz));
+        assertFalse(secondResult.passed());
+        assertFalse(secondResult.relearnRequired()); // only 1 prior attempt so far — not yet 2 retests
+
+        var thirdQuiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+        var thirdResult = service.submitStageFinalQuiz(fixture.user().getId(), fixture.stage().getId(),
+                lowScoreAnswers(thirdQuiz));
+
+        assertFalse(thirdResult.passed());
+        assertTrue(thirdResult.relearnRequired());
+        // Hint only — does not lock the stage. A 4th attempt must still be issuable.
+        var fourthQuiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+        assertTrue(fourthQuiz.attemptId() > 0);
     }
 }
