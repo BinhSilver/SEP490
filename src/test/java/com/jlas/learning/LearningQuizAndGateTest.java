@@ -268,6 +268,62 @@ class LearningQuizAndGateTest {
         assertTrue(second.relearnRequired());
     }
 
+    /** [JLAS-W0108][MP-gate] Đã fail đủ 2 lần hôm nay: không phát đề gate mới nữa (chặn thật, không
+     * chỉ trả cờ relearnRequired cho FE tự xử lý). */
+    @Test
+    void gateQuizBlocksIssuingAfterTwoFailuresToday() {
+        var fixture = seed();
+        markWarmUpPassed(fixture.user.getId());
+        failGateTwice(fixture);
+
+        var ex = org.junit.jupiter.api.Assertions.assertThrows(ApiException.class,
+                () -> service.getGateQuiz(fixture.user.getId()));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, ex.getErrorCode());
+    }
+
+    /** [JLAS-W0108][MP-gate] Đã fail đủ 2 lần: nộp một đề gate ĐANG CẦM (phát trước khi bị khoá — vd
+     * mở 2 tab) cũng phải bị chặn, không chỉ chặn phát đề mới. */
+    @Test
+    void gateQuizBlocksSubmittingAnAlreadyIssuedSessionAfterTwoFailuresToday() {
+        var fixture = seed();
+        markWarmUpPassed(fixture.user.getId());
+        var spareQuiz = service.getGateQuiz(fixture.user.getId()); // phát trước, giữ lại chưa nộp
+        failGateTwice(fixture);
+
+        var ex = org.junit.jupiter.api.Assertions.assertThrows(ApiException.class,
+                () -> service.submitGateQuiz(fixture.user.getId(),
+                        new LessonQuizSubmitRequest(spareQuiz.attemptId(), wrongAnswers(fixture))));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, ex.getErrorCode());
+    }
+
+    /** [JLAS-W0108][MP-gate] Khoá chỉ áp dụng trong ngày (giờ VN) — sang ngày mới thì phát/nộp lại
+     * bình thường, khớp đúng cách gateFailuresToday() đã tính theo LearningClock (MP08). */
+    @Test
+    void gateQuizUnlocksOnTheNextVietnamDay() {
+        var fixture = seed();
+        markWarmUpPassed(fixture.user.getId());
+        failGateTwice(fixture);
+
+        clock.setClock(Clock.fixed(
+                clock.now().plusDays(1).atZone(LearningClock.VN_ZONE).toInstant(), LearningClock.VN_ZONE));
+        try {
+            var quiz = service.getGateQuiz(fixture.user.getId());
+            assertNotNull(quiz, "Sang ngày mới giờ VN phải phát đề gate lại bình thường");
+        } finally {
+            clock.setClock(Clock.system(LearningClock.VN_ZONE));
+        }
+    }
+
+    private void failGateTwice(Fixture fixture) {
+        for (int i = 0; i < 2; i++) {
+            var quiz = service.getGateQuiz(fixture.user.getId());
+            service.submitGateQuiz(fixture.user.getId(),
+                    new LessonQuizSubmitRequest(quiz.attemptId(), wrongAnswers(fixture)));
+        }
+    }
+
     @Test
     void gateQuizAnchorsGrammarSpecificQuestion() {
         var role = Role.builder().name("LEARNER").build();

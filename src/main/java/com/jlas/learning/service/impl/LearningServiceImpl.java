@@ -440,6 +440,7 @@ public class LearningServiceImpl implements LearningService {
     public LessonQuizResponse getGateQuiz(Long userId) {
         requirePositiveUserId(userId);
         UserLearningPath path = requireActivePath(userId);
+        requireGateNotLocked(userId);
         // [JLAS-W0108] P5 — gate (đầu ra chuyển chặng) chỉ phát khi mọi hoạt động warm-up bắt buộc đã đạt.
         requireWarmUpComplete(path);
         // [JLAS-W0108] Gate quiz chỉ hỏi nội dung đã warm-up (anchor→ngân hàng), không còn "vơ cả cấp".
@@ -463,6 +464,7 @@ public class LearningServiceImpl implements LearningService {
     @Transactional
     public LessonQuizResult submitGateQuiz(Long userId, LessonQuizSubmitRequest request) {
         requirePositiveUserId(userId);
+        requireGateNotLocked(userId);
         LearningQuizSession session = loadOwnedSession(userId, QUIZ_TYPE_GATE, null, request.attemptId());
         return submitSession(session, request);
     }
@@ -896,6 +898,18 @@ public class LearningServiceImpl implements LearningService {
      * đạt rồi thì không thi lại). */
     private long gateFailuresToday(Long userId) {
         return quizAttempts.countSince(userId, QUIZ_TYPE_GATE, null, clock.today().atStartOfDay());
+    }
+
+    /** [JLAS-W0108][MP-gate] Đã fail đủ {@value #MAX_GATE_FAILURES_BEFORE_RELEARN} lần gate quiz hôm
+     * nay (giờ VN) thì chặn cả phát đề mới lẫn nộp đề đang cầm — trước đây chỉ trả cờ
+     * {@code relearnRequired} cho FE tự xử lý, không có gì chặn thật ở server. Tự hết hạn khi
+     * {@link #gateFailuresToday} tính lại sang ngày VN mới; chưa có đường mở khoá sớm (vd đổi CP). */
+    private void requireGateNotLocked(Long userId) {
+        if (gateFailuresToday(userId) >= MAX_GATE_FAILURES_BEFORE_RELEARN) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
+                    "Bạn đã làm sai gate quiz " + MAX_GATE_FAILURES_BEFORE_RELEARN
+                            + " lần hôm nay. Hãy ôn lại warm-up và quay lại vào ngày mai.");
+        }
     }
 
     /** [JLAS-W0108][MP08] Ném 429 nếu user đã dùng hết {@value #MAX_QUIZ_ATTEMPTS_PER_DAY} lượt quiz
