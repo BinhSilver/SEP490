@@ -1,5 +1,11 @@
 # Prompt bàn giao — Interactive Learning Path V2 tại mốc 30%
 
+> **Điều phối nhiều AI:** File này ghi baseline chung tại mốc 30%. Khi Task 4 và Task 5–10 được giao cho hai AI khác
+> nhau, phạm vi thực thi ưu tiên theo
+> `2026-09-29-interactive-learning-v2-task4-handoff.md` và
+> `2026-09-29-interactive-learning-v2-task5-to-task10-handoff.md`. AI Task 4 dừng sau mốc 40%; AI Task 5–10 chỉ bắt
+> đầu sau khi xác minh handoff hoàn tất của Task 4.
+
 Tiếp tục J-LAS Learning Path V2 trên branch `codex/interactive-learning-v2`, worktree:
 
 `C:\Users\LAPTOP LENOVO\.codex\worktrees\interactive-learning-v2\SEP490`
