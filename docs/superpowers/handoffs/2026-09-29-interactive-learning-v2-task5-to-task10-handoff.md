@@ -59,7 +59,30 @@ chứng và hoàn thiện mọi phần độc lập không phụ thuộc blocker
 ## Phạm vi phải hoàn thành
 
 Mục tiêu của lần tiếp nhận này là hoàn thành tuần tự **Task 5 → 6 → 7 → 8 → 9 → 10**, đưa plan từ mốc 40% lên
-100%. Không dừng sau Task 5 nếu exit criteria đã đạt và không có blocker thật.
+100%. Không dừng ở bất kỳ mốc trung gian nào; blocker cục bộ được xử lý theo quy tắc tiếp tục bên dưới.
+
+## Chế độ thực thi liên tục khi người dùng vắng mặt
+
+Người dùng sẽ treo máy và chỉ quay lại xem kết quả, chạy web, nghiệm thu sau khi toàn bộ lượt triển khai kết thúc. Đây
+là ủy quyền rõ ràng để thực hiện trọn Task 5–10 trong một lượt:
+
+- Không dừng để xin duyệt kế hoạch, thiết kế, migration, API, UI, test, commit hoặc mốc phần trăm trung gian đã nằm trong
+  spec/plan/handoff này.
+- Không gửi câu hỏi hoặc chờ phản hồi chỉ vì vừa hoàn thành một task. Sau khi test và commit Task 5, tự bắt đầu Task 6;
+  tiếp tục như vậy đến khi hoàn thành Task 10.
+- Tự giải quyết lựa chọn triển khai thông thường theo codebase, `AGENTS.md`, spec và business rules đã duyệt. Ghi quyết
+  định đáng kể vào rules/plan/handoff để người dùng review sau.
+- Một test fail, lỗi compile, lỗi migration, lỗi UI hoặc regression là việc phải điều tra và sửa trong lượt làm; không
+  dùng lỗi có thể tự sửa làm lý do dừng sớm.
+- Mỗi task vẫn phải chạy focused tests, full regression, tự review và commit riêng. Việc người dùng sẽ test web sau
+  không thay thế nghĩa vụ kiểm thử của AI.
+- Không mở PR, merge, push, deploy, bật feature flag production hoặc thay đổi dữ liệu thật nếu các hành động đó chưa
+  được người dùng yêu cầu. Hoàn thiện code và bằng chứng reviewable trên branch hiện tại.
+
+Nếu gặp blocker bên ngoài thật sự như thiếu credential, dịch vụ ngoài không khả dụng hoặc contract thuộc team khác chưa
+tồn tại, không dừng toàn bộ lượt làm: ghi blocker cùng bằng chứng, giữ adapter/feature gate an toàn, hoàn thành mọi phần
+độc lập của task hiện tại và tiếp tục mọi task sau không phụ thuộc blocker. Chỉ báo tổng hợp ở cuối. Không bịa contract,
+dữ liệu hoặc kết quả kiểm thử và không tuyên bố 100% cho acceptance criterion chưa được chứng minh.
 
 Sau mỗi task:
 
@@ -71,9 +94,9 @@ Sau mỗi task:
 5. Commit riêng theo Conventional Commit; schema/business changes phải gắn `[JLAS-W0193]` theo rule dự án.
 6. Khi task đạt exit criteria, tự chuyển sang task kế tiếp.
 
-Chỉ dừng khi thiếu quyết định nghiệp vụ làm thay đổi kết quả người học, thiếu owner contract của team khác, migration
-không thể triển khai tương thích, hoặc dữ liệu thật không có nguồn canonical hợp lệ. Khi dừng, nêu bằng chứng, phần đã
-hoàn thành và phương án hẹp nhất để tiếp tục. Không tự bịa dữ liệu, API, đáp án hoặc contract.
+Nếu phát hiện thiếu quyết định nghiệp vụ có thể làm thay đổi kết quả người học, giữ hành vi bảo thủ theo spec hiện tại,
+ghi assumption/rủi ro và tiếp tục các phần không phụ thuộc. Khi kết thúc Task 10, nêu bằng chứng, phần chưa thể chứng minh
+và phương án hẹp nhất để xử lý. Không tự bịa dữ liệu, API, đáp án hoặc contract.
 
 ## Task 5 — Kanji study và micro-check (50%)
 
@@ -237,7 +260,8 @@ Sau thay đổi schema, kiểm tra đồng bộ giữa entity, `jlas_schema.sql`
 
 ## Kết quả bàn giao cuối
 
-Khi Task 10 hoàn thành, tạo handoff cuối và báo:
+Chỉ gửi báo cáo kết thúc cho người dùng sau khi đã đi hết Task 5–10, chạy các verification khả dụng và tạo handoff cuối.
+Không dùng báo cáo tiến độ trung gian làm điểm dừng. Khi Task 10 hoàn thành, tạo handoff cuối và báo:
 
 - Commit range Task 5–10 và commit riêng của từng task.
 - File/API/schema/state-machine đã thay đổi.
@@ -248,6 +272,7 @@ Khi Task 10 hoàn thành, tạo handoff cuối và báo:
 - Trạng thái feature flag và điều kiện rollout.
 - Kết quả audit dữ liệu thật hoặc giới hạn chính xác nếu chưa có quyền/cấu hình DB.
 - Contract còn phụ thuộc team khác và phần nào đã được adapter bảo vệ.
+- Hướng dẫn ngắn để người dùng chạy ứng dụng, mở đúng trang và nghiệm thu toàn bộ luồng trên web sau khi quay lại.
 
 Chỉ tuyên bố 100% khi mọi checkbox Task 5–10 có bằng chứng đạt. Phần trăm là vertical slice đã chạy đúng nghiệp vụ và
 qua kiểm thử, không phải tỷ lệ số dòng code đã viết.
