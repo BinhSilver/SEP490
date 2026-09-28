@@ -310,3 +310,13 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
 - Missing, unpublished, duplicate or wrong-level content produces explicit coverage-gap codes. The composer publishes no package from an incomplete batch and never substitutes arbitrary lessons or runtime AI output.
 - Package membership stores canonical IDs and a SHA-256 source revision. Canonical lesson/dictionary content remains owned by the dictionary module; Learning Path does not copy it into a second source of truth.
 - Composition is transactional and idempotent per path. It preserves existing warm-up item order/day values, attaches target packages to their stage, and emits exactly four ordered activities: Vocabulary, Kanji, Grammar, Dialogue.
+
+### 2.11 Vocabulary study & micro-check (V2 activity) [JLAS-W0193]
+
+- The Vocabulary activity is owned and gated server-side: only memberships of the activity the user actually owns are ever studied. Client ID lists are never trusted — the server always re-reads `VOCABULARY_ENTRY` membership by activity/package/owner from the principal.
+- A study session carries the membership `source_revision` at creation, so a later re-composition does not silently change what the learner is mid-way through. Reloading the activity resumes the same open session rather than starting a new one.
+- Each card must be **flipped** before it may be marked *Đã nhớ* (remembered) or *Chưa nhớ* (forgotten). A forgotten card resets its flip and re-enters the review queue; the session is not finished until every membership is remembered.
+- The micro-check opens (`CHECK_READY`) only after every card is remembered. It covers **every** target, split into batches of at most 10 questions, mixing word→meaning, meaning→word, reading→word and matching question types.
+- Questions and the answer key are written once into an immutable `learning_quiz_session` snapshot (`VOCAB_MICRO_CHECK`). The answer key never leaves the server; option indices are **1-based** everywhere (submit `@Min(1)` and grading use the same convention).
+- A batch passes at **≥70%** correct. The server records first / latest / best per cycle and allows at most **3** valid submits per cycle. A third failure imposes a **60-minute** server-side cooldown plus a mandatory review of the missed targets before another attempt is permitted.
+- Issue and submit are idempotent (idempotency key / duplicate submit re-returns the stored result), and technical errors or duplicate requests never consume an attempt. The server — not the client — decides state, unlock and cooldown from its own clock.

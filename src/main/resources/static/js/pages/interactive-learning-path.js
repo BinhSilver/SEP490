@@ -27,14 +27,22 @@
       completedPackages: num(data.completedPackages), totalPackages: num(data.totalPackages), packages: packages
     };
   }
+  function activityRow(a, index) {
+    var done = a.state === 'PASSED' || a.state === 'COMPLETED';
+    var active = a.state === 'STUDYING' || a.state === 'CHECK_READY' || a.state === 'COOLDOWN';
+    var label = ACTIVITY_LABEL[a.type] || a.type;
+    var state = done ? 'Đã hoàn thành' : active ? 'Đang học' : 'Chưa mở';
+    var inner = '<span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span>' +
+      '<span><strong>' + esc(label) + '</strong><small>' + esc(state) + '</small></span>';
+    var css = 'ilp-activity' + (done ? ' is-done' : active ? ' is-active' : '');
+    if (a.type === 'VOCABULARY' && !done && a.state !== 'LOCKED') {
+      return '<li class="' + css + '"><a class="ilp-activity__link" href="/learning/v2/vocabulary?activity=' +
+        encodeURIComponent(a.id) + '">' + inner + '</a></li>';
+    }
+    return '<li class="' + css + '">' + inner + '</li>';
+  }
   function activityRows(pkg) {
-    return pkg.activities.map(function (a, index) {
-      var done = a.state === 'PASSED' || a.state === 'COMPLETED';
-      var active = a.state === 'STUDYING' || a.state === 'CHECK_READY' || a.state === 'COOLDOWN';
-      return '<li class="ilp-activity' + (done ? ' is-done' : active ? ' is-active' : '') + '"><span class="ilp-activity__mark">' +
-        (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span><span><strong>' + esc(ACTIVITY_LABEL[a.type] || a.type) +
-        '</strong><small>' + esc(done ? 'Đã hoàn thành' : active ? 'Đang học' : 'Chưa mở') + '</small></span></li>';
-    }).join('');
+    return pkg.activities.map(activityRow).join('');
   }
   function packageCard(pkg) {
     var action = pkg.canStart ? '<button class="ilp-button" type="button" data-start-package="' + pkg.id + '">Bắt đầu học <span aria-hidden="true">→</span></button>' : '';

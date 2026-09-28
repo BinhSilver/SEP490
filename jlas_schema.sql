@@ -1848,6 +1848,7 @@ CREATE TABLE learning_quiz_session (
     lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE/GRAMMAR/FLASHCARD',
     path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON/GRAMMAR',
     activity_id      BIGINT UNSIGNED NULL COMMENT '[JLAS-W0108] grammarPointId cho GRAMMAR quiz; null cho loai khac',
+    batch_index      INT UNSIGNED NULL COMMENT '[JLAS-W0193] thu tu batch micro-check; null cho quiz legacy',
     path_version     INT NULL COMMENT 'snapshot version cua lo trinh khi phat GATE quiz',
     status           VARCHAR(20) NOT NULL DEFAULT 'ISSUED' COMMENT 'ISSUED/SUBMITTED',
     questions_json   TEXT NOT NULL COMMENT 'JSON mang cau hoi da phat (khong chua dap an)',
@@ -1863,9 +1864,67 @@ CREATE TABLE learning_quiz_session (
     KEY idx_quiz_session_user (user_id, quiz_type, lesson_id, status),
     CONSTRAINT fk_quiz_session_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD')),
+    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Study session cua mot activity tu vung/Kanji; giu membership revision dang hoc de reload
+-- resume dung session va replan (revision moi) reset sach. "Da nho" la study evidence, khong phai mastery.
+CREATE TABLE learning_study_session (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id BIGINT UNSIGNED NOT NULL,
+    source_revision  VARCHAR(64) NOT NULL,
+    row_version      BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                     ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_study_session_activity (activity_item_id),
+    CONSTRAINT fk_learning_study_session_item FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Trang thai flip/remember cua tung membership target trong mot study session.
+CREATE TABLE learning_study_card (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    study_session_id BIGINT UNSIGNED NOT NULL,
+    canonical_id     BIGINT UNSIGNED NOT NULL,
+    order_index      INT UNSIGNED NOT NULL,
+    flipped          TINYINT(1) NOT NULL DEFAULT 0,
+    remembered       TINYINT(1) NOT NULL DEFAULT 0,
+    flipped_at       DATETIME(6) NULL,
+    remembered_at    DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_study_card_identity (study_session_id, canonical_id),
+    KEY idx_learning_study_card_order (study_session_id, order_index),
+    CONSTRAINT fk_learning_study_card_session FOREIGN KEY (study_session_id)
+        REFERENCES learning_study_session(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Tong ket so luot micro-check theo (activity, batch): 3 luot/cycle, cooldown 60 phut,
+-- bat buoc review truoc cycle moi. Pass quyet dinh o day; snapshot bieu bat bien nam o learning_quiz_session.
+CREATE TABLE learning_micro_check_state (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id  BIGINT UNSIGNED NOT NULL,
+    batch_index       INT UNSIGNED NOT NULL DEFAULT 0,
+    cycle_number      INT UNSIGNED NOT NULL DEFAULT 1,
+    attempts_used     INT UNSIGNED NOT NULL DEFAULT 0,
+    passed            TINYINT(1) NOT NULL DEFAULT 0,
+    first_score       INT NULL,
+    latest_score      INT NULL,
+    best_score        INT NULL,
+    cooldown_until    DATETIME(6) NULL,
+    review_required   TINYINT(1) NOT NULL DEFAULT 0,
+    row_version       BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_micro_check_activity_batch (activity_item_id, batch_index),
+    CONSTRAINT fk_learning_micro_check_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_micro_check_attempts CHECK (attempts_used <= 3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.

@@ -1,0 +1,59 @@
+:root{--ilp-purple:#8b35f2;--ilp-lime:#82d909;--ilp-ink:#12182b;--ilp-muted:#6d7890;--ilp-line:#dce4ee;--ilp-bg:#f6f9fc}
+.ilp-study-page{max-width:760px}
+.ilp-study,.ilp-check,.ilp-result{display:grid;gap:22px}
+.ilp-study__head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+.ilp-study__head h1{font-size:clamp(28px,5vw,40px);line-height:1.05;margin:10px 0 6px}
+.ilp-study__head p{color:var(--ilp-muted);margin:0}
+.ilp-study__count{text-align:right;padding:14px 18px;border:1px solid var(--ilp-line);border-radius:14px;background:#fff;display:grid}
+.ilp-study__count strong{font-size:30px;color:var(--ilp-purple);line-height:1}
+.ilp-study__count span{color:var(--ilp-muted);font:700 11px ui-monospace,monospace;text-transform:uppercase;margin-top:6px}
+.ilp-progress{height:6px;background:#e9eef4;border-radius:99px;overflow:hidden}
+.ilp-progress span{display:block;height:100%;background:linear-gradient(90deg,var(--ilp-purple),var(--ilp-lime));border-radius:inherit;transition:width .3s ease}
+.ilp-card{min-height:300px;display:grid;place-items:center;padding:40px 28px;border-radius:24px;background:linear-gradient(120deg,#f4ffd9 0,#fff 55%,#f7efff 100%);border:2px solid var(--ilp-line);cursor:pointer;text-align:center;position:relative}
+.ilp-card:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:4px}
+.ilp-card__front,.ilp-card__back{display:grid;gap:12px;justify-items:center}
+.ilp-card__kicker{color:var(--ilp-purple);font:800 12px ui-monospace,monospace;letter-spacing:.05em;text-transform:uppercase}
+.ilp-card__word{font-family:'Noto Serif',serif;font-size:clamp(42px,9vw,72px);line-height:1.1;margin:0;color:var(--ilp-ink)}
+.ilp-card__reading{color:var(--ilp-muted);font-size:20px}
+.ilp-card__hint{color:#9aa6b6;font:600 13px ui-monospace,monospace;margin-top:14px}
+.ilp-card__meaning{font-size:clamp(24px,5vw,34px);font-weight:700;color:var(--ilp-ink)}
+.ilp-card__chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.ilp-chip{padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--ilp-line);font:700 12px ui-monospace,monospace;color:var(--ilp-muted)}
+.ilp-card__example{margin:8px 0 0;color:var(--ilp-muted);line-height:1.5}
+.ilp-card__example span{display:block;font-size:14px;color:#9aa6b6}
+.ilp-card__empty{color:var(--ilp-muted)}
+.ilp-card__actions{display:flex;gap:12px;justify-content:center;min-height:52px}
+.ilp-action{border:0;border-radius:12px;padding:14px 26px;font:800 15px/1 ui-monospace,monospace;cursor:pointer}
+.ilp-action--flip{background:var(--ilp-purple);color:#fff}
+.ilp-action--know{background:var(--ilp-lime);color:#1d2b00}
+.ilp-action--forget{background:#fff;color:var(--ilp-muted);border:1px solid var(--ilp-line)}
+.ilp-action:focus-visible,.ilp-check:focus-visible,.ilp-check__submit:focus-visible,.ilp-option input:focus-visible+.ilp-option__mark{outline:3px solid var(--ilp-purple);outline-offset:3px}
+.ilp-gate-note{padding:14px 18px;border:1px solid #ffd7a8;border-radius:12px;background:#fff7ec;color:#8a5a14;text-align:center;font-weight:600}
+.ilp-check{border:0;border-radius:13px;background:var(--ilp-lime);padding:15px 24px;font:850 15px/1 ui-monospace,monospace;color:#1d2b00;cursor:pointer;justify-self:center;min-width:240px;text-decoration:none;text-align:center;display:inline-block}
+.ilp-check:disabled{background:#e4e9ef;color:#9aa6b6;cursor:not-allowed}
+.ilp-check--ghost{background:#fff;border:1px solid var(--ilp-line);color:var(--ilp-muted)}
+.ilp-check__form{display:grid;gap:16px}
+.ilp-question{border:1px solid var(--ilp-line);border-radius:16px;background:#fff;padding:20px;margin:0}
+.ilp-question legend{display:flex;gap:12px;align-items:baseline;font-weight:700;padding:0;margin-bottom:14px}
+.ilp-question__num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--ilp-purple);color:#fff;font:800 12px ui-monospace,monospace;flex:0 0 auto}
+.ilp-options{display:grid;gap:8px}
+.ilp-option{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--ilp-line);border-radius:11px;cursor:pointer}
+.ilp-option input{position:absolute;opacity:0;width:0;height:0}
+.ilp-option__mark{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#f0f3f7;color:#8290a7;font:800 12px ui-monospace,monospace}
+.ilp-option:has(input:checked){border-color:var(--ilp-purple);background:#faf5ff}
+.ilp-option:has(input:checked) .ilp-option__mark{background:var(--ilp-purple);color:#fff}
+.ilp-check__submit{justify-self:center;border:0;border-radius:13px;background:var(--ilp-lime);padding:15px 40px;font:850 15px/1 ui-monospace,monospace;color:#1d2b00;cursor:pointer}
+.ilp-score{display:grid;place-items:center;width:120px;height:120px;border-radius:50%;font-size:30px}
+.ilp-score.is-pass{background:#efffd8;color:#4c9200;border:2px solid var(--ilp-lime)}
+.ilp-score.is-fail{background:#fff0f0;color:#c62828;border:2px solid #ffb4b4}
+.ilp-result__meta{color:var(--ilp-muted);margin:0}
+.ilp-result__pass{padding:16px;border-radius:12px;background:#f7ffe9;border:1px solid #bde86c;color:#56732a}
+.ilp-result__fail{padding:16px;border-radius:12px;background:#fff7ec;border:1px solid #ffd7a8;color:#8a5a14;line-height:1.6}
+.ilp-review{display:grid;gap:6px;padding-left:22px;color:var(--ilp-muted)}
+.ilp-result__actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.ilp-state{text-align:center;padding:70px 20px}
+.ilp-state button{border:0;border-radius:11px;background:var(--ilp-lime);padding:13px 20px;font-weight:850;cursor:pointer}
+.ilp-loader{display:inline-block;width:32px;height:32px;border:4px solid #ddd;border-top-color:var(--ilp-purple);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:520px){.ilp-study-page{padding:20px 14px 70px}.ilp-card{min-height:240px;padding:28px 16px}.ilp-study__head{align-items:flex-start;flex-direction:column}.ilp-study__count{align-self:stretch;text-align:center}.ilp-check{min-width:0;width:100%}.ilp-option{min-height:48px}}
+@media(prefers-reduced-motion:reduce){.ilp-loader{animation:none}.ilp-progress span{transition:none}}

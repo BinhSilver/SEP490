@@ -39,6 +39,15 @@ public interface UserLearningPathItemRepository extends JpaRepository<UserLearni
     java.util.Optional<UserLearningPathItem> findByIdAndUserId(@Param("itemId") Long itemId,
             @Param("userId") Long userId);
 
+    /** [JLAS-W0193] Lock activity row + verify ownership so study get-or-create serializes concurrent opens. */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select item from UserLearningPathItem item
+            where item.id = :itemId and item.learningPath.user.id = :userId
+            """)
+    java.util.Optional<UserLearningPathItem> findOwnedByIdForUpdate(@Param("itemId") Long itemId,
+            @Param("userId") Long userId);
+
     /** [JLAS-W0108] P4 — item thuộc một bài nguồn của user (để ghi assessment PASSED khi quiz đạt, tách
      * khỏi study status). Cùng bài có thể xuất hiện ở nhiều item (review) nên trả List. */
     @Query("""

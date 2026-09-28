@@ -69,13 +69,13 @@ GET  /learning/path/v2
 - [x] Return machine-readable coverage gaps; never fill them with arbitrary lessons or runtime AI.
 - [x] Activate V2 composition behind `learning.interactive-v2.enabled` (default `false`) and test duplicates, wrong levels, unpublished and incomplete content.
 
-### Task 4 — Vocabulary study and micro-check (40%)
+### Task 4 — Vocabulary study and micro-check (40%) — ✅ complete
 
-- [ ] Persist versioned membership and flip/remember evidence; unresolved cards re-enter the same session.
-- [ ] Require every card flipped and remembered before issue.
-- [ ] Cover every target in batches ≤10 with bidirectional meaning/reading and matching questions.
-- [ ] Store immutable snapshots, first/latest/best, three attempts, review requirement and 60-minute server cooldown.
-- [ ] Build the complete large-card UI with counts and an eligibility-controlled check action.
+- [x] Persist versioned membership and flip/remember evidence; unresolved cards re-enter the same session.
+- [x] Require every card flipped and remembered before issue.
+- [x] Cover every target in batches ≤10 with bidirectional meaning/reading and matching questions.
+- [x] Store immutable snapshots, first/latest/best, three attempts, review requirement and 60-minute server cooldown.
+- [x] Build the complete large-card UI with counts and an eligibility-controlled check action.
 
 ### Task 5 — Kanji study and micro-check (50%)
 

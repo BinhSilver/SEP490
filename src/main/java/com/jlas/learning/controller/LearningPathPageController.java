@@ -19,4 +19,10 @@ public class LearningPathPageController {
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-path";
     }
+
+    @GetMapping("/learning/v2/vocabulary")
+    public String interactiveVocabulary(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-study";
+    }
 }
