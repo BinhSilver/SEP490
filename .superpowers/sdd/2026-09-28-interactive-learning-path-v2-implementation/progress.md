@@ -36,7 +36,11 @@ Task 5: complete. New/changed:
 - `service/InteractiveKanjiService.java`, `service/impl/InteractiveKanjiServiceImpl.java`, `controller/InteractiveKanjiController.java`, `dto/KanjiStudyState.java`.
 - `controller/LearningPathPageController.java` — new `GET /learning/v2/kanji` route; `templates/learning/interactive-kanji-study.html`; `static/js/pages/interactive-kanji-study.js`.
 - `static/js/pages/interactive-learning-path.js` — Kanji activities now link to their study page (was Vocabulary-only).
-- Tests: `InteractiveKanjiServiceTest` (10), `InteractiveKanjiControllerTest` (5), `InteractiveKanjiPersistenceTest` (2, H2), `interactive-kanji-study.test.cjs` (9), 2 new assertions in `interactive-learning-path.test.cjs`.
+- Tests: `InteractiveKanjiServiceTest` (10), `InteractiveKanjiControllerTest` (5), `InteractiveKanjiPersistenceTest` (2, H2), `interactive-kanji-study.test.cjs` (8), 2 new assertions in `interactive-learning-path.test.cjs`.
+
+## Task 5 completion handoff
+
+Written: `docs/superpowers/handoffs/2026-09-29-interactive-learning-v2-task5-completion-handoff.md`. Task 6–10 not started this run — see that handoff §5 for the explicit reasoning (each remaining task introduces new mechanics with no existing engine to reuse, unlike Kanji's ~95% reuse of Task 4) and the recommended continuation (resume in order 6→7→8→9→10, one task per session, same TDD/regression/commit discipline as Task 4 and 5).
 - `docs/rules-and-business-logic.md` §2.12 added.
 
 Verification (this run): `./mvnw test` → 310 run / 0 fail / 0 error / 22 skipped (surefire-report aggregate, not just exit code) — includes the 20 pre-existing Vocabulary tests unchanged plus 17 new Kanji tests. `node --test src/test/frontend/*.test.cjs` → 50/50. `node --test scripts/speed-recall-rules.test.mjs` → 4/4. `node --test src/test/js/personalized-path.test.cjs` → 8/8. `git diff --check` → clean (only CRLF/LF autocrlf notices).
