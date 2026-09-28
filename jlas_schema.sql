@@ -1593,6 +1593,9 @@ CREATE TABLE learning_path_package (
     estimated_minutes INT UNSIGNED NOT NULL,
     started_at DATETIME(6) NULL,
     completed_at DATETIME(6) NULL,
+    -- [JLAS-W0193] Task 8 — computed package score once completed; NULL until then. Derived from real
+    -- learning_quiz_session correct/total counts, never hard-coded; Dialogue never contributes to it.
+    score_percent INT UNSIGNED NULL,
     row_version BIGINT UNSIGNED NOT NULL DEFAULT 0,
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
@@ -1607,7 +1610,8 @@ CREATE TABLE learning_path_package (
         REFERENCES lesson(id) ON DELETE RESTRICT,
     CONSTRAINT chk_learning_package_phase CHECK (phase IN ('WARM_UP','GOAL_LEARNING')),
     CONSTRAINT chk_learning_package_status CHECK (status IN ('LOCKED','AVAILABLE','IN_PROGRESS','COMPLETED')),
-    CONSTRAINT chk_learning_package_minutes CHECK (estimated_minutes > 0)
+    CONSTRAINT chk_learning_package_minutes CHECK (estimated_minutes > 0),
+    CONSTRAINT chk_learning_package_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lesson trong learning path; cho phep cung lesson xuat hien lai de review.

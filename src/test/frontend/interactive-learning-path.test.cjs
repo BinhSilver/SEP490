@@ -77,3 +77,66 @@ test('marks a completed Dialogue activity as done without a link (Dialogue has n
   assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1/);
   assert.match(html, /is-done/);
 });
+
+// ---- Task 8: package completion popup ----
+
+test('popupModel is null for a package that is not just-completed', () => {
+  assert.equal(page.popupModel(undefined), null);
+  assert.equal(page.popupModel({ status: 'COMPLETED', justCompleted: false }), null);
+  assert.equal(page.popupModel({ status: 'AVAILABLE', justCompleted: false }), null);
+});
+
+test('popupModel carries score, next-package and last-package flags for a just-completed package', () => {
+  const model = page.popupModel({ id: 9, title: 'Ngày 3', justCompleted: true, scorePercent: 82,
+    lastPackage: false, nextAvailablePackageId: 10 });
+  assert.deepEqual(model, { packageId: 9, title: 'Ngày 3', scorePercent: 82, isLast: false, nextPackageId: 10 });
+});
+
+test('renderPopup renders nothing when the package is not just-completed', () => {
+  assert.equal(page.renderPopup(path().packages[0]), '');
+});
+
+test('renderPopup shows the exact completion copy and three ranked actions', () => {
+  const html = page.renderPopup({ id: 9, title: 'Ngày 3', justCompleted: true, scorePercent: 90,
+    lastPackage: false, nextAvailablePackageId: 10 });
+  assert.match(html, /Bạn đã hoàn thành phần bài học hôm nay/);
+  assert.match(html, /Bạn muốn tiếp tục như thế nào\?/);
+  assert.match(html, /data-popup-advance="10"[^>]*>Học vượt</);
+  assert.match(html, /data-popup-return>Trở về lộ trình</);
+  assert.match(html, /data-popup-rest>Nghỉ ngơi</);
+  assert.match(html, /Điểm phần này: <strong>90%<\/strong>/);
+});
+
+test('renderPopup omits the score line when the package has no valid score', () => {
+  const html = page.renderPopup({ id: 9, justCompleted: true, scorePercent: null, lastPackage: false, nextAvailablePackageId: 10 });
+  assert.doesNotMatch(html, /Điểm phần này/);
+});
+
+test('renderPopup disables Học vượt when no next package is unlocked yet', () => {
+  const html = page.renderPopup({ id: 9, justCompleted: true, lastPackage: false, nextAvailablePackageId: null });
+  assert.match(html, /class="ilp-popup__primary" disabled>Học vượt</);
+});
+
+test('renderPopup swaps the primary action for the last package in the path', () => {
+  const html = page.renderPopup({ id: 9, justCompleted: true, lastPackage: true, nextAvailablePackageId: null });
+  assert.match(html, /data-popup-summary>Xem tổng kết chặng</);
+  assert.doesNotMatch(html, />Học vượt</);
+});
+
+test('render shows the popup only for the package the server just completed, not older completed ones', () => {
+  const data = path({ packages: [
+    { id: 8, phase: 'GOAL_LEARNING', dayNumber: 2, orderIndex: 1, title: 'Ngày 2', status: 'COMPLETED',
+      progressPercent: 100, justCompleted: false, activities: [] },
+    { id: 9, phase: 'GOAL_LEARNING', dayNumber: 3, orderIndex: 2, title: 'Ngày 3', status: 'COMPLETED',
+      progressPercent: 100, justCompleted: true, lastPackage: true, activities: [] }
+  ] });
+  const html = page.render(data);
+  const matches = html.match(/ilp-popup-backdrop/g) || [];
+  assert.equal(matches.length, 1);
+  assert.match(html, /data-popup="9"/);
+});
+
+test('render shows no popup when nothing just completed', () => {
+  const html = page.render(path());
+  assert.doesNotMatch(html, /ilp-popup-backdrop/);
+});

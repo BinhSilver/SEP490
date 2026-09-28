@@ -46,9 +46,40 @@
   function activityRows(pkg) {
     return pkg.activities.map(activityRow).join('');
   }
+  // [JLAS-W0193] Task 8 — package completion popup: three actions (Trở về lộ trình / Học vượt / Nghỉ ngơi),
+  // last-package variant routes to the (Task 10) summary placeholder instead. Only rendered for the package
+  // the server just completed THIS call (`justCompleted`), not every historically completed package, so the
+  // popup does not re-nag on every roadmap visit.
+  function popupModel(pkg) {
+    if (!pkg || !pkg.justCompleted) return null;
+    var score = (pkg.scorePercent === null || pkg.scorePercent === undefined) ? null : num(pkg.scorePercent);
+    return {
+      packageId: pkg.id, title: pkg.title, scorePercent: score, isLast: !!pkg.lastPackage,
+      nextPackageId: pkg.nextAvailablePackageId || null
+    };
+  }
+  function renderPopup(pkg) {
+    var model = popupModel(pkg);
+    if (!model) return '';
+    var scoreHtml = model.scorePercent == null ? '' :
+      '<p class="ilp-popup__score">Điểm phần này: <strong>' + model.scorePercent + '%</strong></p>';
+    var advanceHtml = model.isLast
+      ? '<button type="button" class="ilp-popup__primary" data-popup-summary>Xem tổng kết chặng</button>'
+      : '<button type="button" class="ilp-popup__primary"' +
+        (model.nextPackageId ? ' data-popup-advance="' + esc(String(model.nextPackageId)) + '"' : ' disabled') +
+        '>Học vượt</button>';
+    return '<div class="ilp-popup-backdrop" data-popup-backdrop>' +
+      '<section class="ilp-popup" role="dialog" aria-modal="true" aria-labelledby="ilpPopupTitle" tabindex="-1" data-popup="' +
+      esc(String(model.packageId)) + '"><h2 id="ilpPopupTitle">Bạn đã hoàn thành phần bài học hôm nay</h2>' +
+      '<p>Bạn muốn tiếp tục như thế nào?</p>' + scoreHtml +
+      '<div class="ilp-popup__actions">' + advanceHtml +
+      '<button type="button" class="ilp-popup__secondary" data-popup-return>Trở về lộ trình</button>' +
+      '<button type="button" class="ilp-popup__quiet" data-popup-rest>Nghỉ ngơi</button>' +
+      '</div></section></div>';
+  }
   function packageCard(pkg) {
     var action = pkg.canStart ? '<button class="ilp-button" type="button" data-start-package="' + pkg.id + '">Bắt đầu học <span aria-hidden="true">→</span></button>' : '';
-    return '<article class="ilp-day ilp-day--' + esc(pkg.status.toLowerCase()) + '"><header><span class="ilp-day__number">' +
+    return '<article class="ilp-day ilp-day--' + esc(pkg.status.toLowerCase()) + '" data-package-card="' + esc(String(pkg.id)) + '"><header><span class="ilp-day__number">' +
       String(pkg.dayNumber).padStart(2, '0') + '</span><div><span class="ilp-kicker">DAY ' + String(pkg.dayNumber).padStart(2, '0') +
       ' · ' + esc(pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU') + '</span><h3>' + esc(pkg.title) +
       '</h3></div><span class="ilp-status">' + esc(pkg.status) + '</span></header><div class="ilp-day__progress"><span style="width:' +
@@ -66,7 +97,8 @@
       (v.packages.length ? v.packages.map(packageCard).join('') : '<div class="ilp-empty"><h2>Chưa có package sẵn sàng</h2><p>Hệ thống chỉ phát hành ngày học khi đủ dữ liệu đã duyệt.</p></div>') +
       '</div></section><aside class="ilp-aside"><span class="ilp-kicker">MỤC TIÊU HIỆN TẠI</span><dl><div><dt>Cấp độ</dt><dd>' + esc(v.currentLevel) + ' → ' + esc(v.targetLevel) +
       '</dd></div>' + (v.minutesPerDay ? '<div><dt>Cường độ</dt><dd>' + v.minutesPerDay + ' phút/ngày</dd></div>' : '') +
-      '</dl><p class="ilp-note">J-LAS chỉ mở nội dung đã đủ dữ liệu và lưu trạng thái trên máy chủ.</p></aside></div>';
+      '</dl><p class="ilp-note">J-LAS chỉ mở nội dung đã đủ dữ liệu và lưu trạng thái trên máy chủ.</p></aside></div>' +
+      renderPopup(v.packages.filter(function (p) { return p.justCompleted; })[0]);
   }
   function error(message) { return '<section class="ilp-state"><h1>Chưa thể mở lộ trình</h1><p>' + esc(message || 'Vui lòng thử lại sau.') + '</p><button data-retry type="button">Thử lại</button></section>'; }
   function mount() {
@@ -75,19 +107,74 @@
     async function load() {
       node.setAttribute('aria-busy', 'true');
       try { var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() }); var body = await response.json();
-        node.innerHTML = response.ok && body.data ? render(body.data) : error(body.message); }
+        node.innerHTML = response.ok && body.data ? render(body.data) : error(body.message); afterRender(node); }
       catch (e) { node.innerHTML = error('Không thể kết nối tới máy chủ.'); }
       node.setAttribute('aria-busy', 'false');
     }
+    function closePopup(trigger) {
+      var popup = node.querySelector('[data-popup]');
+      var packageId = popup ? popup.getAttribute('data-popup') : null;
+      var backdrop = node.querySelector('[data-popup-backdrop]');
+      if (backdrop) backdrop.remove();
+      if (trigger && typeof trigger.focus === 'function') trigger.focus();
+      return packageId;
+    }
+    function highlightPackage(packageId) {
+      if (!packageId) return;
+      var card = node.querySelector('[data-package-card="' + CSS.escape(packageId) + '"]');
+      if (!card) return;
+      card.scrollIntoView({ block: 'center', behavior: 'auto' });
+      card.classList.add('is-highlighted');
+      var clear = function () { card.classList.remove('is-highlighted'); };
+      card.addEventListener('animationend', clear, { once: true });
+      setTimeout(clear, 1800); // fallback for prefers-reduced-motion (no animationend fires there)
+    }
+    function trapFocus(event) {
+      var popup = node.querySelector('[data-popup]'); if (!popup || event.key !== 'Tab') return;
+      var focusable = popup.querySelectorAll('button:not([disabled])');
+      if (!focusable.length) return;
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return load();
+
+      if (event.target.closest('[data-popup-return]') || event.target === node.querySelector('[data-popup-backdrop]')) {
+        return highlightPackage(closePopup());
+      }
+      if (event.target.closest('[data-popup-rest]')) return closePopup();
+      if (event.target.closest('[data-popup-summary]')) { window.location.href = '/learning/path/v2/summary'; return; }
+      var advanceButton = event.target.closest('[data-popup-advance]');
+      if (advanceButton) {
+        if (advanceButton.disabled) return;
+        advanceButton.disabled = true;
+        try {
+          var startResponse = await fetch('/api/learning/v2/packages/' + encodeURIComponent(advanceButton.dataset.popupAdvance) +
+            '/start', { method: 'POST', headers: window.JlasAuth.authHeaders() });
+          if (!startResponse.ok) { advanceButton.disabled = false; return; }
+          closePopup();
+          await load();
+        } catch (e) { advanceButton.disabled = false; }
+        return;
+      }
+
       var button = event.target.closest('[data-start-package]'); if (!button) return;
       button.disabled = true;
       try { var response = await fetch('/api/learning/v2/packages/' + encodeURIComponent(button.dataset.startPackage) + '/start', { method: 'POST', headers: window.JlasAuth.authHeaders() });
         if (!response.ok) { var body = await response.json(); node.innerHTML = error(body.message); return; } await load(); }
       catch (e) { node.innerHTML = error('Không thể bắt đầu ngày học.'); }
     });
+    node.addEventListener('keydown', function (event) {
+      var popup = node.querySelector('[data-popup]'); if (!popup) return;
+      if (event.key === 'Escape') { closePopup(); return; }
+      trapFocus(event);
+    });
     load();
   }
-  return { viewModel: viewModel, render: render, mount: mount };
+  function afterRender(node) {
+    var popup = node.querySelector('[data-popup]');
+    if (popup) popup.focus();
+  }
+  return { viewModel: viewModel, render: render, mount: mount, popupModel: popupModel, renderPopup: renderPopup, afterRender: afterRender };
 });

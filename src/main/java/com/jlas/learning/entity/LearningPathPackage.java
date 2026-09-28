@@ -66,6 +66,10 @@ public class LearningPathPackage {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
+    /** [JLAS-W0193] Task 8 — computed package score once completed; NULL until then. */
+    @Column(name = "score_percent")
+    private Integer scorePercent;
+
     @Version
     @Column(name = "row_version", nullable = false)
     @Builder.Default

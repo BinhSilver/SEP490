@@ -20,6 +20,14 @@ public class LearningPathPageController {
         return "learning/interactive-path";
     }
 
+    /** [JLAS-W0193] Task 8 — the completion popup's "Xem tổng kết chặng" (last package) routes here.
+     * Placeholder only: Task 10 builds the real first/latest/best + readiness summary content. */
+    @GetMapping("/learning/path/v2/summary")
+    public String interactiveLearningPathSummary(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-path-summary";
+    }
+
     @GetMapping("/learning/v2/vocabulary")
     public String interactiveVocabulary(Model model) {
         model.addAttribute("layoutMode", "app");

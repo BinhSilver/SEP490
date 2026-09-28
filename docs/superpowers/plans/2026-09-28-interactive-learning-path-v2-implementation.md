@@ -96,11 +96,21 @@ GET  /learning/path/v2
 - [x] Validate visible heartbeats server-side, cap each at 20 seconds, reset gaps >30 seconds and persist bottom evidence — server-clock-only gap measurement, no client-supplied duration/timestamp anywhere; bottom-reached is a dedicated event rejected without prior heartbeat evidence.
 - [x] Complete only at 180 active seconds plus bottom reached; test ownership and idempotency — `completed_at` set exactly once, both conditions AND-gated; owner/type-scoped via `findOwnedByIdForUpdate`; heartbeat replay (token match) and reached-bottom repeat calls are both idempotent.
 
-### Task 8 — Package completion and next action (80%)
+### Task 8 — Package completion and next action (80%) — ✅ complete
 
-- [ ] Transactionally complete only after three passes plus Dialogue completion.
-- [ ] Calculate score from Vocabulary/Kanji/Grammar; reward/streak/event exactly once.
-- [ ] Implement the three-action popup: return, learn ahead, rest; last package advances to summary.
+- [x] Transactionally complete only after three passes plus Dialogue completion — cascading intra-package
+  activity unlock (walks the whole ordered list per refresh) plus an all-four-terminal-states gate, folded
+  into the existing `packageDetail`/`current` reads (same "GET performs an idempotent state transition"
+  pattern `InteractiveStudyEngine.studyState` already established).
+- [x] Calculate score from Vocabulary/Kanji/Grammar; reward/streak/event exactly once — score is pooled
+  correct/total across batches per skill (never an average of per-batch percentages), averaged over however
+  many of the three skills actually have a valid score (never hard-coded `/3`), Dialogue excluded from both
+  numerator and denominator; reward/streak reuse the existing `UserCreditService`/`advanceStreak` contract,
+  guarded exactly-once by the package row's pessimistic lock + `status != COMPLETED` check.
+- [x] Implement the three-action popup: return, learn ahead, rest; last package advances to summary — new
+  `renderPopup`/`popupModel` in `interactive-learning-path.js`, driven by a request-scoped `justCompleted`
+  flag so it shows exactly once per completion; last-package routes to a new `GET /learning/path/v2/summary`
+  placeholder page (Task 10 builds its real content).
 
 ### Task 9 — Warm-up B personalization (90%)
 

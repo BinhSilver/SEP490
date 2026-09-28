@@ -354,3 +354,55 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
 - Ownership/locking mirrors Grammar exactly: `loadActivity` re-derives the activity from the JWT principal via `findOwnedByIdForUpdate` and rejects `activityType != DIALOGUE` as `NOT_FOUND`; the activity row's `FOR UPDATE` lock (acquired before the dialogue-progress row is touched) is what actually serializes two concurrent heartbeat/reached-bottom calls for the same activity, same mechanism the engine and Grammar's practice gate already rely on.
 - Schema: new table `learning_dialogue_progress` (`sql/migrations/014_interactive_dialogue_progress.sql`), one row per `activity_item_id` (unique), owner-scoped via `activity_item_id → user_learning_path_item → user_learning_path → user`, pessimistic-locked on every write (`findForUpdate`).
 - No score, no reward, no completion-event side effect is emitted here — those remain Task 8's responsibility (package-level completion, exactly-once event/reward).
+
+### 2.15 Package completion and next action (V2, Task 8) [JLAS-W0193]
+
+- **Intra-package activity unlock is cascading, not one-shot.** Once an activity reaches its own terminal
+  state (`PASSED` for Vocabulary/Kanji/Grammar, `COMPLETED` for Dialogue), its successor in the composer's
+  declared order transitions `LOCKED → STUDYING`. This walks the whole ordered list on every refresh so a
+  learner who studies several activities before reloading still sees every eligible one unlocked in one pass,
+  not just the next single step.
+- **Package completion gate** requires all four activities present and each at its own terminal state
+  (Vocabulary/Kanji/Grammar `PASSED`, Dialogue `COMPLETED`) — partial completion (e.g. three of four) never
+  completes the package. Only `GOAL_LEARNING` packages are eligible (defensive: warm-up packages, when Task 9
+  adds them, are not forced through this four-activity gate).
+- **Score is computed from real data, never hard-coded.** Per activity, the skill score pools
+  `Σcorrectcount / Σquestioncount` across every passing micro-check batch for that activity (never an average
+  of per-batch percentages — spec §2.2 explicitly rejects that, since it over-weights small batches), read
+  from the immutable `learning_quiz_session` snapshots (`status=SUBMITTED, passed=true`). Package score is
+  `round((vocabularyScore + kanjiScore + grammarScore) / N)` where `N` is the count of those three skills that
+  actually have a valid score in this package (currently always 3, since the composer requires all three —
+  but the code does not assume that; an activity with no passing session is excluded from both the numerator
+  and denominator, never counted as zero). Dialogue never contributes to either.
+- **Reward/streak reuse the existing contract**, not a parallel mechanism: `UserCreditService.earn(userId,
+  amount, CreditReason.STUDY_REWARD, "PACKAGE", packageId, note)` (same de-dupe-by-reference-id ledger every
+  other reward in the app uses) plus the same streak-advance formula `LearningServiceImpl.advanceStreak`
+  already uses for lesson completion (reused directly, not duplicated). Both are optional-autowired, matching
+  `LearningServiceImpl`'s own pattern, so slice tests don't need to wire the reward stack.
+- **Exactly-once is guaranteed by the caller's pessimistic lock** on the package row (`findOwnedByIdForUpdate`,
+  the same idiom every V2 service already uses) plus a `status != COMPLETED` guard before the completion block
+  runs — a concurrent or retried request that loses the lock race re-reads `COMPLETED` and skips the block
+  entirely. `UserCreditService.earn`'s own duplicate-transaction check is a second line of defense specific to
+  the credit ledger.
+- **Next package unlock is one step at a time**: completing package N unlocks package N+1 (`LOCKED →
+  AVAILABLE`) only, mirroring activity unlock's one-step posture; a package's `day_number` is never changed by
+  this — "học vượt" reuses the existing `POST /packages/{id}/start` endpoint on that now-`AVAILABLE` package,
+  it does not get a separate endpoint.
+- **`justCompleted` is a request-scoped signal, not persisted state**: `InteractiveLearningPackageResponse`
+  carries `scorePercent`/`nextAvailablePackageId`/`lastPackage` (always present once known) and `justCompleted`
+  (true only on the exact call that performed the `IN_PROGRESS → COMPLETED` transition). This lets the roadmap
+  show the three-action popup exactly once per completion (not on every subsequent visit to an already-
+  completed package) without needing a separate "acknowledged" table — the completion business action itself
+  stays idempotent regardless (spec §3.6 explicitly allows, but does not require, the popup to reappear).
+- **Popup and navigation** (`static/js/pages/interactive-learning-path.js`): three actions — `Trở về lộ trình`
+  (dismiss, stay on roadmap), `Học vượt` (calls `start` on `nextAvailablePackageId`, disabled when that is
+  `null`), `Nghỉ ngơi` (dismiss). When `lastPackage` is true, the primary action becomes `Xem tổng kết chặng`
+  and routes to `GET /learning/path/v2/summary` — a placeholder page this task adds routing for only; Task 10
+  builds the real first/latest/best/readiness summary content there.
+- **No new REST endpoint was added.** The design spec's §9 behavior group "Lấy package completion và next
+  action" is folded into the existing `GET /api/learning/v2/packages/{packageId}` and
+  `GET /api/learning/v2/paths/current` reads, which now also perform the idempotent unlock/completion
+  transition before mapping — the same "a GET view performs a server-owned idempotent state transition"
+  pattern `InteractiveStudyEngine.studyState` already established (`STUDYING → CHECK_READY` on load).
+- Schema: `learning_path_package.score_percent` (nullable `INT`, additive) —
+  `sql/migrations/015_interactive_package_completion.sql`.

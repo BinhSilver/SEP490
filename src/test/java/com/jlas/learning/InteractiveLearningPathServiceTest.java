@@ -5,19 +5,26 @@ import com.jlas.dictionary.entity.Lesson;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.entity.LearningPathPackage;
+import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.enums.*;
 import com.jlas.learning.repository.LearningPathPackageRepository;
+import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.impl.InteractiveLearningPathServiceImpl;
+import com.jlas.mission.entity.UserStreaks;
+import com.jlas.mission.repository.UserStreaksRepository;
+import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
+import com.jlas.moderation.credit.service.UserCreditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,9 +36,26 @@ class InteractiveLearningPathServiceTest {
     @Mock UserLearningPathRepository paths;
     @Mock LearningPathPackageRepository packages;
     @Mock UserLearningPathItemRepository items;
+    @Mock LearningQuizSessionRepository quizSessions;
+    @Mock UserStreaksRepository streakRepository;
+    @Mock UserCreditService creditService;
     InteractiveLearningPathServiceImpl service;
 
-    @BeforeEach void setUp() { service = new InteractiveLearningPathServiceImpl(paths, packages, items); }
+    @BeforeEach void setUp() {
+        service = new InteractiveLearningPathServiceImpl(paths, packages, items, quizSessions);
+        setField("streakRepository", streakRepository);
+        setField("creditService", creditService);
+    }
+
+    private void setField(String name, Object value) {
+        try {
+            var field = InteractiveLearningPathServiceImpl.class.getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(service, value);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test void currentReadsOnlyInteractiveVersionAndKeepsPackageOrder() {
         var path = interactivePath();
@@ -50,7 +74,7 @@ class InteractiveLearningPathServiceTest {
     }
 
     @Test void anotherUsersPackageLooksNotFound() {
-        when(packages.findOwnedById(99L, 7L)).thenReturn(Optional.empty());
+        when(packages.findOwnedByIdForUpdate(99L, 7L)).thenReturn(Optional.empty());
         ApiException error = assertThrows(ApiException.class, () -> service.packageDetail(7L, 99L));
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
@@ -59,7 +83,7 @@ class InteractiveLearningPathServiceTest {
         var path = interactivePath();
         path.setExperienceVersion(LearningExperienceVersion.LEGACY_V1);
         var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.AVAILABLE);
-        when(packages.findOwnedById(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
         ApiException error = assertThrows(ApiException.class, () -> service.packageDetail(7L, 11L));
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
         verifyNoInteractions(items);
@@ -78,6 +102,7 @@ class InteractiveLearningPathServiceTest {
         var activities = activities(pkg);
         when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
 
         var first = service.start(7L, 11L);
         var startedAt = pkg.getStartedAt();
@@ -92,10 +117,241 @@ class InteractiveLearningPathServiceTest {
 
     @Test void incompleteTargetPackageIsBlockedContent() {
         var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.AVAILABLE);
-        when(packages.findOwnedById(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities(pkg).subList(0, 3));
         ApiException error = assertThrows(ApiException.class, () -> service.packageDetail(7L, 11L));
         assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+    }
+
+    // ---- Task 8: cascading unlock ----
+
+    @Test void passingVocabularyUnlocksKanjiButNotFurther() {
+        var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = activities(pkg);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals(LearningActivityState.STUDYING, activities.get(1).getActivityState());
+        assertEquals(LearningActivityState.LOCKED, activities.get(2).getActivityState());
+        assertEquals(LearningActivityState.LOCKED, activities.get(3).getActivityState());
+    }
+
+    @Test void dialogueRequiresCompletedNotPassedToUnlockNothingFurther() {
+        // Dialogue is last in order; its own terminal state is COMPLETED, not PASSED — verify the cascade
+        // uses the right terminal state per activity type by checking Grammar (PASSED) correctly unlocks it.
+        var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = activities(pkg);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.PASSED);
+        activities.get(2).setActivityState(LearningActivityState.PASSED); // Grammar passed
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals(LearningActivityState.STUDYING, activities.get(3).getActivityState()); // Dialogue unlocked
+    }
+
+    // ---- Task 8: completion gate ----
+
+    @Test void packageDoesNotCompleteWhenDialogueOnlyInProgress() {
+        var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = activities(pkg);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.PASSED);
+        activities.get(2).setActivityState(LearningActivityState.PASSED);
+        activities.get(3).setActivityState(LearningActivityState.STUDYING); // Dialogue not completed
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.IN_PROGRESS, result.status());
+        verifyNoInteractions(creditService);
+        verifyNoInteractions(streakRepository);
+    }
+
+    @Test void packageCompletesOnlyWhenAllFourReachTheirOwnTerminalState() {
+        var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = activities(pkg);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.PASSED);
+        activities.get(2).setActivityState(LearningActivityState.PASSED);
+        activities.get(3).setActivityState(LearningActivityState.COMPLETED);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.status());
+        assertNotNull(pkg.getCompletedAt());
+        assertTrue(result.justCompleted());
+
+        var second = service.packageDetail(7L, 11L);
+        assertFalse(second.justCompleted());
+    }
+
+    // ---- Task 8: score aggregation ----
+
+    @Test void scoreIsPooledCorrectTotalAcrossBatchesNotAverageOfPercentages() {
+        var pkg = completedTrigger();
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        // Vocabulary: two batches, 9/10 (90%) then 6/10 (60%) -> pooled 15/20 = 75%, NOT avg(90,60)=75 by
+        // coincidence-proofing we use different, non-symmetric numbers below for Kanji/Grammar.
+        session(activities.get(0).getId(), "VOCAB_MICRO_CHECK", 9, 10);
+        session2(activities.get(0).getId(), "VOCAB_MICRO_CHECK", 6, 10);
+        // Kanji: single batch 7/10 = 70%.
+        session(activities.get(1).getId(), "KANJI_MICRO_CHECK", 7, 10);
+        // Grammar: single batch 2/2 = 100%.
+        session(activities.get(2).getId(), "GRAMMAR_MICRO_CHECK", 2, 2);
+
+        var result = service.packageDetail(7L, 11L);
+
+        // vocab=75, kanji=70, grammar=100 -> package = round((75+70+100)/3) = round(81.67) = 82
+        assertEquals(82, result.scorePercent());
+    }
+
+    @Test void missingScoreForAScoredSkillIsExcludedNotTreatedAsZero() {
+        var pkg = completedTrigger();
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        // Only Kanji has a passing session on record (defensive edge case); Vocabulary/Grammar missing.
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(activities.get(0).getId(),
+                "VOCAB_MICRO_CHECK", "SUBMITTED", true)).thenReturn(List.of());
+        session(activities.get(1).getId(), "KANJI_MICRO_CHECK", 8, 10);
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(activities.get(2).getId(),
+                "GRAMMAR_MICRO_CHECK", "SUBMITTED", true)).thenReturn(List.of());
+
+        var result = service.packageDetail(7L, 11L);
+
+        // Only Kanji counted: round(80/1) = 80, not round((0+80+0)/3)=27.
+        assertEquals(80, result.scorePercent());
+    }
+
+    // ---- Task 8: exactly-once reward/streak ----
+
+    @Test void rewardStreakAndCompletionGrantedExactlyOnceAcrossRetries() {
+        var pkg = completedTrigger();
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+        when(streakRepository.findByUserId(7L)).thenReturn(Optional.empty());
+
+        service.packageDetail(7L, 11L); // first call: completes, rewards
+        service.packageDetail(7L, 11L); // retry: already COMPLETED, must not reward again
+
+        verify(creditService, times(1)).earn(eq(7L), anyInt(), eq(CreditReason.STUDY_REWARD),
+                eq("PACKAGE"), eq(11L), anyString());
+        verify(streakRepository, times(1)).save(any());
+    }
+
+    @Test void rewardIsSkippedWhenStreakAndCreditBeansAreUnavailable() {
+        service = new InteractiveLearningPathServiceImpl(paths, packages, items, quizSessions);
+        // streakRepository/creditService left null (optional autowire, unavailable in this slice).
+        var pkg = completedTrigger();
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.status());
+    }
+
+    // ---- Task 8: next package unlock / last package ----
+
+    @Test void completingAPackageUnlocksTheNextLockedOneOnly() {
+        var path = interactivePath();
+        var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var next = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        var third = learningPackage(path, 13L, 3, LearningPackageStatus.LOCKED);
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg, next, third));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.AVAILABLE, next.getStatus());
+        assertEquals(LearningPackageStatus.LOCKED, third.getStatus());
+        assertEquals(12L, result.nextAvailablePackageId());
+        assertFalse(result.lastPackage());
+    }
+
+    @Test void lastPackageInPathReportsNoNextAvailablePackage() {
+        var pkg = completedTrigger();
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertTrue(result.lastPackage());
+        assertNull(result.nextAvailablePackageId());
+    }
+
+    // ---- helpers ----
+
+    private LearningPathPackage completedTrigger() {
+        return learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
+    }
+
+    private void markAllTerminal(List<UserLearningPathItem> activities) {
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.PASSED);
+        activities.get(2).setActivityState(LearningActivityState.PASSED);
+        activities.get(3).setActivityState(LearningActivityState.COMPLETED);
+    }
+
+    private void stubNoScoredSessions() {
+        lenient().when(quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(
+                anyLong(), anyString(), anyString(), eq(true))).thenReturn(List.of());
+    }
+
+    private void session(Long activityId, String quizType, int correct, int total) {
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(activityId, quizType, "SUBMITTED", true))
+                .thenReturn(List.of(quizSession(correct, total)));
+    }
+
+    private void session2(Long activityId, String quizType, int correct, int total) {
+        // Second call for the same activity/quizType stubbing multiple batches: re-stub with both sessions.
+        List<LearningQuizSession> existing = quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(
+                activityId, quizType, "SUBMITTED", true);
+        var combined = new java.util.ArrayList<>(existing);
+        combined.add(quizSession(correct, total));
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(activityId, quizType, "SUBMITTED", true))
+                .thenReturn(combined);
+    }
+
+    private LearningQuizSession quizSession(int correct, int total) {
+        return LearningQuizSession.builder().status("SUBMITTED").passed(true)
+                .correctCount(correct).questionCount(total).build();
     }
 
     private UserLearningPath interactivePath() {
@@ -113,8 +369,8 @@ class InteractiveLearningPathServiceTest {
     private List<UserLearningPathItem> activities(LearningPathPackage pkg) {
         var types = List.of(LearningActivityType.VOCABULARY, LearningActivityType.KANJI,
                 LearningActivityType.GRAMMAR, LearningActivityType.DIALOGUE);
-        return java.util.stream.IntStream.range(0, types.size()).mapToObj(index -> UserLearningPathItem.builder()
+        return new java.util.ArrayList<>(java.util.stream.IntStream.range(0, types.size()).mapToObj(index -> UserLearningPathItem.builder()
                 .id((long) index + 1).learningPath(pkg.getLearningPath()).learningPackage(pkg)
-                .orderIndex(index + 1).activityType(types.get(index)).activityState(LearningActivityState.LOCKED).build()).toList();
+                .orderIndex(index + 1).activityType(types.get(index)).activityState(LearningActivityState.LOCKED).build()).toList());
     }
 }

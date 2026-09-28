@@ -21,7 +21,11 @@ public record InteractiveLearningPackageResponse(
         String lockReason,
         LocalDateTime startedAt,
         LocalDateTime completedAt,
-        List<InteractiveLearningActivityResponse> activities) {
+        List<InteractiveLearningActivityResponse> activities,
+        Integer scorePercent,
+        Long nextAvailablePackageId,
+        boolean lastPackage,
+        boolean justCompleted) {
     public InteractiveLearningPackageResponse {
         activities = List.copyOf(activities);
     }

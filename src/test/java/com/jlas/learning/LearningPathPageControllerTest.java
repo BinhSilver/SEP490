@@ -18,4 +18,16 @@ class LearningPathPageControllerTest {
         assertEquals("learning/path", view);
         assertEquals("app", model.getAttribute("layoutMode"));
     }
+
+    /** [JLAS-W0193] Task 8 — the completion popup's last-package "Xem tổng kết chặng" action routes here. */
+    @Test
+    void interactivePathSummaryRouteServesThePlaceholderPage() {
+        var controller = new LearningPathPageController();
+        var model = new ConcurrentModel();
+
+        var view = controller.interactiveLearningPathSummary(model);
+
+        assertEquals("learning/interactive-path-summary", view);
+        assertEquals("app", model.getAttribute("layoutMode"));
+    }
 }

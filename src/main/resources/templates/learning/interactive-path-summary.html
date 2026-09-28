@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Tổng kết lộ trình - JLAS', 'interactive-learning-path')}"></head>
+<body id="jlabBasePage" class="app-body ilp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="ilp-page">
+    <nav class="ilp-breadcrumb" aria-label="Breadcrumb">
+        <span class="ilp-system">// SYSTEM</span><span>/</span><span>Học tập</span><span>/</span>
+        <a href="/learning/path/v2">Lộ trình cá nhân</a><span>/</span>
+        <strong aria-current="page">Tổng kết chặng</strong>
+    </nav>
+    <!-- [JLAS-W0193] Task 8 routes here when the completed package is the last one in the path. This is a
+         placeholder: Task 10 builds the real first/latest/best-per-skill, unresolved-dimension and readiness
+         summary content (design spec §6). Task 8's job was only to route here correctly, not to build it. -->
+    <section class="ilp-state">
+        <h1>Bạn đã hoàn thành chặng học này</h1>
+        <p>Trang tổng kết đầy đủ (điểm từng kỹ năng, phần còn cần ôn, readiness) đang được hoàn thiện.</p>
+        <a class="ilp-button" href="/learning/path/v2">Về lộ trình</a>
+    </section>
+</main>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
