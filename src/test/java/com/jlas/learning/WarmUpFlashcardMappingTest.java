@@ -49,4 +49,22 @@ class WarmUpFlashcardMappingTest {
         assertFalse(response.phases().get(1).items().get(0).completed());
         assertEquals(1, response.completedLessons());
     }
+
+    @Test
+    void studyStatusDrivesItemCompletionIndependentlyOfSourceLesson() {
+        var path = UserLearningPath.builder().id(1L).user(User.builder().id(7L).build()).build();
+        var lesson = Lesson.builder().id(10L).title("Source lesson").build();
+        var studied = item(lesson, "GOAL_LEARNING", "GOAL_TARGET", 1);
+        studied.setVocabularyEntry(null);
+        studied.setStudyStatus("STUDIED");
+        var untouched = item(lesson, "GOAL_LEARNING", "GOAL_TARGET", 2);
+        untouched.setVocabularyEntry(null);
+        var response = new LearningMapper().toResponse(path, List.of(studied, untouched), false);
+        assertEquals(2, response.totalLessons());
+        assertEquals(1, response.completedLessons());
+        assertTrue(response.phases().get(0).items().get(0).completed(),
+                "Item có study_status STUDIED phải completed");
+        assertFalse(response.phases().get(0).items().get(1).completed(),
+                "Item dùng chung source lesson chưa STUDY không được completed");
+    }
 }

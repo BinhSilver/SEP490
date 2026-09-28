@@ -1,6 +1,7 @@
 package com.jlas.learning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,6 +20,8 @@ import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.service.WarmUpFlashcardService;
 import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -157,6 +160,68 @@ class WarmUpFlashcardServiceTest {
                             .total(counts[0]).remembered(counts[1]).build());
             assertEquals(counts[0] > 0 && counts[0] == counts[1], service.isCompleted(path));
         }
+    }
+
+    @Test
+    void membershipChangeAddsNewCardAsNotRememberedAndPreservesExistingCards() {
+        var fixture = seed();
+        stubCreate(500L);
+        service.ensureSet(fixture.user.getId());
+
+        // Bộ hiện có 2 thẻ (学校, 時間) đã có id; map lại để update bảo toàn tiến độ đã nhớ.
+        var existing = new SetDetailDto();
+        existing.setCards(List.of(
+                com.jlas.flashcard.dto.FlashcardDtos.CardDto.builder().id(1L).front("学校").reading("がっこう").build(),
+                com.jlas.flashcard.dto.FlashcardDtos.CardDto.builder().id(2L).front("時間").reading("じかん").build()));
+        Mockito.when(flashcardService.set(500L, fixture.user.getId())).thenReturn(existing);
+
+        // Replan thêm mục yếu mới (REMEDIATION_VOCAB_ITEM, phase GOAL_LEARNING) — mục mới thêm.
+        var extra = vocabulary("先生", "せんせい", "giáo viên");
+        em.persist(extra);
+        var path = em.find(UserLearningPath.class, fixture.path.getId());
+        var sourceLesson = em.createQuery("select l from Lesson l", Lesson.class).getResultList().get(0);
+        var remediationItem = item(path, sourceLesson, "REMEDIATION_VOCAB_ITEM", extra, 9);
+        remediationItem.setPhase("GOAL_LEARNING");
+        em.persist(remediationItem);
+        em.flush();
+        em.clear();
+
+        service.ensureSet(fixture.user.getId());
+
+        var captor = ArgumentCaptor.forClass(SetRequest.class);
+        Mockito.verify(flashcardService).update(Mockito.eq(500L), captor.capture(), Mockito.eq(fixture.user.getId()));
+        var request = captor.getValue();
+        assertEquals(3, request.getCards().size());
+        Map<String, Long> idByFront = new java.util.HashMap<>();
+        request.getCards().forEach(c -> idByFront.put(c.getFront(), c.getId()));
+        assertEquals(1L, idByFront.get("学校"), "thẻ cũ giữ id để bảo toàn trạng thái đã nhớ");
+        assertEquals(2L, idByFront.get("時間"), "thẻ cũ giữ id để bảo toàn trạng thái đã nhớ");
+        assertNull(idByFront.get("先生"), "mục mới thêm phải chưa nhớ (id null → thẻ mới)");
+    }
+
+    @Test
+    void membershipChangeMakesActivityNotCompletedUntilRegenerated() {
+        var fixture = seed();
+        stubCreate(500L);
+        service.ensureSet(fixture.user.getId());
+
+        var path = em.find(UserLearningPath.class, fixture.path.getId());
+        Mockito.when(flashcardService.summary(500L, fixture.user.getId()))
+                .thenReturn(com.jlas.flashcard.dto.FlashcardDtos.StudySummaryDto.builder().total(2).remembered(2).build());
+        assertTrue(service.isCompleted(path), "nhớ hết membership hiện tại → hoàn thành");
+
+        // Replan thêm mục yếu mới → membership thay đổi → chưa hoàn thành (mục mới chưa nhớ).
+        var extra = vocabulary("先生", "せんせい", "giáo viên");
+        em.persist(extra);
+        var sourceLesson = em.createQuery("select l from Lesson l", Lesson.class).getResultList().get(0);
+        var remediationItem = item(path, sourceLesson, "REMEDIATION_VOCAB_ITEM", extra, 9);
+        remediationItem.setPhase("GOAL_LEARNING");
+        em.persist(remediationItem);
+        em.flush();
+        em.clear();
+
+        var after = em.find(UserLearningPath.class, fixture.path.getId());
+        assertFalse(service.isCompleted(after), "mục mới thêm chưa nhớ → activity chưa hoàn thành");
     }
 
     private SetRequest capturedRequest(Long userId) {

@@ -12,6 +12,10 @@ import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.flashcard.dto.FlashcardDtos.ProgressRequest;
 import com.jlas.flashcard.dto.FlashcardDtos.CardDto;
@@ -41,6 +45,11 @@ public class WarmUpFlashcardService {
     @Transactional(readOnly = true)
     public boolean isCompleted(UserLearningPath path) {
         if (path.getWarmUpFlashcardSetId() == null) return false;
+        List<VocabularyEntry> membership = distinctMembership(path.getId());
+        if (membership.isEmpty()) return false;
+        // [JLAS-W0108] P2d — membership thay đổi (replan thêm mục yếu mới) thì bộ chưa ôn lại
+        // mục mới: activity CHƯA hoàn thành kể cả khi bộ cũ đã nhớ hết, đến khi regenerate.
+        if (!fingerprint(membership).equals(path.getWarmUpFlashcardVersion())) return false;
         var summary = flashcards.summary(path.getWarmUpFlashcardSetId(), path.getUser().getId());
         return summary != null && summary.getTotal() > 0 && summary.getRemembered() == summary.getTotal();
     }
@@ -75,35 +84,89 @@ public class WarmUpFlashcardService {
         UserLearningPath path = paths.findActiveForFlashcardUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "No active learning path found."));
 
-        if (path.getWarmUpFlashcardSetId() != null) {
-            return path.getWarmUpFlashcardSetId();
-        }
-
-        var distinct = new LinkedHashMap<String, VocabularyEntry>();
-        vocabulary
-                .findAllById(items.findVocabularyEntryIdsIn(path.getId(), WARM_UP_WEAK_REASON_CODES)).stream()
-                .filter(WarmUpFlashcardService::hasCardContent)
-                .forEach(entry -> distinct.putIfAbsent(entry.getExpression().strip() + "\u0000"
-                        + entry.getReading().strip(), entry));
-        List<VocabularyEntry> entries = List.copyOf(distinct.values());
+        List<VocabularyEntry> entries = distinctMembership(path.getId());
         if (entries.isEmpty()) {
             return null;
         }
 
-        List<CardInput> cards = IntStream.range(0, entries.size())
-                .mapToObj(i -> toCard(entries.get(i), i + 1))
+        String fingerprint = fingerprint(entries);
+        Long existingSetId = path.getWarmUpFlashcardSetId();
+        // [JLAS-W0108] P2d — membership không đổi thì giữ nguyên bộ (bảo toàn tiến độ đã nhớ).
+        if (existingSetId != null && fingerprint.equals(path.getWarmUpFlashcardVersion())) {
+            return existingSetId;
+        }
+
+        SetRequest request = buildSetRequest(entries, existingSetId, userId);
+        Long setId;
+        if (existingSetId != null) {
+            // Membership thay đổi: update bộ hiện có — thẻ cũ giữ id (bảo toàn trạng thái đã nhớ),
+            // mục mới vào với id null (thẻ mới → chưa nhớ).
+            flashcards.update(existingSetId, request, userId);
+            setId = existingSetId;
+        } else {
+            setId = flashcards.create(request, userId).getId();
+        }
+        path.setWarmUpFlashcardSetId(setId);
+        path.setWarmUpFlashcardVersion(fingerprint);
+        paths.save(path);
+        return setId;
+    }
+
+    /**
+     * [JLAS-W0108] P2d — membership bộ flashcard: các từ/Kanji yếu (WEAK_* + REMEDIATION_*) đã khử trùng
+     * theo identity (expression+reading), sắp theo id để sinh thẻ ổn định giữa các lần.
+     */
+    private List<VocabularyEntry> distinctMembership(Long pathId) {
+        var distinct = new LinkedHashMap<String, VocabularyEntry>();
+        vocabulary
+                .findAllById(items.findVocabularyEntryIdsIn(pathId, WARM_UP_WEAK_REASON_CODES)).stream()
+                .filter(WarmUpFlashcardService::hasCardContent)
+                .forEach(entry -> distinct.putIfAbsent(identity(entry), entry));
+        return distinct.values().stream()
+                .sorted(Comparator.comparing(VocabularyEntry::getId))
                 .toList();
+    }
+
+    /** Fingerprint ổn định của membership (các identity đã sắp thứ tự) để phát hiện thay đổi. */
+    private static String fingerprint(List<VocabularyEntry> entries) {
+        return entries.stream().map(WarmUpFlashcardService::identity).sorted()
+                .collect(Collectors.joining("\n"));
+    }
+
+    private static String identity(VocabularyEntry entry) {
+        return identity(entry.getExpression(), entry.getReading());
+    }
+
+    private static String identity(String expression, String reading) {
+        return (expression == null ? "" : expression.strip()) + "\u0000"
+                + (reading == null ? "" : reading.strip());
+    }
+
+    private SetRequest buildSetRequest(List<VocabularyEntry> entries, Long existingSetId, Long userId) {
+        // [JLAS-W0108] P2d — map thẻ cũ theo (front, reading) để giữ id (và tiến độ đã nhớ) khi update;
+        // mục mới không khớp → id null → thẻ mới (chưa nhớ).
+        Map<String, Long> existingIdByKey = new HashMap<>();
+        if (existingSetId != null) {
+            var existing = flashcards.set(existingSetId, userId);
+            if (existing != null && existing.getCards() != null) {
+                for (var card : existing.getCards()) {
+                    existingIdByKey.putIfAbsent(identity(card.getFront(), card.getReading()), card.getId());
+                }
+            }
+        }
+        List<CardInput> cards = IntStream.range(0, entries.size()).mapToObj(i -> {
+            var entry = entries.get(i);
+            CardInput card = toCard(entry, i + 1);
+            card.setId(existingIdByKey.get(identity(entry)));
+            return card;
+        }).toList();
 
         SetRequest request = new SetRequest();
         request.setTitle("Kanji & Từ vựng sai Smart Test");
         request.setDescription("Các Kanji và từ vựng bạn làm sai trong Smart Test — ôn lại trước khi vào giai đoạn theo mục tiêu.");
         request.setVisibility("PRIVATE");
         request.setCards(cards);
-
-        Long setId = flashcards.create(request, userId).getId();
-        path.setWarmUpFlashcardSetId(setId);
-        paths.save(path);
-        return setId;
+        return request;
     }
 
     private static boolean hasCardContent(VocabularyEntry entry) {

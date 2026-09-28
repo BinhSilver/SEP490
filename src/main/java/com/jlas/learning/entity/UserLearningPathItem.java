@@ -28,8 +28,10 @@ public class UserLearningPathItem {
             foreignKey = @ForeignKey(name = "fk_learning_path_item_path"))
     private UserLearningPath learningPath;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "lesson_id", nullable = false,
+    /** [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
+     * vocabulary_entry / reading-listening content_item) mà không bắt buộc một lesson_id giả. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id",
             foreignKey = @ForeignKey(name = "fk_learning_path_item_lesson"))
     private Lesson lesson;
 
@@ -47,6 +49,11 @@ public class UserLearningPathItem {
 
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
+
+    /** [JLAS-W0108] P6 — chặng mà activity thuộc về (soft-link id của {@code user_learning_stage});
+     *  null cho item cũ (path một cấp trước P6) để giữ tương thích không phá lịch sử. */
+    @Column(name = "stage_id")
+    private Long stageId;
 
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
@@ -71,4 +78,14 @@ public class UserLearningPathItem {
     /** JSON array of matched knowledge tag codes; TEXT for H2/MySQL portability. */
     @Column(name = "matched_tag_codes", columnDefinition = "TEXT")
     private String matchedTagCodes;
+
+    /** [JLAS-W0108] P2 — tiến độ nội dung (NOT_STARTED → IN_PROGRESS → STUDIED), độc lập source lesson. */
+    @Builder.Default
+    @Column(name = "study_status", length = 20, nullable = false)
+    private String studyStatus = "NOT_STARTED";
+
+    /** [JLAS-W0108] P2 — tiến độ đánh giá (NOT_READY/READY → ISSUED → SUBMITTED → PASSED/NEEDS_REVIEW). */
+    @Builder.Default
+    @Column(name = "assessment_status", length = 20, nullable = false)
+    private String assessmentStatus = "NOT_READY";
 }

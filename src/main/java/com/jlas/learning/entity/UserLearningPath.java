@@ -70,6 +70,15 @@ public class UserLearningPath {
     @Column(name = "warm_up_flashcard_set_id")
     private Long warmUpFlashcardSetId;
 
+    /**
+     * [JLAS-W0108] P2d — fingerprint membership bộ flashcard (identity expression+reading đã khử trùng,
+     * sắp thứ tự). Dùng để phát hiện membership thay đổi khi replan thêm mục yếu mới: fingerprint khác
+     * cột này thì {@code WarmUpFlashcardService} regenerate bộ (mục mới vào trạng thái chưa nhớ, giữ
+     * tiến độ các thẻ cũ) và activity chưa được tính là hoàn thành.
+     */
+    @Column(name = "warm_up_flashcard_version", columnDefinition = "TEXT")
+    private String warmUpFlashcardVersion;
+
     /** [JLAS-W0108] Kế hoạch lộ trình cá nhân hoá do Gemini sinh (JSON: overview + phases[]);
      *  null = chưa sinh (Gemini lỗi/rate-limit), UI vẫn chạy bình thường không cần narrative. */
     @Column(name = "ai_plan_json", columnDefinition = "TEXT")
