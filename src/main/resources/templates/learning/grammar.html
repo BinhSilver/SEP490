@@ -13,7 +13,14 @@
         <span aria-current="page">Ngữ pháp</span>
     </nav>
 
-    <article class="gp-card">
+    <div class="gp-blocked" th:if="${contentBlocked}">
+        <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
+        <h1>Chưa có đủ học liệu</h1>
+        <p th:text="${blockReason}">Mẫu ngữ pháp này chưa được ánh xạ đầy đủ.</p>
+        <a class="lp-button lp-button--primary" th:href="@{/learning/path}">Về lộ trình học</a>
+    </div>
+
+    <article class="gp-card" th:unless="${contentBlocked}">
         <header class="gp-card__head">
             <span class="gp-card__eyebrow">
                 <span class="material-symbols-outlined" aria-hidden="true">menu_book</span> Mẫu ngữ pháp
@@ -32,9 +39,22 @@
             <p class="gp-card__note" th:text="${grammarPoint.note}"></p>
         </section>
 
+        <!-- [JLAS-W0108] P2b — ví dụ content_item gắn đúng mẫu (có nguồn), không kéo toàn bộ bài. -->
+        <section class="gp-card__section" th:if="${!#lists.isEmpty(examples)}">
+            <h2>Ví dụ từ giáo trình</h2>
+            <div class="gp-card__example" th:each="ex : ${examples}">
+                <p th:text="${ex.content}">Ví dụ</p>
+                <p class="gp-card__example-vi" th:if="${ex.translatedText != null and !#strings.isEmpty(ex.translatedText)}"
+                   th:text="${ex.translatedText}">Bản dịch</p>
+            </div>
+        </section>
+
         <footer class="gp-card__actions">
             <a class="lp-button lp-button--primary" th:href="@{'/learning/lesson/' + ${grammarPoint.lesson.id}}">
                 Mở bài học đầy đủ <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
+            <a class="lp-button lp-button--primary" th:href="@{'/learning/grammar/' + ${grammarPoint.id} + '/quiz'}">
+                <span class="material-symbols-outlined" aria-hidden="true">quiz</span> Kiểm tra mẫu ngữ pháp
             </a>
             <a class="lp-button" th:href="@{/learning/path}">
                 Về lộ trình học
@@ -67,6 +87,30 @@
 
     .lp-breadcrumb a:hover {
         color: var(--primary, #4f378a);
+    }
+
+    .gp-blocked {
+        background: var(--surface, #f8f9ff);
+        border: 1px solid var(--line, #cbd5e1);
+        border-radius: 24px;
+        padding: 48px 40px;
+        text-align: center;
+    }
+
+    .gp-blocked .material-symbols-outlined {
+        font-size: 40px;
+        color: var(--muted, #6B7280);
+        margin-bottom: 12px;
+    }
+
+    .gp-blocked h1 {
+        font-size: 24px;
+        margin: 0 0 12px;
+    }
+
+    .gp-blocked p {
+        color: var(--muted, #6B7280);
+        margin: 0 0 24px;
     }
 
     .gp-card {
@@ -131,6 +175,17 @@
         background: rgba(255, 255, 255, 0.6);
         border: 1px solid var(--line, #cbd5e1);
         border-radius: 14px;
+    }
+
+    .gp-card__section .gp-card__example {
+        margin-bottom: 12px;
+    }
+
+    .gp-card__example-vi {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 15px;
+        color: var(--muted, #6B7280);
+        margin: 0;
     }
 
     .gp-card__note {
