@@ -209,6 +209,29 @@ Thứ tự resolve bài đọc/nghe: **đúng cấp → bài tổng hợp đúng
 **bỏ bài Kana có `jlpt_level = null`**. N5/N4 không có bài READING/LISTENING riêng — mỗi bài GRAMMAR
 là bài tổng hợp chứa sẵn phần đọc + nghe.
 
+### 2.10 Bài final cuối chặng & hoàn thành lộ trình
+
+- Bài final gộp **1 phiên**, đủ 5 kỹ năng (Kanji/Từ vựng/Ngữ pháp/Đọc/Nghe), lấy từ ngân hàng
+  `assessment_question` theo đúng level của chặng — không tách 5 phiên riêng.
+- Mở khi: chặng đang `ACTIVE` **và** mọi item goal-learning của chặng đã `STUDIED`. Chặng
+  `PENDING`/`COMPLETED` không phát/nhận nộp được (`CONFLICT`).
+- Đạt: **trung bình 5 kỹ năng ≥ 80%** VÀ **từng kỹ năng ≥ 70%** VÀ **≥ 10 câu hợp lệ/kỹ năng**.
+  Điểm tổng cao không bù được một kỹ năng dưới ngưỡng.
+- Đạt → chặng này `COMPLETED`; còn chặng `PENDING` kế tiếp (theo `stageIndex`) → chặng đó
+  `ACTIVE` (item đã lên lịch sẵn từ lúc tạo path, không sinh lại lịch); là chặng cuối →
+  `UserLearningPath.status = COMPLETED`, ghi `completed_at`.
+- Quota: dùng chung cơ chế 5 lượt nộp hợp lệ/ngày (§2.6), nhưng khóa theo `stage_id` riêng —
+  không trừ vào/bị trừ bởi lượt lesson/gate quiz.
+- Không cải thiện điểm 2 lần retest liên tiếp (delta ≤ 0) → gợi ý kiểm tra lại kiến thức nền của
+  chặng; **không khóa** lượt làm tiếp (khác gate quiz fail-2-lần).
+- **Chứng chỉ thành tựu nội bộ:** chỉ cấp khi hoàn thành **toàn bộ lộ trình** (chặng cuối), không
+  cấp theo từng chặng. Trang `/learning/certificate/{pathId}`, dựng trực tiếp từ dữ liệu path
+  `COMPLETED` (không có bảng "chứng chỉ đã cấp" riêng). Ghi rõ đây là chứng nhận nội bộ, không
+  phải điểm/chứng chỉ JLPT chính thức.
+- `COMPLETED` là trạng thái cuối của path: `findByUserIdAndStatus(userId, "ACTIVE")` (dùng bởi
+  replan và path-creation idempotency) không còn khớp một path đã `COMPLETED`, nên replan trên
+  path đã hoàn thành tự nhiên trả `NOT_FOUND` mà không cần logic chặn riêng.
+
 ---
 
 ## 3. Gemini — cá nhân hóa lộ trình & bài test (JLAS-W0108)
@@ -275,4 +298,7 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
 | Quiz size | 5 câu | `LESSON_QUIZ_SIZE` |
 | Lượt quiz/ngày | 5 | `MAX_QUIZ_ATTEMPTS_PER_DAY` |
 | Gate fail → ôn lại | 2 | `MAX_GATE_FAILURES_BEFORE_RELEARN` |
+| Final pass tổng | 80% | `STAGE_FINAL_PASS_PERCENT` |
+| Final pass mỗi kỹ năng | 70% | `STAGE_FINAL_SKILL_PASS_PERCENT` |
+| Final số câu/kỹ năng (phát đúng, không dư) | 10 | `STAGE_FINAL_QUESTIONS_PER_SKILL` |
 | Replan gợi ý | >90% tăng tốc / <60% ôn bổ sung | §2.7 |
