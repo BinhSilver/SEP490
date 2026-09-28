@@ -45,3 +45,15 @@ test('does not link a locked Kanji activity', () => {
   const html = page.render(path());
   assert.doesNotMatch(html, /\/learning\/v2\/kanji\?activity=4/);
 });
+
+test('links an unlocked Grammar activity to its own study page (Task 6)', () => {
+  const data = path();
+  data.packages[0].activities[2].state = 'STUDYING';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/grammar\?activity=3"/);
+});
+
+test('does not link a locked Grammar activity', () => {
+  const html = page.render(path());
+  assert.doesNotMatch(html, /\/learning\/v2\/grammar\?activity=3/);
+});

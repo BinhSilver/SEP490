@@ -35,7 +35,7 @@
     var inner = '<span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span>' +
       '<span><strong>' + esc(label) + '</strong><small>' + esc(state) + '</small></span>';
     var css = 'ilp-activity' + (done ? ' is-done' : active ? ' is-active' : '');
-    var ACTIVITY_PATH = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji' };
+    var ACTIVITY_PATH = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji', GRAMMAR: '/learning/v2/grammar' };
     var path = ACTIVITY_PATH[a.type];
     if (path && !done && a.state !== 'LOCKED') {
       return '<li class="' + css + '"><a class="ilp-activity__link" href="' + path + '?activity=' +

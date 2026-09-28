@@ -57,3 +57,44 @@
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:520px){.ilp-study-page{padding:20px 14px 70px}.ilp-card{min-height:240px;padding:28px 16px}.ilp-study__head{align-items:flex-start;flex-direction:column}.ilp-study__count{align-self:stretch;text-align:center}.ilp-check{min-width:0;width:100%}.ilp-option{min-height:48px}}
 @media(prefers-reduced-motion:reduce){.ilp-loader{animation:none}.ilp-progress span{transition:none}}
+
+/* [JLAS-W0193] Task 6 — Grammar: containerless main layout, cards reserved for interactive/information-dense
+   elements only (component breakdown, ordering pool, fill row), same purple/lime tokens as above. */
+.ilp-grammar{display:grid;gap:36px}
+.ilp-point{display:grid;gap:18px;padding-bottom:28px;border-bottom:1px solid var(--ilp-line)}
+.ilp-point:last-of-type{border-bottom:0}
+.ilp-point__head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ilp-point__head h2{margin:2px 0 0;font-size:clamp(22px,4vw,30px)}
+.ilp-point__objective{color:var(--ilp-muted);margin:0}
+.ilp-point__gate{font:800 11px ui-monospace,monospace;padding:5px 10px;border-radius:999px;border:1px solid var(--ilp-line);color:var(--ilp-muted)}
+.ilp-point__gate.is-done{background:#efffd8;color:#4c9200;border-color:var(--ilp-lime)}
+.ilp-formula{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:20px;border-radius:18px;background:linear-gradient(120deg,#f4ffd9 0,#fff 55%,#f7efff 100%);border:2px solid var(--ilp-line)}
+.ilp-formula__token{display:grid;gap:4px;justify-items:center;padding:10px 14px;border-radius:12px;background:#fff;border:1px solid var(--ilp-line);min-width:44px}
+.ilp-formula__token .ilp-formula__text{font:700 18px 'Noto Serif',serif}
+.ilp-formula__token .ilp-formula__role{font:700 10px ui-monospace,monospace;color:var(--ilp-muted);text-transform:uppercase}
+.ilp-formula__token.is-particle{border-color:var(--ilp-purple);background:#faf5ff}
+.ilp-formula__token.is-particle .ilp-formula__role{color:var(--ilp-purple)}
+.ilp-formula__token.is-auxiliary{border-color:var(--ilp-lime);background:#f7ffe9}
+.ilp-formula__token.is-auxiliary .ilp-formula__role{color:#4c9200}
+.ilp-components{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.ilp-components__item{padding:12px;border:1px solid var(--ilp-line);border-radius:12px;background:#fff;text-align:center}
+.ilp-example{padding:16px 18px;border-radius:14px;background:#fff;border:1px solid var(--ilp-line)}
+.ilp-example__ja{font:600 20px 'Noto Serif',serif;margin:0 0 4px}
+.ilp-example__vi{color:var(--ilp-muted);margin:0}
+.ilp-note{padding:14px 18px;border-radius:12px;background:#fff7ec;border:1px solid #ffd7a8;color:#8a5a14}
+.ilp-practice{display:grid;gap:10px}
+.ilp-practice h3{margin:0;font-size:16px}
+.ilp-order__slots{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;padding:12px;border:2px dashed var(--ilp-line);border-radius:12px}
+.ilp-order__pool{display:flex;flex-wrap:wrap;gap:8px}
+.ilp-order__token{border:1px solid var(--ilp-line);background:#fff;border-radius:10px;padding:10px 14px;font:600 16px 'Noto Serif',serif;cursor:pointer;min-height:44px}
+.ilp-order__token.is-placed{background:var(--ilp-purple);color:#fff;border-color:var(--ilp-purple)}
+.ilp-fill__row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ilp-fill__sentence{font:600 17px 'Noto Serif',serif}
+.ilp-fill__input{border:1px solid var(--ilp-line);border-radius:10px;padding:10px 12px;font-size:16px;min-height:44px;min-width:160px}
+.ilp-practice__submit{border:0;border-radius:10px;background:var(--ilp-purple);color:#fff;padding:10px 18px;font:800 13px ui-monospace,monospace;cursor:pointer;min-height:44px}
+.ilp-practice__submit:disabled{background:#e4e9ef;color:#9aa6b6;cursor:not-allowed}
+.ilp-order__token:focus-visible,.ilp-practice__submit:focus-visible,.ilp-fill__input:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:3px}
+.ilp-practice__feedback{padding:12px 14px;border-radius:10px;font-weight:600}
+.ilp-practice__feedback.is-correct{background:#f7ffe9;border:1px solid #bde86c;color:#56732a}
+.ilp-practice__feedback.is-incorrect{background:#fff7ec;border:1px solid #ffd7a8;color:#8a5a14}
+@media(max-width:520px){.ilp-components{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}.ilp-fill__input{width:100%}}

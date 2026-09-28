@@ -31,4 +31,10 @@ public class LearningPathPageController {
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-kanji-study";
     }
+
+    @GetMapping("/learning/v2/grammar")
+    public String interactiveGrammar(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-grammar-study";
+    }
 }

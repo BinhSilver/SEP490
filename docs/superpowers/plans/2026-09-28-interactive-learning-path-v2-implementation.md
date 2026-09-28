@@ -83,12 +83,12 @@ GET  /learning/path/v2
 - [x] Cover Kanji→reading, reading→Kanji, Kanji→meaning and matching — deterministic, no-AI question generation with real-data-only fallbacks (no reading ⇒ falls back to Kanji→meaning; no `meaning_vi` ⇒ matching skipped for that target).
 - [x] Show approved contextual reading/examples and preserve resume/cooldown semantics — `KanjiStudyState` renders character/hanViet/meaningVi/jlptLevel/strokeCount/onReadings/kunReadings, omitting (never fabricating) any field without real data; resume/flip/remember/attempt-cycle/cooldown/review/idempotent-submit are the unchanged engine contract, proven by `InteractiveKanjiServiceTest`/`ControllerTest`/`PersistenceTest` (17 new tests) plus `interactive-kanji-study.test.cjs` (9 new frontend tests).
 
-### Task 6 — Grammar interaction (60%)
+### Task 6 — Grammar interaction (60%) — ✅ complete
 
-- [ ] Model 1–3 approved points with objective, structure, component analysis and examples.
-- [ ] Require ordering plus fill/select practice for every point before check.
-- [ ] Require two fresh approved questions per point and reject verbatim practice reuse.
-- [ ] Build the reference grammar page and immediate explanatory feedback without runtime AI.
+- [x] Model 1–3 approved points with objective, structure, component analysis and examples — `GrammarTextAnalyzer` derives the formula's token breakdown and the practice targets deterministically from canonical `grammar_point.pattern`/`example` text (no fabrication, no AI).
+- [x] Require ordering plus fill/select practice for every point before check — new Grammar-only prerequisite gate (`learning_grammar_practice_progress`), wired into the shared engine via new `InteractiveContentAdapter.requiresFlipRememberGate()`/`assertPracticeGateSatisfied()` default methods (Vocabulary/Kanji behavior unchanged, proven by their full suites staying green).
+- [x] Require two fresh approved questions per point and reject verbatim practice reuse — `MEANING_MATCH` + `USAGE_SELECT` per point, sourced from different canonical fields/framing than the ordering/fill practice artifacts; proven by `InteractiveGrammarServiceTest#issueProducesAtLeastTwoNonVerbatimQuestionsPerPointOnceGateSatisfied`.
+- [x] Build the reference grammar page and immediate explanatory feedback without runtime AI — `/learning/v2/grammar`, purple/lime light-tech design reusing the shared `interactive-study.css` (also fixed a Task 5 bug where Kanji's page silently loaded no stylesheet at all).
 
 ### Task 7 — Dialogue with trustworthy completion (70%)
 

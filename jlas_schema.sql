@@ -1864,7 +1864,12 @@ CREATE TABLE learning_quiz_session (
     KEY idx_quiz_session_user (user_id, quiz_type, lesson_id, status),
     CONSTRAINT fk_quiz_session_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK')),
+    -- [JLAS-W0193] KANJI_MICRO_CHECK (Task 5) va GRAMMAR_MICRO_CHECK (Task 6) duoc them vao day de khop
+    -- dung voi cac quiz_type ma InteractiveStudyEngine da phat sinh; Task 5 tung bo sot KANJI_MICRO_CHECK
+    -- trong CHECK constraint nay (H2 ddl-auto=create-drop sinh schema tu JPA entity, khong tu SQL nay nen
+    -- khong bat duoc bang test) — sua cung migration voi Task 6 vi ca hai deu dung chung constraint.
+    CONSTRAINT chk_quiz_session_type CHECK
+        (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK','GRAMMAR_MICRO_CHECK')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1925,6 +1930,31 @@ CREATE TABLE learning_micro_check_state (
     CONSTRAINT fk_learning_micro_check_activity FOREIGN KEY (activity_item_id)
         REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_micro_check_attempts CHECK (attempts_used <= 3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Task 6 — tien do luyen tap sap xep cau + dien khuyet cua tung grammar point trong mot
+-- activity GRAMMAR. Grammar khong co buoc lat/nho flashcard; bang nay la "cong" rieng cua Grammar ma
+-- InteractiveStudyEngine tham van truoc khi cho phat micro-check (qua InteractiveContentAdapter.
+-- assertPracticeGateSatisfied), thay vi flip/remember cua Vocabulary/Kanji. source_revision di theo
+-- learning_activity_member.source_revision: composer sinh revision moi thi tien do cu bi coi la chua
+-- lam xong voi noi dung moi, khong tu dong mang sang.
+CREATE TABLE learning_grammar_practice_progress (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id  BIGINT UNSIGNED NOT NULL,
+    grammar_point_id  BIGINT UNSIGNED NOT NULL,
+    source_revision   VARCHAR(64) NOT NULL,
+    ordering_done     TINYINT(1) NOT NULL DEFAULT 0,
+    fill_done         TINYINT(1) NOT NULL DEFAULT 0,
+    ordering_done_at  DATETIME(6) NULL,
+    fill_done_at      DATETIME(6) NULL,
+    row_version       BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_grammar_practice_identity (activity_item_id, grammar_point_id),
+    CONSTRAINT fk_grammar_practice_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.

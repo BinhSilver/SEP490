@@ -122,7 +122,11 @@ public class InteractiveStudyEngine<T> {
     public MicroCheckResponse issueMicroCheck(Long userId, Long activityId) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
         List<LearningActivityMember> membership = loadMembership(activity);
-        requireAllRemembered(activityId, membership);
+        if (adapter.requiresFlipRememberGate()) {
+            requireAllRemembered(activityId, membership);
+        } else {
+            adapter.assertPracticeGateSatisfied(activityId, membership);
+        }
 
         int batchCount = batchCount(membership.size());
         List<LearningMicroCheckState> states = checkStates.findByActivityIdOrderByBatchIndex(activityId);

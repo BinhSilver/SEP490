@@ -28,4 +28,20 @@ public interface InteractiveContentAdapter<T> {
     /** Builds the deterministic, no-AI question set for one micro-check batch. Distractors must come only
      * from {@code batch} (canonical/approved data), never generated at runtime. */
     List<QuestionSpec> buildQuestions(List<T> batch, int batchIndex);
+
+    /** [JLAS-W0193] Task 6 — whether {@link InteractiveStudyEngine#issueMicroCheck} should gate eligibility
+     * on the flip/remember study-card contract (Vocabulary, Kanji). Default {@code true} preserves the
+     * exact pre-Task-6 behavior for every existing adapter with zero code change. A content type whose
+     * prerequisite is not flip/remember — Grammar's ordering + fill practice — overrides this to
+     * {@code false} and supplies {@link #assertPracticeGateSatisfied} instead. */
+    default boolean requiresFlipRememberGate() {
+        return true;
+    }
+
+    /** [JLAS-W0193] Task 6 — only consulted when {@link #requiresFlipRememberGate()} is {@code false}.
+     * Must throw {@code ApiException(ErrorCode.PREREQUISITE_NOT_MET)} when the content type's own practice
+     * gate is not yet satisfied for every membership target. No-op default (unused by any adapter that
+     * keeps the flip/remember gate). */
+    default void assertPracticeGateSatisfied(Long activityId, List<com.jlas.learning.entity.LearningActivityMember> membership) {
+    }
 }
