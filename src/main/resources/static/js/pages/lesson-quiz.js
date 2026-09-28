@@ -110,16 +110,26 @@
       '<div class="lq-options" role="radiogroup" aria-label="Câu ' + (index + 1) + '">' + options + '</div></li>';
   }
 
-  function renderQuiz(data) {
+  function renderQuiz(data, cfg) {
     var questions = data.questions || [];
     var title = escapeHtml(data.lessonTitle || 'Bài kiểm tra');
     var items = questions.map(renderQuestion).join('');
+    // [JLAS-W0108] P4/D2 — ngưỡng khác nhau theo loại: lesson quiz cần tổng >=80% và mỗi nhóm mục tiêu
+    // >=70%; gate quiz (P5) giữ tổng 60%.
+    var hint = 'Trả lời tất cả câu hỏi. Đạt 80% tổng và mỗi nhóm mục tiêu 70% để hoàn thành.';
+    if (cfg && cfg.mode === 'gate') {
+      hint = 'Trả lời tất cả câu hỏi. Đạt 60% để vượt qua tổng kết khởi động.';
+    } else if (cfg && cfg.mode === 'grammar') {
+      hint = 'Trả lời tất cả câu hỏi. Đạt 4/5 câu đúng để ghi nhận đã ôn lại mẫu ngữ pháp.';
+    } else if (cfg && cfg.mode === 'flashcard') {
+      hint = 'Chọn nghĩa đúng của từng từ/Kanji. Trả lời đúng hết 100% để ghi nhận đã nhớ.';
+    }
     return '<section class="lq-card">' +
       '<header class="lq-card__head">' +
         '<div><span class="lq-eyebrow">' + icon('quiz') + ' Kiểm tra kiến thức</span>' +
         '<h1>' + title + '</h1></div>' +
         '<span class="lq-count">' + questions.length + ' câu hỏi</span></header>' +
-      '<p class="lq-hint">Trả lời tất cả câu hỏi. Đạt ' + 60 + '% để hoàn thành.</p>' +
+      '<p class="lq-hint">' + hint + '</p>' +
       '<ol class="lq-questions">' + items + '</ol>' +
       '<button class="lq-button lq-button--primary lq-submit" type="button" data-action="submit">' +
         icon('send') + '<span>Nộp bài</span></button>' +
@@ -248,19 +258,41 @@
       '</li>';
   }
 
+  function renderGroups(groups) {
+    var list = groups || [];
+    if (!list.length) return '';
+    var hasFailed = list.some(function (g) { return g.passed !== true; });
+    var items = list.map(function (g) {
+      return '<li class="lq-group' + (g.passed ? ' is-passed' : ' is-failed') + '">' +
+        '<span class="lq-group__label">' + escapeHtml(g.groupLabel || g.groupKey) + '</span>' +
+        '<span class="lq-group__score">' + g.correct + '/' + g.total + ' đúng' +
+          (g.passed ? '' : ' · cần ' + g.requiredCorrect) + '</span>' +
+        '</li>';
+    }).join('');
+    return '<div class="lq-group-block"><h2>' + (hasFailed ? 'Nhóm mục tiêu cần ôn lại' : 'Nhóm mục tiêu') +
+      '</h2><ul class="lq-groups">' + items + '</ul></div>';
+  }
+
   function renderResult(result, cfg) {
     var passed = result.passed === true;
     var relearn = result.relearnRequired === true;
     var isGate = cfg.mode === 'gate';
+    var isGrammar = cfg.mode === 'grammar';
+    var isFlashcard = cfg.mode === 'flashcard';
     var score = result.scorePercent;
     var review = (result.review || []).map(renderReview).join('');
+    var groups = renderGroups(result.groupResults);
 
     var note;
     var action;
     if (passed) {
       note = isGate
         ? 'Giai đoạn theo mục tiêu đã được mở khóa. Hãy tiếp tục hành trình của bạn!'
-        : 'Bài học đã được ghi nhận hoàn thành.';
+        : isGrammar
+          ? 'Mẫu ngữ pháp đã được ghi nhận ôn lại. Hãy tiếp tục hành trình của bạn!'
+          : isFlashcard
+            ? 'Bạn đã nhớ đủ từ và Kanji. Hãy tiếp tục hành trình của bạn!'
+            : 'Bài học đã được ghi nhận hoàn thành.';
       action = isGate
         ? '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('arrow_forward') + '<span>Tiếp tục đến giai đoạn mục tiêu</span></a>'
         : '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('arrow_forward') + '<span>Quay lại lộ trình</span></a>';
@@ -268,15 +300,19 @@
       note = 'Bạn đã làm chưa đạt 2 lần. Hãy ôn lại phần khởi động trước khi thử lại nhé.';
       action = '<a class="lq-button lq-button--primary" href="/learning/path">' + icon('menu_book') + '<span>Ôn lại phần khởi động</span></a>';
     } else {
-      note = 'Ôn lại nội dung bài học rồi thử lại để đạt điểm cao hơn.';
+      note = isFlashcard
+        ? 'Còn từ/Kanji chưa nhớ. Ôn lại các thẻ chưa thuộc rồi làm lại để đạt 100%.'
+        : 'Ôn lại nội dung bài học rồi thử lại để đạt điểm cao hơn.';
       action = '<button class="lq-button lq-button--primary" type="button" data-action="retry">' + icon('refresh') + '<span>Làm lại</span></button>';
     }
 
     // [JLAS-W0122] Điểm rất cao -> gợi ý tăng tốc lộ trình; điểm thấp -> gợi ý ôn tập điểm yếu.
+    // Chỉ áp dụng cho lesson quiz (grammar/flashcard/gate có ngưỡng riêng, không gợi ý replan).
+    var isLesson = !isGate && !isGrammar && !isFlashcard;
     var suggestion = '';
-    if (!isGate && passed && score > 90) {
+    if (isLesson && passed && score > 90) {
       suggestion = '<a class="lq-button lq-button--ghost" href="/learning/path?replan=ACCELERATE">' + icon('auto_fix_high') + '<span>Tăng tốc lộ trình</span></a>';
-    } else if (!isGate && !passed && score < 60) {
+    } else if (isLesson && !passed && score < 60) {
       suggestion = '<a class="lq-button lq-button--ghost" href="/learning/path?replan=REMEDIATE">' + icon('auto_fix_high') + '<span>Ôn tập điểm yếu</span></a>';
     }
 
@@ -286,6 +322,7 @@
       '<p>' + result.correctAnswers + '/' + result.totalQuestions + ' câu đúng · ngưỡng đạt ' + result.passThresholdPercent + '%</p></div>' +
       '<p class="lq-result__note">' + note + '</p>' +
       '<div class="lq-result__actions">' + action + suggestion + '</div>' +
+      groups +
       (review ? '<div class="lq-review-block"><h2>Chi tiết từng câu</h2><ul class="lq-reviews">' + review + '</ul></div>' : '') +
       '</section>';
   }
@@ -296,19 +333,22 @@
     if (!window.JlasAuth || !window.JlasAuth.requireLogin(window.location.pathname)) return;
 
     var cfg = {
-      mode: root.getAttribute('data-quiz-mode') === 'gate' ? 'gate' : 'lesson',
-      lessonId: positiveInteger(Number(root.getAttribute('data-lesson-id')))
+      mode: root.getAttribute('data-quiz-mode') || 'lesson',
+      lessonId: positiveInteger(Number(root.getAttribute('data-lesson-id'))),
+      grammarPointId: positiveInteger(Number(root.getAttribute('data-grammar-point-id')))
     };
 
     function quizUrl() {
-      return cfg.mode === 'gate'
-        ? '/api/learning/paths/gate-quiz'
-        : '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz';
+      if (cfg.mode === 'gate') return '/api/learning/paths/gate-quiz';
+      if (cfg.mode === 'grammar') return '/api/learning/grammar/' + encodeURIComponent(cfg.grammarPointId) + '/quiz';
+      if (cfg.mode === 'flashcard') return '/api/learning/paths/flashcard-quiz';
+      return '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz';
     }
     function submitUrl() {
-      return cfg.mode === 'gate'
-        ? '/api/learning/paths/gate-quiz/submit'
-        : '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz/submit';
+      if (cfg.mode === 'gate') return '/api/learning/paths/gate-quiz/submit';
+      if (cfg.mode === 'grammar') return '/api/learning/grammar/' + encodeURIComponent(cfg.grammarPointId) + '/quiz/submit';
+      if (cfg.mode === 'flashcard') return '/api/learning/paths/flashcard-quiz/submit';
+      return '/api/learning/lessons/' + encodeURIComponent(cfg.lessonId) + '/quiz/submit';
     }
     function errorMessage(code, fallback) {
       var messages = {
@@ -344,7 +384,7 @@
           state.selectedKana = null;
           renderCurrent();
         } else {
-          root.innerHTML = renderQuiz(body.data);
+          root.innerHTML = renderQuiz(body.data, cfg);
           root.setAttribute('aria-busy', 'false');
         }
       } catch (error) {

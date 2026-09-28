@@ -32,17 +32,21 @@ public class LearningQuizSession {
             foreignKey = @ForeignKey(name = "fk_quiz_session_user"))
     private User user;
 
-    /** GATE hoặc LESSON. */
+    /** GATE / LESSON / GRAMMAR / FLASHCARD. */
     @Column(name = "quiz_type", nullable = false, length = 20)
     private String quizType;
 
-    /** null cho GATE; id bài học cho LESSON quiz. */
+    /** null cho GATE/GRAMMAR/FLASHCARD; id bài học cho LESSON quiz. */
     @Column(name = "lesson_id")
     private Long lessonId;
 
-    /** null cho LESSON; id lộ trình cho GATE quiz. */
+    /** null cho LESSON; id lộ trình cho GATE/FLASHCARD quiz. */
     @Column(name = "path_id")
     private Long pathId;
+
+    /** [JLAS-W0108] P4 — anchor hoạt động riêng cho GRAMMAR quiz (grammarPointId). null cho các loại khác. */
+    @Column(name = "activity_id")
+    private Long activityId;
 
     /** Snapshot version của lộ trình lúc phát GATE quiz; dùng để từ chối nộp khi lộ trình đã đổi. */
     @Column(name = "path_version")

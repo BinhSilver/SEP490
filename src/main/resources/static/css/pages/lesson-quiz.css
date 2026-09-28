@@ -209,6 +209,20 @@
 }
 .lq-review__explain { font-size: 13px; line-height: 1.55; color: var(--lq-text); margin: 10px 0 0; }
 
+/* [JLAS-W0108] P4/D2 — nhóm mục tiêu bắt buộc trong kết quả (nói rõ nhóm nào còn thiếu). */
+.lq-group-block { margin-top: 20px; border-top: 1px solid var(--lq-border); padding-top: 20px; }
+.lq-group-block h2 { font-size: 16px; margin: 0 0 12px; color: var(--lq-text); }
+.lq-groups { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lq-group {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; border-radius: 12px; border: 1px solid var(--lq-border);
+}
+.lq-group.is-passed { border-color: var(--color-success); background: var(--color-success-bg); }
+.lq-group.is-failed { border-color: var(--color-error); background: var(--color-error-container); }
+.lq-group__label { font-size: 14px; font-weight: 600; color: var(--lq-text); }
+.lq-group__score { font-size: 13px; color: var(--lq-muted); white-space: nowrap; }
+.lq-group.is-failed .lq-group__score { color: var(--lq-danger); }
+
 @media (max-width: 520px) {
   .lq-card { padding: 20px 16px; }
   .lq-card__head { flex-direction: column; }

@@ -27,4 +27,19 @@ public class LearningQuizPageController {
         model.addAttribute("quizMode", "gate");
         return "learning/lesson-quiz";
     }
+
+    /** [JLAS-W0108] P4 — warm-up grammar quiz: retest đúng mẫu ngữ pháp đã sai (5 câu, đạt 4/5). */
+    @GetMapping("/learning/grammar/{grammarPointId}/quiz")
+    public String grammarQuiz(@PathVariable Long grammarPointId, Model model) {
+        model.addAttribute("quizMode", "grammar");
+        model.addAttribute("quizGrammarPointId", grammarPointId);
+        return "learning/lesson-quiz";
+    }
+
+    /** [JLAS-W0108] P4/D3 — flashcard quiz: MCQ chọn nghĩa toàn bộ từ/Kanji sai, đúng hết mới đạt. */
+    @GetMapping("/learning/path/flashcard-quiz")
+    public String flashcardQuiz(Model model) {
+        model.addAttribute("quizMode", "flashcard");
+        return "learning/lesson-quiz";
+    }
 }

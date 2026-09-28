@@ -24,4 +24,15 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
             """)
     Optional<LearningQuizSession> findOwned(@Param("id") Long id, @Param("userId") Long userId,
             @Param("quizType") String quizType, @Param("lessonId") Long lessonId);
+
+    /** [JLAS-W0108] P4 — session per-activity (GRAMMAR): khóa theo anchor activity_id thay vì lesson_id. */
+    @Query("""
+            select s from LearningQuizSession s
+            where s.id = :id
+              and s.user.id = :userId
+              and s.quizType = :quizType
+              and s.activityId = :activityId
+            """)
+    Optional<LearningQuizSession> findOwnedByActivity(@Param("id") Long id, @Param("userId") Long userId,
+            @Param("quizType") String quizType, @Param("activityId") Long activityId);
 }
