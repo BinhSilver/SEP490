@@ -56,6 +56,25 @@ test('orders phases and lessons according to the persisted schedule', () => {
   assert.deepEqual(view.days[0].items.map((item) => item.lessonId), [101, 102]);
 });
 
+test('continue learning resumes the started activity instead of guessing by order', () => {
+  const fixture = pathFixture();
+  fixture.phases[1].items = [
+    { lessonId: 101, title: 'Trợ từ は/が', reasonText: 'Ôn lại điểm yếu', dayNumber: 1, orderIndex: 1, estimatedMinutes: 10, completed: false, started: false },
+    { lessonId: 105, title: 'Kanji cơ bản', reasonText: 'Ôn lại điểm yếu', dayNumber: 1, orderIndex: 2, estimatedMinutes: 10, completed: false, started: true },
+    { lessonId: 102, title: 'Thể て', reasonText: 'Ôn lại điểm yếu', dayNumber: 1, orderIndex: 3, estimatedMinutes: 15, completed: false, started: false }
+  ];
+
+  const view = LearningPathPage.createViewModel(fixture);
+
+  assert.equal(view.currentLesson.lessonId, 105);
+});
+
+test('continue learning falls back to the first incomplete item when nothing was started yet', () => {
+  const view = LearningPathPage.createViewModel(pathFixture());
+
+  assert.equal(view.currentLesson.lessonId, 102);
+});
+
 test('derives completed, active, and locked days without inventing progress', () => {
   const fixture = pathFixture();
   fixture.phases[1].items[0].completed = true;

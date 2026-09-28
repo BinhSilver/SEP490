@@ -8,11 +8,13 @@ import com.jlas.learning.dto.CoverageGap;
 import com.jlas.learning.dto.LearningPathItemDto;
 import com.jlas.learning.dto.LearningPathResponse;
 import com.jlas.learning.dto.LearningPhaseGroup;
+import com.jlas.learning.dto.LearningStageResponse;
 import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
 import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.enums.LearningPhase;
 import com.jlas.learning.service.WarmUpFlashcardService;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import org.springframework.stereotype.Component;
 
 /** Maps persisted learning-path entities into the API read model and (de)serializes JSON snapshots. */
@@ -37,13 +40,41 @@ public class LearningMapper {
     // so this mapper owns its own instance for the small JSON snapshot columns it persists.
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    /**
+     * [JLAS-W0108] P2 — completion độc lập source lesson: mỗi item tự mang {@code study_status}.
+     * Dùng cho lộ trình chính ({@code LearningServiceImpl}).
+     */
+    public LearningPathResponse toResponse(UserLearningPath path, List<UserLearningPathItem> items,
+            boolean flashcardsCompleted) {
+        return toResponse(path, items, List.of(), flashcardsCompleted);
+    }
+
+    /**
+     * [JLAS-W0108] P6 — lộ trình nhiều chặng: kèm danh sách {@code stages} (level/order/status) để UI
+     * hiển thị chặng hiện tại; scope cũ không phân chặng truyền {@code List.of()}.
+     */
+    public LearningPathResponse toResponse(UserLearningPath path, List<UserLearningPathItem> items,
+            List<UserLearningStage> stages, boolean flashcardsCompleted) {
+        return build(path, items, stages, flashcardsCompleted,
+                item -> "STUDIED".equals(item.getStudyStatus()));
+    }
+
+    /** Legacy (replan) — completion theo lesson_progress; chuyển sang per-item ở P7. */
     public LearningPathResponse toResponse(UserLearningPath path, List<UserLearningPathItem> items,
             Set<Long> completedLessonIds) {
         return toResponse(path, items, completedLessonIds, false);
     }
 
+    /** Legacy (replan) — completion theo lesson_progress; chuyển sang per-item ở P7. */
     public LearningPathResponse toResponse(UserLearningPath path, List<UserLearningPathItem> items,
             Set<Long> completedLessonIds, boolean flashcardsCompleted) {
+        return build(path, items, List.of(), flashcardsCompleted,
+                item -> item.getLesson() != null && completedLessonIds.contains(item.getLesson().getId()));
+    }
+
+    private LearningPathResponse build(UserLearningPath path, List<UserLearningPathItem> items,
+            List<UserLearningStage> stages, boolean flashcardsCompleted,
+            Function<UserLearningPathItem, Boolean> completedOf) {
         Map<LearningPhase, List<UserLearningPathItem>> byPhase = new LinkedHashMap<>();
         for (var item : items) {
             byPhase.computeIfAbsent(LearningPhase.valueOf(item.getPhase()), key -> new ArrayList<>()).add(item);
@@ -61,7 +92,7 @@ public class LearningMapper {
                     if (!addedCards) dtos.add(toFlashcardGroup(cardItems, flashcardsCompleted));
                     addedCards = true;
                 } else {
-                    dtos.add(toItem(item, completedLessonIds.contains(item.getLesson().getId())));
+                    dtos.add(toItem(item, completedOf.apply(item)));
                 }
             }
             int minutes = dtos.stream().mapToInt(LearningPathItemDto::estimatedMinutes).sum();
@@ -75,42 +106,54 @@ public class LearningMapper {
                 .mapToInt(LearningPathItemDto::dayNumber).max().orElse(0);
         boolean warmUpCompleted = groups.stream().filter(group -> group.phase() == LearningPhase.WARM_UP)
                 .anyMatch(group -> !group.items().isEmpty() && group.items().stream().allMatch(LearningPathItemDto::completed));
+        List<LearningStageResponse> stageResponses = stages.stream()
+                .map(stage -> new LearningStageResponse(stage.getLevel(), stage.getStageIndex(),
+                        stage.getStatus(), stage.getCurriculumVersion(), stage.getAssessmentCycle()))
+                .toList();
         return new LearningPathResponse(path.getId(), path.getUser().getId(), path.getAssessmentAttemptId(),
                 path.getGoal(), path.getTargetLevel(),
                 path.getCurrentLevel(), path.getMinutesPerDay(), path.getStatus(), path.getVersion(), path.getCreatedAt(),
                 groups, readCoverageGaps(path.getCoverageGapsJson()),
                 totalLessons, totalMinutes, totalDays, completed,
-                warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()));
+                warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()), stageResponses);
     }
 
     private LearningPathItemDto toFlashcardGroup(List<UserLearningPathItem> items, boolean completed) {
         var first = items.stream().min(java.util.Comparator.comparing(UserLearningPathItem::getOrderIndex)).orElseThrow();
         var source = toItem(first, completed);
         int minutes = items.stream().mapToInt(UserLearningPathItem::getEstimatedMinutes).sum();
-        return new LearningPathItemDto(source.lessonId(), "Ôn tập Kanji & Từ vựng", source.textbookId(),
+        return new LearningPathItemDto(null, source.lessonId(), "Ôn tập Kanji & Từ vựng", source.textbookId(),
                 source.unitId(), source.level(), "WARM_UP_FLASHCARDS",
                 "Một bộ thẻ tổng hợp kiến thức còn yếu. Lật thẻ và đánh dấu đã nhớ để hoàn thành ôn tập.",
                 source.matchedTagCodes(), source.knowledgePointCode(), source.knowledgePointName(),
                 null, null, null, source.vocabularyEntryId(), null, null, null,
-                source.dayNumber(), source.orderIndex(), minutes, completed);
+                source.dayNumber(), source.orderIndex(), minutes, completed, source.started());
     }
 
     private LearningPathItemDto toItem(UserLearningPathItem item, boolean completed) {
         var lesson = item.getLesson();
         Long textbookId = null;
         Long unitId = null;
+        Long lessonId = null;
         String level = null;
-        if (lesson.getUnit() != null) {
-            unitId = lesson.getUnit().getId();
-            if (lesson.getUnit().getTextbook() != null) {
-                textbookId = lesson.getUnit().getTextbook().getId();
-                level = lesson.getUnit().getTextbook().getJlptLevel();
+        String knowledgePointCode = null;
+        String knowledgePointName = null;
+        // [JLAS-W0108] P2c — lesson nguồn có thể NULL (activity trỏ grammar_point / vocabulary_entry
+        // thay vì bài nguồn); mọi trường suy từ lesson phải an toàn với null.
+        if (lesson != null) {
+            lessonId = lesson.getId();
+            if (lesson.getUnit() != null) {
+                unitId = lesson.getUnit().getId();
+                if (lesson.getUnit().getTextbook() != null) {
+                    textbookId = lesson.getUnit().getTextbook().getId();
+                    level = lesson.getUnit().getTextbook().getJlptLevel();
+                }
             }
+            // [JLAS-W0108] Điểm kiến thức chính (knowledge tag) để nhóm và trình bày lộ trình
+            // theo từng điểm kiến thức thay vì liệt kê tuần tự theo giáo trình.
+            knowledgePointCode = lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getCode();
+            knowledgePointName = lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getName();
         }
-        // [JLAS-W0108] Điểm kiến thức chính (knowledge tag) để nhóm và trình bày lộ trình
-        // theo từng điểm kiến thức thay vì liệt kê tuần tự theo giáo trình.
-        String knowledgePointCode = lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getCode();
-        String knowledgePointName = lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getName();
         // [JLAS-W0108] Warm-up GRAMMAR trỏ tới đúng mẫu ngữ pháp đã sai; lúc đó title = pattern.
         var grammarPoint = item.getGrammarPoint();
         Long grammarPointId = grammarPoint == null ? null : grammarPoint.getId();
@@ -122,14 +165,24 @@ public class LearningMapper {
         String vocabularyExpression = vocabularyEntry == null ? null : vocabularyEntry.getExpression();
         String vocabularyReading = vocabularyEntry == null ? null : vocabularyEntry.getReading();
         String vocabularyMeaning = vocabularyEntry == null ? null : vocabularyEntry.getMeaning();
-        String title = grammarPoint != null ? grammarPoint.getPattern()
-                : vocabularyEntry != null ? vocabularyEntry.getExpression() : personalLessonTitle(lesson);
-        return new LearningPathItemDto(lesson.getId(), title, textbookId, unitId, level,
+        String title;
+        if (grammarPoint != null) {
+            title = grammarPoint.getPattern();
+        } else if (vocabularyEntry != null) {
+            title = vocabularyEntry.getExpression();
+        } else if (lesson != null) {
+            title = personalLessonTitle(lesson);
+        } else {
+            title = item.getReason() != null && !item.getReason().isBlank()
+                    ? item.getReason() : "Hoạt động học tập";
+        }
+        boolean started = !"NOT_STARTED".equals(item.getStudyStatus());
+        return new LearningPathItemDto(item.getId(), lessonId, title, textbookId, unitId, level,
                 item.getReasonCode(), item.getReason(), readMatchedTags(item.getMatchedTagCodes()),
                 knowledgePointCode, knowledgePointName,
                 grammarPointId, grammarPointPattern, grammarPointMeaning,
                 vocabularyEntryId, vocabularyExpression, vocabularyReading, vocabularyMeaning,
-                item.getDayNumber(), item.getOrderIndex(), item.getEstimatedMinutes(), completed);
+                item.getDayNumber(), item.getOrderIndex(), item.getEstimatedMinutes(), completed, started);
     }
 
     // [JLAS-W0108] Lát D — bỏ số thứ tự "Bài N:" khỏi title của bài học goal/đọc/nghe để lộ trình

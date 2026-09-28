@@ -65,6 +65,22 @@ public class LearningController {
         return ResponseEntity.ok(ApiResponse.ok("Bài học đã được ghi nhận hoàn thành"));
     }
 
+    /** [JLAS-W0108] P2 — đánh dấu hoàn thành nội dung một activity (item), độc lập source lesson. */
+    @PostMapping("/path-items/{itemId}/complete")
+    public ResponseEntity<ApiResponse<Void>> completeItem(@PathVariable Long itemId,
+            @AuthenticationPrincipal UserPrincipal user) {
+        learningService.completeItem(user.userId(), itemId);
+        return ResponseEntity.ok(ApiResponse.ok("Đã ghi nhận hoàn thành hoạt động"));
+    }
+
+    /** [JLAS-W0108][MP06] Ghi nhận người học đã mở một activity, để "Tiếp tục học" trỏ đúng chỗ. */
+    @PostMapping("/path-items/{itemId}/start")
+    public ResponseEntity<ApiResponse<Void>> startItem(@PathVariable Long itemId,
+            @AuthenticationPrincipal UserPrincipal user) {
+        learningService.startItem(user.userId(), itemId);
+        return ResponseEntity.ok(ApiResponse.ok("Đã ghi nhận bắt đầu học"));
+    }
+
     /** [JLAS-W0113] Lấy câu hỏi quiz của một bài học (không lộ đáp án). */
     @GetMapping("/lessons/{lessonId}/quiz")
     public ResponseEntity<ApiResponse<LessonQuizResponse>> getLessonQuiz(@PathVariable Long lessonId,
@@ -93,6 +109,37 @@ public class LearningController {
             @Valid @RequestBody LessonQuizSubmitRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", learningService.submitGateQuiz(user.userId(), request)));
+    }
+
+    /** [JLAS-W0108] P4 — lấy warm-up grammar quiz (retest mẫu ngữ pháp đã sai, không lộ đáp án). */
+    @GetMapping("/grammar/{grammarPointId}/quiz")
+    public ResponseEntity<ApiResponse<LessonQuizResponse>> getGrammarQuiz(@PathVariable Long grammarPointId,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK",
+                learningService.getGrammarQuiz(user.userId(), grammarPointId)));
+    }
+
+    /** [JLAS-W0108] P4 — chấm warm-up grammar quiz; đạt ghi assessment PASSED trên item mẫu ngữ pháp. */
+    @PostMapping("/grammar/{grammarPointId}/quiz/submit")
+    public ResponseEntity<ApiResponse<LessonQuizResult>> submitGrammarQuiz(@PathVariable Long grammarPointId,
+            @Valid @RequestBody LessonQuizSubmitRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK",
+                learningService.submitGrammarQuiz(user.userId(), grammarPointId, request)));
+    }
+
+    /** [JLAS-W0108] P4/D3 — lấy flashcard quiz (MCQ chọn nghĩa toàn bộ từ/Kanji sai, không lộ đáp án). */
+    @GetMapping("/paths/flashcard-quiz")
+    public ResponseEntity<ApiResponse<LessonQuizResponse>> getFlashcardQuiz(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", learningService.getFlashcardQuiz(user.userId())));
+    }
+
+    /** [JLAS-W0108] P4/D3 — chấm flashcard quiz; đúng hết ghi assessment PASSED trên item từ/Kanji. */
+    @PostMapping("/paths/flashcard-quiz/submit")
+    public ResponseEntity<ApiResponse<LessonQuizResult>> submitFlashcardQuiz(
+            @Valid @RequestBody LessonQuizSubmitRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", learningService.submitFlashcardQuiz(user.userId(), request)));
     }
 
     /** [JLAS-W0122] Xem trước replan (không ghi) — mode REMEDIATE (mặc định) hoặc ACCELERATE. */

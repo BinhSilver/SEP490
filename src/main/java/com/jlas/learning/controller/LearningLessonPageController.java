@@ -21,10 +21,12 @@ public class LearningLessonPageController {
     private final LessonRepository lessons;
 
     @GetMapping("/learning/lesson/{lessonId}")
-    public String lesson(@PathVariable Long lessonId, Model model) {
+    public String lesson(@PathVariable Long lessonId,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long item, Model model) {
         Lesson lesson = lessons.findWithUnitById(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found."));
         model.addAttribute("lessonId", lessonId);
+        model.addAttribute("itemId", item);
         model.addAttribute("textbookId", lesson.getUnit().getTextbook().getId());
         return "learning/path-lesson";
     }

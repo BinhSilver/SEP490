@@ -1543,6 +1543,10 @@ CREATE TABLE user_learning_path (
     -- [JLAS-W0108] Cache id bo flashcard warm-up gop Kanji+Tu vung sai Smart Test; NULL = chua sinh.
     -- Soft-link toi flashcard_set (khong FK, giu learning decoupled khoi flashcard).
     warm_up_flashcard_set_id BIGINT UNSIGNED NULL,
+    -- [JLAS-W0108] P2d — fingerprint membership bo flashcard (identity expression+reading da khu trung,
+    -- sap thu tu). Khac fingerprint hien tai => regenerate bo khi replan them muc yeu moi (muc moi chua
+    -- nho, giu tien do the cu). TEXT vi membership co the dai (nhieu tu yeu).
+    warm_up_flashcard_version TEXT NULL,
     -- [JLAS-W0108] Kế hoạch lộ trình cá nhân hoá do Gemini sinh (JSON: overview + phases[]);
     -- NULL = chưa sinh (Gemini lỗi/rate-limit), UI vẫn chạy bình thường không cần narrative.
     ai_plan_json TEXT NULL,
@@ -1571,11 +1575,16 @@ CREATE TABLE user_learning_path (
 CREATE TABLE user_learning_path_item (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
-    lesson_id        BIGINT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
+    -- vocabulary_entry / reading-listening content_item) mà không cần một lesson_id giả.
+    lesson_id        BIGINT UNSIGNED NULL,
     -- [JLAS-W0108] Item warm-up trỏ tới đúng kiến thức đã sai (nullable; NULL = cả bài).
     grammar_point_id  BIGINT UNSIGNED NULL,       -- Warm-up GRAMMAR: mẫu ngữ pháp đã sai.
     vocabulary_entry_id BIGINT UNSIGNED NULL,     -- Warm-up KANJI/VOCAB: từ vựng đã sai.
     order_index      INT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] P6 — chặng mà activity thuộc về (soft-link id của user_learning_stage);
+    -- NULL cho item cũ (path một cấp trước P6) để giữ tương thích không phá lịch sử.
+    stage_id         BIGINT UNSIGNED NULL,
     reason           TEXT NULL,
     -- [JLAS-W0108] Item hai pha (WARM_UP → GOAL_LEARNING): phase + reason_code + day_number
     -- sắp lịch lộ trình; kind để NULL cho item hai pha, giữ tương thích item cũ.
@@ -1585,6 +1594,11 @@ CREATE TABLE user_learning_path_item (
     day_number       INT UNSIGNED NULL,
     estimated_minutes INT UNSIGNED NULL,
     matched_tag_codes TEXT NULL,                 -- JSON array of matched knowledge tag codes.
+    -- [JLAS-W0108] P2 — tiến độ độc lập theo activity (không theo source lesson):
+    -- study = nội dung (NOT_STARTED → IN_PROGRESS → STUDIED);
+    -- assessment = đánh giá (NOT_READY/READY → ISSUED → SUBMITTED → PASSED/NEEDS_REVIEW).
+    study_status      VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED',
+    assessment_status VARCHAR(20) NOT NULL DEFAULT 'NOT_READY',
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_path_item_order (learning_path_id, order_index),
     KEY idx_learning_path_item_lesson (lesson_id),
@@ -1598,7 +1612,39 @@ CREATE TABLE user_learning_path_item (
         REFERENCES grammar_point(id) ON DELETE SET NULL,
     CONSTRAINT fk_learning_path_item_vocab FOREIGN KEY (vocabulary_entry_id)
         REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
-    CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW'))
+    CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW')),
+    CONSTRAINT chk_learning_path_item_study_status
+        CHECK (study_status IN ('NOT_STARTED','IN_PROGRESS','STUDIED')),
+    CONSTRAINT chk_learning_path_item_assessment_status
+        CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW'))
+    -- [JLAS-W0108] P2c — KHÔNG đặt CHECK "ít nhất một tham chiếu hợp lệ" (lesson/grammar/vocab) ở đây:
+    -- MySQL 8.0.16+ cấm cột trong CHECK đồng thời nằm trong FK có referential action
+    -- (grammar_point_id / vocabulary_entry_id dùng ON DELETE SET NULL) → lỗi 3823.
+    -- Ràng buộc này do tầng ứng dụng đảm bảo (LearningServiceImpl chọn đúng anchor).
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] P6 — một chặng (stage) trong lộ trình JLPT nhiều cấp (D5). Mỗi chặng gắn đúng một
+-- cấp mục tiêu, xếp tuần tự theo stage_index; curriculum_version/assessment_cycle riêng từng chặng.
+-- Path một cấp (N5→N4) vẫn có đúng một chặng để giữ cùng contract với path nhiều cấp (N5→N3 = N4 rồi N3).
+CREATE TABLE user_learning_stage (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id  BIGINT UNSIGNED NOT NULL,
+    level             VARCHAR(10) NOT NULL,       -- Cấp mục tiêu của chặng (N5/N4/N3/N2/N1).
+    stage_index       INT UNSIGNED NOT NULL,      -- Thứ tự chặng, bắt đầu từ 0.
+    curriculum_version VARCHAR(100) NULL,         -- Fingerprint bộ sách đã duyệt; P8 ghim manifest thật.
+    assessment_cycle  VARCHAR(50) NULL,           -- Đợt đánh giá cuối chặng; 1 = đợt đầu, tăng khi retest.
+    status            VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_stage_order (learning_path_id, stage_index),
+    KEY idx_learning_stage_path (learning_path_id),
+    CONSTRAINT fk_learning_stage_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_stage_level
+        CHECK (level IN ('N5','N4','N3','N2','N1')),
+    CONSTRAINT chk_learning_stage_status CHECK (status IN ('PENDING','ACTIVE','COMPLETED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] Câu hỏi quiz do Gemini sinh để BÙ phần ngân hàng câu thiếu, scoped theo learning path.
@@ -1731,9 +1777,10 @@ CREATE TABLE quiz_attempt (
 CREATE TABLE learning_quiz_session (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id          BIGINT UNSIGNED NOT NULL,
-    quiz_type        VARCHAR(20) NOT NULL COMMENT 'GATE/LESSON',
-    lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE',
-    path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON',
+    quiz_type        VARCHAR(20) NOT NULL COMMENT 'GATE/LESSON/GRAMMAR/FLASHCARD',
+    lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE/GRAMMAR/FLASHCARD',
+    path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON/GRAMMAR',
+    activity_id      BIGINT UNSIGNED NULL COMMENT '[JLAS-W0108] grammarPointId cho GRAMMAR quiz; null cho loai khac',
     path_version     INT NULL COMMENT 'snapshot version cua lo trinh khi phat GATE quiz',
     status           VARCHAR(20) NOT NULL DEFAULT 'ISSUED' COMMENT 'ISSUED/SUBMITTED',
     questions_json   TEXT NOT NULL COMMENT 'JSON mang cau hoi da phat (khong chua dap an)',
@@ -1749,7 +1796,7 @@ CREATE TABLE learning_quiz_session (
     KEY idx_quiz_session_user (user_id, quiz_type, lesson_id, status),
     CONSTRAINT fk_quiz_session_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON')),
+    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

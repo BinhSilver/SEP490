@@ -341,6 +341,24 @@ public class LearningServiceImpl implements LearningService {
         }
     }
 
+    /** [JLAS-W0108][MP06] Bắt đầu/mở lại một activity. Không đè lên STUDIED — start chỉ có ý nghĩa
+     * khi item còn NOT_STARTED; gọi lại khi đang IN_PROGRESS hoặc đã STUDIED là no-op (idempotent,
+     * an toàn khi tải lại trang hoặc mở hai tab). */
+    @Override
+    @Transactional
+    public void startItem(Long userId, Long itemId) {
+        requirePositiveUserId(userId);
+        if (itemId == null || itemId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "An activity is required.");
+        }
+        UserLearningPathItem item = items.findByIdAndUserId(itemId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Activity not found."));
+        if ("NOT_STARTED".equals(item.getStudyStatus())) {
+            item.setStudyStatus("IN_PROGRESS");
+            items.save(item);
+        }
+    }
+
     /**
      * [JLAS-W0108] P4 — đạt lesson quiz thì ghi {@code assessmentStatus = PASSED} trên item thuộc bài
      * nguồn. Tách bạch với {@code completeLesson}/{@code completeItem} (study side): quiz không đánh dấu

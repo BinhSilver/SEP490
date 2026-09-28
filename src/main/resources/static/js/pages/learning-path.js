@@ -146,8 +146,12 @@
     var totalLessons = number(data.totalLessons);
     var completedLessons = Math.min(number(data.completedLessons), totalLessons || number(data.completedLessons));
     var activeDay = activeIndex >= 0 ? days[activeIndex] : null;
+    // [JLAS-W0108][MP06] "Tiếp tục học" trỏ vào activity đã mở dở (started=true) trước, thay vì
+    // đoán theo thứ tự — chỉ fallback về đoán thứ tự khi chưa item nào được mở.
     var currentLesson = activeDay
-      ? activeDay.items.find(function (item) { return item.completed !== true; }) || activeDay.items[0]
+      ? activeDay.items.find(function (item) { return item.started === true && item.completed !== true; })
+        || activeDay.items.find(function (item) { return item.completed !== true; })
+        || activeDay.items[0]
       : null;
 
     // [JLAS-W0108] Group goal-learning lessons by their primary knowledge point so the path reads
@@ -343,18 +347,26 @@
   function lessonHref(item) {
     if (item.vocabularyEntryId) return '/learning/warm-up/flashcard';
     if (item.grammarPointId) return '/learning/grammar/' + encodeURIComponent(item.grammarPointId);
-    return '/learning/lesson/' + encodeURIComponent(item.lessonId);
+    // [JLAS-W0108] P2 — kèm itemId để nút "Hoàn thành bài" ghi tiến độ theo activity, không theo source lesson.
+    return '/learning/lesson/' + encodeURIComponent(item.lessonId) +
+      (item.itemId ? '?item=' + encodeURIComponent(item.itemId) : '');
   }
 
   function actionForLesson(item, dayStatus) {
     if (dayStatus === 'LOCKED') return '<span class="lp-lesson__lock">' + icon('lock') + '<span>Khóa</span></span>';
-    var isVocabularyItem = !!item.vocabularyEntryId;
     var href = lessonHref(item);
     var open = '<a class="lp-lesson__action" href="' + href + '">' +
       (item.completed ? 'Ôn lại' : 'Bắt đầu') + '</a>';
-    if (item.completed || isVocabularyItem) return open;
-    return open + '<a class="lp-lesson__action lp-lesson__action--quiz" href="/learning/lesson/' +
-      encodeURIComponent(item.lessonId) + '/quiz">' + icon('quiz') + '<span>Kiểm tra</span></a>';
+    if (item.completed) return open;
+    // [JLAS-W0108] P4 — quiz riêng theo loại: ngữ pháp -> grammar quiz, từ/Kanji -> flashcard quiz,
+    // đọc/nghe + target -> lesson quiz. Grammar item không có lessonId nên không dùng lesson quiz.
+    var quizHref = item.grammarPointId
+      ? '/learning/grammar/' + encodeURIComponent(item.grammarPointId) + '/quiz'
+      : (item.vocabularyEntryId
+        ? '/learning/path/flashcard-quiz'
+        : '/learning/lesson/' + encodeURIComponent(item.lessonId) + '/quiz');
+    return open + '<a class="lp-lesson__action lp-lesson__action--quiz" href="' + quizHref + '">' +
+      icon('quiz') + '<span>Kiểm tra</span></a>';
   }
 
   function renderLesson(item, dayStatus) {

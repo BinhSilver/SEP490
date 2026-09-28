@@ -104,6 +104,59 @@ class LearningPathItemProgressTest {
     }
 
     @Test
+    void startingAnItemMarksItInProgressAndExposedAsStarted() {
+        var fixture = seedSharedLessonPath();
+
+        service.startItem(fixture.user.getId(), fixture.itemB.getId());
+
+        var updated = em.find(UserLearningPathItem.class, fixture.itemB.getId());
+        assertEquals("IN_PROGRESS", updated.getStudyStatus());
+        var response = service.current(fixture.user.getId());
+        var items = response.phases().get(0).items();
+        var b = items.stream().filter(item -> item.itemId().equals(fixture.itemB.getId())).findFirst().orElseThrow();
+        var a = items.stream().filter(item -> item.itemId().equals(fixture.itemA.getId())).findFirst().orElseThrow();
+        assertTrue(b.started(), "Item đã start phải báo started=true");
+        assertFalse(b.completed(), "Start không được đánh dấu hoàn thành");
+        assertFalse(a.started(), "Item chưa động tới vẫn phải là started=false");
+    }
+
+    @Test
+    void startingAnItemIsIdempotentAndNeverDowngradesFromStudied() {
+        var fixture = seedSharedLessonPath();
+
+        service.completeItem(fixture.user.getId(), fixture.itemB.getId());
+        service.startItem(fixture.user.getId(), fixture.itemB.getId());
+
+        var updated = em.find(UserLearningPathItem.class, fixture.itemB.getId());
+        assertEquals("STUDIED", updated.getStudyStatus(),
+                "Gọi start sau khi đã STUDIED không được lùi trạng thái về IN_PROGRESS");
+    }
+
+    @Test
+    void reloadingAnInProgressItemDoesNotResetOrDuplicateProgress() {
+        var fixture = seedSharedLessonPath();
+
+        service.startItem(fixture.user.getId(), fixture.itemB.getId());
+        service.startItem(fixture.user.getId(), fixture.itemB.getId()); // giả lập tải lại trang
+
+        var updated = em.find(UserLearningPathItem.class, fixture.itemB.getId());
+        assertEquals("IN_PROGRESS", updated.getStudyStatus());
+        assertEquals(0, service.current(fixture.user.getId()).completedLessons());
+    }
+
+    @Test
+    void cannotStartAnotherUsersItem() {
+        var fixture = seedSharedLessonPath();
+        var other = seedUser();
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.startItem(other.getId(), fixture.itemB.getId()));
+
+        assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode(),
+                "Item của người khác phải trả NOT_FOUND (không lộ tồn tại)");
+    }
+
+    @Test
     void completingItemIsIdempotent() {
         var fixture = seedSharedLessonPath();
 
