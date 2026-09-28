@@ -43,27 +43,46 @@ public class WeaknessNotebook {
                 .collect(Collectors.toMap(Key::of, Function.identity(), (first, second) -> first));
         Map<Key, UserKnowledgeWeakness> staged = new HashMap<>(existing);
         for (WeaknessEvidence evidence : weak) {
-            Key key = Key.of(evidence);
-            UserKnowledgeWeakness row = staged.get(key);
-            if (row == null) {
-                row = UserKnowledgeWeakness.builder()
-                        .user(user)
-                        .tag(ref(Tag.class, evidence.tagId()))
-                        .canonicalItem(evidence.canonicalId())
-                        .skill(evidence.skill())
-                        .jlptLevel(evidence.jlptLevel())
-                        .topicTag(ref(Tag.class, evidence.topicTagId()))
-                        .outcome(ref(Outcome.class, evidence.outcomeId()))
-                        .status("OPEN")
-                        .build();
-                staged.put(key, row);
+            for (WeaknessEvidence perOutcome : expand(evidence)) {
+                Key key = Key.of(perOutcome);
+                UserKnowledgeWeakness row = staged.get(key);
+                if (row == null) {
+                    row = UserKnowledgeWeakness.builder()
+                            .user(user)
+                            .tag(ref(Tag.class, perOutcome.tagId()))
+                            .canonicalItem(perOutcome.canonicalId())
+                            .skill(perOutcome.skill())
+                            .jlptLevel(perOutcome.jlptLevel())
+                            .topicTag(ref(Tag.class, perOutcome.topicTagId()))
+                            .outcome(ref(Outcome.class, perOutcome.outcomeId()))
+                            .status("OPEN")
+                            .build();
+                    staged.put(key, row);
+                }
+                row.setWrongCount(perOutcome.wrongCount());
+                row.setScorePercent(accuracy(perOutcome));
+                row.setSeverity("WEAK");
+                row.setSource(source);
+                weaknesses.save(row);
             }
-            row.setWrongCount(evidence.wrongCount());
-            row.setScorePercent(accuracy(evidence));
-            row.setSeverity("WEAK");
-            row.setSource(source);
-            weaknesses.save(row);
         }
+    }
+
+    /** [JLAS-W0108][MP01 follow-up] Evidence đọc/nghe có {@code outcomeBreakdown} tách thành một
+     * "evidence" riêng mỗi outcome (assessed/wrong của đúng outcome đó) để mỗi outcome có một dòng
+     * notebook riêng — không còn chỉ ghi outcome dominant. Evidence không có breakdown (grammar/kanji/
+     * vocab) giữ nguyên, không đổi. */
+    private static List<WeaknessEvidence> expand(WeaknessEvidence evidence) {
+        if (evidence.outcomeBreakdown().isEmpty()) {
+            return List.of(evidence);
+        }
+        return evidence.outcomeBreakdown().stream()
+                .map(outcome -> new WeaknessEvidence(evidence.skill(), evidence.canonicalId(),
+                        outcome.assessedCount(), outcome.wrongCount(),
+                        evidence.tagCode(), evidence.tagId(),
+                        evidence.topicTagCode(), evidence.topicTagId(),
+                        evidence.jlptLevel(), evidence.vocabularyEntryId(), List.of(outcome)))
+                .toList();
     }
 
     /** Độ chính xác (%) 2 chữ số thập phân; null khi không có mẫu đánh giá. */
