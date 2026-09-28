@@ -5,6 +5,8 @@ import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import jakarta.persistence.*;
 import lombok.*;
+import com.jlas.learning.enums.LearningActivityState;
+import com.jlas.learning.enums.LearningActivityType;
 
 /**
  * Lesson trong learning path; cho phép cùng lesson xuất hiện lại để review.
@@ -27,6 +29,19 @@ public class UserLearningPathItem {
     @JoinColumn(name = "learning_path_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_learning_path_item_path"))
     private UserLearningPath learningPath;
+
+    /** [JLAS-W0193] Null for legacy rows; V2 activities belong to exactly one package. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "package_id", foreignKey = @ForeignKey(name = "fk_learning_path_item_package"))
+    private LearningPathPackage learningPackage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_type", length = 20)
+    private LearningActivityType activityType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_state", length = 20)
+    private LearningActivityState activityState;
 
     /** [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
      * vocabulary_entry / reading-listening content_item) mà không bắt buộc một lesson_id giả. */

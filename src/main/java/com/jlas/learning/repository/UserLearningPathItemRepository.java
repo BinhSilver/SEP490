@@ -2,6 +2,7 @@ package com.jlas.learning.repository;
 
 import com.jlas.learning.entity.UserLearningPathItem;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,15 @@ import org.springframework.stereotype.Repository;
 /** Repository cho {@link UserLearningPathItem}. */
 @Repository
 public interface UserLearningPathItemRepository extends JpaRepository<UserLearningPathItem, Long> {
+    List<UserLearningPathItem> findByLearningPackageIdOrderByOrderIndex(Long packageId);
+
+    @Query("""
+            select item from UserLearningPathItem item
+            where item.id = :itemId and item.learningPackage.id = :packageId
+              and item.learningPath.user.id = :userId
+            """)
+    Optional<UserLearningPathItem> findOwnedPackageActivity(@Param("itemId") Long itemId,
+            @Param("packageId") Long packageId, @Param("userId") Long userId);
     List<UserLearningPathItem> findByLearningPathIdOrderByOrderIndex(Long learningPathId);
 
     /** [JLAS-W0108] Item của một chặng cụ thể trong path (để kiểm eligibility bài final). */

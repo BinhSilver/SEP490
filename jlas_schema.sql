@@ -1525,6 +1525,8 @@ GROUP BY s.attempt_id;
 -- Lo trinh hoc dai han co version cua user.
 CREATE TABLE user_learning_path (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    -- [JLAS-W0193] Explicit compatibility boundary for legacy and interactive paths.
+    experience_version VARCHAR(30) NOT NULL DEFAULT 'LEGACY_V1',
     user_id      BIGINT UNSIGNED NOT NULL,
     title        VARCHAR(255) NOT NULL,
     goal         VARCHAR(20) NULL,
@@ -1570,14 +1572,46 @@ CREATE TABLE user_learning_path (
     CONSTRAINT chk_learning_path_goal
         CHECK (goal IS NULL OR goal IN ('JLPT','TRAVEL','BA','FROM_ZERO')),
     CONSTRAINT chk_learning_path_status CHECK (status IN ('ACTIVE','SUPERSEDED','COMPLETED')),
+    CONSTRAINT chk_learning_path_experience
+        CHECK (experience_version IN ('LEGACY_V1','INTERACTIVE_V2')),
     CONSTRAINT chk_learning_path_target
         CHECK (target_level IS NULL OR target_level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] A resumable day package owned by one interactive path.
+CREATE TABLE learning_path_package (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id BIGINT UNSIGNED NOT NULL,
+    stage_id BIGINT UNSIGNED NULL,
+    phase VARCHAR(20) NOT NULL,
+    day_number INT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'LOCKED',
+    estimated_minutes INT UNSIGNED NOT NULL,
+    started_at DATETIME(6) NULL,
+    completed_at DATETIME(6) NULL,
+    row_version BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_package_path_day (learning_path_id, day_number),
+    UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
+    KEY idx_learning_package_status (learning_path_id, status, order_index),
+    CONSTRAINT fk_learning_package_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_package_phase CHECK (phase IN ('WARM_UP','GOAL_LEARNING')),
+    CONSTRAINT chk_learning_package_status CHECK (status IN ('LOCKED','AVAILABLE','IN_PROGRESS','COMPLETED')),
+    CONSTRAINT chk_learning_package_minutes CHECK (estimated_minutes > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lesson trong learning path; cho phep cung lesson xuat hien lai de review.
 CREATE TABLE user_learning_path_item (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
+    package_id BIGINT UNSIGNED NULL,
+    activity_type VARCHAR(20) NULL,
+    activity_state VARCHAR(20) NULL,
     -- [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
     -- vocabulary_entry / reading-listening content_item) mà không cần một lesson_id giả.
     lesson_id        BIGINT UNSIGNED NULL,
@@ -1607,6 +1641,8 @@ CREATE TABLE user_learning_path_item (
     KEY idx_learning_path_item_lesson (lesson_id),
     KEY idx_learning_path_item_grammar (grammar_point_id),
     KEY idx_learning_path_item_vocab (vocabulary_entry_id),
+    UNIQUE KEY uk_learning_path_item_package_type (package_id, activity_type),
+    KEY idx_learning_path_item_package_order (package_id, order_index),
     CONSTRAINT fk_learning_path_item_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_path_item_lesson FOREIGN KEY (lesson_id)
@@ -1615,11 +1651,17 @@ CREATE TABLE user_learning_path_item (
         REFERENCES grammar_point(id) ON DELETE SET NULL,
     CONSTRAINT fk_learning_path_item_vocab FOREIGN KEY (vocabulary_entry_id)
         REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
+    CONSTRAINT fk_learning_path_item_package FOREIGN KEY (package_id)
+        REFERENCES learning_path_package(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW')),
     CONSTRAINT chk_learning_path_item_study_status
         CHECK (study_status IN ('NOT_STARTED','IN_PROGRESS','STUDIED')),
     CONSTRAINT chk_learning_path_item_assessment_status
-        CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW'))
+        CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW')),
+    CONSTRAINT chk_learning_path_item_activity_type CHECK
+        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE')),
+    CONSTRAINT chk_learning_path_item_activity_state CHECK
+        (activity_state IS NULL OR activity_state IN ('LOCKED','STUDYING','CHECK_READY','PASSED','COOLDOWN','COMPLETED'))
     -- [JLAS-W0108] P2c — KHÔNG đặt CHECK "ít nhất một tham chiếu hợp lệ" (lesson/grammar/vocab) ở đây:
     -- MySQL 8.0.16+ cấm cột trong CHECK đồng thời nằm trong FK có referential action
     -- (grammar_point_id / vocabulary_entry_id dùng ON DELETE SET NULL) → lỗi 3823.
