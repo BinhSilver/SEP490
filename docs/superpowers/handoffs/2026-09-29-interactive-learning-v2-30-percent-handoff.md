@@ -42,7 +42,30 @@ hoặc env `LEARNING_INTERACTIVE_V2_ENABLED`. Mặc định phải giữ `false`
 
 Migration mới: `sql/migrations/011_interactive_package_membership.sql`. `source_lesson_id` và `content_revision` tạm nullable để DB đã có package V2 cũ nâng cấp an toàn; service chặn package thiếu snapshot. Chỉ siết `NOT NULL` sau khi audit/backfill dữ liệu thật.
 
-## Làm tiếp Task 4 — Vocabulary study và micro-check
+## Phạm vi bàn giao — hoàn thành toàn bộ Task 4 đến Task 10
+
+Mục tiêu của lần tiếp nhận này là hoàn thành toàn bộ phần còn lại của
+`docs/superpowers/plans/2026-09-28-interactive-learning-path-v2-implementation.md`, từ Task 4 đến Task 10 và đưa
+Learning Path V2 từ mốc 30% lên 100%. Task 4 là lát triển khai đầu tiên, không phải điểm dừng của phạm vi bàn giao.
+
+Thực hiện tuần tự Task 4 → 5 → 6 → 7 → 8 → 9 → 10 vì các task sau phụ thuộc state, evidence và scoring contract
+của task trước. Sau mỗi task:
+
+1. Chạy focused tests của lát vừa làm và toàn bộ regression commands trong plan.
+2. Tự review ownership/IDOR, tính bất biến của snapshot, idempotency, transaction/concurrency, schema compatibility,
+   UI responsive/accessibility và ảnh hưởng tới legacy.
+3. Cập nhật checklist, phần trăm và bằng chứng kiểm thử trong plan; cập nhật
+   `docs/rules-and-business-logic.md` nếu có business rule đã triển khai.
+4. Commit riêng bằng Conventional Commit có `[JLAS-W0193]` trong nội dung thay đổi/schema theo rule dự án.
+5. Nếu exit criteria đạt và không có blocker thật, tự chuyển sang task kế tiếp, không dừng để xin xác nhận chỉ vì vừa
+   hoàn thành một mốc phần trăm.
+
+Chỉ dừng và báo người dùng khi gặp một trong các blocker không thể giải quyết an toàn từ repository: thiếu quyết định
+nghiệp vụ làm thay đổi kết quả người học, thiếu contract do team khác sở hữu, migration không thể triển khai tương thích,
+hoặc dữ liệu thật không đạt readiness và không có nguồn canonical hợp lệ. Khi báo blocker, nêu bằng chứng, phần độc lập
+đã hoàn thành và phương án hẹp nhất để tiếp tục. Không tự bịa dữ liệu, API, đáp án hoặc contract để vượt blocker.
+
+## Task 4 — Vocabulary study và micro-check
 
 Triển khai đúng plan/spec, không mở rộng sang Kanji/Grammar/Dialogue:
 
@@ -78,4 +101,22 @@ Personalized path: 8/8 pass
 Task 3 commit: 14f827d
 ```
 
-Khi xong Task 4, báo contract/API/schema, cách chống IDOR và gian lận, test count, commit, giới hạn còn lại. Task 4 chỉ đưa plan lên 40%; không tuyên bố toàn bộ luồng đã hoàn thành.
+## Sau Task 4
+
+Tiếp tục triển khai Task 5–10 đúng thứ tự và đầy đủ acceptance criteria trong plan:
+
+- Task 5: Kanji study và micro-check dùng lại engine nhưng giữ evidence/membership riêng.
+- Task 6: Grammar interaction và micro-check theo từng grammar point, không sinh câu hỏi runtime bằng AI.
+- Task 7: trang Dialogue riêng của Learning Path với 180 giây active-visible và bottom evidence.
+- Task 8: package completion, điểm ba kỹ năng và popup ba hành động.
+- Task 9: Warm-up B cá nhân hóa từ weakness evidence, gồm quota Reading/Listening đã duyệt.
+- Task 10: summary, chứng nhận J-LAS, liên kết Mock Test qua owner contract và release hardening.
+
+Không gom nhiều task vào một commit lớn. Với mỗi task, báo ngắn contract/API/schema, chống IDOR và gian lận, số test,
+commit và giới hạn còn lại trong progress ledger/handoff; sau đó tiếp tục. Chỉ tuyên bố toàn bộ luồng hoàn thành khi mọi
+checkbox Task 4–10, full regression, release hardening và tiêu chí 100% trong plan đều có bằng chứng đạt.
+
+Khi hoàn tất Task 10, tạo handoff cuối ghi rõ commit range, migration order, feature-flag rollout/rollback, audit dữ liệu
+thật còn cần chạy, kết quả desktop/mobile/accessibility và các contract phụ thuộc team khác. Không bật
+`learning.interactive-v2.enabled=true` mặc định nếu release gate hoặc dữ liệu thật chưa đạt; ghi rõ điều kiện bật thay vì
+che giấu trạng thái chưa sẵn sàng.
