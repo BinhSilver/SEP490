@@ -26,6 +26,7 @@ import com.jlas.learning.service.impl.JpaLearningCatalogSource;
 import com.jlas.learning.service.impl.LearningResourceSelectionServiceImpl;
 import com.jlas.learning.service.impl.LearningScheduleServiceImpl;
 import com.jlas.learning.service.impl.LearningServiceImpl;
+import com.jlas.learning.service.impl.LearningClock;
 import com.jlas.learning.service.impl.WeakTagPolicy;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -56,7 +57,7 @@ class LearningPathApiTest {
     @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository",
             "com.jlas.dictionary.repository", "com.jlas.assessment.repository"})
     @Import({JpaLearningCatalogSource.class, WeakTagPolicy.class, LearningResourceSelectionServiceImpl.class,
-            LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class})
+            LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class, LearningClock.class})
     static class ApiTestConfiguration {
         @Bean FakeProfileSource profileSource() {
             return new FakeProfileSource();
@@ -217,8 +218,10 @@ class LearningPathApiTest {
                         "select count(p) from LessonProgress p where p.user.id = :uid and p.status = 'COMPLETED'")
                 .setParameter("uid", fixture.user.getId()).getSingleResult());
 
+        // [JLAS-W0108] P2 — lesson_progress vẫn được giữ qua các version, nhưng item completion
+        // không còn suy từ lesson_progress: item mới khởi tạo NOT_STARTED (độc lập source lesson).
         var active = service.current(fixture.user.getId());
-        assertTrue(active.phases().get(0).items().get(0).completed());
+        assertFalse(active.phases().get(0).items().get(0).completed());
     }
 
     private Fixture seedFixture() {

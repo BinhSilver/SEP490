@@ -20,6 +20,7 @@ import com.jlas.learning.repository.LessonProgressRepository;
 import com.jlas.learning.repository.QuizAttemptRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
+import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.LearningProfileSource;
 import com.jlas.learning.service.LearningResourceSelectionService;
 import com.jlas.learning.service.LearningScheduleService;
@@ -70,6 +71,7 @@ class LearningSourceAvailabilityTest {
         return new LearningServiceImpl(users,
                 mock(UserLearningPathRepository.class),
                 mock(UserLearningPathItemRepository.class),
+                mock(UserLearningStageRepository.class),
                 mock(LessonProgressRepository.class),
                 mock(LessonRepository.class),
                 mock(AssessmentQuestionRepository.class),
@@ -80,6 +82,6 @@ class LearningSourceAvailabilityTest {
                 mock(LearningScheduleService.class),
                 mock(LearningMapper.class),
                 profiles, scopes, new StaticListableBeanFactory().getBeanProvider(WeaknessNotebook.class),
-                mock(EntityManager.class));
+                new com.jlas.learning.service.impl.LearningClock(), mock(EntityManager.class));
     }
 }

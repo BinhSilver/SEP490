@@ -17,22 +17,22 @@ import com.jlas.mission.repository.UserStreaksRepository;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import com.jlas.moderation.credit.service.UserCreditService;
 import com.jlas.learning.ai.LearningPathPlanGenerator;
-import com.jlas.learning.ai.LearningQuizGenerator;
 import com.jlas.learning.dto.CreateLearningPathResult;
 import com.jlas.learning.dto.LearningCatalogScope;
 import com.jlas.learning.dto.LearningPathResponse;
 import com.jlas.learning.dto.LearningProfileSnapshot;
 import com.jlas.learning.dto.LearningSelectionResult;
+import com.jlas.learning.dto.LearningStageScope;
 import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
 import com.jlas.learning.dto.LessonQuizSubmitRequest;
 import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.dto.ScheduledLearningResource;
 import com.jlas.learning.dto.WeaknessEvidence;
-import com.jlas.learning.entity.LearningGeneratedQuestion;
 import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.entity.LessonProgress;
 import com.jlas.learning.entity.QuizAttempt;
 import com.jlas.learning.enums.LearningPhase;
@@ -42,18 +42,19 @@ import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.QuizAttemptRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
+import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.LearningProfileSource;
 import com.jlas.learning.service.LearningResourceSelectionService;
 import com.jlas.learning.service.LearningScheduleService;
 import com.jlas.learning.service.LearningScopeSource;
 import com.jlas.learning.service.LearningService;
+import com.jlas.learning.service.WarmUpFlashcardService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -76,25 +77,20 @@ public class LearningServiceImpl implements LearningService {
     private UserStreaksRepository streakRepository;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private UserCreditService creditService;
-    // [JLAS-W0108] Tầng AI Gemini + repo câu quiz sinh. Optional để slice test (DataJpaTest)
-    // không cần dựng bean @Component; lúc đó gate quiz/route vẫn chạy fallback không-Gemini.
+    // [JLAS-W0108] Tầng AI Gemini (narrative only). Optional để slice test (DataJpaTest) không cần dựng
+    // bean @Component; lúc đó lộ trình vẫn chạy bình thường.
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private LearningPathPlanGenerator planGenerator;
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private LearningQuizGenerator quizGenerator;
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private com.jlas.learning.repository.LearningGeneratedQuestionRepository generatedQuestions;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.jlas.dictionary.repository.GrammarPointRepository grammarPoints;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.jlas.dictionary.repository.ContentVocabularyRepository contentVocabularies;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.jlas.dictionary.repository.VocabularyEntryRepository vocabularyEntries;
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private com.jlas.dictionary.repository.TagRepository tags;
     private final UserRepository users;
     private final UserLearningPathRepository paths;
     private final UserLearningPathItemRepository items;
+    private final UserLearningStageRepository stageRepository;
     private final LessonProgressRepository progress;
     private final LessonRepository lessons;
     private final AssessmentQuestionRepository questionRepository;
@@ -107,6 +103,7 @@ public class LearningServiceImpl implements LearningService {
     private final ObjectProvider<LearningProfileSource> profileSources;
     private final ObjectProvider<LearningScopeSource> scopeSources;
     private final ObjectProvider<WeaknessNotebook> notebook;
+    private final LearningClock clock;
     private final EntityManager em;
 
     /** [JLAS-W0113] Số câu tối đa cho một lesson quiz. */
@@ -115,8 +112,12 @@ public class LearningServiceImpl implements LearningService {
     private static final int KANA_MCQ_SIZE = 5;
     /** [JLAS-W0108] Số ký tự mỗi màn hình nối cặp (2 cột). */
     private static final int KANA_BATCH_SIZE = 5;
-    /** [JLAS-W0113] Ngưỡng đạt quiz (%). */
-    private static final int LESSON_QUIZ_PASS_PERCENT = 60;
+    /** [JLAS-W0108] P4/D2 — Ngưỡng đạt tổng của lesson quiz (%). */
+    private static final int LESSON_QUIZ_PASS_PERCENT = 80;
+    /** [JLAS-W0108] P4/D2 — Ngưỡng đạt của từng nhóm mục tiêu bắt buộc trong lesson quiz (%). */
+    private static final int LESSON_QUIZ_GROUP_PASS_PERCENT = 70;
+    /** [JLAS-W0108] Ngưỡng đạt gate quiz tổng kết warm-up (%). Gate thuộc P5, giữ nguyên 60. */
+    private static final int GATE_QUIZ_PASS_PERCENT = 60;
     /** [JLAS-W0113] Số câu tối đa cho gate quiz tổng kết warm-up. */
     private static final int GATE_QUIZ_SIZE = 10;
     /** [JLAS-W0108] Số câu đọc / nghe tối đa đưa vào gate quiz khi warm-up có bài đọc/nghe. */
@@ -126,6 +127,14 @@ public class LearningServiceImpl implements LearningService {
     /** [JLAS-W0108] Loại quiz dùng cho bảng đếm lượt. */
     private static final String QUIZ_TYPE_GATE = "GATE";
     private static final String QUIZ_TYPE_LESSON = "LESSON";
+    private static final String QUIZ_TYPE_GRAMMAR = "GRAMMAR";
+    private static final String QUIZ_TYPE_FLASHCARD = "FLASHCARD";
+    /** [JLAS-W0108] Số câu tối đa cho warm-up grammar quiz (retest đúng mẫu ngữ pháp đã sai). */
+    private static final int GRAMMAR_QUIZ_SIZE = 5;
+    /** [JLAS-W0108] P4 — ngưỡng đạt warm-up grammar quiz: đúng 4/5 (80%). */
+    private static final int GRAMMAR_QUIZ_PASS_PERCENT = 80;
+    /** [JLAS-W0108] P4/D3 — flashcard quiz phải đúng hết membership mới đạt (sai → ôn lại đến đúng). */
+    private static final int FLASHCARD_QUIZ_PASS_PERCENT = 100;
     /** [JLAS-W0108] Trạng thái session đề thi: đã phát (chưa nộp) / đã nộp. */
     private static final String QUIZ_STATUS_ISSUED = "ISSUED";
     private static final String QUIZ_STATUS_SUBMITTED = "SUBMITTED";
@@ -231,6 +240,14 @@ public class LearningServiceImpl implements LearningService {
                 .build();
         paths.save(path);
 
+        // [JLAS-W0108] P6/D5 — tạo các chặng nối tiếp (mỗi chặng một cấp mục tiêu); chặng đầu ACTIVE.
+        // Path một cấp vẫn có đúng một chặng để giữ cùng contract với path nhiều cấp. Scope cũ (adapter/
+        // test) không phân chặng thì stageByLevel rỗng -> item giữ stage_id null (tương thích ngược).
+        List<UserLearningStage> createdStages = createStages(path, scope.stages());
+        Map<String, UserLearningStage> stageByLevel = createdStages.stream()
+                .collect(Collectors.toMap(UserLearningStage::getLevel, stage -> stage));
+        UserLearningStage firstStage = createdStages.isEmpty() ? null : createdStages.get(0);
+
         List<UserLearningPathItem> persisted = new ArrayList<>();
         for (var scheduled : schedule) {
             Long grammarPointId = scheduled.resource().grammarPointId();
@@ -243,6 +260,7 @@ public class LearningServiceImpl implements LearningService {
                     .vocabularyEntry(vocabularyEntryId == null
                             ? null : em.getReference(VocabularyEntry.class, vocabularyEntryId))
                     .orderIndex(scheduled.orderIndex())
+                    .stageId(stageIdFor(scheduled, stageByLevel, firstStage))
                     .phase(scheduled.phase().name())
                     .reasonCode(scheduled.reasonCode())
                     .reason(scheduled.reasonText())
@@ -296,18 +314,75 @@ public class LearningServiceImpl implements LearningService {
             progress.save(record);
             // [JLAS-W0108] Hoàn thành bài lần đầu -> cộng streak (chuỗi ngày học) + thưởng credit.
             // Idempotent theo (bài, streak theo ngày): hoàn thành lại cùng bài/ngày không cộng lại.
-            recordStreakAndCredit(userId, lessonId);
+            recordStreakAndCredit(userId, "LESSON", lessonId, "Hoàn thành bài học trong lộ trình");
         }
     }
 
-    /** [JLAS-W0108] Ghi streak + credit khi hoàn thành bài. Các phụ thuộc là optional để slice test không cần dựng. */
-    private void recordStreakAndCredit(Long userId, Long lessonId) {
+    /** [JLAS-W0108] P2 — đánh dấu hoàn thành nội dung một activity (item), độc lập source lesson. */
+    @Override
+    @Transactional
+    public void completeItem(Long userId, Long itemId) {
+        requirePositiveUserId(userId);
+        if (itemId == null || itemId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "An activity is required.");
+        }
+        // Ownership: chỉ chủ sở hữu lộ trình mới ghi tiến độ; item người khác trả NOT_FOUND (không lộ tồn tại).
+        UserLearningPathItem item = items.findByIdAndUserId(itemId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Activity not found."));
+        if (!"STUDIED".equals(item.getStudyStatus())) {
+            item.setStudyStatus("STUDIED");
+            items.save(item);
+            // [JLAS-W0108] P2c — item không có bài nguồn (grammar/vocab) vẫn được thưởng; reference
+            // theo item id với loại ITEM để không đụng reference "LESSON" của bài học.
+            Long referenceId = item.getLesson() != null ? item.getLesson().getId() : item.getId();
+            String referenceType = item.getLesson() != null ? "LESSON" : "ITEM";
+            recordStreakAndCredit(userId, referenceType, referenceId,
+                    "Hoàn thành hoạt động trong lộ trình");
+        }
+    }
+
+    /**
+     * [JLAS-W0108] P4 — đạt lesson quiz thì ghi {@code assessmentStatus = PASSED} trên item thuộc bài
+     * nguồn. Tách bạch với {@code completeLesson}/{@code completeItem} (study side): quiz không đánh dấu
+     * "đã học xong" và ngược lại, nút hoàn thành nội dung không ghi PASSED.
+     */
+    private void markLessonQuizPassed(Long userId, Long lessonId) {
+        for (UserLearningPathItem item : items.findByLessonIdAndUserId(lessonId, userId)) {
+            if (!"PASSED".equals(item.getAssessmentStatus())) {
+                item.setAssessmentStatus("PASSED");
+                items.save(item);
+            }
+        }
+    }
+
+    /** [JLAS-W0108] P4 — đạt grammar quiz ghi assessment PASSED trên item warm-up cùng mẫu ngữ pháp. */
+    private void markGrammarQuizPassed(Long userId, Long grammarPointId) {
+        for (UserLearningPathItem item : items.findByGrammarPointIdAndUserId(grammarPointId, userId)) {
+            if (!"PASSED".equals(item.getAssessmentStatus())) {
+                item.setAssessmentStatus("PASSED");
+                items.save(item);
+            }
+        }
+    }
+
+    /** [JLAS-W0108] P4/D3 — đạt flashcard quiz ghi assessment PASSED trên mọi item từ/Kanji trong membership. */
+    private void markFlashcardQuizPassed(Long userId, Long pathId) {
+        for (UserLearningPathItem item : items.findByLearningPathIdOrderByOrderIndex(pathId)) {
+            if (WarmUpFlashcardService.isFlashcardItem(item) && !"PASSED".equals(item.getAssessmentStatus())) {
+                item.setAssessmentStatus("PASSED");
+                items.save(item);
+            }
+        }
+    }
+
+    /** [JLAS-W0108] Ghi streak + credit khi hoàn thành bài/activity. Các phụ thuộc là optional để slice test không cần dựng. */
+    private void recordStreakAndCredit(Long userId, String referenceType, Long referenceId, String note) {
         if (streakRepository != null) {
             updateStreak(userId);
         }
         if (creditService != null) {
             creditService.earn(userId, STUDY_REWARD_PER_LESSON, CreditReason.STUDY_REWARD,
-                    "LESSON", lessonId, "Hoàn thành bài học trong lộ trình");
+                    referenceType, referenceId, note);
         }
     }
 
@@ -357,7 +432,7 @@ public class LearningServiceImpl implements LearningService {
         requirePositiveUserId(userId);
         requireLesson(lessonId);
         LearningQuizSession session = loadOwnedSession(userId, QUIZ_TYPE_LESSON, lessonId, request.attemptId());
-        return submitSession(session, request, false);
+        return submitSession(session, request);
     }
 
     @Override
@@ -365,8 +440,14 @@ public class LearningServiceImpl implements LearningService {
     public LessonQuizResponse getGateQuiz(Long userId) {
         requirePositiveUserId(userId);
         UserLearningPath path = requireActivePath(userId);
+        // [JLAS-W0108] P5 — gate (đầu ra chuyển chặng) chỉ phát khi mọi hoạt động warm-up bắt buộc đã đạt.
+        requireWarmUpComplete(path);
         // [JLAS-W0108] Gate quiz chỉ hỏi nội dung đã warm-up (anchor→ngân hàng), không còn "vơ cả cấp".
         List<GateQuestion> gateQuestions = resolveGateQuiz(path);
+        if (gateQuestions.isEmpty()) {
+            // [JLAS-W0108] P5 — không phát gate rỗng rồi cho đạt; thiếu câu -> BLOCKED_CONTENT.
+            throw new ApiException(ErrorCode.QUIZ_NOT_READY);
+        }
         List<LessonQuizResponse.LessonQuizQuestion> questions = gateQuestions.stream()
                 .map(GateQuestion::toDto).toList();
         Map<Long, QuizAnswerKey> answerKey = gateQuestions.stream()
@@ -383,7 +464,64 @@ public class LearningServiceImpl implements LearningService {
     public LessonQuizResult submitGateQuiz(Long userId, LessonQuizSubmitRequest request) {
         requirePositiveUserId(userId);
         LearningQuizSession session = loadOwnedSession(userId, QUIZ_TYPE_GATE, null, request.attemptId());
-        return submitSession(session, request, true);
+        return submitSession(session, request);
+    }
+
+    /**
+     * [JLAS-W0108] P4 — warm-up grammar quiz: retest đúng mẫu ngữ pháp đã sai bằng câu ngân hàng gắn
+     * {@code grammarPointId} (5 câu, khác câu đầu vào, cùng mẫu). Không có câu curated -> QUIZ_NOT_READY
+     * (BLOCKED_CONTENT), không phát đề rỗng rồi cho đạt.
+     */
+    @Override
+    @Transactional
+    public LessonQuizResponse getGrammarQuiz(Long userId, Long grammarPointId) {
+        requirePositiveUserId(userId);
+        if (grammarPointId == null || grammarPointId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "A grammar point is required.");
+        }
+        QuizData data = buildGrammarQuiz(grammarPointId);
+        if (data.questions().isEmpty()) {
+            throw new ApiException(ErrorCode.QUIZ_NOT_READY);
+        }
+        Long attemptId = issueActivitySession(userId, QUIZ_TYPE_GRAMMAR, grammarPointId, data);
+        return new LessonQuizResponse(attemptId, grammarPointId, "Ôn tập ngữ pháp", data.questions());
+    }
+
+    /** [JLAS-W0108] P4 — chấm warm-up grammar quiz; đạt 4/5 ghi assessment PASSED trên item mẫu ngữ pháp. */
+    @Override
+    @Transactional
+    public LessonQuizResult submitGrammarQuiz(Long userId, Long grammarPointId, LessonQuizSubmitRequest request) {
+        requirePositiveUserId(userId);
+        LearningQuizSession session = loadOwnedActivitySession(userId, grammarPointId, request.attemptId());
+        return submitSession(session, request);
+    }
+
+    /**
+     * [JLAS-W0108] P4/D3 — flashcard quiz: kiểm tra toàn bộ membership (từ/Kanji sai Smart Test) bằng
+     * câu trắc nghiệm "chọn nghĩa". Không dùng tự đánh dấu nhớ thay quiz; phải đúng hết mới đạt (sai →
+     * frontend vòng ôn lại đến đúng). Gắn version lộ trình để replan đổi membership thì làm lại đề.
+     */
+    @Override
+    @Transactional
+    public LessonQuizResponse getFlashcardQuiz(Long userId) {
+        requirePositiveUserId(userId);
+        UserLearningPath path = requireActivePath(userId);
+        List<VocabularyEntry> membership = flashcardMembership(path.getId());
+        if (membership.isEmpty()) {
+            throw new ApiException(ErrorCode.QUIZ_NOT_READY);
+        }
+        QuizData data = buildFlashcardQuiz(membership);
+        Long attemptId = issueSession(userId, QUIZ_TYPE_FLASHCARD, null, path.getId(), path.getVersion(), data);
+        return new LessonQuizResponse(attemptId, null, "Kiểm tra bộ từ đã ôn", data.questions());
+    }
+
+    /** [JLAS-W0108] P4/D3 — chấm flashcard quiz; đúng hết membership ghi assessment PASSED trên các item từ/Kanji. */
+    @Override
+    @Transactional
+    public LessonQuizResult submitFlashcardQuiz(Long userId, LessonQuizSubmitRequest request) {
+        requirePositiveUserId(userId);
+        LearningQuizSession session = loadOwnedSession(userId, QUIZ_TYPE_FLASHCARD, null, request.attemptId());
+        return submitSession(session, request);
     }
 
     /**
@@ -395,15 +533,17 @@ public class LearningServiceImpl implements LearningService {
         if (isKanaLesson(lesson)) {
             return buildKanaQuiz(lesson.getId());
         }
+        String tagCode = lesson.getKnowledgeTag().getCode();
         List<AssessmentQuestion> bank = questionRepository
-                .findByIsActiveTrueAndKnowledgeTagCodeOrderByIdAsc(lesson.getKnowledgeTag().getCode())
+                .findByIsActiveTrueAndKnowledgeTagCodeOrderByIdAsc(tagCode)
                 .stream().limit(LESSON_QUIZ_SIZE).toList();
         if (!bank.isEmpty()) {
             List<LessonQuizResponse.LessonQuizQuestion> questions = bank.stream()
                     .map(this::toQuizQuestion).toList();
             Map<Long, QuizAnswerKey> answerKey = bank.stream().collect(Collectors.toMap(
                     AssessmentQuestion::getId,
-                    question -> new QuizAnswerKey(question.getCorrectOption(), question.getExplanation())));
+                    question -> new QuizAnswerKey(question.getCorrectOption(), question.getExplanation(),
+                            "TAG:" + tagCode, tagCode)));
             return new QuizData(questions, answerKey);
         }
         return buildLessonQuiz(lesson.getId());
@@ -437,6 +577,31 @@ public class LearningServiceImpl implements LearningService {
                         "Bài kiểm tra không hợp lệ hoặc đã hết hạn."));
     }
 
+    /** [JLAS-W0108] P4 — nạp session quiz per-activity (GRAMMAR) theo activity_id (grammarPointId). */
+    private LearningQuizSession loadOwnedActivitySession(Long userId, Long grammarPointId, Long attemptId) {
+        if (attemptId == null || attemptId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "attemptId là bắt buộc.");
+        }
+        return quizSessions.findOwnedByActivity(attemptId, userId, QUIZ_TYPE_GRAMMAR, grammarPointId)
+                .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN,
+                        "Bài kiểm tra không hợp lệ hoặc đã hết hạn."));
+    }
+
+    /** [JLAS-W0108] P4 — phát session quiz per-activity (GRAMMAR), lưu snapshot + đáp án, trả attemptId. */
+    private Long issueActivitySession(Long userId, String quizType, Long activityId, QuizData data) {
+        var session = LearningQuizSession.builder()
+                .user(em.getReference(User.class, userId))
+                .quizType(quizType)
+                .activityId(activityId)
+                .status(QUIZ_STATUS_ISSUED)
+                .questionsJson(mapper.writeQuizQuestions(data.questions()))
+                .answerKeyJson(mapper.writeQuizAnswerKey(data.answerKey()))
+                .questionCount(data.answerKey().size())
+                .build();
+        quizSessions.save(session);
+        return session.getId();
+    }
+
     /**
      * [JLAS-W0108] Chấm bài nộp theo snapshot đề thi đã phát:
      * <ul>
@@ -446,8 +611,7 @@ public class LearningServiceImpl implements LearningService {
      *   <li>mẫu số = toàn bộ câu đã phát; câu bỏ trống tính là sai.</li>
      * </ul>
      */
-    private LessonQuizResult submitSession(LearningQuizSession session, LessonQuizSubmitRequest request,
-            boolean gate) {
+    private LessonQuizResult submitSession(LearningQuizSession session, LessonQuizSubmitRequest request) {
         Long userId = session.getUser().getId();
         if (QUIZ_STATUS_SUBMITTED.equals(session.getStatus())) {
             return mapper.readQuizResult(session.getResultJson());
@@ -456,45 +620,80 @@ public class LearningServiceImpl implements LearningService {
         users.findForCreditUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "User not found."));
         // Nạp lại dưới khoá: có thể đã bị nộp bởi transaction trước đó.
-        LearningQuizSession fresh = quizSessions
-                .findOwned(session.getId(), userId, session.getQuizType(), session.getLessonId())
+        LearningQuizSession fresh = reloadOwned(userId, session.getQuizType(), session.getLessonId(),
+                session.getActivityId(), session.getId())
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Bài kiểm tra không hợp lệ."));
         if (QUIZ_STATUS_SUBMITTED.equals(fresh.getStatus())) {
             return mapper.readQuizResult(fresh.getResultJson());
         }
 
+        boolean gate = QUIZ_TYPE_GATE.equals(fresh.getQuizType());
+        boolean pathAnchored = gate || QUIZ_TYPE_FLASHCARD.equals(fresh.getQuizType());
         UserLearningPath path = null;
-        if (gate) {
+        if (pathAnchored) {
             path = requireActivePath(userId);
-            // [JLAS-W0108] Gate quiz gắn version lộ trình: lộ trình đã đổi thì bắt làm lại đề mới.
+            // [JLAS-W0108] Quiz gắn version lộ trình (gate/flashcard): lộ trình đã đổi thì làm lại đề mới.
             if (!path.getId().equals(fresh.getPathId()) || !path.getVersion().equals(fresh.getPathVersion())) {
                 throw new ApiException(ErrorCode.CONFLICT,
-                        "Lộ trình đã thay đổi. Hãy làm lại bài kiểm tra tổng kết.");
+                        "Lộ trình đã thay đổi. Hãy làm lại bài kiểm tra.");
+            }
+            // [JLAS-W0108] P5 — gate chặn khi warm-up chưa đạt; chặn TRƯỚC quota nên không mất lượt.
+            if (gate) {
+                requireWarmUpComplete(path);
             }
         }
 
         Map<Long, QuizAnswerKey> answerKey = mapper.readQuizAnswerKey(fresh.getAnswerKeyJson());
         GradeOutcome outcome = gradeAgainstKey(request.answers(), answerKey);
 
-        // [JLAS-W0108] Tốn lượt chỉ khi nộp hợp lệ (đã qua validate câu ngoài đề / trùng id).
-        assertQuizAttemptAllowed(userId, fresh.getQuizType(), fresh.getLessonId());
-        recordQuizAttempt(userId, fresh.getQuizType(), fresh.getLessonId());
+        // [JLAS-W0108] Quota khoá theo activity (grammarPointId) cho GRAMMAR quiz, theo lessonId cho các loại khác.
+        Long quotaAnchor = QUIZ_TYPE_GRAMMAR.equals(fresh.getQuizType()) ? fresh.getActivityId() : fresh.getLessonId();
+        assertQuizAttemptAllowed(userId, fresh.getQuizType(), quotaAnchor);
+        recordQuizAttempt(userId, fresh.getQuizType(), quotaAnchor);
 
         int score = (int) Math.round(outcome.correct() * 100.0 / outcome.total());
-        boolean passed = score >= LESSON_QUIZ_PASS_PERCENT;
+        int passThreshold;
+        boolean passed;
+        if (gate) {
+            // [JLAS-W0108] Gate quiz (P5) giữ ngưỡng tổng 60%.
+            passThreshold = GATE_QUIZ_PASS_PERCENT;
+            passed = score >= GATE_QUIZ_PASS_PERCENT;
+        } else if (QUIZ_TYPE_GRAMMAR.equals(fresh.getQuizType())) {
+            // [JLAS-W0108] P4 — grammar quiz đạt 4/5 (80%), không tách nhóm (một mẫu ngữ pháp duy nhất).
+            passThreshold = GRAMMAR_QUIZ_PASS_PERCENT;
+            passed = score >= GRAMMAR_QUIZ_PASS_PERCENT;
+        } else if (QUIZ_TYPE_FLASHCARD.equals(fresh.getQuizType())) {
+            // [JLAS-W0108] P4/D3 — flashcard quiz đạt khi đúng hết membership (sai → vòng ôn lại đến đúng).
+            passThreshold = FLASHCARD_QUIZ_PASS_PERCENT;
+            passed = score >= FLASHCARD_QUIZ_PASS_PERCENT;
+        } else {
+            // [JLAS-W0108] P4/D2 — lesson quiz: đạt tổng >= 80% VÀ từng nhóm mục tiêu >= 70% (điểm tổng không
+            // che nhóm chưa đạt).
+            passThreshold = LESSON_QUIZ_PASS_PERCENT;
+            passed = score >= LESSON_QUIZ_PASS_PERCENT
+                    && outcome.groupResults().stream().allMatch(LessonQuizResult.GroupResult::passed);
+        }
         if (passed) {
             if (gate) {
                 path.setGatePassedAt(LocalDateTime.now());
                 paths.save(path);
+            } else if (QUIZ_TYPE_GRAMMAR.equals(fresh.getQuizType())) {
+                // [JLAS-W0108] P4 — đạt grammar quiz ghi assessment PASSED trên item warm-up cùng mẫu.
+                markGrammarQuizPassed(userId, fresh.getActivityId());
+            } else if (QUIZ_TYPE_FLASHCARD.equals(fresh.getQuizType())) {
+                // [JLAS-W0108] P4/D3 — đạt flashcard quiz ghi assessment PASSED trên mọi item từ/Kanji.
+                markFlashcardQuizPassed(userId, fresh.getPathId());
             } else {
-                completeLesson(userId, fresh.getLessonId());
+                // [JLAS-W0108] P4 — đạt quiz ghi assessment PASSED trên item, KHÔNG hoàn thành study
+                // (study ≠ PASSED). Nút "hoàn thành nội dung" (completeItem/completeLesson) giữ study.
+                markLessonQuizPassed(userId, fresh.getLessonId());
             }
         }
         boolean relearnRequired = gate && !passed
                 && gateFailuresToday(userId) >= MAX_GATE_FAILURES_BEFORE_RELEARN;
 
         LessonQuizResult result = new LessonQuizResult(outcome.total(), outcome.correct(), score, passed,
-                LESSON_QUIZ_PASS_PERCENT, passed, relearnRequired, outcome.review());
+                passThreshold, relearnRequired, outcome.review(), outcome.groupResults());
 
         fresh.setStatus(QUIZ_STATUS_SUBMITTED);
         fresh.setCorrectCount(outcome.correct());
@@ -504,6 +703,15 @@ public class LearningServiceImpl implements LearningService {
         fresh.setSubmittedAt(LocalDateTime.now());
         quizSessions.save(fresh);
         return result;
+    }
+
+    /** [JLAS-W0108] Nạp lại session dưới khoá user; GRAMMAR quiz khóa theo activity_id, còn lại theo lesson_id. */
+    private java.util.Optional<LearningQuizSession> reloadOwned(Long userId, String quizType, Long lessonId,
+            Long activityId, Long attemptId) {
+        if (QUIZ_TYPE_GRAMMAR.equals(quizType)) {
+            return quizSessions.findOwnedByActivity(attemptId, userId, quizType, activityId);
+        }
+        return quizSessions.findOwned(attemptId, userId, quizType, lessonId);
     }
 
     /**
@@ -525,6 +733,9 @@ public class LearningServiceImpl implements LearningService {
         }
         int correct = 0;
         List<LessonQuizResult.AnswerReview> review = new ArrayList<>(answerKey.size());
+        Map<String, Integer> groupCorrect = new LinkedHashMap<>();
+        Map<String, Integer> groupTotal = new LinkedHashMap<>();
+        Map<String, String> groupLabel = new LinkedHashMap<>();
         for (var entry : answerKey.entrySet()) {
             Long questionId = entry.getKey();
             QuizAnswerKey expected = entry.getValue();
@@ -533,16 +744,54 @@ public class LearningServiceImpl implements LearningService {
             if (isCorrect) correct++;
             review.add(new LessonQuizResult.AnswerReview(questionId, expected.correctOption(), chosen,
                     isCorrect, expected.explanation()));
+            if (expected.groupKey() != null) {
+                groupTotal.merge(expected.groupKey(), 1, Integer::sum);
+                groupLabel.putIfAbsent(expected.groupKey(), expected.groupLabel());
+                if (isCorrect) {
+                    groupCorrect.merge(expected.groupKey(), 1, Integer::sum);
+                }
+            }
         }
-        return new GradeOutcome(review, correct, answerKey.size());
+        List<LessonQuizResult.GroupResult> groups = new ArrayList<>(groupTotal.size());
+        for (String key : groupTotal.keySet()) {
+            int groupQuestionCount = groupTotal.get(key);
+            int required = requiredCorrect(groupQuestionCount, LESSON_QUIZ_GROUP_PASS_PERCENT);
+            int groupScore = groupCorrect.getOrDefault(key, 0);
+            groups.add(new LessonQuizResult.GroupResult(key, groupLabel.get(key), groupScore,
+                    groupQuestionCount, required, groupScore >= required));
+        }
+        return new GradeOutcome(review, correct, answerKey.size(), groups);
     }
 
-    /** [JLAS-W0108] Kết quả chấm trung gian (review + đếm) trước khi đóng gói {@link LessonQuizResult}. */
-    private record GradeOutcome(List<LessonQuizResult.AnswerReview> review, int correct, int total) { }
+    /** [JLAS-W0108] P4/D2 — số câu đúng tối thiểu để đạt một nhóm/tổng: ceil(percent × total / 100). */
+    private static int requiredCorrect(int total, int percent) {
+        return (int) Math.ceil(total * percent / 100.0);
+    }
+
+    /** [JLAS-W0108] Kết quả chấm trung gian (review + đếm + nhóm) trước khi đóng gói {@link LessonQuizResult}. */
+    private record GradeOutcome(List<LessonQuizResult.AnswerReview> review, int correct, int total,
+            List<LessonQuizResult.GroupResult> groupResults) { }
 
     private UserLearningPath requireActivePath(Long userId) {
         return paths.findByUserIdAndStatus(userId, "ACTIVE")
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "No active learning path found."));
+    }
+
+    /**
+     * [JLAS-W0108] P5 — gate quiz (đầu ra chuyển chặng) chỉ được phát/nộp khi mọi hoạt động warm-up
+     * bắt buộc đã đạt (assessmentStatus = PASSED). Item nền tảng bảng chữ cái ({@code KANA_FOUNDATION})
+     * do chính gate kiểm tra nền tảng, không cần quiz trước gate nên được miễn. Chặn ở đây nên nộp
+     * không tốn lượt và không phát gate rỗng để "vượt" chặng.
+     */
+    private void requireWarmUpComplete(UserLearningPath path) {
+        boolean incomplete = items.findByLearningPathIdOrderByOrderIndex(path.getId()).stream()
+                .filter(item -> LearningPhase.WARM_UP.name().equals(item.getPhase()))
+                .anyMatch(item -> !REASON_KANA_FOUNDATION.equals(item.getReasonCode())
+                        && !"PASSED".equals(item.getAssessmentStatus()));
+        if (incomplete) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
+                    "Hãy hoàn thành các hoạt động khởi động trước khi làm bài tổng kết.");
+        }
     }
 
     private Set<String> warmUpTagCodes(Long pathId) {
@@ -553,16 +802,17 @@ public class LearningServiceImpl implements LearningService {
     }
 
     /**
-     * [JLAS-W0108] Câu gate quiz — "ngân hàng trước, Gemini bù", chỉ hỏi nội dung đã warm-up:
+     * [JLAS-W0108] Câu gate quiz — "ngân hàng trước, không AI ở runtime", chỉ hỏi nội dung đã warm-up:
      * <ol>
      *   <li>KANJI/VOCAB gắn trực tiếp các từ đã warm-up ({@code vocabularyEntry});</li>
      *   <li>GRAMMAR gắn trực tiếp các mẫu ngữ pháp đã warm-up ({@code grammarPoint});</li>
      *   <li>câu theo knowledge tag làm fallback (WEAK_TAG / khi specific question chưa đủ), tối đa
      *       {@value #GATE_QUIZ_SIZE} câu curated;</li>
-     *   <li>câu Gemini đã sinh lúc tạo path (bảng {@code learning_generated_question}) được phơi
-     *       với id ÂM để không đụng id ngân hàng.</li>
+     *   <li>câu Kana deterministic cho warm-up bảng chữ cái.</li>
      * </ol>
-     * Không còn cộng 5 đọc + 5 nghe "vơ cả cấp" như trước.
+     * [JLAS-W0108] P4/R9 — KHÔNG còn sinh câu AI bù ({@code learning_generated_question}) ở runtime:
+     * mọi câu quiz chỉ đến từ ngân hàng {@code assessment_question} đã duyệt + Kana deterministic.
+     * Anchor thiếu câu curated -> xử lý readiness/BLOCKED_CONTENT ở P5, không phát câu AI.
      */
     private List<GateQuestion> resolveGateQuiz(UserLearningPath path) {
         Long pathId = path.getId();
@@ -625,13 +875,6 @@ public class LearningServiceImpl implements LearningService {
                         text(question.getOption3()), text(question.getOption4())));
     }
 
-    private GateQuestion toGateQuestion(LearningGeneratedQuestion question) {
-        return new GateQuestion(question.negativeId(), question.getCorrectOption(), question.getExplanation(),
-                question.getSkill(), question.getJlptLevel(), null, null, null, null, question.getQuestionText(),
-                List.of(text(question.getOption1()), text(question.getOption2()),
-                        text(question.getOption3()), text(question.getOption4())));
-    }
-
     /**
      * [JLAS-W0108] Sinh (best-effort) narrative lộ trình cá nhân hoá và ghi vào {@code ai_plan_json}.
      * Chỉ chạy khi {@code planGenerator} có sẵn (production); null/lỗi thì UI vẫn chạy bình thường.
@@ -649,139 +892,16 @@ public class LearningServiceImpl implements LearningService {
         }
     }
 
-    /**
-     * [JLAS-W0108] Sinh (best-effort) câu Gemini bù cho anchor đã warm-up nhưng ngân hàng không có
-     * câu curated. Chỉ chạy khi {@code quizGenerator} có sẵn (production); lỗi/không key thì bỏ qua.
-     */
-    private void generateMissingQuizQuestions(UserLearningPath path, LearningProfileSnapshot profile,
-            List<WeaknessEvidence> weaknesses) {
-        if (quizGenerator == null || generatedQuestions == null) return;
-        Long pathId = path.getId();
-        var grammarIds = items.findGrammarPointIdsIn(pathId, List.of("WEAK_GRAMMAR_POINT"));
-        var vocabIds = items.findVocabularyEntryIdsIn(pathId,
-                List.of("WEAK_KANJI_ITEM", "WEAK_VOCAB_ITEM"));
-        var tagCodes = warmUpTagCodes(pathId);
-        Set<String> covered = coveredBankAnchors(grammarIds, vocabIds, tagCodes);
-        Map<String, WeaknessEvidence> byAnchor = weaknessByAnchor(weaknesses);
-
-        List<LearningQuizGenerator.Anchor> missing = new ArrayList<>();
-        for (Long id : grammarIds) {
-            if (!covered.contains(LearningGeneratedQuestion.ANCHOR_GRAMMAR_POINT + ":" + id)) {
-                missing.add(buildAnchor(LearningGeneratedQuestion.ANCHOR_GRAMMAR_POINT, String.valueOf(id),
-                        "GRAMMAR", profile.assessedLevel(), grammarDetail(id),
-                        byAnchor.get(LearningGeneratedQuestion.ANCHOR_GRAMMAR_POINT + ":" + id)));
-            }
-        }
-        for (Long id : vocabIds) {
-            if (!covered.contains(LearningGeneratedQuestion.ANCHOR_VOCABULARY_ENTRY + ":" + id)) {
-                missing.add(buildAnchor(LearningGeneratedQuestion.ANCHOR_VOCABULARY_ENTRY, String.valueOf(id),
-                        "VOCABULARY", profile.assessedLevel(), vocabDetail(id),
-                        byAnchor.get(LearningGeneratedQuestion.ANCHOR_VOCABULARY_ENTRY + ":" + id)));
-            }
-        }
-        for (String code : tagCodes) {
-            if (!covered.contains(LearningGeneratedQuestion.ANCHOR_KNOWLEDGE_TAG + ":" + code)) {
-                missing.add(buildAnchor(LearningGeneratedQuestion.ANCHOR_KNOWLEDGE_TAG, code,
-                        "GRAMMAR", profile.assessedLevel(), tagDetail(code),
-                        byAnchor.get(LearningGeneratedQuestion.ANCHOR_KNOWLEDGE_TAG + ":" + code)));
-            }
-        }
-        if (!missing.isEmpty()) {
-            try {
-                quizGenerator.generate(path, missing);
-            } catch (Exception ignored) {
-                // best-effort: sinh câu lỗi không làm hỏng tạo lộ trình.
-            }
-        }
-    }
-
-    private Set<String> coveredBankAnchors(List<Long> grammarIds, List<Long> vocabIds, Set<String> tagCodes) {
-        Set<String> covered = new HashSet<>();
-        if (!vocabIds.isEmpty()) {
-            questionRepository.findByIsActiveTrueAndVocabularyEntryIdInOrderByIdAsc(vocabIds)
-                    .forEach(q -> covered.add(LearningGeneratedQuestion.ANCHOR_VOCABULARY_ENTRY
-                            + ":" + q.getVocabularyEntry().getId()));
-        }
-        if (!grammarIds.isEmpty()) {
-            questionRepository.findByIsActiveTrueAndGrammarPointIdInOrderByIdAsc(grammarIds)
-                    .forEach(q -> covered.add(LearningGeneratedQuestion.ANCHOR_GRAMMAR_POINT
-                            + ":" + q.getGrammarPoint().getId()));
-        }
-        if (!tagCodes.isEmpty()) {
-            questionRepository.findByIsActiveTrueAndKnowledgeTagCodeInOrderByIdAsc(tagCodes)
-                    .forEach(q -> covered.add(LearningGeneratedQuestion.ANCHOR_KNOWLEDGE_TAG
-                            + ":" + q.getKnowledgeTag().getCode()));
-        }
-        return covered;
-    }
-
-    private Map<String, WeaknessEvidence> weaknessByAnchor(List<WeaknessEvidence> weaknesses) {
-        Map<String, WeaknessEvidence> map = new HashMap<>();
-        if (weaknesses == null) return map;
-        for (var weakness : weaknesses) {
-            if (weakness.grammarPointId() != null) {
-                map.put(LearningGeneratedQuestion.ANCHOR_GRAMMAR_POINT + ":" + weakness.grammarPointId(), weakness);
-            }
-            if (weakness.vocabularyEntryId() != null) {
-                map.put(LearningGeneratedQuestion.ANCHOR_VOCABULARY_ENTRY + ":" + weakness.vocabularyEntryId(), weakness);
-            }
-            if (weakness.tagCode() != null) {
-                map.put(LearningGeneratedQuestion.ANCHOR_KNOWLEDGE_TAG + ":" + weakness.tagCode(), weakness);
-            }
-        }
-        return map;
-    }
-
-    private LearningQuizGenerator.Anchor buildAnchor(String type, String id, String skill, String level,
-            String detail, WeaknessEvidence weakness) {
-        if (weakness != null) {
-            detail = detail + "\nĐiểm yếu Smart Test: sai " + weakness.wrongCount()
-                    + "/" + weakness.assessedCount() + " câu.";
-        }
-        return new LearningQuizGenerator.Anchor(type, id, skill, level, detail);
-    }
-
-    private String grammarDetail(Long id) {
-        if (grammarPoints != null) {
-            var point = grammarPoints.findById(id).orElse(null);
-            if (point != null) {
-                return "Mẫu ngữ pháp: " + point.getPattern() + "\nNghĩa: " + point.getMeaning()
-                        + (point.getExample() != null && !point.getExample().isBlank()
-                                ? "\nVí dụ: " + point.getExample() : "");
-            }
-        }
-        return "Mẫu ngữ pháp id " + id;
-    }
-
-    private String vocabDetail(Long id) {
-        if (vocabularyEntries != null) {
-            var entry = vocabularyEntries.findById(id).orElse(null);
-            if (entry != null) {
-                return "Từ: " + entry.getExpression() + " (" + entry.getReading() + ")\nNghĩa: "
-                        + (entry.getMeaning() == null ? "" : entry.getMeaning());
-            }
-        }
-        return "Từ vựng id " + id;
-    }
-
-    private String tagDetail(String code) {
-        if (tags != null) {
-            var tag = tags.findByCodeAndTagType(code, "KNOWLEDGE").orElse(null);
-            if (tag != null) {
-                return "Điểm kiến thức: " + tag.getName() + " (" + code + ")";
-            }
-        }
-        return "Điểm kiến thức: " + code;
-    }
-
-    /** [JLAS-W0108] Số lần gate quiz đã nộp trong ngày (tất cả đều là "chưa đạt" vì đạt rồi thì không thi lại). */
+    /** [JLAS-W0108][MP08] Số lần gate quiz đã nộp trong ngày theo giờ VN (tất cả đều "chưa đạt" vì
+     * đạt rồi thì không thi lại). */
     private long gateFailuresToday(Long userId) {
-        return quizAttempts.countSince(userId, QUIZ_TYPE_GATE, null, LocalDate.now().atStartOfDay());
+        return quizAttempts.countSince(userId, QUIZ_TYPE_GATE, null, clock.today().atStartOfDay());
     }
 
-    /** [JLAS-W0108] Ném 429 nếu user đã dùng hết {@value #MAX_QUIZ_ATTEMPTS_PER_DAY} lượt quiz hôm nay. */
+    /** [JLAS-W0108][MP08] Ném 429 nếu user đã dùng hết {@value #MAX_QUIZ_ATTEMPTS_PER_DAY} lượt quiz
+     * hôm nay theo giờ Asia/Ho_Chi_Minh (không phải timezone JVM). */
     private void assertQuizAttemptAllowed(Long userId, String quizType, Long lessonId) {
-        long used = quizAttempts.countSince(userId, quizType, lessonId, LocalDate.now().atStartOfDay());
+        long used = quizAttempts.countSince(userId, quizType, lessonId, clock.today().atStartOfDay());
         if (used >= MAX_QUIZ_ATTEMPTS_PER_DAY) {
             throw new ApiException(ErrorCode.QUIZ_ATTEMPT_LIMIT,
                     "Bạn đã dùng hết " + MAX_QUIZ_ATTEMPTS_PER_DAY
@@ -789,13 +909,14 @@ public class LearningServiceImpl implements LearningService {
         }
     }
 
-    /** [JLAS-W0108] Ghi nhận một lượt nộp quiz (tính cả khi chưa đạt). */
+    /** [JLAS-W0108][MP08] Ghi nhận một lượt nộp quiz (tính cả khi chưa đạt), mốc giờ VN — khớp mốc
+     * {@link #gateFailuresToday}/{@link #assertQuizAttemptAllowed} dùng để so sánh. */
     private void recordQuizAttempt(Long userId, String quizType, Long lessonId) {
         quizAttempts.save(QuizAttempt.builder()
                 .user(em.getReference(User.class, userId))
                 .quizType(quizType)
                 .lessonId(lessonId)
-                .attemptedAt(LocalDateTime.now())
+                .attemptedAt(clock.now())
                 .build());
     }
 
@@ -923,6 +1044,10 @@ public class LearningServiceImpl implements LearningService {
      * [JLAS-W0108] Sinh quiz deterministic từ nội dung bài target (ngữ pháp + từ vựng) khi ngân hàng
      * assessment_question không có câu gắn tag bài. Id câu dùng số ÂM (từ grammar_point_id /
      * vocabulary_entry_id) để không đụng id ngân hàng; đáp án lưu 1-based (index + 1).
+     *
+     * [JLAS-W0108] P4/D2 — blueprint theo mục tiêu bài: mỗi mẫu ngữ pháp / từ vựng là một nhóm bắt buộc,
+     * phủ đủ (KHÔNG giữ fixed {@value #LESSON_QUIZ_SIZE} khi bài có nhiều mục tiêu) để điểm tổng không che
+     * nhóm chưa đạt.
      */
     private QuizData buildLessonQuiz(Long lessonId) {
         List<McqSpec> specs = new ArrayList<>();
@@ -935,7 +1060,8 @@ public class LearningServiceImpl implements LearningService {
                 if (pattern.isEmpty() || meaning.isEmpty()) continue;
                 specs.add(new McqSpec(-2_000_000L - point.getId(), "GRAMMAR",
                         "Chọn nghĩa đúng của mẫu ngữ pháp「" + pattern + "」", meaning,
-                        "「" + pattern + "」nghĩa là «" + meaning + "»", meanings));
+                        "「" + pattern + "」nghĩa là «" + meaning + "»", meanings,
+                        "GRAMMAR:" + point.getId(), "Ngữ pháp「" + pattern + "」"));
             }
         }
         if (contentVocabularies != null) {
@@ -947,19 +1073,82 @@ public class LearningServiceImpl implements LearningService {
                 if (expression.isEmpty() || meaning.isEmpty()) continue;
                 specs.add(new McqSpec(-3_000_000L - entry.getId(), "VOCABULARY",
                         "Chọn nghĩa đúng của từ「" + expression + "」", meaning,
-                        "「" + expression + "」nghĩa là «" + meaning + "»", meanings));
+                        "「" + expression + "」nghĩa là «" + meaning + "»", meanings,
+                        "VOCAB:" + entry.getId(), "Từ vựng「" + expression + "」"));
             }
         }
         List<LessonQuizResponse.LessonQuizQuestion> questions = new ArrayList<>();
         Map<Long, QuizAnswerKey> answerKey = new LinkedHashMap<>();
-        int size = Math.min(LESSON_QUIZ_SIZE, specs.size());
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < specs.size(); i++) {
             McqSpec spec = specs.get(i);
             List<String> options = buildOptions(spec.correctOption(), spec.distractors(), i);
             int correct = options.indexOf(spec.correctOption()) + 1;
             questions.add(new LessonQuizResponse.LessonQuizQuestion(spec.questionId(), spec.skill(), null,
                     null, null, null, null, spec.questionText(), options, "MCQ"));
-            answerKey.put(spec.questionId(), new QuizAnswerKey(correct, spec.explanation()));
+            answerKey.put(spec.questionId(),
+                    new QuizAnswerKey(correct, spec.explanation(), spec.groupKey(), spec.groupLabel()));
+        }
+        return new QuizData(questions, answerKey);
+    }
+
+    /**
+     * [JLAS-W0108] P4 — warm-up grammar quiz: câu ngân hàng gắn {@code grammarPointId}, tối đa
+     * {@value #GRAMMAR_QUIZ_SIZE} câu (khác câu đầu vào Smart Test, cùng mẫu). Không có câu curated -> đề
+     * rỗng (caller trả QUIZ_NOT_READY). Không tách nhóm vì chỉ một mẫu ngữ pháp duy nhất.
+     */
+    private QuizData buildGrammarQuiz(Long grammarPointId) {
+        List<AssessmentQuestion> bank = questionRepository
+                .findByIsActiveTrueAndGrammarPointIdInOrderByIdAsc(List.of(grammarPointId))
+                .stream().limit(GRAMMAR_QUIZ_SIZE).toList();
+        List<LessonQuizResponse.LessonQuizQuestion> questions = bank.stream()
+                .map(this::toQuizQuestion).toList();
+        Map<Long, QuizAnswerKey> answerKey = bank.stream().collect(Collectors.toMap(
+                AssessmentQuestion::getId,
+                question -> new QuizAnswerKey(question.getCorrectOption(), question.getExplanation())));
+        return new QuizData(questions, answerKey);
+    }
+
+    /**
+     * [JLAS-W0108] P4/D3 — membership flashcard quiz: các từ/Kanji yếu (WEAK_* + REMEDIATION_*) đã khử trùng
+     * theo identity (expression+reading), sắp theo id để phát đề ổn định. KHÔNG cắt 10 (batching là việc UI),
+     * hỏi hết membership.
+     */
+    private List<VocabularyEntry> flashcardMembership(Long pathId) {
+        if (vocabularyEntries == null) {
+            return List.of();
+        }
+        List<Long> ids = items.findVocabularyEntryIdsIn(pathId, WarmUpFlashcardService.WARM_UP_WEAK_REASON_CODES);
+        var distinct = new LinkedHashMap<String, VocabularyEntry>();
+        vocabularyEntries.findAllById(ids).stream()
+                .filter(entry -> entry.getExpression() != null && !entry.getExpression().isBlank()
+                        && entry.getMeaning() != null && !entry.getMeaning().isBlank())
+                .forEach(entry -> distinct.putIfAbsent(
+                        (entry.getExpression().strip()) + "\u0000" + (entry.getReading() == null ? "" : entry.getReading().strip()),
+                        entry));
+        return distinct.values().stream()
+                .sorted(Comparator.comparing(VocabularyEntry::getId))
+                .toList();
+    }
+
+    /** [JLAS-W0108] P4/D3 — đề flashcard quiz: mỗi membership một câu "chọn nghĩa của từ", nhiễu từ chính membership. */
+    private QuizData buildFlashcardQuiz(List<VocabularyEntry> membership) {
+        List<String> meanings = distinctNonBlank(membership.stream().map(VocabularyEntry::getMeaning).toList());
+        List<LessonQuizResponse.LessonQuizQuestion> questions = new ArrayList<>();
+        Map<Long, QuizAnswerKey> answerKey = new LinkedHashMap<>();
+        int i = 0;
+        for (VocabularyEntry entry : membership) {
+            String expression = nonBlank(entry.getExpression());
+            String meaning = nonBlank(entry.getMeaning());
+            if (expression.isEmpty() || meaning.isEmpty()) {
+                continue;
+            }
+            long questionId = -3_000_000L - entry.getId();
+            List<String> options = buildOptions(meaning, meanings, i);
+            int correct = options.indexOf(meaning) + 1;
+            questions.add(new LessonQuizResponse.LessonQuizQuestion(questionId, "VOCABULARY", entry.getJlptLevel(),
+                    null, null, null, null, "Chọn nghĩa đúng của từ「" + expression + "」", options, "MCQ"));
+            answerKey.put(questionId, new QuizAnswerKey(correct, "「" + expression + "」nghĩa là «" + meaning + "»"));
+            i++;
         }
         return new QuizData(questions, answerKey);
     }
@@ -999,7 +1188,8 @@ public class LearningServiceImpl implements LearningService {
 
     /** [JLAS-W0108] Câu trắc nghiệm deterministic chưa chọn lựa chọn (đáp án + nhiễu). */
     private record McqSpec(long questionId, String skill, String questionText,
-            String correctOption, String explanation, List<String> distractors) { }
+            String correctOption, String explanation, List<String> distractors,
+            String groupKey, String groupLabel) { }
 
     private static String nonBlank(String value) {
         return value == null ? "" : value.trim();
@@ -1030,8 +1220,8 @@ public class LearningServiceImpl implements LearningService {
             throw new ApiException(ErrorCode.CONFLICT,
                     "This learning path predates the two-phase schedule; please regenerate it.");
         }
-        Set<Long> completed = progress.findCompletedLessonIds(path.getUser().getId());
-        return mapper.toResponse(path, pathItems, completed,
+        return mapper.toResponse(path, pathItems,
+                stageRepository.findByLearningPathIdOrderByStageIndexAsc(path.getId()),
                 warmUpFlashcards != null && warmUpFlashcards.isCompleted(path));
     }
 
@@ -1040,6 +1230,43 @@ public class LearningServiceImpl implements LearningService {
             active.setStatus("SUPERSEDED");
             paths.save(active);
         });
+    }
+
+    /**
+     * [JLAS-W0108] P6/D5 — tạo các chặng nối tiếp theo thứ tự scope đã resolve. Chặng đầu ACTIVE, các
+     * chặng sau PENDING (chỉ mở khi đánh giá cuối chặng trước đạt). Trả về danh sách theo stage_index.
+     */
+    private List<UserLearningStage> createStages(UserLearningPath path, List<LearningStageScope> stageScopes) {
+        List<UserLearningStage> result = new ArrayList<>();
+        int index = 0;
+        for (LearningStageScope scope : stageScopes) {
+            result.add(UserLearningStage.builder()
+                    .learningPath(path)
+                    .level(scope.level())
+                    .stageIndex(index)
+                    .curriculumVersion(scope.curriculumVersion())
+                    .assessmentCycle("1")
+                    .status(index == 0 ? "ACTIVE" : "PENDING")
+                    .build());
+            index++;
+        }
+        return stageRepository.saveAll(result);
+    }
+
+    /**
+     * [JLAS-W0108] P6 — gán chặng cho từng activity: WARM_UP thuộc chặng đầu (điểm yếu cấp đã kết luận);
+     * GOAL_LEARNING theo đúng cấp mục tiêu của bài. Scope cũ không phân chặng trả null (tương thích).
+     */
+    private Long stageIdFor(ScheduledLearningResource scheduled, Map<String, UserLearningStage> stageByLevel,
+            UserLearningStage firstStage) {
+        if (stageByLevel.isEmpty()) {
+            return null;
+        }
+        if (scheduled.phase() == LearningPhase.WARM_UP) {
+            return firstStage == null ? null : firstStage.getId();
+        }
+        UserLearningStage stage = stageByLevel.get(scheduled.resource().level());
+        return stage != null ? stage.getId() : (firstStage == null ? null : firstStage.getId());
     }
 
     private String buildTitle(LearningProfileSnapshot profile) {

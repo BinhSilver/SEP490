@@ -18,6 +18,7 @@ import com.jlas.learning.service.LearningService;
 import com.jlas.learning.service.impl.LearningResourceSelectionServiceImpl;
 import com.jlas.learning.service.impl.LearningScheduleServiceImpl;
 import com.jlas.learning.service.impl.LearningServiceImpl;
+import com.jlas.learning.service.impl.LearningClock;
 import com.jlas.learning.service.impl.WeakTagPolicy;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -59,7 +60,7 @@ class LearningPathRollbackTest {
     @EnableJpaRepositories(basePackages = {"com.jlas.learning.repository", "com.jlas.auth.repository",
             "com.jlas.dictionary.repository", "com.jlas.assessment.repository"})
     @Import({WeakTagPolicy.class, LearningResourceSelectionServiceImpl.class,
-            LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class})
+            LearningScheduleServiceImpl.class, LearningMapper.class, LearningServiceImpl.class, LearningClock.class})
     static class RollbackConfiguration {
         @Bean FakeProfileSource profileSource() {
             return new FakeProfileSource();
