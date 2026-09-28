@@ -13,4 +13,10 @@ public class LearningPathPageController {
         model.addAttribute("layoutMode", "app");
         return "learning/path";
     }
+
+    @GetMapping("/learning/path/v2")
+    public String interactiveLearningPath(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-path";
+    }
 }

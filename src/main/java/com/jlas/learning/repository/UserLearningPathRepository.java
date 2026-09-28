@@ -1,6 +1,7 @@
 package com.jlas.learning.repository;
 
 import com.jlas.learning.entity.UserLearningPath;
+import com.jlas.learning.enums.LearningExperienceVersion;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,9 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
     Optional<UserLearningPath> findByUserId(Long userId);
 
     Optional<UserLearningPath> findByUserIdAndStatus(Long userId, String status);
+
+    Optional<UserLearningPath> findByUserIdAndStatusAndExperienceVersion(
+            Long userId, String status, LearningExperienceVersion experienceVersion);
 
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from UserLearningPath p where p.user.id = :userId and p.status = 'ACTIVE'")
