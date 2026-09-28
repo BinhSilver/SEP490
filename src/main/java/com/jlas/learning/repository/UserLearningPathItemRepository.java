@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository;
 public interface UserLearningPathItemRepository extends JpaRepository<UserLearningPathItem, Long> {
     List<UserLearningPathItem> findByLearningPathIdOrderByOrderIndex(Long learningPathId);
 
+    /** [JLAS-W0108] Item của một chặng cụ thể trong path (để kiểm eligibility bài final). */
+    List<UserLearningPathItem> findByLearningPathIdAndStageId(Long learningPathId, Long stageId);
+
     /** [JLAS-W0108] P2 — tìm item theo id + chủ sở hữu (ownership) để ghi tiến độ activity, không lộ item người khác. */
     @Query("""
             select item from UserLearningPathItem item
