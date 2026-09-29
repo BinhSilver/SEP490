@@ -1675,7 +1675,8 @@ CREATE TABLE user_learning_path_item (
         CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW')),
     CONSTRAINT chk_learning_path_item_activity_type CHECK
         -- [JLAS-W0193] Interactive V2 comprehension activities reference canonical assessment questions.
-        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE','READING','LISTENING')),
+        -- [JLAS-W0108] FOUNDATION = bảng chữ cái, chỉ trong package WARM_UP cho người học from-zero.
+        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE','READING','LISTENING','FOUNDATION')),
     CONSTRAINT chk_learning_path_item_activity_state CHECK
         (activity_state IS NULL OR activity_state IN ('LOCKED','STUDYING','CHECK_READY','PASSED','COOLDOWN','COMPLETED'))
     -- [JLAS-W0108] P2c — KHÔNG đặt CHECK "ít nhất một tham chiếu hợp lệ" (lesson/grammar/vocab) ở đây:
@@ -1698,7 +1699,8 @@ CREATE TABLE learning_activity_member (
     CONSTRAINT fk_learning_activity_member_item FOREIGN KEY (activity_item_id)
         REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_activity_member_type CHECK
-        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE','COMPREHENSION_QUESTION'))
+        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE','COMPREHENSION_QUESTION',
+            'FOUNDATION_CHARACTER'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] P6 — một chặng (stage) trong lộ trình JLPT nhiều cấp (D5). Mỗi chặng gắn đúng một
@@ -1883,9 +1885,10 @@ CREATE TABLE learning_quiz_session (
     -- phat sinh cac quiz_type nay qua AssessmentComprehensionContentAdapter.microCheckType(), nhung RC Task 2
     -- (migration 016) chi mo rong activity_type/member_type, khong mo rong constraint nay) — sua tai day,
     -- migration 017.
+    -- [JLAS-W0108] FOUNDATION_MICRO_CHECK them cho bang chu cai (InteractiveFoundationServiceImpl).
     CONSTRAINT chk_quiz_session_type CHECK
         (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
-            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK')),
+            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK','FOUNDATION_MICRO_CHECK')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

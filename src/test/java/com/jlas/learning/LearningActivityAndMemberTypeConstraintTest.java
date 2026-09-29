@@ -41,10 +41,14 @@ class LearningActivityAndMemberTypeConstraintTest {
 
     @Test void migration016WidensBothConstraintsToTheirCurrentValueSet() throws IOException {
         // [chore(db)] Migrations 004-017 were squashed into one consolidated file; this constraint's
-        // final value set now lands there instead of the old standalone 016 file.
-        Path migration = repoRoot().resolve("sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
-        assertTrue(Files.exists(migration), "expected sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
-        String content = Files.readString(migration, StandardCharsets.UTF_8);
+        // final value set (as of that squash) lands there. [JLAS-W0108] FOUNDATION/FOUNDATION_CHARACTER
+        // arrived later in migration 006 — check the union of both files, not 004 alone.
+        Path migration004 = repoRoot().resolve("sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
+        Path migration006 = repoRoot().resolve("sql/migrations/006_foundation_activity_type.sql");
+        assertTrue(Files.exists(migration004), "expected sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
+        assertTrue(Files.exists(migration006), "expected sql/migrations/006_foundation_activity_type.sql");
+        String content = Files.readString(migration004, StandardCharsets.UTF_8)
+                + Files.readString(migration006, StandardCharsets.UTF_8);
         for (LearningActivityType type : LearningActivityType.values()) {
             assertTrue(content.contains("'" + type.name() + "'"));
         }
