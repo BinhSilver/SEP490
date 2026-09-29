@@ -4,5 +4,7 @@ public enum LearningActivityType {
     VOCABULARY,
     KANJI,
     GRAMMAR,
-    DIALOGUE
+    DIALOGUE,
+    READING,
+    LISTENING
 }

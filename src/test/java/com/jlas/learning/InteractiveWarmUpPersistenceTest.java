@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** [JLAS-W0193] Task 9 — Warm-up B persistence: packages/activities with no source lesson, reusing the
@@ -84,5 +86,33 @@ class InteractiveWarmUpPersistenceTest {
         em.flush(); em.clear();
 
         assertEquals(2, packages.findByLearningPathIdOrderByOrderIndex(path.getId()).size());
+    }
+
+    @Test void readingAndListeningQuestionMembershipPersistsInStableOrder() {
+        var role = Role.builder().name("LEARNER").build(); em.persist(role);
+        var owner = User.builder().role(role).email("comprehension-owner@jlas.test").loginType("LOCAL").build(); em.persist(owner);
+        var path = UserLearningPath.builder().user(owner).title("Interactive").status("ACTIVE").version(1)
+                .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).build(); em.persist(path);
+        var pkg = LearningPathPackage.builder().learningPath(path).phase("WARM_UP").dayNumber(1).orderIndex(1)
+                .title("Đọc và nghe").estimatedMinutes(30).status(LearningPackageStatus.AVAILABLE).build(); em.persist(pkg);
+        var reading = UserLearningPathItem.builder().learningPath(path).learningPackage(pkg).orderIndex(1)
+                .phase("WARM_UP").dayNumber(1).activityType(LearningActivityType.READING)
+                .activityState(LearningActivityState.LOCKED).build(); em.persist(reading);
+        var listening = UserLearningPathItem.builder().learningPath(path).learningPackage(pkg).orderIndex(2)
+                .phase("WARM_UP").dayNumber(1).activityType(LearningActivityType.LISTENING)
+                .activityState(LearningActivityState.LOCKED).build(); em.persist(listening);
+        em.persist(LearningActivityMember.builder().activity(reading).memberType(LearningMemberType.COMPREHENSION_QUESTION)
+                .canonicalId(102L).orderIndex(2).sourceRevision("r".repeat(64)).build());
+        em.persist(LearningActivityMember.builder().activity(reading).memberType(LearningMemberType.COMPREHENSION_QUESTION)
+                .canonicalId(101L).orderIndex(1).sourceRevision("r".repeat(64)).build());
+        em.persist(LearningActivityMember.builder().activity(listening).memberType(LearningMemberType.COMPREHENSION_QUESTION)
+                .canonicalId(201L).orderIndex(1).sourceRevision("l".repeat(64)).build());
+        em.flush(); em.clear();
+
+        assertEquals(LearningActivityType.READING, items.findById(reading.getId()).orElseThrow().getActivityType());
+        assertEquals(LearningActivityType.LISTENING, items.findById(listening.getId()).orElseThrow().getActivityType());
+        var ordered = members.findByActivityIdOrderByOrderIndex(reading.getId());
+        assertEquals(List.of(101L, 102L), ordered.stream().map(LearningActivityMember::getCanonicalId).toList());
+        assertTrue(ordered.stream().allMatch(m -> m.getMemberType() == LearningMemberType.COMPREHENSION_QUESTION));
     }
 }

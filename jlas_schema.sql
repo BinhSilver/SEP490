@@ -1668,7 +1668,8 @@ CREATE TABLE user_learning_path_item (
     CONSTRAINT chk_learning_path_item_assessment_status
         CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW')),
     CONSTRAINT chk_learning_path_item_activity_type CHECK
-        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE')),
+        -- [JLAS-W0193] Interactive V2 comprehension activities reference canonical assessment questions.
+        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE','READING','LISTENING')),
     CONSTRAINT chk_learning_path_item_activity_state CHECK
         (activity_state IS NULL OR activity_state IN ('LOCKED','STUDYING','CHECK_READY','PASSED','COOLDOWN','COMPLETED'))
     -- [JLAS-W0108] P2c — KHÔNG đặt CHECK "ít nhất một tham chiếu hợp lệ" (lesson/grammar/vocab) ở đây:
@@ -1691,7 +1692,7 @@ CREATE TABLE learning_activity_member (
     CONSTRAINT fk_learning_activity_member_item FOREIGN KEY (activity_item_id)
         REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_activity_member_type CHECK
-        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE'))
+        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE','COMPREHENSION_QUESTION'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] P6 — một chặng (stage) trong lộ trình JLPT nhiều cấp (D5). Mỗi chặng gắn đúng một
