@@ -1,0 +1,151 @@
+// ============================================================================
+// AIR DEFENCE SCI-FI EDITION 2.0 - MASTER GAME BALANCE & CONFIGURATION
+// TẤT CẢ CÁC THAM SỐ CÂN BẰNG ĐỀU ĐƯỢC TẬP TRUNG TẠI ĐÂY ĐỂ DỄ DÀNG TÙY CHỈNH.
+// ============================================================================
+
+export interface ShipConfig {
+  id: string;
+  name: string;
+  role: string;
+  price: number;
+  hp: number;
+  speed: number;
+  passiveDesc: string;
+  colorTheme: "cyan" | "violet" | "amber";
+  spritePath: string;
+}
+
+export const GAME_CONFIG = {
+  // --------------------------------------------------------------------------
+  // 1. CÂN BẰNG PHI CÔNG & TÀU CHIẾN (PLAYER BALANCE)
+  // --------------------------------------------------------------------------
+  PLAYER: {
+    baseHp: 100,                     // Máu cơ bản của phi thuyền người chơi (HP)
+    baseShield: 0,                   // Giáp bảo vệ khởi đầu (Shield points)
+    hyperBeamChargePerKill: 5,       // % Năng lượng Hyper Beam nạp khi tiêu diệt 1 quái vật thường (+5%)
+    hyperBeamChargePerBossKill: 50,  // % Năng lượng Hyper Beam nạp khi tiêu diệt Boss chiến hạm (+50%)
+    hyperBeamChargePerHit: 5,        // % Năng lượng Hyper Beam nạp khi gõ đúng 1 từ gây sát thương (+5%)
+    hyperBeamMaxCharge: 100,         // Ngưỡng năng lượng để kích hoạt chiêu cuối Hyper Beam (100%)
+    hyperBeamBossDamage: 3,          // Sát thương chiêu cuối Hyper Beam gây ra cho Boss chiến hạm (3 HP)
+    hyperBeamChargeTimeMs: 900,      // Giai đoạn 1: Khoảng nghỉ nạp tụ năng lượng trước khi bắn (900ms)
+    hyperBeamDurationMs: 3000,       // Giai đoạn 2: Duy trì chùm siêu Laser cực đại (3000ms = 3 giây)
+    hyperBeamCooldownMs: 1000,       // Giai đoạn 3: Khoảng chờ hồi phục và hút đá quý sau khi bắn (1000ms = 1 giây)
+    dangerZoneThreshold: 75,         // Ngưỡng % màn hình quái tiến gần để kích hoạt cảnh báo đỏ
+    damagePerEnemyReachBottom: 15    // Sát thương mất máu khi quái vật chạm đáy phòng tuyến
+  },
+
+  // --------------------------------------------------------------------------
+  // 2. CÂN BẰNG QUÁI VẬT & LÀN SÓNG (ENEMY & WAVE BALANCE)
+  // --------------------------------------------------------------------------
+  ENEMIES: {
+    baseEnemyCount: 5,               // Số lượng quái khởi đầu ở Wave 1
+    enemiesPerWaveIncrement: 2,      // Số lượng quái tăng thêm sau mỗi Wave (+2 con/wave)
+    maxEnemyCount: 16,               // Giới hạn số lượng quái tối đa trên một wave (tránh nghẽn màn hình)
+    bossEveryNWaves: 5,              // Chu kỳ xuất hiện Boss (Cứ mỗi 5 wave: Wave 5, 10, 15, 20...)
+    bossHp: 5,                       // Máu cơ bản của Boss ở Wave 5 (Cần 5 từ vựng để diệt)
+    bossHpIncrementPerCycle: 1,      // Máu Boss tăng thêm sau mỗi chu kỳ 5 wave (+1 HP ở Wave 10, 15, 20...)
+    bossMinionReduction: 0.5,        // Giảm 50% số lượng lính ở màn Boss để tập trung vào Boss
+    bossScale: 2.6,                  // Kích thước phóng to của Boss khổng lồ (2.6x)
+    enemySpawnSpacingY: 12,          // Khoảng cách trục Y giữa các quái khi spawn ngoài màn hình
+    baseSpeed: 0.055,                // Tốc độ rơi cơ bản của quái vật (% chiều cao màn hình / frame)
+    speedWaveMultiplier: 0.011,      // Hệ số tăng tốc độ rơi của quái theo độ cao của Wave
+    fastEnemySpeedMult: 1.45,        // Hệ số tốc độ của Quái Tốc Biến (Monster Fast)
+    spaceMineSpeedMult: 0.9,         // Hệ số tốc độ của Thủy Lôi Vũ Trụ (Space Mine)
+    bossSpeedMult: 0.52,             // Hệ số tốc độ di chuyển của Boss chiến hạm (chậm rãi, nặng nề)
+    augmentDraftInterval: 3,         // Chu kỳ mở màn hình chọn Lõi Augment (sau mỗi 3 Wave hoàn thành)
+    defaultRerolls: 3,               // Số lượt đổi bài (Reroll) lõi nâng cấp mặc định
+    versusAugmentAutoPickMs: 10000   // Đối kháng: tự chọn ngẫu nhiên 1 lõi sau 10 giây (thế giới của đối thủ vẫn chạy)
+  },
+
+  // --------------------------------------------------------------------------
+  // 3. CÂN BẰNG RƠI VẬT PHẨM (LOOT DROP & REWARD SYSTEM)
+  // --------------------------------------------------------------------------
+  LOOT: {
+    enabled: true,                   // Bật hệ thống rơi vật phẩm từ quái vật
+    creditDropChance: 0.85,          // 85% tỉ lệ rơi Tinh Thể Credits vàng khi quái nổ
+    repairDropChance: 0.25,          // 25% tỉ lệ rơi Hộp Nano hồi máu xanh
+    hyperOrbDropChance: 0.35,        // 35% tỉ lệ rơi Cầu Năng Lượng Hyper Beam tím
+    bossLootMultiplier: 6,           // Số lượng vật phẩm rơi gấp 6 lần khi tiêu diệt Boss
+    magnetDistance: 60,              // Khoảng cách % màn hình kích hoạt lực từ trường hút về tàu
+    magnetSpeed: 0.35,               // Tốc độ hút cơ bản của từ trường
+    magnetMaxSpeed: 3.6,             // Tốc độ gia tốc tối đa khi đá quý lao vào phi thuyền
+    creditValueMin: 15,              // Giá trị Credits tối thiểu mỗi viên pha lê
+    creditValueMax: 40,              // Giá trị Credits tối đa mỗi viên pha lê
+    repairValue: 15,                 // Lượng HP hồi phục khi nhặt Hộp Nano
+    hyperOrbCharge: 20               // % Năng lượng Hyper Beam nạp được khi nhặt Cầu Plasma
+  },
+
+  // --------------------------------------------------------------------------
+  // 4. CÂN BẰNG ĐIỂM SỐ & PHẦN THƯỞNG (SCORING & REWARDS)
+  // --------------------------------------------------------------------------
+  SCORING: {
+    baseScorePerTarget: 150,         // Điểm cơ bản khi bắn nổ 1 quái vật
+    bossScoreBonus: 3000,            // Điểm thưởng cực lớn khi bắn hạ Boss
+    comboBonusMultiplier: 0.1,       // Thêm +10% điểm cho mỗi nấc Combo liên tục
+    baseCreditsPerTarget: 5,         // Credits thưởng cơ bản cho mỗi quái tiêu diệt
+    creditsWaveMultiplier: 2,        // Credits thưởng tăng dần theo cấp độ Wave
+    bossCreditsBonus: 150,           // Credits thưởng thêm tức thì khi hạ Boss
+    dualCannonScoreBonus: 1.5,       // Hệ số nhân điểm khi có Lõi Dual Cannon
+    goldMagnetCoinBonus: 1.5         // Hệ số nhân Credits (vật phẩm trong trận) khi có Lõi Gold Magnet
+  },
+
+  // --------------------------------------------------------------------------
+  // 6. ĐỒ HỌA, INTRO & HIỆU ỨNG CHIÊU CUỐI (VISUALS & ULTI EFFECTS)
+  // --------------------------------------------------------------------------
+  VISUALS: {
+    starfieldCount: 65,              // Số lượng hạt sao nền vũ trụ
+    bgScrollSpeed: 0.85,             // Tốc độ cuộn parallax của Background vũ trụ
+    exhaustAnimationSpeed: 0.25,     // Tốc độ nhấp nháy ngọn lửa phản lực tàu chiến
+    screenShakeDurationFrames: 10,   // Số frame rung chấn màn hình khi trúng đòn/bắn ulti
+    laserBeamDurationMs: 160,        // Thời gian tia Laser neon thường hiển thị (ms)
+    laserBeamWidth: 4,               // Độ dày tia Laser thường (px)
+    laserGlowWidth: 12,              // Độ dày vầng hào quang Laser thường (px)
+    introDurationMs: 3800,           // Tổng thời lượng hoạt cảnh Intro khởi động trận đấu (ms)
+
+    // Tham số đồ họa chùm tia chiêu cuối Hyper Beam
+    hyperBeamAuraWidth: 160,         // Độ rộng vầng hào quang tím khổng lồ của Hyper Beam (px)
+    hyperBeamMidWidth: 70,           // Độ rộng chùm plasma xanh cyan điện tích (px)
+    hyperBeamCoreWidth: 26,          // Độ rộng lõi năng lượng laser trắng nguyên bản (px)
+    hyperBeamRingsCount: 4,          // Số lượng vòng plasma gia tốc nén năng lượng ở nòng pháo
+    hyperBeamSparkCount: 20          // Số lượng tia sét điện tích chớp nhoáng xung quanh chùm tia
+  },
+
+  // --------------------------------------------------------------------------
+  // 7. ÂM THANH & NHẠC NỀN BGM DYNAMIC (AUDIO & ADAPTIVE BGM)
+  // --------------------------------------------------------------------------
+  AUDIO: {
+    enabled: true,                   // Bật/tắt toàn bộ âm thanh
+    bgmEnabled: true,                // Bật/tắt nhạc nền tự động
+    masterVolume: 0.40,              // Âm lượng tổng thể (0.0 -> 1.0)
+    bgmVolume: 0.28,                 // Âm lượng nhạc nền BGM
+    laserVolume: 0.5,                // Âm lượng tiếng bắn laser
+    explosionVolume: 0.7,            // Âm lượng tiếng quái nổ
+    hyperBeamVolume: 0.95,           // Âm lượng chùm tia Hyper Beam cực đại
+    comboDingVolume: 0.45,           // Âm lượng chuông combo
+    itemCollectVolume: 0.55          // Âm lượng tiếng nhặt vật phẩm
+  },
+
+  // --------------------------------------------------------------------------
+  // 8. TÀU CHIẾN (một tàu mặc định; hình máy bay đổi theo món mua ở Cửa hàng, chỉ số giữ nguyên)
+  // --------------------------------------------------------------------------
+  PLANE_SPRITES: {
+    "plane-blue": `${import.meta.env.BASE_URL}assets/space/Player/player_b_m.png`,
+    "plane-red": `${import.meta.env.BASE_URL}assets/space/Player/player_r_m.png`,
+    "plane-green": `${import.meta.env.BASE_URL}assets/space/Player/player_green_m.png`,
+    "plane-violet": `${import.meta.env.BASE_URL}assets/space/Player/player_violet_m.png`,
+    "plane-gold": `${import.meta.env.BASE_URL}assets/space/Player/player_gold_m.png`
+  } as Record<string, string>,
+  SHIPS: [
+    {
+      id: "NOVA-01",
+      name: "Vanguard Alpha (Nova-01)",
+      role: "BALANCED",
+      price: 0,
+      hp: 100,
+      speed: 1.0,
+      passiveDesc: "Tàu chiến tân thủ tiêu chuẩn của Liên Đoàn, khả năng cơ động cân bằng và ổn định.",
+      colorTheme: "cyan" as const,
+      spritePath: `${import.meta.env.BASE_URL}assets/space/Player/player_b_m.png`
+    }
+  ] as ShipConfig[]
+};

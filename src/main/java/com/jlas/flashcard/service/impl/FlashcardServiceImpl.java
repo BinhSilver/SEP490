@@ -73,8 +73,9 @@ public class FlashcardServiceImpl implements FlashcardService {
         if (folderId != null && folderId > 0) folder(folderId, userId);
         return page(sets.findMine(userId, blank(title), folderId, pageable(sort, page, size)), userId);
     }
-    @Override @Transactional(readOnly = true)
-    public SetDetailDto set(Long id, Long userId) { return detail(readable(id, userId), userId); }
+    /** Mở một bộ cũng ghi lần truy cập, để bộ đó hiện ở mục "Xem gần đây" (Game Arena). */
+    @Override
+    public SetDetailDto set(Long id, Long userId) { FlashcardSet set = readable(id, userId); accessed(userId, set); return detail(set, userId); }
     @Override public SetDetailDto create(SetRequest request, Long userId) {
         // A muted user may still build private sets for studying; only public sets are community content.
         if ("PUBLIC".equals(visibility(request.getVisibility()))) actionPolicy.assertCanAct(login(userId));
@@ -235,7 +236,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override public StudySummaryDto reset(Long setId,Long userId) { studyable(setId,userId); login(userId); for(FlashcardCardProgress p:progress.findByUserIdAndCardSetId(userId,setId)){p.setStatus("NEW");p.setReviewCount(0);p.setRepetitionCount(0);p.setIntervalDays(0);p.setLastReviewedAt(null);p.setNextReviewAt(LocalDateTime.now());} progress.flush(); return summary(setId,userId); }
     @Override public Long startQuiz(StartQuizRequest request,Long userId) {
         if(request==null||request.getSetId()==null)throw bad("Cần setId");
-        String questionField=quizField(request.getQuestionField()),answerField=quizField(request.getAnswerField());
+        String questionField=quizField(request.getQuestionField(),"KANJI"),answerField=quizField(request.getAnswerField(),"MEANING");
         if(questionField.equals(answerField))throw bad("Nội dung câu hỏi và đáp án phải khác nhau");
         FlashcardSet set=studyable(request.getSetId(),userId); Set<Long> selected=request.getSelectedCardIds()==null?Set.of():new HashSet<>(request.getSelectedCardIds()); Map<Long,FlashcardCardProgress> map=progressMap(userId,set.getId());
         List<FlashcardCard> questions=cards.findBySetIdOrderByPositionAscIdAsc(set.getId()).stream().filter(card->selected.isEmpty()||selected.contains(card.getId())).filter(card->!request.isWrongOnly()||"LEARNING".equals(Optional.ofNullable(map.get(card.getId())).map(FlashcardCardProgress::getStatus).orElse("NEW"))).filter(card->StringUtils.hasText(quizValue(card,questionField))&&StringUtils.hasText(quizValue(card,answerField))).toList();
@@ -243,7 +244,37 @@ public class FlashcardServiceImpl implements FlashcardService {
         FlashcardStudySession session=sessions.save(FlashcardStudySession.builder().user(user(userId)).set(set).sessionType("QUIZ").mode("QUIZ_"+questionField+"_TO_"+answerField).status("IN_PROGRESS").build()); int position=0;for(FlashcardCard card:questions)sessionItems.save(FlashcardStudySessionItem.builder().session(session).card(card).position(position++).build());return session.getId();
     }
     @Override @Transactional(readOnly = true)
-    public QuizQuestionDto nextQuiz(Long sessionId,Long userId) { FlashcardStudySession session=quiz(sessionId,userId); String[] fields=quizFields(session); List<FlashcardStudySessionItem> all=sessionItems.findBySessionIdOrderByPositionAsc(sessionId); FlashcardStudySessionItem item=all.stream().filter(row->row.getIsCorrect()==null).findFirst().orElse(null);if(item==null)return null; List<FlashcardCard> options=new ArrayList<>(cards.findBySetIdOrderByPositionAscIdAsc(session.getSet().getId()).stream().filter(card->StringUtils.hasText(quizValue(card,fields[1]))).toList());options.removeIf(card->card.getId().equals(item.getCard().getId()));Collections.shuffle(options);options=new ArrayList<>(options.stream().limit(3).toList());options.add(item.getCard());Collections.shuffle(options);List<OptionDto> result=new ArrayList<>();char label='A';for(FlashcardCard card:options)result.add(OptionDto.builder().cardId(card.getId()).label(String.valueOf(label++)).text(quizValue(card,fields[1])).build());return QuizQuestionDto.builder().sessionId(sessionId).cardId(item.getCard().getId()).question(quizValue(item.getCard(),fields[0])).reading(item.getCard().getReading()).meaning(item.getCard().getMeaning()).hanViet(item.getCard().getHanViet()).options(result).questionIndex(item.getPosition()+1).totalQuestions(all.size()).build(); }
+    public QuizQuestionDto nextQuiz(Long sessionId, Long userId) {
+        FlashcardStudySession session = quiz(sessionId, userId);
+        String[] fields = quizFields(session);
+        List<FlashcardStudySessionItem> all = sessionItems.findBySessionIdOrderByPositionAsc(sessionId);
+        FlashcardStudySessionItem item = all.stream().filter(row -> row.getIsCorrect() == null)
+                .findFirst().orElse(null);
+        if (item == null) return null;
+        Set<String> usedTexts = new HashSet<>();
+        usedTexts.add(quizValue(item.getCard(), fields[1]).toLowerCase(Locale.ROOT));
+        List<FlashcardCard> pool = new ArrayList<>(cards.findBySetIdOrderByPositionAscIdAsc(session.getSet().getId()));
+        pool.removeIf(card -> card.getId().equals(item.getCard().getId()));
+        Collections.shuffle(pool);
+        List<FlashcardCard> options = new ArrayList<>();
+        for (FlashcardCard card : pool) {
+            String value = quizValue(card, fields[1]);
+            if (StringUtils.hasText(value) && usedTexts.add(value.toLowerCase(Locale.ROOT))) options.add(card);
+            if (options.size() == 3) break;
+        }
+        options.add(item.getCard());
+        Collections.shuffle(options);
+        List<OptionDto> result = new ArrayList<>();
+        char label = 'A';
+        for (FlashcardCard card : options) {
+            result.add(OptionDto.builder().cardId(card.getId()).label(String.valueOf(label++))
+                    .text(quizValue(card, fields[1])).build());
+        }
+        return QuizQuestionDto.builder().sessionId(sessionId).cardId(item.getCard().getId())
+                .question(quizValue(item.getCard(), fields[0])).reading(item.getCard().getReading())
+                .meaning(item.getCard().getMeaning()).hanViet(item.getCard().getHanViet())
+                .options(result).questionIndex(item.getPosition() + 1).totalQuestions(all.size()).build();
+    }
     @Override public AnswerResultDto answer(AnswerRequest request,Long userId) { if(request==null||request.getSessionId()==null||request.getCardId()==null||request.getChosenCardId()==null)throw bad("Thiếu câu trả lời");FlashcardStudySession session=quiz(request.getSessionId(),userId);FlashcardStudySessionItem item=sessionItems.findBySessionIdAndCardId(session.getId(),request.getCardId()).orElseThrow(()->bad("Câu hỏi không hợp lệ"));if(item.getIsCorrect()!=null)throw bad("Câu hỏi đã trả lời");FlashcardCard chosen=cards.findById(request.getChosenCardId()).orElseThrow(()->bad("Đáp án không hợp lệ"));boolean right=item.getCard().getId().equals(chosen.getId());item.setChosenCard(chosen);item.setIsCorrect(right);item.setAnsweredAt(LocalDateTime.now());sessionItems.save(item);FlashcardCardProgress p=stateProgress(userId,item.getCard());apply(p,right?5:1);progress.save(p);List<FlashcardStudySessionItem> answers=sessionItems.findBySessionIdOrderByPositionAsc(session.getId());return AnswerResultDto.builder().correct(right).correctCardId(item.getCard().getId()).correctText(quizValue(item.getCard(),quizFields(session)[1])).currentCorrect((int)answers.stream().filter(a->Boolean.TRUE.equals(a.getIsCorrect())).count()).currentWrong((int)answers.stream().filter(a->Boolean.FALSE.equals(a.getIsCorrect())).count()).build(); }
     @Override public QuizSummaryDto finishQuiz(Long sessionId,Long userId) { FlashcardStudySession session=quiz(sessionId,userId);List<FlashcardStudySessionItem> all=sessionItems.findBySessionIdOrderByPositionAsc(sessionId);int right=(int)all.stream().filter(a->Boolean.TRUE.equals(a.getIsCorrect())).count(),wrong=(int)all.stream().filter(a->Boolean.FALSE.equals(a.getIsCorrect())).count();session.setStatus("COMPLETED");session.setFinishedAt(LocalDateTime.now());sessions.save(session);int seconds=(int)Duration.between(session.getStartedAt(),session.getFinishedAt()).toSeconds();Map<Long,FlashcardCardProgress> map=progressMap(userId,session.getSet().getId());return QuizSummaryDto.builder().sessionId(sessionId).total(all.size()).correct(right).wrong(wrong).percentage(all.isEmpty()?0:right*100.0/all.size()).durationSeconds(seconds).avgSecondsPerQuestion(all.isEmpty()?0:(double)seconds/all.size()).wrongCards(all.stream().filter(a->Boolean.FALSE.equals(a.getIsCorrect())).map(a->dto(a.getCard(),map.get(a.getCard().getId()))).toList()).build(); }
     @Override @Transactional(readOnly = true)
@@ -366,10 +397,40 @@ public class FlashcardServiceImpl implements FlashcardService {
     private List<FlashcardCard> missingSourceCards(FlashcardSet copy,FlashcardSet source){Set<String> existing=cards.findBySetIdOrderByPositionAscIdAsc(copy.getId()).stream().map(this::cardKey).collect(java.util.stream.Collectors.toSet());return cards.findBySetIdOrderByPositionAscIdAsc(source.getId()).stream().filter(card->!existing.contains(cardKey(card))).toList();}
     private String cardKey(FlashcardCard card){return card.getFront()+"\u0000"+Optional.ofNullable(card.getReading()).orElse("")+"\u0000"+card.getBack();}
     private String back(String reading,String meaning){if(!StringUtils.hasText(reading))return meaning;if(!StringUtils.hasText(meaning))return reading;return reading+" — "+meaning;}private String display(FlashcardCard card){return StringUtils.hasText(card.getMeaning())?card.getMeaning():card.getBack();}
-    private String quizField(String value){String field=value==null?"KANJI":value.trim().toUpperCase(Locale.ROOT);if(!Set.of("KANJI","HIRAGANA","MEANING","HAN_VIET").contains(field))throw bad("Mode kiểm tra không hợp lệ");return field;}
-    private String[] quizFields(FlashcardStudySession session){String mode=Optional.ofNullable(session.getMode()).orElse("");if(mode.startsWith("QUIZ_")&&mode.contains("_TO_")){String[] parts=mode.substring(5).split("_TO_",2);return new String[]{quizField(parts[0]),quizField(parts[1])};}return new String[]{"KANJI","MEANING"};}
-    /** Kana-only words (e.g. katakana) have no kanji: their front is the reading, so they skip Kanji questions and answers. */
-    private String quizValue(FlashcardCard card,String field){return switch(field){case "KANJI"->KanaWords.hasKanji(card.getFront())?card.getFront():"";case "HIRAGANA"->card.getReading();case "MEANING"->StringUtils.hasText(card.getMeaning())?card.getMeaning():card.getBack();case "HAN_VIET"->card.getHanViet();default->"";};}
+    private static final Set<String> QUIZ_FIELDS = Set.of("KANJI", "HIRAGANA", "MEANING", "HAN_VIET");
+
+    private String quizField(String value, String fallback) {
+        String field = StringUtils.hasText(value) ? value.trim().toUpperCase(Locale.ROOT) : fallback;
+        if (!QUIZ_FIELDS.contains(field)) throw bad("Mode kiểm tra không hợp lệ");
+        return field;
+    }
+
+    /** Read sessions from both branches and the original MULTIPLE_CHOICE format. */
+    private String[] quizFields(FlashcardStudySession session) {
+        String mode = Optional.ofNullable(session.getMode()).orElse("");
+        String[] fields = null;
+        if (mode.startsWith("QUIZ_") && mode.contains("_TO_")) {
+            fields = mode.substring(5).split("_TO_", 2);
+        } else if (mode.startsWith("MC:") && mode.contains(">")) {
+            fields = mode.substring(3).split(">", 2);
+        }
+        if (fields != null && QUIZ_FIELDS.contains(fields[0]) && QUIZ_FIELDS.contains(fields[1])) return fields;
+        return new String[]{"KANJI", "MEANING"};
+    }
+
+    /** Preserve W0250 kana eligibility and JLAS2-280's legacy reading fallback. */
+    private String quizValue(FlashcardCard card, String field) {
+        String value = switch (field) {
+            case "KANJI" -> KanaWords.hasKanji(card.getFront()) ? card.getFront() : "";
+            case "HIRAGANA" -> StringUtils.hasText(card.getReading()) ? card.getReading()
+                    : card.getBack() != null && card.getBack().contains(" — ")
+                        ? card.getBack().substring(0, card.getBack().indexOf(" — ")) : "";
+            case "MEANING" -> display(card);
+            case "HAN_VIET" -> card.getHanViet();
+            default -> "";
+        };
+        return value == null ? "" : value.trim();
+    }
     private Map<Long,FlashcardCardProgress> progressMap(Long userId,Long setId){if(userId==null)return Map.of();Map<Long,FlashcardCardProgress> result=new HashMap<>();progress.findByUserIdAndCardSetId(userId,setId).forEach(p->result.put(p.getCard().getId(),p));return result;}
     private FlashcardCardProgress stateProgress(Long userId,FlashcardCard card){FlashcardCardProgressId id=new FlashcardCardProgressId(login(userId),card.getId());return progress.findById(id).orElseGet(()->FlashcardCardProgress.builder().id(id).user(user(userId)).card(card).nextReviewAt(LocalDateTime.now()).build());}
     private void apply(FlashcardCardProgress p,int quality){int value=Math.max(0,Math.min(5,quality));int repetitions=Optional.ofNullable(p.getRepetitionCount()).orElse(0),interval=Math.min(MAX_INTERVAL_DAYS,Math.max(0,Optional.ofNullable(p.getIntervalDays()).orElse(0)));if(value<3){repetitions=0;interval=1;p.setStatus("LEARNING");}else{repetitions++;interval=repetitions==1?1:repetitions==2?6:Math.min(MAX_INTERVAL_DAYS,Math.max(1,interval*2));p.setStatus(repetitions>=3?"MASTERED":"LEARNING");}p.setRepetitionCount(repetitions);p.setIntervalDays(interval);p.setReviewCount(Optional.ofNullable(p.getReviewCount()).orElse(0)+1);p.setLastQuality((byte)value);p.setLastReviewedAt(LocalDateTime.now());p.setNextReviewAt(LocalDateTime.now().plusDays(interval));if(p.getEasinessFactor()==null)p.setEasinessFactor(new BigDecimal("2.50"));}

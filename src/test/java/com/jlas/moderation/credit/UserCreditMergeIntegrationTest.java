@@ -80,6 +80,16 @@ class UserCreditMergeIntegrationTest {
                 WORD_CONTRIBUTION_REVOKED, "WORD_CONTRIBUTION", contribution, revision, "Revision");
     }
 
+    @Test
+    void gameItemPurchaseChargesOnlyOnce() {
+        User user = user();
+        credits.earn(user.getId(), 100, ADMIN_GRANT, "TEST_GRANT", 1L, "Test balance");
+        assertThat(credits.spend(user.getId(), 30, GAME_ITEM_PURCHASE, "GAME_ITEM", 12L, "Purchase").applied()).isTrue();
+        assertThat(credits.spend(user.getId(), 30, GAME_ITEM_PURCHASE, "GAME_ITEM", 12L, "Retry").applied()).isFalse();
+        ledger.flush();
+        assertThat(credits.balance(user.getId())).isEqualTo(70);
+    }
+
     private Long revision(Long contribution) {
         return audits.saveAndFlush(ModerationAuditLog.builder().actorRole("ADMIN")
                 .action("DICTIONARY_REVISE").targetType("WORD_CONTRIBUTION").targetId(contribution)

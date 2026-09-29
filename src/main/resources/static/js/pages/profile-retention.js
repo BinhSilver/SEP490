@@ -354,7 +354,8 @@
         WORD_CONTRIBUTION_REWARD: 'Đóng góp từ điển',
         VIDEO_UNLOCK: 'Mở khoá video',
         ADMIN_GRANT: 'Quản trị viên tặng',
-        REFUND: 'Hoàn điểm'
+        REFUND: 'Hoàn điểm',
+        GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi'
     };
 
     async function loadCreditHistory() {

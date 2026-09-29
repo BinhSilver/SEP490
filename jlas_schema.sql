@@ -2123,7 +2123,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -2274,6 +2274,31 @@ CREATE TABLE user_permanent_upgrades (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_upgrade_ship FOREIGN KEY (equipped_ship_id)
         REFERENCES air_defense_spaceships(ship_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Cua hang Tro choi (migration 009): trang phuc meo / may bay mua bang CP chung.
+-- Danh muc mon nam trong code (GameShopCatalog); hai bang nay luu mon da mua va mon dang dung.
+-- Mon thuoc game nao suy ra tu item_code qua GameShopCatalog nen user_game_item khong luu game_type (3NF).
+CREATE TABLE user_game_item (
+    user_id      BIGINT UNSIGNED NOT NULL,
+    item_code    VARCHAR(40) NOT NULL,
+    price_paid   INT NOT NULL DEFAULT 0,
+    purchased_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, item_code),
+    CONSTRAINT fk_user_game_item_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_user_game_item_price CHECK (price_paid >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE user_game_loadout (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    game_type  VARCHAR(20) NOT NULL,
+    item_code  VARCHAR(40) NOT NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, game_type),
+    CONSTRAINT fk_user_game_loadout_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================

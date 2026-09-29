@@ -12,12 +12,32 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class AuthSecurityIntegrationTest {
     @Autowired MockMvc mvc;
+
+    @Test
+    void arenaApiStillRequiresAuthentication() throws Exception {
+        mvc.perform(get("/api/games/catalog")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void learnerCannotAccessModerationApiOrAdminWorkspace() throws Exception {
+        mvc.perform(get("/api/admin/moderation/overview").with(user("learner").roles("LEARNER")))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("FORBIDDEN"));
+        mvc.perform(get("/admin").with(user("learner").roles("LEARNER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void authenticatedLearnerCanReadGameCatalog() throws Exception {
+        mvc.perform(get("/api/games/catalog").with(user("learner").roles("LEARNER")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.success").value(true));
+    }
 
     @Test
     @DisplayName("AUTH-TC-055: API profile từ chối request chưa xác thực")
