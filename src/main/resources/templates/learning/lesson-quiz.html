@@ -1,41 +1,30 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head th:replace="~{fragments/head :: standard(${pageTitle}, 'learning-quiz')}"></head>
-<body id="jlabBasePage" class="app-body learning-quiz-body">
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Bài kiểm tra - JLAS', 'lesson-quiz')}"></head>
+<body id="jlabBasePage" class="app-body lesson-quiz-body journey-ui">
 <div id="jlabBaseShellMount"></div>
 
-<main id="jlabBaseContent" class="learning-quiz-page">
-    <div class="lq-page-shell">
-        <nav class="lq-breadcrumb" aria-label="Breadcrumb">
-            <a th:href="@{/}">Học tập</a>
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            <a th:href="@{/learning/path}">Lộ trình của tôi</a>
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            <a th:href="@{/learning/lesson/{id}(id=${lesson.id})}" th:text="${lesson.title}">Bài học</a>
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            <span aria-current="page">Quiz</span>
-        </nav>
+<main id="jlabBaseContent" class="lesson-quiz-page">
+    <nav class="lq-breadcrumb" aria-label="Breadcrumb">
+        <a th:href="@{/learning/path}">Lộ trình của tôi</a>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <span aria-current="page" data-lq-breadcrumb="Kiểm tra">Kiểm tra</span>
+    </nav>
 
-        <header class="lq-hero">
-            <span class="lq-eyebrow">
-                <span class="material-symbols-outlined" aria-hidden="true">quiz</span>
-                <span>Bài kiểm tra cuối bài</span>
-            </span>
-            <h1 th:text="${lesson.title}">Bài học</h1>
-            <p class="lq-hero__desc">Trả lời các câu hỏi để kiểm tra kiến thức vừa học.
-                Sau khi nộp bài, bạn sẽ xem được đáp án và giải thích chi tiết.</p>
-        </header>
-
-        <section id="lessonQuizRoot" class="lq-root" th:attr="data-lesson-id=${lesson.id}" aria-live="polite">
-            <div class="lq-state" role="status">
-                <span class="lq-spinner" aria-hidden="true"></span>
-                <span>Đang tải bài quiz…</span>
-            </div>
+    <div id="lessonQuizRoot"
+         class="lq-root"
+         aria-live="polite"
+         aria-busy="true"
+         th:attr="data-quiz-mode=${quizMode}, data-lesson-id=${quizLessonId}, data-grammar-point-id=${quizGrammarPointId}, data-stage-id=${quizStageId}">
+        <section class="lq-state lq-state--loading" role="status">
+            <span class="lq-spinner" aria-hidden="true"></span>
+            <h1>Đang tải bài kiểm tra</h1>
+            <p>JLAS đang chuẩn bị câu hỏi cho bạn.</p>
         </section>
     </div>
 </main>
 
-<script th:src="@{/js/pages/learning-quiz.js}"></script>
+<script th:src="@{/js/pages/lesson-quiz.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

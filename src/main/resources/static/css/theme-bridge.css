@@ -81,10 +81,11 @@
   --bg-sidebar: var(--color-surface-lowest);
   --star: #eab308;
   --overlay: rgba(11, 28, 48, 0.45);
-  --shadow-glow: 0 0 20px rgba(0, 88, 190, 0.15);
+  --shadow-glow: 0 0 20px rgba(79, 55, 138, 0.18);
 }
 
-/* Force flashcard pages to light JLAS look even if data-theme=dark */
+/* Re-resolve the flashcard legacy aliases against the active theme so the
+   light/dark toggle (data-theme on <html>) also re-skins the flashcard view. */
 html[data-theme="dark"],
 html[data-theme="light"],
 :root {
@@ -92,7 +93,7 @@ html[data-theme="light"],
   --bg-surface: var(--color-surface-lowest);
   --bg-elevated: var(--color-surface-low);
   --accent: var(--color-primary);
-  --accent-soft: rgba(0, 88, 190, 0.1);
+  --accent-soft: rgba(79, 55, 138, 0.10);
   --text-primary: var(--color-on-surface);
   --text-secondary: var(--color-secondary);
   --text-muted: var(--color-outline);

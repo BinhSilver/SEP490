@@ -1,5 +1,6 @@
 package com.jlas.learning.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,12 +8,15 @@ import java.util.List;
  * Read model of the user's active learning path: two phases with daily scheduling,
  * coverage gaps and overall totals.
  */
-public record LearningPathResponse(Long id, Long userId, String goal, String targetLevel, String currentLevel,
-        Integer minutesPerDay, String status, int version, LocalDateTime createdAt,
+public record LearningPathResponse(Long id, Long userId, Long assessmentAttemptId, String goal, String targetLevel,
+        String currentLevel, Integer minutesPerDay, String status, int version, LocalDateTime createdAt,
         List<LearningPhaseGroup> phases, List<CoverageGap> coverageGaps,
-        int totalLessons, int totalMinutes, int totalDays, int completedLessons) {
+        int totalLessons, int totalMinutes, int totalDays, int completedLessons,
+        boolean warmUpCompleted, boolean gatePassed, JsonNode aiPlan, List<LearningStageResponse> stages,
+        LocalDateTime completedAt) {
     public LearningPathResponse {
         phases = List.copyOf(phases);
         coverageGaps = List.copyOf(coverageGaps);
+        stages = List.copyOf(stages);
     }
 }

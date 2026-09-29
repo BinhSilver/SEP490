@@ -12,6 +12,18 @@
 (function () {
   'use strict';
 
+  // Set the active theme before first paint to avoid a light→dark flash.
+  // The original SVG cord is mounted separately by theme.js. Resolve the same
+  // saved/system preference here before the shared navigation is mounted.
+  (function () {
+    var stored = null;
+    try { stored = localStorage.getItem('jlas-theme'); } catch (error) { stored = null; }
+    var theme = stored === 'dark' || stored === 'light' ? stored : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  })();
+
   if (window.JLabBaseShell) {
     window.JLabBaseShell.mount();
     return;
@@ -40,6 +52,32 @@
     learningPathLink: 'jlabBaseLearningPathLink',
     learningPathIcon: 'jlabBaseLearningPathIcon',
     learningPathLabel: 'jlabBaseLearningPathLabel',
+    textbooksLink: 'jlabBaseTextbooksLink',
+    textbooksIcon: 'jlabBaseTextbooksIcon',
+    textbooksLabel: 'jlabBaseTextbooksLabel',
+    examsWrapper: 'jlabBaseExamsWrapper',
+    examsButton: 'jlabBaseExamsButton',
+    examsMenu: 'jlabBaseExamsMenu',
+    examsIcon: 'jlabBaseExamsIcon',
+    examsLabel: 'jlabBaseExamsLabel',
+    examsChevron: 'jlabBaseExamsChevron',
+    testBuilderWrapper: 'jlabBaseTestBuilderWrapper',
+    testBuilderButton: 'jlabBaseTestBuilderButton',
+    testBuilderIcon: 'jlabBaseTestBuilderIcon',
+    testBuilderLabel: 'jlabBaseTestBuilderLabel',
+    testBuilderChevron: 'jlabBaseTestBuilderChevron',
+    testBuilderMenu: 'jlabBaseTestBuilderMenu',
+    smartTestItem: 'jlabBaseSmartTestItem',
+    jlptItem: 'jlabBaseJlptItem',
+    jlptIcon: 'jlabBaseJlptIcon',
+    jlptLabel: 'jlabBaseJlptLabel',
+    examSmartTestIcon: 'jlabBaseExamSmartTestIcon',
+    examJlptItem: 'jlabBaseExamJlptItem',
+    examJlptIcon: 'jlabBaseExamJlptIcon',
+    examJlptLabel: 'jlabBaseExamJlptLabel',
+    learnPathItem: 'jlabBaseLearnPathItem',
+    learnPathItemIcon: 'jlabBaseLearnPathItemIcon',
+    learnPathItemLabel: 'jlabBaseLearnPathItemLabel',
     lookupLink: 'jlabBaseLookupLink',
     lookupIcon: 'jlabBaseLookupIcon',
     lookupLabel: 'jlabBaseLookupLabel',
@@ -61,6 +99,9 @@
     shadowingLink: 'jlabBaseShadowingLink',
     shadowingIcon: 'jlabBaseShadowingIcon',
     shadowingLabel: 'jlabBaseShadowingLabel',
+    smartTestLink: 'jlabBaseSmartTestLink',
+    smartTestIcon: 'jlabBaseSmartTestIcon',
+    smartTestLabel: 'jlabBaseSmartTestLabel',
     aboutLink: 'jlabBaseAboutLink',
     aboutLabel: 'jlabBaseAboutLabel',
     actions: 'jlabBaseActions',
@@ -101,6 +142,9 @@
     profileLink: 'jlabBaseProfileLink',
     profileIcon: 'jlabBaseProfileIcon',
     profileLabel: 'jlabBaseProfileLabel',
+    myLearningPathLink: 'jlabBaseMyLearningPathLink',
+    myLearningPathIcon: 'jlabBaseMyLearningPathIcon',
+    myLearningPathLabel: 'jlabBaseMyLearningPathLabel',
     progressLink: 'jlabBaseProgressLink',
     progressIcon: 'jlabBaseProgressIcon',
     progressLabel: 'jlabBaseProgressLabel',
@@ -120,6 +164,29 @@
     sanctionDialog: 'jlabBaseSanctionDialog'
   };
 
+  /**
+   * Nav theo role — cách dùng (thêm mục mới KHÔNG phải sửa logic):
+   *   1. Khai báo ở đây: khóa = tên trong `ids` của phần tử nav, giá trị là MỘT trong hai dạng:
+   *        { only:   ['ROLE', ...] }  → CHỈ hiện với các role này (khách/không role → ẩn).
+   *                                     Phần tử phải render với thuộc tính `hidden` trong shellMarkup()
+   *                                     (mặc định ẩn, không lộ dù một khung hình).
+   *        { except: ['ROLE', ...] }  → hiện với MỌI người TRỪ các role này (khách vẫn thấy).
+   *                                     Phần tử render như bình thường (không `hidden`).
+   *      Giá trị role = roles.name trong DB (users.role). Mục KHÔNG khai báo = ai cũng thấy.
+   *   2. Không cần sửa CSS: rule chung `#jlabBasePrimaryNav > [hidden]` ẩn mọi mục con; syncNavRoles() đặt
+   *      --jlab-nav-count = số mục đang hiện để lưới mobile tự chia cột, và gắn class
+   *      `is-role-<role viết thường, _ → ->` lên #jlabBasePrimaryNav (ví dụ is-role-content-creator).
+   *   3. Mục là dropdown (có [role=menu] + nút [aria-controls]) bị ẩn thì menu tự đóng.
+   * Role lấy từ JlasAuth.getUser().role (cache localStorage, làm mới mỗi lần tải trang qua /api/auth/me) và
+   * chỉ tính khi còn đăng nhập (token chưa hết hạn). Đây chỉ là ẩn/hiện giao diện, KHÔNG phải phân quyền:
+   * route thật của mục phải tự chặn ở backend (@PreAuthorize), vì gõ thẳng URL vẫn vào được.
+   */
+  var NAV_ROLES = {
+    testBuilderWrapper: { only: ['CONTENT_CREATOR'] },
+    gameLink: { except: ['CONTENT_CREATOR'] },
+    toolsWrapper: { except: ['CONTENT_CREATOR'] }
+  };
+
   // Roles that can open the shared admin workspace (/admin). Each page and API re-checks on the server.
   var ADMIN_ROLES = ['MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
 
@@ -133,6 +200,12 @@
     var paths = {
       home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"></path><path d="M9 21v-6h6v6"></path>',
       learning: '<path d="m2 10 10-5 10 5-10 5Z"></path><path d="M6 12v5c3 2 9 2 12 0v-5"></path>',
+      route: '<circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="5" r="2"></circle><path d="M8 19h1a4 4 0 0 0 4-4V9a4 4 0 0 1 4-4h1"></path>',
+      book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>',
+      clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>',
+      clipboardCheck: '<rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="m9 14 2 2 4-4"></path>',
+      filePlus: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 18v-6M9 15h6"></path>',
+      graduation: '<path d="M22 10 12 5 2 10l10 5 10-5Z"></path><path d="M6 12v5c3 2 7 2 10 0v-5"></path>',
       search: '<circle cx="11" cy="11" r="6"></circle><path d="m20 20-4.2-4.2"></path>',
       game: '<path d="M6 9h12a4 4 0 0 1 3.9 4.9l-1 4A3 3 0 0 1 18 20H6a3 3 0 0 1-2.9-2.1l-1-4A4 4 0 0 1 6 9Z"></path><path d="M8 14h4M10 12v4M16 14h.01M18 16h.01"></path>',
       grid: '<rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect>',
@@ -158,9 +231,19 @@
 
   function replaceShellIcons() {
     replaceIcon(ids.homeIcon, 'home');
-    replaceIcon(ids.learningPathIcon, 'learning');
+    replaceIcon(ids.learningPathIcon, 'route');
+    replaceIcon(ids.textbooksIcon, 'book');
     replaceIcon(ids.lookupIcon, 'search');
     replaceIcon(ids.gameIcon, 'game');
+    replaceIcon(ids.examsIcon, 'learning');
+    replaceIcon(ids.examsChevron, 'chevron', 'jlab-base-icon--chevron');
+    replaceIcon(ids.examSmartTestIcon, 'clipboardCheck');
+    replaceIcon(ids.examJlptIcon, 'graduation');
+    replaceIcon(ids.learnPathItemIcon, 'route');
+    replaceIcon(ids.testBuilderIcon, 'filePlus');
+    replaceIcon(ids.testBuilderChevron, 'chevron', 'jlab-base-icon--chevron');
+    replaceIcon(ids.smartTestIcon, 'clipboardCheck');
+    replaceIcon(ids.jlptIcon, 'graduation');
     replaceIcon(ids.toolsIcon, 'grid');
     replaceIcon(ids.toolsChevron, 'chevron', 'jlab-base-icon--chevron');
     replaceIcon(ids.aiCallIcon, 'message');
@@ -193,6 +276,33 @@
             '<a id="' + ids.learningPathLink + '" href="/learning/onyomi" title="Lộ trình Hán Việt → On">' +
               '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
             '</a>' +
+            '<a id="' + ids.textbooksLink + '" href="/textbooks" title="Giáo trình số hoá theo cấp độ">' +
+              '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
+            '</a>' +
+            // "Học tập" (Smart Test / JLPT / Lộ Trình học): dropdown cùng khuôn "Công cụ".
+            '<div id="' + ids.examsWrapper + '" class="dropdown nav-tools-dropdown">' +
+              '<button id="' + ids.examsButton + '" class="nav-tools-trigger" aria-label="Học tập" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.examsMenu + '">' +
+                '<i id="' + ids.examsIcon + '" aria-hidden="true"></i><span id="' + ids.examsLabel + '">Học tập</span><i id="' + ids.examsChevron + '" aria-hidden="true"></i>' +
+              '</button>' +
+              '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
+                '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
+                '<button id="' + ids.examJlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.examJlptIcon + '" aria-hidden="true"></i><span id="' + ids.examJlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
+                '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning/path" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
+              '</div>' +
+            '</div>' +
+            // "Tạo đề": chỉ CONTENT_CREATOR (NAV_ROLES) — render `hidden`, syncNavRoles() bật. Khung theo đúng "Công cụ".
+            '<div id="' + ids.testBuilderWrapper + '" class="dropdown nav-tools-dropdown" hidden>' +
+              '<button id="' + ids.testBuilderButton + '" class="nav-tools-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.testBuilderMenu + '">' +
+                '<i id="' + ids.testBuilderIcon + '" aria-hidden="true"></i><span id="' + ids.testBuilderLabel + '">Tạo đề</span><i id="' + ids.testBuilderChevron + '" aria-hidden="true"></i>' +
+              '</button>' +
+              '<div id="' + ids.testBuilderMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
+                // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
+                //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
+                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
+                // TODO(JLPT): như trên.
+                '<button id="' + ids.jlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
+              '</div>' +
+            '</div>' +
             '<a id="' + ids.lookupLink + '" href="/dictionary/index.html" title="Tra cứu từ điển">' +
               '<i id="' + ids.lookupIcon + '" aria-hidden="true"></i><span id="' + ids.lookupLabel + '">Tra cứu</span>' +
             '</a>' +
@@ -209,7 +319,7 @@
                 '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
               '</div>' +
             '</div>' +
-            '<a id="' + ids.aboutLink + '" href="/#about"><span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
+            '<a id="' + ids.aboutLink + '" href="/#about" aria-label="Giới thiệu"><span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
           '</nav>' +
           '<div id="' + ids.actions + '" class="site-header__actions">' +
             '<div id="' + ids.guestActions + '" class="user-actions" data-auth-guest>' +
@@ -257,6 +367,7 @@
                     '</div>' +
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
+                  '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
                   '<a id="' + ids.progressLink + '" class="dropdown__item" href="/progress" role="menuitem"><span id="' + ids.progressIcon + '" class="material-symbols-outlined" aria-hidden="true">monitoring</span><span id="' + ids.progressLabel + '">Tiến độ học tập</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.adminLink + '" class="dropdown__item" href="/admin" role="menuitem" hidden><i id="' + ids.adminIcon + '" aria-hidden="true"></i><span id="' + ids.adminLabel + '">Trang quản trị</span></a>' +
@@ -288,8 +399,14 @@
   function syncActiveLink() {
     var path = normalizePath(window.location.pathname);
     var isHome = path === '/' || path === '/index';
-    var isLearningPath = path === '/learning/onyomi' ||
+    var isLearningPath = path === '/learning/path' ||
+      path.indexOf('/learning/lesson/') === 0 ||
+      path.indexOf('/learning/quiz/') === 0 ||
+      path.indexOf('/learning/rules') === 0 ||
+      path.indexOf('/learning/flashcards') === 0;
+    var isOnyomi = path === '/learning/onyomi' ||
       path.indexOf('/learning/onyomi/') === 0;
+    var isTextbooks = path === '/textbooks' || path.indexOf('/textbooks/') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
     var isDictionary = path === '/dictionary/index' || path === '/dictionary' ||
       path.indexOf('/dictionary/') === 0;
@@ -310,16 +427,20 @@
       path.indexOf('/flashcard/set/') === 0 ||
       path.indexOf('/flashcard/study/') === 0;
     var isShadowing = path === '/shadowing' || path.indexOf('/shadowing/') === 0;
+    var isSmartTest = path === '/smart-test' || path === '/survey';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
     var isProgress = path === '/progress';
 
     markCurrent(ids.homeLink, isHome);
-    markCurrent(ids.learningPathLink, isLearningPath);
+    markCurrent(ids.textbooksLink, isTextbooks);
+    markCurrent(ids.learningPathLink, isOnyomi);
     markCurrent(ids.lookupLink, isDictionary);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.aiCallLink, isAiCall);
     markCurrent(ids.flashcardLink, isFlashcard);
     markCurrent(ids.shadowingLink, isShadowing);
+    markCurrent(ids.smartTestLink, isSmartTest);
+    markCurrent(ids.learnPathItem, isLearningPath);
     markCurrent(ids.progressLink, isProgress);
     markCurrent(ids.streakLink, isGoals);
     markCurrent(ids.adminLink, path === '/admin' || path.indexOf('/admin/') === 0);
@@ -332,6 +453,7 @@
         toolsButton.removeAttribute('aria-current');
       }
     }
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath);
   }
 
   function fallbackUser() {
@@ -409,6 +531,32 @@
     }
   }
 
+
+  /** Ẩn/hiện mục nav theo NAV_ROLES (xem chú thích ở khai báo), rồi cập nhật số cột + class role trên nav. */
+  function syncNavRoles(current) {
+    var role = current.loggedIn && current.user && current.user.role ? String(current.user.role) : '';
+    Object.keys(NAV_ROLES).forEach(function (key) {
+      var element = byId(ids[key]);
+      if (!element) return;
+      var rule = NAV_ROLES[key];
+      var visible = rule.only ? (!!role && rule.only.indexOf(role) !== -1) : !(rule.except && rule.except.indexOf(role) !== -1);
+      element.hidden = !visible;
+      if (!visible) {
+        var menu = element.querySelector('[role="menu"]');
+        var trigger = element.querySelector('[aria-controls]');
+        if (menu && trigger) closeMenu(menu.id, trigger.id);
+      }
+    });
+    var nav = byId(ids.primaryNav);
+    if (!nav) return;
+    var visibleCount = Array.prototype.filter.call(nav.children, function (child) { return !child.hidden; }).length;
+    nav.style.setProperty('--jlab-nav-count', String(visibleCount));
+    nav.setAttribute('data-nav-count', String(visibleCount));
+    Array.prototype.slice.call(nav.classList).forEach(function (name) {
+      if (name.indexOf('is-role-') === 0) nav.classList.remove(name);
+    });
+    if (role) nav.classList.add('is-role-' + role.toLowerCase().replace(/_/g, '-'));
+  }
   function syncAuth() {
     if (!state.mounted) return;
 
@@ -417,6 +565,7 @@
     var account = byId(ids.userActions);
     if (guest) guest.hidden = current.loggedIn;
     if (account) account.hidden = !current.loggedIn;
+    syncNavRoles(current);
 
     if (!current.loggedIn) {
       closeMenu(ids.accountMenu, ids.avatarButton);
@@ -728,6 +877,8 @@
       : menuId === ids.accountMenu ? ids.accountWrapper
       : menuId === ids.notificationPanel ? ids.notificationWrapper : null;
     var wrapper = wrapperId ? byId(wrapperId) : null;
+    if (!wrapper && menuId === ids.testBuilderMenu) wrapper = byId(ids.testBuilderWrapper);
+    if (!wrapper && menuId === ids.examsMenu) wrapper = byId(ids.examsWrapper);
     if (menu) menu.hidden = true;
     if (wrapper) wrapper.classList.remove('is-open');
     if (button) {
@@ -740,6 +891,8 @@
     closeMenu(ids.toolsMenu, ids.toolsButton, restoreFocusId === ids.toolsButton);
     closeMenu(ids.accountMenu, ids.avatarButton, restoreFocusId === ids.avatarButton);
     closeMenu(ids.notificationPanel, ids.notificationButton, restoreFocusId === ids.notificationButton);
+    closeMenu(ids.testBuilderMenu, ids.testBuilderButton, restoreFocusId === ids.testBuilderButton);
+    closeMenu(ids.examsMenu, ids.examsButton, restoreFocusId === ids.examsButton);
   }
 
   function toggleMenu(menuId, buttonId, otherMenuId, otherButtonId, firstItemId) {
@@ -748,6 +901,8 @@
     var wrapperId = menuId === ids.toolsMenu ? ids.toolsWrapper
       : menuId === ids.accountMenu ? ids.accountWrapper : null;
     var wrapper = wrapperId ? byId(wrapperId) : null;
+    if (!wrapper && menuId === ids.testBuilderMenu) wrapper = byId(ids.testBuilderWrapper);
+    if (!wrapper && menuId === ids.examsMenu) wrapper = byId(ids.examsWrapper);
     if (!menu || !button) return;
 
     var willOpen = menu.hidden;
@@ -785,6 +940,15 @@
     }, 3200);
   }
 
+  function bindThemeCord() {
+    if (window.JlasTheme) { window.JlasTheme.init(); return; }
+    if (document.getElementById('jlasThemeScript')) return;
+    var script = document.createElement('script');
+    script.id = 'jlasThemeScript';
+    script.src = '/js/theme.js';
+    document.head.appendChild(script);
+  }
+
   function redirectToolGuestToLogin(link) {
     var destination = link && link.getAttribute('href');
     if (!destination || destination.charAt(0) !== '/') destination = '/';
@@ -802,6 +966,8 @@
   function bindEvents() {
     if (state.eventsBound) return;
     state.eventsBound = true;
+
+    bindThemeCord();
 
     byId(ids.toolsButton).addEventListener('click', function () {
       closeMenu(ids.notificationPanel, ids.notificationButton);
@@ -848,14 +1014,38 @@
       if (header && !header.contains(event.target)) closeAllMenus();
     });
 
+    byId(ids.examsButton).addEventListener('click', function () {
+      var willOpen = byId(ids.examsMenu).hidden;
+      closeAllMenus();
+      if (willOpen) toggleMenu(ids.examsMenu, ids.examsButton, ids.toolsMenu, ids.toolsButton, ids.smartTestLink);
+    });
+    [ids.toolsButton, ids.avatarButton, ids.notificationButton, ids.testBuilderButton].forEach(function (buttonId) {
+      byId(buttonId).addEventListener('click', function () { closeMenu(ids.examsMenu, ids.examsButton); });
+    });
+    // "Tạo đề": cùng khuôn "Công cụ"; đóng chéo với 3 menu cũ (listener bổ sung, không sửa handler cũ).
+    byId(ids.testBuilderButton).addEventListener('click', function () {
+      closeMenu(ids.notificationPanel, ids.notificationButton);
+      closeMenu(ids.accountMenu, ids.avatarButton);
+      toggleMenu(ids.testBuilderMenu, ids.testBuilderButton, ids.toolsMenu, ids.toolsButton, ids.smartTestItem);
+    });
+    byId(ids.toolsButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
+    byId(ids.avatarButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
+    byId(ids.notificationButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      var menu = byId(ids.testBuilderMenu);
+      if (menu && !menu.hidden) closeMenu(ids.testBuilderMenu, ids.testBuilderButton, true);
+    });
+
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return;
       var toolsOpen = byId(ids.toolsMenu) && !byId(ids.toolsMenu).hidden;
       var accountOpen = byId(ids.accountMenu) && !byId(ids.accountMenu).hidden;
       var notificationsOpen = byId(ids.notificationPanel) && !byId(ids.notificationPanel).hidden;
+      var examsOpen = byId(ids.examsMenu) && !byId(ids.examsMenu).hidden;
       closeAllMenus(toolsOpen ? ids.toolsButton
         : accountOpen ? ids.avatarButton
-        : notificationsOpen ? ids.notificationButton : null);
+        : notificationsOpen ? ids.notificationButton : examsOpen ? ids.examsButton : null);
     });
 
     window.addEventListener('popstate', syncActiveLink);

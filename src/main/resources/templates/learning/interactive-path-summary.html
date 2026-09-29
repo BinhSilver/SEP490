@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Tổng kết lộ trình - JLAS', 'interactive-learning-path')}"></head>
+<link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css}" />
+<body id="jlabBasePage" class="app-body ilp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="ilp-page">
+    <nav class="ilp-breadcrumb" aria-label="Breadcrumb">
+        <span class="ilp-system">// SYSTEM</span><span>/</span><span>Học tập</span><span>/</span>
+        <a href="/learning/path/v2">Lộ trình cá nhân</a><span>/</span>
+        <strong aria-current="page">Tổng kết chặng</strong>
+    </nav>
+    <!-- [JLAS-W0193] Task 10 — real first/latest/best-per-skill, unresolved-dimension, Dialogue completion,
+         Reading/Listening (Smart Test) evidence and readiness content (design spec §6), fetched from
+         GET /api/learning/v2/paths/current/summary and rendered by interactive-path-summary.js. Task 8 only
+         routed here with a placeholder; this replaces that placeholder body. -->
+    <div id="interactivePathSummaryRoot" aria-busy="false">
+        <section class="ilp-state"><p>Đang tải tổng kết…</p></section>
+    </div>
+</main>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/interactive-path-summary.js}"></script>
+</body>
+</html>

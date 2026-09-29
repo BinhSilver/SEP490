@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import com.jlas.learning.enums.LearningExperienceVersion;
 
 /**
  * Lộ trình học dài hạn có version của user.
@@ -22,6 +23,12 @@ public class UserLearningPath {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0193] Selects the legacy or interactive contract without rewriting historical paths. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "experience_version", nullable = false, length = 30)
+    @Builder.Default
+    private LearningExperienceVersion experienceVersion = LearningExperienceVersion.LEGACY_V1;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
@@ -62,7 +69,34 @@ public class UserLearningPath {
     @Column(name = "coverage_gaps_json", columnDefinition = "TEXT")
     private String coverageGapsJson;
 
-    /** ACTIVE/SUPERSEDED. */
+    /** [JLAS-W0113] Thời điểm vượt qua gate quiz tổng kết warm-up; null = chưa vượt. */
+    @Column(name = "gate_passed_at")
+    private LocalDateTime gatePassedAt;
+
+    /** [JLAS-W0108] Thời điểm lộ trình hoàn thành (chặng cuối đạt final); null = chưa hoàn thành.
+     *  Dùng làm ngày cấp chứng chỉ thành tựu nội bộ, không suy từ updated_at. */
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    /** [JLAS-W0108] Id bộ flashcard warm-up gộp Kanji+Từ vựng đã sai (soft-link, null = chưa sinh). */
+    @Column(name = "warm_up_flashcard_set_id")
+    private Long warmUpFlashcardSetId;
+
+    /**
+     * [JLAS-W0108] P2d — fingerprint membership bộ flashcard (identity expression+reading đã khử trùng,
+     * sắp thứ tự). Dùng để phát hiện membership thay đổi khi replan thêm mục yếu mới: fingerprint khác
+     * cột này thì {@code WarmUpFlashcardService} regenerate bộ (mục mới vào trạng thái chưa nhớ, giữ
+     * tiến độ các thẻ cũ) và activity chưa được tính là hoàn thành.
+     */
+    @Column(name = "warm_up_flashcard_version", columnDefinition = "TEXT")
+    private String warmUpFlashcardVersion;
+
+    /** [JLAS-W0108] Kế hoạch lộ trình cá nhân hoá do Gemini sinh (JSON: overview + phases[]);
+     *  null = chưa sinh (Gemini lỗi/rate-limit), UI vẫn chạy bình thường không cần narrative. */
+    @Column(name = "ai_plan_json", columnDefinition = "TEXT")
+    private String aiPlanJson;
+
+    /** ACTIVE/SUPERSEDED/COMPLETED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private String status = "ACTIVE";
