@@ -1,601 +1,460 @@
 /**
- * Trang phòng chờ: render slot, settings, countdown, reconnect.
- * Toàn bộ hành động đi qua WebSocket; server là nguồn sự thật duy nhất.
+ * Phòng đối kháng (/games/room/{roomId}): 2 chỗ ngồi, sẵn sàng, chủ phòng đổi cài đặt và bắt đầu,
+ * đếm ngược rồi cả hai cùng sang trang chơi. Trạng thái phòng đến qua SSE (ROOM_STATE).
  */
-(function (global) {
-    'use strict';
+(function () {
+  'use strict';
 
-    var STATUS_LABEL = {
-        WAITING: 'Đang chờ',
-        COUNTDOWN: 'Đếm ngược',
-        IN_GAME: 'Đang chơi',
-        FINISHED: 'Đã kết thúc',
-        CLOSED: 'Đã đóng'
-    };
+  var arena = window.JlasArena;
+  var setup = window.JlasArenaSetup;
+  var esc = arena.esc;
+  var main = document.querySelector('[data-room-id]');
+  var roomId = main.dataset.roomId;
 
-    var MODE_LABEL = {
-        KANJI_TO_HIRAGANA: 'Kanji  Hiragana',
-        KANJI_TO_MEANING: 'Kanji  Nghĩa',
-        HIRAGANA_TO_MEANING: 'Hiragana  Nghĩa',
-        MEANING_TO_KANJI: 'Nghĩa  Kanji'
-    };
+  var state = { room: null, meId: null, catalog: null, closed: false, navigating: false, busy: false };
+  var draft = null;
+  var dialogPicker = null;
+  var countdownTimer = null;
 
-    var store = null;
-    var countdownTimer = null;
-    var settingsDirty = false;
-    var gameNavigationStarted = false;
-    var flashcardSets = [];
-    var flashcardSetsLoaded = false;
+  var el = {
+    status: document.querySelector('[data-room-status]'),
+    room: document.querySelector('[data-room]'),
+    game: document.querySelector('[data-room-game]'),
+    code: document.querySelector('[data-room-code]'),
+    visibility: document.querySelector('[data-room-visibility]'),
+    connDot: document.querySelector('[data-conn-dot]'),
+    connText: document.querySelector('[data-conn-text]'),
+    seats: [document.querySelector('[data-seat="0"]'), document.querySelector('[data-seat="1"]')],
+    settings: document.querySelector('[data-settings-list]'),
+    editSettings: document.querySelector('[data-edit-settings]'),
+    actions: document.querySelector('[data-room-actions]'),
+    lastResult: document.querySelector('[data-last-result]'),
+    lastResultBody: document.querySelector('[data-last-result-body]'),
+    dialog: document.querySelector('[data-settings-dialog]'),
+    dialogDeck: document.querySelector('[data-dialog-deck]'),
+    dialogFields: document.querySelector('[data-dialog-fields]'),
+    dialogOptions: document.querySelector('[data-dialog-options]'),
+    dialogProblem: document.querySelector('[data-dialog-problem]'),
+    saveSettings: document.querySelector('[data-save-settings]'),
+    countdown: document.querySelector('[data-countdown]'),
+    countdownNumber: document.querySelector('[data-countdown-number]'),
+    countdownText: document.querySelector('[data-countdown-text]'),
+    vs: document.querySelector('[data-vs]'),
+    shell: document.querySelector('[data-room-shell]')
+  };
 
-    function $(selector) {
-        return document.querySelector(selector);
+  var vsContext = {
+    meId: null,
+    busy: false,
+    onChoose: function (stepKey, value) {
+      arena.api.draftChoose(roomId, stepKey, value).then(applyRoom).catch(function (error) {
+        toast(error.message, 'error');
+        refresh().catch(function () {});
+      });
+    },
+    onPass: function (stepKey) {
+      arena.api.draftPass(roomId, stepKey).then(applyRoom).catch(function (error) {
+        toast(error.message, 'error');
+        refresh().catch(function () {});
+      });
+    },
+    onReady: function (ready) {
+      act(arena.api.ready(roomId, ready));
+    },
+    onLeave: function () {
+      state.closed = true;
+      arena.api.leave(roomId).catch(function () {}).then(function () { window.location.href = '/games'; });
     }
+  };
+  window.JlasVsRoom.mount(el.vs, vsContext);
 
-    function initials(name) {
-        if (!name) {
-            return '?';
-        }
-        var parts = String(name).trim().split(/\s+/);
-        return (parts[0].charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : ''))
-            .toUpperCase();
+  function toast(message, type) {
+    if (window.JlasUI) window.JlasUI.toast(message, type || 'info');
+  }
+
+  function showStatus(html) {
+    el.status.hidden = false;
+    el.status.innerHTML = html;
+    el.room.hidden = true;
+  }
+
+  function isHost() {
+    return state.room && state.room.hostUserId === state.meId;
+  }
+
+  function me() {
+    return state.room && state.room.players.find(function (player) { return player.userId === state.meId; });
+  }
+
+  /** Hai chữ đầu của 2 từ cuối tên, bỏ phần ghi chú trong ngoặc: "Lê Minh Châu (test)" → "MC". */
+  function initials(name) {
+    var clean = String(name || '?').replace(/\([^)]*\)/g, ' ').trim() || '?';
+    return clean.split(/\s+/).slice(-2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
+  }
+
+  // ------------------------------------------------------------------ render
+
+  function render() {
+    var room = state.room;
+    if (!room) return;
+    if (room.quickMatch) {
+      // Ghép trận nhanh: màn VS toàn khung, tung đồng xu chọn cài đặt.
+      el.status.hidden = true;
+      el.shell.hidden = true;
+      el.vs.hidden = false;
+      document.body.classList.add('is-vs-room');
+      document.title = room.gameName + ' · Ghép trận nhanh - JLAS';
+      window.JlasVsRoom.render(room);
+      renderCountdown(room);
+      return;
     }
+    el.status.hidden = true;
+    el.room.hidden = false;
+    document.title = 'Phòng ' + room.code + ' · ' + room.gameName + ' - JLAS';
+    el.game.textContent = room.gameName + ' · Đấu tay đôi';
+    el.code.textContent = room.code;
+    el.visibility.textContent = 'Chỉ người có mã hoặc link mời mới vào được';
+    renderSeats(room);
+    renderSettings(room);
+    renderActions(room);
+    renderLastResult(room);
+    renderCountdown(room);
+  }
 
-    // ---------------- Render: slots ----------------
-
-    function buildSlot(player, state) {
-        var node = document.createElement('div');
-        var classes = ['slot'];
-
-        if (!player) {
-            classes.push('slot--empty');
-            node.className = classes.join(' ');
-            var placeholder = document.createElement('div');
-            placeholder.className = 'slot__avatar';
-            placeholder.textContent = '+';
-            node.appendChild(placeholder);
-            var waiting = document.createElement('div');
-            waiting.className = 'slot__name';
-            waiting.textContent = 'Đang chờ…';
-            node.appendChild(waiting);
-            return node;
-        }
-
-        if (player.ready) {
-            classes.push('slot--ready');
-        }
-        if (!player.connected) {
-            classes.push('slot--offline');
-        }
-        if (store.currentUserId && player.userId === store.currentUserId) {
-            classes.push('slot--me');
-        }
-        if (player.team === 0 || player.team === 1) {
-            classes.push('slot--team-' + player.team);
-        }
-        node.className = classes.join(' ');
-
-        var avatar = document.createElement('div');
-        avatar.className = 'slot__avatar';
-        if (player.avatar) {
-            var img = document.createElement('img');
-            img.src = player.avatar;
-            img.alt = '';
-            avatar.appendChild(img);
-        } else {
-            avatar.textContent = initials(player.displayName);
-        }
-        node.appendChild(avatar);
-
-        var name = document.createElement('div');
-        name.className = 'slot__name';
-        name.textContent = player.displayName;
-        node.appendChild(name);
-
-        var badges = document.createElement('div');
-        badges.className = 'slot__badges';
-        if (player.isHost) {
-            var host = document.createElement('span');
-            host.className = 'tag tag--sakura';
-            host.textContent = 'Host';
-            badges.appendChild(host);
-        }
-        if (player.team === 0 || player.team === 1) {
-            var team = document.createElement('span');
-            team.className = player.team === 0 ? 'tag tag--sakura' : 'tag tag--cyan';
-            team.textContent = 'Đội ' + (player.team + 1);
-            badges.appendChild(team);
-        }
-        if (!player.connected) {
-            var offline = document.createElement('span');
-            offline.className = 'tag';
-            offline.textContent = 'Mất kết nối';
-            badges.appendChild(offline);
-        }
-        node.appendChild(badges);
-
-        var ready = document.createElement('div');
-        ready.className = 'slot__ready';
-        var check = document.createElement('span');
-        check.className = 'slot__check';
-        check.textContent = '✓';
-        ready.appendChild(check);
-        var readyText = document.createElement('span');
-        readyText.textContent = player.isHost
-            ? 'Chủ phòng'
-            : (player.ready ? 'Sẵn sàng' : 'Chưa sẵn sàng');
-        ready.appendChild(readyText);
-        node.appendChild(ready);
-
-        return node;
+  function renderSeats(room) {
+    for (var slot = 0; slot < 2; slot++) {
+      var seat = el.seats[slot];
+      var player = room.players.find(function (p) { return p.slot === slot; });
+      seat.classList.toggle('is-empty', !player);
+      seat.classList.toggle('is-ready', !!(player && player.ready));
+      if (!player) {
+        seat.innerHTML = '<div class="ar-avatar" aria-hidden="true">?</div><h2>Đang chờ đối thủ</h2>'
+          + '<p class="ar-seat__wait">Gửi mã <strong class="ar-code">' + esc(room.code) + '</strong> hoặc link mời cho bạn bè.</p>';
+        continue;
+      }
+      var tags = [];
+      if (player.host) tags.push('<span class="ar-chip ar-chip--accent"><i class="fa-solid fa-crown" aria-hidden="true"></i> Chủ phòng</span>');
+      if (player.userId === state.meId) tags.push('<span class="ar-chip">Bạn</span>');
+      tags.push(player.ready
+        ? '<span class="ar-chip ar-chip--ok"><i class="fa-solid fa-check" aria-hidden="true"></i> Sẵn sàng</span>'
+        : '<span class="ar-chip ar-chip--gold">Chưa sẵn sàng</span>');
+      if (!player.online) tags.push('<span class="ar-chip ar-chip--bad">Mất kết nối</span>');
+      var avatar = player.avatarUrl
+        ? '<img src="' + esc(player.avatarUrl) + '" alt="">'
+        : esc(initials(player.displayName));
+      seat.innerHTML = '<div class="ar-avatar" aria-hidden="true">' + avatar + '</div>'
+        + '<h2>' + esc(player.displayName) + '</h2>'
+        + '<div class="ar-seat__tags">' + tags.join('') + '</div>';
     }
+  }
 
-    function renderSlots(state) {
-        var host = $('[data-versus]');
-        if (!host) {
-            return;
-        }
-        host.innerHTML = '';
-        var duel = state.maxPlayers === 2;
-        host.className = 'versus ' + (duel ? 'versus--duel' : 'versus--squad');
+  function renderSettings(room) {
+    var settings = room.settings || {};
+    var rows = [
+      ['Bộ flashcard', settings.setTitle || '—'],
+      ['Câu hỏi', arena.fieldLabel(settings.questionField)],
+      ['Đáp án', arena.fieldLabel(settings.answerField)],
+      ['Tuỳ chọn', setup.describeOptions(room.gameType, settings.options, 'VERSUS')]
+    ];
+    el.settings.innerHTML = rows.map(function (row) {
+      return '<dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd>';
+    }).join('');
+    el.editSettings.hidden = !isHost() || room.status !== 'WAITING';
+  }
 
-        var bySlot = {};
-        (state.players || []).forEach(function (player) {
-            bySlot[player.slot] = player;
-        });
-
-        for (var i = 0; i < state.maxPlayers; i++) {
-            host.appendChild(buildSlot(bySlot[i] || null, state));
-            if (duel && i === 0) {
-                var divider = document.createElement('div');
-                divider.className = 'versus__divider jp';
-                divider.textContent = 'VS';
-                host.appendChild(divider);
-            }
-        }
+  function renderActions(room) {
+    var mine = me();
+    var html = '';
+    if (room.status === 'PLAYING' && room.playUrl) {
+      html += '<p class="ar-room-actions__hint">Trận đang diễn ra.</p>'
+        + '<a class="ar-btn ar-btn--primary ar-btn--lg ar-btn--block" href="' + esc(room.playUrl) + '">Vào trận</a>';
+    } else if (room.status === 'COUNTDOWN') {
+      html += '<p class="ar-room-actions__hint">Trận sắp bắt đầu…</p>';
+    } else if (isHost()) {
+      var guest = room.players.find(function (p) { return p.userId !== state.meId; });
+      var hint = !guest ? 'Đang chờ đối thủ vào phòng.'
+        : !guest.ready ? 'Chờ ' + guest.displayName + ' bấm "Sẵn sàng".'
+          : guest.displayName + ' đã sẵn sàng. Bấm bắt đầu khi bạn muốn.';
+      html += '<p class="ar-room-actions__hint">' + esc(hint) + '</p>'
+        + '<button type="button" class="ar-btn ar-btn--primary ar-btn--lg ar-btn--block" data-action="start"'
+        + (guest && guest.ready && !state.busy ? '' : ' disabled') + '>'
+        + '<i class="fa-solid fa-play" aria-hidden="true"></i> ' + (room.lastResult ? 'Đấu lại' : 'Bắt đầu') + '</button>';
+    } else if (mine) {
+      html += '<p class="ar-room-actions__hint">' + (mine.ready
+        ? 'Bạn đã sẵn sàng. Chờ chủ phòng bắt đầu.'
+        : 'Xem cài đặt trận rồi bấm "Sẵn sàng".') + '</p>'
+        + '<button type="button" class="ar-btn ar-btn--lg ar-btn--block ' + (mine.ready ? '' : 'ar-btn--ok') + '" data-action="ready"'
+        + (state.busy ? ' disabled' : '') + '>'
+        + (mine.ready ? 'Huỷ sẵn sàng' : '<i class="fa-solid fa-check" aria-hidden="true"></i> Sẵn sàng') + '</button>';
     }
+    html += '<button type="button" class="ar-btn ar-btn--danger ar-btn--block" data-action="leave">'
+      + '<i class="fa-solid fa-door-open" aria-hidden="true"></i> Rời phòng</button>';
+    el.actions.innerHTML = html;
+  }
 
-    // ---------------- Render: info + settings ----------------
+  function renderLastResult(room) {
+    var result = room.lastResult;
+    el.lastResult.hidden = !result;
+    if (!result) return;
+    var headline = result.draw ? 'Hoà!'
+      : result.winnerUserId === state.meId ? 'Bạn thắng!'
+        : result.winnerUserId ? 'Đối thủ thắng' : 'Không có người thắng';
+    el.lastResultBody.innerHTML = '<p class="ar-kicker">' + esc(arena.gameName(result.gameType)) + ' · ' + esc(headline) + '</p>'
+      + '<ol class="ar-result-lines">' + result.lines.map(function (line) {
+        return '<li class="' + (line.winner ? 'is-winner' : '') + '"><span class="ar-rank">' + line.rank + '</span>'
+          + '<span><strong>' + esc(line.displayName) + (line.userId === state.meId ? ' (bạn)' : '') + '</strong>'
+          + '<small>' + esc(line.detail) + '</small></span><b>' + line.score + '</b></li>';
+      }).join('') + '</ol>';
+  }
 
-    function renderInfo(state) {
-        $('[data-room-code]').textContent = state.roomCode;
-        $('[data-info-game]').textContent = state.gameDisplayName;
-        $('[data-info-status]').textContent = STATUS_LABEL[state.status] || state.status;
-        $('[data-info-players]').textContent =
-            (state.players || []).length + '/' + state.maxPlayers +
-            ' (tối thiểu ' + state.minPlayers + ')';
-        $('[data-info-visibility]').textContent =
-            state.visibility === 'PUBLIC' ? 'Công khai' : 'Riêng tư';
-
-        var invite = $('[data-invite-link]');
-        if (invite && !invite.value) {
-            invite.value = global.location.origin + '/games/room/' + state.roomId;
-        }
+  function renderCountdown(room) {
+    window.clearInterval(countdownTimer);
+    if (room.status !== 'COUNTDOWN' || !room.countdownEndsAt) {
+      el.countdown.hidden = true;
+      return;
     }
-
-    function renderFlashcardOptions(selectedId) {
-        var select = document.querySelector('[name="flashcardSetId"]');
-        if (!select) {
-            return;
-        }
-        var selected = selectedId == null ? '' : String(selectedId);
-        select.innerHTML = '';
-        if (!flashcardSets.length) {
-            var empty = document.createElement('option');
-            empty.value = '';
-            empty.textContent = flashcardSetsLoaded
-                ? 'Chưa có bộ flashcard nào'
-                : 'Đang tải bộ flashcard…';
-            select.appendChild(empty);
-            select.disabled = true;
-            return;
-        }
-        flashcardSets.forEach(function (set) {
-            var option = document.createElement('option');
-            option.value = String(set.id);
-            option.textContent = (set.title || ('Bộ #' + set.id)) +
-                ' (' + (set.totalCards || 0) + ' thẻ)';
-            select.appendChild(option);
-        });
-        select.value = selected;
-        if (select.selectedIndex < 0) {
-            select.selectedIndex = 0;
-        }
+    el.countdown.hidden = false;
+    function tick() {
+      var left = Math.ceil((room.countdownEndsAt - arena.live.serverNow()) / 1000);
+      if (left > 0) {
+        el.countdownNumber.textContent = String(left);
+        el.countdownText.textContent = room.gameName + ' · ' + (room.settings && room.settings.setTitle || '');
+      } else {
+        el.countdownNumber.textContent = 'GO';
+        el.countdownText.textContent = 'Đang vào trận…';
+        window.clearInterval(countdownTimer);
+      }
     }
+    tick();
+    countdownTimer = window.setInterval(tick, 200);
+  }
 
-    function loadFlashcardSets() {
-        return global.ArenaApi.flashcardSets()
-            .then(function (sets) {
-                flashcardSets = Array.isArray(sets) ? sets : [];
-                flashcardSetsLoaded = true;
-                if (store && store.state) {
-                    renderSettings(store.state);
-                }
-                return flashcardSets;
-            })
-            .catch(function () {
-                flashcardSets = [];
-                flashcardSetsLoaded = true;
-                if (store && store.state) {
-                    renderSettings(store.state);
-                }
-                return [];
-            });
+  // ------------------------------------------------------------------ state
+
+  function applyRoom(room) {
+    if (!room || room.roomId !== roomId) return;
+    if (state.room && room.version < state.room.version) return;
+    var wasPlaying = state.room && state.room.status === 'PLAYING';
+    state.room = room;
+    render();
+    if (wasPlaying && room.status === 'WAITING' && room.lastResult) {
+      toast('Trận đã kết thúc. Bấm "Sẵn sàng" để đấu lại.', 'info');
     }
+  }
 
-    function renderSettings(state) {
-        var form = $('[data-settings-form]');
-        if (!form) {
-            return;
-        }
-        var isHost = store.isHost();
-        $('[data-host-only]').hidden = !isHost;
-        $('[data-guest-note]').hidden = isHost;
+  function goToPlay(url) {
+    if (state.navigating || !url) return;
+    state.navigating = true;
+    window.location.href = url;
+  }
 
-        var editable = isHost && state.status === 'WAITING';
-        Array.prototype.forEach.call(form.elements, function (element) {
-            element.disabled = !editable;
-        });
+  function refresh() {
+    return arena.api.room(roomId).then(applyRoom);
+  }
 
-        // Không ghi đè khi host đang chỉnh dở.
-        if (settingsDirty) {
-            return;
-        }
-
-        var modeSelect = form.elements.answerMode;
-        if (modeSelect) {
-            var supportedModes = state.gameType === 'CANNON_BATTLE'
-                ? ['KANJI_TO_HIRAGANA', 'KANJI_TO_MEANING']
-                : (state.gameType === 'MEMORY_MATCH'
-                    ? ['KANJI_TO_HIRAGANA', 'KANJI_TO_MEANING', 'HIRAGANA_TO_MEANING']
-                    : Object.keys(MODE_LABEL));
-            var currentOptions = Array.prototype.map.call(modeSelect.options,
-                function (option) { return option.value; }).join(',');
-            if (currentOptions !== supportedModes.join(',')) {
-                modeSelect.innerHTML = '';
-            }
-            var modes = supportedModes;
-            modes.forEach(function (mode) {
-                if (Array.prototype.some.call(modeSelect.options,
-                    function (option) { return option.value === mode; })) {
-                    return;
-                }
-                var option = document.createElement('option');
-                option.value = mode;
-                option.textContent = MODE_LABEL[mode];
-                modeSelect.appendChild(option);
-            });
-        }
-
-        var airSettings = $('[data-air-settings]');
-        if (airSettings) {
-            airSettings.hidden = state.gameType !== 'CANNON_BATTLE';
-        }
-
-        var settings = state.settings || {};
-        var flashcardSettings = $('[data-flashcard-settings]');
-        if (flashcardSettings) {
-            var usingFlashcards = settings.questionSource === 'FLASHCARD_SET';
-            flashcardSettings.hidden = !usingFlashcards;
-            renderFlashcardOptions(settings.flashcardSetId);
-        }
-        if (settings.questionLevel) {
-            form.elements.questionLevel.value = settings.questionLevel;
-        }
-        if (settings.questionSource) {
-            form.elements.questionSource.value = settings.questionSource;
-        }
-        if (settings.answerMode) {
-            form.elements.answerMode.value = settings.answerMode;
-        }
-        if (settings.questionCount) {
-            form.elements.questionCount.value = settings.questionCount;
-        }
-        if (settings.secondsPerQuestion) {
-            form.elements.secondsPerQuestion.value = settings.secondsPerQuestion;
-        }
-        if (state.gameType === 'CANNON_BATTLE') {
-            var extra = settings.extra || {};
-            form.elements.airObjective.value = extra.objective || 'SCORE_RACE';
-            form.elements.airDifficulty.value = extra.difficulty || 'NORMAL';
-            form.elements.airTargetScore.value = extra.targetScore || 10;
-            form.elements.airMaxHp.value = extra.maxHp || 3;
-        }
-    }
-
-    function renderActions(state) {
-        var me = store.me();
-        var isHost = store.isHost();
-        var readyBtn = $('[data-ready-btn]');
-        var startBtn = $('[data-start-btn]');
-        var hint = $('[data-action-hint]');
-        var waiting = state.status === 'WAITING';
-
-        readyBtn.hidden = isHost || !waiting;
-        startBtn.hidden = !isHost || !waiting;
-
-        if (!readyBtn.hidden && me) {
-            readyBtn.textContent = me.ready ? 'Bỏ sẵn sàng' : 'Sẵn sàng';
-            readyBtn.classList.toggle('btn--primary', !me.ready);
-            readyBtn.classList.toggle('btn--ghost', me.ready);
-        }
-
-        if (!startBtn.hidden) {
-            startBtn.disabled = !state.canStart;
-        }
-
-        if (state.status !== 'WAITING') {
-            hint.textContent = STATUS_LABEL[state.status] || state.status;
-        } else if (state.startBlockedReason) {
-            hint.textContent = state.startBlockedReason;
-        } else {
-            hint.textContent = isHost ? 'Đủ điều kiện — bấm Bắt đầu' : 'Chờ chủ phòng bắt đầu';
-        }
-    }
-
-    // ---------------- Countdown ----------------
-
-    function stopCountdown() {
-        if (countdownTimer) {
-            global.clearInterval(countdownTimer);
-            countdownTimer = null;
-        }
-        $('[data-countdown-overlay]').classList.add('is-hidden');
-    }
-
-    /** Tick từ startAt/endAt của server + độ lệch đồng hồ, không dùng bộ đếm riêng. */
-    function runCountdown(state) {
-        var overlay = $('[data-countdown-overlay]');
-        var number = $('[data-countdown-number]');
-        if (!state.countdownEndAt) {
-            return;
-        }
-        var endAt = new Date(state.countdownEndAt).getTime();
-        overlay.classList.remove('is-hidden');
-
-        function tick() {
-            var remainMs = endAt - store.serverNow();
-            if (remainMs <= 0) {
-                number.textContent = 'START';
-                return;
-            }
-            var seconds = Math.ceil(remainMs / 1000);
-            if (number.textContent !== String(seconds)) {
-                number.textContent = String(seconds);
-                // Re-trigger animation cho mỗi con số.
-                number.style.animation = 'none';
-                void number.offsetWidth;
-                number.style.animation = '';
-            }
-        }
-
-        tick();
-        if (countdownTimer) {
-            global.clearInterval(countdownTimer);
-        }
-        countdownTimer = global.setInterval(tick, 100);
-    }
-
-    // ---------------- Wiring ----------------
-
-    function navigateToGame(state) {
-        if (gameNavigationStarted || !state || state.status !== 'IN_GAME'
-            || !state.sessionId
-            || (state.gameType !== 'MEMORY_MATCH' && state.gameType !== 'CANNON_BATTLE')) {
-            return;
-        }
-        gameNavigationStarted = true;
-        var route = state.gameType === 'CANNON_BATTLE'
-            ? '/games/air-defense/' : '/games/memory/';
-        global.location.href = route + encodeURIComponent(state.sessionId);
-    }
-
-    function render(state) {
-        var loading = $('[data-versus-loading]');
-        if (loading && loading.parentNode) {
-            loading.parentNode.removeChild(loading);
-        }
-        renderSlots(state);
-        renderInfo(state);
-        renderSettings(state);
-        renderActions(state);
-
-        if (state.status === 'COUNTDOWN') {
-            runCountdown(state);
-        } else {
-            stopCountdown();
-        }
-        navigateToGame(state);
-    }
-
-    function handleEvent(envelope) {
-        var E = global.GameRoomStore.EVENT;
-        switch (envelope.type) {
-            case E.ROOM_ERROR:
-                global.ArenaToast.error(envelope.payload && envelope.payload.message);
-                break;
-            case E.PLAYER_JOINED:
-                global.ArenaToast.info('Có người vừa vào phòng');
-                break;
-            case E.PLAYER_LEFT:
-                global.ArenaToast.info('Một người chơi đã rời phòng');
-                break;
-            case E.PLAYER_RECONNECTED:
-                global.ArenaToast.success('Người chơi đã kết nối lại');
-                break;
-            case E.HOST_CHANGED:
-                global.ArenaToast.info('Chủ phòng đã thay đổi');
-                break;
-            case E.ROOM_SETTINGS_UPDATED:
-                settingsDirty = false;
-                global.ArenaToast.info('Cấu hình phòng đã cập nhật');
-                break;
-            case E.GAME_STARTED:
-                global.ArenaToast.success('Trận đấu bắt đầu!');
-                global.setTimeout(stopCountdown, 900);
-                global.setTimeout(function () {
-                    navigateToGame(envelope.payload);
-                }, 350);
-                break;
-            case E.ROOM_CLOSED:
-                global.ArenaToast.error('Phòng đã đóng');
-                global.setTimeout(function () {
-                    global.location.href = '/games/lobby';
-                }, 1200);
-                break;
-            default:
-                break;
-        }
-    }
-
-    function bindUi() {
-        var readyBtn = $('[data-ready-btn]');
-        readyBtn.addEventListener('click', function () {
-            var me = store.me();
-            store.setReady(!(me && me.ready));
-        });
-
-        var startBtn = $('[data-start-btn]');
-        startBtn.addEventListener('click', function () {
-            // Chặn double-click ở client; server vẫn là chốt cuối.
-            startBtn.disabled = true;
-            store.requestStart();
-        });
-
-        var settingsForm = $('[data-settings-form]');
-        settingsForm.addEventListener('input', function () {
-            settingsDirty = true;
-        });
-        settingsForm.addEventListener('change', function () {
-            settingsDirty = false;
-            var source = settingsForm.elements.questionSource.value;
-            var selectedFlashcardSetId = source === 'FLASHCARD_SET'
-                ? parseInt(settingsForm.elements.flashcardSetId.value, 10) || null
-                : null;
-            if (source === 'FLASHCARD_SET' && !selectedFlashcardSetId) {
-                global.ArenaToast.error('Hãy chọn một bộ flashcard trước khi tiếp tục');
-                if (store.state) {
-                    renderSettings(store.state);
-                }
-                return;
-            }
-            var patch = {
-                questionLevel: settingsForm.elements.questionLevel.value,
-                questionSource: source,
-                answerMode: settingsForm.elements.answerMode.value,
-                questionCount: parseInt(settingsForm.elements.questionCount.value, 10) || null,
-                secondsPerQuestion:
-                    parseInt(settingsForm.elements.secondsPerQuestion.value, 10) || null,
-                flashcardSetId: selectedFlashcardSetId
-            };
-            if (store.state && store.state.gameType === 'CANNON_BATTLE') {
-                patch.extra = {
-                    objective: settingsForm.elements.airObjective.value,
-                    difficulty: settingsForm.elements.airDifficulty.value,
-                    targetScore: parseInt(settingsForm.elements.airTargetScore.value, 10) || 10,
-                    maxHp: parseInt(settingsForm.elements.airMaxHp.value, 10) || 3
-                };
-            }
-            store.updateSettings(patch);
-        });
-
-        function copy(text, button, label) {
-            var done = function () {
-                button.classList.add('is-copied');
-                var original = button.textContent;
-                button.textContent = 'Đã copy';
-                global.setTimeout(function () {
-                    button.classList.remove('is-copied');
-                    button.textContent = original;
-                }, 1400);
-                global.ArenaToast.success(label + ' đã được sao chép');
-            };
-            if (global.navigator.clipboard) {
-                global.navigator.clipboard.writeText(text).then(done).catch(function () {
-                    global.ArenaToast.error('Không sao chép được, hãy copy thủ công');
-                });
-            } else {
-                global.ArenaToast.info(label + ': ' + text);
-            }
-        }
-
-        $('[data-copy-code]').addEventListener('click', function () {
-            if (store.state) {
-                copy(store.state.roomCode, this, 'Mã phòng');
-            }
-        });
-
-        $('[data-copy-link]').addEventListener('click', function () {
-            copy($('[data-invite-link]').value, this, 'Link mời');
-        });
-
-        $('[data-leave-room]').addEventListener('click', function () {
-            store.leave();
-        });
-
-        $('[data-reload-page]').addEventListener('click', function () {
-            global.location.reload();
-        });
-
-        function toggleDrawer(panelSelector, button) {
-            var panel = $(panelSelector);
-            var open = panel.classList.toggle('is-open');
-            button.setAttribute('aria-expanded', String(open));
-        }
-
-        $('[data-toggle-left]').addEventListener('click', function () {
-            toggleDrawer('[data-panel-left]', this);
-        });
-        $('[data-toggle-right]').addEventListener('click', function () {
-            toggleDrawer('[data-panel-right]', this);
-        });
-    }
-
-    function bindConnection() {
-        store.on('connection', function (status) {
-            var badge = $('[data-conn]');
-            var label = $('[data-conn-label]');
-            badge.className = 'conn conn--' + status;
-            label.textContent = status === 'online'
-                ? 'Đã kết nối'
-                : (status === 'connecting' ? 'Đang kết nối' : 'Mất kết nối');
-            $('[data-reconnect-overlay]').classList.toggle('is-hidden', status !== 'offline');
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var roomId = document.body.getAttribute('data-room-id');
-        if (!roomId) {
-            return;
-        }
-        store = new global.GameRoomStore(roomId);
-        global.ArenaRoomStore = store;
-
-        bindUi();
-        bindConnection();
-        loadFlashcardSets();
-        store.on('change', render);
-        store.on('event', handleEvent);
-
-        // Lấy state qua REST trước (xác nhận là thành viên) rồi mới mở WS.
-        global.ArenaApi.me().then(function (user) {
-            store.currentUserId = user.userId;
-            return global.ArenaApi.roomState(roomId);
-        }).then(function (state) {
-            store.applyState(state);
-            store.connect();
-        }).catch(function (err) {
-            global.ArenaToast.error(err.message);
-            global.setTimeout(function () {
-                global.location.href = '/games/lobby';
-            }, 1500);
-        });
+  function act(promise) {
+    state.busy = true;
+    window.JlasVsRoom.setBusy(true);
+    render();
+    return promise.then(function (room) {
+      state.busy = false;
+      window.JlasVsRoom.setBusy(false);
+      if (room) applyRoom(room);
+      else render();
+    }).catch(function (error) {
+      state.busy = false;
+      window.JlasVsRoom.setBusy(false);
+      render();
+      toast(error.message, 'error');
     });
+  }
 
-    // Dọn kết nối + timer khi rời trang (tránh leak & listener trùng).
-    global.addEventListener('beforeunload', function () {
-        stopCountdown();
-        if (store) {
-            store.destroy();
-        }
+  el.actions.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-action]');
+    if (!button || button.disabled) return;
+    var action = button.dataset.action;
+    if (action === 'start') {
+      act(arena.api.start(roomId));
+    } else if (action === 'ready') {
+      act(arena.api.ready(roomId, !(me() && me().ready)));
+    } else if (action === 'leave') {
+      if (state.room && state.room.status === 'PLAYING'
+        && !window.confirm('Trận đang diễn ra. Rời phòng bây giờ sẽ bị tính là thua. Bạn chắc chứ?')) return;
+      state.closed = true;
+      arena.api.leave(roomId).catch(function () {}).then(function () {
+        window.location.href = '/games';
+      });
+    }
+  });
+
+  function copy(text, done) {
+    var write = navigator.clipboard && navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(text)
+      : Promise.reject(new Error('clipboard'));
+    write.then(function () { toast(done, 'success'); }).catch(function () {
+      window.prompt('Hãy tự sao chép:', text);
     });
-})(window);
+  }
+
+  document.querySelector('[data-copy-code]').addEventListener('click', function () {
+    if (state.room) copy(state.room.code, 'Đã sao chép mã phòng ' + state.room.code);
+  });
+  document.querySelector('[data-copy-link]').addEventListener('click', function () {
+    copy(window.location.origin + '/games/room/' + encodeURIComponent(roomId), 'Đã sao chép link mời');
+  });
+
+  // ------------------------------------------------------------ settings dialog
+
+  function catalogItem() {
+    return state.catalog.games.find(function (game) { return game.type === state.room.gameType; });
+  }
+
+  function renderDialog() {
+    var item = catalogItem();
+    if (draft.detail) {
+      setup.renderFieldPicker(el.dialogFields, {
+        detail: draft.detail,
+        gameType: state.room.gameType,
+        options: draft.options,
+        question: draft.question,
+        answer: draft.answer,
+        onChange: function (question, answer) {
+          draft.question = question;
+          draft.answer = answer;
+          draft.options = setup.normalizeOptions(item, 'VERSUS', draft.options, draft.detail, question, answer);
+          renderDialog();
+        }
+      });
+    }
+    setup.renderOptions(el.dialogOptions, {
+      catalogItem: item,
+      mode: 'VERSUS',
+      options: draft.options,
+      detail: draft.detail,
+      question: draft.question,
+      answer: draft.answer,
+      onChange: function (options) {
+        draft.options = setup.normalizeOptions(item, 'VERSUS', options, draft.detail, draft.question, draft.answer);
+        renderDialog();
+      }
+    });
+    var need = setup.minWords(state.room.gameType, draft.options);
+    var count = setup.usable(draft.detail, draft.question, draft.answer);
+    var problem = !draft.deck ? 'Chọn một bộ flashcard.'
+      : count < need ? 'Cặp hỏi/đáp này chỉ có ' + count + ' thẻ dùng được; cần ít nhất ' + need + '.' : null;
+    el.dialogProblem.hidden = !problem;
+    el.dialogProblem.textContent = problem || '';
+    el.saveSettings.disabled = !!problem;
+  }
+
+  el.editSettings.addEventListener('click', function () {
+    var settings = state.room.settings;
+    draft = {
+      deck: null,
+      detail: null,
+      question: settings.questionField,
+      answer: settings.answerField,
+      options: Object.assign({}, settings.options)
+    };
+    if (!dialogPicker) {
+      dialogPicker = new setup.DeckPicker(el.dialogDeck, {
+        gameType: state.room.gameType,
+        onSelect: function (deck, detail) {
+          var changedDeck = draft.deck && draft.deck.id !== deck.id;
+          draft.deck = deck;
+          draft.detail = detail;
+          var need = setup.minWords(state.room.gameType, draft.options);
+          if (changedDeck && setup.usable(detail, draft.question, draft.answer) < need) {
+            var pair = setup.bestPair(detail, state.room.gameType, draft.options);
+            draft.question = pair.question;
+            draft.answer = pair.answer;
+          }
+          draft.options = setup.normalizeOptions(catalogItem(), 'VERSUS', draft.options, detail, draft.question, draft.answer);
+          renderDialog();
+        }
+      });
+      dialogPicker.load(true);
+    }
+    dialogPicker.select(settings.setId).catch(function () {});
+    renderDialog();
+    if (typeof el.dialog.showModal === 'function') el.dialog.showModal();
+    else el.dialog.setAttribute('open', '');
+  });
+
+  document.querySelectorAll('[data-close-dialog]').forEach(function (button) {
+    button.addEventListener('click', function () { el.dialog.close(); });
+  });
+
+  el.saveSettings.addEventListener('click', function () {
+    if (!draft || !draft.deck) return;
+    el.saveSettings.dataset.loading = 'true';
+    el.saveSettings.disabled = true;
+    arena.api.updateSettings(roomId, {
+      setId: draft.deck.id,
+      questionField: draft.question,
+      answerField: draft.answer,
+      options: draft.options
+    }).then(function (room) {
+      applyRoom(room);
+      el.dialog.close();
+      toast('Đã lưu cài đặt. Đối thủ cần bấm "Sẵn sàng" lại.', 'success');
+    }).catch(function (error) {
+      el.dialogProblem.hidden = false;
+      el.dialogProblem.textContent = error.message;
+    }).then(function () {
+      el.saveSettings.dataset.loading = 'false';
+      el.saveSettings.disabled = false;
+    });
+  });
+
+  // ------------------------------------------------------------------- live
+
+  arena.live.on('ROOM_STATE', function (room, envelope) {
+    if (envelope.roomId === roomId) applyRoom(room);
+  });
+  arena.live.on('ROOM_STARTED', function (payload, envelope) {
+    if (envelope.roomId === roomId) goToPlay(payload.playUrl);
+  });
+  arena.live.on('ROOM_NOTICE', function (payload, envelope) {
+    if (envelope.roomId === roomId && payload && payload.message) toast(payload.message, 'info');
+  });
+  arena.live.on('ROOM_CLOSED', function (payload, envelope) {
+    if (envelope.roomId !== roomId) return;
+    state.closed = true;
+    showStatus('<p><strong>Phòng đã đóng.</strong> ' + esc(payload && payload.message || '') + '</p>'
+      + '<a class="ar-btn ar-btn--primary" href="/games">Về trang Trò chơi</a>');
+  });
+  arena.live.on('CONNECTED', function (payload) {
+    if (payload && payload.reconnected && !state.closed) refresh().catch(function () {});
+  });
+  arena.live.onStatus(function (status) {
+    el.connDot.className = 'ar-dot is-' + (status === 'idle' ? 'connecting' : status);
+    el.connText.textContent = status === 'online' ? 'Đã kết nối' : status === 'offline' ? 'Mất kết nối, đang thử lại' : 'Đang kết nối';
+    window.JlasVsRoom.setConnection(status);
+  });
+
+  // ------------------------------------------------------------------- boot
+
+  function enter() {
+    return arena.api.room(roomId).catch(function (error) {
+      // Mở link mời khi chưa ở trong phòng: tự vào phòng nếu còn chỗ.
+      if (error.status === 403) return arena.api.joinRoom(roomId);
+      throw error;
+    });
+  }
+
+  Promise.all([arena.me(), arena.api.catalog(), enter()]).then(function (results) {
+    state.meId = results[0].userId;
+    vsContext.meId = state.meId;
+    state.catalog = results[1];
+    arena.live.connect();
+    applyRoom(results[2]);
+    if (state.room.status === 'PLAYING' && state.room.playUrl) {
+      // Quay lại phòng khi trận của mình vẫn đang chạy: đưa thẳng về trận.
+      goToPlay(state.room.playUrl);
+    }
+  }).catch(function (error) {
+    showStatus('<p><strong>Không vào được phòng.</strong> ' + esc(error.message) + '</p>'
+      + '<a class="ar-btn ar-btn--primary" href="/games">Về trang Trò chơi</a>');
+  });
+})();

@@ -23,7 +23,6 @@ public class VideoWatchSessionRepository {
         states.save(state); return projection(state);
     }
     public void deleteByVideoId(Long video) { states.deleteByVideoId(video); }
-    public long countViewsByVideoId(Long video) { return states.countByVideoIdAndCountedAsViewTrue(video); }
     private VideoWatchSession projection(VideoUserState state) {
         VideoWatchSession value = new VideoWatchSession(); value.setClientId(String.valueOf(state.getUserId()));
         value.setMaxPositionSec(state.getMaxPositionSec()); value.setCountedAsView(state.isCountedAsView());

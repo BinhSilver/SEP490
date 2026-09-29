@@ -41,6 +41,27 @@ public class UserLearningPath {
     @Column(name = "current_level", length = 10)
     private String currentLevel;
 
+    /** Survey snapshot reference; no FK while the survey module is being built. */
+    @Column(name = "survey_id")
+    private Long surveyId;
+
+    /** Assessment attempt snapshot reference; no FK to keep learning decoupled from assessment. */
+    @Column(name = "assessment_attempt_id")
+    private Long assessmentAttemptId;
+
+    @Column(name = "assessment_revision", length = 50)
+    private String assessmentRevision;
+
+    @Column(name = "policy_version", length = 100)
+    private String policyVersion;
+
+    @Column(name = "minutes_per_day")
+    private Integer minutesPerDay;
+
+    /** JSON array of coverage gaps; TEXT for H2/MySQL portability. */
+    @Column(name = "coverage_gaps_json", columnDefinition = "TEXT")
+    private String coverageGapsJson;
+
     /** ACTIVE/SUPERSEDED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

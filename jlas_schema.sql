@@ -9,7 +9,6 @@
 -- Then load data once:
 --   mysql -u root -p < sql/data_full.sql
 -- =============================================================================
-
 CREATE DATABASE IF NOT EXISTS jlas
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -61,6 +60,9 @@ CREATE TABLE roles (
     PRIMARY KEY (id),
     UNIQUE KEY uk_role_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed: vai tro mac dinh cho nguoi dung thuong (learner).
+INSERT IGNORE INTO roles (name, description) VALUES ('LEARNER', 'Learner');
 
 -- Goi premium va thoi han su dung.
 CREATE TABLE premium_plans (
@@ -1387,12 +1389,20 @@ CREATE TABLE user_learning_path (
     goal         VARCHAR(20) NULL,
     target_level VARCHAR(10) NULL,
     current_level VARCHAR(10) NULL,
+    survey_id             BIGINT UNSIGNED NULL,  -- Survey snapshot reference (no FK yet).
+    assessment_attempt_id BIGINT UNSIGNED NULL,  -- Smart Test attempt snapshot (no FK yet).
+    assessment_revision   VARCHAR(50) NULL,
+    policy_version        VARCHAR(100) NULL,
+    minutes_per_day       INT UNSIGNED NULL,
+    coverage_gaps_json    TEXT NULL,             -- JSON array of coverage gaps.
     status       VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     version      INT UNSIGNED NOT NULL DEFAULT 1,
     created_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at   DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                  ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_path_generation (user_id, assessment_attempt_id, assessment_revision, policy_version),
+    UNIQUE KEY uk_learning_path_user_version (user_id, version),
     KEY idx_learning_path_user_status (user_id, status, updated_at),
     CONSTRAINT fk_learning_path_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
@@ -1410,7 +1420,12 @@ CREATE TABLE user_learning_path_item (
     lesson_id        BIGINT UNSIGNED NOT NULL,
     order_index      INT UNSIGNED NOT NULL,
     reason           TEXT NULL,
-    kind             VARCHAR(20) NOT NULL,       -- CURRICULUM hoac REVIEW.
+    kind             VARCHAR(20) NULL,           -- CURRICULUM/REVIEW (legacy); NULL for two-phase items.
+    phase            VARCHAR(20) NULL,           -- WARM_UP / GOAL_LEARNING.
+    reason_code      VARCHAR(50) NULL,
+    day_number       INT UNSIGNED NULL,
+    estimated_minutes INT UNSIGNED NULL,
+    matched_tag_codes TEXT NULL,                 -- JSON array of matched knowledge tag codes.
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_path_item_order (learning_path_id, order_index),
     KEY idx_learning_path_item_lesson (lesson_id),
@@ -1418,7 +1433,7 @@ CREATE TABLE user_learning_path_item (
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_path_item_lesson FOREIGN KEY (lesson_id)
         REFERENCES lesson(id) ON DELETE CASCADE,
-    CONSTRAINT chk_learning_path_item_kind CHECK (kind IN ('CURRICULUM','REVIEW'))
+    CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Nguon tien do lesson duy nhat, giu mo hinh more.txt.
@@ -2031,6 +2046,11 @@ CREATE TABLE user_credit_transaction (
     note           VARCHAR(200) NULL,
     created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    -- NOTE (JLAS-W0127): Unique backstop so two concurrent awards of the same reference
+    -- cannot double-credit (the app also locks the user row before the idempotency check).
+    -- NULL reference_type/reference_id are treated as distinct, so reason-only awards
+    -- (reference columns NULL) still apply every time.
+    UNIQUE KEY uk_credit_transaction_reference (user_id, reason, reference_type, reference_id),
     KEY idx_credit_user_created (user_id, created_at),
     KEY idx_credit_reference (reference_type, reference_id),
     CONSTRAINT fk_credit_transaction_user FOREIGN KEY (user_id)
@@ -2175,7 +2195,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -2326,6 +2346,31 @@ CREATE TABLE user_permanent_upgrades (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_upgrade_ship FOREIGN KEY (equipped_ship_id)
         REFERENCES air_defense_spaceships(ship_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Cua hang Tro choi (migration 009): trang phuc meo / may bay mua bang CP chung.
+-- Danh muc mon nam trong code (GameShopCatalog); hai bang nay luu mon da mua va mon dang dung.
+-- Mon thuoc game nao suy ra tu item_code qua GameShopCatalog nen user_game_item khong luu game_type (3NF).
+CREATE TABLE user_game_item (
+    user_id      BIGINT UNSIGNED NOT NULL,
+    item_code    VARCHAR(40) NOT NULL,
+    price_paid   INT NOT NULL DEFAULT 0,
+    purchased_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, item_code),
+    CONSTRAINT fk_user_game_item_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_user_game_item_price CHECK (price_paid >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE user_game_loadout (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    game_type  VARCHAR(20) NOT NULL,
+    item_code  VARCHAR(40) NOT NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, game_type),
+    CONSTRAINT fk_user_game_loadout_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================

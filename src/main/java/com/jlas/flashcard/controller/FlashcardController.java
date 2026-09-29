@@ -6,6 +6,7 @@ import com.jlas.flashcard.dto.FlashcardDtos.*;
 import com.jlas.flashcard.service.FlashcardService;
 import com.jlas.moderation.service.ContentModerationService;
 import jakarta.validation.Valid;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,10 @@ public class FlashcardController {
     @GetMapping("/flashcards/{setId}/sync-preview") public ResponseEntity<ApiResponse<SyncPreviewResponse>> syncPreview(@PathVariable Long setId,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.syncPreview(setId,id(user)));}
     @PostMapping("/flashcards/{setId}/sync") public ResponseEntity<ApiResponse<SyncResponse>> sync(@PathVariable Long setId,@AuthenticationPrincipal UserPrincipal user){return ok("Synced",flashcards.sync(setId,id(user)));}
     @PostMapping("/flashcards/import") public ResponseEntity<ApiResponse<SetDetailDto>> importText(@Valid @RequestBody ImportRequest request,@AuthenticationPrincipal UserPrincipal user){return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Imported",flashcards.importText(request,id(user))));}
+    /** Downloads a readable set as CSV, TXT (tab-separated) or XLSX; all three can be imported back. */
+    @GetMapping("/flashcards/{setId}/export") public ResponseEntity<byte[]> export(@PathVariable Long setId,@RequestParam(defaultValue="xlsx") String format,@RequestParam(defaultValue="true") boolean hanViet,@AuthenticationPrincipal UserPrincipal user){ExportFileDto file=flashcards.export(setId,format,hanViet,id(user));return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,ContentDisposition.attachment().filename(file.getFilename(),StandardCharsets.UTF_8).build().toString()).contentType(MediaType.parseMediaType(file.getContentType())).body(file.getContent());}
+    /** Converts an uploaded CSV/TXT/XLSX file into editor import text for review before applying. */
+    @PostMapping(value="/flashcards/import/file",consumes=MediaType.MULTIPART_FORM_DATA_VALUE) public ResponseEntity<ApiResponse<ImportFileResponse>> importFile(@RequestParam("file") MultipartFile file,@AuthenticationPrincipal UserPrincipal user){return ok("OK",flashcards.importFile(file,id(user)));}
     @PostMapping("/flashcards/import/generate-hanviet") public ResponseEntity<ApiResponse<ImportHanVietResponse>> importEnrich(@RequestBody Map<String,String> body){return ok("OK",flashcards.enrichImport(body.get("text")));}
     @PostMapping("/flashcards/cards/enrich") public ResponseEntity<ApiResponse<EnrichResponse>> enrich(@Valid @RequestBody EnrichRequest request){return ok("Generated",flashcards.enrich(request.getKanji()));}
     @PostMapping("/flashcards/cards/enrich-batch") public ResponseEntity<ApiResponse<List<EnrichResponse>>> enrichBatch(@RequestBody EnrichBatchRequest request){return ok("Generated",flashcards.enrichBatch(request.getKanjis()));}

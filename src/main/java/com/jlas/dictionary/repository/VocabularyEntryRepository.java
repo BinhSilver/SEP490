@@ -66,4 +66,8 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
 
     List<VocabularyEntry> findByMeaningContainingAndDictionaryStatusOrderByIdAsc(
             String meaningInfix, String dictionaryStatus, Pageable pageable);
+
+    /** Published entries with the same spelling, shown to moderators to avoid duplicates. */
+    List<VocabularyEntry> findTop5ByNormalizedExpressionAndDictionaryStatusAndIdNot(
+            String normalizedExpression, String dictionaryStatus, Long id);
 }

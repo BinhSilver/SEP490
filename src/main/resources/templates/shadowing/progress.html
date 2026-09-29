@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiến độ Shadowing | JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/theme-bridge.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/pages/shadowing-progress.css?v=20260929-progress-hover">
+    <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="icon" href="/images/jlab.png" type="image/png">
+</head>
+<body id="jlabBasePage" class="page-shadowing-progress">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent">
+    <div id="progress-shell" class="is-loading">
+        <a id="progress-library-link" href="/shadowing"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Thư viện</a>
+
+        <header id="progress-hero" class="progress-reveal" style="--i:0">
+            <div id="progress-hero-text">
+                <span id="progress-eyebrow">Shadowing</span>
+                <h1>Tiến độ của bạn</h1>
+                <p id="progress-greeting" role="status">Kitsu-chan đang tổng hợp kết quả của bạn…</p>
+                <div id="progress-week-pills" aria-label="Tuần này">
+                    <span class="progress-pill"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <b id="pill-week-attempts">0</b> lượt chấm tuần này</span>
+                    <span class="progress-pill"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> <b id="pill-week-score">–</b> điểm TB tuần này</span>
+                </div>
+                <div id="progress-hero-actions">
+                    <a id="progress-continue" class="progress-btn progress-btn-primary" href="/shadowing" hidden>
+                        <i class="fa-solid fa-play" aria-hidden="true"></i><span id="progress-continue-label">Luyện tiếp</span>
+                    </a>
+                    <a class="progress-btn" href="/shadowing"><i class="fa-solid fa-compass" aria-hidden="true"></i><span>Chọn video khác</span></a>
+                </div>
+            </div>
+            <div id="progress-hero-mascot" aria-hidden="true">
+                <span class="progress-sparkle" style="--s:0"></span>
+                <span class="progress-sparkle" style="--s:1"></span>
+                <span class="progress-sparkle" style="--s:2"></span>
+                <video id="progress-kitsu" autoplay muted loop playsinline preload="auto" poster="/images/kitsu.png">
+                    <source src="/videos/linhvat-alpha.webm?v=20260915" type="video/webm">
+                </video>
+            </div>
+        </header>
+
+        <p id="progress-error" role="alert" hidden></p>
+
+        <section id="progress-stats" aria-label="Tổng quan" aria-busy="true">
+            <article class="progress-stat progress-reveal" style="--i:1">
+                <span class="progress-stat-icon"><i class="fa-solid fa-film" aria-hidden="true"></i></span>
+                <div class="progress-stat-body">
+                    <span class="progress-stat-label">Video đã học</span>
+                    <strong id="stat-videos" class="progress-stat-value">0</strong>
+                    <span class="progress-stat-note">xem, nói hoặc luyện nghe</span>
+                </div>
+            </article>
+            <article class="progress-stat progress-reveal" style="--i:2">
+                <span class="progress-stat-icon"><i class="fa-solid fa-microphone" aria-hidden="true"></i></span>
+                <div class="progress-stat-body">
+                    <span class="progress-stat-label">Câu đã luyện nói</span>
+                    <strong id="stat-sentences" class="progress-stat-value">0</strong>
+                    <span class="progress-stat-note" id="stat-attempts">0 lượt chấm</span>
+                </div>
+            </article>
+            <article class="progress-stat progress-reveal" style="--i:3">
+                <svg class="progress-ring" id="ring-score" viewBox="0 0 48 48" aria-hidden="true">
+                    <circle class="progress-ring-track" cx="24" cy="24" r="20"></circle>
+                    <circle class="progress-ring-value" cx="24" cy="24" r="20"></circle>
+                </svg>
+                <div class="progress-stat-body">
+                    <span class="progress-stat-label">Điểm phát âm TB</span>
+                    <strong id="stat-score" class="progress-stat-value">–</strong>
+                    <span class="progress-stat-note">30 ngày gần đây</span>
+                </div>
+            </article>
+            <article class="progress-stat progress-reveal" style="--i:4">
+                <svg class="progress-ring" id="ring-accuracy" viewBox="0 0 48 48" aria-hidden="true">
+                    <circle class="progress-ring-track" cx="24" cy="24" r="20"></circle>
+                    <circle class="progress-ring-value" cx="24" cy="24" r="20"></circle>
+                </svg>
+                <div class="progress-stat-body">
+                    <span class="progress-stat-label">Luyện nghe đúng</span>
+                    <strong id="stat-accuracy" class="progress-stat-value">–</strong>
+                    <span class="progress-stat-note" id="stat-sessions">0 phiên hoàn thành</span>
+                </div>
+            </article>
+        </section>
+
+        <section id="progress-chart-card" class="progress-card progress-reveal" style="--i:5" aria-labelledby="progress-chart-title">
+            <header class="progress-card-header">
+                <h2 id="progress-chart-title"><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Điểm phát âm trung bình theo tuần</h2>
+                <span class="progress-card-note">8 tuần gần nhất · thang 100</span>
+            </header>
+            <div id="progress-chart" role="img" aria-describedby="progress-chart-table"></div>
+            <div id="progress-chart-tooltip" role="tooltip" hidden></div>
+            <table id="progress-chart-table" class="progress-sr-only">
+                <caption>Điểm phát âm trung bình theo tuần</caption>
+                <thead><tr><th scope="col">Tuần</th><th scope="col">Điểm TB</th><th scope="col">Lượt chấm</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div id="progress-chart-empty" hidden>
+                <div class="progress-ghost-bars" aria-hidden="true">
+                    <span style="--h:35%"></span><span style="--h:55%"></span><span style="--h:42%"></span><span style="--h:68%"></span>
+                    <span style="--h:60%"></span><span style="--h:78%"></span><span style="--h:72%"></span><span style="--h:88%"></span>
+                </div>
+                <div class="progress-chart-empty-text">
+                    <strong>Biểu đồ đang chờ giọng nói của bạn</strong>
+                    <p>Mở một video, bấm ghi âm rồi "Chấm phát âm". Mỗi tuần luyện sẽ thành một cột ở đây.</p>
+                    <a class="progress-btn progress-btn-primary" href="/shadowing"><i class="fa-solid fa-microphone" aria-hidden="true"></i><span>Luyện câu đầu tiên</span></a>
+                </div>
+            </div>
+        </section>
+
+        <div id="progress-lists">
+            <section class="progress-card progress-reveal" style="--i:6" aria-labelledby="progress-weak-title">
+                <header class="progress-card-header">
+                    <h2 id="progress-weak-title"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i> Câu nên luyện lại</h2>
+                    <span class="progress-card-note">Điểm cao nhất dưới 70 · 30 ngày</span>
+                </header>
+                <ol id="progress-weak-list" class="progress-list"></ol>
+                <div class="progress-empty" id="progress-weak-empty" hidden>
+                    <i class="fa-solid fa-medal" aria-hidden="true"></i>
+                    <p>Không có câu nào dưới 70 điểm. Giỏi lắm!</p>
+                </div>
+            </section>
+            <section class="progress-card progress-reveal" style="--i:7" aria-labelledby="progress-recent-title">
+                <header class="progress-card-header">
+                    <h2 id="progress-recent-title"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Video học gần đây</h2>
+                </header>
+                <ol id="progress-recent-list" class="progress-list"></ol>
+                <div class="progress-empty" id="progress-recent-empty" hidden>
+                    <i class="fa-solid fa-film" aria-hidden="true"></i>
+                    <p>Bạn chưa học video nào.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<script src="/js/auth-session.js"></script>
+<script src="/js/jlab-base-shell.js"></script>
+<script src="/shadowing/js/client.js"></script>
+<script src="/shadowing/js/progress.js?v=20260929-progress-anim"></script>
+</body>
+</html>

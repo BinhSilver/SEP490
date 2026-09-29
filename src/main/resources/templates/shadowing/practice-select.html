@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260915-digits-only">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260929-merge-ti">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
@@ -23,7 +23,7 @@
             <div>
                 <span id="practice-eyebrow">Bắt đầu bài học</span>
                 <h1 id="practice-video-title">Đang tải bài học…</h1>
-                <p><span id="practice-subtitle-count">-- câu</span> · Chọn cách bạn muốn luyện hôm nay.</p>
+                <p><span id="practice-subtitle-count">-- câu</span><span id="practice-video-jlpt" hidden></span> · Chọn cách bạn muốn luyện hôm nay.</p>
             </div>
             <video id="practice-kitsu" autoplay muted loop playsinline preload="auto" aria-hidden="true">
                 <source src="/videos/linhvat-alpha.webm?v=20260915" type="video/webm">
@@ -38,49 +38,56 @@
                     <span><strong>Shadowing</strong><small>Nghe, đọc theo, thu âm và chấm phát âm như hiện tại.</small></span>
                     <em>Hiện có</em>
                 </button>
-                <button type="button" class="practice-mode-card" data-mode="CLOZE" aria-pressed="false">
+                <button type="button" class="practice-mode-card" data-mode="LISTENING" aria-pressed="false">
                     <i class="fa-solid fa-pen-to-square"></i>
-                    <span><strong>Điền từ hoặc cụm</strong><small>AI che phần quan trọng; bạn nghe rồi điền đúng nội dung còn thiếu.</small></span>
-                    <em>Nghe chọn lọc</em>
-                </button>
-                <button type="button" class="practice-mode-card" data-mode="DICTATION" aria-pressed="false">
-                    <i class="fa-solid fa-keyboard"></i>
-                    <span><strong>Điền cả câu</strong><small>Ẩn toàn bộ phụ đề. Dấu câu và khoảng trắng không ảnh hưởng kết quả.</small></span>
-                    <em>Nghe chuyên sâu</em>
+                    <span><strong>Luyện nghe</strong><small>Điền nội dung nghe được hoặc trả lời câu hỏi về hội thoại.</small></span>
+                    <em>Dễ · Vừa · Khó</em>
                 </button>
             </div>
         </section>
 
-        <section id="practice-options" hidden aria-labelledby="practice-options-heading">
-            <h2 id="practice-options-heading">Thiết lập phiên học</h2>
-            <div id="practice-option-grid">
-                <fieldset id="practice-order-options">
-                    <legend>Thứ tự độ khó</legend>
-                    <label><input type="radio" name="practice-order" value="PROGRESSIVE" checked><span><strong>Tăng dần</strong></span></label>
-                    <label><input type="radio" name="practice-order" value="RANDOM"><span><strong>Ngẫu nhiên</strong></span></label>
-                </fieldset>
-                <fieldset id="practice-count-options">
-                    <legend>Số câu</legend>
-                    <input id="practice-custom-count" type="number" min="1" max="500" step="1" inputmode="numeric" autocomplete="off" value="5" aria-label="Số câu tùy chọn">
-                </fieldset>
-            </div>
-        </section>
+        <div id="practice-session-controls">
+            <section id="practice-options" hidden aria-labelledby="practice-options-heading">
+                <h2 id="practice-options-heading">Thiết lập phiên học</h2>
+                <div id="practice-option-grid">
+                    <fieldset id="practice-kind-options">
+                        <legend>Dạng câu hỏi</legend>
+                        <div class="practice-selection-actions">
+                            <button id="practice-select-all" type="button" disabled>Chọn tất cả</button>
+                            <button id="practice-clear-all" type="button" disabled>Bỏ chọn tất cả</button>
+                            <span class="practice-selected-count">Số câu: <output id="practice-available-count" aria-live="polite" aria-label="Số câu đã chọn">0</output></span>
+                        </div>
+                        <div class="practice-kind-list">
+                            <fieldset class="practice-kind-card" data-kind="GAP"><legend>Điền nội dung nghe được</legend><div class="practice-level-list"></div></fieldset>
+                            <fieldset class="practice-kind-card" data-kind="ACTION_SEQUENCE"><legend>Hành động và thứ tự</legend><div class="practice-level-list"></div></fieldset>
+                            <fieldset class="practice-kind-card" data-kind="DETAIL"><legend>Thông tin cụ thể</legend><div class="practice-level-list"></div></fieldset>
+                            <fieldset class="practice-kind-card" data-kind="REASON_PURPOSE"><legend>Lý do và mục đích</legend><div class="practice-level-list"></div></fieldset>
+                            <fieldset class="practice-kind-card" data-kind="MAIN_IDEA"><legend>Ý chính và kết luận</legend><div class="practice-level-list"></div></fieldset>
+                            <fieldset class="practice-kind-card" data-kind="PROBLEM_SOLUTION"><legend>Vấn đề và giải pháp</legend><div class="practice-level-list"></div></fieldset>
+                            <fieldset class="practice-kind-card" data-kind="ATTITUDE_DECISION"><legend>Thái độ và quyết định</legend><div class="practice-level-list"></div></fieldset>
+                        </div>
+                    </fieldset>
+                </div>
+            </section>
 
-        <div id="practice-start-row">
-            <p id="practice-status" aria-live="polite"></p>
-            <button id="practice-start-button" type="button">
+            <div id="practice-start-row">
                 <video id="practice-start-kitsu" muted loop playsinline preload="metadata"
                        poster="/images/kitsu.png" aria-hidden="true" hidden>
                     <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
                 </video>
-                <span>Bắt đầu Shadowing</span>
-            </button>
+                <button id="practice-start-button" type="button">
+                    <i id="practice-start-icon" class="fa-solid fa-play" aria-hidden="true"></i>
+                    <span>Bắt đầu Shadowing</span>
+                </button>
+                <p id="practice-status" aria-live="polite"></p>
+                <a id="practice-contribute-link" th:href="@{/shadowing/prepare/{id}(id=${videoId})}" hidden>Đóng góp câu hỏi <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
         </div>
     </div>
 </main>
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
-<script src="/shadowing/js/practice-select.js?v=20260915-digits-only"></script>
+<script src="/shadowing/js/practice-select.js?v=20260929-merge-ti"></script>
 </body>
 </html>

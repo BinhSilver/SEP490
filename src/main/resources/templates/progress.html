@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Nhịp học của bạn - Mirai Japanese Analytics Hub', 'progress')}"></head>
+<body id="jlabBasePage" class="stitch-progress-page">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="stitch-progress-page__content">
+    <div class="stitch-progress-page__ambient" aria-hidden="true"></div>
+    <div class="stitch-progress-page__container">
+        <header class="stitch-progress-page__heading">
+            <h1>Hôm nay bạn đã học được bao nhiêu rồi?</h1>
+        </header>
+        <a class="stitch-progress-page__primary-button" href="/goals">Xem mục tiêu</a>
+
+        <div id="stitchProgressLive" class="stitch-progress-page__content-stack">
+            <section class="stitch-progress-page__kpis" aria-label="Tóm tắt học tập">
+                <article class="stitch-progress-page__kpi"><div class="stitch-progress-page__kpi-head"><span>Chuỗi hiện tại</span><i class="fa-solid fa-fire" aria-hidden="true"></i></div><div class="stitch-progress-page__kpi-value"><strong id="stitchCurrentStreak">0</strong><span>ngày liên tiếp</span></div></article>
+                <article class="stitch-progress-page__kpi"><div class="stitch-progress-page__kpi-head"><span>Chuỗi dài nhất</span><i class="fa-solid fa-trophy" aria-hidden="true"></i></div><div class="stitch-progress-page__kpi-value"><strong id="stitchLongestStreak">0</strong><span>ngày kỷ lục</span></div></article>
+                <article class="stitch-progress-page__kpi"><div class="stitch-progress-page__kpi-head"><span>Credit hiện có</span><i class="fa-solid fa-gem" aria-hidden="true"></i></div><div class="stitch-progress-page__kpi-value"><strong id="stitchCreditBalance">0</strong><span>CR</span></div></article>
+                <article class="stitch-progress-page__kpi"><div class="stitch-progress-page__kpi-head"><span>Hôm nay đã học</span><i class="fa-solid fa-clock" aria-hidden="true"></i></div><div class="stitch-progress-page__kpi-value"><strong id="stitchTodayMinutes">0</strong><span>phút / <b id="stitchTargetMinutes">20</b>p</span></div></article>
+            </section>
+
+            <section class="stitch-progress-page__split-grid">
+                <article class="stitch-progress-page__card stitch-progress-page__today-card" aria-labelledby="stitchTodayTitle">
+                    <div class="stitch-progress-page__card-head"><div><h2 id="stitchTodayTitle">Tiến độ hôm nay <time id="stitchTodayDate"></time></h2><p id="stitchTodayMessage">Mỗi phiên học nhỏ đều góp vào nhịp dài hơn.</p></div><i class="fa-solid fa-bullseye stitch-progress-page__card-icon" aria-hidden="true"></i></div>
+                    <div class="stitch-progress-page__goal-list">
+                        <div class="stitch-progress-page__goal-row"><div class="stitch-progress-page__goal-label"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Từ đã học</span><b id="stitchTodayVocabulary">0 / 15 từ</b><em id="stitchTodayVocabularyPct">0%</em></div><div class="stitch-progress-page__progress-track"><i id="stitchTodayVocabularyBar"></i></div></div>
+                        <div class="stitch-progress-page__goal-row"><div class="stitch-progress-page__goal-label"><i class="fa-solid fa-check-double stitch-progress-page__success-icon" aria-hidden="true"></i><span>Quiz hoàn tất</span><b id="stitchTodayQuizzes">0 / 1 bài</b><em id="stitchTodayQuizzesPct">0%</em></div><div class="stitch-progress-page__progress-track stitch-progress-page__progress-track--success"><i id="stitchTodayQuizzesBar"></i></div></div>
+                        <div class="stitch-progress-page__goal-row"><div class="stitch-progress-page__goal-label"><i class="fa-regular fa-hourglass-half" aria-hidden="true"></i><span>Phút học</span><b id="stitchTodayStudy">0 / 20 phút</b><em id="stitchTodayStudyPct">0%</em></div><div class="stitch-progress-page__progress-track"><i id="stitchTodayStudyBar"></i></div></div>
+                    </div>
+                    <div class="stitch-progress-page__card-foot"><span><i class="fa-solid fa-sparkles" aria-hidden="true"></i> Cố lên, bạn đang xây nền rất tốt.</span><a href="/goals" aria-label="Mở mục tiêu"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a></div>
+                </article>
+
+                <article class="stitch-progress-page__card stitch-progress-page__credit-card" aria-labelledby="stitchCreditTitle">
+                    <div class="stitch-progress-page__card-head"><div><h2 id="stitchCreditTitle">Hoạt động Credit gần đây</h2><p>Nhật ký giao dịch gần nhất</p></div><span id="stitchCreditBadge" class="stitch-progress-page__credit-badge">0 CR</span></div>
+                    <div id="stitchCreditList" class="stitch-progress-page__credit-list"><p class="stitch-progress-page__muted">Chưa có giao dịch gần đây.</p></div>
+                    <div class="stitch-progress-page__card-foot"><span>Tháng này: <b id="stitchCreditNet">0 CR ròng</b></span><a href="/credit-history">Xem toàn bộ lịch sử</a></div>
+                </article>
+            </section>
+
+            <section class="stitch-progress-page__card stitch-progress-page__activity-card" aria-labelledby="stitchActivityTitle">
+                <div class="stitch-progress-page__section-head"><div><h2 id="stitchActivityTitle">Hoạt động học gần đây <i aria-hidden="true"></i></h2></div><div class="stitch-progress-page__controls"><div class="stitch-progress-page__segmented" role="group" aria-label="Chọn chỉ số"><button class="is-active" data-stitch-metric="minutes" type="button">Phút học</button><button data-stitch-metric="words" type="button">Từ đã học</button><button data-stitch-metric="quiz" type="button">Quiz</button></div><div class="stitch-progress-page__segmented" role="group" aria-label="Chọn khoảng thời gian"><button class="is-active" data-stitch-range="7d" type="button">7 ngày</button><button data-stitch-range="30d" type="button">30 ngày</button><button data-stitch-range="90d" type="button">90 ngày</button></div></div></div>
+                <div class="stitch-progress-page__line-chart"><div class="stitch-progress-page__chart-y"><span>Max</span><span>Avg</span><span>0</span></div><svg id="stitchActivityChart" viewBox="0 0 700 200" preserveAspectRatio="none" aria-label="Biểu đồ hoạt động học"><defs><linearGradient id="stitchPurpleGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#4F378A" stop-opacity=".18"></stop><stop offset="70%" stop-color="#E9DDFF" stop-opacity=".08"></stop><stop offset="100%" stop-color="#fff" stop-opacity="0"></stop></linearGradient></defs><path id="stitchActivityArea" fill="url(#stitchPurpleGradient)"></path><path id="stitchActivityLine" fill="none" stroke="#4F378A" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path><g id="stitchActivityPoints"></g></svg><div id="stitchActivityLabels" class="stitch-progress-page__chart-labels"></div></div><div class="stitch-progress-page__chart-foot"><span><i aria-hidden="true"></i> Trung bình: <b id="stitchActivityAverage">0 phút</b></span><span>Tuần này đủ đều đặn: <b id="stitchActivityConsistency">0%</b></span><span class="stitch-progress-page__muted">Chạm hoặc di chuột xem chi tiết</span></div>
+            </section>
+
+            <section class="stitch-progress-page__two-col">
+                <article class="stitch-progress-page__card stitch-progress-page__bar-card" aria-labelledby="stitchWeekTitle"><div class="stitch-progress-page__section-head"><div><h2 id="stitchWeekTitle">Mục tiêu tuần này</h2><p>Tỷ lệ đạt chỉ tiêu hàng ngày tuần này</p></div><span class="stitch-progress-page__week-badge">Tuần <b id="stitchWeekPercent">0</b></span></div><div id="stitchWeekBars" class="stitch-progress-page__week-bars"></div><div class="stitch-progress-page__card-foot"><span>Hiệu suất tuần: <b id="stitchWeekPerformance">0%</b></span><span>Đạt <b id="stitchWeekDays">0/7</b> ngày hoàn hảo</span></div></article>
+                <article class="stitch-progress-page__card stitch-progress-page__donut-card" aria-labelledby="stitchDistributionTitle"><div class="stitch-progress-page__section-head"><div><h2 id="stitchDistributionTitle">Bạn dành thời gian cho gì nhiều nhất?</h2><p>Tỷ trọng phương pháp &amp; kỹ năng rèn luyện</p></div><i class="fa-solid fa-chart-pie stitch-progress-page__card-icon" aria-hidden="true"></i></div><div class="stitch-progress-page__donut-body"><div class="stitch-progress-page__donut"><div><b>TỔNG THỜI GIAN</b><strong id="stitchDonutTotal">0h 00m</strong><span>100%</span></div></div><ul><li><i></i><span>Flashcard</span><b>42%</b></li><li><i></i><span>Quiz</span><b>25%</b></li><li><i></i><span>Kanji</span><b>18%</b></li><li><i></i><span>Shadowing</span><b>10%</b></li><li><i></i><span>Game</span><b>5%</b></li></ul></div></article>
+            </section>
+
+            <section class="stitch-progress-page__card stitch-progress-page__credit-analytics" aria-labelledby="stitchCreditAnalyticsTitle"><div class="stitch-progress-page__section-head"><div><h2 id="stitchCreditAnalyticsTitle">Credit của bạn</h2><p>Tích lũy và sử dụng điểm thưởng trong tháng</p></div><div class="stitch-progress-page__segmented"><button class="is-active" data-stitch-credit-range="7d" type="button">7 ngày</button><button data-stitch-credit-range="30d" type="button">30 ngày</button><button data-stitch-credit-range="90d" type="button">90 ngày</button></div></div><div class="stitch-progress-page__credit-chart-wrap"><div class="stitch-progress-page__credit-summary"><span>CREDIT HIỆN CÓ</span><strong id="stitchCreditSummary">0 <small>CR</small></strong><div><b>Kiếm được<br><strong id="stitchCreditEarned">+0 CR</strong></b><b>Đã sử dụng<br><strong id="stitchCreditSpent">-0 CR</strong></b></div></div><svg id="stitchCreditChart" viewBox="0 0 600 180" preserveAspectRatio="none" aria-label="Biểu đồ Credit"><defs><linearGradient id="stitchCreditGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#4F378A" stop-opacity=".18"></stop><stop offset="100%" stop-color="#fff" stop-opacity="0"></stop></linearGradient></defs><path id="stitchCreditArea" fill="url(#stitchCreditGradient)"></path><path id="stitchCreditLine" fill="none" stroke="#381E72" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle id="stitchCreditPoint" r="5" fill="#4F378A" stroke="#fff" stroke-width="3"></circle></svg></div></section>
+
+            <section class="stitch-progress-page__card stitch-progress-page__heatmap-card" aria-labelledby="stitchHeatmapTitle"><div class="stitch-progress-page__section-head"><div><h2 id="stitchHeatmapTitle">Lịch sử nhịp học</h2><p>Mỗi ô là một dấu mốc bạn đã dành thời gian cho tiếng Nhật.</p></div><div class="stitch-progress-page__heatmap-key"><span>Ít</span><i></i><i></i><i></i><i></i><span>Nhiều</span></div></div><div class="stitch-progress-page__heatmap"><div class="stitch-progress-page__heatmap-days"><span>T2</span><span>T4</span><span>T6</span></div><div id="stitchHeatmapGrid"></div></div></section>
+        </div>
+        <p id="stitchProgressEmpty" class="stitch-progress-page__empty" hidden>Hành trình học tập của bạn bắt đầu từ đây. Hãy hoàn thành bài học đầu tiên để bắt đầu theo dõi tiến độ nhé.</p>
+        <p id="stitchProgressError" class="stitch-progress-page__error" hidden>Không thể tải tiến độ lúc này. Hãy thử làm mới trang.</p>
+    </div>
+</main>
+
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/progress.js?v=3}"></script>
+</body>
+</html>

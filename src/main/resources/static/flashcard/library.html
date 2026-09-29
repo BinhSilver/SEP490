@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=14" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
 </head>
 <body id="jlabBasePage" class="flashcard-page flashcard-page--library">
@@ -68,6 +68,7 @@
           <h2 id="library-heading"><span class="library-results-heading__icon"><i class="fa-solid fa-fire"></i></span> Đang thịnh hành</h2>
           <p id="library-subheading">Khám phá các bộ thẻ được cộng đồng JLAS sử dụng nhiều.</p>
         </div>
+        <a class="btn btn--primary btn-primary library-create-btn" href="/flashcard/editor.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> Tạo bộ thẻ</a>
       </div>
       <div id="lib-grid" class="lib-grid" aria-live="polite"></div>
       <div id="lib-empty" class="lib-empty" hidden>
@@ -96,11 +97,84 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="lib-context-menu" class="lib-context-menu" hidden role="menu" aria-label="Thao tác với bộ thẻ">
+    <button type="button" role="menuitem" data-context-action="edit"><i class="fa-solid fa-pen" aria-hidden="true"></i> Sửa bộ thẻ</button>
+    <button type="button" role="menuitem" data-context-action="visibility"><i class="fa-solid fa-eye" aria-hidden="true"></i> Đổi chế độ hiển thị</button>
+    <button type="button" role="menuitem" data-context-action="delete" class="is-danger"><i class="fa-solid fa-trash" aria-hidden="true"></i> Xóa bộ thẻ</button>
+  </div>
+  <div class="modal-backdrop" id="export-modal" hidden>
+    <div class="modal lib-export" id="export-dialog" data-format="text" role="dialog" aria-modal="true" aria-labelledby="export-title" aria-describedby="export-subtitle">
+      <div class="lib-export__head">
+        <span class="lib-export__badge" aria-hidden="true"><i class="fa-solid fa-file-lines" id="export-badge-icon"></i></span>
+        <div class="lib-export__heading">
+          <h2 id="export-title">Xuất bộ thẻ</h2>
+          <p id="export-subtitle">Chọn định dạng và tải xuống bộ thẻ của bạn.</p>
+        </div>
+        <i class="fa-solid fa-file-export lib-export__deco" aria-hidden="true"></i>
+        <button type="button" class="lib-export__close" id="export-close" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="lib-export__body">
+        <div class="lib-export__tabs" role="tablist" aria-label="Định dạng xuất">
+          <button type="button" role="tab" class="lib-export__tab is-active" id="export-tab-text" data-export-tab="text" aria-selected="true" aria-controls="export-panel-text"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Văn bản</button>
+          <button type="button" role="tab" class="lib-export__tab" id="export-tab-xlsx" data-export-tab="xlsx" aria-selected="false" aria-controls="export-panel-xlsx" tabindex="-1"><i class="fa-solid fa-file-excel" aria-hidden="true"></i> Excel</button>
+          <button type="button" role="tab" class="lib-export__tab" id="export-tab-csv" data-export-tab="csv" aria-selected="false" aria-controls="export-panel-csv" tabindex="-1"><i class="fa-solid fa-file-csv" aria-hidden="true"></i> CSV</button>
+        </div>
+
+        <label class="lib-export__check">
+          <input type="checkbox" id="export-hanviet" checked />
+          <span class="lib-export__checkbox" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+          <span class="lib-export__check-text">
+            <strong>Kèm Hán Việt</strong>
+          </span>
+        </label>
+
+        <div id="export-panel-text" role="tabpanel" aria-labelledby="export-tab-text" data-export-panel="text">
+          <fieldset class="lib-export__group">
+            <legend>Giữa mặt trước và mặt sau</legend>
+            <label class="lib-export__chip"><input type="radio" name="export-term-sep" value="tab" checked /><span>Tab</span></label>
+            <label class="lib-export__chip"><input type="radio" name="export-term-sep" value="comma" /><span>Phẩy</span></label>
+            <label class="lib-export__chip"><input type="radio" name="export-term-sep" value="custom" /><span>Tùy chỉnh</span></label>
+            <input type="text" class="lib-export__custom" id="export-term-custom" maxlength="10" placeholder="VD: -" aria-label="Ký tự phân cách tùy chỉnh giữa mặt trước và mặt sau" disabled />
+          </fieldset>
+          <fieldset class="lib-export__group">
+            <legend>Giữa các thẻ</legend>
+            <label class="lib-export__chip"><input type="radio" name="export-row-sep" value="newline" checked /><span>Xuống dòng</span></label>
+            <label class="lib-export__chip"><input type="radio" name="export-row-sep" value="semicolon" /><span>Chấm phẩy</span></label>
+            <label class="lib-export__chip"><input type="radio" name="export-row-sep" value="custom" /><span>Tùy chỉnh</span></label>
+            <input type="text" class="lib-export__custom" id="export-row-custom" maxlength="10" placeholder="VD: |" aria-label="Ký tự phân cách tùy chỉnh giữa các thẻ" disabled />
+          </fieldset>
+          <textarea id="export-preview" class="lib-export__preview" rows="8" readonly aria-label="Xem trước nội dung văn bản"></textarea>
+        </div>
+
+        <div id="export-panel-xlsx" role="tabpanel" aria-labelledby="export-tab-xlsx" data-export-panel="xlsx" hidden>
+          <div class="lib-export__sheet" tabindex="0" aria-label="Xem trước trang tính Excel">
+            <table id="export-table"></table>
+          </div>
+        </div>
+
+        <div id="export-panel-csv" role="tabpanel" aria-labelledby="export-tab-csv" data-export-panel="csv" hidden>
+          <textarea id="export-csv" class="lib-export__preview" rows="10" readonly aria-label="Xem trước nội dung CSV"></textarea>
+        </div>
+      </div>
+
+      <div class="lib-export__foot">
+        <span class="lib-export__count"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> <span id="export-meta" aria-live="polite"></span></span>
+        <div class="lib-export__actions">
+          <button type="button" class="lib-export__btn" id="export-cancel">Hủy</button>
+          <button type="button" class="lib-export__btn" id="export-copy" data-export-for="text csv"><i class="fa-solid fa-copy" aria-hidden="true"></i> Sao chép</button>
+          <button type="button" class="lib-export__btn lib-export__btn--primary" id="export-txt" data-export-for="text"><i class="fa-solid fa-download" aria-hidden="true"></i> Tải .txt</button>
+          <button type="button" class="lib-export__btn lib-export__btn--primary" id="export-xlsx" data-export-for="xlsx" hidden><i class="fa-solid fa-download" aria-hidden="true"></i> Tải Excel</button>
+          <button type="button" class="lib-export__btn lib-export__btn--primary" id="export-csv-download" data-export-for="csv" hidden><i class="fa-solid fa-download" aria-hidden="true"></i> Tải CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/js/components.js"></script>
-  <script src="/flashcard/js/api-client.js"></script>
+  <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
-  <script src="/flashcard/js/library-page.js"></script>
+  <script src="/flashcard/js/library-page.js?v=13"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ import com.jlas.auth.entity.User;
 import com.jlas.flashcard.dto.SpeedRecallDtos.*;
 import com.jlas.flashcard.entity.*;
 import com.jlas.flashcard.repository.*;
+import com.jlas.flashcard.speedrecall.SpeedRecallMode;
 import com.jlas.flashcard.speedrecall.SpeedRecallRules;
 import com.jlas.flashcard.speedrecall.SpeedRecallRules.*;
 import jakarta.persistence.*;
@@ -30,25 +31,33 @@ public class SpeedRecallService {
     private final EntityManager em;
     private final SpeedRecallClock clock;
 
-    public Options options(Long setId, Long userId) {
+    public Options options(Long setId, Long userId, String modeName) {
         requireUser(userId);
+        SpeedRecallMode mode = mode(modeName);
         FlashcardSet set = access.studyable(setId, userId);
         List<FlashcardCard> all = cards.findBySetIdOrderByPositionAscIdAsc(setId);
         Map<Long, FlashcardCardProgress> states = progress(userId, setId);
-        List<FlashcardCard> eligible = select(all, states, "ALL");
+        List<FlashcardCard> eligible = select(all, states, "ALL", mode);
+        Map<String, Integer> modeCounts = new LinkedHashMap<>();
+        for (SpeedRecallMode each : SpeedRecallMode.values()) {
+            modeCounts.put(each.name(), select(all, states, "ALL", each).size());
+        }
         return new Options(setId, set.getTitle(), all.size(), eligible.size(), all.size() - eligible.size(),
-                select(all, states, "LEARNING").size(), select(all, states, "STARRED").size());
+                select(all, states, "LEARNING", mode).size(), select(all, states, "STARRED", mode).size(), mode.name(),
+                modeCounts);
     }
 
     public View create(Long setId, Long userId, CreateRequest request) {
         requireUser(userId);
-        String fingerprint = hash(setId + "|" + request.filter() + "|" + request.count() + "|" + request.autoSubmit());
+        SpeedRecallMode mode = mode(request.mode());
+        String fingerprint = hash(setId + "|" + request.filter() + "|" + request.count() + "|" + request.autoSubmit()
+                + "|" + mode.name());
         lockUser(userId);
         Optional<FlashcardStudySession> previous = studies.findByUserIdAndCreationRequestId(userId, request.requestId());
         if (previous.isPresent()) return duplicate(previous.get(), fingerprint, setId, userId);
         FlashcardSet set = access.studyable(setId, userId);
-        List<FlashcardCard> pool = select(cards.findBySetIdOrderByPositionAscIdAsc(setId), progress(userId, setId), request.filter());
-        return build(set, userId, pool, request.count(), request.filter(), request.autoSubmit(), null, request.requestId(), fingerprint);
+        List<FlashcardCard> pool = select(cards.findBySetIdOrderByPositionAscIdAsc(setId), progress(userId, setId), request.filter(), mode);
+        return build(set, userId, pool, request.count(), request.filter(), request.autoSubmit(), null, request.requestId(), fingerprint, mode);
     }
 
     public View retry(Long setId, Long userId, Long id, RetryRequest request) {
@@ -63,9 +72,10 @@ public class SpeedRecallService {
         for (FlashcardSpeedRecallAnswer a : rows(id)) {
             if ((a.getOutcome() == Outcome.WRONG || a.getOutcome() == Outcome.TIMEOUT) && a.getCard() != null) wrong.add(a.getCard().getId());
         }
+        SpeedRecallMode mode = mode(source.getSession().getMode());
         List<FlashcardCard> pool = select(cards.findBySetIdOrderByPositionAscIdAsc(setId).stream()
-                .filter(c -> wrong.contains(c.getId())).toList(), Map.of(), "ALL");
-        return build(source.getSession().getSet(), userId, pool, pool.size(), "RETRY", source.isAutoSubmit(), id, request.requestId(), fingerprint);
+                .filter(c -> wrong.contains(c.getId())).toList(), Map.of(), "ALL", mode);
+        return build(source.getSession().getSet(), userId, pool, pool.size(), "RETRY", source.isAutoSubmit(), id, request.requestId(), fingerprint, mode);
     }
 
     private View duplicate(FlashcardStudySession previous, String fingerprint, Long setId, Long userId) {
@@ -74,20 +84,23 @@ public class SpeedRecallService {
     }
 
     private View build(FlashcardSet set, Long userId, List<FlashcardCard> pool, int count, String filter,
-                       boolean auto, Long retryOf, String requestId, String fingerprint) {
-        if (pool.isEmpty()) throw bad("Không có thẻ phù hợp. Hãy bổ sung Kanji và cách đọc kana hoặc đổi bộ lọc.");
+                       boolean auto, Long retryOf, String requestId, String fingerprint, SpeedRecallMode mode) {
+        if (pool.isEmpty()) throw bad("Không có thẻ phù hợp với chế độ này. Hãy bổ sung nội dung còn thiếu cho thẻ hoặc đổi bộ lọc.");
         if (count < 1 || count > pool.size()) {
             throw bad("Số câu hỏi phải từ 1 đến " + pool.size() + " với bộ lọc hiện tại.");
         }
-        String contentVersion = hash(pool.stream().sorted(Comparator.comparing(FlashcardCard::getId))
-                .map(c -> c.getId() + "\u0000" + c.getFront() + "\u0000" + c.getReading() + "\u0000" + c.getMeaning())
+        // Legacy mode keeps its old hash, so personal bests from before modes existed still count.
+        String contentVersion = hash((mode == SpeedRecallMode.KANJI_TO_READING ? "" : mode.name())
+                + pool.stream().sorted(Comparator.comparing(FlashcardCard::getId))
+                .map(c -> c.getId() + "\u0000" + c.getFront() + "\u0000" + c.getReading() + "\u0000" + c.getMeaning()
+                        + (mode == SpeedRecallMode.KANJI_TO_READING ? "" : "\u0000" + c.getHanViet()))
                 .reduce("", (a, c) -> a + "\n" + c));
         Collections.shuffle(pool);
         List<FlashcardCard> selected = pool.subList(0, Math.min(count, pool.size()));
         LocalDateTime now = clock.now();
         FlashcardStudySession base = studies.saveAndFlush(FlashcardStudySession.builder()
                 .user(em.getReference(User.class, userId)).set(set).sessionType("SPEED_RECALL")
-                .mode("KANJI_TO_READING").status("IN_PROGRESS")
+                .mode(mode.name()).status("IN_PROGRESS")
                 .creationRequestId(requestId).creationFingerprint(fingerprint).build());
         FlashcardSpeedRecallSession s = new FlashcardSpeedRecallSession();
         s.setSession(base); s.setTotalQuestions(selected.size()); s.setSelectionFilter(filter); s.setAutoSubmit(auto);
@@ -99,8 +112,8 @@ public class SpeedRecallService {
             FlashcardCard card = selected.get(i);
             FlashcardSpeedRecallAnswer a = new FlashcardSpeedRecallAnswer();
             a.setSession(s); a.setCard(card); a.setQuestionIndex(i);
-            a.setQuestionText(SpeedRecallRules.normalize(card.getFront()));
-            a.setExpectedAnswer(SpeedRecallRules.normalize(card.getReading()));
+            a.setQuestionText(mode.question().of(card));
+            a.setExpectedAnswer(mode.answer().of(card));
             a.setReading(SpeedRecallRules.normalize(card.getReading())); a.setMeaning(card.getMeaning());
             rows.add(answers.save(a));
         }
@@ -154,12 +167,13 @@ public class SpeedRecallService {
         LocalDateTime now = clock.now();
         boolean late = !now.isBefore(a.getDeadlineAt());
         if (timeoutSignal && !late) return view(s, rows); // Client clock may be ahead.
-        String normalized = SpeedRecallRules.normalize(request.userAnswer());
+        SpeedRecallMode mode = mode(s.getSession().getMode());
+        String normalized = mode.comparable(request.userAnswer());
         if (normalized.codePointCount(0, normalized.length()) > 500) throw bad("Đáp án sau chuẩn hóa quá dài");
-        if (!late && normalized.isBlank()) throw bad("Hãy nhập cách đọc trước khi kiểm tra");
+        if (!late && normalized.isBlank()) throw bad("Hãy nhập đáp án trước khi kiểm tra");
         a.setUserAnswer(request.userAnswer()); a.setNormalizedAnswer(normalized);
         a.setAnswerRequestId(request.requestId()); a.setRequestFingerprint(fingerprint);
-        resolve(s, a, late ? Outcome.TIMEOUT : normalized.equals(a.getExpectedAnswer()) ? Outcome.CORRECT : Outcome.WRONG);
+        resolve(s, a, late ? Outcome.TIMEOUT : mode.matches(request.userAnswer(), a.getExpectedAnswer()) ? Outcome.CORRECT : Outcome.WRONG);
         return view(s, rows);
     }
 
@@ -200,7 +214,8 @@ public class SpeedRecallService {
         var found = sessions.findBySessionUserIdAndSessionSetIdOrderByCreatedAtDesc(userId, setId,
                 PageRequest.of(Math.max(0, page), Math.max(1, Math.min(size, 100))));
         return new History(found.stream().map(s -> new HistoryItem(s.getId(), s.getState().name(), instant(s.getCreatedAt()),
-                s.getSelectionFilter(), s.isAutoSubmit(), s.getContentVersion(), s.getRulesVersion(), stats(s))).toList(),
+                s.getSelectionFilter(), s.isAutoSubmit(), s.getContentVersion(), s.getRulesVersion(), stats(s),
+                mode(s.getSession().getMode()).name())).toList(),
                 found.getNumber(), found.getTotalPages(), found.getTotalElements());
     }
 
@@ -255,7 +270,7 @@ public class SpeedRecallService {
         return new View(s.getId(), s.getSession().getSet().getId(), s.getSession().getSet().getTitle(), s.getState().name(),
                 s.getPausedFrom() == null ? null : s.getPausedFrom().name(), s.getCurrentQuestionIndex(), s.getSelectionFilter(),
                 s.isAutoSubmit(), instant(clock.now()), instant(s.getFeedbackUntil()), s.getPausedRemainingMs(),
-                question, feedback, stats(s), results, best);
+                question, feedback, stats(s), results, best, mode(s.getSession().getMode()).name());
     }
 
     private Stats stats(FlashcardSpeedRecallSession s) {
@@ -266,7 +281,8 @@ public class SpeedRecallService {
     }
     private Answer dto(FlashcardSpeedRecallAnswer a) {
         return new Answer(a.getId(), a.getCard() == null ? null : a.getCard().getId(), a.getQuestionText(), a.getReading(),
-                a.getMeaning(), a.getUserAnswer(), a.getOutcome().name(), a.getResponseMs(), a.getScoreAwarded());
+                a.getMeaning(), a.getUserAnswer(), a.getOutcome().name(), a.getResponseMs(), a.getScoreAwarded(),
+                a.getExpectedAnswer());
     }
     private boolean resolved(FlashcardSpeedRecallAnswer a) { return a.getOutcome() != Outcome.PENDING && a.getOutcome() != Outcome.ACTIVE; }
     private boolean terminal(FlashcardSpeedRecallSession s) {
@@ -298,16 +314,24 @@ public class SpeedRecallService {
         progress.findByUserIdAndCardSetId(userId, setId).forEach(p -> map.put(p.getCard().getId(), p));
         return map;
     }
-    private List<FlashcardCard> select(List<FlashcardCard> input, Map<Long, FlashcardCardProgress> states, String filter) {
+    private List<FlashcardCard> select(List<FlashcardCard> input, Map<Long, FlashcardCardProgress> states, String filter,
+                                       SpeedRecallMode mode) {
         Map<String, FlashcardCard> unique = new LinkedHashMap<>();
         for (FlashcardCard c : input) {
-            if (!SpeedRecallRules.eligible(c.getFront(), c.getReading())) continue;
+            if (!mode.eligible(c)) continue;
             FlashcardCardProgress p = states.get(c.getId());
             if ("LEARNING".equals(filter) && p != null && "MASTERED".equals(p.getStatus())) continue;
             if ("STARRED".equals(filter) && (p == null || !Boolean.TRUE.equals(p.getIsStarred()))) continue;
-            unique.putIfAbsent(SpeedRecallRules.normalize(c.getFront()) + "\u0000" + SpeedRecallRules.normalize(c.getReading()), c);
+            unique.putIfAbsent(mode.question().of(c) + "\u0000" + mode.comparable(mode.answer().of(c)), c);
         }
         return new ArrayList<>(unique.values());
+    }
+    private static SpeedRecallMode mode(String name) {
+        try {
+            return SpeedRecallMode.parse(name);
+        } catch (IllegalArgumentException e) {
+            throw bad("Chế độ luyện không hợp lệ");
+        }
     }
     private void requireUser(Long userId) { if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập"); }
     private void lockUser(Long userId) {

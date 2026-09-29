@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260923-editor-flat">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260910-editor-play-button"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260929-merge-ti"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
 </head>
 <body id="jlabBasePage" class="page-shadowing page-shadowing-editor">
@@ -34,6 +34,7 @@
                 <button id="focus-mode-btn" class="button-secondary btn-sm"><i class="fa-solid fa-crosshairs"></i> Tập trung</button>
                 <button id="regenerate-all-btn" class="button-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại phụ đề</button>
                 <button id="validate-btn" class="button-secondary btn-sm"><i class="fa-solid fa-clipboard-check"></i> Kiểm tra</button>
+                <a id="prepare-exercises-link" class="button-secondary btn-sm" th:href="@{/shadowing/prepare/{id}(id=${videoId})}"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Chuẩn bị bài tập</a>
                 <button id="publish-btn" class="button-primary"><i class="fa-solid fa-upload"></i> Xuất bản</button>
             </div>
         </div>
@@ -87,7 +88,7 @@
     <script src="/shadowing/js/client.js?v=20260712"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
     <script src="/flashcard/js/prevalidation.js"></script>
-    <script src="/shadowing/js/editor.js?v=20260910-publish-copy"></script>
+    <script src="/shadowing/js/editor.js?v=20260923-subtitle-quality"></script>
     <script>
       // BR-11 — Pre-validation cho tiêu đề video Shadowing
       document.addEventListener('DOMContentLoaded', function () {
