@@ -148,10 +148,10 @@
       </div>
       <div class="modal-body">
         <p class="muted import-guide">
-          Nhập danh sách từ vựng theo cú pháp: Kanji - Cách đọc : Nghĩa (Hán Việt)
+          Nhập danh sách từ vựng theo cú pháp: Từ - Cách đọc : Nghĩa (Hán Việt). Chỉ bắt buộc Từ và Nghĩa; cách đọc và Hán Việt có thể bỏ, AI điền sau được.
         </p>
         <p class="muted import-example">
-          Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN)
+          Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN) · 学校 : Trường học · コーヒー : Cà phê
         </p>
         <div class="import-actions">
           <input type="file" id="import-file" accept=".xlsx,.csv,.txt,.tsv" hidden />
@@ -169,11 +169,11 @@
         </div>
         <div class="import-actions">
           <button type="button" class="btn btn-ghost" id="btn-import-ai">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Hán Việt bằng AI
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI điền cách đọc &amp; Hán Việt
           </button>
         </div>
         <p class="muted import-result-note">
-          Sau khi áp dụng, hệ thống tạo thẻ: Mặt trước (Kanji), Mặt sau (hiragana — nghĩa), Hán Việt (nếu có).
+          Sau khi áp dụng, hệ thống tạo thẻ: Mặt trước (từ vựng), Mặt sau (cách đọc — nghĩa), Hán Việt (nếu từ có Kanji).
         </p>
       </div>
       <div class="modal-footer">
@@ -204,7 +204,7 @@
       <div class="modal-header">
         <div>
           <h3 id="ai-review-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem trước hoạt động AI</h3>
-          <p>Kiểm tra Cách đọc và Hán Việt trước khi áp dụng. Kanji gốc luôn được giữ nguyên.</p>
+          <p>Kiểm tra Cách đọc và Hán Việt trước khi áp dụng. Từ gốc luôn được giữ nguyên; từ không có Kanji thì không có Hán Việt.</p>
         </div>
         <button type="button" class="btn-icon" id="btn-close-ai-review" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -225,7 +225,7 @@
   <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/prevalidation.js"></script>
-  <script src="/flashcard/js/editor-page.js?v=2"></script>
+  <script src="/flashcard/js/editor-page.js?v=6"></script>
 </body>
 
 </html>

@@ -2,7 +2,7 @@
 export function createApi(setId) {
   const base = '/api/flashcards/' + encodeURIComponent(setId) + '/speed-recall';
   return {
-    options: () => window.FlashApi.get(base + '/options'),
+    options: mode => window.FlashApi.get(base + '/options' + (mode ? '?mode=' + encodeURIComponent(mode) : '')),
     history: page => window.FlashApi.get(base + '/history?page=' + page + '&size=20'),
     state: id => window.FlashApi.get(base + '/sessions/' + encodeURIComponent(id)),
     create: body => window.FlashApi.post(base + '/sessions', body),

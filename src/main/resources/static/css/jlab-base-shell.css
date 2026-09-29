@@ -207,6 +207,7 @@
 #jlabBaseShadowingLink:focus-visible,
 #jlabBaseProfileLink:focus-visible,
 #jlabBaseProgressLink:focus-visible,
+#jlabBaseAdminLink:focus-visible,
 #jlabBaseSecurityLink:focus-visible {
   outline: 2px solid var(--color-primary, #4f378a);
   outline-offset: 3px;
@@ -269,6 +270,7 @@
 #jlabBaseNotificationBadge[hidden],
 #jlabBaseAvatarButtonImage[hidden],
 #jlabBaseAvatarButtonInitials[hidden],
+#jlabBaseAdminLink[hidden],
 #jlabBaseAccountAvatarImage[hidden],
 #jlabBaseAccountAvatarInitials[hidden] {
   display: none;
@@ -280,6 +282,7 @@
 #jlabBaseShadowingLink,
 #jlabBaseProfileLink,
 #jlabBaseProgressLink,
+#jlabBaseAdminLink,
 #jlabBaseSecurityLink,
 #jlabBaseLogoutButton {
   width: 100%;
@@ -305,13 +308,15 @@
 #jlabBaseShadowingLink:hover,
 #jlabBaseProfileLink:hover,
 #jlabBaseProgressLink:hover,
+#jlabBaseAdminLink:hover,
 #jlabBaseSecurityLink:hover,
 #jlabBaseLogoutButton:hover,
 #jlabBaseAiCallLink[aria-current="page"],
 #jlabBaseFlashcardLink[aria-current="page"],
 #jlabBaseQuizLink[aria-current="page"],
 #jlabBaseShadowingLink[aria-current="page"],
-#jlabBaseProgressLink[aria-current="page"] {
+#jlabBaseProgressLink[aria-current="page"],
+#jlabBaseAdminLink[aria-current="page"] {
   color: var(--color-primary, #4f378a);
   background: var(--color-primary-fixed, #e9ddff);
 }
@@ -454,8 +459,129 @@
 }
 
 #jlabBaseNotificationPanelHeader {
-  padding: 18px 20px 14px;
+  padding: 14px 16px 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationMarkAll {
+  padding: 6px 10px;
+  color: var(--color-primary, #4f378a);
+  font: 600 0.8125rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#jlabBaseNotificationMarkAll:hover,
+#jlabBaseNotificationMarkAll:focus-visible {
+  background: var(--color-primary-fixed, #e9ddff);
+  outline: none;
+}
+
+#jlabBaseNotificationMarkAll[hidden] {
+  display: none;
+}
+
+#jlabBaseNotificationViewAll {
+  display: block;
+  padding: 12px 20px;
+  color: var(--color-primary, #4f378a);
+  font: 600 0.875rem/1.3 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  text-align: center;
+  text-decoration: none;
+  border-top: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationViewAll:hover,
+#jlabBaseNotificationViewAll:focus-visible {
+  background: var(--color-primary-fixed, #e9ddff);
+  outline: none;
+}
+
+/* Notification rows live here (not in user-menu.css) so every page using the shell renders them. */
+#jlabBaseNotificationList {
+  max-height: min(420px, calc(100vh - 170px));
+  overflow-y: auto;
+}
+
+#jlabBaseNotificationList .jlab-notif {
+  width: 100%;
+  padding: 12px 16px 12px 20px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 10px;
+  align-items: start;
+  gap: 12px;
+  color: var(--color-on-surface, #161d1f);
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+  box-sizing: border-box;
+  cursor: pointer;
+  font: inherit;
+}
+
+#jlabBaseNotificationList .jlab-notif:hover,
+#jlabBaseNotificationList .jlab-notif:focus-visible {
+  background: var(--color-surface-low, #eef5f7);
+  outline: none;
+}
+
+#jlabBaseNotificationList .jlab-notif.is-unread {
+  background: #f7f2ff;
+}
+
+#jlabBaseNotificationList .jlab-notif__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+  border-radius: 50%;
+}
+
+#jlabBaseNotificationList .jlab-notif__icon .jlab-base-icon {
+  width: 18px;
+  height: 18px;
+}
+
+#jlabBaseNotificationList .jlab-notif__body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+#jlabBaseNotificationList .jlab-notif__body strong {
+  font: 700 0.875rem/1.35 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__message {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-on-surface-variant, #494551);
+  font: 400 0.8125rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__time {
+  color: var(--color-outline, #7a7582);
+  font: 400 0.75rem/1.3 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  background: var(--color-primary, #4f378a);
+  border-radius: 50%;
 }
 
 #jlabBaseNotificationTitle {
@@ -697,3 +823,71 @@
     bottom: 12px;
   }
 }
+
+/* Active sanction banner (normal flow, directly under the fixed header) and one-time dialog. */
+#jlabBaseSanctionBanner {
+  width: min(1400px, calc(100% - 24px));
+  margin: 0 auto 12px;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  font: 500 0.875rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseSanctionBanner[hidden] { display: none; }
+#jlabBaseSanctionBanner.is-mute { color: #6b4500; background: #fff1d6; border: 1px solid #f0c36d; }
+#jlabBaseSanctionBanner.is-ban { color: #93000a; background: #ffdad6; border: 1px solid #f2a39b; }
+
+#jlabBaseSanctionBanner a {
+  flex: none;
+  padding: 6px 12px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--color-primary, #4f378a);
+  border-radius: 999px;
+}
+
+#jlabBaseSanctionDialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay, 120);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(22, 29, 31, 0.5);
+}
+
+#jlabBaseSanctionDialog > div {
+  width: min(440px, 100%);
+  padding: 22px;
+  color: var(--color-on-surface, #161d1f);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 14px 42px rgba(22, 29, 31, 0.2);
+  font: 400 0.9375rem/1.5 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseSanctionDialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
+#jlabBaseSanctionDialog p { margin: 0 0 8px; color: var(--color-on-surface-variant, #494551); }
+#jlabBaseSanctionDialog p:empty { display: none; }
+#jlabBaseSanctionDialog > div > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+#jlabBaseSanctionDialog a,
+#jlabBaseSanctionDialog button {
+  padding: 9px 16px;
+  font: 600 0.875rem/1.2 inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#jlabBaseSanctionDialog a { color: #fff; background: var(--color-primary, #4f378a); border: 0; }
+#jlabBaseSanctionDialog button { color: var(--color-on-surface, #161d1f); background: #fff; border: 1px solid var(--color-outline-variant, #cbc4d2); }
+#jlabBaseSanctionDialog a:focus-visible,
+#jlabBaseSanctionDialog button:focus-visible { outline: 2px solid var(--color-primary, #4f378a); outline-offset: 2px; }

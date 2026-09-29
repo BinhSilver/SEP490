@@ -174,6 +174,39 @@
     }
   }
 
+  // A word without kanji (katakana loanword like コーヒー, or a hiragana-only word) has no Kanji and no
+  // Hán Việt: its front is simply the reading. Same rule as the server (com.jlas.flashcard.util.KanaWords).
+  var HAN_CHAR = /\p{Script=Han}/u;
+  var KANA_ONLY = /^[\u3040-\u309f\u30a0-\u30ff\u30fc\u30fb\s]+$/;
+  function hasKanji(value) { return HAN_CHAR.test(String(value || '')); }
+  function isKanaWord(value) {
+    var v = String(value || '').trim();
+    return Boolean(v) && !hasKanji(v) && KANA_ONLY.test(v);
+  }
+  /** Fills the reading of a kana word from its front. Only used when the learner presses an AI button. */
+  function applyKanaRule(card) {
+    if (!isKanaWord(card.front)) return false;
+    ensureBackFields(card);
+    if (card.reading && card.reading.trim()) return false;
+    card.reading = card.front.trim();
+    syncBack(card);
+    return true;
+  }
+
+  /**
+   * Fields the AI could still fill for this card. A kana word needs no Hán Việt and gets its reading
+   * locally, so only its meaning can be missing. An empty list means: do not call the AI at all.
+   */
+  function aiMissingFields(card) {
+    ensureBackFields(card);
+    var missing = [];
+    var kana = isKanaWord(card.front);
+    if (!kana && !(card.reading && card.reading.trim())) missing.push('reading');
+    if (!(card.meaning && card.meaning.trim())) missing.push('meaning');
+    if (hasKanji(card.front) && !(card.hanViet && card.hanViet.trim())) missing.push('hanViet');
+    return missing;
+  }
+
   function splitBack(value) {
     var back = String(value || '').trim();
     var parts = back.split(/\s+[—-]\s+/, 2);
@@ -223,12 +256,12 @@
                 '</div>' +
               '</div>' +
               '<div class="edit-card__fields edit-card__fields--primary">' +
-                '<div class="edit-card__field"><label class="label" for="card-front-' + i + '">Kanji <span class="required-mark">*</span></label><div class="input-wrap"><input id="card-front-' + i + '" class="input" aria-label="Kanji thẻ ' + (i + 1) + '" data-f="front" data-i="' + i + '" type="text" placeholder="例: 日本" value="' + FlashShell.esc(c.front) + '" ' + ro + '/></div></div>' +
-                '<div class="edit-card__field"><label class="label" for="card-reading-' + i + '">Cách đọc <span class="required-mark">*</span></label><div class="input-wrap"><input id="card-reading-' + i + '" class="input" aria-label="Cách đọc thẻ ' + (i + 1) + '" data-f="reading" data-i="' + i + '" type="text" placeholder="にほん" value="' + FlashShell.esc(c.reading) + '" ' + ro + '/></div></div>' +
+                '<div class="edit-card__field"><label class="label" for="card-front-' + i + '">Từ vựng <span class="required-mark">*</span></label><div class="input-wrap"><input id="card-front-' + i + '" class="input" aria-label="Từ vựng thẻ ' + (i + 1) + '" title="Kanji, hoặc Katakana/Hiragana nếu từ không có Kanji" data-f="front" data-i="' + i + '" type="text" placeholder="例: 日本 / コーヒー" value="' + FlashShell.esc(c.front) + '" ' + ro + '/></div></div>' +
+                '<div class="edit-card__field"><label class="label" for="card-reading-' + i + '">Cách đọc <span class="optional-label">Tùy chọn</span></label><div class="input-wrap"><input id="card-reading-' + i + '" class="input" aria-label="Cách đọc thẻ ' + (i + 1) + '" data-f="reading" data-i="' + i + '" type="text" placeholder="にほん" value="' + FlashShell.esc(c.reading) + '" ' + ro + '/></div></div>' +
                 '<div class="edit-card__field"><label class="label" for="card-meaning-' + i + '">Nghĩa <span class="required-mark">*</span></label><div class="input-wrap"><input id="card-meaning-' + i + '" class="input" aria-label="Nghĩa thẻ ' + (i + 1) + '" data-f="meaning" data-i="' + i + '" type="text" placeholder="Nhật Bản" value="' + FlashShell.esc(c.meaning) + '" ' + ro + '/></div></div>' +
               '</div>' +
               '<div class="edit-card__fields edit-card__fields--secondary">' +
-                '<div class="edit-card__field"><label class="label" for="card-hanviet-' + i + '">Hán Việt <span class="optional-label">Tùy chọn</span></label><div class="input-wrap"><input id="card-hanviet-' + i + '" class="input" aria-label="Hán Việt thẻ ' + (i + 1) + '" data-f="hanViet" data-i="' + i + '" type="text" placeholder="NHẬT BẢN" value="' + FlashShell.esc(c.hanViet) + '" ' + ro + '/></div></div>' +
+                '<div class="edit-card__field"><label class="label" for="card-hanviet-' + i + '">Hán Việt <span class="optional-label">Tùy chọn</span></label><div class="input-wrap"><input id="card-hanviet-' + i + '" class="input" aria-label="Hán Việt thẻ ' + (i + 1) + '" data-f="hanViet" data-i="' + i + '" type="text" placeholder="' + (isKanaWord(c.front) ? 'Từ không có Kanji nên không có Hán Việt' : 'NHẬT BẢN') + '" value="' + FlashShell.esc(c.hanViet) + '" ' + ro + '/></div></div>' +
                 '<div class="edit-card__field edit-card__field--image"><label class="label">Ảnh <span class="optional-label">Tùy chọn</span></label><div class="edit-card__image-control">' +
                   (c.image ? '<img src="' + FlashShell.esc(c.image) + '" class="edit-thumb" alt="Ảnh thẻ ' + (i + 1) + '"/>' : '') +
                   (!viewOnly ? '<label class="table-icon-btn" title="Thêm ảnh minh họa"><i class="fa-solid fa-image"></i> ' + (c.image ? 'Đổi ảnh' : 'Thêm ảnh') + '<input type="file" accept="image/*" data-img="' + i + '"/></label>' : '') +
@@ -377,7 +410,7 @@
    */
   async function enrichCardFromKanji(c) {
     if (!c.front || !c.front.trim()) {
-      throw new Error('Cần Kanji (Mặt trước). Chỉ có Nghĩa hoặc Hán Việt thì không tạo được.');
+      throw new Error('Cần nhập từ vựng ở mặt trước.');
     }
     // Preview must be non-mutating: saved cards use the same lookup endpoint
     // and are persisted only after the learner accepts the result below.
@@ -400,13 +433,19 @@
     var hanViet = String(result && (result.hanViet || result.han_viet) || '').trim();
     var warnings = [];
 
+    var kanaWord = isKanaWord(originalKanji);
+    if (kanaWord) {
+      // No kanji → the reading is the word itself and there is no Hán Việt.
+      reading = originalKanji;
+      hanViet = '';
+    }
     if (returnedKanji && compactTerm(returnedKanji) !== compactTerm(originalKanji)) {
-      warnings.push('AI trả Kanji khác; hệ thống đã giữ nguyên Kanji gốc.');
+      warnings.push('AI trả từ khác; hệ thống đã giữ nguyên từ gốc.');
     }
     if (reading && !looksLikeJapaneseReading(reading)) {
       warnings.push('Cách đọc AI trả về không phải kana thuần; hãy kiểm tra trước khi áp dụng.');
     }
-    if (!hanViet) warnings.push('AI không trả Hán Việt cho mục này.');
+    if (!hanViet && hasKanji(originalKanji)) warnings.push('AI không trả Hán Việt cho mục này.');
 
     return {
       card: card,
@@ -431,7 +470,7 @@
         : '';
       return '<label class="ai-review-item">' +
         '<input type="checkbox" data-ai-review-index="' + index + '" ' + (change.warnings.length ? '' : 'checked') + ' />' +
-        '<div class="ai-review-item__value"><span>Kanji gốc</span><strong>' + FlashShell.esc(change.kanji) + '</strong></div>' +
+        '<div class="ai-review-item__value"><span>Từ gốc</span><strong>' + FlashShell.esc(change.kanji) + '</strong></div>' +
         '<div class="ai-review-item__value"><span>Cách đọc AI</span><strong>' + FlashShell.esc(change.result.reading || '—') + '</strong></div>' +
         '<div class="ai-review-item__value"><span>Hán Việt AI</span><strong>' + FlashShell.esc(change.result.hanViet || '—') + '</strong></div>' +
         '<div class="ai-review-item__value ai-review-item__value--meaning"><span>Nghĩa AI</span><strong>' + FlashShell.esc(change.result.meaning || '—') + '</strong></div>' +
@@ -474,6 +513,10 @@
     var reading = result.reading || result.hiragana || '';
     var meaning = result.meaning || result.translation || '';
     var hanViet = result.hanViet || result.han_viet || '';
+    if (isKanaWord(card.front)) {
+      reading = card.front.trim();
+      hanViet = '';
+    }
 
     if (reading && !card.reading) {
         card.reading = reading;
@@ -494,8 +537,20 @@
   async function genOne(i) {
     var c = cards[i];
     if (!c.front || !c.front.trim()) {
-      FlashShell.showToast('Cần Kanji (Mặt trước). Chỉ Nghĩa/Hán Việt không tạo được.', 'err');
+      FlashShell.showToast('Cần nhập từ vựng ở mặt trước.', 'err');
       return;
+    }
+    // A kana word's reading is the word itself: fill it here, no AI needed.
+    var filledLocally = applyKanaRule(c);
+    if (!aiMissingFields(c).length) {
+      if (filledLocally) {
+        render();
+        scheduleDraftSave();
+        FlashShell.showToast('Đã điền cách đọc. Thẻ đã đủ thông tin, không cần AI.', 'ok');
+      } else {
+        FlashShell.showToast('Thẻ đã đủ thông tin, không cần AI điền.', 'info');
+      }
+      return; // nothing left for the AI: never send a request
     }
 
     if (window.JlasUI && JlasUI.showAiProgress) {
@@ -540,11 +595,21 @@
       return;
     }
 
-    var validTargets = selected.filter(function (c) { return c.front && c.front.trim(); });
+    var withFront = selected.filter(function (c) { return c.front && c.front.trim(); });
+    if (!withFront.length) {
+      FlashShell.showToast('Cần nhập từ vựng ở mặt trước.', 'err');
+      return;
+    }
+    // Kana readings are filled here; cards with nothing left to fill are not sent to the AI.
+    var filledLocally = withFront.filter(applyKanaRule).length;
+    var validTargets = withFront.filter(function (c) { return aiMissingFields(c).length > 0; });
     var skipCount = selected.length - validTargets.length;
+    if (filledLocally) { render(); scheduleDraftSave(); }
 
     if (!validTargets.length) {
-      FlashShell.showToast('Không có thẻ nào có Kanji hợp lệ để AI điền', 'err');
+      FlashShell.showToast(filledLocally
+        ? 'Đã điền cách đọc. Các thẻ đã chọn đều đủ thông tin, không cần AI.'
+        : 'Các thẻ đã chọn đều đã đủ thông tin, không cần AI điền.', filledLocally ? 'ok' : 'info');
       return;
     }
 
@@ -595,7 +660,8 @@
   }
 
   /* ── Nhập từ ───────────────────────────────────────────── */
-  var LINE_RE = /^\s*(.+?)\s*-\s*(.+?)\s*:\s*(.+?)(?:\s*\(([^)]*)\))?\s*$/;
+  // "Từ - Cách đọc : Nghĩa (Hán Việt)". Reading and Hán Việt are optional: "学校 : Trường học".
+  var LINE_RE = /^\s*(.+?)\s*(?:-\s*(.+?)\s*)?:\s*(.+?)(?:\s*\(([^)]*)\))?\s*$/;
 
   function openImport() {
     document.getElementById('import-modal').hidden = false;
@@ -625,9 +691,10 @@
       var m = raw.trim().match(LINE_RE);
       if (!m) return;
       var kanji = m[1].trim();
-      var reading = m[2].trim();
+      var reading = m[2] ? m[2].trim() : '';
       var meaning = m[3].trim();
       var hanViet = m[4] ? m[4].trim() : '';
+      if (isKanaWord(kanji)) hanViet = ''; // no kanji → no Hán Việt; the reading stays as typed
       // Front = Kanji · Back = hiragana — nghĩa · Hán Việt optional
       out.push({
         front: kanji,
@@ -677,7 +744,7 @@
 
     if (window.JlasUI && JlasUI.showAiProgress) {
       JlasUI.showAiProgress({
-        title: 'Tạo Hán Việt bằng AI 🌸',
+        title: 'AI điền cách đọc & Hán Việt 🌸',
         category: 'IMPORT ASSISTANT',
         subtitle: 'Đang phân tích danh sách từ vựng và tự động bổ sung Hán Việt...',
         total: 100,
@@ -698,10 +765,10 @@
 
       if (window.JlasUI && JlasUI.completeAiProgress) {
         JlasUI.completeAiProgress('Đã bổ sung Hán Việt! 🌸', function () {
-          FlashShell.showToast('Đã bổ sung Hán Việt (AI)', 'ok');
+          FlashShell.showToast('Đã bổ sung cách đọc và Hán Việt (AI)', 'ok');
         });
       } else {
-        FlashShell.showToast('Đã bổ sung Hán Việt (AI)', 'ok');
+        FlashShell.showToast('Đã bổ sung cách đọc và Hán Việt (AI)', 'ok');
       }
     } catch (e) {
       if (window.JlasUI && JlasUI.hideAiProgress) JlasUI.hideAiProgress();
@@ -713,7 +780,7 @@
     var text = document.getElementById('import-text').value;
     var parsed = parseImportLines(text);
     if (!parsed.length) {
-      FlashShell.showToast('Không có dòng hợp lệ. Dán 2–3 cột Excel hoặc dùng mẫu Kanji - Hiragana : Nghĩa', 'err');
+      FlashShell.showToast('Không có dòng hợp lệ. Dán 2–3 cột Excel hoặc dùng mẫu Từ : Nghĩa (có thể thêm cách đọc và Hán Việt)', 'err');
       return;
     }
 
@@ -835,13 +902,11 @@
     var firstMissing = null;
     cards.forEach(function (c, idx) {
       ensureBackFields(c);
-      if (!c.front || !c.front.trim() || !c.reading || !c.reading.trim() || !c.meaning || !c.meaning.trim()) {
+      if (!c.front || !c.front.trim() || !c.meaning || !c.meaning.trim()) {
         var listEl = document.getElementById('card-list');
         var cardEl = listEl.querySelector('[data-i="' + idx + '"]');
         if (cardEl) {
-          var missingField = !c.front || !c.front.trim()
-            ? 'front'
-            : ((!c.reading || !c.reading.trim()) ? 'reading' : 'meaning');
+          var missingField = !c.front || !c.front.trim() ? 'front' : 'meaning';
           var inp = cardEl.querySelector('input[data-f="' + missingField + '"]');
           if (inp) {
             inp.classList.add('is-invalid');
@@ -853,7 +918,7 @@
       }
     });
     if (firstMissing !== null) {
-      FlashShell.showToast('Mỗi thẻ cần có Kanji, cách đọc và nghĩa', 'err');
+      FlashShell.showToast('Mỗi thẻ cần có từ vựng và nghĩa', 'err');
       var listEl2 = document.getElementById('card-list');
       var cardEl2 = listEl2.querySelector('[data-i="' + firstMissing + '"]');
       if (cardEl2) cardEl2.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -880,7 +945,7 @@
         })
     };
     if (!payload.cards.length) {
-      FlashShell.showToast('Cần ít nhất 1 thẻ có Mặt trước (Kanji)', 'err');
+      FlashShell.showToast('Cần ít nhất 1 thẻ có từ vựng ở mặt trước', 'err');
       return;
     }
     if (payload.visibility === 'PUBLIC' && !(await validateRealtime(true))) return;

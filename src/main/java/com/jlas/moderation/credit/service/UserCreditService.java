@@ -68,6 +68,24 @@ public class UserCreditService implements UserCreditPort {
         saveTransaction(user, -amount, reason, referenceType, referenceId, note);
     }
 
+    /**
+     * Moves the user's net credit for one reference to {@code target} and returns the change applied.
+     * Used when a moderator revises a decision, so flipping back and forth never pays twice.
+     * A take-back never pushes the balance below 0: credit already spent is not reclaimed.
+     */
+    @Transactional
+    public int settle(Long userId, int target, CreditReason gainReason, CreditReason lossReason,
+                      String referenceType, Long referenceId, String note) {
+        User user = lockUser(userId);
+        long delta = target - transactionRepository.netAmount(userId, referenceType, referenceId);
+        int applied = delta >= 0 ? (int) delta : -(int) Math.min(-delta, user.getCreditBalance());
+        if (applied == 0) return 0;
+        user.setCreditBalance(Math.addExact(user.getCreditBalance(), applied));
+        userRepository.save(user);
+        saveTransaction(user, applied, applied > 0 ? gainReason : lossReason, referenceType, referenceId, note);
+        return applied;
+    }
+
     private User lockUser(Long userId) {
         return userRepository.findForCreditUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "User not found"));

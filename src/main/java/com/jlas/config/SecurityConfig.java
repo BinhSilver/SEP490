@@ -1,6 +1,7 @@
 package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
+import com.jlas.moderation.security.BanEnforcementFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final BanEnforcementFilter banEnforcementFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,10 +40,10 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, exception) ->
                                 handleUnauthenticated(request, response))
                         .accessDeniedHandler((request, response, exception) ->
-                                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
-                                        "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN")))
+                                handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/moderation.html", "/api/admin/moderation/**")
+                        // JLAS-W0250: shared admin workspace; each API narrows access further.
+                        .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
@@ -68,6 +70,7 @@ public class SecurityConfig {
                         .authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(banEnforcementFilter, JwtAuthenticationFilter.class)
                 .build();
     }
 
@@ -83,6 +86,17 @@ public class SecurityConfig {
         response.setContentType("application/json");
         response.getWriter().write("{\"success\":false,\"message\":\"" + message
                 + "\",\"data\":null,\"errors\":null,\"code\":\"" + code + "\"}");
+    }
+
+    /** Pages get the designed error page (templates/error.html, 403 branch); APIs keep the JSON body. */
+    private static void handleAccessDenied(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        if (!request.getRequestURI().startsWith("/api/")) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN");
     }
 
     private static void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response)
