@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
-                                "/videos/**", "/voices/**", "/flashcard/**", "/shadowing/css/**",
+                                "/videos/**", "/voices/**", "/audio/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",

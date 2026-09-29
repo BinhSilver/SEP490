@@ -37,7 +37,24 @@ public class UserLearningPathItem {
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
 
-    /** CURRICULUM hoặc REVIEW. */
-    @Column(name = "kind", nullable = false, length = 20)
+    /** CURRICULUM hoặc REVIEW (legacy); nullable for new two-phase items. */
+    @Column(name = "kind", length = 20)
     private String kind;
+
+    /** WARM_UP hoặc GOAL_LEARNING; the item's role in the path, not the lesson kind. */
+    @Column(name = "phase", length = 20)
+    private String phase;
+
+    @Column(name = "reason_code", length = 50)
+    private String reasonCode;
+
+    @Column(name = "day_number")
+    private Integer dayNumber;
+
+    @Column(name = "estimated_minutes")
+    private Integer estimatedMinutes;
+
+    /** JSON array of matched knowledge tag codes; TEXT for H2/MySQL portability. */
+    @Column(name = "matched_tag_codes", columnDefinition = "TEXT")
+    private String matchedTagCodes;
 }

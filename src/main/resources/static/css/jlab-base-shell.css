@@ -410,17 +410,10 @@
   transition: none;
 }
 
+/* The bell has no hover or open-state effect: it keeps the same look at all times. */
 #jlabBaseNotificationButton:hover,
 #jlabBaseNotificationButton[aria-expanded="true"] {
-  background: var(--color-primary-fixed, #e9ddff);
   transform: none;
-}
-
-/* Hover keeps the bell visually still; the expanded state remains visible after click. */
-#jlabBaseNotificationButton.notification-center__trigger:hover:not([aria-expanded="true"]) {
-  color: var(--color-on-surface, #161d1f) !important;
-  background: var(--color-surface-high, #dfe7e9) !important;
-  transform: none !important;
 }
 
 #jlabBaseNotificationIcon {
