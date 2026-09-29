@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bắt cá · JLAS (dev)</title>
+  </head>
+  <body>
+    <!--
+      Dev-only host page. In production templates/neko/board.html renders #neko-root with the real
+      data attributes. Here they come from the query string: ?sid=<sessionId>&mode=SOLO|VERSUS&back=/games
+    -->
+    <div id="neko-root"></div>
+    <script src="/js/auth-session.js"></script>
+    <script src="/arena/js/arena-client.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(location.search);
+        var root = document.getElementById('neko-root');
+        root.dataset.sessionId = params.get('sid') || '';
+        root.dataset.mode = params.get('mode') || 'SOLO';
+        root.dataset.backUrl = params.get('back') || '/games';
+        root.dataset.meId = params.get('me') || '';
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

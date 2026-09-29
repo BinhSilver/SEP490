@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidGameType {
-    String message() default "Game type không hợp lệ";
+    String message() default "Game không hợp lệ";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

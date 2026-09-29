@@ -18,6 +18,7 @@ public final class UserCreditTransaction {
         WORD_CONTRIBUTION_REWARD,
         REFUND,
         /** A dictionary approval was revised to rejected; the reward is taken back. */
-        WORD_CONTRIBUTION_REVOKED
+        WORD_CONTRIBUTION_REVOKED,
+        GAME_ITEM_PURCHASE
     }
 }

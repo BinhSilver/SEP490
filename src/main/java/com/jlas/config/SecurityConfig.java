@@ -2,6 +2,7 @@ package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
 import com.jlas.moderation.security.BanEnforcementFilter;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -42,6 +43,8 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, exception) ->
                                 handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
+                        // Arena SSE completes through an async dispatch of an authenticated request.
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
