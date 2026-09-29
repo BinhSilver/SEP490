@@ -485,3 +485,59 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
   table/endpoint, is untouched and still exercised unchanged by the existing legacy test suite.
 - V2 continues to have no warm-up gate quiz, daily quiz, lesson quiz or stage-final quiz — Warm-up B
   activities complete purely via their own micro-check, same as every other V2 activity.
+
+### 2.17 Summary, certificate and release hardening (V2, Task 10, final task of the plan) [JLAS-W0193]
+
+- **Path-level completion (bug closed, not a new feature):** V2 never set `user_learning_path.status =
+  'COMPLETED'` before this task — only `learning_path_package.status` reached `COMPLETED`. Task 10 adds this
+  in `InteractiveLearningPathServiceImpl.maybeCompletePath(...)`: once every `GOAL_LEARNING` package for the
+  path is `COMPLETED` (warm-up packages are prerequisites, not counted requirements), the path itself
+  transitions `ACTIVE → COMPLETED` with `completed_at` set exactly once. Without this, `current()`'s
+  `status = 'ACTIVE'`-only lookup would keep matching a path with nothing left to do, and there was no single
+  unambiguous signal for summary/certificate eligibility to read.
+- **Path summary** (`GET /api/learning/v2/paths/current/summary`, rendered at `/learning/path/v2/summary`):
+  resolves the caller's most recent V2 path regardless of status (so it stays reachable once `COMPLETED`) and
+  reports, per skill (Vocabulary/Kanji/Grammar), `firstScore`/`latestScore`/`bestScore` aggregated across every
+  activity of that type anywhere in the path (never one package), plus an explicit list of unresolved
+  micro-check batches (attempted but not yet passed) — a skill is never marked "resolved" while any of its
+  attempted batches is still failing, so a strong average on two skills can never hide a persistently weak
+  third one. Dialogue is reported as a plain completed/total count, never a percentage (it has no score field
+  anywhere, by design). Reading/Listening evidence is read exclusively from the Smart Test snapshot
+  (`LearningProfileSource.loadForUser`, best-effort/optional, same non-fatal posture as Gemini's narrative
+  call) — Warm-up B's Reading/Listening banding logic (Task 9) is not wired into a persisted activity, so
+  there is nothing fresher to read; the response's `note` field always discloses this plainly. Readiness
+  confidence is `LOW` when any scored skill has no evidence yet or is unresolved, or when Reading/Listening
+  has no Smart Test sample; otherwise `MEDIUM` — deliberately never `HIGH`, since Reading/Listening is never
+  re-verified inside the path itself. The explanation string always names the concrete gap/evidence behind
+  the level, never a bare number.
+- **Certificate** (`GET /learning/v2/certificate`, page-only, no REST endpoint): named literally **"Chứng
+  nhận hoàn thành lộ trình J-LAS"**, never implying a JLPT pass. Follows the exact V1 precedent
+  (`LearningCertificatePageController`) — no "issued certificate" table; the page is derived read-only from
+  path/package completion state already owned and guarded exactly-once elsewhere. Eligibility (every
+  `GOAL_LEARNING` package `COMPLETED`) is computed once by `InteractivePathSummaryService.summary(...)` and
+  reused by the certificate controller so the two can never disagree. Because nothing on this page ever
+  writes anything, issuance is trivially idempotent: there is no write path to race or duplicate.
+- **Mock-test entry point:** searched the codebase for an existing Mock Test / "thi thử" contract (any
+  module, any naming) — **none exists**. The summary page therefore renders a disabled, honestly-labeled
+  "Thi thử JLPT (sắp có)" placeholder instead of a live link to a fake destination, per the explicit rule
+  against linking to something that doesn't exist. A future session with a real owner contract can wire this
+  up without redesigning the summary page.
+- **Rate limiting:** a new per-user, in-memory sliding-window limiter (`InteractiveRateLimitService`, same
+  pattern already shipped for `shadowing.PronunciationRateLimitService`/`moderation.ModerationRateLimitService`
+  — no new library) is applied to Vocabulary/Kanji/Grammar micro-check issue (20/min) and submit (20/min),
+  Dialogue heartbeat (8/30s, tuned around the design spec's own ~15s heartbeat cadence), and the certificate
+  page view (20/min). Not distributed — a multi-instance deployment would need a shared store — same accepted
+  limitation as the two existing limiters it copies.
+- **Security audit finding, fixed (deterministic question replay):** `InteractiveStudyEngine.issueMicroCheck`
+  generated every batch's questions purely as a function of `(batch content, batchIndex)` — unchanged across
+  retries of the same still-unpassed batch. Because a failed attempt's required feedback
+  (`MicroCheckResult.review`, design spec §4.5) reveals the correct answer per question, re-issuing the same
+  batch after a failed attempt reproduced byte-identical questions and option positions, letting a learner
+  pass purely by replaying the revealed answer key with zero re-engagement with the content — a real gap in
+  the "three genuine attempts" assumption Tasks 4-9 built on top of, not previously disclosed by any of them.
+  Fixed by threading a server-derived `variationSeed` (the batch's own `attemptsUsed` count at issue time,
+  never client input) into `InteractiveContentAdapter.buildQuestions(batch, batchIndex, variationSeed)`,
+  folded into each adapter's existing deterministic rotation math (Vocabulary/Kanji/Grammar). The very first
+  issue of any batch is unaffected (`variationSeed = 0`, identical to pre-fix behavior), so no existing
+  test's assertions needed to change — only a *retried* issue now varies. Grading is unaffected: it always
+  reads the immutable, already-issued session's own stored answer key, never regenerates.

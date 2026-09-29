@@ -183,3 +183,143 @@ Written: `docs/superpowers/handoffs/2026-09-29-interactive-learning-v2-task9-com
 Verification (this run): `.\mvnw.cmd -q test` (offline, `-o`) → 423 run / 0 fail / 0 error / 22 skipped (surefire-report aggregate, not just exit code; was 387/0/0/22 at the Task 8 baseline — +36 new tests, all passing, zero regressions). `node --test src/test/frontend/*.test.cjs` → 90/90 (unchanged from Task 8 baseline — no frontend files touched this task). `node --test scripts/speed-recall-rules.test.mjs` → 4/4. `node --test src/test/js/personalized-path.test.cjs` → 8/8. `git diff --check` → clean (only CRLF/LF autocrlf advisory notices, same as every prior task).
 
 Known gaps, stated honestly: (1) Reading/Listening warm-up is not a playable persisted activity this session — banding/packing logic only, explicitly scoped out (see the ruling above) rather than rushed; this is the one piece of the condensed Task 9 instructions not fully delivered, and the completion handoff says so plainly rather than claiming 90% uniformly across all of Task 9's sub-areas. (2) No live end-to-end run against a real composed V2 path was performed (same caveat as every prior task — composer/service unit tests + one persistence test, not a `spring-boot:run` session), because `LearningServiceImpl.createPath`'s V2 branch has no existing integration-test harness to extend cheaply within this session's scope (confirmed by search: no test in the repo unit-tests `createPath`/`createFromSurvey` with V2 enabled at all, before or after this task). (3) The Kanji single-character-lexeme assumption (see ruling above) was reasoned from code, not verified against live Smart Test seed/production data.
+
+## Task 10 rulings (Summary, certificate and release hardening — final task of this plan)
+
+- Ruling: no schema/migration for the path summary or certificate. Certificate follows the exact V1
+  precedent (`LearningCertificatePageController`) — derived read-only from path/package completion state,
+  no "issued certificate" table — because there is genuinely nothing to persist: the certificate's content
+  (title, target level, completion date) is a pure read of data other code already owns and guards
+  exactly-once, and adding a table would only introduce a second place that data could drift from the
+  source of truth. Issuance idempotency is therefore trivial by construction (no write path exists to race).
+- Ruling: path-level completion (`UserLearningPath.status: ACTIVE -> COMPLETED`) was **never implemented for
+  V2** before this task — confirmed by grepping every `setStatus("COMPLETED")` call site in the `learning`
+  service package before writing code; only `LearningServiceImpl` (V1) and `LearningPathPackage` (V2, Task 8)
+  had one. This is a genuine, previously-undiscovered gap, not a new Task 10 feature choice: without it,
+  `current()`'s `status = 'ACTIVE'`-only lookup would match a V2 path forever, and certificate/summary
+  eligibility had no single authoritative path-level signal. Fixed narrowly inside
+  `InteractiveLearningPathServiceImpl.refresh(...)` (the exact file/method Task 8/9 already extend for
+  package-completion logic), gated on "every GOAL_LEARNING package COMPLETED, warm-up excluded, at least one
+  GOAL_LEARNING package must exist" — reusing the identical eligibility shape the summary/certificate need,
+  so the three can never disagree. — cost if wrong: none identified; additive, guarded by `status != ACTIVE`
+  so it can only fire once per path, proven by 3 new focused tests.
+- Ruling (the audit sweep's most consequential finding): `InteractiveStudyEngine.issueMicroCheck` generated
+  every batch's questions purely as a function of `(batch content, batchIndex)`, unchanged across every
+  retry of the same still-unpassed batch — confirmed by reading all three adapters'
+  `buildQuestions`/`optionQuestion` implementations, which contain no `Random`/shuffle call and depend only
+  on the member's position `i`. Because a failed attempt's *required* feedback
+  (`MicroCheckResult.review`, design spec §4.5 — genuinely mandated, not optional) reveals the correct answer
+  per question, re-issuing the same batch after any failed attempt reproduced byte-identical questions and
+  option positions. A learner could pass purely by replaying the revealed answer key on the very next
+  attempt, without any real re-engagement — silently defeating the entire "three genuine attempts + cooldown
+  + mandatory review" mastery-gate design every one of Tasks 4-9 built on top of. None of the six prior
+  handoffs disclosed this; they only flagged "issue not strictly idempotent" (an orphaned-row concern, not an
+  answer-key-replay concern) and "not race-tested." Judged worth fixing now (not just documenting) because
+  the fix is small, mechanical, and low-risk: a server-derived `variationSeed` (the batch's own
+  `attemptsUsed` count *before* this issue call, never client input) threaded through
+  `InteractiveContentAdapter.buildQuestions(batch, batchIndex, variationSeed)` and folded into each adapter's
+  existing rotation math (`rotateSeed = i + variationSeed`). The very first issue of any batch is
+  byte-identical to pre-fix behavior (`variationSeed = 0`), so no existing test's assertions needed to
+  change — proven by the full regression suite staying green unchanged; a new regression test per content
+  type (`reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement`, ×3) proves the fix.
+  Grading is unaffected in every case: `submitMicroCheck` always grades against the specific issued session's
+  own immutably stored `answerKeyJson`, never regenerates. — cost if wrong: none identified beyond the
+  change's own small surface (5 files: the adapter interface, the engine's one call site, three adapters'
+  loops); did not touch attempt-cycle/cooldown/review/idempotent-submit logic at all.
+- Ruling: no separate `CertificateEligibilityPolicy` utility class — the certificate controller reuses
+  `InteractivePathSummaryService.summary(userId)` (already principal-scoped, tested) rather than re-deriving
+  the "every GOAL_LEARNING package COMPLETED" check a second time in a different file. Rejected a standalone
+  static-utility extraction (drafted, then removed) because routing the certificate page through the same
+  already-tested service call is strictly simpler and cannot let the two eligibility checks drift apart —
+  the summary service is Task 10's own new code either way, not a pre-existing file being reshaped.
+- Ruling: first/latest/best aggregation is scoped to *the whole path*, not one package — a skill can have
+  multiple activities across multiple packages (target + any warm-up days), and the design spec's own
+  wording ("first/latest/best theo Vocabulary, Kanji và Grammar" for the whole chặng tổng kết) reads as
+  path-level, not per-package. `firstScore` is the earliest-created attempted micro-check state's own
+  `firstScore`; `latestScore` is the most-recently-updated attempted state's own `latestScore`; `bestScore`
+  is the max across all attempted states — never re-derived from each other or averaged. "Unresolved" is
+  reported at batch granularity (activityId + batchIndex), not skill granularity, so the summary names
+  exactly which batch is still failing rather than a vague "Grammar is weak."
+- Ruling: readiness confidence is capped at `MEDIUM`, never `HIGH` — Reading/Listening evidence always comes
+  from a Smart Test snapshot that is never re-verified inside the Learning Path itself (Task 9's disclosed,
+  still-open scope gap), so no combination of V2 skill scores should ever produce a "fully confident"
+  readiness while a third of the five JLPT skills rests on that gap. Flagged explicitly for product review —
+  this is a genuinely subjective threshold choice, not a spec-mandated number, same honesty posture as every
+  prior task's own flagged assumptions (Task 8's reward magnitude, Task 9's per-item minute estimates).
+- Ruling: no real W0193 Mock Test owner contract exists anywhere in this codebase — searched
+  (`grep`/`find`) for "mock test", "thi thử", "practice test", "jlpt test", W0127 across
+  `src/main/java`, `templates`, `static`, `docs`; found only unrelated references (a Jira-key mismatch in an
+  older planning doc where "W0127" meant Daily Goal/CP/Streak, not Mock Test — noted for whoever reconciles
+  ticket numbering later, not something this session should resolve). Per the explicit instruction against
+  linking to something fake, the summary page ships a disabled, honestly-labeled placeholder instead of a
+  live (fake) link or an omitted section.
+- Ruling: rate limiting reuses the exact in-memory sliding-window pattern already shipped twice in this
+  codebase (`PronunciationRateLimitService`, `ModerationRateLimitService`) rather than adding a library —
+  `InteractiveRateLimitService` with named buckets (`MICRO_CHECK_ISSUE`/`MICRO_CHECK_SUBMIT`/
+  `DIALOGUE_HEARTBEAT`/`CERTIFICATE_VIEW`), injected `Clock` for deterministic tests. Applied at the
+  controller layer (one `rateLimit.check(...)` call per endpoint) rather than inside the shared engine, so
+  Grammar's practice endpoints (which have no attempt limit by design, per Task 6's own ruling) are correctly
+  left unlimited.
+
+## Progress
+
+Task 10: complete for the scope defined in the governing instructions (see the implementation plan's Task 10
+section for the itemized "100% means vertical slices ran correctly and tested, not zero remaining work"
+caveat). New/changed:
+- `service/impl/InteractiveRateLimitService.java` (new) — per-user, per-bucket sliding-window limiter.
+- `service/InteractivePathSummaryService.java`, `service/impl/InteractivePathSummaryServiceImpl.java` (new).
+- `dto/{InteractiveSkillProgress,InteractiveUnresolvedBatch,InteractiveDialogueSummary,
+  InteractiveComprehensionEvidence,InteractiveReadinessConfidence,InteractivePathSummaryResponse}.java` (new).
+- `controller/InteractiveLearningCertificateController.java` (new) — `GET /learning/v2/certificate`.
+- `controller/InteractiveLearningPathController.java` — new `GET /api/learning/v2/paths/current/summary`.
+- `controller/{InteractiveVocabularyController,InteractiveKanjiController,InteractiveGrammarController,
+  InteractiveDialogueController}.java` — rate-limit checks added to issue/submit/heartbeat.
+- `service/impl/InteractiveLearningPathServiceImpl.java` — new `maybeCompletePath(...)` (path-level
+  completion fix).
+- `service/impl/engine/InteractiveContentAdapter.java`, `InteractiveStudyEngine.java`,
+  `InteractiveVocabularyServiceImpl.java`, `InteractiveKanjiServiceImpl.java`,
+  `InteractiveGrammarServiceImpl.java` — `buildQuestions(..., variationSeed)` security-audit fix.
+- `repository/UserLearningPathRepository.java` — new `findTopByUserIdAndExperienceVersionOrderByIdDesc`.
+- `repository/LearningMicroCheckStateRepository.java` — new
+  `findByActivityIdInOrderByActivityIdAscBatchIndexAsc`.
+- `templates/learning/interactive-path-summary.html` (real content replacing Task 8's placeholder body),
+  `templates/learning/interactive-certificate.html` (new).
+- `static/js/pages/interactive-path-summary.js` (new), `static/css/pages/interactive-learning-path.css`
+  (new `.ilp-summary*`/`.ilp-certificate*` rules).
+- Tests (75 new backend + 13 new frontend): `InteractiveRateLimitServiceTest` (6), `InteractivePathSummaryServiceTest`
+  (14), `InteractivePathSummaryPersistenceTest` (2, H2), `InteractiveLearningCertificateControllerTest` (5),
+  3 new cases in `InteractiveLearningPathServiceTest` (path-completion), 1 new case in
+  `InteractiveLearningPathControllerTest` (summary endpoint), 2 new rate-limit cases each in
+  `InteractiveVocabularyControllerTest`/`InteractiveKanjiControllerTest`/`InteractiveGrammarControllerTest`
+  (6 total), 1 new case in `InteractiveDialogueControllerTest`, 1 new regression case each in
+  `InteractiveVocabularyServiceTest`/`InteractiveKanjiServiceTest`/`InteractiveGrammarServiceTest` (the
+  security-audit fix, 3 total), 2 new `@ValueSource` entries in `InteractiveStudyPageCssAssetTest`;
+  `interactive-path-summary.test.cjs` (13, new file).
+
+## Task 10 completion handoff
+
+Written: `docs/superpowers/handoffs/2026-09-29-interactive-learning-v2-task10-final-completion-handoff.md` —
+the FINAL handoff for the entire Task 4-10 Interactive Learning Path V2 effort.
+- `docs/rules-and-business-logic.md` new §2.17 added.
+
+Verification (this run): `.\mvnw.cmd -q test` (offline, `-o`) → 466 run / 0 fail / 0 error / 22 skipped
+(surefire-report aggregate, not just exit code; was 423/0/0/22 at the Task 9 baseline — +43 new tests, all
+passing, zero regressions). `node --test src/test/frontend/*.test.cjs` → 103/103 (was 90/90 at the Task 9
+baseline; +13 `interactive-path-summary.test.cjs`). `node --test scripts/speed-recall-rules.test.mjs` → 4/4.
+`node --test src/test/js/personalized-path.test.cjs` → 8/8. `git diff --check` → clean (only CRLF/LF
+autocrlf advisory notices, same as every prior task).
+
+Known gaps, stated honestly — the complete, final list for the whole Task 4-10 effort (see the completion
+handoff for full detail on each): (1) Reading/Listening warm-up remains logic-only, not a playable persisted
+activity (Task 9's disclosed gap, explicitly out of scope for Task 10 per the dispatcher's own scope
+decision). (2) No live browser/screenshot verification of any V2 page across the whole series — every task
+used JS-unit-test-over-pure-render-functions plus a code read of DOM wiring, this task included; this
+worktree has no `application-local.yaml` and cannot reach a real DB, so `spring-boot:run` could not be
+exercised either. (3) Concurrency for every lock-protected code path (engine submit, package completion,
+Dialogue heartbeat, Warm-up B composition) is proven by sequential-logic tests plus the lock annotations
+themselves, never an actual multi-threaded race test, across all of Tasks 5-10 alike. (4) No real-data/live-DB
+audit was possible from this environment (confirmed no `application-local.yaml`, by design). (5) Several
+numeric assumptions remain flagged for product review rather than derived from spec: Task 8's package
+credit magnitude, Task 9's per-item minute estimates, and this task's own readiness-confidence MEDIUM cap and
+rate-limit numbers. (6) `learning.interactive-v2.enabled` stays `false` — see the completion handoff for the
+itemized list of exactly what a future `true` default still needs.

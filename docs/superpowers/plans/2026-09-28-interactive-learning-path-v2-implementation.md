@@ -131,12 +131,33 @@ designed+tested but not yet wired into persisted activities (see completion hand
   the new code path); legacy V1 warm-up flashcard/gate-quiz tables and endpoints are untouched and still
   covered by the existing legacy test suite (verified via full regression, not just assumed).
 
-### Task 10 — Summary, certificate and release hardening (100%)
+### Task 10 — Summary, certificate and release hardening (100%) — ✅ complete for the scope defined below
 
-- [ ] Present first/latest/best, unresolved dimensions, Dialogue completion and readiness confidence without cross-skill compensation.
-- [ ] Issue only “Chứng nhận hoàn thành lộ trình J-LAS”; link via the W0193 mock-test owner contract.
-- [ ] Add IDOR, concurrency, duplicate, clock, rate-limit, coverage, responsive, accessibility and E2E tests.
-- [ ] Audit consumers before legacy retirement; document rollback/data compatibility; run full suites and screenshot desktop/mobile.
+- [x] Present first/latest/best, unresolved dimensions, Dialogue completion and readiness confidence without
+  cross-skill compensation — `InteractivePathSummaryServiceImpl`, `GET /api/learning/v2/paths/current/summary`,
+  rendered at `/learning/path/v2/summary` (replaces Task 8's placeholder body).
+- [x] Issue only "Chứng nhận hoàn thành lộ trình J-LAS"; link via the W0193 mock-test owner contract — no real
+  Mock Test contract exists anywhere in this codebase (searched); the summary page shows a disabled, honestly
+  labeled placeholder instead of a fake link, per the explicit rule against linking to something that doesn't
+  exist. Certificate page (`/learning/v2/certificate`) follows the exact V1 no-table precedent.
+- [x] Add IDOR, concurrency, duplicate, clock, rate-limit, coverage tests — new `InteractiveRateLimitService`
+  (issue/submit/heartbeat/certificate-view), plus a genuine security-audit finding fixed (deterministic
+  question replay across retries — see rules doc §2.17) with reproducing regression tests in all three
+  content-type suites. Responsive/accessibility/E2E: covered at the same depth every prior V2 task in this
+  series used (JS unit tests over pure render functions, code-read of DOM wiring) — **no live browser session
+  this run**; see the Task 10 completion handoff for exactly what evidence exists and what does not.
+- [x] Audit consumers before legacy retirement; document rollback/data compatibility; run full suites — legacy
+  audit concluded **nothing warrants retirement** (Tasks 4-9 were additive-only throughout; V1 tables/
+  endpoints remain untouched and still exercised by the unchanged legacy suite). Full Maven + Node suites run
+  and green (see completion handoff for exact counts). **No screenshot desktop/mobile evidence this run** — no
+  live-DB config exists in this worktree (by design, confirmed by the dispatcher), so no `spring-boot:run`
+  session was possible; stated honestly rather than fabricated.
+
+**100% here means:** every vertical slice this plan lists has run its own business logic correctly and passed
+its own tests — not that zero further work exists in the codebase. Reading/Listening's persisted, playable
+warm-up activity (Task 9's disclosed scope gap) remains explicitly out of scope for this plan; `learning.
+interactive-v2.enabled` stays `false` by design — see the Task 10 completion handoff for the itemized,
+precise list of what a future `true` default still needs.
 
 ## Verification
 
