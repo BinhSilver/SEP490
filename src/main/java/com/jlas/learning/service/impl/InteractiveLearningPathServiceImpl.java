@@ -48,7 +48,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private static final EnumSet<LearningActivityState> DONE =
             EnumSet.of(LearningActivityState.PASSED, LearningActivityState.COMPLETED);
     private static final EnumSet<LearningActivityType> TARGET_TYPES =
-            EnumSet.allOf(LearningActivityType.class);
+            EnumSet.of(LearningActivityType.VOCABULARY, LearningActivityType.KANJI,
+                    LearningActivityType.GRAMMAR, LearningActivityType.DIALOGUE);
     /** [JLAS-W0193] Task 8 — micro-check quiz types that contribute a real score to package completion.
      * DIALOGUE is intentionally absent: it has no score field anywhere, by design (rules doc §2.14), so it
      * can never enter the numerator or denominator of {@link #computePackageScore}. */

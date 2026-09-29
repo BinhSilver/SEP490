@@ -11,6 +11,9 @@ import com.jlas.dictionary.repository.KanjiRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
 import com.jlas.learning.config.InteractiveLearningV2Properties;
 import com.jlas.learning.dto.LearningProfileSnapshot;
+import com.jlas.learning.dto.ComprehensionExercise;
+import com.jlas.learning.dto.ComprehensionQuestionSpec;
+import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.LearningPathPackage;
@@ -23,6 +26,7 @@ import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
+import com.jlas.learning.service.ComprehensionExerciseCatalog;
 import com.jlas.learning.service.impl.WarmUpBComposerImpl;
 import com.jlas.learning.service.impl.WeakTagPolicy;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +55,7 @@ class WarmUpBComposerTest {
     @Mock VocabularyEntryRepository vocabularyEntries;
     @Mock KanjiRepository kanjiRepo;
     @Mock GrammarPointRepository grammarPoints;
+    @Mock ComprehensionExerciseCatalog comprehensionCatalog;
 
     InteractiveLearningV2Properties properties;
     WeakTagPolicy weakTagPolicy;
@@ -62,7 +67,7 @@ class WarmUpBComposerTest {
         properties.setEnabled(true);
         weakTagPolicy = new WeakTagPolicy(1, new BigDecimal("0.5"));
         composer = new WarmUpBComposerImpl(properties, packages, items, members, stages,
-                vocabularyEntries, kanjiRepo, grammarPoints, weakTagPolicy);
+                vocabularyEntries, kanjiRepo, grammarPoints, weakTagPolicy, comprehensionCatalog);
         lenient().when(packages.existsByLearningPathIdAndPhase(anyLong(), eq("WARM_UP"))).thenReturn(false);
         lenient().when(packages.existsByLearningPathId(anyLong())).thenReturn(false);
         lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
@@ -88,6 +93,88 @@ class WarmUpBComposerTest {
 
     private LearningProfileSnapshot profile(String assessedLevel, List<WeaknessEvidence> weaknesses) {
         return new LearningProfileSnapshot(7L, 99L, 1L, "rev-1", true, true, assessedLevel, "N3", "JLPT", 30, weaknesses);
+    }
+
+    private LearningProfileSnapshot profile(String assessedLevel, List<WeaknessEvidence> weaknesses,
+            List<SkillScore> skillScores, int minutesPerDay) {
+        return new LearningProfileSnapshot(7L, 99L, 1L, "rev-1", true, true, assessedLevel, "N3", "JLPT",
+                minutesPerDay, weaknesses, skillScores);
+    }
+
+    @Test void readingBandIsPackedAsAtMostTwoExercisesPerDay() {
+        var ready = List.of(exercise("READING", 1), exercise("READING", 2),
+                exercise("READING", 3), exercise("READING", 4));
+        when(comprehensionCatalog.resolve("READING", "N4"))
+                .thenReturn(new ComprehensionExerciseCatalog.CatalogResult(ready, List.of()));
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(),
+                List.of(new SkillScore("READING", 10, 4)), 30));
+
+        assertEquals(2, result.packageCount());
+        var activities = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items, times(2)).save(activities.capture());
+        assertTrue(activities.getAllValues().stream().allMatch(a -> a.getActivityType() == LearningActivityType.READING));
+        assertTrue(activities.getAllValues().stream().allMatch(a -> a.getEstimatedMinutes() == 30));
+        var saved = ArgumentCaptor.forClass(List.class);
+        verify(members, times(2)).saveAll(saved.capture());
+        assertTrue(saved.getAllValues().stream().allMatch(rows -> rows.size() == 4));
+    }
+
+    @Test void readingAndListeningAreInterleavedWithinCombinedDailyCap() {
+        when(comprehensionCatalog.resolve(eq("READING"), eq("N4"))).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(List.of(exercise("READING", 1), exercise("READING", 2),
+                        exercise("READING", 3), exercise("READING", 4)), List.of()));
+        when(comprehensionCatalog.resolve(eq("LISTENING"), eq("N4"))).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(List.of(exercise("LISTENING", 11), exercise("LISTENING", 12),
+                        exercise("LISTENING", 13), exercise("LISTENING", 14)), List.of()));
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(), List.of(
+                new SkillScore("READING", 10, 4), new SkillScore("LISTENING", 10, 4)), 30));
+
+        assertEquals(4, result.packageCount());
+        var activities = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items, times(8)).save(activities.capture());
+        for (int day = 1; day <= 4; day++) {
+            int current = day;
+            assertEquals(2, activities.getAllValues().stream().filter(a -> a.getDayNumber() == current).count());
+        }
+    }
+
+    @Test void shortageCreatesCoverageGapAndNeverDuplicatesExercise() {
+        when(comprehensionCatalog.resolve("READING", "N4")).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(List.of(exercise("READING", 1)), List.of()));
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(),
+                List.of(new SkillScore("READING", 10, 6)), 30));
+        assertEquals(1, result.packageCount());
+        assertTrue(result.gaps().stream().anyMatch(g -> g.reasonCode().equals("CONTENT_COVERAGE_INSUFFICIENT")));
+        var saved = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(saved.capture());
+        List<LearningActivityMember> rows = saved.getValue();
+        assertEquals(List.of(11L, 12L), rows.stream().map(LearningActivityMember::getCanonicalId).toList());
+    }
+
+    @Test void missingEvidenceRequestsVerificationButDoesNotCreateWeaknessActivity() {
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(),
+                List.of(new SkillScore("READING", 0, 0)), 30));
+        assertEquals(0, result.packageCount());
+        assertTrue(result.gaps().stream().anyMatch(g -> g.reasonCode().equals("NEEDS_VERIFICATION")));
+        verifyNoInteractions(comprehensionCatalog);
+    }
+
+    @Test void scoreAboveSeventySkipsComprehensionWarmUp() {
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(),
+                List.of(new SkillScore("READING", 10, 2)), 30));
+        assertEquals(0, result.packageCount());
+        verifyNoInteractions(comprehensionCatalog);
+    }
+
+    private ComprehensionExercise exercise(String skill, long index) {
+        long base = index * 10;
+        return new ComprehensionExercise(skill + "-" + index, skill, "N4", "source-" + index,
+                "OUTCOME", null, List.of(
+                new ComprehensionQuestionSpec(base + 1, "Q1", List.of("A", "B"), 1, "E1"),
+                new ComprehensionQuestionSpec(base + 2, "Q2", List.of("A", "B"), 2, "E2")),
+                String.format("%064d", index));
     }
 
     // ---- guard clauses ----

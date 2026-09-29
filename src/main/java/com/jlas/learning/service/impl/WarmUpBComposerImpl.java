@@ -7,6 +7,7 @@ import com.jlas.dictionary.repository.KanjiRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
 import com.jlas.learning.config.InteractiveLearningV2Properties;
 import com.jlas.learning.dto.CoverageGap;
+import com.jlas.learning.dto.ComprehensionExercise;
 import com.jlas.learning.dto.InteractiveCompositionResult;
 import com.jlas.learning.dto.LearningProfileSnapshot;
 import com.jlas.learning.dto.WeaknessEvidence;
@@ -25,6 +26,7 @@ import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.WarmUpBComposer;
+import com.jlas.learning.service.ComprehensionExerciseCatalog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * [JLAS-W0193] Task 9 — Warm-up B: converts PROVEN Smart Test weakness evidence
@@ -45,9 +50,9 @@ import java.util.Map;
  * builds GOAL_LEARNING packages from whole published lessons): warm-up must never schedule a whole
  * lesson for one wrong answer (rules doc "Interactive Learning Path V2 composition").
  *
- * <p>Reading/Listening banding is intentionally not composed here — see
- * {@link ComprehensionWarmUpPlanner} and the Task 9 completion handoff for why that is scoped out this
- * session (it needs a new activity/member type and dedicated pages, not a membership set).</p>
+ * <p>Reading/Listening use the same finalized profile snapshot, but resolve playable exact-level exercises
+ * through {@link ComprehensionExerciseCatalog}. The composer stores question IDs and a combined immutable
+ * revision; it never copies the canonical question bank or accepts a client-selected band.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -59,6 +64,8 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     private static final int MINUTES_PER_VOCAB_ITEM = 1;
     private static final int MINUTES_PER_KANJI_ITEM = 1;
     private static final int MINUTES_PER_GRAMMAR_POINT = 5;
+    private static final int MINUTES_PER_COMPREHENSION_EXERCISE = 15;
+    private static final int MAX_COMPREHENSION_EXERCISES_PER_DAY = 2;
 
     private final InteractiveLearningV2Properties properties;
     private final LearningPathPackageRepository packages;
@@ -69,6 +76,7 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     private final KanjiRepository kanjiRepo;
     private final GrammarPointRepository grammarPoints;
     private final WeakTagPolicy weakTagPolicy;
+    private final ComprehensionExerciseCatalog comprehensionCatalog;
 
     @Override
     @Transactional
@@ -84,7 +92,8 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
                     .filter(p -> "WARM_UP".equals(p.getPhase())).count();
             return new InteractiveCompositionResult(true, existing, List.of());
         }
-        if (profile.weaknesses() == null || profile.weaknesses().isEmpty()) {
+        if ((profile.weaknesses() == null || profile.weaknesses().isEmpty())
+                && (profile.skillScores() == null || profile.skillScores().isEmpty())) {
             return new InteractiveCompositionResult(true, 0, List.of());
         }
 
@@ -92,13 +101,18 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         String revision = "warmup:" + (profile.assessmentRevision() == null ? "unknown" : profile.assessmentRevision());
         List<CoverageGap> gaps = new ArrayList<>();
 
-        List<Long> vocabIds = resolveVocabulary(profile.weaknesses(), assessedRank, gaps);
-        List<Long> kanjiIds = resolveKanji(profile.weaknesses(), assessedRank, gaps);
-        List<Long> grammarIds = resolveGrammar(profile.weaknesses(), assessedRank, gaps);
+        List<WeaknessEvidence> weaknesses = profile.weaknesses() == null ? List.of() : profile.weaknesses();
+        List<Long> vocabIds = resolveVocabulary(weaknesses, assessedRank, gaps);
+        List<Long> kanjiIds = resolveKanji(weaknesses, assessedRank, gaps);
+        List<Long> grammarIds = resolveGrammar(weaknesses, assessedRank, gaps);
+        boolean hasSkillSnapshot = profile.skillScores() != null && !profile.skillScores().isEmpty();
+        List<ComprehensionExercise> reading = hasSkillSnapshot
+                ? resolveComprehension("READING", profile, gaps) : List.of();
+        List<ComprehensionExercise> listening = hasSkillSnapshot
+                ? resolveComprehension("LISTENING", profile, gaps) : List.of();
 
-        if (vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty()) {
-            return new InteractiveCompositionResult(true, 0, gaps);
-        }
+        if (vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty()
+                && reading.isEmpty() && listening.isEmpty()) return new InteractiveCompositionResult(true, 0, gaps);
 
         Long stageId = stages.findByLearningPathIdOrderByStageIndexAsc(path.getId()).stream()
                 .findFirst().map(UserLearningStage::getId).orElse(null);
@@ -153,7 +167,63 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
             packagesCreated++;
         }
 
+        List<ComprehensionWarmUpPlanner.DayAllocation> comprehensionDays =
+                ComprehensionWarmUpPlanner.packIntoDays(reading.size(), listening.size(),
+                        MAX_COMPREHENSION_EXERCISES_PER_DAY,
+                        profile.minutesPerDay() == null ? 0 : profile.minutesPerDay(),
+                        MINUTES_PER_COMPREHENSION_EXERCISE);
+        int readingOffset = 0;
+        int listeningOffset = 0;
+        int comprehensionDay = packagesCreated == 0 ? dayNumber : dayNumber + 1;
+        for (var allocation : comprehensionDays) {
+            List<ComprehensionExercise> readingForDay = reading.subList(readingOffset,
+                    readingOffset + allocation.readingCount());
+            List<ComprehensionExercise> listeningForDay = listening.subList(listeningOffset,
+                    listeningOffset + allocation.listeningCount());
+            readingOffset += allocation.readingCount();
+            listeningOffset += allocation.listeningCount();
+            int currentDay = comprehensionDay++;
+            int minutes = allocation.total() * MINUTES_PER_COMPREHENSION_EXERCISE;
+            var pkg = buildPackage(path, stageId, currentDay, ++packageOrder,
+                    comprehensionTitle(readingForDay, listeningForDay), minutes,
+                    isFirstPackageOverall && packagesCreated == 0);
+            if (!readingForDay.isEmpty()) {
+                itemOrder = saveComprehensionActivity(path, pkg, LearningActivityType.READING,
+                        readingForDay, itemOrder, currentDay, profile.assessedLevel());
+            }
+            if (!listeningForDay.isEmpty()) {
+                itemOrder = saveComprehensionActivity(path, pkg, LearningActivityType.LISTENING,
+                        listeningForDay, itemOrder, currentDay, profile.assessedLevel());
+            }
+            packagesCreated++;
+        }
+
         return new InteractiveCompositionResult(true, packagesCreated, gaps);
+    }
+
+    private List<ComprehensionExercise> resolveComprehension(String skill, LearningProfileSnapshot profile,
+            List<CoverageGap> gaps) {
+        var score = profile.skillScores() == null ? null : profile.skillScores().stream()
+                .filter(value -> skill.equals(value.skill())).findFirst().orElse(null);
+        if (score == null || score.assessedCount() <= 0) {
+            gaps.add(new CoverageGap(skill, "NEEDS_VERIFICATION"));
+            return List.of();
+        }
+        var band = ComprehensionWarmUpPlanner.band(score);
+        if (band.needsVerification()) {
+            gaps.add(new CoverageGap(skill, "NEEDS_VERIFICATION"));
+            return List.of();
+        }
+        if (band.lessonCount() == 0) return List.of();
+
+        var resolved = comprehensionCatalog.resolve(skill, profile.assessedLevel());
+        resolved.gaps().forEach(gap -> gaps.add(new CoverageGap(skill + ":" + gap.canonicalRef(), gap.reasonCode())));
+        int selectedCount = Math.min(band.lessonCount(), resolved.exercises().size());
+        if (selectedCount < band.lessonCount()) {
+            gaps.add(new CoverageGap(skill + ":ready=" + selectedCount + ":required=" + band.lessonCount(),
+                    "CONTENT_COVERAGE_INSUFFICIENT"));
+        }
+        return List.copyOf(resolved.exercises().subList(0, selectedCount));
     }
 
     private List<Long> resolveVocabulary(List<WeaknessEvidence> weaknesses, int assessedRank, List<CoverageGap> gaps) {
@@ -286,6 +356,52 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         }
         members.saveAll(rows);
         return next;
+    }
+
+    private int saveComprehensionActivity(UserLearningPath path, LearningPathPackage pkg,
+            LearningActivityType type, List<ComprehensionExercise> exercises, int globalOrder,
+            int dayNumber, String level) {
+        int next = globalOrder + 1;
+        String revision = combinedRevision(type, exercises);
+        int questionCount = exercises.stream().mapToInt(exercise -> exercise.questions().size()).sum();
+        var activity = items.save(UserLearningPathItem.builder()
+                .learningPath(path).learningPackage(pkg).orderIndex(next).phase("WARM_UP")
+                .dayNumber(dayNumber).estimatedMinutes(exercises.size() * MINUTES_PER_COMPREHENSION_EXERCISE)
+                .activityType(type).activityState(LearningActivityState.LOCKED)
+                .reasonCode("WEAK_" + type.name() + "_SKILL")
+                .reason("Smart Test cho thấy kỹ năng " + type.name() + " cần củng cố. "
+                        + "Đã chọn " + exercises.size() + " bài luyện đúng cấp " + level
+                        + " với " + questionCount + " câu hỏi.")
+                .build());
+        List<LearningActivityMember> rows = new ArrayList<>();
+        int order = 0;
+        for (ComprehensionExercise exercise : exercises) {
+            for (var question : exercise.questions()) {
+                rows.add(LearningActivityMember.builder().activity(activity)
+                        .memberType(LearningMemberType.COMPREHENSION_QUESTION)
+                        .canonicalId(question.id()).orderIndex(++order).sourceRevision(revision).build());
+            }
+        }
+        members.saveAll(rows);
+        return next;
+    }
+
+    private String combinedRevision(LearningActivityType type, List<ComprehensionExercise> exercises) {
+        String material = type.name() + "|" + exercises.stream()
+                .map(exercise -> exercise.fingerprint() + ":" + exercise.sourceRevision())
+                .reduce("", (left, right) -> left + "|" + right);
+        try {
+            return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(material.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+    private String comprehensionTitle(List<ComprehensionExercise> reading,
+            List<ComprehensionExercise> listening) {
+        if (!reading.isEmpty() && !listening.isEmpty()) return "Luyện đọc và nghe theo điểm yếu";
+        return reading.isEmpty() ? "Luyện nghe theo điểm yếu" : "Luyện đọc theo điểm yếu";
     }
 
     private int estimateMinutes(int vocabCount, int kanjiCount, int grammarCount) {
