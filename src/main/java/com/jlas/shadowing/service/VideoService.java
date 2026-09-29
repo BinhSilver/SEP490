@@ -95,7 +95,6 @@ public class VideoService {
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
@@ -534,7 +533,6 @@ public class VideoService {
     public void resumeProcessing(Long id) {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
-        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         if (video.getStatus() != VideoStatus.FAILED
                 || video.getErrorMessage() == null
                 || !video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE)) {
@@ -554,7 +552,6 @@ public class VideoService {
     public void abandonProcessing(Long id) {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
-        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         boolean isRunning = video.getStatus() == VideoStatus.PROCESSING;
         boolean isPaused = video.getStatus() == VideoStatus.FAILED
                 && video.getErrorMessage() != null
@@ -576,7 +573,6 @@ public class VideoService {
     public void cancelProcessing(Long id) {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
-        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         if (video.getStatus() != VideoStatus.PROCESSING) {
             throw new IllegalStateException("Bài học này không còn trong quá trình xử lý.");
         }

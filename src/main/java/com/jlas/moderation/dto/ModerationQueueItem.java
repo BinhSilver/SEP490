@@ -1,6 +1,7 @@
 package com.jlas.moderation.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /** Read model returned to the moderator queue UI. */
 public record ModerationQueueItem(
@@ -17,5 +18,6 @@ public record ModerationQueueItem(
         String modelName,
         String source,
         String targetUrl,
-        LocalDateTime createdAt) {
+        LocalDateTime createdAt,
+        List<TextHighlight> highlights) {
 }

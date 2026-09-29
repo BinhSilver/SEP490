@@ -15,6 +15,8 @@ public final class UserCreditTransaction {
         VIDEO_UNLOCK,
         ADMIN_GRANT,
         WORD_CONTRIBUTION_REWARD,
-        REFUND
+        REFUND,
+        /** A dictionary approval was revised to rejected; the reward is taken back. */
+        WORD_CONTRIBUTION_REVOKED
     }
 }

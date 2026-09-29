@@ -96,6 +96,7 @@ public class AuthServiceImpl implements AuthService {
                     "Email is not verified. Please verify your email before logging in.");
         }
         user.setLastLoginAt(LocalDateTime.now());
+        notifications.greetDaily(user.getId(), user.getFullName());
         return issueTokens(user, clientIp, deviceInfo);
     }
 
@@ -241,6 +242,7 @@ public class AuthServiceImpl implements AuthService {
         }
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
+        notifications.greetDaily(user.getId(), user.getFullName());
         return issueTokens(user, clientIp, deviceInfo);
     }
 

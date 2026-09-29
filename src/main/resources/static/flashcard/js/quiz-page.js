@@ -223,19 +223,36 @@ function renderQuickSetup(root) {
   const isCustomPair = state.quickPairMode === 'CUSTOM';
   const isRandom = state.quickPairMode === 'RANDOM';
   const selectedCards = allCards.filter(card => state.selectedIds.has(card.id));
-  const availableCount = isCustomPair ? selectedCards.length : total;
-  const minimumRandomCount = total >= 4 ? 4 : 1;
+  const pairCards = quizPairCards();
+  const pairIds = new Set(pairCards.map(card => card.id));
+  // Only cards with both fields become questions; the rest are skipped.
+  const availableCount = pairCards.length;
+  const skipped = (isCustomPair ? selectedCards.length : total) - availableCount;
+  const randomPool = pairCards.length;
+  const minimumRandomCount = randomPool >= MIN_QUIZ_CARDS ? MIN_QUIZ_CARDS : 1;
   const requestedRandomCount = Number(state.questionCount);
   const randomQuestionCount = Math.min(
-    total,
-    Math.max(minimumRandomCount, Number.isInteger(requestedRandomCount) ? requestedRandomCount : total)
+    randomPool,
+    Math.max(minimumRandomCount, Number.isInteger(requestedRandomCount) ? requestedRandomCount : randomPool)
   );
   if (isRandom) state.questionCount = randomQuestionCount;
-  const modeButtons = (target, selected, disabled) => fields.map(value => `
-    <button type="button" class="${selected === value ? 'is-active' : ''}" data-quick-${target}="${value}" aria-pressed="${selected === value}" ${disabled === value ? 'disabled' : ''}>${QUIZ_FIELD_LABELS[value]}</button>
-  `).join('');
+  const pool = quizPool();
+  // Every field is shown; the ones no card in use can serve are disabled with the reason as a tooltip.
+  const modeButtons = target => QUIZ_FIELDS.map(value => {
+    const selected = target === 'question' ? state.questionField : state.answerField;
+    let reason = '';
+    if (!fields.includes(value)) reason = 'Không có thẻ nào có ' + QUIZ_FIELD_LABELS[value];
+    else if (target === 'answer' && value === state.questionField) reason = 'Không thể hỏi và đáp cùng một nội dung';
+    else if (target === 'answer' && pool.length && !quizPairCards(state.questionField, value).length) {
+      reason = 'Không có thẻ nào có đủ ' + QUIZ_FIELD_LABELS[state.questionField] + ' và ' + QUIZ_FIELD_LABELS[value];
+    }
+    return `<button type="button" class="${selected === value ? 'is-active' : ''}" data-quick-${target}="${value}" aria-pressed="${selected === value}" ${reason ? `disabled title="${esc(reason)}"` : ''}>${QUIZ_FIELD_LABELS[value]}</button>`;
+  }).join('');
+  const missingLabel = card => [state.questionField, state.answerField]
+    .filter(field => field && !hasQuizField(card, field)).map(field => QUIZ_FIELD_LABELS[field]).join(', ');
   const cardRows = allCards.map((card, index) => `
-    <tr class="quiz-quick-card-row ${state.selectedIds.has(card.id) ? 'is-selected' : ''}">
+    <tr class="quiz-quick-card-row ${state.selectedIds.has(card.id) ? 'is-selected' : ''} ${pairIds.has(card.id) ? '' : 'is-skipped'}"
+        ${pairIds.has(card.id) ? '' : `title="Thiếu ${esc(missingLabel(card))}: sẽ bỏ qua với lựa chọn hiện tại"`}>
       <td><input type="checkbox" data-quick-card="${card.id}" ${state.selectedIds.has(card.id) ? 'checked' : ''} aria-label="Chọn ${esc(card.kanji || card.hiragana || `thẻ ${index + 1}`)}"></td>
       <th scope="row">${index + 1}</th>
       <td class="quiz-quick-card-kanji">${esc(card.kanji || '')}</td>
@@ -245,7 +262,7 @@ function renderQuickSetup(root) {
   `).join('');
   const customCardPicker = isCustomPair ? `
     <div class="quiz-quick-card-picker">
-      <div class="quiz-quick-card-picker__header"><strong>Chọn cặp từ</strong><span>${selectedCards.length}/${total} thẻ đã chọn</span></div>
+      <div class="quiz-quick-card-picker__header"><strong>Chọn cặp từ</strong><span>${selectedCards.length}/${total} thẻ đã chọn${skipped > 0 ? ` · ${skipped} thẻ thiếu nội dung sẽ bỏ qua` : ''}</span></div>
       <div class="quiz-quick-card-table-wrap">
         <table class="quiz-quick-card-table">
           <thead><tr><th scope="col" aria-label="Chọn"></th><th scope="col">#</th><th scope="col">Kanji</th><th scope="col">Hiragana</th><th scope="col">Hán Việt</th></tr></thead>
@@ -258,7 +275,7 @@ function renderQuickSetup(root) {
     ? `<span class="sr-setup__stepper" role="group" aria-label="Số câu ngẫu nhiên">
         <button type="button" data-random-count-change="-1" aria-label="Giảm số câu" title="Giảm số câu" ${randomQuestionCount <= minimumRandomCount ? 'disabled' : ''}><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
         <input id="quiz-question-count" class="sr-setup__stepper-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${randomQuestionCount}" aria-label="Số câu ngẫu nhiên" onbeforeinput="if (event.data && /[^0-9]/.test(event.data)) event.preventDefault()" oninput="this.value=this.value.replace(/[^0-9]/g, '')">
-        <button type="button" data-random-count-change="1" aria-label="Tăng số câu" title="Tăng số câu" ${randomQuestionCount >= total ? 'disabled' : ''}><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+        <button type="button" data-random-count-change="1" aria-label="Tăng số câu" title="Tăng số câu" ${randomQuestionCount >= randomPool ? 'disabled' : ''}><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
       </span>`
     : `<output class="sr-setup__display" aria-live="polite">${availableCount} câu</output>`;
 
@@ -279,21 +296,18 @@ function renderQuickSetup(root) {
           <label class="sr-setup__field">Số câu
             <span class="sr-setup__control">${questionCountControl}</span>
           </label>
-          <div class="sr-setup__field"><span>Hỏi bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${fields.length}" role="group" aria-label="Nội dung câu hỏi">${modeButtons('question', state.questionField, '')}</div></div>
-          <div class="sr-setup__field"><span>Đáp bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${fields.length}" role="group" aria-label="Nội dung đáp án">${modeButtons('answer', state.answerField, state.questionField)}</div></div>
+          <div class="sr-setup__field"><span>Hỏi bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${QUIZ_FIELDS.length}" role="group" aria-label="Nội dung câu hỏi">${modeButtons('question')}</div></div>
+          <div class="sr-setup__field"><span>Đáp bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${QUIZ_FIELDS.length}" role="group" aria-label="Nội dung đáp án">${modeButtons('answer')}</div></div>
         </div>
         ${customCardPicker}
-        <button type="submit" class="sr-button sr-primary" id="start-quick-quiz" ${availableCount < 4 || fields.length < 2 ? 'disabled' : ''}>Bắt đầu kiểm tra</button>
+        <button type="submit" class="sr-button sr-primary" id="start-quick-quiz" ${availableCount < MIN_QUIZ_CARDS || !state.answerField ? 'disabled' : ''}>Bắt đầu kiểm tra</button>
       </form>
     </section>
   `;
 
   root.querySelector('#quiz-pair-mode').onchange = event => {
     state.quickPairMode = event.target.value;
-    if (state.quickPairMode === 'ALL') {
-      state.questionField = 'KANJI';
-      state.answerField = fields.includes('HIRAGANA') ? 'HIRAGANA' : fields.find(value => value !== 'KANJI') || '';
-    }
+    ensureAnswerField();
     renderQuickSetup(root);
   };
   const questionCountInput = root.querySelector('#quiz-question-count');
@@ -306,7 +320,7 @@ function renderQuickSetup(root) {
     questionCountInput.addEventListener('blur', () => {
       const typedCount = Number(state.questionCount);
       const normalizedCount = Number.isInteger(typedCount)
-        ? Math.max(minimumRandomCount, Math.min(total, typedCount))
+        ? Math.max(minimumRandomCount, Math.min(randomPool, typedCount))
         : randomQuestionCount;
       questionCountInput.value = String(normalizedCount);
       state.questionCount = normalizedCount;
@@ -315,9 +329,9 @@ function renderQuickSetup(root) {
   root.querySelectorAll('[data-random-count-change]').forEach(button => button.onclick = () => {
     const typedCount = Number(state.questionCount);
     const currentCount = Number.isInteger(typedCount)
-      ? Math.max(minimumRandomCount, Math.min(total, typedCount))
+      ? Math.max(minimumRandomCount, Math.min(randomPool, typedCount))
       : randomQuestionCount;
-    const nextCount = Math.max(minimumRandomCount, Math.min(total, currentCount + Number(button.dataset.randomCountChange)));
+    const nextCount = Math.max(minimumRandomCount, Math.min(randomPool, currentCount + Number(button.dataset.randomCountChange)));
     state.questionCount = nextCount;
     renderQuickSetup(root);
   });
@@ -325,9 +339,11 @@ function renderQuickSetup(root) {
     const cardId = Number(event.target.dataset.quickCard);
     if (event.target.checked) state.selectedIds.add(cardId);
     else state.selectedIds.delete(cardId);
+    ensureAnswerField();
     renderQuickSetup(root);
   });
   root.querySelectorAll('[data-quick-question]').forEach(button => button.onclick = () => {
+    if (button.disabled) return;
     state.questionField = button.dataset.quickQuestion;
     ensureAnswerField();
     renderQuickSetup(root);
@@ -405,11 +421,44 @@ const QUIZ_FIELD_LABELS = {
   HAN_VIET: 'Hán Việt'
 };
 
-function availableQuizFields() {
+const QUIZ_FIELDS = ['KANJI', 'HIRAGANA', 'MEANING', 'HAN_VIET'];
+const MIN_QUIZ_CARDS = 4;
+
+const HAN_CHAR = /\p{Script=Han}/u;
+
+/**
+ * Same values the server grades (FlashcardServiceImpl.quizValue). A kana-only word (e.g. katakana コーヒー)
+ * has no kanji: its front is just the reading, so it only takes part in Hiragana / Nghĩa / Hán Việt pairs.
+ */
+function quizFieldValue(card, field) {
+  if (field === 'KANJI') {
+    const front = String(card.kanji || card.front || '').trim();
+    return HAN_CHAR.test(front) ? front : '';
+  }
+  const value = field === 'HIRAGANA' ? (card.hiragana || card.reading)
+    : field === 'MEANING' ? (card.meaning || card.back)
+      : card.hanViet;
+  return String(value ?? '').trim();
+}
+function hasQuizField(card, field) { return quizFieldValue(card, field) !== ''; }
+
+/** Cards the quiz is built from: the ticked ones in "Chọn cặp từ tùy ý" / the classic setup, otherwise the whole set. */
+function quizPool() {
   const cards = state.activeSet?.cards || [];
-  const fields = ['KANJI', 'HIRAGANA', 'MEANING'];
-  if (cards.length && cards.every(card => String(card.hanViet || '').trim())) fields.push('HAN_VIET');
-  return fields;
+  const custom = !sourceSetId || state.quickPairMode === 'CUSTOM';
+  return custom ? cards.filter(card => state.selectedIds.has(card.id)) : cards;
+}
+
+/** Cards that have both the question and the answer field; the others are skipped (the server does the same). */
+function quizPairCards(question = state.questionField, answer = state.answerField, pool = quizPool()) {
+  return pool.filter(card => hasQuizField(card, question) && hasQuizField(card, answer));
+}
+
+/** A field can be picked when at least one card in use has it; with nothing ticked yet, every field stays open. */
+function availableQuizFields() {
+  const pool = quizPool();
+  if (!pool.length) return QUIZ_FIELDS.slice();
+  return QUIZ_FIELDS.filter(field => pool.some(card => hasQuizField(card, field)));
 }
 
 function quizFieldOptions(selected, exclude) {
@@ -430,10 +479,12 @@ function quizFieldDescription(field) {
 function ensureAnswerField() {
   const fields = availableQuizFields();
   if (!fields.includes(state.questionField)) state.questionField = fields[0] || '';
-  if (!fields.includes(state.answerField)) state.answerField = fields.find(value => value !== state.questionField) || '';
-  if (!state.questionField || !state.answerField) return;
-  if (state.answerField === state.questionField) {
-    state.answerField = fields.find(value => value !== state.questionField) || '';
+  const usable = value => value !== state.questionField && fields.includes(value)
+    && (!quizPool().length || quizPairCards(state.questionField, value).length > 0);
+  if (!usable(state.answerField)) {
+    // Prefer the answer with the most usable cards for the chosen question.
+    state.answerField = fields.filter(usable)
+      .sort((a, b) => quizPairCards(state.questionField, b).length - quizPairCards(state.questionField, a).length)[0] || '';
   }
 }
 
@@ -611,15 +662,16 @@ async function startQuiz(wrongOnly) {
     }
     let ids = [...state.selectedIds];
     if (sourceSetId) {
-      if (state.quickPairMode !== 'CUSTOM') ids = [...(state.activeSet.cards || [])].map(card => card.id);
-      if (state.quickPairMode === 'CUSTOM' && ids.length < 4) {
-        showToast('Chọn ít nhất 4 thẻ để bắt đầu kiểm tra', 'err');
+      // Cards missing the question or answer field are skipped, so count only the usable ones.
+      ids = quizPairCards().map(card => card.id);
+      if (ids.length < MIN_QUIZ_CARDS) {
+        showToast(`Cần ít nhất ${MIN_QUIZ_CARDS} thẻ có đủ ${QUIZ_FIELD_LABELS[state.questionField]} và ${QUIZ_FIELD_LABELS[state.answerField]}`, 'err');
         return;
       }
       if (state.quickPairMode === 'RANDOM') {
         const requestedCount = Number(state.questionCount);
-        if (!Number.isInteger(requestedCount) || requestedCount < 4 || requestedCount > ids.length) {
-          showToast(`Nhập số câu từ 4 đến ${ids.length}`, 'err');
+        if (!Number.isInteger(requestedCount) || requestedCount < MIN_QUIZ_CARDS || requestedCount > ids.length) {
+          showToast(`Nhập số câu từ ${MIN_QUIZ_CARDS} đến ${ids.length}`, 'err');
           return;
         }
         ids = shuffle(ids).slice(0, requestedCount);

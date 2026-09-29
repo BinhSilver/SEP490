@@ -52,7 +52,7 @@ public class AppealController {
     }
 
     @PostMapping("/api/admin/moderation/appeals/{id}/resolve")
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPER_ADMIN')")
     public ApiResponse<AppealView> resolve(@PathVariable Long id,
                                            @Valid @RequestBody AppealResolution request,
                                            @AuthenticationPrincipal UserPrincipal reviewer) {
@@ -73,9 +73,10 @@ public class AppealController {
 
     @Data
     public static class AppealResolution {
-        @NotNull
+        @NotNull(message = "Thiếu quyết định")
         private Boolean approve;
-        @Size(max = 500)
+        @NotBlank(message = "Vui lòng nhập lý do")
+        @Size(max = 500, message = "Lý do tối đa 500 ký tự")
         private String note;
     }
 }

@@ -39,24 +39,6 @@
     document.querySelectorAll('[data-study-mode]').forEach(function (button) {
       button.addEventListener('click', function () { selectStudyMode(button.getAttribute('data-study-mode')); });
     });
-    var btnHvFront = document.getElementById('btn-hv-front');
-    if (btnHvFront) {
-      btnHvFront.addEventListener('click', function () {
-        document.getElementById('face-front-field').value = 'HAN_VIET';
-        document.getElementById('face-back-field').value = 'BACK';
-        syncSettingsListboxes();
-        FlashShell.showToast('Đã chọn: Hán Việt ở Mặt trước', 'info');
-      });
-    }
-    var btnHvBack = document.getElementById('btn-hv-back');
-    if (btnHvBack) {
-      btnHvBack.addEventListener('click', function () {
-        document.getElementById('face-front-field').value = 'FRONT';
-        document.getElementById('face-back-field').value = 'HAN_VIET';
-        syncSettingsListboxes();
-        FlashShell.showToast('Đã chọn: Hán Việt ở Mặt sau', 'info');
-      });
-    }
     document.getElementById('btn-prev').addEventListener('click', function () { go(-1); });
     document.getElementById('btn-next').addEventListener('click', function () { go(1); });
     document.getElementById('btn-flip').addEventListener('click', flip);

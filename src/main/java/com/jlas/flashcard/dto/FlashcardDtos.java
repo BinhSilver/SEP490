@@ -38,8 +38,8 @@ public final class FlashcardDtos {
     }
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class CardInput {
-        private Long id; @NotBlank(message = "Kanji không được để trống") @Size(max = 500) private String front; @Size(max = 500) private String back;
-        @NotBlank(message = "Cách đọc không được để trống") @Size(max = 255) private String reading;
+        private Long id; @NotBlank(message = "Từ vựng (Kanji hoặc Kana) không được để trống") @Size(max = 500) private String front; @Size(max = 500) private String back;
+        @Size(max = 255) private String reading; // optional: only the word and its meaning are required
         @NotBlank(message = "Nghĩa không được để trống") @Size(max = 500) private String meaning;
         @Size(max = 255) private String hanViet; @Size(max = 500) private String image;
         private String jlptLevel; private String wordType; private String exampleJa; private String exampleVi; private Integer position;

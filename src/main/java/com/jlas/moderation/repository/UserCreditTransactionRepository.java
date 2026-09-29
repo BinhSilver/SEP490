@@ -13,6 +13,14 @@ public interface UserCreditTransactionRepository extends JpaRepository<UserCredi
     @Query("select t from UserCreditTransaction t where t.user.id = :userId order by t.createdAt desc")
     List<UserCreditTransaction> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 
+    /** Net credit a user holds for one reference (rewards minus take-backs). */
+    @Query("""
+            select coalesce(sum(t.amount), 0) from UserCreditTransaction t
+            where t.user.id = :userId and t.referenceType = :referenceType and t.referenceId = :referenceId
+            """)
+    long netAmount(@Param("userId") Long userId, @Param("referenceType") String referenceType,
+                   @Param("referenceId") Long referenceId);
+
     boolean existsByUserIdAndReasonAndReferenceTypeAndReferenceId(
             Long userId, String reason, String referenceType, Long referenceId);
 }
