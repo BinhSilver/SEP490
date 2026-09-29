@@ -138,18 +138,18 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
         }
 
         @Override
-        public List<QuestionSpec> buildQuestions(List<VocabularyEntry> batch, int batchIndex) {
+        public List<QuestionSpec> buildQuestions(List<VocabularyEntry> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
             long qid = 1;
             for (int i = 0; i < batch.size(); i++) {
                 VocabularyEntry m = batch.get(i);
-                String type = SELECT_TYPES[i % SELECT_TYPES.length];
-                specs.add(optionQuestion(qid++, i, type, selectPrompt(type, m), selectCorrect(type, m),
+                String type = SELECT_TYPES[(i + variationSeed) % SELECT_TYPES.length];
+                specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, m), selectCorrect(type, m),
                         selectDistractors(type, m, batch)));
             }
             for (int i = 0; i < batch.size(); i++) {
                 VocabularyEntry m = batch.get(i);
-                specs.add(optionQuestion(qid++, i, "MATCHING",
+                specs.add(optionQuestion(qid++, i + variationSeed, "MATCHING",
                         "Ghép từ “" + m.getExpression() + "” với nghĩa đúng.", m.getMeaning(),
                         batch.stream().map(VocabularyEntry::getMeaning).toList()));
             }

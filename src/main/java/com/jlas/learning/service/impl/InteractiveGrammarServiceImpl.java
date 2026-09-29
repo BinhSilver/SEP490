@@ -371,7 +371,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         }
 
         @Override
-        public List<QuestionSpec> buildQuestions(List<GrammarPoint> batch, int batchIndex) {
+        public List<QuestionSpec> buildQuestions(List<GrammarPoint> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
             long qid = 1;
             for (int i = 0; i < batch.size(); i++) {
@@ -383,12 +383,12 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
 
                 if (meaningSummary != null) {
                     List<String> distractors = batch.stream().map(b -> splitFirstLine(b.getMeaning())[0]).toList();
-                    specs.add(optionQuestion(qid++, i, "MEANING_MATCH",
+                    specs.add(optionQuestion(qid++, i + variationSeed, "MEANING_MATCH",
                             "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors));
                 }
                 if (exampleJapanese != null) {
                     List<String> distractors = batch.stream().map(b -> splitFirstLine(b.getExample())[0]).toList();
-                    specs.add(optionQuestion(qid++, i, "USAGE_SELECT",
+                    specs.add(optionQuestion(qid++, i + variationSeed, "USAGE_SELECT",
                             "Câu nào dùng đúng mẫu “" + point.getPattern() + "”?", exampleJapanese, distractors));
                 }
             }

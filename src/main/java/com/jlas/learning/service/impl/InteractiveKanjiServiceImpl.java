@@ -163,20 +163,20 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
         }
 
         @Override
-        public List<QuestionSpec> buildQuestions(List<KanjiEntry> batch, int batchIndex) {
+        public List<QuestionSpec> buildQuestions(List<KanjiEntry> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
             long qid = 1;
             for (int i = 0; i < batch.size(); i++) {
                 KanjiEntry e = batch.get(i);
-                String type = pickAvailableType(e, i);
+                String type = pickAvailableType(e, i + variationSeed);
                 if (type == null) continue; // no usable field at all (should not happen with approved data)
-                specs.add(optionQuestion(qid++, i, type, selectPrompt(type, e), selectCorrect(type, e),
+                specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, e), selectCorrect(type, e),
                         selectDistractors(type, e, batch)));
             }
             for (int i = 0; i < batch.size(); i++) {
                 KanjiEntry e = batch.get(i);
                 if (e.kanji().getMeaningVi() == null) continue;
-                specs.add(optionQuestion(qid++, i, "MATCHING",
+                specs.add(optionQuestion(qid++, i + variationSeed, "MATCHING",
                         "Ghép chữ “" + e.kanji().getCharacter() + "” với nghĩa đúng.",
                         e.kanji().getMeaningVi(), batch.stream().map(b -> b.kanji().getMeaningVi()).toList()));
             }

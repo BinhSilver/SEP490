@@ -278,6 +278,53 @@ class InteractiveGrammarServiceTest {
                 .anyMatch(q -> "USAGE_SELECT".equals(q.questionType())));
     }
 
+    /** [JLAS-W0193] Task 10 audit finding — same fix/rationale as
+     * {@code InteractiveVocabularyServiceTest#reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement}:
+     * Grammar shares the same engine/adapter shape for its micro-check, so it shared the same pre-fix
+     * vulnerability despite its practice-gate step being different from Vocabulary/Kanji. */
+    @Test void reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement() {
+        var activity = grammarActivity(1L, 7L);
+        var pointA = point(501L, "N1 は N2 です", "N1 là N2\nGiải thích A", "わたしは グエンです。\nTôi là Nguyễn.", null);
+        var pointB = point(502L, "N1 の N2", "N2 của N1\nGiải thích B", "これは ほんです。\nCái này là sách.", null);
+        List<LearningActivityMember> membership = List.of(
+                member(activity, 1, 501L, "rev-1"), member(activity, 2, 502L, "rev-1"));
+        var progressA = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(501L)
+                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
+        var progressB = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(502L)
+                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
+        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.of(progressA));
+        when(progress.findByActivityIdAndGrammarPointId(1L, 502L)).thenReturn(Optional.of(progressB));
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(pointA, pointB));
+        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
+        when(quizSessions.save(any())).thenAnswer(inv -> {
+            LearningQuizSession s = inv.getArgument(0);
+            s.setId(900L);
+            return s;
+        });
+
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
+        var firstIssue = service.issueMicroCheck(7L, 1L);
+
+        var failedOnceState = LearningMicroCheckState.builder().activity(activity).batchIndex(0)
+                .cycleNumber(1).attemptsUsed(1).passed(false).reviewRequired(false).build();
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(failedOnceState));
+        var secondIssue = service.issueMicroCheck(7L, 1L);
+
+        assertEquals(firstIssue.questions().size(), secondIssue.questions().size());
+        boolean anyOptionsDiffer = false;
+        for (int i = 0; i < firstIssue.questions().size(); i++) {
+            if (!firstIssue.questions().get(i).options().equals(secondIssue.questions().get(i).options())) {
+                anyOptionsDiffer = true;
+                break;
+            }
+        }
+        assertTrue(anyOptionsDiffer,
+                "re-issuing the same unpassed batch after a failed attempt should vary the option arrangement");
+    }
+
     @Test void submitPassesAtExactlySeventyPercent() {
         var activity = grammarActivity(1L, 7L);
         LearningQuizSession session = issuedSession(100L, activity.getId());

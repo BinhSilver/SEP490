@@ -371,6 +371,61 @@ class InteractiveLearningPathServiceTest {
         assertNull(result.nextAvailablePackageId());
     }
 
+    // ---- Task 10: path-level completion once every GOAL_LEARNING package is COMPLETED ----
+
+    @Test void pathCompletesWhenItsOnlyGoalLearningPackageCompletes() {
+        var pkg = completedTrigger();
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        service.packageDetail(7L, 11L);
+
+        UserLearningPath path = pkg.getLearningPath();
+        assertEquals("COMPLETED", path.getStatus());
+        assertNotNull(path.getCompletedAt());
+        verify(paths, times(1)).save(path);
+    }
+
+    @Test void pathStaysActiveWhileAnotherGoalLearningPackageIsStillIncomplete() {
+        var path = interactivePath();
+        var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var stillOpen = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg, stillOpen));
+        stubNoScoredSessions();
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals("ACTIVE", path.getStatus());
+        verify(paths, never()).save(any());
+    }
+
+    @Test void warmUpOnlyPackageCompletionNeverCompletesThePathByItself() {
+        var path = interactivePath();
+        var warmUp = LearningPathPackage.builder().id(11L).learningPath(path).phase("WARM_UP")
+                .dayNumber(1).orderIndex(1).title("Ôn tập điểm yếu").estimatedMinutes(5)
+                .status(LearningPackageStatus.IN_PROGRESS).build();
+        var target = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        var activities = warmUpActivities(warmUp, LearningActivityType.VOCABULARY);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(warmUp));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(warmUp, target));
+        stubNoScoredSessions();
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals("ACTIVE", path.getStatus());
+        verify(paths, never()).save(any());
+    }
+
     // ---- helpers ----
 
     private LearningPathPackage completedTrigger() {

@@ -186,6 +186,56 @@ class InteractiveVocabularyServiceTest {
         assertTrue(keyRef.get().values().stream().allMatch(k -> k.correctOption() >= 1 && k.correctOption() <= 4));
     }
 
+    /** [JLAS-W0193] Task 10 audit finding — re-issuing the same still-unpassed batch after a failed attempt
+     * must not reproduce byte-identical question option arrangements, because a failed attempt's required
+     * feedback ({@code MicroCheckResult.review}) reveals the correct answer per question. Deterministic
+     * generation keyed only on (batch, batchIndex) — the pre-fix behavior — would let a learner replay the
+     * revealed answer key verbatim on the very next issue without any real re-engagement with the content. */
+    @Test void reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement() {
+        var activity = vocabActivity(1L, 7L);
+        List<LearningActivityMember> membership = new ArrayList<>();
+        for (int i = 0; i < 4; i++) membership.add(member(1L, i + 1, 100L + i));
+        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
+        List<LearningStudyCard> cards = new ArrayList<>();
+        for (int i = 0; i < 4; i++) cards.add(LearningStudyCard.builder().id(30L + i).session(session)
+                .canonicalId(100L + i).orderIndex(i + 1).flipped(true).remembered(true).build());
+        List<VocabularyEntry> vocab = new ArrayList<>();
+        for (int i = 0; i < 4; i++) vocab.add(vocab(100L + i, "word" + i, "reading" + i, "meaning" + i));
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
+        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
+        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
+        when(vocabularyRepo.findAllById(any())).thenReturn(vocab);
+        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
+        when(quizSessions.save(any())).thenAnswer(inv -> {
+            LearningQuizSession s = inv.getArgument(0);
+            s.setId(500L);
+            return s;
+        });
+
+        // First-ever issue for this batch: no prior attempt.
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
+        var firstIssue = service.issueMicroCheck(7L, 1L);
+
+        // Re-issue after one failed, valid attempt on the same batch/cycle.
+        var failedOnceState = LearningMicroCheckState.builder().activity(activity).batchIndex(0)
+                .cycleNumber(1).attemptsUsed(1).passed(false).reviewRequired(false).build();
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(failedOnceState));
+        var secondIssue = service.issueMicroCheck(7L, 1L);
+
+        assertEquals(firstIssue.questions().size(), secondIssue.questions().size());
+        boolean anyOptionsDiffer = false;
+        for (int i = 0; i < firstIssue.questions().size(); i++) {
+            if (!firstIssue.questions().get(i).options().equals(secondIssue.questions().get(i).options())) {
+                anyOptionsDiffer = true;
+                break;
+            }
+        }
+        assertTrue(anyOptionsDiffer,
+                "re-issuing the same unpassed batch after a failed attempt should vary the option arrangement");
+    }
+
     // ---- Micro-check submit ----
 
     @Test void submitPassesAtExactlySeventyPercent() {

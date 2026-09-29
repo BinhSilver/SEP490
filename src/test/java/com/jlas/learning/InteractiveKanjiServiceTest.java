@@ -187,6 +187,60 @@ class InteractiveKanjiServiceTest {
         assertTrue(distinctTypes >= 2, "expected multiple question shapes, got " + distinctTypes);
     }
 
+    /** [JLAS-W0193] Task 10 audit finding — same fix/rationale as
+     * {@code InteractiveVocabularyServiceTest#reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement}:
+     * Kanji shares the same engine/adapter shape, so it shared the same pre-fix vulnerability. */
+    @Test void reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement() {
+        var activity = kanjiActivity(1L, 7L);
+        List<LearningActivityMember> membership = new ArrayList<>();
+        for (int i = 0; i < 4; i++) membership.add(member(i + 1, 200L + i));
+        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
+        List<LearningStudyCard> cards = new ArrayList<>();
+        List<Kanji> kanjiList = new ArrayList<>();
+        List<KanjiReading> readings = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            long id = 200L + i;
+            cards.add(LearningStudyCard.builder().id(30L + i).session(session).canonicalId(id)
+                    .orderIndex(i + 1).flipped(true).remembered(true).build());
+            Kanji k = kanji(id, "字" + i, "TU" + i, "nghia " + i);
+            kanjiList.add(k);
+            readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
+                    .isCommon(true).build());
+        }
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
+        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
+        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
+        when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
+        when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
+        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
+        when(quizSessions.save(any())).thenAnswer(inv -> {
+            LearningQuizSession s = inv.getArgument(0);
+            s.setId(500L);
+            return s;
+        });
+
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
+        var firstIssue = service.issueMicroCheck(7L, 1L);
+
+        var failedOnceState = LearningMicroCheckState.builder().activity(activity).batchIndex(0)
+                .cycleNumber(1).attemptsUsed(1).passed(false).reviewRequired(false).build();
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(failedOnceState));
+        var secondIssue = service.issueMicroCheck(7L, 1L);
+
+        assertEquals(firstIssue.questions().size(), secondIssue.questions().size());
+        boolean anyOptionsDiffer = false;
+        for (int i = 0; i < firstIssue.questions().size(); i++) {
+            if (!firstIssue.questions().get(i).options().equals(secondIssue.questions().get(i).options())) {
+                anyOptionsDiffer = true;
+                break;
+            }
+        }
+        assertTrue(anyOptionsDiffer,
+                "re-issuing the same unpassed batch after a failed attempt should vary the option arrangement");
+    }
+
     @Test void submitPassesAtExactlySeventyPercent() {
         var activity = kanjiActivity(1L, 7L);
         LearningQuizSession session = issuedSession(100L, activity.getId());

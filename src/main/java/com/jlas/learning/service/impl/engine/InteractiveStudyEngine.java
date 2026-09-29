@@ -143,7 +143,12 @@ public class InteractiveStudyEngine<T> {
 
         Map<Long, T> byId = adapter.loadByIds(membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList());
         List<T> batch = batchEntries(byId, membership, currentBatch);
-        List<QuestionSpec> specs = adapter.buildQuestions(batch, currentBatch);
+        // [JLAS-W0193] Task 10 audit finding — vary the deterministic question arrangement between successive
+        // issues of the same still-unpassed batch (server-derived from the state's own attempt count, never
+        // client input), so a revealed answer key from a failed attempt's review cannot be replayed verbatim
+        // on the very next attempt. See InteractiveContentAdapter.buildQuestions' javadoc for the full finding.
+        int variationSeed = state == null ? 0 : state.getAttemptsUsed();
+        List<QuestionSpec> specs = adapter.buildQuestions(batch, currentBatch, variationSeed);
 
         LearningQuizSession snapshot = LearningQuizSession.builder()
                 .user(activity.getLearningPath().getUser())

@@ -183,7 +183,33 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         packages.save(learningPackage);
         grantCompletionReward(userId, learningPackage);
         unlockNextPackage(learningPackage, siblings);
+        maybeCompletePath(learningPackage, siblings);
         return true;
+    }
+
+    /** [JLAS-W0193] Task 10 — once every {@code GOAL_LEARNING} package in the path is {@code COMPLETED}, the
+     * path itself transitions {@code ACTIVE -> COMPLETED} (mirroring the legacy V1 precedent,
+     * {@code LearningServiceImpl.finishPath}), which V2 never did before this task — a genuine hardening fix,
+     * not just a Task 10 feature: without it, {@link #current} keeps matching the path forever (it filters
+     * {@code status = ACTIVE}) even after the learner has nothing left to do, and there is no unambiguous
+     * path-level signal for certificate/summary eligibility to read. Warm-up packages are prerequisites, not
+     * counted requirements (design spec §6.3 "chỉ cấp khi mọi package bắt buộc..."), so only
+     * {@code GOAL_LEARNING} packages are checked; a path with zero target packages (should not happen once
+     * the composer has run, but checked defensively) is never marked complete. Idempotent: only flips the
+     * path when it is still {@code ACTIVE}. */
+    private void maybeCompletePath(LearningPathPackage justCompleted, List<LearningPathPackage> siblings) {
+        UserLearningPath path = justCompleted.getLearningPath();
+        if (!"ACTIVE".equals(path.getStatus())) return;
+        boolean hasGoalLearningPackage = false;
+        for (LearningPathPackage sibling : siblings) {
+            if (!"GOAL_LEARNING".equals(sibling.getPhase())) continue;
+            hasGoalLearningPackage = true;
+            if (sibling.getStatus() != LearningPackageStatus.COMPLETED) return;
+        }
+        if (!hasGoalLearningPackage) return;
+        path.setStatus("COMPLETED");
+        path.setCompletedAt(LocalDateTime.now());
+        paths.save(path);
     }
 
     /** Walks the ordered activities and unlocks each one's successor once it reaches its terminal state —
