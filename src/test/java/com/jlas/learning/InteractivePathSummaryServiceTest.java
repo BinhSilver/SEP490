@@ -265,6 +265,113 @@ class InteractivePathSummaryServiceTest {
         assertNotEquals("HIGH", result.readiness().level());
     }
 
+    // ---- RC Task 6: in-path Reading/Listening evidence distinct from the Smart Test baseline ----
+
+    @Test void inPathReadingEvidenceIsReportedSeparatelyFromAndNeverOverwritesTheSmartTestBaseline() {
+        var path = interactivePath();
+        stubPath(path);
+        var reading = activity(6L, LearningActivityType.READING, LearningActivityState.PASSED);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(reading));
+        when(microCheckStates.findByActivityIdInOrderByActivityIdAscBatchIndexAsc(List.of(6L)))
+                .thenReturn(List.of(state(reading, 0, 1, true, 85, 85, 85,
+                        LocalDateTime.now(), LocalDateTime.now(), false, null)));
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        // Smart Test baseline says READING was weak (40% correct) — the in-path evidence (85%, passed) must
+        // be shown alongside it, never silently replacing or averaging into that baseline number.
+        var snapshot = new LearningProfileSnapshot(7L, 99L, null, "rev", true, true, "N5", "N4", "JLPT", 30,
+                List.of(), List.of(new SkillScore(WeaknessEvidence.SKILL_READING, 10, 6),
+                        new SkillScore(WeaknessEvidence.SKILL_LISTENING, 10, 0)));
+        when(profileSource.loadForUser(7L, 99L)).thenReturn(snapshot);
+
+        var result = service.summary(7L);
+
+        var baselineReading = result.comprehension().stream()
+                .filter(c -> c.skill().equals("READING")).findFirst().orElseThrow();
+        assertTrue(baselineReading.hasEvidence());
+        assertEquals(40, baselineReading.correctPercent()); // untouched Smart Test baseline
+        assertTrue(baselineReading.weak());
+
+        var inPathReading = result.comprehensionInPath().stream()
+                .filter(c -> c.skill().equals("READING")).findFirst().orElseThrow();
+        assertTrue(inPathReading.hasEvidence());
+        assertEquals(85, inPathReading.latestScore());
+        assertTrue(inPathReading.resolved());
+    }
+
+    @Test void comprehensionInPathHasNoEvidenceWhenNeverAttemptedEvenIfBaselineExists() {
+        var path = interactivePath();
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        var snapshot = new LearningProfileSnapshot(7L, 99L, null, "rev", true, true, "N5", "N4", "JLPT", 30,
+                List.of(), List.of(new SkillScore(WeaknessEvidence.SKILL_READING, 10, 2),
+                        new SkillScore(WeaknessEvidence.SKILL_LISTENING, 10, 2)));
+        when(profileSource.loadForUser(7L, 99L)).thenReturn(snapshot);
+
+        var result = service.summary(7L);
+
+        assertTrue(result.comprehensionInPath().stream().noneMatch(c -> c.hasEvidence()));
+    }
+
+    @Test void unresolvedInPathComprehensionBatchForcesLowReadinessEvenWhenEverythingElseIsStrong() {
+        var path = interactivePath();
+        stubPath(path);
+        var vocab = activity(1L, LearningActivityType.VOCABULARY, LearningActivityState.PASSED);
+        var kanji = activity(2L, LearningActivityType.KANJI, LearningActivityState.PASSED);
+        var grammar = activity(3L, LearningActivityType.GRAMMAR, LearningActivityState.PASSED);
+        var listening = activity(7L, LearningActivityType.LISTENING, LearningActivityState.COOLDOWN);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L))
+                .thenReturn(List.of(vocab, kanji, grammar, listening));
+        for (var a : List.of(vocab, kanji, grammar)) {
+            when(microCheckStates.findByActivityIdInOrderByActivityIdAscBatchIndexAsc(List.of(a.getId())))
+                    .thenReturn(List.of(state(a, 0, 1, true, 95, 95, 95,
+                            LocalDateTime.now(), LocalDateTime.now(), false, null)));
+        }
+        var cooldownAt = LocalDateTime.now().plusHours(1);
+        when(microCheckStates.findByActivityIdInOrderByActivityIdAscBatchIndexAsc(List.of(7L)))
+                .thenReturn(List.of(state(listening, 0, 3, false, 40, 40, 55,
+                        LocalDateTime.now(), LocalDateTime.now(), true, cooldownAt)));
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        // Smart Test baseline for Listening looks perfectly strong (0 wrong) — must not hide the fact that
+        // the learner just failed a real, in-path Listening micro-check batch.
+        var snapshot = new LearningProfileSnapshot(7L, 99L, null, "rev", true, true, "N5", "N4", "JLPT", 30,
+                List.of(), List.of(new SkillScore(WeaknessEvidence.SKILL_READING, 10, 0),
+                        new SkillScore(WeaknessEvidence.SKILL_LISTENING, 10, 0)));
+        when(profileSource.loadForUser(7L, 99L)).thenReturn(snapshot);
+
+        var result = service.summary(7L);
+
+        assertEquals("LOW", result.readiness().level());
+        assertTrue(result.readiness().explanation().contains("LISTENING"));
+        var inPathListening = result.comprehensionInPath().stream()
+                .filter(c -> c.skill().equals("LISTENING")).findFirst().orElseThrow();
+        assertFalse(inPathListening.resolved());
+        assertEquals(1, inPathListening.unresolved().size());
+    }
+
+    @Test void certificateEligibilityIsUnaffectedByComprehensionActivitiesInsideAWarmUpPackage() {
+        var path = interactivePath();
+        stubPath(path);
+        var reading = activity(6L, LearningActivityType.READING, LearningActivityState.PASSED);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(reading));
+        when(microCheckStates.findByActivityIdInOrderByActivityIdAscBatchIndexAsc(List.of(6L)))
+                .thenReturn(List.of(state(reading, 0, 1, true, 90, 90, 90,
+                        LocalDateTime.now(), LocalDateTime.now(), false, null)));
+        var warmUp = LearningPathPackage.builder().id(10L).learningPath(path).phase("WARM_UP")
+                .status(LearningPackageStatus.COMPLETED).orderIndex(1).dayNumber(1)
+                .title("Ôn tập đọc/nghe").estimatedMinutes(15).build();
+        var target = LearningPathPackage.builder().id(11L).learningPath(path).phase("GOAL_LEARNING")
+                .status(LearningPackageStatus.COMPLETED).orderIndex(2).dayNumber(2)
+                .title("Ngày 1").estimatedMinutes(30).build();
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(warmUp, target));
+
+        var result = service.summary(7L);
+
+        // Certificate eligibility depends only on GOAL_LEARNING package completion (unchanged rule); a
+        // completed comprehension warm-up package must not be required nor able to unlock it by itself.
+        assertTrue(result.certificateEligible());
+    }
+
     @Test void certificateEligibleOnlyWhenEveryGoalLearningPackageIsCompleted() {
         var path = interactivePath();
         stubPath(path);

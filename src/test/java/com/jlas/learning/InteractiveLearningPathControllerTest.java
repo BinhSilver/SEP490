@@ -39,7 +39,7 @@ class InteractiveLearningPathControllerTest {
         var response = new InteractivePathSummaryResponse(1L, "COMPLETED", null, List.of(),
                 new InteractiveDialogueSummary(1, 1, true), List.of(
                         new InteractiveComprehensionEvidence("READING", true, 5, 1, 80, false, "note")),
-                new InteractiveReadinessConfidence("MEDIUM", "explanation"), true);
+                List.of(), new InteractiveReadinessConfidence("MEDIUM", "explanation"), true);
         when(summaryService.summary(7L)).thenReturn(response);
         var controller = new InteractiveLearningPathController(service, summaryService);
 

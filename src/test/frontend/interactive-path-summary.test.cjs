@@ -18,6 +18,10 @@ function summary(overrides = {}) {
       { skill: 'READING', hasEvidence: true, assessedCount: 10, wrongCount: 2, correctPercent: 80, weak: false, note: 'note-r' },
       { skill: 'LISTENING', hasEvidence: false, assessedCount: null, wrongCount: null, correctPercent: null, weak: false, note: 'note-l' }
     ],
+    comprehensionInPath: [
+      { skill: 'READING', hasEvidence: true, firstScore: 60, latestScore: 85, bestScore: 85, resolved: true, unresolved: [] },
+      { skill: 'LISTENING', hasEvidence: false, firstScore: null, latestScore: null, bestScore: null, resolved: false, unresolved: [] }
+    ],
     readiness: { level: 'MEDIUM', explanation: 'explanation text' },
     certificateEligible: false
   }, overrides);
@@ -27,6 +31,7 @@ test('viewModel defaults missing collections to empty arrays instead of throwing
   const model = page.viewModel({});
   assert.deepEqual(model.skills, []);
   assert.deepEqual(model.comprehension, []);
+  assert.deepEqual(model.comprehensionInPath, []);
   assert.equal(model.dialogue.totalCount, 0);
 });
 
@@ -68,6 +73,40 @@ test('comprehensionCard always discloses the Smart-Test-only, not-re-tested-in-p
 test('comprehensionCard reports insufficient evidence plainly rather than a 0% score', () => {
   const html = page.comprehensionCard({ skill: 'LISTENING', hasEvidence: false, correctPercent: null, weak: false, note: 'note' });
   assert.match(html, /Chưa có dữ liệu Smart Test/);
+});
+
+test('comprehensionCard labels its data explicitly as the Smart Test baseline', () => {
+  const html = page.comprehensionCard({ skill: 'READING', hasEvidence: true, correctPercent: 80, weak: false, note: 'note' });
+  assert.match(html, /Đánh giá nền \(Smart Test\)/);
+});
+
+// ---- RC Task 6: in-path Reading/Listening evidence, distinct from the Smart Test baseline above ----
+
+test('comprehensionInPathCard shows no-evidence state without implying a 0% score', () => {
+  const html = page.comprehensionInPathCard({ skill: 'LISTENING', hasEvidence: false, firstScore: null, latestScore: null, bestScore: null, resolved: false, unresolved: [] });
+  assert.match(html, /Chưa làm bài đọc\/nghe nào trong lộ trình/);
+  assert.doesNotMatch(html, />0%</);
+});
+
+test('comprehensionInPathCard renders first/latest/best scores when in-path evidence exists', () => {
+  const html = page.comprehensionInPathCard({ skill: 'READING', hasEvidence: true, firstScore: 60, latestScore: 85, bestScore: 85, resolved: true, unresolved: [] });
+  assert.match(html, /60%/);
+  assert.match(html, /85%/);
+});
+
+test('comprehensionInPathCard surfaces an unresolved in-path batch explicitly, never averaged away', () => {
+  const html = page.comprehensionInPathCard({
+    skill: 'LISTENING', hasEvidence: true, firstScore: 40, latestScore: 40, bestScore: 55, resolved: false,
+    unresolved: [{ activityId: 7, batchIndex: 0, latestScore: 40, reviewRequired: true, cooldownUntil: null }]
+  });
+  assert.match(html, /Còn bài chưa đạt/);
+  assert.match(html, /Batch 0/);
+});
+
+test('comprehensionInPathCard explicitly distinguishes itself from the Smart Test baseline, never silently replacing it', () => {
+  const html = page.comprehensionInPathCard({ skill: 'READING', hasEvidence: true, firstScore: 60, latestScore: 85, bestScore: 85, resolved: true, unresolved: [] });
+  assert.match(html, /khác với đánh giá nền Smart Test/);
+  assert.doesNotMatch(html, /Đánh giá nền \(Smart Test\)/); // that exact phrase is the baseline card's own label
 });
 
 test('renderReadiness always states this is an internal estimate, not a JLPT pass confirmation', () => {

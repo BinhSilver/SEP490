@@ -1873,8 +1873,13 @@ CREATE TABLE learning_quiz_session (
     -- dung voi cac quiz_type ma InteractiveStudyEngine da phat sinh; Task 5 tung bo sot KANJI_MICRO_CHECK
     -- trong CHECK constraint nay (H2 ddl-auto=create-drop sinh schema tu JPA entity, khong tu SQL nay nen
     -- khong bat duoc bang test) — sua cung migration voi Task 6 vi ca hai deu dung chung constraint.
+    -- [JLAS-W0193] RC Task 6: READING_MICRO_CHECK/LISTENING_MICRO_CHECK bi bo sot cung ly do (RC Task 4 da
+    -- phat sinh cac quiz_type nay qua AssessmentComprehensionContentAdapter.microCheckType(), nhung RC Task 2
+    -- (migration 016) chi mo rong activity_type/member_type, khong mo rong constraint nay) — sua tai day,
+    -- migration 017.
     CONSTRAINT chk_quiz_session_type CHECK
-        (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK','GRAMMAR_MICRO_CHECK')),
+        (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
+            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

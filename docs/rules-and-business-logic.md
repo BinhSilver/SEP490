@@ -541,3 +541,63 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
   issue of any batch is unaffected (`variationSeed = 0`, identical to pre-fix behavior), so no existing
   test's assertions needed to change — only a *retried* issue now varies. Grading is unaffected: it always
   reads the immutable, already-issued session's own stored answer key, never regenerates.
+
+### 2.18 Comprehension completion, summary and readiness (Interactive V2 RC Task 6) [JLAS-W0193]
+
+- **Reading/Listening warm-up activities participate in package completion/unlock generically — no code
+  change was needed.** Task 9's `allWarmUpActivitiesDone`/`cascadeUnlock`/`isActivityDone`
+  (`InteractiveLearningPathServiceImpl`) only special-case `DIALOGUE`'s terminal state (`COMPLETED` vs.
+  `PASSED` for everything else); they never enumerate activity types, so a comprehension-only warm-up package
+  (Reading+Listening) or a mixed one (e.g. Vocabulary+Reading) already unlocks/completes correctly once every
+  activity it actually has reaches `PASSED`, and a single unresolved comprehension activity (e.g. `COOLDOWN`)
+  already blocks completion the same way an unresolved Vocabulary/Kanji/Grammar activity does. Verified with
+  four new regression tests in `InteractiveLearningPathServiceTest`, not by adding new production logic.
+- **The target-package score formula cannot be leaked into by a comprehension activity — also pre-existing.**
+  `computePackageScore`'s `SCORED_MICRO_CHECK_TYPES` map only has entries for `VOCABULARY`/`KANJI`/`GRAMMAR`;
+  a `READING`/`LISTENING` activity's `quizType` lookup misses that map and the activity is skipped entirely
+  (never queried, never counted as zero) — proven by
+  `packageScoreExcludesAPassedComprehensionActivityEvenWithAScoredSession`, which asserts the score stays
+  the Vocabulary-only value even when the Reading activity in the same package has its own 100%-scored,
+  passing micro-check session on record, and that `LearningQuizSessionRepository` is never even queried for
+  the Reading activity's quiz type.
+- **Path summary distinguishes Smart-Test baseline evidence from in-path evidence for Reading/Listening, and
+  never merges them.** `InteractivePathSummaryResponse.comprehension` is unchanged from Task 10: Smart-Test-
+  only, always labeled as baseline (UI: "Đánh giá nền (Smart Test)"). A new field,
+  `comprehensionInPath` (`List<InteractiveSkillProgress>`), aggregates the learner's own in-path
+  Reading/Listening micro-check activities path-wide, using the exact same `skillProgress` aggregation
+  Vocabulary/Kanji/Grammar already use (first/latest/best, `hasEvidence`, `resolved`, named `unresolved`
+  batches) — reused unchanged, not duplicated. Neither list is ever averaged into the other or silently
+  replaces the other; the summary page renders both, the in-path card noting explicitly that it differs from
+  the Smart Test baseline above it.
+- **An unresolved in-path comprehension batch is a required readiness gap, exactly like an unresolved
+  Vocabulary/Kanji/Grammar batch.** `readiness()` now also walks `comprehensionInPath`: any skill with
+  `hasEvidence=true` and `resolved=false` adds a named gap (`"LISTENING: còn bài đọc/nghe trong lộ trình
+  chưa đạt micro-check"`), forcing `LOW` — a strong Vocabulary/Kanji/Grammar score, or even a strong Smart
+  Test *baseline* for that same comprehension skill, can never hide it. A comprehension skill that was simply
+  never attempted in-path is **not** a gap by itself (that's what the Smart Test baseline column already
+  covers) — RC Task 6 does not force `LOW` merely because the learner hasn't yet done any in-path
+  Reading/Listening.
+- **Readiness confidence stays capped at `MEDIUM`, never `HIGH`, unchanged from Task 10** — the existence of
+  playable Reading/Listening activities (RC Tasks 1-5) does not by itself justify `HIGH`: Warm-up B only
+  composes comprehension activities from a proven Smart Test weakness (so most paths have none), and even
+  when present they are not re-verified against the full JLPT skill/level range the way the Vocabulary/Kanji/
+  Grammar micro-check gate is. No approved readiness policy was found that raises this cap, so it was left as
+  the disclosed Task 10 default.
+- **Certificate wording/eligibility are unchanged, verified with a regression test, not new behavior.**
+  `isCertificateEligible` only inspects `GOAL_LEARNING`-phase package completion, never activity types inside
+  a package — a completed warm-up package containing comprehension activities is still a prerequisite only,
+  never a counted requirement, exactly as it was before comprehension activities existed. The certificate
+  page itself (`InteractiveLearningCertificateController`) was not touched.
+- **Schema gap found and fixed while reading RC Task 1-5's scope (narrow, with a reproducing test):**
+  `chk_quiz_session_type` (`jlas_schema.sql`) allowed `VOCAB_MICRO_CHECK`/`KANJI_MICRO_CHECK`/
+  `GRAMMAR_MICRO_CHECK` but never `READING_MICRO_CHECK`/`LISTENING_MICRO_CHECK`, even though RC Task 4
+  (`AssessmentComprehensionContentAdapter.microCheckType()`) already issues `LearningQuizSession` rows with
+  exactly those two values through the shared `InteractiveStudyEngine` — RC Task 2's migration (016) widened
+  `activity_type`/`member_type` but missed this constraint. Same disclosed pattern as the Task 5/6
+  `KANJI_MICRO_CHECK`/`GRAMMAR_MICRO_CHECK` gap already noted in §2.12/§2.13 above: H2's
+  `ddl-auto=create-drop` derives its schema from JPA entities, not from this raw SQL, so no ordinary
+  H2-backed persistence test could ever catch it — a real MySQL database would have rejected every
+  comprehension micro-check submit. Fixed in `sql/migrations/017_interactive_comprehension_quiz_type.sql`
+  plus the same edit in `jlas_schema.sql`, with a new text-parsing regression test
+  (`QuizSessionTypeConstraintTest`) that at least catches a future accidental removal of a micro-check
+  quiz_type from this constraint, since no persistence test can.

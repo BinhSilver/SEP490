@@ -45,6 +45,13 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
     private static final List<LearningActivityType> SCORED_SKILLS =
             List.of(LearningActivityType.VOCABULARY, LearningActivityType.KANJI, LearningActivityType.GRAMMAR);
 
+    /** [JLAS-W0193] RC Task 6 — the two comprehension skills, aggregated path-wide the exact same way
+     * {@link #skillProgress} already aggregates Vocabulary/Kanji/Grammar. This is in-path evidence (from the
+     * learner's own Reading/Listening micro-check activities, RC Tasks 1-5), never to be confused with
+     * {@link #comprehensionEvidence} below, which stays Smart-Test-only baseline evidence. */
+    private static final List<LearningActivityType> COMPREHENSION_SKILLS =
+            List.of(LearningActivityType.READING, LearningActivityType.LISTENING);
+
     private static final Map<LearningActivityType, String> QUIZ_TYPES = Map.of(
             LearningActivityType.VOCABULARY, "VOCAB_MICRO_CHECK",
             LearningActivityType.KANJI, "KANJI_MICRO_CHECK",
@@ -80,11 +87,17 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
 
         InteractiveDialogueSummary dialogue = dialogueSummary(activities);
         List<InteractiveComprehensionEvidence> comprehension = comprehensionEvidence(userId, path);
-        InteractiveReadinessConfidence readiness = readiness(skills, dialogue, comprehension);
+        // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence, aggregated the same way as skills
+        // above, kept as a *separate* list from the Smart Test baseline (`comprehension`) so neither ever
+        // silently overwrites or averages into the other (RC plan Task 6, rule 3).
+        List<InteractiveSkillProgress> comprehensionInPath = COMPREHENSION_SKILLS.stream()
+                .map(type -> skillProgress(type, activities))
+                .toList();
+        InteractiveReadinessConfidence readiness = readiness(skills, dialogue, comprehension, comprehensionInPath);
         boolean certificateEligible = isCertificateEligible(path.getId());
 
         return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
-                skills, dialogue, comprehension, readiness, certificateEligible);
+                skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible);
     }
 
     // ---- Vocabulary/Kanji/Grammar: first/latest/best + unresolved batches, path-wide ----
@@ -176,7 +189,8 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
     // ---- Readiness: never lets one skill's high score compensate for another's missing/weak evidence ----
 
     private InteractiveReadinessConfidence readiness(List<InteractiveSkillProgress> skills,
-            InteractiveDialogueSummary dialogue, List<InteractiveComprehensionEvidence> comprehension) {
+            InteractiveDialogueSummary dialogue, List<InteractiveComprehensionEvidence> comprehension,
+            List<InteractiveSkillProgress> comprehensionInPath) {
         List<String> gaps = new ArrayList<>();
         for (InteractiveSkillProgress skill : skills) {
             if (!skill.hasEvidence()) {
@@ -188,6 +202,17 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
         for (InteractiveComprehensionEvidence c : comprehension) {
             if (!c.hasEvidence()) {
                 gaps.add(c.skill() + ": không có dữ liệu Smart Test");
+            }
+        }
+        // [JLAS-W0193] RC Task 6, rule 4 — an unresolved in-path Reading/Listening batch is named as a gap
+        // exactly like an unresolved Vocabulary/Kanji/Grammar batch above; a high score elsewhere (or a
+        // strong Smart Test baseline for the SAME skill) can never hide it. A comprehension skill that was
+        // simply never attempted in-path is not a gap by itself — the Smart Test baseline above already
+        // covers "no evidence" for these two skills, and RC Task 6 must not force LOW merely because the
+        // learner hasn't yet done any in-path Reading/Listening (rule 5).
+        for (InteractiveSkillProgress c : comprehensionInPath) {
+            if (c.hasEvidence() && !c.resolved()) {
+                gaps.add(c.skill() + ": còn bài đọc/nghe trong lộ trình chưa đạt micro-check");
             }
         }
         if (!gaps.isEmpty()) {
@@ -205,13 +230,26 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
             explanation.append(" Smart Test cho thấy còn yếu ở ")
                     .append(String.join(", ", weakComprehension)).append(".");
         }
+        List<String> inPathComprehensionNames = comprehensionInPath.stream()
+                .filter(InteractiveSkillProgress::hasEvidence)
+                .map(InteractiveSkillProgress::skill)
+                .toList();
+        if (!inPathComprehensionNames.isEmpty()) {
+            // [JLAS-W0193] RC Task 6, rule 3 — surface that fresher in-path evidence exists without deleting
+            // or recomputing the Smart Test baseline sentence above; both stay visible, separately labeled.
+            explanation.append(" Đã có bằng chứng làm bài Đọc/Nghe trong lộ trình cho ")
+                    .append(String.join(", ", inPathComprehensionNames))
+                    .append(" — ưu tiên xem đây là tình trạng hiện tại hơn kết quả Smart Test cũ.");
+        }
         if (!dialogue.allCompleted()) {
             explanation.append(" Hội thoại chưa hoàn thành toàn bộ.");
         }
         explanation.append(' ').append(COMPREHENSION_NOTE);
-        // Deliberately capped at MEDIUM, never HIGH: Reading/Listening evidence always comes from the (possibly
-        // stale) Smart Test snapshot rather than being re-verified inside the path itself, so this response
-        // never claims full confidence while a third of the five JLPT skills rests on that disclosed gap.
+        // Deliberately capped at MEDIUM, never HIGH: even with in-path Reading/Listening evidence now
+        // possible (RC Tasks 1-5), it is not required for every learner's path (Warm-up B only composes
+        // comprehension activities from a proven Smart Test weakness) and is never re-verified against the
+        // full JLPT skill/level range the way Vocabulary/Kanji/Grammar's own micro-check gate is. RC plan
+        // Task 6, rule 5: never claim HIGH merely because Reading/Listening activities now exist.
         return new InteractiveReadinessConfidence("MEDIUM", explanation.toString());
     }
 

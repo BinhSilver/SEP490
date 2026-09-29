@@ -23,10 +23,13 @@
     data = data || {};
     var skills = Array.isArray(data.skills) ? data.skills : [];
     var comprehension = Array.isArray(data.comprehension) ? data.comprehension : [];
+    // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence, separate from the Smart Test baseline
+    // list above. Defaults to [] so an older/placeholder response never throws.
+    var comprehensionInPath = Array.isArray(data.comprehensionInPath) ? data.comprehensionInPath : [];
     return {
       pathId: data.pathId, status: data.status || null, completedAt: data.completedAt || null,
       skills: skills, dialogue: data.dialogue || { totalCount: 0, completedCount: 0, allCompleted: false },
-      comprehension: comprehension,
+      comprehension: comprehension, comprehensionInPath: comprehensionInPath,
       readiness: data.readiness || { level: 'LOW', explanation: '' },
       certificateEligible: !!data.certificateEligible
     };
@@ -68,10 +71,36 @@
   function comprehensionCard(item) {
     var label = COMPREHENSION_LABEL[item.skill] || item.skill;
     var body = item.hasEvidence
-      ? '<p>Smart Test: ' + esc(item.correctPercent) + '% đúng' + (item.weak ? ' — còn yếu' : '') + '.</p>'
+      ? '<p><strong>Đánh giá nền (Smart Test):</strong> ' + esc(item.correctPercent) + '% đúng' +
+        (item.weak ? ' — còn yếu' : '') + '.</p>'
       : '<p>Chưa có dữ liệu Smart Test cho kỹ năng này.</p>';
     return '<article class="ilp-summary-card is-secondary"><h3>' + esc(label) + '</h3>' + body +
       '<p class="ilp-summary-note">' + esc(item.note) + '</p></article>';
+  }
+
+  // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence card. Deliberately reuses the same
+  // first/latest/best + unresolved-batch presentation as skillCard (Vocabulary/Kanji/Grammar) so a failed
+  // in-path comprehension batch is surfaced exactly as visibly as a failed Vocabulary/Kanji/Grammar one,
+  // never hidden inside the baseline comprehensionCard above.
+  function comprehensionInPathCard(item) {
+    var label = COMPREHENSION_LABEL[item.skill] || item.skill;
+    if (!item.hasEvidence) {
+      return '<article class="ilp-summary-card is-pending"><h3>' + esc(label) + ' — trong lộ trình</h3>' +
+        '<p>Chưa làm bài đọc/nghe nào trong lộ trình này.</p></article>';
+    }
+    var status = item.resolved
+      ? '<p class="ilp-summary-status is-ok">Đã đạt micro-check trong lộ trình.</p>'
+      : '<p class="ilp-summary-status is-weak">Còn bài chưa đạt — xem chi tiết bên dưới.</p>';
+    var unresolved = (item.unresolved || []).length
+      ? '<ul class="ilp-summary-unresolved">' + item.unresolved.map(unresolvedItem).join('') + '</ul>' : '';
+    return '<article class="ilp-summary-card"><h3>' + esc(label) + ' — trong lộ trình</h3>' +
+      '<dl class="ilp-summary-scores">' +
+      '<div><dt>Lần đầu</dt><dd>' + scoreText(item.firstScore) + '</dd></div>' +
+      '<div><dt>Gần nhất</dt><dd>' + scoreText(item.latestScore) + '</dd></div>' +
+      '<div><dt>Tốt nhất</dt><dd>' + scoreText(item.bestScore) + '</dd></div>' +
+      '</dl>' + status + unresolved +
+      '<p class="ilp-summary-note">Đây là bằng chứng mới từ chính lộ trình, khác với đánh giá nền Smart Test ở trên.</p>' +
+      '</article>';
   }
 
   function renderReadiness(readiness) {
@@ -96,9 +125,12 @@
 
   function render(data) {
     var v = viewModel(data);
+    // In-path comprehension cards render first (more actionable "what I've done"), the Smart Test baseline
+    // cards after (historical context) — both always visible together, never one replacing the other.
     return '<section class="ilp-summary">' +
       '<h1>Tổng kết lộ trình</h1>' +
       '<div class="ilp-summary-grid">' + v.skills.map(skillCard).join('') + renderDialogue(v.dialogue) +
+      v.comprehensionInPath.map(comprehensionInPathCard).join('') +
       v.comprehension.map(comprehensionCard).join('') + '</div>' +
       renderReadiness(v.readiness) + renderActions(v) + '</section>';
   }
@@ -130,7 +162,8 @@
 
   return {
     viewModel: viewModel, skillCard: skillCard, renderDialogue: renderDialogue,
-    comprehensionCard: comprehensionCard, renderReadiness: renderReadiness, renderActions: renderActions,
+    comprehensionCard: comprehensionCard, comprehensionInPathCard: comprehensionInPathCard,
+    renderReadiness: renderReadiness, renderActions: renderActions,
     render: render, error: error, mount: mount
   };
 });

@@ -42,7 +42,7 @@ class InteractiveLearningCertificateControllerTest {
         return new InteractivePathSummaryResponse(pathId, eligible ? "COMPLETED" : "ACTIVE", completedAt,
                 List.of(), new InteractiveDialogueSummary(0, 0, true),
                 List.of(new InteractiveComprehensionEvidence("READING", false, null, null, null, false, "note")),
-                new InteractiveReadinessConfidence("LOW", "explanation"), eligible);
+                List.of(), new InteractiveReadinessConfidence("LOW", "explanation"), eligible);
     }
 
     @Test void rendersForTheOwnerOfAnEligiblePath() {

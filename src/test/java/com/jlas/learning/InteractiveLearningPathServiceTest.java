@@ -254,6 +254,78 @@ class InteractiveLearningPathServiceTest {
         assertEquals(12L, result.nextAvailablePackageId());
     }
 
+    // ---- RC Task 6: comprehension (Reading/Listening) participates in warm-up completion generically ----
+    // Task 9's allWarmUpActivitiesDone/cascadeUnlock/isActivityDone are activity-type-agnostic (they only
+    // special-case DIALOGUE's terminal state); these tests verify that generic support already covers
+    // READING/LISTENING with zero production changes, rather than assuming it.
+
+    @Test void comprehensionOnlyWarmUpPackageCompletesWhenBothReadingAndListeningArePassed() {
+        var pkg = warmUpPackage(11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.READING, LearningActivityType.LISTENING);
+        activities.forEach(a -> a.setActivityState(LearningActivityState.PASSED));
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.status());
+        assertTrue(result.justCompleted());
+    }
+
+    @Test void mixedWarmUpPackageWithVocabularyAndReadingCompletesWhenBothArePassed() {
+        var pkg = warmUpPackage(11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY, LearningActivityType.READING);
+        activities.forEach(a -> a.setActivityState(LearningActivityState.PASSED));
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.status());
+        assertTrue(result.justCompleted());
+    }
+
+    @Test void warmUpPackageDoesNotCompleteWhileItsOwnListeningActivityIsStillUnresolved() {
+        var pkg = warmUpPackage(11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY, LearningActivityType.LISTENING);
+        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.COOLDOWN); // Listening failed 3rd attempt
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        var result = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.IN_PROGRESS, result.status());
+        verifyNoInteractions(creditService);
+        verifyNoInteractions(streakRepository);
+    }
+
+    @Test void packageScoreExcludesAPassedComprehensionActivityEvenWithAScoredSession() {
+        var pkg = warmUpPackage(11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY, LearningActivityType.READING);
+        activities.forEach(a -> a.setActivityState(LearningActivityState.PASSED));
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        session(activities.get(0).getId(), "VOCAB_MICRO_CHECK", 8, 10); // Vocabulary: 80%
+        // Reading has its own scored, passing session on record; the score formula must never read it at all.
+        lenient().when(quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(
+                activities.get(1).getId(), "READING_MICRO_CHECK", "SUBMITTED", true))
+                .thenReturn(List.of(quizSession(10, 10))); // Reading: 100%, must NOT count
+
+        var result = service.packageDetail(7L, 11L);
+
+        // If Reading leaked into the formula this would be round((80+100)/2)=90. It must stay 80.
+        assertEquals(80, result.scorePercent());
+        verify(quizSessions, never()).findByActivityIdAndQuizTypeAndStatusAndPassed(
+                activities.get(1).getId(), "READING_MICRO_CHECK", "SUBMITTED", true);
+    }
+
     // ---- Task 8: score aggregation ----
 
     @Test void scoreIsPooledCorrectTotalAcrossBatchesNotAverageOfPercentages() {
