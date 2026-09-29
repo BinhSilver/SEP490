@@ -62,6 +62,12 @@ upload:
     audio: ${AUDIO_UPLOAD_PATH:uploads/audio/}
     thumbnail: ${THUMBNAIL_UPLOAD_PATH:uploads/thumbnails/}
 
+# Audio giáo trình số hoá (content_audio.audio_url là đường dẫn tương đối trong thư mục này).
+# Khác với upload.path.audio (audio người dùng tải lên). Phục vụ tại /uploads/content-audio/**.
+content:
+  audio:
+    path: ${CONTENT_AUDIO_PATH:uploads/content-audio/}
+
 ffmpeg:
   bin:
     path: ${FFMPEG_BIN_PATH:ffmpeg}
@@ -111,6 +117,18 @@ openrouter:
       model: ${OPENROUTER_SHADOWING_EXERCISE_MODEL:${openrouter.shadowing.model}}
   temperature: ${OPENROUTER_TEMPERATURE:0}
   top-p: ${OPENROUTER_TOP_P:0.9}
+
+# ── Gemini (cá nhân hoá learning path) ──────────────────────────────────────
+# Key nằm trong application-local.yaml dưới tên `gemini-api-key` (hoặc env GEMINI_API_KEY);
+# không khai báo ở đây để tránh ghi đè key thật bằng chuỗi rỗng.
+gemini:
+  api:
+    url: ${GEMINI_API_URL:https://generativelanguage.googleapis.com/v1beta}
+  model: ${GEMINI_MODEL:gemini-3.8-flash}
+  temperature: ${GEMINI_TEMPERATURE:0}
+  max-output-tokens: ${GEMINI_MAX_OUTPUT_TOKENS:4096}
+  json:
+    max-retries: ${GEMINI_JSON_MAX_RETRIES:2}
 
 # AI Call (kaiwa): Fish Audio TTS, runtime phiên hội thoại và hạn mức (JLAS-W0199 / W0205).
 fish:
@@ -193,7 +211,22 @@ moderation:
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
   level:
     com.jlas: DEBUG
     org.hibernate.SQL: WARN
     org.springframework.security: WARN
+
+# [JLAS-W0193] Off until all V2 activity pages are released.
+learning:
+  interactive-v2:
+    enabled: ${LEARNING_INTERACTIVE_V2_ENABLED:false}
+  # [JLAS-W0193] RC Task 7 — no real Mock Test owner contract exists in this codebase, so destination-url
+  # stays empty (BLOCKED_INTEGRATION) by default. If a real contract ever ships, set destination-url plus
+  # approved-origins here (or via env) — ConfiguredMockTestDestinationProvider still rejects anything that
+  # is not an internal relative route or an origin on this exact list; never accept an unapproved URL.
+  mock-test:
+    destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:}
+    approved-origins: ${LEARNING_MOCK_TEST_APPROVED_ORIGINS:}

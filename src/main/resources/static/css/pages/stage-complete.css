@@ -1,0 +1,72 @@
+/* Stage completion page — congratulations + certificate opt-in (JLAS-W0108). */
+
+.stage-complete-body {
+  --sc-primary: var(--color-primary);
+  --sc-on-primary: var(--color-on-primary);
+  --sc-text: var(--color-on-surface);
+  --sc-muted: var(--color-on-surface-variant);
+  --sc-border: var(--color-outline-variant);
+  --sc-surface: var(--color-surface-lowest);
+}
+
+.stage-complete-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 56px;
+}
+
+.sc-root { display: flex; justify-content: center; min-height: 40vh; }
+
+.sc-card {
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+  padding: 40px 32px;
+  border-radius: 16px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-surface);
+  color: var(--sc-text);
+}
+
+.sc-card--loading,
+.sc-card--error { color: var(--sc-muted); }
+
+.sc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sc-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sc-card h1 { margin: 16px 0; font-size: 1.5rem; }
+
+.sc-cert-offer {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.sc-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--sc-text);
+  border: 1px solid var(--sc-border);
+  margin-top: 24px;
+}
+
+.sc-button--primary {
+  background: var(--sc-primary);
+  color: var(--sc-on-primary);
+  border-color: transparent;
+}

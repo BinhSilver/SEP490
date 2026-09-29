@@ -1,6 +1,11 @@
 @import url("/css/components/dropdowns.css");
 @import url("/css/components/user-menu.css?v=20260825-unified-bell");
 
+@import url("/css/components/pullcord.css");
+
+html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
+#jlabBaseLearningPathLink[aria-disabled="true"] { background:transparent; border:0; color:var(--color-on-surface-variant); opacity:.55; cursor:not-allowed; }
+
 /*
  * JLAS shared feature shell.
  * Load this file after every page/module stylesheet.
@@ -11,6 +16,7 @@
 
 #jlabBaseDocument {
   overflow-x: clip !important;
+  scrollbar-gutter: stable;
 }
 
 #jlabBasePage {
@@ -58,6 +64,20 @@
 }
 
 #jlabBaseHeader {
+  /* Navigation owns its tokens: page palettes must not change its appearance. */
+  --color-primary: #7c3aed;
+  --color-primary-container: #6d28d9;
+  --color-on-primary: #ffffff;
+  --color-primary-fixed: #f3eaff;
+  --color-surface-lowest: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-low: #f8fafc;
+  --color-surface-mid: #f1f5f9;
+  --color-surface-high: #e2e8f0;
+  --color-surface-container: #f1f5f9;
+  --color-on-surface: #172033;
+  --color-on-surface-variant: #64748b;
+  --color-outline-variant: #e2e8f0;
   position: fixed;
   top: 10px;
   right: clamp(12px, 2vw, 32px);
@@ -67,12 +87,31 @@
   display: flex;
   align-items: center;
   color: var(--color-on-surface, #161d1f);
-  /* The global navigation is a consistent white surface. The landing page
-     deliberately overrides this to transparent so it can sit on its hero. */
-  background: #fff;
+  background: var(--color-surface-lowest);
   border: 1px solid var(--color-outline-variant, #cbc4d2);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, 0.08));
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(22, 29, 31, 0.08);
+}
+
+html[data-theme="dark"] #jlabBaseHeader {
+  --color-primary: #c084fc;
+  --color-primary-container: #a855f7;
+  --color-on-primary: #20102e;
+  --color-primary-fixed: #292239;
+  --color-surface-lowest: #171b26;
+  --color-surface: #10131d;
+  --color-surface-low: #10131d;
+  --color-surface-mid: #202534;
+  --color-surface-high: #2a3041;
+  --color-surface-container: #202534;
+  --color-on-surface: #f5f6fa;
+  --color-on-surface-variant: #a0aec0;
+  --color-outline-variant: #2b3040;
+}
+
+#jlabBaseHeader :is(#jlabBaseExamsMenu,#jlabBaseToolsMenu,#jlabBaseAccountMenu,#jlabBaseNotificationPanel) {
+  background:var(--color-surface-lowest);
+  color:var(--color-on-surface);
 }
 
 #jlabBaseHeaderInner {
@@ -116,6 +155,7 @@
 
 #jlabBaseHomeLink,
 #jlabBaseLearningPathLink,
+#jlabBaseTextbooksLink,
 #jlabBaseLookupLink,
 #jlabBaseGameLink,
 #jlabBaseAboutLink {
@@ -139,11 +179,13 @@
 
 #jlabBaseHomeLink:hover,
 #jlabBaseLearningPathLink:hover,
+#jlabBaseTextbooksLink:hover,
 #jlabBaseLookupLink:hover,
 #jlabBaseGameLink:hover,
 #jlabBaseAboutLink:hover,
 #jlabBaseHomeLink[aria-current="page"],
 #jlabBaseLearningPathLink[aria-current="page"],
+#jlabBaseTextbooksLink[aria-current="page"],
 #jlabBaseLookupLink[aria-current="page"],
 #jlabBaseGameLink[aria-current="page"] {
   color: var(--color-primary, #4f378a);
@@ -151,6 +193,7 @@
 
 #jlabBaseHomeLink[aria-current="page"]::after,
 #jlabBaseLearningPathLink[aria-current="page"]::after,
+#jlabBaseTextbooksLink[aria-current="page"]::after,
 #jlabBaseLookupLink[aria-current="page"]::after,
 #jlabBaseGameLink[aria-current="page"]::after {
   content: "";
@@ -198,6 +241,7 @@
 #jlabBaseRegisterLink:focus-visible,
 #jlabBaseHomeLink:focus-visible,
 #jlabBaseLearningPathLink:focus-visible,
+#jlabBaseTextbooksLink:focus-visible,
 #jlabBaseLookupLink:focus-visible,
 #jlabBaseGameLink:focus-visible,
 #jlabBaseAboutLink:focus-visible,
@@ -205,6 +249,7 @@
 #jlabBaseFlashcardLink:focus-visible,
 #jlabBaseQuizLink:focus-visible,
 #jlabBaseShadowingLink:focus-visible,
+#jlabBaseSmartTestLink:focus-visible,
 #jlabBaseProfileLink:focus-visible,
 #jlabBaseProgressLink:focus-visible,
 #jlabBaseAdminLink:focus-visible,
@@ -280,6 +325,7 @@
 #jlabBaseFlashcardLink,
 #jlabBaseQuizLink,
 #jlabBaseShadowingLink,
+#jlabBaseSmartTestLink,
 #jlabBaseProfileLink,
 #jlabBaseProgressLink,
 #jlabBaseAdminLink,
@@ -306,6 +352,7 @@
 #jlabBaseFlashcardLink:hover,
 #jlabBaseQuizLink:hover,
 #jlabBaseShadowingLink:hover,
+#jlabBaseSmartTestLink:hover,
 #jlabBaseProfileLink:hover,
 #jlabBaseProgressLink:hover,
 #jlabBaseAdminLink:hover,
@@ -315,6 +362,7 @@
 #jlabBaseFlashcardLink[aria-current="page"],
 #jlabBaseQuizLink[aria-current="page"],
 #jlabBaseShadowingLink[aria-current="page"],
+#jlabBaseSmartTestLink[aria-current="page"],
 #jlabBaseProgressLink[aria-current="page"],
 #jlabBaseAdminLink[aria-current="page"] {
   color: var(--color-primary, #4f378a);
@@ -750,12 +798,14 @@
 
   #jlabBasePrimaryNav {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
   }
 
   #jlabBaseHomeLink,
   #jlabBaseLearningPathLink,
+  #jlabBaseTextbooksLink,
+  #jlabBaseLookupLink,
   #jlabBaseGameLink,
   #jlabBaseToolsWrapper {
     display: flex;
@@ -764,6 +814,8 @@
 
   #jlabBaseHomeLabel,
   #jlabBaseLearningPathLabel,
+  #jlabBaseTextbooksLabel,
+  #jlabBaseLookupLabel,
   #jlabBaseGameLabel,
   #jlabBaseToolsLabel,
   #jlabBaseAboutLabel {
@@ -814,6 +866,183 @@
   #jlabBaseNotice {
     right: 12px;
     bottom: 12px;
+  }
+}
+
+/* =============================================================================
+ * [JLAS] Nav "Học tập"/"Tạo đề" (Tạo đề chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
+ * Icon render bằng inline SVG (khuôn của fa712cb, xem replaceShellIcons trong jlab-base-shell.js),
+ * không dùng Font Awesome ::before glyph; kích thước theo .jlab-base-icon / .jlab-base-icon--chevron.
+ * ============================================================================= */
+#jlabBaseExamsWrapper { position:relative; }
+#jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; cursor:pointer; }
+#jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
+#jlabBaseExamsChevron { transition: transform 180ms ease; }
+#jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
+#jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:rgba(255,255,255,.96); box-shadow:0 10px 40px rgba(22,29,31,.14); }
+#jlabBaseExamsMenu[hidden] { display:none; }
+#jlabBaseExamJlptItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; text-align:left; opacity:.6; cursor:default; }
+#jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
+#jlabBaseExamsButton:focus-visible,#jlabBaseExamJlptItem:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+@media(max-width:560px) { #jlabBaseExamsWrapper{display:flex;justify-content:center} #jlabBaseExamsLabel{display:none} #jlabBaseExamsMenu{position:fixed;top:108px;left:12px;right:12px;min-width:0;max-height:calc(100dvh - 128px);overflow-y:auto} }
+
+@media(max-width:560px){#jlabBaseAboutLabel{display:none}#jlabBaseAboutLink::before{content:"\f05a";font-family:"Font Awesome 6 Free";font-weight:900}}
+
+#jlabBaseTestBuilderWrapper {
+  position: relative;
+}
+
+/* RULE CHUNG cho nav theo role (NAV_ROLES trong jlab-base-shell.js) — KHÔNG phải rule per-id như xung quanh:
+ * áp cho MỌI mục con trực tiếp của nav bị syncNavRoles() đặt `hidden`, hiện tại là Tạo đề / Game / Công cụ và
+ * mọi mục khai báo về sau. Cần thiết vì các rule per-id (`display: inline-flex`, mobile `display: flex`) đè
+ * `[hidden]` của trình duyệt; specificity (1,1,0) của rule này thắng per-id (1,0,0). ĐỪNG xoá dù thấy trùng. */
+#jlabBasePrimaryNav > [hidden] {
+  display: none;
+}
+
+#jlabBaseTestBuilderWrapper[hidden] {
+  display: none; /* bắt buộc: rule mobile `display: flex` bên dưới sẽ đè [hidden] của UA */
+}
+
+#jlabBaseTestBuilderButton {
+  min-width: max-content;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+#jlabBaseTestBuilderButton:hover,
+#jlabBaseTestBuilderButton[aria-expanded="true"],
+#jlabBaseTestBuilderButton[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+}
+
+#jlabBaseTestBuilderButton:focus-visible,
+#jlabBaseSmartTestItem:focus-visible,
+#jlabBaseJlptItem:focus-visible {
+  outline: 2px solid var(--color-primary, #4f378a);
+  outline-offset: 3px;
+}
+
+#jlabBaseTestBuilderChevron {
+  transition: transform 180ms ease;
+}
+
+#jlabBaseTestBuilderButton[aria-expanded="true"] #jlabBaseTestBuilderChevron {
+  transform: rotate(180deg);
+}
+
+#jlabBaseTestBuilderMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 2147483002;
+  min-width: 208px;
+  padding: 8px;
+  display: grid;
+  gap: 3px;
+  color: var(--color-on-surface, #161d1f);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(22, 29, 31, 0.14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-sizing: border-box;
+}
+
+#jlabBaseTestBuilderMenu[hidden] {
+  display: none;
+}
+
+#jlabBaseSmartTestItem,
+#jlabBaseJlptItem {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+#jlabBaseSmartTestItem:hover,
+#jlabBaseJlptItem:hover,
+#jlabBaseSmartTestItem[aria-current="page"],
+#jlabBaseJlptItem[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+}
+
+/* Item chưa có trang: vô hiệu (theo tiền lệ "Tra cứu" aria-disabled), hover không đổi màu, nhãn "sắp có" */
+#jlabBaseSmartTestItem[aria-disabled="true"],
+#jlabBaseJlptItem[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+#jlabBaseSmartTestItem[aria-disabled="true"]:hover,
+#jlabBaseJlptItem[aria-disabled="true"]:hover {
+  color: var(--color-on-surface-variant, #494551);
+  background: transparent;
+}
+
+#jlabBaseSmartTestLabel,
+#jlabBaseJlptLabel {
+  white-space: nowrap;
+}
+
+#jlabBaseTestBuilderMenu .nav-soon {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-on-surface-variant, #494551);
+  background: var(--color-surface-container, #e8eff1);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  /* Số cột = số mục đang hiện (syncNavRoles đặt --jlab-nav-count): learner/ADMIN vẫn 7 cột như cũ, CONTENT_CREATOR 8 */
+  #jlabBasePrimaryNav[data-nav-count] {
+    grid-template-columns: repeat(var(--jlab-nav-count, 7), minmax(0, 1fr));
+  }
+
+  #jlabBaseTestBuilderWrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  #jlabBaseTestBuilderLabel {
+    display: none;
+  }
+
+  #jlabBaseTestBuilderMenu {
+    position: fixed;
+    top: 108px;
+    right: 12px;
+    left: 12px;
+    min-width: 0;
+    max-height: calc(100dvh - 128px);
+    overflow-y: auto;
   }
 }
 

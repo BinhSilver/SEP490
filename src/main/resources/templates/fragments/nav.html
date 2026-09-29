@@ -10,6 +10,21 @@
         <i class="fa-solid fa-route" aria-hidden="true"></i>
         <span>Onyomi</span>
     </a>
+    <a th:href="@{/textbooks}" th:classappend="${active == 'textbooks'} ? ' is-active'">
+        <i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Giáo trình</span>
+    </a>
+    <div class="dropdown nav-tools-dropdown">
+        <button type="button" class="nav-tools-trigger" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
+                th:classappend="${active == 'smart-test' or active == 'jlpt' or active == 'learning-path'} ? ' is-active'">
+            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i><span>Học tập</span>
+            <i class="fa-solid fa-chevron-down nav-tools-trigger__chevron" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown__menu nav-tools-menu" role="menu">
+            <a th:href="@{/survey}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-brain" aria-hidden="true"></i> Smart Test</a>
+            <button type="button" class="dropdown__item" role="menuitem" aria-disabled="true" title="Sắp có"><i class="fa-solid fa-certificate" aria-hidden="true"></i> JLPT <span class="nav-soon">sắp có</span></button>
+            <a th:href="@{/learning/path}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-route" aria-hidden="true"></i> Lộ Trình học</a>
+        </div>
+    </div>
     <a th:href="@{/dictionary/index.html}" th:classappend="${active == 'dictionary'} ? ' is-active'" title="Tra cứu từ điển">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <span>Tra cứu</span>
