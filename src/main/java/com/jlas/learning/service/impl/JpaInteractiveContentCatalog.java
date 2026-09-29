@@ -34,12 +34,12 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         var links=vocabIds.isEmpty()?List.<com.jlas.dictionary.entity.VocabularyKanji>of():vocabularyKanji.findByVocabularyIdIn(vocabIds);
         List<Long> kanjiIds=links.stream().map(v->v.getKanji().getId()).distinct().sorted().toList();
         if(kanjiIds.isEmpty()) gap(gaps,key,"MISSING_KANJI"); else {
-            if(links.stream().anyMatch(link->blank(link.getKanji().getCharacter())||blank(link.getKanji().getMeaningVi()))) gap(gaps,key,"KANJI_NOT_READY");
+            if(links.stream().anyMatch(link->blank(link.getKanji().getCharacter())||(blank(link.getKanji().getMeaningVi())&&blank(link.getKanji().getHanViet())))) gap(gaps,key,"KANJI_NOT_READY");
             var covered=kanjiReadings.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(kanjiIds).stream().map(r->r.getKanji().getId()).collect(Collectors.toSet());
             if(!covered.containsAll(kanjiIds)) gap(gaps,key,"KANJI_READING_NOT_READY");
         }
         var grammar=grammarPoints.findByLessonIdOrderByOrderIndexAsc(lessonId); List<Long> grammarIds=grammar.stream().map(g->g.getId()).distinct().toList();
-        if(grammarIds.isEmpty()) gap(gaps,key,"MISSING_GRAMMAR"); if(grammarIds.size()>3) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
+        if(grammarIds.isEmpty()) gap(gaps,key,"MISSING_GRAMMAR"); if(grammarIds.size()>12) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
         if(grammar.stream().anyMatch(g->blank(g.getPattern())||blank(g.getMeaning())||(blank(g.getExample())&&contentItems.findGrammarExamples(g.getId(),lessonId).isEmpty()))) gap(gaps,key,"GRAMMAR_EXAMPLE_NOT_READY");
         var dialogue=dialogueLines.findByLessonId(lessonId); List<Long> dialogueIds=dialogue.stream().map(d->d.getContentItemId()).distinct().toList();
         if(dialogueIds.isEmpty()) gap(gaps,key,"MISSING_DIALOGUE"); else {
