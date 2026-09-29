@@ -29,6 +29,7 @@ public class ProcessingJobService {
     @Autowired private FfmpegService ffmpegService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
+    @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
     @Autowired private VideoModerationService videoModerationService;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
@@ -274,23 +275,15 @@ public class ProcessingJobService {
 
         updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart, null);
 
+        // Resume only sends unfinished lines (workItems); batches run through the shared parallel AI pool.
         int batchSize = resolveAiBatchSize(workItems.size());
-        int totalRounds = (workItems.size() + batchSize - 1) / batchSize;
+        int totalBatches = (workItems.size() + batchSize - 1) / batchSize;
         System.out.println("[Upload AI] " + workItems.size() + " lines  "
-                + totalRounds + " round(s) × ~" + batchSize);
+                + totalBatches + " batch(es) × ~" + batchSize);
 
-        for (int i = 0, round = 1; i < workItems.size(); i += batchSize, round++) {
-            if (!isActiveRun(videoId, runId)) return;
-
-            int end = Math.min(i + batchSize, workItems.size());
-            List<Subtitle> batch = workItems.subList(i, end);
-            List<String> texts = batch.stream().map(sub -> sub.getText()).toList();
-            System.out.println("[Upload AI] round " + round + "/" + totalRounds
-                    + " lines " + (i + 1) + "–" + end);
-
-            boolean wantFurigana = Boolean.TRUE.equals(video.getGenerateFurigana());
-            List<Map<String, String>> results =
-                    openRouterService.processJapaneseBatch(texts, lang, wantFurigana);
+        aiBatchProcessor.process(workItems, batchSize, lang,
+                Boolean.TRUE.equals(video.getGenerateFurigana()), false,
+                () -> isActiveRun(videoId, runId), (batch, results, end) -> {
             if (!isActiveRun(videoId, runId)) return;
 
             for (int j = 0; j < batch.size(); j++) {
@@ -310,7 +303,7 @@ public class ProcessingJobService {
 
             int progress = progressStart + (int) ((end / (double) workItems.size()) * progressRange);
             updateProgress(video, ProcessingStep.AI_PROCESSING, progress, null);
-        }
+        });
     }
 
     private void finishProcessing(Video video, Long videoId) {
@@ -340,19 +333,12 @@ public class ProcessingJobService {
         return progress == null ? 0 : progress;
     }
 
-    /**
-     * Ít câu: 1 lượt theo batch config.
-     * Cỡ podcast (≤100): 2 lượt. Dài hơn: 3 lượt.
-     */
+    /** Bound each AI request so batches can run concurrently without oversized responses. */
     private int resolveAiBatchSize(int total) {
         if (total <= 0) {
             return Math.max(1, aiBatchSize);
         }
-        if (total <= 40) {
-            return Math.min(Math.max(1, aiBatchSize), total);
-        }
-        int rounds = total <= 100 ? 2 : 3;
-        return (int) Math.ceil(total / (double) rounds);
+        return Math.min(Math.max(4, aiBatchSize), 16);
     }
 
     private String lang(Video video) {

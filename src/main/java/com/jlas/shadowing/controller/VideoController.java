@@ -33,8 +33,9 @@ public class VideoController {
             @RequestParam(required = false) String clientId,
             @RequestParam(required = false, defaultValue = "newest") String sort,
             @RequestParam(required = false) Boolean favoritesOnly,
-            @RequestParam(required = false, defaultValue = "public") String scope) {
-        return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope));
+            @RequestParam(required = false, defaultValue = "public") String scope,
+            @RequestParam(required = false) String level) {
+        return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope, level));
     }
 
     @GetMapping("/categories")

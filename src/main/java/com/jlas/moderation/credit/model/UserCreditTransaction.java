@@ -19,6 +19,8 @@ public final class UserCreditTransaction {
         REFUND,
         /** A dictionary approval was revised to rejected; the reward is taken back. */
         WORD_CONTRIBUTION_REVOKED,
-        GAME_ITEM_PURCHASE
+        GAME_ITEM_PURCHASE,
+        /** Một lượt AI Call trả bằng CP sau khi hết hạn mức (JLAS-W0199); lỗi AI thì hoàn bằng REFUND. */
+        AI_CALL_TURN
     }
 }

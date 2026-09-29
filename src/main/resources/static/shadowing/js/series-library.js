@@ -24,7 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
         seriesGrid.innerHTML = '<p class="lead">Series đang tải...</p>';
         const res = await fetch(url);
         if (!res.ok) { seriesGrid.innerHTML = '<p class="lead">Không tải được series.</p>'; return; }
-        const rows = await res.json();
+        const level = document.getElementById('level-filter')?.value || '';
+        const rows = (await res.json()).filter(s => !level || s.estimatedLevel === level);
         seriesGrid.innerHTML = '';
         if (seriesEmptyState) seriesEmptyState.hidden = rows.length > 0;
         rows.forEach(renderSeries);
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSeries(s) {
         const card = document.createElement('article');
         card.className = 'store-utility-card video-card series-card';
-        const level = s.estimatedLevel ? `<span class="badge badge-primary">${esc(s.estimatedLevel)} · ${s.levelSource === 'AI' ? 'AI' : 'người tạo'}</span>` : '<span class="badge badge-category">Chưa xác định trình độ</span>';
+        const level = s.estimatedLevel ? `<span class="badge badge-primary">${esc(s.estimatedLevel)}</span>` : '<span class="badge badge-category">Chưa xác định trình độ</span>';
         card.innerHTML = `<div class="series-card-icon"><i class="fa-solid fa-list-ul"></i></div>
             <div class="video-card-title">${esc(s.title)}</div>
             <p class="caption series-description">${esc(s.description || 'Series luyện nghe shadowing tiếng Nhật')}</p>
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     document.getElementById('search-input')?.addEventListener('input', () => { if (!seriesGrid.hidden) { clearTimeout(window.seriesSearchTimer); window.seriesSearchTimer = setTimeout(loadSeries, 300); } });
     document.getElementById('sort-select')?.addEventListener('change', () => { if (!seriesGrid.hidden) loadSeries(); });
+    document.getElementById('level-filter')?.addEventListener('change', () => { if (!seriesGrid.hidden) loadSeries(); });
     createBtn?.addEventListener('click', openCreate);
     emptyCreateBtn?.addEventListener('click', openCreate);
     document.getElementById('series-dialog-close')?.addEventListener('click', () => dialog.close());

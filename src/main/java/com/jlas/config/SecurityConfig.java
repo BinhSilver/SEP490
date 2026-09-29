@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
                         .requestMatchers(
                                 "/shadowing", "/shadowing/", "/shadowing/upload",
-                                "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/practice/**",
+                                "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/prepare/**", "/shadowing/practice/**",
                                 "/shadowing/exercise/**", "/shadowing/player/**", "/shadowing/series/**",
                                 "/shadowing/conversation/**", "/create/**", "/editor/**", "/player/**",
                                 "/api/videos/**", "/api/series/**", "/api/youtube/**",

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260924-pause-resume">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260929-merge-ti">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
@@ -84,9 +84,18 @@
                         <p id="exercise-instruction">Sắp đến câu có cờ. Cố lên, nghe thật kỹ nhé!</p>
                     </div>
                     <p id="exercise-prompt" lang="ja" aria-live="polite" hidden></p>
+                    <div id="exercise-choices" role="group" aria-label="Chọn câu trả lời" hidden></div>
                     <textarea id="exercise-answer" rows="2" maxlength="2000" lang="ja" autocomplete="off" spellcheck="false" disabled hidden placeholder="Nhập từ hoặc cụm từ còn thiếu…"></textarea>
+                    <div id="exercise-partial-feedback" role="status" aria-live="polite" hidden>
+                        <strong>Phần bạn vừa nghe</strong>
+                        <p id="exercise-partial-line" lang="ja"></p>
+                        <small>Chữ xanh đã đúng; chữ đỏ cần nghe lại. Dấu … là phần còn thiếu.</small>
+                    </div>
+                    <p id="exercise-explanation" hidden></p>
                     <div id="exercise-actions" hidden>
                         <button id="exercise-submit" type="button" disabled><i class="fa-solid fa-check"></i> Kiểm tra</button>
+                        <button id="exercise-retry" type="button" hidden><i class="fa-solid fa-headphones"></i> Thử lại</button>
+                        <button id="exercise-reveal" type="button" hidden>Hiện đáp án</button>
                         <button id="exercise-next" type="button" hidden>Tiếp tục video <i class="fa-solid fa-play"></i></button>
                     </div>
                     <p id="exercise-status" aria-live="polite"></p>
@@ -106,6 +115,7 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
-<script src="/shadowing/js/exercise.js?v=20260924-pause-resume"></script>
+<script src="/shadowing/js/watch-tracker.js?v=20260929-view-30s"></script>
+<script src="/shadowing/js/exercise.js?v=20260929-merge-ti"></script>
 </body>
 </html>

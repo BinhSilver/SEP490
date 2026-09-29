@@ -16,6 +16,8 @@ import com.jlas.shadowing.repository.TagRepository;
 import com.jlas.shadowing.repository.VideoFavoriteRepository;
 import com.jlas.shadowing.repository.VideoRatingRepository;
 import com.jlas.shadowing.repository.VideoRepository;
+import com.jlas.shadowing.repository.VideoViewRepository;
+import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.VideoWatchSessionRepository;
 import com.jlas.shadowing.util.NullSafe;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,8 @@ public class VideoService {
     @Autowired private VideoRatingRepository ratingRepository;
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
+    @Autowired private VideoViewRepository videoViews;
+    @Autowired private ShadowingQuestionBankRepository questionBank;
     @Autowired private YoutubeImportService youtubeImportService;
     @Autowired private YoutubeImportJobService youtubeImportJobService;
     @Autowired private ContentModerationPort moderationPort;
@@ -243,9 +247,10 @@ public class VideoService {
 
     /**
      * @param scope public | my | all (legacy). Default public.
+     * @param level N5–N1; blank means every level.
      */
     public List<VideoSummaryDto> search(String query, String tag, String category, String clientId,
-                                        String sort, Boolean favoritesOnly, String scope) {
+                                        String sort, Boolean favoritesOnly, String scope, String level) {
         String sc = scope == null || scope.isBlank() ? "public" : scope.trim().toLowerCase(Locale.ROOT);
         Long me = CurrentUser.currentUserId().orElse(null);
         String catFilter = category != null && !category.isBlank() ? category : tag;
@@ -314,6 +319,11 @@ public class VideoService {
         List<VideoSummaryDto> summaries = videos.stream()
                 .map(v -> toSummary(v, clientId, favoriteIds, userRatings, currentUser))
                 .collect(Collectors.toList());
+        if (level != null && !level.isBlank()) {
+            summaries = summaries.stream()
+                    .filter(dto -> level.trim().equalsIgnoreCase(dto.getEstimatedLevel()))
+                    .collect(Collectors.toList());
+        }
         return sortSummaries(summaries, sort);
     }
 
@@ -583,6 +593,20 @@ public class VideoService {
         videoRepository.save(video);
     }
 
+    /** Falls back to the level chosen (or suggested by AI) on the question preparation page. */
+    private void applyPreparedLevel(VideoSummaryDto dto, Long videoId) {
+        String[] levels = questionBank.jlptLevels(videoId);
+        if (levels == null) return;
+        String selected = levels[0], suggested = levels[1];
+        if (selected != null && !selected.isBlank()) {
+            dto.setEstimatedLevel(selected.toUpperCase(Locale.ROOT));
+            dto.setLevelSource(selected.equalsIgnoreCase(suggested) ? "AI" : "CREATOR");
+        } else if (suggested != null && !suggested.isBlank()) {
+            dto.setEstimatedLevel(suggested.toUpperCase(Locale.ROOT));
+            dto.setLevelSource("AI");
+        }
+    }
+
     private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds,
                                       Map<Long, Integer> userRatings) {
         return toSummary(v, clientId, favoriteIds, userRatings, CurrentUser.currentUserId().orElse(null));
@@ -606,11 +630,12 @@ public class VideoService {
                     dto.setEstimatedLevel(level.toUpperCase(Locale.ROOT));
                     dto.setLevelSource("CREATOR");
                 });
+        if (dto.getEstimatedLevel() == null) applyPreparedLevel(dto, v.getId());
         dto.setSubtitleCount(subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(v.getId()).size());
         dto.setOwnerId(v.getOwnerId());
         dto.setVisibility(v.getVisibility() != null ? v.getVisibility().name() : VideoVisibility.PRIVATE.name());
         dto.setOwnedByMe(currentUserId != null && currentUserId.equals(v.getOwnerId()));
-        dto.setViewCount((int) watchSessionRepository.countViewsByVideoId(v.getId()));
+        dto.setViewCount(videoViews.viewCount(v.getId()));
         dto.setAvgRating(v.getAvgRating());
         dto.setRatingCount(v.getRatingCount() != null ? v.getRatingCount() : 0);
         dto.setCommentCount(commentRepository.countByVideoId(v.getId()));

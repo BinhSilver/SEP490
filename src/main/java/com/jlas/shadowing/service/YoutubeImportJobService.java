@@ -46,6 +46,7 @@ public class YoutubeImportJobService {
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
     @Autowired private SubtitleQualityReviewService subtitleQualityReviewService;
+    @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -477,16 +478,8 @@ public class YoutubeImportJobService {
 
         updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart, null);
 
-        List<Subtitle> needsAi = new ArrayList<>();
-        for (Subtitle sub : workItems) {
-            boolean hasTrans = sub.getTranslation() != null && !sub.getTranslation().isBlank();
-            if (hasTrans) {
-                // Has YT translation but user wants furigana — still need AI for furigana
-                needsAi.add(sub);
-            } else {
-                needsAi.add(sub);
-            }
-        }
+        // Resume sends only unfinished lines; each chunk keeps an existing YouTube translation (furigana-only call).
+        List<Subtitle> needsAi = workItems;
 
         if (needsAi.isEmpty()) {
             updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart + progressRange, null);
@@ -494,27 +487,20 @@ public class YoutubeImportJobService {
         }
 
         int batchSize = resolveAiBatchSize(needsAi.size());
-        int totalRounds = (needsAi.size() + batchSize - 1) / batchSize;
+        int totalBatches = (needsAi.size() + batchSize - 1) / batchSize;
         System.out.println("[YouTube import] AI batches: " + needsAi.size() + " lines  "
-                + totalRounds + " round(s) × ~" + batchSize);
+                + totalBatches + " batch(es) × ~" + batchSize);
 
-        for (int i = 0, round = 1; i < needsAi.size(); i += batchSize, round++) {
-            if (!isActiveRun(videoId, runId)) return;
-            int end = Math.min(i + batchSize, needsAi.size());
-            List<Subtitle> batch = needsAi.subList(i, end);
-            List<String> texts = batch.stream().map(Subtitle::getText).toList();
-            System.out.println("[YouTube import] AI round " + round + "/" + totalRounds
-                    + " lines " + (i + 1) + "–" + end);
-            // generateFurigana=true here
-            List<Map<String, String>> results =
-                    openRouterService.processJapaneseBatch(texts, lang, true);
+        aiBatchProcessor.process(needsAi, batchSize, lang, true, true,
+                () -> isActiveRun(videoId, runId), (batch, results, end) -> {
             if (!isActiveRun(videoId, runId)) return;
             for (int j = 0; j < batch.size(); j++) {
                 Subtitle sub = batch.get(j);
                 String furi = results.get(j).get("furigana");
                 String trans = results.get(j).get("translation");
                 sub.setFurigana(furi != null && !furi.isBlank() ? furi : sub.getText());
-                if (trans != null && !trans.isBlank()) {
+                if ((sub.getTranslation() == null || sub.getTranslation().isBlank())
+                        && trans != null && !trans.isBlank()) {
                     sub.setTranslation(trans);
                 } else if (sub.getTranslation() == null || sub.getTranslation().isBlank()) {
                     sub.setTranslation("");
@@ -524,7 +510,7 @@ public class YoutubeImportJobService {
             }
             int progress = progressStart + (int) ((end / (double) needsAi.size()) * progressRange);
             updateProgress(video, ProcessingStep.AI_PROCESSING, progress, null);
-        }
+        });
     }
 
     private void finishImport(Video video) {
@@ -545,20 +531,12 @@ public class YoutubeImportJobService {
         }
     }
 
-    /**
-     * Ít câu: 1 lượt theo batch config.
-     * Cỡ podcast hiện tại (≤100): chia 2 lượt.
-     * Dài hơn: chia 3 lượt — tránh hàng chục request bị rate-limit.
-     */
+    /** Bound each AI request so batches can run concurrently without oversized responses. */
     private int resolveAiBatchSize(int total) {
         if (total <= 0) {
             return Math.max(1, aiBatchSize);
         }
-        if (total <= 40) {
-            return Math.min(Math.max(1, aiBatchSize), total);
-        }
-        int rounds = total <= 100 ? 2 : 3;
-        return (int) Math.ceil(total / (double) rounds);
+        return Math.min(Math.max(4, aiBatchSize), 16);
     }
 
     private String lang(Video video) {

@@ -39,6 +39,12 @@ public class ShadowingPageController {
         return "shadowing/editor";
     }
 
+    @GetMapping("/shadowing/prepare/{id}")
+    public String prepare(@PathVariable Long id, Model model) {
+        model.addAttribute("videoId", id);
+        return "shadowing/preparation";
+    }
+
     @GetMapping("/shadowing/practice/{id}")
     public String practice(@PathVariable Long id, Model model) {
         model.addAttribute("videoId", id);
@@ -60,6 +66,11 @@ public class ShadowingPageController {
         }
         model.addAttribute("videoId", id);
         return "shadowing/player";
+    }
+
+    @GetMapping("/shadowing/progress")
+    public String progress() {
+        return "shadowing/progress";
     }
 
     @GetMapping("/shadowing/series/{id}")

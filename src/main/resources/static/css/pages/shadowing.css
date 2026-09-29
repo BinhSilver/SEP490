@@ -68,6 +68,8 @@
   color: var(--color-primary, #4f378a);
 }
 
+#jlabBasePage.page-shadowing-editor #prepare-exercises-link { text-decoration: none; }
+
 #jlabBasePage.page-shadowing-processing #processingWorkspace {
   position: relative;
   display: block;
@@ -338,10 +340,36 @@
 }
 
 #jlabBasePage.page-shadowing-library .video-card-thumb {
+  position: relative;
   width: 100%;
   margin: 0 0 14px;
   border-radius: 0;
   box-shadow: none;
+}
+
+/*
+ * JLPT level as a solid tab flush with the thumbnail's top-left corner. Sized in % of the thumbnail
+ * so it fully covers whatever the video's own artwork has there (e.g. a flag) at any card width.
+ */
+#jlabBasePage.page-shadowing-library .card-level-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 15%;
+  height: 20%;
+  padding: 0 12px;
+  border-radius: 0 0 14px 0;
+  background: #4f378a;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, .22);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: .03em;
+  pointer-events: none;
 }
 
 #jlabBasePage.page-shadowing-library .video-card-title,
@@ -1423,7 +1451,8 @@
     width: 100%;
   }
 
-  #jlabBasePage.page-shadowing-editor .editor-toolbar-actions button {
+  #jlabBasePage.page-shadowing-editor .editor-toolbar-actions button,
+  #jlabBasePage.page-shadowing-editor .editor-toolbar-actions a {
     flex: 1;
   }
 

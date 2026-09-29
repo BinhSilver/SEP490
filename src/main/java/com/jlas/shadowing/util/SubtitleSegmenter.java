@@ -51,7 +51,12 @@ public final class SubtitleSegmenter {
             double partEnd = index == parts.size() - 1
                     ? end
                     : start + duration * consumedWeight / totalWeight;
-            result.add(copyCue(cue, part, partStart, partEnd));
+            // A split part covers only some of the sentence: drop the whole-cue furigana/translation
+            // so AI fills them per part instead of repeating the full sentence on every fragment.
+            SubtitleDto piece = copyCue(cue, part, partStart, partEnd);
+            piece.setFurigana(null);
+            piece.setTranslation(null);
+            result.add(piece);
         }
         return result;
     }
