@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Tạo bảng của Cửa hàng Trò chơi (sql/migrations/009) cho DB chưa chạy migration đó. Hai bảng chỉ truy cập
+ * Tạo bảng của Cửa hàng Trò chơi (đã có trong jlas_schema.sql) cho DB chưa chạy migration đó. Hai bảng chỉ truy cập
  * qua JDBC nên kiểm tra schema của JPA không phụ thuộc vào chúng.
  */
 @Component

@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Creates the mission tables added in sql/migrations/006 for installations that have not run it yet.
+ * Creates the mission tables from sql/jlas_migrations_all.sql for installations that have not run it yet.
  * These tables are accessed through JDBC only, so JPA schema validation does not depend on them.
  */
 @Component
