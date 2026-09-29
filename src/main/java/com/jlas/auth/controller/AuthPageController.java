@@ -73,6 +73,18 @@ public class AuthPageController {
         return "goals";
     }
 
+    @GetMapping("/progress")
+    public String progress(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "progress";
+    }
+
+    @GetMapping("/credit-history")
+    public String creditHistory(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "credit-history";
+    }
+
     @GetMapping("/retention-demo")
     public String retentionDemo() {
         return "retention-demo";

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260829">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260910-processing"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260924-processing-actions"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
 </head>
 <body id="jlabBasePage" class="page-shadowing page-shadowing-processing">
@@ -28,9 +28,17 @@
 
             <div id="processingWorkspace">
                 <aside id="processingKitsuGuide" role="status" aria-live="polite">
-                    <div th:replace="~{fragments/components/kitsu-guide :: guide(
-                        'Kitsu-chan đang chuẩn bị bài học',
-                        'Bạn có thể rời trang và quay lại sau. Mình sẽ tiếp tục theo dõi quá trình xử lý!')}"></div>
+                    <div class="kitsu-guide">
+                        <div class="kitsu-guide__mascot">
+                            <video id="processing-kitsu-animation" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+                                <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
+                            </video>
+                        </div>
+                        <div class="kitsu-guide__bubble">
+                            <strong class="kitsu-guide__title">Kitsu-chan đang xử lý</strong>
+                            <p class="kitsu-guide__message">Đang xử lý, vui lòng chờ.</p>
+                        </div>
+                    </div>
                 </aside>
 
                 <div id="processingProgressCard" class="store-utility-card">
@@ -50,10 +58,13 @@
                 <p id="step-status" class="caption" style="text-align: center; margin-top: 8px;"></p>
                 <p id="error-msg" class="caption" style="color: var(--danger); text-align: center; display: none;"></p>
 
-                <div style="text-align: center; margin-top: 24px; display: flex; gap: 12px; justify-content: center;">
+                <div id="processing-actions" style="text-align: center; margin-top: 24px;">
                     <button id="processing-done-button" type="button" onclick="window.location.href='/shadowing'" class="button-primary" hidden>
                         <i class="fa-solid fa-check"></i> Bài học đã hoàn tất — về thư viện Shadowing
                     </button>
+                    <button id="resume-processing-button" type="button" class="button-primary" hidden><i class="fa-solid fa-play"></i> Tiếp tục xử lý</button>
+                    <button id="stop-processing-button" type="button" class="button-secondary"><i class="fa-solid fa-stop"></i> Dừng xử lý</button>
+                    <button id="abandon-processing-button" type="button" class="button-secondary"><i class="fa-solid fa-ban"></i> Bỏ tiến trình</button>
                     <button id="retry-btn" class="button-secondary" style="display: none;"><i class="fa-solid fa-rotate-right"></i> Thử lại</button>
                 </div>
                 </div>
@@ -64,7 +75,8 @@
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20260711"></script>
-    <script src="/shadowing/js/processing.js?v=20260910-processing-state" ></script>
+    <script src="/shadowing/js/confirm-modal.js?v=20260924"></script>
+    <script src="/shadowing/js/processing.js?v=20260924-processing-actions" ></script>
     <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->
     <script src="http://localhost:35729/livereload.js?snipver=1" defer></script>
 </body>

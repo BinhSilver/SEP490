@@ -83,6 +83,17 @@
               </div>
               <p class="field-help">Bộ công khai sẽ được kiểm tra nội dung trước khi hiển thị.</p>
             </div>
+            <div class="form-group editor-meta__folder">
+              <label class="label" for="set-folder">Thư mục</label>
+              <div class="editor-folder-control">
+                <div class="input-wrap">
+                  <select class="select" id="set-folder" aria-label="Chọn thư mục cho bộ thẻ">
+                    <option value="0">Chưa phân loại</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm editor-folder-add" id="btn-create-folder" title="Tạo thư mục mới" aria-label="Tạo thư mục mới"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
           </div>
           <div class="form-group editor-meta__description">
             <label class="label" for="set-desc">Mô tả <span class="optional-label">Không bắt buộc</span></label>
@@ -142,6 +153,13 @@
         <p class="muted import-example">
           Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN)
         </p>
+        <div class="import-actions">
+          <input type="file" id="import-file" accept=".xlsx,.csv,.txt,.tsv" hidden />
+          <button type="button" class="btn btn-ghost" id="btn-import-file">
+            <i class="fa-solid fa-file-arrow-up"></i> Chọn file (Excel, CSV, TXT)
+          </button>
+          <span class="muted">Cột: Mặt trước · Mặt sau · Hán Việt — cùng định dạng với file xuất từ thư viện.</span>
+        </div>
         <div class="form-group">
           <label class="label" for="import-text">Danh sách từ</label>
           <div class="input-wrap">
@@ -204,10 +222,10 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/js/components.js"></script>
-  <script src="/flashcard/js/api-client.js"></script>
+  <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/prevalidation.js"></script>
-  <script src="/flashcard/js/editor-page.js"></script>
+  <script src="/flashcard/js/editor-page.js?v=2"></script>
 </body>
 
 </html>

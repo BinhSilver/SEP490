@@ -8,7 +8,8 @@
   const media = document.getElementById('exercise-media');
   const listenButton = document.getElementById('exercise-listen-button');
   const listenIcon = listenButton.querySelector('i');
-  const listenLabel = listenButton.querySelector('span');
+  const furiganaToggle = document.getElementById('exercise-furigana-toggle');
+  const subtitleToggle = document.getElementById('exercise-subtitle-toggle');
   const speed = document.getElementById('exercise-speed');
   const speedControl = document.getElementById('exercise-speed-control');
   const speedToggle = document.getElementById('exercise-speed-toggle');
@@ -30,6 +31,9 @@
   const status = document.getElementById('exercise-status');
   const completePanel = document.getElementById('exercise-complete');
   const workspace = document.getElementById('exercise-workspace');
+  const sessionActions = document.getElementById('exercise-session-actions');
+  const pauseButton = document.getElementById('exercise-pause-button');
+  const resumeButton = document.getElementById('exercise-resume-button');
   const videoProgress = document.getElementById('exercise-video-progress');
   const videoTimeline = document.getElementById('exercise-video-timeline');
   const stopMarkers = document.getElementById('exercise-stop-markers');
@@ -55,6 +59,12 @@
   let pendingStartTime = null;
   let autoplayPending = false;
   let advancingAfterSeek = false;
+  let activeLiveSubtitle = null;
+  let furiganaVisible = false;
+  let subtitleVisible = true;
+  let sessionPaused = false;
+  let resumePlaybackAfterPause = false;
+  let pausedAnswerControls = null;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -63,6 +73,49 @@
   function setStatus(value, error) {
     status.textContent = value || '';
     status.style.color = error ? '#a71919' : '';
+  }
+
+  function pauseSession() {
+    if (sessionPaused || !session) return;
+    sessionPaused = true;
+    resumePlaybackAfterPause = !media.paused;
+    pausedAnswerControls = [answerInput, submitButton, nextButton].map(function (control) {
+      return control.disabled;
+    });
+    answerInput.disabled = true;
+    submitButton.disabled = true;
+    nextButton.disabled = true;
+    answerInput.blur();
+    workspace.classList.add('is-session-paused');
+    workspace.setAttribute('aria-disabled', 'true');
+    media.pause();
+    kitsuVideo.pause();
+    pauseButton.hidden = true;
+    resumeButton.hidden = false;
+    setStatus('Phiên học đang tạm dừng.');
+  }
+
+  function resumeSession() {
+    if (!sessionPaused) return;
+    sessionPaused = false;
+    workspace.classList.remove('is-session-paused');
+    workspace.removeAttribute('aria-disabled');
+    if (pausedAnswerControls) {
+      answerInput.disabled = pausedAnswerControls[0];
+      submitButton.disabled = pausedAnswerControls[1];
+      nextButton.disabled = pausedAnswerControls[2];
+    }
+    pausedAnswerControls = null;
+    pauseButton.hidden = false;
+    resumeButton.hidden = true;
+    setStatus('');
+    if (resumePlaybackAfterPause) {
+      const playback = media.play();
+      if (playback?.catch) playback.catch(function () {
+        setStatus('Nhấn Phát bài để tiếp tục video.', false);
+      });
+    }
+    resumePlaybackAfterPause = false;
   }
 
   function setWaitingState(title, text) {
@@ -105,6 +158,51 @@
     if (!stop || isStopDone(stop)) return subtitle.text || '';
     if (isCurrentStop(stop) && session?.mode === 'CLOZE') return question?.promptText || '＿＿＿';
     return '••••••  Câu kiểm tra #' + stop.number;
+  }
+
+  function renderFurigana(value) {
+    const source = String(value || '');
+    const pattern = /([^\s()（）]+)[(（]([^()（）]+)[)）]/g;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    let match;
+    while ((match = pattern.exec(source))) {
+      fragment.append(document.createTextNode(source.slice(cursor, match.index)));
+      const ruby = document.createElement('ruby');
+      ruby.append(document.createTextNode(match[1]));
+      const reading = document.createElement('rt');
+      reading.textContent = match[2];
+      ruby.append(reading);
+      fragment.append(ruby);
+      cursor = match.index + match[0].length;
+    }
+    fragment.append(document.createTextNode(source.slice(cursor)));
+    liveJapanese.replaceChildren(fragment);
+  }
+
+  function renderLiveJapanese(subtitle, stop) {
+    const hiddenForQuestion = Boolean(stop && !isStopDone(stop));
+    const showFurigana = furiganaVisible && subtitle?.furigana && !hiddenForQuestion;
+    const sentenceLength = Array.from(String(subtitle?.text || concealedText(subtitle, stop))).length;
+    const isMedium = sentenceLength >= 28;
+    const isLong = sentenceLength >= 46;
+    const isExtraLong = sentenceLength >= 76;
+    liveJapanese.classList.toggle('has-furigana', Boolean(showFurigana));
+    liveJapanese.classList.toggle('is-medium', isMedium && !isLong);
+    liveJapanese.classList.toggle('is-long', isLong);
+    mediaPanel.classList.toggle('has-long-live-subtitle', isLong && Boolean(showFurigana));
+    mediaPanel.classList.toggle('has-extra-long-live-subtitle', isExtraLong && Boolean(showFurigana));
+    if (showFurigana) {
+      renderFurigana(subtitle.furigana);
+      return;
+    }
+    liveJapanese.textContent = concealedText(subtitle, stop);
+  }
+
+  function setListenButton(label, icon) {
+    listenIcon.className = 'fa-solid fa-' + icon;
+    listenButton.title = label;
+    listenButton.setAttribute('aria-label', label);
   }
 
   function renderPrompt(expectedAnswer) {
@@ -201,8 +299,11 @@
   }
 
   function showLiveSubtitle(subtitle) {
+    activeLiveSubtitle = subtitle;
     transcriptRows.forEach(function (row) { row.classList.remove('is-active'); });
     if (!subtitle) {
+      liveJapanese.classList.remove('has-furigana', 'is-medium', 'is-long');
+      mediaPanel.classList.remove('has-long-live-subtitle', 'has-extra-long-live-subtitle');
       liveJapanese.textContent = media.paused ? 'Nhấn Phát bài để tiếp tục.' : '';
       liveTranslation.textContent = '';
       updatePreparationTip(null);
@@ -210,7 +311,7 @@
     }
     const subtitleId = Number(subtitle.id);
     const stop = stopBySubtitleId.get(subtitleId);
-    liveJapanese.textContent = concealedText(subtitle, stop);
+    renderLiveJapanese(subtitle, stop);
     liveTranslation.textContent = stop && !isStopDone(stop) ? '' : (subtitle.translation || '');
     updatePreparationTip(subtitle);
     const row = transcriptRows.get(subtitleId);
@@ -338,6 +439,7 @@
     advancingAfterSeek = true;
     media.pause();
     nextButton.disabled = true;
+    pauseButton.disabled = true;
     setStatus('Đang mở câu hỏi tiếp theo…', false);
     try {
       const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId) + '/next', {
@@ -353,6 +455,7 @@
       setStatus(error.message || 'Không chuyển được câu', true);
     } finally {
       advancingAfterSeek = false;
+      pauseButton.disabled = false;
     }
   }
 
@@ -389,6 +492,7 @@
 
   function renderSession(view, autoResume, explicitResumeTime) {
     session = view;
+    sessionActions.hidden = Boolean(view.completed || (!view.question && !autoResume));
     stops = Array.isArray(view.stops) ? view.stops : [];
     stopBySubtitleId = new Map(stops.map(function (stop) {
       return [Number(stop.subtitleId), stop];
@@ -459,6 +563,7 @@
   }
 
   listenButton.addEventListener('click', function () {
+    if (sessionPaused) return;
     if (!media.paused) {
       media.pause();
       return;
@@ -476,12 +581,33 @@
     playFrom(start, false);
   });
 
+  furiganaToggle.addEventListener('click', function () {
+    if (sessionPaused) return;
+    furiganaVisible = !furiganaVisible;
+    furiganaToggle.classList.toggle('is-active', furiganaVisible);
+    furiganaToggle.setAttribute('aria-pressed', String(furiganaVisible));
+    furiganaToggle.setAttribute('aria-label', furiganaVisible ? 'Ẩn furigana' : 'Hiện furigana');
+    furiganaToggle.title = furiganaVisible ? 'Ẩn furigana' : 'Hiện furigana';
+    if (activeLiveSubtitle) showLiveSubtitle(activeLiveSubtitle);
+  });
+
+  subtitleToggle.addEventListener('click', function () {
+    if (sessionPaused) return;
+    subtitleVisible = !subtitleVisible;
+    mediaPanel.classList.toggle('is-subtitle-hidden', !subtitleVisible);
+    subtitleToggle.classList.toggle('is-active', subtitleVisible);
+    subtitleToggle.setAttribute('aria-pressed', String(subtitleVisible));
+    subtitleToggle.setAttribute('aria-label', subtitleVisible ? 'Ẩn phụ đề' : 'Hiện phụ đề');
+    subtitleToggle.title = subtitleVisible ? 'Ẩn phụ đề' : 'Hiện phụ đề';
+  });
+
   function closeSpeedMenu() {
     speedMenu.hidden = true;
     speedToggle.setAttribute('aria-expanded', 'false');
   }
 
   speedToggle.addEventListener('click', function (event) {
+    if (sessionPaused) return;
     event.stopPropagation();
     const willOpen = speedMenu.hidden;
     speedMenu.hidden = !willOpen;
@@ -490,6 +616,7 @@
 
   speedButtons.forEach(function (button) {
     button.addEventListener('click', function () {
+      if (sessionPaused) return;
       const value = Number(button.dataset.speed) || 1;
       speed.value = String(value);
       speedLabel.textContent = button.textContent;
@@ -523,11 +650,13 @@
   }
 
   videoTimeline.addEventListener('click', function (event) {
+    if (sessionPaused) return;
     if (event.target.closest('.exercise-stop-marker')) return;
     seekFromTimelinePointer(event, !media.paused);
   });
 
   videoTimeline.addEventListener('pointerdown', function (event) {
+    if (sessionPaused) return;
     if (event.target.closest('.exercise-stop-marker')) return;
     timelineWasPlaying = !media.paused;
     media.pause();
@@ -536,12 +665,14 @@
   });
 
   videoTimeline.addEventListener('pointermove', function (event) {
+    if (sessionPaused) return;
     if (videoTimeline.hasPointerCapture?.(event.pointerId)) {
       seekFromTimelinePointer(event, false);
     }
   });
 
   videoTimeline.addEventListener('pointerup', function (event) {
+    if (sessionPaused) return;
     if (videoTimeline.hasPointerCapture?.(event.pointerId)) {
       videoTimeline.releasePointerCapture?.(event.pointerId);
       seekFromTimelinePointer(event, timelineWasPlaying);
@@ -550,6 +681,7 @@
   });
 
   videoTimeline.addEventListener('keydown', function (event) {
+    if (sessionPaused) return;
     const duration = timelineDuration();
     if (!duration) return;
     const current = Number(media.currentTime) || 0;
@@ -566,19 +698,17 @@
   media.addEventListener('loadedmetadata', applyPendingPlayback);
   media.addEventListener('durationchange', renderMarkers);
   media.addEventListener('play', function () {
-    listenIcon.className = 'fa-solid fa-pause';
-    listenLabel.textContent = 'Tạm dừng';
+    setListenButton('Tạm dừng', 'pause');
   });
   media.addEventListener('pause', function () {
-    listenIcon.className = 'fa-solid fa-play';
-    if (finishingRemainder) listenLabel.textContent = 'Tiếp tục phần còn lại';
-    else if (stoppedAtQuestion || question?.answered) listenLabel.textContent = 'Nghe lại câu';
-    else if (media.currentTime > 0.05) listenLabel.textContent = 'Tiếp tục bài';
-    else listenLabel.textContent = 'Phát bài';
+    if (finishingRemainder) setListenButton('Tiếp tục phần còn lại', 'play');
+    else if (stoppedAtQuestion || question?.answered) setListenButton('Nghe lại câu', 'play');
+    else if (media.currentTime > 0.05) setListenButton('Tiếp tục bài', 'play');
+    else setListenButton('Phát bài', 'play');
   });
   media.addEventListener('timeupdate', function () {
     updateVideoProgress();
-    if (!question || finishingRemainder) return;
+    if (sessionPaused || !question || finishingRemainder) return;
     const currentTime = Number(media.currentTime) || 0;
     const questionEnd = Number(question.endTime);
     const reachedEnd = currentTime >= questionEnd - 0.04;
@@ -594,6 +724,7 @@
   });
   media.addEventListener('ended', function () {
     updateVideoProgress();
+    if (sessionPaused) return;
     if (finishingRemainder && session) renderComplete(session);
     else if (question && !question.answered) unlockAnswer();
   });
@@ -622,6 +753,7 @@
   }
 
   submitButton.addEventListener('click', async function () {
+    if (sessionPaused) return;
     if (!question || !answerInput.value.trim()) {
       setStatus('Hãy nhập đáp án trước khi kiểm tra.', true);
       answerInput.focus();
@@ -632,6 +764,7 @@
       return;
     }
     submitButton.disabled = true;
+    pauseButton.disabled = true;
     setStatus('Kitsu-chan đang kiểm tra…');
     try {
       const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId) + '/answers', {
@@ -645,6 +778,8 @@
     } catch (error) {
       submitButton.disabled = false;
       setStatus(error.message || 'Không chấm được đáp án', true);
+    } finally {
+      pauseButton.disabled = false;
     }
   });
 
@@ -656,9 +791,11 @@
   });
 
   nextButton.addEventListener('click', async function () {
+    if (sessionPaused) return;
     if (advancingAfterSeek) return;
     const resumeFrom = Number(question?.endTime) + 0.02;
     nextButton.disabled = true;
+    pauseButton.disabled = true;
     try {
       const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId) + '/next', {
         method: 'POST', headers: headers(), body: '{}'
@@ -669,11 +806,14 @@
     } catch (error) {
       nextButton.disabled = false;
       setStatus(error.message || 'Không chuyển được câu', true);
+    } finally {
+      pauseButton.disabled = false;
     }
   });
 
   function renderRemainder(view, resumeFrom) {
     session = view;
+    sessionActions.hidden = false;
     question = null;
     finishingRemainder = true;
     stoppedAtQuestion = false;
@@ -704,6 +844,7 @@
 
   function renderComplete(view) {
     media.pause();
+    sessionActions.hidden = true;
     finishingRemainder = false;
     workspace.hidden = true;
     completePanel.hidden = false;
@@ -734,6 +875,9 @@
       workspace.hidden = true;
     }
   }
+
+  pauseButton.addEventListener('click', pauseSession);
+  resumeButton.addEventListener('click', resumeSession);
 
   loadSession();
 }());

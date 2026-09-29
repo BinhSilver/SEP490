@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -35,23 +36,28 @@ public class ShadowingPracticeService {
     private final SubtitleRepository subtitleRepository;
     private final ShadowingExerciseAnalysisService analysisService;
     private final ShadowingPracticeRepository practiceRepository;
+    private final SubtitleQualityReviewService subtitleQualityReviewService;
     private final Map<Long, Deque<Instant>> createRequests = new ConcurrentHashMap<>();
 
     public ShadowingPracticeService(VideoRepository videoRepository,
                                     SubtitleRepository subtitleRepository,
                                     ShadowingExerciseAnalysisService analysisService,
-                                    ShadowingPracticeRepository practiceRepository) {
+                                    ShadowingPracticeRepository practiceRepository,
+                                    SubtitleQualityReviewService subtitleQualityReviewService) {
         this.videoRepository = videoRepository;
         this.subtitleRepository = subtitleRepository;
         this.analysisService = analysisService;
         this.practiceRepository = practiceRepository;
+        this.subtitleQualityReviewService = subtitleQualityReviewService;
     }
 
     public CreatePracticeSessionResponse create(long userId, CreatePracticeSessionRequest request) {
         rateLimit(userId);
         Video video = accessibleVideo(userId, request.videoId());
+        Set<Long> blockedSubtitleIds = subtitleQualityReviewService.blockedSubtitleIds(video.getId());
         List<Subtitle> subtitles = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(video.getId())
-                .stream().filter(subtitle -> subtitle.getText() != null && !subtitle.getText().isBlank()).toList();
+                .stream().filter(subtitle -> subtitle.getText() != null && !subtitle.getText().isBlank())
+                .filter(subtitle -> !blockedSubtitleIds.contains(subtitle.getId())).toList();
         if (subtitles.isEmpty()) throw new ApiException(ErrorCode.BAD_REQUEST, "Bài học chưa có phụ đề hợp lệ");
         int requested = request.allQuestions() ? subtitles.size()
                 : Math.min(subtitles.size(), request.questionCount() == null

@@ -288,7 +288,7 @@ function renderStudy(root) {
           <i class="fa-solid fa-rotate"></i> ${state.isFlipped ? 'Ẩn đáp án' : 'Xem đáp án'}
         </button>
         <button class="btn btn-ghost" id="btn-next">
-          ${state.currentIndex >= total - 1 ? 'Kết thúc' : 'Tiếp'} <i class="fa-solid fa-arrow-right"></i>
+          ${state.currentIndex >= total - 1 ? 'Kết thúc' : 'Tiếp'}
         </button>
       </div>
     </div>

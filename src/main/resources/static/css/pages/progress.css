@@ -1,0 +1,139 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+#jlabBasePage.stitch-progress-page {
+  background: #ffffff;
+}
+
+#jlabBaseContent.stitch-progress-page__content {
+  --stitch-bg: #ffffff;
+  --stitch-surface: #ffffff;
+  --stitch-low: #eef5f7;
+  --stitch-purple: #4f378a;
+  --stitch-purple-dark: #381e72;
+  --stitch-purple-soft: #e9ddff;
+  --stitch-pink: #ff4f9a;
+  --stitch-ink: #161d1f;
+  --stitch-muted: #494551;
+  --stitch-grey: #79747e;
+  --stitch-line: #cbc4d2;
+  min-height: calc(100dvh - 84px);
+  position: relative;
+  isolation: isolate;
+  padding: 32px clamp(16px, 4vw, 40px) 64px;
+  overflow: hidden;
+  color: var(--stitch-ink);
+  background: var(--stitch-bg) !important;
+  font-family: "Plus Jakarta Sans", "Hanken Grotesk", sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+#jlabBaseContent .stitch-progress-page__ambient { position: absolute; inset: 0; z-index: -2; pointer-events: none; background: #ffffff; }
+#jlabBaseContent .stitch-progress-page__watermark { position: absolute; top: 42px; right: 4vw; z-index: -1; pointer-events: none; color: rgba(79,55,138,.035); font-size: clamp(80px, 14vw, 160px); font-weight: 800; letter-spacing: .12em; line-height: 1; }
+#jlabBaseContent .stitch-progress-page__container { width: min(1280px, 100%); margin: 0 auto; position: relative; }
+#jlabBaseContent .stitch-progress-page__heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 10px 0 20px; border-bottom: 1px solid rgba(0,0,0,.05); }
+#jlabBaseContent .stitch-progress-page__heading h1 { color: var(--stitch-muted); font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.1rem; font-weight: 400; letter-spacing: 0; }
+#jlabBaseContent .stitch-progress-page__primary-button { min-height: 42px; display: inline-flex; align-items: center; gap: 12px; padding: 0 22px; color: #fff; background: var(--stitch-purple); border-radius: 999px; box-shadow: 0 5px 12px rgba(56,30,114,.22); font-size: .78rem; font-weight: 700; text-decoration: none; transition: background 180ms ease, transform 180ms ease; }
+#jlabBaseContent .stitch-progress-page__primary-button:hover { color: #fff; background: #6750a4; transform: translateY(-1px); }
+#jlabBaseContent .stitch-progress-page__content-stack { display: grid; gap: 32px; margin-top: 24px; }
+#jlabBaseContent .stitch-progress-page__kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+#jlabBaseContent .stitch-progress-page__kpi, #jlabBaseContent .stitch-progress-page__card { background: var(--stitch-surface); border: 1px solid rgba(203,196,210,.4); box-shadow: 0 4px 20px -2px rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.02); }
+#jlabBaseContent .stitch-progress-page__kpi { min-height: 130px; padding: 20px; border-radius: 20px; transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
+#jlabBaseContent .stitch-progress-page__kpi:hover, #jlabBaseContent .stitch-progress-page__card:hover { border-color: rgba(103,80,164,.4); }
+#jlabBaseContent .stitch-progress-page__kpi:hover { transform: translateY(-3px); box-shadow: 0 16px 32px -12px rgba(0,0,0,.12); }
+#jlabBaseContent .stitch-progress-page__kpi-head { display: flex; align-items: center; justify-content: space-between; color: var(--stitch-grey); font-size: .69rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+#jlabBaseContent .stitch-progress-page__kpi-head i, #jlabBaseContent .stitch-progress-page__card-icon { width: 40px; height: 40px; display: inline-grid; place-items: center; color: var(--stitch-purple); background: var(--stitch-purple-soft); border: 1px solid rgba(103,80,164,.15); border-radius: 13px; }
+#jlabBaseContent .stitch-progress-page__kpi-value { display: flex; align-items: baseline; gap: 9px; margin-top: 18px; }
+#jlabBaseContent .stitch-progress-page__kpi-value strong { font-family: "JetBrains Mono", monospace; font-size: 2rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+#jlabBaseContent .stitch-progress-page__kpi-value span { color: var(--stitch-purple); font-size: .75rem; font-weight: 700; }
+#jlabBaseContent .stitch-progress-page__kpi-value b { font-weight: 700; }
+
+#jlabBaseContent .stitch-progress-page__split-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(300px, 5fr); gap: 24px; }
+#jlabBaseContent .stitch-progress-page__card { min-width: 0; padding: 26px; border-radius: 24px; }
+#jlabBaseContent .stitch-progress-page__card-head, #jlabBaseContent .stitch-progress-page__section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid rgba(203,196,210,.3); }
+#jlabBaseContent .stitch-progress-page__card h2, #jlabBaseContent .stitch-progress-page__section-head h2 { margin: 0; color: var(--stitch-ink); font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.12rem; font-weight: 700; letter-spacing: 0; }
+#jlabBaseContent .stitch-progress-page__card-head p, #jlabBaseContent .stitch-progress-page__section-head p { margin-top: 3px; color: var(--stitch-muted); font-size: .72rem; }
+#jlabBaseContent .stitch-progress-page__card-head h2 time { margin-left: 6px; padding: 3px 9px; color: var(--stitch-muted); background: var(--stitch-low); border: 1px solid rgba(203,196,210,.4); border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: .62rem; font-weight: 600; white-space: nowrap; }
+#jlabBaseContent .stitch-progress-page__goal-list { display: grid; gap: 25px; margin-top: 24px; }
+#jlabBaseContent .stitch-progress-page__goal-label { display: grid; grid-template-columns: 30px 1fr auto auto; align-items: center; gap: 8px; margin-bottom: 9px; font-size: .78rem; }
+#jlabBaseContent .stitch-progress-page__goal-label > i { width: 30px; height: 30px; display: grid; place-items: center; color: var(--stitch-purple); background: rgba(233,221,255,.65); border: 1px solid rgba(103,80,164,.2); border-radius: 10px; font-size: .72rem; }
+#jlabBaseContent .stitch-progress-page__goal-label .stitch-progress-page__success-icon { color: #006947; background: #e8f5e9; border-color: #c8e6c9; }
+#jlabBaseContent .stitch-progress-page__goal-label span { font-weight: 700; }
+#jlabBaseContent .stitch-progress-page__goal-label b { color: var(--stitch-muted); font-family: "JetBrains Mono", monospace; font-size: .65rem; font-weight: 500; }
+#jlabBaseContent .stitch-progress-page__goal-label em { color: var(--stitch-purple); font-family: "JetBrains Mono", monospace; font-size: .72rem; font-style: normal; font-weight: 700; }
+#jlabBaseContent .stitch-progress-page__progress-track { height: 11px; padding: 2px; overflow: hidden; background: var(--stitch-low); border-radius: 999px; }
+#jlabBaseContent .stitch-progress-page__progress-track i { display: block; width: 0; height: 100%; background: var(--stitch-purple); border-radius: inherit; box-shadow: 0 1px 5px rgba(79,55,138,.2); transition: width 700ms cubic-bezier(.16,1,.3,1); }
+#jlabBaseContent .stitch-progress-page__progress-track--success i { background: #006947; }
+#jlabBaseContent .stitch-progress-page__card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 22px; padding-top: 14px; border-top: 1px solid rgba(203,196,210,.3); color: var(--stitch-muted); font-size: .7rem; }
+#jlabBaseContent .stitch-progress-page__card-foot i { color: var(--stitch-purple); }
+#jlabBaseContent .stitch-progress-page__card-foot a { color: var(--stitch-purple); }
+#jlabBaseContent .stitch-progress-page__credit-card { display: flex; flex-direction: column; justify-content: space-between; }
+#jlabBaseContent .stitch-progress-page__credit-badge, #jlabBaseContent .stitch-progress-page__week-badge { padding: 4px 12px; color: var(--stitch-purple); background: var(--stitch-purple-soft); border: 1px solid rgba(103,80,164,.25); border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: .66rem; font-weight: 700; white-space: nowrap; }
+#jlabBaseContent .stitch-progress-page__credit-list { display: grid; margin-top: 12px; }
+#jlabBaseContent .stitch-progress-page__credit-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 7px; border-bottom: 1px solid rgba(203,196,210,.25); }
+#jlabBaseContent .stitch-progress-page__credit-row > div { min-width: 0; display: flex; align-items: center; gap: 10px; }
+#jlabBaseContent .stitch-progress-page__credit-row i { width: 30px; height: 30px; display: grid; place-items: center; color: var(--stitch-purple); background: var(--stitch-purple-soft); border-radius: 10px; font-size: .7rem; }
+#jlabBaseContent .stitch-progress-page__credit-row strong { display: block; overflow: hidden; color: var(--stitch-ink); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+#jlabBaseContent .stitch-progress-page__credit-row small { display: block; margin-top: 2px; color: var(--stitch-grey); font-family: "JetBrains Mono", monospace; font-size: .57rem; }
+#jlabBaseContent .stitch-progress-page__credit-row b { padding: 4px 8px; color: #006947; background: #e8f5e9; border-radius: 7px; font-family: "JetBrains Mono", monospace; font-size: .64rem; white-space: nowrap; }
+#jlabBaseContent .stitch-progress-page__credit-row.is-negative i, #jlabBaseContent .stitch-progress-page__credit-row.is-negative b { color: #ba1a1a; background: #ffebee; }
+#jlabBaseContent .stitch-progress-page__muted { color: var(--stitch-grey); font-size: .7rem; }
+
+#jlabBaseContent .stitch-progress-page__activity-card { position: relative; }
+#jlabBaseContent .stitch-progress-page__controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+#jlabBaseContent .stitch-progress-page__segmented { display: inline-flex; gap: 2px; padding: 3px; background: var(--stitch-low); border: 1px solid rgba(203,196,210,.4); border-radius: 10px; }
+#jlabBaseContent .stitch-progress-page__segmented button { padding: 6px 12px; color: var(--stitch-muted); background: transparent; border: 0; border-radius: 7px; cursor: pointer; font-size: .65rem; font-weight: 500; }
+#jlabBaseContent .stitch-progress-page__segmented button.is-active, #jlabBaseContent .stitch-progress-page__segmented button:hover { color: #fff; background: var(--stitch-purple); font-weight: 700; }
+#jlabBaseContent .stitch-progress-page__line-chart { position: relative; height: 300px; margin-top: 22px; padding-left: 34px; }
+#jlabBaseContent .stitch-progress-page__line-chart::after { content: ""; position: absolute; right: 0; bottom: 28px; left: 34px; border-bottom: 1px solid rgba(203,196,210,.5); }
+#jlabBaseContent .stitch-progress-page__line-chart svg { width: calc(100% - 34px); height: calc(100% - 34px); margin-left: 34px; overflow: visible; }
+#jlabBaseContent .stitch-progress-page__chart-y { position: absolute; top: 10px; bottom: 34px; left: 0; display: flex; flex-direction: column; justify-content: space-between; color: var(--stitch-grey); font-family: "JetBrains Mono", monospace; font-size: .58rem; }
+#jlabBaseContent .stitch-progress-page__chart-labels { position: absolute; right: 0; bottom: 0; left: 68px; display: flex; justify-content: space-between; color: var(--stitch-grey); font-family: "JetBrains Mono", monospace; font-size: .58rem; }
+#jlabBaseContent .stitch-progress-page__chart-foot { display: flex; align-items: center; gap: 24px; padding-top: 10px; color: var(--stitch-muted); font-size: .7rem; }
+#jlabBaseContent .stitch-progress-page__chart-foot > span:first-child i { width: 7px; height: 7px; display: inline-block; margin-right: 5px; background: var(--stitch-purple); border-radius: 50%; }
+#jlabBaseContent .stitch-progress-page__chart-foot b { color: var(--stitch-purple); font-family: "JetBrains Mono", monospace; }
+
+#jlabBaseContent .stitch-progress-page__two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+#jlabBaseContent .stitch-progress-page__week-bars { height: 190px; display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: 14px; margin-top: 28px; padding: 0 16px; border-bottom: 1px solid rgba(203,196,210,.3); }
+#jlabBaseContent .stitch-progress-page__week-bar { height: 100%; display: flex; align-items: end; justify-content: center; position: relative; }
+#jlabBaseContent .stitch-progress-page__week-bar::before { content: ""; position: absolute; inset: 0 0 0; z-index: 0; width: 20px; margin: auto; background: var(--stitch-low); border-radius: 8px 8px 0 0; }
+#jlabBaseContent .stitch-progress-page__week-bar i { position: relative; z-index: 1; width: 20px; display: block; background: var(--stitch-purple); border-radius: 8px 8px 0 0; transition: height 500ms ease; }
+#jlabBaseContent .stitch-progress-page__week-bar.is-complete i { background: #006947; }
+#jlabBaseContent .stitch-progress-page__week-bar span { position: absolute; bottom: -22px; color: var(--stitch-muted); font-family: "JetBrains Mono", monospace; font-size: .58rem; }
+#jlabBaseContent .stitch-progress-page__donut-body { display: flex; align-items: center; justify-content: center; gap: 28px; min-height: 235px; }
+#jlabBaseContent .stitch-progress-page__donut { width: 154px; height: 154px; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--stitch-purple) 0 42%, #7056a4 42% 67%, #8e78bb 67% 85%, #b6a4dd 85% 95%, #e0d5f5 95%); }
+#jlabBaseContent .stitch-progress-page__donut > div { width: 98px; height: 98px; display: grid; place-content: center; text-align: center; background: #fff; border-radius: 50%; }
+#jlabBaseContent .stitch-progress-page__donut b { color: var(--stitch-grey); font-size: .51rem; }
+#jlabBaseContent .stitch-progress-page__donut strong { margin: 4px 0; font-family: "JetBrains Mono", monospace; font-size: .85rem; }
+#jlabBaseContent .stitch-progress-page__donut span { color: var(--stitch-purple); font-size: .55rem; }
+#jlabBaseContent .stitch-progress-page__donut-body ul { display: grid; gap: 11px; min-width: 150px; padding: 0; list-style: none; font-size: .67rem; }
+#jlabBaseContent .stitch-progress-page__donut-body li { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; }
+#jlabBaseContent .stitch-progress-page__donut-body li i { width: 10px; height: 10px; display: block; background: var(--stitch-purple); border-radius: 50%; }
+#jlabBaseContent .stitch-progress-page__donut-body li:nth-child(2) i { background: #7056a4; } #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(3) i { background: #8e78bb; } #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(4) i { background: #b6a4dd; } #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(5) i { background: #e0d5f5; }
+
+#jlabBaseContent .stitch-progress-page__credit-analytics .stitch-progress-page__section-head { align-items: center; }
+#jlabBaseContent .stitch-progress-page__credit-chart-wrap { display: grid; grid-template-columns: 260px minmax(0, 1fr); align-items: center; gap: 24px; margin-top: 22px; }
+#jlabBaseContent .stitch-progress-page__credit-summary { padding: 24px; background: #f2f8f8; border: 1px solid rgba(203,196,210,.4); border-radius: 12px; }
+#jlabBaseContent .stitch-progress-page__credit-summary > span { color: var(--stitch-grey); font-size: .65rem; font-weight: 700; }
+#jlabBaseContent .stitch-progress-page__credit-summary > strong { display: block; margin: 10px 0 22px; font-family: "JetBrains Mono", monospace; font-size: 2rem; }
+#jlabBaseContent .stitch-progress-page__credit-summary > strong small { color: var(--stitch-purple); font-size: .75rem; }
+#jlabBaseContent .stitch-progress-page__credit-summary > div { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#jlabBaseContent .stitch-progress-page__credit-summary > div b { padding: 9px; color: #006947; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; font-size: .59rem; }
+#jlabBaseContent .stitch-progress-page__credit-summary > div b + b { color: #ba1a1a; background: #ffebee; border-color: #ffcdd2; }
+#jlabBaseContent .stitch-progress-page__credit-summary > div strong { display: block; margin-top: 4px; font-family: "JetBrains Mono", monospace; font-size: .7rem; }
+#jlabBaseContent .stitch-progress-page__credit-chart-wrap svg { width: 100%; height: 190px; }
+
+#jlabBaseContent .stitch-progress-page__heatmap { display: grid; grid-template-columns: 32px 1fr; gap: 8px; margin-top: 22px; }
+#jlabBaseContent .stitch-progress-page__heatmap-days { display: grid; grid-template-rows: repeat(3, 1fr); align-items: center; color: var(--stitch-grey); font-family: "JetBrains Mono", monospace; font-size: .58rem; }
+#jlabBaseContent .stitch-progress-page__heatmap-grid { display: grid; grid-template-columns: repeat(28, minmax(8px, 1fr)); grid-template-rows: repeat(7, 16px); grid-auto-flow: column; gap: 5px; }
+#jlabBaseContent .stitch-progress-page__heatmap-grid i { display: block; background: #ececf0; border: 1px solid rgba(0,0,0,.04); border-radius: 4px; transition: transform 180ms ease; }
+#jlabBaseContent .stitch-progress-page__heatmap-grid i:hover { z-index: 2; transform: scale(1.25); box-shadow: 0 4px 10px rgba(255,79,154,.35); }
+#jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="1"] { background: #fff0f6; border-color: rgba(255,79,154,.18); } #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="2"] { background: #ffd6e7; } #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="3"] { background: #ff9ac4; } #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="4"] { background: var(--stitch-pink); box-shadow: 0 2px 6px rgba(255,79,154,.35); }
+#jlabBaseContent .stitch-progress-page__heatmap-key { display: inline-flex; align-items: center; gap: 4px; color: var(--stitch-grey); font-size: .6rem; }
+#jlabBaseContent .stitch-progress-page__heatmap-key i { width: 12px; height: 12px; display: block; background: #ececf0; border-radius: 3px; } #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(2) { background: #ffd6e7; } #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(3) { background: #ff9ac4; } #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(4) { background: var(--stitch-pink); }
+#jlabBaseContent .stitch-progress-page__empty, #jlabBaseContent .stitch-progress-page__error { margin-top: 24px; padding: 22px; color: var(--stitch-muted); background: #fff; border: 1px dashed var(--stitch-line); border-radius: 20px; text-align: center; font-size: .85rem; }
+#jlabBaseContent .stitch-progress-page__error { color: #ba1a1a; }
+
+@media (max-width: 1024px) { #jlabBaseContent .stitch-progress-page__kpis { grid-template-columns: repeat(2, 1fr); } #jlabBaseContent .stitch-progress-page__split-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { #jlabBaseContent.stitch-progress-page__content { padding: 24px 16px 48px; } #jlabBaseContent .stitch-progress-page__heading { align-items: flex-start; flex-direction: column; } #jlabBaseContent .stitch-progress-page__two-col, #jlabBaseContent .stitch-progress-page__credit-chart-wrap { grid-template-columns: 1fr; } #jlabBaseContent .stitch-progress-page__controls { justify-content: flex-start; } #jlabBaseContent .stitch-progress-page__line-chart { height: 240px; } #jlabBaseContent .stitch-progress-page__donut-body { justify-content: space-around; gap: 10px; } #jlabBaseContent .stitch-progress-page__heatmap-grid { grid-template-columns: repeat(28, minmax(6px, 1fr)); gap: 3px; } }
+@media (max-width: 520px) { #jlabBaseContent .stitch-progress-page__kpis { gap: 10px; } #jlabBaseContent .stitch-progress-page__kpi { min-height: 112px; padding: 14px; } #jlabBaseContent .stitch-progress-page__kpi-value strong { font-size: 1.45rem; } #jlabBaseContent .stitch-progress-page__kpi-value { gap: 4px; } #jlabBaseContent .stitch-progress-page__kpi-value span { font-size: .62rem; } #jlabBaseContent .stitch-progress-page__card { padding: 18px; border-radius: 20px; } #jlabBaseContent .stitch-progress-page__goal-label { grid-template-columns: 28px 1fr auto; } #jlabBaseContent .stitch-progress-page__goal-label em { grid-column: 2; grid-row: 2; } #jlabBaseContent .stitch-progress-page__controls { display: grid; grid-template-columns: 1fr; width: 100%; } #jlabBaseContent .stitch-progress-page__segmented { justify-content: center; } #jlabBaseContent .stitch-progress-page__chart-foot { flex-wrap: wrap; gap: 9px; } #jlabBaseContent .stitch-progress-page__week-bars { gap: 6px; padding: 0 4px; } #jlabBaseContent .stitch-progress-page__donut-body { flex-direction: column; } #jlabBaseContent .stitch-progress-page__credit-summary { padding: 18px; } }
+@media (prefers-reduced-motion: reduce) { #jlabBaseContent .stitch-progress-page__kpi, #jlabBaseContent .stitch-progress-page__progress-track i, #jlabBaseContent .stitch-progress-page__week-bar i, #jlabBaseContent .stitch-progress-page__heatmap-grid i { transition: none; } }

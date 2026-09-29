@@ -137,6 +137,23 @@ public class YoutubeImportService {
         }
     }
 
+    public void resumeImport(Long videoId) {
+        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (video == null || video.getSourceUrl() == null || video.getSourceUrl().isBlank()) return;
+
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        try {
+            YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(video.getSourceUrl());
+            youtubeImportJobService.resumeImport(videoId, video.getSourceUrl(), meta);
+        } catch (Exception e) {
+            video.setStatus(VideoStatus.FAILED);
+            video.setErrorMessage(e.getMessage());
+            videoRepository.save(video);
+        }
+    }
+
     private VideoStatusDto toStatusDto(Video video) {
         VideoStatusDto dto = new VideoStatusDto();
         dto.setId(video.getId());

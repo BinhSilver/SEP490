@@ -15,6 +15,7 @@
   var hasUnsavedChanges = false;
   var lastDraftSnapshot = '';
   var pendingAiChanges = [];
+  var editorFolders = [];
 
   document.addEventListener('DOMContentLoaded', async function () {
     if (!viewOnly && !FlashShell.requireLogin('Đăng nhập để tạo / sửa bộ thẻ')) return;
@@ -23,12 +24,14 @@
     if (addBtnTop) addBtnTop.addEventListener('click', addCardAndFocus);
     document.getElementById('btn-add-card-bottom').addEventListener('click', addCardAndFocus);
     document.getElementById('btn-save').addEventListener('click', save);
-    ['set-title', 'set-desc', 'set-visibility'].forEach(function (id) {
+    ['set-title', 'set-desc', 'set-visibility', 'set-folder'].forEach(function (id) {
       document.getElementById(id).addEventListener(id === 'set-visibility' ? 'change' : 'input', function () {
         scheduleRealtimeValidation();
         scheduleDraftSave();
       });
     });
+    document.getElementById('set-folder').addEventListener('change', scheduleDraftSave);
+    document.getElementById('btn-create-folder').addEventListener('click', createFolder);
     document.getElementById('btn-gen-batch').addEventListener('click', genBatch);
     document.getElementById('btn-delete-batch').addEventListener('click', deleteBatch);
     document.getElementById('btn-appeal').addEventListener('click', function () {
@@ -55,11 +58,16 @@
     document.getElementById('btn-close-import').addEventListener('click', closeImport);
     document.getElementById('btn-cancel-import').addEventListener('click', closeImport);
     document.getElementById('btn-import-ai').addEventListener('click', importGenerateAi);
+    document.getElementById('btn-import-file').addEventListener('click', function () {
+      document.getElementById('import-file').click();
+    });
+    document.getElementById('import-file').addEventListener('change', importFromFile);
     document.getElementById('btn-apply-import').addEventListener('click', applyImport);
     document.getElementById('btn-close-ai-review').addEventListener('click', closeAiReview);
     document.getElementById('btn-cancel-ai-review').addEventListener('click', closeAiReview);
     document.getElementById('btn-apply-ai-review').addEventListener('click', applyAiReview);
 
+    await loadFolders();
     if (setId) {
       await loadSet(setId);
     } else {
@@ -98,12 +106,38 @@
     });
   });
 
+  async function loadFolders(selectedId) {
+    try {
+      editorFolders = await FlashApi.get('/api/flashcards/folders') || [];
+      var select = document.getElementById('set-folder');
+      select.innerHTML = '<option value="0">Chưa phân loại</option>' + editorFolders.map(function (folder) {
+        return '<option value="' + folder.id + '">' + FlashShell.esc(folder.name) + '</option>';
+      }).join('');
+      select.value = selectedId == null ? (select.value || '0') : String(selectedId || 0);
+    } catch (e) {
+      editorFolders = [];
+    }
+  }
+
+  async function createFolder() {
+    var name = prompt('Tên thư mục mới:');
+    if (!name || !name.trim()) return;
+    try {
+      var folder = await FlashApi.post('/api/flashcards/folders', { name: name.trim() });
+      await loadFolders(folder.id);
+      scheduleDraftSave();
+    } catch (e) {
+      FlashShell.showToast(e.message || 'Không tạo được thư mục', 'err');
+    }
+  }
+
   async function loadSet(id) {
     try {
       var set = await FlashApi.get('/api/flashcards/' + id);
       document.getElementById('set-title').value = set.title || '';
       document.getElementById('set-desc').value = set.description || '';
       document.getElementById('set-visibility').value = set.visibility || 'PRIVATE';
+      document.getElementById('set-folder').value = String(set.folderId || 0);
       ownedByMe = !!set.ownedByMe;
       setDraftStatus(set.draft ? 'Đã tải bản nháp' : 'Đã lưu', 'saved');
       document.getElementById('btn-appeal').hidden = !ownedByMe || (set.moderationStatus !== 'REVIEW' && set.moderationStatus !== 'BLOCKED');
@@ -606,6 +640,34 @@
     return out;
   }
 
+  /* Server converts CSV/TXT/XLSX into the same text the textarea accepts, so the user can review before applying. */
+  async function importFromFile(event) {
+    var input = event.target;
+    var file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+    if (!/\.(xlsx|csv|txt|tsv)$/i.test(file.name)) {
+      FlashShell.showToast('Chỉ hỗ trợ file .xlsx, .csv hoặc .txt', 'err');
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      FlashShell.showToast('File không được vượt quá 1MB', 'err');
+      return;
+    }
+    try {
+      var res = await FlashApi.upload('/api/flashcards/import/file', file);
+      if (!res || !res.text) {
+        FlashShell.showToast('File không có dòng dữ liệu nào', 'err');
+        return;
+      }
+      var textarea = document.getElementById('import-text');
+      textarea.value = textarea.value.trim() ? textarea.value.trim() + '\n' + res.text : res.text;
+      FlashShell.showToast('Đã đọc ' + res.lineCount + ' dòng từ ' + file.name + '. Kiểm tra rồi bấm Áp dụng', 'ok');
+    } catch (e) {
+      FlashShell.showToast(e.message || 'Không đọc được file', 'err');
+    }
+  }
+
   async function importGenerateAi() {
     var text = document.getElementById('import-text').value;
     if (!text.trim()) {
@@ -671,6 +733,7 @@
       title: document.getElementById('set-title').value,
       description: document.getElementById('set-desc').value,
       visibility: document.getElementById('set-visibility').value,
+      folderId: Number(document.getElementById('set-folder').value) || 0,
       cards: cards.map(function (c, idx) {
         ensureBackFields(c);
         return {
@@ -800,6 +863,7 @@
       title: title,
       description: document.getElementById('set-desc').value.trim(),
       visibility: document.getElementById('set-visibility').value,
+      folderId: Number(document.getElementById('set-folder').value) || 0,
       cards: cards
         .filter(function (c) { return c.front && c.front.trim(); })
         .map(function (c, idx) {
