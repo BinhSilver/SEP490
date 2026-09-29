@@ -2,6 +2,7 @@ package com.jlas.learning.repository;
 
 import com.jlas.assessment.entity.AssessmentAnswer;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,13 @@ public interface LessonQuizAnswerRepository extends JpaRepository<AssessmentAnsw
             order by answer.question.id
             """)
     List<AssessmentAnswer> findWithQuestionByAttemptId(@Param("attemptId") Long attemptId);
+
+    @Query("""
+            select answer from AssessmentAnswer answer
+            join fetch answer.question
+            where answer.attempt.id = :attemptId
+              and answer.question.id = :questionId
+            """)
+    Optional<AssessmentAnswer> findWithQuestionByAttemptIdAndQuestionId(
+            @Param("attemptId") Long attemptId, @Param("questionId") Long questionId);
 }

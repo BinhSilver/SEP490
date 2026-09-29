@@ -11,6 +11,12 @@ public interface LearningProgressService {
     /** Marks the lesson completed (idempotent). */
     LessonProgressResponse complete(Long userId, Long lessonId);
 
+    /**
+     * Like {@link #complete}, when the learner marks the lesson done themselves. Refused for lessons that
+     * only a passed quiz completes, such as Onyomi lessons.
+     */
+    LessonProgressResponse completeByLearner(Long userId, Long lessonId);
+
     /** Returns the current progress, or a NOT_STARTED state when the lesson was never opened. */
     LessonProgressResponse status(Long userId, Long lessonId);
 }

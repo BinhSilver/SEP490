@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 @RequiredArgsConstructor
 public class LessonQuizPageController {
+    private static final String ONYOMI = "ONYOMI";
+
     private final LessonDetailService lessonDetailService;
 
     @GetMapping("/learning/lesson/{id}/quiz")
@@ -19,6 +21,10 @@ public class LessonQuizPageController {
         LessonDetailResponse detail = lessonDetailService.findPublished(id).orElse(null);
         if (detail == null) {
             return "redirect:/learning/path";
+        }
+        // the Onyomi lesson page runs its own practice quiz
+        if (ONYOMI.equals(detail.skill())) {
+            return "redirect:/learning/onyomi/lessons/" + detail.id() + "#s-quiz";
         }
         model.addAttribute("lesson", detail);
         model.addAttribute("pageTitle", detail.title() + " - Quiz - JLAS");

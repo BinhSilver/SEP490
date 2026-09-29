@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 @RequiredArgsConstructor
 public class LessonPageController {
+    private static final String ONYOMI = "ONYOMI";
+
     private final LessonDetailService lessonDetailService;
 
     @GetMapping("/learning/lesson/{id}")
@@ -19,6 +21,10 @@ public class LessonPageController {
         LessonDetailResponse detail = lessonDetailService.findPublished(id).orElse(null);
         if (detail == null) {
             return "redirect:/learning/path";
+        }
+        // Onyomi lessons have their own page with the conversion rules and step-by-step unlocking
+        if (ONYOMI.equals(detail.skill())) {
+            return "redirect:/learning/onyomi/lessons/" + detail.id();
         }
         model.addAttribute("lesson", detail);
         model.addAttribute("pageTitle", detail.title() + " - JLAS");
