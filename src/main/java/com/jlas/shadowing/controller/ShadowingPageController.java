@@ -19,6 +19,14 @@ public class ShadowingPageController {
         return "shadowing/upload";
     }
 
+    /** Compatibility for an early processing-page redirect. */
+    @GetMapping("/shadowing/create")
+    public String legacyCreate(@RequestParam(value = "cancelled", required = false) Boolean cancelled) {
+        return Boolean.TRUE.equals(cancelled)
+                ? "redirect:/shadowing/upload?cancelled=1"
+                : "redirect:/shadowing/upload";
+    }
+
     @GetMapping("/shadowing/create/{id}/processing")
     public String processing(@PathVariable Long id, Model model) {
         model.addAttribute("videoId", id);

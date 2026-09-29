@@ -1261,11 +1261,9 @@
                 <div class="lesson-hero-rules" th:text="${rulesSummary}">C • K • QU</div>
                 <p class="lesson-hero-desc" th:text="${heroDesc}">Học cách chuyển...</p>
                 <div class="lesson-hero-meta">
-                    <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> <span th:text="${ruleCount} + ' Quy tắc'">3 Quy
-                            tắc</span></span>
+                    <span><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> <span th:text="${ruleCount} + ' Quy tắc'">3 Quy tắc</span></span>
                     <span><i class="fa-solid fa-book-bookmark" aria-hidden="true"></i> <span th:text="${exCount} + ' Ví dụ'">15 Ví dụ</span></span>
-                    <span><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span
-                            th:text="${quizCount > 0 ? quizCount : ruleCount * 5} + ' Bài tập'">5 Bài tập</span></span>
+                    <span><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span th:text="${quizCount > 0 ? quizCount : ruleCount * 5} + ' Bài tập'">5 Bài tập</span></span>
                     <span><i class="fa-regular fa-clock" aria-hidden="true"></i> 5–10 phút</span>
                 </div>
             </div>
@@ -1484,10 +1482,9 @@
                     </div>
                     <a th:if="${nextLesson}" th:href="@{'/learning/lesson/' + ${nextLesson.id}}" class="summary-cta">
                         Tiếp tục Bài <span th:text="${nextLesson.displayOrder}">2</span>
-                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </a>
                     <a th:unless="${nextLesson}" href="/learning/path" class="summary-cta">
-                        Về lộ trình học <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        Về lộ trình học
                     </a>
                 </div>
             </section>

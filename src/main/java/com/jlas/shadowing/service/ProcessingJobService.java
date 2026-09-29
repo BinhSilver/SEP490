@@ -5,6 +5,7 @@ import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.SubtitleRepository;
 import com.jlas.shadowing.repository.VideoRepository;
 import com.jlas.shadowing.util.SubtitleText;
+import com.jlas.shadowing.util.SubtitleSegmenter;
 import com.jlas.shadowing.util.NullSafe;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class ProcessingJobService {
             updateProgress(video, ProcessingStep.TRANSCRIBING, 30, null);
             if (!isActiveRun(videoId, runId)) return;
 
-            List<SubtitleDto> dtos = deepgramService.transcribe(audioPath);
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(deepgramService.transcribe(audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -106,6 +107,40 @@ public class ProcessingJobService {
         runPipeline(videoId, runId, false);
     }
 
+    /** Continues from the last durable checkpoint without discarding completed AI batches. */
+    @Async
+    public void resumeProcessing(Long videoId) {
+        long runId = nextRunId(videoId);
+        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (video == null) return;
+
+        List<Subtitle> savedSubs = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
+        if (video.getProcessingStep() == ProcessingStep.AI_PROCESSING && !savedSubs.isEmpty()) {
+            try {
+                video.setStatus(VideoStatus.PROCESSING);
+                video.setErrorMessage(null);
+                video.setProgressPercent(Math.max(55, safeProgress(video.getProgressPercent())));
+                videoRepository.save(video);
+                processAiBatches(video, savedSubs, lang(video), 55, 40, videoId, runId, true);
+                if (!isActiveRun(videoId, runId)) return;
+                finishProcessing(video, videoId);
+            } catch (Exception e) {
+                failProcessing(videoId, runId, e);
+            }
+            return;
+        }
+
+        // A stop can land between saving subtitles and recording the AI checkpoint.
+        // Those incomplete rows must not be combined with a new transcription.
+        if (!savedSubs.isEmpty()) {
+            clearSubtitles(videoId);
+        }
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        runPipeline(videoId, runId, false);
+    }
+
     private void runPipeline(Long videoId, long runId, boolean clearSubsAtStart) {
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
         if (video == null) {
@@ -129,7 +164,7 @@ public class ProcessingJobService {
             if (!isActiveRun(videoId, runId)) return;
 
             updateProgress(video, ProcessingStep.TRANSCRIBING, 25, null);
-            List<SubtitleDto> dtos = deepgramService.transcribe(audioPath);
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(deepgramService.transcribe(audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -138,18 +173,7 @@ public class ProcessingJobService {
             processAiBatches(video, savedSubs, lang(video), 55, 40, videoId, runId);
 
             if (!isActiveRun(videoId, runId)) return;
-            video.setStatus(VideoStatus.DRAFT);
-            video.setProcessingStep(ProcessingStep.DONE);
-            video.setProgressPercent(100);
-            video.setErrorMessage(null);
-            videoRepository.save(video);
-
-            // Text + quick/targeted vision (async-friendly; runs after DRAFT ready)
-            try {
-                videoModerationService.moderateVideo(videoId);
-            } catch (Exception modEx) {
-                System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
-            }
+            finishProcessing(video, videoId);
 
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
@@ -165,6 +189,11 @@ public class ProcessingJobService {
 
     private long nextRunId(Long videoId) {
         return runGeneration.computeIfAbsent(videoId, id -> new AtomicLong(0)).incrementAndGet();
+    }
+
+    /** Invalidates the active run so it cannot persist any later pipeline result. */
+    public void cancel(Long videoId) {
+        nextRunId(videoId);
     }
 
     private boolean isActiveRun(Long videoId, long runId) {
@@ -229,20 +258,32 @@ public class ProcessingJobService {
     private void processAiBatches(Video video, List<Subtitle> savedSubs, String lang,
                                     int progressStart, int progressRange,
                                     Long videoId, long runId) {
-        if (savedSubs.isEmpty()) return;
+        processAiBatches(video, savedSubs, lang, progressStart, progressRange, videoId, runId, false);
+    }
+
+    private void processAiBatches(Video video, List<Subtitle> savedSubs, String lang,
+                                  int progressStart, int progressRange,
+                                  Long videoId, long runId, boolean onlyUnfinished) {
+        List<Subtitle> workItems = onlyUnfinished
+                ? savedSubs.stream().filter(sub -> sub.getAiStatus() != AiStatus.COMPLETED).toList()
+                : savedSubs;
+        if (workItems.isEmpty()) {
+            updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart + progressRange, null);
+            return;
+        }
 
         updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart, null);
 
-        int batchSize = resolveAiBatchSize(savedSubs.size());
-        int totalRounds = (savedSubs.size() + batchSize - 1) / batchSize;
-        System.out.println("[Upload AI] " + savedSubs.size() + " lines  "
+        int batchSize = resolveAiBatchSize(workItems.size());
+        int totalRounds = (workItems.size() + batchSize - 1) / batchSize;
+        System.out.println("[Upload AI] " + workItems.size() + " lines  "
                 + totalRounds + " round(s) × ~" + batchSize);
 
-        for (int i = 0, round = 1; i < savedSubs.size(); i += batchSize, round++) {
+        for (int i = 0, round = 1; i < workItems.size(); i += batchSize, round++) {
             if (!isActiveRun(videoId, runId)) return;
 
-            int end = Math.min(i + batchSize, savedSubs.size());
-            List<Subtitle> batch = savedSubs.subList(i, end);
+            int end = Math.min(i + batchSize, workItems.size());
+            List<Subtitle> batch = workItems.subList(i, end);
             List<String> texts = batch.stream().map(sub -> sub.getText()).toList();
             System.out.println("[Upload AI] round " + round + "/" + totalRounds
                     + " lines " + (i + 1) + "–" + end);
@@ -267,9 +308,36 @@ public class ProcessingJobService {
                 subtitleRepository.save(sub);
             }
 
-            int progress = progressStart + (int) ((end / (double) savedSubs.size()) * progressRange);
+            int progress = progressStart + (int) ((end / (double) workItems.size()) * progressRange);
             updateProgress(video, ProcessingStep.AI_PROCESSING, progress, null);
         }
+    }
+
+    private void finishProcessing(Video video, Long videoId) {
+        video.setStatus(VideoStatus.DRAFT);
+        video.setProcessingStep(ProcessingStep.DONE);
+        video.setProgressPercent(100);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        try {
+            videoModerationService.moderateVideo(videoId);
+        } catch (Exception modEx) {
+            System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
+        }
+    }
+
+    private void failProcessing(Long videoId, long runId, Exception e) {
+        if (!isActiveRun(videoId, runId)) return;
+        Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (failed != null) {
+            failed.setStatus(VideoStatus.FAILED);
+            failed.setErrorMessage(e.getMessage());
+            videoRepository.save(failed);
+        }
+    }
+
+    private int safeProgress(Integer progress) {
+        return progress == null ? 0 : progress;
     }
 
     /**

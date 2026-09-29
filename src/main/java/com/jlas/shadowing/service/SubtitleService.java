@@ -22,6 +22,7 @@ public class SubtitleService {
     @Autowired private VocabularyEntryRepository vocabularyEntryRepository;
     @Autowired private OpenRouterService openRouterService;
     @Autowired @Lazy private ProcessingJobService processingJobService;
+    @Autowired private SubtitleQualityReviewService subtitleQualityReviewService;
 
     public List<Subtitle> getByVideoId(Long videoId) {
         List<Subtitle> subtitles = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
@@ -283,6 +284,12 @@ public class SubtitleService {
             errors.add("Chưa có câu phụ đề nào");
         }
 
+        int pendingQualityReviews = subtitleQualityReviewService.countNeedsReview(videoId);
+        if (pendingQualityReviews > 0) {
+            errors.add("Còn " + pendingQualityReviews
+                    + " câu phụ đề cần xác nhận theo audio trước khi xuất bản");
+        }
+
         String transcript = subs.stream()
                 .map(Subtitle::getText)
                 .filter(text -> text != null && !text.isBlank())
@@ -331,6 +338,7 @@ public class SubtitleService {
         result.put("errors", errors);
         result.put("warnings", warnings);
         result.put("canPublish", errors.isEmpty());
+        result.put("pendingQualityReviews", pendingQualityReviews);
         return result;
     }
 }

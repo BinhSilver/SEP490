@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Gõ phản xạ · Flashcard JLAS</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="/css/theme-bridge.css">
   <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/flashcard/speed-recall.css">
+<link rel="stylesheet" href="/flashcard/speed-recall.css">
+<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=12">
   <link rel="stylesheet" href="/css/jlab-base-shell.css">
 </head>
 <body id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
@@ -21,17 +23,26 @@
     </div>
 
     <section id="setup" class="sr-setup" aria-labelledby="set-title" hidden>
-      <h1 id="set-title" class="sr-set-title"></h1>
-      <p class="sr-lead">Luyện đọc từ trong bộ thẻ của bạn. Mỗi câu bắt đầu với 6 giây; chuỗi đúng càng dài, nhịp học càng nhanh.</p>
-      <p id="eligible-count"></p>
-      <form id="setup-form">
-        <div class="sr-fields">
-          <label>Thẻ muốn luyện
-            <select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="STARRED">Thẻ đánh dấu sao</option></select>
+      <header class="sr-setup__heading">
+        <h1 id="set-title" class="sr-set-title"></h1>
+        <div class="sr-setup__meta"><span>Luyện đọc bằng kana.</span><i aria-hidden="true"></i><strong id="eligible-count">0 thẻ sẵn sàng</strong></div>
+      </header>
+      <form id="setup-form" class="sr-setup__card">
+        <div class="sr-setup__grid">
+          <label class="sr-setup__field">Thẻ
+            <span class="sr-setup__control"><select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="STARRED">Thẻ đánh dấu sao</option></select></span>
           </label>
-          <label><span id="count-label">Số câu hỏi</span> <input id="count" type="number" min="1" step="1" inputmode="numeric" value="1" required></label>
+          <label class="sr-setup__field"><span id="count-label">Số câu</span>
+            <span class="sr-setup__control"><input id="count" type="number" min="1" step="1" inputmode="numeric" value="1" required><small id="count-suffix">/ 0 thẻ</small></span>
+          </label>
+          <div class="sr-setup__field"><span>Hỏi bằng</span>
+            <div class="sr-setup__segments" style="--mode-count:4" role="group" aria-label="Nội dung câu hỏi"><span class="is-active">Kanji</span><span>Hiragana</span><span>Nghĩa</span><span>Hán Việt</span></div>
+          </div>
+          <div class="sr-setup__field"><span>Đáp bằng</span>
+            <div class="sr-setup__segments" style="--mode-count:4" role="group" aria-label="Nội dung đáp án"><span>Kanji</span><span class="is-active">Hiragana</span><span>Nghĩa</span><span>Hán Việt</span></div>
+          </div>
         </div>
-        <p class="sr-help">Bật bàn phím tiếng Nhật (IME) và gõ cách đọc bằng kana.</p>
+        <div class="sr-setup__help"><span><i class="fa-regular fa-keyboard" aria-hidden="true"></i> Gõ bằng kana</span><span>Phím tắt Enter để bắt đầu</span></div>
         <button id="start" class="sr-button sr-primary" type="submit">Bắt đầu luyện</button>
       </form>
     </section>
@@ -61,7 +72,7 @@
         <strong id="feedback-title"></strong><span id="feedback-score"></span>
         <p><span id="feedback-word" lang="ja"></span> · <span id="feedback-reading" lang="ja"></span></p>
         <p id="feedback-meaning"></p><p id="feedback-answer"></p>
-        <button id="next-question" type="button" class="sr-game-next" hidden>Câu tiếp <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        <button id="next-question" type="button" class="sr-game-next" hidden>Câu tiếp</button>
       </div>
     </section>
 
@@ -105,6 +116,6 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
-  <script type="module" src="/flashcard/js/speed-recall/page.js"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js?v=2"></script>
 </body>
 </html>

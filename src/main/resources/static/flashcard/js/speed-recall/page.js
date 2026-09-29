@@ -6,13 +6,14 @@ import { $, text, show, slots, review } from './view.js';
 
 const params = new URLSearchParams(location.search);
 const setId = params.get('setId');
+const autoStart = params.get('autostart') === '1';
 let sessionId = params.get('sessionId'), page = 0, options, retryOperation;
 let compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false, incorrectResetTimer;
 const INCORRECT_REVEAL_MS = 1000;
 const api = createApi(setId), engine = new RecallEngine(), timer = createTimer();
 const events = new AbortController();
 const studyUrl = '/flashcard/speed-recall.html?setId=' + encodeURIComponent(setId || '');
-const setUrl = '/flashcard/set.html?id=' + encodeURIComponent(setId || '');
+const setUrl = '/flashcard/study.html?setId=' + encodeURIComponent(setId || '');
 const terminal = state => ['FINISHED', 'ABANDONED', 'EXPIRED'].includes(state);
 const labels = { READY: 'Chưa bắt đầu', PLAYING: 'Đang học', ANSWER_FEEDBACK: 'Đang học', PAUSED: 'Tạm dừng', FINISHED: 'Đã hoàn tất', ABANDONED: 'Đã kết thúc sớm', EXPIRED: 'Phiên đã hết hạn' };
 const filters = { ALL: 'Tất cả thẻ', LEARNING: 'Thẻ mới / chưa nhớ', STARRED: 'Thẻ có sao', RETRY: 'Luyện lại từ sai' };
@@ -49,8 +50,9 @@ function optionSummary() {
   const current = Number(count.value);
   count.max = String(total);
   count.value = String(Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
-  text('count-label', 'Số câu hỏi (tối đa ' + total + ')');
-  text('eligible-count', total + ' thẻ phù hợp với bộ lọc · ' + options.excluded + ' thẻ thiếu dữ liệu hợp lệ hoặc trùng từ/cách đọc.');
+  text('count-label', 'Số câu');
+  text('count-suffix', '/ ' + total + ' thẻ');
+  text('eligible-count', total + ' thẻ sẵn sàng');
   controls();
 }
 function validQuestionCount(report) {
@@ -285,5 +287,9 @@ void run(async () => {
   options = await api.options(); text('set-title', options.title); optionSummary();
   if (location.pathname.endsWith('speed-recall-history.html')) await loadHistory();
   else if (sessionId) accept(await api.state(sessionId));
-  else section('setup');
+  else if (autoStart) {
+    const count = available();
+    if (!count) throw new Error('Bộ thẻ này chưa có thẻ hợp lệ để luyện phản xạ.');
+    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: true }));
+  } else section('setup');
 });

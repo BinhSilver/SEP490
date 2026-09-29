@@ -77,6 +77,12 @@ youtube:
     duration:
       no-subtitle:
         seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
+  subtitle:
+    quality:
+      enabled: ${YOUTUBE_SUBTITLE_QUALITY_ENABLED:true}
+      max-duration-seconds: ${YOUTUBE_SUBTITLE_QUALITY_MAX_DURATION_SECONDS:300}
+      minimum-match-score: ${YOUTUBE_SUBTITLE_QUALITY_MINIMUM_MATCH_SCORE:0.82}
+      time-overlap-padding-seconds: ${YOUTUBE_SUBTITLE_QUALITY_TIME_OVERLAP_PADDING_SECONDS:0.30}
 
 deepgram:
   api:

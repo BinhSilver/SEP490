@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMsg = document.getElementById('error-msg');
     const retryBtn = document.getElementById('retry-btn');
     const doneButton = document.getElementById('processing-done-button');
+    const stopButton = document.getElementById('stop-processing-button');
+    const resumeButton = document.getElementById('resume-processing-button');
+    const abandonButton = document.getElementById('abandon-processing-button');
     const steps = document.querySelectorAll('.progress-steps li');
     const kitsuTitle = document.querySelector('#processingKitsuGuide .kitsu-guide__title');
     const kitsuMessage = document.querySelector('#processingKitsuGuide .kitsu-guide__message');
@@ -16,7 +19,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 'UPLOADED';
     let furthestStepIndex = 0;
     let complete = false;
+    let stopped = false;
+    let retryLabel = 'Thử lại';
     const startedAt = Date.now();
+
+    // The video status endpoint is authoritative. An imported lesson is done
+    // at DRAFT + DONE; it must be reviewed in the editor before publication.
+    function isProcessingFinished(data) {
+        return (data?.status === 'DRAFT' || data?.status === 'READY')
+            && data?.processingStep === 'DONE'
+            && Number(data?.progressPercent) >= 100;
+    }
+
+    if (doneButton) doneButton.style.display = 'none';
 
     const STUCK_MS_BY_STEP = {
         YOUTUBE_DOWNLOAD: 2400000,
@@ -110,38 +125,64 @@ document.addEventListener('DOMContentLoaded', () => {
         progressText.textContent = '100%';
         updateSteps('DONE');
         updateKitsu('DONE', false);
-        stepStatus.textContent = 'Bài học đã sẵn sàng.';
+        const isDraft = data?.status === 'DRAFT';
+        stepStatus.textContent = isDraft
+            ? 'Đã xử lý xong. Hãy kiểm tra phụ đề trước khi xuất bản.'
+            : 'Bài học đã sẵn sàng.';
         errorMsg.style.display = 'none';
         retryBtn.style.display = 'none';
+        if (stopButton) stopButton.hidden = true;
+        if (resumeButton) resumeButton.hidden = true;
+        if (abandonButton) abandonButton.hidden = true;
         if (data && data.title) videoTitle.textContent = `Đã tạo xong: "${data.title}"`;
-        if (doneButton) doneButton.hidden = false;
-    }
-
-    function showDraftReady(data) {
-        if (complete) return;
-        complete = true;
-        currentStep = 'DONE';
-        progressFill.style.width = '100%';
-        progressText.textContent = '100%';
-        updateSteps('DONE');
-        stepStatus.textContent = 'Đã tạo bản nháp — sẵn sàng chỉnh sửa phụ đề.';
-        errorMsg.style.display = 'none';
-        retryBtn.style.display = 'none';
-        if (data && data.title) videoTitle.textContent = `Bản nháp: "${data.title}"`;
         if (doneButton) {
             doneButton.hidden = false;
-            doneButton.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Mở trình chỉnh sửa phụ đề';
-            doneButton.onclick = () => { window.location.href = `/shadowing/editor/${videoId}`; };
+            doneButton.style.display = 'inline-flex';
+            doneButton.innerHTML = isDraft
+                ? '<i class="fa-solid fa-pen-to-square"></i> Kiểm tra và chỉnh sửa phụ đề'
+                : '<i class="fa-solid fa-check"></i> Bài học đã hoàn tất — về thư viện Shadowing';
+            doneButton.onclick = () => {
+                window.location.href = isDraft ? `/shadowing/editor/${videoId}` : '/shadowing';
+            };
         }
     }
 
-    function showReadyState(data) {
-        if (data?.status === 'READY' || data?.videoStatus === 'READY') showComplete(data);
-        else showDraftReady(data);
+    function isUserCancelled(message) {
+        return String(message || '').includes('Đã dừng xử lý theo yêu cầu');
+    }
+
+    function isUserAbandoned(message) {
+        return String(message || '').includes('Đã bỏ tiến trình tạo bài');
+    }
+
+    function showCancelled(message) {
+        stopped = true;
+        stepStatus.textContent = 'Đã dừng xử lý bài học.';
+        errorMsg.style.display = 'none';
+        retryBtn.style.display = 'none';
+        if (stopButton) stopButton.hidden = true;
+        if (resumeButton) {
+            resumeButton.hidden = false;
+            resumeButton.style.display = 'inline-flex';
+        }
+        if (abandonButton) abandonButton.hidden = false;
+    }
+
+    function showAbandoned(message) {
+        stopped = true;
+        stepStatus.textContent = message;
+        errorMsg.style.display = 'none';
+        if (stopButton) stopButton.hidden = true;
+        if (resumeButton) resumeButton.hidden = true;
+        if (abandonButton) abandonButton.hidden = true;
+        retryLabel = 'Tạo lại từ đầu';
+        retryBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Tạo lại từ đầu';
+        retryBtn.style.display = 'inline-block';
+        retryBtn.disabled = false;
     }
 
     async function poll() {
-        if (complete) return;
+        if (complete || stopped) return;
         try {
             const headers = authHeaders();
             const [ytRes, videoRes] = await Promise.all([
@@ -161,14 +202,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     progressFill.style.width = pct + '%';
                     progressText.textContent = pct + '%';
                     stepStatus.textContent = ytData.status || 'Đang xử lý...';
-                    const ytDone = ytData.videoStatus === 'READY'
-                        || (ytData.videoStatus === 'DRAFT' && ytData.processingStep === 'DONE');
-                    if (ytDone) {
-                        showReadyState(ytData);
-                        return;
-                    }
                     if (ytData.videoStatus === 'FAILED') {
                         const failureMessage = ytData.errorMessage || 'Xử lý thất bại.';
+                        if (isUserCancelled(failureMessage)) {
+                            showCancelled(failureMessage);
+                            return;
+                        }
+                        if (isUserAbandoned(failureMessage)) {
+                            showAbandoned(failureMessage);
+                            return;
+                        }
                         updateKitsu(currentStep, true, isNonJapaneseFailure(failureMessage));
                         errorMsg.style.display = 'block';
                         errorMsg.textContent = failureMessage;
@@ -187,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 videoTitle.title = data.title;
             }
 
-            const pct = ytData?.progress ?? data.progressPercent ?? 0;
+            const pct = data.progressPercent ?? ytData?.progress ?? 0;
             progressFill.style.width = pct + '%';
             progressText.textContent = pct + '%';
             const elapsedMin = Math.floor((Date.now() - startedAt) / 60000);
@@ -210,21 +253,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 statusText = stepLabels[step] || statusText || 'Đang xử lý...';
             } else if (data.status === 'DRAFT' && step === 'DONE') {
-                statusText = 'Đã tạo bản nháp — sẵn sàng chỉnh sửa';
+                statusText = 'Đã xử lý xong — cần kiểm tra phụ đề';
             } else if (data.status === 'READY') {
                 statusText = 'Bài học đã sẵn sàng';
             }
             stepStatus.textContent = statusText + (elapsedMin > 0 ? ` (${elapsedMin} phút)` : '');
 
-            if (data.status === 'READY' || (data.status === 'DRAFT' && step === 'DONE')) {
-                showReadyState(data);
+            if (isProcessingFinished(data)) {
+                showComplete(data);
                 return;
             }
             if (data.status === 'FAILED') {
                 const failureMessage = data.errorMessage || ytData?.errorMessage || 'Xử lý thất bại.';
+                if (isUserCancelled(failureMessage)) {
+                    showCancelled(failureMessage);
+                    return;
+                }
+                if (isUserAbandoned(failureMessage)) {
+                    showAbandoned(failureMessage);
+                    return;
+                }
+                if (stopButton) stopButton.hidden = true;
+                if (abandonButton) abandonButton.hidden = true;
                 updateKitsu(step, true, isNonJapaneseFailure(failureMessage));
                 errorMsg.style.display = 'block';
                 errorMsg.textContent = failureMessage;
+                retryLabel = 'Thử lại';
+                retryBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Thử lại';
                 retryBtn.style.display = 'inline-block';
                 retryBtn.disabled = false;
                 return;
@@ -234,11 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 retryBtn.style.display = 'none';
                 retryBtn.disabled = true;
             }
-            if (data.status === 'READY') {
-                showComplete(data);
-                return;
-            }
-
             if (pct !== lastProgress) {
                 lastProgress = pct;
                 stuckSince = Date.now();
@@ -266,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (retryInFlight) return;
         retryInFlight = true;
         retryBtn.disabled = true;
-        retryBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang thử lại...';
+        retryBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo lại...';
         errorMsg.style.display = 'none';
         try {
             await fetch(`/api/videos/${videoId}/retry`, { method: 'POST', headers: authHeaders() });
@@ -275,7 +325,100 @@ document.addEventListener('DOMContentLoaded', () => {
             poll();
         } finally {
             retryInFlight = false;
-            retryBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Thử lại';
+            retryBtn.innerHTML = `<i class="fa-solid fa-rotate-right"></i> ${retryLabel}`;
+        }
+    });
+
+    stopButton?.addEventListener('click', async () => {
+        const confirmed = typeof window.showConfirm === 'function'
+            ? await window.showConfirm({
+                title: 'Dừng xử lý bài học?',
+                message: 'Bài học sẽ tạm dừng. Bạn có thể tiếp tục từ phần đã lưu nếu không thay đổi thiết lập.',
+                confirmText: 'Dừng xử lý',
+                cancelText: 'Tiếp tục xử lý',
+                variant: 'danger'
+            })
+            : window.confirm('Dừng xử lý bài học?');
+        if (!confirmed) return;
+
+        stopButton.disabled = true;
+        stopButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang dừng...';
+        try {
+            const response = await fetch(`/api/videos/${videoId}/cancel`, {
+                method: 'POST', headers: authHeaders()
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || data.error || 'Không thể dừng xử lý.');
+            showCancelled(data.message || 'Đã dừng xử lý bài học.');
+        } catch (error) {
+            stopButton.disabled = false;
+            stopButton.innerHTML = '<i class="fa-solid fa-stop"></i> Dừng xử lý';
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = error.message || 'Không thể dừng xử lý.';
+        }
+    });
+
+    abandonButton?.addEventListener('click', async () => {
+        const confirmed = typeof window.showConfirm === 'function'
+            ? await window.showConfirm({
+                title: 'Bỏ tiến trình tạo bài?',
+                message: 'Bài này sẽ không thể tiếp tục từ bước đang lưu. Bản nháp vẫn được giữ lại để bạn tạo lại từ đầu.',
+                confirmText: 'Bỏ tiến trình',
+                cancelText: 'Giữ tiến trình',
+                variant: 'danger'
+            })
+            : window.confirm('Bỏ tiến trình tạo bài? Bản nháp sẽ được giữ lại để tạo lại từ đầu.');
+        if (!confirmed) return;
+
+        abandonButton.disabled = true;
+        abandonButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang bỏ...';
+        try {
+            const response = await fetch(`/api/videos/${videoId}/abandon`, {
+                method: 'POST', headers: authHeaders()
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || data.error || 'Không thể bỏ tiến trình.');
+            window.location.href = '/shadowing';
+        } catch (error) {
+            abandonButton.disabled = false;
+            abandonButton.innerHTML = '<i class="fa-solid fa-ban"></i> Bỏ tiến trình';
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = error.message || 'Không thể bỏ tiến trình.';
+        }
+    });
+
+    let resumeInFlight = false;
+    resumeButton?.addEventListener('click', async () => {
+        if (resumeInFlight) return;
+        resumeInFlight = true;
+        resumeButton.disabled = true;
+        resumeButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tiếp tục...';
+        try {
+            const response = await fetch(`/api/videos/${videoId}/resume`, {
+                method: 'POST', headers: authHeaders()
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || data.error || 'Không thể tiếp tục xử lý.');
+            stopped = false;
+            retryLabel = 'Thử lại';
+            lastProgress = -1;
+            stuckSince = Date.now();
+            resumeButton.hidden = true;
+            if (stopButton) {
+                stopButton.hidden = false;
+                stopButton.disabled = false;
+                stopButton.innerHTML = '<i class="fa-solid fa-stop"></i> Dừng xử lý';
+            }
+            if (abandonButton) abandonButton.hidden = false;
+            stepStatus.textContent = data.message || 'Đang tiếp tục xử lý...';
+            poll();
+        } catch (error) {
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = error.message || 'Không thể tiếp tục xử lý.';
+            resumeButton.disabled = false;
+        } finally {
+            resumeInFlight = false;
+            if (!stopped) resumeButton.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục xử lý';
         }
     });
 
