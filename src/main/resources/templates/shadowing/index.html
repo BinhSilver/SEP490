@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/shadowing/css/styles.css">
     <link rel="icon" href="/images/logo.png" type="image/png"/>
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260924-library-badges"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260929-merge-ti"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20260901-no-bell-hover"/>
 </head>
 <body id="jlabBasePage" class="page-shadowing page-shadowing-library">
@@ -32,6 +32,14 @@
                     <option value="Daily">Hàng ngày</option>
                     <option value="Story">Truyện</option>
                     <option value="JLPT">JLPT</option>
+                </select>
+                <select id="level-filter" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo cấp độ JLPT">
+                    <option value="">Mọi cấp độ</option>
+                    <option value="N5">N5</option>
+                    <option value="N4">N4</option>
+                    <option value="N3">N3</option>
+                    <option value="N2">N2</option>
+                    <option value="N1">N1</option>
                 </select>
                 <select id="sort-select" class="form-input form-select" style="width:auto; border-radius:9999px;">
                     <option value="newest">Mới nhất</option>
@@ -68,6 +76,9 @@
                 </div>
 
                 <div class="library-tabs__actions">
+                    <a href="/shadowing/progress" class="button-icon-circular" title="Tiến độ của tôi" aria-label="Tiến độ của tôi">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </a>
                     <button type="button" id="create-series-btn" class="button-icon-circular" title="Tạo series từ video của tôi" aria-label="Tạo series">
                         <i class="fa-solid fa-list-check"></i>
                     </button>
@@ -121,7 +132,7 @@
     <script src="/js/jlab-base-shell.js?v=20260901-logo3"></script>
     <script src="/shadowing/js/client.js"></script>
     <script src="/shadowing/js/confirm-modal.js"></script>
-    <script src="/shadowing/js/library.js?v=20260924-draft-restart"></script>
-    <script src="/shadowing/js/series-library.js?v=20260829-kitsu"></script>
+    <script src="/shadowing/js/library.js?v=20260929-merge-ti"></script>
+    <script src="/shadowing/js/series-library.js?v=20260929-level-corner"></script>
 </body>
 </html>

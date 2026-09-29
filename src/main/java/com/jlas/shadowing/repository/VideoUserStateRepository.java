@@ -12,6 +12,5 @@ public interface VideoUserStateRepository extends JpaRepository<VideoUserState, 
     @Query("select avg(s.rating) from VideoUserState s where s.videoId = :videoId and s.rating is not null")
     Double averageRating(@Param("videoId") Long videoId);
     long countByVideoIdAndRatingIsNotNull(Long videoId);
-    long countByVideoIdAndCountedAsViewTrue(Long videoId);
     @Modifying void deleteByVideoId(Long videoId);
 }

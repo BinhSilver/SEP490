@@ -7,9 +7,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/** Local compatibility. Shared deployments apply sql/migrations/004_shadowing_subtitle_quality_review.sql. */
+/** Creates the table for DBs that have not run sql/jlas_migrations_all.sql yet (practice/import read it). */
 @Component
-@Profile("local")
+@Profile("!test")
 @Order(4)
 public class SubtitleQualityReviewSchemaInitializer implements ApplicationRunner {
     private final JdbcTemplate jdbc;

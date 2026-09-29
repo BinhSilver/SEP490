@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -146,7 +147,10 @@ public class OpenRouterService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OpenRouterService() {
-        this.restTemplate = new RestTemplate();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10_000);
+        factory.setReadTimeout(55_000);
+        this.restTemplate = new RestTemplate(factory);
         this.restTemplate.getMessageConverters().add(0,
                 new StringHttpMessageConverter(Objects.requireNonNull(StandardCharsets.UTF_8)));
     }
@@ -217,6 +221,93 @@ public class OpenRouterService {
             processUncachedWithRecovery(uncachedTexts, uncachedIndices, lang, results, generateFurigana);
         }
         return results;
+    }
+
+    /** Used when YouTube already supplied a translation: request readings only. */
+    public List<Map<String, String>> processFuriganaOnlyBatch(List<String> texts,
+            List<String> translations, String language) {
+        String lang = language == null ? "vi" : language;
+        List<Map<String, String>> results = new ArrayList<>();
+        List<String> missing = new ArrayList<>();
+        List<Integer> missingPositions = new ArrayList<>();
+        for (int index = 0; index < texts.size(); index++) {
+            String clean = SubtitleText.normalizeJapanese(texts.get(index));
+            String translated = translations.get(index) == null ? "" : translations.get(index);
+            Optional<FuriganaCache> cached = furiganaCacheRepository
+                    .findByOriginalTextAndTargetLanguage(clean, lang);
+            String furi = cached.map(FuriganaCache::getFurigana).orElse("");
+            if (!isValidFurigana(clean, furi)) {
+                missing.add(clean);
+                missingPositions.add(index);
+                furi = clean;
+            }
+            results.add(new HashMap<>(Map.of("furigana", furi, "translation", translated)));
+        }
+        if (!missing.isEmpty()) {
+            List<String> generated = fetchFuriganaOnly(missing, 0);
+            for (int index = 0; index < missing.size(); index++) {
+                int position = missingPositions.get(index);
+                String clean = missing.get(index);
+                String furi = generated.get(index);
+                results.get(position).put("furigana", furi);
+                if (isValidFurigana(clean, furi) && !furi.equals(clean)) {
+                    saveCache(clean, lang, results.get(position));
+                }
+            }
+        }
+        return results;
+    }
+
+    private List<String> fetchFuriganaOnly(List<String> texts, int depth) {
+        try {
+            StringBuilder input = new StringBuilder();
+            for (int index = 0; index < texts.size(); index++) {
+                input.append(index + 1).append(". ").append(texts.get(index)).append('\n');
+            }
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("model", model);
+            body.put("temperature", 0);
+            body.put("max_tokens", Math.min(maxTokens, 600 + texts.size() * 450));
+            body.put("reasoning", Map.of("effort", "low", "exclude", true));
+            body.put("messages", List.of(
+                    Map.of("role", "system", "content", "Add furigana to kanji in each Japanese line. "
+                            + "Return only a JSON array with exactly one object per input line in order: "
+                            + "[{\"furigana\":\"full original line with 漢字(かな)\"}]. "
+                            + "Do not translate, change, skip, or merge lines."),
+                    Map.of("role", "user", "content", input.toString())));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(apiKey.trim());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String endpoint = "https://openrouter.ai/api/v1/chat/completions";
+            ResponseEntity<String> response;
+            try {
+                response = postWithRetry(endpoint, new HttpEntity<>(body, headers), 2);
+            } catch (HttpClientErrorException exception) {
+                if (exception.getStatusCode().value() != 400) throw exception;
+                body.remove("reasoning");
+                response = postWithRetry(endpoint, new HttpEntity<>(body, headers), 2);
+            }
+            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode array = extractResultArray(extractMessageContent(root));
+            if (array != null && array.size() == texts.size()) {
+                List<String> output = new ArrayList<>();
+                for (int index = 0; index < texts.size(); index++) {
+                    String text = texts.get(index);
+                    String furi = SubtitleText.sanitizeAiField(array.get(index).path("furigana").asText(""));
+                    output.add(isValidFurigana(text, furi) ? furi : text);
+                }
+                return output;
+            }
+        } catch (Exception exception) {
+            System.err.println("Furigana-only batch failed: " + exception.getClass().getSimpleName());
+        }
+        if (texts.size() > 1 && depth < 3) {
+            int half = texts.size() / 2;
+            List<String> output = new ArrayList<>(fetchFuriganaOnly(texts.subList(0, half), depth + 1));
+            output.addAll(fetchFuriganaOnly(texts.subList(half, texts.size()), depth + 1));
+            return output;
+        }
+        return new ArrayList<>(texts);
     }
 
     private void processUncachedWithRecovery(List<String> texts, List<Integer> indices,
@@ -438,8 +529,10 @@ public class OpenRouterService {
                     langLabel, texts.size(), texts.size(), langLabel, numbered.toString().stripTrailing());
         }
 
-        // Budget scales with lines in this round, capped by config (multi-pass keeps n small)
-        int completionBudget = Math.min(maxTokens, Math.max(2048, 1024 + texts.size() * 2000));
+        // Reserve for actual subtitle length instead of a fixed 2k tokens per line.
+        int characters = texts.stream().mapToInt(text -> Math.min(500,
+                text.codePointCount(0, text.length()))).sum();
+        int completionBudget = Math.min(maxTokens, Math.max(2048, 1024 + characters * 8));
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", model);
@@ -658,13 +751,11 @@ public class OpenRouterService {
     }
 
     private boolean isValidFurigana(String original, String furigana) {
-        if (furigana == null || furigana.isBlank())
-            return !containsKanji(original);
-        if (furigana.contains("(") && furigana.contains(")"))
-            return true;
-        if (!containsKanji(original))
-            return true;
-        return false;
+        if (furigana == null || furigana.isBlank()) return !containsKanji(original);
+        String surface = furigana.replaceAll(
+                "([\\p{IsHan}々〆ヵヶ]+)[（(][ぁ-んァ-ヶー]+[）)]", "$1");
+        return original.equals(surface)
+                && (!containsKanji(original) || !surface.equals(furigana));
     }
 
     private boolean containsKanji(String text) {

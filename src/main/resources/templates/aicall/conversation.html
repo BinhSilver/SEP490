@@ -46,6 +46,8 @@
             </div>
             <div class="cv-header-actions">
                 <span class="badge badge-blue" id="stateBadge" th:text="${currentStateName}">State</span>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnEndSession" th:if="${inProgress == true}"
+                        title="Kết thúc phiên và xem kết quả"><i class="fa-solid fa-phone-slash"></i> Kết thúc</button>
             </div>
         </div>
 
@@ -398,7 +400,8 @@
       <p id="quotaMessage" class="muted">Bạn đã dùng hết thời lượng hội thoại miễn phí hôm nay.</p>
       <ul class="quota-usage" id="quotaUsage"></ul>
       <div class="quota-actions">
-        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Mua thêm Credit</button>
+        <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden><i class="fa-solid fa-coins"></i> Dùng CP cho lượt này</button>
+        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Xem lịch sử CP</button>
         <button class="button-primary btn-sm" id="btnQuotaUpgrade"><i class="fa-solid fa-crown"></i> Nâng cấp Premium</button>
       </div>
     </div>
@@ -418,6 +421,6 @@
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
-<script th:src="@{/js/conversation.js(v='20260907-1')}"></script>
+<script th:src="@{/js/conversation.js(v='20260928-w0199')}"></script>
 </body>
 </html>

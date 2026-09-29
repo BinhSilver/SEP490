@@ -13,8 +13,11 @@ import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.*;
 import com.jlas.shadowing.util.NullSafe;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +25,14 @@ import java.util.stream.Collectors;
 @Service
 public class InteractionService {
 
-    private static final double VIEW_THRESHOLD = 0.8;
+    /** Seconds of real listening that make one view. */
+    private static final double VIEW_LISTEN_SEC = 30;
+    /** Share of a clip shorter than {@link #VIEW_LISTEN_SEC} that must be heard. */
+    private static final double SHORT_CLIP_RATIO = 0.9;
+    private static final Duration VIEW_COOLDOWN = Duration.ofHours(24);
+    /** The client pings about every 5s; 15s leaves room for a missed ping at 2× speed. */
+    private static final double MAX_LISTEN_PER_PING_SEC = 15;
+    private static final double MAX_PLAYBACK_RATE = 2;
 
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoRatingRepository ratingRepository;
@@ -33,7 +43,8 @@ public class InteractionService {
     @Autowired private UserDirectoryPort userDirectory;
     @Autowired private ContentModerationPort moderationPort;
     @Autowired private UserActionPolicyPort actionPolicy;
-    @Autowired private ShadowingUnlockService unlockService;
+    @Autowired private VideoViewRepository videoViews;
+    @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private UserNotificationPort notifications;
 
     public Set<Long> getFavoriteVideoIds(String clientId) {
@@ -174,15 +185,18 @@ public class InteractionService {
         commentRepository.delete(comment);
     }
 
+    /**
+     * Counts views like YouTube: 30s of real listening (seeks excluded) makes one view, each account
+     * counts at most once per video every 24h, and the owner's own plays never count.
+     */
     @Transactional
     public WatchResultDto recordWatch(Long videoId, WatchRequest req) {
         Long currentUserId = CurrentUser.requireUserId();
-        if (req.getDuration() == null || req.getDuration() <= 0) {
-            return new WatchResultDto(false, 0);
-        }
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        if (req.getDuration() == null || req.getDuration() <= 0) {
+            return new WatchResultDto(false, videoViews.viewCount(videoId), false);
+        }
         double current = req.getCurrentTime() != null ? req.getCurrentTime() : 0;
-        double duration = req.getDuration();
 
         String clientId = String.valueOf(currentUserId);
         VideoWatchSession session = watchSessionRepository
@@ -193,38 +207,49 @@ public class InteractionService {
                     s.setVideo(video);
                     return s;
                 });
-
         session.setMaxPositionSec(Math.max(session.getMaxPositionSec(), current));
 
-        boolean newlyCounted = false;
-        if (!Boolean.TRUE.equals(session.getCountedAsView())
-                && session.getMaxPositionSec() / duration >= VIEW_THRESHOLD) {
-            session.setCountedAsView(true);
-            video.setViewCount((video.getViewCount() != null ? video.getViewCount() : 0) + 1);
-            videoRepository.save(video);
-            newlyCounted = true;
-
-            // BR-03 — cộng credit cho creator khi user khác xem hoàn tất
-            unlockService.onCompletedView(video, currentUserId);
+        if (currentUserId.equals(video.getOwnerId())) {
+            watchSessionRepository.save(session);
+            return new WatchResultDto(false, videoViews.viewCount(videoId), true);
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        VideoViewRepository.Tracker tracker = videoViews.lockTracker(currentUserId, videoId);
+        if (tracker.lastCountedAt() != null && tracker.lastCountedAt().plus(VIEW_COOLDOWN).isAfter(now)) {
+            videoViews.saveTracker(currentUserId, videoId, 0, now, tracker.lastCountedAt());
+            watchSessionRepository.save(session);
+            return new WatchResultDto(false, videoViews.viewCount(videoId), true);
+        }
+
+        double listened = tracker.listenedSec() + creditedListenSec(req.getListenedSec(), tracker.lastPingAt(), now);
+        // Clips shorter than 30s must be heard almost to the end instead.
+        if (listened < Math.min(VIEW_LISTEN_SEC, req.getDuration() * SHORT_CLIP_RATIO)) {
+            videoViews.saveTracker(currentUserId, videoId, listened, now, tracker.lastCountedAt());
+            watchSessionRepository.save(session);
+            return new WatchResultDto(false, videoViews.viewCount(videoId), false);
+        }
+
+        videoViews.saveTracker(currentUserId, videoId, 0, now, now);
+        session.setCountedAsView(true);
         watchSessionRepository.save(session);
-        int viewCount = (int) watchSessionRepository.countViewsByVideoId(videoId);
-        if (newlyCounted) notifyViewMilestone(video, viewCount);
-        WatchResultDto result = new WatchResultDto(newlyCounted, viewCount);
-        return result;
+        int viewCount = videoViews.incrementViewCount(videoId);
+        eventPublisher.publishEvent(new ShadowingViewCounted(videoId, video.getOwnerId(), video.getTitle(), viewCount));
+        return new WatchResultDto(true, viewCount, true);
     }
 
-    private void notifyViewMilestone(Video video, int views) {
-        if (video.getOwnerId() == null) return;
-        for (int milestone : new int[] {10, 50, 100, 500, 1000}) {
-            if (views == milestone) {
-                notifications.notifyUser(video.getOwnerId(), "SHADOWING_VIEW_MILESTONE", "Bài Shadowing đạt mốc mới",
-                        "“" + video.getTitle() + "” đã đạt " + milestone + " lượt xem.",
-                        "/shadowing/player/" + video.getId(), "SHADOWING_VIEW_" + video.getId() + "_" + milestone);
-                return;
-            }
+    /**
+     * Trusts the client's listening time only up to what the wall clock allows since the last ping
+     * at the fastest playback speed, so replayed or parallel requests cannot inflate views.
+     */
+    private static double creditedListenSec(Double reported, LocalDateTime lastPingAt, LocalDateTime now) {
+        if (reported == null || !(reported > 0)) return 0;
+        double cap = MAX_LISTEN_PER_PING_SEC;
+        if (lastPingAt != null) {
+            double elapsedSec = Duration.between(lastPingAt, now).toMillis() / 1000.0;
+            cap = Math.min(cap, Math.max(0, elapsedSec) * MAX_PLAYBACK_RATE);
         }
+        return Math.min(reported, cap);
     }
 
     private CommentDto toCommentDto(Comment c, String clientId) {

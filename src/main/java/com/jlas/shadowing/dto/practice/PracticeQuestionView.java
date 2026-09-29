@@ -12,5 +12,9 @@ public record PracticeQuestionView(
         String promptText,
         String translation,
         boolean answered,
-        PracticeAnswerResponse previousAnswer) {
+        PracticeAnswerResponse previousAnswer,
+        String kind,
+        String level,
+        java.util.List<String> choices,
+        String explanation) {
 }

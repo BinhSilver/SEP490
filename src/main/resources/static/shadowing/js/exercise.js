@@ -25,9 +25,15 @@
   const kitsuVideo = document.getElementById('exercise-kitsu-video');
   const prompt = document.getElementById('exercise-prompt');
   const answerInput = document.getElementById('exercise-answer');
+  const choicesBox = document.getElementById('exercise-choices');
   const actions = document.getElementById('exercise-actions');
   const submitButton = document.getElementById('exercise-submit');
+  const retryButton = document.getElementById('exercise-retry');
+  const revealButton = document.getElementById('exercise-reveal');
   const nextButton = document.getElementById('exercise-next');
+  const partialFeedback = document.getElementById('exercise-partial-feedback');
+  const partialLine = document.getElementById('exercise-partial-line');
+  const explanation = document.getElementById('exercise-explanation');
   const status = document.getElementById('exercise-status');
   const completePanel = document.getElementById('exercise-complete');
   const workspace = document.getElementById('exercise-workspace');
@@ -65,6 +71,7 @@
   let sessionPaused = false;
   let resumePlaybackAfterPause = false;
   let pausedAnswerControls = null;
+  let submittingAnswer = false;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -137,6 +144,10 @@
 
   function setMedia(videoId, audioOnly) {
     if (String(mediaVideoId) === String(videoId)) return;
+    if (mediaVideoId == null && window.attachWatchTracker) {
+      // Listening practice plays the lesson video, so it earns views like the player does.
+      window.attachWatchTracker(media, videoId);
+    }
     mediaVideoId = videoId;
     media.src = window.mediaStreamUrl
       ? window.mediaStreamUrl(videoId)
@@ -156,7 +167,9 @@
 
   function concealedText(subtitle, stop) {
     if (!stop || isStopDone(stop)) return subtitle.text || '';
-    if (isCurrentStop(stop) && session?.mode === 'CLOZE') return question?.promptText || '＿＿＿';
+    if (isCurrentStop(stop) && (session?.mode === 'CLOZE'
+      || (session?.mode === 'LISTENING' && question?.kind === 'GAP')))
+      return gapSubtitleText(question);
     return '••••••  Câu kiểm tra #' + stop.number;
   }
 
@@ -205,12 +218,23 @@
     listenButton.setAttribute('aria-label', label);
   }
 
+  function isChoiceQuestion() {
+    return Boolean(session?.mode === 'LISTENING' && question?.kind && question.kind !== 'GAP');
+  }
+
+  function gapSubtitleText(item) {
+    const text = item?.promptText || '';
+    return text.includes('＿') || text.includes('_')
+      ? text.slice(text.lastIndexOf('\n') + 1) : '••••••';
+  }
+
   function renderPrompt(expectedAnswer) {
     const promptText = question?.promptText || '';
     prompt.replaceChildren();
+    prompt.lang = 'ja';
     const blank = /[＿_]{3,}/.exec(promptText);
     if (!blank) {
-      prompt.textContent = promptText;
+      prompt.textContent = promptText || expectedAnswer || '';
       return;
     }
 
@@ -342,6 +366,7 @@
       waitingState.hidden = true;
       kitsuTip.hidden = false;
       prompt.hidden = true;
+      choicesBox.hidden = true;
       answerInput.hidden = true;
       actions.hidden = true;
       setStatus('Sắp đến câu có cờ #' + pendingStop.number + '…', false);
@@ -470,6 +495,7 @@
     replayMode = false;
     finishingRemainder = false;
     questionPanel.classList.remove('is-waiting', 'is-finishing');
+    questionPanel.classList.toggle('has-choices', isChoiceQuestion());
     questionPanel.classList.add('is-listening');
     answerDock.hidden = true;
     waitingState.hidden = false;
@@ -482,10 +508,16 @@
     answerInput.value = '';
     answerInput.disabled = true;
     submitButton.disabled = true;
-    submitButton.hidden = false;
+    submitButton.hidden = isChoiceQuestion();
+    retryButton.hidden = true;
+    revealButton.hidden = true;
     nextButton.hidden = true;
     nextButton.disabled = false;
     answerInput.classList.remove('is-correct', 'is-incorrect');
+    choicesBox.hidden = true;
+    choicesBox.replaceChildren();
+    partialFeedback.hidden = true;
+    explanation.hidden = true;
     answerDock.scrollTop = 0;
     setStatus('', false);
   }
@@ -498,7 +530,8 @@
       return [Number(stop.subtitleId), stop];
     }));
     document.getElementById('exercise-video-title').textContent = view.videoTitle || 'Bài luyện nghe';
-    document.getElementById('exercise-mode-label').textContent = view.mode === 'CLOZE'
+    document.getElementById('exercise-mode-label').textContent = view.mode === 'LISTENING'
+      ? 'Nghe cả bài · Luyện nghe' : view.mode === 'CLOZE'
       ? 'Nghe cả bài · Điền từ hoặc cụm' : 'Nghe cả bài · Điền cả câu';
     document.getElementById('exercise-back-link').href = '/shadowing/practice/' + view.videoId;
     setMedia(view.videoId, view.audioOnly);
@@ -514,18 +547,20 @@
     question = view.question;
     resetQuestionUi();
     renderPrompt();
-    answerInput.rows = view.mode === 'CLOZE' ? 2 : 4;
-    answerInput.placeholder = view.mode === 'CLOZE'
+    answerInput.rows = view.mode === 'CLOZE' || question.level === 'EASY' ? 2 : 4;
+    answerInput.placeholder = view.mode === 'CLOZE' || question.level === 'EASY'
       ? 'Video dừng xong, nhập từ hoặc cụm từ còn thiếu…'
       : 'Video dừng xong, nhập toàn bộ câu bạn vừa nghe…';
+    renderChoices();
     renderMarkers();
     renderTranscript();
 
     const resumeTime = explicitResumeTime == null ? resumeTimeForCurrentQuestion() : explicitResumeTime;
     pendingStartTime = resumeTime;
     if (media.readyState >= 1) applyPendingPlayback();
-    if (question.answered && question.previousAnswer) {
+    if (question.previousAnswer) {
       stoppedAtQuestion = true;
+      answerInput.value = question.previousAnswer.userAnswer || '';
       renderResult(question.previousAnswer);
     } else if (autoResume) {
       playFrom(resumeTime, false);
@@ -533,7 +568,7 @@
   }
 
   function unlockAnswer() {
-    if (!question || question.answered || finishingRemainder) return;
+    if (!question || question.answered || finishingRemainder || submittingAnswer) return;
     stoppedAtQuestion = true;
     replayMode = false;
     media.pause();
@@ -546,20 +581,25 @@
     kitsuTip.hidden = true;
     kitsuVideo.pause();
     prompt.hidden = false;
-    answerInput.hidden = false;
-    actions.hidden = false;
+    answerInput.hidden = isChoiceQuestion();
+    actions.hidden = isChoiceQuestion();
     answerInput.disabled = false;
-    submitButton.disabled = false;
+    submitButton.hidden = isChoiceQuestion();
+    submitButton.disabled = isChoiceQuestion() && !answerInput.value;
+    renderChoices();
+    answerDock.scrollTop = 0;
     renderMarkers();
     renderTranscript();
     showLiveSubtitle(subtitles.find(function (item) {
       return Number(item.id) === Number(question.subtitleId);
     }));
     setStatus('', false);
-    if (session.mode === 'CLOZE') liveJapanese.textContent = question.promptText || '＿＿＿';
+    if (session.mode === 'CLOZE' || (session.mode === 'LISTENING' && question.kind === 'GAP'))
+      liveJapanese.textContent = gapSubtitleText(question);
     else liveJapanese.textContent = 'Câu kiểm tra đang được ẩn.';
     liveTranslation.textContent = '';
-    answerInput.focus();
+    if (isChoiceQuestion()) choicesBox.querySelector('button')?.focus({ preventScroll: true });
+    else answerInput.focus();
   }
 
   listenButton.addEventListener('click', function () {
@@ -730,7 +770,8 @@
   });
 
   function renderResult(result) {
-    if (question) question.answered = true;
+    const incorrect = result.result === 'INCORRECT';
+    if (question) question.answered = !incorrect;
     questionPanel.classList.remove('is-waiting');
     questionPanel.classList.remove('is-listening');
     answerDock.hidden = false;
@@ -738,33 +779,127 @@
     kitsuTip.hidden = true;
     kitsuVideo.pause();
     prompt.hidden = false;
-    answerInput.hidden = false;
+    answerInput.hidden = isChoiceQuestion();
     actions.hidden = false;
     answerInput.disabled = true;
     submitButton.hidden = true;
-    nextButton.hidden = false;
+    retryButton.hidden = !incorrect;
+    revealButton.hidden = !incorrect;
+    nextButton.hidden = incorrect;
     const isCorrect = result.result === 'CORRECT';
-    renderPrompt(result.expectedAnswer || '');
+    renderPrompt(incorrect ? '' : (result.expectedAnswer || ''));
+    renderChoices(result);
     answerInput.classList.toggle('is-correct', isCorrect);
-    answerInput.classList.toggle('is-incorrect', !isCorrect);
+    answerInput.classList.toggle('is-incorrect', incorrect);
+    renderPartialFeedback(result, incorrect);
+    explanation.hidden = incorrect || !result.explanation;
+    explanation.textContent = result.explanation || '';
+    setStatus(result.feedback || '', incorrect);
     renderMarkers();
     renderTranscript();
     showLiveSubtitle(subtitles.find(function (item) { return Number(item.id) === Number(question?.subtitleId); }));
   }
 
-  submitButton.addEventListener('click', async function () {
-    if (sessionPaused) return;
-    if (!question || !answerInput.value.trim()) {
-      setStatus('Hãy nhập đáp án trước khi kiểm tra.', true);
+  function renderChoices(result) {
+    choicesBox.replaceChildren();
+    const visible = isChoiceQuestion() && stoppedAtQuestion && !prompt.hidden;
+    choicesBox.hidden = !visible;
+    if (!visible) return;
+    (question.choices || []).forEach(function (choice) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'exercise-choice';
+      button.textContent = choice;
+      const picked = choice === answerInput.value;
+      button.setAttribute('aria-pressed', String(picked));
+      button.classList.toggle('is-selected', picked);
+      if (result?.result === 'INCORRECT' && picked) button.classList.add('is-incorrect');
+      if (result && result.result !== 'INCORRECT' && choice === result.expectedAnswer)
+        button.classList.add('is-correct');
+      button.disabled = Boolean(result) || submittingAnswer || answerInput.disabled;
+      button.addEventListener('click', function () {
+        if (sessionPaused || !stoppedAtQuestion || prompt.hidden || answerInput.disabled || submittingAnswer) return;
+        answerInput.value = choice;
+        submitAnswer();
+      });
+      choicesBox.appendChild(button);
+    });
+  }
+
+  function renderPartialFeedback(result, incorrect) {
+    partialLine.replaceChildren();
+    partialFeedback.hidden = !incorrect || isChoiceQuestion();
+    if (!incorrect || isChoiceQuestion()) return;
+    const parts = Array.isArray(result.differences) ? result.differences : [];
+    parts.forEach(function (part) {
+      const piece = document.createElement('span');
+      piece.className = part.type === 'MATCH' ? 'is-match' : 'is-mismatch';
+      piece.textContent = part.type === 'MISSING' ? '…' : (part.actual || '');
+      if (piece.textContent) partialLine.appendChild(piece);
+    });
+  }
+
+  retryButton.addEventListener('click', function () {
+    if (sessionPaused || submittingAnswer) return;
+    partialFeedback.hidden = true;
+    answerInput.disabled = false;
+    answerInput.classList.remove('is-incorrect');
+    submitButton.hidden = isChoiceQuestion();
+    actions.hidden = isChoiceQuestion();
+    submitButton.disabled = isChoiceQuestion() && !answerInput.value;
+    retryButton.hidden = true;
+    revealButton.hidden = true;
+    setStatus(isChoiceQuestion()
+      ? 'Nghe lại đoạn rồi chọn một đáp án khác.'
+      : 'Nghe lại câu, sửa phần chữ đỏ rồi kiểm tra tiếp.', false);
+    if (isChoiceQuestion()) {
+      answerInput.value = '';
+      renderChoices();
+      submitButton.disabled = true;
+      choicesBox.querySelector('button')?.focus();
+    } else {
       answerInput.focus();
+      answerInput.select();
+    }
+  });
+
+  revealButton.addEventListener('click', async function () {
+    if (sessionPaused) return;
+    revealButton.disabled = true;
+    try {
+      const response = await fetch('/api/shadowing-practice/sessions/'
+        + encodeURIComponent(sessionId) + '/reveal', {
+        method: 'POST', headers: headers(), body: '{}'
+      });
+      const data = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(data.message || data.error || 'Không hiện được đáp án');
+      renderResult(data);
+    } catch (error) {
+      setStatus(error.message || 'Không hiện được đáp án', true);
+    } finally {
+      revealButton.disabled = false;
+    }
+  });
+
+  async function submitAnswer() {
+    if (sessionPaused || submittingAnswer || question?.answered || answerInput.disabled) return;
+    if (!question || !answerInput.value.trim()) {
+      setStatus(isChoiceQuestion()
+        ? 'Hãy chọn một trong bốn đáp án trước khi kiểm tra.'
+        : 'Hãy nhập đáp án trước khi kiểm tra.', true);
+      if (isChoiceQuestion()) choicesBox.querySelector('button')?.focus();
+      else answerInput.focus();
       return;
     }
     if (!stoppedAtQuestion) {
       setStatus('Hãy nghe đến khi video tự dừng ở cuối câu.', true);
       return;
     }
+    submittingAnswer = true;
     submitButton.disabled = true;
     pauseButton.disabled = true;
+    answerInput.disabled = true;
+    renderChoices();
     setStatus('Kitsu-chan đang kiểm tra…');
     try {
       const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId) + '/answers', {
@@ -774,14 +909,18 @@
       const data = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(data.message || data.error || 'Không chấm được đáp án');
       renderResult(data);
-      setStatus('', false);
     } catch (error) {
-      submitButton.disabled = false;
+      answerInput.disabled = false;
+      submitButton.disabled = isChoiceQuestion();
       setStatus(error.message || 'Không chấm được đáp án', true);
     } finally {
       pauseButton.disabled = false;
+      submittingAnswer = false;
+      if (isChoiceQuestion() && !answerInput.disabled) renderChoices();
     }
-  });
+  }
+
+  submitButton.addEventListener('click', submitAnswer);
 
   answerInput.addEventListener('keydown', function (event) {
     if (session?.mode === 'CLOZE' && event.key === 'Enter' && !event.shiftKey) {
@@ -822,11 +961,13 @@
     completePanel.hidden = true;
     questionPanel.classList.remove('is-waiting');
     questionPanel.classList.add('is-finishing');
+    questionPanel.classList.remove('has-choices');
     questionPanel.classList.add('is-listening');
     answerDock.hidden = true;
     waitingState.hidden = false;
     setWaitingState('Đang phát phần còn lại', 'Bạn đã hoàn thành các điểm dừng. Video sẽ tiếp tục đến hết bài.');
     answerInput.hidden = true;
+    choicesBox.hidden = true;
     actions.hidden = true;
     prompt.textContent = 'Bạn đã làm xong các điểm dừng. Hãy nghe nốt phần còn lại của video.';
     document.getElementById('exercise-instruction').textContent =

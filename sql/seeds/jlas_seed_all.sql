@@ -13,8 +13,7 @@
 --   * update/sql/seeds/stitch_progress_demo.sql
 --   * update/sql/seeds/moderation_w0250_demo.sql
 --
--- Chạy SAU khi đã có schema: jlas_schema.sql + sql/migrations (001 -> 007,
--- và 004, 005 của update nếu DB chưa có).  Ví dụ:
+-- Chạy SAU khi đã có schema: jlas_schema.sql + sql/jlas_migrations_all.sql.  Ví dụ:
 --   mysql -uroot -p --default-character-set=utf8mb4 < sql/seeds/jlas_seed_all.sql
 -- Chạy lại nhiều lần được: không nhân đôi dữ liệu.
 --
@@ -3671,7 +3670,7 @@ GROUP BY u.id, u.email, u.credit_balance, s.current_streak, s.longest_streak;
 -- 7) Seed kiểm duyệt JLAS-W0250: tài khoản test, hàng đợi, kháng nghị
 -- =============================================================================
 -- JLAS-W0250 test data for the admin workspace, notifications and sanctions.
--- Run after sql/migrations/005_moderation_admin.sql. Safe to re-run: old test rows are removed first.
+-- Run after sql/jlas_migrations_all.sql (section 005). Safe to re-run: old test rows are removed first.
 -- LOCAL DEVELOPMENT ONLY: every test account uses the password Test@12345.
 -- Reports (Bao cao noi dung) cannot be seeded: that flow needs JLAS2-37.
 --

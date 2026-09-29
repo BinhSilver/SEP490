@@ -56,10 +56,10 @@ public class ShadowingPracticeRepository {
     public void insertItems(long sessionId, List<ShadowingPracticeItem> items) {
         for (ShadowingPracticeItem item : items) {
             jdbc.update("INSERT INTO shadowing_practice_item "
-                            + "(session_id, subtitle_id, cloze_candidate_id, position_index, difficulty_score) "
-                            + "VALUES (?, ?, ?, ?, ?)",
+                            + "(session_id, subtitle_id, cloze_candidate_id, prepared_question_id, position_index, difficulty_score) "
+                            + "VALUES (?, ?, ?, ?, ?, ?)",
                     sessionId, item.getSubtitleId(), item.getClozeCandidateId(),
-                    item.getPosition(), item.getDifficultyScore());
+                    item.getPreparedQuestionId(), item.getPosition(), item.getDifficultyScore());
         }
     }
 
@@ -70,8 +70,17 @@ public class ShadowingPracticeRepository {
                 rs -> rs.next() ? mapSession(rs) : null, sessionId, userId);
     }
 
+    public ShadowingPracticeSession lockOwnedSession(long sessionId, long userId) {
+        return jdbc.query("SELECT id, user_id, video_id, practice_mode, question_order, requested_count, "
+                        + "total_questions, current_position, correct_count, score_total, random_seed, status, "
+                        + "started_at, completed_at FROM shadowing_practice_session "
+                        + "WHERE id = ? AND user_id = ? FOR UPDATE",
+                rs -> rs.next() ? mapSession(rs) : null, sessionId, userId);
+    }
+
     public ShadowingPracticeItem findItem(long sessionId, int position) {
-        return jdbc.query("SELECT id, session_id, subtitle_id, cloze_candidate_id, position_index, difficulty_score, answered_at "
+        return jdbc.query("SELECT id, session_id, subtitle_id, cloze_candidate_id, prepared_question_id, "
+                        + "position_index, difficulty_score, answered_at "
                         + "FROM shadowing_practice_item WHERE session_id = ? AND position_index = ?",
                 rs -> {
                     if (!rs.next()) return null;
@@ -81,6 +90,8 @@ public class ShadowingPracticeRepository {
                     item.setSubtitleId(rs.getLong("subtitle_id"));
                     long candidateId = rs.getLong("cloze_candidate_id");
                     item.setClozeCandidateId(rs.wasNull() ? null : candidateId);
+                    long preparedId = rs.getLong("prepared_question_id");
+                    item.setPreparedQuestionId(rs.wasNull() ? null : preparedId);
                     item.setPosition(rs.getInt("position_index"));
                     item.setDifficultyScore(rs.getInt("difficulty_score"));
                     Timestamp answered = rs.getTimestamp("answered_at");
@@ -91,8 +102,10 @@ public class ShadowingPracticeRepository {
 
     public List<PracticeStopView> findStops(long sessionId) {
         return jdbc.query("SELECT spi.subtitle_id, spi.position_index, spi.difficulty_score, "
-                        + "s.start_time, s.end_time FROM shadowing_practice_item spi "
+                        + "COALESCE(q.start_time, s.start_time) AS start_time, "
+                        + "COALESCE(q.end_time, s.end_time) AS end_time FROM shadowing_practice_item spi "
                         + "JOIN subtitle s ON s.id = spi.subtitle_id "
+                        + "LEFT JOIN shadowing_question_bank q ON q.id = spi.prepared_question_id "
                         + "WHERE spi.session_id = ? ORDER BY spi.position_index",
                 (rs, rowNum) -> {
                     int difficulty = rs.getInt("difficulty_score");
@@ -160,8 +173,10 @@ public class ShadowingPracticeRepository {
                         + "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 answer.getPracticeItemId(), answer.getAttemptNumber(), answer.getUserAnswer(),
                 answer.getNormalizedAnswer(), answer.getResult().name(), answer.getScore(), answer.getFeedback());
-        jdbc.update("UPDATE shadowing_practice_item SET answered_at = CURRENT_TIMESTAMP(6) WHERE id = ?",
-                answer.getPracticeItemId());
+        if (answer.getResult() != AnswerResult.INCORRECT) {
+            jdbc.update("UPDATE shadowing_practice_item SET answered_at = CURRENT_TIMESTAMP(6) WHERE id = ?",
+                    answer.getPracticeItemId());
+        }
     }
 
     public void addSessionScore(long sessionId, int score, boolean correct) {

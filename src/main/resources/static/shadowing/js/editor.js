@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('editor-video');
     const listEl = document.getElementById('subtitle-editor-list');
     const saveIndicator = document.getElementById('save-indicator');
+    const prepareLink = document.getElementById('prepare-exercises-link');
     const publishBtn = document.getElementById('publish-btn');
     const validateBtn = document.getElementById('validate-btn');
 
@@ -60,6 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let undoStack = [];
     let redoStack = [];
     const MAX_UNDO = 10;
+
+    prepareLink?.addEventListener('click', async (event) => {
+        if (saveIndicator.classList.contains('synced') || saveIndicator.classList.contains('saved')) return;
+        event.preventDefault();
+        const message = saveIndicator.classList.contains('error')
+            ? 'Phụ đề chưa lưu được. Hãy kiểm tra kết nối và lưu lại trước khi chuyển trang.'
+            : 'Phụ đề đang được lưu. Hãy đợi thông báo “Đã lưu” rồi mở trang chuẩn bị bài tập.';
+        if (typeof showAlert === 'function') {
+            await showAlert({ title: 'Phụ đề chưa sẵn sàng', message, variant: 'info' });
+        } else {
+            alert(message);
+        }
+    });
 
     async function init() {
         const [vRes, sRes, qRes] = await Promise.all([

@@ -13,22 +13,36 @@
       var html = '';
       if (typeof d.dailyMinutes === 'number') {
         html += '<li>Hôm nay: <strong>' + d.dailyMinutes.toFixed(1) + '</strong>/' +
-                (d.dailyLimitMin != null ? d.dailyLimitMin.toFixed(0) : '∞') + ' phút</li>';
+                (d.dailyLimitMin != null && d.dailyLimitMin < 1e9 ? d.dailyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.monthlyMinutes === 'number') {
         html += '<li>Tháng này: <strong>' + d.monthlyMinutes.toFixed(1) + '</strong>/' +
-                (d.monthlyLimitMin != null ? d.monthlyLimitMin.toFixed(0) : '∞') + ' phút</li>';
+                (d.monthlyLimitMin != null && d.monthlyLimitMin < 1e9 ? d.monthlyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.creditBalance === 'number') {
-        html += '<li>Điểm: <strong>' + d.creditBalance + '</strong></li>';
+        html += '<li>CP hiện có: <strong>' + d.creditBalance + '</strong>'
+          + (typeof d.creditPerTurn === 'number' ? ' (1 lượt = ' + d.creditPerTurn + ' CP)' : '') + '</li>';
       }
       usage.innerHTML = html;
     }
     modal.hidden = false;
     var close = document.getElementById('btnCloseQuota');
     if (close) close.onclick = function () { modal.hidden = true; };
+    var useCp = document.getElementById('btnQuotaUseCredit');
+    if (useCp) {
+      var d2 = (data && data.data) || {};
+      var cost = d2.creditPerTurn;
+      var canPay = data && data.code === 'QUOTA_EXCEEDED' && typeof cost === 'number' && cost > 0
+        && typeof d2.creditBalance === 'number' && d2.creditBalance >= cost;
+      useCp.hidden = !canPay;
+      if (canPay) useCp.innerHTML = '<i class="fa-solid fa-coins"></i> Dùng ' + cost + ' CP cho lượt này';
+      useCp.onclick = function () {
+        modal.hidden = true;
+        if (window.AICallUI && typeof window.AICallUI.onUseCredit === 'function') window.AICallUI.onUseCredit();
+      };
+    }
     var buy = document.getElementById('btnQuotaBuy');
-    if (buy) buy.onclick = function () { window.location.href = '/profile?tab=credits'; };
+    if (buy) buy.onclick = function () { window.location.href = '/profile'; };
     var up = document.getElementById('btnQuotaUpgrade');
     if (up) up.onclick = function () { window.location.href = '/profile?tab=premium'; };
   }
@@ -718,6 +732,34 @@
     });
   }
 
+  // Mỗi lần gửi có một mã riêng: server dùng nó để không tính phí hai lần khi request bị gửi lặp (JLAS-W0199).
+  function newRequestId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+
+  // Lượt vừa bị chặn vì hết hạn mức: nếu người học bấm "Dùng CP" thì gửi lại đúng lượt đó (cùng mã).
+  let creditRetry = null;
+  window.AICallUI.onUseCredit = function () {
+    if (!creditRetry || busy || ended) return;
+    const retry = creditRetry;
+    creditRetry = null;
+    busy = true;
+    btnSend.disabled = true;
+    showTyping(true);
+    postTurn(retry.text, retry.learnerRow, retry.requestId, true);
+  };
+
+  function addChargeNote(row, text, isError) {
+    if (!row) return;
+    const col = row.querySelector('.msg-col') || row;
+    const note = document.createElement('div');
+    note.className = 'turn-charge-note';
+    note.style.cssText = 'font-size:.75rem;margin-top:4px;color:' + (isError ? '#b42318' : '#667085') + ';';
+    note.textContent = text;
+    col.appendChild(note);
+  }
+
   async function send() {
     if (busy || ended) return;
     const text = (input.value || '').trim();
@@ -727,9 +769,13 @@
     const learnerRow = addMessageRow('user', text);
     input.value = '';
     showTyping(true);
+    creditRetry = null;
+    await postTurn(text, learnerRow, newRequestId(), false);
+  }
 
+  async function postTurn(text, learnerRow, requestId, useCredit) {
     try {
-      const payload = { sessionId: Number(sessionId), message: text };
+      const payload = { sessionId: Number(sessionId), message: text, clientRequestId: requestId, useCredit: !!useCredit };
       const fc = buildFreeChatSettingsPayload();
       if (fc) payload.freeChatSettings = fc;
       const res = await fetch('/api/conversation/chat', {
@@ -737,16 +783,23 @@
         headers: jsonHeaders(),
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      const data = await res.json().catch(function () { return {}; });
       showTyping(false);
 
-      // BR-05 — Quota exceeded  hiện modal nâng cấp
+      // Hết hạn mức (hoặc không đủ CP): hiện modal chờ hạn mức mới / dùng CP / nâng cấp.
       if (res.status === 402) {
+        if (data && data.code === 'QUOTA_EXCEEDED') creditRetry = { text: text, learnerRow: learnerRow, requestId: requestId };
         showQuotaModal(data);
         return;
       }
-      if (res.status === 403 && data && data.message && data.message.indexOf('tắt tiếng') >= 0) {
+      // Tài khoản đang bị chế tài: server trả 403 kèm lý do.
+      if (res.status === 403) {
         showMuteModal(data);
+        return;
+      }
+      // 409: lượt trước chưa xong / đang xử lý; 503: quá tải (chưa bị tính phí).
+      if (!res.ok) {
+        addChargeNote(learnerRow, '⚠️ ' + ((data && (data.message || data.error)) || 'Không gửi được, thử lại nhé.'), true);
         return;
       }
 
@@ -766,6 +819,11 @@
         if (settings.autoplay) speak(data.assistantReply || '', row.querySelector('.btn-tts'));
         if (settings.furigana || settings.translation) ensureAnnotations(row, true);
       }
+      if (data.chargeRefunded) {
+        addChargeNote(learnerRow, 'AI gặp lỗi nên lượt này không bị tính.', false);
+      } else if (data.creditCharged > 0) {
+        addChargeNote(learnerRow, '−' + data.creditCharged + ' CP cho lượt này', false);
+      }
 
       if (!freeChat) {
         updateProgress(data);
@@ -776,6 +834,7 @@
         ended = true;
         input.disabled = true;
         btnSend.disabled = true;
+        if (btnEndSession) btnEndSession.hidden = true;
         if (completeOverlay) completeOverlay.classList.add('show');
       }
     } catch (e) {
@@ -786,6 +845,25 @@
       if (!input.disabled) btnSend.disabled = false;
       input.focus();
     }
+  }
+
+  // Người học chủ động kết thúc phiên (JLAS-W0205): kịch bản thì chấm điểm rồi sang trang kết quả.
+  const btnEndSession = document.getElementById('btnEndSession');
+  if (btnEndSession) {
+    btnEndSession.addEventListener('click', async function () {
+      if (busy) return;
+      if (!window.confirm('Kết thúc cuộc hội thoại này?')) return;
+      btnEndSession.disabled = true;
+      try {
+        const res = await fetch('/api/conversation/' + sessionId + '/end', { method: 'POST', headers: jsonHeaders() });
+        const data = await res.json().catch(function () { return {}; });
+        if (!res.ok) throw new Error((data && data.message) || 'HTTP ' + res.status);
+        window.location.href = data.redirectUrl || body.dataset.homeUrl || '/ai-call';
+      } catch (e) {
+        btnEndSession.disabled = false;
+        window.alert('Không kết thúc được phiên: ' + e.message);
+      }
+    });
   }
 
   function addMessageRow(role, text, feedback, tokens, translation) {

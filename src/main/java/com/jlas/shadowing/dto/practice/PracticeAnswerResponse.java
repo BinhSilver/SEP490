@@ -10,5 +10,6 @@ public record PracticeAnswerResponse(
         String expectedAnswer,
         String userAnswer,
         String translation,
-        List<PracticeDiffPart> differences) {
+        List<PracticeDiffPart> differences,
+        String explanation) {
 }
