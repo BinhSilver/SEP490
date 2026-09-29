@@ -98,11 +98,30 @@
       '<button type="button" class="ilp-popup__quiet" data-popup-rest>Nghỉ ngơi</button>' +
       '</div></section></div>';
   }
+  function dayKicker(pkg) {
+    return 'DAY ' + String(pkg.dayNumber).padStart(2, '0') + ' · ' + esc(pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU');
+  }
+  // [JLAS-W0193] FE V2 restyle (spec §10.3) — a completed day collapses to one row instead of
+  // repeating the full four-activity card; a locked day shows its reason at reduced contrast
+  // instead of an empty activities list users can't act on.
   function packageCard(pkg) {
+    var status = pkg.status.toLowerCase();
+    if (pkg.status === 'COMPLETED') {
+      return '<article class="ilp-day ilp-day--completed ilp-day--collapsed" data-package-card="' + esc(String(pkg.id)) + '">' +
+        '<span class="ilp-day__number">' + String(pkg.dayNumber).padStart(2, '0') + '</span>' +
+        '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) + '</h3></div>' +
+        '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></article>';
+    }
+    if (pkg.status === 'LOCKED') {
+      return '<article class="ilp-day ilp-day--locked" data-package-card="' + esc(String(pkg.id)) + '">' +
+        '<span class="ilp-day__number" aria-hidden="true">🔒</span>' +
+        '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) + '</h3>' +
+        (pkg.lockReason ? '<p class="ilp-lock">' + esc(pkg.lockReason) + '</p>' : '') + '</div>' +
+        '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></article>';
+    }
     var action = pkg.canStart ? '<button class="ilp-button" type="button" data-start-package="' + pkg.id + '">Bắt đầu học <span aria-hidden="true">→</span></button>' : '';
-    return '<article class="ilp-day ilp-day--' + esc(pkg.status.toLowerCase()) + '" data-package-card="' + esc(String(pkg.id)) + '"><header><span class="ilp-day__number">' +
-      String(pkg.dayNumber).padStart(2, '0') + '</span><div><span class="ilp-kicker">DAY ' + String(pkg.dayNumber).padStart(2, '0') +
-      ' · ' + esc(pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU') + '</span><h3>' + esc(pkg.title) +
+    return '<article class="ilp-day ilp-day--' + esc(status) + '" data-package-card="' + esc(String(pkg.id)) + '"><header><span class="ilp-day__number">' +
+      String(pkg.dayNumber).padStart(2, '0') + '</span><div><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) +
       '</h3></div><span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></header><div class="ilp-day__progress"><span style="width:' +
       num(pkg.progressPercent) + '%"></span></div><ol class="ilp-activities">' + activityRows(pkg) + '</ol>' +
       (pkg.lockReason ? '<p class="ilp-lock">🔒 ' + esc(pkg.lockReason) + '</p>' : '') + action + '</article>';

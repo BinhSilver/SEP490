@@ -48,11 +48,14 @@
   --color-success-bg: #d6f5e7;
   --color-focus: #4f378a;
 
-  /* Typography */
-  --font-headline: "Instrument Serif", "Hanken Grotesk", Georgia, serif;
-  --font-display: "Instrument Serif", serif;
+  /* Typography — single project-wide font, matching the nav bar (--font-body); the site
+     previously mixed in a serif headline face and a monospace face, which is why headings
+     and labels looked different from the nav. --font-headline/--font-display/--font-mono now
+     just alias --font-body so every page renders with one typeface. */
   --font-body: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-headline: var(--font-body);
+  --font-display: var(--font-body);
+  --font-mono: var(--font-body);
   --font-size-base: 14px;
   --font-weight-base: 400;
   --line-height-base: 20px;
@@ -140,8 +143,11 @@ html:has(body.journey-ui) {
   --color-on-journey-action: #172400;
   --color-journey-grid: #7c3aed08;
   --color-journey-glow: #a3e63526;
-  --font-headline: 'Hanken Grotesk', 'Noto Sans JP', sans-serif;
-  --font-body: 'Inter', 'Noto Sans JP', sans-serif;
+  /* [font unification] journey-ui pages used to swap in Hanken Grotesk/Inter here, which is
+     why they didn't match the nav either; -apple-system-body etc. is the nav's literal stack
+     (can't reference --font-body via var() here since this block also redefines that property). */
+  --font-headline: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-body: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
 }
 html[data-theme="dark"]:has(body.journey-ui) {
   --color-primary: #c084fc;
