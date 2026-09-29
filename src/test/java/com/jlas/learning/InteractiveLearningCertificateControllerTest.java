@@ -9,6 +9,7 @@ import com.jlas.learning.dto.InteractiveComprehensionEvidence;
 import com.jlas.learning.dto.InteractiveDialogueSummary;
 import com.jlas.learning.dto.InteractivePathSummaryResponse;
 import com.jlas.learning.dto.InteractiveReadinessConfidence;
+import com.jlas.learning.dto.MockTestDestination;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.InteractivePathSummaryService;
@@ -42,7 +43,8 @@ class InteractiveLearningCertificateControllerTest {
         return new InteractivePathSummaryResponse(pathId, eligible ? "COMPLETED" : "ACTIVE", completedAt,
                 List.of(), new InteractiveDialogueSummary(0, 0, true),
                 List.of(new InteractiveComprehensionEvidence("READING", false, null, null, null, false, "note")),
-                List.of(), new InteractiveReadinessConfidence("LOW", "explanation"), eligible);
+                List.of(), new InteractiveReadinessConfidence("LOW", "explanation"), eligible,
+                MockTestDestination.blocked("N4"));
     }
 
     @Test void rendersForTheOwnerOfAnEligiblePath() {

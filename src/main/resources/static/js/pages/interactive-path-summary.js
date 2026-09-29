@@ -26,12 +26,17 @@
     // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence, separate from the Smart Test baseline
     // list above. Defaults to [] so an older/placeholder response never throws.
     var comprehensionInPath = Array.isArray(data.comprehensionInPath) ? data.comprehensionInPath : [];
+    // [JLAS-W0193] RC Task 7 — server-resolved Mock Test hand-off destination. Missing/malformed data
+    // degrades to the honest BLOCKED_INTEGRATION state, never to a fabricated "available" default.
+    var mockTest = (data.mockTest && typeof data.mockTest === 'object')
+      ? data.mockTest : { available: false, status: 'BLOCKED_INTEGRATION', url: null, targetLevel: null };
     return {
       pathId: data.pathId, status: data.status || null, completedAt: data.completedAt || null,
       skills: skills, dialogue: data.dialogue || { totalCount: 0, completedCount: 0, allCompleted: false },
       comprehension: comprehension, comprehensionInPath: comprehensionInPath,
       readiness: data.readiness || { level: 'LOW', explanation: '' },
-      certificateEligible: !!data.certificateEligible
+      certificateEligible: !!data.certificateEligible,
+      mockTest: mockTest
     };
   }
 
@@ -110,15 +115,23 @@
       '<p class="ilp-summary-note">Đây là ước tính nội bộ, không phải xác nhận đỗ JLPT.</p></section>';
   }
 
+  function renderMockTestAction(mockTest) {
+    // [JLAS-W0193] RC Task 7 — the server (MockTestDestinationProvider) alone decides availability and the
+    // destination URL; this only ever echoes `mockTest.url` verbatim, never composes or guesses one, and
+    // never trusts a query parameter. No real Mock Test owner contract exists in this codebase today, so
+    // the honest default is BLOCKED_INTEGRATION — rendered as a disabled button, never a fabricated link.
+    if (mockTest && mockTest.available && mockTest.url) {
+      return '<a class="ilp-summary__quiet" href="' + esc(mockTest.url) + '">Thi thử JLPT</a>';
+    }
+    return '<button class="ilp-summary__quiet" type="button" disabled aria-disabled="true" ' +
+      'title="Chức năng thi thử JLPT sắp ra mắt">Thi thử JLPT (sắp có)</button>';
+  }
+
   function renderActions(v) {
     var certificate = v.certificateEligible
       ? '<a class="ilp-summary__primary" href="/learning/v2/certificate">Xem chứng nhận hoàn thành</a>'
       : '<p class="ilp-summary-note">Chứng nhận sẽ mở khi bạn hoàn thành mọi ngày học bắt buộc.</p>';
-    // No real Mock Test owner contract exists in this codebase yet (searched — none found); per the
-    // release-hardening rule against linking to something fake, this stays a disabled placeholder rather
-    // than a live link, so a future session can wire it up without lying to the learner today.
-    var mockTest = '<button class="ilp-summary__quiet" type="button" disabled aria-disabled="true" ' +
-      'title="Chức năng thi thử JLPT sắp ra mắt">Thi thử JLPT (sắp có)</button>';
+    var mockTest = renderMockTestAction(v.mockTest);
     return '<div class="ilp-summary-actions">' + certificate + mockTest +
       '<a class="ilp-summary__secondary" href="/learning/path/v2">Về lộ trình</a></div>';
   }

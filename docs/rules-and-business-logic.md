@@ -601,3 +601,27 @@ master §7.3). Engine deterministic giữ làm xương sống (ground DB thật,
   plus the same edit in `jlas_schema.sql`, with a new text-parsing regression test
   (`QuizSessionTypeConstraintTest`) that at least catches a future accidental removal of a micro-check
   quiz_type from this constraint, since no persistence test can.
+
+### 2.19 Mock Test handoff contract seam (Interactive V2 RC Task 7) [JLAS-W0193]
+
+- **No real Mock Test module/route/contract exists anywhere in this codebase** — re-audited fresh at RC
+  Task 7 time (grep across `src/` for `mock`/`thi thử`/naming variants), same conclusion Task 10 already
+  reached. The only pre-existing "mock" reference is a doc comment on `AssessmentQuestion` noting the
+  question bank is conceptually shared with a future JLPT mock test, not an actual module.
+- **`MockTestDestinationProvider`** (`com.jlas.learning.service`) is the seam a real owner-provided Mock
+  Test module would implement: `resolveDestination(targetLevel)` → `MockTestDestination(available, status,
+  url, targetLevel)`. The only field ever passed in is the path's own target JLPT level — never an internal
+  path/package/activity id, never the JWT. The only shipped implementation,
+  `ConfiguredMockTestDestinationProvider`, is unavailable (`status = BLOCKED_INTEGRATION`) by default
+  because `learning.mock-test.destination-url` is empty — an honest, expected state, not an error.
+- **Open-redirect guard (non-negotiable):** if `destination-url` is ever configured, it is only ever
+  accepted when it is (a) an internal app-relative route (`"/..."`, explicitly never `"//host/..."`, which
+  a browser silently resolves to an external host), or (b) an absolute `https://` URL whose host is
+  present, verbatim, in `learning.mock-test.approved-origins` (comma-separated). Anything else — an
+  unapproved external host, a bare `http://` scheme, a `javascript:` URL — is rejected back to
+  `BLOCKED_INTEGRATION` rather than ever being handed to a caller.
+- **Server-only decision:** `InteractivePathSummaryServiceImpl.summary()` calls the provider and puts the
+  result on `InteractivePathSummaryResponse.mockTest`, unmodified. The browser (`interactive-path-summary.js`)
+  never composes a Mock Test URL and never trusts a query parameter to pick one — it only ever echoes
+  `mockTest.url` verbatim when `mockTest.available` is true, and renders an honestly-disabled "Thi thử JLPT
+  (sắp có)" button otherwise (including when the field is missing entirely, for backward compatibility).

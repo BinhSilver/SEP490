@@ -18,7 +18,13 @@ import java.util.List;
  * "what Smart Test measured before" and "what I've actually done in this path," distinctly (RC plan Task 6,
  * rule 3). An unresolved entry in {@code comprehensionInPath} is a required readiness gap exactly like an
  * unresolved entry in {@code skills} (rule 4) — a strong Vocabulary/Kanji/Grammar or baseline score can never
- * hide it. */
+ * hide it.
+ *
+ * <p>[JLAS-W0193] RC Task 7 — {@code mockTest} is the server-resolved Mock Test hand-off destination
+ * ({@code MockTestDestinationProvider.resolveDestination}), never composed or decided by the browser. No
+ * real Mock Test owner contract exists in this codebase (re-audited fresh at RC Task 7 time), so this is
+ * {@code BLOCKED_INTEGRATION} by default — an honest state the summary page must render as a disabled
+ * button, never a fabricated link. */
 public record InteractivePathSummaryResponse(
         Long pathId,
         String status,
@@ -28,7 +34,8 @@ public record InteractivePathSummaryResponse(
         List<InteractiveComprehensionEvidence> comprehension,
         List<InteractiveSkillProgress> comprehensionInPath,
         InteractiveReadinessConfidence readiness,
-        boolean certificateEligible
+        boolean certificateEligible,
+        MockTestDestination mockTest
 ) {
     public InteractivePathSummaryResponse {
         skills = List.copyOf(skills);

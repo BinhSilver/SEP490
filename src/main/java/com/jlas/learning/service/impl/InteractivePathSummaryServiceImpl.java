@@ -8,6 +8,7 @@ import com.jlas.learning.dto.InteractivePathSummaryResponse;
 import com.jlas.learning.dto.InteractiveReadinessConfidence;
 import com.jlas.learning.dto.InteractiveSkillProgress;
 import com.jlas.learning.dto.InteractiveUnresolvedBatch;
+import com.jlas.learning.dto.MockTestDestination;
 import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.entity.LearningMicroCheckState;
@@ -24,6 +25,7 @@ import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.InteractivePathSummaryService;
 import com.jlas.learning.service.LearningProfileSource;
+import com.jlas.learning.service.MockTestDestinationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,6 +66,10 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
     private final UserLearningPathItemRepository items;
     private final LearningPathPackageRepository packages;
     private final LearningMicroCheckStateRepository microCheckStates;
+    /** [JLAS-W0193] RC Task 7 — owned entirely by this module (unlike {@link #profileSource}, which reads
+     * another team's module), so this is a required, non-optional dependency; the only shipped
+     * implementation reports itself unavailable by default. */
+    private final MockTestDestinationProvider mockTestDestinationProvider;
 
     /** [JLAS-W0193] Optional so slice tests don't need to wire Smart Test's read API — same optional-autowire
      * pattern {@code LearningServiceImpl}/{@code InteractiveLearningPathServiceImpl} already use for their own
@@ -95,9 +101,12 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
                 .toList();
         InteractiveReadinessConfidence readiness = readiness(skills, dialogue, comprehension, comprehensionInPath);
         boolean certificateEligible = isCertificateEligible(path.getId());
+        // [JLAS-W0193] RC Task 7 — the server, never the browser, decides availability/destination; only
+        // the path's own target level is ever passed to the provider (no internal id, no JWT).
+        MockTestDestination mockTest = mockTestDestinationProvider.resolveDestination(path.getTargetLevel());
 
         return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
-                skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible);
+                skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible, mockTest);
     }
 
     // ---- Vocabulary/Kanji/Grammar: first/latest/best + unresolved batches, path-wide ----

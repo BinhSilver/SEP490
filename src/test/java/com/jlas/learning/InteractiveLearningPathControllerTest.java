@@ -7,6 +7,7 @@ import com.jlas.learning.dto.InteractiveDialogueSummary;
 import com.jlas.learning.dto.InteractiveLearningPathResponse;
 import com.jlas.learning.dto.InteractivePathSummaryResponse;
 import com.jlas.learning.dto.InteractiveReadinessConfidence;
+import com.jlas.learning.dto.MockTestDestination;
 import com.jlas.learning.service.InteractiveLearningPathService;
 import com.jlas.learning.service.InteractivePathSummaryService;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,8 @@ class InteractiveLearningPathControllerTest {
         var response = new InteractivePathSummaryResponse(1L, "COMPLETED", null, List.of(),
                 new InteractiveDialogueSummary(1, 1, true), List.of(
                         new InteractiveComprehensionEvidence("READING", true, 5, 1, 80, false, "note")),
-                List.of(), new InteractiveReadinessConfidence("MEDIUM", "explanation"), true);
+                List.of(), new InteractiveReadinessConfidence("MEDIUM", "explanation"), true,
+                MockTestDestination.blocked("N4"));
         when(summaryService.summary(7L)).thenReturn(response);
         var controller = new InteractiveLearningPathController(service, summaryService);
 
@@ -49,5 +51,24 @@ class InteractiveLearningPathControllerTest {
         assertTrue(body.isSuccess());
         assertSame(response, body.getData());
         verify(summaryService).summary(7L);
+    }
+
+    /** [JLAS-W0193] RC Task 7 — the controller is a pure passthrough; the honest BLOCKED_INTEGRATION status
+     * the summary service resolved must reach the client unchanged, never upgraded/faked at this layer. */
+    @Test void summaryPassesThroughTheMockTestBlockedIntegrationStatusUnchanged() {
+        var service = mock(InteractiveLearningPathService.class);
+        var summaryService = mock(InteractivePathSummaryService.class);
+        var response = new InteractivePathSummaryResponse(1L, "ACTIVE", null, List.of(),
+                new InteractiveDialogueSummary(0, 0, true), List.of(), List.of(),
+                new InteractiveReadinessConfidence("LOW", "explanation"), false,
+                MockTestDestination.blocked("N4"));
+        when(summaryService.summary(7L)).thenReturn(response);
+        var controller = new InteractiveLearningPathController(service, summaryService);
+
+        var body = controller.summary(new UserPrincipal(7L, "learner", "", List.of())).getBody();
+
+        assertNotNull(body);
+        assertFalse(body.getData().mockTest().available());
+        assertEquals("BLOCKED_INTEGRATION", body.getData().mockTest().status());
     }
 }

@@ -14,11 +14,13 @@ import com.jlas.learning.enums.LearningActivityState;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.enums.LearningPackageStatus;
+import com.jlas.learning.dto.MockTestDestination;
 import com.jlas.learning.repository.LearningMicroCheckStateRepository;
 import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.LearningProfileSource;
+import com.jlas.learning.service.MockTestDestinationProvider;
 import com.jlas.learning.service.impl.InteractivePathSummaryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,10 +46,12 @@ class InteractivePathSummaryServiceTest {
     @Mock LearningPathPackageRepository packages;
     @Mock LearningMicroCheckStateRepository microCheckStates;
     @Mock LearningProfileSource profileSource;
+    @Mock MockTestDestinationProvider mockTestDestinationProvider;
     InteractivePathSummaryServiceImpl service;
 
     @BeforeEach void setUp() {
-        service = new InteractivePathSummaryServiceImpl(paths, items, packages, microCheckStates);
+        service = new InteractivePathSummaryServiceImpl(paths, items, packages, microCheckStates,
+                mockTestDestinationProvider);
         setField("profileSource", profileSource);
     }
 
@@ -418,6 +422,50 @@ class InteractivePathSummaryServiceTest {
         var result = service.summary(7L);
 
         assertTrue(result.certificateEligible());
+    }
+
+    // ---- RC Task 7: Mock Test handoff seam — server-resolved, never fabricated by the summary service ----
+
+    @Test void summaryEchoesWhateverDestinationTheProviderResolvedWithoutAlteringIt() {
+        var path = interactivePath();
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        var destination = new MockTestDestination(true, MockTestDestination.STATUS_AVAILABLE,
+                "/mock-test/start", "N4");
+        when(mockTestDestinationProvider.resolveDestination("N4")).thenReturn(destination);
+
+        var result = service.summary(7L);
+
+        assertSame(destination, result.mockTest());
+    }
+
+    @Test void summaryReportsTheProvidersBlockedIntegrationStatusRatherThanFabricatingADestination() {
+        var path = interactivePath();
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(mockTestDestinationProvider.resolveDestination("N4"))
+                .thenReturn(MockTestDestination.blocked("N4"));
+
+        var result = service.summary(7L);
+
+        assertFalse(result.mockTest().available());
+        assertEquals(MockTestDestination.STATUS_BLOCKED_INTEGRATION, result.mockTest().status());
+        assertNull(result.mockTest().url());
+    }
+
+    @Test void summaryPassesThePathsOwnTargetLevelToTheProviderNeverAnythingElse() {
+        var path = interactivePath(); // targetLevel = "N4"
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(mockTestDestinationProvider.resolveDestination(anyString()))
+                .thenReturn(MockTestDestination.blocked("N4"));
+
+        service.summary(7L);
+
+        verify(mockTestDestinationProvider).resolveDestination("N4");
     }
 
     // ---- helpers ----

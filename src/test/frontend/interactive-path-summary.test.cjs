@@ -23,7 +23,8 @@ function summary(overrides = {}) {
       { skill: 'LISTENING', hasEvidence: false, firstScore: null, latestScore: null, bestScore: null, resolved: false, unresolved: [] }
     ],
     readiness: { level: 'MEDIUM', explanation: 'explanation text' },
-    certificateEligible: false
+    certificateEligible: false,
+    mockTest: { available: false, status: 'BLOCKED_INTEGRATION', url: null, targetLevel: 'N4' }
   }, overrides);
 }
 
@@ -33,6 +34,13 @@ test('viewModel defaults missing collections to empty arrays instead of throwing
   assert.deepEqual(model.comprehension, []);
   assert.deepEqual(model.comprehensionInPath, []);
   assert.equal(model.dialogue.totalCount, 0);
+});
+
+test('viewModel defaults a missing mockTest field to the honest unavailable state, never fabricating availability', () => {
+  const model = page.viewModel({});
+  assert.equal(model.mockTest.available, false);
+  assert.equal(model.mockTest.status, 'BLOCKED_INTEGRATION');
+  assert.equal(model.mockTest.url, null);
 });
 
 test('skillCard shows dash placeholders and a pending state when the skill has no evidence yet, never 0%', () => {
@@ -126,10 +134,38 @@ test('renderActions links to the certificate page once eligible', () => {
   assert.match(html, /href="\/learning\/v2\/certificate"/);
 });
 
-test('renderActions never links the mock-test button to a fake destination; it stays disabled', () => {
+// ---- RC Task 7: Mock Test handoff seam — server decides availability/destination, never the browser ----
+
+test('renderActions renders a disabled button using the servers BLOCKED_INTEGRATION status, never a fabricated link', () => {
+  const html = page.renderActions({
+    certificateEligible: true,
+    mockTest: { available: false, status: 'BLOCKED_INTEGRATION', url: null, targetLevel: 'N4' }
+  });
+  assert.match(html, /disabled/);
+  assert.doesNotMatch(html, /<a[^>]*Thi thử/);
+});
+
+test('renderActions defaults to the disabled state when mockTest is missing from the response entirely', () => {
   const html = page.renderActions({ certificateEligible: true });
   assert.match(html, /disabled/);
   assert.doesNotMatch(html, /<a[^>]*Thi thử/);
+});
+
+test('renderActions links to the servers exact resolved destination when the provider reports it available', () => {
+  const html = page.renderActions({
+    certificateEligible: true,
+    mockTest: { available: true, status: 'AVAILABLE', url: '/mock-test/start', targetLevel: 'N4' }
+  });
+  assert.match(html, /<a[^>]*href="\/mock-test\/start"[^>]*>Thi thử JLPT</);
+  assert.doesNotMatch(html, /disabled/);
+});
+
+test('renderActions never lets the browser compose the mock-test URL itself — it only ever echoes the servers own url field verbatim', () => {
+  const html = page.renderActions({
+    certificateEligible: true,
+    mockTest: { available: true, status: 'AVAILABLE', url: 'https://mock-test.jlas.example.com/start?level=N3', targetLevel: 'N3' }
+  });
+  assert.match(html, /href="https:\/\/mock-test\.jlas\.example\.com\/start\?level=N3"/);
 });
 
 test('render assembles the full page without throwing on a realistic response', () => {

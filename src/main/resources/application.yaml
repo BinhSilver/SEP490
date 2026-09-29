@@ -190,3 +190,10 @@ logging:
 learning:
   interactive-v2:
     enabled: ${LEARNING_INTERACTIVE_V2_ENABLED:false}
+  # [JLAS-W0193] RC Task 7 — no real Mock Test owner contract exists in this codebase, so destination-url
+  # stays empty (BLOCKED_INTEGRATION) by default. If a real contract ever ships, set destination-url plus
+  # approved-origins here (or via env) — ConfiguredMockTestDestinationProvider still rejects anything that
+  # is not an internal relative route or an origin on this exact list; never accept an unapproved URL.
+  mock-test:
+    destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:}
+    approved-origins: ${LEARNING_MOCK_TEST_APPROVED_ORIGINS:}
