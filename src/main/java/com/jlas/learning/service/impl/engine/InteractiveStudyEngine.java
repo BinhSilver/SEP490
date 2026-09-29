@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 public class InteractiveStudyEngine<T> {
     private static final int PASS_THRESHOLD = 70;
     private static final int MAX_ATTEMPTS = 3;
-    private static final int BATCH_SIZE = 10;
     private static final int COOLDOWN_MINUTES = 60;
 
     private final UserLearningPathItemRepository items;
@@ -128,7 +127,8 @@ public class InteractiveStudyEngine<T> {
             adapter.assertPracticeGateSatisfied(activityId, membership);
         }
 
-        int batchCount = batchCount(membership.size());
+        List<List<T>> batches = contentBatches(membership);
+        int batchCount = batches.size();
         List<LearningMicroCheckState> states = checkStates.findByActivityIdOrderByBatchIndex(activityId);
         int currentBatch = firstUnpassedBatch(states, batchCount);
         if (currentBatch >= batchCount) {
@@ -141,8 +141,7 @@ public class InteractiveStudyEngine<T> {
                     "Bạn đang trong thời gian chờ. Hãy ôn lại phần vừa sai và quay lại sau.");
         }
 
-        Map<Long, T> byId = adapter.loadByIds(membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList());
-        List<T> batch = batchEntries(byId, membership, currentBatch);
+        List<T> batch = batches.get(currentBatch);
         // [JLAS-W0193] Task 10 audit finding — vary the deterministic question arrangement between successive
         // issues of the same still-unpassed batch (server-derived from the state's own attempt count, never
         // client input), so a revealed answer key from a failed attempt's review cannot be replayed verbatim
@@ -225,10 +224,12 @@ public class InteractiveStudyEngine<T> {
         quizSessions.save(session);
 
         List<LearningActivityMember> membership = loadMembership(activity);
-        int batchCount = batchCount(membership.size());
+        int batchCount = batchCount(membership);
         List<LearningMicroCheckState> states = checkStates.findByActivityIdOrderByBatchIndex(activityId);
         boolean allPassed = allBatchesPassed(states, batchCount);
-        LearningActivityState activityState = refreshActivityState(activity, state, allPassed, now);
+        int nextBatch = firstUnpassedBatch(states, batchCount);
+        LearningMicroCheckState effectiveState = allPassed ? state : stateForBatch(states, nextBatch);
+        LearningActivityState activityState = refreshActivityState(activity, effectiveState, allPassed, now);
 
         return new MicroCheckResult(grade.total(), grade.correct(), grade.score(), grade.passed(),
                 PASS_THRESHOLD, state.getAttemptsUsed(), attemptsRemaining(state.getAttemptsUsed()),
@@ -243,15 +244,44 @@ public class InteractiveStudyEngine<T> {
     public MicroCheckStateResponse completeReview(Long userId, Long activityId) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
         List<LearningActivityMember> membership = loadMembership(activity);
-        int batchCount = batchCount(membership.size());
+        List<List<T>> batches = adapter.requiresServerReviewEvidence() ? contentBatches(membership) : List.of();
+        int batchCount = batchCount(membership);
         List<LearningMicroCheckState> states = checkStates.findByActivityIdOrderByBatchIndex(activityId);
         int currentBatch = firstUnpassedBatch(states, batchCount);
         LearningMicroCheckState state = stateForBatch(states, currentBatch);
         if (state == null || !state.isReviewRequired()) {
             throw new ApiException(ErrorCode.CONFLICT, "Không có phần cần ôn lại.");
         }
+        if (adapter.requiresServerReviewEvidence()) {
+            requirePostFailureReviewEvidence(activity, batches.get(currentBatch), state);
+        }
         state.setReviewRequired(false);
         checkStates.save(state);
+        return buildStateResponse(activity);
+    }
+
+    /** Records a source interaction for the current comprehension exercise. The server chooses the current
+     * batch and timestamp; callers cannot submit a duration, source id, or completion time. */
+    public MicroCheckStateResponse recordReviewEvidence(Long userId, Long activityId) {
+        if (!adapter.requiresServerReviewEvidence()) throw new ApiException(ErrorCode.NOT_FOUND);
+        UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
+        List<LearningActivityMember> membership = loadMembership(activity);
+        List<List<T>> batches = contentBatches(membership);
+        List<LearningMicroCheckState> states = checkStates.findByActivityIdOrderByBatchIndex(activityId);
+        int currentBatch = firstUnpassedBatch(states, batches.size());
+        if (currentBatch >= batches.size()) throw new ApiException(ErrorCode.CONFLICT, "Phần này đã hoàn thành.");
+        LearningStudySession session = getOrCreateSession(activity, revisionOf(membership), membership);
+        int offset = 0;
+        for (int index = 0; index < currentBatch; index++) offset += batches.get(index).size();
+        Set<Long> currentIds = membership.subList(offset, offset + batches.get(currentBatch).size()).stream()
+                .map(LearningActivityMember::getCanonicalId).collect(Collectors.toSet());
+        LocalDateTime now = LocalDateTime.now();
+        for (LearningStudyCard card : studyCards.findBySessionIdOrderByOrderIndex(session.getId())) {
+            if (!currentIds.contains(card.getCanonicalId())) continue;
+            card.setFlipped(true);
+            card.setFlippedAt(now);
+            studyCards.save(card);
+        }
         return buildStateResponse(activity);
     }
 
@@ -347,18 +377,33 @@ public class InteractiveStudyEngine<T> {
         }
     }
 
-    private int batchCount(int size) {
-        return (size + BATCH_SIZE - 1) / BATCH_SIZE;
+    private List<List<T>> contentBatches(List<LearningActivityMember> membership) {
+        Map<Long, T> byId = adapter.loadByIds(membership.stream()
+                .map(LearningActivityMember::getCanonicalId).distinct().toList());
+        List<T> ordered = new ArrayList<>();
+        for (LearningActivityMember member : membership) {
+            T content = byId.get(member.getCanonicalId());
+            if (content == null) {
+                throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                        "Nội dung canonical đã thay đổi hoặc không còn sẵn sàng.");
+            }
+            ordered.add(content);
+        }
+        String revision = revisionOf(membership);
+        if (membership.stream().anyMatch(member -> !revision.equals(member.getSourceRevision()))) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Snapshot hoạt động không đồng nhất.");
+        }
+        adapter.validateSourceRevision(revision, ordered);
+        List<List<T>> batches = adapter.partition(ordered);
+        if (batches.isEmpty() || batches.stream().anyMatch(List::isEmpty)) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Hoạt động chưa có batch hợp lệ.");
+        }
+        return batches;
     }
 
-    private List<T> batchEntries(Map<Long, T> byId, List<LearningActivityMember> membership, int batchIndex) {
-        int from = batchIndex * BATCH_SIZE;
-        int to = Math.min(membership.size(), from + BATCH_SIZE);
-        List<T> batch = new ArrayList<>();
-        for (int i = from; i < to; i++) {
-            batch.add(byId.get(membership.get(i).getCanonicalId()));
-        }
-        return batch;
+    private int batchCount(List<LearningActivityMember> membership) {
+        if (adapter.requiresCanonicalPartitioning()) return contentBatches(membership).size();
+        return (membership.size() + 9) / 10;
     }
 
     private int firstUnpassedBatch(List<LearningMicroCheckState> states, int batchCount) {
@@ -399,7 +444,7 @@ public class InteractiveStudyEngine<T> {
 
     private MicroCheckStateResponse buildStateResponse(UserLearningPathItem activity) {
         List<LearningActivityMember> membership = loadMembership(activity);
-        int batchCount = batchCount(membership.size());
+        int batchCount = batchCount(membership);
         List<LearningMicroCheckState> states = checkStates.findByActivityIdOrderByBatchIndex(activity.getId());
         int currentBatch = firstUnpassedBatch(states, batchCount);
         LearningMicroCheckState state = stateForBatch(states, currentBatch);
@@ -457,6 +502,27 @@ public class InteractiveStudyEngine<T> {
     private Map<Long, QuizAnswerKey> toAnswerKey(List<QuestionSpec> specs) {
         return specs.stream().collect(Collectors.toMap(QuestionSpec::questionId,
                 s -> new QuizAnswerKey(s.correctOption(), s.explanation(), null, null)));
+    }
+
+    private void requirePostFailureReviewEvidence(UserLearningPathItem activity, List<T> batch,
+            LearningMicroCheckState state) {
+        LearningStudySession session = studySessions.findByActivityId(activity.getId()).orElse(null);
+        if (session == null || state.getCooldownUntil() == null) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET, "Hãy ôn lại nội dung vừa sai.");
+        }
+        LocalDateTime failedAt = state.getCooldownUntil().minusMinutes(COOLDOWN_MINUTES);
+        Set<Long> batchIds = adapter.buildQuestions(batch, state.getBatchIndex(), state.getAttemptsUsed()).stream()
+                .map(QuestionSpec::questionId).collect(Collectors.toSet());
+        Set<Long> reviewed = studyCards.findBySessionIdOrderByOrderIndex(session.getId()).stream()
+                .filter(card -> batchIds.contains(card.getCanonicalId()))
+                .filter(card -> card.getFlippedAt() != null && card.getFlippedAt().isAfter(failedAt))
+                .map(LearningStudyCard::getCanonicalId).collect(Collectors.toSet());
+        if (!reviewed.containsAll(batchIds)) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
+                    adapter.activityType() == com.jlas.learning.enums.LearningActivityType.READING
+                            ? "Hãy mở lại bài đọc và đọc đến cuối sau lần làm chưa đạt."
+                            : "Hãy nghe lại audio sau lần làm chưa đạt.");
+        }
     }
 
     private List<MicroCheckResponse.MicroCheckQuestion> toMicroCheckQuestions(List<QuestionSpec> specs) {

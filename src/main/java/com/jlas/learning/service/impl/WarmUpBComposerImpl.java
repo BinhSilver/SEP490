@@ -27,6 +27,7 @@ import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.WarmUpBComposer;
 import com.jlas.learning.service.ComprehensionExerciseCatalog;
+import com.jlas.learning.service.impl.engine.ComprehensionRevision;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,9 +37,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * [JLAS-W0193] Task 9 — Warm-up B: converts PROVEN Smart Test weakness evidence
@@ -387,15 +385,7 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     }
 
     private String combinedRevision(LearningActivityType type, List<ComprehensionExercise> exercises) {
-        String material = type.name() + "|" + exercises.stream()
-                .map(exercise -> exercise.fingerprint() + ":" + exercise.sourceRevision())
-                .reduce("", (left, right) -> left + "|" + right);
-        try {
-            return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
-                    .digest(material.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException impossible) {
-            throw new IllegalStateException(impossible);
-        }
+        return ComprehensionRevision.combined(type, exercises);
     }
 
     private String comprehensionTitle(List<ComprehensionExercise> reading,

@@ -5,6 +5,7 @@ import com.jlas.learning.enums.LearningMemberType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /** [JLAS-W0193] The minimal seam a content type must supply to reuse {@link InteractiveStudyEngine}. Everything
  * state-machine related (session/card lifecycle, flip/remember, attempt cycles, cooldown, review, idempotent
@@ -38,6 +39,24 @@ public interface InteractiveContentAdapter<T> {
      * their rotation math (see {@code InteractiveVocabularyServiceImpl}/{@code InteractiveKanjiServiceImpl}/
      * {@code InteractiveGrammarServiceImpl} for the pattern) rather than ignoring it. */
     List<QuestionSpec> buildQuestions(List<T> batch, int batchIndex, int variationSeed);
+
+    /** Splits ordered canonical content into score batches. Existing card-based skills keep the historical
+     * fixed chunks of ten; comprehension overrides this so one canonical source is exactly one batch. */
+    default List<List<T>> partition(List<T> orderedContent) {
+        List<List<T>> batches = new ArrayList<>();
+        for (int i = 0; i < orderedContent.size(); i += 10) {
+            batches.add(List.copyOf(orderedContent.subList(i, Math.min(i + 10, orderedContent.size()))));
+        }
+        return batches;
+    }
+
+    default boolean requiresCanonicalPartitioning() { return false; }
+
+    /** Validates that current canonical content still matches the immutable activity snapshot. */
+    default void validateSourceRevision(String persistedRevision, List<T> orderedContent) { }
+
+    /** Comprehension review is a server-recorded source event after the third failure. */
+    default boolean requiresServerReviewEvidence() { return false; }
 
     /** [JLAS-W0193] Task 6 — whether {@link InteractiveStudyEngine#issueMicroCheck} should gate eligibility
      * on the flip/remember study-card contract (Vocabulary, Kanji). Default {@code true} preserves the
