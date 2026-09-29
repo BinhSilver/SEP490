@@ -18,6 +18,21 @@
 @keyframes ilpHighlight{0%{box-shadow:0 0 0 4px var(--ilp-lime)}100%{box-shadow:0 0 0 0 rgba(130,217,9,0)}}
 @media(prefers-reduced-motion:reduce){.ilp-day.is-highlighted{animation:none;box-shadow:0 0 0 4px var(--ilp-lime)}}
 
+/* [JLAS-W0193] Roadmap UX hardening: the phase rail is interactive and readiness failures stay readable. */
+.ilp-phase-tabs{gap:12px;text-transform:none}
+.ilp-phase-tabs button{min-height:44px;padding:12px 16px;border:0;background:transparent;color:var(--ilp-muted);font:inherit;cursor:pointer}
+.ilp-phase-tabs button:hover{color:var(--ilp-purple)}
+.ilp-phase-tabs button:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:2px}
+.ilp-phase-tabs button.is-active{color:#fff;background:var(--ilp-purple);border-radius:9px 9px 0 0}
+.ilp-state{max-width:680px;margin:40px auto}
+.ilp-state p{color:var(--ilp-muted);line-height:1.7}
+.ilp-state__icon{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 18px;border-radius:20px;background:linear-gradient(135deg,#f4ffd9,#f7efff);color:var(--ilp-purple);font:800 28px 'Noto Serif',serif}
+.ilp-state__actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+.ilp-state__actions a{min-height:44px;display:inline-flex;align-items:center;padding:0 18px;border:1px solid var(--ilp-line);border-radius:11px;color:var(--ilp-ink);text-decoration:none;font-weight:750;background:#fff}
+.ilp-state__actions a:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:3px}
+.ilp-button{float:none;display:block;margin:16px 0 0 auto}
+.ilp-state button{float:none}
+
 /* [JLAS-W0193] Task 10 — path summary (first/latest/best, unresolved dimensions, readiness, actions) */
 .ilp-summary{max-width:1180px;margin:auto;padding:0 0 60px}
 .ilp-summary h1{font-size:clamp(26px,3.6vw,38px);margin:0 0 20px}

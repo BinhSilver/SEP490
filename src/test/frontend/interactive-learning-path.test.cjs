@@ -1,5 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const pathModule = require('node:path');
 const page = require('../../main/resources/static/js/pages/interactive-learning-path.js');
 
 function path(overrides = {}) {
@@ -54,6 +56,39 @@ test('renders only supported roadmap data and no legacy aggregate quiz', () => {
   assert.match(html, /MISSION DIRECTIVE/);
   assert.match(html, /Bắt đầu học/);
   assert.doesNotMatch(html, /Mini Quiz|quiz cuối bài|daily quiz|XP|Tải xuống|Luyện nghe/);
+});
+
+test('renders Vietnamese package states instead of backend enum names', () => {
+  const html = page.render(path());
+  assert.match(html, /Sẵn sàng/);
+  assert.doesNotMatch(html, />AVAILABLE</);
+});
+
+test('filters packages by the selected learning phase', () => {
+  const data = path({ packages: [
+    Object.assign({}, path().packages[0], { id: 8, phase: 'WARM_UP', title: 'Khởi động' }),
+    Object.assign({}, path().packages[0], { id: 9, phase: 'GOAL_LEARNING', orderIndex: 2, title: 'Mục tiêu' })
+  ] });
+  assert.match(page.render(data, 'WARM_UP'), /Khởi động/);
+  assert.doesNotMatch(page.render(data, 'WARM_UP'), /<h3>Mục tiêu<\/h3>/);
+  assert.match(page.render(data, 'GOAL_LEARNING'), /<h3>Mục tiêu<\/h3>/);
+  assert.doesNotMatch(page.render(data, 'GOAL_LEARNING'), /<h3>Khởi động<\/h3>/);
+});
+
+test('turns coverage diagnostics into a concise learner-facing readiness state', () => {
+  const html = page.errorState('BLOCKED_CONTENT',
+    'Lộ trình V2 chưa được phát hành vì thiếu học liệu: [CoverageGap[tagCode=LESSON:26, reasonCode=KANJI_NOT_READY]]');
+  assert.match(html, /Học liệu đang được hoàn thiện/);
+  assert.match(html, /Quay lại Smart Test/);
+  assert.match(html, /href="\/smart-test"/);
+  assert.doesNotMatch(html, /CoverageGap|KANJI_NOT_READY|LESSON:26/);
+});
+
+test('keeps roadmap actions in normal layout flow so they cannot overlap the next day card', () => {
+  const css = fs.readFileSync(pathModule.join(__dirname,
+    '../../main/resources/static/css/pages/interactive-learning-path.css'), 'utf8');
+  assert.match(css, /\.ilp-button\{[^}]*float:none[^}]*margin:[^;}]*auto/);
+  assert.match(css, /\.ilp-state button\{[^}]*float:none/);
 });
 
 test('omits optional intensity when the API has no value', () => {
