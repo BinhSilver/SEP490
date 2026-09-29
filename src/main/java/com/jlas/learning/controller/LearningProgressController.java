@@ -38,6 +38,6 @@ public class LearningProgressController {
     public ResponseEntity<ApiResponse<LessonProgressResponse>> complete(
             @PathVariable("lessonId") Long lessonId,
             @AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(ApiResponse.ok("Lesson completed", progressService.complete(user.userId(), lessonId)));
+        return ResponseEntity.ok(ApiResponse.ok("Lesson completed", progressService.completeByLearner(user.userId(), lessonId)));
     }
 }
