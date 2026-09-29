@@ -65,8 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let videoMeta = null;
     let isFavorited = false;
-    let watchSent = false;
-    let lastWatchPing = 0;
     let isAudioOnly = false;
 
     let subtitles = [];
@@ -267,29 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFavoriteUI();
         if (ratingRes.ok) updateRatingUI(await ratingRes.json());
         loadComments();
-    }
-
-    async function recordWatchProgress() {
-        if (!video.duration || watchSent) return;
-        const now = Date.now();
-        if (now - lastWatchPing < 5000) return;
-        lastWatchPing = now;
-        const res = await fetch(`/api/videos/${videoId}/watch`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                clientId,
-                currentTime: video.currentTime,
-                duration: video.duration,
-                // BR-03 — gửi userId nếu đã đăng nhập để ghi credit creator
-                userId: (window.JlasAuth && JlasAuth.user && JlasAuth.user.id) || null
-            })
-        });
-        if (res.ok) {
-            const data = await res.json();
-            if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${data.viewCount} lượt xem`;
-            if (data.countedAsView) watchSent = true;
-        }
     }
 
     function detectAudioOnly(meta) {
@@ -707,7 +682,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     video.addEventListener('timeupdate', () => {
         updateTimeline();
-        recordWatchProgress();
         const currentTime = video.currentTime;
         let newIndex = -1;
         for (let i = 0; i < subtitles.length; i++) {
@@ -822,7 +796,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fitViewerTimer = setTimeout(fitSubtitleViewer, 120);
     });
 
-    video.addEventListener('ended', () => recordWatchProgress());
+    window.attachWatchTracker(video, videoId, data => {
+        if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${data.viewCount} lượt xem`;
+    });
 
     initPlayer();
 });
