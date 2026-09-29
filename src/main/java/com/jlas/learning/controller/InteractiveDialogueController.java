@@ -6,6 +6,7 @@ import com.jlas.learning.dto.DialogueHeartbeatRequest;
 import com.jlas.learning.dto.DialogueProgressResult;
 import com.jlas.learning.dto.DialogueStudyState;
 import com.jlas.learning.service.InteractiveDialogueService;
+import com.jlas.learning.service.impl.InteractiveRateLimitService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InteractiveDialogueController {
     private final InteractiveDialogueService service;
+    private final InteractiveRateLimitService rateLimit;
 
     @GetMapping("/study")
     public ResponseEntity<ApiResponse<DialogueStudyState>> study(
@@ -31,6 +33,7 @@ public class InteractiveDialogueController {
     public ResponseEntity<ApiResponse<DialogueProgressResult>> heartbeat(
             @PathVariable Long activityId, @Valid @RequestBody DialogueHeartbeatRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.DIALOGUE_HEARTBEAT);
         return ResponseEntity.ok(ApiResponse.ok("OK", service.heartbeat(user.userId(), activityId, request)));
     }
 

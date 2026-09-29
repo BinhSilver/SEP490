@@ -9,7 +9,9 @@ import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.enums.LearningActivityState;
 import com.jlas.learning.enums.LearningActivityType;
+import com.jlas.common.exception.ApiException;
 import com.jlas.learning.service.InteractiveKanjiService;
+import com.jlas.learning.service.impl.InteractiveRateLimitService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -25,7 +27,7 @@ class InteractiveKanjiControllerTest {
         var state = new KanjiStudyState(1L, LearningActivityType.KANJI,
                 LearningActivityState.STUDYING, "rev", 1, 0, 0, 1, false, List.of());
         when(service.studyState(7L, 1L)).thenReturn(state);
-        var controller = new InteractiveKanjiController(service);
+        var controller = new InteractiveKanjiController(service, new com.jlas.learning.service.impl.InteractiveRateLimitService());
 
         var body = controller.study(1L, user).getBody();
 
@@ -41,7 +43,7 @@ class InteractiveKanjiControllerTest {
                 LearningActivityState.STUDYING, "rev", 1, 0, 0, 1, false, List.of());
         when(service.flip(7L, 1L, 201L)).thenReturn(state);
         when(service.remember(7L, 1L, 201L, true)).thenReturn(state);
-        var controller = new InteractiveKanjiController(service);
+        var controller = new InteractiveKanjiController(service, new com.jlas.learning.service.impl.InteractiveRateLimitService());
 
         controller.flip(1L, 201L, user);
         controller.remember(1L, 201L, true, user);
@@ -55,7 +57,7 @@ class InteractiveKanjiControllerTest {
         var question = new MicroCheckResponse.MicroCheckQuestion(1L, "KANJI_TO_READING", "prompt", List.of("a", "b"));
         var issued = new MicroCheckResponse(100L, 1L, 0, 1, 10, List.of(question));
         when(service.issueMicroCheck(7L, 1L)).thenReturn(issued);
-        var controller = new InteractiveKanjiController(service);
+        var controller = new InteractiveKanjiController(service, new com.jlas.learning.service.impl.InteractiveRateLimitService());
 
         var body = controller.issue(1L, user).getBody();
 
@@ -73,7 +75,7 @@ class InteractiveKanjiControllerTest {
         var request = new MicroCheckSubmitRequest(100L,
                 List.of(new MicroCheckSubmitRequest.MicroCheckAnswer(1L, 1)));
         when(service.submitMicroCheck(7L, 1L, request)).thenReturn(result);
-        var controller = new InteractiveKanjiController(service);
+        var controller = new InteractiveKanjiController(service, new com.jlas.learning.service.impl.InteractiveRateLimitService());
 
         var body = controller.submit(1L, request, user).getBody();
 
@@ -88,12 +90,35 @@ class InteractiveKanjiControllerTest {
                 null, false, true, false, null, null, null);
         when(service.microCheckState(7L, 1L)).thenReturn(state);
         when(service.completeReview(7L, 1L)).thenReturn(state);
-        var controller = new InteractiveKanjiController(service);
+        var controller = new InteractiveKanjiController(service, new com.jlas.learning.service.impl.InteractiveRateLimitService());
 
         controller.state(1L, user);
         controller.completeReview(1L, user);
 
         verify(service).microCheckState(7L, 1L);
         verify(service).completeReview(7L, 1L);
+    }
+
+    @Test void issueChecksRateLimitBeforeDelegatingAndRejectsWhenExceeded() {
+        var service = mock(InteractiveKanjiService.class);
+        var rateLimit = mock(InteractiveRateLimitService.class);
+        doThrow(new ApiException(com.jlas.common.exception.ErrorCode.TOO_MANY_REQUESTS))
+                .when(rateLimit).check(7L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+        var controller = new InteractiveKanjiController(service, rateLimit);
+
+        assertThrows(ApiException.class, () -> controller.issue(1L, user));
+        verify(service, never()).issueMicroCheck(anyLong(), anyLong());
+    }
+
+    @Test void submitChecksRateLimitBeforeDelegating() {
+        var service = mock(InteractiveKanjiService.class);
+        var rateLimit = mock(InteractiveRateLimitService.class);
+        var request = new MicroCheckSubmitRequest(100L,
+                List.of(new MicroCheckSubmitRequest.MicroCheckAnswer(1L, 1)));
+        var controller = new InteractiveKanjiController(service, rateLimit);
+
+        controller.submit(1L, request, user);
+
+        verify(rateLimit).check(7L, InteractiveRateLimitService.Bucket.MICRO_CHECK_SUBMIT);
     }
 }

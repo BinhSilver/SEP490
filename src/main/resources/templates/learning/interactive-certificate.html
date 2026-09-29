@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Chứng nhận hoàn thành lộ trình J-LAS - JLAS', 'interactive-learning-path')}"></head>
+<body id="jlabBasePage" class="app-body ilp-body ilp-certificate-body">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="ilp-certificate-page">
+    <section class="ilp-certificate-card">
+        <p class="ilp-kicker">J-LAS · Chứng nhận thành tựu nội bộ</p>
+        <h1>Chứng nhận hoàn thành lộ trình J-LAS</h1>
+        <p class="ilp-certificate-path" th:if="${pathTitle}">
+            Lộ trình: <strong th:text="${pathTitle}">N5 → N4</strong>
+        </p>
+        <p class="ilp-certificate-level" th:if="${targetLevel}">
+            Mục tiêu đã theo đuổi: <strong th:text="${targetLevel}">N4</strong>
+        </p>
+        <p class="ilp-certificate-date" th:if="${completedAt}">
+            Ngày hoàn thành:
+            <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
+        </p>
+        <p class="ilp-certificate-disclaimer">
+            Đây là chứng nhận thành tựu học tập nội bộ của J-LAS cho việc hoàn thành lộ trình học tương tác,
+            không phải điểm số hay chứng chỉ JLPT chính thức và không xác nhận người học đã đỗ kỳ thi JLPT.
+        </p>
+        <div class="ilp-certificate-actions">
+            <button class="ilp-summary__primary" type="button" onclick="window.print()">In / Lưu PDF</button>
+            <a class="ilp-summary__secondary" href="/learning/path/v2/summary">Về trang tổng kết</a>
+        </div>
+    </section>
+</main>
+
+<style>
+    @media print {
+        #jlabBaseShellMount, .ilp-certificate-actions { display: none !important; }
+    }
+    .ilp-certificate-page { display: flex; justify-content: center; padding: 48px 16px; }
+    .ilp-certificate-card { max-width: 640px; width: 100%; text-align: center; padding: 48px 40px;
+        border: 2px solid var(--ilp-purple); border-radius: 22px;
+        background: linear-gradient(110deg, #f4ffd9 0, #fff 48%, #f7efff 100%); }
+    .ilp-certificate-card h1 { font-size: clamp(26px, 4vw, 34px); margin: 8px 0 20px; color: var(--ilp-ink); }
+    .ilp-certificate-disclaimer { margin-top: 24px; font-size: 0.85rem; color: var(--ilp-muted); }
+    .ilp-certificate-actions { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+</style>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

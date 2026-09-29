@@ -27,7 +27,8 @@ class InteractiveStudyPageCssAssetTest {
     private static final Path CSS_PAGES = Path.of("src/main/resources/static/css/pages");
 
     @ParameterizedTest
-    @ValueSource(strings = {"interactive-study.html", "interactive-kanji-study.html", "interactive-grammar-study.html"})
+    @ValueSource(strings = {"interactive-study.html", "interactive-kanji-study.html", "interactive-grammar-study.html",
+            "interactive-path-summary.html", "interactive-certificate.html"})
     void pageCssArgumentResolvesToAnExistingStylesheet(String templateName) throws IOException {
         String source = Files.readString(TEMPLATES.resolve(templateName));
         Matcher m = PAGE_CSS.matcher(source);

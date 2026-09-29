@@ -18,6 +18,14 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
     Optional<UserLearningPath> findByUserIdAndStatusAndExperienceVersion(
             Long userId, String status, LearningExperienceVersion experienceVersion);
 
+    /** [JLAS-W0193] Task 10 — the summary/certificate pages must stay reachable after the path has
+     * transitioned to {@code COMPLETED} (see Task 10's path-completion fix in
+     * {@code InteractiveLearningPathServiceImpl}), unlike {@link #findByUserIdAndStatusAndExperienceVersion}
+     * which is {@code ACTIVE}-only and exists for the roadmap's own "current work" lookup. Picks the
+     * most-recently-created V2 path for the user regardless of status (ACTIVE/COMPLETED/SUPERSEDED). */
+    Optional<UserLearningPath> findTopByUserIdAndExperienceVersionOrderByIdDesc(
+            Long userId, LearningExperienceVersion experienceVersion);
+
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from UserLearningPath p where p.user.id = :userId and p.status = 'ACTIVE'")
     Optional<UserLearningPath> findActiveForFlashcardUpdate(@Param("userId") Long userId);

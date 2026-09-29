@@ -9,15 +9,15 @@
         <a href="/learning/path/v2">Lộ trình cá nhân</a><span>/</span>
         <strong aria-current="page">Tổng kết chặng</strong>
     </nav>
-    <!-- [JLAS-W0193] Task 8 routes here when the completed package is the last one in the path. This is a
-         placeholder: Task 10 builds the real first/latest/best-per-skill, unresolved-dimension and readiness
-         summary content (design spec §6). Task 8's job was only to route here correctly, not to build it. -->
-    <section class="ilp-state">
-        <h1>Bạn đã hoàn thành chặng học này</h1>
-        <p>Trang tổng kết đầy đủ (điểm từng kỹ năng, phần còn cần ôn, readiness) đang được hoàn thiện.</p>
-        <a class="ilp-button" href="/learning/path/v2">Về lộ trình</a>
-    </section>
+    <!-- [JLAS-W0193] Task 10 — real first/latest/best-per-skill, unresolved-dimension, Dialogue completion,
+         Reading/Listening (Smart Test) evidence and readiness content (design spec §6), fetched from
+         GET /api/learning/v2/paths/current/summary and rendered by interactive-path-summary.js. Task 8 only
+         routed here with a placeholder; this replaces that placeholder body. -->
+    <div id="interactivePathSummaryRoot" aria-busy="false">
+        <section class="ilp-state"><p>Đang tải tổng kết…</p></section>
+    </div>
 </main>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/interactive-path-summary.js}"></script>
 </body>
 </html>

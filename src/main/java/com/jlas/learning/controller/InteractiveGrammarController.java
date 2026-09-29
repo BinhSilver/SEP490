@@ -11,6 +11,7 @@ import com.jlas.learning.dto.MicroCheckResult;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.service.InteractiveGrammarService;
+import com.jlas.learning.service.impl.InteractiveRateLimitService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InteractiveGrammarController {
     private final InteractiveGrammarService service;
+    private final InteractiveRateLimitService rateLimit;
 
     @GetMapping("/study")
     public ResponseEntity<ApiResponse<GrammarStudyState>> study(
@@ -51,6 +53,7 @@ public class InteractiveGrammarController {
     @PostMapping("/micro-check")
     public ResponseEntity<ApiResponse<MicroCheckResponse>> issue(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
         return ResponseEntity.ok(ApiResponse.ok("OK", service.issueMicroCheck(user.userId(), activityId)));
     }
 
@@ -58,6 +61,7 @@ public class InteractiveGrammarController {
     public ResponseEntity<ApiResponse<MicroCheckResult>> submit(
             @PathVariable Long activityId, @Valid @RequestBody MicroCheckSubmitRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_SUBMIT);
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitMicroCheck(user.userId(), activityId, request)));
     }
 

@@ -1,0 +1,230 @@
+package com.jlas.learning.service.impl;
+
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
+import com.jlas.learning.dto.InteractiveComprehensionEvidence;
+import com.jlas.learning.dto.InteractiveDialogueSummary;
+import com.jlas.learning.dto.InteractivePathSummaryResponse;
+import com.jlas.learning.dto.InteractiveReadinessConfidence;
+import com.jlas.learning.dto.InteractiveSkillProgress;
+import com.jlas.learning.dto.InteractiveUnresolvedBatch;
+import com.jlas.learning.dto.SkillScore;
+import com.jlas.learning.dto.WeaknessEvidence;
+import com.jlas.learning.entity.LearningMicroCheckState;
+import com.jlas.learning.entity.LearningPathPackage;
+import com.jlas.learning.entity.UserLearningPath;
+import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.enums.LearningActivityState;
+import com.jlas.learning.enums.LearningActivityType;
+import com.jlas.learning.enums.LearningExperienceVersion;
+import com.jlas.learning.enums.LearningPackageStatus;
+import com.jlas.learning.repository.LearningMicroCheckStateRepository;
+import com.jlas.learning.repository.LearningPathPackageRepository;
+import com.jlas.learning.repository.UserLearningPathItemRepository;
+import com.jlas.learning.repository.UserLearningPathRepository;
+import com.jlas.learning.service.InteractivePathSummaryService;
+import com.jlas.learning.service.LearningProfileSource;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+/** [JLAS-W0193] Task 10 — aggregates real evidence for the interactive path's end-of-journey summary
+ * (design spec §6.1/§6.2). Read-only: this class never mutates path/package/activity state — all state
+ * transitions stay owned by {@link InteractiveLearningPathServiceImpl}. */
+@Service
+@RequiredArgsConstructor
+public class InteractivePathSummaryServiceImpl implements InteractivePathSummaryService {
+
+    private static final List<LearningActivityType> SCORED_SKILLS =
+            List.of(LearningActivityType.VOCABULARY, LearningActivityType.KANJI, LearningActivityType.GRAMMAR);
+
+    private static final Map<LearningActivityType, String> QUIZ_TYPES = Map.of(
+            LearningActivityType.VOCABULARY, "VOCAB_MICRO_CHECK",
+            LearningActivityType.KANJI, "KANJI_MICRO_CHECK",
+            LearningActivityType.GRAMMAR, "GRAMMAR_MICRO_CHECK");
+
+    private static final String COMPREHENSION_NOTE =
+            "Đọc/Nghe chưa được đánh giá lại trong lộ trình học tương tác; dữ liệu dưới đây đến từ Smart Test.";
+
+    private final UserLearningPathRepository paths;
+    private final UserLearningPathItemRepository items;
+    private final LearningPathPackageRepository packages;
+    private final LearningMicroCheckStateRepository microCheckStates;
+
+    /** [JLAS-W0193] Optional so slice tests don't need to wire Smart Test's read API — same optional-autowire
+     * pattern {@code LearningServiceImpl}/{@code InteractiveLearningPathServiceImpl} already use for their own
+     * best-effort dependencies. Missing/failing Smart Test data degrades Reading/Listening to "no evidence",
+     * never blocks the summary from rendering the rest. */
+    @Autowired(required = false)
+    private LearningProfileSource profileSource;
+
+    @Override
+    @Transactional(readOnly = true)
+    public InteractivePathSummaryResponse summary(Long userId) {
+        UserLearningPath path = paths
+                .findTopByUserIdAndExperienceVersionOrderByIdDesc(userId, LearningExperienceVersion.INTERACTIVE_V2)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình tương tác nào."));
+
+        List<UserLearningPathItem> activities = items.findByLearningPathIdOrderByOrderIndex(path.getId());
+
+        List<InteractiveSkillProgress> skills = SCORED_SKILLS.stream()
+                .map(type -> skillProgress(type, activities))
+                .toList();
+
+        InteractiveDialogueSummary dialogue = dialogueSummary(activities);
+        List<InteractiveComprehensionEvidence> comprehension = comprehensionEvidence(userId, path);
+        InteractiveReadinessConfidence readiness = readiness(skills, dialogue, comprehension);
+        boolean certificateEligible = isCertificateEligible(path.getId());
+
+        return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
+                skills, dialogue, comprehension, readiness, certificateEligible);
+    }
+
+    // ---- Vocabulary/Kanji/Grammar: first/latest/best + unresolved batches, path-wide ----
+
+    private InteractiveSkillProgress skillProgress(LearningActivityType type, List<UserLearningPathItem> activities) {
+        List<Long> activityIds = activities.stream()
+                .filter(a -> a.getActivityType() == type)
+                .map(UserLearningPathItem::getId)
+                .toList();
+        List<LearningMicroCheckState> states = activityIds.isEmpty()
+                ? List.of() : microCheckStates.findByActivityIdInOrderByActivityIdAscBatchIndexAsc(activityIds);
+        List<LearningMicroCheckState> attempted = states.stream()
+                .filter(s -> s.getAttemptsUsed() != null && s.getAttemptsUsed() > 0)
+                .toList();
+        if (attempted.isEmpty()) {
+            return new InteractiveSkillProgress(type.name(), false, null, null, null, false, List.of());
+        }
+
+        Integer first = attempted.stream()
+                .filter(s -> s.getFirstScore() != null)
+                .min(Comparator.comparing(LearningMicroCheckState::getCreatedAt))
+                .map(LearningMicroCheckState::getFirstScore).orElse(null);
+        Integer latest = attempted.stream()
+                .filter(s -> s.getLatestScore() != null)
+                .max(Comparator.comparing(LearningMicroCheckState::getUpdatedAt))
+                .map(LearningMicroCheckState::getLatestScore).orElse(null);
+        Integer best = attempted.stream()
+                .map(LearningMicroCheckState::getBestScore)
+                .filter(Objects::nonNull)
+                .max(Integer::compareTo).orElse(null);
+
+        List<InteractiveUnresolvedBatch> unresolved = attempted.stream()
+                .filter(s -> !s.isPassed())
+                .map(s -> new InteractiveUnresolvedBatch(s.getActivity().getId(), s.getBatchIndex(),
+                        s.getLatestScore(), s.isReviewRequired(), s.getCooldownUntil()))
+                .toList();
+
+        return new InteractiveSkillProgress(type.name(), true, first, latest, best, unresolved.isEmpty(), unresolved);
+    }
+
+    // ---- Dialogue: completion count only, never a score ----
+
+    private InteractiveDialogueSummary dialogueSummary(List<UserLearningPathItem> activities) {
+        List<UserLearningPathItem> dialogues = activities.stream()
+                .filter(a -> a.getActivityType() == LearningActivityType.DIALOGUE)
+                .toList();
+        int completed = (int) dialogues.stream()
+                .filter(a -> a.getActivityState() == LearningActivityState.COMPLETED).count();
+        return new InteractiveDialogueSummary(dialogues.size(), completed,
+                !dialogues.isEmpty() && completed == dialogues.size());
+    }
+
+    // ---- Reading/Listening: Smart Test snapshot only (never re-tested inside the path this session) ----
+
+    private List<InteractiveComprehensionEvidence> comprehensionEvidence(Long userId, UserLearningPath path) {
+        Map<String, SkillScore> byskill = loadSkillScores(userId, path);
+        return List.of(
+                toComprehensionEvidence(WeaknessEvidence.SKILL_READING, byskill.get(WeaknessEvidence.SKILL_READING)),
+                toComprehensionEvidence(WeaknessEvidence.SKILL_LISTENING, byskill.get(WeaknessEvidence.SKILL_LISTENING)));
+    }
+
+    private Map<String, SkillScore> loadSkillScores(Long userId, UserLearningPath path) {
+        if (profileSource == null || path.getAssessmentAttemptId() == null) return Map.of();
+        try {
+            var snapshot = profileSource.loadForUser(userId, path.getAssessmentAttemptId());
+            if (snapshot == null || snapshot.skillScores() == null) return Map.of();
+            Map<String, SkillScore> byskill = new java.util.HashMap<>();
+            for (SkillScore score : snapshot.skillScores()) {
+                byskill.put(score.skill(), score);
+            }
+            return byskill;
+        } catch (RuntimeException ex) {
+            // Best-effort read of another module's data; missing/broken evidence degrades to "no evidence"
+            // rather than failing the whole summary — same non-fatal posture Gemini's narrative call uses.
+            return Map.of();
+        }
+    }
+
+    private InteractiveComprehensionEvidence toComprehensionEvidence(String skill, SkillScore score) {
+        if (score == null || score.assessedCount() <= 0) {
+            return new InteractiveComprehensionEvidence(skill, false, null, null, null, false, COMPREHENSION_NOTE);
+        }
+        int correctPercent = Math.round(score.correctCount() * 100f / score.assessedCount());
+        boolean weak = WeakTagPolicy.comprehensionLessonCount(score) > 0;
+        return new InteractiveComprehensionEvidence(skill, true, score.assessedCount(), score.wrongCount(),
+                correctPercent, weak, COMPREHENSION_NOTE);
+    }
+
+    // ---- Readiness: never lets one skill's high score compensate for another's missing/weak evidence ----
+
+    private InteractiveReadinessConfidence readiness(List<InteractiveSkillProgress> skills,
+            InteractiveDialogueSummary dialogue, List<InteractiveComprehensionEvidence> comprehension) {
+        List<String> gaps = new ArrayList<>();
+        for (InteractiveSkillProgress skill : skills) {
+            if (!skill.hasEvidence()) {
+                gaps.add(skill.skill() + ": chưa có bằng chứng trong lộ trình");
+            } else if (!skill.resolved()) {
+                gaps.add(skill.skill() + ": còn nội dung chưa đạt micro-check");
+            }
+        }
+        for (InteractiveComprehensionEvidence c : comprehension) {
+            if (!c.hasEvidence()) {
+                gaps.add(c.skill() + ": không có dữ liệu Smart Test");
+            }
+        }
+        if (!gaps.isEmpty()) {
+            return new InteractiveReadinessConfidence("LOW",
+                    "Chưa đủ bằng chứng để ước tính độ sẵn sàng đáng tin cậy: " + String.join("; ", gaps) + ".");
+        }
+
+        StringBuilder explanation = new StringBuilder(
+                "Từ vựng, Kanji và Ngữ pháp đã đạt micro-check trong lộ trình.");
+        List<String> weakComprehension = comprehension.stream()
+                .filter(InteractiveComprehensionEvidence::weak)
+                .map(InteractiveComprehensionEvidence::skill)
+                .toList();
+        if (!weakComprehension.isEmpty()) {
+            explanation.append(" Smart Test cho thấy còn yếu ở ")
+                    .append(String.join(", ", weakComprehension)).append(".");
+        }
+        if (!dialogue.allCompleted()) {
+            explanation.append(" Hội thoại chưa hoàn thành toàn bộ.");
+        }
+        explanation.append(' ').append(COMPREHENSION_NOTE);
+        // Deliberately capped at MEDIUM, never HIGH: Reading/Listening evidence always comes from the (possibly
+        // stale) Smart Test snapshot rather than being re-verified inside the path itself, so this response
+        // never claims full confidence while a third of the five JLPT skills rests on that disclosed gap.
+        return new InteractiveReadinessConfidence("MEDIUM", explanation.toString());
+    }
+
+    // ---- Certificate eligibility: mirrors the certificate page's own gate exactly ----
+
+    private boolean isCertificateEligible(Long pathId) {
+        List<LearningPathPackage> pathPackages = packages.findByLearningPathIdOrderByOrderIndex(pathId);
+        boolean hasGoalLearningPackage = false;
+        for (LearningPathPackage p : pathPackages) {
+            if (!"GOAL_LEARNING".equals(p.getPhase())) continue;
+            hasGoalLearningPackage = true;
+            if (p.getStatus() != LearningPackageStatus.COMPLETED) return false;
+        }
+        return hasGoalLearningPackage;
+    }
+}

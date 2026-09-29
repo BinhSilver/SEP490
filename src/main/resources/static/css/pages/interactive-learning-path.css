@@ -17,3 +17,31 @@
 .ilp-day.is-highlighted{animation:ilpHighlight 1.6s ease-out 1}
 @keyframes ilpHighlight{0%{box-shadow:0 0 0 4px var(--ilp-lime)}100%{box-shadow:0 0 0 0 rgba(130,217,9,0)}}
 @media(prefers-reduced-motion:reduce){.ilp-day.is-highlighted{animation:none;box-shadow:0 0 0 4px var(--ilp-lime)}}
+
+/* [JLAS-W0193] Task 10 — path summary (first/latest/best, unresolved dimensions, readiness, actions) */
+.ilp-summary{max-width:1180px;margin:auto;padding:0 0 60px}
+.ilp-summary h1{font-size:clamp(26px,3.6vw,38px);margin:0 0 20px}
+.ilp-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:28px}
+.ilp-summary-card{padding:20px;border:1px solid var(--ilp-line);border-radius:16px;background:#fff}
+.ilp-summary-card.is-pending{color:var(--ilp-muted)}
+.ilp-summary-card.is-secondary{background:#fbfbff}
+.ilp-summary-card h3{margin:0 0 10px;font-size:16px}
+.ilp-summary-scores{display:flex;justify-content:space-between;gap:8px;margin:0 0 10px}
+.ilp-summary-scores div{text-align:center}
+.ilp-summary-scores dt{color:var(--ilp-muted);font:700 11px ui-monospace,monospace;text-transform:uppercase}
+.ilp-summary-scores dd{margin:2px 0 0;font-weight:800;font-size:20px}
+.ilp-summary-status{margin:0 0 8px;font-weight:700}
+.ilp-summary-status.is-ok{color:#4c9200}
+.ilp-summary-status.is-weak{color:#9a5b00}
+.ilp-summary-unresolved{margin:0;padding-left:18px;color:var(--ilp-muted)}
+.ilp-summary-note{color:var(--ilp-muted);font-size:13px;margin-top:8px}
+.ilp-summary-readiness{padding:24px;border:1px solid var(--ilp-line);border-radius:18px;background:linear-gradient(110deg,#f7efff 0,#fff 60%);margin-bottom:24px}
+.ilp-summary-readiness h2{margin:0 0 8px;font-size:19px;color:var(--ilp-ink)}
+.ilp-summary-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.ilp-summary__primary,.ilp-summary__secondary,.ilp-summary__quiet{min-height:44px;border-radius:12px;font-weight:800;cursor:pointer;padding:12px 18px;text-decoration:none;display:inline-flex;align-items:center}
+.ilp-summary__primary{border:0;background:var(--ilp-lime);color:#1d2b00}
+.ilp-summary__secondary{border:1px solid var(--ilp-line);background:#fff;color:var(--ilp-ink)}
+.ilp-summary__quiet{border:0;background:transparent;color:var(--ilp-muted)}
+.ilp-summary__quiet:disabled{cursor:not-allowed;opacity:.7}
+.ilp-summary__primary:focus-visible,.ilp-summary__secondary:focus-visible,.ilp-summary__quiet:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:3px}
+@media(max-width:520px){.ilp-summary-actions{flex-direction:column;align-items:stretch}}

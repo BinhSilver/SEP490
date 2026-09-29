@@ -15,6 +15,12 @@ public interface LearningMicroCheckStateRepository extends JpaRepository<Learnin
 
     Optional<LearningMicroCheckState> findByActivityIdAndBatchIndex(Long activityId, Integer batchIndex);
 
+    /** [JLAS-W0193] Task 10 — the path summary aggregates first/latest/best and unresolved batches across
+     * every activity of a skill in the whole path in one query instead of one round-trip per activity.
+     * {@code activityIds} always comes from the path's own owned activities (never client-supplied ids), so
+     * this cannot leak another user's micro-check state. */
+    List<LearningMicroCheckState> findByActivityIdInOrderByActivityIdAscBatchIndexAsc(List<Long> activityIds);
+
     /** Lock the batch's summary row so concurrent submits of the same batch cannot over-spend attempts. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
