@@ -42,8 +42,10 @@ class QuizSessionTypeConstraintTest {
     }
 
     @Test void migration017WidensTheSameConstraintToTheSameFinalValueSet() throws IOException {
-        Path migration = repoRoot().resolve("sql/migrations/017_interactive_comprehension_quiz_type.sql");
-        assertTrue(Files.exists(migration), "expected sql/migrations/017_interactive_comprehension_quiz_type.sql");
+        // [chore(db)] Migrations 004-017 were squashed into one consolidated file; this constraint's
+        // final value set now lands there instead of the old standalone 017 file.
+        Path migration = repoRoot().resolve("sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
+        assertTrue(Files.exists(migration), "expected sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
         String content = Files.readString(migration, StandardCharsets.UTF_8);
         assertTrue(content.contains("chk_quiz_session_type"));
         assertTrue(content.contains("'READING_MICRO_CHECK'"));

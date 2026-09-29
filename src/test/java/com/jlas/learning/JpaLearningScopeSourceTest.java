@@ -134,7 +134,8 @@ class JpaLearningScopeSourceTest {
 
     /** [JLAS-W0108] Sách nền tảng bảng chữ cái: jlpt_level NULL + bài gắn tag {@code KANA-*}. */
     private Textbook kanaBook() {
-        var book = Textbook.builder().title("Bảng chữ cái tiếng Nhật").status("PUBLISHED").build();
+        var book = Textbook.builder().title("Bảng chữ cái tiếng Nhật").status("PUBLISHED")
+                .isLearningPathSource(true).build();
         em.persist(book);
         var unit = Unit.builder().textbook(book).title("Unit 1").orderIndex(1).build();
         em.persist(unit);
@@ -153,15 +154,18 @@ class JpaLearningScopeSourceTest {
     }
 
     private Textbook book(String level, String title) {
-        var b = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED").build();
+        var b = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED")
+                .isLearningPathSource(true).build();
         em.persist(b);
         return b;
     }
 
+    /** Simulates a textbook NOT flagged as a Learning Path source (e.g. the demo seed, or any
+     * other team's textbook) — must never be picked up by {@link #scope}, hence is_learning_path_source=0. */
     private void demoBook(long id, String level) {
         em.createNativeQuery(
-                        "insert into textbook (id, title, jlpt_level, status, version, created_at, updated_at) " +
-                        "values (?1, ?2, ?3, 'PUBLISHED', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
+                        "insert into textbook (id, title, jlpt_level, status, version, is_learning_path_source, created_at, updated_at) " +
+                        "values (?1, ?2, ?3, 'PUBLISHED', 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
                 .setParameter(1, id)
                 .setParameter(2, "demo " + level)
                 .setParameter(3, level)

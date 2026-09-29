@@ -23,6 +23,12 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
     List<Textbook> findByJlptLevelInAndStatusAndIdLessThanOrderByIdAsc(
             List<String> jlptLevels, String status, Long idLessThan);
 
+    /** [JLAS-W0108] Hướng B — chỉ textbook đã đánh cờ {@code is_learning_path_source} mới được
+     * Learning Path V2 composer dùng làm nguồn sinh lộ trình; textbook khác của module Textbook
+     * (dù PUBLISHED cùng cấp) không bị kéo vào, tách data lộ trình khỏi sách. */
+    List<Textbook> findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(
+            List<String> jlptLevels, String status);
+
     /** Local demo-seed textbooks (published, level in range, id >= idGreaterThanEqual); temporary fallback until real content is published. */
     List<Textbook> findByJlptLevelInAndStatusAndIdGreaterThanEqualOrderByIdAsc(
             List<String> jlptLevels, String status, Long idGreaterThanEqual);
@@ -38,7 +44,8 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
               join l.unit u
               join u.textbook t
               join l.knowledgeTag kt
-            where t.jlptLevel is null and t.status = :status and kt.code like 'KANA-%'
+            where t.jlptLevel is null and t.status = :status and t.isLearningPathSource = true
+              and kt.code like 'KANA-%'
             order by t.id
             """)
     List<Textbook> findKanaFoundationByStatus(@Param("status") String status);

@@ -33,9 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaLearningScopeSource implements LearningScopeSource {
     private static final List<String> LEVELS = List.of("BELOW_N5", "N5", "N4", "N3", "N2", "N1");
 
-    /** Local demo seed (`db/jlas-learning-demo-seed.sql`) creates textbooks with ids >= 9000; P6 loại bỏ. */
-    private static final long DEMO_TEXTBOOK_ID_FLOOR = 9000L;
-
     private final TextbookRepository textbooks;
 
     @Override
@@ -78,9 +75,10 @@ public class JpaLearningScopeSource implements LearningScopeSource {
         return new LearningCatalogScope(warmUpIds, goalIds, stages);
     }
 
+    /** [JLAS-W0108] Hướng B — chỉ textbook đã đánh cờ {@code is_learning_path_source} mới được
+     * dùng, không còn loại demo seed bằng khoảng id (cờ này đã thay hẳn vai trò đó). */
     private List<Textbook> realBooks(List<String> levels) {
-        return textbooks.findByJlptLevelInAndStatusAndIdLessThanOrderByIdAsc(levels, "PUBLISHED",
-                DEMO_TEXTBOOK_ID_FLOOR);
+        return textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(levels, "PUBLISHED");
     }
 
     private List<Long> realBookIds(List<String> levels) {

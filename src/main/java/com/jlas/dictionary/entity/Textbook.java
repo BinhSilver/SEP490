@@ -40,6 +40,12 @@ public class Textbook {
     @Builder.Default
     private Integer version = 1;
 
+    /** [JLAS-W0108] 1 = Learning Path V2 composer dùng textbook này để sinh lộ trình; 0 (mặc
+     * định) = chỉ phục vụ trang đọc/tra cứu giáo trình, dù PUBLISHED cũng không bị kéo vào path. */
+    @Column(name = "is_learning_path_source", nullable = false)
+    @Builder.Default
+    private Boolean isLearningPathSource = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

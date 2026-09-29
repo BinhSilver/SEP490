@@ -691,11 +691,17 @@ CREATE TABLE textbook (
     jlpt_level  VARCHAR(10) NULL,
     status      VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     version     INT UNSIGNED NOT NULL DEFAULT 1,
+    -- [JLAS-W0108] Co dinh nguon cho Learning Path V2: 1 = textbook nay duoc composer dung de
+    -- sinh lo trinh; 0 (mac dinh) = textbook chi phuc vu trang doc/tra cuu giao trinh, du PUBLISHED
+    -- cung khong bi keo vao lo trinh. Tach data lo trinh khoi sach cua module Textbook ma khong
+    -- nhan doi bang/du lieu (van dung chung vocabulary_entry/kanji/grammar_point).
+    is_learning_path_source TINYINT(1) NOT NULL DEFAULT 0,
     created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                 ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
     KEY idx_textbook_status (status, updated_at),
+    KEY idx_textbook_learning_path_source (is_learning_path_source, jlpt_level, status),
     CONSTRAINT chk_textbook_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
     CONSTRAINT chk_textbook_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1'))

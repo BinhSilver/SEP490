@@ -40,8 +40,10 @@ class LearningActivityAndMemberTypeConstraintTest {
     }
 
     @Test void migration016WidensBothConstraintsToTheirCurrentValueSet() throws IOException {
-        Path migration = repoRoot().resolve("sql/migrations/016_interactive_comprehension_activities.sql");
-        assertTrue(Files.exists(migration), "expected sql/migrations/016_interactive_comprehension_activities.sql");
+        // [chore(db)] Migrations 004-017 were squashed into one consolidated file; this constraint's
+        // final value set now lands there instead of the old standalone 016 file.
+        Path migration = repoRoot().resolve("sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
+        assertTrue(Files.exists(migration), "expected sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
         String content = Files.readString(migration, StandardCharsets.UTF_8);
         for (LearningActivityType type : LearningActivityType.values()) {
             assertTrue(content.contains("'" + type.name() + "'"));
