@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head th:replace="~{fragments/head :: standard('Lật thẻ ghi nhớ · JLAS Arena', 'memory')}"></head>
+<head th:replace="~{fragments/head :: standard(${pageTitle}, '')}"></head>
 <body id="jlabBasePage" class="memory-page">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent">
-<div id="memory-root" th:attr="data-session-id=${sessionId}">
+<link rel="stylesheet" th:href="@{/arena/app/memory/memory-app.css}" />
+<div id="memory-root"
+     th:attr="data-session-id=${sessionId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId}">
     <div class="memory-loading" aria-live="polite">
-        <p>Đang chuẩn bị bàn lật thẻ ghi nhớ…</p>
+        <p>Đang chuẩn bị bàn lật thẻ…</p>
     </div>
 </div>
 </main>
 
-<div th:replace="~{fragments/layout :: toast}"></div>
-<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
-<script th:src="@{/webjars/sockjs-client/1.5.1/sockjs.min.js}"></script>
-<script th:src="@{/webjars/stomp-websocket/2.3.4/stomp.min.js}"></script>
+<script th:src="@{/arena/js/arena-client.js}"></script>
 <script th:src="@{/arena/js/memory-store.js}"></script>
 <script type="module" th:src="@{/arena/app/memory/memory-app.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>

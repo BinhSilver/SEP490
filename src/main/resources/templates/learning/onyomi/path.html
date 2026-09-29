@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
+<body id="jlabBasePage" class="app-body onyomi-body">
+<div id="jlabBaseShellMount"></div>
+<div th:replace="~{learning/fragments/welcome-modal :: welcome-modal}"></div>
+
+<main id="jlabBaseContent" class="oy-page">
+    <div class="oy-shell">
+        <div class="oy-notice" th:if="${course.unrestricted}" role="status">
+            <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
+            <span>Chế độ kiểm thử nội dung: tài khoản quản trị được mở mọi bài và bài kiểm tra cuối, không cần học tuần tự.</span>
+        </div>
+
+        <div class="oy-notice" th:if="${lockedNotice}" role="status">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            <span th:if="${lockedNotice == 'final'}">Bài kiểm tra cuối giai đoạn mở khoá khi bạn hoàn thành mọi bài trong giai đoạn đó.</span>
+            <span th:unless="${lockedNotice == 'final'}">Bài đó chưa mở khoá. Các bài mở lần lượt: vượt qua bài luyện tập (từ 60%) của bài trước để học bài tiếp theo.</span>
+        </div>
+
+        <header class="oy-panel oy-course-hero">
+            <div>
+                <span class="oy-eyebrow"><i class="fa-solid fa-route" aria-hidden="true"></i> Lộ trình Hán Việt → On</span>
+                <h1>Đoán âm On của Kanji từ âm Hán Việt</h1>
+                <p>Học các quy tắc chuyển âm đầu, âm cuối và vần. Mỗi bài có thẻ ghi nhớ và bài luyện tập đọc từ;
+                    vượt qua bài luyện tập để mở bài tiếp theo, hoàn thành cả giai đoạn để làm bài kiểm tra cuối.</p>
+                <div class="oy-course-hero__actions">
+                    <a th:if="${course.currentLessonId != null}" class="oy-button oy-button--primary"
+                       th:href="@{/learning/onyomi/lessons/{id}(id=${course.currentLessonId})}">
+                        <i class="fa-solid fa-play" aria-hidden="true"></i>
+                        <span th:text="${course.completedLessons == 0} ? 'Bắt đầu học' : 'Học tiếp'">Học tiếp</span>
+                    </a>
+                    <button class="oy-button" type="button" onclick="openWelcome()">
+                        <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
+                        <span>Phương pháp này là gì?</span>
+                    </button>
+                </div>
+            </div>
+            <div class="oy-course-stats" aria-label="Tiến độ">
+                <strong th:text="${course.percent} + '%'">0%</strong>
+                <div class="oy-progress" aria-hidden="true">
+                    <div class="oy-progress__fill" th:style="'width:' + ${course.percent} + '%'"></div>
+                </div>
+                <span th:text="${course.completedLessons} + ' / ' + ${course.totalLessons} + ' bài đã hoàn thành'">0 / 19 bài</span>
+            </div>
+        </header>
+
+        <p th:if="${#lists.isEmpty(course.stages)}" class="oy-notice">
+            Chưa có dữ liệu giáo trình Onyomi. Hãy chạy sql/seeds/onyomi_canonical.sql.
+        </p>
+
+        <section th:each="stage : ${course.stages}" class="oy-stage" th:attr="aria-labelledby='stage-' + ${stage.unitId}">
+            <header class="oy-stage__head">
+                <div>
+                    <span class="oy-eyebrow" th:text="'Giai đoạn ' + ${stage.order}">Giai đoạn 1</span>
+                    <h2 th:id="'stage-' + ${stage.unitId}" th:text="${stage.title}">Âm đầu</h2>
+                    <p th:text="${stage.description}">Mô tả</p>
+                </div>
+                <span class="oy-pill" th:classappend="${stage.completedLessons == #lists.size(stage.lessons)} ? 'oy-pill--done'"
+                      th:text="${stage.completedLessons} + ' / ' + ${#lists.size(stage.lessons)} + ' bài'">0 / 10 bài</span>
+            </header>
+
+            <ol class="oy-lesson-grid">
+                <li th:each="card : ${stage.lessons}"
+                    th:with="locked=${card.status == 'LOCKED'}, done=${card.status == 'COMPLETED'}">
+                    <article class="oy-panel oy-lesson-card"
+                             th:classappend="${locked} ? 'is-locked' : (${done} ? 'is-completed' : (${card.lessonId == course.currentLessonId} ? 'is-current' : ''))">
+                        <div class="oy-lesson-card__top">
+                            <span class="oy-lesson-card__number" th:text="'Bài ' + ${card.order}">Bài 1</span>
+                            <span th:if="${done}" class="oy-pill oy-pill--done"><i class="fa-solid fa-check" aria-hidden="true"></i> Hoàn thành</span>
+                            <span th:if="${card.status == 'IN_PROGRESS'}" class="oy-pill oy-pill--active">Đang học</span>
+                            <span th:if="${locked}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
+                        </div>
+                        <h3 class="oy-lesson-card__title" th:text="${card.title}">Âm đầu C, K, QU → K</h3>
+                        <ul class="oy-sounds" th:if="${!#lists.isEmpty(card.sounds)}" aria-label="Quy tắc">
+                            <li th:each="sound : ${card.sounds}" th:text="${sound}">C → K</li>
+                        </ul>
+                        <p class="oy-lesson-card__examples" th:if="${!#lists.isEmpty(card.examples)}"
+                           th:text="'Ví dụ: ' + ${#strings.listJoin(card.examples, ', ')}">Ví dụ: Công (工)</p>
+                        <div class="oy-lesson-card__foot">
+                            <span class="oy-lesson-card__score" th:if="${card.bestScore != null}"
+                                  th:text="'Điểm luyện tập cao nhất: ' + ${card.bestScore} + '%'">Điểm cao nhất 80%</span>
+                            <a th:unless="${locked}" class="oy-button"
+                               th:classappend="${done} ? '' : 'oy-button--primary'"
+                               th:href="@{/learning/onyomi/lessons/{id}(id=${card.lessonId})}">
+                                <span th:text="${done} ? 'Ôn lại' : (${card.status == 'IN_PROGRESS'} ? 'Học tiếp' : 'Bắt đầu học')">Bắt đầu học</span>
+                            </a>
+                            <span th:if="${locked}" class="oy-lesson-card__locked">
+                                <i class="fa-solid fa-lock" aria-hidden="true"></i> Vượt qua bài trước để mở khoá
+                            </span>
+                        </div>
+                    </article>
+                </li>
+            </ol>
+
+            <div th:if="${stage.finalTest.quizId != null}" class="oy-panel oy-final-card"
+                 th:classappend="${stage.finalTest.passed} ? 'is-passed'">
+                <div>
+                    <h3 th:text="'Kiểm tra cuối giai đoạn ' + ${stage.order}">Kiểm tra cuối giai đoạn 1</h3>
+                    <p th:if="${stage.finalTest.passed}"
+                       th:text="'Đã vượt qua, điểm cao nhất ' + ${stage.finalTest.bestScore} + '%.'">Đã vượt qua</p>
+                    <p th:if="${!stage.finalTest.passed and stage.finalTest.unlocked}"
+                       th:text="${stage.finalTest.bestScore != null} ? 'Điểm cao nhất ' + ${stage.finalTest.bestScore} + '%. Cần từ 60% để mở giai đoạn tiếp theo.' : 'Đã mở khoá. Cần từ 60% để mở giai đoạn tiếp theo.'">Đã mở khoá</p>
+                    <p th:unless="${stage.finalTest.unlocked}">Hoàn thành mọi bài trong giai đoạn để mở khoá.</p>
+                </div>
+                <a th:if="${stage.finalTest.unlocked}" class="oy-button"
+                   th:classappend="${stage.finalTest.passed} ? '' : 'oy-button--primary'"
+                   th:href="@{/learning/onyomi/stages/{id}/final(id=${stage.unitId})}">
+                    <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                    <span th:text="${stage.finalTest.passed} ? 'Làm lại' : 'Làm bài kiểm tra'">Làm bài kiểm tra</span>
+                </a>
+                <span th:unless="${stage.finalTest.unlocked}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

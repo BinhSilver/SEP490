@@ -22,6 +22,8 @@ public class AppealService {
     private final UserSanctionRepository sanctions;
     private final UserRepository users;
     private final UserSanctionService sanctionService;
+    private final ModerationAuditService audit;
+    private final ModerationNotifier notifier;
 
     @Transactional
     public AppealView submit(Long userId, Long sanctionId, String reason, String evidenceUrl) {
@@ -70,19 +72,25 @@ public class AppealService {
         if (!"APPEAL".equals(appeal.getCaseType()) || !"OPEN".equals(appeal.getStatus())) {
             throw new ApiException(ErrorCode.CONFLICT, "Đơn đã được xử lý hoặc không hợp lệ");
         }
+        String why = ModerationAuditService.requireReason(note);
         User reviewer = users.findById(reviewerId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy reviewer"));
         if (approve) {
             UserSanction sanction = sanctions.findById(appeal.getTargetId())
                     .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy chế tài"));
-            sanction.setRevokedAt(LocalDateTime.now());
-            sanctions.save(sanction);
+            if (sanction.getRevokedAt() == null) {
+                sanctionService.revoke(sanction.getId(), reviewerId, why, appeal.getId());
+            }
         }
         appeal.setReviewer(reviewer);
         appeal.setStatus(approve ? "APPROVED" : "REJECTED");
         appeal.setResolutionType(approve ? "REVOKE_SANCTION" : "KEEP_SANCTION");
-        appeal.setResolutionNote(trimToNull(note));
+        appeal.setResolutionNote(why);
         appeal.setResolvedAt(LocalDateTime.now());
+        audit.record(reviewerId, new ModerationAuditService.Entry(approve ? "APPEAL_APPROVE" : "APPEAL_REJECT",
+                "APPEAL", appeal.getId(), "OPEN", appeal.getStatus(), why, appeal.getId()));
+        notifier.appealResolved(appeal.getRequesterUser() == null ? null : appeal.getRequesterUser().getId(),
+                appeal.getId(), approve, why);
         return view(reviewCases.save(appeal));
     }
 

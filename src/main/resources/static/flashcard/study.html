@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
   <link rel="stylesheet" href="/flashcard/study-theme.css?v=20260914-study-card-table" />
+  <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=6" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
 </head>
 
@@ -31,12 +32,6 @@
 
   <div class="main study-main">
       <div class="container container-wide study-wrap">
-        <div class="study-top">
-          <a href="/flashcard/library.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Thư
-            viện</a>
-          <h1 class="study-title" id="study-title">Học thẻ</h1>
-          <span class="sr-only" id="study-progress">0 / 0</span>
-        </div>
         <section class="study-set-summary" id="study-set-summary" hidden aria-label="Thông tin bộ thẻ">
           <h2 id="study-set-title">Bộ Flashcard</h2>
           <div class="study-set-summary__meta">
@@ -48,14 +43,14 @@
             </button>
           </div>
         </section>
-        <nav class="study-mode-nav" aria-label="Chế độ học">
+        <nav class="study-mode-nav" id="study-mode-nav" aria-label="Chế độ học">
           <button type="button" class="study-mode-tab" data-study-mode="BROWSE"><i class="fa-solid fa-clone"></i> Lướt thẻ</button>
           <button type="button" class="study-mode-tab" data-study-mode="RECALL"><i class="fa-solid fa-brain"></i> Ghi nhớ</button>
           <button type="button" class="study-mode-tab" id="btn-quiz-nav">Kiểm tra</button>
           <button type="button" class="study-mode-tab" id="btn-speed-recall-nav"><i class="fa-solid fa-keyboard" aria-hidden="true"></i> Gõ phản xạ</button>
           <button type="button" class="study-mode-tab study-settings-tab" id="btn-settings" title="Cài đặt mặt thẻ" aria-label="Cài đặt mặt thẻ"><i class="fa-solid fa-sliders"></i></button>
         </nav>
-        <div class="study-session-progress" aria-hidden="true"><span id="study-progress-fill"></span></div>
+        <div class="study-session-progress" id="study-session-progress" aria-hidden="true"><span id="study-progress-fill"></span></div>
         <div id="study-empty" class="lib-empty" hidden>
           <i class="fa-solid fa-inbox"></i>
           <p>Chọn bộ thẻ từ thư viện để học.</p>
@@ -160,7 +155,7 @@
             <div class="complete-col complete-col--next card">
               <h3 class="complete-col-title">Bước tiếp theo</h3>
               <div class="next-actions">
-                <button type="button" class="next-btn next-btn--primary" id="btn-quiz-learning">
+                <button type="button" class="next-btn" id="btn-quiz-learning">
                   <i class="fa-solid fa-bolt"></i>
                   <span>Ôn luyện bằng trắc nghiệm</span>
                   <small>Toàn bộ thẻ trong bộ</small>
@@ -210,29 +205,12 @@
   <div class="modal-backdrop" id="settings-modal" hidden>
     <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="settings-title">
       <div class="modal-header">
-        <h3 id="settings-title"><i class="fa-solid fa-sliders"></i> Cài đặt học & Vị trí Hán Việt</h3>
+        <h3 id="settings-title"><i class="fa-solid fa-sliders"></i> Cài đặt học</h3>
         <button type="button" class="btn-icon" id="btn-close-settings" aria-label="Đóng"><i
             class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p class="muted settings-description">Chọn vị trí hiển thị của Hán Việt hoặc tùy chỉnh trường hiển thị 2 mặt thẻ.</p>
-
-        <!-- Chọn nhanh vị trí Hán Việt -->
-        <div class="study-quick-setting">
-          <span class="field__label study-quick-setting__label">Chọn nhanh vị trí Hán Việt</span>
-          <div class="form__row study-quick-setting__options">
-            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-front">Hán Việt ở Mặt trước</button>
-            <button type="button" class="btn btn--secondary btn--sm" id="btn-hv-back">Hán Việt ở Mặt sau</button>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="field__label" for="study-mode-field">Chế độ học</label>
-          <select class="select" id="study-mode-field">
-            <option value="BROWSE">Lướt thẻ · nhớ hoặc chưa thuộc</option>
-            <option value="RECALL">Ghi nhớ · chấm mức độ 0–5</option>
-          </select>
-        </div>
+        <p class="muted settings-description">Chọn nội dung hiển thị ở mặt trước và mặt sau của thẻ.</p>
 
         <div class="study-face-fields" aria-label="Nội dung hai mặt thẻ">
           <div class="field">
@@ -284,7 +262,7 @@
   <script src="/js/components.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
   <script src="/flashcard/js/shell.js"></script>
-  <script src="/flashcard/js/study-page.js?v=20260914-study-card-table"></script>
+  <script src="/flashcard/js/study-page.js?v=20260925-settings"></script>
 </body>
 
 </html>

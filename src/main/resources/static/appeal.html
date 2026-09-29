@@ -1,79 +1,74 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kháng nghị chế tài — JLAS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kháng nghị chế tài | JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/theme-bridge.css">
   <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/pages/appeal.css?v=20260925">
   <link rel="stylesheet" href="/css/jlab-base-shell.css">
-  <link rel="stylesheet" href="/css/pages/moderation.css">
+  <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
-<body id="jlabBasePage" class="page-moderation">
-  <div id="jlabBaseShellMount"></div>
-  <main id="jlabBaseContent" class="admin-wrap">
-    <h1>Kháng nghị chế tài</h1>
-    <p class="muted">Bạn chỉ có thể gửi một đơn OPEN cho chế tài đang còn hiệu lực.</p>
-    <form id="appeal-form" class="admin-item" hidden>
-      <label for="sanction">Chế tài</label>
-      <select id="sanction" required></select>
-      <label for="reason">Lý do</label>
-      <textarea id="reason" required maxlength="1000" rows="5"></textarea>
-      <label for="evidence">Liên kết bằng chứng (nếu có)</label>
-      <input id="evidence" type="url" maxlength="500">
-      <button class="btn btn-primary" type="submit">Gửi đơn</button>
-    </form>
-    <p id="no-sanction" hidden>Hiện không có chế tài đang hiệu lực để kháng nghị.</p>
-    <p id="message" role="status"></p>
-    <h2>Đơn của tôi</h2>
-    <div id="history"></div>
-  </main>
-  <script src="/js/auth-session.js"></script>
-  <script src="/js/jlab-base-shell.js"></script>
-  <script src="/flashcard/js/api-client.js"></script>
-  <script>
-    (async function () {
-      var form = document.getElementById('appeal-form');
-      var select = document.getElementById('sanction');
-      var message = document.getElementById('message');
-      if (!JlasAuth.requireLogin()) return;
-      await load();
-      form.addEventListener('submit', async function (event) {
-        event.preventDefault();
-        message.textContent = '';
-        try {
-          await FlashApi.post('/api/appeals', {
-            sanctionId: Number(select.value),
-            reason: document.getElementById('reason').value,
-            evidenceUrl: document.getElementById('evidence').value || null
-          });
-          message.textContent = 'Đã gửi đơn kháng nghị.';
-          form.reset();
-          await load();
-        } catch (error) {
-          message.textContent = error.message || 'Không thể gửi đơn.';
-        }
-      });
-      async function load() {
-        var sanctions = await FlashApi.get('/api/appeals/sanctions');
-        var appeals = await FlashApi.get('/api/appeals/me');
-        form.hidden = !sanctions.length;
-        document.getElementById('no-sanction').hidden = !!sanctions.length;
-        select.innerHTML = sanctions.map(function (item) {
-          return '<option value="' + item.id + '">' + item.type + ' #' + item.id +
-            (item.endsAt ? ' — đến ' + item.endsAt : ' — vô thời hạn') + '</option>';
-        }).join('');
-        document.getElementById('history').innerHTML = appeals.length ? appeals.map(function (item) {
-          return '<article class="admin-item"><h3>Đơn #' + item.id + ' — ' + item.status + '</h3>' +
-            '<p>' + escapeHtml(item.reason) + '</p>' +
-            (item.resolutionNote ? '<p><strong>Phản hồi:</strong> ' + escapeHtml(item.resolutionNote) + '</p>' : '') +
-            '</article>';
-        }).join('') : '<p>Chưa có đơn kháng nghị.</p>';
-      }
-      function escapeHtml(value) {
-        return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      }
-    })();
-  </script>
+<body id="jlabBasePage" class="page-appeal">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent">
+  <div class="apl-page">
+    <header class="apl-header">
+      <h1 class="apl-title">Kháng nghị chế tài</h1>
+    </header>
+
+    <section class="apl-card" aria-labelledby="aplSanctionTitle">
+      <h2 class="apl-card__title" id="aplSanctionTitle">Chế tài đang áp dụng</h2>
+      <div id="aplSanctions" aria-live="polite"><p class="apl-muted">Đang tải…</p></div>
+    </section>
+
+    <section class="apl-card" id="aplFormCard" aria-labelledby="aplFormTitle" hidden>
+      <h2 class="apl-card__title" id="aplFormTitle">Gửi đơn kháng nghị</h2>
+      <p class="apl-note" id="aplPendingNote" hidden></p>
+      <form id="aplForm" class="apl-form" novalidate>
+        <div class="apl-field">
+          <label for="aplSanction">Chế tài muốn kháng nghị</label>
+          <select id="aplSanction" class="apl-input"></select>
+        </div>
+        <div class="apl-field">
+          <label for="aplReason">Lý do <span aria-hidden="true">*</span></label>
+          <textarea id="aplReason" class="apl-input" rows="5" maxlength="1000"
+                    placeholder="Trình bày vì sao bạn cho rằng chế tài chưa đúng" aria-describedby="aplReasonHint aplReasonError"></textarea>
+          <div class="apl-field__foot">
+            <span id="aplReasonHint" class="apl-muted">Tối thiểu 20 ký tự</span>
+            <span id="aplReasonCount" class="apl-muted">0/1000</span>
+          </div>
+          <p class="apl-error" id="aplReasonError" aria-live="polite"></p>
+        </div>
+        <div class="apl-field">
+          <label for="aplEvidence">Liên kết bằng chứng (không bắt buộc)</label>
+          <input id="aplEvidence" class="apl-input" type="url" maxlength="500"
+                 placeholder="https://…" aria-describedby="aplEvidenceError">
+          <p class="apl-error" id="aplEvidenceError" aria-live="polite"></p>
+        </div>
+        <p class="apl-error" id="aplSubmitError" aria-live="polite"></p>
+        <button type="submit" class="btn btn--primary" id="aplSubmit" disabled>
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Gửi đơn
+        </button>
+      </form>
+    </section>
+
+    <section class="apl-card" aria-labelledby="aplHistoryTitle">
+      <h2 class="apl-card__title" id="aplHistoryTitle">Đơn của tôi</h2>
+      <div id="aplHistory" aria-live="polite"><p class="apl-muted">Đang tải…</p></div>
+    </section>
+  </div>
+</main>
+
+<script src="/js/auth-session.js"></script>
+<script src="/js/jlab-base-shell.js"></script>
+<script src="/flashcard/js/api-client.js"></script>
+<script src="/js/pages/appeal.js?v=20260925"></script>
 </body>
 </html>

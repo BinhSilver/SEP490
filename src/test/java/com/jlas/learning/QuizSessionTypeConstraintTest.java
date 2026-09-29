@@ -41,9 +41,10 @@ class QuizSessionTypeConstraintTest {
                 "chk_quiz_session_type must allow LISTENING_MICRO_CHECK (RC Task 4/6 gap)");
     }
 
+    // Migration 017 was folded into the consolidated V2 migration (004-017 → 004).
     @Test void migration017WidensTheSameConstraintToTheSameFinalValueSet() throws IOException {
-        Path migration = repoRoot().resolve("sql/migrations/017_interactive_comprehension_quiz_type.sql");
-        assertTrue(Files.exists(migration), "expected sql/migrations/017_interactive_comprehension_quiz_type.sql");
+        Path migration = repoRoot().resolve("sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
+        assertTrue(Files.exists(migration), "expected sql/migrations/004_interactive_learning_path_v2_consolidated.sql");
         String content = Files.readString(migration, StandardCharsets.UTF_8);
         assertTrue(content.contains("chk_quiz_session_type"));
         assertTrue(content.contains("'READING_MICRO_CHECK'"));

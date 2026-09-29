@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 @RequiredArgsConstructor
 public class LearningLessonPageController {
+    private static final String ONYOMI = "ONYOMI";
+
     private final LessonRepository lessons;
 
     @GetMapping("/learning/lesson/{lessonId}")
@@ -25,6 +27,10 @@ public class LearningLessonPageController {
             @org.springframework.web.bind.annotation.RequestParam(required = false) Long item, Model model) {
         Lesson lesson = lessons.findWithUnitById(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found."));
+        // Onyomi lessons have their own page with the conversion rules and step-by-step unlocking
+        if (ONYOMI.equals(lesson.getSkill())) {
+            return "redirect:/learning/onyomi/lessons/" + lessonId;
+        }
         model.addAttribute("lessonId", lessonId);
         model.addAttribute("itemId", item);
         model.addAttribute("textbookId", lesson.getUnit().getTextbook().getId());

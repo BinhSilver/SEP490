@@ -1,0 +1,34 @@
+package com.jlas.admin;
+
+import java.util.Set;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
+
+/**
+ * Shared admin workspace. Every management area is a section rendered inside the same shell;
+ * access rules live in SecurityConfig and on each API.
+ */
+@Controller
+public class AdminPageController {
+    private static final Set<String> MODERATION_SECTIONS =
+            Set.of("reports", "queue", "appeals", "dictionary", "denylist", "sanctions", "audit");
+
+    @GetMapping({"/admin", "/admin/"})
+    public String overview(Model model) {
+        model.addAttribute("section", "overview");
+        return "admin/workspace";
+    }
+
+    @GetMapping("/admin/moderation/{section}")
+    public String moderation(@PathVariable String section, Model model) {
+        if (!MODERATION_SECTIONS.contains(section)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        model.addAttribute("section", section);
+        return "admin/workspace";
+    }
+}

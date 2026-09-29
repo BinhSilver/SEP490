@@ -83,6 +83,17 @@
               </div>
               <p class="field-help">Bộ công khai sẽ được kiểm tra nội dung trước khi hiển thị.</p>
             </div>
+            <div class="form-group editor-meta__folder">
+              <label class="label" for="set-folder">Thư mục</label>
+              <div class="editor-folder-control">
+                <div class="input-wrap">
+                  <select class="select" id="set-folder" aria-label="Chọn thư mục cho bộ thẻ">
+                    <option value="0">Chưa phân loại</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm editor-folder-add" id="btn-create-folder" title="Tạo thư mục mới" aria-label="Tạo thư mục mới"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
           </div>
           <div class="form-group editor-meta__description">
             <label class="label" for="set-desc">Mô tả <span class="optional-label">Không bắt buộc</span></label>
@@ -137,11 +148,18 @@
       </div>
       <div class="modal-body">
         <p class="muted import-guide">
-          Nhập danh sách từ vựng theo cú pháp: Kanji - Cách đọc : Nghĩa (Hán Việt)
+          Nhập danh sách từ vựng theo cú pháp: Từ - Cách đọc : Nghĩa (Hán Việt). Chỉ bắt buộc Từ và Nghĩa; cách đọc và Hán Việt có thể bỏ, AI điền sau được.
         </p>
         <p class="muted import-example">
-          Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN)
+          Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN) · 学校 : Trường học · コーヒー : Cà phê
         </p>
+        <div class="import-actions">
+          <input type="file" id="import-file" accept=".xlsx,.csv,.txt,.tsv" hidden />
+          <button type="button" class="btn btn-ghost" id="btn-import-file">
+            <i class="fa-solid fa-file-arrow-up"></i> Chọn file (Excel, CSV, TXT)
+          </button>
+          <span class="muted">Cột: Mặt trước · Mặt sau · Hán Việt — cùng định dạng với file xuất từ thư viện.</span>
+        </div>
         <div class="form-group">
           <label class="label" for="import-text">Danh sách từ</label>
           <div class="input-wrap">
@@ -151,11 +169,11 @@
         </div>
         <div class="import-actions">
           <button type="button" class="btn btn-ghost" id="btn-import-ai">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Tạo Hán Việt bằng AI
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI điền cách đọc &amp; Hán Việt
           </button>
         </div>
         <p class="muted import-result-note">
-          Sau khi áp dụng, hệ thống tạo thẻ: Mặt trước (Kanji), Mặt sau (hiragana — nghĩa), Hán Việt (nếu có).
+          Sau khi áp dụng, hệ thống tạo thẻ: Mặt trước (từ vựng), Mặt sau (cách đọc — nghĩa), Hán Việt (nếu từ có Kanji).
         </p>
       </div>
       <div class="modal-footer">
@@ -186,7 +204,7 @@
       <div class="modal-header">
         <div>
           <h3 id="ai-review-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Xem trước hoạt động AI</h3>
-          <p>Kiểm tra Cách đọc và Hán Việt trước khi áp dụng. Kanji gốc luôn được giữ nguyên.</p>
+          <p>Kiểm tra Cách đọc và Hán Việt trước khi áp dụng. Từ gốc luôn được giữ nguyên; từ không có Kanji thì không có Hán Việt.</p>
         </div>
         <button type="button" class="btn-icon" id="btn-close-ai-review" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -204,10 +222,10 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/js/components.js"></script>
-  <script src="/flashcard/js/api-client.js"></script>
+  <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/prevalidation.js"></script>
-  <script src="/flashcard/js/editor-page.js"></script>
+  <script src="/flashcard/js/editor-page.js?v=6"></script>
 </body>
 
 </html>

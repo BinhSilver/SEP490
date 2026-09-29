@@ -9,6 +9,7 @@ public class ShadowingPracticeItem {
     private Long sessionId;
     private Long subtitleId;
     private Long clozeCandidateId;
+    private Long preparedQuestionId;
     private int position;
     private int difficultyScore;
     private LocalDateTime answeredAt;

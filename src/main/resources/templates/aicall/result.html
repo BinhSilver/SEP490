@@ -38,9 +38,18 @@
                     · Số lỗi:
                     <span th:text="${score.mistakesCount}">0</span>
                 </p>
-                <pre th:if="${score.detailsJson != null}"
-                    style="text-align:left;background:var(--surface-2);padding:12px;border-radius:12px;margin-top:16px;overflow:auto;border:1px solid var(--border)"
-                    th:text="${score.detailsJson}"></pre>
+                <ul th:if="${!#maps.isEmpty(scoreDetails)}" class="list-clean"
+                    style="text-align:left;margin:16px auto 0;max-width:420px;display:grid;gap:10px">
+                    <li th:each="d : ${scoreDetails}">
+                        <div style="display:flex;justify-content:space-between;font-weight:600">
+                            <span th:text="${d.key}">Ngữ pháp</span>
+                            <span th:text="${d.value} + '/100'">90/100</span>
+                        </div>
+                        <div style="height:8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden">
+                            <div th:style="'height:100%;background:var(--accent);width:' + ${d.value} + '%'"></div>
+                        </div>
+                    </li>
+                </ul>
             </div>
             <div th:if="${score == null}" style="margin:20px 0;color:var(--muted)">
                 Phiên đã kết thúc. Điểm sẽ hiển thị khi hệ thống ghi nhận hoàn thành.

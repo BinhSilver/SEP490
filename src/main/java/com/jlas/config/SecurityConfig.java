@@ -1,6 +1,8 @@
 package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
+import com.jlas.moderation.security.BanEnforcementFilter;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,6 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final BanEnforcementFilter banEnforcementFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,15 +41,17 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, exception) ->
                                 handleUnauthenticated(request, response))
                         .accessDeniedHandler((request, response, exception) ->
-                                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
-                                        "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN")))
+                                handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/moderation.html", "/api/admin/moderation/**")
+                        // Arena SSE completes through an async dispatch of an authenticated request.
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        // JLAS-W0250: shared admin workspace; each API narrows access further.
+                        .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/retention-demo", "/error").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**", "/audio/**",
-                                "/videos/**", "/voices/**", "/flashcard/**", "/shadowing/css/**",
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
+                                "/videos/**", "/voices/**", "/audio/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
@@ -60,7 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
                         .requestMatchers(
                                 "/shadowing", "/shadowing/", "/shadowing/upload",
-                                "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/practice/**",
+                                "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/prepare/**", "/shadowing/practice/**",
                                 "/shadowing/exercise/**", "/shadowing/player/**", "/shadowing/series/**",
                                 "/shadowing/conversation/**", "/create/**", "/editor/**", "/player/**",
                                 "/api/videos/**", "/api/series/**", "/api/youtube/**",
@@ -69,6 +74,7 @@ public class SecurityConfig {
                         .authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(banEnforcementFilter, JwtAuthenticationFilter.class)
                 .build();
     }
 
@@ -84,6 +90,17 @@ public class SecurityConfig {
         response.setContentType("application/json");
         response.getWriter().write("{\"success\":false,\"message\":\"" + message
                 + "\",\"data\":null,\"errors\":null,\"code\":\"" + code + "\"}");
+    }
+
+    /** Pages get the designed error page (templates/error.html, 403 branch); APIs keep the JSON body. */
+    private static void handleAccessDenied(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        if (!request.getRequestURI().startsWith("/api/")) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                "Bạn không có quyền thực hiện thao tác này.", "FORBIDDEN");
     }
 
     private static void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response)

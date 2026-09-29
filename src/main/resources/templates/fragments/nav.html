@@ -6,10 +6,10 @@
         <i class="fa-solid fa-house" aria-hidden="true"></i>
         <span>Trang chủ</span>
     </a>
-    <button type="button" class="platform-nav-disabled" aria-disabled="true" title="Tính năng Onyomi đang phát triển">
+    <a th:href="@{/learning/onyomi}" th:classappend="${active == 'onyomi'} ? ' is-active'" title="Lộ trình Hán Việt → On">
         <i class="fa-solid fa-route" aria-hidden="true"></i>
         <span>Onyomi</span>
-    </button>
+    </a>
     <a th:href="@{/textbooks}" th:classappend="${active == 'textbooks'} ? ' is-active'">
         <i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Giáo trình</span>
     </a>
@@ -25,10 +25,10 @@
             <a th:href="@{/learning/path}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-route" aria-hidden="true"></i> Lộ Trình học</a>
         </div>
     </div>
-    <button type="button" class="platform-nav-disabled" aria-disabled="true" title="Tính năng tra cứu đã tắt">
+    <a th:href="@{/dictionary/index.html}" th:classappend="${active == 'dictionary'} ? ' is-active'" title="Tra cứu từ điển">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <span>Tra cứu</span>
-    </button>
+    </a>
     <a th:href="@{/games}" th:classappend="${active == 'game'} ? ' is-active'" title="Chơi game luyện tiếng Nhật">
         <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
         <span>Game</span>

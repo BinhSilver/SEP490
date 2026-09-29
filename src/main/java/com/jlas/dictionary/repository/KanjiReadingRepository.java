@@ -13,4 +13,9 @@ public interface KanjiReadingRepository extends JpaRepository<KanjiReading, Long
 
     /** Cách đọc On/Kun của nhiều Kanji, 1 query; caller gộp theo kanji_id. */
     List<KanjiReading> findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(Collection<Long> kanjiIds);
+
+    List<KanjiReading> findByKanji_IdOrderByReadingTypeAscReadingTextAsc(Long kanjiId);
+
+    List<KanjiReading> findByKanji_IdInOrderByKanji_IdAscReadingTypeAscReadingTextAsc(
+            List<Long> kanjiIds);
 }

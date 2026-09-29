@@ -83,6 +83,12 @@ youtube:
     duration:
       no-subtitle:
         seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
+  subtitle:
+    quality:
+      enabled: ${YOUTUBE_SUBTITLE_QUALITY_ENABLED:true}
+      max-duration-seconds: ${YOUTUBE_SUBTITLE_QUALITY_MAX_DURATION_SECONDS:300}
+      minimum-match-score: ${YOUTUBE_SUBTITLE_QUALITY_MINIMUM_MATCH_SCORE:0.82}
+      time-overlap-padding-seconds: ${YOUTUBE_SUBTITLE_QUALITY_TIME_OVERLAP_PADDING_SECONDS:0.30}
 
 deepgram:
   api:
@@ -124,6 +130,29 @@ gemini:
   json:
     max-retries: ${GEMINI_JSON_MAX_RETRIES:2}
 
+# AI Call (kaiwa): Fish Audio TTS, runtime phiên hội thoại và hạn mức (JLAS-W0199 / W0205).
+fish:
+  audio:
+    api:
+      key: ${FISH_AUDIO_API_KEY:}
+      url: ${FISH_AUDIO_API_URL:https://api.fish.audio}
+    model: ${FISH_AUDIO_MODEL:s2.1-pro-free}
+    voice:
+      female: ${FISH_AUDIO_VOICE_FEMALE:}
+      male: ${FISH_AUDIO_VOICE_MALE:}
+
+aicall:
+  runtime:
+    ttl-minutes: ${AICALL_RUNTIME_TTL_MINUTES:120}
+    max-sessions: ${AICALL_RUNTIME_MAX_SESSIONS:10000}
+  # Con số tạm, giữ cấu hình được cho tới khi team chốt. premium-monthly-minutes = 0 là không giới hạn.
+  quota:
+    free-daily-minutes: ${AICALL_FREE_DAILY_MINUTES:5}
+    free-monthly-minutes: ${AICALL_FREE_MONTHLY_MINUTES:300}
+    premium-daily-minutes: ${AICALL_PREMIUM_DAILY_MINUTES:30}
+    premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:0}
+    minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
+
 azure:
   speech:
     pronunciation:
@@ -152,6 +181,7 @@ processing:
         seconds: ${PROCESSING_AI_MAX_DURATION_SECONDS:1200}
     batch:
       size: ${PROCESSING_AI_BATCH_SIZE:6}
+    parallelism: ${PROCESSING_AI_PARALLELISM:3}
     json:
       max-retries: ${PROCESSING_AI_JSON_MAX_RETRIES:2}
 

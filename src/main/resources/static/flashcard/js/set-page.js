@@ -125,6 +125,12 @@
     document.getElementById('btn-study').href = '/flashcard/study.html?setId=' + s.id;
     document.getElementById('btn-speed-recall').href = '/flashcard/speed-recall.html?setId=' + s.id;
     document.getElementById('btn-speed-recall').hidden = !!s.draft;
+    // Game Arena dùng chính bộ này làm dữ liệu (chỉ bộ đã xuất bản, ít nhất 4 thẻ).
+    var gameLink = document.getElementById('btn-game');
+    if (gameLink) {
+      gameLink.href = '/games/lobby?setId=' + encodeURIComponent(s.id);
+      gameLink.hidden = !!s.draft || (s.totalCards || (s.cards || []).length) < 4;
+    }
     var quizButton = document.getElementById('btn-quiz');
     var canQuiz = (s.totalCards || (s.cards || []).length) >= 4;
     quizButton.disabled = !canQuiz;

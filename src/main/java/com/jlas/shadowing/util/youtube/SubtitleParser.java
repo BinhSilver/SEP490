@@ -1,6 +1,7 @@
 package com.jlas.shadowing.util.youtube;
 
 import com.jlas.shadowing.dto.SubtitleDto;
+import com.jlas.shadowing.util.SubtitleSegmenter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +81,7 @@ public final class SubtitleParser {
             i++;
         }
         // 1) short adjacent merges  2) collapse YouTube rolling auto-captions
-        return collapseRollingCaptions(mergeAdjacent(result));
+        return SubtitleSegmenter.splitLongCues(collapseRollingCaptions(mergeAdjacent(result)));
     }
 
     private static CueTiming parseTiming(String line) {

@@ -33,8 +33,9 @@ public class VideoController {
             @RequestParam(required = false) String clientId,
             @RequestParam(required = false, defaultValue = "newest") String sort,
             @RequestParam(required = false) Boolean favoritesOnly,
-            @RequestParam(required = false, defaultValue = "public") String scope) {
-        return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope));
+            @RequestParam(required = false, defaultValue = "public") String scope,
+            @RequestParam(required = false) String level) {
+        return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope, level));
     }
 
     @GetMapping("/categories")
@@ -113,6 +114,24 @@ public class VideoController {
     public ResponseEntity<?> retry(@PathVariable Long id) {
         videoService.retryProcessing(id);
         return ResponseEntity.ok(Map.of("message", "Retry started"));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long id) {
+        videoService.cancelProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đã dừng xử lý bài học."));
+    }
+
+    @PostMapping("/{id}/resume")
+    public ResponseEntity<?> resume(@PathVariable Long id) {
+        videoService.resumeProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đang tiếp tục xử lý từ bước đã lưu."));
+    }
+
+    @PostMapping("/{id}/abandon")
+    public ResponseEntity<?> abandon(@PathVariable Long id) {
+        videoService.abandonProcessing(id);
+        return ResponseEntity.ok(Map.of("message", "Đã bỏ tiến trình. Bản nháp vẫn được giữ lại để tạo lại từ đầu."));
     }
 
     @DeleteMapping("/{id}")
