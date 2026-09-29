@@ -1,0 +1,16 @@
+package com.jlas.learning.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+/** Serves the authenticated personalized learning-path page. */
+@Controller
+public class LearningPathPageController {
+
+    @GetMapping("/learning/path")
+    public String learningPath(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/path";
+    }
+}

@@ -81,17 +81,17 @@ public class DecisionRevisionService {
 
         boolean dictionary = WORD_CONTRIBUTION.equals(item.getTargetType());
         Long ownerId = item.getOwnerUser() == null ? null : item.getOwnerUser().getId();
+        Long revisionId = audit.record(actorId, new ModerationAuditService.Entry(
+                dictionary ? "DICTIONARY_REVISE" : "QUEUE_REVISE", item.getTargetType(), item.getTargetId(),
+                item.getStatus(), approve ? "APPROVED" : "REJECTED", why, item.getId()));
         int creditChange = 0;
         if (dictionary && ownerId != null) {
             // Net credit for this word ends at the reward when published and at 0 when not.
             creditChange = credits.settle(ownerId, approve ? ModerationAdminService.WORD_CONTRIBUTION_REWARD : 0,
                     CreditReason.WORD_CONTRIBUTION_REWARD, CreditReason.WORD_CONTRIBUTION_REVOKED,
-                    WORD_CONTRIBUTION, item.getTargetId(),
+                    WORD_CONTRIBUTION, item.getTargetId(), revisionId,
                     approve ? "Đóng góp từ vựng được duyệt lại" : "Thu hồi thưởng: đóng góp bị gỡ khỏi từ điển");
         }
-        Long revisionId = audit.record(actorId, new ModerationAuditService.Entry(
-                dictionary ? "DICTIONARY_REVISE" : "QUEUE_REVISE", item.getTargetType(), item.getTargetId(),
-                item.getStatus(), approve ? "APPROVED" : "REJECTED", why, item.getId()));
         if (dictionary) {
             notifier.contributionRevised(ownerId, ModerationAdminService.word(snapshot.contentPreview()), approve,
                     creditChange, why, revisionId);
