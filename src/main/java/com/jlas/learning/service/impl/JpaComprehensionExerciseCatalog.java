@@ -110,12 +110,21 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
         return new CatalogGap(row.getId() == null ? "QUESTION:UNKNOWN" : "QUESTION:" + row.getId(), code);
     }
 
+    /** [JLAS-W0193] RC Task 8 hardening finding — entities must be decoded BEFORE tag-stripping, never after.
+     * The previous order stripped literal {@code <...>} tags first and only unescaped HTML entities afterward,
+     * so a canonical row whose passage contained an entity-encoded tag (e.g. {@code &lt;script&gt;...
+     * &lt;/script&gt;}) sailed through both stripping regexes untouched — they only match literal {@code <} —
+     * and only became a real, literal tag once unescaped at the end, reappearing in the value this method
+     * returns as "sanitized". The one current consumer (interactive-comprehension-study.js) independently
+     * HTML-escapes this value again before insertion, so this was not end-to-end exploitable through today's
+     * only caller, but the catalog's own contract requires the returned passage to be safe on its own. */
     private String sanitizePassage(String html) {
         String value = trimToNull(html);
         if (value == null) return null;
+        value = HtmlUtils.htmlUnescape(value);
         value = value.replaceAll("(?is)<(script|style)[^>]*>.*?</\\1>", " ")
                 .replaceAll("(?s)<[^>]+>", " ");
-        return trimToNull(normalizeSpace(HtmlUtils.htmlUnescape(value)));
+        return trimToNull(normalizeSpace(value));
     }
 
     /** Validation is local and side-effect free: the catalog never fetches learner-controlled media. */

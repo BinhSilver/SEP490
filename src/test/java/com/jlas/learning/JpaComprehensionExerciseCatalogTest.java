@@ -40,6 +40,43 @@ class JpaComprehensionExerciseCatalogTest {
         assertTrue(result.gaps().isEmpty());
     }
 
+    @Test void passageSanitizationStripsLiteralTagsAndScriptContent() {
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
+                .thenReturn(List.of(
+                        reading(1, "<script>alert(1)</script><p onclick=\"x()\">安全 <b>な</b>文章</p>", "MAIN", "DAILY"),
+                        reading(2, "<script>alert(1)</script><p onclick=\"x()\">安全 <b>な</b>文章</p>", "MAIN", "DAILY")));
+        var result = catalog.resolve("READING", "N4");
+        assertEquals(1, result.exercises().size());
+        String source = result.exercises().getFirst().source();
+        assertFalse(source.contains("<"), "no literal tag markers may survive sanitization: " + source);
+        assertFalse(source.contains("alert(1)"), "script block content must be dropped entirely, not just unwrapped: " + source);
+        assertTrue(source.contains("安全"));
+    }
+
+    /** [JLAS-W0193] RC Task 8 hardening finding — {@code sanitizePassage} used to strip literal {@code <...>}
+     * tags FIRST and only unescape HTML entities afterward, so an entity-encoded tag (one that arrives from
+     * the canonical bank as {@code &lt;script&gt;...&lt;/script&gt;} rather than a literal tag) survived the
+     * tag-stripping regexes untouched and only became a real, literal {@code <script>} tag once unescaped
+     * afterward — reappearing in the supposedly "sanitized" passage text. The frontend
+     * ({@code interactive-comprehension-study.js}) independently HTML-escapes this value again before
+     * insertion, so this was not an exploitable end-to-end XSS through today's only consumer — but the
+     * catalog's own contract ("a Reading exercise must have a nonblank sanitized passage", RC plan Task 1 §3
+     * item 8) means the value this method returns must be safe on its own, not merely safe because of a
+     * second layer elsewhere. Fixed by unescaping entities BEFORE stripping tags, so a decoded tag is caught
+     * by the same regexes a literal one already was. */
+    @Test void passageSanitizationDoesNotLetEntityEncodedTagsSurviveViaLateUnescape() {
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
+                .thenReturn(List.of(
+                        reading(1, "&lt;script&gt;alert(1)&lt;/script&gt;安全な文章", "MAIN", "DAILY"),
+                        reading(2, "&lt;script&gt;alert(1)&lt;/script&gt;安全な文章", "MAIN", "DAILY")));
+        var result = catalog.resolve("READING", "N4");
+        assertEquals(1, result.exercises().size());
+        String source = result.exercises().getFirst().source();
+        assertFalse(source.contains("<script"), "entity-encoded tag must not become a literal tag: " + source);
+        assertFalse(source.contains("alert(1)"), "script block content must be dropped entirely: " + source);
+        assertTrue(source.contains("安全"));
+    }
+
     @Test void differentIdentityNeverMergesEvenWhenPassageMatches() {
         when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
                 .thenReturn(List.of(reading(1, "同じ", "MAIN", "DAILY"), reading(2, "同じ", "MAIN", "DAILY"),
@@ -57,6 +94,20 @@ class JpaComprehensionExerciseCatalogTest {
         var result = catalog.resolve("LISTENING", "N3");
         assertEquals(1, result.exercises().size());
         assertTrue(result.gaps().stream().anyMatch(g -> g.reasonCode().equals("AUDIO_MISSING")));
+    }
+
+    /** [JLAS-W0193] RC Task 8 hardening — a protocol-relative URL ({@code //host/...}) has no scheme, so a
+     * naive "is it absolute" check alone would treat it as safely internal; a browser instead silently
+     * resolves it against whatever scheme the current page happens to use, reaching an attacker-controlled
+     * external host. This is the exact class of gap {@code MockTestDestinationProvider} (RC Task 7) already
+     * guards against explicitly for its own redirect target — this test closes the same gap for audio URLs. */
+    @Test void listeningRejectsProtocolRelativeUrlsThatWouldResolveToAnExternalHost() {
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("LISTENING", "N3"))
+                .thenReturn(List.of(listening(1, "//evil.example.com/a.mp3", "TASK"),
+                        listening(2, "//evil.example.com/a.mp3", "TASK")));
+        var result = catalog.resolve("LISTENING", "N3");
+        assertTrue(result.exercises().isEmpty(), "a protocol-relative audio URL must never be treated as safe");
+        assertTrue(result.gaps().stream().allMatch(g -> g.reasonCode().equals("AUDIO_MISSING")));
     }
 
     @Test void invalidQuestionsAndSingleQuestionGroupsAreRejected() {

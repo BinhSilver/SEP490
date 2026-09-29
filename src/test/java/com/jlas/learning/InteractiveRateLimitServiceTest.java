@@ -117,4 +117,89 @@ class InteractiveRateLimitServiceTest {
         clock.advance(30_001L);
         service.check(1L, InteractiveRateLimitService.Bucket.DIALOGUE_HEARTBEAT);
     }
+
+    // [JLAS-W0193] RC Task 8 hardening — the four tests above already prove the limiter using an injectable
+    // Clock, but only ever advance well past the window edge (e.g. +30_001ms/+60_001ms). The eviction
+    // predicate itself (`now - requests.peekFirst() >= bucket.windowMillis`) is an off-by-one-prone boundary
+    // that was never exercised exactly AT the edge — these four close that gap.
+
+    @Test
+    void requestExactlyAtTheWindowBoundaryIsStillRejected() {
+        // One millisecond before the oldest request ages out, the bucket is still full: the boundary is
+        // exclusive from the caller's point of view (age must reach the full window, not just approach it).
+        var clock = new MutableClock(0);
+        var service = new InteractiveRateLimitService(clock);
+        for (int i = 0; i < 20; i++) {
+            service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+        }
+        clock.advance(59_999L);
+        assertThatThrownBy(() -> service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE))
+                .isInstanceOf(ApiException.class);
+    }
+
+    @Test
+    void requestAtExactlyTheFullWindowAgeIsAccepted() {
+        // At exactly windowMillis of age (not windowMillis+1), the oldest request is evicted: the limiter's
+        // own predicate uses `>=`, so the boundary value itself already frees capacity.
+        var clock = new MutableClock(0);
+        var service = new InteractiveRateLimitService(clock);
+        for (int i = 0; i < 20; i++) {
+            service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+        }
+        clock.advance(60_000L);
+        service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+    }
+
+    @Test
+    void slidingWindowFreesCapacityIncrementallyNotAllOrNothing() {
+        // A real sliding window, not a fixed-window reset: requests spaced 10s apart age out one at a time
+        // as the clock advances, each freeing exactly one slot rather than the whole bucket resetting at once.
+        var clock = new MutableClock(0);
+        var service = new InteractiveRateLimitService(clock);
+        for (int i = 0; i < 20; i++) {
+            service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+            clock.advance(1_000L);
+        }
+        // Clock is now at 20_000ms; the first request (t=0) is 20_000ms old, nowhere near the 60s window.
+        assertThatThrownBy(() -> service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE))
+                .isInstanceOf(ApiException.class);
+        // Advance so only the very first request (t=0) has aged past 60s; the other 19 (t=1000..19000) have not.
+        clock.advance(40_001L); // now = 60_001ms; age of t=0 request = 60_001ms >= 60_000ms window
+        service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE); // exactly one slot freed
+        assertThatThrownBy(() -> service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE))
+                .isInstanceOf(ApiException.class);
+    }
+
+    @Test
+    void concurrentCheckCallsForTheSameUserAndBucketNeverExceedTheLimit() throws Exception {
+        // The limiter is documented as an in-memory, per-instance, best-effort limiter — this proves the
+        // in-process synchronization is real (not merely present in the source) under genuine thread overlap;
+        // it does NOT prove or simulate cross-instance behavior, which remains the disclosed limitation.
+        var clock = new MutableClock(0);
+        var service = new InteractiveRateLimitService(clock);
+        int threads = 40;
+        java.util.concurrent.CountDownLatch go = new java.util.concurrent.CountDownLatch(1);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        var accepted = new java.util.concurrent.atomic.AtomicInteger(0);
+        var rejected = new java.util.concurrent.atomic.AtomicInteger(0);
+        java.util.List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+        for (int i = 0; i < threads; i++) {
+            futures.add(pool.submit(() -> {
+                try {
+                    go.await();
+                    service.check(1L, InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+                    accepted.incrementAndGet();
+                } catch (ApiException e) {
+                    rejected.incrementAndGet();
+                } catch (InterruptedException ignored) {
+                    // not expected
+                }
+            }));
+        }
+        go.countDown();
+        for (var future : futures) future.get(10, java.util.concurrent.TimeUnit.SECONDS);
+        pool.shutdown();
+        assertThat(accepted.get()).isEqualTo(20);
+        assertThat(rejected.get()).isEqualTo(threads - 20);
+    }
 }
