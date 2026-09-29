@@ -28,7 +28,7 @@ class InteractiveStudyPageCssAssetTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"interactive-study.html", "interactive-kanji-study.html", "interactive-grammar-study.html",
-            "interactive-path-summary.html", "interactive-certificate.html"})
+            "interactive-path-summary.html", "interactive-certificate.html", "interactive-comprehension-study.html"})
     void pageCssArgumentResolvesToAnExistingStylesheet(String templateName) throws IOException {
         String source = Files.readString(TEMPLATES.resolve(templateName));
         Matcher m = PAGE_CSS.matcher(source);
@@ -47,5 +47,24 @@ class InteractiveStudyPageCssAssetTest {
             assertTrue(m.find());
             assertEquals("interactive-study", m.group(1), name + " should reuse the shared interactive-study.css");
         }
+    }
+
+    /** [JLAS-W0193] RC Task 5 — the comprehension player reuses the shared bundle for base layout/check/result
+     * classes (same rule as Grammar/Dialogue above) and additionally loads its own dedicated stylesheet for the
+     * passage/audio-source panel via an explicit {@code <link>} rather than a second {@code pageCss} argument,
+     * since {@code fragments/head.html}'s {@code standard} fragment only wires one page-specific stylesheet. */
+    @Test void comprehensionStudyPageReusesTheSharedBundlePlusItsOwnDedicatedStylesheet() throws IOException {
+        String source = Files.readString(TEMPLATES.resolve("interactive-comprehension-study.html"));
+        Matcher m = PAGE_CSS.matcher(source);
+        assertTrue(m.find());
+        assertEquals("interactive-study", m.group(1), "should reuse the shared interactive-study.css for base layout");
+
+        Pattern extraLink = Pattern.compile("th:href=\"@\\{/css/pages/([^}]+)\\.css}\"");
+        Matcher extra = extraLink.matcher(source);
+        assertTrue(extra.find(), "expected an explicit dedicated stylesheet <link> for the comprehension player");
+        String extraName = extra.group(1);
+        assertEquals("interactive-comprehension-study", extraName);
+        assertTrue(Files.exists(CSS_PAGES.resolve(extraName + ".css")),
+                "dedicated stylesheet " + extraName + ".css must exist or the <link> silently 404s");
     }
 }

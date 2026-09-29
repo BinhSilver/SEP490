@@ -9,7 +9,8 @@
   }
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
-  var ACTIVITY_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', DIALOGUE: 'Hội thoại' };
+  var ACTIVITY_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', DIALOGUE: 'Hội thoại',
+    READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu' };
 
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
@@ -35,7 +36,10 @@
     var inner = '<span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span>' +
       '<span><strong>' + esc(label) + '</strong><small>' + esc(state) + '</small></span>';
     var css = 'ilp-activity' + (done ? ' is-done' : active ? ' is-active' : '');
-    var ACTIVITY_PATH = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji', GRAMMAR: '/learning/v2/grammar', DIALOGUE: '/learning/v2/dialogue' };
+    // [JLAS-W0193] RC Task 5 — Reading/Listening routes keyed by the server-reported activity type, same as
+    // every other entry here: the roadmap never guesses which player to open, it only looks up `a.type`.
+    var ACTIVITY_PATH = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji', GRAMMAR: '/learning/v2/grammar', DIALOGUE: '/learning/v2/dialogue',
+      READING: '/learning/v2/reading', LISTENING: '/learning/v2/listening' };
     var path = ACTIVITY_PATH[a.type];
     if (path && !done && a.state !== 'LOCKED') {
       return '<li class="' + css + '"><a class="ilp-activity__link" href="' + path + '?activity=' +

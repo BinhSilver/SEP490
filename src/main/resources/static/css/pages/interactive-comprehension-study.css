@@ -1,0 +1,43 @@
+/* [JLAS-W0193] RC Task 5 — Reading/Listening player. Loaded alongside the shared interactive-study.css bundle
+   (same purple/lime tokens, same containerless posture as Grammar/Dialogue) as a dedicated stylesheet for the
+   passage/audio source panel and its review-evidence affordances, which have no equivalent in the other
+   activity types. Reuses .ilp-study-page/.ilp-check/.ilp-progress/.ilp-option/.ilp-result/.ilp-gate-note etc.
+   from interactive-study.css rather than redefining them. */
+.ilp-comprehension{display:grid;gap:28px}
+.ilp-comprehension__head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.ilp-comprehension__progress-badge{font:800 12px ui-monospace,monospace;color:var(--ilp-muted);padding:8px 14px;border:1px solid var(--ilp-line);border-radius:999px;background:#fff}
+.ilp-comprehension__why{padding:14px 18px;border-radius:12px;background:#faf5ff;border:1px solid var(--ilp-line);color:var(--ilp-muted);font-size:14px;margin:0}
+
+/* Reading passage */
+.ilp-passage{padding:28px 32px;border-radius:20px;background:#fff;border:1px solid var(--ilp-line);max-width:680px;margin:0 auto}
+.ilp-passage__text{font-family:'Noto Serif',serif;font-size:clamp(17px,2.6vw,19px);line-height:1.9;color:var(--ilp-ink);white-space:pre-wrap;margin:0}
+.ilp-passage__text p{margin:0 0 1em}
+.ilp-passage__text p:last-child{margin-bottom:0}
+.ilp-passage__sentinel{height:1px}
+.ilp-passage__reached-btn{justify-self:center;margin:18px auto 0;display:block;border:1px solid var(--ilp-line);background:#fff;color:var(--ilp-purple);border-radius:11px;padding:12px 22px;font:800 13px ui-monospace,monospace;cursor:pointer;min-height:44px}
+.ilp-passage__reached-btn:focus-visible{outline:3px solid var(--ilp-purple);outline-offset:3px}
+.ilp-passage__reached-btn.is-done{color:#4c9200;border-color:var(--ilp-lime);background:#f7ffe9;cursor:default}
+
+/* Listening audio source */
+.ilp-audio{padding:28px 32px;border-radius:20px;background:linear-gradient(120deg,#f4ffd9 0,#fff 55%,#f7efff 100%);border:2px solid var(--ilp-line);display:grid;gap:16px;justify-items:center;text-align:center;max-width:520px;margin:0 auto}
+.ilp-audio__icon{font-size:36px}
+.ilp-audio__player{width:100%;min-height:44px}
+.ilp-audio__hint{color:var(--ilp-muted);margin:0;font-size:14px}
+.ilp-audio__missing{padding:18px;border-radius:12px;background:#fff7ec;border:1px solid #ffd7a8;color:#8a5a14;font-weight:600;text-align:center}
+
+/* Evidence / review indicators (mirrors .ilp-dialogue__evidence's dot-list convention) */
+.ilp-comprehension__evidence{list-style:none;margin:0;padding:0;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font:700 12px ui-monospace,monospace;color:var(--ilp-muted)}
+.ilp-comprehension__evidence li{padding-left:20px;position:relative}
+.ilp-comprehension__evidence li::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:#e4e9ef}
+.ilp-comprehension__evidence li.is-done{color:#4c9200}
+.ilp-comprehension__evidence li.is-done::before{background:var(--ilp-lime)}
+
+.ilp-comprehension__cooldown{padding:14px 18px;border-radius:12px;background:#fff0f0;border:1px solid #ffb4b4;color:#c62828;text-align:center;font-weight:600}
+
+@media(max-width:520px){
+  .ilp-passage,.ilp-audio{padding:20px 18px;max-width:none}
+  .ilp-comprehension__head{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .ilp-passage__reached-btn{transition:none}
+}

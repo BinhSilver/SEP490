@@ -17,6 +17,17 @@ function path(overrides = {}) {
   }, overrides);
 }
 
+/** [JLAS-W0193] RC Task 5 — a warm-up day with the two new comprehension activities, kept separate from the
+ * four-activity `path()` fixture above so its own "orders the four target activities" assertion stays exact. */
+function pathWithComprehension() {
+  return path({ packages: [{ id: 9, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1, title: 'Khởi động Đọc/Nghe',
+    status: 'AVAILABLE', progressPercent: 0,
+    activities: [
+      { id: 5, type: 'READING', state: 'LOCKED', orderIndex: 1 },
+      { id: 6, type: 'LISTENING', state: 'LOCKED', orderIndex: 2 }
+    ] }] });
+}
+
 test('orders the four target activities using the approved rail', () => {
   const model = page.viewModel(path());
   assert.deepEqual(model.packages[0].activityLabels, ['Từ vựng', 'Kanji', 'Ngữ pháp', 'Hội thoại']);
@@ -68,6 +79,41 @@ test('links an unlocked Dialogue activity to its own study page (Task 7)', () =>
 test('does not link a locked Dialogue activity', () => {
   const html = page.render(path());
   assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1/);
+});
+
+test('links an unlocked Reading activity to its own study page (RC Task 5)', () => {
+  const data = pathWithComprehension();
+  data.packages[0].activities[0].state = 'STUDYING';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=5"/);
+});
+
+test('does not link a locked Reading activity', () => {
+  const html = page.render(pathWithComprehension());
+  assert.doesNotMatch(html, /\/learning\/v2\/reading\?activity=5/);
+});
+
+test('links an unlocked Listening activity to its own study page (RC Task 5)', () => {
+  const data = pathWithComprehension();
+  data.packages[0].activities[1].state = 'CHECK_READY';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/listening\?activity=6"/);
+});
+
+test('does not link a locked Listening activity', () => {
+  const html = page.render(pathWithComprehension());
+  assert.doesNotMatch(html, /\/learning\/v2\/listening\?activity=6/);
+});
+
+test('marks a passed Reading/Listening activity as done without a link', () => {
+  const data = pathWithComprehension();
+  data.packages[0].activities[0].state = 'PASSED';
+  data.packages[0].activities[1].state = 'PASSED';
+  const html = page.render(data);
+  assert.doesNotMatch(html, /\/learning\/v2\/reading\?activity=5/);
+  assert.doesNotMatch(html, /\/learning\/v2\/listening\?activity=6/);
+  assert.match(html, /Đọc hiểu/);
+  assert.match(html, /Nghe hiểu/);
 });
 
 test('marks a completed Dialogue activity as done without a link (Dialogue has no micro-check state)', () => {

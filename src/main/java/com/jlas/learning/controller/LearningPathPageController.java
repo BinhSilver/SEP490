@@ -51,4 +51,22 @@ public class LearningPathPageController {
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-dialogue-study";
     }
+
+    /** [JLAS-W0193] RC Task 5 — Reading and Listening share one template/JS/CSS bundle (mirrors the shape of
+     * Vocabulary/Kanji sharing {@code interactive-study.js}); {@code comprehensionKind} only drives the static
+     * pre-JS loading copy below. The page itself never trusts this attribute for which skill to render — the
+     * script always renders from {@code study.activityType} as returned by the API, never from the URL. */
+    @GetMapping("/learning/v2/reading")
+    public String interactiveReading(Model model) {
+        model.addAttribute("layoutMode", "app");
+        model.addAttribute("comprehensionKind", "reading");
+        return "learning/interactive-comprehension-study";
+    }
+
+    @GetMapping("/learning/v2/listening")
+    public String interactiveListening(Model model) {
+        model.addAttribute("layoutMode", "app");
+        model.addAttribute("comprehensionKind", "listening");
+        return "learning/interactive-comprehension-study";
+    }
 }
