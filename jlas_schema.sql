@@ -1525,6 +1525,8 @@ GROUP BY s.attempt_id;
 -- Lo trinh hoc dai han co version cua user.
 CREATE TABLE user_learning_path (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    -- [JLAS-W0193] Explicit compatibility boundary for legacy and interactive paths.
+    experience_version VARCHAR(30) NOT NULL DEFAULT 'LEGACY_V1',
     user_id      BIGINT UNSIGNED NOT NULL,
     title        VARCHAR(255) NOT NULL,
     goal         VARCHAR(20) NULL,
@@ -1570,14 +1572,55 @@ CREATE TABLE user_learning_path (
     CONSTRAINT chk_learning_path_goal
         CHECK (goal IS NULL OR goal IN ('JLPT','TRAVEL','BA','FROM_ZERO')),
     CONSTRAINT chk_learning_path_status CHECK (status IN ('ACTIVE','SUPERSEDED','COMPLETED')),
+    CONSTRAINT chk_learning_path_experience
+        CHECK (experience_version IN ('LEGACY_V1','INTERACTIVE_V2')),
     CONSTRAINT chk_learning_path_target
         CHECK (target_level IS NULL OR target_level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] A resumable day package owned by one interactive path.
+CREATE TABLE learning_path_package (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    learning_path_id BIGINT UNSIGNED NOT NULL,
+    source_lesson_id BIGINT UNSIGNED NULL,
+    content_revision VARCHAR(64) NULL,
+    stage_id BIGINT UNSIGNED NULL,
+    phase VARCHAR(20) NOT NULL,
+    day_number INT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'LOCKED',
+    estimated_minutes INT UNSIGNED NOT NULL,
+    started_at DATETIME(6) NULL,
+    completed_at DATETIME(6) NULL,
+    -- [JLAS-W0193] Task 8 — computed package score once completed; NULL until then. Derived from real
+    -- learning_quiz_session correct/total counts, never hard-coded; Dialogue never contributes to it.
+    score_percent INT UNSIGNED NULL,
+    row_version BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_package_path_day (learning_path_id, day_number),
+    UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
+    UNIQUE KEY uk_learning_package_path_source (learning_path_id, source_lesson_id),
+    KEY idx_learning_package_status (learning_path_id, status, order_index),
+    CONSTRAINT fk_learning_package_path FOREIGN KEY (learning_path_id)
+        REFERENCES user_learning_path(id) ON DELETE CASCADE,
+    CONSTRAINT fk_learning_package_source_lesson FOREIGN KEY (source_lesson_id)
+        REFERENCES lesson(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_learning_package_phase CHECK (phase IN ('WARM_UP','GOAL_LEARNING')),
+    CONSTRAINT chk_learning_package_status CHECK (status IN ('LOCKED','AVAILABLE','IN_PROGRESS','COMPLETED')),
+    CONSTRAINT chk_learning_package_minutes CHECK (estimated_minutes > 0),
+    CONSTRAINT chk_learning_package_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lesson trong learning path; cho phep cung lesson xuat hien lai de review.
 CREATE TABLE user_learning_path_item (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
+    package_id BIGINT UNSIGNED NULL,
+    activity_type VARCHAR(20) NULL,
+    activity_state VARCHAR(20) NULL,
     -- [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
     -- vocabulary_entry / reading-listening content_item) mà không cần một lesson_id giả.
     lesson_id        BIGINT UNSIGNED NULL,
@@ -1607,6 +1650,8 @@ CREATE TABLE user_learning_path_item (
     KEY idx_learning_path_item_lesson (lesson_id),
     KEY idx_learning_path_item_grammar (grammar_point_id),
     KEY idx_learning_path_item_vocab (vocabulary_entry_id),
+    UNIQUE KEY uk_learning_path_item_package_type (package_id, activity_type),
+    KEY idx_learning_path_item_package_order (package_id, order_index),
     CONSTRAINT fk_learning_path_item_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_path_item_lesson FOREIGN KEY (lesson_id)
@@ -1615,15 +1660,39 @@ CREATE TABLE user_learning_path_item (
         REFERENCES grammar_point(id) ON DELETE SET NULL,
     CONSTRAINT fk_learning_path_item_vocab FOREIGN KEY (vocabulary_entry_id)
         REFERENCES vocabulary_entry(id) ON DELETE SET NULL,
+    CONSTRAINT fk_learning_path_item_package FOREIGN KEY (package_id)
+        REFERENCES learning_path_package(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_path_item_kind CHECK (kind IS NULL OR kind IN ('CURRICULUM','REVIEW')),
     CONSTRAINT chk_learning_path_item_study_status
         CHECK (study_status IN ('NOT_STARTED','IN_PROGRESS','STUDIED')),
     CONSTRAINT chk_learning_path_item_assessment_status
-        CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW'))
+        CHECK (assessment_status IN ('NOT_READY','READY','ISSUED','SUBMITTED','PASSED','NEEDS_REVIEW')),
+    CONSTRAINT chk_learning_path_item_activity_type CHECK
+        -- [JLAS-W0193] Interactive V2 comprehension activities reference canonical assessment questions.
+        (activity_type IS NULL OR activity_type IN ('VOCABULARY','KANJI','GRAMMAR','DIALOGUE','READING','LISTENING')),
+    CONSTRAINT chk_learning_path_item_activity_state CHECK
+        (activity_state IS NULL OR activity_state IN ('LOCKED','STUDYING','CHECK_READY','PASSED','COOLDOWN','COMPLETED'))
     -- [JLAS-W0108] P2c — KHÔNG đặt CHECK "ít nhất một tham chiếu hợp lệ" (lesson/grammar/vocab) ở đây:
     -- MySQL 8.0.16+ cấm cột trong CHECK đồng thời nằm trong FK có referential action
     -- (grammar_point_id / vocabulary_entry_id dùng ON DELETE SET NULL) → lỗi 3823.
     -- Ràng buộc này do tầng ứng dụng đảm bảo (LearningServiceImpl chọn đúng anchor).
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Immutable canonical membership; content remains dictionary-owned.
+CREATE TABLE learning_activity_member (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id BIGINT UNSIGNED NOT NULL,
+    member_type VARCHAR(30) NOT NULL,
+    canonical_id BIGINT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    source_revision VARCHAR(64) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_activity_member_identity (activity_item_id, member_type, canonical_id),
+    KEY idx_learning_activity_member_order (activity_item_id, order_index),
+    CONSTRAINT fk_learning_activity_member_item FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_activity_member_type CHECK
+        (member_type IN ('VOCABULARY_ENTRY','KANJI','GRAMMAR_POINT','DIALOGUE_LINE','COMPREHENSION_QUESTION'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] P6 — một chặng (stage) trong lộ trình JLPT nhiều cấp (D5). Mỗi chặng gắn đúng một
@@ -1784,6 +1853,7 @@ CREATE TABLE learning_quiz_session (
     lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE/GRAMMAR/FLASHCARD',
     path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON/GRAMMAR',
     activity_id      BIGINT UNSIGNED NULL COMMENT '[JLAS-W0108] grammarPointId cho GRAMMAR quiz; null cho loai khac',
+    batch_index      INT UNSIGNED NULL COMMENT '[JLAS-W0193] thu tu batch micro-check; null cho quiz legacy',
     path_version     INT NULL COMMENT 'snapshot version cua lo trinh khi phat GATE quiz',
     status           VARCHAR(20) NOT NULL DEFAULT 'ISSUED' COMMENT 'ISSUED/SUBMITTED',
     questions_json   TEXT NOT NULL COMMENT 'JSON mang cau hoi da phat (khong chua dap an)',
@@ -1799,9 +1869,129 @@ CREATE TABLE learning_quiz_session (
     KEY idx_quiz_session_user (user_id, quiz_type, lesson_id, status),
     CONSTRAINT fk_quiz_session_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_quiz_session_type CHECK (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD')),
+    -- [JLAS-W0193] KANJI_MICRO_CHECK (Task 5) va GRAMMAR_MICRO_CHECK (Task 6) duoc them vao day de khop
+    -- dung voi cac quiz_type ma InteractiveStudyEngine da phat sinh; Task 5 tung bo sot KANJI_MICRO_CHECK
+    -- trong CHECK constraint nay (H2 ddl-auto=create-drop sinh schema tu JPA entity, khong tu SQL nay nen
+    -- khong bat duoc bang test) — sua cung migration voi Task 6 vi ca hai deu dung chung constraint.
+    -- [JLAS-W0193] RC Task 6: READING_MICRO_CHECK/LISTENING_MICRO_CHECK bi bo sot cung ly do (RC Task 4 da
+    -- phat sinh cac quiz_type nay qua AssessmentComprehensionContentAdapter.microCheckType(), nhung RC Task 2
+    -- (migration 016) chi mo rong activity_type/member_type, khong mo rong constraint nay) — sua tai day,
+    -- migration 017.
+    CONSTRAINT chk_quiz_session_type CHECK
+        (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
+            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Study session cua mot activity tu vung/Kanji; giu membership revision dang hoc de reload
+-- resume dung session va replan (revision moi) reset sach. "Da nho" la study evidence, khong phai mastery.
+CREATE TABLE learning_study_session (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id BIGINT UNSIGNED NOT NULL,
+    source_revision  VARCHAR(64) NOT NULL,
+    row_version      BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                     ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_study_session_activity (activity_item_id),
+    CONSTRAINT fk_learning_study_session_item FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Trang thai flip/remember cua tung membership target trong mot study session.
+CREATE TABLE learning_study_card (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    study_session_id BIGINT UNSIGNED NOT NULL,
+    canonical_id     BIGINT UNSIGNED NOT NULL,
+    order_index      INT UNSIGNED NOT NULL,
+    flipped          TINYINT(1) NOT NULL DEFAULT 0,
+    remembered       TINYINT(1) NOT NULL DEFAULT 0,
+    flipped_at       DATETIME(6) NULL,
+    remembered_at    DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_study_card_identity (study_session_id, canonical_id),
+    KEY idx_learning_study_card_order (study_session_id, order_index),
+    CONSTRAINT fk_learning_study_card_session FOREIGN KEY (study_session_id)
+        REFERENCES learning_study_session(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Tong ket so luot micro-check theo (activity, batch): 3 luot/cycle, cooldown 60 phut,
+-- bat buoc review truoc cycle moi. Pass quyet dinh o day; snapshot bieu bat bien nam o learning_quiz_session.
+CREATE TABLE learning_micro_check_state (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id  BIGINT UNSIGNED NOT NULL,
+    batch_index       INT UNSIGNED NOT NULL DEFAULT 0,
+    cycle_number      INT UNSIGNED NOT NULL DEFAULT 1,
+    attempts_used     INT UNSIGNED NOT NULL DEFAULT 0,
+    passed            TINYINT(1) NOT NULL DEFAULT 0,
+    first_score       INT NULL,
+    latest_score      INT NULL,
+    best_score        INT NULL,
+    cooldown_until    DATETIME(6) NULL,
+    review_required   TINYINT(1) NOT NULL DEFAULT 0,
+    row_version       BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_micro_check_activity_batch (activity_item_id, batch_index),
+    CONSTRAINT fk_learning_micro_check_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE,
+    CONSTRAINT chk_learning_micro_check_attempts CHECK (attempts_used <= 3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Task 6 — tien do luyen tap sap xep cau + dien khuyet cua tung grammar point trong mot
+-- activity GRAMMAR. Grammar khong co buoc lat/nho flashcard; bang nay la "cong" rieng cua Grammar ma
+-- InteractiveStudyEngine tham van truoc khi cho phat micro-check (qua InteractiveContentAdapter.
+-- assertPracticeGateSatisfied), thay vi flip/remember cua Vocabulary/Kanji. source_revision di theo
+-- learning_activity_member.source_revision: composer sinh revision moi thi tien do cu bi coi la chua
+-- lam xong voi noi dung moi, khong tu dong mang sang.
+CREATE TABLE learning_grammar_practice_progress (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id  BIGINT UNSIGNED NOT NULL,
+    grammar_point_id  BIGINT UNSIGNED NOT NULL,
+    source_revision   VARCHAR(64) NOT NULL,
+    ordering_done     TINYINT(1) NOT NULL DEFAULT 0,
+    fill_done         TINYINT(1) NOT NULL DEFAULT 0,
+    ordering_done_at  DATETIME(6) NULL,
+    fill_done_at      DATETIME(6) NULL,
+    row_version       BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_grammar_practice_identity (activity_item_id, grammar_point_id),
+    CONSTRAINT fk_grammar_practice_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0193] Task 7 - bang chung hoan thanh Dialogue: 1 dong/activity DIALOGUE. accumulated_seconds chi
+-- tang bang gia tri server tu tinh (cap 20s/heartbeat, reset chuoi khi khoang cach heartbeat > 30s) - khong
+-- bao gio nhan tong so giay hoac co "completed" tu client. reached_bottom_at la bang chung cuon-den-cuoi
+-- rieng, ghi mot lan qua endpoint /reached-bottom (yeu cau da co it nhat 1 heartbeat truoc do). completed_at
+-- chi duoc set khi ca hai dieu kien (>=180s VA reached_bottom_at khac null) cung dung, va khong bao gio bi
+-- xoa/ghi de sau do. last_heartbeat_token la nonce client-sinh de tu choi mot heartbeat gui lai (replay)
+-- khong cho cong them thoi gian lan thu hai. source_revision di theo learning_activity_member.source_revision
+-- cung quy tac reset-khi-doi-revision nhu learning_grammar_practice_progress.
+CREATE TABLE learning_dialogue_progress (
+    id                     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    activity_item_id       BIGINT UNSIGNED NOT NULL,
+    source_revision        VARCHAR(64) NOT NULL,
+    accumulated_seconds    INT UNSIGNED NOT NULL DEFAULT 0,
+    last_heartbeat_at      DATETIME(6) NULL,
+    last_heartbeat_token   VARCHAR(80) NULL,
+    reached_bottom_at      DATETIME(6) NULL,
+    completed_at           DATETIME(6) NULL,
+    row_version            BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at             DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at             DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                           ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dialogue_progress_activity (activity_item_id),
+    CONSTRAINT fk_dialogue_progress_activity FOREIGN KEY (activity_item_id)
+        REFERENCES user_learning_path_item(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.

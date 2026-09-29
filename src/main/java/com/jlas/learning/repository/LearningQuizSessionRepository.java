@@ -41,4 +41,10 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
      *  retest hay không (D7). */
     List<LearningQuizSession> findTop2ByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
             Long activityId, String quizType, String status);
+
+    /** [JLAS-W0193] Task 8 — the passing micro-check submission(s) for one activity, used to aggregate a
+     * real correct/total package score from actual snapshot data (never a hard-coded division). Once a
+     * batch passes it never reopens, so at most one row per (activity, batch) is ever SUBMITTED+passed. */
+    List<LearningQuizSession> findByActivityIdAndQuizTypeAndStatusAndPassed(
+            Long activityId, String quizType, String status, Boolean passed);
 }

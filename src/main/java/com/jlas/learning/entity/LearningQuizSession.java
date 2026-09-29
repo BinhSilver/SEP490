@@ -48,6 +48,10 @@ public class LearningQuizSession {
     @Column(name = "activity_id")
     private Long activityId;
 
+    /** [JLAS-W0193] Thứ tự batch micro-check (0-based); null cho quiz legacy. */
+    @Column(name = "batch_index")
+    private Integer batchIndex;
+
     /** Snapshot version của lộ trình lúc phát GATE quiz; dùng để từ chối nộp khi lộ trình đã đổi. */
     @Column(name = "path_version")
     private Integer pathVersion;

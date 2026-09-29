@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import com.jlas.learning.enums.LearningExperienceVersion;
 
 /**
  * Lộ trình học dài hạn có version của user.
@@ -22,6 +23,12 @@ public class UserLearningPath {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0193] Selects the legacy or interactive contract without rewriting historical paths. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "experience_version", nullable = false, length = 30)
+    @Builder.Default
+    private LearningExperienceVersion experienceVersion = LearningExperienceVersion.LEGACY_V1;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
