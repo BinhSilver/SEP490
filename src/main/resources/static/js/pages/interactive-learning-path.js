@@ -14,6 +14,22 @@
 
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
+  function positiveInteger(value) {
+    value = Number(value);
+    return Number.isInteger(value) && value > 0 ? value : null;
+  }
+  function resolveAssessmentAttemptId(search, storage) {
+    var params = new URLSearchParams(search || '');
+    var fromUrl = positiveInteger(params.get('assessmentAttemptId'));
+    if (fromUrl) return fromUrl;
+    if (!storage || typeof storage.getItem !== 'function') return null;
+    return positiveInteger(storage.getItem('assessmentAttemptId'));
+  }
+  function pathCreationRequest(attemptId) {
+    return attemptId
+      ? { url: '/api/learning/paths', body: JSON.stringify({ assessmentAttemptId: attemptId }) }
+      : { url: '/api/learning/paths/from-zero', body: '{}' };
+  }
   function viewModel(data) {
     data = data || {};
     var packages = (Array.isArray(data.packages) ? data.packages : []).slice().sort(function (a, b) { return num(a.orderIndex) - num(b.orderIndex); });
@@ -108,11 +124,26 @@
   function mount() {
     var node = document.getElementById('interactivePathRoot');
     if (!node || !window.JlasAuth || !window.JlasAuth.requireLogin('/learning/path/v2')) return;
+    var attemptedBootstrap = false;
+    var assessmentAttemptId = resolveAssessmentAttemptId(window.location.search, window.localStorage);
+    async function bootstrapPath() {
+      var request = pathCreationRequest(assessmentAttemptId);
+      var response = await fetch(request.url, {
+        method: 'POST', headers: window.JlasAuth.authHeaders(), body: request.body
+      });
+      var body = await response.json();
+      if (!response.ok || body.success === false) throw new Error(body.message || 'Không thể tạo lộ trình tương tác.');
+    }
     async function load() {
       node.setAttribute('aria-busy', 'true');
       try { var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() }); var body = await response.json();
+        if ((response.status === 404 || body.code === 'NOT_FOUND') && !attemptedBootstrap) {
+          attemptedBootstrap = true;
+          await bootstrapPath();
+          return load();
+        }
         node.innerHTML = response.ok && body.data ? render(body.data) : error(body.message); afterRender(node); }
-      catch (e) { node.innerHTML = error('Không thể kết nối tới máy chủ.'); }
+      catch (e) { node.innerHTML = error(e && e.message ? e.message : 'Không thể kết nối tới máy chủ.'); }
       node.setAttribute('aria-busy', 'false');
     }
     function closePopup(trigger) {
@@ -180,5 +211,6 @@
     var popup = node.querySelector('[data-popup]');
     if (popup) popup.focus();
   }
-  return { viewModel: viewModel, render: render, mount: mount, popupModel: popupModel, renderPopup: renderPopup, afterRender: afterRender };
+  return { viewModel: viewModel, render: render, mount: mount, popupModel: popupModel, renderPopup: renderPopup,
+    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId, pathCreationRequest: pathCreationRequest };
 });

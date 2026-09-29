@@ -3,6 +3,7 @@ package com.jlas.learning;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jlas.learning.controller.LearningPathPageController;
+import com.jlas.learning.config.InteractiveLearningV2Properties;
 import org.junit.jupiter.api.Test;
 import org.springframework.ui.ConcurrentModel;
 
@@ -10,19 +11,28 @@ class LearningPathPageControllerTest {
 
     @Test
     void learningPathUsesTheAppShell() {
-        var controller = new LearningPathPageController();
+        var controller = controller(false);
         var model = new ConcurrentModel();
 
-        var view = controller.learningPath(model);
+        var view = controller.learningPath(model, 91L);
 
         assertEquals("learning/path", view);
         assertEquals("app", model.getAttribute("layoutMode"));
     }
 
+    @Test
+    void learningPathRedirectsToInteractiveExperienceAndKeepsAssessmentAttempt() {
+        var controller = controller(true);
+
+        var view = controller.learningPath(new ConcurrentModel(), 91L);
+
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91", view);
+    }
+
     /** [JLAS-W0193] Task 8 — the completion popup's last-package "Xem tổng kết chặng" action routes here. */
     @Test
     void interactivePathSummaryRouteServesThePlaceholderPage() {
-        var controller = new LearningPathPageController();
+        var controller = controller(true);
         var model = new ConcurrentModel();
 
         var view = controller.interactiveLearningPathSummary(model);
@@ -35,7 +45,7 @@ class LearningPathPageControllerTest {
      * template/static loading copy, the page itself renders from the API's own {@code activityType}. */
     @Test
     void interactiveReadingRouteServesTheComprehensionPlayer() {
-        var controller = new LearningPathPageController();
+        var controller = controller(true);
         var model = new ConcurrentModel();
 
         var view = controller.interactiveReading(model);
@@ -47,7 +57,7 @@ class LearningPathPageControllerTest {
 
     @Test
     void interactiveListeningRouteServesTheComprehensionPlayer() {
-        var controller = new LearningPathPageController();
+        var controller = controller(true);
         var model = new ConcurrentModel();
 
         var view = controller.interactiveListening(model);
@@ -55,5 +65,11 @@ class LearningPathPageControllerTest {
         assertEquals("learning/interactive-comprehension-study", view);
         assertEquals("app", model.getAttribute("layoutMode"));
         assertEquals("listening", model.getAttribute("comprehensionKind"));
+    }
+
+    private LearningPathPageController controller(boolean enabled) {
+        var properties = new InteractiveLearningV2Properties();
+        properties.setEnabled(enabled);
+        return new LearningPathPageController(properties);
     }
 }

@@ -38,12 +38,22 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
     Optional<UserLearningPath> findByUserIdAndAssessmentAttemptIdAndAssessmentRevisionAndPolicyVersionAndStatus(
             Long userId, Long assessmentAttemptId, String assessmentRevision, String policyVersion, String status);
 
+    Optional<UserLearningPath>
+            findByUserIdAndAssessmentAttemptIdAndAssessmentRevisionAndPolicyVersionAndExperienceVersionAndStatus(
+                    Long userId, Long assessmentAttemptId, String assessmentRevision, String policyVersion,
+                    LearningExperienceVersion experienceVersion, String status);
+
     /**
      * [JLAS-W0108] Idempotency lookup for a from-zero path: same user + revision + policy, with no
      * assessment attempt (attempt is {@code NULL} for survey-only learners).
      */
     Optional<UserLearningPath> findByUserIdAndAssessmentAttemptIdIsNullAndAssessmentRevisionAndPolicyVersionAndStatus(
             Long userId, String assessmentRevision, String policyVersion, String status);
+
+    Optional<UserLearningPath>
+            findByUserIdAndAssessmentAttemptIdIsNullAndAssessmentRevisionAndPolicyVersionAndExperienceVersionAndStatus(
+                    Long userId, String assessmentRevision, String policyVersion,
+                    LearningExperienceVersion experienceVersion, String status);
 
     @Query("select coalesce(max(p.version), 0) from UserLearningPath p where p.user.id = :userId")
     int findMaxVersionByUserId(@Param("userId") Long userId);

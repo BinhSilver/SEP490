@@ -28,6 +28,22 @@ function pathWithComprehension() {
     ] }] });
 }
 
+test('resolves the Smart Test attempt from the redirected V2 URL before storage', () => {
+  const storage = { getItem: () => '41' };
+  assert.equal(page.resolveAssessmentAttemptId('?assessmentAttemptId=91', storage), 91);
+});
+
+test('builds the existing learning-path creation request for V2 bootstrap', () => {
+  assert.deepEqual(page.pathCreationRequest(91), {
+    url: '/api/learning/paths',
+    body: JSON.stringify({ assessmentAttemptId: 91 })
+  });
+  assert.deepEqual(page.pathCreationRequest(null), {
+    url: '/api/learning/paths/from-zero',
+    body: '{}'
+  });
+});
+
 test('orders the four target activities using the approved rail', () => {
   const model = page.viewModel(path());
   assert.deepEqual(model.packages[0].activityLabels, ['Từ vựng', 'Kanji', 'Ngữ pháp', 'Hội thoại']);

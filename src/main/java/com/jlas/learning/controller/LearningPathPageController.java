@@ -1,15 +1,26 @@
 package com.jlas.learning.controller;
 
+import com.jlas.learning.config.InteractiveLearningV2Properties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /** Serves the authenticated personalized learning-path page. */
 @Controller
+@RequiredArgsConstructor
 public class LearningPathPageController {
+    private final InteractiveLearningV2Properties interactiveV2Properties;
 
     @GetMapping("/learning/path")
-    public String learningPath(Model model) {
+    public String learningPath(Model model,
+            @RequestParam(required = false) Long assessmentAttemptId) {
+        if (interactiveV2Properties.isEnabled()) {
+            return assessmentAttemptId == null
+                    ? "redirect:/learning/path/v2"
+                    : "redirect:/learning/path/v2?assessmentAttemptId=" + assessmentAttemptId;
+        }
         model.addAttribute("layoutMode", "app");
         return "learning/path";
     }

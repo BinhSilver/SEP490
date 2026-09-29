@@ -234,12 +234,14 @@ public class LearningServiceImpl implements LearningService {
         // [JLAS-W0122] Chỉ xét path ACTIVE: replan giữ nguyên generation identity qua các version,
         // nên cùng generation có thể có nhiều hàng (SUPERSEDED + ACTIVE).
         // [JLAS-W0108] From-zero không có attempt nên idempotency theo null attempt + revision.
+        LearningExperienceVersion requestedExperience = interactiveV2Enabled()
+                ? LearningExperienceVersion.INTERACTIVE_V2 : LearningExperienceVersion.LEGACY_V1;
         var existing = profile.assessmentAttemptId() == null
-                ? paths.findByUserIdAndAssessmentAttemptIdIsNullAndAssessmentRevisionAndPolicyVersionAndStatus(
-                        user.getId(), profile.assessmentRevision(), selection.policyVersion(), "ACTIVE")
-                : paths.findByUserIdAndAssessmentAttemptIdAndAssessmentRevisionAndPolicyVersionAndStatus(
+                ? paths.findByUserIdAndAssessmentAttemptIdIsNullAndAssessmentRevisionAndPolicyVersionAndExperienceVersionAndStatus(
+                        user.getId(), profile.assessmentRevision(), selection.policyVersion(), requestedExperience, "ACTIVE")
+                : paths.findByUserIdAndAssessmentAttemptIdAndAssessmentRevisionAndPolicyVersionAndExperienceVersionAndStatus(
                         user.getId(), profile.assessmentAttemptId(), profile.assessmentRevision(),
-                        selection.policyVersion(), "ACTIVE");
+                        selection.policyVersion(), requestedExperience, "ACTIVE");
         if (existing.isPresent()) {
             return new CreateLearningPathResult(loadResponse(existing.get()), false);
         }
@@ -266,8 +268,7 @@ public class LearningServiceImpl implements LearningService {
                 .policyVersion(selection.policyVersion())
                 .minutesPerDay(profile.minutesPerDay())
                 .coverageGapsJson(mapper.writeCoverageGaps(selection.coverageGaps()))
-                .experienceVersion(interactiveV2Enabled()
-                        ? LearningExperienceVersion.INTERACTIVE_V2 : LearningExperienceVersion.LEGACY_V1)
+                .experienceVersion(requestedExperience)
                 .status("ACTIVE")
                 .version(nextVersion)
                 .build();
