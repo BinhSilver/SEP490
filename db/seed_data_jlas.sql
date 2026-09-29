@@ -507,11 +507,11 @@ INSERT INTO tag (id, code, name, tag_type) VALUES
 -- textbook: 9 dong
 INSERT INTO textbook (id, title, description, jlpt_level, status) VALUES
 (1, 'Sekai N5 — Giáo trình tiếng Nhật', 'Bộ giáo trình N5 số hoá từ nguồn Sekai Gen, 25 bài.', 'N5', 'PUBLISHED'),
-(2, 'Sekai N4 — Giáo trình tiếng Nhật', 'Bộ giáo trình N4 số hoá từ nguồn Sekai Gen, 25 bài.', 'N4', 'DRAFT'),
+(2, 'Sekai N4 — Giáo trình tiếng Nhật', 'Bộ giáo trình N4 số hoá từ nguồn Sekai Gen, 25 bài.', 'N4', 'PUBLISHED'),
 (3, 'Bảng chữ cái tiếng Nhật', 'Hiragana và Katakana — nền tảng cần học trước khi vào N5.', NULL, 'PUBLISHED'),
-(4, 'Tiếng Nhật N3', '1855 từ vựng theo chủ đề, 139 mẫu ngữ pháp, 17 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N3', 'DRAFT'),
-(5, 'Tiếng Nhật N2', '2037 từ vựng theo chủ đề, 137 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N2', 'DRAFT'),
-(6, 'Tiếng Nhật N1', '3591 từ vựng theo chủ đề, 117 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N1', 'DRAFT'),
+(4, 'Tiếng Nhật N3', '1855 từ vựng theo chủ đề, 139 mẫu ngữ pháp, 17 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N3', 'PUBLISHED'),
+(5, 'Tiếng Nhật N2', '2037 từ vựng theo chủ đề, 137 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N2', 'PUBLISHED'),
+(6, 'Tiếng Nhật N1', '3591 từ vựng theo chủ đề, 117 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N1', 'PUBLISHED'),
 (7, 'Tiếng Nhật chuyên ngành IT', '140 từ vựng, 14 hội thoại BrSE theo 7 chủ đề công việc. Nghĩa tiếng Việt là nội dung gốc, 19 từ ghép cần người rà soát.', NULL, 'DRAFT'),
 (8, 'Tiếng Nhật du lịch', '94 từ vựng, 8 hội thoại tình huống đi lại, lưu trú, mua sắm và sự cố. Cách đọc đã đối chiếu JMdict; nghĩa và hội thoại chưa được kiểm.', NULL, 'DRAFT'),
 (9, 'Tiếng Nhật đời sống', '100 từ vựng, 8 hội thoại sinh hoạt hằng ngày. Cách đọc đã đối chiếu JMdict; nghĩa và hội thoại chưa được kiểm.', NULL, 'DRAFT');
@@ -88728,7 +88728,11 @@ UPDATE lesson SET situation_tag = 'TRAVEL'
 WHERE skill = 'LISTENING'
   AND (id BETWEEN 433 AND 440 OR id IN (144, 154));
 
--- 3) Publish 6 textbook (N3/N2/N1 + IT/TRV/DLY) + 79 lesson LISTENING.
---    Chỉ publish lesson LISTENING; vocab/grammar trong textbook 4/5/6 vẫn DRAFT.
-UPDATE textbook SET status = 'PUBLISHED' WHERE id IN (4, 5, 6, 7, 8, 9);
-UPDATE lesson SET status = 'PUBLISHED' WHERE skill = 'LISTENING' AND status = 'DRAFT';
+-- 3) Publish mọi lesson thuộc giáo trình JLPT N5–N1 (textbook 1/2/4/5/6) để lộ trình
+--    nhiều chặng N5→N4→N3→N2→N1 có đủ bài PUBLISHED. [JLAS-W0108]
+--    Trạng thái textbook đã đặt ở INSERT phía trên (N5/N4/N3/N2/N1 = PUBLISHED);
+--    giáo trình ngoài JLPT (IT/du lịch/đời sống = 7/8/9) vẫn giữ DRAFT.
+UPDATE lesson l
+JOIN unit u ON u.id = l.unit_id
+SET l.status = 'PUBLISHED'
+WHERE u.textbook_id IN (1, 2, 4, 5, 6);
