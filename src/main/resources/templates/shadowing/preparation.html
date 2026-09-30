@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuẩn bị bài tập nghe | JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/tokens.css">
+    <link rel="stylesheet" href="/css/theme-bridge.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260928-preparation-separated">
+    <link rel="stylesheet" href="/css/pages/shadowing-preparation.css?v=20260929-select-all">
+    <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="icon" href="/images/jlab.png" type="image/png">
+</head>
+<body id="jlabBasePage" class="page-shadowing page-shadowing-preparation">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="preparation-page">
+    <input type="hidden" id="video-id" th:value="${videoId}">
+    <nav class="preparation-nav" aria-label="Điều hướng video">
+        <a id="prepare-back-link" th:href="@{/shadowing/editor/{id}(id=${videoId})}"><i class="fa-solid fa-closed-captioning" aria-hidden="true"></i> Sửa phụ đề</a>
+        <span aria-current="page"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Câu hỏi</span>
+        <a id="prepare-practice-link" th:href="@{/shadowing/practice/{id}(id=${videoId})}"><i class="fa-solid fa-play" aria-hidden="true"></i> Trang học</a>
+    </nav>
+
+    <header class="preparation-header">
+        <div>
+            <p id="prepare-video-title" class="preparation-video-title">Đang tải video…</p>
+            <h1>Chuẩn bị bài tập nghe</h1>
+        </div>
+        <div class="preparation-job-state">
+            <span id="prepare-exercises-progress" role="status" aria-live="polite">Chưa tạo</span>
+            <progress id="prepare-progress-bar" max="100" value="0" aria-label="Tiến độ tạo câu hỏi" hidden></progress>
+        </div>
+    </header>
+
+    <div class="preparation-layout">
+        <section class="preparation-main-column" aria-label="Tạo và duyệt câu hỏi">
+            <div class="preparation-selectors">
+                <details class="preparation-dropdown" id="prepare-level-dropdown">
+                    <summary>Mức nghe <span id="prepare-level-summary">Dễ, Vừa, Khó</span></summary>
+                    <div id="prepare-levels" class="preparation-dropdown-panel">
+                        <label><input type="checkbox" value="EASY" checked> Dễ</label>
+                        <label><input type="checkbox" value="MEDIUM" checked> Vừa</label>
+                        <label><input type="checkbox" value="HARD" checked> Khó</label>
+                    </div>
+                </details>
+                <details class="preparation-dropdown" id="prepare-kind-dropdown">
+                    <summary>Dạng câu hỏi <span id="prepare-kind-summary">Điền nội dung nghe được</span></summary>
+                    <div id="prepare-kinds" class="preparation-dropdown-panel">
+                        <div class="preparation-kind-row" data-kind="GAP"><label><input type="checkbox" value="GAP" checked> Điền nội dung nghe được</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="5" aria-label="Số câu điền nội dung nghe được"></label></div>
+                        <div class="preparation-kind-row" data-kind="ACTION_SEQUENCE"><label><input type="checkbox" value="ACTION_SEQUENCE"> Hành động và thứ tự</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="2" aria-label="Số câu hành động và thứ tự"></label></div>
+                        <div class="preparation-kind-row" data-kind="DETAIL"><label><input type="checkbox" value="DETAIL"> Thông tin cụ thể</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="3" aria-label="Số câu thông tin cụ thể"></label></div>
+                        <div class="preparation-kind-row" data-kind="REASON_PURPOSE"><label><input type="checkbox" value="REASON_PURPOSE"> Lý do và mục đích</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="2" aria-label="Số câu lý do và mục đích"></label></div>
+                        <div class="preparation-kind-row" data-kind="MAIN_IDEA"><label><input type="checkbox" value="MAIN_IDEA"> Ý chính và kết luận</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="1" aria-label="Số câu ý chính và kết luận"></label></div>
+                        <div class="preparation-kind-row" data-kind="PROBLEM_SOLUTION"><label><input type="checkbox" value="PROBLEM_SOLUTION"> Vấn đề và giải pháp</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="2" aria-label="Số câu vấn đề và giải pháp"></label></div>
+                        <div class="preparation-kind-row" data-kind="ATTITUDE_DECISION"><label><input type="checkbox" value="ATTITUDE_DECISION"> Thái độ và quyết định</label><span class="prepare-kind-suggestion" hidden></span><span class="preparation-capacity"></span><label class="preparation-amount">Số câu <input type="number" min="1" max="20" value="2" aria-label="Số câu thái độ và quyết định"></label></div>
+                    </div>
+                </details>
+            </div>
+            <p id="prepare-exercises-suggestions" class="preparation-notice" role="status" aria-live="polite" hidden></p>
+            <div class="preparation-create-row">
+                <button id="prepare-exercises-start" type="button" class="button-primary">Tạo câu hỏi</button>
+            </div>
+
+            <section class="preparation-contribute" aria-labelledby="prepare-contribute-heading">
+                <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                <div><h2 id="prepare-contribute-heading">Đóng góp câu hỏi</h2><p>Chủ video duyệt các câu hỏi được đóng góp</p></div>
+            </section>
+
+            <section class="preparation-review" aria-labelledby="prepare-review-heading">
+                <div class="preparation-review-head">
+                    <h2 id="prepare-review-heading">Danh sách câu hỏi</h2>
+                </div>
+                <section id="prepare-generation-report" class="preparation-generation-report" hidden
+                         aria-labelledby="prepare-generation-heading">
+                    <h3 id="prepare-generation-heading">Câu còn thiếu</h3>
+                    <p id="prepare-generation-missing"></p>
+                    <details id="prepare-generation-issues" hidden>
+                        <summary>Chi tiết câu chưa đạt và phần chưa tạo được</summary>
+                        <div id="prepare-generation-issue-list"></div>
+                    </details>
+                </section>
+                <div class="preparation-filter" role="group" aria-label="Lọc câu hỏi">
+                    <button type="button" data-filter="ALL" aria-pressed="true">Tất cả <span></span></button>
+                    <button type="button" data-filter="DRAFT" aria-pressed="false">Bản nháp <span></span></button>
+                    <button type="button" data-filter="READY" aria-pressed="false">Đã duyệt <span></span></button>
+                    <select id="prepare-review-level" aria-label="Lọc theo mức nghe">
+                        <option value="">Mọi mức nghe</option><option value="EASY">Dễ</option>
+                        <option value="MEDIUM">Vừa</option><option value="HARD">Khó</option>
+                    </select>
+                    <select id="prepare-review-kind" aria-label="Lọc theo dạng câu hỏi">
+                        <option value="">Mọi dạng câu hỏi</option>
+                        <option value="GAP">Điền nội dung</option>
+                        <option value="ACTION_SEQUENCE">Hành động và thứ tự</option>
+                        <option value="DETAIL">Thông tin cụ thể</option>
+                        <option value="REASON_PURPOSE">Lý do và mục đích</option>
+                        <option value="MAIN_IDEA">Ý chính và kết luận</option>
+                        <option value="PROBLEM_SOLUTION">Vấn đề và giải pháp</option>
+                        <option value="ATTITUDE_DECISION">Thái độ và quyết định</option>
+                    </select>
+                </div>
+                <div id="prepare-selection-bar" class="preparation-selection-bar" hidden>
+                    <label><input id="prepare-select-page" type="checkbox"><span id="prepare-select-scope">Chọn tất cả câu đang lọc</span></label>
+                    <button id="prepare-approve-selected" type="button" class="button-primary" disabled>Duyệt đã chọn</button>
+                    <button id="prepare-reject-selected" type="button" class="button-secondary" disabled>Xóa đã chọn</button>
+                </div>
+                <div id="prepare-exercises-preview" class="preparation-questions"></div>
+                <button id="prepare-show-more" type="button" class="preparation-more" hidden>Xem thêm câu hỏi</button>
+            </section>
+        </section>
+
+        <aside class="preparation-side-column" aria-label="Thông tin và đoạn nghe">
+            <section class="preparation-video-level" aria-labelledby="prepare-video-level-heading">
+                <h2 id="prepare-video-level-heading">Cấp độ video</h2>
+                <div class="preparation-video-level-controls">
+                    <label class="preparation-visually-hidden" for="prepare-video-jlpt-level">Cấp độ video</label>
+                    <select id="prepare-video-jlpt-level">
+                        <option value="">Chưa đánh giá</option>
+                        <option value="N5">N5</option><option value="N4">N4</option>
+                        <option value="N3">N3</option><option value="N2">N2</option>
+                        <option value="N1">N1</option>
+                    </select>
+                    <button id="prepare-video-level-save" type="button" class="button-secondary">Lưu cấp độ</button>
+                </div>
+                <p id="prepare-video-level-status" role="status" aria-live="polite"></p>
+            </section>
+            <section class="preparation-listen" aria-labelledby="prepare-listen-heading">
+                <h2 id="prepare-listen-heading">Nghe lại đoạn gốc</h2>
+                <video id="preparation-video" controls preload="metadata" playsinline></video>
+            </section>
+        </aside>
+    </div>
+
+</main>
+<script src="/js/auth-session.js"></script>
+<script src="/js/jlab-base-shell.js"></script>
+<script src="/shadowing/js/client.js?v=20260712"></script>
+<script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
+<script src="/shadowing/js/preparation-editor.js?v=20260929-select-all"></script>
+</body>
+</html>

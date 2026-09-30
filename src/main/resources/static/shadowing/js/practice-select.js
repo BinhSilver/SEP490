@@ -6,16 +6,26 @@
 
   const title = document.getElementById('practice-video-title');
   const countLabel = document.getElementById('practice-subtitle-count');
+  const videoJlpt = document.getElementById('practice-video-jlpt');
   const cards = Array.from(document.querySelectorAll('.practice-mode-card'));
   const options = document.getElementById('practice-options');
   const startButton = document.getElementById('practice-start-button');
+  const startRow = document.getElementById('practice-start-row');
   const startLabel = startButton.querySelector('span');
+  const startIcon = document.getElementById('practice-start-icon');
   const startKitsu = document.getElementById('practice-start-kitsu');
   const headerKitsu = document.getElementById('practice-kitsu');
   const status = document.getElementById('practice-status');
-  const customCount = document.getElementById('practice-custom-count');
+  const contributeLink = document.getElementById('practice-contribute-link');
+  const availableLabel = document.getElementById('practice-available-count');
+  const selectAllButton = document.getElementById('practice-select-all');
+  const clearAllButton = document.getElementById('practice-clear-all');
   let selectedMode = 'SHADOWING';
   let subtitleCount = 0;
+  let availability = {};
+  let creatingSession = false;
+  let creationPaused = false;
+  let createdSessionId = null;
 
   function playHeaderKitsu() {
     if (!headerKitsu || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
@@ -35,26 +45,6 @@
     playHeaderKitsu();
   }
 
-  function validQuestionCount(value) {
-    const numeric = Number(String(value || '').replace(/\D/g, ''));
-    const fallback = 5;
-    const limit = subtitleCount || 500;
-    return Math.max(1, Math.min(limit, Number.isFinite(numeric) && numeric > 0 ? numeric : fallback));
-  }
-
-  customCount?.addEventListener('beforeinput', function (event) {
-    if (event.data && !/^\d+$/.test(event.data)) event.preventDefault();
-  });
-
-  customCount?.addEventListener('input', function () {
-    const digitsOnly = this.value.replace(/\D/g, '');
-    if (this.value !== digitsOnly) this.value = digitsOnly;
-  });
-
-  customCount?.addEventListener('blur', function () {
-    this.value = String(validQuestionCount(this.value));
-  });
-
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
   }
@@ -64,7 +54,28 @@
     status.style.color = error ? '#a71919' : '';
   }
 
+  function startText() {
+    return selectedMode === 'SHADOWING' ? 'Bắt đầu Shadowing' : 'Bắt đầu luyện nghe';
+  }
+
+  function setAction(label, icon) {
+    startLabel.textContent = label;
+    if (startIcon) startIcon.className = 'fa-solid fa-' + icon;
+  }
+
+  function showPreparing(show) {
+    startKitsu.hidden = !show;
+    startRow?.classList.toggle('has-mascot', show);
+    if (!show) {
+      startKitsu.pause();
+      return;
+    }
+    const playback = startKitsu.play();
+    if (playback?.catch) playback.catch(function () { /* The poster remains visible. */ });
+  }
+
   function selectMode(mode) {
+    if (creatingSession) return;
     selectedMode = mode;
     cards.forEach(function (card) {
       const selected = card.dataset.mode === mode;
@@ -72,14 +83,139 @@
       card.setAttribute('aria-pressed', String(selected));
     });
     options.hidden = mode === 'SHADOWING';
-    startLabel.textContent = mode === 'SHADOWING'
-      ? 'Bắt đầu Shadowing'
-      : mode === 'CLOZE' ? 'Bắt đầu điền từ' : 'Bắt đầu điền cả câu';
-    startKitsu.pause();
+    setAction(startText(), 'play');
+    showPreparing(false);
     try { startKitsu.currentTime = 0; } catch (_) { /* metadata may not be loaded yet */ }
-    startKitsu.hidden = true;
     message('');
+    updateAvailability();
   }
+
+  function renderLevelOptions() {
+    const names = { EASY: 'Dễ', MEDIUM: 'Vừa', HARD: 'Khó' };
+    document.querySelectorAll('.practice-kind-card').forEach(function (card) {
+      const list = card.querySelector('.practice-level-list');
+      Object.entries(names).forEach(function ([level, name]) {
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = level;
+        input.dataset.kind = card.dataset.kind;
+        input.disabled = true;
+        const title = document.createElement('span');
+        title.textContent = name;
+        const count = document.createElement('small');
+        count.textContent = '…';
+        label.append(input, title, count);
+        list.append(label);
+        input.addEventListener('change', updateAvailability);
+      });
+    });
+  }
+
+  function selectedCombos() {
+    return Array.from(document.querySelectorAll('.practice-kind-card input:checked'))
+      .map(function (input) { return input.value + ':' + input.dataset.kind; });
+  }
+
+  function nonOverlappingCount(questions) {
+    const candidates = [...questions].sort(function (left, right) {
+      return Number(left.endTime) - Number(right.endTime);
+    });
+    let count = 0;
+    let lastEnd = -Infinity;
+    candidates.forEach(function (question) {
+      if (Number(question.startTime) >= lastEnd) {
+        count++;
+        lastEnd = Number(question.endTime);
+      }
+    });
+    return count;
+  }
+
+  function selectedAvailable() {
+    const selected = new Set(selectedCombos());
+    if (Array.isArray(availability.questions)) {
+      return nonOverlappingCount(availability.questions.filter(function (question) {
+        return selected.has(question.level + ':' + question.kind);
+      }));
+    }
+    const counts = availability.counts || {};
+    return Array.from(selected).reduce(function (total, pair) {
+      return total + Number(counts[pair] || 0);
+    }, 0);
+  }
+
+  function syncPreparedFilters() {
+    updateLevelCounts();
+    if (selectedCombos().length) return;
+    const gapLevels = document.querySelectorAll('.practice-kind-card[data-kind="GAP"] input:not(:disabled)');
+    if (gapLevels.length) {
+      gapLevels.forEach(function (input) { input.checked = true; });
+    } else {
+      const first = document.querySelector('.practice-kind-card input:not(:disabled)');
+      if (first) first.checked = true;
+    }
+  }
+
+  function updateLevelCounts() {
+    if (!Array.isArray(availability.questions)) return;
+    const questions = availability.questions;
+    document.querySelectorAll('.practice-kind-card input').forEach(function (input) {
+      const count = nonOverlappingCount(questions.filter(function (question) {
+        return question.level === input.value && question.kind === input.dataset.kind;
+      }));
+      const label = input.closest('label');
+      input.disabled = count === 0;
+      if (input.disabled) input.checked = false;
+      label.querySelector('small').textContent = count + ' câu';
+    });
+  }
+
+  function updateAvailability() {
+    updateLevelCounts();
+    const availableOptions = Array.from(document.querySelectorAll('.practice-kind-card input:not(:disabled)'));
+    selectAllButton.disabled = !availableOptions.some(function (input) { return !input.checked; });
+    clearAllButton.disabled = !availableOptions.some(function (input) { return input.checked; });
+    const ready = selectedCount().questionCount;
+    availableLabel.textContent = String(ready);
+    if (creatingSession) return;
+    if (selectedMode === 'SHADOWING') {
+      contributeLink.hidden = true;
+      startButton.disabled = false;
+      return;
+    }
+    if (availability.questions?.length && !selectedCombos().length) {
+      message('Hãy chọn ít nhất một mức nghe trong các dạng câu hỏi.', true);
+      contributeLink.hidden = true;
+      startButton.disabled = true;
+      return;
+    }
+    if (ready === 0) {
+      message('Hiện chưa có câu hỏi mẫu.', true);
+      contributeLink.hidden = false;
+      startButton.disabled = true;
+    } else {
+      message('');
+      contributeLink.hidden = true;
+      startButton.disabled = false;
+    }
+  }
+
+  renderLevelOptions();
+
+  selectAllButton.addEventListener('click', function () {
+    document.querySelectorAll('.practice-kind-card input:not(:disabled)').forEach(function (input) {
+      input.checked = true;
+    });
+    updateAvailability();
+  });
+
+  clearAllButton.addEventListener('click', function () {
+    document.querySelectorAll('.practice-kind-card input').forEach(function (input) {
+      input.checked = false;
+    });
+    updateAvailability();
+  });
 
   cards.forEach(function (card) {
     card.addEventListener('click', function () { selectMode(card.dataset.mode); });
@@ -100,28 +236,60 @@
     } catch (error) {
       message(error.message || 'Không tải được bài học', true);
       startButton.disabled = true;
+      return;
+    }
+    try {
+      const availabilityResponse = await fetch('/api/videos/' + encodeURIComponent(videoId)
+        + '/practice-preparation/availability', { headers: headers() });
+      if (!availabilityResponse.ok) throw new Error('Không tải được bộ câu hỏi đã chuẩn bị');
+      availability = await availabilityResponse.json();
+      if (availability.videoJlptLevel) {
+        videoJlpt.textContent = ' · Cấp độ video: ' + availability.videoJlptLevel;
+        videoJlpt.hidden = false;
+      }
+      syncPreparedFilters();
+      updateAvailability();
+    } catch (error) {
+      availability = {};
+      if (selectedMode === 'LISTENING') message(error.message, true);
     }
   }
 
   function selectedCount() {
-    const value = validQuestionCount(customCount?.value);
+    const value = Math.min(500, selectedAvailable());
     return { allQuestions: false, questionCount: value };
   }
 
   startButton.addEventListener('click', async function () {
+    // While a session is being prepared the button toggles Dừng / Tiếp tục instead of starting again.
+    if (creatingSession) {
+      creationPaused = !creationPaused;
+      if (creationPaused) {
+        showPreparing(false);
+        setAction('Tiếp tục', 'play');
+        message(createdSessionId ? 'Phiên học đã sẵn sàng.' : 'Đã dừng chuẩn bị phiên học.');
+      } else if (createdSessionId) {
+        location.href = '/shadowing/exercise/' + encodeURIComponent(createdSessionId);
+      } else {
+        showPreparing(true);
+        setAction('Dừng', 'stop');
+        message('Kitsu-chan đang chuẩn bị...');
+      }
+      return;
+    }
     if (selectedMode === 'SHADOWING') {
       location.href = '/shadowing/player/' + encodeURIComponent(videoId) + '?mode=shadowing';
       return;
     }
     const count = selectedCount();
-    const order = document.querySelector('input[name="practice-order"]:checked')?.value || 'PROGRESSIVE';
-    startButton.disabled = true;
-    startKitsu.hidden = false;
+    if (selectedAvailable() === 0) return;
+    creatingSession = true;
+    creationPaused = false;
+    createdSessionId = null;
     try { startKitsu.currentTime = 0; } catch (_) { /* metadata may not be loaded yet */ }
-    const mascotPlayback = startKitsu.play();
-    if (mascotPlayback?.catch) mascotPlayback.catch(function () { /* poster remains visible */ });
-    startLabel.textContent = 'Kitsu-chan đang chuẩn bị…';
-    message('');
+    showPreparing(true);
+    setAction('Dừng', 'stop');
+    message('Kitsu-chan đang chuẩn bị...');
     try {
       const response = await fetch('/api/shadowing-practice/sessions', {
         method: 'POST',
@@ -129,20 +297,27 @@
         body: JSON.stringify({
           videoId: Number(videoId),
           mode: selectedMode,
-          order: order,
+          selections: selectedCombos(),
           questionCount: count.questionCount,
           allQuestions: count.allQuestions
         })
       });
       const data = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(data.message || data.error || 'Không tạo được phiên học');
-      location.href = '/shadowing/exercise/' + encodeURIComponent(data.sessionId);
+      createdSessionId = data.sessionId;
+      if (creationPaused) {
+        message('Phiên học đã sẵn sàng.');
+        return;
+      }
+      location.href = '/shadowing/exercise/' + encodeURIComponent(createdSessionId);
     } catch (error) {
+      creatingSession = false;
+      creationPaused = false;
+      createdSessionId = null;
+      showPreparing(false);
+      setAction(startText(), 'play');
+      updateAvailability();
       message(error.message || 'Không tạo được phiên học', true);
-      startButton.disabled = false;
-      startKitsu.pause();
-      startKitsu.hidden = true;
-      startLabel.textContent = selectedMode === 'CLOZE' ? 'Bắt đầu điền từ' : 'Bắt đầu điền cả câu';
     }
   });
 

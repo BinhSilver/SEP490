@@ -1,29 +1,30 @@
 /* Stitch: JLAS Flashcard UI Redesign — Komorebi Professional.
  * Feature-scoped so the shared JLAS navigation remains untouched. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 
 #jlabBasePage.flashcard-page #jlabBaseContent,
 #jlabBasePage.flashcard-page > .modal-backdrop,
 #jlabBasePage.flashcard-page > .toast {
-  --fc-surface: #f8f9ff;
+  --fc-surface: #ffffff;
   --fc-surface-lowest: #ffffff;
-  --fc-surface-low: #eff4ff;
-  --fc-surface-mid: #e5eeff;
-  --fc-surface-high: #dce9ff;
-  --fc-on-surface: #0b1c30;
-  --fc-on-variant: #464554;
-  --fc-outline: #767586;
-  --fc-outline-soft: #dce3f0;
-  --fc-primary: #4648d4;
-  --fc-primary-hover: #3739bd;
-  --fc-primary-soft: #e1e0ff;
-  --fc-primary-soft-2: #dbe2fa;
-  --fc-success: #006c49;
-  --fc-success-strong: #00885d;
-  --fc-success-soft: #d8f8e9;
+  --fc-surface-low: #eef5f7;
+  --fc-surface-mid: #eef5f7;
+  --fc-surface-high: #e9ddff;
+  --fc-on-surface: #161d1f;
+  --fc-on-variant: #494551;
+  --fc-outline: #79747e;
+  --fc-outline-soft: #cbc4d2;
+  --fc-primary: #4f378a;
+  --fc-primary-hover: #6750a4;
+  --fc-primary-soft: #e9ddff;
+  --fc-primary-soft-2: #eef5f7;
+  --fc-success: #006947;
+  --fc-success-strong: #006947;
+  --fc-success-soft: #e8f5e9;
   --fc-error: #ba1a1a;
   --fc-error-soft: #ffdad6;
-  --fc-shadow: 0 4px 20px rgba(73, 75, 214, .07);
-  --fc-shadow-hover: 0 14px 34px rgba(73, 75, 214, .14);
+  --fc-shadow: 0 4px 20px rgba(0, 0, 0, .04), 0 2px 6px rgba(0, 0, 0, .02);
+  --fc-shadow-hover: 0 16px 32px -12px rgba(0, 0, 0, .14);
   --fc-radius-sm: 8px;
   --fc-radius-md: 12px;
   --fc-radius-lg: 16px;
@@ -34,8 +35,10 @@
   min-height: calc(100vh - var(--header-height));
   color: var(--fc-on-surface);
   background: var(--fc-surface) !important;
-  font-family: "Inter", var(--font-body);
+  font-family: "Plus Jakarta Sans", var(--font-body);
 }
+
+#jlabBasePage.flashcard-page { background: #ffffff; }
 
 #jlabBasePage.flashcard-page--library #jlabBaseContent,
 #jlabBasePage.flashcard-page--editor #jlabBaseContent,
@@ -146,7 +149,7 @@
   color: #fff !important;
   background: var(--fc-primary) !important;
   border-color: var(--fc-primary) !important;
-  box-shadow: 0 5px 14px rgba(70, 72, 212, .2) !important;
+  box-shadow: 0 5px 14px rgba(79, 55, 138, .2) !important;
 }
 
 #jlabBasePage.flashcard-page #jlabBaseContent .btn-primary:hover,
@@ -154,7 +157,7 @@
   color: #fff !important;
   background: var(--fc-primary-hover) !important;
   border-color: var(--fc-primary-hover) !important;
-  box-shadow: 0 8px 18px rgba(70, 72, 212, .25) !important;
+  box-shadow: 0 8px 18px rgba(79, 55, 138, .25) !important;
   transform: translateY(-1px);
 }
 
@@ -216,7 +219,7 @@
 
 #jlabBasePage.flashcard-page #jlabBaseContent :focus-visible,
 #jlabBasePage.flashcard-page > .modal-backdrop :focus-visible {
-  outline: 3px solid rgba(70, 72, 212, .22);
+  outline: 3px solid rgba(79, 55, 138, .22);
   outline-offset: 2px;
 }
 
@@ -264,15 +267,14 @@
   margin-bottom: 40px;
   padding: 48px max(48px, calc((100vw - 1184px) / 2));
   overflow: hidden;
-  background:
-    radial-gradient(circle at 85% 10%, rgba(255,255,255,.55), transparent 28%),
-    linear-gradient(135deg, #d4e1ff, #e1e7ff 55%, #d8edfa);
-  border: 0;
+  background: var(--fc-surface-low);
+  border: 1px solid var(--fc-outline-soft);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--fc-shadow);
 }
 
 #jlabBasePage.flashcard-page--set .set-hero::after {
+  display: none;
   position: absolute;
   right: 5%;
   bottom: -55%;

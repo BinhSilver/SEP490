@@ -1,8 +1,13 @@
 package com.jlas.shadowing.controller;
 
+import com.jlas.auth.security.CurrentUser;
 import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.Subtitle;
+import com.jlas.shadowing.model.SubtitleQualityReview;
+import com.jlas.shadowing.service.SubtitleQualityReviewService;
 import com.jlas.shadowing.service.SubtitleService;
+import com.jlas.shadowing.service.VideoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +19,8 @@ import java.util.Map;
 public class SubtitleController {
 
     @Autowired private SubtitleService subtitleService;
+    @Autowired private SubtitleQualityReviewService subtitleQualityReviewService;
+    @Autowired private VideoService videoService;
 
     @PutMapping("/subtitles/{id}")
     public ResponseEntity<Subtitle> update(@PathVariable Long id, @RequestBody SubtitleUpdateRequest req) {
@@ -72,5 +79,20 @@ public class SubtitleController {
     public ResponseEntity<Map<String, String>> regenerateAll(@PathVariable Long videoId) {
         subtitleService.regenerateAllSubtitles(videoId);
         return ResponseEntity.accepted().body(Map.of("message", "Regenerating subtitles"));
+    }
+
+    @GetMapping("/videos/{videoId}/subtitle-quality")
+    public ResponseEntity<Map<Long, SubtitleQualityReview>> qualityReviews(@PathVariable Long videoId) {
+        videoService.requireOwner(videoService.getVideo(videoId));
+        return ResponseEntity.ok(subtitleQualityReviewService.getForVideo(videoId));
+    }
+
+    @PutMapping("/subtitles/{id}/quality-review/approve")
+    public ResponseEntity<SubtitleQualityReview> approveQualityReview(
+            @PathVariable Long id, @Valid @RequestBody SubtitleQualityReviewApprovalRequest request) {
+        Subtitle subtitle = subtitleService.getById(id);
+        videoService.requireOwner(subtitle.getVideo());
+        return ResponseEntity.ok(subtitleQualityReviewService.approve(
+                id, request.text(), CurrentUser.requireUserId()));
     }
 }

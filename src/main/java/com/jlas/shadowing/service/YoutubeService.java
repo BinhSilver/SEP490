@@ -487,11 +487,15 @@ public class YoutubeService {
         int code = process.exitValue();
         if (code != 0) {
             String msg = output.toString();
-            if (msg.contains("Private video") || msg.contains("private")) {
+            String lower = msg.toLowerCase(java.util.Locale.ROOT);
+            if (lower.contains("private video") || lower.contains("video is private")) {
                 throw new IllegalArgumentException("Video riêng tư — không thể truy cập.");
             }
-            if (msg.contains("Video unavailable") || msg.contains("not available")) {
-                throw new IllegalArgumentException("Video không khả dụng hoặc đã bị xóa.");
+            if (lower.contains("video unavailable") || lower.contains("video is unavailable")
+                    || lower.contains("not available") || lower.contains("has been removed")
+                    || lower.contains("not found")) {
+                throw new IllegalArgumentException(
+                        "Video YouTube này không khả dụng. Video có thể đã bị xóa, đặt riêng tư, bị giới hạn khu vực hoặc link không còn đúng. Hãy kiểm tra lại link hoặc chọn video khác.");
             }
             throw new RuntimeException("yt-dlp thất bại (mã " + code + "): " + truncate(msg, 500));
         }

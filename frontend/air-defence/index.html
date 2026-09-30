@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bắn máy bay · JLAS (dev)</title>
+    <!--
+      Chỉ dùng cho `npm run dev`. Bản chạy thật được nhúng bởi templates/air-defense/board.html.
+      Mở /arena/app/air-defense/?sid=<sessionId>&mode=SOLO|VERSUS&back=/games khi Spring Boot chạy ở cổng 8080
+      (đăng nhập ở localhost:8080 trước để có cookie).
+    -->
+    <script src="http://localhost:8080/js/auth-session.js"></script>
+    <script src="http://localhost:8080/arena/js/arena-client.js"></script>
+  </head>
+  <body>
+    <div id="air-defense-root" aria-label="Khu vực trò chơi Bắn máy bay"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

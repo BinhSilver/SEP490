@@ -1,43 +1,22 @@
 package com.jlas.dictionary.mapper;
 
-import com.jlas.dictionary.dto.ContentAudioResponse;
-import com.jlas.dictionary.dto.DialogueChunkResponse;
-import com.jlas.dictionary.dto.DialogueLineResponse;
-import com.jlas.dictionary.dto.DialogueRoleResponse;
-import com.jlas.dictionary.dto.ExampleSentenceResponse;
-import com.jlas.dictionary.dto.GrammarPointResponse;
-import com.jlas.dictionary.dto.KanjiReadingResponse;
-import com.jlas.dictionary.dto.KanjiResponse;
-import com.jlas.dictionary.dto.KanjiWordResponse;
-import com.jlas.dictionary.dto.LessonContentResponse;
-import com.jlas.dictionary.dto.LessonSummaryResponse;
-import com.jlas.dictionary.dto.LessonVocabularyResponse;
-import com.jlas.dictionary.dto.TextbookResponse;
-import com.jlas.dictionary.dto.TopicLessonResponse;
-import com.jlas.dictionary.dto.TopicResponse;
-import com.jlas.dictionary.dto.UnitResponse;
-import com.jlas.dictionary.entity.ContentAudio;
-import com.jlas.dictionary.entity.ContentItem;
-import com.jlas.dictionary.entity.ContentVoice;
-import com.jlas.dictionary.entity.DialogueLineChunk;
-import com.jlas.dictionary.entity.DialogueLineDetail;
-import com.jlas.dictionary.entity.DialogueRole;
-import com.jlas.dictionary.entity.GrammarPoint;
-import com.jlas.dictionary.entity.Kanji;
-import com.jlas.dictionary.entity.KanjiReading;
-import com.jlas.dictionary.entity.Lesson;
-import com.jlas.dictionary.entity.Radical;
-import com.jlas.dictionary.entity.Tag;
-import com.jlas.dictionary.entity.Textbook;
-import com.jlas.dictionary.entity.Unit;
-import com.jlas.dictionary.entity.VocabularyEntry;
+import com.jlas.dictionary.dto.*;
+import com.jlas.dictionary.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Mapper chuyển đổi giữa Dictionary entities và DTO. */
+/**
+ * Mapper chuyển đổi giữa Dictionary entities và DTO.
+ * Chỉ map entity đơn lẻ -> DTO; việc gom nhóm sense/gloss/kanji-composition theo lô
+ * (để tránh N+1) thuộc trách nhiệm của DictionaryServiceImpl.
+ */
 @Component
 public class DictionaryMapper {
+
+    // =====================================================================
+    // Duyệt giáo trình đã số hoá (textbook / unit / topic / lesson content)
+    // =====================================================================
 
     public TextbookResponse toTextbookResponse(Textbook textbook, Long unitCount) {
         if (textbook == null) return null;
@@ -132,7 +111,7 @@ public class DictionaryMapper {
                 .build();
     }
 
-    /** Kanji kèm bộ thủ (yêu cầu đã fetch join radical); readings/words do service gắn. */
+    /** Kanji trong bài học giáo trình, kèm bộ thủ phẳng (yêu cầu đã fetch join radical); readings/words do service gắn. */
     public KanjiResponse toKanjiResponse(Kanji kanji, List<KanjiReadingResponse> readings, List<KanjiWordResponse> words) {
         if (kanji == null) return null;
         Radical radical = kanji.getRadical();
@@ -142,22 +121,13 @@ public class DictionaryMapper {
                 .unicodeCode(kanji.getUnicodeCode())
                 .meaning(kanji.getMeaningVi())
                 .hanViet(kanji.getHanViet())
-                .strokeCount(kanji.getStrokeCount())
+                .strokeCount(kanji.getStrokeCount() == null ? null : kanji.getStrokeCount().intValue())
                 .jlptLevel(kanji.getJlptLevel())
                 .radicalNumber(radical != null ? radical.getRadicalNumber() : null)
                 .radicalCharacter(radical != null ? radical.getCharacter() : null)
                 .radicalNameVi(radical != null ? radical.getNameVi() : null)
                 .readings(readings)
                 .words(words)
-                .build();
-    }
-
-    public KanjiReadingResponse toKanjiReadingResponse(KanjiReading reading) {
-        if (reading == null) return null;
-        return KanjiReadingResponse.builder()
-                .readingType(reading.getReadingType())
-                .readingText(reading.getReadingText())
-                .isCommon(reading.getIsCommon()) // gợi ý thứ tự học, không phải tần suất
                 .build();
     }
 
@@ -280,6 +250,106 @@ public class DictionaryMapper {
                 .bubbleY(detail.getBubbleY())
                 .chunks(chunks)
                 .audios(audios)
+                .build();
+    }
+
+    // =====================================================================
+    // Tra cứu từ điển (search / vocabulary / kanji detail / history)
+    // =====================================================================
+
+    /** Kanji cho trang tra từ điển, kèm bộ thủ lồng và SVG thứ tự nét. */
+    public KanjiResponse toKanjiResponse(Kanji kanji, List<KanjiReadingResponse> readings) {
+        return KanjiResponse.builder()
+                .id(kanji.getId())
+                .character(kanji.getCharacter())
+                .unicodeCode(kanji.getUnicodeCode())
+                .strokeCount(kanji.getStrokeCount() == null ? null : kanji.getStrokeCount().intValue())
+                .hanViet(kanji.getHanViet())
+                .meaningVi(kanji.getMeaningVi())
+                .jlptLevel(kanji.getJlptLevel())
+                .strokeSvgUri(kanji.getStrokeSvgUri())
+                .radical(toRadicalResponse(kanji.getRadical()))
+                .readings(readings == null ? List.of() : readings)
+                .build();
+    }
+
+    public RadicalResponse toRadicalResponse(Radical radical) {
+        if (radical == null) return null;
+        return RadicalResponse.builder()
+                .radicalNumber(radical.getRadicalNumber() == null ? null : radical.getRadicalNumber().intValue())
+                .character(radical.getCharacter())
+                .nameJa(radical.getNameJa())
+                .nameVi(radical.getNameVi())
+                .meaningVi(radical.getMeaningVi())
+                .strokeCount(radical.getStrokeCount() == null ? null : radical.getStrokeCount().intValue())
+                .build();
+    }
+
+    /** Dùng chung cho cả hai trang: gán cả {@code isCommon} (giáo trình) lẫn {@code common} (từ điển). */
+    public KanjiReadingResponse toKanjiReadingResponse(KanjiReading reading) {
+        if (reading == null) return null;
+        return KanjiReadingResponse.builder()
+                .readingType(reading.getReadingType())
+                .readingText(reading.getReadingText())
+                .isCommon(reading.getIsCommon()) // gợi ý thứ tự học, không phải tần suất
+                .common(Boolean.TRUE.equals(reading.getIsCommon()))
+                .build();
+    }
+
+    public VocabularyResponse toVocabularyResponse(VocabularyEntry entry,
+                                                     List<SenseResponse> senses,
+                                                     List<KanjiCompositionResponse> composition) {
+        return VocabularyResponse.builder()
+                .id(entry.getId())
+                .expression(entry.getExpression())
+                .reading(entry.getReading())
+                .readingRomaji(entry.getReadingRomaji())
+                .meaning(entry.getMeaning())
+                .wordType(entry.getWordType())
+                .jlptLevel(entry.getJlptLevel())
+                .exampleJa(entry.getExampleJa())
+                .exampleVi(entry.getExampleVi())
+                .usageScope(entry.getUsageScope())
+                .senses(senses == null ? List.of() : senses)
+                .kanjiComposition(composition == null ? List.of() : composition)
+                .build();
+    }
+
+    public SenseResponse toSenseResponse(VocabularySense sense, List<String> partsOfSpeech,
+                                          List<String> domains, List<GlossResponse> glosses) {
+        return SenseResponse.builder()
+                .senseOrder(sense.getSenseOrder() == null ? null : sense.getSenseOrder().intValue())
+                .usageNote(sense.getUsageNote())
+                .partsOfSpeech(partsOfSpeech == null ? List.of() : partsOfSpeech)
+                .domains(domains == null ? List.of() : domains)
+                .glosses(glosses == null ? List.of() : glosses)
+                .build();
+    }
+
+    public GlossResponse toGlossResponse(VocabularyGloss gloss) {
+        return GlossResponse.builder()
+                .languageCode(gloss.getLanguageCode())
+                .text(gloss.getGlossText())
+                .build();
+    }
+
+    public KanjiCompositionResponse toKanjiCompositionResponse(VocabularyKanji vocabularyKanji) {
+        return KanjiCompositionResponse.builder()
+                .position(vocabularyKanji.getId().getCharacterPosition())
+                .character(vocabularyKanji.getKanji().getCharacter())
+                .jlptLevel(vocabularyKanji.getKanji().getJlptLevel())
+                .build();
+    }
+
+    public SearchHistoryResponse toHistoryResponse(DictionarySearchHistory history) {
+        return SearchHistoryResponse.builder()
+                .id(history.getId())
+                .queryText(history.getQueryText())
+                .searchMode(history.getSearchMode())
+                .resultCount(history.getResultCount())
+                .searchedAt(history.getSearchedAt())
+                .selectedVocabularyId(history.getSelectedVocabulary() == null
+                        ? null : history.getSelectedVocabulary().getId())
                 .build();
     }
 }

@@ -643,6 +643,79 @@ CREATE TABLE sense_domain (
         REFERENCES dictionary_domain(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Nguon du lieu tu dien/Kanji. Them nguon moi bang du lieu, khong tao bang rieng.
+CREATE TABLE dictionary_source (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code         VARCHAR(50) NOT NULL,
+    name         VARCHAR(255) NOT NULL,
+    source_url   VARCHAR(1000) NULL,
+    license_name VARCHAR(255) NULL,
+    license_url  VARCHAR(1000) NULL,
+    is_active    TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dictionary_source_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Audit mot lan chay importer. Counter tinh theo source record, khong theo row SQL.
+CREATE TABLE dictionary_import_batch (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    source_id        BIGINT UNSIGNED NOT NULL,
+    source_version   VARCHAR(255) NULL,
+    source_checksum  CHAR(64) NOT NULL,
+    status           VARCHAR(30) NOT NULL,
+    started_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    completed_at     DATETIME(6) NULL,
+    total_records    BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    inserted_records BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    updated_records  BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    skipped_records  BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    failed_records   BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    error_message    VARCHAR(2000) NULL,
+    PRIMARY KEY (id),
+    KEY idx_dictionary_import_identity
+        (source_id, source_version, source_checksum, status),
+    CONSTRAINT fk_dictionary_import_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id),
+    CONSTRAINT chk_dictionary_import_status CHECK
+        (status IN ('RUNNING','COMPLETED','COMPLETED_WITH_ERRORS','FAILED','SKIPPED')),
+    CONSTRAINT chk_dictionary_import_counters CHECK
+        (total_records >= 0 AND inserted_records >= 0 AND updated_records >= 0
+         AND skipped_records >= 0 AND failed_records >= 0),
+    CONSTRAINT chk_dictionary_import_completion CHECK
+        (completed_at IS NULL OR completed_at >= started_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ID on dinh cua vocabulary tai tung nguon; JMdict dung ent_seq.
+CREATE TABLE vocabulary_external_reference (
+    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    vocabulary_id     BIGINT UNSIGNED NOT NULL,
+    source_id         BIGINT UNSIGNED NOT NULL,
+    external_entry_id VARCHAR(255) NOT NULL,
+    imported_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                      ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_vocabulary_external_source (source_id, external_entry_id),
+    KEY idx_vocabulary_external_vocabulary (vocabulary_id),
+    CONSTRAINT fk_vocabulary_external_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_external_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO dictionary_source
+    (code, name, source_url, license_name, license_url, is_active)
+VALUES
+    ('JMDICT', 'JMdict', 'https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('KANJIDIC2', 'KANJIDIC2', 'https://www.edrdg.org/wiki/KANJIDIC_Project.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('KANJIVG', 'KanjiVG', 'https://kanjivg.tagaini.net/',
+     'Creative Commons Attribution-ShareAlike 3.0',
+     'https://creativecommons.org/licenses/by-sa/3.0/', 1);
+
 -- Lich su tra cuu dung chung cho moi truy van tu dien.
 -- Khi user chon Kanji/tu trong hop nhan dien, frontend xoa net ve, dua gia tri
 -- da chon len thanh tim kiem va chay luong tra tu dien; bang nay chi ghi truy
@@ -2560,6 +2633,11 @@ CREATE TABLE user_credit_transaction (
     note           VARCHAR(200) NULL,
     created_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    -- NOTE (JLAS-W0127): Unique backstop so two concurrent awards of the same reference
+    -- cannot double-credit (the app also locks the user row before the idempotency check).
+    -- NULL reference_type/reference_id are treated as distinct, so reason-only awards
+    -- (reference columns NULL) still apply every time.
+    UNIQUE KEY uk_credit_transaction_reference (user_id, reason, reference_type, reference_id),
     KEY idx_credit_user_created (user_id, created_at),
     KEY idx_credit_reference (reference_type, reference_id),
     CONSTRAINT fk_credit_transaction_user FOREIGN KEY (user_id)
@@ -2704,7 +2782,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -2855,6 +2933,31 @@ CREATE TABLE user_permanent_upgrades (
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_upgrade_ship FOREIGN KEY (equipped_ship_id)
         REFERENCES air_defense_spaceships(ship_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Cua hang Tro choi (migration 009): trang phuc meo / may bay mua bang CP chung.
+-- Danh muc mon nam trong code (GameShopCatalog); hai bang nay luu mon da mua va mon dang dung.
+-- Mon thuoc game nao suy ra tu item_code qua GameShopCatalog nen user_game_item khong luu game_type (3NF).
+CREATE TABLE user_game_item (
+    user_id      BIGINT UNSIGNED NOT NULL,
+    item_code    VARCHAR(40) NOT NULL,
+    price_paid   INT NOT NULL DEFAULT 0,
+    purchased_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, item_code),
+    CONSTRAINT fk_user_game_item_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_user_game_item_price CHECK (price_paid >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE user_game_loadout (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    game_type  VARCHAR(20) NOT NULL,
+    item_code  VARCHAR(40) NOT NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+               ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, game_type),
+    CONSTRAINT fk_user_game_loadout_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================

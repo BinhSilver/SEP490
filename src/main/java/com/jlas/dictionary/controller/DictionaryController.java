@@ -1,39 +1,86 @@
 package com.jlas.dictionary.controller;
 
 import com.jlas.auth.dto.ApiResponse;
+import com.jlas.auth.security.UserPrincipal;
+import com.jlas.dictionary.dto.HandwritingRequest;
+import com.jlas.dictionary.dto.KanjiResponse;
 import com.jlas.dictionary.dto.LessonContentResponse;
 import com.jlas.dictionary.dto.LessonSummaryResponse;
+import com.jlas.dictionary.dto.SearchHistoryResponse;
+import com.jlas.dictionary.dto.SearchResultResponse;
 import com.jlas.dictionary.dto.TextbookResponse;
 import com.jlas.dictionary.dto.TextbookUnitsResponse;
 import com.jlas.dictionary.dto.TopicLessonsResponse;
 import com.jlas.dictionary.dto.TopicResponse;
 import com.jlas.dictionary.dto.UpdateStatusRequest;
+import com.jlas.dictionary.dto.VocabularyResponse;
+import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
 import com.jlas.dictionary.service.DictionaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Controller xử lý các API từ điển và duyệt sách đã số hoá.
+ * Controller xử lý các API từ điển (Dictionary Search / Kanji Search / Vocabulary Search — cũng là API
+ * dùng cho Global Search, mục 10 JLAS2-34) và duyệt sách đã số hoá.
  * Base path: /api/dictionary
  * <p>
- * GET /api/dictionary/** đang permitAll trong SecurityConfig; quyền xem DRAFT/PUBLISHED
- * do service quyết định theo role của người gọi (CONTENT_CREATOR thấy tất cả, còn lại — kể cả ADMIN — chỉ PUBLISHED).
+ * GET /api/dictionary/** đang permitAll trong SecurityConfig; quyền xem DRAFT/PUBLISHED của nội dung
+ * giáo trình do service quyết định theo role của người gọi (CONTENT_CREATOR thấy tất cả, còn lại — kể cả
+ * ADMIN — chỉ PUBLISHED).
  */
 @RestController
 @RequestMapping("/api/dictionary")
 @RequiredArgsConstructor
 public class DictionaryController {
     private final DictionaryService dictionaryService;
+    private final HandwritingRateLimiter handwritingRateLimiter;
+
+    // ---------------------------------------------------------------------
+    // Tra cứu từ điển
+    // ---------------------------------------------------------------------
+
+    @GetMapping("/search")
+    public ApiResponse<SearchResultResponse> search(
+            @RequestParam("q") String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", dictionaryService.search(query, page, size, id(user)));
+    }
+
+    @GetMapping("/vocabulary/{id}")
+    public ApiResponse<VocabularyResponse> vocabularyDetail(@PathVariable Long id) {
+        return ApiResponse.ok("OK", dictionaryService.getVocabularyDetail(id));
+    }
+
+    @GetMapping("/kanji/{character}")
+    public ApiResponse<KanjiResponse> kanjiDetail(@PathVariable String character) {
+        return ApiResponse.ok("OK", dictionaryService.getKanjiDetail(character));
+    }
+
+    /** Nhận diện Kanji vẽ tay theo thời gian thực; FE gọi sau mỗi nét (đã debounce), không gọi theo mousemove. */
+    @PostMapping("/handwriting/recognize")
+    public ApiResponse<List<KanjiResponse>> recognizeHandwriting(
+            @Valid @RequestBody HandwritingRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        handwritingRateLimiter.check(id(user));
+        return ApiResponse.ok("OK", dictionaryService.recognizeHandwriting(request));
+    }
+
+    @GetMapping("/history")
+    public ApiResponse<List<SearchHistoryResponse>> history(@AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", dictionaryService.getRecentHistory(id(user)));
+    }
+
+    // ---------------------------------------------------------------------
+    // Duyệt giáo trình đã số hoá
+    // ---------------------------------------------------------------------
 
     /** GET /api/dictionary/textbooks — danh sách giáo trình kèm jlpt_level và số unit. */
     @GetMapping("/textbooks")
@@ -84,5 +131,9 @@ public class DictionaryController {
     @GetMapping("/lessons/{id}/content")
     public ResponseEntity<ApiResponse<LessonContentResponse>> getLessonContent(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("OK", dictionaryService.getLessonContent(id)));
+    }
+
+    private Long id(UserPrincipal user) {
+        return user == null ? null : user.userId();
     }
 }

@@ -56,9 +56,17 @@
     window.location.replace('/login?redirect=' + encodeURIComponent(returnUrl));
   }
 
+  function redirectToAppealWhenBanned(response) {
+    if (!response || response.status !== 403 || window.location.pathname === '/appeal.html') return;
+    response.clone().json().then(function (body) {
+      if (body && body.code === 'ACCOUNT_BANNED') window.location.replace('/appeal.html');
+    }).catch(function () {});
+  }
+
   window.fetch = function () {
     return nativeFetch.apply(window, arguments).then(function (response) {
       redirectToLoginAfterUnauthorized(response);
+      redirectToAppealWhenBanned(response);
       return response;
     });
   };
@@ -161,6 +169,8 @@
       if (!user || !user.role) return 'Học viên';
       if (user.role === 'PREMIUM') return 'Thành viên Pro';
       if (user.role === 'ADMIN') return 'Quản trị viên';
+      if (user.role === 'SUPER_ADMIN') return 'Quản trị cấp cao';
+      if (user.role === 'MODERATOR') return 'Kiểm duyệt viên';
       if (user.role === 'CONTENT_CREATOR') return 'Người biên soạn';
       return 'Học viên';
     },

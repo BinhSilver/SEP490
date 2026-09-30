@@ -7,6 +7,8 @@ public class WatchRequest {
     private String clientId;
     private Double currentTime;
     private Double duration;
-    /** Optional — id user đang đăng nhập (cho BR-03 creator reward). */
+    /** Seconds actually played since the last acknowledged ping (seeks excluded). */
+    private Double listenedSec;
+    /** Unused: the viewer comes from the session. Kept for older clients. */
     private Long userId;
 }

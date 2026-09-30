@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
+<body id="jlabBasePage" class="app-body onyomi-body">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="oy-page"
+      th:with="done=${lesson.status == 'COMPLETED'}">
+    <div class="oy-lesson-layout">
+        <aside class="oy-sidebar" aria-label="Mục lục bài học">
+            <span class="oy-sidebar__title" th:text="'Giai đoạn ' + ${lesson.stageOrder} + ' · Bài ' + ${lesson.order}">Bài 1</span>
+            <nav>
+                <ul>
+                    <li><a href="#s-rules"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Quy tắc</a></li>
+                    <li><a href="#s-flashcards"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Thẻ ghi nhớ</a></li>
+                    <li><a href="#s-quiz"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Luyện tập</a></li>
+                    <li><a href="#s-summary"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Tổng kết</a></li>
+                </ul>
+            </nav>
+            <div class="oy-panel oy-sidebar__status">
+                <span data-lesson-status class="oy-pill"
+                      th:classappend="${done} ? 'oy-pill--done' : 'oy-pill--active'"
+                      th:text="${done} ? 'Hoàn thành' : 'Đang học'">Đang học</span>
+                <span th:if="${lesson.bestScore != null}" th:text="'Điểm luyện tập cao nhất: ' + ${lesson.bestScore} + '%'">80%</span>
+                <span th:unless="${done}">Đạt từ 60% ở phần Luyện tập để hoàn thành bài.</span>
+            </div>
+        </aside>
+
+        <div class="oy-lesson-main">
+            <nav class="oy-breadcrumb" aria-label="Breadcrumb">
+                <a th:href="@{/learning/onyomi}">Onyomi</a>
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                <span th:text="'Giai đoạn ' + ${lesson.stageOrder}">Giai đoạn 1</span>
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                <span aria-current="page" th:text="'Bài ' + ${lesson.order}">Bài 1</span>
+            </nav>
+
+            <header class="oy-panel oy-lesson-hero">
+                <span class="oy-eyebrow" th:text="${lesson.stageTitle}">Giai đoạn 1: Âm đầu</span>
+                <h1 th:text="${lesson.title}">Âm đầu C, K, QU → K</h1>
+                <p th:text="${lesson.description}">Mô tả bài học.</p>
+                <ul class="oy-facts">
+                    <li><i class="fa-solid fa-diagram-project" aria-hidden="true"></i><span th:text="${#lists.size(lesson.rules)} + ' quy tắc'">3 quy tắc</span></li>
+                    <li><i class="fa-solid fa-book-bookmark" aria-hidden="true"></i><span th:text="${lesson.exampleCount} + ' ví dụ'">15 ví dụ</span></li>
+                    <li th:if="${lesson.practiceQuestionCount > 0}"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span th:text="${lesson.practiceQuestionCount} + ' câu luyện tập mỗi lượt'">20 câu</span></li>
+                    <li th:if="${lesson.estimatedMinutes != null}"><i class="fa-regular fa-clock" aria-hidden="true"></i><span th:text="${lesson.estimatedMinutes} + ' phút'">20 phút</span></li>
+                </ul>
+            </header>
+
+            <section class="oy-section" id="s-rules" aria-labelledby="s-rules-title">
+                <div class="oy-section__head">
+                    <h2 id="s-rules-title">Quy tắc</h2>
+                    <p>Nhận ra phần Hán Việt, đổi sang phần âm On tương ứng.</p>
+                </div>
+                <div class="oy-rules">
+                    <article th:each="rule : ${lesson.rules}" class="oy-panel oy-rule">
+                        <div>
+                            <div class="oy-rule__map" aria-hidden="true">
+                                <div class="oy-rule__sound"><strong th:text="${rule.sourceSound}">C</strong><span>Hán Việt</span></div>
+                                <i class="fa-solid fa-arrow-right oy-rule__arrow"></i>
+                                <div class="oy-rule__sound oy-rule__sound--target"><strong th:text="${rule.targetSound}">K</strong><span>Âm On</span></div>
+                            </div>
+                            <h3 th:text="${rule.title}">Âm đầu C → K</h3>
+                            <p class="oy-rule__desc" th:text="${rule.description}">Mô tả quy tắc.</p>
+                            <ol class="oy-steps" th:if="${!#lists.isEmpty(rule.steps)}">
+                                <li th:each="step : ${rule.steps}">
+                                    <strong th:text="${step.title}">Nhận diện</strong>
+                                    <span th:text="${step.content}">Nội dung</span>
+                                </li>
+                            </ol>
+                        </div>
+                        <div>
+                            <p class="oy-subhead">Ví dụ</p>
+                            <ul class="oy-examples">
+                                <li th:each="ex, stat : ${rule.examples}" th:if="${stat.index < 4}" class="oy-example">
+                                    <span class="oy-example__kanji" lang="ja" th:text="${ex.kanji}">工</span>
+                                    <span class="oy-example__hv"><span th:text="${ex.hanViet}">Công</span>
+                                        <small th:if="${ex.word != null}" th:text="${ex.word} + ' · ' + ${ex.meaning}">工場 · nhà máy</small></span>
+                                    <span class="oy-example__reading" lang="ja"><span th:text="${ex.reading}">コウ</span><small th:text="${ex.romaji}">kou</small></span>
+                                    <button type="button" class="oy-speak" th:attr="data-speak=${ex.reading},aria-label=${'Nghe ' + ex.reading}">
+                                        <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                            <th:block th:if="${!#lists.isEmpty(rule.exceptions)}">
+                                <p class="oy-subhead">Ngoại lệ</p>
+                                <ul class="oy-examples">
+                                    <li th:each="ex : ${rule.exceptions}" class="oy-example oy-example--exception">
+                                        <span class="oy-example__kanji" lang="ja" th:text="${ex.kanji}">和</span>
+                                        <span class="oy-example__hv"><span th:text="${ex.hanViet}">Hòa</span>
+                                            <small th:if="${ex.note != null}" th:text="${ex.note}">Ghi chú</small></span>
+                                        <span class="oy-example__reading" lang="ja"><span th:text="${ex.reading}">ワ</span><small th:text="${ex.romaji}">wa</small></span>
+                                        <button type="button" class="oy-speak" th:attr="data-speak=${ex.reading},aria-label=${'Nghe ' + ex.reading}">
+                                            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </th:block>
+                            <div class="oy-tip" th:if="${rule.tip != null}"><strong>Mẹo nhớ:</strong> <span th:text="${rule.tip}">Mẹo</span></div>
+                            <div class="oy-tip" th:if="${rule.note != null}"><strong>Lưu ý:</strong> <span th:text="${rule.note}">Lưu ý</span></div>
+                            <p style="margin-top:16px">
+                                <a class="oy-rule__link" th:href="@{/learning/onyomi/rules/{id}(id=${rule.ruleId})}">
+                                    Xem đủ <span th:text="${#lists.size(rule.examples)}">8</span> ví dụ
+                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="oy-section" id="s-flashcards" aria-labelledby="s-flashcards-title">
+                <div class="oy-section__head">
+                    <h2 id="s-flashcards-title">Thẻ ghi nhớ</h2>
+                    <p>Nhìn chữ và âm Hán Việt, tự đoán âm On rồi lật thẻ để kiểm tra.</p>
+                </div>
+                <div class="oy-cards" data-flashcards tabindex="0" aria-label="Thẻ ghi nhớ, dùng phím mũi tên để chuyển thẻ">
+                    <ul class="oy-card-list">
+                        <th:block th:each="rule : ${lesson.rules}">
+                            <li th:each="ex : ${rule.examples}" class="oy-card" th:data-reading="${ex.reading}">
+                                <button type="button" class="oy-card__flip" aria-pressed="false">
+                                    <span class="oy-card__inner">
+                                        <span class="oy-panel oy-card__face">
+                                            <span class="oy-card__label">Hán Việt</span>
+                                            <span class="oy-card__kanji" lang="ja" th:text="${ex.kanji}">工</span>
+                                            <span class="oy-card__hv" th:text="${ex.hanViet}">Công</span>
+                                            <span class="oy-card__meta" th:text="${rule.sourceSound} + ' → ?'">C → ?</span>
+                                            <span class="oy-card__hint">Nhấn để lật thẻ</span>
+                                        </span>
+                                        <span class="oy-panel oy-card__face oy-card__face--back">
+                                            <span class="oy-card__label">Âm On</span>
+                                            <span class="oy-card__kanji" lang="ja" th:text="${ex.kanji}">工</span>
+                                            <span class="oy-card__reading" lang="ja" th:text="${ex.reading}">コウ</span>
+                                            <span class="oy-card__meta" th:text="${ex.romaji} + ' · ' + ${rule.sourceSound} + ' → ' + ${rule.targetSound}">kou · C → K</span>
+                                            <span class="oy-card__meta" th:if="${ex.word != null}" lang="ja"
+                                                  th:text="${ex.word} + ' ' + ${ex.wordReading} + ': ' + ${ex.meaning}">工場 こうじょう: nhà máy</span>
+                                        </span>
+                                    </span>
+                                </button>
+                            </li>
+                        </th:block>
+                    </ul>
+                    <div class="oy-cards__controls">
+                        <button type="button" class="oy-button" data-card="prev" aria-label="Thẻ trước"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                        <span class="oy-cards__counter" data-card-counter>1 / 1</span>
+                        <button type="button" class="oy-button" data-card="next" aria-label="Thẻ tiếp"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                        <button type="button" class="oy-speak" data-card-speak aria-label="Nghe âm On của thẻ đang xem">
+                            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="oy-section" id="s-quiz" aria-labelledby="s-quiz-title">
+                <div class="oy-section__head">
+                    <h2 id="s-quiz-title">Luyện tập</h2>
+                    <p>Đọc các từ có chữ Hán của bài, dùng quy tắc vừa học. Đạt từ 60% để hoàn thành bài và mở bài tiếp theo.</p>
+                </div>
+                <div class="oy-quiz" data-onyomi-quiz data-kind="practice"
+                     th:data-start-url="@{/api/learning/quizzes/lessons/{id}/start(id=${lesson.lessonId})}"
+                     th:data-title="${done ? 'Luyện tập thêm' : 'Bài luyện tập'}"
+                     th:data-intro="${lesson.practiceQuestionCount + ' câu: chọn cách đọc đúng của từ. Mỗi câu được chấm ngay khi bạn trả lời.'}"
+                     th:data-start-label="${done ? 'Luyện lượt mới' : 'Bắt đầu luyện tập'}">
+                    <div class="oy-panel oy-quiz__state">Đang tải…</div>
+                </div>
+            </section>
+
+            <section class="oy-section" id="s-summary" aria-labelledby="s-summary-title">
+                <div class="oy-section__head">
+                    <h2 id="s-summary-title">Tổng kết</h2>
+                </div>
+                <div class="oy-panel oy-summary">
+                    <p><strong>Bạn vừa học</strong></p>
+                    <ul>
+                        <li th:each="rule : ${lesson.rules}" th:text="${rule.title}">Âm đầu C → K</li>
+                    </ul>
+                    <div class="oy-summary__next">
+                        <a th:if="${lesson.previous != null}" class="oy-button"
+                           th:href="@{/learning/onyomi/lessons/{id}(id=${lesson.previous.lessonId})}">
+                            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Bài trước
+                        </a>
+
+                        <th:block th:if="${lesson.lastInStage}">
+                            <a th:if="${lesson.finalUnlocked}" class="oy-button oy-button--primary"
+                               th:href="@{/learning/onyomi/stages/{id}/final(id=${lesson.unitId})}">
+                                <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Làm bài kiểm tra cuối giai đoạn
+                            </a>
+                            <a th:unless="${lesson.finalUnlocked}" class="oy-button oy-button--primary"
+                               aria-disabled="true" tabindex="-1" data-unlock-on="practice"
+                               th:attr="data-href=@{/learning/onyomi/stages/{id}/final(id=${lesson.unitId})}">
+                                <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Làm bài kiểm tra cuối giai đoạn
+                            </a>
+                        </th:block>
+
+                        <th:block th:if="${!lesson.lastInStage and lesson.next != null}">
+                            <a th:if="${lesson.next.unlocked}" class="oy-button oy-button--primary"
+                               th:href="@{/learning/onyomi/lessons/{id}(id=${lesson.next.lessonId})}">
+                                Bài tiếp theo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                            <a th:unless="${lesson.next.unlocked}" class="oy-button oy-button--primary"
+                               aria-disabled="true" tabindex="-1" data-unlock-on="practice"
+                               th:attr="data-href=@{/learning/onyomi/lessons/{id}(id=${lesson.next.lessonId})}">
+                                Bài tiếp theo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </th:block>
+
+                        <a class="oy-button" th:href="@{/learning/onyomi}">
+                            <i class="fa-solid fa-route" aria-hidden="true"></i> Về lộ trình
+                        </a>
+                    </div>
+                    <p class="oy-summary__hint" data-unlock-hint="practice"
+                       th:if="${(lesson.lastInStage and !lesson.finalUnlocked) or (!lesson.lastInStage and lesson.next != null and !lesson.next.unlocked)}"
+                       th:text="${lesson.lastInStage} ? 'Vượt qua phần Luyện tập (từ 60%) để mở bài kiểm tra cuối giai đoạn.' : 'Vượt qua phần Luyện tập (từ 60%) để mở bài tiếp theo.'">
+                        Vượt qua phần Luyện tập để mở bài tiếp theo.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/pages/onyomi-page.js}"></script>
+<script th:src="@{/js/pages/onyomi-quiz.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

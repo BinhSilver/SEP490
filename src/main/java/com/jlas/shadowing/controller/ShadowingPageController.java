@@ -19,6 +19,14 @@ public class ShadowingPageController {
         return "shadowing/upload";
     }
 
+    /** Compatibility for an early processing-page redirect. */
+    @GetMapping("/shadowing/create")
+    public String legacyCreate(@RequestParam(value = "cancelled", required = false) Boolean cancelled) {
+        return Boolean.TRUE.equals(cancelled)
+                ? "redirect:/shadowing/upload?cancelled=1"
+                : "redirect:/shadowing/upload";
+    }
+
     @GetMapping("/shadowing/create/{id}/processing")
     public String processing(@PathVariable Long id, Model model) {
         model.addAttribute("videoId", id);
@@ -29,6 +37,12 @@ public class ShadowingPageController {
     public String editor(@PathVariable Long id, Model model) {
         model.addAttribute("videoId", id);
         return "shadowing/editor";
+    }
+
+    @GetMapping("/shadowing/prepare/{id}")
+    public String prepare(@PathVariable Long id, Model model) {
+        model.addAttribute("videoId", id);
+        return "shadowing/preparation";
     }
 
     @GetMapping("/shadowing/practice/{id}")
@@ -52,6 +66,11 @@ public class ShadowingPageController {
         }
         model.addAttribute("videoId", id);
         return "shadowing/player";
+    }
+
+    @GetMapping("/shadowing/progress")
+    public String progress() {
+        return "shadowing/progress";
     }
 
     @GetMapping("/shadowing/series/{id}")

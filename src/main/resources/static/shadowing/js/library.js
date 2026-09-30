@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const sortSelect = document.getElementById('sort-select');
     const categoryFilter = document.getElementById('category-filter');
+    const levelFilter = document.getElementById('level-filter');
     const scopeBtns = document.querySelectorAll('[data-scope]');
     const statusTabs = document.getElementById('status-tabs');
     const statusBtns = document.querySelectorAll('[data-status]');
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clientId = getClientId();
 
     let currentScope = 'public'; // public | my | favorites
-    let currentStatus = '';     // '' | READY | DRAFT | PROCESSING
+    let currentStatus = '';     // '' | READY | DRAFT | PROCESSING | FAILED
     let allVideos = [];
     let searchTimer = null;
 
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sortSelect?.addEventListener('change', loadVideos);
     categoryFilter?.addEventListener('change', loadVideos);
+    levelFilter?.addEventListener('change', loadVideos);
 
     async function loadVideos() {
         const q = (searchInput?.value || '').trim();
@@ -75,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams({ clientId, sort });
         if (q) params.set('q', q);
         if (category) params.set('category', category);
+        if (levelFilter?.value) params.set('level', levelFilter.value);
 
         if (currentScope === 'favorites') {
             params.set('scope', 'public');
@@ -189,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 PROCESSING: '<span class="badge badge-processing">Đang xử lý</span>',
                 DRAFT: '<span class="badge badge-draft">Bản nháp</span>',
                 READY: '<span class="badge badge-ready">Sẵn sàng</span>',
-                FAILED: '<span class="badge badge-failed">Lỗi</span>'
+                FAILED: '<span class="badge badge-failed">Đã dừng / lỗi</span>'
             }[v.status] || '';
 
             const visBadge = v.visibility === 'PUBLIC'
@@ -198,13 +201,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const category = getCategoryLabel(v.category || (v.tags && v.tags[0]) || 'Daily');
             const levelBadge = v.estimatedLevel
-                ? `<span class="badge badge-primary">${esc(v.estimatedLevel)} · ${v.levelSource === 'AI' ? 'AI' : 'người tạo'}</span>`
+                ? `<span class="card-level-badge" title="Cấp độ JLPT">${esc(v.estimatedLevel)}</span>`
                 : '';
             const canManage = !!v.ownedByMe;
 
             card.innerHTML = `
                 <div class="video-card-thumb">
                     ${thumbHtml}
+                    ${levelBadge}
                     <button class="card-fav-btn ${v.favorited ? 'favorited' : ''}" title="Yêu thích">
                         <i class="${v.favorited ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                     </button>
@@ -214,12 +218,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${statusBadge}
                     ${canManage || currentScope === 'public' ? visBadge : ''}
                     <span class="badge badge-category"><i class="fa-solid fa-folder"></i> ${esc(category)}</span>
-                    ${levelBadge}
                     <span class="badge badge-lesson"><i class="fa-solid fa-closed-captioning"></i> ${v.subtitleCount || 0} câu</span>
                 </div>
                 <div class="video-card-stats">
                     <div class="card-avg-rating" data-avg-rating title="Độ nổi bật (trung bình sao)"></div>
-                    <span class="caption" title="Lượt xem: nghe ≥ 80% thời lượng (mỗi thiết bị 1 lần)"><i class="fa-solid fa-eye"></i> ${v.viewCount || 0} lượt xem</span>
+                    <span class="caption" title="Lượt xem: nghe thật ≥ 30 giây, mỗi tài khoản tối đa 1 lượt/24 giờ"><i class="fa-solid fa-eye"></i> ${v.viewCount || 0} lượt xem</span>
                     ${v.commentCount ? `<span class="caption"><i class="fa-solid fa-comment"></i> ${v.commentCount}</span>` : ''}
                 </div>
                 ${v.status === 'PROCESSING' ? `

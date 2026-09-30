@@ -1434,3 +1434,167 @@
     transition: none;
   }
 }
+
+/* Mission summary widget (daily goal, credit points, streak) */
+.ms-root {
+  margin-bottom: var(--space-5);
+}
+
+.ms-root,
+.ms-root * {
+  box-sizing: border-box;
+}
+
+.ms-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-areas:
+    "head head"
+    "stats goal"
+    "done done";
+  column-gap: var(--space-5);
+  row-gap: var(--space-3);
+  align-items: start;
+  padding: 22px 26px;
+  background: var(--lp-paper);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 22px;
+  box-shadow: var(--shadow-1);
+}
+
+.ms-card__head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ms-card__head .material-symbols-outlined {
+  color: #f59e0b;
+  font-size: 20px;
+}
+
+.ms-card__head h2 {
+  margin: 0;
+  color: var(--lp-plum);
+  font-family: "Noto Serif", Georgia, serif;
+  font-size: var(--text-md);
+}
+
+.ms-stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.ms-stat {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-surface-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.ms-stat__value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lp-plum);
+  font-size: var(--text-lg);
+  font-weight: 750;
+}
+
+.ms-stat__value .material-symbols-outlined {
+  font-size: 19px;
+  color: #f59e0b;
+}
+
+.ms-stat--credit .ms-stat__value .material-symbols-outlined {
+  color: var(--color-primary);
+}
+
+.ms-stat__label {
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-xs);
+}
+
+.ms-goal {
+  grid-area: goal;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ms-goal__row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ms-goal__top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-xs);
+}
+
+.ms-goal__top strong {
+  color: var(--color-on-surface);
+  font-weight: 650;
+}
+
+.ms-bar {
+  height: 8px;
+  overflow: hidden;
+  background: var(--color-surface-high);
+  border-radius: var(--radius-full);
+}
+
+.ms-bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: inherit;
+  transition: width var(--transition);
+}
+
+.ms-bar span.is-done {
+  background: var(--color-success);
+}
+
+.ms-completed {
+  grid-area: done;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  color: var(--color-success);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  background: var(--color-success-bg);
+  border-radius: var(--radius-md);
+}
+
+.ms-state {
+  padding: 18px 22px;
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-sm);
+  background: var(--lp-paper);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 22px;
+}
+
+@media (max-width: 980px) {
+  .ms-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "head"
+      "stats"
+      "goal"
+      "done";
+  }
+}

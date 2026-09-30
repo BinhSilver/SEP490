@@ -36,6 +36,11 @@ public class ShadowingPracticeController {
         return service.submit(CurrentUser.requireUserId(), sessionId, request);
     }
 
+    @PostMapping("/sessions/{sessionId}/reveal")
+    public PracticeAnswerResponse reveal(@PathVariable long sessionId) {
+        return service.reveal(CurrentUser.requireUserId(), sessionId);
+    }
+
     @PostMapping("/sessions/{sessionId}/next")
     public PracticeSessionView next(@PathVariable long sessionId) {
         return service.next(CurrentUser.requireUserId(), sessionId);

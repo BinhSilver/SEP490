@@ -1,23 +1,62 @@
 package com.jlas.dictionary.service;
 
+import com.jlas.dictionary.dto.HandwritingRequest;
+import com.jlas.dictionary.dto.KanjiResponse;
 import com.jlas.dictionary.dto.LessonContentResponse;
 import com.jlas.dictionary.dto.LessonSummaryResponse;
+import com.jlas.dictionary.dto.SearchHistoryResponse;
+import com.jlas.dictionary.dto.SearchResultResponse;
 import com.jlas.dictionary.dto.TextbookResponse;
 import com.jlas.dictionary.dto.TextbookUnitsResponse;
 import com.jlas.dictionary.dto.TopicLessonsResponse;
 import com.jlas.dictionary.dto.TopicResponse;
+import com.jlas.dictionary.dto.VocabularyResponse;
 
 import java.util.List;
 
 /**
- * Service xử lý nghiệp vụ tra cứu từ điển và duyệt sách đã số hoá.
+ * Service xử lý nghiệp vụ tra cứu từ điển (search, chi tiết Kanji/vocabulary, lịch sử tra cứu)
+ * và duyệt sách đã số hoá.
  * <p>
  * Quyền xem nội dung số hoá được quyết định ở tầng service qua {@code CurrentUser}:
  * CONTENT_CREATOR (vai biên soạn, không phải ADMIN) thấy mọi trạng thái; mọi vai khác và người chưa đăng nhập chỉ thấy status = PUBLISHED.
  * Nội dung learner không được xem trả NOT_FOUND (không lộ tồn tại).
- * TODO: Thêm các phương thức search, lookup, favorite...
  */
 public interface DictionaryService {
+
+    // ---------------------------------------------------------------------
+    // Tra cứu từ điển
+    // ---------------------------------------------------------------------
+
+    /**
+     * Tìm kiếm Dictionary/Kanji. Phân loại input (Kanji/Hiragana/Katakana/Romaji/nghĩa) rồi
+     * tra theo tier ưu tiên (mục 8), dùng chung cho Dictionary Search và Global Search.
+     *
+     * @param query từ khóa thô do người dùng nhập
+     * @param page  trang vocabularyResults, bắt đầu từ 0
+     * @param size  kích thước trang (bị giới hạn ở cận trên nội bộ để tránh query quá nặng)
+     * @param userId id user hiện tại, null nếu chưa đăng nhập; dùng để ghi lookup history
+     */
+    SearchResultResponse search(String query, int page, int size, Long userId);
+
+    /** Chi tiết một vocabulary, gồm senses/glosses và kanji composition. */
+    VocabularyResponse getVocabularyDetail(Long vocabularyId);
+
+    /** Chi tiết một Kanji, kèm danh sách vocabulary liên quan qua vocabulary_kanji. */
+    KanjiResponse getKanjiDetail(String character);
+
+    /**
+     * Nhận diện Kanji từ các nét vẽ tay (kể cả vẽ dở, sai thứ tự nét); khớp nhất đứng đầu.
+     * Chỉ là một cách nhập: chọn ứng viên xong FE dùng lại {@link #search}, không có luồng riêng.
+     */
+    List<KanjiResponse> recognizeHandwriting(HandwritingRequest request);
+
+    /** Lịch sử tra cứu gần nhất của user; rỗng nếu chưa đăng nhập. */
+    List<SearchHistoryResponse> getRecentHistory(Long userId);
+
+    // ---------------------------------------------------------------------
+    // Duyệt giáo trình đã số hoá
+    // ---------------------------------------------------------------------
 
     /**
      * Danh sách giáo trình kèm số unit; learner chỉ thấy giáo trình PUBLISHED.

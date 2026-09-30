@@ -5,7 +5,7 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.model.ModerationVerdict;
-import com.jlas.common.event.LearningActivityCompleted;
+import com.jlas.common.event.LearningEvent;
 import com.jlas.moderation.service.ContentModerationPort;
 import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.shadowing.dto.*;
@@ -16,6 +16,8 @@ import com.jlas.shadowing.repository.TagRepository;
 import com.jlas.shadowing.repository.VideoFavoriteRepository;
 import com.jlas.shadowing.repository.VideoRatingRepository;
 import com.jlas.shadowing.repository.VideoRepository;
+import com.jlas.shadowing.repository.VideoViewRepository;
+import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.VideoWatchSessionRepository;
 import com.jlas.shadowing.util.NullSafe;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ import java.util.stream.Collectors;
 @Service
 public class VideoService {
 
+    private static final String USER_CANCELLED_MESSAGE = "Đã dừng xử lý theo yêu cầu.";
+    private static final String USER_ABANDONED_MESSAGE = "Đã bỏ tiến trình tạo bài.";
+
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private TagRepository tagRepository;
@@ -45,7 +50,10 @@ public class VideoService {
     @Autowired private VideoRatingRepository ratingRepository;
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
+    @Autowired private VideoViewRepository videoViews;
+    @Autowired private ShadowingQuestionBankRepository questionBank;
     @Autowired private YoutubeImportService youtubeImportService;
+    @Autowired private YoutubeImportJobService youtubeImportJobService;
     @Autowired private ContentModerationPort moderationPort;
     @Autowired private VideoModerationService videoModerationService;
     @Autowired private UserActionPolicyPort actionPolicy;
@@ -91,7 +99,6 @@ public class VideoService {
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        actionPolicy.assertCanAct(CurrentUser.requireUserId());
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
@@ -240,9 +247,10 @@ public class VideoService {
 
     /**
      * @param scope public | my | all (legacy). Default public.
+     * @param level N5–N1; blank means every level.
      */
     public List<VideoSummaryDto> search(String query, String tag, String category, String clientId,
-                                        String sort, Boolean favoritesOnly, String scope) {
+                                        String sort, Boolean favoritesOnly, String scope, String level) {
         String sc = scope == null || scope.isBlank() ? "public" : scope.trim().toLowerCase(Locale.ROOT);
         Long me = CurrentUser.currentUserId().orElse(null);
         String catFilter = category != null && !category.isBlank() ? category : tag;
@@ -311,6 +319,11 @@ public class VideoService {
         List<VideoSummaryDto> summaries = videos.stream()
                 .map(v -> toSummary(v, clientId, favoriteIds, userRatings, currentUser))
                 .collect(Collectors.toList());
+        if (level != null && !level.isBlank()) {
+            summaries = summaries.stream()
+                    .filter(dto -> level.trim().equalsIgnoreCase(dto.getEstimatedLevel()))
+                    .collect(Collectors.toList());
+        }
         return sortSummaries(summaries, sort);
     }
 
@@ -496,7 +509,7 @@ public class VideoService {
         video.setModerationStatus(ModerationVerdict.SAFE.name());
         Video published = NullSafe.ref(videoRepository.save(video));
         if (!wasPublic && published.getOwnerId() != null) {
-            eventPublisher.publishEvent(LearningActivityCompleted.shadowingPublished(
+            eventPublisher.publishEvent(LearningEvent.shadowingPublished(
                     published.getOwnerId(), published.getId()));
         }
         return published;
@@ -527,6 +540,73 @@ public class VideoService {
         }
     }
 
+    public void resumeProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        if (video.getStatus() != VideoStatus.FAILED
+                || video.getErrorMessage() == null
+                || !video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE)) {
+            throw new IllegalStateException("Chỉ có thể tiếp tục bài học đã được bạn dừng.");
+        }
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        if (video.getSourceUrl() != null && !video.getSourceUrl().isBlank()) {
+            youtubeImportService.resumeImport(id);
+        } else {
+            processingJobService.resumeProcessing(id);
+        }
+    }
+
+    @Transactional
+    public void abandonProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        boolean isRunning = video.getStatus() == VideoStatus.PROCESSING;
+        boolean isPaused = video.getStatus() == VideoStatus.FAILED
+                && video.getErrorMessage() != null
+                && video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE);
+        if (!isRunning && !isPaused) {
+            throw new IllegalStateException("Chỉ có thể bỏ một tiến trình đang chạy hoặc đang tạm dừng.");
+        }
+        if (isRunning) {
+            processingJobService.cancel(id);
+            youtubeImportJobService.cancel(id);
+        }
+        video.setStatus(VideoStatus.FAILED);
+        video.setErrorMessage(USER_ABANDONED_MESSAGE
+                + " Bản nháp được giữ lại; bạn có thể tạo lại từ đầu khi quay lại.");
+        videoRepository.save(video);
+    }
+
+    @Transactional
+    public void cancelProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        if (video.getStatus() != VideoStatus.PROCESSING) {
+            throw new IllegalStateException("Bài học này không còn trong quá trình xử lý.");
+        }
+        processingJobService.cancel(id);
+        youtubeImportJobService.cancel(id);
+        video.setStatus(VideoStatus.FAILED);
+        video.setErrorMessage(USER_CANCELLED_MESSAGE + " Bạn có thể tiếp tục với thiết lập hiện tại hoặc tạo bài mới.");
+        videoRepository.save(video);
+    }
+
+    /** Falls back to the level chosen (or suggested by AI) on the question preparation page. */
+    private void applyPreparedLevel(VideoSummaryDto dto, Long videoId) {
+        String[] levels = questionBank.jlptLevels(videoId);
+        if (levels == null) return;
+        String selected = levels[0], suggested = levels[1];
+        if (selected != null && !selected.isBlank()) {
+            dto.setEstimatedLevel(selected.toUpperCase(Locale.ROOT));
+            dto.setLevelSource(selected.equalsIgnoreCase(suggested) ? "AI" : "CREATOR");
+        } else if (suggested != null && !suggested.isBlank()) {
+            dto.setEstimatedLevel(suggested.toUpperCase(Locale.ROOT));
+            dto.setLevelSource("AI");
+        }
+    }
+
     private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds,
                                       Map<Long, Integer> userRatings) {
         return toSummary(v, clientId, favoriteIds, userRatings, CurrentUser.currentUserId().orElse(null));
@@ -550,11 +630,12 @@ public class VideoService {
                     dto.setEstimatedLevel(level.toUpperCase(Locale.ROOT));
                     dto.setLevelSource("CREATOR");
                 });
+        if (dto.getEstimatedLevel() == null) applyPreparedLevel(dto, v.getId());
         dto.setSubtitleCount(subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(v.getId()).size());
         dto.setOwnerId(v.getOwnerId());
         dto.setVisibility(v.getVisibility() != null ? v.getVisibility().name() : VideoVisibility.PRIVATE.name());
         dto.setOwnedByMe(currentUserId != null && currentUserId.equals(v.getOwnerId()));
-        dto.setViewCount((int) watchSessionRepository.countViewsByVideoId(v.getId()));
+        dto.setViewCount(videoViews.viewCount(v.getId()));
         dto.setAvgRating(v.getAvgRating());
         dto.setRatingCount(v.getRatingCount() != null ? v.getRatingCount() : 0);
         dto.setCommentCount(commentRepository.countByVideoId(v.getId()));
