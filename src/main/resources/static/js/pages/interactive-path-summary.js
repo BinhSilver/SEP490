@@ -36,7 +36,8 @@
       comprehension: comprehension, comprehensionInPath: comprehensionInPath,
       readiness: data.readiness || { level: 'LOW', explanation: '' },
       certificateEligible: !!data.certificateEligible,
-      mockTest: mockTest
+      mockTest: mockTest,
+      studyLinks: Array.isArray(data.studyLinks) ? data.studyLinks : []
     };
   }
 
@@ -127,6 +128,26 @@
       'title="Chức năng thi thử JLPT sắp ra mắt">Thi thử JLPT (sắp có)</button>';
   }
 
+  // [JLAS-W0108] Review / practice entry points for finished activities. Only types with a server contract are listed
+  // (dialogue has no micro-check engine); the server already filters, this map only decides the page and the modes.
+  var STUDY_PAGE = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji', FOUNDATION: '/learning/v2/foundation',
+    GRAMMAR: '/learning/v2/grammar', READING: '/learning/v2/reading', LISTENING: '/learning/v2/listening' };
+  var STUDY_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', FOUNDATION: 'Bảng chữ cái', GRAMMAR: 'Ngữ pháp',
+    READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu' };
+  function studyModes(type) { return type === 'GRAMMAR' ? ['practice'] : ['review', 'practice']; }
+  function renderStudyLinks(links) {
+    var rows = (links || []).filter(function (l) { return STUDY_PAGE[l.type]; }).map(function (l) {
+      var modes = studyModes(l.type).map(function (mode) {
+        return '<a href="' + STUDY_PAGE[l.type] + '?activity=' + encodeURIComponent(l.activityId) + '&amp;mode=' + mode + '">' +
+          (mode === 'review' ? 'Xem lại' : 'Ôn lại') + '</a>';
+      }).join('');
+      return '<li><strong>' + esc(STUDY_LABEL[l.type]) + '</strong><span>' + modes + '</span></li>';
+    });
+    if (!rows.length) return '';
+    return '<section class="ilp-summary-study" data-study-links><h2>Xem lại và ôn lại</h2>' +
+      '<p class="ilp-summary-note">Ôn lại là luyện tập, không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p><ul>' + rows.join('') + '</ul></section>';
+  }
+
   function renderActions(v) {
     var certificate = v.certificateEligible
       ? '<a class="ilp-summary__primary" href="/learning/v2/certificate">Xem chứng nhận hoàn thành</a>'
@@ -145,7 +166,7 @@
       '<div class="ilp-summary-grid">' + v.skills.map(skillCard).join('') + renderDialogue(v.dialogue) +
       v.comprehensionInPath.map(comprehensionInPathCard).join('') +
       v.comprehension.map(comprehensionCard).join('') + '</div>' +
-      renderReadiness(v.readiness) + renderActions(v) + '</section>';
+      renderReadiness(v.readiness) + renderStudyLinks(v.studyLinks) + renderActions(v) + '</section>';
   }
 
   function error(message) {
@@ -177,6 +198,6 @@
     viewModel: viewModel, skillCard: skillCard, renderDialogue: renderDialogue,
     comprehensionCard: comprehensionCard, comprehensionInPathCard: comprehensionInPathCard,
     renderReadiness: renderReadiness, renderActions: renderActions,
-    render: render, error: error, mount: mount
+    renderStudyLinks: renderStudyLinks, render: render, error: error, mount: mount
   };
 });

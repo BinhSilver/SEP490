@@ -12,9 +12,9 @@
   var ACTIVITY_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', DIALOGUE: 'Hội thoại',
     READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu', FOUNDATION: 'Bảng chữ cái' };
   // [JLAS-W0108] Task 11 - REVIEW exists only where the server exposes a read-only review (vocabulary, kanji,
-  // foundation); PRACTICE replay exists for card and grammar activities. Reading/Listening replays need the replayed batch's passage, which no endpoint serves yet, so they get no link; dialogue has neither.
-  var REVIEW_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true };
-  var PRACTICE_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true };
+  // foundation); PRACTICE replay exists for card, grammar and Reading/Listening activities (their replays carry the frozen source of the replayed batch). Dialogue has no micro-check engine, so it has neither.
+  var REVIEW_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, READING: true, LISTENING: true };
+  var PRACTICE_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true, READING: true, LISTENING: true };
   var MODE_LINK_LABEL = { REVIEW: 'Xem lại', PRACTICE: 'Ôn lại' };
   var STAGE_LEVEL_LABEL = { FOUNDATION: 'Bảng chữ cái' };
   var BLOCK_REASON = {

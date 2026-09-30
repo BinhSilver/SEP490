@@ -163,11 +163,47 @@
       '<div class="ilp-result__actions">' + actionHtml + '</div></section>';
   }
 
-  function renderPassed(activityType) {
+  // [JLAS-W0108] PRACTICE: the frozen source of the replayed batch stays above every question.
+  function sourceView(type, source) {
+    source = source || {};
+    return { activityType: type === 'LISTENING' ? 'LISTENING' : 'READING', passage: source.passage || null, audioUrl: source.audioUrl || null };
+  }
+  function renderPractice(replay, activityType) {
+    var banner = (typeof window !== 'undefined' && window.InteractiveStudyMode) ? window.InteractiveStudyMode.banner('PRACTICE') :
+      '<p class="ilp-mode-banner" role="note"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>';
+    return banner + '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div><span class="ilp-kicker">' +
+      (activityType === 'LISTENING' ? 'NGHE HIỂU' : 'ĐỌC HIỂU') + ' // LUYỆN TẬP</span><h1>Luyện tập</h1></div>' +
+      '<span class="ilp-comprehension__progress-badge">Bài ' + (num(replay.batchIndex) + 1) + '/' + num(replay.batchCount) +
+      '</span></header>' + renderSourcePanel(sourceView(activityType, replay.source), false, false) + renderCheckForm(replay) + '</section>';
+  }
+  // [JLAS-W0108] REVIEW: each batch shows the source it was actually asked against, or says it is unavailable.
+  function renderReview(feedback, activityType) {
+    var banner = '<p class="ilp-mode-banner" role="note" data-mode-banner="REVIEW"><strong>Chế độ xem lại</strong> — chỉ xem, không ghi nhận gì vào tiến độ.</p>';
+    if (!Array.isArray(feedback) || !feedback.length) {
+      return banner + '<p class="ilp-result__meta" data-feedback-empty>Chưa có lượt làm bài nào để xem lại.</p>' +
+        '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div>';
+    }
+    return banner + feedback.map(function (batch) {
+      var source = batch.sourceStatus === 'AVAILABLE' && batch.source
+        ? renderSourcePanel(sourceView(activityType, batch.source), false, false)
+        : '<p class="ilp-gate-note" data-source-unavailable>Nội dung bài đọc/nghe của lượt này không còn được lưu, nên không thể hiển thị lại. Kết quả và đáp án vẫn được giữ bên dưới.</p>';
+      var items = list(batch.review).map(function (r) {
+        return '<li class="' + (r.correct ? 'is-correct' : 'is-wrong') + '"><span>' + esc(r.questionText || ('Câu ' + r.questionId)) +
+          '</span><small>' + (r.correct ? 'Đúng' : 'Sai') + (r.correctOption != null ? ' · đáp án đúng: ' + esc(r.correctOption) : '') +
+          (r.selectedOption != null ? ' · bạn chọn: ' + esc(r.selectedOption) : ' · bạn bỏ trống') +
+          (r.explanation ? ' · ' + esc(r.explanation) : '') + '</small></li>';
+      }).join('');
+      return '<article class="ilp-feedback__batch" data-feedback-batch="' + num(batch.batchIndex) + '"><h2>Bài ' + (num(batch.batchIndex) + 1) +
+        ' · ' + num(batch.scorePercent) + '% (' + num(batch.correctAnswers) + '/' + num(batch.totalQuestions) + ')</h2>' + source +
+        '<ol>' + items + '</ol></article>';
+    }).join('') + '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div>';
+  }
+
+  function renderPassed(activityType, extra) {
     var title = activityType === 'LISTENING' ? 'Phần Nghe hiểu đã đạt' : 'Phần Đọc hiểu đã đạt';
     return '<section class="ilp-result"><header class="ilp-study__head"><div><span class="ilp-kicker">HOÀN THÀNH</span>' +
       '<h1>' + esc(title) + '</h1></div></header>' +
-      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>' + (extra || '') + '</div></section>';
   }
 
   function error(message, code) {
@@ -191,6 +227,9 @@
     var currentReviewRequired = false;
     var evidenceSent = false;
     var evidenceObserver = null;
+    var StudyMode = window.InteractiveStudyMode;
+    var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions(fallbackPath, id, ['REVIEW', 'PRACTICE']) : '';
 
     async function api(path, options) {
       var response = await fetch(base + path, Object.assign({ headers: window.JlasAuth.authHeaders() }, options));
@@ -233,18 +272,29 @@
       node.setAttribute('aria-busy', 'true');
       stopWatching();
       try {
+        if (mode === 'REVIEW') {
+          node.innerHTML = renderReview(await api('/review/attempts'), currentType);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        if (mode === 'PRACTICE') { await doPractice(); node.setAttribute('aria-busy', 'false'); return; }
         var study = await api('/study');
         var v = viewModel(study);
         currentType = v.activityType;
         currentReviewRequired = v.reviewRequired;
         evidenceSent = false;
-        if (v.passed) { node.innerHTML = renderPassed(v.activityType); }
+        if (v.passed) { node.innerHTML = renderPassed(v.activityType, PASSED_ACTIONS); }
         else {
           node.innerHTML = renderStudy(v, false);
           if (v.activityType === 'LISTENING') watchAudioPlay(); else watchPassageEnd();
         }
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
+    }
+
+    async function doPractice() {
+      try { node.innerHTML = renderPractice(await postJson('/practice'), currentType); }
+      catch (e) { node.innerHTML = error(e.message, e.code); }
     }
 
     async function doCheck() {
@@ -260,6 +310,7 @@
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
       if (event.target.closest('[data-check]')) return doCheck();
+      if (event.target.closest('[data-practice-again]')) return doPractice();
       if (event.target.closest('[data-reached-passage]')) return sendReviewEvidence();
       if (event.target.closest('[data-next-exercise]') || event.target.closest('[data-back-to-study]')) return loadStudy();
     });
@@ -273,12 +324,12 @@
       });
       node.setAttribute('aria-busy', 'true');
       try {
-        var result = await api('/micro-check/submit', {
+        var result = await api(mode === 'PRACTICE' ? '/practice/submit' : '/micro-check/submit', {
           method: 'POST',
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
-        node.innerHTML = renderResult(result, currentType);
+        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result, currentType);
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
     });
@@ -290,6 +341,7 @@
     viewModel: viewModel, formatCooldown: formatCooldown, renderSourcePanel: renderSourcePanel,
     renderEvidenceList: renderEvidenceList, renderStudy: renderStudy, renderCheckForm: renderCheckForm,
     renderCheckScreen: renderCheckScreen, renderResult: renderResult, renderPassed: renderPassed,
+    renderPractice: renderPractice, renderReview: renderReview,
     error: error, mount: mount
   };
 });

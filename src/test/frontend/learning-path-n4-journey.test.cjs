@@ -124,13 +124,13 @@ test('finished activities link to review and practice, unfinished ones do not', 
   assert.doesNotMatch(html, /activity=12&(amp;)?mode=/);
 });
 
-test('grammar offers practice only; reading, listening and dialogue offer no mode link yet', () => {
+test('grammar offers practice only, reading and listening both modes, dialogue none', () => {
   assert.deepEqual(roadmap.modesFor('VOCABULARY'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('KANJI'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('FOUNDATION'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('GRAMMAR'), ['PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('READING'), []);
-  assert.deepEqual(roadmap.modesFor('LISTENING'), []);
+  assert.deepEqual(roadmap.modesFor('READING'), ['REVIEW', 'PRACTICE']);
+  assert.deepEqual(roadmap.modesFor('LISTENING'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('DIALOGUE'), []);
 });
 
@@ -288,4 +288,80 @@ test('review feedback shows each past attempt with the question, the correct ans
 test('review feedback with no attempts says so instead of rendering an empty list', () => {
   assert.match(studyMode.feedbackList([]), /data-feedback-empty/);
   assert.match(studyMode.feedbackList(null), /data-feedback-empty/);
+});
+
+// ---- Reading / Listening review and practice (frozen source per batch) ----
+
+const comprehension = require('../../main/resources/static/js/pages/interactive-comprehension-study.js');
+
+function replay(overrides) {
+  return Object.assign({ attemptId: 9, activityId: 1, batchIndex: 1, batchCount: 2,
+    source: { passage: 'Đoạn văn của batch 1', audioUrl: null },
+    questions: [{ questionId: 10, questionType: 'MULTIPLE_CHOICE', questionText: 'Câu một?', options: ['A', 'B'] },
+      { questionId: 11, questionType: 'MULTIPLE_CHOICE', questionText: 'Câu hai?', options: ['C', 'D'] }] }, overrides || {});
+}
+
+test('Reading PRACTICE shows the frozen passage above every question, with no evidence controls', () => {
+  const html = comprehension.renderPractice(replay(), 'READING');
+  assert.match(html, /Đoạn văn của batch 1/);
+  assert.match(html, /Câu một\?/);
+  assert.match(html, /Câu hai\?/);
+  assert.match(html, /data-attempt-id="9"/);
+  assert.match(html, /không ảnh hưởng/);
+  assert.doesNotMatch(html, /data-reached-passage/);
+  assert.ok(html.indexOf('Đoạn văn của batch 1') < html.indexOf('Câu một?'));
+});
+
+test('Listening PRACTICE renders the frozen audio player', () => {
+  const html = comprehension.renderPractice(replay({ source: { passage: null, audioUrl: '/audio/batch-1.mp3' } }), 'LISTENING');
+  assert.match(html, /<audio[^>]*src="\/audio\/batch-1\.mp3"/);
+  assert.doesNotMatch(html, /data-reached-passage/);
+});
+
+test('Reading REVIEW renders the stored passage with each attempt feedback', () => {
+  const html = comprehension.renderReview([{ batchIndex: 0, scorePercent: 80, correctAnswers: 4, totalQuestions: 5,
+    sourceStatus: 'AVAILABLE', source: { passage: 'Đoạn văn đã học', audioUrl: null },
+    review: [{ questionId: 1, questionText: 'Câu một?', correctOption: 2, selectedOption: 1, correct: false, explanation: 'Vì...' }] }], 'READING');
+  assert.match(html, /Đoạn văn đã học/);
+  assert.match(html, /Câu một\?/);
+  assert.match(html, /Vì\.\.\./);
+  assert.match(html, /Chế độ xem lại|chỉ xem/);
+});
+
+test('Listening REVIEW renders the stored audio', () => {
+  const html = comprehension.renderReview([{ batchIndex: 0, scorePercent: 100, correctAnswers: 1, totalQuestions: 1,
+    sourceStatus: 'AVAILABLE', source: { passage: null, audioUrl: '/audio/old.mp3' }, review: [] }], 'LISTENING');
+  assert.match(html, /<audio[^>]*src="\/audio\/old\.mp3"/);
+});
+
+test('a legacy attempt without a snapshot says so and never renders a passage or audio', () => {
+  const html = comprehension.renderReview([{ batchIndex: 0, scorePercent: 70, correctAnswers: 7, totalQuestions: 10,
+    sourceStatus: 'SOURCE_SNAPSHOT_UNAVAILABLE', source: null,
+    review: [{ questionId: 1, questionText: 'Câu một?', correctOption: 1, selectedOption: 1, correct: true, explanation: 'ok' }] }], 'READING');
+  assert.match(html, /data-source-unavailable/);
+  assert.match(html, /Câu một\?/);
+  assert.doesNotMatch(html, /ilp-passage__text|<audio/);
+});
+
+test('review with no attempts says so', () => {
+  assert.match(comprehension.renderReview([], 'READING'), /data-feedback-empty|Chưa có lượt làm bài/);
+});
+
+test('the passed screen offers both modes for Reading and Listening', () => {
+  const html = comprehension.renderPassed('READING', '<a href="/learning/v2/reading?activity=1&amp;mode=review">Xem lại</a>');
+  assert.match(html, /mode=review/);
+});
+
+test('summary lists review and practice links for finished activities only, and none for dialogue', () => {
+  const html = summary.render({ pathId: 1, status: 'ACTIVE', studyLinks: [
+    { activityId: 11, type: 'READING', state: 'PASSED' }, { activityId: 12, type: 'VOCABULARY', state: 'PASSED' },
+    { activityId: 13, type: 'DIALOGUE', state: 'COMPLETED' }] });
+  assert.match(html, /\/learning\/v2\/reading\?activity=11&amp;mode=review/);
+  assert.match(html, /\/learning\/v2\/reading\?activity=11&amp;mode=practice/);
+  assert.match(html, /\/learning\/v2\/vocabulary\?activity=12&amp;mode=review/);
+  assert.doesNotMatch(html, /dialogue\?activity=13/);
+});
+
+test('summary without study links renders no review section', () => {
+  assert.doesNotMatch(summary.render({ pathId: 1, status: 'ACTIVE' }), /data-study-links/);
 });

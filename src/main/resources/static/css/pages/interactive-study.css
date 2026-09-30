@@ -150,3 +150,10 @@
 .ilp-review-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; list-style: none; margin: 16px 0; padding: 0; }
 .ilp-review-list__item { min-width: 0; }
 @media (max-width: 520px) { .ilp-review-list { grid-template-columns: 1fr; } }
+
+/* [JLAS-W0108] Past-attempt feedback on review pages (all study types). */
+.ilp-feedback__batch { margin: 16px 0; padding: 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-feedback__batch h2 { margin: 0 0 10px; font-size: 18px; }
+.ilp-feedback__batch ol { display: grid; gap: 8px; margin: 12px 0 0; padding-left: 20px; }
+.ilp-feedback__batch li small { display: block; color: var(--lp-muted); }
+.ilp-feedback__batch li.is-wrong span { font-weight: 700; }

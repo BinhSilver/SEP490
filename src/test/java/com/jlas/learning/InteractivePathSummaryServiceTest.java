@@ -72,6 +72,23 @@ class InteractivePathSummaryServiceTest {
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
 
+    @Test void studyLinksListOnlyFinishedActivitiesOfTypesThatHaveAReviewOrPracticeContract() {
+        var path = interactivePath();
+        stubPath(path);
+        var vocab = activity(1L, LearningActivityType.VOCABULARY, LearningActivityState.PASSED);
+        var reading = activity(2L, LearningActivityType.READING, LearningActivityState.PASSED);
+        var grammarOpen = activity(3L, LearningActivityType.GRAMMAR, LearningActivityState.STUDYING);
+        var dialogue = activity(4L, LearningActivityType.DIALOGUE, LearningActivityState.COMPLETED);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(vocab, reading, grammarOpen, dialogue));
+        when(microCheckStates.findByActivityIdInOrderByActivityIdAscBatchIndexAsc(any())).thenReturn(List.of());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+
+        var result = service.summary(7L);
+
+        assertEquals(List.of(1L, 2L), result.studyLinks().stream().map(l -> l.activityId()).toList());
+        assertEquals(List.of("VOCABULARY", "READING"), result.studyLinks().stream().map(l -> l.type()).toList());
+    }
+
     @Test void skillWithNoValidAttemptHasNoEvidenceAndIsNeverTreatedAsZero() {
         var path = interactivePath();
         stubPath(path);

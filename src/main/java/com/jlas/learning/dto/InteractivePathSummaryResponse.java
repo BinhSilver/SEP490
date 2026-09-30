@@ -35,9 +35,19 @@ public record InteractivePathSummaryResponse(
         List<InteractiveSkillProgress> comprehensionInPath,
         InteractiveReadinessConfidence readiness,
         boolean certificateEligible,
-        MockTestDestination mockTest
+        MockTestDestination mockTest,
+        List<InteractiveStudyLink> studyLinks
 ) {
+    public InteractivePathSummaryResponse(Long pathId, String status, LocalDateTime completedAt,
+            List<InteractiveSkillProgress> skills, InteractiveDialogueSummary dialogue,
+            List<InteractiveComprehensionEvidence> comprehension, List<InteractiveSkillProgress> comprehensionInPath,
+            InteractiveReadinessConfidence readiness, boolean certificateEligible, MockTestDestination mockTest) {
+        this(pathId, status, completedAt, skills, dialogue, comprehension, comprehensionInPath, readiness,
+                certificateEligible, mockTest, List.of());
+    }
+
     public InteractivePathSummaryResponse {
+        studyLinks = studyLinks == null ? List.of() : List.copyOf(studyLinks);
         skills = List.copyOf(skills);
         comprehension = List.copyOf(comprehension);
         comprehensionInPath = List.copyOf(comprehensionInPath);

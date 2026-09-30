@@ -106,7 +106,23 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
         MockTestDestination mockTest = mockTestDestinationProvider.resolveDestination(path.getTargetLevel());
 
         return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
-                skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible, mockTest);
+                skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible, mockTest,
+                studyLinks(activities));
+    }
+
+    /** Finished activities whose type has a REVIEW or PRACTICE contract (dialogue has neither, so it is never listed). */
+    private static final java.util.Set<LearningActivityType> STUDY_LINK_TYPES = java.util.EnumSet.of(
+            LearningActivityType.VOCABULARY, LearningActivityType.KANJI, LearningActivityType.FOUNDATION,
+            LearningActivityType.GRAMMAR, LearningActivityType.READING, LearningActivityType.LISTENING);
+
+    private List<com.jlas.learning.dto.InteractiveStudyLink> studyLinks(List<UserLearningPathItem> activities) {
+        return activities.stream()
+                .filter(a -> a.getActivityType() != null && STUDY_LINK_TYPES.contains(a.getActivityType()))
+                .filter(a -> a.getActivityState() == LearningActivityState.PASSED
+                        || a.getActivityState() == LearningActivityState.COMPLETED)
+                .map(a -> new com.jlas.learning.dto.InteractiveStudyLink(a.getId(), a.getActivityType().name(),
+                        a.getActivityState().name()))
+                .toList();
     }
 
     // ---- Vocabulary/Kanji/Grammar: first/latest/best + unresolved batches, path-wide ----
