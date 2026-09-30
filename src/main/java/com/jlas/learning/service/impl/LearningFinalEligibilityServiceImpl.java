@@ -35,12 +35,6 @@ public class LearningFinalEligibilityServiceImpl implements LearningFinalEligibi
     private final UserLearningStageRepository stages;
 
     public LearningFinalEligibilityServiceImpl(UserLearningPathRepository paths,
-            LearningPathPackageRepository packages) {
-        this(paths, packages, null);
-    }
-
-    @org.springframework.beans.factory.annotation.Autowired
-    public LearningFinalEligibilityServiceImpl(UserLearningPathRepository paths,
             LearningPathPackageRepository packages, UserLearningStageRepository stages) {
         this.paths = paths;
         this.packages = packages;
@@ -53,11 +47,17 @@ public class LearningFinalEligibilityServiceImpl implements LearningFinalEligibi
         var path = paths.findByUserIdAndStatusAndExperienceVersion(userId, "ACTIVE",
                 LearningExperienceVersion.INTERACTIVE_V2)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình tương tác đang hoạt động."));
-        return evaluate(countStages(path.getId()));
+        return forPath(path.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FinalEligibilityResponse forPath(Long pathId) {
+        return evaluate(countStages(pathId));
     }
 
     /** Counts required packages per stage of one path. Reused by completion so both share one definition. */
-    public List<StageCount> countStages(Long pathId) {
+    private List<StageCount> countStages(Long pathId) {
         Map<Long, int[]> counts = new HashMap<>();
         for (var pkg : packages.findByLearningPathIdOrderByOrderIndex(pathId)) {
             if (pkg.getStageId() == null) continue;
@@ -71,7 +71,7 @@ public class LearningFinalEligibilityServiceImpl implements LearningFinalEligibi
         }).toList();
     }
 
-    public FinalEligibilityResponse evaluate(List<StageCount> input) {
+    public static FinalEligibilityResponse evaluate(List<StageCount> input) {
         List<StageCount> ordered = input.stream().sorted(Comparator.comparingInt(StageCount::stageIndex)).toList();
         List<LearningStageProgressResponse> progress = ordered.stream().map(s -> new LearningStageProgressResponse(
                 s.stageId(), s.stageIndex(), s.level(), s.status(), s.completed(), s.total(),

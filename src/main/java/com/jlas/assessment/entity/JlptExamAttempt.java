@@ -30,4 +30,8 @@ public class JlptExamAttempt {
     @JoinColumn(name = "exam_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_jlpt_exam_attempt_exam"))
     private JlptExam exam;
+
+    /** [JLAS-W0108] Policy version the attempt was taken under (written by the Mock Test owner, never by Learning). */
+    @Column(name = "policy_version", length = 100)
+    private String policyVersion;
 }

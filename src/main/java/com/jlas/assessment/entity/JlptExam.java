@@ -33,6 +33,10 @@ public class JlptExam {
     @Column(name = "passing_score", nullable = false, precision = 6, scale = 2)
     private BigDecimal passingScore;
 
+    /** [JLAS-W0108] Current pass-policy version; a Mock Test result only counts toward a path when its snapshot matches. */
+    @Column(name = "policy_version", length = 100)
+    private String policyVersion;
+
     /** DRAFT/PUBLISHED/ARCHIVED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

@@ -11,7 +11,7 @@ import com.jlas.assessment.entity.JlptSectionResult;
 import com.jlas.assessment.repository.JlptExamAttemptRepository;
 import com.jlas.auth.entity.User;
 import com.jlas.learning.service.JlptQualificationPort.Result;
-import com.jlas.learning.service.impl.AssessmentJlptQualificationAdapter;
+import com.jlas.assessment.service.impl.AssessmentJlptQualificationAdapter;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -36,8 +36,9 @@ class AssessmentJlptQualificationAdapterTest {
     private JlptExamAttempt attempt(Long ownerId, String type, String status, String level, String passing) {
         var user = User.builder().id(ownerId).build();
         var base = AssessmentAttempt.builder().id(ATTEMPT).user(user).attemptType(type).status(status).build();
-        var exam = JlptExam.builder().id(1L).jlptLevel(level).passingScore(new BigDecimal(passing)).build();
-        return JlptExamAttempt.builder().attemptId(ATTEMPT).attempt(base).exam(exam).build();
+        var exam = JlptExam.builder().id(1L).jlptLevel(level).passingScore(new BigDecimal(passing))
+                .policyVersion("policy-2").build();
+        return JlptExamAttempt.builder().attemptId(ATTEMPT).attempt(base).exam(exam).policyVersion("policy-2").build();
     }
 
     private JlptSectionResult section(long id, String min, String score) {
@@ -100,5 +101,26 @@ class AssessmentJlptQualificationAdapterTest {
     @Test void attemptWithNoSectionResultsCannotQualify() {
         given(attempt(USER, "JLPT", "SUBMITTED", "N4", "0"));
         assertEquals("NO_SECTION_RESULTS", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void resultFromAnOlderPolicyVersionIsRejectedEvenWhenTheScoresPass() {
+        var old = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
+        old.setPolicyVersion("policy-1");
+        given(old, section(1, "20", "60"), section(2, "20", "60"));
+        assertEquals("POLICY_VERSION_MISMATCH", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void resultWithNoPolicySnapshotFailsClosed() {
+        var none = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
+        none.setPolicyVersion(null);
+        given(none, section(1, "20", "60"), section(2, "20", "60"));
+        assertEquals("POLICY_VERSION_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void examWithNoCurrentPolicyFailsClosed() {
+        var none = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
+        none.getExam().setPolicyVersion(null);
+        given(none, section(1, "20", "60"), section(2, "20", "60"));
+        assertEquals("POLICY_VERSION_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
     }
 }

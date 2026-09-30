@@ -1316,6 +1316,8 @@ CREATE TABLE jlpt_exam (
     title         VARCHAR(255) NOT NULL,
     jlpt_level    VARCHAR(10) NOT NULL,
     passing_score DECIMAL(6,2) NOT NULL,
+    -- [JLAS-W0108] policy_version: phien ban chinh sach dau hien hanh; NULL = chua co (Learning khong tinh ket qua).
+    policy_version VARCHAR(100) NULL,
     status        VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
@@ -1419,6 +1421,8 @@ DELIMITER ;
 CREATE TABLE jlpt_exam_attempt (
     attempt_id BIGINT UNSIGNED NOT NULL,
     exam_id    BIGINT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] policy_version: snapshot luc thi, do module Mock Test ghi; NULL = khong du dieu kien hoan thanh lo trinh.
+    policy_version VARCHAR(100) NULL,
     PRIMARY KEY (attempt_id),
     KEY idx_jlpt_exam_attempt_exam (exam_id, attempt_id),
     CONSTRAINT fk_jlpt_exam_attempt_attempt FOREIGN KEY (attempt_id)
@@ -1632,6 +1636,8 @@ CREATE TABLE user_learning_path (
     -- [JLAS-W0108] Thời điểm lộ trình hoàn thành (chặng cuối đạt final); NULL = chưa hoàn thành.
     -- Dùng làm ngày cấp chứng chỉ thành tựu nội bộ, không suy từ updated_at (có thể đổi vì lý do khác).
     completed_at          DATETIME(6) NULL,
+    -- [JLAS-W0108] Mock Test attempt da xac nhan hoan thanh lo trinh (retry chi hop le voi dung attempt nay).
+    completion_attempt_id BIGINT UNSIGNED NULL,
     -- [JLAS-W0108] Cache id bo flashcard warm-up gop Kanji+Tu vung sai Smart Test; NULL = chua sinh.
     -- Soft-link toi flashcard_set (khong FK, giu learning decoupled khoi flashcard).
     warm_up_flashcard_set_id BIGINT UNSIGNED NULL,

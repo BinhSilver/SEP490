@@ -62,6 +62,10 @@ public class UserLearningPath {
     @Column(name = "policy_version", length = 100)
     private String policyVersion;
 
+    /** [JLAS-W0108] The Mock Test attempt that qualified this path; only that attempt may replay the completion. */
+    @Column(name = "completion_attempt_id")
+    private Long completionAttemptId;
+
     @Column(name = "minutes_per_day")
     private Integer minutesPerDay;
 

@@ -115,6 +115,7 @@ class LearningPathCompletionTest {
 
         assertFalse(retry.newlyCompleted());
         assertEquals("COMPLETED", retry.status());
+        assertEquals(ATTEMPT, path.getCompletionAttemptId());
         verify(events, times(1)).publishEvent(any(Object.class));
         verify(qualification, times(1)).verify(any(), any(), any());
     }
@@ -172,5 +173,29 @@ class LearningPathCompletionTest {
         var ex = assertThrows(ApiException.class, () -> service.completeFromMock(USER, ATTEMPT));
         assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode());
         verifyNoInteractions(events);
+    }
+
+    @Test void retryWithADifferentAttemptIsRejectedEvenThoughThePathIsCompleted() {
+        packageCounts(25, 25, 13, 25);
+        qualifies();
+        service.completeFromMock(USER, ATTEMPT);
+
+        var ex = assertThrows(ApiException.class, () -> service.completeFromMock(USER, 999L));
+
+        assertEquals(ErrorCode.CONFLICT, ex.getErrorCode());
+        verify(events, times(1)).publishEvent(any(Object.class));
+        verify(qualification, times(1)).verify(any(), any(), any());
+    }
+
+    @Test void aPathCompletedWithoutARecordedAttemptCannotBeReplayedByAnyAttempt() {
+        path.setStatus("COMPLETED");
+        path.setCompletionAttemptId(null);
+        when(paths.lockActiveInteractive(USER)).thenReturn(Optional.empty());
+        when(paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(USER, LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+
+        var ex = assertThrows(ApiException.class, () -> service.completeFromMock(USER, ATTEMPT));
+
+        assertEquals(ErrorCode.CONFLICT, ex.getErrorCode());
     }
 }

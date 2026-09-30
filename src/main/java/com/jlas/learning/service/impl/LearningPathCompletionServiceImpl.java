@@ -9,6 +9,7 @@ import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.JlptQualificationPort;
+import com.jlas.learning.service.LearningFinalEligibilityService;
 import com.jlas.learning.service.LearningPathCompletionService;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -29,16 +30,18 @@ public class LearningPathCompletionServiceImpl implements LearningPathCompletion
             "LEVEL_MISMATCH", "Bài thi không đúng cấp độ mục tiêu của lộ trình.",
             "NO_SECTION_RESULTS", "Bài thi chưa có kết quả từng phần.",
             "SECTION_BELOW_PASSING", "Có phần thi chưa đạt điểm tối thiểu.",
-            "TOTAL_SCORE_BELOW_PASSING", "Tổng điểm bài thi chưa đạt.");
+            "TOTAL_SCORE_BELOW_PASSING", "Tổng điểm bài thi chưa đạt.",
+            "POLICY_VERSION_MISSING", "Kết quả bài thi chưa có phiên bản chính sách hợp lệ.",
+            "POLICY_VERSION_MISMATCH", "Kết quả bài thi thuộc phiên bản chính sách cũ, hãy thi lại.");
 
     private final UserLearningPathRepository paths;
-    private final LearningFinalEligibilityServiceImpl eligibility;
+    private final LearningFinalEligibilityService eligibility;
     private final UserLearningStageRepository stages;
     private final JlptQualificationPort qualification;
     private final ApplicationEventPublisher events;
 
     public LearningPathCompletionServiceImpl(UserLearningPathRepository paths,
-            LearningFinalEligibilityServiceImpl eligibility, UserLearningStageRepository stages,
+            LearningFinalEligibilityService eligibility, UserLearningStageRepository stages,
             JlptQualificationPort qualification, ApplicationEventPublisher events) {
         this.paths = paths;
         this.eligibility = eligibility;
@@ -55,13 +58,18 @@ public class LearningPathCompletionServiceImpl implements LearningPathCompletion
             var latest = paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(
                     userId, LearningExperienceVersion.INTERACTIVE_V2).orElse(null);
             if (latest != null && "COMPLETED".equals(latest.getStatus())) {
-                return new PathCompletionResponse(latest.getId(), "COMPLETED", false,
-                        null, latest.getCompletedAt());
+                // Replay only for the attempt that qualified the path; any other id must not learn it succeeded.
+                if (attemptId != null && attemptId.equals(latest.getCompletionAttemptId())) {
+                    return new PathCompletionResponse(latest.getId(), "COMPLETED", false,
+                            latest.getTargetLevel(), latest.getCompletedAt());
+                }
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Lộ trình đã hoàn thành bằng một bài thi khác.");
             }
             throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình tương tác đang hoạt động.");
         }
 
-        var decision = eligibility.evaluate(eligibility.countStages(active.getId()));
+        var decision = eligibility.forPath(active.getId());
         if (!decision.eligible()) {
             throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
                     "Bạn cần hoàn thành thêm nội dung lộ trình trước khi thi thử.");
@@ -75,6 +83,7 @@ public class LearningPathCompletionServiceImpl implements LearningPathCompletion
         LocalDateTime now = LocalDateTime.now();
         active.setStatus("COMPLETED");
         active.setCompletedAt(now);
+        active.setCompletionAttemptId(attemptId);
         paths.save(active);
         stages.findByLearningPathIdOrderByStageIndexAsc(active.getId()).forEach(stage -> {
             if (!"COMPLETED".equals(stage.getStatus())) {

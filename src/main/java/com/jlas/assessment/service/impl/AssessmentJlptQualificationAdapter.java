@@ -1,4 +1,4 @@
-package com.jlas.learning.service.impl;
+package com.jlas.assessment.service.impl;
 
 import com.jlas.assessment.entity.JlptSectionResult;
 import com.jlas.assessment.repository.JlptExamAttemptRepository;
@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/** [JLAS-W0108] Task 9 — qualification is decided from stored Assessment rows only. Another user's attempt is
+/** [JLAS-W0108] Task 9 — Assessment-owned adapter for Learning's {@link JlptQualificationPort}: qualification is decided from stored Assessment rows only. Another user's attempt is
  * reported as ATTEMPT_NOT_FOUND so the endpoint cannot be used to probe attempt ids. */
 @Component
 public class AssessmentJlptQualificationAdapter implements JlptQualificationPort {
@@ -29,6 +29,12 @@ public class AssessmentJlptQualificationAdapter implements JlptQualificationPort
         if (!"JLPT".equals(exam.getAttempt().getAttemptType())) return fail("ATTEMPT_NOT_JLPT");
         if (!"SUBMITTED".equals(exam.getAttempt().getStatus())) return fail("ATTEMPT_NOT_SUBMITTED");
         if (!targetLevel.equals(exam.getExam().getJlptLevel())) return fail("LEVEL_MISMATCH");
+        String snapshot = exam.getPolicyVersion();
+        String current = exam.getExam().getPolicyVersion();
+        if (snapshot == null || snapshot.isBlank() || current == null || current.isBlank()) {
+            return fail("POLICY_VERSION_MISSING"); // fail closed: no snapshot means the result cannot be trusted
+        }
+        if (!snapshot.equals(current)) return fail("POLICY_VERSION_MISMATCH");
 
         var sections = attempts.findSectionResults(attemptId);
         if (sections.isEmpty()) return fail("NO_SECTION_RESULTS");

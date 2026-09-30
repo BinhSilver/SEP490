@@ -12,14 +12,12 @@ import org.junit.jupiter.api.Test;
  * below are tiny count tuples for code tests only, not curriculum data. */
 class LearningFinalEligibilityServiceTest {
 
-    private final LearningFinalEligibilityServiceImpl service = new LearningFinalEligibilityServiceImpl(null, null);
-
     private static StageCount stage(long id, int index, String level, int completed, int total) {
         return new StageCount(id, index, level, "ACTIVE", completed, total);
     }
 
     private FinalEligibilityResponse evaluate(int priorDone, int priorTotal, int targetDone, int targetTotal) {
-        return service.evaluate(List.of(stage(1, 0, "N5", priorDone, priorTotal),
+        return LearningFinalEligibilityServiceImpl.evaluate(List.of(stage(1, 0, "N5", priorDone, priorTotal),
                 stage(2, 1, "N4", targetDone, targetTotal)));
     }
 
@@ -62,26 +60,26 @@ class LearningFinalEligibilityServiceTest {
     }
 
     @Test void pathWithNoStagesIsBlocked() {
-        var result = service.evaluate(List.of());
+        var result = LearningFinalEligibilityServiceImpl.evaluate(List.of());
         assertFalse(result.eligible());
         assertEquals("BLOCKED_CONTENT", result.reasonCode());
     }
 
     @Test void singleStagePathUsesItselfAsTargetWithNoPriorStages() {
-        assertTrue(service.evaluate(List.of(stage(1, 0, "N4", 5, 10))).eligible());
-        assertFalse(service.evaluate(List.of(stage(1, 0, "N4", 4, 10))).eligible());
+        assertTrue(LearningFinalEligibilityServiceImpl.evaluate(List.of(stage(1, 0, "N4", 5, 10))).eligible());
+        assertFalse(LearningFinalEligibilityServiceImpl.evaluate(List.of(stage(1, 0, "N4", 4, 10))).eligible());
     }
 
     @Test void threeStageFoundationN5N4RequiresBothPriorStagesComplete() {
         var foundation = stage(1, 0, "FOUNDATION", 10, 10);
         var n5 = stage(2, 1, "N5", 24, 25);
         var n4 = stage(3, 2, "N4", 25, 25);
-        assertFalse(service.evaluate(List.of(foundation, n5, n4)).eligible());
-        assertTrue(service.evaluate(List.of(foundation, stage(2, 1, "N5", 25, 25), n4)).eligible());
+        assertFalse(LearningFinalEligibilityServiceImpl.evaluate(List.of(foundation, n5, n4)).eligible());
+        assertTrue(LearningFinalEligibilityServiceImpl.evaluate(List.of(foundation, stage(2, 1, "N5", 25, 25), n4)).eligible());
     }
 
     @Test void stagesAreReportedInStageIndexOrderRegardlessOfInputOrder() {
-        var result = service.evaluate(List.of(stage(2, 1, "N4", 50, 100), stage(1, 0, "N5", 100, 100)));
+        var result = LearningFinalEligibilityServiceImpl.evaluate(List.of(stage(2, 1, "N4", 50, 100), stage(1, 0, "N5", 100, 100)));
         assertEquals("N5", result.stages().get(0).level());
         assertEquals("N4", result.targetLevel());
         assertTrue(result.eligible());
