@@ -274,3 +274,18 @@ test('review list renders every card read-only, with no flip or remember control
   assert.doesNotMatch(html, /data-flip|data-remember|data-check/);
   assert.match(html, /Chế độ xem lại|chỉ xem/);
 });
+
+test('review feedback shows each past attempt with the question, the correct answer and the explanation', () => {
+  const html = studyMode.feedbackList([{ batchIndex: 0, scorePercent: 90, correctAnswers: 9, totalQuestions: 10, review: [
+    { questionId: 1, questionText: 'what is w1', correctOption: 2, selectedOption: 1, correct: false, explanation: 'w1 means one' }] }]);
+  assert.match(html, /Phần 1 · 90% \(9\/10\)/);
+  assert.match(html, /what is w1/);
+  assert.match(html, /Sai/);
+  assert.match(html, /đáp án đúng: 2/);
+  assert.match(html, /w1 means one/);
+});
+
+test('review feedback with no attempts says so instead of rendering an empty list', () => {
+  assert.match(studyMode.feedbackList([]), /data-feedback-empty/);
+  assert.match(studyMode.feedbackList(null), /data-feedback-empty/);
+});

@@ -60,13 +60,32 @@
   }
 
   /** Read-only REVIEW list; each item is pre-rendered card markup supplied by the page. */
-  function reviewList(title, items) {
+  function reviewList(title, items, feedbackHtml) {
     return banner('REVIEW') + '<section class="ilp-result"><header class="ilp-study__head"><div>' +
       '<span class="ilp-kicker">XEM LẠI</span><h1>' + esc(title) + '</h1></div></header><ol class="ilp-review-list">' +
       (items || []).map(function (item) { return '<li class="ilp-review-list__item">' + item.html + '</li>'; }).join('') +
-      '</ol><div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+      '</ol>' + (feedbackHtml || '') +
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+  }
+
+  /** Stored feedback of past attempts (GET /review/attempts): score, and each question with the correct answer and why. */
+  function feedbackList(feedback) {
+    if (!Array.isArray(feedback) || !feedback.length) {
+      return '<p class="ilp-result__meta" data-feedback-empty>Chưa có lượt làm bài nào để xem lại.</p>';
+    }
+    return '<section class="ilp-feedback" aria-label="Kết quả các lượt làm bài">' + feedback.map(function (batch) {
+      var items = (Array.isArray(batch.review) ? batch.review : []).map(function (r) {
+        return '<li class="' + (r.correct ? 'is-correct' : 'is-wrong') + '"><span>' + esc(r.questionText || ('Câu ' + r.questionId)) +
+          '</span><small>' + (r.correct ? 'Đúng' : 'Sai') + (r.correctOption != null ? ' · đáp án đúng: ' + esc(r.correctOption) : '') +
+          (r.selectedOption != null ? ' · bạn chọn: ' + esc(r.selectedOption) : ' · bạn bỏ trống') +
+          (r.explanation ? ' · ' + esc(r.explanation) : '') + '</small></li>';
+      }).join('');
+      return '<article class="ilp-feedback__batch" data-feedback-batch="' + num(batch.batchIndex) + '"><h2>Phần ' +
+        (num(batch.batchIndex) + 1) + ' · ' + num(batch.scorePercent) + '% (' + num(batch.correctAnswers) + '/' +
+        num(batch.totalQuestions) + ')</h2><ol>' + items + '</ol></article>';
+    }).join('') + '</section>';
   }
 
   return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, passedActions: passedActions,
-    practiceResult: practiceResult, reviewList: reviewList };
+    practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList };
 });

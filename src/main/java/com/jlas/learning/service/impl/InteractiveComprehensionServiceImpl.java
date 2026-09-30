@@ -98,6 +98,12 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
+        return engineFor(userId, activityId).reviewFeedback(userId, activityId);
+    }
+
+    @Override
     @Transactional
     public MicroCheckResponse issuePractice(Long userId, Long activityId) {
         return engineFor(userId, activityId).issuePractice(userId, activityId);

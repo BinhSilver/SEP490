@@ -2,6 +2,7 @@ package com.jlas.learning.service.impl.engine;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.learning.dto.AttemptFeedbackResponse;
 import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
 import com.jlas.learning.dto.MicroCheckResponse;
@@ -305,6 +306,34 @@ public class InteractiveStudyEngine<T> {
         }
         return new EngineStudyState<>(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 revisionOf(membership), membership.size(), membership.size(), membership.size(), 0, false, views);
+    }
+
+    /** REVIEW feedback: the newest submitted micro-check attempt of every batch with its stored per-question
+     * answers and explanations. Read-only; replays (PRACTICE_REPLAY) are a different quiz type and never appear. */
+    public List<AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
+        loadFinishedActivity(userId, activityId);
+        Map<Integer, LearningQuizSession> latest = new java.util.TreeMap<>();
+        for (LearningQuizSession session : quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                activityId, adapter.microCheckType(), "SUBMITTED")) {
+            if (session.getBatchIndex() != null && session.getResultJson() != null) {
+                latest.putIfAbsent(session.getBatchIndex(), session);
+            }
+        }
+        List<AttemptFeedbackResponse> feedback = new ArrayList<>();
+        for (LearningQuizSession session : latest.values()) {
+            LessonQuizResult result = mapper.readQuizResult(session.getResultJson());
+            Map<Long, String> prompts = new java.util.HashMap<>();
+            for (LessonQuizResponse.LessonQuizQuestion question : mapper.readQuizQuestions(session.getQuestionsJson())) {
+                prompts.put(question.questionId(), question.questionText());
+            }
+            List<AttemptFeedbackResponse.Item> items = result.review().stream()
+                    .map(r -> new AttemptFeedbackResponse.Item(r.questionId(), prompts.get(r.questionId()),
+                            r.correctOption(), r.selectedOption(), Boolean.TRUE.equals(r.correct()), r.explanation()))
+                    .toList();
+            feedback.add(new AttemptFeedbackResponse(session.getBatchIndex(), result.scorePercent(),
+                    result.correctAnswers(), result.totalQuestions(), result.passed(), session.getSubmittedAt(), items));
+        }
+        return feedback;
     }
 
     /** PRACTICE mode: issues a replay quiz snapshot. It rotates through the activity's batches by how many

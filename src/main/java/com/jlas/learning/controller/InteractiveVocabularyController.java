@@ -94,4 +94,11 @@ public class InteractiveVocabularyController {
         return ResponseEntity.ok(ApiResponse.ok("OK",
                 service.submitPractice(user.userId(), activityId, request)));
     }
+
+    /** [JLAS-W0108] REVIEW feedback of past attempts; read-only. */
+    @GetMapping("/review/attempts")
+    public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse>>> reviewAttempts(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewFeedback(user.userId(), activityId)));
+    }
 }

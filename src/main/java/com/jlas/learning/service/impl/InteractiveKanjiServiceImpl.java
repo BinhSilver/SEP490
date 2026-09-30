@@ -102,6 +102,12 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
+        return engine.reviewFeedback(userId, activityId);
+    }
+
+    @Override
     @Transactional
     public MicroCheckResponse issuePractice(Long userId, Long activityId) {
         return engine.issuePractice(userId, activityId);

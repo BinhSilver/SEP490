@@ -50,4 +50,8 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
 
     /** [JLAS-W0108] Task 10 - how many non-credit replays an activity already has (rotates the replay batch). */
     long countByActivityIdAndQuizType(Long activityId, String quizType);
+
+    /** [JLAS-W0108] REVIEW feedback source: submitted sessions of one quiz type, newest first. */
+    List<LearningQuizSession> findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+            Long activityId, String quizType, String status);
 }

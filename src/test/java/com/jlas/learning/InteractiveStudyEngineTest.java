@@ -155,6 +155,48 @@ class InteractiveStudyEngineTest {
         verify(quizSessions, never()).save(any());
     }
 
+    @Test
+    void reviewFeedbackReturnsTheLatestSubmittedAttemptPerBatchWithoutWriting() {
+        LearningQuizSession older = submitted(1L, 0, 40, "2026-09-01T10:00:00");
+        LearningQuizSession newer = submitted(2L, 0, 90, "2026-09-02T10:00:00");
+        LearningQuizSession other = submitted(3L, 1, 70, "2026-09-01T11:00:00");
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED"))
+                .thenReturn(List.of(newer, other, older));
+
+        var feedback = engine.reviewFeedback(USER, ACTIVITY);
+
+        assertEquals(2, feedback.size());
+        assertEquals(0, feedback.get(0).batchIndex());
+        assertEquals(90, feedback.get(0).scorePercent());
+        assertEquals(1, feedback.get(1).batchIndex());
+        assertFalse(feedback.get(0).review().isEmpty());
+        assertEquals("what is w1", feedback.get(0).review().get(0).questionText());
+        verify(quizSessions, never()).save(any());
+        verifyNoInteractions(checkStates, studySessions, studyCards);
+    }
+
+    @Test
+    void reviewFeedbackRequiresAFinishedActivity() {
+        activity.setActivityState(LearningActivityState.COOLDOWN);
+        ApiException error = assertThrows(ApiException.class, () -> engine.reviewFeedback(USER, ACTIVITY));
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
+    }
+
+    private LearningQuizSession submitted(long id, int batch, int score, String at) {
+        var mapper = new LearningMapper();
+        var question = new com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion(1L, "VOCABULARY", null, null, null,
+                null, null, "what is w1", List.of("a", "b"), "MEANING");
+        var review = new com.jlas.learning.dto.LessonQuizResult.AnswerReview(1L, 1, 1, true, "w1");
+        var result = new com.jlas.learning.dto.LessonQuizResult(1, 1, score, score >= 70, 70, false, List.of(review), List.of());
+        LearningQuizSession s = LearningQuizSession.builder().id(id).quizType("VOCAB_MICRO_CHECK").activityId(ACTIVITY)
+                .batchIndex(batch).status("SUBMITTED").questionCount(1).scorePercent(score)
+                .submittedAt(java.time.LocalDateTime.parse(at)).build();
+        s.setQuestionsJson(mapper.writeQuizQuestions(List.of(question)));
+        s.setAnswerKeyJson("{}");
+        s.setResultJson(mapper.writeQuizResult(result));
+        return s;
+    }
+
     private LearningQuizSession issuedPracticeSession() {
         engine.issuePractice(USER, ACTIVITY);
         var captor = org.mockito.ArgumentCaptor.forClass(LearningQuizSession.class);

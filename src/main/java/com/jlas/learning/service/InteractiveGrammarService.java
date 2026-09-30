@@ -1,5 +1,6 @@
 package com.jlas.learning.service;
 
+import com.jlas.learning.dto.AttemptFeedbackResponse;
 import com.jlas.learning.dto.GrammarFillSubmitRequest;
 import com.jlas.learning.dto.GrammarOrderingSubmitRequest;
 import com.jlas.learning.dto.GrammarPracticeResult;
@@ -31,4 +32,6 @@ public interface InteractiveGrammarService {
     /** [JLAS-W0108] Task 10 - PRACTICE mode: non-credit replay of a finished activity. */
     MicroCheckResponse issuePractice(Long userId, Long activityId);
     MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request);
+    /** [JLAS-W0108] REVIEW: stored feedback of the newest submitted attempt per batch (read-only). */
+    java.util.List<AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId);
 }

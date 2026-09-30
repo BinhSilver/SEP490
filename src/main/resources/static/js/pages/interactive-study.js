@@ -131,10 +131,10 @@
   }
 
   // [JLAS-W0108] Task 11 - REVIEW: the server's read-only view, rendered with no flip/remember/check controls.
-  function renderReview(v) {
+  function renderReview(v, feedback) {
     return window.InteractiveStudyMode.reviewList('Từ vựng đã học', v.cards.map(function (card) {
       return { html: '<article class="ilp-card is-flipped">' + cardFace(Object.assign({}, card, { flipped: true })) + '</article>' };
-    }));
+    }), feedback === null ? '' : window.InteractiveStudyMode.feedbackList(feedback));
   }
 
   function renderPassed(extra) {
@@ -173,7 +173,9 @@
       node.setAttribute('aria-busy', 'true');
       try {
         if (mode === 'REVIEW') {
-          node.innerHTML = renderReview(viewModel(await api(modeApi.study)));
+          var feedback = null;
+          try { feedback = await api('/review/attempts'); } catch (e) { feedback = null; }
+          node.innerHTML = renderReview(viewModel(await api(modeApi.study)), feedback);
           node.setAttribute('aria-busy', 'false');
           return;
         }
