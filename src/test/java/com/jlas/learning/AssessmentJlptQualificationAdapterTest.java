@@ -49,6 +49,7 @@ class AssessmentJlptQualificationAdapterTest {
     private void given(JlptExamAttempt attempt, JlptSectionResult... sections) {
         when(repo.findDetailedById(ATTEMPT)).thenReturn(Optional.ofNullable(attempt));
         when(repo.findSectionResults(ATTEMPT)).thenReturn(List.of(sections));
+        when(repo.findExamSections(1L)).thenReturn(java.util.Arrays.stream(sections).map(JlptSectionResult::getSection).toList());
     }
 
     @Test void passesWhenOwnerLevelStatusTotalAndEverySectionPass() {
@@ -100,6 +101,7 @@ class AssessmentJlptQualificationAdapterTest {
 
     @Test void attemptWithNoSectionResultsCannotQualify() {
         given(attempt(USER, "JLPT", "SUBMITTED", "N4", "0"));
+        when(repo.findExamSections(1L)).thenReturn(List.of(section(1, "0", "0").getSection()));
         assertEquals("NO_SECTION_RESULTS", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
     }
 
@@ -122,5 +124,18 @@ class AssessmentJlptQualificationAdapterTest {
         none.getExam().setPolicyVersion(null);
         given(none, section(1, "20", "60"), section(2, "20", "60"));
         assertEquals("POLICY_VERSION_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void anExamSectionWithoutAResultBlocksCompletion() {
+        given(attempt(USER, "JLPT", "SUBMITTED", "N4", "100"), section(1, "20", "60"));
+        var missing = JlptExamSection.builder().id(2L).minPassingScore(new BigDecimal("20")).build();
+        when(repo.findExamSections(1L)).thenReturn(List.of(section(1, "20", "60").getSection(), missing));
+        assertEquals("SECTION_RESULT_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void anExamWithNoDefinedSectionsCannotQualify() {
+        given(attempt(USER, "JLPT", "SUBMITTED", "N4", "100"), section(1, "20", "60"));
+        when(repo.findExamSections(1L)).thenReturn(List.of());
+        assertEquals("EXAM_HAS_NO_SECTIONS", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
     }
 }

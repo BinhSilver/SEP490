@@ -55,7 +55,7 @@ public class InteractiveLearningPathController {
     }
 
     /** [JLAS-W0108] Task 9 — body is only an attempt id; the server verifies the Mock Test itself. Idempotent. */
-    @PostMapping("/paths/current/complete-from-mock")
+    @PostMapping("/paths/current/complete")
     public ResponseEntity<ApiResponse<PathCompletionResponse>> completeFromMock(
             @Valid @RequestBody CompleteFromMockRequest request, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK",

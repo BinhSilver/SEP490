@@ -27,4 +27,8 @@ public interface JlptExamAttemptRepository extends JpaRepository<JlptExamAttempt
             where r.examAttempt.attemptId = :attemptId
             """)
     List<JlptSectionResult> findSectionResults(@Param("attemptId") Long attemptId);
+
+    /** Sections the exam defines; every one of them must have a result before an attempt can qualify. */
+    @Query("select s from JlptExamSection s where s.exam.id = :examId order by s.orderIndex, s.id")
+    List<com.jlas.assessment.entity.JlptExamSection> findExamSections(@Param("examId") Long examId);
 }

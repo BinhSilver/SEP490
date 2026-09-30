@@ -23,16 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
  * without touching the port or publishing a second event. */
 @Service
 public class LearningPathCompletionServiceImpl implements LearningPathCompletionService {
-    private static final Map<String, String> REASON_TEXT = Map.of(
-            "ATTEMPT_NOT_FOUND", "Không tìm thấy bài thi của bạn.",
-            "ATTEMPT_NOT_JLPT", "Bài này không phải bài thi JLPT.",
-            "ATTEMPT_NOT_SUBMITTED", "Bài thi chưa được nộp.",
-            "LEVEL_MISMATCH", "Bài thi không đúng cấp độ mục tiêu của lộ trình.",
-            "NO_SECTION_RESULTS", "Bài thi chưa có kết quả từng phần.",
-            "SECTION_BELOW_PASSING", "Có phần thi chưa đạt điểm tối thiểu.",
-            "TOTAL_SCORE_BELOW_PASSING", "Tổng điểm bài thi chưa đạt.",
-            "POLICY_VERSION_MISSING", "Kết quả bài thi chưa có phiên bản chính sách hợp lệ.",
-            "POLICY_VERSION_MISMATCH", "Kết quả bài thi thuộc phiên bản chính sách cũ, hãy thi lại.");
+    private static final Map<String, String> REASON_TEXT = Map.ofEntries(
+            Map.entry("ATTEMPT_NOT_FOUND", "Không tìm thấy bài thi của bạn."),
+            Map.entry("ATTEMPT_NOT_JLPT", "Bài này không phải bài thi JLPT."),
+            Map.entry("ATTEMPT_NOT_SUBMITTED", "Bài thi chưa được nộp."),
+            Map.entry("LEVEL_MISMATCH", "Bài thi không đúng cấp độ mục tiêu của lộ trình."),
+            Map.entry("NO_SECTION_RESULTS", "Bài thi chưa có kết quả từng phần."),
+            Map.entry("SECTION_RESULT_MISSING", "Bài thi còn thiếu kết quả của một phần thi."),
+            Map.entry("EXAM_HAS_NO_SECTIONS", "Đề thi chưa định nghĩa các phần thi."),
+            Map.entry("SECTION_BELOW_PASSING", "Có phần thi chưa đạt điểm tối thiểu."),
+            Map.entry("TOTAL_SCORE_BELOW_PASSING", "Tổng điểm bài thi chưa đạt."),
+            Map.entry("POLICY_VERSION_MISSING", "Kết quả bài thi chưa có phiên bản chính sách hợp lệ."),
+            Map.entry("POLICY_VERSION_MISMATCH", "Kết quả bài thi thuộc phiên bản chính sách cũ, hãy thi lại."));
 
     private final UserLearningPathRepository paths;
     private final LearningFinalEligibilityService eligibility;

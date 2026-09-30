@@ -36,8 +36,14 @@ public class AssessmentJlptQualificationAdapter implements JlptQualificationPort
         }
         if (!snapshot.equals(current)) return fail("POLICY_VERSION_MISMATCH");
 
+        var required = attempts.findExamSections(exam.getExam().getId());
+        if (required.isEmpty()) return fail("EXAM_HAS_NO_SECTIONS");
         var sections = attempts.findSectionResults(attemptId);
         if (sections.isEmpty()) return fail("NO_SECTION_RESULTS");
+        var answered = sections.stream().map(r -> r.getSection().getId()).collect(java.util.stream.Collectors.toSet());
+        if (required.stream().anyMatch(section -> !answered.contains(section.getId()))) {
+            return fail("SECTION_RESULT_MISSING");
+        }
         BigDecimal total = BigDecimal.ZERO;
         for (JlptSectionResult section : sections) {
             total = total.add(section.getScore());
