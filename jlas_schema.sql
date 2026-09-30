@@ -759,6 +759,7 @@ CREATE TABLE dictionary_favorite (
 -- Dau sach/giao trinh; Amon cung la mot textbook trong cay chung.
 CREATE TABLE textbook (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    source_code VARCHAR(64) NULL, -- [JLAS-W0108] Stable nullable curriculum import key.
     title       VARCHAR(255) NOT NULL,
     description TEXT NULL,
     jlpt_level  VARCHAR(10) NULL,
@@ -773,6 +774,7 @@ CREATE TABLE textbook (
     updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                 ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_textbook_source_code (source_code),
     KEY idx_textbook_status (status, updated_at),
     KEY idx_textbook_learning_path_source (is_learning_path_source, jlpt_level, status),
     CONSTRAINT chk_textbook_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
@@ -784,10 +786,12 @@ CREATE TABLE textbook (
 CREATE TABLE unit (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     textbook_id BIGINT UNSIGNED NOT NULL,
+    source_code VARCHAR(64) NULL, -- [JLAS-W0108] Stable within textbook.
     title       VARCHAR(255) NOT NULL,
     description TEXT NULL,
     order_index INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
+    UNIQUE KEY uk_unit_source_code (textbook_id, source_code),
     UNIQUE KEY uk_unit_order (textbook_id, order_index),
     CONSTRAINT fk_unit_textbook FOREIGN KEY (textbook_id)
         REFERENCES textbook(id) ON DELETE CASCADE
@@ -797,6 +801,7 @@ CREATE TABLE unit (
 CREATE TABLE lesson (
     id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     unit_id           BIGINT UNSIGNED NOT NULL,
+    source_code       VARCHAR(64) NULL, -- [JLAS-W0108] Stable within unit.
     knowledge_tag_id  BIGINT UNSIGNED NOT NULL,  -- Diem kien thuc chinh cho weakness/recommendation.
     title             VARCHAR(255) NOT NULL,
     description       TEXT NULL,
@@ -811,6 +816,7 @@ CREATE TABLE lesson (
     updated_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                       ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_source_code (unit_id, source_code),
     UNIQUE KEY uk_lesson_unit_order (unit_id, order_index),
     KEY idx_lesson_status_skill (status, skill),
     KEY idx_lesson_knowledge_tag (knowledge_tag_id),
@@ -1129,6 +1135,7 @@ CREATE TABLE assessment_quiz (
 -- phu thuoc tung bai nen nam trong assessment_quiz_question.
 CREATE TABLE assessment_question (
     id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    source_code         VARCHAR(100) NULL, -- [JLAS-W0108] Stable workbook/import key.
     conversion_rule_id  BIGINT UNSIGNED NULL,     -- Chi dung khi cau hoi gan rule Amon.
     knowledge_tag_id    BIGINT UNSIGNED NOT NULL, -- Knowledge point chinh de gom weakness.
     topic_tag_id        BIGINT UNSIGNED NULL,     -- [JLAS-W0108] Topic (Reading/Listening) cho weak evidence.
@@ -1160,6 +1167,7 @@ CREATE TABLE assessment_question (
     updated_at          DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                         ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
+    UNIQUE KEY uk_assessment_question_source_code (source_code),
     KEY idx_assessment_question_adaptive
         (skill, jlpt_level, difficulty, is_active),
     KEY idx_assessment_question_rule (conversion_rule_id),
@@ -1782,7 +1790,7 @@ CREATE TABLE learning_activity_member (
 CREATE TABLE user_learning_stage (
     id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id  BIGINT UNSIGNED NOT NULL,
-    level             VARCHAR(10) NOT NULL,       -- Cấp mục tiêu của chặng (N5/N4/N3/N2/N1).
+    level             VARCHAR(10) NOT NULL,       -- [JLAS-W0108] FOUNDATION hoặc cấp N5..N1.
     stage_index       INT UNSIGNED NOT NULL,      -- Thứ tự chặng, bắt đầu từ 0.
     curriculum_version VARCHAR(100) NULL,         -- Fingerprint bộ sách đã duyệt; P8 ghim manifest thật.
     assessment_cycle  VARCHAR(50) NULL,           -- Đợt đánh giá cuối chặng; 1 = đợt đầu, tăng khi retest.
@@ -1796,7 +1804,7 @@ CREATE TABLE user_learning_stage (
     CONSTRAINT fk_learning_stage_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_stage_level
-        CHECK (level IN ('N5','N4','N3','N2','N1')),
+        CHECK (level IN ('FOUNDATION','N5','N4','N3','N2','N1')),
     CONSTRAINT chk_learning_stage_status CHECK (status IN ('PENDING','ACTIVE','COMPLETED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

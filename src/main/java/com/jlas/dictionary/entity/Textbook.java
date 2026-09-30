@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
  * Table: textbook
  */
 @Entity
-@Table(name = "textbook")
+@Table(name = "textbook", uniqueConstraints =
+        @UniqueConstraint(name = "uk_textbook_source_code", columnNames = "source_code"))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,6 +22,10 @@ public class Textbook {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0108] Stable key used by repeatable curriculum imports; null for module-owned rows. */
+    @Column(name = "source_code", length = 64)
+    private String sourceCode;
 
     @Column(name = "title", nullable = false, length = 255)
     private String title;

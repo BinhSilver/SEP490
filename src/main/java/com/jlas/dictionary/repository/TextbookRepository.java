@@ -19,6 +19,8 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
 
     Optional<Textbook> findByIdAndStatus(Long id, String status);
 
+    Optional<Textbook> findBySourceCode(String sourceCode);
+
     /** JLPT curriculum textbooks (published, level in range); {@code id < idLessThan} excludes the local demo seed. */
     List<Textbook> findByJlptLevelInAndStatusAndIdLessThanOrderByIdAsc(
             List<String> jlptLevels, String status, Long idLessThan);
