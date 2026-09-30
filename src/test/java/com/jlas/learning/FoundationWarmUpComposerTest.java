@@ -14,6 +14,7 @@ import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.enums.LearningMemberType;
@@ -64,7 +65,8 @@ class FoundationWarmUpComposerTest {
         lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
         lenient().when(items.findMaxOrderIndexByLearningPathId(anyLong())).thenReturn(0);
         lenient().when(items.findMaxDayNumberByLearningPathId(anyLong())).thenReturn(0);
-        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of());
+        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of(
+                UserLearningStage.builder().id(21L).level("FOUNDATION").stageIndex(0).status("ACTIVE").build()));
         lenient().when(packages.save(any())).thenAnswer(i -> {
             var p = i.getArgument(0, LearningPathPackage.class);
             p.setId((long) p.getOrderIndex());
@@ -138,6 +140,23 @@ class FoundationWarmUpComposerTest {
         @SuppressWarnings("unchecked")
         List<LearningActivityMember> firstRows = memberCaptor.getAllValues().get(0);
         assertTrue(firstRows.stream().allMatch(r -> r.getMemberType() == LearningMemberType.FOUNDATION_CHARACTER));
+    }
+
+    @Test void foundationPackageUsesTheFoundationStageRatherThanTheFirstStage() {
+        var path = path();
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(
+                UserLearningStage.builder().id(20L).learningPath(path).level("N5").stageIndex(0).build(),
+                UserLearningStage.builder().id(21L).learningPath(path).level("FOUNDATION").stageIndex(1).build()));
+        when(textbooks.findKanaFoundationByStatus("PUBLISHED"))
+                .thenReturn(List.of(Textbook.builder().id(3L).build()));
+        var lesson = kanaLesson(51L, "Bài 1");
+        when(lessons.findByTextbookIdAndStatus(3L, "PUBLISHED")).thenReturn(List.of(lesson));
+        when(contentItems.findByLessonIdAndContentType(51L, "READING"))
+                .thenReturn(List.of(character(1, "a", "あ")));
+
+        composer.composeFoundation(path, profile("BELOW_N5"));
+
+        verify(packages).save(argThat(value -> Long.valueOf(21L).equals(value.getStageId())));
     }
 
     @Test void fromZeroLearnerWithNoKanaTextbookGetsAGapNotAnException() {

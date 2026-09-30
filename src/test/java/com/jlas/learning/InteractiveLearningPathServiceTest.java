@@ -8,11 +8,13 @@ import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.enums.*;
 import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
+import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.impl.InteractiveLearningPathServiceImpl;
 import com.jlas.mission.entity.UserStreaks;
 import com.jlas.mission.repository.UserStreaksRepository;
@@ -39,12 +41,14 @@ class InteractiveLearningPathServiceTest {
     @Mock LearningQuizSessionRepository quizSessions;
     @Mock UserStreaksRepository streakRepository;
     @Mock UserCreditService creditService;
+    @Mock UserLearningStageRepository stages;
     InteractiveLearningPathServiceImpl service;
 
     @BeforeEach void setUp() {
         service = new InteractiveLearningPathServiceImpl(paths, packages, items, quizSessions);
         setField("streakRepository", streakRepository);
         setField("creditService", creditService);
+        setField("stages", stages);
     }
 
     private void setField(String name, Object value) {
@@ -426,6 +430,46 @@ class InteractiveLearningPathServiceTest {
         assertEquals(LearningPackageStatus.LOCKED, third.getStatus());
         assertEquals(12L, result.nextAvailablePackageId());
         assertFalse(result.lastPackage());
+    }
+
+    @Test void activePathWithNoPackagesIsBlockedInsteadOfReportingOneHundredPercent() {
+        var path = interactivePath();
+        when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+
+        ApiException error = assertThrows(ApiException.class, () -> service.current(7L));
+
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+        assertTrue(error.getMessage().contains("EMPTY_LESSON"));
+    }
+
+    @Test void completingTheLastN5PackageCompletesItsStageAndActivatesN4() {
+        var path = interactivePath();
+        var n5Stage = UserLearningStage.builder().id(101L).learningPath(path).level("N5")
+                .stageIndex(0).status("ACTIVE").build();
+        var n4Stage = UserLearningStage.builder().id(102L).learningPath(path).level("N4")
+                .stageIndex(1).status("PENDING").build();
+        var n5Package = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        n5Package.setStageId(101L);
+        var n4Package = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        n4Package.setStageId(102L);
+        var activities = activities(n5Package);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(n5Package));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(n5Package, n4Package));
+        when(stages.findById(101L)).thenReturn(Optional.of(n5Stage));
+        when(stages.findByLearningPathIdAndStageIndex(2L, 1)).thenReturn(Optional.of(n4Stage));
+        stubNoScoredSessions();
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals("COMPLETED", n5Stage.getStatus());
+        assertEquals("ACTIVE", n4Stage.getStatus());
+        assertEquals(LearningPackageStatus.AVAILABLE, n4Package.getStatus());
+        verify(stages).save(n5Stage);
+        verify(stages).save(n4Stage);
     }
 
     @Test void lastPackageInPathReportsNoNextAvailablePackage() {

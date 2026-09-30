@@ -19,6 +19,7 @@ import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.enums.LearningPackageStatus;
@@ -73,7 +74,9 @@ class WarmUpBComposerTest {
         lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
         lenient().when(items.findMaxOrderIndexByLearningPathId(anyLong())).thenReturn(0);
         lenient().when(items.findMaxDayNumberByLearningPathId(anyLong())).thenReturn(0);
-        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of());
+        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of(
+                UserLearningStage.builder().id(40L).level("FOUNDATION").stageIndex(0).build(),
+                UserLearningStage.builder().id(41L).level("N3").stageIndex(1).build()));
         lenient().when(packages.save(any())).thenAnswer(i -> {
             var p = i.getArgument(0, LearningPathPackage.class);
             p.setId((long) p.getOrderIndex());
@@ -224,6 +227,7 @@ class WarmUpBComposerTest {
         verify(packages).save(pkgCaptor.capture());
         assertEquals("WARM_UP", pkgCaptor.getValue().getPhase());
         assertNull(pkgCaptor.getValue().getSourceLesson());
+        assertEquals(41L, pkgCaptor.getValue().getStageId());
 
         var itemCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
         verify(items).save(itemCaptor.capture());

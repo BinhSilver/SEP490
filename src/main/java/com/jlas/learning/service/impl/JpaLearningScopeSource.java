@@ -2,6 +2,7 @@ package com.jlas.learning.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.learning.JlptPathPolicy;
 import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.repository.TextbookRepository;
 import com.jlas.learning.dto.LearningCatalogScope;
@@ -31,9 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Primary
 @RequiredArgsConstructor
 public class JpaLearningScopeSource implements LearningScopeSource {
-    private static final List<String> LEVELS = List.of("BELOW_N5", "N5", "N4", "N3", "N2", "N1");
-
     private final TextbookRepository textbooks;
+    private final JlptPathPolicy pathPolicy = new JlptPathPolicy();
 
     @Override
     @Transactional(readOnly = true)
@@ -43,30 +43,36 @@ public class JpaLearningScopeSource implements LearningScopeSource {
                     "Curriculum scope is only available for the JLPT goal.");
         }
         boolean fromZero = "BELOW_N5".equals(profile.assessedLevel());
-        int assessedIdx = LEVELS.indexOf(profile.assessedLevel());
-        int targetIdx = LEVELS.indexOf(profile.targetLevel());
-        if (assessedIdx < 0 || targetIdx < 1) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Valid assessed/target levels are required.");
+        var eligibility = pathPolicy.evaluate(profile.assessedLevel(), profile.targetLevel());
+        if (!eligibility.allowed()) {
+            throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
+                    "Mục tiêu " + profile.targetLevel() + " chưa phù hợp; hệ thống khuyến nghị "
+                            + eligibility.recommendedTarget() + ".");
         }
 
         // Warm-up: from-zero = sách nền tảng bảng chữ cái; còn lại = sách ở cấp đã kết luận (điểm yếu).
         List<Long> warmUpIds = fromZero
                 ? textbooks.findKanaFoundationByStatus("PUBLISHED").stream().map(Textbook::getId).toList()
                 : realBookIds(List.of(profile.assessedLevel()));
-
-        // Chặng mục tiêu: củng cố khi target == assessed, ngược lại là các cấp ngay trên assessed tới target.
-        List<String> stageLevels = targetIdx == assessedIdx
-                ? List.of(profile.assessedLevel())
-                : LEVELS.subList(assessedIdx + 1, targetIdx + 1);
+        if (fromZero && warmUpIds.isEmpty()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "MISSING_FOUNDATION: Chưa có học liệu bảng chữ cái đã duyệt.");
+        }
 
         List<LearningStageScope> stages = new ArrayList<>();
         List<Long> goalIds = new ArrayList<>();
-        for (String level : stageLevels) {
+        if (fromZero) {
+            List<Textbook> foundationBooks = textbooks.findKanaFoundationByStatus("PUBLISHED");
+            stages.add(new LearningStageScope("FOUNDATION",
+                    curriculumVersion("FOUNDATION", foundationBooks), warmUpIds));
+        }
+        for (String level : eligibility.stageLevels().stream()
+                .filter(level -> !"FOUNDATION".equals(level)).toList()) {
             List<Textbook> books = realBooks(List.of(level));
             if (books.isEmpty()) {
                 // [JLAS-W0108] P6/R6 — thiếu cấp (giữa hoặc đích) trả BLOCKED_CONTENT, không fallback demo.
                 throw new ApiException(ErrorCode.BLOCKED_CONTENT,
-                        "Chưa có đủ học liệu đã duyệt cho cấp độ " + level + ".");
+                        "MISSING_LEVEL_BOOK: Chưa có học liệu đã duyệt cho cấp độ " + level + ".");
             }
             List<Long> ids = books.stream().map(Textbook::getId).toList();
             stages.add(new LearningStageScope(level, curriculumVersion(level, books), ids));

@@ -96,7 +96,10 @@ public class FoundationWarmUpComposerImpl implements FoundationWarmUpComposer {
         int itemOrder = items.findMaxOrderIndexByLearningPathId(path.getId());
         boolean isFirstPackageOverall = !packages.existsByLearningPathId(path.getId());
         Long stageId = stages.findByLearningPathIdOrderByStageIndexAsc(path.getId()).stream()
-                .findFirst().map(com.jlas.learning.entity.UserLearningStage::getId).orElse(null);
+                .filter(stage -> "FOUNDATION".equals(stage.getLevel()))
+                .findFirst().map(com.jlas.learning.entity.UserLearningStage::getId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BLOCKED_CONTENT,
+                        "MISSING_FOUNDATION: Lộ trình chưa có stage FOUNDATION."));
 
         List<CoverageGap> gaps = new ArrayList<>();
         int packagesCreated = 0;

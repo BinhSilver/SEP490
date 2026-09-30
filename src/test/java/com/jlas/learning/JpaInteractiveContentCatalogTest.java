@@ -32,8 +32,24 @@ class JpaInteractiveContentCatalogTest {
 
         var reasons=catalog.inspect(10L,"N4").gaps().stream().map(g->g.reasonCode()).toList();
 
-        assertTrue(reasons.containsAll(List.of("SOURCE_NOT_PUBLISHED","SOURCE_LEVEL_MISMATCH",
-                "DUPLICATE_VOCABULARY_IDENTITY","MISSING_KANJI","MISSING_GRAMMAR","MISSING_DIALOGUE")));
+        assertTrue(reasons.containsAll(List.of("SOURCE_NOT_PUBLISHED", "LEVEL_MISMATCH",
+                "DUPLICATE_VOCABULARY_IDENTITY", "KANJI_WITHOUT_LESSON_VOCAB",
+                "MISSING_CANONICAL_MEMBER")));
         verifyNoInteractions(readings,audio);
+    }
+
+    @Test void emptyLessonHasAnExplicitReadinessDiagnostic(){
+        var book=Textbook.builder().id(1L).jlptLevel("N4").status("PUBLISHED").version(1).build();
+        var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build())
+                .title("L").status("PUBLISHED").build();
+        when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+        when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(List.of());
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(10L)).thenReturn(List.of());
+        when(dialogue.findByLessonId(10L)).thenReturn(List.of());
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+        var reasons=catalog.inspect(10L,"N4").gaps().stream().map(g->g.reasonCode()).toList();
+
+        assertTrue(reasons.contains("EMPTY_LESSON"));
     }
 }

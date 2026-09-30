@@ -34,7 +34,8 @@ class InteractivePackageComposerTest {
         lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
         lenient().when(items.findMaxOrderIndexByLearningPathId(anyLong())).thenReturn(0);
         lenient().when(items.findMaxDayNumberByLearningPathId(anyLong())).thenReturn(0);
-        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of());
+        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of(
+                UserLearningStage.builder().id(41L).level("N4").stageIndex(0).status("ACTIVE").build()));
         lenient().when(packages.save(any())).thenAnswer(i->{var p=i.getArgument(0,LearningPathPackage.class);p.setId((long)p.getOrderIndex());return p;});
         lenient().when(items.save(any())).thenAnswer(i->{var item=i.getArgument(0,UserLearningPathItem.class);item.setId((long)item.getOrderIndex());return item;});}
 
@@ -57,6 +58,18 @@ class InteractivePackageComposerTest {
         var captor=ArgumentCaptor.forClass(UserLearningPathItem.class); verify(items,times(4)).save(captor.capture());
         assertEquals(List.of(LearningActivityType.VOCABULARY,LearningActivityType.KANJI,LearningActivityType.GRAMMAR,LearningActivityType.DIALOGUE),
                 captor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+        verify(packages).save(argThat(value -> Long.valueOf(41L).equals(value.getStageId())));
+    }
+
+    @Test void missingStageBlocksCompositionWithLevelMismatch(){
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of());
+        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
+
+        var result=composer.compose(path(),List.of(seed(10L,1)));
+
+        assertFalse(result.published());
+        assertEquals("LEVEL_MISMATCH",result.gaps().getFirst().reasonCode());
+        verify(packages,never()).save(any());
     }
 
     @Test void retryReturnsExistingPackagesWithoutRecomposing(){

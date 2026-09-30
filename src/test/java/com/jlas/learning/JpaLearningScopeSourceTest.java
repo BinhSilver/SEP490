@@ -41,34 +41,30 @@ class JpaLearningScopeSourceTest {
     @Autowired LearningScopeSource scope;
 
     @Test
-    void missingMiddleLevelThrowsBlockedContentInsteadOfDemoFallback() {
-        // Real published textbooks only cover N5 and N4; N3 has no real content yet.
+    void targetBeyondPolicyIsRejectedBeforeCurriculumLookup() {
         book("N5", "Sekai N5");
         book("N4", "Sekai N4");
-        demoBook(9003L, "N3"); // demo seed KHÔNG được dùng thay học liệu thật (P6/R6)
         em.flush();
         em.clear();
 
         var exception = assertThrows(ApiException.class,
                 () -> scope.resolve(7L, snapshot("N5", "N3")));
-        assertEquals(ErrorCode.BLOCKED_CONTENT, exception.getErrorCode());
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, exception.getErrorCode());
     }
 
     @Test
-    void prefersRealTextbookOverDemoSeedForTheSameLevel() {
+    void excludesDemoSeedForTheSameLevel() {
         var n5 = book("N5", "Sekai N5");
         var n4 = book("N4", "Sekai N4");
-        var n3 = book("N3", "Sekai N3");
-        demoBook(9003L, "N3"); // shadowed by the real N3 textbook
+        demoBook(9004L, "N4");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N5", "N3"));
+        var result = scope.resolve(7L, snapshot("N5", "N4"));
 
-        // Goal chỉ gồm cấp TRÊN assessed (N4+N3), không trộn N5; demo bị loại.
-        assertEquals(List.of(n4.getId(), n3.getId()), result.goalTextbookIds());
+        assertEquals(List.of(n4.getId()), result.goalTextbookIds());
         assertEquals(List.of(n5.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of("N4", "N3"), result.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of("N4"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     @Test
@@ -82,7 +78,7 @@ class JpaLearningScopeSourceTest {
 
         assertEquals(List.of(kana.getId()), result.warmUpTextbookIds());
         assertEquals(List.of(n5.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N5"), result.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of("FOUNDATION", "N5"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     @Test
@@ -100,22 +96,20 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
-    void n5ToN3ProducesTwoSequentialStages() {
+    void fromZeroToN4ProducesFoundationN5N4Stages() {
+        var kana = kanaBook();
         var n5 = book("N5", "Sekai N5");
         var n4 = book("N4", "Sekai N4");
-        var n3 = book("N3", "Sekai N3");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N5", "N3"));
+        var result = scope.resolve(7L, snapshot("BELOW_N5", "N4"));
 
-        assertEquals(List.of(n5.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n4.getId(), n3.getId()), result.goalTextbookIds());
-        assertEquals(2, result.stages().size());
-        assertEquals("N4", result.stages().get(0).level());
-        assertEquals(List.of(n4.getId()), result.stages().get(0).goalTextbookIds());
-        assertEquals("N3", result.stages().get(1).level());
-        assertEquals(List.of(n3.getId()), result.stages().get(1).goalTextbookIds());
+        assertEquals(List.of(kana.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n5.getId(), n4.getId()), result.goalTextbookIds());
+        assertEquals(List.of("FOUNDATION", "N5", "N4"),
+                result.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of(kana.getId()), result.stages().getFirst().goalTextbookIds());
     }
 
     @Test

@@ -113,6 +113,7 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
                 && reading.isEmpty() && listening.isEmpty()) return new InteractiveCompositionResult(true, 0, gaps);
 
         Long stageId = stages.findByLearningPathIdOrderByStageIndexAsc(path.getId()).stream()
+                .filter(stage -> !"FOUNDATION".equals(stage.getLevel()))
                 .findFirst().map(UserLearningStage::getId).orElse(null);
 
         int dayNumber = items.findMaxDayNumberByLearningPathId(path.getId()) + 1;

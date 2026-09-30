@@ -48,6 +48,14 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
         targets.values().forEach(seed->{var snapshot=catalog.inspect(seed.resource().lessonId(),seed.resource().level()); inspected.add(Map.entry(seed,snapshot)); gaps.addAll(snapshot.gaps());});
         if(!gaps.isEmpty()) return new InteractiveCompositionResult(false,0,gaps);
 
+        Map<String,Long> stageByLevel=new HashMap<>();
+        stages.findByLearningPathIdOrderByStageIndexAsc(path.getId())
+                .forEach(stage -> stageByLevel.put(stage.getLevel(), stage.getId()));
+        targets.values().stream().map(seed -> seed.resource().level()).distinct()
+                .filter(level -> !stageByLevel.containsKey(level))
+                .forEach(level -> gaps.add(new CoverageGap("LEVEL:" + level, "LEVEL_MISMATCH")));
+        if(!gaps.isEmpty()) return new InteractiveCompositionResult(false,0,gaps);
+
         int packageOrder=0; int activityOrder=items.findMaxOrderIndexByLearningPathId(path.getId());
         int firstTargetDay=items.findMaxDayNumberByLearningPathId(path.getId());
         // [JLAS-W0193] Task 9 fix: package order_index must continue after any Warm-up B packages already
@@ -55,8 +63,6 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
         // would collide with an existing warm-up package's order_index.
         int packageOrderBase = packages.findByLearningPathIdOrderByOrderIndex(path.getId()).stream()
                 .mapToInt(LearningPathPackage::getOrderIndex).max().orElse(0);
-        Map<String,Long> stageByLevel=new HashMap<>();
-        stages.findByLearningPathIdOrderByStageIndexAsc(path.getId()).forEach(s->stageByLevel.put(s.getLevel(),s.getId()));
         for(var entry:inspected){
             var seed=entry.getKey(); var snapshot=entry.getValue(); packageOrder++;
             var learningPackage=packages.save(LearningPathPackage.builder().learningPath(path).sourceLesson(snapshot.lesson())

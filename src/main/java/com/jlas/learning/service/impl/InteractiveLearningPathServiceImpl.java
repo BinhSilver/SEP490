@@ -18,6 +18,7 @@ import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
+import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.InteractiveLearningPathService;
 import com.jlas.mission.entity.UserStreaks;
 import com.jlas.mission.repository.UserStreaksRepository;
@@ -74,6 +75,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private UserStreaksRepository streakRepository;
     @Autowired(required = false)
     private UserCreditService creditService;
+    @Autowired(required = false)
+    private UserLearningStageRepository stages;
 
     @Override
     @Transactional
@@ -83,6 +86,10 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,
                         "Bạn chưa có lộ trình tương tác đang hoạt động."));
         List<LearningPathPackage> packageEntities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
+        if (packageEntities.isEmpty()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "EMPTY_LESSON: Lộ trình chưa có package học hợp lệ.");
+        }
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
         List<InteractiveLearningPackageResponse> packageViews = packageEntities.stream()
                 .map(p -> mapPackage(p, packageEntities, p.getId().equals(justCompletedId)))
@@ -183,9 +190,32 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         learningPackage.setScorePercent(score);
         packages.save(learningPackage);
         grantCompletionReward(userId, learningPackage);
+        advanceStageIfComplete(learningPackage, siblings);
         unlockNextPackage(learningPackage, siblings);
         maybeCompletePath(learningPackage, siblings);
         return true;
+    }
+
+    private void advanceStageIfComplete(LearningPathPackage completed,
+            List<LearningPathPackage> siblings) {
+        if (stages == null || completed.getStageId() == null) return;
+        boolean stageComplete = siblings.stream()
+                .filter(pkg -> completed.getStageId().equals(pkg.getStageId()))
+                .allMatch(pkg -> pkg.getStatus() == LearningPackageStatus.COMPLETED);
+        if (!stageComplete) return;
+        stages.findById(completed.getStageId()).ifPresent(stage -> {
+            if (!"COMPLETED".equals(stage.getStatus())) {
+                stage.setStatus("COMPLETED");
+                stages.save(stage);
+            }
+            stages.findByLearningPathIdAndStageIndex(
+                    completed.getLearningPath().getId(), stage.getStageIndex() + 1).ifPresent(next -> {
+                if ("PENDING".equals(next.getStatus())) {
+                    next.setStatus("ACTIVE");
+                    stages.save(next);
+                }
+            });
+        });
     }
 
     /** [JLAS-W0193] Task 10 — once every {@code GOAL_LEARNING} package in the path is {@code COMPLETED}, the
