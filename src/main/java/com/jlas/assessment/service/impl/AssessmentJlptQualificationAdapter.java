@@ -12,9 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class AssessmentJlptQualificationAdapter implements JlptQualificationPort {
     private final JlptExamAttemptRepository attempts;
+    private final java.util.Set<String> acceptedPolicyVersions;
 
-    public AssessmentJlptQualificationAdapter(JlptExamAttemptRepository attempts) {
+    /** {@code acceptedPolicyVersions} comes from server configuration only ({@code assessment.jlpt.accepted-policy-versions});
+     * an empty or blank list accepts nothing (fail closed). */
+    public AssessmentJlptQualificationAdapter(JlptExamAttemptRepository attempts,
+            @org.springframework.beans.factory.annotation.Value("${assessment.jlpt.accepted-policy-versions:}")
+            java.util.List<String> acceptedPolicyVersions) {
         this.attempts = attempts;
+        this.acceptedPolicyVersions = (acceptedPolicyVersions == null ? java.util.List.<String>of() : acceptedPolicyVersions)
+                .stream().filter(v -> v != null && !v.isBlank()).map(String::trim)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -30,12 +38,9 @@ public class AssessmentJlptQualificationAdapter implements JlptQualificationPort
         if (!"SUBMITTED".equals(exam.getAttempt().getStatus())) return fail("ATTEMPT_NOT_SUBMITTED");
         if (!targetLevel.equals(exam.getExam().getJlptLevel())) return fail("LEVEL_MISMATCH");
         String snapshot = exam.getPolicyVersion();
-        String current = exam.getExam().getPolicyVersion();
-        if (snapshot == null || snapshot.isBlank() || current == null || current.isBlank()) {
-            return fail("POLICY_VERSION_MISSING"); // fail closed: no snapshot means the result cannot be trusted
-        }
-        if (!snapshot.equals(current)) return fail("POLICY_VERSION_MISMATCH");
-
+        if (snapshot == null || snapshot.isBlank()) return fail("POLICY_VERSION_MISSING");
+        // The attempt's own immutable snapshot is judged against the configured allow-list, not the exam's current policy.
+        if (!acceptedPolicyVersions.contains(snapshot.trim())) return fail("POLICY_VERSION_UNSUPPORTED");
         var required = attempts.findExamSections(exam.getExam().getId());
         if (required.isEmpty()) return fail("EXAM_HAS_NO_SECTIONS");
         var sections = attempts.findSectionResults(attemptId);

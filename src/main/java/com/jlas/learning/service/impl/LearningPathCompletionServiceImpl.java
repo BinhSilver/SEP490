@@ -34,7 +34,7 @@ public class LearningPathCompletionServiceImpl implements LearningPathCompletion
             Map.entry("SECTION_BELOW_PASSING", "Có phần thi chưa đạt điểm tối thiểu."),
             Map.entry("TOTAL_SCORE_BELOW_PASSING", "Tổng điểm bài thi chưa đạt."),
             Map.entry("POLICY_VERSION_MISSING", "Kết quả bài thi chưa có phiên bản chính sách hợp lệ."),
-            Map.entry("POLICY_VERSION_MISMATCH", "Kết quả bài thi thuộc phiên bản chính sách cũ, hãy thi lại."));
+            Map.entry("POLICY_VERSION_UNSUPPORTED", "Kết quả bài thi thuộc phiên bản chính sách không còn được chấp nhận, hãy thi lại."));
 
     private final UserLearningPathRepository paths;
     private final LearningFinalEligibilityService eligibility;

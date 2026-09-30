@@ -30,15 +30,15 @@ class AssessmentJlptQualificationAdapterTest {
     @BeforeEach
     void setUp() {
         repo = mock(JlptExamAttemptRepository.class);
-        adapter = new AssessmentJlptQualificationAdapter(repo);
+        adapter = new AssessmentJlptQualificationAdapter(repo, List.of("JLPT_PATH_GATE_V1"));
     }
 
     private JlptExamAttempt attempt(Long ownerId, String type, String status, String level, String passing) {
         var user = User.builder().id(ownerId).build();
         var base = AssessmentAttempt.builder().id(ATTEMPT).user(user).attemptType(type).status(status).build();
         var exam = JlptExam.builder().id(1L).jlptLevel(level).passingScore(new BigDecimal(passing))
-                .policyVersion("policy-2").build();
-        return JlptExamAttempt.builder().attemptId(ATTEMPT).attempt(base).exam(exam).policyVersion("policy-2").build();
+                .policyVersion("JLPT_PATH_GATE_V1").build();
+        return JlptExamAttempt.builder().attemptId(ATTEMPT).attempt(base).exam(exam).policyVersion("JLPT_PATH_GATE_V1").build();
     }
 
     private JlptSectionResult section(long id, String min, String score) {
@@ -105,25 +105,51 @@ class AssessmentJlptQualificationAdapterTest {
         assertEquals("NO_SECTION_RESULTS", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
     }
 
-    @Test void resultFromAnOlderPolicyVersionIsRejectedEvenWhenTheScoresPass() {
-        var old = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
-        old.setPolicyVersion("policy-1");
-        given(old, section(1, "20", "60"), section(2, "20", "60"));
-        assertEquals("POLICY_VERSION_MISMATCH", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    private JlptExamAttempt qualifying() {
+        var a = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
+        given(a, section(1, "20", "60"), section(2, "20", "60"));
+        return a;
     }
 
-    @Test void resultWithNoPolicySnapshotFailsClosed() {
-        var none = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
-        none.setPolicyVersion(null);
-        given(none, section(1, "20", "60"), section(2, "20", "60"));
+    @Test void snapshotInTheAllowListPasses() {
+        qualifying();
+        assertTrue(adapter.verify(USER, ATTEMPT, "N4").qualified());
+    }
+
+    @Test void examMovedToANewPolicyDoesNotInvalidateAnOldAcceptedAttempt() {
+        var a = qualifying();
+        a.getExam().setPolicyVersion("JLPT_PATH_GATE_V2");
+        assertTrue(adapter.verify(USER, ATTEMPT, "N4").qualified());
+    }
+
+    @Test void blankOrNullSnapshotFailsClosed() {
+        var a = qualifying();
+        a.setPolicyVersion(null);
+        assertEquals("POLICY_VERSION_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+        a.setPolicyVersion("  ");
         assertEquals("POLICY_VERSION_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
     }
 
-    @Test void examWithNoCurrentPolicyFailsClosed() {
-        var none = attempt(USER, "JLPT", "SUBMITTED", "N4", "100");
-        none.getExam().setPolicyVersion(null);
-        given(none, section(1, "20", "60"), section(2, "20", "60"));
-        assertEquals("POLICY_VERSION_MISSING", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    @Test void snapshotOutsideTheAllowListIsRejectedEvenWhenTheExamStillUsesIt() {
+        var a = qualifying();
+        a.setPolicyVersion("JLPT_OLD_POLICY");
+        a.getExam().setPolicyVersion("JLPT_OLD_POLICY");
+        assertEquals("POLICY_VERSION_UNSUPPORTED", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void emptyConfigurationFailsClosed() {
+        qualifying();
+        var none = new AssessmentJlptQualificationAdapter(repo, List.of());
+        assertEquals("POLICY_VERSION_UNSUPPORTED", none.verify(USER, ATTEMPT, "N4").reasonCode());
+        var blank = new AssessmentJlptQualificationAdapter(repo, java.util.Arrays.asList("", "  "));
+        assertEquals("POLICY_VERSION_UNSUPPORTED", blank.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
+
+    @Test void theBrowserHasNoWayToSupplyAPolicyVersion() throws Exception {
+        var verify = com.jlas.learning.service.JlptQualificationPort.class.getMethod("verify", Long.class, Long.class, String.class);
+        assertEquals(3, verify.getParameterCount());
+        var fields = com.jlas.learning.dto.CompleteFromMockRequest.class.getRecordComponents();
+        assertEquals(1, fields.length);
     }
 
     @Test void anExamSectionWithoutAResultBlocksCompletion() {

@@ -230,3 +230,8 @@ learning:
   mock-test:
     destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:}
     approved-origins: ${LEARNING_MOCK_TEST_APPROVED_ORIGINS:}
+assessment:
+  jlpt:
+    # [JLAS-W0108] Mock Test policy versions whose attempt snapshots may complete a learning path.
+    # Server-side only; empty = nothing qualifies. The Mock Test owner must write attempt.policy_version from this set.
+    accepted-policy-versions: ${ASSESSMENT_JLPT_ACCEPTED_POLICY_VERSIONS:JLPT_PATH_GATE_V1}
