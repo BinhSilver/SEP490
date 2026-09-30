@@ -131,10 +131,14 @@ function levelSql(model, level, contexts) {
   return sql;
 }
 
-function correctOption(row) {
+export function resolveCorrectOption(row) {
   const answer = String(row.correct_answer ?? "").trim().toUpperCase();
   const index = ["A", "B", "C", "D"].indexOf(answer);
-  return index >= 0 ? index + 1 : null;
+  if (index >= 0) return index + 1;
+  if (/^[1-4]$/.test(answer)) return Number(answer);
+  const textIndex = [row.option_a, row.option_b, row.option_c, row.option_d]
+    .findIndex((option) => String(option ?? "").trim().toUpperCase() === answer);
+  return textIndex >= 0 ? textIndex + 1 : null;
 }
 
 function exercisesSql(model, contexts) {
@@ -166,7 +170,7 @@ function exercisesSql(model, contexts) {
         answerSourceBookCode: row.answer_source_book_code ?? null,
         answerSourcePage: row.answer_source_page ?? null,
       });
-      const option = correctOption(row);
+      const option = resolveCorrectOption(row);
       sql += upsert("assessment_question",
         ["source_code", "knowledge_tag_id", "skill", "jlpt_level", "difficulty", "question_type", "title", "passage_html", "audio_url", "question_text", "answer_text", "option_1", "option_2", "option_3", "option_4", "correct_option", "explanation", "context_json", "order_index", "is_active"],
         [sqlString(sourceCode), `@${tagVar}`, sqlString(row.skill), sqlString(context.level), sqlString(row.difficulty || "MEDIUM"), sqlString(row.import_question_type), sqlString(row.title), sqlString(row.passage_or_script), sqlString(row.audio_url), sqlString(prompt), row.import_question_type === "FILL_BLANK" ? sqlString(row.correct_answer) : "NULL", sqlString(row.option_a), sqlString(row.option_b), sqlString(row.option_c), sqlString(row.option_d), option ? String(option) : "NULL", sqlString(explanation), sqlString(contextJson), sqlNumber(row.order_index, "0"), "1"],

@@ -74,6 +74,32 @@ function validateQuestionMapping(sheetName, row, issues) {
         "TRUE_FALSE requires options Đúng and Sai"));
     }
   }
+  if (target === "MATCHING") {
+    const pairs = [[row.option_a, row.option_b], [row.option_c, row.option_d]]
+      .filter(([left, right]) => String(left ?? "").trim() && String(right ?? "").trim());
+    if (!pairs.length) {
+      issues.push(issue("MATCHING_PAIRS_REQUIRED", sheetName, row.__row,
+        "MATCHING requires at least one reviewed left/right pair"));
+    }
+  }
+}
+
+export function validateRequiredRows(model, contracts = SHEET_CONTRACTS) {
+  const issues = [];
+  for (const [sheetName, requiredHeaders] of Object.entries(contracts)) {
+    for (const row of model[sheetName]?.rows ?? []) {
+      const populated = Object.entries(row).some(([key, value]) =>
+        key !== "__row" && value !== null && value !== undefined && String(value).trim() !== "");
+      if (!populated) continue;
+      for (const header of requiredHeaders) {
+        if (row[header] === null || row[header] === undefined || String(row[header]).trim() === "") {
+          issues.push(issue("MISSING_REQUIRED_VALUE", sheetName, row.__row,
+            `Missing required value ${header}`));
+        }
+      }
+    }
+  }
+  return issues;
 }
 
 export async function validateWorkbook(workbookPath) {
@@ -162,6 +188,13 @@ export async function validateWorkbook(workbookPath) {
         "Kanji and vocabulary memberships must belong to the same lesson"));
       continue;
     }
+    if (String(row.character) !== String(kanji.character)
+        || String(row.vocabulary_expression) !== String(vocab.expression)
+        || String(row.vocabulary_reading) !== String(vocab.reading)) {
+      issues.push(issue("KANJI_COMPOUND_CONTENT_MISMATCH", "KANJI_COMPOUND", row.__row,
+        "Compound evidence must match the referenced Kanji and vocabulary content"));
+      continue;
+    }
     const expression = Array.from(String(row.vocabulary_expression ?? ""));
     const position = Number(row.character_position);
     if (expression[position - 1] !== String(row.character ?? "")) {
@@ -184,17 +217,7 @@ export async function validateWorkbook(workbookPath) {
   }
 
   // 7. Required source fields are checked last for deterministic diagnostics.
-  for (const [sheetName, requiredHeaders] of Object.entries(SHEET_CONTRACTS)) {
-    const codeColumn = CODE_COLUMNS[sheetName];
-    for (const row of model[sheetName].rows) {
-      if (codeColumn && !String(row[codeColumn] ?? "").trim()) continue;
-      for (const header of requiredHeaders) {
-        if (row[header] === null || row[header] === undefined || String(row[header]).trim() === "") {
-          issues.push(issue("MISSING_REQUIRED_VALUE", sheetName, row.__row, `Missing required value ${header}`));
-        }
-      }
-    }
-  }
+  issues.push(...validateRequiredRows(model));
 
   return issues;
 }

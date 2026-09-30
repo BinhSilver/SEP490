@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { validateWorkbook } from "./validate-learning-workbook.mjs";
-import { generateSeed } from "./generate-learning-seed.mjs";
+import { validateRequiredRows, validateWorkbook } from "./validate-learning-workbook.mjs";
+import { generateSeed, resolveCorrectOption } from "./generate-learning-seed.mjs";
 import { escapeSqlString } from "./lib/sql-writer.mjs";
 
 const fixture = (name) => path.join(import.meta.dirname, "fixtures", name);
@@ -38,6 +38,20 @@ test("does not modify SQL outputs when validation fails", async () => {
 
 test("escapes apostrophes without changing Japanese text or newlines", () => {
   assert.equal(escapeSqlString("先生's\n日本語"), "先生''s\n日本語");
+});
+
+test("reports a populated row whose stable code is blank", () => {
+  const issues = validateRequiredRows({
+    LP_UNIT: {
+      rows: [{ __row: 5, unit_code: "", textbook_code: "LP-N5", title: "Unit", order_index: 1, source_book_code: "N5-CORE" }],
+    },
+  }, { LP_UNIT: ["unit_code", "textbook_code", "title", "order_index", "source_book_code"] });
+  assert.deepEqual(issues.map((item) => item.code), ["MISSING_REQUIRED_VALUE"]);
+});
+
+test("resolves TRUE_FALSE and text answers to inline option indexes", () => {
+  assert.equal(resolveCorrectOption({ correct_answer: "Đúng", option_a: "Đúng", option_b: "Sai" }), 1);
+  assert.equal(resolveCorrectOption({ correct_answer: "本", option_a: "時間", option_b: "本" }), 2);
 });
 
 test("generates four dependency-ordered, idempotent SQL files", async () => {
