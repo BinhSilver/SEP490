@@ -48,7 +48,48 @@
     nextButton.querySelector('span').textContent =
       currentIndex === activeSlides.length - 1 ? 'Hoàn thành khảo sát' : 'Tiếp tục';
     notice.hidden = true;
+    if (active && active.dataset.surveyStep === 'target') refreshTargetOptions();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // [JLAS-W0108] Task 11 - which JLPT targets are reachable is decided by the server only
+  // (GET /api/assessment/survey/target-options). If the request fails every target stays disabled.
+  var targetOptionsRequest = 0;
+  function targetInputs() { return Array.from(document.querySelectorAll('input[name="targetLevel"]')); }
+  function renderTargetOptions(view) {
+    targetInputs().forEach(function (input) {
+      var match = view.filter(function (option) { return option.level === input.value; })[0];
+      var label = input.closest('label');
+      var text = label && label.querySelector('span:not(.level-mark):not(.survey-option__icon)');
+      var detail = label && label.querySelector('.survey-option__server');
+      if (!detail && text) {
+        detail = document.createElement('small');
+        detail.className = 'survey-option__server';
+        text.appendChild(detail);
+      }
+      input.disabled = !match || match.disabled;
+      if (label) label.classList.toggle('is-disabled', input.disabled);
+      if (detail) {
+        detail.textContent = !match ? 'Chưa tải được lựa chọn từ máy chủ.'
+          : match.disabled ? match.reason
+          : (match.recommended ? 'Gợi ý · ' : '') + (match.stageLabel ? 'Lộ trình: ' + match.stageLabel : '');
+      }
+      if (input.disabled && input.checked) input.checked = false;
+    });
+    nextButton.disabled = !hasAnswer(currentSlide());
+  }
+  async function refreshTargetOptions() {
+    var request = ++targetOptionsRequest;
+    var studied = document.querySelector('input[name="studied"]:checked');
+    var selfLevel = document.querySelector('input[name="selfLevel"]:checked');
+    var assessed = window.SmartTestSurveyTargets.assessedLevelFor({
+      studied: studied ? studied.value : null, selfLevel: selfLevel ? selfLevel.value : null });
+    try {
+      var options = await api('/api/assessment/survey/target-options?assessedLevel=' + encodeURIComponent(assessed));
+      if (request === targetOptionsRequest) renderTargetOptions(window.SmartTestSurveyTargets.describeOptions(options));
+    } catch (error) {
+      if (request === targetOptionsRequest) { renderTargetOptions([]); showError(error.message); }
+    }
   }
 
   function showError(message) { notice.textContent = message || 'Không thể tạo bài kiểm tra. Vui lòng thử lại.'; notice.hidden = false; }

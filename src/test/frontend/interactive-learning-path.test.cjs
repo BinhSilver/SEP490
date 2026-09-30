@@ -141,7 +141,7 @@ test('links an unlocked Reading activity to its own study page (RC Task 5)', () 
 
 test('does not link a locked Reading activity', () => {
   const html = page.render(pathWithComprehension());
-  assert.doesNotMatch(html, /\/learning\/v2\/reading\?activity=5/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/reading\?activity=5"/);
 });
 
 test('links an unlocked Listening activity to its own study page (RC Task 5)', () => {
@@ -153,7 +153,7 @@ test('links an unlocked Listening activity to its own study page (RC Task 5)', (
 
 test('does not link a locked Listening activity', () => {
   const html = page.render(pathWithComprehension());
-  assert.doesNotMatch(html, /\/learning\/v2\/listening\?activity=6/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/listening\?activity=6"/);
 });
 
 test('marks a passed Reading/Listening activity as done without a link', () => {
@@ -161,8 +161,8 @@ test('marks a passed Reading/Listening activity as done without a link', () => {
   data.packages[0].activities[0].state = 'PASSED';
   data.packages[0].activities[1].state = 'PASSED';
   const html = page.render(data);
-  assert.doesNotMatch(html, /\/learning\/v2\/reading\?activity=5/);
-  assert.doesNotMatch(html, /\/learning\/v2\/listening\?activity=6/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/reading\?activity=5"/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/listening\?activity=6"/);
   assert.match(html, /Đọc hiểu/);
   assert.match(html, /Nghe hiểu/);
 });
@@ -198,9 +198,8 @@ test('renderPopup shows the exact completion copy and three ranked actions', () 
     lastPackage: false, nextAvailablePackageId: 10 });
   assert.match(html, /Bạn đã hoàn thành phần bài học hôm nay/);
   assert.match(html, /Bạn muốn tiếp tục như thế nào\?/);
-  assert.match(html, /data-popup-advance="10"[^>]*>Học vượt</);
+  assert.match(html, /data-popup-advance="10"[^>]*>Tiếp tục</);
   assert.match(html, /data-popup-return>Trở về lộ trình</);
-  assert.match(html, /data-popup-rest>Nghỉ ngơi</);
   assert.match(html, /Điểm phần này: <strong>90%<\/strong>/);
 });
 
@@ -209,15 +208,15 @@ test('renderPopup omits the score line when the package has no valid score', () 
   assert.doesNotMatch(html, /Điểm phần này/);
 });
 
-test('renderPopup disables Học vượt when no next package is unlocked yet', () => {
+test('renderPopup disables Tiếp tục when no next package is unlocked yet', () => {
   const html = page.renderPopup({ id: 9, justCompleted: true, lastPackage: false, nextAvailablePackageId: null });
-  assert.match(html, /class="ilp-popup__primary" disabled>Học vượt</);
+  assert.match(html, /class="ilp-popup__primary" disabled>Tiếp tục</);
 });
 
 test('renderPopup swaps the primary action for the last package in the path', () => {
   const html = page.renderPopup({ id: 9, justCompleted: true, lastPackage: true, nextAvailablePackageId: null });
   assert.match(html, /data-popup-summary>Xem tổng kết chặng</);
-  assert.doesNotMatch(html, />Học vượt</);
+  assert.doesNotMatch(html, />Tiếp tục</);
 });
 
 test('render shows the popup only for the package the server just completed, not older completed ones', () => {

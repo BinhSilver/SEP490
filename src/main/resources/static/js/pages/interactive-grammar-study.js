@@ -179,10 +179,10 @@
       '</div></section>';
   }
 
-  function renderPassed() {
+  function renderPassed(extra) {
     return '<section class="ilp-result"><header class="ilp-study__head"><div><span class="ilp-kicker">HOÀN THÀNH</span>' +
       '<h1>Phần Ngữ pháp đã đạt</h1></div></header>' +
-      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>' + (extra || '') + '</div></section>';
   }
 
   function error(message) {
@@ -196,6 +196,14 @@
     if (!node || !window.JlasAuth || !window.JlasAuth.requireLogin('/learning/v2/grammar' + (id ? '?activity=' + encodeURIComponent(id) : ''))) return;
     if (!id) { node.innerHTML = error('Thiếu mã hoạt động Ngữ pháp.'); return; }
     var base = '/api/learning/v2/activities/' + encodeURIComponent(id) + '/grammar';
+    // [JLAS-W0108] Task 11 - LEARN / REVIEW / PRACTICE. The server enforces each mode; the page only picks endpoints.
+    var StudyMode = window.InteractiveStudyMode;
+    var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
+    if (mode === 'REVIEW') mode = 'LEARN'; // no read-only review endpoint for this activity type
+    var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
+    var issuePath = (modeApi && modeApi.issue) || '/micro-check';
+    var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['PRACTICE']) : '';
     var orderState = {};
     var feedback = {};
 
@@ -217,22 +225,33 @@
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'PRACTICE') {
+          await doPractice();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         var study = await api('/study');
         var gate = null;
         try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
-        if (gate && gate.passed) { node.innerHTML = renderPassed(); }
+        if (gate && gate.passed) { node.innerHTML = renderPassed(PASSED_ACTIONS); }
         else { node.innerHTML = renderStudy(viewModel(study), gate, orderState, feedback); }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
 
+    async function doPractice() {
+      try { node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' })); }
+      catch (e) { node.innerHTML = error(e.message); }
+    }
+
     async function doCheck() {
-      try { node.innerHTML = renderCheck(await api('/micro-check', { method: 'POST' })); }
+      try { node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' })); }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
+      if (event.target.closest('[data-practice-again]')) return doPractice();
       if (event.target.closest('[data-check]')) return doCheck();
       if (event.target.closest('[data-review]')) {
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
@@ -285,8 +304,8 @@
       });
       node.setAttribute('aria-busy', 'true');
       try {
-        var result = await postJson('/micro-check/submit', { attemptId: Number(form.dataset.attemptId), answers: answers });
-        node.innerHTML = renderResult(result);
+        var result = await postJson(submitPath, { attemptId: Number(form.dataset.attemptId), answers: answers });
+        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result);
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });

@@ -144,3 +144,9 @@
 .ilp-dialogue__evidence li.is-done::before{background:var(--lp-lime)}
 @media(max-width:520px){.ilp-dialogue__line{max-width:100%}.ilp-dialogue__progress{position:static}}
 @media(prefers-reduced-motion:reduce){.ilp-dialogue__progress{box-shadow:none}}
+
+/* [JLAS-W0108] Task 11 - REVIEW / PRACTICE mode banner and the read-only review list. */
+.ilp-mode-banner { margin: 0 0 16px; padding: 12px 16px; border: 1px solid var(--lp-line); border-left: 4px solid var(--lp-purple); border-radius: var(--lp-radius-interactive); background: var(--lp-purple-soft); color: var(--lp-ink); font-size: 14px; line-height: 1.5; }
+.ilp-review-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; list-style: none; margin: 16px 0; padding: 0; }
+.ilp-review-list__item { min-width: 0; }
+@media (max-width: 520px) { .ilp-review-list { grid-template-columns: 1fr; } }

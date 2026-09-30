@@ -152,3 +152,43 @@
 .ilp-summary__quiet:disabled { cursor: not-allowed; opacity: .7; }
 .ilp-summary__primary:focus-visible, .ilp-summary__secondary:focus-visible, .ilp-summary__quiet:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 3px; }
 @media (max-width: 520px) { .ilp-summary-actions { flex-direction: column; align-items: stretch; } }
+
+/* [JLAS-W0108] Task 11 - stage progress, Mock Test gate, pace controls, toast, review/practice links. */
+.ilp-stage-progress { margin-top: 24px; padding: 20px 24px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; list-style: none; margin: 14px 0 0; padding: 0; }
+.ilp-stage { display: grid; gap: 8px; }
+.ilp-stage__head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ilp-stage__head span { color: var(--lp-muted); font: 700 11px var(--font-mono); }
+.ilp-stage progress { width: 100%; height: 8px; accent-color: var(--lp-lime); }
+.ilp-stage small { color: var(--lp-muted); }
+.ilp-stage.is-done .ilp-stage__head span { color: var(--lp-on-lime-soft); }
+.ilp-stage.is-blocked { opacity: .75; }
+.ilp-stage.is-blocked .ilp-stage__head span { color: var(--lp-purple); }
+.ilp-mock-gate { margin-top: 12px; padding: 16px 24px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); display: flex; gap: 16px; align-items: center; justify-content: space-between; }
+.ilp-mock-gate p { margin: 0; color: var(--lp-muted); }
+.ilp-mock-gate.is-open { border-color: var(--lp-lime); background: var(--lp-lime-soft); }
+.ilp-mock-gate.is-open p { color: var(--lp-on-lime-soft); }
+.ilp-mock-gate .ilp-button { margin: 0; flex: none; text-decoration: none; }
+.ilp-mock-gate button:disabled { background: var(--lp-line); color: var(--lp-muted); cursor: not-allowed; }
+.ilp-pace { margin-top: 16px; display: grid; gap: 8px; }
+.ilp-pace p { margin: 0; font-weight: 700; }
+.ilp-pace__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ilp-pace__actions button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-interactive); background: var(--lp-surface); color: var(--lp-ink); font-weight: 700; cursor: pointer; }
+.ilp-pace__actions button:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 3px; }
+.ilp-activity__modes { display: flex; gap: 8px; margin-left: auto; }
+.ilp-activity__mode { min-height: 32px; display: inline-flex; align-items: center; padding: 4px 12px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); color: var(--lp-purple); font: 700 12px var(--font-body); text-decoration: none; }
+.ilp-activity__mode:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 2px; }
+.ilp-popup a.ilp-popup__secondary { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.ilp-popup__note { font-size: 13px; }
+.ilp-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); max-width: min(420px, calc(100% - 28px)); padding: 12px 18px; border-radius: var(--lp-radius-interactive); background: var(--lp-ink); color: var(--lp-surface); font-weight: 700; box-shadow: var(--lp-shadow-popup); z-index: 60; animation: ilpToastIn .2s ease-out; }
+@keyframes ilpToastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .ilp-toast { animation: none; } }
+@media (max-width: 820px) { .ilp-mock-gate { flex-direction: column; align-items: stretch; } }
+@media (max-width: 520px) {
+  .ilp-stage-progress { padding: 16px 14px; }
+  .ilp-stage-progress .ilp-stages { grid-template-columns: 1fr; }
+  .ilp-pace__actions { flex-direction: column; }
+  .ilp-pace__actions button { width: 100%; }
+  .ilp-activity { flex-wrap: wrap; }
+  .ilp-activity__modes { margin-left: 44px; }
+}
