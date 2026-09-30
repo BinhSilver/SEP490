@@ -19,6 +19,8 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Service unavailable"),
     EXTERNAL_SERVICE_ERROR(HttpStatus.BAD_GATEWAY, "External service error"),
     TARGET_NOT_AVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Mục tiêu này đang được phát triển"),
+    TARGET_LEVEL_NOT_ALLOWED(HttpStatus.UNPROCESSABLE_ENTITY,
+            "Mục tiêu vượt quá khoảng cách phù hợp với trình độ hiện tại"),
     QUIZ_ATTEMPT_LIMIT(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã dùng hết lượt quiz hôm nay, hãy thử lại vào ngày mai"),
     /** [JLAS-W0108] P4/P5 — học liệu/đề chưa đủ để phát quiz (BLOCKED_CONTENT); không phải người học trượt. */
     QUIZ_NOT_READY(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu để tạo bài kiểm tra"),

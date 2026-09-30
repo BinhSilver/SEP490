@@ -5,6 +5,8 @@ import com.jlas.assessment.entity.UserLearningSurvey;
 import com.jlas.assessment.repository.*;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -102,6 +104,18 @@ class LearningSurveyServiceTest {
         assertThat(response.survey().targetLevel()).isEqualTo("N3");
     }
 
+    @Test void beginnerCannotSaveAnN3Target() {
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N3", "FROM_ZERO", 0)))
+                .isInstanceOfSatisfying(ApiException.class,
+                        error -> assertThat(error.getErrorCode()).isEqualTo(ErrorCode.TARGET_LEVEL_NOT_ALLOWED));
+        verifyNoInteractions(surveys, users, attempts);
+    }
+
+    @Test void unknownLevelGetsTemporaryOptionsUntilSmartTestFinishes() {
+        assertThat(service.getTargetOptions("UNKNOWN"))
+                .allSatisfy(option -> assertThat(option.allowed()).isTrue());
+    }
+
     @Test void savingSurveyPreservesFromZeroLevel() {
         when(surveys.findById(7L)).thenReturn(Optional.empty());
         when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
@@ -131,7 +145,7 @@ class LearningSurveyServiceTest {
     }
 
     @Test void studiedLearnerRequiresPositiveStudyDuration() {
-        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N3", "N5", 0)))
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N4", "N5", 0)))
                 .isInstanceOf(ResponseStatusException.class);
         verifyNoInteractions(surveys, users);
     }
