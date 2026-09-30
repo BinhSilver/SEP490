@@ -51,6 +51,16 @@ class QuizSessionTypeConstraintTest {
         assertTrue(content.contains("'LISTENING_MICRO_CHECK'"));
     }
 
+    /** [JLAS-W0108] Task 10: replay sessions and the widened column must be in both schema and migration. */
+    @Test void practiceReplayIsAllowedAndQuizTypeColumnFitsTheLongestQuizType() throws IOException {
+        assertTrue(readConstraint().contains("'PRACTICE_REPLAY'"));
+        String schema = Files.readString(repoRoot().resolve("jlas_schema.sql"), StandardCharsets.UTF_8);
+        assertTrue(schema.contains("quiz_type        VARCHAR(30)"), "FOUNDATION_MICRO_CHECK is 22 chars");
+        String migration = Files.readString(repoRoot().resolve("sql/migrations/009_practice_replay_quiz_type.sql"),
+                StandardCharsets.UTF_8);
+        assertTrue(migration.contains("'PRACTICE_REPLAY'") && migration.contains("VARCHAR(30)"));
+    }
+
     private String readConstraint() throws IOException {
         String schema = Files.readString(repoRoot().resolve("jlas_schema.sql"), StandardCharsets.UTF_8);
         Matcher matcher = Pattern.compile(

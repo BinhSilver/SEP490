@@ -187,6 +187,18 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         return engine.completeReview(userId, activityId);
     }
 
+    @Override
+    @Transactional
+    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        return engine.issuePractice(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        return engine.submitPractice(userId, activityId, request);
+    }
+
     // ---- Internal helpers (study/practice side; the engine owns its own identical-shaped helpers) ----
 
     private UserLearningPathItem loadActivity(Long userId, Long activityId) {

@@ -93,6 +93,24 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
         return engine.completeReview(userId, activityId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public FoundationStudyState reviewState(Long userId, Long activityId) {
+        return toDto(engine.reviewState(userId, activityId));
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        return engine.issuePractice(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        return engine.submitPractice(userId, activityId, request);
+    }
+
     private FoundationStudyState toDto(EngineStudyState<ContentItem> s) {
         List<FoundationStudyState.FoundationStudyCard> cards = s.cards().stream().map(c -> {
             ContentItem ci = c.entity();

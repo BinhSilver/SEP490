@@ -73,4 +73,21 @@ public class InteractiveComprehensionController {
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.completeReview(user.userId(), activityId)));
     }
+
+    /** [JLAS-W0108] Task 10 - PRACTICE replay: recorded but never completes, rewards or unlocks. */
+    @PostMapping("/practice")
+    public ResponseEntity<ApiResponse<MicroCheckResponse>> issuePractice(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.issuePractice(user.userId(), activityId)));
+    }
+
+    @PostMapping("/practice/submit")
+    public ResponseEntity<ApiResponse<MicroCheckResult>> submitPractice(
+            @PathVariable Long activityId, @Valid @RequestBody MicroCheckSubmitRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_SUBMIT);
+        return ResponseEntity.ok(ApiResponse.ok("OK",
+                service.submitPractice(user.userId(), activityId, request)));
+    }
 }

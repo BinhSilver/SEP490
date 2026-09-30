@@ -285,6 +285,96 @@ public class InteractiveStudyEngine<T> {
         return buildStateResponse(activity);
     }
 
+    // ---- Review / practice (Task 10) ----
+
+    /** Quiz type of a non-credit replay; never matches {@link InteractiveContentAdapter#microCheckType()}, so a
+     * replay is invisible to every completion, score and unlock query. */
+    public static final String PRACTICE_REPLAY = "PRACTICE_REPLAY";
+
+    /** REVIEW mode: read-only view of a finished activity. Writes nothing (no session, card, attempt or state
+     * change) and takes no row lock; the content is shown as remembered because it is already passed. */
+    public EngineStudyState<T> reviewState(Long userId, Long activityId) {
+        UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        List<LearningActivityMember> membership = loadMembership(activity);
+        Map<Long, T> byId = adapter.loadByIds(membership.stream()
+                .map(LearningActivityMember::getCanonicalId).distinct().toList());
+        List<EngineStudyState.EngineCard<T>> views = new ArrayList<>();
+        for (LearningActivityMember member : membership) {
+            views.add(new EngineStudyState.EngineCard<>(member.getCanonicalId(), member.getOrderIndex(),
+                    byId.get(member.getCanonicalId()), true, true));
+        }
+        return new EngineStudyState<>(activity.getId(), activity.getActivityType(), activity.getActivityState(),
+                revisionOf(membership), membership.size(), membership.size(), membership.size(), 0, false, views);
+    }
+
+    /** PRACTICE mode: issues a replay quiz snapshot. It rotates through the activity's batches by how many
+     * replays already exist and never reads or writes micro-check state. */
+    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        List<LearningActivityMember> membership = loadMembership(activity);
+        List<List<T>> batches = contentBatches(membership);
+        int replays = (int) quizSessions.countByActivityIdAndQuizType(activityId, PRACTICE_REPLAY);
+        int batchIndex = replays % batches.size();
+        List<QuestionSpec> specs = adapter.buildQuestions(batches.get(batchIndex), batchIndex, replays);
+
+        LearningQuizSession snapshot = LearningQuizSession.builder()
+                .user(activity.getLearningPath().getUser())
+                .quizType(PRACTICE_REPLAY)
+                .activityId(activity.getId())
+                .batchIndex(batchIndex)
+                .questionCount(specs.size())
+                .build();
+        snapshot.setQuestionsJson(mapper.writeQuizQuestions(toLessonQuizQuestions(specs)));
+        snapshot.setAnswerKeyJson(mapper.writeQuizAnswerKey(toAnswerKey(specs)));
+        snapshot = quizSessions.save(snapshot);
+        return new MicroCheckResponse(snapshot.getId(), activity.getId(), batchIndex, batches.size(),
+                specs.size(), toMicroCheckQuestions(specs));
+    }
+
+    /** Grades a replay against its own snapshot. The score is stored on the replay row only: it does not
+     * complete, reward, unlock, consume attempts or lower the activity state or any best score. */
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        LearningQuizSession session = quizSessions.findOwnedByActivity(
+                        request.attemptId(), userId, PRACTICE_REPLAY, activityId)
+                .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên luyện tập không hợp lệ."));
+        if ("SUBMITTED".equals(session.getStatus())) {
+            return practiceResult(mapper.readQuizResult(session.getResultJson()), activity);
+        }
+        Grade grade = grade(session, request);
+        session.setStatus("SUBMITTED");
+        session.setSubmittedAt(LocalDateTime.now());
+        session.setQuestionCount(grade.total());
+        session.setCorrectCount(grade.correct());
+        session.setScorePercent(grade.score());
+        session.setPassed(grade.passed());
+        LessonQuizResult stored = new LessonQuizResult(grade.total(), grade.correct(), grade.score(),
+                grade.passed(), PASS_THRESHOLD, false, grade.review(), List.of());
+        session.setResultJson(mapper.writeQuizResult(stored));
+        quizSessions.save(session);
+        return practiceResult(stored, activity);
+    }
+
+    private MicroCheckResult practiceResult(LessonQuizResult stored, UserLearningPathItem activity) {
+        return new MicroCheckResult(stored.totalQuestions(), stored.correctAnswers(), stored.scorePercent(),
+                stored.passed(), stored.passThresholdPercent(), 0, MAX_ATTEMPTS, null, false,
+                activity.getActivityState(), stored.review());
+    }
+
+    /** Review and practice only make sense once the activity is finished; ownership is checked without a lock. */
+    private UserLearningPathItem loadFinishedActivity(Long userId, Long activityId) {
+        UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        if (activity.getActivityType() != adapter.activityType()) {
+            throw new ApiException(ErrorCode.NOT_FOUND);
+        }
+        LearningActivityState state = activity.getActivityState();
+        if (state != LearningActivityState.PASSED && state != LearningActivityState.COMPLETED) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET, "Hãy hoàn thành phần học này trước khi ôn lại.");
+        }
+        return activity;
+    }
+
     // ---- Internal helpers ----
 
     private UserLearningPathItem loadActivityForUpdate(Long userId, Long activityId) {

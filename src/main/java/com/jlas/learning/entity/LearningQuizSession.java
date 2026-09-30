@@ -33,7 +33,7 @@ public class LearningQuizSession {
     private User user;
 
     /** GATE / LESSON / GRAMMAR / FLASHCARD. */
-    @Column(name = "quiz_type", nullable = false, length = 20)
+    @Column(name = "quiz_type", nullable = false, length = 30)
     private String quizType;
 
     /** null cho GATE/GRAMMAR/FLASHCARD; id bài học cho LESSON quiz. */

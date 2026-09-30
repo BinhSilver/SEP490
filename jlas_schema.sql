@@ -1938,7 +1938,8 @@ CREATE TABLE quiz_attempt (
 CREATE TABLE learning_quiz_session (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id          BIGINT UNSIGNED NOT NULL,
-    quiz_type        VARCHAR(20) NOT NULL COMMENT 'GATE/LESSON/GRAMMAR/FLASHCARD',
+    -- [JLAS-W0108] Task 10: VARCHAR(30) - LISTENING_MICRO_CHECK (21) and FOUNDATION_MICRO_CHECK (22) did not fit 20.
+    quiz_type        VARCHAR(30) NOT NULL COMMENT 'GATE/LESSON/GRAMMAR/FLASHCARD/*_MICRO_CHECK/PRACTICE_REPLAY',
     lesson_id        BIGINT UNSIGNED NULL COMMENT 'null cho GATE/GRAMMAR/FLASHCARD',
     path_id          BIGINT UNSIGNED NULL COMMENT 'null cho LESSON/GRAMMAR',
     activity_id      BIGINT UNSIGNED NULL COMMENT '[JLAS-W0108] grammarPointId cho GRAMMAR quiz; null cho loai khac',
@@ -1967,9 +1968,11 @@ CREATE TABLE learning_quiz_session (
     -- (migration 016) chi mo rong activity_type/member_type, khong mo rong constraint nay) — sua tai day,
     -- migration 017.
     -- [JLAS-W0108] FOUNDATION_MICRO_CHECK them cho bang chu cai (InteractiveFoundationServiceImpl).
+    -- [JLAS-W0108] Task 10: PRACTICE_REPLAY = luyen tap lai khong tinh tien do (khong bao gio la micro-check).
     CONSTRAINT chk_quiz_session_type CHECK
         (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
-            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK','FOUNDATION_MICRO_CHECK')),
+            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK','FOUNDATION_MICRO_CHECK',
+            'PRACTICE_REPLAY')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

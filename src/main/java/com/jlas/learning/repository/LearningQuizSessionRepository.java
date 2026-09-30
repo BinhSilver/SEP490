@@ -47,4 +47,7 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
      * batch passes it never reopens, so at most one row per (activity, batch) is ever SUBMITTED+passed. */
     List<LearningQuizSession> findByActivityIdAndQuizTypeAndStatusAndPassed(
             Long activityId, String quizType, String status, Boolean passed);
+
+    /** [JLAS-W0108] Task 10 - how many non-credit replays an activity already has (rotates the replay batch). */
+    long countByActivityIdAndQuizType(Long activityId, String quizType);
 }

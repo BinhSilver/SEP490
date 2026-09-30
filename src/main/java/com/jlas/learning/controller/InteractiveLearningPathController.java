@@ -4,7 +4,10 @@ import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.learning.dto.CompleteFromMockRequest;
 import com.jlas.learning.dto.FinalEligibilityResponse;
+import com.jlas.learning.dto.LearningPacePreviewResponse;
+import com.jlas.learning.dto.LearningPaceRequest;
 import com.jlas.learning.dto.PathCompletionResponse;
+import com.jlas.learning.service.InteractivePaceReplanService;
 import com.jlas.learning.service.LearningFinalEligibilityService;
 import com.jlas.learning.service.LearningPathCompletionService;
 import jakarta.validation.Valid;
@@ -26,6 +29,7 @@ public class InteractiveLearningPathController {
     private final InteractivePathSummaryService summaryService;
     private final LearningFinalEligibilityService eligibilityService;
     private final LearningPathCompletionService completionService;
+    private final InteractivePaceReplanService paceService;
 
     @GetMapping("/paths/current")
     public ResponseEntity<ApiResponse<InteractiveLearningPathResponse>> current(
@@ -56,6 +60,20 @@ public class InteractiveLearningPathController {
             @Valid @RequestBody CompleteFromMockRequest request, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK",
                 completionService.completeFromMock(user.userId(), request.attemptId())));
+    }
+
+    /** [JLAS-W0108] Task 10 - read-only preview of LIGHTER / SAME / FASTER pace; returns the confirm token. */
+    @GetMapping("/paths/current/pace/preview")
+    public ResponseEntity<ApiResponse<LearningPacePreviewResponse>> pacePreview(
+            @RequestParam String direction, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", paceService.preview(user.userId(), direction)));
+    }
+
+    /** [JLAS-W0108] Task 10 - applies a previewed pace; only day layout and minutes per day change. */
+    @PostMapping("/paths/current/pace")
+    public ResponseEntity<ApiResponse<LearningPacePreviewResponse>> applyPace(
+            @RequestBody LearningPaceRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", paceService.apply(user.userId(), request)));
     }
 
     @GetMapping("/packages/{packageId}")

@@ -97,6 +97,18 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         return engineFor(userId, activityId).completeReview(userId, activityId);
     }
 
+    @Override
+    @Transactional
+    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        return engineFor(userId, activityId).issuePractice(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        return engineFor(userId, activityId).submitPractice(userId, activityId, request);
+    }
+
     private InteractiveStudyEngine<ComprehensionContent> engineFor(Long userId, Long activityId) {
         return engine(ownedComprehension(userId, activityId).getActivityType());
     }

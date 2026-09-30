@@ -26,7 +26,8 @@ class InteractiveLearningPathControllerTest {
         when(service.current(7L)).thenReturn(response);
         var controller = new InteractiveLearningPathController(service, summaryService,
                 mock(com.jlas.learning.service.LearningFinalEligibilityService.class),
-                mock(com.jlas.learning.service.LearningPathCompletionService.class));
+                mock(com.jlas.learning.service.LearningPathCompletionService.class),
+                mock(com.jlas.learning.service.InteractivePaceReplanService.class));
 
         var body = controller.current(new UserPrincipal(7L, "learner", "", List.of())).getBody();
 
@@ -47,7 +48,8 @@ class InteractiveLearningPathControllerTest {
         when(summaryService.summary(7L)).thenReturn(response);
         var controller = new InteractiveLearningPathController(service, summaryService,
                 mock(com.jlas.learning.service.LearningFinalEligibilityService.class),
-                mock(com.jlas.learning.service.LearningPathCompletionService.class));
+                mock(com.jlas.learning.service.LearningPathCompletionService.class),
+                mock(com.jlas.learning.service.InteractivePaceReplanService.class));
 
         var body = controller.summary(new UserPrincipal(7L, "learner", "", List.of())).getBody();
 
@@ -69,7 +71,8 @@ class InteractiveLearningPathControllerTest {
         when(summaryService.summary(7L)).thenReturn(response);
         var controller = new InteractiveLearningPathController(service, summaryService,
                 mock(com.jlas.learning.service.LearningFinalEligibilityService.class),
-                mock(com.jlas.learning.service.LearningPathCompletionService.class));
+                mock(com.jlas.learning.service.LearningPathCompletionService.class),
+                mock(com.jlas.learning.service.InteractivePaceReplanService.class));
 
         var body = controller.summary(new UserPrincipal(7L, "learner", "", List.of())).getBody();
 

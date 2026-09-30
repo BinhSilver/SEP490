@@ -28,4 +28,7 @@ public interface InteractiveGrammarService {
     MicroCheckStateResponse microCheckState(Long userId, Long activityId);
 
     MicroCheckStateResponse completeReview(Long userId, Long activityId);
+    /** [JLAS-W0108] Task 10 - PRACTICE mode: non-credit replay of a finished activity. */
+    MicroCheckResponse issuePractice(Long userId, Long activityId);
+    MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request);
 }

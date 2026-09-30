@@ -95,6 +95,24 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
         return engine.completeReview(userId, activityId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public KanjiStudyState reviewState(Long userId, Long activityId) {
+        return toDto(engine.reviewState(userId, activityId));
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        return engine.issuePractice(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        return engine.submitPractice(userId, activityId, request);
+    }
+
     private KanjiStudyState toDto(EngineStudyState<KanjiEntry> s) {
         List<KanjiStudyState.KanjiStudyCard> cards = s.cards().stream().map(c -> {
             KanjiEntry e = c.entity();
