@@ -524,8 +524,8 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .sorted(Comparator.comparingDouble(AssessmentServiceImpl::abilityPosition))
                 .map(skill -> skillLabel(skill.skill()) + ": " + skill.recommendation())
                 .toList();
-        TargetEligibility eligibility = targetEligibility(
-                session.getEstimatedOverallLevel(), session.getTargetLevel());
+        TargetEligibility eligibility = resultTargetEligibility(
+                session.getGoal(), session.getEstimatedOverallLevel(), session.getTargetLevel());
         List<String> recommendedStages = eligibility.allowed() ? eligibility.stageLevels()
                 : pathPolicy.evaluate(session.getEstimatedOverallLevel(), eligibility.recommendedTarget()).stageLevels();
         return new ResultView(session.getEstimatedOverallLevel(), band, session.getOverallMasteryScore(),
@@ -821,6 +821,13 @@ public class AssessmentServiceImpl implements AssessmentService {
         } catch (IllegalArgumentException exception) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, exception.getMessage());
         }
+    }
+
+    static TargetEligibility resultTargetEligibility(String goal, String assessed, String target) {
+        if (!"JLPT".equals(goal) || target == null || target.isBlank()) {
+            return new TargetEligibility(true, null, null, List.of(), null, false);
+        }
+        return new JlptPathPolicy().evaluate(assessed, target);
     }
 
     private static String text(String value) {
