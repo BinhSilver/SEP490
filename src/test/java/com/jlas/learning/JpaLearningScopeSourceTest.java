@@ -86,6 +86,20 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
+    void resolveExcludesPublishedModuleBookAndDraftLearningBook() {
+        var learningBook = book("N5", "Learning Path N5");
+        moduleBook("N5", "Module-owned N5");
+        draftLearningBook("N5", "Draft Learning Path N5");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N5", "N5"));
+
+        assertEquals(List.of(learningBook.getId()), result.goalTextbookIds());
+        assertEquals(List.of(learningBook.getId()), result.warmUpTextbookIds());
+    }
+
+    @Test
     void n5ToN3ProducesTwoSequentialStages() {
         var n5 = book("N5", "Sekai N5");
         var n4 = book("N4", "Sekai N4");
@@ -158,6 +172,20 @@ class JpaLearningScopeSourceTest {
                 .isLearningPathSource(true).build();
         em.persist(b);
         return b;
+    }
+
+    private Textbook moduleBook(String level, String title) {
+        var book = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED")
+                .isLearningPathSource(false).build();
+        em.persist(book);
+        return book;
+    }
+
+    private Textbook draftLearningBook(String level, String title) {
+        var book = Textbook.builder().title(title).jlptLevel(level).status("DRAFT")
+                .isLearningPathSource(true).build();
+        em.persist(book);
+        return book;
     }
 
     /** Simulates a textbook NOT flagged as a Learning Path source (e.g. the demo seed, or any
