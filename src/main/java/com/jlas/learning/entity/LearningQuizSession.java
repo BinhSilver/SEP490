@@ -69,6 +69,11 @@ public class LearningQuizSession {
     @Column(name = "answer_key_json", columnDefinition = "TEXT", nullable = false)
     private String answerKeyJson;
 
+    /** [JLAS-W0108] Frozen source (passage / audio) of the batch this session asked about. Only Reading/Listening
+     * write it; null on every other quiz type and on sessions issued before this column existed. */
+    @Column(name = "source_snapshot_json", columnDefinition = "TEXT")
+    private String sourceSnapshotJson;
+
     /** Mẫu số: tổng số câu đã phát (kể cả câu client bỏ trống vẫn tính là sai). */
     @Column(name = "question_count", nullable = false)
     private Integer questionCount;

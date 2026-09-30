@@ -90,6 +90,15 @@ public final class AssessmentComprehensionContentAdapter implements InteractiveC
     }
 
     @Override
+    public String sourceSnapshotJson(List<ComprehensionContent> batch, int batchIndex, String sourceRevision) {
+        String source = batch.getFirst().exercise().source();
+        var frozen = type == LearningActivityType.READING
+                ? new com.jlas.learning.dto.ComprehensionExerciseSource(source, null)
+                : new com.jlas.learning.dto.ComprehensionExerciseSource(null, source);
+        return ComprehensionSourceSnapshot.toJson(type, batchIndex, sourceRevision, frozen);
+    }
+
+    @Override
     public void validateSourceRevision(String persistedRevision, List<ComprehensionContent> orderedContent) {
         List<ComprehensionExercise> exercises = new ArrayList<>();
         String last = null;

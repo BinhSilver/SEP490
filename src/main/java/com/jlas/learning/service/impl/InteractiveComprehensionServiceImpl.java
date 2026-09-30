@@ -99,14 +99,27 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
 
     @Override
     @Transactional(readOnly = true)
-    public java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
-        return engineFor(userId, activityId).reviewFeedback(userId, activityId);
+    public java.util.List<com.jlas.learning.dto.ComprehensionAttemptFeedback> reviewFeedback(Long userId, Long activityId) {
+        return engineFor(userId, activityId).reviewEntries(userId, activityId).stream().map(entry -> {
+            var f = entry.feedback();
+            var source = ComprehensionSourceSnapshot.parse(entry.sourceSnapshotJson());
+            return new com.jlas.learning.dto.ComprehensionAttemptFeedback(f.batchIndex(), f.scorePercent(), f.correctAnswers(),
+                    f.totalQuestions(), f.passed(), f.submittedAt(),
+                    source.isPresent() ? com.jlas.learning.dto.ComprehensionAttemptFeedback.AVAILABLE
+                            : com.jlas.learning.dto.ComprehensionAttemptFeedback.UNAVAILABLE,
+                    source.orElse(null), f.review());
+        }).toList();
     }
 
     @Override
     @Transactional
-    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
-        return engineFor(userId, activityId).issuePractice(userId, activityId);
+    public com.jlas.learning.dto.ComprehensionReplayResponse issuePractice(Long userId, Long activityId) {
+        var issued = engineFor(userId, activityId).issuePracticeWithSource(userId, activityId);
+        var source = ComprehensionSourceSnapshot.parse(issued.sourceSnapshotJson())
+                .orElseThrow(() -> new ApiException(ErrorCode.BLOCKED_CONTENT, "Không dựng được nguồn bài đọc/nghe cho lượt luyện tập."));
+        var r = issued.response();
+        return new com.jlas.learning.dto.ComprehensionReplayResponse(r.attemptId(), r.activityId(), r.batchIndex(),
+                r.batchCount(), source, r.questions());
     }
 
     @Override

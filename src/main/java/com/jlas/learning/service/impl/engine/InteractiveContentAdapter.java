@@ -52,6 +52,10 @@ public interface InteractiveContentAdapter<T> {
 
     default boolean requiresCanonicalPartitioning() { return false; }
 
+    /** [JLAS-W0108] Frozen source of one batch (Reading passage / Listening audio) stored on every session the engine
+     * issues for it, so review and replay never re-read canonical content. Null for content with no source. */
+    default String sourceSnapshotJson(List<T> batch, int batchIndex, String sourceRevision) { return null; }
+
     /** Validates that current canonical content still matches the immutable activity snapshot. */
     default void validateSourceRevision(String persistedRevision, List<T> orderedContent) { }
 

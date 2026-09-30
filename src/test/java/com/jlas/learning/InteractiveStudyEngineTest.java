@@ -182,6 +182,59 @@ class InteractiveStudyEngineTest {
         assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
     }
 
+    @Test
+    void practiceStoresTheSourceSnapshotOfExactlyTheReplayedBatch() {
+        var first = engine.issuePracticeWithSource(USER, ACTIVITY);
+        assertEquals(0, first.response().batchIndex());
+        assertTrue(first.sourceSnapshotJson().contains("source-of-batch-0"));
+        when(quizSessions.countByActivityIdAndQuizType(ACTIVITY, "PRACTICE_REPLAY")).thenReturn(1L);
+
+        var second = engine.issuePracticeWithSource(USER, ACTIVITY);
+
+        assertEquals(1, second.response().batchIndex());
+        assertTrue(second.sourceSnapshotJson().contains("source-of-batch-1"));
+        assertFalse(second.sourceSnapshotJson().contains("source-of-batch-0"));
+        var captor = org.mockito.ArgumentCaptor.forClass(LearningQuizSession.class);
+        verify(quizSessions, times(2)).save(captor.capture());
+        assertTrue(captor.getAllValues().get(1).getSourceSnapshotJson().contains("source-of-batch-1"));
+        assertFalse(captor.getAllValues().get(1).getAnswerKeyJson().contains("source-of-batch"));
+    }
+
+    @Test
+    void learnMicroCheckStoresTheSourceSnapshotToo() {
+        var open = new InteractiveStudyEngine<>(items, members, studySessions, studyCards, checkStates, quizSessions,
+                new LearningMapper(), new StringAdapter() {
+                    @Override public boolean requiresFlipRememberGate() { return false; }
+                });
+        open.issueMicroCheck(USER, ACTIVITY);
+        var captor = org.mockito.ArgumentCaptor.forClass(LearningQuizSession.class);
+        verify(quizSessions).save(captor.capture());
+        assertEquals("VOCAB_MICRO_CHECK", captor.getValue().getQuizType());
+        assertTrue(captor.getValue().getSourceSnapshotJson().contains("source-of-batch-0"));
+    }
+
+    @Test
+    void reviewEntriesReturnTheStoredSnapshotNotTheCurrentCanonicalSource() {
+        LearningQuizSession stored = submitted(1L, 0, 90, "2026-09-02T10:00:00");
+        stored.setSourceSnapshotJson("{\"passage\":\"OLD PASSAGE\"}");
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED"))
+                .thenReturn(List.of(stored));
+
+        var entries = engine.reviewEntries(USER, ACTIVITY);
+
+        assertEquals(1, entries.size());
+        assertEquals("{\"passage\":\"OLD PASSAGE\"}", entries.get(0).sourceSnapshotJson());
+        assertEquals(90, entries.get(0).feedback().scorePercent());
+    }
+
+    @Test
+    void aLegacySessionWithoutASnapshotIsReportedAsSuchNeverBackfilled() {
+        LearningQuizSession legacy = submitted(1L, 0, 90, "2026-09-02T10:00:00");
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED"))
+                .thenReturn(List.of(legacy));
+        assertNull(engine.reviewEntries(USER, ACTIVITY).get(0).sourceSnapshotJson());
+    }
+
     private LearningQuizSession submitted(long id, int batch, int score, String at) {
         var mapper = new LearningMapper();
         var question = new com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion(1L, "VOCABULARY", null, null, null,
@@ -215,6 +268,9 @@ class InteractiveStudyEngineTest {
             Map<Long, String> map = new java.util.LinkedHashMap<>();
             ids.forEach(id -> map.put(id, "w" + id));
             return map;
+        }
+        @Override public String sourceSnapshotJson(List<String> batch, int batchIndex, String sourceRevision) {
+            return "{\"passage\":\"source-of-batch-" + batchIndex + "\",\"rev\":\"" + sourceRevision + "\"}";
         }
         @Override public List<QuestionSpec> buildQuestions(List<String> batch, int batchIndex, int seed) {
             List<QuestionSpec> specs = new ArrayList<>();

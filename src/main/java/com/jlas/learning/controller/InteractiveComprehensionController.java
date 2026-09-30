@@ -76,7 +76,7 @@ public class InteractiveComprehensionController {
 
     /** [JLAS-W0108] Task 10 - PRACTICE replay: recorded but never completes, rewards or unlocks. */
     @PostMapping("/practice")
-    public ResponseEntity<ApiResponse<MicroCheckResponse>> issuePractice(
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.ComprehensionReplayResponse>> issuePractice(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
         rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
         return ResponseEntity.ok(ApiResponse.ok("OK", service.issuePractice(user.userId(), activityId)));
@@ -93,7 +93,7 @@ public class InteractiveComprehensionController {
 
     /** [JLAS-W0108] REVIEW feedback of past attempts; read-only. */
     @GetMapping("/review/attempts")
-    public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse>>> reviewAttempts(
+    public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.ComprehensionAttemptFeedback>>> reviewAttempts(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewFeedback(user.userId(), activityId)));
     }

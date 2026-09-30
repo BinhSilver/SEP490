@@ -1954,6 +1954,8 @@ CREATE TABLE learning_quiz_session (
     status           VARCHAR(20) NOT NULL DEFAULT 'ISSUED' COMMENT 'ISSUED/SUBMITTED',
     questions_json   TEXT NOT NULL COMMENT 'JSON mang cau hoi da phat (khong chua dap an)',
     answer_key_json  TEXT NOT NULL COMMENT 'JSON map questionId -> {correctOption, explanation}',
+    -- [JLAS-W0108] source_snapshot_json: passage/audio dong bang cua batch Reading/Listening; NULL voi loai khac va session cu.
+    source_snapshot_json TEXT NULL,
     question_count   INT NOT NULL COMMENT 'mau so: tong so cau da phat',
     correct_count    INT NULL,
     score_percent    INT NULL,

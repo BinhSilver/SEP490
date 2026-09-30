@@ -61,6 +61,14 @@ class QuizSessionTypeConstraintTest {
         assertTrue(migration.contains("'PRACTICE_REPLAY'") && migration.contains("VARCHAR(30)"));
     }
 
+    @Test void sourceSnapshotColumnExistsInSchemaAndMigration() throws IOException {
+        String schema = Files.readString(repoRoot().resolve("jlas_schema.sql"), StandardCharsets.UTF_8);
+        assertTrue(schema.contains("source_snapshot_json TEXT NULL"));
+        String migration = Files.readString(repoRoot().resolve("sql/migrations/011_quiz_session_source_snapshot.sql"),
+                StandardCharsets.UTF_8);
+        assertTrue(migration.contains("ADD COLUMN source_snapshot_json TEXT NULL"));
+    }
+
     private String readConstraint() throws IOException {
         String schema = Files.readString(repoRoot().resolve("jlas_schema.sql"), StandardCharsets.UTF_8);
         Matcher matcher = Pattern.compile(

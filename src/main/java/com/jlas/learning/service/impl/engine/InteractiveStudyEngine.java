@@ -159,6 +159,7 @@ public class InteractiveStudyEngine<T> {
                 .build();
         snapshot.setQuestionsJson(mapper.writeQuizQuestions(toLessonQuizQuestions(specs)));
         snapshot.setAnswerKeyJson(mapper.writeQuizAnswerKey(toAnswerKey(specs)));
+        snapshot.setSourceSnapshotJson(adapter.sourceSnapshotJson(batch, currentBatch, revisionOf(membership)));
         snapshot = quizSessions.save(snapshot);
 
         return new MicroCheckResponse(snapshot.getId(), activity.getId(), currentBatch, batchCount,
@@ -311,6 +312,13 @@ public class InteractiveStudyEngine<T> {
     /** REVIEW feedback: the newest submitted micro-check attempt of every batch with its stored per-question
      * answers and explanations. Read-only; replays (PRACTICE_REPLAY) are a different quiz type and never appear. */
     public List<AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
+        return reviewEntries(userId, activityId).stream().map(FeedbackEntry::feedback).toList();
+    }
+
+    /** Feedback plus the frozen source each attempt was asked against (null for legacy sessions). */
+    public record FeedbackEntry(AttemptFeedbackResponse feedback, String sourceSnapshotJson) { }
+
+    public List<FeedbackEntry> reviewEntries(Long userId, Long activityId) {
         loadFinishedActivity(userId, activityId);
         Map<Integer, LearningQuizSession> latest = new java.util.TreeMap<>();
         for (LearningQuizSession session : quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
@@ -319,7 +327,7 @@ public class InteractiveStudyEngine<T> {
                 latest.putIfAbsent(session.getBatchIndex(), session);
             }
         }
-        List<AttemptFeedbackResponse> feedback = new ArrayList<>();
+        List<FeedbackEntry> feedback = new ArrayList<>();
         for (LearningQuizSession session : latest.values()) {
             LessonQuizResult result = mapper.readQuizResult(session.getResultJson());
             Map<Long, String> prompts = new java.util.HashMap<>();
@@ -330,8 +338,9 @@ public class InteractiveStudyEngine<T> {
                     .map(r -> new AttemptFeedbackResponse.Item(r.questionId(), prompts.get(r.questionId()),
                             r.correctOption(), r.selectedOption(), Boolean.TRUE.equals(r.correct()), r.explanation()))
                     .toList();
-            feedback.add(new AttemptFeedbackResponse(session.getBatchIndex(), result.scorePercent(),
-                    result.correctAnswers(), result.totalQuestions(), result.passed(), session.getSubmittedAt(), items));
+            feedback.add(new FeedbackEntry(new AttemptFeedbackResponse(session.getBatchIndex(), result.scorePercent(),
+                    result.correctAnswers(), result.totalQuestions(), result.passed(), session.getSubmittedAt(), items),
+                    session.getSourceSnapshotJson()));
         }
         return feedback;
     }
@@ -339,6 +348,13 @@ public class InteractiveStudyEngine<T> {
     /** PRACTICE mode: issues a replay quiz snapshot. It rotates through the activity's batches by how many
      * replays already exist and never reads or writes micro-check state. */
     public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        return issuePracticeWithSource(userId, activityId).response();
+    }
+
+    /** A replay together with the frozen source of the replayed batch (Reading/Listening). */
+    public record PracticeIssue(MicroCheckResponse response, String sourceSnapshotJson) { }
+
+    public PracticeIssue issuePracticeWithSource(Long userId, Long activityId) {
         UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
         List<LearningActivityMember> membership = loadMembership(activity);
         List<List<T>> batches = contentBatches(membership);
@@ -355,9 +371,10 @@ public class InteractiveStudyEngine<T> {
                 .build();
         snapshot.setQuestionsJson(mapper.writeQuizQuestions(toLessonQuizQuestions(specs)));
         snapshot.setAnswerKeyJson(mapper.writeQuizAnswerKey(toAnswerKey(specs)));
+        snapshot.setSourceSnapshotJson(adapter.sourceSnapshotJson(batches.get(batchIndex), batchIndex, revisionOf(membership)));
         snapshot = quizSessions.save(snapshot);
-        return new MicroCheckResponse(snapshot.getId(), activity.getId(), batchIndex, batches.size(),
-                specs.size(), toMicroCheckQuestions(specs));
+        return new PracticeIssue(new MicroCheckResponse(snapshot.getId(), activity.getId(), batchIndex, batches.size(),
+                specs.size(), toMicroCheckQuestions(specs)), snapshot.getSourceSnapshotJson());
     }
 
     /** Grades a replay against its own snapshot. The score is stored on the replay row only: it does not
