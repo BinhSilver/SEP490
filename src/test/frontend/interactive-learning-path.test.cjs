@@ -237,3 +237,26 @@ test('render shows no popup when nothing just completed', () => {
   const html = page.render(path());
   assert.doesNotMatch(html, /ilp-popup-backdrop/);
 });
+
+/** [JLAS-W0108] A from-zero learner's alphabet day: one WARM_UP package with a single FOUNDATION activity. */
+function pathWithFoundation(state) {
+  return path({ packages: [{ id: 9, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1, title: 'Bài 1: Hàng あ, か, さ',
+    status: 'AVAILABLE', progressPercent: 0,
+    activities: [{ id: 7, type: 'FOUNDATION', state: state, orderIndex: 1 }] }] });
+}
+
+test('labels a FOUNDATION activity in Vietnamese instead of the raw enum name', () => {
+  const html = page.render(pathWithFoundation('LOCKED'));
+  assert.match(html, /Bảng chữ cái/);
+  assert.doesNotMatch(html, />FOUNDATION</);
+});
+
+test('links an unlocked FOUNDATION activity to the alphabet study page', () => {
+  const html = page.render(pathWithFoundation('STUDYING'));
+  assert.match(html, /href="\/learning\/v2\/foundation\?activity=7"/);
+});
+
+test('does not link a locked FOUNDATION activity', () => {
+  const html = page.render(pathWithFoundation('LOCKED'));
+  assert.doesNotMatch(html, /\/learning\/v2\/foundation\?activity=7/);
+});
