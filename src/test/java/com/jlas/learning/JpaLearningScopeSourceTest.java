@@ -127,6 +127,34 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
+    void n4ToN3ProducesSingleN3Stage() {
+        var n4 = book("N4", "Sekai N4");
+        var n3 = book("N3", "Sekai N3");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N4", "N3"));
+
+        assertEquals(List.of(n4.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n3.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N3"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void n3ToN2ProducesSingleN2Stage() {
+        var n3 = book("N3", "Sekai N3");
+        var n2 = book("N2", "Sekai N2");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N3", "N2"));
+
+        assertEquals(List.of(n3.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n2.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N2"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
     void n1ToN1ProducesConsolidationStage() {
         var n1 = book("N1", "Sekai N1");
         em.flush();

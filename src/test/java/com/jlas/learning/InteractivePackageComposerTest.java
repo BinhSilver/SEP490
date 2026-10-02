@@ -61,6 +61,18 @@ class InteractivePackageComposerTest {
         verify(packages).save(argThat(value -> Long.valueOf(41L).equals(value.getStageId())));
     }
 
+    @Test void composesN3ContentIntoTheMatchingN3Stage(){
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(
+                UserLearningStage.builder().id(51L).level("N3").stageIndex(0).status("ACTIVE").build()));
+        when(catalog.inspect(30L,"N3")).thenReturn(snapshot(30L,List.of()));
+
+        var result=composer.compose(path(),List.of(seed(30L,1,"N3")));
+
+        assertTrue(result.published());
+        verify(catalog).inspect(30L,"N3");
+        verify(packages).save(argThat(value -> Long.valueOf(51L).equals(value.getStageId())));
+    }
+
     @Test void missingStageBlocksCompositionWithLevelMismatch(){
         when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of());
         when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
@@ -104,7 +116,8 @@ class InteractivePackageComposerTest {
 
     private UserLearningPath path(){return UserLearningPath.builder().id(5L).user(User.builder().id(7L).build())
             .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).title("P").build();}
-    private ScheduledLearningResource seed(Long lessonId,int order){var resource=new LearningResourceCandidate(lessonId,"Bài",1L,1L,Set.of("K"),"N4",30,1,order,null,null,"GRAMMAR");
+    private ScheduledLearningResource seed(Long lessonId,int order){return seed(lessonId,order,"N4");}
+    private ScheduledLearningResource seed(Long lessonId,int order,String level){var resource=new LearningResourceCandidate(lessonId,"Bài",1L,1L,Set.of("K"),level,30,1,order,null,null,"GRAMMAR");
         return new ScheduledLearningResource(resource,LearningPhase.GOAL_LEARNING,"TARGET","",Set.of("K"),order,order,30);}
     private InteractiveContentSnapshot snapshot(Long lessonId,List<CoverageGap> gaps){return new InteractiveContentSnapshot(Lesson.builder().id(lessonId).build(),"revision",List.of(1L,2L),List.of(3L),List.of(4L),List.of(5L,6L),gaps);}
 }

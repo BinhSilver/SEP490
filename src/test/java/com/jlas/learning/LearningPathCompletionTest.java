@@ -157,6 +157,19 @@ class LearningPathCompletionTest {
         verify(qualification).verify(USER, ATTEMPT, "N4");
     }
 
+    @Test void n3PathCompletionVerifiesTheServerDerivedN3Target() {
+        n4.setLevel("N3");
+        packageCounts(25, 25, 13, 25);
+        when(qualification.verify(USER, ATTEMPT, "N3"))
+                .thenReturn(new JlptQualificationPort.Result(true, null));
+
+        var result = service.completeFromMock(USER, ATTEMPT);
+
+        assertTrue(result.newlyCompleted());
+        assertEquals("N3", result.targetLevel());
+        verify(qualification).verify(USER, ATTEMPT, "N3");
+    }
+
     @Test void noActivePathAndNoCompletedPathIsNotFound() {
         when(paths.lockActiveInteractive(USER)).thenReturn(Optional.empty());
         when(paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(USER, LearningExperienceVersion.INTERACTIVE_V2))
