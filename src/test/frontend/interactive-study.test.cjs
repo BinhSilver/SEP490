@@ -1,5 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const pathModule = require('node:path');
 const page = require('../../main/resources/static/js/pages/interactive-study.js');
 
 function study(overrides = {}) {
@@ -77,4 +79,13 @@ test('renders a pass and a cooldown/review gate', () => {
   assert.match(fail, /Chưa đạt/);
   assert.match(fail, /Lần thử 3\/3/);
   assert.match(fail, /Ôn lại phần đã sai/);
+});
+
+test('study and quiz layouts use the wider responsive shell and wrap long content', () => {
+  const css = fs.readFileSync(pathModule.join(__dirname, '../../main/resources/static/css/pages/interactive-study.css'), 'utf8');
+  assert.match(css, /\.ilp-study-page\s*\{[^}]*max-width:\s*1180px/s);
+  assert.match(css, /\.ilp-card\s*\{[^}]*min-width:\s*0/s);
+  assert.match(css, /\.ilp-option\s*\{[^}]*min-width:\s*0/s);
+  assert.match(css, /overflow-wrap:\s*anywhere/);
+  assert.match(css, /@media\s*\(max-width:\s*520px\)[\s\S]*\.ilp-options\s*\{[^}]*grid-template-columns:\s*1fr/s);
 });
