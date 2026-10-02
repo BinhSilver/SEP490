@@ -1,5 +1,7 @@
 package com.jlas.flashcard.ai;
 
+import com.jlas.flashcard.util.KanaWords;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -24,9 +25,6 @@ import java.util.regex.Pattern;
 @Slf4j
 public class OpenRouterHanVietAiService implements HanVietAiService {
 
-    private static final Pattern LINE = Pattern.compile(
-            "^\\s*(.+?)\\s*-\\s*(.+?)\\s*:\\s*(.+?)(?:\\s*\\(([^)]*)\\))?\\s*$"
-    );
 
     private static final String SYS_SINGLE = """
             Bạn là chuyên gia Hán Việt (Sino-Vietnamese readings) cho người học tiếng Nhật.
@@ -63,6 +61,8 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
             - reading: hiragana (hoặc katakana nếu cần)
             - meaning: tiếng Việt ngắn gọn
             - hanViet: âm Hán Việt, viết hoa chữ cái đầu, không prefix AI-
+            - Nếu từ KHÔNG có chữ Hán (chỉ katakana/hiragana, ví dụ コーヒー, テレビ, ありがとう):
+              reading giữ NGUYÊN đúng từ đó, hanViet để chuỗi rỗng "" (từ không có Hán Việt)
             - Không giải thích thêm ngoài JSON
             """;
 
@@ -79,6 +79,8 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
             - meaning: tiếng Việt ngắn gọn
             - hanViet: âm Hán Việt, viết hoa chữ cái đầu, không prefix AI-
             - Giữ đúng id nguyên dạng của từng từ
+            - Nếu từ KHÔNG có chữ Hán (chỉ katakana/hiragana, ví dụ コーヒー, テレビ, ありがとう):
+              reading giữ NGUYÊN đúng từ đó, hanViet để chuỗi rỗng "" (từ không có Hán Việt)
             - Không giải thích thêm ngoài JSON
             """;
 
@@ -96,8 +98,8 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
 
     @Override
     public String generateHanViet(String front, String back) {
-        if (front == null || front.isBlank()) {
-            return "";
+        if (front == null || front.isBlank() || !KanaWords.hasKanji(front)) {
+            return ""; // katakana/hiragana words have no Hán Việt
         }
         String fallback = heuristicHanViet(front.trim());
         if (!hasValidKey()) {
@@ -141,12 +143,21 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
             if (reading == null || reading.isBlank()) {
                 reading = fallback.reading();
             }
-            String back = buildBack(reading, meaning);
-            return new CardEnrichResult(k, reading, meaning, hv, back);
+            return kanaRule(new CardEnrichResult(k, reading, meaning, hv, buildBack(reading, meaning)));
         } catch (Exception e) {
             log.warn("enrichFromKanji parse failed: {}", e.getMessage());
             return fallback;
         }
+    }
+
+    /**
+     * A word without kanji (katakana loanword, hiragana-only word): the front is the reading and there is
+     * no Hán Việt, whatever the model returned.
+     */
+    private static CardEnrichResult kanaRule(CardEnrichResult r) {
+        if (r == null || KanaWords.hasKanji(r.kanji())) return r;
+        String reading = KanaWords.isKanaOnly(r.kanji()) ? r.kanji() : nullToEmpty(r.reading());
+        return new CardEnrichResult(r.kanji(), reading, r.meaning(), "", buildBack(reading, r.meaning()));
     }
 
     @Override
@@ -198,7 +209,7 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
                         String hv = cleanHanViet(textOr(n, "hanViet", ""), k);
                         String back = buildBack(reading, meaning);
                         if (id >= 0) {
-                            parsedMap.put(id, new CardEnrichResult(k, reading, meaning, hv, back));
+                            parsedMap.put(id, kanaRule(new CardEnrichResult(k, reading, meaning, hv, back)));
                         }
                     }
                 }
@@ -237,6 +248,7 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
         StringBuilder user = new StringBuilder("Danh sách:\n");
         for (HanVietRequest item : items) {
             if (item == null || item.id() == null) continue;
+            if (!KanaWords.hasKanji(item.front())) { out.put(item.id(), ""); continue; }
             user.append("id=").append(item.id())
                     .append(" | kanji=").append(nullToEmpty(item.front()))
                     .append(" | nghĩa=").append(nullToEmpty(item.back()))
@@ -264,7 +276,7 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
         // Fill missing with single-call / heuristic
         for (HanVietRequest item : items) {
             if (item == null || item.id() == null) continue;
-            if (!out.containsKey(item.id()) || out.get(item.id()).isBlank()) {
+            if ((!out.containsKey(item.id()) || out.get(item.id()).isBlank()) && KanaWords.hasKanji(item.front())) {
                 out.put(item.id(), generateHanViet(item.front(), item.back()));
             }
         }
@@ -276,68 +288,69 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
         if (text == null || text.isBlank()) {
             return text == null ? "" : text;
         }
-        List<Parsed> toFill = new ArrayList<>();
         List<String> lines = Arrays.asList(text.split("\\R"));
+        // Kanji lines without a reading: one batch call returns reading and Hán Việt together.
+        List<Integer> needReading = new ArrayList<>();
+        // Kanji lines that already have a reading but no Hán Việt: only Hán Việt is asked for.
+        List<Parsed> needHanViet = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
             String raw = lines.get(i);
             if (raw.isBlank()) continue;
-            Matcher m = LINE.matcher(raw.trim());
-            if (!m.matches()) continue;
-            String existing = m.group(4);
-            if (existing != null && !existing.isBlank() && !existing.startsWith("AI-")) {
-                continue;
+            Optional<KanaWords.ImportLine> line = KanaWords.parseImportLine(raw);
+            if (line.isEmpty() || !KanaWords.hasKanji(line.get().front())) continue; // kana words: nothing to generate
+            String existing = line.get().hanViet();
+            boolean hasHanViet = existing != null && !existing.isBlank() && !existing.startsWith("AI-");
+            if (line.get().reading().isBlank()) {
+                needReading.add(i);
+            } else if (!hasHanViet) {
+                needHanViet.add(new Parsed(i, line.get().front(), line.get().reading(), line.get().meaning()));
             }
-            toFill.add(new Parsed(i, m.group(1).trim(), m.group(2).trim(), m.group(3).trim()));
         }
 
+        Map<Integer, String> readingByLine = new HashMap<>();
         Map<Integer, String> hvByLine = new HashMap<>();
-        if (!toFill.isEmpty() && hasValidKey()) {
+        if (!needReading.isEmpty()) {
+            List<String> words = needReading.stream()
+                    .map(i -> KanaWords.parseImportLine(lines.get(i)).orElseThrow().front()).toList();
+            List<CardEnrichResult> enriched = enrichBatchFromKanji(words);
+            for (int k = 0; k < needReading.size() && k < enriched.size(); k++) {
+                CardEnrichResult r = enriched.get(k);
+                if (r == null) continue;
+                if (r.reading() != null && !r.reading().isBlank()) readingByLine.put(needReading.get(k), r.reading().trim());
+                if (r.hanViet() != null && !r.hanViet().isBlank()) hvByLine.put(needReading.get(k), r.hanViet().trim());
+            }
+        }
+        if (!needHanViet.isEmpty()) {
             List<HanVietRequest> reqs = new ArrayList<>();
-            for (Parsed p : toFill) {
-                // use line index as temporary id
-                reqs.add(new HanVietRequest((long) p.lineIndex, p.kanji, p.meaning));
+            for (Parsed p : needHanViet) {
+                reqs.add(new HanVietRequest((long) p.lineIndex, p.kanji, p.meaning)); // line index as temporary id
             }
             Map<Long, String> batch = generateHanVietBatch(reqs);
-            for (Parsed p : toFill) {
+            for (Parsed p : needHanViet) {
                 String hv = batch.get((long) p.lineIndex);
-                if (hv != null && !hv.isBlank()) {
-                    hvByLine.put(p.lineIndex, hv);
-                }
-            }
-        } else {
-            for (Parsed p : toFill) {
-                hvByLine.put(p.lineIndex, generateHanViet(p.kanji, p.meaning));
+                if (hv != null && !hv.isBlank()) hvByLine.put(p.lineIndex, hv);
             }
         }
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < lines.size(); i++) {
             String raw = lines.get(i);
-            if (raw.isBlank()) {
+            Optional<KanaWords.ImportLine> line = raw.isBlank() ? Optional.empty() : KanaWords.parseImportLine(raw);
+            if (line.isEmpty()) {
                 sb.append(raw).append('\n');
                 continue;
             }
-            Matcher m = LINE.matcher(raw.trim());
-            if (!m.matches()) {
-                sb.append(raw).append('\n');
-                continue;
-            }
-            String kanji = m.group(1).trim();
-            String hira = m.group(2).trim();
-            String meaning = m.group(3).trim();
-            String existing = m.group(4);
-            String hv = hvByLine.get(i);
-            if (hv == null || hv.isBlank()) {
-                if (existing != null && !existing.isBlank() && !existing.startsWith("AI-")) {
-                    hv = existing.trim();
-                } else {
-                    hv = generateHanViet(kanji, meaning);
-                }
-            }
-            sb.append(kanji).append(" - ").append(hira).append(" : ").append(meaning);
-            if (hv != null && !hv.isBlank()) {
-                sb.append(" (").append(hv).append(')');
-            }
+            String word = line.get().front();
+            String reading = !line.get().reading().isBlank() ? line.get().reading()
+                    : KanaWords.isKanaOnly(word) ? word : readingByLine.getOrDefault(i, "");
+            String existing = line.get().hanViet();
+            String hv = !KanaWords.hasKanji(word) ? ""
+                    : existing != null && !existing.isBlank() && !existing.startsWith("AI-") ? existing.trim()
+                    : hvByLine.getOrDefault(i, "");
+            sb.append(word);
+            if (!reading.isBlank()) sb.append(" - ").append(reading);
+            sb.append(" : ").append(line.get().meaning());
+            if (!hv.isBlank()) sb.append(" (").append(hv).append(')');
             sb.append('\n');
         }
         return sb.toString().stripTrailing();
@@ -517,7 +530,7 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
         }
         String meaning = hv.isBlank() ? "" : hv;
         String reading = "";
-        return new CardEnrichResult(kanji, reading, meaning, hv, buildBack(reading, meaning.isBlank() ? kanji : meaning));
+        return kanaRule(new CardEnrichResult(kanji, reading, meaning, hv, buildBack(reading, meaning.isBlank() ? kanji : meaning)));
     }
 
     private record Parsed(int lineIndex, String kanji, String reading, String meaning) {

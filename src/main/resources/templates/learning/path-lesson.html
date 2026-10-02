@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: standard('Bài học - JLAS', 'textbooks')}"></head>
+
+<body id="jlabBasePage" class="app-body page-textbooks page-lesson journey-ui">
+
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="app-main textbooks-main" data-learning-path="true"
+          th:attr="data-textbook-id=${textbookId}, data-lesson-id=${lessonId}, data-item-id=${itemId}">
+        <nav class="textbooks-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/learning/path}">Lộ trình của tôi</a>
+            <span aria-hidden="true">/</span>
+            <span id="breadcrumbTextbook">Bài học</span>
+            <span aria-hidden="true">/</span>
+            <span id="breadcrumbLesson">…</span>
+        </nav>
+
+        <header class="textbooks-hero textbooks-hero--compact" id="lessonHeader" hidden>
+            <p class="textbooks-hero__eyebrow" id="lessonUnit"></p>
+            <h1 class="textbooks-hero__title" id="lessonTitle"></h1>
+            <div class="textbooks-hero__meta" id="lessonMeta"></div>
+        </header>
+
+        <div id="lessonLoading" class="textbooks-loading">
+            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+            <span>Đang tải nội dung bài học (từ vựng, ngữ pháp kèm câu ví dụ, hội thoại)…</span>
+        </div>
+
+        <div id="lessonError" class="alert alert--error" role="alert"></div>
+
+        <div class="journey-lesson-layout">
+        <section id="lessonContent" class="lesson-content" hidden>
+            <div class="lesson-tabs" role="tablist" aria-label="Nội dung bài học">
+                <button type="button" class="lesson-tab" role="tab" data-tab="kana" aria-selected="false" hidden>
+                    Bảng chữ <span class="lesson-tab__count" id="countKana">0</span>
+                </button>
+                <button type="button" class="lesson-tab" role="tab" data-tab="kanji" aria-selected="false">
+                    Kanji <span class="lesson-tab__count" id="countKanji">0</span>
+                </button>
+                <button type="button" class="lesson-tab" role="tab" data-tab="vocab" aria-selected="false">
+                    Từ vựng <span class="lesson-tab__count" id="countVocab">0</span>
+                </button>
+                <button type="button" class="lesson-tab" role="tab" data-tab="grammar" aria-selected="false">
+                    Ngữ pháp <span class="lesson-tab__count" id="countGrammar">0</span>
+                </button>
+                <button type="button" class="lesson-tab" role="tab" data-tab="dialogue" aria-selected="false">
+                    Hội thoại <span class="lesson-tab__count" id="countDialogue">0</span>
+                </button>
+            </div>
+
+            <div class="lesson-panel" id="panelKana" role="tabpanel" data-panel="kana" hidden></div>
+            <div class="lesson-panel" id="panelKanji" role="tabpanel" data-panel="kanji" hidden>
+                <div id="kanjiList"></div>
+                <p class="lesson-attribution">
+                    Dữ liệu Kanji: <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noopener">KANJIDIC2</a>
+                    &copy; <a href="https://www.edrdg.org/" target="_blank" rel="noopener">Electronic Dictionary Research and Development Group</a>,
+                    giấy phép <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
+                </p>
+            </div>
+            <div class="lesson-panel" id="panelVocab" role="tabpanel" data-panel="vocab" hidden></div>
+            <div class="lesson-panel" id="panelGrammar" role="tabpanel" data-panel="grammar" hidden></div>
+            <div class="lesson-panel" id="panelDialogue" role="tabpanel" data-panel="dialogue" hidden></div>
+        </section>
+        <aside id="lessonOutline" class="journey-lesson-outline" aria-label="Mục lục bài học" hidden>
+            <div class="journey-outline-card">
+                <h2><i class="fa-solid fa-list" aria-hidden="true"></i> Nội dung bài học</h2>
+                <nav aria-label="Chuyển phần bài học">
+                    <button type="button" data-lesson-section="kana">Bảng chữ</button>
+                    <button type="button" data-lesson-section="kanji">Kanji</button>
+                    <button type="button" data-lesson-section="vocab">Từ vựng</button>
+                    <button type="button" data-lesson-section="grammar">Ngữ pháp</button>
+                    <button type="button" data-lesson-section="dialogue">Hội thoại</button>
+                </nav>
+            </div>
+            <div class="journey-outline-card">
+                <h2><i class="fa-solid fa-route" aria-hidden="true"></i> Hành trình của bạn</h2>
+                <p>Học từng phần, đọc các ví dụ và nghe phát âm khi bài có âm thanh. Hoàn thành bài để ghi chuỗi ngày học và nhận Credit.</p>
+                <a th:href="@{/learning/path}">Về lộ trình học <span aria-hidden="true">→</span></a>
+            </div>
+        </aside>
+        </div>
+
+        <!-- [JLAS-W0108] Thanh hoàn thành bài — ghi nhận hoàn thành + streak + credit. -->
+        <section class="lp-lesson-complete" id="lessonComplete" hidden aria-label="Hoàn thành bài học">
+            <div class="card lp-lesson-complete__inner">
+                <h2>Đã học xong bài này?</h2>
+                <p>Đánh dấu hoàn thành để ghi nhận chuỗi ngày học và nhận <strong>+10 Credit</strong>.</p>
+                <div class="lp-lesson-complete__actions">
+                    <button type="button" class="btn btn-primary" id="lp-lesson-complete">
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Hoàn thành bài
+                    </button>
+                    <a class="btn btn-ghost" id="lp-lesson-quiz">
+                        <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Kiểm tra
+                    </a>
+                    <a class="btn btn-ghost" th:href="@{/learning/path}">Về lộ trình</a>
+                </div>
+                <p id="lp-lesson-status" role="status" aria-live="polite"></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- [JLAS-W0108] Flashcard bảng chữ cái — nút "Học bằng flashcard" mở overlay lật thẻ (mặt trước kana, mặt sau romaji). -->
+    <div class="kana-fc-overlay" id="kanaFlashcardOverlay" hidden>
+        <div class="kana-fc" role="dialog" aria-modal="true" aria-label="Học bảng chữ bằng flashcard">
+            <header class="kana-fc__head">
+                <span class="kana-fc__count" id="kanaFcCount">1 / 1</span>
+                <button type="button" class="kana-fc__close" id="kanaFcClose" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </header>
+            <button type="button" class="kana-fc__card" id="kanaFcCard" aria-label="Lật thẻ">
+                <span class="kana-fc__face kana-fc__front" lang="ja"></span>
+                <span class="kana-fc__face kana-fc__back"></span>
+            </button>
+            <p class="kana-fc__hint">Bấm thẻ để lật mặt sau (romaji)</p>
+            <div class="kana-fc__nav">
+                <button type="button" class="btn btn--secondary btn--sm" id="kanaFcPrev" aria-label="Thẻ trước">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn--secondary btn--sm" id="kanaFcShuffle">
+                    <i class="fa-solid fa-shuffle" aria-hidden="true"></i> Xáo trộn
+                </button>
+                <button type="button" class="btn btn--secondary btn--sm" id="kanaFcNext" aria-label="Thẻ tiếp">
+                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/jlab-base-shell.js}"></script>
+    <script th:src="@{/js/pages/textbook-lesson.js}"></script>
+    <script th:src="@{/js/pages/learning-path-lesson.js}"></script>
+
+</body>
+
+</html>

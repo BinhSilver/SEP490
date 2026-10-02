@@ -56,9 +56,17 @@
     window.location.replace('/login?redirect=' + encodeURIComponent(returnUrl));
   }
 
+  function redirectToAppealWhenBanned(response) {
+    if (!response || response.status !== 403 || window.location.pathname === '/appeal.html') return;
+    response.clone().json().then(function (body) {
+      if (body && body.code === 'ACCOUNT_BANNED') window.location.replace('/appeal.html');
+    }).catch(function () {});
+  }
+
   window.fetch = function () {
     return nativeFetch.apply(window, arguments).then(function (response) {
       redirectToLoginAfterUnauthorized(response);
+      redirectToAppealWhenBanned(response);
       return response;
     });
   };
@@ -161,6 +169,8 @@
       if (!user || !user.role) return 'Học viên';
       if (user.role === 'PREMIUM') return 'Thành viên Pro';
       if (user.role === 'ADMIN') return 'Quản trị viên';
+      if (user.role === 'SUPER_ADMIN') return 'Quản trị cấp cao';
+      if (user.role === 'MODERATOR') return 'Kiểm duyệt viên';
       if (user.role === 'CONTENT_CREATOR') return 'Người biên soạn';
       return 'Học viên';
     },
@@ -310,7 +320,20 @@
     JlasAuth.highlightActiveNav();
     JlasAuth.applyNav();
     if (JlasAuth.isLoggedIn()) {
-      JlasAuth.refreshUser();
+      JlasAuth.refreshUser().then(async function (user) {
+        var path = window.location.pathname.replace(/\/$/, '') || '/';
+        var authPages = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/survey'];
+        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0
+            || user.role === 'ADMIN' || user.role === 'MODERATOR') return;
+        try {
+          var response = await fetch('/api/assessment/survey', { headers: JlasAuth.authHeaders() });
+          if (!response.ok) return;
+          var payload = await response.json();
+          if (payload.success && payload.data && payload.data.completed === false) {
+            window.location.replace('/survey');
+          }
+        } catch (error) { /* Keep the current page available when the server cannot be reached. */ }
+      });
     }
   });
 

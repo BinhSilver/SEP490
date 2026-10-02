@@ -1,6 +1,11 @@
 @import url("/css/components/dropdowns.css");
 @import url("/css/components/user-menu.css?v=20260825-unified-bell");
 
+@import url("/css/components/pullcord.css");
+
+html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
+#jlabBaseLearningPathLink[aria-disabled="true"] { background:transparent; border:0; color:var(--color-on-surface-variant); opacity:.55; cursor:not-allowed; }
+
 /*
  * JLAS shared feature shell.
  * Load this file after every page/module stylesheet.
@@ -11,6 +16,7 @@
 
 #jlabBaseDocument {
   overflow-x: clip !important;
+  scrollbar-gutter: stable;
 }
 
 #jlabBasePage {
@@ -58,6 +64,20 @@
 }
 
 #jlabBaseHeader {
+  /* Navigation owns its tokens: page palettes must not change its appearance. */
+  --color-primary: #7c3aed;
+  --color-primary-container: #6d28d9;
+  --color-on-primary: #ffffff;
+  --color-primary-fixed: #f3eaff;
+  --color-surface-lowest: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-low: #f8fafc;
+  --color-surface-mid: #f1f5f9;
+  --color-surface-high: #e2e8f0;
+  --color-surface-container: #f1f5f9;
+  --color-on-surface: #172033;
+  --color-on-surface-variant: #64748b;
+  --color-outline-variant: #e2e8f0;
   position: fixed;
   top: 10px;
   right: clamp(12px, 2vw, 32px);
@@ -67,12 +87,31 @@
   display: flex;
   align-items: center;
   color: var(--color-on-surface, #161d1f);
-  /* The global navigation is a consistent white surface. The landing page
-     deliberately overrides this to transparent so it can sit on its hero. */
-  background: #fff;
+  background: var(--color-surface-lowest);
   border: 1px solid var(--color-outline-variant, #cbc4d2);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, 0.08));
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(22, 29, 31, 0.08);
+}
+
+html[data-theme="dark"] #jlabBaseHeader {
+  --color-primary: #c084fc;
+  --color-primary-container: #a855f7;
+  --color-on-primary: #20102e;
+  --color-primary-fixed: #292239;
+  --color-surface-lowest: #171b26;
+  --color-surface: #10131d;
+  --color-surface-low: #10131d;
+  --color-surface-mid: #202534;
+  --color-surface-high: #2a3041;
+  --color-surface-container: #202534;
+  --color-on-surface: #f5f6fa;
+  --color-on-surface-variant: #a0aec0;
+  --color-outline-variant: #2b3040;
+}
+
+#jlabBaseHeader :is(#jlabBaseExamsMenu,#jlabBaseToolsMenu,#jlabBaseAccountMenu,#jlabBaseNotificationPanel) {
+  background:var(--color-surface-lowest);
+  color:var(--color-on-surface);
 }
 
 #jlabBaseHeaderInner {
@@ -210,7 +249,10 @@
 #jlabBaseFlashcardLink:focus-visible,
 #jlabBaseQuizLink:focus-visible,
 #jlabBaseShadowingLink:focus-visible,
+#jlabBaseSmartTestLink:focus-visible,
 #jlabBaseProfileLink:focus-visible,
+#jlabBaseProgressLink:focus-visible,
+#jlabBaseAdminLink:focus-visible,
 #jlabBaseSecurityLink:focus-visible {
   outline: 2px solid var(--color-primary, #4f378a);
   outline-offset: 3px;
@@ -273,6 +315,7 @@
 #jlabBaseNotificationBadge[hidden],
 #jlabBaseAvatarButtonImage[hidden],
 #jlabBaseAvatarButtonInitials[hidden],
+#jlabBaseAdminLink[hidden],
 #jlabBaseAccountAvatarImage[hidden],
 #jlabBaseAccountAvatarInitials[hidden] {
   display: none;
@@ -282,7 +325,10 @@
 #jlabBaseFlashcardLink,
 #jlabBaseQuizLink,
 #jlabBaseShadowingLink,
+#jlabBaseSmartTestLink,
 #jlabBaseProfileLink,
+#jlabBaseProgressLink,
+#jlabBaseAdminLink,
 #jlabBaseSecurityLink,
 #jlabBaseLogoutButton {
   width: 100%;
@@ -306,13 +352,19 @@
 #jlabBaseFlashcardLink:hover,
 #jlabBaseQuizLink:hover,
 #jlabBaseShadowingLink:hover,
+#jlabBaseSmartTestLink:hover,
 #jlabBaseProfileLink:hover,
+#jlabBaseProgressLink:hover,
+#jlabBaseAdminLink:hover,
 #jlabBaseSecurityLink:hover,
 #jlabBaseLogoutButton:hover,
 #jlabBaseAiCallLink[aria-current="page"],
 #jlabBaseFlashcardLink[aria-current="page"],
 #jlabBaseQuizLink[aria-current="page"],
-#jlabBaseShadowingLink[aria-current="page"] {
+#jlabBaseShadowingLink[aria-current="page"],
+#jlabBaseSmartTestLink[aria-current="page"],
+#jlabBaseProgressLink[aria-current="page"],
+#jlabBaseAdminLink[aria-current="page"] {
   color: var(--color-primary, #4f378a);
   background: var(--color-primary-fixed, #e9ddff);
 }
@@ -406,17 +458,10 @@
   transition: none;
 }
 
+/* The bell has no hover or open-state effect: it keeps the same look at all times. */
 #jlabBaseNotificationButton:hover,
 #jlabBaseNotificationButton[aria-expanded="true"] {
-  background: var(--color-primary-fixed, #e9ddff);
   transform: none;
-}
-
-/* Hover keeps the bell visually still; the expanded state remains visible after click. */
-#jlabBaseNotificationButton.notification-center__trigger:hover:not([aria-expanded="true"]) {
-  color: var(--color-on-surface, #161d1f) !important;
-  background: var(--color-surface-high, #dfe7e9) !important;
-  transform: none !important;
 }
 
 #jlabBaseNotificationIcon {
@@ -455,8 +500,129 @@
 }
 
 #jlabBaseNotificationPanelHeader {
-  padding: 18px 20px 14px;
+  padding: 14px 16px 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationMarkAll {
+  padding: 6px 10px;
+  color: var(--color-primary, #4f378a);
+  font: 600 0.8125rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#jlabBaseNotificationMarkAll:hover,
+#jlabBaseNotificationMarkAll:focus-visible {
+  background: var(--color-primary-fixed, #e9ddff);
+  outline: none;
+}
+
+#jlabBaseNotificationMarkAll[hidden] {
+  display: none;
+}
+
+#jlabBaseNotificationViewAll {
+  display: block;
+  padding: 12px 20px;
+  color: var(--color-primary, #4f378a);
+  font: 600 0.875rem/1.3 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  text-align: center;
+  text-decoration: none;
+  border-top: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationViewAll:hover,
+#jlabBaseNotificationViewAll:focus-visible {
+  background: var(--color-primary-fixed, #e9ddff);
+  outline: none;
+}
+
+/* Notification rows live here (not in user-menu.css) so every page using the shell renders them. */
+#jlabBaseNotificationList {
+  max-height: min(420px, calc(100vh - 170px));
+  overflow-y: auto;
+}
+
+#jlabBaseNotificationList .jlab-notif {
+  width: 100%;
+  padding: 12px 16px 12px 20px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 10px;
+  align-items: start;
+  gap: 12px;
+  color: var(--color-on-surface, #161d1f);
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+  box-sizing: border-box;
+  cursor: pointer;
+  font: inherit;
+}
+
+#jlabBaseNotificationList .jlab-notif:hover,
+#jlabBaseNotificationList .jlab-notif:focus-visible {
+  background: var(--color-surface-low, #eef5f7);
+  outline: none;
+}
+
+#jlabBaseNotificationList .jlab-notif.is-unread {
+  background: #f7f2ff;
+}
+
+#jlabBaseNotificationList .jlab-notif__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+  border-radius: 50%;
+}
+
+#jlabBaseNotificationList .jlab-notif__icon .jlab-base-icon {
+  width: 18px;
+  height: 18px;
+}
+
+#jlabBaseNotificationList .jlab-notif__body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+#jlabBaseNotificationList .jlab-notif__body strong {
+  font: 700 0.875rem/1.35 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__message {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-on-surface-variant, #494551);
+  font: 400 0.8125rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__time {
+  color: var(--color-outline, #7a7582);
+  font: 400 0.75rem/1.3 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  background: var(--color-primary, #4f378a);
+  border-radius: 50%;
 }
 
 #jlabBaseNotificationTitle {
@@ -632,13 +798,14 @@
 
   #jlabBasePrimaryNav {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 4px;
   }
 
   #jlabBaseHomeLink,
   #jlabBaseLearningPathLink,
   #jlabBaseTextbooksLink,
+  #jlabBaseLookupLink,
   #jlabBaseGameLink,
   #jlabBaseToolsWrapper {
     display: flex;
@@ -648,6 +815,7 @@
   #jlabBaseHomeLabel,
   #jlabBaseLearningPathLabel,
   #jlabBaseTextbooksLabel,
+  #jlabBaseLookupLabel,
   #jlabBaseGameLabel,
   #jlabBaseToolsLabel,
   #jlabBaseAboutLabel {
@@ -702,10 +870,24 @@
 }
 
 /* =============================================================================
- * [JLAS] Nav "Tạo đề" (chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
- * Khối riêng, mirror đúng rule của "Công cụ" (#jlabBaseTools*) để không sửa selector cũ.
- * Khi fa712cb (SVG icon, grid 4 cột) merge: dựng lại khối này trên khuôn mới.
+ * [JLAS] Nav "Học tập"/"Tạo đề" (Tạo đề chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
+ * Icon render bằng inline SVG (khuôn của fa712cb, xem replaceShellIcons trong jlab-base-shell.js),
+ * không dùng Font Awesome ::before glyph; kích thước theo .jlab-base-icon / .jlab-base-icon--chevron.
  * ============================================================================= */
+#jlabBaseExamsWrapper { position:relative; }
+#jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; cursor:pointer; }
+#jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
+#jlabBaseExamsChevron { transition: transform 180ms ease; }
+#jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
+#jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:rgba(255,255,255,.96); box-shadow:0 10px 40px rgba(22,29,31,.14); }
+#jlabBaseExamsMenu[hidden] { display:none; }
+#jlabBaseExamJlptItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; text-align:left; opacity:.6; cursor:default; }
+#jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
+#jlabBaseExamsButton:focus-visible,#jlabBaseExamJlptItem:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+@media(max-width:560px) { #jlabBaseExamsWrapper{display:flex;justify-content:center} #jlabBaseExamsLabel{display:none} #jlabBaseExamsMenu{position:fixed;top:108px;left:12px;right:12px;min-width:0;max-height:calc(100dvh - 128px);overflow-y:auto} }
+
+@media(max-width:560px){#jlabBaseAboutLabel{display:none}#jlabBaseAboutLink::before{content:"\f05a";font-family:"Font Awesome 6 Free";font-weight:900}}
+
 #jlabBaseTestBuilderWrapper {
   position: relative;
 }
@@ -750,7 +932,6 @@
   outline-offset: 3px;
 }
 
-/* Icon dùng chung rule `.jlab-base-icon`; replaceShellIcons() thay <i> bằng <svg> inline. */
 #jlabBaseTestBuilderChevron {
   transition: transform 180ms ease;
 }
@@ -840,9 +1021,9 @@
 }
 
 @media (max-width: 560px) {
-  /* Số cột = số mục đang hiện (syncNavRoles đặt --jlab-nav-count): learner/ADMIN 6 cột, CONTENT_CREATOR 5 */
+  /* Số cột = số mục đang hiện (syncNavRoles đặt --jlab-nav-count): learner/ADMIN vẫn 7 cột như cũ, CONTENT_CREATOR 8 */
   #jlabBasePrimaryNav[data-nav-count] {
-    grid-template-columns: repeat(var(--jlab-nav-count, 6), minmax(0, 1fr));
+    grid-template-columns: repeat(var(--jlab-nav-count, 7), minmax(0, 1fr));
   }
 
   #jlabBaseTestBuilderWrapper {
@@ -864,3 +1045,71 @@
     overflow-y: auto;
   }
 }
+
+/* Active sanction banner (normal flow, directly under the fixed header) and one-time dialog. */
+#jlabBaseSanctionBanner {
+  width: min(1400px, calc(100% - 24px));
+  margin: 0 auto 12px;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  font: 500 0.875rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseSanctionBanner[hidden] { display: none; }
+#jlabBaseSanctionBanner.is-mute { color: #6b4500; background: #fff1d6; border: 1px solid #f0c36d; }
+#jlabBaseSanctionBanner.is-ban { color: #93000a; background: #ffdad6; border: 1px solid #f2a39b; }
+
+#jlabBaseSanctionBanner a {
+  flex: none;
+  padding: 6px 12px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--color-primary, #4f378a);
+  border-radius: 999px;
+}
+
+#jlabBaseSanctionDialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay, 120);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(22, 29, 31, 0.5);
+}
+
+#jlabBaseSanctionDialog > div {
+  width: min(440px, 100%);
+  padding: 22px;
+  color: var(--color-on-surface, #161d1f);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 14px 42px rgba(22, 29, 31, 0.2);
+  font: 400 0.9375rem/1.5 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseSanctionDialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
+#jlabBaseSanctionDialog p { margin: 0 0 8px; color: var(--color-on-surface-variant, #494551); }
+#jlabBaseSanctionDialog p:empty { display: none; }
+#jlabBaseSanctionDialog > div > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+#jlabBaseSanctionDialog a,
+#jlabBaseSanctionDialog button {
+  padding: 9px 16px;
+  font: 600 0.875rem/1.2 inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#jlabBaseSanctionDialog a { color: #fff; background: var(--color-primary, #4f378a); border: 0; }
+#jlabBaseSanctionDialog button { color: var(--color-on-surface, #161d1f); background: #fff; border: 1px solid var(--color-outline-variant, #cbc4d2); }
+#jlabBaseSanctionDialog a:focus-visible,
+#jlabBaseSanctionDialog button:focus-visible { outline: 2px solid var(--color-primary, #4f378a); outline-offset: 2px; }

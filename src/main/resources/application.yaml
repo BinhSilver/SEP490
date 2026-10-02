@@ -83,6 +83,12 @@ youtube:
     duration:
       no-subtitle:
         seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
+  subtitle:
+    quality:
+      enabled: ${YOUTUBE_SUBTITLE_QUALITY_ENABLED:true}
+      max-duration-seconds: ${YOUTUBE_SUBTITLE_QUALITY_MAX_DURATION_SECONDS:300}
+      minimum-match-score: ${YOUTUBE_SUBTITLE_QUALITY_MINIMUM_MATCH_SCORE:0.82}
+      time-overlap-padding-seconds: ${YOUTUBE_SUBTITLE_QUALITY_TIME_OVERLAP_PADDING_SECONDS:0.30}
 
 deepgram:
   api:
@@ -112,6 +118,41 @@ openrouter:
   temperature: ${OPENROUTER_TEMPERATURE:0}
   top-p: ${OPENROUTER_TOP_P:0.9}
 
+# ── Gemini (cá nhân hoá learning path) ──────────────────────────────────────
+# Key nằm trong application-local.yaml dưới tên `gemini-api-key` (hoặc env GEMINI_API_KEY);
+# không khai báo ở đây để tránh ghi đè key thật bằng chuỗi rỗng.
+gemini:
+  api:
+    url: ${GEMINI_API_URL:https://generativelanguage.googleapis.com/v1beta}
+  model: ${GEMINI_MODEL:gemini-3.8-flash}
+  temperature: ${GEMINI_TEMPERATURE:0}
+  max-output-tokens: ${GEMINI_MAX_OUTPUT_TOKENS:4096}
+  json:
+    max-retries: ${GEMINI_JSON_MAX_RETRIES:2}
+
+# AI Call (kaiwa): Fish Audio TTS, runtime phiên hội thoại và hạn mức (JLAS-W0199 / W0205).
+fish:
+  audio:
+    api:
+      key: ${FISH_AUDIO_API_KEY:}
+      url: ${FISH_AUDIO_API_URL:https://api.fish.audio}
+    model: ${FISH_AUDIO_MODEL:s2.1-pro-free}
+    voice:
+      female: ${FISH_AUDIO_VOICE_FEMALE:}
+      male: ${FISH_AUDIO_VOICE_MALE:}
+
+aicall:
+  runtime:
+    ttl-minutes: ${AICALL_RUNTIME_TTL_MINUTES:120}
+    max-sessions: ${AICALL_RUNTIME_MAX_SESSIONS:10000}
+  # Con số tạm, giữ cấu hình được cho tới khi team chốt. premium-monthly-minutes = 0 là không giới hạn.
+  quota:
+    free-daily-minutes: ${AICALL_FREE_DAILY_MINUTES:5}
+    free-monthly-minutes: ${AICALL_FREE_MONTHLY_MINUTES:300}
+    premium-daily-minutes: ${AICALL_PREMIUM_DAILY_MINUTES:30}
+    premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:0}
+    minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
+
 azure:
   speech:
     pronunciation:
@@ -140,6 +181,7 @@ processing:
         seconds: ${PROCESSING_AI_MAX_DURATION_SECONDS:1200}
     batch:
       size: ${PROCESSING_AI_BATCH_SIZE:6}
+    parallelism: ${PROCESSING_AI_PARALLELISM:3}
     json:
       max-retries: ${PROCESSING_AI_JSON_MAX_RETRIES:2}
 
@@ -169,7 +211,22 @@ moderation:
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
   level:
     com.jlas: DEBUG
     org.hibernate.SQL: WARN
     org.springframework.security: WARN
+
+# [JLAS-W0193] Off until all V2 activity pages are released.
+learning:
+  interactive-v2:
+    enabled: ${LEARNING_INTERACTIVE_V2_ENABLED:false}
+  # [JLAS-W0193] RC Task 7 — no real Mock Test owner contract exists in this codebase, so destination-url
+  # stays empty (BLOCKED_INTEGRATION) by default. If a real contract ever ships, set destination-url plus
+  # approved-origins here (or via env) — ConfiguredMockTestDestinationProvider still rejects anything that
+  # is not an internal relative route or an origin on this exact list; never accept an unapproved URL.
+  mock-test:
+    destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:}
+    approved-origins: ${LEARNING_MOCK_TEST_APPROVED_ORIGINS:}

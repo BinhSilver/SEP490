@@ -592,3 +592,67 @@
 .kana-hint { margin: var(--space-3) 0 0; font-size: var(--text-xs); color: var(--color-on-surface-variant); }
 .kana-tile.speak-btn--silent { cursor: default; }
 .kana-tile.speak-btn--silent:hover { transform: none; border-color: var(--color-outline-variant); }
+
+/* [JLAS-W0108] Nút "Học bằng flashcard" + overlay lật thẻ kana → romaji */
+.kana-toolbar { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
+.kana-fc-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--space-4);
+  background: rgba(16, 24, 40, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.kana-fc-overlay[hidden] { display: none; }
+.kana-fc {
+  width: min(380px, 100%);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-2);
+  perspective: 1200px;
+}
+.kana-fc__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.kana-fc__count { font-size: var(--text-sm); font-weight: 700; color: var(--color-primary); }
+.kana-fc__close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; background: transparent; color: var(--color-on-surface-variant);
+  font-size: 1.2rem; cursor: pointer;
+}
+.kana-fc__close:hover { background: var(--color-surface-container); color: var(--color-on-surface); }
+.kana-fc__card {
+  position: relative;
+  width: min(300px, 78vw);
+  height: min(300px, 78vw);
+  margin: 0 auto;
+  border: none; padding: 0; background: none; cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease;
+}
+.kana-fc__card.is-flipped { transform: rotateY(180deg); }
+.kana-fc__face {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-lowest);
+  box-shadow: var(--shadow-1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.kana-fc__front {
+  font-family: var(--font-display);
+  font-size: 8rem;
+  line-height: 1;
+  color: var(--color-primary);
+}
+.kana-fc__back {
+  transform: rotateY(180deg);
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  color: var(--color-on-surface);
+}
+.kana-fc__hint { margin: var(--space-3) 0 0; text-align: center; font-size: var(--text-xs); color: var(--color-on-surface-variant); }
+.kana-fc__nav { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin-top: var(--space-3); }

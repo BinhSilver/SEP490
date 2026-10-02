@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface ReviewCaseRepository extends JpaRepository<ReviewCase, Long> {
     List<ReviewCase> findByCaseTypeAndStatusOrderByCreatedAtDesc(String caseType, String status);
 
+    long countByCaseTypeAndStatus(String caseType, String status);
+
     List<ReviewCase> findByCaseTypeAndRequesterUserIdOrderByCreatedAtDesc(
             String caseType, Long requesterUserId);
 

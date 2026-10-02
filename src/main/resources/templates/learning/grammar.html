@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Ngữ pháp - JLAS', null)}"></head>
+<body id="jlabBasePage" class="app-body learning-grammar-body journey-ui">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="lp-page-shell">
+    <nav class="lp-breadcrumb" aria-label="Breadcrumb">
+        <a th:href="@{/}">Học tập</a>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <a th:href="@{/learning/path}">Lộ trình của tôi</a>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <span aria-current="page">Ngữ pháp</span>
+    </nav>
+
+    <div class="gp-blocked" th:if="${contentBlocked}">
+        <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
+        <h1>Chưa có đủ học liệu</h1>
+        <p th:text="${blockReason}">Mẫu ngữ pháp này chưa được ánh xạ đầy đủ.</p>
+        <a class="lp-button lp-button--primary" th:href="@{/learning/path}">Về lộ trình học</a>
+    </div>
+
+    <article class="gp-card" th:unless="${contentBlocked}">
+        <header class="gp-card__head">
+            <span class="gp-card__eyebrow">
+                <span class="material-symbols-outlined" aria-hidden="true">menu_book</span> Mẫu ngữ pháp
+            </span>
+            <h1 th:text="${grammarPoint.pattern}">～てください</h1>
+            <p class="gp-card__meaning" th:text="${grammarPoint.meaning}">Diễn đạt yêu cầu, nhờ vả.</p>
+        </header>
+
+        <section class="gp-card__section" th:if="${grammarPoint.example != null and !#strings.isEmpty(grammarPoint.example)}">
+            <h2>Ví dụ</h2>
+            <p class="gp-card__example" th:text="${grammarPoint.example}"></p>
+        </section>
+
+        <section class="gp-card__section" th:if="${grammarPoint.note != null and !#strings.isEmpty(grammarPoint.note)}">
+            <h2>Ghi chú</h2>
+            <p class="gp-card__note" th:text="${grammarPoint.note}"></p>
+        </section>
+
+        <!-- [JLAS-W0108] P2b — ví dụ content_item gắn đúng mẫu (có nguồn), không kéo toàn bộ bài. -->
+        <section class="gp-card__section" th:if="${!#lists.isEmpty(examples)}">
+            <h2>Ví dụ từ giáo trình</h2>
+            <div class="gp-card__example" th:each="ex : ${examples}">
+                <p th:text="${ex.content}">Ví dụ</p>
+                <p class="gp-card__example-vi" th:if="${ex.translatedText != null and !#strings.isEmpty(ex.translatedText)}"
+                   th:text="${ex.translatedText}">Bản dịch</p>
+            </div>
+        </section>
+
+        <footer class="gp-card__actions">
+            <a class="lp-button lp-button--primary" th:href="@{'/learning/lesson/' + ${grammarPoint.lesson.id}}">
+                Mở bài học đầy đủ <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
+            <a class="lp-button lp-button--primary" th:href="@{'/learning/grammar/' + ${grammarPoint.id} + '/quiz'}">
+                <span class="material-symbols-outlined" aria-hidden="true">quiz</span> Kiểm tra mẫu ngữ pháp
+            </a>
+            <a class="lp-button" th:href="@{/learning/path}">
+                Về lộ trình học
+            </a>
+        </footer>
+    </article>
+</main>
+
+<style>
+    .lp-page-shell {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 16px 96px;
+    }
+
+    .lp-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        font-size: 13px;
+        color: var(--muted, #6B7280);
+        margin-bottom: 24px;
+    }
+
+    .lp-breadcrumb a {
+        color: var(--muted, #6B7280);
+        text-decoration: none;
+    }
+
+    .lp-breadcrumb a:hover {
+        color: var(--primary, #4f378a);
+    }
+
+    .gp-blocked {
+        background: var(--surface, #f8f9ff);
+        border: 1px solid var(--line, #cbd5e1);
+        border-radius: 24px;
+        padding: 48px 40px;
+        text-align: center;
+    }
+
+    .gp-blocked .material-symbols-outlined {
+        font-size: 40px;
+        color: var(--muted, #6B7280);
+        margin-bottom: 12px;
+    }
+
+    .gp-blocked h1 {
+        font-size: 24px;
+        margin: 0 0 12px;
+    }
+
+    .gp-blocked p {
+        color: var(--muted, #6B7280);
+        margin: 0 0 24px;
+    }
+
+    .gp-card {
+        background: var(--surface, #f8f9ff);
+        border: 1px solid var(--line, #cbd5e1);
+        border-radius: 24px;
+        padding: 40px;
+    }
+
+    .gp-card__head {
+        margin-bottom: 28px;
+    }
+
+    .gp-card__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--primary, #4f378a);
+        margin-bottom: 12px;
+    }
+
+    .gp-card__eyebrow .material-symbols-outlined {
+        font-size: 18px;
+    }
+
+    .gp-card__head h1 {
+        font-family: 'Noto Sans JP', 'Hanken Grotesk', sans-serif;
+        font-size: 34px;
+        margin: 0 0 10px;
+    }
+
+    .gp-card__meaning {
+        font-size: 16px;
+        color: var(--muted, #6B7280);
+        margin: 0;
+    }
+
+    .gp-card__section {
+        margin-bottom: 28px;
+    }
+
+    .gp-card__section h2 {
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted, #6B7280);
+        margin: 0 0 8px;
+    }
+
+    .gp-card__example,
+    .gp-card__note {
+        font-family: 'Noto Sans JP', sans-serif;
+        font-size: 18px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        margin: 0;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--line, #cbd5e1);
+        border-radius: 14px;
+    }
+
+    .gp-card__section .gp-card__example {
+        margin-bottom: 12px;
+    }
+
+    .gp-card__example-vi {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 15px;
+        color: var(--muted, #6B7280);
+        margin: 0;
+    }
+
+    .gp-card__note {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 15px;
+    }
+
+    .gp-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    @media (max-width: 640px) {
+        .gp-card {
+            padding: 28px 20px;
+        }
+
+        .gp-card__head h1 {
+            font-size: 27px;
+        }
+    }
+</style>
+
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

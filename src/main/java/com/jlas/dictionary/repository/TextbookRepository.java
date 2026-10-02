@@ -19,6 +19,30 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
 
     Optional<Textbook> findByIdAndStatus(Long id, String status);
 
+    /** JLPT curriculum textbooks (published, level in range); {@code id < idLessThan} excludes the local demo seed. */
+    List<Textbook> findByJlptLevelInAndStatusAndIdLessThanOrderByIdAsc(
+            List<String> jlptLevels, String status, Long idLessThan);
+
+    /** Local demo-seed textbooks (published, level in range, id >= idGreaterThanEqual); temporary fallback until real content is published. */
+    List<Textbook> findByJlptLevelInAndStatusAndIdGreaterThanEqualOrderByIdAsc(
+            List<String> jlptLevels, String status, Long idGreaterThanEqual);
+
+    /**
+     * [JLAS-W0108] Foundation (kana/alphabet) textbooks cho from-zero warm-up: sách đã xuất bản,
+     * không có cấp JLPT và có bài gắn tag {@code KANA-*} (Hiragana/Katakana). Lọc theo tag để LOẠI
+     * các sách hội thoại chuyên ngành (IT/du lịch/đời sống) cũng có {@code jlpt_level IS NULL} —
+     * chúng thuộc goal BA/TRAVEL/DAILY_LIFE, không phải nền tảng bảng chữ cái của lộ trình JLPT.
+     */
+    @Query("""
+            select distinct t from Lesson l
+              join l.unit u
+              join u.textbook t
+              join l.knowledgeTag kt
+            where t.jlptLevel is null and t.status = :status and kt.code like 'KANA-%'
+            order by t.id
+            """)
+    List<Textbook> findKanaFoundationByStatus(@Param("status") String status);
+
     /** Số unit theo textbook cho một tập textbook, 1 query; mỗi phần tử là [textbookId, count]. */
     @Query("""
             select u.textbook.id, count(u.id) from Unit u

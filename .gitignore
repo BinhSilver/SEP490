@@ -203,6 +203,8 @@ docker-compose.override.yml
 # -----------------------------------------------------------------------
 *.sql.bak
 data_full.sql
+# Local-only demo seed: contains a real bcrypt password hash — never commit/push.
+db/jlas-learning-demo-seed.sql
 .jlas-backups/
 # Keep schema but not data
 # jlas_schema.sql  <- keep this tracked
@@ -261,3 +263,21 @@ uploads/
 
 # Team-only policy document.
 doc/QUY ĐỊNH TEAM_JLAS.docx
+
+# -----------------------------------------------------------------------
+# PERSONAL WORKING NOTES / SPECS / CONTENT DATA (not team deliverables)
+# -----------------------------------------------------------------------
+docs/
+tools/grammar_n1.json
+tools/grammar_n2.json
+tools/grammar_n3.json
+tools/daily_data.json
+tools/it_data.json
+tools/travel_data.json
+tools/kanji_data.json
+tools/tu_vung_N3_N1_duyet.xlsx
+tools/JLAS_tu_vung_nghia_vi_claude_reviewed.json
+
+# Ảnh gốc vẽ tay và script ghép hoạt ảnh mèo ở sảnh (~22MB); game chỉ dùng sprite đã ghép trong
+# static/arena/app/neko. Bản gốc cất ở Drive.
+frontend/neko-catch/art/

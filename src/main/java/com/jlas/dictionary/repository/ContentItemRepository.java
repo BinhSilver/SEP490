@@ -24,4 +24,20 @@ public interface ContentItemRepository extends JpaRepository<ContentItem, Long> 
             """)
     List<ContentItem> findByLessonIdAndContentType(@Param("lessonId") Long lessonId,
                                                    @Param("contentType") String contentType);
+
+    /**
+     * [JLAS-W0108] P2 — câu ví dụ (GRAMMAR) gắn đúng một mẫu ngữ pháp VÀ nằm trong đúng bài nguồn
+     * của mẫu đó (không lấy ví dụ cùng grammar_point_id nhưng thuộc bài khác). Dùng cho grammar
+     * manifest: chỉ trả ví dụ đúng mẫu đã chọn, không kéo toàn bộ content_item của bài.
+     */
+    @Query("""
+            select ci from ContentItem ci
+              join ci.section s
+            where ci.grammarPointId = :grammarPointId
+              and ci.contentType = 'GRAMMAR'
+              and s.lesson.id = :lessonId
+            order by ci.orderIndex, ci.id
+            """)
+    List<ContentItem> findGrammarExamples(@Param("grammarPointId") Long grammarPointId,
+                                          @Param("lessonId") Long lessonId);
 }

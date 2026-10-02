@@ -18,6 +18,15 @@ public enum ErrorCode {
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Service unavailable"),
     EXTERNAL_SERVICE_ERROR(HttpStatus.BAD_GATEWAY, "External service error"),
+    TARGET_NOT_AVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Mục tiêu này đang được phát triển"),
+    QUIZ_ATTEMPT_LIMIT(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã dùng hết lượt quiz hôm nay, hãy thử lại vào ngày mai"),
+    /** [JLAS-W0108] P4/P5 — học liệu/đề chưa đủ để phát quiz (BLOCKED_CONTENT); không phải người học trượt. */
+    QUIZ_NOT_READY(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu để tạo bài kiểm tra"),
+    /** [JLAS-W0108] P5 — chưa hoàn thành hoạt động bắt buộc trước đó (gate/prerequisite); không phải trượt quiz. */
+    PREREQUISITE_NOT_MET(HttpStatus.UNPROCESSABLE_ENTITY, "Bạn cần hoàn thành các hoạt động trước đó trước"),
+    /** [JLAS-W0108] P6 — cấp trong lộ trình chưa đủ học liệu đã duyệt (readiness BLOCKED_CONTENT);
+     *  bị chặn minh bạch, KHÔNG fallback demo và KHÔNG tính là người học trượt. */
+    BLOCKED_CONTENT(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu cho cấp độ này"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;

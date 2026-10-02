@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Chứng chỉ thành tựu - JLAS', 'certificate')}"></head>
+<body id="jlabBasePage" class="app-body certificate-body journey-ui">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="certificate-page">
+    <section class="cert-card">
+        <p class="cert-eyebrow">J-LAS · Chứng nhận thành tựu nội bộ</p>
+        <h1>Chứng chỉ hoàn thành lộ trình</h1>
+        <p class="cert-level">Cấp độ đạt được: <strong th:text="${targetLevel}">N4</strong></p>
+        <p class="cert-date">
+            Ngày hoàn thành:
+            <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
+        </p>
+        <p class="cert-disclaimer">
+            Đây là chứng nhận thành tựu học tập nội bộ của J-LAS, không phải điểm số hay chứng chỉ
+            JLPT chính thức.
+        </p>
+        <button class="cert-print-button" type="button" onclick="window.print()">In / Lưu PDF</button>
+    </section>
+</main>
+
+<style>
+    @media print {
+        #jlabBaseShellMount, .certificate-page nav, .cert-print-button { display: none !important; }
+    }
+    .certificate-page { display: flex; justify-content: center; padding: 48px 16px; }
+    .cert-card { max-width: 640px; width: 100%; text-align: center; padding: 48px 40px;
+        border: 2px solid var(--color-primary); border-radius: 12px; }
+    .cert-eyebrow { letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; color: var(--color-on-surface-variant); }
+    .cert-disclaimer { margin-top: 24px; font-size: 0.85rem; color: var(--color-on-surface-variant); }
+    .cert-print-button { margin-top: 24px; padding: 12px 24px; border-radius: 999px; border: none;
+        background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; cursor: pointer; }
+</style>
+</body>
+</html>

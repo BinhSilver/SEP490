@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface DictionarySearchHistoryRepository extends JpaRepository<DictionarySearchHistory, Long> {
     List<DictionarySearchHistory> findByUserIdOrderBySearchedAtDesc(Long userId);
+
+    List<DictionarySearchHistory> findTop20ByUser_IdOrderBySearchedAtDesc(Long userId);
 }
