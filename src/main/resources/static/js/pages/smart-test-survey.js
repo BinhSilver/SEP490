@@ -98,15 +98,14 @@
   function showInvitation(survey) {
     savedSurvey = survey;
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
-    var usageUnderSixMonths = (survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')
-      && (survey.studyDurationMonths == null || survey.studyDurationMonths <= 6);
-    var needsPathOnly = fromZero || usageUnderSixMonths;
-    if (fromZero) {
+    var surveyOnlyGoal = survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE';
+    var needsPathOnly = fromZero || surveyOnlyGoal;
+    if (surveyOnlyGoal) {
+      document.getElementById('inviteTitle').textContent = 'Chọn tình huống bạn muốn luyện!';
+      document.getElementById('inviteText').textContent = 'Du lịch và đời sống không dùng Smart Test. J-LAS sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
+    } else if (fromZero) {
       document.getElementById('inviteTitle').textContent = 'Bạn sẽ bắt đầu từ con số 0!';
       document.getElementById('inviteText').textContent = 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. J-LAS sẽ xây lộ trình học từ đầu cho bạn.';
-    } else if (usageUnderSixMonths) {
-      document.getElementById('inviteTitle').textContent = 'Lộ trình học của bạn đã sẵn sàng!';
-      document.getElementById('inviteText').textContent = 'Với mục tiêu này, bạn mới học dưới 6 tháng nên chưa cần đánh giá trình độ. J-LAS sẽ gợi ý lộ trình phù hợp để bạn bắt đầu ngay.';
     } else {
       document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
@@ -148,7 +147,13 @@
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
-  goHome.addEventListener('click', function () { window.location.assign(noTest ? '/learning/path' : '/'); });
+  goHome.addEventListener('click', function () {
+    if (!noTest) return window.location.assign('/');
+    if (savedSurvey && savedSurvey.goal !== 'JLPT') {
+      return window.location.assign('/learning/goals/' + encodeURIComponent(savedSurvey.goal) + '/survey');
+    }
+    window.location.assign('/learning/path');
+  });
   document.getElementById('surveyEdit').addEventListener('click', function () {
     if (savedSurvey) fillSurvey(savedSurvey);
     invitation.hidden = true;
