@@ -5,6 +5,7 @@ import com.jlas.dictionary.entity.VocabularyEntry;
 import com.jlas.dictionary.repository.*;
 import com.jlas.learning.dto.*;
 import com.jlas.learning.service.InteractiveContentCatalog;
+import com.jlas.learning.dto.ReferenceVocabularyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +55,25 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         if(vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty() && dialogueIds.isEmpty()) gap(gaps,key,"EMPTY_LESSON");
         String revision=sha256(lesson.getUnit().getTextbook().getVersion()+"|"+lesson.getUpdatedAt()+"|"+vocabIds+"|"+kanjiIds+"|"+grammarIds+"|"+dialogueIds);
         return new InteractiveContentSnapshot(lesson,revision,vocabIds,kanjiIds,grammarIds,dialogueIds,gaps);
+    }
+
+    @Override public List<ReferenceVocabularyResponse> referenceVocabularyForLesson(Long lessonId) {
+        var lesson=lessons.findWithUnitById(lessonId).orElse(null);
+        if (lesson == null || !"PUBLISHED".equals(lesson.getStatus())
+                || !"PUBLISHED".equals(lesson.getUnit().getTextbook().getStatus())
+                || !Boolean.TRUE.equals(lesson.getUnit().getTextbook().getIsLearningPathSource())) {
+            return List.of();
+        }
+        List<VocabularyEntry> words=contentVocabulary.findVocabularyByLessonId(lessonId);
+        if (words.size()<1 || words.size()>4
+                || words.stream().anyMatch(word -> !"PUBLISHED".equals(word.getDictionaryStatus())
+                        || blank(word.getExpression()) || blank(word.getReading()) || blank(word.getMeaning()))
+                || words.stream().map(word -> word.getNormalizedExpression()+"\0"+word.getNormalizedReading())
+                        .distinct().count()!=words.size()) {
+            return List.of();
+        }
+        return words.stream().map(word -> new ReferenceVocabularyResponse(word.getId(), word.getExpression(),
+                word.getReading(), word.getMeaning(), word.getWordType())).toList();
     }
     private static void gap(List<CoverageGap> gaps,String key,String reason){gaps.add(new CoverageGap(key,reason));}
     private static boolean blank(String value){return value==null||value.isBlank();}

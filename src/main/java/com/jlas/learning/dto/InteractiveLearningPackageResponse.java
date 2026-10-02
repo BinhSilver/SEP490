@@ -25,8 +25,10 @@ public record InteractiveLearningPackageResponse(
         Integer scorePercent,
         Long nextAvailablePackageId,
         boolean lastPackage,
-        boolean justCompleted) {
+        boolean justCompleted,
+        List<InteractiveLearningSessionResponse> sessions) {
     public InteractiveLearningPackageResponse {
         activities = List.copyOf(activities);
+        sessions = sessions == null ? List.of() : List.copyOf(sessions);
     }
 }

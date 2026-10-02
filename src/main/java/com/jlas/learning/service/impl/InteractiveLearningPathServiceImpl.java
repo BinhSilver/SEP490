@@ -6,20 +6,24 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.InteractiveLearningActivityResponse;
 import com.jlas.learning.dto.InteractiveLearningPackageResponse;
 import com.jlas.learning.dto.InteractiveLearningPathResponse;
+import com.jlas.learning.dto.ReferenceVocabularyResponse;
 import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.enums.LearningActivityState;
 import com.jlas.learning.enums.LearningActivityType;
+import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.enums.LearningPackageStatus;
 import com.jlas.learning.repository.LearningPathPackageRepository;
+import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.InteractiveLearningPathService;
+import com.jlas.learning.service.InteractiveContentCatalog;
 import com.jlas.mission.entity.UserStreaks;
 import com.jlas.mission.repository.UserStreaksRepository;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
@@ -32,7 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +74,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private final LearningPathPackageRepository packages;
     private final UserLearningPathItemRepository items;
     private final LearningQuizSessionRepository quizSessions;
+    private final InteractiveSessionProjector sessionProjector = new InteractiveSessionProjector();
 
     /** [JLAS-W0193] Optional so slice tests don't need to wire the reward/streak stack — same pattern
      * {@code LearningServiceImpl} already uses for these exact two dependencies. */
@@ -77,6 +84,10 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private UserCreditService creditService;
     @Autowired(required = false)
     private UserLearningStageRepository stages;
+    @Autowired(required = false)
+    private LearningActivityMemberRepository activityMembers;
+    @Autowired(required = false)
+    private InteractiveContentCatalog contentCatalog;
 
     @Override
     @Transactional
@@ -91,8 +102,10 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                     "EMPTY_LESSON: Lộ trình chưa có package học hợp lệ.");
         }
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
+        Map<Long, Map<LearningMemberType, Integer>> countsByPackage = memberCounts(packageEntities);
         List<InteractiveLearningPackageResponse> packageViews = packageEntities.stream()
-                .map(p -> mapPackage(p, packageEntities, p.getId().equals(justCompletedId)))
+                .map(p -> mapPackage(p, orderedActivities(p), packageEntities,
+                        p.getId().equals(justCompletedId), countsByPackage))
                 .toList();
         int completed = (int) packageViews.stream()
                 .filter(view -> view.status() == LearningPackageStatus.COMPLETED).count();
@@ -116,7 +129,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         List<UserLearningPathItem> activities = orderedActivities(learningPackage);
         List<LearningPathPackage> siblings = siblingsOf(learningPackage);
         boolean justCompleted = refresh(userId, learningPackage, activities, siblings);
-        return mapPackage(learningPackage, activities, siblings, justCompleted);
+        return mapPackage(learningPackage, activities, siblings, justCompleted, memberCounts(siblings));
     }
 
     @Override
@@ -142,7 +155,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 first.setActivityState(LearningActivityState.STUDYING);
             }
         }
-        return mapPackage(learningPackage, activities, siblingsOf(learningPackage), false);
+        List<LearningPathPackage> siblings = siblingsOf(learningPackage);
+        return mapPackage(learningPackage, activities, siblings, false, memberCounts(siblings));
     }
 
     // ---- Task 8: package completion, unlock, score, reward ----
@@ -427,13 +441,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         }
     }
 
-    private InteractiveLearningPackageResponse mapPackage(
-            LearningPathPackage learningPackage, List<LearningPathPackage> siblings, boolean justCompleted) {
-        return mapPackage(learningPackage, orderedActivities(learningPackage), siblings, justCompleted);
-    }
-
     private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
-            List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted) {
+            List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
+            Map<Long, Map<LearningMemberType, Integer>> countsByPackage) {
         List<InteractiveLearningActivityResponse> activityViews = activities.stream()
                 .map(item -> new InteractiveLearningActivityResponse(item.getId(), item.getActivityType(),
                         item.getActivityState(), item.getOrderIndex(), item.getReasonCode(), item.getReason()))
@@ -445,13 +455,36 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 .map(InteractiveLearningActivityResponse::type).findFirst().orElse(null);
         String lockReason = learningPackage.getStatus() == LearningPackageStatus.LOCKED
                 ? "Hoàn thành ngày học trước để mở khóa." : null;
+        List<ReferenceVocabularyResponse> references = List.of();
+        if ("GOAL_LEARNING".equals(learningPackage.getPhase())
+                && activityViews.stream().noneMatch(view -> view.type() == LearningActivityType.VOCABULARY)
+                && contentCatalog != null && learningPackage.getSourceLesson() != null) {
+            references = contentCatalog.referenceVocabularyForLesson(learningPackage.getSourceLesson().getId());
+        }
+        List<com.jlas.learning.dto.InteractiveLearningSessionResponse> sessions = "GOAL_LEARNING".equals(learningPackage.getPhase())
+                ? sessionProjector.project(learningPackage.getStatus(), lockReason, activityViews,
+                        countsByPackage.getOrDefault(learningPackage.getId(), Map.of()), references,
+                        learningPackage.getEstimatedMinutes())
+                : List.of();
         return new InteractiveLearningPackageResponse(learningPackage.getId(), learningPackage.getPhase(),
                 learningPackage.getDayNumber(), learningPackage.getOrderIndex(), learningPackage.getTitle(),
                 learningPackage.getStatus(), learningPackage.getEstimatedMinutes(), completed,
                 activityViews.size(), percent(completed, activityViews.size()), resume, lockReason,
                 learningPackage.getStartedAt(), learningPackage.getCompletedAt(), activityViews,
                 learningPackage.getScorePercent(), nextAvailablePackageId(learningPackage, siblings),
-                isLastPackage(learningPackage, siblings), justCompleted);
+                isLastPackage(learningPackage, siblings), justCompleted, sessions);
+    }
+
+    private Map<Long, Map<LearningMemberType, Integer>> memberCounts(List<LearningPathPackage> packages) {
+        if (packages == null || packages.isEmpty() || activityMembers == null) return Map.of();
+        List<Long> packageIds = packages.stream().map(LearningPathPackage::getId).filter(java.util.Objects::nonNull).toList();
+        if (packageIds.isEmpty()) return Map.of();
+        Map<Long, Map<LearningMemberType, Integer>> result = new HashMap<>();
+        for (LearningActivityMemberRepository.PackageMemberCount row : activityMembers.findPackageMemberCounts(packageIds)) {
+            result.computeIfAbsent(row.getPackageId(), ignored -> new EnumMap<>(LearningMemberType.class))
+                    .put(row.getMemberType(), Math.toIntExact(Math.min(Integer.MAX_VALUE, row.getMemberCount())));
+        }
+        return result;
     }
 
     private int percent(int completed, int total) {

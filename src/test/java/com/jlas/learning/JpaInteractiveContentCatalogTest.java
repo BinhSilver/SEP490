@@ -115,4 +115,40 @@ class JpaInteractiveContentCatalogTest {
 
         assertTrue(reasons.contains("SOURCE_NOT_LEARNING_PATH"));
     }
+
+    @Test void exposesOnlyOneToFourValidPublishedWordsAsReadOnlyReference(){
+        var book=Textbook.builder().id(1L).jlptLevel("N5").status("PUBLISHED")
+                .isLearningPathSource(true).version(1).build();
+        var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build())
+                .title("L").status("PUBLISHED").build();
+        var words=List.of(
+                VocabularyEntry.builder().id(1L).expression("猫").reading("ねこ").meaning("mèo").wordType("danh từ")
+                        .normalizedExpression("猫").normalizedReading("ねこ").dictionaryStatus("PUBLISHED").build(),
+                VocabularyEntry.builder().id(2L).expression("見る").reading("みる").meaning("nhìn").wordType("động từ")
+                        .normalizedExpression("見る").normalizedReading("みる").dictionaryStatus("PUBLISHED").build());
+        when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+        when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(words);
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+        var references=catalog.referenceVocabularyForLesson(10L);
+
+        assertEquals(List.of(new com.jlas.learning.dto.ReferenceVocabularyResponse(1L,"猫","ねこ","mèo","danh từ"),
+                new com.jlas.learning.dto.ReferenceVocabularyResponse(2L,"見る","みる","nhìn","động từ")),references);
+    }
+
+    @Test void doesNotOfferShortReferenceListForFiveOrMoreWords(){
+        var book=Textbook.builder().id(1L).jlptLevel("N5").status("PUBLISHED")
+                .isLearningPathSource(true).version(1).build();
+        var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build())
+                .title("L").status("PUBLISHED").build();
+        var words=new ArrayList<VocabularyEntry>();
+        for(int i=1;i<=5;i++) words.add(VocabularyEntry.builder().id((long)i).expression("語"+i)
+                .reading("ご"+i).meaning("nghĩa"+i).normalizedExpression("語"+i).normalizedReading("ご"+i)
+                .dictionaryStatus("PUBLISHED").build());
+        when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+        when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(words);
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+        assertTrue(catalog.referenceVocabularyForLesson(10L).isEmpty());
+    }
 }
