@@ -356,25 +356,41 @@ public class InteractiveStudyEngine<T> {
 
     public PracticeIssue issuePracticeWithSource(Long userId, Long activityId) {
         UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
-        List<LearningActivityMember> membership = loadMembership(activity);
-        List<List<T>> batches = contentBatches(membership);
+        Map<Integer, LearningQuizSession> latestByBatch = new java.util.TreeMap<>();
+        for (LearningQuizSession original : quizSessions
+                .findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                        activityId, adapter.microCheckType(), "SUBMITTED")) {
+            if (original.getBatchIndex() != null) latestByBatch.putIfAbsent(original.getBatchIndex(), original);
+        }
+        if (latestByBatch.isEmpty()) {
+            throw new ApiException(ErrorCode.SOURCE_SNAPSHOT_UNAVAILABLE);
+        }
         int replays = (int) quizSessions.countByActivityIdAndQuizType(activityId, PRACTICE_REPLAY);
-        int batchIndex = replays % batches.size();
-        List<QuestionSpec> specs = adapter.buildQuestions(batches.get(batchIndex), batchIndex, replays);
+        List<LearningQuizSession> originals = new ArrayList<>(latestByBatch.values());
+        LearningQuizSession original = originals.get(replays % originals.size());
+        if (original.getQuestionsJson() == null || original.getAnswerKeyJson() == null
+                || original.getSourceSnapshotJson() == null || original.getSourceSnapshotJson().isBlank()) {
+            throw new ApiException(ErrorCode.SOURCE_SNAPSHOT_UNAVAILABLE);
+        }
+        List<LessonQuizResponse.LessonQuizQuestion> questions = mapper.readQuizQuestions(original.getQuestionsJson());
 
         LearningQuizSession snapshot = LearningQuizSession.builder()
                 .user(activity.getLearningPath().getUser())
                 .quizType(PRACTICE_REPLAY)
                 .activityId(activity.getId())
-                .batchIndex(batchIndex)
-                .questionCount(specs.size())
+                .batchIndex(original.getBatchIndex())
+                .questionCount(questions.size())
                 .build();
-        snapshot.setQuestionsJson(mapper.writeQuizQuestions(toLessonQuizQuestions(specs)));
-        snapshot.setAnswerKeyJson(mapper.writeQuizAnswerKey(toAnswerKey(specs)));
-        snapshot.setSourceSnapshotJson(adapter.sourceSnapshotJson(batches.get(batchIndex), batchIndex, revisionOf(membership)));
+        snapshot.setQuestionsJson(original.getQuestionsJson());
+        snapshot.setAnswerKeyJson(original.getAnswerKeyJson());
+        snapshot.setSourceSnapshotJson(original.getSourceSnapshotJson());
         snapshot = quizSessions.save(snapshot);
-        return new PracticeIssue(new MicroCheckResponse(snapshot.getId(), activity.getId(), batchIndex, batches.size(),
-                specs.size(), toMicroCheckQuestions(specs)), snapshot.getSourceSnapshotJson());
+        List<MicroCheckResponse.MicroCheckQuestion> responseQuestions = questions.stream()
+                .map(q -> new MicroCheckResponse.MicroCheckQuestion(
+                        q.questionId(), q.questionType(), q.questionText(), q.options()))
+                .toList();
+        return new PracticeIssue(new MicroCheckResponse(snapshot.getId(), activity.getId(), original.getBatchIndex(),
+                originals.size(), questions.size(), responseQuestions), snapshot.getSourceSnapshotJson());
     }
 
     /** Grades a replay against its own snapshot. The score is stored on the replay row only: it does not

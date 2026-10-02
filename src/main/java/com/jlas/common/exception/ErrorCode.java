@@ -29,6 +29,8 @@ public enum ErrorCode {
     /** [JLAS-W0108] P6 — cấp trong lộ trình chưa đủ học liệu đã duyệt (readiness BLOCKED_CONTENT);
      *  bị chặn minh bạch, KHÔNG fallback demo và KHÔNG tính là người học trượt. */
     BLOCKED_CONTENT(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu cho cấp độ này"),
+    /** [JLAS-W0108] A legacy issued quiz has no immutable passage/audio snapshot and cannot be replayed safely. */
+    SOURCE_SNAPSHOT_UNAVAILABLE(HttpStatus.CONFLICT, "Lượt học cũ không có bản nguồn để ôn lại an toàn"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;

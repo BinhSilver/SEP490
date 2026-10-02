@@ -152,6 +152,23 @@ class InteractiveComprehensionServiceTest {
         assertFalse(state.isReviewRequired());
     }
 
+    @Test void practiceKeepsTheSourceSnapshotUnavailableContractForLegacyAttempts() {
+        var finished = activity(LearningActivityType.READING);
+        finished.setActivityState(LearningActivityState.PASSED);
+        var legacy = LearningQuizSession.builder().id(41L).user(User.builder().id(7L).build())
+                .quizType("READING_MICRO_CHECK").activityId(1L).batchIndex(0).status("SUBMITTED")
+                .questionsJson("questions").answerKeyJson("answers").build();
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(finished));
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(finished));
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                1L, "READING_MICRO_CHECK", "SUBMITTED")).thenReturn(List.of(legacy));
+
+        ApiException error = assertThrows(ApiException.class, () -> service.issuePractice(7L, 1L));
+
+        assertEquals(ErrorCode.SOURCE_SNAPSHOT_UNAVAILABLE, error.getErrorCode());
+        verify(quizSessions, never()).save(any());
+    }
+
     private void arrangeTwoReadingExercises() {
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity(LearningActivityType.READING)));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership());

@@ -75,6 +75,9 @@ class InteractiveStudyEngineTest {
             if (s.getId() == null) s.setId(900L);
             return s;
         });
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED"))
+                .thenReturn(List.of(originalBatch(0, 1, 10), originalBatch(1, 11, 12)));
     }
 
     @Test
@@ -201,6 +204,43 @@ class InteractiveStudyEngineTest {
     }
 
     @Test
+    void practiceCopiesTheOriginalSubmittedBatchSnapshotInsteadOfRebuildingCurrentContent() {
+        var mapper = new LearningMapper();
+        LearningQuizSession original = submitted(41L, 0, 90, "2026-09-02T10:00:00");
+        original.setQuestionsJson(mapper.writeQuizQuestions(List.of(
+                new com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion(777L, "READING", "N4",
+                        null, null, null, null, "OLD QUESTION", List.of("old-a", "old-b"), "SINGLE_CHOICE"))));
+        original.setAnswerKeyJson(mapper.writeQuizAnswerKey(Map.of(777L,
+                new com.jlas.learning.dto.QuizAnswerKey(2, "old explanation", null, null))));
+        original.setSourceSnapshotJson("{\"passage\":\"OLD PASSAGE\"}");
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED")).thenReturn(List.of(original));
+
+        var issued = engine.issuePracticeWithSource(USER, ACTIVITY);
+
+        var captor = org.mockito.ArgumentCaptor.forClass(LearningQuizSession.class);
+        verify(quizSessions).save(captor.capture());
+        assertEquals(original.getQuestionsJson(), captor.getValue().getQuestionsJson());
+        assertEquals(original.getAnswerKeyJson(), captor.getValue().getAnswerKeyJson());
+        assertEquals(original.getSourceSnapshotJson(), captor.getValue().getSourceSnapshotJson());
+        assertEquals(777L, issued.response().questions().get(0).questionId());
+        assertEquals("OLD QUESTION", issued.response().questions().get(0).questionText());
+    }
+
+    @Test
+    void practiceRejectsALegacyBatchWithoutAFrozenSourceSnapshot() {
+        LearningQuizSession legacy = submitted(41L, 0, 90, "2026-09-02T10:00:00");
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED")).thenReturn(List.of(legacy));
+
+        ApiException error = assertThrows(ApiException.class,
+                () -> engine.issuePracticeWithSource(USER, ACTIVITY));
+
+        assertEquals("SOURCE_SNAPSHOT_UNAVAILABLE", error.getErrorCode().name());
+        verify(quizSessions, never()).save(any());
+    }
+
+    @Test
     void learnMicroCheckStoresTheSourceSnapshotToo() {
         var open = new InteractiveStudyEngine<>(items, members, studySessions, studyCards, checkStates, quizSessions,
                 new LearningMapper(), new StringAdapter() {
@@ -248,6 +288,25 @@ class InteractiveStudyEngineTest {
         s.setAnswerKeyJson("{}");
         s.setResultJson(mapper.writeQuizResult(result));
         return s;
+    }
+
+    private LearningQuizSession originalBatch(int batch, int firstId, int lastId) {
+        var mapper = new LearningMapper();
+        var questions = new ArrayList<com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion>();
+        var answers = new java.util.LinkedHashMap<Long, com.jlas.learning.dto.QuizAnswerKey>();
+        for (long id = firstId; id <= lastId; id++) {
+            questions.add(new com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion(id, "VOCABULARY",
+                    null, null, null, null, null, "what is w" + id, List.of("a", "b", "c", "d"), "MEANING"));
+            answers.put(id, new com.jlas.learning.dto.QuizAnswerKey(1, "w" + id, null, null));
+        }
+        LearningQuizSession session = LearningQuizSession.builder().id(100L + batch)
+                .quizType("VOCAB_MICRO_CHECK").activityId(ACTIVITY).batchIndex(batch).status("SUBMITTED")
+                .questionCount(questions.size()).submittedAt(java.time.LocalDateTime.parse("2026-09-02T10:00:00"))
+                .build();
+        session.setQuestionsJson(mapper.writeQuizQuestions(questions));
+        session.setAnswerKeyJson(mapper.writeQuizAnswerKey(answers));
+        session.setSourceSnapshotJson("{\"passage\":\"source-of-batch-" + batch + "\"}");
+        return session;
     }
 
     private LearningQuizSession issuedPracticeSession() {
