@@ -167,12 +167,36 @@ test('marks a passed Reading/Listening activity as done without a link', () => {
   assert.match(html, /Nghe hiểu/);
 });
 
-test('marks a completed Dialogue activity as done without a link (Dialogue has no micro-check state)', () => {
+test('completed Grammar and Dialogue activities expose only their supported replay actions', () => {
   const data = path();
+  data.packages[0].activities[2].state = 'PASSED';
   data.packages[0].activities[0].state = 'COMPLETED';
   const html = page.render(data);
-  assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1/);
-  assert.match(html, /is-done/);
+  assert.match(html, /\/learning\/v2\/grammar\?activity=3&amp;mode=review/);
+  assert.match(html, /\/learning\/v2\/grammar\?activity=3&amp;mode=practice/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=1&amp;mode=review/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=1&amp;mode=practice/);
+  assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1"/);
+});
+
+test('renders server-owned completed sessions and only server-allowed replay actions', () => {
+  const data = path({ packages: [{ id: 9, phase: 'GOAL_LEARNING', dayNumber: 3, orderIndex: 1,
+    title: 'Bài 3', status: 'COMPLETED', progressPercent: 100, activities: [], sessions: [
+      { sessionType: 'VOCABULARY', state: 'COMPLETED', allowedActions: ['REVIEW', 'PRACTICE'],
+        activities: [{ id: 44, type: 'VOCABULARY', state: 'PASSED' }], contentCounts: { vocabulary: 8 },
+        contentCount: 8, estimatedMinutes: 10, referenceVocabulary: [] },
+      { sessionType: 'KANJI_GRAMMAR', state: 'COMPLETED', allowedActions: [],
+        activities: [{ id: 45, type: 'GRAMMAR', state: 'PASSED' }], contentCounts: { grammar: 2 },
+        contentCount: 2, estimatedMinutes: 10, referenceVocabulary: [
+          { canonicalId: 900, expression: '<学校>', reading: 'がっこう', meaning: 'trường học', wordType: 'NOUN' }
+        ] }
+    ] }] });
+  const html = page.render(data);
+  assert.match(html, /Từ vựng/);
+  assert.match(html, /8 từ/);
+  assert.match(html, /\/learning\/v2\/vocabulary\?activity=44&amp;mode=review/);
+  assert.match(html, /&lt;学校&gt;/);
+  assert.doesNotMatch(html, /\/learning\/v2\/grammar\?activity=45/);
 });
 
 // ---- Task 8: package completion popup ----

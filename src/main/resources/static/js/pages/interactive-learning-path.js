@@ -11,10 +11,9 @@
   'use strict';
   var ACTIVITY_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', DIALOGUE: 'Hội thoại',
     READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu', FOUNDATION: 'Bảng chữ cái' };
-  // [JLAS-W0108] Task 11 - REVIEW exists only where the server exposes a read-only review (vocabulary, kanji,
-  // foundation); PRACTICE replay exists for card, grammar and Reading/Listening activities (their replays carry the frozen source of the replayed batch). Dialogue has no micro-check engine, so it has neither.
-  var REVIEW_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, READING: true, LISTENING: true };
-  var PRACTICE_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true, READING: true, LISTENING: true };
+  // REVIEW/PRACTICE links are exposed only for activity types with owner-scoped replay routes.
+  var REVIEW_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true, DIALOGUE: true, READING: true, LISTENING: true };
+  var PRACTICE_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true, DIALOGUE: true, READING: true, LISTENING: true };
   var MODE_LINK_LABEL = { REVIEW: 'Xem lại', PRACTICE: 'Ôn lại' };
   var STAGE_LEVEL_LABEL = { FOUNDATION: 'Bảng chữ cái' };
   var BLOCK_REASON = {
@@ -24,6 +23,9 @@
   };
   var PACE_LABEL = { LIGHTER: 'Nhẹ hơn', FASTER: 'Nhanh hơn' };
   var PACKAGE_STATUS_LABEL = { AVAILABLE: 'Sẵn sàng', IN_PROGRESS: 'Đang học', COMPLETED: 'Đã hoàn thành', LOCKED: 'Chưa mở' };
+  var SESSION_LABEL = { VOCABULARY: 'Từ vựng', KANJI_GRAMMAR: 'Ngữ pháp / Kanji', DIALOGUE: 'Hội thoại' };
+  var SESSION_STATE_LABEL = { LOCKED: 'Đang khóa', AVAILABLE: 'Sẵn sàng', IN_PROGRESS: 'Đang học', COMPLETED: 'Đã hoàn thành' };
+  var ACTIVITY_STATE_LABEL = { LOCKED: 'Chưa mở', STUDYING: 'Đang học', CHECK_READY: 'Sẵn sàng kiểm tra', COOLDOWN: 'Đang chờ', PASSED: 'Đã hoàn thành', COMPLETED: 'Đã hoàn thành' };
 
   var ACTIVITY_PATH = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji', GRAMMAR: '/learning/v2/grammar', DIALOGUE: '/learning/v2/dialogue',
     READING: '/learning/v2/reading', LISTENING: '/learning/v2/listening', FOUNDATION: '/learning/v2/foundation' };
@@ -94,6 +96,40 @@
   }
   function activityRows(pkg) {
     return pkg.activities.map(activityRow).join('');
+  }
+  function sessionRows(pkg) {
+    if (!Array.isArray(pkg.sessions) || !pkg.sessions.length) return '';
+    return '<div class="ilp-session-list">' + pkg.sessions.map(function (session) {
+      var actions = Array.isArray(session.allowedActions) ? session.allowedActions : [];
+      var rows = (Array.isArray(session.activities) ? session.activities : []).map(function (a, index) {
+        var label = ACTIVITY_LABEL[a.type] || a.type;
+        var links = actions.filter(function (action) {
+          return (action === 'REVIEW' || action === 'PRACTICE') && ACTIVITY_PATH[a.type];
+        }).map(function (action) {
+          return '<a class="ilp-activity__mode" href="' + modeHref(a.type, a.id, action) + '">' +
+            (MODE_LINK_LABEL[action] || action) + '</a>';
+        }).join('');
+        return '<li class="ilp-activity' + ((a.state === 'PASSED' || a.state === 'COMPLETED') ? ' is-done' : '') + '">' +
+          '<span class="ilp-activity__mark">' + ((a.state === 'PASSED' || a.state === 'COMPLETED') ? '✓' : String(index + 1).padStart(2, '0')) +
+          '</span><span><strong>' + esc(label) + '</strong><small>' + esc(ACTIVITY_STATE_LABEL[a.state] || a.state || '') + '</small></span>' +
+          (links ? '<span class="ilp-activity__modes">' + links + '</span>' : '') + '</li>';
+      }).join('');
+      var counts = Object.keys(session.contentCounts || {}).filter(function (key) { return num(session.contentCounts[key]) > 0; })
+        .map(function (key) { return num(session.contentCounts[key]) + ' ' + (key === 'vocabulary' ? 'từ' : key === 'grammar' ? 'mẫu ngữ pháp' : key === 'kanji' ? 'chữ Kanji' : key === 'dialogue' ? 'lượt thoại' : esc(key)); }).join(' · ');
+      var words = (Array.isArray(session.referenceVocabulary) ? session.referenceVocabulary : []).map(function (word) {
+        return '<li><strong lang="ja">' + esc(word.expression) + '</strong>' + (word.reading ? ' <span lang="ja">' + esc(word.reading) + '</span>' : '') +
+          (word.meaning ? ' — ' + esc(word.meaning) : '') + '</li>';
+      }).join('');
+      return '<section class="ilp-session ilp-session--' + esc(String(session.state || 'LOCKED').toLowerCase()) + '">' +
+        '<header><h4>' + esc(SESSION_LABEL[session.sessionType] || session.sessionType || 'Phiên học') + '</h4>' +
+        '<span>' + esc(SESSION_STATE_LABEL[session.state] || session.state || '') + '</span></header>' +
+        (counts || session.estimatedMinutes ? '<p class="ilp-session__meta">' + esc(counts) +
+          (session.estimatedMinutes ? ' · khoảng ' + num(session.estimatedMinutes) + ' phút' : '') + '</p>' : '') +
+        (session.blockedReason ? '<p class="ilp-session__blocked">' + esc(session.blockedReason) + '</p>' : '') +
+        (rows ? '<ol class="ilp-activities">' + rows + '</ol>' : '') +
+        (words ? '<details class="ilp-reference"><summary>Từ tham khảo ngắn (' + (session.referenceVocabulary || []).length + ')</summary><ul>' + words + '</ul></details>' : '') +
+        '</section>';
+    }).join('') + '</div>';
   }
   // [JLAS-W0193] Task 8 — package completion popup: three actions (Trở về lộ trình / Học vượt / Nghỉ ngơi),
   // last-package variant routes to the (Task 10) summary placeholder instead. Only rendered for the package
@@ -217,7 +253,8 @@
       return '<article class="ilp-day ilp-day--completed ilp-day--collapsed" data-package-card="' + esc(String(pkg.id)) + '">' +
         '<span class="ilp-day__number">' + String(pkg.dayNumber).padStart(2, '0') + '</span>' +
         '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) + '</h3></div>' +
-        '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></article>';
+        '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span>' +
+        sessionRows(pkg) + '</article>';
     }
     if (pkg.status === 'LOCKED') {
       return '<article class="ilp-day ilp-day--locked" data-package-card="' + esc(String(pkg.id)) + '">' +
@@ -230,7 +267,7 @@
     return '<article class="ilp-day ilp-day--' + esc(status) + '" data-package-card="' + esc(String(pkg.id)) + '"><header><span class="ilp-day__number">' +
       String(pkg.dayNumber).padStart(2, '0') + '</span><div><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) +
       '</h3></div><span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></header><div class="ilp-day__progress"><span style="width:' +
-      num(pkg.progressPercent) + '%"></span></div><ol class="ilp-activities">' + activityRows(pkg) + '</ol>' +
+      num(pkg.progressPercent) + '%"></span></div>' + (sessionRows(pkg) || '<ol class="ilp-activities">' + activityRows(pkg) + '</ol>') +
       (pkg.lockReason ? '<p class="ilp-lock">🔒 ' + esc(pkg.lockReason) + '</p>' : '') + action + '</article>';
   }
   function phaseTabs(activePhase) {

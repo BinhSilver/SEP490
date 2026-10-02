@@ -62,6 +62,20 @@
 .ilp-day--collapsed { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
 .ilp-day--collapsed .ilp-day__number { width: 36px; height: 36px; }
 .ilp-day--collapsed .ilp-day__collapsed-title { flex: 1; display: grid; gap: 2px; }
+.ilp-day--collapsed { flex-wrap: wrap; }
+.ilp-session-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 12px; flex: 1 0 100%; min-width: 0; }
+.ilp-session { min-width: 0; padding: 14px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-interactive); background: var(--lp-canvas); }
+.ilp-session header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ilp-session h4 { margin: 0; font-size: 15px; }
+.ilp-session header span, .ilp-session__meta { color: var(--lp-muted); font-size: 12px; }
+.ilp-session__meta { margin: 8px 0; }
+.ilp-session__blocked { color: var(--lp-muted); font-size: 13px; }
+.ilp-session .ilp-activity { flex-wrap: wrap; }
+.ilp-session .ilp-activity__modes { flex-wrap: wrap; }
+.ilp-reference { margin-top: 8px; font-size: 13px; }
+.ilp-reference summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; font-weight: 700; }
+.ilp-reference ul { padding-left: 20px; overflow-wrap: anywhere; }
+.ilp-reference li { margin: 6px 0; }
 .ilp-day--collapsed h3 { margin: 0; font-size: 15px; }
 .ilp-day--collapsed .ilp-kicker { font-size: 11px; }
 
@@ -95,6 +109,8 @@
   .ilp-status { grid-column: 2; justify-self: start; }
   .ilp-phase-tabs { gap: 4px; overflow-x: auto; }
   .ilp-activity { min-height: 44px; }
+  .ilp-activity__modes { margin-left: 44px; width: calc(100% - 44px); }
+  .ilp-session-list { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .ilp-loader { animation: none; } }
 
