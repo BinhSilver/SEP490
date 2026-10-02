@@ -128,6 +128,28 @@ class CurriculumImportSchemaTest {
         assertTrue(importCodes.contains("uk_assessment_question_source_code"));
     }
 
+    @Test
+    void schemaAndMigrationDeclareGoalSpecificFoundationWithoutReplacingCanonicalContent() throws Exception {
+        String schema = Files.readString(Path.of("jlas_schema.sql"));
+        String migration = Files.readString(Path.of("sql", "migrations",
+                "012_goal_specific_learning_foundation.sql"));
+
+        for (String table : java.util.List.of(
+                "learning_goal", "learning_topic", "learning_competency", "competency_level",
+                "learning_topic_level", "lesson_learning_scope", "lesson_prerequisite",
+                "learning_survey_question", "learning_survey_option",
+                "user_goal_survey_submission", "user_goal_survey_selection",
+                "assessment_question_usage")) {
+            assertTrue(schema.contains("CREATE TABLE " + table), table + " missing from canonical schema");
+            assertTrue(migration.contains("CREATE TABLE " + table), table + " missing from migration 012");
+        }
+        assertTrue(schema.contains("'JLPT','TRAVEL','DAILY_LIFE','BA','FROM_ZERO'"));
+        assertTrue(schema.contains("learning_mode VARCHAR(30) NULL"));
+        assertTrue(migration.contains("ADD COLUMN learning_mode VARCHAR(30) NULL"));
+        assertTrue(migration.contains("JLPT_PLACEMENT','JLPT_MOCK_TEST','BRSE_FOUNDATION"));
+        assertTrue(migration.contains("HARD_SEQUENCE','RECOMMENDED_FOUNDATION','JIT_WARMUP','OPTIONAL_ENRICHMENT"));
+    }
+
     private Textbook book(String sourceCode, String title) {
         return Textbook.builder().sourceCode(sourceCode).title(title).status("DRAFT")
                 .version(1).isLearningPathSource(false).build();
