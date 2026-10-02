@@ -45,8 +45,14 @@ public class AssessmentJlptQualificationAdapter implements JlptQualificationPort
         if (required.isEmpty()) return fail("EXAM_HAS_NO_SECTIONS");
         var sections = attempts.findSectionResults(attemptId);
         if (sections.isEmpty()) return fail("NO_SECTION_RESULTS");
-        var answered = sections.stream().map(r -> r.getSection().getId()).collect(java.util.stream.Collectors.toSet());
-        if (required.stream().anyMatch(section -> !answered.contains(section.getId()))) {
+        var requiredIds = required.stream().map(section -> section.getId())
+                .collect(java.util.stream.Collectors.toSet());
+        var answered = sections.stream().map(r -> r.getSection().getId())
+                .collect(java.util.stream.Collectors.toSet());
+        if (answered.stream().anyMatch(sectionId -> !requiredIds.contains(sectionId))) {
+            return fail("UNEXPECTED_SECTION_RESULT");
+        }
+        if (requiredIds.stream().anyMatch(sectionId -> !answered.contains(sectionId))) {
             return fail("SECTION_RESULT_MISSING");
         }
         BigDecimal total = BigDecimal.ZERO;

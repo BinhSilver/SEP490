@@ -164,4 +164,16 @@ class AssessmentJlptQualificationAdapterTest {
         when(repo.findExamSections(1L)).thenReturn(List.of());
         assertEquals("EXAM_HAS_NO_SECTIONS", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
     }
+
+    @Test void aResultForASectionOutsideTheAttemptExamIsRejectedAndCannotInflateTheTotal() {
+        var requiredOne = section(1, "20", "45");
+        var requiredTwo = section(2, "20", "45");
+        var foreign = section(999, "0", "100");
+        when(repo.findDetailedById(ATTEMPT)).thenReturn(Optional.of(
+                attempt(USER, "JLPT", "SUBMITTED", "N4", "100")));
+        when(repo.findExamSections(1L)).thenReturn(List.of(requiredOne.getSection(), requiredTwo.getSection()));
+        when(repo.findSectionResults(ATTEMPT)).thenReturn(List.of(requiredOne, requiredTwo, foreign));
+
+        assertEquals("UNEXPECTED_SECTION_RESULT", adapter.verify(USER, ATTEMPT, "N4").reasonCode());
+    }
 }
