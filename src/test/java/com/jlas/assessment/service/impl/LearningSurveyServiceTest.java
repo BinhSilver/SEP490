@@ -136,6 +136,15 @@ class LearningSurveyServiceTest {
         verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
     }
 
+    @Test void travelAndDailyLifeNeverStartSmartTestRegardlessOfExperience() {
+        for (String goal : java.util.List.of("TRAVEL", "DAILY_LIFE")) {
+            assertThatThrownBy(() -> service.startSmartTest(7L, request(goal, null, "N3", 36)))
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("chỉ cần làm khảo sát");
+        }
+        verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
+    }
+
     @Test void fromZeroNormalizesStudyDurationToZero() {
         when(surveys.findById(7L)).thenReturn(Optional.empty());
         when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));

@@ -142,12 +142,12 @@ public class AssessmentServiceImpl implements AssessmentService {
     public SmartTestResponse startSmartTest(Long userId, SmartTestStartRequest request) {
         String goal = allowed(request.goal(), GOALS, "Mục tiêu không hợp lệ.");
         String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS, "Level tự đánh giá không hợp lệ.");
+        if (USAGE_GOALS.contains(goal)) {
+            throw badRequest("Mục tiêu " + goal
+                    + " chỉ cần làm khảo sát tình huống, không thực hiện Smart Test.");
+        }
         if ("FROM_ZERO".equals(self)) {
             throw badRequest("Bạn chưa từng học tiếng Nhật nên không cần làm Smart Test.");
-        }
-        if (USAGE_GOALS.contains(goal)
-                && (request.studyDurationMonths() == null || request.studyDurationMonths() <= 6)) {
-            throw badRequest("Với mục tiêu " + goal + ", bạn cần học tiếng Nhật trên 6 tháng mới cần làm Smart Test.");
         }
         String selfLevel = normalizeLevel(self);
         String targetLevel = request.targetLevel() == null || request.targetLevel().isBlank()
