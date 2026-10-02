@@ -441,7 +441,10 @@ DEALLOCATE PREPARE video_view_count_stmt;
 
 -- Carry over views counted under the old one-view-per-account rule (only when the column is new).
 SET @video_view_seed_sql = IF(@video_has_view_count = 0,
-    'UPDATE video v JOIN (SELECT video_id, COUNT(*) AS views FROM video_user_state WHERE counted_as_view = 1 GROUP BY video_id) s ON s.video_id = v.id SET v.view_count = s.views',
+    -- Repeat the PK predicate in WHERE: Workbench SQL_SAFE_UPDATES does not treat the JOIN ON clause as a
+    -- key-qualified update, even though it joins video.id. This keeps fresh installs/upgrades runnable without
+    -- asking the operator to disable their global safe-update preference.
+    'UPDATE video v JOIN (SELECT video_id, COUNT(*) AS views FROM video_user_state WHERE counted_as_view = 1 GROUP BY video_id) s ON s.video_id = v.id SET v.view_count = s.views WHERE v.id = s.video_id',
     'SELECT 1');
 PREPARE video_view_seed_stmt FROM @video_view_seed_sql;
 EXECUTE video_view_seed_stmt;
