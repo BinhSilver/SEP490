@@ -101,6 +101,15 @@ class InteractiveStudyEngineTest {
     }
 
     @Test
+    void lockedActivityCannotBeStartedThroughStudyEndpoint() {
+        activity.setActivityState(LearningActivityState.LOCKED);
+
+        ApiException error = assertThrows(ApiException.class, () -> engine.studyState(USER, ACTIVITY));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
+    }
+
+    @Test
     void reviewOfAnotherUsersActivityIsNotFound() {
         ApiException error = assertThrows(ApiException.class, () -> engine.reviewState(99L, ACTIVITY));
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());

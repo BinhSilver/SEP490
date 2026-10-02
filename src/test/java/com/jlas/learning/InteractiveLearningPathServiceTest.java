@@ -119,12 +119,18 @@ class InteractiveLearningPathServiceTest {
         assertEquals(first.resumeActivityType(), second.resumeActivityType());
     }
 
-    @Test void incompleteTargetPackageIsBlockedContent() {
+    @Test void targetPackageWithoutOptionalDialogueRemainsReadableButIncomplete() {
         var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.AVAILABLE);
+        pkg.setStatus(LearningPackageStatus.IN_PROGRESS);
         when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities(pkg).subList(0, 3));
-        ApiException error = assertThrows(ApiException.class, () -> service.packageDetail(7L, 11L));
-        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        var response=service.packageDetail(7L,11L);
+
+        assertEquals(LearningPackageStatus.IN_PROGRESS,response.status());
+        assertEquals(3,response.totalActivities());
+        assertFalse(response.justCompleted());
     }
 
     // ---- Task 8: cascading unlock ----
@@ -201,6 +207,39 @@ class InteractiveLearningPathServiceTest {
 
         var second = service.packageDetail(7L, 11L);
         assertFalse(second.justCompleted());
+    }
+
+    @Test void grammarOnlyTargetPackageCompletesWithoutOptionalVocabularyOrDialogue(){
+        assertTargetPackageCompletes(LearningActivityType.GRAMMAR);
+    }
+
+    @Test void kanjiOnlyTargetPackageCompletesWithoutOptionalVocabularyOrDialogue(){
+        assertTargetPackageCompletes(LearningActivityType.KANJI);
+    }
+
+    @Test void kanjiAndGrammarTargetPackageCompletesWithoutOptionalDialogue(){
+        assertTargetPackageCompletes(LearningActivityType.KANJI,LearningActivityType.GRAMMAR);
+    }
+
+    @Test void emptyTargetPackageIsBlockedAndNeverStarted(){
+        var pkg=learningPackage(interactivePath(),11L,1,LearningPackageStatus.AVAILABLE);
+        when(packages.findOwnedByIdForUpdate(11L,7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(List.of());
+
+        ApiException error=assertThrows(ApiException.class,()->service.start(7L,11L));
+
+        assertEquals(ErrorCode.BLOCKED_CONTENT,error.getErrorCode());
+        assertEquals(LearningPackageStatus.AVAILABLE,pkg.getStatus());
+    }
+
+    @Test void targetPackageWithUnknownActivityTypeIsBlocked(){
+        var pkg=learningPackage(interactivePath(),11L,1,LearningPackageStatus.IN_PROGRESS);
+        var unknown=warmUpActivities(pkg,LearningActivityType.READING,LearningActivityType.GRAMMAR);
+        when(packages.findOwnedByIdForUpdate(11L,7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(unknown);
+
+        assertEquals(ErrorCode.BLOCKED_CONTENT,
+                assertThrows(ApiException.class,()->service.packageDetail(7L,11L)).getErrorCode());
     }
 
     // ---- Task 9: Warm-up B completion gate (dynamic activity set, never all four/Dialogue) ----
@@ -553,6 +592,22 @@ class InteractiveLearningPathServiceTest {
         activities.get(1).setActivityState(LearningActivityState.PASSED);
         activities.get(2).setActivityState(LearningActivityState.PASSED);
         activities.get(3).setActivityState(LearningActivityState.COMPLETED);
+    }
+
+    private void assertTargetPackageCompletes(LearningActivityType... types){
+        var pkg=learningPackage(interactivePath(),11L,1,LearningPackageStatus.IN_PROGRESS);
+        var activities=warmUpActivities(pkg,types);
+        for(var activity:activities) activity.setActivityState(LearningActivityState.PASSED);
+        when(packages.findOwnedByIdForUpdate(11L,7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        var result=service.packageDetail(7L,11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED,result.status());
+        assertTrue(result.justCompleted());
+        assertNull(result.scorePercent(),"No score may be fabricated when the package has no valid scored quiz session");
     }
 
     private void stubNoScoredSessions() {

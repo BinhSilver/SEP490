@@ -64,6 +64,17 @@ class InteractiveDialogueServiceTest {
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
 
+    @Test void lockedDialogueCannotBeOpenedThroughDirectStudyEndpoint(){
+        var activity=dialogueActivity(1L,7L);
+        activity.setActivityState(LearningActivityState.LOCKED);
+        when(items.findOwnedByIdForUpdate(1L,7L)).thenReturn(Optional.of(activity));
+
+        ApiException error=assertThrows(ApiException.class,()->service.studyState(7L,1L));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET,error.getErrorCode());
+        verifyNoInteractions(members,dialogueLines,audio,progressRepo);
+    }
+
     @Test void vocabularyActivityIsRejectedAsNotFoundForDialogueService() {
         var activity = activityOf(1L, 7L, LearningActivityType.VOCABULARY);
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));

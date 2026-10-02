@@ -75,6 +75,17 @@ class InteractiveGrammarServiceTest {
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
 
+    @Test void lockedGrammarCannotBeOpenedThroughDirectStudyEndpoint(){
+        var activity=grammarActivity(1L,7L);
+        activity.setActivityState(LearningActivityState.LOCKED);
+        when(items.findOwnedByIdForUpdate(1L,7L)).thenReturn(Optional.of(activity));
+
+        ApiException error=assertThrows(ApiException.class,()->service.studyState(7L,1L));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET,error.getErrorCode());
+        verifyNoInteractions(members,grammarPoints,progress);
+    }
+
     @Test void vocabularyActivityIsRejectedAsNotFoundForGrammarService() {
         User user = User.builder().id(7L).build();
         UserLearningPath path = UserLearningPath.builder().id(100L).user(user).build();

@@ -12,6 +12,7 @@ import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.repository.*;
 import com.jlas.learning.service.ComprehensionExerciseCatalog;
 import com.jlas.learning.service.InteractiveComprehensionService;
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.learning.service.impl.engine.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +140,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
                 && activity.getActivityType() != LearningActivityType.LISTENING) {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
         return activity;
     }
 

@@ -21,6 +21,7 @@ import com.jlas.learning.repository.LearningDialogueProgressRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.service.InteractiveDialogueService;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,6 +132,7 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
         if (activity.getActivityType() != LearningActivityType.DIALOGUE) {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
         return activity;
     }
 

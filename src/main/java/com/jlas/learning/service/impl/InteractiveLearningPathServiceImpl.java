@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /** [JLAS-W0193] Task 2 owns the V2 roadmap/package read+start surface; Task 8 extends it with package
- * completion: cascading intra-package activity unlock, the four-activity completion gate, real (never
+ * completion: cascading intra-package activity unlock, the composed-activity completion gate, real (never
  * hard-coded) score aggregation from immutable micro-check snapshots, exactly-once reward/streak via the
  * existing credit/streak contract, and next-package unlock. Completion is folded into the existing read
  * paths ({@link #current} / {@link #packageDetail}) rather than a separate endpoint — the same
@@ -130,6 +130,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                     "Hãy hoàn thành package trước để mở ngày học này.");
         }
         List<UserLearningPathItem> activities = orderedActivities(learningPackage);
+        if (activities.isEmpty()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Package chưa có hoạt động học hợp lệ.");
+        }
         validateTargetPackage(learningPackage, activities);
         if (learningPackage.getStatus() == LearningPackageStatus.AVAILABLE) {
             learningPackage.setStatus(LearningPackageStatus.IN_PROGRESS);
@@ -179,7 +182,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             // actually had weak evidence: any of Vocabulary/Kanji/Grammar, never Dialogue), unlike a
             // GOAL_LEARNING package's fixed four. It completes once EVERY activity it actually has reaches
             // its terminal state; an empty activity list is defensively never considered complete.
-            requiredDone = allWarmUpActivitiesDone(activities);
+            requiredDone = allComposedActivitiesDone(activities);
         } else {
             requiredDone = false;
         }
@@ -264,13 +267,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return activity.getActivityState() == required;
     }
 
-    /** [JLAS-W0193] Task 9 — Warm-up B completion: unlike {@link #allRequiredActivitiesDone}, the set of
-     * activity types is not fixed (a warm-up day may have only Vocabulary, or Vocabulary+Grammar, etc.,
-     * depending on which skills actually had weak evidence) — completion just requires every activity the
-     * package actually has to be at its own terminal state (always PASSED here; Warm-up B never schedules
-     * Dialogue). An empty list is never complete (a package with zero activities should not exist, but this
-     * is defensive, not assumed). */
-    private boolean allWarmUpActivitiesDone(List<UserLearningPathItem> activities) {
+    /** A non-empty composed package completes only when every activity it actually contains reaches its own
+     * terminal state. This is shared by optional target activities and dynamic Warm-up packages. */
+    private boolean allComposedActivitiesDone(List<UserLearningPathItem> activities) {
         if (activities.isEmpty()) return false;
         for (UserLearningPathItem activity : activities) {
             if (activity.getActivityType() == null || !isActivityDone(activity)) return false;
@@ -279,13 +278,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     }
 
     private boolean allRequiredActivitiesDone(List<UserLearningPathItem> activities) {
-        if (activities.size() != TARGET_TYPES.size()) return false;
-        EnumSet<LearningActivityType> seen = EnumSet.noneOf(LearningActivityType.class);
-        for (UserLearningPathItem activity : activities) {
-            if (activity.getActivityType() == null || !isActivityDone(activity)) return false;
-            seen.add(activity.getActivityType());
-        }
-        return seen.equals(TARGET_TYPES);
+        return allComposedActivitiesDone(activities);
     }
 
     /** {@code targetScore = round((vocabularyScore + kanjiScore + grammarScore) / N)} where N is the number
@@ -411,13 +404,20 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                     "Package chưa có snapshot nguồn canonical hợp lệ.");
         }
         EnumSet<LearningActivityType> actual = EnumSet.noneOf(LearningActivityType.class);
-        activities.forEach(item -> {
-            if (item.getActivityType() != null) actual.add(item.getActivityType());
-        });
-        boolean missingState = activities.stream().anyMatch(item -> item.getActivityState() == null);
-        if (activities.size() != 4 || !actual.equals(TARGET_TYPES) || missingState) {
+        boolean invalidMember = activities.isEmpty();
+        for (UserLearningPathItem item : activities) {
+            LearningActivityType type = item.getActivityType();
+            if (type == null || !TARGET_TYPES.contains(type) || item.getActivityState() == null
+                    || !actual.add(type)) {
+                invalidMember = true;
+            }
+        }
+        if (!actual.contains(LearningActivityType.KANJI) && !actual.contains(LearningActivityType.GRAMMAR)) {
+            invalidMember = true;
+        }
+        if (invalidMember) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
-                    "Package chưa đủ Từ vựng, Kanji, Ngữ pháp và Hội thoại.");
+                    "Package chưa có tập hoạt động Từ vựng/Kanji/Ngữ pháp/Hội thoại hợp lệ.");
         }
     }
 

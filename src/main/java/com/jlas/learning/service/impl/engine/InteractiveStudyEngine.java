@@ -1,5 +1,6 @@
 package com.jlas.learning.service.impl.engine;
 
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.AttemptFeedbackResponse;
@@ -445,6 +446,7 @@ public class InteractiveStudyEngine<T> {
         if (activity.getActivityType() != adapter.activityType()) {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
         return activity;
     }
 

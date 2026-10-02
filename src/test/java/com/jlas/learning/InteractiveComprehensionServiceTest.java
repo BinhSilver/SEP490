@@ -56,6 +56,17 @@ class InteractiveComprehensionServiceTest {
                 assertThrows(ApiException.class, () -> service.studyState(7L, 1L)).getErrorCode());
     }
 
+    @Test void lockedReadingCannotBeOpenedThroughDirectStudyEndpoint(){
+        var locked=activity(LearningActivityType.READING);
+        locked.setActivityState(LearningActivityState.LOCKED);
+        when(items.findOwnedByIdForUpdate(1L,7L)).thenReturn(Optional.of(locked));
+
+        ApiException error=assertThrows(ApiException.class,()->service.studyState(7L,1L));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET,error.getErrorCode());
+        verifyNoInteractions(members,studySessions,studyCards,checkStates,quizSessions,questions,catalog,mapper);
+    }
+
     @Test void exactExerciseGroupsBecomeSeparateBatchesWithoutAnswerLeakage() {
         arrangeTwoReadingExercises();
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());

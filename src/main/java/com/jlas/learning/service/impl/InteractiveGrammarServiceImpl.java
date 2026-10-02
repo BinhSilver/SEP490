@@ -34,6 +34,7 @@ import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.service.InteractiveGrammarService;
 import com.jlas.learning.service.impl.engine.InteractiveContentAdapter;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.learning.service.impl.engine.QuestionSpec;
 import com.jlas.learning.service.impl.grammar.GrammarTextAnalyzer;
 import com.jlas.learning.service.impl.grammar.GrammarTextAnalyzer.Role;
@@ -213,6 +214,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         if (activity.getActivityType() != LearningActivityType.GRAMMAR) {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
         return activity;
     }
 
