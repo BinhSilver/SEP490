@@ -25,7 +25,10 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         var gaps=new ArrayList<CoverageGap>(); String key="LESSON:"+lessonId;
         String actualLevel=lesson.getUnit().getTextbook().getJlptLevel();
         if(!"PUBLISHED".equals(lesson.getStatus())||!"PUBLISHED".equals(lesson.getUnit().getTextbook().getStatus())) gap(gaps,key,"SOURCE_NOT_PUBLISHED");
-        if(!Objects.equals(expectedLevel,actualLevel)) gap(gaps,key,"LEVEL_MISMATCH");
+        // JLPT stages must match their textbook exactly. Goal-specific communication stages
+        // (BASIC/FUNCTIONAL/PROBLEM_SOLVING/FLEXIBLE) are validated by APPROVED lesson scope,
+        // not by overloading textbook.jlpt_level with a non-JLPT value.
+        if(isJlptLevel(expectedLevel)&&!Objects.equals(expectedLevel,actualLevel)) gap(gaps,key,"LEVEL_MISMATCH");
         List<VocabularyEntry> vocab=contentVocabulary.findVocabularyByLessonId(lessonId);
         if(vocab.isEmpty()) gap(gaps,key,"MISSING_CANONICAL_MEMBER");
         if(vocab.stream().anyMatch(v->!"PUBLISHED".equals(v.getDictionaryStatus())||blank(v.getMeaning())||blank(v.getReading()))) gap(gaps,key,"VOCABULARY_NOT_READY");
@@ -53,5 +56,6 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
     }
     private static void gap(List<CoverageGap> gaps,String key,String reason){gaps.add(new CoverageGap(key,reason));}
     private static boolean blank(String value){return value==null||value.isBlank();}
+    private static boolean isJlptLevel(String value){return value!=null&&value.matches("N[1-5]");}
     private static String sha256(String value){try{return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}catch(Exception e){throw new IllegalStateException(e);}}
 }

@@ -52,4 +52,19 @@ class JpaInteractiveContentCatalogTest {
 
         assertTrue(reasons.contains("EMPTY_LESSON"));
     }
+
+    @Test void communicationStageIsValidatedByScopeAndDoesNotPretendToBeAJlptTextbookLevel(){
+        var book=Textbook.builder().id(1L).jlptLevel(null).status("PUBLISHED").version(1).build();
+        var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build())
+                .title("Travel basic").status("PUBLISHED").build();
+        when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+        when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(List.of());
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(10L)).thenReturn(List.of());
+        when(dialogue.findByLessonId(10L)).thenReturn(List.of());
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+        var reasons=catalog.inspect(10L,"BASIC").gaps().stream().map(g->g.reasonCode()).toList();
+
+        assertFalse(reasons.contains("LEVEL_MISMATCH"));
+    }
 }
