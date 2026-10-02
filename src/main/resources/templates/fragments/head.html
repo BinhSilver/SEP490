@@ -38,6 +38,7 @@
     <link rel="stylesheet" th:href="@{/css/components/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/components/user-menu.css}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css}" />
     <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
 
     <!-- Page-specific CSS (optional) -->
@@ -51,6 +52,7 @@
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/sakura-background.js}"></script>
+    <script defer th:src="@{/js/inline-dictionary.js}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
 </head>
 
@@ -82,8 +84,10 @@
     <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
     <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css}" />
     <link th:if="${extraCss != null and !#strings.isEmpty(extraCss)}" rel="stylesheet" th:href="@{${extraCss}}" />
     <script th:src="@{/js/sakura-background.js}"></script>
+    <script defer th:src="@{/js/inline-dictionary.js}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
 </head>
 
