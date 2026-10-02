@@ -302,7 +302,7 @@
                 // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
                 '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
-                '<button id="' + ids.jlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
+                '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
               '</div>' +
             '</div>' +
             '<a id="' + ids.lookupLink + '" href="/dictionary/index.html" title="Tra cứu từ điển">' +

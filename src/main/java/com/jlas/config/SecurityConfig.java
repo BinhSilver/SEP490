@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Arena SSE completes through an async dispatch of an authenticated request.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
+                        .hasRole("CONTENT_CREATOR")
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
