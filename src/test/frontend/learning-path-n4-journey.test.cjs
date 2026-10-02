@@ -128,10 +128,10 @@ test('grammar offers practice only, reading and listening both modes, dialogue n
   assert.deepEqual(roadmap.modesFor('VOCABULARY'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('KANJI'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('FOUNDATION'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('GRAMMAR'), ['PRACTICE']);
+  assert.deepEqual(roadmap.modesFor('GRAMMAR'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('READING'), ['REVIEW', 'PRACTICE']);
   assert.deepEqual(roadmap.modesFor('LISTENING'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('DIALOGUE'), []);
+  assert.deepEqual(roadmap.modesFor('DIALOGUE'), ['REVIEW', 'PRACTICE']);
 });
 
 // ---- Completion popup: Tiếp tục / Xem lại / Ôn lại, accessible dialog ----
@@ -153,10 +153,10 @@ test('the popup says practice never affects progress, score or unlocks', () => {
   assert.match(roadmap.renderPopup(justCompleted()), /Ôn lại[\s\S]*không ảnh hưởng|không ảnh hưởng[\s\S]*Ôn lại/);
 });
 
-test('the popup does not invent review or practice links when the package has no eligible activity', () => {
+test('the popup offers Dialogue replay because completed Dialogue has read-only replay routes', () => {
   const html = roadmap.renderPopup(justCompleted({ activities: [{ id: 41, type: 'DIALOGUE', state: 'PASSED', orderIndex: 1 }] }));
-  assert.doesNotMatch(html, /mode=review/);
-  assert.doesNotMatch(html, /mode=practice/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=41&amp;mode=review/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=41&amp;mode=practice/);
 });
 
 // ---- Toast and pace dialog ----
