@@ -10,6 +10,12 @@ ALTER TABLE user_learning_path
         (learning_mode IS NULL OR learning_mode IN
             ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED'));
 
+ALTER TABLE user_learning_stage
+    DROP CHECK chk_learning_stage_level,
+    MODIFY COLUMN level VARCHAR(30) NOT NULL,
+    ADD CONSTRAINT chk_learning_stage_level CHECK (level IN
+        ('FOUNDATION','N5','N4','N3','N2','N1','BASIC','FUNCTIONAL','PROBLEM_SOLVING','FLEXIBLE'));
+
 CREATE TABLE learning_goal (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     goal_code VARCHAR(30) NOT NULL,

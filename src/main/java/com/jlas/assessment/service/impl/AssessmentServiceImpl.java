@@ -443,7 +443,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .filter(item -> item.getQuestion().getSkill().equals(activeSkill))
                 .filter(item -> !answeredIds.contains(item.getQuestion().getId()))
                 .count();
-        return new SmartTestResponse(session.getAttemptId(), session.getAttempt().getStatus(), answers.size(),
+        return new SmartTestResponse(session.getAttemptId(), session.getAttempt().getStatus(), session.getGoal(), answers.size(),
                 visibleTotal, selectedSkills(session.getGoal(), questions),
                 current == null ? null : withDisplayNumber(current, answers.size() + 1), result);
     }

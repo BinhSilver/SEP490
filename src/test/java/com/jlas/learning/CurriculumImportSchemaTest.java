@@ -151,6 +151,8 @@ class CurriculumImportSchemaTest {
         assertTrue(migration.contains("HARD_SEQUENCE','RECOMMENDED_FOUNDATION','JIT_WARMUP','OPTIONAL_ENRICHMENT"));
         assertTrue(migration.contains("'NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'"));
         assertFalse(migration.contains("DEFAULT 'DRAFT'"));
+        assertTrue(migration.contains("MODIFY COLUMN level VARCHAR(30) NOT NULL"));
+        assertTrue(schema.contains("'BASIC','FUNCTIONAL','PROBLEM_SOLVING','FLEXIBLE'"));
     }
 
     private Textbook book(String sourceCode, String title) {

@@ -1800,7 +1800,7 @@ CREATE TABLE learning_activity_member (
 CREATE TABLE user_learning_stage (
     id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id  BIGINT UNSIGNED NOT NULL,
-    level             VARCHAR(10) NOT NULL,       -- [JLAS-W0108] FOUNDATION hoặc cấp N5..N1.
+    level             VARCHAR(30) NOT NULL,       -- JLPT/foundation hoặc communication level theo goal.
     stage_index       INT UNSIGNED NOT NULL,      -- Thứ tự chặng, bắt đầu từ 0.
     curriculum_version VARCHAR(100) NULL,         -- Fingerprint bộ sách đã duyệt; P8 ghim manifest thật.
     assessment_cycle  VARCHAR(50) NULL,           -- Đợt đánh giá cuối chặng; 1 = đợt đầu, tăng khi retest.
@@ -1814,7 +1814,8 @@ CREATE TABLE user_learning_stage (
     CONSTRAINT fk_learning_stage_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
     CONSTRAINT chk_learning_stage_level
-        CHECK (level IN ('FOUNDATION','N5','N4','N3','N2','N1')),
+        CHECK (level IN ('FOUNDATION','N5','N4','N3','N2','N1',
+            'BASIC','FUNCTIONAL','PROBLEM_SOLVING','FLEXIBLE')),
     CONSTRAINT chk_learning_stage_status CHECK (status IN ('PENDING','ACTIVE','COMPLETED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
