@@ -3,6 +3,7 @@ package com.jlas.common.learning;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /** Server-owned target matrix shared by Smart Test and Learning Path. */
 public final class JlptPathPolicy {
@@ -38,6 +39,15 @@ public final class JlptPathPolicy {
 
     public List<TargetEligibility> options(String assessedLevel) {
         return TARGET_LEVELS.stream().map(target -> evaluate(assessedLevel, target)).toList();
+    }
+
+    /** Immediate next target after a completed JLPT path; N1 is the terminal level. */
+    public Optional<String> nextTargetAfter(String completedTarget) {
+        String completed = normalizeTarget(completedTarget);
+        int index = TARGET_LEVELS.indexOf(completed);
+        return index == TARGET_LEVELS.size() - 1
+                ? Optional.empty()
+                : Optional.of(TARGET_LEVELS.get(index + 1));
     }
 
     private static List<String> stages(String assessed, String target) {

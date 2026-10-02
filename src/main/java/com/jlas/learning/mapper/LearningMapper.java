@@ -11,6 +11,7 @@ import com.jlas.learning.dto.LearningPhaseGroup;
 import com.jlas.learning.dto.LearningStageResponse;
 import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
+import com.jlas.learning.dto.NextTargetRecommendation;
 import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Component;
 /** Maps persisted learning-path entities into the API read model and (de)serializes JSON snapshots. */
 @Component
 public class LearningMapper {
+    private static final com.jlas.common.learning.JlptPathPolicy JLPT_PATH_POLICY =
+            new com.jlas.common.learning.JlptPathPolicy();
     private static final TypeReference<List<String>> STRING_LIST = new TypeReference<>() { };
     private static final TypeReference<List<CoverageGap>> GAP_LIST = new TypeReference<>() { };
     // [JLAS-W0108] Snapshot đề thi bất biến (learning_quiz_session).
@@ -117,7 +120,19 @@ public class LearningMapper {
                 groups, readCoverageGaps(path.getCoverageGapsJson()),
                 totalLessons, totalMinutes, totalDays, completed,
                 warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()), stageResponses,
-                path.getCompletedAt());
+                path.getCompletedAt(), nextTargetRecommendation(path));
+    }
+
+    private static NextTargetRecommendation nextTargetRecommendation(UserLearningPath path) {
+        if (!"JLPT".equals(path.getGoal())) {
+            return NextTargetRecommendation.unavailable("NOT_APPLICABLE");
+        }
+        if (!"COMPLETED".equals(path.getStatus())) {
+            return NextTargetRecommendation.unavailable("PATH_NOT_COMPLETED");
+        }
+        return JLPT_PATH_POLICY.nextTargetAfter(path.getTargetLevel())
+                .map(NextTargetRecommendation::next)
+                .orElseGet(() -> NextTargetRecommendation.unavailable("HIGHEST_LEVEL_REACHED"));
     }
 
     /** [JLAS-W0108] Chặng ACTIVE và mọi item của chặng đã STUDIED -> bài final sẵn sàng phát. */

@@ -2,6 +2,7 @@ package com.jlas.common.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -41,5 +42,16 @@ class JlptPathPolicyTest {
 
         assertThat(result.allowed()).isTrue();
         assertThat(String.join("|", result.stageLevels())).isEqualTo(stages);
+    }
+
+    @Test
+    void recommendsTheImmediateNextLevelAfterN3AndN2() {
+        assertThat(policy.nextTargetAfter("N3")).contains("N2");
+        assertThat(policy.nextTargetAfter("N2")).contains("N1");
+    }
+
+    @Test
+    void n1HasNoHigherJlptTarget() {
+        assertThat(policy.nextTargetAfter("N1")).isEmpty();
     }
 }

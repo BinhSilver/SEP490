@@ -94,6 +94,10 @@ class LearningMapperStageResponseTest {
         assertFalse(stageDto.finalAvailable());
         assertEquals("COMPLETED", response.status());
         assertEquals(reloadedPath.getCompletedAt(), response.completedAt());
+        assertTrue(response.nextTargetRecommendation().available());
+        assertEquals("N3", response.nextTargetRecommendation().recommendedTarget());
+        assertEquals("NEXT_JLPT_LEVEL", response.nextTargetRecommendation().reasonCode());
+        assertEquals("/survey", response.nextTargetRecommendation().actionUrl());
     }
 
     @Test
@@ -131,5 +135,7 @@ class LearningMapperStageResponseTest {
                 List.of(em.find(UserLearningStage.class, stage.getId())), false);
 
         assertFalse(response.stages().get(0).finalAvailable());
+        assertFalse(response.nextTargetRecommendation().available());
+        assertEquals("PATH_NOT_COMPLETED", response.nextTargetRecommendation().reasonCode());
     }
 }
