@@ -22,6 +22,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -148,6 +149,8 @@ class CurriculumImportSchemaTest {
         assertTrue(migration.contains("ADD COLUMN learning_mode VARCHAR(30) NULL"));
         assertTrue(migration.contains("JLPT_PLACEMENT','JLPT_MOCK_TEST','BRSE_FOUNDATION"));
         assertTrue(migration.contains("HARD_SEQUENCE','RECOMMENDED_FOUNDATION','JIT_WARMUP','OPTIONAL_ENRICHMENT"));
+        assertTrue(migration.contains("'NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'"));
+        assertFalse(migration.contains("DEFAULT 'DRAFT'"));
     }
 
     private Textbook book(String sourceCode, String title) {

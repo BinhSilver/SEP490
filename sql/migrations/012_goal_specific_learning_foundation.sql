@@ -20,13 +20,13 @@ CREATE TABLE learning_goal (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     external_key VARCHAR(100) NULL,
     source_code VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_goal_code (goal_code),
     UNIQUE KEY uk_learning_goal_external_key (external_key),
-    CONSTRAINT chk_learning_goal_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_learning_goal_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE learning_topic (
@@ -41,13 +41,13 @@ CREATE TABLE learning_topic (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     external_key VARCHAR(100) NULL,
     source_code VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_topic_goal_code (goal_id, topic_code),
     UNIQUE KEY uk_learning_topic_external_key (external_key),
     CONSTRAINT fk_learning_topic_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
     CONSTRAINT fk_learning_topic_parent FOREIGN KEY (parent_topic_id) REFERENCES learning_topic(id) ON DELETE RESTRICT,
-    CONSTRAINT chk_learning_topic_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_learning_topic_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE learning_competency (
@@ -59,12 +59,12 @@ CREATE TABLE learning_competency (
     active BOOLEAN NOT NULL DEFAULT TRUE,
     external_key VARCHAR(100) NULL,
     source_code VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_competency_goal_code (goal_id, competency_code),
     UNIQUE KEY uk_learning_competency_external_key (external_key),
     CONSTRAINT fk_learning_competency_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
-    CONSTRAINT chk_learning_competency_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_learning_competency_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE competency_level (
@@ -88,14 +88,14 @@ CREATE TABLE learning_topic_level (
     outcome_vi TEXT NOT NULL,
     recommended_jlpt_level VARCHAR(10) NULL,
     external_key VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_topic_competency_level (topic_id, competency_level_id),
     UNIQUE KEY uk_topic_level_external_key (external_key),
     CONSTRAINT fk_topic_level_topic FOREIGN KEY (topic_id) REFERENCES learning_topic(id) ON DELETE CASCADE,
     CONSTRAINT fk_topic_level_level FOREIGN KEY (competency_level_id) REFERENCES competency_level(id) ON DELETE RESTRICT,
     CONSTRAINT chk_topic_level_jlpt CHECK (recommended_jlpt_level IS NULL OR recommended_jlpt_level IN ('N5','N4','N3','N2','N1')),
-    CONSTRAINT chk_topic_level_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_topic_level_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE lesson_learning_scope (
@@ -109,7 +109,7 @@ CREATE TABLE lesson_learning_scope (
     required BOOLEAN NOT NULL DEFAULT TRUE,
     scope_order INT UNSIGNED NOT NULL,
     external_key VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_lesson_scope_external_key (external_key),
     KEY idx_lesson_scope_selection (goal_id, topic_id, competency_id, competency_level_id, scope_order),
@@ -120,7 +120,7 @@ CREATE TABLE lesson_learning_scope (
     CONSTRAINT fk_lesson_scope_level FOREIGN KEY (competency_level_id) REFERENCES competency_level(id) ON DELETE RESTRICT,
     CONSTRAINT chk_lesson_scope_target CHECK (topic_id IS NOT NULL OR competency_id IS NOT NULL),
     CONSTRAINT chk_lesson_scope_mode CHECK (learning_mode IS NULL OR learning_mode IN ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED')),
-    CONSTRAINT chk_lesson_scope_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_lesson_scope_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE lesson_prerequisite (
@@ -135,7 +135,7 @@ CREATE TABLE lesson_prerequisite (
     warmup_lesson_id BIGINT UNSIGNED NULL,
     reason_vi TEXT NULL,
     external_key VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_lesson_prerequisite_code (prerequisite_code),
     UNIQUE KEY uk_lesson_prerequisite_external_key (external_key),
@@ -145,7 +145,7 @@ CREATE TABLE lesson_prerequisite (
     CONSTRAINT fk_lesson_prerequisite_warmup FOREIGN KEY (warmup_lesson_id) REFERENCES lesson(id) ON DELETE RESTRICT,
     CONSTRAINT chk_lesson_prerequisite_type CHECK (prerequisite_type IN ('HARD_SEQUENCE','RECOMMENDED_FOUNDATION','JIT_WARMUP','OPTIONAL_ENRICHMENT')),
     CONSTRAINT chk_lesson_prerequisite_jlpt CHECK (required_jlpt_level IS NULL OR required_jlpt_level IN ('N5','N4','N3','N2','N1')),
-    CONSTRAINT chk_lesson_prerequisite_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_lesson_prerequisite_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE learning_survey_question (
@@ -158,14 +158,14 @@ CREATE TABLE learning_survey_question (
     required BOOLEAN NOT NULL DEFAULT TRUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     external_key VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_survey_question_code (survey_question_code),
     UNIQUE KEY uk_survey_question_external_key (external_key),
     UNIQUE KEY uk_survey_question_order (goal_id, question_order),
     CONSTRAINT fk_survey_question_goal FOREIGN KEY (goal_id) REFERENCES learning_goal(id) ON DELETE CASCADE,
     CONSTRAINT chk_survey_selection_type CHECK (selection_type IN ('SINGLE','MULTIPLE')),
-    CONSTRAINT chk_survey_question_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_survey_question_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE learning_survey_option (
@@ -179,7 +179,7 @@ CREATE TABLE learning_survey_option (
     competency_id BIGINT UNSIGNED NULL,
     learning_mode VARCHAR(30) NULL,
     external_key VARCHAR(100) NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_survey_option_code (survey_option_code),
     UNIQUE KEY uk_survey_option_external_key (external_key),
@@ -188,7 +188,7 @@ CREATE TABLE learning_survey_option (
     CONSTRAINT fk_survey_option_topic FOREIGN KEY (topic_id) REFERENCES learning_topic(id) ON DELETE RESTRICT,
     CONSTRAINT fk_survey_option_competency FOREIGN KEY (competency_id) REFERENCES learning_competency(id) ON DELETE RESTRICT,
     CONSTRAINT chk_survey_option_mode CHECK (learning_mode IS NULL OR learning_mode IN ('FOUNDATION_FIRST','COMMUNICATION_FIRST','BALANCED')),
-    CONSTRAINT chk_survey_option_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_survey_option_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
 
 CREATE TABLE user_goal_survey_submission (
@@ -230,12 +230,12 @@ CREATE TABLE assessment_question_usage (
     effective_from DATETIME(6) NULL,
     effective_to DATETIME(6) NULL,
     external_key VARCHAR(100) NOT NULL,
-    review_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'NOT_REVIEWED',
     PRIMARY KEY (id),
     UNIQUE KEY uk_assessment_usage_external_key (external_key),
     KEY idx_assessment_usage_selection (usage_code, blueprint_code, section_code, active),
     CONSTRAINT fk_assessment_usage_question FOREIGN KEY (question_id) REFERENCES assessment_question(id) ON DELETE CASCADE,
     CONSTRAINT chk_assessment_usage_code CHECK (usage_code IN ('JLPT_PLACEMENT','JLPT_MOCK_TEST','BRSE_FOUNDATION')),
     CONSTRAINT chk_assessment_usage_dates CHECK (effective_to IS NULL OR effective_from IS NULL OR effective_to > effective_from),
-    CONSTRAINT chk_assessment_usage_review CHECK (review_status IN ('DRAFT','REVIEWED','APPROVED','REJECTED'))
+    CONSTRAINT chk_assessment_usage_review CHECK (review_status IN ('NOT_REVIEWED','NEEDS_REVIEW','APPROVED','REJECTED'))
 );
