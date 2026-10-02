@@ -76,10 +76,18 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                     // mechanism (Task 8) once the last warm-up package completes.
                     .status(packageOrder==1&&!anyPackageExistsAlready?LearningPackageStatus.AVAILABLE:LearningPackageStatus.LOCKED)
                     .estimatedMinutes(Math.max(1,seed.estimatedMinutes())).build());
-            activityOrder=saveActivity(path,learningPackage,LearningActivityType.VOCABULARY,LearningMemberType.VOCABULARY_ENTRY,snapshot.vocabularyIds(),snapshot.revision(),activityOrder);
-            activityOrder=saveActivity(path,learningPackage,LearningActivityType.KANJI,LearningMemberType.KANJI,snapshot.kanjiIds(),snapshot.revision(),activityOrder);
-            activityOrder=saveActivity(path,learningPackage,LearningActivityType.GRAMMAR,LearningMemberType.GRAMMAR_POINT,snapshot.grammarPointIds(),snapshot.revision(),activityOrder);
-            activityOrder=saveActivity(path,learningPackage,LearningActivityType.DIALOGUE,LearningMemberType.DIALOGUE_LINE,snapshot.dialogueLineIds(),snapshot.revision(),activityOrder);
+            if (snapshot.vocabularyIds().size() >= 5) {
+                activityOrder=saveActivity(path,learningPackage,LearningActivityType.VOCABULARY,LearningMemberType.VOCABULARY_ENTRY,snapshot.vocabularyIds(),snapshot.revision(),activityOrder);
+            }
+            if (!snapshot.kanjiIds().isEmpty()) {
+                activityOrder=saveActivity(path,learningPackage,LearningActivityType.KANJI,LearningMemberType.KANJI,snapshot.kanjiIds(),snapshot.revision(),activityOrder);
+            }
+            if (!snapshot.grammarPointIds().isEmpty()) {
+                activityOrder=saveActivity(path,learningPackage,LearningActivityType.GRAMMAR,LearningMemberType.GRAMMAR_POINT,snapshot.grammarPointIds(),snapshot.revision(),activityOrder);
+            }
+            if (!snapshot.dialogueLineIds().isEmpty()) {
+                activityOrder=saveActivity(path,learningPackage,LearningActivityType.DIALOGUE,LearningMemberType.DIALOGUE_LINE,snapshot.dialogueLineIds(),snapshot.revision(),activityOrder);
+            }
         }
         return new InteractiveCompositionResult(true,packageOrder,List.of());
     }

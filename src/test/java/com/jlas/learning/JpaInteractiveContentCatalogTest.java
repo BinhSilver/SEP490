@@ -3,6 +3,7 @@ package com.jlas.learning;
 import com.jlas.dictionary.entity.*;
 import com.jlas.dictionary.repository.*;
 import com.jlas.learning.service.impl.JpaInteractiveContentCatalog;
+import com.jlas.learning.service.impl.JpaInteractiveContentCatalog;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -32,9 +33,8 @@ class JpaInteractiveContentCatalogTest {
 
         var reasons=catalog.inspect(10L,"N4").gaps().stream().map(g->g.reasonCode()).toList();
 
-        assertTrue(reasons.containsAll(List.of("SOURCE_NOT_PUBLISHED", "LEVEL_MISMATCH",
-                "DUPLICATE_VOCABULARY_IDENTITY", "KANJI_WITHOUT_LESSON_VOCAB",
-                "MISSING_CANONICAL_MEMBER")));
+        assertTrue(reasons.containsAll(List.of("SOURCE_NOT_PUBLISHED", "SOURCE_NOT_LEARNING_PATH", "LEVEL_MISMATCH",
+                "DUPLICATE_VOCABULARY_IDENTITY", "KANJI_AND_GRAMMAR_NOT_READY")));
         verifyNoInteractions(readings,audio);
     }
 
@@ -66,5 +66,53 @@ class JpaInteractiveContentCatalogTest {
         var reasons=catalog.inspect(10L,"BASIC").gaps().stream().map(g->g.reasonCode()).toList();
 
         assertFalse(reasons.contains("LEVEL_MISMATCH"));
+    }
+
+    @Test void vocabularyBoundaryDoesNotRequireAFlashcardActivityBelowFiveValidWords(){
+        for (int count : List.of(0, 1, 4, 5, 6)) {
+            reset(lessons, vocabRepo, links, readings, grammar, items, dialogue, audio);
+            var book=Textbook.builder().id(1L).jlptLevel("N5").status("PUBLISHED")
+                    .isLearningPathSource(true).version(1).build();
+            var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build())
+                    .title("L").status("PUBLISHED").build();
+            var words=new ArrayList<VocabularyEntry>();
+            for (int i=1; i<=count; i++) words.add(VocabularyEntry.builder().id((long)i)
+                    .normalizedExpression("語"+i).normalizedReading("ご"+i).expression("語"+i)
+                    .reading("ご"+i).meaning("nghĩa "+i).dictionaryStatus("PUBLISHED").build());
+            when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+            when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(words);
+            when(links.findByVocabularyIdIn(count == 0 ? List.of() : java.util.stream.LongStream.rangeClosed(1,count).boxed().toList()))
+                    .thenReturn(List.of());
+            when(grammar.findByLessonIdOrderByOrderIndexAsc(10L)).thenReturn(List.of(
+                    GrammarPoint.builder().id(70L).lesson(lesson).pattern("N は N です")
+                            .meaning("câu khẳng định").example("これは本です").build()));
+            when(dialogue.findByLessonId(10L)).thenReturn(List.of());
+            var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+            var snapshot=catalog.inspect(10L,"N5");
+
+            assertFalse(snapshot.gaps().stream().anyMatch(g -> g.reasonCode().equals("MISSING_CANONICAL_MEMBER")),
+                    "vocabulary count="+count+"; Dialogue and vocabulary activity are optional here");
+            assertEquals(count, snapshot.vocabularyIds().size());
+            assertTrue(snapshot.gaps().isEmpty(), "valid Grammar-only lesson should be ready at vocabulary count="+count);
+        }
+    }
+
+    @Test void rejectsPublishedTextbookNotMarkedAsLearningPathSource(){
+        var book=Textbook.builder().id(1L).jlptLevel("N5").status("PUBLISHED")
+                .isLearningPathSource(false).version(1).build();
+        var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build())
+                .title("L").status("PUBLISHED").build();
+        when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+        when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(List.of());
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(10L)).thenReturn(List.of(
+                GrammarPoint.builder().id(70L).lesson(lesson).pattern("N は N です")
+                        .meaning("câu khẳng định").example("これは本です").build()));
+        when(dialogue.findByLessonId(10L)).thenReturn(List.of());
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+        var reasons=catalog.inspect(10L,"N5").gaps().stream().map(g->g.reasonCode()).toList();
+
+        assertTrue(reasons.contains("SOURCE_NOT_LEARNING_PATH"));
     }
 }

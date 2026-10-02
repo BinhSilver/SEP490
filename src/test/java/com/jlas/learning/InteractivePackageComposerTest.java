@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
+import java.util.stream.StreamSupport;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -43,10 +44,10 @@ class InteractivePackageComposerTest {
         var error=assertThrows(ApiException.class,()->composer.compose(path(),List.of(seed(10L,1))));
         assertEquals(ErrorCode.SERVICE_UNAVAILABLE,error.getErrorCode()); verifyNoInteractions(catalog,packages,items,members,stages);}
 
-    @Test void missingComponentRecordsGapAndPublishesNothing(){
-        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of(new CoverageGap("LESSON:10","MISSING_DIALOGUE"))));
+    @Test void lessonWithoutKanjiOrGrammarRecordsGapAndPublishesNothing(){
+        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of(new CoverageGap("LESSON:10","KANJI_AND_GRAMMAR_NOT_READY"))));
         var result=composer.compose(path(),List.of(seed(10L,1)));
-        assertFalse(result.published()); assertEquals("MISSING_DIALOGUE",result.gaps().getFirst().reasonCode());
+        assertFalse(result.published()); assertEquals("KANJI_AND_GRAMMAR_NOT_READY",result.gaps().getFirst().reasonCode());
         verify(packages,never()).save(any()); verify(items,never()).save(any()); verifyNoInteractions(members,stages);
     }
 
@@ -59,6 +60,39 @@ class InteractivePackageComposerTest {
         assertEquals(List.of(LearningActivityType.VOCABULARY,LearningActivityType.KANJI,LearningActivityType.GRAMMAR,LearningActivityType.DIALOGUE),
                 captor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
         verify(packages).save(argThat(value -> Long.valueOf(41L).equals(value.getStageId())));
+    }
+
+    @Test void skipsVocabularyActivityBelowFiveWordsAndAllowsOptionalDialogue(){
+        var smallVocabulary=new InteractiveContentSnapshot(Lesson.builder().id(10L).build(),"revision",
+                List.of(1L,2L,3L,4L),List.of(30L),List.of(40L),List.of(),List.of());
+        when(catalog.inspect(10L,"N4")).thenReturn(smallVocabulary);
+
+        var result=composer.compose(path(),List.of(seed(10L,1)));
+
+        assertTrue(result.published());
+        var captor=ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items,times(2)).save(captor.capture());
+        assertEquals(List.of(LearningActivityType.KANJI,LearningActivityType.GRAMMAR),
+                captor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+        verify(members,times(2)).saveAll(any());
+    }
+
+    @Test void createsVocabularyActivityAtFiveAndKeepsEveryVocabularyMember(){
+        var fiveVocabulary=new InteractiveContentSnapshot(Lesson.builder().id(10L).build(),"revision",
+                List.of(1L,2L,3L,4L,5L),List.of(30L),List.of(40L),List.of(),List.of());
+        when(catalog.inspect(10L,"N4")).thenReturn(fiveVocabulary);
+
+        var result=composer.compose(path(),List.of(seed(10L,1)));
+
+        assertTrue(result.published());
+        var captor=ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items,times(3)).save(captor.capture());
+        assertEquals(List.of(LearningActivityType.VOCABULARY,LearningActivityType.KANJI,LearningActivityType.GRAMMAR),
+                captor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+        verify(members).saveAll(argThat(rows -> {
+            var savedRows=StreamSupport.stream(rows.spliterator(),false).toList();
+            return savedRows.size()==5 && savedRows.stream().allMatch(row -> row.getMemberType()==LearningMemberType.VOCABULARY_ENTRY);
+        }));
     }
 
     @Test void composesN3ContentIntoTheMatchingN3Stage(){
@@ -119,5 +153,5 @@ class InteractivePackageComposerTest {
     private ScheduledLearningResource seed(Long lessonId,int order){return seed(lessonId,order,"N4");}
     private ScheduledLearningResource seed(Long lessonId,int order,String level){var resource=new LearningResourceCandidate(lessonId,"Bài",1L,1L,Set.of("K"),level,30,1,order,null,null,"GRAMMAR");
         return new ScheduledLearningResource(resource,LearningPhase.GOAL_LEARNING,"TARGET","",Set.of("K"),order,order,30);}
-    private InteractiveContentSnapshot snapshot(Long lessonId,List<CoverageGap> gaps){return new InteractiveContentSnapshot(Lesson.builder().id(lessonId).build(),"revision",List.of(1L,2L),List.of(3L),List.of(4L),List.of(5L,6L),gaps);}
+    private InteractiveContentSnapshot snapshot(Long lessonId,List<CoverageGap> gaps){return new InteractiveContentSnapshot(Lesson.builder().id(lessonId).build(),"revision",List.of(1L,2L,3L,4L,5L),List.of(3L),List.of(4L),List.of(5L,6L),gaps);}
 }

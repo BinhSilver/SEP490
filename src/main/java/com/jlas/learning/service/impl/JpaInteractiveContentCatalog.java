@@ -25,32 +25,33 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         var gaps=new ArrayList<CoverageGap>(); String key="LESSON:"+lessonId;
         String actualLevel=lesson.getUnit().getTextbook().getJlptLevel();
         if(!"PUBLISHED".equals(lesson.getStatus())||!"PUBLISHED".equals(lesson.getUnit().getTextbook().getStatus())) gap(gaps,key,"SOURCE_NOT_PUBLISHED");
+        if (!Boolean.TRUE.equals(lesson.getUnit().getTextbook().getIsLearningPathSource())) gap(gaps,key,"SOURCE_NOT_LEARNING_PATH");
         // JLPT stages must match their textbook exactly. Goal-specific communication stages
         // (BASIC/FUNCTIONAL/PROBLEM_SOLVING/FLEXIBLE) are validated by APPROVED lesson scope,
         // not by overloading textbook.jlpt_level with a non-JLPT value.
         if(isJlptLevel(expectedLevel)&&!Objects.equals(expectedLevel,actualLevel)) gap(gaps,key,"LEVEL_MISMATCH");
         List<VocabularyEntry> vocab=contentVocabulary.findVocabularyByLessonId(lessonId);
-        if(vocab.isEmpty()) gap(gaps,key,"MISSING_CANONICAL_MEMBER");
         if(vocab.stream().anyMatch(v->!"PUBLISHED".equals(v.getDictionaryStatus())||blank(v.getMeaning())||blank(v.getReading()))) gap(gaps,key,"VOCABULARY_NOT_READY");
         if(vocab.stream().map(v->v.getNormalizedExpression()+"\0"+v.getNormalizedReading()).distinct().count()!=vocab.size()) gap(gaps,key,"DUPLICATE_VOCABULARY_IDENTITY");
         List<Long> vocabIds=vocab.stream().map(VocabularyEntry::getId).distinct().sorted().toList();
         var links=vocabIds.isEmpty()?List.<com.jlas.dictionary.entity.VocabularyKanji>of():vocabularyKanji.findByVocabularyIdIn(vocabIds);
         List<Long> kanjiIds=links.stream().map(v->v.getKanji().getId()).distinct().sorted().toList();
-        if(kanjiIds.isEmpty() && !vocabIds.isEmpty()) gap(gaps,key,"KANJI_WITHOUT_LESSON_VOCAB"); else if (!kanjiIds.isEmpty()) {
+        if (!kanjiIds.isEmpty()) {
             if(links.stream().anyMatch(link->blank(link.getKanji().getCharacter())||(blank(link.getKanji().getMeaningVi())&&blank(link.getKanji().getHanViet())))) gap(gaps,key,"KANJI_NOT_READY");
             var covered=kanjiReadings.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(kanjiIds).stream().map(r->r.getKanji().getId()).collect(Collectors.toSet());
             if(!covered.containsAll(kanjiIds)) gap(gaps,key,"KANJI_READING_NOT_READY");
         }
         var grammar=grammarPoints.findByLessonIdOrderByOrderIndexAsc(lessonId); List<Long> grammarIds=grammar.stream().map(g->g.getId()).distinct().toList();
-        if(grammarIds.isEmpty()) gap(gaps,key,"MISSING_CANONICAL_MEMBER"); if(grammarIds.size()>12) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
+        if(grammarIds.size()>12) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
         if(grammar.stream().anyMatch(g->blank(g.getPattern())||blank(g.getMeaning())||(blank(g.getExample())&&contentItems.findGrammarExamples(g.getId(),lessonId).isEmpty()))) gap(gaps,key,"GRAMMAR_EXAMPLE_NOT_READY");
         var dialogue=dialogueLines.findByLessonId(lessonId); List<Long> dialogueIds=dialogue.stream().map(d->d.getContentItemId()).distinct().toList();
-        if(dialogueIds.isEmpty()) gap(gaps,key,"MISSING_CANONICAL_MEMBER"); else {
+        if(!dialogueIds.isEmpty()) {
             var audioOwners=audio.findByOwnerTypeAndOwnerIdIn("CONTENT_ITEM",dialogueIds).stream().filter(a->!blank(a.getAudioUrl())).map(a->a.getOwnerId()).collect(Collectors.toSet());
             if(!audioOwners.containsAll(dialogueIds)) gap(gaps,key,"DIALOGUE_AUDIO_NOT_READY");
             if(dialogue.stream().anyMatch(d->blank(d.getContentItem().getContent()))) gap(gaps,key,"DIALOGUE_SCRIPT_NOT_READY");
         }
-        if(vocabIds.isEmpty() && grammarIds.isEmpty() && dialogueIds.isEmpty()) gap(gaps,key,"EMPTY_LESSON");
+        if (kanjiIds.isEmpty() && grammarIds.isEmpty()) gap(gaps,key,"KANJI_AND_GRAMMAR_NOT_READY");
+        if(vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty() && dialogueIds.isEmpty()) gap(gaps,key,"EMPTY_LESSON");
         String revision=sha256(lesson.getUnit().getTextbook().getVersion()+"|"+lesson.getUpdatedAt()+"|"+vocabIds+"|"+kanjiIds+"|"+grammarIds+"|"+dialogueIds);
         return new InteractiveContentSnapshot(lesson,revision,vocabIds,kanjiIds,grammarIds,dialogueIds,gaps);
     }
