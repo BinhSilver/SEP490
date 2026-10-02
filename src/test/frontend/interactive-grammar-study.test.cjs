@@ -116,3 +116,10 @@ test('empty-safe rendering when there are no points at all', () => {
   const html = page.renderStudy(page.viewModel({ points: [], totalPoints: 0, gateSatisfiedCount: 0 }), null, {}, {});
   assert.match(html, /Chưa có mẫu ngữ pháp/);
 });
+
+test('review rendering exposes canonical grammar only and has no practice or quiz controls', () => {
+  const html = page.renderReview(study());
+  assert.match(html, /Xem lại ngữ pháp/);
+  assert.match(html, /N1 は N2 です/);
+  assert.doesNotMatch(html, /data-order-add|data-fill-check|data-check|data-submit/);
+});

@@ -104,6 +104,24 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public GrammarStudyState reviewState(Long userId, Long activityId) {
+        UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
+                .filter(item -> item.getActivityType() == LearningActivityType.GRAMMAR
+                        && (item.getActivityState() == com.jlas.learning.enums.LearningActivityState.PASSED
+                            || item.getActivityState() == com.jlas.learning.enums.LearningActivityState.COMPLETED))
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        List<LearningActivityMember> membership = loadMembership(activity);
+        Map<Long, GrammarPoint> byId = loadPoints(membership);
+        List<GrammarPointView> views = membership.stream().map(member ->
+                toView(member, byId.get(member.getCanonicalId()),
+                        currentProgress(activityId, member))).toList();
+        return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
+                membership.getFirst().getSourceRevision(), membership.size(),
+                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), true, views);
+    }
+
+    @Override
     @Transactional
     public GrammarPracticeResult submitOrdering(Long userId, Long activityId, Long grammarPointId,
             GrammarOrderingSubmitRequest request) {

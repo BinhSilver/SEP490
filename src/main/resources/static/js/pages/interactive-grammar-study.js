@@ -136,6 +136,22 @@
       '</section>';
   }
 
+  function renderReview(v, feedback) {
+    var items = v.points.map(function (p) {
+      return { html: '<article class="ilp-point"><h2>' + esc(p.pattern) + '</h2>' +
+        (p.objective ? '<p>' + esc(p.objective) + '</p>' : '') + renderFormula(p.components) +
+        renderExample(p.example) + (p.usageNote ? '<p>' + esc(p.usageNote) + '</p>' : '') +
+        (p.note ? '<p class="ilp-note">' + esc(p.note) + '</p>' : '') + '</article>' };
+    });
+    var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
+    var feedbackHtml = StudyMode
+      ? StudyMode.feedbackList(feedback)
+      : '';
+    return StudyMode
+      ? StudyMode.reviewList('Ngữ pháp đã học', items, feedbackHtml)
+      : '<section class="ilp-result"><h1>Xem lại ngữ pháp</h1>' + items.map(function (x) { return x.html; }).join('') + '</section>';
+  }
+
   function renderCheck(check) {
     var questions = list(check.questions).map(function (q, i) {
       var options = list(q.options).map(function (opt, oi) {
@@ -199,11 +215,10 @@
     // [JLAS-W0108] Task 11 - LEARN / REVIEW / PRACTICE. The server enforces each mode; the page only picks endpoints.
     var StudyMode = window.InteractiveStudyMode;
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
-    if (mode === 'REVIEW') mode = 'LEARN'; // no read-only review endpoint for this activity type
     var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
-    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['PRACTICE']) : '';
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['REVIEW', 'PRACTICE']) : '';
     var orderState = {};
     var feedback = {};
 
@@ -225,6 +240,14 @@
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'REVIEW') {
+          var reviewData = await api('/review');
+          var attempts = [];
+          try { attempts = await api('/review/attempts'); } catch (ignored) { attempts = []; }
+          node.innerHTML = renderReview(viewModel(reviewData), attempts);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         if (mode === 'PRACTICE') {
           await doPractice();
           node.setAttribute('aria-busy', 'false');
@@ -316,6 +339,6 @@
   return {
     viewModel: viewModel, renderFormula: renderFormula, renderExample: renderExample, renderOrdering: renderOrdering,
     renderFill: renderFill, renderPoint: renderPoint, renderStudy: renderStudy, renderCheck: renderCheck,
-    renderResult: renderResult, mount: mount
+    renderReview: renderReview, renderResult: renderResult, mount: mount
   };
 });

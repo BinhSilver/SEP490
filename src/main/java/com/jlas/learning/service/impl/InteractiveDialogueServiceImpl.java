@@ -77,6 +77,36 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public DialogueStudyState reviewState(Long userId, Long activityId) {
+        return replayState(userId, activityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DialogueStudyState practiceState(Long userId, Long activityId) {
+        return replayState(userId, activityId);
+    }
+
+    private DialogueStudyState replayState(Long userId, Long activityId) {
+        UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
+                .filter(item -> item.getActivityType() == LearningActivityType.DIALOGUE
+                        && (item.getActivityState() == LearningActivityState.PASSED
+                            || item.getActivityState() == LearningActivityState.COMPLETED))
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        List<LearningActivityMember> membership = loadMembership(activity);
+        LearningDialogueProgress state = progressRepo.findByActivityId(activityId).orElse(null);
+        boolean matchingRevision = state != null && state.getSourceRevision().equals(revisionOf(membership));
+        int accumulated = matchingRevision ? state.getAccumulatedSeconds() : 0;
+        boolean reachedBottom = matchingRevision && state.getReachedBottomAt() != null;
+        boolean completed = activity.getActivityState() == LearningActivityState.COMPLETED
+                || (matchingRevision && state.getCompletedAt() != null);
+        return new DialogueStudyState(activityId, LearningActivityType.DIALOGUE, activity.getActivityState(),
+                revisionOf(membership), REQUIRED_SECONDS, accumulated, remaining(accumulated), reachedBottom,
+                completed, buildLineViews(membership));
+    }
+
+    @Override
     @Transactional
     public DialogueProgressResult heartbeat(Long userId, Long activityId, DialogueHeartbeatRequest request) {
         UserLearningPathItem activity = loadActivity(userId, activityId);

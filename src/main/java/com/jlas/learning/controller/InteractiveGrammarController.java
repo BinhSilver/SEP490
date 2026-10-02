@@ -34,6 +34,12 @@ public class InteractiveGrammarController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.studyState(user.userId(), activityId)));
     }
 
+    @GetMapping("/review")
+    public ResponseEntity<ApiResponse<GrammarStudyState>> review(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewState(user.userId(), activityId)));
+    }
+
     @PostMapping("/points/{grammarPointId}/practice/ordering")
     public ResponseEntity<ApiResponse<GrammarPracticeResult>> submitOrdering(
             @PathVariable Long activityId, @PathVariable Long grammarPointId,

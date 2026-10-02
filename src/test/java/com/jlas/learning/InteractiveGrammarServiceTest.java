@@ -75,6 +75,32 @@ class InteractiveGrammarServiceTest {
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
 
+    @Test void reviewStateReturnsCompletedCanonicalGrammarWithoutWritingProgress() {
+        var activity = grammarActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.PASSED);
+        var member = member(activity, 1, 501L, "rev-1");
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(point(501L, "N1 は N2 です", "N1 là N2",
+                "わたしは 学生です。\nTôi là học sinh.", null)));
+        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.empty());
+
+        var state = service.reviewState(7L, 1L);
+
+        assertEquals("N1 は N2 です", state.points().getFirst().pattern());
+        assertEquals(LearningActivityState.PASSED, state.activityState());
+        verify(items, never()).findOwnedByIdForUpdate(anyLong(), anyLong());
+        verify(progress, never()).save(any());
+    }
+
+    @Test void reviewStateRejectsUnfinishedGrammar() {
+        var activity = grammarActivity(1L, 7L);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        assertEquals(ErrorCode.NOT_FOUND, assertThrows(ApiException.class,
+                () -> service.reviewState(7L, 1L)).getErrorCode());
+        verifyNoInteractions(members, grammarPoints, progress);
+    }
+
     @Test void lockedGrammarCannotBeOpenedThroughDirectStudyEndpoint(){
         var activity=grammarActivity(1L,7L);
         activity.setActivityState(LearningActivityState.LOCKED);

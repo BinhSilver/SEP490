@@ -64,6 +64,35 @@ class InteractiveDialogueServiceTest {
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
 
+    @Test void reviewAndPracticeReadCompletedScriptWithoutWritingCompletionEvidence() {
+        var activity = dialogueActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.COMPLETED);
+        var member = member(activity, 1, 201L, "rev-1");
+        var line = dialogueLine(201L, "ROLE_A", "Nhân viên", "scene-1", "trai", "いらっしゃいませ。", "Xin chào.");
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(progressRepo.findByActivityId(1L)).thenReturn(Optional.empty());
+        when(dialogueLines.findAllById(any())).thenReturn(List.of(line));
+        when(audio.findByOwnerTypeAndOwnerIdIn(eq("CONTENT_ITEM"), any())).thenReturn(List.of());
+
+        var review = service.reviewState(7L, 1L);
+        var practice = service.practiceState(7L, 1L);
+
+        assertEquals(1, review.lines().size());
+        assertTrue(review.completed());
+        assertEquals(review.lines(), practice.lines());
+        verify(items, never()).findOwnedByIdForUpdate(anyLong(), anyLong());
+        verify(progressRepo, never()).save(any());
+    }
+
+    @Test void replayRejectsUnfinishedDialogue() {
+        var activity = dialogueActivity(1L, 7L);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        assertEquals(ErrorCode.NOT_FOUND, assertThrows(ApiException.class,
+                () -> service.reviewState(7L, 1L)).getErrorCode());
+        verifyNoInteractions(members, progressRepo, dialogueLines, audio);
+    }
+
     @Test void lockedDialogueCannotBeOpenedThroughDirectStudyEndpoint(){
         var activity=dialogueActivity(1L,7L);
         activity.setActivityState(LearningActivityState.LOCKED);

@@ -102,6 +102,19 @@
       '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
   }
 
+  function renderReplay(mode, v) {
+    var title = mode === 'REVIEW' ? 'Xem lại hội thoại' : 'Luyện lại hội thoại';
+    var lines = v.lines.length ? v.lines.map(renderLine).join('') :
+      '<li class="ilp-state">Hoạt động này chưa có nội dung.</li>';
+    var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
+    return (StudyMode ? StudyMode.banner(mode) : '') +
+      '<section class="ilp-dialogue"><header class="ilp-study__head"><div><span class="ilp-kicker">HỘI THOẠI // ' +
+      (mode === 'REVIEW' ? 'XEM LẠI' : 'LUYỆN TẬP') + '</span><h1>' + title + '</h1>' +
+      '<p>Đọc lại kịch bản và nghe các dòng có âm thanh.</p></div></header>' +
+      '<ol class="ilp-dialogue__script">' + lines + '</ol>' +
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+  }
+
   function error(message) {
     return '<section class="ilp-state"><h1>Chưa thể mở phần Hội thoại</h1><p>' +
       esc(message || 'Vui lòng thử lại sau.') + '</p><button data-retry type="button">Thử lại</button></section>';
@@ -117,6 +130,8 @@
     if (!node || !window.JlasAuth || !window.JlasAuth.requireLogin('/learning/v2/dialogue' + (id ? '?activity=' + encodeURIComponent(id) : ''))) return;
     if (!id) { node.innerHTML = error('Thiếu mã hoạt động Hội thoại.'); return; }
     var base = '/api/learning/v2/activities/' + encodeURIComponent(id) + '/dialogue';
+    var StudyMode = window.InteractiveStudyMode;
+    var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var heartbeatTimer = null;
     var observer = null;
     var bottomReported = false;
@@ -179,6 +194,12 @@
     async function load() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'REVIEW' || mode === 'PRACTICE') {
+          var replay = await api(mode === 'REVIEW' ? '/review' : '/practice');
+          node.innerHTML = renderReplay(mode, viewModel(replay));
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         var study = await api('/study');
         var v = viewModel(study);
         if (v.completed) { node.innerHTML = renderCompleted(); finished = true; }
@@ -209,6 +230,6 @@
 
   return {
     viewModel: viewModel, formatRemaining: formatRemaining, renderLine: renderLine, renderScript: renderScript,
-    renderProgress: renderProgress, renderCompleted: renderCompleted, error: error, mount: mount
+    renderProgress: renderProgress, renderCompleted: renderCompleted, renderReplay: renderReplay, error: error, mount: mount
   };
 });

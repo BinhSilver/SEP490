@@ -100,3 +100,10 @@ test('error state renders a retry affordance', () => {
   assert.match(html, /mất kết nối/);
   assert.match(html, /data-retry/);
 });
+
+test('review/practice banner and script have no tracking/progress controls', () => {
+  const html = page.renderReplay('REVIEW', page.viewModel(study({ completed: true })));
+  assert.match(html, /Xem lại hội thoại/);
+  assert.match(html, /いらっしゃいませ/);
+  assert.doesNotMatch(html, /dialogueBottomSentinel|role="progressbar"|data-retry/);
+});

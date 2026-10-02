@@ -16,6 +16,9 @@ import com.jlas.learning.dto.MicroCheckSubmitRequest;
 public interface InteractiveGrammarService {
     GrammarStudyState studyState(Long userId, Long activityId);
 
+    /** Read-only canonical content for a completed grammar activity. */
+    GrammarStudyState reviewState(Long userId, Long activityId);
+
     GrammarPracticeResult submitOrdering(Long userId, Long activityId, Long grammarPointId,
             GrammarOrderingSubmitRequest request);
 
