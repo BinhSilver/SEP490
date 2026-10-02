@@ -189,13 +189,18 @@ test('renders server-owned completed sessions and only server-allowed replay act
         activities: [{ id: 45, type: 'GRAMMAR', state: 'PASSED' }], contentCounts: { grammar: 2 },
         contentCount: 2, estimatedMinutes: 10, referenceVocabulary: [
           { canonicalId: 900, expression: '<学校>', reading: 'がっこう', meaning: 'trường học', wordType: 'NOUN' }
-        ] }
+        ] },
+      { sessionType: 'DIALOGUE', state: 'COMPLETED', allowedActions: ['REVIEW', 'PRACTICE'],
+        activities: [{ id: 46, type: 'DIALOGUE', state: 'COMPLETED' }], contentCounts: { dialogue: 4 },
+        contentCount: 4, estimatedMinutes: 10, referenceVocabulary: [] }
     ] }] });
   const html = page.render(data);
   assert.match(html, /Từ vựng/);
   assert.match(html, /8 từ/);
   assert.match(html, /\/learning\/v2\/vocabulary\?activity=44&amp;mode=review/);
   assert.match(html, /&lt;学校&gt;/);
+  assert.match(html, /Hội thoại/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=46&amp;mode=review/);
   assert.doesNotMatch(html, /\/learning\/v2\/grammar\?activity=45/);
 });
 
