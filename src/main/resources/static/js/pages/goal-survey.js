@@ -44,8 +44,15 @@
     }) };
   }
 
-  function nextAction(definition, response) {
-    return response && response.assessmentRequirement === 'BRSE_FOUNDATION' ? '/smart-test' : '/learning/path/v2';
+  function nextAction(definition, response, pathCreated) {
+    return response && response.assessmentRequirement === 'BRSE_FOUNDATION' && !pathCreated
+      ? '/smart-test' : '/learning/path/v2';
+  }
+
+  function buildPathRequest(submission, search) {
+    var raw = new URLSearchParams(search || '').get('assessmentAttemptId');
+    var attemptId = raw && /^\d+$/.test(raw) && Number(raw) > 0 ? Number(raw) : null;
+    return { submissionId: submission.submissionId, assessmentAttemptId: attemptId };
   }
 
   async function api(url, options) {
@@ -79,12 +86,20 @@
           var result = await api('/api/learning/v2/goals/' + encodeURIComponent(goalCode) + '/survey', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request)
           });
-          window.location.assign(nextAction(definition, result));
+          var pathRequest = buildPathRequest(result, window.location.search);
+          if (result.assessmentRequirement === 'BRSE_FOUNDATION' && !pathRequest.assessmentAttemptId) {
+            window.location.assign(nextAction(definition, result, false));
+            return;
+          }
+          await api('/api/learning/v2/goal-paths', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pathRequest)
+          });
+          window.location.assign(nextAction(definition, result, true));
         } catch (error) { notice.textContent = error.message; notice.hidden = false; }
       });
     } catch (error) { notice.textContent = error.message; notice.hidden = false; }
   }
 
   return { escapeHtml: escapeHtml, renderDefinition: renderDefinition, buildSubmission: buildSubmission,
-    nextAction: nextAction, mount: mount };
+    buildPathRequest: buildPathRequest, nextAction: nextAction, mount: mount };
 });

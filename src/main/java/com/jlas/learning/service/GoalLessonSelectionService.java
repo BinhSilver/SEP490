@@ -7,6 +7,7 @@ import com.jlas.dictionary.repository.LessonRepository;
 import com.jlas.learning.entity.LearningSurveyOption;
 import com.jlas.learning.entity.LessonLearningScope;
 import com.jlas.learning.entity.UserGoalSurveySubmission;
+import com.jlas.learning.entity.CompetencyLevel;
 import com.jlas.learning.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class GoalLessonSelectionService {
     private final LearningSurveyOptionRepository options;
     private final LessonLearningScopeRepository scopes;
     private final LessonRepository lessons;
+    private final CompetencyLevelRepository competencyLevels;
 
     @Transactional(readOnly = true)
     public GoalLessonSelection select(Long userId, Long submissionId) {
@@ -60,11 +62,22 @@ public class GoalLessonSelectionService {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Một số bài học trong lộ trình chưa được xuất bản.");
         }
+        Map<Long, String> levelCodes = competencyLevels.findAllById(eligible.stream()
+                        .map(LessonLearningScope::getCompetencyLevelId).filter(Objects::nonNull).distinct().toList())
+                .stream().filter(CompetencyLevel::isActive)
+                .collect(Collectors.toMap(CompetencyLevel::getId, CompetencyLevel::getLevelCode));
+        Map<Long, String> levelByLesson = new LinkedHashMap<>();
+        eligible.forEach(scope -> levelByLesson.putIfAbsent(scope.getLessonId(),
+                levelCodes.getOrDefault(scope.getCompetencyLevelId(), "BASIC")));
         return new GoalLessonSelection(submissionId, submission.getGoalId(), submission.getLearningMode(),
-                orderedIds.stream().map(published::get).toList());
+                orderedIds.stream().map(published::get).toList(), levelByLesson);
     }
 
-    public record GoalLessonSelection(Long submissionId, Long goalId, String learningMode, List<Lesson> lessons) {
-        public GoalLessonSelection { lessons = List.copyOf(lessons); }
+    public record GoalLessonSelection(Long submissionId, Long goalId, String learningMode, List<Lesson> lessons,
+                                      Map<Long, String> levelByLesson) {
+        public GoalLessonSelection {
+            lessons = List.copyOf(lessons);
+            levelByLesson = Map.copyOf(levelByLesson);
+        }
     }
 }

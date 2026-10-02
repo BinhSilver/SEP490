@@ -25,10 +25,11 @@ class GoalLessonSelectionServiceTest {
     @Mock LearningSurveyOptionRepository options;
     @Mock LessonLearningScopeRepository scopes;
     @Mock LessonRepository lessons;
+    @Mock CompetencyLevelRepository competencyLevels;
     GoalLessonSelectionService service;
 
     @BeforeEach void setUp() {
-        service = new GoalLessonSelectionService(submissions, selections, options, scopes, lessons);
+        service = new GoalLessonSelectionService(submissions, selections, options, scopes, lessons, competencyLevels);
     }
 
     @Test

@@ -15,6 +15,9 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
 
     Optional<UserLearningPath> findByUserIdAndStatus(Long userId, String status);
 
+    Optional<UserLearningPath> findByUserIdAndSurveyIdAndExperienceVersion(
+            Long userId, Long surveyId, LearningExperienceVersion experienceVersion);
+
     Optional<UserLearningPath> findByUserIdAndStatusAndExperienceVersion(
             Long userId, String status, LearningExperienceVersion experienceVersion);
 

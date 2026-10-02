@@ -29,7 +29,16 @@ test('builds structured answers and never sends competency evidence', () => {
 });
 
 test('describes survey-only next action separately from assessment', () => {
-  assert.equal(survey.nextAction(definition, { assessmentRequirement: 'NONE' }), '/learning/path/v2');
+  assert.equal(survey.nextAction(definition, { assessmentRequirement: 'NONE' }, true), '/learning/path/v2');
   assert.equal(survey.nextAction({ ...definition, goalCode: 'BA', requiresAssessment: true },
-    { assessmentRequirement: 'BRSE_FOUNDATION' }), '/smart-test');
+    { assessmentRequirement: 'BRSE_FOUNDATION' }, false), '/smart-test');
+  assert.equal(survey.nextAction({ ...definition, goalCode: 'BA', requiresAssessment: true },
+    { assessmentRequirement: 'BRSE_FOUNDATION' }, true), '/learning/path/v2');
+});
+
+test('builds goal path request from immutable submission and server-side attempt reference', () => {
+  assert.deepEqual(survey.buildPathRequest({ submissionId: 51 }, '?assessmentAttemptId=9'),
+    { submissionId: 51, assessmentAttemptId: 9 });
+  assert.deepEqual(survey.buildPathRequest({ submissionId: 50 }, ''),
+    { submissionId: 50, assessmentAttemptId: null });
 });
