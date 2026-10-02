@@ -1,6 +1,7 @@
 package com.jlas.auth.dto;
 
 import lombok.Data;
+import lombok.ToString;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -17,5 +18,6 @@ public class LoginRequest {
 
     /** Mật khẩu (plain text – sẽ được so sánh với hash). */
     @NotBlank
+    @ToString.Exclude
     private String password;
 }

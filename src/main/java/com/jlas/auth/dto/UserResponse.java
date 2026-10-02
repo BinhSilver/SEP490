@@ -32,6 +32,10 @@ public class UserResponse {
 
     private String loginType;
 
+    private Boolean googleLinked;
+
+    private Boolean hasPassword;
+
     private String role;
 
     private String japaneseLevel;

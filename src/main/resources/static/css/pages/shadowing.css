@@ -629,6 +629,30 @@
   border-radius: 12px;
 }
 
+/* Keep the subtitle shown below the video compact and easy to scan. */
+#jlabBasePage.page-shadowing-player #large-subtitle-viewer .viewer-japanese {
+  font-size: clamp(16px, 1.75vw, 24px);
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+#jlabBasePage.page-shadowing-player #large-subtitle-viewer .viewer-japanese rt {
+  font-weight: 400;
+}
+
+#jlabBasePage.page-shadowing-player #large-subtitle-viewer .viewer-translation {
+  font-size: clamp(13px, 1.15vw, 16px);
+  font-weight: 400;
+}
+
+/* Transcript cards use the same regular-weight hierarchy as the inline subtitle. */
+#jlabBasePage.page-shadowing-player #subtitle-list .sub-jp,
+#jlabBasePage.page-shadowing-player #subtitle-list .subtitle-item.active .sub-jp {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
 #jlabBasePage.page-shadowing-player .subtitle-item.active {
   border-color: var(--color-primary, #4f378a);
   background: var(--color-primary-fixed, #e9ddff);

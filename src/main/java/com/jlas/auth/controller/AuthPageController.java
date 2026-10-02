@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -48,6 +49,21 @@ public class AuthPageController {
     public String profile(Model model, @RequestParam(required = false) String tab) {
         model.addAttribute("layoutMode", "app");
         model.addAttribute("activeTab", tab == null ? "overview" : tab);
+        model.addAttribute("securitySection", "home");
+        model.addAttribute("googleClientId", googleClientId);
+        return "profile";
+    }
+
+    @GetMapping("/profile/security/{section}")
+    public String profileSecurity(Model model, @PathVariable String section) {
+        String resolved = switch (section) {
+            case "password", "email", "google", "login-alerts" -> section;
+            default -> "home";
+        };
+        model.addAttribute("layoutMode", "app");
+        model.addAttribute("activeTab", "security");
+        model.addAttribute("securitySection", resolved);
+        model.addAttribute("googleClientId", googleClientId);
         return "profile";
     }
 

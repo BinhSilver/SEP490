@@ -2,14 +2,12 @@
 
 .card, .glass-card {
   background: var(--color-surface-lowest) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid var(--color-outline-variant) !important;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1) !important;
   position: relative;
   overflow: hidden;
-  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
   color: var(--color-on-surface);
 }
 
@@ -25,7 +23,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(to right, var(--color-primary), var(--color-primary-container), var(--color-inverse-primary));
+  background: var(--color-primary);
 }
 
 .card--accent-top::before { top: 0; }
@@ -61,10 +59,8 @@
   position: relative;
   padding: 32px;
   background: var(--color-surface-low);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--color-outline-variant);
-  transition: all 500ms ease;
+  transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
 }
 
 .card-v0-step:hover {

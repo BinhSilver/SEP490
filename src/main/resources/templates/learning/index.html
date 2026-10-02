@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lộ trình học On-yomi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" th:href="@{/css/tokens.css}" />
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
     <link rel="stylesheet" th:href="@{/css/base.css}" />
@@ -328,7 +327,7 @@
             font-weight: 700;
             font-size: 15px;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
             font-family: var(--font-body, 'Inter', system-ui, sans-serif);
         }
 
@@ -371,7 +370,7 @@
             font-weight: 700;
             font-size: 15px;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
             border: 2px solid var(--border);
             background: var(--surface) !important;
             color: var(--text);
@@ -436,9 +435,9 @@
                 <!-- Hero -->
                 <div class="stage-hero">
                     <div class="stage-hero-icon">
-                        <i th:if="${isDau}" data-lucide="brain"></i>
-                        <i th:if="${isCuoi}" data-lucide="book-marked"></i>
-                        <i th:if="${!isDau and !isCuoi}" data-lucide="sparkles"></i>
+                        <i th:if="${isDau}" class="fa-solid fa-brain" aria-hidden="true"></i>
+                        <i th:if="${isCuoi}" class="fa-solid fa-book-bookmark" aria-hidden="true"></i>
+                        <i th:if="${!isDau and !isCuoi}" class="fa-solid fa-sparkles" aria-hidden="true"></i>
                         <span class="stage-hero-label" th:text="'Giai đoạn ' + ${stageNum}">Giai đoạn 1</span>
                     </div>
                     <h2 class="stage-hero-title"
@@ -466,7 +465,7 @@
                         <span class="lesson-badge" th:text="'Bài ' + ${lesson.displayOrder}">Bài 1</span>
 
                         <div class="lesson-card-top">
-                            <div class="lesson-card-icon"><i data-lucide="book-open"></i></div>
+                            <div class="lesson-card-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
                             <h3 class="lesson-card-title" th:text="'Bài ' + ${lesson.displayOrder}">Bài 1</h3>
                             <p class="lesson-card-rules" th:text="${typePrefix} + ${rulesSummary}">Âm đầu C • K • QU</p>
                         </div>
@@ -486,10 +485,10 @@
                         <!-- Progress & Status -->
                         <div class="lesson-status-row">
                             <div class="lesson-status active" th:if="${lpStatus == 'active'}">
-                                <i data-lucide="play"></i> Đang học
+                                <i class="fa-solid fa-play" aria-hidden="true"></i> Đang học
                             </div>
                             <div class="lesson-status done" th:if="${lpStatus == 'done'}">
-                                <i data-lucide="circle-check"></i> Hoàn thành
+                                <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Hoàn thành
                             </div>
                             <div class="lesson-progress-bar" th:if="${lpStatus != 'new'}">
                                 <div class="lesson-progress-fill" th:style="'width:' + ${lpPct} + '%'"></div>
@@ -503,7 +502,7 @@
                             <span
                                 th:text="${lpStatus == 'new'} ? 'Bắt đầu học' : (${lpStatus == 'done'} ? 'Xem lại' : 'Tiếp tục')">Bắt
                                 đầu học</span>
-                            <i data-lucide="arrow-right"></i>
+                            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                         </a>
                     </article>
                 </div>
@@ -511,7 +510,7 @@
                 <!-- Thi tổng kết -->
                 <div class="final-quiz-wrap">
                     <a th:href="@{'/learning/quiz/final/' + ${prog.category.id}}" class="final-quiz-btn active">
-                        <i data-lucide="graduation-cap"></i>
+                        <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
                         <span th:text="'Thi tổng kết ' + ${prog.category.name}">Thi tổng kết</span>
                     </a>
                 </div>
@@ -520,9 +519,6 @@
         </section>
     </main>
 
-    <script>
-        lucide.createIcons();
-    </script>
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
