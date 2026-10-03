@@ -49,6 +49,35 @@ test("reports a populated row whose stable code is blank", () => {
   assert.deepEqual(issues.map((item) => item.code), ["MISSING_REQUIRED_VALUE"]);
 });
 
+test("rejects sentinel values that disguise missing required learning data", () => {
+  const issues = validateRequiredRows({
+    LESSON_GRAMMAR: {
+      rows: [{
+        __row: 5,
+        grammar_code: "GRAMMAR-undefined",
+        lesson_code: "N5-L01",
+        source_book_code: "N5-CORE",
+        source_lesson_ref: "Bài 1",
+        pattern: "-",
+        meaning_vi: "placeholder",
+        order_index: 1,
+        canonical_lookup_status: "NOT_FOUND",
+      }],
+    },
+  }, {
+    LESSON_GRAMMAR: [
+      "grammar_code", "lesson_code", "source_book_code", "source_lesson_ref",
+      "pattern", "meaning_vi", "order_index", "canonical_lookup_status",
+    ],
+  });
+
+  assert.deepEqual(issues.map((item) => [item.code, item.message]), [
+    ["SENTINEL_VALUE_NOT_ALLOWED", "Sentinel value is not allowed for grammar_code"],
+    ["SENTINEL_VALUE_NOT_ALLOWED", "Sentinel value is not allowed for pattern"],
+    ["SENTINEL_VALUE_NOT_ALLOWED", "Sentinel value is not allowed for meaning_vi"],
+  ]);
+});
+
 test("resolves TRUE_FALSE and text answers to inline option indexes", () => {
   assert.equal(resolveCorrectOption({ correct_answer: "Đúng", option_a: "Đúng", option_b: "Sai" }), 1);
   assert.equal(resolveCorrectOption({ correct_answer: "本", option_a: "時間", option_b: "本" }), 2);

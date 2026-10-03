@@ -5,6 +5,7 @@ import {
   CODE_COLUMNS,
   IMPORT_QUESTION_TYPES,
   SHEET_CONTRACTS,
+  isForbiddenSentinel,
   normalizeHeader,
 } from "./lib/workbook-contract.mjs";
 
@@ -95,6 +96,9 @@ export function validateRequiredRows(model, contracts = SHEET_CONTRACTS) {
         if (row[header] === null || row[header] === undefined || String(row[header]).trim() === "") {
           issues.push(issue("MISSING_REQUIRED_VALUE", sheetName, row.__row,
             `Missing required value ${header}`));
+        } else if (isForbiddenSentinel(row[header])) {
+          issues.push(issue("SENTINEL_VALUE_NOT_ALLOWED", sheetName, row.__row,
+            `Sentinel value is not allowed for ${header}`));
         }
       }
     }

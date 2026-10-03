@@ -41,6 +41,24 @@ export const IMPORT_QUESTION_TYPES = Object.freeze([
   "LESSON_ONLY",
 ]);
 
+export const FORBIDDEN_SENTINELS = new Set([
+  "-",
+  "dummy",
+  "placeholder",
+  "tbd",
+  "undefined",
+  "null",
+  "n/a",
+]);
+
+export function isForbiddenSentinel(value) {
+  const normalized = String(value ?? "").trim().toLocaleLowerCase("en");
+  return FORBIDDEN_SENTINELS.has(normalized)
+    || /(?:^|[-_:])undefined$/.test(normalized)
+    || /(?:^|[-_:])dummy$/.test(normalized)
+    || /(?:^|[-_:])placeholder$/.test(normalized);
+}
+
 export const OUTPUT_FILES = Object.freeze([
   "seed_learning_path_catalog.sql",
   "seed_learning_path_n5.sql",
