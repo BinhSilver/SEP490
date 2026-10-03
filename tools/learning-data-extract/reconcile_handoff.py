@@ -5,10 +5,108 @@ Reads source-tables.json produced by audit_handoff.py. Does not connect to a dat
 """
 import argparse
 from collections import Counter, defaultdict
+import csv
 import hashlib
 import json
 from pathlib import Path
 import re
+import unicodedata
+
+
+def normalize_japanese(value):
+    """Canonical vocabulary normalization: NFKC then katakana to hiragana.
+
+    Long-vowel and middle-dot characters are intentionally preserved.
+    """
+    text = unicodedata.normalize('NFKC', str(value or '')).strip()
+    return ''.join(chr(ord(char) - 0x60) if '\u30a1' <= char <= '\u30f6' else char for char in text)
+
+
+def _same_provenance(source, candidate):
+    locator = str(source.get('source_locator') or '').strip()
+    version = str(source.get('source_version') or '').strip()
+    return bool(locator and version
+                and locator == str(candidate.get('source_locator') or '').strip()
+                and version == str(candidate.get('source_version') or '').strip())
+
+
+def reconcile_vocabulary(source_rows, canonical_rows):
+    """Return review candidates without ever assigning a canonical ID silently."""
+    by_key = defaultdict(list)
+    for row in canonical_rows:
+        by_key[(normalize_japanese(row.get('expression')), normalize_japanese(row.get('reading')))].append(row)
+
+    results = []
+    for row in source_rows:
+        key = (normalize_japanese(row.get('expression')), normalize_japanese(row.get('reading')))
+        matches = [candidate for candidate in by_key.get(key, []) if _same_provenance(row, candidate)]
+        unique = matches[0] if len(matches) == 1 else None
+        results.append({
+            'source_row': row.get('_row'),
+            'source_code': row.get('vocab_code'),
+            'expression': row.get('expression'),
+            'reading': row.get('reading'),
+            'canonical_id': unique.get('id') if unique else None,
+            'candidate_ids': [candidate.get('id') for candidate in matches],
+            'resolution': ('UNIQUE_CANONICAL_MATCH_REVIEW_REQUIRED'
+                           if unique else 'MANUAL_CANONICAL_DECISION_REQUIRED'),
+            # A unique machine match is still not a semantic approval.
+            'ready_for_import': False,
+        })
+    return results
+
+
+def learning_readiness_issues(lesson_rows):
+    issues = []
+    for row in lesson_rows:
+        if str(row.get('lifecycle_status') or '').upper() != 'PUBLISHED':
+            continue
+        complete = (str(row.get('review_status') or '').upper() == 'APPROVED'
+                    and bool(str(row.get('reviewer') or '').strip())
+                    and bool(str(row.get('reviewed_at') or '').strip())
+                    and bool(str(row.get('source_locator') or '').strip()))
+        if not complete:
+            issues.append({
+                'entity_type': 'LESSON',
+                'external_key': row.get('lesson_code'),
+                'issue_code': 'PUBLISHED_WITHOUT_COMPLETE_REVIEW',
+                'recommended_status': 'NEEDS_REVIEW',
+            })
+    return issues
+
+
+def build_issue_register_rows(vocabulary_results, lesson_rows):
+    rows = []
+    for item in vocabulary_results:
+        rows.append({
+            'entity_type': 'VOCABULARY',
+            'external_key': item.get('source_code'),
+            'source_row': item.get('source_row'),
+            'issue_code': item.get('resolution'),
+            'detail': f"{item.get('expression') or ''}|{item.get('reading') or ''}",
+            'recommended_status': 'NEEDS_REVIEW',
+            'ready_for_import': False,
+        })
+    for item in learning_readiness_issues(lesson_rows):
+        rows.append({
+            'entity_type': item['entity_type'],
+            'external_key': item['external_key'],
+            'source_row': '',
+            'issue_code': item['issue_code'],
+            'detail': '',
+            'recommended_status': item['recommended_status'],
+            'ready_for_import': False,
+        })
+    return rows
+
+
+def write_issue_register(path, rows):
+    fields = ['entity_type', 'external_key', 'source_row', 'issue_code', 'detail',
+              'recommended_status', 'ready_for_import']
+    with path.open('w', encoding='utf-8-sig', newline='') as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def sql_values(line):
@@ -100,6 +198,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('audit', type=Path); parser.add_argument('repo', type=Path)
     args = parser.parse_args()
+    args.repo = args.repo.resolve()
+    args.audit = args.audit.resolve()
     output_directory = args.audit / 'reconciled'
     output_directory.mkdir(exist_ok=False)
     tables = json.loads((args.audit / 'source-tables.json').read_text(encoding='utf-8'))
@@ -145,22 +245,17 @@ def main():
             exercise_lessons = {r['lesson_code'] for r in sheets['EXERCISE']}
             stats['lessons_without_exercise'] = [r['lesson_code'] for r in sheets['LESSON'] if r['lesson_code'] not in exercise_lessons]
             stats['listening_without_audio'] = [r['listening_code'] for r in sheets['LISTENING'] if not r.get('audio_code')]
-            stats['published_unreviewed_lessons'] = [r['lesson_code'] for r in sheets['LESSON']
-                if r.get('lifecycle_status') == 'PUBLISHED' and r.get('review_status') != 'APPROVED']
+            readiness_issues = learning_readiness_issues(sheets['LESSON'])
+            stats['readiness_issues'] = readiness_issues
+            stats['published_unreviewed_lessons'] = [item['external_key'] for item in readiness_issues]
         report['workbooks'][name] = stats
     learning_book = select_learning_workbook(tables)
     latest = {name: records(rows) for name, rows in learning_book.items()
               if name not in ('README', 'CODE_LISTS')}
-    by_expression = defaultdict(list)
-    for row in seed['vocabulary_entry']: by_expression[row['expression']].append(row)
-    for row in latest['VOCABULARY']:
-        if 'undefined' not in str(row.get('vocab_code')): continue
-        matches = [r for r in by_expression[row['expression']] if r['meaning'] == row['meaning_vi']
-                   and (not row.get('reading') or row['reading'] == r['reading'])]
-        report['vocabulary_identity_candidates'].append({'source_row': row['_row'], 'expression': row['expression'],
-            'matches': [{k: r[k] for k in ('id', 'expression', 'reading', 'meaning')} for r in matches],
-            'status': 'UNIQUE_SEED_MATCH_REVIEW_MAPPING' if len(matches) == 1 else 'AMBIGUOUS_OR_MISSING',
-            'ready_for_import': False})
+    unresolved_vocabulary = [row for row in latest['VOCABULARY']
+                             if 'undefined' in str(row.get('vocab_code'))]
+    report['vocabulary_identity_candidates'] = reconcile_vocabulary(unresolved_vocabulary, seed['vocabulary_entry'])
+    issue_register = build_issue_register_rows(report['vocabulary_identity_candidates'], latest['LESSON'])
     file_index = defaultdict(list)
     for base in ('uploads/content-audio', 'src/main/resources/static/audio'):
         for file in (args.repo / base).rglob('*'):
@@ -201,8 +296,9 @@ def main():
         output = output_directory / name
         if output.exists(): raise ValueError('Refusing to overwrite ' + str(output))
         output.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
+    write_issue_register(output_directory / 'learning-master-issue-register.csv', issue_register)
     print(json.dumps({'workbooks': len(report['workbooks']), 'tag_catalog': len(seed['tag']),
-        'vocabulary_candidates': dict(Counter(r['status'] for r in report['vocabulary_identity_candidates'])),
+        'vocabulary_candidates': dict(Counter(r['resolution'] for r in report['vocabulary_identity_candidates'])),
         'audio': dict(Counter(r['status'] for r in report['audio_evidence'])),
         'merged_clip_rows': sum(r['merged_clip_offsets_required'] for r in report['audio_evidence'])}))
 
