@@ -1,0 +1,79 @@
+package com.jlas.assessment.controller;
+
+import com.jlas.assessment.dto.JlptAdminExamDetailResponse;
+import com.jlas.assessment.dto.JlptAdminExamRequest;
+import com.jlas.assessment.dto.JlptAdminExamSummaryResponse;
+import com.jlas.assessment.dto.JlptAdminQuestionRequest;
+import com.jlas.assessment.service.JlptAdminService;
+import com.jlas.auth.dto.ApiResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/admin/jlpt")
+@PreAuthorize("hasRole('CONTENT_CREATOR')")
+@RequiredArgsConstructor
+@Validated
+public class JlptAdminController {
+
+    private final JlptAdminService service;
+
+    @GetMapping("/exams")
+    public ApiResponse<List<JlptAdminExamSummaryResponse>> exams() {
+        return ApiResponse.ok("Đã tải kho đề JLPT.", service.listExams());
+    }
+
+    @GetMapping("/exams/{code}")
+    public ApiResponse<JlptAdminExamDetailResponse> exam(@PathVariable @Pattern(regexp = "N[1-5]_(?:\\d{4}_(?:07|12)|MOCK_\\d+)") String code) {
+        return ApiResponse.ok("Đã tải nội dung đề.", service.getExam(code));
+    }
+
+    @PostMapping("/exams")
+    public ApiResponse<JlptAdminExamSummaryResponse> createExam(@Valid @RequestBody JlptAdminExamRequest request) {
+        return ApiResponse.ok("Đã tạo đề JLPT.", service.createExam(request));
+    }
+
+    @PutMapping("/exams/{code}")
+    public ApiResponse<JlptAdminExamSummaryResponse> updateExam(
+            @PathVariable @Pattern(regexp = "N[1-5]_(?:\\d{4}_(?:07|12)|MOCK_\\d+)") String code,
+            @Valid @RequestBody JlptAdminExamRequest request) {
+        return ApiResponse.ok("Đã cập nhật đề JLPT.", service.updateExam(code, request));
+    }
+
+    @PostMapping("/exams/{code}/questions")
+    public ApiResponse<Long> createQuestion(
+            @PathVariable @Pattern(regexp = "N[1-5]_(?:\\d{4}_(?:07|12)|MOCK_\\d+)") String code,
+            @Valid @RequestBody JlptAdminQuestionRequest request) {
+        return ApiResponse.ok("Đã tạo câu hỏi.", service.createQuestion(code, request));
+    }
+
+    @PutMapping("/questions/{questionId}")
+    public ApiResponse<Void> updateQuestion(@PathVariable long questionId,
+                                             @Valid @RequestBody JlptAdminQuestionRequest request) {
+        service.updateQuestion(questionId, request);
+        return ApiResponse.ok("Đã cập nhật câu hỏi.", null);
+    }
+
+    @DeleteMapping("/questions/{questionId}")
+    public ApiResponse<Void> deleteQuestion(@PathVariable long questionId) {
+        service.deleteQuestion(questionId);
+        return ApiResponse.ok("Đã xóa câu hỏi.", null);
+    }
+
+    @PostMapping("/questions/{questionId}/duplicate")
+    public ApiResponse<Long> duplicateQuestion(@PathVariable long questionId) {
+        return ApiResponse.ok("Đã nhân bản câu hỏi.", service.duplicateQuestion(questionId));
+    }
+}

@@ -258,6 +258,10 @@ public class JlptServiceImpl implements JlptService {
         return getExam(code, false);
     }
 
+    @Override
+    public JlptExamResponse getExamForAdmin(String code) {
+        return getExam(code, true);
+    }
 
     private JlptExamResponse getExam(String code, boolean includeArchived) {
         String examSql = """
