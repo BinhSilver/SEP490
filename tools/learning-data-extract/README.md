@@ -17,6 +17,9 @@ data owner. Nothing here is imported by the application, tests or CI.
 | `archive/debug/` | One-off investigation and dump scripts. Committed. |
 | `archive/unsafe/` | `fix_grammar.py` - writes placeholder values into the workbook. **Do not run.** |
 | `archive-local/` | Intermediate text dumps. **Not committed** (they contain text of licensed books); listed in the manifest. |
+| `audit_mazii_listening.py` | Read-only audit for split Mazii Listening handoffs; resolves standardized and raw-manifest audio and exports fail-closed JSON. |
+| `test_audit_mazii_listening.py` | Regression tests for split roots, hash conflicts, raw audio recovery and question parsing. |
+| `build_mazii_listening_staging.mjs` | Builds a review-only XLSX from the audit JSON with every candidate locked as not import-ready. |
 
 ## Running `build_v5.py` (only with the data owner's go-ahead)
 
@@ -54,3 +57,36 @@ Do not generate or commit production seed from an unreviewed workbook.
 
 `git mv tools/learning-data-extract/archive/<group>/<file>.py ./<file>.py` (original root names are in `MANIFEST.md`).
 Files in `archive-local/` are not in Git; move them back by hand using the manifest.
+
+## Auditing a split Mazii Listening handoff
+
+The audit reads every file and never changes the handoff folders, database, seeds or owner workbook. Pass all split roots in one run:
+
+```bash
+python tools/learning-data-extract/audit_mazii_listening.py \
+  <catalog-root> <media-root-1> <media-root-2> \
+  --output outputs/<new-audit-run>
+```
+
+The output directory must not already exist. The tool resolves audio in this order: catalog-standardized filename, source-URL basename,
+then the raw `listening.csv` URL-to-local-hash mapping. It verifies hashes and MP3 headers but deliberately leaves
+`license_verified=false`, `semantic_reviewed=false`, `review_status=NOT_REVIEWED`, `lifecycle_status=DRAFT` and
+`ready_for_import=false`.
+
+Run its tests before trusting a report:
+
+```bash
+python -m unittest tools/learning-data-extract/test_audit_mazii_listening.py -v
+```
+
+Build the human-review workbook only with the bundled `@oai/artifact-tool` runtime:
+
+```bash
+node tools/learning-data-extract/build_mazii_listening_staging.mjs \
+  outputs/<audit-run>/mazii-listening-audit.json \
+  outputs/<audit-run>/jlas-mazii-listening-staging.xlsx \
+  outputs/<audit-run>/summary-preview.png
+```
+
+This workbook is staging evidence, not a schema-aligned production seed. A source URL is not permission to redistribute content;
+the data owner must close license, media, answer-key and semantic-review gates before any import work begins.
