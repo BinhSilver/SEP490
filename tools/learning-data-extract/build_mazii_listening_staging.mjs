@@ -216,6 +216,7 @@ addDataSheet({
 });
 
 const resolution = {
+  MISSING_AUDIO_REFERENCE: "Bổ sung URL/đường dẫn audio nguồn và file audio đúng QID.",
   MISSING_LOCAL_FILE_AUDIO: "Bổ sung đúng audio; xác nhận checksum và playback.",
   MISSING_LOCAL_FILE_SCRIPT: "Bổ sung transcript/script đúng audio.",
   MISSING_LOCAL_FILE_QUESTION: "Bổ sung file prompt/options/answer đúng QID.",

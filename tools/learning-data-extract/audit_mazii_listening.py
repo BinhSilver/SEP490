@@ -279,6 +279,16 @@ def audit_roots(raw_roots, allow_missing_catalog: bool = False) -> dict:
                            "issue_type": "CONFLICTING_STANDARDIZED_AND_RAW_AUDIO", "asset_type": "AUDIO",
                            "source_path": row.get("source_audio_url", ""),
                            "matching_paths": [item["path"] for item in audio_matches]})
+        if not row.get("file_audio", "").strip() and not row.get("source_audio_url", "").strip():
+            row_issues.append("MISSING_AUDIO_REFERENCE")
+            issues.append({"row": row_number, "question_code": code, "severity": "ERROR",
+                           "issue_type": "MISSING_AUDIO_REFERENCE", "asset_type": "AUDIO",
+                           "source_path": ""})
+        elif not audio and not row.get("file_audio", "").strip():
+            row_issues.append("MISSING_LOCAL_FILE_AUDIO")
+            issues.append({"row": row_number, "question_code": code, "severity": "ERROR",
+                           "issue_type": "MISSING_LOCAL_FILE", "asset_type": "AUDIO",
+                           "source_path": row.get("source_audio_url", ""), "matching_paths": []})
         if not parsed["prompt_ja"]:
             row_issues.append("MISSING_PROMPT")
         if not parsed["options"]:

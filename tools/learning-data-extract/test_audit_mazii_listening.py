@@ -177,6 +177,48 @@ class MaziiListeningAuditTest(unittest.TestCase):
             self.assertEqual("", candidate["audio_path"])
             self.assertIn("CONFLICTING_STANDARDIZED_AND_RAW_AUDIO", candidate["issues"])
 
+    def test_flags_catalog_row_with_no_audio_reference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            row = dict.fromkeys(CATALOG_HEADERS, "")
+            row.update({
+                "cap_do": "N5", "loai_de": "JLPT", "so_de": "1",
+                "id_de_nguon": "104", "mondai": "1", "cau_trong_mondai": "1",
+                "id_cau_nguon": "9005", "so_cau_con_nguon": "1",
+            })
+            with (root / "DANH_MUC_TOAN_BO.csv").open("w", newline="", encoding="utf-8") as stream:
+                writer = csv.DictWriter(stream, fieldnames=CATALOG_HEADERS)
+                writer.writeheader()
+                writer.writerow(row)
+
+            result = audit_roots([root])
+
+            candidate = result["candidates"][0]
+            self.assertEqual("", candidate["audio_path"])
+            self.assertIn("MISSING_AUDIO_REFERENCE", candidate["issues"])
+
+    def test_flags_source_url_without_resolvable_local_audio(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            row = dict.fromkeys(CATALOG_HEADERS, "")
+            row.update({
+                "cap_do": "N5", "loai_de": "JLPT", "so_de": "1",
+                "id_de_nguon": "105", "mondai": "1", "cau_trong_mondai": "1",
+                "id_cau_nguon": "9006", "so_cau_con_nguon": "1",
+                "source_audio_url": "https://cdn.example.test/audio/not-downloaded.mp3",
+            })
+            with (root / "DANH_MUC_TOAN_BO.csv").open("w", newline="", encoding="utf-8") as stream:
+                writer = csv.DictWriter(stream, fieldnames=CATALOG_HEADERS)
+                writer.writeheader()
+                writer.writerow(row)
+
+            result = audit_roots([root])
+
+            candidate = result["candidates"][0]
+            self.assertEqual("", candidate["audio_path"])
+            self.assertIn("MISSING_LOCAL_FILE_AUDIO", candidate["issues"])
+            self.assertNotIn("MISSING_AUDIO_REFERENCE", candidate["issues"])
+
     def test_machine_report_can_be_serialized_without_path_objects(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
