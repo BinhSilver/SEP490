@@ -100,6 +100,8 @@
     shadowingIcon: 'jlabBaseShadowingIcon',
     shadowingLabel: 'jlabBaseShadowingLabel',
     smartTestLink: 'jlabBaseSmartTestLink',
+    jlptLink: 'jlabBaseExamJlptItem',
+    jlptPracticeLink: 'jlabBaseExamJlptPracticeItem',
     smartTestIcon: 'jlabBaseSmartTestIcon',
     smartTestLabel: 'jlabBaseSmartTestLabel',
     aboutLink: 'jlabBaseAboutLink',
@@ -286,8 +288,9 @@
               '</button>' +
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
-                '<button id="' + ids.examJlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.examJlptIcon + '" aria-hidden="true"></i><span id="' + ids.examJlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning/path" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
+                '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
+                '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
               '</div>' +
             '</div>' +
             // "Tạo đề": chỉ CONTENT_CREATOR (NAV_ROLES) — render `hidden`, syncNavRoles() bật. Khung theo đúng "Công cụ".
@@ -299,7 +302,6 @@
                 // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
                 '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
-                // TODO(JLPT): như trên.
                 '<button id="' + ids.jlptItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span><span class="nav-soon">sắp có</span></button>' +
               '</div>' +
             '</div>' +
@@ -428,6 +430,8 @@
       path.indexOf('/flashcard/study/') === 0;
     var isShadowing = path === '/shadowing' || path.indexOf('/shadowing/') === 0;
     var isSmartTest = path === '/smart-test' || path === '/survey';
+    var isJlpt = path === '/jlpt' || (path.indexOf('/jlpt/') === 0 && path !== '/jlpt/practice');
+    var isJlptPractice = path === '/jlpt/practice';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
     var isProgress = path === '/progress';
 
@@ -442,6 +446,8 @@
     markCurrent(ids.smartTestLink, isSmartTest);
     markCurrent(ids.learnPathItem, isLearningPath);
     markCurrent(ids.progressLink, isProgress);
+    markCurrent(ids.jlptLink, isJlpt);
+    markCurrent(ids.jlptPracticeLink, isJlptPractice);
     markCurrent(ids.streakLink, isGoals);
     markCurrent(ids.adminLink, path === '/admin' || path.indexOf('/admin/') === 0);
 
@@ -453,7 +459,7 @@
         toolsButton.removeAttribute('aria-current');
       }
     }
-    markCurrent(ids.examsButton, isSmartTest || isLearningPath);
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice);
   }
 
   function fallbackUser() {

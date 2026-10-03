@@ -18,4 +18,22 @@ public class AssessmentPageController {
         model.addAttribute("layoutMode", "app");
         return "smart-test-survey";
     }
+
+    @GetMapping("/jlpt")
+    public String jlptLibrary(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "jlpt-library";
+    }
+
+    @GetMapping("/jlpt/exam")
+    public String jlptExam(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "jlpt-exam";
+    }
+
+    @GetMapping("/jlpt/practice")
+    public String jlptPractice(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "jlpt-practice";
+    }
 }

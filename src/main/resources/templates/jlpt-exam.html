@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('JLPT - JLAS', 'jlpt-exam')}"></head>
+<body id="jlabBasePage" class="app-body jlpt-exam-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlptApp" class="jlpt-exam-page">
+    <div id="jlptNotice" class="jlpt-exam-notice">Đang tải dữ liệu đề…</div>
+    <section id="jlptWorkspace" hidden>
+        <header class="jlpt-exam-header">
+            <a href="/jlpt" aria-label="Quay lại"><span class="material-symbols-outlined">arrow_back</span></a>
+            <div><span id="jlptLevel">JLPT</span><h1 id="jlptTitle"></h1></div>
+            <div class="jlpt-exam-header-actions">
+                <span id="jlptMode" class="jlpt-exam-mode" hidden></span>
+                <span id="jlptExamStep" class="jlpt-exam-step" hidden></span>
+                <div id="jlptTimerWrap" class="jlpt-exam-timer" hidden><span class="material-symbols-outlined">timer</span><strong id="jlptTimer">00:00</strong></div>
+                <button id="jlptFurigana" class="jlpt-furigana-switch" type="button" aria-pressed="false"><span>Furigana</span><i aria-hidden="true"><b></b></i></button>
+                <span id="jlptReview" class="jlpt-exam-review" hidden></span>
+            </div>
+        </header>
+        <p id="jlptExamAnnouncement" class="jlpt-exam-announcement" role="status" hidden></p>
+        <nav id="jlptPartTabs" class="jlpt-exam-tabs" aria-label="Phần thi"></nav>
+        <div class="jlpt-exam-layout">
+            <aside class="jlpt-exam-sidebar">
+                <div><strong id="jlptProgress">0/0</strong><span>Đã trả lời</span></div>
+                <section id="jlptFilters" class="jlpt-exam-filters" aria-label="Lọc câu hỏi">
+                    <button type="button" data-filter="all" class="is-active">Tất cả</button>
+                    <button type="button" data-filter="unanswered">Chưa làm</button>
+                    <button type="button" data-filter="marked">Đánh dấu</button>
+                </section>
+                <nav id="jlptPalette" aria-label="Danh sách câu hỏi"></nav>
+            </aside>
+            <article class="jlpt-exam-card">
+                <header class="jlpt-exam-question-meta">
+                    <span id="jlptMondai"></span>
+                    <strong id="jlptCounter"></strong>
+                </header>
+                <div id="jlptInstruction" class="jlpt-exam-instruction" lang="ja"></div>
+                <section id="jlptPassage" class="jlpt-exam-passage" lang="ja" hidden></section>
+                <section id="jlptAudio" class="jlpt-exam-audio" hidden></section>
+                <div id="jlptQuestionGroup" class="jlpt-exam-question-group"></div>
+                <footer><button id="jlptPrevious" type="button"><span class="material-symbols-outlined">arrow_back</span>Trang trước</button><div><button id="jlptNext" type="button">Trang tiếp<span class="material-symbols-outlined">arrow_forward</span></button><button id="jlptSubmitMondai" class="jlpt-exam-submit-mondai" type="button" hidden>Nộp phần thi</button></div></footer>
+            </article>
+        </div>
+    </section>
+    <section id="jlptResult" class="jlpt-exam-result" hidden>
+        <span class="material-symbols-outlined">task_alt</span>
+        <p id="jlptResultEyebrow">ĐÃ HOÀN THÀNH</p>
+        <h2>Kết quả bài thi</h2>
+        <span id="jlptResultStatus" class="jlpt-exam-result__status"></span>
+        <strong id="jlptResultScore">0 / 0</strong>
+        <p id="jlptResultDetail"></p>
+        <div id="jlptResultBreakdown" class="jlpt-exam-result__breakdown"></div>
+        <div><a href="/jlpt">Về thư viện đề</a><button id="jlptRestartExam" type="button">Thi lại đề này</button></div>
+        <details class="jlpt-exam-result__review">
+            <summary>Xem lại đáp án đã làm</summary>
+            <div id="jlptResultReview"></div>
+        </details>
+    </section>
+</main>
+<dialog id="jlptSubmitDialog" class="jlpt-submit-dialog" aria-labelledby="jlptSubmitDialogTitle">
+    <img src="/images/kitsu.png" alt="Linh vật Kitsu">
+    <div>
+        <span>KIỂM TRA TRƯỚC KHI NỘP</span>
+        <h2 id="jlptSubmitDialogTitle">Nộp phần thi?</h2>
+        <p id="jlptSubmitDialogText"></p>
+        <footer><button id="jlptSubmitCancel" type="button">Tiếp tục làm</button><button id="jlptSubmitConfirm" type="button">Nộp phần thi</button></footer>
+    </div>
+</dialog>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script>
+<script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
+<script th:src="@{/js/pages/jlpt-exam.js?v=21}"></script>
+</body>
+</html>
