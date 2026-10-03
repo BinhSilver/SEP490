@@ -100,6 +100,35 @@ export function buildAssessmentCoverage(model) {
   }).sort((left, right) => `${left.level}|${left.skill}`.localeCompare(`${right.level}|${right.skill}`));
 }
 
+export function buildMediaVerification(mediaCandidates) {
+  return (mediaCandidates ?? []).map((row) => {
+    const blockers = [];
+    if (!row.local_path) blockers.push("MEDIA_FILE_MISSING");
+    if (!row.checksum) blockers.push("CHECKSUM_MISSING");
+    if (!(Number(row.duration_seconds) > 0)) blockers.push("DURATION_NOT_VERIFIED");
+    if (!bool(row.playback_verified)) blockers.push("PLAYBACK_NOT_VERIFIED");
+    if (!bool(row.license_verified)) blockers.push("LICENSE_NOT_VERIFIED");
+    if (String(row.review_status ?? "").toUpperCase() !== "APPROVED") blockers.push("MEDIA_NOT_APPROVED");
+    return {
+      audio_code: row.audio_code ?? "",
+      storage_uri: row.local_path ?? "",
+      source_url: row.source_url ?? "",
+      checksum_sha256: row.checksum ?? "",
+      file_bytes: row.bytes ?? "",
+      duration_seconds: row.duration_seconds ?? "",
+      file_present: Boolean(row.local_path),
+      playable: bool(row.playback_verified),
+      source_license: row.rights_status ?? "",
+      license_verified: bool(row.license_verified),
+      review_status: row.review_status ?? "",
+      reviewer: row.reviewer ?? "",
+      reviewed_at: row.reviewed_at ?? "",
+      ready_for_import: bool(row.ready_for_import) && blockers.length === 0,
+      blockers: blockers.join("|"),
+    };
+  });
+}
+
 function workbookModel(workbook, sheetNames) {
   const model = {};
   for (const sheetName of sheetNames) {
@@ -147,7 +176,7 @@ function semanticSampling(model) {
   return rows;
 }
 
-export async function buildReports({ learningPath, assessmentPath, outputDirectory }) {
+export async function buildReports({ learningPath, assessmentPath, maziiAuditPath, outputDirectory }) {
   const learning = await SpreadsheetFile.importXlsx(await FileBlob.load(learningPath));
   const assessment = await SpreadsheetFile.importXlsx(await FileBlob.load(assessmentPath));
   const learningModel = workbookModel(learning, ["LESSON", "LESSON_SCOPE", "VOCAB_LESSON_MAP", "GRAMMAR", "KANJI_LESSON_MAP", "DIALOGUE", "READING", "LISTENING", "EXERCISE", "READINESS"]);
@@ -155,15 +184,19 @@ export async function buildReports({ learningPath, assessmentPath, outputDirecto
   const learningCoverage = buildLearningCoverage(learningModel);
   const assessmentCoverage = buildAssessmentCoverage(assessmentModel);
   const sampling = semanticSampling(learningModel);
+  const maziiAudit = maziiAuditPath ? JSON.parse(await fs.readFile(maziiAuditPath, "utf8")) : { media_candidates: [] };
+  const mediaVerification = buildMediaVerification(maziiAudit.media_candidates);
   await fs.mkdir(outputDirectory, { recursive: true });
   await fs.writeFile(path.join(outputDirectory, "content-coverage.csv"), csv(learningCoverage), "utf8");
   await fs.writeFile(path.join(outputDirectory, "blueprint-coverage.csv"), csv(assessmentCoverage), "utf8");
   await fs.writeFile(path.join(outputDirectory, "semantic-sampling.csv"), csv(sampling), "utf8");
-  return { learningRows: learningCoverage.length, assessmentRows: assessmentCoverage.length, semanticRows: sampling.length };
+  await fs.writeFile(path.join(outputDirectory, "media-verification.csv"), csv(mediaVerification), "utf8");
+  return { learningRows: learningCoverage.length, assessmentRows: assessmentCoverage.length,
+    semanticRows: sampling.length, mediaRows: mediaVerification.length };
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  const [learningPath, assessmentPath, outputDirectory] = process.argv.slice(2).map((value) => path.resolve(value));
-  if (!outputDirectory) throw new Error("Usage: build_release_coverage_reports.mjs <learning.xlsx> <assessment.xlsx> <output-dir>");
-  console.log(JSON.stringify(await buildReports({ learningPath, assessmentPath, outputDirectory })));
+  const [learningPath, assessmentPath, maziiAuditPath, outputDirectory] = process.argv.slice(2).map((value) => path.resolve(value));
+  if (!outputDirectory) throw new Error("Usage: build_release_coverage_reports.mjs <learning.xlsx> <assessment.xlsx> <mazii-audit.json> <output-dir>");
+  console.log(JSON.stringify(await buildReports({ learningPath, assessmentPath, maziiAuditPath, outputDirectory })));
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildAssessmentCoverage, buildLearningCoverage } from "./build_release_coverage_reports.mjs";
+import { buildAssessmentCoverage, buildLearningCoverage, buildMediaVerification } from "./build_release_coverage_reports.mjs";
 
 test("learning coverage exposes three lesson parts and fail-closed readiness", () => {
   const model = {
@@ -34,4 +34,15 @@ test("assessment coverage separates approved and import-ready question counts", 
     level: "N5", skill: "VOCABULARY", question_count: 2, approved_count: 1,
     import_ready_count: 1, active_usage_count: 1,
   }]);
+});
+
+test("media verification never treats file existence as playback approval", () => {
+  const [row] = buildMediaVerification([{ audio_code: "A1", local_path: "a.mp3", checksum: "abc",
+    bytes: 3, rights_status: "OWNER_CONFIRMED", license_verified: true, playback_verified: false,
+    review_status: "NOT_REVIEWED", ready_for_import: false }]);
+  assert.equal(row.file_present, true);
+  assert.equal(row.playable, false);
+  assert.equal(row.ready_for_import, false);
+  assert.match(row.blockers, /PLAYBACK_NOT_VERIFIED/);
+  assert.match(row.blockers, /DURATION_NOT_VERIFIED/);
 });
