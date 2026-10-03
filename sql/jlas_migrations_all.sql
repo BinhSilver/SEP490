@@ -129,7 +129,7 @@ INSERT IGNORE INTO moderation_policy (policy_type, policy_key, language, action,
 -- #############################################################################
 -- 006) JLAS-W0127/W0193: mục tiêu ngày, thưởng CP, nhiệm vụ, bảo vệ chuỗi
 -- #############################################################################
--- The application also creates these tables at startup (MissionSchemaInitializer).
+-- Runtime DDL was removed in [JLAS-W0194]; canonical ownership is jlas_schema.sql plus migration 013.
 -- 1) Learning events already applied (dedupe by deterministic event id).
 CREATE TABLE IF NOT EXISTS learning_event_receipt (
     event_id     VARCHAR(120) NOT NULL,
