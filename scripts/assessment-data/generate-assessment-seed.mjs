@@ -109,6 +109,12 @@ export async function generateAssessmentSeedFromModel(model, outputDirectory) {
     error.issues = issues;
     throw error;
   }
+  const activeBlueprints = (model.BLUEPRINT ?? []).filter((row) => asBoolean(row.active)
+    && upper(row.review_status) === "APPROVED");
+  const activeAssignments = (model.QUESTION_USAGE ?? []).filter((row) => asBoolean(row.active));
+  if (!activeBlueprints.length || !activeAssignments.length) {
+    throw new Error("Assessment workbook has no active approved blueprint and question assignments; refusing to generate a production seed");
+  }
   const files = ["seed_assessment_questions.sql", "seed_jlpt_blueprints.sql"];
   const contents = [questionSql(model), blueprintSql(model)];
   await fs.mkdir(outputDirectory, { recursive: true });

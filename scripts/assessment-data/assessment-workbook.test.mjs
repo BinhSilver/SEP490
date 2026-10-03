@@ -138,3 +138,16 @@ test("does not modify seed outputs when validation fails", async () => {
     await fs.rm(directory, { recursive: true, force: true });
   }
 });
+
+test("refuses to generate a production seed from structurally valid inactive staging", async () => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "jlas-assessment-seed-inactive-"));
+  const model = validModel();
+  model.BLUEPRINT[0].active = false;
+  model.QUESTION_USAGE[0].active = false;
+  try {
+    await assert.rejects(generateAssessmentSeedFromModel(model, directory), /no active approved blueprint/i);
+    assert.deepEqual(await fs.readdir(directory), []);
+  } finally {
+    await fs.rm(directory, { recursive: true, force: true });
+  }
+});
