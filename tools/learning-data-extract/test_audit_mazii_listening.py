@@ -6,7 +6,15 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from audit_mazii_listening import audit_roots, parse_question_text
+from audit_mazii_listening import (
+    OWNER_RIGHTS_EVIDENCE_REF,
+    OWNER_RIGHTS_STATUS,
+    audit_roots,
+    classify_candidate_usage,
+    import_readiness_blockers,
+    parse_question_text,
+    write_outputs,
+)
 
 
 CATALOG_HEADERS = [
@@ -21,6 +29,114 @@ CATALOG_HEADERS = [
 
 
 class MaziiListeningAuditTest(unittest.TestCase):
+    def test_jlct_is_practice_only_but_can_fill_reviewed_jlpt_practice_gaps(self):
+        usage = classify_candidate_usage("jlct")
+
+        self.assertEqual("JLCT", usage["source_exam_type"])
+        self.assertEqual("PRACTICE_ONLY", usage["target_usage"])
+        self.assertTrue(usage["supplemental_jlpt_practice_allowed"])
+        self.assertFalse(usage["assessment_blueprint_policy_eligible"])
+        self.assertEqual("NEEDS_MAPPING", usage["mapping_status"])
+
+    def test_only_jlpt_source_is_policy_eligible_for_jlpt_assessment_blueprint(self):
+        usage = classify_candidate_usage("JLPT")
+
+        self.assertEqual("JLPT_ASSESSMENT_CANDIDATE", usage["target_usage"])
+        self.assertFalse(usage["supplemental_jlpt_practice_allowed"])
+        self.assertTrue(usage["assessment_blueprint_policy_eligible"])
+
+    def test_import_readiness_fails_closed_until_every_content_and_review_gate_is_complete(self):
+        candidate = {
+            "source_exam_type": "JLCT",
+            "target_usage": "PRACTICE_ONLY",
+            "assessment_blueprint_eligible": False,
+            "rights_status": OWNER_RIGHTS_STATUS,
+            "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+            "license_verified": True,
+            "cleaning_status": "CLEAN",
+            "mapping_status": "APPROVED",
+            "playback_verified": True,
+            "answer_key_verified": True,
+            "provenance_complete": True,
+            "semantic_reviewed": True,
+            "review_status": "APPROVED",
+            "prompt_ja": "何をしますか。",
+            "options": ["行きます", "帰ります"],
+            "correct_answer": "帰ります",
+            "audio_path": "audio.mp3",
+            "script_path": "script.txt",
+            "question_source_path": "question.txt",
+            "explanation_vi": "Người nói sẽ trở về.",
+        }
+
+        self.assertEqual([], import_readiness_blockers(candidate))
+        for field, blocked_value, expected_blocker in (
+            ("rights_evidence_ref", "", "RIGHTS_EVIDENCE_MISSING"),
+            ("cleaning_status", "NEEDS_CLEANING", "CLEANING_REQUIRED"),
+            ("mapping_status", "NEEDS_MAPPING", "MAPPING_REVIEW_REQUIRED"),
+            ("playback_verified", False, "PLAYBACK_REVIEW_REQUIRED"),
+            ("semantic_reviewed", False, "SEMANTIC_REVIEW_REQUIRED"),
+            ("review_status", "NEEDS_REVIEW", "APPROVAL_REQUIRED"),
+            ("explanation_vi", "", "EXPLANATION_VI_MISSING"),
+        ):
+            with self.subTest(field=field):
+                changed = dict(candidate)
+                changed[field] = blocked_value
+                self.assertIn(expected_blocker, import_readiness_blockers(changed))
+
+    def test_import_readiness_requires_real_blueprint_mapping_for_jlpt_assessment_candidate(self):
+        candidate = {
+            "source_exam_type": "JLPT",
+            "target_usage": "JLPT_ASSESSMENT_CANDIDATE",
+            "assessment_blueprint_eligible": False,
+            "rights_status": OWNER_RIGHTS_STATUS,
+            "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+            "license_verified": True,
+            "cleaning_status": "CLEAN",
+            "mapping_status": "APPROVED",
+            "playback_verified": True,
+            "answer_key_verified": True,
+            "provenance_complete": True,
+            "semantic_reviewed": True,
+            "review_status": "APPROVED",
+            "prompt_ja": "何をしますか。",
+            "options": ["行きます", "帰ります"],
+            "correct_answer": "帰ります",
+            "audio_path": "audio.mp3",
+            "script_path": "script.txt",
+            "question_source_path": "question.txt",
+            "explanation_vi": "Người nói sẽ trở về.",
+        }
+
+        self.assertIn("ASSESSMENT_BLUEPRINT_MAPPING_REQUIRED", import_readiness_blockers(candidate))
+        candidate["assessment_blueprint_eligible"] = True
+        self.assertEqual([], import_readiness_blockers(candidate))
+
+    def test_import_readiness_rejects_unknown_source_exam_type(self):
+        candidate = {
+            "source_exam_type": "UNKNOWN",
+            "target_usage": "PRACTICE_ONLY",
+            "rights_status": OWNER_RIGHTS_STATUS,
+            "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+            "license_verified": True,
+            "cleaning_status": "CLEAN",
+            "mapping_status": "APPROVED",
+            "playback_verified": True,
+            "answer_key_verified": True,
+            "provenance_complete": True,
+            "semantic_reviewed": True,
+            "review_status": "APPROVED",
+            "prompt_ja": "何をしますか。",
+            "options": ["行きます", "帰ります"],
+            "correct_answer": "帰ります",
+            "audio_path": "audio.mp3",
+            "script_path": "script.txt",
+            "question_source_path": "question.txt",
+            "explanation_vi": "Người nói sẽ trở về.",
+        }
+
+        self.assertIn("UNSUPPORTED_SOURCE_EXAM_TYPE", import_readiness_blockers(candidate))
+
     def test_resolves_one_catalog_across_split_roots_and_never_marks_it_import_ready(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
@@ -60,7 +176,11 @@ class MaziiListeningAuditTest(unittest.TestCase):
             candidate = result["candidates"][0]
             self.assertEqual("帰ります", candidate["correct_answer"])
             self.assertFalse(candidate["ready_for_import"])
-            self.assertFalse(candidate["license_verified"])
+            self.assertEqual(OWNER_RIGHTS_STATUS, candidate["rights_status"])
+            self.assertEqual(OWNER_RIGHTS_EVIDENCE_REF, candidate["rights_evidence_ref"])
+            self.assertTrue(candidate["license_verified"])
+            self.assertEqual("JLPT_ASSESSMENT_CANDIDATE", candidate["target_usage"])
+            self.assertIn("MAPPING_REVIEW_REQUIRED", candidate["issues"])
             self.assertEqual("NOT_REVIEWED", candidate["review_status"])
 
     def test_question_parser_keeps_audio_only_number_options_without_inventing_text(self):
@@ -227,6 +347,31 @@ class MaziiListeningAuditTest(unittest.TestCase):
             encoded = json.dumps(audit_roots([root], allow_missing_catalog=True), ensure_ascii=False)
 
             self.assertIn('"inventory_files": 1', encoded)
+
+    def test_write_outputs_records_owner_rights_and_jlct_usage_policy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "audit"
+            result = {
+                "policy": {
+                    "rights_status": OWNER_RIGHTS_STATUS,
+                    "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+                    "jlct_target_usage": "PRACTICE_ONLY",
+                    "jlct_jlpt_gap_fill_allowed": True,
+                    "jlct_jlpt_blueprint_allowed": False,
+                    "production_import_allowed": False,
+                    "reason": "Review gates are incomplete.",
+                },
+                "summary": {"catalog_rows": 1, "ready_for_import": 0},
+                "coverage": {"N4:JLCT": 1},
+                "candidates": [],
+            }
+
+            write_outputs(result, output)
+
+            report = (output / "MAZII_LISTENING_AUDIT_REPORT.md").read_text(encoding="utf-8")
+            self.assertIn("OWNER_CONFIRMED", report)
+            self.assertIn("PRACTICE_ONLY", report)
+            self.assertIn("không được đưa vào JLPT Smart Test/Mock Test", report)
 
 
 if __name__ == "__main__":

@@ -117,7 +117,8 @@ const summaryRows = [
   ["Question files resolved", summary.question_files_resolved, `${summary.catalog_rows - summary.question_files_resolved} câu thiếu file câu hỏi/đáp án`],
   ["Prompts parsed", summary.questions_with_prompt, `${summary.catalog_rows - summary.questions_with_prompt} câu thiếu prompt`],
   ["Answers parsed", summary.questions_with_answer, `${summary.catalog_rows - summary.questions_with_answer} câu thiếu/sai đáp án`],
-  ["License verified", 0, "Cần owner chứng minh quyền sử dụng Mazii/Migii"],
+  ["Owner rights confirmed", summary.rights_owner_confirmed, `Evidence: ${audit.policy.rights_evidence_ref}`],
+  ["JLCT practice-only", summary.jlct_practice_only, "Có thể bổ sung practice JLPT còn thiếu; không vào blueprint JLPT"],
   ["Semantic review complete", 0, "Cần nghe và đối chiếu script/câu hỏi/đáp án"],
   ["Ready for import", summary.ready_for_import, "Phải giữ bằng 0 đến khi mọi gate đạt"],
 ];
@@ -138,13 +139,13 @@ addDataSheet({
 const readmeRows = [
   ["Mục đích", "Tập hợp ứng viên Listening N5–N1 từ ba thư mục bàn giao, giữ provenance và lỗi để đội data hoàn thiện."],
   ["Không phải production", "Mọi câu đều DRAFT / NOT_REVIEWED / ready_for_import=FALSE. Không được dùng workbook này làm seed trực tiếp."],
-  ["JLPT và JLCT", "Giữ tách exam_type. Không tự đưa câu JLCT vào blueprint JLPT nếu product owner chưa duyệt."],
-  ["Quyền sử dụng", "URL nguồn không phải giấy phép. Cần tài liệu xác nhận quyền lưu trữ, phát audio, dùng câu hỏi/script/hình và yêu cầu attribution."],
+  ["JLPT và JLCT", "Giữ source_exam_type. JLCT luôn PRACTICE_ONLY; chỉ dùng bù phần practice còn thiếu sau mapping/review và không đưa vào Smart Test/Mock Test JLPT."],
+  ["Quyền sử dụng", `Owner đã xác nhận quyền sử dụng (${audit.policy.rights_evidence_ref}). Vẫn phải giữ attribution, provenance và hoàn tất từng gate dữ liệu.`],
   ["Review bắt buộc", "Nghe audio; đối chiếu đúng script, prompt, options, đáp án; bổ sung explanation_vi; kiểm tra hình; gắn reviewer và ngày duyệt."],
   ["Audio raw", "Một số audio được phục hồi qua listening.csv (URL nguồn → tên file hash). Cờ STANDARDIZED_AUDIO_MISSING_RAW_SOURCE_USED yêu cầu đóng gói lại trước import."],
   ["Audio-only options", "Các lựa chọn chỉ là 1/2/3/4 được giữ nguyên, không tự bịa nội dung chữ. Reviewer phải nghe audio để xác nhận."],
-  ["Dữ liệu còn thiếu", "Xem ISSUE: missing audio/script/question/image/prompt/options/answer cùng các gate license/semantic/explanation."],
-  ["Thứ tự xử lý", "Quyền sử dụng → asset còn thiếu → semantic review → explanation_vi → blueprint/section mapping → validator → fixture import → UAT."],
+  ["Dữ liệu còn thiếu", "Xem ISSUE: missing audio/script/question/image/prompt/options/answer cùng các gate cleaning/mapping/playback/semantic/explanation."],
+  ["Thứ tự xử lý", "Cleaning → asset còn thiếu → mapping → playback/answer/provenance/semantic review → approval → validator → fixture import → UAT."],
   ["Nguồn máy", audit.catalog_path ?? "",],
   ["Báo cáo máy", inputPath],
 ];
@@ -159,14 +160,34 @@ addDataSheet({
   fill: palette.paleBlue,
 });
 
+addDataSheet({
+  name: "REVIEW_WORKFLOW",
+  title: "Review workflow",
+  subtitle: "Chỉ chuyển sang bước kế tiếp khi có reviewer, thời gian và evidence cho gate tương ứng.",
+  headers: ["state", "meaning", "allowed_next_state", "required_evidence"],
+  rows: [
+    ["NOT_REVIEWED", "Chưa có người kiểm tra", "NEEDS_REVIEW", "Gán reviewer và phạm vi review"],
+    ["NEEDS_REVIEW", "Đang clean/map/đối chiếu", "APPROVED", "Audio, script, question, answer, mapping và provenance đã đối chiếu"],
+    ["APPROVED", "Nội dung được reviewer chấp thuận", "IMPORT_READY", "Validator xanh và mọi blocker bằng 0"],
+    ["IMPORT_READY", "Đủ điều kiện import theo target_usage", "PUBLISHED", "Fixture/UAT xanh và release approval"],
+    ["PUBLISHED", "Đã phát hành", "", "Không sửa trực tiếp; tạo version mới khi thay đổi"],
+  ],
+  widths: [24, 48, 26, 90],
+  tableName: "MaziiReviewWorkflow",
+  fill: palette.paleBlue,
+});
+
 const questionHeaders = [
-  "question_code", "source_code", "skill", "jlpt_level", "exam_type", "source_exam_id",
+  "question_code", "source_code", "skill", "jlpt_level", "exam_type", "source_exam_type",
+  "target_usage", "supplemental_jlpt_practice_allowed", "assessment_blueprint_policy_eligible",
+  "assessment_blueprint_eligible", "mapping_status", "supplement_reason", "source_exam_id",
   "source_question_id", "mondai", "source_section", "question_type", "prompt_ja", "options_json",
   "correct_option_order", "correct_answer", "audio_only_options", "audio_code", "audio_path",
   "audio_resolution_source", "source_audio_url", "script_path", "question_source_path", "image_path",
-  "source_url", "external_key", "confidence", "review_status", "lifecycle_status",
-  "answer_key_verified", "provenance_complete", "semantic_reviewed", "license_verified",
-  "ready_for_import", "issues",
+  "source_url", "external_key", "confidence", "rights_status", "rights_evidence_ref",
+  "cleaning_status", "review_status", "reviewer", "reviewed_at", "review_evidence_ref",
+  "lifecycle_status", "playback_verified", "answer_key_verified", "provenance_complete",
+  "semantic_reviewed", "license_verified", "explanation_vi", "ready_for_import", "issues",
 ];
 const questionRows = audit.candidates.map((candidate) => questionHeaders.map((header) => {
   if (header === "options_json") return JSON.stringify(candidate.options);
@@ -203,15 +224,15 @@ addDataSheet({
   tableName: "MaziiOptions",
 });
 
-const mediaHeaders = ["audio_code", "source_code", "file_name", "local_path", "source_url", "checksum", "bytes", "license_note", "playback_verified", "license_verified", "review_status", "ready_for_import"];
+const mediaHeaders = ["audio_code", "source_code", "file_name", "local_path", "source_url", "checksum", "bytes", "rights_status", "rights_evidence_ref", "license_note", "attribution_note", "playback_verified", "license_verified", "review_status", "reviewer", "reviewed_at", "review_evidence_ref", "ready_for_import"];
 const mediaRows = audit.media_candidates.map((candidate) => mediaHeaders.map((header) => value(candidate[header])));
 addDataSheet({
   name: "MEDIA_CANDIDATE",
   title: "Listening media candidates",
-  subtitle: "Checksum đã có; playback/license vẫn chưa được xác minh bởi người chịu trách nhiệm.",
+  subtitle: "Quyền sử dụng đã được owner xác nhận; checksum có sẵn, playback và semantic vẫn cần reviewer xác minh.",
   headers: mediaHeaders,
   rows: mediaRows,
-  widths: [36, 26, 32, 72, 62, 66, 16, 66, 20, 18, 20, 18],
+  widths: [36, 26, 32, 72, 62, 66, 16, 22, 34, 66, 66, 20, 18, 20, 24, 20, 36, 18],
   tableName: "MaziiMedia",
 });
 
@@ -225,7 +246,17 @@ const resolution = {
   MISSING_OPTIONS: "Nhập đủ lựa chọn thật hoặc xác nhận loại câu audio-only.",
   MISSING_OR_INVALID_ANSWER: "Đối chiếu answer key và nhập đáp án hợp lệ.",
   SCRIPT_NOT_USABLE: "Tạo transcript có thể dùng và review thủ công.",
-  LICENSE_NOT_VERIFIED: "Cung cấp bằng chứng quyền sử dụng và attribution.",
+  RIGHTS_NOT_CONFIRMED: "Owner phải xác nhận quyền sử dụng nguồn.",
+  RIGHTS_EVIDENCE_MISSING: "Gắn mã/tài liệu xác nhận quyền sử dụng và attribution.",
+  LICENSE_NOT_VERIFIED: "Xác minh quyền sử dụng ở cấp source package.",
+  CLEANING_REQUIRED: "Làm sạch ký tự, placeholder, trùng lặp và liên kết asset.",
+  MAPPING_REVIEW_REQUIRED: "Map level/skill/mondai/section và target usage; reviewer duyệt.",
+  ASSESSMENT_BLUEPRINT_MAPPING_REQUIRED: "Gắn câu JLPT vào blueprint/section/version thật và duyệt mapping.",
+  UNSUPPORTED_SOURCE_EXAM_TYPE: "Xác minh source exam type; chỉ JLPT hoặc JLCT được chấp nhận.",
+  PLAYBACK_REVIEW_REQUIRED: "Nghe file audio và xác nhận đúng candidate.",
+  ANSWER_KEY_REVIEW_REQUIRED: "Đối chiếu đáp án với nguồn và audio.",
+  PROVENANCE_REVIEW_REQUIRED: "Kiểm tra source URL, source IDs, checksum và attribution.",
+  APPROVAL_REQUIRED: "Reviewer chuyển trạng thái theo REVIEW_WORKFLOW và ghi evidence.",
   SEMANTIC_REVIEW_REQUIRED: "Reviewer nghe và đối chiếu audio/script/câu hỏi/đáp án.",
   EXPLANATION_VI_MISSING: "Viết giải thích tiếng Việt sau khi chốt đáp án.",
   STANDARDIZED_AUDIO_MISSING_RAW_SOURCE_USED: "Đóng gói/copy asset raw vào tên chuẩn khi pipeline import được duyệt.",

@@ -18,6 +18,75 @@ from urllib.parse import unquote, urlparse
 
 CATALOG_NAME = "DANH_MUC_TOAN_BO.csv"
 MP3_PREFIXES = (b"ID3",)
+OWNER_RIGHTS_STATUS = "OWNER_CONFIRMED"
+OWNER_RIGHTS_EVIDENCE_REF = "OWNER_CONFIRMATION_2026-10-03"
+
+
+def classify_candidate_usage(exam_type: str) -> dict:
+    """Keep source identity while selecting the only permitted downstream use."""
+    source_exam_type = (exam_type or "UNKNOWN").strip().upper()
+    if source_exam_type == "JLPT":
+        return {
+            "source_exam_type": source_exam_type,
+            "target_usage": "JLPT_ASSESSMENT_CANDIDATE",
+            "supplemental_jlpt_practice_allowed": False,
+            "assessment_blueprint_policy_eligible": True,
+            "assessment_blueprint_eligible": False,
+            "mapping_status": "NEEDS_MAPPING",
+            "supplement_reason": "",
+        }
+    return {
+        "source_exam_type": source_exam_type,
+        "target_usage": "PRACTICE_ONLY",
+        "supplemental_jlpt_practice_allowed": source_exam_type == "JLCT",
+        "assessment_blueprint_policy_eligible": False,
+        "assessment_blueprint_eligible": False,
+        "mapping_status": "NEEDS_MAPPING",
+        "supplement_reason": "",
+    }
+
+
+def import_readiness_blockers(candidate: dict) -> list[str]:
+    """Return every unmet fail-closed gate for a Listening candidate."""
+    blockers = []
+    if candidate.get("rights_status") != OWNER_RIGHTS_STATUS:
+        blockers.append("RIGHTS_NOT_CONFIRMED")
+    if not str(candidate.get("rights_evidence_ref", "")).strip():
+        blockers.append("RIGHTS_EVIDENCE_MISSING")
+    if not candidate.get("license_verified"):
+        blockers.append("LICENSE_NOT_VERIFIED")
+    if candidate.get("cleaning_status") != "CLEAN":
+        blockers.append("CLEANING_REQUIRED")
+    if candidate.get("mapping_status") != "APPROVED":
+        blockers.append("MAPPING_REVIEW_REQUIRED")
+    source_exam_type = candidate.get("source_exam_type")
+    if source_exam_type not in {"JLPT", "JLCT"}:
+        blockers.append("UNSUPPORTED_SOURCE_EXAM_TYPE")
+    if (candidate.get("target_usage") == "JLPT_ASSESSMENT_CANDIDATE"
+            and not candidate.get("assessment_blueprint_eligible")):
+        blockers.append("ASSESSMENT_BLUEPRINT_MAPPING_REQUIRED")
+    if not candidate.get("playback_verified"):
+        blockers.append("PLAYBACK_REVIEW_REQUIRED")
+    if not candidate.get("answer_key_verified"):
+        blockers.append("ANSWER_KEY_REVIEW_REQUIRED")
+    if not candidate.get("provenance_complete"):
+        blockers.append("PROVENANCE_REVIEW_REQUIRED")
+    if not candidate.get("semantic_reviewed"):
+        blockers.append("SEMANTIC_REVIEW_REQUIRED")
+    if candidate.get("review_status") != "APPROVED":
+        blockers.append("APPROVAL_REQUIRED")
+    for field, issue in (
+        ("prompt_ja", "MISSING_PROMPT"),
+        ("options", "MISSING_OPTIONS"),
+        ("correct_answer", "MISSING_OR_INVALID_ANSWER"),
+        ("audio_path", "MISSING_LOCAL_FILE_AUDIO"),
+        ("script_path", "MISSING_LOCAL_FILE_SCRIPT"),
+        ("question_source_path", "MISSING_LOCAL_FILE_QUESTION"),
+        ("explanation_vi", "EXPLANATION_VI_MISSING"),
+    ):
+        if not candidate.get(field):
+            blockers.append(issue)
+    return sorted(set(blockers))
 
 
 def sha256_file(path: Path) -> str:
@@ -297,8 +366,7 @@ def audit_roots(raw_roots, allow_missing_catalog: bool = False) -> dict:
             row_issues.append("MISSING_OR_INVALID_ANSWER")
         if row.get("trang_thai_script") != "source_text_available":
             row_issues.append("SCRIPT_NOT_USABLE")
-        # The handoff contains source URLs but no permission grant or independent semantic approval.
-        row_issues.extend(["LICENSE_NOT_VERIFIED", "SEMANTIC_REVIEW_REQUIRED", "EXPLANATION_VI_MISSING"])
+        row_issues.extend(["SEMANTIC_REVIEW_REQUIRED", "EXPLANATION_VI_MISSING"])
 
         audio_code = ""
         if audio:
@@ -311,18 +379,26 @@ def audit_roots(raw_roots, allow_missing_catalog: bool = False) -> dict:
                 "source_url": row.get("source_audio_url", ""),
                 "checksum": audio["sha256"],
                 "bytes": audio["bytes"],
-                "license_note": "UNVERIFIED: Mazii/Migii source; owner must document permission and attribution",
+                "rights_status": OWNER_RIGHTS_STATUS,
+                "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+                "license_note": "Owner confirmed J-LAS may store, clean, map and use this source; preserve attribution.",
+                "attribution_note": "Source: Mazii/Migii handoff; retain source URL and source identifiers.",
                 "playback_verified": False,
-                "license_verified": False,
+                "license_verified": True,
                 "review_status": "NOT_REVIEWED",
+                "reviewer": "",
+                "reviewed_at": "",
+                "review_evidence_ref": "",
                 "ready_for_import": False,
             })
-        candidates.append({
+        usage = classify_candidate_usage(exam_type)
+        candidate = {
             "question_code": code,
             "source_code": "MAZII-LISTENING-2026-10-02",
             "skill": "LISTENING",
             "jlpt_level": level,
             "exam_type": exam_type,
+            **usage,
             "source_exam_id": row.get("id_de_nguon", ""),
             "source_question_id": row.get("id_cau_nguon", ""),
             "mondai": row.get("mondai", ""),
@@ -343,15 +419,25 @@ def audit_roots(raw_roots, allow_missing_catalog: bool = False) -> dict:
             "source_url": row.get("source_url", ""),
             "external_key": f"MAZII:{exam_type}:{row.get('id_de_nguon', '')}:{row.get('id_cau_nguon', '')}:{row.get('so_cau_con_nguon', '')}",
             "confidence": "LOW" if row_issues else "HIGH",
+            "rights_status": OWNER_RIGHTS_STATUS,
+            "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+            "cleaning_status": "NEEDS_CLEANING",
             "review_status": "NOT_REVIEWED",
+            "reviewer": "",
+            "reviewed_at": "",
+            "review_evidence_ref": "",
             "lifecycle_status": "DRAFT",
+            "playback_verified": False,
             "answer_key_verified": False,
             "provenance_complete": False,
             "semantic_reviewed": False,
-            "license_verified": False,
+            "license_verified": True,
+            "explanation_vi": "",
             "ready_for_import": False,
-            "issues": sorted(set(row_issues)),
-        })
+        }
+        candidate["issues"] = sorted(set(row_issues + import_readiness_blockers(candidate)))
+        candidate["ready_for_import"] = not candidate["issues"]
+        candidates.append(candidate)
 
     summary = {
         "roots": len(roots),
@@ -373,12 +459,20 @@ def audit_roots(raw_roots, allow_missing_catalog: bool = False) -> dict:
         "questions_with_options": sum(bool(row["options"]) for row in candidates),
         "questions_with_answer": sum(bool(row["correct_answer"]) for row in candidates),
         "source_script_unusable": sum("SCRIPT_NOT_USABLE" in row["issues"] for row in candidates),
-        "ready_for_import": 0,
+        "rights_owner_confirmed": sum(row["rights_status"] == OWNER_RIGHTS_STATUS for row in candidates),
+        "jlct_practice_only": sum(row["source_exam_type"] == "JLCT" and row["target_usage"] == "PRACTICE_ONLY"
+                                    for row in candidates),
+        "ready_for_import": sum(row["ready_for_import"] for row in candidates),
     }
     return {
         "policy": {
             "production_import_allowed": False,
-            "reason": "License, playback, answer and semantic review are not complete.",
+            "rights_status": OWNER_RIGHTS_STATUS,
+            "rights_evidence_ref": OWNER_RIGHTS_EVIDENCE_REF,
+            "jlct_target_usage": "PRACTICE_ONLY",
+            "jlct_jlpt_gap_fill_allowed": True,
+            "jlct_jlpt_blueprint_allowed": False,
+            "reason": "Cleaning, mapping, playback, answer, provenance, semantic and approval gates are not complete.",
         },
         "catalog_path": str(catalog_path) if catalog_path else None,
         "raw_audio_manifest_paths": raw_manifest_paths,
@@ -399,6 +493,40 @@ def write_outputs(result: dict, output: Path) -> None:
     (output / "mazii-listening-audit.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    policy = result["policy"]
+    summary = result["summary"]
+    coverage_rows = "\n".join(
+        f"| {key.replace(':', ' | ')} | {count} |"
+        for key, count in sorted(result.get("coverage", {}).items())
+    ) or "| Không có | Không có | 0 |"
+    report = f"""# Báo cáo audit dữ liệu Mazii Listening
+
+## Policy đã duyệt
+
+- Quyền sử dụng: `{policy['rights_status']}`; evidence `{policy['rights_evidence_ref']}`.
+- JLCT: `PRACTICE_ONLY`; được bổ sung phần luyện tập JLPT còn thiếu sau clean, mapping và review.
+- JLCT giữ nguyên `source_exam_type=JLCT` và không được đưa vào JLPT Smart Test/Mock Test.
+- Production import: `{str(policy['production_import_allowed']).upper()}` — {policy['reason']}
+
+## Kết quả
+
+- Candidate: {summary.get('catalog_rows', 0)}.
+- Owner rights confirmed: {summary.get('rights_owner_confirmed', 0)}.
+- JLCT practice-only: {summary.get('jlct_practice_only', 0)}.
+- Import-ready: {summary.get('ready_for_import', 0)}.
+
+## Coverage nguồn
+
+| Level | Source exam type | Candidate |
+|---|---|---:|
+{coverage_rows}
+
+## Điều kiện chuyển trạng thái
+
+Mỗi dòng phải hoàn tất cleaning, mapping, playback, answer-key, provenance, semantic review và approval.
+Không dùng placeholder hoặc đổi nhãn JLCT thành JLPT để vượt gate.
+"""
+    (output / "MAZII_LISTENING_AUDIT_REPORT.md").write_text(report, encoding="utf-8")
 
 
 def main() -> None:

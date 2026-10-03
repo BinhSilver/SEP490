@@ -69,9 +69,14 @@ python tools/learning-data-extract/audit_mazii_listening.py \
 ```
 
 The output directory must not already exist. The tool resolves audio in this order: catalog-standardized filename, source-URL basename,
-then the raw `listening.csv` URL-to-local-hash mapping. It verifies hashes and MP3 headers but deliberately leaves
-`license_verified=false`, `semantic_reviewed=false`, `review_status=NOT_REVIEWED`, `lifecycle_status=DRAFT` and
-`ready_for_import=false`.
+then the raw `listening.csv` URL-to-local-hash mapping. Owner confirmation on 2026-10-03 is recorded as
+`rights_status=OWNER_CONFIRMED` / `rights_evidence_ref=OWNER_CONFIRMATION_2026-10-03`. This closes only the source-rights gate:
+the tool deliberately leaves cleaning, mapping, playback, answer-key, provenance and semantic approval incomplete, so every row remains
+`review_status=NOT_REVIEWED`, `lifecycle_status=DRAFT` and `ready_for_import=false`.
+
+JLCT rows are always `target_usage=PRACTICE_ONLY`. A reviewed JLCT row may fill a missing JLPT learning/practice slot while preserving
+`source_exam_type=JLCT`; it is never eligible for the JLPT Smart Test or Mock Test blueprint. JLPT rows are assessment candidates only
+and still require approved mapping and every review gate.
 
 Run its tests before trusting a report:
 
@@ -88,5 +93,5 @@ node tools/learning-data-extract/build_mazii_listening_staging.mjs \
   outputs/<audit-run>/summary-preview.png
 ```
 
-This workbook is staging evidence, not a schema-aligned production seed. A source URL is not permission to redistribute content;
-the data owner must close license, media, answer-key and semantic-review gates before any import work begins.
+This workbook is staging evidence, not a schema-aligned production seed. The data owner/reviewer must close cleaning, mapping, media,
+answer-key, provenance and semantic-review gates before any import work begins.
