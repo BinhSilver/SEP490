@@ -4,11 +4,11 @@ export const REVIEW_STATUSES = Object.freeze(["NOT_REVIEWED", "NEEDS_REVIEW", "A
 export const SHEET_CONTRACTS = Object.freeze({
   BLUEPRINT: ["blueprint_code", "display_name", "usage_code", "jlpt_level", "policy_version", "active", "external_key", "review_status"],
   SECTION: ["section_code", "blueprint_code", "section_order", "skill", "question_count", "required", "external_key", "review_status"],
-  QUESTION: ["question_code", "source_code", "skill", "jlpt_level", "question_type", "prompt_ja", "correct_answer", "explanation_vi", "external_key", "confidence", "review_status", "lifecycle_status"],
+  QUESTION: ["question_code", "source_code", "skill", "jlpt_level", "question_type", "prompt_ja", "correct_answer", "explanation_vi", "knowledge_tag_code", "external_key", "confidence", "review_status", "lifecycle_status"],
   OPTION: ["option_code", "question_code", "option_order", "option_text", "is_correct", "external_key", "review_status"],
   PASSAGE: ["passage_code", "source_code", "passage_ja", "jlpt_level", "external_key", "confidence", "review_status"],
-  MEDIA: ["audio_code", "source_code", "file_name", "external_key", "review_status"],
-  QUESTION_USAGE: ["usage_mapping_code", "question_code", "usage_code", "active", "external_key", "review_status"],
+  MEDIA: ["audio_code", "source_code", "file_name", "storage_uri", "checksum", "external_key", "review_status"],
+  QUESTION_USAGE: ["usage_mapping_code", "question_code", "usage_code", "active", "order_index", "mondai_number", "raw_score", "external_key", "review_status"],
   READINESS: ["entity_type", "external_key", "schema_status", "answer_key_verified", "provenance_complete", "semantic_reviewed", "ready_for_import"],
 });
 

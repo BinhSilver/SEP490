@@ -6,6 +6,7 @@ import test from "node:test";
 
 import { validateAssessmentModel } from "./validate-assessment-workbook.mjs";
 import { generateAssessmentSeedFromModel } from "./generate-assessment-seed.mjs";
+import { SHEET_CONTRACTS } from "./lib/assessment-workbook-contract.mjs";
 
 function validModel() {
   return {
@@ -38,6 +39,13 @@ function validModel() {
 
 test("accepts a complete approved N5 pilot", () => {
   assert.deepEqual(validateAssessmentModel(validModel()), []);
+});
+
+test("workbook contract carries the stable DB lookup and assignment fields", () => {
+  assert.ok(SHEET_CONTRACTS.QUESTION.includes("knowledge_tag_code"));
+  assert.ok(SHEET_CONTRACTS.QUESTION_USAGE.includes("order_index"));
+  assert.ok(SHEET_CONTRACTS.QUESTION_USAGE.includes("mondai_number"));
+  assert.ok(SHEET_CONTRACTS.QUESTION_USAGE.includes("raw_score"));
 });
 
 test("rejects empty blueprint, invalid usage, unapproved question and JLCT", () => {
