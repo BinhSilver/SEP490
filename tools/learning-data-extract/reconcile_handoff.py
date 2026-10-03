@@ -83,6 +83,19 @@ def identity_columns(title, required):
             'READINESS': ['entity_type', 'external_key']}.get(title, required[:1])
 
 
+def select_learning_workbook(tables):
+    """Locate the learning workbook by contract, not a dated filename; reject divergent duplicates."""
+    required = {'LESSON', 'VOCABULARY', 'AUDIO'}
+    candidates = [(name, book) for name, book in tables.items()
+                  if name.lower().endswith('.xlsx') and required.issubset(book)]
+    if not candidates:
+        raise ValueError('No learning workbook with LESSON/VOCABULARY/AUDIO sheets')
+    variants = {json.dumps(book, ensure_ascii=False, sort_keys=True, default=str) for _, book in candidates}
+    if len(variants) > 1:
+        raise ValueError('Conflicting learning workbooks found; choose and audit one version explicitly')
+    return sorted(candidates, key=lambda candidate: candidate[0])[0][1]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('audit', type=Path); parser.add_argument('repo', type=Path)
@@ -135,7 +148,8 @@ def main():
             stats['published_unreviewed_lessons'] = [r['lesson_code'] for r in sheets['LESSON']
                 if r.get('lifecycle_status') == 'PUBLISHED' and r.get('review_status') != 'APPROVED']
         report['workbooks'][name] = stats
-    latest = {name: records(rows) for name, rows in tables['jlas-learning-20261002-mazii-filter.xlsx'].items()
+    learning_book = select_learning_workbook(tables)
+    latest = {name: records(rows) for name, rows in learning_book.items()
               if name not in ('README', 'CODE_LISTS')}
     by_expression = defaultdict(list)
     for row in seed['vocabulary_entry']: by_expression[row['expression']].append(row)
