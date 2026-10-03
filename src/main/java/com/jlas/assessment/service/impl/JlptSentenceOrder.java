@@ -1,9 +1,12 @@
 package com.jlas.assessment.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.assessment.dto.JlptAdminQuestionRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 final class JlptSentenceOrder {
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -38,4 +41,25 @@ final class JlptSentenceOrder {
         return count == 4 ? star : -1;
     }
 
+    static Integer correctChoice(JlptAdminQuestionRequest request) {
+        List<Integer> order = request.correctOrder();
+        if (order == null) return request.correctChoice();
+        if (!"SENTENCE_COMPOSITION".equals(request.type()) || request.choices().size() != 4
+                || order.size() != 4 || order.stream().anyMatch(java.util.Objects::isNull) || new HashSet<>(order).size() != 4
+                || order.stream().anyMatch(n -> n < 1 || n > 4)) throw invalid("Thứ tự đúng phải gồm đủ 1, 2, 3, 4, mỗi số một lần, cho câu sắp xếp.");
+        int star = starPosition(request.prompt());
+        if (star < 0) throw invalid("Câu sắp xếp phải có bốn chỗ trống và một vị trí ★.");
+        Integer correct = order.get(star);
+        if (request.correctChoice() != null && !correct.equals(request.correctChoice())) throw invalid("Đáp án ★ không khớp với thứ tự đúng.");
+        return correct;
+    }
+
+    static String write(JlptAdminQuestionRequest request) {
+        correctChoice(request);
+        return request.correctOrder() == null ? null : request.correctOrder().toString();
+    }
+
+    private static ResponseStatusException invalid(String message) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+    }
 }

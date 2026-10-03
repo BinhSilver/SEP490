@@ -36,4 +36,10 @@ public class AssessmentPageController {
         model.addAttribute("layoutMode", "app");
         return "jlpt-practice";
     }
+
+    @GetMapping("/admin/jlpt")
+    public String jlptContentAdmin(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "admin/jlpt-content";
+    }
 }

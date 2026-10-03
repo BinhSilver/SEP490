@@ -9,6 +9,7 @@ import java.util.List;
 public interface JlptService {
     List<JlptExamSummaryResponse> listExams(String level);
     JlptExamResponse getExam(String code);
+    JlptExamResponse getExamForAdmin(String code);
     List<JlptPracticeTypeResponse> listPracticeTypes(String level);
     List<JlptPracticeQuestionResponse> practiceQuestions(String level, String section, String typeCode, int limit);
 }
