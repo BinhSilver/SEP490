@@ -15,13 +15,14 @@
     </a>
     <div class="dropdown nav-tools-dropdown">
         <button type="button" class="nav-tools-trigger" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
-                th:classappend="${active == 'smart-test' or active == 'jlpt' or active == 'learning-path'} ? ' is-active'">
+                th:classappend="${active == 'smart-test' or active == 'jlpt' or active == 'learning-path' or active == 'jlpt-practice'} ? ' is-active'">
             <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i><span>Học tập</span>
             <i class="fa-solid fa-chevron-down nav-tools-trigger__chevron" aria-hidden="true"></i>
         </button>
         <div class="dropdown__menu nav-tools-menu" role="menu">
             <a th:href="@{/survey}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-brain" aria-hidden="true"></i> Smart Test</a>
-            <button type="button" class="dropdown__item" role="menuitem" aria-disabled="true" title="Sắp có"><i class="fa-solid fa-certificate" aria-hidden="true"></i> JLPT <span class="nav-soon">sắp có</span></button>
+            <a th:href="@{/jlpt}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-certificate" aria-hidden="true"></i> JLPT</a>
+            <a th:href="@{/jlpt/practice}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-list" aria-hidden="true"></i> Luyện theo dạng</a>
             <a th:href="@{/learning/path}" class="dropdown__item" role="menuitem"><i class="fa-solid fa-route" aria-hidden="true"></i> Lộ Trình học</a>
         </div>
     </div>
