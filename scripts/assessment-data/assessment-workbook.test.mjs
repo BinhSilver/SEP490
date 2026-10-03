@@ -1,20 +1,24 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
 import { validateAssessmentModel } from "./validate-assessment-workbook.mjs";
+import { generateAssessmentSeedFromModel } from "./generate-assessment-seed.mjs";
 
 function validModel() {
   return {
     BLUEPRINT: [{ blueprint_code: "JLPT-N5-V1", display_name: "JLPT N5", usage_code: "JLPT_MOCK_TEST",
-      jlpt_level: "N5", policy_version: "OWNER_POLICY_V1", active: true,
+      jlpt_level: "N5", policy_version: "OWNER_POLICY_V1", pass_percent: 60, min_section_percent: 30, active: true,
       external_key: "exam:jlpt:n5:v1", review_status: "APPROVED" }],
     SECTION: [{ section_code: "JLPT-N5-V1-VOCAB", blueprint_code: "JLPT-N5-V1", section_order: 1,
-      skill: "VOCABULARY", question_count: 1, required: true,
+      skill: "VOCABULARY", question_count: 1, time_limit_seconds: 600, weight_percent: 100, required: true,
       external_key: "exam:jlpt:n5:v1:vocab", review_status: "APPROVED" }],
     QUESTION: [{ question_code: "Q-N5-1", source_code: "JLPT-SOURCE", skill: "VOCABULARY",
       jlpt_level: "N5", question_type: "MULTIPLE_CHOICE", prompt_ja: "問題", correct_answer: "A",
       explanation_vi: "Giải thích", external_key: "q:n5:1", confidence: "HIGH",
-      review_status: "APPROVED", lifecycle_status: "PUBLISHED" }],
+      knowledge_tag_code: "N5-B01", review_status: "APPROVED", lifecycle_status: "PUBLISHED" }],
     OPTION: [
       { option_code: "Q-N5-1-O1", question_code: "Q-N5-1", option_order: 1, option_text: "A", is_correct: true, external_key: "q:n5:1:o1", review_status: "APPROVED" },
       { option_code: "Q-N5-1-O2", question_code: "Q-N5-1", option_order: 2, option_text: "B", is_correct: false, external_key: "q:n5:1:o2", review_status: "APPROVED" },
@@ -24,6 +28,7 @@ function validModel() {
     PASSAGE: [], MEDIA: [],
     QUESTION_USAGE: [{ usage_mapping_code: "U-N5-1", question_code: "Q-N5-1", usage_code: "JLPT_MOCK_TEST",
       blueprint_code: "JLPT-N5-V1", section_code: "JLPT-N5-V1-VOCAB", active: true,
+      order_index: 1, mondai_number: 1, raw_score: 1,
       external_key: "u:n5:1", review_status: "APPROVED" }],
     READINESS: [{ entity_type: "QUESTION", external_key: "q:n5:1", schema_status: "IMPORT_READY",
       answer_key_verified: true, provenance_complete: true, semantic_reviewed: true,
@@ -68,4 +73,60 @@ test("requires approved listening media and complete readiness", () => {
   const codes = validateAssessmentModel(model).map((item) => item.code);
   assert.ok(codes.includes("LISTENING_MEDIA_NOT_APPROVED"));
   assert.ok(codes.includes("QUESTION_NOT_IMPORT_READY"));
+});
+
+test("active blueprint assignment requires stable tag and scoring metadata", () => {
+  const model = validModel();
+  delete model.QUESTION[0].knowledge_tag_code;
+  delete model.QUESTION_USAGE[0].order_index;
+  delete model.QUESTION_USAGE[0].raw_score;
+  const codes = validateAssessmentModel(model).map((item) => item.code);
+  assert.ok(codes.includes("KNOWLEDGE_TAG_CODE_REQUIRED"));
+  assert.ok(codes.includes("QUESTION_ASSIGNMENT_METADATA_REQUIRED"));
+});
+
+test("active blueprint requires approved scoring and section timing", () => {
+  const model = validModel();
+  model.BLUEPRINT[0].pass_percent = null;
+  model.BLUEPRINT[0].min_section_percent = 120;
+  model.SECTION[0].time_limit_seconds = 0;
+  const codes = validateAssessmentModel(model).map((item) => item.code);
+  assert.ok(codes.includes("BLUEPRINT_SCORING_POLICY_INVALID"));
+  assert.ok(codes.includes("SECTION_TIMING_INVALID"));
+});
+
+test("generates dependency-ordered deterministic assessment seeds", async () => {
+  const first = await fs.mkdtemp(path.join(os.tmpdir(), "jlas-assessment-seed-a-"));
+  const second = await fs.mkdtemp(path.join(os.tmpdir(), "jlas-assessment-seed-b-"));
+  try {
+    const manifestA = await generateAssessmentSeedFromModel(validModel(), first);
+    const manifestB = await generateAssessmentSeedFromModel(validModel(), second);
+    assert.deepEqual(manifestA.files, ["seed_assessment_questions.sql", "seed_jlpt_blueprints.sql"]);
+    assert.deepEqual(manifestA.sha256, manifestB.sha256);
+    const questionsSql = await fs.readFile(path.join(first, manifestA.files[0]), "utf8");
+    const blueprintSql = await fs.readFile(path.join(first, manifestA.files[1]), "utf8");
+    assert.ok(questionsSql.indexOf("INSERT INTO assessment_question") < questionsSql.indexOf("INSERT INTO assessment_question_option"));
+    assert.ok(blueprintSql.indexOf("INSERT INTO jlpt_exam") < blueprintSql.indexOf("INSERT INTO jlpt_exam_section"));
+    assert.ok(blueprintSql.indexOf("INSERT INTO assessment_quiz") < blueprintSql.indexOf("INSERT INTO assessment_quiz_question"));
+    assert.match(blueprintSql, /INSERT INTO assessment_question_usage/);
+    assert.match(questionsSql, /SELECT id FROM tag WHERE code = 'N5-B01'/);
+  } finally {
+    await fs.rm(first, { recursive: true, force: true });
+    await fs.rm(second, { recursive: true, force: true });
+  }
+});
+
+test("does not modify seed outputs when validation fails", async () => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "jlas-assessment-seed-invalid-"));
+  const existing = path.join(directory, "seed_assessment_questions.sql");
+  await fs.writeFile(existing, "owner-content", "utf8");
+  const model = validModel();
+  model.QUESTION[0].review_status = "NEEDS_REVIEW";
+  try {
+    await assert.rejects(generateAssessmentSeedFromModel(model, directory), /not import-ready/);
+    assert.equal(await fs.readFile(existing, "utf8"), "owner-content");
+    await assert.rejects(fs.access(path.join(directory, "seed_jlpt_blueprints.sql")));
+  } finally {
+    await fs.rm(directory, { recursive: true, force: true });
+  }
 });

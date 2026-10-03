@@ -88,7 +88,21 @@ export function validateAssessmentModel(model) {
     const blueprintSections = sections.filter((row) => String(row.blueprint_code) === String(blueprint.blueprint_code));
     if (!blueprintSections.length) issues.push(issue("BLUEPRINT_SECTION_REQUIRED", "BLUEPRINT", blueprint, `Active blueprint ${blueprint.blueprint_code} has no section`));
     if (!String(blueprint.policy_version ?? "").trim()) issues.push(issue("POLICY_VERSION_REQUIRED", "BLUEPRINT", blueprint, "Active blueprint needs policy_version"));
+    const passPercent = Number(blueprint.pass_percent);
+    const minSectionPercent = Number(blueprint.min_section_percent);
+    if (blueprint.pass_percent === null || blueprint.pass_percent === undefined || blueprint.pass_percent === ""
+      || blueprint.min_section_percent === null || blueprint.min_section_percent === undefined || blueprint.min_section_percent === ""
+      || !Number.isFinite(passPercent) || passPercent <= 0 || passPercent > 100
+      || !Number.isFinite(minSectionPercent) || minSectionPercent < 0 || minSectionPercent > 100) {
+      issues.push(issue("BLUEPRINT_SCORING_POLICY_INVALID", "BLUEPRINT", blueprint,
+        "Active blueprint needs pass_percent and min_section_percent in the 0-100 range"));
+    }
     if (upper(blueprint.review_status) !== "APPROVED") issues.push(issue("BLUEPRINT_NOT_APPROVED", "BLUEPRINT", blueprint, "Active blueprint must be approved"));
+    for (const section of blueprintSections) {
+      if (!(Number(section.time_limit_seconds) > 0)) {
+        issues.push(issue("SECTION_TIMING_INVALID", "SECTION", section, "Active blueprint section needs a positive time limit"));
+      }
+    }
   }
 
   const assignments = new Set();
@@ -112,6 +126,15 @@ export function validateAssessmentModel(model) {
     if (!semanticReady(readinessByKey.get(String(question.external_key)))) {
       issues.push(issue("QUESTION_NOT_IMPORT_READY", "QUESTION", question, `Question ${question.question_code} lacks readiness evidence`));
     }
+    if (!String(question.knowledge_tag_code ?? "").trim()) {
+      issues.push(issue("KNOWLEDGE_TAG_CODE_REQUIRED", "QUESTION", question,
+        `Question ${question.question_code} needs a canonical knowledge tag code`));
+    }
+    if (!(Number(usage.order_index) > 0) || !(Number(usage.raw_score) > 0)
+      || (usage.mondai_number !== null && usage.mondai_number !== undefined && usage.mondai_number !== "" && !(Number(usage.mondai_number) > 0))) {
+      issues.push(issue("QUESTION_ASSIGNMENT_METADATA_REQUIRED", "QUESTION_USAGE", usage,
+        "Active assignment needs positive order_index/raw_score and a valid mondai_number"));
+    }
     if (blueprint && upper(question.jlpt_level) !== upper(blueprint.jlpt_level)) {
       issues.push(issue("QUESTION_LEVEL_MISMATCH", "QUESTION_USAGE", usage, "Question level differs from blueprint level"));
     }
@@ -134,11 +157,13 @@ export function validateAssessmentModel(model) {
     }
   }
 
-  for (const section of sections) {
+  const activeBlueprintCodes = new Set(activeBlueprints.map((row) => String(row.blueprint_code)));
+  for (const section of sections.filter((row) => activeBlueprintCodes.has(String(row.blueprint_code)))) {
     const expected = Number(section.question_count ?? 0);
-    if (counts.get(String(section.section_code)) !== undefined && counts.get(String(section.section_code)) !== expected) {
+    const actual = counts.get(String(section.section_code)) ?? 0;
+    if (actual !== expected) {
       issues.push(issue("SECTION_QUESTION_COUNT_MISMATCH", "SECTION", section,
-        `Expected ${expected}, mapped ${counts.get(String(section.section_code))}`));
+        `Expected ${expected}, mapped ${actual}`));
     }
   }
 
