@@ -151,6 +151,14 @@ test('renderActions defaults to the disabled state when mockTest is missing from
   assert.doesNotMatch(html, /<a[^>]*Thi thử/);
 });
 
+test('renderActions omits JLPT Mock Test entirely when the server marks it not applicable', () => {
+  const html = page.renderActions({
+    certificateEligible: true,
+    mockTest: { available: false, status: 'NOT_APPLICABLE', url: null, targetLevel: null }
+  });
+  assert.doesNotMatch(html, /Thi thử JLPT/);
+});
+
 test('renderActions links to the servers exact resolved destination when the provider reports it available', () => {
   const html = page.renderActions({
     certificateEligible: true,
@@ -180,4 +188,16 @@ test('error renders a retry affordance', () => {
   const html = page.error('boom');
   assert.match(html, /boom/);
   assert.match(html, /data-retry/);
+});
+
+test('summary exposes both replay modes for finished Grammar and Dialogue', () => {
+  const html = page.render(summary({ studyLinks: [
+    { activityId: 81, type: 'GRAMMAR', state: 'PASSED' },
+    { activityId: 82, type: 'DIALOGUE', state: 'COMPLETED' }
+  ] }));
+  for (const [type, id] of [['grammar', 81], ['dialogue', 82]]) {
+    for (const mode of ['review', 'practice']) {
+      assert.ok(html.includes(`/learning/v2/${type}?activity=${id}&amp;mode=${mode}`));
+    }
+  }
 });

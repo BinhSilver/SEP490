@@ -15,6 +15,7 @@ public record GoalEntryPolicy(
 ) {
     private static final Set<String> GOAL_MODES = Set.of(
             "FOUNDATION_FIRST", "COMMUNICATION_FIRST", "BALANCED");
+    private static final Set<String> COMMUNICATION_GOALS = Set.of("BA", "TRAVEL", "DAILY_LIFE");
 
     public enum AssessmentRequirement {
         NONE,
@@ -37,5 +38,10 @@ public record GoalEntryPolicy(
                     false, Set.of("FOUNDATION_FIRST"));
             default -> throw new IllegalArgumentException("Unsupported learning goal: " + rawGoal);
         };
+    }
+
+    /** Goals whose completion is based on approved learning packages, never a JLPT Mock Test. */
+    public static boolean isCommunicationGoal(String rawGoal) {
+        return rawGoal != null && COMMUNICATION_GOALS.contains(rawGoal.trim().toUpperCase(Locale.ROOT));
     }
 }

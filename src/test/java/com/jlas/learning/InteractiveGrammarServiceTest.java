@@ -101,6 +101,16 @@ class InteractiveGrammarServiceTest {
         verifyNoInteractions(members, grammarPoints, progress);
     }
 
+    @Test void reviewFailsClosedWhenCanonicalGrammarWasRemoved() {
+        var activity = grammarActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.PASSED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member(activity, 1, 501L, "rev-1")));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, assertThrows(ApiException.class,
+                () -> service.reviewState(7L, 1L)).getErrorCode());
+        verify(progress, never()).save(any());
+    }
+
     @Test void lockedGrammarCannotBeOpenedThroughDirectStudyEndpoint(){
         var activity=grammarActivity(1L,7L);
         activity.setActivityState(LearningActivityState.LOCKED);

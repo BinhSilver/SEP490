@@ -78,6 +78,9 @@ public class LearningFinalEligibilityServiceImpl implements LearningFinalEligibi
                 s.total() <= 0 ? 0 : (int) Math.floor(s.completed() * 100.0 / s.total()), s.total() <= 0)).toList();
         if (progress.isEmpty()) return blocked(null, progress, "BLOCKED_CONTENT");
         String target = progress.get(progress.size() - 1).level();
+        if (!List.of("N5", "N4", "N3", "N2", "N1").contains(target)) {
+            return blocked(target, progress, "NOT_APPLICABLE");
+        }
         if (progress.stream().anyMatch(LearningStageProgressResponse::blocked)) {
             return blocked(target, progress, "BLOCKED_CONTENT");
         }

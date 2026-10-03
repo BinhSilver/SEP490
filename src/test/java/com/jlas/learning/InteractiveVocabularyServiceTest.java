@@ -208,9 +208,10 @@ class InteractiveVocabularyServiceTest {
         when(vocabularyRepo.findAllById(any())).thenReturn(vocab);
         when(mapper.writeQuizQuestions(any())).thenReturn("[]");
         when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
+        var nextAttempt = new java.util.concurrent.atomic.AtomicLong(500L);
         when(quizSessions.save(any())).thenAnswer(inv -> {
             LearningQuizSession s = inv.getArgument(0);
-            s.setId(500L);
+            s.setId(nextAttempt.getAndIncrement());
             return s;
         });
 
@@ -224,7 +225,13 @@ class InteractiveVocabularyServiceTest {
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(failedOnceState));
         var secondIssue = service.issueMicroCheck(7L, 1L);
 
+        assertNotEquals(firstIssue.attemptId(), secondIssue.attemptId());
+        assertEquals(firstIssue.batchIndex(), secondIssue.batchIndex());
+        assertEquals(firstIssue.totalQuestions(), secondIssue.totalQuestions());
         assertEquals(firstIssue.questions().size(), secondIssue.questions().size());
+        assertEquals(firstIssue.questions().stream().map(q -> q.questionId()).collect(java.util.stream.Collectors.toSet()),
+                secondIssue.questions().stream().map(q -> q.questionId()).collect(java.util.stream.Collectors.toSet()),
+                "retry must retain the whole batch, not just missed targets");
         boolean anyOptionsDiffer = false;
         for (int i = 0; i < firstIssue.questions().size(); i++) {
             if (!firstIssue.questions().get(i).options().equals(secondIssue.questions().get(i).options())) {

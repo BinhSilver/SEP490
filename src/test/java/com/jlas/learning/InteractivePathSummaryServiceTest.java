@@ -85,8 +85,8 @@ class InteractivePathSummaryServiceTest {
 
         var result = service.summary(7L);
 
-        assertEquals(List.of(1L, 2L), result.studyLinks().stream().map(l -> l.activityId()).toList());
-        assertEquals(List.of("VOCABULARY", "READING"), result.studyLinks().stream().map(l -> l.type()).toList());
+        assertEquals(List.of(1L, 2L, 4L), result.studyLinks().stream().map(l -> l.activityId()).toList());
+        assertEquals(List.of("VOCABULARY", "READING", "DIALOGUE"), result.studyLinks().stream().map(l -> l.type()).toList());
     }
 
     @Test void skillWithNoValidAttemptHasNoEvidenceAndIsNeverTreatedAsZero() {
@@ -372,6 +372,8 @@ class InteractivePathSummaryServiceTest {
 
     @Test void certificateEligibilityIsUnaffectedByComprehensionActivitiesInsideAWarmUpPackage() {
         var path = interactivePath();
+        path.setStatus("COMPLETED");
+        path.setCompletionAttemptId(900L);
         stubPath(path);
         var reading = activity(6L, LearningActivityType.READING, LearningActivityState.PASSED);
         when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(reading));
@@ -429,6 +431,8 @@ class InteractivePathSummaryServiceTest {
 
     @Test void certificateEligibleWhenEveryGoalLearningPackageIsCompleted() {
         var path = interactivePath();
+        path.setStatus("COMPLETED");
+        path.setCompletionAttemptId(900L);
         stubPath(path);
         when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
         var target1 = LearningPathPackage.builder().id(11L).learningPath(path).phase("GOAL_LEARNING")
@@ -439,6 +443,18 @@ class InteractivePathSummaryServiceTest {
         var result = service.summary(7L);
 
         assertTrue(result.certificateEligible());
+    }
+
+    @Test void allPackagesWithoutQualifiedJlptCompletionCannotIssueCertificate() {
+        var path = interactivePath();
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        var target = LearningPathPackage.builder().id(11L).learningPath(path).phase("GOAL_LEARNING")
+                .status(LearningPackageStatus.COMPLETED).build();
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(target));
+        assertFalse(service.summary(7L).certificateEligible());
+        path.setStatus("COMPLETED");
+        assertFalse(service.summary(7L).certificateEligible());
     }
 
     // ---- RC Task 7: Mock Test handoff seam — server-resolved, never fabricated by the summary service ----
@@ -482,6 +498,41 @@ class InteractivePathSummaryServiceTest {
 
         service.summary(7L);
 
+        verify(mockTestDestinationProvider).resolveDestination("N4");
+    }
+
+    @Test void communicationPathDoesNotOfferOrResolveAJlptMockTest() {
+        var path = interactivePath();
+        path.setGoal("TRAVEL");
+        path.setTargetLevel(null);
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+
+        var result = service.summary(7L);
+
+        assertFalse(result.mockTest().available());
+        assertEquals(MockTestDestination.STATUS_NOT_APPLICABLE, result.mockTest().status());
+        assertNull(result.mockTest().url());
+        verifyNoInteractions(mockTestDestinationProvider);
+    }
+
+    @Test void legacyPathWithMissingGoalFailsClosedAsJlptRatherThanReceivingACommunicationCertificate() {
+        var path = interactivePath();
+        path.setGoal(null);
+        path.setStatus("COMPLETED");
+        stubPath(path);
+        when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        var target = LearningPathPackage.builder().id(11L).learningPath(path).phase("GOAL_LEARNING")
+                .status(LearningPackageStatus.COMPLETED).build();
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(target));
+        when(mockTestDestinationProvider.resolveDestination("N4"))
+                .thenReturn(MockTestDestination.blocked("N4"));
+
+        var result = service.summary(7L);
+
+        assertFalse(result.certificateEligible());
+        assertEquals(MockTestDestination.STATUS_BLOCKED_INTEGRATION, result.mockTest().status());
         verify(mockTestDestinationProvider).resolveDestination("N4");
     }
 

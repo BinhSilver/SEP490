@@ -23,6 +23,7 @@ import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
 import com.jlas.learning.service.InteractiveLearningPathService;
+import com.jlas.learning.service.GoalEntryPolicy;
 import com.jlas.learning.service.InteractiveContentCatalog;
 import com.jlas.mission.entity.UserStreaks;
 import com.jlas.mission.repository.UserStreaksRepository;
@@ -248,6 +249,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private void maybeCompletePath(LearningPathPackage justCompleted, List<LearningPathPackage> siblings) {
         UserLearningPath path = justCompleted.getLearningPath();
         if (!"ACTIVE".equals(path.getStatus())) return;
+        // JLPT completion is exclusively owned by LearningPathCompletionService after a qualifying Mock Test.
+        // Package completion only makes the final available; it must never mint a JLPT completion/certificate.
+        if (!GoalEntryPolicy.isCommunicationGoal(path.getGoal())) return;
         boolean hasGoalLearningPackage = false;
         for (LearningPathPackage sibling : siblings) {
             if (!"GOAL_LEARNING".equals(sibling.getPhase())) continue;

@@ -24,6 +24,7 @@ import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.InteractivePathSummaryService;
+import com.jlas.learning.service.GoalEntryPolicy;
 import com.jlas.learning.service.LearningProfileSource;
 import com.jlas.learning.service.MockTestDestinationProvider;
 import lombok.RequiredArgsConstructor;
@@ -100,26 +101,31 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
                 .map(type -> skillProgress(type, activities))
                 .toList();
         InteractiveReadinessConfidence readiness = readiness(skills, dialogue, comprehension, comprehensionInPath);
-        boolean certificateEligible = isCertificateEligible(path.getId());
+        boolean certificateEligible = isCertificateEligible(path);
         // [JLAS-W0193] RC Task 7 — the server, never the browser, decides availability/destination; only
         // the path's own target level is ever passed to the provider (no internal id, no JWT).
-        MockTestDestination mockTest = mockTestDestinationProvider.resolveDestination(path.getTargetLevel());
+        boolean communicationGoal = GoalEntryPolicy.isCommunicationGoal(path.getGoal());
+        MockTestDestination mockTest = communicationGoal
+                ? MockTestDestination.notApplicable()
+                : mockTestDestinationProvider.resolveDestination(path.getTargetLevel());
 
         return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
                 skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible, mockTest,
                 studyLinks(activities));
     }
 
-    /** Finished activities whose type has a REVIEW or PRACTICE contract (dialogue has neither, so it is never listed). */
+    /** Finished activities with owned replay contracts, including score-free Dialogue rehearsal. */
     private static final java.util.Set<LearningActivityType> STUDY_LINK_TYPES = java.util.EnumSet.of(
             LearningActivityType.VOCABULARY, LearningActivityType.KANJI, LearningActivityType.FOUNDATION,
-            LearningActivityType.GRAMMAR, LearningActivityType.READING, LearningActivityType.LISTENING);
+            LearningActivityType.GRAMMAR, LearningActivityType.DIALOGUE, LearningActivityType.READING, LearningActivityType.LISTENING);
 
     private List<com.jlas.learning.dto.InteractiveStudyLink> studyLinks(List<UserLearningPathItem> activities) {
         return activities.stream()
                 .filter(a -> a.getActivityType() != null && STUDY_LINK_TYPES.contains(a.getActivityType()))
-                .filter(a -> a.getActivityState() == LearningActivityState.PASSED
-                        || a.getActivityState() == LearningActivityState.COMPLETED)
+                .filter(a -> a.getActivityType() == LearningActivityType.DIALOGUE
+                        ? a.getActivityState() == LearningActivityState.COMPLETED
+                        : a.getActivityState() == LearningActivityState.PASSED
+                            || a.getActivityState() == LearningActivityState.COMPLETED)
                 .map(a -> new com.jlas.learning.dto.InteractiveStudyLink(a.getId(), a.getActivityType().name(),
                         a.getActivityState().name()))
                 .toList();
@@ -280,8 +286,10 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
 
     // ---- Certificate eligibility: mirrors the certificate page's own gate exactly ----
 
-    private boolean isCertificateEligible(Long pathId) {
-        List<LearningPathPackage> pathPackages = packages.findByLearningPathIdOrderByOrderIndex(pathId);
+    private boolean isCertificateEligible(UserLearningPath path) {
+        List<LearningPathPackage> pathPackages = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
+        if (!"COMPLETED".equals(path.getStatus())) return false;
+        if (!GoalEntryPolicy.isCommunicationGoal(path.getGoal()) && path.getCompletionAttemptId() == null) return false;
         boolean hasGoalLearningPackage = false;
         for (LearningPathPackage p : pathPackages) {
             if (!"GOAL_LEARNING".equals(p.getPhase())) continue;

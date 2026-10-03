@@ -121,6 +121,7 @@
     // destination URL; this only ever echoes `mockTest.url` verbatim, never composes or guesses one, and
     // never trusts a query parameter. No real Mock Test owner contract exists in this codebase today, so
     // the honest default is BLOCKED_INTEGRATION — rendered as a disabled button, never a fabricated link.
+    if (mockTest && mockTest.status === 'NOT_APPLICABLE') return '';
     if (mockTest && mockTest.available && mockTest.url) {
       return '<a class="ilp-summary__quiet" href="' + esc(mockTest.url) + '">Thi thử JLPT</a>';
     }
@@ -129,12 +130,12 @@
   }
 
   // [JLAS-W0108] Review / practice entry points for finished activities. Only types with a server contract are listed
-  // (dialogue has no micro-check engine); the server already filters, this map only decides the page and the modes.
+  // Dialogue replays script/audio without creating a scored attempt.
   var STUDY_PAGE = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji', FOUNDATION: '/learning/v2/foundation',
-    GRAMMAR: '/learning/v2/grammar', READING: '/learning/v2/reading', LISTENING: '/learning/v2/listening' };
+    GRAMMAR: '/learning/v2/grammar', DIALOGUE: '/learning/v2/dialogue', READING: '/learning/v2/reading', LISTENING: '/learning/v2/listening' };
   var STUDY_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', FOUNDATION: 'Bảng chữ cái', GRAMMAR: 'Ngữ pháp',
-    READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu' };
-  function studyModes(type) { return type === 'GRAMMAR' ? ['practice'] : ['review', 'practice']; }
+    DIALOGUE: 'Hội thoại', READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu' };
+  function studyModes() { return ['review', 'practice']; }
   function renderStudyLinks(links) {
     var rows = (links || []).filter(function (l) { return STUDY_PAGE[l.type]; }).map(function (l) {
       var modes = studyModes(l.type).map(function (mode) {

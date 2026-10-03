@@ -93,6 +93,43 @@ class InteractiveDialogueServiceTest {
         verifyNoInteractions(members, progressRepo, dialogueLines, audio);
     }
 
+    @Test void replayRejectsPassedStateBecauseDialogueOnlyCompletesWithoutAScore() {
+        var activity = dialogueActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.PASSED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        assertEquals(ErrorCode.NOT_FOUND, assertThrows(ApiException.class,
+                () -> service.practiceState(7L, 1L)).getErrorCode());
+        verifyNoInteractions(members, progressRepo, dialogueLines, audio);
+    }
+
+    @Test void replayFailsClosedWhenCanonicalDialogueWasRemoved() {
+        var activity = dialogueActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.COMPLETED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member(activity, 1, 201L, "rev-1")));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, assertThrows(ApiException.class,
+                () -> service.reviewState(7L, 1L)).getErrorCode());
+        verify(progressRepo, never()).save(any());
+    }
+
+    @Test void canonicalRelativeAudioUsesTheConfiguredPublicResourceRoute() {
+        var activity = dialogueActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.COMPLETED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member(activity, 1, 201L, "rev-1")));
+        when(dialogueLines.findAllById(any())).thenReturn(List.of(
+                dialogueLine(201L, "A", "A", "scene", "trai", "こんにちは。", "Xin chào.")));
+        var row = ContentAudio.builder().ownerId(201L).audioUrl("sekai-n5/audio/chuan-nu/clip.mp3").build();
+        when(audio.findByOwnerTypeAndOwnerIdIn(eq("CONTENT_ITEM"), any())).thenReturn(List.of(row));
+        assertEquals("/uploads/content-audio/sekai-n5/audio/chuan-nu/clip.mp3",
+                service.reviewState(7L, 1L).lines().getFirst().audioUrl());
+        for (String unsafe : List.of("//outside.example/a.mp3", "../private.mp3", "javascript:alert(1)",
+                "https://user:pass@outside.example/a.mp3", "%2e%2e/private.mp3", "a\\private.mp3")) {
+            row.setAudioUrl(unsafe);
+            assertNull(service.reviewState(7L, 1L).lines().getFirst().audioUrl(), unsafe);
+        }
+    }
+
     @Test void lockedDialogueCannotBeOpenedThroughDirectStudyEndpoint(){
         var activity=dialogueActivity(1L,7L);
         activity.setActivityState(LearningActivityState.LOCKED);

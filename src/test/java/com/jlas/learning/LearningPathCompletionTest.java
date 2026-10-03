@@ -56,7 +56,7 @@ class LearningPathCompletionTest {
                 new LearningFinalEligibilityServiceImpl(paths, packages, stages), stages, qualification, events);
 
         path = UserLearningPath.builder().id(5L).user(User.builder().id(USER).build())
-                .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).status("ACTIVE").title("P").build();
+                .goal("JLPT").experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).status("ACTIVE").title("P").build();
         n5 = UserLearningStage.builder().id(10L).learningPath(path).level("N5").stageIndex(0).status("COMPLETED").build();
         n4 = UserLearningStage.builder().id(11L).learningPath(path).level("N4").stageIndex(1).status("ACTIVE").build();
         when(paths.lockActiveInteractive(USER)).thenReturn(Optional.of(path));
@@ -87,6 +87,14 @@ class LearningPathCompletionTest {
 
     private void qualifies() {
         when(qualification.verify(USER, ATTEMPT, "N4")).thenReturn(new JlptQualificationPort.Result(true, null));
+    }
+
+    @Test void communicationPathCannotBeCompletedUsingAJlptAttempt() {
+        path.setGoal("TRAVEL");
+        assertEquals(ErrorCode.VALIDATION_FAILED, assertThrows(ApiException.class,
+                () -> service.completeFromMock(USER, ATTEMPT)).getErrorCode());
+        verifyNoInteractions(qualification, events, packages);
+        verify(paths, never()).save(any());
     }
 
     @Test void completesOnceWhenEligibleAndAttemptQualifies() {

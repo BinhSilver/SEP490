@@ -204,6 +204,40 @@ test('renders server-owned completed sessions and only server-allowed replay act
   assert.doesNotMatch(html, /\/learning\/v2\/grammar\?activity=45/);
 });
 
+test('session continuation links only unlocked children and keeps completed child replay available', () => {
+  const data = path({ packages: [{ id: 9, phase: 'GOAL_LEARNING', dayNumber: 1, orderIndex: 1,
+    title: 'Bài 1', status: 'IN_PROGRESS', activities: [], sessions: [
+      { sessionType: 'KANJI_GRAMMAR', state: 'IN_PROGRESS', allowedActions: ['CONTINUE'], activities: [
+        { id: 41, type: 'KANJI', state: 'PASSED' }, { id: 42, type: 'GRAMMAR', state: 'STUDYING' }] },
+      { sessionType: 'DIALOGUE', state: 'LOCKED', allowedActions: [], activities: [
+        { id: 43, type: 'DIALOGUE', state: 'LOCKED' }] }
+    ] }] });
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/grammar\?activity=42"/);
+  assert.match(html, /href="\/learning\/v2\/kanji\?activity=41&amp;mode=review"/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/dialogue\?activity=43/);
+});
+
+test('completed legacy and warm-up packages retain replay actions without session projection', () => {
+  const html = page.render(path({ packages: [{ id: 9, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1,
+    title: 'Ôn đọc', status: 'COMPLETED', activities: [{ id: 7, type: 'READING', state: 'PASSED' }] }] }));
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=7&amp;mode=review"/);
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=7&amp;mode=practice"/);
+});
+
+for (const count of [0, 1, 4]) {
+  test(`reference-only vocabulary renders ${count} words without a flashcard activity`, () => {
+    const words = Array.from({ length: count }, (_, i) => ({ expression: '語' + i, meaning: 'từ ' + i }));
+    const html = page.render(path({ packages: [{ id: 1, phase: 'GOAL_LEARNING', dayNumber: 1, orderIndex: 1,
+      title: 'Ngữ pháp', status: 'IN_PROGRESS', activities: [], sessions: [{ sessionType: 'KANJI_GRAMMAR',
+        state: 'IN_PROGRESS', allowedActions: ['CONTINUE'], activities: [{ id: 2, type: 'GRAMMAR', state: 'STUDYING' }],
+        referenceVocabulary: words }] }] }));
+    assert.equal(html.includes('Từ tham khảo ngắn'), count > 0);
+    for (const word of words) assert.ok(html.includes(word.expression));
+    assert.doesNotMatch(html, /\/learning\/v2\/vocabulary/);
+  });
+}
+
 // ---- Task 8: package completion popup ----
 
 test('popupModel is null for a package that is not just-completed', () => {

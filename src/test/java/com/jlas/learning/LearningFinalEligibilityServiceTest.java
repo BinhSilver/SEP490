@@ -12,6 +12,13 @@ import org.junit.jupiter.api.Test;
  * below are tiny count tuples for code tests only, not curriculum data. */
 class LearningFinalEligibilityServiceTest {
 
+    @Test void communicationStageDoesNotOpenJlptMockAtFiftyPercent() {
+        var result = LearningFinalEligibilityServiceImpl.evaluate(List.of(stage(1, 0, "BASIC", 5, 10)));
+        assertFalse(result.eligible());
+        assertEquals("NOT_APPLICABLE", result.reasonCode());
+        assertEquals(50, result.stages().getFirst().percent());
+    }
+
     private static StageCount stage(long id, int index, String level, int completed, int total) {
         return new StageCount(id, index, level, "ACTIVE", completed, total);
     }

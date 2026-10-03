@@ -170,13 +170,13 @@
     }
 
     async function sendHeartbeat() {
-      if (finished || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
+      if (mode !== 'LEARN' || finished || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
       try { applyProgress(await postJson('/heartbeat', { heartbeatToken: genToken() })); }
       catch (e) { /* transient network errors do not interrupt the reading session */ }
     }
 
     async function reportBottom() {
-      if (finished || bottomReported) return;
+      if (mode !== 'LEARN' || finished || bottomReported) return;
       bottomReported = true;
       try { applyProgress(await postJson('/reached-bottom', {})); }
       catch (e) { bottomReported = false; }

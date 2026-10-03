@@ -2,6 +2,32 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const page = require('../../main/resources/static/js/pages/interactive-dialogue-study.js');
 
+for (const mode of ['REVIEW', 'PRACTICE']) {
+  test(`mounted ${mode} never sends engagement writes after visibility changes`, async () => {
+    const vm = require('node:vm');
+    const fs = require('node:fs');
+    const events = {}, requests = [];
+    const node = { innerHTML: '', setAttribute() {}, addEventListener() {}, querySelector() { return null; } };
+    const document = { readyState: 'loading', visibilityState: 'visible',
+      getElementById: () => node, addEventListener: (name, handler) => { events[name] = handler; } };
+    const window = { document, location: { search: '?activity=1&mode=' + mode.toLowerCase() },
+      JlasAuth: { requireLogin: () => true, authHeaders: () => ({}) },
+      InteractiveStudyMode: { resolveMode: () => mode, banner: () => '' } };
+    const context = vm.createContext({ window, document, URLSearchParams, setInterval() { throw Error('Replay timer'); },
+      clearInterval() {}, fetch: async (url, options) => { requests.push({ url, method: options.method || 'GET' });
+        return { ok: true, json: async () => ({ data: study({ completed: true }) }) }; } });
+    vm.runInContext(fs.readFileSync(require.resolve('../../main/resources/static/js/pages/interactive-dialogue-study.js'), 'utf8'), context);
+    events.DOMContentLoaded();
+    await new Promise(setImmediate);
+    document.visibilityState = 'hidden'; events.visibilitychange();
+    document.visibilityState = 'visible'; events.visibilitychange();
+    await new Promise(setImmediate);
+    assert.deepEqual(requests.map(r => r.method), ['GET']);
+    assert.match(requests[0].url, new RegExp('/' + mode.toLowerCase() + '$'));
+    assert.doesNotMatch(node.innerHTML, /dialogueBottomSentinel/);
+  });
+}
+
 function line(overrides = {}) {
   return Object.assign({
     lineId: 201, orderIndex: 1, roleCode: 'STAFF', roleName: 'Nhân viên', sceneCode: 'scene-1',

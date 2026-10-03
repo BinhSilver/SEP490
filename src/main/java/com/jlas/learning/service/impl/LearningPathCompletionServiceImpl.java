@@ -70,6 +70,10 @@ public class LearningPathCompletionServiceImpl implements LearningPathCompletion
             }
             throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình tương tác đang hoạt động.");
         }
+        if (!"JLPT".equals(active.getGoal())) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                    "Chỉ lộ trình JLPT mới được hoàn thành bằng kết quả Mock Test.");
+        }
 
         var decision = eligibility.forPath(active.getId());
         if (!decision.eligible()) {

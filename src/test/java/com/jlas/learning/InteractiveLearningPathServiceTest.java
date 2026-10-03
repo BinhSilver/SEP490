@@ -528,7 +528,7 @@ class InteractiveLearningPathServiceTest {
 
     // ---- Task 10: path-level completion once every GOAL_LEARNING package is COMPLETED ----
 
-    @Test void pathCompletesWhenItsOnlyGoalLearningPackageCompletes() {
+    @Test void jlptPathStillRequiresMockQualificationAfterItsLastPackageCompletes() {
         var pkg = completedTrigger();
         var activities = activities(pkg);
         markAllTerminal(activities);
@@ -540,9 +540,42 @@ class InteractiveLearningPathServiceTest {
         service.packageDetail(7L, 11L);
 
         UserLearningPath path = pkg.getLearningPath();
-        assertEquals("COMPLETED", path.getStatus());
-        assertNotNull(path.getCompletedAt());
-        verify(paths, times(1)).save(path);
+        assertEquals("ACTIVE", path.getStatus());
+        assertNull(path.getCompletedAt());
+        assertNull(path.getCompletionAttemptId());
+        verify(paths, never()).save(any());
+    }
+
+    @Test void surveyOnlyPathCompletesWithoutAJlptAttempt() {
+        var pkg = completedTrigger();
+        pkg.getLearningPath().setGoal("TRAVEL");
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+        service.packageDetail(7L, 11L);
+        assertEquals("COMPLETED", pkg.getLearningPath().getStatus());
+        assertNotNull(pkg.getLearningPath().getCompletedAt());
+        assertNull(pkg.getLearningPath().getCompletionAttemptId());
+    }
+
+    @Test void legacyPathWithMissingGoalFailsClosedAndDoesNotAutoComplete() {
+        var pkg = completedTrigger();
+        pkg.getLearningPath().setGoal(null);
+        var activities = activities(pkg);
+        markAllTerminal(activities);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        stubNoScoredSessions();
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals("ACTIVE", pkg.getLearningPath().getStatus());
+        assertNull(pkg.getLearningPath().getCompletedAt());
+        verify(paths, never()).save(any());
     }
 
     @Test void pathStaysActiveWhileAnotherGoalLearningPackageIsStillIncomplete() {

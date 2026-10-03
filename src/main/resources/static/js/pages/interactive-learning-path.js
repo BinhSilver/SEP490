@@ -71,8 +71,11 @@
   function modeHref(type, id, mode) {
     return ACTIVITY_PATH[type] + '?activity=' + encodeURIComponent(id) + '&amp;mode=' + mode.toLowerCase();
   }
+  function activityDone(a) {
+    return a.type === 'DIALOGUE' ? a.state === 'COMPLETED' : a.state === 'PASSED' || a.state === 'COMPLETED';
+  }
   function activityRow(a, index) {
-    var done = a.state === 'PASSED' || a.state === 'COMPLETED';
+    var done = activityDone(a);
     var active = a.state === 'STUDYING' || a.state === 'CHECK_READY' || a.state === 'COOLDOWN';
     var label = ACTIVITY_LABEL[a.type] || a.type;
     var state = done ? 'Đã hoàn thành' : active ? 'Đang học' : 'Chưa mở';
@@ -82,7 +85,7 @@
     // [JLAS-W0193] RC Task 5 — Reading/Listening routes keyed by the server-reported activity type, same as
     // every other entry here: the roadmap never guesses which player to open, it only looks up `a.type`.
     var path = ACTIVITY_PATH[a.type];
-    if (path && !done && a.state !== 'LOCKED') {
+    if (path && !done && active) {
       return '<li class="' + css + '"><a class="ilp-activity__link" href="' + path + '?activity=' +
         encodeURIComponent(a.id) + '">' + inner + '</a></li>';
     }
@@ -103,14 +106,19 @@
       var actions = Array.isArray(session.allowedActions) ? session.allowedActions : [];
       var rows = (Array.isArray(session.activities) ? session.activities : []).map(function (a, index) {
         var label = ACTIVITY_LABEL[a.type] || a.type;
-        var links = actions.filter(function (action) {
-          return (action === 'REVIEW' || action === 'PRACTICE') && ACTIVITY_PATH[a.type];
+        var done = activityDone(a);
+        var learnAllowed = actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0;
+        if (learnAllowed && !done) return activityRow(a, index);
+        // A passed Kanji child stays reviewable while Grammar in the same session is still being learned.
+        var childActions = done && learnAllowed ? modesFor(a.type) : actions;
+        var links = childActions.filter(function (action) {
+          return done && (action === 'REVIEW' || action === 'PRACTICE') && ACTIVITY_PATH[a.type];
         }).map(function (action) {
           return '<a class="ilp-activity__mode" href="' + modeHref(a.type, a.id, action) + '">' +
             (MODE_LINK_LABEL[action] || action) + '</a>';
         }).join('');
         return '<li class="ilp-activity' + ((a.state === 'PASSED' || a.state === 'COMPLETED') ? ' is-done' : '') + '">' +
-          '<span class="ilp-activity__mark">' + ((a.state === 'PASSED' || a.state === 'COMPLETED') ? '✓' : String(index + 1).padStart(2, '0')) +
+          '<span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) +
           '</span><span><strong>' + esc(label) + '</strong><small>' + esc(ACTIVITY_STATE_LABEL[a.state] || a.state || '') + '</small></span>' +
           (links ? '<span class="ilp-activity__modes">' + links + '</span>' : '') + '</li>';
       }).join('');
@@ -254,7 +262,7 @@
         '<span class="ilp-day__number">' + String(pkg.dayNumber).padStart(2, '0') + '</span>' +
         '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) + '</h3></div>' +
         '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span>' +
-        sessionRows(pkg) + '</article>';
+        (sessionRows(pkg) || '<ol class="ilp-activities">' + activityRows(pkg) + '</ol>') + '</article>';
     }
     if (pkg.status === 'LOCKED') {
       return '<article class="ilp-day ilp-day--locked" data-package-card="' + esc(String(pkg.id)) + '">' +

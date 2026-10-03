@@ -118,7 +118,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                         currentProgress(activityId, member))).toList();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 membership.getFirst().getSourceRevision(), membership.size(),
-                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), true, views);
+                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false, views);
     }
 
     @Override
@@ -263,7 +263,12 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
 
     private Map<Long, GrammarPoint> loadPoints(List<LearningActivityMember> membership) {
         List<Long> ids = membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList();
-        return grammarPoints.findAllById(ids).stream().collect(Collectors.toMap(GrammarPoint::getId, g -> g));
+        Map<Long, GrammarPoint> result = grammarPoints.findAllById(ids).stream()
+                .collect(Collectors.toMap(GrammarPoint::getId, g -> g));
+        if (!result.keySet().containsAll(ids)) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Nội dung ngữ pháp không còn đầy đủ. Vui lòng thử lại sau.");
+        }
+        return result;
     }
 
     private LearningGrammarPracticeProgress currentProgress(Long activityId, LearningActivityMember member) {

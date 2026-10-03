@@ -232,11 +232,12 @@ test('passed activities expose links to the modes the page supports', () => {
   assert.doesNotMatch(studyMode.passedActions('/learning/v2/grammar', 77, ['PRACTICE']), /mode=review/);
 });
 
-// ---- Layout contract: 1180px desktop, single column at 375px, reduced motion ----
+// ---- Approved three-session layout: 1320px desktop, single column at 375px ----
 
-test('roadmap CSS caps the desktop container at 1180px and collapses to one column on phones', () => {
+test('roadmap CSS gives lessons a 1320px shell and collapses to one column on phones', () => {
   const css = fs.readFileSync(path.join(root, 'static/css/pages/interactive-learning-path.css'), 'utf8');
-  assert.match(css, /\.ilp-page\s*\{[^}]*max-width:\s*1180px/);
+  assert.match(css, /\.ilp-page\s*\{[^}]*max-width:\s*1320px/);
+  assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\) 250px/);
   assert.match(css, /@media \(max-width:\s*520px\)/);
   assert.match(css, /\.ilp-stage-progress/);
   assert.match(css, /\.ilp-toast/);
@@ -352,14 +353,15 @@ test('the passed screen offers both modes for Reading and Listening', () => {
   assert.match(html, /mode=review/);
 });
 
-test('summary lists review and practice links for finished activities only, and none for dialogue', () => {
+test('summary lists review and practice links including score-free dialogue replay', () => {
   const html = summary.render({ pathId: 1, status: 'ACTIVE', studyLinks: [
     { activityId: 11, type: 'READING', state: 'PASSED' }, { activityId: 12, type: 'VOCABULARY', state: 'PASSED' },
     { activityId: 13, type: 'DIALOGUE', state: 'COMPLETED' }] });
   assert.match(html, /\/learning\/v2\/reading\?activity=11&amp;mode=review/);
   assert.match(html, /\/learning\/v2\/reading\?activity=11&amp;mode=practice/);
   assert.match(html, /\/learning\/v2\/vocabulary\?activity=12&amp;mode=review/);
-  assert.doesNotMatch(html, /dialogue\?activity=13/);
+  assert.match(html, /dialogue\?activity=13&amp;mode=review/);
+  assert.match(html, /dialogue\?activity=13&amp;mode=practice/);
 });
 
 test('summary without study links renders no review section', () => {
