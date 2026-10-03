@@ -45,7 +45,11 @@ class DictionaryEngagementServiceTest {
         assertEquals(5L, response.vocabularyId());
         assertEquals("/dictionary/index.html?q=%E6%97%85%E8%A1%8C", response.detailUrl());
         verify(history).save(argThat(row -> row.getUser().getId().equals(7L)
-                && row.getSelectedVocabulary().getId().equals(5L)));
+                && row.getSelectedVocabulary().getId().equals(5L)
+                && "旅行".equals(row.getQueryText())
+                && "旅行".equals(row.getNormalizedQuery())
+                && "KANJI".equals(row.getSearchMode())
+                && row.getResultCount() == 1));
 
         service.inlineLookup("旅行", null);
         verify(history, times(1)).save(any());
@@ -53,16 +57,17 @@ class DictionaryEngagementServiceTest {
 
     @Test void quickSaveIsIdempotentAndOwned() {
         var entry = VocabularyEntry.builder().id(5L).expression("旅行").build();
+        var favorite = DictionaryFavorite.builder()
+                .id(new DictionaryFavorite.DictionaryFavoriteId(7L, 5L)).vocabularyEntry(entry).build();
         when(vocabulary.findById(5L)).thenReturn(Optional.of(entry));
-        when(users.getReferenceById(7L)).thenReturn(User.builder().id(7L).build());
+        when(favorites.insertIgnore(7L, 5L)).thenReturn(1, 0);
         when(favorites.findById(new DictionaryFavorite.DictionaryFavoriteId(7L, 5L)))
-                .thenReturn(Optional.empty(), Optional.of(DictionaryFavorite.builder()
-                        .id(new DictionaryFavorite.DictionaryFavoriteId(7L, 5L)).vocabularyEntry(entry).build()));
-        when(favorites.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+                .thenReturn(Optional.of(favorite));
 
         assertTrue(service.saveFavorite(7L, 5L).created());
         assertFalse(service.saveFavorite(7L, 5L).created());
-        verify(favorites, times(1)).save(any());
+        verify(favorites, times(2)).insertIgnore(7L, 5L);
+        verify(favorites, never()).save(any());
     }
 
     @Test void favoritesArePagedByOwner() {
@@ -74,5 +79,25 @@ class DictionaryEngagementServiceTest {
         var page = service.favorites(7L, 0, 20);
         assertEquals(1, page.getTotalElements());
         assertEquals("旅行", page.getContent().getFirst().expression());
+    }
+
+    @Test void historyIsPagedByOwnerAndClampsRequestedSize() {
+        var entry = VocabularyEntry.builder().id(5L).expression("旅行").build();
+        var row = DictionarySearchHistory.builder().id(11L).queryText("旅行")
+                .normalizedQuery("旅行").searchMode("KANJI").resultCount(3)
+                .selectedVocabulary(entry).build();
+        when(history.findByUserIdOrderBySearchedAtDesc(eq(7L), any(Pageable.class)))
+                .thenAnswer(invocation -> {
+                    Pageable pageable = invocation.getArgument(1);
+                    assertEquals(0, pageable.getPageNumber());
+                    assertEquals(50, pageable.getPageSize());
+                    return new PageImpl<>(List.of(row), pageable, 1);
+                });
+
+        var page = service.history(7L, -2, 500);
+
+        assertEquals(1, page.getTotalElements());
+        assertEquals(5L, page.getContent().getFirst().getSelectedVocabularyId());
+        verify(history).findByUserIdOrderBySearchedAtDesc(eq(7L), any(Pageable.class));
     }
 }

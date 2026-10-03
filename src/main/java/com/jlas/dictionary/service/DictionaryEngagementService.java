@@ -52,13 +52,13 @@ public class DictionaryEngagementService {
     @Transactional
     public DictionaryFavoriteResponse saveFavorite(Long userId, Long vocabularyId) {
         var id = new DictionaryFavorite.DictionaryFavoriteId(userId, vocabularyId);
-        var existing = favorites.findById(id);
-        if (existing.isPresent()) return favorite(existing.get(), false);
-        VocabularyEntry entry = vocabulary.findById(vocabularyId)
+        vocabulary.findById(vocabularyId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy từ vựng."));
-        DictionaryFavorite saved = favorites.save(DictionaryFavorite.builder().id(id)
-                .user(users.getReferenceById(userId)).vocabularyEntry(entry).build());
-        return favorite(saved, true);
+        boolean created = favorites.insertIgnore(userId, vocabularyId) == 1;
+        DictionaryFavorite saved = favorites.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.CONFLICT,
+                        "Không thể lưu từ yêu thích. Vui lòng thử lại."));
+        return favorite(saved, created);
     }
 
     @Transactional
