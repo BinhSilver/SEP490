@@ -1,5 +1,5 @@
 -- =============================================================================
--- JLAS - TOÀN BỘ PHẦN BỔ SUNG SAU jlas_schema.sql (gộp từ sql/migrations 001 -> 012)
+-- JLAS - TOÀN BỘ PHẦN BỔ SUNG SAU jlas_schema.sql (gộp từ sql/migrations 001 -> 013)
 --
 -- Thứ tự chạy trên DB mới:
 --   1) mysql -u root -p --default-character-set=utf8mb4 < jlas_schema.sql
@@ -471,3 +471,85 @@ CREATE TABLE IF NOT EXISTS shadowing_view_milestone (
     CONSTRAINT fk_shadowing_view_milestone_video FOREIGN KEY (video_id)
         REFERENCES video(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- #############################################################################
+-- 013) JLAS-W0205: alternate scenario cases
+-- #############################################################################
+-- [JLAS-W0205] Apply after the original base schema, for both fresh and existing databases.
+-- Run against the intended database; no USE statement. Safe to run again.
+SET @aicall_parent_exists = (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'parent_scenario_id');
+SET @aicall_parent_ddl = IF(@aicall_parent_exists = 0,
+    'ALTER TABLE scenario ADD COLUMN parent_scenario_id BIGINT UNSIGNED NULL, ADD KEY idx_scenario_parent (parent_scenario_id,is_active), ADD CONSTRAINT fk_scenario_parent FOREIGN KEY (parent_scenario_id) REFERENCES scenario(id)',
+    'SELECT 1');
+PREPARE aicall_parent_stmt FROM @aicall_parent_ddl;
+EXECUTE aicall_parent_stmt;
+DEALLOCATE PREPARE aicall_parent_stmt;
+
+SET @aicall_title_exists = (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'variant_title');
+SET @aicall_title_ddl = IF(@aicall_title_exists = 0,
+    'ALTER TABLE scenario ADD COLUMN variant_title VARCHAR(200) NOT NULL DEFAULT ''Tình huống thông thường''',
+    'SELECT 1');
+PREPARE aicall_title_stmt FROM @aicall_title_ddl;
+EXECUTE aicall_title_stmt;
+DEALLOCATE PREPARE aicall_title_stmt;
+
+-- #############################################################################
+-- 014) JLAS-W0206: durable stage progress
+-- #############################################################################
+-- [JLAS-W0206] Durable AI Call stage progress and review attempts. Safe to re-run.
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_code');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_code VARCHAR(100) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_definition_json');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_definition_json JSON NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_cursor');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_cursor INT NOT NULL DEFAULT 0','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_passed');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_passed BOOLEAN NOT NULL DEFAULT FALSE','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='content_review');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN content_review BOOLEAN NOT NULL DEFAULT FALSE','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='current_state_code');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN current_state_code VARCHAR(80) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='completed_objectives');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN completed_objectives JSON NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='last_activity_at');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN last_activity_at DATETIME(6) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_index_exists=(SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='conversation_session' AND index_name='idx_session_stage_progress');
+SET @stage_ddl=IF(@stage_index_exists=0,'ALTER TABLE conversation_session ADD KEY idx_session_stage_progress (user_id,scenario_id,stage_code,stage_passed)','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
