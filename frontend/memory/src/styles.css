@@ -500,6 +500,29 @@
 .memory-shell::before, .memory-shell::after { display: none; }
 .memory-turn--sample span, .memory-turn--sample span.is-mine { color: #1467a6; }
 
+/* Màn kết quả trên nền trắng: bộ màu gốc là kính mờ chữ trắng cho nền navy nên bị chìm. */
+.memory-result { border: 1px solid #dbe7f1; background: #f7fbfe; color: #1b2a35; box-shadow: 0 14px 34px rgba(49,94,120,.12); backdrop-filter: none; zoom: .9; }
+.memory-result .memory-kicker { color: #e0891a; }
+.memory-result h2 { color: #0f3b61; }
+.memory-result > p:not(.memory-kicker) { color: #4c6070; }
+.memory-result__stats span { border-color: #dbe7f1; background: #fff; color: #4c6070; }
+.memory-result__stats strong { color: #1467a6; }
+.memory-result__ranking li { border-color: #dbe7f1; background: #fff; color: #4c6070; }
+.memory-result__ranking li::before { color: #8a9bab; }
+.memory-result__ranking li strong { color: #1b2a35; }
+.memory-result__ranking li.is-winner { border-color: #f3b35c; background: #fff6e9; }
+.memory-review { border: 1px solid #fbe0bd; background: #fff8ef; }
+.memory-review h3 { color: #c46a0a; }
+.memory-review__list strong { color: #1b2a35; }
+.memory-review__list span { color: #4c6070; }
+.memory-result .memory-btn:not(.memory-btn--primary) { border-color: #cddbe7; background: #fff; color: #2b4252; }
+.memory-result .memory-btn:not(.memory-btn--primary):hover:not(:disabled) { border-color: #1467a6; background: #f3f8fc; color: #1467a6; }
+
+/* Các chỗ còn dùng màu của nền navy: hover nút tròn, đồng hồ sắp hết giờ, nhãn "đang chờ lượt". */
+.memory-sidebar-controls .memory-icon-btn:hover:not(:disabled) { border-color: #fff; background: #e3f0fb; color: #1467a6; }
+.memory-head-metrics strong.is-urgent { color: #c62828 !important; }
+.memory-player-panel__turn { background: #5f7282; }
+
 /* Nhãn chữ dưới các nút tròn (âm thanh, tạm dừng, rời bàn). */
 .memory-sidebar-controls__buttons { align-items: flex-start; padding-bottom: 20px; }
 .memory-sidebar-controls .memory-icon-btn { position: relative; }

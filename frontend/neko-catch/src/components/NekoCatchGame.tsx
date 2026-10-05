@@ -1517,7 +1517,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                     minWidth: 'min(220px, 92vw)',
                   }}
                 >
-                  <span className="text-[10px] tracking-[0.22em] font-black text-amber-200/90 uppercase mb-0.5">MỤC TIÊU</span>
+                  <span className="text-[10px] tracking-[0.22em] font-black text-amber-950 uppercase mb-0.5">MỤC TIÊU</span>
                   <span
                     lang={questionLang}
                     className={`${promptSizeClass(activeRound.prompt)} font-black text-white leading-tight text-center break-words max-w-full`}

@@ -1361,7 +1361,7 @@ function ResultLineRow({ line, meId }: { line: ResultLine; meId: number }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-        <span style={{ fontWeight: 800, fontSize: 14, width: 28, color: line.rank === 1 ? "var(--ok-tertiary-fixed-dim)" : "var(--ok-on-surface-variant)" }}>
+        <span style={{ fontWeight: 800, fontSize: 14, width: 28, color: line.rank === 1 ? "#9a6400" : "var(--ok-on-surface-variant)" }}>
           #{line.rank}
         </span>
         <div style={{ minWidth: 0 }}>
