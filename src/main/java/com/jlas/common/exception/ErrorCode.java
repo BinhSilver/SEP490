@@ -8,6 +8,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
     EMAIL_UNVERIFIED(HttpStatus.UNAUTHORIZED, "Email is not verified"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Access denied"),
+    AICALL_STAGE_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần hoàn thành các màn trước để mở màn này."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CONFLICT(HttpStatus.CONFLICT, "Conflict"),
     PENDING_VERIFICATION(HttpStatus.CONFLICT, "Email is pending verification"),

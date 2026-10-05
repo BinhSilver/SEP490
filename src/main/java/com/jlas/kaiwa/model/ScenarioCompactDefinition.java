@@ -15,8 +15,18 @@ public record ScenarioCompactDefinition(
         String initialState,
         List<Goal> goals,
         List<State> states,
+        List<Edge> edges,
+        List<String> terminalStateCodes,
+        List<BranchPath> paths,
         List<Hint> hints,
-        Map<String, Ending> endings) {
+        Map<String, Ending> endings,
+        List<SkillTransfer> skillTransfers,
+        List<ScenarioStage> stages,
+        List<ScenarioSpeaker> speakers) {
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record SkillTransfer(List<Integer> lessons, List<String> stateCodes, String explanation,
+                                String pattern, String example, String translation) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Goal(
@@ -38,7 +48,15 @@ public record ScenarioCompactDefinition(
             List<String> allowedGoalCodes,
             @JsonAlias("next") String nextStateCode,
             List<String> nextStateCodes,
-            List<String> suggestedReplies) {}
+            List<String> suggestedReplies,
+            String summary, String icon, Integer column, Integer row,
+            String speakerCode, String openingLine, String imageUrl) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Edge(String source, String target, String label, List<String> requiredGoalCodes, List<String> entryGoalCodes) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record BranchPath(String code, String title, List<String> stateCodes) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Hint(
