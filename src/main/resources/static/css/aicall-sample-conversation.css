@@ -1,0 +1,30 @@
+/* Keep conversation.css as the source of the chat's appearance. */
+.sample-conversation-page { overflow: hidden; }
+.sample-conversation-page .sample-conversation-shell { grid-template-columns: minmax(0, 1fr); height: var(--sample-shell-height, calc(100dvh - var(--header-h))); min-height: 0; }
+.sample-conversation-page .cv-main-top,
+.sample-conversation-page .sample-playback,
+.sample-conversation-page .msg-row { flex-shrink: 0; }
+.sample-conversation-page .cv-messages { min-height: 0; overscroll-behavior: contain; }
+.sample-conversation-page .sample-hide-furigana .bubble-text rt { opacity: 0; visibility: hidden; }
+.sample-conversation-page .sample-show-furigana .bubble-text rt { opacity: 1; visibility: visible; }
+.sample-conversation-page .sample-hide-translation .translation-line { display: none !important; }
+.sample-conversation-page .sample-show-translation .translation-line { display: block; }
+.sample-conversation-page .case-sample-audio audio { display: none; }
+.sample-conversation-page .case-sample-audio-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: .875rem; font-weight: 700; }
+.sample-conversation-page .case-sample-counter { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sample-conversation-page .case-sample-audio-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.sample-conversation-page .case-sample-study-controls { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.sample-conversation-page .case-sample-study-toggles { display: flex; align-items: center; gap: 8px; }
+.sample-conversation-page .sample-study-toggle { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; font-size: .875rem; }
+.sample-conversation-page .sample-study-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.sample-conversation-page .case-sample-speed { display: flex; align-items: center; gap: 8px; white-space: nowrap; color: var(--muted); font-size: .875rem; }
+.sample-conversation-page .case-sample-speed select { min-height: 36px; border: 1px solid var(--border); border-radius: 10px; padding: 6px; color: var(--text); background: var(--surface); }
+.sample-conversation-page .case-sample-timeline { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.sample-conversation-page .case-sample-timeline input { flex: 1; min-width: 0; min-height: 44px; accent-color: var(--accent); }
+.sample-conversation-page .case-sample-status { margin: 0; color: var(--muted); font-size: .8125rem; line-height: 1.5; }
+.sample-conversation-page [hidden] { display: none !important; }
+@media (max-width: 600px) {
+  .sample-conversation-page .case-sample-study-controls { margin-left: 0; }
+}
+@media (pointer: coarse) { .sample-conversation-page .sample-study-toggle { width: 44px; height: 44px; } }
+@media (max-height: 600px) { .sample-conversation-page { overflow-y: auto; } }

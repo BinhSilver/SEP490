@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+<div th:fragment="player(title)" class="case-sample-audio">
+    <div class="case-sample-audio-heading"><i class="fa-solid fa-headphones" aria-hidden="true"></i><span>Hội thoại mẫu</span><span class="case-sample-counter" data-sample-counter>Câu 0</span></div>
+    <audio data-sample-audio preload="none" th:attr="aria-label=${'Bản nghe: ' + title}"></audio>
+    <div class="case-sample-audio-actions">
+        <button type="button" class="btn btn-primary case-sample-play" data-sample-play disabled>
+            <i class="fa-solid fa-play" data-sample-play-icon aria-hidden="true"></i><span data-sample-play-label>Bắt đầu nghe</span>
+        </button>
+        <button type="button" class="btn btn-secondary case-sample-replay" data-sample-replay disabled>
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Nghe lại</span>
+        </button>
+        <div class="case-sample-study-controls">
+            <label class="case-sample-speed">Tốc độ
+                <select data-sample-speed disabled aria-label="Tốc độ nghe hội thoại mẫu">
+                    <option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option>
+                </select>
+            </label>
+            <div class="case-sample-study-toggles" role="group" aria-label="Công cụ học">
+                <button type="button" class="tool-chip sample-study-toggle active" data-sample-furigana aria-pressed="true" aria-label="Hiện Furigana" title="Hiện Furigana"><i class="fa-solid fa-language" aria-hidden="true"></i></button>
+                <button type="button" class="tool-chip sample-study-toggle" data-sample-translation-toggle aria-pressed="false" aria-label="Hiện bản dịch Việt" title="Hiện bản dịch Việt"><i class="fa-solid fa-globe" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-ghost case-sample-step" data-sample-previous disabled aria-label="Nghe câu trước"><i class="fa-solid fa-backward-step" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-ghost case-sample-step" data-sample-next disabled aria-label="Nghe câu tiếp theo"><i class="fa-solid fa-forward-step" aria-hidden="true"></i></button>
+    </div>
+    <div class="case-sample-timeline">
+        <span data-sample-elapsed>0:00</span>
+        <input type="range" data-sample-seek min="0" max="1" value="0" step="0.1" disabled aria-label="Vị trí trong toàn bộ hội thoại mẫu"/>
+        <span data-sample-duration>0:00</span>
+    </div>
+    <p class="case-sample-status" data-sample-status role="status" aria-live="polite">Bản nghe chưa sẵn sàng.</p>
+    <button type="button" class="btn btn-secondary case-sample-retry" data-sample-retry hidden><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Thử lại</button>
+    <noscript><p class="case-sample-status">Bật JavaScript để nghe hội thoại mẫu.</p></noscript>
+</div>
+</body>
+</html>

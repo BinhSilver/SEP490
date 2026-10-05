@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${sample.title + ' · Hội thoại mẫu'}">Hội thoại mẫu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20260930-contrast')}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-sample-conversation.css(v='20261004-compact-tools')}"/>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+</head>
+<body id="jlabBasePage" class="sample-conversation-page show-furigana">
+<div id="jlabBaseShellMount"></div>
+<main class="cv-shell sample-conversation-shell" id="jlabBaseContent">
+    <section class="cv-main" aria-label="Hội thoại mẫu" data-sample-autoscroll="always"
+             th:attr="data-sample-scenario=${sample.scenario.slug},data-sample-code=${sample.code},data-sample-background=${sample.backgroundUrl}">
+        <div class="cv-main-top">
+            <div><h1 th:text="${sample.title}">Hội thoại mẫu</h1><div class="sub"><span data-current-speaker th:text="${sample.scenario.aiRole != null ? sample.scenario.aiRole.name : 'AI'}">AI</span> · Bạn: <span th:text="${sample.scenario.userRole != null ? sample.scenario.userRole.name : 'Người học'}">Người học</span></div></div>
+            <div class="cv-header-actions"><span class="badge badge-blue">Hội thoại mẫu</span><a class="btn btn-ghost btn-sm" th:href="@{/scenario/{id}(id=${sample.scenario.id},stage=${sample.code})}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Quay lại</a></div>
+        </div>
+        <div class="cv-messages" id="chatMessages" data-sample-chat role="log" aria-live="polite" aria-relevant="additions" aria-label="Nội dung hội thoại mẫu" tabindex="0">
+            <article th:each="line, iteration : ${sample.lines}" th:class="'msg-row ' + ${line.speaker == 'ai' ? 'assistant' : 'user'}"
+                     th:attr="data-sample-role=${line.speaker}">
+                <div class="avatar"><span th:if="${line.speaker == 'ai'}">AI</span><i th:unless="${line.speaker == 'ai'}" class="fa-solid fa-user" aria-hidden="true"></i></div>
+                <div class="msg-col">
+                    <div class="msg-meta"><strong data-sample-speaker th:text="${line.speaker == 'ai' ? 'AI' : 'Bạn'}">AI</strong><span data-sample-message-time></span></div>
+                    <div class="bubble">
+                        <div class="bubble-text bubble-text--tokens jp" lang="ja" th:attr="data-sample-text=${line.text}"><th:block th:each="token : ${line.tokens}"><ruby class="token-fragment" th:if="${token.ruby}"><th:block th:text="${token.surface}"/><rt th:text="${token.reading}"></rt></ruby><span class="token-fragment" th:unless="${token.ruby}" th:text="${token.surface}"></span></th:block></div>
+                        <div class="translation-line show" lang="vi" data-sample-translation th:text="${line.translation}"></div>
+                        <div class="bubble-tools">
+                            <button type="button" class="tool-chip btn-tts" data-sample-line-play disabled th:attr="aria-label=${'Phát lại câu ' + (iteration.index + 1)}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Phát lại</button>
+                            <button type="button" class="tool-chip btn-copy" data-sample-copy title="Sao chép"><i class="fa-solid fa-copy" aria-hidden="true"></i> Chép</button>
+                            <button type="button" class="tool-chip btn-ruby" data-sample-line-furigana aria-pressed="true" aria-label="Hiện Furigana của câu này"><i class="fa-solid fa-language" aria-hidden="true"></i> あ</button>
+                            <button type="button" class="tool-chip btn-tr" data-sample-line-translation aria-pressed="false" aria-label="Hiện bản dịch Việt của câu này"><i class="fa-solid fa-globe" aria-hidden="true"></i> Việt</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="cv-compose sample-playback">
+            <div th:replace="~{aicall/fragments/sample-audio :: player(${sample.title})}"></div>
+        </div>
+    </section>
+</main>
+<script th:src="@{/js/auth-session.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/aicall-sample-conversation.js(v='20261004-conversation')}" defer></script>
+<script th:src="@{/js/pages/aicall-sample-audio.js(v='20261004-compact-tools')}" defer></script>
+</body>
+</html>
