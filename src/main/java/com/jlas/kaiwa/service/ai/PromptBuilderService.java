@@ -3,6 +3,7 @@ package com.jlas.kaiwa.service.ai;
 import com.jlas.kaiwa.model.*;
 import com.jlas.kaiwa.repository.*;
 import com.jlas.kaiwa.service.scenario.ScenarioJsonMapper;
+import com.jlas.kaiwa.util.StageFlowSupport;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +118,7 @@ public class PromptBuilderService {
         // legacy repository values above remain the fallback.
         Optional<ScenarioCompactDefinition> compactFlow = scenarioJsonMapper.readFlow(scenario.getFlowJson());
         Optional<ScenarioLearningContent> compactLearning =
-                scenarioJsonMapper.readLearningContent(scenario.getLearningContentJson());
+                scenarioJsonMapper.readLearningContent(scenario);
         if (compactFlow.isPresent()) {
             ScenarioCompactDefinition definition = compactFlow.get();
             if (definition.goals() != null) {
@@ -129,7 +130,8 @@ public class PromptBuilderService {
                         .map(PromptBuilderService::n).collect(Collectors.joining(", "));
                 objectives = definition.goals().stream()
                         .map(g -> "- [" + n(g.code()) + "] " + n(g.title())
-                                + (completedObjectives.contains(g.code()) ? " (DONE)" : " (TODO)"))
+                                + (completedObjectives.contains(g.code()) ? " (DONE)" : " (TODO)")
+                                + ": " + n(g.description()))
                         .collect(Collectors.joining("\n"));
                 conditions = definition.goals().stream()
                         .flatMap(g -> g.conditions() == null ? java.util.stream.Stream.empty() : g.conditions().stream()
@@ -165,6 +167,29 @@ public class PromptBuilderService {
         String aiPersonality = aiRole != null ? n(aiRole.getPersonality()) : "";
         String aiSpeech = aiRole != null ? n(aiRole.getSpeechStyle()) : "";
         String aiDefault = aiRole != null ? n(aiRole.getDefaultPrompt()) : "";
+        var stageCast = StageFlowSupport.stage(session);
+        List<ScenarioSpeaker> cast = stageCast != null && stageCast.speakers() != null
+                ? stageCast.speakers() : compactFlow.map(ScenarioCompactDefinition::speakers).orElse(null);
+        String speakerCode = stageCast != null && stageCast.speakerCodes() != null
+                && session.getStageCursor() < stageCast.speakerCodes().size()
+                ? stageCast.speakerCodes().get(session.getStageCursor())
+                : compactFlow.stream().flatMap(f -> f.states().stream())
+                    .filter(s -> java.util.Objects.equals(state == null ? null : state.getCode(), s.code()))
+                    .map(ScenarioCompactDefinition.State::speakerCode).filter(java.util.Objects::nonNull).findFirst().orElse(null);
+        ScenarioSpeaker actor = cast == null ? null : cast.stream()
+                .filter(s -> java.util.Objects.equals(speakerCode, s.code())).findFirst().orElse(null);
+        String castGuidance = "";
+        if (actor != null) {
+            aiName = actor.name(); aiSpeech = n(actor.speechStyle()); aiDefault = n(actor.description());
+            castGuidance = "\nCURRENT SPEAKER: " + actor.code() + " — " + actor.name() + ". "
+                    + "Speak ONLY as this character for this reply. Other assistant messages may belong to other people. "
+                    + "Keep their agreements and facts but do not claim their personal experiences as your own. "
+                    + "Do not play the learner, introduce unauthorized characters or change speaker inside reply. "
+                    + "The server introduces a different speaker only after a validated scene transition. "
+                    + "You may finish the current exchange or introduce the handover, but never speak the next person's lines. "
+                    + "A cashier does not give medical advice; a classmate does not authorize absences or change deadlines. "
+                    + "A new venue has different staff even when the same role/voice is reused; retain learner preferences, not the old venue's order.\n";
+        }
         String userName = userRole != null ? n(userRole.getName()) : "学習者";
         String userDesc = userRole != null ? n(userRole.getDescription()) : "";
         String background = ctx != null ? n(ctx.getBackground()) : n(scenario.getBackground());
@@ -174,6 +199,7 @@ public class PromptBuilderService {
         String stateName = state != null ? n(state.getName()) : "";
         String stateGoal = state != null ? n(state.getDescription()) : "";
         String statePrompt = state != null ? n(state.getStatePrompt()) : "";
+        String stateNext = "";
         if (compactFlow.isPresent() && compactFlow.get().states() != null && !compactFlow.get().states().isEmpty()) {
             ScenarioCompactDefinition definition = compactFlow.get();
             String wantedState = state != null && state.getCode() != null
@@ -183,6 +209,7 @@ public class PromptBuilderService {
                     .findFirst().orElse(definition.states().get(0));
             stateName = n(compactState.name() != null ? compactState.name() : compactState.code());
             statePrompt = n(compactState.systemInstruction());
+            stateNext = n(compactState.nextStateCode());
             stateGoal = compactState.allowedGoalCodes() == null
                     ? "" : String.join(", ", compactState.allowedGoalCodes());
         }
@@ -224,7 +251,7 @@ public class PromptBuilderService {
 
         String built = applyPlaceholders(template, vars);
         // Always append hard rules so old DB templates still avoid the "もう一度" loop
-        return built + """
+        return built + castGuidance + "\nCURRENT SCENE GOALS: " + stateGoal + "\nNEXT SCENE: " + stateNext + "\n" + """
 
                 ---
                 BẮT BUỘC (override):
@@ -240,7 +267,49 @@ public class PromptBuilderService {
                   Không tự kể bước nhảy thời gian và không hỏi trước mục tiêu của state kế tiếp;
                   giao diện sẽ hiển thị lời dẫn chuyển cảnh riêng.
                 - Trả về JSON đúng schema (reply, hasError, objectivesMet, readyToAdvanceState, readyToEnd...).
-                """;
+                - objectivesMet chỉ chứa mã mục tiêu mà câu người học thực sự đáp ứng mô tả;
+                  không đánh dấu chỉ vì có từ khóa hoặc vì chính AI đã nói thông tin đó.
+                - Chấp nhận câu diễn đạt tương đương. Nếu tất cả mục tiêu đã hoàn thành và
+                  state hiện tại có next=END, chào kết thúc và đặt readyToEnd=true.
+                """ + graphGuidance(scenario, session, state, compactFlow.orElse(null));
+    }
+
+    private String graphGuidance(Scenario scenario, ConversationSession session, ConversationState current, ScenarioCompactDefinition flow) {
+        if (flow == null || flow.edges() == null || flow.version() == null || flow.version() < 2) return "";
+        String code = current == null ? flow.initialState() : current.getCode();
+        String edges = flow.edges().stream().filter(e -> java.util.Objects.equals(code, e.source()))
+                .filter(e -> StageFlowSupport.permits(session,e.source(),e.target()))
+                .map(e -> e.target() + " | when: " + e.label() + " | requires: " + e.requiredGoalCodes()
+                        + " | allowed entry goals: " + (e.entryGoalCodes() == null ? java.util.List.of() : e.entryGoalCodes()))
+                .collect(Collectors.joining("\n"));
+        var stage=StageFlowSupport.stage(session);
+        String stageGuidance=stage==null?"":"\nSELECTED PRACTICE STAGE: "+stage.title()+"\n"
+                +"Authored route: "+stage.stateCodes()+"; route position: "+session.getStageCursor()+". "
+                +"Practice this specific situation; introduce its event naturally when its scene is reached. "
+                +"Only the next route beat or a listed clarification return is allowed. Do not skip the selected situation or open another stage. "
+                +"Required stage goals: "+stage.requiredGoalCodes()+". Do not end before the route and evidence are complete.\n";
+        return stageGuidance+"\nBRANCHING CONVERSATION (overrides linear next=END instructions):\n"
+                + "Current node: " + code + "\nAllowed outgoing edges ONLY:\n" + edges + "\n"
+                + "Return nextStateCode as one of these targets, or null to stay. readyToAdvanceState=true only with a valid edge. "
+                + "Choose according to learner intent and facts of the conversation; never pick contradictory conditions. "
+                + "Open optional branches only when the learner requests them or reports the relevant problem. Do not invent requests or repeated incidents. "
+                + "objectivesMet may contain CURRENT SCENE GOALS and ONLY explicitly allowed entry goals of a valid selected target, "
+                + "if the learner's CURRENT utterance already fulfills that target goal. "
+                + "Do not ask the learner to repeat an already-answered branch-opening question. Never credit goals from your own speech. "
+                + "For repeated nodes assess the NEW order/confirmation, not earlier completion. "
+                + "The full objective list includes optional scenes. Require only goals of scenes actually visited on this conversation's route; never force unused branches. "
+                + "Retain names, dates, quantities, products, preferences, agreed outcomes and next actions from history; do not reset shared nodes. "
+                + "Example lines in state guidance illustrate the speech act; adapt their facts to the conversation rather than replacing agreed facts. "
+                + "A solution may be pending verification or the learner may decline an offer. Do not invent a completed purchase, appointment, approval or contractual rule. "
+                + "Do not end merely because a subset of goals is done. Terminal targets: " + flow.terminalStateCodes() + ". "
+                + "At a terminal, say a fitting goodbye for the actual outcome. "
+                + ("restaurant-order-and-pay".equals(scenario.getSlug())
+                    ? "At SERVED, a taste complaint may open QUALITY_REPORT before RECEIVE. Retain the agreed remake, taste, wait and fees. "
+                      + "Recheck a replacement before resuming the meal; repeated dissatisfaction may reopen QUALITY_REPORT. "
+                      + "Use sold-out/wrong-dish at most once each. END_LEAVE means leaving without a meal or payment. " : "")
+                + "Respond to the current beat then naturally introduce the selected next beat with at most one question.\n"
+                + "Include this additional field in the returned JSON: \"nextStateCode\": \"TARGET_CODE\" (or null). "
+                + "Set readyToAdvanceState=true when selecting a target; otherwise leave both false/null.\n";
     }
 
     private static String applyPlaceholders(String template, Map<String, String> vars) {

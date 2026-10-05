@@ -35,6 +35,14 @@ public class OpenRouterClient {
     }
 
     public String complete(String systemPrompt, List<Map<String, String>> history, String userMessage) {
+        return complete(systemPrompt, history, userMessage, false);
+    }
+
+    public String completeGraph(String systemPrompt, List<Map<String, String>> history, String userMessage) {
+        return complete(systemPrompt, history, userMessage, true);
+    }
+
+    private String complete(String systemPrompt, List<Map<String, String>> history, String userMessage, boolean graph) {
         List<Map<String, String>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
         if (history != null) {
@@ -47,6 +55,13 @@ public class OpenRouterClient {
         body.put("messages", messages);
         body.put("temperature", 0.6);
         body.put("max_tokens", 512);
+        if (graph) {
+            // Leave room for reasoning plus the full control object. Reasoning
+            // must never be substituted for the NPC's JSON dialogue response.
+            body.put("max_tokens", 2048);
+            body.put("reasoning", Map.of("effort", "low", "exclude", true));
+            body.put("response_format", graphResponseFormat());
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
@@ -75,7 +90,7 @@ public class OpenRouterClient {
                 throw new IllegalStateException("OpenRouter error: " + responseBody.get("error"));
             }
 
-            String content = extractContent(responseBody);
+            String content = graph ? extractGraphContent(responseBody) : extractContent(responseBody);
             if (content == null || content.isBlank()) {
                 throw new IllegalStateException("OpenRouter message content empty (model may be thinking-only or wrong id: "
                         + config.getModel() + ")");
@@ -93,6 +108,28 @@ public class OpenRouterClient {
             log.error("OpenRouter call failed: {}", e.getMessage(), e);
             throw new IllegalStateException("OpenRouter call failed: " + e.getMessage(), e);
         }
+    }
+
+    static Map<String, Object> graphResponseFormat() {
+        Map<String, Object> fields = new java.util.LinkedHashMap<>();
+        fields.put("reply", Map.of("type", "string", "description", "Japanese NPC reply only"));
+        fields.put("hasError", Map.of("type", "boolean"));
+        for (String key : List.of("originalWrong", "corrected", "grammarReason", "mistakeType", "nextStateCode")) {
+            fields.put(key, Map.of("type", List.of("string", "null")));
+        }
+        fields.put("objectivesMet", Map.of("type", "array", "items", Map.of("type", "string")));
+        fields.put("readyToAdvanceState", Map.of("type", "boolean"));
+        fields.put("readyToEnd", Map.of("type", "boolean"));
+        fields.put("expressions", Map.of("type", "array", "items", Map.of("type", "string")));
+        return Map.of("type", "json_schema", "json_schema", Map.of("name", "conversation_graph_turn", "strict", true,
+                "schema", Map.of("type", "object", "properties", fields, "required", new ArrayList<>(fields.keySet()), "additionalProperties", false)));
+    }
+
+    private static String extractGraphContent(Map<?, ?> responseBody) {
+        if (!(responseBody.get("choices") instanceof List<?> choices) || choices.isEmpty()
+                || !(choices.getFirst() instanceof Map<?, ?> choice)
+                || !(choice.get("message") instanceof Map<?, ?> message)) return null;
+        return stringifyContent(message.get("content"));
     }
 
     @SuppressWarnings("unchecked")
