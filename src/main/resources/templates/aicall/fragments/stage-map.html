@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi"><body>
+<section th:fragment="map(progress)" class="stage-map" data-stage-map
+         th:attr="data-scenario=${progress.scenario.id},data-recommended=${progress.recommendedCode},data-selected=${selectedStage},data-reviewer=${progress.reviewer}">
+    <header class="stage-map-heading">
+        <div><span class="stage-eyebrow"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Lộ trình luyện hội thoại</span><h2 th:text="${progress.scenario.catalogTitle}"></h2></div>
+        <nav class="stage-map-actions" aria-label="Thao tác màn luyện">
+            <a class="stage-map-action" data-stage-start aria-label="Bắt đầu màn" title="Bắt đầu màn" th:attr="data-scenario=${progress.scenario.id}" th:href="@{/scenario/{id}/start(id=${progress.scenario.id})}"><i class="fa-solid fa-microphone" aria-hidden="true"></i></a>
+            <a class="stage-map-action" data-stage-sample aria-label="Xem hội thoại mẫu" title="Xem hội thoại mẫu" th:attr="data-scenario=${progress.scenario.id}" th:href="@{/scenario/{id}/sample(id=${progress.scenario.id},stage=${progress.recommendedCode})}"><i class="fa-solid fa-comments" aria-hidden="true"></i></a>
+            <a class="stage-map-action" aria-label="Lịch sử" title="Lịch sử" th:href="@{/scenario/{id}/history(id=${progress.scenario.id})}"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></a>
+        </nav>
+    </header>
+    <p class="stage-review-notice" th:if="${progress.reviewer}"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Kiểm tra nội dung: mọi màn được mở cho CONTENT_ADMIN, ADMIN và SUPER_ADMIN. Lượt kiểm tra không cộng vào tiến trình học.</p>
+    <div class="stage-map-frame">
+    <div class="stage-map-viewport" tabindex="0" aria-label="Bản đồ mở khóa màn, cuộn ngang để xem tiếp">
+        <div class="stage-map-space"><div class="stage-map-canvas"><svg class="stage-map-edges" aria-hidden="true"></svg>
+            <div th:each="view : ${progress.stages}" class="stage-card" th:classappend="'stage-card--'+${view.status}" role="group"
+                    th:attr="data-stage=${view.definition.code},data-tier=${view.definition.tier},data-row=${view.definition.row},data-title=${view.definition.title},data-status=${view.status},data-status-label=${view.statusLabel},data-prerequisites=${#strings.listJoin(view.definition.prerequisites, ',')},data-requires=${#strings.listJoin(view.prerequisiteTitles, ' • ')},data-resume=${view.resumeSession},data-attempts=${view.attempts},data-score=${view.bestScore}">
+                <button type="button" class="stage-card-select" data-stage-select aria-pressed="false">
+                <span class="stage-card-number" th:text="${view.definition.number}"></span>
+                <span class="stage-card-copy"><strong th:text="${view.definition.title}"></strong><span class="stage-card-status"><i aria-hidden="true" th:class="${view.status=='locked'?'fa-solid fa-lock':view.status=='passed'?'fa-solid fa-circle-check':view.status=='active'?'fa-solid fa-circle-play':'fa-solid fa-unlock-keyhole'}"></i><span th:text="${view.statusLabel}"></span></span></span>
+                </button>
+                <a class="stage-card-detail" th:href="@{/scenario/{id}(id=${progress.scenario.id},stage=${view.definition.code})} + '#case-preparation-heading'">Xem bối cảnh và chuẩn bị hội thoại </a>
+                <span hidden data-stage-story><span th:each="step : ${view.story}" th:attr="data-story-code=${step.code},data-story-title=${step.title},data-story-summary=${step.summary},data-story-icon=${step.icon},data-story-ending=${step.ending},data-story-speaker=${step.speakerName}"></span></span>
+            </div>
+        </div></div>
+    </div>
+        <div class="stage-map-zoom" role="group" aria-label="Thu phóng bản đồ">
+            <button type="button" data-stage-zoom="in" aria-label="Phóng to bản đồ" title="Phóng to bản đồ"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+            <button type="button" data-stage-zoom="out" aria-label="Thu nhỏ bản đồ" title="Thu nhỏ bản đồ"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <section class="stage-story" aria-label="Diễn biến đầy đủ của nhánh đã chọn">
+        <h3><i class="fa-solid fa-route" aria-hidden="true"></i> <span data-stage-story-title>Câu chuyện của nhánh này</span></h3>
+        <div class="stage-story-viewport" tabindex="0" aria-label="Các bước từ mở đầu đến kết thúc, cuộn ngang để xem tiếp"><ol data-stage-story-steps></ol></div>
+    </section>
+</section>
+</body></html>

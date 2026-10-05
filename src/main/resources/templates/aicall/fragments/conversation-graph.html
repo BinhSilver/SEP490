@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi"><body>
+<section th:fragment="graph(graph, scenario)" class="conversation-graph" data-conversation-graph th:attr="data-graph-slug=${scenario.slug},data-initial=${graph.initialState},aria-label=${'Sơ đồ hội thoại: ' + scenario.catalogTitle}">
+    <div class="graph-heading"><div><span class="graph-kicker"><i th:class="${scenario.category.icon != null ? scenario.category.icon : 'fa-solid fa-comments'}" aria-hidden="true"></i> <span th:text="${scenario.category.title}"></span></span><h2 th:text="${scenario.catalogTitle}"></h2></div><a class="graph-practice" th:href="@{/scenario/{id}(id=${scenario.id})}"><i class="fa-solid fa-microphone" aria-hidden="true"></i> Chuẩn bị luyện</a></div>
+    <div class="graph-branches" aria-label="Xem đường đi ví dụ">
+        <button type="button" data-graph-all class="is-active" aria-pressed="true">Tất cả nhánh</button>
+        <button type="button" th:each="path : ${graph.stages != null and not #lists.isEmpty(graph.stages) ? graph.stages : graph.paths}" data-graph-path th:attr="data-path=${#strings.listJoin(path.stateCodes, ',')}" aria-pressed="false" th:text="${path.title}"></button>
+    </div>
+    <div class="graph-toolbar"><p><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Theo nhánh từ trái sang phải. Cuộn ngang để xem tiếp.</p><div><button type="button" data-graph-zoom="out" aria-label="Thu nhỏ"><i class="fa-solid fa-minus" aria-hidden="true"></i></button><button type="button" data-graph-zoom="reset">Cỡ ban đầu</button><button type="button" data-graph-zoom="in" aria-label="Phóng to"><i class="fa-solid fa-plus" aria-hidden="true"></i></button></div></div>
+    <div class="graph-viewport" tabindex="0" aria-label="Sơ đồ có thể cuộn ngang và dọc">
+        <div class="graph-space"><div class="graph-canvas">
+            <svg class="graph-edges" aria-hidden="true" focusable="false"></svg>
+            <button type="button" class="graph-node" th:each="state : ${graph.states}" th:attr="data-code=${state.code}, data-column=${state.column}, data-row=${state.row}, data-summary=${state.summary}, data-example=${#strings.listJoin(state.suggestedReplies, ' / ')}" aria-pressed="false">
+                <i th:class="${state.icon}" aria-hidden="true"></i><span th:text="${state.name}"></span><small th:if="${#lists.contains(graph.terminalStateCodes, state.code)}">Kết thúc</small>
+            </button>
+        </div></div>
+    </div>
+    <div hidden data-graph-edges><span th:each="edge : ${graph.edges}" th:attr="data-source=${edge.source},data-target=${edge.target},data-label=${edge.label}"></span></div>
+    <div hidden data-graph-skills><span th:each="skill : ${graph.skillTransfers}" th:attr="data-statecodes=${#strings.listJoin(skill.stateCodes, ',')},data-lessons=${#strings.listJoin(skill.lessons, ', ')},data-skill=${skill.explanation}"></span></div>
+    <div class="graph-inspector" aria-live="polite"><span class="graph-inspector-icon"><i class="fa-solid fa-route" aria-hidden="true"></i></span><div><h3 data-graph-title>Chọn một bước trong sơ đồ</h3><p data-graph-summary>Chọn một bước để xem diễn biến tiếp theo trong nhánh này.</p><p class="graph-example" lang="ja" data-graph-example></p><div class="graph-next" data-graph-next></div></div></div>
+    <p class="graph-lesson-note" data-graph-skill hidden></p>
+    <div class="graph-legend"><span> Diễn biến tiếp theo</span><span>Bước lặp lại được vẽ riêng trong từng nhánh.</span></div>
+</section>
+</body></html>
