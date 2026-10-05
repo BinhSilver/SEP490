@@ -3,49 +3,55 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Trang chủ · JLAS</title>
+    <title>Chủ đề hội thoại · AI Call</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-catalog.css(v='20261005-site-colors-2')}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
 </head>
 <body id="jlabBasePage">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent">
+<main id="jlabBaseContent" class="aicall-topic-list">
 
 <header class="page-header container">
-    <div class="eyebrow"><i class="fa-solid fa-layer-group"></i> AI Theo Kịch Bản</div>
-    <h1>Chọn chủ đề để luyện kaiwa</h1>
-    <p>Mỗi chủ đề có nhiều kịch bản (nhiệm vụ). AI đóng vai nhân vật — bạn hoàn thành mục tiêu hội thoại.</p>
-    <p style="margin-top:12px">
-        <a class="btn btn-ghost" th:href="@{/ai-call}"><i class="fa-solid fa-arrow-left"></i> Chọn chế độ khác</a>
-    </p>
+    <a class="topics-back" th:href="@{/ai-call}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Chọn chế độ khác</a>
+    <h1>Chọn chủ đề hội thoại</h1>
 </header>
 
-<section class="section" style="padding-top:0">
-    <div class="container">
-        <div class="grid-cats">
-            <a class="card cat-card" th:each="c : ${categories}" th:href="@{'/category/' + ${c.id}}">
-                <div class="cat-icon"><i th:class="${c.icon != null ? c.icon : 'fa-solid fa-comments'}"></i></div>
-                <div>
-                    <h3 th:text="${c.title}">Chủ đề</h3>
-                    <div class="jp" th:text="${c.titleJa}">日本語</div>
+<section class="container topics-section" aria-label="Danh sách chủ đề hội thoại">
+    <ul class="topics-list" th:unless="${#lists.isEmpty(categories)}">
+        <li th:each="c : ${categories}">
+            <details class="topic-accordion">
+            <summary class="topic-row">
+                <span class="topic-icon"><i th:class="${c.icon != null ? c.icon : 'fa-solid fa-comments'}" aria-hidden="true"></i></span>
+                <div class="topic-labels">
+                    <h2 th:text="${c.title}">Chủ đề</h2>
+                    <span class="topic-japanese" lang="ja" th:text="${c.titleJa}">日本語</span>
                 </div>
-                <div class="meta">
-                    <span class="badge"><i class="fa-solid fa-list"></i>
-                        <span th:text="${scenarioCounts[c.id]}">0</span> kịch bản
-                    </span>
-                </div>
-            </a>
-        </div>
-        <p th:if="${#lists.isEmpty(categories)}" style="color:var(--muted);margin-top:16px">
-            Chưa có chủ đề. Hãy import <code>data.sql</code> hoặc bật seed.
-        </p>
-    </div>
+                <span class="topic-count" th:text="${scenarioCounts[c.id]} + ' kịch bản'">1 kịch bản</span>
+                <i class="fa-solid fa-chevron-right topic-arrow" aria-hidden="true"></i>
+            </summary>
+            <ul class="topic-scenarios" th:unless="${#lists.isEmpty(scenariosByCategory[c.id])}">
+                <li th:each="s : ${scenariosByCategory[c.id]}">
+                    <a class="topic-scenario-link" th:href="@{/scenario/{id}(id=${s.id})}">
+                        <i th:class="${scenarioIcons[s.id]}" aria-hidden="true"></i>
+                        <span class="topic-scenario-title" th:text="${s.catalogTitle}"></span>
+                        <span class="topic-scenario-level" th:text="${s.jlptLevel}"></span>
+                        
+                    </a>
+                </li>
+            </ul>
+            <p class="topics-empty" th:if="${#lists.isEmpty(scenariosByCategory[c.id])}">Chưa có kịch bản trong chủ đề này.</p>
+            </details>
+        </li>
+    </ul>
+    <p th:if="${#lists.isEmpty(categories)}" class="topics-empty">Chưa có chủ đề hội thoại.</p>
 </section>
 
 </main>
