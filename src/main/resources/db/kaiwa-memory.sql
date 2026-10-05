@@ -60,4 +60,3 @@ CREATE TABLE IF NOT EXISTS kaiwa_conversation_memory (
     CONSTRAINT fk_kaiwa_bridge_memory FOREIGN KEY (memory_session_id) REFERENCES kaiwa_free_session(id) ON DELETE CASCADE,
     CONSTRAINT fk_kaiwa_bridge_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
