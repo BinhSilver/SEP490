@@ -1026,3 +1026,349 @@
   #jlabBasePage.flashcard-page--study .study-card-list__table-wrap { border-radius: 12px; }
   #jlabBasePage.flashcard-page--study .study-rating-star { width: 42px; height: 42px; font-size: 20px; }
 }
+
+/* Ghi nhớ: dòng "cần chấm 5 thêm N lần" và danh sách thẻ phải lặp nhiều nhất. */
+#jlabBasePage.flashcard-page--study .recall-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin: -4px 0 12px;
+  color: #4c5563;
+  font-size: 13px;
+}
+#jlabBasePage.flashcard-page--study .recall-status[hidden] { display: none; }
+#jlabBasePage.flashcard-page--study .recall-status__need {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #4f378a;
+  font-weight: 700;
+}
+#jlabBasePage.flashcard-page--study .recall-status__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #6d55b8;
+}
+#jlabBasePage.flashcard-page--study .recall-status__dot:last-of-type { margin-right: 4px; }
+#jlabBasePage.flashcard-page--study .recall-hard { margin-top: 16px; text-align: left; }
+#jlabBasePage.flashcard-page--study .recall-hard[hidden] { display: none; }
+#jlabBasePage.flashcard-page--study .recall-hard__title { margin: 0 0 8px; color: #1d1d1f; font-size: 14px; }
+#jlabBasePage.flashcard-page--study .recall-hard__list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+#jlabBasePage.flashcard-page--study .recall-hard__list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid #ece7f5;
+  border-radius: 10px;
+  background: #faf8fe;
+}
+#jlabBasePage.flashcard-page--study .recall-hard__list strong { color: #1d1d1f; font-size: 15px; overflow-wrap: anywhere; }
+#jlabBasePage.flashcard-page--study .recall-hard__list span { flex: none; color: #5b6170; font-family: var(--font-mono, monospace); font-size: 12px; }
+
+/* Toàn màn hình (nút ⤢): chỉ còn thẻ, bộ đếm hai bên và nút chấm, căn giữa như Quizlet. */
+#jlabBasePage.flashcard-page--study .study-focus-bar,
+#jlabBasePage.flashcard-page--study .study-focus-counts,
+#jlabBasePage.flashcard-page--study .study-focus-hint { display: none; }
+
+html.study-focus,
+html.study-focus body { overflow: hidden; }
+
+/* Ẩn header, dây kéo theme và nền của shell; khối học chiếm trọn màn hình. */
+html.study-focus #jlabBaseShellMount,
+html.study-focus #jlasThemePullcord { display: none !important; }
+html.study-focus #jlabBasePage.flashcard-page--study { padding-top: 0 !important; background: var(--stitch-canvas, #f7f8fb); }
+html.study-focus #jlabBasePage.flashcard-page--study #jlabBaseContent,
+html.study-focus #jlabBasePage.flashcard-page--study .study-main {
+  width: 100%;
+  background: var(--stitch-canvas, #f7f8fb) !important;
+  max-width: none;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  padding: 0 24px 24px;
+  overflow-y: auto;
+  background: var(--stitch-canvas, #f7f8fb);
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-wrap > * { order: 2; }
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-set-summary,
+html.study-focus #jlabBasePage.flashcard-page--study .study-mode-nav,
+html.study-focus #jlabBasePage.flashcard-page--study .study-card-list { display: none !important; }
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar {
+  order: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  width: calc(100% + 48px);
+  min-height: 72px;
+  margin: 0 -24px;
+  padding: 10px 24px;
+  background: var(--stitch-surface, #fff);
+  border-bottom: 1px solid var(--stitch-line, #e0e2e8);
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__modes { display: flex; gap: 4px; }
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__modes button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--stitch-muted, #5f6068);
+  font: 600 14px var(--font-body, inherit);
+  cursor: pointer;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__modes button:hover,
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__modes button.is-active {
+  background: #eeeafd;
+  color: #4f378a;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__center { display: grid; justify-items: center; gap: 2px; text-align: center; }
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__center strong { color: var(--stitch-ink, #1d1d1f); font-size: 17px; }
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__center span {
+  max-width: 44vw;
+  overflow: hidden;
+  color: var(--stitch-muted, #5f6068);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__actions { display: flex; justify-content: flex-end; gap: 8px; }
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--stitch-line, #e0e2e8);
+  border-radius: 50%;
+  background: var(--stitch-surface, #fff);
+  color: var(--stitch-ink, #1d1d1f);
+  font-size: 17px;
+  cursor: pointer;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-icon:hover { border-color: #4f378a; color: #4f378a; }
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-session-progress {
+  order: 1;
+  width: calc(100% + 48px);
+  height: 4px;
+  margin: 0 -24px 22px;
+  border-radius: 0;
+}
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-counts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1100px, 100%);
+  margin-bottom: 14px;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-count b {
+  display: grid;
+  min-width: 46px;
+  height: 32px;
+  padding: 0 10px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  font-size: 16px;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-count--learning { color: #b45309; }
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-count--known { color: #047857; }
+
+html.study-focus #jlabBasePage.flashcard-page--study .recall-status { width: min(1100px, 100%); margin: 0 0 10px; }
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-stage {
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  width: min(1100px, 100%);
+  margin-bottom: 0;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .flip-card { height: clamp(300px, calc(100dvh - 380px), 620px); }
+html.study-focus #jlabBasePage.flashcard-page--study .flip-text { font-size: clamp(40px, 6vw, 76px); }
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+  width: min(1100px, 100%);
+  margin: 12px 0 16px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #ece8fb;
+  color: #3b2f6b;
+  font-size: 14px;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-hint i { color: #4f378a; font-size: 17px; }
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-hint kbd {
+  padding: 1px 7px;
+  border: 1px solid #b9aee6;
+  border-radius: 6px;
+  background: #fff;
+  color: #1d1d1f;
+  font: 600 12px var(--font-mono, monospace);
+}
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-actions { width: min(720px, 100%); margin: 0; }
+
+@media (max-width: 640px) {
+  html.study-focus #jlabBasePage.flashcard-page--study .study-wrap { padding: 0 12px 16px; }
+  html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar,
+  html.study-focus #jlabBasePage.flashcard-page--study .study-session-progress { width: calc(100% + 24px); margin-inline: -12px; }
+  html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar { grid-template-columns: 1fr auto; padding: 8px 12px; }
+  html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__center { display: none; }
+  html.study-focus #jlabBasePage.flashcard-page--study .study-focus-bar__modes button { padding: 0 10px; font-size: 13px; }
+  html.study-focus #jlabBasePage.flashcard-page--study .study-focus-hint { display: none; }
+}
+
+/* Thanh dưới thẻ kiểu Quizlet, không khung: trái công tắc tiến độ, giữa nút chấm, phải cài đặt + toàn màn hình. */
+#jlabBasePage.flashcard-page--study .study-actions:not([hidden]) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  width: min(100%, 860px);
+  margin: 0 auto 22px;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.study-focus #jlabBasePage.flashcard-page--study .study-actions:not([hidden]) { width: min(1100px, 100%); }
+#jlabBasePage.flashcard-page--study .study-actions > [hidden],
+#jlabBasePage.flashcard-page--study .study-browse-actions > [hidden] { display: none !important; }
+#jlabBasePage.flashcard-page--study .study-actions__side { display: flex; align-items: center; gap: 6px; min-width: 0; }
+#jlabBasePage.flashcard-page--study .study-actions__side--right { justify-content: flex-end; }
+
+#jlabBasePage.flashcard-page--study .study-actions > .study-quality,
+#jlabBasePage.flashcard-page--study .study-actions > .study-browse-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+}
+#jlabBasePage.flashcard-page--study .study-actions > .study-browse-actions { gap: 18px; }
+#jlabBasePage.flashcard-page--study #jlabBaseContent .study-actions .study-quality .btn { min-width: 50px; min-height: 48px !important; padding: 0 12px; border: 0 !important; border-radius: 999px !important; }
+#jlabBasePage.flashcard-page--study .study-actions .study-quality #btn-flip { padding: 0 18px; }
+#jlabBasePage.flashcard-page--study #jlabBaseContent .study-actions .study-browse-actions .btn {
+  width: 92px;
+  min-height: 52px !important;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 999px !important;
+  font-size: 22px;
+}
+#jlabBasePage.flashcard-page--study .study-actions .study-browse-actions .study-browse-nav {
+  color: #3b3f4a;
+  background: #eef0f4;
+}
+#jlabBasePage.flashcard-page--study .study-actions .study-browse-actions .study-browse-nav:hover { color: #fff; background: #4f378a; }
+#jlabBasePage.flashcard-page--study .study-browse-position {
+  min-width: 64px;
+  color: #1d1d1f;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+#jlabBasePage.flashcard-page--study .study-actions__icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #3b3f4a;
+  font-size: 18px;
+  cursor: pointer;
+}
+#jlabBasePage.flashcard-page--study .study-actions__icon:hover { color: #4f378a; background: #eeeafd; }
+
+/* Công tắc "Theo dõi tiến độ" bên trái nút chấm (chỉ ở Lướt thẻ). */
+#jlabBasePage.flashcard-page--study .study-track-toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: #3b3f4a;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+#jlabBasePage.flashcard-page--study .study-track-toggle[hidden] { display: none; }
+#jlabBasePage.flashcard-page--study .study-track-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+#jlabBasePage.flashcard-page--study .study-track-toggle__switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex: none;
+  border-radius: 999px;
+  background: #c9ccd4;
+  transition: background .18s ease;
+}
+#jlabBasePage.flashcard-page--study .study-track-toggle__switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform .18s ease;
+}
+#jlabBasePage.flashcard-page--study .study-track-toggle input:checked + .study-track-toggle__switch { background: #4f378a; }
+#jlabBasePage.flashcard-page--study .study-track-toggle input:checked + .study-track-toggle__switch::after { transform: translateX(18px); }
+#jlabBasePage.flashcard-page--study .study-track-toggle input:focus-visible + .study-track-toggle__switch { outline: 3px solid #b9aee6; outline-offset: 2px; }
+
+html.study-focus #jlabBasePage.flashcard-page--study .study-focus-counts.is-off { visibility: hidden; }
+
+@media (max-width: 720px) {
+  /* Điện thoại: nút chấm một hàng riêng ở trên; công tắc và các icon ở hàng dưới. */
+  #jlabBasePage.flashcard-page--study .study-actions:not([hidden]) { grid-template-columns: 1fr 1fr; gap: 10px; }
+  #jlabBasePage.flashcard-page--study .study-actions > .study-quality,
+  #jlabBasePage.flashcard-page--study .study-actions > .study-browse-actions { grid-column: 1 / -1; grid-row: 1; width: 100%; }
+  #jlabBasePage.flashcard-page--study .study-actions .study-quality { gap: 5px; }
+  #jlabBasePage.flashcard-page--study #jlabBaseContent .study-actions .study-quality .btn { min-width: 0; flex: 1 1 0; padding: 0 4px; }
+  #jlabBasePage.flashcard-page--study #jlabBaseContent .study-actions .study-quality #btn-flip { flex: 1.5 1 0; }
+  #jlabBasePage.flashcard-page--study #jlabBaseContent .study-actions .study-browse-actions .btn { width: 80px; }
+  #jlabBasePage.flashcard-page--study .study-actions > .study-quality { width: 100%; }
+}
