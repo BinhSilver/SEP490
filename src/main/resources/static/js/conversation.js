@@ -64,15 +64,12 @@
   const scenarioId = body.dataset.scenarioId;
   const freeChat = body.dataset.freeChat === 'true' || window.__FREE_CHAT__ === true;
   const scenarioBackgroundUrl = body.dataset.backgroundUrl;
-  if (!freeChat && scenarioBackgroundUrl) {
-    const chatFrame = document.querySelector('.cv-main');
-    if (chatFrame) {
-      chatFrame.style.setProperty(
-        '--scenario-chat-background-image',
-        'url(' + JSON.stringify(scenarioBackgroundUrl) + ')'
-      );
-    }
-  }
+  const setSceneBackground = window.AiCallSceneImage.createSceneImageLoader(function(url){
+    if(freeChat)return;
+    const chatFrame=document.querySelector('.cv-main');
+    if(chatFrame)chatFrame.style.setProperty('--scenario-chat-background-image','url('+JSON.stringify(url)+')');
+  },function(){return new Image();});
+  if(!freeChat)setSceneBackground(scenarioBackgroundUrl);
   let ended = body.dataset.ended === 'true';
 
   const messagesEl = document.getElementById('chatMessages');
@@ -90,6 +87,9 @@
 
   let busy = false;
   let settings = loadSettings();
+  const hasCast = body.dataset.hasCast === 'true';
+  const teacherVoice = body.dataset.teacherVoice === 'true';
+  if (teacherVoice) settings.ttsGender = settings.teacherGender || 'male';
   if (freeChat) {
     // Trò chuyện tự do: chỉ phản hồi ngữ pháp cơ bản (không furigana/dịch/gợi ý/nhiệm vụ)
     settings.furigana = false;
@@ -405,6 +405,7 @@
   function bindTtsControls() {
     function setGender(g) {
       settings.ttsGender = normalizeGender(g);
+      if (teacherVoice) settings.teacherGender = settings.ttsGender;
       saveSettings();
       applyGenderButtons();
       updateTtsHint();
@@ -429,6 +430,10 @@
     }
     if (btnTtsTest) {
       btnTtsTest.addEventListener('click', function () {
+        if (hasCast) {
+          const latest = [...messagesEl.querySelectorAll('.msg-row.assistant[data-message-id]')].pop();
+          if (latest) return speak(latest.dataset.text, latest.querySelector('.btn-tts'));
+        }
         speak('こんにちは。よろしくお願いします。', btnTtsTest);
       });
     }
@@ -438,6 +443,8 @@
       .then(function (data) {
         if (ttsHint && data && data.configured === false) {
           ttsHint.textContent = 'Chưa cấu hình Fish Audio — điền fish.audio.api.key và voice model id trong application.properties';
+        } else if (ttsHint && hasCast) {
+          updateTtsHint();
         } else if (ttsHint && data && data.model) {
         ttsHint.textContent = 'Fish Audio · mô hình ' + data.model + ' · '
             + (normalizeGender(settings.ttsGender) === 'male' ? 'Nam' : 'Nữ');
@@ -448,6 +455,7 @@
 
   function updateTtsHint() {
     if (!ttsHint) return;
+    if (hasCast) { ttsHint.textContent = 'Giọng đọc theo nhân vật trong câu chuyện'; return; }
     const g = normalizeGender(settings.ttsGender) === 'male' ? 'Nam' : 'Nữ';
     ttsHint.textContent = 'Fish Audio · giọng ' + g + ' (model id trong application.properties)';
   }
@@ -806,7 +814,7 @@
       if (data.error && !data.assistantReply) {
         addMessageRow('assistant', data.error);
       } else {
-        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, data.assistantTranslation);
+        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, data.assistantTranslation, data.assistantSpeaker, data.assistantMessageId);
         if (data.feedback) appendFeedbackCard(learnerRow, data.feedback);
         if (data.error) {
           // hiện lỗi kỹ thuật nhỏ dưới bubble (không giả làm thoại AI)
@@ -816,7 +824,18 @@
           row.querySelector('.msg-col').appendChild(note);
         }
         if (data.sceneTransition) addSceneTransition(data.sceneTransition);
-        if (settings.autoplay) speak(data.assistantReply || '', row.querySelector('.btn-tts'));
+        if (data.sceneImageUrl) setSceneBackground(data.sceneImageUrl);
+        let audibleRow = row;
+        if (data.speakerOpening) {
+          const opening = data.speakerOpening;
+          audibleRow = addMessageRow('assistant', opening.text, null, null, null, opening.speaker, opening.messageId);
+          if (settings.furigana || settings.translation) ensureAnnotations(audibleRow, true);
+        }
+        if (data.currentSpeaker) {
+          window.__AI_ROLE__ = data.currentSpeaker.name;
+          document.querySelectorAll('[data-current-speaker]').forEach(function (label) { label.textContent = data.currentSpeaker.name; });
+        }
+        if (settings.autoplay) speak(audibleRow.dataset.text || '', audibleRow.querySelector('.btn-tts'));
         if (settings.furigana || settings.translation) ensureAnnotations(row, true);
       }
       if (data.chargeRefunded) {
@@ -866,17 +885,19 @@
     });
   }
 
-  function addMessageRow(role, text, feedback, tokens, translation) {
+  function addMessageRow(role, text, feedback, tokens, translation, speaker, messageId) {
     const row = document.createElement('div');
     row.className = 'msg-row ' + role;
     row.dataset.role = role;
     row.dataset.text = text;
+    if (messageId) row.dataset.messageId = messageId;
+    if (speaker) row.dataset.speakerCode = speaker.code;
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const learnerRole = window.__USER_ROLE__ || 'Bạn';
     const roleLabel = role === 'assistant'
-      ? (window.__AI_ROLE__ || 'AI')
+      ? (speaker ? speaker.name : window.__AI_ROLE__ || 'AI')
       : (freeChat || learnerRole === 'Bạn' ? 'Bạn' : 'Bạn · ' + learnerRole);
 
     let bubbleInner = '<div class="bubble-text jp msg-text"></div>';
@@ -1008,12 +1029,19 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function ttsPayload(text) {
-    return JSON.stringify({
+  function ttsPayload(text, btn) {
+    const payload = {
       text: text,
       gender: normalizeGender(settings.ttsGender),
       speed: clampTtsRate(settings.ttsRate)
-    });
+    };
+    const row = btn && btn.closest('.msg-row');
+    if (row && row.dataset.messageId) payload.messageId = Number(row.dataset.messageId);
+    else if (btn && btn.dataset.speakerCode) {
+      payload.sessionId = sessionId;
+      payload.speakerCode = btn.dataset.speakerCode;
+    }
+    return JSON.stringify(payload);
   }
 
   async function ttsResponseError(res) {
@@ -1119,7 +1147,7 @@
     const responsePromise = fetch('/api/tts/speak-stream', {
       method: 'POST',
       headers: jsonHeaders(),
-      body: ttsPayload(text),
+      body: ttsPayload(text, btn),
       signal: controller.signal
     });
 
@@ -1205,7 +1233,7 @@
       const res = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: jsonHeaders(),
-        body: ttsPayload(text),
+        body: ttsPayload(text, btn),
         signal: controller.signal
       });
 

@@ -78,7 +78,8 @@ public class ConversationApiController {
         ConversationSession session = ownedSession(sessionId, currentUser());
         conversationService.endSession(session.getId());
         String next = FreeChatSupport.isFreeChat(session) ? "/ai-call" : "/conversation/" + sessionId + "/result";
-        return ResponseEntity.ok(Map.of("ended", true, "redirectUrl", next));
+        return ResponseEntity.ok(Map.of("ended", true, "redirectUrl", next,
+                "memoryProcessing", FreeChatSupport.isFreeChat(session) ? "QUEUED" : "NOT_APPLICABLE"));
     }
 
     /** Quota hiện tại để giao diện hiển thị hạn mức còn lại. */

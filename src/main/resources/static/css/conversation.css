@@ -783,3 +783,57 @@ body:not(.mode-free-chat) .cv-compose {
   background: rgba(255, 255, 255, .72) !important;
   backdrop-filter: blur(10px);
 }
+
+/* Các phần còn giữ màu của nền tối cũ (chữ trắng/nhạt) nên chìm trên nền sáng. */
+.badge { background: var(--surface-2); color: #4a4458; border-color: var(--border); }
+/* buttons.css nạp sau file này và đặt .btn nền trong suốt, làm mất nền của nút chính. */
+.btn.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn.btn-primary:hover { background: #3d2a70; color: #fff; }
+.btn.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+.btn.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.feedback-card summary { color: var(--danger); }
+.msg-row.user .avatar { background: #d7f5e8; color: var(--success); border-color: rgba(0, 105, 71, .3); }
+#btnSaveFlashcard,
+#btnSaveFlashcard i { color: #0369a1 !important; }
+#btnSaveFlashcard { background: rgba(2, 132, 199, .1) !important; }
+#btnSaveFlashcard:hover,
+#btnSaveFlashcard:hover i { color: #fff !important; }
+
+/* Hộp thoại hết hạn mức / bị tắt tiếng. */
+#quotaModal:not([hidden]),
+#muteModal:not([hidden]) {
+  position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(22, 29, 31, .45);
+}
+#quotaModal .modal,
+#muteModal .modal {
+  width: min(420px, 100%); padding: 22px; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); color: var(--text); box-shadow: 0 20px 50px rgba(22, 29, 31, .25);
+}
+#quotaModal .modal-header,
+#muteModal .modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+#quotaModal .modal-header h3,
+#muteModal .modal-header h3 { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; color: var(--text); }
+#quotaModal .modal-header h3 i,
+#muteModal .modal-header h3 i { color: var(--accent); }
+#quotaModal .btn-icon,
+#muteModal .btn-icon {
+  display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--border);
+  border-radius: 50%; background: var(--surface); color: var(--muted); cursor: pointer;
+}
+#quotaModal .btn-icon:hover,
+#muteModal .btn-icon:hover { color: var(--accent); border-color: var(--accent); }
+#quotaModal .muted,
+#muteModal .muted { color: var(--muted); line-height: 1.5; }
+.quota-usage { display: grid; gap: 4px; margin: 12px 0 0; padding-left: 18px; color: var(--text); font-size: .9rem; }
+.quota-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.quota-actions [hidden] { display: none; }
+.quota-actions .button-primary,
+.quota-actions .button-secondary {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px;
+  font: 700 .85rem var(--font); cursor: pointer; border: 1px solid var(--accent);
+}
+.quota-actions .button-primary { background: var(--accent); color: #fff; }
+.quota-actions .button-primary:hover { background: #3d2a70; }
+.quota-actions .button-secondary { background: var(--surface); color: var(--accent); }
+.quota-actions .button-secondary:hover { background: var(--accent-soft); }

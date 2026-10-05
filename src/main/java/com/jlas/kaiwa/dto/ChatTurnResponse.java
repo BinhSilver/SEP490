@@ -4,6 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatTurnResponse {
+    private Long assistantMessageId;
+    private com.jlas.kaiwa.model.ScenarioSpeaker assistantSpeaker;
+    private com.jlas.kaiwa.model.ScenarioSpeaker currentSpeaker;
+    private AssistantOpening speakerOpening;
+    public record AssistantOpening(Long messageId, String text, com.jlas.kaiwa.model.ScenarioSpeaker speaker) {}
+    public Long getAssistantMessageId() { return assistantMessageId; }
+    public void setAssistantMessageId(Long value) { assistantMessageId = value; }
+    public com.jlas.kaiwa.model.ScenarioSpeaker getAssistantSpeaker() { return assistantSpeaker; }
+    public void setAssistantSpeaker(com.jlas.kaiwa.model.ScenarioSpeaker value) { assistantSpeaker = value; }
+    public com.jlas.kaiwa.model.ScenarioSpeaker getCurrentSpeaker() { return currentSpeaker; }
+    public void setCurrentSpeaker(com.jlas.kaiwa.model.ScenarioSpeaker value) { currentSpeaker = value; }
+    public AssistantOpening getSpeakerOpening() { return speakerOpening; }
+    public void setSpeakerOpening(AssistantOpening value) { speakerOpening = value; }
     private Long sessionId;
     private String assistantReply;
     private String currentState;
@@ -20,6 +33,9 @@ public class ChatTurnResponse {
     private String assistantTranslation;
     private List<String> suggestedReplies = new ArrayList<>();
     private String sceneTransition;
+    private String sceneImageUrl;
+    public String getSceneImageUrl() { return sceneImageUrl; }
+    public void setSceneImageUrl(String value) { sceneImageUrl = value; }
     /** Cách tính phí lượt này: FREE / QUOTA / CREDIT (JLAS-W0199). */
     private String chargeType;
     /** Số CP đã trừ cho lượt này (0 nếu dùng hạn mức). */

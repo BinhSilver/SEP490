@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20260907-2')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20260930-contrast')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
@@ -22,6 +22,8 @@
       th:attr="data-session-id=${chatSession.id},
                data-scenario-id=${scenario.id},
                data-free-chat=${freeChat},
+               data-has-cast=${hasCast},
+               data-teacher-voice=${hasTeacherVoice},
                data-ended=${inProgress != true},
                data-scenario-url=${freeChat} ? @{/ai-call} : @{/scenario/{id}(id=${scenario.id})},
                data-category-url=${freeChat} ? @{/ai-call} : @{/category/{id}(id=${scenario.category.id})},
@@ -36,26 +38,34 @@
     <section class="cv-main" aria-label="Hội thoại">
         <div class="cv-main-top">
             <div>
-                <h1 th:text="${freeChat} ? 'Trò Chuyện AI' : ${scenario.title}">Kịch bản</h1>
+                <h1 th:text="${freeChat} ? 'Trò Chuyện AI' : (${stageDefinition != null ? stageDefinition.title : scenario.title})">Kịch bản</h1>
+                <p th:if="${chatSession.contentReview}" class="badge">Kiểm tra nội dung — không cộng vào tiến trình học</p>
                 <div class="sub">
-                    <span th:if="${freeChat}">Trò chuyện tự do với người Nhật</span>
+                    <span th:if="${freeChat}">Trò chuyện tự do · Ghi nhớ những ý quan trọng giữa các phiên</span>
                     <th:block th:unless="${freeChat}">
-                        <span th:text="${aiRoleName}">AI</span> · Bạn: <span th:text="${userRoleName}">Học viên</span>
+                        <span data-current-speaker th:text="${aiRoleName}">AI</span> · Bạn: <span th:text="${userRoleName}">Học viên</span>
                     </th:block>
                 </div>
             </div>
             <div class="cv-header-actions">
                 <span class="badge badge-blue" id="stateBadge" th:text="${currentStateName}">State</span>
                 <button type="button" class="btn btn-ghost btn-sm" id="btnEndSession" th:if="${inProgress == true}"
-                        title="Kết thúc phiên và xem kết quả"><i class="fa-solid fa-phone-slash"></i> Kết thúc</button>
+                        th:title="${freeChat} ? 'Kết thúc và lưu những ý quan trọng' : 'Kết thúc phiên và xem kết quả'">
+                    <i class="fa-solid fa-phone-slash"></i> Kết thúc</button>
             </div>
         </div>
 
         <div class="cv-messages" id="chatMessages" role="log" aria-live="polite" aria-relevant="additions">
             <th:block th:each="m : ${messages}">
+            <div class="scene-transition" role="separator" th:if="${sceneTransitionByMessageId[m.id] != null}">
+                <span><i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    <th:block th:text="${sceneTransitionByMessageId[m.id]}">Chuyển cảnh…</th:block>
+                </span>
+            </div>
             <div
                  th:class="'msg-row ' + ${m.role}"
                  th:attr="data-role=${m.role}, data-text=${m.content},
+                          data-message-id=${m.id}, data-speaker-code=${speakerByMessageId[m.id] != null ? speakerByMessageId[m.id].code : null},
                           data-ruby-done=${furiganaCompleteByMessageId[m.id] == true} ? '1' : null">
                 <div class="avatar">
                     <span th:if="${m.role == 'assistant'}">AI</span>
@@ -63,7 +73,7 @@
                 </div>
                 <div class="msg-col">
                     <div class="msg-meta">
-                        <strong th:if="${m.role == 'assistant'}" th:text="${aiRoleName}">Vai AI</strong>
+                        <strong th:if="${m.role == 'assistant'}" th:text="${speakerByMessageId[m.id] != null ? speakerByMessageId[m.id].name : legacyAiRoleName}">Vai AI</strong>
                         <strong th:unless="${m.role == 'assistant'}">
                             <span>Bạn</span><span th:unless="${freeChat}"> · </span><span th:unless="${freeChat}" th:text="${userRoleName}">Vai người học</span>
                         </strong>
@@ -108,12 +118,6 @@
                         <div class="reason" th:text="${turnFeedback.reason}"></div>
                     </details>
                 </div>
-            </div>
-            <div class="scene-transition" role="separator"
-                 th:if="${sceneTransitionByMessageId[m.id] != null}">
-                <span><i class="fa-regular fa-clock" aria-hidden="true"></i>
-                    <th:block th:text="${sceneTransitionByMessageId[m.id]}">Chuyển cảnh…</th:block>
-                </span>
             </div>
             </th:block>
         </div>
@@ -195,8 +199,8 @@
             </div>
             <div class="tts-settings" id="ttsSettings">
                 <div class="tts-field">
-                    <span>Giọng đọc</span>
-                    <div class="tts-gender-row" role="group" aria-label="Chọn giọng nam hoặc nữ">
+                    <span th:text="${hasTeacherVoice} ? 'Giọng giáo viên' : 'Giọng đọc'">Giọng đọc</span>
+                    <div class="tts-gender-row" th:if="${!hasCast || hasTeacherVoice}" role="group" aria-label="Chọn giọng nam hoặc nữ">
                         <button type="button" class="tts-gender-btn" id="btnTtsFemale" data-gender="female" aria-pressed="true">
                             <i class="fa-solid fa-venus"></i> Nữ
                         </button>
@@ -343,7 +347,7 @@
             </div>
         </div>
         <div class="side-card">
-            <a class="btn btn-ghost btn-block" th:href="@{/ai-call}" style="width:100%; background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; color: #ffffff !important;">
+            <a class="btn btn-secondary btn-block" th:href="@{/ai-call}" style="width:100%;">
                 <i class="fa-solid fa-house"></i> Về chọn chế độ
             </a>
         </div>
@@ -421,6 +425,7 @@
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
-<script th:src="@{/js/conversation.js(v='20260928-w0199')}"></script>
+<script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
+<script th:src="@{/js/conversation.js(v='20261004-memory')}"></script>
 </body>
 </html>
