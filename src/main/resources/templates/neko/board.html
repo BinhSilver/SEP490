@@ -6,6 +6,7 @@
     <title th:text="${pageTitle}">Bắt cá · JLAS</title>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" th:href="@{/arena/app/neko/neko-app.css}" />
+    <link rel="stylesheet" th:href="@{/arena/css/voice.css}" />
     <!-- Thanh điều hướng chung: CSS riêng theo id, không kéo CSS chung của trang vào game. -->
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell-standalone.css}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
@@ -13,12 +14,13 @@
 <body id="jlabBasePage" class="site-nav-hidden arena-play arena-play--neko">
 <div id="jlabBaseShellMount"></div>
 <div id="neko-root"
-     th:attr="data-session-id=${sessionId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin}">
+     th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin}">
 </div>
 <noscript>Trình duyệt này chưa chạy được game. Hãy mở bằng Chrome, Edge hoặc Safari bản mới.</noscript>
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script th:src="@{/arena/js/arena-client.js}"></script>
+<script th:src="@{/arena/js/voice-client.js}"></script>
 <script type="module" th:src="@{/arena/app/neko/neko-app.js}"></script>
 </body>
 </html>

@@ -38,6 +38,16 @@ spring:
 server:
   port: 8080
 
+game:
+  voice:
+    enabled: ${GAME_VOICE_ENABLED:false}
+    url: ${GAME_VOICE_URL:}
+    api-key: ${GAME_VOICE_API_KEY:}
+    api-secret: ${GAME_VOICE_API_SECRET:}
+    allowed-origins: ${GAME_VOICE_ALLOWED_ORIGINS:}
+    token-ttl-seconds: ${GAME_VOICE_TOKEN_TTL_SECONDS:60}
+    tokens-per-minute: ${GAME_VOICE_TOKENS_PER_MINUTE:10}
+
 management:
   endpoints:
     web:
