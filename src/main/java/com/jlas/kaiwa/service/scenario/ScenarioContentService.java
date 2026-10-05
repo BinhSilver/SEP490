@@ -238,6 +238,20 @@ public class ScenarioContentService {
         return List.copyOf(result);
     }
 
+    public boolean isGraph(Scenario scenario) {
+        return flow(scenario).map(f -> f.version() != null && f.version() >= 2 && f.edges() != null).orElse(false);
+    }
+
+    public List<ScenarioLearningContent.DialoguePractice> branchDialogues(Scenario scenario) {
+        return learning(scenario).map(ScenarioLearningContent::branchDialogues).orElse(List.of());
+    }
+
+    public List<String> allowedGoals(Scenario scenario, String code) {
+        return flow(scenario).stream().flatMap(f -> f.states().stream())
+                .filter(s -> Objects.equals(s.code(), code)).findFirst()
+                .map(ScenarioCompactDefinition.State::allowedGoalCodes).orElse(List.of());
+    }
+
     public List<String> suggestedReplies(Scenario scenario, ConversationState currentState) {
         ScenarioCompactDefinition definition = flow(scenario).orElse(null);
         if (definition == null || definition.states() == null) return List.of();
@@ -253,12 +267,12 @@ public class ScenarioContentService {
                 .orElse(List.of());
     }
 
-    private Optional<ScenarioCompactDefinition> flow(Scenario scenario) {
+    public Optional<ScenarioCompactDefinition> flow(Scenario scenario) {
         return jsonMapper.readFlow(scenario.getFlowJson());
     }
 
     private Optional<ScenarioLearningContent> learning(Scenario scenario) {
-        return jsonMapper.readLearningContent(scenario.getLearningContentJson());
+        return jsonMapper.readLearningContent(scenario);
     }
 
     private static Long syntheticId(Scenario scenario, int order) {
