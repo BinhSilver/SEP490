@@ -14,7 +14,7 @@
   var browseVisited = {};
   var visitedCards = {};
   var flipCount = 0;
-  var startedAt = Date.now();
+  var studyClock = window.FlashStudyClock.create();
   var sessionDone = false;
   var elapsedTimer = null;
   var totalSetCards = null;
@@ -29,6 +29,20 @@
   var focusActive = false;
   // Lướt thẻ: tắt "Theo dõi tiến độ" thì chỉ xem thẻ, không chấm Đã nhớ / Chưa thuộc và không lưu gì.
   var trackProgress = readTrackProgress();
+
+  function syncStudyClock() {
+    if (document.hidden || sessionDone || !cards.length) studyClock.pause();
+    else studyClock.start();
+    updateElapsed();
+    saveRecall();
+  }
+
+  document.addEventListener('visibilitychange', syncStudyClock);
+  window.addEventListener('pageshow', syncStudyClock);
+  window.addEventListener('pagehide', function () {
+    studyClock.pause();
+    saveRecall();
+  });
 
   document.addEventListener('DOMContentLoaded', function () {
     // Học thẻ bắt buộc đăng nhập (để đếm study_count + lưu tiến độ)
@@ -166,10 +180,10 @@
     browseVisited = {};
     visitedCards = {};
     flipCount = 0;
-    startedAt = Date.now();
+    studyClock.reset();
+    stopElapsedTimer();
     sessionDone = false;
     updateStudyModeUi();
-    startElapsedTimer();
     var studyTitle = document.getElementById('study-title');
     if (studyTitle) studyTitle.textContent = session.title || 'Học thẻ';
     sessionTitle = session.title || 'Học thẻ';
@@ -194,6 +208,7 @@
     document.getElementById('study-actions').hidden = false;
     if (studyMode === 'RECALL') initRecall();
     renderCard();
+    startElapsedTimer();
   }
 
   function renderCard() {
@@ -347,7 +362,10 @@
     if (saved) {
       recall = saved;
       recall.pending = recall.pending || [];
-      startedAt = saved.startedAt || startedAt;
+      // Bản lưu cũ chỉ có mốc bắt đầu, không biết thời gian thực học: giữ tiến độ,
+      // nhưng không cộng khoảng nghỉ vào phiên đang tiếp tục.
+      studyClock.reset(saved.elapsedMs);
+      delete recall.startedAt;
       flipCount = saved.flipCount || 0;
     } else {
       recall = {
@@ -377,9 +395,10 @@
   }
 
   function saveRecall() {
+    if (!recall || sessionDone) return;
     try {
       localStorage.setItem(recallKey(), JSON.stringify(Object.assign({}, recall, {
-        startedAt: startedAt,
+        elapsedMs: studyClock.elapsedMs(),
         flipCount: flipCount
       })));
     } catch (e) {
@@ -559,8 +578,9 @@
 
   async function showComplete() {
     sessionDone = true;
+    studyClock.pause();
     exitFocus();
-    if (elapsedTimer) clearInterval(elapsedTimer);
+    stopElapsedTimer();
     document.getElementById('study-stage').hidden = true;
     document.getElementById('study-actions').hidden = true;
     document.getElementById('study-card-list').hidden = true;
@@ -572,7 +592,7 @@
     document.getElementById('recall-hard').hidden = true;
     document.getElementById('btn-recall-hard').hidden = true;
 
-    var studyTime = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+    var studyTime = Math.max(1, Math.round(studyClock.elapsedMs() / 1000));
     if (recall) {
       // Kết quả Ghi nhớ tính từ chính phiên vừa học; vẫn báo server để đếm lượt học bộ thẻ.
       paintRecallSummary(studyTime);
@@ -606,13 +626,23 @@
   }
 
   function startElapsedTimer() {
+    stopElapsedTimer();
+    syncStudyClock();
+    var ticks = 0;
+    elapsedTimer = setInterval(function () {
+      updateElapsed();
+      // Có checkpoint ngắn để vẫn giữ thời gian khi trình duyệt đóng đột ngột.
+      if (++ticks % 5 === 0 && !document.hidden) saveRecall();
+    }, 1000);
+  }
+
+  function stopElapsedTimer() {
     if (elapsedTimer) clearInterval(elapsedTimer);
-    updateElapsed();
-    elapsedTimer = setInterval(updateElapsed, 1000);
+    elapsedTimer = null;
   }
 
   function updateElapsed() {
-    var elapsed = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+    var elapsed = Math.floor(studyClock.elapsedMs() / 1000);
     var minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
     var seconds = String(elapsed % 60).padStart(2, '0');
     var label = document.getElementById('study-elapsed');

@@ -1053,22 +1053,22 @@
   background: #6d55b8;
 }
 #jlabBasePage.flashcard-page--study .recall-status__dot:last-of-type { margin-right: 4px; }
-#jlabBasePage.flashcard-page--study .recall-hard { margin-top: 16px; text-align: left; }
+#jlabBasePage.flashcard-page--study .recall-hard { grid-column: 1 / -1; gap: 16px; min-width: 0; text-align: left; }
 #jlabBasePage.flashcard-page--study .recall-hard[hidden] { display: none; }
-#jlabBasePage.flashcard-page--study .recall-hard__title { margin: 0 0 8px; color: #1d1d1f; font-size: 14px; }
+#jlabBasePage.flashcard-page--study .recall-hard__title { margin: 0; color: var(--fc-on-surface); font-size: 18px; }
 #jlabBasePage.flashcard-page--study .recall-hard__list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 #jlabBasePage.flashcard-page--study .recall-hard__list li {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   align-items: baseline;
-  justify-content: space-between;
   gap: 12px;
   padding: 8px 12px;
-  border: 1px solid #ece7f5;
+  border: 1px solid var(--fc-outline-soft);
   border-radius: 10px;
-  background: #faf8fe;
+  background: var(--fc-surface-low);
 }
-#jlabBasePage.flashcard-page--study .recall-hard__list strong { color: #1d1d1f; font-size: 15px; overflow-wrap: anywhere; }
-#jlabBasePage.flashcard-page--study .recall-hard__list span { flex: none; color: #5b6170; font-family: var(--font-mono, monospace); font-size: 12px; }
+#jlabBasePage.flashcard-page--study .recall-hard__list strong { min-width: 0; color: var(--fc-on-surface); font-size: 15px; overflow-wrap: anywhere; }
+#jlabBasePage.flashcard-page--study .recall-hard__list span { min-width: 0; color: var(--fc-on-variant); font-family: var(--font-mono, monospace); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 
 /* Toàn màn hình (nút ⤢): chỉ còn thẻ, bộ đếm hai bên và nút chấm, căn giữa như Quizlet. */
 #jlabBasePage.flashcard-page--study .study-focus-bar,
