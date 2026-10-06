@@ -55,6 +55,8 @@ public class FoundationWarmUpComposerImpl implements FoundationWarmUpComposer {
     private final UserLearningPathItemRepository items;
     private final LearningActivityMemberRepository members;
     private final UserLearningStageRepository stages;
+    private final LearningWorkloadPolicy workloadPolicy = new LearningWorkloadPolicy();
+    private final LearningDailyWorkloadPacker workloadPacker = new LearningDailyWorkloadPacker();
 
     @Override
     @Transactional
@@ -67,6 +69,12 @@ public class FoundationWarmUpComposerImpl implements FoundationWarmUpComposer {
         }
         if (!"BELOW_N5".equals(profile.assessedLevel())) {
             return new InteractiveCompositionResult(true, 0, List.of());
+        }
+        int dailyBudget = path.getMinutesPerDay() != null ? path.getMinutesPerDay()
+                : profile.minutesPerDay() == null ? 0 : profile.minutesPerDay();
+        if (dailyBudget <= 0) {
+            return new InteractiveCompositionResult(false, 0,
+                    List.of(new CoverageGap("PATH:" + path.getId(), "MISSING_DAILY_WORKLOAD_BUDGET")));
         }
         if (packages.existsByLearningPathIdAndPhase(path.getId(), "WARM_UP")) {
             // Already composed (by this composer or a prior call) — never duplicate.
@@ -109,44 +117,59 @@ public class FoundationWarmUpComposerImpl implements FoundationWarmUpComposer {
                 gaps.add(new CoverageGap("LESSON:" + lesson.getId(), "MISSING_KANA_CHARACTERS"));
                 continue;
             }
-            dayNumber++;
             String revision = sha256(lesson.getUpdatedAt() + "|" + characters.stream()
                     .map(c -> String.valueOf(c.getId())).reduce("", (a, b) -> a + "," + b));
-            var pkg = packages.save(LearningPathPackage.builder()
-                    .learningPath(path)
-                    .sourceLesson(lesson)
-                    .contentRevision(revision)
-                    .stageId(stageId)
-                    .phase("WARM_UP")
-                    .dayNumber(dayNumber)
-                    .orderIndex(++packageOrder)
-                    .title(lesson.getTitle())
-                    .status(packagesCreated == 0 && isFirstPackageOverall
-                            ? LearningPackageStatus.AVAILABLE : LearningPackageStatus.LOCKED)
-                    .estimatedMinutes(Math.max(1, characters.size()))
-                    .build());
-            int next = ++itemOrder;
-            var activity = items.save(UserLearningPathItem.builder()
-                    .learningPath(path)
-                    .learningPackage(pkg)
-                    .lesson(lesson)
-                    .orderIndex(next)
-                    .phase("WARM_UP")
-                    .dayNumber(dayNumber)
-                    .estimatedMinutes(pkg.getEstimatedMinutes())
-                    .activityType(LearningActivityType.FOUNDATION)
-                    .activityState(LearningActivityState.LOCKED)
-                    .build());
-            itemOrder = next;
-            List<LearningActivityMember> rows = new ArrayList<>();
-            int index = 0;
-            for (Long id : new LinkedHashSet<>(characters.stream().map(ContentItem::getId).toList())) {
-                rows.add(LearningActivityMember.builder().activity(activity)
-                        .memberType(LearningMemberType.FOUNDATION_CHARACTER)
-                        .canonicalId(id).orderIndex(++index).sourceRevision(revision).build());
+            List<Long> characterIds = characters.stream().map(ContentItem::getId).distinct().toList();
+            List<LearningWorkloadPolicy.ActivityPlan> activityPlans = workloadPolicy
+                    .partition(LearningActivityType.FOUNDATION, characterIds, dailyBudget).stream()
+                    .map(group -> new LearningWorkloadPolicy.ActivityPlan(LearningActivityType.FOUNDATION,
+                            LearningMemberType.FOUNDATION_CHARACTER, group,
+                            workloadPolicy.estimateMinutes(LearningActivityType.FOUNDATION, group.size())))
+                    .toList();
+            List<LearningDailyWorkloadPacker.PackageSegment> segments = workloadPacker.pack(activityPlans, dailyBudget);
+            int segmentIndex = 0;
+            for (var segment : segments) {
+                dayNumber++;
+                segmentIndex++;
+                String title = segments.size() == 1 ? lesson.getTitle()
+                        : lesson.getTitle() + " · Phần " + segmentIndex + "/" + segments.size();
+                var pkg = packages.save(LearningPathPackage.builder()
+                        .learningPath(path)
+                        .sourceLesson(lesson)
+                        .sourceSegmentIndex(segmentIndex)
+                        .contentRevision(revision)
+                        .stageId(stageId)
+                        .phase("WARM_UP")
+                        .dayNumber(dayNumber)
+                        .orderIndex(++packageOrder)
+                        .title(title)
+                        .status(packagesCreated == 0 && isFirstPackageOverall
+                                ? LearningPackageStatus.AVAILABLE : LearningPackageStatus.LOCKED)
+                        .estimatedMinutes(segment.estimatedMinutes())
+                        .build());
+                var plan = segment.activities().getFirst();
+                int next = ++itemOrder;
+                var activity = items.save(UserLearningPathItem.builder()
+                        .learningPath(path)
+                        .learningPackage(pkg)
+                        .lesson(lesson)
+                        .orderIndex(next)
+                        .phase("WARM_UP")
+                        .dayNumber(dayNumber)
+                        .estimatedMinutes(plan.estimatedMinutes())
+                        .activityType(LearningActivityType.FOUNDATION)
+                        .activityState(LearningActivityState.LOCKED)
+                        .build());
+                List<LearningActivityMember> rows = new ArrayList<>();
+                int index = 0;
+                for (Long id : plan.memberIds()) {
+                    rows.add(LearningActivityMember.builder().activity(activity)
+                            .memberType(LearningMemberType.FOUNDATION_CHARACTER)
+                            .canonicalId(id).orderIndex(++index).sourceRevision(revision).build());
+                }
+                members.saveAll(rows);
+                packagesCreated++;
             }
-            members.saveAll(rows);
-            packagesCreated++;
         }
         return new InteractiveCompositionResult(true, packagesCreated, gaps);
     }

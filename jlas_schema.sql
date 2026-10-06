@@ -1680,6 +1680,7 @@ CREATE TABLE learning_path_package (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     learning_path_id BIGINT UNSIGNED NOT NULL,
     source_lesson_id BIGINT UNSIGNED NULL,
+    source_segment_index INT UNSIGNED NOT NULL DEFAULT 1,
     content_revision VARCHAR(64) NULL,
     stage_id BIGINT UNSIGNED NULL,
     phase VARCHAR(20) NOT NULL,
@@ -1699,7 +1700,7 @@ CREATE TABLE learning_path_package (
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_package_path_day (learning_path_id, day_number),
     UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
-    UNIQUE KEY uk_learning_package_path_source (learning_path_id, source_lesson_id),
+    UNIQUE KEY uk_learning_package_path_source_segment (learning_path_id, source_lesson_id, source_segment_index),
     KEY idx_learning_package_status (learning_path_id, status, order_index),
     CONSTRAINT fk_learning_package_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,
@@ -1718,6 +1719,8 @@ CREATE TABLE user_learning_path_item (
     package_id BIGINT UNSIGNED NULL,
     activity_type VARCHAR(20) NULL,
     activity_state VARCHAR(20) NULL,
+    -- [JLAS-W0125] Ordered skill parts inside a stable package; legacy rows remain part 1.
+    part_index INT UNSIGNED NOT NULL DEFAULT 1,
     -- [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
     -- vocabulary_entry / reading-listening content_item) mà không cần một lesson_id giả.
     lesson_id        BIGINT UNSIGNED NULL,
@@ -1747,7 +1750,7 @@ CREATE TABLE user_learning_path_item (
     KEY idx_learning_path_item_lesson (lesson_id),
     KEY idx_learning_path_item_grammar (grammar_point_id),
     KEY idx_learning_path_item_vocab (vocabulary_entry_id),
-    UNIQUE KEY uk_learning_path_item_package_type (package_id, activity_type),
+    UNIQUE KEY uk_learning_path_item_package_part (package_id, activity_type, part_index),
     KEY idx_learning_path_item_package_order (package_id, order_index),
     CONSTRAINT fk_learning_path_item_path FOREIGN KEY (learning_path_id)
         REFERENCES user_learning_path(id) ON DELETE CASCADE,

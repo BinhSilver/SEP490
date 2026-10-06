@@ -5,6 +5,7 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.repository.GrammarPointRepository;
 import com.jlas.dictionary.repository.KanjiRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
+import com.jlas.dictionary.util.DictionaryUtil;
 import com.jlas.learning.config.InteractiveLearningV2Properties;
 import com.jlas.learning.dto.CoverageGap;
 import com.jlas.learning.dto.ComprehensionExercise;
@@ -59,11 +60,10 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     private static final List<String> JLPT_LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
     /** Design spec §5.3 — at most three grammar points scheduled into a single warm-up day. */
     private static final int MAX_GRAMMAR_POINTS_PER_DAY = 3;
-    private static final int MINUTES_PER_VOCAB_ITEM = 1;
-    private static final int MINUTES_PER_KANJI_ITEM = 1;
-    private static final int MINUTES_PER_GRAMMAR_POINT = 5;
     private static final int MINUTES_PER_COMPREHENSION_EXERCISE = 15;
     private static final int MAX_COMPREHENSION_EXERCISES_PER_DAY = 2;
+    /** Smart Test item remediation is useful as a full study/quiz activity only from five mapped targets. */
+    private static final int MINIMUM_FULL_ITEM_REMEDIATION_TARGETS = 5;
 
     private final InteractiveLearningV2Properties properties;
     private final LearningPathPackageRepository packages;
@@ -75,6 +75,8 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     private final GrammarPointRepository grammarPoints;
     private final WeakTagPolicy weakTagPolicy;
     private final ComprehensionExerciseCatalog comprehensionCatalog;
+    private final LearningWorkloadPolicy workloadPolicy = new LearningWorkloadPolicy();
+    private final LearningDailyWorkloadPacker workloadPacker = new LearningDailyWorkloadPacker();
 
     @Override
     @Transactional
@@ -100,14 +102,28 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         List<CoverageGap> gaps = new ArrayList<>();
 
         List<WeaknessEvidence> weaknesses = profile.weaknesses() == null ? List.of() : profile.weaknesses();
-        List<Long> vocabIds = resolveVocabulary(weaknesses, assessedRank, gaps);
-        List<Long> kanjiIds = resolveKanji(weaknesses, assessedRank, gaps);
+        List<Long> vocabIds = eligibleRemediationTargets(WeaknessEvidence.SKILL_VOCABULARY,
+                resolveVocabulary(weaknesses, assessedRank, gaps), gaps);
+        List<Long> kanjiIds = eligibleRemediationTargets(WeaknessEvidence.SKILL_KANJI,
+                resolveKanji(weaknesses, assessedRank, gaps), gaps);
         List<Long> grammarIds = resolveGrammar(weaknesses, assessedRank, gaps);
         boolean hasSkillSnapshot = profile.skillScores() != null && !profile.skillScores().isEmpty();
         List<ComprehensionExercise> reading = hasSkillSnapshot
                 ? resolveComprehension("READING", profile, gaps) : List.of();
         List<ComprehensionExercise> listening = hasSkillSnapshot
                 ? resolveComprehension("LISTENING", profile, gaps) : List.of();
+
+        int dailyBudget = path.getMinutesPerDay() != null ? path.getMinutesPerDay()
+                : profile.minutesPerDay() == null ? 0 : profile.minutesPerDay();
+        if (dailyBudget <= 0) {
+            return new InteractiveCompositionResult(false, 0,
+                    List.of(new CoverageGap("PATH:" + path.getId(), "MISSING_DAILY_WORKLOAD_BUDGET")));
+        }
+        if (dailyBudget < MINUTES_PER_COMPREHENSION_EXERCISE
+                && (!reading.isEmpty() || !listening.isEmpty())) {
+            gaps.add(new CoverageGap("PATH:" + path.getId(), "DAILY_BUDGET_TOO_SMALL_FOR_COMPREHENSION"));
+            return new InteractiveCompositionResult(false, 0, gaps);
+        }
 
         if (vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty()
                 && reading.isEmpty() && listening.isEmpty()) return new InteractiveCompositionResult(true, 0, gaps);
@@ -116,7 +132,7 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
                 .filter(stage -> !"FOUNDATION".equals(stage.getLevel()))
                 .findFirst().map(UserLearningStage::getId).orElse(null);
 
-        int dayNumber = items.findMaxDayNumberByLearningPathId(path.getId()) + 1;
+        int dayNumber = items.findMaxDayNumberByLearningPathId(path.getId());
         // [JLAS-W0193] Two independent, path-wide numbering spaces, each with its own unique constraint
         // (uk_learning_package_path_order, uk_learning_path_item_order) — package order_index and activity
         // (item) order_index must NEVER be conflated, and neither may reset per package: every package this
@@ -127,53 +143,40 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         boolean isFirstPackageOverall = !packages.existsByLearningPathId(path.getId());
         int packagesCreated = 0;
 
-        // Day 1: everything that fits without exceeding the per-day grammar cap.
-        List<Long> firstDayGrammar = grammarIds.stream().limit(MAX_GRAMMAR_POINTS_PER_DAY).toList();
-        List<List<Long>> overflowGrammarDays = chunk(
-                grammarIds.size() > MAX_GRAMMAR_POINTS_PER_DAY
-                        ? grammarIds.subList(MAX_GRAMMAR_POINTS_PER_DAY, grammarIds.size()) : List.of(),
-                MAX_GRAMMAR_POINTS_PER_DAY);
-
-        if (!vocabIds.isEmpty() || !kanjiIds.isEmpty() || !firstDayGrammar.isEmpty()) {
-            var pkg = buildPackage(path, stageId, dayNumber, ++packageOrder,
-                    warmUpTitle(!vocabIds.isEmpty(), !kanjiIds.isEmpty(), !firstDayGrammar.isEmpty(), false),
-                    estimateMinutes(vocabIds.size(), kanjiIds.size(), firstDayGrammar.size()),
-                    isFirstPackageOverall);
-            if (!vocabIds.isEmpty()) {
-                itemOrder = saveActivity(path, pkg, LearningActivityType.VOCABULARY, LearningMemberType.VOCABULARY_ENTRY,
-                        vocabIds, revision, itemOrder, "WEAK_VOCAB_ITEM",
-                        reasonText("từ vựng", vocabIds.size()), dayNumber);
-            }
-            if (!kanjiIds.isEmpty()) {
-                itemOrder = saveActivity(path, pkg, LearningActivityType.KANJI, LearningMemberType.KANJI,
-                        kanjiIds, revision, itemOrder, "WEAK_KANJI_ITEM",
-                        reasonText("chữ Hán", kanjiIds.size()), dayNumber);
-            }
-            if (!firstDayGrammar.isEmpty()) {
-                itemOrder = saveActivity(path, pkg, LearningActivityType.GRAMMAR, LearningMemberType.GRAMMAR_POINT,
-                        firstDayGrammar, revision, itemOrder, "WEAK_GRAMMAR_POINT",
-                        reasonText("mẫu ngữ pháp", firstDayGrammar.size()), dayNumber);
-            }
-            packagesCreated++;
-        }
-
-        for (List<Long> overflowDay : overflowGrammarDays) {
+        List<LearningWorkloadPolicy.ActivityPlan> coreActivities = new ArrayList<>();
+        addActivities(coreActivities, LearningActivityType.VOCABULARY, LearningMemberType.VOCABULARY_ENTRY,
+                vocabIds, dailyBudget);
+        addActivities(coreActivities, LearningActivityType.KANJI, LearningMemberType.KANJI,
+                kanjiIds, dailyBudget);
+        addGrammarActivities(coreActivities, grammarIds, dailyBudget);
+        List<LearningDailyWorkloadPacker.PackageSegment> coreDays = workloadPacker.pack(coreActivities,
+                dailyBudget, Map.of(LearningActivityType.GRAMMAR, MAX_GRAMMAR_POINTS_PER_DAY));
+        for (var segment : coreDays) {
             dayNumber++;
+            boolean vocabulary = segment.activities().stream().anyMatch(a -> a.activityType() == LearningActivityType.VOCABULARY);
+            boolean kanji = segment.activities().stream().anyMatch(a -> a.activityType() == LearningActivityType.KANJI);
+            boolean grammar = segment.activities().stream().anyMatch(a -> a.activityType() == LearningActivityType.GRAMMAR);
+            boolean grammarContinuation = grammar && !vocabulary && !kanji && packagesCreated > 0;
             var pkg = buildPackage(path, stageId, dayNumber, ++packageOrder,
-                    warmUpTitle(false, false, true, true), estimateMinutes(0, 0, overflowDay.size()), false);
-            itemOrder = saveActivity(path, pkg, LearningActivityType.GRAMMAR, LearningMemberType.GRAMMAR_POINT,
-                    overflowDay, revision, itemOrder, "WEAK_GRAMMAR_POINT", reasonText("mẫu ngữ pháp", overflowDay.size()), dayNumber);
+                    warmUpTitle(vocabulary, kanji, grammar, grammarContinuation),
+                    segment.estimatedMinutes(), isFirstPackageOverall && packagesCreated == 0);
+            for (var activity : segment.activities()) {
+                itemOrder = saveActivity(path, pkg, activity.activityType(), activity.memberType(),
+                        activity.memberIds(), revision, activity.estimatedMinutes(), itemOrder,
+                        reasonCode(activity.activityType()), reasonText(reasonLabel(activity.activityType()),
+                                activity.memberIds().size()), dayNumber);
+            }
             packagesCreated++;
         }
 
         List<ComprehensionWarmUpPlanner.DayAllocation> comprehensionDays =
                 ComprehensionWarmUpPlanner.packIntoDays(reading.size(), listening.size(),
                         MAX_COMPREHENSION_EXERCISES_PER_DAY,
-                        profile.minutesPerDay() == null ? 0 : profile.minutesPerDay(),
+                        dailyBudget,
                         MINUTES_PER_COMPREHENSION_EXERCISE);
         int readingOffset = 0;
         int listeningOffset = 0;
-        int comprehensionDay = packagesCreated == 0 ? dayNumber : dayNumber + 1;
+        int comprehensionDay = dayNumber + 1;
         for (var allocation : comprehensionDays) {
             List<ComprehensionExercise> readingForDay = reading.subList(readingOffset,
                     readingOffset + allocation.readingCount());
@@ -202,6 +205,13 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
 
     private List<ComprehensionExercise> resolveComprehension(String skill, LearningProfileSnapshot profile,
             List<CoverageGap> gaps) {
+        if (profile.weaknesses() != null) {
+            profile.weaknesses().stream().filter(evidence -> skill.equals(evidence.skill()))
+                    .flatMap(evidence -> evidence.outcomeBreakdown().stream())
+                    .filter(outcome -> outcome.outcomeCode().startsWith("UNMAPPED_QUESTION:"))
+                    .forEach(outcome -> gaps.add(new CoverageGap(skill + ":" + outcome.outcomeCode(),
+                            "CONTENT_MAPPING_PENDING")));
+        }
         var score = profile.skillScores() == null ? null : profile.skillScores().stream()
                 .filter(value -> skill.equals(value.skill())).findFirst().orElse(null);
         if (score == null || score.assessedCount() <= 0) {
@@ -213,25 +223,50 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
             gaps.add(new CoverageGap(skill, "NEEDS_VERIFICATION"));
             return List.of();
         }
-        if (band.lessonCount() == 0) return List.of();
+        List<String> wrongOutcomes = profile.weaknesses() == null ? List.of()
+                : profile.weaknesses().stream().filter(evidence -> skill.equals(evidence.skill()))
+                        .flatMap(evidence -> evidence.outcomeBreakdown().stream())
+                        .filter(outcome -> outcome.wrongCount() > 0
+                                && !outcome.outcomeCode().startsWith("UNMAPPED_QUESTION:"))
+                        .map(WeaknessEvidence.OutcomeBreakdown::outcomeCode).distinct().sorted().toList();
+        if (band.lessonCount() == 0 && wrongOutcomes.isEmpty()) return List.of();
 
         var resolved = comprehensionCatalog.resolve(skill, profile.assessedLevel());
         resolved.gaps().forEach(gap -> gaps.add(new CoverageGap(skill + ":" + gap.canonicalRef(), gap.reasonCode())));
-        int selectedCount = Math.min(band.lessonCount(), resolved.exercises().size());
-        if (selectedCount < band.lessonCount()) {
-            gaps.add(new CoverageGap(skill + ":ready=" + selectedCount + ":required=" + band.lessonCount(),
+        Map<String, ComprehensionExercise> selected = new LinkedHashMap<>();
+        for (String outcome : wrongOutcomes) {
+            resolved.exercises().stream().filter(exercise -> outcome.equals(exercise.outcomeCode())).findFirst()
+                    .ifPresentOrElse(exercise -> selected.putIfAbsent(exercise.fingerprint(), exercise),
+                            () -> gaps.add(new CoverageGap(skill + ":OUTCOME:" + outcome,
+                                    "CONTENT_COVERAGE_INSUFFICIENT")));
+        }
+        int targetCount = Math.max(band.lessonCount(), selected.size());
+        for (ComprehensionExercise exercise : resolved.exercises()) {
+            if (selected.size() >= targetCount) break;
+            selected.putIfAbsent(exercise.fingerprint(), exercise);
+        }
+        if (selected.size() < band.lessonCount()) {
+            gaps.add(new CoverageGap(skill + ":ready=" + selected.size() + ":required=" + band.lessonCount(),
                     "CONTENT_COVERAGE_INSUFFICIENT"));
         }
-        return List.copyOf(resolved.exercises().subList(0, selectedCount));
+        return List.copyOf(selected.values());
     }
 
-    private List<Long> resolveVocabulary(List<WeaknessEvidence> weaknesses, int assessedRank, List<CoverageGap> gaps) {
-        Map<Long, Boolean> resolved = new LinkedHashMap<>();
-        for (WeaknessEvidence evidence : weaknesses) {
-            if (!WeaknessEvidence.SKILL_VOCABULARY.equals(evidence.skill())) continue;
+    private ResolvedRemediationTargets resolveVocabulary(List<WeaknessEvidence> weaknesses, int assessedRank,
+            List<CoverageGap> gaps) {
+        Map<Long, String> resolved = new LinkedHashMap<>();
+        for (WeaknessEvidence evidence : orderedItemEvidence(weaknesses, WeaknessEvidence.SKILL_VOCABULARY)) {
             if (!weakTagPolicy.isWeak(evidence)) continue;
             if (!levelInBound(evidence.jlptLevel(), assessedRank)) continue;
             Long vocabularyEntryId = evidence.vocabularyEntryId();
+            if (vocabularyEntryId == null) {
+                String expression = canonicalExpression(evidence);
+                if (expression != null) {
+                    vocabularyEntryId = vocabularyEntries.findFirstByNormalizedExpressionAndDictionaryStatus(
+                            DictionaryUtil.normalizeReading(expression), "PUBLISHED")
+                            .map(entry -> entry.getId()).orElse(null);
+                }
+            }
             if (vocabularyEntryId == null || resolved.containsKey(vocabularyEntryId)) {
                 if (vocabularyEntryId == null) gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));
                 continue;
@@ -242,15 +277,23 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
                 gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));
                 continue;
             }
-            resolved.put(vocabularyEntryId, true);
+            resolved.put(vocabularyEntryId, evidence.canonicalId());
         }
-        return resolved.keySet().stream().sorted().toList();
+        return new ResolvedRemediationTargets(resolved);
     }
 
-    private List<Long> resolveKanji(List<WeaknessEvidence> weaknesses, int assessedRank, List<CoverageGap> gaps) {
-        Map<Long, Boolean> resolved = new LinkedHashMap<>();
-        for (WeaknessEvidence evidence : weaknesses) {
-            if (!WeaknessEvidence.SKILL_KANJI.equals(evidence.skill())) continue;
+    /** Resolve only the exact vocabulary expression preserved in Smart Test's canonical evidence. */
+    private String canonicalExpression(WeaknessEvidence evidence) {
+        String prefix = WeaknessEvidence.SKILL_VOCABULARY + ":";
+        if (evidence.canonicalId() == null || !evidence.canonicalId().startsWith(prefix)) return null;
+        String expression = evidence.canonicalId().substring(prefix.length()).strip();
+        return expression.isEmpty() || expression.startsWith("UNMAPPED_QUESTION:") ? null : expression;
+    }
+
+    private ResolvedRemediationTargets resolveKanji(List<WeaknessEvidence> weaknesses, int assessedRank,
+            List<CoverageGap> gaps) {
+        Map<Long, String> resolved = new LinkedHashMap<>();
+        for (WeaknessEvidence evidence : orderedItemEvidence(weaknesses, WeaknessEvidence.SKILL_KANJI)) {
             if (!weakTagPolicy.isWeak(evidence)) continue;
             if (!levelInBound(evidence.jlptLevel(), assessedRank)) continue;
             String lexeme = lexemeOf(evidence);
@@ -263,19 +306,53 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
                 gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));
                 continue;
             }
-            resolved.putIfAbsent(kanji.get().getId(), true);
+            resolved.putIfAbsent(kanji.get().getId(), evidence.canonicalId());
         }
-        return resolved.keySet().stream().sorted().toList();
+        return new ResolvedRemediationTargets(resolved);
+    }
+
+    private List<WeaknessEvidence> orderedItemEvidence(List<WeaknessEvidence> weaknesses, String skill) {
+        return weaknesses.stream().filter(evidence -> skill.equals(evidence.skill()))
+                .sorted(java.util.Comparator.comparing(WeaknessEvidence::canonicalId,
+                        java.util.Comparator.nullsLast(String::compareTo)))
+                .toList();
+    }
+
+    /**
+     * Count only distinct canonical targets that resolved to published learning content. A small set is
+     * retained as explicit review-only targets in the existing path coverage snapshot, never as an activity
+     * (which would implicitly unlock Flashcards/quiz, progress, mastery, or quota).
+     */
+    private List<Long> eligibleRemediationTargets(String skill, ResolvedRemediationTargets resolved,
+            List<CoverageGap> gaps) {
+        List<Long> ids = resolved.canonicalByTarget().keySet().stream().sorted().toList();
+        if (ids.size() >= MINIMUM_FULL_ITEM_REMEDIATION_TARGETS || ids.isEmpty()) return ids;
+        ids.stream().map(resolved.canonicalByTarget()::get).filter(java.util.Objects::nonNull).sorted()
+                .forEach(canonicalId -> gaps.add(new CoverageGap(canonicalId,
+                        "SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")));
+        return List.of();
+    }
+
+    private record ResolvedRemediationTargets(Map<Long, String> canonicalByTarget) {
+        private ResolvedRemediationTargets {
+            canonicalByTarget = Map.copyOf(canonicalByTarget);
+        }
     }
 
     private List<Long> resolveGrammar(List<WeaknessEvidence> weaknesses, int assessedRank, List<CoverageGap> gaps) {
         Map<Long, Boolean> resolved = new LinkedHashMap<>();
         for (WeaknessEvidence evidence : weaknesses) {
             if (!WeaknessEvidence.SKILL_GRAMMAR.equals(evidence.skill())) continue;
-            if (!weakTagPolicy.isWeak(evidence)) continue;
+            // Owner decision 2026-10-04: a wrong answer warrants review even when
+            // the aggregate does not justify labelling the whole grammar point weak.
+            if (evidence.wrongCount() <= 0) continue;
             if (!levelInBound(evidence.jlptLevel(), assessedRank)) continue;
             Long grammarPointId = evidence.grammarPointId();
-            if (grammarPointId == null || resolved.containsKey(grammarPointId)) continue;
+            if (grammarPointId == null) {
+                gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));
+                continue;
+            }
+            if (resolved.containsKey(grammarPointId)) continue;
             if (grammarPoints.findById(grammarPointId).isEmpty()) {
                 gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));
                 continue;
@@ -315,6 +392,25 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         return result;
     }
 
+    private void addActivities(List<LearningWorkloadPolicy.ActivityPlan> output, LearningActivityType type,
+            LearningMemberType memberType, List<Long> ids, int dailyBudget) {
+        for (List<Long> group : workloadPolicy.partition(type, ids, dailyBudget)) {
+            output.add(new LearningWorkloadPolicy.ActivityPlan(type, memberType, group,
+                    workloadPolicy.estimateMinutes(type, group.size())));
+        }
+    }
+
+    private void addGrammarActivities(List<LearningWorkloadPolicy.ActivityPlan> output,
+            List<Long> grammarIds, int dailyBudget) {
+        for (List<Long> budgetGroup : workloadPolicy.partition(LearningActivityType.GRAMMAR, grammarIds, dailyBudget)) {
+            for (List<Long> dailyGroup : chunk(budgetGroup, MAX_GRAMMAR_POINTS_PER_DAY)) {
+                output.add(new LearningWorkloadPolicy.ActivityPlan(LearningActivityType.GRAMMAR,
+                        LearningMemberType.GRAMMAR_POINT, dailyGroup,
+                        workloadPolicy.estimateMinutes(LearningActivityType.GRAMMAR, dailyGroup.size())));
+            }
+        }
+    }
+
     private LearningPathPackage buildPackage(UserLearningPath path, Long stageId, int dayNumber, int orderIndex,
             String title, int estimatedMinutes, boolean available) {
         return packages.save(LearningPathPackage.builder()
@@ -332,7 +428,7 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     }
 
     private int saveActivity(UserLearningPath path, LearningPathPackage pkg, LearningActivityType type,
-            LearningMemberType memberType, List<Long> ids, String revision, int globalOrder,
+            LearningMemberType memberType, List<Long> ids, String revision, int estimatedMinutes, int globalOrder,
             String reasonCode, String reasonText, int dayNumber) {
         int next = globalOrder + 1;
         var activity = items.save(UserLearningPathItem.builder()
@@ -341,7 +437,7 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
                 .orderIndex(next)
                 .phase("WARM_UP")
                 .dayNumber(dayNumber)
-                .estimatedMinutes(pkg.getEstimatedMinutes())
+                .estimatedMinutes(estimatedMinutes)
                 .activityType(type)
                 .activityState(LearningActivityState.LOCKED)
                 .reasonCode(reasonCode)
@@ -395,11 +491,23 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         return reading.isEmpty() ? "Luyện nghe theo điểm yếu" : "Luyện đọc theo điểm yếu";
     }
 
-    private int estimateMinutes(int vocabCount, int kanjiCount, int grammarCount) {
-        return vocabCount * MINUTES_PER_VOCAB_ITEM + kanjiCount * MINUTES_PER_KANJI_ITEM
-                + grammarCount * MINUTES_PER_GRAMMAR_POINT;
+    private String reasonCode(LearningActivityType type) {
+        return switch (type) {
+            case VOCABULARY -> "WEAK_VOCAB_ITEM";
+            case KANJI -> "WEAK_KANJI_ITEM";
+            case GRAMMAR -> "WEAK_GRAMMAR_POINT";
+            default -> throw new IllegalArgumentException("Unsupported item-remediation activity: " + type);
+        };
     }
 
+    private String reasonLabel(LearningActivityType type) {
+        return switch (type) {
+            case VOCABULARY -> "từ vựng";
+            case KANJI -> "chữ Hán";
+            case GRAMMAR -> "mẫu ngữ pháp";
+            default -> throw new IllegalArgumentException("Unsupported item-remediation activity: " + type);
+        };
+    }
     private String reasonText(String label, int count) {
         return "Bạn gặp khó khăn với " + count + " " + label + " này trong Smart Test. "
                 + "Hãy ôn lại và kiểm tra ngay sau đó.";

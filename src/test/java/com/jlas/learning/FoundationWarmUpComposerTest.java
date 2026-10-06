@@ -142,6 +142,32 @@ class FoundationWarmUpComposerTest {
         assertTrue(firstRows.stream().allMatch(r -> r.getMemberType() == LearningMemberType.FOUNDATION_CHARACTER));
     }
 
+    @Test void oneLargeKanaLessonSpillsAcrossBudgetedPackagesWithoutLosingCharacters(){
+        var boundedPath = path();
+        boundedPath.setMinutesPerDay(15);
+        when(textbooks.findKanaFoundationByStatus("PUBLISHED"))
+                .thenReturn(List.of(Textbook.builder().id(3L).build()));
+        var lesson = kanaLesson(51L, "Bài 1");
+        when(lessons.findByTextbookIdAndStatus(3L, "PUBLISHED")).thenReturn(List.of(lesson));
+        var characters = java.util.stream.LongStream.rangeClosed(1,20)
+                .mapToObj(id -> character(id, "k" + id, "あ" + id)).toList();
+        when(contentItems.findByLessonIdAndContentType(51L, "READING")).thenReturn(characters);
+
+        var result = composer.composeFoundation(boundedPath, profile("BELOW_N5"));
+
+        assertEquals(2, result.packageCount());
+        var packageCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
+        verify(packages, times(2)).save(packageCaptor.capture());
+        assertTrue(packageCaptor.getAllValues().stream().allMatch(pkg -> pkg.getEstimatedMinutes() <= 15));
+        assertEquals(List.of(1, 2), packageCaptor.getAllValues().stream()
+                .map(LearningPathPackage::getSourceSegmentIndex).toList());
+        var memberCaptor = ArgumentCaptor.forClass(List.class);
+        verify(members, times(2)).saveAll(memberCaptor.capture());
+        assertEquals(20, memberCaptor.getAllValues().stream().mapToInt(List::size).sum());
+        assertEquals(characters.stream().map(ContentItem::getId).toList(), memberCaptor.getAllValues().stream()
+                .flatMap(List::stream).map(member -> ((LearningActivityMember) member).getCanonicalId()).toList());
+    }
+
     @Test void foundationPackageUsesTheFoundationStageRatherThanTheFirstStage() {
         var path = path();
         when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(

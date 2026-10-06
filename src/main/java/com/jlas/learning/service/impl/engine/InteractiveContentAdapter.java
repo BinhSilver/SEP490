@@ -41,11 +41,20 @@ public interface InteractiveContentAdapter<T> {
     List<QuestionSpec> buildQuestions(List<T> batch, int batchIndex, int variationSeed);
 
     /** Splits ordered canonical content into score batches. Existing card-based skills keep the historical
-     * fixed chunks of ten; comprehension overrides this so one canonical source is exactly one batch. */
+     * fixed chunks of ten; comprehension overrides this so one canonical source is exactly one batch.
+     * Choice options come from the batch itself, so a trailing 10+1 is rebalanced to 6+5: a one-item batch
+     * could never be quizzed. Batch count and every earlier boundary stay as before. */
     default List<List<T>> partition(List<T> orderedContent) {
+        int size = orderedContent.size();
+        // Start of the last two batches when the tail would otherwise be a single item.
+        int rebalanceFrom = size > 10 && size % 10 == 1 ? size - 11 : size;
         List<List<T>> batches = new ArrayList<>();
-        for (int i = 0; i < orderedContent.size(); i += 10) {
-            batches.add(List.copyOf(orderedContent.subList(i, Math.min(i + 10, orderedContent.size()))));
+        for (int i = 0; i < rebalanceFrom; i += 10) {
+            batches.add(List.copyOf(orderedContent.subList(i, Math.min(i + 10, rebalanceFrom))));
+        }
+        if (rebalanceFrom < size) {
+            batches.add(List.copyOf(orderedContent.subList(rebalanceFrom, rebalanceFrom + 6)));
+            batches.add(List.copyOf(orderedContent.subList(rebalanceFrom + 6, size)));
         }
         return batches;
     }

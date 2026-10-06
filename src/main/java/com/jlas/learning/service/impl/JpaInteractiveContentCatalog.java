@@ -51,7 +51,10 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
             if(!audioOwners.containsAll(dialogueIds)) gap(gaps,key,"DIALOGUE_AUDIO_NOT_READY");
             if(dialogue.stream().anyMatch(d->blank(d.getContentItem().getContent()))) gap(gaps,key,"DIALOGUE_SCRIPT_NOT_READY");
         }
-        if (kanjiIds.isEmpty() && grammarIds.isEmpty()) gap(gaps,key,"KANJI_AND_GRAMMAR_NOT_READY");
+        // Owner decision 2026-10-06: a vocabulary-only lesson (>= 5 words, the flashcard threshold) or a dialogue-only
+        // listening lesson is a valid target; only a lesson with nothing learnable beyond a short word list is not.
+        if (kanjiIds.isEmpty() && grammarIds.isEmpty() && vocabIds.size() < 5 && dialogueIds.isEmpty())
+            gap(gaps,key,"KANJI_AND_GRAMMAR_NOT_READY");
         if(vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty() && dialogueIds.isEmpty()) gap(gaps,key,"EMPTY_LESSON");
         String revision=sha256(lesson.getUnit().getTextbook().getVersion()+"|"+lesson.getUpdatedAt()+"|"+vocabIds+"|"+kanjiIds+"|"+grammarIds+"|"+dialogueIds);
         return new InteractiveContentSnapshot(lesson,revision,vocabIds,kanjiIds,grammarIds,dialogueIds,gaps);

@@ -349,9 +349,11 @@ public class LearningServiceImpl implements LearningService {
                 throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                         "Lộ trình V2 chưa được phát hành vì thiếu học liệu: " + composition.gaps());
             }
-            if (!warmUpGaps.isEmpty()) {
+            // Published paths still record non-blocking notes, e.g. listening lessons deferred until their audio exists.
+            if (!warmUpGaps.isEmpty() || !composition.gaps().isEmpty()) {
                 var allGaps = new ArrayList<>(selection.coverageGaps());
                 allGaps.addAll(warmUpGaps);
+                allGaps.addAll(composition.gaps());
                 path.setCoverageGapsJson(mapper.writeCoverageGaps(allGaps));
             }
         }

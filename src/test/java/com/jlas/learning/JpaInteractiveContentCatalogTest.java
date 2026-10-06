@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +37,34 @@ class JpaInteractiveContentCatalogTest {
         assertTrue(reasons.containsAll(List.of("SOURCE_NOT_PUBLISHED", "SOURCE_NOT_LEARNING_PATH", "LEVEL_MISMATCH",
                 "DUPLICATE_VOCABULARY_IDENTITY", "KANJI_AND_GRAMMAR_NOT_READY")));
         verifyNoInteractions(readings,audio);
+    }
+
+    /** Owner decision 2026-10-06: a textbook lesson that is only vocabulary (>= 5 words, no Kanji/grammar) or only a
+     * listening dialogue with audio is a valid target lesson; it used to block every N3–N1 path. */
+    @Test void vocabularyOnlyAndDialogueWithAudioOnlyLessonsAreTargetReady(){
+        var book=Textbook.builder().id(1L).jlptLevel("N3").status("PUBLISHED").isLearningPathSource(true).version(1).build();
+        var vocabLesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build()).title("Từ vựng").status("PUBLISHED").build();
+        var words=java.util.stream.IntStream.rangeClosed(1,6).mapToObj(i->VocabularyEntry.builder().id((long)i)
+                .normalizedExpression("かな"+i).normalizedReading("かな"+i).expression("かな"+i).reading("かな"+i)
+                .meaning("nghĩa "+i).dictionaryStatus("PUBLISHED").build()).toList();
+        when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(vocabLesson));
+        when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(words);
+        when(links.findByVocabularyIdIn(any())).thenReturn(List.of());
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(10L)).thenReturn(List.of());
+        when(dialogue.findByLessonId(10L)).thenReturn(List.of());
+        var listeningLesson=Lesson.builder().id(20L).unit(Unit.builder().id(3L).textbook(book).build()).title("Nghe").status("PUBLISHED").build();
+        var line=com.jlas.dictionary.entity.DialogueLineDetail.builder().contentItemId(70L)
+                .contentItem(com.jlas.dictionary.entity.ContentItem.builder().id(70L).content("すみません。").build()).build();
+        when(lessons.findWithUnitById(20L)).thenReturn(Optional.of(listeningLesson));
+        when(vocabRepo.findVocabularyByLessonId(20L)).thenReturn(List.of());
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(20L)).thenReturn(List.of());
+        when(dialogue.findByLessonId(20L)).thenReturn(List.of(line));
+        when(audio.findByOwnerTypeAndOwnerIdIn("CONTENT_ITEM",List.of(70L))).thenReturn(List.of(
+                com.jlas.dictionary.entity.ContentAudio.builder().ownerType("CONTENT_ITEM").ownerId(70L).audioUrl("a.mp3").build()));
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio);
+
+        assertEquals(List.of(), catalog.inspect(10L,"N3").gaps());
+        assertEquals(List.of(), catalog.inspect(20L,"N3").gaps());
     }
 
     @Test void emptyLessonHasAnExplicitReadinessDiagnostic(){

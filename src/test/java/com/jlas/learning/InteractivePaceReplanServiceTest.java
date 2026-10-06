@@ -18,10 +18,9 @@ import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.service.impl.InteractivePaceReplanServiceImpl;
-import com.jlas.learning.service.impl.InteractivePaceReplanServiceImpl.Slot;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import com.jlas.learning.enums.LearningActivityState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,13 +32,15 @@ class InteractivePaceReplanServiceTest {
     UserLearningPathRepository paths = mock(UserLearningPathRepository.class);
     LearningPathPackageRepository packages = mock(LearningPathPackageRepository.class);
     UserLearningPathItemRepository items = mock(UserLearningPathItemRepository.class);
+    com.jlas.learning.repository.LearningActivityMemberRepository members = mock(com.jlas.learning.repository.LearningActivityMemberRepository.class);
     InteractivePaceReplanServiceImpl service;
     UserLearningPath path;
     List<LearningPathPackage> pkgs;
+    List<UserLearningPathItem> activities;
 
     @BeforeEach
     void setUp() {
-        service = new InteractivePaceReplanServiceImpl(paths, packages, items);
+        service = new InteractivePaceReplanServiceImpl(paths, packages, items, members);
         User user = new User();
         user.setId(USER);
         path = UserLearningPath.builder().id(1L).user(user).experienceVersion(LearningExperienceVersion.INTERACTIVE_V2)
@@ -55,7 +56,19 @@ class InteractivePaceReplanServiceTest {
         when(paths.findByUserIdAndStatusAndExperienceVersion(USER, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
                 .thenReturn(java.util.Optional.of(path));
         when(packages.findByLearningPathIdOrderByOrderIndex(1L)).thenReturn(pkgs);
-        when(items.findByLearningPathIdOrderByOrderIndex(1L)).thenReturn(List.of());
+        when(packages.findByPathForUpdate(1L)).thenReturn(pkgs);
+        activities = new ArrayList<>();
+        for (var pkg : pkgs) {
+            for (int part = 0; part < 2; part++) {
+                activities.add(UserLearningPathItem.builder().id(pkg.getId() * 10 + part)
+                        .learningPath(path).learningPackage(pkg).orderIndex(activities.size() + 1)
+                        .dayNumber(pkg.getDayNumber()).estimatedMinutes(15)
+                        .activityState(pkg.getStatus() == LearningPackageStatus.COMPLETED
+                                ? LearningActivityState.COMPLETED : LearningActivityState.LOCKED).build());
+            }
+        }
+        when(items.findByLearningPathIdOrderByOrderIndex(1L)).thenReturn(activities);
+        when(items.findByPathForUpdate(1L)).thenReturn(activities);
     }
 
     @Test
@@ -72,19 +85,6 @@ class InteractivePaceReplanServiceTest {
     }
 
     @Test
-    void layoutPacksSmallPackagesAndSpillsLargeOnes() {
-        Map<Long, Integer> days = InteractivePaceReplanServiceImpl.layout(
-                List.of(new Slot(10L, 30), new Slot(11L, 30), new Slot(12L, 30)), 60, 5);
-        assertEquals(5, days.get(10L));
-        assertEquals(5, days.get(11L));
-        assertEquals(6, days.get(12L));
-        Map<Long, Integer> lighter = InteractivePaceReplanServiceImpl.layout(
-                List.of(new Slot(10L, 30), new Slot(11L, 30)), 15, 1);
-        assertEquals(1, lighter.get(10L));
-        assertEquals(3, lighter.get(11L));
-    }
-
-    @Test
     void previewWritesNothingAndReportsRemainingDays() {
         path.setMinutesPerDay(45);
         LearningPacePreviewResponse preview = service.preview(USER, "FASTER");
@@ -93,7 +93,8 @@ class InteractivePaceReplanServiceTest {
         assertTrue(preview.changed());
         assertEquals(4, preview.remainingPackages());
         assertEquals(4, preview.currentRemainingDays());
-        assertEquals(2, preview.newRemainingDays());
+        // Logical packages retain distinct start days (schema has a unique path/day key).
+        assertEquals(4, preview.newRemainingDays());
         assertNotNull(preview.previewToken());
         verify(paths, never()).save(any());
         verify(packages, never()).save(any());
@@ -112,11 +113,14 @@ class InteractivePaceReplanServiceTest {
         assertEquals(2, pkgs.get(1).getDayNumber());
         assertEquals(LearningPackageStatus.COMPLETED, pkgs.get(0).getStatus());
         assertEquals(LearningPackageStatus.COMPLETED, pkgs.get(1).getStatus());
-        // 30-minute packages at 20 min/day: 30 => 1.5 days, so the next package starts in the spill day
+        // Each 15-minute activity remains intact; no day is assigned 30 minutes at a 20-minute pace.
         assertEquals(3, pkgs.get(2).getDayNumber());
-        assertEquals(4, pkgs.get(3).getDayNumber());
-        assertEquals(6, pkgs.get(4).getDayNumber());
-        assertEquals(7, pkgs.get(5).getDayNumber());
+        assertEquals(5, pkgs.get(3).getDayNumber());
+        assertEquals(7, pkgs.get(4).getDayNumber());
+        assertEquals(9, pkgs.get(5).getDayNumber());
+        assertEquals(List.of(3, 4, 5, 6, 7, 8, 9, 10),
+                activities.subList(4, 12).stream().map(UserLearningPathItem::getDayNumber).toList());
+        assertEquals(8, preview.newRemainingDays());
     }
 
     @Test
@@ -151,12 +155,116 @@ class InteractivePaceReplanServiceTest {
 
     @Test
     void itemDaysFollowTheirPackage() {
-        UserLearningPathItem item = new UserLearningPathItem();
-        item.setLearningPackage(pkgs.get(5));
-        item.setDayNumber(6);
-        when(items.findByLearningPathIdOrderByOrderIndex(1L)).thenReturn(List.of(item));
+        UserLearningPathItem item = activities.getLast();
         var preview = service.preview(USER, "FASTER");
         service.apply(USER, new LearningPaceRequest("FASTER", preview.newMinutesPerDay(), preview.previewToken()));
         assertEquals(pkgs.get(5).getDayNumber(), item.getDayNumber());
+    }
+
+    @Test
+    void loweringPaceRejectsUnsplittableActivityBeforeChangingProgress() {
+        activities.get(4).setEstimatedMinutes(25);
+        var error = assertThrows(ApiException.class, () -> service.preview(USER, "LIGHTER"));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+        assertEquals(30, path.getMinutesPerDay());
+        assertEquals(3, activities.get(4).getDayNumber());
+    }
+
+    @Test
+    void rejectsPreviewWhenActivityWorkloadChangedEvenIfPackageStatusDidNot() {
+        var preview = service.preview(USER, "LIGHTER");
+        activities.get(4).setEstimatedMinutes(16);
+        var error = assertThrows(ApiException.class, () -> service.apply(USER,
+                new LearningPaceRequest("LIGHTER", 20, preview.previewToken())));
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        assertEquals(30, path.getMinutesPerDay());
+    }
+
+    @Test
+    void allPresetsConserveActivitiesAndRespectDailyBudgetWithoutChangingStageUnits() {
+        for (int current : List.of(20, 30, 45, 60)) {
+            setUp();
+            path.setMinutesPerDay(current);
+            var ids = activities.stream().map(UserLearningPathItem::getId).toList();
+            var preview = service.preview(USER, "LIGHTER");
+            service.apply(USER, new LearningPaceRequest("LIGHTER", preview.newMinutesPerDay(), preview.previewToken()));
+            var minutes = new java.util.HashMap<Integer, Integer>();
+            activities.subList(4, 12).forEach(a -> minutes.merge(a.getDayNumber(), a.getEstimatedMinutes(), Integer::sum));
+            assertTrue(minutes.values().stream().allMatch(m -> m <= preview.newMinutesPerDay()));
+            assertEquals(ids, activities.stream().map(UserLearningPathItem::getId).toList());
+            assertEquals(6, pkgs.size());
+            assertEquals(2, pkgs.stream().filter(p -> p.getStatus() == LearningPackageStatus.COMPLETED).count());
+        }
+    }
+
+    @Test
+    void currentPackageAndItsActivityHistoryStayOnTheirOriginalDay() {
+        pkgs.get(2).setStatus(LearningPackageStatus.IN_PROGRESS);
+        activities.get(4).setActivityState(LearningActivityState.PASSED);
+        activities.get(4).setAssessmentStatus("PASSED");
+        activities.get(5).setActivityState(LearningActivityState.STUDYING);
+        var preview = service.preview(USER, "LIGHTER");
+        service.apply(USER, new LearningPaceRequest("LIGHTER", 20, preview.previewToken()));
+        assertEquals(3, activities.get(4).getDayNumber());
+        assertEquals(3, activities.get(5).getDayNumber());
+        assertEquals("PASSED", activities.get(4).getAssessmentStatus());
+        assertEquals(LearningActivityState.STUDYING, activities.get(5).getActivityState());
+        assertEquals(List.of(4,5,6,7,8,9), activities.subList(6,12).stream()
+                .map(UserLearningPathItem::getDayNumber).toList());
+    }
+
+    @Test
+    void samePaceDoesNotRescheduleOrRejectLegacyOversizedContent() {
+        activities.get(4).setEstimatedMinutes(75);
+        var preview = service.preview(USER, "SAME");
+        assertFalse(preview.changed());
+        assertEquals(preview.currentRemainingDays(), preview.newRemainingDays());
+        service.apply(USER, new LearningPaceRequest("SAME", 30, preview.previewToken()));
+        assertEquals(3, activities.get(4).getDayNumber());
+        verify(packages, never()).save(any());
+    }
+
+    @Test
+    void stalePreviewIsConflictEvenWhenChangedContentNoLongerFits() {
+        var preview = service.preview(USER, "LIGHTER");
+        activities.get(4).setEstimatedMinutes(25);
+        var error = assertThrows(ApiException.class, () -> service.apply(USER,
+                new LearningPaceRequest("LIGHTER", 20, preview.previewToken())));
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        assertEquals(30, path.getMinutesPerDay());
+    }
+
+    @Test void lockedSummaryCannotOverrideExistingStudyOrQuizHistory() {
+        activities.get(4).setEstimatedMinutes(45);
+        when(items.findActivityIdsWithHistory(1L)).thenReturn(List.of(activities.get(4).getId()));
+        var preview = service.preview(USER, "LIGHTER");
+        service.apply(USER, new LearningPaceRequest("LIGHTER", 20, preview.previewToken()));
+        assertEquals(45, activities.get(4).getEstimatedMinutes());
+        assertEquals(3, activities.get(4).getDayNumber());
+        assertEquals(3, activities.get(5).getDayNumber());
+        assertEquals(4, activities.get(6).getDayNumber());
+    }
+
+    @Test void membershipRevisionChangeRequiresNewPreview() {
+        var member = com.jlas.learning.entity.LearningActivityMember.builder().id(90L).activity(activities.get(4))
+                .memberType(com.jlas.learning.enums.LearningMemberType.VOCABULARY_ENTRY)
+                .canonicalId(81L).orderIndex(1).sourceRevision("v1").build();
+        when(members.findByPathInStudyOrder(1L)).thenReturn(List.of(member));
+        var preview = service.preview(USER, "LIGHTER");
+        member.setSourceRevision("v2");
+        var error = assertThrows(ApiException.class, () -> service.apply(USER,
+                new LearningPaceRequest("LIGHTER", 20, preview.previewToken())));
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        assertEquals(30, path.getMinutesPerDay());
+        assertEquals(3, activities.get(4).getDayNumber());
+    }
+
+    @Test void openingStudyAfterPreviewInvalidatesConfirmation() {
+        var preview = service.preview(USER, "LIGHTER");
+        when(items.findActivityIdsWithHistory(1L)).thenReturn(List.of(activities.get(4).getId()));
+        var error = assertThrows(ApiException.class, () -> service.apply(USER,
+                new LearningPaceRequest("LIGHTER", 20, preview.previewToken())));
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        assertEquals(30, path.getMinutesPerDay());
     }
 }

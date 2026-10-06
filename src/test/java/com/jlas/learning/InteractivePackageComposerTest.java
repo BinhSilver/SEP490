@@ -51,6 +51,26 @@ class InteractivePackageComposerTest {
         verify(packages,never()).save(any()); verify(items,never()).save(any()); verifyNoInteractions(members,stages);
     }
 
+    /** Owner decision 2026-10-06: a listening-only lesson whose dialogue audio is missing is deferred (reported, not
+     * silently dropped) instead of blocking the whole path; it joins the path once the audio exists. */
+    @Test void listeningOnlyLessonWithoutAudioIsDeferredAndDoesNotBlockThePath(){
+        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
+        when(catalog.inspect(20L,"N4")).thenReturn(new InteractiveContentSnapshot(Lesson.builder().id(20L).build(),"rev",
+                List.of(),List.of(),List.of(),List.of(70L,71L),List.of(new CoverageGap("LESSON:20","DIALOGUE_AUDIO_NOT_READY"))));
+        var result=composer.compose(path(),List.of(seed(10L,1),seed(20L,2)));
+        assertTrue(result.published()); assertEquals(1,result.packageCount());
+        assertEquals(List.of(new CoverageGap("LESSON:20","DEFERRED_DIALOGUE_AUDIO_NOT_READY")),result.gaps());
+        verify(packages,times(1)).save(any());
+    }
+
+    @Test void pathWithOnlyDeferredLessonsIsNotPublished(){
+        when(catalog.inspect(20L,"N4")).thenReturn(new InteractiveContentSnapshot(Lesson.builder().id(20L).build(),"rev",
+                List.of(),List.of(),List.of(),List.of(70L),List.of(new CoverageGap("LESSON:20","DIALOGUE_AUDIO_NOT_READY"))));
+        var result=composer.compose(path(),List.of(seed(20L,1)));
+        assertFalse(result.published());
+        verify(packages,never()).save(any());
+    }
+
     @Test void composesExactlyFourActivitiesWithCanonicalMembershipAndDeduplicatesLesson(){
         when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
         var result=composer.compose(path(),List.of(seed(10L,1),seed(10L,2)));
@@ -93,6 +113,88 @@ class InteractivePackageComposerTest {
             var savedRows=StreamSupport.stream(rows.spliterator(),false).toList();
             return savedRows.size()==5 && savedRows.stream().allMatch(row -> row.getMemberType()==LearningMemberType.VOCABULARY_ENTRY);
         }));
+    }
+
+    @Test void splitsLongVocabularyAndKanjiMembershipIntoOrderedActivitiesOfAtMostFifteen(){
+        var vocabularyIds=java.util.stream.LongStream.rangeClosed(1,32).boxed().toList();
+        var kanjiIds=java.util.stream.LongStream.rangeClosed(101,117).boxed().toList();
+        when(catalog.inspect(10L,"N4")).thenReturn(new InteractiveContentSnapshot(
+                Lesson.builder().id(10L).build(),"revision",vocabularyIds,kanjiIds,List.of(),List.of(),List.of()));
+
+        assertTrue(composer.compose(path(),List.of(seed(10L,1))).published());
+
+        var activityCaptor=ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items,times(5)).save(activityCaptor.capture());
+        assertEquals(List.of(LearningActivityType.VOCABULARY,LearningActivityType.VOCABULARY,
+                        LearningActivityType.VOCABULARY,LearningActivityType.KANJI,LearningActivityType.KANJI),
+                activityCaptor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+        assertEquals(List.of(1,2,3,4,5),
+                activityCaptor.getAllValues().stream().map(UserLearningPathItem::getOrderIndex).toList());
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<LearningActivityMember>> memberCaptor=ArgumentCaptor.forClass(Iterable.class);
+        verify(members,times(5)).saveAll(memberCaptor.capture());
+        var groups=memberCaptor.getAllValues().stream()
+                .map(group -> StreamSupport.stream(group.spliterator(),false).toList()).toList();
+        assertEquals(List.of(11,11,10,9,8),groups.stream().map(List::size).toList());
+        assertEquals(vocabularyIds,groups.subList(0,3).stream().flatMap(List::stream)
+                .map(LearningActivityMember::getCanonicalId).toList());
+        assertEquals(kanjiIds,groups.subList(3,5).stream().flatMap(List::stream)
+                .map(LearningActivityMember::getCanonicalId).toList());
+    }
+
+    @Test void spillsLargeLessonAcrossBudgetedDaysWithoutLosingCanonicalMembership(){
+        properties.setEnabled(true);
+        var boundedPath = path();
+        boundedPath.setMinutesPerDay(15);
+        var vocabularyIds = java.util.stream.LongStream.rangeClosed(1, 30).boxed().toList();
+        var kanjiIds = List.of(101L);
+        var grammarIds = List.of(201L);
+        when(catalog.inspect(10L,"N4")).thenReturn(new InteractiveContentSnapshot(
+                Lesson.builder().id(10L).build(),"revision",vocabularyIds,kanjiIds,grammarIds,List.of(),List.of()));
+
+        var result = composer.compose(boundedPath,List.of(seed(10L,1)));
+
+        assertTrue(result.published());
+        assertTrue(result.packageCount() > 1);
+        var packageCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
+        verify(packages,atLeast(2)).save(packageCaptor.capture());
+        var createdPackages = packageCaptor.getAllValues();
+        assertTrue(createdPackages.stream().allMatch(pkg -> pkg.getEstimatedMinutes() <= 15));
+        assertEquals(java.util.stream.IntStream.rangeClosed(1,createdPackages.size()).boxed().toList(),
+                createdPackages.stream().map(LearningPathPackage::getSourceSegmentIndex).toList());
+        assertEquals(java.util.stream.IntStream.rangeClosed(1,createdPackages.size()).boxed().toList(),
+                createdPackages.stream().map(LearningPathPackage::getDayNumber).toList());
+
+        var activityCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items,atLeast(1)).save(activityCaptor.capture());
+        var activities = activityCaptor.getAllValues();
+        assertTrue(activities.stream().allMatch(activity -> activity.getEstimatedMinutes() != null
+                && activity.getEstimatedMinutes() > 0));
+        assertTrue(activities.stream().allMatch(activity -> activity.getEstimatedMinutes()
+                <= 15));
+        assertEquals(2, activities.stream()
+                .filter(activity -> activity.getActivityType() == LearningActivityType.VOCABULARY).count());
+        assertEquals(1, activities.stream()
+                .filter(activity -> activity.getActivityType() == LearningActivityType.KANJI).count());
+        assertEquals(1, activities.stream()
+                .filter(activity -> activity.getActivityType() == LearningActivityType.GRAMMAR).count());
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<LearningActivityMember>> memberCaptor = ArgumentCaptor.forClass(Iterable.class);
+        verify(members,atLeast(1)).saveAll(memberCaptor.capture());
+        var persistedMembers = memberCaptor.getAllValues().stream()
+                .flatMap(group -> StreamSupport.stream(group.spliterator(),false)).toList();
+        assertEquals(32,persistedMembers.size());
+        assertEquals(vocabularyIds,persistedMembers.stream()
+                .filter(member -> member.getMemberType() == LearningMemberType.VOCABULARY_ENTRY)
+                .map(LearningActivityMember::getCanonicalId).toList());
+        assertEquals(kanjiIds,persistedMembers.stream()
+                .filter(member -> member.getMemberType() == LearningMemberType.KANJI)
+                .map(LearningActivityMember::getCanonicalId).toList());
+        assertEquals(grammarIds,persistedMembers.stream()
+                .filter(member -> member.getMemberType() == LearningMemberType.GRAMMAR_POINT)
+                .map(LearningActivityMember::getCanonicalId).toList());
     }
 
     @Test void composesN3ContentIntoTheMatchingN3Stage(){
@@ -149,7 +251,7 @@ class InteractivePackageComposerTest {
     }
 
     private UserLearningPath path(){return UserLearningPath.builder().id(5L).user(User.builder().id(7L).build())
-            .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).title("P").build();}
+            .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).minutesPerDay(30).title("P").build();}
     private ScheduledLearningResource seed(Long lessonId,int order){return seed(lessonId,order,"N4");}
     private ScheduledLearningResource seed(Long lessonId,int order,String level){var resource=new LearningResourceCandidate(lessonId,"Bài",1L,1L,Set.of("K"),level,30,1,order,null,null,"GRAMMAR");
         return new ScheduledLearningResource(resource,LearningPhase.GOAL_LEARNING,"TARGET","",Set.of("K"),order,order,30);}
