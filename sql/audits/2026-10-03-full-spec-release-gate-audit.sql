@@ -1,83 +1,103 @@
 -- J-LAS full-spec release gate audit (read-only)
 -- Run after schema, migrations and candidate seed are applied.
 -- Every query returns a violation_count expected to be zero unless INFORMATIONAL.
--- Replace this cutover for every target database before running the audit.
-SET @migration_010_cutover = TIMESTAMP('2026-10-02 15:18:05.300814');
-
--- A. Learning completion <-> qualifying JLPT attempt soft-link.
-SELECT 'A1_POST_CUTOVER_COMPLETED_WITHOUT_ATTEMPT' AS audit_code, COUNT(*) AS violation_count
-FROM user_learning_path
-WHERE experience_version = 'INTERACTIVE_V2' AND status = 'COMPLETED'
-  AND completed_at >= @migration_010_cutover AND completion_attempt_id IS NULL;
-
-SELECT 'A2_ATTEMPT_ON_NON_COMPLETED_PATH' AS audit_code, COUNT(*) AS violation_count
-FROM user_learning_path
-WHERE completion_attempt_id IS NOT NULL AND (status <> 'COMPLETED' OR completed_at IS NULL);
-
-SELECT 'A3_INVALID_COMPLETION_ATTEMPT' AS audit_code, COUNT(*) AS violation_count
+-- A. Learning option A: progress completes the path. Mock Test is self-assessment only;
+-- completion_attempt_id is legacy/nullable and never a release-failing prerequisite.
+SELECT 'A1_COMPLETED_PATH_WITHOUT_GOAL_PACKAGE' AS audit_code, COUNT(*) AS violation_count
 FROM user_learning_path p
-LEFT JOIN assessment_attempt a ON a.id = p.completion_attempt_id
-WHERE p.completion_attempt_id IS NOT NULL
-  AND (a.id IS NULL OR a.user_id <> p.user_id OR a.attempt_type <> 'JLPT' OR a.status <> 'SUBMITTED');
+WHERE p.experience_version = 'INTERACTIVE_V2' AND p.status = 'COMPLETED'
+  AND NOT EXISTS (
+      SELECT 1 FROM learning_path_package pkg
+      WHERE pkg.learning_path_id = p.id AND pkg.phase = 'GOAL_LEARNING'
+  );
 
-SELECT 'A4_ATTEMPT_REUSED_ACROSS_PATHS' AS audit_code, COUNT(*) AS violation_count
+SELECT 'A2_COMPLETED_PATH_WITH_UNFINISHED_GOAL' AS audit_code, COUNT(*) AS violation_count
+FROM user_learning_path p
+WHERE p.experience_version = 'INTERACTIVE_V2' AND p.status = 'COMPLETED'
+  AND EXISTS (
+      SELECT 1 FROM learning_path_package pkg
+      WHERE pkg.learning_path_id = p.id AND pkg.phase = 'GOAL_LEARNING' AND pkg.status <> 'COMPLETED'
+  );
+
+SELECT 'A3_FINISHED_GOAL_PATH_NOT_COMPLETED' AS audit_code, COUNT(*) AS violation_count
+FROM user_learning_path p
+WHERE p.experience_version = 'INTERACTIVE_V2' AND p.status = 'ACTIVE'
+  AND EXISTS (
+      SELECT 1 FROM learning_path_package pkg
+      WHERE pkg.learning_path_id = p.id AND pkg.phase = 'GOAL_LEARNING'
+  )
+  AND NOT EXISTS (
+      SELECT 1 FROM learning_path_package pkg
+      WHERE pkg.learning_path_id = p.id AND pkg.phase = 'GOAL_LEARNING' AND pkg.status <> 'COMPLETED'
+  );
+
+SELECT 'A4_DUPLICATE_PACKAGE_ORDER' AS audit_code, COUNT(*) AS violation_count
 FROM (
-    SELECT completion_attempt_id FROM user_learning_path
-    WHERE completion_attempt_id IS NOT NULL
-    GROUP BY completion_attempt_id HAVING COUNT(*) > 1
-) duplicated_attempt;
+    SELECT learning_path_id, order_index FROM learning_path_package
+    GROUP BY learning_path_id, order_index HAVING COUNT(*) > 1
+) duplicated_package_order;
 
--- INFORMATIONAL: classify manually; pre-cutover rows do not auto-fail release.
-SELECT 'A0_INFORMATIONAL_LEGACY_COMPLETION_WITHOUT_ATTEMPT' AS audit_code, COUNT(*) AS row_count
+-- INFORMATIONAL only: legacy soft-links may remain, but option A never requires them.
+SELECT 'A0_INFORMATIONAL_LEGACY_COMPLETION_ATTEMPT' AS audit_code, COUNT(*) AS row_count
 FROM user_learning_path
-WHERE status = 'COMPLETED' AND completion_attempt_id IS NULL
-  AND (completed_at IS NULL OR completed_at < @migration_010_cutover);
+WHERE completion_attempt_id IS NOT NULL;
 
--- B. Published JLPT exam/section/attempt integrity.
-SELECT 'B1_PUBLISHED_EXAM_WITHOUT_POLICY' AS audit_code, COUNT(*) AS violation_count
+-- B. Canonical JLPT self-assessment content integrity (exam -> part -> mondai -> question).
+SELECT 'B1_PUBLISHED_EXAM_NOT_APPROVED' AS audit_code, COUNT(*) AS violation_count
 FROM jlpt_exam
-WHERE status = 'PUBLISHED' AND (policy_version IS NULL OR TRIM(policy_version) = '');
+WHERE status = 'PUBLISHED' AND review_status <> 'APPROVED';
 
-SELECT 'B2_PUBLISHED_EXAM_WITHOUT_SECTION' AS audit_code, COUNT(*) AS violation_count
+SELECT 'B2_PUBLISHED_EXAM_WITHOUT_PART' AS audit_code, COUNT(*) AS violation_count
 FROM (
     SELECT e.id FROM jlpt_exam e
-    LEFT JOIN jlpt_exam_section s ON s.exam_id = e.id
+    LEFT JOIN jlpt_part p ON p.exam_id = e.id
     WHERE e.status = 'PUBLISHED'
-    GROUP BY e.id HAVING COUNT(s.id) = 0
-) exam_without_section;
+    GROUP BY e.id HAVING COUNT(p.id) = 0
+) exam_without_part;
 
-SELECT 'B3_SECTION_WITH_INVALID_QUIZ' AS audit_code, COUNT(*) AS violation_count
-FROM jlpt_exam_section s
-JOIN jlpt_exam e ON e.id = s.exam_id
-JOIN assessment_quiz q ON q.id = s.quiz_id
-WHERE e.status = 'PUBLISHED' AND (q.quiz_type <> 'JLPT_SECTION' OR q.status <> 'PUBLISHED');
-
-SELECT 'B4_SECTION_SCORE_EXCEEDS_MAX' AS audit_code, COUNT(*) AS violation_count
-FROM jlpt_section_result r
-JOIN jlpt_exam_section s ON s.id = r.section_id
-WHERE r.score > s.max_score;
-
-SELECT 'B5_SUBMITTED_ATTEMPT_MISSING_SECTION_RESULT' AS audit_code, COUNT(*) AS violation_count
+SELECT 'B3_PART_WITHOUT_MONDAI' AS audit_code, COUNT(*) AS violation_count
 FROM (
-    SELECT ja.attempt_id, s.id AS section_id
-    FROM jlpt_exam_attempt ja
-    JOIN assessment_attempt a ON a.id = ja.attempt_id
-    JOIN jlpt_exam_section s ON s.exam_id = ja.exam_id
-    LEFT JOIN jlpt_section_result r ON r.attempt_id = ja.attempt_id AND r.section_id = s.id
-    WHERE a.status = 'SUBMITTED' AND r.attempt_id IS NULL
-) missing_result;
+    SELECT p.id FROM jlpt_part p
+    JOIN jlpt_exam e ON e.id = p.exam_id
+    LEFT JOIN jlpt_mondai m ON m.part_id = p.id
+    WHERE e.status = 'PUBLISHED'
+    GROUP BY p.id HAVING COUNT(m.id) = 0
+) part_without_mondai;
 
-SELECT 'B6_SECTION_RESULT_FROM_ANOTHER_EXAM' AS audit_code, COUNT(*) AS violation_count
-FROM jlpt_section_result r
-JOIN jlpt_exam_attempt ja ON ja.attempt_id = r.attempt_id
-JOIN jlpt_exam_section s ON s.id = r.section_id
-WHERE s.exam_id <> ja.exam_id;
+SELECT 'B4_MONDAI_WITHOUT_QUESTION' AS audit_code, COUNT(*) AS violation_count
+FROM (
+    SELECT m.id FROM jlpt_mondai m
+    JOIN jlpt_part p ON p.id = m.part_id
+    JOIN jlpt_exam e ON e.id = p.exam_id
+    LEFT JOIN jlpt_question q ON q.mondai_id = m.id
+    WHERE e.status = 'PUBLISHED'
+    GROUP BY m.id HAVING COUNT(q.id) = 0
+) mondai_without_question;
 
--- Presence is checked here; the configured accepted-policy allow-list is checked by app tests.
-SELECT 'B7_SUBMITTED_ATTEMPT_WITHOUT_POLICY_SNAPSHOT' AS audit_code, COUNT(*) AS violation_count
-FROM jlpt_exam_attempt ja
-JOIN assessment_attempt a ON a.id = ja.attempt_id
-WHERE a.status = 'SUBMITTED' AND (ja.policy_version IS NULL OR TRIM(ja.policy_version) = '');
+SELECT 'B5_CORRECT_OPTION_NOT_FOUND' AS audit_code, COUNT(*) AS violation_count
+FROM jlpt_question q
+JOIN jlpt_mondai m ON m.id = q.mondai_id
+JOIN jlpt_part p ON p.id = m.part_id
+JOIN jlpt_exam e ON e.id = p.exam_id
+LEFT JOIN jlpt_option o ON o.question_id = q.id AND o.option_number = q.correct_option
+WHERE e.status = 'PUBLISHED' AND q.correct_option IS NOT NULL AND o.id IS NULL;
+
+SELECT 'B6_INVALID_AUDIO_CLIP_RANGE' AS audit_code, COUNT(*) AS violation_count
+FROM jlpt_audio_clip c
+JOIN jlpt_question q ON q.id = c.question_id
+JOIN jlpt_mondai m ON m.id = q.mondai_id
+JOIN jlpt_part p ON p.id = m.part_id
+JOIN jlpt_exam e ON e.id = p.exam_id
+WHERE e.status = 'PUBLISHED'
+  AND (TRIM(c.audio_url) = '' OR c.start_seconds < 0 OR c.end_seconds <= c.start_seconds);
+
+SELECT 'B7_LISTENING_QUESTION_WITHOUT_AUDIO' AS audit_code, COUNT(*) AS violation_count
+FROM jlpt_question q
+JOIN jlpt_mondai m ON m.id = q.mondai_id
+JOIN jlpt_part p ON p.id = m.part_id
+JOIN jlpt_exam e ON e.id = p.exam_id
+LEFT JOIN jlpt_audio_clip c ON c.question_id = q.id
+WHERE e.status = 'PUBLISHED' AND LOWER(p.part_code) = 'listening' AND c.id IS NULL;
 
 -- C. Assessment question and active usage integrity.
 SELECT 'C1_ACTIVE_USAGE_NOT_APPROVED' AS audit_code, COUNT(*) AS violation_count
@@ -93,27 +113,28 @@ FROM assessment_question_usage
 WHERE active = TRUE AND (blueprint_code IS NULL OR TRIM(blueprint_code) = ''
   OR section_code IS NULL OR TRIM(section_code) = '');
 
-SELECT 'C4_PUBLISHED_SECTION_WITHOUT_QUESTION' AS audit_code, COUNT(*) AS violation_count
-FROM (
-    SELECT s.id FROM jlpt_exam_section s
-    JOIN jlpt_exam e ON e.id = s.exam_id
-    LEFT JOIN assessment_quiz_question qq ON qq.quiz_id = s.quiz_id
-    WHERE e.status = 'PUBLISHED'
-    GROUP BY s.id HAVING COUNT(qq.question_id) = 0
-) section_without_question;
+SELECT 'C4_PUBLISHED_QUESTION_WITHOUT_ANSWER' AS audit_code, COUNT(*) AS violation_count
+FROM jlpt_question q
+JOIN jlpt_mondai m ON m.id = q.mondai_id
+JOIN jlpt_part p ON p.id = m.part_id
+JOIN jlpt_exam e ON e.id = p.exam_id
+WHERE e.status = 'PUBLISHED' AND q.correct_option IS NULL AND q.correct_order IS NULL;
 
-SELECT 'C5_PUBLISHED_EXAM_QUESTION_LEVEL_MISMATCH' AS audit_code, COUNT(*) AS violation_count
-FROM jlpt_exam e
-JOIN jlpt_exam_section s ON s.exam_id = e.id
-JOIN assessment_quiz_question qq ON qq.quiz_id = s.quiz_id
-JOIN assessment_question q ON q.id = qq.question_id
-WHERE e.status = 'PUBLISHED' AND q.jlpt_level <> e.jlpt_level;
+SELECT 'C5_QUESTION_TYPE_PART_MISMATCH' AS audit_code, COUNT(*) AS violation_count
+FROM jlpt_question q
+JOIN jlpt_question_type qt ON qt.id = q.question_type_id
+JOIN jlpt_mondai m ON m.id = q.mondai_id
+JOIN jlpt_part p ON p.id = m.part_id
+JOIN jlpt_exam e ON e.id = p.exam_id
+WHERE e.status = 'PUBLISHED' AND LOWER(qt.part_code) <> LOWER(p.part_code);
 
-SELECT 'C6_DUPLICATE_QUESTION_ACROSS_EXAM_SECTIONS' AS audit_code, COUNT(*) AS violation_count
+SELECT 'C6_DUPLICATE_SOURCE_QUESTION_IN_EXAM' AS audit_code, COUNT(*) AS violation_count
 FROM (
-    SELECT s.exam_id, qq.question_id FROM jlpt_exam_section s
-    JOIN assessment_quiz_question qq ON qq.quiz_id = s.quiz_id
-    GROUP BY s.exam_id, qq.question_id HAVING COUNT(*) > 1
+    SELECT p.exam_id, q.source_question_id
+    FROM jlpt_question q
+    JOIN jlpt_mondai m ON m.id = q.mondai_id
+    JOIN jlpt_part p ON p.id = m.part_id
+    GROUP BY p.exam_id, q.source_question_id HAVING COUNT(*) > 1
 ) duplicate_question;
 
 -- D. Learning source and goal-specific release readiness.

@@ -66,10 +66,6 @@ export function validateReleaseGateAudit({ auditSql, schemaSql }) {
   if (auditCodes.length === 0) {
     issues.push('AUDIT_CODE_MISSING');
   }
-  if (!/@migration_010_cutover\s*=/.test(executableSql)) {
-    issues.push('MIGRATION_010_CUTOVER_MISSING');
-  }
-
   return { auditCodes, issues };
 }
 

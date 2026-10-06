@@ -1310,57 +1310,162 @@ BEGIN
 END$$
 DELIMITER ;
 
--- De thi JLPT; total_duration va max_score duoc tinh tu cac section de tranh lap.
+-- [JLAS-W0108] JLPT self-assessment catalog. Attempts are client-side/self-assessment in option A;
+-- these tables contain canonical exam content only and match db/migrations/jlpt_full_setup.sql.
 CREATE TABLE jlpt_exam (
-    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    title         VARCHAR(255) NOT NULL,
-    jlpt_level    VARCHAR(10) NOT NULL,
-    passing_score DECIMAL(6,2) NOT NULL,
-    -- [JLAS-W0108] policy_version: phien ban chinh sach dau hien hanh; NULL = chua co (Learning khong tinh ket qua).
-    policy_version VARCHAR(100) NULL,
-    status        VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
-    created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
-                  ON UPDATE CURRENT_TIMESTAMP(6),
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    exam_code VARCHAR(30) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    jlpt_level VARCHAR(10) NOT NULL,
+    exam_year SMALLINT UNSIGNED NULL,
+    exam_month TINYINT UNSIGNED NULL,
+    source_name VARCHAR(100) NULL,
+    source_url VARCHAR(500) NULL,
+    source_pack_path VARCHAR(500) NULL,
+    passing_score INT UNSIGNED NOT NULL DEFAULT 95,
+    review_status VARCHAR(30) NOT NULL DEFAULT 'UNREVIEWED',
+    review_note TEXT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    KEY idx_jlpt_exam_level_status (jlpt_level, status),
-    CONSTRAINT chk_jlpt_exam_level
-        CHECK (jlpt_level IN ('N5','N4','N3','N2','N1')),
-    CONSTRAINT chk_jlpt_exam_passing_score CHECK (passing_score >= 0),
-    CONSTRAINT chk_jlpt_exam_status
-        CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED'))
+    UNIQUE KEY uk_jlpt_exam_code (exam_code),
+    KEY idx_jlpt_exam_catalog (jlpt_level, status, exam_year, exam_month),
+    CONSTRAINT chk_jlpt_exam_level CHECK (jlpt_level IN ('N1','N2','N3','N4','N5')),
+    CONSTRAINT chk_jlpt_exam_month CHECK (exam_month IS NULL OR exam_month IN (7,12)),
+    CONSTRAINT chk_jlpt_exam_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Moi section dung mot assessment_quiz loai JLPT_SECTION lam bo cau hoi.
--- Ten section lay tu assessment_quiz.title, khong luu lap o bang nay.
-CREATE TABLE jlpt_exam_section (
-    id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    exam_id           BIGINT UNSIGNED NOT NULL,
-    quiz_id           BIGINT UNSIGNED NOT NULL,
-    section_type      VARCHAR(30) NOT NULL,
-    duration_minutes  INT UNSIGNED NOT NULL,
-    max_score         DECIMAL(6,2) NOT NULL,
-    min_passing_score DECIMAL(6,2) NOT NULL,
-    order_index       INT UNSIGNED NOT NULL DEFAULT 0,
+CREATE TABLE jlpt_part (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    exam_id BIGINT UNSIGNED NOT NULL,
+    part_code VARCHAR(30) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    duration_minutes SMALLINT UNSIGNED NULL,
+    order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_jlpt_section_order (exam_id, order_index),
-    UNIQUE KEY uk_jlpt_section_quiz (quiz_id),
-    KEY idx_jlpt_section_exam_type (exam_id, section_type),
-    CONSTRAINT fk_jlpt_section_exam FOREIGN KEY (exam_id)
-        REFERENCES jlpt_exam(id),
-    CONSTRAINT fk_jlpt_section_quiz FOREIGN KEY (quiz_id)
-        REFERENCES assessment_quiz(id),
-    CONSTRAINT chk_jlpt_section_type CHECK (
-        section_type IN (
-            'VOCAB_GRAMMAR','READING','LISTENING','LANGUAGE_KNOWLEDGE'
-        )
-    ),
-    CONSTRAINT chk_jlpt_section_duration CHECK (duration_minutes > 0),
-    CONSTRAINT chk_jlpt_section_score CHECK (
-        max_score > 0
-        AND min_passing_score >= 0
-        AND min_passing_score <= max_score
-    )
+    UNIQUE KEY uk_jlpt_part (exam_id, part_code),
+    CONSTRAINT fk_jlpt_part_exam FOREIGN KEY (exam_id)
+        REFERENCES jlpt_exam(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_question_type (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    type_code VARCHAR(50) NOT NULL,
+    part_code VARCHAR(30) NOT NULL,
+    name_vi VARCHAR(150) NOT NULL,
+    name_ja VARCHAR(150) NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_question_type_code (type_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_mondai (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    part_id BIGINT UNSIGNED NOT NULL,
+    mondai_number INT UNSIGNED NOT NULL,
+    format_code VARCHAR(50) NULL,
+    instruction_html MEDIUMTEXT NULL,
+    audio_url VARCHAR(1000) NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_mondai (part_id, mondai_number),
+    CONSTRAINT fk_jlpt_mondai_part FOREIGN KEY (part_id)
+        REFERENCES jlpt_part(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_passage (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    part_id BIGINT UNSIGNED NOT NULL,
+    source_passage_id BIGINT NULL,
+    passage_ja MEDIUMTEXT NULL,
+    passage_html MEDIUMTEXT NULL,
+    passage_vi MEDIUMTEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_passage_source (part_id, source_passage_id),
+    CONSTRAINT fk_jlpt_passage_part FOREIGN KEY (part_id)
+        REFERENCES jlpt_part(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_question (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mondai_id BIGINT UNSIGNED NOT NULL,
+    passage_id BIGINT UNSIGNED NULL,
+    question_type_id BIGINT UNSIGNED NULL,
+    source_question_id BIGINT NOT NULL,
+    question_number INT UNSIGNED NOT NULL,
+    question_text MEDIUMTEXT NULL,
+    question_furigana MEDIUMTEXT NULL,
+    question_html MEDIUMTEXT NULL,
+    correct_option TINYINT UNSIGNED NULL,
+    correct_order JSON NULL,
+    score DECIMAL(6,2) NULL,
+    image_url VARCHAR(1000) NULL,
+    source_page INT UNSIGNED NULL,
+    explanation MEDIUMTEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_question_source (mondai_id, source_question_id),
+    KEY idx_jlpt_question_order (mondai_id, order_index),
+    KEY idx_jlpt_question_type (question_type_id),
+    CONSTRAINT fk_jlpt_question_mondai FOREIGN KEY (mondai_id)
+        REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jlpt_question_passage FOREIGN KEY (passage_id)
+        REFERENCES jlpt_passage(id) ON DELETE SET NULL,
+    CONSTRAINT fk_jlpt_question_type FOREIGN KEY (question_type_id)
+        REFERENCES jlpt_question_type(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_option (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    question_id BIGINT UNSIGNED NOT NULL,
+    option_number TINYINT UNSIGNED NOT NULL,
+    option_text TEXT NULL,
+    option_furigana TEXT NULL,
+    option_html TEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_option (question_id, option_number),
+    CONSTRAINT fk_jlpt_option_question FOREIGN KEY (question_id)
+        REFERENCES jlpt_question(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_audio_clip (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mondai_id BIGINT UNSIGNED NOT NULL,
+    question_id BIGINT UNSIGNED NOT NULL,
+    clip_type VARCHAR(20) NOT NULL DEFAULT 'QUESTION',
+    audio_url VARCHAR(1000) NOT NULL,
+    start_seconds DECIMAL(10,3) NOT NULL,
+    end_seconds DECIMAL(10,3) NOT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_audio_clip_question (question_id),
+    KEY idx_jlpt_audio_clip_mondai_order (mondai_id, order_index),
+    CONSTRAINT fk_jlpt_audio_clip_mondai FOREIGN KEY (mondai_id)
+        REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jlpt_audio_clip_question FOREIGN KEY (question_id)
+        REFERENCES jlpt_question(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_transcript_segment (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    mondai_id BIGINT UNSIGNED NOT NULL,
+    audio_clip_id BIGINT UNSIGNED NULL,
+    start_seconds DECIMAL(10,3) NOT NULL,
+    end_seconds DECIMAL(10,3) NOT NULL,
+    text_ja TEXT NULL,
+    text_ja_furigana TEXT NULL,
+    text_vi TEXT NULL,
+    order_index INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_jlpt_transcript_time (mondai_id, start_seconds),
+    KEY idx_jlpt_transcript_clip_order (audio_clip_id, order_index),
+    CONSTRAINT fk_jlpt_transcript_mondai FOREIGN KEY (mondai_id)
+        REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jlpt_transcript_clip FOREIGN KEY (audio_clip_id)
+        REFERENCES jlpt_audio_clip(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Supertype cho moi lan lam bai. Chi luu thuoc tinh chung; quiz/JLPT/Smart
@@ -1416,34 +1521,6 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
-
--- Thuoc tinh rieng cua lan thi JLPT. Tong diem va pass/fail duoc tinh qua view.
-CREATE TABLE jlpt_exam_attempt (
-    attempt_id BIGINT UNSIGNED NOT NULL,
-    exam_id    BIGINT UNSIGNED NOT NULL,
-    -- [JLAS-W0108] policy_version: snapshot luc thi, do module Mock Test ghi; NULL = khong du dieu kien hoan thanh lo trinh.
-    policy_version VARCHAR(100) NULL,
-    PRIMARY KEY (attempt_id),
-    KEY idx_jlpt_exam_attempt_exam (exam_id, attempt_id),
-    CONSTRAINT fk_jlpt_exam_attempt_attempt FOREIGN KEY (attempt_id)
-        REFERENCES assessment_attempt(id) ON DELETE CASCADE,
-    CONSTRAINT fk_jlpt_exam_attempt_exam FOREIGN KEY (exam_id)
-        REFERENCES jlpt_exam(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Diem tung section. is_passed_section duoc tinh tu score va min_passing_score.
-CREATE TABLE jlpt_section_result (
-    attempt_id BIGINT UNSIGNED NOT NULL,
-    section_id BIGINT UNSIGNED NOT NULL,
-    score      DECIMAL(6,2) NOT NULL DEFAULT 0.00,
-    PRIMARY KEY (attempt_id, section_id),
-    KEY idx_jlpt_section_result_section (section_id, attempt_id),
-    CONSTRAINT fk_jlpt_section_result_attempt FOREIGN KEY (attempt_id)
-        REFERENCES jlpt_exam_attempt(attempt_id) ON DELETE CASCADE,
-    CONSTRAINT fk_jlpt_section_result_section FOREIGN KEY (section_id)
-        REFERENCES jlpt_exam_section(id),
-    CONSTRAINT chk_jlpt_section_result_score CHECK (score >= 0)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] Snapshot khảo sát đầu vào (goal/target_level/self_reported_level + thời lượng học),
 -- là đầu vào cho sinh learning path cá nhân hoá và khởi tạo Smart Test.
@@ -1556,46 +1633,6 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
-
--- Cac aggregate khong luu lap trong bang; view cung cap shape de code doc nhanh.
-CREATE VIEW v_jlpt_exam_summary AS
-SELECT
-    e.id AS exam_id,
-    COALESCE(SUM(s.duration_minutes), 0) AS total_duration,
-    COALESCE(SUM(s.max_score), 0.00) AS max_score
-FROM jlpt_exam e
-LEFT JOIN jlpt_exam_section s ON s.exam_id = e.id
-GROUP BY e.id;
-
-CREATE VIEW v_jlpt_section_result AS
-SELECT
-    r.attempt_id,
-    r.section_id,
-    r.score,
-    CASE WHEN r.score >= s.min_passing_score THEN 1 ELSE 0 END AS is_passed_section
-FROM jlpt_section_result r
-JOIN jlpt_exam_section s ON s.id = r.section_id;
-
-CREATE VIEW v_jlpt_exam_attempt_summary AS
-SELECT
-    a.attempt_id,
-    a.exam_id,
-    COALESCE(SUM(r.score), 0.00) AS total_score,
-    CASE
-        WHEN COUNT(r.section_id) = COUNT(s.id)
-         AND COALESCE(SUM(r.score), 0.00) >= e.passing_score
-         AND MIN(CASE
-                WHEN r.score IS NOT NULL AND r.score >= s.min_passing_score THEN 1
-                ELSE 0
-             END) = 1
-        THEN 1 ELSE 0
-    END AS is_passed
-FROM jlpt_exam_attempt a
-JOIN jlpt_exam e ON e.id = a.exam_id
-JOIN jlpt_exam_section s ON s.exam_id = e.id
-LEFT JOIN jlpt_section_result r
-    ON r.attempt_id = a.attempt_id AND r.section_id = s.id
-GROUP BY a.attempt_id, a.exam_id, e.passing_score;
 
 CREATE VIEW v_smart_test_session_summary AS
 SELECT
