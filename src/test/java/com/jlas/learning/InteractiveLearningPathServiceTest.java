@@ -77,6 +77,25 @@ class InteractiveLearningPathServiceTest {
         assertEquals(11L, result.currentPackageId());
     }
 
+    @Test void currentExposesSmartTestSmallTargetSetsAsReviewOnlyWithoutCreatingActivities() {
+        var path = interactivePath();
+        path.setCoverageGapsJson("[{\"tagCode\":\"VOCABULARY:学生\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD\"},"
+                + "{\"tagCode\":\"KANJI:食\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD\"}]");
+        var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.AVAILABLE);
+        pkg.setPhase("WARM_UP");
+        when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(List.of());
+
+        var result = service.current(7L);
+
+        assertEquals(List.of("KANJI:食", "VOCABULARY:学生"), result.smartTestReviewOnlyTargets().stream()
+                .map(target -> target.skill() + ":" + target.target()).toList());
+        assertTrue(result.packages().getFirst().activities().isEmpty(),
+                "Read-only targets must not be represented as progress-bearing activities");
+    }
+
     @Test void anotherUsersPackageLooksNotFound() {
         when(packages.findOwnedByIdForUpdate(99L, 7L)).thenReturn(Optional.empty());
         ApiException error = assertThrows(ApiException.class, () -> service.packageDetail(7L, 99L));
@@ -131,6 +150,41 @@ class InteractiveLearningPathServiceTest {
         assertEquals(LearningPackageStatus.IN_PROGRESS,response.status());
         assertEquals(3,response.totalActivities());
         assertFalse(response.justCompleted());
+    }
+
+    @Test void targetPackageCanStartWithSeveralVocabularyBatchesBeforeKanji() {
+        var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.AVAILABLE);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY,
+                LearningActivityType.VOCABULARY, LearningActivityType.KANJI);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        var result = service.start(7L, 11L);
+
+        assertEquals(LearningPackageStatus.IN_PROGRESS, result.status());
+        assertEquals(3, result.totalActivities());
+        assertEquals(LearningActivityState.STUDYING, activities.getFirst().getActivityState());
+        assertEquals(LearningActivityState.LOCKED, activities.get(1).getActivityState());
+    }
+
+    @Test void vocabularyOnlyTargetSegmentCompletesAfterAllItsBatchesPass() {
+        var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var activities = warmUpActivities(pkg, LearningActivityType.VOCABULARY,
+                LearningActivityType.VOCABULARY);
+        activities.getFirst().setActivityState(LearningActivityState.PASSED);
+        activities.get(1).setActivityState(LearningActivityState.STUDYING);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+
+        assertEquals(LearningPackageStatus.IN_PROGRESS, service.packageDetail(7L, 11L).status());
+        activities.get(1).setActivityState(LearningActivityState.PASSED);
+        stubNoScoredSessions();
+        var completed = service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, completed.status());
+        assertEquals(2, completed.completedActivities());
     }
 
     // ---- Task 8: cascading unlock ----

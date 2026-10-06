@@ -7,6 +7,7 @@ import com.jlas.learning.dto.InteractiveLearningActivityResponse;
 import com.jlas.learning.dto.InteractiveLearningPackageResponse;
 import com.jlas.learning.dto.InteractiveLearningPathResponse;
 import com.jlas.learning.dto.ReferenceVocabularyResponse;
+import com.jlas.learning.dto.SmartTestReviewTarget;
 import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.UserLearningPath;
@@ -22,6 +23,7 @@ import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
+import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.service.InteractiveLearningPathService;
 import com.jlas.learning.service.GoalEntryPolicy;
 import com.jlas.learning.service.InteractiveContentCatalog;
@@ -42,6 +44,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /** [JLAS-W0193] Task 2 owns the V2 roadmap/package read+start surface; Task 8 extends it with package
  * completion: cascading intra-package activity unlock, the composed-activity completion gate, real (never
@@ -118,7 +121,27 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                         .map(InteractiveLearningPackageResponse::id).findFirst().orElse(null));
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
-                packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews);
+                packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews,
+                smartTestReviewOnlyTargets(path));
+    }
+
+    private List<SmartTestReviewTarget> smartTestReviewOnlyTargets(UserLearningPath path) {
+        return LearningMapper.readCoverageGapsSnapshot(path.getCoverageGapsJson()).stream()
+                .filter(gap -> "SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode()))
+                .map(gap -> {
+                    String canonicalId = gap.tagCode();
+                    if (canonicalId == null) return null;
+                    int separator = canonicalId.indexOf(':');
+                    if (separator <= 0 || separator == canonicalId.length() - 1) return null;
+                    String skill = canonicalId.substring(0, separator);
+                    if (!"VOCABULARY".equals(skill) && !"KANJI".equals(skill)) return null;
+                    return new SmartTestReviewTarget(skill, canonicalId.substring(separator + 1));
+                })
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .sorted(java.util.Comparator.comparing(SmartTestReviewTarget::skill)
+                        .thenComparing(SmartTestReviewTarget::target))
+                .toList();
     }
 
     @Override
@@ -301,38 +324,33 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
 
     /** {@code targetScore = round((vocabularyScore + kanjiScore + grammarScore) / N)} where N is the number
      * of those three skills that actually have a valid score in THIS package — never a hard-coded division by
-     * 3 — and each skill's own score is {@code round(Σcorrect / Σtotal)} pooled across that activity's batches
+     * 3 — and each skill's own score is {@code round(Σcorrect / Σtotal)} pooled across every batch of every
+     * part of that skill
      * (design spec §2.2: "không lấy trung bình các phần trăm batch"), not an average of per-batch percentages.
      * Dialogue never contributes to either the numerator or the denominator. An activity with no passing
      * micro-check session (should not happen once {@link #allRequiredActivitiesDone} is true, but checked
      * defensively) is skipped rather than counted as a zero. */
     private Integer computePackageScore(List<UserLearningPathItem> activities) {
-        int sum = 0;
-        int count = 0;
+        // A pace replan may split one skill into several parts; pool them so the skill still counts once.
+        Map<LearningActivityType, long[]> pooled = new EnumMap<>(LearningActivityType.class);
         for (UserLearningPathItem activity : activities) {
             String quizType = SCORED_MICRO_CHECK_TYPES.get(activity.getActivityType());
             if (quizType == null) continue;
-            Integer score = skillScore(activity.getId(), quizType);
-            if (score != null) {
-                sum += score;
-                count++;
+            long[] tally = pooled.computeIfAbsent(activity.getActivityType(), type -> new long[2]);
+            for (LearningQuizSession session : quizSessions
+                    .findByActivityIdAndQuizTypeAndStatusAndPassed(activity.getId(), quizType, SUBMITTED, true)) {
+                tally[0] += session.getCorrectCount() == null ? 0 : session.getCorrectCount();
+                tally[1] += session.getQuestionCount() == null ? 0 : session.getQuestionCount();
             }
         }
-        return count == 0 ? null : Math.round((float) sum / count);
-    }
-
-    private Integer skillScore(Long activityId, String quizType) {
-        List<LearningQuizSession> passing =
-                quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(activityId, quizType, SUBMITTED, true);
-        if (passing.isEmpty()) return null;
-        long correct = 0;
-        long total = 0;
-        for (LearningQuizSession session : passing) {
-            correct += session.getCorrectCount() == null ? 0 : session.getCorrectCount();
-            total += session.getQuestionCount() == null ? 0 : session.getQuestionCount();
+        int sum = 0;
+        int count = 0;
+        for (long[] tally : pooled.values()) {
+            if (tally[1] == 0) continue;
+            sum += Math.round(tally[0] * 100f / tally[1]);
+            count++;
         }
-        if (total == 0) return null;
-        return Math.round(correct * 100f / total);
+        return count == 0 ? null : Math.round((float) sum / count);
     }
 
     /** Reward/streak via the project's existing contract (moderation credit ledger + mission streak), never a
@@ -421,17 +439,12 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Package chưa có snapshot nguồn canonical hợp lệ.");
         }
-        EnumSet<LearningActivityType> actual = EnumSet.noneOf(LearningActivityType.class);
         boolean invalidMember = activities.isEmpty();
         for (UserLearningPathItem item : activities) {
             LearningActivityType type = item.getActivityType();
-            if (type == null || !TARGET_TYPES.contains(type) || item.getActivityState() == null
-                    || !actual.add(type)) {
+            if (type == null || !TARGET_TYPES.contains(type) || item.getActivityState() == null) {
                 invalidMember = true;
             }
-        }
-        if (!actual.contains(LearningActivityType.KANJI) && !actual.contains(LearningActivityType.GRAMMAR)) {
-            invalidMember = true;
         }
         if (invalidMember) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
@@ -448,9 +461,18 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
             List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
             Map<Long, Map<LearningMemberType, Integer>> countsByPackage) {
+        Map<LearningActivityType, Long> partCounts = activities.stream()
+                .filter(item -> item.getActivityType() != null)
+                .collect(Collectors.groupingBy(UserLearningPathItem::getActivityType,
+                        () -> new EnumMap<>(LearningActivityType.class), Collectors.counting()));
+        // "Phần x" follows study order: a repeated split appends part_index values after the part it was cut from.
+        Map<LearningActivityType, Integer> seen = new EnumMap<>(LearningActivityType.class);
         List<InteractiveLearningActivityResponse> activityViews = activities.stream()
                 .map(item -> new InteractiveLearningActivityResponse(item.getId(), item.getActivityType(),
-                        item.getActivityState(), item.getOrderIndex(), item.getReasonCode(), item.getReason()))
+                        item.getActivityState(), item.getOrderIndex(), item.getReasonCode(), item.getReason(),
+                        item.getEstimatedMinutes(), item.getDayNumber(),
+                        item.getActivityType() == null ? 1 : seen.merge(item.getActivityType(), 1, Integer::sum),
+                        Math.toIntExact(partCounts.getOrDefault(item.getActivityType(), 1L))))
                 .toList();
         int completed = (int) activityViews.stream()
                 .filter(view -> view.state() != null && DONE.contains(view.state())).count();
