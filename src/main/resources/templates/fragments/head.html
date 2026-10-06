@@ -11,7 +11,7 @@
     </script>
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Noto+Serif:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;family=Noto+Serif:wght@400;500;600;700&amp;family=Noto+Serif+JP:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
         rel="stylesheet" />
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block"
@@ -43,10 +43,14 @@
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css'}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=20260929'}" />
+    <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=5}" />
     <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
+    <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-furigana.css?v=3}" />
+    <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-controls.css?v=14}" />
+    <link th:if="${pageCss == 'jlpt-exam' or pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-sentence-order.css?v=1}" />
     <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=7}" />
     <link rel="stylesheet" th:href="@{/css/pages/learning-journey.css}" />
 
     <script th:src="@{/js/auth-session.js}"></script>

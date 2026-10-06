@@ -45,13 +45,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Arena SSE completes through an async dispatch of an authenticated request.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
+                        .hasRole("CONTENT_CREATOR")
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
-                                "/videos/**", "/voices/**", "/audio/**", "/flashcard/**", "/shadowing/css/**",
+                                "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
