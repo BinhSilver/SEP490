@@ -582,7 +582,9 @@ class InteractiveLearningPathServiceTest {
 
     // ---- Task 10: path-level completion once every GOAL_LEARNING package is COMPLETED ----
 
-    @Test void jlptPathStillRequiresMockQualificationAfterItsLastPackageCompletes() {
+    /** Owner decision 2026-10-06 (option A): the Mock Test is a self-assessment the learner is pointed to, not a
+     * completion gate, so a JLPT path completes when its last GOAL_LEARNING package completes. */
+    @Test void jlptPathCompletesWhenItsLastPackageCompletesWithoutAMockTest() {
         var pkg = completedTrigger();
         var activities = activities(pkg);
         markAllTerminal(activities);
@@ -594,10 +596,10 @@ class InteractiveLearningPathServiceTest {
         service.packageDetail(7L, 11L);
 
         UserLearningPath path = pkg.getLearningPath();
-        assertEquals("ACTIVE", path.getStatus());
-        assertNull(path.getCompletedAt());
+        assertEquals("COMPLETED", path.getStatus());
+        assertNotNull(path.getCompletedAt());
         assertNull(path.getCompletionAttemptId());
-        verify(paths, never()).save(any());
+        verify(paths).save(path);
     }
 
     @Test void surveyOnlyPathCompletesWithoutAJlptAttempt() {
@@ -615,7 +617,8 @@ class InteractiveLearningPathServiceTest {
         assertNull(pkg.getLearningPath().getCompletionAttemptId());
     }
 
-    @Test void legacyPathWithMissingGoalFailsClosedAndDoesNotAutoComplete() {
+    /** Option A (2026-10-06): a legacy path without a goal is treated as JLPT, which now also completes on packages. */
+    @Test void legacyPathWithMissingGoalCompletesLikeAJlptPath() {
         var pkg = completedTrigger();
         pkg.getLearningPath().setGoal(null);
         var activities = activities(pkg);
@@ -627,9 +630,9 @@ class InteractiveLearningPathServiceTest {
 
         service.packageDetail(7L, 11L);
 
-        assertEquals("ACTIVE", pkg.getLearningPath().getStatus());
-        assertNull(pkg.getLearningPath().getCompletedAt());
-        verify(paths, never()).save(any());
+        assertEquals("COMPLETED", pkg.getLearningPath().getStatus());
+        assertNotNull(pkg.getLearningPath().getCompletedAt());
+        verify(paths).save(pkg.getLearningPath());
     }
 
     @Test void pathStaysActiveWhileAnotherGoalLearningPackageIsStillIncomplete() {

@@ -445,7 +445,8 @@ class InteractivePathSummaryServiceTest {
         assertTrue(result.certificateEligible());
     }
 
-    @Test void allPackagesWithoutQualifiedJlptCompletionCannotIssueCertificate() {
+    /** Owner decision 2026-10-06 (option A): no Mock Test attempt is required for the internal certificate. */
+    @Test void completedJlptPathWithAllPackagesIssuesCertificateWithoutAMockTest() {
         var path = interactivePath();
         stubPath(path);
         when(items.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
@@ -454,7 +455,7 @@ class InteractivePathSummaryServiceTest {
         when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(target));
         assertFalse(service.summary(7L).certificateEligible());
         path.setStatus("COMPLETED");
-        assertFalse(service.summary(7L).certificateEligible());
+        assertTrue(service.summary(7L).certificateEligible());
     }
 
     // ---- RC Task 7: Mock Test handoff seam — server-resolved, never fabricated by the summary service ----
@@ -517,7 +518,7 @@ class InteractivePathSummaryServiceTest {
         verifyNoInteractions(mockTestDestinationProvider);
     }
 
-    @Test void legacyPathWithMissingGoalFailsClosedAsJlptRatherThanReceivingACommunicationCertificate() {
+    @Test void legacyPathWithMissingGoalIsTreatedAsJlptForTheMockTestLink() {
         var path = interactivePath();
         path.setGoal(null);
         path.setStatus("COMPLETED");
@@ -531,7 +532,7 @@ class InteractivePathSummaryServiceTest {
 
         var result = service.summary(7L);
 
-        assertFalse(result.certificateEligible());
+        assertTrue(result.certificateEligible());
         assertEquals(MockTestDestination.STATUS_BLOCKED_INTEGRATION, result.mockTest().status());
         verify(mockTestDestinationProvider).resolveDestination("N4");
     }

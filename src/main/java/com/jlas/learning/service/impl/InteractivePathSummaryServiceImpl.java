@@ -289,7 +289,6 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
     private boolean isCertificateEligible(UserLearningPath path) {
         List<LearningPathPackage> pathPackages = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
         if (!"COMPLETED".equals(path.getStatus())) return false;
-        if (!GoalEntryPolicy.isCommunicationGoal(path.getGoal()) && path.getCompletionAttemptId() == null) return false;
         boolean hasGoalLearningPackage = false;
         for (LearningPathPackage p : pathPackages) {
             if (!"GOAL_LEARNING".equals(p.getPhase())) continue;
