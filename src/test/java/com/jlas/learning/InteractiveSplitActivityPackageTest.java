@@ -112,6 +112,31 @@ class InteractiveSplitActivityPackageTest {
         assertEquals(java.util.List.of(1, 2, 3), shown);
     }
 
+    /** Owner decision 2026-10-06: the roadmap unit is the chapter (source lesson) with ordered parts, not the day —
+     * a learner may finish several parts in one sitting. Each package carries its chapter and part position. */
+    @Test
+    void packagesOfOneLessonReportTheirChapterAndPartPosition() {
+        var firstId = seed("chapter", 10, 10, 10, 10);
+        var first = packages.findById(firstId).orElseThrow();
+        var second = packages.save(LearningPathPackage.builder().learningPath(first.getLearningPath())
+                .phase("GOAL_LEARNING").dayNumber(2).orderIndex(2).title("Bài học · Phần 2/2").estimatedMinutes(30)
+                .status(LearningPackageStatus.LOCKED).sourceLesson(first.getSourceLesson()).sourceSegmentIndex(2)
+                .contentRevision("rev-1").build());
+        em.persist(UserLearningPathItem.builder().learningPath(first.getLearningPath()).learningPackage(second)
+                .orderIndex(9).activityType(LearningActivityType.KANJI).activityState(LearningActivityState.LOCKED).build());
+        em.flush();
+        em.clear();
+
+        var detail = service.packageDetail(ownerId, second.getId());
+
+        assertEquals(first.getSourceLesson().getId(), detail.chapterLessonId());
+        assertEquals("Bài học", detail.chapterTitle());
+        assertEquals(1, detail.chapterNumber());
+        assertEquals(2, detail.segmentIndex());
+        assertEquals(2, detail.segmentCount());
+        assertEquals("Hoàn thành phần trước để mở khóa.", detail.lockReason());
+    }
+
     private Long ownerId;
 
     private int scoreOf(String tag, int v1Total, int v1Correct, int v2Total, int v2Correct) {

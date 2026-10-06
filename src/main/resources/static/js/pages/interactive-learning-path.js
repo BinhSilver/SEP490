@@ -274,42 +274,65 @@
     if (backwards) return index <= 0 ? count - 1 : index - 1;
     return index >= count - 1 ? 0 : index + 1;
   }
-  function activityDayLabel(activity) {
-    return positiveInteger(activity.dayNumber) ? ' · Ngày ' + num(activity.dayNumber) : '';
+  // Owner decision 2026-10-06: the roadmap unit is the chapter (source lesson) with ordered parts, not the
+  // calendar day — a learner may finish several parts in one sitting, so no day labels are shown.
+  function activityDayLabel() { return ''; }
+  function chapterNumber(pkg) { return positiveInteger(pkg.chapterNumber) || num(pkg.orderIndex); }
+  function phaseLabel(pkg) { return pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU'; }
+  function chapterKicker(pkg) { return 'CHƯƠNG ' + chapterNumber(pkg) + ' · ' + esc(phaseLabel(pkg)); }
+  function partLabel(pkg) {
+    return 'Phần ' + (positiveInteger(pkg.segmentIndex) || 1) + '/' + (positiveInteger(pkg.segmentCount) || 1);
   }
-  function dayKicker(pkg) {
-    var end = (pkg.activities || []).reduce(function (day, activity) {
-      return Math.max(day, positiveInteger(activity.dayNumber) || day);
-    }, num(pkg.dayNumber));
-    return 'DAY ' + String(pkg.dayNumber).padStart(2, '0') +
-      (end > pkg.dayNumber ? '–' + String(end).padStart(2, '0') : '') + ' · ' +
-      esc(pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU');
+  function chapterKey(pkg) {
+    return positiveInteger(pkg.chapterLessonId) ? pkg.phase + ':' + pkg.chapterLessonId : 'PACKAGE:' + pkg.id;
   }
   // [JLAS-W0193] FE V2 restyle (spec §10.3) — a completed day collapses to one row instead of
   // repeating the full four-activity card; a locked day shows its reason at reduced contrast
   // instead of an empty activities list users can't act on.
-  function packageCard(pkg) {
+  function packageCard(pkg, inChapter) {
     var status = pkg.status.toLowerCase();
+    var kicker = inChapter ? esc(phaseLabel(pkg)) : chapterKicker(pkg);
+    var title = inChapter ? partLabel(pkg) : pkg.title;
+    var badge = String(inChapter ? (positiveInteger(pkg.segmentIndex) || 1) : chapterNumber(pkg)).padStart(2, '0');
     if (pkg.status === 'COMPLETED') {
       return '<article class="ilp-day ilp-day--completed ilp-day--collapsed" data-package-card="' + esc(String(pkg.id)) + '">' +
-        '<span class="ilp-day__number">' + String(pkg.dayNumber).padStart(2, '0') + '</span>' +
-        '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) + '</h3></div>' +
+        '<span class="ilp-day__number">' + badge + '</span>' +
+        '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + kicker + '</span><h3>' + esc(title) + '</h3></div>' +
         '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span>' +
         (sessionRows(pkg) || '<ol class="ilp-activities">' + activityRows(pkg) + '</ol>') + '</article>';
     }
     if (pkg.status === 'LOCKED') {
       return '<article class="ilp-day ilp-day--locked" data-package-card="' + esc(String(pkg.id)) + '">' +
         '<span class="ilp-day__number" aria-hidden="true">🔒</span>' +
-        '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) + '</h3>' +
+        '<div class="ilp-day__collapsed-title"><span class="ilp-kicker">' + kicker + '</span><h3>' + esc(title) + '</h3>' +
         (pkg.lockReason ? '<p class="ilp-lock">' + esc(pkg.lockReason) + '</p>' : '') + '</div>' +
         '<span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></article>';
     }
     var action = pkg.canStart ? '<button class="ilp-button" type="button" data-start-package="' + pkg.id + '">Bắt đầu học <span aria-hidden="true">→</span></button>' : '';
     return '<article class="ilp-day ilp-day--' + esc(status) + '" data-package-card="' + esc(String(pkg.id)) + '"><header><span class="ilp-day__number">' +
-      String(pkg.dayNumber).padStart(2, '0') + '</span><div><span class="ilp-kicker">' + dayKicker(pkg) + '</span><h3>' + esc(pkg.title) +
+      badge + '</span><div><span class="ilp-kicker">' + kicker + '</span><h3>' + esc(title) +
       '</h3></div><span class="ilp-status">' + esc(PACKAGE_STATUS_LABEL[pkg.status] || pkg.status) + '</span></header><div class="ilp-day__progress"><span style="width:' +
       num(pkg.progressPercent) + '%"></span></div>' + (sessionRows(pkg) || '<ol class="ilp-activities">' + activityRows(pkg) + '</ol>') +
       (pkg.lockReason ? '<p class="ilp-lock">🔒 ' + esc(pkg.lockReason) + '</p>' : '') + action + '</article>';
+  }
+  /** Consecutive parts of one lesson become one chapter card; a single-part chapter keeps its own card. */
+  function chapterCards(packages) {
+    var groups = [];
+    packages.forEach(function (pkg) {
+      var last = groups[groups.length - 1];
+      if (last && last.key === chapterKey(pkg)) last.parts.push(pkg);
+      else groups.push({ key: chapterKey(pkg), parts: [pkg] });
+    });
+    return groups.map(function (group) {
+      if (group.parts.length === 1) return packageCard(group.parts[0], false);
+      var first = group.parts[0];
+      var done = group.parts.filter(function (pkg) { return pkg.status === 'COMPLETED'; }).length;
+      return '<section class="ilp-chapter" data-chapter="' + esc(group.key) + '"><header class="ilp-chapter__head"><div>' +
+        '<span class="ilp-kicker">' + chapterKicker(first) + '</span><h3>' + esc(first.chapterTitle || first.title) + '</h3></div>' +
+        '<span class="ilp-status">' + done + '/' + group.parts.length + ' phần đã xong</span></header>' +
+        '<div class="ilp-chapter__parts">' + group.parts.map(function (pkg) { return packageCard(pkg, true); }).join('') +
+        '</div></section>';
+    }).join('');
   }
   function phaseTabs(activePhase) {
     var tabs = [{ value: 'ALL', label: 'Tất cả' }, { value: 'WARM_UP', label: 'Khởi động' },
@@ -348,7 +371,7 @@
       v.progressPercent + '%</strong></div><progress max="100" value="' + v.progressPercent + '">' + v.progressPercent + '%</progress><small>' +
       v.completedPackages + '/' + v.totalPackages + ' bài hoàn thành</small></div></section>' + renderStageProgress(extras.eligibility) + renderMockGate(extras.eligibility) +
       renderSmartTestReviewOnly(v.smartTestReviewOnlyTargets) + '<div class="ilp-layout"><section>' + phaseTabs(phaseFilter) + '<div class="ilp-days">' +
-      (visiblePackages.length ? visiblePackages.map(packageCard).join('') : '<div class="ilp-empty"><h2>Chưa có ngày học trong giai đoạn này</h2><p>Chọn giai đoạn khác để xem nội dung đã được phát hành.</p></div>') +
+      (visiblePackages.length ? chapterCards(visiblePackages) : '<div class="ilp-empty"><h2>Chưa có bài học trong giai đoạn này</h2><p>Chọn giai đoạn khác để xem nội dung đã được phát hành.</p></div>') +
       '</div></section><aside class="ilp-aside"><span class="ilp-kicker">MỤC TIÊU HIỆN TẠI</span><dl><div><dt>Cấp độ</dt><dd>' + esc(v.currentLevel) + ' → ' + esc(v.targetLevel) +
       '</dd></div>' + (v.minutesPerDay ? '<div><dt>Cường độ</dt><dd>' + v.minutesPerDay + ' phút/ngày</dd></div>' : '') +
       '</dl>' + renderPaceControls(v.minutesPerDay) + '</aside></div>' +

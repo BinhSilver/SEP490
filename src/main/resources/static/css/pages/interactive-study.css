@@ -129,7 +129,9 @@
 .ilp-check:has(.ilp-check__form){box-sizing:border-box;display:grid;justify-self:stretch;width:100%;min-width:0;min-height:0;border:0;border-radius:0;background:transparent;padding:0;color:inherit;cursor:auto;text-align:left}
 .ilp-check__form{display:grid;gap:16px;width:100%;min-width:0}
 .ilp-question{box-sizing:border-box;width:100%;min-width:0;border:1px solid var(--lp-line);border-radius:var(--lp-radius-panel);background:var(--lp-surface);padding:20px;margin:0;overflow-wrap:anywhere}
-.ilp-question legend{box-sizing:border-box;display:flex;gap:12px;align-items:baseline;font-weight:700;line-height:1.6;padding:0 4px;margin-bottom:14px;max-width:100%;min-width:0;overflow-wrap:anywhere}
+/* Floated full-width so the legend sits inside the box: a native legend straddles the top border (UAT 2026-10-06). */
+.ilp-question legend{float:left;width:100%;box-sizing:border-box;display:flex;gap:12px;align-items:baseline;font-weight:700;line-height:1.6;padding:0;margin:0 0 14px;max-width:100%;min-width:0;overflow-wrap:anywhere}
+.ilp-question legend+*{clear:both}
 .ilp-question legend span:last-child{min-width:0;flex:1}
 .ilp-question__num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:var(--lp-radius-chip);background:var(--lp-purple);color:#fff;font:800 12px var(--font-body);flex:0 0 auto}
 .ilp-options{display:grid;gap:8px}

@@ -229,3 +229,11 @@
 .ilp-review-only__groups ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .ilp-review-only__groups li { padding: 6px 10px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); background: var(--lp-surface); font-weight: 700; }
 @media (max-width: 700px) { .ilp-review-only { grid-template-columns: 1fr; padding: 18px; } }
+
+/* Owner decision 2026-10-06: a lesson is one chapter card holding its ordered parts (no calendar-day labels). */
+.ilp-chapter { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-chapter__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.ilp-chapter__head h3 { margin: 4px 0 0; overflow-wrap: anywhere; }
+.ilp-chapter__parts { display: grid; gap: 10px; }
+.ilp-chapter__parts .ilp-day { margin: 0; }
+@media (max-width: 520px) { .ilp-chapter { padding: 12px; } }

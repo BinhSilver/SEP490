@@ -4,16 +4,32 @@ const fs = require('node:fs');
 const pathModule = require('node:path');
 const page = require('../../main/resources/static/js/pages/interactive-learning-path.js');
 
-test('a logical package spread across days shows the range and each activity day', () => {
-  const data = path();
-  data.packages[0].activities[0].dayNumber = 4;
-  data.packages[0].activities[1].dayNumber = 3;
-  data.packages[0].activities[2].dayNumber = 4;
-  data.packages[0].activities[3].dayNumber = 3;
-  const html = page.render(data);
-  assert.match(html, /DAY 03–04/);
-  assert.match(html, /Ngày 4/);
-  assert.match(html, /Ngày 3/);
+// Owner decision 2026-10-06: the roadmap unit is the chapter (source lesson) with ordered parts, not the
+// calendar day; a learner may finish several parts in one sitting, so no "DAY n" / "Ngày n" labels.
+test('parts of one lesson render inside one chapter card with numbered parts and no day labels', () => {
+  const part = (id, index, status) => ({ id, phase: 'GOAL_LEARNING', dayNumber: 12 + index, orderIndex: index,
+    title: 'Bài 1: Giới thiệu bản thân · Phần ' + index + '/2', status, progressPercent: 0,
+    chapterLessonId: 501, chapterTitle: 'Bài 1: Giới thiệu bản thân', chapterNumber: 3, segmentIndex: index, segmentCount: 2,
+    lockReason: status === 'LOCKED' ? 'Hoàn thành phần trước để mở khóa.' : null,
+    activities: [{ id: id * 10, type: 'VOCABULARY', state: status === 'LOCKED' ? 'LOCKED' : 'STUDYING', orderIndex: 1, dayNumber: 12 + index }] });
+  const html = page.render(path({ packages: [part(1, 1, 'IN_PROGRESS'), part(2, 2, 'LOCKED')] }));
+  assert.equal((html.match(/class="ilp-chapter"/g) || []).length, 1);
+  assert.match(html, /CHƯƠNG 3 · MỤC TIÊU/);
+  assert.match(html, /<h3>Bài 1: Giới thiệu bản thân<\/h3>/);
+  assert.match(html, /Phần 1\/2/);
+  assert.match(html, /Phần 2\/2/);
+  assert.match(html, /Hoàn thành phần trước để mở khóa/);
+  assert.doesNotMatch(html, /DAY \d/);
+  assert.doesNotMatch(html, /Ngày \d/);
+});
+
+test('a package without a source lesson is its own chapter', () => {
+  const html = page.render(path({ packages: [{ id: 7, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1, title: 'Khởi động Từ vựng',
+    status: 'AVAILABLE', chapterLessonId: null, chapterTitle: 'Khởi động Từ vựng', chapterNumber: 1, segmentIndex: 1, segmentCount: 1,
+    activities: [{ id: 70, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 }] }] }));
+  assert.match(html, /CHƯƠNG 1 · KHỞI ĐỘNG/);
+  assert.doesNotMatch(html, /class="ilp-chapter"/);
+  assert.doesNotMatch(html, /DAY \d/);
 });
 
 function path(overrides = {}) {

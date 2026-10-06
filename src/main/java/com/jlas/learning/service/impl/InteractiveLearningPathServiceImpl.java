@@ -478,7 +478,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 .filter(view -> view.state() != null && !DONE.contains(view.state()))
                 .map(InteractiveLearningActivityResponse::type).findFirst().orElse(null);
         String lockReason = learningPackage.getStatus() == LearningPackageStatus.LOCKED
-                ? "Hoàn thành ngày học trước để mở khóa." : null;
+                ? "Hoàn thành phần trước để mở khóa." : null;
         List<ReferenceVocabularyResponse> references = List.of();
         if ("GOAL_LEARNING".equals(learningPackage.getPhase())
                 && activityViews.stream().noneMatch(view -> view.type() == LearningActivityType.VOCABULARY)
@@ -496,7 +496,44 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 activityViews.size(), percent(completed, activityViews.size()), resume, lockReason,
                 learningPackage.getStartedAt(), learningPackage.getCompletedAt(), activityViews,
                 learningPackage.getScorePercent(), nextAvailablePackageId(learningPackage, siblings),
-                isLastPackage(learningPackage, siblings), justCompleted, sessions);
+                isLastPackage(learningPackage, siblings), justCompleted, sessions,
+                chapterLessonId(learningPackage), chapterTitle(learningPackage), chapterNumber(learningPackage, siblings),
+                learningPackage.getSourceSegmentIndex() == null ? 1 : learningPackage.getSourceSegmentIndex(),
+                segmentCount(learningPackage, siblings));
+    }
+
+    // ---- Chapter view (owner decision 2026-10-06): a source lesson is a chapter, its day segments are parts ----
+
+    private static Long chapterLessonId(LearningPathPackage pkg) {
+        return pkg.getSourceLesson() == null ? null : pkg.getSourceLesson().getId();
+    }
+
+    /** Packages of the same source lesson and phase form one chapter; a lesson-less package is its own chapter. */
+    private static String chapterKey(LearningPathPackage pkg) {
+        Long lessonId = chapterLessonId(pkg);
+        return lessonId == null ? "PACKAGE:" + pkg.getId() : pkg.getPhase() + ":" + lessonId;
+    }
+
+    private static String chapterTitle(LearningPathPackage pkg) {
+        String lessonTitle = pkg.getSourceLesson() == null ? null : pkg.getSourceLesson().getTitle();
+        return lessonTitle == null || lessonTitle.isBlank() ? pkg.getTitle() : lessonTitle;
+    }
+
+    private static int chapterNumber(LearningPathPackage pkg, List<LearningPathPackage> siblings) {
+        var keys = new java.util.LinkedHashSet<String>();
+        siblings.stream().sorted(Comparator.comparingInt(LearningPathPackage::getOrderIndex))
+                .forEach(sibling -> keys.add(chapterKey(sibling)));
+        int number = 1;
+        for (String key : keys) {
+            if (key.equals(chapterKey(pkg))) return number;
+            number++;
+        }
+        return number;
+    }
+
+    private static int segmentCount(LearningPathPackage pkg, List<LearningPathPackage> siblings) {
+        String key = chapterKey(pkg);
+        return (int) Math.max(1, siblings.stream().filter(sibling -> key.equals(chapterKey(sibling))).count());
     }
 
     private Map<Long, Map<LearningMemberType, Integer>> memberCounts(List<LearningPathPackage> packages) {

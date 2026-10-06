@@ -82,12 +82,15 @@ class InteractiveStudyPageCssAssetTest {
     /** A native fieldset draws its top border through the middle of the legend; at 375px the matching instruction
      * wraps to two lines and the border crossed the text. The legend is floated into the fieldset content instead
      * (still a real legend for screen readers). */
-    @Test void matchingLegendSitsInsideItsFieldsetInsteadOfOnTheBorder() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"ilp-matching", "ilp-question"})
+    void quizLegendsSitInsideTheirFieldsetInsteadOfOnTheBorder(String fieldset) throws IOException {
+        // UAT 2026-10-06: the same defect showed on every multiple-choice question ("Chữ あ đọc là gì?").
         String css = Files.readString(CSS_PAGES.resolve("interactive-study.css")).replaceAll("\\s+", "");
-        Matcher rule = Pattern.compile("\\.ilp-matchinglegend\\{([^}]*)\\}").matcher(css);
-        assertTrue(rule.find(), "missing .ilp-matching legend rule");
+        Matcher rule = Pattern.compile("\\." + fieldset + "legend\\{([^}]*)\\}").matcher(css);
+        assertTrue(rule.find(), "missing ." + fieldset + " legend rule");
         assertTrue(rule.group(1).contains("float:left") && rule.group(1).contains("width:100%"),
-                "matching legend must be floated full-width inside the fieldset: " + rule.group(1));
+                fieldset + " legend must be floated full-width inside the fieldset: " + rule.group(1));
     }
 
     /** Spec 2026-10-05 §4.2: the Kanji (and kana) glyph is the focal point of the card front, not a caption-sized
