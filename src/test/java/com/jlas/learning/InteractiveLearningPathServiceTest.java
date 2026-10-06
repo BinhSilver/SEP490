@@ -96,6 +96,57 @@ class InteractiveLearningPathServiceTest {
                 "Read-only targets must not be represented as progress-bearing activities");
     }
 
+    /** UAT 2026-10-06: every wrong Smart Test grammar question without a grammar lesson is shown from the
+     * question contract itself. MCQ answers come from correctOption; fill-blank answers come from answerText. */
+    @Test void currentExposesUnmappedWrongGrammarQuestionsForReview() {
+        var path = interactivePath();
+        path.setCoverageGapsJson("[{\"tagCode\":\"GRAMMAR_QUESTION:1513\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR\"},"
+                + "{\"tagCode\":\"GRAMMAR_QUESTION:1514\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR\"},"
+                + "{\"tagCode\":\"GRAMMAR_QUESTION:1599\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR\"}]");
+        var questions = org.mockito.Mockito.mock(com.jlas.assessment.repository.AssessmentQuestionRepository.class);
+        setField("assessmentQuestions", questions);
+        when(questions.findAllById(List.of(1513L, 1514L, 1599L))).thenReturn(List.of(
+                com.jlas.assessment.entity.AssessmentQuestion.builder()
+                        .id(1513L).questionType("FILL_BLANK").questionText("Điền trợ từ phù hợp.")
+                        .passageHtml("駅で切符<b>＿＿＿＿</b>買います。").answerText("を")
+                        .explanation("Cấu trúc を phù hợp với ý nghĩa và cách kết hợp trong câu.")
+                        .contextJson("{\"grammar_point\": \"を\", \"format\": \"GRAMMAR_FORM_SELECTION\"}").build(),
+                com.jlas.assessment.entity.AssessmentQuestion.builder()
+                        .id(1514L).questionType("MULTIPLE_CHOICE").questionText("Chọn liên từ phù hợp.")
+                        .passageHtml("<p>雨でした。<br>＿＿、出かけました。</p>")
+                        .option1("しかし").option2("それから").option3("だから").correctOption(1)
+                        .explanation("Hai ý tương phản nên dùng しかし.").contextJson("{}").build()));
+        var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.AVAILABLE);
+        pkg.setPhase("WARM_UP");
+        when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(List.of());
+
+        var targets = service.current(7L).smartTestReviewOnlyTargets();
+        var fillBlank = targets.getFirst();
+        var multipleChoice = targets.get(1);
+        var missingQuestion = targets.get(2);
+
+        assertEquals("GRAMMAR", fillBlank.skill());
+        assertEquals("を", fillBlank.target());
+        assertEquals("Điền trợ từ phù hợp.\n駅で切符＿＿＿＿買います。", fillBlank.sentence());
+        assertEquals("を", fillBlank.answer());
+        assertEquals("Cấu trúc を phù hợp với ý nghĩa và cách kết hợp trong câu.", fillBlank.explanation());
+
+        assertEquals("GRAMMAR", multipleChoice.skill());
+        assertEquals("Câu hỏi ngữ pháp #1514", multipleChoice.target());
+        assertEquals("Chọn liên từ phù hợp.\n雨でした。 ＿＿、出かけました。", multipleChoice.sentence());
+        assertEquals("しかし", multipleChoice.answer());
+        assertEquals("Hai ý tương phản nên dùng しかし.", multipleChoice.explanation());
+
+        assertEquals("GRAMMAR", missingQuestion.skill());
+        assertEquals("Câu hỏi ngữ pháp #1599", missingQuestion.target());
+        assertNull(missingQuestion.sentence());
+        assertNull(missingQuestion.answer());
+        assertNull(missingQuestion.explanation());
+    }
+
     @Test void anotherUsersPackageLooksNotFound() {
         when(packages.findOwnedByIdForUpdate(99L, 7L)).thenReturn(Optional.empty());
         ApiException error = assertThrows(ApiException.class, () -> service.packageDetail(7L, 99L));

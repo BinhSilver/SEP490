@@ -74,7 +74,8 @@
       completedPackages: num(data.completedPackages), totalPackages: num(data.totalPackages), packages: packages,
       smartTestReviewOnlyTargets: Array.isArray(data.smartTestReviewOnlyTargets)
         ? data.smartTestReviewOnlyTargets.filter(function (target) {
-          return target && (target.skill === 'VOCABULARY' || target.skill === 'KANJI') && target.target;
+          return target && (target.skill === 'VOCABULARY' || target.skill === 'KANJI' || target.skill === 'GRAMMAR') &&
+            target.target;
         }) : []
     };
   }
@@ -283,6 +284,12 @@
   function partLabel(pkg) {
     return 'Phần ' + (positiveInteger(pkg.segmentIndex) || 1) + '/' + (positiveInteger(pkg.segmentCount) || 1);
   }
+  /** The server already drops the textbook's "Bài 17:" prefix; kept here so an older payload never leaks it. */
+  function chapterTitle(pkg) {
+    var raw = String(pkg.chapterTitle || pkg.title || '');
+    var stripped = raw.replace(/^\s*Bài\s*\d+\s*[:：.\-–—]\s*/, '');
+    return stripped || raw;
+  }
   function chapterKey(pkg) {
     return positiveInteger(pkg.chapterLessonId) ? pkg.phase + ':' + pkg.chapterLessonId : 'PACKAGE:' + pkg.id;
   }
@@ -292,7 +299,7 @@
   function packageCard(pkg, inChapter) {
     var status = pkg.status.toLowerCase();
     var kicker = inChapter ? esc(phaseLabel(pkg)) : chapterKicker(pkg);
-    var title = inChapter ? partLabel(pkg) : pkg.title;
+    var title = inChapter ? partLabel(pkg) : chapterTitle(pkg);
     var badge = String(inChapter ? (positiveInteger(pkg.segmentIndex) || 1) : chapterNumber(pkg)).padStart(2, '0');
     if (pkg.status === 'COMPLETED') {
       return '<article class="ilp-day ilp-day--completed ilp-day--collapsed" data-package-card="' + esc(String(pkg.id)) + '">' +
@@ -328,7 +335,7 @@
       var first = group.parts[0];
       var done = group.parts.filter(function (pkg) { return pkg.status === 'COMPLETED'; }).length;
       return '<section class="ilp-chapter" data-chapter="' + esc(group.key) + '"><header class="ilp-chapter__head"><div>' +
-        '<span class="ilp-kicker">' + chapterKicker(first) + '</span><h3>' + esc(first.chapterTitle || first.title) + '</h3></div>' +
+        '<span class="ilp-kicker">' + chapterKicker(first) + '</span><h3>' + esc(chapterTitle(first)) + '</h3></div>' +
         '<span class="ilp-status">' + done + '/' + group.parts.length + ' phần đã xong</span></header>' +
         '<div class="ilp-chapter__parts">' + group.parts.map(function (pkg) { return packageCard(pkg, true); }).join('') +
         '</div></section>';
@@ -345,14 +352,23 @@
   }
   function renderSmartTestReviewOnly(targets) {
     if (!targets || !targets.length) return '';
-    var groups = { VOCABULARY: [], KANJI: [] };
+    var groups = { VOCABULARY: [], KANJI: [], GRAMMAR: [] };
+    var labels = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp' };
     targets.forEach(function (target) {
-      if (groups[target.skill]) groups[target.skill].push(target.target);
+      if (groups[target.skill]) groups[target.skill].push(target);
     });
     var content = Object.keys(groups).filter(function (skill) { return groups[skill].length; }).map(function (skill) {
-      var label = skill === 'VOCABULARY' ? 'Từ vựng' : 'Kanji';
-      return '<section><h3>' + label + '</h3><ul>' + groups[skill].map(function (target) {
-        return '<li lang="ja">' + esc(target) + '</li>';
+      if (skill === 'GRAMMAR') {
+        // A wrong Smart Test grammar question with no grammar lesson yet: reviewed from the question itself.
+        return '<section class="ilp-review-only__grammar"><h3>' + labels[skill] + '</h3><ul>' + groups[skill].map(function (target) {
+          return '<li><strong lang="ja">' + esc(target.target) + '</strong>' +
+            (target.sentence ? '<span lang="ja">' + esc(target.sentence) + '</span>' : '') +
+            (target.answer ? '<span>Đáp án: <span lang="ja">' + esc(target.answer) + '</span></span>' : '') +
+            (target.explanation ? '<small>' + esc(target.explanation) + '</small>' : '') + '</li>';
+        }).join('') + '</ul></section>';
+      }
+      return '<section><h3>' + labels[skill] + '</h3><ul>' + groups[skill].map(function (target) {
+        return '<li lang="ja">' + esc(target.target) + '</li>';
       }).join('') + '</ul></section>';
     }).join('');
     return '<aside class="ilp-review-only" aria-labelledby="ilpReviewOnlyTitle"><div><span class="ilp-kicker">GỢI Ý ÔN TẬP</span>' +

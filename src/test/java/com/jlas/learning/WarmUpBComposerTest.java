@@ -515,6 +515,25 @@ class WarmUpBComposerTest {
                 .map(LearningActivityMember::getCanonicalId).toList());
     }
 
+    @Test void fiveKanjiWithFiveMinuteBudgetFailsBeforePersistingAnUnquizzableSingletonPart() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            String character = String.valueOf((char) ('食' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(88L + i).character(character).build()));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 2, 1, "N4", null));
+        }
+
+        var error = assertThrows(ApiException.class, () -> composer.composeWarmUp(path(),
+                profile("N4", evidence, List.of(), 5)));
+
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+        verify(packages, never()).save(any());
+        verify(items, never()).save(any());
+        verify(members, never()).saveAll(any());
+    }
+
     @Test void kanjiMultiCharacterLexemeCannotResolveAndIsReportedAsGap() {
         var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI, "KANJI:食べる", 2, 1, "N4", 7L);
         when(kanjiRepo.findByCharacter("食べる")).thenReturn(Optional.empty());
@@ -541,6 +560,34 @@ class WarmUpBComposerTest {
         assertEquals(0, result.packageCount());
         assertEquals(1, result.gaps().size());
         assertEquals("CONTENT_MAPPING_PENDING", result.gaps().getFirst().reasonCode());
+    }
+
+    /** UAT 2026-10-06: 2 of 3 wrong Smart Test grammar questions (を, それから) had no grammar_point mapping and
+     * vanished from the learner's view. Every wrong grammar question stays visible as a review-only target. */
+    @Test void everyWrongUnmappedGrammarQuestionBecomesAReviewOnlyTarget() {
+        var first = WeaknessEvidence.item("GRAMMAR", "UNMAPPED_QUESTION:1513", 1, 1, "N5");
+        var second = WeaknessEvidence.item("GRAMMAR", "UNMAPPED_QUESTION:1548", 1, 1, "N5");
+        var result = composer.composeWarmUp(path(), profile("N5", List.of(first, second)));
+        assertEquals(List.of("GRAMMAR_QUESTION:1513", "GRAMMAR_QUESTION:1548"), result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR"))
+                .map(gap -> gap.tagCode()).toList());
+        assertEquals(2, result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("CONTENT_MAPPING_PENDING")).count(),
+                "the content team still needs the mapping gap");
+    }
+
+    @Test void unmappedGrammarAboveAssessedLevelIsReviewOnlyAndNeverBecomesAWarmUpActivity() {
+        var evidence = WeaknessEvidence.item("GRAMMAR", "UNMAPPED_QUESTION:1601", 1, 1, "N4");
+
+        var result = composer.composeWarmUp(path(), profile("N5", List.of(evidence)));
+
+        assertEquals(0, result.packageCount(), "An N4 mistake must not create a warm-up activity for an N5 learner");
+        assertTrue(result.gaps().stream().anyMatch(gap -> gap.tagCode().equals("UNMAPPED_QUESTION:1601")
+                && gap.reasonCode().equals("CONTENT_MAPPING_PENDING")));
+        assertTrue(result.gaps().stream().anyMatch(gap -> gap.tagCode().equals("GRAMMAR_QUESTION:1601")
+                && gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR")),
+                "The mistake must remain visible even though it is above the assessed warm-up bound");
+        verifyNoInteractions(grammarPoints);
     }
 
     @Test void grammarAtOrAboveWeakThresholdIsIncluded() {
@@ -620,8 +667,8 @@ class WarmUpBComposerTest {
     }
 
     @Test void resolvesWrongVocabularyByNormalizedCanonicalExpressionWhenQuestionHasNoForeignKey() {
-        when(vocabularyEntries.findFirstByNormalizedExpressionAndDictionaryStatus("こんぴゅーたー", "PUBLISHED"))
-                .thenReturn(Optional.of(published()));
+        when(vocabularyEntries.findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+                "こんぴゅーたー", "PUBLISHED")).thenReturn(List.of(published()));
         when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
         var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
                 "VOCABULARY:コンピューター", 1, 1, "N4");
@@ -634,6 +681,22 @@ class WarmUpBComposerTest {
         assertEquals(List.of("VOCABULARY:コンピューター"), result.gaps().stream()
                 .filter(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD"))
                 .map(com.jlas.learning.dto.CoverageGap::tagCode).toList());
+        verify(members, never()).saveAll(any());
+    }
+
+    @Test void ambiguousVocabularyExpressionIsReportedInsteadOfSelectingAnArbitraryReading() {
+        when(vocabularyEntries.findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+                "はし", "PUBLISHED")).thenReturn(List.of(published(42L), published(43L)));
+        var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                "VOCABULARY:はし", 1, 1, "N4");
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence)));
+
+        assertEquals(0, result.packageCount());
+        assertEquals(List.of("VOCABULARY:はし"), result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("CONTENT_MAPPING_PENDING"))
+                .map(com.jlas.learning.dto.CoverageGap::tagCode).toList());
+        verify(vocabularyEntries, never()).findById(anyLong());
         verify(members, never()).saveAll(any());
     }
 

@@ -15,7 +15,10 @@ test('parts of one lesson render inside one chapter card with numbered parts and
   const html = page.render(path({ packages: [part(1, 1, 'IN_PROGRESS'), part(2, 2, 'LOCKED')] }));
   assert.equal((html.match(/class="ilp-chapter"/g) || []).length, 1);
   assert.match(html, /CHƯƠNG 3 · MỤC TIÊU/);
-  assert.match(html, /<h3>Bài 1: Giới thiệu bản thân<\/h3>/);
+  // UAT 2026-10-06: the source textbook's lesson number ("Bài 17") leaks catalog order — the first target chapter
+  // read "Bài 17". Only the lesson title is shown; the chapter kicker carries the learner's own numbering.
+  assert.match(html, /<h3>Giới thiệu bản thân<\/h3>/);
+  assert.doesNotMatch(html, /Bài 1:/);
   assert.match(html, /Phần 1\/2/);
   assert.match(html, /Phần 2\/2/);
   assert.match(html, /Hoàn thành phần trước để mở khóa/);
@@ -30,6 +33,15 @@ test('a package without a source lesson is its own chapter', () => {
   assert.match(html, /CHƯƠNG 1 · KHỞI ĐỘNG/);
   assert.doesNotMatch(html, /class="ilp-chapter"/);
   assert.doesNotMatch(html, /DAY \d/);
+});
+
+test('a single-part chapter shows the lesson title without the textbook lesson number', () => {
+  const html = page.render(path({ packages: [{ id: 8, phase: 'GOAL_LEARNING', dayNumber: 6, orderIndex: 6,
+    title: 'Bài 17: Đừng làm, phải làm · Phần 1/1', status: 'AVAILABLE', chapterLessonId: 17,
+    chapterTitle: 'Bài 17: Đừng làm, phải làm', chapterNumber: 6, segmentIndex: 1, segmentCount: 1,
+    activities: [{ id: 80, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 }] }] }));
+  assert.match(html, /<h3>Đừng làm, phải làm<\/h3>/);
+  assert.doesNotMatch(html, /Bài 17/);
 });
 
 function path(overrides = {}) {
@@ -107,6 +119,20 @@ test('shows small Smart Test remediation sets as a read-only list with no quiz o
   assert.match(html, /学生/);
   assert.match(html, /食/);
   assert.doesNotMatch(html, /Bắt đầu kiểm tra|Ôn lại bằng Flashcard|smart-test-review-only/);
+});
+
+// UAT 2026-10-06: wrong Smart Test grammar questions without a grammar lesson must still reach the learner.
+test('shows every wrong Smart Test grammar pattern with its sentence, answer and explanation', () => {
+  const view = page.viewModel(path({ smartTestReviewOnlyTargets: [
+    { skill: 'GRAMMAR', target: 'を', sentence: '駅で切符＿＿＿＿買います。', answer: 'を', explanation: 'Trợ từ chỉ đối tượng.' },
+    { skill: 'GRAMMAR', target: 'それから', sentence: '＿＿＿＿、電車に乗りました。', answer: 'それから', explanation: 'Hành động tiếp theo.' }
+  ] }));
+  const html = page.render(view);
+  assert.match(html, /<h3>Ngữ pháp<\/h3>/);
+  assert.match(html, /駅で切符＿＿＿＿買います。/);
+  assert.match(html, /Đáp án: <span lang="ja">それから<\/span>/);
+  assert.match(html, /Trợ từ chỉ đối tượng\./);
+  assert.match(html, /Hành động tiếp theo\./);
 });
 
 test('renders Vietnamese package states instead of backend enum names', () => {

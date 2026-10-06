@@ -137,6 +137,19 @@ class InteractiveSplitActivityPackageTest {
         assertEquals("Hoàn thành phần trước để mở khóa.", detail.lockReason());
     }
 
+    /** UAT 2026-10-06: the first target chapter read "Bài 17: ..." — the textbook's lesson number leaks catalog
+     * order into the learner's roadmap. The chapter title is the lesson title without that number. */
+    @Test
+    void chapterTitleDropsTheTextbookLessonNumber() {
+        var pkgId = seed("numbered", 10, 10, 10, 10);
+        em.createQuery("update Lesson l set l.title = 'Bài 17: Đừng làm, phải làm' where l.id = "
+                + "(select p.sourceLesson.id from LearningPathPackage p where p.id = :pkg)")
+                .setParameter("pkg", pkgId).executeUpdate();
+        em.clear();
+
+        assertEquals("Đừng làm, phải làm", service.packageDetail(ownerId, pkgId).chapterTitle());
+    }
+
     private Long ownerId;
 
     private int scoreOf(String tag, int v1Total, int v1Correct, int v2Total, int v2Correct) {

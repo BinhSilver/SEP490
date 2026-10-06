@@ -209,6 +209,7 @@
   .ilp-pace__actions button { width: 100%; }
   .ilp-activity { flex-wrap: wrap; }
   .ilp-activity__modes { margin-left: 44px; }
+  .ilp-days .ilp-chapter { padding: 12px; }
 }
 
 /* [JLAS-W0108] Summary: review / practice entry points for finished activities. */
@@ -228,7 +229,13 @@
 .ilp-review-only__groups h3 { margin: 0 0 10px; font-size: 15px; }
 .ilp-review-only__groups ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .ilp-review-only__groups li { padding: 6px 10px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); background: var(--lp-surface); font-weight: 700; }
-@media (max-width: 700px) { .ilp-review-only { grid-template-columns: 1fr; padding: 18px; } }
+/* Wrong Smart Test grammar questions without a grammar lesson: pattern, sentence, answer, explanation. */
+.ilp-review-only__groups .ilp-review-only__grammar { grid-column: 1 / -1; }
+.ilp-review-only__groups .ilp-review-only__grammar ul { display: grid; gap: 8px; }
+.ilp-review-only__groups .ilp-review-only__grammar li { display: grid; gap: 4px; font-weight: 400; overflow-wrap: anywhere; }
+.ilp-review-only__grammar li strong { font-size: 17px; }
+.ilp-review-only__grammar li small { color: var(--lp-muted); }
+@media (max-width: 700px) { .ilp-review-only { grid-template-columns: 1fr; padding: 18px; } .ilp-review-only__groups { grid-template-columns: 1fr; } }
 
 /* Owner decision 2026-10-06: a lesson is one chapter card holding its ordered parts (no calendar-day labels). */
 .ilp-chapter { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
@@ -236,4 +243,3 @@
 .ilp-chapter__head h3 { margin: 4px 0 0; overflow-wrap: anywhere; }
 .ilp-chapter__parts { display: grid; gap: 10px; }
 .ilp-chapter__parts .ilp-day { margin: 0; }
-@media (max-width: 520px) { .ilp-chapter { padding: 12px; } }

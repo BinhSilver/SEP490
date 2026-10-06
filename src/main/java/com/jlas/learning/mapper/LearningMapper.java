@@ -255,7 +255,8 @@ public class LearningMapper {
 
     private List<CoverageGap> readCoverageGaps(String json) {
         return readCoverageGapsSnapshot(json).stream()
-                .filter(gap -> !"SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode()))
+                .filter(gap -> !"SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode())
+                        && !"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR".equals(gap.reasonCode()))
                 .toList();
     }
 

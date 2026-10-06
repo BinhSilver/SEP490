@@ -60,6 +60,9 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
     private static final List<String> JLPT_LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
     /** Design spec §5.3 — at most three grammar points scheduled into a single warm-up day. */
     private static final int MAX_GRAMMAR_POINTS_PER_DAY = 3;
+    private static final String UNMAPPED_QUESTION_PREFIX = "UNMAPPED_QUESTION:";
+    /** Review-only gap target for a wrong grammar question with no grammar lesson; read by the roadmap. */
+    public static final String GRAMMAR_QUESTION_PREFIX = "GRAMMAR_QUESTION:";
     private static final int MINUTES_PER_COMPREHENSION_EXERCISE = 15;
     private static final int MAX_COMPREHENSION_EXERCISES_PER_DAY = 2;
     /** Smart Test item remediation is useful as a full study/quiz activity only from five mapped targets. */
@@ -264,9 +267,12 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
             if (vocabularyEntryId == null) {
                 String expression = canonicalExpression(evidence);
                 if (expression != null) {
-                    vocabularyEntryId = vocabularyEntries.findFirstByNormalizedExpressionAndDictionaryStatus(
-                            DictionaryUtil.normalizeReading(expression), "PUBLISHED")
-                            .map(entry -> entry.getId()).orElse(null);
+                    List<com.jlas.dictionary.entity.VocabularyEntry> exactMatches = vocabularyEntries
+                            .findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+                                    DictionaryUtil.normalizeReading(expression), "PUBLISHED");
+                    // The same spelling may have different readings/meanings. Without a stable question FK,
+                    // only a single exact published match is safe; ambiguity remains a mapping gap.
+                    if (exactMatches.size() == 1) vocabularyEntryId = exactMatches.getFirst().getId();
                 }
             }
             if (vocabularyEntryId == null || resolved.containsKey(vocabularyEntryId)) {
@@ -348,12 +354,21 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
             // Owner decision 2026-10-04: a wrong answer warrants review even when
             // the aggregate does not justify labelling the whole grammar point weak.
             if (evidence.wrongCount() <= 0) continue;
-            if (!levelInBound(evidence.jlptLevel(), assessedRank)) continue;
             Long grammarPointId = evidence.grammarPointId();
             if (grammarPointId == null) {
                 gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));
+                // UAT 2026-10-06: no grammar lesson to teach yet, but the mistake stays visible for review.
+                String canonicalId = evidence.canonicalId();
+                if (canonicalId != null && canonicalId.startsWith(UNMAPPED_QUESTION_PREFIX)) {
+                    gaps.add(new CoverageGap(GRAMMAR_QUESTION_PREFIX
+                            + canonicalId.substring(UNMAPPED_QUESTION_PREFIX.length()),
+                            "SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR"));
+                }
                 continue;
             }
+            // A mapped point above the assessed level belongs to future goal learning, not warm-up.
+            // Unmapped questions were handled first so their review evidence is never lost.
+            if (!levelInBound(evidence.jlptLevel(), assessedRank)) continue;
             if (resolved.containsKey(grammarPointId)) continue;
             if (grammarPoints.findById(grammarPointId).isEmpty()) {
                 gaps.add(new CoverageGap(evidence.canonicalId(), "CONTENT_MAPPING_PENDING"));

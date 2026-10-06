@@ -32,6 +32,12 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
+            + "where normalized_expression collate utf8mb4_bin = :expression "
+            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+            @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
+
+    @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression collate utf8mb4_bin like concat(:prefix, '%') "
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionStartingWithAndDictionaryStatusOrderByIdAsc(

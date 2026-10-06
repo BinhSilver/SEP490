@@ -1,5 +1,8 @@
 package com.jlas.learning.service.impl;
 
+import com.jlas.common.util.HtmlPlainText;
+import com.jlas.assessment.entity.AssessmentQuestion;
+import com.jlas.assessment.repository.AssessmentQuestionRepository;
 import com.jlas.auth.entity.User;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
@@ -91,6 +94,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private LearningActivityMemberRepository activityMembers;
     @Autowired(required = false)
     private InteractiveContentCatalog contentCatalog;
+    @Autowired(required = false)
+    private AssessmentQuestionRepository assessmentQuestions;
 
     @Override
     @Transactional
@@ -125,7 +130,90 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     }
 
     private List<SmartTestReviewTarget> smartTestReviewOnlyTargets(UserLearningPath path) {
-        return LearningMapper.readCoverageGapsSnapshot(path.getCoverageGapsJson()).stream()
+        var gaps = LearningMapper.readCoverageGapsSnapshot(path.getCoverageGapsJson());
+        var targets = new java.util.ArrayList<>(itemReviewTargets(gaps));
+        targets.addAll(unmappedGrammarReviewTargets(gaps));
+        return List.copyOf(targets);
+    }
+
+    /** UAT 2026-10-06: a wrong grammar question with no grammar lesson is reviewed from the question itself —
+     * its own grammar label, sentence, correct answer and explanation; nothing is guessed. */
+    private List<SmartTestReviewTarget> unmappedGrammarReviewTargets(List<com.jlas.learning.dto.CoverageGap> gaps) {
+        if (assessmentQuestions == null) return List.of();
+        List<Long> questionIds = gaps.stream()
+                .filter(gap -> "SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR".equals(gap.reasonCode()))
+                .map(gap -> gap.tagCode() == null || !gap.tagCode().startsWith(WarmUpBComposerImpl.GRAMMAR_QUESTION_PREFIX)
+                        ? null : parseId(gap.tagCode().substring(WarmUpBComposerImpl.GRAMMAR_QUESTION_PREFIX.length())))
+                .filter(java.util.Objects::nonNull).distinct().sorted().toList();
+        if (questionIds.isEmpty()) return List.of();
+        Map<Long, AssessmentQuestion> byId = new java.util.HashMap<>();
+        assessmentQuestions.findAllById(questionIds).forEach(question -> byId.put(question.getId(), question));
+        return questionIds.stream()
+                .map(questionId -> {
+                    AssessmentQuestion question = byId.get(questionId);
+                    if (question == null) {
+                        return new SmartTestReviewTarget("GRAMMAR", "Câu hỏi ngữ pháp #" + questionId,
+                                null, null, null);
+                    }
+                    String label = grammarLabel(question.getContextJson());
+                    String target = label != null ? label : "Câu hỏi ngữ pháp #" + question.getId();
+                    String sentence = reviewSentence(question);
+                    return new SmartTestReviewTarget("GRAMMAR", target, sentence, correctAnswer(question),
+                            question.getExplanation());
+                })
+                .toList();
+    }
+
+    private static String reviewSentence(AssessmentQuestion question) {
+        String prompt = trimToNull(question.getQuestionText());
+        String passage = HtmlPlainText.from(question.getPassageHtml());
+        if (prompt == null) return passage;
+        if (passage == null || prompt.equals(passage)) return prompt;
+        return prompt + "\n" + passage;
+    }
+
+    private static String correctAnswer(AssessmentQuestion question) {
+        if ("FILL_BLANK".equalsIgnoreCase(question.getQuestionType())) {
+            return trimToNull(question.getAnswerText());
+        }
+        Integer correct = question.getCorrectOption();
+        if (correct == null) return trimToNull(question.getAnswerText());
+        return trimToNull(switch (correct) {
+            case 1 -> question.getOption1();
+            case 2 -> question.getOption2();
+            case 3 -> question.getOption3();
+            case 4 -> question.getOption4();
+            default -> null;
+        });
+    }
+
+    private static String trimToNull(String value) {
+        if (value == null || value.isBlank()) return null;
+        return value.trim();
+    }
+
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    private static String grammarLabel(String contextJson) {
+        if (contextJson == null || contextJson.isBlank()) return null;
+        try {
+            var node = JSON.readTree(contextJson).path("grammar_point");
+            return node.isTextual() && !node.asText().isBlank() ? node.asText() : null;
+        } catch (Exception malformed) {
+            return null;
+        }
+    }
+
+    private static Long parseId(String value) {
+        try {
+            return Long.valueOf(value);
+        } catch (NumberFormatException malformed) {
+            return null;
+        }
+    }
+
+    private List<SmartTestReviewTarget> itemReviewTargets(List<com.jlas.learning.dto.CoverageGap> gaps) {
+        return gaps.stream()
                 .filter(gap -> "SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode()))
                 .map(gap -> {
                     String canonicalId = gap.tagCode();
@@ -514,9 +602,15 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return lessonId == null ? "PACKAGE:" + pkg.getId() : pkg.getPhase() + ":" + lessonId;
     }
 
+    /** "Bài 17: ..." — the textbook's own lesson number, which leaks catalog order into the learner's roadmap. */
+    private static final java.util.regex.Pattern LESSON_NUMBER_PREFIX =
+            java.util.regex.Pattern.compile("^\\s*Bài\\s*\\d+\\s*[:：.\\-–—]\\s*");
+
     private static String chapterTitle(LearningPathPackage pkg) {
         String lessonTitle = pkg.getSourceLesson() == null ? null : pkg.getSourceLesson().getTitle();
-        return lessonTitle == null || lessonTitle.isBlank() ? pkg.getTitle() : lessonTitle;
+        if (lessonTitle == null || lessonTitle.isBlank()) return pkg.getTitle();
+        String withoutNumber = LESSON_NUMBER_PREFIX.matcher(lessonTitle).replaceFirst("");
+        return withoutNumber.isBlank() ? lessonTitle : withoutNumber;
     }
 
     private static int chapterNumber(LearningPathPackage pkg, List<LearningPathPackage> siblings) {
