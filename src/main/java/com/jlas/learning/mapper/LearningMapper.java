@@ -244,13 +244,19 @@ public class LearningMapper {
         }
     }
 
-    private List<CoverageGap> readCoverageGaps(String json) {
+    public static List<CoverageGap> readCoverageGapsSnapshot(String json) {
         if (json == null || json.isBlank()) return List.of();
         try {
             return OBJECT_MAPPER.readValue(json, GAP_LIST);
         } catch (Exception exception) {
             throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read coverage gaps snapshot.");
         }
+    }
+
+    private List<CoverageGap> readCoverageGaps(String json) {
+        return readCoverageGapsSnapshot(json).stream()
+                .filter(gap -> !"SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode()))
+                .toList();
     }
 
     /** [JLAS-W0108] Parse kế hoạch narrative Gemini; {@code null} nếu chưa sinh/JSON hỏng (UI fallback). */

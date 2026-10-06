@@ -77,6 +77,8 @@ public class WeaknessNotebook {
             return List.of(evidence);
         }
         return evidence.outcomeBreakdown().stream()
+                .filter(outcome -> outcome.outcomeCode() == null
+                        || !outcome.outcomeCode().startsWith("UNMAPPED_QUESTION:"))
                 .map(outcome -> new WeaknessEvidence(evidence.skill(), evidence.canonicalId(),
                         outcome.assessedCount(), outcome.wrongCount(),
                         evidence.tagCode(), evidence.tagId(),

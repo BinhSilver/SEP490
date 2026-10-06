@@ -278,17 +278,89 @@ test('review list renders every card read-only, with no flip or remember control
 
 test('review feedback shows each past attempt with the question, the correct answer and the explanation', () => {
   const html = studyMode.feedbackList([{ batchIndex: 0, scorePercent: 90, correctAnswers: 9, totalQuestions: 10, review: [
-    { questionId: 1, questionText: 'what is w1', correctOption: 2, selectedOption: 1, correct: false, explanation: 'w1 means one' }] }]);
+    { questionId: 1, questionText: 'what is w1', correctOption: 2, selectedOption: 1,
+      correctAnswerText: 'sinh viên', selectedAnswerText: 'giáo viên', correct: false, explanation: 'w1 means one' }] }]);
   assert.match(html, /Phần 1 · 90% \(9\/10\)/);
   assert.match(html, /what is w1/);
   assert.match(html, /Sai/);
-  assert.match(html, /đáp án đúng: 2/);
+  assert.match(html, /đáp án đúng: sinh viên/);
+  assert.match(html, /bạn chọn: giáo viên/);
+  assert.doesNotMatch(html, /đáp án đúng: 2/);
   assert.match(html, /w1 means one/);
 });
 
 test('review feedback with no attempts says so instead of rendering an empty list', () => {
   assert.match(studyMode.feedbackList([]), /data-feedback-empty/);
   assert.match(studyMode.feedbackList(null), /data-feedback-empty/);
+});
+
+test('next study action uses only the server-unlocked activity after the finished one', () => {
+  const path = { packages: [
+    { id: 10, orderIndex: 1, status: 'IN_PROGRESS', activities: [
+      { id: 1, orderIndex: 1, type: 'VOCABULARY', state: 'PASSED' },
+      { id: 2, orderIndex: 2, type: 'KANJI', state: 'STUDYING' },
+      { id: 3, orderIndex: 3, type: 'GRAMMAR', state: 'LOCKED' }] },
+    { id: 11, orderIndex: 2, status: 'LOCKED', activities: [
+      { id: 4, orderIndex: 1, type: 'READING', state: 'LOCKED' }] }
+  ] };
+  assert.deepEqual(studyMode.nextStudyAction(path, 1), { href: '/learning/v2/kanji?activity=2' });
+  assert.equal(studyMode.nextStudyAction(path, 2), null);
+  assert.equal(studyMode.nextStudyAction(path, 999), null);
+});
+
+test('next available day is started through its package endpoint, never by linking to a locked activity', () => {
+  const path = { packages: [
+    { id: 10, orderIndex: 1, status: 'COMPLETED', activities: [
+      { id: 1, orderIndex: 1, type: 'DIALOGUE', state: 'COMPLETED' }] },
+    { id: 11, orderIndex: 2, status: 'AVAILABLE', activities: [
+      { id: 2, orderIndex: 1, type: 'VOCABULARY', state: 'LOCKED' }] }
+  ] };
+  assert.deepEqual(studyMode.nextStudyAction(path, 1), { startPackageId: 11 });
+  assert.match(studyMode.nextActionHtml({ startPackageId: 11 }), /data-study-next-package="11"/);
+  assert.doesNotMatch(studyMode.nextActionHtml({ startPackageId: 11 }), /activity=2/);
+  assert.equal(studyMode.nextStudyAction({ packages: [path.packages[0]] }, 1), null);
+});
+
+test('next action fetches the refreshed path and renders only its permitted destination', async () => {
+  const previousWindow = global.window;
+  const previousFetch = global.fetch;
+  let html = '';
+  const actions = { querySelector: () => null, insertAdjacentHTML: (_position, value) => { html = value; } };
+  const node = { querySelector: () => actions };
+  global.window = { JlasAuth: { authHeaders: () => ({ Authorization: 'test' }) } };
+  global.fetch = async (url) => {
+    assert.equal(url, '/api/learning/v2/paths/current');
+    return { ok: true, json: async () => ({ data: { packages: [
+      { id: 1, orderIndex: 1, status: 'COMPLETED', activities: [{ id: 5, orderIndex: 1, state: 'PASSED', type: 'VOCABULARY' }] },
+      { id: 2, orderIndex: 2, status: 'AVAILABLE', activities: [{ id: 6, orderIndex: 1, state: 'LOCKED', type: 'KANJI' }] }
+    ] } }) };
+  };
+  try {
+    await studyMode.showNextAction(node, 5);
+    assert.match(html, /data-study-next-package="2"/);
+    assert.doesNotMatch(html, /activity=6/);
+  } finally { global.window = previousWindow; global.fetch = previousFetch; }
+});
+
+test('next-day action starts the server package before navigating to its unlocked child', async () => {
+  const previousWindow = global.window;
+  const previousFetch = global.fetch;
+  let handler;
+  const node = { addEventListener: (_event, callback) => { handler = callback; }, contains: () => true };
+  const button = { dataset: { studyNextPackage: '2' }, disabled: false };
+  global.window = { JlasAuth: { authHeaders: () => ({ Authorization: 'test' }) }, location: { href: '' } };
+  global.fetch = async (url, options) => {
+    assert.equal(url, '/api/learning/v2/packages/2/start');
+    assert.equal(options.method, 'POST');
+    return { ok: true, json: async () => ({ data: { activities: [
+      { id: 6, orderIndex: 1, state: 'STUDYING', type: 'KANJI' }
+    ] } }) };
+  };
+  try {
+    studyMode.bindNextAction(node);
+    await handler({ target: { closest: () => button } });
+    assert.equal(global.window.location.href, '/learning/v2/kanji?activity=6');
+  } finally { global.window = previousWindow; global.fetch = previousFetch; }
 });
 
 // ---- Reading / Listening review and practice (frozen source per batch) ----

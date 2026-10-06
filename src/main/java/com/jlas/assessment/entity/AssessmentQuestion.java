@@ -6,6 +6,8 @@ import com.jlas.dictionary.entity.Tag;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -136,6 +138,7 @@ public class AssessmentQuestion {
     @Column(name = "explanation", columnDefinition = "TEXT")
     private String explanation;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "context_json", columnDefinition = "json")
     private String contextJson;
 
