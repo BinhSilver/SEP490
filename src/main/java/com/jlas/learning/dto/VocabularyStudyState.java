@@ -15,10 +15,19 @@ public record VocabularyStudyState(
         int rememberedCount,
         int reviewRemaining,
         boolean checkEligible,
-        List<VocabularyStudyCard> cards
+        List<VocabularyStudyCard> cards,
+        /** [JLAS-W0125] "Phần x / n" among same-skill parts of the package; 1/1 when not split. */
+        int partIndex,
+        int partCount
 ) {
     public VocabularyStudyState {
         cards = List.copyOf(cards);
+    }
+    public VocabularyStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
+            String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
+            boolean checkEligible, List<VocabularyStudyCard> cards) {
+        this(activityId, activityType, activityState, sourceRevision, totalCards, flippedCount, rememberedCount,
+                reviewRemaining, checkEligible, cards, 1, 1);
     }
 
     public record VocabularyStudyCard(

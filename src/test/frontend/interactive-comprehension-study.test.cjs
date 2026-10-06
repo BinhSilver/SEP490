@@ -157,11 +157,12 @@ test('renders a pass that unlocks the next exercise (not fully passed yet) with 
   assert.equal((actions.match(/ilp-check/g) || []).length, 1);
 });
 
-test('renders a full pass (all exercises done) with a single return-to-roadmap CTA', () => {
+test('renders a full pass with lesson replay and roadmap actions', () => {
   const html = page.renderResult({ totalQuestions: 2, correctAnswers: 2, scorePercent: 100, passed: true,
     passThresholdPercent: 70, attemptsUsed: 1, attemptsRemaining: 2, cooldownUntil: null, reviewRequired: false,
-    activityState: 'PASSED', review: [] }, 'READING');
+    activityState: 'PASSED', review: [] }, 'READING', 23);
   assert.match(html, /href="\/learning\/path\/v2"/);
+  assert.match(html, /\/learning\/v2\/reading\?activity=23&amp;mode=review/);
   assert.doesNotMatch(html, /data-next-exercise/);
 });
 

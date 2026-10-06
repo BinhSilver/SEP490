@@ -17,10 +17,19 @@ public record FoundationStudyState(
         int rememberedCount,
         int reviewRemaining,
         boolean checkEligible,
-        List<FoundationStudyCard> cards
+        List<FoundationStudyCard> cards,
+        /** [JLAS-W0125] "Phần x / n" among same-skill parts of the package; 1/1 when not split. */
+        int partIndex,
+        int partCount
 ) {
     public FoundationStudyState {
         cards = List.copyOf(cards);
+    }
+    public FoundationStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
+            String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
+            boolean checkEligible, List<FoundationStudyCard> cards) {
+        this(activityId, activityType, activityState, sourceRevision, totalCards, flippedCount, rememberedCount,
+                reviewRemaining, checkEligible, cards, 1, 1);
     }
 
     public record FoundationStudyCard(

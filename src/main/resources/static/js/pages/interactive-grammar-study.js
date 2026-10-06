@@ -16,6 +16,11 @@
 
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
+  // [JLAS-W0125] "Phần x / n" only when a pace change split this skill into ordered parts of the package.
+  function partLabel(v) {
+    return v.partCount > 1 && v.partIndex > 0
+      ? '<p class="ilp-part-indicator">Phần ' + v.partIndex + ' / ' + v.partCount + '</p>' : '';
+  }
   function list(value) { return Array.isArray(value) ? value : []; }
   function activityId() {
     if (typeof window !== 'undefined' && window.location) return new URLSearchParams(window.location.search).get('activity');
@@ -26,7 +31,7 @@
     data = data || {};
     var points = list(data.points).slice().sort(function (a, b) { return num(a.orderIndex) - num(b.orderIndex); });
     return {
-      activityId: data.activityId,
+      activityId: data.activityId, partIndex: num(data.partIndex), partCount: num(data.partCount),
       activityState: data.activityState,
       totalPoints: num(data.totalPoints),
       gateSatisfiedCount: num(data.gateSatisfiedCount),
@@ -110,7 +115,7 @@
       '</section>';
   }
 
-  function renderStudy(v, gate, orderStates, feedbacks) {
+  function renderStudy(v, gate, orderStates, feedbacks, mode) {
     orderStates = orderStates || {};
     feedbacks = feedbacks || {};
     if (!v.points.length) {
@@ -124,14 +129,19 @@
     var points = v.points.map(function (p, i) {
       return renderPoint(p, i, v.points.length, orderStates[p.pointId], feedbacks[p.pointId]);
     }).join('');
-    return '<section class="ilp-grammar">' +
+    var modeBanner = mode === 'PRACTICE'
+      ? '<p class="ilp-mode-banner" role="note" data-mode-banner="PRACTICE"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>'
+      : '';
+    return modeBanner + '<section class="ilp-grammar">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">NGỮ PHÁP // ' +
-      (v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG LUYỆN TẬP') + '</span><h1>Luyện ngữ pháp</h1>' +
+      (v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG LUYỆN TẬP') + '</span><h1>Luyện ngữ pháp</h1>' + partLabel(v) +
       '<p>Hoàn thành xếp câu và điền từ cho từng mẫu để mở bài kiểm tra nhỏ.</p></div>' +
       '<div class="ilp-study__count"><strong>' + v.gateSatisfiedCount + '/' + v.totalPoints + '</strong><span>mẫu đã xong</span></div></header>' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.gateSatisfiedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalPoints + '">' +
       '<span style="width:' + (v.totalPoints ? Math.round(v.gateSatisfiedCount / v.totalPoints * 100) : 0) + '%"></span></div>' +
       points + gateNote +
+      '<section class="ilp-attempt-history"><button type="button" class="ilp-check ilp-check--ghost" data-attempt-history>' +
+      'Xem lại bài kiểm tra</button><div data-attempt-history-results></div></section>' +
       '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' +
       '</section>';
   }
@@ -175,7 +185,7 @@
     return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function renderResult(result) {
+  function renderResult(result, activityId) {
     var passed = !!result.passed;
     var wrong = list(result.review).filter(function (r) { return r.correct === false; });
     var cooldown = result.activityState === 'COOLDOWN';
@@ -191,6 +201,10 @@
       (wrong.length ? '<ol class="ilp-review">' + wrong.map(function (r) { return '<li>Câu ' + esc(r.questionId) + '</li>'; }).join('') + '</ol>' : '') +
       '<div class="ilp-result__actions">' +
       (result.reviewRequired ? '<button class="ilp-check" type="button" data-review>Ôn lại phần đã sai</button>' : '') +
+      (passed && num(activityId) > 0
+        ? '<a class="ilp-check" href="/learning/v2/grammar?activity=' + encodeURIComponent(activityId) +
+          '&amp;mode=review">Xem lại bài học</a>'
+        : '<button class="ilp-check" type="button" data-back-to-study>Xem lại bài học</button>') +
       '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a>' +
       '</div></section>';
   }
@@ -214,6 +228,7 @@
     var base = '/api/learning/v2/activities/' + encodeURIComponent(id) + '/grammar';
     // [JLAS-W0108] Task 11 - LEARN / REVIEW / PRACTICE. The server enforces each mode; the page only picks endpoints.
     var StudyMode = window.InteractiveStudyMode;
+    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
@@ -249,7 +264,10 @@
           return;
         }
         if (mode === 'PRACTICE') {
-          await doPractice();
+          var rehearsal = viewModel(await api('/review'));
+          rehearsal.checkEligible = true;
+          node.innerHTML = renderStudy(rehearsal,
+              { checkEligible: true, passed: false, reviewRequired: false }, orderState, feedback, 'PRACTICE');
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -257,7 +275,7 @@
         var gate = null;
         try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
         if (gate && gate.passed) { node.innerHTML = renderPassed(PASSED_ACTIONS); }
-        else { node.innerHTML = renderStudy(viewModel(study), gate, orderState, feedback); }
+        else { node.innerHTML = renderStudy(viewModel(study), gate, orderState, feedback, mode); }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
@@ -274,7 +292,16 @@
 
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
-      if (event.target.closest('[data-practice-again]')) return doPractice();
+      if (event.target.closest('[data-back-to-study]')) return loadStudy();
+      if (event.target.closest('[data-practice-again]')) return loadStudy();
+      if (event.target.closest('[data-attempt-history]')) {
+        try {
+          var attempts = await api('/review/attempts');
+          var history = node.querySelector('[data-attempt-history-results]');
+          if (history && StudyMode) history.innerHTML = StudyMode.feedbackList(attempts);
+        } catch (e) { node.innerHTML = error(e.message); }
+        return;
+      }
       if (event.target.closest('[data-check]')) return doCheck();
       if (event.target.closest('[data-review]')) {
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
@@ -328,7 +355,9 @@
       node.setAttribute('aria-busy', 'true');
       try {
         var result = await postJson(submitPath, { attemptId: Number(form.dataset.attemptId), answers: answers });
-        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result);
+        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result, id);
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+          await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });

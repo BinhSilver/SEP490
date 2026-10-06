@@ -162,7 +162,11 @@ class InteractiveVocabularyServiceTest {
         when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
         when(vocabularyRepo.findAllById(any())).thenReturn(vocab);
-        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        var questionRef = new java.util.concurrent.atomic.AtomicReference<List<com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion>>();
+        when(mapper.writeQuizQuestions(any())).thenAnswer(inv -> {
+            questionRef.set(inv.getArgument(0));
+            return "[]";
+        });
         var keyRef = new java.util.concurrent.atomic.AtomicReference<Map<Long, QuizAnswerKey>>();
         when(mapper.writeQuizAnswerKey(any())).thenAnswer(inv -> {
             keyRef.set(inv.getArgument(0));
@@ -183,7 +187,14 @@ class InteractiveVocabularyServiceTest {
         assertEquals(20, result.questions().size());
         // answer key stays server-side and uses the 1-based option index shared with LessonQuiz grading
         assertEquals(20, keyRef.get().size());
-        assertTrue(keyRef.get().values().stream().allMatch(k -> k.correctOption() >= 1 && k.correctOption() <= 4));
+        var select = questionRef.get().stream().filter(q -> !"MATCHING".equals(q.questionType())).toList();
+        var matching = questionRef.get().stream().filter(q -> "MATCHING".equals(q.questionType())).toList();
+        assertEquals(10, matching.size());
+        assertTrue(select.stream().allMatch(q -> q.options().size() <= 4));
+        assertEquals(10, matching.getFirst().options().size());
+        assertTrue(matching.stream().allMatch(q -> q.options().equals(matching.getFirst().options())));
+        assertEquals(10, matching.stream().map(q -> keyRef.get().get(q.questionId()).correctOption())
+                .distinct().count());
     }
 
     /** [JLAS-W0193] Task 10 audit finding — re-issuing the same still-unpassed batch after a failed attempt

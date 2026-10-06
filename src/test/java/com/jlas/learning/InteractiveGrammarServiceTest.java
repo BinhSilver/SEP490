@@ -165,6 +165,30 @@ class InteractiveGrammarServiceTest {
         assertFalse(view.gateSatisfied());
     }
 
+    /** [JLAS-W0125] Grammar parts created by a pace change show "Phần x / n" like card-based skills. */
+    @Test void studyStateReportsThePartPositionInsideItsPackage() {
+        var activity = grammarActivity(1L, 7L);
+        activity.setLearningPackage(com.jlas.learning.entity.LearningPathPackage.builder().id(55L).build());
+        activity.setPartIndex(5);
+        activity.setOrderIndex(40);
+        var member = member(activity, 1, 501L, "rev-1");
+        var point = point(501L, "N1 は N2 です", "N1 là N2\nCâu khẳng định cơ bản.",
+                "わたしは グエンです。\nTôi là Nguyễn.", null);
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(items.countByLearningPackageIdAndActivityType(55L, LearningActivityType.GRAMMAR)).thenReturn(3L);
+        // part_index 5 is an identity left by a repeated split; the position comes from study order.
+        when(items.countByLearningPackageIdAndActivityTypeAndOrderIndexLessThan(55L, LearningActivityType.GRAMMAR, 40))
+                .thenReturn(1L);
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(point));
+        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.empty());
+
+        GrammarStudyState state = service.studyState(7L, 1L);
+
+        assertEquals(2, state.partIndex());
+        assertEquals(3, state.partCount());
+    }
+
     @Test void grammarPointOutsideThisActivitysMembershipIsRejectedAsNotFound() {
         var activity = grammarActivity(1L, 7L);
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
@@ -370,6 +394,21 @@ class InteractiveGrammarServiceTest {
         }
         assertTrue(anyOptionsDiffer,
                 "re-issuing the same unpassed batch after a failed attempt should vary the option arrangement");
+    }
+
+    @Test void singleGrammarPointWithoutAValidDistractorNeverCreatesOneOptionQuiz() {
+        var activity = grammarActivity(1L, 7L);
+        var member = member(activity, 1, 501L, "rev-1");
+        var only = point(501L, "V てはいけません", "Không được làm", "ここで写真を撮ってはいけません。", null);
+        var gate = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(501L)
+                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.of(gate));
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(only));
+        ApiException error = assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
     }
 
     @Test void submitPassesAtExactlySeventyPercent() {

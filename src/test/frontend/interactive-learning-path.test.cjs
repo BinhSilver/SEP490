@@ -4,6 +4,18 @@ const fs = require('node:fs');
 const pathModule = require('node:path');
 const page = require('../../main/resources/static/js/pages/interactive-learning-path.js');
 
+test('a logical package spread across days shows the range and each activity day', () => {
+  const data = path();
+  data.packages[0].activities[0].dayNumber = 4;
+  data.packages[0].activities[1].dayNumber = 3;
+  data.packages[0].activities[2].dayNumber = 4;
+  data.packages[0].activities[3].dayNumber = 3;
+  const html = page.render(data);
+  assert.match(html, /DAY 03–04/);
+  assert.match(html, /Ngày 4/);
+  assert.match(html, /Ngày 3/);
+});
+
 function path(overrides = {}) {
   return Object.assign({
     title: 'Ôn vững nền tảng', currentLevel: 'N5', targetLevel: 'N4', minutesPerDay: 30,
@@ -29,6 +41,19 @@ function pathWithComprehension() {
       { id: 6, type: 'LISTENING', state: 'LOCKED', orderIndex: 2 }
     ] }] });
 }
+
+test('active warm-up activity exposes an explicit continue action', () => {
+  const data = pathWithComprehension();
+  data.packages[0].status = 'IN_PROGRESS';
+  data.packages[0].activities[0].state = 'STUDYING';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=5"[^>]*>[\s\S]*?Tiếp tục học/);
+});
+
+test('goal sidebar does not expose server implementation details', () => {
+  const html = page.render(path());
+  assert.doesNotMatch(html, /lưu trạng thái trên máy chủ/);
+});
 
 test('resolves the Smart Test attempt from the redirected V2 URL before storage', () => {
   const storage = { getItem: () => '41' };
@@ -56,6 +81,16 @@ test('renders only supported roadmap data and no legacy aggregate quiz', () => {
   assert.match(html, /MISSION DIRECTIVE/);
   assert.match(html, /Bắt đầu học/);
   assert.doesNotMatch(html, /Mini Quiz|quiz cuối bài|daily quiz|XP|Tải xuống|Luyện nghe/);
+});
+
+test('shows small Smart Test remediation sets as a read-only list with no quiz or progress actions', () => {
+  const html = page.render(path({ smartTestReviewOnlyTargets: [
+    { skill: 'VOCABULARY', target: '学生' }, { skill: 'KANJI', target: '食' }
+  ] }));
+  assert.match(html, /Nội dung nên xem lại/);
+  assert.match(html, /学生/);
+  assert.match(html, /食/);
+  assert.doesNotMatch(html, /Bắt đầu kiểm tra|Ôn lại bằng Flashcard|smart-test-review-only/);
 });
 
 test('renders Vietnamese package states instead of backend enum names', () => {
@@ -101,6 +136,19 @@ test('links an unlocked Kanji activity to its own study page (Task 5)', () => {
   data.packages[0].activities[3].state = 'STUDYING';
   const html = page.render(data);
   assert.match(html, /href="\/learning\/v2\/kanji\?activity=4"/);
+});
+
+test('routes to the first server-unlocked activity after a package starts', () => {
+  assert.equal(page.startedPackageStudyHref({ activities: [
+    { id: 4, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 },
+    { id: 8, type: 'KANJI', state: 'STUDYING', orderIndex: 2 }
+  ] }), '/learning/v2/kanji?activity=8');
+  assert.equal(page.startedPackageStudyHref({ activities: [
+    { id: 4, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 }
+  ] }), null);
+  assert.equal(page.startedPackageStudyHref({ activities: [
+    { id: 4, type: 'UNKNOWN', state: 'STUDYING', orderIndex: 1 }
+  ] }), null);
 });
 
 test('does not link a locked Kanji activity', () => {
@@ -321,4 +369,31 @@ test('links an unlocked FOUNDATION activity to the alphabet study page', () => {
 test('does not link a locked FOUNDATION activity', () => {
   const html = page.render(pathWithFoundation('LOCKED'));
   assert.doesNotMatch(html, /\/learning\/v2\/foundation\?activity=7/);
+});
+
+// ---- [JLAS-W0125] split parts and approved roadmap action names ----
+
+test('activities split by a pace change show their part position, single parts stay unlabelled', () => {
+  const data = path();
+  data.packages[0].status = 'IN_PROGRESS';
+  data.packages[0].activities = [
+    { id: 2, type: 'VOCABULARY', state: 'PASSED', orderIndex: 1, partIndex: 1, partCount: 2 },
+    { id: 7, type: 'VOCABULARY', state: 'STUDYING', orderIndex: 2, partIndex: 2, partCount: 2 },
+    { id: 4, type: 'KANJI', state: 'LOCKED', orderIndex: 3, partIndex: 1, partCount: 1 }
+  ];
+  const html = page.render(data);
+  assert.match(html, /Từ vựng · Phần 1\/2/);
+  assert.match(html, /href="\/learning\/v2\/vocabulary\?activity=7"[\s\S]*?Từ vựng · Phần 2\/2/);
+  assert.doesNotMatch(html, /Kanji · Phần/);
+});
+
+test('completed quiz activities offer "Xem lại bài giảng" and "Kiểm tra lại"; Dialogue has no quiz to retake', () => {
+  const data = path();
+  data.packages[0].activities[1].state = 'PASSED';
+  data.packages[0].activities[0].state = 'COMPLETED';
+  const html = page.render(data);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=review">Xem lại bài giảng</);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=practice">Kiểm tra lại</);
+  assert.match(html, /dialogue\?activity=1&amp;mode=review">Xem lại bài giảng</);
+  assert.match(html, /dialogue\?activity=1&amp;mode=practice">Ôn lại</);
 });

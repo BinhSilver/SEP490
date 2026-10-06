@@ -123,3 +123,10 @@ test('review rendering exposes canonical grammar only and has no practice or qui
   assert.match(html, /N1 は N2 です/);
   assert.doesNotMatch(html, /data-order-add|data-fill-check|data-check|data-submit/);
 });
+
+test('[JLAS-W0125] a part created by a pace change shows its position; an unsplit activity does not', () => {
+  const render = (o) => page.renderStudy(page.viewModel(study(o)), null, {}, {});
+  assert.match(render({ partIndex: 2, partCount: 3 }), /Phần 2 \/ 3/);
+  assert.doesNotMatch(render({ partIndex: 1, partCount: 1 }), /Phần 1 \/ 1/);
+  assert.doesNotMatch(render({}), /Phần \d+ \/ \d+/);
+});

@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +133,8 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
                     c.flipped(), c.remembered());
         }).toList();
         return new KanjiStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
-                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards);
+                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
+                s.partIndex(), s.partCount());
     }
 
     /** Canonical Kanji + its On/Kun readings, loaded once per batch — never fabricated when absent. */
@@ -197,12 +200,16 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
                 specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, e), selectCorrect(type, e),
                         selectDistractors(type, e, batch)));
             }
-            for (int i = 0; i < batch.size(); i++) {
-                KanjiEntry e = batch.get(i);
-                if (e.kanji().getMeaningVi() == null) continue;
-                specs.add(optionQuestion(qid++, i + variationSeed, "MATCHING",
-                        "Ghép chữ “" + e.kanji().getCharacter() + "” với nghĩa đúng.",
-                        e.kanji().getMeaningVi(), batch.stream().map(b -> b.kanji().getMeaningVi()).toList()));
+            List<String> meanings = batch.stream().map(e -> e.kanji().getMeaningVi()).toList();
+            if (meanings.size() >= 2 && meanings.stream().allMatch(value -> value != null && !value.isBlank())
+                    && new HashSet<>(meanings).size() == meanings.size()) {
+                List<String> commonOptions = new ArrayList<>(meanings);
+                Collections.rotate(commonOptions, (variationSeed + batchIndex + 1) % commonOptions.size());
+                for (KanjiEntry entry : batch) {
+                    specs.add(new QuestionSpec(qid++, "MATCHING", entry.kanji().getCharacter(),
+                            commonOptions, commonOptions.indexOf(entry.kanji().getMeaningVi()) + 1,
+                            entry.kanji().getMeaningVi()));
+                }
             }
             return specs;
         }

@@ -1,6 +1,5 @@
 package com.jlas.learning.service.impl.engine;
 
-import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.AttemptFeedbackResponse;
@@ -17,6 +16,7 @@ import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.LearningStudyCard;
 import com.jlas.learning.entity.LearningStudySession;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningActivityState;
 import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.repository.LearningActivityMemberRepository;
@@ -25,6 +25,8 @@ import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.LearningStudyCardRepository;
 import com.jlas.learning.repository.LearningStudySessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
+import com.jlas.learning.service.impl.LearningActivityParts;
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -150,6 +152,11 @@ public class InteractiveStudyEngine<T> {
         // on the very next attempt. See InteractiveContentAdapter.buildQuestions' javadoc for the full finding.
         int variationSeed = state == null ? 0 : state.getAttemptsUsed();
         List<QuestionSpec> specs = adapter.buildQuestions(batch, currentBatch, variationSeed);
+        if (specs == null || specs.isEmpty() || specs.stream().anyMatch(spec -> spec.options() == null
+                || spec.options().size() < 2)) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "Chưa đủ câu hỏi và phương án hợp lệ để mở bài kiểm tra. Vui lòng bổ sung học liệu.");
+        }
 
         LearningQuizSession snapshot = LearningQuizSession.builder()
                 .user(activity.getLearningPath().getUser())
@@ -307,7 +314,8 @@ public class InteractiveStudyEngine<T> {
                     byId.get(member.getCanonicalId()), true, true));
         }
         return new EngineStudyState<>(activity.getId(), activity.getActivityType(), activity.getActivityState(),
-                revisionOf(membership), membership.size(), membership.size(), membership.size(), 0, false, views);
+                revisionOf(membership), membership.size(), membership.size(), membership.size(), 0, false, views,
+                LearningActivityParts.index(activity, items), LearningActivityParts.count(activity, items));
     }
 
     /** REVIEW feedback: the newest submitted micro-check attempt of every batch with its stored per-question
@@ -331,19 +339,31 @@ public class InteractiveStudyEngine<T> {
         List<FeedbackEntry> feedback = new ArrayList<>();
         for (LearningQuizSession session : latest.values()) {
             LessonQuizResult result = mapper.readQuizResult(session.getResultJson());
-            Map<Long, String> prompts = new java.util.HashMap<>();
+            Map<Long, LessonQuizResponse.LessonQuizQuestion> prompts = new java.util.HashMap<>();
             for (LessonQuizResponse.LessonQuizQuestion question : mapper.readQuizQuestions(session.getQuestionsJson())) {
-                prompts.put(question.questionId(), question.questionText());
+                prompts.put(question.questionId(), question);
             }
             List<AttemptFeedbackResponse.Item> items = result.review().stream()
-                    .map(r -> new AttemptFeedbackResponse.Item(r.questionId(), prompts.get(r.questionId()),
-                            r.correctOption(), r.selectedOption(), Boolean.TRUE.equals(r.correct()), r.explanation()))
+                    .map(r -> {
+                        var question = prompts.get(r.questionId());
+                        var options = question == null ? List.<String>of() : question.options();
+                        return new AttemptFeedbackResponse.Item(r.questionId(),
+                                question == null ? null : question.questionText(),
+                                r.correctOption(), r.selectedOption(),
+                                answerText(options, r.correctOption()), answerText(options, r.selectedOption()),
+                                Boolean.TRUE.equals(r.correct()), r.explanation());
+                    })
                     .toList();
             feedback.add(new FeedbackEntry(new AttemptFeedbackResponse(session.getBatchIndex(), result.scorePercent(),
                     result.correctAnswers(), result.totalQuestions(), result.passed(), session.getSubmittedAt(), items),
                     session.getSourceSnapshotJson()));
         }
         return feedback;
+    }
+
+    private static String answerText(List<String> options, Integer oneBasedIndex) {
+        return oneBasedIndex != null && oneBasedIndex > 0 && oneBasedIndex <= options.size()
+                ? options.get(oneBasedIndex - 1) : null;
     }
 
     /** PRACTICE mode: issues a replay quiz snapshot. It rotates through the activity's batches by how many
@@ -369,8 +389,11 @@ public class InteractiveStudyEngine<T> {
         int replays = (int) quizSessions.countByActivityIdAndQuizType(activityId, PRACTICE_REPLAY);
         List<LearningQuizSession> originals = new ArrayList<>(latestByBatch.values());
         LearningQuizSession original = originals.get(replays % originals.size());
+        boolean requiresPassage = adapter.activityType() == LearningActivityType.READING
+                || adapter.activityType() == LearningActivityType.LISTENING;
         if (original.getQuestionsJson() == null || original.getAnswerKeyJson() == null
-                || original.getSourceSnapshotJson() == null || original.getSourceSnapshotJson().isBlank()) {
+                || (requiresPassage && (original.getSourceSnapshotJson() == null
+                        || original.getSourceSnapshotJson().isBlank()))) {
             throw new ApiException(ErrorCode.SOURCE_SNAPSHOT_UNAVAILABLE);
         }
         List<LessonQuizResponse.LessonQuizQuestion> questions = mapper.readQuizQuestions(original.getQuestionsJson());
@@ -516,7 +539,8 @@ public class InteractiveStudyEngine<T> {
         }
         return new EngineStudyState<>(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 session.getSourceRevision(), membership.size(), flipped, remembered, membership.size() - remembered,
-                checkEligible, views);
+                checkEligible, views, LearningActivityParts.index(activity, items),
+                LearningActivityParts.count(activity, items));
     }
 
     private void requireAllRemembered(Long activityId, List<LearningActivityMember> membership) {

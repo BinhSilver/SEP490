@@ -125,7 +125,8 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
                     c.flipped(), c.remembered());
         }).toList();
         return new FoundationStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
-                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards);
+                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
+                s.partIndex(), s.partCount());
     }
 
     /** Foundation-specific seam: canonical loading (content_item) + deterministic, no-AI question

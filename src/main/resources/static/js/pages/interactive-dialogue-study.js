@@ -96,10 +96,13 @@
       v.requiredSeconds + ' giây hoạt động</li></ul></div>';
   }
 
-  function renderCompleted() {
+  function renderCompleted(activityId) {
     return '<section class="ilp-result"><header class="ilp-study__head"><div><span class="ilp-kicker">HOÀN THÀNH</span>' +
       '<h1>Phần Hội thoại đã đạt</h1><p>Bạn đã đọc đủ thời gian và cuộn hết đoạn hội thoại.</p></div></header>' +
-      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+      '<div class="ilp-result__actions">' + (num(activityId) > 0
+        ? '<a class="ilp-check" href="/learning/v2/dialogue?activity=' + encodeURIComponent(activityId) +
+          '&amp;mode=review">Xem lại bài học</a>' : '') +
+      '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a></div></section>';
   }
 
   function renderReplay(mode, v) {
@@ -131,6 +134,7 @@
     if (!id) { node.innerHTML = error('Thiếu mã hoạt động Hội thoại.'); return; }
     var base = '/api/learning/v2/activities/' + encodeURIComponent(id) + '/dialogue';
     var StudyMode = window.InteractiveStudyMode;
+    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var heartbeatTimer = null;
     var observer = null;
@@ -165,7 +169,8 @@
       if (result.completed) {
         finished = true;
         stopTracking();
-        node.innerHTML = renderCompleted();
+        node.innerHTML = renderCompleted(id);
+        if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id);
       }
     }
 
@@ -202,7 +207,8 @@
         }
         var study = await api('/study');
         var v = viewModel(study);
-        if (v.completed) { node.innerHTML = renderCompleted(); finished = true; }
+        if (v.completed) { node.innerHTML = renderCompleted(id); finished = true;
+          if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id); }
         else {
           node.innerHTML = renderScript(v) + renderProgress(v);
           watchBottom();

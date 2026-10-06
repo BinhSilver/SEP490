@@ -10,6 +10,7 @@ public record AttemptFeedbackResponse(int batchIndex, int scorePercent, int corr
         review = List.copyOf(review);
     }
 
+    /** Labels are resolved only from the submitted session's frozen question options. */
     public record Item(Long questionId, String questionText, Integer correctOption, Integer selectedOption,
-            boolean correct, String explanation) { }
+            String correctAnswerText, String selectedAnswerText, boolean correct, String explanation) { }
 }

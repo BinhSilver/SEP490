@@ -14,7 +14,19 @@
   // REVIEW/PRACTICE links are exposed only for activity types with owner-scoped replay routes.
   var REVIEW_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true, DIALOGUE: true, READING: true, LISTENING: true };
   var PRACTICE_TYPES = { VOCABULARY: true, KANJI: true, FOUNDATION: true, GRAMMAR: true, DIALOGUE: true, READING: true, LISTENING: true };
-  var MODE_LINK_LABEL = { REVIEW: 'Xem lại', PRACTICE: 'Ôn lại' };
+  // Approved roadmap names: REVIEW is the read-only lesson, PRACTICE replays the quiz without touching progress.
+  // Dialogue has no quiz, so its replay stays "Ôn lại".
+  var MODE_LINK_LABEL = { REVIEW: 'Xem lại bài giảng', PRACTICE: 'Kiểm tra lại' };
+  function modeLinkLabel(type, mode) {
+    return type === 'DIALOGUE' && mode === 'PRACTICE' ? 'Ôn lại' : MODE_LINK_LABEL[mode] || mode;
+  }
+  /** "Từ vựng · Phần 2/3" when a pace change split one skill into ordered parts of the same package. */
+  function activityLabel(a) {
+    var label = ACTIVITY_LABEL[a.type] || a.type;
+    var count = positiveInteger(a.partCount);
+    var part = positiveInteger(a.partIndex);
+    return count > 1 && part ? label + ' · Phần ' + part + '/' + count : label;
+  }
   var STAGE_LEVEL_LABEL = { FOUNDATION: 'Bảng chữ cái' };
   var BLOCK_REASON = {
     BLOCKED_CONTENT: 'Học liệu chưa sẵn sàng cho chặng này nên chưa thể mở bài thi thử.',
@@ -53,13 +65,17 @@
     var packages = (Array.isArray(data.packages) ? data.packages : []).slice().sort(function (a, b) { return num(a.orderIndex) - num(b.orderIndex); });
     packages.forEach(function (pkg) {
       pkg.activities = (Array.isArray(pkg.activities) ? pkg.activities : []).slice().sort(function (a, b) { return num(a.orderIndex) - num(b.orderIndex); });
-      pkg.activityLabels = pkg.activities.map(function (a) { return ACTIVITY_LABEL[a.type] || a.type; });
+      pkg.activityLabels = pkg.activities.map(activityLabel);
       pkg.canStart = pkg.status === 'AVAILABLE';
     });
     return {
       title: data.title || 'Lộ trình cá nhân', goal: data.goal || 'JLPT', currentLevel: data.currentLevel || '—',
       targetLevel: data.targetLevel || '—', minutesPerDay: num(data.minutesPerDay), progressPercent: num(data.progressPercent),
-      completedPackages: num(data.completedPackages), totalPackages: num(data.totalPackages), packages: packages
+      completedPackages: num(data.completedPackages), totalPackages: num(data.totalPackages), packages: packages,
+      smartTestReviewOnlyTargets: Array.isArray(data.smartTestReviewOnlyTargets)
+        ? data.smartTestReviewOnlyTargets.filter(function (target) {
+          return target && (target.skill === 'VOCABULARY' || target.skill === 'KANJI') && target.target;
+        }) : []
     };
   }
   function modesFor(type) {
@@ -74,24 +90,33 @@
   function activityDone(a) {
     return a.type === 'DIALOGUE' ? a.state === 'COMPLETED' : a.state === 'PASSED' || a.state === 'COMPLETED';
   }
+  function startedPackageStudyHref(pkg) {
+    var activities = Array.isArray(pkg && pkg.activities) ? pkg.activities.slice() : [];
+    activities.sort(function (a, b) { return num(a.orderIndex) - num(b.orderIndex); });
+    var next = activities.find(function (activity) {
+      return activity && ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(activity.state) >= 0 &&
+        ACTIVITY_PATH[activity.type] && positiveInteger(activity.id);
+    });
+    return next ? ACTIVITY_PATH[next.type] + '?activity=' + encodeURIComponent(next.id) : null;
+  }
   function activityRow(a, index) {
     var done = activityDone(a);
     var active = a.state === 'STUDYING' || a.state === 'CHECK_READY' || a.state === 'COOLDOWN';
-    var label = ACTIVITY_LABEL[a.type] || a.type;
+    var label = activityLabel(a);
     var state = done ? 'Đã hoàn thành' : active ? 'Đang học' : 'Chưa mở';
     var inner = '<span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span>' +
-      '<span><strong>' + esc(label) + '</strong><small>' + esc(state) + '</small></span>';
+      '<span><strong>' + esc(label) + '</strong><small>' + esc(state) + activityDayLabel(a) + '</small></span>';
     var css = 'ilp-activity' + (done ? ' is-done' : active ? ' is-active' : '');
     // [JLAS-W0193] RC Task 5 — Reading/Listening routes keyed by the server-reported activity type, same as
     // every other entry here: the roadmap never guesses which player to open, it only looks up `a.type`.
     var path = ACTIVITY_PATH[a.type];
     if (path && !done && active) {
       return '<li class="' + css + '"><a class="ilp-activity__link" href="' + path + '?activity=' +
-        encodeURIComponent(a.id) + '">' + inner + '</a></li>';
+        encodeURIComponent(a.id) + '">' + inner + '<span class="ilp-activity__cta">Tiếp tục học</span></a></li>';
     }
     if (done && path) {
       var links = modesFor(a.type).map(function (mode) {
-        return '<a class="ilp-activity__mode" href="' + modeHref(a.type, a.id, mode) + '">' + MODE_LINK_LABEL[mode] + '</a>';
+        return '<a class="ilp-activity__mode" href="' + modeHref(a.type, a.id, mode) + '">' + modeLinkLabel(a.type, mode) + '</a>';
       }).join('');
       if (links) return '<li class="' + css + '">' + inner + '<span class="ilp-activity__modes">' + links + '</span></li>';
     }
@@ -105,7 +130,7 @@
     return '<div class="ilp-session-list">' + pkg.sessions.map(function (session) {
       var actions = Array.isArray(session.allowedActions) ? session.allowedActions : [];
       var rows = (Array.isArray(session.activities) ? session.activities : []).map(function (a, index) {
-        var label = ACTIVITY_LABEL[a.type] || a.type;
+        var label = activityLabel(a);
         var done = activityDone(a);
         var learnAllowed = actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0;
         if (learnAllowed && !done) return activityRow(a, index);
@@ -115,11 +140,11 @@
           return done && (action === 'REVIEW' || action === 'PRACTICE') && ACTIVITY_PATH[a.type];
         }).map(function (action) {
           return '<a class="ilp-activity__mode" href="' + modeHref(a.type, a.id, action) + '">' +
-            (MODE_LINK_LABEL[action] || action) + '</a>';
+            modeLinkLabel(a.type, action) + '</a>';
         }).join('');
         return '<li class="ilp-activity' + ((a.state === 'PASSED' || a.state === 'COMPLETED') ? ' is-done' : '') + '">' +
           '<span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) +
-          '</span><span><strong>' + esc(label) + '</strong><small>' + esc(ACTIVITY_STATE_LABEL[a.state] || a.state || '') + '</small></span>' +
+          '</span><span><strong>' + esc(label) + '</strong><small>' + esc(ACTIVITY_STATE_LABEL[a.state] || a.state || '') + activityDayLabel(a) + '</small></span>' +
           (links ? '<span class="ilp-activity__modes">' + links + '</span>' : '') + '</li>';
       }).join('');
       var counts = Object.keys(session.contentCounts || {}).filter(function (key) { return num(session.contentCounts[key]) > 0; })
@@ -229,7 +254,7 @@
       ? '<p>Nhịp học đổi từ <strong>' + num(preview.currentMinutesPerDay) + ' phút</strong> sang <strong>' +
         num(preview.newMinutesPerDay) + ' phút</strong> mỗi ngày.</p><p>Số ngày còn lại: ' + num(preview.currentRemainingDays) +
         ' ngày → <strong>' + num(preview.newRemainingDays) + ' ngày</strong>.</p>' +
-        '<p class="ilp-popup__note">Chỉ lịch các ngày chưa học thay đổi. Nội dung, tiến độ và mục tiêu được giữ nguyên.</p>'
+        '<p class="ilp-popup__note">Nhịp mới áp dụng cho các bài chưa bắt đầu. Bài đang học giữ nguyên lịch; nội dung, tiến độ và mục tiêu không đổi.</p>'
       : '<p>Nhịp học đã ở mức ' + num(preview.currentMinutesPerDay) + ' phút/ngày — không thể đổi thêm theo hướng này.</p>';
     return '<div class="ilp-popup-backdrop" data-pace-backdrop><section class="ilp-popup" role="dialog" aria-modal="true" ' +
       'aria-labelledby="ilpPaceTitle" tabindex="-1" data-pace-dialog><h2 id="ilpPaceTitle">Đổi nhịp học</h2>' + body +
@@ -249,8 +274,16 @@
     if (backwards) return index <= 0 ? count - 1 : index - 1;
     return index >= count - 1 ? 0 : index + 1;
   }
+  function activityDayLabel(activity) {
+    return positiveInteger(activity.dayNumber) ? ' · Ngày ' + num(activity.dayNumber) : '';
+  }
   function dayKicker(pkg) {
-    return 'DAY ' + String(pkg.dayNumber).padStart(2, '0') + ' · ' + esc(pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU');
+    var end = (pkg.activities || []).reduce(function (day, activity) {
+      return Math.max(day, positiveInteger(activity.dayNumber) || day);
+    }, num(pkg.dayNumber));
+    return 'DAY ' + String(pkg.dayNumber).padStart(2, '0') +
+      (end > pkg.dayNumber ? '–' + String(end).padStart(2, '0') : '') + ' · ' +
+      esc(pkg.phase === 'WARM_UP' ? 'KHỞI ĐỘNG' : 'MỤC TIÊU');
   }
   // [JLAS-W0193] FE V2 restyle (spec §10.3) — a completed day collapses to one row instead of
   // repeating the full four-activity card; a locked day shows its reason at reduced contrast
@@ -287,6 +320,22 @@
         (selected ? ' class="is-active"' : '') + '>' + tab.label + '</button>';
     }).join('') + '</div>';
   }
+  function renderSmartTestReviewOnly(targets) {
+    if (!targets || !targets.length) return '';
+    var groups = { VOCABULARY: [], KANJI: [] };
+    targets.forEach(function (target) {
+      if (groups[target.skill]) groups[target.skill].push(target.target);
+    });
+    var content = Object.keys(groups).filter(function (skill) { return groups[skill].length; }).map(function (skill) {
+      var label = skill === 'VOCABULARY' ? 'Từ vựng' : 'Kanji';
+      return '<section><h3>' + label + '</h3><ul>' + groups[skill].map(function (target) {
+        return '<li lang="ja">' + esc(target) + '</li>';
+      }).join('') + '</ul></section>';
+    }).join('');
+    return '<aside class="ilp-review-only" aria-labelledby="ilpReviewOnlyTitle"><div><span class="ilp-kicker">GỢI Ý ÔN TẬP</span>' +
+      '<h2 id="ilpReviewOnlyTitle">Nội dung nên xem lại</h2><p>Các mục dưới đây có thể xem nhanh trong lộ trình học.</p></div>' +
+      '<div class="ilp-review-only__groups">' + content + '</div></aside>';
+  }
   function render(data, phaseFilter, extras) {
     extras = extras || {};
     var v = viewModel(data);
@@ -295,14 +344,14 @@
     return '<section class="ilp-hero"><div><span class="ilp-label">MISSION DIRECTIVE // LỘ TRÌNH TỐI ƯU</span><h1>' + esc(v.title) +
       '</h1><p>Học từng phần tương tác, lưu tiến độ thật và tiếp tục đúng nơi bạn dừng lại.</p><div class="ilp-metrics"><span>' +
       esc(v.currentLevel) + ' → ' + esc(v.targetLevel) + '</span>' + (v.minutesPerDay ? '<span>' + v.minutesPerDay + ' phút/ngày</span>' : '') +
-      '<span>' + v.totalPackages + ' ngày học</span></div></div><div class="ilp-total"><div><span>TIẾN ĐỘ TỔNG</span><strong>' +
+      '<span>' + v.totalPackages + ' bài học</span></div></div><div class="ilp-total"><div><span>TIẾN ĐỘ TỔNG</span><strong>' +
       v.progressPercent + '%</strong></div><progress max="100" value="' + v.progressPercent + '">' + v.progressPercent + '%</progress><small>' +
-      v.completedPackages + '/' + v.totalPackages + ' ngày hoàn thành</small></div></section>' + renderStageProgress(extras.eligibility) + renderMockGate(extras.eligibility) +
-      '<div class="ilp-layout"><section>' + phaseTabs(phaseFilter) + '<div class="ilp-days">' +
+      v.completedPackages + '/' + v.totalPackages + ' bài hoàn thành</small></div></section>' + renderStageProgress(extras.eligibility) + renderMockGate(extras.eligibility) +
+      renderSmartTestReviewOnly(v.smartTestReviewOnlyTargets) + '<div class="ilp-layout"><section>' + phaseTabs(phaseFilter) + '<div class="ilp-days">' +
       (visiblePackages.length ? visiblePackages.map(packageCard).join('') : '<div class="ilp-empty"><h2>Chưa có ngày học trong giai đoạn này</h2><p>Chọn giai đoạn khác để xem nội dung đã được phát hành.</p></div>') +
       '</div></section><aside class="ilp-aside"><span class="ilp-kicker">MỤC TIÊU HIỆN TẠI</span><dl><div><dt>Cấp độ</dt><dd>' + esc(v.currentLevel) + ' → ' + esc(v.targetLevel) +
       '</dd></div>' + (v.minutesPerDay ? '<div><dt>Cường độ</dt><dd>' + v.minutesPerDay + ' phút/ngày</dd></div>' : '') +
-      '</dl>' + renderPaceControls(v.minutesPerDay) + '<p class="ilp-note">J-LAS chỉ mở nội dung đã đủ dữ liệu và lưu trạng thái trên máy chủ.</p></aside></div>' +
+      '</dl>' + renderPaceControls(v.minutesPerDay) + '</aside></div>' +
       renderPopup(v.packages.filter(function (p) { return p.justCompleted; })[0]) + renderToast(extras.toast);
   }
   function errorState(code, message) {
@@ -458,7 +507,10 @@
         try {
           var startResponse = await fetch('/api/learning/v2/packages/' + encodeURIComponent(advanceButton.dataset.popupAdvance) +
             '/start', { method: 'POST', headers: window.JlasAuth.authHeaders() });
+          var startBody = await startResponse.json().catch(function () { return {}; });
           if (!startResponse.ok) { advanceButton.disabled = false; return; }
+          var nextHref = startedPackageStudyHref(startBody.data);
+          if (nextHref) { window.location.href = nextHref; return; }
           closePopup();
           await load();
         } catch (e) { advanceButton.disabled = false; }
@@ -468,7 +520,11 @@
       var button = event.target.closest('[data-start-package]'); if (!button) return;
       button.disabled = true;
       try { var response = await fetch('/api/learning/v2/packages/' + encodeURIComponent(button.dataset.startPackage) + '/start', { method: 'POST', headers: window.JlasAuth.authHeaders() });
-        if (!response.ok) { var body = await response.json(); node.innerHTML = errorState(body.code, body.message); return; } await load(); }
+        var body = await response.json().catch(function () { return {}; });
+        if (!response.ok) { node.innerHTML = errorState(body.code, body.message); return; }
+        var studyHref = startedPackageStudyHref(body.data);
+        if (studyHref) { window.location.href = studyHref; return; }
+        await load(); }
       catch (e) { node.innerHTML = errorState(null, 'Không thể bắt đầu ngày học.'); }
     });
     node.addEventListener('keydown', function (event) {
@@ -490,5 +546,6 @@
   return { viewModel: viewModel, render: render, mount: mount, modesFor: modesFor, renderStageProgress: renderStageProgress,
     renderMockGate: renderMockGate, renderPaceControls: renderPaceControls, renderPaceDialog: renderPaceDialog,
     paceRequestBody: paceRequestBody, renderToast: renderToast, nextFocusIndex: nextFocusIndex, popupModel: popupModel, renderPopup: renderPopup, errorState: errorState,
-    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId, pathCreationRequest: pathCreationRequest };
+    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId, pathCreationRequest: pathCreationRequest,
+    startedPackageStudyHref: startedPackageStudyHref };
 });

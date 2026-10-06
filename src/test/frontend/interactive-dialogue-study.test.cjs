@@ -116,9 +116,10 @@ test('progress panel marks both evidence items done only when both are true', ()
 });
 
 test('renders a completion state with a return-to-roadmap action', () => {
-  const html = page.renderCompleted();
+  const html = page.renderCompleted(17);
   assert.match(html, /Phần Hội thoại đã đạt/);
   assert.match(html, /href="\/learning\/path\/v2"/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=17&amp;mode=review/);
 });
 
 test('error state renders a retry affordance', () => {

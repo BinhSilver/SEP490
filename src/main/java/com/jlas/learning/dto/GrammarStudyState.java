@@ -17,10 +17,19 @@ public record GrammarStudyState(
         int totalPoints,
         int gateSatisfiedCount,
         boolean checkEligible,
-        List<GrammarPointView> points
+        List<GrammarPointView> points,
+        /** [JLAS-W0125] "Phần x / n" among Grammar parts of the package; 1/1 when not split. */
+        int partIndex,
+        int partCount
 ) {
     public GrammarStudyState {
         points = List.copyOf(points);
+    }
+    public GrammarStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
+            String sourceRevision, int totalPoints, int gateSatisfiedCount, boolean checkEligible,
+            List<GrammarPointView> points) {
+        this(activityId, activityType, activityState, sourceRevision, totalPoints, gateSatisfiedCount, checkEligible,
+                points, 1, 1);
     }
 
     /** Only fields with real, approved {@code grammar_point} data are ever populated. {@code usageNote} and

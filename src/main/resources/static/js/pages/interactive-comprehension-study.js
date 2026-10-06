@@ -137,14 +137,16 @@
       '</section>';
   }
 
-  function renderResult(result, activityType) {
+  function renderResult(result, activityType, activityId) {
     var passed = !!result.passed;
     var fullyPassed = passed && result.activityState === 'PASSED';
     var isListening = activityType === 'LISTENING';
     var wrong = list(result.review).filter(function (r) { return r.correct === false; });
     var cooldown = result.activityState === 'COOLDOWN';
     var actionHtml = fullyPassed
-      ? '<a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>'
+      ? (num(activityId) > 0 ? '<a class="ilp-check" href="/learning/v2/' + (isListening ? 'listening' : 'reading') +
+        '?activity=' + encodeURIComponent(activityId) + '&amp;mode=review">Xem lại bài học</a>' : '') +
+        '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a>'
       : passed
         ? '<button class="ilp-check" type="button" data-next-exercise>Bài tiếp theo <span aria-hidden="true">→</span></button>'
         : '<button class="ilp-check" type="button" data-back-to-study>Quay lại bài</button>';
@@ -228,6 +230,7 @@
     var evidenceSent = false;
     var evidenceObserver = null;
     var StudyMode = window.InteractiveStudyMode;
+    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions(fallbackPath, id, ['REVIEW', 'PRACTICE']) : '';
 
@@ -329,7 +332,9 @@
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
-        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result, currentType);
+        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result, currentType, id);
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+          await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
     });

@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +127,8 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
                     value(e, VocabularyEntry::getExampleVi), c.flipped(), c.remembered());
         }).toList();
         return new VocabularyStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
-                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards);
+                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
+                s.partIndex(), s.partCount());
     }
 
     private static String value(VocabularyEntry entry, java.util.function.Function<VocabularyEntry, String> getter) {
@@ -171,11 +174,15 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
                 specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, m), selectCorrect(type, m),
                         selectDistractors(type, m, batch)));
             }
-            for (int i = 0; i < batch.size(); i++) {
-                VocabularyEntry m = batch.get(i);
-                specs.add(optionQuestion(qid++, i + variationSeed, "MATCHING",
-                        "Ghép từ “" + m.getExpression() + "” với nghĩa đúng.", m.getMeaning(),
-                        batch.stream().map(VocabularyEntry::getMeaning).toList()));
+            List<String> meanings = batch.stream().map(VocabularyEntry::getMeaning).toList();
+            if (meanings.size() >= 2 && meanings.stream().allMatch(value -> value != null && !value.isBlank())
+                    && new HashSet<>(meanings).size() == meanings.size()) {
+                List<String> commonOptions = new ArrayList<>(meanings);
+                Collections.rotate(commonOptions, (variationSeed + batchIndex + 1) % commonOptions.size());
+                for (VocabularyEntry word : batch) {
+                    specs.add(new QuestionSpec(qid++, "MATCHING", word.getExpression(),
+                            commonOptions, commonOptions.indexOf(word.getMeaning()) + 1, word.getMeaning()));
+                }
             }
             return specs;
         }

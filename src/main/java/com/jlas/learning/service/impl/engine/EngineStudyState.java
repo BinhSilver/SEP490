@@ -17,7 +17,10 @@ public record EngineStudyState<T>(
         int rememberedCount,
         int reviewRemaining,
         boolean checkEligible,
-        List<EngineCard<T>> cards
+        List<EngineCard<T>> cards,
+        /** [JLAS-W0125] Position among same-skill parts of the package; 1/1 when the skill is not split. */
+        int partIndex,
+        int partCount
 ) {
     public EngineStudyState {
         cards = List.copyOf(cards);

@@ -30,6 +30,11 @@ public final class InteractiveSessionProjector {
         List<InteractiveLearningSessionResponse> result = new ArrayList<>();
         boolean previousComplete = true;
         int groupCount = (int) ORDER.stream().filter(type -> !group(type, activities).isEmpty()).count();
+        boolean activityEstimatesMatchPackage = activities != null && !activities.isEmpty()
+                && activities.stream().allMatch(activity -> activity.estimatedMinutes() != null
+                        && activity.estimatedMinutes() > 0)
+                && activities.stream().mapToInt(InteractiveLearningActivityResponse::estimatedMinutes).sum()
+                        == packageMinutes;
         int perGroupMinutes = groupCount == 0 ? 0 : Math.max(1, packageMinutes / groupCount);
 
         for (LearningSessionType type : ORDER) {
@@ -60,6 +65,9 @@ public final class InteractiveSessionProjector {
 
             Map<String, Integer> counts = countsFor(type, memberCounts, references);
             int contentCount = counts.values().stream().mapToInt(Integer::intValue).sum();
+            int groupMinutes = activityEstimatesMatchPackage
+                    ? children.stream().mapToInt(InteractiveLearningActivityResponse::estimatedMinutes).sum()
+                    : perGroupMinutes;
             List<ReferenceVocabularyResponse> referenceWords = type == LearningSessionType.KANJI_GRAMMAR
                     ? safe(references) : List.of();
             List<String> actions = switch (state) {
@@ -69,7 +77,7 @@ public final class InteractiveSessionProjector {
                 case COMPLETED -> List.of("REVIEW", "PRACTICE");
             };
             result.add(new InteractiveLearningSessionResponse(type, state, children, actions, counts,
-                    contentCount, perGroupMinutes, referenceWords, blockedReason));
+                    contentCount, groupMinutes, referenceWords, blockedReason));
             previousComplete = complete;
         }
         return List.copyOf(result);

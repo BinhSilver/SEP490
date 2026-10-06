@@ -183,6 +183,8 @@ class InteractiveStudyEngineTest {
         assertEquals(1, feedback.get(1).batchIndex());
         assertFalse(feedback.get(0).review().isEmpty());
         assertEquals("what is w1", feedback.get(0).review().get(0).questionText());
+        assertEquals("a", feedback.get(0).review().get(0).correctAnswerText());
+        assertEquals("a", feedback.get(0).review().get(0).selectedAnswerText());
         verify(quizSessions, never()).save(any());
         verifyNoInteractions(checkStates, studySessions, studyCards);
     }
@@ -237,7 +239,12 @@ class InteractiveStudyEngineTest {
     }
 
     @Test
-    void practiceRejectsALegacyBatchWithoutAFrozenSourceSnapshot() {
+    void readingPracticeRejectsALegacyBatchWithoutAFrozenSourceSnapshot() {
+        activity.setActivityType(LearningActivityType.READING);
+        engine = new InteractiveStudyEngine<>(items, members, studySessions, studyCards, checkStates, quizSessions,
+                new LearningMapper(), new StringAdapter() {
+                    @Override public LearningActivityType activityType() { return LearningActivityType.READING; }
+                });
         LearningQuizSession legacy = submitted(41L, 0, 90, "2026-09-02T10:00:00");
         when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
                 ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED")).thenReturn(List.of(legacy));
@@ -247,6 +254,21 @@ class InteractiveStudyEngineTest {
 
         assertEquals("SOURCE_SNAPSHOT_UNAVAILABLE", error.getErrorCode().name());
         verify(quizSessions, never()).save(any());
+    }
+
+    @Test
+    void vocabularyReplayNeedsStoredQuestionsAndKeyButNotAPassageSnapshot() {
+        var original = originalBatch(0, 1, 2);
+        original.setSourceSnapshotJson(null);
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                ACTIVITY, "VOCAB_MICRO_CHECK", "SUBMITTED")).thenReturn(List.of(original));
+
+        var issued = engine.issuePractice(USER, ACTIVITY);
+
+        assertEquals(2, issued.questions().size());
+        assertEquals("what is w1", issued.questions().getFirst().questionText());
+        assertEquals(LearningActivityState.PASSED, activity.getActivityState());
+        verifyNoInteractions(checkStates, studyCards, studySessions);
     }
 
     @Test

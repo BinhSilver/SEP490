@@ -1,7 +1,7 @@
 /* [JLAS-W0193] FE V2 restyle — roadmap page (spec docs/superpowers/specs/2026-09-28-interactive-learning-path-v2-design.md §10.3).
    Uses the shared --lp-* tokens from /css/learning-v2-tokens.css. Only real API fields are rendered;
    no XP/streak/download widgets are added here (none exist in InteractiveLearningPathResponse). */
-.ilp-body { background: var(--lp-canvas); color: var(--lp-ink); }
+.ilp-body { --jlab-base-page-background: var(--lp-canvas); background: var(--lp-canvas); color: var(--lp-ink); }
 .ilp-page { max-width: 1320px; margin: auto; padding: 34px 24px 80px; font-family: var(--font-body); }
 
 .ilp-breadcrumb { display: flex; gap: 10px; align-items: center; color: var(--lp-muted); font: 600 12px/1.4 var(--font-mono); text-transform: uppercase; margin-bottom: 24px; }
@@ -46,8 +46,9 @@
 .ilp-activity { display: flex; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid var(--lp-line); }
 .ilp-activity:last-child { border-bottom: 0; }
 .ilp-activity__mark { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--lp-radius-chip); background: var(--lp-canvas); color: var(--lp-muted); font: 700 11px var(--font-mono); }
-.ilp-activity span:last-child { display: grid; }
-.ilp-activity__link { display: flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; flex: 1; }
+.ilp-activity > span:has(> strong), .ilp-activity__link > span:has(> strong) { display: grid; gap: 4px; min-width: 0; }
+.ilp-activity__cta { margin-left: auto; padding: 10px 14px; border-radius: var(--lp-radius-interactive); background: var(--lp-purple); color: #fff; font-weight: 700; flex-shrink: 0; }
+.ilp-activity__link { display: flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; flex: 1; min-width: 0; flex-wrap: wrap; }
 .ilp-activity__link:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 3px; border-radius: var(--lp-radius-interactive); }
 .ilp-activity small { color: var(--lp-muted); margin-top: 2px; }
 .ilp-activity.is-done .ilp-activity__mark { background: var(--lp-lime-soft); color: var(--lp-on-lime-soft); }
@@ -217,3 +218,14 @@
 .ilp-summary-study li span { display: flex; gap: 8px; }
 .ilp-summary-study a { min-height: 36px; display: inline-flex; align-items: center; padding: 4px 14px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); color: var(--lp-purple); font-weight: 700; text-decoration: none; }
 .ilp-summary-study a:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 2px; }
+
+/* Read-only Smart Test targets below the five-item activity threshold. */
+.ilp-review-only { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.6fr); gap: 24px; margin: 24px 0; padding: 24px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-review-only h2 { margin: 6px 0 8px; font-size: 22px; }
+.ilp-review-only p { margin: 0; color: var(--lp-muted); }
+.ilp-review-only__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ilp-review-only__groups section { min-width: 0; padding: 16px; border-radius: var(--lp-radius-interactive); background: var(--lp-canvas); }
+.ilp-review-only__groups h3 { margin: 0 0 10px; font-size: 15px; }
+.ilp-review-only__groups ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ilp-review-only__groups li { padding: 6px 10px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); background: var(--lp-surface); font-weight: 700; }
+@media (max-width: 700px) { .ilp-review-only { grid-template-columns: 1fr; padding: 18px; } }

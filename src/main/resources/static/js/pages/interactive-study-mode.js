@@ -46,6 +46,30 @@
 
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
 
+  // A fresh, browser-local review queue. Never send these flags to the study/progress API.
+  function rehearsal(source) {
+    var cards = (source.cards || []).map(function (card) {
+      return Object.assign({}, card, { flipped: false, remembered: false });
+    });
+    return Object.assign({}, source, { cards: cards, totalCards: cards.length,
+      rememberedCount: 0, flippedCount: 0, reviewRemaining: cards.length, checkEligible: false });
+  }
+
+  function rehearseCard(state, memberId, action, remembered) {
+    var card = state.cards.find(function (item) { return String(item.memberId) === String(memberId); });
+    if (!card) return state;
+    if (action === 'flip') card.flipped = true;
+    if (action === 'remember' && card.flipped) {
+      card.remembered = remembered === true;
+      if (!card.remembered) card.flipped = false;
+    }
+    state.flippedCount = state.cards.filter(function (item) { return item.flipped; }).length;
+    state.rememberedCount = state.cards.filter(function (item) { return item.remembered; }).length;
+    state.reviewRemaining = state.cards.length - state.rememberedCount;
+    state.checkEligible = state.cards.length > 0 && state.reviewRemaining === 0;
+    return state;
+  }
+
   /** Result of a replay: score only. No attempts, cooldown or review gate - the server keeps none for a replay. */
   function practiceResult(result) {
     result = result || {};
@@ -75,9 +99,13 @@
     }
     return '<section class="ilp-feedback" aria-label="Kết quả các lượt làm bài">' + feedback.map(function (batch) {
       var items = (Array.isArray(batch.review) ? batch.review : []).map(function (r) {
+        var correctText = r.correctAnswerText != null ? r.correctAnswerText :
+          (r.correctOption != null ? 'Không có nội dung đáp án trong lượt lưu này' : null);
+        var selectedText = r.selectedOption == null ? 'bạn bỏ trống' :
+          ('bạn chọn: ' + (r.selectedAnswerText != null ? r.selectedAnswerText : 'Không có nội dung lựa chọn trong lượt lưu này'));
         return '<li class="' + (r.correct ? 'is-correct' : 'is-wrong') + '"><span>' + esc(r.questionText || ('Câu ' + r.questionId)) +
-          '</span><small>' + (r.correct ? 'Đúng' : 'Sai') + (r.correctOption != null ? ' · đáp án đúng: ' + esc(r.correctOption) : '') +
-          (r.selectedOption != null ? ' · bạn chọn: ' + esc(r.selectedOption) : ' · bạn bỏ trống') +
+          '</span><small>' + (r.correct ? 'Đúng' : 'Sai') + (correctText != null ? ' · đáp án đúng: ' + esc(correctText) : '') +
+          ' · ' + esc(selectedText) +
           (r.explanation ? ' · ' + esc(r.explanation) : '') + '</small></li>';
       }).join('');
       return '<article class="ilp-feedback__batch" data-feedback-batch="' + num(batch.batchIndex) + '"><h2>Phần ' +
@@ -86,6 +114,93 @@
     }).join('') + '</section>';
   }
 
+  var STUDY_PAGES = { VOCABULARY: '/learning/v2/vocabulary', KANJI: '/learning/v2/kanji',
+    GRAMMAR: '/learning/v2/grammar', DIALOGUE: '/learning/v2/dialogue',
+    READING: '/learning/v2/reading', LISTENING: '/learning/v2/listening', FOUNDATION: '/learning/v2/foundation' };
+  function ordered(items) {
+    return (Array.isArray(items) ? items : []).slice().sort(function (a, b) {
+      return num(a.orderIndex) - num(b.orderIndex);
+    });
+  }
+  function activeHref(activity) {
+    if (!activity || ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(activity.state) < 0 ||
+        !STUDY_PAGES[activity.type] || !Number.isSafeInteger(Number(activity.id)) || Number(activity.id) <= 0) return null;
+    return STUDY_PAGES[activity.type] + '?activity=' + encodeURIComponent(activity.id);
+  }
+  /** Only the refreshed server path can nominate the next lesson; locked activities have no URL. */
+  function nextStudyAction(path, currentActivityId) {
+    var packages = ordered(path && path.packages);
+    var currentPackage = packages.findIndex(function (pkg) {
+      return ordered(pkg.activities).some(function (activity) { return String(activity.id) === String(currentActivityId); });
+    });
+    if (currentPackage < 0) return null;
+    for (var i = currentPackage; i < packages.length; i++) {
+      var pkg = packages[i];
+      if (pkg.status === 'LOCKED') return null;
+      var activities = ordered(pkg.activities);
+      var after = i === currentPackage ? activities.findIndex(function (activity) {
+        return String(activity.id) === String(currentActivityId);
+      }) + 1 : 0;
+      for (var j = after; j < activities.length; j++) {
+        var href = activeHref(activities[j]);
+        if (href && pkg.status === 'IN_PROGRESS') return { href: href };
+      }
+      if (i > currentPackage && pkg.status === 'AVAILABLE' && Number.isSafeInteger(Number(pkg.id)) && Number(pkg.id) > 0) {
+        return { startPackageId: pkg.id };
+      }
+    }
+    return null;
+  }
+  function nextActionHtml(action) {
+    if (!action) return '';
+    if (action.href) return '<a class="ilp-check" href="' + esc(action.href) + '">Học bài tiếp theo</a>';
+    if (action.startPackageId) return '<button class="ilp-check" type="button" data-study-next-package="' +
+      esc(action.startPackageId) + '">Học bài tiếp theo</button>';
+    return '';
+  }
+  async function showNextAction(node, currentActivityId) {
+    if (!node || !window.JlasAuth) return;
+    try {
+      var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() });
+      if (!response.ok) return;
+      var body = await response.json();
+      var action = nextStudyAction(body.data, currentActivityId);
+      var actions = node.querySelector('.ilp-result__actions');
+      if (actions && action && !actions.querySelector('[data-study-next-package], a[href="' + action.href + '"]')) {
+        actions.insertAdjacentHTML('afterbegin', nextActionHtml(action));
+      }
+    } catch (ignored) { /* The existing roadmap link remains the safe fallback. */ }
+  }
+  function bindNextAction(node) {
+    if (!node || !window.JlasAuth) return;
+    node.addEventListener('click', async function (event) {
+      var button = event.target.closest('[data-study-next-package]');
+      if (!button || !node.contains(button) || button.disabled) return;
+      button.disabled = true;
+      try {
+        var response = await fetch('/api/learning/v2/packages/' + encodeURIComponent(button.dataset.studyNextPackage) +
+          '/start', { method: 'POST', headers: window.JlasAuth.authHeaders() });
+        var body = await response.json();
+        if (!response.ok) throw new Error(body.message || 'Chưa thể mở bài tiếp theo.');
+        var next = ordered(body.data && body.data.activities).map(activeHref).find(Boolean);
+        window.location.href = next || '/learning/path/v2';
+      } catch (error) {
+        button.disabled = false;
+        var note = node.querySelector('[data-study-next-error]');
+        if (!note) {
+          note = document.createElement('p');
+          note.setAttribute('data-study-next-error', '');
+          note.setAttribute('role', 'alert');
+          button.insertAdjacentElement('afterend', note);
+        }
+        note.textContent = error.message;
+      }
+    });
+  }
+
   return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, passedActions: passedActions,
-    practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList };
+    practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList,
+    rehearsal: rehearsal, rehearseCard: rehearseCard,
+    nextStudyAction: nextStudyAction, nextActionHtml: nextActionHtml,
+    showNextAction: showNextAction, bindNextAction: bindNextAction };
 });

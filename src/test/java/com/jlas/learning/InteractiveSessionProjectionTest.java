@@ -76,6 +76,24 @@ class InteractiveSessionProjectionTest {
         assertEquals("Hoàn thành package trước.",sessions.getFirst().blockedReason());
     }
 
+    @Test void sessionDurationsUseTheirActualActivityEstimatesWhenTheySumToThePackageBudget(){
+        var activities=List.of(
+                new InteractiveLearningActivityResponse(1L,LearningActivityType.VOCABULARY,
+                        LearningActivityState.STUDYING,1,null,null,8),
+                new InteractiveLearningActivityResponse(2L,LearningActivityType.KANJI,
+                        LearningActivityState.LOCKED,2,null,null,5),
+                new InteractiveLearningActivityResponse(3L,LearningActivityType.GRAMMAR,
+                        LearningActivityState.LOCKED,3,null,null,7),
+                new InteractiveLearningActivityResponse(4L,LearningActivityType.DIALOGUE,
+                        LearningActivityState.LOCKED,4,null,null,10));
+
+        var sessions=projector.project(LearningPackageStatus.IN_PROGRESS,null,activities,counts(0,1,1,1),List.of(),30);
+
+        assertEquals(List.of(8,12,10),sessions.stream()
+                .map(InteractiveLearningSessionResponse::estimatedMinutes).toList());
+        assertEquals(30,sessions.stream().mapToInt(InteractiveLearningSessionResponse::estimatedMinutes).sum());
+    }
+
     private InteractiveLearningActivityResponse activity(long id,LearningActivityType type,LearningActivityState state,int order){
         return new InteractiveLearningActivityResponse(id,type,state,order,null,null);
     }

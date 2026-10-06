@@ -100,7 +100,8 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         }
         boolean checkEligible = !membership.isEmpty() && satisfied == membership.size();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
-                membership.getFirst().getSourceRevision(), membership.size(), satisfied, checkEligible, views);
+                membership.getFirst().getSourceRevision(), membership.size(), satisfied, checkEligible, views,
+                LearningActivityParts.index(activity, items), LearningActivityParts.count(activity, items));
     }
 
     @Override
@@ -118,7 +119,8 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                         currentProgress(activityId, member))).toList();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 membership.getFirst().getSourceRevision(), membership.size(),
-                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false, views);
+                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false, views,
+                LearningActivityParts.index(activity, items), LearningActivityParts.count(activity, items));
     }
 
     @Override
@@ -424,15 +426,26 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                 String meaningSummary = meaningParts[0];
                 String exampleJapanese = exampleParts[0];
 
+                List<GrammarPoint> distractorPool = new ArrayList<>(batch);
+                if (point.getLesson() != null && point.getLesson().getId() != null) {
+                    grammarPoints.findByLessonIdOrderByOrderIndexAsc(point.getLesson().getId()).stream()
+                            .filter(candidate -> candidate.getId() == null || !candidate.getId().equals(point.getId()))
+                            .forEach(distractorPool::add);
+                }
+
                 if (meaningSummary != null) {
-                    List<String> distractors = batch.stream().map(b -> splitFirstLine(b.getMeaning())[0]).toList();
-                    specs.add(optionQuestion(qid++, i + variationSeed, "MEANING_MATCH",
-                            "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors));
+                    List<String> distractors = distractorPool.stream()
+                            .map(b -> splitFirstLine(b.getMeaning())[0]).toList();
+                    QuestionSpec question = optionQuestion(qid, i + variationSeed, "MEANING_MATCH",
+                            "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors);
+                    if (question != null) { specs.add(question); qid++; }
                 }
                 if (exampleJapanese != null) {
-                    List<String> distractors = batch.stream().map(b -> splitFirstLine(b.getExample())[0]).toList();
-                    specs.add(optionQuestion(qid++, i + variationSeed, "USAGE_SELECT",
-                            "Câu nào dùng đúng mẫu “" + point.getPattern() + "”?", exampleJapanese, distractors));
+                    List<String> distractors = distractorPool.stream()
+                            .map(b -> splitFirstLine(b.getExample())[0]).toList();
+                    QuestionSpec question = optionQuestion(qid, i + variationSeed, "USAGE_SELECT",
+                            "Câu nào dùng đúng mẫu “" + point.getPattern() + "”?", exampleJapanese, distractors);
+                    if (question != null) { specs.add(question); qid++; }
                 }
             }
             return specs;
@@ -447,6 +460,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
             }
             List<String> options = new ArrayList<>(set);
             int size = Math.min(4, options.size());
+            if (size < 2) return null;
             options = new ArrayList<>(options.subList(0, size));
             int rotate = rotateSeed % size;
             List<String> rotated = new ArrayList<>(size);
