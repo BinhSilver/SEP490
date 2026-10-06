@@ -64,7 +64,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         List<ComprehensionContent> batch = batches.get(selected);
         var exercise = batch.getFirst().exercise();
         var source = activity.getActivityType() == LearningActivityType.READING
-                ? new ComprehensionExerciseSource(exercise.source(), null)
+                ? new ComprehensionExerciseSource(exercise.displaySource(), null)
                 : new ComprehensionExerciseSource(null, exercise.source());
         List<ComprehensionStudyQuestion> questions = batch.stream()
                 .map(content -> new ComprehensionStudyQuestion(content.question().id(),

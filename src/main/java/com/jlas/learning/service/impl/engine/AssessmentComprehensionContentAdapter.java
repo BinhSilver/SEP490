@@ -92,8 +92,9 @@ public final class AssessmentComprehensionContentAdapter implements InteractiveC
     @Override
     public String sourceSnapshotJson(List<ComprehensionContent> batch, int batchIndex, String sourceRevision) {
         String source = batch.getFirst().exercise().source();
+        // Replay shows what the learner read: the passage with its paragraph breaks (not part of any revision).
         var frozen = type == LearningActivityType.READING
-                ? new com.jlas.learning.dto.ComprehensionExerciseSource(source, null)
+                ? new com.jlas.learning.dto.ComprehensionExerciseSource(batch.getFirst().exercise().displaySource(), null)
                 : new com.jlas.learning.dto.ComprehensionExerciseSource(null, source);
         return ComprehensionSourceSnapshot.toJson(type, batchIndex, sourceRevision, frozen);
     }

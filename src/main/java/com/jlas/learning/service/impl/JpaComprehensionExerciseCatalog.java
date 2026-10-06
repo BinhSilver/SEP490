@@ -64,8 +64,9 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
             }
             String identity = nullSafe(outcome) + "|" + nullSafe(topic);
             String fingerprint = sha256(normalizedSkill + "|" + normalizedLevel + "|" + identity + "|" + source);
+            String display = normalizedSkill.equals("READING") ? displayPassage(row.getPassageHtml()) : source;
             groups.computeIfAbsent(fingerprint,
-                    ignored -> new Group(fingerprint, source, outcome, topic, new ArrayList<>())).questions.add(question);
+                    ignored -> new Group(fingerprint, source, display, outcome, topic, new ArrayList<>())).questions.add(question);
         }
 
         List<ComprehensionExercise> exercises = new ArrayList<>();
@@ -78,7 +79,8 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
             String revisionMaterial = group.fingerprint + group.questions.stream()
                     .map(this::revisionPart).reduce("", (left, right) -> left + "|" + right);
             exercises.add(new ComprehensionExercise(group.fingerprint, normalizedSkill, normalizedLevel,
-                    group.source, group.outcome, group.topic, group.questions, sha256(revisionMaterial)));
+                    group.source, group.outcome, group.topic, group.questions, sha256(revisionMaterial),
+                    group.display));
         });
         gaps.sort(Comparator.comparing(CatalogGap::canonicalRef).thenComparing(CatalogGap::reasonCode));
         return new CatalogResult(exercises, gaps);
@@ -125,6 +127,23 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
         value = value.replaceAll("(?is)<(script|style)[^>]*>.*?</\\1>", " ")
                 .replaceAll("(?s)<[^>]+>", " ");
         return trimToNull(normalizeSpace(value));
+    }
+
+    /** Same text as {@link #sanitizePassage} but with paragraph and line breaks kept for display only. It never feeds
+     * the fingerprint, so existing exercises and their revisions are unchanged. */
+    private String displayPassage(String html) {
+        String value = trimToNull(html);
+        if (value == null) return null;
+        value = HtmlUtils.htmlUnescape(value);
+        value = value.replaceAll("(?is)<(script|style)[^>]*>.*?</\\1>", " ")
+                .replaceAll("(?i)<br\\s*/?>|</p\\s*>", "\n")
+                .replaceAll("(?s)<[^>]+>", " ");
+        StringBuilder out = new StringBuilder();
+        for (String line : value.split("\n")) {
+            String text = trimToNull(normalizeSpace(line));
+            if (text != null) out.append(out.length() == 0 ? "" : "\n").append(text);
+        }
+        return out.length() == 0 ? null : out.toString();
     }
 
     /** Validation is local and side-effect free: the catalog never fetches learner-controlled media. */
@@ -174,6 +193,6 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
         }
     }
 
-    private record Group(String fingerprint, String source, String outcome, String topic,
+    private record Group(String fingerprint, String source, String display, String outcome, String topic,
             List<ComprehensionQuestionSpec> questions) { }
 }
