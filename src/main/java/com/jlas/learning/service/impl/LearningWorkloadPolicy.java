@@ -1,5 +1,7 @@
 package com.jlas.learning.service.impl;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningMemberType;
 
@@ -80,7 +82,19 @@ public final class LearningWorkloadPolicy {
             result.add(List.copyOf(ids.subList(offset, offset + size)));
             offset += size;
         }
+        if (groupCount > 1 && requiresSameBatchDistractor(type)
+                && result.stream().anyMatch(group -> group.size() < 2)) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "Không thể chia " + type + " theo ngân sách " + dailyMinutes
+                            + " phút mà vẫn có đủ lựa chọn cho bài kiểm tra.");
+        }
         return List.copyOf(result);
+    }
+
+    private static boolean requiresSameBatchDistractor(LearningActivityType type) {
+        return type == LearningActivityType.FOUNDATION
+                || type == LearningActivityType.VOCABULARY
+                || type == LearningActivityType.KANJI;
     }
 
     private static int divideCeiling(int numerator, int denominator) {

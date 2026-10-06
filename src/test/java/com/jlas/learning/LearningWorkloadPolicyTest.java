@@ -1,5 +1,7 @@
 package com.jlas.learning;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.service.impl.LearningWorkloadPolicy;
 import org.junit.jupiter.api.Test;
@@ -60,5 +62,27 @@ class LearningWorkloadPolicyTest {
                 () -> policy.estimateMinutes(null, 3));
         assertThrows(IllegalArgumentException.class,
                 () -> policy.partition(LearningActivityType.VOCABULARY, List.of(1L), 0));
+    }
+
+    @Test
+    void rejectsQuizBearingPartitionWhenTheDailyBudgetWouldLeaveASingletonBatch() {
+        var error = assertThrows(ApiException.class, () -> policy.partition(LearningActivityType.KANJI,
+                List.of(1L, 2L, 3L, 4L, 5L), 5));
+
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+        assertTrue(error.getMessage().contains("KANJI"));
+    }
+
+    @Test
+    void preservesOrderAndQuizFeasibilityAtApprovedBoundarySizes() {
+        assertEquals(List.of(2, 2), policy.partition(LearningActivityType.KANJI,
+                LongStream.rangeClosed(1, 4).boxed().toList(), 5).stream().map(List::size).toList());
+
+        for (int count : List.of(54, 61)) {
+            var ids = LongStream.rangeClosed(1, count).boxed().toList();
+            var groups = policy.partition(LearningActivityType.KANJI, ids, 30);
+            assertEquals(ids, groups.stream().flatMap(List::stream).toList());
+            assertTrue(groups.stream().allMatch(group -> group.size() >= 2 && group.size() <= 15));
+        }
     }
 }
