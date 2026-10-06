@@ -147,27 +147,31 @@ public class FoundationWarmUpComposerImpl implements FoundationWarmUpComposer {
                                 ? LearningPackageStatus.AVAILABLE : LearningPackageStatus.LOCKED)
                         .estimatedMinutes(segment.estimatedMinutes())
                         .build());
-                var plan = segment.activities().getFirst();
-                int next = ++itemOrder;
-                var activity = items.save(UserLearningPathItem.builder()
-                        .learningPath(path)
-                        .learningPackage(pkg)
-                        .lesson(lesson)
-                        .orderIndex(next)
-                        .phase("WARM_UP")
-                        .dayNumber(dayNumber)
-                        .estimatedMinutes(plan.estimatedMinutes())
-                        .activityType(LearningActivityType.FOUNDATION)
-                        .activityState(LearningActivityState.LOCKED)
-                        .build());
-                List<LearningActivityMember> rows = new ArrayList<>();
-                int index = 0;
-                for (Long id : plan.memberIds()) {
-                    rows.add(LearningActivityMember.builder().activity(activity)
-                            .memberType(LearningMemberType.FOUNDATION_CHARACTER)
-                            .canonicalId(id).orderIndex(++index).sourceRevision(revision).build());
+                // Every part the packer put into this day is saved (UAT 2026-10-06: only the first was, dropping kana),
+                // numbered 1..n for uk(package, activity_type, part_index).
+                int partIndex = 0;
+                for (var plan : segment.activities()) {
+                    int next = ++itemOrder;
+                    var activity = items.save(UserLearningPathItem.builder()
+                            .learningPath(path)
+                            .learningPackage(pkg)
+                            .lesson(lesson)
+                            .orderIndex(next).partIndex(++partIndex)
+                            .phase("WARM_UP")
+                            .dayNumber(dayNumber)
+                            .estimatedMinutes(plan.estimatedMinutes())
+                            .activityType(LearningActivityType.FOUNDATION)
+                            .activityState(LearningActivityState.LOCKED)
+                            .build());
+                    List<LearningActivityMember> rows = new ArrayList<>();
+                    int index = 0;
+                    for (Long id : plan.memberIds()) {
+                        rows.add(LearningActivityMember.builder().activity(activity)
+                                .memberType(LearningMemberType.FOUNDATION_CHARACTER)
+                                .canonicalId(id).orderIndex(++index).sourceRevision(revision).build());
+                    }
+                    members.saveAll(rows);
                 }
-                members.saveAll(rows);
                 packagesCreated++;
             }
         }

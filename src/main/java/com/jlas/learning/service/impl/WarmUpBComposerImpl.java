@@ -160,11 +160,13 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
             var pkg = buildPackage(path, stageId, dayNumber, ++packageOrder,
                     warmUpTitle(vocabulary, kanji, grammar, grammarContinuation),
                     segment.estimatedMinutes(), isFirstPackageOverall && packagesCreated == 0);
+            // uk(package, activity_type, part_index): same-type parts of one package are numbered 1..n.
+            Map<LearningActivityType, Integer> parts = new java.util.EnumMap<>(LearningActivityType.class);
             for (var activity : segment.activities()) {
                 itemOrder = saveActivity(path, pkg, activity.activityType(), activity.memberType(),
                         activity.memberIds(), revision, activity.estimatedMinutes(), itemOrder,
                         reasonCode(activity.activityType()), reasonText(reasonLabel(activity.activityType()),
-                                activity.memberIds().size()), dayNumber);
+                                activity.memberIds().size()), dayNumber, parts.merge(activity.activityType(), 1, Integer::sum));
             }
             packagesCreated++;
         }
@@ -429,12 +431,13 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
 
     private int saveActivity(UserLearningPath path, LearningPathPackage pkg, LearningActivityType type,
             LearningMemberType memberType, List<Long> ids, String revision, int estimatedMinutes, int globalOrder,
-            String reasonCode, String reasonText, int dayNumber) {
+            String reasonCode, String reasonText, int dayNumber, int partIndex) {
         int next = globalOrder + 1;
         var activity = items.save(UserLearningPathItem.builder()
                 .learningPath(path)
                 .learningPackage(pkg)
                 .orderIndex(next)
+                .partIndex(partIndex)
                 .phase("WARM_UP")
                 .dayNumber(dayNumber)
                 .estimatedMinutes(estimatedMinutes)

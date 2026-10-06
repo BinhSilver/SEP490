@@ -79,6 +79,34 @@ class FoundationWarmUpComposerTest {
         });
     }
 
+    /** UAT 2026-10-06: when the packer puts two Foundation parts into one day, every part must be saved (only the
+     * first used to be, silently dropping kana) and each gets its own part_index for uk(package, type, part). */
+    @Test void twoFoundationPartsInOneDayAreBothSavedAsNumberedParts(){
+        var path = path();
+        path.setMinutesPerDay(30);
+        when(textbooks.findKanaFoundationByStatus("PUBLISHED"))
+                .thenReturn(List.of(Textbook.builder().id(3L).build()));
+        var lesson = kanaLesson(51L, "Bài 1");
+        when(lessons.findByTextbookIdAndStatus(3L, "PUBLISHED")).thenReturn(List.of(lesson));
+        var characters = java.util.stream.LongStream.rangeClosed(1,30)
+                .mapToObj(id -> character(id, "k" + id, "あ" + id)).toList();
+        when(contentItems.findByLessonIdAndContentType(51L, "READING")).thenReturn(characters);
+
+        composer.composeFoundation(path, profile("BELOW_N5"));
+
+        var memberCaptor = ArgumentCaptor.forClass(List.class);
+        verify(members, atLeastOnce()).saveAll(memberCaptor.capture());
+        assertEquals(characters.stream().map(ContentItem::getId).toList(), memberCaptor.getAllValues().stream()
+                .flatMap(List::stream).map(member -> ((LearningActivityMember) member).getCanonicalId()).toList());
+        var itemCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items, atLeastOnce()).save(itemCaptor.capture());
+        var byPackage = itemCaptor.getAllValues().stream().collect(java.util.stream.Collectors.groupingBy(
+                i -> i.getLearningPackage().getOrderIndex(), java.util.LinkedHashMap::new,
+                java.util.stream.Collectors.mapping(UserLearningPathItem::getPartIndex, java.util.stream.Collectors.toList())));
+        byPackage.values().forEach(parts -> assertEquals(
+                java.util.stream.IntStream.rangeClosed(1, parts.size()).boxed().toList(), parts, byPackage.toString()));
+    }
+
     private UserLearningPath path() {
         return UserLearningPath.builder().id(5L).user(User.builder().id(7L).build())
                 .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2).title("P").build();

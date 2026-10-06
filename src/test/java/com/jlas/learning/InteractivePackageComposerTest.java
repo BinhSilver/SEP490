@@ -130,6 +130,13 @@ class InteractivePackageComposerTest {
                 activityCaptor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
         assertEquals(List.of(1,2,3,4,5),
                 activityCaptor.getAllValues().stream().map(UserLearningPathItem::getOrderIndex).toList());
+        // uk(package, activity_type, part_index): same-type activities of one package must be numbered 1..n
+        // (UAT 2026-10-06: every part was saved as 1 and MySQL rejected the second Vocabulary part).
+        var partsByPackageAndType=activityCaptor.getAllValues().stream().collect(java.util.stream.Collectors.groupingBy(
+                a->a.getLearningPackage().getOrderIndex()+":"+a.getActivityType(),java.util.LinkedHashMap::new,
+                java.util.stream.Collectors.mapping(UserLearningPathItem::getPartIndex,java.util.stream.Collectors.toList())));
+        partsByPackageAndType.values().forEach(parts->assertEquals(
+                java.util.stream.IntStream.rangeClosed(1,parts.size()).boxed().toList(),parts,partsByPackageAndType.toString()));
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Iterable<LearningActivityMember>> memberCaptor=ArgumentCaptor.forClass(Iterable.class);

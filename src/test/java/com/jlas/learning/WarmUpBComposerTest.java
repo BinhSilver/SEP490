@@ -699,6 +699,12 @@ class WarmUpBComposerTest {
                 java.util.stream.StreamSupport.stream(group.spliterator(), false).toList()).toList();
         assertEquals(List.of(11, 11, 10, 9, 8), groups.stream().map(List::size).toList());
         assertEquals(49, groups.stream().mapToInt(List::size).sum());
+        // UAT 2026-10-06: same-type parts in one package need distinct part_index (MySQL unique key).
+        var parts = itemCaptor.getAllValues().stream().collect(java.util.stream.Collectors.groupingBy(
+                i -> i.getLearningPackage().getOrderIndex() + ":" + i.getActivityType(), java.util.LinkedHashMap::new,
+                java.util.stream.Collectors.mapping(UserLearningPathItem::getPartIndex, java.util.stream.Collectors.toList())));
+        parts.values().forEach(p -> assertEquals(
+                java.util.stream.IntStream.rangeClosed(1, p.size()).boxed().toList(), p, parts.toString()));
     }
 
     @Test void warmUpVocabularyAndKanjiWorkSpillsToLaterDaysWithinTheUserBudget(){

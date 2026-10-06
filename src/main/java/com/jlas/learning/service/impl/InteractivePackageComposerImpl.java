@@ -122,9 +122,12 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                     // mechanism (Task 8) once the last warm-up package completes.
                     .status(packageOrder==1&&!anyPackageExistsAlready?LearningPackageStatus.AVAILABLE:LearningPackageStatus.LOCKED)
                     .estimatedMinutes(segment.estimatedMinutes()).build());
+                // uk(package, activity_type, part_index): same-type activities of one package are parts 1..n.
+                Map<LearningActivityType,Integer> parts = new java.util.EnumMap<>(LearningActivityType.class);
                 for (var activity : segment.activities()) {
                     activityOrder = saveActivity(path, learningPackage, activity.activityType(), activity.memberType(),
-                            activity.memberIds(), snapshot.revision(), activity.estimatedMinutes(), activityOrder);
+                            activity.memberIds(), snapshot.revision(), activity.estimatedMinutes(), activityOrder,
+                            parts.merge(activity.activityType(), 1, Integer::sum));
                 }
             }
         }
@@ -154,10 +157,10 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
     }
 
     private int saveActivity(UserLearningPath path,LearningPathPackage pkg,LearningActivityType type,
-            LearningMemberType memberType,List<Long> ids,String revision,int estimatedMinutes,int globalOrder){
+            LearningMemberType memberType,List<Long> ids,String revision,int estimatedMinutes,int globalOrder,int partIndex){
         int next=globalOrder+1;
         var activity=items.save(UserLearningPathItem.builder().learningPath(path).learningPackage(pkg).lesson(pkg.getSourceLesson())
-                .orderIndex(next).phase(LearningPhase.GOAL_LEARNING.name()).dayNumber(pkg.getDayNumber())
+                .orderIndex(next).partIndex(partIndex).phase(LearningPhase.GOAL_LEARNING.name()).dayNumber(pkg.getDayNumber())
                 .estimatedMinutes(estimatedMinutes).activityType(type).activityState(LearningActivityState.LOCKED).build());
         List<LearningActivityMember> rows=new ArrayList<>(); int index=0;
         for(Long id:new LinkedHashSet<>(ids)) rows.add(LearningActivityMember.builder().activity(activity).memberType(memberType)
