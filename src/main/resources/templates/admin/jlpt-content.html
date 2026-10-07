@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Quản lý đề JLPT - JLAS', 'jlpt-admin')}"></head>
+<body id="jlabBasePage" class="app-body jlpt-admin-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jlpt-admin">
+    <section id="catalogView" class="jlpt-admin-view">
+        <header class="jlpt-admin-hero">
+            <div><span class="jlpt-admin__eyebrow">CONTENT CREATOR</span><h1>Quản lý đề JLPT</h1><p>Tạo đề, biên tập câu hỏi và kiểm soát nội dung trước khi phát hành.</p></div>
+            <button id="createExamButton" class="jlpt-admin-button is-primary" type="button"><span class="material-symbols-outlined">add</span>Tạo đề mới</button>
+        </header>
+        <section class="jlpt-admin-overview" aria-label="Tổng quan nội dung">
+            <div><strong id="examStat">0</strong><span>đề thi</span></div><div><strong id="questionStat">0</strong><span>câu hỏi</span></div><div><strong id="publishedStat">0</strong><span>đang phát hành</span></div><div><strong id="draftStat">0</strong><span>bản nháp</span></div>
+        </section>
+        <section class="jlpt-admin-catalog">
+            <div class="jlpt-admin-catalog__head">
+                <div><h2>Danh sách đề</h2><p>Chọn “Soạn nội dung” để quản lý cấu trúc và câu hỏi.</p></div>
+                <div class="jlpt-admin__filters">
+                    <label class="jlpt-admin-search"><span class="material-symbols-outlined">search</span><input id="examSearch" type="search" placeholder="Tìm tên hoặc mã đề" /></label>
+                    <select id="levelFilter" aria-label="Lọc cấp độ"><option value="">Mọi cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+                    <select id="statusFilter" aria-label="Lọc trạng thái"><option value="">Mọi trạng thái</option><option value="PUBLISHED">Đã phát hành</option><option value="DRAFT">Bản nháp</option><option value="ARCHIVED">Đã ẩn</option></select>
+                </div>
+            </div>
+            <div id="examList" class="jlpt-admin__exam-list"></div>
+            <div id="examEmpty" class="jlpt-admin-empty" hidden><span class="material-symbols-outlined">inventory_2</span><strong>Không tìm thấy đề</strong><p>Hãy thay đổi bộ lọc hoặc tạo đề mới.</p></div>
+        </section>
+    </section>
+
+    <section id="contentWorkspace" class="jlpt-admin-workspace-view" hidden>
+        <button id="closeWorkspace" class="jlpt-admin-back" type="button"><span class="material-symbols-outlined">arrow_back</span>Danh sách đề</button>
+        <header class="jlpt-admin-editor-hero">
+            <div class="jlpt-admin-editor-hero__identity"><span id="activeLevel" class="jlpt-admin-level">N3</span><div><span class="jlpt-admin__eyebrow">TRÌNH BIÊN SOẠN</span><h1 id="activeExamTitle"></h1><p id="activeExamCode"></p></div></div>
+            <div class="jlpt-admin-editor-hero__actions"><button id="editExamButton" class="jlpt-admin-button is-secondary" type="button"><span class="material-symbols-outlined">settings</span>Thông tin đề</button><button id="addQuestionButton" class="jlpt-admin-button is-primary" type="button"><span class="material-symbols-outlined">add</span>Thêm câu hỏi</button></div>
+        </header>
+        <div class="jlpt-admin__workspace">
+            <aside class="jlpt-admin__tree-panel"><div class="jlpt-admin__tree-title"><span class="material-symbols-outlined">account_tree</span><div><strong>Cấu trúc đề</strong><small>Lọc theo phần và 問題</small></div></div><nav id="contentTree" class="jlpt-admin__tree" aria-label="Cấu trúc đề thi"></nav></aside>
+            <div class="jlpt-admin__editor">
+                <header class="jlpt-admin__editor-head"><div><span id="editorBreadcrumb">Tất cả nội dung</span><h2 id="editorTitle">Nội dung đề thi</h2><p id="editorDescription"></p></div></header>
+                <div class="jlpt-admin__editor-summary"><span><b id="visibleQuestionCount">0</b> câu</span><span><b id="completeQuestionCount">0</b> hoàn chỉnh</span><span class="is-warning"><b id="missingAnswerCount">0</b> thiếu đáp án</span></div>
+                <div class="jlpt-admin__question-toolbar"><label class="jlpt-admin-search"><span class="material-symbols-outlined">search</span><input id="questionSearch" type="search" placeholder="Tìm nội dung câu hỏi" /></label><select id="qualityFilter"><option value="">Mọi câu hỏi</option><option value="complete">Hoàn chỉnh</option><option value="missing">Thiếu đáp án đúng</option><option value="media">Có hình hoặc audio</option></select></div>
+                <div id="questionList" class="jlpt-admin__question-list"></div>
+                <div id="questionEmpty" class="jlpt-admin-empty" hidden><span class="material-symbols-outlined">quiz</span><strong>Chưa có câu hỏi</strong><p>Thêm câu mới vào mục đang chọn.</p></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<dialog id="examDialog" class="jlpt-admin-dialog"><form id="examForm" method="dialog">
+    <header><div><span class="jlpt-admin__eyebrow">ĐỀ THI</span><h2 id="examDialogTitle">Tạo đề JLPT</h2></div><button class="jlpt-admin-dialog__close" type="button" data-dialog-close aria-label="Đóng"><span class="material-symbols-outlined">close</span></button></header>
+    <div class="jlpt-admin-form-section"><h3>Thông tin cơ bản</h3><div class="jlpt-admin-form-grid">
+        <label class="is-wide"><span>Tên đề thi</span><input name="title" required placeholder="JLPT N3 · Tháng 7/2026" /></label><label><span>Mã đề</span><input name="code" required placeholder="N3_2026_07" /></label><label><span>Cấp độ</span><select name="level" required><option>N5</option><option>N4</option><option selected>N3</option><option>N2</option><option>N1</option></select></label><label><span>Năm</span><input name="year" type="number" min="2000" max="2100" required /></label><label><span>Tháng</span><select name="month"><option value="7">Tháng 7</option><option value="12">Tháng 12</option></select></label><label><span>Trạng thái</span><select name="status"><option value="DRAFT">Bản nháp</option><option value="PUBLISHED">Đã phát hành</option><option value="ARCHIVED">Đã ẩn</option></select></label><label><span>Điểm đạt</span><input name="passingScore" type="number" value="95" min="0" max="180" /></label>
+    </div></div>
+    <footer><span></span><button class="jlpt-admin-button is-secondary" type="button" data-dialog-close>Hủy</button><button class="jlpt-admin-button is-primary" type="submit">Tiếp tục lưu</button></footer>
+</form></dialog>
+
+<dialog id="questionDialog" class="jlpt-admin-dialog is-large"><form id="questionForm" method="dialog">
+    <header><div><span class="jlpt-admin__eyebrow">CÂU HỎI</span><h2 id="questionDialogTitle">Thêm câu hỏi</h2></div><button class="jlpt-admin-dialog__close" type="button" data-dialog-close aria-label="Đóng"><span class="material-symbols-outlined">close</span></button></header>
+    <div class="jlpt-admin-form-section"><h3>Vị trí và nội dung</h3><div class="jlpt-admin-form-grid"><label><span>Phần thi</span><select id="questionSection" name="sectionId" required></select></label><label><span>問題</span><select id="questionMondai" name="mondaiIndex" required></select></label><label><span>Số câu</span><input name="number" type="number" min="1" required /></label><label><span>Loại câu hỏi</span><input name="type" required placeholder="GRAMMAR_SELECTION" /></label><label class="is-wide"><span>Câu hỏi</span><textarea name="prompt" rows="3" required lang="ja"></textarea></label><label class="is-wide"><span>Đoạn văn / tài liệu dùng chung</span><textarea name="passage" rows="4" lang="ja"></textarea></label></div></div>
+    <div class="jlpt-admin-form-section"><h3>Đáp án</h3><fieldset class="jlpt-admin-choice-editor"><legend>Có thể để trống nếu lựa chọn nằm trong hình</legend><label><b>1</b><textarea name="choice1" rows="2"></textarea></label><label><b>2</b><textarea name="choice2" rows="2"></textarea></label><label><b>3</b><textarea name="choice3" rows="2"></textarea></label><label><b>4</b><textarea name="choice4" rows="2"></textarea></label></fieldset><div class="jlpt-admin-form-grid"><label><span>Đáp án đúng</span><select name="correctChoice"><option value="">Chưa xác định</option><option value="1">Đáp án 1</option><option value="2">Đáp án 2</option><option value="3">Đáp án 3</option><option value="4">Đáp án 4</option></select></label><label><span>Thứ tự đúng của câu ★</span><input name="correctOrder" placeholder="Ví dụ: 1,3,4,2" aria-describedby="correctOrderHelp" /><small id="correctOrderHelp">Nhập số lựa chọn theo thứ tự trái sang phải. Để trống nếu chưa xác định.</small></label><label><span>Trang nguồn</span><input name="sourcePage" type="number" min="1" /></label><label class="is-wide"><span>Giải thích đáp án</span><textarea name="explanation" rows="3"></textarea></label></div></div>
+    <details class="jlpt-admin-form-section jlpt-admin-media-section"><summary><span class="material-symbols-outlined">perm_media</span>Hình ảnh và audio <small>Mở khi câu hỏi có media</small></summary><div class="jlpt-admin-form-grid"><label class="is-wide"><span>Script nghe (tiếng Nhật)</span><textarea name="scriptText" rows="5" lang="ja"></textarea></label><label class="is-wide"><span>Bản dịch script (tiếng Việt)</span><textarea name="scriptTranslation" rows="4"></textarea></label><label class="is-wide"><span>Đường dẫn hình</span><input name="imageRef" placeholder="/JLPT/images/..." /></label><label class="is-wide"><span>Đường dẫn audio</span><input name="audioUrl" placeholder="/audio/JLPT/..." /></label><label><span>Bắt đầu (giây)</span><input name="audioStart" type="number" min="0" step="0.001" /></label><label><span>Kết thúc (giây)</span><input name="audioEnd" type="number" min="0" step="0.001" /></label></div></details>
+    <footer><button class="jlpt-admin-button is-danger" id="deleteQuestionButton" type="button" hidden><span class="material-symbols-outlined">delete</span>Xóa câu</button><span></span><button class="jlpt-admin-button is-secondary" type="button" data-dialog-close>Hủy</button><button class="jlpt-admin-button is-primary" type="submit">Tiếp tục lưu</button></footer>
+</form></dialog>
+
+<dialog id="confirmDialog" class="jlpt-admin-confirm"><form method="dialog"><div class="jlpt-admin-confirm__mascot"><img src="/images/kitsu.png" alt="Linh vật Kitsu" /></div><span class="jlpt-admin__eyebrow">XÁC NHẬN THAO TÁC</span><h2 id="confirmTitle">Bạn có chắc không?</h2><p id="confirmMessage"></p><footer><button class="jlpt-admin-button is-secondary" value="cancel">Quay lại</button><button id="confirmActionButton" class="jlpt-admin-button is-primary" value="confirm">Xác nhận</button></footer></form></dialog>
+<div id="adminToast" class="jlpt-admin-toast" role="status" aria-live="polite" hidden></div>
+<script th:src="@{/js/jlab-base-shell.js?v=7}"></script><script th:src="@{/js/pages/jlpt-admin.js?v=6}"></script>
+</body></html>

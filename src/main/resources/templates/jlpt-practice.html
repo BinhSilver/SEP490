@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Luyện JLPT theo dạng - JLAS', 'jlpt-practice')}"></head>
+<body id="jlabBasePage" class="app-body jlpt-practice-body">
+<div id="jlabBaseShellMount"></div>
+<main class="jlpt-practice-page">
+    <header class="jlpt-practice-hero">
+        <a href="/jlpt" aria-label="Quay lại thư viện"><span class="material-symbols-outlined">arrow_back</span></a>
+        <div><span>LUYỆN THEO DẠNG</span><h1>Tập trung đúng phần bạn cần.</h1><p>Lọc câu hỏi từ toàn bộ kho đề JLPT và luyện thành một phiên ngắn.</p></div>
+    </header>
+
+    <section id="practiceSetup" class="jlpt-practice-setup">
+        <div class="jlpt-filter-block"><strong>1. Chọn cấp độ</strong><nav id="practiceLevels" aria-label="Cấp độ JLPT"></nav></div>
+        <div class="jlpt-filter-block"><strong>2. Chọn nhóm kỹ năng</strong><nav id="practiceSections" aria-label="Nhóm kỹ năng"></nav></div>
+        <div class="jlpt-filter-block"><strong>3. Chọn dạng câu hỏi</strong><div id="practiceTypes" class="jlpt-practice-types"></div></div>
+        <footer>
+            <label>Số câu<select id="practiceLimit"><option value="10">10 câu</option><option value="20" selected>20 câu</option><option value="30">30 câu</option><option value="50">50 câu</option></select></label>
+            <button id="practiceStart" type="button" disabled>Bắt đầu luyện <span class="material-symbols-outlined">arrow_forward</span></button>
+        </footer>
+        <p id="practiceSetupNotice" class="jlpt-practice-notice" hidden></p>
+    </section>
+
+    <section id="practiceRunner" class="jlpt-practice-runner" hidden>
+        <header><button id="practiceExit" type="button"><span class="material-symbols-outlined">close</span></button><div><span id="practiceTypeLabel"></span><strong id="practiceProgress"></strong></div><div class="jlpt-practice-progress"><i id="practiceProgressBar"></i></div></header>
+        <article class="jlpt-practice-question">
+            <div class="jlpt-practice-meta"><span id="practiceSource"></span><span id="practiceClipBadge" hidden>Clip ước lượng</span></div>
+            <div id="practiceInstruction" class="jlpt-practice-instruction" lang="ja"></div>
+            <section id="practicePassage" class="jlpt-practice-passage" lang="ja" hidden></section>
+            <section id="practiceAudio" class="jlpt-practice-audio" hidden></section>
+            <h2 id="practicePrompt" lang="ja"></h2>
+            <div id="practiceChoices" class="jlpt-practice-choices"></div>
+            <div class="jlpt-practice-actions"><span id="practiceFeedback"></span><button id="practiceExplain" type="button" hidden><span class="material-symbols-outlined">lightbulb</span>Giải thích AI</button><button id="practiceCheck" type="button">Kiểm tra</button></div>
+            <section id="practiceExplanation" class="jlpt-practice-explanation" hidden></section>
+            <footer><button id="practicePrevious" type="button">Câu trước</button><button id="practiceNext" type="button">Câu tiếp</button></footer>
+        </article>
+    </section>
+
+    <section id="practiceResult" class="jlpt-practice-result" hidden>
+        <span class="material-symbols-outlined">school</span><h2>Hoàn thành phiên luyện tập</h2><strong id="practiceScore"></strong><p id="practiceResultText"></p><div><button id="practiceRetry" type="button">Luyện bộ câu khác</button><button id="practiceBackSetup" type="button">Đổi dạng câu</button></div>
+    </section>
+</main>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script>
+<script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
+<script th:src="@{/js/pages/jlpt-practice.js?v=4}"></script>
+</body>
+</html>
