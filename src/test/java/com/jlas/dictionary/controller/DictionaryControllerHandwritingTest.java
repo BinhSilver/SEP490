@@ -7,7 +7,9 @@ import com.jlas.auth.security.UserPrincipal;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
+import com.jlas.dictionary.service.ContentAdminService;
 import com.jlas.dictionary.service.DictionaryService;
+import com.jlas.dictionary.service.LessonImportService;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +47,9 @@ class DictionaryControllerHandwritingTest {
         limiter = mock(HandwritingRateLimiter.class);
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
-        mvc = MockMvcBuilders.standaloneSetup(new DictionaryController(service, limiter))
+        mvc = MockMvcBuilders.standaloneSetup(
+                        new DictionaryController(service, limiter, mock(ContentAdminService.class),
+                                mock(LessonImportService.class)))
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .setControllerAdvice(new GlobalApiExceptionHandler())
                 .setValidator(validator)

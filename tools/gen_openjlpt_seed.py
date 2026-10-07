@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Sinh seed vocabulary_entry + kanji + kanji_reading tu OpenJLPT (CC BY-SA 4.0).
 
-Quy tac chuan hoa (verify voi db/seed_data_jlas.sql):
+Quy tac chuan hoa (verify voi sql/seeds/seed_data_jlas.sql, truoc day la db/seed_data_jlas.sql):
     normalized = katakana->hiragana( NFKC(text) )
 Chi ap dung cho vocabulary_entry.normalized_*; kanji_reading GIU NGUYEN
 (ON katakana, KUN hiragana kem dau okurigana '.').

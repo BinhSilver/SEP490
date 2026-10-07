@@ -14,6 +14,10 @@
             <p class="textbooks-hero__subtitle">
                 Chọn cấp độ, mở giáo trình rồi học từng bài với từ vựng, câu ví dụ, ngữ pháp và hội thoại có giọng đọc.
             </p>
+            <!-- Chỉ CONTENT_CREATOR: js/pages/textbooks.js bỏ `hidden` theo role, giống cách nav shell làm. -->
+            <a class="manage-btn" id="manageEntryLink" th:href="@{/textbooks/manage}" hidden>
+                <i class="fa-solid fa-pen-ruler" aria-hidden="true"></i> Quản lý nội dung
+            </a>
         </header>
 
         <!-- Hai cách duyệt: theo cấp độ JLPT (dữ liệu) và theo chủ đề (khung, làm sau) -->

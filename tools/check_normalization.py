@@ -1,7 +1,7 @@
 import re
 import unicodedata
 
-SEED = r"D:\FALL26_FPT\SEP490\db\seed_data_jlas.sql"
+SEED = r"D:\FALL26_FPT\SEP490\sql\seeds\seed_data_jlas.sql"
 
 # Katakana (U+30A1..U+30F6) -> Hiragana (shift -0x60)
 def kata_to_hira(s):
