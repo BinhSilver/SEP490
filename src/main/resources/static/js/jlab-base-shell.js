@@ -156,6 +156,8 @@
     adminLink: 'jlabBaseAdminLink',
     adminIcon: 'jlabBaseAdminIcon',
     adminLabel: 'jlabBaseAdminLabel',
+    gameEffectsLink: 'jlabBaseGameEffectsLink',
+    gameEffectsIcon: 'jlabBaseGameEffectsIcon',
     accountDivider: 'jlabBaseAccountDivider',
     logoutButton: 'jlabBaseLogoutButton',
     logoutIcon: 'jlabBaseLogoutIcon',
@@ -253,8 +255,10 @@
     replaceIcon(ids.shadowingIcon, 'headphones');
     replaceIcon(ids.notificationIcon, 'bell');
     replaceIcon(ids.profileIcon, 'user');
+    replaceIcon(ids.myLearningPathIcon, 'route');
     replaceIcon(ids.progressIcon, 'chart');
     replaceIcon(ids.adminIcon, 'shield');
+    replaceIcon(ids.gameEffectsIcon, 'game');
     replaceIcon(ids.streakIcon, 'flame');
     replaceIcon(ids.rewardStreakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
@@ -373,6 +377,7 @@
                   '<a id="' + ids.progressLink + '" class="dropdown__item" href="/progress" role="menuitem"><span id="' + ids.progressIcon + '" class="material-symbols-outlined" aria-hidden="true">monitoring</span><span id="' + ids.progressLabel + '">Tiến độ học tập</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.adminLink + '" class="dropdown__item" href="/admin" role="menuitem" hidden><i id="' + ids.adminIcon + '" aria-hidden="true"></i><span id="' + ids.adminLabel + '">Trang quản trị</span></a>' +
+                  '<a id="' + ids.gameEffectsLink + '" class="dropdown__item" href="/admin/game-effects" role="menuitem" hidden><i id="' + ids.gameEffectsIcon + '" aria-hidden="true"></i><span>Xem hiệu ứng game</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
                 '</div>' +
@@ -593,6 +598,8 @@
     if (emailNode) emailNode.textContent = user.email || '';
     var adminLink = byId(ids.adminLink);
     if (adminLink) adminLink.hidden = ADMIN_ROLES.indexOf(String(user.role || '').toUpperCase()) < 0;
+    var gameEffectsLink = byId(ids.gameEffectsLink);
+    if (gameEffectsLink) gameEffectsLink.hidden = ADMIN_ROLES.indexOf(String(user.role || '').toUpperCase()) < 0;
     renderAvatar(ids.avatarButtonImage, ids.avatarButtonInitials, avatar, label);
     renderAvatar(ids.accountAvatarImage, ids.accountAvatarInitials, avatar, label);
     loadNotifications();

@@ -253,6 +253,7 @@ html[data-theme="dark"] #jlabBaseHeader {
 #jlabBaseProfileLink:focus-visible,
 #jlabBaseProgressLink:focus-visible,
 #jlabBaseAdminLink:focus-visible,
+#jlabBaseGameEffectsLink:focus-visible,
 #jlabBaseSecurityLink:focus-visible {
   outline: 2px solid var(--color-primary, #4f378a);
   outline-offset: 3px;
@@ -316,6 +317,7 @@ html[data-theme="dark"] #jlabBaseHeader {
 #jlabBaseAvatarButtonImage[hidden],
 #jlabBaseAvatarButtonInitials[hidden],
 #jlabBaseAdminLink[hidden],
+#jlabBaseGameEffectsLink[hidden],
 #jlabBaseAccountAvatarImage[hidden],
 #jlabBaseAccountAvatarInitials[hidden] {
   display: none;
@@ -329,6 +331,7 @@ html[data-theme="dark"] #jlabBaseHeader {
 #jlabBaseProfileLink,
 #jlabBaseProgressLink,
 #jlabBaseAdminLink,
+#jlabBaseGameEffectsLink,
 #jlabBaseSecurityLink,
 #jlabBaseLogoutButton {
   width: 100%;
@@ -358,6 +361,7 @@ html[data-theme="dark"] #jlabBaseHeader {
 #jlabBaseProfileLink:hover,
 #jlabBaseProgressLink:hover,
 #jlabBaseAdminLink:hover,
+#jlabBaseGameEffectsLink:hover,
 #jlabBaseSecurityLink:hover,
 #jlabBaseLogoutButton:hover,
 #jlabBaseAiCallLink[aria-current="page"],
@@ -367,6 +371,7 @@ html[data-theme="dark"] #jlabBaseHeader {
 #jlabBaseSmartTestLink[aria-current="page"],
 #jlabBaseProgressLink[aria-current="page"],
 #jlabBaseAdminLink[aria-current="page"],
+#jlabBaseGameEffectsLink[aria-current="page"],
 #jlabBaseExamJlptItem[aria-current="page"],
 #jlabBaseExamJlptPracticeItem[aria-current="page"] {
   color: var(--color-primary, #4f378a);
@@ -885,7 +890,7 @@ html[data-theme="dark"] #jlabBaseHeader {
 #jlabBaseExamJlptPracticeIcon { display:inline-block; width:18px; font-family:"Font Awesome 6 Free"; font-weight:900; font-style:normal; }
 #jlabBaseExamJlptPracticeIcon::before { content:"\f03a"; }
 #jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
-#jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:rgba(255,255,255,.96); box-shadow:0 10px 40px rgba(22,29,31,.14); }
+#jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:var(--color-surface-lowest, #ffffff); box-shadow:0 10px 40px rgba(22,29,31,.14); }
 #jlabBaseExamsMenu[hidden] { display:none; }
 #jlabBaseExamJlptItem,#jlabBaseExamJlptPracticeItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface); font:700 .875rem var(--font-body); text-align:left; opacity:1; cursor:pointer; }
 #jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
@@ -956,7 +961,7 @@ html[data-theme="dark"] #jlabBaseHeader {
   display: grid;
   gap: 3px;
   color: var(--color-on-surface, #161d1f);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--color-surface-lowest, #ffffff);
   border: 1px solid var(--color-outline-variant, #cbc4d2);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(22, 29, 31, 0.14);
