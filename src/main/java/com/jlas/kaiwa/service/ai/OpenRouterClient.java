@@ -14,6 +14,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.ResourceAccessException;
 
 @Component
 public class OpenRouterClient {
@@ -35,14 +36,18 @@ public class OpenRouterClient {
     }
 
     public String complete(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, false);
+        return complete(systemPrompt, history, userMessage, false, false);
+    }
+
+    public String completeStructured(String systemPrompt, List<Map<String, String>> history, String userMessage) {
+        return complete(systemPrompt, history, userMessage, false, true);
     }
 
     public String completeGraph(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, true);
+        return complete(systemPrompt, history, userMessage, true, true);
     }
 
-    private String complete(String systemPrompt, List<Map<String, String>> history, String userMessage, boolean graph) {
+    private String complete(String systemPrompt, List<Map<String, String>> history, String userMessage, boolean graph, boolean structured) {
         List<Map<String, String>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
         if (history != null) {
@@ -54,7 +59,9 @@ public class OpenRouterClient {
         body.put("model", config.getModel());
         body.put("messages", messages);
         body.put("temperature", 0.6);
-        body.put("max_tokens", 512);
+        body.put("max_tokens", structured ? 2048 : 900);
+        body.put("reasoning", Map.of("effort", "low", "exclude", true));
+        if (structured) body.put("response_format", Map.of("type", "json_object"));
         if (graph) {
             // Leave room for reasoning plus the full control object. Reasoning
             // must never be substituted for the NPC's JSON dialogue response.
@@ -73,7 +80,7 @@ public class OpenRouterClient {
 
         try {
             // Read as String first so UTF-8 Japanese is preserved, then parse lightly via Map via Jackson-less extract
-            ResponseEntity<String> rawResponse = restTemplate.exchange(
+            ResponseEntity<String> rawResponse = exchangeWithRetry(
                     config.getApiUrl() + "/chat/completions",
                     HttpMethod.POST,
                     new HttpEntity<>(body, headers),
@@ -90,7 +97,7 @@ public class OpenRouterClient {
                 throw new IllegalStateException("OpenRouter error: " + responseBody.get("error"));
             }
 
-            String content = graph ? extractGraphContent(responseBody) : extractContent(responseBody);
+            String content = extractGraphContent(responseBody);
             if (content == null || content.isBlank()) {
                 throw new IllegalStateException("OpenRouter message content empty (model may be thinking-only or wrong id: "
                         + config.getModel() + ")");
@@ -107,6 +114,27 @@ public class OpenRouterClient {
         } catch (Exception e) {
             log.error("OpenRouter call failed: {}", e.getMessage(), e);
             throw new IllegalStateException("OpenRouter call failed: " + e.getMessage(), e);
+        }
+    }
+
+    private ResponseEntity<String> exchangeWithRetry(String url, HttpMethod method, HttpEntity<?> entity, Class<String> type) {
+        for (int attempt = 0; ; attempt++) {
+            try { return restTemplate.exchange(url, method, entity, type); }
+            catch (ResourceAccessException | HttpStatusCodeException failure) {
+                boolean retryable = failure instanceof ResourceAccessException;
+                if (failure instanceof HttpStatusCodeException status)
+                    retryable = status.getStatusCode().value() == 429 || status.getStatusCode().is5xxServerError();
+                // Read timeouts have an uncertain provider outcome; don't replay them automatically.
+                Throwable cause = failure;
+                while (cause != null) {
+                    if (cause instanceof java.net.SocketTimeoutException && cause.getMessage() != null
+                            && cause.getMessage().toLowerCase().contains("read")) retryable = false;
+                    cause = cause.getCause();
+                }
+                if (!retryable || attempt >= 1) throw failure;
+                try { Thread.sleep(250L); }
+                catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); throw failure; }
+            }
         }
     }
 
