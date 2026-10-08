@@ -20,7 +20,7 @@ public class MemorySearch {
     }
 
     public List<Hit> search(long userId, String query, int limit) {
-        List<Memory> memories = store.memories(userId);
+        List<Memory> memories = store.contextMemories(userId);
         if (memories.isEmpty()) return List.of();
         double[] vector = null;
         if (!query.isBlank() && memories.stream().anyMatch(m -> ai.embeddingModel().equals(m.embeddingModel()) && m.embedding() != null)) {
@@ -37,7 +37,9 @@ public class MemorySearch {
         List<Hit> hits = new ArrayList<>();
         for (Memory memory : memories) {
             if (memory.userId() != userId || (memory.expiresAt() != null && !memory.expiresAt().isAfter(now))) continue;
-            Set<String> candidate = words(memory.topic() + " " + memory.content());
+            // Preserve a keyword path in the user's original language while the
+            // asynchronous vector index is pending or unavailable.
+            Set<String> candidate = words(memory.topic() + " " + memory.content() + " " + memory.evidence());
             double keyword = words.isEmpty() ? 0 : (double) words.stream().filter(candidate::contains).count() / words.size();
             double semantic = model.equals(memory.embeddingModel()) ? cosine(vector, memory.embedding()) : 0;
             if (keyword == 0 && semantic < threshold) continue;
@@ -46,7 +48,7 @@ public class MemorySearch {
             hits.add(new Hit(memory, score));
         }
         hits.sort(Comparator.comparingDouble(Hit::score).reversed()
-                .thenComparing(h -> h.memory().updatedAt(), Comparator.reverseOrder()).thenComparing(h -> h.memory().id()));
+                .thenComparing(h -> h.memory().observedAt(), Comparator.reverseOrder()).thenComparing(h -> h.memory().id()));
         return hits.stream().limit(limit).toList();
     }
 
@@ -61,7 +63,7 @@ public class MemorySearch {
         return Double.isFinite(result) ? Math.max(-1, Math.min(1, result)) : 0;
     }
 
-    private static Set<String> words(String text) {
+    public static Set<String> words(String text) {
         String normalized = Normalizer.normalize(text.toLowerCase(Locale.ROOT), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}+", "").replace('đ', 'd');
         Set<String> words = new HashSet<>();
@@ -71,7 +73,7 @@ public class MemorySearch {
             if (word.matches(".*[\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}].*") && word.length() > 2)
                 for (int i = 0; i < word.length() - 1; i++) words.add(word.substring(i, i + 2));
         }
-        words.removeAll(Set.of("toi", "minh", "ban", "la", "va", "cua", "co", "khong", "thi", "nhe", "hom", "truoc", "the", "a", "an", "i", "you", "to", "is"));
+        words.removeAll(Set.of("です", "ます", "ですか", "すか", "しま", "ますか", "した", "ました", "は何", "何で", "につ", "つい", "いて", "私の", "私は", "前に", "いた", "いま", "ょう", "こと", "のこ", "てい", "して", "toi", "minh", "ban", "la", "va", "cua", "co", "khong", "thi", "nhe", "hom", "truoc", "the", "a", "an", "i", "you", "to", "is"));
         return words;
     }
 }

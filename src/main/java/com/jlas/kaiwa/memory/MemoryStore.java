@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -177,18 +176,23 @@ public class MemoryStore {
         return jdbc.query("SELECT * FROM kaiwa_memory WHERE user_id=? AND status='ACTIVE' AND (expires_at IS NULL OR expires_at>?)", this::memory, userId, LocalDateTime.now());
     }
 
+    /** Cancelled facts are historical evidence, not active plans; deleted facts remain hidden. */
+    public List<Memory> contextMemories(long userId) {
+        return jdbc.query("SELECT * FROM kaiwa_memory WHERE user_id=? AND status IN ('ACTIVE','INACTIVE') AND (expires_at IS NULL OR expires_at>?)", this::memory, userId, LocalDateTime.now());
+    }
+
     public List<Memory> missingEmbeddings(String model) {
-        return jdbc.query("SELECT * FROM kaiwa_memory WHERE status='ACTIVE' AND (expires_at IS NULL OR expires_at>?) AND (embedding IS NULL OR embedding_model<>?) AND (embedding_retry_at IS NULL OR embedding_retry_at<?) ORDER BY id LIMIT 3",
+        return jdbc.query("SELECT * FROM kaiwa_memory WHERE status IN ('ACTIVE','INACTIVE') AND (expires_at IS NULL OR expires_at>?) AND (embedding IS NULL OR embedding_model IS NULL OR embedding_model<>?) AND (embedding_retry_at IS NULL OR embedding_retry_at<?) ORDER BY observed_at DESC,id DESC LIMIT 3",
                 this::memory, LocalDateTime.now(), model, LocalDateTime.now());
     }
 
     public void saveEmbedding(Memory memory, double[] vector, String model) {
-        jdbc.update("UPDATE kaiwa_memory SET embedding=?,embedding_model=?,embedding_retry_at=NULL WHERE id=? AND user_id=? AND content=? AND updated_at=? AND status='ACTIVE'",
-                encode(vector), model, memory.id(), memory.userId(), memory.content(), memory.updatedAt());
+        jdbc.update("UPDATE kaiwa_memory SET embedding=?,embedding_model=?,embedding_retry_at=NULL,updated_at=updated_at WHERE id=? AND user_id=? AND content=? AND updated_at=? AND status=?",
+                encode(vector), model, memory.id(), memory.userId(), memory.content(), memory.updatedAt(), memory.status());
     }
 
     public void failEmbedding(long id) {
-        jdbc.update("UPDATE kaiwa_memory SET embedding_retry_at=? WHERE id=?", LocalDateTime.now().plusMinutes(5), id);
+        jdbc.update("UPDATE kaiwa_memory SET embedding_retry_at=?,updated_at=updated_at WHERE id=?", LocalDateTime.now().plusMinutes(5), id);
     }
 
     public void forget(long userId, long id) {
@@ -201,10 +205,10 @@ public class MemoryStore {
         double[] vector = null;
         try { if (rs.getString("embedding") != null) vector = json.readValue(rs.getString("embedding"), double[].class); }
         catch (Exception ignored) { /* Corrupt vector cannot stop keyword retrieval. */ }
-        Timestamp expires = rs.getTimestamp("expires_at");
+        LocalDateTime expires = rs.getObject("expires_at", LocalDateTime.class);
         return new Memory(rs.getLong("id"), rs.getLong("user_id"), rs.getString("memory_key"), rs.getString("kind"), rs.getString("topic"),
-                rs.getString("content"), rs.getInt("importance"), rs.getLong("source_session_id"), rs.getTimestamp("updated_at").toLocalDateTime(),
-                expires == null ? null : expires.toLocalDateTime(), vector, rs.getString("embedding_model"));
+                rs.getString("content"), rs.getInt("importance"), rs.getLong("source_session_id"), rs.getObject("updated_at", LocalDateTime.class),
+                expires, vector, rs.getString("embedding_model"), rs.getString("evidence"), rs.getObject("observed_at", LocalDateTime.class), rs.getString("status"));
     }
 
     private List<Turn> turns(String value) {

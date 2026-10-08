@@ -74,7 +74,7 @@ public class ConversationMemoryBridge {
                 SELECT id,role,content,created_at FROM conversation_message
                 WHERE session_id=? AND id>? AND role IN ('user','assistant') ORDER BY id
                 """, (rs, n) -> new Turn(rs.getLong("id"), rs.getString("role"), rs.getString("content"),
-                rs.getTimestamp("created_at").toLocalDateTime().toString()), session.getId(), link.lastMessageId());
+                rs.getObject("created_at", java.time.LocalDateTime.class).toString()), session.getId(), link.lastMessageId());
         if (turns.isEmpty()) return;
         store.importTurns(session.getUserId(), link.memorySessionId(), turns);
         jdbc.update("UPDATE kaiwa_conversation_memory SET last_message_id=? WHERE conversation_session_id=? AND user_id=?",

@@ -51,7 +51,8 @@ public class MemoryAiClient {
     }
 
     public boolean available() { return apiKey != null && !apiKey.isBlank() && !apiKey.startsWith("YOUR_"); }
-    public String embeddingModel() { return properties.embeddingModel(); }
+    /** Index identity includes the text recipe, so old vectors are rebuilt safely. */
+    public String embeddingModel() { return properties.embeddingModel() + "#user-evidence-v1"; }
 
     String endpoint(String path) {
         return apiUrl.replaceAll("/+$", "").replaceAll("/chat/completions$", "") + path;
@@ -72,7 +73,7 @@ public class MemoryAiClient {
     }
 
     public double[] embed(String text) {
-        JsonNode vector = post(embeddingHttp, "/embeddings", Map.of("model", embeddingModel(),
+        JsonNode vector = post(embeddingHttp, "/embeddings", Map.of("model", properties.embeddingModel(),
                 "input", text, "encoding_format", "float")).path("data").path(0).path("embedding");
         if (!vector.isArray() || vector.isEmpty() || vector.size() > 8192)
             throw new IllegalStateException("Invalid embedding response");
@@ -100,9 +101,10 @@ public class MemoryAiClient {
         try {
             var data = Map.of("now", LocalDateTime.now().toString(), "previousSummary", session.summary(),
                     "turns", session.turns().stream().filter(t -> t.id() > session.processedRevision()).toList(),
-                    "knownMemories", known.stream().map(m -> Map.of("key", m.key(), "content", m.content(), "kind", m.kind())).toList());
+                    "knownMemories", known.stream().map(m -> Map.of("key", m.key(), "content", m.content(), "kind", m.kind(), "status", m.status())).toList());
             JsonNode response = post(chatHttp, "/chat/completions", Map.of("model", model, "temperature", 0,
-                    "max_tokens", 2400, "response_format", Map.of("type", "json_object"), "messages", List.of(
+                    "max_tokens", 2400, "reasoning", Map.of("effort", "low", "exclude", true),
+                    "response_format", Map.of("type", "json_object"), "messages", List.of(
                     Map.of("role", "system", "content", extractionPrompt),
                     Map.of("role", "user", "content", json.writeValueAsString(data)))));
             JsonNode result = json.readTree(response.path("choices").path(0).path("message").path("content").asText());

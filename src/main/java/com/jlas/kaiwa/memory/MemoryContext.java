@@ -44,9 +44,6 @@ public class MemoryContext {
     /** Memory data for the existing AI Call prompt; it keeps its own dialogue/history pipeline. */
     public Context retrieve(Session session, String query) {
         LinkedHashMap<Long, Memory> selected = new LinkedHashMap<>();
-        store.memories(session.userId()).stream().filter(m -> List.of("PROFILE", "PREFERENCE", "GOAL").contains(m.kind()) && m.importance() >= 4)
-                .sorted(Comparator.comparingInt(Memory::importance).reversed().thenComparing(Memory::updatedAt, Comparator.reverseOrder()))
-                .limit(4).forEach(m -> selected.put(m.id(), m));
         String retrievalQuery = query;
         if (query.length() < 100) {
             List<Turn> recent = session.turns();
@@ -55,6 +52,13 @@ public class MemoryContext {
         }
         List<Hit> hits = search.search(session.userId(), retrievalQuery, properties.searchLimit());
         hits.forEach(h -> selected.putIfAbsent(h.memory().id(), h.memory()));
+        // Relevant evidence gets the budget first; linked constraints must not be lost
+        // just because a name or favorite occupies a profile slot.
+        store.contextMemories(session.userId()).stream()
+                .filter(m -> List.of("PROFILE", "PREFERENCE", "GOAL", "EVENT", "PENDING").contains(m.kind()) && m.importance() >= 3)
+                .sorted(Comparator.comparingInt(Memory::importance).reversed()
+                        .thenComparing(Memory::observedAt, Comparator.reverseOrder()))
+                .limit(12).forEach(m -> selected.putIfAbsent(m.id(), m));
         return new Context(memoryData(session, selected.values()), !hits.isEmpty());
     }
 
@@ -68,7 +72,8 @@ public class MemoryContext {
             if (memory.kind().equals("SUMMARY") && memory.sourceSessionId() == session.id()) continue;
             var row = Map.<String, Object>of("kind", memory.kind(), "content", memory.content(), "topic", memory.topic(),
                     "sourceSession", memory.sourceSessionId(), "updatedAt", memory.updatedAt().toString(),
-                    "expiresAt", memory.expiresAt() == null ? "" : memory.expiresAt().toString());
+                    "expiresAt", memory.expiresAt() == null ? "" : memory.expiresAt().toString(),
+                    "userEvidence", memory.evidence(), "observedAt", memory.observedAt().toString(), "status", memory.status());
             rows.add(row);
             if (encode(Map.of("sessionSummary", summary, "memories", rows)).length() > properties.contextChars()) {
                 rows.removeLast();
