@@ -10,7 +10,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** [JLAS-W0193] Task 6 — pure, deterministic analysis over real seeded {@code grammar_point} pattern/example
- * text (see db/seed_data_jlas.sql rows 1-8): no AI, no fabricated per-item content, same fixed dictionary
+ * text (see sql/seeds/seed_data_jlas.sql rows 1-8): no AI, no fabricated per-item content, same fixed dictionary
  * applied to every point. */
 class GrammarTextAnalyzerTest {
 

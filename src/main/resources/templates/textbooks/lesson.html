@@ -48,6 +48,11 @@
                 <button type="button" class="lesson-tab" role="tab" data-tab="dialogue" aria-selected="false">
                     Hội thoại <span class="lesson-tab__count" id="countDialogue">0</span>
                 </button>
+                <!-- Bài đọc / bài nghe (content_item READING ngoài bảng chữ cái + LISTENING không phải lời thoại).
+                     Đặt cuối để bài có từ vựng/ngữ pháp vẫn mở tab đó trước; tên tab do JS đặt theo dữ liệu. -->
+                <button type="button" class="lesson-tab" role="tab" data-tab="reading" aria-selected="false">
+                    <span id="labelReading">Bài đọc</span> <span class="lesson-tab__count" id="countReading">0</span>
+                </button>
             </div>
 
             <div class="lesson-panel" id="panelKana" role="tabpanel" data-panel="kana" hidden></div>
@@ -63,6 +68,7 @@
             <div class="lesson-panel" id="panelVocab" role="tabpanel" data-panel="vocab" hidden></div>
             <div class="lesson-panel" id="panelGrammar" role="tabpanel" data-panel="grammar" hidden></div>
             <div class="lesson-panel" id="panelDialogue" role="tabpanel" data-panel="dialogue" hidden></div>
+            <div class="lesson-panel" id="panelReading" role="tabpanel" data-panel="reading" hidden></div>
         </section>
     </main>
 

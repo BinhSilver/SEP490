@@ -762,6 +762,11 @@ CREATE TABLE textbook (
     title       VARCHAR(255) NOT NULL,
     description TEXT NULL,
     jlpt_level  VARCHAR(10) NULL,
+    -- [JLAS2-XX] Thumbnail giao trinh (migration 021): anh tai len; NULL thi frontend ve thumbnail tu sinh
+    -- tu thumbnail_kanji (NULL = 日) va theme_color #RRGGBB (NULL = chon theo hash ten giao trinh).
+    thumbnail_url   VARCHAR(500) NULL,
+    thumbnail_kanji VARCHAR(4) NULL,
+    theme_color     VARCHAR(7) NULL,
     status      VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     version     INT UNSIGNED NOT NULL DEFAULT 1,
     created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -832,6 +837,23 @@ CREATE TABLE lesson_tag (
         REFERENCES lesson(id) ON DELETE CASCADE,
     CONSTRAINT fk_lesson_tag_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Kanji gan tay vao lesson (CONTENT_CREATOR). Trang hoc vien gop voi kanji suy ra tu tu vung
+-- (content_vocabulary -> vocabulary_kanji), khong trung lap.
+CREATE TABLE IF NOT EXISTS lesson_kanji (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id   BIGINT UNSIGNED NOT NULL,
+    kanji_id    BIGINT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL DEFAULT 1,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_kanji (lesson_id, kanji_id),
+    KEY idx_lesson_kanji_kanji (kanji_id),
+    CONSTRAINT fk_lesson_kanji_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson_kanji_kanji FOREIGN KEY (kanji_id)
+        REFERENCES kanji(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Phan noi dung trong lesson.
@@ -985,6 +1007,34 @@ CREATE TABLE IF NOT EXISTS content_audio (
         CHECK (owner_type IN ('VOCABULARY_WORD','CONTENT_ITEM')),
     CONSTRAINT chk_content_audio_range
         CHECK (start_ms IS NULL OR end_ms IS NULL OR end_ms >= start_ms)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-20] Nguon goc noi dung (da hinh, giong content_audio): moi dong ghi mot muc noi dung
+-- (giao trinh/unit/bai/tu vung/mau ngu phap/content_item/kanji/cau hoi) den tu nguon nao,
+-- ma on dinh ben nguon, URL goc va trang thai duyet. entity_id tro toi bang theo entity_type
+-- nen khong dat FK; seed/importer giu rang buoc. Mot muc co the co nhieu dong (vd. tu vung
+-- dung chung giua nhieu sach: moi ma on dinh mot dong). Migration: sql/migrations/018_content_source.sql.
+CREATE TABLE IF NOT EXISTS content_source (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    entity_type    VARCHAR(30)   NOT NULL,     -- TEXTBOOK/UNIT/LESSON/VOCABULARY/GRAMMAR_POINT/CONTENT_ITEM/KANJI/QUESTION.
+    entity_id      BIGINT UNSIGNED NOT NULL,
+    source_code    VARCHAR(30)   NOT NULL,     -- SEKAI/VNJPCLUB/AI_GENERATED.
+    stable_code    VARCHAR(255)  NOT NULL,     -- Ma on dinh ben nguon, vd. SOMATOME-N2-L001-VOC-001.
+    source_url     VARCHAR(1000) NULL,
+    original_title VARCHAR(500)  NULL,
+    review_status  VARCHAR(20)   NOT NULL DEFAULT 'CHUA_DUYET', -- NGUON/CHUA_DUYET/DA_DUYET.
+    note           VARCHAR(1000) NULL,
+    created_at     DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_content_source_code (source_code, stable_code),
+    KEY idx_content_source_entity (entity_type, entity_id),
+    CONSTRAINT chk_content_source_entity_type
+        CHECK (entity_type IN ('TEXTBOOK','UNIT','LESSON','VOCABULARY','GRAMMAR_POINT',
+                               'CONTENT_ITEM','KANJI','QUESTION')),
+    CONSTRAINT chk_content_source_source_code
+        CHECK (source_code IN ('SEKAI','VNJPCLUB','AI_GENERATED')),
+    CONSTRAINT chk_content_source_review_status
+        CHECK (review_status IN ('NGUON','CHUA_DUYET','DA_DUYET'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS dialogue_role (

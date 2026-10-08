@@ -15,4 +15,8 @@ public class LessonSummaryResponse {
     private String status;
     private Integer orderIndex;
     private Integer estimatedMinutes;
+
+    /** Hai trường dưới để màn hình quản lý điền sẵn form sửa bài; learner không dùng tới. */
+    private String situationTag;
+    private Long knowledgeTagId;
 }

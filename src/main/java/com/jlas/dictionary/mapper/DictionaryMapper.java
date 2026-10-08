@@ -19,19 +19,33 @@ public class DictionaryMapper {
     // =====================================================================
 
     public TextbookResponse toTextbookResponse(Textbook textbook, Long unitCount) {
+        return toTextbookResponse(textbook, unitCount, false);
+    }
+
+    /** Bản có cờ nhóm chủ đề, dùng cho trang danh sách giáo trình. */
+    public TextbookResponse toTextbookResponse(Textbook textbook, Long unitCount, boolean topicBased) {
         if (textbook == null) return null;
         return TextbookResponse.builder()
                 .id(textbook.getId())
                 .title(textbook.getTitle())
                 .description(textbook.getDescription())
                 .jlptLevel(textbook.getJlptLevel())
+                .thumbnailUrl(textbook.getThumbnailUrl())
+                .thumbnailKanji(textbook.getThumbnailKanji())
+                .themeColor(textbook.getThemeColor())
                 .status(textbook.getStatus())
                 .version(textbook.getVersion())
                 .unitCount(unitCount)
+                .topicBased(topicBased)
                 .build();
     }
 
     /** Unit kèm danh sách bài học đã lọc theo quyền xem (service truyền vào). */
+    /** Unit vừa tạo/sửa: chưa cần kèm bài nào, trả danh sách rỗng thay vì null cho client dễ xử lý. */
+    public UnitResponse toUnitResponse(Unit unit) {
+        return toUnitResponse(unit, List.of());
+    }
+
     public UnitResponse toUnitResponse(Unit unit, List<LessonSummaryResponse> lessons) {
         if (unit == null) return null;
         return UnitResponse.builder()
@@ -40,6 +54,44 @@ public class DictionaryMapper {
                 .description(unit.getDescription())
                 .orderIndex(unit.getOrderIndex())
                 .lessons(lessons)
+                .build();
+    }
+
+    /** Phần nội dung của bài; contentItemCount do service đếm và truyền vào. */
+    public SectionResponse toSectionResponse(LessonSection section, Long contentItemCount) {
+        if (section == null) return null;
+        return SectionResponse.builder()
+                .id(section.getId())
+                .title(section.getTitle())
+                .sectionType(section.getSectionType())
+                .orderIndex(section.getOrderIndex())
+                .contentItemCount(contentItemCount)
+                .build();
+    }
+
+    /** Một dòng kết quả tìm từ ở màn hình biên soạn; attachedToLesson do service tính. */
+    public VocabularySearchItem toVocabularySearchItem(VocabularyEntry entry, boolean attachedToLesson) {
+        if (entry == null) return null;
+        return VocabularySearchItem.builder()
+                .id(entry.getId())
+                .expression(entry.getExpression())
+                .reading(entry.getReading())
+                .readingRomaji(entry.getReadingRomaji())
+                .meaning(entry.getMeaning())
+                .wordType(entry.getWordType())
+                .jlptLevel(entry.getJlptLevel())
+                .attachedToLesson(attachedToLesson)
+                .build();
+    }
+
+    /** Tag phẳng cho dropdown màn hình quản lý; khác toTopicResponse vốn kèm số bài của chủ đề. */
+    public TagResponse toTagResponse(Tag tag) {
+        if (tag == null) return null;
+        return TagResponse.builder()
+                .id(tag.getId())
+                .code(tag.getCode())
+                .name(tag.getName())
+                .tagType(tag.getTagType())
                 .build();
     }
 
@@ -86,6 +138,9 @@ public class DictionaryMapper {
                 .status(lesson.getStatus())
                 .orderIndex(lesson.getOrderIndex())
                 .estimatedMinutes(lesson.getEstimatedMinutes())
+                .situationTag(lesson.getSituationTag())
+                // knowledgeTag là @ManyToOne LAZY; chỉ đọc id nên không kéo thêm query (proxy đã có khoá ngoại).
+                .knowledgeTagId(lesson.getKnowledgeTag() == null ? null : lesson.getKnowledgeTag().getId())
                 .build();
     }
 
@@ -93,6 +148,10 @@ public class DictionaryMapper {
      * Header nội dung bài học. Các danh sách con (từ vựng, ngữ pháp, hội thoại) do service gắn.
      * Yêu cầu lesson đã fetch join unit và knowledgeTag.
      */
+    private static Textbook textbookOf(Lesson lesson) {
+        return lesson.getUnit() == null ? null : lesson.getUnit().getTextbook();
+    }
+
     public LessonContentResponse toLessonContentResponse(Lesson lesson) {
         if (lesson == null) return null;
         return LessonContentResponse.builder()
@@ -106,6 +165,10 @@ public class DictionaryMapper {
                 .estimatedMinutes(lesson.getEstimatedMinutes())
                 .unitId(lesson.getUnit() != null ? lesson.getUnit().getId() : null)
                 .unitTitle(lesson.getUnit() != null ? lesson.getUnit().getTitle() : null)
+                // findWithUnitById đã fetch join unit.textbook nên không phát sinh query phụ.
+                .textbookId(textbookOf(lesson) != null ? textbookOf(lesson).getId() : null)
+                .textbookTitle(textbookOf(lesson) != null ? textbookOf(lesson).getTitle() : null)
+                .textbookStatus(textbookOf(lesson) != null ? textbookOf(lesson).getStatus() : null)
                 .knowledgeTagCode(lesson.getKnowledgeTag() != null ? lesson.getKnowledgeTag().getCode() : null)
                 .knowledgeTagName(lesson.getKnowledgeTag() != null ? lesson.getKnowledgeTag().getName() : null)
                 .build();
@@ -183,6 +246,7 @@ public class DictionaryMapper {
                 .contentItemId(item.getId())
                 .sectionId(item.getSection() != null ? item.getSection().getId() : null)
                 .sectionTitle(item.getSection() != null ? item.getSection().getTitle() : null)
+                .sectionOrderIndex(item.getSection() != null ? item.getSection().getOrderIndex() : null)
                 .title(item.getTitle())
                 .textJa(item.getContent())
                 .textVi(item.getTranslatedText())
@@ -193,6 +257,11 @@ public class DictionaryMapper {
     }
 
     public GrammarPointResponse toGrammarPointResponse(GrammarPoint point) {
+        return toGrammarPointResponse(point, null);
+    }
+
+    /** Bản cho màn hình biên soạn: kèm tag và số câu ví dụ đang gắn (service đếm rồi truyền vào). */
+    public GrammarPointResponse toGrammarPointResponse(GrammarPoint point, Long exampleCount) {
         if (point == null) return null;
         return GrammarPointResponse.builder()
                 .id(point.getId())
@@ -201,6 +270,9 @@ public class DictionaryMapper {
                 .example(point.getExample())
                 .note(point.getNote())
                 .orderIndex(point.getOrderIndex())
+                // tag là @ManyToOne LAZY; chỉ đọc id nên không kéo thêm query.
+                .tagId(point.getTag() == null ? null : point.getTag().getId())
+                .exampleCount(exampleCount)
                 .build();
     }
 
@@ -228,6 +300,31 @@ public class DictionaryMapper {
     }
 
     /** Yêu cầu detail đã fetch join contentItem, section và role. */
+    /**
+     * Bản cho màn hình biên soạn: dựng từ content_item, detail có thể CHƯA tồn tại (lời vừa tạo) nên
+     * không đòi detail khác null như bản dành cho màn hình học.
+     */
+    public DialogueLineResponse toEditableDialogueLineResponse(ContentItem item, DialogueLineDetail detail,
+                                                               List<DialogueChunkResponse> chunks) {
+        if (item == null) return null;
+        DialogueRole role = detail == null ? null : detail.getRole();
+        return DialogueLineResponse.builder()
+                .contentItemId(item.getId())
+                .sectionId(item.getSection() != null ? item.getSection().getId() : null)
+                .sectionTitle(item.getSection() != null ? item.getSection().getTitle() : null)
+                .orderIndex(item.getOrderIndex())
+                .text(item.getContent())
+                .translatedText(item.getTranslatedText())
+                .roleId(role != null ? role.getId() : null)
+                .roleCode(role != null ? role.getCode() : null)
+                .roleNameVi(role != null ? role.getNameVi() : null)
+                .sceneCode(detail == null ? null : detail.getSceneCode())
+                .bubbleSide(detail == null ? null : detail.getBubbleSide())
+                .chunks(chunks)
+                .audios(List.of())
+                .build();
+    }
+
     public DialogueLineResponse toDialogueLineResponse(DialogueLineDetail detail,
                                                        List<DialogueChunkResponse> chunks,
                                                        List<ContentAudioResponse> audios) {
