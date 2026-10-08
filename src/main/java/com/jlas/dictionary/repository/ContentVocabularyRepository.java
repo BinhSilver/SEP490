@@ -26,4 +26,26 @@ public interface ContentVocabularyRepository extends JpaRepository<ContentVocabu
             order by v.id
             """)
     List<VocabularyEntry> findVocabularyByLessonId(@Param("lessonId") Long lessonId);
+
+    /**
+     * Các dòng nối một từ với một bài (một từ có thể nằm trong nhiều content_item của cùng bài).
+     * Dùng khi gỡ từ khỏi bài: xoá ĐÚNG những dòng này, tuyệt đối không đụng vocabulary_entry.
+     */
+    @Query("""
+            select cv from ContentVocabulary cv
+              join cv.contentItem ci
+              join ci.section s
+            where s.lesson.id = :lessonId and cv.vocabularyEntry.id = :vocabularyId
+            """)
+    List<ContentVocabulary> findByLessonIdAndVocabularyId(@Param("lessonId") Long lessonId,
+                                                          @Param("vocabularyId") Long vocabularyId);
+
+    /** Id các từ đã gắn vào bài, để đánh dấu trong kết quả tìm kiếm. */
+    @Query("""
+            select cv.vocabularyEntry.id from ContentVocabulary cv
+              join cv.contentItem ci
+              join ci.section s
+            where s.lesson.id = :lessonId
+            """)
+    List<Long> findVocabularyIdsByLessonId(@Param("lessonId") Long lessonId);
 }

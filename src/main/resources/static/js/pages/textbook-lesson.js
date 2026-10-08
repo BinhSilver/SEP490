@@ -324,13 +324,29 @@
   }
 
   /* ---------- Bảng chữ (giáo trình bảng chữ cái): content_item READING, textJa = kana, textVi = romaji ----------
-   * Chỉ hiện khi lesson.skill = READING (bài N5/N4 cũng có 1 item READING là đoạn chú thích → không hiện).
+   * Quyết định theo CẢ BÀI, không theo từng mục, để một bài không vừa có ô kana vừa có khung bài đọc:
+   * bài bảng chữ cái = skill READING + tag KANA-* (chỉ giáo trình Bảng chữ cái dùng) + mọi mục đều một dòng,
+   * tối đa 4 ký tự. Bài READING khác (bài đọc vnjpclub...) đi vào khung bài đọc ở renderReading().
    * Không có audio thu sẵn → mỗi ô là một nút .speak-btn không data-src → đọc bằng TTS ja-JP khi bấm.
    */
   var SKILL_READING = 'READING';
+  var KANA_TAG_PREFIX = 'KANA-';
+  var KANA_MAX_CHARS = 4;
+
+  function isKanaEntry(item) {
+    var text = item.textJa || '';
+    return text.length > 0 && text.indexOf('\n') === -1 && Array.from(text).length <= KANA_MAX_CHARS;
+  }
+
+  function isKanaLesson() {
+    var items = lesson ? (lesson.readingItems || []) : [];
+    return !!lesson && lesson.skill === SKILL_READING && items.length > 0
+      && String(lesson.knowledgeTagCode || '').indexOf(KANA_TAG_PREFIX) === 0
+      && items.every(isKanaEntry);
+  }
 
   function kanaItems() {
-    return lesson && lesson.skill === SKILL_READING ? (lesson.readingItems || []) : [];
+    return isKanaLesson() ? lesson.readingItems : [];
   }
 
   function kanaTile(item) {
@@ -367,6 +383,511 @@
         return (g.title && groups.length > 1 ? '<h3 class="dialogue-scene__title">' + escapeHtml(g.title) + '</h3>' : '') +
           '<div class="kana-grid">' + g.items.map(kanaTile).join('') + '</div>';
       }).join('') + '<p class="kana-hint">Bấm vào chữ để nghe cách đọc.</p>';
+  }
+
+  /* ---------- Bài đọc / bài nghe: content_item READING (trừ bài bảng chữ cái) + LISTENING không phải lời thoại ----------
+   * Hiện với MỌI loại bài. Nhiều nguồn (vnjpclub) để bản dịch tiếng Việt xen giữa các dòng tiếng Nhật trong
+   * content thay vì cột translated_text, nên mỗi dòng được xếp loại để đặt lang/kiểu chữ — CHỈ là hiển thị,
+   * không sửa dữ liệu. Xuống dòng gốc được giữ nguyên.
+   */
+  var JA_CHAR = /[぀-ヿㇰ-ㇿ㐀-䶿一-鿿豈-﫿ｦ-ﾟ]/;
+  var VI_CHAR = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+
+  /** ja = có kana/Kanji (kể cả lẫn chữ Latin); vi = chữ Latin có dấu tiếng Việt; plain = số, "1.", romaji... */
+  function lineKind(line) {
+    if (JA_CHAR.test(line)) return 'ja';
+    if (VI_CHAR.test(line)) return 'vi';
+    return 'plain';
+  }
+
+  function readingLines(text) {
+    return String(text).split('\n').map(function (line) {
+      if (!line.trim()) return '<span class="reading-line reading-line--blank" aria-hidden="true"></span>';
+      var kind = lineKind(line);
+      var lang = kind === 'ja' ? ' lang="ja"' : (kind === 'vi' ? ' lang="vi"' : '');
+      return '<span class="reading-line reading-line--' + kind + '"' + lang + '>' + escapeHtml(line) + '</span>';
+    }).join('');
+  }
+
+  function readingItems() {
+    return isKanaLesson() ? [] : ((lesson && lesson.readingItems) || []);
+  }
+
+  function listeningItems() {
+    return (lesson && lesson.listeningItems) || [];
+  }
+
+  /** File audio thu sẵn của mục (ưu tiên giọng mặc định); null nếu không có. */
+  function itemAudio(item) {
+    var audio = audioForVoice(item.audios) || (item.audios || []).filter(function (a) { return a && a.audioUrl; })[0];
+    return audio && audio.audioUrl ? audio : null;
+  }
+
+  /* ---------- Câu hỏi luyện tập (lesson.practiceQuestions, đọc từ quiz của bài) ----------
+   * Mỗi câu một thẻ: đề (gạch chân chữ Hán cần đọc khi xác định được), audio riêng của câu nếu có, nghĩa ẩn/hiện,
+   * phương án dạng nút. Chọn là báo đúng/sai ngay; KHÔNG lưu điểm — bài kiểm tra chấm điểm đi qua /quiz.
+   */
+  var KANJI_RUN = /[一-鿿々]+/g;
+  var KANA_ONLY = /^[぀-ヿー\s・]+$/;
+  var QUESTION_PLACEHOLDER = /^\((Nghe|Đọc) và chọn đáp án đúng\)$/;
+  var BLANK_MARK = /[（(]\s*[）)]|＿|_{2,}|★|\[\s*\]/;
+
+  /**
+   * Dạng "cách đọc chữ Hán": phương án toàn kana và đề có đúng MỘT cụm chữ Hán → gạch chân cụm đó, kéo dài qua
+   * phần okurigana khớp với đuôi đáp án (白い ↔ しろい, 作って ↔ つくって). Không chắc (nhiều cụm, phương án có
+   * chữ Hán, thiếu đáp án) thì không gạch, để không gạch sai.
+   */
+  function underlineTarget(q) {
+    var text = q.questionText || '';
+    // Backend đã đối chiếu từ điển (chữ Hán có cách đọc = đáp án) → gạch đúng cụm đó.
+    if (q.targetText && text.indexOf(q.targetText) !== -1) {
+      var at = text.indexOf(q.targetText);
+      return escapeHtml(text.slice(0, at)) + '<u class="practice-q__target">' + escapeHtml(q.targetText) + '</u>' +
+        escapeHtml(text.slice(at + q.targetText.length));
+    }
+    var answer = q.correctOption ? (q.options || [])[q.correctOption - 1] : null;
+    var runs = text.match(KANJI_RUN) || [];
+    var allKana = (q.options || []).length > 0 && q.options.every(function (o) { return KANA_ONLY.test(o || ''); });
+    // Đề có chỗ trống （）/＿/★ là câu ngữ pháp (phương án là trợ từ...), không phải câu đọc chữ Hán.
+    if (!answer || !allKana || runs.length !== 1 || BLANK_MARK.test(text)) return escapeHtml(text);
+    var start = text.indexOf(runs[0]);
+    var end = start + runs[0].length;
+    var following = text.slice(end);
+    var okurigana = 0;
+    for (var k = Math.min(answer.length - 1, following.length); k > 0; k--) {
+      if (answer.slice(answer.length - k) === following.slice(0, k)) { okurigana = k; break; }
+    }
+    end += okurigana;
+    return escapeHtml(text.slice(0, start)) + '<u class="practice-q__target">' + escapeHtml(text.slice(start, end)) +
+      '</u>' + escapeHtml(text.slice(end));
+  }
+
+  /*
+   * Dạng câu mà đề gốc có tranh — nguồn vnjpclub không kèm ảnh nào:
+   *  - 発話表現 (問題3): audio đọc câu tình huống, tranh chỉ minh hoạ → vẫn làm được: hiện câu tình huống + nghĩa,
+   *    ẩn chữ của 3 câu đáp (phải nghe), chọn xong mới hiện.
+   *  - Chọn tranh: phương án CHÍNH LÀ tranh → không làm được khi thiếu tranh: ẩn thẻ, audio giữ làm bài nghe.
+   */
+  var HATSUWA_ITEM_TITLE = /発話表現/;
+  var HATSUWA_LESSON_TITLE = /biểu hiện trong hội thoại/i;
+  var PICTURE_ITEM_TITLE = /絵/;
+  var PICTURE_LESSON_TITLE = /chọn tranh/i;
+
+  function isHatsuwa(q, item) {
+    return HATSUWA_ITEM_TITLE.test((item && item.title) || '') || HATSUWA_LESSON_TITLE.test((lesson && lesson.title) || '');
+  }
+
+  function isPictureChoice(q, item) {
+    if (isHatsuwa(q, item)) return false;
+    return /^Hình số /.test(q.answerText || '')
+      || PICTURE_ITEM_TITLE.test((item && item.title) || '')
+      || PICTURE_LESSON_TITLE.test((lesson && lesson.title) || '');
+  }
+
+  function practiceCard(q, number, hatsuwa) {
+    var text = (q.questionText || '').trim();
+    var placeholder = QUESTION_PLACEHOLDER.test(text);
+    if (placeholder && q.recoveredText) { text = q.recoveredText; placeholder = false; }
+    // Câu nghe có audio: lời thoại (đề) ẩn sau nút để nghe trước — như đề JLPT; chọn xong thì tự mở.
+    // 発話表現: câu tình huống thay cho tranh nên HIỆN sẵn (kèm nghĩa); thứ phải nghe là 3 câu đáp.
+    var listenFirst = !!q.audioUrl && !!text && !placeholder && !hatsuwa;
+    var textHtml = text && !placeholder
+      ? '<p class="practice-q__text" lang="ja">' + underlineTarget({
+          questionText: text, options: q.options, correctOption: q.correctOption, targetText: q.targetText
+        }) + '</p>'
+      : '';
+    var translationHtml = q.translation
+      ? (listenFirst || hatsuwa ? '<p class="practice-q__script-vi" lang="vi">' + escapeHtml(q.translation) + '</p>'
+        : '<details class="practice-q__translation"><summary>Xem nghĩa</summary><p lang="vi">' +
+          escapeHtml(q.translation) + '</p></details>')
+      : '';
+    var options = q.options || [];
+    var numbersOnly = options.length > 0 && options.every(function (o) { return !String(o || '').trim(); });
+    // 発話表現 có audio: chữ của câu đáp ẩn (chỉ còn nút số) để phải nghe; chọn xong mới hiện (CSS .is-answered).
+    var hideOptionText = hatsuwa && !!q.audioUrl && !numbersOnly;
+    var correct = (q.correctOptions && q.correctOptions.length) ? q.correctOptions : (q.correctOption ? [q.correctOption] : []);
+    return '<article class="practice-q' + (hideOptionText ? ' practice-q--listen-options' : '') +
+      '" data-qid="' + escapeHtml(q.id) + '" data-correct="' + escapeHtml(correct.join(',')) + '"' +
+      (q.recoveredText ? ' data-recovered="1"' : '') + '>' +
+      '<div class="practice-q__head"><span class="practice-q__num">Câu ' + number + '</span></div>' +
+      (q.audioUrl ? '<audio class="reading-block__audio" controls preload="none" src="' +
+        escapeHtml(AUDIO_BASE + q.audioUrl) + '"></audio>' : '') +
+      (hideOptionText ? '<p class="practice-q__hint">Đọc tình huống, nghe 3 câu đáp rồi chọn số.</p>' : '') +
+      (listenFirst
+        ? '<p class="practice-q__hint">Nghe rồi chọn đáp án.</p>' +
+          '<details class="practice-q__translation practice-q__script"><summary>Xem lời thoại</summary>' +
+          textHtml + translationHtml + '</details>'
+        : textHtml + translationHtml) +
+      (text && placeholder ? '<p class="practice-q__hint">' + escapeHtml(text) + '</p>' : '') +
+      // Phương án không có chữ (nguồn chỉ có hình, ví dụ "Nghe chọn tranh"): một hàng nút số gọn.
+      '<div class="practice-q__options' + (numbersOnly ? ' practice-q__options--numbers' : '') +
+        '" role="group" aria-label="Phương án câu ' + number + '">' +
+      options.map(function (o, i) {
+        var kind = lineKind(o || '');
+        return '<button type="button" class="practice-q__option" data-option="' + (i + 1) + '"' +
+          (kind === 'ja' ? ' lang="ja"' : '') + '>' +
+          '<span class="practice-q__option-no">' + (i + 1) + '</span>' +
+          '<span class="practice-q__option-text">' + escapeHtml(o) + '</span></button>';
+      }).join('') +
+      '</div>' +
+      // Câu điền (không có phương án): đáp án dạng chữ ẩn sau nút.
+      (options.length === 0 && q.answerText
+        ? '<details class="practice-q__translation"><summary>Xem đáp án</summary><p' +
+          (lineKind(q.answerText) === 'ja' ? ' lang="ja"' : '') + '>' + escapeHtml(q.answerText) +
+          (/^Hình số /.test(q.answerText) ? ' <span class="practice-q__hint">(nguồn chưa có hình minh hoạ)</span>' : '') +
+          '</p></details>'
+        : '') +
+      '<p class="practice-q__feedback" aria-live="polite"></p>' +
+      (q.explanation ? '<p class="practice-q__explanation" hidden>' + escapeHtml(q.explanation) + '</p>' : '') +
+      '</article>';
+  }
+
+  function onPracticeClick(event) {
+    var btn = event.target.closest('.practice-q__option');
+    var retry = event.target.closest('.practice-q__retry');
+    var card = (btn || retry) ? (btn || retry).closest('.practice-q') : null;
+    if (!card) return;
+    var buttons = Array.prototype.slice.call(card.querySelectorAll('.practice-q__option'));
+    var feedback = card.querySelector('.practice-q__feedback');
+    var explanation = card.querySelector('.practice-q__explanation');
+    if (retry) {
+      card.classList.remove('is-answered');
+      buttons.forEach(function (b) { b.disabled = false; b.classList.remove('is-correct', 'is-wrong', 'is-chosen'); });
+      feedback.textContent = '';
+      feedback.className = 'practice-q__feedback';
+      if (explanation) explanation.hidden = true;
+      return;
+    }
+    if (btn.disabled) return;
+    var chosen = Number(btn.getAttribute('data-option'));
+    // Một hoặc nhiều đáp án đúng ("1,3"); rỗng = nguồn không có đáp án chắc chắn.
+    var correct = (card.getAttribute('data-correct') || '').split(',').filter(Boolean).map(Number);
+    var right = correct.indexOf(chosen) !== -1;
+    buttons.forEach(function (b) {
+      b.disabled = true;
+      var n = Number(b.getAttribute('data-option'));
+      if (n === chosen) b.classList.add('is-chosen');
+      if (correct.indexOf(n) !== -1) b.classList.add('is-correct');
+      else if (n === chosen) b.classList.add('is-wrong');
+    });
+    feedback.className = 'practice-q__feedback ' + (!correct.length ? 'is-unknown' : (right ? 'is-correct' : 'is-wrong'));
+    feedback.innerHTML = (!correct.length ? 'Câu này chưa có đáp án chắc chắn.'
+        : (right ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Chính xác!'
+          : '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Chưa đúng — đáp án là ' + correct.join(', ') + '.')) +
+      ' <button type="button" class="practice-q__retry">Làm lại</button>';
+    if (explanation) explanation.hidden = false;
+    // Câu nghe: chọn xong thì mở lời thoại / hiện chữ câu đáp để đối chiếu.
+    var script = card.querySelector('.practice-q__script');
+    if (script) script.open = true;
+    card.classList.add('is-answered');
+  }
+
+  /* ---------- Mô hình tab "Bài đọc" (dùng chung cho bộ đếm tab và cho render) ---------- */
+  var VOCAB_CONTAINER = /^Danh sách từ vựng/;
+  var KANJI_CONTAINER = /^Danh sách kanji$/;
+  var PRACTICE_STUB = /^Bài có \d+ câu hỏi/;
+  var JUNK_LINE = /^(【\s*】|POPUP SCRIPT)$/;
+  var QUESTION_MARKER = /^(問|もんだい|問題)\s*[0-9０-９]+\s*[:：.．]?$/;
+
+  function isContainerItem(item) {
+    var title = item.title || '';
+    if (VOCAB_CONTAINER.test(title)) return true;   // danh sách thật ở tab Từ vựng
+    return KANJI_CONTAINER.test(title) && ((lesson && lesson.kanjis) || []).length > 0;
+  }
+
+  function isPracticeStub(item) {
+    return PRACTICE_STUB.test((item.textJa || '').trim());
+  }
+
+  /*
+   * Dòng mốc mở phần dịch / đáp án / script trong dữ liệu nguồn: "<<< Đáp án & Dịch >>>", "Dịch & Giải thích",
+   * "☞ Dịch", "Script & Dịch", "【Dịch】", "Đáp án:"... — dòng ngắn, không có chữ Nhật. Mọi thứ sau mốc là lời giải.
+   */
+  var SOLUTION_MARKER = /(dịch|đáp\s*án|s(c)?ript|giải\s*thích)/i;
+
+  function isSolutionMarker(line) {
+    var t = String(line || '').trim();
+    return t.length > 0 && t.length <= 40 && !JA_CHAR.test(t) && SOLUTION_MARKER.test(t) && !/^POPUP SCRIPT$/i.test(t);
+  }
+
+  /** Tách đoạn văn thành phần chính và phần lời giải (sau dòng mốc đầu tiên); label = chữ của mốc đã bỏ trang trí. */
+  function splitSolution(text) {
+    var lines = String(text || '').split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      if (isSolutionMarker(lines[i])) {
+        var label = lines[i].replace(/[☞✏<>【】\[\]():：]/g, ' ').replace(/\s+/g, ' ').trim();
+        return {
+          main: lines.slice(0, i).join('\n'),
+          extra: lines.slice(i + 1).filter(function (l) { return !JUNK_LINE.test(l.trim()); }),
+          label: label
+        };
+      }
+    }
+    return { main: String(text || ''), extra: [], label: null };
+  }
+
+  /**
+   * Song ngữ: mỗi dòng Nhật (hoặc trung tính) mở một cặp, các dòng Việt ngay sau nó thuộc cặp đó — để bản dịch nằm
+   * dưới đúng câu của nó thay vì xen lẫn từng dòng.
+   */
+  function bilingualHtml(lines, latinIsTranslation) {
+    var pairs = [];
+    lines.forEach(function (line) {
+      var t = line.trim();
+      if (!t) return;
+      var kind = lineKind(t);
+      var prev = pairs[pairs.length - 1];
+      // Phần lời giải: dòng chữ Latin không dấu ngay sau câu Nhật chưa có dịch là bản dịch tên riêng ("山川" → "Yamakawa").
+      if (latinIsTranslation && kind === 'plain' && /[A-Za-z]/.test(t) && prev && prev.kind === 'ja' && !prev.vi.length) {
+        prev.vi.push(t);
+        return;
+      }
+      if (kind === 'vi' && pairs.length) pairs[pairs.length - 1].vi.push(t);
+      else pairs.push({ main: t, kind: kind, vi: [] });
+    });
+    return pairs.map(function (p) {
+      return '<div class="reading-pair">' +
+        '<span class="reading-line reading-line--' + p.kind + '"' + (p.kind === 'ja' ? ' lang="ja"' : (p.kind === 'vi' ? ' lang="vi"' : '')) + '>' +
+        escapeHtml(p.main) + '</span>' +
+        p.vi.map(function (v) { return '<span class="reading-line reading-line--vi" lang="vi">' + escapeHtml(v) + '</span>'; }).join('') +
+        '</div>';
+    }).join('');
+  }
+
+  function hasVietnameseLine(lines) {
+    return lines.some(function (l) { return l.trim() && lineKind(l.trim()) === 'vi'; });
+  }
+
+  /** Khoá so khớp dòng: NFKC + bỏ mọi khoảng trắng ("Ⓜ： ここ" và "Ⓜ：ここ", "１．" và "1." là một). */
+  function matchKey(value) {
+    return String(value || '').normalize('NFKC').replace(/\s+/g, '');
+  }
+
+  var OPTION_LINE = /^(\S{1,3}[:：])?\s*[1-9１-９][.．、]/;
+  var JA_CHAR_GLOBAL = /[぀-ヿㇰ-ㇿ㐀-䶿一-鿿豈-﫿ｦ-ﾟ]/g;
+
+  /**
+   * Câu mất đề (chỉ còn "(Nghe/Đọc và chọn đáp án đúng)") nhưng transcript có đủ: tìm dòng chứa phương án 1 mà dòng
+   * kế tiếp chứa phương án 2, rồi lấy dòng lời thoại gần nhất phía trên làm đề. Ghép theo NỘI DUNG phương án nên
+   * không phụ thuộc thứ tự; không tìm thấy chắc chắn thì giữ nguyên câu. Chỉ là hiển thị, không sửa dữ liệu.
+   */
+  function recoverPrompts(text, questions) {
+    var lines = String(text || '').split('\n');
+    var keys = lines.map(matchKey);
+    questions.forEach(function (q) {
+      if (!QUESTION_PLACEHOLDER.test((q.questionText || '').trim())) return;
+      var opts = (q.options || []).map(matchKey).filter(function (o) { return o.length >= 2; });
+      if (!opts.length) return;
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf(opts[0]) === -1) continue;
+        if (opts[1] && !(i + 1 < keys.length && keys[i + 1].indexOf(opts[1]) !== -1)) continue;
+        for (var j = i - 1; j >= 0; j--) {
+          var line = lines[j].trim();
+          if (!line) continue;
+          if (OPTION_LINE.test(line) || QUESTION_MARKER.test(line) || JUNK_LINE.test(line)) break;
+          // Nhãn số thứ tự ("(3)", "①", "例:", "① [ 〇 ]") không phải lời hỏi: cần ít nhất 2 chữ tiếng Nhật.
+          if ((line.match(JA_CHAR_GLOBAL) || []).length >= 2) q.recoveredText = line;
+          break;
+        }
+        return;
+      }
+    });
+  }
+
+  /**
+   * Bỏ khỏi đoạn văn những dòng đã có trong thẻ câu hỏi (đề, nghĩa, phương án, "問01:") và dòng rác của nguồn
+   * ("【】", "POPUP SCRIPT"). Còn lại là đoạn đọc/transcript thật; bài chỉ gồm câu hỏi thì không còn gì.
+   */
+  function passageLines(text, questions) {
+    var known = [];
+    questions.forEach(function (q) {
+      if (q.questionText) known.push(matchKey(q.questionText));
+      if (q.recoveredText) known.push(matchKey(q.recoveredText));
+      if (q.translation) known.push(matchKey(q.translation));
+      (q.options || []).forEach(function (o) { if (o) known.push(matchKey(o)); });
+    });
+    known = known.filter(Boolean);
+    return String(text || '').split('\n').filter(function (line) {
+      var t = line.trim();
+      if (!t) return true;
+      if (JUNK_LINE.test(t) || QUESTION_MARKER.test(t)) return false;
+      if (questions.length === 0) return true;
+      if (/^[0-9０-９]+$/.test(t)) return false;              // số phương án "1".."4" của bài nghe chọn tranh
+      // So theo matchKey (bỏ khoảng trắng, NFKC). Trùng nguyên dòng thì bỏ ở mọi độ dài (phương án một chữ như
+      // "き"); "chứa trong dòng" chỉ với chuỗi đủ dài, để không xoá nhầm câu văn của đoạn đọc.
+      var key = matchKey(t);
+      // Dòng phương án "１ aとb" / "2. 楽しい": bỏ số thứ tự đầu dòng rồi so với phương án.
+      var bare = key.replace(/^[0-9]+[.、)]?/, '');
+      return !known.some(function (k) {
+        return key === k || bare === k || (k.length >= 4 && key.indexOf(k) !== -1 && key.length <= k.length + 6);
+      });
+    });
+  }
+
+  function readingModel() {
+    var empty = { blocks: [], cta: false, label: 'Bài đọc', count: 0 };
+    if (!lesson || isKanaLesson()) return empty;
+    var reads = readingItems(), listens = listeningItems();
+    var allQuestions = (lesson.practiceQuestions || []).slice();
+    // Nút "Làm bài kiểm tra" chỉ khi luồng quiz mở được (quiz LESSON đã xuất bản).
+    var cta = !!lesson.quizAvailable;
+    // Phân loại theo mục cha (bài đọc/bài nghe chứa câu): câu chọn tranh không làm được khi thiếu tranh → không vẽ
+    // thẻ; audio của nó KHÔNG đánh dấu "đã nằm trong thẻ" nên vẫn hiện làm bài nghe.
+    var byCode = {};
+    reads.concat(listens).forEach(function (it) { if (it.stableCode) byCode[it.stableCode] = it; });
+    allQuestions.forEach(function (q) {
+      var parent = byCode[q.parentCode];
+      q.hatsuwa = isHatsuwa(q, parent);
+      q.pictureChoice = isPictureChoice(q, parent);
+    });
+    var questions = allQuestions.filter(function (q) { return !q.pictureChoice; });
+    var pictureHidden = allQuestions.length - questions.length;
+    var usedAudio = {};
+    questions.forEach(function (q) { if (q.audioContentItemId != null) usedAudio[q.audioContentItemId] = true; });
+
+    // Hai danh sách đã đúng thứ tự bên trong; ghép lại thì xếp theo thứ tự phần trong bài (ổn định).
+    var items = reads.map(function (it) { return { it: it, listening: false }; })
+      .concat(listens.map(function (it) { return { it: it, listening: true }; }))
+      .map(function (x, i) { x.i = i; return x; })
+      .sort(function (a, b) {
+        var sa = a.it.sectionOrderIndex == null ? Infinity : a.it.sectionOrderIndex;
+        var sb = b.it.sectionOrderIndex == null ? Infinity : b.it.sectionOrderIndex;
+        return sa !== sb ? sa - sb : a.i - b.i;
+      });
+
+    var assigned = {};
+    var blocks = [];
+    items.forEach(function (x) {
+      var it = x.it;
+      if (isContainerItem(it)) return;
+      if (isPracticeStub(it)) return;   // "Bài có N câu hỏi…": câu hỏi đã hiện thành thẻ / nút kiểm tra
+      if (it.contentItemId != null && usedAudio[it.contentItemId]) return;  // audio đã nằm trong thẻ câu hỏi
+      var own = it.stableCode
+        ? questions.filter(function (q) { return q.parentCode === it.stableCode && !assigned[q.id]; })
+        : [];
+      own.forEach(function (q) { assigned[q.id] = true; });
+      recoverPrompts(it.textJa, own);
+      // Lọc dòng đã có trong câu hỏi theo MỌI câu của mục (kể cả câu chọn tranh đã ẩn: "問01: 1 2 3 4"...).
+      var hiddenOwn = it.stableCode
+        ? allQuestions.filter(function (q) { return q.pictureChoice && q.parentCode === it.stableCode; })
+        : [];
+      // Phần sau dòng mốc "Dịch & Đáp án"/"Script & Dịch" là lời giải: giữ nguyên, thu gọn khi hiển thị.
+      var split = splitSolution(it.textJa);
+      var lines = passageLines(split.main, own.concat(hiddenOwn));
+      var hasPassage = lines.some(function (l) { return l.trim(); });
+      var hasExtra = split.extra.some(function (l) { return l.trim(); });
+      var audio = itemAudio(it);
+      var hasTranslation = !!(it.textVi && it.textVi.trim()) && own.length === 0;
+      if (!hasPassage && !hasExtra && !audio && !hasTranslation && own.length === 0) return;
+      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio,
+        extra: hasExtra ? split.extra : [], extraLabel: split.label,
+        translation: hasTranslation ? it.textVi : null, questions: own });
+    });
+    var rest = questions.filter(function (q) { return !assigned[q.id]; });
+    if (rest.length) {
+      blocks.push({ item: { title: 'Câu hỏi luyện tập', sectionTitle: 'Luyện tập', sectionId: 'practice' },
+        listening: false, lines: [], audio: null, translation: null, questions: rest });
+    }
+    var hasRead = blocks.some(function (b) { return !b.listening; });
+    var hasListen = blocks.some(function (b) { return b.listening || b.questions.some(function (q) { return !!q.audioUrl; }); });
+    var label = hasRead && hasListen ? 'Bài đọc & nghe' : (hasListen ? 'Bài nghe' : 'Bài đọc');
+    var count = blocks.reduce(function (n, b) { return n + (b.questions.length || 1); }, 0) + (cta && blocks.length === 0 ? 1 : 0);
+    return { blocks: blocks, cta: cta, label: label, count: count, pictureHidden: pictureHidden };
+  }
+
+  /** Khối là bài nghe: mục LISTENING, hoặc mục có câu hỏi mang audio riêng. */
+  function isListeningBlock(block) {
+    return block.listening || block.questions.some(function (q) { return !!q.audioUrl; });
+  }
+
+  function readingBlockHtml(block) {
+    var it = block.item;
+    var number = 0;
+    return '<article class="reading-block">' +
+      (it.title ? '<h4 class="reading-block__title">' + escapeHtml(it.title) + '</h4>' : '') +
+      // preload="none": bài nghe có thể vài chục file, không tải trước khi người học bấm phát.
+      (block.audio ? '<audio class="reading-block__audio" controls preload="none" src="' +
+        escapeHtml(AUDIO_BASE + block.audio.audioUrl) + '"></audio>' : '') +
+      (block.lines.length
+        ? (isListeningBlock(block)
+          // Bài nghe: transcript thu gọn để nghe trước, không đọc trước được đáp án.
+          ? '<details class="reading-block__script"><summary>Xem lời thoại (transcript)</summary>' +
+            '<div class="reading-block__text">' + bilingualHtml(block.lines) + '</div></details>'
+          : passageHtml(block.lines))
+        : '') +
+      (block.questions.length
+        ? '<div class="practice-list">' + block.questions.map(function (q) { number++; return practiceCard(q, number, q.hatsuwa); }).join('') + '</div>'
+        : '') +
+      // Lời giải để CUỐI (sau câu hỏi) và thu gọn: chứa bản dịch lẫn đáp án.
+      (block.extra && block.extra.length
+        ? '<details class="reading-block__script reading-block__solution"><summary>Xem ' +
+          escapeHtml(solutionLabel(block.extraLabel)) + '</summary>' +
+          '<div class="reading-block__text">' + bilingualHtml(block.extra, true) + '</div></details>'
+        : '') +
+      (block.translation
+        ? '<details class="reading-block__script reading-block__solution"><summary>Xem bản dịch</summary>' +
+          '<div class="reading-block__text">' + bilingualHtml(block.translation.split('\n')) + '</div></details>'
+        : '') +
+      '</article>';
+  }
+
+  /** Nhãn nút lời giải theo mốc của nguồn ("Đáp án & Dịch", "Script & Dịch"...), viết thường cho câu "Xem …". */
+  function solutionLabel(label) {
+    var t = String(label || '').trim();
+    if (!t || t.length > 30) return 'dịch & đáp án';
+    return t.charAt(0).toLowerCase() + t.slice(1).replace(/^sript/i, 'script');
+  }
+
+  /**
+   * Đoạn văn chính chỉ hiện tiếng Nhật; dòng dịch xen kẽ (nếu có) ẩn sau nút "Hiện bản dịch" — bấm thì mỗi câu
+   * dịch hiện ngay dưới câu Nhật của nó.
+   */
+  function passageHtml(lines) {
+    if (!hasVietnameseLine(lines)) return '<div class="reading-block__text">' + readingLines(lines.join('\n')) + '</div>';
+    return '<div class="reading-block__bilingual is-vi-hidden">' +
+      '<button type="button" class="reading-block__toggle-vi" aria-pressed="false">' +
+      '<i class="fa-solid fa-language" aria-hidden="true"></i> <span>Hiện bản dịch</span></button>' +
+      '<div class="reading-block__text">' + bilingualHtml(lines) + '</div></div>';
+  }
+
+  function onToggleTranslation(event) {
+    var btn = event.target.closest('.reading-block__toggle-vi');
+    if (!btn) return;
+    var box = btn.closest('.reading-block__bilingual');
+    var hidden = box.classList.toggle('is-vi-hidden');
+    btn.setAttribute('aria-pressed', hidden ? 'false' : 'true');
+    btn.querySelector('span').textContent = hidden ? 'Hiện bản dịch' : 'Ẩn bản dịch';
+  }
+
+  function renderReading() {
+    var model = readingModel();
+    var panel = document.getElementById('panelReading');
+    document.getElementById('labelReading').textContent = model.label;
+    if (model.blocks.length === 0 && !model.cta) { panel.innerHTML = ''; return; }
+    // Gom theo phần nội dung (Bài đọc / Bài nghe / Luyện tập...) theo thứ tự xuất hiện.
+    var groups = [], bySection = {};
+    model.blocks.forEach(function (b) {
+      var key = b.item.sectionId == null ? 'none' : String(b.item.sectionId);
+      if (!bySection[key]) { bySection[key] = { title: b.item.sectionTitle || '', blocks: [] }; groups.push(bySection[key]); }
+      bySection[key].blocks.push(b);
+    });
+    panel.innerHTML = (model.pictureHidden
+        ? '<p class="practice-q__note reading-picture-note"><i class="fa-regular fa-image" aria-hidden="true"></i> ' +
+          model.pictureHidden + ' câu dạng chọn tranh chưa có tranh từ nguồn nên tạm ẩn — phần audio bên dưới dùng để' +
+          ' luyện nghe.</p>'
+        : '') +
+      groups.map(function (g) {
+      return '<section class="reading-section">' +
+        (g.title ? '<h3 class="reading-section__title">' + escapeHtml(g.title) + '</h3>' : '') +
+        g.blocks.map(readingBlockHtml).join('') +
+        '</section>';
+    }).join('') +
+      (model.cta
+        ? '<div class="practice-cta"><div><strong>Bài kiểm tra của bài học</strong>' +
+          '<p>Làm bài có chấm điểm để ghi nhận tiến độ.</p></div>' +
+          '<a class="btn btn--primary btn--sm" href="/learning/lesson/' + encodeURIComponent(lesson.id) + '/quiz">' +
+          '<i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Làm bài kiểm tra</a></div>'
+        : '');
   }
 
   /* ---------- Flashcard bảng chữ (nút "Học bằng flashcard") ----------
@@ -686,6 +1207,7 @@
     renderVocab();
     renderGrammar();
     renderDialogue();
+    renderReading();
   }
 
   /** Ẩn tab có 0 mục và chọn tab đầu tiên còn hiện; nếu mọi khối đều rỗng thì hiện thông báo. */
@@ -719,6 +1241,8 @@
       tab.addEventListener('click', function () {
         var target = tab.getAttribute('data-tab');
         stopCurrent();
+        // Trình phát bài nghe là thẻ <audio> riêng, không đi qua stopCurrent(): dừng khi rời tab.
+        Array.prototype.forEach.call(contentEl.querySelectorAll('audio'), function (a) { a.pause(); });
         tabs.forEach(function (t) {
           var active = t === tab;
           t.classList.toggle('is-active', active);
@@ -740,15 +1264,17 @@
       kanji: (data.kanjis || []).length,
       vocab: (data.vocabularies || []).length,
       grammar: grammarBlocks().length,   // mẫu ngữ pháp + khối "Câu ví dụ khác" nếu có
-      dialogue: (data.dialogueLines || []).length
+      dialogue: (data.dialogueLines || []).length,
+      reading: readingModel().count
     };
     Object.keys(counts).forEach(function (key) {
       var id = 'count' + key.charAt(0).toUpperCase() + key.slice(1);
       document.getElementById(id).textContent = counts[key];
     });
-    applyTabVisibility(counts);
-
+    // Vẽ panel TRƯỚC rồi mới ẩn/hiện tab: applyTabVisibility() ghi "Bài này chưa có nội dung." vào panel Kanji
+    // khi mọi khối rỗng — vẽ sau thì renderKanji() ghi đè thành "chưa có Kanji", sai nghĩa với bài trống.
     renderPanels();
+    applyTabVisibility(counts);
     contentEl.hidden = false;
     assignRoleVoices();   // giọng có thể đã sẵn sàng trước khi dữ liệu về
     probeAudioFiles(data);
@@ -777,6 +1303,8 @@
   setupStatusToggles();
   setupKanaFlashcard();
   contentEl.addEventListener('click', onSpeakClick);
+  contentEl.addEventListener('click', onPracticeClick);
+  contentEl.addEventListener('click', onToggleTranslation);
   // Nút "Học bằng flashcard" được render động trong renderKana() → dùng delegation.
   contentEl.addEventListener('click', function (event) {
     if (event.target.closest('#kanaFlashcardBtn')) openKanaFlashcard();

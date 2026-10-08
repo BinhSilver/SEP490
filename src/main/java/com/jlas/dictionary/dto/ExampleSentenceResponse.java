@@ -14,6 +14,10 @@ public class ExampleSentenceResponse {
     private Long contentItemId;
     private Long sectionId;
     private String sectionTitle;
+    /** order_index của phần chứa mục; trang học dùng để xếp các phần đọc/nghe đúng thứ tự trong bài. */
+    private Integer sectionOrderIndex;
+    /** Mã gốc của mục (content_source.stable_code), để trang học gắn câu hỏi luyện tập vào đúng bài đọc/nghe. */
+    private String stableCode;
     private String title;
     private String textJa;
     private String textVi;

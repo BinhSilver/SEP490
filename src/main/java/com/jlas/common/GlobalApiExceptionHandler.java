@@ -2,11 +2,13 @@ package com.jlas.common;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.common.exception.ApiException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
@@ -44,6 +46,13 @@ public class GlobalApiExceptionHandler {
     ResponseEntity<ApiResponse<Void>> unreadableBody(HttpMessageNotReadableException exception) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.fail("Dữ liệu gửi lên không đúng định dạng.", "MALFORMED_REQUEST", null));
+    }
+
+    /** File vượt spring.servlet.multipart.max-file-size / max-request-size: bị chặn trước khi tới controller. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiResponse<Void>> uploadTooLarge(MaxUploadSizeExceededException exception) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiResponse.fail("File tải lên vượt quá dung lượng cho phép.", "PAYLOAD_TOO_LARGE", null));
     }
 
     private static String codeFor(String message) {

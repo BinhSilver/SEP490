@@ -1,6 +1,6 @@
 import re, csv, os, collections
 
-QB = r"D:\FALL26_FPT\SEP490\questionbank.sql"
+QB = r"D:\FALL26_FPT\SEP490\sql\seeds\questionbank.sql"
 OJ = r"C:\Users\LAPTOP LENOVO\AppData\Local\Temp\openjlpt-check\data\csv"
 
 # --- 1. Parse question lexemes from questionbank.sql ---

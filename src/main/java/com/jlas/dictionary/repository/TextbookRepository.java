@@ -20,7 +20,7 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
     /** Library textbooks exclude the separately presented Onyomi course, identified by its lessons. */
     @Query("""
             select t from Textbook t
-            where (:includeDraft = true or t.status = :status)
+            where ((:includeDraft = true and t.status <> 'ARCHIVED') or t.status = :status)
               and not exists (
                 select l.id from Lesson l join l.unit u
                 where u.textbook = t and l.lessonType = 'AMON' and l.skill = 'ONYOMI'
@@ -35,6 +35,9 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
             where u.textbook.id = :textbookId and l.lessonType = 'AMON' and l.skill = 'ONYOMI'
             """)
     long countOnyomiLessonsByTextbookId(@Param("textbookId") Long textbookId);
+
+    /** Cho CONTENT_CREATOR ở màn hình duyệt thường: thấy DRAFT nhưng KHÔNG thấy bản đã lưu trữ. */
+    List<Textbook> findByStatusNotOrderByIdAsc(String status);
 
     Optional<Textbook> findByIdAndStatus(Long id, String status);
 
@@ -61,6 +64,7 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
             order by t.id
             """)
     List<Textbook> findKanaFoundationByStatus(@Param("status") String status);
+    Optional<Textbook> findByIdAndStatusNot(Long id, String status);
 
     /** Số unit theo textbook cho một tập textbook, 1 query; mỗi phần tử là [textbookId, count]. */
     @Query("""
@@ -69,4 +73,18 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
             group by u.textbook.id
             """)
     List<Object[]> countUnitsByTextbookIds(@Param("textbookIds") List<Long> textbookIds);
+
+    /**
+     * Số bài gắn tag chủ đề (tag_type SITUATION) theo textbook cho một tập textbook, 1 query;
+     * mỗi phần tử là [textbookId, count]. Textbook không có bài nào gắn tag sẽ không có dòng.
+     */
+    @Query("""
+            select l.unit.textbook.id, count(distinct l.id) from LessonTag lt
+            join lt.lesson l
+            join lt.tag tg
+            where l.unit.textbook.id in :textbookIds and tg.tagType = :tagType
+            group by l.unit.textbook.id
+            """)
+    List<Object[]> countSituationTaggedLessonsByTextbookIds(@Param("textbookIds") List<Long> textbookIds,
+                                                            @Param("tagType") String tagType);
 }
