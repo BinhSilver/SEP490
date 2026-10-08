@@ -36,6 +36,14 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable())
+                        .addHeaderWriter((request, response) -> {
+                            // Only this admin preview can be embedded by the same website.
+                            boolean preview = request.getRequestURI().equals(
+                                    request.getContextPath() + "/admin/game-effects/preview");
+                            response.setHeader("X-Frame-Options", preview ? "SAMEORIGIN" : "DENY");
+                        }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, exception) ->
@@ -53,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
+                                "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()

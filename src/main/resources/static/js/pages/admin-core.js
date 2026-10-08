@@ -13,6 +13,9 @@
     { title: null, items: [
       { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: MODERATION }
     ] },
+    { title: 'Trò chơi', items: [
+      { key: 'game-effects', label: 'Xem hiệu ứng game', icon: 'fa-gamepad', href: '/admin/game-effects', roles: MODERATION }
+    ] },
     { title: 'Kiểm duyệt', items: [
       { key: 'reports', label: 'Báo cáo nội dung', icon: 'fa-flag', href: '/admin/moderation/reports', roles: MODERATION, badge: 'pendingReports' },
       { key: 'queue', label: 'Hàng đợi AI', icon: 'fa-robot', href: '/admin/moderation/queue', roles: MODERATION, badge: 'pendingQueue' },

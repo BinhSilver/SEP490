@@ -3,15 +3,23 @@ import App from "./App";
 import type { HostConfig } from "./game/matchController";
 import type { PlayMode } from "./game/arenaTypes";
 import { setPlaneSkin } from "./game/useAirDefenseStore";
+import { setAssetBase } from "../../neko-catch/src/assets";
 import "./index.css";
 
 // Trang Thymeleaf templates/air-defense/board.html render:
 // <div id="air-defense-root" data-session-id data-mode data-back-url data-me-id data-skin>
 const rootElement = document.getElementById("air-defense-root");
+const previewElement = document.getElementById("game-effects-root");
 
-if (!rootElement) {
+if (previewElement) {
+  // Set the shared renderer's asset path before its eager sprite preload.
+  setAssetBase('/arena/app/neko/');
+  import('./GameEffectsPreview').then(({ default: GameEffectsPreview }) => {
+    ReactDOM.createRoot(previewElement).render(<GameEffectsPreview />);
+  }).catch(() => { previewElement.textContent = 'Không tải được hiệu ứng. Hãy tải lại trang.'; });
+} else if (!rootElement) {
   throw new Error("Không tìm thấy #air-defense-root");
-}
+} else {
 
 // `npm run dev`: cho phép truyền qua query (?sid=…&mode=VERSUS&back=/games&me=12) khi không có data-*.
 const query = new URLSearchParams(window.location.search);
@@ -37,3 +45,4 @@ const host: HostConfig = {
 setPlaneSkin(data.skin || query.get("skin"));
 
 ReactDOM.createRoot(rootElement).render(<App host={host} />);
+}
