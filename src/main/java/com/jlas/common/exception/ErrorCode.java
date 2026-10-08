@@ -8,6 +8,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
     EMAIL_UNVERIFIED(HttpStatus.UNAUTHORIZED, "Email is not verified"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Access denied"),
+    AICALL_JAPANESE_REQUIRED(HttpStatus.BAD_REQUEST, "AI Call chỉ nhận tiếng Nhật. Vui lòng nhập bằng Hiragana/Katakana hoặc viết câu Kanji kèm kana."),
     AICALL_STAGE_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần hoàn thành các màn trước để mở màn này."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CONFLICT(HttpStatus.CONFLICT, "Conflict"),

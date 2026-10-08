@@ -17,6 +17,7 @@ import com.jlas.kaiwa.service.learning.SuggestedReplyService;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService.QuotaExceededException;
 import com.jlas.kaiwa.service.turn.AiCallTurnService;
+import com.jlas.kaiwa.service.understanding.JapaneseChatInputValidator;
 import com.jlas.moderation.service.UserSanctionService;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class ConversationApiController {
     private final AiCallQuotaService quotaService;
     private final UserSanctionService sanctions;
     private final AiCallTurnService turnService;
+    private final JapaneseChatInputValidator inputValidator;
 
     public ConversationApiController(
             AIConversationService conversationService,
@@ -48,7 +50,8 @@ public class ConversationApiController {
             ConversationSessionRepository sessionRepository,
             AiCallQuotaService quotaService,
             UserSanctionService sanctions,
-            AiCallTurnService turnService) {
+            AiCallTurnService turnService,
+            JapaneseChatInputValidator inputValidator) {
         this.conversationService = conversationService;
         this.annotationService = annotationService;
         this.suggestedReplyService = suggestedReplyService;
@@ -56,6 +59,7 @@ public class ConversationApiController {
         this.quotaService = quotaService;
         this.sanctions = sanctions;
         this.turnService = turnService;
+        this.inputValidator = inputValidator;
     }
 
     @PostMapping("/chat")
@@ -68,6 +72,7 @@ public class ConversationApiController {
         UserPrincipal current = currentUser();
         ownedSession(request.getSessionId(), current);
         sanctions.assertCanAct(current.userId());
+        inputValidator.validate(request.getMessage());
         // Giữ chỗ hạn mức/CP -> gọi AI -> chốt hoặc hoàn (JLAS-W0199).
         return ResponseEntity.ok(turnService.chat(current, request));
     }

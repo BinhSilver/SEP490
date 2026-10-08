@@ -75,6 +75,7 @@
   const messagesEl = document.getElementById('chatMessages');
   const input = document.getElementById('messageInput');
   const btnSend = document.getElementById('btnSend');
+  const composeError = document.getElementById('composeError');
   const btnMic = document.getElementById('btnMic');
   const suggestRow = document.getElementById('suggestRow');
   const typing = document.getElementById('typingIndicator');
@@ -691,6 +692,8 @@
   function bindCompose() {
     btnSend.addEventListener('click', send);
     input.addEventListener('keydown', function (e) {
+      // Enter commits a Japanese IME candidate before it submits a chat turn.
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         send();
@@ -768,10 +771,33 @@
     col.appendChild(note);
   }
 
+  function showComposeError(message) {
+    if (composeError) { composeError.textContent = message || ''; composeError.hidden = !message; }
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+  }
+
+  // Fast script check for typing/STT; the server also validates ambiguous Kanji-only text.
+  function hasJapaneseInput(text) {
+    const content = text.normalize('NFKC').replace(/(?<![A-Za-z0-9])(?:JLPT|AI|N[1-5])(?![A-Za-z0-9])/g, '');
+    if (!/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(content)) return false;
+    return ![...content].some(function (char) {
+      return (/\p{L}/u.test(char) && !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]/u.test(char))
+        || (/[\p{Cc}\p{Cf}]/u.test(char) && !/\s/u.test(char) && char !== '\u200d');
+    });
+  }
+
+  if (input) input.addEventListener('input', function () { showComposeError(''); });
+
   async function send() {
     if (busy || ended) return;
     const text = (input.value || '').trim();
     if (!text) return;
+    if (!hasJapaneseInput(text)) {
+      showComposeError('AI Call chỉ nhận tiếng Nhật. Vui lòng nhập bằng Hiragana/Katakana hoặc viết câu Kanji kèm kana.');
+      input.focus();
+      return;
+    }
+    showComposeError('');
     busy = true;
     btnSend.disabled = true;
     const learnerRow = addMessageRow('user', text);
@@ -793,6 +819,14 @@
       });
       const data = await res.json().catch(function () { return {}; });
       showTyping(false);
+
+      if (!res.ok && data.code === 'AICALL_JAPANESE_REQUIRED') {
+        if (learnerRow) learnerRow.remove();
+        if (!input.value) input.value = text;
+        showComposeError(data.message || 'AI Call chỉ nhận tiếng Nhật.');
+        input.focus();
+        return;
+      }
 
       // Hết hạn mức (hoặc không đủ CP): hiện modal chờ hạn mức mới / dùng CP / nâng cấp.
       if (res.status === 402) {
