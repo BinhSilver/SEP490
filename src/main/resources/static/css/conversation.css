@@ -837,3 +837,79 @@ body:not(.mode-free-chat) .cv-compose {
 .quota-actions .button-primary:hover { background: #3d2a70; }
 .quota-actions .button-secondary { background: var(--surface); color: var(--accent); }
 .quota-actions .button-secondary:hover { background: var(--accent-soft); }
+
+/* Compact free-chat preferences: two controls per row, keeping website theme tokens. */
+body.mode-free-chat .cv-sidebar {
+  --surface: var(--color-surface-lowest);
+  --text: var(--color-on-surface);
+  --muted: var(--color-on-surface-variant);
+  --border: var(--color-outline-variant);
+  --accent: var(--color-primary);
+}
+.freechat-settings-grid, .tts-settings--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.freechat-settings-grid .freechat-field, .tts-settings--compact .freechat-field { margin: 0; min-width: 0; }
+.freechat-field select { min-height: 44px; font: inherit; color: var(--text); }
+.tts-settings--compact .btn-tts-test { grid-column: 1 / -1; min-height: 44px; }
+.freechat-topic-dropdown { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.freechat-topic-dropdown summary {
+  min-height: 44px; padding: 10px; display: flex; align-items: center; gap: 8px;
+  cursor: pointer; list-style: none; color: var(--text); font-size: .85rem; font-weight: 600;
+}
+.freechat-topic-dropdown summary::-webkit-details-marker { display: none; }
+.freechat-topic-dropdown summary > span:first-child { flex: 1; }
+#fcTopicSummary { color: var(--muted); font-size: .75rem; }
+.freechat-topic-dropdown[open] summary i { transform: rotate(180deg); }
+.freechat-topic-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; padding: 4px 10px 10px; }
+.freechat-topic-options label { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; font-size: .85rem; color: var(--text); }
+.freechat-topic-options input { accent-color: var(--accent); width: 18px; height: 18px; }
+.freechat-topic-options label:has(input:disabled) { cursor: default; }
+body.mode-free-chat .bubble-tools .tool-chip { min-height: 44px; }
+
+/* Two tool switches per row in free chat. */
+body.mode-free-chat .toggle-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+}
+body.mode-free-chat .toggle-list .toggle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  font-size: .85rem;
+  line-height: 1.35;
+}
+body.mode-free-chat .toggle-list .toggle-row > span { min-width: 0; }
+/* Keep the switch rail compact while providing a full 44px touch target. */
+body.mode-free-chat .toggle-list .switch {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+}
+body.mode-free-chat .toggle-list .switch::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 1px;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--color-outline-variant);
+  transition: background .2s ease;
+}
+body.mode-free-chat .toggle-list .switch::after { top: 13px; left: 4px; }
+body.mode-free-chat .toggle-list .switch.on::before { background: var(--accent); }
+body.mode-free-chat .toggle-list .switch.on::after { left: 22px; }
+
+/* Halve the gap between the shared navigation and conversation content. */
+.cv-shell { padding-top: 3px; }
+@media (max-width: 900px) { .cv-shell { padding-top: 4px; } }
+@media (max-width: 640px) { .cv-shell { padding-top: 1px; } }
+
+.compose-error { margin-top: 6px; color: var(--color-error); font-size: .85rem; line-height: 1.4; }
+.compose-error[hidden] { display: none; }
+.compose-row input[aria-invalid="true"] { border-color: var(--color-error) !important; }

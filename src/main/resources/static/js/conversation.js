@@ -113,6 +113,7 @@
   }
 
   const ttsRateRange = document.getElementById('ttsRateRange');
+  const ttsGenderSelect = document.getElementById('ttsGenderSelect');
   const ttsRateLabel = document.getElementById('ttsRateLabel');
   const btnTtsTest = document.getElementById('btnTtsTest');
   const btnTtsFemale = document.getElementById('btnTtsFemale');
@@ -175,6 +176,8 @@
         prefs.favoriteTopics = prefs.favoriteTopics.map(function (t) {
           return t === 'Programming' || t === 'Lập trình' ? 'Technology' : t;
         });
+      } else {
+        prefs.favoriteTopics = [];
       }
       return prefs;
     } catch (e) {
@@ -195,6 +198,8 @@
     const level = document.getElementById('fcLevel');
     const style = document.getElementById('fcStyle');
     const initiative = document.getElementById('fcInitiative');
+    const topicInputs = [...document.querySelectorAll('#favoriteTopicsCard input[data-topic]')];
+    const topicSummary = document.getElementById('fcTopicSummary');
 
     function applyDriveUi() {
       if (btnDrive) {
@@ -203,7 +208,7 @@
       }
       if (topicsCard) {
         topicsCard.style.opacity = freeChatPrefs.conversationActive ? '1' : '0.45';
-        topicsCard.style.pointerEvents = freeChatPrefs.conversationActive ? '' : 'none';
+        topicInputs.forEach(function (input) { input.disabled = !freeChatPrefs.conversationActive; });
       }
     }
 
@@ -215,23 +220,31 @@
       });
     }
 
-    document.querySelectorAll('#favoriteTopicChips .topic-chip').forEach(function (chip) {
-      const topic = chip.dataset.topic;
-      if ((freeChatPrefs.favoriteTopics || []).indexOf(topic) >= 0) chip.classList.add('active');
-      chip.addEventListener('click', function () {
-        const list = freeChatPrefs.favoriteTopics || [];
-        const i = list.indexOf(topic);
-        if (i >= 0) {
-          list.splice(i, 1);
-          chip.classList.remove('active');
-        } else {
-          list.push(topic);
-          chip.classList.add('active');
-        }
-        freeChatPrefs.favoriteTopics = list;
+    function applyTopicSummary() {
+      if (topicSummary) topicSummary.textContent = freeChatPrefs.favoriteTopics.length
+        ? freeChatPrefs.favoriteTopics.length + ' đã chọn' : 'Chưa chọn';
+    }
+    topicInputs.forEach(function (input) {
+      input.checked = (freeChatPrefs.favoriteTopics || []).includes(input.dataset.topic);
+      input.addEventListener('change', function () {
+        freeChatPrefs.favoriteTopics = topicInputs.filter(function (item) { return item.checked; })
+          .map(function (item) { return item.dataset.topic; });
         saveFreeChatPrefs();
+        applyTopicSummary();
       });
     });
+    applyTopicSummary();
+    if (topicsCard) {
+      document.addEventListener('click', function (event) {
+        if (!topicsCard.contains(event.target)) topicsCard.open = false;
+      });
+      topicsCard.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          topicsCard.open = false;
+          topicsCard.querySelector('summary').focus();
+        }
+      });
+    }
 
     function bindSelect(el, key) {
       if (!el) return;
@@ -364,6 +377,7 @@
 
   function applyGenderButtons() {
     const g = normalizeGender(settings.ttsGender);
+    if (ttsGenderSelect) ttsGenderSelect.value = g;
     if (btnTtsFemale) {
       btnTtsFemale.setAttribute('aria-pressed', g === 'female' ? 'true' : 'false');
     }
@@ -410,6 +424,7 @@
       updateTtsHint();
     }
 
+    if (ttsGenderSelect) ttsGenderSelect.addEventListener('change', function () { setGender(ttsGenderSelect.value); });
     if (btnTtsFemale) {
       btnTtsFemale.addEventListener('click', function () { setGender('female'); });
     }
@@ -577,7 +592,7 @@
       }
     }
 
-    if ((settings.translation || force) && trEl && !row.dataset.trDone) {
+    if (settings.translation && trEl && !row.dataset.trDone) {
       try {
         const res = await fetch('/api/conversation/' + sessionId + '/translate', {
           method: 'POST',
