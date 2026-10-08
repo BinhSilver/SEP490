@@ -120,7 +120,7 @@
   }
 
   async function createFolder() {
-    var name = prompt('Tên thư mục mới:');
+    var name = await FlashShell.requestFolderName();
     if (!name || !name.trim()) return;
     try {
       var folder = await FlashApi.post('/api/flashcards/folders', { name: name.trim() });

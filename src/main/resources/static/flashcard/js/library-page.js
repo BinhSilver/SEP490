@@ -186,7 +186,7 @@
   }
 
   async function createFolder() {
-    var name = prompt('Tên thư mục mới:');
+    var name = await FlashShell.requestFolderName();
     if (!name || !name.trim()) return;
     try {
       await FlashApi.post('/api/flashcards/folders', { name: name.trim() });
@@ -199,11 +199,13 @@
 
   async function renameFolder(id) {
     var current = state.folders.find(function (folder) { return folder.id === id; });
-    var name = prompt('Tên mới của thư mục:', current ? current.name : '');
+    var name = await FlashShell.requestFolderName({ rename: true, name: current ? current.name : '' });
     if (!name || !name.trim()) return;
     try {
       await FlashApi.put('/api/flashcards/folders/' + id, { name: name.trim() });
       await loadFolders();
+      var renameButton = folderList.querySelector('[data-folder-rename="' + id + '"]');
+      if (renameButton) renameButton.focus({ preventScroll: true });
     } catch (e) {
       FlashShell.showToast(e.message || 'Không đổi được tên thư mục', 'err');
     }
