@@ -1,6 +1,7 @@
 import { createApi } from './api.js';
-import { RecallEngine } from './engine.js';
-import { isKanaAnswer, normalizeAnswer, ANSWER_TYPES } from './rules.js';
+import { RecallEngine } from './engine.js?v=20261006-romaji';
+import { romajiToHiragana } from './romaji.js';
+import { normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
 
@@ -8,8 +9,7 @@ const params = new URLSearchParams(location.search);
 const setId = params.get('setId');
 const autoStart = params.get('autostart') === '1';
 let sessionId = params.get('sessionId'), page = 0, options, retryOperation;
-let compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false, incorrectResetTimer;
-const INCORRECT_REVEAL_MS = 1000;
+let pendingEnterQuestionId, compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false;
 const api = createApi(setId), engine = new RecallEngine(), timer = createTimer();
 const events = new AbortController();
 const studyUrl = '/flashcard/speed-recall.html?setId=' + encodeURIComponent(setId || '');
@@ -25,13 +25,13 @@ const FIELDS = ['KANJI', 'HIRAGANA', 'MEANING', 'HAN_VIET'];
 const FIELD_NAMES = { KANJI: 'Kanji', HIRAGANA: 'Hiragana', MEANING: 'Nghĩa', HAN_VIET: 'Hán Việt' };
 const FIELD_LABELS = { KANJI: 'Kanji', HIRAGANA: 'cách đọc', MEANING: 'nghĩa', HAN_VIET: 'âm Hán Việt' };
 const ANSWER_PROMPTS = {
-  HIRAGANA: 'Nhập cách đọc bằng kana',
+  HIRAGANA: 'Gõ Romaji hoặc kana, Enter để kiểm tra',
   KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật, Enter để kiểm tra',
   MEANING: 'Gõ nghĩa tiếng Việt (có dấu hay không đều được), Enter để kiểm tra',
   HAN_VIET: 'Gõ âm Hán Việt (có dấu hay không đều được), Enter để kiểm tra'
 };
 const ANSWER_HINTS = {
-  HIRAGANA: 'Gõ bằng kana', KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật',
+  HIRAGANA: 'Gõ Romaji bằng bàn phím ENG hoặc nhập kana', KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật',
   MEANING: 'Gõ nghĩa, có dấu hay không dấu đều được', HAN_VIET: 'Gõ âm Hán Việt, có dấu hay không dấu đều được'
 };
 const MODE_KEY = 'jlas.speedRecall.mode';
@@ -130,8 +130,13 @@ function controls() {
   if (next) {
     next.hidden = engine.view?.state !== 'ANSWER_FEEDBACK';
     next.disabled = busy || !canAdvance;
+    text('game-keyboard-hint', engine.view?.state === 'ANSWER_FEEDBACK'
+      ? (busy ? 'Đang đồng bộ kết quả…' : canAdvance ? 'Nhấn Enter để sang câu tiếp' : 'Chờ một chút để sang câu tiếp…')
+      : 'Nhấn Enter để kiểm tra đáp án');
   }
-  $('typing-input').disabled = engine.view?.state !== 'PLAYING' || !!incorrectResetTimer;
+  $('typing-input').disabled = engine.view?.state !== 'PLAYING' || busy;
+  show('answer-tools', engine.view?.state === 'PLAYING');
+  $('clear-answer').disabled = busy || !engine.input;
 }
 function available() {
   if (!options) return 0;
@@ -170,10 +175,12 @@ async function run(operation) {
   } finally {
     engine.busy = false; show('loading', false); controls();
     if (!retryOperation && engine.view) schedule();
+    if (!retryOperation && engine.view?.state === 'PLAYING' && !document.hidden) $('typing-input').focus({ preventScroll: true });
   }
 }
 function accept(view) {
   applySessionMode(view.mode);
+  if (view.state !== 'PLAYING' || view.question?.id !== pendingEnterQuestionId) pendingEnterQuestionId = undefined;
   engine.setView(view); sessionId = String(view.id);
   canAdvance = view.state === 'ANSWER_FEEDBACK' && remaining(view.feedbackUntil, view.serverNow) === 0;
   const path = terminal(view.state) ? '/flashcard/speed-recall-result.html' : '/flashcard/speed-recall.html';
@@ -484,6 +491,20 @@ on('retry-wrong', 'click', () => {
 on('previous-page', 'click', () => { if (engine.busy) return; page = Math.max(0, page - 1); void run(loadHistory); });
 on('next-page', 'click', () => { if (engine.busy) return; page++; void run(loadHistory); });
 document.addEventListener('keydown', event => {
+  // Enter confirms IME composition first; it must never consume that same key to skip a question.
+  if (event.key === 'Enter' && !event.defaultPrevented && !event.repeat && !event.isComposing
+      && !engine.composing && event.keyCode !== 229 && performance.now() - compositionEnded > 80
+      && !event.target?.closest('button, a, input, textarea, select, [contenteditable="true"]')) {
+    if (engine.view?.state === 'ANSWER_FEEDBACK') {
+      event.preventDefault();
+      advanceQuestion();
+    } else if (terminal(engine.view?.state) && !engine.busy && !retryOperation) {
+      event.preventDefault();
+      const retry = $('retry-wrong');
+      if (!retry.hidden && !retry.disabled) retry.click();
+      else $('new-session').click();
+    }
+  }
   if (event.key === 'Escape' && !event.isComposing && !engine.composing && ['PLAYING', 'ANSWER_FEEDBACK'].includes(engine.view?.state)) {
     event.preventDefault(); $('pause').click();
   }
@@ -492,7 +513,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden && !engine.busy && !retryOperation && ['PLAYING', 'ANSWER_FEEDBACK'].includes(engine.view?.state)) $('pause').click();
   else if (!document.hidden && sessionId && !engine.busy && !retryOperation && !terminal(engine.view?.state)) void run(async () => accept(await api.state(sessionId)));
 }, { signal: events.signal });
-window.addEventListener('pagehide', () => { disposed = true; clearTimeout(incorrectResetTimer); timer.stop(); events.abort(); }, { once: true });
+window.addEventListener('pagehide', () => { disposed = true; timer.stop(); events.abort(); }, { once: true });
 window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
 links();
 void run(async () => {
@@ -507,6 +528,6 @@ void run(async () => {
   else if (autoStart) {
     const count = available();
     if (!count) throw new Error('Bộ thẻ này chưa có thẻ hợp lệ để luyện phản xạ.');
-    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: true, mode: modeName() }));
+    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: false, mode: modeName() }));
   } else section('setup');
 });

@@ -140,12 +140,16 @@ public class SpeedRecallService {
         if (s.getFeedbackUntil() != null && clock.now().isBefore(s.getFeedbackUntil())) return view(s, rows);
         FlashcardSpeedRecallAnswer a = rows.get(expected);
         if (a.getOutcome() != Outcome.PENDING) throw conflict("Câu hỏi đã bắt đầu");
+        issue(s, a);
+        return view(s, rows);
+    }
+
+    private void issue(FlashcardSpeedRecallSession s, FlashcardSpeedRecallAnswer a) {
         LocalDateTime now = clock.now();
         a.setStreakBefore(s.getStreak()); a.setTimeLimitMs(SpeedRecallRules.timeLimit(s.getStreak()));
         a.setIssuedAt(now); a.setDeadlineAt(now.plusNanos(a.getTimeLimitMs() * 1_000_000L)); a.setOutcome(Outcome.ACTIVE);
-        s.setCurrentQuestionIndex(expected); s.setState(State.PLAYING); s.setFeedbackUntil(null);
+        s.setCurrentQuestionIndex(a.getQuestionIndex()); s.setState(State.PLAYING); s.setFeedbackUntil(null);
         touch(s);
-        return view(s, rows);
     }
 
     public View answer(Long setId, Long userId, Long id, AnswerRequest request, boolean timeoutSignal) {
@@ -172,8 +176,20 @@ public class SpeedRecallService {
         if (normalized.codePointCount(0, normalized.length()) > 500) throw bad("Đáp án sau chuẩn hóa quá dài");
         if (!late && normalized.isBlank()) throw bad("Hãy nhập đáp án trước khi kiểm tra");
         a.setUserAnswer(request.userAnswer()); a.setNormalizedAnswer(normalized);
+        if (!late && !mode.matches(request.userAnswer(), a.getExpectedAnswer())) {
+            // A wrong Enter is an attempt, not a completed question. Keep its original deadline.
+            touch(s);
+            int elapsed = (int) Math.max(0, Math.min(a.getTimeLimitMs(),
+                    a.getTimeLimitMs() - Duration.between(now, a.getDeadlineAt()).toMillis()));
+            Answer attempt = new Answer(a.getId(), a.getCard() == null ? null : a.getCard().getId(),
+                    a.getQuestionText(), a.getReading(), a.getMeaning(), request.userAnswer(),
+                    Outcome.WRONG.name(), elapsed, 0, a.getExpectedAnswer());
+            return view(s, rows, attempt);
+        }
         a.setAnswerRequestId(request.requestId()); a.setRequestFingerprint(fingerprint);
-        resolve(s, a, late ? Outcome.TIMEOUT : mode.matches(request.userAnswer(), a.getExpectedAnswer()) ? Outcome.CORRECT : Outcome.WRONG);
+        resolve(s, a, late ? Outcome.TIMEOUT : Outcome.CORRECT);
+        // Correct answers issue the next question in the same transaction, without another Enter.
+        if (!late && !terminal(s)) issue(s, rows.get(s.getCurrentQuestionIndex() + 1));
         return view(s, rows);
     }
 
@@ -247,18 +263,22 @@ public class SpeedRecallService {
             s.setWrongCount(s.getWrongCount() + 1); s.setStreak(0);
             if (outcome == Outcome.TIMEOUT) s.setTimeoutCount(s.getTimeoutCount() + 1);
         }
-        s.setFeedbackUntil(now.plusNanos((outcome == Outcome.CORRECT ? 550L : 1250L) * 1_000_000));
+        s.setFeedbackUntil(now);
         touch(s);
         if (s.getCorrectCount() + s.getWrongCount() == s.getTotalQuestions()) end(s, State.FINISHED);
         else s.setState(State.ANSWER_FEEDBACK);
     }
 
     private View view(FlashcardSpeedRecallSession s, List<FlashcardSpeedRecallAnswer> rows) {
+        return view(s, rows, null);
+    }
+
+    private View view(FlashcardSpeedRecallSession s, List<FlashcardSpeedRecallAnswer> rows, Answer attempt) {
         FlashcardSpeedRecallAnswer current = rows.get(s.getCurrentQuestionIndex());
         Question question = s.getState() == State.PLAYING || s.getState() == State.PAUSED && s.getPausedFrom() == State.PLAYING
                 ? new Question(current.getId(), current.getQuestionIndex(), current.getQuestionText(), current.getExpectedAnswer(),
                         current.getTimeLimitMs(), instant(current.getDeadlineAt())) : null;
-        Answer feedback = resolved(current) ? dto(current) : null;
+        Answer feedback = attempt != null ? attempt : resolved(current) ? dto(current) : null;
         List<Answer> results = rows.stream().filter(this::resolved).map(this::dto).toList();
         Integer best = null;
         if (s.getState() == State.FINISHED) {
