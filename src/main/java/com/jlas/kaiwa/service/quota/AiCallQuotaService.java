@@ -57,6 +57,9 @@ public class AiCallQuotaService {
      */
     @Transactional
     public Optional<LocalDate> tryReserve(Long userId, double minutes) {
+        // An existing per-user row serializes daily creation and monthly accounting.
+        // Locking a missing daily row can otherwise deadlock on MySQL gap locks.
+        userRepository.findForCreditUpdate(userId).orElseThrow();
         LocalDate today = LocalDate.now();
         AiUsageDaily usage = usageRepository.lockByUserIdAndDate(userId, today)
                 .orElseGet(() -> AiUsageDaily.builder()
@@ -79,6 +82,7 @@ public class AiCallQuotaService {
         if (date == null || minutes == null || minutes.signum() <= 0) {
             return;
         }
+        userRepository.findForCreditUpdate(userId).orElseThrow();
         usageRepository.lockByUserIdAndDate(userId, date).ifPresent(usage -> {
             usage.setMinutesUsed(usage.getMinutesUsed().subtract(minutes).max(BigDecimal.ZERO));
             usageRepository.save(usage);
