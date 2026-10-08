@@ -106,16 +106,12 @@ public class ConversationApiController {
             @PathVariable Long sessionId,
             @RequestBody Map<String, Object> body) {
         ConversationSession session = ownedSession(sessionId, currentUser());
-        if (FreeChatSupport.isFreeChat(session)) {
-            // Free chat: no learning annotation pipeline
-            return ResponseEntity.ok(Map.of("tokens", List.of()));
-        }
         String text = body.get("text") == null ? "" : String.valueOf(body.get("text"));
         // allowAi=true only when client asks (nút あ); mặc định chỉ DB vocab + cache
         boolean allowAi = Boolean.TRUE.equals(body.get("allowAi"))
                 || "true".equalsIgnoreCase(String.valueOf(body.getOrDefault("allowAi", "false")));
         List<FuriganaTokenDto> tokens = annotationService.annotateFurigana(
-                session.getScenario().getId(), text, allowAi);
+                FreeChatSupport.isFreeChat(session) ? null : session.getScenario().getId(), text, allowAi);
         long rubyCount = tokens.stream()
                 .filter(token -> token.getReading() != null && !token.getReading().isBlank())
                 .count();
@@ -129,11 +125,8 @@ public class ConversationApiController {
             @PathVariable Long sessionId,
             @RequestBody Map<String, String> body) {
         ConversationSession session = ownedSession(sessionId, currentUser());
-        if (FreeChatSupport.isFreeChat(session)) {
-            return ResponseEntity.ok(Map.of("translation", ""));
-        }
         String text = body.getOrDefault("text", "");
-        String vi = annotationService.translate(session.getScenario().getId(), text);
+        String vi = annotationService.translate(FreeChatSupport.isFreeChat(session) ? null : session.getScenario().getId(), text);
         return ResponseEntity.ok(Map.of("translation", vi != null ? vi : ""));
     }
 

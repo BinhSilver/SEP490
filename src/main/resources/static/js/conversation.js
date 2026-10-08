@@ -92,9 +92,7 @@
   const teacherVoice = body.dataset.teacherVoice === 'true';
   if (teacherVoice) settings.ttsGender = settings.teacherGender || 'male';
   if (freeChat) {
-    // Trò chuyện tự do: chỉ phản hồi ngữ pháp cơ bản (không furigana/dịch/gợi ý/nhiệm vụ)
-    settings.furigana = false;
-    settings.translation = false;
+    // Free chat keeps reading/translation preferences; suggestions remain scenario-only.
     settings.suggestions = false;
     // feedback defaults true via defaultSettings; user can toggle in sidebar
   }
@@ -532,22 +530,7 @@
         setTimeout(function () { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Chép'; }, 1200);
       });
     });
-    row.querySelectorAll('.btn-ruby').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        settings.furigana = true;
-        saveSettings();
-        applySettings();
-        ensureAnnotations(row, true);
-      });
-    });
-    row.querySelectorAll('.btn-tr').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        settings.translation = true;
-        saveSettings();
-        applySettings();
-        ensureAnnotations(row, true);
-      });
-    });
+
   }
 
   async function ensureAnnotations(row, force) {
@@ -602,11 +585,16 @@
           body: JSON.stringify({ text: text })
         });
         const data = await res.json();
-        trEl.textContent = data.translation || '';
+        if (!res.ok || !data.translation) throw new Error('Không thể tải bản dịch.');
+        trEl.textContent = data.translation;
         trEl.hidden = false;
         trEl.classList.add('show');
         row.dataset.trDone = '1';
-      } catch (e) {}
+      } catch (e) {
+        trEl.textContent = 'Không thể tải bản dịch. Tắt rồi bật lại công tắc dịch trong Công cụ để thử lại.';
+        trEl.hidden = false;
+        trEl.classList.add('show');
+      }
     } else if (trEl && row.dataset.trDone) {
       trEl.classList.add('show');
       trEl.hidden = false;
@@ -863,14 +851,14 @@
         if (data.speakerOpening) {
           const opening = data.speakerOpening;
           audibleRow = addMessageRow('assistant', opening.text, null, null, null, opening.speaker, opening.messageId);
-          if (settings.furigana || settings.translation) ensureAnnotations(audibleRow, true);
+          if (settings.furigana || settings.translation) ensureAnnotations(audibleRow, settings.furigana);
         }
         if (data.currentSpeaker) {
           window.__AI_ROLE__ = data.currentSpeaker.name;
           document.querySelectorAll('[data-current-speaker]').forEach(function (label) { label.textContent = data.currentSpeaker.name; });
         }
         if (settings.autoplay) speak(audibleRow.dataset.text || '', audibleRow.querySelector('.btn-tts'));
-        if (settings.furigana || settings.translation) ensureAnnotations(row, true);
+        if (settings.furigana || settings.translation) ensureAnnotations(row, settings.furigana);
       }
       if (data.chargeRefunded) {
         addChargeNote(learnerRow, 'AI gặp lỗi nên lượt này không bị tính.', false);
@@ -937,13 +925,10 @@
     let bubbleInner = '<div class="bubble-text jp msg-text"></div>';
     if (role === 'assistant') {
       bubbleInner +=
-        (freeChat ? '' : '<div class="translation-line" hidden></div>') +
+        '<div class="translation-line" hidden></div>' +
         '<div class="bubble-tools">' +
         '<button type="button" class="tool-chip btn-tts"><i class="fa-solid fa-volume-high"></i> Phát</button>' +
         '<button type="button" class="tool-chip btn-copy"><i class="fa-solid fa-copy"></i> Chép</button>' +
-        (freeChat ? '' :
-          '<button type="button" class="tool-chip btn-ruby"><i class="fa-solid fa-language"></i> あ</button>' +
-          '<button type="button" class="tool-chip btn-tr"><i class="fa-solid fa-globe"></i> Việt</button>') +
         '</div>';
     }
 

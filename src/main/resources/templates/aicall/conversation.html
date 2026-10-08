@@ -98,12 +98,10 @@
                                                data-jlpt=${token.jlptLevel}"
                                       th:text="${token.surface}"></span></th:block>
                         </div>
-                        <div class="translation-line" hidden th:unless="${freeChat}"></div>
+                        <div class="translation-line" hidden></div>
                         <div class="bubble-tools" th:if="${m.role == 'assistant'}">
                             <button type="button" class="tool-chip btn-tts" title="Phát âm"><i class="fa-solid fa-volume-high"></i> Phát</button>
                             <button type="button" class="tool-chip btn-copy" title="Sao chép"><i class="fa-solid fa-copy"></i> Chép</button>
-                            <button type="button" class="tool-chip btn-ruby" title="Furigana" th:unless="${freeChat}"><i class="fa-solid fa-language"></i> あ</button>
-                            <button type="button" class="tool-chip btn-tr" title="Dịch Việt" th:unless="${freeChat}"><i class="fa-solid fa-globe"></i> Việt</button>
                         </div>
                     </div>
                     <details class="feedback-card has-content" open
