@@ -770,8 +770,9 @@
 }
 
 /* Stitch game arena: the active speed-recall session. */
-#jlabBasePage.speed-recall-page #playing {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing {
   position: relative;
+  padding: 0;
   width: min(100%, 920px);
   margin: 0 auto;
   overflow: hidden;
@@ -781,10 +782,10 @@
   box-shadow: 0 8px 30px rgba(29, 29, 31, .04), 0 1px 3px rgba(29, 29, 31, .03);
 }
 
-#jlabBasePage.speed-recall-page #playing .sr-game-hud {
-  min-height: 68px;
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud {
+  min-height: 60px;
   margin: 0;
-  padding: 14px 28px;
+  padding: 8px 20px;
   gap: 10px;
   background: #fafafc;
   border: 0;
@@ -792,7 +793,7 @@
   border-radius: 0;
 }
 
-#jlabBasePage.speed-recall-page #playing .sr-game-hud__stat {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat {
   min-height: 34px;
   padding: 6px 10px;
   color: #4b4b55;
@@ -803,7 +804,7 @@
   font-size: 13px;
 }
 
-#jlabBasePage.speed-recall-page #playing .sr-game-hud__stat:first-child::before {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat:first-child::before {
   content: "Câu";
   color: #6e6e78;
   font-size: 10px;
@@ -811,11 +812,11 @@
   text-transform: uppercase;
 }
 
-#jlabBasePage.speed-recall-page #playing .sr-game-hud__stat i { display: none; }
-#jlabBasePage.speed-recall-page #playing .sr-game-hud__actions { gap: 6px; }
-#jlabBasePage.speed-recall-page #playing .sr-game-control {
-  min-height: 34px;
-  padding: 6px 10px;
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat i { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__actions { gap: 8px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control {
+  min-height: 44px;
+  padding: 8px 10px;
   color: #4b4b55;
   background: #fff;
   border: 1px solid rgba(80, 80, 95, .12);
@@ -823,16 +824,16 @@
   box-shadow: 0 1px 3px rgba(29, 29, 31, .04);
   font-size: 12px;
 }
-#jlabBasePage.speed-recall-page #playing .sr-game-control--end { color: #7a7a85; border-color: transparent; background: transparent; box-shadow: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control--end { color: #7a7a85; border-color: transparent; background: transparent; box-shadow: none; }
 
-#jlabBasePage.speed-recall-page #playing .sr-question {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question {
   max-width: none;
-  padding: 48px 24px 42px;
+  padding: 20px 24px 16px;
 }
-#jlabBasePage.speed-recall-page #playing .sr-question::before {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question::before {
   content: attr(data-mode-label); /* set by speed-recall/page.js from the session mode */
   display: inline-flex;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 6px 13px;
   color: #4f46a5;
   background: #eef0ff;
@@ -841,32 +842,57 @@
   font-size: 11px;
   font-weight: 700;
 }
-#jlabBasePage.speed-recall-page #playing #question-word {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #question-word {
   margin: 0;
   color: #1e1b4b;
-  font-size: clamp(56px, 10vw, 84px);
+  font-size: clamp(48px, 8vw, 64px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
 }
-#jlabBasePage.speed-recall-page #playing .sr-question > p { margin: 12px 0 0; color: #7a7a85; font-size: 15px; }
-#jlabBasePage.speed-recall-page #playing .sr-game-timer {
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question > p { margin: 6px 0 0; color: #7a7a85; font-size: 15px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer {
   width: min(100%, 340px);
-  margin: 28px auto 0;
-  padding: 12px 16px;
+  margin: 14px auto 0;
+  padding: 8px 12px;
   background: #fafafc;
   border: 1px solid rgba(80, 80, 95, .12);
   border-radius: 16px;
 }
-#jlabBasePage.speed-recall-page #playing .sr-game-timer__head { color: #7a7a85; font-size: 12px; }
-#jlabBasePage.speed-recall-page #playing #time-left { color: #6256b9; font-size: 14px; }
-#jlabBasePage.speed-recall-page #playing .sr-game-timer__track { height: 7px; background: #e8eaf0; }
-#jlabBasePage.speed-recall-page #playing #timer-bar { background: #6256b9; }
-#jlabBasePage.speed-recall-page #playing .sr-slots { margin-top: 36px; gap: 12px; }
-#jlabBasePage.speed-recall-page #playing .sr-slot { width: 62px; height: 62px; color: #1d1d1f; border-color: #dfe3f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(29, 29, 31, .05); }
-#jlabBasePage.speed-recall-page #playing .sr-slot.is-active { color: #4f46a5; border-color: #6256b9; box-shadow: 0 0 0 4px rgba(98, 86, 185, .13); }
-#jlabBasePage.speed-recall-page #playing .sr-feedback { width: min(calc(100% - 48px), 640px); margin: -22px auto 32px; border: 1px solid #cdebdc; border-left: 3px solid #21775a; border-radius: 12px; }
-#jlabBasePage.speed-recall-page #playing::after { content: "Phiên phản xạ nhanh  •  " attr(data-answer-hint); display: block; padding: 13px 24px; color: #7a7a85; background: #fafafc; border-top: 1px solid rgba(29, 29, 31, .06); font-size: 12px; text-align: center; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__head { color: #7a7a85; font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #time-left { color: #6256b9; font-size: 14px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__track { height: 7px; background: #e8eaf0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #timer-bar { background: #6256b9; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slots { min-height: 56px; margin-top: 16px; gap: 8px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot { width: 56px; height: 56px; color: #1d1d1f; border-color: #dfe3f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(29, 29, 31, .05); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-active { color: #4f46a5; border-color: #6256b9; box-shadow: 0 0 0 4px rgba(98, 86, 185, .13); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback { width: min(calc(100% - 48px), 640px); margin: 0 auto 16px; padding: 12px 16px; border: 1px solid #cdebdc; border-left: 3px solid #21775a; border-radius: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing::after { content: "Phiên phản xạ nhanh  •  " attr(data-answer-hint); display: block; padding: 8px 24px; color: #7a7a85; background: #fafafc; border-top: 1px solid rgba(29, 29, 31, .06); font-size: 12px; text-align: center; }
+
+#jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#playing:not([hidden])) {
+  min-height: 0;
+  padding-top: 16px;
+  padding-bottom: 32px;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  text-align: left;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback > strong { grid-column: 1; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback > span { grid-column: 2; margin-left: 0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback p {
+  grid-column: 1;
+  margin: 0;
+  line-height: 1.4;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next {
+  grid-column: 2;
+  grid-row: 2 / span 3;
+  align-self: end;
+  margin-top: 0;
+}
 
 /* Stitch result composition. */
 #jlabBasePage.speed-recall-page #result {
@@ -940,8 +966,8 @@
 #jlabBasePage.flashcard-page--study .study-stage { grid-template-columns: 48px minmax(0, 672px) 48px; }
 
 @media (max-width: 700px) {
-  #jlabBasePage.speed-recall-page #playing { border-radius: 16px; }
-  #jlabBasePage.speed-recall-page #playing .sr-game-hud { padding: 12px 16px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing { border-radius: 16px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud { padding: 8px 12px; }
   #jlabBasePage.speed-recall-page #playing .sr-game-hud__actions { flex-basis: auto; margin-left: auto; }
   #jlabBasePage.speed-recall-page #result .sr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 0; }
   #jlabBasePage.speed-recall-page #result .sr-stats > div:nth-child(2) { border-right: 0; }
