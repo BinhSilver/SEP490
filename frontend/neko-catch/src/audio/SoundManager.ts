@@ -3,25 +3,29 @@ import { SoundConfig } from '../types/game';
 
 type LockListener = (locked: boolean) => void;
 
-class SoundManager {
+export class SoundManager {
   private static readonly STORAGE_KEY = 'neko_catch_sound_config';
   private bgm: HTMLAudioElement | null = null;
   private sounds: Map<string, HTMLAudioElement> = new Map();
   private audioCtx: AudioContext | null = null;
-  private config: SoundConfig = this.loadConfig();
+  private config: SoundConfig;
+  private activeClones = new Set<HTMLAudioElement>();
+  private boundUnlock = () => this.unlock();
+  private disposed = false;
   /** The game wants background music right now (between match start and finish). */
   private wantBgm = false;
   /** The browser refused autoplay; audio starts on the next user gesture. */
   private locked = false;
   private lockListeners = new Set<LockListener>();
 
-  constructor() {
+  constructor(private persistSettings = true) {
+    this.config = this.loadConfig();
     this.init();
   }
 
   private loadConfig(): SoundConfig {
     const defaults: SoundConfig = { bgmVolume: 0.4, sfxVolume: 0.7, muted: false };
-    if (typeof window === 'undefined') return defaults;
+    if (typeof window === 'undefined' || !this.persistSettings) return defaults;
     try {
       const saved = window.localStorage.getItem(SoundManager.STORAGE_KEY);
       if (!saved) return defaults;
@@ -64,10 +68,11 @@ class SoundManager {
 
     // Browsers only allow audio after a user gesture. The match starts by itself (server countdown),
     // so the first click / key / touch unlocks the audio context and starts the pending music.
-    const unlock = () => this.unlock();
-    window.addEventListener('pointerdown', unlock, true);
-    window.addEventListener('keydown', unlock, true);
-    window.addEventListener('touchstart', unlock, true);
+    if (this.persistSettings) {
+      window.addEventListener('pointerdown', this.boundUnlock, true);
+      window.addEventListener('keydown', this.boundUnlock, true);
+      window.addEventListener('touchstart', this.boundUnlock, true);
+    }
   }
 
   private setLocked(locked: boolean) {
@@ -78,12 +83,18 @@ class SoundManager {
 
   /** Called on any user gesture: resumes Web Audio and retries music the browser blocked. */
   public unlock() {
+    if (this.disposed) return;
+    if (!this.persistSettings) this.getAudioContext();
     if (this.audioCtx && this.audioCtx.state === 'suspended') {
       this.audioCtx.resume().catch(() => {});
     }
     if (this.wantBgm && !this.config.muted && this.bgm && this.bgm.paused) {
+      const bgm = this.bgm;
       this.bgm.volume = this.config.bgmVolume;
-      this.bgm.play().then(() => this.setLocked(false)).catch(() => {});
+      this.bgm.play().then(() => {
+        if (this.disposed) bgm.pause();
+        else this.setLocked(false);
+      }).catch(() => {});
     } else if (this.locked) {
       this.setLocked(false);
     }
@@ -99,7 +110,7 @@ class SoundManager {
   }
 
   private getAudioContext(): AudioContext | null {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined' || this.disposed) return null;
     if (!this.audioCtx) {
       const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtxClass) {
@@ -110,6 +121,40 @@ class SoundManager {
       this.audioCtx.resume().catch(() => {});
     }
     return this.audioCtx;
+  }
+
+  private playClone(baseAudio: HTMLAudioElement, factor: number) {
+    const clone = baseAudio.cloneNode() as HTMLAudioElement;
+    clone.volume = this.config.sfxVolume * factor;
+    if (factor === 1) clone.currentTime = 0;
+    this.activeClones.add(clone);
+    const release = () => this.activeClones.delete(clone);
+    clone.addEventListener('ended', release, { once: true });
+    clone.addEventListener('error', release, { once: true });
+    void clone.play().then(() => {
+      if (this.disposed) clone.pause();
+    }).catch(release);
+  }
+
+  /** Preview teardown stops every layer. Create a fresh manager before playing another scene. */
+  public dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.stopBGM();
+    this.activeClones.forEach(audio => { audio.pause(); try { audio.currentTime = 0; } catch {} });
+    this.activeClones.clear();
+    this.sounds.forEach(audio => audio.pause());
+    this.sounds.clear();
+    this.bgm = null;
+    this.lockListeners.clear();
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('pointerdown', this.boundUnlock, true);
+      window.removeEventListener('keydown', this.boundUnlock, true);
+      window.removeEventListener('touchstart', this.boundUnlock, true);
+    }
+    const ctx = this.audioCtx;
+    this.audioCtx = null;
+    if (ctx && ctx.state !== 'closed') void ctx.close().catch(() => {});
   }
 
   // ─────────────────────────────────────────────────────────
@@ -271,11 +316,16 @@ class SoundManager {
   }
 
   public playBGM() {
+    if (this.disposed) return;
     this.wantBgm = true;
     if (this.config.muted || !this.bgm) return;
     this.bgm.volume = this.config.bgmVolume;
-    this.bgm.play().then(() => this.setLocked(false)).catch((error: DOMException) => {
-      if (error && error.name === 'NotAllowedError') this.setLocked(true);
+    const bgm = this.bgm;
+    this.bgm.play().then(() => {
+      if (this.disposed) bgm.pause();
+      else this.setLocked(false);
+    }).catch((error: DOMException) => {
+      if (!this.disposed && error && error.name === 'NotAllowedError') this.setLocked(true);
     });
   }
 
@@ -297,16 +347,13 @@ class SoundManager {
   }
 
   public playSFX(key: string) {
-    if (this.config.muted) return;
+    if (this.config.muted || this.disposed) return;
 
     // Direct playback for film countdown sound
     if (key === 'countdown') {
       const baseAudio = this.sounds.get('countdown');
       if (baseAudio) {
-        const clone = baseAudio.cloneNode() as HTMLAudioElement;
-        clone.volume = this.config.sfxVolume;
-        clone.currentTime = 0;
-        clone.play().catch(() => {});
+        this.playClone(baseAudio, 1);
       }
       return;
     }
@@ -327,18 +374,18 @@ class SoundManager {
     // Also play audio file if available as layer
     const baseAudio = this.sounds.get(key);
     if (baseAudio) {
-      const clone = baseAudio.cloneNode() as HTMLAudioElement;
-      clone.volume = this.config.sfxVolume * 0.85; // Crisp audible volume for user's sound effects
-      clone.play().catch(() => {});
+      this.playClone(baseAudio, 0.85);
     }
   }
 
   public setConfig(newConfig: Partial<SoundConfig>) {
     this.config = { ...this.config, ...newConfig };
-    try {
-      window.localStorage.setItem(SoundManager.STORAGE_KEY, JSON.stringify(this.config));
-    } catch {
-      // Storage can be unavailable in private/embedded browser contexts.
+    if (this.persistSettings) {
+      try {
+        window.localStorage.setItem(SoundManager.STORAGE_KEY, JSON.stringify(this.config));
+      } catch {
+        // Storage can be unavailable in private/embedded browser contexts.
+      }
     }
     if (this.bgm) {
       this.bgm.volume = this.config.bgmVolume;
@@ -359,4 +406,4 @@ class SoundManager {
   }
 }
 
-export const soundManager = new SoundManager();
+export const soundManager = /* @__PURE__ */ new SoundManager();
