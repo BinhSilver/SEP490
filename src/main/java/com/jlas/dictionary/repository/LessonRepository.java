@@ -133,4 +133,93 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             """)
     List<Lesson> findPublishedByJlptLevelAndContentType(@Param("jlptLevel") String jlptLevel,
                                                         @Param("contentType") String contentType);
+    /**
+     * Cho CONTENT_CREATOR ở màn hình duyệt thường: bài của một textbook trừ bản đã lưu trữ.
+     * Chỉ lọc theo lesson.status; trạng thái textbook do lời gọi phía trên đã kiểm.
+     */
+    @Query("""
+            select l from Lesson l
+              join fetch l.unit u
+            where u.textbook.id = :textbookId and l.status <> :excludedStatus
+            order by u.orderIndex, u.id, l.orderIndex, l.id
+            """)
+    List<Lesson> findByTextbookIdAndStatusNot(@Param("textbookId") Long textbookId,
+                                              @Param("excludedStatus") String excludedStatus);
+
+    /**
+     * Cho CONTENT_CREATOR ở trang chủ đề: bài gắn tag, trừ bản đã lưu trữ ở CẢ HAI tầng —
+     * bài nằm trong giáo trình đã lưu trữ cũng phải biến mất khỏi danh sách.
+     */
+    @Query("""
+            select l from LessonTag lt
+              join lt.lesson l
+              join fetch l.unit u
+              join fetch u.textbook t
+            where lt.tag.code = :tagCode and l.status <> :excludedStatus and t.status <> :excludedStatus
+            order by t.id, u.orderIndex, u.id, l.orderIndex, l.id
+            """)
+    List<Lesson> findByTagCodeAndStatusNot(@Param("tagCode") String tagCode,
+                                           @Param("excludedStatus") String excludedStatus);
+
+    /** Bài của một unit theo thứ tự hiện tại, MỌI trạng thái. Dùng khi đánh số lại order_index. */
+    List<Lesson> findByUnitIdOrderByOrderIndexAscIdAsc(Long unitId);
+
+    /** order_index lớn nhất trong một unit; null khi unit chưa có bài nào. Dùng để thêm vào cuối. */
+    @Query("select max(l.orderIndex) from Lesson l where l.unit.id = :unitId")
+    Integer findMaxOrderIndexByUnitId(@Param("unitId") Long unitId);
+
+    /* ── Đếm phụ thuộc trước khi xoá cứng một bài ────────────────────────────
+     * MỌI khoá ngoại trỏ tới lesson(id) đều là ON DELETE CASCADE, nên một lệnh DELETE sẽ âm thầm
+     * quét sạch cả tiến độ học viên, lộ trình học và quiz. Ba query dưới đây đếm từng nhóm để service
+     * chặn trước bằng 409 có giải thích, thay vì để DB xoá mất dữ liệu không khôi phục được.
+     * Dùng native query vì các bảng này thuộc module khác (learning / assessment), không có entity
+     * trong package dictionary — và chỉ ĐỌC số lượng, không đụng vào dữ liệu assessment.
+     */
+
+    /** Số học viên đã có tiến độ ở bài này. */
+    @Query(value = "select count(*) from lesson_progress where lesson_id = :lessonId", nativeQuery = true)
+    long countLearnerProgress(@Param("lessonId") Long lessonId);
+
+    /** Số lần bài này nằm trong lộ trình học của học viên. */
+    @Query(value = "select count(*) from user_learning_path_item where lesson_id = :lessonId", nativeQuery = true)
+    long countLearningPathItems(@Param("lessonId") Long lessonId);
+
+    /** Số quiz gắn với bài này (bảng assessment_*, chỉ đếm). */
+    @Query(value = "select count(*) from assessment_quiz where lesson_id = :lessonId", nativeQuery = true)
+    long countAssessmentQuizzes(@Param("lessonId") Long lessonId);
+
+    /**
+     * Câu hỏi luyện tập của bài trong các quiz gắn với bài (assessment_*, chỉ ĐỌC), theo thứ tự quiz rồi thứ tự câu.
+     * Cùng quy tắc với bài nháp: người học chỉ thấy quiz PUBLISHED + câu đang bật; includeDraft (CONTENT_CREATOR)
+     * thấy cả quiz/câu nháp để duyệt nội dung. Cột: id, order_index, question_text, option_1..option_4,
+     * correct_option, explanation, context_json, answer_text. Phương án đầy đủ (câu 5–9 phương án, cờ is_correct
+     * của câu nhiều đáp án) nằm trong context_json.options.
+     */
+    @Query(value = """
+            select q.id, qq.order_index, q.question_text, q.option_1, q.option_2, q.option_3, q.option_4,
+                   q.correct_option, q.explanation, q.context_json, q.answer_text
+            from assessment_quiz z
+              join assessment_quiz_question qq on qq.quiz_id = z.id
+              join assessment_question q on q.id = qq.question_id
+            where z.lesson_id = :lessonId
+              and (:includeDraft = true or (z.status = 'PUBLISHED' and q.is_active = 1))
+            order by z.id, qq.order_index, q.id
+            """, nativeQuery = true)
+    List<Object[]> findPracticeQuestionRows(@Param("lessonId") Long lessonId,
+                                            @Param("includeDraft") boolean includeDraft);
+
+    /** Bài có quiz LESSON đã xuất bản không — cùng điều kiện với LessonQuizRepository.findPublishedLessonQuiz. */
+    @Query(value = "select count(*) from assessment_quiz where lesson_id = :lessonId "
+            + "and quiz_type = 'LESSON' and status = 'PUBLISHED'", nativeQuery = true)
+    long countPublishedLessonQuizzes(@Param("lessonId") Long lessonId);
+
+    /** Tổng nội dung đã biên soạn trong bài: phần nội dung, mẫu ngữ pháp, vai hội thoại, quy tắc chuyển âm, kanji gắn tay. */
+    @Query(value = """
+            select (select count(*) from lesson_section  where lesson_id = :lessonId)
+                 + (select count(*) from grammar_point   where lesson_id = :lessonId)
+                 + (select count(*) from dialogue_role   where lesson_id = :lessonId)
+                 + (select count(*) from conversion_rule where lesson_id = :lessonId)
+                 + (select count(*) from lesson_kanji    where lesson_id = :lessonId)
+            """, nativeQuery = true)
+    long countEditorialContent(@Param("lessonId") Long lessonId);
 }

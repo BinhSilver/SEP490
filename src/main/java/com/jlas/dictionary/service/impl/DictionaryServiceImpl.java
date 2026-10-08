@@ -17,7 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Cài đặt {@link DictionaryService}: tra cứu từ điển và duyệt giáo trình đã số hoá.
@@ -54,8 +57,18 @@ public class DictionaryServiceImpl implements DictionaryService {
     private static final String CONTENT_TYPE_EXAMPLE = "GRAMMAR";
     /** content_type của content_item là mục đọc: chữ kana (giáo trình bảng chữ cái) hoặc đoạn chú thích. */
     private static final String CONTENT_TYPE_READING = "READING";
+    /** content_type của content_item là mục nghe: lời hội thoại (có dialogue_line_detail) hoặc bài nghe. */
+    private static final String CONTENT_TYPE_LISTENING = "LISTENING";
     /** Trạng thái duyệt công khai của textbook / lesson. */
     private static final String STATUS_PUBLISHED = "PUBLISHED";
+
+    /**
+     * Xoá mềm. Không thêm cột mới: dùng luôn giá trị ARCHIVED mà chk_textbook_status / chk_lesson_status
+     * đã cho phép. Bản ghi ARCHIVED biến mất khỏi MỌI danh sách, với learner lẫn CONTENT_CREATOR —
+     * người biên soạn cần thấy đúng thứ học viên thấy khi kiểm nội dung. Chỉ màn hình quản lý
+     * (ContentAdminService) mới liệt kê chúng, và quyền ở đó do @PreAuthorize quyết, không do tham số.
+     */
+    private static final String STATUS_ARCHIVED = "ARCHIVED";
     /** Authority đầy đủ (CustomUserDetailsService nối tiền tố ROLE_ vào roles.name). */
     private static final String ROLE_CONTENT_CREATOR = "ROLE_CONTENT_CREATOR";
     /** tag.tag_type của chủ đề học. */
@@ -85,6 +98,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     private final DialogueLineDetailRepository dialogueLineDetailRepository;
     private final DialogueLineChunkRepository dialogueLineChunkRepository;
     private final ContentAudioRepository contentAudioRepository;
+    private final LessonKanjiRepository lessonKanjiRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public SearchResultResponse search(String query, int page, int size, Long userId) {
@@ -466,17 +481,23 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Transactional(readOnly = true)
     public List<TextbookResponse> listTextbooks() {
         List<Textbook> textbooks = canViewDraft()
-                ? textbookRepository.findAllByOrderByIdAsc()
+                ? textbookRepository.findByStatusNotOrderByIdAsc(STATUS_ARCHIVED)
                 : textbookRepository.findByStatusOrderByIdAsc(STATUS_PUBLISHED);
         if (textbooks.isEmpty()) return Collections.emptyList();
 
+        List<Long> textbookIds = textbooks.stream().map(Textbook::getId).toList();
         Map<Long, Long> unitCountByTextbook = new HashMap<>();
-        for (Object[] row : textbookRepository.countUnitsByTextbookIds(
-                textbooks.stream().map(Textbook::getId).toList())) {
+        for (Object[] row : textbookRepository.countUnitsByTextbookIds(textbookIds)) {
             unitCountByTextbook.put((Long) row[0], (Long) row[1]);
         }
+        Map<Long, Long> situationLessonsByTextbook = new HashMap<>();
+        for (Object[] row : textbookRepository.countSituationTaggedLessonsByTextbookIds(textbookIds, TAG_TYPE_TOPIC)) {
+            situationLessonsByTextbook.put((Long) row[0], (Long) row[1]);
+        }
         return textbooks.stream()
-                .map(t -> mapper.toTextbookResponse(t, unitCountByTextbook.getOrDefault(t.getId(), 0L)))
+                .map(t -> mapper.toTextbookResponse(t,
+                        unitCountByTextbook.getOrDefault(t.getId(), 0L),
+                        isTopicBased(t, situationLessonsByTextbook.getOrDefault(t.getId(), 0L))))
                 .toList();
     }
 
@@ -484,14 +505,15 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Transactional(readOnly = true)
     public TextbookUnitsResponse getTextbookUnits(Long textbookId) {
         boolean viewDraft = canViewDraft();
+        // Giáo trình đã lưu trữ coi như không tồn tại ở màn hình duyệt, kể cả với CONTENT_CREATOR.
         Textbook textbook = (viewDraft
-                ? textbookRepository.findById(textbookId)
+                ? textbookRepository.findByIdAndStatusNot(textbookId, STATUS_ARCHIVED)
                 : textbookRepository.findByIdAndStatus(textbookId, STATUS_PUBLISHED))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Textbook not found: " + textbookId));
 
         List<Unit> units = unitRepository.findByTextbookIdOrderByOrderIndexAscIdAsc(textbookId);
         List<Lesson> lessons = viewDraft
-                ? lessonRepository.findByTextbookId(textbookId)
+                ? lessonRepository.findByTextbookIdAndStatusNot(textbookId, STATUS_ARCHIVED)
                 : lessonRepository.findByTextbookIdAndStatus(textbookId, STATUS_PUBLISHED);
 
         Map<Long, List<LessonSummaryResponse>> lessonsByUnit = new LinkedHashMap<>();
@@ -515,7 +537,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         List<Tag> topics = tagRepository.findByTagTypeOrderByCodeAsc(TAG_TYPE_TOPIC);
         Map<Long, Long> countByTag = new HashMap<>();
         List<Object[]> rows = canViewDraft()
-                ? tagRepository.countLessonsByTagType(TAG_TYPE_TOPIC)
+                ? tagRepository.countLessonsByTagTypeAndStatusNot(TAG_TYPE_TOPIC, STATUS_ARCHIVED)
                 : tagRepository.countLessonsByTagTypeAndStatus(TAG_TYPE_TOPIC, STATUS_PUBLISHED);
         for (Object[] row : rows) countByTag.put((Long) row[0], (Long) row[1]);
         // Chủ đề 0 bài vẫn trả về với lessonCount = 0 (chủ ý, không ẩn).
@@ -531,7 +553,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         Tag tag = tagRepository.findByCodeAndTagType(code, TAG_TYPE_TOPIC)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Topic not found: " + code));
         List<Lesson> lessons = canViewDraft()
-                ? lessonRepository.findByTagCode(code)
+                ? lessonRepository.findByTagCodeAndStatusNot(code, STATUS_ARCHIVED)
                 : lessonRepository.findByTagCodeAndStatus(code, STATUS_PUBLISHED);
         return TopicLessonsResponse.builder()
                 .topic(mapper.toTopicResponse(tag, (long) lessons.size()))
@@ -571,6 +593,10 @@ public class DictionaryServiceImpl implements DictionaryService {
      * cụm tách nghĩa, câu ví dụ, mục đọc (READING), audio content_item
      * (câu ví dụ + lời thoại gộp trong MỘT lời gọi vì cùng owner_type).
      * Learner bị chặn ở cả hai tầng: lesson DRAFT trong textbook PUBLISHED, và lesson thuộc textbook DRAFT.
+     * <p>
+     * Khác các danh sách ở trên, chỗ này CỐ Ý vẫn cho CONTENT_CREATOR mở bài ARCHIVED khi biết URL:
+     * bài đã lưu trữ biến mất khỏi mọi danh sách, nhưng từ màn hình quản lý phải xem lại được nội dung
+     * trước khi quyết định khôi phục. Learner vẫn nhận 404 như bài không tồn tại.
      */
     @Override
     @Transactional(readOnly = true)
@@ -581,43 +607,236 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         LessonContentResponse response = mapper.toLessonContentResponse(lesson);
         List<VocabularyEntry> vocabularies = contentVocabularyRepository.findVocabularyByLessonId(lessonId);
-        response.setKanjis(loadKanjis(vocabularies));
+        response.setKanjis(loadKanjis(lessonId, vocabularies));
         response.setVocabularies(toVocabularies(vocabularies));
         response.setGrammarPoints(loadGrammarPoints(lessonId));
         response.setDialogueRoles(loadDialogueRoles(lessonId));
 
-        // Câu ví dụ, mục đọc (bảng chữ kana / chú thích) và lời thoại đều là content_item
-        // → audio lấy chung MỘT lần theo CONTENT_ITEM cho cả ba.
+        // Câu ví dụ, mục đọc (bảng chữ kana / chú thích), mục nghe và lời thoại đều là content_item
+        // → audio lấy chung MỘT lần theo CONTENT_ITEM cho cả bốn.
         List<ContentItem> examples = contentItemRepository.findByLessonIdAndContentType(lessonId, CONTENT_TYPE_EXAMPLE);
         List<ContentItem> readings = contentItemRepository.findByLessonIdAndContentType(lessonId, CONTENT_TYPE_READING);
         List<DialogueLineDetail> dialogueLines = dialogueLineDetailRepository.findByLessonId(lessonId);
+        // Mục LISTENING không có dialogue_line_detail (transcript / file audio bài nghe) — trước đây không
+        // được trả về nên các bài nghe chỉ có loại mục này hiện trống.
+        Set<Long> dialogueItemIds = dialogueLines.stream()
+                .map(DialogueLineDetail::getContentItemId)
+                .collect(Collectors.toSet());
+        List<ContentItem> listenings = contentItemRepository.findByLessonIdAndContentType(lessonId, CONTENT_TYPE_LISTENING)
+                .stream().filter(ci -> !dialogueItemIds.contains(ci.getId())).toList();
 
-        List<Long> contentItemIds = new ArrayList<>(examples.size() + readings.size() + dialogueLines.size());
+        List<Long> contentItemIds = new ArrayList<>(
+                examples.size() + readings.size() + listenings.size() + dialogueLines.size());
         examples.forEach(ci -> contentItemIds.add(ci.getId()));
         readings.forEach(ci -> contentItemIds.add(ci.getId()));
+        listenings.forEach(ci -> contentItemIds.add(ci.getId()));
         dialogueLines.forEach(d -> contentItemIds.add(d.getContentItemId()));
         Map<Long, List<ContentAudioResponse>> audioByItem = loadAudioByOwner(AUDIO_OWNER_CONTENT_ITEM, contentItemIds);
 
+        // Mã gốc + URL nguồn của mục đọc/nghe (chỉ có ở dữ liệu nhập từ nguồn ngoài): để gắn câu hỏi luyện tập
+        // vào đúng bài đọc/bài nghe và đúng file audio của từng câu.
+        List<Long> sourcedIds = new ArrayList<>(readings.size() + listenings.size());
+        readings.forEach(ci -> sourcedIds.add(ci.getId()));
+        listenings.forEach(ci -> sourcedIds.add(ci.getId()));
+        Map<Long, String[]> sourceByItem = loadContentSources(sourcedIds);
+
+        List<ExampleSentenceResponse> readingResponses = toExampleSentences(readings, audioByItem);
+        List<ExampleSentenceResponse> listeningResponses = toExampleSentences(listenings, audioByItem);
+        readingResponses.forEach(r -> r.setStableCode(sourceStableCode(sourceByItem, r.getContentItemId())));
+        listeningResponses.forEach(r -> r.setStableCode(sourceStableCode(sourceByItem, r.getContentItemId())));
+
         response.setExampleSentences(toExampleSentences(examples, audioByItem));
-        response.setReadingItems(toExampleSentences(readings, audioByItem));
+        response.setReadingItems(readingResponses);
+        response.setListeningItems(listeningResponses);
         response.setDialogueLines(toDialogueLines(dialogueLines, audioByItem));
+        response.setPracticeQuestions(loadPracticeQuestions(lessonId, listenings, sourceByItem, audioByItem));
+        response.setQuizAvailable(lessonRepository.countPublishedLessonQuizzes(lessonId) > 0);
         return response;
     }
 
+    /** content_item id → {stable_code, source_url}. */
+    private Map<Long, String[]> loadContentSources(List<Long> contentItemIds) {
+        if (contentItemIds.isEmpty()) return Collections.emptyMap();
+        Map<Long, String[]> result = new HashMap<>();
+        for (Object[] row : contentItemRepository.findSourcesByContentItemIds(contentItemIds)) {
+            result.put(((Number) row[0]).longValue(), new String[]{(String) row[1], (String) row[2]});
+        }
+        return result;
+    }
+
+    private static String sourceStableCode(Map<Long, String[]> sourceByItem, Long contentItemId) {
+        String[] source = sourceByItem.get(contentItemId);
+        return source == null ? null : source[0];
+    }
+
     /**
-     * Kanji xuất hiện trong từ vựng của bài (content_vocabulary → vocabulary_kanji → kanji), 2 query:
-     * liên kết từ↔Kanji kèm Kanji + bộ thủ, rồi cách đọc On/Kun theo tập kanji_id.
+     * Câu hỏi luyện tập từ quiz của bài. Phương án lấy ở context_json.options (đủ cả câu 5–9 phương án), thiếu
+     * thì dùng option_1..4. Audio của câu: context_json.audio_hint[].url là URL gốc của file, khớp source_url của
+     * mục nghe "Audio N" mang file đó → lấy đường dẫn local trong content_audio của mục ấy.
+     */
+    private List<LessonContentResponse.PracticeQuestion> loadPracticeQuestions(
+            Long lessonId, List<ContentItem> listenings, Map<Long, String[]> sourceByItem,
+            Map<Long, List<ContentAudioResponse>> audioByItem) {
+        List<Object[]> rows = lessonRepository.findPracticeQuestionRows(lessonId, canViewDraft());
+        if (rows.isEmpty()) return Collections.emptyList();
+
+        Map<String, Long> audioItemBySourceUrl = new HashMap<>();
+        for (ContentItem item : listenings) {
+            String[] source = sourceByItem.get(item.getId());
+            if (source != null && source[1] != null && !audioByItem.getOrDefault(item.getId(), List.of()).isEmpty()) {
+                audioItemBySourceUrl.putIfAbsent(source[1], item.getId());
+            }
+        }
+
+        List<LessonContentResponse.PracticeQuestion> questions = new ArrayList<>(rows.size());
+        for (Object[] row : rows) {
+            JsonNode context = readJson((String) row[9]);
+            List<String> options = new ArrayList<>();
+            List<Integer> correctOptions = new ArrayList<>();
+            JsonNode contextOptions = context == null ? null : context.path("options");
+            if (contextOptions != null && contextOptions.isArray() && !contextOptions.isEmpty()) {
+                for (JsonNode option : contextOptions) {
+                    options.add(option.path("text").isTextual() ? option.path("text").asText() : "");
+                    if (option.path("is_correct").asBoolean(false)) correctOptions.add(options.size());
+                }
+            } else {
+                for (int i = 3; i <= 6; i++) {
+                    if (row[i] != null && !row[i].toString().isBlank()) options.add(row[i].toString());
+                }
+            }
+            if (correctOptions.isEmpty()) {
+                Integer single = row[7] != null ? Integer.valueOf(((Number) row[7]).intValue())
+                        : (context != null && context.path("answer").isInt() ? context.path("answer").asInt() : null);
+                if (single != null) correctOptions.add(single);
+            }
+            // Câu chọn hình: nguồn không có ảnh nên không có phương án để bấm — giữ đáp án dạng chữ "Hình số N"
+            // (hiện sau nút "Xem đáp án") thay vì dựng nút giả.
+            String answerText = row[10] == null || row[10].toString().isBlank() ? null : row[10].toString();
+            if (options.isEmpty() && answerText == null && correctOptions.size() == 1) {
+                answerText = ("chon_hinh".equals(textOrNull(context, "loai_cau")) ? "Hình số " : "Phương án ")
+                        + correctOptions.get(0);
+            }
+            // Đáp án trỏ ra ngoài danh sách phương án (nguồn mất phương án) → coi như chưa có đáp án chắc chắn,
+            // để thẻ không báo "sai" cho một lựa chọn đúng.
+            int optionCount = options.size();
+            correctOptions.removeIf(n -> n < 1 || n > optionCount);
+            Integer correct = correctOptions.size() == 1 ? correctOptions.get(0) : null;
+
+            Long audioItemId = null;
+            if (context != null) {
+                for (JsonNode hint : context.path("audio_hint")) {
+                    audioItemId = audioItemBySourceUrl.get(hint.path("url").asText(""));
+                    if (audioItemId != null) break;
+                }
+            }
+            List<ContentAudioResponse> audios = audioItemId == null ? List.of() : audioByItem.getOrDefault(audioItemId, List.of());
+
+            questions.add(LessonContentResponse.PracticeQuestion.builder()
+                    .id(((Number) row[0]).longValue())
+                    .orderIndex(row[1] == null ? null : ((Number) row[1]).intValue())
+                    .questionText((String) row[2])
+                    .translation(textOrNull(context, "question_translation"))
+                    .options(options)
+                    .correctOption(correct)
+                    .correctOptions(correctOptions)
+                    .answerText(answerText)
+                    .explanation(row[8] == null || row[8].toString().isBlank() ? null : row[8].toString())
+                    .parentCode(textOrNull(context, "parent_code"))
+                    .audioUrl(audios.isEmpty() ? null : audios.get(0).getAudioUrl())
+                    .audioContentItemId(audios.isEmpty() ? null : audioItemId)
+                    .build());
+        }
+        assignReadingTargets(questions);
+        return questions;
+    }
+
+    private static final java.util.regex.Pattern KANJI_RUN = java.util.regex.Pattern.compile("[\\u4e00-\\u9fff\\u3005]+");
+
+    /**
+     * Gạch chân đúng chữ ở dạng "cách đọc chữ Hán" (phương án toàn kana, có một đáp án): với mỗi cụm chữ Hán trong đề,
+     * thử cụm + phần okurigana khớp đuôi đáp án (赤い ↔ あかい), và chọn cách viết mà từ điển có cách đọc đúng bằng
+     * đáp án (空 ↔ そら, không phải 見). Một query cho cả bài; không có cụm nào khớp thì để null.
+     */
+    private void assignReadingTargets(List<LessonContentResponse.PracticeQuestion> questions) {
+        // Danh sách cặp, không dùng Map: PracticeQuestion là @Data (equals theo nội dung) nên hai câu giống hệt nhau
+        // sẽ đè nhau nếu làm khoá.
+        List<Map.Entry<LessonContentResponse.PracticeQuestion, List<String>>> candidates = new ArrayList<>();
+        Set<String> expressions = new HashSet<>();
+        for (LessonContentResponse.PracticeQuestion q : questions) {
+            String text = q.getQuestionText();
+            List<String> options = q.getOptions();
+            if (q.getCorrectOption() == null || text == null || options.isEmpty()
+                    || !options.stream().allMatch(DictionaryServiceImpl::isKanaOnly)) continue;
+            String answer = options.get(q.getCorrectOption() - 1).strip();
+            List<String> exprs = new ArrayList<>();
+            java.util.regex.Matcher run = KANJI_RUN.matcher(text);
+            while (run.find()) {
+                String following = text.substring(run.end());
+                for (int k = Math.min(answer.length() - 1, following.length()); k >= 0; k--) {
+                    if (k == 0 || answer.endsWith(following.substring(0, k))) {
+                        String expr = run.group() + following.substring(0, k);
+                        exprs.add(expr);
+                        expressions.add(DictionaryUtil.normalizeText(expr));
+                    }
+                }
+            }
+            if (!exprs.isEmpty()) candidates.add(Map.entry(q, exprs));
+        }
+        if (expressions.isEmpty()) return;
+
+        Map<String, Set<String>> readingsByExpression = new HashMap<>();
+        for (Object[] row : vocabularyEntryRepository.findReadingsByNormalizedExpressions(expressions)) {
+            readingsByExpression.computeIfAbsent((String) row[0], k -> new HashSet<>()).add((String) row[1]);
+        }
+        for (Map.Entry<LessonContentResponse.PracticeQuestion, List<String>> candidate : candidates) {
+            LessonContentResponse.PracticeQuestion q = candidate.getKey();
+            String answer = DictionaryUtil.normalizeReading(q.getOptions().get(q.getCorrectOption() - 1));
+            candidate.getValue().stream()
+                    .filter(e -> readingsByExpression.getOrDefault(DictionaryUtil.normalizeText(e), Set.of()).contains(answer))
+                    .max(java.util.Comparator.comparingInt(String::length))
+                    .ifPresent(q::setTargetText);
+        }
+    }
+
+    private static boolean isKanaOnly(String value) {
+        if (value == null || value.isBlank()) return false;
+        return value.strip().codePoints().allMatch(cp ->
+                (cp >= 0x3040 && cp <= 0x30ff) || cp == 0x30fc || cp == 0x30fb || Character.isWhitespace(cp));
+    }
+
+    private JsonNode readJson(String json) {
+        if (json == null || json.isBlank()) return null;
+        try {
+            return objectMapper.readTree(json);
+        } catch (Exception e) {
+            return null;   // context_json hỏng chỉ làm mất bản dịch/audio của câu, không làm hỏng cả trang
+        }
+    }
+
+    private static String textOrNull(JsonNode node, String field) {
+        if (node == null) return null;
+        JsonNode value = node.path(field);
+        return value.isTextual() && !value.asText().isBlank() ? value.asText() : null;
+    }
+
+    /**
+     * Kanji của bài: kanji gắn tay (lesson_kanji, theo order_index người biên soạn đặt) đứng trước, rồi
+     * tới kanji xuất hiện trong từ vựng của bài (content_vocabulary → vocabulary_kanji → kanji); chữ có ở
+     * cả hai nguồn chỉ hiện một lần. Cách đọc On/Kun lấy một lần theo tập kanji_id.
      * Dữ liệu Kanji từ KANJIDIC2 (EDRDG, CC BY-SA 4.0).
      */
-    private List<KanjiResponse> loadKanjis(List<VocabularyEntry> entries) {
-        if (entries.isEmpty()) return Collections.emptyList();
+    private List<KanjiResponse> loadKanjis(Long lessonId, List<VocabularyEntry> entries) {
         Map<Long, VocabularyEntry> entryById = new LinkedHashMap<>();
         entries.forEach(v -> entryById.put(v.getId(), v));
 
         // Kanji theo id (giữ thứ tự xuất hiện) + các từ của bài chứa từng chữ.
         Map<Long, Kanji> kanjiById = new LinkedHashMap<>();
         Map<Long, List<KanjiWordResponse>> wordsByKanji = new LinkedHashMap<>();
-        for (VocabularyKanji link : vocabularyKanjiRepository.findByVocabularyIdIn(entryById.keySet())) {
+        for (LessonKanji link : lessonKanjiRepository.findByLessonIdWithKanji(lessonId)) {
+            kanjiById.putIfAbsent(link.getKanji().getId(), link.getKanji());
+        }
+        for (VocabularyKanji link : entryById.isEmpty() ? List.<VocabularyKanji>of()
+                : vocabularyKanjiRepository.findByVocabularyIdIn(entryById.keySet())) {
             Kanji kanji = link.getKanji();
             kanjiById.putIfAbsent(kanji.getId(), kanji);
             wordsByKanji.computeIfAbsent(kanji.getId(), k -> new ArrayList<>())
@@ -693,6 +912,16 @@ public class DictionaryServiceImpl implements DictionaryService {
     /** CONTENT_CREATOR thấy mọi trạng thái; mọi vai khác (kể cả ADMIN, theo quyết định team) và người chưa đăng nhập chỉ thấy PUBLISHED. */
     private static boolean canViewDraft() {
         return CurrentUser.hasRole(ROLE_CONTENT_CREATOR);
+    }
+
+    /**
+     * Giáo trình thuộc nhóm "Theo chủ đề" khi hội ĐỦ HAI điều kiện: không có cấp độ JLPT,
+     * và có ít nhất một bài gắn tag SITUATION. Chỉ vế sau là chưa đủ — Sekai N5/N4 cũng có bài
+     * gắn tag SITUATION nhưng có jlpt_level nên vẫn thuộc nhóm theo cấp độ.
+     */
+    private static boolean isTopicBased(Textbook textbook, long situationTaggedLessons) {
+        String level = textbook.getJlptLevel();
+        return (level == null || level.isBlank()) && situationTaggedLessons > 0;
     }
 
     /** Bài chỉ công khai khi chính nó lẫn giáo trình chứa nó đều PUBLISHED. Yêu cầu lesson đã fetch join unit.textbook. */

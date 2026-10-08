@@ -479,3 +479,23 @@ CREATE TABLE IF NOT EXISTS shadowing_view_milestone (
     CONSTRAINT fk_shadowing_view_milestone_video FOREIGN KEY (video_id)
         REFERENCES video(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- #############################################################################
+-- 013) Giáo trình: kanji gắn tay vào bài học (lesson_kanji)
+-- #############################################################################
+-- Trang học viên gộp kanji gắn tay với kanji suy ra từ từ vựng của bài, không trùng lặp.
+CREATE TABLE IF NOT EXISTS lesson_kanji (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id   BIGINT UNSIGNED NOT NULL,
+    kanji_id    BIGINT UNSIGNED NOT NULL,
+    order_index INT UNSIGNED NOT NULL DEFAULT 1,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_kanji (lesson_id, kanji_id),
+    KEY idx_lesson_kanji_kanji (kanji_id),
+    CONSTRAINT fk_lesson_kanji_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lesson_kanji_kanji FOREIGN KEY (kanji_id)
+        REFERENCES kanji(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

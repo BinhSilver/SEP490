@@ -9,6 +9,10 @@
   // textbook.jlptLevel = null (bảng chữ cái…) = nhóm "Nhập môn": đặt theo vị trí trong lộ trình, xếp trước N5.
   var INTRO_LEVEL_LABEL = 'Nhập môn';
   var INTRO_LEVEL_NOTE = 'Bảng chữ cái, kiến thức nền trước N5';
+  // topicBased (API tính: không có cấp độ + có bài gắn tag SITUATION) = nhóm "Theo chủ đề", xếp sau cùng.
+  var TOPIC_GROUP_KEY = '\u0000topic';
+  var TOPIC_GROUP_LABEL = 'Theo chủ đề';
+  var TOPIC_GROUP_NOTE = 'Từ vựng và tình huống theo lĩnh vực, học độc lập với cấp độ';
 
   var loadingEl = document.getElementById('textbooksLoading');
   var errorEl = document.getElementById('textbooksError');
@@ -33,6 +37,7 @@
    * null/rỗng gom vào nhóm "Nhập môn" đặt đầu tiên (trước N5). Không hardcode danh sách cấp độ.
    */
   function levelSortKey(level) {
+    if (level === TOPIC_GROUP_KEY) return [2, 0, ''];
     if (!level) return [-1, 0, ''];
     var match = /^N(\d)$/i.exec(level.trim());
     if (match) return [0, -parseInt(match[1], 10), ''];
@@ -48,15 +53,36 @@
     return 0;
   }
 
+  function groupKeyOf(textbook) {
+    if (textbook.topicBased) return TOPIC_GROUP_KEY;
+    return textbook.jlptLevel && textbook.jlptLevel.trim() ? textbook.jlptLevel.trim() : '';
+  }
+
+  function groupLabel(key) {
+    if (key === TOPIC_GROUP_KEY) return TOPIC_GROUP_LABEL;
+    return key || INTRO_LEVEL_LABEL;
+  }
+
+  function groupNote(key) {
+    if (key === TOPIC_GROUP_KEY) return TOPIC_GROUP_NOTE;
+    return key ? '' : INTRO_LEVEL_NOTE;
+  }
+
   function groupByLevel(textbooks) {
     var groups = {};
     textbooks.forEach(function (t) {
-      var key = t.jlptLevel && t.jlptLevel.trim() ? t.jlptLevel.trim() : '';
+      var key = groupKeyOf(t);
       if (!groups[key]) groups[key] = [];
       groups[key].push(t);
     });
     return Object.keys(groups).sort(compareLevels).map(function (key) {
-      return { level: key, label: key || INTRO_LEVEL_LABEL, note: key ? '' : INTRO_LEVEL_NOTE, textbooks: groups[key] };
+      // level rỗng cho nhóm chủ đề: bìa/CSS [data-level] dùng chung kiểu với nhóm không có cấp độ.
+      return {
+        level: key === TOPIC_GROUP_KEY ? '' : key,
+        label: groupLabel(key),
+        note: groupNote(key),
+        textbooks: groups[key]
+      };
     });
   }
 
@@ -65,25 +91,82 @@
     return '<span class="tb-badge tb-badge--draft">' + escapeHtml(status) + '</span>';
   }
 
+  /* ---------- TextbookThumbnail: ảnh tải lên, hoặc thumbnail tự sinh khi chưa có / ảnh lỗi ---------- */
+
+  /** 6 nền pastel (tím, xanh ngọc, cam san hô, xanh dương, vàng, hồng) kèm màu chữ Hán cùng tông. */
+  var THUMB_PALETTE = [
+    { bg: '#ece6fb', ink: '#5b3fa8' },
+    { bg: '#d9f2ed', ink: '#1d7568' },
+    { bg: '#fde4dc', ink: '#b04f36' },
+    { bg: '#dfeafb', ink: '#2e5c9a' },
+    { bg: '#fbf0cf', ink: '#86660f' },
+    { bg: '#fbe1ec', ink: '#a5426d' }
+  ];
+  var THUMB_DEFAULT_KANJI = '日';
+  /** theme_color do người biên soạn chọn có thể là màu bất kỳ → chữ Hán dùng màu tối trung tính. */
+  var THUMB_CUSTOM_INK = '#161d1f';
+
+  /** Hash ổn định theo tên: cùng tên luôn ra cùng màu, giữa các lần tải trang và giữa các máy. */
+  function hashString(value) {
+    var hash = 0;
+    var text = String(value == null ? '' : value);
+    for (var i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+    return hash;
+  }
+
+  function thumbnailColors(t) {
+    if (t.themeColor && /^#[0-9a-f]{6}$/i.test(t.themeColor)) return { bg: t.themeColor, ink: THUMB_CUSTOM_INK };
+    return THUMB_PALETTE[hashString(t.title) % THUMB_PALETTE.length];
+  }
+
+  function levelBadgeText(t) {
+    if (t.jlptLevel && t.jlptLevel.trim()) return t.jlptLevel.trim().toUpperCase();
+    return t.topicBased ? 'Chủ đề' : INTRO_LEVEL_LABEL;
+  }
+
   /**
-   * Bìa vẽ bằng CSS (bảng textbook không có cột ảnh): màu theo cấp độ qua [data-level] trong textbooks.css,
-   * chữ cấp độ lớn ở giữa; jlptLevel null (bảng chữ cái / nhập môn) hiện あ ア.
+   * Thumbnail thay cho khối bìa cũ. Lớp fallback luôn được vẽ bên dưới; ảnh (nếu có) phủ lên trên và bị gỡ
+   * khi tải lỗi (xem setupThumbnailFallback) nên người dùng không bao giờ thấy ảnh vỡ. Badge cấp độ góc trái,
+   * badge trạng thái góc phải nằm TRONG thumbnail để tiêu đề các card thẳng hàng với nhau.
    */
-  function coverBlock(t) {
-    var level = t.jlptLevel && t.jlptLevel.trim() ? t.jlptLevel.trim().toUpperCase() : '';
-    return '<div class="textbook-card__cover" data-level="' + escapeHtml(level || 'intro') + '" aria-hidden="true">' +
-      (level
-        ? '<span class="textbook-card__cover-level">' + escapeHtml(level) + '</span>'
-        : '<span class="textbook-card__cover-kana" lang="ja">あ<span class="textbook-card__cover-kana-sep">·</span>ア</span>') +
+  function textbookThumbnail(t) {
+    var colors = thumbnailColors(t);
+    var kanji = t.thumbnailKanji && t.thumbnailKanji.trim() ? t.thumbnailKanji.trim() : THUMB_DEFAULT_KANJI;
+    return '' +
+      '<div class="textbook-thumb" style="--thumb-bg:' + escapeHtml(colors.bg) + ';--thumb-ink:' + escapeHtml(colors.ink) + '">' +
+        '<span class="textbook-thumb__kanji" lang="ja" aria-hidden="true">' + escapeHtml(kanji) + '</span>' +
+        (t.thumbnailUrl
+          ? '<img class="textbook-thumb__img" src="' + escapeHtml(t.thumbnailUrl) + '" alt="" loading="lazy" decoding="async">'
+          : '') +
+        // Có ảnh thì ẩn badge cấp độ (ảnh tự thiết kế đã thể hiện); ảnh lỗi → setupThumbnailFallback hiện lại.
+        '<span class="textbook-thumb__badge textbook-thumb__badge--level"' + (t.thumbnailUrl ? ' hidden' : '') + '>' +
+          escapeHtml(levelBadgeText(t)) + '</span>' +
+        (t.status !== 'PUBLISHED'
+          ? '<span class="textbook-thumb__badge textbook-thumb__badge--status">' + statusBadge(t.status) + '</span>'
+          : '') +
       '</div>';
+  }
+
+  /**
+   * Sự kiện error của <img> không nổi bọt → bắt ở pha capture một lần cho cả danh sách.
+   * Ảnh lỗi: gỡ ảnh để lộ fallback chữ Hán và hiện lại badge cấp độ đã ẩn lúc render.
+   */
+  function setupThumbnailFallback() {
+    levelsEl.addEventListener('error', function (event) {
+      var target = event.target;
+      if (!target || !target.classList || !target.classList.contains('textbook-thumb__img')) return;
+      var thumb = target.parentNode;
+      var levelBadge = thumb && thumb.querySelector('.textbook-thumb__badge--level');
+      if (levelBadge) levelBadge.hidden = false;
+      target.remove();
+    }, true);
   }
 
   function textbookCard(t) {
     var unitCount = t.unitCount == null ? 0 : t.unitCount;
     return '' +
       '<a class="textbook-card" href="/textbooks/' + encodeURIComponent(t.id) + '">' +
-        coverBlock(t) +
-        (t.status !== 'PUBLISHED' ? '<div class="textbook-card__top">' + statusBadge(t.status) + '</div>' : '') +
+        textbookThumbnail(t) +
         '<h3 class="textbook-card__title">' + escapeHtml(t.title) + '</h3>' +
         // Mô tả chỉ hiện khi giáo trình chưa có nội dung (unitCount = 0): đó là lời giải thích vì sao trống.
         (unitCount === 0 && t.description ? '<p class="textbook-card__desc">' + escapeHtml(t.description) + '</p>' : '') +
@@ -296,7 +379,24 @@
     });
   }
 
+  /**
+   * Lối vào màn hình quản lý, chỉ hiện với CONTENT_CREATOR.
+   * Đọc role từ đúng nguồn mà shell nav dùng (JlasAuth.getUser().role, cache localStorage làm mới qua
+   * /api/auth/me) nên không phát sinh cách kiểm vai thứ hai. NAV_ROLES không dùng được ở đây vì nó chỉ
+   * ẩn/hiện phần tử BÊN TRONG shell nav, còn nút này nằm trong nội dung trang; cách này trùng với
+   * textbook-units.js đang làm cho nút đổi trạng thái. Đây chỉ là ẩn/hiện giao diện — route thật đã
+   * chặn ở backend bằng @PreAuthorize, gõ thẳng /textbooks/manage cũng chỉ nhận 403 từ API.
+   */
+  function setupManageEntry() {
+    var link = document.getElementById('manageEntryLink');
+    if (!link) return;
+    var user = window.JlasAuth && typeof JlasAuth.getUser === 'function' ? JlasAuth.getUser() : null;
+    link.hidden = !(user && user.role === 'CONTENT_CREATOR');
+  }
+
   setupTabs();
+  setupThumbnailFallback();
   setupTopics();
+  setupManageEntry();
   load();
 })();

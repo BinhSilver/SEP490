@@ -18,9 +18,10 @@ import java.util.UUID;
 
 @Service
 public class AvatarUploadService {
-    private static final long MAX_SIZE = 2L * 1024 * 1024;
-    private static final Set<String> EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
-    private static final Set<String> MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+    // Dùng chung với thumbnail giáo trình (ContentAdminServiceImpl): cùng giới hạn, cùng định dạng ảnh.
+    public static final long MAX_SIZE = 2L * 1024 * 1024;
+    public static final Set<String> EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
+    public static final Set<String> MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
     private final Path uploadDirectory;
 
@@ -62,12 +63,13 @@ public class AvatarUploadService {
         return "/uploads/avatar/" + filename;
     }
 
-    private static String extension(String filename) {
+    public static String extension(String filename) {
         if (filename == null || !filename.contains(".")) return "";
         return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
     }
 
-    private static boolean hasImageSignature(byte[] bytes, String extension) {
+    /** Magic bytes phải khớp đuôi file (JPEG FF D8 FF, PNG 89 'PNG', WEBP 'RIFF'....'WEBP'). */
+    public static boolean hasImageSignature(byte[] bytes, String extension) {
         if (bytes == null || bytes.length < 12) return false;
         if (extension.equals("jpg") || extension.equals("jpeg")) {
             return (bytes[0] & 0xff) == 0xff && (bytes[1] & 0xff) == 0xd8 && (bytes[2] & 0xff) == 0xff;

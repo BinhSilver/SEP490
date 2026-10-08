@@ -36,6 +36,18 @@ public class Textbook {
     @Column(name = "jlpt_level", length = 10)
     private String jlptLevel;
 
+    /** Ảnh thumbnail tải lên (/uploads/textbook-thumbnails/...); null thì frontend vẽ thumbnail tự sinh. */
+    @Column(name = "thumbnail_url", length = 500)
+    private String thumbnailUrl;
+
+    /** Chữ Hán hiện mờ trên thumbnail tự sinh; null = 日. */
+    @Column(name = "thumbnail_kanji", length = 4)
+    private String thumbnailKanji;
+
+    /** Màu nền thumbnail tự sinh dạng #RRGGBB; null = chọn theo hash tên giáo trình. */
+    @Column(name = "theme_color", length = 7)
+    private String themeColor;
+
     /** DRAFT/PUBLISHED/ARCHIVED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

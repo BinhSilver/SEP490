@@ -1,0 +1,752 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+[JLAS2-20] Sinh sql/seeds/seed_data_vnjpclub.sql tu ban xuat vnjpclub (du lieu crawl da chuan bi:
+45 giao trinh / 534 unit / 2866 lesson / 19518 tu vung / 2442 mau ngu phap / 5005 kanji / 9465 cau hoi).
+
+Dung DOC LAP, khong dung toi tools/generate_seed.py va KHONG sua seed khac. File sinh ra chay SAU
+sql/seeds/seed_data_jlas.sql (ban chuan; cac ban cu trong sql/seeds/_cu/ cung chay duoc) va cac seed khac:
+  - Bang co ID tuong minh dung dai rieng 1000001-1999999, tat dinh qua cac lan sinh
+    (thu tu N5 -> N1, theo giao trinh/unit/lesson trong curriculum).
+  - Tu vung: INSERT IGNORE theo uk_vocabulary_normalized, khong ghi ID; moi lien ket tra ID theo
+    (normalized_expression, normalized_reading). Tu da co chi lien ket, khong them sense, khong sua.
+  - Kanji: tra theo ky tu; chu chua co thi INSERT IGNORE kem han_viet/meaning_vi tu nguon; chu da co khong UPDATE.
+  - Dau file xoa du lieu cua chinh file nay (dai ID 1000001-1999999 + content_source VNJPCLUB),
+    khong dung du lieu ngoai dai. Tu vung / kanji moi khong xoa khi chay lai (dung lai nho INSERT IGNORE).
+
+Dau vao: thu muc ban xuat (*.json hoac *.json.gz): giao_trinh, unit, lesson, tu_vung, ngu_phap, vi_du, kanji,
+tu_ghep, hoi_thoai, cau_song_ngu, bai_doc, bai_nghe, cau_hoi, phuong_an, audio_lien_ket.
+Ban sao trong repo: data/vnjpclub/ (nen gzip; ban goc o D:\\project\\tool\\tool\\output\\export).
+
+Chay:
+    python tools/seed_vnjpclub.py                                  # doc data/vnjpclub
+    python tools/seed_vnjpclub.py --vnjp-export <thu-muc-export> --out sql/seeds/seed_data_vnjpclub.sql
+    python tools/seed_vnjpclub.py --vnjp-export <thu-muc-export> --copy-data   # chep lai data/vnjpclub (gzip)
+"""
+import argparse
+import gzip
+import json
+import os
+import re
+import unicodedata
+from collections import OrderedDict, defaultdict
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TABLES = ['giao_trinh', 'unit', 'lesson', 'tu_vung', 'ngu_phap', 'vi_du', 'kanji', 'tu_ghep', 'hoi_thoai',
+          'cau_song_ngu', 'bai_doc', 'bai_nghe', 'cau_hoi', 'phuong_an', 'audio_lien_ket']
+ID_BASE, ID_MAX = 1000001, 1999999          # dai ID danh rieng cho du lieu vnjpclub
+AUTO_INCREMENT_AFTER = 2000001             # ID tu tang sau seed nam ngoai dai danh rieng
+SOURCE = 'VNJPCLUB'
+VOICE_CODE = 'nguon-sach'
+LEVEL_ORDER = {'N5': 0, 'N4': 1, 'N3': 2, 'N2': 3, 'N1': 4}
+PLACEHOLDER = {'LISTENING': '(Nghe và chọn đáp án đúng)', 'READING': '(Đọc và chọn đáp án đúng)'}
+# Giao trinh cu: chi them content_source cap textbook khi tra duoc DUY NHAT theo tieu de.
+OLD_TEXTBOOKS = [
+    ('Sekai N5 — Giáo trình tiếng Nhật', 'SEKAI'),
+    ('Sekai N4 — Giáo trình tiếng Nhật', 'SEKAI'),
+    ('Tiếng Nhật N3', 'AI_GENERATED'),
+    ('Tiếng Nhật N2', 'AI_GENERATED'),
+    ('Tiếng Nhật N1', 'AI_GENERATED'),
+    ('Tiếng Nhật chuyên ngành IT', 'AI_GENERATED'),
+    ('Tiếng Nhật du lịch', 'AI_GENERATED'),
+    ('Tiếng Nhật đời sống', 'AI_GENERATED'),
+]
+SKILL_BY_PART = {'vocabulary': 'VOCABULARY', 'grammar': 'GRAMMAR', 'kanji': 'KANJI',
+                 'reading': 'READING', 'listening': 'LISTENING'}
+
+
+# ----------------------------------------------------------------------------- tien ich (giong generate_seed.py)
+def esc(v):
+    if v is None:
+        return 'NULL'
+    if isinstance(v, bool):
+        return '1' if v else '0'
+    if isinstance(v, (int, float)):
+        return str(v)
+    s = str(v).replace('\\', '\\\\').replace("'", "''")
+    s = s.replace('\r\n', '\n').replace('\r', '\n').replace('\n', '\\n')
+    return "'" + s + "'"
+
+
+def norm(s):
+    """Giong generate_seed.norm: strip -> NFKC -> lower -> katakana (U+30A1..U+30F6) sang hiragana."""
+    s = unicodedata.normalize('NFKC', (s or '').strip()).lower()
+    return ''.join(chr(ord(c) - 0x60) if '\u30a1' <= c <= '\u30f6' else c for c in s)
+
+
+def is_kanji(ch):
+    return '\u4e00' <= ch <= '\u9fff'
+
+
+def cut(s, n):
+    s = (s or '').strip()
+    return s if len(s) <= n else s[:n - 1] + '…'
+
+
+NGOAC_RONG = re.compile(r'^[ \t　]*【[ \t　]*】[ \t　]*$')
+POPUP_SCRIPT = re.compile(r'^[ \t　]*POPUP SCRIPT[ \t　]*$')
+
+
+def bo_ngoac_rong(s):
+    """Bo dong rac cua ban xuat vnjpclub: dong chi gom cap ngoac 【】 RONG (nhan muc trong; ngoac co chu thi giu)
+    va dong 'POPUP SCRIPT' (nhan nut mo transcript tren trang goc). Trang hoc vien hien nguyen cac dong nay."""
+    if s is None:
+        return None
+    lines = [ln for ln in s.split('\n') if not (NGOAC_RONG.match(ln) or POPUP_SCRIPT.match(ln))]
+    return '\n'.join(lines) if lines else None
+
+
+class Batch:
+    def __init__(self, table, columns, verb='INSERT INTO', size=500):
+        self.table, self.columns, self.verb, self.size = table, columns, verb, size
+        self.rows = []
+
+    def add(self, *values):
+        assert len(values) == len(self.columns), (self.table, values)
+        self.rows.append('(' + ', '.join(esc(v) for v in values) + ')')
+
+    def render(self):
+        if not self.rows:
+            return ''
+        cols = ', '.join(self.columns)
+        out = ['-- {}: {} dong'.format(self.table, len(self.rows))]
+        for i in range(0, len(self.rows), self.size):
+            out.append('{} {} ({}) VALUES\n{};'.format(self.verb, self.table, cols, ',\n'.join(self.rows[i:i + self.size])))
+        return '\n'.join(out) + '\n'
+
+
+def load_export(d):
+    data = {}
+    for n in TABLES:
+        p = os.path.join(d, n + '.json')
+        if os.path.exists(p):
+            data[n] = json.load(open(p, encoding='utf-8'))
+        elif os.path.exists(p + '.gz'):
+            with gzip.open(p + '.gz', 'rt', encoding='utf-8') as fh:
+                data[n] = json.load(fh)
+        else:
+            raise SystemExit('Thieu {} (.json/.json.gz) trong {}'.format(n, d))
+    return data
+
+
+def copy_data(src, dst):
+    os.makedirs(dst, exist_ok=True)
+    for n in TABLES:
+        with open(os.path.join(src, n + '.json'), 'rb') as fi, gzip.GzipFile(os.path.join(dst, n + '.json.gz'), 'wb', 9, mtime=0) as fo:
+            fo.write(fi.read())
+
+
+# ----------------------------------------------------------------------------- sinh
+def build(D):
+    counters = defaultdict(lambda: ID_BASE - 1)
+
+    def nid(k):
+        counters[k] += 1
+        if counters[k] > ID_MAX:
+            raise SystemExit('Vuot dai ID danh rieng cho ' + k)
+        return counters[k]
+
+    B = OrderedDict()
+    B['tag'] = Batch('tag', ['id', 'code', 'name', 'tag_type'])
+    B['textbook'] = Batch('textbook', ['id', 'title', 'description', 'jlpt_level', 'status'])
+    B['unit'] = Batch('unit', ['id', 'textbook_id', 'title', 'description', 'order_index'])
+    B['lesson'] = Batch('lesson', ['id', 'unit_id', 'knowledge_tag_id', 'title', 'description', 'order_index',
+                                   'estimated_minutes', 'lesson_type', 'skill', 'situation_tag', 'is_review', 'status'])
+    B['lesson_tag'] = Batch('lesson_tag', ['lesson_id', 'tag_id'])
+    B['lesson_section'] = Batch('lesson_section', ['id', 'lesson_id', 'title', 'section_type', 'order_index'])
+    B['grammar_point'] = Batch('grammar_point', ['id', 'lesson_id', 'tag_id', 'pattern', 'meaning', 'example', 'note',
+                                                 'order_index'])
+    B['content_item'] = Batch('content_item', ['id', 'section_id', 'content_type', 'grammar_point_id', 'title', 'content',
+                                               'translated_text', 'order_index'])
+    B['content_audio'] = Batch('content_audio', ['id', 'owner_type', 'owner_id', 'voice_code', 'audio_url', 'merged_url',
+                                                 'start_ms', 'end_ms'])
+    B['assessment_quiz'] = Batch('assessment_quiz', ['id', 'lesson_id', 'unit_id', 'title', 'quiz_type', 'status'])
+    B['assessment_question'] = Batch('assessment_question', [
+        'id', 'knowledge_tag_id', 'grammar_point_id', 'skill', 'jlpt_level', 'difficulty', 'question_type', 'title',
+        'question_text', 'answer_text', 'option_1', 'option_2', 'option_3', 'option_4', 'correct_option', 'explanation',
+        'context_json', 'order_index', 'is_active'])
+    B['assessment_quiz_question'] = Batch('assessment_quiz_question', ['quiz_id', 'question_id', 'order_index',
+                                                                       'raw_score'])
+    B['content_source'] = Batch('content_source', ['id', 'entity_type', 'entity_id', 'source_code', 'stable_code',
+                                                   'source_url', 'original_title', 'review_status', 'note'])
+    # bang tam (tra ID tu vung / kanji luc chay)
+    T = OrderedDict()
+    T['kanji'] = Batch('kanji', ['`character`', 'unicode_code', 'han_viet', 'meaning_vi', 'jlpt_level'], 'INSERT IGNORE INTO')
+    T['tmp_vnj_vocab'] = Batch('tmp_vnj_vocab', ['ne', 'nr', 'expression', 'reading', 'meaning', 'word_type', 'jlpt',
+                                                 'ex_ja', 'ex_vi'], 'INSERT IGNORE INTO')
+    T['tmp_vnj_sense'] = Batch('tmp_vnj_sense', ['ne', 'nr', 'sense_order', 'usage_note', 'gloss'], 'INSERT IGNORE INTO')
+    T['tmp_vnj_vk'] = Batch('tmp_vnj_vk', ['ne', 'nr', 'ch', 'pos'], 'INSERT IGNORE INTO')
+    T['tmp_vnj_cv'] = Batch('tmp_vnj_cv', ['item_id', 'ne', 'nr'], 'INSERT IGNORE INTO')
+    T['tmp_vnj_lk'] = Batch('tmp_vnj_lk', ['lesson_id', 'ch', 'ord'], 'INSERT IGNORE INTO')
+    T['tmp_vnj_vsrc'] = Batch('tmp_vnj_vsrc', ['id', 'ne', 'nr', 'stable_code', 'source_url', 'title', 'review'],
+                              'INSERT IGNORE INTO')
+    T['tmp_vnj_ksrc'] = Batch('tmp_vnj_ksrc', ['id', 'ch', 'stable_code', 'source_url', 'title', 'review'],
+                              'INSERT IGNORE INTO')
+
+    stats = defaultdict(int)
+    skipped = defaultdict(list)
+
+    def src(entity, eid, code, url, title, review, note=None):
+        B['content_source'].add(nid('source'), entity, eid, SOURCE, code, cut(url, 1000) or None,
+                                cut(title, 500) or None, review if review in ('NGUON', 'CHUA_DUYET', 'DA_DUYET') else 'CHUA_DUYET',
+                                note)
+
+    # --- chi muc
+    def group(rows, key):
+        g = defaultdict(list)
+        for r in rows:
+            g[r[key]].append(r)
+        return g
+
+    units_by_tb = group(D['unit'], 'giao_trinh_ma')
+    lessons_by_unit = group(D['lesson'], 'unit_ma')
+    voc_by_l = group(D['tu_vung'], 'lesson_ma')
+    gra_by_l = group(D['ngu_phap'], 'lesson_ma')
+    kan_by_l = group(D['kanji'], 'lesson_ma')
+    rdg_by_l = group(D['bai_doc'], 'lesson_ma')
+    lis_by_l = group(D['bai_nghe'], 'lesson_ma')
+    q_by_l = group(D['cau_hoi'], 'lesson_ma')
+    vidu_by_parent = group(D['vi_du'], 'ma_cha')
+    tughep_by_kan = group(D['tu_ghep'], 'kanji_ma')
+    dlg_by_parent = group(D['hoi_thoai'], 'ma_cha')
+    pairs_by_parent = group(D['cau_song_ngu'], 'ma_cha')
+    opt_by_q = group(D['phuong_an'], 'cau_hoi_ma')
+    aud_by_parent = group(D['audio_lien_ket'], 'ma_cha')
+    aud_by_q = group([a for a in D['audio_lien_ket'] if a['cau_hoi_ma']], 'cau_hoi_ma')
+    parent_part = {r['ma']: r.get('phan') for n in ('tu_vung', 'ngu_phap', 'kanji', 'bai_doc', 'bai_nghe') for r in D[n]}
+
+    # --- tu vung: gom theo khoa chuan hoa (thu tu N5 -> N1); nhieu nghia giua cac bo -> nhieu sense (chi tu moi)
+    vocab = OrderedDict()                     # key -> {row, senses: OrderedDict(meaning -> note)}
+    kanji_chars = OrderedDict()               # ky tu -> (han_viet, meaning_vi, jlpt)
+
+    def vocab_key(word, reading):
+        word = (word or '').strip()
+        reading = (reading or '').strip() or word
+        return word, reading, (norm(word), norm(reading))
+
+    def add_vocab(word, reading, meaning, word_type, level, ex, book, stable, url, title, review, item_id):
+        word, reading, key = vocab_key(word, reading)
+        if not word or not key[0]:
+            skipped['tu_vung_rong'].append(stable)
+            return
+        if len(word) > 255 or len(reading) > 255:
+            skipped['tu_vung_qua_dai'].append(stable)
+            return
+        if key not in vocab:
+            vocab[key] = {'word': word, 'reading': reading, 'meaning': (meaning or '').strip(), 'word_type': word_type,
+                          'level': level, 'ex': ex, 'senses': OrderedDict(), 'book': book}
+            for pos, ch in enumerate(word, start=1):
+                if is_kanji(ch):
+                    kanji_chars.setdefault(ch, (None, None, level))
+                    T['tmp_vnj_vk'].add(key[0], key[1], ch, pos)
+        v = vocab[key]
+        if not v['ex'] and ex:
+            v['ex'] = ex
+        m = (meaning or '').strip()
+        if m and m not in v['senses']:
+            v['senses'][m] = book
+        T['tmp_vnj_vsrc'].add(nid('source'), key[0], key[1], stable, cut(url, 1000) or None, cut(title, 500) or None,
+                              review if review in ('NGUON', 'CHUA_DUYET', 'DA_DUYET') else 'CHUA_DUYET')
+        if item_id:
+            T['tmp_vnj_cv'].add(item_id, key[0], key[1])
+        stats['muc_tu_vung'] += 1
+
+    tb_list = sorted(D['giao_trinh'], key=lambda r: (LEVEL_ORDER[r['cap']], r['order_index']))
+    for tb in tb_list:
+        lv = tb['cap']
+        tb_id = nid('textbook')
+        title = tb['ten'] if lv in tb['ten'] else '{} ({})'.format(tb['ten'], lv)
+        desc = ('Nguồn: vnjpclub.com — {} ({}), {} unit, {} bài. Mã nguồn: {}.\n'
+                'Giấy phép: nội dung thuộc bản quyền vnjpclub.com và nhà xuất bản sách gốc; chưa có giấy phép phân phối '
+                'lại — chỉ dùng thử nghiệm nội bộ.\nNội dung chưa duyệt (CHUA_DUYET).').format(
+            tb['ten'], lv, tb['so_unit'], tb['so_bai'], tb['ma'])
+        B['textbook'].add(tb_id, cut(title, 255), desc, lv, 'DRAFT')
+        src('TEXTBOOK', tb_id, tb['ma'], tb.get('url_nguon'), tb['ten'], tb.get('trang_thai_duyet'))
+        stats['textbook'] += 1
+        for u in sorted(units_by_tb[tb['ma']], key=lambda r: r['order_index']):
+            u_id = nid('unit')
+            u_title = u['tieu_de_vi'] or u['tieu_de_ja'] or 'Unit {}'.format(u['order_index'])
+            B['unit'].add(u_id, tb_id, cut(u_title, 255), '{}\nMã nguồn: {}'.format(u['tieu_de_ja'] or '', u['ma']).strip(),
+                          u['order_index'])
+            src('UNIT', u_id, u['ma'], u.get('url_nguon'), u['tieu_de_vi'] or u['tieu_de_ja'], u.get('trang_thai_duyet'))
+            stats['unit'] += 1
+            for les in sorted(lessons_by_unit[u['ma']], key=lambda r: r['order_index']):
+                build_lesson(les, u_id, lv, tb, B, T, nid, src, stats, skipped, add_vocab, kanji_chars,
+                             voc_by_l, gra_by_l, kan_by_l, rdg_by_l, lis_by_l, q_by_l, vidu_by_parent, tughep_by_kan,
+                             dlg_by_parent, pairs_by_parent, opt_by_q, aud_by_parent, aud_by_q, parent_part)
+    # tu vung -> bang tam
+    for key, v in vocab.items():
+        ex = v['ex'] or {}
+        T['tmp_vnj_vocab'].add(key[0], key[1], v['word'], v['reading'], v['meaning'] or None,
+                               cut(v['word_type'], 50) or None, v['level'], ex.get('cau_ja') or None,
+                               ex.get('dich_vi') or None)
+        # moi tu moi luon co it nhat 1 sense 'Sách: ...' (tu khong co nghia: gloss rong, giong seed cu);
+        # sense nay cung la dau hieu on dinh 'tu do vnjpclub tao' khi chay lai.
+        senses = list(v['senses'].items()) or [('', v['book'])]
+        for i, (m, book) in enumerate(senses, start=1):
+            T['tmp_vnj_sense'].add(key[0], key[1], i, cut('Sách: ' + book, 1000), cut(m, 2000))
+    for ch, (hv, mv, lv) in kanji_chars.items():
+        T['kanji'].add(ch, '{:04X}'.format(ord(ch)), cut(hv, 255) or None, mv or None, lv)
+    stats['khoa_tu_vung'] = len(vocab)
+    stats['ky_tu_kanji'] = len(kanji_chars)
+    return B, T, stats, skipped, dict(counters)
+
+
+def build_lesson(les, u_id, lv, tb, B, T, nid, src, stats, skipped, add_vocab, kanji_chars,
+                 voc_by_l, gra_by_l, kan_by_l, rdg_by_l, lis_by_l, q_by_l, vidu_by_parent, tughep_by_kan,
+                 dlg_by_parent, pairs_by_parent, opt_by_q, aud_by_parent, aud_by_q, parent_part):
+    L = les['ma']
+    vocs, gras, kans = voc_by_l[L], gra_by_l[L], kan_by_l[L]
+    rdgs = [r for r in rdg_by_l[L] if (r.get('noi_dung') or '').strip()]
+    liss = lis_by_l[L]
+    qs = q_by_l[L]
+    is_practice = les.get('loai_bai') == 'practice'
+    # ky nang chinh
+    if gras:
+        skill = 'GRAMMAR'
+    elif (vocs or kans) and not (rdgs or liss):
+        skill = 'VOCABULARY'
+    elif liss and not rdgs:
+        skill = 'LISTENING'
+    elif rdgs and not liss:
+        skill = 'READING'
+    elif rdgs and liss:
+        skill = 'LISTENING' if len(liss) >= len(rdgs) else 'READING'
+    elif qs:
+        lis_q = sum(1 for q in qs if q['loai_cha'] == 'LIS')
+        skill = 'LISTENING' if lis_q * 2 > len(qs) else 'READING'
+    else:
+        skill = 'VOCABULARY'
+    tag_id = nid('tag')
+    title = les['bai'] or les['tieu_de_ja'] or 'Bài {}'.format(les['order_index'])
+    B['tag'].add(tag_id, 'VNJ-' + L, cut('vnjpclub: ' + title, 255), 'KNOWLEDGE')
+    les_id = nid('lesson')
+    B['lesson'].add(les_id, u_id, tag_id, cut(title, 255),
+                    '{}\nMã nguồn: {}'.format(les['tieu_de_ja'] or '', L).strip(), les['order_index'], 30,
+                    'REVIEW' if is_practice else 'CURRICULUM', skill, 'FOUNDATION', 1 if is_practice else 0, 'DRAFT')
+    B['lesson_tag'].add(les_id, tag_id)
+    src('LESSON', les_id, L, les.get('url_nguon'), les['bai'] or les['tieu_de_ja'], les.get('trang_thai_duyet'))
+    stats['lesson'] += 1
+    stats['lesson_' + skill] += 1
+    sec_order = [0]
+    item_order = defaultdict(int)
+
+    def section(title_, typ):
+        sec_order[0] += 1
+        sid = nid('section')
+        B['lesson_section'].add(sid, les_id, title_, typ, sec_order[0])
+        return sid
+
+    def item(sid, ctype, gp, title_, content, trans, code, url, otitle, review):
+        item_order[sid] += 1
+        iid = nid('item')
+        B['content_item'].add(iid, sid, ctype, gp, cut(title_, 255), bo_ngoac_rong(content), trans, item_order[sid])
+        src('CONTENT_ITEM', iid, code, url, otitle, review)
+        stats['content_item'] += 1
+        return iid
+
+    book = '{} ({})'.format(tb['ten'], lv)
+    # 1. Tu vung
+    if vocs:
+        sid = section('Từ vựng', 'EXPLANATION')
+        iid = item(sid, 'READING', None, 'Danh sách từ vựng', 'Bài có {} từ vựng.'.format(len(vocs)), None,
+                   L + '-ITEM-TU-VUNG', les.get('url_nguon'), 'Danh sách từ vựng', 'NGUON')
+        for r in vocs:
+            exs = [e for e in vidu_by_parent.get(r['ma'], []) if e.get('cau_ja')]
+            add_vocab(r['tu'], r['cach_doc'], r['nghia_vi'], r.get('tu_loai'), lv, exs[0] if exs else None, book,
+                      r['ma'], r['url_nguon'], r['tu'], r.get('trang_thai_duyet'), iid)
+    # 2. Ngu phap
+    gp_ids = {}
+    if gras:
+        section('Ngữ pháp', 'EXPLANATION')
+        for k, g in enumerate(gras, start=1):
+            gid = nid('grammar')
+            gp_ids[g['ma']] = gid
+            mau = (g['mau'] or '').strip()
+            nghia = (g['nghia_vi'] or '').strip()
+            exs = [e for e in vidu_by_parent.get(g['ma'], []) if e.get('cau_ja')]
+            example = '{}\n{}'.format(exs[0]['cau_ja'], exs[0].get('dich_vi') or '').strip() if exs else None
+            B['grammar_point'].add(gid, les_id, None, cut((g['cau_truc'] or '').strip() or mau or '(không tên)', 500),
+                                   (mau + ('\n' + nghia if nghia else '')).strip() or '(chưa có nghĩa)', example,
+                                   (g['ghi_chu'] or '').strip() or None, k)
+            src('GRAMMAR_POINT', gid, g['ma'], g['url_nguon'], mau or g['cau_truc'], g.get('trang_thai_duyet'))
+            stats['grammar_point'] += 1
+    # 3. Cau vi du
+    gex = [(g, e) for g in gras for e in vidu_by_parent.get(g['ma'], []) if e.get('cau_ja')]
+    if gex:
+        sid = section('Câu ví dụ', 'EXAMPLE')
+        for k, (g, e) in enumerate(gex, start=1):
+            item(sid, 'GRAMMAR', gp_ids[g['ma']], 'Ví dụ {}'.format(k), e['cau_ja'], e.get('dich_vi') or None,
+                 e['ma'], e['url_nguon'], 'Ví dụ {}'.format(k), e.get('trang_thai_duyet'))
+            stats['cau_vi_du'] += 1
+    # 4. Kanji
+    if kans:
+        sid = section('Kanji', 'EXPLANATION')
+        lines = []
+        for r in kans:
+            ch = (r['kanji'] or '').strip()
+            if ch:
+                lines.append('{} ({}) — {}{}'.format(ch, r.get('han_viet') or '', r.get('nghia_vi') or '',
+                                                     ' — ' + r['cach_doc'] if r.get('cach_doc') else '').strip())
+        iid = item(sid, 'READING', None, 'Danh sách kanji', '\n'.join(lines) or None, None, L + '-ITEM-KANJI',
+                   les.get('url_nguon'), 'Danh sách kanji', 'NGUON')
+        for k, r in enumerate(kans, start=1):
+            ch = (r['kanji'] or '').strip()
+            if len(ch) != 1:
+                skipped['kanji_khong_phai_1_ky_tu'].append(r['ma'])
+                continue
+            if ch not in kanji_chars or kanji_chars[ch][0] is None:
+                kanji_chars[ch] = (r.get('han_viet') or None, r.get('nghia_vi') or None, lv)
+            T['tmp_vnj_lk'].add(les_id, ch, k)
+            T['tmp_vnj_ksrc'].add(nid('source'), ch, r['ma'], cut(r['url_nguon'], 1000) or None, ch,
+                                  r.get('trang_thai_duyet') or 'NGUON')
+            stats['muc_kanji'] += 1
+            for w in tughep_by_kan.get(r['ma'], []):
+                add_vocab(w['tu'], w['cach_doc'], w['nghia_vi'], None, lv, None, book, w['ma'], w['url_nguon'], w['tu'],
+                          w.get('trang_thai_duyet'), iid)
+                stats['muc_tu_ghep'] += 1
+    # 5. Bai doc
+    if rdgs:
+        sid = section('Bài đọc', 'EXPLANATION')
+        for r in rdgs:
+            pairs = [p['dich_vi'] for p in pairs_by_parent.get(r['ma'], []) if (p.get('dich_vi') or '').strip()]
+            item(sid, 'READING', None, r['tieu_de'] or 'Bài đọc', r['noi_dung'], '\n'.join(pairs) or None, r['ma'],
+                 r['url_nguon'], r['tieu_de'], r.get('trang_thai_duyet'))
+            stats['bai_doc'] += 1
+    # 6. Bai nghe: transcript + moi file audio mot content_item LISTENING mang content_audio
+    if liss:
+        sid = section('Bài nghe', 'EXAMPLE')
+        for r in liss:
+            lines = dlg_by_parent.get(r['ma'], [])
+            ja = '\n'.join(('{}：'.format(x['nguoi_noi']) if x.get('nguoi_noi') else '') + x['cau_ja']
+                           for x in lines if (x.get('cau_ja') or '').strip())
+            vi = '\n'.join(x['dich_vi'] for x in lines if (x.get('dich_vi') or '').strip())
+            if not vi:
+                vi = '\n'.join(p['dich_vi'] for p in pairs_by_parent.get(r['ma'], []) if (p.get('dich_vi') or '').strip())
+            content = ja or (r.get('noi_dung') or '').strip()
+            if content:
+                item(sid, 'LISTENING', None, r['tieu_de'] or 'Bài nghe', content, vi or None, r['ma'], r['url_nguon'],
+                     r['tieu_de'], r.get('trang_thai_duyet'))
+                stats['bai_nghe_transcript'] += 1
+            seen = set()
+            for a in aud_by_parent.get(r['ma'], []):
+                if a['ma_audio'] in seen:
+                    continue
+                seen.add(a['ma_audio'])
+                if not a['co_file'] or not a['file_cuc_bo']:
+                    skipped['audio_404'].append(a['ma_audio'])
+                    continue
+                rel = 'vnjpclub/' + a['file_cuc_bo'].replace('\\', '/').split('media/', 1)[-1]
+                iid = item(sid, 'LISTENING', None, 'Audio {}'.format(len(seen)), None, None, a['ma_audio'],
+                           a['url_audio'], os.path.basename(a['url_audio']), 'NGUON')
+                B['content_audio'].add(nid('audio'), 'CONTENT_ITEM', iid, VOICE_CODE, cut(rel, 500), None, None, None)
+                stats['audio'] += 1
+    # 7. Luyen tap + quiz
+    if qs:
+        sid = section('Luyện tập', 'EXERCISE')
+        item(sid, 'READING', None, 'Luyện tập', 'Bài có {} câu hỏi — làm trong bài kiểm tra của bài học.'.format(len(qs)),
+             None, L + '-ITEM-LUYEN-TAP', les.get('url_nguon'), 'Luyện tập', 'NGUON')
+        quiz_id = nid('quiz')
+        B['assessment_quiz'].add(quiz_id, les_id, None, cut('Luyện tập: ' + title, 255), 'LESSON', 'DRAFT')
+        for k, q in enumerate(qs, start=1):
+            add_question(q, k, quiz_id, les_id, tag_id, lv, B, nid, src, stats, opt_by_q, aud_by_q, parent_part, gp_ids)
+
+
+def add_question(q, k, quiz_id, les_id, tag_id, lv, B, nid, src, stats, opt_by_q, aud_by_q, parent_part, gp_ids):
+    opts = sorted(opt_by_q.get(q['ma'], []), key=lambda o: int(o['order_index']))
+    part = parent_part.get(q['ma_cha'])
+    skill = SKILL_BY_PART.get(part) or ('LISTENING' if q['loai_cha'] == 'LIS' else 'READING')
+    is_fill = bool((q.get('dap_an_text') or '').strip()) and not opts
+    qtext = (q.get('cau_hoi') or '').strip()
+    empty = not qtext
+    if empty:
+        qtext = PLACEHOLDER['LISTENING' if skill == 'LISTENING' else 'READING']
+    inline, why = False, None
+    if is_fill:
+        why = None
+    elif q.get('answer_uncertain'):
+        why = 'answer_uncertain'
+    elif q['loai_cau'] != 'mot_dap_an':
+        why = q['loai_cau']
+    elif not (2 <= len(opts) <= 4):
+        why = '{}_phuong_an'.format(len(opts))
+    elif any(not (o['noi_dung'] or '').strip() or len(o['noi_dung']) > 255 for o in opts):
+        why = 'phuong_an_rong_hoac_qua_255'
+    elif not q.get('dap_an') or int(q['dap_an']) not in [int(o['order_index']) for o in opts]:
+        why = 'khong_co_dap_an_chac_chan'
+    elif [int(o['order_index']) for o in opts] != list(range(1, len(opts) + 1)):
+        why = 'thu_tu_phuong_an_khong_lien_mach'
+    else:
+        inline = True
+    ctx = {
+        'source': SOURCE, 'stable_code': q['ma'], 'review_status': q.get('trang_thai_duyet'),
+        'loai_cau': 'dien' if is_fill else q['loai_cau'], 'nguon_dap_an': q.get('nguon_dap_an') or None,
+        'answer_uncertain': bool(q.get('answer_uncertain')), 'ly_do_uncertain': q.get('ly_do_uncertain') or None,
+        'source_url': q.get('url_nguon'), 'parent_code': q['ma_cha'], 'label': q.get('nhan') or None,
+        'question_translation': q.get('dich_cau_hoi') or None,
+        'empty_question_text': empty, 'inline': inline, 'not_inline_reason': why,
+        'answer': int(q['dap_an']) if str(q.get('dap_an') or '').isdigit() else None,
+        'options': [{'index': int(o['order_index']), 'text': o['noi_dung'], 'translation': o.get('dich_vi') or None,
+                     'is_correct': bool(o['la_dap_an']), 'reason': o.get('ly_do') or None} for o in opts],
+        'audio_hint': [{'url': a['url_audio'], 'link_level': a['muc_lien_ket'], 'review_status': a['trang_thai_duyet']}
+                       for a in aud_by_q.get(q['ma'], [])],
+    }
+    if is_fill:
+        ctx['answer_text'] = q['dap_an_text']
+    o4 = [o['noi_dung'] for o in opts] + [None] * 4 if inline else [None] * 4
+    qid = nid('question')
+    B['assessment_question'].add(
+        qid, tag_id, gp_ids.get(q['ma_cha']), skill, lv, 'MEDIUM', 'FILL_BLANK' if is_fill else 'MULTIPLE_CHOICE',
+        cut(q.get('nhan') or q.get('bai') or '', 255) or None, qtext,
+        q['dap_an_text'] if is_fill else None, o4[0], o4[1], o4[2], o4[3],
+        int(q['dap_an']) if inline else None, q.get('giai_thich') or None,
+        json.dumps(ctx, ensure_ascii=False, separators=(',', ':')), k, 0)
+    B['assessment_quiz_question'].add(quiz_id, qid, k, 1.00)
+    src('QUESTION', qid, q['ma'], q.get('url_nguon'), qtext, q.get('trang_thai_duyet'))
+    stats['cau_hoi'] += 1
+    stats['cau_hoi_inline' if inline else ('cau_hoi_dien' if is_fill else 'cau_hoi_chi_context')] += 1
+    if empty:
+        stats['cau_hoi_rong_thay_chuoi'] += 1
+    if why:
+        stats['ly_do_' + why] += 1
+
+
+# ----------------------------------------------------------------------------- render SQL
+HEADER = """-- =====================================================================
+-- J-LAS seed: noi dung vnjpclub.com  [JLAS2-20]
+-- Sinh tu ban xuat vnjpclub (data/vnjpclub) bang tools/seed_vnjpclub.py. KHONG sua file nay bang tay.
+-- Noi dung: {textbook} giao trinh, {unit} unit, {lesson} lesson, {cau_hoi} cau hoi, {khoa_tu_vung} tu vung (khoa chuan hoa).
+-- Ban quyen noi dung thuoc vnjpclub.com va nha xuat ban sach goc; chua co giay phep phan phoi lai.
+-- Moi giao trinh / bai o trang thai DRAFT, cau hoi is_active = 0 (chua duyet).
+--
+-- Thu tu chay (MySQL 8.0.16+), KHONG co lenh USE: chon schema truoc khi chay.
+--   1) jlas_schema.sql
+--   2) migration: sql/migrations/018_content_source.sql (neu DB tao truoc khi schema co bang content_source)
+--      -> sql/jlas_migrations_all.sql (jlas_seed_all.sql can bang cua file nay) -> sql/migrations/019_situation_tag_ba.sql
+--      -> sql/migrations/020_align_checks_credit_reference.sql (019/020: DB tao tu schema cu - WORK -> BA, CHECK
+--      khop jlas_schema.sql, unique credit reference; chay lai duoc)
+--   3) sql/seeds/seed_data_jlas.sql: ban chuan duy nhat, sinh bang tools/generate_seed.py (ban cu o
+--      sql/seeds/_cu/). Situation dung 'BA' ([JLAS-W0108]), nap thang tren jlas_schema.sql hien tai.
+--   4) cac seed khac: sql/seeds/jlas_seed_all.sql, sql/seeds/questionbank.sql,
+--      sql/seeds/ai_call_scoring_rules.sql ...
+--   5) sql/seeds/demo_content_creator.sql (tai khoan demo creator@jlab.local, chi moi truong dev/demo)
+--   6) sql/seeds/seed_data_vnjpclub.sql  (file nay) CHAY CUOI CUNG: jlas_seed_all.sql xoa cung 5 tu vung
+--      (今日, 食べる, 積ん読, 推し ...) nen chay file nay sau no de khong mat lien ket tu vung cua bai.
+--   mysql -u root -p --default-character-set=utf8mb4 <ten_db> < sql/seeds/seed_data_vnjpclub.sql
+--
+-- Chay lai duoc: dau file xoa du lieu cua chinh file nay (ID 1000001-1999999 o cac bang co ID tuong minh,
+-- content_source.source_code = 'VNJPCLUB'), khong dung du lieu ngoai dai. Tu vung / kanji moi KHONG xoa
+-- (lan chay sau dung lai nho INSERT IGNORE theo khoa chuan hoa / ky tu). Cuoi file dat AUTO_INCREMENT cac
+-- bang co ID tuong minh >= 2000001 de du lieu tao sau (giao dien, seed khac) khong roi vao dai danh rieng.
+-- Neu da chay seed cu LAI sau file nay (seed cu xoa toan bo noi dung bai hoc), hay chay lai file nay.
+-- =====================================================================
+SET NAMES utf8mb4;
+SET @vnj_prev_safe_updates = @@SQL_SAFE_UPDATES;
+SET SQL_SAFE_UPDATES = 0;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Xoa du lieu vnjpclub cu (thu tu nguoc FK, chi trong dai danh rieng)
+DELETE FROM assessment_quiz_question WHERE quiz_id BETWEEN {lo} AND {hi} OR question_id BETWEEN {lo} AND {hi};
+DELETE FROM assessment_question WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM assessment_quiz WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM content_audio WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM content_vocabulary WHERE content_item_id BETWEEN {lo} AND {hi};
+DELETE FROM content_item WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM lesson_kanji WHERE lesson_id BETWEEN {lo} AND {hi};
+DELETE FROM grammar_point WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM lesson_section WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM lesson_tag WHERE lesson_id BETWEEN {lo} AND {hi};
+DELETE FROM lesson WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM unit WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM textbook WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM tag WHERE id BETWEEN {lo} AND {hi} OR (tag_type = 'KNOWLEDGE' AND code LIKE 'VNJ-%');
+DELETE FROM content_source WHERE source_code = 'VNJPCLUB' OR id BETWEEN {lo} AND {hi};
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Giong doc audio goc cua sach
+INSERT IGNORE INTO content_voice (code, name, gender, description, is_default) VALUES
+('{voice}', 'Audio gốc', NULL, 'Audio gốc kèm sách (vnjpclub.com)', 0);
+
+-- Bang tam (chi ton tai trong phien chay file nay)
+DROP TEMPORARY TABLE IF EXISTS tmp_vnj_vocab, tmp_vnj_sense, tmp_vnj_vk, tmp_vnj_cv, tmp_vnj_lk, tmp_vnj_vsrc, tmp_vnj_ksrc;
+CREATE TEMPORARY TABLE tmp_vnj_vocab (
+    ne VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    nr VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    expression VARCHAR(255) NOT NULL, reading VARCHAR(255) NOT NULL, meaning TEXT NULL, word_type VARCHAR(50) NULL,
+    jlpt VARCHAR(10) NULL, ex_ja TEXT NULL, ex_vi TEXT NULL, existed TINYINT(1) NOT NULL DEFAULT 0,
+    vnj_word TINYINT(1) NOT NULL DEFAULT 0,
+    PRIMARY KEY (ne, nr)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TEMPORARY TABLE tmp_vnj_sense (
+    ne VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    nr VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    sense_order SMALLINT UNSIGNED NOT NULL, usage_note VARCHAR(1000) NULL, gloss VARCHAR(2000) NOT NULL,
+    PRIMARY KEY (ne, nr, sense_order)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TEMPORARY TABLE tmp_vnj_vk (
+    ne VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    nr VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    ch VARCHAR(8) NOT NULL, pos SMALLINT UNSIGNED NOT NULL,
+    PRIMARY KEY (ne, nr, pos)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TEMPORARY TABLE tmp_vnj_cv (
+    item_id BIGINT UNSIGNED NOT NULL,
+    ne VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    nr VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    PRIMARY KEY (item_id, ne, nr)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TEMPORARY TABLE tmp_vnj_lk (
+    lesson_id BIGINT UNSIGNED NOT NULL, ch VARCHAR(8) NOT NULL, ord INT UNSIGNED NOT NULL,
+    PRIMARY KEY (lesson_id, ch)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TEMPORARY TABLE tmp_vnj_vsrc (
+    id BIGINT UNSIGNED NOT NULL,
+    ne VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    nr VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+    stable_code VARCHAR(255) NOT NULL, source_url VARCHAR(1000) NULL, title VARCHAR(500) NULL, review VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id), UNIQUE KEY (stable_code)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TEMPORARY TABLE tmp_vnj_ksrc (
+    id BIGINT UNSIGNED NOT NULL, ch VARCHAR(8) NOT NULL,
+    stable_code VARCHAR(255) NOT NULL, source_url VARCHAR(1000) NULL, title VARCHAR(500) NULL, review VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id), UNIQUE KEY (stable_code)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+"""
+
+LINK_SQL = """
+-- ---------------------------------------------------------------------
+-- Tu vung: tu da co (theo khoa chuan hoa) chi lien ket; tu moi INSERT IGNORE (khong ghi ID)
+-- ---------------------------------------------------------------------
+UPDATE tmp_vnj_vocab t JOIN vocabulary_entry v
+    ON v.normalized_expression = t.ne AND v.normalized_reading = t.nr
+SET t.existed = 1;
+-- tu do vnjpclub tao o lan chay truoc (co sense 'Sách: ...') van tinh la tu moi cua vnjpclub
+UPDATE tmp_vnj_vocab t JOIN vocabulary_entry v
+    ON v.normalized_expression = t.ne AND v.normalized_reading = t.nr
+SET t.vnj_word = 1
+WHERE EXISTS (SELECT 1 FROM vocabulary_sense s WHERE s.vocabulary_id = v.id AND s.usage_note LIKE 'Sách: %');
+UPDATE tmp_vnj_vocab SET vnj_word = 1 WHERE existed = 0;
+INSERT IGNORE INTO vocabulary_entry (expression, normalized_expression, reading, normalized_reading, meaning,
+                                     word_type, jlpt_level, example_ja, example_vi, usage_scope, dictionary_status)
+SELECT t.expression, t.ne, t.reading, t.nr, t.meaning, t.word_type, t.jlpt, t.ex_ja, t.ex_vi, 'TEXTBOOK', 'DRAFT'
+FROM tmp_vnj_vocab t WHERE t.existed = 0 ORDER BY t.jlpt, t.ne, t.nr;
+-- sense / gloss chi cho tu moi (moi nghia khac nhau giua cac bo = mot sense, usage_note ghi ten sach)
+INSERT INTO vocabulary_sense (vocabulary_id, sense_order, usage_note)
+SELECT v.id, s.sense_order, s.usage_note
+FROM tmp_vnj_sense s
+JOIN tmp_vnj_vocab t ON t.ne = s.ne AND t.nr = s.nr AND t.existed = 0
+JOIN vocabulary_entry v ON v.normalized_expression = s.ne AND v.normalized_reading = s.nr;
+INSERT INTO vocabulary_gloss (sense_id, language_code, gloss_text)
+SELECT vs.id, 'vi', s.gloss
+FROM tmp_vnj_sense s
+JOIN tmp_vnj_vocab t ON t.ne = s.ne AND t.nr = s.nr AND t.existed = 0
+JOIN vocabulary_entry v ON v.normalized_expression = s.ne AND v.normalized_reading = s.nr
+JOIN vocabulary_sense vs ON vs.vocabulary_id = v.id AND vs.sense_order = s.sense_order;
+INSERT IGNORE INTO vocabulary_kanji (vocabulary_id, kanji_id, character_position)
+SELECT v.id, k.id, x.pos
+FROM tmp_vnj_vk x
+JOIN tmp_vnj_vocab t ON t.ne = x.ne AND t.nr = x.nr AND t.existed = 0
+JOIN vocabulary_entry v ON v.normalized_expression = x.ne AND v.normalized_reading = x.nr
+JOIN kanji k ON k.`character` = x.ch;
+INSERT IGNORE INTO content_vocabulary (content_item_id, vocabulary_id)
+SELECT c.item_id, v.id
+FROM tmp_vnj_cv c JOIN vocabulary_entry v ON v.normalized_expression = c.ne AND v.normalized_reading = c.nr;
+INSERT INTO content_source (id, entity_type, entity_id, source_code, stable_code, source_url, original_title,
+                            review_status, note)
+SELECT s.id, 'VOCABULARY', v.id, '{source}', s.stable_code, s.source_url, s.title, s.review,
+       CASE WHEN t.vnj_word = 1 THEN 'Tu moi tu vnjpclub' ELSE 'Dung lai tu da co (khong sua)' END
+FROM tmp_vnj_vsrc s
+JOIN tmp_vnj_vocab t ON t.ne = s.ne AND t.nr = s.nr
+JOIN vocabulary_entry v ON v.normalized_expression = s.ne AND v.normalized_reading = s.nr;
+
+-- ---------------------------------------------------------------------
+-- Kanji cua bai (tra theo ky tu)
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO lesson_kanji (lesson_id, kanji_id, order_index)
+SELECT l.lesson_id, k.id, l.ord FROM tmp_vnj_lk l JOIN kanji k ON k.`character` = l.ch;
+INSERT INTO content_source (id, entity_type, entity_id, source_code, stable_code, source_url, original_title,
+                            review_status, note)
+SELECT s.id, 'KANJI', k.id, '{source}', s.stable_code, s.source_url, s.title, s.review, NULL
+FROM tmp_vnj_ksrc s JOIN kanji k ON k.`character` = s.ch;
+"""
+
+OLD_SRC_SQL = """INSERT INTO content_source (id, entity_type, entity_id, source_code, stable_code, source_url, original_title,
+                            review_status, note)
+SELECT {id}, 'TEXTBOOK', t.id, '{code}', {stable}, NULL, t.title,
+       {review}, 'Du lieu cu (truoc vnjpclub); tra theo tieu de duy nhat'
+FROM textbook t
+WHERE t.title = {title} AND t.id < {lo} AND (SELECT COUNT(*) FROM textbook x WHERE x.title = {title}) = 1;
+"""
+
+FOOTER = """
+-- Dua AUTO_INCREMENT ra ngoai dai danh rieng (du lieu tao sau khong roi vao 1000001-1999999)
+{alters}
+DROP TEMPORARY TABLE IF EXISTS tmp_vnj_vocab, tmp_vnj_sense, tmp_vnj_vk, tmp_vnj_cv, tmp_vnj_lk, tmp_vnj_vsrc, tmp_vnj_ksrc;
+SET SQL_SAFE_UPDATES = @vnj_prev_safe_updates;
+"""
+
+
+def render(B, T, stats, counters):
+    lo, hi = ID_BASE, ID_MAX
+    out = [HEADER.format(lo=lo, hi=hi, voice=VOICE_CODE, **{k: stats.get(k, 0) for k in
+                                                              ('textbook', 'unit', 'lesson', 'cau_hoi', 'khoa_tu_vung')})]
+    out.append('-- Kanji: chu chua co thi them (kem han_viet/meaning_vi tu nguon); chu da co bo qua, khong UPDATE')
+    out.append(T['kanji'].render())
+    for k in ('tmp_vnj_vocab', 'tmp_vnj_sense', 'tmp_vnj_vk'):
+        out.append(T[k].render())
+    for k, b in B.items():
+        if k == 'content_source':
+            continue
+        out.append(b.render())
+    for k in ('tmp_vnj_cv', 'tmp_vnj_lk', 'tmp_vnj_vsrc', 'tmp_vnj_ksrc'):
+        out.append(T[k].render())
+    out.append(LINK_SQL.format(source=SOURCE))
+    out.append('-- content_source: muc vnjpclub (textbook / unit / lesson / grammar_point / content_item / cau hoi)')
+    out.append(B['content_source'].render())
+    # du lieu cu: chi cap textbook, tra theo tieu de duy nhat
+    out.append('-- content_source cho du lieu cu (cap textbook; khong tra duoc thi bo qua)')
+    old_ids = []
+    for i, (title, code) in enumerate(OLD_TEXTBOOKS):
+        oid = counters['source'] + 1 + i
+        old_ids.append(oid)
+        review = ("CASE WHEN t.status = 'PUBLISHED' THEN 'DA_DUYET' ELSE 'CHUA_DUYET' END"
+                  if title.startswith('Sekai N5') else "'CHUA_DUYET'")
+        out.append(OLD_SRC_SQL.format(id=oid, code=code, stable=esc('OLD-TEXTBOOK:' + title), review=review,
+                                      title=esc(title), lo=lo))
+    if old_ids[-1] > ID_MAX:
+        raise SystemExit('Vuot dai ID content_source')
+    tables = ['tag', 'textbook', 'unit', 'lesson', 'lesson_section', 'grammar_point', 'content_item', 'content_audio',
+              'assessment_quiz', 'assessment_question', 'content_source']
+    alters = '\n'.join('ALTER TABLE {} AUTO_INCREMENT = {};'.format(t, AUTO_INCREMENT_AFTER) for t in tables)
+    out.append(FOOTER.format(alters=alters))
+    return '\n'.join(x for x in out if x)
+
+
+def main():
+    ap = argparse.ArgumentParser(description='Sinh seed_data_vnjpclub.sql tu ban xuat vnjpclub [JLAS2-20]')
+    ap.add_argument('--vnjp-export', default=os.path.join(ROOT, 'data', 'vnjpclub'),
+                    help='Thu muc ban xuat (*.json hoac *.json.gz); mac dinh data/vnjpclub')
+    ap.add_argument('--out', default=os.path.join(ROOT, 'sql', 'seeds', 'seed_data_vnjpclub.sql'))
+    ap.add_argument('--report', default=None, help='Ghi thong ke JSON (tuy chon)')
+    ap.add_argument('--copy-data', action='store_true',
+                    help='Chep (gzip) cac bang JSON can dung tu --vnjp-export vao data/vnjpclub')
+    a = ap.parse_args()
+    if a.copy_data:
+        copy_data(a.vnjp_export, os.path.join(ROOT, 'data', 'vnjpclub'))
+        print('Da chep du lieu vao data/vnjpclub')
+    D = load_export(a.vnjp_export)
+    B, T, stats, skipped, counters = build(D)
+    sql = render(B, T, stats, counters)
+    with open(a.out, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(sql)
+    rows = {k: len(b.rows) for k, b in list(B.items()) + list(T.items())}
+    info = {'stats': dict(stats), 'rows': rows, 'skipped': {k: len(v) for k, v in skipped.items()},
+            'skipped_examples': {k: v[:10] for k, v in skipped.items()},
+            'id_max': {k: v for k, v in counters.items()}}
+    if a.report:
+        with open(a.report, 'w', encoding='utf-8') as f:
+            json.dump(info, f, ensure_ascii=False, indent=1)
+    print('Da ghi', a.out)
+    for k, v in rows.items():
+        print('  {:<26}{:>8}'.format(k, v))
+    print('Thong ke:', json.dumps(dict(stats), ensure_ascii=False))
+    print('Bo qua:', json.dumps(info['skipped'], ensure_ascii=False))
+
+
+if __name__ == '__main__':
+    main()
