@@ -10,13 +10,20 @@ import com.jlas.dictionary.dto.LessonVocabularyResponse;
 import com.jlas.dictionary.dto.TopicLessonResponse;
 import com.jlas.dictionary.dto.TopicLessonsResponse;
 import com.jlas.dictionary.dto.TopicResponse;
+import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.dictionary.entity.Lesson;
+import com.jlas.dictionary.entity.LessonSection;
 import com.jlas.dictionary.repository.ContentAudioRepository;
 import com.jlas.dictionary.repository.ContentItemRepository;
+import com.jlas.dictionary.repository.ContentVocabularyRepository;
+import com.jlas.dictionary.repository.DialogueRoleRepository;
 import com.jlas.dictionary.repository.DialogueLineChunkRepository;
 import com.jlas.dictionary.repository.KanjiReadingRepository;
 import com.jlas.dictionary.repository.KanjiRepository;
+import com.jlas.dictionary.repository.GrammarPointRepository;
 import com.jlas.dictionary.repository.LessonRepository;
+import com.jlas.dictionary.repository.LessonSectionRepository;
+import com.jlas.dictionary.repository.UnitRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
 import com.jlas.dictionary.service.DictionaryService;
 import jakarta.persistence.EntityManager;
@@ -43,12 +50,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Integration test [JLAS-W0070 / W0080 / JLAS2-17] chạy lên MySQL local đã seed bằng seed_data_jlas.sql
+ * Integration test [JLAS-W0070 / W0080 / JLAS2-17] chạy lên MySQL local đã seed bằng sql/seeds/seed_data_jlas.sql
  * (cấu hình datasource lấy từ application-local.yaml như {@code JlasApplicationTests}).
  * <p>
  * Mặc định BỊ BỎ QUA để máy chưa seed không đỏ build. Bật bằng system property:
@@ -75,17 +87,22 @@ class LessonContentSeedTests {
     @Autowired private DictionaryService dictionaryService;
     @Autowired private EntityManagerFactory entityManagerFactory;
     @Autowired private LessonRepository lessonRepository;
+    @Autowired private UnitRepository unitRepository;
+    @Autowired private LessonSectionRepository lessonSectionRepository;
+    @Autowired private GrammarPointRepository grammarPointRepository;
+    @Autowired private ContentVocabularyRepository contentVocabularyRepository;
+    @Autowired private DialogueRoleRepository dialogueRoleRepository;
     @Autowired private MockMvc mockMvc;
 
     @Test
     void seedRowCountsMatchDigitizedContent() {
-        assertEquals(1759L, vocabularyEntryRepository.count(), "vocabulary_entry");
+        assertEquals(9031L, vocabularyEntryRepository.count(), "vocabulary_entry");
         assertEquals(5057L, contentAudioRepository.count(), "content_audio");
-        assertEquals(3237L, dialogueLineChunkRepository.count(), "dialogue_line_chunk");
-        assertEquals(3556L, contentItemRepository.count(), "content_item (3348 + 208 chữ kana)");
-        assertEquals(533L, kanjiRepository.count(), "kanji");
-        assertEquals(2056L, kanjiReadingRepository.count(), "kanji_reading");
-        assertEquals(136L, countRadicals(), "radical");
+        assertEquals(5636L, dialogueLineChunkRepository.count(), "dialogue_line_chunk");
+        assertEquals(5106L, contentItemRepository.count(), "content_item (3284 câu ngữ pháp + 1435 lời hội thoại + 387 mục đọc = 5106)");
+        assertEquals(2540L, kanjiRepository.count(), "kanji");
+        assertEquals(8068L, kanjiReadingRepository.count(), "kanji_reading");
+        assertEquals(200L, countRadicals(), "radical");
     }
 
     @Test
@@ -152,8 +169,8 @@ class LessonContentSeedTests {
         try {
             long total = em.createQuery("select count(c) from ContentItem c where c.contentType = 'GRAMMAR'", Long.class).getSingleResult();
             long linked = em.createQuery("select count(c) from ContentItem c where c.contentType = 'GRAMMAR' and c.grammarPointId is not null", Long.class).getSingleResult();
-            assertEquals(2498L, total);
-            assertEquals(2493L, linked, "5 câu không gắn mẫu (đều ở bài 1)");
+            assertEquals(3284L, total);
+            assertEquals(3279L, linked, "5 câu không gắn mẫu (đều ở bài 1)");
         } finally {
             em.close();
         }
@@ -176,11 +193,11 @@ class LessonContentSeedTests {
      * textbook PUBLISHED). Trạng thái duyệt là DỮ LIỆU SỐNG (admin publish/unpublish được) nên số bài
      * được đối chiếu bằng SQL native độc lập với service, không hardcode.
      * Baseline seed để tham khảo: DAILY 50 bài (learner thấy 20), TRAVEL 19 (learner thấy 7), IT 0;
-     * lesson_tag 119 dòng.
+     * lesson_tag qua tag SITUATION 119 dòng (tổng lesson_tag 564, phần còn lại là tag KNOWLEDGE).
      */
     @Test
     void topicsComeFromTagTableWithLearnerVisibleCounts() {
-        assertEquals(119L, countLessonTags(), "lesson_tag");
+        assertEquals(119L, countSituationLessonTags(), "lesson_tag qua tag SITUATION");
 
         List<TopicResponse> topics = dictionaryService.listTopics();
         assertEquals(3, topics.size(), "3 chủ đề SITUATION");
@@ -289,6 +306,77 @@ class LessonContentSeedTests {
         assertEquals(before, lessonRepository.findById(21L).orElseThrow().getStatus(), "không được đổi gì");
     }
 
+    /**
+     * Learner không sửa được nội dung — quét MỌI NHÓM endpoint ghi, mỗi nhóm một đại diện, thay vì chỉ
+     * PATCH status. Mục đích: ai thêm endpoint ghi mà quên @PreAuthorize thì test này đỏ.
+     * Dùng 403 (không phải 401) vì @WithMockUser đã đăng nhập, chỉ thiếu vai.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "LEARNER")
+    void learnerIsForbiddenOnEveryKindOfWriteEndpoint() throws Exception {
+        long unitId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getId();
+        long textbookId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getTextbook().getId();
+        String lessonBody = "{\"knowledgeTagId\":1,\"title\":\"x\",\"lessonType\":\"CURRICULUM\",\"skill\":\"VOCABULARY\"}";
+        String titleBody = "{\"title\":\"x\"}";
+        String orderBody = "{\"orderedIds\":[1]}";
+
+        // POST — tạo
+        mockMvc.perform(post("/api/dictionary/textbooks").contentType(MediaType.APPLICATION_JSON).content(titleBody))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/dictionary/textbooks/" + textbookId + "/units")
+                        .contentType(MediaType.APPLICATION_JSON).content(titleBody))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/dictionary/units/" + unitId + "/lessons")
+                        .contentType(MediaType.APPLICATION_JSON).content(lessonBody))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/dictionary/manage/tags").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"X\",\"name\":\"X\",\"tagType\":\"KNOWLEDGE\"}"))
+                .andExpect(status().isForbidden());
+
+        // PUT — sửa
+        mockMvc.perform(put("/api/dictionary/textbooks/" + textbookId)
+                        .contentType(MediaType.APPLICATION_JSON).content(titleBody))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/dictionary/units/" + unitId)
+                        .contentType(MediaType.APPLICATION_JSON).content(titleBody))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/dictionary/lessons/" + LESSON_1)
+                        .contentType(MediaType.APPLICATION_JSON).content(lessonBody))
+                .andExpect(status().isForbidden());
+
+        // PUT — sắp xếp
+        mockMvc.perform(put("/api/dictionary/textbooks/" + textbookId + "/units/order")
+                        .contentType(MediaType.APPLICATION_JSON).content(orderBody))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/dictionary/units/" + unitId + "/lessons/order")
+                        .contentType(MediaType.APPLICATION_JSON).content(orderBody))
+                .andExpect(status().isForbidden());
+
+        // DELETE — xoá cứng
+        mockMvc.perform(delete("/api/dictionary/units/" + unitId)).andExpect(status().isForbidden());
+        mockMvc.perform(delete("/api/dictionary/lessons/" + LESSON_1)).andExpect(status().isForbidden());
+
+        // Phần nội dung trong bài (lesson_section) — cùng một lưới quyền
+        mockMvc.perform(get("/api/dictionary/manage/lessons/" + LESSON_1 + "/sections"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/sections")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"x\",\"sectionType\":\"EXPLANATION\"}"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/dictionary/lessons/" + LESSON_1 + "/sections/order")
+                        .contentType(MediaType.APPLICATION_JSON).content(orderBody))
+                .andExpect(status().isForbidden());
+
+        // GET của màn hình quản lý cũng phải chặn: learner không được thấy mục đã lưu trữ.
+        mockMvc.perform(get("/api/dictionary/manage/textbooks")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/dictionary/manage/tags").param("type", "KNOWLEDGE"))
+                .andExpect(status().isForbidden());
+
+        assertTrue(unitRepository.findById(unitId).isPresent(), "không có gì bị xoá");
+        assertEquals("PUBLISHED", lessonRepository.findById(LESSON_1).orElseThrow().getStatus(), "không có gì bị đổi");
+    }
+
     /** Quyết định team: ADMIN là role riêng, KHÔNG có quyền biên soạn — 403 như learner, không được đổi gì. */
     @Test
     @Transactional
@@ -349,6 +437,557 @@ class LessonContentSeedTests {
         assertEquals("PUBLISHED", lessonRepository.findById(1L).orElseThrow().getStatus());
         ApiException ex = assertThrows(ApiException.class, () -> dictionaryService.getLessonContent(1L));
         assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode());
+    }
+
+    /**
+     * Xoá mềm: giáo trình ARCHIVED phải biến mất khỏi MỌI đường đọc của learner, kể cả khi bài bên trong
+     * vẫn còn PUBLISHED (lưu trữ giáo trình cố ý không cascade xuống bài).
+     * <p>
+     * @WithMockUser không phải UserPrincipal nên CurrentUser coi người gọi là learner khi gọi thẳng service —
+     * đúng góc nhìn cần kiểm; riêng PATCH status đi qua @PreAuthorize nên vẫn dùng được vai CONTENT_CREATOR.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void archivedTextbookDisappearsFromEveryLearnerReadPath() throws Exception {
+        mockMvc.perform(patch("/api/dictionary/textbooks/1/status").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"PUBLISHED\"}")).andExpect(status().isOk());
+        mockMvc.perform(patch("/api/dictionary/lessons/21/status").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"PUBLISHED\"}")).andExpect(status().isOk());
+        assertEquals(21L, dictionaryService.getLessonContent(21L).getId(), "tiền đề: learner đang xem được bài 21");
+
+        mockMvc.perform(patch("/api/dictionary/textbooks/1/status").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"ARCHIVED\"}")).andExpect(status().isOk());
+
+        assertTrue(dictionaryService.listTextbooks().stream().noneMatch(t -> t.getId().equals(1L)),
+                "giáo trình đã lưu trữ không được nằm trong danh sách");
+        assertEquals(ErrorCode.NOT_FOUND,
+                assertThrows(ApiException.class, () -> dictionaryService.getTextbookUnits(1L)).getErrorCode(),
+                "mở giáo trình đã lưu trữ phải là 404");
+
+        // Điểm mấu chốt: bài vẫn PUBLISHED trong DB, nhưng gõ thẳng URL cũng không xem được.
+        assertEquals("PUBLISHED", lessonRepository.findById(21L).orElseThrow().getStatus());
+        assertEquals(ErrorCode.NOT_FOUND,
+                assertThrows(ApiException.class, () -> dictionaryService.getLessonContent(21L)).getErrorCode(),
+                "bài PUBLISHED trong giáo trình đã lưu trữ vẫn phải 404 với learner");
+    }
+
+    /** Không entity mồ côi: không thêm được phần vào giáo trình đã lưu trữ, không thêm được bài vào phần không tồn tại. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void cannotAttachContentToArchivedOrMissingParent() throws Exception {
+        mockMvc.perform(patch("/api/dictionary/textbooks/1/status").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"ARCHIVED\"}")).andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/dictionary/textbooks/1/units").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Phần thêm vào giáo trình đã lưu trữ\"}"))
+                .andExpect(status().isConflict());
+
+        mockMvc.perform(post("/api/dictionary/units/99999999/lessons").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"knowledgeTagId\":1,\"title\":\"Bài mồ côi\","
+                                + "\"lessonType\":\"CURRICULUM\",\"skill\":\"VOCABULARY\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Giáo trình đã lưu trữ thì khoá MỌI đường sửa nội dung, không chỉ đường tạo mới: sửa giáo trình,
+     * sửa bài, và cả hai đường đổi thứ tự. Giao diện đã tắt nút, nhưng gọi thẳng API cũng phải bị chặn.
+     * Đường khôi phục (PATCH status) vẫn phải chạy được — kiểm ở cuối test.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void archivedTextbookLocksEveryEditPathButNotTheRestorePath() throws Exception {
+        long unitId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getId();
+        long textbookId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getTextbook().getId();
+        mockMvc.perform(patch("/api/dictionary/textbooks/" + textbookId + "/status")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"ARCHIVED\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/api/dictionary/textbooks/" + textbookId)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"Tên mới\"}"))
+                .andExpect(status().isConflict());
+        mockMvc.perform(put("/api/dictionary/lessons/" + LESSON_1).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"knowledgeTagId\":1,\"title\":\"x\","
+                                + "\"lessonType\":\"CURRICULUM\",\"skill\":\"VOCABULARY\"}"))
+                .andExpect(status().isConflict());
+        mockMvc.perform(put("/api/dictionary/textbooks/" + textbookId + "/units/order")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"orderedIds\":[" + unitId + "]}"))
+                .andExpect(status().isConflict());
+        mockMvc.perform(put("/api/dictionary/units/" + unitId + "/lessons/order")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"orderedIds\":[" + LESSON_1 + "]}"))
+                .andExpect(status().isConflict());
+
+        // Lối ra vẫn mở: khôi phục đi qua PATCH status, không qua updateTextbook.
+        mockMvc.perform(patch("/api/dictionary/textbooks/" + textbookId + "/status")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"DRAFT\"}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(put("/api/dictionary/textbooks/" + textbookId)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"Tên mới\"}"))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * Xoá cứng phần còn bài phải bị chặn, và thông báo phải nói rõ phải làm gì tiếp — giao diện hiện
+     * nguyên văn message này ở dải lỗi cố định nên nội dung của nó là một phần hợp đồng, không chỉ là chữ.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void deletingUnitThatStillHasLessonsIsRejectedWithAnActionableMessage() throws Exception {
+        long unitId = lessonRepository.findById(1L).orElseThrow().getUnit().getId();
+
+        mockMvc.perform(delete("/api/dictionary/units/" + unitId))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", containsString("bài học")))
+                .andExpect(jsonPath("$.message", containsString("lưu trữ")));
+
+        assertTrue(unitRepository.findById(unitId).isPresent(), "phần không được xoá");
+    }
+
+    /**
+     * Xoá cứng bài học chỉ dành cho bài tạo nhầm. Bài 1 đã công bố và đầy nội dung nên phải bị chặn —
+     * mọi FK trỏ tới lesson đều CASCADE, xoá nhầm là mất cả tiến độ học viên lẫn nội dung biên soạn.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void deletingALessonThatIsPublishedOrHasContentIsRejected() throws Exception {
+        mockMvc.perform(delete("/api/dictionary/lessons/" + LESSON_1))
+                .andExpect(status().isConflict());
+        assertTrue(lessonRepository.findById(LESSON_1).isPresent(), "bài không được xoá");
+
+        // Rút về nháp rồi thử lại: vẫn phải chặn, lần này vì bài đã có nội dung biên soạn.
+        mockMvc.perform(patch("/api/dictionary/lessons/" + LESSON_1 + "/status")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"DRAFT\"}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(delete("/api/dictionary/lessons/" + LESSON_1))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", containsString("nội dung")));
+        assertTrue(lessonRepository.findById(LESSON_1).isPresent(), "bài vẫn không được xoá");
+    }
+
+    /**
+     * Đảo thứ tự bài trong một phần. Đây là chỗ dễ vỡ nhất của tính năng: uk_lesson_unit_order là UNIQUE
+     * (unit_id, order_index) nên gán thẳng số mới sẽ đụng số bản ghi khác đang giữ; service phải đi hai pha
+     * (đẩy lên dải tạm từ max+1 rồi mới đánh số thật). Test đảo ngược CẢ danh sách để chắc chắn mọi bản ghi
+     * đều đổi chỗ, không phải trường hợp may mắn không va nhau.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void reorderingLessonsRewritesOrderIndexFromOneWithoutGaps() throws Exception {
+        long unitId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getId();
+        List<Long> before = lessonRepository.findByUnitIdOrderByOrderIndexAscIdAsc(unitId)
+                .stream().map(Lesson::getId).toList();
+        assertTrue(before.size() >= 2, "cần ít nhất 2 bài để đảo thứ tự");
+
+        List<Long> reversed = new java.util.ArrayList<>(before);
+        java.util.Collections.reverse(reversed);
+        mockMvc.perform(put("/api/dictionary/units/" + unitId + "/lessons/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"orderedIds\":" + reversed + "}"))
+                .andExpect(status().isOk());
+
+        List<Lesson> after = lessonRepository.findByUnitIdOrderByOrderIndexAscIdAsc(unitId);
+        assertEquals(reversed, after.stream().map(Lesson::getId).toList(), "thứ tự đọc lại phải đúng như gửi lên");
+        // order_index bắt đầu từ 1 và liên tục: khớp dữ liệu seed (1-based), không để lại khoảng trống.
+        for (int i = 0; i < after.size(); i++) {
+            assertEquals(i + 1, after.get(i).getOrderIndex(), "order_index phải là " + (i + 1));
+        }
+    }
+
+    /** Danh sách id gửi lên phải khớp TUYỆT ĐỐI tập id hiện có; thiếu/thừa/trùng/lạ đều là 400. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void reorderingWithAMismatchedIdListIsBadRequest() throws Exception {
+        long unitId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getId();
+        List<Long> ids = lessonRepository.findByUnitIdOrderByOrderIndexAscIdAsc(unitId)
+                .stream().map(Lesson::getId).toList();
+        Integer firstOrder = lessonRepository.findById(ids.get(0)).orElseThrow().getOrderIndex();
+
+        List<Long> missing = ids.subList(0, ids.size() - 1);                 // thiếu một id
+        List<Long> duplicated = List.of(ids.get(0), ids.get(0));             // id lặp
+        List<Long> unknown = List.of(ids.get(0), 99999999L);                 // id lạ
+        List<Long> extra = new java.util.ArrayList<>(ids);
+        extra.add(99999999L);                                                // thừa id
+
+        for (List<Long> bad : List.of(missing, duplicated, unknown, extra)) {
+            mockMvc.perform(put("/api/dictionary/units/" + unitId + "/lessons/order")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"orderedIds\":" + bad + "}"))
+                    .andExpect(status().isBadRequest());
+        }
+        assertEquals(firstOrder, lessonRepository.findById(ids.get(0)).orElseThrow().getOrderIndex(),
+                "danh sách sai thì không được đổi gì");
+    }
+
+    /**
+     * [GĐ0] Vòng đời phần nội dung trong bài: tạo vào cuối, sửa, đổi thứ tự bằng ContentOrdering dùng chung,
+     * và chỉ xoá cứng được khi đã rỗng mục nội dung (fk_content_item_section là ON DELETE CASCADE).
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void lessonSectionCrudAndOrderingWorkEndToEnd() throws Exception {
+        // Bài 1 đã có sẵn phần nội dung; thêm hai phần mới vào cuối.
+        String first = mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/sections")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Phần A\",\"sectionType\":\"EXPLANATION\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.contentItemCount").value(0))
+                .andReturn().getResponse().getContentAsString();
+        long sectionA = Long.parseLong(first.replaceAll("(?s).*\"id\"\\s*:\\s*(\\d+).*", "$1"));
+
+        String second = mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/sections")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Phần B\",\"sectionType\":\"EXERCISE\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long sectionB = Long.parseLong(second.replaceAll("(?s).*\"id\"\\s*:\\s*(\\d+).*", "$1"));
+
+        mockMvc.perform(put("/api/dictionary/sections/" + sectionA).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Phần A đã sửa\",\"sectionType\":\"EXAMPLE\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("Phần A đã sửa"))
+                .andExpect(jsonPath("$.data.sectionType").value("EXAMPLE"));
+
+        // Đảo ngược toàn bộ thứ tự rồi kiểm order_index chạy 1..n liên tục.
+        List<Long> ids = lessonSectionRepository.findByLessonIdOrderByOrderIndexAscIdAsc(LESSON_1)
+                .stream().map(LessonSection::getId).toList();
+        List<Long> reversed = new java.util.ArrayList<>(ids);
+        java.util.Collections.reverse(reversed);
+        mockMvc.perform(put("/api/dictionary/lessons/" + LESSON_1 + "/sections/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"orderedIds\":" + reversed + "}"))
+                .andExpect(status().isOk());
+
+        List<LessonSection> after = lessonSectionRepository.findByLessonIdOrderByOrderIndexAscIdAsc(LESSON_1);
+        assertEquals(reversed, after.stream().map(LessonSection::getId).toList(), "thứ tự phải đúng như gửi lên");
+        for (int i = 0; i < after.size(); i++) {
+            assertEquals(i + 1, after.get(i).getOrderIndex(), "order_index phải là " + (i + 1));
+        }
+
+        // Phần rỗng xoá được; phần đã có mục nội dung thì bị chặn.
+        mockMvc.perform(delete("/api/dictionary/sections/" + sectionB)).andExpect(status().isOk());
+        long sectionWithContent = lessonSectionRepository.findByLessonIdOrderByOrderIndexAscIdAsc(LESSON_1).stream()
+                .filter(s -> lessonSectionRepository.countContentItemsBySectionId(s.getId()) > 0)
+                .findFirst().orElseThrow(() -> new AssertionError("bài 1 phải có ít nhất một phần còn nội dung"))
+                .getId();
+        mockMvc.perform(delete("/api/dictionary/sections/" + sectionWithContent))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", containsString("mục")));
+        assertTrue(lessonSectionRepository.findById(sectionWithContent).isPresent(), "phần còn nội dung không bị xoá");
+        assertTrue(lessonSectionRepository.findById(sectionA).isPresent(), "phần A vẫn còn");
+    }
+
+    /**
+     * [GĐ1] Vòng đời mẫu ngữ pháp và câu ví dụ. Bài 1 đã có sẵn 8 mẫu nên test thêm mẫu mới vào cuối,
+     * gắn ví dụ, rồi kiểm chốt chặn xoá.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void grammarPointAndExampleCrudWorkEndToEnd() throws Exception {
+        String created = mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/grammar-points")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"pattern\":\"N です\",\"meaning\":\"Là N\",\"note\":\"ghi chú\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.exampleCount").value(0))
+                .andReturn().getResponse().getContentAsString();
+        long pointId = Long.parseLong(created.replaceAll("(?s).*\"id\"\\s*:\\s*(\\d+).*", "$1"));
+
+        mockMvc.perform(put("/api/dictionary/grammar-points/" + pointId).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"pattern\":\"N じゃ ありません\",\"meaning\":\"Không phải N\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.pattern").value("N じゃ ありません"));
+
+        // Không chỉ định sectionId: service phải tự chọn/tạo phần loại EXAMPLE của bài.
+        String example = mockMvc.perform(post("/api/dictionary/grammar-points/" + pointId + "/examples")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Ví dụ 1\",\"textJa\":\"わたしは 学生です。\",\"textVi\":\"Tôi là sinh viên.\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.grammarPointId").value(pointId))
+                .andExpect(jsonPath("$.data.sectionId").isNotEmpty())
+                .andReturn().getResponse().getContentAsString();
+        long exampleId = Long.parseLong(example.replaceAll("(?s).*\"contentItemId\"\\s*:\\s*(\\d+).*", "$1"));
+        long sectionId = Long.parseLong(example.replaceAll("(?s).*\"sectionId\"\\s*:\\s*(\\d+).*", "$1"));
+        assertEquals("EXAMPLE", lessonSectionRepository.findById(sectionId).orElseThrow().getSectionType(),
+                "phần chứa câu ví dụ phải là loại EXAMPLE");
+
+        mockMvc.perform(get("/api/dictionary/manage/grammar-points/" + pointId + "/examples"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1));
+
+        // Mẫu còn câu ví dụ thì không xoá được — fk_content_item_grammar là SET NULL nên xoá thẳng sẽ
+        // khiến câu ví dụ mất liên kết trong im lặng.
+        mockMvc.perform(delete("/api/dictionary/grammar-points/" + pointId))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", containsString("câu ví dụ")));
+        assertTrue(grammarPointRepository.findById(pointId).isPresent(), "mẫu không bị xoá");
+
+        // Xoá ví dụ trước rồi mới xoá được mẫu.
+        mockMvc.perform(delete("/api/dictionary/examples/" + exampleId)).andExpect(status().isOk());
+        mockMvc.perform(delete("/api/dictionary/grammar-points/" + pointId)).andExpect(status().isOk());
+        assertTrue(grammarPointRepository.findById(pointId).isEmpty(), "mẫu đã xoá được sau khi hết ví dụ");
+    }
+
+    /** [GĐ1] Câu ví dụ không được gắn vào phần nội dung của bài khác — đó là dữ liệu mồ côi. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void exampleCannotBeAttachedToASectionOfAnotherLesson() throws Exception {
+        long pointId = grammarPointRepository.findByLessonIdOrderByOrderIndexAscIdAsc(LESSON_1)
+                .stream().findFirst().orElseThrow().getId();
+        long foreignSectionId = lessonSectionRepository.findAll().stream()
+                .filter(s -> !s.getLesson().getId().equals(LESSON_1))
+                .findFirst().orElseThrow().getId();
+
+        mockMvc.perform(post("/api/dictionary/grammar-points/" + pointId + "/examples")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"x\",\"textJa\":\"テスト\",\"sectionId\":" + foreignSectionId + "}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    /** [GĐ1] Thứ tự mẫu ngữ pháp dùng chung ContentOrdering: đảo xong order_index phải là 1..n liên tục. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void reorderingGrammarPointsRewritesOrderIndexFromOne() throws Exception {
+        List<Long> ids = grammarPointRepository.findByLessonIdOrderByOrderIndexAscIdAsc(LESSON_1)
+                .stream().map(GrammarPoint::getId).toList();
+        assertTrue(ids.size() >= 2, "bài 1 phải có ít nhất 2 mẫu ngữ pháp");
+        List<Long> reversed = new java.util.ArrayList<>(ids);
+        java.util.Collections.reverse(reversed);
+
+        mockMvc.perform(put("/api/dictionary/lessons/" + LESSON_1 + "/grammar-points/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"orderedIds\":" + reversed + "}"))
+                .andExpect(status().isOk());
+
+        List<GrammarPoint> after = grammarPointRepository.findByLessonIdOrderByOrderIndexAscIdAsc(LESSON_1);
+        assertEquals(reversed, after.stream().map(GrammarPoint::getId).toList(), "thứ tự đúng như gửi lên");
+        for (int i = 0; i < after.size(); i++) {
+            assertEquals(i + 1, after.get(i).getOrderIndex(), "order_index phải là " + (i + 1));
+        }
+    }
+
+    /**
+     * [GĐ2] Tìm từ có phân trang. 9.031 từ nên không bao giờ trả hết một lần; và tìm trên cột thường
+     * nên gõ thiếu dấu đục vẫn ra (collation utf8mb4_unicode_ci bỏ qua dakuten).
+     */
+    @Test
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void vocabularySearchIsPagedAndToleratesMissingDakuten() throws Exception {
+        mockMvc.perform(get("/api/dictionary/manage/vocabulary/search").param("q", "").param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content.length()").value(5))
+                .andExpect(jsonPath("$.data.totalElements").value(9031))
+                .andExpect(jsonPath("$.data.first").value(true));
+
+        // size vượt trần bị kẹp lại, không cho kéo cả bảng về bằng một request.
+        mockMvc.perform(get("/api/dictionary/manage/vocabulary/search").param("q", "").param("size", "99999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size").value(100));
+
+        // "ハス" (thiếu dakuten) vẫn phải tìm ra "バス" nhờ collation của cột thường.
+        String lenient = mockMvc.perform(get("/api/dictionary/manage/vocabulary/search").param("q", "ハス"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertTrue(lenient.contains("\"totalElements\""), "phải trả về dạng phân trang");
+    }
+
+    /**
+     * [GĐ2] Gắn và gỡ từ khỏi bài. Điểm quan trọng nhất: gỡ từ CHỈ xoá dòng nối, vocabulary_entry phải
+     * còn nguyên — nó dùng chung cho mọi bài và cho tra cứu từ điển.
+     */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void attachingAndDetachingVocabularyNeverTouchesTheSharedEntry() throws Exception {
+        long vocabularyCountBefore = vocabularyEntryRepository.count();
+        // Chọn một từ chưa nằm trong bài 1.
+        List<Long> inLesson = contentVocabularyRepository.findVocabularyIdsByLessonId(LESSON_1);
+        long freeVocabId = vocabularyEntryRepository.findAll().stream()
+                .map(v -> v.getId())
+                .filter(id -> !inLesson.contains(id))
+                .findFirst().orElseThrow();
+
+        mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/vocabulary")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"vocabularyId\":" + freeVocabId + "}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.attachedToLesson").value(true));
+
+        // Gắn lại lần nữa phải bị chặn.
+        mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/vocabulary")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"vocabularyId\":" + freeVocabId + "}"))
+                .andExpect(status().isConflict());
+
+        assertTrue(contentVocabularyRepository.findVocabularyIdsByLessonId(LESSON_1).contains(freeVocabId),
+                "từ phải nằm trong bài sau khi gắn");
+
+        mockMvc.perform(delete("/api/dictionary/lessons/" + LESSON_1 + "/vocabulary/" + freeVocabId))
+                .andExpect(status().isOk());
+
+        assertFalse(contentVocabularyRepository.findVocabularyIdsByLessonId(LESSON_1).contains(freeVocabId),
+                "từ đã được gỡ khỏi bài");
+        assertTrue(vocabularyEntryRepository.findById(freeVocabId).isPresent(),
+                "từ vẫn còn trong từ điển — gỡ khỏi bài không được xoá vocabulary_entry");
+        assertEquals(vocabularyCountBefore, vocabularyEntryRepository.count(),
+                "tổng số từ trong từ điển không đổi");
+    }
+
+    /** [GĐ2] Gỡ một từ không nằm trong bài là 404, không im lặng bỏ qua. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void detachingAVocabularyNotInTheLessonIsNotFound() throws Exception {
+        List<Long> inLesson = contentVocabularyRepository.findVocabularyIdsByLessonId(LESSON_1);
+        long freeVocabId = vocabularyEntryRepository.findAll().stream()
+                .map(v -> v.getId())
+                .filter(id -> !inLesson.contains(id))
+                .findFirst().orElseThrow();
+
+        mockMvc.perform(delete("/api/dictionary/lessons/" + LESSON_1 + "/vocabulary/" + freeVocabId))
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * [GĐ4] BẤT BIẾN của hội thoại, quét TOÀN BỘ dữ liệu hiện có: ghép các cụm của mỗi lời phải ra đúng
+     * nguyên câu trong content_item.content.
+     * <p>
+     * Vì sao đây là bất biến chứ không phải chuyện làm đẹp: textbook-lesson.js dựng lại lời thoại bằng
+     * {@code chunks.map(chunkSpan).join('')} và chỉ dùng content khi KHÔNG có cụm nào. Lệch một ký tự là
+     * học viên đọc một câu còn audio đọc câu khác, không có lỗi nào hiện ra. Test này khoá cả dữ liệu
+     * seed lẫn mọi dữ liệu do người biên soạn nhập sau này.
+     */
+    @Test
+    void everyDialogueLineIsExactlyRebuiltFromItsChunks() {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows = em.createQuery("""
+                    select ci.id, ci.content, c.surface
+                    from DialogueLineChunk c join c.contentItem ci
+                    order by ci.id, c.orderIndex
+                    """).getResultList();
+            assertFalse(rows.isEmpty(), "phải có dữ liệu cụm để kiểm");
+
+            Map<Long, StringBuilder> joined = new java.util.LinkedHashMap<>();
+            Map<Long, String> expected = new java.util.LinkedHashMap<>();
+            for (Object[] row : rows) {
+                Long itemId = (Long) row[0];
+                expected.putIfAbsent(itemId, (String) row[1]);
+                joined.computeIfAbsent(itemId, k -> new StringBuilder()).append((String) row[2]);
+            }
+
+            List<String> mismatches = new java.util.ArrayList<>();
+            expected.forEach((itemId, content) -> {
+                String rebuilt = joined.get(itemId).toString();
+                if (!rebuilt.equals(content)) {
+                    mismatches.add("content_item " + itemId + ": lưu [" + content + "] ghép ra [" + rebuilt + "]");
+                }
+            });
+            assertTrue(mismatches.isEmpty(),
+                    mismatches.size() + "/" + expected.size() + " lời thoại ghép cụm không khớp nguyên câu:\n"
+                            + String.join("\n", mismatches.subList(0, Math.min(5, mismatches.size()))));
+        } finally {
+            em.close();
+        }
+    }
+
+    /** [GĐ4] Lớp chặn ở service: gửi cụm ghép không ra đúng câu phải bị 400, kèm cả hai chuỗi. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void dialogueLineWithChunksThatDoNotRebuildTheSentenceIsRejected() throws Exception {
+        String scene = mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/dialogue-scenes")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"title\":\"Cảnh thử\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long sectionId = Long.parseLong(scene.replaceAll("(?s).*\"sectionId\"\\s*:\\s*(\\d+).*", "$1"));
+
+        // Thiếu một ký tự so với câu gốc → phải bị chặn.
+        mockMvc.perform(post("/api/dictionary/dialogue-scenes/" + sectionId + "/lines")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Nguyễn\",\"textJa\":\"はじめまして。\","
+                                + "\"chunks\":[{\"surface\":\"はじめまして\",\"meaningVi\":\"rất vui\"}]}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("không ra đúng lời thoại")));
+
+        // Thêm cụm dấu câu cho khớp → qua. meaning_vi để trống vì là dấu câu.
+        String created = mockMvc.perform(post("/api/dictionary/dialogue-scenes/" + sectionId + "/lines")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Nguyễn\",\"textJa\":\"はじめまして。\",\"bubbleSide\":\"trai\","
+                                + "\"chunks\":[{\"surface\":\"はじめまして\",\"meaningVi\":\"rất vui được gặp\"},"
+                                + "{\"surface\":\"。\"}]}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.chunks.length()").value(2))
+                .andExpect(jsonPath("$.data.bubbleSide").value("trai"))
+                .andReturn().getResponse().getContentAsString();
+        long lineId = Long.parseLong(created.replaceAll("(?s).*\"contentItemId\"\\s*:\\s*(\\d+).*", "$1"));
+
+        // Lời không có cụm nào cũng hợp lệ: giao diện học sẽ hiện nguyên câu.
+        mockMvc.perform(post("/api/dictionary/dialogue-scenes/" + sectionId + "/lines")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Tanaka\",\"textJa\":\"よろしく。\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/dictionary/dialogue-lines/" + lineId)).andExpect(status().isOk());
+    }
+
+    /** [GĐ4] Vai trùng mã trong cùng bài là 409; vai còn lời thoại thì không xoá được. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void dialogueRoleCodeIsUniquePerLessonAndRoleInUseCannotBeDeleted() throws Exception {
+        String role = mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/dialogue-roles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"vai-thu\",\"nameVi\":\"Vai thử\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long roleId = Long.parseLong(role.replaceAll("(?s).*\"id\"\\s*:\\s*(\\d+).*", "$1"));
+
+        mockMvc.perform(post("/api/dictionary/lessons/" + LESSON_1 + "/dialogue-roles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\":\"vai-thu\",\"nameVi\":\"Trùng mã\"}"))
+                .andExpect(status().isConflict());
+
+        // Vai chưa dùng thì xoá được.
+        mockMvc.perform(delete("/api/dictionary/dialogue-roles/" + roleId)).andExpect(status().isOk());
+
+        // Vai đang có lời thoại trong dữ liệu seed thì bị chặn.
+        long usedRoleId = dialogueRoleRepository.findByLessonIdOrderByCodeAsc(LESSON_1).stream()
+                .filter(r -> dialogueRoleRepository.countLinesByRoleId(r.getId()) > 0)
+                .findFirst().orElseThrow(() -> new AssertionError("bài 1 phải có vai đang được dùng"))
+                .getId();
+        mockMvc.perform(delete("/api/dictionary/dialogue-roles/" + usedRoleId))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", containsString("lời thoại")));
+    }
+
+    /** Bài nháp vừa tạo, chưa có gì bên trong thì xoá được — đây là lối dọn bài tạo nhầm. */
+    @Test
+    @Transactional
+    @WithMockUser(roles = "CONTENT_CREATOR")
+    void deletingAnEmptyDraftLessonSucceeds() throws Exception {
+        long unitId = lessonRepository.findById(LESSON_1).orElseThrow().getUnit().getId();
+        long tagId = lessonRepository.findById(LESSON_1).orElseThrow().getKnowledgeTag().getId();
+
+        String created = mockMvc.perform(post("/api/dictionary/units/" + unitId + "/lessons")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"knowledgeTagId\":" + tagId + ",\"title\":\"Bài tạo nhầm\","
+                                + "\"lessonType\":\"CURRICULUM\",\"skill\":\"VOCABULARY\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long newId = Long.parseLong(created.replaceAll("(?s).*\"id\"\\s*:\\s*(\\d+).*", "$1"));
+
+        mockMvc.perform(delete("/api/dictionary/lessons/" + newId)).andExpect(status().isOk());
+        assertTrue(lessonRepository.findById(newId).isEmpty(), "bài nháp rỗng phải xoá được");
     }
 
     /* ---------- [S2-07 DoD] Learning Path lấy được Lesson N5/N4 — đóng vai Learning Path ----------
@@ -454,11 +1093,27 @@ class LessonContentSeedTests {
         assertEquals("GRAMMAR", n5.getSkill());
     }
 
-    /** Id giáo trình bảng chữ cái lấy theo dữ liệu (jlpt_level NULL), không hardcode id 3. */
+    /**
+     * Id giáo trình bảng chữ cái lấy theo dữ liệu, không hardcode id 3.
+     * <p>
+     * Tiêu chí: KHÔNG có cấp độ JLPT và KHÔNG có bài nào gắn tag SITUATION — đúng tiêu chí mà
+     * DictionaryServiceImpl.isTopicBased() dùng để tách nhóm "Theo chủ đề", nên test không thể lệch
+     * khỏi code thật. Chỉ mỗi "jlpt_level IS NULL" là không đủ: giáo trình chủ đề (IT, du lịch,
+     * đời sống) cũng không có cấp độ, thêm "đã công bố" cũng không cứu được vì chúng có thể được
+     * công bố bất cứ lúc nào.
+     */
     private long kanaTextbookId() {
         EntityManager em = entityManagerFactory.createEntityManager();
         try {
-            return em.createQuery("select t.id from Textbook t where t.jlptLevel is null", Long.class).getSingleResult();
+            return em.createQuery("""
+                    select t.id from Textbook t
+                    where t.jlptLevel is null
+                      and not exists (
+                        select 1 from LessonTag lt
+                          join lt.lesson l
+                          join lt.tag tg
+                        where l.unit.textbook.id = t.id and tg.tagType = 'SITUATION')
+                    """, Long.class).getSingleResult();
         } finally {
             em.close();
         }
@@ -474,10 +1129,11 @@ class LessonContentSeedTests {
         assertTrue(c.getVocabularies().stream().allMatch(v -> !v.getAudios().isEmpty()), id + " có từ vựng thiếu audio");
     }
 
-    private long countLessonTags() {
+    /** Chỉ đếm lesson_tag trỏ tới tag SITUATION (chủ đề học); tag KNOWLEDGE không tính. */
+    private long countSituationLessonTags() {
         EntityManager em = entityManagerFactory.createEntityManager();
         try {
-            return em.createQuery("select count(lt) from LessonTag lt", Long.class).getSingleResult();
+            return em.createQuery("select count(lt) from LessonTag lt join lt.tag tg where tg.tagType = 'SITUATION'", Long.class).getSingleResult();
         } finally {
             em.close();
         }

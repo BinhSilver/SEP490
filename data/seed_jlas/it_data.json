@@ -1,0 +1,9120 @@
+{
+  "meta": {
+    "title": "Tiếng Nhật IT cho BrSE / Developer / Tester",
+    "version": "1.0",
+    "generated": "2026-09-21",
+    "counts": {
+      "vocabulary": 140,
+      "kanji": 210,
+      "dialogues": 14
+    },
+    "topics": {
+      "REQ": {
+        "ja": "要件・設計",
+        "vi": "Yêu cầu & thiết kế"
+      },
+      "DEV": {
+        "ja": "開発・プログラミング",
+        "vi": "Phát triển & lập trình"
+      },
+      "TEST": {
+        "ja": "テスト",
+        "vi": "Kiểm thử"
+      },
+      "BUG": {
+        "ja": "不具合・品質",
+        "vi": "Lỗi & chất lượng"
+      },
+      "OPS": {
+        "ja": "環境・運用",
+        "vi": "Môi trường & vận hành"
+      },
+      "PM": {
+        "ja": "プロジェクト管理",
+        "vi": "Quản lý dự án"
+      },
+      "COM": {
+        "ja": "コミュニケーション",
+        "vi": "Giao tiếp công việc"
+      }
+    },
+    "characters": {
+      "グエン": "BrSE/Developer phía Việt Nam (VJソリューションズ)",
+      "田中": "Khách hàng phía Nhật (株式会社ミライテック)",
+      "ファム": "PM phía Việt Nam"
+    },
+    "sources_and_license": {
+      "original": "Danh sách từ/kanji được chọn, nghĩa tiếng Việt, hội thoại và mẫu câu: nội dung gốc, không trích từ giáo trình hay website khác.",
+      "jmdict": "Trường gloss_en, common, jmdict_id của từ vựng: JMdict (EDRDG), giấy phép CC BY-SA 4.0 — https://www.edrdg.org/edrdg/licence.html",
+      "kanjidic2": "Trường han_viet, on_yomi, kun_yomi, meaning_en, strokes, school_grade, frequency_rank của kanji: KANJIDIC2 (EDRDG), CC BY-SA 4.0",
+      "jlpt": "Cấp JLPT của kanji: danh sách của Jonathan Waller qua dự án kanji-data (davidluzgouveia). Đây là ước lượng cộng đồng, JLPT không công bố danh sách chính thức.",
+      "attribution_required": "Phải ghi nguồn EDRDG/JMdict/KANJIDIC2 trong ứng dụng (trang About hoặc footer)."
+    },
+    "qa_notes": {
+      "manual_entries": [
+        "画面設計",
+        "画面遷移",
+        "非機能要件",
+        "総合テスト",
+        "テスト仕様書",
+        "テスト観点",
+        "実績値",
+        "正常系",
+        "異常系",
+        "境界値",
+        "再現手順",
+        "暫定対応",
+        "恒久対応",
+        "切り分け",
+        "障害対応",
+        "変更管理",
+        "認識齟齬",
+        "認識合わせ",
+        "対応中"
+      ],
+      "reading_mismatch_vs_jmdict": []
+    }
+  },
+  "vocabulary": [
+    {
+      "id": "ITV-001",
+      "topic": "REQ",
+      "word": "要件",
+      "reading": "ようけん",
+      "meaning_vi": "yêu cầu",
+      "gloss_en": [
+        "important matter",
+        "requirement",
+        "requisite",
+        "necessary condition"
+      ],
+      "common": true,
+      "jmdict_id": "1546730",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-002",
+      "topic": "REQ",
+      "word": "要件定義",
+      "reading": "ようけんていぎ",
+      "meaning_vi": "định nghĩa yêu cầu",
+      "gloss_en": [
+        "requirement definition"
+      ],
+      "common": false,
+      "jmdict_id": "2856068",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-003",
+      "topic": "REQ",
+      "word": "仕様",
+      "reading": "しよう",
+      "meaning_vi": "đặc tả",
+      "gloss_en": [
+        "way",
+        "method",
+        "means",
+        "resource"
+      ],
+      "common": true,
+      "jmdict_id": "1305500",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-004",
+      "topic": "REQ",
+      "word": "仕様書",
+      "reading": "しようしょ",
+      "meaning_vi": "tài liệu đặc tả",
+      "gloss_en": [
+        "manual",
+        "instructions",
+        "guide",
+        "specification document"
+      ],
+      "common": false,
+      "jmdict_id": "1305530",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-005",
+      "topic": "REQ",
+      "word": "基本設計",
+      "reading": "きほんせっけい",
+      "meaning_vi": "thiết kế cơ bản",
+      "gloss_en": [
+        "baseline design",
+        "preliminary design",
+        "basic design"
+      ],
+      "common": false,
+      "jmdict_id": "2397960",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-006",
+      "topic": "REQ",
+      "word": "詳細設計",
+      "reading": "しょうさいせっけい",
+      "meaning_vi": "thiết kế chi tiết",
+      "gloss_en": [
+        "detailed design"
+      ],
+      "common": false,
+      "jmdict_id": "2365380",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-007",
+      "topic": "REQ",
+      "word": "画面設計",
+      "reading": "がめんせっけい",
+      "meaning_vi": "thiết kế màn hình",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-008",
+      "topic": "REQ",
+      "word": "画面遷移",
+      "reading": "がめんせんい",
+      "meaning_vi": "chuyển đổi giữa các màn hình",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-009",
+      "topic": "REQ",
+      "word": "機能",
+      "reading": "きのう",
+      "meaning_vi": "chức năng",
+      "gloss_en": [
+        "function",
+        "facility",
+        "faculty",
+        "feature"
+      ],
+      "common": true,
+      "jmdict_id": "1221130",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-010",
+      "topic": "REQ",
+      "word": "非機能要件",
+      "reading": "ひきのうようけん",
+      "meaning_vi": "yêu cầu phi chức năng",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-011",
+      "topic": "REQ",
+      "word": "項目",
+      "reading": "こうもく",
+      "meaning_vi": "hạng mục, trường dữ liệu",
+      "gloss_en": [
+        "item",
+        "heading",
+        "category",
+        "clause"
+      ],
+      "common": true,
+      "jmdict_id": "1283000",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-012",
+      "topic": "REQ",
+      "word": "入力",
+      "reading": "にゅうりょく",
+      "meaning_vi": "nhập (dữ liệu)",
+      "gloss_en": [
+        "input",
+        "(data) entry",
+        "typing"
+      ],
+      "common": true,
+      "jmdict_id": "1466850",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-013",
+      "topic": "REQ",
+      "word": "出力",
+      "reading": "しゅつりょく",
+      "meaning_vi": "xuất (dữ liệu)",
+      "gloss_en": [
+        "output (electrical, signal, etc.)"
+      ],
+      "common": true,
+      "jmdict_id": "1340700",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-014",
+      "topic": "REQ",
+      "word": "必須",
+      "reading": "ひっす",
+      "meaning_vi": "bắt buộc",
+      "gloss_en": [
+        "indispensable",
+        "essential",
+        "requisite",
+        "required"
+      ],
+      "common": true,
+      "jmdict_id": "1487540",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-015",
+      "topic": "REQ",
+      "word": "初期値",
+      "reading": "しょきち",
+      "meaning_vi": "giá trị mặc định",
+      "gloss_en": [
+        "initial value",
+        "initial condition",
+        "IV",
+        "initializing value"
+      ],
+      "common": false,
+      "jmdict_id": "1342680",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-016",
+      "topic": "REQ",
+      "word": "桁数",
+      "reading": "けたすう",
+      "meaning_vi": "số chữ số",
+      "gloss_en": [
+        "number of digits or characters"
+      ],
+      "common": false,
+      "jmdict_id": "2027490",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-017",
+      "topic": "REQ",
+      "word": "帳票",
+      "reading": "ちょうひょう",
+      "meaning_vi": "biểu mẫu, báo cáo in",
+      "gloss_en": [
+        "financial records (account books, ledgers, vouchers, forms, etc.)"
+      ],
+      "common": false,
+      "jmdict_id": "2016190",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-018",
+      "topic": "REQ",
+      "word": "業務",
+      "reading": "ぎょうむ",
+      "meaning_vi": "nghiệp vụ",
+      "gloss_en": [
+        "business",
+        "work",
+        "operations",
+        "service"
+      ],
+      "common": true,
+      "jmdict_id": "1239540",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-019",
+      "topic": "REQ",
+      "word": "権限",
+      "reading": "けんげん",
+      "meaning_vi": "quyền hạn",
+      "gloss_en": [
+        "power",
+        "authority",
+        "jurisdiction"
+      ],
+      "common": true,
+      "jmdict_id": "1258130",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-020",
+      "topic": "REQ",
+      "word": "認証",
+      "reading": "にんしょう",
+      "meaning_vi": "xác thực",
+      "gloss_en": [
+        "certification",
+        "attestation",
+        "authentication",
+        "confirmation"
+      ],
+      "common": true,
+      "jmdict_id": "1467560",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-021",
+      "topic": "DEV",
+      "word": "開発",
+      "reading": "かいはつ",
+      "meaning_vi": "phát triển",
+      "gloss_en": [
+        "development",
+        "cultivation",
+        "application",
+        "exploitation (of resources)"
+      ],
+      "common": true,
+      "jmdict_id": "1202880",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-022",
+      "topic": "DEV",
+      "word": "実装",
+      "reading": "じっそう",
+      "meaning_vi": "hiện thực hóa, viết code",
+      "gloss_en": [
+        "implementation (e.g. of a feature)",
+        "installation (of equipment)",
+        "mounting",
+        "packaging"
+      ],
+      "common": false,
+      "jmdict_id": "1321300",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-023",
+      "topic": "DEV",
+      "word": "処理",
+      "reading": "しょり",
+      "meaning_vi": "xử lý",
+      "gloss_en": [
+        "processing",
+        "dealing with",
+        "treatment",
+        "disposition"
+      ],
+      "common": true,
+      "jmdict_id": "1342510",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-024",
+      "topic": "DEV",
+      "word": "変数",
+      "reading": "へんすう",
+      "meaning_vi": "biến",
+      "gloss_en": [
+        "variable"
+      ],
+      "common": false,
+      "jmdict_id": "1511200",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-025",
+      "topic": "DEV",
+      "word": "関数",
+      "reading": "かんすう",
+      "meaning_vi": "hàm",
+      "gloss_en": [
+        "function",
+        "function (programming)"
+      ],
+      "common": false,
+      "jmdict_id": "1590880",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-026",
+      "topic": "DEV",
+      "word": "引数",
+      "reading": "ひきすう",
+      "meaning_vi": "tham số (đối số)",
+      "gloss_en": [
+        "argument (of a function)"
+      ],
+      "common": false,
+      "jmdict_id": "1169570",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-027",
+      "topic": "DEV",
+      "word": "戻り値",
+      "reading": "もどりち",
+      "meaning_vi": "giá trị trả về",
+      "gloss_en": [
+        "return value",
+        "returned value"
+      ],
+      "common": false,
+      "jmdict_id": "2390810",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-028",
+      "topic": "DEV",
+      "word": "配列",
+      "reading": "はいれつ",
+      "meaning_vi": "mảng",
+      "gloss_en": [
+        "arranging",
+        "ordering",
+        "sequencing",
+        "lining up"
+      ],
+      "common": true,
+      "jmdict_id": "1473220",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-029",
+      "topic": "DEV",
+      "word": "条件分岐",
+      "reading": "じょうけんぶんき",
+      "meaning_vi": "rẽ nhánh điều kiện",
+      "gloss_en": [
+        "conditional branch"
+      ],
+      "common": false,
+      "jmdict_id": "2366260",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-030",
+      "topic": "DEV",
+      "word": "例外",
+      "reading": "れいがい",
+      "meaning_vi": "ngoại lệ",
+      "gloss_en": [
+        "exception"
+      ],
+      "common": true,
+      "jmdict_id": "1556410",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-031",
+      "topic": "DEV",
+      "word": "例外処理",
+      "reading": "れいがいしょり",
+      "meaning_vi": "xử lý ngoại lệ",
+      "gloss_en": [
+        "exception handling"
+      ],
+      "common": false,
+      "jmdict_id": "1556420",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-032",
+      "topic": "DEV",
+      "word": "共通化",
+      "reading": "きょうつうか",
+      "meaning_vi": "gom thành dùng chung",
+      "gloss_en": [
+        "standardization",
+        "uniformalization"
+      ],
+      "common": false,
+      "jmdict_id": "2350610",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-033",
+      "topic": "DEV",
+      "word": "修正",
+      "reading": "しゅうせい",
+      "meaning_vi": "sửa",
+      "gloss_en": [
+        "amendment",
+        "correction",
+        "revision",
+        "modification"
+      ],
+      "common": true,
+      "jmdict_id": "1332130",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-034",
+      "topic": "DEV",
+      "word": "改修",
+      "reading": "かいしゅう",
+      "meaning_vi": "sửa đổi, nâng cấp",
+      "gloss_en": [
+        "repair",
+        "improvement"
+      ],
+      "common": true,
+      "jmdict_id": "1200880",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-035",
+      "topic": "DEV",
+      "word": "追加",
+      "reading": "ついか",
+      "meaning_vi": "thêm",
+      "gloss_en": [
+        "addition",
+        "supplement",
+        "appending",
+        "appendix"
+      ],
+      "common": true,
+      "jmdict_id": "1432460",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-036",
+      "topic": "DEV",
+      "word": "削除",
+      "reading": "さくじょ",
+      "meaning_vi": "xóa",
+      "gloss_en": [
+        "deletion",
+        "elimination",
+        "erasure",
+        "striking out"
+      ],
+      "common": true,
+      "jmdict_id": "1298120",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-037",
+      "topic": "DEV",
+      "word": "更新",
+      "reading": "こうしん",
+      "meaning_vi": "cập nhật",
+      "gloss_en": [
+        "renewal",
+        "update",
+        "replacement",
+        "renovation"
+      ],
+      "common": true,
+      "jmdict_id": "1279370",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-038",
+      "topic": "DEV",
+      "word": "登録",
+      "reading": "とうろく",
+      "meaning_vi": "đăng ký, lưu mới",
+      "gloss_en": [
+        "registration",
+        "accession",
+        "register",
+        "entry"
+      ],
+      "common": true,
+      "jmdict_id": "1444810",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-039",
+      "topic": "DEV",
+      "word": "検索",
+      "reading": "けんさく",
+      "meaning_vi": "tìm kiếm",
+      "gloss_en": [
+        "looking up (e.g. a word in a dictionary)",
+        "search (e.g. on the Internet)",
+        "retrieval (of information)",
+        "reference"
+      ],
+      "common": true,
+      "jmdict_id": "1257900",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-040",
+      "topic": "DEV",
+      "word": "一覧",
+      "reading": "いちらん",
+      "meaning_vi": "danh sách",
+      "gloss_en": [
+        "look",
+        "glance",
+        "sight",
+        "having a look at"
+      ],
+      "common": true,
+      "jmdict_id": "1167180",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-041",
+      "topic": "DEV",
+      "word": "詳細",
+      "reading": "しょうさい",
+      "meaning_vi": "chi tiết",
+      "gloss_en": [
+        "details",
+        "particulars",
+        "specifics",
+        "detailed"
+      ],
+      "common": true,
+      "jmdict_id": "1351760",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-042",
+      "topic": "DEV",
+      "word": "画面",
+      "reading": "がめん",
+      "meaning_vi": "màn hình",
+      "gloss_en": [
+        "screen (of a TV, computer, etc.)",
+        "image (on a screen)",
+        "picture",
+        "scene"
+      ],
+      "common": true,
+      "jmdict_id": "1197610",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-043",
+      "topic": "DEV",
+      "word": "設定",
+      "reading": "せってい",
+      "meaning_vi": "cài đặt, cấu hình",
+      "gloss_en": [
+        "establishment",
+        "creation",
+        "posing (a problem)",
+        "setting (movie, novel, etc.)"
+      ],
+      "common": true,
+      "jmdict_id": "1386060",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-044",
+      "topic": "DEV",
+      "word": "環境構築",
+      "reading": "かんきょうこうちく",
+      "meaning_vi": "dựng môi trường",
+      "gloss_en": [
+        "setting up an environment",
+        "creation of an environment"
+      ],
+      "common": false,
+      "jmdict_id": "2831647",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-045",
+      "topic": "DEV",
+      "word": "採番",
+      "reading": "さいばん",
+      "meaning_vi": "đánh số (cấp ID)",
+      "gloss_en": [
+        "numbering",
+        "assigning a number"
+      ],
+      "common": false,
+      "jmdict_id": "2019470",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-046",
+      "topic": "DEV",
+      "word": "排他制御",
+      "reading": "はいたせいぎょ",
+      "meaning_vi": "kiểm soát tranh chấp (lock)",
+      "gloss_en": [
+        "exclusive control"
+      ],
+      "common": false,
+      "jmdict_id": "2381360",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-047",
+      "topic": "DEV",
+      "word": "非同期",
+      "reading": "ひどうき",
+      "meaning_vi": "bất đồng bộ",
+      "gloss_en": [
+        "asynchronous"
+      ],
+      "common": false,
+      "jmdict_id": "1485120",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-048",
+      "topic": "DEV",
+      "word": "文字化け",
+      "reading": "もじばけ",
+      "meaning_vi": "lỗi hiển thị ký tự",
+      "gloss_en": [
+        "corruption (of text, e.g. in email, due to improper encoding)",
+        "garbling",
+        "illegal character",
+        "corrupted text"
+      ],
+      "common": false,
+      "jmdict_id": "1505400",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-049",
+      "topic": "DEV",
+      "word": "文字コード",
+      "reading": "もじコード",
+      "meaning_vi": "mã ký tự (encoding)",
+      "gloss_en": [
+        "character encoding",
+        "character code"
+      ],
+      "common": false,
+      "jmdict_id": "1922220",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-050",
+      "topic": "DEV",
+      "word": "レビュー",
+      "reading": "レビュー",
+      "meaning_vi": "review",
+      "gloss_en": [
+        "review"
+      ],
+      "common": true,
+      "jmdict_id": "1145760",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-051",
+      "topic": "TEST",
+      "word": "単体テスト",
+      "reading": "たんたいテスト",
+      "meaning_vi": "kiểm thử đơn vị (unit test)",
+      "gloss_en": [
+        "unit test",
+        "testing an item in isolation"
+      ],
+      "common": false,
+      "jmdict_id": "2613650",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-052",
+      "topic": "TEST",
+      "word": "結合テスト",
+      "reading": "けつごうテスト",
+      "meaning_vi": "kiểm thử tích hợp",
+      "gloss_en": [
+        "integration testing"
+      ],
+      "common": false,
+      "jmdict_id": "2863718",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-053",
+      "topic": "TEST",
+      "word": "総合テスト",
+      "reading": "そうごうテスト",
+      "meaning_vi": "kiểm thử hệ thống",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-054",
+      "topic": "TEST",
+      "word": "受入テスト",
+      "reading": "うけいれテスト",
+      "meaning_vi": "kiểm thử nghiệm thu (UAT)",
+      "gloss_en": [
+        "(user) acceptance testing"
+      ],
+      "common": false,
+      "jmdict_id": "2857875",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-055",
+      "topic": "TEST",
+      "word": "回帰テスト",
+      "reading": "かいきテスト",
+      "meaning_vi": "kiểm thử hồi quy",
+      "gloss_en": [
+        "regression test"
+      ],
+      "common": false,
+      "jmdict_id": "2344940",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-056",
+      "topic": "TEST",
+      "word": "テスト仕様書",
+      "reading": "テストしようしょ",
+      "meaning_vi": "tài liệu test case",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-057",
+      "topic": "TEST",
+      "word": "テスト観点",
+      "reading": "テストかんてん",
+      "meaning_vi": "quan điểm kiểm thử",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-058",
+      "topic": "TEST",
+      "word": "期待値",
+      "reading": "きたいち",
+      "meaning_vi": "giá trị kỳ vọng",
+      "gloss_en": [
+        "expected value",
+        "expectation",
+        "expectations",
+        "expectation value (in quantum mechanics)"
+      ],
+      "common": false,
+      "jmdict_id": "1220580",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-059",
+      "topic": "TEST",
+      "word": "実績値",
+      "reading": "じっせきち",
+      "meaning_vi": "giá trị thực tế",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-060",
+      "topic": "TEST",
+      "word": "正常系",
+      "reading": "せいじょうけい",
+      "meaning_vi": "luồng bình thường",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-061",
+      "topic": "TEST",
+      "word": "異常系",
+      "reading": "いじょうけい",
+      "meaning_vi": "luồng bất thường",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-062",
+      "topic": "TEST",
+      "word": "境界値",
+      "reading": "きょうかいち",
+      "meaning_vi": "giá trị biên",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-063",
+      "topic": "TEST",
+      "word": "網羅",
+      "reading": "もうら",
+      "meaning_vi": "bao phủ toàn bộ",
+      "gloss_en": [
+        "encompassing",
+        "covering (exhaustively)",
+        "including (all of)",
+        "comprising"
+      ],
+      "common": true,
+      "jmdict_id": "1534450",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-064",
+      "topic": "TEST",
+      "word": "網羅率",
+      "reading": "もうらりつ",
+      "meaning_vi": "tỷ lệ bao phủ (coverage)",
+      "gloss_en": [
+        "coverage"
+      ],
+      "common": false,
+      "jmdict_id": "2859388",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-065",
+      "topic": "TEST",
+      "word": "消化",
+      "reading": "しょうか",
+      "meaning_vi": "thực hiện xong (test case)",
+      "gloss_en": [
+        "digestion (of food)",
+        "digestion (of information)",
+        "assimilation",
+        "thorough understanding"
+      ],
+      "common": true,
+      "jmdict_id": "1350140",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-066",
+      "topic": "TEST",
+      "word": "合否",
+      "reading": "ごうひ",
+      "meaning_vi": "đạt hay không đạt",
+      "gloss_en": [
+        "success or failure",
+        "result"
+      ],
+      "common": true,
+      "jmdict_id": "1285200",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-067",
+      "topic": "TEST",
+      "word": "証跡",
+      "reading": "しょうせき",
+      "meaning_vi": "bằng chứng lưu vết",
+      "gloss_en": [
+        "proof",
+        "evidence",
+        "trace"
+      ],
+      "common": false,
+      "jmdict_id": "1707100",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-068",
+      "topic": "TEST",
+      "word": "エビデンス",
+      "reading": "エビデンス",
+      "meaning_vi": "bằng chứng (ảnh chụp, log)",
+      "gloss_en": [
+        "evidence"
+      ],
+      "common": false,
+      "jmdict_id": "2447400",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-069",
+      "topic": "BUG",
+      "word": "不具合",
+      "reading": "ふぐあい",
+      "meaning_vi": "lỗi (bug)",
+      "gloss_en": [
+        "flaw",
+        "defect",
+        "problem",
+        "bug"
+      ],
+      "common": false,
+      "jmdict_id": "1492030",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-070",
+      "topic": "BUG",
+      "word": "障害",
+      "reading": "しょうがい",
+      "meaning_vi": "sự cố",
+      "gloss_en": [
+        "obstacle",
+        "impediment",
+        "hindrance",
+        "barrier"
+      ],
+      "common": true,
+      "jmdict_id": "1352060",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-071",
+      "topic": "BUG",
+      "word": "現象",
+      "reading": "げんしょう",
+      "meaning_vi": "hiện tượng",
+      "gloss_en": [
+        "phenomenon"
+      ],
+      "common": true,
+      "jmdict_id": "1263750",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-072",
+      "topic": "BUG",
+      "word": "原因",
+      "reading": "げんいん",
+      "meaning_vi": "nguyên nhân",
+      "gloss_en": [
+        "cause",
+        "origin",
+        "source"
+      ],
+      "common": true,
+      "jmdict_id": "1261190",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-073",
+      "topic": "BUG",
+      "word": "再現",
+      "reading": "さいげん",
+      "meaning_vi": "tái hiện",
+      "gloss_en": [
+        "reappearance",
+        "reemergence",
+        "return",
+        "revival"
+      ],
+      "common": true,
+      "jmdict_id": "1292640",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-074",
+      "topic": "BUG",
+      "word": "再現手順",
+      "reading": "さいげんてじゅん",
+      "meaning_vi": "các bước tái hiện lỗi",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-075",
+      "topic": "BUG",
+      "word": "影響範囲",
+      "reading": "えいきょうはんい",
+      "meaning_vi": "phạm vi ảnh hưởng",
+      "gloss_en": [
+        "area of influence",
+        "zone of influence",
+        "extent of impact"
+      ],
+      "common": false,
+      "jmdict_id": "2829086",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-076",
+      "topic": "BUG",
+      "word": "対応",
+      "reading": "たいおう",
+      "meaning_vi": "xử lý, đối ứng",
+      "gloss_en": [
+        "correspondence (to)",
+        "equivalence",
+        "suitability",
+        "coordination"
+      ],
+      "common": true,
+      "jmdict_id": "1409840",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-077",
+      "topic": "BUG",
+      "word": "暫定対応",
+      "reading": "ざんていたいおう",
+      "meaning_vi": "xử lý tạm thời",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-078",
+      "topic": "BUG",
+      "word": "恒久対応",
+      "reading": "こうきゅうたいおう",
+      "meaning_vi": "xử lý triệt để",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-079",
+      "topic": "BUG",
+      "word": "再発防止",
+      "reading": "さいはつぼうし",
+      "meaning_vi": "phòng ngừa tái phát",
+      "gloss_en": [
+        "preventing recurrence (of)",
+        "preventing from happening again"
+      ],
+      "common": false,
+      "jmdict_id": "2650990",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-080",
+      "topic": "BUG",
+      "word": "品質",
+      "reading": "ひんしつ",
+      "meaning_vi": "chất lượng",
+      "gloss_en": [
+        "quality (of a product or a service)"
+      ],
+      "common": true,
+      "jmdict_id": "1490580",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-081",
+      "topic": "BUG",
+      "word": "指摘",
+      "reading": "してき",
+      "meaning_vi": "chỉ ra, góp ý (review)",
+      "gloss_en": [
+        "pointing out",
+        "identification"
+      ],
+      "common": true,
+      "jmdict_id": "1309940",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-082",
+      "topic": "BUG",
+      "word": "課題",
+      "reading": "かだい",
+      "meaning_vi": "vấn đề tồn đọng (issue)",
+      "gloss_en": [
+        "subject",
+        "theme",
+        "issue",
+        "matter"
+      ],
+      "common": true,
+      "jmdict_id": "1195820",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-083",
+      "topic": "BUG",
+      "word": "原因分析",
+      "reading": "げんいんぶんせき",
+      "meaning_vi": "phân tích nguyên nhân",
+      "gloss_en": [
+        "cause analysis",
+        "causal analysis",
+        "diagnosis"
+      ],
+      "common": false,
+      "jmdict_id": "2835655",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-084",
+      "topic": "BUG",
+      "word": "切り分け",
+      "reading": "きりわけ",
+      "meaning_vi": "khoanh vùng lỗi",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-085",
+      "topic": "BUG",
+      "word": "デグレ",
+      "reading": "デグレ",
+      "meaning_vi": "lỗi thoái lui (regression)",
+      "gloss_en": [
+        "(software) regression"
+      ],
+      "common": false,
+      "jmdict_id": "2859797",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-086",
+      "topic": "OPS",
+      "word": "本番環境",
+      "reading": "ほんばんかんきょう",
+      "meaning_vi": "môi trường production",
+      "gloss_en": [
+        "production environment"
+      ],
+      "common": false,
+      "jmdict_id": "2857396",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-087",
+      "topic": "OPS",
+      "word": "検証環境",
+      "reading": "けんしょうかんきょう",
+      "meaning_vi": "môi trường staging, kiểm chứng",
+      "gloss_en": [
+        "testing environment",
+        "verification environment"
+      ],
+      "common": false,
+      "jmdict_id": "2858097",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-088",
+      "topic": "OPS",
+      "word": "開発環境",
+      "reading": "かいはつかんきょう",
+      "meaning_vi": "môi trường phát triển",
+      "gloss_en": [
+        "development environment"
+      ],
+      "common": false,
+      "jmdict_id": "2345600",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-089",
+      "topic": "OPS",
+      "word": "移行",
+      "reading": "いこう",
+      "meaning_vi": "chuyển đổi (migration)",
+      "gloss_en": [
+        "transition",
+        "changeover",
+        "switchover",
+        "shift"
+      ],
+      "common": true,
+      "jmdict_id": "1158240",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-090",
+      "topic": "OPS",
+      "word": "運用",
+      "reading": "うんよう",
+      "meaning_vi": "vận hành",
+      "gloss_en": [
+        "making use of",
+        "application",
+        "practical use",
+        "effective management (e.g. of funds)"
+      ],
+      "common": true,
+      "jmdict_id": "1173090",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-091",
+      "topic": "OPS",
+      "word": "保守",
+      "reading": "ほしゅ",
+      "meaning_vi": "bảo trì",
+      "gloss_en": [
+        "maintenance",
+        "conservatism",
+        "conservativeness",
+        "conservation"
+      ],
+      "common": true,
+      "jmdict_id": "1513750",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-092",
+      "topic": "OPS",
+      "word": "監視",
+      "reading": "かんし",
+      "meaning_vi": "giám sát",
+      "gloss_en": [
+        "monitoring",
+        "watching",
+        "observation",
+        "surveillance"
+      ],
+      "common": true,
+      "jmdict_id": "1213680",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-093",
+      "topic": "OPS",
+      "word": "稼働",
+      "reading": "かどう",
+      "meaning_vi": "đang chạy, vận hành",
+      "gloss_en": [
+        "operation (of a machine)",
+        "running",
+        "working (and earning money)",
+        "workload"
+      ],
+      "common": true,
+      "jmdict_id": "1590520",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-094",
+      "topic": "OPS",
+      "word": "停止",
+      "reading": "ていし",
+      "meaning_vi": "dừng",
+      "gloss_en": [
+        "stoppage",
+        "coming to a stop",
+        "halt",
+        "standstill"
+      ],
+      "common": true,
+      "jmdict_id": "1434920",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-095",
+      "topic": "OPS",
+      "word": "復旧",
+      "reading": "ふっきゅう",
+      "meaning_vi": "khôi phục",
+      "gloss_en": [
+        "restoration",
+        "restitution",
+        "rehabilitation"
+      ],
+      "common": true,
+      "jmdict_id": "1500740",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-096",
+      "topic": "OPS",
+      "word": "切り戻し",
+      "reading": "きりもどし",
+      "meaning_vi": "rollback, quay về bản cũ",
+      "gloss_en": [
+        "cutting back",
+        "pruning"
+      ],
+      "common": false,
+      "jmdict_id": "2369000",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-097",
+      "topic": "OPS",
+      "word": "障害対応",
+      "reading": "しょうがいたいおう",
+      "meaning_vi": "xử lý sự cố",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-098",
+      "topic": "OPS",
+      "word": "負荷",
+      "reading": "ふか",
+      "meaning_vi": "tải",
+      "gloss_en": [
+        "burdening",
+        "bearing",
+        "shouldering",
+        "imposing"
+      ],
+      "common": true,
+      "jmdict_id": "1498060",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-099",
+      "topic": "OPS",
+      "word": "性能",
+      "reading": "せいのう",
+      "meaning_vi": "hiệu năng",
+      "gloss_en": [
+        "ability",
+        "performance",
+        "efficiency"
+      ],
+      "common": true,
+      "jmdict_id": "1375470",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-100",
+      "topic": "OPS",
+      "word": "容量",
+      "reading": "ようりょう",
+      "meaning_vi": "dung lượng",
+      "gloss_en": [
+        "capacity",
+        "volume",
+        "capacitance"
+      ],
+      "common": true,
+      "jmdict_id": "1545450",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-101",
+      "topic": "OPS",
+      "word": "手順書",
+      "reading": "てじゅんしょ",
+      "meaning_vi": "tài liệu hướng dẫn thao tác",
+      "gloss_en": [
+        "process document",
+        "procedure manual"
+      ],
+      "common": false,
+      "jmdict_id": "2362410",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-102",
+      "topic": "OPS",
+      "word": "定期",
+      "reading": "ていき",
+      "meaning_vi": "định kỳ",
+      "gloss_en": [
+        "fixed period",
+        "fixed term",
+        "regular",
+        "periodic"
+      ],
+      "common": true,
+      "jmdict_id": "1435490",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-103",
+      "topic": "OPS",
+      "word": "リリース",
+      "reading": "リリース",
+      "meaning_vi": "phát hành (release)",
+      "gloss_en": [
+        "release (of a film, product, etc.)",
+        "publication",
+        "release",
+        "liberation"
+      ],
+      "common": true,
+      "jmdict_id": "1143250",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-104",
+      "topic": "PM",
+      "word": "進捗",
+      "reading": "しんちょく",
+      "meaning_vi": "tiến độ",
+      "gloss_en": [
+        "progress",
+        "advance",
+        "making (good) progress"
+      ],
+      "common": true,
+      "jmdict_id": "1366140",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-105",
+      "topic": "PM",
+      "word": "工数",
+      "reading": "こうすう",
+      "meaning_vi": "công số (man-day, man-hour)",
+      "gloss_en": [
+        "workload",
+        "man-hour"
+      ],
+      "common": false,
+      "jmdict_id": "1278180",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-106",
+      "topic": "PM",
+      "word": "見積もり",
+      "reading": "みつもり",
+      "meaning_vi": "ước tính, báo giá",
+      "gloss_en": [
+        "estimate",
+        "estimation",
+        "valuation",
+        "quotation"
+      ],
+      "common": true,
+      "jmdict_id": "1604590",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-107",
+      "topic": "PM",
+      "word": "納期",
+      "reading": "のうき",
+      "meaning_vi": "hạn bàn giao",
+      "gloss_en": [
+        "appointed date of delivery",
+        "delivery time",
+        "due date for payment",
+        "period for payment"
+      ],
+      "common": false,
+      "jmdict_id": "1470050",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-108",
+      "topic": "PM",
+      "word": "納品",
+      "reading": "のうひん",
+      "meaning_vi": "bàn giao sản phẩm",
+      "gloss_en": [
+        "delivery of goods"
+      ],
+      "common": false,
+      "jmdict_id": "1470100",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-109",
+      "topic": "PM",
+      "word": "成果物",
+      "reading": "せいかぶつ",
+      "meaning_vi": "sản phẩm đầu ra (deliverable)",
+      "gloss_en": [
+        "deliverables",
+        "delivered product"
+      ],
+      "common": false,
+      "jmdict_id": "2261780",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-110",
+      "topic": "PM",
+      "word": "工程",
+      "reading": "こうてい",
+      "meaning_vi": "công đoạn",
+      "gloss_en": [
+        "process",
+        "operation",
+        "stage of a process",
+        "progress of work"
+      ],
+      "common": true,
+      "jmdict_id": "1278200",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-111",
+      "topic": "PM",
+      "word": "予定",
+      "reading": "よてい",
+      "meaning_vi": "kế hoạch, dự định",
+      "gloss_en": [
+        "plans",
+        "arrangement",
+        "schedule",
+        "program"
+      ],
+      "common": true,
+      "jmdict_id": "1543240",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-112",
+      "topic": "PM",
+      "word": "実績",
+      "reading": "じっせき",
+      "meaning_vi": "kết quả thực tế",
+      "gloss_en": [
+        "achievements",
+        "actual results",
+        "accomplishments",
+        "past results"
+      ],
+      "common": true,
+      "jmdict_id": "1321240",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-113",
+      "topic": "PM",
+      "word": "遅延",
+      "reading": "ちえん",
+      "meaning_vi": "chậm trễ",
+      "gloss_en": [
+        "delay",
+        "latency"
+      ],
+      "common": true,
+      "jmdict_id": "1422030",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-114",
+      "topic": "PM",
+      "word": "前倒し",
+      "reading": "まえだおし",
+      "meaning_vi": "đẩy sớm lên",
+      "gloss_en": [
+        "moving forward (e.g. plans)",
+        "acceleration (e.g. of payment schedule)",
+        "front-loading"
+      ],
+      "common": true,
+      "jmdict_id": "1837470",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-115",
+      "topic": "PM",
+      "word": "後ろ倒し",
+      "reading": "うしろだおし",
+      "meaning_vi": "lùi lại",
+      "gloss_en": [
+        "postponement",
+        "moving back"
+      ],
+      "common": false,
+      "jmdict_id": "2760760",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-116",
+      "topic": "PM",
+      "word": "優先度",
+      "reading": "ゆうせんど",
+      "meaning_vi": "độ ưu tiên",
+      "gloss_en": [
+        "priority level",
+        "degree of relative priority"
+      ],
+      "common": false,
+      "jmdict_id": "2390990",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-117",
+      "topic": "PM",
+      "word": "担当者",
+      "reading": "たんとうしゃ",
+      "meaning_vi": "người phụ trách",
+      "gloss_en": [
+        "person in charge (of an area of work, etc.)",
+        "person responsible",
+        "contact (person)"
+      ],
+      "common": true,
+      "jmdict_id": "1418180",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-118",
+      "topic": "PM",
+      "word": "体制",
+      "reading": "たいせい",
+      "meaning_vi": "cơ cấu nhân sự dự án",
+      "gloss_en": [
+        "order",
+        "system",
+        "structure",
+        "set-up"
+      ],
+      "common": true,
+      "jmdict_id": "1409550",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-119",
+      "topic": "PM",
+      "word": "締め切り",
+      "reading": "しめきり",
+      "meaning_vi": "hạn chót (deadline)",
+      "gloss_en": [
+        "deadline",
+        "closing",
+        "cut-off",
+        "closing (a door, window, etc.)"
+      ],
+      "common": true,
+      "jmdict_id": "1594590",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-120",
+      "topic": "PM",
+      "word": "変更管理",
+      "reading": "へんこうかんり",
+      "meaning_vi": "quản lý thay đổi",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-121",
+      "topic": "COM",
+      "word": "報告",
+      "reading": "ほうこく",
+      "meaning_vi": "báo cáo",
+      "gloss_en": [
+        "report",
+        "information"
+      ],
+      "common": true,
+      "jmdict_id": "1515670",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-122",
+      "topic": "COM",
+      "word": "連絡",
+      "reading": "れんらく",
+      "meaning_vi": "liên lạc",
+      "gloss_en": [
+        "contacting",
+        "(making) contact",
+        "getting in touch",
+        "communication"
+      ],
+      "common": true,
+      "jmdict_id": "1559900",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-123",
+      "topic": "COM",
+      "word": "相談",
+      "reading": "そうだん",
+      "meaning_vi": "trao đổi, xin ý kiến",
+      "gloss_en": [
+        "consultation",
+        "discussion",
+        "discussing",
+        "asking (someone) for advice"
+      ],
+      "common": true,
+      "jmdict_id": "1401210",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-124",
+      "topic": "COM",
+      "word": "確認",
+      "reading": "かくにん",
+      "meaning_vi": "xác nhận",
+      "gloss_en": [
+        "confirmation",
+        "verification",
+        "validation",
+        "review"
+      ],
+      "common": true,
+      "jmdict_id": "1205900",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-125",
+      "topic": "COM",
+      "word": "共有",
+      "reading": "きょうゆう",
+      "meaning_vi": "chia sẻ",
+      "gloss_en": [
+        "joint ownership",
+        "co-ownership",
+        "sharing (e.g. a viewpoint)",
+        "sharing (files, devices on a network, posts on social media, etc.)"
+      ],
+      "common": true,
+      "jmdict_id": "1235240",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-126",
+      "topic": "COM",
+      "word": "承認",
+      "reading": "しょうにん",
+      "meaning_vi": "phê duyệt",
+      "gloss_en": [
+        "recognition",
+        "acknowledgement",
+        "acknowledgment",
+        "approval"
+      ],
+      "common": true,
+      "jmdict_id": "1349520",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-127",
+      "topic": "COM",
+      "word": "依頼",
+      "reading": "いらい",
+      "meaning_vi": "nhờ, yêu cầu",
+      "gloss_en": [
+        "request",
+        "commission",
+        "entrusting (with a matter)",
+        "dependence"
+      ],
+      "common": true,
+      "jmdict_id": "1155710",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-128",
+      "topic": "COM",
+      "word": "回答",
+      "reading": "かいとう",
+      "meaning_vi": "trả lời",
+      "gloss_en": [
+        "reply",
+        "answer"
+      ],
+      "common": true,
+      "jmdict_id": "1199680",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-129",
+      "topic": "COM",
+      "word": "議事録",
+      "reading": "ぎじろく",
+      "meaning_vi": "biên bản cuộc họp",
+      "gloss_en": [
+        "record of proceedings",
+        "minutes"
+      ],
+      "common": true,
+      "jmdict_id": "1226100",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-130",
+      "topic": "COM",
+      "word": "打ち合わせ",
+      "reading": "うちあわせ",
+      "meaning_vi": "cuộc họp bàn",
+      "gloss_en": [
+        "(preparatory) meeting",
+        "briefing session",
+        "(making) advance arrangements",
+        "overlap (of a coat, etc.)"
+      ],
+      "common": true,
+      "jmdict_id": "1588140",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-131",
+      "topic": "COM",
+      "word": "認識齟齬",
+      "reading": "にんしきそご",
+      "meaning_vi": "hiểu sai lệch giữa hai bên",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-132",
+      "topic": "COM",
+      "word": "認識合わせ",
+      "reading": "にんしきあわせ",
+      "meaning_vi": "thống nhất cách hiểu",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    },
+    {
+      "id": "ITV-133",
+      "topic": "COM",
+      "word": "窓口",
+      "reading": "まどぐち",
+      "meaning_vi": "đầu mối liên lạc",
+      "gloss_en": [
+        "counter",
+        "window",
+        "teller window",
+        "ticket window"
+      ],
+      "common": true,
+      "jmdict_id": "1401420",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-134",
+      "topic": "COM",
+      "word": "問い合わせ",
+      "reading": "といあわせ",
+      "meaning_vi": "hỏi, liên hệ",
+      "gloss_en": [
+        "inquiry",
+        "query",
+        "enquiry"
+      ],
+      "common": true,
+      "jmdict_id": "1598590",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-135",
+      "topic": "COM",
+      "word": "資料",
+      "reading": "しりょう",
+      "meaning_vi": "tài liệu",
+      "gloss_en": [
+        "material",
+        "materials",
+        "data",
+        "information"
+      ],
+      "common": true,
+      "jmdict_id": "1312820",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-136",
+      "topic": "COM",
+      "word": "添付",
+      "reading": "てんぷ",
+      "meaning_vi": "đính kèm",
+      "gloss_en": [
+        "attaching (documents, etc.)",
+        "appending",
+        "affixing"
+      ],
+      "common": true,
+      "jmdict_id": "1440880",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-137",
+      "topic": "COM",
+      "word": "期限",
+      "reading": "きげん",
+      "meaning_vi": "kỳ hạn",
+      "gloss_en": [
+        "term",
+        "period",
+        "time frame",
+        "time limit"
+      ],
+      "common": true,
+      "jmdict_id": "1220560",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-138",
+      "topic": "COM",
+      "word": "至急",
+      "reading": "しきゅう",
+      "meaning_vi": "gấp, khẩn",
+      "gloss_en": [
+        "urgent",
+        "pressing",
+        "immediate",
+        "prompt"
+      ],
+      "common": true,
+      "jmdict_id": "1311900",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-139",
+      "topic": "COM",
+      "word": "念のため",
+      "reading": "ねんのため",
+      "meaning_vi": "để chắc chắn",
+      "gloss_en": [
+        "just to make sure",
+        "just to be sure",
+        "for confirmation",
+        "just in case"
+      ],
+      "common": true,
+      "jmdict_id": "1469350",
+      "source": "jmdict"
+    },
+    {
+      "id": "ITV-140",
+      "topic": "COM",
+      "word": "対応中",
+      "reading": "たいおうちゅう",
+      "meaning_vi": "đang xử lý",
+      "gloss_en": [],
+      "common": null,
+      "jmdict_id": null,
+      "source": "manual"
+    }
+  ],
+  "kanji": [
+    {
+      "id": "ITK-001",
+      "kanji": "要",
+      "han_viet": [
+        "Yếu",
+        "Yêu"
+      ],
+      "on_yomi": [
+        "ヨウ"
+      ],
+      "kun_yomi": [
+        "い.る",
+        "かなめ"
+      ],
+      "meaning_en": [
+        "need",
+        "main point",
+        "essence",
+        "pivot"
+      ],
+      "strokes": 9,
+      "school_grade": 4,
+      "frequency_rank": 106,
+      "jlpt": "N3",
+      "example_words": [
+        "要件",
+        "要件定義",
+        "非機能要件"
+      ]
+    },
+    {
+      "id": "ITK-002",
+      "kanji": "件",
+      "han_viet": [
+        "Kiện"
+      ],
+      "on_yomi": [
+        "ケン"
+      ],
+      "kun_yomi": [
+        "くだん"
+      ],
+      "meaning_en": [
+        "affair",
+        "case",
+        "matter",
+        "item"
+      ],
+      "strokes": 6,
+      "school_grade": 5,
+      "frequency_rank": 212,
+      "jlpt": "N3",
+      "example_words": [
+        "要件",
+        "要件定義",
+        "非機能要件",
+        "条件分岐"
+      ]
+    },
+    {
+      "id": "ITK-003",
+      "kanji": "定",
+      "han_viet": [
+        "Định",
+        "Đính"
+      ],
+      "on_yomi": [
+        "テイ",
+        "ジョウ"
+      ],
+      "kun_yomi": [
+        "さだ.める",
+        "さだ.まる",
+        "さだ.か"
+      ],
+      "meaning_en": [
+        "determine",
+        "fix",
+        "establish",
+        "decide"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 48,
+      "jlpt": "N3",
+      "example_words": [
+        "要件定義",
+        "設定",
+        "暫定対応",
+        "定期",
+        "予定"
+      ]
+    },
+    {
+      "id": "ITK-004",
+      "kanji": "義",
+      "han_viet": [
+        "Nghĩa"
+      ],
+      "on_yomi": [
+        "ギ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "righteousness",
+        "justice",
+        "morality",
+        "honor"
+      ],
+      "strokes": 13,
+      "school_grade": 5,
+      "frequency_rank": 415,
+      "jlpt": "N1",
+      "example_words": [
+        "要件定義"
+      ]
+    },
+    {
+      "id": "ITK-005",
+      "kanji": "仕",
+      "han_viet": [
+        "Sĩ"
+      ],
+      "on_yomi": [
+        "シ",
+        "ジ"
+      ],
+      "kun_yomi": [
+        "つか.える"
+      ],
+      "meaning_en": [
+        "attend",
+        "doing",
+        "official",
+        "serve"
+      ],
+      "strokes": 5,
+      "school_grade": 3,
+      "frequency_rank": 439,
+      "jlpt": "N4",
+      "example_words": [
+        "仕様",
+        "仕様書",
+        "テスト仕様書"
+      ]
+    },
+    {
+      "id": "ITK-006",
+      "kanji": "様",
+      "han_viet": [
+        "Dạng"
+      ],
+      "on_yomi": [
+        "ヨウ",
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "さま",
+        "さん"
+      ],
+      "meaning_en": [
+        "Esq.",
+        "way",
+        "manner",
+        "situation"
+      ],
+      "strokes": 14,
+      "school_grade": 3,
+      "frequency_rank": 493,
+      "jlpt": "N3",
+      "example_words": [
+        "仕様",
+        "仕様書",
+        "テスト仕様書"
+      ]
+    },
+    {
+      "id": "ITK-007",
+      "kanji": "書",
+      "han_viet": [
+        "Thư"
+      ],
+      "on_yomi": [
+        "ショ"
+      ],
+      "kun_yomi": [
+        "か.く",
+        "-が.き",
+        "-がき"
+      ],
+      "meaning_en": [
+        "write"
+      ],
+      "strokes": 10,
+      "school_grade": 2,
+      "frequency_rank": 169,
+      "jlpt": "N5",
+      "example_words": [
+        "仕様書",
+        "テスト仕様書",
+        "手順書"
+      ]
+    },
+    {
+      "id": "ITK-008",
+      "kanji": "基",
+      "han_viet": [
+        "Cơ"
+      ],
+      "on_yomi": [
+        "キ"
+      ],
+      "kun_yomi": [
+        "もと",
+        "もとい"
+      ],
+      "meaning_en": [
+        "fundamentals",
+        "radical (chem)",
+        "counter for machines",
+        "foundation"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 241,
+      "jlpt": "N1",
+      "example_words": [
+        "基本設計"
+      ]
+    },
+    {
+      "id": "ITK-009",
+      "kanji": "本",
+      "han_viet": [
+        "Bổn",
+        "Bản"
+      ],
+      "on_yomi": [
+        "ホン"
+      ],
+      "kun_yomi": [
+        "もと"
+      ],
+      "meaning_en": [
+        "book",
+        "present",
+        "main",
+        "origin"
+      ],
+      "strokes": 5,
+      "school_grade": 1,
+      "frequency_rank": 10,
+      "jlpt": "N5",
+      "example_words": [
+        "基本設計",
+        "本番環境"
+      ]
+    },
+    {
+      "id": "ITK-010",
+      "kanji": "設",
+      "han_viet": [
+        "Thiết"
+      ],
+      "on_yomi": [
+        "セツ"
+      ],
+      "kun_yomi": [
+        "もう.ける"
+      ],
+      "meaning_en": [
+        "establishment",
+        "provision",
+        "prepare"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 145,
+      "jlpt": "N2",
+      "example_words": [
+        "基本設計",
+        "詳細設計",
+        "画面設計",
+        "設定"
+      ]
+    },
+    {
+      "id": "ITK-011",
+      "kanji": "計",
+      "han_viet": [
+        "Kế",
+        "Kê"
+      ],
+      "on_yomi": [
+        "ケイ"
+      ],
+      "kun_yomi": [
+        "はか.る",
+        "はか.らう"
+      ],
+      "meaning_en": [
+        "plot",
+        "plan",
+        "scheme",
+        "measure"
+      ],
+      "strokes": 9,
+      "school_grade": 2,
+      "frequency_rank": 228,
+      "jlpt": "N4",
+      "example_words": [
+        "基本設計",
+        "詳細設計",
+        "画面設計"
+      ]
+    },
+    {
+      "id": "ITK-012",
+      "kanji": "詳",
+      "han_viet": [
+        "Tường"
+      ],
+      "on_yomi": [
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "くわ.しい",
+        "つまび.らか"
+      ],
+      "meaning_en": [
+        "detailed",
+        "full",
+        "minute",
+        "accurate"
+      ],
+      "strokes": 13,
+      "school_grade": 8,
+      "frequency_rank": 1178,
+      "jlpt": "N1",
+      "example_words": [
+        "詳細設計",
+        "詳細"
+      ]
+    },
+    {
+      "id": "ITK-013",
+      "kanji": "細",
+      "han_viet": [
+        "Tế"
+      ],
+      "on_yomi": [
+        "サイ"
+      ],
+      "kun_yomi": [
+        "ほそ.い",
+        "ほそ.る",
+        "こま.か",
+        "こま.かい"
+      ],
+      "meaning_en": [
+        "dainty",
+        "get thin",
+        "taper",
+        "slender"
+      ],
+      "strokes": 11,
+      "school_grade": 2,
+      "frequency_rank": 537,
+      "jlpt": "N2",
+      "example_words": [
+        "詳細設計",
+        "詳細"
+      ]
+    },
+    {
+      "id": "ITK-014",
+      "kanji": "画",
+      "han_viet": [
+        "Hoạch"
+      ],
+      "on_yomi": [
+        "ガ",
+        "カク",
+        "エ",
+        "カイ"
+      ],
+      "kun_yomi": [
+        "えが.く",
+        "かく.する",
+        "かぎ.る",
+        "はかりごと",
+        "はか.る"
+      ],
+      "meaning_en": [
+        "brush-stroke",
+        "picture"
+      ],
+      "strokes": 8,
+      "school_grade": 2,
+      "frequency_rank": 199,
+      "jlpt": "N4",
+      "example_words": [
+        "画面設計",
+        "画面遷移",
+        "画面"
+      ]
+    },
+    {
+      "id": "ITK-015",
+      "kanji": "面",
+      "han_viet": [
+        "Diện"
+      ],
+      "on_yomi": [
+        "メン",
+        "ベン"
+      ],
+      "kun_yomi": [
+        "おも",
+        "おもて",
+        "つら"
+      ],
+      "meaning_en": [
+        "mask",
+        "face",
+        "features",
+        "surface"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 186,
+      "jlpt": "N3",
+      "example_words": [
+        "画面設計",
+        "画面遷移",
+        "画面"
+      ]
+    },
+    {
+      "id": "ITK-016",
+      "kanji": "遷",
+      "han_viet": [
+        "Thiên"
+      ],
+      "on_yomi": [
+        "セン"
+      ],
+      "kun_yomi": [
+        "うつ.る",
+        "うつ.す",
+        "みやこがえ"
+      ],
+      "meaning_en": [
+        "transition",
+        "move",
+        "change"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 1937,
+      "jlpt": "N1",
+      "example_words": [
+        "画面遷移"
+      ]
+    },
+    {
+      "id": "ITK-017",
+      "kanji": "移",
+      "han_viet": [
+        "Di",
+        "Dị",
+        "Sỉ"
+      ],
+      "on_yomi": [
+        "イ"
+      ],
+      "kun_yomi": [
+        "うつ.る",
+        "うつ.す"
+      ],
+      "meaning_en": [
+        "shift",
+        "move",
+        "change",
+        "drift"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 448,
+      "jlpt": "N2",
+      "example_words": [
+        "画面遷移",
+        "移行"
+      ]
+    },
+    {
+      "id": "ITK-018",
+      "kanji": "機",
+      "han_viet": [
+        "Ky",
+        "Cơ"
+      ],
+      "on_yomi": [
+        "キ"
+      ],
+      "kun_yomi": [
+        "はた"
+      ],
+      "meaning_en": [
+        "loom",
+        "mechanism",
+        "machine",
+        "airplane"
+      ],
+      "strokes": 16,
+      "school_grade": 4,
+      "frequency_rank": 127,
+      "jlpt": "N3",
+      "example_words": [
+        "機能",
+        "非機能要件"
+      ]
+    },
+    {
+      "id": "ITK-019",
+      "kanji": "能",
+      "han_viet": [
+        "Năng",
+        "Nai",
+        "Nại"
+      ],
+      "on_yomi": [
+        "ノウ"
+      ],
+      "kun_yomi": [
+        "よ.く",
+        "あた.う"
+      ],
+      "meaning_en": [
+        "ability",
+        "talent",
+        "skill",
+        "capacity"
+      ],
+      "strokes": 10,
+      "school_grade": 5,
+      "frequency_rank": 273,
+      "jlpt": "N3",
+      "example_words": [
+        "機能",
+        "非機能要件",
+        "性能"
+      ]
+    },
+    {
+      "id": "ITK-020",
+      "kanji": "非",
+      "han_viet": [
+        "Phi"
+      ],
+      "on_yomi": [
+        "ヒ"
+      ],
+      "kun_yomi": [
+        "あら.ず"
+      ],
+      "meaning_en": [
+        "un-",
+        "mistake",
+        "negative",
+        "injustice"
+      ],
+      "strokes": 8,
+      "school_grade": 5,
+      "frequency_rank": 472,
+      "jlpt": "N3",
+      "example_words": [
+        "非機能要件",
+        "非同期"
+      ]
+    },
+    {
+      "id": "ITK-021",
+      "kanji": "項",
+      "han_viet": [
+        "Hạng"
+      ],
+      "on_yomi": [
+        "コウ"
+      ],
+      "kun_yomi": [
+        "うなじ"
+      ],
+      "meaning_en": [
+        "paragraph",
+        "nape of neck",
+        "clause",
+        "item"
+      ],
+      "strokes": 12,
+      "school_grade": 8,
+      "frequency_rank": 884,
+      "jlpt": "N1",
+      "example_words": [
+        "項目"
+      ]
+    },
+    {
+      "id": "ITK-022",
+      "kanji": "目",
+      "han_viet": [
+        "Mục"
+      ],
+      "on_yomi": [
+        "モク",
+        "ボク"
+      ],
+      "kun_yomi": [
+        "め",
+        "-め",
+        "ま-"
+      ],
+      "meaning_en": [
+        "eye",
+        "class",
+        "look",
+        "insight"
+      ],
+      "strokes": 5,
+      "school_grade": 1,
+      "frequency_rank": 76,
+      "jlpt": "N4",
+      "example_words": [
+        "項目"
+      ]
+    },
+    {
+      "id": "ITK-023",
+      "kanji": "入",
+      "han_viet": [
+        "Nhập"
+      ],
+      "on_yomi": [
+        "ニュウ",
+        "ジュ"
+      ],
+      "kun_yomi": [
+        "い.る",
+        "-い.る",
+        "-い.り",
+        "い.れる",
+        "-い.れ",
+        "はい.る"
+      ],
+      "meaning_en": [
+        "enter",
+        "insert"
+      ],
+      "strokes": 2,
+      "school_grade": 1,
+      "frequency_rank": 56,
+      "jlpt": "N5",
+      "example_words": [
+        "入力",
+        "受入テスト"
+      ]
+    },
+    {
+      "id": "ITK-024",
+      "kanji": "力",
+      "han_viet": [
+        "Lực"
+      ],
+      "on_yomi": [
+        "リョク",
+        "リキ",
+        "リイ"
+      ],
+      "kun_yomi": [
+        "ちから"
+      ],
+      "meaning_en": [
+        "power",
+        "strength",
+        "strong",
+        "strain"
+      ],
+      "strokes": 2,
+      "school_grade": 1,
+      "frequency_rank": 62,
+      "jlpt": "N4",
+      "example_words": [
+        "入力",
+        "出力"
+      ]
+    },
+    {
+      "id": "ITK-025",
+      "kanji": "出",
+      "han_viet": [
+        "Xuất",
+        "Xúy"
+      ],
+      "on_yomi": [
+        "シュツ",
+        "スイ"
+      ],
+      "kun_yomi": [
+        "で.る",
+        "-で",
+        "だ.す",
+        "-だ.す",
+        "い.でる",
+        "い.だす"
+      ],
+      "meaning_en": [
+        "exit",
+        "leave",
+        "go out",
+        "come out"
+      ],
+      "strokes": 5,
+      "school_grade": 1,
+      "frequency_rank": 13,
+      "jlpt": "N5",
+      "example_words": [
+        "出力"
+      ]
+    },
+    {
+      "id": "ITK-026",
+      "kanji": "必",
+      "han_viet": [
+        "Tất"
+      ],
+      "on_yomi": [
+        "ヒツ"
+      ],
+      "kun_yomi": [
+        "かなら.ず"
+      ],
+      "meaning_en": [
+        "invariably",
+        "certain",
+        "inevitable"
+      ],
+      "strokes": 5,
+      "school_grade": 4,
+      "frequency_rank": 265,
+      "jlpt": "N3",
+      "example_words": [
+        "必須"
+      ]
+    },
+    {
+      "id": "ITK-027",
+      "kanji": "須",
+      "han_viet": [
+        "Tu"
+      ],
+      "on_yomi": [
+        "ス",
+        "シュ"
+      ],
+      "kun_yomi": [
+        "すべから.く",
+        "すべし",
+        "ひげ",
+        "まつ",
+        "もち.いる",
+        "もと.める"
+      ],
+      "meaning_en": [
+        "ought",
+        "by all means",
+        "necessarily"
+      ],
+      "strokes": 12,
+      "school_grade": 8,
+      "frequency_rank": 1339,
+      "jlpt": "N1",
+      "example_words": [
+        "必須"
+      ]
+    },
+    {
+      "id": "ITK-028",
+      "kanji": "初",
+      "han_viet": [
+        "Sơ"
+      ],
+      "on_yomi": [
+        "ショ"
+      ],
+      "kun_yomi": [
+        "はじ.め",
+        "はじ.めて",
+        "はつ",
+        "はつ-",
+        "うい-",
+        "-そ.める",
+        "-ぞ.め"
+      ],
+      "meaning_en": [
+        "first time",
+        "beginning"
+      ],
+      "strokes": 7,
+      "school_grade": 4,
+      "frequency_rank": 152,
+      "jlpt": "N3",
+      "example_words": [
+        "初期値"
+      ]
+    },
+    {
+      "id": "ITK-029",
+      "kanji": "期",
+      "han_viet": [
+        "Kỳ",
+        "Ky"
+      ],
+      "on_yomi": [
+        "キ",
+        "ゴ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "period",
+        "time",
+        "date",
+        "term"
+      ],
+      "strokes": 12,
+      "school_grade": 3,
+      "frequency_rank": 117,
+      "jlpt": "N3",
+      "example_words": [
+        "初期値",
+        "非同期",
+        "期待値",
+        "定期",
+        "納期"
+      ]
+    },
+    {
+      "id": "ITK-030",
+      "kanji": "値",
+      "han_viet": [
+        "Trị"
+      ],
+      "on_yomi": [
+        "チ"
+      ],
+      "kun_yomi": [
+        "ね",
+        "あたい"
+      ],
+      "meaning_en": [
+        "price",
+        "cost",
+        "value"
+      ],
+      "strokes": 10,
+      "school_grade": 6,
+      "frequency_rank": 518,
+      "jlpt": "N3",
+      "example_words": [
+        "初期値",
+        "戻り値",
+        "期待値",
+        "実績値",
+        "境界値"
+      ]
+    },
+    {
+      "id": "ITK-031",
+      "kanji": "桁",
+      "han_viet": [
+        "Hành",
+        "Hàng",
+        "Hãng"
+      ],
+      "on_yomi": [
+        "コウ"
+      ],
+      "kun_yomi": [
+        "けた"
+      ],
+      "meaning_en": [
+        "beam",
+        "girder",
+        "spar",
+        "unit or column (accounting)"
+      ],
+      "strokes": 10,
+      "school_grade": 8,
+      "frequency_rank": null,
+      "jlpt": null,
+      "example_words": [
+        "桁数"
+      ],
+      "jlpt_note": "Ngoài danh sách JLPT ước lượng."
+    },
+    {
+      "id": "ITK-032",
+      "kanji": "数",
+      "han_viet": [
+        "Sác",
+        "Số",
+        "Sổ",
+        "Xúc",
+        "Sỗ",
+        "Sộ",
+        "Xọ"
+      ],
+      "on_yomi": [
+        "スウ",
+        "ス",
+        "サク",
+        "ソク",
+        "シュ"
+      ],
+      "kun_yomi": [
+        "かず",
+        "かぞ.える",
+        "しばしば",
+        "せ.める",
+        "わずらわ.しい"
+      ],
+      "meaning_en": [
+        "number",
+        "strength",
+        "fate",
+        "law"
+      ],
+      "strokes": 13,
+      "school_grade": 2,
+      "frequency_rank": 148,
+      "jlpt": "N3",
+      "example_words": [
+        "桁数",
+        "変数",
+        "関数",
+        "引数",
+        "工数"
+      ]
+    },
+    {
+      "id": "ITK-033",
+      "kanji": "帳",
+      "han_viet": [
+        "Trướng"
+      ],
+      "on_yomi": [
+        "チョウ"
+      ],
+      "kun_yomi": [
+        "とばり"
+      ],
+      "meaning_en": [
+        "notebook",
+        "account book",
+        "album",
+        "curtain"
+      ],
+      "strokes": 11,
+      "school_grade": 3,
+      "frequency_rank": 1459,
+      "jlpt": "N1",
+      "example_words": [
+        "帳票"
+      ]
+    },
+    {
+      "id": "ITK-034",
+      "kanji": "票",
+      "han_viet": [
+        "Phiếu",
+        "Tiêu",
+        "Phiêu"
+      ],
+      "on_yomi": [
+        "ヒョウ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "ballot",
+        "label",
+        "ticket",
+        "sign"
+      ],
+      "strokes": 11,
+      "school_grade": 4,
+      "frequency_rank": 489,
+      "jlpt": "N1",
+      "example_words": [
+        "帳票"
+      ]
+    },
+    {
+      "id": "ITK-035",
+      "kanji": "業",
+      "han_viet": [
+        "Nghiệp"
+      ],
+      "on_yomi": [
+        "ギョウ",
+        "ゴウ"
+      ],
+      "kun_yomi": [
+        "わざ"
+      ],
+      "meaning_en": [
+        "business",
+        "vocation",
+        "arts",
+        "performance"
+      ],
+      "strokes": 13,
+      "school_grade": 3,
+      "frequency_rank": 43,
+      "jlpt": "N4",
+      "example_words": [
+        "業務"
+      ]
+    },
+    {
+      "id": "ITK-036",
+      "kanji": "務",
+      "han_viet": [
+        "Vụ"
+      ],
+      "on_yomi": [
+        "ム"
+      ],
+      "kun_yomi": [
+        "つと.める"
+      ],
+      "meaning_en": [
+        "task",
+        "duties"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 111,
+      "jlpt": "N3",
+      "example_words": [
+        "業務"
+      ]
+    },
+    {
+      "id": "ITK-037",
+      "kanji": "権",
+      "han_viet": [
+        "Quyền"
+      ],
+      "on_yomi": [
+        "ケン",
+        "ゴン"
+      ],
+      "kun_yomi": [
+        "おもり",
+        "かり",
+        "はか.る"
+      ],
+      "meaning_en": [
+        "authority",
+        "power",
+        "rights"
+      ],
+      "strokes": 15,
+      "school_grade": 6,
+      "frequency_rank": 156,
+      "jlpt": "N3",
+      "example_words": [
+        "権限"
+      ]
+    },
+    {
+      "id": "ITK-038",
+      "kanji": "限",
+      "han_viet": [
+        "Hạn"
+      ],
+      "on_yomi": [
+        "ゲン"
+      ],
+      "kun_yomi": [
+        "かぎ.る",
+        "かぎ.り",
+        "-かぎ.り"
+      ],
+      "meaning_en": [
+        "limit",
+        "restrict",
+        "to best of ability"
+      ],
+      "strokes": 9,
+      "school_grade": 5,
+      "frequency_rank": 405,
+      "jlpt": "N3",
+      "example_words": [
+        "権限",
+        "期限"
+      ]
+    },
+    {
+      "id": "ITK-039",
+      "kanji": "認",
+      "han_viet": [
+        "Nhận"
+      ],
+      "on_yomi": [
+        "ニン"
+      ],
+      "kun_yomi": [
+        "みと.める",
+        "したた.める"
+      ],
+      "meaning_en": [
+        "acknowledge",
+        "witness",
+        "discern",
+        "recognize"
+      ],
+      "strokes": 14,
+      "school_grade": 6,
+      "frequency_rank": 198,
+      "jlpt": "N3",
+      "example_words": [
+        "認証",
+        "確認",
+        "承認",
+        "認識齟齬",
+        "認識合わせ"
+      ]
+    },
+    {
+      "id": "ITK-040",
+      "kanji": "証",
+      "han_viet": [
+        "Chứng"
+      ],
+      "on_yomi": [
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "あかし"
+      ],
+      "meaning_en": [
+        "evidence",
+        "proof",
+        "certificate"
+      ],
+      "strokes": 12,
+      "school_grade": 5,
+      "frequency_rank": 306,
+      "jlpt": "N1",
+      "example_words": [
+        "認証",
+        "証跡",
+        "検証環境"
+      ]
+    },
+    {
+      "id": "ITK-041",
+      "kanji": "開",
+      "han_viet": [
+        "Khai"
+      ],
+      "on_yomi": [
+        "カイ"
+      ],
+      "kun_yomi": [
+        "ひら.く",
+        "ひら.き",
+        "-びら.き",
+        "ひら.ける",
+        "あ.く",
+        "あ.ける"
+      ],
+      "meaning_en": [
+        "open",
+        "unfold",
+        "unseal"
+      ],
+      "strokes": 12,
+      "school_grade": 3,
+      "frequency_rank": 59,
+      "jlpt": "N4",
+      "example_words": [
+        "開発",
+        "開発環境"
+      ]
+    },
+    {
+      "id": "ITK-042",
+      "kanji": "発",
+      "han_viet": [
+        "Bát",
+        "Phát"
+      ],
+      "on_yomi": [
+        "ハツ",
+        "ホツ"
+      ],
+      "kun_yomi": [
+        "た.つ",
+        "あば.く",
+        "おこ.る",
+        "つか.わす",
+        "はな.つ"
+      ],
+      "meaning_en": [
+        "departure",
+        "discharge",
+        "publish",
+        "emit"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 32,
+      "jlpt": "N4",
+      "example_words": [
+        "開発",
+        "再発防止",
+        "開発環境"
+      ]
+    },
+    {
+      "id": "ITK-043",
+      "kanji": "実",
+      "han_viet": [
+        "Thực"
+      ],
+      "on_yomi": [
+        "ジツ",
+        "シツ"
+      ],
+      "kun_yomi": [
+        "み",
+        "みの.る",
+        "まこと",
+        "みの",
+        "みち.る"
+      ],
+      "meaning_en": [
+        "reality",
+        "truth",
+        "seed",
+        "fruit"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 68,
+      "jlpt": "N3",
+      "example_words": [
+        "実装",
+        "実績値",
+        "実績"
+      ]
+    },
+    {
+      "id": "ITK-044",
+      "kanji": "装",
+      "han_viet": [
+        "Trang"
+      ],
+      "on_yomi": [
+        "ソウ",
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "よそお.う",
+        "よそお.い"
+      ],
+      "meaning_en": [
+        "attire",
+        "dress",
+        "pretend",
+        "disguise"
+      ],
+      "strokes": 12,
+      "school_grade": 6,
+      "frequency_rank": 657,
+      "jlpt": "N2",
+      "example_words": [
+        "実装"
+      ]
+    },
+    {
+      "id": "ITK-045",
+      "kanji": "処",
+      "han_viet": [
+        "Xứ"
+      ],
+      "on_yomi": [
+        "ショ"
+      ],
+      "kun_yomi": [
+        "ところ",
+        "-こ",
+        "お.る"
+      ],
+      "meaning_en": [
+        "dispose",
+        "manage",
+        "deal with",
+        "sentence"
+      ],
+      "strokes": 5,
+      "school_grade": 6,
+      "frequency_rank": 547,
+      "jlpt": "N3",
+      "example_words": [
+        "処理",
+        "例外処理"
+      ]
+    },
+    {
+      "id": "ITK-046",
+      "kanji": "理",
+      "han_viet": [
+        "Lý"
+      ],
+      "on_yomi": [
+        "リ"
+      ],
+      "kun_yomi": [
+        "ことわり"
+      ],
+      "meaning_en": [
+        "logic",
+        "arrangement",
+        "reason",
+        "justice"
+      ],
+      "strokes": 11,
+      "school_grade": 2,
+      "frequency_rank": 86,
+      "jlpt": "N4",
+      "example_words": [
+        "処理",
+        "例外処理",
+        "変更管理"
+      ]
+    },
+    {
+      "id": "ITK-047",
+      "kanji": "変",
+      "han_viet": [
+        "Biến",
+        "Bén",
+        "Biếng"
+      ],
+      "on_yomi": [
+        "ヘン"
+      ],
+      "kun_yomi": [
+        "か.わる",
+        "か.わり",
+        "か.える"
+      ],
+      "meaning_en": [
+        "unusual",
+        "change",
+        "strange"
+      ],
+      "strokes": 9,
+      "school_grade": 4,
+      "frequency_rank": 238,
+      "jlpt": "N3",
+      "example_words": [
+        "変数",
+        "変更管理"
+      ]
+    },
+    {
+      "id": "ITK-048",
+      "kanji": "関",
+      "han_viet": [
+        "Quan"
+      ],
+      "on_yomi": [
+        "カン"
+      ],
+      "kun_yomi": [
+        "せき",
+        "-ぜき",
+        "かか.わる",
+        "からくり",
+        "かんぬき"
+      ],
+      "meaning_en": [
+        "connection",
+        "barrier",
+        "gateway",
+        "involve"
+      ],
+      "strokes": 14,
+      "school_grade": 4,
+      "frequency_rank": 70,
+      "jlpt": "N3",
+      "example_words": [
+        "関数"
+      ]
+    },
+    {
+      "id": "ITK-049",
+      "kanji": "引",
+      "han_viet": [
+        "Dẫn",
+        "Dấn"
+      ],
+      "on_yomi": [
+        "イン"
+      ],
+      "kun_yomi": [
+        "ひ.く",
+        "ひ.ける"
+      ],
+      "meaning_en": [
+        "pull",
+        "tug",
+        "jerk",
+        "admit"
+      ],
+      "strokes": 4,
+      "school_grade": 2,
+      "frequency_rank": 218,
+      "jlpt": "N3",
+      "example_words": [
+        "引数"
+      ]
+    },
+    {
+      "id": "ITK-050",
+      "kanji": "戻",
+      "han_viet": [
+        "Lệ"
+      ],
+      "on_yomi": [
+        "レイ"
+      ],
+      "kun_yomi": [
+        "もど.す",
+        "もど.る"
+      ],
+      "meaning_en": [
+        "re-",
+        "return",
+        "revert",
+        "resume"
+      ],
+      "strokes": 7,
+      "school_grade": 8,
+      "frequency_rank": 890,
+      "jlpt": "N3",
+      "example_words": [
+        "戻り値",
+        "切り戻し"
+      ]
+    },
+    {
+      "id": "ITK-051",
+      "kanji": "配",
+      "han_viet": [
+        "Phối"
+      ],
+      "on_yomi": [
+        "ハイ"
+      ],
+      "kun_yomi": [
+        "くば.る"
+      ],
+      "meaning_en": [
+        "distribute",
+        "spouse",
+        "exile",
+        "rationing"
+      ],
+      "strokes": 10,
+      "school_grade": 3,
+      "frequency_rank": 359,
+      "jlpt": "N3",
+      "example_words": [
+        "配列"
+      ]
+    },
+    {
+      "id": "ITK-052",
+      "kanji": "列",
+      "han_viet": [
+        "Liệt"
+      ],
+      "on_yomi": [
+        "レツ",
+        "レ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "file",
+        "row",
+        "rank",
+        "tier"
+      ],
+      "strokes": 6,
+      "school_grade": 3,
+      "frequency_rank": 927,
+      "jlpt": "N3",
+      "example_words": [
+        "配列"
+      ]
+    },
+    {
+      "id": "ITK-053",
+      "kanji": "条",
+      "han_viet": [
+        "Điêu"
+      ],
+      "on_yomi": [
+        "ジョウ",
+        "チョウ",
+        "デキ"
+      ],
+      "kun_yomi": [
+        "えだ",
+        "すじ"
+      ],
+      "meaning_en": [
+        "article",
+        "clause",
+        "counter for articles, clauses, paragraphs, etc.",
+        "twig"
+      ],
+      "strokes": 7,
+      "school_grade": 5,
+      "frequency_rank": 363,
+      "jlpt": "N1",
+      "example_words": [
+        "条件分岐"
+      ]
+    },
+    {
+      "id": "ITK-054",
+      "kanji": "分",
+      "han_viet": [
+        "Phân",
+        "Phận"
+      ],
+      "on_yomi": [
+        "ブン",
+        "フン",
+        "ブ"
+      ],
+      "kun_yomi": [
+        "わ.ける",
+        "わ.け",
+        "わ.かれる",
+        "わ.かる",
+        "わ.かつ"
+      ],
+      "meaning_en": [
+        "part",
+        "minute of time",
+        "segment",
+        "share"
+      ],
+      "strokes": 4,
+      "school_grade": 2,
+      "frequency_rank": 24,
+      "jlpt": "N5",
+      "example_words": [
+        "条件分岐",
+        "原因分析",
+        "切り分け"
+      ],
+      "jlpt_note": "Bổ sung thủ công: nguồn kanji-data thiếu cấp mới của chữ này."
+    },
+    {
+      "id": "ITK-055",
+      "kanji": "岐",
+      "han_viet": [
+        "Kì"
+      ],
+      "on_yomi": [
+        "キ",
+        "ギ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "branch off",
+        "fork in road",
+        "scene",
+        "arena"
+      ],
+      "strokes": 7,
+      "school_grade": 4,
+      "frequency_rank": 1428,
+      "jlpt": "N1",
+      "example_words": [
+        "条件分岐"
+      ]
+    },
+    {
+      "id": "ITK-056",
+      "kanji": "例",
+      "han_viet": [
+        "Lệ"
+      ],
+      "on_yomi": [
+        "レイ"
+      ],
+      "kun_yomi": [
+        "たと.える"
+      ],
+      "meaning_en": [
+        "example",
+        "custom",
+        "usage",
+        "precedent"
+      ],
+      "strokes": 8,
+      "school_grade": 4,
+      "frequency_rank": 399,
+      "jlpt": "N3",
+      "example_words": [
+        "例外",
+        "例外処理"
+      ]
+    },
+    {
+      "id": "ITK-057",
+      "kanji": "外",
+      "han_viet": [
+        "Ngoại"
+      ],
+      "on_yomi": [
+        "ガイ",
+        "ゲ"
+      ],
+      "kun_yomi": [
+        "そと",
+        "ほか",
+        "はず.す",
+        "はず.れる",
+        "と-"
+      ],
+      "meaning_en": [
+        "outside"
+      ],
+      "strokes": 5,
+      "school_grade": 2,
+      "frequency_rank": 81,
+      "jlpt": "N5",
+      "example_words": [
+        "例外",
+        "例外処理"
+      ]
+    },
+    {
+      "id": "ITK-058",
+      "kanji": "共",
+      "han_viet": [
+        "Cộng",
+        "Cung"
+      ],
+      "on_yomi": [
+        "キョウ"
+      ],
+      "kun_yomi": [
+        "とも",
+        "とも.に",
+        "-ども"
+      ],
+      "meaning_en": [
+        "together",
+        "both",
+        "neither",
+        "all"
+      ],
+      "strokes": 6,
+      "school_grade": 4,
+      "frequency_rank": 174,
+      "jlpt": "N3",
+      "example_words": [
+        "共通化",
+        "共有"
+      ]
+    },
+    {
+      "id": "ITK-059",
+      "kanji": "通",
+      "han_viet": [
+        "Thông"
+      ],
+      "on_yomi": [
+        "ツウ",
+        "ツ"
+      ],
+      "kun_yomi": [
+        "とお.る",
+        "とお.り",
+        "-とお.り",
+        "-どお.り",
+        "とお.す",
+        "とお.し",
+        "-どお.し",
+        "かよ.う"
+      ],
+      "meaning_en": [
+        "traffic",
+        "pass through",
+        "avenue",
+        "commute"
+      ],
+      "strokes": 10,
+      "school_grade": 2,
+      "frequency_rank": 80,
+      "jlpt": "N4",
+      "example_words": [
+        "共通化"
+      ]
+    },
+    {
+      "id": "ITK-060",
+      "kanji": "化",
+      "han_viet": [
+        "Hóa"
+      ],
+      "on_yomi": [
+        "カ",
+        "ケ"
+      ],
+      "kun_yomi": [
+        "ば.ける",
+        "ば.かす",
+        "ふ.ける",
+        "け.する"
+      ],
+      "meaning_en": [
+        "change",
+        "take the form of",
+        "influence",
+        "enchant"
+      ],
+      "strokes": 4,
+      "school_grade": 3,
+      "frequency_rank": 89,
+      "jlpt": "N3",
+      "example_words": [
+        "共通化",
+        "文字化け",
+        "消化"
+      ]
+    },
+    {
+      "id": "ITK-061",
+      "kanji": "修",
+      "han_viet": [
+        "Tu"
+      ],
+      "on_yomi": [
+        "シュウ",
+        "シュ"
+      ],
+      "kun_yomi": [
+        "おさ.める",
+        "おさ.まる"
+      ],
+      "meaning_en": [
+        "discipline",
+        "conduct oneself well",
+        "study",
+        "master"
+      ],
+      "strokes": 10,
+      "school_grade": 5,
+      "frequency_rank": 603,
+      "jlpt": "N1",
+      "example_words": [
+        "修正",
+        "改修"
+      ]
+    },
+    {
+      "id": "ITK-062",
+      "kanji": "正",
+      "han_viet": [
+        "Chánh",
+        "Chính"
+      ],
+      "on_yomi": [
+        "セイ",
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "ただ.しい",
+        "ただ.す",
+        "まさ",
+        "まさ.に"
+      ],
+      "meaning_en": [
+        "correct",
+        "justice",
+        "righteous",
+        "10**40"
+      ],
+      "strokes": 5,
+      "school_grade": 1,
+      "frequency_rank": 143,
+      "jlpt": "N4",
+      "example_words": [
+        "修正",
+        "正常系"
+      ]
+    },
+    {
+      "id": "ITK-063",
+      "kanji": "改",
+      "han_viet": [
+        "Cải"
+      ],
+      "on_yomi": [
+        "カイ"
+      ],
+      "kun_yomi": [
+        "あらた.める",
+        "あらた.まる"
+      ],
+      "meaning_en": [
+        "reformation",
+        "change",
+        "modify",
+        "mend"
+      ],
+      "strokes": 7,
+      "school_grade": 4,
+      "frequency_rank": 147,
+      "jlpt": "N2",
+      "example_words": [
+        "改修"
+      ]
+    },
+    {
+      "id": "ITK-064",
+      "kanji": "追",
+      "han_viet": [
+        "Truy",
+        "Đôi"
+      ],
+      "on_yomi": [
+        "ツイ"
+      ],
+      "kun_yomi": [
+        "お.う"
+      ],
+      "meaning_en": [
+        "chase",
+        "drive away",
+        "follow",
+        "pursue"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 411,
+      "jlpt": "N3",
+      "example_words": [
+        "追加"
+      ]
+    },
+    {
+      "id": "ITK-065",
+      "kanji": "加",
+      "han_viet": [
+        "Gia"
+      ],
+      "on_yomi": [
+        "カ"
+      ],
+      "kun_yomi": [
+        "くわ.える",
+        "くわ.わる"
+      ],
+      "meaning_en": [
+        "add",
+        "addition",
+        "increase",
+        "join"
+      ],
+      "strokes": 5,
+      "school_grade": 4,
+      "frequency_rank": 130,
+      "jlpt": "N3",
+      "example_words": [
+        "追加"
+      ]
+    },
+    {
+      "id": "ITK-066",
+      "kanji": "削",
+      "han_viet": [
+        "Tước"
+      ],
+      "on_yomi": [
+        "サク"
+      ],
+      "kun_yomi": [
+        "けず.る",
+        "はつ.る",
+        "そ.ぐ"
+      ],
+      "meaning_en": [
+        "plane",
+        "sharpen",
+        "whittle",
+        "pare"
+      ],
+      "strokes": 9,
+      "school_grade": 8,
+      "frequency_rank": 814,
+      "jlpt": "N1",
+      "example_words": [
+        "削除"
+      ]
+    },
+    {
+      "id": "ITK-067",
+      "kanji": "除",
+      "han_viet": [
+        "Trừ"
+      ],
+      "on_yomi": [
+        "ジョ",
+        "ジ"
+      ],
+      "kun_yomi": [
+        "のぞ.く",
+        "-よ.け"
+      ],
+      "meaning_en": [
+        "exclude",
+        "division (x/3)",
+        "remove",
+        "abolish"
+      ],
+      "strokes": 10,
+      "school_grade": 6,
+      "frequency_rank": 594,
+      "jlpt": "N3",
+      "example_words": [
+        "削除"
+      ]
+    },
+    {
+      "id": "ITK-068",
+      "kanji": "更",
+      "han_viet": [
+        "Canh",
+        "Cánh"
+      ],
+      "on_yomi": [
+        "コウ"
+      ],
+      "kun_yomi": [
+        "さら",
+        "さら.に",
+        "ふ.ける",
+        "ふ.かす"
+      ],
+      "meaning_en": [
+        "grow late",
+        "night watch",
+        "sit up late",
+        "of course"
+      ],
+      "strokes": 7,
+      "school_grade": 8,
+      "frequency_rank": 861,
+      "jlpt": "N3",
+      "example_words": [
+        "更新",
+        "変更管理"
+      ]
+    },
+    {
+      "id": "ITK-069",
+      "kanji": "新",
+      "han_viet": [
+        "Tân"
+      ],
+      "on_yomi": [
+        "シン"
+      ],
+      "kun_yomi": [
+        "あたら.しい",
+        "あら.た",
+        "あら-",
+        "にい-"
+      ],
+      "meaning_en": [
+        "new"
+      ],
+      "strokes": 13,
+      "school_grade": 2,
+      "frequency_rank": 51,
+      "jlpt": "N4",
+      "example_words": [
+        "更新"
+      ]
+    },
+    {
+      "id": "ITK-070",
+      "kanji": "登",
+      "han_viet": [
+        "Đăng"
+      ],
+      "on_yomi": [
+        "トウ",
+        "ト",
+        "ドウ",
+        "ショウ",
+        "チョウ"
+      ],
+      "kun_yomi": [
+        "のぼ.る",
+        "あ.がる"
+      ],
+      "meaning_en": [
+        "ascend",
+        "climb up"
+      ],
+      "strokes": 12,
+      "school_grade": 3,
+      "frequency_rank": 566,
+      "jlpt": "N3",
+      "example_words": [
+        "登録"
+      ]
+    },
+    {
+      "id": "ITK-071",
+      "kanji": "録",
+      "han_viet": [
+        "Lục"
+      ],
+      "on_yomi": [
+        "ロク"
+      ],
+      "kun_yomi": [
+        "しる.す",
+        "と.る"
+      ],
+      "meaning_en": [
+        "record"
+      ],
+      "strokes": 16,
+      "school_grade": 4,
+      "frequency_rank": 546,
+      "jlpt": "N2",
+      "example_words": [
+        "登録",
+        "議事録"
+      ]
+    },
+    {
+      "id": "ITK-072",
+      "kanji": "検",
+      "han_viet": [
+        "Kiểm"
+      ],
+      "on_yomi": [
+        "ケン"
+      ],
+      "kun_yomi": [
+        "しら.べる"
+      ],
+      "meaning_en": [
+        "examination",
+        "investigate"
+      ],
+      "strokes": 12,
+      "school_grade": 5,
+      "frequency_rank": 290,
+      "jlpt": "N1",
+      "example_words": [
+        "検索",
+        "検証環境"
+      ]
+    },
+    {
+      "id": "ITK-073",
+      "kanji": "索",
+      "han_viet": [
+        "Tác",
+        "Sách"
+      ],
+      "on_yomi": [
+        "サク"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "cord",
+        "rope",
+        "searching",
+        "inquiring"
+      ],
+      "strokes": 10,
+      "school_grade": 8,
+      "frequency_rank": 1127,
+      "jlpt": "N1",
+      "example_words": [
+        "検索"
+      ]
+    },
+    {
+      "id": "ITK-074",
+      "kanji": "一",
+      "han_viet": [
+        "Nhất"
+      ],
+      "on_yomi": [
+        "イチ",
+        "イツ"
+      ],
+      "kun_yomi": [
+        "ひと-",
+        "ひと.つ"
+      ],
+      "meaning_en": [
+        "one",
+        "one radical (no.1)"
+      ],
+      "strokes": 1,
+      "school_grade": 1,
+      "frequency_rank": 2,
+      "jlpt": "N5",
+      "example_words": [
+        "一覧"
+      ]
+    },
+    {
+      "id": "ITK-075",
+      "kanji": "覧",
+      "han_viet": [
+        "Lãm"
+      ],
+      "on_yomi": [
+        "ラン"
+      ],
+      "kun_yomi": [
+        "み.る"
+      ],
+      "meaning_en": [
+        "perusal",
+        "see"
+      ],
+      "strokes": 17,
+      "school_grade": 6,
+      "frequency_rank": 1510,
+      "jlpt": "N1",
+      "example_words": [
+        "一覧"
+      ]
+    },
+    {
+      "id": "ITK-076",
+      "kanji": "環",
+      "han_viet": [
+        "Hoàn"
+      ],
+      "on_yomi": [
+        "カン"
+      ],
+      "kun_yomi": [
+        "わ"
+      ],
+      "meaning_en": [
+        "ring",
+        "circle",
+        "loop"
+      ],
+      "strokes": 17,
+      "school_grade": 8,
+      "frequency_rank": 409,
+      "jlpt": "N1",
+      "example_words": [
+        "環境構築",
+        "本番環境",
+        "検証環境",
+        "開発環境"
+      ]
+    },
+    {
+      "id": "ITK-077",
+      "kanji": "境",
+      "han_viet": [
+        "Cảnh"
+      ],
+      "on_yomi": [
+        "キョウ",
+        "ケイ"
+      ],
+      "kun_yomi": [
+        "さかい"
+      ],
+      "meaning_en": [
+        "boundary",
+        "border",
+        "region"
+      ],
+      "strokes": 14,
+      "school_grade": 5,
+      "frequency_rank": 346,
+      "jlpt": "N2",
+      "example_words": [
+        "環境構築",
+        "境界値",
+        "本番環境",
+        "検証環境",
+        "開発環境"
+      ]
+    },
+    {
+      "id": "ITK-078",
+      "kanji": "構",
+      "han_viet": [
+        "Cấu"
+      ],
+      "on_yomi": [
+        "コウ"
+      ],
+      "kun_yomi": [
+        "かま.える",
+        "かま.う"
+      ],
+      "meaning_en": [
+        "posture",
+        "stance",
+        "appearance",
+        "build"
+      ],
+      "strokes": 14,
+      "school_grade": 5,
+      "frequency_rank": 316,
+      "jlpt": "N3",
+      "example_words": [
+        "環境構築"
+      ]
+    },
+    {
+      "id": "ITK-079",
+      "kanji": "築",
+      "han_viet": [
+        "Trúc"
+      ],
+      "on_yomi": [
+        "チク"
+      ],
+      "kun_yomi": [
+        "きず.く"
+      ],
+      "meaning_en": [
+        "fabricate",
+        "build",
+        "construct"
+      ],
+      "strokes": 16,
+      "school_grade": 5,
+      "frequency_rank": 821,
+      "jlpt": "N2",
+      "example_words": [
+        "環境構築"
+      ]
+    },
+    {
+      "id": "ITK-080",
+      "kanji": "採",
+      "han_viet": [
+        "Thải",
+        "Thái"
+      ],
+      "on_yomi": [
+        "サイ"
+      ],
+      "kun_yomi": [
+        "と.る"
+      ],
+      "meaning_en": [
+        "pick",
+        "take",
+        "fetch",
+        "take up"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 607,
+      "jlpt": "N2",
+      "example_words": [
+        "採番"
+      ]
+    },
+    {
+      "id": "ITK-081",
+      "kanji": "番",
+      "han_viet": [
+        "Phiên",
+        "Phan",
+        "Ba",
+        "Bà"
+      ],
+      "on_yomi": [
+        "バン"
+      ],
+      "kun_yomi": [
+        "つが.い"
+      ],
+      "meaning_en": [
+        "turn",
+        "number in a series"
+      ],
+      "strokes": 12,
+      "school_grade": 2,
+      "frequency_rank": 348,
+      "jlpt": "N3",
+      "example_words": [
+        "採番",
+        "本番環境"
+      ]
+    },
+    {
+      "id": "ITK-082",
+      "kanji": "排",
+      "han_viet": [
+        "Bài"
+      ],
+      "on_yomi": [
+        "ハイ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "repudiate",
+        "exclude",
+        "expel",
+        "reject"
+      ],
+      "strokes": 11,
+      "school_grade": 8,
+      "frequency_rank": 1047,
+      "jlpt": "N1",
+      "example_words": [
+        "排他制御"
+      ]
+    },
+    {
+      "id": "ITK-083",
+      "kanji": "他",
+      "han_viet": [
+        "Tha"
+      ],
+      "on_yomi": [
+        "タ"
+      ],
+      "kun_yomi": [
+        "ほか"
+      ],
+      "meaning_en": [
+        "other",
+        "another",
+        "the others"
+      ],
+      "strokes": 5,
+      "school_grade": 3,
+      "frequency_rank": 543,
+      "jlpt": "N3",
+      "example_words": [
+        "排他制御"
+      ]
+    },
+    {
+      "id": "ITK-084",
+      "kanji": "制",
+      "han_viet": [
+        "Chế"
+      ],
+      "on_yomi": [
+        "セイ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "system",
+        "law",
+        "rule"
+      ],
+      "strokes": 8,
+      "school_grade": 5,
+      "frequency_rank": 108,
+      "jlpt": "N3",
+      "example_words": [
+        "排他制御",
+        "体制"
+      ]
+    },
+    {
+      "id": "ITK-085",
+      "kanji": "御",
+      "han_viet": [
+        "Ngự",
+        "Nhạ"
+      ],
+      "on_yomi": [
+        "ギョ",
+        "ゴ"
+      ],
+      "kun_yomi": [
+        "おん-",
+        "お-",
+        "み-"
+      ],
+      "meaning_en": [
+        "honorable",
+        "manipulate",
+        "govern"
+      ],
+      "strokes": 12,
+      "school_grade": 8,
+      "frequency_rank": 1087,
+      "jlpt": "N3",
+      "example_words": [
+        "排他制御"
+      ]
+    },
+    {
+      "id": "ITK-086",
+      "kanji": "同",
+      "han_viet": [
+        "Đồng"
+      ],
+      "on_yomi": [
+        "ドウ"
+      ],
+      "kun_yomi": [
+        "おな.じ"
+      ],
+      "meaning_en": [
+        "same",
+        "agree",
+        "equal"
+      ],
+      "strokes": 6,
+      "school_grade": 2,
+      "frequency_rank": 15,
+      "jlpt": "N4",
+      "example_words": [
+        "非同期"
+      ]
+    },
+    {
+      "id": "ITK-087",
+      "kanji": "文",
+      "han_viet": [
+        "Văn",
+        "Vấn"
+      ],
+      "on_yomi": [
+        "ブン",
+        "モン"
+      ],
+      "kun_yomi": [
+        "ふみ",
+        "あや"
+      ],
+      "meaning_en": [
+        "sentence",
+        "literature",
+        "style",
+        "art"
+      ],
+      "strokes": 4,
+      "school_grade": 1,
+      "frequency_rank": 190,
+      "jlpt": "N4",
+      "example_words": [
+        "文字化け",
+        "文字コード"
+      ]
+    },
+    {
+      "id": "ITK-088",
+      "kanji": "字",
+      "han_viet": [
+        "Tự"
+      ],
+      "on_yomi": [
+        "ジ"
+      ],
+      "kun_yomi": [
+        "あざ",
+        "あざな",
+        "-な"
+      ],
+      "meaning_en": [
+        "character",
+        "letter",
+        "word",
+        "section of village"
+      ],
+      "strokes": 6,
+      "school_grade": 1,
+      "frequency_rank": 485,
+      "jlpt": "N4",
+      "example_words": [
+        "文字化け",
+        "文字コード"
+      ]
+    },
+    {
+      "id": "ITK-089",
+      "kanji": "単",
+      "han_viet": [
+        "Đan",
+        "Đạn",
+        "Đơn",
+        "Thiền"
+      ],
+      "on_yomi": [
+        "タン"
+      ],
+      "kun_yomi": [
+        "ひとえ"
+      ],
+      "meaning_en": [
+        "simple",
+        "one",
+        "single",
+        "merely"
+      ],
+      "strokes": 9,
+      "school_grade": 4,
+      "frequency_rank": 586,
+      "jlpt": "N3",
+      "example_words": [
+        "単体テスト"
+      ]
+    },
+    {
+      "id": "ITK-090",
+      "kanji": "体",
+      "han_viet": [
+        "Thể"
+      ],
+      "on_yomi": [
+        "タイ",
+        "テイ"
+      ],
+      "kun_yomi": [
+        "からだ",
+        "かたち"
+      ],
+      "meaning_en": [
+        "body",
+        "substance",
+        "object",
+        "reality"
+      ],
+      "strokes": 7,
+      "school_grade": 2,
+      "frequency_rank": 88,
+      "jlpt": "N4",
+      "example_words": [
+        "単体テスト",
+        "体制"
+      ]
+    },
+    {
+      "id": "ITK-091",
+      "kanji": "結",
+      "han_viet": [
+        "Kết"
+      ],
+      "on_yomi": [
+        "ケツ",
+        "ケチ"
+      ],
+      "kun_yomi": [
+        "むす.ぶ",
+        "ゆ.う",
+        "ゆ.わえる"
+      ],
+      "meaning_en": [
+        "tie",
+        "bind",
+        "contract",
+        "join"
+      ],
+      "strokes": 12,
+      "school_grade": 4,
+      "frequency_rank": 162,
+      "jlpt": "N1",
+      "example_words": [
+        "結合テスト"
+      ]
+    },
+    {
+      "id": "ITK-092",
+      "kanji": "合",
+      "han_viet": [
+        "Hợp",
+        "Cáp"
+      ],
+      "on_yomi": [
+        "ゴウ",
+        "ガッ",
+        "カッ"
+      ],
+      "kun_yomi": [
+        "あ.う",
+        "-あ.う",
+        "あ.い",
+        "あい-",
+        "-あ.い",
+        "-あい",
+        "あ.わす",
+        "あ.わせる",
+        "-あ.わせる"
+      ],
+      "meaning_en": [
+        "fit",
+        "suit",
+        "join",
+        "0.1"
+      ],
+      "strokes": 6,
+      "school_grade": 2,
+      "frequency_rank": 41,
+      "jlpt": "N3",
+      "example_words": [
+        "結合テスト",
+        "総合テスト",
+        "合否",
+        "不具合",
+        "打ち合わせ"
+      ]
+    },
+    {
+      "id": "ITK-093",
+      "kanji": "総",
+      "han_viet": [
+        "Tổng"
+      ],
+      "on_yomi": [
+        "ソウ"
+      ],
+      "kun_yomi": [
+        "す.べて",
+        "すべ.て",
+        "ふさ"
+      ],
+      "meaning_en": [
+        "general",
+        "whole",
+        "all",
+        "full"
+      ],
+      "strokes": 14,
+      "school_grade": 5,
+      "frequency_rank": 129,
+      "jlpt": "N2",
+      "example_words": [
+        "総合テスト"
+      ]
+    },
+    {
+      "id": "ITK-094",
+      "kanji": "受",
+      "han_viet": [
+        "Thụ"
+      ],
+      "on_yomi": [
+        "ジュ"
+      ],
+      "kun_yomi": [
+        "う.ける",
+        "-う.け",
+        "う.かる"
+      ],
+      "meaning_en": [
+        "accept",
+        "undergo",
+        "answer (phone)",
+        "take"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 136,
+      "jlpt": "N3",
+      "example_words": [
+        "受入テスト"
+      ]
+    },
+    {
+      "id": "ITK-095",
+      "kanji": "回",
+      "han_viet": [
+        "Hồi",
+        "Hối"
+      ],
+      "on_yomi": [
+        "カイ",
+        "エ"
+      ],
+      "kun_yomi": [
+        "まわ.る",
+        "-まわ.る",
+        "-まわ.り",
+        "まわ.す",
+        "-まわ.す",
+        "まわ.し-",
+        "-まわ.し",
+        "もとお.る",
+        "か.える"
+      ],
+      "meaning_en": [
+        "-times",
+        "round",
+        "game",
+        "revolve"
+      ],
+      "strokes": 6,
+      "school_grade": 2,
+      "frequency_rank": 50,
+      "jlpt": "N3",
+      "example_words": [
+        "回帰テスト",
+        "回答"
+      ]
+    },
+    {
+      "id": "ITK-096",
+      "kanji": "帰",
+      "han_viet": [
+        "Quy"
+      ],
+      "on_yomi": [
+        "キ"
+      ],
+      "kun_yomi": [
+        "かえ.る",
+        "かえ.す",
+        "おく.る",
+        "とつ.ぐ"
+      ],
+      "meaning_en": [
+        "homecoming",
+        "arrive at",
+        "lead to",
+        "result in"
+      ],
+      "strokes": 10,
+      "school_grade": 2,
+      "frequency_rank": 504,
+      "jlpt": "N4",
+      "example_words": [
+        "回帰テスト"
+      ]
+    },
+    {
+      "id": "ITK-097",
+      "kanji": "観",
+      "han_viet": [
+        "Quan",
+        "Quán"
+      ],
+      "on_yomi": [
+        "カン"
+      ],
+      "kun_yomi": [
+        "み.る",
+        "しめ.す"
+      ],
+      "meaning_en": [
+        "outlook",
+        "look",
+        "appearance",
+        "condition"
+      ],
+      "strokes": 18,
+      "school_grade": 4,
+      "frequency_rank": 476,
+      "jlpt": "N3",
+      "example_words": [
+        "テスト観点"
+      ]
+    },
+    {
+      "id": "ITK-098",
+      "kanji": "点",
+      "han_viet": [
+        "Điểm"
+      ],
+      "on_yomi": [
+        "テン"
+      ],
+      "kun_yomi": [
+        "つ.ける",
+        "つ.く",
+        "た.てる",
+        "さ.す",
+        "とぼ.す",
+        "とも.す",
+        "ぼち"
+      ],
+      "meaning_en": [
+        "spot",
+        "point",
+        "mark",
+        "speck"
+      ],
+      "strokes": 9,
+      "school_grade": 2,
+      "frequency_rank": 165,
+      "jlpt": "N3",
+      "example_words": [
+        "テスト観点"
+      ]
+    },
+    {
+      "id": "ITK-099",
+      "kanji": "待",
+      "han_viet": [
+        "Đãi"
+      ],
+      "on_yomi": [
+        "タイ"
+      ],
+      "kun_yomi": [
+        "ま.つ",
+        "-ま.ち"
+      ],
+      "meaning_en": [
+        "wait",
+        "depend on"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 391,
+      "jlpt": "N4",
+      "example_words": [
+        "期待値"
+      ]
+    },
+    {
+      "id": "ITK-100",
+      "kanji": "績",
+      "han_viet": [
+        "Tích"
+      ],
+      "on_yomi": [
+        "セキ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "exploits",
+        "achievements",
+        "unreeling cocoons"
+      ],
+      "strokes": 17,
+      "school_grade": 5,
+      "frequency_rank": 820,
+      "jlpt": "N2",
+      "example_words": [
+        "実績値",
+        "実績"
+      ]
+    },
+    {
+      "id": "ITK-101",
+      "kanji": "常",
+      "han_viet": [
+        "Thường"
+      ],
+      "on_yomi": [
+        "ジョウ"
+      ],
+      "kun_yomi": [
+        "つね",
+        "とこ-"
+      ],
+      "meaning_en": [
+        "usual",
+        "ordinary",
+        "normal",
+        "common"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 293,
+      "jlpt": "N3",
+      "example_words": [
+        "正常系",
+        "異常系"
+      ]
+    },
+    {
+      "id": "ITK-102",
+      "kanji": "系",
+      "han_viet": [
+        "Hệ"
+      ],
+      "on_yomi": [
+        "ケイ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "lineage",
+        "system"
+      ],
+      "strokes": 7,
+      "school_grade": 6,
+      "frequency_rank": 567,
+      "jlpt": "N1",
+      "example_words": [
+        "正常系",
+        "異常系"
+      ]
+    },
+    {
+      "id": "ITK-103",
+      "kanji": "異",
+      "han_viet": [
+        "Dị"
+      ],
+      "on_yomi": [
+        "イ"
+      ],
+      "kun_yomi": [
+        "こと",
+        "こと.なる",
+        "け"
+      ],
+      "meaning_en": [
+        "uncommon",
+        "different",
+        "queerness",
+        "strangeness"
+      ],
+      "strokes": 11,
+      "school_grade": 6,
+      "frequency_rank": 631,
+      "jlpt": "N1",
+      "example_words": [
+        "異常系"
+      ]
+    },
+    {
+      "id": "ITK-104",
+      "kanji": "界",
+      "han_viet": [
+        "Giới"
+      ],
+      "on_yomi": [
+        "カイ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "world",
+        "boundary"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 158,
+      "jlpt": "N4",
+      "example_words": [
+        "境界値"
+      ]
+    },
+    {
+      "id": "ITK-105",
+      "kanji": "網",
+      "han_viet": [
+        "Võng"
+      ],
+      "on_yomi": [
+        "モウ"
+      ],
+      "kun_yomi": [
+        "あみ"
+      ],
+      "meaning_en": [
+        "netting",
+        "network"
+      ],
+      "strokes": 14,
+      "school_grade": 8,
+      "frequency_rank": 1194,
+      "jlpt": "N1",
+      "example_words": [
+        "網羅",
+        "網羅率"
+      ]
+    },
+    {
+      "id": "ITK-106",
+      "kanji": "羅",
+      "han_viet": [
+        "La"
+      ],
+      "on_yomi": [
+        "ラ"
+      ],
+      "kun_yomi": [
+        "うすもの"
+      ],
+      "meaning_en": [
+        "gauze",
+        "thin silk",
+        "Rome",
+        "arrange"
+      ],
+      "strokes": 19,
+      "school_grade": 8,
+      "frequency_rank": 1831,
+      "jlpt": "N1",
+      "example_words": [
+        "網羅",
+        "網羅率"
+      ]
+    },
+    {
+      "id": "ITK-107",
+      "kanji": "率",
+      "han_viet": [
+        "Suất",
+        "Súy",
+        "Luật",
+        "Soát"
+      ],
+      "on_yomi": [
+        "ソツ",
+        "リツ",
+        "シュツ"
+      ],
+      "kun_yomi": [
+        "ひき.いる"
+      ],
+      "meaning_en": [
+        "ratio",
+        "rate",
+        "proportion",
+        "%"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 383,
+      "jlpt": "N1",
+      "example_words": [
+        "網羅率"
+      ]
+    },
+    {
+      "id": "ITK-108",
+      "kanji": "消",
+      "han_viet": [
+        "Tiêu"
+      ],
+      "on_yomi": [
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "き.える",
+        "け.す"
+      ],
+      "meaning_en": [
+        "extinguish",
+        "blow out",
+        "turn off",
+        "neutralize"
+      ],
+      "strokes": 10,
+      "school_grade": 3,
+      "frequency_rank": 345,
+      "jlpt": "N3",
+      "example_words": [
+        "消化"
+      ]
+    },
+    {
+      "id": "ITK-109",
+      "kanji": "否",
+      "han_viet": [
+        "Phủ",
+        "Bĩ"
+      ],
+      "on_yomi": [
+        "ヒ"
+      ],
+      "kun_yomi": [
+        "いな",
+        "いや"
+      ],
+      "meaning_en": [
+        "negate",
+        "no",
+        "noes",
+        "refuse"
+      ],
+      "strokes": 7,
+      "school_grade": 6,
+      "frequency_rank": 561,
+      "jlpt": "N3",
+      "example_words": [
+        "合否"
+      ]
+    },
+    {
+      "id": "ITK-110",
+      "kanji": "跡",
+      "han_viet": [
+        "Tích"
+      ],
+      "on_yomi": [
+        "セキ"
+      ],
+      "kun_yomi": [
+        "あと"
+      ],
+      "meaning_en": [
+        "tracks",
+        "mark",
+        "print",
+        "impression"
+      ],
+      "strokes": 13,
+      "school_grade": 8,
+      "frequency_rank": 953,
+      "jlpt": "N2",
+      "example_words": [
+        "証跡"
+      ]
+    },
+    {
+      "id": "ITK-111",
+      "kanji": "不",
+      "han_viet": [
+        "Bất",
+        "Phầu",
+        "Phủ",
+        "Phi"
+      ],
+      "on_yomi": [
+        "フ",
+        "ブ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "negative",
+        "non-",
+        "bad",
+        "ugly"
+      ],
+      "strokes": 4,
+      "school_grade": 4,
+      "frequency_rank": 101,
+      "jlpt": "N4",
+      "example_words": [
+        "不具合"
+      ]
+    },
+    {
+      "id": "ITK-112",
+      "kanji": "具",
+      "han_viet": [
+        "Cụ"
+      ],
+      "on_yomi": [
+        "グ"
+      ],
+      "kun_yomi": [
+        "そな.える",
+        "つぶさ.に"
+      ],
+      "meaning_en": [
+        "tool",
+        "utensil",
+        "means",
+        "possess"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 629,
+      "jlpt": "N3",
+      "example_words": [
+        "不具合"
+      ]
+    },
+    {
+      "id": "ITK-113",
+      "kanji": "障",
+      "han_viet": [
+        "Chướng"
+      ],
+      "on_yomi": [
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "さわ.る"
+      ],
+      "meaning_en": [
+        "hinder",
+        "hurt",
+        "harm"
+      ],
+      "strokes": 14,
+      "school_grade": 6,
+      "frequency_rank": 742,
+      "jlpt": "N1",
+      "example_words": [
+        "障害",
+        "障害対応"
+      ]
+    },
+    {
+      "id": "ITK-114",
+      "kanji": "害",
+      "han_viet": [
+        "Hại",
+        "Hạt"
+      ],
+      "on_yomi": [
+        "ガイ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "harm",
+        "injury"
+      ],
+      "strokes": 10,
+      "school_grade": 4,
+      "frequency_rank": 358,
+      "jlpt": "N3",
+      "example_words": [
+        "障害",
+        "障害対応"
+      ]
+    },
+    {
+      "id": "ITK-115",
+      "kanji": "現",
+      "han_viet": [
+        "Hiện"
+      ],
+      "on_yomi": [
+        "ゲン"
+      ],
+      "kun_yomi": [
+        "あらわ.れる",
+        "あらわ.す",
+        "うつつ",
+        "うつ.つ"
+      ],
+      "meaning_en": [
+        "present",
+        "existing",
+        "actual"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 85,
+      "jlpt": "N3",
+      "example_words": [
+        "現象",
+        "再現",
+        "再現手順"
+      ]
+    },
+    {
+      "id": "ITK-116",
+      "kanji": "象",
+      "han_viet": [
+        "Tượng"
+      ],
+      "on_yomi": [
+        "ショウ",
+        "ゾウ"
+      ],
+      "kun_yomi": [
+        "かたど.る"
+      ],
+      "meaning_en": [
+        "elephant",
+        "pattern after",
+        "imitate",
+        "image"
+      ],
+      "strokes": 12,
+      "school_grade": 5,
+      "frequency_rank": 394,
+      "jlpt": "N2",
+      "example_words": [
+        "現象"
+      ]
+    },
+    {
+      "id": "ITK-117",
+      "kanji": "原",
+      "han_viet": [
+        "Nguyên"
+      ],
+      "on_yomi": [
+        "ゲン"
+      ],
+      "kun_yomi": [
+        "はら"
+      ],
+      "meaning_en": [
+        "meadow",
+        "original",
+        "primitive",
+        "field"
+      ],
+      "strokes": 10,
+      "school_grade": 2,
+      "frequency_rank": 172,
+      "jlpt": "N3",
+      "example_words": [
+        "原因",
+        "原因分析"
+      ]
+    },
+    {
+      "id": "ITK-118",
+      "kanji": "因",
+      "han_viet": [
+        "Nhân"
+      ],
+      "on_yomi": [
+        "イン"
+      ],
+      "kun_yomi": [
+        "よ.る",
+        "ちな.む"
+      ],
+      "meaning_en": [
+        "cause",
+        "factor",
+        "be associated with",
+        "depend on"
+      ],
+      "strokes": 6,
+      "school_grade": 5,
+      "frequency_rank": 636,
+      "jlpt": "N3",
+      "example_words": [
+        "原因",
+        "原因分析"
+      ]
+    },
+    {
+      "id": "ITK-119",
+      "kanji": "再",
+      "han_viet": [
+        "Tái"
+      ],
+      "on_yomi": [
+        "サイ",
+        "サ"
+      ],
+      "kun_yomi": [
+        "ふたた.び"
+      ],
+      "meaning_en": [
+        "again",
+        "twice",
+        "second time"
+      ],
+      "strokes": 6,
+      "school_grade": 5,
+      "frequency_rank": 275,
+      "jlpt": "N2",
+      "example_words": [
+        "再現",
+        "再現手順",
+        "再発防止"
+      ]
+    },
+    {
+      "id": "ITK-120",
+      "kanji": "手",
+      "han_viet": [
+        "Thủ"
+      ],
+      "on_yomi": [
+        "シュ",
+        "ズ"
+      ],
+      "kun_yomi": [
+        "て",
+        "て-",
+        "-て",
+        "た-"
+      ],
+      "meaning_en": [
+        "hand"
+      ],
+      "strokes": 4,
+      "school_grade": 1,
+      "frequency_rank": 60,
+      "jlpt": "N4",
+      "example_words": [
+        "再現手順",
+        "手順書"
+      ]
+    },
+    {
+      "id": "ITK-121",
+      "kanji": "順",
+      "han_viet": [
+        "Thuận"
+      ],
+      "on_yomi": [
+        "ジュン"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "obey",
+        "order",
+        "turn",
+        "right"
+      ],
+      "strokes": 12,
+      "school_grade": 4,
+      "frequency_rank": 779,
+      "jlpt": "N2",
+      "example_words": [
+        "再現手順",
+        "手順書"
+      ]
+    },
+    {
+      "id": "ITK-122",
+      "kanji": "影",
+      "han_viet": [
+        "Ảnh"
+      ],
+      "on_yomi": [
+        "エイ"
+      ],
+      "kun_yomi": [
+        "かげ"
+      ],
+      "meaning_en": [
+        "shadow",
+        "silhouette",
+        "phantom"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 464,
+      "jlpt": "N1",
+      "example_words": [
+        "影響範囲"
+      ]
+    },
+    {
+      "id": "ITK-123",
+      "kanji": "響",
+      "han_viet": [
+        "Hưởng"
+      ],
+      "on_yomi": [
+        "キョウ"
+      ],
+      "kun_yomi": [
+        "ひび.く"
+      ],
+      "meaning_en": [
+        "echo",
+        "sound",
+        "resound",
+        "ring"
+      ],
+      "strokes": 20,
+      "school_grade": 8,
+      "frequency_rank": 502,
+      "jlpt": "N1",
+      "example_words": [
+        "影響範囲"
+      ]
+    },
+    {
+      "id": "ITK-124",
+      "kanji": "範",
+      "han_viet": [
+        "Phạm"
+      ],
+      "on_yomi": [
+        "ハン"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "pattern",
+        "example",
+        "model"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 1088,
+      "jlpt": "N1",
+      "example_words": [
+        "影響範囲"
+      ]
+    },
+    {
+      "id": "ITK-125",
+      "kanji": "囲",
+      "han_viet": [
+        "Vi"
+      ],
+      "on_yomi": [
+        "イ"
+      ],
+      "kun_yomi": [
+        "かこ.む",
+        "かこ.う",
+        "かこ.い"
+      ],
+      "meaning_en": [
+        "surround",
+        "besiege",
+        "store",
+        "paling"
+      ],
+      "strokes": 7,
+      "school_grade": 5,
+      "frequency_rank": 771,
+      "jlpt": "N2",
+      "example_words": [
+        "影響範囲"
+      ]
+    },
+    {
+      "id": "ITK-126",
+      "kanji": "対",
+      "han_viet": [
+        "Đối"
+      ],
+      "on_yomi": [
+        "タイ",
+        "ツイ"
+      ],
+      "kun_yomi": [
+        "あいて",
+        "こた.える",
+        "そろ.い",
+        "つれあ.い",
+        "なら.ぶ",
+        "むか.う"
+      ],
+      "meaning_en": [
+        "vis-a-vis",
+        "opposite",
+        "even",
+        "equal"
+      ],
+      "strokes": 7,
+      "school_grade": 3,
+      "frequency_rank": 34,
+      "jlpt": "N3",
+      "example_words": [
+        "対応",
+        "暫定対応",
+        "恒久対応",
+        "障害対応",
+        "対応中"
+      ]
+    },
+    {
+      "id": "ITK-127",
+      "kanji": "応",
+      "han_viet": [
+        "Ứng"
+      ],
+      "on_yomi": [
+        "オウ",
+        "ヨウ",
+        "-ノウ"
+      ],
+      "kun_yomi": [
+        "あた.る",
+        "まさに",
+        "こた.える"
+      ],
+      "meaning_en": [
+        "apply",
+        "answer",
+        "yes",
+        "OK"
+      ],
+      "strokes": 7,
+      "school_grade": 5,
+      "frequency_rank": 266,
+      "jlpt": "N1",
+      "example_words": [
+        "対応",
+        "暫定対応",
+        "恒久対応",
+        "障害対応",
+        "対応中"
+      ]
+    },
+    {
+      "id": "ITK-128",
+      "kanji": "暫",
+      "han_viet": [
+        "Tạm"
+      ],
+      "on_yomi": [
+        "ザン"
+      ],
+      "kun_yomi": [
+        "しばら.く"
+      ],
+      "meaning_en": [
+        "temporarily",
+        "a while",
+        "moment",
+        "long time"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 1112,
+      "jlpt": "N1",
+      "example_words": [
+        "暫定対応"
+      ]
+    },
+    {
+      "id": "ITK-129",
+      "kanji": "恒",
+      "han_viet": [
+        "Hằng",
+        "Cắng",
+        "Căng"
+      ],
+      "on_yomi": [
+        "コウ"
+      ],
+      "kun_yomi": [
+        "つね",
+        "つねに"
+      ],
+      "meaning_en": [
+        "constancy",
+        "always"
+      ],
+      "strokes": 9,
+      "school_grade": 8,
+      "frequency_rank": 1314,
+      "jlpt": "N1",
+      "example_words": [
+        "恒久対応"
+      ]
+    },
+    {
+      "id": "ITK-130",
+      "kanji": "久",
+      "han_viet": [
+        "Cửu"
+      ],
+      "on_yomi": [
+        "キュウ",
+        "ク"
+      ],
+      "kun_yomi": [
+        "ひさ.しい"
+      ],
+      "meaning_en": [
+        "long time",
+        "old story"
+      ],
+      "strokes": 3,
+      "school_grade": 5,
+      "frequency_rank": 688,
+      "jlpt": "N2",
+      "example_words": [
+        "恒久対応"
+      ]
+    },
+    {
+      "id": "ITK-131",
+      "kanji": "防",
+      "han_viet": [
+        "Phòng"
+      ],
+      "on_yomi": [
+        "ボウ"
+      ],
+      "kun_yomi": [
+        "ふせ.ぐ"
+      ],
+      "meaning_en": [
+        "ward off",
+        "defend",
+        "protect",
+        "resist"
+      ],
+      "strokes": 7,
+      "school_grade": 5,
+      "frequency_rank": 331,
+      "jlpt": "N2",
+      "example_words": [
+        "再発防止"
+      ]
+    },
+    {
+      "id": "ITK-132",
+      "kanji": "止",
+      "han_viet": [
+        "Chỉ"
+      ],
+      "on_yomi": [
+        "シ"
+      ],
+      "kun_yomi": [
+        "と.まる",
+        "-ど.まり",
+        "と.める",
+        "-と.める",
+        "-ど.め",
+        "とど.める",
+        "とど.め",
+        "とど.まる",
+        "や.める",
+        "や.む",
+        "-や.む",
+        "よ.す",
+        "-さ.す",
+        "-さ.し"
+      ],
+      "meaning_en": [
+        "stop",
+        "halt"
+      ],
+      "strokes": 4,
+      "school_grade": 2,
+      "frequency_rank": 310,
+      "jlpt": "N4",
+      "example_words": [
+        "再発防止",
+        "停止"
+      ]
+    },
+    {
+      "id": "ITK-133",
+      "kanji": "品",
+      "han_viet": [
+        "Phẩm"
+      ],
+      "on_yomi": [
+        "ヒン",
+        "ホン"
+      ],
+      "kun_yomi": [
+        "しな"
+      ],
+      "meaning_en": [
+        "goods",
+        "refinement",
+        "dignity",
+        "article"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 225,
+      "jlpt": "N4",
+      "example_words": [
+        "品質",
+        "納品"
+      ]
+    },
+    {
+      "id": "ITK-134",
+      "kanji": "質",
+      "han_viet": [
+        "Chất",
+        "Chí"
+      ],
+      "on_yomi": [
+        "シツ",
+        "シチ",
+        "チ"
+      ],
+      "kun_yomi": [
+        "たち",
+        "ただ.す",
+        "もと",
+        "わりふ"
+      ],
+      "meaning_en": [
+        "substance",
+        "quality",
+        "matter",
+        "temperament"
+      ],
+      "strokes": 15,
+      "school_grade": 5,
+      "frequency_rank": 389,
+      "jlpt": "N4",
+      "example_words": [
+        "品質"
+      ]
+    },
+    {
+      "id": "ITK-135",
+      "kanji": "指",
+      "han_viet": [
+        "Chỉ"
+      ],
+      "on_yomi": [
+        "シ"
+      ],
+      "kun_yomi": [
+        "ゆび",
+        "さ.す",
+        "-さ.し"
+      ],
+      "meaning_en": [
+        "finger",
+        "point to",
+        "indicate",
+        "put into"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 155,
+      "jlpt": "N3",
+      "example_words": [
+        "指摘"
+      ]
+    },
+    {
+      "id": "ITK-136",
+      "kanji": "摘",
+      "han_viet": [
+        "Trích"
+      ],
+      "on_yomi": [
+        "テキ"
+      ],
+      "kun_yomi": [
+        "つ.む"
+      ],
+      "meaning_en": [
+        "pinch",
+        "pick",
+        "pluck",
+        "trim"
+      ],
+      "strokes": 14,
+      "school_grade": 8,
+      "frequency_rank": 564,
+      "jlpt": "N1",
+      "example_words": [
+        "指摘"
+      ]
+    },
+    {
+      "id": "ITK-137",
+      "kanji": "課",
+      "han_viet": [
+        "Khóa"
+      ],
+      "on_yomi": [
+        "カ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "chapter",
+        "lesson",
+        "section",
+        "department"
+      ],
+      "strokes": 15,
+      "school_grade": 4,
+      "frequency_rank": 455,
+      "jlpt": "N2",
+      "example_words": [
+        "課題"
+      ]
+    },
+    {
+      "id": "ITK-138",
+      "kanji": "題",
+      "han_viet": [
+        "Đề"
+      ],
+      "on_yomi": [
+        "ダイ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "topic",
+        "subject"
+      ],
+      "strokes": 18,
+      "school_grade": 3,
+      "frequency_rank": 96,
+      "jlpt": "N4",
+      "example_words": [
+        "課題"
+      ]
+    },
+    {
+      "id": "ITK-139",
+      "kanji": "析",
+      "han_viet": [
+        "Tích"
+      ],
+      "on_yomi": [
+        "セキ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "chop",
+        "divide",
+        "tear",
+        "analyze"
+      ],
+      "strokes": 8,
+      "school_grade": 8,
+      "frequency_rank": 980,
+      "jlpt": "N1",
+      "example_words": [
+        "原因分析"
+      ]
+    },
+    {
+      "id": "ITK-140",
+      "kanji": "切",
+      "han_viet": [
+        "Thiết",
+        "Thế"
+      ],
+      "on_yomi": [
+        "セツ",
+        "サイ"
+      ],
+      "kun_yomi": [
+        "き.る",
+        "-き.る",
+        "き.り",
+        "-き.り",
+        "-ぎ.り",
+        "き.れる",
+        "-き.れる",
+        "き.れ",
+        "-き.れ",
+        "-ぎ.れ"
+      ],
+      "meaning_en": [
+        "cut",
+        "cutoff",
+        "be sharp"
+      ],
+      "strokes": 4,
+      "school_grade": 2,
+      "frequency_rank": 324,
+      "jlpt": "N4",
+      "example_words": [
+        "切り分け",
+        "切り戻し",
+        "締め切り"
+      ]
+    },
+    {
+      "id": "ITK-141",
+      "kanji": "行",
+      "han_viet": [
+        "Hành",
+        "Hạnh",
+        "Hàng",
+        "Hạng"
+      ],
+      "on_yomi": [
+        "コウ",
+        "ギョウ",
+        "アン"
+      ],
+      "kun_yomi": [
+        "い.く",
+        "ゆ.く",
+        "-ゆ.き",
+        "-ゆき",
+        "-い.き",
+        "-いき",
+        "おこな.う",
+        "おこ.なう"
+      ],
+      "meaning_en": [
+        "going",
+        "journey",
+        "carry out",
+        "conduct"
+      ],
+      "strokes": 6,
+      "school_grade": 2,
+      "frequency_rank": 20,
+      "jlpt": "N5",
+      "example_words": [
+        "移行"
+      ]
+    },
+    {
+      "id": "ITK-142",
+      "kanji": "運",
+      "han_viet": [
+        "Vận"
+      ],
+      "on_yomi": [
+        "ウン"
+      ],
+      "kun_yomi": [
+        "はこ.ぶ"
+      ],
+      "meaning_en": [
+        "carry",
+        "luck",
+        "destiny",
+        "fate"
+      ],
+      "strokes": 12,
+      "school_grade": 3,
+      "frequency_rank": 255,
+      "jlpt": "N4",
+      "example_words": [
+        "運用"
+      ]
+    },
+    {
+      "id": "ITK-143",
+      "kanji": "用",
+      "han_viet": [
+        "Dụng"
+      ],
+      "on_yomi": [
+        "ヨウ"
+      ],
+      "kun_yomi": [
+        "もち.いる"
+      ],
+      "meaning_en": [
+        "utilize",
+        "business",
+        "service",
+        "use"
+      ],
+      "strokes": 5,
+      "school_grade": 2,
+      "frequency_rank": 107,
+      "jlpt": "N4",
+      "example_words": [
+        "運用"
+      ]
+    },
+    {
+      "id": "ITK-144",
+      "kanji": "保",
+      "han_viet": [
+        "Bảo"
+      ],
+      "on_yomi": [
+        "ホ",
+        "ホウ"
+      ],
+      "kun_yomi": [
+        "たも.つ"
+      ],
+      "meaning_en": [
+        "protect",
+        "guarantee",
+        "keep",
+        "preserve"
+      ],
+      "strokes": 9,
+      "school_grade": 5,
+      "frequency_rank": 146,
+      "jlpt": "N1",
+      "example_words": [
+        "保守"
+      ]
+    },
+    {
+      "id": "ITK-145",
+      "kanji": "守",
+      "han_viet": [
+        "Thủ",
+        "Thú"
+      ],
+      "on_yomi": [
+        "シュ",
+        "ス"
+      ],
+      "kun_yomi": [
+        "まも.る",
+        "まも.り",
+        "もり",
+        "-もり",
+        "かみ"
+      ],
+      "meaning_en": [
+        "guard",
+        "protect",
+        "defend",
+        "obey"
+      ],
+      "strokes": 6,
+      "school_grade": 3,
+      "frequency_rank": 457,
+      "jlpt": "N3",
+      "example_words": [
+        "保守"
+      ]
+    },
+    {
+      "id": "ITK-146",
+      "kanji": "監",
+      "han_viet": [
+        "Giam",
+        "Giám"
+      ],
+      "on_yomi": [
+        "カン"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "oversee",
+        "official",
+        "govt office",
+        "rule"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 408,
+      "jlpt": "N1",
+      "example_words": [
+        "監視"
+      ]
+    },
+    {
+      "id": "ITK-147",
+      "kanji": "視",
+      "han_viet": [
+        "Thị"
+      ],
+      "on_yomi": [
+        "シ"
+      ],
+      "kun_yomi": [
+        "み.る"
+      ],
+      "meaning_en": [
+        "inspection",
+        "regard as",
+        "see",
+        "look at"
+      ],
+      "strokes": 11,
+      "school_grade": 6,
+      "frequency_rank": 362,
+      "jlpt": "N1",
+      "example_words": [
+        "監視"
+      ]
+    },
+    {
+      "id": "ITK-148",
+      "kanji": "稼",
+      "han_viet": [
+        "Giá"
+      ],
+      "on_yomi": [
+        "カ"
+      ],
+      "kun_yomi": [
+        "かせ.ぐ"
+      ],
+      "meaning_en": [
+        "earnings",
+        "work",
+        "earn money"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 1264,
+      "jlpt": "N1",
+      "example_words": [
+        "稼働"
+      ]
+    },
+    {
+      "id": "ITK-149",
+      "kanji": "働",
+      "han_viet": [
+        "Động"
+      ],
+      "on_yomi": [
+        "ドウ"
+      ],
+      "kun_yomi": [
+        "はたら.く"
+      ],
+      "meaning_en": [
+        "work",
+        "(kokuji)"
+      ],
+      "strokes": 13,
+      "school_grade": 4,
+      "frequency_rank": 417,
+      "jlpt": "N3",
+      "example_words": [
+        "稼働"
+      ]
+    },
+    {
+      "id": "ITK-150",
+      "kanji": "停",
+      "han_viet": [
+        "Đình"
+      ],
+      "on_yomi": [
+        "テイ"
+      ],
+      "kun_yomi": [
+        "と.める",
+        "と.まる"
+      ],
+      "meaning_en": [
+        "halt",
+        "stopping"
+      ],
+      "strokes": 11,
+      "school_grade": 5,
+      "frequency_rank": 733,
+      "jlpt": "N2",
+      "example_words": [
+        "停止"
+      ]
+    },
+    {
+      "id": "ITK-151",
+      "kanji": "復",
+      "han_viet": [
+        "Phục",
+        "Phúc"
+      ],
+      "on_yomi": [
+        "フク"
+      ],
+      "kun_yomi": [
+        "また"
+      ],
+      "meaning_en": [
+        "restore",
+        "return to",
+        "revert",
+        "resume"
+      ],
+      "strokes": 12,
+      "school_grade": 5,
+      "frequency_rank": 438,
+      "jlpt": "N2",
+      "example_words": [
+        "復旧"
+      ]
+    },
+    {
+      "id": "ITK-152",
+      "kanji": "旧",
+      "han_viet": [
+        "Cựu",
+        "Cậu"
+      ],
+      "on_yomi": [
+        "キュウ"
+      ],
+      "kun_yomi": [
+        "ふる.い",
+        "もと"
+      ],
+      "meaning_en": [
+        "old times",
+        "old things",
+        "old friend",
+        "former"
+      ],
+      "strokes": 5,
+      "school_grade": 5,
+      "frequency_rank": 549,
+      "jlpt": "N2",
+      "example_words": [
+        "復旧"
+      ]
+    },
+    {
+      "id": "ITK-153",
+      "kanji": "負",
+      "han_viet": [
+        "Phụ"
+      ],
+      "on_yomi": [
+        "フ"
+      ],
+      "kun_yomi": [
+        "ま.ける",
+        "ま.かす",
+        "お.う"
+      ],
+      "meaning_en": [
+        "defeat",
+        "negative",
+        "-",
+        "minus"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 443,
+      "jlpt": "N3",
+      "example_words": [
+        "負荷"
+      ]
+    },
+    {
+      "id": "ITK-154",
+      "kanji": "荷",
+      "han_viet": [
+        "Hà"
+      ],
+      "on_yomi": [
+        "カ"
+      ],
+      "kun_yomi": [
+        "に"
+      ],
+      "meaning_en": [
+        "baggage",
+        "shoulder-pole load",
+        "bear (a burden)",
+        "shoulder (a gun)"
+      ],
+      "strokes": 10,
+      "school_grade": 3,
+      "frequency_rank": 1230,
+      "jlpt": "N2",
+      "example_words": [
+        "負荷"
+      ]
+    },
+    {
+      "id": "ITK-155",
+      "kanji": "性",
+      "han_viet": [
+        "Tính"
+      ],
+      "on_yomi": [
+        "セイ",
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "さが"
+      ],
+      "meaning_en": [
+        "sex",
+        "gender",
+        "nature"
+      ],
+      "strokes": 8,
+      "school_grade": 5,
+      "frequency_rank": 104,
+      "jlpt": "N3",
+      "example_words": [
+        "性能"
+      ]
+    },
+    {
+      "id": "ITK-156",
+      "kanji": "容",
+      "han_viet": [
+        "Dong"
+      ],
+      "on_yomi": [
+        "ヨウ"
+      ],
+      "kun_yomi": [
+        "い.れる"
+      ],
+      "meaning_en": [
+        "contain",
+        "form",
+        "looks"
+      ],
+      "strokes": 10,
+      "school_grade": 5,
+      "frequency_rank": 264,
+      "jlpt": "N3",
+      "example_words": [
+        "容量"
+      ]
+    },
+    {
+      "id": "ITK-157",
+      "kanji": "量",
+      "han_viet": [
+        "Lượng",
+        "Lương"
+      ],
+      "on_yomi": [
+        "リョウ"
+      ],
+      "kun_yomi": [
+        "はか.る"
+      ],
+      "meaning_en": [
+        "quantity",
+        "measure",
+        "weight",
+        "amount"
+      ],
+      "strokes": 12,
+      "school_grade": 4,
+      "frequency_rank": 469,
+      "jlpt": "N2",
+      "example_words": [
+        "容量"
+      ]
+    },
+    {
+      "id": "ITK-158",
+      "kanji": "進",
+      "han_viet": [
+        "Tiến"
+      ],
+      "on_yomi": [
+        "シン"
+      ],
+      "kun_yomi": [
+        "すす.む",
+        "すす.める"
+      ],
+      "meaning_en": [
+        "advance",
+        "proceed",
+        "progress",
+        "promote"
+      ],
+      "strokes": 11,
+      "school_grade": 3,
+      "frequency_rank": 142,
+      "jlpt": "N3",
+      "example_words": [
+        "進捗"
+      ]
+    },
+    {
+      "id": "ITK-159",
+      "kanji": "捗",
+      "han_viet": [
+        "Duệ"
+      ],
+      "on_yomi": [
+        "チョク",
+        "ホ"
+      ],
+      "kun_yomi": [
+        "はかど.る"
+      ],
+      "meaning_en": [
+        "make progress"
+      ],
+      "strokes": 10,
+      "school_grade": 8,
+      "frequency_rank": null,
+      "jlpt": null,
+      "example_words": [
+        "進捗"
+      ],
+      "jlpt_note": "Ngoài danh sách JLPT ước lượng."
+    },
+    {
+      "id": "ITK-160",
+      "kanji": "工",
+      "han_viet": [
+        "Công"
+      ],
+      "on_yomi": [
+        "コウ",
+        "ク",
+        "グ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "craft",
+        "construction",
+        "katakana e radical (no. 48)"
+      ],
+      "strokes": 3,
+      "school_grade": 2,
+      "frequency_rank": 299,
+      "jlpt": "N4",
+      "example_words": [
+        "工数",
+        "工程"
+      ]
+    },
+    {
+      "id": "ITK-161",
+      "kanji": "見",
+      "han_viet": [
+        "Kiến",
+        "Hiện"
+      ],
+      "on_yomi": [
+        "ケン"
+      ],
+      "kun_yomi": [
+        "み.る",
+        "み.える",
+        "み.せる"
+      ],
+      "meaning_en": [
+        "see",
+        "hopes",
+        "chances",
+        "idea"
+      ],
+      "strokes": 7,
+      "school_grade": 1,
+      "frequency_rank": 22,
+      "jlpt": "N5",
+      "example_words": [
+        "見積もり"
+      ]
+    },
+    {
+      "id": "ITK-162",
+      "kanji": "積",
+      "han_viet": [
+        "Tích",
+        "Tí"
+      ],
+      "on_yomi": [
+        "セキ"
+      ],
+      "kun_yomi": [
+        "つ.む",
+        "-づ.み",
+        "つ.もる",
+        "つ.もり"
+      ],
+      "meaning_en": [
+        "volume",
+        "product (x*y)",
+        "acreage",
+        "contents"
+      ],
+      "strokes": 16,
+      "school_grade": 4,
+      "frequency_rank": 541,
+      "jlpt": "N3",
+      "example_words": [
+        "見積もり"
+      ]
+    },
+    {
+      "id": "ITK-163",
+      "kanji": "納",
+      "han_viet": [
+        "Nạp"
+      ],
+      "on_yomi": [
+        "ノウ",
+        "ナッ",
+        "ナ",
+        "ナン",
+        "トウ"
+      ],
+      "kun_yomi": [
+        "おさ.める",
+        "-おさ.める",
+        "おさ.まる"
+      ],
+      "meaning_en": [
+        "settlement",
+        "obtain",
+        "reap",
+        "pay"
+      ],
+      "strokes": 10,
+      "school_grade": 6,
+      "frequency_rank": 987,
+      "jlpt": "N1",
+      "example_words": [
+        "納期",
+        "納品"
+      ]
+    },
+    {
+      "id": "ITK-164",
+      "kanji": "成",
+      "han_viet": [
+        "Thành"
+      ],
+      "on_yomi": [
+        "セイ",
+        "ジョウ"
+      ],
+      "kun_yomi": [
+        "な.る",
+        "な.す",
+        "-な.す"
+      ],
+      "meaning_en": [
+        "turn into",
+        "become",
+        "get",
+        "grow"
+      ],
+      "strokes": 6,
+      "school_grade": 4,
+      "frequency_rank": 116,
+      "jlpt": "N3",
+      "example_words": [
+        "成果物"
+      ]
+    },
+    {
+      "id": "ITK-165",
+      "kanji": "果",
+      "han_viet": [
+        "Quả"
+      ],
+      "on_yomi": [
+        "カ"
+      ],
+      "kun_yomi": [
+        "は.たす",
+        "はた.す",
+        "-は.たす",
+        "は.てる",
+        "-は.てる",
+        "は.て"
+      ],
+      "meaning_en": [
+        "fruit",
+        "reward",
+        "carry out",
+        "achieve"
+      ],
+      "strokes": 8,
+      "school_grade": 4,
+      "frequency_rank": 258,
+      "jlpt": "N3",
+      "example_words": [
+        "成果物"
+      ]
+    },
+    {
+      "id": "ITK-166",
+      "kanji": "物",
+      "han_viet": [
+        "Vật"
+      ],
+      "on_yomi": [
+        "ブツ",
+        "モツ"
+      ],
+      "kun_yomi": [
+        "もの",
+        "もの-"
+      ],
+      "meaning_en": [
+        "thing",
+        "object",
+        "matter"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 215,
+      "jlpt": "N4",
+      "example_words": [
+        "成果物"
+      ]
+    },
+    {
+      "id": "ITK-167",
+      "kanji": "程",
+      "han_viet": [
+        "Trình"
+      ],
+      "on_yomi": [
+        "テイ"
+      ],
+      "kun_yomi": [
+        "ほど",
+        "-ほど"
+      ],
+      "meaning_en": [
+        "extent",
+        "degree",
+        "law",
+        "formula"
+      ],
+      "strokes": 12,
+      "school_grade": 5,
+      "frequency_rank": 514,
+      "jlpt": "N3",
+      "example_words": [
+        "工程"
+      ]
+    },
+    {
+      "id": "ITK-168",
+      "kanji": "予",
+      "han_viet": [
+        "Dư",
+        "Dữ"
+      ],
+      "on_yomi": [
+        "ヨ",
+        "シャ"
+      ],
+      "kun_yomi": [
+        "あらかじ.め"
+      ],
+      "meaning_en": [
+        "beforehand",
+        "previous",
+        "myself",
+        "I"
+      ],
+      "strokes": 4,
+      "school_grade": 3,
+      "frequency_rank": 180,
+      "jlpt": "N3",
+      "example_words": [
+        "予定"
+      ]
+    },
+    {
+      "id": "ITK-169",
+      "kanji": "遅",
+      "han_viet": [
+        "Trì"
+      ],
+      "on_yomi": [
+        "チ"
+      ],
+      "kun_yomi": [
+        "おく.れる",
+        "おく.らす",
+        "おそ.い"
+      ],
+      "meaning_en": [
+        "slow",
+        "late",
+        "back",
+        "later"
+      ],
+      "strokes": 12,
+      "school_grade": 8,
+      "frequency_rank": 833,
+      "jlpt": "N3",
+      "example_words": [
+        "遅延"
+      ]
+    },
+    {
+      "id": "ITK-170",
+      "kanji": "延",
+      "han_viet": [
+        "Duyên"
+      ],
+      "on_yomi": [
+        "エン"
+      ],
+      "kun_yomi": [
+        "の.びる",
+        "の.べる",
+        "の.べ",
+        "の.ばす"
+      ],
+      "meaning_en": [
+        "prolong",
+        "stretching"
+      ],
+      "strokes": 8,
+      "school_grade": 6,
+      "frequency_rank": 747,
+      "jlpt": "N2",
+      "example_words": [
+        "遅延"
+      ]
+    },
+    {
+      "id": "ITK-171",
+      "kanji": "前",
+      "han_viet": [
+        "Tiền"
+      ],
+      "on_yomi": [
+        "ゼン"
+      ],
+      "kun_yomi": [
+        "まえ",
+        "-まえ"
+      ],
+      "meaning_en": [
+        "in front",
+        "before"
+      ],
+      "strokes": 9,
+      "school_grade": 2,
+      "frequency_rank": 27,
+      "jlpt": "N5",
+      "example_words": [
+        "前倒し"
+      ]
+    },
+    {
+      "id": "ITK-172",
+      "kanji": "倒",
+      "han_viet": [
+        "Đảo"
+      ],
+      "on_yomi": [
+        "トウ"
+      ],
+      "kun_yomi": [
+        "たお.れる",
+        "-だお.れ",
+        "たお.す",
+        "さかさま",
+        "さかさ",
+        "さかしま"
+      ],
+      "meaning_en": [
+        "overthrow",
+        "fall",
+        "collapse",
+        "drop"
+      ],
+      "strokes": 10,
+      "school_grade": 8,
+      "frequency_rank": 791,
+      "jlpt": "N3",
+      "example_words": [
+        "前倒し",
+        "後ろ倒し"
+      ]
+    },
+    {
+      "id": "ITK-173",
+      "kanji": "後",
+      "han_viet": [
+        "Hậu",
+        "Hấu"
+      ],
+      "on_yomi": [
+        "ゴ",
+        "コウ"
+      ],
+      "kun_yomi": [
+        "のち",
+        "うし.ろ",
+        "うしろ",
+        "あと",
+        "おく.れる"
+      ],
+      "meaning_en": [
+        "behind",
+        "back",
+        "later"
+      ],
+      "strokes": 9,
+      "school_grade": 2,
+      "frequency_rank": 26,
+      "jlpt": "N5",
+      "example_words": [
+        "後ろ倒し"
+      ]
+    },
+    {
+      "id": "ITK-174",
+      "kanji": "優",
+      "han_viet": [
+        "Ưu"
+      ],
+      "on_yomi": [
+        "ユウ",
+        "ウ"
+      ],
+      "kun_yomi": [
+        "やさ.しい",
+        "すぐ.れる",
+        "まさ.る"
+      ],
+      "meaning_en": [
+        "tenderness",
+        "excel",
+        "surpass",
+        "actor"
+      ],
+      "strokes": 17,
+      "school_grade": 6,
+      "frequency_rank": 334,
+      "jlpt": "N3",
+      "example_words": [
+        "優先度"
+      ]
+    },
+    {
+      "id": "ITK-175",
+      "kanji": "先",
+      "han_viet": [
+        "Tiên",
+        "Tiến"
+      ],
+      "on_yomi": [
+        "セン"
+      ],
+      "kun_yomi": [
+        "さき",
+        "ま.ず"
+      ],
+      "meaning_en": [
+        "before",
+        "ahead",
+        "previous",
+        "future"
+      ],
+      "strokes": 6,
+      "school_grade": 1,
+      "frequency_rank": 173,
+      "jlpt": "N5",
+      "example_words": [
+        "優先度"
+      ]
+    },
+    {
+      "id": "ITK-176",
+      "kanji": "度",
+      "han_viet": [
+        "Độ",
+        "Đạc"
+      ],
+      "on_yomi": [
+        "ド",
+        "ト",
+        "タク"
+      ],
+      "kun_yomi": [
+        "たび",
+        "-た.い"
+      ],
+      "meaning_en": [
+        "degrees",
+        "occurrence",
+        "time",
+        "counter for occurrences"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 110,
+      "jlpt": "N4",
+      "example_words": [
+        "優先度"
+      ]
+    },
+    {
+      "id": "ITK-177",
+      "kanji": "担",
+      "han_viet": [
+        "Đam",
+        "Đảm",
+        "Đãn",
+        "Đản",
+        "Đẵm",
+        "Đán",
+        "Đắn",
+        "Đẵn",
+        "Dằng",
+        "Đét",
+        "Đởm",
+        "Dứt",
+        "Đứt",
+        "Tạ"
+      ],
+      "on_yomi": [
+        "タン"
+      ],
+      "kun_yomi": [
+        "かつ.ぐ",
+        "にな.う"
+      ],
+      "meaning_en": [
+        "shouldering",
+        "carry",
+        "raise",
+        "bear"
+      ],
+      "strokes": 8,
+      "school_grade": 6,
+      "frequency_rank": 422,
+      "jlpt": "N2",
+      "example_words": [
+        "担当者"
+      ]
+    },
+    {
+      "id": "ITK-178",
+      "kanji": "当",
+      "han_viet": [
+        "Đang",
+        "Đáng",
+        "Đương"
+      ],
+      "on_yomi": [
+        "トウ"
+      ],
+      "kun_yomi": [
+        "あ.たる",
+        "あ.たり",
+        "あ.てる",
+        "あ.て",
+        "まさ.に",
+        "まさ.にべし"
+      ],
+      "meaning_en": [
+        "hit",
+        "right",
+        "appropriate",
+        "himself"
+      ],
+      "strokes": 6,
+      "school_grade": 2,
+      "frequency_rank": 91,
+      "jlpt": "N3",
+      "example_words": [
+        "担当者"
+      ]
+    },
+    {
+      "id": "ITK-179",
+      "kanji": "者",
+      "han_viet": [
+        "Giả"
+      ],
+      "on_yomi": [
+        "シャ"
+      ],
+      "kun_yomi": [
+        "もの"
+      ],
+      "meaning_en": [
+        "someone",
+        "person"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 38,
+      "jlpt": "N4",
+      "example_words": [
+        "担当者"
+      ]
+    },
+    {
+      "id": "ITK-180",
+      "kanji": "締",
+      "han_viet": [
+        "Đề"
+      ],
+      "on_yomi": [
+        "テイ"
+      ],
+      "kun_yomi": [
+        "し.まる",
+        "し.まり",
+        "し.める",
+        "-し.め",
+        "-じ.め"
+      ],
+      "meaning_en": [
+        "tighten",
+        "tie",
+        "shut",
+        "lock"
+      ],
+      "strokes": 15,
+      "school_grade": 8,
+      "frequency_rank": 797,
+      "jlpt": "N1",
+      "example_words": [
+        "締め切り"
+      ]
+    },
+    {
+      "id": "ITK-181",
+      "kanji": "管",
+      "han_viet": [
+        "Quản"
+      ],
+      "on_yomi": [
+        "カン"
+      ],
+      "kun_yomi": [
+        "くだ"
+      ],
+      "meaning_en": [
+        "pipe",
+        "tube",
+        "wind instrument",
+        "drunken talk"
+      ],
+      "strokes": 14,
+      "school_grade": 4,
+      "frequency_rank": 517,
+      "jlpt": "N2",
+      "example_words": [
+        "変更管理"
+      ]
+    },
+    {
+      "id": "ITK-182",
+      "kanji": "報",
+      "han_viet": [
+        "Báo"
+      ],
+      "on_yomi": [
+        "ホウ"
+      ],
+      "kun_yomi": [
+        "むく.いる"
+      ],
+      "meaning_en": [
+        "report",
+        "news",
+        "reward",
+        "retribution"
+      ],
+      "strokes": 12,
+      "school_grade": 5,
+      "frequency_rank": 167,
+      "jlpt": "N3",
+      "example_words": [
+        "報告"
+      ]
+    },
+    {
+      "id": "ITK-183",
+      "kanji": "告",
+      "han_viet": [
+        "Cáo",
+        "Cốc",
+        "Cáu",
+        "Kiếu"
+      ],
+      "on_yomi": [
+        "コク"
+      ],
+      "kun_yomi": [
+        "つ.げる"
+      ],
+      "meaning_en": [
+        "revelation",
+        "tell",
+        "inform",
+        "announce"
+      ],
+      "strokes": 7,
+      "school_grade": 5,
+      "frequency_rank": 188,
+      "jlpt": "N3",
+      "example_words": [
+        "報告"
+      ]
+    },
+    {
+      "id": "ITK-184",
+      "kanji": "連",
+      "han_viet": [
+        "Liên"
+      ],
+      "on_yomi": [
+        "レン"
+      ],
+      "kun_yomi": [
+        "つら.なる",
+        "つら.ねる",
+        "つ.れる",
+        "-づ.れ"
+      ],
+      "meaning_en": [
+        "take along",
+        "lead",
+        "join",
+        "connect"
+      ],
+      "strokes": 10,
+      "school_grade": 4,
+      "frequency_rank": 30,
+      "jlpt": "N3",
+      "example_words": [
+        "連絡"
+      ]
+    },
+    {
+      "id": "ITK-185",
+      "kanji": "絡",
+      "han_viet": [
+        "Lạc"
+      ],
+      "on_yomi": [
+        "ラク"
+      ],
+      "kun_yomi": [
+        "から.む",
+        "から.まる"
+      ],
+      "meaning_en": [
+        "entwine",
+        "coil around",
+        "get caught in"
+      ],
+      "strokes": 12,
+      "school_grade": 8,
+      "frequency_rank": 806,
+      "jlpt": "N2",
+      "example_words": [
+        "連絡"
+      ]
+    },
+    {
+      "id": "ITK-186",
+      "kanji": "相",
+      "han_viet": [
+        "Tương",
+        "Tướng"
+      ],
+      "on_yomi": [
+        "ソウ",
+        "ショウ"
+      ],
+      "kun_yomi": [
+        "あい-"
+      ],
+      "meaning_en": [
+        "inter-",
+        "mutual",
+        "together",
+        "each other"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 45,
+      "jlpt": "N3",
+      "example_words": [
+        "相談"
+      ]
+    },
+    {
+      "id": "ITK-187",
+      "kanji": "談",
+      "han_viet": [
+        "Đàm"
+      ],
+      "on_yomi": [
+        "ダン"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "discuss",
+        "talk"
+      ],
+      "strokes": 15,
+      "school_grade": 3,
+      "frequency_rank": 272,
+      "jlpt": "N3",
+      "example_words": [
+        "相談"
+      ]
+    },
+    {
+      "id": "ITK-188",
+      "kanji": "確",
+      "han_viet": [
+        "Xác"
+      ],
+      "on_yomi": [
+        "カク",
+        "コウ"
+      ],
+      "kun_yomi": [
+        "たし.か",
+        "たし.かめる"
+      ],
+      "meaning_en": [
+        "assurance",
+        "firm",
+        "tight",
+        "hard"
+      ],
+      "strokes": 15,
+      "school_grade": 5,
+      "frequency_rank": 252,
+      "jlpt": "N3",
+      "example_words": [
+        "確認"
+      ]
+    },
+    {
+      "id": "ITK-189",
+      "kanji": "有",
+      "han_viet": [
+        "Hữu",
+        "Dựu"
+      ],
+      "on_yomi": [
+        "ユウ",
+        "ウ"
+      ],
+      "kun_yomi": [
+        "あ.る"
+      ],
+      "meaning_en": [
+        "possess",
+        "have",
+        "exist",
+        "happen"
+      ],
+      "strokes": 6,
+      "school_grade": 3,
+      "frequency_rank": 282,
+      "jlpt": "N4",
+      "example_words": [
+        "共有"
+      ]
+    },
+    {
+      "id": "ITK-190",
+      "kanji": "承",
+      "han_viet": [
+        "Thừa"
+      ],
+      "on_yomi": [
+        "ショウ",
+        "ジョウ"
+      ],
+      "kun_yomi": [
+        "うけたまわ.る",
+        "う.ける"
+      ],
+      "meaning_en": [
+        "acquiesce",
+        "hear",
+        "listen to",
+        "be informed"
+      ],
+      "strokes": 8,
+      "school_grade": 6,
+      "frequency_rank": 775,
+      "jlpt": "N2",
+      "example_words": [
+        "承認"
+      ]
+    },
+    {
+      "id": "ITK-191",
+      "kanji": "依",
+      "han_viet": [
+        "Y",
+        "Ỷ"
+      ],
+      "on_yomi": [
+        "イ",
+        "エ"
+      ],
+      "kun_yomi": [
+        "よ.る"
+      ],
+      "meaning_en": [
+        "reliant",
+        "depend on",
+        "consequently",
+        "therefore"
+      ],
+      "strokes": 8,
+      "school_grade": 8,
+      "frequency_rank": 906,
+      "jlpt": "N2",
+      "example_words": [
+        "依頼"
+      ]
+    },
+    {
+      "id": "ITK-192",
+      "kanji": "頼",
+      "han_viet": [
+        "Lại",
+        "Trái"
+      ],
+      "on_yomi": [
+        "ライ"
+      ],
+      "kun_yomi": [
+        "たの.む",
+        "たの.もしい",
+        "たよ.る"
+      ],
+      "meaning_en": [
+        "trust",
+        "request"
+      ],
+      "strokes": 16,
+      "school_grade": 8,
+      "frequency_rank": 708,
+      "jlpt": "N3",
+      "example_words": [
+        "依頼"
+      ]
+    },
+    {
+      "id": "ITK-193",
+      "kanji": "答",
+      "han_viet": [
+        "Đáp"
+      ],
+      "on_yomi": [
+        "トウ"
+      ],
+      "kun_yomi": [
+        "こた.える",
+        "こた.え"
+      ],
+      "meaning_en": [
+        "solution",
+        "answer"
+      ],
+      "strokes": 12,
+      "school_grade": 2,
+      "frequency_rank": 486,
+      "jlpt": "N4",
+      "example_words": [
+        "回答"
+      ]
+    },
+    {
+      "id": "ITK-194",
+      "kanji": "議",
+      "han_viet": [
+        "Nghị"
+      ],
+      "on_yomi": [
+        "ギ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "deliberation",
+        "consultation",
+        "debate",
+        "consideration"
+      ],
+      "strokes": 20,
+      "school_grade": 4,
+      "frequency_rank": 25,
+      "jlpt": "N3",
+      "example_words": [
+        "議事録"
+      ]
+    },
+    {
+      "id": "ITK-195",
+      "kanji": "事",
+      "han_viet": [
+        "Sự"
+      ],
+      "on_yomi": [
+        "ジ",
+        "ズ"
+      ],
+      "kun_yomi": [
+        "こと",
+        "つか.う",
+        "つか.える"
+      ],
+      "meaning_en": [
+        "matter",
+        "thing",
+        "fact",
+        "business"
+      ],
+      "strokes": 8,
+      "school_grade": 3,
+      "frequency_rank": 18,
+      "jlpt": "N4",
+      "example_words": [
+        "議事録"
+      ]
+    },
+    {
+      "id": "ITK-196",
+      "kanji": "打",
+      "han_viet": [
+        "Đả"
+      ],
+      "on_yomi": [
+        "ダ",
+        "ダース"
+      ],
+      "kun_yomi": [
+        "う.つ",
+        "う.ち-",
+        "ぶ.つ"
+      ],
+      "meaning_en": [
+        "strike",
+        "hit",
+        "knock",
+        "pound"
+      ],
+      "strokes": 5,
+      "school_grade": 3,
+      "frequency_rank": 239,
+      "jlpt": "N3",
+      "example_words": [
+        "打ち合わせ"
+      ]
+    },
+    {
+      "id": "ITK-197",
+      "kanji": "識",
+      "han_viet": [
+        "Thức",
+        "Chí"
+      ],
+      "on_yomi": [
+        "シキ"
+      ],
+      "kun_yomi": [
+        "し.る",
+        "しる.す"
+      ],
+      "meaning_en": [
+        "discriminating",
+        "know",
+        "write"
+      ],
+      "strokes": 19,
+      "school_grade": 5,
+      "frequency_rank": 496,
+      "jlpt": "N3",
+      "example_words": [
+        "認識齟齬",
+        "認識合わせ"
+      ]
+    },
+    {
+      "id": "ITK-198",
+      "kanji": "齟",
+      "han_viet": [
+        "Trở"
+      ],
+      "on_yomi": [
+        "ソ",
+        "サ",
+        "ショ"
+      ],
+      "kun_yomi": [
+        "かむ"
+      ],
+      "meaning_en": [
+        "uneven",
+        "bite",
+        "disagree"
+      ],
+      "strokes": 20,
+      "school_grade": null,
+      "frequency_rank": null,
+      "jlpt": null,
+      "example_words": [
+        "認識齟齬"
+      ],
+      "jlpt_note": "Ngoài danh sách JLPT ước lượng."
+    },
+    {
+      "id": "ITK-199",
+      "kanji": "齬",
+      "han_viet": [
+        "Ngữ"
+      ],
+      "on_yomi": [
+        "ゴ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "irregular teeth"
+      ],
+      "strokes": 22,
+      "school_grade": null,
+      "frequency_rank": null,
+      "jlpt": null,
+      "example_words": [
+        "認識齟齬"
+      ],
+      "jlpt_note": "Ngoài danh sách JLPT ước lượng."
+    },
+    {
+      "id": "ITK-200",
+      "kanji": "窓",
+      "han_viet": [
+        "Song"
+      ],
+      "on_yomi": [
+        "ソウ",
+        "ス"
+      ],
+      "kun_yomi": [
+        "まど",
+        "てんまど",
+        "けむだし"
+      ],
+      "meaning_en": [
+        "window",
+        "pane"
+      ],
+      "strokes": 11,
+      "school_grade": 6,
+      "frequency_rank": 1186,
+      "jlpt": "N3",
+      "example_words": [
+        "窓口"
+      ]
+    },
+    {
+      "id": "ITK-201",
+      "kanji": "口",
+      "han_viet": [
+        "Khẩu"
+      ],
+      "on_yomi": [
+        "コウ",
+        "ク"
+      ],
+      "kun_yomi": [
+        "くち"
+      ],
+      "meaning_en": [
+        "mouth"
+      ],
+      "strokes": 3,
+      "school_grade": 1,
+      "frequency_rank": 284,
+      "jlpt": "N4",
+      "example_words": [
+        "窓口"
+      ]
+    },
+    {
+      "id": "ITK-202",
+      "kanji": "問",
+      "han_viet": [
+        "Vấn"
+      ],
+      "on_yomi": [
+        "モン"
+      ],
+      "kun_yomi": [
+        "と.う",
+        "と.い",
+        "とん"
+      ],
+      "meaning_en": [
+        "question",
+        "ask",
+        "problem"
+      ],
+      "strokes": 11,
+      "school_grade": 3,
+      "frequency_rank": 64,
+      "jlpt": "N4",
+      "example_words": [
+        "問い合わせ"
+      ]
+    },
+    {
+      "id": "ITK-203",
+      "kanji": "資",
+      "han_viet": [
+        "Tư"
+      ],
+      "on_yomi": [
+        "シ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "assets",
+        "resources",
+        "capital",
+        "funds"
+      ],
+      "strokes": 13,
+      "school_grade": 5,
+      "frequency_rank": 179,
+      "jlpt": "N3",
+      "example_words": [
+        "資料"
+      ]
+    },
+    {
+      "id": "ITK-204",
+      "kanji": "料",
+      "han_viet": [
+        "Liêu",
+        "Liệu"
+      ],
+      "on_yomi": [
+        "リョウ"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "fee",
+        "materials"
+      ],
+      "strokes": 10,
+      "school_grade": 4,
+      "frequency_rank": 295,
+      "jlpt": "N4",
+      "example_words": [
+        "資料"
+      ]
+    },
+    {
+      "id": "ITK-205",
+      "kanji": "添",
+      "han_viet": [
+        "Thiêm"
+      ],
+      "on_yomi": [
+        "テン"
+      ],
+      "kun_yomi": [
+        "そ.える",
+        "そ.う"
+      ],
+      "meaning_en": [
+        "annexed",
+        "accompany",
+        "marry",
+        "suit"
+      ],
+      "strokes": 11,
+      "school_grade": 8,
+      "frequency_rank": 1501,
+      "jlpt": "N1",
+      "example_words": [
+        "添付"
+      ]
+    },
+    {
+      "id": "ITK-206",
+      "kanji": "付",
+      "han_viet": [
+        "Phó"
+      ],
+      "on_yomi": [
+        "フ"
+      ],
+      "kun_yomi": [
+        "つ.ける",
+        "-つ.ける",
+        "-づ.ける",
+        "つ.け",
+        "つ.け-",
+        "-つ.け",
+        "-づ.け",
+        "-づけ",
+        "つ.く",
+        "-づ.く",
+        "つ.き",
+        "-つ.き",
+        "-つき",
+        "-づ.き",
+        "-づき"
+      ],
+      "meaning_en": [
+        "adhere",
+        "attach",
+        "refer to",
+        "append"
+      ],
+      "strokes": 5,
+      "school_grade": 4,
+      "frequency_rank": 322,
+      "jlpt": "N3",
+      "example_words": [
+        "添付"
+      ]
+    },
+    {
+      "id": "ITK-207",
+      "kanji": "至",
+      "han_viet": [
+        "Chí"
+      ],
+      "on_yomi": [
+        "シ"
+      ],
+      "kun_yomi": [
+        "いた.る"
+      ],
+      "meaning_en": [
+        "climax",
+        "arrive",
+        "proceed",
+        "reach"
+      ],
+      "strokes": 6,
+      "school_grade": 6,
+      "frequency_rank": 996,
+      "jlpt": "N1",
+      "example_words": [
+        "至急"
+      ]
+    },
+    {
+      "id": "ITK-208",
+      "kanji": "急",
+      "han_viet": [
+        "Cấp"
+      ],
+      "on_yomi": [
+        "キュウ"
+      ],
+      "kun_yomi": [
+        "いそ.ぐ",
+        "いそ.ぎ",
+        "せ.く"
+      ],
+      "meaning_en": [
+        "hurry",
+        "emergency",
+        "sudden",
+        "steep"
+      ],
+      "strokes": 9,
+      "school_grade": 3,
+      "frequency_rank": 309,
+      "jlpt": "N4",
+      "example_words": [
+        "至急"
+      ]
+    },
+    {
+      "id": "ITK-209",
+      "kanji": "念",
+      "han_viet": [
+        "Niệm"
+      ],
+      "on_yomi": [
+        "ネン"
+      ],
+      "kun_yomi": [],
+      "meaning_en": [
+        "wish",
+        "sense",
+        "idea",
+        "thought"
+      ],
+      "strokes": 8,
+      "school_grade": 4,
+      "frequency_rank": 390,
+      "jlpt": "N3",
+      "example_words": [
+        "念のため"
+      ]
+    },
+    {
+      "id": "ITK-210",
+      "kanji": "中",
+      "han_viet": [
+        "Trung",
+        "Trúng"
+      ],
+      "on_yomi": [
+        "チュウ"
+      ],
+      "kun_yomi": [
+        "なか",
+        "うち",
+        "あた.る"
+      ],
+      "meaning_en": [
+        "in",
+        "inside",
+        "middle",
+        "mean"
+      ],
+      "strokes": 4,
+      "school_grade": 1,
+      "frequency_rank": 11,
+      "jlpt": "N5",
+      "example_words": [
+        "対応中"
+      ]
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "BRSE-01",
+      "title_ja": "初対面の挨拶",
+      "title_vi": "Chào hỏi lần đầu gặp khách hàng",
+      "level": "N3",
+      "situation_vi": "Buổi kick-off dự án, BrSE lần đầu gặp khách hàng và trao danh thiếp.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "初めまして。VJソリューションズのグエンと申します。本プロジェクトでブリッジSEを担当いたします。",
+          "vi": "Xin chào, rất vui được gặp anh. Tôi là Nguyễn của VJ Solutions. Tôi sẽ phụ trách vai trò BrSE cho dự án này."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "こちら、私の名刺です。どうぞよろしくお願いいたします。",
+          "vi": "Đây là danh thiếp của tôi. Rất mong được anh giúp đỡ."
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "ご丁寧にありがとうございます。ミライテックの田中です。こちらこそ、よろしくお願いします。",
+          "vi": "Cảm ơn anh đã chu đáo. Tôi là Tanaka của Miraitech. Tôi cũng mong được hợp tác."
+        },
+        {
+          "order": 4,
+          "speaker": "田中",
+          "ja": "グエンさんは日本語がお上手ですね。日本にいらっしゃったことはありますか。",
+          "vi": "Anh Nguyễn nói tiếng Nhật giỏi quá. Anh đã từng sang Nhật chưa?"
+        },
+        {
+          "order": 5,
+          "speaker": "グエン",
+          "ja": "ありがとうございます。まだまだ勉強中です。以前、日本のお客様向けのプロジェクトに参加しておりました。",
+          "vi": "Cảm ơn anh. Tôi vẫn còn đang học. Trước đây tôi từng tham gia dự án cho khách hàng Nhật."
+        },
+        {
+          "order": 6,
+          "speaker": "田中",
+          "ja": "そうですか。心強いです。開発チームはダナンにあるんですよね。",
+          "vi": "Vậy à, thế thì yên tâm quá. Đội phát triển ở Đà Nẵng phải không?"
+        },
+        {
+          "order": 7,
+          "speaker": "グエン",
+          "ja": "はい、ダナンに十名のチームがおります。私が窓口となって、仕様の確認や進捗のご報告をさせていただきます。",
+          "vi": "Vâng, ở Đà Nẵng có đội 10 người. Tôi sẽ làm đầu mối, xác nhận đặc tả và báo cáo tiến độ cho anh."
+        },
+        {
+          "order": 8,
+          "speaker": "田中",
+          "ja": "わかりました。では、今後の連絡はグエンさんにお願いすればいいですね。",
+          "vi": "Tôi hiểu rồi. Vậy từ giờ tôi liên lạc với anh Nguyễn là được nhỉ."
+        },
+        {
+          "order": 9,
+          "speaker": "グエン",
+          "ja": "はい。何かございましたら、いつでもご連絡ください。",
+          "vi": "Vâng. Nếu có việc gì, anh cứ liên lạc với tôi bất cứ lúc nào."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "〜と申します",
+          "reading": "〜ともうします",
+          "vi": "Tôi tên là ~ (khiêm nhường)",
+          "note": "Dùng khi tự giới thiệu với khách hàng, lịch sự hơn 〜です."
+        },
+        {
+          "ja": "〜を担当いたします",
+          "reading": "〜をたんとういたします",
+          "vi": "Tôi phụ trách ~",
+          "note": "Nói rõ vai trò của mình trong dự án."
+        },
+        {
+          "ja": "窓口となって",
+          "reading": "まどぐちとなって",
+          "vi": "Làm đầu mối liên lạc",
+          "note": "Câu quan trọng nhất để khách hiểu vai trò của BrSE."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-02",
+      "title_ja": "電話の取り次ぎ",
+      "title_vi": "Nghe điện thoại khi người được tìm vắng mặt",
+      "level": "N2",
+      "situation_vi": "Khách hàng gọi tìm PM nhưng PM đang họp, BrSE nhận lời nhắn.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "お電話ありがとうございます。VJソリューションズのグエンでございます。",
+          "vi": "Cảm ơn quý khách đã gọi. Nguyễn của VJ Solutions xin nghe."
+        },
+        {
+          "order": 2,
+          "speaker": "田中",
+          "ja": "ミライテックの田中です。いつもお世話になっております。",
+          "vi": "Tôi là Tanaka của Miraitech. Cảm ơn anh vì sự hỗ trợ thường ngày."
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "こちらこそ、いつもお世話になっております。",
+          "vi": "Chúng tôi mới là người phải cảm ơn anh."
+        },
+        {
+          "order": 4,
+          "speaker": "田中",
+          "ja": "プロジェクトマネージャーのファムさんはいらっしゃいますか。",
+          "vi": "Anh Phạm, quản lý dự án, có ở đó không?"
+        },
+        {
+          "order": 5,
+          "speaker": "グエン",
+          "ja": "申し訳ございません。ファムはただいま会議中でございます。11時には終わる予定です。",
+          "vi": "Thành thật xin lỗi, anh Phạm hiện đang họp. Dự kiến 11 giờ sẽ xong."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "会議が終わり次第、折り返しお電話を差し上げるよう、申し伝えましょうか。",
+          "vi": "Tôi nhắn anh ấy họp xong sẽ gọi lại cho anh nhé?"
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "はい、お願いします。明日のリリースの件でご相談したいことがあると伝えてください。",
+          "vi": "Vâng, nhờ anh. Anh nhắn giúp là tôi muốn trao đổi về đợt release ngày mai."
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "かしこまりました。明日のリリースの件ですね。念のため、お電話番号をお伺いしてもよろしいでしょうか。",
+          "vi": "Tôi hiểu rồi. Về đợt release ngày mai ạ. Để chắc chắn, cho tôi xin số điện thoại của anh được không?"
+        },
+        {
+          "order": 9,
+          "speaker": "田中",
+          "ja": "03-1234-5678です。",
+          "vi": "Số của tôi là 03-1234-5678."
+        },
+        {
+          "order": 10,
+          "speaker": "グエン",
+          "ja": "03-1234-5678、ミライテックの田中様ですね。確かに申し伝えます。私、グエンが承りました。",
+          "vi": "03-1234-5678, anh Tanaka của Miraitech. Tôi chắc chắn sẽ chuyển lời. Tôi là Nguyễn đã nhận lời nhắn."
+        },
+        {
+          "order": 11,
+          "speaker": "田中",
+          "ja": "よろしくお願いします。",
+          "vi": "Nhờ anh nhé."
+        },
+        {
+          "order": 12,
+          "speaker": "グエン",
+          "ja": "失礼いたします。",
+          "vi": "Xin phép anh."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "ファムはただいま会議中でございます",
+          "reading": "ファムはただいまかいぎちゅうでございます",
+          "vi": "Anh Phạm hiện đang họp",
+          "note": "Khi nói với khách, gọi đồng nghiệp bên mình không kèm さん."
+        },
+        {
+          "ja": "申し伝えます",
+          "reading": "もうしつたえます",
+          "vi": "Tôi sẽ chuyển lời",
+          "note": "Khiêm nhường ngữ, dùng khi chuyển lời của khách cho người bên mình."
+        },
+        {
+          "ja": "私、〇〇が承りました",
+          "reading": "わたくし、〇〇がうけたまわりました",
+          "vi": "Tôi là ~ đã nhận lời nhắn",
+          "note": "Câu kết chuẩn khi nhận lời nhắn qua điện thoại."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-03",
+      "title_ja": "仕様の確認",
+      "title_vi": "Xác nhận điểm chưa rõ trong đặc tả",
+      "level": "N2",
+      "situation_vi": "BrSE phát hiện tài liệu đặc tả thiếu thông tin và hỏi lại khách hàng.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "田中様、仕様書の件で一点確認させていただきたいのですが、今お時間よろしいでしょうか。",
+          "vi": "Anh Tanaka, tôi muốn xác nhận một điểm trong tài liệu đặc tả, bây giờ anh có tiện không ạ?"
+        },
+        {
+          "order": 2,
+          "speaker": "田中",
+          "ja": "はい、どうぞ。",
+          "vi": "Vâng, anh cứ nói."
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "画面設計書の3ページ目、ログイン画面についてです。パスワードを5回間違えるとアカウントをロックすると書かれていますが、ロックの解除方法について記載がございません。",
+          "vi": "Về màn hình đăng nhập ở trang 3 của tài liệu thiết kế màn hình. Tài liệu ghi nhập sai mật khẩu 5 lần sẽ khóa tài khoản, nhưng không ghi cách mở khóa."
+        },
+        {
+          "order": 4,
+          "speaker": "田中",
+          "ja": "ああ、そこは抜けていましたね。",
+          "vi": "À, chỗ đó bị sót thật."
+        },
+        {
+          "order": 5,
+          "speaker": "グエン",
+          "ja": "一定時間が経過したら自動で解除する方式と、管理者が手動で解除する方式が考えられますが、どちらをご想定でしょうか。",
+          "vi": "Có thể tự động mở khóa sau một khoảng thời gian, hoặc để quản trị viên mở khóa thủ công. Anh đang hình dung theo cách nào ạ?"
+        },
+        {
+          "order": 6,
+          "speaker": "田中",
+          "ja": "30分後に自動で解除する形でお願いします。管理者による解除も、念のため入れておいてください。",
+          "vi": "Làm theo kiểu tự động mở khóa sau 30 phút. Cho thêm cả chức năng quản trị viên mở khóa để phòng hờ."
+        },
+        {
+          "order": 7,
+          "speaker": "グエン",
+          "ja": "承知いたしました。30分後の自動解除と、管理者による手動解除の両方を実装する、ということでよろしいでしょうか。",
+          "vi": "Tôi hiểu rồi. Vậy là triển khai cả tự động mở khóa sau 30 phút lẫn quản trị viên mở khóa thủ công, đúng không ạ?"
+        },
+        {
+          "order": 8,
+          "speaker": "田中",
+          "ja": "はい、それで結構です。",
+          "vi": "Vâng, như vậy là được."
+        },
+        {
+          "order": 9,
+          "speaker": "グエン",
+          "ja": "ありがとうございます。認識齟齬を防ぐため、本日中にQ&A表に記載してお送りいたします。",
+          "vi": "Cảm ơn anh. Để tránh hiểu sai, trong hôm nay tôi sẽ ghi vào bảng Q&A và gửi anh."
+        },
+        {
+          "order": 10,
+          "speaker": "田中",
+          "ja": "助かります。",
+          "vi": "Vậy thì tốt quá."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "一点確認させていただきたいのですが",
+          "reading": "いってんかくにんさせていただきたいのですが",
+          "vi": "Tôi muốn xác nhận một điểm",
+          "note": "Mở đầu lịch sự khi hỏi lại khách."
+        },
+        {
+          "ja": "どちらをご想定でしょうか",
+          "reading": "どちらをごそうていでしょうか",
+          "vi": "Anh đang hình dung phương án nào?",
+          "note": "Đưa sẵn phương án cho khách chọn, thay vì hỏi câu mở."
+        },
+        {
+          "ja": "〜ということでよろしいでしょうか",
+          "reading": "〜ということでよろしいでしょうか",
+          "vi": "Hiểu là ~ có đúng không ạ?",
+          "note": "Nhắc lại để chốt, kỹ năng cốt lõi của BrSE."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-04",
+      "title_ja": "進捗報告",
+      "title_vi": "Báo cáo tiến độ trong họp định kỳ",
+      "level": "N2",
+      "situation_vi": "BrSE báo cáo tiến độ tuần, trong đó có một hạng mục đang chậm.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "それでは、今週の進捗をご報告いたします。",
+          "vi": "Sau đây tôi xin báo cáo tiến độ tuần này."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "会員登録機能は予定どおり完了し、現在、単体テストを実施中です。",
+          "vi": "Chức năng đăng ký thành viên đã hoàn thành đúng kế hoạch, hiện đang chạy unit test."
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "一方、決済機能については、外部APIの仕様確認に時間がかかったため、進捗は予定の70%程度にとどまっております。",
+          "vi": "Ngược lại, chức năng thanh toán mất thời gian xác nhận đặc tả API bên ngoài nên tiến độ mới đạt khoảng 70% kế hoạch."
+        },
+        {
+          "order": 4,
+          "speaker": "田中",
+          "ja": "全体のスケジュールには影響がありそうですか。",
+          "vi": "Có ảnh hưởng tới lịch trình tổng thể không?"
+        },
+        {
+          "order": 5,
+          "speaker": "グエン",
+          "ja": "現時点では、来週の作業で遅れを取り戻せる見込みです。ただ、APIの接続テストで問題が出た場合は、2日ほど遅れる可能性がございます。",
+          "vi": "Hiện tại dự kiến tuần sau sẽ bắt kịp. Tuy nhiên, nếu test kết nối API phát sinh vấn đề thì có khả năng chậm khoảng 2 ngày."
+        },
+        {
+          "order": 6,
+          "speaker": "田中",
+          "ja": "わかりました。リスクがはっきりした時点で、早めに教えてください。",
+          "vi": "Tôi hiểu rồi. Khi rủi ro rõ ràng thì báo sớm cho tôi nhé."
+        },
+        {
+          "order": 7,
+          "speaker": "グエン",
+          "ja": "承知いたしました。水曜日の時点で状況を確認し、改めてご報告いたします。",
+          "vi": "Vâng. Đến thứ Tư tôi sẽ kiểm tra tình hình và báo cáo lại."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "予定どおり",
+          "reading": "よていどおり",
+          "vi": "Đúng kế hoạch",
+          "note": ""
+        },
+        {
+          "ja": "〜程度にとどまっております",
+          "reading": "〜ていどにとどまっております",
+          "vi": "Mới chỉ đạt mức ~",
+          "note": "Báo tin chậm một cách khách quan, không than phiền."
+        },
+        {
+          "ja": "遅れを取り戻せる見込みです",
+          "reading": "おくれをとりもどせるみこみです",
+          "vi": "Dự kiến có thể bắt kịp tiến độ",
+          "note": "Luôn kèm điều kiện rủi ro, đừng hứa chắc."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-05",
+      "title_ja": "納期遅延の報告と謝罪",
+      "title_vi": "Báo chậm bàn giao và xin lỗi",
+      "level": "N2",
+      "situation_vi": "Test tích hợp phát sinh nhiều lỗi, BrSE phải báo lùi ngày bàn giao, nêu nguyên nhân và biện pháp.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "田中様、大変申し上げにくいのですが、テスト工程の件でご報告がございます。",
+          "vi": "Anh Tanaka, thật khó nói nhưng tôi có việc cần báo cáo về giai đoạn test."
+        },
+        {
+          "order": 2,
+          "speaker": "田中",
+          "ja": "何かありましたか。",
+          "vi": "Có chuyện gì vậy?"
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "結合テストで想定以上の不具合が見つかり、修正に時間を要しております。そのため、納品日を当初の15日から18日に変更させていただけないでしょうか。",
+          "vi": "Test tích hợp phát hiện nhiều lỗi hơn dự kiến, việc sửa đang tốn thời gian. Vì vậy, cho phép chúng tôi lùi ngày bàn giao từ ngày 15 như ban đầu sang ngày 18 được không ạ?"
+        },
+        {
+          "order": 4,
+          "speaker": "田中",
+          "ja": "3日遅れですか。こちらもユーザーへの説明があるので、正直困りますね。",
+          "vi": "Chậm 3 ngày à. Bên tôi còn phải giải thích với người dùng, nói thật là khó xử."
+        },
+        {
+          "order": 5,
+          "speaker": "グエン",
+          "ja": "ご迷惑をおかけして、誠に申し訳ございません。",
+          "vi": "Chúng tôi thành thật xin lỗi vì đã gây phiền phức."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "原因は、仕様変更の影響範囲の調査が不十分だったことです。今後は、変更のたびに影響範囲をチェックリストで確認するよう、チームで徹底いたします。",
+          "vi": "Nguyên nhân là việc khảo sát phạm vi ảnh hưởng của thay đổi đặc tả chưa đầy đủ. Từ nay, mỗi lần thay đổi, cả đội sẽ kiểm tra phạm vi ảnh hưởng bằng checklist một cách triệt để."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "15日に一部だけでも納品することはできますか。",
+          "vi": "Ngày 15 có thể bàn giao dù chỉ một phần được không?"
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "はい、ログイン機能と会員管理機能であれば、15日に納品可能です。残りの機能を18日に納品する形でいかがでしょうか。",
+          "vi": "Vâng, nếu là chức năng đăng nhập và quản lý thành viên thì ngày 15 có thể bàn giao. Phần còn lại bàn giao ngày 18, anh thấy thế nào ạ?"
+        },
+        {
+          "order": 9,
+          "speaker": "田中",
+          "ja": "では、それでお願いします。修正の状況は毎日共有してください。",
+          "vi": "Vậy làm như thế. Tình hình sửa lỗi thì chia sẻ cho tôi hằng ngày nhé."
+        },
+        {
+          "order": 10,
+          "speaker": "グエン",
+          "ja": "かしこまりました。毎日夕方に進捗をメールでご報告いたします。",
+          "vi": "Vâng. Chiều nào tôi cũng sẽ báo cáo tiến độ qua email."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "大変申し上げにくいのですが",
+          "reading": "たいへんもうしあげにくいのですが",
+          "vi": "Thật khó nói nhưng...",
+          "note": "Mở đầu trước khi báo tin xấu."
+        },
+        {
+          "ja": "変更させていただけないでしょうか",
+          "reading": "へんこうさせていただけないでしょうか",
+          "vi": "Cho phép chúng tôi thay đổi được không ạ?",
+          "note": "Xin phép ở mức lịch sự cao."
+        },
+        {
+          "ja": "チームで徹底いたします",
+          "reading": "チームでてっていいたします",
+          "vi": "Cả đội sẽ thực hiện triệt để",
+          "note": "Xin lỗi kiểu Nhật cần đủ 3 phần: xin lỗi, nguyên nhân, biện pháp phòng tái phát."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-06",
+      "title_ja": "不具合の問い合わせ対応",
+      "title_vi": "Tiếp nhận báo lỗi từ khách hàng",
+      "level": "N2",
+      "situation_vi": "Khách hàng phát hiện lỗi trên môi trường staging, BrSE hỏi bước tái hiện và hẹn thời gian phản hồi.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "田中",
+          "ja": "グエンさん、検証環境で確認していたら、検索結果が正しく表示されないんですが。",
+          "vi": "Anh Nguyễn, tôi kiểm tra trên môi trường staging thì thấy kết quả tìm kiếm hiển thị không đúng."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "ご報告ありがとうございます。恐れ入りますが、再現手順を教えていただけますか。",
+          "vi": "Cảm ơn anh đã báo. Phiền anh cho tôi biết các bước tái hiện lỗi được không ạ?"
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "商品名に長音記号の「ー」を含むキーワードで検索すると、結果が0件になります。",
+          "vi": "Tìm bằng từ khóa có dấu trường âm 「ー」 trong tên sản phẩm thì kết quả ra 0."
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "長音を含む場合ですね。ほかの条件では正常に表示されますか。",
+          "vi": "Trường hợp có trường âm ạ. Với điều kiện khác thì hiển thị bình thường chứ ạ?"
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "はい、それ以外は問題ありません。",
+          "vi": "Vâng, ngoài trường hợp đó thì không có vấn đề gì."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "承知いたしました。すぐに開発チームに調査を依頼し、本日の17時までに原因と対応方針をご連絡いたします。",
+          "vi": "Tôi hiểu rồi. Tôi sẽ nhờ đội phát triển điều tra ngay, trước 17 giờ hôm nay sẽ báo anh nguyên nhân và hướng xử lý."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "本番リリースに影響はありますか。",
+          "vi": "Có ảnh hưởng tới release production không?"
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "原因が判明した段階で、影響の有無も含めてご報告いたします。お急ぎのところ恐縮ですが、少々お待ちいただけますでしょうか。",
+          "vi": "Khi xác định được nguyên nhân, tôi sẽ báo cáo cả việc có ảnh hưởng hay không. Biết anh đang gấp nhưng mong anh chờ một chút ạ."
+        },
+        {
+          "order": 9,
+          "speaker": "田中",
+          "ja": "わかりました。お願いします。",
+          "vi": "Được rồi, nhờ anh."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "再現手順を教えていただけますか",
+          "reading": "さいげんてじゅんをおしえていただけますか",
+          "vi": "Cho tôi biết các bước tái hiện lỗi được không?",
+          "note": "Câu đầu tiên luôn phải hỏi khi nhận báo lỗi."
+        },
+        {
+          "ja": "〜までに原因と対応方針をご連絡いたします",
+          "reading": "〜までにげんいんとたいおうほうしんをごれんらくいたします",
+          "vi": "Trước ~ sẽ báo nguyên nhân và hướng xử lý",
+          "note": "Luôn hẹn mốc thời gian cụ thể, không nói chung chung."
+        },
+        {
+          "ja": "お急ぎのところ恐縮ですが",
+          "reading": "おいそぎのところきょうしゅくですが",
+          "vi": "Biết anh đang gấp nhưng...",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "BRSE-07",
+      "title_ja": "仕様変更の依頼への対応",
+      "title_vi": "Xử lý yêu cầu thay đổi đặc tả",
+      "level": "N2",
+      "situation_vi": "Khách hàng muốn thêm chức năng ngoài phạm vi, BrSE làm rõ yêu cầu và đề nghị ước tính công số.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "田中",
+          "ja": "実は、ユーザーから要望があって、CSVでデータを出力する機能を追加してほしいんです。",
+          "vi": "Thật ra người dùng có yêu cầu, tôi muốn thêm chức năng xuất dữ liệu ra CSV."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "CSV出力機能の追加ですね。対象となる画面とデータの項目を教えていただけますか。",
+          "vi": "Thêm chức năng xuất CSV ạ. Anh cho tôi biết màn hình và các trường dữ liệu cần xuất được không?"
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "注文一覧の画面で、表示されている項目をそのまま出力できればいいです。",
+          "vi": "Ở màn hình danh sách đơn hàng, xuất nguyên các cột đang hiển thị là được."
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "承知いたしました。ただ、現在の開発範囲外の作業となりますので、工数とスケジュールへの影響を見積もらせていただきたいと思います。",
+          "vi": "Tôi hiểu rồi. Tuy nhiên đây là công việc ngoài phạm vi phát triển hiện tại, nên chúng tôi xin phép ước tính công số và ảnh hưởng tới lịch trình."
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "どのくらいかかりそうですか。",
+          "vi": "Có vẻ mất khoảng bao lâu?"
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "開発チームと確認のうえ、明日中に見積もりをご提出いたします。あわせて、今回のリリースに含めるか、次回に回すかもご相談させてください。",
+          "vi": "Sau khi trao đổi với đội phát triển, trong ngày mai tôi sẽ gửi bản ước tính. Đồng thời cho tôi trao đổi luôn việc đưa vào đợt release này hay dời sang đợt sau."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "わかりました。見積もりを見てから判断します。",
+          "vi": "Được. Tôi xem bản ước tính rồi sẽ quyết định."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "開発範囲外の作業となりますので",
+          "reading": "かいはつはんいがいのさぎょうとなりますので",
+          "vi": "Vì đây là công việc ngoài phạm vi",
+          "note": "Nói rõ ngay từ đầu để tránh bị hiểu là làm miễn phí."
+        },
+        {
+          "ja": "見積もらせていただきたいと思います",
+          "reading": "みつもらせていただきたいとおもいます",
+          "vi": "Chúng tôi xin phép được ước tính",
+          "note": ""
+        },
+        {
+          "ja": "〜のうえ",
+          "reading": "〜のうえ",
+          "vi": "Sau khi ~",
+          "note": "Ngữ pháp N2, rất hay gặp trong email công việc."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-08",
+      "title_ja": "会議の日程調整",
+      "title_vi": "Sắp xếp lịch họp",
+      "level": "N3",
+      "situation_vi": "BrSE đề xuất lịch họp review, có tính tới chênh lệch múi giờ Nhật - Việt.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "来週、要件定義のレビュー会議をお願いしたいのですが、ご都合はいかがでしょうか。",
+          "vi": "Tuần sau tôi muốn xin một buổi họp review định nghĩa yêu cầu, lịch của anh thế nào ạ?"
+        },
+        {
+          "order": 2,
+          "speaker": "田中",
+          "ja": "来週ですか。火曜と木曜の午後なら空いています。",
+          "vi": "Tuần sau à. Chiều thứ Ba và thứ Năm thì tôi rảnh."
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "ありがとうございます。では、木曜日の15時からはいかがでしょうか。1時間ほどを予定しております。",
+          "vi": "Cảm ơn anh. Vậy từ 15 giờ thứ Năm có được không ạ? Dự kiến khoảng 1 tiếng."
+        },
+        {
+          "order": 4,
+          "speaker": "田中",
+          "ja": "木曜の15時ですね。大丈夫です。",
+          "vi": "15 giờ thứ Năm nhỉ. Được."
+        },
+        {
+          "order": 5,
+          "speaker": "グエン",
+          "ja": "日本時間の15時ですと、ベトナムは13時になりますので、開発チームも参加できます。",
+          "vi": "15 giờ giờ Nhật là 13 giờ ở Việt Nam, nên đội phát triển cũng tham gia được."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "後ほど、会議のURLと資料をお送りいたします。",
+          "vi": "Lát nữa tôi sẽ gửi anh link họp và tài liệu."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "資料は事前にいただけると助かります。",
+          "vi": "Nếu gửi tài liệu trước thì tốt quá."
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "かしこまりました。前日までにお送りいたします。",
+          "vi": "Vâng. Tôi sẽ gửi trước một ngày."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "ご都合はいかがでしょうか",
+          "reading": "ごつごうはいかがでしょうか",
+          "vi": "Lịch của anh thế nào ạ?",
+          "note": ""
+        },
+        {
+          "ja": "〜からはいかがでしょうか",
+          "reading": "〜からはいかがでしょうか",
+          "vi": "Từ ~ có được không ạ?",
+          "note": "Đề xuất một mốc cụ thể thay vì hỏi 'khi nào anh rảnh'."
+        },
+        {
+          "ja": "日本時間の〜",
+          "reading": "にほんじかんの〜",
+          "vi": "~ giờ Nhật",
+          "note": "Luôn ghi rõ múi giờ, Việt Nam chậm hơn Nhật 2 tiếng."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-09",
+      "title_ja": "お客様への依頼",
+      "title_vi": "Nhờ khách hàng hỗ trợ",
+      "level": "N3",
+      "situation_vi": "Sắp tới test tích hợp nhưng khách chưa cấp tài khoản test, BrSE nhờ khách chuẩn bị.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "田中様、一つお願いがあるのですが。",
+          "vi": "Anh Tanaka, tôi có một việc muốn nhờ."
+        },
+        {
+          "order": 2,
+          "speaker": "田中",
+          "ja": "はい、何でしょう。",
+          "vi": "Vâng, việc gì vậy?"
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "来週から結合テストを始める予定なのですが、テスト用のアカウントがまだ発行されておりません。",
+          "vi": "Tuần sau chúng tôi dự định bắt đầu test tích hợp, nhưng tài khoản test vẫn chưa được cấp."
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "お忙しいところ恐縮ですが、金曜日までに5名分発行していただくことは可能でしょうか。",
+          "vi": "Biết anh đang bận, nhưng trước thứ Sáu anh có thể cấp giúp 5 tài khoản được không ạ?"
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "ああ、すみません、忘れていました。今日中に手配します。",
+          "vi": "À, xin lỗi, tôi quên mất. Trong hôm nay tôi sẽ sắp xếp."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "ありがとうございます。お手数をおかけしますが、よろしくお願いいたします。",
+          "vi": "Cảm ơn anh. Làm phiền anh, rất mong anh giúp đỡ."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "一つお願いがあるのですが",
+          "reading": "ひとつおねがいがあるのですが",
+          "vi": "Tôi có một việc muốn nhờ",
+          "note": "Báo trước là sắp nhờ, để người nghe chuẩn bị."
+        },
+        {
+          "ja": "〜していただくことは可能でしょうか",
+          "reading": "〜していただくことはかのうでしょうか",
+          "vi": "Anh có thể ~ giúp được không ạ?",
+          "note": "Nhờ vả lịch sự, kèm hạn chót rõ ràng."
+        },
+        {
+          "ja": "お手数をおかけしますが",
+          "reading": "おてすうをおかけしますが",
+          "vi": "Làm phiền anh nhưng...",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "BRSE-10",
+      "title_ja": "会議のまとめ",
+      "title_vi": "Chốt nội dung cuối buổi họp",
+      "level": "N2",
+      "situation_vi": "Cuối buổi họp, BrSE nhắc lại các quyết định và hẹn gửi biên bản.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "最後に、本日の決定事項を確認させていただきます。",
+          "vi": "Cuối cùng, cho phép tôi xác nhận lại các nội dung đã quyết định hôm nay."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "一点目、アカウントのロックは30分後に自動で解除します。二点目、CSV出力機能の見積もりを、明日中に弊社から提出いたします。",
+          "vi": "Thứ nhất, tài khoản bị khóa sẽ tự động mở sau 30 phút. Thứ hai, trong ngày mai công ty chúng tôi sẽ gửi bản ước tính chức năng xuất CSV."
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "はい、それで合っています。",
+          "vi": "Vâng, đúng như vậy."
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "議事録は本日中に作成して共有いたします。内容に相違がございましたら、ご指摘ください。",
+          "vi": "Trong hôm nay tôi sẽ soạn biên bản họp và chia sẻ. Nếu nội dung có chỗ sai lệch, mong anh chỉ ra giúp."
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "お願いします。",
+          "vi": "Nhờ anh."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "本日はお忙しいところ、お時間をいただきありがとうございました。",
+          "vi": "Cảm ơn anh hôm nay đã dành thời gian dù rất bận."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "こちらこそ、ありがとうございました。",
+          "vi": "Tôi cũng cảm ơn anh."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "本日の決定事項を確認させていただきます",
+          "reading": "ほんじつのけっていじこうをかくにんさせていただきます",
+          "vi": "Xin phép xác nhận các nội dung đã quyết định hôm nay",
+          "note": "Thói quen bắt buộc của BrSE trước khi kết thúc họp."
+        },
+        {
+          "ja": "弊社",
+          "reading": "へいしゃ",
+          "vi": "Công ty chúng tôi (khiêm nhường)",
+          "note": "Công ty khách hàng gọi là 御社 (おんしゃ) khi nói, 貴社 (きしゃ) khi viết."
+        },
+        {
+          "ja": "相違がございましたら、ご指摘ください",
+          "reading": "そういがございましたら、ごしてきください",
+          "vi": "Nếu có chỗ sai lệch, mong anh chỉ ra",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "BRSE-11",
+      "title_ja": "コードレビューの指摘対応",
+      "title_vi": "Tiếp nhận góp ý code review",
+      "level": "N2",
+      "situation_vi": "Trưởng nhóm kỹ thuật phía khách hàng review pull request và góp ý, developer tiếp nhận và hẹn sửa.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "田中",
+          "ja": "プルリクエストを確認しました。何点か指摘があります。",
+          "vi": "Tôi đã xem pull request. Có vài điểm cần góp ý."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "ありがとうございます。お願いいたします。",
+          "vi": "Cảm ơn anh. Anh cứ nói ạ."
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "まず、ログイン処理で例外が発生した場合、エラーログが出力されていません。",
+          "vi": "Trước tiên, khi xử lý đăng nhập phát sinh ngoại lệ thì không có log lỗi nào được ghi ra."
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "ご指摘ありがとうございます。例外処理の中でログを出力するよう修正いたします。",
+          "vi": "Cảm ơn anh đã chỉ ra. Tôi sẽ sửa để ghi log trong phần xử lý ngoại lệ."
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "それから、同じ入力チェックが3つの画面に書かれていますね。共通化できませんか。",
+          "vi": "Ngoài ra, cùng một đoạn kiểm tra đầu vào được viết ở 3 màn hình. Gom lại dùng chung được không?"
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "おっしゃるとおりです。共通のバリデーションクラスにまとめます。影響範囲を確認したうえで、既存画面の回帰テストも実施いたします。",
+          "vi": "Anh nói đúng ạ. Tôi sẽ gom vào một class validation dùng chung. Sau khi xác nhận phạm vi ảnh hưởng, tôi sẽ chạy cả test hồi quy cho các màn hình hiện có."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "お願いします。修正が終わったら、再レビューを依頼してください。",
+          "vi": "Nhờ anh. Sửa xong thì gửi yêu cầu review lại nhé."
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "承知いたしました。本日中に修正して、再レビューを依頼いたします。",
+          "vi": "Vâng. Trong hôm nay tôi sẽ sửa xong và gửi yêu cầu review lại."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "ご指摘ありがとうございます",
+          "reading": "ごしてきありがとうございます",
+          "vi": "Cảm ơn anh đã chỉ ra",
+          "note": "Câu mở đầu chuẩn khi nhận góp ý, kể cả khi mình chưa đồng ý hoàn toàn."
+        },
+        {
+          "ja": "おっしゃるとおりです",
+          "reading": "おっしゃるとおりです",
+          "vi": "Anh nói đúng ạ",
+          "note": "Tôn kính ngữ của 言うとおり."
+        },
+        {
+          "ja": "〜たうえで",
+          "reading": "〜たうえで",
+          "vi": "Sau khi ~ rồi mới",
+          "note": "Nhấn mạnh làm bước kiểm tra trước, rất hay dùng khi hứa sửa lỗi."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-12",
+      "title_ja": "テスト結果の報告",
+      "title_vi": "Báo cáo kết quả kiểm thử",
+      "level": "N2",
+      "situation_vi": "Kết thúc đợt test tích hợp, BrSE báo cáo số liệu và kế hoạch xử lý các case không đạt.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "結合テストの結果をご報告いたします。",
+          "vi": "Tôi xin báo cáo kết quả test tích hợp."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "テストケース全420件のうち412件を消化し、合格は398件、不合格は14件でした。",
+          "vi": "Trong tổng số 420 test case, đã thực hiện 412 case, đạt 398 case và không đạt 14 case."
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "残りの8件はどうなっていますか。",
+          "vi": "Còn 8 case còn lại thì sao?"
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "外部システムとの接続が必要なケースで、先方の検証環境が準備でき次第、実施する予定です。",
+          "vi": "Đó là các case cần kết nối với hệ thống bên ngoài, chúng tôi sẽ thực hiện ngay khi môi trường staging phía đối tác sẵn sàng."
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "不合格の14件の内訳を教えてください。",
+          "vi": "Cho tôi biết chi tiết 14 case không đạt."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "重大度「高」が2件、「中」が5件、「低」が7件です。「高」の2件は明日までに修正し、再テストいたします。",
+          "vi": "Mức độ nghiêm trọng 'cao' 2 case, 'trung bình' 5 case, 'thấp' 7 case. 2 case mức 'cao' sẽ được sửa và test lại trước ngày mai."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "わかりました。エビデンスも一緒に送ってください。",
+          "vi": "Tôi hiểu rồi. Gửi kèm cả bằng chứng test nhé."
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "かしこまりました。テスト結果報告書とエビデンスをまとめて、本日中にお送りいたします。",
+          "vi": "Vâng. Trong hôm nay tôi sẽ tổng hợp báo cáo kết quả test và bằng chứng rồi gửi anh."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "全〜件のうち〜件を消化し",
+          "reading": "ぜん〜けんのうち〜けんをしょうかし",
+          "vi": "Trong tổng ~ case đã thực hiện ~ case",
+          "note": "Cách báo số liệu test chuẩn trong dự án Nhật."
+        },
+        {
+          "ja": "〜次第",
+          "reading": "〜しだい",
+          "vi": "Ngay khi ~",
+          "note": "Ngữ pháp N2, dùng khi việc của mình phụ thuộc vào bên khác."
+        },
+        {
+          "ja": "内訳",
+          "reading": "うちわけ",
+          "vi": "Chi tiết phân loại",
+          "note": "Khách Nhật gần như luôn hỏi 内訳 sau khi nghe con số tổng."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-13",
+      "title_ja": "本番障害の一次報告",
+      "title_vi": "Báo cáo sơ bộ sự cố production",
+      "level": "N2",
+      "situation_vi": "Production gặp sự cố sau đợt release buổi sáng, BrSE gọi báo khách ngay và xin phê duyệt rollback.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "田中様、至急ご報告いたします。本日10時頃から、本番環境で決済処理がエラーになる障害が発生しております。",
+          "vi": "Anh Tanaka, tôi xin báo cáo gấp. Từ khoảng 10 giờ hôm nay, môi trường production đang gặp sự cố xử lý thanh toán bị lỗi."
+        },
+        {
+          "order": 2,
+          "speaker": "田中",
+          "ja": "えっ、ユーザーへの影響はどのくらいですか。",
+          "vi": "Hả, ảnh hưởng tới người dùng cỡ nào?"
+        },
+        {
+          "order": 3,
+          "speaker": "グエン",
+          "ja": "現時点で、決済を試みたユーザーのうち約3割がエラーになっております。",
+          "vi": "Hiện tại, khoảng 30% người dùng thực hiện thanh toán bị lỗi."
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "原因は調査中ですが、今朝のリリースで更新した設定ファイルが関係している可能性が高いと見ております。",
+          "vi": "Nguyên nhân đang được điều tra, nhưng chúng tôi cho rằng khả năng cao liên quan tới file cấu hình được cập nhật trong đợt release sáng nay."
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "すぐに戻せますか。",
+          "vi": "Quay lại ngay được không?"
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "はい。暫定対応として、30分以内にリリース前の状態に戻す予定です。ご承認いただけますでしょうか。",
+          "vi": "Vâng. Để xử lý tạm thời, chúng tôi dự định đưa về trạng thái trước release trong vòng 30 phút. Anh có thể phê duyệt được không ạ?"
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "お願いします。すぐに進めてください。",
+          "vi": "Nhờ anh. Tiến hành ngay đi."
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "承知いたしました。復旧を確認しましたら、改めてご連絡いたします。恒久対応と再発防止策は、原因が判明した段階でご報告いたします。",
+          "vi": "Vâng. Khi xác nhận đã khôi phục, tôi sẽ liên lạc lại. Hướng xử lý triệt để và biện pháp phòng tái phát sẽ báo cáo khi xác định được nguyên nhân."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "至急ご報告いたします",
+          "reading": "しきゅうごほうこくいたします",
+          "vi": "Tôi xin báo cáo gấp",
+          "note": "Mở đầu cuộc gọi báo sự cố, đi thẳng vào việc."
+        },
+        {
+          "ja": "〜可能性が高いと見ております",
+          "reading": "〜かのうせいがたかいとみております",
+          "vi": "Chúng tôi cho rằng khả năng cao là ~",
+          "note": "Nêu giả thuyết khi chưa chắc chắn, tránh khẳng định sai."
+        },
+        {
+          "ja": "暫定対応 / 恒久対応",
+          "reading": "ざんていたいおう / こうきゅうたいおう",
+          "vi": "Xử lý tạm thời / xử lý triệt để",
+          "note": "Báo sự cố luôn tách hai tầng này."
+        }
+      ]
+    },
+    {
+      "id": "BRSE-14",
+      "title_ja": "リリース前の最終確認",
+      "title_vi": "Xác nhận lần cuối trước release",
+      "level": "N2",
+      "situation_vi": "Trước ngày release, BrSE xác nhận lịch làm việc, thời gian dừng dịch vụ và phương án rollback với khách.",
+      "lines": [
+        {
+          "order": 1,
+          "speaker": "グエン",
+          "ja": "明日のリリースに向けて、最終確認をさせていただきます。",
+          "vi": "Tôi xin xác nhận lần cuối cho đợt release ngày mai."
+        },
+        {
+          "order": 2,
+          "speaker": "グエン",
+          "ja": "リリース手順書は昨日お送りしたとおりで、作業は明日の22時から24時を予定しております。",
+          "vi": "Tài liệu thao tác release như đã gửi hôm qua, dự kiến làm từ 22 giờ đến 24 giờ ngày mai."
+        },
+        {
+          "order": 3,
+          "speaker": "田中",
+          "ja": "作業中、サービスは止まりますか。",
+          "vi": "Trong lúc làm, dịch vụ có bị dừng không?"
+        },
+        {
+          "order": 4,
+          "speaker": "グエン",
+          "ja": "はい、22時から約1時間、サービスを停止いたします。停止のお知らせを、本日中にユーザーへ掲載していただけますでしょうか。",
+          "vi": "Vâng, dịch vụ sẽ dừng khoảng 1 tiếng từ 22 giờ. Anh có thể đăng thông báo dừng dịch vụ tới người dùng trong hôm nay được không ạ?"
+        },
+        {
+          "order": 5,
+          "speaker": "田中",
+          "ja": "わかりました。こちらで対応します。",
+          "vi": "Được. Bên tôi sẽ lo."
+        },
+        {
+          "order": 6,
+          "speaker": "グエン",
+          "ja": "万が一問題が発生した場合は、切り戻し手順に従って元のバージョンに戻します。判断の期限は23時30分とさせていただきます。",
+          "vi": "Nếu chẳng may có vấn đề, chúng tôi sẽ quay về phiên bản cũ theo quy trình rollback. Thời hạn ra quyết định là 23 giờ 30."
+        },
+        {
+          "order": 7,
+          "speaker": "田中",
+          "ja": "了解です。何かあったら、夜中でも連絡してください。",
+          "vi": "Rõ. Có chuyện gì thì nửa đêm cũng cứ liên lạc."
+        },
+        {
+          "order": 8,
+          "speaker": "グエン",
+          "ja": "かしこまりました。作業完了後、結果をメールでご報告いたします。",
+          "vi": "Vâng. Làm xong tôi sẽ báo kết quả qua email."
+        }
+      ],
+      "key_phrases": [
+        {
+          "ja": "〜に向けて",
+          "reading": "〜にむけて",
+          "vi": "Hướng tới ~, chuẩn bị cho ~",
+          "note": "Ngữ pháp N2."
+        },
+        {
+          "ja": "万が一",
+          "reading": "まんがいち",
+          "vi": "Nếu chẳng may",
+          "note": "Dùng khi nói về rủi ro, nghe chuyên nghiệp hơn もし."
+        },
+        {
+          "ja": "判断の期限",
+          "reading": "はんだんのきげん",
+          "vi": "Thời hạn ra quyết định",
+          "note": "Chốt trước mốc go/no-go để tránh lúng túng lúc có sự cố."
+        }
+      ]
+    }
+  ]
+}

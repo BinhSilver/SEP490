@@ -15,9 +15,9 @@ Match theo (normalized_expression, normalized_reading) — unique key cua vocabu
 import re, csv, os, unicodedata, collections
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-QB = os.path.join(REPO, "questionbank.sql")
+QB = os.path.join(REPO, "sql", "seeds", "questionbank.sql")
 OJ = os.path.join(REPO, "tools", "openjlpt-data")
-SEED_EXISTING = os.path.join(REPO, "db", "seed_data_jlas.sql")
+SEED_EXISTING = os.path.join(REPO, "sql", "seeds", "seed_data_jlas.sql")
 OUT_SUPP = os.path.join(REPO, "db", "seed_smart_test_vocab_supplement.sql")
 OUT_RETAG = os.path.join(REPO, "db", "seed_smart_test_retag_vocab.sql")
 
