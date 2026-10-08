@@ -2679,6 +2679,22 @@ body.is-vs-room .ar-page {
   background-size: 600% 100%;
 }
 
+.ar-character-art {
+  display: block;
+  width: 82%;
+  aspect-ratio: 1;
+}
+.ar-character-art img,
+.ar-character-art canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ar-character-art [hidden] { display: none; }
+/* A ship atlas uses four rows/columns; show the first pose while its canvas loads. */
+.ar-spaceship-art { position: relative; overflow: hidden; }
+.ar-spaceship-art img[data-character-fallback] { position: absolute; width: 400%; height: 400%; max-width: none; object-fit: fill; inset: 0 auto auto 0; }
+
 .ar-plane-fly {
   position: relative;
   z-index: 1;

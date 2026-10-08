@@ -1,9 +1,9 @@
 import { assetUrl } from '../assets';
 import { CatPlayer } from '../types/game';
-import { catActionsReady, drawCatAction, hasCatActions, preloadCatActions } from './CatActionAtlas';
+import { catActionsReady, drawCatAction, drawCharacterPortrait, hasCatActions, preloadCatActions } from './CatActionAtlas';
 import { SpriteRenderer } from './SpriteRenderer';
 
-export type CatSkinId = 0 | 1 | 2;
+export type CatSkinId = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface CatSkinInfo {
   id: CatSkinId;
@@ -32,18 +32,23 @@ export const CAT_SKINS: CatSkinInfo[] = [
     desc: 'Chạy ôm nồi phép, hứng đúng, hứng sai, ăn mừng và nằm buồn khi thử lại.',
     themeColor: '#8B5CF6',
   },
+  { id: 3, name: 'Godzilla', desc: 'Godzilla chibi ôm giỏ bắt cá.', themeColor: '#38BDF8' },
+  { id: 4, name: 'Ronova', desc: 'Ronova với mái tóc trắng và trang phục đỏ đen.', themeColor: '#BE123C' },
+  { id: 5, name: 'Zenitsu', desc: 'Zenitsu trong áo haori vàng họa tiết tam giác.', themeColor: '#F59E0B' },
+  { id: 6, name: 'Tanjiro', desc: 'Tanjiro trong áo haori caro xanh đen.', themeColor: '#10B981' },
 ];
 
 const ORIGINAL_SHEET_PATH = '/sprites/cat_spritesheet.png';
 
 /** Mã món trong Cửa hàng (data-skin của trang host) -> trang phục; không rõ thì dùng mèo cam. */
 /** Trang phục -> mã món trong Cửa hàng (ngược với skinFromCode). */
-export const SKIN_CODES: Record<CatSkinId, string> = { 0: 'cat-classic', 1: 'cat-cowboy', 2: 'cat-wizard' };
+export const SKIN_CODES: Record<CatSkinId, string> = {
+  0: 'cat-classic', 1: 'cat-cowboy', 2: 'cat-wizard',
+  3: 'cat-godzilla', 4: 'cat-ronova', 5: 'cat-zenitsu', 6: 'cat-tanjiro',
+};
 
 export function skinFromCode(code: string | null | undefined): CatSkinId {
-  if (code === 'cat-cowboy') return 1;
-  if (code === 'cat-wizard') return 2;
-  return 0;
+  return CAT_SKINS.find(skin => SKIN_CODES[skin.id] === code)?.id ?? 0;
 }
 
 interface SpriteFrame {
@@ -79,24 +84,29 @@ const BASE_FRAME_TABLE: Record<string, AnimConfig> = {
 
 export class CatSpriteSheet {
   private static baseImage: HTMLImageElement | null = null;
+  private static baseImagePath = '';
   private static baseLoaded = false;
   private static currentSkinId: CatSkinId = 0;
 
   public static init() {
     if (typeof window === 'undefined') return;
-    preloadCatActions();
-    if (!this.baseImage) {
+    preloadCatActions(this.currentSkinId);
+    const sheetPath = assetUrl(ORIGINAL_SHEET_PATH);
+    if (!this.baseImage || this.baseImagePath !== sheetPath) {
+      this.baseLoaded = false;
       const img = new Image();
       img.onload = () => {
-        this.baseLoaded = true;
+        if (this.baseImage === img) this.baseLoaded = true;
       };
-      img.src = assetUrl(ORIGINAL_SHEET_PATH);
       this.baseImage = img;
+      this.baseImagePath = sheetPath;
+      img.src = sheetPath;
     }
   }
 
   public static setSkin(skinId: CatSkinId) {
     this.currentSkinId = skinId;
+    preloadCatActions(skinId);
   }
 
   public static getSkin(): CatSkinId {
@@ -114,11 +124,12 @@ export class CatSpriteSheet {
 
     const activeSkin = overrideSkinId ?? this.currentSkinId;
     if (hasCatActions(activeSkin)) {
-      if (catActionsReady(activeSkin)) {
+      if (catActionsReady(activeSkin, cat.state)) {
         drawCatAction(ctx, cat, time, activeSkin, previewLoop);
       } else {
-        // The illustrated sheets are still downloading: keep a playable vector cat on screen.
-        SpriteRenderer.drawCat(ctx, cat, time);
+        if (!drawCharacterPortrait(ctx, cat, activeSkin) && activeSkin < 3) {
+          SpriteRenderer.drawCat(ctx, cat, time);
+        }
       }
       return;
     }

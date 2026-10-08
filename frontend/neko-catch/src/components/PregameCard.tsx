@@ -65,7 +65,7 @@ const SkinPanel: React.FC<{ skin: CatSkinId; options: SkinOption[] | null; onCha
             <button key={option.code} type="button" role="radio" aria-checked={selected} disabled={!option.owned}
               onClick={() => onChange(option.id)}
               title={option.owned ? undefined : `Chưa mua · ${option.price} CP ở Cửa hàng`}
-              className={`flex items-center justify-between gap-2 min-h-[36px] px-2.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:cursor-not-allowed ${
+              className={`flex items-center justify-between gap-2 min-h-[44px] px-2.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:cursor-not-allowed ${
                 selected ? 'bg-amber-400 text-slate-950' : option.owned ? 'bg-white/10 text-white/85 hover:bg-white/20' : 'bg-white/[0.03] text-white/35'
               }`}>
               <span className="truncate">{option.name}</span>

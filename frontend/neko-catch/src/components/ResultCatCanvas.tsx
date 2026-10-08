@@ -14,7 +14,8 @@ export const ResultCatCanvas: React.FC<{ skinId: CatSkinId; state: CatPlayer['st
     let animId = 0;
     const startTime = performance.now();
     const mockCat: CatPlayer = {
-      x: 110, y: 92.5, width: 100, height: 100, speed: 10,
+      x: skinId >= 3 ? 138 : 110, y: skinId >= 3 ? 116 : 92.5,
+      width: 100, height: skinId >= 3 ? 80 : 100, speed: 10,
       state, frameIndex: 0, basketWidth: 70, basketHeight: 32,
       basketOffsetX: 0, basketOffsetY: -8, shieldActive: false,
     };

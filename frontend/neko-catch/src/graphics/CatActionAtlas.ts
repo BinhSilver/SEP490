@@ -1,90 +1,114 @@
 import cowboy from '@neko-static/sprites/actions/cowboy/manifest.json';
 import wizard from '@neko-static/sprites/actions/wizard/manifest.json';
+import godzilla from '@neko-static/sprites/actions/godzilla/manifest.json';
+import ronova from '@neko-static/sprites/actions/ronova/manifest.json';
+import zenitsu from '@neko-static/sprites/actions/zenitsu/manifest.json';
+import tanjiro from '@neko-static/sprites/actions/tanjiro/manifest.json';
 import { assetUrl } from '../assets';
 import type { CatPlayer } from '../types/game';
 
-type Action = 'idle' | 'run' | 'catch_success' | 'catch_wrong' | 'win' | 'lose';
-const bundles = { 1: cowboy, 2: wizard };
+export type CatAction = 'idle' | 'run' | 'catch_success' | 'catch_wrong' | 'win' | 'lose';
+export interface SourceFrame {
+  x: number; y: number; width: number; height: number; anchorX: number; anchorY: number;
+  scaleHeight?: number;
+}
+interface ActionConfig {
+  frameCount: number; columns: number; frameDurationMs: number; loop: boolean; path: string;
+  sourceFrames?: SourceFrame[];
+  frameDurationsMs?: number[];
+}
+interface ActionBundle {
+  cellSize: number; baseline: number; portrait?: string; lobby?: ActionConfig;
+  actions: Record<CatAction, ActionConfig>;
+}
+const bundles: Record<number, ActionBundle> = { 1: cowboy, 2: wizard, 3: godzilla, 4: ronova, 5: zenitsu, 6: tanjiro };
 const images = new Map<string, HTMLImageElement>();
 const clocks = new WeakMap<CatPlayer, { key: string; start: number; last: number }>();
+const actionFor = (state: CatPlayer['state']): CatAction => state === 'run_left' || state === 'run_right' ? 'run' : state;
 
-export function hasCatActions(skin: number): skin is keyof typeof bundles {
-  return skin === 1 || skin === 2;
-}
-
-export function preloadCatActions() {
+function loadImage(path: string): HTMLImageElement | undefined {
   if (typeof Image === 'undefined') return;
-  for (const bundle of Object.values(bundles)) {
-    for (const action of Object.values(bundle.actions)) {
-      if (images.has(action.path)) continue;
-      const image = new Image();
-      image.src = assetUrl(action.path);
-      images.set(action.path, image);
-    }
-  }
+  let image = images.get(path);
+  if (!image) { image = new Image(); images.set(path, image); image.src = assetUrl(path); }
+  return image;
 }
-
-/** True once every sheet of the skin has decoded (callers draw a fallback cat until then). */
-export function catActionsReady(skin: keyof typeof bundles): boolean {
-  preloadCatActions();
-  return Object.values(bundles[skin].actions).every(action => {
-    const image = images.get(action.path);
-    return !!image && image.complete && image.naturalWidth > 0;
-  });
+export function hasCatActions(skin: number): boolean {
+  return Object.prototype.hasOwnProperty.call(bundles, skin);
 }
-
-/** State-local playback: feedback starts on frame zero and holds its final pose.
- * `previewLoop` loops one-shot actions (used by small preview canvases).
- */
-export function drawCatAction(
-  ctx: CanvasRenderingContext2D, cat: CatPlayer, time: number,
-  skin: keyof typeof bundles, previewLoop = false,
-) {
-  preloadCatActions();
+/** Fetch only the equipped character, rather than every skin in the shop. */
+export function preloadCatActions(skin: number) {
   const bundle = bundles[skin];
-  const action: Action = cat.state === 'run_left' || cat.state === 'run_right' ? 'run' : cat.state;
-  const config = bundle.actions[action];
-  const image = images.get(config.path)!;
+  if (!bundle) return;
+  if (bundle.portrait) loadImage(bundle.portrait);
+  Object.values(bundle.actions).forEach(action => loadImage(action.path));
+}
+export function catActionsReady(skin: number, state: CatPlayer['state'] = 'idle'): boolean {
+  const bundle = bundles[skin];
+  if (!bundle) return false;
+  const image = loadImage(bundle.actions[actionFor(state)].path);
+  return !!image && image.complete && image.naturalWidth > 0;
+}
+/** Preserve character identity while its animation sheet downloads. */
+export function drawCharacterPortrait(ctx: CanvasRenderingContext2D, cat: CatPlayer, skin: number): boolean {
+  const path = bundles[skin]?.portrait;
+  const image = path ? loadImage(path) : undefined;
+  if (!image?.complete || !image.naturalWidth) return false;
+  const height = cat.height * 1.7, width = height * image.naturalWidth / image.naturalHeight;
+  ctx.save(); ctx.translate(cat.x, cat.y);
+  if (cat.state === 'run_left') ctx.scale(-1, 1);
+  ctx.drawImage(image, -width / 2, cat.height * 0.42 - height * 0.96, width, height);
+  ctx.restore(); return true;
+}
+export function sourceFrame(bundle: ActionBundle, config: ActionConfig, frame: number): SourceFrame {
+  return config.sourceFrames?.[frame] ?? {
+    x: (frame % config.columns) * bundle.cellSize, y: Math.floor(frame / config.columns) * bundle.cellSize,
+    width: bundle.cellSize, height: bundle.cellSize, anchorX: bundle.cellSize / 2, anchorY: bundle.baseline,
+  };
+}
+
+/** Dedicated resting poses for human/kaiju characters in the pre-game lobby. */
+export function drawCharacterLobby(ctx: CanvasRenderingContext2D, width: number, height: number,
+  skin: number, time: number, reducedMotion = false): boolean {
+  const bundle = bundles[skin], config = bundle?.lobby;
+  if (!config) return false;
+  const image = loadImage(config.path);
+  if (!image?.complete || !image.naturalWidth) return false;
+  const durations = config.frameDurationsMs ?? Array(config.frameCount).fill(config.frameDurationMs);
+  let elapsed = reducedMotion ? 0 : time % durations.reduce((sum: number, value: number) => sum + value, 0);
+  let frame = 0;
+  while (frame < config.frameCount - 1 && elapsed >= durations[frame]) elapsed -= durations[frame++];
+  const source = sourceFrame(bundle, config, frame), scale = height * 0.9 / (source.scaleHeight ?? source.height);
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(image, source.x, source.y, source.width, source.height,
+    width / 2 - source.anchorX * scale, height * 0.96 - source.anchorY * scale,
+    source.width * scale, source.height * scale);
+  return true;
+}
+/** Movement loops; feedback starts at frame zero and holds its last pose. */
+export function drawCatAction(ctx: CanvasRenderingContext2D, cat: CatPlayer, time: number, skin: number, previewLoop = false) {
+  const bundle = bundles[skin]; if (!bundle) return;
+  const action = actionFor(cat.state), config = bundle.actions[action], image = loadImage(config.path);
   const key = `${skin}:${action}`;
   let clock = clocks.get(cat);
   if (!clock || clock.key !== key || time < clock.last) {
-    clock = { key, start: time, last: time };
-    clocks.set(cat, clock);
+    clock = { key, start: time, last: time }; clocks.set(cat, clock);
   }
   clock.last = time;
-  const elapsed = time - clock.start;
-  const step = Math.floor(elapsed / config.frameDurationMs);
-  const frame = config.loop || previewLoop
-    ? step % config.frameCount : Math.min(step, config.frameCount - 1);
-  const size = cat.height * 1.7;
-  // Every action uses the same source scale and feet line, including crouching.
-  const feet = cat.height * 0.42;
-  const hop = action === 'win' ? Math.max(0, Math.sin(elapsed * Math.PI / 450)) * 13 : 0;
-  ctx.save();
-  ctx.translate(cat.x, cat.y);
-  ctx.fillStyle = 'rgba(0,0,0,0.18)';
-  ctx.beginPath();
-  ctx.ellipse(0, feet, cat.width * 0.38, 7, 0, 0, Math.PI * 2);
-  ctx.fill();
+  const elapsed = time - clock.start, step = Math.floor(elapsed / config.frameDurationMs);
+  const frame = config.loop || previewLoop ? step % config.frameCount : Math.min(step, config.frameCount - 1);
+  const source = sourceFrame(bundle, config, frame), size = cat.height * 1.7, scale = size / (source.scaleHeight ?? source.height);
+  const feet = cat.height * 0.42, hop = action === 'win' ? Math.max(0, Math.sin(elapsed * Math.PI / 450)) * 13 : 0;
+  const breathe = skin >= 3 && action === 'idle' ? Math.sin(elapsed / 450) * 1.5 : 0;
+  ctx.save(); ctx.translate(cat.x, cat.y);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.beginPath(); ctx.ellipse(0, feet, cat.width * 0.38, 7, 0, 0, Math.PI * 2); ctx.fill();
   if (cat.shieldActive) {
-    ctx.strokeStyle = '#34d399';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(0, -cat.height * 0.15, cat.width * 0.7, cat.height * 0.85, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.strokeStyle = '#34d399'; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.ellipse(0, -cat.height * 0.15, cat.width * 0.7, cat.height * 0.85, 0, 0, Math.PI * 2); ctx.stroke();
   }
   if (cat.state === 'run_left') ctx.scale(-1, 1);
-  if (image.complete && image.naturalWidth > 0) {
-    ctx.drawImage(image,
-      (frame % config.columns) * bundle.cellSize,
-      Math.floor(frame / config.columns) * bundle.cellSize,
-      bundle.cellSize, bundle.cellSize,
-      -size / 2, feet - size * bundle.baseline / bundle.cellSize - hop, size, size);
-  } else {
-    ctx.fillStyle = '#FF9F43';
-    ctx.font = '14px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(image.complete ? 'Không tải được trang phục' : 'Đang tải trang phục…', 0, 0);
+  if (image?.complete && image.naturalWidth > 0) {
+    ctx.drawImage(image, source.x, source.y, source.width, source.height,
+      -source.anchorX * scale, feet - source.anchorY * scale - hop - breathe, source.width * scale, source.height * scale);
   }
   ctx.restore();
 }

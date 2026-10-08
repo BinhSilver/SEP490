@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { assetUrl } from '../assets';
 import type { CatSkinId } from '../graphics/CatSpriteSheet';
+import { CAT_SKINS } from '../graphics/CatSpriteSheet';
+import { drawCharacterLobby } from '../graphics/CatActionAtlas';
+type LegacySkinId = 0 | 1 | 2;
 
 /**
  * Dải khung (sprites/lobby/*.webp, xem make_lobby_cats.py). 0–7: F1 F2 nằm ngủ, F3 tỉnh dậy, F4 ngồi, F5 vươn người,
  * F6 ngáp, F7 ngồi, F8 liếm chân. 8–16: khung chuyển tiếp T1–T9. 17–26: bộ liếm chân L1–L10 (mèo cao bồi, phù thủy).
  */
-const SHEETS: Record<CatSkinId, string> = { 0: 'classic', 1: 'cowboy', 2: 'wizard' };
-const FRAME_COUNT: Record<CatSkinId, number> = { 0: 17, 1: 27, 2: 27 };
+const SHEETS: Record<LegacySkinId, string> = { 0: 'classic', 1: 'cowboy', 2: 'wizard' };
+const FRAME_COUNT: Record<LegacySkinId, number> = { 0: 17, 1: 27, 2: 27 };
 const F = (n: number) => n - 1;
 const T = (n: number) => n + 7;
 const L = (n: number) => n + 16;
@@ -46,7 +49,7 @@ const NEW_LICK: Step[] = [
   [L(8), 220], [L(9), 220], [L(10), 1000],
 ];
 
-const TIMELINES: Record<CatSkinId, Step[]> = {
+const TIMELINES: Record<LegacySkinId, Step[]> = {
   0: [...WAKE_AND_STRETCH, ...OLD_LICK, ...LIE_DOWN],
   1: [...WAKE_AND_STRETCH, ...NEW_LICK, ...LIE_DOWN],
   2: [...WAKE_AND_STRETCH, ...NEW_LICK, ...LIE_DOWN],
@@ -59,7 +62,7 @@ Object.values(SHEETS).forEach(name => { new Image().src = assetUrl(`/sprites/lob
  * Mèo ở màn cài đặt trước trận: chạy chuỗi động tác sinh hoạt lặp lại. Các khung chồng lên nhau, đổi khung bằng hoà mờ
  * rất ngắn giữa các khung; ngủ thì thở phập phồng, ngồi thì lắc lư khẽ để đỡ cảm giác "nhảy hình".
  */
-export const LobbyCat: React.FC<{ skinId: CatSkinId; className?: string }> = ({ skinId, className = '' }) => {
+const LegacyLobbyCat: React.FC<{ skinId: LegacySkinId; className?: string }> = ({ skinId, className = '' }) => {
   const [step, setStep] = useState(0);
   const timeline = TIMELINES[skinId] ?? TIMELINES[0];
   const frames = FRAME_COUNT[skinId] ?? FRAME_COUNT[0];
@@ -99,3 +102,42 @@ export const LobbyCat: React.FC<{ skinId: CatSkinId; className?: string }> = ({ 
     </div>
   );
 };
+
+const CHARACTER_NAMES: Record<number, string> = { 3: 'godzilla', 4: 'ronova', 5: 'zenitsu', 6: 'tanjiro' };
+const CharacterLobby: React.FC<{ skinId: CatSkinId; className?: string; forceMotion?: boolean }> = ({ skinId, className = '', forceMotion = false }) => {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [ready, setReady] = useState(false);
+  const name = CAT_SKINS.find(skin => skin.id === skinId)?.name ?? 'Nhân vật';
+  useEffect(() => {
+    setReady(false);
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let raf = 0, painted = false;
+    const started = performance.now();
+    const draw = () => {
+      if (document.hidden) return;
+      const ctx = canvas.current?.getContext('2d');
+      const reduced = !forceMotion && motion.matches;
+      const drawn = !!ctx && drawCharacterLobby(ctx, 300, 260, skinId, performance.now() - started, reduced);
+      if (drawn && !painted) { painted = true; setReady(true); }
+      if (!reduced || !drawn) raf = requestAnimationFrame(draw);
+    };
+    const resume = () => { cancelAnimationFrame(raf); draw(); };
+    document.addEventListener('visibilitychange', resume);
+    motion.addEventListener('change', resume);
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('visibilitychange', resume);
+      motion.removeEventListener('change', resume);
+    };
+  }, [skinId, forceMotion]);
+  return <div className={`relative ${className}`} role="img" aria-label={`${name} đang nghỉ trước trận`}
+    style={{ aspectRatio: '300 / 260' }}>
+    {!ready && <img className="absolute inset-0 h-full w-full object-contain" alt=""
+      src={assetUrl(`/sprites/portraits/${CHARACTER_NAMES[skinId]}.png`)} />}
+    <canvas ref={canvas} width={300} height={260} aria-hidden="true" className="absolute inset-0 h-full w-full" />
+  </div>;
+};
+
+export const LobbyCat: React.FC<{ skinId: CatSkinId; className?: string; forceMotion?: boolean }> = ({ forceMotion = false, ...props }) =>
+  props.skinId <= 2 ? <LegacyLobbyCat {...props} skinId={props.skinId as LegacySkinId} /> : <CharacterLobby {...props} forceMotion={forceMotion} />;

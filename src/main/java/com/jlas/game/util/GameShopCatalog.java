@@ -26,6 +26,18 @@ public final class GameShopCatalog {
                     "Đội mũ cao bồi, có cảnh ăn mừng riêng khi thắng.", 150, "/arena/images/shop/cat-cowboy.webp", false),
             new ShopItem(1103, "cat-wizard", GameType.NEKO_CATCH, "Mèo phù thủy",
                     "Áo choàng tím và nồi phép thuật.", 200, "/arena/images/shop/cat-wizard.webp", false),
+            new ShopItem(1104, "cat-godzilla", GameType.NEKO_CATCH, "Godzilla",
+                    "Godzilla chibi ôm giỏ bắt cá, với bộ chuyển động riêng.", 200,
+                    "/arena/app/neko/sprites/portraits/godzilla.png", false),
+            new ShopItem(1105, "cat-ronova", GameType.NEKO_CATCH, "Ronova",
+                    "Mái tóc trắng và trang phục đỏ đen của Ronova.", 200,
+                    "/arena/app/neko/sprites/portraits/ronova.png", false),
+            new ShopItem(1106, "cat-zenitsu", GameType.NEKO_CATCH, "Zenitsu",
+                    "Áo haori vàng họa tiết tam giác và chiếc giỏ bắt cá.", 200,
+                    "/arena/app/neko/sprites/portraits/zenitsu.png", false),
+            new ShopItem(1107, "cat-tanjiro", GameType.NEKO_CATCH, "Tanjiro",
+                    "Áo haori caro xanh đen và bộ chuyển động riêng của Tanjiro.", 200,
+                    "/arena/app/neko/sprites/portraits/tanjiro.png", false),
             new ShopItem(1201, "plane-blue", GameType.AIR_DEFENSE, "Máy bay xanh",
                     "Máy bay mặc định, có sẵn cho mọi người.", 0, "/arena/images/shop/plane-blue.png", true),
             new ShopItem(1202, "plane-red", GameType.AIR_DEFENSE, "Máy bay đỏ",
@@ -62,6 +74,6 @@ public final class GameShopCatalog {
     }
 
     public static String sectionTitle(GameType gameType) {
-        return gameType == GameType.NEKO_CATCH ? "Trang phục mèo" : "Máy bay";
+        return gameType == GameType.NEKO_CATCH ? "Nhân vật và trang phục" : "Máy bay";
     }
 }
