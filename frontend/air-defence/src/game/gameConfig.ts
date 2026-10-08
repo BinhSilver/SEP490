@@ -129,11 +129,7 @@ export const GAME_CONFIG = {
   // 8. TÀU CHIẾN (một tàu mặc định; hình máy bay đổi theo món mua ở Cửa hàng, chỉ số giữ nguyên)
   // --------------------------------------------------------------------------
   PLANE_SPRITES: {
-    "plane-blue": `${import.meta.env.BASE_URL}assets/space/Player/player_b_m.png`,
-    "plane-red": `${import.meta.env.BASE_URL}assets/space/Player/player_r_m.png`,
-    "plane-green": `${import.meta.env.BASE_URL}assets/space/Player/player_green_m.png`,
-    "plane-violet": `${import.meta.env.BASE_URL}assets/space/Player/player_violet_m.png`,
-    "plane-gold": `${import.meta.env.BASE_URL}assets/space/Player/player_gold_m.png`
+    "plane-blue": `${import.meta.env.BASE_URL}assets/space/Player/player_b_m.png`
   } as Record<string, string>,
   SHIPS: [
     {

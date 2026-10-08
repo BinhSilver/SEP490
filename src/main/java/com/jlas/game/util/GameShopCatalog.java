@@ -40,14 +40,14 @@ public final class GameShopCatalog {
                     "/arena/app/neko/sprites/portraits/tanjiro.png", false),
             new ShopItem(1201, "plane-blue", GameType.AIR_DEFENSE, "Máy bay xanh",
                     "Máy bay mặc định, có sẵn cho mọi người.", 0, "/arena/images/shop/plane-blue.png", true),
-            new ShopItem(1202, "plane-red", GameType.AIR_DEFENSE, "Máy bay đỏ",
-                    "Thân đỏ rực.", 100, "/arena/images/shop/plane-red.png", false),
-            new ShopItem(1203, "plane-green", GameType.AIR_DEFENSE, "Máy bay xanh lá",
-                    "Thân xanh lá.", 100, "/arena/images/shop/plane-green.png", false),
-            new ShopItem(1204, "plane-violet", GameType.AIR_DEFENSE, "Máy bay tím",
-                    "Thân tím.", 100, "/arena/images/shop/plane-violet.png", false),
-            new ShopItem(1205, "plane-gold", GameType.AIR_DEFENSE, "Máy bay vàng",
-                    "Thân vàng óng.", 200, "/arena/images/shop/plane-gold.png", false)
+            new ShopItem(1206, "plane-halo-fighter", GameType.AIR_DEFENSE, "Thiên Luân Phán Xét",
+                    "Một vòng sáng xuất hiện giữa bóng tối — không phải bình minh, mà là phán quyết.", 200, "/arena/app/air-defense/assets/space/skins/halo-fighter/body.png", false),
+            new ShopItem(1207, "plane-aegis-frame", GameType.AIR_DEFENSE, "Vệ Thần Thiên Giới",
+                    "Thiên giới không cần quân đoàn. Một mình ta đã là quân đoàn.", 200, "/arena/app/air-defense/assets/space/skins/aegis-frame/body.png", false),
+            new ShopItem(1208, "plane-split-core", GameType.AIR_DEFENSE, "Vệ Binh Tinh Tú",
+                    "Giữa hàng tỷ ngôi sao, chỉ có một ánh sáng không bao giờ tắt.", 200, "/arena/app/air-defense/assets/space/skins/split-core/body.png", false),
+            new ShopItem(1209, "plane-void-blade", GameType.AIR_DEFENSE, "Tử Thần",
+                    "Kẻ địch gọi nó là bóng ma. Những người sống sót gọi nó bằng một cái tên khác: Tử Thần.", 200, "/arena/app/air-defense/assets/space/skins/void-blade/body.png", false)
     );
 
     /** Thứ tự các mục trong cửa hàng; game khác (Lật thẻ) chưa có món nào. */
