@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/editor-theme.css?v=20261005-equal-fields" />
+  <link rel="stylesheet" href="/flashcard/editor-theme.css?v=20261006-purple-import" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
 </head>
 
@@ -148,7 +148,7 @@
       </div>
       <div class="modal-body">
         <p class="muted import-guide">
-          Nhập danh sách từ vựng theo cú pháp: Từ - Cách đọc : Nghĩa (Hán Việt). Chỉ bắt buộc Từ và Nghĩa; cách đọc và Hán Việt có thể bỏ, AI điền sau được.
+          Dán danh sách từ hoặc ghi chú học tập. AI tạo thẻ từ dữ liệu này và bổ sung cách đọc, nghĩa, Hán Việt còn thiếu. Bạn cũng có thể nhập trực tiếp theo mẫu Từ - Cách đọc : Nghĩa (Hán Việt).
         </p>
         <p class="muted import-example">
           Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN) · 学校 : Trường học · コーヒー : Cà phê
@@ -161,19 +161,24 @@
           <span class="muted">Cột: Mặt trước · Mặt sau · Hán Việt — cùng định dạng với file xuất từ thư viện.</span>
         </div>
         <div class="form-group">
-          <label class="label" for="import-text">Danh sách từ</label>
+          <label class="label" for="import-text">Dữ liệu nguồn</label>
           <div class="input-wrap">
             <textarea id="import-text" class="textarea" rows="8"
-              placeholder="Nhập hoặc dán danh sách từ vựng theo mẫu ở trên..."></textarea>
+              placeholder="Ví dụ: 食べる ăn Thực&#10;飲む uống Ẩm&#10;Hoặc dán danh sách từ, bảng dữ liệu, ghi chú học tập…"></textarea>
           </div>
         </div>
         <div class="import-actions">
           <button type="button" class="btn btn-ghost" id="btn-import-ai">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> AI điền cách đọc &amp; Hán Việt
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI tạo thẻ từ dữ liệu
           </button>
         </div>
+        <p id="import-ai-status" class="muted" role="status" aria-live="polite"></p>
+        <section id="import-ai-preview" class="import-ai-preview" aria-labelledby="import-ai-preview-title" hidden>
+          <h4 id="import-ai-preview-title">Thẻ AI đã tạo</h4>
+          <ol id="import-ai-cards" class="import-ai-cards"></ol>
+        </section>
         <p class="muted import-result-note">
-          Sau khi áp dụng, hệ thống tạo thẻ: Mặt trước (từ vựng), Mặt sau (cách đọc — nghĩa), Hán Việt (nếu từ có Kanji).
+          Kiểm tra các thẻ AI đã tạo rồi bấm Áp dụng để thêm vào danh sách soạn thẻ. Dữ liệu nguồn được giữ nguyên.
         </p>
       </div>
       <div class="modal-footer">
@@ -225,7 +230,7 @@
   <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/prevalidation.js"></script>
-  <script src="/flashcard/js/editor-page.js?v=6"></script>
+  <script src="/flashcard/js/editor-page.js?v=7"></script>
 </body>
 
 </html>

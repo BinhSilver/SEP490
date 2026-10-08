@@ -173,6 +173,13 @@ public class FlashcardServiceImpl implements FlashcardService {
         try { String text = fileCodec.toImportText(file.getOriginalFilename(), file.getBytes()); return ImportFileResponse.builder().text(text).lineCount(text.isEmpty() ? 0 : (int) text.lines().count()).build(); }
         catch (IOException exception) { throw bad("Không đọc được file"); }
     }
+    @Override
+    public List<EnrichResponse> generateImportCards(String text) {
+        return hanVietAiService.generateImportCards(text).stream()
+                .map(result -> EnrichResponse.builder().front(result.kanji()).reading(result.reading())
+                        .meaning(result.meaning()).back(result.back()).hanViet(result.hanViet()).build())
+                .toList();
+    }
     @Override @Transactional(readOnly = true)
     public ImportHanVietResponse enrichImport(String text) {
         String value = hanVietAiService.enrichImportText(text);

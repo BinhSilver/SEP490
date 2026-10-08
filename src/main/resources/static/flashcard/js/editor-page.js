@@ -58,6 +58,7 @@
     document.getElementById('btn-close-import').addEventListener('click', closeImport);
     document.getElementById('btn-cancel-import').addEventListener('click', closeImport);
     document.getElementById('btn-import-ai').addEventListener('click', importGenerateAi);
+    document.getElementById('import-text').addEventListener('input', clearImportAiPreview);
     document.getElementById('btn-import-file').addEventListener('click', function () {
       document.getElementById('import-file').click();
     });
@@ -669,6 +670,9 @@
   }
 
   function closeImport() {
+    importAiRequest++;
+    setImportAiBusy(false);
+    clearImportAiPreview();
     document.getElementById('import-modal').hidden = true;
   }
 
@@ -729,56 +733,84 @@
       }
       var textarea = document.getElementById('import-text');
       textarea.value = textarea.value.trim() ? textarea.value.trim() + '\n' + res.text : res.text;
+      clearImportAiPreview();
       FlashShell.showToast('Đã đọc ' + res.lineCount + ' dòng từ ' + file.name + '. Kiểm tra rồi bấm Áp dụng', 'ok');
     } catch (e) {
       FlashShell.showToast(e.message || 'Không đọc được file', 'err');
     }
   }
 
+  var pendingImportCards = null;
+  var importGeneratedFrom = null;
+  var importAiBusy = false;
+  var importAiRequest = 0;
+
+  function clearImportAiPreview() {
+    pendingImportCards = null;
+    importGeneratedFrom = null;
+    document.getElementById('import-ai-preview').hidden = true;
+    document.getElementById('import-ai-cards').replaceChildren();
+    document.getElementById('import-ai-status').textContent = '';
+    document.getElementById('btn-apply-import').innerHTML = '<i class="fa-solid fa-check"></i> Áp dụng vào danh sách thẻ';
+  }
+
+  function setImportAiBusy(busy) {
+    importAiBusy = busy;
+    ['btn-import-ai', 'btn-apply-import', 'btn-import-file', 'import-text'].forEach(function (id) {
+      document.getElementById(id).disabled = busy;
+    });
+    document.getElementById('btn-import-ai').setAttribute('aria-busy', String(busy));
+    document.getElementById('btn-import-ai').innerHTML = busy
+      ? '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Đang tạo thẻ…'
+      : '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> AI tạo thẻ từ dữ liệu';
+  }
+
   async function importGenerateAi() {
+    if (importAiBusy) return;
     var text = document.getElementById('import-text').value;
-    if (!text.trim()) {
-      FlashShell.showToast('Nhập danh sách từ trước', 'err');
-      return;
-    }
-
-    if (window.JlasUI && JlasUI.showAiProgress) {
-      JlasUI.showAiProgress({
-        title: 'AI điền cách đọc & Hán Việt 🌸',
-        category: 'IMPORT ASSISTANT',
-        subtitle: 'Đang phân tích danh sách từ vựng và tự động bổ sung Hán Việt...',
-        total: 100,
-        unit: '%',
-        current: 25,
-        percent: 25,
-        status: 'Đang gửi văn bản tới AI...'
-      });
-    }
-
+    clearImportAiPreview();
+    var status = document.getElementById('import-ai-status');
+    if (!text.trim()) { status.textContent = 'Nhập dữ liệu nguồn trước khi tạo thẻ.'; return; }
+    if (text.length > 12000) { status.textContent = 'Dữ liệu không được quá 12.000 ký tự.'; return; }
+    var request = ++importAiRequest;
+    setImportAiBusy(true);
+    status.textContent = 'AI đang đọc dữ liệu và tạo các thẻ…';
     try {
-      if (window.JlasUI && JlasUI.updateAiProgress) {
-        JlasUI.updateAiProgress({ percent: 28, status: 'AI đang phân tích và dịch Hán Việt...' });
-      }
-
-      var res = await FlashApi.post('/api/flashcards/import/generate-hanviet', { text: text });
-      document.getElementById('import-text').value = res.text || text;
-
-      if (window.JlasUI && JlasUI.completeAiProgress) {
-        JlasUI.completeAiProgress('Đã bổ sung Hán Việt! 🌸', function () {
-          FlashShell.showToast('Đã bổ sung cách đọc và Hán Việt (AI)', 'ok');
-        });
-      } else {
-        FlashShell.showToast('Đã bổ sung cách đọc và Hán Việt (AI)', 'ok');
-      }
+      var res = await FlashApi.post('/api/flashcards/import/generate-cards', { text: text });
+      if (request !== importAiRequest) return;
+      if (document.getElementById('import-text').value !== text) throw new Error('Dữ liệu nguồn đã thay đổi. Hãy tạo thẻ lại từ dữ liệu mới.');
+      if (!Array.isArray(res) || !res.length || res.length > 60) throw new Error('AI chưa trả về thẻ hợp lệ.');
+      var generated = res.map(function (item) {
+        if (!item || typeof item.front !== 'string' || typeof item.reading !== 'string' || typeof item.meaning !== 'string'
+            || !item.front.trim() || !item.reading.trim() || !item.meaning.trim()) throw new Error('Thẻ AI thiếu từ vựng, cách đọc hoặc nghĩa.');
+        var front = item.front.trim(), reading = item.reading.trim(), meaning = item.meaning.trim();
+        return { front: front, reading: reading, meaning: meaning,
+          back: reading + ' — ' + meaning,
+          hanViet: hasKanji(front) ? String(item.hanViet || '').trim() : '', image: '', _selected: false };
+      });
+      pendingImportCards = generated;
+      importGeneratedFrom = text;
+      document.getElementById('import-ai-cards').innerHTML = generated.map(function (card, index) {
+        return '<li class="import-ai-card"><span class="import-ai-card__number">' + (index + 1) + '</span><div>' +
+          '<strong lang="ja">' + FlashShell.esc(card.front) + '</strong><span lang="ja">' + FlashShell.esc(card.reading) + '</span>' +
+          '<p>' + FlashShell.esc(card.meaning) + '</p><small>Hán Việt: ' + FlashShell.esc(card.hanViet || '—') + '</small></div></li>';
+      }).join('');
+      document.getElementById('import-ai-preview').hidden = false;
+      status.textContent = 'Đã tạo ' + generated.length + ' thẻ. Kiểm tra kết quả rồi áp dụng vào danh sách.';
+      document.getElementById('btn-apply-import').innerHTML = '<i class="fa-solid fa-check"></i> Thêm ' + generated.length + ' thẻ vào danh sách';
     } catch (e) {
-      if (window.JlasUI && JlasUI.hideAiProgress) JlasUI.hideAiProgress();
-      FlashShell.showToast(e.message || 'Tạo Hán Việt thất bại', 'err');
+      if (request === importAiRequest) status.textContent = e.message || 'Không tạo được thẻ. Hãy thử lại.';
+    } finally {
+      if (request === importAiRequest) setImportAiBusy(false);
     }
   }
 
   function applyImport() {
+    if (importAiBusy) return;
     var text = document.getElementById('import-text').value;
-    var parsed = parseImportLines(text);
+    var parsed = pendingImportCards && importGeneratedFrom === text
+      ? pendingImportCards.map(function (card) { return Object.assign({}, card); })
+      : parseImportLines(text);
     if (!parsed.length) {
       FlashShell.showToast('Không có dòng hợp lệ. Dán 2–3 cột Excel hoặc dùng mẫu Từ : Nghĩa (có thể thêm cách đọc và Hán Việt)', 'err');
       return;

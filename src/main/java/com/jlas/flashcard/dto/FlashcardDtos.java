@@ -67,6 +67,7 @@ public final class FlashcardDtos {
     public static class ParsedLineDto { private String front; private String reading; private String back; private String hanViet; private String raw; private boolean valid; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class ImportHanVietResponse { private String text; private List<ParsedLineDto> lines; }
+    @Data @NoArgsConstructor @AllArgsConstructor public static class ImportCardsRequest { @NotBlank @Size(max = 12000) private String text; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class EnrichRequest { @NotBlank private String kanji; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class EnrichBatchRequest { private List<String> kanjis; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class BatchHanVietRequest { private List<Long> cardIds; }

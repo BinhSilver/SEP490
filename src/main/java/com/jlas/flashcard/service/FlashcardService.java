@@ -16,6 +16,7 @@ public interface FlashcardService {
     SetDetailDto cloneSet(Long id, Long userId); SetDetailDto importText(ImportRequest request, Long userId);
     ExportFileDto export(Long id, String format, boolean includeHanViet, Long userId); ImportFileResponse importFile(MultipartFile file, Long userId);
     SyncPreviewResponse syncPreview(Long id, Long userId); SyncResponse sync(Long id, Long userId);
+    List<EnrichResponse> generateImportCards(String text);
     ImportHanVietResponse enrichImport(String text); EnrichResponse enrich(String term);
     List<EnrichResponse> enrichBatch(List<String> terms); CardDto enrichCard(Long cardId, Long userId);
     List<CardDto> enrichCards(BatchHanVietRequest request, Long userId);
