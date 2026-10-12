@@ -196,3 +196,45 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Page-owned dark mode: css/pages/auth.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-auth-bg: #0b0d13;
+  --dm-auth-surface: #171b26;
+  --dm-auth-raised: #242a39;
+  --dm-auth-ink: #f8fafc;
+  --dm-auth-muted: #b2bfd2;
+  --dm-auth-line: #40485d;
+  --dm-auth-accent: #c084fc;
+  --dm-auth-action: #7335a6;
+  --dm-auth-accent-soft: #2a203d;
+  --dm-auth-on-accent: #211b34;
+  --dm-auth-success: #8eddb6;
+  --dm-auth-success-bg: #1b3d32;
+  --dm-auth-success-line: #43816b;
+  --dm-auth-danger: #ffb4bd;
+  --dm-auth-danger-bg: #452832;
+  --dm-auth-danger-line: #96616d;
+  --dm-auth-warning: #f3d28a;
+  --dm-auth-warning-bg: #403522;
+  --dm-auth-warning-line: #947a46;
+  --dm-auth-pink: #f4aed2;
+  --dm-auth-pink-bg: #432d40;
+  --dm-auth-pink-line: #88637b;
+}
+html[data-theme="dark"] .page-login .card:hover,
+html[data-theme="dark"] .page-register-body .card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22) !important
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"]{--color-background:var(--dm-auth-bg);--color-surface:var(--dm-auth-bg);--color-surface-lowest:var(--dm-auth-surface);--color-surface-low:var(--dm-auth-raised);--color-surface-mid:var(--dm-auth-raised);--color-surface-high:var(--dm-auth-raised);--color-surface-container:var(--dm-auth-raised);--color-surface-container-high:var(--dm-auth-raised);--color-on-surface:var(--dm-auth-ink);--color-on-surface-variant:var(--dm-auth-muted);--color-secondary:var(--dm-auth-muted);--color-outline:var(--dm-auth-muted);--color-outline-variant:var(--dm-auth-line);--color-primary:var(--dm-auth-accent);--color-primary-container:var(--dm-auth-action);--color-on-primary:var(--dm-auth-on-accent);--color-on-primary-container:var(--dm-auth-ink);--color-primary-fixed:var(--dm-auth-accent-soft);--color-on-primary-fixed:var(--dm-auth-accent);--color-secondary-container:var(--dm-auth-accent-soft);--color-secondary-fixed:var(--dm-auth-accent-soft);--color-success:var(--dm-auth-success);--color-success-bg:var(--dm-auth-success-bg);--color-error:var(--dm-auth-danger);--color-error-container:var(--dm-auth-danger-bg);--color-on-error-container:var(--dm-auth-danger);--color-tertiary:var(--dm-auth-warning);--color-tertiary-container:var(--dm-auth-warning-bg);--color-on-tertiary-container:var(--dm-auth-warning);--color-focus:var(--dm-auth-accent);--jlab-base-page-background:var(--dm-auth-bg);--auth-ink:var(--dm-auth-ink);--auth-on-action:var(--dm-auth-ink);}
+html[data-theme="dark"] :is(.page-login,.page-register-body,.app-body--auth){color:var(--dm-auth-ink);background:var(--dm-auth-bg);}
+html[data-theme="dark"] :is(.page-login,.page-register-body,.app-body--auth) :is(.card__title,.form-label,.field__label){color:var(--dm-auth-ink)!important;}
+html[data-theme="dark"] :is(.page-login,.page-register-body,.app-body--auth) :is(.input,.select,.textarea){background:var(--dm-auth-surface)!important;color:var(--dm-auth-ink)!important;border-color:var(--dm-auth-line)!important;}
+html[data-theme="dark"] :is(.page-login,.page-register-body,.app-body--auth) :is(.input::placeholder,.textarea::placeholder){color:var(--dm-auth-muted)!important;}
+html[data-theme="dark"] :is(.page-login,.page-register-body,.app-body--auth) .btn--primary{background:var(--dm-auth-action)!important;color:var(--dm-auth-ink)!important;}
+html[data-theme="dark"] :is(.page-login,.page-register-body,.app-body--auth) .btn--primary:hover{background:#5772bd!important;}
+html[data-theme="dark"] :is(.page-login,.page-register-body) .auth-footer{color:var(--dm-auth-muted);}

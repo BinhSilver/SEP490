@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Hồ sơ cá nhân - JLAS', 'profile')}"></head>
-<body id="jlabBasePage" class="app-body page-profile-body"
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body page-profile-body"
       th:attr="data-google-client-id=${googleClientId != null ? googleClientId : ''}">
 
 <div id="jlabBaseShellMount"></div>
@@ -31,10 +31,10 @@
         </div>
 
         <nav class="profile-nav" aria-label="Các mục hồ sơ">
-            <button type="button" class="profile-nav__item is-active" data-tab="overview">
+            <button type="button" class="profile-nav__item profile-nav__item--outlined is-active" data-tab="overview">
                 <span class="material-symbols-outlined">person</span> Tổng quan hồ sơ
             </button>
-            <a th:href="@{/goals}" class="profile-nav__item">
+            <a th:href="@{/goals}" class="profile-nav__item profile-nav__item--outlined">
                         <i class="fa-solid fa-fire" aria-hidden="true"></i> Mục tiêu &amp; chuỗi ngày
             </a>
             <div class="profile-security-flyout">
@@ -67,8 +67,8 @@
 
     <div class="profile-main">
         <div class="profile-mobile-tabs">
-            <button type="button" class="profile-nav__item is-active" data-tab="overview">Tổng quan</button>
-            <a th:href="@{/goals}" class="profile-nav__item">Mục tiêu &amp; chuỗi ngày</a>
+            <button type="button" class="profile-nav__item profile-nav__item--outlined is-active" data-tab="overview">Tổng quan</button>
+            <a th:href="@{/goals}" class="profile-nav__item profile-nav__item--outlined">Mục tiêu &amp; chuỗi ngày</a>
             <div class="profile-security-flyout profile-security-flyout--mobile">
                 <button type="button" class="profile-nav__item profile-security-flyout__trigger"
                         aria-haspopup="menu" aria-expanded="false" aria-controls="mobileSecurityMenu">
@@ -81,13 +81,12 @@
                     <a th:href="@{/profile/security/login-alerts}" role="menuitem"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Lịch sử đăng nhập</a>
                 </div>
             </div>
-                    <button type="button" class="profile-nav__item" data-tab="premium">Gói cao cấp</button>
         </div>
 
         <!-- Tổng quan -->
         <section class="profile-panel is-active" id="panel-overview" data-panel="overview">
             <div class="profile-grid profile-grid--overview">
-                <div class="profile-card">
+                <div class="profile-card" id="profileDetailsCard">
                     <div class="profile-card__head">
                         <div class="profile-card__head-left">
                             <div class="profile-card__icon"><span class="material-symbols-outlined">badge</span></div>
@@ -109,7 +108,7 @@
                             <div>
                                 <h3 class="avatar-edit__title">Ảnh đại diện</h3>
                                 <div class="avatar-edit__actions">
-                                    <input type="file" id="avatarFileInput" accept="image/*" hidden/>
+                                    <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden/>
                                     <input type="hidden" id="avatarUrl" name="avatarUrl"/>
                                     <button type="button" class="btn btn--secondary btn--sm" id="uploadAvatarBtn">
                                         <span class="material-symbols-outlined" aria-hidden="true">upload</span>
@@ -202,50 +201,6 @@
                 </div>
             </div>
 
-            <section class="profile-card profile-dashboard" aria-labelledby="dashboardTitle">
-                <div class="profile-card__head profile-card__head--actions">
-                    <div class="profile-card__head-left">
-                        <div class="profile-card__icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></div>
-                        <div>
-                            <h2 class="profile-card__title" id="dashboardTitle">Nhịp học của bạn</h2>
-                            <p class="profile-card__subtitle">Tóm tắt hôm nay và số dư Credit</p>
-                        </div>
-                    </div>
-                    <a class="btn btn--secondary btn--sm" th:href="@{/goals}">Xem mục tiêu</a>
-                </div>
-                <div id="dashboardLoading" class="profile-inline-status" role="status">Đang tải dữ liệu...</div>
-                <div id="dashboardContent" hidden>
-                    <div class="profile-stat-strip">
-                        <div class="profile-stat"><span>Chuỗi hiện tại</span><strong id="dashCurrentStreak">0 ngày</strong></div>
-                        <div class="profile-stat"><span>Chuỗi dài nhất</span><strong id="dashLongestStreak">0 ngày</strong></div>
-                        <div class="profile-stat"><span>Credit hiện có</span><strong id="dashCreditBalance">0</strong></div>
-                    </div>
-                    <div class="profile-dashboard__columns">
-                        <section aria-labelledby="todayProgressTitle">
-                            <h3 id="todayProgressTitle">Tiến độ hôm nay</h3>
-                            <div class="profile-progress-list">
-                                <div class="profile-progress-row">
-                                    <div><span>Từ đã học</span><strong id="dashVocabValue">0 / 15</strong></div>
-                                    <progress id="dashVocabProgress" max="15" value="0"></progress>
-                                </div>
-                                <div class="profile-progress-row">
-                                    <div><span>Quiz hoàn tất</span><strong id="dashQuizValue">0 / 1</strong></div>
-                                    <progress id="dashQuizProgress" max="1" value="0"></progress>
-                                </div>
-                                <div class="profile-progress-row">
-                                    <div><span>Phút học</span><strong id="dashMinutesValue">0 / 20</strong></div>
-                                    <progress id="dashMinutesProgress" max="20" value="0"></progress>
-                                </div>
-                            </div>
-                        </section>
-                        <section aria-labelledby="creditHistoryTitle">
-                            <h3 id="creditHistoryTitle">Biến động Credit gần đây</h3>
-                            <div class="profile-ledger" id="creditHistoryList"></div>
-                        </section>
-                    </div>
-                </div>
-                <div id="dashboardError" class="alert" role="alert" hidden></div>
-            </section>
         </section>
 
         <!-- Bảo mật -->
@@ -253,8 +208,7 @@
             <div id="retentionHeader">
                 <div>
                     <h1 class="profile-main__title">Trung tâm học tập hằng ngày</h1>
-                    <p class="profile-main__desc">Theo dõi mục tiêu, hoàn thành nhiệm vụ và duy trì chuỗi học mỗi ngày.</p>
-                </div>
+                    </div>
                 <div id="retentionCreditBadge" aria-label="Số dư điểm">
                     <i class="fa-solid fa-gem" aria-hidden="true"></i>
                     <strong id="retentionCredit">0</strong>
@@ -360,7 +314,6 @@
             <div class="profile-security-view" data-security-view="password"
                  th:hidden="${securitySection != 'password'}">
                 <h1 class="profile-main__title">Đổi mật khẩu</h1>
-                <p class="profile-main__desc">Tạo mật khẩu mới khác mật khẩu hiện tại.</p>
                 <div class="profile-card profile-security-detail">
                     <div class="profile-card__head">
                         <div class="profile-card__icon"><span class="material-symbols-outlined">password</span></div>
@@ -389,13 +342,11 @@
             <div class="profile-security-view" data-security-view="email"
                  th:hidden="${securitySection != 'email'}">
                 <h1 class="profile-main__title">Đổi email đăng nhập</h1>
-                <p class="profile-main__desc">Hai địa chỉ email đều phải được xác nhận trước khi thay đổi.</p>
                 <div class="profile-card profile-card--email-change profile-security-detail">
                     <div class="profile-card__head">
                         <div class="profile-card__icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></div>
                         <div>
                             <h2 class="profile-card__title">Xác nhận địa chỉ mới</h2>
-                            <p class="profile-card__subtitle">Cần xác nhận ở cả địa chỉ cũ và mới</p>
                         </div>
                     </div>
                     <div id="emailChangeAlert" class="alert" role="alert"></div>
@@ -435,7 +386,6 @@
             <div class="profile-security-view" data-security-view="google"
                  th:hidden="${securitySection != 'google'}">
                 <h1 class="profile-main__title">Liên kết Google</h1>
-                <p class="profile-main__desc">Quản lý phương thức đăng nhập nhanh bằng tài khoản Google.</p>
                 <div class="profile-card profile-security-detail">
                     <div class="profile-card__head">
                         <div class="profile-card__icon"><i class="fa-brands fa-google" aria-hidden="true"></i></div>
@@ -453,7 +403,6 @@
             <div class="profile-security-view" data-security-view="login-alerts"
                  th:hidden="${securitySection != 'login-alerts'}">
                 <h1 class="profile-main__title">Lịch sử đăng nhập</h1>
-                <p class="profile-main__desc">Xem những thiết bị và địa chỉ IP gần đây đã truy cập tài khoản của bạn.</p>
                 <div class="profile-card profile-security-detail">
                     <div class="profile-card__head">
                         <div class="profile-card__icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></div>
@@ -478,8 +427,7 @@
         <!-- Gói Premium -->
         <section class="profile-panel" id="panel-premium" data-panel="premium" hidden>
             <h1 class="profile-main__title">Thành viên gói cao cấp</h1>
-            <p class="profile-main__desc">Quản lý gói đăng ký của bạn và khám phá các đặc quyền hấp dẫn từ gói Pro.</p>
-
+            <div id="premiumSummaryAlert" class="alert" role="alert" hidden></div>
             <div class="profile-card">
                 <div class="profile-card__head">
                     <div class="profile-card__icon" style="background:rgba(33,112,228,0.12)">
@@ -531,12 +479,13 @@
     window.INITIAL_TAB = /*[[${activeTab}]]*/ 'overview';
     window.INITIAL_SECURITY_SECTION = /*[[${securitySection}]]*/ 'home';
 </script>
+<script th:src="@{/js/pages/profile-navigation.js?v=20261011-mobile-popup}"></script>
 <script>
 (function () {
     if (typeof JlasAuth === 'undefined') {
         console.error('JlasAuth missing — /js/auth-session.js failed to load');
         document.body.insertAdjacentHTML('afterbegin',
-            '<div style="padding:12px;background:#ffdad6;color:#ba1a1a;text-align:center">Lỗi tải tập tin xác thực Auth. Vui lòng tải lại trang (Ctrl+F5).</div>');
+            '<div style="padding:12px;background:var(--color-error-container,#ffdad6);color:var(--color-error,#ba1a1a);text-align:center">Lỗi tải tập tin xác thực Auth. Vui lòng tải lại trang (Ctrl+F5).</div>');
         return;
     }
     if (!JlasAuth.requireLogin(window.location.pathname + window.location.search)) return;
@@ -595,6 +544,7 @@
     /** Hiển thị 1 tab panel + highlight menu điều hướng */
     function switchTab(tab) {
         tab = tab || 'overview';
+        tab = window.ProfileNavigation.resolveTab(tab);
         // "Bảo mật tài khoản" is now a navigation flyout, not a standalone panel.
         // Keep old /profile?tab=security links useful by returning them to the overview.
         var onSecurityPage = window.location.pathname.indexOf('/profile/security/') === 0;
@@ -602,7 +552,8 @@
         if (!document.querySelector('.profile-panel[data-panel="' + tab + '"]')) tab = 'overview';
         var panels = document.querySelectorAll('.profile-panel');
         panels.forEach(function (panel) {
-            var on = panel.getAttribute('data-panel') === tab;
+            var on = panel.getAttribute('data-panel') === tab
+                || (panel.id === 'panel-premium' && window.ProfileNavigation.isPremiumInline() && tab === 'overview');
             panel.classList.toggle('is-active', on);
             if (on) {
                 panel.removeAttribute('hidden');
@@ -640,64 +591,6 @@
         });
     });
 
-    document.querySelectorAll('.profile-security-flyout').forEach(function (flyout) {
-        var trigger = flyout.querySelector('.profile-security-flyout__trigger');
-        var menu = flyout.querySelector('.profile-security-flyout__menu');
-        var closeTimer;
-        if (!trigger || !menu) return;
-        function setFlyout(open) {
-            flyout.classList.toggle('is-open', open);
-            trigger.setAttribute('aria-expanded', String(open));
-            menu.inert = !open;
-            menu.setAttribute('aria-hidden', String(!open));
-        }
-        function cancelPendingClose() {
-            window.clearTimeout(closeTimer);
-        }
-        function closeAfterPointerLeaves() {
-            cancelPendingClose();
-            // A brief grace period keeps the menu open while the pointer crosses
-            // from its sidebar trigger into the floating panel.
-            closeTimer = window.setTimeout(function () { setFlyout(false); }, 180);
-        }
-        trigger.addEventListener('click', function () {
-            // Focus enters before click on touch devices. Always opening here avoids
-            // that focus event immediately turning the mobile menu back off.
-            setFlyout(true);
-        });
-        flyout.addEventListener('pointerenter', function (event) {
-            if (event.pointerType === 'mouse') {
-                cancelPendingClose();
-                setFlyout(true);
-            }
-        });
-        flyout.addEventListener('pointerleave', function (event) {
-            if (event.pointerType === 'mouse') closeAfterPointerLeaves();
-        });
-        menu.addEventListener('pointerenter', function (event) {
-            if (event.pointerType === 'mouse') {
-                cancelPendingClose();
-                setFlyout(true);
-            }
-        });
-        menu.addEventListener('pointerleave', function (event) {
-            if (event.pointerType === 'mouse') closeAfterPointerLeaves();
-        });
-        flyout.addEventListener('focusin', function () { setFlyout(true); });
-        flyout.addEventListener('focusout', function () {
-            window.setTimeout(function () {
-                if (!flyout.contains(document.activeElement)) setFlyout(false);
-            }, 0);
-        });
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && flyout.classList.contains('is-open')) {
-                cancelPendingClose();
-                setFlyout(false);
-                trigger.focus();
-            }
-        });
-    });
-
     var params = new URLSearchParams(window.location.search);
     var tabFromUrl = params.get('tab') || window.INITIAL_TAB || 'overview';
     switchTab(tabFromUrl);
@@ -730,6 +623,18 @@
         fileInput.addEventListener('change', async function (e) {
             var file = e.target.files[0];
             if (!file) return;
+            if (!/\.(jpe?g|png|webp)$/i.test(file.name)) {
+                if (window.JlasUI) JlasUI.toast('Vui lòng chọn ảnh JPG, PNG hoặc WEBP.', 'error');
+                fileInput.value = '';
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                if (window.JlasUI) JlasUI.toast('Ảnh đại diện tối đa 10 MB.', 'error');
+                fileInput.value = '';
+                return;
+            }
+            if (uploadBtn.disabled) return;
+            uploadBtn.disabled = true;
             var formData = new FormData();
             formData.append('file', file);
             var token = JlasAuth.getAccessToken();
@@ -741,35 +646,22 @@
                     body: formData
                 });
                 var json = await res.json();
-                if (json.success && json.data && json.data.avatar) {
-                    var newAvatarUrl = json.data.avatar;
-                    document.getElementById('avatarUrl').value = newAvatarUrl;
-
-                    // Auto-update profile with new avatar URL
-                    var updateBody = {
-                        fullName: document.getElementById('fullName').value.trim() || 'User',
-                        phoneNumber: document.getElementById('phoneNumber').value.trim(),
-                        gender: document.getElementById('gender').value || 'PREFER_NOT_TO_SAY',
-                        japaneseLevel: document.getElementById('japaneseLevel').value || 'UNKNOWN',
-                        avatar: newAvatarUrl
-                    };
-                    var saveRes = await fetch('/api/auth/profile', {
-                        method: 'PUT',
-                        headers: JlasAuth.authHeaders(),
-                        body: JSON.stringify(updateBody)
-                    });
-                    var saveJson = await saveRes.json();
-                    if (saveJson.success && saveJson.data) {
-                        localStorage.setItem('user', JSON.stringify(saveJson.data));
-                        fillUser(saveJson.data);
+                if (res.ok && json.success && json.data) {
+                    if (json.data.moderationStatus === 'SAFE') {
+                        await JlasAuth.refreshUser();
+                        fillUser(JlasAuth.getUser());
+                        if (window.JlasUI) JlasUI.toast(json.message, 'success');
+                    } else {
+                        if (window.JlasUI) JlasUI.toast(json.message, json.data.moderationStatus === 'BLOCKED' ? 'error' : 'info');
                     }
-                    if (window.JlasAuth) await JlasAuth.refreshUser();
-                    if (window.JlasUI) JlasUI.toast('Tải và cập nhật ảnh đại diện thành công! 🌸', 'success');
                 } else {
                     if (window.JlasUI) JlasUI.toast(json.message || 'Tải ảnh đại diện thất bại', 'error');
                 }
             } catch (err) {
                 if (window.JlasUI) JlasUI.toast('Tải ảnh đại diện thất bại', 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                fileInput.value = '';
             }
         });
     }
@@ -883,7 +775,7 @@
 <script th:src="@{/js/pages/retention-demo.js?v=13-live}"></script>
 <script th:src="@{/js/components/reward-fx.js?v=20260927c}"></script>
 <script th:src="@{/js/pages/profile-retention.js?v=20260927j}"></script>
-<script th:src="@{/js/pages/profile-account.js?v=20260914-account}"></script>
+<script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

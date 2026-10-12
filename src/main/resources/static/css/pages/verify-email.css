@@ -9,3 +9,41 @@
   border-bottom: none;
   box-shadow: none;
 }
+
+html[data-theme="dark"] .page-verify {
+  --color-primary-light: var(--dm-auth-accent-soft);
+  --color-text-secondary: var(--dm-auth-muted);
+}
+
+html[data-theme="dark"] .page-verify .card {
+  background: var(--dm-auth-surface) !important;
+  border-color: var(--dm-auth-line);
+}
+
+/* Page-owned dark mode: css/pages/verify-email.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-auth-bg: #0b0d13;
+  --dm-auth-surface: #171b26;
+  --dm-auth-raised: #242a39;
+  --dm-auth-ink: #f8fafc;
+  --dm-auth-muted: #b2bfd2;
+  --dm-auth-line: #40485d;
+  --dm-auth-accent: #c084fc;
+  --dm-auth-action: #7335a6;
+  --dm-auth-accent-soft: #2a203d;
+  --dm-auth-on-accent: #211b34;
+  --dm-auth-success: #8eddb6;
+  --dm-auth-success-bg: #1b3d32;
+  --dm-auth-success-line: #43816b;
+  --dm-auth-danger: #ffb4bd;
+  --dm-auth-danger-bg: #452832;
+  --dm-auth-danger-line: #96616d;
+  --dm-auth-warning: #f3d28a;
+  --dm-auth-warning-bg: #403522;
+  --dm-auth-warning-line: #947a46;
+  --dm-auth-pink: #f4aed2;
+  --dm-auth-pink-bg: #432d40;
+  --dm-auth-pink-line: #88637b;
+}
