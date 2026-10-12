@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chuẩn bị bài tập nghe | JLAS</title>
@@ -11,23 +12,23 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/shadowing/css/styles.css">
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260928-preparation-separated">
-    <link rel="stylesheet" href="/css/pages/shadowing-preparation.css?v=20260929-select-all">
+    <link rel="stylesheet" href="/css/pages/shadowing-preparation.css?v=20261012-manual-questions">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-preparation">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-preparation">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="preparation-page">
     <input type="hidden" id="video-id" th:value="${videoId}">
     <nav class="preparation-nav" aria-label="Điều hướng video">
-        <a id="prepare-back-link" th:href="@{/shadowing/editor/{id}(id=${videoId})}"><i class="fa-solid fa-closed-captioning" aria-hidden="true"></i> Sửa phụ đề</a>
+        <a id="prepare-back-link" th:href="@{/shadowing/editor/{id}(id=${videoId})}" hidden><i class="fa-solid fa-closed-captioning" aria-hidden="true"></i> Sửa phụ đề</a>
         <span aria-current="page"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Câu hỏi</span>
         <a id="prepare-practice-link" th:href="@{/shadowing/practice/{id}(id=${videoId})}"><i class="fa-solid fa-play" aria-hidden="true"></i> Trang học</a>
     </nav>
 
     <header class="preparation-header">
         <div>
-            <p id="prepare-video-title" class="preparation-video-title">Đang tải video…</p>
             <h1>Chuẩn bị bài tập nghe</h1>
         </div>
         <div class="preparation-job-state">
@@ -38,6 +39,7 @@
 
     <div class="preparation-layout">
         <section class="preparation-main-column" aria-label="Tạo và duyệt câu hỏi">
+            <p id="prepare-video-title" class="preparation-video-title">Đang tải video…</p>
             <div class="preparation-selectors">
                 <details class="preparation-dropdown" id="prepare-level-dropdown">
                     <summary>Mức nghe <span id="prepare-level-summary">Dễ, Vừa, Khó</span></summary>
@@ -62,8 +64,59 @@
             </div>
             <p id="prepare-exercises-suggestions" class="preparation-notice" role="status" aria-live="polite" hidden></p>
             <div class="preparation-create-row">
-                <button id="prepare-exercises-start" type="button" class="button-primary">Tạo câu hỏi</button>
+                <button id="prepare-exercises-start" type="button" class="button-primary" disabled>Tạo câu hỏi</button>
+                <button id="prepare-analyze" type="button" class="button-secondary" disabled>Phân tích bằng AI</button>
+                <button id="prepare-preflight-open" type="button" class="button-secondary" hidden>Xem tiến trình chuẩn bị</button>
             </div>
+
+            <details id="prepare-manual" class="preparation-manual" hidden>
+                <summary><i class="fa-solid fa-pen" aria-hidden="true"></i> Nhập câu hỏi</summary>
+                <p>Tự biên soạn từ phụ đề gốc. Câu hỏi được lưu nháp để bạn kiểm tra và duyệt.</p>
+                <form id="manual-question-form">
+                    <fieldset id="manual-fields">
+                        <div class="manual-pair">
+                            <label for="manual-kind">Dạng câu hỏi<select id="manual-kind">
+                                <option value="GAP">Điền nội dung nghe được</option>
+                                <option value="DETAIL">Thông tin cụ thể</option>
+                                <option value="ACTION_SEQUENCE">Hành động và thứ tự</option>
+                                <option value="REASON_PURPOSE">Lý do và mục đích</option>
+                                <option value="MAIN_IDEA">Ý chính và kết luận</option>
+                                <option value="PROBLEM_SOLUTION">Vấn đề và giải pháp</option>
+                                <option value="ATTITUDE_DECISION">Thái độ và quyết định</option>
+                            </select></label>
+                            <label for="manual-level">Mức nghe<select id="manual-level">
+                                <option value="EASY">Dễ</option><option value="MEDIUM">Vừa</option><option value="HARD">Khó</option>
+                            </select></label>
+                        </div>
+                        <div class="manual-pair">
+                            <label for="manual-source-start">Phụ đề bắt đầu<select id="manual-source-start" required></select></label>
+                            <label for="manual-source-end">Phụ đề kết thúc<select id="manual-source-end" required></select></label>
+                        </div>
+                        <p class="manual-hint">Chọn tối đa 6 dòng liên tiếp. Câu điền chỉ dùng 1 dòng; thời gian nghe được lấy từ phụ đề.</p>
+                        <div id="manual-evidence" class="manual-evidence" lang="ja"></div>
+                        <button id="manual-listen" class="button-secondary" type="button" disabled><i class="fa-solid fa-play" aria-hidden="true"></i> Nghe dẫn chứng</button>
+                        <div id="manual-gap-fields">
+                            <label for="manual-answer">Đáp án nguyên văn<textarea id="manual-answer" rows="2" maxlength="500" lang="ja" aria-describedby="manual-gap-hint"></textarea></label>
+                            <p id="manual-gap-hint" class="manual-hint"></p>
+                            <p id="manual-gap-preview" class="manual-evidence" lang="ja"></p>
+                        </div>
+                        <div id="manual-comprehension-fields" hidden>
+                            <label for="manual-prompt">Câu hỏi bằng tiếng Nhật<textarea id="manual-prompt" rows="2" maxlength="2000" lang="ja"></textarea></label>
+                            <fieldset class="manual-choices">
+                                <legend>Bốn lựa chọn · tích vào đáp án đúng</legend>
+                                <label><input type="radio" name="manual-correct" value="0" checked aria-label="Lựa chọn 1 là đáp án đúng"><span>1</span><input id="manual-choice-0" type="text" maxlength="500" lang="ja" aria-label="Nội dung lựa chọn 1"></label>
+                                <label><input type="radio" name="manual-correct" value="1" aria-label="Lựa chọn 2 là đáp án đúng"><span>2</span><input id="manual-choice-1" type="text" maxlength="500" lang="ja" aria-label="Nội dung lựa chọn 2"></label>
+                                <label><input type="radio" name="manual-correct" value="2" aria-label="Lựa chọn 3 là đáp án đúng"><span>3</span><input id="manual-choice-2" type="text" maxlength="500" lang="ja" aria-label="Nội dung lựa chọn 3"></label>
+                                <label><input type="radio" name="manual-correct" value="3" aria-label="Lựa chọn 4 là đáp án đúng"><span>4</span><input id="manual-choice-3" type="text" maxlength="500" lang="ja" aria-label="Nội dung lựa chọn 4"></label>
+                            </fieldset>
+                            <p class="manual-hint">Đáp án đúng phải có nguyên văn trong dẫn chứng. Các lựa chọn dùng tiếng Nhật; câu hỏi cần kết thúc bằng dấu hỏi.</p>
+                        </div>
+                        <label for="manual-explanation">Giải thích đáp án<textarea id="manual-explanation" rows="2" maxlength="4000" required placeholder="Giải thích bằng tiếng Việt và chỉ rõ chi tiết trong đoạn nghe."></textarea></label>
+                        <div class="manual-actions"><button id="manual-save" class="button-primary" type="submit">Lưu bản nháp</button></div>
+                    </fieldset>
+                    <p id="manual-status" role="status" aria-live="polite" aria-atomic="true"></p>
+                </form>
+            </details>
 
             <section class="preparation-contribute" aria-labelledby="prepare-contribute-heading">
                 <i class="fa-solid fa-heart" aria-hidden="true"></i>
@@ -135,10 +188,42 @@
     </div>
 
 </main>
+<dialog id="prepare-preflight" class="preparation-preflight" aria-labelledby="prepare-preflight-title"
+        aria-describedby="prepare-preflight-description">
+    <header class="preparation-preflight-heading">
+        <span class="preparation-preflight-symbol" aria-hidden="true"><i class="fa-solid fa-headphones"></i></span>
+        <button type="button" class="preparation-preflight-close" data-preflight-close aria-label="Đóng cửa sổ chuẩn bị">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <h2 id="prepare-preflight-title">Chuẩn bị bài tập nghe</h2>
+        <p id="prepare-preflight-description">Phân tích phụ đề để chọn dạng câu hỏi phù hợp với video.</p>
+    </header>
+    <div class="preparation-preflight-body">
+        <div class="preparation-preflight-video">
+            <i class="fa-solid fa-closed-captioning" aria-hidden="true"></i>
+            <div><p data-preflight-video>Đang tải thông tin video…</p><span data-preflight-count></span></div>
+        </div>
+        <ol class="preparation-preflight-steps" aria-label="Các bước chuẩn bị">
+            <li data-preflight-step="sources"><span class="preparation-preflight-marker" aria-hidden="true"></span><div><strong>Tải phụ đề</strong><span>Kiểm tra nội dung của video</span></div><span data-preflight-step-status>Đang xử lý</span></li>
+            <li data-preflight-step="analysis"><span class="preparation-preflight-marker" aria-hidden="true"></span><div><strong>Tìm dẫn chứng</strong><span>Đọc các đoạn và tóm tắt ngữ cảnh</span></div><span data-preflight-step-status>Chờ</span></li>
+            <li data-preflight-step="finalizing"><span class="preparation-preflight-marker" aria-hidden="true"></span><div><strong>Sẵn sàng tạo câu hỏi</strong><span>Cập nhật dạng hỏi và số câu ước tính</span></div><span data-preflight-step-status>Chờ</span></li>
+        </ol>
+        <div class="preparation-preflight-status" role="status" aria-live="polite" aria-atomic="true">
+            <strong data-preflight-status>Tải phụ đề của video</strong>
+            <p data-preflight-detail>Bạn có thể xem câu hỏi đã có trong khi chờ chuẩn bị.</p>
+        </div>
+    </div>
+    <footer class="preparation-preflight-actions">
+        <button type="button" class="button-secondary" data-preflight-close>Xem trang</button>
+        <button type="button" class="button-primary" data-preflight-primary disabled>Đang chuẩn bị…</button>
+    </footer>
+</dialog>
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js?v=20260712"></script>
 <script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
-<script src="/shadowing/js/preparation-editor.js?v=20260929-select-all"></script>
+<script src="/shadowing/js/preparation-preflight.js?v=20261009-preflight-dialog"></script>
+<script src="/shadowing/js/manual-questions.js?v=20261012"></script>
+<script src="/shadowing/js/preparation-editor.js?v=20261012-manual-questions"></script>
 </body>
 </html>

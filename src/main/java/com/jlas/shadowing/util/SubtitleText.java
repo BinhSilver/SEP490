@@ -7,6 +7,17 @@ package com.jlas.shadowing.util;
  */
 public final class SubtitleText {
 
+    /** Remove caption metadata before translating it as if it were spoken words. */
+    public static String cleanImportedCue(String text) {
+        if (text == null) return "";
+        String s = text.replaceAll("[\\p{Co}\\uFFFD\\u200B\\uFEFF]", "").trim();
+        if (s.matches("[♪♫\\s]+") || s.matches("[\\[【(（](?:[^\\]】)）]*(?:音|声|どよめき|笑い|音楽|拍手)|Music|Applause)[\\]】)）]")) return "";
+        // A parenthesized name before dialogue is a speaker label, not dialogue.
+        s = s.replaceAll("[(（][^()（）]{1,32}[)）](?=[^\\s()（）])", "");
+        s = s.replaceFirst("^[(（][^()（）]{1,32}[)）]\\s+(?=.+)", "");
+        return s.replaceAll("[＜＞]", "").replaceAll("ーー+$", "").trim();
+    }
+
     /** Leading sentence-final / filler punctuation that must not start a cue. */
     private static final String LEADING_PUNCT_CLASS = "[\\s。．.、，,;；:：・…‥]+";
 

@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const replayBtn = document.getElementById('replay-btn');
     const playBtn = document.getElementById('play-btn');
     const nextBtn = document.getElementById('next-btn');
-    const loopBtn = document.getElementById('loop-btn');
-    const loopCountSelect = document.getElementById('loop-count');
     const playIcon = document.getElementById('play-icon');
     const translationToggleBtn = document.getElementById('translation-toggle-btn');
     const furiganaToggleBtn = document.getElementById('furigana-toggle-btn');
@@ -23,12 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedMenu = document.getElementById('speed-menu');
     const speedToggleLabel = document.getElementById('speed-toggle-label');
     const speedBtns = document.querySelectorAll('.speed-menu .speed-btn');
-    const playerControls = document.getElementById('player-controls');
-    const playerControlsSlot = document.getElementById('player-controls-slot');
-    const playerControlsToggle = document.getElementById('player-controls-toggle');
-    const timelineFill = document.getElementById('timeline-fill');
-    const timelineTime = document.getElementById('timeline-time');
-    const timelineTrack = document.getElementById('timeline-track');
     const lessonTitle = document.getElementById('lesson-title');
     const lessonDurationBadge = document.getElementById('lesson-duration-badge');
     const lessonCategoryBadge = document.getElementById('lesson-category-badge');
@@ -70,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let subtitles = [];
     let currentActiveIndex = -1;
     let pronunciationSubtitleIndex = -1;
+    let listenRecord = null;
 
     window.getShadowingPronunciationContext = function (requestedIndex) {
         const index = Number.isInteger(requestedIndex) ? requestedIndex : pronunciationSubtitleIndex;
@@ -89,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index < 0 || !subtitles[index] || pronunciationSubtitleIndex === index) return;
         pronunciationSubtitleIndex = index;
         const context = window.getShadowingPronunciationContext();
+        listenRecord?.select(context);
         window.dispatchEvent(new CustomEvent('shadowing:pronunciation-context-change', {
             detail: { ...context, source }
         }));
@@ -96,9 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.selectShadowingPronunciationSubtitle = selectPronunciationSubtitle;
     let isFuriganaVisible = true;
     let isTranslationVisible = true;
-    let isLoopEnabled = false;
-    let loopCountMax = 0;
-    let currentLoopCount = 0;
     let scrollAnimFrame = null;
     const FOLLOW_ANCHOR_RATIO = 0.32;
     playerContainer.classList.add('show-furigana');
@@ -290,6 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (surface) surface.innerHTML = '';
             if (shell) shell.classList.add('audio-shell');
         } else {
+            video.controls = false;
+            video.setAttribute('playsinline', '');
             video.classList.add('media-engine', 'media-engine--video');
             video.classList.remove('media-engine--audio');
             if (surface && video.parentElement !== surface) {
@@ -305,37 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.classList.toggle('audio-mode', isAudioOnly);
         mountMediaEngine(isAudioOnly);
 
-        // Audio: toolbar ngang dưới lyrics (kiểu music player)
-        const controls = document.getElementById('player-controls');
-        if (controls) {
-            controls.classList.toggle('floating-toolbar', !isAudioOnly);
-            controls.classList.toggle('audio-control-bar', isAudioOnly);
-        }
-    }
-
-    function setupPlayerControlsToggle() {
-        if (!playerControls || !playerControlsToggle || isAudioOnly) return;
-        const storageKey = 'jlas-shadowing-player-controls-collapsed';
-
-        const setCollapsed = collapsed => {
-            playerControls.classList.toggle('is-collapsed', collapsed);
-            playerControlsSlot?.classList.toggle('is-collapsed', collapsed);
-            playerControlsToggle.setAttribute('aria-expanded', String(!collapsed));
-            playerControlsToggle.setAttribute('aria-label', collapsed ? 'Mở công cụ phát' : 'Thu gọn công cụ');
-            playerControlsToggle.title = collapsed ? 'Mở công cụ' : 'Thu gọn công cụ';
-            const icon = playerControlsToggle.querySelector('i');
-            if (icon) icon.className = collapsed
-                ? 'fa-solid fa-chevron-left'
-                : 'fa-solid fa-chevron-right';
-        };
-
-        setCollapsed(localStorage.getItem(storageKey) === '1');
-        playerControlsToggle.addEventListener('click', event => {
-            event.stopPropagation();
-            const collapsed = !playerControls.classList.contains('is-collapsed');
-            setCollapsed(collapsed);
-            localStorage.setItem(storageKey, collapsed ? '1' : '0');
-        });
     }
 
     async function initPlayer() {
@@ -347,12 +309,16 @@ document.addEventListener('DOMContentLoaded', () => {
             subtitles = subResponse.ok ? await subResponse.json() : [];
             if (videoResponse.ok) {
                 videoMeta = await videoResponse.json();
-                if (lessonTitle && videoMeta.title) lessonTitle.textContent = `Tiêu đề: ${videoMeta.title}`;
+                if (lessonTitle && videoMeta.title) {
+                    const titleText = document.getElementById('lesson-title-text');
+                    if (titleText) titleText.textContent = videoMeta.title;
+                    else lessonTitle.textContent = `Tiêu đề: ${videoMeta.title}`;
+                    lessonTitle.title = videoMeta.title;
+                }
                 const cat = extractCategory(videoMeta);
                 if (lessonCategoryBadge) lessonCategoryBadge.innerHTML = `<i class="fa-solid fa-folder"></i> ${getCategoryLabel(cat)}`;
                 if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${videoMeta.viewCount || 0} lượt xem`;
                 applyAudioMode(videoMeta);
-                setupPlayerControlsToggle();
             } else {
                 mountMediaEngine(false);
                 if (videoResponse.status === 401 || videoResponse.status === 403) {
@@ -383,8 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function bindSubtitleActions(div, sub, index) {
         div.querySelector('[data-action="replay"]')?.addEventListener('click', e => {
             e.stopPropagation();
-            video.currentTime = sub.startTime;
-            video.play();
+            playSentence(index);
         });
         div.querySelector('[data-action="favorite"]')?.addEventListener('click', async e => {
             e.stopPropagation();
@@ -411,12 +376,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="sub-time">${formatTime(sub.startTime)}</span>
                 </div>
                 <div class="sub-jp">${formatFurigana(sub.furigana || sub.text)}</div>
-                <div class="sub-tr">${sub.translation || ''}</div>
+                <div class="sub-tr">${window.ShadowingSubtitleDisplay.escape(sub.translation || '')}</div>
                 <div class="sub-card-actions">
                     <button class="sub-action-btn" data-action="replay" title="Phát lại"><i class="fa-solid fa-play"></i></button>
                     <button class="sub-action-btn" data-action="favorite" title="Yêu thích"><i class="fa-regular fa-star"></i></button>
                     <button class="sub-action-btn sub-pron-record-btn" data-action="record" title="Thu câu này" aria-label="Thu câu này"><i class="fa-solid fa-microphone"></i></button>
-                    <button class="sub-pron-score-badge" data-action="score" title="Chấm câu này" disabled>--</button>
+                    <button class="sub-pron-score-badge" data-action="score" title="Chấm câu này" disabled aria-label="Chưa có điểm phát âm">--</button>
                 </div>
                 <div class="sub-pronunciation-panel" data-pronunciation-panel hidden>
                     <span class="sub-pronunciation-status" data-record-status>Sẵn sàng</span>
@@ -471,9 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             div.addEventListener('click', event => {
                 if (event.target.closest('[data-action]')) return;
-                selectPronunciationSubtitle(index);
-                video.currentTime = sub.startTime;
-                video.play();
+                playSentence(index);
             });
             bindSubtitleActions(div, sub, index);
             makeWordsClickable(div.querySelector('.sub-jp'));
@@ -484,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatFurigana(text) {
-        return text.replace(/([^\x00-\x7F\s、。！？]+)[\(（]([^）\)]+)[\)）]/g, '<ruby>$1<rt>$2</rt></ruby>');
+        return window.ShadowingSubtitleDisplay.furigana(text);
     }
 
     function makeWordsClickable(el) {
@@ -547,58 +510,77 @@ document.addEventListener('DOMContentLoaded', () => {
         fitSubtitleViewer();
     });
 
-    playBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+    const modeButton = document.getElementById('listen-record-mode');
+    const micButton = document.getElementById('listen-record-mic');
+    const modeStatus = document.getElementById('listen-record-status');
+    listenRecord = window.ShadowingListenRecord.create({
+        video,
+        record: (index, options) => window.ShadowingRecorder.record(index, options),
+        cancelRecording: () => window.ShadowingRecorder?.cancel(),
+        onChange(state) {
+            modeButton?.classList.toggle('active', state.enabled);
+            modeButton?.setAttribute('aria-pressed', String(state.enabled));
+            if (micButton) {
+                micButton.disabled = state.busy || !state.context || (state.enabled && state.phase === 'listening');
+                micButton.classList.toggle('recording', state.phase === 'recording');
+                micButton.setAttribute('aria-busy', String(state.busy));
+            }
+            if (modeStatus) { modeStatus.hidden = !state.message; modeStatus.textContent = state.message; }
+            if (currentActiveIndex === -1) viewerJapanese.textContent = window.ShadowingSubtitleDisplay.gapLabel(video.currentTime, subtitles, state.enabled);
+            [prevBtn, nextBtn, replayBtn, playBtn, speedToggleBtn].forEach(button => { if (button) button.disabled = state.busy; });
+            const timeline = document.getElementById('timeline-track');
+            if (timeline) timeline.disabled = state.busy || !Number.isFinite(video.duration) || video.duration <= 0;
+        }
+    });
+    window.shadowingListenRecord = listenRecord;
+    modeButton?.addEventListener('click', () => {
+        listenRecord.setEnabled(!listenRecord.isEnabled());
+        listenRecord.select(window.getShadowingPronunciationContext());
+    });
+    micButton?.addEventListener('click', () => listenRecord.record());
+    playBtn.addEventListener('click', () => {
+        if (listenRecord.busy()) return;
+        if (video.paused) video.play()?.catch(() => {}); else video.pause();
+    });
     function updatePlayIcon() {
         if (!playIcon) return;
         playIcon.className = video.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
     }
 
-    function updateTimeline() {
-        if (!video.duration) return;
-        const pct = (video.currentTime / video.duration) * 100;
-        if (timelineFill) timelineFill.style.width = `${pct}%`;
-        if (timelineTime) {
-            timelineTime.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+    video.addEventListener('play', () => { listenRecord.beforePlay(); updatePlayIcon(); });
+    video.addEventListener('seeking', () => {
+        if (!listenRecord.isEnabled()) return;
+        const index = subtitles.findIndex(sub => video.currentTime >= sub.startTime && video.currentTime < sub.endTime);
+        if (index >= 0 && index !== currentActiveIndex) {
+            currentActiveIndex = index;
+            updateActiveSubtitle(index);
         }
-    }
-
-    timelineTrack?.addEventListener('click', e => {
-        const rect = timelineTrack.getBoundingClientRect();
-        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        if (video.duration) video.currentTime = ratio * video.duration;
     });
-    video.addEventListener('play', updatePlayIcon);
     video.addEventListener('pause', updatePlayIcon);
+    video.addEventListener('ended', () => listenRecord.timeUpdate());
 
-    replayBtn.addEventListener('click', () => {
-        if (currentActiveIndex !== -1) {
-            video.currentTime = subtitles[currentActiveIndex].startTime;
-            video.play();
-        }
-    });
-    prevBtn.addEventListener('click', () => {
-        if (currentActiveIndex > 0) {
-            video.currentTime = subtitles[currentActiveIndex - 1].startTime;
-            video.play();
-        }
-    });
-    nextBtn.addEventListener('click', () => {
-        if (currentActiveIndex < subtitles.length - 1) {
-            video.currentTime = subtitles[currentActiveIndex + 1].startTime;
-            video.play();
-        }
-    });
+    // Explicit timeline seeks release the held sentence, even within the same cue or in a gap.
+    window.seekShadowingVideo = function (time) {
+        if (listenRecord.busy()) return;
+        const index = subtitles.findIndex(sub => time >= sub.startTime && time < sub.endTime);
+        currentActiveIndex = index;
+        pronunciationSubtitleIndex = -1;
+        video.currentTime = time;
+        updateActiveSubtitle(index);
+        listenRecord.seek(window.getShadowingPronunciationContext());
+    };
 
-    loopBtn.addEventListener('click', () => {
-        isLoopEnabled = !isLoopEnabled;
-        loopBtn.classList.toggle('active', isLoopEnabled);
-        currentLoopCount = 0;
-    });
-
-    loopCountSelect?.addEventListener('change', () => {
-        loopCountMax = parseInt(loopCountSelect.value, 10);
-        currentLoopCount = 0;
-    });
+    function playSentence(index) {
+        if (!subtitles[index] || listenRecord.busy()) return;
+        currentActiveIndex = index;
+        selectPronunciationSubtitle(index, 'user');
+        updateActiveSubtitle(index);
+        video.currentTime = subtitles[index].startTime;
+        video.play()?.catch(() => {});
+    }
+    replayBtn.addEventListener('click', () => playSentence(currentActiveIndex));
+    prevBtn.addEventListener('click', () => playSentence(currentActiveIndex - 1));
+    nextBtn.addEventListener('click', () => playSentence(currentActiveIndex + 1));
 
     function closeSpeedMenu() {
         if (!speedMenu) return;
@@ -681,7 +663,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCommentStars();
 
     video.addEventListener('timeupdate', () => {
-        updateTimeline();
+        const held = listenRecord.timeUpdate();
+        if (held) return;
         const currentTime = video.currentTime;
         let newIndex = -1;
         for (let i = 0; i < subtitles.length; i++) {
@@ -689,31 +672,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 newIndex = i; break;
             }
         }
-        if (newIndex !== currentActiveIndex) {
+        if (newIndex !== currentActiveIndex || newIndex === -1) {
             currentActiveIndex = newIndex;
             updateActiveSubtitle(newIndex);
-            currentLoopCount = 0;
-        }
-
-        const pronunciationRecording = typeof window.isShadowingPronunciationRecording === 'function'
-            && window.isShadowingPronunciationRecording();
-        if (isLoopEnabled && currentActiveIndex >= 0 && !pronunciationRecording) {
-            const sub = subtitles[currentActiveIndex];
-            if (currentTime >= sub.endTime - 0.05) {
-                if (loopCountMax > 0) {
-                    currentLoopCount++;
-                    if (currentLoopCount >= loopCountMax) {
-                        currentLoopCount = 0;
-                        isLoopEnabled = false;
-                        loopBtn.classList.remove('active');
-                        if (currentActiveIndex < subtitles.length - 1) {
-                            video.currentTime = subtitles[currentActiveIndex + 1].startTime;
-                        }
-                        return;
-                    }
-                }
-                video.currentTime = sub.startTime;
-            }
         }
     });
 
@@ -731,8 +692,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             updateViewer(index);
         } else {
-            viewerJapanese.innerHTML = '';
-            viewerTranslation.innerHTML = '';
+            viewerJapanese.textContent = window.ShadowingSubtitleDisplay.gapLabel(video.currentTime, subtitles, listenRecord.isEnabled());
+            viewerJapanese.classList.add('is-gap');
+            viewerJapanese.classList.remove('viewer-fade');
+            viewerTranslation.classList.remove('viewer-fade');
+            viewerJapanese.classList.remove('is-short', 'is-medium', 'is-long', 'is-extra-long');
+            viewerJapanese.style.fontSize = '';
+            viewerTranslation.textContent = '';
+            selectPronunciationSubtitle(subtitles.findIndex(s => s.startTime > video.currentTime), 'playback');
         }
     }
 
@@ -742,29 +709,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         viewerJapanese.style.fontSize = '';
         viewerTranslation.style.fontSize = '';
+        if (window.matchMedia('(max-width: 900px)').matches) return;
 
         requestAnimationFrame(() => {
-            const padX = 40;
-            const maxW = Math.max(160, viewer.clientWidth - padX);
-            const maxTotalH = Math.max(120, viewer.clientHeight - 28);
+            const layout = getComputedStyle(viewer);
+            const maxTotalH = Math.max(60, viewer.clientHeight - parseFloat(layout.paddingTop) - parseFloat(layout.paddingBottom));
             const blocks = [
-                { el: viewerJapanese, min: 14 },
-                { el: viewerTranslation, min: 14 }
-            ];
+                { el: viewerJapanese, min: 16 },
+                { el: viewerTranslation, min: 13 }
+            ].filter(({ el }) => el?.textContent?.trim() && getComputedStyle(el).display !== 'none');
 
             blocks.forEach(({ el, min }) => {
                 if (!el?.textContent?.trim()) return;
                 let size = parseFloat(getComputedStyle(el).fontSize);
                 el.style.fontSize = size + 'px';
                 let guard = 0;
-                while (el.scrollWidth > maxW && size > min && guard++ < 80) {
+                // Both DOM widths use the same pixel rounding; tolerate one pixel.
+                while (el.scrollWidth > el.clientWidth + 1 && size > min && guard++ < 80) {
                     size -= 1;
                     el.style.fontSize = size + 'px';
                 }
             });
 
-            const gap = viewerTranslation.textContent?.trim() ? 16 : 0;
-            const totalH = viewerJapanese.offsetHeight + viewerTranslation.offsetHeight + gap;
+            const totalH = blocks.reduce((height, { el }) => {
+                const style = getComputedStyle(el);
+                return height + el.offsetHeight + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+            }, 0);
             if (totalH > maxTotalH) {
                 const ratio = maxTotalH / totalH;
                 blocks.forEach(({ el, min }) => {
@@ -778,11 +748,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateViewer(index) {
         const sub = subtitles[index];
+        const length = Array.from((sub.text || '').replace(/\s/g, '')).length;
+        viewerJapanese.classList.remove('is-gap');
+        viewerJapanese.classList.toggle('is-short', length <= 25);
+        viewerJapanese.classList.toggle('is-medium', length > 25 && length < 40);
+        viewerJapanese.classList.toggle('is-long', length >= 40);
+        viewerJapanese.classList.toggle('is-extra-long', length >= 70);
         viewerJapanese.classList.add('viewer-fade');
         viewerTranslation.classList.add('viewer-fade');
         requestAnimationFrame(() => {
+            if (currentActiveIndex !== index) return;
             viewerJapanese.innerHTML = formatFurigana(sub.furigana || sub.text);
-            viewerTranslation.innerHTML = sub.translation || '';
+            viewerTranslation.textContent = sub.translation || '';
             makeWordsClickable(viewerJapanese);
             viewerJapanese.classList.remove('viewer-fade');
             viewerTranslation.classList.remove('viewer-fade');

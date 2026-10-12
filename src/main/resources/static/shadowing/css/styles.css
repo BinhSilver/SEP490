@@ -3154,13 +3154,6 @@ body.confirm-modal-open { overflow: hidden; }
     border-color: var(--color-primary);
 }
 
-.footer {
-    padding: var(--space-2xl) 0;
-    text-align: center;
-    font-size: 12px;
-    color: var(--color-text-muted);
-}
-
 
 /* -----------------------------------------------------------------------------
    15. RESPONSIVE
@@ -3939,4 +3932,414 @@ textarea.is-invalid {
 @keyframes pulse-rec {
   0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
   50%      { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+
+/* Page-owned dark mode: shadowing/css/styles.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-shadowing-bg: #0b1017;
+  --dm-shadowing-surface: #141c27;
+  --dm-shadowing-raised: #222e3b;
+  --dm-shadowing-ink: #f8fafc;
+  --dm-shadowing-muted: #b4c3d3;
+  --dm-shadowing-line: #405468;
+  --dm-shadowing-accent: #c084fc;
+  --dm-shadowing-action: #7335a6;
+  --dm-shadowing-accent-soft: #28223c;
+  --dm-shadowing-on-accent: #211b34;
+  --dm-shadowing-success: #8eddb6;
+  --dm-shadowing-success-bg: #1b3d32;
+  --dm-shadowing-success-line: #43816b;
+  --dm-shadowing-danger: #ffb4bd;
+  --dm-shadowing-danger-bg: #452832;
+  --dm-shadowing-danger-line: #96616d;
+  --dm-shadowing-warning: #f3d28a;
+  --dm-shadowing-warning-bg: #403522;
+  --dm-shadowing-warning-line: #947a46;
+  --dm-shadowing-pink: #f4aed2;
+  --dm-shadowing-pink-bg: #432d40;
+  --dm-shadowing-pink-line: #88637b;
+}
+html[data-theme="dark"] {
+    --color-bg: var(--dm-shadowing-bg);
+    --color-card: var(--dm-shadowing-surface);
+    --color-surface: var(--dm-shadowing-surface);
+    --color-surface-lowest: var(--dm-shadowing-surface);
+    --color-on-surface: var(--dm-shadowing-ink);
+    --color-primary: var(--dm-shadowing-accent);
+    --color-primary-hover: var(--dm-shadowing-action);
+    --color-primary-container: var(--dm-shadowing-action);
+    --color-primary-soft: var(--dm-shadowing-accent-soft);
+    --color-primary-ring: var(--dm-shadowing-raised);
+    --color-success: var(--dm-shadowing-success);
+    --color-success-soft: var(--dm-shadowing-success-bg);
+    --color-warning: var(--dm-shadowing-warning);
+    --color-warning-soft: var(--dm-shadowing-warning-bg);
+    --color-danger: var(--dm-shadowing-danger);
+    --color-danger-soft: var(--dm-shadowing-danger-bg);
+    --color-border: var(--dm-shadowing-line);
+    --color-divider: var(--dm-shadowing-raised);
+    --color-text: var(--dm-shadowing-ink);
+    --color-text-secondary: var(--dm-shadowing-muted);
+    --color-text-muted: var(--dm-shadowing-muted);
+    --color-secondary: var(--dm-shadowing-muted);
+    --color-outline: var(--dm-shadowing-muted);
+    --color-outline-variant: var(--dm-shadowing-line);
+    --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.18);
+    --shadow-card-hover: 0 10px 20px rgba(0, 0, 0, 0.22);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.18);
+    --shadow-primary: 0 4px 16px rgba(0, 0, 0, 0.32);
+    --primary-light: var(--dm-shadowing-accent);
+    --surface-pearl: var(--dm-shadowing-surface);
+    --purple: var(--dm-shadowing-accent);
+    --purple-light: var(--dm-shadowing-accent)
+}
+html[data-theme="dark"] .timeline-fill {
+    background: linear-gradient(90deg, var(--color-primary), var(--dm-shadowing-action))
+}
+html[data-theme="dark"] .player-controls.floating-toolbar {
+    background: var(--dm-shadowing-surface);
+    border: 1px solid var(--dm-shadowing-line);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.19);
+    scrollbar-color: var(--dm-shadowing-action) transparent
+}
+html[data-theme="dark"] .player-controls.floating-toolbar:hover {
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22)
+}
+html[data-theme="dark"] .floating-toolbar .toolbar-collapse-btn {
+    border: 1px solid var(--dm-shadowing-line);
+    background: var(--dm-shadowing-accent-soft);
+    color: var(--dm-shadowing-muted)
+}
+html[data-theme="dark"] .floating-toolbar .toolbar-collapse-btn:hover {
+    background: var(--dm-shadowing-accent-soft)
+}
+html[data-theme="dark"] .player-controls.floating-toolbar.is-collapsed .toolbar-collapse-btn {
+    background: var(--dm-shadowing-surface);
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.26)
+}
+html[data-theme="dark"] .page-player:not(.audio-mode) .floating-toolbar .control-btn[title]:hover::after,
+html[data-theme="dark"] .page-player:not(.audio-mode) .floating-toolbar .pill-btn[title]:hover::after {
+    border-right-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .floating-toolbar .toolbar-divider {
+    background: var(--dm-shadowing-accent-soft)
+}
+html[data-theme="dark"] .floating-toolbar .control-btn[title]:hover::before,
+html[data-theme="dark"] .floating-toolbar .pill-btn[title]:hover::before {
+    color: var(--dm-shadowing-ink);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] .floating-toolbar .control-btn[title]:hover::after,
+html[data-theme="dark"] .floating-toolbar .pill-btn[title]:hover::after {
+    border-left-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .control-btn::after {
+    background: radial-gradient(circle at center, var(--dm-shadowing-action) 0%, transparent 68%)
+}
+html[data-theme="dark"] .control-btn:hover {
+    border-color: var(--dm-shadowing-line);
+    background: var(--dm-shadowing-accent-soft)
+}
+html[data-theme="dark"] .control-btn.active {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .control-btn.play-main {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .control-btn.record-btn.preparing {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .control-btn.record-btn.recording {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .floating-toolbar .speed-toggle {
+    background: var(--dm-shadowing-accent-soft);
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .floating-toolbar .speed-toggle:hover {
+    background: var(--dm-shadowing-surface);
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .floating-toolbar .speed-menu {
+    background: var(--dm-shadowing-surface);
+    border: 1px solid var(--dm-shadowing-line);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24)
+}
+html[data-theme="dark"] .floating-toolbar .speed-menu .speed-btn:hover {
+    background: var(--dm-shadowing-accent-soft) !important;
+    border-color: var(--dm-shadowing-line) !important
+}
+html[data-theme="dark"] .floating-toolbar .speed-menu .speed-btn.active {
+    color: var(--dm-shadowing-on-accent) !important
+}
+html[data-theme="dark"] .speed-btn.active {
+    color: var(--dm-shadowing-on-accent) !important
+}
+html[data-theme="dark"] .floating-toolbar .toolbar-display {
+    background: var(--dm-shadowing-accent-soft);
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .floating-toolbar .toolbar-display .pill-btn:hover {
+    background: var(--dm-shadowing-surface);
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .floating-toolbar .toolbar-display .pill-btn.active {
+    background: var(--dm-shadowing-surface);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24)
+}
+html[data-theme="dark"] .pill-btn:hover {
+    background: var(--dm-shadowing-surface);
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .pill-btn.active {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .pill-btn.active i {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .transcript-header {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] .subtitle-item:hover {
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .subtitle-item.active {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] .subtitle-item.completed {
+    border-color: var(--dm-shadowing-success-line)
+}
+html[data-theme="dark"] .sub-practice-overlay {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] .subtitle-item.recording {
+    border-color: var(--dm-shadowing-warning-line)
+}
+html[data-theme="dark"] .subtitle-item.error {
+    border-color: var(--dm-shadowing-danger-line)
+}
+html[data-theme="dark"] .sub-action-btn:hover {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .sub-action-btn.favorited {
+    border-color: var(--dm-shadowing-warning-line)
+}
+html[data-theme="dark"] .subtitle-viewer-inline {
+    background: var(--dm-shadowing-accent-soft);
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .subtitle-viewer-inline:hover {
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .progress-fill {
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--dm-shadowing-action) 100%)
+}
+html[data-theme="dark"] .progress-fill.green {
+    background: linear-gradient(90deg, var(--color-success) 0%, var(--dm-shadowing-success-bg) 100%)
+}
+html[data-theme="dark"] .mic-level-fill {
+    background: linear-gradient(90deg, var(--dm-shadowing-success-bg), var(--dm-shadowing-warning-bg) 70%, var(--dm-shadowing-danger-bg))
+}
+html[data-theme="dark"] .mic-level-wrap.mic-low .mic-level-fill {
+    background: var(--dm-shadowing-danger-bg)
+}
+html[data-theme="dark"] .mic-level-wrap.mic-ok .mic-level-fill {
+    background: linear-gradient(90deg, var(--dm-shadowing-success-bg), var(--dm-shadowing-success-bg))
+}
+html[data-theme="dark"] .sentence-status {
+    border: 1px solid var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .sentence-result-item.score-excellent {
+    border-color: var(--dm-shadowing-success-line)
+}
+html[data-theme="dark"] .sentence-result-item.score-good {
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .sentence-result-item.score-fair {
+    border-color: var(--dm-shadowing-warning-line)
+}
+html[data-theme="dark"] .sentence-result-item.score-low {
+    border-color: var(--dm-shadowing-danger-line)
+}
+html[data-theme="dark"] .create-mode-tab:hover {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] .create-mode-tab.active {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] #youtube-status.is-error {
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] #language-check-panel {
+    border: 1px solid var(--dm-shadowing-line);
+    background: var(--dm-shadowing-accent-soft);
+    color: var(--dm-shadowing-accent)
+}
+html[data-theme="dark"] #language-check-panel p {
+    color: var(--dm-shadowing-muted)
+}
+html[data-theme="dark"] #language-check-panel.language-check-blocked {
+    border-color: var(--dm-shadowing-danger-line);
+    background: var(--dm-shadowing-danger-bg);
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] #language-check-panel.language-check-blocked p {
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] .youtube-preview-badges .badge-ok {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] .youtube-preview-badges .badge-warn {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] .youtube-preview-badges .badge-err {
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] .button-primary {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .button-secondary {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] .button-secondary:hover {
+    background: var(--dm-shadowing-raised)
+}
+html[data-theme="dark"] .button-dark-utility {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .button-icon-circular:hover {
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .transcript-column::-webkit-scrollbar-thumb,
+html[data-theme="dark"] .editor-list-col::-webkit-scrollbar-thumb {
+    background: var(--dm-shadowing-action)
+}
+html[data-theme="dark"] .tag-chip.active {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .badge-processing {
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] .badge-ready {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] .badge-failed {
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] .badge-lesson.badge-green {
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] .tab-btn.active {
+    color: var(--dm-shadowing-on-accent)
+}
+html[data-theme="dark"] .video-card-thumb {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .video-card-thumb > i {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .confirm-modal {
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.26)
+}
+html[data-theme="dark"] .confirm-modal-danger {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.40)
+}
+html[data-theme="dark"] .confirm-modal-danger:hover {
+    background: var(--dm-shadowing-danger-bg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.46)
+}
+html[data-theme="dark"] .validation-errors {
+    border: 1px solid var(--dm-shadowing-danger-line);
+    color: var(--dm-shadowing-danger)
+}
+html[data-theme="dark"] .validation-warnings {
+    border: 1px solid var(--dm-shadowing-warning-line);
+    color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] .save-indicator.synced,
+html[data-theme="dark"] .save-indicator.saved {
+    border-color: var(--dm-shadowing-success-line)
+}
+html[data-theme="dark"] .save-indicator.unsaved {
+    color: var(--dm-shadowing-warning);
+    border-color: var(--dm-shadowing-warning-line)
+}
+html[data-theme="dark"] .save-indicator.saving {
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .save-indicator.error {
+    border-color: var(--dm-shadowing-danger-line)
+}
+html[data-theme="dark"] .validation-panel {
+    border: 1px solid var(--dm-shadowing-warning-line)
+}
+html[data-theme="dark"] .button-secondary.active,
+html[data-theme="dark"] .tab-btn.active {
+    color: var(--dm-shadowing-on-accent)
+}
+@media (max-width: 1068px) {
+    html[data-theme="dark"] .floating-toolbar .control-btn[title]:hover::after,
+html[data-theme="dark"] .floating-toolbar .pill-btn[title]:hover::after {
+        border-top-color: var(--dm-shadowing-line)
+    }
+}
+html[data-theme="dark"] .card-fav-btn {
+    background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] .toast-notify {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .toast-notify::before {
+    background: var(--dm-shadowing-surface);
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .page-player.audio-mode .lyrics-stage.subtitle-viewer-inline {
+    border: 1px solid var(--dm-shadowing-line);
+    background: radial-gradient(ellipse 90% 70% at 20% 0%, var(--dm-shadowing-action), transparent 55%),
+        radial-gradient(ellipse 70% 60% at 90% 100%, var(--dm-shadowing-raised), transparent 50%),
+        linear-gradient(165deg, #0f172a 0%, #1e1b4b 48%, #0f172a 100%);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34)
+}
+html[data-theme="dark"] .page-player.audio-mode .lyrics-stage .viewer-japanese {
+    color: var(--dm-shadowing-accent);
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.42)
+}
+html[data-theme="dark"] .page-player.audio-mode .lyrics-stage .viewer-translation {
+    color: var(--dm-shadowing-accent)
+}
+html[data-theme="dark"] .page-player.audio-mode .player-controls.audio-control-bar {
+    background: var(--dm-shadowing-surface);
+    border: 1px solid var(--dm-shadowing-line);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.19)
+}
+html[data-theme="dark"] .page-player.audio-mode .audio-control-bar .toolbar-divider {
+    background: var(--dm-shadowing-accent-soft)
+}
+html[data-theme="dark"] .page-player.audio-mode .timeline-track {
+    background: var(--dm-shadowing-raised)
+}
+html[data-theme="dark"] .page-player.audio-mode .timeline-fill {
+    background: linear-gradient(90deg, var(--dm-shadowing-action), var(--dm-shadowing-action), var(--dm-shadowing-raised))
+}
+html[data-theme="dark"] .page-player.audio-mode .subtitle-item.active {
+    background: linear-gradient(90deg, var(--dm-shadowing-action), var(--dm-shadowing-action));
+    border-color: var(--dm-shadowing-line)
+}
+html[data-theme="dark"] .page-player.audio-mode .subtitle-item.active .sub-jp {
+    color: var(--dm-shadowing-accent)
+}
+html[data-theme="dark"] .editor-layout.audio-mode .video-container::before {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] .form-input.is-invalid,
+html[data-theme="dark"] input.is-invalid,
+html[data-theme="dark"] textarea.is-invalid {
+    border-color: var(--dm-shadowing-danger-line) !important;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30) !important
+}
+html[data-theme="dark"] .btn-recording {
+    background: var(--dm-shadowing-danger-bg) !important;
+    color: var(--dm-shadowing-ink) !important
 }

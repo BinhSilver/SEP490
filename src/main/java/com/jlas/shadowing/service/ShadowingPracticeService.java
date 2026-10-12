@@ -85,7 +85,7 @@ public class ShadowingPracticeService {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn mức và dạng bài tập");
             }
             requested = request.questionCount() == null ? DEFAULT_QUESTION_COUNT : request.questionCount();
-            if (requested < 1 || requested > 500) {
+            if (!request.allQuestions() && (requested < 1 || requested > 500)) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu phải từ 1 đến 500");
             }
             Map<Long, Subtitle> byId = new HashMap<>();
@@ -116,7 +116,7 @@ public class ShadowingPracticeService {
                     lastEnd = seedItem.prepared().endTime();
                 }
             }
-            if (available.size() < requested) {
+            if (!request.allQuestions() && available.size() < requested) {
                 throw new ApiException(ErrorCode.BAD_REQUEST,
                         "Bộ câu hỏi đã chuẩn bị chỉ có " + available.size() + " câu phù hợp; hãy chọn ít câu hơn hoặc mức khác");
             }
@@ -236,16 +236,8 @@ public class ShadowingPracticeService {
                 && !prepared.choices().contains(request.answer().strip())) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn một đáp án trong các lựa chọn");
         }
-        JapaneseAnswerMatcher.MatchResult match = prepared != null && !"GAP".equals(prepared.kind())
-                ? null : prepared != null && prepared.answer().equals(subtitle.getText().strip())
-                ? JapaneseAnswerMatcher.matchSentence(expected, subtitle.getFurigana(), request.answer())
-                : prepared != null
-                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), expected,
-                "", prepared.occurrence(), request.answer())
-                : session.getMode() == PracticeMode.CLOZE && candidate != null
-                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), expected,
-                candidate.getReadingText(), candidate.getOccurrenceIndex(), request.answer())
-                : JapaneseAnswerMatcher.matchSentence(expected, subtitle.getFurigana(), request.answer());
+        JapaneseAnswerMatcher.MatchResult match = matchAnswer(session.getMode(), subtitle, candidate,
+                prepared, request.answer());
         String expectedNormalized = match == null ? normalizeAnswer(expected) : match.normalizedExpected();
         String userNormalized = match == null ? normalizeAnswer(request.answer()) : match.normalizedActual();
         boolean correct = match == null ? expected.equals(request.answer().strip()) : match.isCorrect();
@@ -259,7 +251,7 @@ public class ShadowingPracticeService {
             feedback = prepared != null && !"GAP".equals(prepared.kind())
                     ? "Chính xác. Bạn đã hiểu đúng nội dung đoạn nghe."
                     : match != null && match.usesEquivalentWriting()
-                    ? "Chính xác. Cách viết Kanji/kana của bạn khác câu mẫu nhưng có cùng cách đọc."
+                    ? "Chính xác. Đáp án của bạn có cùng cách đọc với câu mẫu."
                     : "Chính xác. Bạn đã nghe và viết đúng nội dung câu.";
         } else {
             result = AnswerResult.INCORRECT;
@@ -283,8 +275,30 @@ public class ShadowingPracticeService {
                 result == AnswerResult.CORRECT ? subtitle.getTranslation() : null,
                 result == AnswerResult.CORRECT
                         ? answerDifferences(result, expectedNormalized, userNormalized)
-                        : concealedDifferences(expectedNormalized, userNormalized),
+                        : concealedDifferences(match),
                 result == AnswerResult.CORRECT && prepared != null ? prepared.explanation() : null);
+    }
+
+    private static JapaneseAnswerMatcher.MatchResult matchAnswer(PracticeMode mode, Subtitle subtitle,
+            ShadowingClozeCandidate candidate, PreparedQuestion prepared, String actual) {
+        if (prepared != null) {
+            return "GAP".equals(prepared.kind()) ? matchPreparedGap(prepared, subtitle, actual) : null;
+        }
+        return mode == PracticeMode.CLOZE && candidate != null
+                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), candidate.getAnswerText(),
+                candidate.getReadingText(), candidate.getOccurrenceIndex(), actual)
+                : JapaneseAnswerMatcher.matchSentence(subtitle.getText(), subtitle.getFurigana(), actual);
+    }
+
+    static JapaneseAnswerMatcher.MatchResult matchPreparedGap(PreparedQuestion question, Subtitle subtitle,
+                                                               String actual) {
+        String spoken = QuestionTranscript.spoken(subtitle.getText());
+        String reading = QuestionTranscript.spoken(subtitle.getFurigana());
+        if ("HARD".equals(question.level()) || QuestionTranscript.sentenceKey(question.answer())
+                .equals(QuestionTranscript.sentenceKey(spoken))) {
+            return JapaneseAnswerMatcher.matchSentence(question.answer(), reading, actual);
+        }
+        return JapaneseAnswerMatcher.matchCloze(spoken, reading, question.answer(), "", question.occurrence(), actual);
     }
 
     @Transactional
@@ -578,12 +592,10 @@ public class ShadowingPracticeService {
         }
     }
 
-    private static List<PracticeDiffPart> concealedDifferences(String expected, String actual) {
-        return differences(expected, actual).stream().map(part -> switch (part.type()) {
-            case "MATCH" -> new PracticeDiffPart("MATCH", "", part.actual());
-            case "MISSING" -> new PracticeDiffPart("MISSING", "", "");
-            default -> new PracticeDiffPart(part.type(), "", part.actual());
-        }).toList();
+    private static List<PracticeDiffPart> concealedDifferences(JapaneseAnswerMatcher.MatchResult match) {
+        if (match == null) return List.of();
+        return match.feedback().stream().map(part ->
+                new PracticeDiffPart(part.matched() ? "MATCH" : "MASK", "", part.text())).toList();
     }
 
     private static String codePoint(int value) {
@@ -601,7 +613,7 @@ public class ShadowingPracticeService {
                 settled ? expected : null, answer.getUserAnswer(),
                 settled ? subtitle.getTranslation() : null,
                 settled ? answerDifferences(answer.getResult(), expectedNormalized, answer.getNormalizedAnswer())
-                        : concealedDifferences(expectedNormalized, answer.getNormalizedAnswer()),
+                        : concealedDifferences(matchAnswer(mode, subtitle, candidate, prepared, answer.getUserAnswer())),
                 settled && prepared != null ? prepared.explanation() : null);
     }
 

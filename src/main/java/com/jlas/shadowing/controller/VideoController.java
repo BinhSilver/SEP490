@@ -1,6 +1,7 @@
 package com.jlas.shadowing.controller;
 
 import com.jlas.common.exception.ApiException;
+import com.jlas.auth.dto.ApiResponse;
 import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
@@ -31,11 +32,26 @@ public class VideoController {
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String clientId,
-            @RequestParam(required = false, defaultValue = "newest") String sort,
+            @RequestParam(required = false, defaultValue = "popular") String sort,
             @RequestParam(required = false) Boolean favoritesOnly,
             @RequestParam(required = false, defaultValue = "public") String scope,
             @RequestParam(required = false) String level) {
         return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope, level));
+    }
+
+    @GetMapping("/library")
+    public ResponseEntity<ApiResponse<LibraryPageDto<VideoSummaryDto>>> library(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String level,
+            @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(defaultValue = "public") String scope,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "false") boolean favoritesOnly,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("Thư viện video", videoService.searchPage(q, category, level,
+                sort, scope, status, favoritesOnly, page, size)));
     }
 
     @GetMapping("/categories")

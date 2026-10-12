@@ -14,36 +14,20 @@
   const startLabel = startButton.querySelector('span');
   const startIcon = document.getElementById('practice-start-icon');
   const startKitsu = document.getElementById('practice-start-kitsu');
-  const headerKitsu = document.getElementById('practice-kitsu');
   const status = document.getElementById('practice-status');
   const contributeLink = document.getElementById('practice-contribute-link');
   const availableLabel = document.getElementById('practice-available-count');
   const selectAllButton = document.getElementById('practice-select-all');
   const clearAllButton = document.getElementById('practice-clear-all');
-  let selectedMode = 'SHADOWING';
+  let selectedMode = 'LISTENING';
   let subtitleCount = 0;
   let availability = {};
   let creatingSession = false;
   let creationPaused = false;
   let createdSessionId = null;
-
-  function playHeaderKitsu() {
-    if (!headerKitsu || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-
-    const playback = headerKitsu.play();
-    if (playback && typeof playback.catch === 'function') {
-      playback.catch(function () {
-        // Muted autoplay is normally allowed; the next browser interaction retries playback.
-      });
-    }
-  }
-
-  if (headerKitsu) {
-    headerKitsu.addEventListener('loadeddata', playHeaderKitsu, { once: true });
-    headerKitsu.addEventListener('canplay', playHeaderKitsu, { once: true });
-    document.addEventListener('pointerdown', playHeaderKitsu, { once: true, passive: true });
-    playHeaderKitsu();
-  }
+  let creationVersion = 0;
+  let creationController = null;
+  let creationSelection = null;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -51,7 +35,7 @@
 
   function message(value, error) {
     status.textContent = value || '';
-    status.style.color = error ? '#a71919' : '';
+    status.style.color = error ? 'var(--color-error, #a71919)' : '';
   }
 
   function startText() {
@@ -66,16 +50,27 @@
   function showPreparing(show) {
     startKitsu.hidden = !show;
     startRow?.classList.toggle('has-mascot', show);
-    if (!show) {
-      startKitsu.pause();
-      return;
-    }
-    const playback = startKitsu.play();
-    if (playback?.catch) playback.catch(function () { /* The poster remains visible. */ });
+  }
+
+  function resetSessionCreation() {
+    creationVersion++;
+    creationController?.abort();
+    creationController = null;
+    creationSelection = null;
+    creatingSession = false;
+    creationPaused = false;
+    createdSessionId = null;
+    showPreparing(false);
+    setAction(startText(), 'play');
+    message('');
+  }
+
+  function selectionKey() {
+    return JSON.stringify([selectedMode, selectedCombos().sort(), selectedCount().questionCount]);
   }
 
   function selectMode(mode) {
-    if (creatingSession) return;
+    if (selectedMode !== mode) resetSessionCreation();
     selectedMode = mode;
     cards.forEach(function (card) {
       const selected = card.dataset.mode === mode;
@@ -85,7 +80,6 @@
     options.hidden = mode === 'SHADOWING';
     setAction(startText(), 'play');
     showPreparing(false);
-    try { startKitsu.currentTime = 0; } catch (_) { /* metadata may not be loaded yet */ }
     message('');
     updateAvailability();
   }
@@ -173,6 +167,7 @@
 
   function updateAvailability() {
     updateLevelCounts();
+    if (creatingSession && creationSelection !== selectionKey()) resetSessionCreation();
     const availableOptions = Array.from(document.querySelectorAll('.practice-kind-card input:not(:disabled)'));
     selectAllButton.disabled = !availableOptions.some(function (input) { return !input.checked; });
     clearAllButton.disabled = !availableOptions.some(function (input) { return input.checked; });
@@ -191,7 +186,7 @@
       return;
     }
     if (ready === 0) {
-      message('Hiện chưa có câu hỏi mẫu.', true);
+      message('');
       contributeLink.hidden = false;
       startButton.disabled = true;
     } else {
@@ -249,9 +244,13 @@
       }
       syncPreparedFilters();
       updateAvailability();
+      const hasQuestions = window.ShadowingEmptyExercises.hasQuestions(availability);
+      window.ShadowingSessionGuide?.init({ autoOpen: hasQuestions });
+      if (!hasQuestions) window.ShadowingEmptyExercises.show();
     } catch (error) {
       availability = {};
       if (selectedMode === 'LISTENING') message(error.message, true);
+      startButton.disabled = true;
     }
   }
 
@@ -261,6 +260,8 @@
   }
 
   startButton.addEventListener('click', async function () {
+    window.ShadowingSessionGuide?.finish();
+    if (creatingSession && creationSelection !== selectionKey()) resetSessionCreation();
     // While a session is being prepared the button toggles Dừng / Tiếp tục instead of starting again.
     if (creatingSession) {
       creationPaused = !creationPaused;
@@ -286,13 +287,17 @@
     creatingSession = true;
     creationPaused = false;
     createdSessionId = null;
-    try { startKitsu.currentTime = 0; } catch (_) { /* metadata may not be loaded yet */ }
+    creationSelection = selectionKey();
+    const version = ++creationVersion;
+    const controller = new AbortController();
+    creationController = controller;
     showPreparing(true);
     setAction('Dừng', 'stop');
     message('Kitsu-chan đang chuẩn bị...');
     try {
       const response = await fetch('/api/shadowing-practice/sessions', {
         method: 'POST',
+        signal: controller.signal,
         headers: headers(),
         body: JSON.stringify({
           videoId: Number(videoId),
@@ -303,7 +308,9 @@
         })
       });
       const data = await response.json().catch(function () { return {}; });
+      if (version !== creationVersion) return;
       if (!response.ok) throw new Error(data.message || data.error || 'Không tạo được phiên học');
+      creationController = null;
       createdSessionId = data.sessionId;
       if (creationPaused) {
         message('Phiên học đã sẵn sàng.');
@@ -311,14 +318,20 @@
       }
       location.href = '/shadowing/exercise/' + encodeURIComponent(createdSessionId);
     } catch (error) {
-      creatingSession = false;
-      creationPaused = false;
-      createdSessionId = null;
-      showPreparing(false);
-      setAction(startText(), 'play');
+      if (version !== creationVersion) return;
+      resetSessionCreation();
       updateAvailability();
       message(error.message || 'Không tạo được phiên học', true);
     }
+  });
+
+  // History navigation can restore this entire script from the browser's back/forward cache.
+  // Keep the learner's selections, but never reuse the session that they just left.
+  window.addEventListener('pagehide', resetSessionCreation);
+  window.addEventListener('pageshow', function (event) {
+    if (!event.persisted) return;
+    resetSessionCreation();
+    updateAvailability();
   });
 
   loadLesson();

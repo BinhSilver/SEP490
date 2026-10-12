@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chỉnh sửa phụ đề | JLAS Shadowing</title>
@@ -11,10 +12,12 @@
     <link rel="stylesheet" href="/css/base.css"/>
     <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260923-editor-flat">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260929-merge-ti"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261009-editor-spacing"/>
+    <link rel="stylesheet" href="/shadowing/css/editor-ai-dialog.css?v=20261009"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-editor">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-editor">
     <div id="jlabBaseShellMount"></div>
 
     <input type="hidden" id="video-id" th:value="${videoId}">
@@ -33,6 +36,7 @@
                 <button id="redo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-right"></i> Làm lại</button>
                 <button id="focus-mode-btn" class="button-secondary btn-sm"><i class="fa-solid fa-crosshairs"></i> Tập trung</button>
                 <button id="regenerate-all-btn" class="button-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại phụ đề</button>
+                <button id="editor-ai-progress" class="button-secondary btn-sm" hidden>Xem tiến trình AI</button>
                 <button id="validate-btn" class="button-secondary btn-sm"><i class="fa-solid fa-clipboard-check"></i> Kiểm tra</button>
                 <a id="prepare-exercises-link" class="button-secondary btn-sm" th:href="@{/shadowing/prepare/{id}(id=${videoId})}"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Chuẩn bị bài tập</a>
                 <button id="publish-btn" class="button-primary"><i class="fa-solid fa-upload"></i> Xuất bản</button>
@@ -67,7 +71,7 @@
                         <video id="editor-video"></video>
                     </div>
                     <div class="player-controls" style="justify-content: center;">
-                        <button id="editor-play-btn" class="control-btn play-main">
+                        <button id="editor-play-btn" class="control-btn play-main" aria-label="Phát video">
                             <i class="fa-solid fa-play" id="editor-play-icon"></i>
                         </button>
                     </div>
@@ -83,12 +87,32 @@
 
     </main>
 
+    <dialog id="editor-ai-dialog" class="editor-ai-dialog" aria-labelledby="editor-ai-title" aria-describedby="editor-ai-description">
+        <header class="editor-ai-dialog__header">
+            <span class="editor-ai-dialog__symbol"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+            <div><h2 id="editor-ai-title">Tạo lại AI</h2><p id="editor-ai-description" hidden>Tạo cách đọc và bản dịch cho câu phụ đề.</p></div>
+            <button type="button" class="editor-ai-dialog__close" data-ai-close aria-label="Đóng popup"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        <div class="editor-ai-dialog__body">
+            <p class="editor-ai-dialog__source" id="editor-ai-source" lang="ja"></p>
+            <div class="editor-ai-dialog__status" role="status" aria-live="polite" aria-atomic="true">
+                <span class="editor-ai-dialog__marker" aria-hidden="true"></span>
+                <div><strong id="editor-ai-status">Đang xử lý…</strong><p id="editor-ai-detail">AI đang xử lý câu phụ đề bạn đã chọn.</p></div>
+            </div>
+        </div>
+        <footer class="editor-ai-dialog__footer">
+            <button type="button" class="button-secondary" data-ai-close>Xem trang</button>
+            <button type="button" class="button-primary" id="editor-ai-primary" disabled>Đang xử lý…</button>
+        </footer>
+    </dialog>
+
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20260712"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
     <script src="/flashcard/js/prevalidation.js"></script>
-    <script src="/shadowing/js/editor.js?v=20260923-subtitle-quality"></script>
+    <script src="/shadowing/js/editor-operations.js?v=20261009"></script>
+    <script src="/shadowing/js/editor.js?v=20261012-owner-only"></script>
     <script>
       // BR-11 — Pre-validation cho tiêu đề video Shadowing
       document.addEventListener('DOMContentLoaded', function () {

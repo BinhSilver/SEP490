@@ -1,0 +1,65 @@
+.editor-ai-dialog {
+  --ai-surface: #fff;
+  --ai-raised: #f3f5fa;
+  --ai-ink: #1c2634;
+  --ai-muted: #52647b;
+  --ai-line: #ccd5e0;
+  --ai-accent: #7335a6;
+  --ai-success: #147447;
+  --ai-error: #aa2945;
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  padding: 0;
+  border: 1px solid var(--ai-line);
+  border-radius: 24px;
+  overflow: auto;
+  background: var(--ai-surface);
+  color: var(--ai-ink);
+  box-shadow: 0 24px 80px #0005;
+  font-family: 'Hanken Grotesk', 'Inter', sans-serif;
+}
+html[data-theme="dark"] .editor-ai-dialog {
+  --ai-surface: #141c27;
+  --ai-raised: #222e3b;
+  --ai-ink: #f8fafc;
+  --ai-muted: #b4c3d3;
+  --ai-line: #405468;
+  --ai-accent: #c084fc;
+  --ai-success: #8eddb6;
+  --ai-error: #ffb4bd;
+}
+.editor-ai-dialog::backdrop { background: #07101bb3; backdrop-filter: blur(4px); }
+.editor-ai-dialog__header { display: flex; gap: 16px; align-items: center; padding: 28px 28px 20px; }
+.editor-ai-dialog__header h2 { color: var(--ai-ink); margin: 0 0 4px; font-size: 24px; line-height: 1.3; }
+.editor-ai-dialog__header p { color: var(--ai-muted); margin: 0; line-height: 1.5; }
+.editor-ai-dialog__symbol { display: grid; place-items: center; flex: 0 0 52px; height: 52px; border-radius: 16px; background: var(--ai-raised); color: var(--ai-accent); font-size: 24px; }
+.editor-ai-dialog__close { flex: 0 0 44px; height: 44px; margin-left: auto; border: 1px solid var(--ai-line); border-radius: 50%; background: var(--ai-surface); color: var(--ai-muted); cursor: pointer; }
+.editor-ai-dialog__body { padding: 0 28px 28px; }
+.editor-ai-dialog__source { padding: 18px 20px; margin: 0 0 24px; border-radius: 14px; background: var(--ai-raised); color: var(--ai-ink); font-family: 'Noto Sans JP', sans-serif; line-height: 1.8; overflow-wrap: anywhere; max-height: 180px; overflow: auto; }
+.editor-ai-dialog__status { display: flex; align-items: flex-start; gap: 16px; }
+.editor-ai-dialog__status strong { color: var(--ai-ink); font-size: 18px; }
+.editor-ai-dialog__status p { margin: 6px 0 0; line-height: 1.6; color: var(--ai-muted); overflow-wrap: anywhere; }
+.editor-ai-dialog__marker { width: 24px; height: 24px; flex: 0 0 24px; border: 3px solid var(--ai-line); border-top-color: var(--ai-accent); border-radius: 50%; animation: editor-ai-spin .9s linear infinite; }
+.editor-ai-dialog[data-state="success"] .editor-ai-dialog__marker,
+.editor-ai-dialog[data-state="error"] .editor-ai-dialog__marker { display: grid; place-items: center; border: 0; animation: none; background: var(--ai-raised); }
+.editor-ai-dialog[data-state="success"] .editor-ai-dialog__marker::after { content: '✓'; color: var(--ai-success); }
+.editor-ai-dialog[data-state="error"] .editor-ai-dialog__marker::after { content: '!'; color: var(--ai-error); font-weight: 700; }
+.editor-ai-dialog__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 28px; border-top: 1px solid var(--ai-line); }
+.editor-ai-dialog__footer button { min-height: 44px; }
+.editor-ai-dialog button:focus-visible { outline: 3px solid var(--ai-accent); outline-offset: 3px; }
+.page-shadowing-editor #editor-ai-progress[hidden] { display: none; }
+.page-shadowing-editor .play-segment { min-width: 36px; min-height: 36px; }
+.page-shadowing-editor .play-segment[aria-pressed="true"] { color: #fff; background: #7335a6; border-color: #c084fc; }
+.page-shadowing-editor .editor-sub-item[aria-busy="true"] { cursor: progress; }
+html.editor-ai-open { overflow: hidden; }
+@keyframes editor-ai-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .editor-ai-dialog__marker { animation: none; } }
+@media (max-width: 480px) {
+  .editor-ai-dialog__header { padding: 20px 16px; gap: 10px; }
+  .editor-ai-dialog__symbol { flex-basis: 40px; height: 40px; border-radius: 12px; }
+  .editor-ai-dialog__header h2 { font-size: 20px; }
+  .editor-ai-dialog__body { padding: 0 16px 20px; }
+  .editor-ai-dialog__footer { padding: 16px; }
+  .editor-ai-dialog__footer button { flex: 1; }
+}

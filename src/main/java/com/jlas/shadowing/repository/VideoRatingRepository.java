@@ -14,9 +14,8 @@ public class VideoRatingRepository {
     }
     public VideoRating save(VideoRating rating) {
         Long user = userId(rating.getClientId());
-        VideoUserState state = states.findByUserIdAndVideoId(user, rating.getVideo().getId())
-                .orElseGet(() -> VideoUserState.builder().userId(user).videoId(rating.getVideo().getId()).build());
-        state.setRating(rating.getRating()); states.save(state); return projection(state);
+        states.storeRating(user, rating.getVideo().getId(), rating.getRating());
+        return rating;
     }
     public Double averageByVideoId(Long video) { return states.averageRating(video); }
     public long countByVideoId(Long video) { return states.countByVideoIdAndRatingIsNotNull(video); }

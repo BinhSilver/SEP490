@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chọn cách học | JLAS</title>
@@ -11,9 +12,12 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260929-merge-ti">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="stylesheet" href="/shadowing/css/empty-exercises.css?v=20261009-crying-30frames">
     <link rel="icon" href="/images/jlab.png" type="image/png">
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-mic-tools">
 </head>
-<body id="jlabBasePage" class="page-shadowing-practice-select">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing-practice-select">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent">
     <input id="practice-video-id" type="hidden" th:value="${videoId}">
@@ -23,11 +27,9 @@
             <div>
                 <span id="practice-eyebrow">Bắt đầu bài học</span>
                 <h1 id="practice-video-title">Đang tải bài học…</h1>
-                <p><span id="practice-subtitle-count">-- câu</span><span id="practice-video-jlpt" hidden></span> · Chọn cách bạn muốn luyện hôm nay.</p>
+                <p><span id="practice-subtitle-count">-- câu</span><span id="practice-video-jlpt" hidden></span></p>
             </div>
-            <video id="practice-kitsu" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-                <source src="/videos/linhvat-alpha.webm?v=20260915" type="video/webm">
-            </video>
+            <img id="practice-kitsu" src="/images/mascots/kitsu/kitsu-announcing.webp?v=20261012" alt="" aria-hidden="true">
         </header>
 
         <section id="practice-mode-section" aria-labelledby="practice-mode-heading">
@@ -35,47 +37,21 @@
             <div id="practice-mode-grid">
                 <button type="button" class="practice-mode-card is-selected" data-mode="SHADOWING" aria-pressed="true">
                     <i class="fa-solid fa-microphone-lines"></i>
-                    <span><strong>Shadowing</strong><small>Nghe, đọc theo, thu âm và chấm phát âm như hiện tại.</small></span>
+                    <span><strong>Shadowing</strong></span>
                     <em>Hiện có</em>
                 </button>
                 <button type="button" class="practice-mode-card" data-mode="LISTENING" aria-pressed="false">
                     <i class="fa-solid fa-pen-to-square"></i>
-                    <span><strong>Luyện nghe</strong><small>Điền nội dung nghe được hoặc trả lời câu hỏi về hội thoại.</small></span>
+                    <span><strong>Luyện nghe</strong></span>
                     <em>Dễ · Vừa · Khó</em>
                 </button>
             </div>
         </section>
 
         <div id="practice-session-controls">
-            <section id="practice-options" hidden aria-labelledby="practice-options-heading">
-                <h2 id="practice-options-heading">Thiết lập phiên học</h2>
-                <div id="practice-option-grid">
-                    <fieldset id="practice-kind-options">
-                        <legend>Dạng câu hỏi</legend>
-                        <div class="practice-selection-actions">
-                            <button id="practice-select-all" type="button" disabled>Chọn tất cả</button>
-                            <button id="practice-clear-all" type="button" disabled>Bỏ chọn tất cả</button>
-                            <span class="practice-selected-count">Số câu: <output id="practice-available-count" aria-live="polite" aria-label="Số câu đã chọn">0</output></span>
-                        </div>
-                        <div class="practice-kind-list">
-                            <fieldset class="practice-kind-card" data-kind="GAP"><legend>Điền nội dung nghe được</legend><div class="practice-level-list"></div></fieldset>
-                            <fieldset class="practice-kind-card" data-kind="ACTION_SEQUENCE"><legend>Hành động và thứ tự</legend><div class="practice-level-list"></div></fieldset>
-                            <fieldset class="practice-kind-card" data-kind="DETAIL"><legend>Thông tin cụ thể</legend><div class="practice-level-list"></div></fieldset>
-                            <fieldset class="practice-kind-card" data-kind="REASON_PURPOSE"><legend>Lý do và mục đích</legend><div class="practice-level-list"></div></fieldset>
-                            <fieldset class="practice-kind-card" data-kind="MAIN_IDEA"><legend>Ý chính và kết luận</legend><div class="practice-level-list"></div></fieldset>
-                            <fieldset class="practice-kind-card" data-kind="PROBLEM_SOLUTION"><legend>Vấn đề và giải pháp</legend><div class="practice-level-list"></div></fieldset>
-                            <fieldset class="practice-kind-card" data-kind="ATTITUDE_DECISION"><legend>Thái độ và quyết định</legend><div class="practice-level-list"></div></fieldset>
-                        </div>
-                    </fieldset>
-                </div>
-            </section>
-
             <div id="practice-start-row">
-                <video id="practice-start-kitsu" muted loop playsinline preload="metadata"
-                       poster="/images/kitsu.png" aria-hidden="true" hidden>
-                    <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
-                </video>
-                <button id="practice-start-button" type="button">
+                <img id="practice-start-kitsu" src="/images/mascots/kitsu/kitsu-preparing.webp?v=20261012" alt="" aria-hidden="true" hidden>
+                <button id="practice-start-button" type="button" disabled>
                     <i id="practice-start-icon" class="fa-solid fa-play" aria-hidden="true"></i>
                     <span>Bắt đầu Shadowing</span>
                 </button>
@@ -85,9 +61,11 @@
         </div>
     </div>
 </main>
+<div th:replace="~{shadowing/fragments/empty-exercises :: dialog(${videoId})}"></div>
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
-<script src="/shadowing/js/practice-select.js?v=20260929-merge-ti"></script>
+<script src="/shadowing/js/empty-exercises.js?v=20261009"></script>
+<script src="/shadowing/js/mode-select.js?v=20261012-mic-tools"></script>
 </body>
 </html>

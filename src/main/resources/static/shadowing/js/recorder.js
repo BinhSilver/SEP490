@@ -8,6 +8,7 @@
   const SMALL_KANA = new Set(['ゃ', 'ゅ', 'ょ', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'ゎ', 'ゕ', 'ゖ']);
   const states = new Map();
   let active = null;
+  let pending = null;
   let referencePlaybackListener = null;
   window.isShadowingPronunciationRecording = function () { return Boolean(active); };
 
@@ -124,115 +125,127 @@
     if (icon) icon.className = recording ? 'fa-solid fa-stop' : 'fa-solid fa-microphone';
   }
 
-  async function startRecording(card, index) {
-    if (active) {
-      if (active.card === card) {
-        stopRecording(false);
-        return;
-      }
-      setStatus(card, 'Đang xử lý bản thu trước');
-      return;
+  async function startRecording(card, index, options = {}) {
+    const fail = message => { setPanelVisible(card, true); setStatus(card, message); return { status: 'error', message }; };
+    if (pending || active) {
+      if (active && active.card === card && !options.autoAssess) stopRecording(false);
+      return { status: 'error', message: 'Đang xử lý bản thu trước' };
     }
+    if (stateFor(card).assessing) return fail('Đang chấm bản thu trước · hãy chờ kết quả');
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
-      setStatus(card, 'Trình duyệt không hỗ trợ thu âm');
-      return;
+      return fail(window.isSecureContext === false
+        ? 'Micro cần HTTPS. Hãy mở trang bằng HTTPS rồi thử lại.'
+        : 'Trình duyệt không hỗ trợ thu âm');
     }
-    if (typeof window.selectShadowingPronunciationSubtitle === 'function') {
-      window.selectShadowingPronunciationSubtitle(index, 'recording');
-    }
-    const context = typeof window.getShadowingPronunciationContext === 'function'
-      ? window.getShadowingPronunciationContext(index) : null;
-    if (!context || !context.subtitleId) {
-      setStatus(card, 'Chưa có câu phụ đề để thu');
-      return;
-    }
-    resetCurrentAttempt(card);
+    window.selectShadowingPronunciationSubtitle?.(index, 'recording');
+    const context = window.getShadowingPronunciationContext?.(index);
+    if (!context?.subtitleId) return fail('Chưa có câu phụ đề để thu');
+    const timed = options.playReference === false;
+    const duration = timed ? Number(options.durationSeconds) : MAX_RECORDING_SECONDS;
+    if (!Number.isFinite(duration) || duration <= 0 || duration > MAX_RECORDING_SECONDS) return fail('Thời lượng bản thu không hợp lệ');
+    const ticket = {};
+    pending = ticket;
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
       });
     } catch (error) {
-      setStatus(card, 'Không có quyền dùng micro');
-      return;
+      if (pending !== ticket) return { status: 'cancelled' };
+      pending = null;
+      return fail(error.name === 'NotAllowedError' ? 'Không có quyền dùng micro · hãy cho phép trong cài đặt trình duyệt'
+        : 'Không mở được micro · kiểm tra thiết bị rồi thử lại');
     }
-    const latest = typeof window.getShadowingPronunciationContext === 'function'
-      ? window.getShadowingPronunciationContext(index) : null;
-    if (!latest || String(latest.subtitleId) !== String(context.subtitleId)) {
+    const latest = window.getShadowingPronunciationContext?.();
+    if (pending !== ticket || !latest || String(latest.subtitleId) !== String(context.subtitleId)) {
       stream.getTracks().forEach(track => track.stop());
-      setStatus(card, 'Bạn vừa đổi câu · hãy bấm thu lại');
-      return;
+      if (pending === ticket) pending = null;
+      return { status: 'cancelled', message: 'Bạn vừa đổi câu · hãy bấm thu lại' };
     }
+    pending = null;
     const mimeType = getMimeType();
     let recorder;
     try {
       recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-    } catch (error) {
+    } catch (_) {
       stream.getTracks().forEach(track => track.stop());
-      setStatus(card, 'Không thể khởi tạo bộ thu âm');
-      return;
+      return fail('Không thể khởi tạo bộ thu âm');
     }
+    resetCurrentAttempt(card);
     const startedAt = Date.now();
-    active = { card, context, recorder, stream, chunks: [], discard: false, timer: null };
-    recorder.ondataavailable = event => {
-      if (event.data?.size) active?.chunks.push(event.data);
+    let resolve;
+    const completion = new Promise(done => { resolve = done; });
+    const session = { card, context, recorder, stream, options, resolve, chunks: [], discard: false, timer: null, deadline: null, stopping: false };
+    active = session;
+    recorder.ondataavailable = event => { if (event.data?.size) session.chunks.push(event.data); };
+    recorder.onerror = () => {
+      session.error = 'Có lỗi khi thu âm · hãy thử lại';
+      stopRecording(true);
     };
-    recorder.onerror = () => setStatus(card, 'Có lỗi khi thu âm · hãy thử lại');
-    recorder.onstop = finishRecording;
+    recorder.onstop = () => finishRecording(session);
     const video = sourceVideo();
     const sentenceStart = Number(context.startTime);
     const sentenceEnd = Number(context.endTime);
-    if (video && Number.isFinite(sentenceStart)) {
-      try {
-        video.currentTime = Math.max(0, sentenceStart);
-      } catch (_) {
-        // The player may still be loading; playback below will report a useful status.
-      }
+    pauseSourceVideo();
+    if (!timed && video && Number.isFinite(sentenceStart)) {
+      try { video.currentTime = Math.max(0, sentenceStart); } catch (_) { /* Media is still loading. */ }
     }
-    recorder.start(250);
-    if (video) {
-      const playRequest = video.play();
-      if (playRequest && typeof playRequest.catch === 'function') {
-        playRequest.catch(() => setStatus(card, 'Không thể tự phát câu mẫu · hãy bấm Phát'));
-      }
+    try { recorder.start(250); } catch (_) {
+      active = null;
+      stream.getTracks().forEach(track => track.stop());
+      return fail('Không bắt đầu được bản thu · hãy thử lại');
     }
+    if (!timed && video) video.play()?.catch(() => setStatus(card, 'Không thể tự phát câu mẫu · hãy bấm Phát'));
     setRecordingUi(card, true);
-    setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · 00:00');
-    active.timer = setInterval(function () {
+    setPanelVisible(card, true);
+    function tick() {
+      if (active !== session || session.stopping) return;
+      const elapsed = (Date.now() - startedAt) / 1000;
       const videoTime = video && Number.isFinite(video.currentTime) ? video.currentTime : NaN;
-      if (Number.isFinite(sentenceEnd) && Number.isFinite(videoTime) && videoTime >= sentenceEnd) {
+      if (!timed && Number.isFinite(sentenceEnd) && Number.isFinite(videoTime) && videoTime >= sentenceEnd) {
         stopRecording(false);
         return;
       }
-      const seconds = Number.isFinite(sentenceStart) && Number.isFinite(videoTime)
-        ? Math.max(0, videoTime - sentenceStart)
-        : Math.min(MAX_RECORDING_SECONDS, (Date.now() - startedAt) / 1000);
-      setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(seconds));
-    }, 100);
-    setTimeout(function () {
-      if (active && active.recorder === recorder && recorder.state !== 'inactive') stopRecording(false);
-    }, MAX_RECORDING_SECONDS * 1000);
+      setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(elapsed)
+        + (timed ? ' / ' + formatTime(duration) : ''));
+      options.onState?.('recording', Math.max(0, duration - elapsed));
+    }
+    tick();
+    session.timer = setInterval(tick, 100);
+    session.deadline = setTimeout(() => { if (active === session) stopRecording(false); }, duration * 1000);
+    return completion;
   }
 
   function stopRecording(discard) {
-    if (!active) return;
-    active.discard = !!discard;
-    if (active.timer) clearInterval(active.timer);
+    if (!active || active.stopping) return;
+    const session = active;
+    session.stopping = true;
+    session.discard = !!discard;
+    clearInterval(session.timer);
+    clearTimeout(session.deadline);
     pauseSourceVideo();
-    active.stream.getTracks().forEach(track => track.stop());
-    setRecordingUi(active.card, false);
-    if (active.recorder.state !== 'inactive') active.recorder.stop();
+    setRecordingUi(session.card, false);
+    if (session.recorder.state !== 'inactive') session.recorder.stop();
+    else finishRecording(session);
+    session.stream.getTracks().forEach(track => track.stop());
   }
 
-  function finishRecording() {
-    const finished = active;
-    if (!finished) return;
-    active = null;
-    if (finished.discard) return;
-    const mimeType = finished.recorder.mimeType || (finished.chunks[0] && finished.chunks[0].type) || 'audio/webm';
+  async function finishRecording(finished) {
+    if (finished.finished) return;
+    finished.finished = true;
+    if (active === finished) active = null;
+    clearInterval(finished.timer);
+    clearTimeout(finished.deadline);
+    if (finished.discard) {
+      finished.resolve({ status: 'cancelled', message: finished.error || 'Đã dừng bản thu' });
+      return;
+    }
+    const mimeType = finished.recorder.mimeType || finished.chunks[0]?.type || 'audio/webm';
     const blob = new Blob(finished.chunks, { type: mimeType });
     if (!blob.size) {
-      setStatus(finished.card, 'Bản thu trống · hãy thử lại');
+      const message = 'Bản thu trống · hãy thử lại';
+      setStatus(finished.card, message);
+      finished.resolve({ status: 'error', message });
       return;
     }
     const state = stateFor(finished.card);
@@ -241,20 +254,44 @@
     state.context = finished.context;
     state.attempt = null;
     const audio = audioFor(finished.card);
-    if (audio) {
-      audio.src = state.objectUrl;
-      audio.load();
-    }
+    if (audio) { audio.src = state.objectUrl; audio.load(); }
     setPanelVisible(finished.card, true);
     const playback = finished.card.querySelector('[data-pronunciation-playback]');
     if (playback) playback.hidden = false;
     const scoreButton = finished.card.querySelector('[data-action="score"]');
-    if (scoreButton) {
-      scoreButton.disabled = false;
-      scoreButton.textContent = 'Chấm';
+    if (scoreButton) { scoreButton.disabled = false; scoreButton.textContent = 'Chấm'; }
+    if (finished.options.autoAssess) {
+      finished.options.onState?.('assessing');
+      finished.resolve(await assess(finished.card));
+    } else {
+      setStatus(finished.card, 'Đã ghi xong câu #' + finished.context.sentenceNumber + ' · bấm Chấm');
+      finished.resolve({ status: 'recorded' });
     }
-    setStatus(finished.card, 'Đã ghi xong câu #' + finished.context.sentenceNumber + ' · bấm Chấm');
   }
+
+  function cancelRecording() {
+    pending = null;
+    if (active) {
+      const card = active.card;
+      stopRecording(true);
+      setStatus(card, 'Đã dừng bản thu · bấm mic để thu lại');
+    }
+  }
+  window.ShadowingRecorder = {
+    record(index, options) {
+      const context = window.getShadowingPronunciationContext?.(index);
+      const card = context && cardFor(context.subtitleId);
+      return card ? startRecording(card, index, options) : Promise.resolve({ status: 'error', message: 'Chưa có câu phụ đề để thu' });
+    },
+    cancel: cancelRecording
+  };
+  window.addEventListener('pagehide', cancelRecording);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      cancelRecording();
+      window.shadowingListenRecord?.cancel();
+    }
+  });
 
   function updateAudioUi(card) {
     const audio = audioFor(card);
@@ -670,21 +707,29 @@
 
   async function assess(card) {
     const state = stateFor(card);
+    if (state.assessing) return state.assessing;
+    state.assessing = performAssessment(card, state);
+    try { return await state.assessing; } finally { state.assessing = null; }
+  }
+
+  async function performAssessment(card, state) {
     if (state.attempt) {
       const details = card.querySelector('[data-pronunciation-details]');
       if (details) setDetailsVisible(card, details.hidden);
-      return;
+      return { status: 'completed', attempt: state.attempt };
     }
     if (!state.blob || !state.context) {
-      setStatus(card, 'Hãy thu câu này trước khi chấm');
-      return;
+      const message = 'Hãy thu câu này trước khi chấm';
+      setStatus(card, message);
+      return { status: 'error', message };
     }
     const live = typeof window.getShadowingPronunciationContext === 'function'
       ? window.getShadowingPronunciationContext(Number(card.dataset.subtitleIndex)) : null;
     if (!live || String(live.subtitleId) !== String(state.context.subtitleId)) {
       resetCurrentAttempt(card);
-      setStatus(card, 'Bạn đã đổi câu · hãy thu lại câu đang chọn');
-      return;
+      const message = 'Bạn đã đổi câu · hãy thu lại câu đang chọn';
+      setStatus(card, message);
+      return { status: 'error', message };
     }
     const scoreButton = card.querySelector('[data-action="score"]');
     if (scoreButton) {
@@ -717,6 +762,7 @@
       }
       renderAttempt(card, result);
       setStatus(card, 'Đã chấm xong câu #' + state.context.sentenceNumber);
+      return { status: 'completed', attempt: result };
     } catch (error) {
       console.error('[Pronunciation] assessment failed', {
         subtitleId: state.context && state.context.subtitleId,
@@ -727,9 +773,11 @@
         scoreButton.disabled = false;
         scoreButton.textContent = 'Chấm';
       }
-      setStatus(card, error.name === 'AbortError'
+      const message = error.name === 'AbortError'
         ? 'Chấm quá thời gian 60 giây · hãy thử lại'
-        : (error.message || 'Không thể chấm phát âm lúc này'));
+        : (error.message || 'Không thể chấm phát âm lúc này');
+      setStatus(card, message);
+      return { status: 'error', message };
     } finally {
       clearTimeout(requestTimeout);
       if (scoreButton) scoreButton.removeAttribute('aria-busy');
@@ -781,7 +829,10 @@
       if (!action || !card) return;
       event.stopPropagation();
       const index = Number(card.dataset.subtitleIndex);
-      if (action.dataset.action === 'record') startRecording(card, index);
+      if (action.dataset.action === 'record') {
+        if (window.shadowingListenRecord?.isEnabled()) window.shadowingListenRecord.record();
+        else startRecording(card, index);
+      }
       else if (action.dataset.action === 'score') assess(card);
       else if (action.dataset.action === 'score-details') {
         const details = card.querySelector('[data-pronunciation-details]');
@@ -799,6 +850,7 @@
       }
     });
     window.addEventListener('shadowing:pronunciation-context-change', function (event) {
+      if (pending && event.detail?.source !== 'recording' && event.detail?.source !== 'playback') pending = null;
       if (!active || !event.detail || String(active.context.subtitleId) === String(event.detail.subtitleId)) return;
       if (event.detail.source === 'playback') return;
       const oldCard = active.card;
