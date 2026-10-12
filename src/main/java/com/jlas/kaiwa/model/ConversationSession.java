@@ -29,8 +29,31 @@ public class ConversationSession {
     @Transient
     private ConversationState currentState;
 
-    @Transient
+    @Column(name = "completed_objectives", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String completedObjectives;
+
+    @Column(name = "current_state_code", length = 80)
+    private String currentStateCode;
+
+    @Column(name = "stage_code", length = 100)
+    private String stageCode;
+
+    @Column(name = "stage_definition_json", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String stageDefinitionJson;
+
+    @Column(name = "stage_cursor", nullable = false)
+    private int stageCursor;
+
+    @Column(name = "stage_passed", nullable = false)
+    private boolean stagePassed;
+
+    @Column(name = "content_review", nullable = false)
+    private boolean contentReview;
+
+    @Column(name = "last_activity_at")
+    private LocalDateTime lastActivityAt;
 
     /**
      * Free-chat DialogueEngine state (JSON). Backend-owned phase/entity/depth/recovery.
@@ -76,6 +99,20 @@ public class ConversationSession {
     public void setCurrentState(ConversationState currentState) { this.currentState = currentState; }
     public String getCompletedObjectives() { return completedObjectives; }
     public void setCompletedObjectives(String completedObjectives) { this.completedObjectives = completedObjectives; }
+    public String getCurrentStateCode(){return currentStateCode;}
+    public void setCurrentStateCode(String value){currentStateCode=value;}
+    public String getStageCode(){return stageCode;}
+    public void setStageCode(String value){stageCode=value;}
+    public String getStageDefinitionJson(){return stageDefinitionJson;}
+    public void setStageDefinitionJson(String value){stageDefinitionJson=value;}
+    public int getStageCursor(){return stageCursor;}
+    public void setStageCursor(int value){stageCursor=value;}
+    public boolean isStagePassed(){return stagePassed;}
+    public void setStagePassed(boolean value){stagePassed=value;}
+    public boolean isContentReview(){return contentReview;}
+    public void setContentReview(boolean value){contentReview=value;}
+    public LocalDateTime getLastActivityAt(){return lastActivityAt;}
+    public void setLastActivityAt(LocalDateTime value){lastActivityAt=value;}
     public String getEngineStateJson() { return engineStateJson; }
     public void setEngineStateJson(String engineStateJson) { this.engineStateJson = engineStateJson; }
     public LocalDateTime getStartedAt() { return startedAt; }

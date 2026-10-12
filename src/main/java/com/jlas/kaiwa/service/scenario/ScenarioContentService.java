@@ -34,7 +34,6 @@ public class ScenarioContentService {
         context.setBackground(scenario.getBackground());
         context.setLocation(scenario.getLocation());
         context.setTime(scenario.getTimeOfDay());
-        context.setCultureNote(scenario.getCultureNote());
         return context;
     }
 
@@ -140,27 +139,6 @@ public class ScenarioContentService {
                 .orElse(states.isEmpty() ? null : states.get(0));
     }
 
-    public List<ScenarioHint> hints(Long scenarioId) {
-        return hints(scenario(scenarioId));
-    }
-
-    public List<ScenarioHint> hints(Scenario scenario) {
-        List<ScenarioCompactDefinition.Hint> definitions =
-                flow(scenario).map(ScenarioCompactDefinition::hints).orElse(List.of());
-        List<ScenarioHint> result = new ArrayList<>();
-        for (int i = 0; i < definitions.size(); i++) {
-            ScenarioCompactDefinition.Hint definition = definitions.get(i);
-            ScenarioHint hint = new ScenarioHint();
-            hint.setId(syntheticId(scenario, i + 1));
-            hint.setScenario(scenario);
-            hint.setTitle(definition.title());
-            hint.setContent(definition.text());
-            hint.setDisplayOrder(definition.displayOrder() != null ? definition.displayOrder() : i + 1);
-            result.add(hint);
-        }
-        return List.copyOf(result);
-    }
-
     public List<ScenarioEnding> endings(Scenario scenario) {
         Map<String, ScenarioCompactDefinition.Ending> definitions =
                 flow(scenario).map(ScenarioCompactDefinition::endings).orElse(Map.of());
@@ -238,6 +216,20 @@ public class ScenarioContentService {
         return List.copyOf(result);
     }
 
+    public boolean isGraph(Scenario scenario) {
+        return flow(scenario).map(f -> f.version() != null && f.version() >= 2 && f.edges() != null).orElse(false);
+    }
+
+    public List<ScenarioLearningContent.DialoguePractice> branchDialogues(Scenario scenario) {
+        return learning(scenario).map(ScenarioLearningContent::branchDialogues).orElse(List.of());
+    }
+
+    public List<String> allowedGoals(Scenario scenario, String code) {
+        return flow(scenario).stream().flatMap(f -> f.states().stream())
+                .filter(s -> Objects.equals(s.code(), code)).findFirst()
+                .map(ScenarioCompactDefinition.State::allowedGoalCodes).orElse(List.of());
+    }
+
     public List<String> suggestedReplies(Scenario scenario, ConversationState currentState) {
         ScenarioCompactDefinition definition = flow(scenario).orElse(null);
         if (definition == null || definition.states() == null) return List.of();
@@ -253,12 +245,12 @@ public class ScenarioContentService {
                 .orElse(List.of());
     }
 
-    private Optional<ScenarioCompactDefinition> flow(Scenario scenario) {
+    public Optional<ScenarioCompactDefinition> flow(Scenario scenario) {
         return jsonMapper.readFlow(scenario.getFlowJson());
     }
 
     private Optional<ScenarioLearningContent> learning(Scenario scenario) {
-        return jsonMapper.readLearningContent(scenario.getLearningContentJson());
+        return jsonMapper.readLearningContent(scenario);
     }
 
     private static Long syntheticId(Scenario scenario, int order) {

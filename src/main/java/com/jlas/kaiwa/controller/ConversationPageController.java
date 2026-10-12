@@ -9,6 +9,10 @@ import com.jlas.kaiwa.service.learning.SuggestedReplyService;
 import com.jlas.kaiwa.service.scenario.ScenarioEngineService;
 import com.jlas.kaiwa.service.scenario.ScenarioContentService;
 import com.jlas.kaiwa.service.scenario.SceneTransitionService;
+import com.jlas.kaiwa.service.scenario.ConversationSpeakerService;
+import com.jlas.kaiwa.util.StageFlowSupport;
+import com.jlas.kaiwa.util.SceneImageSupport;
+import com.jlas.common.exception.*;
 import com.jlas.auth.security.UserPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
@@ -33,6 +37,7 @@ public class ConversationPageController {
     private final SuggestedReplyService suggestedReplyService;
     private final SceneTransitionService sceneTransitionService;
     private final ObjectMapper objectMapper;
+    private final ConversationSpeakerService speakers;
 
     public ConversationPageController(
             AIConversationService conversationService,
@@ -45,7 +50,7 @@ public class ConversationPageController {
             AnnotationService annotationService,
             SuggestedReplyService suggestedReplyService,
             SceneTransitionService sceneTransitionService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper, ConversationSpeakerService speakers) {
         this.conversationService = conversationService;
         this.sessionRepository = sessionRepository;
         this.messageRepository = messageRepository;
@@ -57,13 +62,20 @@ public class ConversationPageController {
         this.suggestedReplyService = suggestedReplyService;
         this.sceneTransitionService = sceneTransitionService;
         this.objectMapper = objectMapper;
+        this.speakers = speakers;
     }
 
     /** GET + POST: start conversation without CSRF/session issues on form render. */
     @RequestMapping(value = "/scenario/{scenarioId}/start", method = {RequestMethod.GET, RequestMethod.POST})
     public String start(@PathVariable Long scenarioId,
-                        @AuthenticationPrincipal UserPrincipal principal) {
-        ConversationSession session = conversationService.start(scenarioId, principal.userId());
+                        @AuthenticationPrincipal UserPrincipal principal,
+                        @RequestParam(required=false) String stage) {
+        ConversationSession session;
+        try {session=conversationService.start(scenarioId, principal.userId(),stage);}
+        catch(ApiException e) {
+            if(e.getErrorCode()!=ErrorCode.AICALL_STAGE_LOCKED)throw e;
+            return "redirect:/scenario/"+scenarioId+"?locked=1";
+        }
         return "redirect:/conversation/" + session.getId();
     }
 
@@ -84,6 +96,7 @@ public class ConversationPageController {
         Scenario scenario = session.getScenario();
         Long scenarioId = scenario.getId();
         boolean freeChat = FreeChatSupport.isFreeChat(scenario);
+        model.addAttribute("stageDefinition",StageFlowSupport.stage(session));
         List<ConversationMessage> messages = messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
         if (messages.isEmpty() && session.getStatus() == SessionStatus.IN_PROGRESS) {
             conversationService.ensureOpeningMessage(session);
@@ -91,9 +104,22 @@ public class ConversationPageController {
         }
 
         List<String> completed = freeChat ? List.of() : scenarioEngine.parseCompleted(session);
+        var cast = freeChat ? List.<ScenarioSpeaker>of() : speakers.cast(session);
+        var currentSpeaker = freeChat ? null : speakers.current(session);
+        Map<Long, ScenarioSpeaker> messageSpeakers = new HashMap<>();
+        for (var message : messages) {
+            var actor = speakers.forMessage(message);
+            if (actor != null) messageSpeakers.put(message.getId(), actor);
+        }
+        model.addAttribute("scenarioSpeakers", cast);
+        model.addAttribute("currentSpeaker", currentSpeaker);
+        model.addAttribute("speakerByMessageId", messageSpeakers);
+        model.addAttribute("hasCast", !cast.isEmpty());
+        model.addAttribute("hasTeacherVoice", cast.stream().anyMatch(s -> s.voiceVariants() != null && !s.voiceVariants().isEmpty()));
+        model.addAttribute("legacyAiRoleName", scenario.getAiRole() != null ? scenario.getAiRole().getName() : "AI");
         List<ScenarioObjective> objectives = freeChat
                 ? List.of()
-                : scenarioContent.objectives(scenario);
+                : scenarioEngine.trackedObjectives(scenarioId, completed);
         List<ScenarioVocabulary> vocab = freeChat
                 ? List.of()
                 : scenarioContent.vocabulary(scenario);
@@ -189,7 +215,7 @@ public class ConversationPageController {
                 (!freeChat && inProgress) ? suggestedReplyService.suggestionsFromDbOnly(session) : List.of());
         model.addAttribute("aiRoleName", freeChat
                 ? (scenario.getAiRole() != null ? scenario.getAiRole().getName() : "Bạn Nhật")
-                : (scenario.getAiRole() != null ? scenario.getAiRole().getName() : "AI"));
+                : (currentSpeaker != null ? currentSpeaker.name() : scenario.getAiRole() != null ? scenario.getAiRole().getName() : "AI"));
         model.addAttribute("userRoleName", freeChat
                 ? "Bạn"
                 : (scenario.getUserRole() != null ? scenario.getUserRole().getName() : "You"));
@@ -197,7 +223,7 @@ public class ConversationPageController {
                 ? "fa-solid fa-comments"
                 : (scenario.getCategory() != null && scenario.getCategory().getIcon() != null
                         ? scenario.getCategory().getIcon() : "fa-solid fa-comments"));
-        String backgroundUrl = scenario.getThumbnail();
+        String backgroundUrl = freeChat ? null : SceneImageSupport.current(session, scenarioContent);
         if (!freeChat && (backgroundUrl == null || backgroundUrl.isBlank())
                 && scenario.getSlug() != null && !scenario.getSlug().isBlank()) {
             backgroundUrl = "/images/scenarios/" + scenario.getSlug() + ".png";
@@ -218,6 +244,7 @@ public class ConversationPageController {
         model.addAttribute("score", score);
         model.addAttribute("scoreDetails", scoreDetails(score));
         model.addAttribute("feedbacks", feedbackRepository.findBySessionIdOrderByCreatedAtAsc(sessionId));
+        model.addAttribute("stageDefinition",StageFlowSupport.stage(session));
         return "aicall/result";
     }
 
