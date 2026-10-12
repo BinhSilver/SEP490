@@ -15,6 +15,7 @@
   var draft = null;
   var dialogPicker = null;
   var countdownTimer = null;
+  arena.phoneMedia.addEventListener('change', render);
 
   var el = {
     status: document.querySelector('[data-room-status]'),
@@ -97,6 +98,17 @@
   function render() {
     var room = state.room;
     if (!room) return;
+    if (!arena.canPlayGame(room.gameType)) {
+      el.vs.hidden = true;
+      el.shell.hidden = false;
+      el.countdown.hidden = true;
+      window.clearInterval(countdownTimer);
+      document.body.classList.remove('is-vs-room');
+      showStatus('<h1>Chơi Bắn máy bay trên máy tính</h1>'
+        + '<p>Game cần bàn phím để gõ đáp án. Bạn hãy mở bằng máy tính để chơi.</p>'
+        + '<a class="ar-btn ar-btn--primary" href="/games">Về trang Trò chơi</a>');
+      return;
+    }
     if (room.quickMatch) {
       // Ghép trận nhanh: màn VS toàn khung, tung đồng xu chọn cài đặt.
       el.status.hidden = true;
@@ -243,7 +255,7 @@
   }
 
   function goToPlay(url) {
-    if (state.navigating || !url) return;
+    if (state.navigating || !url || (state.room && !arena.canPlayGame(state.room.gameType))) return;
     state.navigating = true;
     window.location.href = url;
   }

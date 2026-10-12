@@ -136,6 +136,14 @@
       + '    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>'
       + '    <input class="ar-input" type="search" placeholder="Tìm bộ theo tên…" autocomplete="off" data-deck-search>'
       + '  </label>'
+      + '  <label class="ar-deck-filter" title="Nguồn bộ flashcard: Bộ của tôi">'
+      + '    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16l-6 7v7l-4 2v-9L4 4z"/></svg>'
+      + '    <select aria-label="Lọc nguồn bộ flashcard" data-deck-filter>'
+      + TABS.map(function (tab) {
+        return '<option value="' + tab.key + '"' + (tab.key === self.tab ? ' selected' : '') + '>' + esc(tab.label) + '</option>';
+      }).join('')
+      + '    </select>'
+      + '  </label>'
       + '  <div class="ar-seg" role="tablist" aria-label="Nguồn bộ flashcard">' + tabs + '</div>'
       + '</div>'
       + '<ul class="ar-deck-list" role="radiogroup" aria-label="Danh sách bộ flashcard" data-deck-list></ul>'
@@ -155,6 +163,10 @@
         self.setTab(button.dataset.tab);
         self.load(true);
       });
+    });
+    self.container.querySelector('[data-deck-filter]').addEventListener('change', function (event) {
+      self.setTab(event.target.value);
+      self.load(true);
     });
     self.container.querySelector('[data-deck-more] button').addEventListener('click', function () {
       self.page += 1;
@@ -177,6 +189,9 @@
 
   DeckPicker.prototype.setTab = function (tab) {
     this.tab = tab;
+    var filter = this.container.querySelector('[data-deck-filter]');
+    filter.value = tab;
+    filter.parentElement.title = 'Nguồn bộ flashcard: ' + TABS.find(function (item) { return item.key === tab; }).label;
     this.container.querySelectorAll('[data-tab]').forEach(function (button) {
       button.setAttribute('aria-selected', String(button.dataset.tab === tab));
     });

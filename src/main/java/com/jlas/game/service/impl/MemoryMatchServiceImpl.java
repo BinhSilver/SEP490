@@ -101,9 +101,10 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
     @Override
     public GameSession launch(LaunchRequest request) {
         MemorySession.Config config = new MemorySession.Config(
-                request.options().boardSize(), request.options().objective(), request.options().turnSeconds(),
+                Math.min(request.options().boardSize(), GameRules.MEMORY_MAX_PAIRS * 2),
+                request.options().objective(), request.options().turnSeconds(),
                 request.options().totalSeconds(), Boolean.TRUE.equals(request.options().keepTurnOnMatch()),
-                properties.memory().revealDelayMs());
+                properties.memory().revealDelayMs(), false);
 
         Board board = buildBoard(request.words(), config.pairCount(), request.questionField(), request.answerField());
         List<MemoryCard> cards = board.cards();
@@ -188,11 +189,11 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
         if (!session.withLock(session::isAwaitingStart)) {
             return state(sessionId, userId);
         }
-        MemoryStartRequest r = request == null ? new MemoryStartRequest(null, null, null, null, null, null) : request;
+        MemoryStartRequest r = request == null ? new MemoryStartRequest(null, null, null, null, null, null, null) : request;
         MemorySession.Config current = session.withLock(session::getConfig);
         DeckField question = r.questionField() == null ? session.getQuestionField() : r.questionField();
         DeckField answer = r.answerField() == null ? session.getAnswerField() : r.answerField();
-        // Luyện tập: không gửi boardSize thì bàn dựng theo đúng số thẻ đã chọn (mỗi thẻ một cặp, tối đa 20 cặp).
+        // Luyện tập: mỗi từ thành một cặp, tối đa 10 cặp (20 thẻ trên bàn).
         Integer requestedBoard = r.boardSize();
         if (requestedBoard != null && (requestedBoard % 2 != 0 || requestedBoard < GameRules.MEMORY_MIN_PAIRS * 2
                 || requestedBoard > GameRules.MEMORY_MAX_PAIRS * 2)) {
@@ -218,7 +219,8 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
         int boardSize = requestedBoard != null ? requestedBoard
                 : Math.min(picked.words().size(), GameRules.MEMORY_MAX_PAIRS) * 2;
         MemorySession.Config config = new MemorySession.Config(boardSize, objective, current.turnSeconds(),
-                totalSeconds, current.keepTurnOnMatch(), current.revealDelayMs());
+                totalSeconds, current.keepTurnOnMatch(), current.revealDelayMs(),
+                r.distinguishCardTypes() == null ? current.distinguishCardTypes() : r.distinguishCardTypes());
         Board board = buildBoard(picked.words(), config.pairCount(), question, answer);
         boolean started = session.withLock(() -> {
             if (!session.isAwaitingStart()) {
@@ -251,6 +253,7 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
         options.put("objective", config.objective());
         options.put("totalSeconds", config.totalSeconds());
         options.put("turnSeconds", config.turnSeconds());
+        options.put("distinguishCardTypes", config.distinguishCardTypes());
         Map<String, Object> settings = new LinkedHashMap<>();
         settings.put("setId", session.getDeckId());
         settings.put("setTitle", session.getDeckTitle());
@@ -689,11 +692,12 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
                 config.objective(), session.getQuestionField().name() + "_" + session.getAnswerField().name(),
                 session.getDeckTitle(), config.turnSeconds(), config.totalSeconds(), null,
                 config.keepTurnOnMatch(), config.revealDelayMs(), session.getQuestionField(),
-                session.getAnswerField());
+                session.getAnswerField(), config.distinguishCardTypes());
         List<MemoryCardView> cards = session.getCards().stream().map(card -> {
             boolean visible = card.isContentVisible();
             return new MemoryCardView(card.getCardInstanceId(), card.getPosition(), card.getState(),
-                    visible ? card.getFace() : null, visible ? card.getContent() : null,
+                    visible || config.distinguishCardTypes() ? card.getFace() : null,
+                    visible ? card.getContent() : null,
                     MemoryCard.MATCHED.equals(card.getState()) ? card.getMatchedByUserId() : null);
         }).toList();
         List<MemoryPlayerView> players = session.orderedPlayers().stream().map(player -> new MemoryPlayerView(

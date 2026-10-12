@@ -12,8 +12,10 @@ export default defineConfig({
   base: '/arena/app/air-defense/',
   plugins: [react(), tailwindcss()],
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
       '@': path.resolve(projectRoot, './src'),
+      '@neko-static': path.resolve(projectRoot, '../../src/main/resources/static/arena/app/neko'),
     },
   },
   build: {

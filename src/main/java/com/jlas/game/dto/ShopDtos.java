@@ -13,7 +13,7 @@ public final class ShopDtos {
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ShopItemView(String code, String name, String description, int price, String image,
-                               boolean starter, boolean owned, boolean equipped) {
+                               boolean starter, boolean owned, boolean equipped, long id, String renderCode) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)

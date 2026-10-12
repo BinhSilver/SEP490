@@ -1,9 +1,10 @@
 import { assetUrl } from '../assets';
 import { CatPlayer } from '../types/game';
-import { catActionsReady, drawCatAction, hasCatActions, preloadCatActions } from './CatActionAtlas';
+import { catActionsReady, drawCatAction, drawCharacterPortrait, hasCatActions, preloadCatActions, prepareCatActions } from './CatActionAtlas';
+import { prepareImage, spriteImage } from './ImageAssets';
 import { SpriteRenderer } from './SpriteRenderer';
 
-export type CatSkinId = 0 | 1 | 2;
+export type CatSkinId = number;
 
 export interface CatSkinInfo {
   id: CatSkinId;
@@ -32,18 +33,38 @@ export const CAT_SKINS: CatSkinInfo[] = [
     desc: 'Chạy ôm nồi phép, hứng đúng, hứng sai, ăn mừng và nằm buồn khi thử lại.',
     themeColor: '#8B5CF6',
   },
+  { id: 3, name: 'Godzilla', desc: 'Godzilla chibi ôm giỏ bắt cá.', themeColor: '#38BDF8' },
+  { id: 4, name: 'Ronova', desc: 'Ronova với mái tóc trắng và trang phục đỏ đen.', themeColor: '#BE123C' },
+  { id: 5, name: 'Zenitsu', desc: 'Zenitsu trong áo haori vàng họa tiết tam giác.', themeColor: '#F59E0B' },
+  { id: 6, name: 'Tanjiro', desc: 'Tanjiro trong áo haori caro xanh đen.', themeColor: '#10B981' },
 ];
 
 const ORIGINAL_SHEET_PATH = '/sprites/cat_spritesheet.png';
 
 /** Mã món trong Cửa hàng (data-skin của trang host) -> trang phục; không rõ thì dùng mèo cam. */
 /** Trang phục -> mã món trong Cửa hàng (ngược với skinFromCode). */
-export const SKIN_CODES: Record<CatSkinId, string> = { 0: 'cat-classic', 1: 'cat-cowboy', 2: 'cat-wizard' };
+export const SKIN_CODES: Record<CatSkinId, string> = {
+  0: 'cat-classic', 1: 'cat-cowboy', 2: 'cat-wizard',
+  3: 'cat-godzilla', 4: 'cat-ronova', 5: 'cat-zenitsu', 6: 'cat-tanjiro',
+};
 
 export function skinFromCode(code: string | null | undefined): CatSkinId {
-  if (code === 'cat-cowboy') return 1;
-  if (code === 'cat-wizard') return 2;
-  return 0;
+  const entry = Object.entries(SKIN_CODES).find(([, value]) => value === code);
+  return entry ? Number(entry[0]) : 0;
+}
+
+const shopVisuals = new Map<number, { skin: number; image?: string; name: string }>();
+export function registerShopSkins(items: { id: number; code: string; renderCode: string; image: string; name: string }[]) {
+  for (const item of items) {
+    const existing = Object.entries(SKIN_CODES).find(([, code]) => code === item.code);
+    const id = existing ? Number(existing[0]) : 10000 + item.id;
+    SKIN_CODES[id] = item.code;
+    const builtin = CAT_SKINS.find(skin => SKIN_CODES[skin.id] === item.renderCode)?.id ?? 0;
+    shopVisuals.set(id, { skin: builtin, image: item.renderCode === 'CUSTOM' ? item.image : undefined, name: item.name });
+  }
+}
+export function skinVisual(id: number) {
+  return shopVisuals.get(id) ?? { skin: id, image: undefined, name: CAT_SKINS.find(skin => skin.id === id)?.name ?? 'Nhân vật' };
 }
 
 interface SpriteFrame {
@@ -79,28 +100,45 @@ const BASE_FRAME_TABLE: Record<string, AnimConfig> = {
 
 export class CatSpriteSheet {
   private static baseImage: HTMLImageElement | null = null;
+  private static baseImagePath = '';
   private static baseLoaded = false;
   private static currentSkinId: CatSkinId = 0;
 
   public static init() {
     if (typeof window === 'undefined') return;
-    preloadCatActions();
-    if (!this.baseImage) {
+    preloadCatActions(this.currentSkinId);
+    const sheetPath = assetUrl(ORIGINAL_SHEET_PATH);
+    if (!this.baseImage || this.baseImagePath !== sheetPath) {
+      this.baseLoaded = false;
       const img = new Image();
       img.onload = () => {
-        this.baseLoaded = true;
+        if (this.baseImage === img) this.baseLoaded = true;
       };
-      img.src = assetUrl(ORIGINAL_SHEET_PATH);
       this.baseImage = img;
+      this.baseImagePath = sheetPath;
+      img.src = sheetPath;
     }
   }
 
   public static setSkin(skinId: CatSkinId) {
     this.currentSkinId = skinId;
+    preloadCatActions(skinVisual(skinId).skin);
   }
 
   public static getSkin(): CatSkinId {
     return this.currentSkinId;
+  }
+
+  public static async prepare(skin: CatSkinId) {
+    const visual = skinVisual(skin);
+    if (visual.image) { await prepareImage(visual.image); return; }
+    skin = visual.skin;
+    if (hasCatActions(skin)) await prepareCatActions(skin);
+    else {
+      this.baseImage = await prepareImage(ORIGINAL_SHEET_PATH);
+      this.baseImagePath = assetUrl(ORIGINAL_SHEET_PATH);
+      this.baseLoaded = true;
+    }
   }
 
   public static draw(
@@ -112,13 +150,27 @@ export class CatSpriteSheet {
   ) {
     if (!this.baseImage) this.init();
 
-    const activeSkin = overrideSkinId ?? this.currentSkinId;
+    const visual = skinVisual(overrideSkinId ?? this.currentSkinId);
+    if (visual.image) {
+      const image = spriteImage(visual.image);
+      if (!image.complete || !image.naturalWidth) { SpriteRenderer.drawCat(ctx, cat, time); return; }
+      const scale = Math.min(cat.height * 1.55 / image.naturalHeight, cat.width * 1.8 / image.naturalWidth);
+      const height = image.naturalHeight * scale, width = image.naturalWidth * scale;
+      ctx.save(); ctx.translate(cat.x, cat.y);
+      if (cat.state === 'run_left') ctx.scale(-1, 1);
+      const bob = Math.sin(time * 0.008) * 2;
+      ctx.drawImage(image, -width / 2, -height / 2 + bob, width, height);
+      ctx.restore(); return;
+    }
+    const activeSkin = visual.skin;
     if (hasCatActions(activeSkin)) {
-      if (catActionsReady(activeSkin)) {
+      if (catActionsReady(activeSkin, cat.state)) {
         drawCatAction(ctx, cat, time, activeSkin, previewLoop);
       } else {
-        // The illustrated sheets are still downloading: keep a playable vector cat on screen.
-        SpriteRenderer.drawCat(ctx, cat, time);
+        if (!drawCharacterPortrait(ctx, cat, activeSkin)) {
+          if (catActionsReady(activeSkin, 'idle')) drawCatAction(ctx, { ...cat, state: 'idle' }, time, activeSkin);
+          else SpriteRenderer.drawCat(ctx, cat, time);
+        }
       }
       return;
     }

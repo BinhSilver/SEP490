@@ -27,7 +27,8 @@ public final class MemoryDtos {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record MemoryConfigView(int boardSize, int pairCount, String objective, String pairMode, String level,
                                    int turnSeconds, Integer totalSeconds, Integer moveLimit, boolean keepTurnOnMatch,
-                                   int revealDelayMs, DeckField questionField, DeckField answerField) {
+                                   int revealDelayMs, DeckField questionField, DeckField answerField,
+                                   boolean distinguishCardTypes) {
     }
 
     /** Một cặp đã dùng trên bàn, kèm đủ 4 trường để ôn lại. */
@@ -63,7 +64,8 @@ public final class MemoryDtos {
      * đủ cả trường hỏi lẫn trường đáp. {@code totalSeconds} chỉ dùng khi {@code objective} = TIME_ATTACK.
      */
     public record MemoryStartRequest(DeckField questionField, DeckField answerField, List<Long> cardIds,
-                                     Integer boardSize, String objective, Integer totalSeconds) {
+                                     Integer boardSize, String objective, Integer totalSeconds,
+                                     Boolean distinguishCardTypes) {
     }
 
     public record MemoryEnvelope(String type, MemoryStateView payload) {

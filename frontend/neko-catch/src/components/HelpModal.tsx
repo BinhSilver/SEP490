@@ -10,7 +10,8 @@ export const HelpModal: React.FC<{
   answerLabel: string;
   choiceCount: number;
   versus: boolean;
-}> = ({ open, onClose, questionLabel, answerLabel, choiceCount, versus }) => {
+  mobile: boolean;
+}> = ({ open, onClose, questionLabel, answerLabel, choiceCount, versus, mobile }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   useFocusTrap(ref, open, onClose);
   if (!open) return null;
@@ -25,7 +26,9 @@ export const HelpModal: React.FC<{
     {
       step: '02',
       title: 'Điều khiển',
-      desc: `Phím mũi tên hoặc A/D để di chuyển, rê chuột hoặc chạm để kéo mèo; phím số ${keys} (hoặc thanh đáp án bên dưới) để hứng ngay con cá tương ứng.`,
+      desc: mobile
+        ? 'Chạm và kéo ngang trên sân chơi để di chuyển nhân vật đến dưới con cá mang đáp án đúng.'
+        : `Phím mũi tên hoặc A/D để di chuyển, rê chuột hoặc chạm để kéo mèo; phím số ${keys} (hoặc thanh đáp án bên dưới) để hứng ngay con cá tương ứng.`,
     },
     { step: '03', title: 'Hứng đúng', desc: 'Cộng 10 điểm và tăng combo. Cứ thêm 3 combo, mỗi câu đúng được cộng thêm 10 điểm.' },
     {
@@ -43,7 +46,7 @@ export const HelpModal: React.FC<{
       title: versus ? 'Đối kháng' : 'Luyện tập',
       desc: versus
         ? 'Hai người chơi cùng dãy từ, song song. Hết giờ hoặc hết tim là xong lượt; điểm cao hơn thắng (bằng điểm thì xét số câu đúng, rồi số câu sai). Trận đối kháng không thể tạm dừng.'
-        : 'Còn tim khi hết giờ là thắng. Có thể tạm dừng bằng nút bánh răng hoặc phím Esc.',
+        : `Còn tim khi hết giờ là thắng. Có thể tạm dừng bằng nút bánh răng${mobile ? '.' : ' hoặc phím Esc.'}`,
     },
   ];
 

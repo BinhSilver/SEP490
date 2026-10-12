@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head th:replace="~{fragments/head :: standard(${pageTitle}, '')}"></head>
-<body id="jlabBasePage" class="memory-page">
-<div id="jlabBaseShellMount"></div>
+<body id="arenaGamePage" class="memory-page arena-play arena-play--memory">
 
 <main id="jlabBaseContent">
-<link rel="stylesheet" th:href="@{/arena/app/memory/memory-app.css}" />
+<link rel="stylesheet" th:href="@{/arena/app/memory/memory-app.css(v='20261010-memory-four-columns')}" />
+<link rel="stylesheet" th:href="@{/arena/css/voice.css}" />
 <div id="memory-root"
-     th:attr="data-session-id=${sessionId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId}">
+     th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId}">
     <div class="memory-loading" aria-live="polite">
         <p>Đang chuẩn bị bàn lật thẻ…</p>
     </div>
@@ -15,8 +15,8 @@
 </main>
 
 <script th:src="@{/arena/js/arena-client.js}"></script>
+<script th:src="@{/arena/js/voice-client.js}"></script>
 <script th:src="@{/arena/js/memory-store.js}"></script>
-<script type="module" th:src="@{/arena/app/memory/memory-app.js}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script type="module" th:src="@{/arena/app/memory/memory-app.js(v='20261010-memory-four-columns')}"></script>
 </body>
 </html>

@@ -22,10 +22,11 @@ public final class GameRules {
 
     public static final List<String> NEKO_DIFFICULTIES = List.of("EASY", "NORMAL", "HARD");
     public static final List<Integer> NEKO_DURATIONS = List.of(60, 90, 120);
-    public static final List<Integer> MEMORY_BOARD_SIZES = List.of(12, 20, 30, 40);
+    public static final List<Integer> NEKO_SOLO_DURATIONS = List.of(60, 90, 120, 180, 300, 600, 900, 1200, 1800, 3600);
+    public static final List<Integer> MEMORY_BOARD_SIZES = List.of(12, 20);
     /** Luyện tập: bàn dựng theo số thẻ đã chọn (mỗi thẻ một cặp), trong khoảng này. */
     public static final int MEMORY_MIN_PAIRS = 6;
-    public static final int MEMORY_MAX_PAIRS = 20;
+    public static final int MEMORY_MAX_PAIRS = 10;
     public static final List<Integer> MEMORY_TURN_SECONDS = List.of(10, 15, 20);
     public static final List<String> MEMORY_OBJECTIVES = List.of("CLASSIC", "TIME_ATTACK");
     public static final List<Integer> MEMORY_TOTAL_SECONDS = List.of(180, 300, 600);
@@ -85,7 +86,7 @@ public final class GameRules {
         return switch (type) {
             case NEKO_CATCH -> new GameOptions(
                     pick("Độ khó", upper(in.difficulty()), NEKO_DIFFICULTIES, "NORMAL"),
-                    pick("Thời gian", in.durationSeconds(), NEKO_DURATIONS, 60),
+                    pick("Thời gian", in.durationSeconds(), mode == PlayMode.SOLO ? NEKO_SOLO_DURATIONS : NEKO_DURATIONS, 60),
                     null, null, null, null, null, null);
             case MEMORY_MATCH -> {
                 String objective = pick("Mục tiêu", upper(in.objective()), MEMORY_OBJECTIVES, "CLASSIC");

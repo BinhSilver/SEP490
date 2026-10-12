@@ -26,6 +26,7 @@ export const GAME_CONFIG = {
     hyperBeamChargePerBossKill: 50,  // % Năng lượng Hyper Beam nạp khi tiêu diệt Boss chiến hạm (+50%)
     hyperBeamChargePerHit: 5,        // % Năng lượng Hyper Beam nạp khi gõ đúng 1 từ gây sát thương (+5%)
     hyperBeamMaxCharge: 100,         // Ngưỡng năng lượng để kích hoạt chiêu cuối Hyper Beam (100%)
+    dualCannonChargeMultiplier: 1.5, // Lõi Pháo đôi: thêm 50% năng lượng từ mỗi lần gõ trúng
     hyperBeamBossDamage: 3,          // Sát thương chiêu cuối Hyper Beam gây ra cho Boss chiến hạm (3 HP)
     hyperBeamChargeTimeMs: 900,      // Giai đoạn 1: Khoảng nghỉ nạp tụ năng lượng trước khi bắn (900ms)
     hyperBeamDurationMs: 3000,       // Giai đoạn 2: Duy trì chùm siêu Laser cực đại (3000ms = 3 giây)
@@ -79,13 +80,10 @@ export const GAME_CONFIG = {
   // 4. CÂN BẰNG ĐIỂM SỐ & PHẦN THƯỞNG (SCORING & REWARDS)
   // --------------------------------------------------------------------------
   SCORING: {
-    baseScorePerTarget: 150,         // Điểm cơ bản khi bắn nổ 1 quái vật
-    bossScoreBonus: 3000,            // Điểm thưởng cực lớn khi bắn hạ Boss
-    comboBonusMultiplier: 0.1,       // Thêm +10% điểm cho mỗi nấc Combo liên tục
+    baseScorePerTarget: 1,           // Mỗi địch bị hạ nhận đúng 1 điểm, kể cả boss và Hyper Beam
     baseCreditsPerTarget: 5,         // Credits thưởng cơ bản cho mỗi quái tiêu diệt
     creditsWaveMultiplier: 2,        // Credits thưởng tăng dần theo cấp độ Wave
     bossCreditsBonus: 150,           // Credits thưởng thêm tức thì khi hạ Boss
-    dualCannonScoreBonus: 1.5,       // Hệ số nhân điểm khi có Lõi Dual Cannon
     goldMagnetCoinBonus: 1.5         // Hệ số nhân Credits (vật phẩm trong trận) khi có Lõi Gold Magnet
   },
 
@@ -129,11 +127,7 @@ export const GAME_CONFIG = {
   // 8. TÀU CHIẾN (một tàu mặc định; hình máy bay đổi theo món mua ở Cửa hàng, chỉ số giữ nguyên)
   // --------------------------------------------------------------------------
   PLANE_SPRITES: {
-    "plane-blue": `${import.meta.env.BASE_URL}assets/space/Player/player_b_m.png`,
-    "plane-red": `${import.meta.env.BASE_URL}assets/space/Player/player_r_m.png`,
-    "plane-green": `${import.meta.env.BASE_URL}assets/space/Player/player_green_m.png`,
-    "plane-violet": `${import.meta.env.BASE_URL}assets/space/Player/player_violet_m.png`,
-    "plane-gold": `${import.meta.env.BASE_URL}assets/space/Player/player_gold_m.png`
+    "plane-blue": `${import.meta.env.BASE_URL}assets/space/Player/player_b_m.png`
   } as Record<string, string>,
   SHIPS: [
     {

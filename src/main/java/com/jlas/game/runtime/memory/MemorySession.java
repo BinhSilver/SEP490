@@ -26,9 +26,10 @@ public class MemorySession extends GameSession {
 
     /**
      * @param totalSeconds chỉ có khi objective = TIME_ATTACK
+     * @param distinguishCardTypes cho biết loại thẻ khi úp để client phân biệt bằng màu, không lộ nội dung
      */
     public record Config(int boardSize, String objective, int turnSeconds, Integer totalSeconds,
-                         boolean keepTurnOnMatch, int revealDelayMs) {
+                         boolean keepTurnOnMatch, int revealDelayMs, boolean distinguishCardTypes) {
         public int pairCount() {
             return boardSize / 2;
         }

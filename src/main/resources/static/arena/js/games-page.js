@@ -13,9 +13,20 @@
   var joinError = document.querySelector('[data-join-error]');
   var refreshTimer = null;
   var resumeRoomId = null;
+  arena.phoneMedia.addEventListener('change', function () {
+    resumeRoomId = null;
+    loadLobby();
+  });
+
+  var mobileLayout = window.matchMedia('(max-width: 900px)');
+  function updateJoinPlaceholder() {
+    joinForm.elements.code.placeholder = mobileLayout.matches ? 'Mã phòng' : 'ABC-123';
+  }
+  updateJoinPlaceholder();
+  mobileLayout.addEventListener('change', updateJoinPlaceholder);
 
   function renderQuick(ticket) {
-    var searching = ticket && ticket.status === 'SEARCHING';
+    var searching = ticket && ticket.status === 'SEARCHING' && arena.canPlayGame(ticket.gameType);
     quickStatus.hidden = !searching;
     if (!searching) return;
     quickStatus.querySelector('[data-quick-game]').textContent = ticket.gameName;
@@ -42,6 +53,7 @@
     if (roomId === resumeRoomId) return;
     resumeRoomId = roomId;
     arena.api.room(roomId).then(function (room) {
+      if (!arena.canPlayGame(room.gameType)) { resume.hidden = true; return; }
       resume.querySelector('[data-resume-code]').textContent = room.quickMatch ? room.gameName : room.code;
       resume.querySelector('[data-resume-link]').href = '/games/room/' + encodeURIComponent(room.roomId);
       resume.hidden = false;

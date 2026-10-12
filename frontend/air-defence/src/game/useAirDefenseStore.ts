@@ -23,16 +23,24 @@ import type {
   ResultSummary,
 } from "./arenaTypes";
 import { postAttack, postKill, serverNow } from "./arenaClient";
+import { spaceshipName } from "./spaceshipSprites";
 
-/** Arena dùng tàu mặc định, không có hangar/talent: 100 HP, không nội tại. */
+/** Skin chỉ đổi hình; mọi máy bay có cùng chỉ số khởi đầu. */
 export const DEFAULT_SHIP = GAME_CONFIG.SHIPS[0];
 
 /** Hình máy bay đang dùng (chọn ở Cửa hàng, trang host truyền qua data-skin). */
 let planeSprite = DEFAULT_SHIP.spritePath;
+let planeSkinCode = 'plane-blue';
 
-export function setPlaneSkin(code: string | null | undefined) {
-  planeSprite = (code && GAME_CONFIG.PLANE_SPRITES[code]) || DEFAULT_SHIP.spritePath;
+let customPlane = false;
+export function isCustomPlaneSkin(): boolean { return customPlane; }
+export function setPlaneSkin(code: string | null | undefined, renderCode?: string, image?: string) {
+  customPlane = renderCode === 'CUSTOM' && !!image;
+  const renderer = renderCode || code;
+  planeSkinCode = customPlane ? (code || 'CUSTOM') : renderer && (spaceshipName(renderer) || GAME_CONFIG.PLANE_SPRITES[renderer]) ? renderer : 'plane-blue';
+  planeSprite = customPlane ? image! : (renderer && GAME_CONFIG.PLANE_SPRITES[renderer]) || DEFAULT_SHIP.spritePath;
 }
+export function playerSpaceshipCode(): string { return planeSkinCode; }
 
 export function playerPlaneSprite(): string {
   return planeSprite;
@@ -43,7 +51,7 @@ export const AUGMENTS_POOL: AugmentCard[] = [
     id: "DUAL_CANNON",
     title: "PHÁO ĐÔI PLASMA",
     category: "OFFENSE",
-    description: "Tăng +50% điểm số nhận được mỗi khi bắn nổ quái vật.",
+    description: "Tăng 50% năng lượng Hyper Beam nhận được mỗi lần gõ trúng.",
     icon: "fa-angles-up",
     tone: "cyan"
   },
@@ -324,6 +332,9 @@ interface AirDefenseState {
   outcome: MatchOutcome;
   result: ResultSummary | null;
   aborted: boolean;
+  /** The match is stopped, but the mounted canvas is finishing its existing visual effects. */
+  finishingPresentation: boolean;
+  finishPresentationUntil: number | null;
   paused: boolean;
   notice: string | null;
 
@@ -384,6 +395,7 @@ interface AirDefenseState {
   receiveAttack: (attack: AirAttackView) => void;
   showBanner: (banner: Omit<ArenaBanner, "id">, durationMs?: number) => void;
   showResult: (summary: ResultSummary | null) => void;
+  cancelFinishPresentation: () => void;
   markTimeUp: () => void;
   setOutcome: (outcome: MatchOutcome) => void;
 
@@ -406,22 +418,22 @@ export function getComboMilestoneData(combo: number, posX?: number, posY?: numbe
   if (combo < 5) return null;
   const id = Date.now() + Math.random();
   if (combo === 5) {
-    return { milestone: 5, title: "COMBO ×5", subtitle: "NÓNG TAY · +15% ĐIỂM", tone: "gold", id, x: posX, y: posY };
+    return { milestone: 5, title: "COMBO ×5", subtitle: "NÓNG TAY", tone: "gold", id, x: posX, y: posY };
   }
   if (combo === 10) {
-    return { milestone: 10, title: "COMBO ×10", subtitle: "QUÁ NHANH · +30% ĐIỂM", tone: "violet", id, x: posX, y: posY };
+    return { milestone: 10, title: "COMBO ×10", subtitle: "QUÁ NHANH", tone: "violet", id, x: posX, y: posY };
   }
   if (combo === 15) {
-    return { milestone: 15, title: "COMBO ×15", subtitle: "KHÔNG TRƯỢT PHÁT NÀO · +45% ĐIỂM", tone: "violet", id, x: posX, y: posY };
+    return { milestone: 15, title: "COMBO ×15", subtitle: "KHÔNG TRƯỢT PHÁT NÀO", tone: "violet", id, x: posX, y: posY };
   }
   if (combo === 20) {
-    return { milestone: 20, title: "COMBO ×20", subtitle: "BẬC THẦY GÕ PHÍM · +60% ĐIỂM", tone: "rose", id, x: posX, y: posY };
+    return { milestone: 20, title: "COMBO ×20", subtitle: "BẬC THẦY GÕ PHÍM", tone: "rose", id, x: posX, y: posY };
   }
   if (combo === 25) {
-    return { milestone: 25, title: "COMBO ×25", subtitle: "KHÔNG AI CẢN NỔI · +75% ĐIỂM", tone: "rose", id, x: posX, y: posY };
+    return { milestone: 25, title: "COMBO ×25", subtitle: "KHÔNG AI CẢN NỔI", tone: "rose", id, x: posX, y: posY };
   }
   if (combo >= 30 && (combo === 30 || combo % 10 === 0 || combo % 5 === 0)) {
-    return { milestone: combo, title: `COMBO ×${combo}`, subtitle: "ĐIỂM THƯỞNG TỐI ĐA", tone: "cyan", id, x: posX, y: posY };
+    return { milestone: combo, title: `COMBO ×${combo}`, subtitle: "CHUỖI BẮN LIÊN TIẾP", tone: "cyan", id, x: posX, y: posY };
   }
   return null;
 }
@@ -457,6 +469,19 @@ function later(fn: () => void, ms: number) {
 function clearGameTimers() {
   gameTimers.forEach((id) => clearTimeout(id));
   gameTimers.clear();
+}
+
+let finishPresentationTimer: ReturnType<typeof setTimeout> | null = null;
+let finishLaserTimer: ReturnType<typeof setTimeout> | null = null;
+function clearFinishPresentationTimer() {
+  if (finishPresentationTimer !== null) {
+    clearTimeout(finishPresentationTimer);
+    finishPresentationTimer = null;
+  }
+  if (finishLaserTimer !== null) {
+    clearTimeout(finishLaserTimer);
+    finishLaserTimer = null;
+  }
 }
 
 let introTimer: ReturnType<typeof setInterval> | null = null;
@@ -509,13 +534,93 @@ function simulationLive(s: AirDefenseState): boolean {
 const noop = () => {};
 
 export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
+  const clearedFinalVisuals = {
+    finishingPresentation: false,
+    finishPresentationUntil: null,
+    targets: [], lootItems: [], floatingTexts: [], pendingAttacks: [],
+    dangerZoneActive: false, screenShake: false, comboBreakActive: false,
+    activeComboMilestone: null, lastLaserTarget: null,
+    hyperBeamPhase: 'idle' as const, hyperBeamActive: false,
+    isTransitioning: false, waveTransition: NO_TRANSITION, introState: NO_INTRO, inboundBoss: false
+  };
+
+  let stoppedTransition: { sessionId: string; transition: WaveTransitionInfo } | null = null;
+  const completeWaveTransition = (wave: number, nextWave: number, isBossNext: boolean) => {
+    const current = get();
+    if (current.outcome !== "playing" || !current.match) return;
+    if (wave % GAME_CONFIG.ENEMIES.augmentDraftInterval === 0) {
+      const draft = [...AUGMENTS_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
+      soundManager.switchBgm("lobby");
+      set({
+        screen: "augment",
+        draftAugments: draft,
+        wave: nextWave,
+        inboundBoss: isBossNext,
+        isTransitioning: false,
+        waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
+      });
+    } else {
+      soundManager.switchBgm(isBossNext ? "boss" : "battle");
+      const nextTargets = generateWave(nextWave, current.match.words);
+      set({
+        wave: nextWave,
+        targets: nextTargets,
+        inboundBoss: isBossNext,
+        isTransitioning: false,
+        waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
+      });
+    }
+  };
+
+  const beginFinishPresentation = () => {
+    const s = get();
+    if (!s.match || s.bootStatus !== 'ready') return {};
+    const duration = s.hyperBeamPhase === 'firing' ? 3200 : s.activeComboMilestone ? 1500 : 1200;
+    const until = s.finishPresentationUntil ?? Date.now() + duration;
+    if (until <= Date.now()) return { finishingPresentation: false, finishPresentationUntil: until };
+    if (finishPresentationTimer === null) {
+      const sessionId = s.match.sessionId;
+      if (s.lastLaserTarget) {
+        const laser = s.lastLaserTarget;
+        finishLaserTimer = setTimeout(() => {
+          finishLaserTimer = null;
+          const current = get();
+          if (current.match?.sessionId === sessionId && current.outcome !== 'playing' && current.lastLaserTarget === laser)
+            set({ lastLaserTarget: null });
+        }, 160);
+      }
+      finishPresentationTimer = setTimeout(() => {
+        finishPresentationTimer = null;
+        const current = get();
+        if (current.match?.sessionId !== sessionId || current.outcome === 'playing' || !current.finishingPresentation) return;
+        if (current.outcome === 'over') {
+          soundManager.switchBgm('lobby');
+          set({ ...clearedFinalVisuals, screen: 'debrief' });
+        } else {
+          // The effect has finished, but the final server result may still be on its way.
+          set({ finishingPresentation: false, hyperBeamPhase: 'idle', hyperBeamActive: false, lastLaserTarget: null,
+            isTransitioning: false, waveTransition: NO_TRANSITION, inboundBoss: false });
+        }
+      }, until - Date.now());
+    }
+    return {
+      finishingPresentation: true,
+      finishPresentationUntil: until,
+      hyperBeamPhase: s.hyperBeamPhase === 'firing' ? 'firing' as const : 'idle' as const,
+      // Retained firing is cosmetic: simulation and damage have already stopped.
+      hyperBeamActive: false,
+    };
+  };
+
   /** HP về 0: dừng mô phỏng, matchController gửi /finish?defeated=true. */
   const defeat = () => {
     const s = get();
     if (s.outcome !== "playing") return;
     clearGameTimers();
+    stopIntroTicker();
     soundManager.switchBgm("lobby");
     set({
+      ...beginFinishPresentation(),
       hp: 0,
       outcome: "defeated",
       combo: 0,
@@ -524,12 +629,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       dangerZoneActive: false,
       screenShake: false,
       comboBreakActive: false,
-      activeComboMilestone: null,
-      lastLaserTarget: null,
-      hyperBeamPhase: "idle",
-      hyperBeamActive: false,
-      isTransitioning: false,
-      waveTransition: NO_TRANSITION,
       screen: isBattleScreen(s.screen) ? s.screen : s.mode
     });
     matchHooks.onDefeated?.();
@@ -545,6 +644,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     outcome: "playing",
     result: null,
     aborted: false,
+    finishingPresentation: false,
+    finishPresentationUntil: null,
     paused: false,
     notice: null,
 
@@ -591,16 +692,31 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     audioSettings: soundManager.getSettings(),
     freezeTimer: 0,
 
-    setBootError: (message) => set({ bootStatus: "error", bootError: message }),
+    setBootError: (message) => {
+      stoppedTransition = null;
+      clearFinishPresentationTimer();
+      set({ bootStatus: 'error', bootError: message, finishingPresentation: false, finishPresentationUntil: null });
+    },
     showSetup: (state) => {
+      stoppedTransition = null;
+      clearFinishPresentationTimer();
+      clearGameTimers();
+      stopIntroTicker();
       soundManager.switchBgm("lobby");
-      set({ bootStatus: "setup", bootError: null, setupView: state });
+      set({ bootStatus: "setup", bootError: null, setupView: state, finishingPresentation: false, finishPresentationUntil: null });
     },
     setLiveStatus: (status) => set({ liveStatus: status }),
     setNotice: (message) => set({ notice: message }),
 
     // ------------------------------------------------------------------ vào trận
     initMatch: (state) => {
+      // A second boot/reconnect response must not reset consumed starting resources.
+      if (get().bootStatus === "ready" && get().match?.sessionId === state.sessionId) {
+        get().syncFromServer(state);
+        return;
+      }
+      stoppedTransition = null;
+      clearFinishPresentationTimer();
       clearGameTimers();
       stopIntroTicker();
 
@@ -624,6 +740,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         words: state.words ?? []
       };
       const me = state.players.find((p) => p.userId === state.meUserId) ?? null;
+      const now = serverNow();
 
       const common = {
         bootStatus: "ready" as BootStatus,
@@ -634,6 +751,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         mode,
         result: null,
         aborted: false,
+        finishingPresentation: false,
+        finishPresentationUntil: null,
         paused: false,
         notice: null,
         isSettingsOpen: false,
@@ -694,8 +813,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         return;
       }
 
-      const now = serverNow();
-      const started = now >= state.startAt;
       const outcome: MatchOutcome = me?.finished
         ? "defeated"
         : state.endsAt !== null && now >= state.endsAt
@@ -703,7 +820,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
           : "playing";
 
       // Tải lại giữa trận: khôi phục HP/điểm/đợt đã báo lên server; combo bắt đầu lại từ 0.
-      const restored = started && me ? meStats : { wave: 1, maxHp: DEFAULT_SHIP.hp, hp: DEFAULT_SHIP.hp, score: 0, bestCombo: 0, wrongInputs: 0 };
+      // Preserve the authoritative HP during the intro and after a page reload.
+      const restored = me ? meStats : { wave: 1, maxHp: DEFAULT_SHIP.hp, hp: DEFAULT_SHIP.hp, score: 0, bestCombo: 0, wrongInputs: 0 };
       const wave = restored.wave;
       const hp = Math.min(restored.maxHp, restored.hp);
       const introPhase = outcome === "playing" ? introPhaseFor(state.startAt - now) : "done";
@@ -791,33 +909,42 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
 
     showResult: (summary) => {
       const s = get();
-      if (s.outcome === "over" && (s.result || summary === null)) return;
+      if (summary && s.match && summary.sessionId !== s.match.sessionId) return;
+      stoppedTransition = null;
+      if (s.outcome === 'over') {
+        // A repeated SSE or polling response can update the summary, never restart the finale.
+        if (s.result && summary === null) return;
+        set({ result: summary, aborted: summary === null });
+        return;
+      }
       clearGameTimers();
       stopIntroTicker();
+      const canPresent = summary !== null && !!s.match && s.bootStatus === 'ready'
+        && (isBattleScreen(s.screen) || s.screen === 'augment');
+      const presentation = canPresent ? beginFinishPresentation() : {};
+      if (presentation.finishingPresentation) {
+        set({ ...presentation, outcome: 'over', result: summary, aborted: false,
+          screen: s.mode, paused: false, isSettingsOpen: false,
+          pendingAttacks: [], dangerZoneActive: false, screenShake: false, introState: NO_INTRO });
+        return;
+      }
+      clearFinishPresentationTimer();
       soundManager.switchBgm("lobby");
       set({
+        ...clearedFinalVisuals,
         outcome: "over",
         result: summary,
         aborted: summary === null,
         screen: "debrief",
         paused: false,
         isSettingsOpen: false,
-        targets: [],
-        lootItems: [],
-        floatingTexts: [],
-        pendingAttacks: [],
-        dangerZoneActive: false,
-        screenShake: false,
-        comboBreakActive: false,
-        activeComboMilestone: null,
-        lastLaserTarget: null,
-        hyperBeamPhase: "idle",
-        hyperBeamActive: false,
-        isTransitioning: false,
-        waveTransition: NO_TRANSITION,
-        introState: NO_INTRO,
-        inboundBoss: false
       });
+    },
+
+    cancelFinishPresentation: () => {
+      stoppedTransition = null;
+      clearFinishPresentationTimer();
+      set({ finishingPresentation: false, finishPresentationUntil: null, hyperBeamPhase: 'idle', hyperBeamActive: false });
     },
 
     markTimeUp: () => {
@@ -827,23 +954,42 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       stopIntroTicker();
       soundManager.switchBgm("lobby");
       set({
+        ...beginFinishPresentation(),
         outcome: "timeUp",
         screen: s.mode,
         paused: false,
         dangerZoneActive: false,
         screenShake: false,
         comboBreakActive: false,
-        lastLaserTarget: null,
-        hyperBeamPhase: "idle",
-        hyperBeamActive: false,
-        isTransitioning: false,
-        waveTransition: NO_TRANSITION,
         introState: NO_INTRO
       });
       matchHooks.onTimeUp?.();
     },
 
-    setOutcome: (outcome) => set({ outcome, paused: false, isSettingsOpen: outcome === "playing" ? get().isSettingsOpen : false }),
+    setOutcome: (outcome) => {
+      const s = get();
+      if (outcome === 'playing') {
+        const resume = stoppedTransition;
+        stoppedTransition = null;
+        clearFinishPresentationTimer();
+        set({ outcome, paused: false, finishingPresentation: false, finishPresentationUntil: null,
+          hyperBeamPhase: 'idle', hyperBeamActive: false });
+        // The completion bonus was already credited before stopping. Resume that wave once.
+        if (resume && resume.sessionId === s.match?.sessionId) {
+          const transition = resume.transition;
+          completeWaveTransition(transition.clearedWave, transition.incomingWave, transition.isBoss);
+        }
+        if (s.introState.active && s.match) startIntroTicker(s.match.startAt);
+      } else {
+        if (outcome === 'stopping' && s.outcome === 'playing') {
+          stoppedTransition = s.match && s.isTransitioning && s.waveTransition.active
+            ? { sessionId: s.match.sessionId, transition: { ...s.waveTransition } } : null;
+        }
+        clearGameTimers();
+        stopIntroTicker();
+        set({ ...beginFinishPresentation(), outcome, paused: false, isSettingsOpen: false });
+      }
+    },
 
     // ------------------------------------------------------------------ menu & âm thanh
     openSettings: () => {
@@ -911,7 +1057,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     },
 
     advanceToNextWave: () => {
-      const { wave, score, isTransitioning, screen, outcome, match } = get();
+      const { wave, isTransitioning, screen, outcome, match } = get();
       if (!match || outcome !== "playing" || isTransitioning || !isBattleScreen(screen)) return;
 
       const nextWave = wave + 1;
@@ -920,7 +1066,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       soundManager.playWaveClear();
       set({
         isTransitioning: true,
-        score: score + 1000 * wave,
         waveTransition: {
           active: true,
           phase: "cleared",
@@ -963,31 +1108,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         });
       }, 1800);
 
-      later(() => {
-        const current = get();
-        if (current.outcome === "over" || !current.match) return;
-        if (wave % GAME_CONFIG.ENEMIES.augmentDraftInterval === 0) {
-          const draft = [...AUGMENTS_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
-          soundManager.switchBgm("lobby");
-          set({
-            screen: "augment",
-            draftAugments: draft,
-            wave: nextWave,
-            inboundBoss: isBossNext,
-            isTransitioning: false,
-            waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
-          });
-        } else {
-          const nextTargets = generateWave(nextWave, current.match.words);
-          set({
-            wave: nextWave,
-            targets: nextTargets,
-            inboundBoss: isBossNext,
-            isTransitioning: false,
-            waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
-          });
-        }
-      }, 2800);
+      later(() => completeWaveTransition(wave, nextWave, isBossNext), 2800);
     },
 
     // ------------------------------------------------------------------ bắn
@@ -1030,14 +1151,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         const newCombo = combo + 1;
         const newBest = Math.max(bestCombo, newCombo);
 
-        // 3. Tính điểm số kèm combo
-        let scoreDelta = (GAME_CONFIG.SCORING.baseScorePerTarget + newCombo * (GAME_CONFIG.SCORING.baseScorePerTarget * GAME_CONFIG.SCORING.comboBonusMultiplier)) * wave;
-        if (hit.type === "MINI_BOSS" && isKilled) {
-          scoreDelta += GAME_CONFIG.SCORING.bossScoreBonus;
-        }
-        if (activeAugments.some((a) => a.id === "DUAL_CANNON")) {
-          scoreDelta = Math.round(scoreDelta * GAME_CONFIG.SCORING.dualCannonScoreBonus);
-        }
+        // 3. Mỗi địch bị hạ nhận đúng 1 điểm; bắn trúng boss còn sống chưa cộng điểm.
+        const scoreDelta = isKilled ? GAME_CONFIG.SCORING.baseScorePerTarget : 0;
 
         let creditDelta = GAME_CONFIG.SCORING.baseCreditsPerTarget + wave * GAME_CONFIG.SCORING.creditsWaveMultiplier;
         if (hit.type === "MINI_BOSS" && isKilled) {
@@ -1058,6 +1173,9 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         if (isKilled) {
           chargeDelta = hit.type === "MINI_BOSS" ? GAME_CONFIG.PLAYER.hyperBeamChargePerBossKill : GAME_CONFIG.PLAYER.hyperBeamChargePerKill;
         }
+        if (activeAugments.some((a) => a.id === "DUAL_CANNON")) {
+          chargeDelta *= GAME_CONFIG.PLAYER.dualCannonChargeMultiplier;
+        }
 
         // 4. Lõi CHRONO_FREEZE: đóng băng 4 giây sau mỗi 5 combo
         let newFreeze = get().freezeTimer;
@@ -1065,13 +1183,13 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
           newFreeze = Math.max(newFreeze, 4.0);
         }
 
-        // 5. Floating Combat Number (+Điểm kèm Combo Multiplier)
+        // 5. Điểm hạ địch và chuỗi bắn trúng hiển thị riêng.
         const hitColor = newCombo >= 20 ? "#ff4d6d" : newCombo >= 10 ? "#c3a6ff" : newCombo >= 5 ? "#ffc857" : "#55f4ff";
         const extraFloating: FloatingText[] = [
           ...get().floatingTexts,
           {
             id: `hit-${Date.now()}-${Math.random()}`,
-            text: `+${scoreDelta.toLocaleString()} [×${newCombo}]`,
+            text: `${isKilled ? "+1" : "TRÚNG ĐÍCH"} · COMBO ${newCombo}`,
             color: hitColor,
             x: hit.posX,
             y: Math.max(8, hit.posY - 4),
@@ -1188,7 +1306,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         if (get().outcome === "over") return;
         soundManager.playHyperBeam();
 
-        const { targets, wave, score, spawnLoot } = get();
+        const { targets, score, spawnLoot } = get();
         const updatedTargets: TargetWord[] = [];
 
         targets.forEach((t) => {
@@ -1212,7 +1330,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
 
         set({
           targets: updatedTargets,
-          score: score + 500 * wave,
+          score: score + updatedTargets.filter((target) => target.isDead).length * GAME_CONFIG.SCORING.baseScorePerTarget,
           screenShake: true,
           hyperBeamPhase: "firing",
           hyperBeamActive: true
@@ -1282,7 +1400,17 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     // ------------------------------------------------------------------ vòng lặp 60 FPS
     tickGameLoop: (rawDelta) => {
       let s = get();
-      if (!simulationLive(s)) return;
+      if (!simulationLive(s)) {
+        if (s.finishingPresentation && s.floatingTexts.length > 0) {
+          // The renderer can finish text fades while the stopped match cannot move, collect or score.
+          const delta = Math.max(0, Math.min(MAX_TICK_DELTA, rawDelta));
+          set({ floatingTexts: s.floatingTexts.flatMap(ft => {
+            const life = ft.life - .025 * delta;
+            return life > 0 ? [{ ...ft, y: ft.y - .25 * delta, opacity: life, life }] : [];
+          }) });
+        }
+        return;
+      }
       const match = s.match!;
 
       // Có đồng hồ: dừng mô phỏng đúng lúc endsAt, server chốt kết quả rồi gửi SESSION_FINISHED.
@@ -1302,15 +1430,18 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
 
       // Phase Hyper Beam Firing: Quét sạch quái thường và trừ HP Boss
       if (s.hyperBeamPhase === "firing") {
+        let destroyed = 0;
         const updatedTargets = s.targets.map((t) => {
           if (t.isDead) return t;
           if (t.type === "MINI_BOSS") {
             const bossHp = Math.max(0, (t.currentHp || 1) - GAME_CONFIG.PLAYER.hyperBeamBossDamage);
+            if (bossHp === 0) destroyed += 1;
             return { ...t, currentHp: bossHp, isDead: bossHp === 0 };
           }
+          destroyed += 1;
           return { ...t, isDead: true };
         });
-        set({ targets: updatedTargets });
+        set({ targets: updatedTargets, score: s.score + destroyed * GAME_CONFIG.SCORING.baseScorePerTarget });
         s = get();
       }
 

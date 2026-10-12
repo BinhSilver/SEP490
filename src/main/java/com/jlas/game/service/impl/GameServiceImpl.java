@@ -48,6 +48,7 @@ import com.jlas.game.service.GameDeckService;
 import com.jlas.game.service.GameDeckService.DeckWords;
 import com.jlas.game.service.GameEngine;
 import com.jlas.game.service.GameService;
+import com.jlas.game.service.GameVoiceService;
 import com.jlas.game.util.GameRules;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -98,12 +99,13 @@ public class GameServiceImpl implements GameService {
     private final GameScheduler scheduler;
     private final GameProperties properties;
     private final UserRepository users;
+    private final GameVoiceService voice;
     private final Map<GameType, GameEngine> engines = new EnumMap<>(GameType.class);
 
     public GameServiceImpl(RoomRegistry rooms, GameSessionRegistry sessions, GameDeckService decks,
                            GameMatchRecorder recorder, GameMapper mapper, ArenaEventHub hub,
                            ArenaRateLimiter rateLimiter, GameScheduler scheduler, GameProperties properties,
-                           UserRepository users, List<GameEngine> engineBeans) {
+                           UserRepository users, GameVoiceService voice, List<GameEngine> engineBeans) {
         this.rooms = rooms;
         this.sessions = sessions;
         this.decks = decks;
@@ -114,6 +116,7 @@ public class GameServiceImpl implements GameService {
         this.scheduler = scheduler;
         this.properties = properties;
         this.users = users;
+        this.voice = voice;
         for (GameEngine engine : engineBeans) {
             engines.put(engine.type(), engine);
         }
@@ -390,6 +393,7 @@ public class GameServiceImpl implements GameService {
             if (room.playersByUserId().remove(userId) == null) {
                 return new LeaveResult(false, false, null);
             }
+            voice.memberLeft(roomId, userId);
             rooms.unbindUser(userId, roomId);
             if (room.getDraftTask() != null) {
                 room.getDraftTask().cancel(false);
@@ -426,6 +430,7 @@ public class GameServiceImpl implements GameService {
         }
         if (result.closed()) {
             rooms.remove(room);
+            voice.roomClosed(roomId);
             log.info("Phòng {} đóng (không còn ai)", room.getCode());
         } else {
             notice(room, "Đối thủ đã rời phòng");
@@ -767,6 +772,7 @@ public class GameServiceImpl implements GameService {
                     return room.memberIds();
                 });
                 rooms.remove(room);
+                voice.roomClosed(room.getRoomId());
                 hub.send(members, ArenaEvent.of(ArenaEventType.ROOM_CLOSED, room.getRoomId(), null,
                         new RoomClosedPayload("Phòng đã đóng vì lâu không hoạt động")));
             }

@@ -51,18 +51,26 @@
     if (!current) return;
     el.grid.className = 'ar-shop-grid ar-shop-grid--' + (SLUGS[current.gameType] || 'game');
     el.grid.innerHTML = current.items.map(function (item) { return card(item, shop.balance, current.gameType); }).join('');
+    if (window.JlasCharacterSkins) window.JlasCharacterSkins.mount(el.grid);
   }
 
   /** Ảnh xem trước chuyển động; không có dải ảnh cho game khác thì dùng ảnh tĩnh. */
   function art(item, gameType) {
+    var renderer = item.renderCode || item.code;
+    if (renderer === 'CUSTOM') return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain">';
+    if (window.JlasCharacterSkins && window.JlasCharacterSkins.supports(renderer)) {
+      return '<span class="ar-character-art' + (gameType === 'AIR_DEFENSE' ? ' ar-spaceship-art' : '') + '"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
+        + '<canvas width="256" height="256" hidden data-character-skin="' + esc(renderer)
+        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
+    }
     if (gameType === 'AIR_DEFENSE') {
       return '<span class="ar-plane-fly" role="img" aria-label="' + esc(item.name) + '">'
-        + '<span class="ar-sprite ar-sprite--plane" style="background-image:url(' + ANIM + esc(item.code) + '.png)"></span>'
+        + '<span class="ar-sprite ar-sprite--plane" style="background-image:url(' + ANIM + esc(renderer) + '.png)"></span>'
         + '<span class="ar-sprite ar-sprite--exhaust" style="background-image:url(' + ANIM + 'exhaust.png)"></span></span>';
     }
     if (gameType === 'NEKO_CATCH') {
       return '<span class="ar-sprite ar-sprite--cat" role="img" aria-label="' + esc(item.name) + '"'
-        + ' style="background-image:url(' + ANIM + esc(item.code) + '.webp)"></span>';
+        + ' style="background-image:url(' + ANIM + esc(renderer) + '.webp)"></span>';
     }
     return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy">';
   }
@@ -130,6 +138,7 @@
     state.pending = item;
     el.confirmArt.className = 'ar-shop-item__art ar-shop-item__art--' + (SLUGS[state.game] || 'game');
     el.confirmArt.innerHTML = art(item, state.game);
+    if (window.JlasCharacterSkins) window.JlasCharacterSkins.mount(el.confirmArt);
     el.confirmText.innerHTML = 'Mua <strong>' + esc(item.name) + '</strong> với <strong>' + item.price + ' CP</strong>?'
       + ' Bạn còn lại ' + (state.shop.balance - item.price) + ' CP. Mua xong sẽ dùng luôn.';
     el.confirmOk.textContent = 'Mua · ' + item.price + ' CP';

@@ -1,17 +1,7 @@
 export type ConnectionState = 'connecting' | 'online' | 'offline'
-export type CardState = 'HIDDEN' | 'TEMP_REVEALED' | 'MATCHED'
-/** Trường của thẻ flashcard mà mặt thẻ đang hiển thị. */
-export type DeckField = 'KANJI' | 'HIRAGANA' | 'MEANING' | 'HAN_VIET'
+import type { MemoryCard, DeckField } from './cardTypes'
+export type { MemoryCard, DeckField, CardState } from './cardTypes'
 export type SessionStatus = 'RUNNING' | 'PAUSED' | 'FINISHED' | 'ABORTED'
-
-export interface MemoryCard {
-  cardInstanceId: string
-  position: number
-  state: CardState
-  face?: DeckField
-  content?: string
-  matchedByUserId?: number
-}
 
 export interface MemoryPlayer {
   userId: number
@@ -43,6 +33,7 @@ export interface MemoryConfig {
   revealDelayMs: number
   questionField: DeckField
   answerField: DeckField
+  distinguishCardTypes: boolean
 }
 
 export interface MemoryTerm {
@@ -113,6 +104,7 @@ export interface MemoryStartOptions {
   boardSize: number | null
   objective: 'CLASSIC' | 'TIME_ATTACK'
   totalSeconds: number | null
+  distinguishCardTypes: boolean
 }
 
 export interface MemoryEnvelope {
