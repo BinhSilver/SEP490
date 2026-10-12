@@ -31,4 +31,21 @@ public class AdminPageController {
         model.addAttribute("section", section);
         return "admin/workspace";
     }
+
+    @GetMapping("/admin/game-effects")
+    public String gameEffects(Model model) {
+        model.addAttribute("section", "game-effects");
+        return "admin/workspace";
+    }
+
+    @GetMapping("/admin/game-skins")
+    public String gameSkins(Model model) {
+        model.addAttribute("section", "game-skins");
+        return "admin/workspace";
+    }
+
+    @GetMapping("/admin/game-effects/preview")
+    public String gameEffectsPreview() {
+        return "admin/game-effects-preview";
+    }
 }

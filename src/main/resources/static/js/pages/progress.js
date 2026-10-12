@@ -154,7 +154,7 @@
         coords.forEach(function (point, index) {
             var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle.setAttribute('cx', point.x); circle.setAttribute('cy', point.y); circle.setAttribute('r', '5.5');
-            circle.setAttribute('fill', '#fff'); circle.setAttribute('stroke', '#FF4F9A'); circle.setAttribute('stroke-width', '3');
+            circle.setAttribute('fill', 'var(--stitch-surface, #fff)'); circle.setAttribute('stroke', 'var(--stitch-pink, #FF4F9A)'); circle.setAttribute('stroke-width', '3');
             circle.setAttribute('aria-label', values[index] + '');
             group.appendChild(circle);
         });

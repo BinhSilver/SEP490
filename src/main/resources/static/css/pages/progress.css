@@ -137,3 +137,225 @@
 @media (max-width: 768px) { #jlabBaseContent.stitch-progress-page__content { padding: 24px 16px 48px; } #jlabBaseContent .stitch-progress-page__heading { align-items: flex-start; flex-direction: column; } #jlabBaseContent .stitch-progress-page__two-col, #jlabBaseContent .stitch-progress-page__credit-chart-wrap { grid-template-columns: 1fr; } #jlabBaseContent .stitch-progress-page__controls { justify-content: flex-start; } #jlabBaseContent .stitch-progress-page__line-chart { height: 240px; } #jlabBaseContent .stitch-progress-page__donut-body { justify-content: space-around; gap: 10px; } #jlabBaseContent .stitch-progress-page__heatmap-grid { grid-template-columns: repeat(28, minmax(6px, 1fr)); gap: 3px; } }
 @media (max-width: 520px) { #jlabBaseContent .stitch-progress-page__kpis { gap: 10px; } #jlabBaseContent .stitch-progress-page__kpi { min-height: 112px; padding: 14px; } #jlabBaseContent .stitch-progress-page__kpi-value strong { font-size: 1.45rem; } #jlabBaseContent .stitch-progress-page__kpi-value { gap: 4px; } #jlabBaseContent .stitch-progress-page__kpi-value span { font-size: .62rem; } #jlabBaseContent .stitch-progress-page__card { padding: 18px; border-radius: 20px; } #jlabBaseContent .stitch-progress-page__goal-label { grid-template-columns: 28px 1fr auto; } #jlabBaseContent .stitch-progress-page__goal-label em { grid-column: 2; grid-row: 2; } #jlabBaseContent .stitch-progress-page__controls { display: grid; grid-template-columns: 1fr; width: 100%; } #jlabBaseContent .stitch-progress-page__segmented { justify-content: center; } #jlabBaseContent .stitch-progress-page__chart-foot { flex-wrap: wrap; gap: 9px; } #jlabBaseContent .stitch-progress-page__week-bars { gap: 6px; padding: 0 4px; } #jlabBaseContent .stitch-progress-page__donut-body { flex-direction: column; } #jlabBaseContent .stitch-progress-page__credit-summary { padding: 18px; } }
 @media (prefers-reduced-motion: reduce) { #jlabBaseContent .stitch-progress-page__kpi, #jlabBaseContent .stitch-progress-page__progress-track i, #jlabBaseContent .stitch-progress-page__week-bar i, #jlabBaseContent .stitch-progress-page__heatmap-grid i { transition: none; } }
+
+/* Page-owned dark mode: css/pages/progress.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-progress-bg: #0b0d13;
+  --dm-progress-surface: #171b26;
+  --dm-progress-raised: #242a39;
+  --dm-progress-ink: #f8fafc;
+  --dm-progress-muted: #b2bfd2;
+  --dm-progress-line: #40485d;
+  --dm-progress-accent: #c084fc;
+  --dm-progress-action: #7335a6;
+  --dm-progress-accent-soft: #2a203d;
+  --dm-progress-on-accent: #211b34;
+  --dm-progress-success: #8eddb6;
+  --dm-progress-success-bg: #1b3d32;
+  --dm-progress-success-line: #43816b;
+  --dm-progress-danger: #ffb4bd;
+  --dm-progress-danger-bg: #452832;
+  --dm-progress-danger-line: #96616d;
+  --dm-progress-warning: #f3d28a;
+  --dm-progress-warning-bg: #403522;
+  --dm-progress-warning-line: #947a46;
+  --dm-progress-pink: #f4aed2;
+  --dm-progress-pink-bg: #432d40;
+  --dm-progress-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.stitch-progress-page {
+    background: var(--dm-progress-surface)
+}
+html[data-theme="dark"] #jlabBaseContent.stitch-progress-page__content {
+    --stitch-bg: var(--dm-progress-bg);
+    --stitch-surface: var(--dm-progress-surface);
+    --stitch-low: var(--dm-progress-accent-soft);
+    --stitch-purple: var(--dm-progress-accent);
+    --stitch-purple-dark: var(--dm-progress-action);
+    --stitch-purple-soft: var(--dm-progress-accent-soft);
+    --stitch-pink: var(--dm-progress-ink);
+    --stitch-ink: var(--dm-progress-ink);
+    --stitch-muted: var(--dm-progress-muted);
+    --stitch-grey: var(--dm-progress-muted);
+    --stitch-line: var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__ambient {
+    background: var(--dm-progress-surface)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__watermark {
+    color: var(--dm-progress-accent)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heading {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__primary-button {
+    color: var(--dm-progress-ink);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.34)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__primary-button:hover {
+    color: var(--dm-progress-ink);
+    background: var(--dm-progress-action)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__kpi,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__card {
+    border: 1px solid var(--dm-progress-line);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.14)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__kpi:hover,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__card:hover {
+    border-color: var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__kpi:hover {
+    box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.24)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__kpi-head i,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__card-icon {
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__card-head,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__section-head {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__card-head h2 time {
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__goal-label > i {
+    background: var(--dm-progress-accent-soft);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__goal-label .stitch-progress-page__success-icon {
+    color: var(--dm-progress-success);
+    background: var(--dm-progress-accent-soft);
+    border-color: var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__progress-track i {
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__progress-track--success i {
+    background: var(--dm-progress-success-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__card-foot {
+    border-top: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-badge,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__week-badge {
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-row {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-row b {
+    color: var(--dm-progress-success);
+    background: var(--dm-progress-accent-soft)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-row.is-negative i,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-row.is-negative b {
+    color: var(--dm-progress-danger);
+    background: var(--dm-progress-danger-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__segmented {
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__segmented button.is-active,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__segmented button:hover {
+    color: var(--dm-progress-on-accent)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__line-chart::after {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__week-bars {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__week-bar.is-complete i {
+    background: var(--dm-progress-success-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__donut {
+    background: conic-gradient(var(--stitch-purple) 0 42%, var(--dm-progress-action) 42% 67%, var(--dm-progress-action) 67% 85%, var(--dm-progress-action) 85% 95%, var(--dm-progress-accent-soft) 95%)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__donut > div {
+    background: var(--dm-progress-surface)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(2) i {
+    background: var(--dm-progress-action)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(3) i {
+    background: var(--dm-progress-action)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(4) i {
+    background: var(--dm-progress-action)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__donut-body li:nth-child(5) i {
+    background: var(--dm-progress-accent-soft)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-summary {
+    background: var(--dm-progress-accent-soft);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-summary > div b {
+    color: var(--dm-progress-success);
+    background: var(--dm-progress-accent-soft);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__credit-summary > div b + b {
+    color: var(--dm-progress-danger);
+    background: var(--dm-progress-danger-bg);
+    border-color: var(--dm-progress-danger-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i {
+    background: var(--dm-progress-surface);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="1"] {
+    background: var(--dm-progress-pink-bg);
+    border-color: var(--dm-progress-pink-line)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="2"] {
+    background: var(--dm-progress-pink-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="3"] {
+    background: var(--dm-progress-pink-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="4"] {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-key i {
+    background: var(--dm-progress-surface)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(2) {
+    background: var(--dm-progress-pink-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(3) {
+    background: var(--dm-progress-pink-bg)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__empty,
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__error {
+    background: var(--dm-progress-surface)
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__error {
+    color: var(--dm-progress-danger)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .stitch-progress-page{--color-background:var(--dm-progress-bg);--color-surface:var(--dm-progress-bg);--color-surface-lowest:var(--dm-progress-surface);--color-surface-low:var(--dm-progress-raised);--color-surface-mid:var(--dm-progress-raised);--color-surface-high:var(--dm-progress-raised);--color-surface-container:var(--dm-progress-raised);--color-surface-container-high:var(--dm-progress-raised);--color-on-surface:var(--dm-progress-ink);--color-on-surface-variant:var(--dm-progress-muted);--color-secondary:var(--dm-progress-muted);--color-outline:var(--dm-progress-muted);--color-outline-variant:var(--dm-progress-line);--color-primary:var(--dm-progress-accent);--color-primary-container:var(--dm-progress-action);--color-on-primary:var(--dm-progress-on-accent);--color-on-primary-container:var(--dm-progress-ink);--color-primary-fixed:var(--dm-progress-accent-soft);--color-on-primary-fixed:var(--dm-progress-accent);--color-secondary-container:var(--dm-progress-accent-soft);--color-secondary-fixed:var(--dm-progress-accent-soft);--color-success:var(--dm-progress-success);--color-success-bg:var(--dm-progress-success-bg);--color-error:var(--dm-progress-danger);--color-error-container:var(--dm-progress-danger-bg);--color-on-error-container:var(--dm-progress-danger);--color-tertiary:var(--dm-progress-warning);--color-tertiary-container:var(--dm-progress-warning-bg);--color-on-tertiary-container:var(--dm-progress-warning);--color-focus:var(--dm-progress-accent);--jlab-base-page-background:var(--dm-progress-bg);}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__primary-button{background:var(--dm-progress-action);color:var(--dm-progress-ink);}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__primary-button:hover{background:#8468c8;}
+
+/* Heatmap intensity remains distinct in the night palette. */
+html[data-theme="dark"] {
+  --progress-heat-low: #312335;
+  --progress-heat-mid: #613048;
+  --progress-heat-high: #a4527c;
+  --progress-heat-peak: #f4aed2;
+}
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="1"],
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(2) { background: var(--progress-heat-low); }
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="2"],
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(3) { background: var(--progress-heat-mid); }
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="3"] { background: var(--progress-heat-high); }
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-grid i[data-level="4"],
+html[data-theme="dark"] #jlabBaseContent .stitch-progress-page__heatmap-key i:nth-of-type(4) { background: var(--progress-heat-peak); }

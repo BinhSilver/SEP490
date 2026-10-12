@@ -1,0 +1,130 @@
+/* A small day/night sky, matching the illustrated home scene. */
+.theme-switch {
+  --switch-day: #7db7d5;
+  --switch-night: #285276;
+  --switch-sun: #ffe48a;
+  --switch-moon: #e4f1f5;
+  --switch-cloud: rgba(255, 255, 255, .9);
+  position: relative;
+  flex: 0 0 64px;
+  margin-right: 8px;
+  box-sizing: border-box;
+  width: 64px;
+  height: 44px;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 999px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-switch__sky {
+  position: absolute;
+  inset: 6px 0;
+  overflow: hidden;
+  border-radius: inherit;
+  border: 1px solid rgba(30, 66, 99, .18);
+  background: var(--switch-day);
+  box-shadow: inset 0 1px 3px rgba(20, 55, 87, .13), 0 2px 7px rgba(20, 55, 87, .1);
+  transition: background-color 420ms ease, box-shadow 180ms ease;
+  pointer-events: none;
+}
+.theme-switch__stars {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 16% 32%, var(--switch-moon) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 35% 61%, var(--switch-moon) 0 .8px, transparent 1.3px),
+    radial-gradient(circle at 48% 22%, var(--switch-moon) 0 .7px, transparent 1.2px),
+    radial-gradient(circle at 12% 75%, var(--switch-moon) 0 .6px, transparent 1.1px);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.theme-switch__clouds {
+  position: absolute;
+  right: -4px;
+  bottom: -5px;
+  width: 42px;
+  height: 20px;
+  background:
+    radial-gradient(ellipse at 18% 75%, var(--switch-cloud) 0 21%, transparent 24%),
+    radial-gradient(ellipse at 46% 63%, var(--switch-cloud) 0 29%, transparent 32%),
+    radial-gradient(ellipse at 78% 77%, var(--switch-cloud) 0 26%, transparent 29%);
+  opacity: .65;
+  filter: blur(1px);
+  transition: opacity 300ms ease;
+}
+.theme-switch__thumb {
+  position: absolute;
+  top: 9px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 48% 45%, #fff8c9, #d5edf0 52%, #6dbada 90%);
+  box-shadow: 0 1px 4px rgba(18, 59, 89, .2);
+  pointer-events: none;
+  transition: transform 420ms cubic-bezier(.22, .8, .25, 1), background-color 420ms ease;
+}
+.theme-switch__sun,
+.theme-switch__moon {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  transition: opacity 300ms ease, transform 420ms ease;
+}
+.theme-switch__sun {
+  background: radial-gradient(circle at 40% 35%, #fff7c5, var(--switch-sun) 65%, #ffd36b);
+  box-shadow: 0 0 6px 3px #fff3b8, 0 0 13px 7px rgba(255, 249, 211, .65);
+}
+.theme-switch__sun::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  background: repeating-conic-gradient(from 12deg, transparent 0deg 18deg, #fffbd9 20deg 24deg, transparent 26deg 45deg);
+  mask-image: radial-gradient(circle, transparent 39%, #000 55%, transparent 72%);
+  opacity: .7;
+}
+.theme-switch__moon {
+  background:
+    radial-gradient(ellipse at 30% 32%, #91b4c6 0 9%, transparent 11%),
+    radial-gradient(ellipse at 65% 60%, #a4c1cf 0 15%, transparent 17%),
+    radial-gradient(ellipse at 37% 76%, #91b4c6 0 7%, transparent 9%),
+    radial-gradient(ellipse at 72% 22%, #b2cbd6 0 7%, transparent 9%),
+    radial-gradient(circle at 36% 30%, #f6fbfd, var(--switch-moon) 58%, #b4ceda);
+  box-shadow: 0 0 8px 2px rgba(218, 242, 255, .35);
+  opacity: 0;
+  transform: rotate(-30deg) scale(.65);
+}
+.theme-switch__mist {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 13px 8px at 12% 83%, var(--switch-cloud) 0 42%, transparent 80%),
+    radial-gradient(ellipse 15px 8px at 64% 96%, var(--switch-cloud) 0 45%, transparent 83%),
+    radial-gradient(ellipse 9px 6px at 95% 73%, var(--switch-cloud) 0 40%, transparent 85%);
+  filter: blur(1.2px);
+  opacity: .85;
+}
+.theme-switch[aria-checked="true"] .theme-switch__sky { background-color: var(--switch-night); }
+.theme-switch[aria-checked="true"] .theme-switch__thumb {
+  transform: translateX(32px);
+  background: radial-gradient(circle at 45% 42%, #1f658d, #0b3a61 62%, #072642);
+}
+.theme-switch[aria-checked="true"] .theme-switch__sun { opacity: 0; transform: rotate(30deg) scale(.65); }
+.theme-switch[aria-checked="true"] .theme-switch__moon { opacity: 1; transform: none; }
+.theme-switch[aria-checked="true"] .theme-switch__stars { opacity: .8; }
+.theme-switch[aria-checked="true"] .theme-switch__clouds { opacity: .1; }
+.theme-switch:hover .theme-switch__sky { box-shadow: inset 0 1px 3px rgba(20, 55, 87, .13), 0 3px 10px rgba(20, 55, 87, .2); }
+.theme-switch:focus-visible { outline: 3px solid var(--color-primary, #7c3aed); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  body:not(:has([data-home-motion="full"])) .theme-switch,
+  body:not(:has([data-home-motion="full"])) .theme-switch * { transition: none; }
+}

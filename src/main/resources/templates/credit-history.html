@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Lịch sử Credit - Mirai Japanese Analytics Hub', 'credit-history')}"></head>
-<body id="jlabBasePage" class="credit-history-page">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="credit-history-page">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="credit-history-page__content">
@@ -10,8 +10,7 @@
             <div>
                 <a class="credit-history-page__back-link" href="/progress"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Nhịp học của bạn</a>
                 <h1>Lịch sử Credit</h1>
-                <p>Theo dõi toàn bộ Credit bạn nhận được và đã sử dụng trong hành trình học tiếng Nhật.</p>
-            </div>
+                </div>
             <span class="credit-history-page__badge"><i class="fa-solid fa-gem" aria-hidden="true"></i> Ví gamification</span>
         </header>
 
@@ -38,7 +37,7 @@
             <div class="credit-history-page__card-head">
                 <div>
                     <h2 id="creditHistoryTitle">Biến động Credit</h2>
-                    <p id="creditHistoryDescription">Nhật ký giao dịch mới nhất của bạn</p>
+                    <p id="creditHistoryDescription" hidden>Nhật ký giao dịch mới nhất của bạn</p>
                 </div>
                 <div class="credit-history-page__filters" role="group" aria-label="Lọc lịch sử Credit">
                     <button class="is-active" type="button" data-credit-filter="all">Tất cả</button>

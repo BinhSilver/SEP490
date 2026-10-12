@@ -203,3 +203,8 @@
   --border: var(--color-outline-variant);
   --border-strong: var(--color-outline);
 }
+
+/* Standalone games do not import tokens.css; their shell still needs a night canvas. */
+html[data-theme="dark"] .arena-play {
+  --jlab-base-page-background: #0b0d13;
+}

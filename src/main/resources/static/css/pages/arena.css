@@ -453,6 +453,10 @@ html:has(.arena-body),
   min-width: 0;
 }
 
+.ar-join__submit-icon {
+  display: none;
+}
+
 .ar-empty {
   padding: 18px;
   border: 2px dashed var(--ar-line-strong);
@@ -706,6 +710,10 @@ html:has(.arena-body),
   gap: 10px;
   align-items: center;
   margin-bottom: 14px;
+}
+
+.ar-deck-filter {
+  display: none;
 }
 
 .ar-search {
@@ -1445,6 +1453,8 @@ html:has(.arena-body),
   grid-template-columns: minmax(0, 8fr) minmax(350px, 3fr);
   gap: 18px;
   align-items: stretch;
+  /* Thu nhỏ cả khối chọn game + bộ thẻ 10%. */
+  zoom: .9;
 }
 
 /* Thẻ game to (ảnh trên, chữ dưới) để lấp chiều cao; cột bộ thẻ cuộn trong đúng chiều cao đó. */
@@ -1628,6 +1638,132 @@ html:has(.arena-body),
   .ar-setup-actions .ar-btn {
     display: none;
   }
+}
+
+/* Cùng ngưỡng với điều hướng mobile: mỗi màn chỉ hiện một bước thiết lập. */
+@media (max-width: 900px) {
+  .ar-setup .ar-deck-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 8px;
+  }
+
+  .ar-setup .ar-deck-tools > .ar-seg {
+    display: none;
+  }
+
+  .ar-setup .ar-deck-filter {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--ar-line);
+    border-radius: 14px;
+    background: var(--ar-paper);
+    color: var(--ar-accent);
+    cursor: pointer;
+  }
+
+  .ar-setup .ar-deck-filter:hover {
+    background: var(--ar-accent-soft);
+  }
+
+  .ar-setup .ar-deck-filter:focus-within {
+    box-shadow: var(--ar-focus);
+  }
+
+  .ar-setup .ar-deck-filter select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ar-setup .ar-setup-head {
+    margin-bottom: 16px;
+  }
+
+  .ar-setup .ar-setup-top {
+    zoom: 1;
+  }
+
+  .ar-setup .ar-step {
+    padding: 18px;
+  }
+
+  .ar-setup .ar-mode-seg {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .ar-setup .ar-mode-seg button {
+    min-height: 56px;
+    padding: 12px;
+    border: 2px solid var(--ar-line);
+    border-radius: 14px;
+    text-align: left;
+  }
+
+  .ar-setup .ar-mode-seg [aria-checked="true"] {
+    border-color: var(--ar-accent);
+  }
+
+  .ar-setup .ar-game-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ar-setup .ar-game-option {
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .ar-setup .ar-game-option__art {
+    width: 72px;
+    height: 72px;
+    aspect-ratio: 1;
+  }
+
+  .ar-setup .ar-step--deck .ar-coverage {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .ar-setup [data-step-fields] .ar-step__no,
+  .ar-setup [data-step-options] .ar-step__no,
+  .ar-setup .ar-setup-actions .ar-btn {
+    display: none;
+  }
+
+  .ar-setup .ar-mobile-bar {
+    position: fixed;
+    right: 0;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    z-index: var(--z-header);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--ar-line);
+    background: var(--ar-paper);
+  }
+
+  .ar-setup .ar-mobile-bar .ar-btn {
+    flex: 1;
+    min-width: 0;
+    padding-inline: 12px;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2677,6 +2813,22 @@ body.is-vs-room .ar-page {
   background-size: 600% 100%;
 }
 
+.ar-character-art {
+  display: block;
+  width: 82%;
+  aspect-ratio: 1;
+}
+.ar-character-art img,
+.ar-character-art canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ar-character-art [hidden] { display: none; }
+/* A ship atlas uses four rows/columns; show the first pose while its canvas loads. */
+.ar-spaceship-art { position: relative; overflow: hidden; }
+.ar-spaceship-art img[data-character-fallback] { position: absolute; width: 400%; height: 400%; max-width: none; object-fit: fill; inset: 0 auto auto 0; }
+
 .ar-plane-fly {
   position: relative;
   z-index: 1;
@@ -3161,4 +3313,360 @@ body.is-vs-room .ar-page {
 @keyframes pv-boom-fade {
   0%, 85% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* Page-owned dark mode: css/pages/arena.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-arena-bg: #0b0d13;
+  --dm-arena-surface: #151a28;
+  --dm-arena-raised: #232b3d;
+  --dm-arena-ink: #f8fafc;
+  --dm-arena-muted: #b2bfd2;
+  --dm-arena-line: #414c65;
+  --dm-arena-accent: #c084fc;
+  --dm-arena-action: #7335a6;
+  --dm-arena-accent-soft: #2b2140;
+  --dm-arena-on-accent: #211b34;
+  --dm-arena-success: #8eddb6;
+  --dm-arena-success-bg: #1b3d32;
+  --dm-arena-success-line: #43816b;
+  --dm-arena-danger: #ffb4bd;
+  --dm-arena-danger-bg: #452832;
+  --dm-arena-danger-line: #96616d;
+  --dm-arena-warning: #f3d28a;
+  --dm-arena-warning-bg: #403522;
+  --dm-arena-warning-line: #947a46;
+  --dm-arena-pink: #f4aed2;
+  --dm-arena-pink-bg: #432d40;
+  --dm-arena-pink-line: #88637b;
+}
+html[data-theme="dark"] .arena-body {
+    --ar-line: var(--dm-arena-line);
+    --ar-line-strong: var(--dm-arena-line);
+    --ar-gold-soft: var(--dm-arena-warning-bg);
+    --ar-neko: var(--dm-arena-accent);
+    --ar-neko-soft: var(--dm-arena-raised);
+    --ar-memory: var(--dm-arena-accent);
+    --ar-memory-soft: var(--dm-arena-raised);
+    --ar-air: var(--dm-arena-accent);
+    --ar-air-soft: var(--dm-arena-raised);
+    --ar-clay: 0 1px 0 var(--dm-arena-surface) inset, 0 -3px 0 var(--dm-arena-raised) inset,
+    0 14px 30px -18px rgba(22, 29, 31, 0.38), 0 3px 0 var(--dm-arena-raised);
+    --ar-clay-press: 0 1px 0 var(--dm-arena-surface) inset, 0 1px 0 var(--dm-arena-raised)
+}
+html[data-theme="dark"] .ar-btn--primary {
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--dark {
+    --btn-ink: var(--dm-arena-ink);
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--gold {
+    --btn-ink: var(--dm-arena-ink);
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--ok {
+    --btn-ink: var(--dm-arena-ink);
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--danger {
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-chip--gold {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .ar-dot.is-online {
+    background: var(--dm-arena-success-bg);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.30)
+}
+html[data-theme="dark"] .ar-dot.is-connecting {
+    background: var(--dm-arena-warning-bg)
+}
+html[data-theme="dark"] .ar-step__no {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-deck__thumb {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-summary__problem {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .ar-seat.is-ready {
+    border-color: var(--dm-arena-success-line)
+}
+html[data-theme="dark"] .ar-avatar {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-result-lines li.is-winner {
+    border-color: var(--dm-arena-warning-line)
+}
+html[data-theme="dark"] .ar-result-lines .ar-rank {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-countdown {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .arena-body {
+    --vs-ink: var(--dm-arena-ink);
+    --vs-muted: var(--dm-arena-muted);
+    --vs-bg: var(--dm-arena-bg);
+    --vs-blue: var(--dm-arena-accent);
+    --vs-blue-glow: var(--dm-arena-action);
+    --vs-red: var(--dm-arena-danger-bg);
+    --vs-red-glow: var(--dm-arena-danger-bg);
+    --vs-violet: var(--dm-arena-accent);
+    --vs-gold: var(--dm-arena-warning);
+    --vs-gold-deep: var(--dm-arena-warning);
+    --vs-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-coin-rules__coin {
+    background: radial-gradient(circle at 35% 30%, var(--dm-arena-warning-bg), var(--vs-gold) 45%, var(--vs-gold-deep));
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .ar-search-overlay {
+    background: radial-gradient(circle at 50% 40%, var(--dm-arena-raised), rgba(7, 8, 26, 0.98))
+}
+html[data-theme="dark"] .ar-search-overlay__radar i {
+    border: 2px solid var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-search-overlay__radar::after {
+    background: radial-gradient(circle at 35% 30%, var(--dm-arena-warning-bg), var(--vs-gold) 45%, var(--vs-gold-deep));
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .vs__bg {
+    background: radial-gradient(60% 80% at 0% 100%, var(--dm-arena-action), transparent 60%),
+    radial-gradient(60% 80% at 100% 100%, var(--dm-arena-danger-bg), transparent 60%),
+    radial-gradient(40% 50% at 50% 45%, var(--dm-arena-action), transparent 70%),
+    var(--vs-bg)
+}
+html[data-theme="dark"] .vs__glow--left {
+    background: linear-gradient(90deg, var(--dm-arena-action), transparent)
+}
+html[data-theme="dark"] .vs__glow--right {
+    background: linear-gradient(270deg, var(--dm-arena-danger-bg), transparent)
+}
+html[data-theme="dark"] .vs__scan {
+    background: repeating-linear-gradient(0deg, var(--dm-arena-surface) 0 1px, transparent 1px 4px)
+}
+html[data-theme="dark"] .vs__step-no {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .vs__step.is-current {
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] .vs__step.is-current .vs__step-no {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .vs__step.is-done .vs__step-no {
+    background: var(--dm-arena-success-bg);
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .vs__vortex i:nth-child(5) {
+    background: radial-gradient(circle, var(--dm-arena-accent-soft), transparent 70%)
+}
+html[data-theme="dark"] .vs__mark {
+    background: linear-gradient(180deg, var(--dm-arena-surface) 10%, var(--dm-arena-accent-soft) 45%, var(--dm-arena-action) 55%, var(--dm-arena-surface) 90%)
+}
+html[data-theme="dark"] .vs__coin-face {
+    background: radial-gradient(circle at 35% 30%, var(--dm-arena-warning-bg), var(--vs-gold) 45%, var(--vs-gold-deep));
+    color: var(--dm-arena-warning);
+    box-shadow: inset 0 0 0 6px rgba(0, 0, 0, 0.37), 0 0 34px rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .vs__banner {
+    border-top: 1px solid var(--dm-arena-line);
+    border-bottom: 1px solid var(--dm-arena-line)
+}
+html[data-theme="dark"] .vs__option em {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .vs__option:hover {
+    box-shadow: 0 0 22px rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] .vs__timer {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .vs__btn--primary {
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .vs__plate--right {
+    background: linear-gradient(270deg, var(--dm-arena-pink-bg), rgba(70, 18, 36, 0.35))
+}
+html[data-theme="dark"] .vs__plate--right .vs__avatar {
+    background: var(--dm-arena-pink-bg)
+}
+html[data-theme="dark"] .vs__tag {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .vs__tag--ok {
+    background: var(--dm-arena-success-bg);
+    color: var(--dm-arena-success)
+}
+html[data-theme="dark"] .vs__tag--wait {
+    background: var(--dm-arena-warning-bg);
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .vs__tag--bad {
+    background: var(--dm-arena-danger-bg);
+    color: var(--dm-arena-danger)
+}
+html[data-theme="dark"] .vs__case {
+    background: linear-gradient(160deg, var(--dm-arena-surface), var(--dm-arena-surface))
+}
+html[data-theme="dark"] .ar-coin {
+    border: 2px solid var(--dm-arena-warning-line);
+    background: radial-gradient(circle at 35% 30%, var(--dm-arena-warning-bg), var(--dm-arena-warning-bg) 50%, var(--dm-arena-warning-bg))
+}
+html[data-theme="dark"] .ar-shop-item__art {
+    background: radial-gradient(circle at 50% 60%, var(--dm-arena-surface), var(--game-soft) 70%)
+}
+html[data-theme="dark"] .ar-shop-grid--air-defense .ar-shop-item__art,
+html[data-theme="dark"] .ar-shop-item__art--air-defense {
+    background: radial-gradient(circle at 50% 55%, var(--dm-arena-raised), #0b0f26 75%)
+}
+html[data-theme="dark"] .ar-shop-grid--air-defense .ar-shop-item__art::before,
+html[data-theme="dark"] .ar-shop-item__art--air-defense::before {
+    background-image: radial-gradient(1.5px 1.5px at 20px 30px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 90px 70px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 140px 20px, var(--dm-arena-surface), transparent),
+    radial-gradient(1.5px 1.5px at 60px 120px, var(--dm-arena-accent-soft), transparent),
+    radial-gradient(1px 1px at 40px 60px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 120px 40px, var(--dm-arena-surface), transparent)
+}
+html[data-theme="dark"] .pv-pop {
+    color: var(--dm-arena-ink);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.47), 0 0 12px rgba(255, 214, 102, 0.9)
+}
+html[data-theme="dark"] .pv-fish {
+    color: var(--dm-arena-pink)
+}
+html[data-theme="dark"] .pv-fish--mint {
+    color: var(--dm-arena-success)
+}
+html[data-theme="dark"] .ar-preview--memory {
+    background: radial-gradient(circle at 20% 15%, var(--dm-arena-surface), transparent 45%),
+    linear-gradient(160deg, var(--dm-arena-accent-soft), var(--dm-arena-accent-soft) 60%, var(--dm-arena-accent-soft))
+}
+html[data-theme="dark"] .pv-card__back,
+html[data-theme="dark"] .pv-card__front {
+    border: 0.5cqw solid var(--dm-arena-line);
+    box-shadow: 0 1.2cqw 2cqw -1cqw rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] .pv-card__back {
+    background: linear-gradient(160deg, var(--dm-arena-accent-soft), var(--dm-arena-accent-soft));
+    color: var(--dm-arena-accent)
+}
+html[data-theme="dark"] .pv-card__back::before {
+    border: 0.4cqw solid var(--dm-arena-line)
+}
+html[data-theme="dark"] .pv-card__front {
+    background: linear-gradient(160deg, var(--dm-arena-action), var(--dm-arena-action));
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .pv-card.is-matched .pv-card__front {
+    background: linear-gradient(160deg, var(--dm-arena-success-bg), var(--dm-arena-success-bg))
+}
+html[data-theme="dark"] .ar-preview--air-defense::before {
+    background-image: radial-gradient(1.5px 1.5px at 20px 30px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 90px 70px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 140px 20px, var(--dm-arena-surface), transparent),
+    radial-gradient(1.5px 1.5px at 60px 120px, var(--dm-arena-accent-soft), transparent),
+    radial-gradient(1px 1px at 40px 60px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 120px 40px, var(--dm-arena-surface), transparent)
+}
+html[data-theme="dark"] .pv-enemy__label {
+    border: 0.35cqw solid var(--dm-arena-line);
+    color: var(--dm-arena-ink);
+    box-shadow: 0 0 1.6cqw rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .pv-enemy--red .pv-enemy__label {
+    border-color: var(--dm-arena-warning-line);
+    box-shadow: 0 0 1.6cqw rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .pv-laser {
+    background: linear-gradient(90deg, var(--dm-arena-action), var(--dm-arena-accent-soft) 40%, var(--dm-arena-surface));
+    box-shadow: 0 0 1.4cqw #5ee7ff, 0 0 3cqw rgba(0, 0, 0, 0.50)
+}
+
+/* Bắn máy bay requires a physical keyboard; keep it out of phone entry points. */
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+    .arena-body .ar-game-card--air-defense, .arena-body .ar-game-option--air-defense { display: none; }
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .arena-body{--color-background:var(--dm-arena-bg);--color-surface:var(--dm-arena-bg);--color-surface-lowest:var(--dm-arena-surface);--color-surface-low:var(--dm-arena-raised);--color-surface-mid:var(--dm-arena-raised);--color-surface-high:var(--dm-arena-raised);--color-surface-container:var(--dm-arena-raised);--color-surface-container-high:var(--dm-arena-raised);--color-on-surface:var(--dm-arena-ink);--color-on-surface-variant:var(--dm-arena-muted);--color-secondary:var(--dm-arena-muted);--color-outline:var(--dm-arena-muted);--color-outline-variant:var(--dm-arena-line);--color-primary:var(--dm-arena-accent);--color-primary-container:var(--dm-arena-action);--color-on-primary:var(--dm-arena-on-accent);--color-on-primary-container:var(--dm-arena-ink);--color-primary-fixed:var(--dm-arena-accent-soft);--color-on-primary-fixed:var(--dm-arena-accent);--color-secondary-container:var(--dm-arena-accent-soft);--color-secondary-fixed:var(--dm-arena-accent-soft);--color-success:var(--dm-arena-success);--color-success-bg:var(--dm-arena-success-bg);--color-error:var(--dm-arena-danger);--color-error-container:var(--dm-arena-danger-bg);--color-on-error-container:var(--dm-arena-danger);--color-tertiary:var(--dm-arena-warning);--color-tertiary-container:var(--dm-arena-warning-bg);--color-on-tertiary-container:var(--dm-arena-warning);--color-focus:var(--dm-arena-accent);--jlab-base-page-background:var(--dm-arena-bg);}
+html[data-theme="dark"] .arena-body .btn--primary{background:var(--dm-arena-action)!important;color:var(--dm-arena-ink)!important;}
+html[data-theme="dark"] .arena-body .btn--primary:hover{background:#8166c4!important;}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .arena-body{--ar-paper:var(--dm-arena-surface);--ar-paper-2:var(--dm-arena-raised);--ar-ink:var(--dm-arena-ink);--ar-muted:var(--dm-arena-muted);--ar-line:var(--dm-arena-line);--ar-line-strong:#70809e;--ar-neko:#ffba96;--ar-neko-soft:#45302b;--ar-memory:#8bdaec;--ar-memory-soft:#243c48;--ar-air:#b4bcff;--ar-air-soft:#303651;--ar-clay:0 1px 0 #ffffff0c inset,0 9px 20px #0004;--ar-clay-press:0 1px 0 #ffffff0a inset;--ar-gold-soft:var(--dm-arena-warning-bg);}
+html[data-theme="dark"] .arena-body .ar-btn--primary{background:var(--dm-arena-action);color:var(--dm-arena-ink);}
+html[data-theme="dark"] .arena-body .ar-btn--primary:hover{background:#8468c8;color:var(--dm-arena-ink);}
+
+/* Mobile hub: keep the room-code control on the same row as the shop. */
+@media (max-width: 900px) {
+  .ar-hub .ar-section-head--hub {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 12px 8px;
+  }
+  .ar-hub .ar-section-head--hub > div { display: contents; }
+  .ar-hub .ar-section-head--hub h1 { grid-column: 1 / -1; }
+  .ar-hub .ar-hub-shop {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 48px;
+    height: 52px;
+    padding-inline: 12px;
+  }
+  .ar-hub .ar-join { grid-column: 2; grid-row: 2; width: 100%; min-width: 0; }
+  .ar-hub .ar-join > .ar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .ar-hub .ar-join__row {
+    flex-direction: row;
+    gap: 0;
+    min-height: 52px;
+    border: 2px solid var(--ar-line-strong);
+    border-radius: var(--ar-radius-sm);
+    background: var(--ar-paper);
+    overflow: hidden;
+  }
+  .ar-hub .ar-join__row:focus-within { outline: 2px solid var(--ar-accent); outline-offset: 2px; }
+  .ar-hub .ar-join__row .ar-input {
+    width: 0;
+    min-height: 44px;
+    padding-inline: 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 16px;
+    letter-spacing: .06em;
+    box-shadow: none;
+  }
+  .ar-hub .ar-join__row .ar-input::placeholder { color: var(--ar-muted); letter-spacing: 0; text-transform: none; opacity: 1; }
+  .ar-hub .ar-join__row .ar-btn {
+    flex: 0 0 44px;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+  }
+  .ar-hub .ar-join__row .ar-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -5px; }
+  .ar-hub .ar-join__submit-text { display: none; }
+  .ar-hub .ar-join__submit-icon { display: block; width: 20px; height: 20px; }
+  .ar-hub .ar-join__row .ar-btn[data-loading="true"] .ar-join__submit-icon { display: none; }
+  .ar-hub .ar-join > .ar-error-text { margin-top: 6px; }
 }
