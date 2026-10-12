@@ -61,6 +61,15 @@ public class ReviewCase {
     @Column(name = "evidence_url", length = 500)
     private String evidenceUrl;
 
+    @Column(name = "evidence_file_key", length = 100)
+    private String evidenceFileKey;
+    @Column(name = "evidence_file_name", length = 200)
+    private String evidenceFileName;
+    @Column(name = "evidence_file_type", length = 100)
+    private String evidenceFileType;
+    @Column(name = "evidence_file_size")
+    private Long evidenceFileSize;
+
     /** OPEN/IN_REVIEW/APPROVED/REJECTED/CLOSED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

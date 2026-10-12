@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Trang quản trị | JLAS</title>
@@ -11,11 +12,14 @@
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/admin.css(v=20260925)}"/>
+    <link rel="stylesheet" th:href="@{/css/pages/admin.css(v=20261008)}"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" th:if="${section == 'game-effects'}" th:href="@{/css/pages/game-effects.css}"/>
+    <link rel="stylesheet" th:if="${section == 'game-skins'}" th:href="@{/css/pages/admin-game-skins.css(v='20261011-2')}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-admin">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-admin">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent">
@@ -34,7 +38,7 @@
         <section class="adm-main" aria-live="polite">
             <header class="adm-header">
                 <h1 class="adm-title" id="admTitle">Trang quản trị</h1>
-                <p class="adm-subtitle" id="admSubtitle"></p>
+                <p class="adm-subtitle" id="admSubtitle" hidden></p>
             </header>
             <div id="admContent">
                 <div class="adm-empty"><span class="adm-spinner" aria-hidden="true"></span><span>Đang tải…</span></div>
@@ -45,9 +49,11 @@
 
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/admin-core.js(v=20260925)}"></script>
-<script th:src="@{/js/pages/admin-moderation-review.js(v=20260925)}"></script>
-<script th:src="@{/js/pages/admin-moderation-tools.js(v=20260925)}"></script>
-<script th:src="@{/js/pages/admin-boot.js(v=20260925)}"></script>
+<script th:src="@{/js/pages/admin-core.js(v=20261011)}"></script>
+<script th:src="@{/js/pages/admin-moderation-review.js(v=20261008)}"></script>
+<script th:src="@{/js/pages/admin-moderation-tools.js(v=20261008)}"></script>
+<script th:src="@{/js/pages/admin-game-effects.js}"></script>
+<script th:if="${section == 'game-skins'}" th:src="@{/js/pages/admin-game-skins.js(v=20261011)}"></script>
+<script th:src="@{/js/pages/admin-boot.js(v=20261008)}"></script>
 </body>
 </html>

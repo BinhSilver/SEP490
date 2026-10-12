@@ -13,6 +13,10 @@
     { title: null, items: [
       { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: MODERATION }
     ] },
+    { title: 'Trò chơi', items: [
+      { key: 'game-skins', label: 'Trang phục game', icon: 'fa-shirt', href: '/admin/game-skins', roles: ADMINS },
+      { key: 'game-effects', label: 'Xem hiệu ứng game', icon: 'fa-gamepad', href: '/admin/game-effects', roles: MODERATION }
+    ] },
     { title: 'Kiểm duyệt', items: [
       { key: 'reports', label: 'Báo cáo nội dung', icon: 'fa-flag', href: '/admin/moderation/reports', roles: MODERATION, badge: 'pendingReports' },
       { key: 'queue', label: 'Hàng đợi AI', icon: 'fa-robot', href: '/admin/moderation/queue', roles: MODERATION, badge: 'pendingQueue' },
@@ -27,7 +31,7 @@
   var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', SUPER_ADMIN: 'Quản trị cấp cao' };
 
   var TYPE_LABELS = {
-    FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
+    USER_AVATAR: 'Ảnh đại diện', FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
     APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm'
@@ -284,7 +288,8 @@
     api: {
       get: function (url) { return request('GET', url); },
       post: function (url, body) { return request('POST', url, body === undefined ? {} : body); },
-      put: function (url, body) { return request('PUT', url, body); }
+      put: function (url, body) { return request('PUT', url, body); },
+      delete: function (url) { return request('DELETE', url); }
     },
     esc: esc,
     date: date,
