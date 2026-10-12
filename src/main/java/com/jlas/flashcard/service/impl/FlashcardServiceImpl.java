@@ -20,6 +20,9 @@ import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.repository.ContentCommentRatingRepository;
 import com.jlas.moderation.repository.ContentCommentRepository;
 import com.jlas.moderation.service.ContentModerationPort;
+import com.jlas.moderation.service.ModerationRateLimitService;
+import com.jlas.moderation.util.ImageUploads;
+import com.jlas.moderation.util.UploadFiles;
 import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.notification.service.UserNotificationPort;
 import com.jlas.common.exception.ApiException;
@@ -57,6 +60,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final UserRepository users; private final HanVietAiService hanVietAiService;
     private final ContentCommentRepository comments; private final ContentCommentRatingRepository ratings;
     private final ContentModerationPort moderation;
+    private final ModerationRateLimitService imageRateLimits;
     private final UserActionPolicyPort actionPolicy;
     private final UserNotificationPort notifications;
     private final com.jlas.flashcard.service.FlashcardStudyAccess studyAccess;
@@ -146,10 +150,12 @@ public class FlashcardServiceImpl implements FlashcardService {
     }
     @Override @Transactional(readOnly = true) public SyncPreviewResponse syncPreview(Long id, Long userId) {
         FlashcardSet copy=owner(id,userId); FlashcardSet source=copy.getSourceSet(); if(source==null) throw bad("Bộ thẻ này không phải bản sao");
+        source = readable(source.getId(), userId);
         return SyncPreviewResponse.builder().newCardCount(missingSourceCards(copy,source).size()).originalTitle(source.getTitle()).build();
     }
     @Override public SyncResponse sync(Long id, Long userId) {
         FlashcardSet copy=owner(id,userId); FlashcardSet source=copy.getSourceSet(); if(source==null) throw bad("Bộ thẻ này không phải bản sao");
+        source = readable(source.getId(), userId);
         List<FlashcardCard> additions=missingSourceCards(copy,source); int position=cards.findBySetIdOrderByPositionAscIdAsc(copy.getId()).size();
         for(FlashcardCard card:additions){CardInput input=input(card); input.setPosition(position++); addCard(copy,input);}
         copy.setLastSyncedAt(LocalDateTime.now()); sets.save(copy); return SyncResponse.builder().addedCount(additions.size()).build();
@@ -172,6 +178,13 @@ public class FlashcardServiceImpl implements FlashcardService {
         login(userId); if (file == null || file.isEmpty()) throw bad("Cần chọn file");
         try { String text = fileCodec.toImportText(file.getOriginalFilename(), file.getBytes()); return ImportFileResponse.builder().text(text).lineCount(text.isEmpty() ? 0 : (int) text.lines().count()).build(); }
         catch (IOException exception) { throw bad("Không đọc được file"); }
+    }
+    @Override
+    public List<EnrichResponse> generateImportCards(String text) {
+        return hanVietAiService.generateImportCards(text).stream()
+                .map(result -> EnrichResponse.builder().front(result.kanji()).reading(result.reading())
+                        .meaning(result.meaning()).back(result.back()).hanViet(result.hanViet()).build())
+                .toList();
     }
     @Override @Transactional(readOnly = true)
     public ImportHanVietResponse enrichImport(String text) {
@@ -328,7 +341,28 @@ public class FlashcardServiceImpl implements FlashcardService {
         if(request!=null&&StringUtils.hasText(request.getMemoryStatus())){String status=request.getMemoryStatus().toUpperCase(Locale.ROOT);if("REMEMBERED".equals(status)){p.setStatus("MASTERED");p.setRepetitionCount(Math.max(3,Optional.ofNullable(p.getRepetitionCount()).orElse(0)));p.setLastQuality((byte)5);}else if("NOT_REMEMBERED".equals(status)){p.setStatus("LEARNING");p.setRepetitionCount(0);p.setLastQuality((byte)1);}else throw bad("memoryStatus không hợp lệ");p.setLastReviewedAt(LocalDateTime.now());p.setNextReviewAt(LocalDateTime.now().plusDays("REMEMBERED".equals(status)?6:1));}
         progress.save(p); accessed(userId,card.getSet()); return dto(card,p);
     }
-    @Override public UploadResponse upload(MultipartFile file,Long userId){login(userId);if(file==null||file.isEmpty())throw bad("Cần chọn ảnh");String type=Optional.ofNullable(file.getContentType()).orElse("").toLowerCase(Locale.ROOT);if(!Set.of("image/jpeg","image/png","image/gif","image/webp").contains(type)||file.getSize()>5*1024*1024)throw bad("Ảnh phải là JPEG/PNG/GIF/WEBP và không quá 5MB");String ext=type.equals("image/png")?".png":type.equals("image/gif")?".gif":type.equals("image/webp")?".webp":".jpg",name=UUID.randomUUID()+ext;try{Path directory=Paths.get(uploadPath).toAbsolutePath().normalize();Files.createDirectories(directory);file.transferTo(directory.resolve(name));}catch(IOException exception){throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Không thể lưu ảnh",exception);}return UploadResponse.builder().filename(name).url("/uploads/flashcard/"+name).build();}
+    @Override public UploadResponse upload(MultipartFile file, Long userId) {
+        login(userId);
+        byte[] bytes = ImageUploads.validate(file, 5L * 1024 * 1024, true);
+        imageRateLimits.checkImageUpload("flashcard:" + userId);
+        String extension = UploadFiles.extension(file.getOriginalFilename());
+        String name = UUID.randomUUID() + "." + extension;
+        Path temporary = null;
+        try {
+            temporary = Files.createTempFile("jlas-flashcard-", "." + extension);
+            Files.write(temporary, bytes);
+            ModerationResult result = moderation.scanImage(temporary, file.getOriginalFilename());
+            if (!result.isSafe()) throw new ApiException(result.isBlocked() ? ErrorCode.CONTENT_BLOCKED
+                    : ErrorCode.CONTENT_PENDING_REVIEW, "Ảnh chưa qua kiểm duyệt. Vui lòng chọn ảnh khác hoặc thử lại sau");
+            Path directory = Paths.get(uploadPath).toAbsolutePath().normalize();
+            UploadFiles.write(directory.resolve(name), bytes);
+        } catch (IOException e) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Không thể lưu ảnh");
+        } finally {
+            if (temporary != null) UploadFiles.delete(temporary);
+        }
+        return UploadResponse.builder().filename(name).url("/uploads/flashcard/" + name).build();
+    }
 
     private FlashcardSet active(Long id){FlashcardSet set=sets.findById(id).orElseThrow(()->missing("Không tìm thấy bộ thẻ"));if(set.getDeletedAt()!=null)throw missing("Không tìm thấy bộ thẻ");return set;}
     private FlashcardSet readable(Long id,Long userId){return studyAccess.readable(id,userId);}
@@ -362,6 +396,10 @@ public class FlashcardServiceImpl implements FlashcardService {
             content.append('\n').append(Optional.ofNullable(card.getFront()).orElse(""));
             content.append(' ').append(Optional.ofNullable(card.getReading()).orElse(""));
             content.append(' ').append(Optional.ofNullable(card.getMeaning()).orElse(""));
+            content.append(' ').append(Optional.ofNullable(card.getBack()).orElse(""));
+            content.append(' ').append(Optional.ofNullable(card.getHanViet()).orElse(""));
+            content.append(' ').append(Optional.ofNullable(card.getExampleJa()).orElse(""));
+            content.append(' ').append(Optional.ofNullable(card.getExampleVi()).orElse(""));
         });
         ModerationResult result = moderation.scanText(content.toString());
         if (result.isBlocked()) {

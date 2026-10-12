@@ -40,6 +40,9 @@ public interface HanVietAiService {
      */
     String enrichImportText(String text);
 
+    /** Generate complete draft cards from free-form source data, without persisting them. */
+    List<CardEnrichResult> generateImportCards(String text);
+
     record HanVietRequest(Long id, String front, String back) {
     }
 

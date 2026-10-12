@@ -1,6 +1,8 @@
 package com.jlas.flashcard.service;
 
 import com.jlas.auth.entity.User;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.flashcard.dto.SpeedRecallDtos.*;
 import com.jlas.flashcard.entity.*;
 import com.jlas.flashcard.repository.*;
@@ -38,26 +40,50 @@ public class SpeedRecallService {
         List<FlashcardCard> all = cards.findBySetIdOrderByPositionAscIdAsc(setId);
         Map<Long, FlashcardCardProgress> states = progress(userId, setId);
         List<FlashcardCard> eligible = select(all, states, "ALL", mode);
+        Set<Long> eligibleIds = new HashSet<>(eligible.stream().map(FlashcardCard::getId).toList());
+        Set<Long> learningIds = new HashSet<>(select(all, states, "LEARNING", mode).stream().map(FlashcardCard::getId).toList());
         Map<String, Integer> modeCounts = new LinkedHashMap<>();
         for (SpeedRecallMode each : SpeedRecallMode.values()) {
             modeCounts.put(each.name(), select(all, states, "ALL", each).size());
         }
         return new Options(setId, set.getTitle(), all.size(), eligible.size(), all.size() - eligible.size(),
                 select(all, states, "LEARNING", mode).size(), select(all, states, "STARRED", mode).size(), mode.name(),
-                modeCounts);
+                modeCounts, all.stream().map(card -> new OptionCard(card.getId(), card.getFront(), card.getReading(),
+                        card.getMeaning(), card.getHanViet(), eligibleIds.contains(card.getId()), learningIds.contains(card.getId()),
+                        eligibleIds.contains(card.getId()) ? "" : mode.eligible(card) ? "Trùng cặp từ" : "Thiếu nội dung hợp lệ cho cặp hỏi–đáp"))
+                        .toList());
     }
 
     public View create(Long setId, Long userId, CreateRequest request) {
         requireUser(userId);
         SpeedRecallMode mode = mode(request.mode());
         String fingerprint = hash(setId + "|" + request.filter() + "|" + request.count() + "|" + request.autoSubmit()
-                + "|" + mode.name());
+                + "|" + mode.name() + (request.selectedCardIds() == null ? "" : "|" + new TreeSet<>(request.selectedCardIds())));
         lockUser(userId);
         Optional<FlashcardStudySession> previous = studies.findByUserIdAndCreationRequestId(userId, request.requestId());
         if (previous.isPresent()) return duplicate(previous.get(), fingerprint, setId, userId);
         FlashcardSet set = access.studyable(setId, userId);
         List<FlashcardCard> pool = select(cards.findBySetIdOrderByPositionAscIdAsc(setId), progress(userId, setId), request.filter(), mode);
+        pool = requestedCards(pool, request);
         return build(set, userId, pool, request.count(), request.filter(), request.autoSubmit(), null, request.requestId(), fingerprint, mode);
+    }
+
+    /** The previewed subset must belong to this set and remain eligible for the requested pair. */
+    static List<FlashcardCard> requestedCards(List<FlashcardCard> pool, CreateRequest request) {
+        boolean subset = "CUSTOM".equals(request.filter()) || "RANDOM".equals(request.filter());
+        if (!subset) {
+            if (request.selectedCardIds() != null) throw new ApiException(ErrorCode.BAD_REQUEST, "Chỉ gửi danh sách thẻ ở chế độ chọn tùy ý hoặc ngẫu nhiên.");
+            return pool;
+        }
+        List<Long> ids = request.selectedCardIds();
+        if (ids == null || ids.isEmpty() || ids.stream().anyMatch(id -> id == null || id <= 0)
+                || new HashSet<>(ids).size() != ids.size() || request.count() != ids.size()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu phải khớp với danh sách thẻ hợp lệ đã chọn.");
+        }
+        Set<Long> wanted = new HashSet<>(ids);
+        List<FlashcardCard> selected = pool.stream().filter(card -> wanted.contains(card.getId())).toList();
+        if (selected.size() != wanted.size()) throw new ApiException(ErrorCode.BAD_REQUEST, "Thẻ đã chọn không thuộc bộ này hoặc không đủ nội dung cho cặp hỏi–đáp.");
+        return new ArrayList<>(selected);
     }
 
     public View retry(Long setId, Long userId, Long id, RetryRequest request) {
@@ -140,12 +166,16 @@ public class SpeedRecallService {
         if (s.getFeedbackUntil() != null && clock.now().isBefore(s.getFeedbackUntil())) return view(s, rows);
         FlashcardSpeedRecallAnswer a = rows.get(expected);
         if (a.getOutcome() != Outcome.PENDING) throw conflict("Câu hỏi đã bắt đầu");
+        issue(s, a);
+        return view(s, rows);
+    }
+
+    private void issue(FlashcardSpeedRecallSession s, FlashcardSpeedRecallAnswer a) {
         LocalDateTime now = clock.now();
         a.setStreakBefore(s.getStreak()); a.setTimeLimitMs(SpeedRecallRules.timeLimit(s.getStreak()));
         a.setIssuedAt(now); a.setDeadlineAt(now.plusNanos(a.getTimeLimitMs() * 1_000_000L)); a.setOutcome(Outcome.ACTIVE);
-        s.setCurrentQuestionIndex(expected); s.setState(State.PLAYING); s.setFeedbackUntil(null);
+        s.setCurrentQuestionIndex(a.getQuestionIndex()); s.setState(State.PLAYING); s.setFeedbackUntil(null);
         touch(s);
-        return view(s, rows);
     }
 
     public View answer(Long setId, Long userId, Long id, AnswerRequest request, boolean timeoutSignal) {
@@ -172,8 +202,20 @@ public class SpeedRecallService {
         if (normalized.codePointCount(0, normalized.length()) > 500) throw bad("Đáp án sau chuẩn hóa quá dài");
         if (!late && normalized.isBlank()) throw bad("Hãy nhập đáp án trước khi kiểm tra");
         a.setUserAnswer(request.userAnswer()); a.setNormalizedAnswer(normalized);
+        if (!late && !mode.matches(request.userAnswer(), a.getExpectedAnswer())) {
+            // A wrong Enter is an attempt, not a completed question. Keep its original deadline.
+            touch(s);
+            int elapsed = (int) Math.max(0, Math.min(a.getTimeLimitMs(),
+                    a.getTimeLimitMs() - Duration.between(now, a.getDeadlineAt()).toMillis()));
+            Answer attempt = new Answer(a.getId(), a.getCard() == null ? null : a.getCard().getId(),
+                    a.getQuestionText(), a.getReading(), a.getMeaning(), request.userAnswer(),
+                    Outcome.WRONG.name(), elapsed, 0, a.getExpectedAnswer());
+            return view(s, rows, attempt);
+        }
         a.setAnswerRequestId(request.requestId()); a.setRequestFingerprint(fingerprint);
-        resolve(s, a, late ? Outcome.TIMEOUT : mode.matches(request.userAnswer(), a.getExpectedAnswer()) ? Outcome.CORRECT : Outcome.WRONG);
+        resolve(s, a, late ? Outcome.TIMEOUT : Outcome.CORRECT);
+        // Correct answers issue the next question in the same transaction, without another Enter.
+        if (!late && !terminal(s)) issue(s, rows.get(s.getCurrentQuestionIndex() + 1));
         return view(s, rows);
     }
 
@@ -247,18 +289,22 @@ public class SpeedRecallService {
             s.setWrongCount(s.getWrongCount() + 1); s.setStreak(0);
             if (outcome == Outcome.TIMEOUT) s.setTimeoutCount(s.getTimeoutCount() + 1);
         }
-        s.setFeedbackUntil(now.plusNanos((outcome == Outcome.CORRECT ? 550L : 1250L) * 1_000_000));
+        s.setFeedbackUntil(now);
         touch(s);
         if (s.getCorrectCount() + s.getWrongCount() == s.getTotalQuestions()) end(s, State.FINISHED);
         else s.setState(State.ANSWER_FEEDBACK);
     }
 
     private View view(FlashcardSpeedRecallSession s, List<FlashcardSpeedRecallAnswer> rows) {
+        return view(s, rows, null);
+    }
+
+    private View view(FlashcardSpeedRecallSession s, List<FlashcardSpeedRecallAnswer> rows, Answer attempt) {
         FlashcardSpeedRecallAnswer current = rows.get(s.getCurrentQuestionIndex());
         Question question = s.getState() == State.PLAYING || s.getState() == State.PAUSED && s.getPausedFrom() == State.PLAYING
                 ? new Question(current.getId(), current.getQuestionIndex(), current.getQuestionText(), current.getExpectedAnswer(),
                         current.getTimeLimitMs(), instant(current.getDeadlineAt())) : null;
-        Answer feedback = resolved(current) ? dto(current) : null;
+        Answer feedback = attempt != null ? attempt : resolved(current) ? dto(current) : null;
         List<Answer> results = rows.stream().filter(this::resolved).map(this::dto).toList();
         Integer best = null;
         if (s.getState() == State.FINISHED) {

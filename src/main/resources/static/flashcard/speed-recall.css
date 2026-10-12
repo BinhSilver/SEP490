@@ -261,3 +261,34 @@
     transition: none !important;
   }
 }
+
+/* IME fragments stay outside the answer slots until Japanese conversion is confirmed. */
+#jlabBaseContent .sr-ime-preview { flex-basis:100%; min-width:0; overflow-wrap:anywhere; color:var(--color-on-surface-variant); font-size:16px; line-height:1.5; }
+
+/* Page-owned dark mode: flashcard/speed-recall.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head th:replace="~{fragments/head :: standard(${pageTitle}, 'onyomi')}"></head>
-<body id="jlabBasePage" class="app-body onyomi-body">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body onyomi-body">
 <div id="jlabBaseShellMount"></div>
 <div th:replace="~{learning/fragments/welcome-modal :: welcome-modal}"></div>
 
@@ -9,7 +9,7 @@
     <div class="oy-shell">
         <div class="oy-notice" th:if="${course.unrestricted}" role="status">
             <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
-            <span>Chế độ kiểm thử nội dung: tài khoản quản trị được mở mọi bài và bài kiểm tra cuối, không cần học tuần tự.</span>
+            <span>Kiểm tra nội dung: CONTENT_ADMIN, ADMIN và SUPER_ADMIN được mở mọi bài đọc, quy tắc và bài kiểm tra ở tất cả giai đoạn, không cần mở khóa tuần tự.</span>
         </div>
 
         <div class="oy-notice" th:if="${lockedNotice}" role="status">
@@ -22,8 +22,6 @@
             <div>
                 <span class="oy-eyebrow"><i class="fa-solid fa-route" aria-hidden="true"></i> Lộ trình Hán Việt → On</span>
                 <h1>Đoán âm On của Kanji từ âm Hán Việt</h1>
-                <p>Học các quy tắc chuyển âm đầu, âm cuối và vần. Mỗi bài có thẻ ghi nhớ và bài luyện tập đọc từ;
-                    vượt qua bài luyện tập để mở bài tiếp theo, hoàn thành cả giai đoạn để làm bài kiểm tra cuối.</p>
                 <div class="oy-course-hero__actions">
                     <a th:if="${course.currentLessonId != null}" class="oy-button oy-button--primary"
                        th:href="@{/learning/onyomi/lessons/{id}(id=${course.currentLessonId})}">
@@ -101,7 +99,6 @@
                        th:text="'Đã vượt qua, điểm cao nhất ' + ${stage.finalTest.bestScore} + '%.'">Đã vượt qua</p>
                     <p th:if="${!stage.finalTest.passed and stage.finalTest.unlocked}"
                        th:text="${stage.finalTest.bestScore != null} ? 'Điểm cao nhất ' + ${stage.finalTest.bestScore} + '%. Cần từ 60% để mở giai đoạn tiếp theo.' : 'Đã mở khoá. Cần từ 60% để mở giai đoạn tiếp theo.'">Đã mở khoá</p>
-                    <p th:unless="${stage.finalTest.unlocked}">Hoàn thành mọi bài trong giai đoạn để mở khoá.</p>
                 </div>
                 <a th:if="${stage.finalTest.unlocked}" class="oy-button"
                    th:classappend="${stage.finalTest.passed} ? '' : 'oy-button--primary'"

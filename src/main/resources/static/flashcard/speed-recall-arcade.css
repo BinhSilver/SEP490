@@ -1,0 +1,599 @@
+/* Speed recall: purple arcade arena and score screen, scoped to this game only. */
+#jlabBasePage.speed-recall-page #jlabBaseContent {
+  --sr-violet: #4f378a;
+  --sr-violet-light: #e9ddff;
+  --sr-gold: #ffd56a;
+  --sr-orange: #ffb36b;
+  --sr-ink: #261943;
+  --sr-green: #147653;
+  --sr-red: #b3261e;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#playing:not([hidden])),
+#jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#result:not([hidden])) { min-height: 0; padding: 16px 24px 32px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing {
+  background: #faf7ff;
+  border: 1px solid #cbbde8;
+  box-shadow: 0 5px 0 #dfd4f4, 0 16px 32px rgba(79, 55, 138, .1);
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud {
+  background: var(--sr-violet);
+  padding: 10px 20px;
+  gap: 10px;
+  border: 0;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1px 8px;
+  padding: 5px 12px; min-width: 88px;
+  color: #fff; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22);
+  box-shadow: none;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat:first-child::before { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat i { display: block; grid-row: 1 / span 2; align-self: center; color: #e9ddff; font-size: 18px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-hud-label { font-size: 12px; line-height: 1.2; color: #eee6ff; white-space: nowrap; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat strong { min-width: 0; font-size: 19px; line-height: 1.2; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat:nth-child(2) strong,
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat:nth-child(2) i { color: var(--sr-gold); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat:nth-child(3) strong,
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat:nth-child(3) i { color: var(--sr-orange); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control { color: #fff; background: transparent; border-color: rgba(255,255,255,.3); box-shadow: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control:hover { background: rgba(255,255,255,.16); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-run-progress { height: 5px; background: #d6c8ed; overflow: hidden; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-run-progress span { display: block; height: 100%; background: #4be0ba; transform: scaleX(0); transform-origin: left; transition: transform .2s ease; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question {
+  padding: 18px 24px 16px;
+  background-image: linear-gradient(rgba(79,55,138,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(79,55,138,.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question::before { color: var(--sr-violet); background: var(--sr-violet-light); border-color: #cbbde8; font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #question-word { color: var(--sr-ink); text-shadow: 0 3px 0 #e9ddff; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #answer-prompt { max-width: 560px; margin: 6px auto 0; color: #66557e; font-size: 14px; line-height: 1.45; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer { background: #fff; border-color: #d7cbea; box-shadow: 0 2px 0 #e9ddff; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__head,
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__head span { color: #66557e; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #time-left { color: var(--sr-violet); font-size: 18px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__track { height: 8px; margin-top: 6px; background: #eee7f8; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #timer-bar { background: var(--sr-violet); border-radius: 20px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer.is-urgent { border-color: #e69088; background: #fff4f2; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer.is-urgent #time-left { color: var(--sr-red); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer.is-urgent #timer-bar { background: var(--sr-red); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot { background: #fff; color: var(--sr-ink); border-color: #cbbde8; border-radius: 12px; box-shadow: 0 4px 0 #e0d5f4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-active { border-color: var(--sr-violet); box-shadow: 0 4px 0 #cbbde8, 0 0 0 3px rgba(79,55,138,.12); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-correct { color: var(--sr-green); background: #e4f7ee; border-color: #5dbf94; box-shadow: 0 4px 0 #b8e5d0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer { color: var(--sr-ink); background: #fff; border-color: #cbbde8; border-radius: 12px; box-shadow: 0 4px 0 #e0d5f4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer.is-empty { color: #78658f; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback { background: #e9f8f0; border-color: #8ed3b1; color: #194f3a; animation: sr-feedback-land .18s ease-out; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing[data-feedback="TIMEOUT"] .sr-feedback { background: #fff3da; border-color: #dfb457; color: #70400b; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing[data-feedback="WRONG"] .sr-feedback { background: #fff0ef; border-color: #e5a19b; color: #90261e; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #feedback-title { font-size: 18px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #feedback-score { font-weight: 700; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next { background: var(--sr-violet); border-color: var(--sr-violet); box-shadow: 0 3px 0 #34205f; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next:hover { color: #fff; background: #6750a4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-game-next kbd { padding: 2px 5px; color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.4); border-radius: 4px; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1.4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing::after { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-keyboard-hint { margin: 0; padding: 10px 16px; color: #66557e; font-size: 13px; text-align: center; line-height: 1.4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-keyboard-hint { background: #eee7f8; border-top: 1px solid #d7cbea; }
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #result { width: 100%; margin: 0; padding: 0; background: transparent; border: 0; box-shadow: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-banner { display: flex; align-items: center; gap: 16px; padding: 24px; color: #fff; background: var(--sr-violet); border: 1px solid #4f378a; border-radius: 20px 20px 0 0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-emblem { display: grid; place-items: center; flex: 0 0 56px; width: 56px; height: 56px; color: var(--sr-gold); background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-radius: 16px; font-size: 26px; transform: rotate(-6deg); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-heading { min-width: 0; flex: 1; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-title { margin: 0 0 6px; color: #fff; font-size: clamp(24px, 3vw, 30px); line-height: 1.2; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-status { margin: 0; color: #eee6ff; font-size: 14px; line-height: 1.5; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-badge { padding: 7px 12px; color: var(--sr-gold); background: rgba(0,0,0,.12); border: 1px solid rgba(255,213,106,.4); border-radius: 8px; font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result[data-outcome="perfect"] .sr-result-badge { color: #bdffe5; border-color: #6fceaa; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats { display: grid; grid-template-columns: 1.3fr repeat(4, 1fr); gap: 0; margin: 0; padding: 0; overflow: hidden; background: #fff; border: 1px solid #d7cbea; border-top: 0; border-radius: 0 0 20px 20px; box-shadow: 0 5px 0 #dfd4f4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 20px 14px; border: 0; border-left: 1px solid #eee7f8; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div:first-child { padding: 20px; border: 0; background: #fff5d9; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div:last-child { display: flex; padding-right: 14px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats dt { color: #66557e; font-size: 12px; line-height: 1.4; text-transform: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats dt i { margin-right: 3px; color: var(--sr-violet); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats dd { margin: 0; color: var(--sr-ink); font-size: clamp(24px, 3vw, 32px); line-height: 1.2; font-variant-numeric: tabular-nums; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-score { color: #805100; font-size: 44px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-streak { color: #a84805; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-correct { color: var(--sr-green); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #personal-best { display: flex; align-items: center; margin: 18px 0 0; padding: 12px 16px; color: #66557e; background: #eee7f8; border: 1px solid #d7cbea; border-radius: 12px; font-size: 13px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #personal-best:empty { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #review-title { margin: 24px 0 12px; color: var(--sr-ink); font-size: 20px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 16px; background: #fff; border: 1px solid #d7cbea; border-left: 4px solid #d49830; border-radius: 12px; box-shadow: 0 3px 0 #ece5f6; overflow-wrap: anywhere; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li:only-child { grid-column: 1 / -1; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-width: 0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word strong { color: var(--sr-ink); font-size: 24px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word span { color: #66557e; font-size: 16px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-status { align-self: start; padding: 4px 8px; color: #70400b; background: #fff0ca; border-radius: 6px; font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-status.is-wrong { color: #90261e; background: #ffdad6; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-meaning { grid-column: 1 / -1; margin: 0; color: var(--sr-ink); font-size: 16px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-meaning:empty { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-answer { grid-column: 1 / -1; margin: 2px 0 0; color: #66557e; font-size: 13px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #no-mistakes { margin: 20px 0 0; padding: 16px; color: #194f3a; background: #e4f7ee; border: 1px solid #8ed3b1; border-radius: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions { gap: 10px; margin: 24px 0 0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions__continue { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 100%; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-button { min-height: 46px; padding: 10px 18px; color: var(--sr-violet); background: #fff; border-color: #cbbde8; border-radius: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-primary { color: #fff; background: var(--sr-violet); border-color: var(--sr-violet); box-shadow: 0 3px 0 #34205f; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-button:hover { background: #eee7f8; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-primary:hover { background: #6750a4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions #result-back { color: var(--sr-ink); background: #f3eef9; border-color: #b7a8d0; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions #result-back:hover { background: #e9dff4; border-color: #8f79b3; }
+#jlabBasePage.speed-recall-page #jlabBaseContent :is(button, a, [role="button"]):focus-visible { outline: 3px solid #ab91db; outline-offset: 3px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent button:disabled { opacity: .55; cursor: wait; box-shadow: none; }
+@keyframes sr-feedback-land { from { opacity: .5; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#playing:not([hidden])),
+  #jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#result:not([hidden])) { padding-inline: 12px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 10px 12px; gap: 8px; align-items: stretch; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat { min-width: 0; flex: 1; padding: 5px 8px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; margin-left: 0; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control { min-width: 0; white-space: nowrap; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question { padding-inline: 16px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback { width: calc(100% - 24px); }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next kbd { display: none; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-banner { display: grid; grid-template-columns: 44px minmax(0, 1fr); padding: 20px 16px; gap: 10px 12px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-emblem { flex-basis: 44px; width: 44px; height: 44px; font-size: 22px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-badge { grid-column: 2; margin-left: 0; justify-self: start; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div:first-child { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 20px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div { padding: 14px 16px; border-top: 1px solid #eee7f8; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 400px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat { grid-template-columns: minmax(0, 1fr); }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat i { display: none; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat strong { font-size: 18px; }
+}
+
+@media (max-width: 900px) {
+  /* The question is learning content, so keep it larger than the shared mobile page titles. */
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing #question-word[lang="ja"] { font-size: clamp(32px, 8vw, 48px) !important; line-height: 1.25 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback { animation: none; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-run-progress span { transition: none; }
+}
+
+/* Kitsu from Shadowing joins the result screen; a decorative image supports the real result. */
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  margin: 22px 0 0;
+  padding: 8px 24px 8px 12px;
+  background: #f1eaff;
+  border: 1px solid #d7cbea;
+  border-radius: 20px;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent #result[data-outcome="perfect"] .sr-result-mascot { background: #effaf5; border-color: #addbc5; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot__image { display: block; width: 176px; height: 176px; object-fit: contain; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-mascot-title { margin: 0 0 8px; color: var(--sr-violet); font-size: clamp(22px, 3vw, 28px); line-height: 1.25; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-mascot-message { margin: 0; color: #66557e; line-height: 1.5; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #result-mascot-message:empty { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot #no-mistakes { margin: 0; padding: 0; color: #194f3a; background: transparent; border: 0; border-radius: 0; line-height: 1.5; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot #personal-best { display: inline-flex; margin: 12px 0 0; padding: 6px 10px; color: #66557e; background: rgba(255,255,255,.75); border-color: #d7cbea; border-radius: 8px; font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot #personal-best:empty { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-tools { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 12px; margin-top: 10px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-tools button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 12px; color: var(--sr-violet); background: #fff; border: 1px solid #cbbde8; border-radius: 10px; cursor: pointer; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-tools button:hover:not(:disabled) { background: var(--sr-violet-light); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-tools span { color: #66557e; font-size: 12px; }
+@media (max-width: 600px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot { grid-template-columns: 104px minmax(0, 1fr); gap: 10px; padding: 12px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot__image { width: 104px; height: 104px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result #result-mascot-title { font-size: 22px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot #personal-best { font-size: 12px; padding: 6px 8px; }
+}
+
+/* Each mascot image contains its own native looping animation. */
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot__sprite { display: block; width: 176px; height: 176px; }
+@media (max-width: 600px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot__sprite { width: 104px; height: 104px; }
+}
+
+/* Compact review cards remain in one horizontal strip at every screen size. */
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 8px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-heading:has(#review-title[hidden]) { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result #review-title { margin: 0; font-size: 18px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-navigation { display: flex; flex-shrink: 0; gap: 8px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-navigation button { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; color: var(--sr-violet); background: #fff; border: 1px solid #d7cbea; border-radius: 10px; cursor: pointer; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-navigation button:hover:not(:disabled) { background: var(--sr-violet-light); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-navigation button:disabled { cursor: default; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review { display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 10px; max-width: 100%; margin: 0; padding: 3px 2px 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: 2px; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: #b9a2dc #eee7f8; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li { display: flex; flex-direction: column; flex: 0 0 min(248px, 82%); box-sizing: border-box; min-width: 0; height: auto; min-height: 0; max-height: 188px; gap: 6px; padding: 12px; overflow-y: auto; scrollbar-width: thin; scroll-snap-align: start; overflow-wrap: anywhere; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li:only-child { flex-basis: min(248px, 100%); }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word strong { font-size: 20px; line-height: 1.35; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word span { font-size: 14px; line-height: 1.4; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-status { order: -1; align-self: flex-start; padding: 3px 7px; font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-meaning { font-size: 14px; line-height: 1.45; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-answer { margin: 2px 0 0; padding-top: 0; font-size: 12px; line-height: 1.45; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review:focus-visible { outline: 3px solid #ab91db; outline-offset: 3px; border-radius: 12px; }
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li:focus-visible { outline: 3px solid #ab91db; outline-offset: -3px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li > * { flex-shrink: 0; }
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-status { margin: 6px 0 0; color: #90261e; font-size: 14px; line-height: 1.4; }
+
+/* Page-owned dark mode: flashcard/speed-recall-arcade.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent {
+    --sr-violet: var(--dm-flashcard-accent);
+    --sr-violet-light: var(--dm-flashcard-accent);
+    --sr-gold: var(--dm-flashcard-warning);
+    --sr-orange: var(--dm-flashcard-warning);
+    --sr-ink: var(--dm-flashcard-ink);
+    --sr-green: var(--dm-flashcard-success);
+    --sr-red: var(--dm-flashcard-danger-bg)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing {
+    background: var(--dm-flashcard-accent-soft);
+    border: 1px solid var(--dm-flashcard-line);
+    box-shadow: 0 5px 0 #dfd4f4, 0 16px 32px rgba(0, 0, 0, 0.22)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat {
+    color: var(--dm-flashcard-ink);
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-hud__stat i {
+    color: var(--dm-flashcard-accent)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-hud-label {
+    color: var(--dm-flashcard-accent)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control {
+    color: var(--dm-flashcard-ink);
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-control:hover {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-run-progress {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-run-progress span {
+    background: var(--dm-flashcard-success-bg)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question {
+    background-image: linear-gradient(var(--dm-flashcard-raised) 1px, transparent 1px), linear-gradient(90deg, var(--dm-flashcard-raised) 1px, transparent 1px)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question::before {
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing #answer-prompt {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer {
+    background: var(--dm-flashcard-surface);
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__head,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__head span {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer__track {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer.is-urgent {
+    border-color: var(--dm-flashcard-danger-line);
+    background: var(--dm-flashcard-danger-bg)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot {
+    background: var(--dm-flashcard-surface);
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-active {
+    box-shadow: 0 4px 0 #cbbde8, 0 0 0 3px rgba(0, 0, 0, 0.24)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-correct {
+    background: var(--dm-flashcard-success-bg);
+    border-color: var(--dm-flashcard-success-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer {
+    background: var(--dm-flashcard-surface);
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer.is-empty {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-feedback {
+    background: var(--dm-flashcard-success-bg);
+    border-color: var(--dm-flashcard-success-line);
+    color: var(--dm-flashcard-success)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing[data-feedback="TIMEOUT"] .sr-feedback {
+    background: var(--dm-flashcard-warning-bg);
+    border-color: var(--dm-flashcard-warning-line);
+    color: var(--dm-flashcard-warning)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing[data-feedback="WRONG"] .sr-feedback {
+    background: var(--dm-flashcard-danger-bg);
+    border-color: var(--dm-flashcard-danger-line);
+    color: var(--dm-flashcard-danger)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next:hover {
+    color: var(--dm-flashcard-ink);
+    background: var(--dm-flashcard-action)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-game-next kbd {
+    color: var(--dm-flashcard-ink);
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-keyboard-hint {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-keyboard-hint {
+    background: var(--dm-flashcard-accent-soft);
+    border-top: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-banner {
+    border: 1px solid var(--dm-flashcard-line);
+    color: var(--dm-flashcard-on-accent)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-emblem {
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #result-title {
+    color: var(--dm-flashcard-ink)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #result-status {
+    color: var(--dm-flashcard-accent)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-badge {
+    border: 1px solid var(--dm-flashcard-warning-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result[data-outcome="perfect"] .sr-result-badge {
+    color: var(--dm-flashcard-success);
+    border-color: var(--dm-flashcard-success-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats {
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div {
+    border-left: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div:first-child {
+    background: var(--dm-flashcard-warning-bg)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats dt {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #result-score {
+    color: var(--dm-flashcard-warning)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #result-streak {
+    color: var(--dm-flashcard-warning)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #personal-best {
+    color: var(--dm-flashcard-muted);
+    background: var(--dm-flashcard-accent-soft);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li {
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line);
+    border-left: 4px solid var(--dm-flashcard-warning-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-word span {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-status {
+    color: var(--dm-flashcard-warning);
+    background: var(--dm-flashcard-warning-bg)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-status.is-wrong {
+    color: var(--dm-flashcard-danger);
+    background: var(--dm-flashcard-danger-bg)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-answer {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #no-mistakes {
+    color: var(--dm-flashcard-success);
+    background: var(--dm-flashcard-success-bg);
+    border: 1px solid var(--dm-flashcard-success-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-button {
+    background: var(--dm-flashcard-surface);
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-primary {
+    color: var(--dm-flashcard-on-accent)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-button:hover {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-primary:hover {
+    background: var(--dm-flashcard-action)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions #result-back {
+    color: var(--dm-flashcard-ink);
+    background: var(--dm-flashcard-raised);
+    border-color: #66748e
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions #result-back:hover {
+    background: var(--dm-flashcard-accent-soft);
+    border-color: var(--dm-flashcard-accent)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent :is(button, a, [role="button"]):focus-visible {
+    outline: 3px solid var(--dm-flashcard-line)
+}
+@media (max-width: 700px) {
+    html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats > div {
+        border-top: 1px solid var(--dm-flashcard-line)
+    }
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot {
+    background: var(--dm-flashcard-accent-soft);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result[data-outcome="perfect"] .sr-result-mascot {
+    background: var(--dm-flashcard-success-bg);
+    border-color: var(--dm-flashcard-success-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #result-mascot-message {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot #no-mistakes {
+    color: var(--dm-flashcard-success)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-mascot #personal-best {
+    color: var(--dm-flashcard-muted);
+    background: var(--dm-flashcard-surface);
+    border-color: var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-tools button {
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-tools span {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review-navigation button {
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review {
+    scrollbar-color: var(--dm-flashcard-action) var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review:focus-visible {
+    outline: 3px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li:focus-visible {
+    outline: 3px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-answer-status {
+    color: var(--dm-flashcard-danger)
+}
+
+html[data-theme="dark"] #jlabBasePage #eligible-count {
+  color: var(--dm-flashcard-accent);
+  background: var(--dm-flashcard-accent-soft);
+}
+
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-banner {
+  background: var(--dm-flashcard-accent-soft);
+  color: var(--dm-flashcard-ink);
+  border-color: var(--dm-flashcard-line);
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-result-badge {
+  background: var(--dm-flashcard-warning-bg);
+  color: var(--dm-flashcard-warning);
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result #retry-wrong {
+  background: var(--dm-flashcard-action);
+  color: var(--dm-flashcard-ink);
+}
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #setup #eligible-count {
+  background: var(--dm-flashcard-accent-soft);
+  color: var(--dm-flashcard-accent);
+}
+
+/* Setup shares the compact mobile form and inline filter used by the quiz. */
+#jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#setup:not([hidden])) {
+  min-height: 0;
+  padding: 40px 24px 32px;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter {
+  --filter-surface: #fff;
+  --filter-text: #1d1d1f;
+  --filter-line: rgba(80,80,95,.18);
+  --filter-accent: #6256b9;
+  --filter-active: #f0ecff;
+  position: relative;
+  min-width: 0;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter select[hidden] { display: none !important; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  color: var(--filter-text);
+  background: var(--filter-surface);
+  border: 1px solid var(--filter-line);
+  border-radius: 12px;
+  font: 500 16px/1.4 "Plus Jakarta Sans", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__trigger span { min-width: 0; overflow-wrap: anywhere; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__trigger i { flex-shrink: 0; color: var(--filter-accent); font-size: 12px; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__options {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline: 0;
+  z-index: 10;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--filter-surface);
+  border: 1px solid var(--filter-line);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(29,29,31,.12);
+  scrollbar-color: var(--filter-accent) var(--filter-surface);
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__options[hidden] { display: none; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__option {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  color: var(--filter-text);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  font: 500 14px/1.5 "Plus Jakarta Sans", sans-serif;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__option:is(:hover, .is-focused, [aria-selected="true"]) { color: var(--filter-accent); background: var(--filter-active); }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__option[aria-selected="true"] { font-weight: 700; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__trigger:focus-visible { outline: 3px solid var(--filter-accent); outline-offset: 2px; }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter {
+  --filter-surface: var(--dm-flashcard-surface, #171b26);
+  --filter-text: var(--dm-flashcard-ink, #f6f1ff);
+  --filter-line: var(--dm-flashcard-line, #68577f);
+  --filter-accent: var(--dm-flashcard-accent, #c9a5ff);
+  --filter-active: var(--dm-flashcard-accent-soft, #2d233e);
+}
+@media (max-width: 640px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent.sr-main:has(#setup:not([hidden])) { padding: 16px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__heading { margin-bottom: 16px; text-align: left; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-set-title { font-size: 22px; line-height: 1.4; overflow-wrap: anywhere; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__meta { flex-wrap: wrap; justify-content: flex-start; gap: 8px; font-size: 12px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__meta > i { display: none; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__card { min-width: 0; padding: 24px 18px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__help { padding-top: 12px; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__segments button { min-width: 0; overflow-wrap: anywhere; }
+}
