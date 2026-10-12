@@ -168,6 +168,8 @@ CREATE TABLE auth_tokens (
     token_type  VARCHAR(30) NOT NULL,          -- REFRESH/VERIFY_EMAIL/RESET_PASSWORD.
     token_hash  CHAR(64) NOT NULL,             -- Chi luu hash, khong luu token tho.
     otp_hash    CHAR(64) NULL,
+    -- [JLAS-SECURITY] Persistent per-challenge OTP guessing limit.
+    attempt_count INT UNSIGNED NOT NULL DEFAULT 0,
     device_info VARCHAR(255) NULL,
     ip_address  VARCHAR(45) NULL,
     expires_at  DATETIME(6) NOT NULL,
@@ -256,7 +258,7 @@ CREATE TABLE prompt_template (
     UNIQUE KEY uk_prompt_template_code (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tinh huong hoi thoai; flow_json chua state/condition/hint/ending runtime.
+-- [JLAS-W0210] Tinh huong hoi thoai; flow_json chua state/condition/ending runtime.
 CREATE TABLE scenario (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     category_id           BIGINT UNSIGNED NOT NULL,
@@ -272,7 +274,6 @@ CREATE TABLE scenario (
     background            TEXT NULL,
     location              VARCHAR(200) NULL,
     time_of_day           VARCHAR(100) NULL,
-    culture_note          TEXT NULL,
     flow_json             JSON NOT NULL,       -- Cau hinh luong hoi thoai.
     learning_content_json JSON NULL,
     thumbnail_url         VARCHAR(500) NULL,
@@ -2420,6 +2421,8 @@ CREATE TABLE video (
     moderation_status     VARCHAR(20) NOT NULL DEFAULT 'NOT_SCANNED',
     moderation_checked_at DATETIME(6) NULL,
     moderation_summary    VARCHAR(500) NULL,
+    -- [JLAS-SHADOWING-POPULAR] Counter used by valid-view popularity ranking.
+    view_count            INT UNSIGNED NOT NULL DEFAULT 0,
     created_at            DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at            DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                           ON UPDATE CURRENT_TIMESTAMP(6),
@@ -2465,6 +2468,47 @@ CREATE TABLE video_tag (
         REFERENCES video(id) ON DELETE CASCADE,
     CONSTRAINT fk_video_tag_tag FOREIGN KEY (tag_id)
         REFERENCES tag(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-SHADOWING-POPULAR] Valid-view tracking and rewards (also used on fresh installs).
+CREATE TABLE IF NOT EXISTS video_view_tracker (
+    user_id         BIGINT UNSIGNED NOT NULL,
+    video_id        BIGINT UNSIGNED NOT NULL,
+    listened_sec    DECIMAL(10,3) NOT NULL DEFAULT 0,
+    last_ping_at    DATETIME(6) NULL,
+    last_counted_at DATETIME(6) NULL,
+    PRIMARY KEY (user_id, video_id),
+    KEY idx_video_view_tracker_video (video_id),
+    CONSTRAINT fk_video_view_tracker_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_video_view_tracker_video FOREIGN KEY (video_id)
+        REFERENCES video(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS shadowing_view_milestone (
+    video_id   BIGINT UNSIGNED NOT NULL,
+    milestone  INT UNSIGNED NOT NULL,
+    owner_id   BIGINT UNSIGNED NOT NULL,
+    credit     INT UNSIGNED NOT NULL,
+    reached_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (video_id, milestone),
+    CONSTRAINT fk_shadowing_view_milestone_video FOREIGN KEY (video_id)
+        REFERENCES video(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-SHADOWING-POPULAR] Valid view history for the rolling seven-day popularity score.
+-- Keep the accepted-view timestamp; refreshing a page never creates an event.
+CREATE TABLE IF NOT EXISTS shadowing_view_event (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    video_id   BIGINT UNSIGNED NOT NULL,
+    counted_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (user_id, video_id, counted_at),
+    KEY idx_shadowing_view_event_recent (counted_at, video_id),
+    KEY idx_shadowing_view_event_video (video_id),
+    CONSTRAINT fk_shadowing_view_event_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_shadowing_view_event_video FOREIGN KEY (video_id)
+        REFERENCES video(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Watch/rating/favorite video theo user.
@@ -2607,6 +2651,11 @@ CREATE TABLE review_case (
     title_snapshot    VARCHAR(255) NULL,
     reason            VARCHAR(1000) NULL,
     evidence_url      VARCHAR(500) NULL,
+    -- [JLAS-W0250] Private evidence file attached to an appeal (optional alongside its URL).
+    evidence_file_key  VARCHAR(100) NULL,
+    evidence_file_name VARCHAR(200) NULL,
+    evidence_file_type VARCHAR(100) NULL,
+    evidence_file_size BIGINT NULL,
     status            VARCHAR(20) NOT NULL DEFAULT 'OPEN',
     resolution_type   VARCHAR(100) NULL,
     resolution_note   VARCHAR(500) NULL,
@@ -2626,6 +2675,21 @@ CREATE TABLE review_case (
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_review_case_status
         CHECK (status IN ('OPEN','IN_REVIEW','APPROVED','REJECTED','CLOSED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0250] Avatar bytes stay private until SAFE or a moderator approves them.
+CREATE TABLE avatar_submission (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id       BIGINT UNSIGNED NOT NULL,
+    storage_key   VARCHAR(100) NOT NULL,
+    original_name VARCHAR(200) NOT NULL,
+    status        VARCHAR(20) NOT NULL,
+    created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_avatar_submission_storage (storage_key),
+    KEY idx_avatar_submission_user (user_id, id),
+    CONSTRAINT fk_avatar_submission_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_avatar_submission_status CHECK (status IN ('SAFE','REVIEW','BLOCKED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lich su mute/ban cua user.
@@ -2977,8 +3041,24 @@ CREATE TABLE user_permanent_upgrades (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Cua hang Tro choi (migration 009): trang phuc meo / may bay mua bang CP chung.
--- Danh muc mon nam trong code (GameShopCatalog); hai bang nay luu mon da mua va mon dang dung.
--- Mon thuoc game nao suy ra tu item_code qua GameShopCatalog nen user_game_item khong luu game_type (3NF).
+-- [JLAS-XXXX] Admin CRUD skin: danh muc DB, an/xoa mem giu quyen so huu cua nguoi da mua.
+-- Du lieu mau duoc khoi tao rieng boi GameShopSchemaInitializer; khong ghi seed vao schema.
+CREATE TABLE game_shop_skin (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(40) NOT NULL UNIQUE,
+    game_type VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500) NOT NULL DEFAULT '',
+    price INT NOT NULL DEFAULT 0,
+    image VARCHAR(1024) NOT NULL,
+    render_code VARCHAR(40) NOT NULL,
+    starter BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT chk_game_shop_skin_price CHECK (price >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Mon thuoc game nao suy ra tu game_shop_skin; user_game_item khong lap game_type (3NF).
 CREATE TABLE user_game_item (
     user_id      BIGINT UNSIGNED NOT NULL,
     item_code    VARCHAR(40) NOT NULL,
@@ -3187,6 +3267,7 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_item (
     session_id BIGINT UNSIGNED NOT NULL,
     subtitle_id BIGINT UNSIGNED NOT NULL,
     cloze_candidate_id BIGINT UNSIGNED NULL,
+    prepared_question_id BIGINT UNSIGNED NULL, -- [JLAS-W0251]
     position_index INT UNSIGNED NOT NULL,
     difficulty_score TINYINT UNSIGNED NOT NULL,
     answered_at TIMESTAMP(6) NULL,
@@ -3198,7 +3279,8 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_item (
         REFERENCES shadowing_cloze_candidate(id) ON DELETE SET NULL,
     UNIQUE KEY uk_shadowing_practice_item_position (session_id, position_index),
     INDEX idx_shadowing_practice_item_subtitle (subtitle_id),
-    INDEX idx_shadowing_practice_item_candidate (cloze_candidate_id)
+    INDEX idx_shadowing_practice_item_candidate (cloze_candidate_id),
+    INDEX idx_shadowing_practice_item_prepared (prepared_question_id)
 );
 
 CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
@@ -3219,5 +3301,90 @@ CREATE TABLE IF NOT EXISTS shadowing_practice_answer (
 
 
 ALTER TABLE learning_generated_question MODIFY correct_option INT NOT NULL;
+
+-- [JLAS-W0251] Evidence-backed Shadowing question preparation and diagnostic snapshots.
+CREATE TABLE IF NOT EXISTS shadowing_preparation_job (
+    video_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    levels_csv VARCHAR(40) NOT NULL DEFAULT '', kinds_csv VARCHAR(240) NOT NULL DEFAULT '',
+    status VARCHAR(20) NOT NULL DEFAULT 'IDLE', progress TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    error_message VARCHAR(500) NULL, suggestions_csv VARCHAR(240) NULL, suggestion_hash CHAR(64) NULL,
+    targets_csv VARCHAR(300) NULL, capacities_csv VARCHAR(300) NULL,
+    analysis_version VARCHAR(40) NULL, evidence_plans_json MEDIUMTEXT NULL,
+    suggested_jlpt_level VARCHAR(2) NULL, selected_jlpt_level VARCHAR(2) NULL,
+    claim_token CHAR(36) NULL, lease_until TIMESTAMP(6) NULL,
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    CONSTRAINT fk_shadowing_preparation_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE,
+    INDEX idx_shadowing_preparation_status (status, updated_at),
+    UNIQUE KEY uk_shadowing_preparation_claim (claim_token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS shadowing_question_bank (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    video_id BIGINT UNSIGNED NOT NULL, subtitle_id BIGINT UNSIGNED NOT NULL,
+    source_ids_json TEXT NOT NULL, kind VARCHAR(40) NOT NULL, level_code VARCHAR(10) NOT NULL,
+    prompt_text TEXT NOT NULL, answer_text TEXT NOT NULL, choices_json TEXT NOT NULL, explanation TEXT NULL,
+    start_time DECIMAL(10,3) NOT NULL, end_time DECIMAL(10,3) NOT NULL,
+    source_hash CHAR(64) NOT NULL, occurrence_index SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+    content_hash CHAR(64) NOT NULL, status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    CONSTRAINT fk_shadowing_question_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE,
+    CONSTRAINT fk_shadowing_question_subtitle FOREIGN KEY (subtitle_id) REFERENCES subtitle(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_shadowing_question_content (video_id, content_hash),
+    INDEX idx_shadowing_question_pick (video_id, status, level_code, kind)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS shadowing_question_contribution (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    video_id BIGINT UNSIGNED NOT NULL, user_id BIGINT UNSIGNED NOT NULL, created_on DATE NOT NULL,
+    CONSTRAINT fk_shadowing_contribution_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_shadowing_contribution_day (video_id, user_id, created_on)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS shadowing_question_generation_issue (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    video_id BIGINT UNSIGNED NOT NULL, kind VARCHAR(40) NULL, level_code VARCHAR(10) NULL,
+    prompt_text TEXT NULL, answer_text TEXT NULL, choices_json TEXT NULL,
+    source_ids_json TEXT NULL, supplied_ids_json TEXT NULL, evidence_json MEDIUMTEXT NULL,
+    reason VARCHAR(300) NOT NULL, start_time DECIMAL(10,3) NULL,
+    attempt_number TINYINT UNSIGNED NOT NULL, created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    CONSTRAINT fk_shadowing_generation_issue_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE,
+    INDEX idx_shadowing_generation_issue_video (video_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0252] Live Shadowing counters, derived from real interactions.
+-- Re-runnable; does not manufacture votes, views or user activity.
+-- Run after 026_shadowing_popularity.sql on an older database.
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW shadowing_video_statistics AS
+SELECT v.id AS video_id,
+       v.view_count,
+       COALESCE(e.views_last_7_days,0) AS views_last_7_days,
+       r.avg_rating,
+       COALESCE(r.rating_count,0) AS rating_count,
+       COALESCE(r.rating_1,0) AS rating_1,
+       COALESCE(r.rating_2,0) AS rating_2,
+       COALESCE(r.rating_3,0) AS rating_3,
+       COALESCE(r.rating_4,0) AS rating_4,
+       COALESCE(r.rating_5,0) AS rating_5,
+       COALESCE(r.favorite_count,0) AS favorite_count,
+       COALESCE(c.comment_count,0) AS comment_count,
+       COALESCE(s.subtitle_count,0) AS subtitle_count,
+       COALESCE(q.ready_question_count,0) AS ready_question_count,
+       COALESCE(l.series_count,0) AS series_count
+FROM video v
+LEFT JOIN (SELECT video_id, AVG(rating) AS avg_rating, COUNT(rating) AS rating_count,
+                  SUM(rating=1) AS rating_1,SUM(rating=2) AS rating_2,SUM(rating=3) AS rating_3,
+                  SUM(rating=4) AS rating_4,SUM(rating=5) AS rating_5,
+                  SUM(is_favorite) AS favorite_count
+           FROM video_user_state GROUP BY video_id) r ON r.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS views_last_7_days FROM shadowing_view_event
+           WHERE counted_at >= CURRENT_TIMESTAMP(6)-INTERVAL 7 DAY
+             AND counted_at <= CURRENT_TIMESTAMP(6) GROUP BY video_id) e ON e.video_id=v.id
+LEFT JOIN (SELECT target_id,COUNT(*) AS comment_count FROM content_comment
+           WHERE target_type='VIDEO' AND is_hidden=0 GROUP BY target_id) c ON c.target_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS subtitle_count FROM subtitle GROUP BY video_id) s ON s.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS ready_question_count FROM shadowing_question_bank
+           WHERE status='READY' GROUP BY video_id) q ON q.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS series_count FROM shadowing_series_video GROUP BY video_id) l ON l.video_id=v.id;
 
 -- End of canonical schema.

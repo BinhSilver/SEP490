@@ -1,5 +1,5 @@
 -- =============================================================================
--- JLAS - TOÀN BỘ PHẦN BỔ SUNG SAU jlas_schema.sql (gộp từ sql/migrations 001 -> 012)
+-- JLAS - TOÀN BỘ PHẦN BỔ SUNG SAU jlas_schema.sql (gộp từ sql/migrations 001 -> 013)
 --
 -- Thứ tự chạy trên DB mới:
 --   1) mysql -u root -p --default-character-set=utf8mb4 < jlas_schema.sql
@@ -474,7 +474,88 @@ CREATE TABLE IF NOT EXISTS shadowing_view_milestone (
 
 
 -- #############################################################################
--- 013) Giáo trình: kanji gắn tay vào bài học (lesson_kanji)
+-- 013) JLAS-W0205: alternate scenario cases
+-- #############################################################################
+-- [JLAS-W0205] Apply after the original base schema, for both fresh and existing databases.
+-- Run against the intended database; no USE statement. Safe to run again.
+SET @aicall_parent_exists = (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'parent_scenario_id');
+SET @aicall_parent_ddl = IF(@aicall_parent_exists = 0,
+    'ALTER TABLE scenario ADD COLUMN parent_scenario_id BIGINT UNSIGNED NULL, ADD KEY idx_scenario_parent (parent_scenario_id,is_active), ADD CONSTRAINT fk_scenario_parent FOREIGN KEY (parent_scenario_id) REFERENCES scenario(id)',
+    'SELECT 1');
+PREPARE aicall_parent_stmt FROM @aicall_parent_ddl;
+EXECUTE aicall_parent_stmt;
+DEALLOCATE PREPARE aicall_parent_stmt;
+
+SET @aicall_title_exists = (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'variant_title');
+SET @aicall_title_ddl = IF(@aicall_title_exists = 0,
+    'ALTER TABLE scenario ADD COLUMN variant_title VARCHAR(200) NOT NULL DEFAULT ''Tình huống thông thường''',
+    'SELECT 1');
+PREPARE aicall_title_stmt FROM @aicall_title_ddl;
+EXECUTE aicall_title_stmt;
+DEALLOCATE PREPARE aicall_title_stmt;
+
+-- #############################################################################
+-- 014) JLAS-W0206: durable stage progress
+-- #############################################################################
+-- [JLAS-W0206] Durable AI Call stage progress and review attempts. Safe to re-run.
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_code');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_code VARCHAR(100) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_definition_json');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_definition_json JSON NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_cursor');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_cursor INT NOT NULL DEFAULT 0','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_passed');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_passed BOOLEAN NOT NULL DEFAULT FALSE','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='content_review');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN content_review BOOLEAN NOT NULL DEFAULT FALSE','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='current_state_code');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN current_state_code VARCHAR(80) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='completed_objectives');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN completed_objectives JSON NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='last_activity_at');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN last_activity_at DATETIME(6) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_index_exists=(SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='conversation_session' AND index_name='idx_session_stage_progress');
+SET @stage_ddl=IF(@stage_index_exists=0,'ALTER TABLE conversation_session ADD KEY idx_session_stage_progress (user_id,scenario_id,stage_code,stage_passed)','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+-- #############################################################################
+-- 015) Giáo trình: kanji gắn tay vào bài học (lesson_kanji)
 -- #############################################################################
 -- Trang học viên gộp kanji gắn tay với kanji suy ra từ từ vựng của bài, không trùng lặp.
 CREATE TABLE IF NOT EXISTS lesson_kanji (
@@ -491,3 +572,61 @@ CREATE TABLE IF NOT EXISTS lesson_kanji (
     CONSTRAINT fk_lesson_kanji_kanji FOREIGN KEY (kanji_id)
         REFERENCES kanji(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- [JLAS-SHADOWING-POPULAR] Valid view history for the rolling seven-day popularity score.
+-- Keep the accepted-view timestamp; refreshing a page never creates an event.
+CREATE TABLE IF NOT EXISTS shadowing_view_event (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    video_id   BIGINT UNSIGNED NOT NULL,
+    counted_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (user_id, video_id, counted_at),
+    KEY idx_shadowing_view_event_recent (counted_at, video_id),
+    KEY idx_shadowing_view_event_video (video_id),
+    CONSTRAINT fk_shadowing_view_event_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_shadowing_view_event_video FOREIGN KEY (video_id)
+        REFERENCES video(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Recover only the last accepted view actually known by the old tracker.
+-- Older repeated views cannot be reconstructed. Do not infer them from last_watched_at.
+INSERT IGNORE INTO shadowing_view_event (user_id, video_id, counted_at)
+SELECT user_id, video_id, last_counted_at FROM video_view_tracker
+WHERE last_counted_at >= CURRENT_TIMESTAMP(6) - INTERVAL 7 DAY
+  AND last_counted_at <= CURRENT_TIMESTAMP(6);
+
+-- [JLAS-W0252] Live Shadowing counters, derived from real interactions.
+-- Re-runnable; does not manufacture votes, views or user activity.
+-- Run after 026_shadowing_popularity.sql on an older database.
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW shadowing_video_statistics AS
+SELECT v.id AS video_id,
+       v.view_count,
+       COALESCE(e.views_last_7_days,0) AS views_last_7_days,
+       r.avg_rating,
+       COALESCE(r.rating_count,0) AS rating_count,
+       COALESCE(r.rating_1,0) AS rating_1,
+       COALESCE(r.rating_2,0) AS rating_2,
+       COALESCE(r.rating_3,0) AS rating_3,
+       COALESCE(r.rating_4,0) AS rating_4,
+       COALESCE(r.rating_5,0) AS rating_5,
+       COALESCE(r.favorite_count,0) AS favorite_count,
+       COALESCE(c.comment_count,0) AS comment_count,
+       COALESCE(s.subtitle_count,0) AS subtitle_count,
+       COALESCE(q.ready_question_count,0) AS ready_question_count,
+       COALESCE(l.series_count,0) AS series_count
+FROM video v
+LEFT JOIN (SELECT video_id, AVG(rating) AS avg_rating, COUNT(rating) AS rating_count,
+                  SUM(rating=1) AS rating_1,SUM(rating=2) AS rating_2,SUM(rating=3) AS rating_3,
+                  SUM(rating=4) AS rating_4,SUM(rating=5) AS rating_5,
+                  SUM(is_favorite) AS favorite_count
+           FROM video_user_state GROUP BY video_id) r ON r.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS views_last_7_days FROM shadowing_view_event
+           WHERE counted_at >= CURRENT_TIMESTAMP(6)-INTERVAL 7 DAY
+             AND counted_at <= CURRENT_TIMESTAMP(6) GROUP BY video_id) e ON e.video_id=v.id
+LEFT JOIN (SELECT target_id,COUNT(*) AS comment_count FROM content_comment
+           WHERE target_type='VIDEO' AND is_hidden=0 GROUP BY target_id) c ON c.target_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS subtitle_count FROM subtitle GROUP BY video_id) s ON s.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS ready_question_count FROM shadowing_question_bank
+           WHERE status='READY' GROUP BY video_id) q ON q.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS series_count FROM shadowing_series_video GROUP BY video_id) l ON l.video_id=v.id;
