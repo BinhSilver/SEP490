@@ -85,4 +85,3 @@ SET @j023_sql = IF(@j023_exists = 0, 'ALTER TABLE shadowing_question_generation_
 PREPARE j023_stmt FROM @j023_sql;
 EXECUTE j023_stmt;
 DEALLOCATE PREPARE j023_stmt;
-

@@ -1,0 +1,12 @@
+title = "J-LAS secret detection"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Question-bank seed_key values identify content records"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(^|/)questionbank\.sql$''']
+regexTarget = "match"
+regexes = ['''^seed_key\\?"\s*:\s*\\?"''']

@@ -47,4 +47,3 @@ SET @j022_sql = IF(@j022_column_exists = 0,
 PREPARE j022_stmt FROM @j022_sql;
 EXECUTE j022_stmt;
 DEALLOCATE PREPARE j022_stmt;
-
