@@ -1,7 +1,9 @@
 package com.jlas.admin.controller;
 
+import com.jlas.admin.dto.AdminPremiumGrantRequest;
 import com.jlas.admin.dto.AdminReasonRequest;
 import com.jlas.admin.dto.AdminPage;
+import com.jlas.admin.dto.AdminRoleRequest;
 import com.jlas.admin.dto.AdminUserView;
 import com.jlas.admin.service.AdminUserService;
 import com.jlas.auth.dto.ApiResponse;
@@ -42,5 +44,20 @@ public class AdminUserController {
     public ApiResponse<AdminUserView> unlock(@PathVariable Long id, @Valid @RequestBody AdminReasonRequest request,
                                             @AuthenticationPrincipal UserPrincipal actor) {
         return ApiResponse.ok("Đã mở khóa tài khoản", users.unlock(actor.userId(), id, request.getReason()));
+    }
+
+    @PostMapping("/{id}/role")
+    public ApiResponse<AdminUserView> changeRole(@PathVariable Long id, @Valid @RequestBody AdminRoleRequest request,
+                                                @AuthenticationPrincipal UserPrincipal actor) {
+        return ApiResponse.ok("Đã đổi vai trò",
+                users.changeRole(actor.userId(), id, request.getRole(), request.getReason()));
+    }
+
+    @PostMapping("/{id}/premium-grants")
+    public ApiResponse<AdminUserView> grantPremium(@PathVariable Long id,
+                                                  @Valid @RequestBody AdminPremiumGrantRequest request,
+                                                  @AuthenticationPrincipal UserPrincipal actor) {
+        return ApiResponse.ok("Đã cấp Premium", users.grantPremium(actor.userId(), id, request.getPlanId(),
+                request.getDurationDays(), request.getReason()));
     }
 }

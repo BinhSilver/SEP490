@@ -35,12 +35,20 @@ public class AdminUserView {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String japaneseLevel;
 
+    public static final String FREE_PLAN = "FREE";
+
+    /** Same rule as AiCallQuotaService: a non-FREE plan that has not expired yet. */
+    public static boolean premiumActive(User user, LocalDateTime now) {
+        return user.getPremiumPlan() != null && !FREE_PLAN.equalsIgnoreCase(user.getPremiumPlan().getName())
+                && user.getPremiumExpiredAt() != null && user.getPremiumExpiredAt().isAfter(now);
+    }
+
     public static AdminUserView from(User user, boolean detail, LocalDateTime now) {
         return AdminUserView.builder().id(user.getId()).email(user.getEmail())
                 .username(user.getUsername()).fullName(user.getFullName()).role(user.getRole().getName())
                 .loginType(user.getLoginType()).verified(Boolean.TRUE.equals(user.getIsVerified()))
                 .locked(user.getLockedAt() != null).lockedAt(user.getLockedAt())
-                .premiumActive(user.getPremiumExpiredAt() != null && user.getPremiumExpiredAt().isAfter(now))
+                .premiumActive(premiumActive(user, now))
                 .premiumExpiredAt(user.getPremiumExpiredAt()).creditBalance(user.getCreditBalance())
                 .createdAt(user.getCreatedAt()).lastLoginAt(user.getLastLoginAt())
                 .lockedReason(detail ? user.getLockedReason() : null)
