@@ -54,8 +54,8 @@ INSERT IGNORE INTO roles (name, description) VALUES
 
 INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_active) VALUES
     ('FREE',    'Free tier',       0.00, 36500, 1),
-    ('MONTHLY', 'Monthly premium', 9.99, 30,    1),
-    ('YEARLY',  'Yearly premium',  99.99, 365,  1);
+    ('MONTHLY', 'Monthly premium', 10000.00, 30,  1),
+    ('YEARLY',  'Yearly premium',  100000.00, 365, 1);
 
 INSERT IGNORE INTO users
     (role_id, premium_plan_id, email, username, password_hash, login_type,

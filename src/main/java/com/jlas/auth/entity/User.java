@@ -2,6 +2,7 @@ package com.jlas.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "users")
+@DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor

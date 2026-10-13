@@ -323,7 +323,7 @@
       JlasAuth.refreshUser().then(async function (user) {
         var path = window.location.pathname.replace(/\/$/, '') || '/';
         var authPages = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/survey'];
-        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0
+        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0 || path.indexOf('/premium') === 0
             || user.role === 'ADMIN' || user.role === 'MODERATOR') return;
         try {
           var response = await fetch('/api/assessment/survey', { headers: JlasAuth.authHeaders() });
