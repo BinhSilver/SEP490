@@ -3,6 +3,9 @@
 -- 29 sources / 13 curated lists / 41 memberships / 1430 original questions.
 -- Owner explicitly requested approved status: questions READY; moderation SAFE
 -- records MANUAL approval, not a claimed automated scan. No paid API is called.
+-- Optional development/demo engagement is a separate self-contained companion:
+-- sql/seeds/seed_data_shadowing_interactions.sql (sqlrun/05_shadowing_interactions.sql).
+-- Content import never silently creates fictional learner activity on production.
 -- Run in a NEW connection, after the current jlas_schema.sql / deployed migrations.
 -- Required session inputs, supplied by import_seed.py:
 --   @shadowing_seed_owner_id: existing users.id (never creates an account).

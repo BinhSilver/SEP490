@@ -4,11 +4,14 @@ from collections import Counter
 import json
 from pathlib import Path
 from editorial_upgrade import PREPARE, QUESTIONS, JOBS
+from engagement import build_engagement
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data/shadowing"
 OUTPUT = ROOT / "sql/seeds/seed_data_shadowing.sql"
 RUN_OUTPUT = ROOT / "sqlrun/03_datashadowing.sql"
+INTERACTION_OUTPUT = ROOT / "sql/seeds/seed_data_shadowing_interactions.sql"
+INTERACTION_RUN_OUTPUT = ROOT / "sqlrun/05_shadowing_interactions.sql"
 
 
 def sql_json(value):
@@ -73,8 +76,24 @@ def build():
     for output in (OUTPUT, RUN_OUTPUT):
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_bytes(payload)
+    engagement = build_engagement(catalog)
+    interaction_template = Path(__file__).with_name("engagement_template.sql").read_text(encoding="utf-8")
+    interaction_template = interaction_template.replace("{{DEMO_PAYLOAD}}", sql_json(engagement))
+    counts = {"DEMO_USER_COUNT": len(engagement["learners"]), "DEMO_VIDEO_COUNT": len(engagement["videos"]),
+              "DEMO_VIEW_COUNT": len(engagement["events"]), "DEMO_VOTE_COUNT": sum(s["rating"] is not None for s in engagement["states"]),
+              "DEMO_FAVORITE_COUNT": sum(s["favorite"] for s in engagement["states"]), "DEMO_COMMENT_COUNT": len(engagement["comments"])}
+    for token, count in counts.items():
+        interaction_template = interaction_template.replace("{{" + token + "}}", str(count))
+    for output in (INTERACTION_OUTPUT, INTERACTION_RUN_OUTPUT):
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(interaction_template.encode("utf-8"))
+    (DATA / "demo_engagement_report.json").write_text(json.dumps(
+        {"version": engagement["version"], "provenance": engagement["provenance"],
+         "totals": counts, "videos": engagement["summary"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return OUTPUT
 
 
 if __name__ == "__main__":
-    print(build())
+    build()
+    for output in (OUTPUT, RUN_OUTPUT, INTERACTION_OUTPUT, INTERACTION_RUN_OUTPUT):
+        print(output)
