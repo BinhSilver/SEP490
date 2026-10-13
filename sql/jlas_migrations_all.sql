@@ -630,3 +630,121 @@ LEFT JOIN (SELECT video_id,COUNT(*) AS subtitle_count FROM subtitle GROUP BY vid
 LEFT JOIN (SELECT video_id,COUNT(*) AS ready_question_count FROM shadowing_question_bank
            WHERE status='READY' GROUP BY video_id) q ON q.video_id=v.id
 LEFT JOIN (SELECT video_id,COUNT(*) AS series_count FROM shadowing_series_video GROUP BY video_id) l ON l.video_id=v.id;
+
+
+-- #############################################################################
+-- 022a) Auth: OTP attempt accounting (sql/migrations/022_auth_otp_attempts.sql)
+-- #############################################################################
+-- [JLAS-SECURITY] Add persistent OTP attempt accounting without resetting existing data.
+-- Run on the selected J-LAS database before starting the updated application. Re-runnable.
+SET @jlas_otp_ddl = IF(
+    (SELECT COUNT(*) FROM information_schema.columns
+     WHERE table_schema = DATABASE() AND table_name = 'auth_tokens' AND column_name = 'attempt_count') = 0,
+    'ALTER TABLE auth_tokens ADD COLUMN attempt_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER otp_hash',
+    'SELECT 1');
+PREPARE jlas_otp_stmt FROM @jlas_otp_ddl;
+EXECUTE jlas_otp_stmt;
+DEALLOCATE PREPARE jlas_otp_stmt;
+
+
+-- #############################################################################
+-- 022b) Avatar moderation + appeal evidence (sql/migrations/022_avatar_moderation_appeal_evidence.sql)
+-- #############################################################################
+-- [JLAS-W0250] Avatar moderation and private appeal evidence. MySQL 8.0+, re-runnable.
+-- Apply to an existing database before starting the updated app (ddl-auto=validate).
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS avatar_submission (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id       BIGINT UNSIGNED NOT NULL,
+    storage_key   VARCHAR(100) NOT NULL,
+    original_name VARCHAR(200) NOT NULL,
+    status        VARCHAR(20) NOT NULL,
+    created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_avatar_submission_storage (storage_key),
+    KEY idx_avatar_submission_user (user_id, id),
+    CONSTRAINT fk_avatar_submission_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_avatar_submission_status CHECK (status IN ('SAFE','REVIEW','BLOCKED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_key');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_key VARCHAR(100) NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_name');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_name VARCHAR(200) NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_type');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_type VARCHAR(100) NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_size');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_size BIGINT NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+
+-- #############################################################################
+-- 024) AI Call: remove retired preparation resources (sql/migrations/024_ai_call_remove_preparation_resources.sql)
+-- #############################################################################
+-- [JLAS-W0210] Remove retired AI Call preparation metadata.
+-- Safe to rerun. Conversation samples, learning vocabulary/grammar, IDs and sessions stay intact.
+SET NAMES utf8mb4;
+
+UPDATE scenario
+SET flow_json = JSON_REMOVE(flow_json, '$.hints', '$.skillTransfers')
+WHERE JSON_CONTAINS_PATH(flow_json, 'one', '$.hints', '$.skillTransfers');
+
+UPDATE prompt_template
+SET system_prompt = REPLACE(REPLACE(REPLACE(REPLACE(system_prompt,
+    ' Lưu ý văn hóa: {{culture_note}}.', ''),
+    '- Culture note: {{culture_note}}', ''),
+    '{{culture_note}}', ''), '{{hints}}', '')
+WHERE system_prompt LIKE '%{{culture_note}}%' OR system_prompt LIKE '%{{hints}}%';
+
+-- The compact schema stores the retired resources in flow_json and a scalar column.
+SET @drop_culture_note = IF(
+    EXISTS(SELECT 1 FROM information_schema.columns
+           WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'culture_note'),
+    'ALTER TABLE scenario DROP COLUMN culture_note', 'SELECT 1');
+PREPARE cleanup_column FROM @drop_culture_note;
+EXECUTE cleanup_column;
+DEALLOCATE PREPARE cleanup_column;
+
+
+-- #############################################################################
+-- 025) Game shop skin catalog (sql/migrations/025_game_skin_catalog.sql)
+-- #############################################################################
+-- [JLAS-XXXX] Admin CRUD skin. Re-runnable on existing databases.
+-- Current built-in skins are seeded without overwriting admin changes by GameShopSchemaInitializer.
+CREATE TABLE IF NOT EXISTS game_shop_skin (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(40) NOT NULL UNIQUE,
+    game_type VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500) NOT NULL DEFAULT '',
+    price INT NOT NULL DEFAULT 0,
+    image VARCHAR(1024) NOT NULL,
+    render_code VARCHAR(40) NOT NULL,
+    starter BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT chk_game_shop_skin_price CHECK (price >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
