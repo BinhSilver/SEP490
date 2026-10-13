@@ -23,6 +23,9 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Service unavailable"),
     EXTERNAL_SERVICE_ERROR(HttpStatus.BAD_GATEWAY, "External service error"),
     TARGET_NOT_AVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Mục tiêu này đang được phát triển"),
+    KANA_CHALLENGE_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có từ vựng đã duyệt phù hợp để tạo thử thách. Bạn hãy quay lại sau nhé."),
+    KANA_CHALLENGE_LEVEL_INVALID(HttpStatus.BAD_REQUEST, "Cấp độ thử thách chỉ nhận N5, N4, N3, N2, N1 hoặc MIX."),
+    KANA_CHALLENGE_EXPIRED(HttpStatus.CONFLICT, "Thử thách đã sang ngày mới. Hãy tải thử thách hôm nay để tiếp tục."),
     QUIZ_ATTEMPT_LIMIT(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã dùng hết lượt quiz hôm nay, hãy thử lại vào ngày mai"),
     /** [JLAS-W0108] P4/P5 — học liệu/đề chưa đủ để phát quiz (BLOCKED_CONTENT); không phải người học trượt. */
     QUIZ_NOT_READY(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu để tạo bài kiểm tra"),

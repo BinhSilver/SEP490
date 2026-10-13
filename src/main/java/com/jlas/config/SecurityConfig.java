@@ -76,6 +76,7 @@ public class SecurityConfig {
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
+                        .requestMatchers("/api/mission/kana-connect/**").authenticated()
                         .requestMatchers(
                                 "/shadowing", "/shadowing/", "/shadowing/upload",
                                 "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/prepare/**", "/shadowing/practice/**",

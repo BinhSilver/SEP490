@@ -24,6 +24,10 @@ public class MissionSchemaInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        // [JLAS-W0260] Kana Connect: one shared board per local day and level, progress per learner.
+        // Existing databases are upgraded by sql/migrations/029_kana_connect_shared_boards.sql.
+        jdbc.execute(com.jlas.mission.repository.KanaChallengeRepository.CREATE_PUZZLE_TABLE);
+        jdbc.execute(com.jlas.mission.repository.KanaChallengeRepository.CREATE_TABLE);
         jdbc.execute("CREATE TABLE IF NOT EXISTS learning_event_receipt ("
                 + "event_id VARCHAR(120) NOT NULL PRIMARY KEY, "
                 + "user_id BIGINT UNSIGNED NOT NULL, event_type VARCHAR(40) NOT NULL, "
