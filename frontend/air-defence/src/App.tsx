@@ -424,7 +424,7 @@ function QuickGuide({ match }: { match: MatchInfo }) {
     },
     { step: 2, title: "Cách gõ đáp án", desc: typingHint, color: "var(--ok-primary-fixed)" },
     { step: 3, title: "Combo", desc: "Mỗi máy bay bị hạ được 1 điểm. Bắn trúng liên tiếp tăng combo; gõ sai hoặc để địch chạm vạch là mất combo.", color: "var(--ok-tertiary-fixed)" },
-    { step: 4, title: "Giữ máu cho hành tinh", desc: "Địch chạm vạch sẽ trừ máu hành tinh. Hết máu là thua.", color: "var(--ok-error-container)" },
+    { step: 4, title: "Giữ máu cho hành tinh", desc: "Địch chạm vạch sẽ trừ máu hành tinh. Hết máu là thua. Tốc độ tăng sau mỗi 3 thẻ đã qua, đạt tối đa 2 lần sau 10 thẻ.", color: "var(--ok-error-container)" },
   ];
 
   return (

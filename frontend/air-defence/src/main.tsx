@@ -39,6 +39,7 @@ const host: HostConfig = {
   sessionId: data.sessionId || query.get("sid") || "",
   playMode: parseMode(data.mode || query.get("mode")),
   backUrl: data.backUrl || query.get("back") || "/games",
+  roomId: data.roomId || null,
   meId: parseId(data.meId || query.get("me")),
 };
 

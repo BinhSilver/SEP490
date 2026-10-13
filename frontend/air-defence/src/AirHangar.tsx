@@ -92,7 +92,9 @@ export function AirHangar({ starting, onBusyChange }: {
   };
 
   const useSkin = async (item: ShopItemView) => {
+    if (starting || inFlight.current || initialLoad.current) return;
     if (item.equipped || (!item.owned && (balance === null || balance < item.price))) return;
+    if (!item.owned && !window.confirm(`Mua ${item.name} với ${money(item.price)} CP và dùng ngay?`)) return;
     await runAction(item.code, async () => {
       setShopError(null);
       try {

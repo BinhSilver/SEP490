@@ -8,6 +8,7 @@
 // ============================================================================
 
 import { buildReport, matchHooks, useAirDefenseStore } from "./useAirDefenseStore";
+import { gameBackUrl } from '../../../shared/gameNavigation';
 import {
   connectLive,
   errorMessage,
@@ -38,6 +39,7 @@ export interface HostConfig {
   sessionId: string;
   playMode: PlayMode | null;
   backUrl: string;
+  roomId?: string | null;
   meId: number | null;
 }
 
@@ -255,7 +257,7 @@ export async function finishSoloMatch(): Promise<void> {
 /** "Rời trận": trong đối kháng rời trận = thua. */
 export async function leaveMatch(): Promise<void> {
   if (!host) return;
-  const target = host.backUrl;
+  const target = backUrl();
   try {
     await leaveSession(host.sessionId);
   } catch {
@@ -299,7 +301,7 @@ export async function replaySolo(): Promise<void> {
 }
 
 export function backUrl(): string {
-  return host?.backUrl || "/games";
+  return gameBackUrl(useAirDefenseStore.getState().match?.roomId || host?.roomId, host?.backUrl || "/games");
 }
 
 // --------------------------------------------------------------------- boot

@@ -48,8 +48,7 @@ export const GAME_CONFIG = {
     bossMinionReduction: 0.5,        // Giảm 50% số lượng lính ở màn Boss để tập trung vào Boss
     bossScale: 2.6,                  // Kích thước phóng to của Boss khổng lồ (2.6x)
     enemySpawnSpacingY: 12,          // Khoảng cách trục Y giữa các quái khi spawn ngoài màn hình
-    baseSpeed: 0.055,                // Tốc độ rơi cơ bản của quái vật (% chiều cao màn hình / frame)
-    speedWaveMultiplier: 0.011,      // Hệ số tăng tốc độ rơi của quái theo độ cao của Wave
+    baseSpeed: 0.066,                // Giữ tốc độ đợt đầu; nhịp tăng theo số thẻ dùng chung với game mèo
     fastEnemySpeedMult: 1.45,        // Hệ số tốc độ của Quái Tốc Biến (Monster Fast)
     spaceMineSpeedMult: 0.9,         // Hệ số tốc độ của Thủy Lôi Vũ Trụ (Space Mine)
     bossSpeedMult: 0.52,             // Hệ số tốc độ di chuyển của Boss chiến hạm (chậm rãi, nặng nề)

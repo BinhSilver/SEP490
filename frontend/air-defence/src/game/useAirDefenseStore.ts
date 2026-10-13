@@ -8,6 +8,7 @@
 import { create } from "zustand";
 import type { AugmentCard, AudioSettings, FloatingText, GameMode, LootItem, LootItemType, Screen, TargetWord, WeakWord } from "./types";
 import { GAME_CONFIG } from "./gameConfig";
+import { cardSpeedMultiplier } from '../../../shared/cardSpeed';
 import { soundManager } from "./soundEffects";
 import { isPartialAnswer, matchesAnswer } from "./answerMatcher";
 import type { ComboMilestoneData } from "./ComboSplashOverlay";
@@ -199,10 +200,6 @@ function nextTargetId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${targetSerial}`;
 }
 
-function baseSpeedForWave(wave: number): number {
-  return GAME_CONFIG.ENEMIES.baseSpeed + wave * GAME_CONFIG.ENEMIES.speedWaveMultiplier;
-}
-
 export function generateWave(wave: number, words: AirWordView[]): TargetWord[] {
   if (words.length === 0) return [];
   const bossWave = isBossWave(wave);
@@ -219,7 +216,7 @@ export function generateWave(wave: number, words: AirWordView[]): TargetWord[] {
       ...wordFields(bossWord),
       posX: 50,
       posY: -22,
-      speed: baseSpeedForWave(wave) * GAME_CONFIG.ENEMIES.bossSpeedMult,
+      speed: GAME_CONFIG.ENEMIES.baseSpeed * GAME_CONFIG.ENEMIES.bossSpeedMult,
       type: "MINI_BOSS",
       maxHp: scaledBossHp,
       currentHp: scaledBossHp
@@ -253,7 +250,7 @@ export function generateWave(wave: number, words: AirWordView[]): TargetWord[] {
       ...wordFields(v),
       posX: Math.max(12, Math.min(88, posX)),
       posY: posY,
-      speed: baseSpeedForWave(wave),
+      speed: GAME_CONFIG.ENEMIES.baseSpeed,
       type: i % 4 === 0 ? "MONSTER_FAST" : i % 3 === 0 ? "SPACE_MINE" : "MONSTER_NORMAL"
     });
   }
@@ -262,14 +259,14 @@ export function generateWave(wave: number, words: AirWordView[]): TargetWord[] {
 }
 
 /** Mini-boss do đối thủ gửi sang: từ và HP lấy từ AIR_ATTACK. */
-function attackBossTarget(attack: AirAttackView, wave: number): TargetWord {
+function attackBossTarget(attack: AirAttackView): TargetWord {
   const hp = Math.max(1, Math.round(attack.bossHp || 1));
   return {
     id: nextTargetId("attack"),
     ...wordFields(attack.word),
     posX: 28 + Math.random() * 44,
     posY: -18,
-    speed: baseSpeedForWave(wave) * GAME_CONFIG.ENEMIES.bossSpeedMult,
+    speed: GAME_CONFIG.ENEMIES.baseSpeed * GAME_CONFIG.ENEMIES.bossSpeedMult,
     type: "MINI_BOSS",
     maxHp: hp,
     currentHp: hp,
@@ -345,6 +342,8 @@ interface AirDefenseState {
   maxHp: number;
   shield: number;
   score: number;
+  /** Resolved targets (destroyed or missed), independent of combo, waves and deck repeats. */
+  completedCards: number;
   combo: number;
   bestCombo: number;
   creditsEarned: number;
@@ -656,6 +655,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     maxHp: DEFAULT_SHIP.hp,
     shield: GAME_CONFIG.PLAYER.baseShield,
     score: 0,
+    completedCards: 0,
     combo: 0,
     bestCombo: 0,
     creditsEarned: 0,
@@ -791,6 +791,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         bestCombo: Math.max(0, me?.bestCombo ?? 0),
         wrongInputs: Math.max(0, me?.wrongInputs ?? 0)
       };
+      // A reload restores at least all cards in completed waves and the reported kills.
+      const completedCards = Math.max(waveCursorStart(meStats.wave), meStats.score);
 
       // Trận đã xong (tải lại trang sau khi kết thúc) → thẳng màn tổng kết.
       if (state.result || state.status === "FINISHED" || state.status === "ABORTED") {
@@ -798,6 +800,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         set({
           ...common,
           ...meStats,
+          completedCards,
           targets: [],
           inboundBoss: false,
           screen: "debrief",
@@ -829,6 +832,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       set({
         ...common,
         ...restored,
+        completedCards,
         hp,
         screen: mode,
         outcome,
@@ -1223,6 +1227,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         set({
           targets: updatedTargets,
           score: Math.round(score + scoreDelta),
+          completedCards: s.completedCards + (isKilled ? 1 : 0),
           combo: newCombo,
           bestCombo: newBest,
           hits: s.hits + 1,
@@ -1331,6 +1336,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         set({
           targets: updatedTargets,
           score: score + updatedTargets.filter((target) => target.isDead).length * GAME_CONFIG.SCORING.baseScorePerTarget,
+          completedCards: get().completedCards + updatedTargets.filter((target) => target.isDead).length,
           screenShake: true,
           hyperBeamPhase: "firing",
           hyperBeamActive: true
@@ -1423,7 +1429,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
 
       // 0. Mini-boss đối thủ gửi sang (chờ hết chuyển đợt / hyper beam rồi mới thả)
       if (s.pendingAttacks.length > 0 && !s.isTransitioning && s.hyperBeamPhase === "idle") {
-        const spawned = s.pendingAttacks.map((a) => attackBossTarget(a, s.wave));
+        const spawned = s.pendingAttacks.map((a) => attackBossTarget(a));
         set({ targets: [...s.targets, ...spawned], pendingAttacks: [] });
         s = get();
       }
@@ -1441,7 +1447,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
           destroyed += 1;
           return { ...t, isDead: true };
         });
-        set({ targets: updatedTargets, score: s.score + destroyed * GAME_CONFIG.SCORING.baseScorePerTarget });
+        set({ targets: updatedTargets, score: s.score + destroyed * GAME_CONFIG.SCORING.baseScorePerTarget,
+          completedCards: s.completedCards + destroyed });
         s = get();
       }
 
@@ -1456,10 +1463,11 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       if (!s.isTransitioning) {
         let hasDanger = false;
         let damageTaken = 0;
+        let missedCards = 0;
         const remainingTargets: TargetWord[] = [];
         let missedList: WeakWord[] = s.weakWords;
         const hasCryo = s.activeAugments.some((a) => a.id === "CRYO_PAYLOAD");
-        const speedMult = (isFrozen ? 0 : 1) * (hasCryo ? 0.65 : 1.0);
+        const speedMult = (isFrozen ? 0 : 1) * (hasCryo ? 0.65 : 1.0) * cardSpeedMultiplier(s.completedCards);
 
         s.targets.forEach((t) => {
           if (t.isDead) return;
@@ -1470,6 +1478,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
           }
 
           if (newY >= 100) {
+            missedCards += 1;
             damageTaken += t.type === "MINI_BOSS" ? GAME_CONFIG.PLAYER.damagePerEnemyReachBottom * 2 : GAME_CONFIG.PLAYER.damagePerEnemyReachBottom;
             missedList = withWeakWord(missedList, t, t.type === "MINI_BOSS" ? "Trùm chạm vạch" : "Chạm phòng tuyến");
           } else {
@@ -1503,6 +1512,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
             activeComboMilestone: null,
             comboBreakActive: shouldBreak,
             targets: remainingTargets,
+            completedCards: s.completedCards + missedCards,
             weakWords: missedList,
             dangerZoneActive: hasDanger,
             screenShake: true
