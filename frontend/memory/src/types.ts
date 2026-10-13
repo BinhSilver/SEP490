@@ -57,6 +57,7 @@ export interface MemoryResult {
 }
 
 export interface MemoryState {
+  coinToss?: CoinTossState | null
   sessionId: string
   roomId?: string
   playMode: 'SOLO' | 'MULTIPLAYER'
@@ -84,6 +85,15 @@ export interface MemoryState {
   /** Luyện tập: chưa bấm "Bắt đầu" (đang ở màn cài đặt trước ván). */
   awaitingStart: boolean
   serverTime: number
+}
+
+export type CoinSide = 'JLAS' | 'MASCOT'
+export interface CoinTossState {
+  choices: Record<string, CoinSide>
+  result: CoinSide | null
+  starterUserId: number | null
+  startedAt: number | null
+  playStartsAt: number | null
 }
 
 /** Một thẻ của bộ (GET /api/games/decks/{setId}/cards); trường thẻ không có là null. */

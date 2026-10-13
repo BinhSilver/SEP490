@@ -6,6 +6,7 @@ import com.jlas.game.config.GameProperties;
 import com.jlas.game.dto.GameDtos.ResultLine;
 import com.jlas.game.dto.GameDtos.ResultSummary;
 import com.jlas.game.dto.MemoryDtos.MemoryStartRequest;
+import com.jlas.game.dto.MemoryDtos.CoinTossView;
 import com.jlas.game.dto.MemoryDtos.MemoryCardView;
 import com.jlas.game.dto.MemoryDtos.MemoryConfigView;
 import com.jlas.game.dto.MemoryDtos.MemoryEnvelope;
@@ -71,7 +72,7 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
     static final String PAUSED = "MEMORY_PAUSED";
     static final String RESUMED = "MEMORY_RESUMED";
     static final String GAME_OVER = "MEMORY_GAME_OVER";
-    /** Màn "ai đi trước" của client kéo dài ~5,2 giây. */
+    /** Quăng đồng xu, hạ xuống và công bố kết quả trước khi đồng hồ lượt chạy. */
     private static final long VERSUS_INTRO_MS = 5_500;
     /** Luyện tập: bấm "Bắt đầu" rồi đếm ngược 3-2-1 giữa màn hình. */
     private static final long SOLO_COUNTDOWN_MS = 3_000;
@@ -104,7 +105,7 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
                 Math.min(request.options().boardSize(), GameRules.MEMORY_MAX_PAIRS * 2),
                 request.options().objective(), request.options().turnSeconds(),
                 request.options().totalSeconds(), Boolean.TRUE.equals(request.options().keepTurnOnMatch()),
-                properties.memory().revealDelayMs(), false);
+                properties.memory().revealDelayMs(), Boolean.TRUE.equals(request.options().distinguishCardTypes()));
 
         Board board = buildBoard(request.words(), config.pairCount(), request.questionField(), request.answerField());
         List<MemoryCard> cards = board.cards();
@@ -125,29 +126,9 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
             log.info("Memory Match {} chờ bắt đầu ({} thẻ)", session.getSessionId(), cards.size());
             return session;
         }
-        session.withLock(() -> {
-            // Đối kháng: tung xúc xắc thật để chọn người đi trước; đồng hồ lượt đầu chờ hết màn tung xúc xắc.
-            Instant turnStart = now;
-            if (session.isVersus() && request.seats().size() > 1) {
-                // Ghép trận nhanh: người lật trước do tung đồng xu chọn; phòng bạn bè thì bốc ngẫu nhiên.
-                Long firstUserId = request.options().firstUserId();
-                PlayerSeat first = request.seats().stream()
-                        .filter(seat -> firstUserId != null && seat.userId() == firstUserId)
-                        .findFirst()
-                        .orElse(request.seats().get(ThreadLocalRandom.current().nextInt(request.seats().size())));
-                session.setCurrentTurnUserId(first.userId());
-                turnStart = now.plusMillis(VERSUS_INTRO_MS);
-            }
-            session.startTurn(turnStart);
-            session.setPlayStartedAt(turnStart);
-            if ("TIME_ATTACK".equals(config.objective()) && config.totalSeconds() != null) {
-                session.setTotalDeadlineAt(turnStart.plusSeconds(config.totalSeconds()));
-            }
-            session.bumpVersion();
-        });
+        // Hai người chọn mặt trước; chưa chạy bất kỳ đồng hồ lượt/tổng nào ở đây.
+        session.withLock(session::bumpVersion);
         registry.register(session);
-        scheduleTurnTimeout(session);
-        scheduleTotalTimeout(session);
         log.info("Memory Match {} bắt đầu ({} thẻ, {} người chơi)", session.getSessionId(), cards.size(),
                 request.seats().size());
         return session;
@@ -273,6 +254,47 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
     }
 
     @Override
+    public MemoryStateView chooseCoinSide(String sessionId, long userId, String side) {
+        rateLimiter.check(userId, "memory-coin", properties.arena().rateLimit().readyPerMinute());
+        MemorySession session = registry.require(sessionId, MemorySession.class, userId);
+        boolean started = session.withLock(() -> {
+            if (!session.isVersus() || session.getStatus() != SessionStatus.RUNNING) {
+                throw new ApiException(ErrorCode.CONFLICT, "Không chọn mặt đồng xu ở ván này");
+            }
+            if (!List.of("JLAS", "MASCOT").contains(side == null ? "" : side)) {
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn mặt JLAS hoặc mascot");
+            }
+            if (session.getCoinStartedAt() != null) {
+                if (side.equals(session.getCoinChoices().get(userId))) return false;
+                throw new ApiException(ErrorCode.CONFLICT, "Đồng xu đã được tung");
+            }
+            boolean taken = session.getCoinChoices().entrySet().stream()
+                    .anyMatch(entry -> entry.getKey() != userId && side.equals(entry.getValue()));
+            if (taken) throw new ApiException(ErrorCode.CONFLICT, "Đối thủ đã chọn mặt này. Chọn mặt còn lại nhé");
+            session.getCoinChoices().put(userId, side);
+            Instant now = Instant.now();
+            session.touch(now);
+            session.bumpVersion();
+            if (session.getCoinChoices().size() < 2) return false;
+            // Ghép nhanh giữ quyền đi trước đã chốt ở bước draft; phòng bạn bè tung ngẫu nhiên trên server.
+            Long drafted = session.getDraftedFirstUserId();
+            long starter = drafted != null && session.getCoinChoices().containsKey(drafted) ? drafted
+                    : session.orderedPlayers().get(ThreadLocalRandom.current().nextInt(2)).getUserId();
+            session.startCoin(session.getCoinChoices().get(starter), starter, now);
+            Instant playAt = now.plusMillis(VERSUS_INTRO_MS);
+            session.setCurrentTurnUserId(starter);
+            session.startTurn(playAt);
+            session.setPlayStartedAt(playAt);
+            if ("TIME_ATTACK".equals(session.getConfig().objective())) {
+                session.setTotalDeadlineAt(playAt.plusSeconds(session.getConfig().totalSeconds()));
+            }
+            return true;
+        });
+        if (started) { scheduleTurnTimeout(session); scheduleTotalTimeout(session); }
+        return broadcast(session, SESSION_STATE);
+    }
+
+    @Override
     public MemoryStateView flip(String sessionId, long userId, String cardInstanceId) {
         rateLimiter.check(userId, "memory-flip", properties.arena().rateLimit().flipPerMinute());
         MemorySession session = registry.require(sessionId, MemorySession.class, userId);
@@ -298,6 +320,9 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
         }
         if (session.isAwaitingStart()) {
             throw new ApiException(ErrorCode.CONFLICT, "Bấm \"Bắt đầu\" để vào ván");
+        }
+        if (session.isVersus() && session.getCoinStartedAt() == null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Hai người cần chọn mặt đồng xu trước");
         }
         if (session.getPlayStartedAt() != null && Instant.now().isBefore(session.getPlayStartedAt().minusMillis(300))) {
             throw new ApiException(ErrorCode.CONFLICT, "Ván chưa bắt đầu");
@@ -713,7 +738,9 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
                 millis(session.getTurnStartedAt()), millis(session.getTurnDeadlineAt()),
                 millis(session.getTotalDeadlineAt()), session.elapsedMs(now), session.getOutcome(),
                 session.isVersus(), finished ? toResultView(session, now) : null, session.getDeckId(),
-                session.getDeckTitle(), session.isAwaitingStart(), now.toEpochMilli());
+                session.getDeckTitle(), session.isAwaitingStart(), now.toEpochMilli(), session.isVersus()
+                ? new CoinTossView(Map.copyOf(session.getCoinChoices()), session.getCoinResult(), session.getCoinStarterUserId(),
+                    millis(session.getCoinStartedAt()), millis(session.getPlayStartedAt())) : null);
     }
 
     /** Chỉ gọi khi ván đã xong: danh sách từ chính là đáp án của cả bàn. */

@@ -1,4 +1,5 @@
-import { PlayerPanel, DiceRollOverlay, ResultPanel } from './MemoryEffects';
+import { PlayerPanel, ResultPanel } from './MemoryEffects';
+import { CoinTossOverlay } from './CoinTossOverlay'
 import { MemoryCardButton } from './MemoryCardButton'
 import { MemoryIcon } from './MemoryIcon'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
@@ -94,12 +95,11 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   })
   const [volumeOpen, setVolumeOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [showDiceRoll, setShowDiceRoll] = useState(false)
+  const [showCoinToss, setShowCoinToss] = useState(false)
   const [deckCards, setDeckCards] = useState<DeckCardView[] | null>(null)
   const [starting, setStarting] = useState(false)
   const [setupError, setSetupError] = useState<string | null>(null)
   const countdownBeepRef = useRef<number | null>(null)
-  const diceSessionRef = useRef<string | null>(null)
   const soundEnabledRef = useRef(soundEnabled)
   const settingsRef = useRef<HTMLDivElement | null>(null)
   const settingsToggleRef = useRef<HTMLButtonElement | null>(null)
@@ -240,11 +240,9 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   }, [state?.players, userId])
 
   useEffect(() => {
-    if (!state || state.playMode !== 'MULTIPLAYER' || state.status !== 'RUNNING' || state.players.length < 2) return
-    if (diceSessionRef.current === state.sessionId) return
-    diceSessionRef.current = state.sessionId
-    setShowDiceRoll(true)
-  }, [state?.sessionId, state?.playMode, state?.status, state?.players.length])
+    if (!state || state.playMode !== 'MULTIPLAYER' || state.status !== 'RUNNING' || !state.coinToss) return
+    setShowCoinToss(state.coinToss.playStartsAt == null || state.serverTime < state.coinToss.playStartsAt)
+  }, [state?.sessionId, state?.status, state?.coinToss?.playStartsAt])
 
   useEffect(() => {
     const previous = previousStatusRef.current
@@ -253,8 +251,9 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   }, [soundEnabled, state?.status])
 
   const serverNow = storeRef.current?.serverNow() ?? now
-  const turnLeft = secondsLeft(state?.turnDeadlineAt, serverNow)
-  const totalLeft = secondsLeft(state?.totalDeadlineAt, serverNow)
+  const countdownNow = Math.max(serverNow, state?.coinToss?.playStartsAt ?? serverNow)
+  const turnLeft = secondsLeft(state?.turnDeadlineAt, countdownNow)
+  const totalLeft = secondsLeft(state?.totalDeadlineAt, countdownNow)
   const me = state?.players.find((player) => player.userId === userId)
   const myTurn = state?.playMode === 'SOLO' || state?.currentTurnUserId === userId
   const boardRef = useRef<HTMLDivElement>(null)
@@ -291,7 +290,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
     countdownBeepRef.current = soloCountdown
     if (soundEnabled) playCountdownSfx(soloCountdown)
   }, [soloCountdown, soundEnabled])
-  const canFlip = Boolean(state && !showDiceRoll && soloCountdown == null && state.status === 'RUNNING' && !state.resolving && myTurn && connection === 'online')
+  const canFlip = Boolean(state && !showCoinToss && soloCountdown == null && state.status === 'RUNNING' && !state.resolving && myTurn && connection === 'online')
 
   const flip = (cardId: string) => {
     setError(null)
@@ -592,12 +591,13 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
         </div>
       )}
       <AnimatePresence>
-        {showDiceRoll && state.playMode === 'MULTIPLAYER' && state.players.length >= 2 && (
-          <DiceRollOverlay
-            players={state.players}
-            starterIndex={state.players.findIndex((player) => player.userId === state.currentTurnUserId) === 1 ? 1 : 0}
-            onStart={() => setShowDiceRoll(false)}
-          />
+        {showCoinToss && state.playMode === 'MULTIPLAYER' && state.coinToss && (
+          <CoinTossOverlay coin={state.coinToss} players={state.players} meId={userId} serverNow={serverNow}
+            onChoose={async (side) => {
+              const next = await window.JlasArena.api.post<MemoryState>(`/api/games/memory/${sessionId}/coin`, { side })
+              storeRef.current?.applyState(next)
+            }}
+            onDone={() => setShowCoinToss(false)} onLeave={() => { void backFromSetup() }} />
         )}
       </AnimatePresence>
     </main>

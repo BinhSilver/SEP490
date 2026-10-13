@@ -43,8 +43,22 @@ public class MemorySession extends GameSession {
     private Map<Integer, GameWord> pairWords;
     /** Luyện tập: chưa bấm "Bắt đầu" (bàn và cài đặt còn đổi được ở màn cài đặt). */
     private boolean awaitingStart;
-    /** Lúc bắt đầu tính giờ chơi (sau màn đếm ngược / tung xúc xắc). */
+    /** Lúc bắt đầu tính giờ chơi (sau màn đếm ngược / tung đồng xu). */
     private Instant playStartedAt;
+    private final Map<Long, String> coinChoices = new LinkedHashMap<>();
+    private String coinResult;
+    private Instant coinStartedAt;
+    private Long coinStarterUserId;
+    private final Long draftedFirstUserId;
+
+    public Map<Long, String> getCoinChoices() { return coinChoices; }
+    public String getCoinResult() { return coinResult; }
+    public Instant getCoinStartedAt() { return coinStartedAt; }
+    public Long getCoinStarterUserId() { return coinStarterUserId; }
+    public Long getDraftedFirstUserId() { return draftedFirstUserId; }
+    public void startCoin(String result, long starter, Instant now) {
+        coinResult = result; coinStarterUserId = starter; coinStartedAt = now;
+    }
     private final Map<Long, MemoryPlayer> players = new LinkedHashMap<>();
     private final List<Long> turnOrder = new ArrayList<>();
     private final Map<Integer, Integer> mistakesByPair = new LinkedHashMap<>();
@@ -66,6 +80,7 @@ public class MemorySession extends GameSession {
     public MemorySession(LaunchRequest launch, Config config, List<MemoryCard> cards,
                          Map<Integer, GameWord> pairWords, Instant createdAt) {
         super(GameType.MEMORY_MATCH, launch, createdAt);
+        draftedFirstUserId = launch.options().firstUserId();
         rebuild(config, cards, pairWords);
     }
 
@@ -263,7 +278,7 @@ public class MemorySession extends GameSession {
     }
 
     public long elapsedMs(Instant now) {
-        if (awaitingStart) {
+        if (awaitingStart || (isVersus() && playStartedAt == null)) {
             return 0;
         }
         Instant start = playStartedAt != null ? playStartedAt : getCreatedAt();

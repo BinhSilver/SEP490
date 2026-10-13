@@ -1,18 +1,16 @@
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
-import { playCountdownSfx } from './sfx';
 import type { DeckField } from './cardTypes';
-export interface DicePlayer { userId:number; displayName:string; avatar?:string; pairsFound:number; mistakes:number; moves:number; streak:number; connected:boolean; }
+export interface MemoryEffectPlayer { userId:number; displayName:string; avatar?:string; pairsFound:number; mistakes:number; moves:number; streak:number; connected:boolean; }
 export interface MemoryResultView {
   playMode:'SOLO'|'MULTIPLAYER'; status:'RUNNING'|'PAUSED'|'FINISHED'|'ABORTED'; outcome?:'CLEARED'|'TIME_UP'|'ABANDONED';
-  config:{questionField:DeckField;answerField:DeckField}; players:DicePlayer[]; pairsMatched:number;pairsTotal:number;movesUsed:number;elapsedMs:number;
+  config:{questionField:DeckField;answerField:DeckField}; players:MemoryEffectPlayer[]; pairsMatched:number;pairsTotal:number;movesUsed:number;elapsedMs:number;
   result?:{success:boolean;draw:boolean;winnerUserId?:number;durationMs:number;strugglingTerms?:{question:string;answer:string;reading?:string;meaning?:string;hanViet?:string}[]};
 }
 function isJapaneseField(field?:DeckField) { return field === 'KANJI' || field === 'HIRAGANA'; }
 function initials(name:string) { return name.trim().split(/\s+/).slice(-2).map(part=>part[0]).join('').toUpperCase(); }
 function formatDuration(ms:number) { const seconds=Math.max(0,Math.floor(ms/1000)); return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`; }
 export function PlayerPanel({ player, isMe, side, active }: {
-  player?: DicePlayer
+  player?: MemoryEffectPlayer
   isMe?: boolean
   side: 'sakura' | 'kaito'
   active: boolean
@@ -30,90 +28,6 @@ export function PlayerPanel({ player, isMe, side, active }: {
       <div className="memory-player-panel__score"><small>ĐIỂM</small><strong>{score}</strong></div>
       {player && <div className="memory-player-panel__pairs">Cặp đã tìm <strong>{player.pairsFound}</strong></div>}
     </aside>
-  )
-}
-
-function DiceFace({ value, rolling }: { value: number; rolling: boolean }) {
-  return (
-    <motion.div
-      className={`memory-dice-face ${rolling ? 'is-rolling' : ''}`}
-      animate={rolling ? { rotate: [0, -10, 10, -8, 8, 0], scale: [1, 1.08, 1] } : { rotate: 0, scale: 1 }}
-      transition={rolling ? { duration: 0.55, repeat: Infinity } : { duration: 0.22 }}
-      aria-label={`Xúc xắc ${value}`}
-    >
-      {Array.from({ length: value }, (_, index) => <i key={index} />)}
-    </motion.div>
-  )
-}
-
-export function DiceRollOverlay({
-  players,
-  starterIndex,
-  onStart,
-  onCountdown = playCountdownSfx
-}: {
-  players: DicePlayer[]
-  starterIndex: number
-  onStart: () => void
-  onCountdown?: (step: number) => void
-}) {
-  const [rolling, setRolling] = useState(true)
-  const [countdown, setCountdown] = useState(3)
-  const [values, setValues] = useState<[number, number]>([4, 2])
-  const starter = players[starterIndex]
-
-  useEffect(() => {
-    let step = 3
-    onCountdown(step)
-    const timer = window.setInterval(() => {
-      step -= 1
-      if (step > 0) {
-        setCountdown(step)
-        onCountdown(step)
-        return
-      }
-      window.clearInterval(timer)
-      setCountdown(0)
-      setValues(starterIndex === 0 ? [4, 2] : [2, 4])
-      setRolling(false)
-      onCountdown(1)
-    }, 700)
-    return () => window.clearInterval(timer)
-  }, [starterIndex, onCountdown])
-
-  // App vẽ lại mỗi 250 ms nên onStart luôn là hàm mới; giữ nó trong ref để bộ đếm 5,2 giây không bị đặt lại mãi.
-  const onStartRef = useRef(onStart)
-  onStartRef.current = onStart
-  useEffect(() => {
-    const timer = window.setTimeout(() => onStartRef.current(), 5200)
-    return () => window.clearTimeout(timer)
-  }, [])
-
-  return (
-    <motion.div className="memory-dice-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-labelledby="memory-dice-title">
-      <motion.section className="memory-dice-dialog" initial={{ y: 22, scale: .96 }} animate={{ y: 0, scale: 1 }}>
-        <p className="memory-dice-kicker">VÒNG ĐẤU BẮT ĐẦU</p>
-        <h2 id="memory-dice-title">Ai đi trước?</h2>
-        <p className="memory-dice-subtitle">Xem ai được lật thẻ trước</p>
-        <div className="memory-dice-countdown" aria-live="assertive">{countdown || 'GO!'}</div>
-        <div className="memory-dice-players">
-          {players.slice(0, 2).map((player, index) => (
-            <div className={`memory-dice-player ${index === starterIndex && !rolling ? 'is-winner' : ''}`} key={player.userId}>
-              <div className="memory-dice-avatar">{player.avatar ? <img src={player.avatar} alt="" /> : initials(player.displayName)}</div>
-              <strong>{player.displayName}</strong>
-              <DiceFace value={values[index]} rolling={rolling} />
-              <small>{rolling ? 'Đang tung…' : index === starterIndex ? 'Đi trước' : 'Đi sau'}</small>
-            </div>
-          ))}
-        </div>
-        <motion.p className="memory-dice-result" animate={{ opacity: rolling ? 0 : 1, y: rolling ? 5 : 0 }}>
-          {starter?.displayName} đi trước!
-        </motion.p>
-        <button className="memory-btn memory-btn--primary memory-dice-start" type="button" onClick={onStart} disabled={rolling}>
-          {rolling ? 'ĐANG TUNG XÚC XẮC…' : 'BẮT ĐẦU'}
-        </button>
-      </motion.section>
-    </motion.div>
   )
 }
 
