@@ -10,7 +10,7 @@
 --   sa.premium@jlab.local        LEARNER      MONTHLY con 20 ngay (de thu cap Premium cong don)
 --   sa.expired@jlab.local        LEARNER      MONTHLY het han 3 ngay truoc (cap lai tinh tu hien tai)
 --   sa.locked@jlab.local         LEARNER      dang bi khoa (de thu mo khoa / dang nhap bi chan)
---   sa.creator@jlab.local        CONTENT_CREATOR (Content Admin)
+--   sa.creator@jlab.local        CONTENT_CREATOR
 --   sa.moderator@jlab.local      MODERATOR
 --
 -- password_hash sinh bang BCryptPasswordEncoder() cua ung dung (spring-security-crypto, cost 10)
@@ -27,10 +27,9 @@ SET @pwd = '$2a$10$yrDCDiLvOCDGGxVtwayGlexqXVOsjMUAtxAQSNPtKAMlykbppPnXa';
 
 INSERT IGNORE INTO roles (name, description) VALUES
     ('LEARNER',         'Learner'),
-    ('CONTENT_CREATOR', 'Content Admin: soan va quan ly noi dung hoc'),
+    ('CONTENT_CREATOR', 'Content Creator: soan, quan ly va duyet noi dung hoc'),
     ('MODERATOR',       'Kiem duyet noi dung cong dong, tu khoa cam, khang nghi, dong gop tu dien'),
-    ('ADMIN',           'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung'),
-    ('SUPER_ADMIN',     'System Admin');
+    ('SUPER_ADMIN',     'System Admin: quan tri he thong, kiem duyet va che tai nguoi dung');
 
 INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_active) VALUES
     ('FREE',    'Free tier',       0.00, 36500, 1),

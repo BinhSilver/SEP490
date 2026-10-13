@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface AdminUserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
@@ -22,4 +24,24 @@ public interface AdminUserRepository extends JpaRepository<User, Long>, JpaSpeci
     Optional<User> findForUpdate(@Param("id") Long id);
 
     long countByRole_NameAndLockedAtIsNull(String role);
+
+    // ── Dashboard ──────────────────────────────────────────────────────────
+    @Query("select r.name, count(u) from User u join u.role r group by r.name")
+    List<Object[]> countByRoleName();
+
+    long countByLockedAtIsNotNull();
+
+    long countByIsVerifiedFalse();
+
+    long countByCreatedAtGreaterThanEqual(LocalDateTime from);
+
+    /** Same Premium rule as everywhere else: a non-FREE plan that has not expired yet. */
+    @Query("select count(u) from User u where u.premiumPlan is not null"
+            + " and upper(u.premiumPlan.name) <> 'FREE' and u.premiumExpiredAt > :now")
+    long countActivePremium(@Param("now") LocalDateTime now);
+
+    /** [planId, accounts whose Premium on that plan is still running]. */
+    @Query("select u.premiumPlan.id, count(u) from User u where u.premiumPlan is not null"
+            + " and u.premiumExpiredAt > :now group by u.premiumPlan.id")
+    List<Object[]> countRunningByPlan(@Param("now") LocalDateTime now);
 }

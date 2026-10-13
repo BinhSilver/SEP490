@@ -18,7 +18,7 @@
 -- Chạy lại nhiều lần được: không nhân đôi dữ liệu.
 --
 -- Tài khoản:
---   demo@jlab.local / admin@jlab.local / content@jlab.local (CONTENT_ADMIN)
+--   demo@jlab.local / admin@jlab.local (SUPER_ADMIN) / content@jlab.local (CONTENT_CREATOR)
 --                                                 mật khẩu Password123!
 --   admin@jlas.local, mod@jlas.local, learner.mute|ban|clean@jlas.local
 --                                                 mật khẩu Test@12345
@@ -42,15 +42,14 @@ SET SQL_SAFE_UPDATES = 0;
 
 -- =============================================================================
 -- 1) Vai trò, gói premium và 3 tài khoản demo
---    demo@jlab.local (LEARNER), admin@jlab.local (ADMIN) và content@jlab.local (CONTENT_ADMIN,
+--    demo@jlab.local (LEARNER), admin@jlab.local (SUPER_ADMIN) và content@jlab.local (CONTENT_CREATOR,
 --    được mở toàn bộ lộ trình Onyomi để kiểm tra nội dung), mật khẩu: Password123!
 -- =============================================================================
 INSERT IGNORE INTO roles (name, description) VALUES
     ('LEARNER',     'Learner'),
-    ('CONTENT_ADMIN', 'Soan va kiem tra noi dung hoc'),
+    ('CONTENT_CREATOR', 'Content Creator: soan, quan ly va duyet noi dung hoc'),
     ('MODERATOR',   'Kiem duyet noi dung cong dong, tu khoa cam, khang nghi, dong gop tu dien'),
-    ('ADMIN',       'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung'),
-    ('SUPER_ADMIN', 'Quan tri cao nhat');
+    ('SUPER_ADMIN', 'System Admin: quan tri he thong, kiem duyet va che tai nguoi dung');
 
 INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_active) VALUES
     ('FREE',    'Free tier',       0.00, 36500, 1),
@@ -64,10 +63,10 @@ VALUES
     ((SELECT id FROM roles WHERE name = 'LEARNER'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
      'demo@jlab.local', 'demo', '$2a$10$6rwQqFQw0OsYuuC2OMa3/uLm..ThobaeqDWqSaLAHQUG8GSoJHUmi',
      'LOCAL', 'Demo Learner', 'OTHER', 'N5', 52, 1),
-    ((SELECT id FROM roles WHERE name = 'ADMIN'), (SELECT id FROM premium_plans WHERE name = 'MONTHLY'),
+    ((SELECT id FROM roles WHERE name = 'SUPER_ADMIN'), (SELECT id FROM premium_plans WHERE name = 'MONTHLY'),
      'admin@jlab.local', 'admin', '$2a$10$6rwQqFQw0OsYuuC2OMa3/uLm..ThobaeqDWqSaLAHQUG8GSoJHUmi',
      'LOCAL', 'Demo Administrator', 'OTHER', 'N1', 0, 1),
-    ((SELECT id FROM roles WHERE name = 'CONTENT_ADMIN'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
+    ((SELECT id FROM roles WHERE name = 'CONTENT_CREATOR'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
      'content@jlab.local', 'content', '$2a$10$6rwQqFQw0OsYuuC2OMa3/uLm..ThobaeqDWqSaLAHQUG8GSoJHUmi',
      'LOCAL', 'Demo Content Admin', 'OTHER', 'N3', 0, 1);
 
@@ -3734,7 +3733,7 @@ DELETE FROM moderation_audit_log
 -- ── 2) Test accounts (email + password login) ─────────────────────────────
 -- Tạo nếu chưa có; nếu đã có thì chỉ đặt lại vai trò, mật khẩu và tên hiển thị.
 INSERT INTO users (role_id, email, password_hash, login_type, full_name, is_verified) VALUES
-  ((SELECT id FROM roles WHERE name = 'ADMIN'),     'admin@jlas.local',         @pwd, 'LOCAL', 'Quản trị viên (test)', 1),
+  ((SELECT id FROM roles WHERE name = 'SUPER_ADMIN'), 'admin@jlas.local',       @pwd, 'LOCAL', 'Quản trị hệ thống (test)', 1),
   ((SELECT id FROM roles WHERE name = 'MODERATOR'), 'mod@jlas.local',           @pwd, 'LOCAL', 'Kiểm duyệt viên (test)', 1),
   ((SELECT id FROM roles WHERE name = 'LEARNER'),   'learner.mute@jlas.local',  @pwd, 'LOCAL', 'Nguyễn Văn An (bị cấm bình luận)', 1),
   ((SELECT id FROM roles WHERE name = 'LEARNER'),   'learner.ban@jlas.local',   @pwd, 'LOCAL', 'Trần Thị Bình (bị khoá)', 1),

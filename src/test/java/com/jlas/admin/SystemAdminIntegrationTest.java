@@ -5,6 +5,7 @@ import com.jlas.admin.service.AdminAuditService;
 import com.jlas.admin.service.AdminUserService;
 import com.jlas.auth.dto.LoginRequest;
 import com.jlas.auth.dto.LoginResponse;
+import com.jlas.auth.entity.Payment;
 import com.jlas.auth.entity.PremiumPlan;
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
@@ -80,6 +81,7 @@ class SystemAdminIntegrationTest {
         logs.deleteAll();
         tokens.deleteAll();
         jdbc.update("DELETE FROM user_notification");
+        payments.deleteAll();
         users.deleteAll();
         plans.deleteAll();
         superAdmin = createUser("super", "SUPER_ADMIN");
@@ -88,27 +90,31 @@ class SystemAdminIntegrationTest {
     }
 
     @Test
-    void adminAndModerationPermissionsAreSeparate() throws Exception {
-        User ordinaryAdmin = createUser("admin", "ADMIN");
+    void fourRolesShareTheAdminAreaAsDecided() throws Exception {
         User moderator = createUser("moderator", "MODERATOR");
-        for (User denied : new User[]{learner, ordinaryAdmin, moderator}) {
-            mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(jwt(denied))))
-                    .andExpect(status().isForbidden());
-            mvc.perform(get("/api/admin/system/audit-logs").header("Authorization", bearer(jwt(denied))))
-                    .andExpect(status().isForbidden());
-            mvc.perform(get("/admin/system/users").header("Authorization", bearer(jwt(denied))))
-                    .andExpect(status().isForbidden());
+        User creator = createUser("creator", "CONTENT_CREATOR");
+        for (User denied : new User[]{learner, moderator, creator}) {
+            for (String page : new String[]{"/api/admin/system/users", "/api/admin/system/audit-logs",
+                    "/api/admin/system/dashboard", "/api/admin/system/premium-plans", "/api/admin/system/payments",
+                    "/admin/system/users"}) {
+                mvc.perform(get(page).header("Authorization", bearer(jwt(denied))))
+                        .andExpect(status().isForbidden());
+            }
         }
-        mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(adminToken)))
+        // System Admin also runs moderation, including user sanctions.
+        for (String page : new String[]{"/api/admin/system/users", "/api/admin/moderation/queue",
+                "/api/admin/moderation/appeals", "/api/admin/moderation/denylist",
+                "/api/admin/moderation/sanctions/active", "/admin/moderation/queue"}) {
+            mvc.perform(get(page).header("Authorization", bearer(adminToken))).andExpect(status().isOk());
+        }
+        // Moderators moderate but cannot sanction users; learners and content creators stay out.
+        mvc.perform(get("/api/admin/moderation/queue").header("Authorization", bearer(jwt(moderator))))
                 .andExpect(status().isOk());
-        for (String moderationOnly : new String[]{"/api/admin/moderation/queue", "/api/admin/moderation/appeals",
-                "/api/admin/moderation/denylist", "/api/admin/moderation/sanctions/active", "/admin/moderation/queue"}) {
-            mvc.perform(get(moderationOnly).header("Authorization", bearer(adminToken)))
+        mvc.perform(get("/api/admin/moderation/sanctions/active").header("Authorization", bearer(jwt(moderator))))
+                .andExpect(status().isForbidden());
+        for (User denied : new User[]{learner, creator}) {
+            mvc.perform(get("/api/admin/moderation/queue").header("Authorization", bearer(jwt(denied))))
                     .andExpect(status().isForbidden());
-        }
-        for (User allowed : new User[]{moderator, ordinaryAdmin}) {
-            mvc.perform(get("/api/admin/moderation/queue").header("Authorization", bearer(jwt(allowed))))
-                    .andExpect(status().isOk());
         }
         mvc.perform(get("/api/admin/system/users")).andExpect(status().isUnauthorized());
         mvc.perform(get("/admin/system/users"))
@@ -120,8 +126,9 @@ class SystemAdminIntegrationTest {
     void eachRoleLandsOnItsOwnAdminArea() throws Exception {
         User moderator = createUser("moderator", "MODERATOR");
         mvc.perform(get("/admin").header("Authorization", bearer(adminToken)))
-                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/admin/system/users"));
-        for (String page : new String[]{"/admin/system/users", "/admin/system/audit"}) {
+                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/admin/system/dashboard"));
+        for (String page : new String[]{"/admin/system/dashboard", "/admin/system/users", "/admin/system/plans",
+                "/admin/system/payments", "/admin/system/audit"}) {
             mvc.perform(get(page).header("Authorization", bearer(adminToken)))
                     .andExpect(status().isOk()).andExpect(model().attribute("section", "system-" + page.substring(14)));
             mvc.perform(get(page).header("Authorization", bearer(jwt(moderator))))
@@ -385,7 +392,9 @@ class SystemAdminIntegrationTest {
                 .andExpect(status().isOk());
         roleAction(learner.getId(), "SUPER_ADMIN", "Lặp lại vai trò", 409);
         roleAction(learner.getId(), "CONTENT_ADMIN", "Vai trò cũ không được gán", 400);
+        roleAction(learner.getId(), "ADMIN", "Vai trò cũ không được gán", 400);
         roleAction(learner.getId(), "ROOT", "Vai trò lạ", 400);
+        roles.findByName("CONTENT_CREATOR").ifPresent(roles::delete); // other tests may have created it
         roleAction(learner.getId(), "CONTENT_CREATOR", "Chưa có trong DB", 400);
         roleAction(superAdmin.getId(), "LEARNER", "Tự hạ quyền", 409);
         roleAction(learner.getId(), "LEARNER", "Hạ quyền lại", 200);
@@ -455,6 +464,85 @@ class SystemAdminIntegrationTest {
     }
 
     @Test
+    void premiumPlansCanBeCreatedEditedAndStoppedButNeverTheFreePlan() throws Exception {
+        PremiumPlan free = plan("FREE");
+        String plans = "/api/admin/system/premium-plans";
+        planAction(post(plans), "STUDENT", "Gói sinh viên", "49000", 90, "Mở gói cho sinh viên", 200)
+                .andExpect(jsonPath("$.data.active").value(true)).andExpect(jsonPath("$.data.free").value(false));
+        Long id = this.plans.findAll().stream().filter(p -> p.getName().equals("STUDENT")).findFirst().orElseThrow().getId();
+        // Names are unique in any letter case, FREE included; values are validated.
+        planAction(post(plans), "student", null, "1", 30, "Trùng tên gói", 409);
+        planAction(post(plans), "free", null, "0", 30, "Trùng tên gói FREE", 409);
+        planAction(post(plans), "BAD", null, "-1", 30, "Giá âm không hợp lệ", 400);
+        planAction(post(plans), "BAD", null, "1.234", 30, "Ba chữ số thập phân", 400);
+        planAction(post(plans), "BAD", null, "1", 0, "Không có số ngày", 400);
+        planAction(post(plans), "BAD", null, "1", 30, "x", 400);
+
+        planAction(put(plans + "/{id}", id), "STUDENT_PLUS", "Gói sinh viên", "59000", 90, "Điều chỉnh giá", 200)
+                .andExpect(jsonPath("$.data.name").value("STUDENT_PLUS"));
+        planAction(put(plans + "/{id}", id), "STUDENT_PLUS", "Gói sinh viên", "59000.00", 90, "Không đổi gì", 400);
+        planAction(put(plans + "/{id}", free.getId()), "FREE", null, "0", 30, "Sửa gói mặc định", 409);
+
+        reasonAction(plans + "/" + id + "/deactivate", "Ngừng bán để thử", 200).andExpect(jsonPath("$.data.active").value(false));
+        reasonAction(plans + "/" + id + "/deactivate", "Ngừng bán lần hai", 409);
+        grant(learner.getId(), id, 30, "Cấp gói đã ngừng bán", 400);
+        reasonAction(plans + "/" + id + "/activate", "Mở bán lại gói", 200).andExpect(jsonPath("$.data.active").value(true));
+        reasonAction(plans + "/" + free.getId() + "/deactivate", "Ngừng gói mặc định", 409);
+        grant(learner.getId(), id, 30, "Cấp gói đang bán", 200);
+        mvc.perform(get(plans).header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data[1].name").value("STUDENT_PLUS"))
+                .andExpect(jsonPath("$.data[1].activeSubscribers").value(1))
+                .andExpect(jsonPath("$.data[0].free").value(true));
+        mvc.perform(post(plans).header("Authorization", bearer(jwt(learner))).contentType(MediaType.APPLICATION_JSON)
+                        .content(planJson("HACK", null, "0", 30, "Học viên tự tạo gói")))
+                .andExpect(status().isForbidden());
+
+        assertThat(audit.list(null, null, "PREMIUM_PLAN", id.toString(), "SUCCESS", null, null, 0, 20).getContent())
+                .extracting(a -> a.action()).containsExactly("PREMIUM_PLAN_ACTIVATE", "PREMIUM_PLAN_DEACTIVATE",
+                        "PREMIUM_PLAN_UPDATE", "PREMIUM_PLAN_CREATE");
+        assertThat(audit.list(null, null, "PREMIUM_PLAN", null, "REJECTED", null, null, 0, 20).getTotalElements())
+                .isEqualTo(5);
+        assertThat(this.plans.findById(id).orElseThrow().getPrice()).isEqualByComparingTo("59000");
+    }
+
+    @Test
+    void paymentsAreSearchableAndFeedTheDashboard() throws Exception {
+        PremiumPlan monthly = plan("MONTHLY");
+        User buyer = createUser("buyer", "LEARNER");
+        Payment paid = payment(buyer, monthly, "ORD-1001", "PAID", LocalDateTime.now().minusDays(2));
+        payment(buyer, monthly, "ORD-1002", "PENDING", null);
+        payment(learner, monthly, "ORD-1003", "FAILED", null);
+        String url = "/api/admin/system/payments";
+        mvc.perform(get(url).header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.totalElements").value(3));
+        mvc.perform(get(url).header("Authorization", bearer(adminToken)).param("status", "PAID"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.items[0].orderCode").value("ORD-1001"))
+                .andExpect(jsonPath("$.data.items[0].userEmail").value(buyer.getEmail()));
+        mvc.perform(get(url).header("Authorization", bearer(adminToken)).param("q", "BUYER@"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.totalElements").value(2));
+        mvc.perform(get(url).header("Authorization", bearer(adminToken)).param("q", "ord-1003"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.totalElements").value(1));
+        mvc.perform(get(url).header("Authorization", bearer(adminToken)).param("status", "BOGUS"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get(url + "/{id}", paid.getId()).header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.planName").value("MONTHLY"))
+                .andExpect(jsonPath("$.data.durationDays").value(30));
+        mvc.perform(get(url + "/999999").header("Authorization", bearer(adminToken))).andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/admin/system/dashboard").header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.totalUsers").value(3))
+                .andExpect(jsonPath("$.data.usersByRole.LEARNER").value(2))
+                .andExpect(jsonPath("$.data.paymentsByStatus.PAID").value(1))
+                .andExpect(jsonPath("$.data.paymentsByStatus.PENDING").value(1))
+                .andExpect(jsonPath("$.data.paidLast30Days[0].count").value(1))
+                .andExpect(jsonPath("$.data.paidLast30Days[0].amount").value(99000.0))
+                .andExpect(jsonPath("$.data.plansOnSale").value(1))
+                .andExpect(jsonPath("$.data.premiumActive").value(0));
+    }
+
+    @Test
     void masksChangesBeforePersisting() {
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> audit.record(
                 superAdmin.getId(), "TEST", "USER", learner.getId().toString(), "Mask test", "SUCCESS",
@@ -471,6 +559,34 @@ class SystemAdminIntegrationTest {
     private PremiumPlan plan(String name) {
         return plans.save(PremiumPlan.builder().name(name).price("FREE".equals(name) ? BigDecimal.ZERO : new BigDecimal("9.99"))
                 .durationDays("FREE".equals(name) ? 36500 : 30).build());
+    }
+
+    private Payment payment(User buyer, PremiumPlan plan, String order, String status, LocalDateTime paidAt) {
+        return payments.save(Payment.builder().user(buyer).premiumPlan(plan).provider("PAYOS").orderCode(order)
+                .status(status).amountPaid(new BigDecimal("99000")).currency("VND").planNameSnapshot(plan.getName())
+                .durationDaysSnapshot(plan.getDurationDays()).paidAt(paidAt).build());
+    }
+
+    private static String planJson(String name, String description, String price, int days, String reason) {
+        return "{\"name\":\"" + name + "\",\"description\":" + (description == null ? "null" : "\"" + description + "\"")
+                + ",\"price\":" + price + ",\"durationDays\":" + days + ",\"reason\":\"" + reason + "\"}";
+    }
+
+    private org.springframework.test.web.servlet.ResultActions planAction(
+            org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request, String name,
+            String description, String price, int days, String reason, int expectedStatus) throws Exception {
+        return mvc.perform(request.header("Authorization", bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8")
+                        .content(planJson(name, description, price, days, reason)))
+                .andExpect(status().is(expectedStatus));
+    }
+
+    private org.springframework.test.web.servlet.ResultActions reasonAction(String url, String reason,
+                                                                           int expectedStatus) throws Exception {
+        return mvc.perform(post(url).header("Authorization", bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8")
+                        .content("{\"reason\":\"" + reason + "\"}"))
+                .andExpect(status().is(expectedStatus));
     }
 
     private org.springframework.test.web.servlet.ResultActions roleAction(Long id, String role, String reason,

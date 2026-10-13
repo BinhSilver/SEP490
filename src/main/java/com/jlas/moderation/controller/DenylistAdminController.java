@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/moderation/denylist")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('MODERATOR','ADMIN')")
+@PreAuthorize("hasAnyRole('MODERATOR','SUPER_ADMIN')")
 public class DenylistAdminController {
     private final DenylistService denylist;
     private final ContentModerationService moderation;

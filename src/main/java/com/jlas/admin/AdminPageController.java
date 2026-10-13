@@ -17,13 +17,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class AdminPageController {
     private static final Set<String> MODERATION_SECTIONS =
             Set.of("reports", "queue", "appeals", "dictionary", "denylist", "sanctions", "audit");
-    private static final Set<String> SYSTEM_SECTIONS = Set.of("users", "audit");
+    private static final Set<String> SYSTEM_SECTIONS = Set.of("dashboard", "users", "plans", "payments", "audit");
 
     @GetMapping({"/admin", "/admin/"})
     public String overview(Model model) {
-        // System Admin has no moderation overview; land on its own area instead.
+        // System Admin starts on its dashboard, which also shows the moderation backlog.
         if (CurrentUser.hasRole("ROLE_SUPER_ADMIN")) {
-            return "redirect:/admin/system/users";
+            return "redirect:/admin/system/dashboard";
         }
         model.addAttribute("section", "overview");
         return "admin/workspace";

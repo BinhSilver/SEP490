@@ -32,8 +32,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminUserService {
-    /** Roles a System Admin may assign; CONTENT_CREATOR is the Content Admin role. */
-    static final Set<String> ASSIGNABLE_ROLES = Set.of("LEARNER", "CONTENT_CREATOR", "MODERATOR", "ADMIN", "SUPER_ADMIN");
+    /** Roles a System Admin may assign: learner, content creator, moderator, System Admin. */
+    static final Set<String> ASSIGNABLE_ROLES = Set.of("LEARNER", "CONTENT_CREATOR", "MODERATOR", "SUPER_ADMIN");
     static final int MAX_GRANT_DAYS = 365;
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
@@ -155,6 +155,9 @@ public class AdminUserService {
         PremiumPlan plan = planId == null ? null : plans.findById(planId).orElse(null);
         if (plan == null || AdminUserView.FREE_PLAN.equalsIgnoreCase(plan.getName())) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Vui lòng chọn một gói Premium hợp lệ.");
+        }
+        if (!Boolean.TRUE.equals(plan.getIsActive())) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Gói này đã ngừng bán, hãy chọn gói đang bán.");
         }
         if (actorId.equals(id)) reject(actorId, id, "PREMIUM_GRANT", reason, "Không thể tự cấp Premium cho mình.");
         User user = users.findForUpdate(id).orElseThrow(AdminUserService::notFound);

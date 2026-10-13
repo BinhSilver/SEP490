@@ -47,14 +47,14 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
                         .hasRole("CONTENT_CREATOR")
-                        // JLAS2-51: System Admin area, never shared with moderation.
+                        // JLAS2-51: System Admin area; moderators have no access.
                         .requestMatchers("/admin/system", "/admin/system/**", "/api/admin/system/**")
                         .hasRole("SUPER_ADMIN")
-                        // Landing page only: AdminPageController sends System Admin to its own area.
-                        .requestMatchers("/admin", "/admin/").hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
+                        // System Admin also runs moderation (incl. sanctions); MODERATOR has moderation only.
+                        .requestMatchers("/admin", "/admin/").hasAnyRole("MODERATOR", "SUPER_ADMIN")
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
-                        .hasAnyRole("MODERATOR", "ADMIN")
+                        .hasAnyRole("MODERATOR", "SUPER_ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",

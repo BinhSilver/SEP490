@@ -3,7 +3,7 @@
 
   var DEFAULT_REDIRECT = '/';
   // Admin-area roles land in their workspace instead of the learner home (/admin routes each role).
-  var ROLE_HOME = { SUPER_ADMIN: '/admin', ADMIN: '/admin', MODERATOR: '/admin' };
+  var ROLE_HOME = { SUPER_ADMIN: '/admin', MODERATOR: '/admin' };
 
   function getField(fieldId) {
     return document.getElementById(fieldId);

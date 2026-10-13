@@ -48,7 +48,7 @@ public class AiCallQuotaService {
 
     public boolean isUnlimited(UserPrincipal user) {
         return user.getAuthorities().stream().anyMatch(authority ->
-                "ROLE_ADMIN".equals(authority.getAuthority()) || "ROLE_SUPER_ADMIN".equals(authority.getAuthority()));
+                "ROLE_SUPER_ADMIN".equals(authority.getAuthority()));
     }
 
     /**

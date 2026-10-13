@@ -2,8 +2,10 @@
 (function (global) {
   'use strict';
 
-  var MODERATION = ['MODERATOR', 'ADMIN'];
-  var ADMINS = ['ADMIN'];
+  // Roles: MODERATOR moderates; SUPER_ADMIN (System Admin) runs the system and also moderates,
+  // including user sanctions. CONTENT_CREATOR works in the content tools, not here.
+  var MODERATION = ['MODERATOR', 'SUPER_ADMIN'];
+  var ADMINS = ['SUPER_ADMIN']; // may sanction users
   var SYSTEM = ['SUPER_ADMIN'];
 
   /**
@@ -12,7 +14,14 @@
    */
   var MODULES = [
     { title: null, items: [
-      { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: MODERATION }
+      { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: ['MODERATOR'] },
+      { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM }
+    ] },
+    { title: 'Quản trị hệ thống', items: [
+      { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
+      { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
+      { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM },
+      { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
     { title: 'Kiểm duyệt', items: [
       { key: 'reports', label: 'Báo cáo nội dung', icon: 'fa-flag', href: '/admin/moderation/reports', roles: MODERATION, badge: 'pendingReports' },
@@ -21,21 +30,17 @@
       { key: 'dictionary', label: 'Đóng góp từ điển', icon: 'fa-book', href: '/admin/moderation/dictionary', roles: MODERATION, badge: 'pendingContributions' },
       { key: 'denylist', label: 'Từ khoá cấm', icon: 'fa-ban', href: '/admin/moderation/denylist', roles: MODERATION },
       { key: 'sanctions', label: 'Chế tài người dùng', icon: 'fa-user-lock', href: '/admin/moderation/sanctions', roles: ADMINS },
-      { key: 'audit', label: 'Nhật ký', icon: 'fa-clock-rotate-left', href: '/admin/moderation/audit', roles: MODERATION }
-    ] },
-    { title: 'Quản trị hệ thống', items: [
-      { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
-      { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
+      { key: 'audit', label: 'Nhật ký kiểm duyệt', icon: 'fa-clock-rotate-left', href: '/admin/moderation/audit', roles: MODERATION }
     ] }
   ];
 
-  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', SUPER_ADMIN: 'Quản trị hệ thống' };
+  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', SUPER_ADMIN: 'Quản trị hệ thống' };
 
   var TYPE_LABELS = {
     FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
-    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm'
+    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium'
   };
 
   // ── Auth & API ─────────────────────────────────────────────────────────

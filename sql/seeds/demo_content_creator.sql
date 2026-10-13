@@ -8,7 +8,7 @@
 --   email: creator@jlab.local   mat khau: admin123@@
 --   username = 'creator' chi luu trong DB (cot users.username), khong dung de dang nhap.
 -- Vai CONTENT_CREATOR: mo duoc /textbooks/manage va API /api/dictionary/manage/**.
--- Tai khoan content@jlab.local (CONTENT_ADMIN, trong jlas_seed_all.sql) giu nguyen; file nay
+-- Tai khoan content@jlab.local (CONTENT_CREATOR, trong jlas_seed_all.sql) giu nguyen; file nay
 -- khong sua tai khoan do.
 --
 -- password_hash sinh bang chinh BCryptPasswordEncoder() cua ung dung (SecurityConfig.passwordEncoder,

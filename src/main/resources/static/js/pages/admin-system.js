@@ -1,17 +1,33 @@
-/* System Admin sections (JLAS2-51): user accounts and the System Admin audit log. */
+/* System Admin sections (JLAS2-51/49): dashboard, accounts, Premium plans, payment lookup and the audit log. */
 (function () {
   'use strict';
 
   var A = window.Admin;
   var API = '/api/admin/system';
-  var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Content Admin', CONTENT_ADMIN: 'Content Admin (vai trò cũ)' };
-  // Roles a System Admin may assign (server enforces the same list).
-  var ASSIGNABLE = ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
+  var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Content Creator' };
+  // Roles a System Admin may assign (server enforces the same list). Premium is a plan, not a role.
+  var ASSIGNABLE = ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'SUPER_ADMIN'];
   var STATUS = { ACTIVE: 'Đang hoạt động', LOCKED: 'Đã khoá' };
   var ACTIONS = {
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
-    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công'
+    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công',
+    PREMIUM_PLAN_CREATE: 'Tạo gói Premium', PREMIUM_PLAN_UPDATE: 'Sửa gói Premium',
+    PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói'
   };
+  var PAYMENT_STATUS = {
+    PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
+    CANCELLED: ['Đã huỷ', ''], REFUNDED: ['Đã hoàn tiền', '']
+  };
+
+  function money(amount, currency) {
+    if (amount == null) return '—';
+    return Number(amount).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + (currency ? ' ' + currency : '');
+  }
+
+  function paymentBadge(status) {
+    var s = PAYMENT_STATUS[status] || [status, ''];
+    return '<span class="adm-badge' + (s[1] ? ' adm-badge--' + s[1] : '') + '">' + A.esc(s[0]) + '</span>';
+  }
   var MAX_GRANT_DAYS = 365;
 
   function roleLabel(role) { return ROLE_NAMES[role] || A.ROLE_LABELS[role] || role || '—'; }
@@ -37,7 +53,7 @@
   var plansCache = null;
   async function grantablePlans() {
     if (!plansCache) {
-      plansCache = (await A.api.get(API + '/premium-plans')).filter(function (p) { return String(p.name).toUpperCase() !== 'FREE'; });
+      plansCache = (await A.api.get(API + '/premium-plans')).filter(function (p) { return p.active && !p.free; });
     }
     return plansCache;
   }
@@ -53,7 +69,7 @@
         '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
           '<input class="input" type="search" name="q" maxlength="100" placeholder="Email, tên đăng nhập hoặc họ tên" aria-label="Tìm người dùng">' +
           '<select class="select" name="role" aria-label="Vai trò"><option value="">Mọi vai trò</option>' +
-            ASSIGNABLE.concat(['CONTENT_ADMIN']).map(function (r) {
+            ASSIGNABLE.map(function (r) {
               return '<option value="' + r + '">' + A.esc(roleLabel(r)) + '</option>';
             }).join('') + '</select>' +
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
@@ -128,7 +144,7 @@
           return;
         }
         if (!plans.length) {
-          A.toast('Chưa có gói Premium nào để cấp.', 'warning');
+          A.toast('Chưa có gói Premium nào đang bán để cấp.', 'warning');
           return;
         }
         var stacking = u.premiumActive
@@ -143,7 +159,7 @@
             '<div class="field"><label class="field__label" for="admPlanSelect">Gói Premium</label>' +
               '<select class="select" id="admPlanSelect" data-autofocus>' + plans.map(function (p) {
                 return '<option value="' + p.id + '" data-days="' + p.durationDays + '">' + A.esc(p.name) + ' · ' +
-                  p.durationDays + ' ngày' + (p.active ? '' : ' (ngừng bán)') + '</option>';
+                  p.durationDays + ' ngày</option>';
               }).join('') + '</select></div>' +
             '<div class="field"><label class="field__label" for="admDays">Số ngày (1–' + MAX_GRANT_DAYS + ')</label>' +
               '<input class="input" id="admDays" inputmode="numeric" maxlength="3" value="' +
@@ -304,6 +320,19 @@
       return A.esc(was) + to + A.esc(c.after.plan + ' đến ' + A.date(c.after.expiresAt)) +
         '<br><span class="adm-muted">+' + A.esc(c.durationDays) + ' ngày' + (c.stacked ? ', cộng dồn' : '') + '</span>';
     }
+    if (c.before && c.after && 'active' in c.after) {
+      return (c.before.active ? 'Đang bán' : 'Ngừng bán') + to + (c.after.active ? 'Đang bán' : 'Ngừng bán');
+    }
+    if (c.after && 'durationDays' in c.after) {
+      var fields = { name: 'Tên', description: 'Mô tả', price: 'Giá', durationDays: 'Số ngày' };
+      if (!c.before) {
+        return 'Gói mới: ' + A.esc(c.after.name) + ' · ' + A.esc(money(c.after.price)) + ' · ' + A.esc(c.after.durationDays) + ' ngày';
+      }
+      return Object.keys(fields).filter(function (k) { return String(c.before[k]) !== String(c.after[k]); })
+        .map(function (k) {
+          return fields[k] + ': ' + A.esc(c.before[k] == null ? '—' : c.before[k]) + to + A.esc(c.after[k] == null ? '—' : c.after[k]);
+        }).join('<br>');
+    }
     return '<code>' + A.esc(json) + '</code>';
   }
 
@@ -319,7 +348,9 @@
           '<select class="select" name="result" aria-label="Kết quả"><option value="">Mọi kết quả</option>' +
             '<option value="SUCCESS">Thành công</option><option value="REJECTED">Bị từ chối</option></select>' +
           '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác">' +
-          '<input class="input" name="targetId" inputmode="numeric" maxlength="12" placeholder="Mã người dùng bị tác động" aria-label="Mã người dùng bị tác động">' +
+          '<select class="select" name="targetType" aria-label="Loại đối tượng"><option value="USER">Người dùng</option>' +
+            '<option value="PREMIUM_PLAN">Gói Premium</option></select>' +
+          '<input class="input" name="targetId" inputmode="numeric" maxlength="12" placeholder="Mã đối tượng" aria-label="Mã đối tượng">' +
           '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
           '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label>' +
           '<button type="submit" class="btn btn--primary btn--sm">Lọc</button>' +
@@ -334,7 +365,7 @@
         var params = new URLSearchParams({ page: page, size: 30 });
         ['action', 'result', 'actorId'].forEach(function (k) { if (form.elements[k].value) params.set(k, form.elements[k].value); });
         if (form.elements.targetId.value) {
-          params.set('targetType', 'USER');
+          params.set('targetType', form.elements.targetType.value);
           params.set('targetId', form.elements.targetId.value);
         }
         // The API takes ISO date-times; whole days are inclusive.
@@ -370,6 +401,289 @@
         if (!button) return;
         page += Number(button.dataset.page);
         load();
+      });
+      await load();
+    }
+  });
+
+  // ── Dashboard ──────────────────────────────────────────────────────────
+  function stat(href, icon, label, value, note) {
+    return '<a class="adm-stat" href="' + href + '"><i class="fa-solid ' + icon + '" aria-hidden="true"></i>' +
+      '<span class="adm-stat__label">' + A.esc(label) + '</span>' +
+      '<strong class="adm-stat__value">' + A.esc(value) + '</strong>' +
+      (note ? '<span class="adm-muted">' + A.esc(note) + '</span>' : '') + '</a>';
+  }
+
+  function countTable(caption, rows) {
+    return '<section class="adm-panel"><h2 class="adm-panel__title">' + A.esc(caption) + '</h2>' +
+      (rows.length ? '<table class="adm-table"><tbody>' + rows.map(function (r) {
+        return '<tr><td>' + r[0] + '</td><td class="adm-nowrap"><strong>' + A.esc(r[1]) + '</strong></td></tr>';
+      }).join('') + '</tbody></table>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
+  }
+
+  A.section('system-dashboard', {
+    subtitle: 'Toàn cảnh tài khoản, Premium, gói bán, thanh toán và việc kiểm duyệt đang chờ.',
+    render: async function (root) {
+      var d = await A.api.get(API + '/dashboard');
+      var moderation = null;
+      try { moderation = await A.api.get('/api/admin/moderation/overview'); } catch (ignored) { /* optional */ }
+      var pending = d.paymentsByStatus.PENDING || 0;
+      var revenue = d.paidLast30Days.length
+        ? d.paidLast30Days.map(function (r) { return money(r.amount, r.currency); }).join(' + ') : '0';
+      var paidCount = d.paidLast30Days.reduce(function (n, r) { return n + r.count; }, 0);
+      root.innerHTML =
+        '<div class="adm-stats">' +
+          stat('/admin/system/users', 'fa-users', 'Tài khoản', d.totalUsers,
+            '+' + d.newUsersLast7Days + ' trong 7 ngày, +' + d.newUsersLast30Days + ' trong 30 ngày') +
+          stat('/admin/system/users', 'fa-crown', 'Premium còn hạn', d.premiumActive, '') +
+          stat('/admin/system/users', 'fa-lock', 'Tài khoản bị khoá', d.lockedUsers,
+            d.unverifiedUsers + ' tài khoản chưa xác thực email') +
+          stat('/admin/system/plans', 'fa-tags', 'Gói đang bán', d.plansOnSale,
+            d.plansStopped ? d.plansStopped + ' gói ngừng bán' : '') +
+          stat('/admin/system/payments', 'fa-receipt', 'Doanh thu 30 ngày', revenue, paidCount + ' giao dịch thành công') +
+          stat('/admin/system/payments', 'fa-hourglass-half', 'Giao dịch đang chờ', pending, '') +
+        '</div>' +
+        (moderation ? '<h2 class="adm-panel__title adm-section-title">Kiểm duyệt đang chờ</h2><div class="adm-stats">' +
+          stat('/admin/moderation/queue', 'fa-robot', 'Hàng đợi AI', moderation.pendingQueue, '') +
+          stat('/admin/moderation/appeals', 'fa-scale-balanced', 'Kháng nghị chờ', moderation.pendingAppeals, '') +
+          stat('/admin/moderation/dictionary', 'fa-book', 'Đóng góp từ điển chờ', moderation.pendingContributions, '') +
+          stat('/admin/moderation/sanctions', 'fa-user-lock', 'Chế tài đang hiệu lực', moderation.activeSanctions, '') +
+        '</div>' : '') +
+        '<div class="adm-grid-2 adm-section-gap">' +
+          countTable('Tài khoản theo vai trò', Object.keys(d.usersByRole).map(function (r) {
+            return [A.esc(roleLabel(r)), d.usersByRole[r]];
+          })) +
+          countTable('Giao dịch theo trạng thái', Object.keys(d.paymentsByStatus).map(function (s) {
+            return [paymentBadge(s), d.paymentsByStatus[s]];
+          })) +
+        '</div>' +
+        '<section class="adm-panel adm-section-gap"><h2 class="adm-panel__title">Thao tác quản trị gần đây</h2>' +
+          (d.recentActions.length ? '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+            '<th scope="col">Thời gian</th><th scope="col">Người thao tác</th><th scope="col">Hành động</th>' +
+            '<th scope="col">Đối tượng</th><th scope="col">Kết quả</th></tr></thead><tbody>' +
+            d.recentActions.map(function (a) {
+              return '<tr><td class="adm-muted adm-nowrap">' + A.date(a.createdAt) + '</td><td>' + A.esc(a.actorEmail) + '</td>' +
+                '<td>' + A.esc(ACTIONS[a.action] || a.action) + '</td>' +
+                '<td>' + A.esc(A.typeLabel(a.targetType)) + (a.targetId ? ' #' + A.esc(a.targetId) : '') + '</td>' +
+                '<td>' + (a.result === 'SUCCESS' ? '<span class="adm-badge adm-badge--ok">Thành công</span>'
+                  : '<span class="adm-badge adm-badge--warn">Bị từ chối</span>') + '</td></tr>';
+            }).join('') + '</tbody></table></div>' +
+            '<p><a class="adm-link" href="/admin/system/audit">Xem toàn bộ nhật ký quản trị</a></p>'
+            : A.empty('fa-inbox', 'Chưa có thao tác nào')) +
+        '</section>';
+    }
+  });
+
+  // ── Premium plans ──────────────────────────────────────────────────────
+  var PRICE_PATTERN = /^\d{1,10}(\.\d{1,2})?$/;
+
+  // The days field of the plan dialog accepts digits only.
+  document.addEventListener('focusin', function (event) {
+    if (event.target.id === 'admPlanDays' && !event.target.dataset.digits) {
+      event.target.dataset.digits = '1';
+      A.digitsOnly(event.target);
+    }
+  });
+
+  A.section('system-plans', {
+    subtitle: 'Gói Premium đang bán. Sửa gói chỉ áp dụng cho lần mua sau: giao dịch cũ giữ thông tin lúc mua, ' +
+      'người đang dùng giữ nguyên hạn. Gói không bị xoá, chỉ ngừng bán.',
+    render: async function (root) {
+      var plans = {};
+      root.innerHTML = '<p class="adm-toolbar"><button type="button" class="btn btn--primary btn--sm" data-create>' +
+        '<i class="fa-solid fa-plus" aria-hidden="true"></i> Tạo gói mới</button></p><div data-list></div>';
+
+      function statusCell(p) {
+        if (p.free) return '<span class="adm-badge">Gói mặc định</span>';
+        return p.active ? '<span class="adm-badge adm-badge--ok">Đang bán</span>'
+          : '<span class="adm-badge adm-badge--danger">Ngừng bán</span>';
+      }
+
+      function actions(p) {
+        if (p.free) return '<span class="adm-muted">Không sửa được</span>';
+        return '<button type="button" class="btn btn--secondary btn--sm" data-edit="' + p.id + '">' +
+            '<i class="fa-solid fa-pen" aria-hidden="true"></i> Sửa</button> ' +
+          (p.active
+            ? '<button type="button" class="btn btn--sm adm-btn--danger adm-nowrap" data-toggle="' + p.id + '">Ngừng bán</button>'
+            : '<button type="button" class="btn btn--secondary btn--sm adm-nowrap" data-toggle="' + p.id + '">Mở bán</button>');
+      }
+
+      async function load() {
+        var list = root.querySelector('[data-list]');
+        list.innerHTML = A.loading();
+        try {
+          var data = await A.api.get(API + '/premium-plans');
+          plans = {};
+          data.forEach(function (p) { plans[p.id] = p; });
+          list.innerHTML = '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+            '<th scope="col">Gói</th><th scope="col">Giá</th><th scope="col">Số ngày</th><th scope="col">Trạng thái</th>' +
+            '<th scope="col">Đang dùng</th><th scope="col">Cập nhật</th><th scope="col"><span class="sr-only">Thao tác</span></th>' +
+            '</tr></thead><tbody>' + data.map(function (p) {
+              return '<tr><td><span class="adm-user"><strong>' + A.esc(p.name) + '</strong>' +
+                  (p.description ? '<span class="adm-muted">' + A.esc(p.description) + '</span>' : '') + '</span></td>' +
+                '<td class="adm-nowrap">' + A.esc(money(p.price)) + '</td>' +
+                '<td>' + A.esc(p.durationDays) + '</td>' +
+                '<td>' + statusCell(p) + '</td>' +
+                '<td>' + (p.free ? '<span class="adm-muted">—</span>' : A.esc(p.activeSubscribers) + ' tài khoản') + '</td>' +
+                '<td class="adm-muted adm-nowrap">' + A.date(p.updatedAt) + '</td>' +
+                '<td class="adm-nowrap">' + actions(p) + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        } catch (e) {
+          list.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được danh sách gói', e.message);
+        }
+      }
+
+      async function edit(p) {
+        var decision = await A.decide({
+          title: p ? 'Sửa gói ' + p.name : 'Tạo gói Premium mới',
+          message: p ? 'Thay đổi áp dụng cho lần mua sau; người đang dùng gói giữ nguyên hạn.' : 'Gói mới được mở bán ngay sau khi tạo.',
+          confirmText: p ? 'Lưu thay đổi' : 'Tạo gói', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml:
+            '<div class="field"><label class="field__label" for="admPlanName">Tên gói</label>' +
+              '<input class="input" id="admPlanName" maxlength="100" data-autofocus value="' + A.esc(p ? p.name : '') + '"></div>' +
+            '<div class="field"><label class="field__label" for="admPlanDesc">Mô tả (không bắt buộc)</label>' +
+              '<textarea class="textarea" id="admPlanDesc" rows="2" maxlength="500">' + A.esc(p && p.description || '') + '</textarea></div>' +
+            '<div class="field"><label class="field__label" for="admPlanPrice">Giá</label>' +
+              '<input class="input" id="admPlanPrice" inputmode="decimal" maxlength="13" value="' + A.esc(p ? p.price : '') + '"></div>' +
+            '<div class="field"><label class="field__label" for="admPlanDays">Số ngày hiệu lực (1–3650)</label>' +
+              '<input class="input" id="admPlanDays" inputmode="numeric" maxlength="4" value="' + A.esc(p ? p.durationDays : '') + '"></div>',
+          collect: function (modal) {
+            var name = modal.querySelector('#admPlanName').value.trim();
+            var price = modal.querySelector('#admPlanPrice').value.trim().replace(',', '.');
+            var days = Number(modal.querySelector('#admPlanDays').value);
+            if (name.length < 2) return { error: 'Tên gói cần ít nhất 2 ký tự.' };
+            if (!PRICE_PATTERN.test(price)) return { error: 'Giá phải là số không âm, tối đa 2 chữ số thập phân.' };
+            if (!Number.isInteger(days) || days < 1 || days > 3650) return { error: 'Số ngày phải từ 1 đến 3650.' };
+            return reasonLength(modal) || {
+              name: name, description: modal.querySelector('#admPlanDesc').value.trim(), price: Number(price), durationDays: days
+            };
+          }
+        });
+        if (!decision) return;
+        var body = Object.assign({ reason: decision.reason }, decision.extra);
+        try {
+          if (p) await A.api.put(API + '/premium-plans/' + p.id, body);
+          else await A.api.post(API + '/premium-plans', body);
+          plansCache = null;
+          A.toast(p ? 'Đã cập nhật gói' : 'Đã tạo gói', 'success');
+        } catch (e) {
+          A.toast(e.message, 'error');
+        }
+        await load();
+      }
+
+      async function toggle(p) {
+        var stop = p.active;
+        var decision = await A.decide({
+          title: (stop ? 'Ngừng bán gói ' : 'Mở bán lại gói ') + p.name + '?',
+          message: stop ? 'Người dùng không mua được gói này nữa. ' + p.activeSubscribers +
+              ' tài khoản đang dùng gói vẫn giữ Premium đến hết hạn.' : 'Người dùng mua được gói này trở lại.',
+          danger: stop, confirmText: stop ? 'Ngừng bán' : 'Mở bán', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị', collect: reasonLength
+        });
+        if (!decision) return;
+        try {
+          await A.api.post(API + '/premium-plans/' + p.id + (stop ? '/deactivate' : '/activate'), { reason: decision.reason });
+          plansCache = null;
+          A.toast(stop ? 'Đã ngừng bán gói' : 'Đã mở bán gói', 'success');
+        } catch (e) {
+          A.toast(e.message, 'error');
+        }
+        await load();
+      }
+
+      root.addEventListener('click', function (event) {
+        var el;
+        if (event.target.closest('[data-create]')) { edit(null); return; }
+        if ((el = event.target.closest('[data-edit]'))) { edit(plans[el.dataset.edit]); return; }
+        if ((el = event.target.closest('[data-toggle]'))) { toggle(plans[el.dataset.toggle]); }
+      });
+      await load();
+    }
+  });
+
+  // ── Payments (read only) ───────────────────────────────────────────────
+  A.section('system-payments', {
+    subtitle: 'Tra cứu giao dịch mua Premium. Chỉ xem: không sửa, không hoàn tiền tại đây.',
+    render: async function (root) {
+      var page = 0;
+      root.innerHTML =
+        '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
+          '<input class="input" type="search" name="q" maxlength="100" placeholder="Mã đơn, mã giao dịch, email hoặc họ tên" aria-label="Tìm giao dịch">' +
+          '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
+            Object.keys(PAYMENT_STATUS).map(function (k) { return '<option value="' + k + '">' + PAYMENT_STATUS[k][0] + '</option>'; }).join('') +
+          '</select>' +
+          '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
+          '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label>' +
+          '<button type="submit" class="btn btn--primary btn--sm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Lọc</button>' +
+        '</form><div data-detail></div><div data-list></div>';
+      var form = root.querySelector('[data-filters]');
+
+      async function load() {
+        var list = root.querySelector('[data-list]');
+        list.innerHTML = A.loading();
+        var params = new URLSearchParams({ page: page, size: 20 });
+        ['q', 'status'].forEach(function (k) { var v = form.elements[k].value.trim(); if (v) params.set(k, v); });
+        if (form.elements.from.value) params.set('from', form.elements.from.value + 'T00:00:00');
+        if (form.elements.to.value) params.set('to', form.elements.to.value + 'T23:59:59.999');
+        try {
+          var data = await A.api.get(API + '/payments?' + params.toString());
+          list.innerHTML = (data.items.length ?
+            '<p class="adm-muted">' + data.totalElements + ' giao dịch</p>' +
+            '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+              '<th scope="col">Tạo lúc</th><th scope="col">Mã đơn</th><th scope="col">Người mua</th><th scope="col">Gói</th>' +
+              '<th scope="col">Số tiền</th><th scope="col">Trạng thái</th><th scope="col">Thanh toán lúc</th>' +
+              '<th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead><tbody>' +
+              data.items.map(function (p) {
+                return '<tr><td class="adm-muted adm-nowrap">' + A.date(p.createdAt) + '</td>' +
+                  '<td><code>' + A.esc(p.orderCode) + '</code><br><span class="adm-muted">' + A.esc(p.provider) + '</span></td>' +
+                  '<td><span class="adm-user"><strong>' + A.esc(p.userName || p.userEmail) + '</strong>' +
+                    '<span class="adm-muted">' + A.esc(p.userEmail) + ' · #' + p.userId + '</span></span></td>' +
+                  '<td>' + A.esc(p.planName) + '<br><span class="adm-muted">' + A.esc(p.durationDays) + ' ngày</span></td>' +
+                  '<td class="adm-nowrap">' + A.esc(money(p.amountPaid, p.currency)) + '</td>' +
+                  '<td>' + paymentBadge(p.status) + '</td>' +
+                  '<td class="adm-muted adm-nowrap">' + A.date(p.paidAt) + '</td>' +
+                  '<td><button type="button" class="btn btn--secondary btn--sm" data-payment="' + p.id + '">Chi tiết</button></td></tr>';
+              }).join('') + '</tbody></table></div>'
+            : A.empty('fa-receipt', 'Chưa có giao dịch phù hợp',
+                'Giao dịch xuất hiện ở đây khi người dùng mua Premium qua cổng thanh toán.')) +
+            pager(page, data.totalPages);
+        } catch (e) {
+          list.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được giao dịch', e.message);
+        }
+      }
+
+      async function showDetail(id) {
+        var box = root.querySelector('[data-detail]');
+        box.innerHTML = '<section class="adm-panel">' + A.loading() + '</section>';
+        try {
+          var p = await A.api.get(API + '/payments/' + id);
+          var fields = [
+            ['Mã đơn', p.orderCode], ['Cổng thanh toán', p.provider], ['Mã giao dịch cổng', p.providerTransactionId],
+            ['Mã kết quả', p.responseCode], ['Trạng thái', (PAYMENT_STATUS[p.status] || [p.status])[0]],
+            ['Số tiền', money(p.amountPaid, p.currency)], ['Gói lúc mua', p.planName + ' · ' + p.durationDays + ' ngày'],
+            ['Người mua', (p.userName ? p.userName + ' · ' : '') + p.userEmail + ' (#' + p.userId + ')'],
+            ['Tạo lúc', A.date(p.createdAt)], ['Thanh toán lúc', A.date(p.paidAt)], ['Cập nhật', A.date(p.updatedAt)]
+          ];
+          box.innerHTML = '<section class="adm-panel" aria-label="Chi tiết giao dịch">' +
+            '<h2 class="adm-panel__title">Giao dịch #' + p.id + '</h2>' +
+            '<dl class="adm-detail">' + fields.filter(function (f) { return f[1] != null && f[1] !== ''; }).map(function (f) {
+              return '<dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd>';
+            }).join('') + '</dl>' +
+            '<p class="adm-toolbar"><button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p></section>';
+          box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (e) {
+          box.innerHTML = '<p class="adm-error">' + A.esc(e.message) + '</p>';
+        }
+      }
+
+      form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
+      root.addEventListener('click', function (event) {
+        var el;
+        if ((el = event.target.closest('[data-page]'))) { page += Number(el.dataset.page); load(); return; }
+        if ((el = event.target.closest('[data-payment]'))) { showDetail(Number(el.dataset.payment)); return; }
+        if (event.target.closest('[data-close-detail]')) root.querySelector('[data-detail]').innerHTML = '';
       });
       await load();
     }

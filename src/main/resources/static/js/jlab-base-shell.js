@@ -190,7 +190,7 @@
   };
 
   // Roles that can open the shared admin workspace (/admin). Each page and API re-checks on the server.
-  var ADMIN_ROLES = ['MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
+  var ADMIN_ROLES = ['MODERATOR', 'SUPER_ADMIN'];
 
   function byId(id) {
     return document.getElementById(id);

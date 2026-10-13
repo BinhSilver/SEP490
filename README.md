@@ -213,12 +213,33 @@ UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'SUPER_ADMIN')
 WHERE email = '<email>';
 ```
 
+Roles (run `sql/migrations/029_merge_admin_roles.sql` once on a database built
+before this change: it moves `ADMIN` accounts to `SUPER_ADMIN` and `CONTENT_ADMIN`
+accounts to `CONTENT_CREATOR`, then removes both old roles):
+
+| Role | Can do |
+|---|---|
+| `LEARNER` | Learning features. Premium is not a role: a learner whose non-FREE plan has not expired. |
+| `CONTENT_CREATOR` | Content tools (textbooks, lessons, JLPT exams) and Onyomi review. |
+| `MODERATOR` | Moderation area `/admin/moderation/**` except user sanctions. |
+| `SUPER_ADMIN` | System Admin area `/admin/system/**` plus all of moderation, including user sanctions. |
+
 System Admin pages live under `/admin/system/**` and APIs under
-`/api/admin/system/**` (`SUPER_ADMIN` only); moderation stays with
-`MODERATOR`/`ADMIN`. A System Admin can lock/unlock accounts, change roles
-(`LEARNER`, `CONTENT_CREATOR`, `MODERATOR`, `ADMIN`, `SUPER_ADMIN`) and grant
-Premium manually (days stack on an active period; no payment is created).
-Every action needs a reason and is written to the audit log.
+`/api/admin/system/**` (`SUPER_ADMIN` only):
+
+- **Dashboard** (`/dashboard`): accounts by role, Premium, locked/unverified
+  accounts, plans on sale, payments by status, paid total for 30 days, moderation
+  backlog and the latest admin actions.
+- **Users** (`/users`): search, lock/unlock, change role, grant Premium manually
+  (days stack on an active period; only plans on sale; no payment is created).
+- **Premium plans** (`/premium-plans`): create, edit, stop/start selling. Plans are
+  never deleted; edits only affect future purchases (payments keep a snapshot).
+  `FREE` is the built-in plan and cannot be changed.
+- **Payments** (`/payments`): read-only search and detail. No refunds or edits.
+- **Audit log** (`/audit-logs`).
+
+Every change needs a reason (5–500 characters) and is written to the audit log,
+including rejected attempts.
 
 Demo data for local testing only (public password `SysAdmin@123`):
 `sql/seeds/demo_system_admin.sql` creates `sysadmin@jlab.local` (SUPER_ADMIN)
@@ -228,6 +249,7 @@ A fresh database that starts cleanly was built in this order: `jlas_schema.sql`,
 `questionbank.sql`, `ai_call_scoring_rules.sql`, `demo_content_creator.sql`,
 `seed_data_vnjpclub.sql`, then `src/main/resources/db/migrations/jlpt_full_setup.sql`
 (required: the JLPT entities validate against it) and `demo_system_admin.sql`.
+On a database built from older seeds, also run `sql/migrations/029_merge_admin_roles.sql`.
 
 ---
 
