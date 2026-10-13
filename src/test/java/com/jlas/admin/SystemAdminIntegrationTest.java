@@ -109,6 +109,23 @@ class SystemAdminIntegrationTest {
                 .andExpect(redirectedUrl("/login?redirect=%2Fadmin%2Fsystem%2Fusers"));
     }
 
+    @Test
+    void eachRoleLandsOnItsOwnAdminArea() throws Exception {
+        User moderator = createUser("moderator", "MODERATOR");
+        mvc.perform(get("/admin").header("Authorization", bearer(adminToken)))
+                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/admin/system/users"));
+        for (String page : new String[]{"/admin/system/users", "/admin/system/audit"}) {
+            mvc.perform(get(page).header("Authorization", bearer(adminToken)))
+                    .andExpect(status().isOk()).andExpect(model().attribute("section", "system-" + page.substring(14)));
+            mvc.perform(get(page).header("Authorization", bearer(jwt(moderator))))
+                    .andExpect(status().isForbidden());
+        }
+        mvc.perform(get("/admin/system/unknown").header("Authorization", bearer(adminToken)))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/admin").header("Authorization", bearer(jwt(moderator))))
+                .andExpect(status().isOk()).andExpect(model().attribute("section", "overview"));
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void lockedTokenAllowsPublicLoginButRejectsProtectedRequests(boolean cookie) throws Exception {
