@@ -1,0 +1,166 @@
+/* Multi-word Kana Connect, within the existing goals page (Wend-style board). */
+.gp-grid { grid-template-areas: "today streak" "challenge challenge" "missions history"; }
+.kc {
+  --kc-accent-ink: #6544cf;
+  --kc-wall: #d8d3cb;
+  --kc-frame-edge: #8e8981;
+  --kc-cell: #ffffff;
+  --kc-grid: #e6e2dc;
+  --kc-found: #b5d33f;
+  --kc-found-edge: #8cad22;
+  --kc-found-ink: #26330a;
+  --kc-active: #e4dafd;
+  --kc-active-edge: #8e6ff0;
+  --kc-slot: #e9e5df;
+  grid-area: challenge; min-width: 0;
+}
+html[data-theme="dark"] .kc {
+  --kc-accent-ink: var(--gp-violet);
+  --kc-wall: #34313d;
+  --kc-frame-edge: #5d586a;
+  --kc-cell: var(--gp-card);
+  --kc-grid: rgba(255, 255, 255, .09);
+  --kc-found: #9cbd2c;
+  --kc-found-edge: #c4e05a;
+  --kc-found-ink: #172005;
+  --kc-active: rgba(142, 111, 240, .38);
+  --kc-active-edge: #a68cff;
+  --kc-slot: rgba(255, 255, 255, .1);
+}
+.kc [hidden] { display: none !important; }
+.kc .gp-card__head { align-items: center; }
+.kc-intro { margin: 6px 0 0; color: var(--gp-muted); font-size: 13px; }
+.kc-launch { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.kc-status { color: var(--gp-muted); font-size: 12px; }
+.kc-panel { border-top: 1px solid var(--gp-line); padding-top: 20px; }
+
+/* Desktop: board on the left, word slots on the right. */
+.kc-play {
+  display: grid; align-items: start; justify-content: center; gap: 14px 48px;
+  grid-template-columns: minmax(0, 440px) minmax(260px, max-content);
+  /* Flexible rows above and below keep the side column vertically centred on the board. */
+  grid-template-rows: 1fr auto auto auto auto 1fr;
+  grid-template-areas: "board ." "board meta" "board sel" "board words" "board rank" "board .";
+  max-width: 960px; margin: 0 auto;
+}
+.kc-meta { grid-area: meta; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--gp-muted); }
+.kc-clock { display: inline-flex; align-items: center; gap: 6px; color: var(--gp-ink); font-weight: 600; }
+.kc-clock time { font-variant-numeric: tabular-nums; }
+
+/* Level picker: shared daily boards N5..N1 and a mixed board. */
+.kc-levels { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 0 auto 18px; }
+.kc-levels button {
+  position: relative; min-width: 48px; padding: 7px 12px; border: 1px solid var(--gp-line); border-radius: 999px;
+  background: var(--gp-card); color: var(--gp-muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.kc-levels button:hover { border-color: var(--kc-active-edge); color: var(--kc-accent-ink); }
+.kc-levels button[aria-pressed="true"] { border-color: var(--kc-accent-ink); background: var(--kc-accent-ink); color: #fff; }
+/* Dot marks the learner's learning-path level, which opens first. */
+.kc-levels button.is-default::after {
+  content: ""; position: absolute; top: 3px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--kc-found-edge);
+}
+.kc-progress { font-variant-numeric: tabular-nums; }
+.kc-meta .gp-icon-btn { margin-left: auto; }
+
+.kc-frame { grid-area: board; padding: 10px; border: 2px solid var(--kc-frame-edge); border-radius: 16px; background: var(--kc-wall); }
+.kc-board {
+  position: relative; display: grid; width: 100%; aspect-ratio: 1;
+  grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-size), minmax(0, 1fr));
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.kc-tile, .kc-wall { min-width: 0; min-height: 0; }
+.kc-wall { background: var(--kc-wall); }
+.kc-tile {
+  display: flex; align-items: center; justify-content: center; position: relative; padding: 0; margin: 0;
+  border: 0; border-radius: 0; box-shadow: inset 0 0 0 .5px var(--kc-grid), 0 0 0 .5px var(--kc-grid);
+  background: var(--kc-cell); color: var(--gp-ink);
+  font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: clamp(18px, 4.6vw, 26px); font-weight: 600;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.kc-tile.is-compound { font-size: clamp(13px, 3.2vw, 19px); letter-spacing: -.04em; }
+.kc-tile span { position: relative; z-index: 3; pointer-events: none; }
+.kc-tile.is-solved { color: var(--kc-found-ink); }
+.kc-tile:disabled { cursor: default; }
+.kc-tile:focus-visible { outline: 3px solid var(--kc-accent-ink); outline-offset: -3px; }
+.kc button:focus-visible { outline: 3px solid var(--gp-violet); outline-offset: 2px; }
+
+/* Path "snake": a thick rounded stroke under the letters plus reading-direction chevrons. */
+.kc-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.kc-lines polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.kc-snake__edge { stroke-width: 80; }
+.kc-snake__fill { stroke-width: 72; }
+.kc-snake--found .kc-snake__edge { stroke: var(--kc-found-edge); }
+.kc-snake--found .kc-snake__fill { stroke: var(--kc-found); }
+.kc-snake--active .kc-snake__edge { stroke: var(--kc-active-edge); }
+.kc-snake--active .kc-snake__fill { stroke: var(--kc-active); }
+.kc-snake__arrow { fill: none; stroke: var(--kc-found-ink); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+.kc-snake--active .kc-snake__arrow { stroke: var(--kc-accent-ink); }
+
+.kc-selection {
+  grid-area: sel; min-height: 34px; margin: 0; font-family: "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 20px; font-weight: 600; letter-spacing: .06em; color: var(--kc-accent-ink); overflow-wrap: anywhere;
+}
+
+/* Word slots: one row of small squares per word, filled in once found. */
+.kc-words { grid-area: words; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.kc-word { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; min-width: 0; }
+.kc-slots { display: flex; gap: 4px; }
+.kc-slot {
+  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px;
+  background: var(--kc-slot); color: var(--kc-found-ink);
+  font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 15px; font-weight: 700;
+}
+.kc-slot.is-compound { font-size: 11px; letter-spacing: -.06em; }
+.kc-word.is-found .kc-slot { background: var(--kc-found); box-shadow: inset 0 0 0 1.5px var(--kc-found-edge); }
+.kc-gloss { font-size: 12px; color: var(--gp-muted); line-height: 1.4; overflow-wrap: anywhere; }
+.kc-gloss strong { margin-right: 4px; font-family: "Yu Gothic", "Meiryo", sans-serif; font-size: 14px; color: var(--gp-ink); }
+
+/* Today's ranking for the board on screen. */
+.kc-rank { grid-area: rank; min-width: 0; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--gp-line); }
+.kc-rank__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.kc-rank__head h3 { margin: 0; font-size: 14px; color: var(--gp-ink); }
+.kc-rank__head h3 i { color: #c9971c; margin-right: 4px; }
+.kc-rank__head span { font-size: 12px; color: var(--gp-muted); }
+.kc-rank__list { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.kc-rank__row { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; font-size: 13px; }
+.kc-rank__row.is-me { background: var(--gp-violet-soft); font-weight: 700; }
+.kc-rank__pos { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--kc-slot); color: var(--gp-muted); font-size: 12px; font-weight: 700; }
+.kc-rank__pos.is-top1 { background: #f3c84b; color: #4a3500; }
+.kc-rank__pos.is-top2 { background: #cfd5dc; color: #33393f; }
+.kc-rank__pos.is-top3 { background: #e0a679; color: #4a2508; }
+.kc-rank__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gp-ink); }
+.kc-rank__time { font-variant-numeric: tabular-nums; color: var(--gp-muted); }
+.kc-rank__empty { padding: 6px 0; font-size: 12px; color: var(--gp-muted); }
+.kc-rank__me { margin: 8px 0 0; font-size: 12px; font-weight: 700; color: var(--kc-accent-ink); }
+
+.kc-message { margin: 12px 0 0; color: var(--gp-muted); font-size: 13px; line-height: 1.6; }
+.kc-message:empty { display: none; }
+.kc-message.is-error { color: var(--color-danger, #b9324b); }
+.kc .gp-soft-btn { color: var(--kc-accent-ink); }
+html:not([data-theme="dark"]) .kc .gp-primary-btn { background: var(--kc-accent-ink); }
+
+@media (max-width: 900px) { .gp-grid { grid-template-areas: "today" "streak" "challenge" "missions" "history"; } }
+
+/* Mobile: clock bar, full-width board, then the staggered word slots (like Wend). */
+@media (max-width: 760px) {
+  .kc-play { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "meta" "board" "sel" "words" "rank"; gap: 12px; }
+  .kc-levels { margin-bottom: 14px; }
+  .kc-levels button { min-width: 0; padding: 6px 11px; }
+  .kc-frame { width: 100%; max-width: 460px; justify-self: center; padding: 8px; border-radius: 14px; }
+  .kc-selection { min-height: 28px; text-align: center; font-size: 18px; }
+  .kc-words { align-items: center; gap: 8px; }
+  .kc-word { justify-content: center; }
+  .kc-word:nth-child(odd) { transform: translateX(-12px); }
+  .kc-word:nth-child(even) { transform: translateX(12px); }
+  .kc-slot { width: 26px; height: 26px; border-radius: 6px; font-size: 13px; }
+  .kc-gloss { flex-basis: 100%; text-align: center; }
+}
+@media (max-width: 640px) {
+  .kc .gp-card__head { align-items: flex-start; gap: 16px; }
+  .kc-launch { width: 100%; justify-content: space-between; }
+}
+@media (max-width: 380px) {
+  .kc-slot { width: 22px; height: 22px; font-size: 12px; }
+  .kc-word:nth-child(n) { transform: none; }
+}
