@@ -47,8 +47,13 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
                         .hasRole("CONTENT_CREATOR")
+                        // JLAS2-51: System Admin area, never shared with moderation.
+                        .requestMatchers("/admin/system", "/admin/system/**", "/api/admin/system/**")
+                        .hasRole("SUPER_ADMIN")
+                        // Landing page only: AdminPageController sends System Admin to its own area.
+                        .requestMatchers("/admin", "/admin/").hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
-                        .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
+                        .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
@@ -107,6 +112,15 @@ public class SecurityConfig {
 
     private static void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        if (Boolean.TRUE.equals(request.getAttribute(JwtAuthenticationFilter.ACCOUNT_LOCKED_ATTRIBUTE))) {
+            if (request.getRequestURI().startsWith("/api/")) {
+                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                        "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.", "ACCOUNT_LOCKED");
+            } else {
+                response.sendRedirect("/login?locked=1");
+            }
+            return;
+        }
         if (!request.getRequestURI().startsWith("/api/")) {
             String returnUrl = request.getRequestURI();
             if (request.getQueryString() != null && !request.getQueryString().isBlank()) {

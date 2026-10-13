@@ -7,6 +7,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 
 @SpringBootApplication
 @EntityScan(basePackages = {
+		"com.jlas.admin.entity",
 		"com.jlas.assessment.entity",
 		"com.jlas.auth.entity",
 		"com.jlas.dictionary.entity",

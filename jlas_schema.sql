@@ -110,6 +110,8 @@ CREATE TABLE users (
     updated_at         DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                        ON UPDATE CURRENT_TIMESTAMP(6),
     last_login_at      DATETIME(6) NULL,
+    locked_at          DATETIME(6) NULL,
+    locked_reason      VARCHAR(500) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_user_email (email),
     UNIQUE KEY uk_user_username (username),
@@ -122,6 +124,28 @@ CREATE TABLE users (
     CONSTRAINT chk_user_login_type CHECK (login_type IN ('LOCAL','GOOGLE')),
     CONSTRAINT chk_user_credit_balance CHECK (credit_balance >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Nhat ky append-only cho thao tac System Admin (migration 028); changes_json da che du lieu nhay cam.
+CREATE TABLE admin_audit_log (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    actor_user_id BIGINT UNSIGNED NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    target_type VARCHAR(40) NOT NULL,
+    target_id VARCHAR(64) NULL,
+    reason VARCHAR(500) NULL,
+    result VARCHAR(20) NOT NULL,
+    changes_json TEXT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_admin_audit_created (created_at),
+    KEY idx_admin_audit_actor_created (actor_user_id, created_at),
+    KEY idx_admin_audit_target (target_type, target_id),
+    KEY idx_admin_audit_action_created (action, created_at),
+    CONSTRAINT fk_admin_audit_actor FOREIGN KEY (actor_user_id) REFERENCES users(id),
+    CONSTRAINT chk_admin_audit_result CHECK (result IN ('SUCCESS','REJECTED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO roles (name, description) VALUES ('SUPER_ADMIN', 'System Admin');
 
 -- Lich su thanh toan premium.
 -- Quan he:
