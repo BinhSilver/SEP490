@@ -4,9 +4,15 @@
 
   var A = window.Admin;
   var API = '/api/admin/system';
-  var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Content Admin' };
+  var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Content Admin', CONTENT_ADMIN: 'Content Admin (vai trò cũ)' };
+  // Roles a System Admin may assign (server enforces the same list).
+  var ASSIGNABLE = ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
   var STATUS = { ACTIVE: 'Đang hoạt động', LOCKED: 'Đã khoá' };
-  var ACTIONS = { USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản' };
+  var ACTIONS = {
+    USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
+    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công'
+  };
+  var MAX_GRANT_DAYS = 365;
 
   function roleLabel(role) { return ROLE_NAMES[role] || A.ROLE_LABELS[role] || role || '—'; }
 
@@ -28,6 +34,14 @@
     return modal.querySelector('#admReason').value.trim().length < 5 ? { error: 'Lý do cần ít nhất 5 ký tự.' } : null;
   }
 
+  var plansCache = null;
+  async function grantablePlans() {
+    if (!plansCache) {
+      plansCache = (await A.api.get(API + '/premium-plans')).filter(function (p) { return String(p.name).toUpperCase() !== 'FREE'; });
+    }
+    return plansCache;
+  }
+
   // ── Users ──────────────────────────────────────────────────────────────
   A.section('system-users', {
     subtitle: 'Tìm, xem và khoá hoặc mở khoá tài khoản. Mỗi thao tác cần lý do và được ghi vào nhật ký quản trị.',
@@ -39,7 +53,7 @@
         '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
           '<input class="input" type="search" name="q" maxlength="100" placeholder="Email, tên đăng nhập hoặc họ tên" aria-label="Tìm người dùng">' +
           '<select class="select" name="role" aria-label="Vai trò"><option value="">Mọi vai trò</option>' +
-            ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'].map(function (r) {
+            ASSIGNABLE.concat(['CONTENT_ADMIN']).map(function (r) {
               return '<option value="' + r + '">' + A.esc(roleLabel(r)) + '</option>';
             }).join('') + '</select>' +
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
@@ -66,6 +80,108 @@
           ? '<button type="button" class="btn btn--secondary btn--sm adm-nowrap" data-unlock="' + u.id + '"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Mở khoá</button>'
           : '<button type="button" class="btn btn--sm adm-btn--danger adm-nowrap" data-lock="' + u.id + '"><i class="fa-solid fa-lock" aria-hidden="true"></i> Khoá</button>';
       }
+
+      function manageButtons(u) {
+        if (u.id === me()) return '';
+        return '<button type="button" class="btn btn--secondary btn--sm adm-nowrap" data-role-change="' + u.id + '">' +
+            '<i class="fa-solid fa-user-gear" aria-hidden="true"></i> Đổi vai trò</button>' +
+          '<button type="button" class="btn btn--primary btn--sm adm-nowrap" data-grant="' + u.id + '">' +
+            '<i class="fa-solid fa-crown" aria-hidden="true"></i> Cấp Premium</button>';
+      }
+
+      async function changeRole(id) {
+        var u = rows[id];
+        var decision = await A.decide({
+          title: 'Đổi vai trò của ' + (u.fullName || u.email) + '?',
+          message: 'Vai trò mới có hiệu lực ngay ở lần thao tác tiếp theo của người dùng.',
+          confirmText: 'Đổi vai trò', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml: '<div class="field"><label class="field__label" for="admRoleSelect">Vai trò mới</label>' +
+            '<select class="select" id="admRoleSelect" data-autofocus>' + ASSIGNABLE.map(function (r) {
+              return '<option value="' + r + '"' + (r === u.role ? ' disabled' : '') + '>' + A.esc(roleLabel(r)) +
+                (r === u.role ? ' (hiện tại)' : '') + '</option>';
+            }).join('') + '</select></div>',
+          collect: function (modal) {
+            var role = modal.querySelector('#admRoleSelect').value;
+            if (!role || role === u.role) return { error: 'Vui lòng chọn vai trò khác vai trò hiện tại.' };
+            return reasonLength(modal) || { role: role };
+          }
+        });
+        if (!decision) return;
+        try {
+          await A.api.post(API + '/users/' + id + '/role', { role: decision.extra.role, reason: decision.reason });
+          A.toast('Đã đổi vai trò', 'success');
+        } catch (e) {
+          A.toast(e.message, 'error');
+        }
+        await load();
+        await showDetail(id);
+      }
+
+      async function grantPremium(id) {
+        var u = rows[id];
+        var plans;
+        try {
+          plans = await grantablePlans();
+        } catch (e) {
+          A.toast(e.message, 'error');
+          return;
+        }
+        if (!plans.length) {
+          A.toast('Chưa có gói Premium nào để cấp.', 'warning');
+          return;
+        }
+        var stacking = u.premiumActive
+          ? 'Người dùng đang có Premium đến ' + A.esc(A.date(u.premiumExpiredAt)) + ': số ngày cấp sẽ được <strong>cộng dồn</strong> vào hạn này.'
+          : 'Người dùng chưa có Premium còn hạn: thời hạn tính từ bây giờ.';
+        var decision = await A.decide({
+          title: 'Cấp Premium cho ' + (u.fullName || u.email) + '?',
+          message: stacking + ' Không tạo giao dịch thanh toán; người dùng nhận thông báo về gói và hạn mới.',
+          confirmText: 'Cấp Premium', maxLength: 500,
+          placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
+          extraHtml:
+            '<div class="field"><label class="field__label" for="admPlanSelect">Gói Premium</label>' +
+              '<select class="select" id="admPlanSelect" data-autofocus>' + plans.map(function (p) {
+                return '<option value="' + p.id + '" data-days="' + p.durationDays + '">' + A.esc(p.name) + ' · ' +
+                  p.durationDays + ' ngày' + (p.active ? '' : ' (ngừng bán)') + '</option>';
+              }).join('') + '</select></div>' +
+            '<div class="field"><label class="field__label" for="admDays">Số ngày (1–' + MAX_GRANT_DAYS + ')</label>' +
+              '<input class="input" id="admDays" inputmode="numeric" maxlength="3" value="' +
+                Math.min(plans[0].durationDays, MAX_GRANT_DAYS) + '"></div>',
+          collect: function (modal) {
+            var days = Number(modal.querySelector('#admDays').value);
+            if (!Number.isInteger(days) || days < 1 || days > MAX_GRANT_DAYS) {
+              return { error: 'Số ngày phải từ 1 đến ' + MAX_GRANT_DAYS + '.' };
+            }
+            return reasonLength(modal) || { planId: Number(modal.querySelector('#admPlanSelect').value), durationDays: days };
+          }
+        });
+        if (!decision) return;
+        try {
+          await A.api.post(API + '/users/' + id + '/premium-grants', {
+            planId: decision.extra.planId, durationDays: decision.extra.durationDays, reason: decision.reason
+          });
+          A.toast('Đã cấp Premium', 'success');
+        } catch (e) {
+          A.toast(e.message, 'error');
+        }
+        await load();
+        await showDetail(id);
+      }
+
+      // Plan choice pre-fills its duration; the days field accepts digits only.
+      document.addEventListener('change', function (event) {
+        if (event.target.id !== 'admPlanSelect') return;
+        var days = event.target.selectedOptions[0].dataset.days;
+        var input = document.getElementById('admDays');
+        if (input && days) input.value = Math.min(Number(days), MAX_GRANT_DAYS);
+      });
+      document.addEventListener('focusin', function (event) {
+        if (event.target.id === 'admDays' && !event.target.dataset.digits) {
+          event.target.dataset.digits = '1';
+          A.digitsOnly(event.target);
+        }
+      });
 
       async function load() {
         var list = root.querySelector('[data-list]');
@@ -124,7 +240,7 @@
             '<dl class="adm-detail">' + fields.filter(function (f) { return f[1] != null && f[1] !== ''; }).map(function (f) {
               return '<dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd>';
             }).join('') + '</dl>' +
-            '<p class="adm-toolbar">' + lockButton(u) +
+            '<p class="adm-toolbar">' + lockButton(u) + manageButtons(u) +
               '<button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p>' +
           '</section>';
           rows[u.id] = u;
@@ -162,6 +278,8 @@
         if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId)); return; }
         if ((el = target.closest('[data-lock]'))) { setLocked(Number(el.dataset.lock), true); return; }
         if ((el = target.closest('[data-unlock]'))) { setLocked(Number(el.dataset.unlock), false); return; }
+        if ((el = target.closest('[data-role-change]'))) { changeRole(Number(el.dataset.roleChange)); return; }
+        if ((el = target.closest('[data-grant]'))) { grantPremium(Number(el.dataset.grant)); return; }
         if (target.closest('[data-close-detail]')) { detailId = null; root.querySelector('[data-detail]').innerHTML = ''; }
       });
       await load();
@@ -173,10 +291,18 @@
     if (!json) return '<span class="adm-muted">—</span>';
     var c;
     try { c = JSON.parse(json); } catch (e) { return '<code>' + A.esc(json) + '</code>'; }
+    var to = ' <span class="adm-muted">thành</span> ';
     if (c.rejection) return A.esc(c.rejection);
     if (c.before && c.after && c.before.status && c.after.status) {
-      return A.esc(STATUS[c.before.status] || c.before.status) + ' <span class="adm-muted">thành</span> ' +
-        A.esc(STATUS[c.after.status] || c.after.status);
+      return A.esc(STATUS[c.before.status] || c.before.status) + to + A.esc(STATUS[c.after.status] || c.after.status);
+    }
+    if (c.before && c.after && c.before.role && c.after.role) {
+      return A.esc(roleLabel(c.before.role)) + to + A.esc(roleLabel(c.after.role));
+    }
+    if (c.before && c.after && 'expiresAt' in c.after) {
+      var was = c.before.active ? (c.before.plan || 'Premium') + ' đến ' + A.date(c.before.expiresAt) : 'Không có Premium';
+      return A.esc(was) + to + A.esc(c.after.plan + ' đến ' + A.date(c.after.expiresAt)) +
+        '<br><span class="adm-muted">+' + A.esc(c.durationDays) + ' ngày' + (c.stacked ? ', cộng dồn' : '') + '</span>';
     }
     return '<code>' + A.esc(json) + '</code>';
   }
