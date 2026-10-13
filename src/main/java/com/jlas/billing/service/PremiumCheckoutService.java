@@ -5,6 +5,8 @@ import com.jlas.auth.entity.PremiumPlan;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.PremiumPlanRepository;
 import com.jlas.auth.repository.UserRepository;
+import com.jlas.billing.entity.CreditPackage;
+import com.jlas.billing.repository.CreditPackageRepository;
 import com.jlas.billing.config.PayOsProperties;
 import com.jlas.billing.payos.PayOsClient;
 import com.jlas.billing.repository.BillingPaymentRepository;
@@ -12,6 +14,8 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.kaiwa.config.AiCallQuotaProperties;
 import com.jlas.notification.service.UserNotificationPort;
+import com.jlas.moderation.credit.service.UserCreditService;
+import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,6 +53,9 @@ public class PremiumCheckoutService {
 
     private final BillingPaymentRepository payments;
     private final PremiumPlanRepository plans;
+    private final CreditPackageRepository packages;
+    private final CouponService coupons;
+    private final UserCreditService credits;
     private final UserRepository users;
     private final PayOsClient payos;
     private final PayOsProperties properties;
@@ -56,11 +63,15 @@ public class PremiumCheckoutService {
     private final UserNotificationPort notifications;
     private final TransactionTemplate tx;
 
-    public PremiumCheckoutService(BillingPaymentRepository payments, PremiumPlanRepository plans, UserRepository users,
+    public PremiumCheckoutService(BillingPaymentRepository payments, PremiumPlanRepository plans, CreditPackageRepository packages,
+                                  CouponService coupons, UserCreditService credits, UserRepository users,
                                   PayOsClient payos, PayOsProperties properties, AiCallQuotaProperties quota,
                                   UserNotificationPort notifications, PlatformTransactionManager transactionManager) {
         this.payments = payments;
         this.plans = plans;
+        this.packages = packages;
+        this.coupons = coupons;
+        this.credits = credits;
         this.users = users;
         this.payos = payos;
         this.properties = properties;
@@ -85,15 +96,19 @@ public class PremiumCheckoutService {
     public record Pricing(List<PlanView> plans, CurrentPlan current, AiAllowance aiCall, boolean paymentsEnabled) {
     }
 
-    public record OrderView(long orderCode, String status, String planName, int durationDays, BigDecimal amount,
+    public record OrderView(long orderCode, String status, String planName, Integer durationDays, BigDecimal amount,
                             String currency, String checkoutUrl, String qrCode, LocalDateTime expiresAt,
-                            LocalDateTime createdAt, LocalDateTime paidAt, LocalDateTime premiumUntil) {
+                            LocalDateTime createdAt, LocalDateTime paidAt, LocalDateTime premiumUntil,
+                            String productType, Integer creditAmount, BigDecimal originalAmount,
+                            BigDecimal discountAmount, String couponCode) {
         static OrderView from(Payment p) {
             boolean payable = "PENDING".equals(p.getStatus());
             return new OrderView(Long.parseLong(p.getOrderCode()), p.getStatus(), p.getPlanNameSnapshot(),
                     p.getDurationDaysSnapshot(), p.getAmountPaid(), p.getCurrency(),
                     payable ? p.getCheckoutUrl() : null, payable ? p.getQrCode() : null, p.getExpiresAt(),
-                    p.getCreatedAt(), p.getPaidAt(), p.getPremiumUntil());
+                    p.getCreatedAt(), p.getPaidAt(), p.getPremiumUntil(), p.getProductType(),
+                    p.getCreditAmountSnapshot(), p.getOriginalAmount() == null ? p.getAmountPaid() : p.getOriginalAmount(),
+                    p.getDiscountAmount(), p.getCouponCodeSnapshot());
         }
     }
 
@@ -112,6 +127,34 @@ public class PremiumCheckoutService {
 
     public List<OrderView> history(Long userId) {
         return payments.findTop50ByUser_IdOrderByCreatedAtDescIdDesc(userId).stream().map(OrderView::from).toList();
+    }
+
+    public record PackageView(Long id, String name, String description, int creditAmount, BigDecimal price) { }
+    public record CreditPricing(List<PackageView> packages, Long balance, boolean paymentsEnabled) { }
+
+    public CreditPricing creditPricing(Long userId) {
+        return new CreditPricing(packages.findAll(Sort.by("price", "id")).stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsActive()))
+                .map(p -> new PackageView(p.getId(), p.getName(), p.getDescription(), p.getCreditAmount(), p.getPrice()))
+                .toList(), userId == null ? null : credits.balance(userId), properties.configured());
+    }
+
+    public record CouponPreview(String code, BigDecimal originalAmount, BigDecimal discountAmount, BigDecimal finalAmount) { }
+    public CouponPreview preview(Long userId, String code, String productType, Long productId) {
+        BigDecimal amount;
+        if ("PREMIUM".equals(productType)) {
+            PremiumPlan p = plans.findById(productId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy gói Premium."));
+            if (!Boolean.TRUE.equals(p.getIsActive()) || FREE_PLAN.equalsIgnoreCase(p.getName()))
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Gói này hiện không bán.");
+            amount = p.getPrice();
+        } else if ("CREDIT".equals(productType)) {
+            CreditPackage p = packages.findById(productId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy gói CP."));
+            if (!Boolean.TRUE.equals(p.getIsActive())) throw new ApiException(ErrorCode.BAD_REQUEST, "Gói này hiện không bán.");
+            amount = p.getPrice();
+        } else throw new ApiException(ErrorCode.BAD_REQUEST, "Loại sản phẩm không hợp lệ.");
+        vnd(amount);
+        var q = coupons.preview(code, productType, amount, userId);
+        return new CouponPreview(q.code(), q.originalAmount(), q.discountAmount(), q.finalAmount());
     }
 
     /** Reads an order of this buyer; a pending one is first checked with PayOS (throttled). */
@@ -135,22 +178,57 @@ public class PremiumCheckoutService {
 
     /** Opens a PayOS order for an active plan, or returns the buyer's still-payable order for it. */
     public OrderView start(Long userId, Long planId) {
+        return start(userId, planId, null);
+    }
+
+    public OrderView start(Long userId, Long planId, String couponCode) {
         PremiumPlan plan = planId == null ? null : plans.findById(planId).orElse(null);
         if (plan == null || !Boolean.TRUE.equals(plan.getIsActive()) || FREE_PLAN.equalsIgnoreCase(plan.getName())) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Gói này hiện không bán.");
         }
-        long amount = vnd(plan.getPrice());
+        vnd(plan.getPrice());
+        String normalized = CouponService.normalize(couponCode);
         LocalDateTime now = LocalDateTime.now();
-        var reusable = payments.findReusable(PROVIDER, userId, planId, now.plusMinutes(1)).stream()
-                .filter(p -> p.getAmountPaid().compareTo(plan.getPrice()) == 0).findFirst();
-        if (reusable.isPresent()) return OrderView.from(reusable.get());
+        Payment payment = tx.execute(status -> {
+            var reuseQuote = coupons.quoteForReuse(normalized, "PREMIUM", plan.getPrice(), userId);
+            var reusable = payments.findReusable(PROVIDER, userId, planId, now.plusMinutes(1)).stream()
+                    .filter(p -> p.getAmountPaid().compareTo(reuseQuote.finalAmount()) == 0
+                            && java.util.Objects.equals(p.getCouponCodeSnapshot(), reuseQuote.code())).findFirst();
+            if (reusable.isPresent()) return reusable.get();
+            var quote = coupons.reserve(normalized, "PREMIUM", plan.getPrice(), userId);
+            return openOrder(userId, plan, null, quote, now);
+        });
+        if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
+        return createLink(payment, DESCRIPTION);
+    }
 
-        Payment payment = openOrder(userId, plan, now);
+    public OrderView startCredit(Long userId, Long packageId, String couponCode) {
+        CreditPackage pack = packageId == null ? null : packages.findById(packageId).orElse(null);
+        if (pack == null || !Boolean.TRUE.equals(pack.getIsActive()))
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Gói CP này hiện không bán.");
+        vnd(pack.getPrice());
+        String normalized = CouponService.normalize(couponCode);
+        LocalDateTime now = LocalDateTime.now();
+        Payment payment = tx.execute(status -> {
+            var reuseQuote = coupons.quoteForReuse(normalized, "CREDIT", pack.getPrice(), userId);
+            var reusable = payments.findReusableCredit(PROVIDER, userId, packageId, now.plusMinutes(1)).stream()
+                    .filter(p -> p.getAmountPaid().compareTo(reuseQuote.finalAmount()) == 0
+                            && java.util.Objects.equals(p.getCouponCodeSnapshot(), reuseQuote.code())).findFirst();
+            if (reusable.isPresent()) return reusable.get();
+            var quote = coupons.reserve(normalized, "CREDIT", pack.getPrice(), userId);
+            return openOrder(userId, null, pack, quote, now);
+        });
+        if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
+        return createLink(payment, "JLAS CP");
+    }
+
+    private OrderView createLink(Payment payment, String description) {
+        long amount = vnd(payment.getAmountPaid());
         long orderCode = Long.parseLong(payment.getOrderCode());
         String page = properties.appBaseUrl() + "/premium/checkout/" + orderCode;
         PayOsClient.CreatedLink link;
         try {
-            link = payos.create(orderCode, amount, DESCRIPTION, page, page + "?cancel=1",
+            link = payos.create(orderCode, amount, description, page, page + "?cancel=1",
                     Instant.now().plusSeconds(properties.linkTtlMinutes() * 60L).getEpochSecond());
         } catch (ApiException exception) {
             payment.setStatus("FAILED");
@@ -206,7 +284,8 @@ public class PremiumCheckoutService {
             switch (remote.status()) {
                 case "PAID" -> {
                     if (remote.amount() == amount && remote.amountPaid() >= amount) {
-                        grant(payment, remote.reference(), now);
+                        if ("CREDIT".equals(payment.getProductType())) grantCredit(payment, remote.reference(), now);
+                        else grant(payment, remote.reference(), now);
                     } else {
                         log.warn("PayOS order {} is PAID with amount {}/{} but expected {}", orderCode,
                                 remote.amountPaid(), remote.amount(), amount);
@@ -246,18 +325,35 @@ public class PremiumCheckoutService {
                 "/premium/billing", "PREMIUM_PAID_" + payment.getOrderCode());
     }
 
+    private void grantCredit(Payment payment, String bankReference, LocalDateTime now) {
+        credits.earn(payment.getUser().getId(), payment.getCreditAmountSnapshot(), CreditReason.CREDIT_PURCHASE,
+                "PAYMENT", payment.getId(), "Mua " + payment.getCreditAmountSnapshot() + " CP");
+        payment.setStatus("PAID");
+        payment.setResponseCode("00");
+        payment.setPaidAt(now);
+        payment.setProviderTransactionId(payment.getPaymentLinkId());
+        log.info("PayOS CP order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
+        notifications.notifyUser(payment.getUser().getId(), "CREDIT", "Đã cộng " + payment.getCreditAmountSnapshot() + " CP",
+                "Thanh toán gói " + payment.getPlanNameSnapshot() + " thành công.",
+                "/premium/billing", "CREDIT_PAID_" + payment.getOrderCode());
+    }
+
     // ── Helpers ─────────────────────────────────────────────────────────────
 
-    private Payment openOrder(Long userId, PremiumPlan plan, LocalDateTime now) {
+    private Payment openOrder(Long userId, PremiumPlan plan, CreditPackage pack, CouponService.Quote quote, LocalDateTime now) {
         for (int attempt = 0; ; attempt++) {
             // Unique per provider (DB key); millisecond-based, well under PayOS's 2^53 order code limit.
             long orderCode = (System.currentTimeMillis() % 1_000_000_000_000L) * 100
                     + ThreadLocalRandom.current().nextInt(100);
             try {
                 return payments.saveAndFlush(Payment.builder().user(users.getReferenceById(userId)).premiumPlan(plan)
+                        .productType(plan == null ? "CREDIT" : "PREMIUM").creditPackage(pack)
+                        .creditAmountSnapshot(pack == null ? null : pack.getCreditAmount())
+                        .coupon(quote.coupon()).couponCodeSnapshot(quote.code())
+                        .originalAmount(quote.originalAmount()).discountAmount(quote.discountAmount())
                         .provider(PROVIDER).orderCode(Long.toString(orderCode)).status("PENDING")
-                        .amountPaid(plan.getPrice()).currency("VND").planNameSnapshot(plan.getName())
-                        .durationDaysSnapshot(plan.getDurationDays())
+                        .amountPaid(quote.finalAmount()).currency("VND").planNameSnapshot(plan == null ? pack.getName() : plan.getName())
+                        .durationDaysSnapshot(plan == null ? null : plan.getDurationDays())
                         .expiresAt(now.plusMinutes(properties.linkTtlMinutes())).build());
             } catch (DataIntegrityViolationException duplicate) {
                 if (attempt >= 2) throw duplicate;

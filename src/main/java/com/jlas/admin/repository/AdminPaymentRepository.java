@@ -30,4 +30,8 @@ public interface AdminPaymentRepository extends JpaRepository<Payment, Long>, Jp
     @Query("select p.currency, count(p), sum(p.amountPaid) from Payment p"
             + " where p.status = 'PAID' and p.paidAt >= :from group by p.currency")
     List<Object[]> paidSince(@Param("from") LocalDateTime from);
+
+    @Query("select p.productType, p.currency, count(p), sum(p.amountPaid), sum(p.discountAmount) from Payment p"
+            + " where p.status = 'PAID' and p.paidAt >= :from group by p.productType, p.currency")
+    List<Object[]> paidByProductSince(@Param("from") LocalDateTime from);
 }

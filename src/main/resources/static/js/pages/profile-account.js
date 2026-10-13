@@ -79,7 +79,7 @@
 
   function creditReason(reason) {
     var labels = {
-      ADMIN_GRANT: 'Credit được tặng', CREATOR_REWARD: 'Thưởng nội dung',
+      ADMIN_GRANT: 'Credit được tặng', ADMIN_DEDUCT: 'Quản trị viên trừ CP', CREDIT_PURCHASE: 'Mua CP', CREATOR_REWARD: 'Thưởng nội dung',
       DAILY_CHECKIN: 'Điểm danh hằng ngày', STUDY_REWARD: 'Thưởng học tập',
       QUIZ_REWARD: 'Thưởng hoàn thành Quiz', SHADOWING_REWARD: 'Thưởng luyện Shadowing',
       STREAK_MILESTONE_REWARD: 'Thưởng chuỗi ngày', STREAK_FREEZE: 'Dùng bảo vệ chuỗi',

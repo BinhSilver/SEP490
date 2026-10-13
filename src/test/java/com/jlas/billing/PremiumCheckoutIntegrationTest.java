@@ -10,6 +10,10 @@ import com.jlas.auth.repository.RoleRepository;
 import com.jlas.auth.repository.UserRepository;
 import com.jlas.auth.util.JwtUtil;
 import com.jlas.billing.payos.PayOsClient;
+import com.jlas.billing.entity.Coupon;
+import com.jlas.billing.entity.CreditPackage;
+import com.jlas.billing.repository.CouponRepository;
+import com.jlas.billing.repository.CreditPackageRepository;
 import com.jlas.billing.payos.PayOsClient.RemotePayment;
 import com.jlas.billing.service.PremiumCheckoutService;
 import com.jlas.common.exception.ApiException;
@@ -51,6 +55,8 @@ class PremiumCheckoutIntegrationTest {
     @Autowired RoleRepository roles;
     @Autowired PremiumPlanRepository plans;
     @Autowired PaymentRepository payments;
+    @Autowired CouponRepository coupons;
+    @Autowired CreditPackageRepository packages;
     @Autowired PremiumCheckoutService checkout;
     @Autowired AuthProperties authProperties;
     @Autowired JdbcTemplate jdbc;
@@ -63,7 +69,10 @@ class PremiumCheckoutIntegrationTest {
     @BeforeEach
     void setup() {
         jdbc.update("DELETE FROM user_notification");
+        jdbc.update("DELETE FROM user_credit_transaction");
         payments.deleteAll();
+        coupons.deleteAll();
+        packages.deleteAll();
         users.deleteAll();
         plans.deleteAll();
         plans.save(plan("FREE", "0", 36500, true));
@@ -225,6 +234,74 @@ class PremiumCheckoutIntegrationTest {
             assertThat(p.getStatus()).isEqualTo("FAILED");
             assertThat(p.getResponseCode()).isEqualTo("CREATE_FAILED");
         });
+    }
+
+    @Test
+    void creditPurchaseGrantsOnceAndRejectsDiscountedAmountMismatch() throws Exception {
+        CreditPackage pack = packages.save(CreditPackage.builder().name("CP100").creditAmount(100)
+                .price(new BigDecimal("10000")).isActive(true).build());
+        Coupon coupon = coupons.save(Coupon.builder().code("SAVE20").discountType("PERCENT")
+                .discountValue(new BigDecimal("20")).maxDiscount(new BigDecimal("1500"))
+                .appliesTo("CREDIT").isActive(true).build());
+        mvc.perform(get("/api/credits/packages")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.packages[0].creditAmount").value(100));
+        mvc.perform(post("/api/billing/coupons/preview").header("Authorization", bearer(buyer))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"code\":\"save20\",\"productType\":\"CREDIT\",\"productId\":" + pack.getId() + "}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.finalAmount").value(8500));
+        long code = orderCode(startCredit(pack, "save20").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.discountAmount").value(1500)).andReturn().getResponse().getContentAsString());
+        startCredit(pack, "SAVE20").andExpect(jsonPath("$.data.orderCode").value(code));
+        when(payos.fetch(code)).thenReturn(new RemotePayment(code, 8500, 8500, "PAID", "FTCP"));
+        checkout.order(buyer.getId(), code);
+        checkout.order(buyer.getId(), code);
+        assertThat(users.findById(buyer.getId()).orElseThrow().getCreditBalance()).isEqualTo(100);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM user_credit_transaction WHERE reason = 'CREDIT_PURCHASE' AND reference_id = ?",
+                Long.class, payments.findAll().getFirst().getId())).isEqualTo(1L);
+
+        long mismatch = orderCode(startCredit(pack, null).andReturn().getResponse().getContentAsString());
+        when(payos.fetch(mismatch)).thenReturn(new RemotePayment(mismatch, 8500, 8500, "PAID", "FTWRONG"));
+        assertThat(checkout.order(buyer.getId(), mismatch).status()).isEqualTo("FAILED");
+        assertThat(users.findById(buyer.getId()).orElseThrow().getCreditBalance()).isEqualTo(100);
+    }
+
+    @Test
+    void couponRulesAndLiveReservation() throws Exception {
+        CreditPackage pack = packages.save(CreditPackage.builder().name("CP100").creditAmount(100)
+                .price(new BigDecimal("10000")).isActive(true).build());
+        Coupon c = coupons.save(Coupon.builder().code("FIXED").discountType("FIXED")
+                .discountValue(new BigDecimal("2000")).appliesTo("CREDIT")
+                .usageLimit(1).perUserLimit(1).isActive(true).build());
+        startCredit(pack, "fixed").andExpect(jsonPath("$.data.amount").value(8000));
+        startCredit(pack, "FIXED").andExpect(status().isOk()); // own reservation is reusable
+        mvc.perform(post("/api/credits/checkout").header("Authorization", bearer(user("second")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"packageId\":" + pack.getId() + ",\"couponCode\":\"FIXED\"}"))
+                .andExpect(status().isBadRequest());
+        c.setIsActive(false); coupons.save(c);
+        startCredit(pack, "FIXED").andExpect(status().isBadRequest());
+        c.setIsActive(true); c.setUsageLimit(null); c.setMinOrderAmount(new BigDecimal("20000")); coupons.save(c);
+        startCredit(pack, "FIXED").andExpect(status().isBadRequest());
+        c.setMinOrderAmount(null); c.setEndsAt(LocalDateTime.now().minusMinutes(1)); coupons.save(c);
+        startCredit(pack, "FIXED").andExpect(status().isBadRequest());
+        c.setEndsAt(null); coupons.save(c);
+        start(buyer, monthly, "FIXED").andExpect(status().isBadRequest());
+        c.setPerUserLimit(1); coupons.save(c);
+        // Changing the coupon on the same product creates a distinct order.
+        startCredit(pack, null).andExpect(status().isOk());
+        assertThat(payments.count()).isEqualTo(2);
+    }
+
+    private ResultActions startCredit(CreditPackage pack, String code) throws Exception {
+        return mvc.perform(post("/api/credits/checkout").header("Authorization", bearer(buyer))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"packageId\":" + pack.getId() + ",\"couponCode\":" + (code == null ? "null" : "\"" + code + "\"") + "}"));
+    }
+
+    private ResultActions start(User user, PremiumPlan plan, String code) throws Exception {
+        return mvc.perform(post("/api/premium/checkout").header("Authorization", bearer(user))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"planId\":" + plan.getId() + ",\"couponCode\":\"" + code + "\"}"));
     }
 
     private String planOf(User user) {

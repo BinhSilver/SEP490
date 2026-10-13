@@ -18,6 +18,10 @@ import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.EmailService;
 import com.jlas.auth.service.GoogleTokenService;
 import com.jlas.auth.util.JwtUtil;
+import com.jlas.billing.repository.CouponRepository;
+import com.jlas.billing.repository.CreditPackageRepository;
+import com.jlas.billing.entity.Coupon;
+import com.jlas.billing.entity.CreditPackage;
 import com.jlas.common.exception.ApiException;
 import com.jlas.config.AuthProperties;
 import jakarta.servlet.http.Cookie;
@@ -62,6 +66,8 @@ class SystemAdminIntegrationTest {
     @Autowired AuthService auth;
     @Autowired PremiumPlanRepository plans;
     @Autowired PaymentRepository payments;
+    @Autowired CouponRepository coupons;
+    @Autowired CreditPackageRepository packages;
     @Autowired AdminUserService admin;
     @Autowired AdminAuditService audit;
     @Autowired AuthProperties authProperties;
@@ -81,7 +87,10 @@ class SystemAdminIntegrationTest {
         logs.deleteAll();
         tokens.deleteAll();
         jdbc.update("DELETE FROM user_notification");
+        jdbc.update("DELETE FROM user_credit_transaction");
         payments.deleteAll();
+        coupons.deleteAll();
+        packages.deleteAll();
         users.deleteAll();
         plans.deleteAll();
         superAdmin = createUser("super", "SUPER_ADMIN");
@@ -540,6 +549,105 @@ class SystemAdminIntegrationTest {
                 .andExpect(jsonPath("$.data.paidLast30Days[0].amount").value(99000.0))
                 .andExpect(jsonPath("$.data.plansOnSale").value(1))
                 .andExpect(jsonPath("$.data.premiumActive").value(0));
+    }
+
+    @Test
+    void couponsAndCreditPackagesCrudAreAuditedAndReferencedRowsCannotBeDeleted() throws Exception {
+        String c = "/api/admin/system/coupons";
+        String p = "/api/admin/system/credit-packages";
+        mvc.perform(post(c).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"code\":\"save10\",\"discountType\":\"PERCENT\",\"discountValue\":10,\"appliesTo\":\"ALL\",\"reason\":\"Audit create\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.code").value("SAVE10"));
+        Coupon coupon = coupons.findByCode("SAVE10").orElseThrow();
+        mvc.perform(post(p).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"CP100\",\"creditAmount\":100,\"price\":10000,\"reason\":\"Audit create\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.creditAmount").value(100));
+        CreditPackage pack = packages.findAll().getFirst();
+        mvc.perform(put(c + "/{id}", coupon.getId()).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"code\":\"SAVE10\",\"discountType\":\"FIXED\",\"discountValue\":1000,\"appliesTo\":\"CREDIT\",\"reason\":\"Audit update\"}"))
+                .andExpect(status().isOk());
+        mvc.perform(put(p + "/{id}", pack.getId()).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"CP100\",\"creditAmount\":120,\"price\":12000,\"reason\":\"Audit update\"}"))
+                .andExpect(status().isOk());
+        Payment cpOrder = payments.save(Payment.builder().user(learner).provider("PAYOS").orderCode("CP-USED")
+                .status("PAID").productType("CREDIT").creditPackage(pack).creditAmountSnapshot(100)
+                .coupon(coupon).couponCodeSnapshot("SAVE10").originalAmount(new BigDecimal("10000"))
+                .discountAmount(new BigDecimal("1000")).amountPaid(new BigDecimal("9000"))
+                .currency("VND").planNameSnapshot("CP100").paidAt(LocalDateTime.now()).build());
+        mvc.perform(get("/api/admin/system/payments").param("productType", "CREDIT")
+                .header("Authorization", bearer(adminToken))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.items[0].couponCode").value("SAVE10"));
+        mvc.perform(get("/api/admin/system/payments").param("productType", "PREMIUM")
+                .header("Authorization", bearer(adminToken))).andExpect(jsonPath("$.data.totalElements").value(0));
+        mvc.perform(delete(c + "/{id}", coupon.getId()).header("Authorization", bearer(adminToken))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"Audit delete\"}"))
+                .andExpect(status().isConflict());
+        mvc.perform(delete(p + "/{id}", pack.getId()).header("Authorization", bearer(adminToken))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"Audit delete\"}"))
+                .andExpect(status().isConflict());
+        assertThat(audit.list(null, "COUPON_DELETE", "COUPON", coupon.getId().toString(), "REJECTED", null, null, 0, 10).getTotalElements()).isEqualTo(1);
+        assertThat(audit.list(null, "CREDIT_PACKAGE_DELETE", "CREDIT_PACKAGE", pack.getId().toString(), "REJECTED", null, null, 0, 10).getTotalElements()).isEqualTo(1);
+        mvc.perform(get(c).header("Authorization", bearer(jwt(learner)))).andExpect(status().isForbidden());
+        payments.delete(cpOrder);
+        mvc.perform(delete(c + "/{id}", coupon.getId()).header("Authorization", bearer(adminToken))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"Audit delete\"}"))
+                .andExpect(status().isOk());
+        mvc.perform(delete(p + "/{id}", pack.getId()).header("Authorization", bearer(adminToken))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"Audit delete\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void couponMoneyFieldsRequireWholeVndAndRejectsAreAudited() throws Exception {
+        String url = "/api/admin/system/coupons";
+        for (String fields : new String[]{
+                "\"discountType\":\"FIXED\",\"discountValue\":1000.50",
+                "\"discountType\":\"PERCENT\",\"discountValue\":10,\"maxDiscount\":1000.50",
+                "\"discountType\":\"PERCENT\",\"discountValue\":10,\"minOrderAmount\":1000.50"}) {
+            mvc.perform(post(url).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"code\":\"WHOLE1\"," + fields + ",\"appliesTo\":\"ALL\",\"reason\":\"Check whole VND\"}"))
+                    .andExpect(status().isConflict());
+        }
+        assertThat(audit.list(null, "COUPON_CREATE", "COUPON", null, "REJECTED", null, null, 0, 10).getTotalElements()).isEqualTo(3);
+        mvc.perform(post(url).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"code\":\"WHOLE1\",\"discountType\":\"FIXED\",\"discountValue\":1000.00,"
+                        + "\"minOrderAmount\":2000.00,\"appliesTo\":\"ALL\",\"reason\":\"Check whole VND\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void manualCreditAdjustmentUsesLedgerAndAuditsInsufficientBalance() throws Exception {
+        String url = "/api/admin/system/users/" + learner.getId() + "/credits";
+        String longReason = "A".repeat(300);
+        mvc.perform(post(url).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"amount\":50,\"reason\":\"" + longReason + "\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.creditBalance").value(50));
+        mvc.perform(post(url).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"amount\":-20,\"reason\":\"Manual deduct\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.creditBalance").value(30));
+        mvc.perform(post(url).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"amount\":-40,\"reason\":\"Insufficient balance\"}"))
+                .andExpect(status().isConflict());
+        assertThat(users.findById(learner.getId()).orElseThrow().getCreditBalance()).isEqualTo(30);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM user_credit_transaction WHERE user_id = ? AND reason IN ('ADMIN_GRANT','ADMIN_DEDUCT')",
+                Long.class, learner.getId())).isEqualTo(2);
+        assertThat(jdbc.queryForList("SELECT note FROM user_credit_transaction WHERE user_id = ? AND reason IN ('ADMIN_GRANT','ADMIN_DEDUCT')",
+                String.class, learner.getId())).containsExactlyInAnyOrder("Quản trị viên điều chỉnh CP", "Quản trị viên điều chỉnh CP");
+        assertThat(jdbc.queryForList("SELECT message FROM user_notification WHERE user_id = ? AND type = 'CREDIT'",
+                String.class, learner.getId())).containsExactlyInAnyOrder("Quản trị viên điều chỉnh CP", "Quản trị viên điều chỉnh CP");
+        assertThat(audit.list(null, "USER_CREDIT_ADJUST", "USER", learner.getId().toString(), "SUCCESS", null, null, 0, 10).getContent())
+                .anySatisfy(entry -> assertThat(entry.reason()).isEqualTo(longReason));
+        assertThat(audit.list(null, "USER_CREDIT_ADJUST", "USER", learner.getId().toString(), "REJECTED", null, null, 0, 10).getTotalElements()).isEqualTo(1);
+        for (String amount : new String[]{"null", "0", "100001", "-100001"}) {
+            mvc.perform(post(url).header("Authorization", bearer(adminToken)).contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"amount\":" + amount + ",\"reason\":\"Invalid amount\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+        assertThat(audit.list(null, "USER_CREDIT_ADJUST", "USER", learner.getId().toString(), "REJECTED", null, null, 0, 10).getTotalElements()).isEqualTo(5);
+        mvc.perform(post(url).header("Authorization", bearer(jwt(learner))).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"amount\":10,\"reason\":\"Not allowed\"}"))
+                .andExpect(status().isForbidden());
     }
 
     @Test

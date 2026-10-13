@@ -61,6 +61,8 @@
     var period = yearly && !monthly ? 'year' : 'month';
     var current = data.current;
     var q = data.aiCall;
+    var couponCode = null;
+    var preview = null;
 
     function premiumPlan() { return period === 'year' ? yearly : monthly; }
 
@@ -113,6 +115,8 @@
             '</ul>' +
             (current && current.premiumActive ? '<p class="pm-note">Bạn đang có Premium đến ' + date(current.expiresAt) +
               '. Mua thêm sẽ cộng ' + plan.durationDays + ' ngày vào hạn này.</p>' : '') +
+            '<div class="pm-coupon"><label for="premiumCoupon">Mã giảm giá</label><input id="premiumCoupon" class="input" data-coupon maxlength="40" value="' + esc(couponCode || '') + '"><button type="button" class="btn btn--secondary" data-apply-coupon>Áp dụng</button></div>' +
+            (preview ? '<p class="pm-note">Giảm ' + vnd(preview.discountAmount) + ' · Thanh toán ' + vnd(preview.finalAmount) + '</p>' : '') +
             '<p class="pm-error" data-error aria-live="assertive"></p>' + cta(plan) +
           '</article>' : '<article class="pm-plan"><h2>Premium</h2><p class="pm-muted">Hiện chưa có gói Premium nào đang bán.</p></article>') +
         '</div>' +
@@ -128,13 +132,23 @@
 
     root.addEventListener('click', async function (event) {
       var toggle = event.target.closest('[data-period]');
-      if (toggle) { period = toggle.dataset.period; render(); return; }
+      if (toggle) { period = toggle.dataset.period; couponCode = null; preview = null; render(); return; }
+      var apply = event.target.closest('[data-apply-coupon]');
+      if (apply) {
+        var plan = premiumPlan();
+        var code = root.querySelector('[data-coupon]').value.trim();
+        try {
+          var quote = await api('POST', '/api/billing/coupons/preview', { code: code, productType: 'PREMIUM', productId: plan.id });
+          couponCode = quote.code; preview = quote; render();
+        } catch (e) { root.querySelector('[data-error]').textContent = e.message; }
+        return;
+      }
       var buy = event.target.closest('[data-buy]');
       if (!buy) return;
       buy.disabled = true;
       buy.textContent = 'Đang tạo đơn…';
       try {
-        var order = await api('POST', API + '/checkout', { planId: Number(buy.dataset.buy) });
+        var order = await api('POST', API + '/checkout', { planId: Number(buy.dataset.buy), couponCode: couponCode });
         location.assign('/premium/checkout/' + order.orderCode);
       } catch (e) {
         root.querySelector('[data-error]').textContent = e.message;
@@ -158,10 +172,13 @@
 
     function summary(o) {
       return '<section class="pm-card"><h2>Đơn hàng</h2><dl class="pm-summary">' +
-        '<div><dt>Gói</dt><dd>Premium · ' + esc(o.planName) + '</dd></div>' +
-        '<div><dt>Thời hạn</dt><dd>' + o.durationDays + ' ngày</dd></div>' +
+        '<div><dt>Gói</dt><dd>' + (o.productType === 'CREDIT' ? 'CP' : 'Premium') + ' · ' + esc(o.planName) + '</dd></div>' +
+        (o.productType === 'CREDIT' ? '<div><dt>Số CP</dt><dd>' + o.creditAmount + ' CP</dd></div>'
+          : '<div><dt>Thời hạn</dt><dd>' + o.durationDays + ' ngày</dd></div>') +
         '<div><dt>Mã đơn</dt><dd>' + esc(o.orderCode) + '</dd></div>' +
         '<div><dt>Trạng thái</dt><dd>' + badge(o.status) + '</dd></div>' +
+        (Number(o.discountAmount) ? '<div><dt>Giá gốc</dt><dd>' + vnd(o.originalAmount) + '</dd></div>' +
+          '<div><dt>Giảm giá ' + esc(o.couponCode) + '</dt><dd>−' + vnd(o.discountAmount) + '</dd></div>' : '') +
         '<div class="pm-total"><dt>Tổng thanh toán</dt><dd>' + vnd(o.amount) + '</dd></div>' +
       '</dl></section>';
     }
@@ -177,7 +194,9 @@
       if (o.status === 'PAID') {
         stop();
         root.innerHTML = '<div class="pm-card pm-result pm-result--ok"><i class="fa-solid fa-circle-check pm-result__icon" aria-hidden="true"></i>' +
-          '<h1>Thanh toán thành công</h1><p>Premium của bạn có hiệu lực đến <strong>' + date(o.premiumUntil, true) + '</strong>.</p>' +
+          '<h1>Thanh toán thành công</h1><p>' + (o.productType === 'CREDIT'
+            ? 'Đã cộng <strong>' + o.creditAmount + ' CP</strong> vào tài khoản.'
+            : 'Premium của bạn có hiệu lực đến <strong>' + date(o.premiumUntil, true) + '</strong>.') + '</p>' +
           '<div class="pm-actions"><a class="btn btn--primary" href="/ai-call">Bắt đầu luyện hội thoại AI</a>' +
           '<a class="btn btn--secondary" href="/premium/billing">Xem lịch sử thanh toán</a></div></div>';
         if (window.JlasAuth && JlasAuth.refreshUser) JlasAuth.refreshUser();
@@ -265,12 +284,14 @@
           : '<div><h2 style="margin:0 0 6px">Miễn phí</h2><p class="pm-muted" style="margin:0">Nâng cấp để luyện hội thoại AI nhiều hơn mỗi ngày.</p></div>' +
             '<a class="btn btn--primary" href="/premium">Nâng cấp lên Premium</a>') +
       '</section>' +
+      '<p><a class="btn btn--secondary" href="/credits">Mua thêm CP</a></p>' +
       '<section class="pm-card"><h2>Lịch sử thanh toán</h2>' +
         (orders.length ? '<div class="pm-table-wrap"><table class="pm-table"><thead><tr><th scope="col">Ngày</th><th scope="col">Gói</th>' +
           '<th scope="col">Số tiền</th><th scope="col">Trạng thái</th><th scope="col">Premium đến</th><th scope="col">Mã đơn</th></tr></thead><tbody>' +
           orders.map(function (o) {
-            return '<tr><td>' + date(o.createdAt, true) + '</td><td>' + esc(o.planName) + ' · ' + o.durationDays + ' ngày</td>' +
-              '<td>' + vnd(o.amount) + '</td><td>' + badge(o.status) +
+            return '<tr><td>' + date(o.createdAt, true) + '</td><td>' + esc(o.planName) + ' · ' +
+              (o.productType === 'CREDIT' ? o.creditAmount + ' CP' : o.durationDays + ' ngày') + '</td>' +
+              '<td>' + vnd(o.amount) + (Number(o.discountAmount) ? '<br><small>Giảm ' + vnd(o.discountAmount) + ' (' + esc(o.couponCode) + ')</small>' : '') + '</td><td>' + badge(o.status) +
               (o.status === 'PENDING' ? ' <a href="/premium/checkout/' + o.orderCode + '">Tiếp tục thanh toán</a>' : '') + '</td>' +
               '<td>' + (o.premiumUntil ? date(o.premiumUntil, true) : '—') + '</td><td>' + esc(o.orderCode) + '</td></tr>';
           }).join('') + '</tbody></table></div>'
@@ -278,6 +299,38 @@
       '</section></div>';
   }
 
-  var run = { pricing: pricing, checkout: checkout, billing: billing }[page];
+  async function credits() {
+    var data = await api('GET', '/api/credits/packages');
+    root.innerHTML = '<header class="pm-hero"><h1>Mua CP</h1><p>CP hiện có: <strong>' + (data.balance == null ? 'Đăng nhập để xem' : data.balance) + '</strong></p></header>' +
+      '<div class="pm-plans">' + data.packages.map(function (p) {
+        return '<article class="pm-plan"><h2>' + esc(p.name) + '</h2><p>' + esc(p.description || '') + '</p>' +
+          '<div class="pm-price"><strong>' + p.creditAmount + ' CP</strong><span>' + vnd(p.price) + '</span></div>' +
+          '<label>Mã giảm giá <input class="input" data-coupon-for="' + p.id + '" maxlength="40"></label>' +
+          '<button type="button" class="btn btn--secondary" data-preview-credit="' + p.id + '">Áp dụng</button>' +
+          '<p class="pm-note" data-quote-for="' + p.id + '"></p>' +
+          (data.paymentsEnabled ? '<button type="button" class="btn btn--primary" data-buy-credit="' + p.id + '">Mua CP</button>' : '<button type="button" disabled>Thanh toán đang bảo trì</button>') +
+          '<p class="pm-error" data-error-for="' + p.id + '"></p></article>';
+      }).join('') + '</div><p><a href="/premium/billing">Lịch sử mua CP và thanh toán</a></p>';
+    root.addEventListener('click', async function (event) {
+      var button = event.target.closest('[data-preview-credit],[data-buy-credit]');
+      if (!button) return;
+      var id = Number(button.dataset.previewCredit || button.dataset.buyCredit);
+      var code = root.querySelector('[data-coupon-for="' + id + '"]').value.trim();
+      var error = root.querySelector('[data-error-for="' + id + '"]');
+      error.textContent = '';
+      try {
+        if (button.dataset.previewCredit) {
+          var quote = await api('POST', '/api/billing/coupons/preview', { code: code, productType: 'CREDIT', productId: id });
+          root.querySelector('[data-quote-for="' + id + '"]').textContent = 'Giảm ' + vnd(quote.discountAmount) + ' · Thanh toán ' + vnd(quote.finalAmount);
+        } else {
+          button.disabled = true;
+          var order = await api('POST', '/api/credits/checkout', { packageId: id, couponCode: code || null });
+          location.assign('/premium/checkout/' + order.orderCode);
+        }
+      } catch (e) { error.textContent = e.message; button.disabled = false; }
+    });
+  }
+
+  var run = { pricing: pricing, credits: credits, checkout: checkout, billing: billing }[page];
   if (run) run().catch(function (e) { fail(e.message); });
 })();

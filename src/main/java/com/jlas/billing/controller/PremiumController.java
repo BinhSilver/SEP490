@@ -27,6 +27,7 @@ public class PremiumController {
     public static class CheckoutRequest {
         @NotNull(message = "Vui lòng chọn gói.")
         private Long planId;
+        private String couponCode;
     }
 
     @GetMapping("/plans")
@@ -37,7 +38,7 @@ public class PremiumController {
     @PostMapping("/checkout")
     public ApiResponse<PremiumCheckoutService.OrderView> start(@Valid @RequestBody CheckoutRequest request,
                                                                @AuthenticationPrincipal UserPrincipal user) {
-        return ApiResponse.ok("Đã tạo đơn thanh toán", checkout.start(user.userId(), request.getPlanId()));
+        return ApiResponse.ok("Đã tạo đơn thanh toán", checkout.start(user.userId(), request.getPlanId(), request.getCouponCode()));
     }
 
     /** Polled by the checkout page; the server checks PayOS itself, the browser's result is never trusted. */
@@ -61,6 +62,11 @@ public class PremiumController {
     /** Thymeleaf pages; data comes from the API above. */
     @Controller
     public static class Pages {
+        @GetMapping("/credits")
+        public String credits(Model model) {
+            model.addAttribute("page", "credits");
+            return "premium/premium";
+        }
         @GetMapping("/premium")
         public String pricing(Model model) {
             model.addAttribute("page", "pricing");

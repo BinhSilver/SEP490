@@ -29,10 +29,11 @@ public class AdminDashboardController {
     @GetMapping("/payments")
     public ApiResponse<AdminPage<AdminPaymentView>> payments(@RequestParam(required = false) String q,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String productType,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        return ApiResponse.ok("Giao dịch thanh toán", AdminPage.from(payments.list(q, status, from, to, page, size)));
+        return ApiResponse.ok("Giao dịch thanh toán", AdminPage.from(payments.list(q, status, from, to, productType, page, size)));
     }
 
     @GetMapping("/payments/{id}")

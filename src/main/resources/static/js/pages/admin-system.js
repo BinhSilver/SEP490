@@ -10,13 +10,13 @@
   var STATUS = { ACTIVE: 'Đang hoạt động', LOCKED: 'Đã khoá' };
   var ACTIONS = {
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
-    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công',
+    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công', USER_CREDIT_ADJUST: 'Điều chỉnh CP',
     PREMIUM_PLAN_CREATE: 'Tạo gói Premium', PREMIUM_PLAN_UPDATE: 'Sửa gói Premium',
     PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói'
   };
   var PAYMENT_STATUS = {
     PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
-    CANCELLED: ['Đã huỷ', ''], REFUNDED: ['Đã hoàn tiền', '']
+    CANCELLED: ['Đã huỷ', ''], EXPIRED: ['Hết hạn', ''], REFUNDED: ['Đã hoàn tiền', '']
   };
 
   function money(amount, currency) {
@@ -257,6 +257,7 @@
               return '<dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd>';
             }).join('') + '</dl>' +
             '<p class="adm-toolbar">' + lockButton(u) + manageButtons(u) +
+              '<button type="button" class="btn btn--secondary btn--sm" data-adjust="' + u.id + '">Điều chỉnh CP</button>' +
               '<button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p>' +
           '</section>';
           rows[u.id] = u;
@@ -286,6 +287,29 @@
         if (detailId === id) await showDetail(id);
       }
 
+      async function adjustCredits(id) {
+        var u = rows[id];
+        var decision = await A.decide({
+          title: 'Điều chỉnh CP cho ' + (u.fullName || u.email),
+          message: 'Số dư hiện tại: ' + u.creditBalance + ' CP. Nhập số dương để cộng, số âm để trừ.',
+          confirmText: 'Lưu điều chỉnh', maxLength: 500,
+          extraHtml: '<div class="field"><label class="field__label" for="admCreditAmount">Số CP (−100.000 đến 100.000)</label>' +
+            '<input class="input" id="admCreditAmount" type="number" min="-100000" max="100000" step="1" data-autofocus></div>',
+          collect: function (modal) {
+            var amount = Number(modal.querySelector('#admCreditAmount').value);
+            if (!Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 100000)
+              return { error: 'Số CP phải khác 0 và tối đa 100.000.' };
+            return reasonLength(modal) || { amount: amount };
+          }
+        });
+        if (!decision) return;
+        try {
+          await A.api.post(API + '/users/' + id + '/credits', { amount: decision.extra.amount, reason: decision.reason });
+          A.toast('Đã điều chỉnh CP', 'success');
+          await load(); await showDetail(id);
+        } catch (e) { A.toast(e.message, 'error'); }
+      }
+
       form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
       root.addEventListener('click', function (event) {
         var target = event.target;
@@ -296,6 +320,7 @@
         if ((el = target.closest('[data-unlock]'))) { setLocked(Number(el.dataset.unlock), false); return; }
         if ((el = target.closest('[data-role-change]'))) { changeRole(Number(el.dataset.roleChange)); return; }
         if ((el = target.closest('[data-grant]'))) { grantPremium(Number(el.dataset.grant)); return; }
+        if ((el = target.closest('[data-adjust]'))) { adjustCredits(Number(el.dataset.adjust)); return; }
         if (target.closest('[data-close-detail]')) { detailId = null; root.querySelector('[data-detail]').innerHTML = ''; }
       });
       await load();
@@ -441,6 +466,13 @@
           stat('/admin/system/plans', 'fa-tags', 'Gói đang bán', d.plansOnSale,
             d.plansStopped ? d.plansStopped + ' gói ngừng bán' : '') +
           stat('/admin/system/payments', 'fa-receipt', 'Doanh thu 30 ngày', revenue, paidCount + ' giao dịch thành công') +
+          stat('/admin/system/payments?productType=PREMIUM', 'fa-crown', 'Premium 30 ngày',
+            (d.paidByProductLast30Days || []).filter(function (r) { return r.productType === 'PREMIUM'; })
+              .map(function (r) { return money(r.amount, r.currency); }).join(' + ') || '0', '') +
+          stat('/admin/system/payments?productType=CREDIT', 'fa-coins', 'CP 30 ngày',
+            (d.paidByProductLast30Days || []).filter(function (r) { return r.productType === 'CREDIT'; })
+              .map(function (r) { return money(r.amount, r.currency); }).join(' + ') || '0', '') +
+          stat('/admin/system/payments', 'fa-tag', 'Đã giảm giá 30 ngày', money(d.discountLast30Days, 'VND'), '') +
           stat('/admin/system/payments', 'fa-hourglass-half', 'Giao dịch đang chờ', pending, '') +
         '</div>' +
         (moderation ? '<h2 class="adm-panel__title adm-section-title">Kiểm duyệt đang chờ</h2><div class="adm-stats">' +
@@ -604,8 +636,90 @@
   });
 
   // ── Payments (read only) ───────────────────────────────────────────────
+  function catalogSection(kind) {
+    var coupon = kind === 'coupons', endpoint = API + '/' + kind;
+    return {
+      subtitle: coupon ? 'Quản lý mã giảm giá.' : 'Quản lý gói CP.',
+      render: async function (root) {
+        var rows = {};
+        root.innerHTML = '<button class="btn btn--primary" type="button" data-create>Tạo mới</button><div data-list></div>';
+        async function load() {
+          var items = await A.api.get(endpoint);
+          rows = {}; items.forEach(function (p) { rows[p.id] = p; });
+          root.querySelector('[data-list]').innerHTML = '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+            (coupon ? '<th>Mã</th><th>Giảm</th><th>Phạm vi</th><th>Đã dùng</th><th>Đang giữ</th>'
+              : '<th>Gói</th><th>CP</th><th>Giá</th><th>Đã bán</th>') + '<th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>' +
+            items.map(function (p) {
+              return '<tr>' + (coupon ? '<td>' + A.esc(p.code) + '</td><td>' + A.esc(p.discountValue) + (p.discountType === 'PERCENT' ? '%' : ' VND') +
+                '</td><td>' + A.esc(p.appliesTo) + '</td><td>' + p.usedCount + '</td><td>' + p.reservedCount + '</td>'
+                : '<td>' + A.esc(p.name) + '</td><td>' + p.creditAmount + '</td><td>' + money(p.price, 'VND') + '</td><td>' + p.soldCount + '</td>') +
+                '<td>' + (p.active ? 'Hoạt động' : 'Đã ngừng') + '</td><td>' +
+                '<button class="btn btn--secondary btn--sm" data-edit="' + p.id + '">Sửa</button> ' +
+                '<button class="btn btn--secondary btn--sm" data-toggle="' + p.id + '">' + (p.active ? 'Ngừng' : 'Kích hoạt') + '</button> ' +
+                '<button class="btn btn--sm adm-btn--danger" data-delete="' + p.id + '">Xóa</button></td></tr>';
+            }).join('') + '</tbody></table></div>';
+        }
+        async function edit(p) {
+          function field(id, label, value, type) {
+            return '<label>' + label + '<input class="input" id="cat' + id + '" type="' + (type || 'text') + '" value="' + A.esc(value == null ? '' : value) + '"></label>';
+          }
+          var html = coupon ? field('Code', 'Mã', p && p.code) + field('Description', 'Mô tả', p && p.description) +
+            '<label>Loại<select class="select" id="catType"><option value="PERCENT"' + (!p || p.discountType === 'PERCENT' ? ' selected' : '') + '>Phần trăm</option><option value="FIXED"' + (p && p.discountType === 'FIXED' ? ' selected' : '') + '>Số tiền</option></select></label>' +
+            field('Value', 'Giá trị', p && p.discountValue, 'number') + field('Max', 'Giảm tối đa', p && p.maxDiscount, 'number') +
+            field('Min', 'Đơn tối thiểu', p && p.minOrderAmount, 'number') +
+            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Premium</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select></label>' +
+            field('Start', 'Bắt đầu', p && p.startsAt, 'datetime-local') + field('End', 'Kết thúc', p && p.endsAt, 'datetime-local') +
+            field('Limit', 'Tổng lượt', p && p.usageLimit, 'number') + field('UserLimit', 'Lượt mỗi người', p && p.perUserLimit, 'number')
+            : field('Name', 'Tên gói', p && p.name) + field('Description', 'Mô tả', p && p.description) +
+              field('Credits', 'Số CP', p && p.creditAmount, 'number') + field('Price', 'Giá VND', p && p.price, 'number');
+          var decision = await A.decide({ title: p ? 'Sửa' : 'Tạo mới', confirmText: 'Lưu', maxLength: 500,
+            extraHtml: '<div class="adm-form-grid">' + html + '</div>',
+            collect: function (modal) {
+              var value = function (id) { return modal.querySelector('#cat' + id).value.trim(); };
+              return reasonLength(modal) || (coupon ? {
+                code: value('Code'), description: value('Description') || null, discountType: value('Type'),
+                discountValue: Number(value('Value')), maxDiscount: value('Max') ? Number(value('Max')) : null,
+                minOrderAmount: value('Min') ? Number(value('Min')) : null, appliesTo: value('Applies'),
+                startsAt: value('Start') || null, endsAt: value('End') || null,
+                usageLimit: value('Limit') ? Number(value('Limit')) : null,
+                perUserLimit: value('UserLimit') ? Number(value('UserLimit')) : null
+              } : { name: value('Name'), description: value('Description') || null,
+                creditAmount: Number(value('Credits')), price: Number(value('Price')) });
+            }
+          });
+          if (!decision) return;
+          try {
+            var body = Object.assign({ reason: decision.reason }, decision.extra);
+            if (p) await A.api.put(endpoint + '/' + p.id, body); else await A.api.post(endpoint, body);
+            A.toast('Đã lưu', 'success'); await load();
+          } catch (e) { A.toast(e.message, 'error'); }
+        }
+        async function action(p, del) {
+          var decision = await A.decide({ title: del ? 'Xóa?' : (p.active ? 'Ngừng?' : 'Kích hoạt?'),
+            confirmText: 'Xác nhận', maxLength: 500, collect: reasonLength });
+          if (!decision) return;
+          try {
+            if (del) await A.api.delete(endpoint + '/' + p.id, { reason: decision.reason });
+            else await A.api.post(endpoint + '/' + p.id + (p.active ? '/deactivate' : '/activate'), { reason: decision.reason });
+            A.toast('Đã cập nhật', 'success'); await load();
+          } catch (e) { A.toast(e.message, 'error'); }
+        }
+        root.addEventListener('click', function (event) {
+          var el;
+          if (event.target.closest('[data-create]')) { edit(null); return; }
+          if ((el = event.target.closest('[data-edit]'))) { edit(rows[el.dataset.edit]); return; }
+          if ((el = event.target.closest('[data-toggle]'))) { action(rows[el.dataset.toggle], false); return; }
+          if ((el = event.target.closest('[data-delete]'))) action(rows[el.dataset.delete], true);
+        });
+        await load();
+      }
+    };
+  }
+  A.section('system-coupons', catalogSection('coupons'));
+  A.section('system-credit-packages', catalogSection('credit-packages'));
+
   A.section('system-payments', {
-    subtitle: 'Tra cứu giao dịch mua Premium. Chỉ xem: không sửa, không hoàn tiền tại đây.',
+    subtitle: 'Tra cứu giao dịch mua Premium và CP. Chỉ xem: không sửa, không hoàn tiền tại đây.',
     render: async function (root) {
       var page = 0;
       root.innerHTML =
@@ -614,6 +728,7 @@
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
             Object.keys(PAYMENT_STATUS).map(function (k) { return '<option value="' + k + '">' + PAYMENT_STATUS[k][0] + '</option>'; }).join('') +
           '</select>' +
+          '<select class="select" name="productType" aria-label="Sản phẩm"><option value="">Mọi sản phẩm</option><option value="PREMIUM">Premium</option><option value="CREDIT">CP</option></select>' +
           '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
           '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label>' +
           '<button type="submit" class="btn btn--primary btn--sm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Lọc</button>' +
@@ -624,7 +739,7 @@
         var list = root.querySelector('[data-list]');
         list.innerHTML = A.loading();
         var params = new URLSearchParams({ page: page, size: 20 });
-        ['q', 'status'].forEach(function (k) { var v = form.elements[k].value.trim(); if (v) params.set(k, v); });
+        ['q', 'status', 'productType'].forEach(function (k) { var v = form.elements[k].value.trim(); if (v) params.set(k, v); });
         if (form.elements.from.value) params.set('from', form.elements.from.value + 'T00:00:00');
         if (form.elements.to.value) params.set('to', form.elements.to.value + 'T23:59:59.999');
         try {
@@ -640,8 +755,9 @@
                   '<td><code>' + A.esc(p.orderCode) + '</code><br><span class="adm-muted">' + A.esc(p.provider) + '</span></td>' +
                   '<td><span class="adm-user"><strong>' + A.esc(p.userName || p.userEmail) + '</strong>' +
                     '<span class="adm-muted">' + A.esc(p.userEmail) + ' · #' + p.userId + '</span></span></td>' +
-                  '<td>' + A.esc(p.planName) + '<br><span class="adm-muted">' + A.esc(p.durationDays) + ' ngày</span></td>' +
-                  '<td class="adm-nowrap">' + A.esc(money(p.amountPaid, p.currency)) + '</td>' +
+                  '<td>' + A.esc(p.planName) + '<br><span class="adm-muted">' + (p.productType === 'CREDIT' ? p.creditAmount + ' CP' : p.durationDays + ' ngày') + '</span></td>' +
+                  '<td class="adm-nowrap">' + A.esc(money(p.amountPaid, p.currency)) +
+                    (Number(p.discountAmount) ? '<br><small>Giảm ' + money(p.discountAmount) + ' (' + A.esc(p.couponCode) + ')</small>' : '') + '</td>' +
                   '<td>' + paymentBadge(p.status) + '</td>' +
                   '<td class="adm-muted adm-nowrap">' + A.date(p.paidAt) + '</td>' +
                   '<td><button type="button" class="btn btn--secondary btn--sm" data-payment="' + p.id + '">Chi tiết</button></td></tr>';
@@ -662,7 +778,10 @@
           var fields = [
             ['Mã đơn', p.orderCode], ['Cổng thanh toán', p.provider], ['Mã giao dịch cổng', p.providerTransactionId],
             ['Mã kết quả', p.responseCode], ['Trạng thái', (PAYMENT_STATUS[p.status] || [p.status])[0]],
-            ['Số tiền', money(p.amountPaid, p.currency)], ['Gói lúc mua', p.planName + ' · ' + p.durationDays + ' ngày'],
+            ['Sản phẩm', p.productType === 'CREDIT' ? 'CP' : 'Premium'],
+            ['Giá gốc', money(p.originalAmount, p.currency)], ['Giảm giá', money(p.discountAmount, p.currency)],
+            ['Mã giảm giá', p.couponCode], ['Số tiền', money(p.amountPaid, p.currency)],
+            ['Gói lúc mua', p.planName + ' · ' + (p.productType === 'CREDIT' ? p.creditAmount + ' CP' : p.durationDays + ' ngày')],
             ['Người mua', (p.userName ? p.userName + ' · ' : '') + p.userEmail + ' (#' + p.userId + ')'],
             ['Tạo lúc', A.date(p.createdAt)], ['Thanh toán lúc', A.date(p.paidAt)], ['Cập nhật', A.date(p.updatedAt)]
           ];

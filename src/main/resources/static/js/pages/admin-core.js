@@ -24,6 +24,8 @@
     { title: 'Quản trị hệ thống', items: [
       { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
       { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
+      { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
+      { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
       { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM },
       { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
@@ -44,7 +46,8 @@
     FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
-    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium'
+    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
+    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP'
   };
 
   // ── Auth & API ─────────────────────────────────────────────────────────
@@ -299,7 +302,8 @@
     api: {
       get: function (url) { return request('GET', url); },
       post: function (url, body) { return request('POST', url, body === undefined ? {} : body); },
-      put: function (url, body) { return request('PUT', url, body); }
+      put: function (url, body) { return request('PUT', url, body); },
+      delete: function (url, body) { return request('DELETE', url, body); }
     },
     esc: esc,
     date: date,

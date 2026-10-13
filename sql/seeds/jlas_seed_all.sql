@@ -56,6 +56,12 @@ INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_ac
     ('MONTHLY', 'Monthly premium', 10000.00, 30,  1),
     ('YEARLY',  'Yearly premium',  100000.00, 365, 1);
 
+-- [JLAS2-51] Demo CP packages; only after schema/migration 031.
+INSERT IGNORE INTO credit_packages (name, description, credit_amount, price, is_active) VALUES
+    ('CP 100', '100 CP', 100, 10000.00, 1),
+    ('CP 500', '500 CP', 500, 45000.00, 1),
+    ('CP 1200', '1200 CP', 1200, 100000.00, 1);
+
 INSERT IGNORE INTO users
     (role_id, premium_plan_id, email, username, password_hash, login_type,
      full_name, gender, japanese_level, credit_balance, is_verified)

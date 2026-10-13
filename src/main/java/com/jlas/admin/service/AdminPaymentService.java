@@ -20,15 +20,17 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AdminPaymentService {
-    static final Set<String> STATUSES = Set.of("PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED");
+    static final Set<String> STATUSES = Set.of("PENDING", "PAID", "FAILED", "CANCELLED", "EXPIRED", "REFUNDED");
 
     private final AdminPaymentRepository payments;
 
     public Page<AdminPaymentView> list(String q, String status, LocalDateTime from, LocalDateTime to,
-                                       int page, int size) {
+                                       String productType, int page, int size) {
         if (status != null && !STATUSES.contains(status)) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Trạng thái thanh toán không hợp lệ.");
         }
+        if (productType != null && !Set.of("PREMIUM", "CREDIT").contains(productType))
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Loại sản phẩm không hợp lệ.");
         if (from != null && to != null && from.isAfter(to)) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Khoảng thời gian không hợp lệ.");
         }
@@ -44,6 +46,7 @@ public class AdminPaymentService {
                         cb.like(cb.lower(user.get("fullName")), term, '\\')));
             }
             if (status != null) filters.add(cb.equal(root.get("status"), status));
+            if (productType != null) filters.add(cb.equal(root.get("productType"), productType));
             if (from != null) filters.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
             if (to != null) filters.add(cb.lessThanOrEqualTo(root.get("createdAt"), to));
             return cb.and(filters.toArray(Predicate[]::new));

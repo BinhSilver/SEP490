@@ -36,8 +36,26 @@ public interface BillingPaymentRepository extends JpaRepository<Payment, Long> {
                                @Param("checkedBefore") LocalDateTime checkedBefore, Limit limit);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select p from Payment p join fetch p.premiumPlan where p.id = :id")
+    @Query("select p from Payment p left join fetch p.premiumPlan where p.id = :id")
     Optional<Payment> findForUpdate(@Param("id") Long id);
+
+    @Query("select p from Payment p where p.provider = :provider and p.user.id = :userId and p.creditPackage.id = :packageId"
+            + " and p.status = 'PENDING' and p.checkoutUrl is not null and p.expiresAt > :payableUntil order by p.createdAt desc")
+    List<Payment> findReusableCredit(@Param("provider") String provider, @Param("userId") Long userId,
+                                     @Param("packageId") Long packageId, @Param("payableUntil") LocalDateTime payableUntil);
+
+    @Query("select count(p) from Payment p where p.coupon.id = :couponId and (p.status = 'PAID'"
+            + " or (p.status = 'PENDING' and p.expiresAt > :now))")
+    long countCouponUses(Long couponId, LocalDateTime now);
+
+    @Query("select count(p) from Payment p where p.coupon.id = :couponId and p.user.id = :userId"
+            + " and (p.status = 'PAID' or (p.status = 'PENDING' and p.expiresAt > :now))")
+    long countCouponUsesByUser(Long couponId, Long userId, LocalDateTime now);
+
+    long countByCoupon_Id(Long couponId);
+    long countByCreditPackage_Id(Long packageId);
+    long countByCreditPackage_IdAndStatus(Long packageId, String status);
+    long countByCoupon_IdAndStatus(Long couponId, String status);
 
     /** Serializes Premium grants of one account, so two orders paid together both add their days. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)

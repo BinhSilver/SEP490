@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class AdminPageController {
     private static final Set<String> MODERATION_SECTIONS =
             Set.of("reports", "queue", "appeals", "dictionary", "denylist", "sanctions", "audit");
-    private static final Set<String> SYSTEM_SECTIONS = Set.of("dashboard", "users", "plans", "payments", "audit");
+    private static final Set<String> SYSTEM_SECTIONS = Set.of("dashboard", "users", "plans", "coupons", "credit-packages", "payments", "audit");
 
     @GetMapping({"/admin", "/admin/"})
     public String overview(Model model) {

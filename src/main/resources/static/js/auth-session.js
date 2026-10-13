@@ -324,7 +324,7 @@
         var authPages = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/survey'];
         // The placement survey is for learners only; staff accounts never get sent to it.
         var staffRoles = ['SUPER_ADMIN', 'MODERATOR', 'CONTENT_CREATOR'];
-        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0 || path.indexOf('/premium') === 0
+        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0 || path.indexOf('/premium') === 0 || path.indexOf('/credits') === 0
             || staffRoles.indexOf(user.role) >= 0) return;
         try {
           var response = await fetch('/api/assessment/survey', { headers: JlasAuth.authHeaders() });

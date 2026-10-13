@@ -257,6 +257,8 @@ On an existing database, run `sql/migrations/030_payos_checkout.sql` once before
 starting the app: it adds the payment-link columns and the `EXPIRED` status to
 `payments`, and turns the seed's placeholder prices into VND (MONTHLY 10000,
 YEARLY 100000; prices that were already edited are left alone).
+Then run the re-runnable `sql/migrations/031_coupons_credit_packages.sql` before
+starting the app to add CP packages, coupons and shared payment snapshots.
 
 Put the PayOS channel keys in the ignored `application-local.yaml` (never commit them):
 

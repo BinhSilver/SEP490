@@ -30,11 +30,13 @@ public class AdminDashboardService {
 
     public record Revenue(String currency, long count, BigDecimal amount) {
     }
+    public record ProductRevenue(String productType, String currency, long count, BigDecimal amount, BigDecimal discountAmount) { }
 
     public record Dashboard(long totalUsers, Map<String, Long> usersByRole, long lockedUsers, long unverifiedUsers,
                             long newUsersLast7Days, long newUsersLast30Days, long premiumActive,
                             long plansOnSale, long plansStopped, Map<String, Long> paymentsByStatus,
-                            List<Revenue> paidLast30Days, List<AdminAuditLogView> recentActions) {
+                            List<Revenue> paidLast30Days, List<AdminAuditLogView> recentActions,
+                            List<ProductRevenue> paidByProductLast30Days, BigDecimal discountLast30Days) {
     }
 
     public Dashboard summary() {
@@ -45,6 +47,10 @@ public class AdminDashboardService {
         payments.countByStatus().forEach(row -> byStatus.put((String) row[0], (Long) row[1]));
         List<Revenue> paid = payments.paidSince(now.minusDays(30)).stream()
                 .map(row -> new Revenue((String) row[0], (Long) row[1], (BigDecimal) row[2])).toList();
+        List<ProductRevenue> byProduct = payments.paidByProductSince(now.minusDays(30)).stream()
+                .map(row -> new ProductRevenue((String) row[0], (String) row[1], (Long) row[2],
+                        (BigDecimal) row[3], (BigDecimal) row[4])).toList();
+        BigDecimal discounts = byProduct.stream().map(ProductRevenue::discountAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         var sellable = plans.findAll().stream()
                 .filter(p -> !AdminUserView.FREE_PLAN.equalsIgnoreCase(p.getName())).toList();
         long onSale = sellable.stream().filter(p -> Boolean.TRUE.equals(p.getIsActive())).count();
@@ -53,6 +59,6 @@ public class AdminDashboardService {
         return new Dashboard(users.count(), byRole, users.countByLockedAtIsNotNull(), users.countByIsVerifiedFalse(),
                 users.countByCreatedAtGreaterThanEqual(now.minusDays(7)),
                 users.countByCreatedAtGreaterThanEqual(now.minusDays(30)),
-                users.countActivePremium(now), onSale, sellable.size() - onSale, byStatus, paid, recent);
+                users.countActivePremium(now), onSale, sellable.size() - onSale, byStatus, paid, recent, byProduct, discounts);
     }
 }

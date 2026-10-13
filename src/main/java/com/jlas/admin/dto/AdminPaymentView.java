@@ -10,11 +10,15 @@ public record AdminPaymentView(Long id, String orderCode, String provider, Strin
                                String status, BigDecimal amountPaid, String currency, String responseCode,
                                String planName, Integer durationDays, LocalDateTime paidAt,
                                LocalDateTime createdAt, LocalDateTime updatedAt,
-                               Long userId, String userEmail, String userName) {
+                               Long userId, String userEmail, String userName,
+                               String productType, Integer creditAmount, String couponCode,
+                               BigDecimal originalAmount, BigDecimal discountAmount) {
     public static AdminPaymentView from(Payment p) {
         return new AdminPaymentView(p.getId(), p.getOrderCode(), p.getProvider(), p.getProviderTransactionId(),
                 p.getStatus(), p.getAmountPaid(), p.getCurrency(), p.getResponseCode(), p.getPlanNameSnapshot(),
                 p.getDurationDaysSnapshot(), p.getPaidAt(), p.getCreatedAt(), p.getUpdatedAt(),
-                p.getUser().getId(), p.getUser().getEmail(), p.getUser().getFullName());
+                p.getUser().getId(), p.getUser().getEmail(), p.getUser().getFullName(),
+                p.getProductType(), p.getCreditAmountSnapshot(), p.getCouponCodeSnapshot(),
+                p.getOriginalAmount() == null ? p.getAmountPaid() : p.getOriginalAmount(), p.getDiscountAmount());
     }
 }

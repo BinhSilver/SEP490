@@ -6,6 +6,7 @@ import com.jlas.admin.dto.AdminPage;
 import com.jlas.admin.dto.AdminRoleRequest;
 import com.jlas.admin.dto.AdminUserView;
 import com.jlas.admin.service.AdminUserService;
+import com.jlas.admin.service.AdminCreditService;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -20,6 +21,15 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class AdminUserController {
     private final AdminUserService users;
+    private final AdminCreditService credits;
+
+    public record CreditAdjustRequest(Integer amount, String reason) { }
+
+    @PostMapping("/{id}/credits")
+    public ApiResponse<AdminUserView> adjustCredits(@PathVariable Long id, @RequestBody CreditAdjustRequest request,
+            @AuthenticationPrincipal UserPrincipal actor) {
+        return ApiResponse.ok("Đã điều chỉnh CP", credits.adjust(actor.userId(), id, request.amount(), request.reason()));
+    }
 
     @GetMapping
     public ApiResponse<AdminPage<AdminUserView>> list(@RequestParam(required = false) String q,
