@@ -2,8 +2,8 @@
 (function (global) {
   'use strict';
 
-  var MODERATION = ['MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
-  var ADMINS = ['ADMIN', 'SUPER_ADMIN'];
+  var MODERATION = ['MODERATOR', 'ADMIN'];
+  var ADMINS = ['ADMIN'];
 
   /**
    * Sidebar registry. A new management area = a new group or item here plus a section script.

@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .hasRole("CONTENT_CREATOR")
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
-                        .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
+                        .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
