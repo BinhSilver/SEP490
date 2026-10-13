@@ -1,5 +1,6 @@
 package com.jlas.admin;
 
+import com.jlas.auth.security.CurrentUser;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -16,10 +17,24 @@ import org.springframework.web.server.ResponseStatusException;
 public class AdminPageController {
     private static final Set<String> MODERATION_SECTIONS =
             Set.of("reports", "queue", "appeals", "dictionary", "denylist", "sanctions", "audit");
+    private static final Set<String> SYSTEM_SECTIONS = Set.of("users", "audit");
 
     @GetMapping({"/admin", "/admin/"})
     public String overview(Model model) {
+        // System Admin has no moderation overview; land on its own area instead.
+        if (CurrentUser.hasRole("ROLE_SUPER_ADMIN")) {
+            return "redirect:/admin/system/users";
+        }
         model.addAttribute("section", "overview");
+        return "admin/workspace";
+    }
+
+    @GetMapping("/admin/system/{section}")
+    public String system(@PathVariable String section, Model model) {
+        if (!SYSTEM_SECTIONS.contains(section)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        model.addAttribute("section", "system-" + section);
         return "admin/workspace";
     }
 

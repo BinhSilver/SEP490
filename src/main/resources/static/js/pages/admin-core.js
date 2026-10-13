@@ -4,6 +4,7 @@
 
   var MODERATION = ['MODERATOR', 'ADMIN'];
   var ADMINS = ['ADMIN'];
+  var SYSTEM = ['SUPER_ADMIN'];
 
   /**
    * Sidebar registry. A new management area = a new group or item here plus a section script.
@@ -21,10 +22,14 @@
       { key: 'denylist', label: 'Từ khoá cấm', icon: 'fa-ban', href: '/admin/moderation/denylist', roles: MODERATION },
       { key: 'sanctions', label: 'Chế tài người dùng', icon: 'fa-user-lock', href: '/admin/moderation/sanctions', roles: ADMINS },
       { key: 'audit', label: 'Nhật ký', icon: 'fa-clock-rotate-left', href: '/admin/moderation/audit', roles: MODERATION }
+    ] },
+    { title: 'Quản trị hệ thống', items: [
+      { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
+      { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] }
   ];
 
-  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', SUPER_ADMIN: 'Quản trị cấp cao' };
+  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', SUPER_ADMIN: 'Quản trị hệ thống' };
 
   var TYPE_LABELS = {
     FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
@@ -278,6 +283,7 @@
     MODULES: MODULES,
     MODERATION: MODERATION,
     ADMINS: ADMINS,
+    SYSTEM: SYSTEM,
     ROLE_LABELS: ROLE_LABELS,
     role: role,
     can: can,

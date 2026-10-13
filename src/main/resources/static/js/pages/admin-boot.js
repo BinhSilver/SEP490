@@ -26,6 +26,7 @@
   }
 
   async function refreshCounts() {
+    if (!A.can(A.MODERATION)) return; // badge counts are moderation-only
     try {
       renderNav(await A.api.get('/api/admin/moderation/overview'));
     } catch (ignored) { /* counts are optional */ }
