@@ -215,7 +215,19 @@ WHERE email = '<email>';
 
 System Admin pages live under `/admin/system/**` and APIs under
 `/api/admin/system/**` (`SUPER_ADMIN` only); moderation stays with
-`MODERATOR`/`ADMIN`.
+`MODERATOR`/`ADMIN`. A System Admin can lock/unlock accounts, change roles
+(`LEARNER`, `CONTENT_CREATOR`, `MODERATOR`, `ADMIN`, `SUPER_ADMIN`) and grant
+Premium manually (days stack on an active period; no payment is created).
+Every action needs a reason and is written to the audit log.
+
+Demo data for local testing only (public password `SysAdmin@123`):
+`sql/seeds/demo_system_admin.sql` creates `sysadmin@jlab.local` (SUPER_ADMIN)
+and learner/creator/moderator accounts in different Premium and lock states.
+A fresh database that starts cleanly was built in this order: `jlas_schema.sql`,
+`sql/jlas_migrations_all.sql`, the seeds `seed_data_jlas.sql`, `jlas_seed_all.sql`,
+`questionbank.sql`, `ai_call_scoring_rules.sql`, `demo_content_creator.sql`,
+`seed_data_vnjpclub.sql`, then `src/main/resources/db/migrations/jlpt_full_setup.sql`
+(required: the JLPT entities validate against it) and `demo_system_admin.sql`.
 
 ---
 
