@@ -47,7 +47,19 @@ public class Payment {
     @Column(name = "provider_transaction_id", length = 150)
     private String providerTransactionId;
 
-    /** PENDING/PAID/FAILED/CANCELLED/REFUNDED. */
+    /** Mã link thanh toán PayOS. */
+    @Column(name = "payment_link_id", length = 100)
+    private String paymentLinkId;
+
+    /** Trang thanh toán của cổng. */
+    @Column(name = "checkout_url", length = 500)
+    private String checkoutUrl;
+
+    /** Chuỗi VietQR để hiện mã QR. */
+    @Column(name = "qr_code", length = 1000)
+    private String qrCode;
+
+    /** PENDING/PAID/FAILED/CANCELLED/EXPIRED/REFUNDED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private String status = "PENDING";
@@ -76,6 +88,18 @@ public class Payment {
     /** Thời điểm thanh toán thành công. */
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
+    /** Link thanh toán hết hạn lúc này. */
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
+    /** Lần gần nhất server hỏi trạng thái ở cổng thanh toán. */
+    @Column(name = "checked_at")
+    private LocalDateTime checkedAt;
+
+    /** Premium có hiệu lực đến đâu sau khi đơn này được cộng. */
+    @Column(name = "premium_until")
+    private LocalDateTime premiumUntil;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

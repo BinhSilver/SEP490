@@ -55,7 +55,7 @@ public class SecurityConfig {
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "SUPER_ADMIN")
-                        .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
+                        .requestMatchers("/", "/premium", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
@@ -65,7 +65,7 @@ public class SecurityConfig {
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
                                 "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learning/lessons/*/quiz").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/dictionary/**", "/api/assessment/**",
+                        .requestMatchers(HttpMethod.GET, "/api/premium/plans", "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()

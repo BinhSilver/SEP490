@@ -251,6 +251,29 @@ A fresh database that starts cleanly was built in this order: `jlas_schema.sql`,
 (required: the JLPT entities validate against it) and `demo_system_admin.sql`.
 On a database built from older seeds, also run `sql/migrations/029_merge_admin_roles.sql`.
 
+### Premium checkout with PayOS (JLAS2-49)
+
+On an existing database, run `sql/migrations/030_payos_checkout.sql` once before
+starting the app: it adds the payment-link columns and the `EXPIRED` status to
+`payments`, and turns the seed's placeholder prices into VND (MONTHLY 10000,
+YEARLY 100000; prices that were already edited are left alone).
+
+Put the PayOS channel keys in the ignored `application-local.yaml` (never commit them):
+
+```yaml
+payos.client-id: '<client id>'
+payos.api-key: '<api key>'
+payos.checksum-key: '<checksum key>'
+# optional: payos.app-base-url (default http://localhost:8080), payos.link-ttl-minutes (15)
+```
+
+Flow (no webhook): `/premium` shows the plans; buying opens a PayOS order and the
+page `/premium/checkout/{orderCode}` shows its QR code. The page only asks the server,
+and the server reads the order from PayOS itself (also every minute in the background
+for buyers who closed the page). Premium is granted once, when PayOS reports the full
+amount as paid; days stack on a running Premium period. `/premium/billing` lists the
+buyer's orders. Plan prices must be whole VND amounts.
+
 ---
 
 ## 7. Application Configuration

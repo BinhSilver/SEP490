@@ -159,13 +159,19 @@ CREATE TABLE payments (
     provider                VARCHAR(30) NOT NULL,                    -- Cong thanh toan, vi du VNPAY/MOMO.
     order_code              VARCHAR(100) NOT NULL,                   -- Ma don hang gui sang cong thanh toan.
     provider_transaction_id VARCHAR(150) NULL,                       -- Ma giao dich do cong thanh toan tra ve.
-    status                  VARCHAR(20) NOT NULL DEFAULT 'PENDING',  -- PENDING/PAID/FAILED/CANCELLED/REFUNDED.
+    payment_link_id         VARCHAR(100) NULL,                       -- Ma link thanh toan PayOS.
+    checkout_url            VARCHAR(500) NULL,                       -- Trang thanh toan PayOS.
+    qr_code                 VARCHAR(1000) NULL,                      -- Chuoi VietQR de hien ma QR.
+    status                  VARCHAR(20) NOT NULL DEFAULT 'PENDING',  -- PENDING/PAID/FAILED/CANCELLED/EXPIRED/REFUNDED.
     amount_paid             DECIMAL(12,2) NOT NULL,                 -- So tien thuc te user da thanh toan.
     currency                CHAR(3) NOT NULL DEFAULT 'VND',         -- Ma tien te ISO 4217, vi du VND/USD.
     response_code           VARCHAR(50) NULL,                        -- Ma ket qua cuoi cung tu cong thanh toan.
     plan_name_snapshot      VARCHAR(100) NOT NULL,                   -- Ten goi tai luc mua, phuc vu hoa don lich su.
     duration_days_snapshot  INT UNSIGNED NOT NULL,                   -- So ngay duoc mua tai luc giao dich.
     paid_at                 DATETIME(6) NULL,                        -- Thoi diem thanh toan thanh cong.
+    expires_at              DATETIME(6) NULL,                        -- Link thanh toan het han luc nay.
+    checked_at              DATETIME(6) NULL,                        -- Lan gan nhat server hoi PayOS.
+    premium_until           DATETIME(6) NULL,                        -- Premium co hieu luc den dau sau don nay.
     created_at              DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), -- Luc tao payment.
     updated_at              DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                             ON UPDATE CURRENT_TIMESTAMP(6),         -- Luc payment thay doi gan nhat.
@@ -175,12 +181,13 @@ CREATE TABLE payments (
         (provider, provider_transaction_id),                         -- Chong ghi trung callback giao dich.
     KEY idx_payment_user_created (user_id, created_at),              -- Xem lich su thanh toan cua mot user.
     KEY idx_payment_status_created (status, created_at),             -- Loc payment theo trang thai/thoi gian.
+    KEY idx_payment_status_checked (status, checked_at),             -- Doi soat don dang cho voi PayOS.
     CONSTRAINT fk_payment_user FOREIGN KEY (user_id)
         REFERENCES users(id),                                       -- RESTRICT mac dinh de bao toan lich su.
     CONSTRAINT fk_payment_plan FOREIGN KEY (premium_plan_id)
         REFERENCES premium_plans(id),                               -- RESTRICT mac dinh de bao toan lich su.
     CONSTRAINT chk_payment_status
-        CHECK (status IN ('PENDING','PAID','FAILED','CANCELLED','REFUNDED')),
+        CHECK (status IN ('PENDING','PAID','FAILED','CANCELLED','EXPIRED','REFUNDED')),
     CONSTRAINT chk_payment_amount CHECK (amount_paid >= 0),
     CONSTRAINT chk_payment_duration CHECK (duration_days_snapshot > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
