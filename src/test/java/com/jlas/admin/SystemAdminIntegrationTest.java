@@ -5,9 +5,12 @@ import com.jlas.admin.service.AdminAuditService;
 import com.jlas.admin.service.AdminUserService;
 import com.jlas.auth.dto.LoginRequest;
 import com.jlas.auth.dto.LoginResponse;
+import com.jlas.auth.entity.PremiumPlan;
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.AuthTokenRepository;
+import com.jlas.auth.repository.PaymentRepository;
+import com.jlas.auth.repository.PremiumPlanRepository;
 import com.jlas.auth.repository.RoleRepository;
 import com.jlas.auth.repository.UserRepository;
 import com.jlas.auth.service.AuthService;
@@ -34,6 +37,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -55,6 +59,8 @@ class SystemAdminIntegrationTest {
     @Autowired AuthTokenRepository tokens;
     @Autowired AdminAuditLogRepository logs;
     @Autowired AuthService auth;
+    @Autowired PremiumPlanRepository plans;
+    @Autowired PaymentRepository payments;
     @Autowired AdminUserService admin;
     @Autowired AdminAuditService audit;
     @Autowired AuthProperties authProperties;
@@ -75,6 +81,7 @@ class SystemAdminIntegrationTest {
         tokens.deleteAll();
         jdbc.update("DELETE FROM user_notification");
         users.deleteAll();
+        plans.deleteAll();
         superAdmin = createUser("super", "SUPER_ADMIN");
         learner = createUser("learner", "LEARNER");
         adminToken = jwt(superAdmin);
@@ -258,6 +265,7 @@ class SystemAdminIntegrationTest {
         learner.setFullName("Nguyen Test Name");
         learner.setUsername("sample_user");
         learner.setPhoneNumber("0000000000");
+        learner.setPremiumPlan(plan("MONTHLY"));
         learner.setPremiumExpiredAt(LocalDateTime.now().plusDays(1));
         learner.setGoogleId("dummy-private-google-id");
         users.save(learner);
@@ -366,6 +374,87 @@ class SystemAdminIntegrationTest {
     }
 
     @Test
+    void roleChangeAppliesImmediatelyAndIsAudited() throws Exception {
+        String learnerToken = jwt(learner);
+        mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(learnerToken)))
+                .andExpect(status().isForbidden());
+        roleAction(learner.getId(), "SUPER_ADMIN", "Thăng quyền để kiểm tra", 200)
+                .andExpect(jsonPath("$.data.role").value("SUPER_ADMIN"));
+        // Authorities are rebuilt per request: the same token now carries the new role.
+        mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(learnerToken)))
+                .andExpect(status().isOk());
+        roleAction(learner.getId(), "SUPER_ADMIN", "Lặp lại vai trò", 409);
+        roleAction(learner.getId(), "CONTENT_ADMIN", "Vai trò cũ không được gán", 400);
+        roleAction(learner.getId(), "ROOT", "Vai trò lạ", 400);
+        roleAction(learner.getId(), "CONTENT_CREATOR", "Chưa có trong DB", 400);
+        roleAction(superAdmin.getId(), "LEARNER", "Tự hạ quyền", 409);
+        roleAction(learner.getId(), "LEARNER", "Hạ quyền lại", 200);
+        assertThatThrownBy(() -> admin.changeRole(learner.getId(), superAdmin.getId(), "LEARNER", "Hạ người cuối"))
+                .isInstanceOf(ApiException.class).hasMessageContaining("cuối cùng");
+        mvc.perform(get("/api/admin/system/users/{id}", superAdmin.getId()).header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.role").value("SUPER_ADMIN"));
+        var success = audit.list(null, "USER_ROLE_CHANGE", "USER", learner.getId().toString(), "SUCCESS", null, null, 0, 20);
+        assertThat(success.getContent()).hasSize(2);
+        assertThat(success.getContent().get(1).changesJson()).contains("LEARNER", "SUPER_ADMIN");
+        var rejected = audit.list(null, "USER_ROLE_CHANGE", null, null, "REJECTED", null, null, 0, 20);
+        assertThat(rejected.getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    void premiumGrantStacksWithoutPaymentAndNotifiesUser() throws Exception {
+        PremiumPlan monthly = plan("MONTHLY");
+        PremiumPlan free = plan("FREE");
+        LocalDateTime before = LocalDateTime.now();
+        grant(learner.getId(), monthly.getId(), 30, "Bù lỗi thanh toán", 200)
+                .andExpect(jsonPath("$.data.premiumActive").value(true))
+                .andExpect(jsonPath("$.data.premiumPlanName").value("MONTHLY"));
+        LocalDateTime first = users.findById(learner.getId()).orElseThrow().getPremiumExpiredAt();
+        assertThat(first).isBetween(before.plusDays(30), LocalDateTime.now().plusDays(30));
+        grant(learner.getId(), monthly.getId(), 10, "Tặng thêm sự kiện", 200);
+        assertThat(users.findById(learner.getId()).orElseThrow().getPremiumExpiredAt()).isEqualTo(first.plusDays(10));
+
+        // An expired period does not stack: it restarts from now.
+        User expired = createUser("expired", "LEARNER");
+        expired.setPremiumPlan(monthly);
+        expired.setPremiumExpiredAt(LocalDateTime.now().minusDays(5));
+        users.save(expired);
+        LocalDateTime start = LocalDateTime.now();
+        grant(expired.getId(), monthly.getId(), 7, "Gia hạn cho tài khoản cũ", 200);
+        assertThat(users.findById(expired.getId()).orElseThrow().getPremiumExpiredAt())
+                .isBetween(start.plusDays(7), LocalDateTime.now().plusDays(7));
+
+        grant(learner.getId(), free.getId(), 30, "Gói miễn phí", 400);
+        grant(learner.getId(), 999999L, 30, "Gói không tồn tại", 400);
+        grant(learner.getId(), monthly.getId(), 0, "Thiếu số ngày", 400);
+        grant(learner.getId(), monthly.getId(), 366, "Quá số ngày", 400);
+        grant(superAdmin.getId(), monthly.getId(), 30, "Tự cấp cho mình", 409);
+
+        assertThat(payments.count()).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM user_notification WHERE user_id = ? AND type = 'PREMIUM'",
+                Long.class, learner.getId())).isEqualTo(2L);
+        var granted = audit.list(superAdmin.getId(), "PREMIUM_GRANT", "USER", learner.getId().toString(), "SUCCESS",
+                null, null, 0, 20);
+        assertThat(granted.getContent()).hasSize(2);
+        assertThat(granted.getContent().get(0).changesJson()).contains("\"stacked\":true", "\"durationDays\":10");
+        assertThat(granted.getContent().get(1).changesJson()).contains("\"stacked\":false");
+    }
+
+    @Test
+    void freePlanIsNotPremium() throws Exception {
+        learner.setPremiumPlan(plan("FREE"));
+        learner.setPremiumExpiredAt(LocalDateTime.now().plusYears(10));
+        users.save(learner);
+        mvc.perform(get("/api/admin/system/users/{id}", learner.getId()).header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.premiumActive").value(false));
+        mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(adminToken)).param("premium", "true"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.totalElements").value(0));
+        mvc.perform(get("/api/admin/system/premium-plans").header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data[0].name").value("FREE"));
+        mvc.perform(get("/api/admin/system/premium-plans").header("Authorization", bearer(jwt(learner))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void masksChangesBeforePersisting() {
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> audit.record(
                 superAdmin.getId(), "TEST", "USER", learner.getId().toString(), "Mask test", "SUCCESS",
@@ -377,6 +466,27 @@ class SystemAdminIntegrationTest {
         Role role = roles.findByName(roleName).orElseGet(() -> roles.save(Role.builder().name(roleName).build()));
         return users.save(User.builder().email(name + "@example.test").role(role).loginType("LOCAL")
                 .passwordHash(passwords.encode(PASSWORD)).isVerified(true).build());
+    }
+
+    private PremiumPlan plan(String name) {
+        return plans.save(PremiumPlan.builder().name(name).price("FREE".equals(name) ? BigDecimal.ZERO : new BigDecimal("9.99"))
+                .durationDays("FREE".equals(name) ? 36500 : 30).build());
+    }
+
+    private org.springframework.test.web.servlet.ResultActions roleAction(Long id, String role, String reason,
+                                                                         int expectedStatus) throws Exception {
+        return mvc.perform(post("/api/admin/system/users/{id}/role", id).header("Authorization", bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8")
+                        .content("{\"role\":\"" + role + "\",\"reason\":\"" + reason + "\"}"))
+                .andExpect(status().is(expectedStatus));
+    }
+
+    private org.springframework.test.web.servlet.ResultActions grant(Long id, Long planId, int days, String reason,
+                                                                    int expectedStatus) throws Exception {
+        return mvc.perform(post("/api/admin/system/users/{id}/premium-grants", id).header("Authorization", bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).characterEncoding("UTF-8")
+                        .content("{\"planId\":" + planId + ",\"durationDays\":" + days + ",\"reason\":\"" + reason + "\"}"))
+                .andExpect(status().is(expectedStatus));
     }
 
     private LoginResponse login(User user) {
