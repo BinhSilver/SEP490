@@ -736,18 +736,19 @@
   // Streak/CP chip and reward animations load on every page for signed-in learners, so rewards
   // earned anywhere are celebrated on the next page the learner opens.
   function loadRewardFx() {
-    if (window.RewardFX) {
-      window.RewardFX.boot();
-      return;
-    }
-    if (state.rewardFxLoading) return;
-    state.rewardFxLoading = true;
+    // Pages may preload RewardFX without its CSS; always ensure styles before booting it.
     if (!document.querySelector('link[href*="font-awesome"]')) {
       addStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
     }
     if (!document.querySelector('link[href*="reward-fx.css"]')) {
       addStylesheet('/css/components/reward-fx.css?v=20260926y');
     }
+    if (window.RewardFX) {
+      window.RewardFX.boot();
+      return;
+    }
+    if (state.rewardFxLoading) return;
+    state.rewardFxLoading = true;
     var script = document.createElement('script');
     script.src = '/js/components/reward-fx.js?v=20260927c';
     script.onload = function () { if (window.RewardFX) window.RewardFX.boot(); };
