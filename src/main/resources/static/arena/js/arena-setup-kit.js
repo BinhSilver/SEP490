@@ -463,12 +463,16 @@
   function describeOptions(gameType, options, mode) {
     options = options || {};
     if (gameType === 'NEKO_CATCH') {
-      return (DIFFICULTY_LABELS[options.difficulty] || 'Vừa') + ' · ' + (options.durationSeconds || 60) + ' giây';
+      var preset = options.difficulty === 'EASY' ? [5, 3] : options.difficulty === 'HARD' ? [2, 7] : [3, 5];
+      return (options.lives == null ? preset[0] : options.lives) + ' tim · '
+        + (options.choices == null ? preset[1] : options.choices) + ' cá · ' + (options.durationSeconds || 60) + ' giây'
+        + (options.cardIds ? ' · ' + options.cardIds.length + ' thẻ' : '');
     }
     if (gameType === 'MEMORY_MATCH') {
       return (options.boardSize || 20) + ' thẻ · ' + (options.turnSeconds || 15) + ' giây/lượt'
         + (options.objective === 'TIME_ATTACK' ? ' · tổng ' + Math.round((options.totalSeconds || 300) / 60) + ' phút' : '')
-        + (options.keepTurnOnMatch === false ? ' · ghép đúng vẫn đổi lượt' : ' · ghép đúng được lật tiếp');
+        + (options.keepTurnOnMatch === false ? ' · ghép đúng vẫn đổi lượt' : ' · ghép đúng được lật tiếp')
+        + (options.distinguishCardTypes ? ' · hai màu' : ' · cùng màu');
     }
     return mode === 'SOLO' || !options.durationSeconds ? 'Không giới hạn' : Math.round(options.durationSeconds / 60) + ' phút';
   }

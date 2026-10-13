@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class RoomRegistry {
 
-    /** Bỏ các ký tự dễ nhầm (0/O, 1/I/L) để đọc mã cho nhau qua voice chat không sai. */
-    private static final char[] CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789".toCharArray();
+    /** Mã là chuỗi chữ số để nhập bằng bàn phím số, giữ nguyên số 0 ở đầu. */
+    private static final char[] CODE_ALPHABET = "0123456789".toCharArray();
     private static final int CODE_LENGTH = 6;
 
     private final GameProperties properties;
@@ -72,7 +71,7 @@ public class RoomRegistry {
         return new ArrayList<>(rooms.values());
     }
 
-    /** Mã 6 ký tự, hiển thị dạng ABC-123. */
+    /** Mã gồm 6 chữ số, ví dụ 001234; không trùng với phòng đang tồn tại. */
     public String newCode() {
         for (int attempt = 0; attempt < 50; attempt++) {
             StringBuilder code = new StringBuilder(CODE_LENGTH);
@@ -88,10 +87,10 @@ public class RoomRegistry {
     }
 
     public static String normalizeCode(String raw) {
-        return raw == null ? "" : raw.replaceAll("[^A-Za-z0-9]", "").toUpperCase(Locale.ROOT);
+        return raw == null ? "" : raw.replaceAll("[\\s-]", "");
     }
 
     public static String displayCode(String code) {
-        return code.length() == CODE_LENGTH ? code.substring(0, 3) + "-" + code.substring(3) : code;
+        return code;
     }
 }

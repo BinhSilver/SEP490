@@ -96,8 +96,12 @@ public class NekoCatchServiceImpl implements NekoCatchService {
 
     @Override
     public GameSession launch(LaunchRequest request) {
-        NekoSession.Config config = config(request.options().difficulty(), request.options().durationSeconds());
+        NekoSession.Config preset = config(request.options().difficulty(), request.options().durationSeconds());
         List<String> answerPool = request.words().stream().map(GameWord::answer).distinct().toList();
+        int lives = request.options().lives() == null ? preset.lives() : request.options().lives();
+        int choices = request.options().choices() == null ? preset.distractors() + 1 : request.options().choices();
+        NekoSession.Config config = new NekoSession.Config(preset.difficulty(), lives,
+                Math.min(choices, answerPool.size()) - 1, preset.durationSeconds());
         List<NekoRound> rounds = buildRounds(request.words(), answerPool, config, ThreadLocalRandom.current());
         Instant now = Instant.now();
         Instant startAt = now.plusMillis(START_DELAY_MS);

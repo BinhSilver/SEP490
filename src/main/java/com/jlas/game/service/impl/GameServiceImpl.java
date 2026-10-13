@@ -660,8 +660,7 @@ public class GameServiceImpl implements GameService {
     private GameSession openSession(GameType type, PlayMode mode, String roomId, String roomCode,
                                     GameSettings settings, List<PlayerSeat> seats, long authorityUserId) {
         GameOptions options = GameRules.normalize(type, mode, settings.options());
-        DeckWords deck = decks.loadWords(authorityUserId, settings.setId(), settings.questionField(),
-                settings.answerField());
+        DeckWords deck = configuredWords(authorityUserId, settings, options);
         requireEnoughWords(type, options, deck, settings);
         String sessionId = UUID.randomUUID().toString();
         Long matchId = recorder.start(type, roomId == null ? "solo:" + sessionId : roomId, roomCode, deck.setId(),
@@ -801,9 +800,17 @@ public class GameServiceImpl implements GameService {
         }
         GameRules.validateFields(raw.questionField(), raw.answerField());
         GameOptions options = GameRules.normalize(type, mode, raw.options());
-        DeckWords deck = decks.loadWords(authorityUserId, raw.setId(), raw.questionField(), raw.answerField());
+        DeckWords deck = configuredWords(authorityUserId, raw, options);
         requireEnoughWords(type, options, deck, raw);
         return new GameSettings(deck.setId(), deck.title(), raw.questionField(), raw.answerField(), options);
+    }
+
+    private DeckWords configuredWords(long authorityUserId, GameSettings settings, GameOptions options) {
+        DeckWords deck = decks.loadWords(authorityUserId, settings.setId(), settings.questionField(), settings.answerField());
+        if (options.cardIds() == null) return deck;
+        var picked = decks.pickCards(authorityUserId, settings.setId(), settings.questionField(), settings.answerField(),
+                options.cardIds(), 1, "Trận đấu");
+        return new DeckWords(deck.setId(), deck.title(), picked.words());
     }
 
     private static void requireEnoughWords(GameType type, GameOptions options, DeckWords deck, GameSettings settings) {

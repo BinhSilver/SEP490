@@ -10,6 +10,7 @@ import com.jlas.game.enums.SessionStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,7 +40,19 @@ public final class GameDtos {
     /** Tuỳ chọn riêng từng game; trường nào không dùng cho game đó thì để null. */
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record GameOptions(String difficulty, Integer durationSeconds, Integer boardSize, Integer turnSeconds,
-                              String objective, Integer totalSeconds, Boolean keepTurnOnMatch, Long firstUserId) {
+                              String objective, Integer totalSeconds, Boolean keepTurnOnMatch, Long firstUserId,
+                              Integer lives, Integer choices, List<Long> cardIds, Boolean distinguishCardTypes) {
+        public GameOptions(String difficulty, Integer durationSeconds, Integer boardSize, Integer turnSeconds,
+                           String objective, Integer totalSeconds, Boolean keepTurnOnMatch, Long firstUserId,
+                           Integer lives, Integer choices, List<Long> cardIds) {
+            this(difficulty, durationSeconds, boardSize, turnSeconds, objective, totalSeconds, keepTurnOnMatch,
+                    firstUserId, lives, choices, cardIds, null);
+        }
+        public GameOptions(String difficulty, Integer durationSeconds, Integer boardSize, Integer turnSeconds,
+                           String objective, Integer totalSeconds, Boolean keepTurnOnMatch, Long firstUserId) {
+            this(difficulty, durationSeconds, boardSize, turnSeconds, objective, totalSeconds, keepTurnOnMatch,
+                    firstUserId, null, null, null);
+        }
     }
 
     /** Một thẻ của bộ với 4 trường đã chuẩn hoá (null nếu thẻ không có trường đó), cho bảng chọn thẻ. */
@@ -105,7 +118,9 @@ public final class GameDtos {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    public record JoinRoomRequest(@NotBlank(message = "Nhập mã phòng") String code) {
+    public record JoinRoomRequest(@NotBlank(message = "Nhập mã phòng")
+                                  @Pattern(regexp = "[0-9]{6}",
+                                          message = "Mã phòng gồm 6 chữ số") String code) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)

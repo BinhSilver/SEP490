@@ -20,7 +20,7 @@
 
   var mobileLayout = window.matchMedia('(max-width: 900px)');
   function updateJoinPlaceholder() {
-    joinForm.elements.code.placeholder = mobileLayout.matches ? 'Mã phòng' : 'ABC-123';
+    joinForm.elements.code.placeholder = mobileLayout.matches ? 'Mã phòng' : '123456';
   }
   updateJoinPlaceholder();
   mobileLayout.addEventListener('change', updateJoinPlaceholder);
@@ -71,10 +71,10 @@
   joinForm.addEventListener('submit', function (event) {
     event.preventDefault();
     var input = joinForm.elements.code;
-    var code = String(input.value || '').replace(/[^a-z0-9]/gi, '').toUpperCase();
+    var code = String(input.value || '').trim();
     joinError.hidden = true;
-    if (code.length !== 6) {
-      joinError.textContent = 'Mã phòng gồm 6 ký tự, ví dụ ABC-123.';
+    if (!/^[0-9]{6}$/.test(code)) {
+      joinError.textContent = 'Mã phòng gồm 6 chữ số, ví dụ 123456.';
       joinError.hidden = false;
       input.focus();
       return;
@@ -93,8 +93,7 @@
   });
 
   joinForm.elements.code.addEventListener('input', function (event) {
-    var raw = event.target.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6);
-    event.target.value = raw.length > 3 ? raw.slice(0, 3) + '-' + raw.slice(3) : raw;
+    event.target.value = event.target.value.replace(/[^0-9]/g, '').slice(0, 6);
   });
 
   arena.live.connect();

@@ -23,7 +23,7 @@ public final class GameRules {
     public static final List<String> NEKO_DIFFICULTIES = List.of("EASY", "NORMAL", "HARD");
     public static final List<Integer> NEKO_DURATIONS = List.of(60, 90, 120);
     public static final List<Integer> NEKO_SOLO_DURATIONS = List.of(60, 90, 120, 180, 300, 600, 900, 1200, 1800, 3600);
-    public static final List<Integer> MEMORY_BOARD_SIZES = List.of(12, 20);
+    public static final List<Integer> MEMORY_BOARD_SIZES = List.of(12, 14, 16, 18, 20);
     /** Luyện tập: bàn dựng theo số thẻ đã chọn (mỗi thẻ một cặp), trong khoảng này. */
     public static final int MEMORY_MIN_PAIRS = 6;
     public static final int MEMORY_MAX_PAIRS = 10;
@@ -86,8 +86,11 @@ public final class GameRules {
         return switch (type) {
             case NEKO_CATCH -> new GameOptions(
                     pick("Độ khó", upper(in.difficulty()), NEKO_DIFFICULTIES, "NORMAL"),
-                    pick("Thời gian", in.durationSeconds(), mode == PlayMode.SOLO ? NEKO_SOLO_DURATIONS : NEKO_DURATIONS, 60),
-                    null, null, null, null, null, null);
+                    pick("Thời gian", in.durationSeconds(), NEKO_SOLO_DURATIONS, 60),
+                    null, null, null, null, null, null,
+                    in.lives() == null ? null : pick("Số tim", in.lives(), List.of(1, 2, 3, 4, 5), 3),
+                    in.choices() == null ? null : pick("Số cá", in.choices(), List.of(2, 3, 4, 5, 6, 7), 5),
+                    in.cardIds() == null ? null : List.copyOf(in.cardIds()));
             case MEMORY_MATCH -> {
                 String objective = pick("Mục tiêu", upper(in.objective()), MEMORY_OBJECTIVES, "CLASSIC");
                 Integer total = "TIME_ATTACK".equals(objective)
@@ -98,13 +101,16 @@ public final class GameRules {
                         pick("Thời gian mỗi lượt", in.turnSeconds(), MEMORY_TURN_SECONDS, 15),
                         objective, total, in.keepTurnOnMatch() == null || in.keepTurnOnMatch(),
                         // Người lật trước (do tung đồng xu quyết định); engine chỉ nhận nếu là người chơi của trận.
-                        in.firstUserId());
+                        in.firstUserId(), null, null,
+                        in.cardIds() == null ? null : List.copyOf(in.cardIds()),
+                        Boolean.TRUE.equals(in.distinguishCardTypes()));
             }
             case AIR_DEFENSE -> new GameOptions(null,
                     mode == PlayMode.VERSUS
                             ? pick("Thời gian", in.durationSeconds(), AIR_VERSUS_DURATIONS, 180)
                             : AIR_SOLO_DURATIONS.get(0),
-                    null, null, null, null, null, null);
+                    null, null, null, null, null, null, null, null,
+                    in.cardIds() == null ? null : List.copyOf(in.cardIds()));
         };
     }
 
