@@ -21,7 +21,7 @@ export const HelpModal: React.FC<{
     {
       step: '01',
       title: 'Mục tiêu',
-      desc: `Nhìn từ ở bảng giữa màn hình (${questionLabel}), di chuyển mèo để hứng con cá mang ${answerLabel.toLowerCase()} đúng.`,
+      desc: `Nhìn từ ở bảng giữa màn hình (${questionLabel}), di chuyển mèo để hứng con cá mang ${answerLabel.toLowerCase()} đúng. Tốc độ tăng sau mỗi 3 thẻ, đạt tối đa 2 lần sau 10 thẻ.`,
     },
     {
       step: '02',
@@ -34,7 +34,7 @@ export const HelpModal: React.FC<{
     {
       step: '04',
       title: 'Hứng sai / lỡ cá',
-      desc: 'Hứng nhầm hoặc để con cá nào chạm đất trước khi hứng được cá đúng: mất một tim, combo về 0 và sang từ mới.',
+      desc: 'Hứng nhầm hoặc để cả lượt cá rơi hết mà chưa hứng đúng: mất một tim, combo về 0 và sang từ mới. Cá sai chạm đất không làm mất lượt khi vẫn còn cá để hứng.',
     },
     {
       step: '05',

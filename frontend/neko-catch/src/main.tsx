@@ -37,6 +37,7 @@ function readHostConfig(root: HTMLElement): HostConfig {
   return {
     sessionId: (data.sessionId || '').trim(),
     mode,
+    roomId: data.roomId || null,
     backUrl: (data.backUrl || '').trim() || fallbackBack,
     meId: Number.isFinite(meId) && meId > 0 ? meId : null,
     skin: skinFromCode(data.skin),

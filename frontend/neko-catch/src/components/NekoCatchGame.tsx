@@ -24,6 +24,8 @@ import { ParticleSystem } from '../graphics/ParticleSystem';
 import { SpriteRenderer } from '../graphics/SpriteRenderer';
 import { DISPLAY_FONT_STACK, fieldFont, isJapaneseField, VI_FONT_STACK } from '../lib/text';
 import { answerFishSize, MOBILE_GAME_MAX_WIDTH, playfieldSize } from '../lib/playfield';
+import { fallSpeedMultiplier, stepFallingObjects } from '../lib/fallingObjects';
+import { gameBackUrl } from '../../../shared/gameNavigation';
 import type { AnswerItemType, BonusItemType, CatPlayer, FallingObject } from '../types/game';
 import { HelpModal } from './HelpModal';
 import {
@@ -46,6 +48,7 @@ export interface HostConfig {
   sessionId: string;
   mode: PlayMode;
   backUrl: string;
+  roomId?: string | null;
   meId: number | null;
   /** Trang phục đang dùng (chọn ở Cửa hàng); trong trận không đổi được. */
   skin: CatSkinId;
@@ -325,13 +328,14 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       // Narrow screens: alternate two rows so neighbouring cards do not cover each other's text.
       const staggered = spacing < width * 0.95;
       const baseSpeed = BASE_SPEED[st.config.difficulty] ?? BASE_SPEED.NORMAL;
+      const speedMultiplier = fallSpeedMultiplier(meRef.current?.roundIndex ?? 0);
       const japanese = isJapaneseField(st.config.answerField);
 
       const fish: FallingObject[] = round.choices.map((choice, i) => ({
         id: `${round.id}:${choice.id}`,
         x: Math.max(width / 2 + 4, Math.min(w - width / 2 - 4, spacing * (i + 1) + (Math.random() * 20 - 10))),
         y: -30 - i * 20 - Math.random() * 20 - (staggered && i % 2 === 1 ? height + 26 : 0),
-        speed: baseSpeed + Math.random() * 0.3,
+        speed: (baseSpeed + Math.random() * 0.3) * speedMultiplier,
         width,
         height,
         type: ANSWER_TYPES[i % ANSWER_TYPES.length],
@@ -353,7 +357,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             id: `${round.id}:bonus`,
             x: Math.random() * Math.max(1, w - 240) + Math.min(120, w / 2),
             y: -90,
-            speed: 1.4,
+            speed: 1.4 * speedMultiplier,
             width: field.bonusSize,
             height: field.bonusSize,
             type,
@@ -628,7 +632,6 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         addFloatingText(at.x, at.y - 20, 'KHIÊN!', '#00B894', 22, -1.8);
       } else if (bonus === 'FREEZE') {
         freezeUntilRef.current = Math.max(freezeUntilRef.current, serverClock.now()) + FREEZE_MS;
-        soundManager.playSFX('freeze');
         addFloatingText(at.x, at.y - 20, 'ĐÓNG BĂNG 2s!', '#38BDF8', 26, -1.8);
       }
     },
@@ -700,12 +703,13 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
       if (ownsLock) {
         setLock(null);
+        const exhaustedWhileLocked = missedWhileLockedRef.current;
+        missedWhileLockedRef.current = false;
         if (reply.advanced) {
           clearAnswerFish();
           activeRoundRef.current = null;
-        } else if (missedWhileLockedRef.current) {
-          // Shield blocked a wrong catch, but another fish of this round touched the ground meanwhile.
-          missedWhileLockedRef.current = false;
+        } else if (exhaustedWhileLocked) {
+          // A shield blocked the catch, but no answer fish remain to finish this round.
           const { w, h } = screenDimRef.current;
           sendActionRef.current('miss', roundId, null, { x: w / 2, y: h - 100 });
         }
@@ -946,8 +950,8 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       if (status !== 404 && status !== 410) throw error;
     }
     soundManager.stopBGM();
-    window.location.href = host.backUrl;
-  }, [host.backUrl, sessionId]);
+    window.location.href = gameBackUrl(stateRef.current?.roomId || host.roomId, host.backUrl);
+  }, [host.backUrl, host.roomId, sessionId]);
 
   const playAgain = useCallback(async () => {
     const st = stateRef.current;
@@ -1234,6 +1238,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   useEffect(
     () => () => {
       soundManager.stopBGM();
+      soundManager.stopFreeze();
       if (resumeTimerRef.current) window.clearInterval(resumeTimerRef.current);
       if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
       if (revealTimerRef.current) window.clearTimeout(revealTimerRef.current);
@@ -1311,6 +1316,12 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       const now = serverClock.now();
       tickClock(now);
       const currentPhase = phaseRef.current;
+      const freezeState = stateRef.current;
+      const freezeReference = freezeState?.status === 'PAUSED' && freezeState.pausedAt ? freezeState.pausedAt : now;
+      soundManager.syncFreeze(
+        currentPhase === 'playing' ? Math.max(0, freezeUntilRef.current - freezeReference) : 0,
+        pausedRef.current || freezeState?.status !== 'RUNNING'
+      );
 
       const pending = lockRef.current;
       if (pending && currentPhase === 'playing' && time - pending.at > LOCK_TIMEOUT_MS) {
@@ -1380,48 +1391,26 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         }
 
         // ── Falling objects: report collisions, let the server decide
-        const catchRadius = field.catchRadius;
-        const basketX = cat.x;
-        const basketY = cat.y - field.basketOffset;
-        const objs = fallingRef.current;
-        let answersChanged = false;
-        for (let i = objs.length - 1; i >= 0; i--) {
-          const item = objs[i];
-          if (!frozen) {
-            item.y += item.speed * f;
-            item.rotation += item.rotSpeed * f;
-          }
-          const dx = item.x - basketX;
-          const dy = item.y - basketY;
-          const hit = Math.sqrt(dx * dx + dy * dy) < catchRadius + item.width * 0.35;
-
-          if (item.isBonus) {
-            if (hit) {
-              objs.splice(i, 1);
-              sendActionRef.current('bonus', item.roundId, null, { x: item.x, y: item.y });
-            } else if (item.y > field.missY) {
-              objs.splice(i, 1);
-            }
-            continue;
-          }
-
-          const lock = lockRef.current;
-          if (hit && !lock) {
-            objs.splice(i, 1);
-            answersChanged = true;
-            sendActionRef.current('catch', item.roundId, item.choiceId, { x: item.x, y: item.y });
-          } else if (item.y > field.missY) {
-            objs.splice(i, 1);
-            answersChanged = true;
-            if (lock) {
-              // Round awaiting a reply: remember the miss in case the round continues (shield block).
-              if (lock.roundId === item.roundId) missedWhileLockedRef.current = true;
-            } else {
-              sendActionRef.current('miss', item.roundId, null, { x: item.x, y: item.y });
-            }
+        const roundId = activeRoundRef.current?.id ?? null;
+        const step = stepFallingObjects(fallingRef.current, {
+          frames: f, frozen, basketX: cat.x, basketY: cat.y - field.basketOffset,
+          catchRadius: field.catchRadius, missY: field.missY, roundId, locked: !!lockRef.current,
+        });
+        for (const item of step.bonuses) {
+          sendActionRef.current('bonus', item.roundId, null, { x: item.x, y: item.y });
+        }
+        if (step.caught) {
+          const item = step.caught;
+          sendActionRef.current('catch', item.roundId, item.choiceId, { x: item.x, y: item.y });
+        }
+        if (step.exhausted && roundId) {
+          if (lockRef.current?.roundId === roundId) {
+            missedWhileLockedRef.current = true;
+          } else {
+            sendActionRef.current('miss', roundId, null, { x: cat.x, y: field.missY });
           }
         }
-        if (answersChanged) updatePresentChoices();
+        if (step.answersChanged) updatePresentChoices();
       }
 
       if (time - lastEffectUiRef.current >= 100) {
@@ -1524,6 +1513,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   const choiceColumns = choiceCount;
   const liveDown = liveStatus === 'offline' || (liveStatus === 'connecting' && liveWasOnlineRef.current);
   const backLabel = versus ? 'Về phòng' : 'Về trang Trò chơi';
+  const returnUrl = gameBackUrl(state?.roomId || host.roomId, host.backUrl);
 
   return (
     <div className="neko-stage fixed inset-0 w-screen h-dvh overflow-hidden bg-[#0d0520] select-none" style={{ fontFamily: VI_FONT_STACK }}>
@@ -1835,7 +1825,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                 </button>
               )}
               <a
-                href={host.backUrl}
+                href={returnUrl}
                 className="flex-1 py-3 min-h-[44px] rounded-2xl font-bold text-white/85 text-xs uppercase tracking-widest bg-white/10 border border-white/15 hover:bg-white/20 flex items-center justify-center no-underline focus-visible:ring-2 focus-visible:ring-amber-300"
                 style={{ fontFamily: DISPLAY_FONT_STACK }}
               >
@@ -1884,7 +1874,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
           onAssetRetry={() => setAssetRetry(value => value + 1)}
           onStart={startMatch}
           skin={skin}
-          onBack={() => { void leaveMatch().catch(() => { window.location.href = host.backUrl; }); }}
+          onBack={() => { void leaveMatch().catch(() => { window.location.href = returnUrl; }); }}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
         />
@@ -1935,7 +1925,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
           questionField={state.config.questionField}
           answerField={state.config.answerField}
           skin={skin}
-          backUrl={host.backUrl}
+          backUrl={returnUrl}
           onReplay={playAgain}
           replaying={replaying}
           replayError={replayError}
@@ -1951,7 +1941,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             </h2>
             <p className="text-sm text-white/75">Trận kết thúc mà không có kết quả.</p>
             <a
-              href={versus ? host.backUrl : '/games'}
+              href={versus ? returnUrl : '/games'}
               className="w-full py-3 min-h-[44px] rounded-2xl font-black text-white text-xs uppercase tracking-widest flex items-center justify-center no-underline focus-visible:ring-2 focus-visible:ring-amber-300"
               style={{ fontFamily: DISPLAY_FONT_STACK, background: 'linear-gradient(135deg, #FF9F43, #FF6B35)' }}
             >

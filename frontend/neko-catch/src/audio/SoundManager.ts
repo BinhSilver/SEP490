@@ -10,6 +10,8 @@ export class SoundManager {
   private audioCtx: AudioContext | null = null;
   private config: SoundConfig;
   private activeClones = new Set<HTMLAudioElement>();
+  private freezePlayback: { audio: HTMLAudioElement; paused: boolean; deadline: number } | null = null;
+  private freezeTimer: ReturnType<typeof setTimeout> | null = null;
   private boundUnlock = () => this.unlock();
   private disposed = false;
   /** The game wants background music right now (between match start and finish). */
@@ -136,11 +138,59 @@ export class SoundManager {
     }).catch(release);
   }
 
+  /** Follow the actual effect clock, including stacking, pause and slow audio loading. */
+  public syncFreeze(remainingMs: number, paused = false) {
+    if (this.disposed || this.config.muted || !Number.isFinite(remainingMs) || remainingMs <= 0) {
+      this.stopFreeze();
+      return;
+    }
+    if (!this.freezePlayback) {
+      if (paused) return;
+      const baseAudio = this.sounds.get('freeze');
+      if (!baseAudio) return;
+      const audio = baseAudio.cloneNode() as HTMLAudioElement;
+      audio.loop = true;
+      this.freezePlayback = { audio, paused: true, deadline: 0 };
+    }
+    const playback = this.freezePlayback;
+    playback.audio.volume = this.config.sfxVolume * 0.85;
+    if (paused) {
+      if (!playback.paused) playback.audio.pause();
+      playback.paused = true;
+      playback.deadline = 0;
+      if (this.freezeTimer !== null) clearTimeout(this.freezeTimer);
+      this.freezeTimer = null;
+      return;
+    }
+    if (playback.paused) {
+      playback.paused = false;
+      void playback.audio.play().then(() => {
+        // A delayed play() must not restart audio after the freeze has already ended.
+        if (this.freezePlayback !== playback || playback.paused || this.disposed) playback.audio.pause();
+      }).catch(() => {});
+    }
+    const deadline = performance.now() + remainingMs;
+    if (this.freezeTimer === null || Math.abs(deadline - playback.deadline) > 25) {
+      if (this.freezeTimer !== null) clearTimeout(this.freezeTimer);
+      playback.deadline = deadline;
+      // Do not depend on requestAnimationFrame: it may stop in a background tab.
+      this.freezeTimer = setTimeout(() => this.stopFreeze(), remainingMs);
+    }
+  }
+
+  public stopFreeze() {
+    if (this.freezeTimer !== null) clearTimeout(this.freezeTimer);
+    this.freezeTimer = null;
+    this.freezePlayback?.audio.pause();
+    this.freezePlayback = null;
+  }
+
   /** Preview teardown stops every layer. Create a fresh manager before playing another scene. */
   public dispose() {
     if (this.disposed) return;
     this.disposed = true;
     this.stopBGM();
+    this.stopFreeze();
     this.activeClones.forEach(audio => { audio.pause(); try { audio.currentTime = 0; } catch {} });
     this.activeClones.clear();
     this.sounds.forEach(audio => audio.pause());
@@ -348,6 +398,10 @@ export class SoundManager {
 
   public playSFX(key: string) {
     if (this.config.muted || this.disposed) return;
+    if (key === 'freeze') {
+      this.syncFreeze(2000);
+      return;
+    }
 
     // Direct playback for film countdown sound
     if (key === 'countdown') {
@@ -392,7 +446,10 @@ export class SoundManager {
       if (this.config.muted) this.bgm.pause();
       else if (this.wantBgm && this.bgm.paused) this.playBGM();
     }
-    if (this.config.muted) this.setLocked(false);
+    if (this.config.muted) {
+      this.stopFreeze();
+      this.setLocked(false);
+    }
   }
 
   public getConfig(): SoundConfig {
