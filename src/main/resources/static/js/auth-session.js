@@ -277,7 +277,7 @@
       return true;
     },
 
-    logout: async function () {
+    logout: async function (redirectTo) {
       var refresh = localStorage.getItem(REFRESH_KEY);
       try {
         if (refresh) {
@@ -289,7 +289,7 @@
         }
       } catch (e) { /* ignore */ }
       this.clearSession();
-      window.location.href = '/';
+      window.location.href = redirectTo === '/login' ? '/login' : '/';
     }
   };
 

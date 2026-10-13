@@ -3,7 +3,7 @@
   'use strict';
 
   // Roles: MODERATOR moderates; SUPER_ADMIN (System Admin) runs the system and also moderates,
-  // including user sanctions. CONTENT_CREATOR works in the content tools, not here.
+  // including user sanctions. CONTENT_CREATOR works only in the content tools.
   var MODERATION = ['MODERATOR', 'SUPER_ADMIN'];
   var ADMINS = ['SUPER_ADMIN']; // may sanction users
   var SYSTEM = ['SUPER_ADMIN'];
@@ -16,6 +16,10 @@
     { title: null, items: [
       { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: ['MODERATOR'] },
       { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM }
+    ] },
+    { title: 'Quản lý nội dung', items: [
+      { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
+      { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] }
     ] },
     { title: 'Quản trị hệ thống', items: [
       { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
@@ -34,7 +38,7 @@
     ] }
   ];
 
-  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', SUPER_ADMIN: 'Quản trị hệ thống' };
+  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', SUPER_ADMIN: 'Quản trị hệ thống', CONTENT_CREATOR: 'Người biên soạn' };
 
   var TYPE_LABELS = {
     FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
@@ -49,7 +53,7 @@
   }
 
   function role() {
-    var u = user();
+    var u = global.AdminShell ? global.AdminShell.user : user();
     return u && u.role ? String(u.role).toUpperCase() : '';
   }
 
