@@ -4,7 +4,8 @@
   ['halo-fighter', 'aegis-frame', 'split-core', 'void-blade'].forEach(function (name) { names['plane-' + name] = name; });
   function ship(code) { return code.indexOf('plane-') === 0; }
   var entries = new Map(), bundles = new Map(), images = new Map(), raf = 0;
-  var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // Luôn chạy hoạt ảnh, không theo prefers-reduced-motion của hệ điều hành (quyết định sản phẩm).
+  var motion = { matches: false, addEventListener: function () {} };
   function manifest(name, code) {
     if (!bundles.has(name)) {
       var path = ship(code) ? '/arena/app/air-defense/assets/space/skins/' : '/arena/app/neko/sprites/actions/';
