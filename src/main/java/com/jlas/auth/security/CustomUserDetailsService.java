@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        String role = user.getRole() == null ? "LEARNER" : user.getRole().getName();
+        String role = Roles.canonical(user.getRole() == null ? null : user.getRole().getName());
         return new UserPrincipal(user.getId(), user.getEmail(), user.getPasswordHash(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }

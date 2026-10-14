@@ -58,13 +58,13 @@ public class AppealController {
     }
 
     @GetMapping("/api/admin/moderation/appeals")
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN')")
     public ResponseEntity<ApiResponse<List<AppealView>>> list(@RequestParam(required = false) String status) {
         return ResponseEntity.ok(ApiResponse.ok("OK", appeals.list(status)));
     }
 
     @PostMapping("/api/admin/moderation/appeals/{id}/resolve")
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN')")
     public ResponseEntity<ApiResponse<AppealView>> resolve(@PathVariable Long id,
                                            @Valid @RequestBody AppealResolution request,
                                            @AuthenticationPrincipal UserPrincipal reviewer) {

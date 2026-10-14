@@ -31,7 +31,7 @@ public class UserMapper {
                 .loginType(user.getLoginType())
                 .googleLinked(user.getGoogleId() != null && !user.getGoogleId().isBlank())
                 .hasPassword(user.getPasswordHash() != null && !user.getPasswordHash().isBlank())
-                .role(user.getRole() != null ? user.getRole().getName() : null)
+                .role(user.getRole() != null ? com.jlas.auth.security.Roles.canonical(user.getRole().getName()) : null)
                 .japaneseLevel(user.getJapaneseLevel())
                 .creditBalance(user.getCreditBalance())
                 .isVerified(user.getIsVerified())

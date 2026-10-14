@@ -2,8 +2,8 @@
 (function (global) {
   'use strict';
 
-  var MODERATION = ['MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
-  var ADMINS = ['ADMIN', 'SUPER_ADMIN'];
+  var MODERATION = ['MODERATOR', 'ADMIN'];
+  var ADMINS = ['ADMIN'];
 
   /**
    * Sidebar registry. A new management area = a new group or item here plus a section script.
@@ -28,7 +28,7 @@
     ] }
   ];
 
-  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', SUPER_ADMIN: 'Quản trị cấp cao' };
+  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên' };
 
   var TYPE_LABELS = {
     USER_AVATAR: 'Ảnh đại diện', FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',

@@ -18,7 +18,7 @@
 -- Chạy lại nhiều lần được: không nhân đôi dữ liệu.
 --
 -- Tài khoản:
---   demo@jlab.local / admin@jlab.local / content@jlab.local (CONTENT_ADMIN)
+--   demo@jlab.local / admin@jlab.local / content@jlab.local (CONTENT_CREATOR)
 --                                                 mật khẩu Password123!
 --   admin@jlas.local, mod@jlas.local, learner.mute|ban|clean@jlas.local
 --                                                 mật khẩu Test@12345
@@ -30,7 +30,7 @@
 --     DEMO_FLASHCARD_5SETS) của huyphw2@gmail.com; các bộ khác không bị động tới.
 --   * Phần 7 (moderation) đặt lại vai trò + mật khẩu Test@12345 cho admin@jlas.local,
 --     mod@jlas.local, learner.mute/ban/clean@jlas.local, đặt huypcpsn@gmail.com
---     thành SUPER_ADMIN, và tạo lại hàng đợi/kháng nghị mẫu. Khác file gốc: KHÔNG
+--     thành ADMIN, và tạo lại hàng đợi/kháng nghị mẫu. Khác file gốc: KHÔNG
 --     xoá các tài khoản test, nên bộ flashcard và dữ liệu test tay của họ được giữ.
 --   Nếu không có huyphw2@gmail.com, flashcard/stitch dùng demo@jlab.local thay thế.
 -- =============================================================================
@@ -42,15 +42,14 @@ SET SQL_SAFE_UPDATES = 0;
 
 -- =============================================================================
 -- 1) Vai trò, gói premium và 3 tài khoản demo
---    demo@jlab.local (LEARNER), admin@jlab.local (ADMIN) và content@jlab.local (CONTENT_ADMIN,
+--    demo@jlab.local (LEARNER), admin@jlab.local (ADMIN) và content@jlab.local (CONTENT_CREATOR,
 --    được mở toàn bộ lộ trình Onyomi để kiểm tra nội dung), mật khẩu: Password123!
 -- =============================================================================
 INSERT IGNORE INTO roles (name, description) VALUES
     ('LEARNER',     'Learner'),
-    ('CONTENT_ADMIN', 'Soan va kiem tra noi dung hoc'),
+    ('CONTENT_CREATOR', 'Người biên soạn nội dung'),
     ('MODERATOR',   'Kiem duyet noi dung cong dong, tu khoa cam, khang nghi, dong gop tu dien'),
-    ('ADMIN',       'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung'),
-    ('SUPER_ADMIN', 'Quan tri cao nhat');
+    ('ADMIN',       'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung');
 
 INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_active) VALUES
     ('FREE',    'Free tier',       0.00, 36500, 1),
@@ -67,7 +66,7 @@ VALUES
     ((SELECT id FROM roles WHERE name = 'ADMIN'), (SELECT id FROM premium_plans WHERE name = 'MONTHLY'),
      'admin@jlab.local', 'admin', '$2a$10$6rwQqFQw0OsYuuC2OMa3/uLm..ThobaeqDWqSaLAHQUG8GSoJHUmi',
      'LOCAL', 'Demo Administrator', 'OTHER', 'N1', 0, 1),
-    ((SELECT id FROM roles WHERE name = 'CONTENT_ADMIN'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
+    ((SELECT id FROM roles WHERE name = 'CONTENT_CREATOR'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
      'content@jlab.local', 'content', '$2a$10$6rwQqFQw0OsYuuC2OMa3/uLm..ThobaeqDWqSaLAHQUG8GSoJHUmi',
      'LOCAL', 'Demo Content Admin', 'OTHER', 'N3', 0, 1);
 
@@ -3665,7 +3664,7 @@ GROUP BY u.id, u.email, u.credit_balance, s.current_streak, s.longest_streak;
 -- Reports (Bao cao noi dung) cannot be seeded: that flow needs JLAS2-37.
 --
 -- Accounts (email / role / state):
---   huypcpsn@gmail.com       SUPER_ADMIN   Google login, sees every admin page
+--   huypcpsn@gmail.com       ADMIN         Google login, sees every admin page
 --   admin@jlas.local         ADMIN         all moderation + sanctions
 --   mod@jlas.local           MODERATOR     moderation, no sanctions page
 --   learner.mute@jlas.local  LEARNER       muted 7 days, open appeal
@@ -3677,7 +3676,7 @@ SET @pwd = '$2a$10$6/CFcfrBH7UYbXmZ/t9VUeRVmp1a56HTQH4C5d2J3L5hwDRqYeyaC';
 
 -- ── 0) Tester account ──────────────────────────────────────────────────────
 -- Literal email (not a @variable): session variables use a different collation than the column.
-UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'SUPER_ADMIN') WHERE email = 'huypcpsn@gmail.com';
+UPDATE users SET role_id = (SELECT id FROM roles WHERE name = 'ADMIN') WHERE email = 'huypcpsn@gmail.com';
 
 -- ── 1) Clean previous test data (only rows this seed creates) ──────────────
 -- Khác file gốc: KHÔNG xoá các tài khoản test. Xoá user sẽ xoá dây chuyền mọi thứ

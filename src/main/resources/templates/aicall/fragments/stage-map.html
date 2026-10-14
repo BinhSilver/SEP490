@@ -10,7 +10,7 @@
             <a class="stage-map-action" aria-label="Lịch sử" title="Lịch sử" th:href="@{/scenario/{id}/history(id=${progress.scenario.id})}"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></a>
         </nav>
     </header>
-    <p class="stage-review-notice" th:if="${progress.reviewer}"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Kiểm tra nội dung: mọi màn được mở cho CONTENT_ADMIN, ADMIN và SUPER_ADMIN. Lượt kiểm tra không cộng vào tiến trình học.</p>
+    <p class="stage-review-notice" th:if="${progress.reviewer}"><i class="fa-solid fa-lock-open" aria-hidden="true"></i> Kiểm tra nội dung: mọi màn được mở cho CONTENT_CREATOR và ADMIN. Lượt kiểm tra không cộng vào tiến trình học.</p>
     <div class="stage-map-frame">
     <div class="stage-map-viewport" tabindex="0" aria-label="Bản đồ mở khóa màn, cuộn ngang để xem tiếp">
         <div class="stage-map-space"><div class="stage-map-canvas"><svg class="stage-map-edges" aria-hidden="true"></svg>

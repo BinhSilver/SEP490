@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class ModerationFileController {
-    private static final Set<String> REVIEWERS = Set.of("ROLE_MODERATOR", "ROLE_ADMIN", "ROLE_SUPER_ADMIN");
+    private static final Set<String> REVIEWERS = Set.of("ROLE_MODERATOR", "ROLE_ADMIN");
     private final AvatarUploadService avatars;
     private final AppealService appeals;
     private final AppealAttachmentStorage attachments;

@@ -4,9 +4,9 @@ import com.jlas.auth.security.UserPrincipal;
 import java.util.Set;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-/** The same reviewer roles used by Onyomi; no client-provided admin flag. */
+/** Content reviewers (Onyomi, AI Call): content creators and admins; no client-provided admin flag. */
 public final class ContentReviewAccess {
-    private static final Set<String> ROLES=Set.of("ROLE_CONTENT_ADMIN","ROLE_ADMIN","ROLE_SUPER_ADMIN");
+    private static final Set<String> ROLES=Set.of("ROLE_CONTENT_CREATOR","ROLE_ADMIN");
     private ContentReviewAccess() {}
     public static boolean allowed(Long userId) {
         var authentication=SecurityContextHolder.getContext().getAuthentication();
