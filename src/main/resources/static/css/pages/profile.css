@@ -1817,26 +1817,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #panel-learning #streakFlame,
-  #retentionCelebrationCard,
-  .jlpt-seal,
-  .profile-details-form.is-saved .jlpt-seal,
-  .omamori {
-    animation: none;
-  }
-
-  .security-settings-link__icon {
-    transition: none;
-  }
-
-  .security-action-picker__trigger,
-  .security-action-picker__chevron,
-  .security-action-picker__menu,
-  .security-action-picker__item {
-    transition: none;
-  }
-}
 
 @keyframes jlpt-seal-arrive {
   from { opacity: 0; transform: rotate(-20deg) scale(.72); }
@@ -1907,3 +1887,209 @@ html[data-theme="dark"] .page-profile :is(.profile-main,.profile-sidebar){backgr
 html[data-theme="dark"] .page-profile .profile-card{background:var(--dm-profile-surface);}
 html[data-theme="dark"] .page-profile :is(.profile-chip,.profile-option){border-color:var(--dm-profile-line);}
 html[data-theme="dark"] .page-profile .btn--primary{background:var(--dm-profile-action)!important;color:var(--dm-profile-ink)!important;}
+
+/* Desktop sidebar: plain items like "Gói cao cấp"; only the current section keeps its highlight. */
+@media (min-width: 768px) {
+  .profile-nav :is(.profile-nav__item--outlined, .profile-security-flyout__trigger) {
+    border-color: transparent;
+  }
+  .profile-nav :is(.profile-nav__item--outlined, .profile-security-flyout__trigger):not(.is-active):not(:hover):not([aria-expanded="true"]) {
+    background: transparent;
+    color: var(--color-on-surface-variant);
+  }
+}
+
+/* ================= Khung avatar & màu tên (profile-cosmetics.js, components/avatar-frame.css) ================= */
+/* Khung tràn 25% quanh avatar 96px: chừa chỗ để không đè lên tên bên dưới; nút máy ảnh nằm trên khung. */
+.profile-sidebar__avatar-wrap.has-frame {
+  margin: 24px 0 calc(var(--space-2) + 24px);
+}
+.profile-sidebar__avatar-wrap .profile-sidebar__camera {
+  z-index: 3;
+}
+
+.profile-cosmetics {
+  grid-column: 1 / -1;
+}
+.profile-cosmetics__body {
+  display: grid;
+  gap: var(--space-5);
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .profile-cosmetics__body {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+}
+.profile-cosmetics__preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 48px var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: radial-gradient(circle at 50% 38%, #2a2342 0, #12101c 70%);
+}
+.profile-cosmetics__avatar {
+  position: relative;
+}
+/* Hai class: jlab-base-shell.css nạp lại user-menu.css sau cùng, .user-avatar (40px) đè luật một class. */
+.profile-cosmetics__avatar > .profile-cosmetics__avatar-img {
+  width: 112px;
+  height: 112px;
+  border: 0;
+  cursor: default;
+}
+.profile-cosmetics__avatar-img .user-avatar__initials {
+  font-size: 2rem;
+}
+.profile-cosmetics__name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #f4f1fb;
+  font-family: var(--font-headline);
+  font-size: 1.15rem;
+}
+.profile-cosmetics__label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+.profile-cosmetics__frames {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.profile-cosmetics__frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px 8px;
+  border: 2px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s, transform .15s;
+}
+.profile-cosmetics__frame:hover {
+  transform: translateY(-2px);
+}
+.profile-cosmetics__frame.is-selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+.profile-cosmetics__frame img,
+.profile-cosmetics__none {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2342 0 40%, #12101c 70%);
+}
+.profile-cosmetics__none {
+  display: grid;
+  place-items: center;
+  color: #8f87a8;
+  font-size: 1.4rem;
+}
+.profile-cosmetics__frame-name {
+  font-size: .78rem;
+  line-height: 1.25;
+  text-align: center;
+}
+.profile-cosmetics__frame.is-locked img {
+  filter: grayscale(.85) brightness(.75);
+}
+.profile-cosmetics__lock {
+  font-size: .72rem;
+  color: var(--color-on-surface-variant);
+}
+.profile-cosmetics__names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.profile-cosmetics__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 2px solid var(--color-outline-variant);
+  border-radius: 999px;
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.profile-cosmetics__chip.is-selected {
+  border-color: var(--color-primary);
+}
+.profile-cosmetics__chip.is-locked {
+  opacity: .6;
+  font-weight: 600;
+}
+.profile-cosmetics__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.profile-cosmetics__status {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-on-surface-variant);
+}
+
+/* Avatar 64px ở "Thông tin chi tiết": chừa 16px cho khung; con dấu JLPT nằm trên khung. */
+.profile-avatar-seal-wrap.has-frame {
+  margin: 16px;
+}
+.profile-avatar-seal-wrap .jlpt-seal {
+  z-index: 3;
+}
+
+/* Xem thử món chưa mua + mua ngay trong Hồ sơ (profile-cosmetics.js). */
+.profile-cosmetics__preview { position: relative; }
+.profile-cosmetics__trying {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, .18);
+  border: 1px solid rgba(250, 204, 21, .55);
+  color: #fde68a;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.profile-cosmetics__preview.is-trying .profile-cosmetics__trying { display: inline-block; }
+.profile-cosmetics__frame.is-locked.is-selected img { filter: none; }
+.profile-cosmetics__frame.is-locked.is-selected { border-style: dashed; }
+.profile-cosmetics__chip.is-locked.is-selected { opacity: 1; border-style: dashed; }
+/* .btn--primary dùng !important (cả dark mode) nên nút mua cũng phải !important để lên màu vàng. */
+html .page-profile [data-cosmetics-save].is-buy,
+html .page-profile [data-cosmetics-save].is-buy:hover,
+html[data-theme="dark"] .page-profile [data-cosmetics-save].is-buy {
+  background: linear-gradient(135deg, #f59e0b, #eab308) !important;
+  border-color: #d97706 !important;
+  color: #3b2300 !important;
+}
+html .page-profile [data-cosmetics-save].is-buy:disabled,
+html[data-theme="dark"] .page-profile [data-cosmetics-save].is-buy:disabled {
+  background: var(--color-surface-high) !important;
+  border-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+}

@@ -1,5 +1,5 @@
 @import url("/css/components/dropdowns.css");
-@import url("/css/components/user-menu.css?v=20261011-mobile-notifications");
+@import url("/css/components/user-menu.css?v=20261014-frames");
 
 @import url("/css/components/theme-switch.css?v=20261009-nav-switch");
 
@@ -24,7 +24,8 @@ html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
   isolation: isolate;
   min-height: 100dvh;
   overflow-x: clip !important;
-  padding-top: 84px !important;
+  /* Nav phủ kín mép trên (64px) + 12px cách nội dung. */
+  padding-top: 76px !important;
   background: var(--jlab-base-page-background, transparent) !important;
   animation: none !important;
 }
@@ -82,19 +83,21 @@ html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
   --color-outline-variant: #e2e8f0;
 }
 
+/* Thanh nav phủ kín mép trên, trái và phải (không còn là khối nổi bo góc). */
 #jlabBaseHeader {
   position: fixed;
-  top: 10px;
-  right: clamp(12px, 2vw, 32px);
-  left: clamp(12px, 2vw, 32px);
+  top: 0;
+  right: 0;
+  left: 0;
   z-index: var(--z-header, 50);
   height: 64px;
   display: flex;
   align-items: center;
   color: var(--color-on-surface, #161d1f);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant, #cbc4d2);
-  border-radius: 16px;
+  border: 0;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 0;
   box-shadow: 0 4px 20px rgba(22, 29, 31, 0.08);
 }
 
@@ -311,9 +314,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseSmartTestLink:focus-visible,
 #jlabBaseLearnPathItem:focus-visible,
 #jlabBaseProfileLink:focus-visible,
-#jlabBaseProgressLink:focus-visible,
+#jlabBaseMyLearningPathLink:focus-visible,
+#jlabBaseStreakLink:focus-visible,
 #jlabBaseAdminLink:focus-visible,
-#jlabBaseGameEffectsLink:focus-visible,
 #jlabBaseSecurityLink:focus-visible {
   outline: 2px solid var(--color-primary, #4f378a);
   outline-offset: 3px;
@@ -377,7 +380,6 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseAvatarButtonImage[hidden],
 #jlabBaseAvatarButtonInitials[hidden],
 #jlabBaseAdminLink[hidden],
-#jlabBaseGameEffectsLink[hidden],
 #jlabBaseAccountAvatarImage[hidden],
 #jlabBaseAccountAvatarInitials[hidden] {
   display: none;
@@ -390,9 +392,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseSmartTestLink,
 #jlabBaseLearnPathItem,
 #jlabBaseProfileLink,
-#jlabBaseProgressLink,
+#jlabBaseMyLearningPathLink,
+#jlabBaseStreakLink,
 #jlabBaseAdminLink,
-#jlabBaseGameEffectsLink,
 #jlabBaseSecurityLink,
 #jlabBaseLogoutButton {
   width: 100%;
@@ -421,9 +423,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseExamJlptItem:hover,
 #jlabBaseExamJlptPracticeItem:hover,
 #jlabBaseProfileLink:hover,
-#jlabBaseProgressLink:hover,
+#jlabBaseMyLearningPathLink:hover,
+#jlabBaseStreakLink:hover,
 #jlabBaseAdminLink:hover,
-#jlabBaseGameEffectsLink:hover,
 #jlabBaseSecurityLink:hover,
 #jlabBaseLogoutButton:hover,
 #jlabBaseAiCallLink[aria-current="page"],
@@ -432,9 +434,9 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseShadowingLink[aria-current="page"],
 #jlabBaseSmartTestLink[aria-current="page"],
 #jlabBaseLearnPathItem[aria-current="page"],
-#jlabBaseProgressLink[aria-current="page"],
+#jlabBaseMyLearningPathLink[aria-current="page"],
+#jlabBaseStreakLink[aria-current="page"],
 #jlabBaseAdminLink[aria-current="page"],
-#jlabBaseGameEffectsLink[aria-current="page"],
 #jlabBaseExamJlptItem[aria-current="page"],
 #jlabBaseExamJlptPracticeItem[aria-current="page"] {
   color: var(--color-primary, #4f378a);
@@ -850,7 +852,7 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
  * không dùng Font Awesome ::before glyph; kích thước theo .jlab-base-icon / .jlab-base-icon--chevron.
  * ============================================================================= */
 #jlabBaseExamsWrapper { position:relative; }
-#jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant); font:inherit; font-size:.875rem; cursor:pointer; }
+#jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant, #494551); font:500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; cursor:pointer; }
 #jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
 #jlabBaseExamsChevron { transition: transform 180ms ease; }
 #jlabBaseExamJlptPracticeIcon { display:inline-block; width:18px; font-family:"Font Awesome 6 Free"; font-weight:900; font-style:normal; }
@@ -858,7 +860,7 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
 #jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
 #jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:var(--color-surface-lowest, #ffffff); box-shadow:0 10px 40px rgba(22,29,31,.14); }
 #jlabBaseExamsMenu[hidden] { display:none; }
-#jlabBaseExamJlptItem,#jlabBaseExamJlptPracticeItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface); font:700 .875rem var(--font-body); text-align:left; opacity:1; cursor:pointer; }
+#jlabBaseExamJlptItem,#jlabBaseExamJlptPracticeItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface-variant, #494551); font:500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; text-align:left; opacity:1; cursor:pointer; }
 #jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
 #jlabBaseExamsButton:focus-visible,#jlabBaseExamJlptItem:focus-visible,#jlabBaseExamJlptPracticeItem:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
 #jlabBaseTestBuilderWrapper {
@@ -996,7 +998,7 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
 @media (max-width: 900px) {
   #jlabBasePage {
     --jlab-mobile-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-    padding-top: 80px !important;
+    padding-top: 72px !important;
     padding-bottom: calc(var(--jlab-mobile-bottom) + 16px) !important;
   }
 
@@ -1005,9 +1007,9 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
   }
 
   #jlabBaseHeader {
-    top: 8px;
-    right: 12px;
-    left: 12px;
+    top: 0;
+    right: 0;
+    left: 0;
     height: 64px;
   }
 
@@ -1360,11 +1362,6 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #jlabBaseNavToggle {
-    transition: none;
-  }
-}
 
 /* Active sanction banner (normal flow, directly under the fixed header) and one-time dialog. */
 #jlabBaseSanctionBanner {
@@ -1462,7 +1459,7 @@ html[data-theme="dark"] #jlabBaseSanctionDialog button {
 /* Owned mobile pages share one set of insets with their fixed content. */
 @media (max-width: 900px) {
   #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) {
-    --jlab-mobile-top: 72px;
+    --jlab-mobile-top: 64px;
     --jlab-mobile-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
     padding-top: var(--jlab-mobile-top) !important;
     padding-bottom: calc(var(--jlab-mobile-bottom) + 8px) !important;
@@ -1591,4 +1588,20 @@ html[data-theme="dark"] #jlabBaseSanctionBanner.is-ban {
   #jlabBaseNotificationList .jlab-notif { padding: 10px 14px; gap: 10px; }
   #jlabBaseNotificationList .jlab-notif__body strong { font-size: 13px; }
   #jlabBaseNotificationList .jlab-notif__message { font-size: 12px; }
+}
+
+/* Khung avatar trên header + menu tài khoản (components/avatar-frame.css). Khung tràn 10px quanh avatar 40px. */
+#jlabBaseAvatarFrameHost.has-frame {
+  margin: 0 6px;
+}
+#jlabBaseAccountAvatarFrameHost {
+  flex: 0 0 auto;
+}
+#jlabBaseAccountAvatarFrameHost.has-frame {
+  margin: 6px 8px 6px 4px;
+}
+@media (max-width: 900px) {
+  #jlabBaseAvatarFrameHost {
+    display: none;
+  }
 }

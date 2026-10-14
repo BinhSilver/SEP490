@@ -176,6 +176,15 @@
     },
     equipItem: function (code) {
       return request('POST', '/api/games/shop/items/' + encodeURIComponent(code) + '/equip', null);
+    },
+
+    /** Khung avatar + màu tên (cùng CP với cửa hàng game). */
+    cosmetics: function () { return request('GET', '/api/profile/cosmetics'); },
+    buyFrame: function (code) {
+      return request('POST', '/api/profile/cosmetics/frames/' + encodeURIComponent(code) + '/buy', null);
+    },
+    equipCosmetics: function (frameCode, nameStyle) {
+      return request('PUT', '/api/profile/cosmetics', { frameCode: frameCode, nameStyle: nameStyle });
     }
   };
 

@@ -30,6 +30,7 @@ import com.jlas.game.enums.PlayMode;
 import com.jlas.game.enums.RoomStatus;
 import com.jlas.game.enums.RoomVisibility;
 import com.jlas.game.mapper.GameMapper;
+import com.jlas.game.repository.AvatarFrameJdbcRepository.Style;
 import com.jlas.game.runtime.ArenaEventHub;
 import com.jlas.game.runtime.ArenaEventType;
 import com.jlas.game.runtime.ArenaPresenceEvent;
@@ -44,6 +45,7 @@ import com.jlas.game.runtime.PlayerSeat;
 import com.jlas.game.runtime.QuickDraft;
 import com.jlas.game.runtime.RoomPlayer;
 import com.jlas.game.runtime.RoomRegistry;
+import com.jlas.game.service.AvatarFrameService;
 import com.jlas.game.service.GameDeckService;
 import com.jlas.game.service.GameDeckService.DeckWords;
 import com.jlas.game.service.GameEngine;
@@ -100,12 +102,14 @@ public class GameServiceImpl implements GameService {
     private final GameProperties properties;
     private final UserRepository users;
     private final GameVoiceService voice;
+    private final AvatarFrameService frames;
     private final Map<GameType, GameEngine> engines = new EnumMap<>(GameType.class);
 
     public GameServiceImpl(RoomRegistry rooms, GameSessionRegistry sessions, GameDeckService decks,
                            GameMatchRecorder recorder, GameMapper mapper, ArenaEventHub hub,
                            ArenaRateLimiter rateLimiter, GameScheduler scheduler, GameProperties properties,
-                           UserRepository users, GameVoiceService voice, List<GameEngine> engineBeans) {
+                           UserRepository users, GameVoiceService voice, AvatarFrameService frames,
+                           List<GameEngine> engineBeans) {
         this.rooms = rooms;
         this.sessions = sessions;
         this.decks = decks;
@@ -117,6 +121,7 @@ public class GameServiceImpl implements GameService {
         this.properties = properties;
         this.users = users;
         this.voice = voice;
+        this.frames = frames;
         for (GameEngine engine : engineBeans) {
             engines.put(engine.type(), engine);
         }
@@ -173,7 +178,7 @@ public class GameServiceImpl implements GameService {
         RoomVisibility visibility = request.visibility() == null ? RoomVisibility.PRIVATE : request.visibility();
         GameRoom room = new GameRoom(UUID.randomUUID().toString().replace("-", "").substring(0, 12), rooms.newCode(),
                 type, visibility, userId, settings, now, false);
-        room.playersByUserId().put(userId, new RoomPlayer(userId, me.displayName(), me.avatarUrl(), 0, now));
+        room.playersByUserId().put(userId, new RoomPlayer(me, 0, now));
         rooms.register(room);
         rooms.bindUser(userId, room.getRoomId());
         log.info("Phòng {} ({}) được tạo bởi user {}", room.getCode(), type, userId);
@@ -216,7 +221,7 @@ public class GameServiceImpl implements GameService {
             }
             Instant now = Instant.now();
             room.playersByUserId().put(userId,
-                    new RoomPlayer(userId, me.displayName(), me.avatarUrl(), room.freeSlot(), now));
+                    new RoomPlayer(me, room.freeSlot(), now));
             rooms.bindUser(userId, roomId);
             room.touch(now);
             return mapper.toRoomView(room);
@@ -530,10 +535,8 @@ public class GameServiceImpl implements GameService {
         GameSettings initial = initialQuickSettings(type, host, pairs);
         GameRoom room = new GameRoom(UUID.randomUUID().toString().replace("-", "").substring(0, 12), rooms.newCode(),
                 type, RoomVisibility.PRIVATE, host.userId(), initial, now, true);
-        room.playersByUserId().put(host.userId(), new RoomPlayer(host.userId(), host.seat().displayName(),
-                host.seat().avatarUrl(), 0, now));
-        room.playersByUserId().put(guest.userId(), new RoomPlayer(guest.userId(), guest.seat().displayName(),
-                guest.seat().avatarUrl(), 1, now));
+        room.playersByUserId().put(host.userId(), new RoomPlayer(host.seat(), 0, now));
+        room.playersByUserId().put(guest.userId(), new RoomPlayer(guest.seat(), 1, now));
         leaveCurrentRoom(host.userId(), null);
         rooms.register(room);
         rooms.bindUser(host.userId(), room.getRoomId());
@@ -876,7 +879,8 @@ public class GameServiceImpl implements GameService {
         User user = users.findById(userId).orElseThrow(() -> new ApiException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập"));
         String name = firstText(user.getFullName(), user.getUsername(),
                 user.getEmail() == null ? null : user.getEmail().split("@")[0], "Người chơi");
-        return new PlayerSeat(userId, name, user.getAvatarUrl(), slot);
+        Style style = frames.styles(List.of(userId)).getOrDefault(userId, Style.NONE);
+        return new PlayerSeat(userId, name, user.getAvatarUrl(), slot, style.frameCode(), style.nameStyle());
     }
 
     private static String firstText(String... values) {

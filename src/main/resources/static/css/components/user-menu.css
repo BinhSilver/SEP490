@@ -91,7 +91,8 @@
   color: var(--color-on-surface);
 }
 
-.profile-menu__header span {
+/* :where giữ nguyên độ ưu tiên cũ; bỏ qua khung avatar (span .af-host + các lớp hiệu ứng) để khung không bị cắt. */
+.profile-menu__header span:where(:not(.af-host, .af-host *)) {
   display: block;
   font-size: var(--text-xs);
   color: var(--color-outline);

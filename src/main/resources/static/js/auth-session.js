@@ -228,6 +228,9 @@
         }
       });
 
+      // Khung avatar ([data-avatar-frame]) + màu tên ([data-user-name]) mua ở Cửa hàng.
+      if (window.JlasAvatarFrame) window.JlasAvatarFrame.applyUser(user);
+
       if (window.JLabBaseShell && typeof window.JLabBaseShell.syncAuth === 'function') {
         window.JLabBaseShell.syncAuth();
       }

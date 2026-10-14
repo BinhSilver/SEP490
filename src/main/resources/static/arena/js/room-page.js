@@ -163,9 +163,13 @@
       var avatar = player.avatarUrl
         ? '<img src="' + esc(player.avatarUrl) + '" alt="">'
         : esc(initials(player.displayName));
-      seat.innerHTML = '<div class="ar-avatar" aria-hidden="true">' + avatar + '</div>'
-        + '<h2>' + esc(player.displayName) + '</h2>'
+      // Khung avatar + màu tên người chơi mua ở Cửa hàng (components/avatar-frame.js).
+      var frames = window.JlasAvatarFrame;
+      var face = '<div class="ar-avatar" aria-hidden="true">' + avatar + '</div>';
+      seat.innerHTML = (frames ? frames.host(face, player.avatarFrame, 'ar-avatar-host') : face)
+        + '<h2' + (frames ? frames.nameAttr(player.nameStyle) : '') + '>' + esc(player.displayName) + '</h2>'
         + '<div class="ar-seat__tags">' + tags.join('') + '</div>';
+      if (frames) frames.mountAll(seat);
     }
   }
 

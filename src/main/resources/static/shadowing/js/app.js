@@ -216,7 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
             item.className = 'comment-item';
             item.innerHTML = `
                 <div class="comment-item-header">
-                    <strong>${escHtml(c.displayName || 'Người dùng')}</strong>
+                    ${commentAvatar(c)}
+                    <strong${c.nameStyle && /^[a-z]+$/.test(c.nameStyle) ? ` data-name-style="${c.nameStyle}"` : ''}>${escHtml(c.displayName || 'Người dùng')}</strong>
                     <span class="caption">${formatCommentDate(c.createdAt)}</span>
                     ${c.own ? '<button class="text-link comment-delete-btn" style="color:var(--red);font-size:13px;">Xóa</button>' : ''}
                 </div>
@@ -234,6 +235,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             commentList.appendChild(item);
         });
+        if (window.JlasAvatarFrame) window.JlasAvatarFrame.mountAll(commentList);
+    }
+
+    /**
+     * Ảnh đại diện người bình luận + khung avatar mua ở Cửa hàng. Khung được gắn bởi avatar-frame.js
+     * (shell tự nạp; nạp xong cũng tự gắn cho các [data-frame-host] đã có trên trang).
+     */
+    function commentAvatar(c) {
+        const name = String(c.displayName || 'Người dùng').trim();
+        const face = c.avatarUrl
+            ? `<img src="${escHtml(c.avatarUrl).replace(/"/g, '&quot;')}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+            : escHtml(name.charAt(0).toUpperCase() || '?');
+        const frame = /^frame-[a-z]+$/.test(c.avatarFrame || '') ? ` data-frame-host="${c.avatarFrame}"` : '';
+        return `<span class="af-host comment-avatar-host"${frame}><span class="comment-avatar" aria-hidden="true">${face}</span></span>`;
     }
 
     function escHtml(s) {
@@ -373,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <div class="sub-card-header">
                     <span class="sub-num">#${index + 1}</span>
-                    <span class="sub-time">${formatTime(sub.startTime)}</span>
+                    <span class="sub-time" title="Câu bắt đầu ở ${formatTime(sub.startTime)} trong video">${formatTime(sub.startTime)}</span>
                 </div>
                 <div class="sub-jp">${formatFurigana(sub.furigana || sub.text)}</div>
                 <div class="sub-tr">${window.ShadowingSubtitleDisplay.escape(sub.translation || '')}</div>

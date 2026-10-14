@@ -138,7 +138,7 @@ public final class GameDtos {
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record RoomPlayerView(long userId, String displayName, String avatarUrl, int slot, boolean host,
-                                 boolean ready, boolean online) {
+                                 boolean ready, boolean online, String avatarFrame, String nameStyle) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -218,7 +218,8 @@ public final class GameDtos {
     // ------------------------------------------------------------------ session
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
-    public record SessionPlayerView(long userId, String displayName, String avatarUrl, int slot, boolean online) {
+    public record SessionPlayerView(long userId, String displayName, String avatarUrl, int slot, boolean online,
+                                    String avatarFrame, String nameStyle) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)

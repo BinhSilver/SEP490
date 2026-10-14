@@ -10,7 +10,7 @@
     <!-- Sidebar (nav tài khoản) -->
     <aside class="profile-sidebar">
         <div class="profile-sidebar__card">
-            <div class="profile-sidebar__avatar-wrap" id="sidebarAvatarWrap" style="cursor:pointer" title="Bấm để đổi ảnh đại diện">
+            <div class="profile-sidebar__avatar-wrap" id="sidebarAvatarWrap" data-avatar-frame style="cursor:pointer" title="Bấm để đổi ảnh đại diện">
                 <div class="user-avatar user-avatar--lg" data-user-avatar>
                     <span class="user-avatar__initials">?</span>
                 </div>
@@ -96,7 +96,7 @@
                     <div id="profileAlert" class="alert" role="alert"></div>
                     <form id="profileForm" class="form profile-details-form" novalidate>
                         <div class="avatar-edit">
-                            <div class="profile-avatar-seal-wrap">
+                            <div class="profile-avatar-seal-wrap" data-avatar-frame>
                                 <div class="user-avatar user-avatar--md" data-user-avatar>
                                     <span class="user-avatar__initials">?</span>
                                 </div>
@@ -197,6 +197,45 @@
                     <div class="status-row">
                         <span>Hạn dùng gói cao cấp</span>
                         <strong id="stPremium">—</strong>
+                    </div>
+                </div>
+
+                <!-- Khung avatar + màu tên: mua ở Cửa hàng, chọn ở đây (js/pages/profile-cosmetics.js) -->
+                <div class="profile-card profile-cosmetics" id="profileCosmeticsCard">
+                    <div class="profile-card__head profile-card__head--actions">
+                        <div class="profile-card__head-left">
+                            <div class="profile-card__icon" style="background:rgba(124,58,237,0.12);color:#7c3aed">
+                                <span class="material-symbols-outlined">auto_awesome</span>
+                            </div>
+                            <div>
+                                <h2 class="profile-card__title">Khung avatar &amp; màu tên</h2>
+                                <p class="profile-card__subtitle">Bấm vào khung để xem thử trên avatar của bạn và mua ngay tại đây. Mỗi khung mở kèm một màu tên cùng chủ đề.</p>
+                            </div>
+                        </div>
+                        <a class="btn btn--secondary btn--sm" th:href="@{/games/shop(game='FRAMES')}">
+                            <span class="material-symbols-outlined" aria-hidden="true">storefront</span> Cửa hàng
+                        </a>
+                    </div>
+                    <div class="profile-cosmetics__body">
+                        <div class="profile-cosmetics__preview" aria-label="Xem trước">
+                            <div class="profile-cosmetics__avatar" data-cosmetics-preview>
+                                <div class="user-avatar profile-cosmetics__avatar-img" data-user-avatar>
+                                    <span class="user-avatar__initials">?</span>
+                                </div>
+                            </div>
+                            <strong class="profile-cosmetics__name" data-cosmetics-name>Tài khoản</strong>
+                            <span class="profile-cosmetics__trying" aria-hidden="true">Xem thử</span>
+                        </div>
+                        <div class="profile-cosmetics__pickers">
+                            <h3 class="profile-cosmetics__label">Khung</h3>
+                            <div class="profile-cosmetics__frames" data-cosmetics-frames role="radiogroup" aria-label="Chọn khung avatar"></div>
+                            <h3 class="profile-cosmetics__label">Màu tên</h3>
+                            <div class="profile-cosmetics__names" data-cosmetics-names role="radiogroup" aria-label="Chọn màu tên"></div>
+                            <div class="profile-cosmetics__actions">
+                                <button type="button" class="btn btn--primary" data-cosmetics-save disabled>Lưu khung &amp; màu tên</button>
+                                <p class="profile-cosmetics__status" data-cosmetics-status role="status">Đang tải…</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -776,6 +815,7 @@
 <script th:src="@{/js/components/reward-fx.js?v=20260927c}"></script>
 <script th:src="@{/js/pages/profile-retention.js?v=20260927j}"></script>
 <script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
+<script th:src="@{/js/pages/profile-cosmetics.js?v=20261014-trybuy}"></script>
 <script th:src="@{/js/jlab-base-shell.js?v=20261013-reward-styles}"></script>
 </body>
 </html>

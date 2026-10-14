@@ -4,6 +4,8 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.auth.service.UserDirectoryPort;
+import com.jlas.game.repository.AvatarFrameJdbcRepository.Style;
+import com.jlas.game.service.AvatarFrameService;
 import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.service.ContentModerationPort;
 import com.jlas.moderation.service.UserActionPolicyPort;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,8 @@ public class InteractionService {
     @Autowired private VideoViewRepository videoViews;
     @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private UserNotificationPort notifications;
+    /** Khung + màu tên người bình luận; không có (test dựng tay) thì để mặc định. */
+    @Autowired(required = false) private AvatarFrameService frames;
 
     public Set<Long> getFavoriteVideoIds(String clientId) {
         return CurrentUser.currentUserId().map(String::valueOf)
@@ -96,13 +101,44 @@ public class InteractionService {
 
     public List<CommentDto> getComments(Long videoId, String clientId) {
         String currentClientId = CurrentUser.currentUserId().map(String::valueOf).orElse(null);
-        return commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId).stream()
+        return withProfiles(commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId).stream()
                 .filter(c -> !Boolean.TRUE.equals(c.getHidden()))
                 .map(c -> {
                     commentRatingRepository.find(c.getId()).ifPresent(c::setRating);
                     return toCommentDto(c, currentClientId);
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Gắn ảnh đại diện + khung avatar + màu tên (mua ở Cửa hàng) cho mỗi người bình luận,
+     * một lần truy vấn cho cả danh sách.
+     */
+    private List<CommentDto> withProfiles(List<CommentDto> list) {
+        if (list.isEmpty()) return list;
+        List<Long> ids = list.stream().map(dto -> userIdOf(dto.getClientId())).filter(java.util.Objects::nonNull).toList();
+        Map<Long, String> avatars = userDirectory == null ? Map.of() : userDirectory.avatarUrls(ids);
+        Map<Long, Style> styles = frames == null ? Map.of() : frames.styles(ids);
+        list.forEach(dto -> {
+            Long userId = userIdOf(dto.getClientId());
+            if (userId == null) return;
+            dto.setAvatarUrl(avatars.get(userId));
+            Style style = styles.get(userId);
+            if (style != null) {
+                dto.setAvatarFrame(style.frameCode());
+                dto.setNameStyle(style.nameStyle());
+            }
+        });
+        return list;
+    }
+
+    /** clientId của bình luận là userId dạng chuỗi ("null" với dữ liệu cũ không có người dùng). */
+    private static Long userIdOf(String clientId) {
+        try {
+            return clientId == null ? null : Long.valueOf(clientId);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     @Transactional
@@ -149,7 +185,7 @@ public class InteractionService {
                     saved.getDisplayName() + " đã bình luận về “" + video.getTitle() + "”.",
                     "/shadowing/player/" + video.getId(), "SHADOWING_COMMENT_" + saved.getId());
         }
-        return toCommentDto(saved, String.valueOf(userId));
+        return withProfiles(List.of(toCommentDto(saved, String.valueOf(userId)))).get(0);
     }
 
     @Transactional

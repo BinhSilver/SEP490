@@ -37,22 +37,24 @@
     <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
     <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
     <link rel="stylesheet" th:href="@{/css/components/footer.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/user-menu.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/user-menu.css?v=20261014-frames}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
     <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
+    <link rel="stylesheet" th:href="@{/css/components/avatar-frame.css?v=20261014-frames3}" />
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261010-device' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261012-profile-controls-2' : '20260929')))}}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261014-vs-coin' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261014-profile-trybuy' : '20260929')))}}" />
     <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=5}" />
     <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
     <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-furigana.css?v=3}" />
     <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-controls.css?v=14}" />
     <link th:if="${pageCss == 'jlpt-exam' or pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-sentence-order.css?v=1}" />
     <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261011-flush-corner}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261014-frames2}" />
     <link rel="stylesheet" th:href="@{/css/pages/learning-journey.css}" />
 
+    <script th:src="@{/js/components/avatar-frame.js?v=20261014-frames3}"></script>
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/sakura-background.js}"></script>

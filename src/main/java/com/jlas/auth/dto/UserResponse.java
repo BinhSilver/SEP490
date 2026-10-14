@@ -49,4 +49,10 @@ public class UserResponse {
     private LocalDateTime premiumExpiredAt;
 
     private LocalDateTime createdAt;
+
+    /** Mã khung avatar đang dùng (vd. frame-cosmic); null = không khung. */
+    private String avatarFrame;
+
+    /** Mã màu tên đang dùng (vd. cosmic); null = màu mặc định. */
+    private String nameStyle;
 }

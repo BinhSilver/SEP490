@@ -142,6 +142,8 @@
     accountMenu: 'jlabBaseAccountMenu',
     accountSummary: 'jlabBaseAccountSummary',
     accountAvatar: 'jlabBaseAccountAvatar',
+    avatarFrameHost: 'jlabBaseAvatarFrameHost',
+    accountAvatarFrameHost: 'jlabBaseAccountAvatarFrameHost',
     accountAvatarImage: 'jlabBaseAccountAvatarImage',
     accountAvatarInitials: 'jlabBaseAccountAvatarInitials',
     accountIdentity: 'jlabBaseAccountIdentity',
@@ -153,17 +155,12 @@
     myLearningPathLink: 'jlabBaseMyLearningPathLink',
     myLearningPathIcon: 'jlabBaseMyLearningPathIcon',
     myLearningPathLabel: 'jlabBaseMyLearningPathLabel',
-    progressLink: 'jlabBaseProgressLink',
-    progressIcon: 'jlabBaseProgressIcon',
-    progressLabel: 'jlabBaseProgressLabel',
     streakLink: 'jlabBaseStreakLink',
     streakIcon: 'jlabBaseStreakIcon',
     streakLabel: 'jlabBaseStreakLabel',
     adminLink: 'jlabBaseAdminLink',
     adminIcon: 'jlabBaseAdminIcon',
     adminLabel: 'jlabBaseAdminLabel',
-    gameEffectsLink: 'jlabBaseGameEffectsLink',
-    gameEffectsIcon: 'jlabBaseGameEffectsIcon',
     accountDivider: 'jlabBaseAccountDivider',
     logoutButton: 'jlabBaseLogoutButton',
     logoutIcon: 'jlabBaseLogoutIcon',
@@ -198,7 +195,7 @@
   };
 
   // Roles that can open the shared admin workspace (/admin). Each page and API re-checks on the server.
-  var ADMIN_ROLES = ['MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
+  var ADMIN_ROLES = ['MODERATOR', 'ADMIN'];
 
   function byId(id) {
     return document.getElementById(id);
@@ -263,9 +260,7 @@
     replaceIcon(ids.notificationIcon, 'bell');
     replaceIcon(ids.profileIcon, 'user');
     replaceIcon(ids.myLearningPathIcon, 'route');
-    replaceIcon(ids.progressIcon, 'chart');
     replaceIcon(ids.adminIcon, 'shield');
-    replaceIcon(ids.gameEffectsIcon, 'game');
     replaceIcon(ids.streakIcon, 'flame');
     replaceIcon(ids.rewardStreakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
@@ -364,16 +359,20 @@
                 '</section>' +
               '</div>' +
               '<div id="' + ids.accountWrapper + '" class="dropdown">' +
+                '<span id="' + ids.avatarFrameHost + '" class="af-host">' +
                 '<button id="' + ids.avatarButton + '" class="user-avatar" type="button" aria-label="Mở menu tài khoản" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.accountMenu + '">' +
                   '<img id="' + ids.avatarButtonImage + '" class="user-avatar__img" alt="" hidden>' +
                   '<span id="' + ids.avatarButtonInitials + '" class="user-avatar__initials">?</span>' +
                 '</button>' +
+                '</span>' +
                 '<div id="' + ids.accountMenu + '" class="dropdown__menu profile-menu" role="menu" hidden>' +
                   '<div id="' + ids.accountSummary + '" class="profile-menu__header">' +
+                    '<span id="' + ids.accountAvatarFrameHost + '" class="af-host">' +
                     '<div id="' + ids.accountAvatar + '" class="user-avatar">' +
                       '<img id="' + ids.accountAvatarImage + '" class="user-avatar__img" alt="" hidden>' +
                       '<span id="' + ids.accountAvatarInitials + '" class="user-avatar__initials">?</span>' +
                     '</div>' +
+                    '</span>' +
                     '<div id="' + ids.accountIdentity + '">' +
                       '<strong id="' + ids.accountName + '">Người dùng</strong>' +
                       '<span id="' + ids.accountEmail + '"></span>' +
@@ -381,10 +380,8 @@
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
-                  '<a id="' + ids.progressLink + '" class="dropdown__item" href="/progress" role="menuitem"><span id="' + ids.progressIcon + '" class="material-symbols-outlined" aria-hidden="true">monitoring</span><span id="' + ids.progressLabel + '">Tiến độ học tập</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.adminLink + '" class="dropdown__item" href="/admin" role="menuitem" hidden><i id="' + ids.adminIcon + '" aria-hidden="true"></i><span id="' + ids.adminLabel + '">Trang quản trị</span></a>' +
-                  '<a id="' + ids.gameEffectsLink + '" class="dropdown__item" href="/admin/game-effects" role="menuitem" hidden><i id="' + ids.gameEffectsIcon + '" aria-hidden="true"></i><span>Xem hiệu ứng game</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
                 '</div>' +
@@ -456,7 +453,6 @@
     var isJlpt = path === '/jlpt' || (path.indexOf('/jlpt/') === 0 && path !== '/jlpt/practice');
     var isJlptPractice = path === '/jlpt/practice';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
-    var isProgress = path === '/progress';
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.textbooksLink, isTextbooks);
@@ -468,12 +464,11 @@
     markCurrent(ids.shadowingLink, isShadowing);
     markCurrent(ids.smartTestLink, isSmartTest);
     markCurrent(ids.learnPathItem, isLearningPath);
-    markCurrent(ids.progressLink, isProgress);
     markCurrent(ids.jlptLink, isJlpt);
     markCurrent(ids.jlptPracticeLink, isJlptPractice);
     markCurrent(ids.streakLink, isGoals);
     markCurrent(ids.bottomAccountButton, path === '/profile' || path.indexOf('/profile/') === 0 ||
-      path === '/login' || path === '/register' || isGoals || isProgress || path === '/admin' || path.indexOf('/admin/') === 0);
+      path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
     markCurrent(ids.adminLink, path === '/admin' || path.indexOf('/admin/') === 0);
 
     var toolsButton = byId(ids.toolsButton);
@@ -627,11 +622,14 @@
     var nameNode = byId(ids.accountName);
     var emailNode = byId(ids.accountEmail);
     if (nameNode) nameNode.textContent = name;
+    if (window.JlasAvatarFrame) {
+      window.JlasAvatarFrame.applyNameStyle(nameNode, user.nameStyle);
+      window.JlasAvatarFrame.mount(byId(ids.avatarFrameHost), user.avatarFrame);
+      window.JlasAvatarFrame.mount(byId(ids.accountAvatarFrameHost), user.avatarFrame);
+    }
     if (emailNode) emailNode.textContent = user.email || '';
     var adminLink = byId(ids.adminLink);
     if (adminLink) adminLink.hidden = ADMIN_ROLES.indexOf(String(user.role || '').toUpperCase()) < 0;
-    var gameEffectsLink = byId(ids.gameEffectsLink);
-    if (gameEffectsLink) gameEffectsLink.hidden = ADMIN_ROLES.indexOf(String(user.role || '').toUpperCase()) < 0;
     renderAvatar(ids.avatarButtonImage, ids.avatarButtonInitials, avatar, label);
     renderAvatar(ids.accountAvatarImage, ids.accountAvatarInitials, avatar, label);
     loadNotifications();
@@ -752,6 +750,30 @@
     var script = document.createElement('script');
     script.src = '/js/components/reward-fx.js?v=20260927c';
     script.onload = function () { if (window.RewardFX) window.RewardFX.boot(); };
+    document.head.appendChild(script);
+  }
+
+  /**
+   * Khung avatar + màu tên (mua ở Cửa hàng). Trang dùng fragments/head đã nạp sẵn; trang có head riêng
+   * (AI Call, Shadowing, Goals…) thì shell tự nạp để header ở mọi trang đều hiện khung/màu tên.
+   */
+  function ensureAvatarFrameStyles() {
+    // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
+    if (!document.querySelector('link[href*="avatar-frame.css"]')) {
+      addStylesheet('/css/components/avatar-frame.css?v=20261014-frames3');
+    }
+  }
+
+  function loadAvatarFrames() {
+    ensureAvatarFrameStyles();
+    if (window.JlasAvatarFrame || state.avatarFramesLoading) return;
+    state.avatarFramesLoading = true;
+    var script = document.createElement('script');
+    script.src = '/js/components/avatar-frame.js?v=20261014-frames3';
+    script.onload = function () {
+      if (window.JlasAuth && typeof window.JlasAuth.applyNav === 'function') window.JlasAuth.applyNav();
+      else syncAuth();
+    };
     document.head.appendChild(script);
   }
 
@@ -1238,6 +1260,8 @@
 
     mountPoint.innerHTML = shellMarkup();
     replaceShellIcons();
+    // Nạp cả khi chưa đăng nhập: khung + màu tên của người khác (bình luận, xếp hạng) cũng cần.
+    loadAvatarFrames();
     state.mounted = true;
     bindEvents();
     syncActiveLink();
