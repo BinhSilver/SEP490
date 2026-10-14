@@ -3,6 +3,8 @@
   'use strict';
 
   const MAX_RECORDING_SECONDS = 30;
+  /** Thời gian đọc thêm sau khi câu mẫu kết thúc. */
+  const EXTRA_SECONDS = 3;
   const GOOD_SCORE = 85;
   const FAIR_SCORE = 70;
   const SMALL_KANA = new Set(['ゃ', 'ゅ', 'ょ', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'ゎ', 'ゕ', 'ゖ']);
@@ -186,6 +188,12 @@
     const video = sourceVideo();
     const sentenceStart = Number(context.startTime);
     const sentenceEnd = Number(context.endTime);
+    // Bấm mic trên từng câu: phát câu mẫu để đọc theo, rồi thu thêm EXTRA_SECONDS sau khi hết câu
+    // (câu 4 giây → thu đến giây thứ 7). Chế độ "nghe rồi thu" đã tự cộng 3 giây vào durationSeconds.
+    const rate = video && Number(video.playbackRate) > 0 ? Number(video.playbackRate) : 1;
+    const sentenceSeconds = sentenceEnd > sentenceStart ? (sentenceEnd - sentenceStart) / rate : NaN;
+    const limit = timed ? duration
+      : Math.min(MAX_RECORDING_SECONDS, Number.isFinite(sentenceSeconds) ? sentenceSeconds + EXTRA_SECONDS : MAX_RECORDING_SECONDS);
     pauseSourceVideo();
     if (!timed && video && Number.isFinite(sentenceStart)) {
       try { video.currentTime = Math.max(0, sentenceStart); } catch (_) { /* Media is still loading. */ }
@@ -202,17 +210,24 @@
       if (active !== session || session.stopping) return;
       const elapsed = (Date.now() - startedAt) / 1000;
       const videoTime = video && Number.isFinite(video.currentTime) ? video.currentTime : NaN;
-      if (!timed && Number.isFinite(sentenceEnd) && Number.isFinite(videoTime) && videoTime >= sentenceEnd) {
-        stopRecording(false);
-        return;
+      if (!timed && !session.referenceDone && Number.isFinite(sentenceEnd) && Number.isFinite(videoTime)) {
+        // Hết câu mẫu chỉ dừng video, vẫn thu tiếp tới hết giờ. Chỉ tính là hết câu sau khi video đã tua
+        // về trong câu (lúc bắt đầu video có thể còn đứng ở vị trí cũ, sau cuối câu).
+        if (videoTime < sentenceEnd - 0.05) session.referenceStarted = true;
+        else if (session.referenceStarted) {
+          session.referenceDone = true;
+          pauseSourceVideo();
+        }
       }
-      setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(elapsed)
-        + (timed ? ' / ' + formatTime(duration) : ''));
-      options.onState?.('recording', Math.max(0, duration - elapsed));
+      // Ghi rõ cách tính để khỏi nhầm với giờ bắt đầu câu (số ở góc thẻ): độ dài câu + 3 giây đọc thêm.
+      setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(elapsed) + ' / ' + formatTime(limit)
+        + (Number.isFinite(sentenceSeconds) ? ' · câu dài ' + sentenceSeconds.toFixed(1).replace('.', ',')
+          + ' giây + ' + EXTRA_SECONDS + ' giây' : ''));
+      options.onState?.('recording', Math.max(0, limit - elapsed));
     }
     tick();
     session.timer = setInterval(tick, 100);
-    session.deadline = setTimeout(() => { if (active === session) stopRecording(false); }, duration * 1000);
+    session.deadline = setTimeout(() => { if (active === session) stopRecording(false); }, limit * 1000);
     return completion;
   }
 

@@ -156,7 +156,6 @@ html, body { overflow-x: clip; }
 @media (max-width: 720px) { .preparation-page { padding-top: var(--space-4); } .preparation-header, .preparation-review-head { align-items: flex-start; flex-direction: column; } .preparation-job-state { justify-items: start; } .preparation-main-column { padding: var(--space-4); } .preparation-selectors, .preparation-side-column { grid-template-columns: minmax(0, 1fr); } .preparation-dropdown-panel { position: static; width: 100%; max-width: none; } .preparation-question-main { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 600px) { .preparation-question-choices { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 375px) { .preparation-nav { align-items: flex-start; } .preparation-question-actions { width: 100%; } .preparation-question-actions button { flex: 1 1 auto; } }
-@media (prefers-reduced-motion: reduce) { .preparation-page * { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
 
 /* The preparation dialog owns its surfaces in both themes, outside the page shell. */
 html.preparation-preflight-open { overflow: hidden; }
@@ -227,7 +226,6 @@ html[data-theme="dark"] .preparation-preflight {
   .preparation-preflight-actions { padding: 16px 20px; }
   .preparation-preflight-actions button { flex: 1; }
 }
-@media (prefers-reduced-motion: reduce) { .preparation-preflight-marker { animation: none !important; } }
 
 /* Page-owned dark mode: css/pages/shadowing-preparation.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.

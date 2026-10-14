@@ -117,8 +117,7 @@
     const begin = function () {
       media.currentTime = Math.max(0, Number(question.startTime) || 0);
       if (window.matchMedia('(max-width: 900px)').matches) {
-        media.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          ? 'auto' : 'smooth', block: 'center' });
+        media.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       button.classList.add('is-playing');
       button.textContent = 'Đang phát';

@@ -71,6 +71,7 @@ public class ShadowingPracticeService {
                 : Math.min(subtitles.size(), request.questionCount() == null
                 ? DEFAULT_QUESTION_COUNT : request.questionCount());
         List<QuestionSeed> available;
+        Map<String, Integer> selectionCounts = null;
         if (request.mode() == PracticeMode.LISTENING) {
             boolean pairSelection = request.selections() != null;
             if (pairSelection ? request.selections().isEmpty() || request.selections().stream().anyMatch(pair -> {
@@ -84,6 +85,7 @@ public class ShadowingPracticeService {
                     || !ShadowingQuestionPreparationService.KINDS.containsAll(request.kinds())) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn mức và dạng bài tập");
             }
+            selectionCounts = selectionCounts(request);
             requested = request.questionCount() == null ? DEFAULT_QUESTION_COUNT : request.questionCount();
             if (!request.allQuestions() && (requested < 1 || requested > 500)) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu phải từ 1 đến 500");
@@ -116,6 +118,16 @@ public class ShadowingPracticeService {
                     lastEnd = seedItem.prepared().endTime();
                 }
             }
+            if (selectionCounts != null) {
+                for (Map.Entry<String, Integer> entry : selectionCounts.entrySet()) {
+                    long ofPair = available.stream().filter(seedItem -> entry.getKey().equals(pairOf(seedItem))).count();
+                    if (entry.getValue() > ofPair) {
+                        throw new ApiException(ErrorCode.BAD_REQUEST, "Mức này chỉ còn " + ofPair
+                                + " câu phù hợp; hãy chọn ít câu hơn");
+                    }
+                }
+                requested = selectionCounts.values().stream().mapToInt(Integer::intValue).sum();
+            }
             if (!request.allQuestions() && available.size() < requested) {
                 throw new ApiException(ErrorCode.BAD_REQUEST,
                         "Bộ câu hỏi đã chuẩn bị chỉ có " + available.size() + " câu phù hợp; hãy chọn ít câu hơn hoặc mức khác");
@@ -134,9 +146,10 @@ public class ShadowingPracticeService {
         long seed = java.util.concurrent.ThreadLocalRandom.current().nextLong();
         PracticeOrder order = request.mode() == PracticeMode.LISTENING ? PracticeOrder.RANDOM
                 : request.order() == null ? PracticeOrder.PROGRESSIVE : request.order();
-        List<QuestionSeed> selected = request.mode() == PracticeMode.LISTENING
-                ? balancedStops(available, requested, seed)
-                : selectQuestions(available, requested, order, seed);
+        List<QuestionSeed> selected = request.mode() != PracticeMode.LISTENING
+                ? selectQuestions(available, requested, order, seed)
+                : selectionCounts != null ? stopsPerSelection(available, selectionCounts, seed)
+                : balancedStops(available, requested, seed);
 
         ShadowingPracticeSession session = new ShadowingPracticeSession();
         session.setUserId(userId);
@@ -553,6 +566,40 @@ public class ShadowingPracticeService {
             return List.of(new PracticeDiffPart("MATCH", expected, actual));
         }
         return differences(expected, actual);
+    }
+
+    /**
+     * Số câu theo từng mức của từng dạng ("MỨC:DẠNG" → số câu; bỏ lựa chọn 0 câu); null khi không gửi để giữ
+     * cách chọn trải đều cũ.
+     */
+    private static Map<String, Integer> selectionCounts(CreatePracticeSessionRequest request) {
+        if (request.selectionCounts() == null || request.selectionCounts().isEmpty()) return null;
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        request.selectionCounts().forEach((pair, count) -> {
+            String[] parts = pair == null ? new String[0] : pair.split(":", -1);
+            if (parts.length != 2 || !ShadowingQuestionPreparationService.LEVELS.contains(parts[0])
+                    || !ShadowingQuestionPreparationService.KINDS.contains(parts[1])
+                    || count == null || count < 0 || count > 500) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu của từng mức không hợp lệ");
+            }
+            if (count > 0) counts.put(pair, count);
+        });
+        int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+        if (total < 1 || total > 500) throw new ApiException(ErrorCode.BAD_REQUEST, "Tổng số câu phải từ 1 đến 500");
+        return counts;
+    }
+
+    private static String pairOf(QuestionSeed question) {
+        return question.prepared().level() + ":" + question.prepared().kind();
+    }
+
+    /** Lấy ngẫu nhiên đúng số câu của từng mức trong từng dạng, rồi xếp theo thời gian trong video. */
+    private static List<QuestionSeed> stopsPerSelection(List<QuestionSeed> available, Map<String, Integer> counts, long seed) {
+        List<QuestionSeed> selected = new ArrayList<>();
+        counts.forEach((pair, count) -> selected.addAll(balancedStops(available.stream()
+                .filter(question -> pair.equals(pairOf(question))).toList(), count, seed)));
+        selected.sort(Comparator.comparingDouble(question -> question.subtitle().getStartTime()));
+        return selected;
     }
 
     private static List<QuestionSeed> balancedStops(List<QuestionSeed> available, int count, long seed) {

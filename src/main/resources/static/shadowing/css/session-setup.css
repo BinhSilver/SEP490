@@ -40,3 +40,16 @@ html[data-theme="dark"] .session-guide button { border-color: #61758b; }
   .page-shadowing-session-setup #practice-kind-options .practice-kind-list { grid-template-columns: 1fr; }
   .session-guide-target { scroll-margin-block: 120px 280px; }
 }
+
+/* Số câu muốn luyện của từng mức trong từng dạng (practice-select.js); chỉ hiện khi mức được chọn. */
+.page-shadowing-session-setup .practice-level-list label:has(.practice-level-count:not([hidden])) { flex-wrap: wrap; }
+.page-shadowing-session-setup .practice-level-count { display: inline-flex; align-items: center; gap: 4px; order: 3; margin-left: auto; }
+.page-shadowing-session-setup .practice-level-count[hidden] { display: none; }
+.page-shadowing-session-setup .practice-level-count button { width: 24px; height: 24px; padding: 0; border: 1px solid #ccd5e0; border-radius: 6px; background: #fff; color: #643396; font: 700 14px/1 inherit; cursor: pointer; }
+.page-shadowing-session-setup .practice-level-count button:disabled { opacity: .4; cursor: not-allowed; }
+.page-shadowing-session-setup .practice-level-count input { width: 38px; height: 24px; padding: 0 2px; border: 1px solid #ccd5e0; border-radius: 6px; text-align: center; font: inherit; font-size: 13px; font-weight: 700; -moz-appearance: textfield; }
+.page-shadowing-session-setup .practice-level-count input::-webkit-inner-spin-button,
+.page-shadowing-session-setup .practice-level-count input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.page-shadowing-session-setup .practice-level-list label:has(.practice-level-count:not([hidden])) small { order: 4; margin-left: 4px; }
+html[data-theme="dark"] .page-shadowing-session-setup .practice-level-count button,
+html[data-theme="dark"] .page-shadowing-session-setup .practice-level-count input { background: #141c27; border-color: #405468; color: #f8fafc; }

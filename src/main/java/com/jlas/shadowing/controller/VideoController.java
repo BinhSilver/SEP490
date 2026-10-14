@@ -88,6 +88,13 @@ public class VideoController {
         return ResponseEntity.ok(videoService.getVideo(id));
     }
 
+    /** Library card data for one video (level, tags, counts, rating), for the practice page header. */
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<VideoSummaryDto> getSummary(@PathVariable Long id,
+                                                      @RequestParam(required = false) String clientId) {
+        return ResponseEntity.ok(videoService.getSummary(id, clientId));
+    }
+
     @GetMapping("/{id}/status")
     public ResponseEntity<VideoStatusDto> getStatus(@PathVariable Long id) {
         return ResponseEntity.ok(videoService.getStatus(id));

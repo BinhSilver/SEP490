@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20260929-merge-ti">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261014-select-modes">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="stylesheet" href="/shadowing/css/empty-exercises.css?v=20261009-crying-30frames">
     <link rel="icon" href="/images/jlab.png" type="image/png">
@@ -24,29 +24,45 @@
     <div id="practice-select-shell">
         <a id="practice-library-link" href="/shadowing">Thư viện</a>
         <header id="practice-select-header">
-            <div>
+            <div class="ps-media">
+                <div id="practice-thumb" class="ps-thumb" aria-hidden="true">
+                    <img id="practice-thumb-img" alt="" hidden>
+                    <i class="fa-solid fa-film ps-thumb__fallback"></i>
+                    <span id="practice-duration" class="ps-thumb__time" hidden></span>
+                </div>
+                <section id="practice-mode-section" aria-labelledby="practice-mode-heading">
+                    <h2 id="practice-mode-heading">Chọn chế độ</h2>
+                    <div id="practice-mode-grid">
+                        <button type="button" class="practice-mode-card is-selected" data-mode="SHADOWING" aria-pressed="true">
+                            <i class="fa-solid fa-microphone-lines"></i>
+                            <span><strong>Shadowing</strong></span>
+                            <em>Hiện có</em>
+                        </button>
+                        <button type="button" class="practice-mode-card" data-mode="LISTENING" aria-pressed="false">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span><strong>Luyện nghe</strong></span>
+                            <em>Dễ · Vừa · Khó</em>
+                        </button>
+                    </div>
+                </section>
+            </div>
+            <div class="ps-hero__text">
                 <span id="practice-eyebrow">Bắt đầu bài học</span>
                 <h1 id="practice-video-title">Đang tải bài học…</h1>
-                <p><span id="practice-subtitle-count">-- câu</span><span id="practice-video-jlpt" hidden></span></p>
+                <ul id="practice-facts" class="ps-facts" aria-label="Thông tin bài học">
+                    <li><i class="fa-solid fa-list-ol" aria-hidden="true"></i><span id="practice-subtitle-count">-- câu</span></li>
+                    <li id="practice-fact-length" hidden><i class="fa-regular fa-clock" aria-hidden="true"></i><span></span></li>
+                    <li id="practice-fact-practice" hidden><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i><span></span></li>
+                    <li id="practice-fact-level" class="is-level" hidden><i class="fa-solid fa-signal" aria-hidden="true"></i><span></span></li>
+                    <li id="practice-fact-views" hidden><i class="fa-regular fa-eye" aria-hidden="true"></i><span></span></li>
+                    <li id="practice-fact-rating" hidden><i class="fa-solid fa-star" aria-hidden="true"></i><span></span></li>
+                </ul>
+                <dl id="practice-details" class="ps-details" hidden></dl>
+                <div id="practice-tags" class="ps-tags" hidden></div>
+                <span id="practice-video-jlpt" hidden></span>
             </div>
             <img id="practice-kitsu" src="/images/mascots/kitsu/kitsu-announcing.webp?v=20261012" alt="" aria-hidden="true">
         </header>
-
-        <section id="practice-mode-section" aria-labelledby="practice-mode-heading">
-            <h2 id="practice-mode-heading">Chọn chế độ</h2>
-            <div id="practice-mode-grid">
-                <button type="button" class="practice-mode-card is-selected" data-mode="SHADOWING" aria-pressed="true">
-                    <i class="fa-solid fa-microphone-lines"></i>
-                    <span><strong>Shadowing</strong></span>
-                    <em>Hiện có</em>
-                </button>
-                <button type="button" class="practice-mode-card" data-mode="LISTENING" aria-pressed="false">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span><strong>Luyện nghe</strong></span>
-                    <em>Dễ · Vừa · Khó</em>
-                </button>
-            </div>
-        </section>
 
         <div id="practice-session-controls">
             <div id="practice-start-row">
@@ -66,6 +82,6 @@
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/shadowing/js/client.js"></script>
 <script src="/shadowing/js/empty-exercises.js?v=20261009"></script>
-<script src="/shadowing/js/mode-select.js?v=20261012-mic-tools"></script>
+<script src="/shadowing/js/mode-select.js?v=20261014-select-modes"></script>
 </body>
 </html>

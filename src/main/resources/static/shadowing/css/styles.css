@@ -2417,22 +2417,15 @@ rt {
 /* -----------------------------------------------------------------------------
    14. ANIMATION
    ----------------------------------------------------------------------------- */
-@media (prefers-reduced-motion: no-preference) {
+
     .store-utility-card,
     .video-card,
     .subtitle-item,
     .editor-sub-item {
         will-change: transform;
     }
-}
 
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
+
 
 
 /* -----------------------------------------------------------------------------

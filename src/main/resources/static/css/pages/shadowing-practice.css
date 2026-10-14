@@ -1766,3 +1766,107 @@ html[data-theme="dark"] #exercise-translation {
 html[data-theme="dark"] #exercise-complete p {
     color: var(--dm-shadowing-muted)
 }
+
+/* ---------- Practice select header: thumbnail and video facts (scoped to this page) ---------- */
+#jlabBasePage.page-shadowing-practice-select #practice-select-header {
+  grid-template-columns: 360px minmax(0, 1fr) 110px;
+  align-items: start;
+  gap: 28px;
+}
+.page-shadowing-practice-select .ps-thumb {
+  position: relative; display: grid; place-items: center; overflow: hidden; aspect-ratio: 16 / 9; width: 100%;
+  border-radius: 16px; background: linear-gradient(135deg, #ece4ff, #dceef4); color: #8a78b8; font-size: 34px;
+}
+.page-shadowing-practice-select .ps-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.page-shadowing-practice-select .ps-thumb.has-image .ps-thumb__fallback { display: none; }
+.page-shadowing-practice-select .ps-thumb__time {
+  position: absolute; right: 8px; bottom: 8px; padding: 3px 8px; border-radius: 8px; background: rgba(15, 12, 25, .78);
+  color: #fff; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.page-shadowing-practice-select .ps-thumb__time[hidden] { display: none; }
+.page-shadowing-practice-select .ps-hero__text { min-width: 0; }
+.page-shadowing-practice-select .ps-facts { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 0; padding: 0; list-style: none; color: #5f5868; font-size: 14px; }
+.page-shadowing-practice-select .ps-facts li { display: inline-flex; align-items: center; gap: 7px; }
+.page-shadowing-practice-select .ps-facts li[hidden] { display: none; }
+.page-shadowing-practice-select .ps-facts i { color: #6a4fb0; font-size: 13px; }
+.page-shadowing-practice-select #practice-fact-rating i { color: #e0a100; }
+.page-shadowing-practice-select .ps-facts li.is-level { padding: 2px 10px; border-radius: 999px; background: #5b3f99; color: #fff; font-weight: 700; }
+.page-shadowing-practice-select .ps-facts li.is-level i { color: #fff; }
+.page-shadowing-practice-select .ps-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.page-shadowing-practice-select .ps-tags[hidden] { display: none; }
+.page-shadowing-practice-select .ps-tags span { padding: 4px 10px; border-radius: 999px; background: #f1ecff; color: #5b3f99; font-size: 12px; font-weight: 700; }
+
+/* Details: label/value pairs in a compact grid under the facts. */
+.page-shadowing-practice-select .ps-details {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 18px;
+  margin: 16px 0 0; padding: 14px 0 0; border-top: 1px solid rgba(79, 55, 138, .12);
+}
+.page-shadowing-practice-select .ps-details[hidden] { display: none; }
+.page-shadowing-practice-select .ps-details dt { display: flex; align-items: center; gap: 6px; color: #7a7383; font-size: 11.5px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.page-shadowing-practice-select .ps-details dt i { width: 14px; color: #6a4fb0; font-size: 12px; text-align: center; }
+.page-shadowing-practice-select .ps-details dd { margin: 3px 0 0 20px; color: #2b2733; font-size: 14px; font-weight: 600; }
+
+/* Mode picker: two compact cards sized to their content. */
+#jlabBasePage.page-shadowing-practice-select #practice-mode-grid { grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: start; gap: 12px; }
+#jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card {
+  grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 2px 12px; padding: 12px 16px; border-radius: 16px;
+}
+#jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card > i { grid-row: span 2; width: 40px; height: 40px; border-radius: 12px; font-size: 17px; }
+#jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card strong { font-size: 16px; }
+#jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card em { margin-top: 0; font-size: 11.5px; }
+#jlabBasePage.page-shadowing-practice-select #practice-session-controls { margin-top: 18px; }
+
+html[data-theme="dark"] .page-shadowing-practice-select .ps-thumb { background: var(--dm-shadowing-accent-soft); color: var(--dm-shadowing-accent); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-facts { color: var(--dm-shadowing-muted); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-facts i { color: var(--dm-shadowing-accent); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-facts li.is-level { background: #6544cf; color: #fff; }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-facts li.is-level i { color: #fff; }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-details { border-top-color: var(--dm-shadowing-line); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-details dt { color: var(--dm-shadowing-muted); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-details dt i { color: var(--dm-shadowing-accent); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-details dd { color: var(--dm-shadowing-ink); }
+html[data-theme="dark"] .page-shadowing-practice-select .ps-tags span { background: var(--dm-shadowing-accent-soft); color: var(--dm-shadowing-accent); }
+
+/* Tablet: drop the mascot, keep thumbnail beside the text. */
+@media (max-width: 860px) {
+  #jlabBasePage.page-shadowing-practice-select #practice-select-header { grid-template-columns: 280px minmax(0, 1fr); gap: 20px; }
+  .page-shadowing-practice-select #practice-kitsu { display: none; }
+}
+/* Phone: full-width thumbnail on top, facts as compact chips. */
+@media (max-width: 600px) {
+  #jlabBasePage.page-shadowing-practice-select #practice-select-header { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 14px; border-radius: 18px; }
+  .page-shadowing-practice-select .ps-thumb { border-radius: 12px; }
+  .page-shadowing-practice-select .ps-facts { gap: 6px; margin-top: 8px; font-size: 12.5px; }
+  .page-shadowing-practice-select .ps-facts li { padding: 4px 9px; border-radius: 999px; background: #f4f0fb; }
+  html[data-theme="dark"] .page-shadowing-practice-select .ps-facts li { background: var(--dm-shadowing-accent-soft); }
+  .page-shadowing-practice-select .ps-facts li.is-level { padding: 4px 9px; }
+  .page-shadowing-practice-select .ps-tags { margin-top: 8px; }
+  .page-shadowing-practice-select .ps-tags span { font-size: 11.5px; padding: 3px 9px; }
+  .page-shadowing-practice-select .ps-details { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; margin-top: 12px; padding-top: 12px; }
+  .page-shadowing-practice-select .ps-details dt { font-size: 10.5px; }
+  .page-shadowing-practice-select .ps-details dd { margin-left: 20px; font-size: 13px; }
+  #jlabBasePage.page-shadowing-practice-select #practice-mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  #jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card { grid-template-columns: 34px minmax(0, 1fr); padding: 10px 12px; gap: 2px 10px; }
+  #jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card > i { width: 34px; height: 34px; font-size: 15px; border-radius: 10px; }
+  #jlabBasePage.page-shadowing-practice-select #practice-mode-grid .practice-mode-card strong { font-size: 14.5px; }
+}
+
+/* Mode picker sits under the thumbnail, inside the header card. */
+.page-shadowing-practice-select .ps-media { display: grid; gap: 16px; min-width: 0; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-section { margin: 0; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-heading { margin: 0 0 8px; font-size: 15px; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-grid .practice-mode-card { grid-template-columns: 34px minmax(0, 1fr); gap: 2px 10px; padding: 10px 12px; border-radius: 14px; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-grid .practice-mode-card > i { width: 34px; height: 34px; border-radius: 10px; font-size: 15px; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-grid .practice-mode-card strong { font-size: 15px; }
+#jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-grid .practice-mode-card:hover { transform: translateY(-2px); }
+
+/* Phone: thumbnail, then the title and facts, then the mode picker. */
+@media (max-width: 600px) {
+  #jlabBasePage.page-shadowing-practice-select #practice-select-header { grid-template-areas: "thumb" "text" "modes"; }
+  .page-shadowing-practice-select .ps-media { display: contents; }
+  .page-shadowing-practice-select #practice-thumb { grid-area: thumb; }
+  .page-shadowing-practice-select .ps-hero__text { grid-area: text; }
+  #jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-section { grid-area: modes; padding-top: 12px; border-top: 1px solid rgba(79, 55, 138, .12); }
+}
+html[data-theme="dark"] .page-shadowing-practice-select .ps-media #practice-mode-section { border-top-color: var(--dm-shadowing-line); }
