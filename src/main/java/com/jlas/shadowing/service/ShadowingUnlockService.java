@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
  * <ul>
  *   <li>User thường: 200 view đầu trong 24h miễn phí.</li>
  *   <li>View thứ 201+: trừ 5 Credit/lượt xem hoàn tất.</li>
- *   <li>Premium / SUPER_ADMIN / ADMIN: unlimited.</li>
+ *   <li>Premium / SUPER_ADMIN: unlimited.</li>
  * </ul>
  *
  * <p>Chưa gate thật. Creator không còn nhận credit theo từng view mà theo mốc view,

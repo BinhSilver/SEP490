@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: standard('Quản lý đề JLPT - JLAS', 'jlpt-admin')}"></head>
-<body id="jlabBasePage" class="app-body jlpt-admin-body">
-<div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="jlpt-admin">
+<head th:replace="~{fragments/admin-head :: head('Quản lý đề JLPT - JLAS', 'jlpt-admin')}"></head>
+<body id="jlabBasePage" class="admin-portal jlpt-admin-body">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="jlpt-admin" hidden>
     <section id="catalogView" class="jlpt-admin-view">
         <header class="jlpt-admin-hero">
             <div><span class="jlpt-admin__eyebrow">CONTENT CREATOR</span><h1>Quản lý đề JLPT</h1><p>Tạo đề, biên tập câu hỏi và kiểm soát nội dung trước khi phát hành.</p></div>
@@ -63,5 +63,7 @@
 
 <dialog id="confirmDialog" class="jlpt-admin-confirm"><form method="dialog"><div class="jlpt-admin-confirm__mascot"><img src="/images/kitsu.png" alt="Linh vật Kitsu" /></div><span class="jlpt-admin__eyebrow">XÁC NHẬN THAO TÁC</span><h2 id="confirmTitle">Bạn có chắc không?</h2><p id="confirmMessage"></p><footer><button class="jlpt-admin-button is-secondary" value="cancel">Quay lại</button><button id="confirmActionButton" class="jlpt-admin-button is-primary" value="confirm">Xác nhận</button></footer></form></dialog>
 <div id="adminToast" class="jlpt-admin-toast" role="status" aria-live="polite" hidden></div>
-<script th:src="@{/js/jlab-base-shell.js?v=7}"></script><script th:src="@{/js/pages/jlpt-admin.js?v=6}"></script>
+<script th:src="@{/js/pages/admin-core.js}"></script>
+<script th:src="@{/js/admin-shell.js}"></script>
+<script th:src="@{/js/pages/jlpt-admin.js?v=7}"></script>
 </body></html>

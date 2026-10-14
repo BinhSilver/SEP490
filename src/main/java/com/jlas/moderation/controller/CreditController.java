@@ -36,7 +36,7 @@ public class CreditController {
     }
 
     @PostMapping("/admin/grant")
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ApiResponse<CreditAccount> grant(@Valid @RequestBody GrantRequest request) {
         credits.earn(request.getUserId(), request.getAmount(), CreditReason.ADMIN_GRANT,
                 "ADMIN_GRANT", request.getReferenceId(), request.getNote());

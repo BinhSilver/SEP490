@@ -46,8 +46,7 @@ CREATE TABLE IF NOT EXISTS subtitle_quality_review (
 -- 1) Roles used by the admin area (code already checks these names).
 INSERT IGNORE INTO roles (name, description) VALUES
     ('MODERATOR',   'Kiem duyet noi dung cong dong, tu khoa cam, khang nghi, dong gop tu dien'),
-    ('ADMIN',       'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung'),
-    ('SUPER_ADMIN', 'Quan tri cao nhat');
+    ('SUPER_ADMIN', 'System Admin: quan tri he thong, kiem duyet va che tai nguoi dung');
 
 -- 2) Append-only audit trail: every moderation state transition writes one row
 --    in the same transaction as the change itself.
