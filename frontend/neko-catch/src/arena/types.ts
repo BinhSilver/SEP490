@@ -121,8 +121,11 @@ export interface NekoStartOptions {
 
 /** Một món trong Cửa hàng (GET /api/games/shop). */
 export interface ShopItemView {
+  id: number;
+  renderCode: string;
   code: string;
   name: string;
+  image: string;
   price: number;
   owned: boolean;
   equipped: boolean;
@@ -238,6 +241,8 @@ export interface JlasArenaApi {
   me(): Promise<{ userId: number; name: string; avatarUrl: string | null }>;
   esc(value: unknown): string;
   fieldLabel(field: DeckField): string;
+  phoneMedia: MediaQueryList;
+  canPlayGame(type: GameType): boolean;
 }
 
 declare global {

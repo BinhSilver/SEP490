@@ -33,7 +33,7 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class AdminUserService {
     /** Roles a System Admin may assign: learner, content creator, moderator, System Admin. */
-    static final Set<String> ASSIGNABLE_ROLES = Set.of("LEARNER", "CONTENT_CREATOR", "MODERATOR", "SUPER_ADMIN");
+    static final Set<String> ASSIGNABLE_ROLES = Set.of("LEARNER", "CONTENT_CREATOR", "MODERATOR", "ADMIN");
     static final int MAX_GRANT_DAYS = 365;
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
@@ -85,9 +85,9 @@ public class AdminUserService {
         users.lockAdminRole();
         User user = users.findForUpdate(id).orElseThrow(AdminUserService::notFound);
         if (user.getLockedAt() != null) reject(actorId, id, "USER_LOCK", reason, "Tài khoản đã bị khóa.");
-        if ("SUPER_ADMIN".equals(user.getRole().getName())
-                && users.countByRole_NameAndLockedAtIsNull("SUPER_ADMIN") <= 1) {
-            reject(actorId, id, "USER_LOCK", reason, "Không thể khóa SUPER_ADMIN cuối cùng đang hoạt động.");
+        if ("ADMIN".equals(user.getRole().getName())
+                && users.countByRole_NameAndLockedAtIsNull("ADMIN") <= 1) {
+            reject(actorId, id, "USER_LOCK", reason, "Không thể khóa ADMIN cuối cùng đang hoạt động.");
         }
         LocalDateTime now = LocalDateTime.now();
         user.setLockedAt(now);
@@ -129,9 +129,9 @@ public class AdminUserService {
         User user = users.findForUpdate(id).orElseThrow(AdminUserService::notFound);
         String before = user.getRole().getName();
         if (before.equals(roleName)) reject(actorId, id, "USER_ROLE_CHANGE", reason, "Người dùng đã có vai trò này.");
-        if ("SUPER_ADMIN".equals(before) && user.getLockedAt() == null
-                && users.countByRole_NameAndLockedAtIsNull("SUPER_ADMIN") <= 1) {
-            reject(actorId, id, "USER_ROLE_CHANGE", reason, "Không thể hạ quyền SUPER_ADMIN cuối cùng đang hoạt động.");
+        if ("ADMIN".equals(before) && user.getLockedAt() == null
+                && users.countByRole_NameAndLockedAtIsNull("ADMIN") <= 1) {
+            reject(actorId, id, "USER_ROLE_CHANGE", reason, "Không thể hạ quyền ADMIN cuối cùng đang hoạt động.");
         }
         Role role = roles.findByName(roleName)
                 .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, "Vai trò " + roleName + " chưa có trong hệ thống."));

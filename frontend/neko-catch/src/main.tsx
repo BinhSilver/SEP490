@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import type { PlayMode } from './arena/types';
 import { NekoCatchGame, type HostConfig } from './components/NekoCatchGame';
-import { skinFromCode } from './graphics/CatSpriteSheet';
+import { registerShopSkins, skinFromCode } from './graphics/CatSpriteSheet';
 import './index.css';
 
 const FONT_HREF =
@@ -30,12 +30,14 @@ function ensureFonts() {
 
 function readHostConfig(root: HTMLElement): HostConfig {
   const data = root.dataset;
+  if (data.skin && data.skinId) registerShopSkins([{ id: Number(data.skinId), code: data.skin, name: data.skinName || '', renderCode: data.skinRenderCode || data.skin, image: data.skinImage || '' }]);
   const mode: PlayMode = String(data.mode || '').toUpperCase() === 'VERSUS' ? 'VERSUS' : 'SOLO';
   const meId = Number(data.meId);
   const fallbackBack = mode === 'VERSUS' ? '/games/lobby' : '/games';
   return {
     sessionId: (data.sessionId || '').trim(),
     mode,
+    roomId: data.roomId || null,
     backUrl: (data.backUrl || '').trim() || fallbackBack,
     meId: Number.isFinite(meId) && meId > 0 ? meId : null,
     skin: skinFromCode(data.skin),

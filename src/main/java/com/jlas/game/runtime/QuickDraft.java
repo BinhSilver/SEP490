@@ -14,13 +14,19 @@ import java.util.Random;
 
 /**
  * Chọn cài đặt bằng tung đồng xu cho phòng ghép trận nhanh (kiểu Master Duel): mỗi cài đặt tung một lần,
- * người ra mặt ngửa được chọn hoặc nhường quyền chọn cho đối thủ. Chỉ sửa khi đang giữ lock của phòng.
+ * người ra mặt cáo được chọn hoặc nhường quyền chọn cho đối thủ. Riêng "Lượt lật đầu tiên" không chọn:
+ * ai ra mặt cáo đi trước. Người thắng được bốc ngẫu nhiên ngay khi tung; client chỉ diễn hoạt cảnh cho khớp.
+ * Chỉ sửa khi đang giữ lock của phòng.
  */
 public class QuickDraft {
 
+    /** Bước được quyết định thẳng bằng đồng xu (mặt cáo đi trước), không có lượt chọn. */
+    static final String AUTO_FIRST = "first";
     public static final long INTRO_MS = 4_500;
     public static final long TOSS_MS = 2_600;
     public static final long CHOOSE_MS = 15_000;
+    /** Thời gian xem kết quả xu ở bước "đi trước" (không có lượt chọn theo sau). */
+    public static final long FIRST_REVEAL_MS = 1_500;
 
     public enum Phase { INTRO, TOSS, CHOOSE, DONE }
 
@@ -106,6 +112,13 @@ public class QuickDraft {
         switch (phase) {
             case INTRO -> startStep(0, now, random);
             case TOSS -> {
+                Step step = current();
+                if (step != null && AUTO_FIRST.equals(step.key)) {
+                    // Lượt đầu tiên không ai chọn: ai ra mặt cáo (tossWinner, bốc ngẫu nhiên lúc tung) đi trước.
+                    apply(step, "FIRST", step.tossWinner);
+                    next(now, random);
+                    return;
+                }
                 phase = Phase.CHOOSE;
                 phaseEndsAt = now.plusMillis(CHOOSE_MS);
                 token++;
@@ -173,7 +186,8 @@ public class QuickDraft {
         step.tossWinner = random.nextBoolean() ? hostUserId : guestUserId;
         step.chooser = step.tossWinner;
         phase = Phase.TOSS;
-        phaseEndsAt = now.plusMillis(TOSS_MS);
+        // Bước "đi trước" kết thúc ngay khi xu đáp: giữ thêm chút để cả hai kịp thấy ai ra mặt cáo.
+        phaseEndsAt = now.plusMillis(TOSS_MS + (AUTO_FIRST.equals(step.key) ? FIRST_REVEAL_MS : 0));
         token++;
     }
 

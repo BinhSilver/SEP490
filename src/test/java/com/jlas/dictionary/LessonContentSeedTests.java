@@ -380,7 +380,7 @@ class LessonContentSeedTests {
     /** System Admin không có quyền biên soạn (chỉ CONTENT_CREATOR) — 403 như learner, không được đổi gì. */
     @Test
     @Transactional
-    @WithMockUser(roles = "SUPER_ADMIN")
+    @WithMockUser(roles = "ADMIN")
     void systemAdminCannotChangeStatus() throws Exception {
         String before = lessonRepository.findById(21L).orElseThrow().getStatus();
         mockMvc.perform(patch("/api/dictionary/lessons/21/status")

@@ -55,6 +55,71 @@
       .replace(/"/g, '&quot;');
   }
 
+  /** Dedicated folder form shared by the library and card editor. */
+  function requestFolderName(options) {
+    options = options || {};
+    if (document.getElementById('fc-folder-dialog')) return Promise.resolve(null);
+    var previousFocus = document.activeElement;
+    var dialog = document.createElement('dialog');
+    dialog.id = 'fc-folder-dialog';
+    dialog.className = 'fc-folder-dialog';
+    dialog.setAttribute('aria-labelledby', 'fc-folder-title');
+    dialog.setAttribute('aria-describedby', 'fc-folder-hint');
+    dialog.innerHTML =
+      '<form novalidate>' +
+        '<header class="fc-folder-dialog__header"><h2 id="fc-folder-title"></h2>' +
+          '<button type="button" class="fc-folder-dialog__close" data-folder-cancel aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
+        '<div class="fc-folder-dialog__body"><label for="fc-folder-name">Tên thư mục</label>' +
+          '<input id="fc-folder-name" name="name" type="text" maxlength="100" autocomplete="off" aria-describedby="fc-folder-hint fc-folder-error">' +
+          '<p id="fc-folder-hint">Tối đa 100 ký tự.</p>' +
+          '<p id="fc-folder-error" class="fc-folder-dialog__error" role="alert" hidden></p></div>' +
+        '<footer class="fc-folder-dialog__footer"><button type="button" class="fc-folder-dialog__button" data-folder-cancel>Hủy</button>' +
+          '<button type="submit" class="fc-folder-dialog__button fc-folder-dialog__button--primary"></button></footer>' +
+      '</form>';
+    var input = dialog.querySelector('input');
+    var error = dialog.querySelector('#fc-folder-error');
+    dialog.querySelector('h2').textContent = options.rename ? 'Đổi tên thư mục' : 'Tạo thư mục';
+    dialog.querySelector('[type="submit"]').textContent = options.rename ? 'Lưu tên' : 'Tạo thư mục';
+    input.value = options.name || '';
+    return new Promise(function (resolve) {
+      var result = null;
+      dialog.querySelector('form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var name = input.value.trim();
+        if (!name || name.length > 100) {
+          error.textContent = !name ? 'Vui lòng nhập tên thư mục.' : 'Tên thư mục không được quá 100 ký tự.';
+          error.hidden = false;
+          input.setAttribute('aria-invalid', 'true');
+          input.focus();
+          return;
+        }
+        result = name;
+        dialog.close();
+      });
+      input.addEventListener('input', function () {
+        error.hidden = true;
+        input.removeAttribute('aria-invalid');
+      });
+      dialog.querySelectorAll('[data-folder-cancel]').forEach(function (button) {
+        button.addEventListener('click', function () { dialog.close(); });
+      });
+      dialog.addEventListener('click', function (event) {
+        if (event.target !== dialog) return;
+        var rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+      });
+      dialog.addEventListener('close', function () {
+        dialog.remove();
+        if (previousFocus && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
+        resolve(result);
+      }, { once: true });
+      document.body.append(dialog);
+      dialog.showModal();
+      input.focus();
+      input.select();
+    });
+  }
+
   function requireLogin(msg) {
     var loggedIn = window.JlasAuth && JlasAuth.isLoggedIn();
     console.info('[AUTH_TRACE] requireLogin', {
@@ -127,6 +192,7 @@
 
   window.FlashShell = {
     showToast: showToast,
+    requestFolderName: requestFolderName,
     esc: esc,
     requireLogin: requireLogin,
     openFlashcardQuiz: openFlashcardQuiz,

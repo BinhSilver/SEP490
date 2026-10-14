@@ -1,11 +1,11 @@
 -- =====================================================================
--- J-LAS seed: tai khoan demo Quan tri he thong (SUPER_ADMIN) + du lieu de test (JLAS2-51)
+-- J-LAS seed: tai khoan demo Quan tri he thong (ADMIN) + du lieu de test (JLAS2-51)
 --
 -- CHI DUNG CHO MOI TRUONG PHAT TRIEN / DEMO. KHONG chay tren moi truong that
 -- (mat khau cong khai trong file nay).
 --
 -- Dang nhap (form /login, truong Email), mat khau chung: SysAdmin@123
---   sysadmin@jlab.local          SUPER_ADMIN  vao /admin -> /admin/system/users
+--   sysadmin@jlab.local          ADMIN  vao /admin -> /admin/system/users
 --   sa.free@jlab.local           LEARNER      goi FREE (de thu cap Premium tu dau)
 --   sa.premium@jlab.local        LEARNER      MONTHLY con 20 ngay (de thu cap Premium cong don)
 --   sa.expired@jlab.local        LEARNER      MONTHLY het han 3 ngay truoc (cap lai tinh tu hien tai)
@@ -29,7 +29,7 @@ INSERT IGNORE INTO roles (name, description) VALUES
     ('LEARNER',         'Learner'),
     ('CONTENT_CREATOR', 'Content Creator: soan, quan ly va duyet noi dung hoc'),
     ('MODERATOR',       'Kiem duyet noi dung cong dong, tu khoa cam, khang nghi, dong gop tu dien'),
-    ('SUPER_ADMIN',     'System Admin: quan tri he thong, kiem duyet va che tai nguoi dung');
+    ('ADMIN',     'System Admin: quan tri he thong, kiem duyet va che tai nguoi dung');
 
 INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_active) VALUES
     ('FREE',    'Free tier',       0.00, 36500, 1),
@@ -38,7 +38,7 @@ INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_ac
 
 INSERT INTO users (role_id, premium_plan_id, email, username, password_hash, login_type, full_name,
                    japanese_level, premium_expired_at, credit_balance, is_verified, locked_at, locked_reason) VALUES
-  ((SELECT id FROM roles WHERE name = 'SUPER_ADMIN'), NULL,
+  ((SELECT id FROM roles WHERE name = 'ADMIN'), NULL,
    'sysadmin@jlab.local', 'sysadmin', @pwd, 'LOCAL', 'Quản trị hệ thống (demo)', NULL, NULL, 0, 1, NULL, NULL),
   ((SELECT id FROM roles WHERE name = 'LEARNER'), (SELECT id FROM premium_plans WHERE name = 'FREE'),
    'sa.free@jlab.local', 'sa_free', @pwd, 'LOCAL', 'Phạm Thu Hà (Free)', 'N5', NULL, 20, 1, NULL, NULL),

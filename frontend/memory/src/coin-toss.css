@@ -1,0 +1,35 @@
+.coin-overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; background: rgba(9, 7, 18, .78); }
+.coin-dialog { width: min(520px,100%); max-height: calc(100dvh - 32px); overflow-y: auto; padding: clamp(20px,4vw,36px); border-radius: 16px; background: var(--color-surface,#fff); color: var(--color-text,#24324b); text-align: center; box-shadow: 0 20px 64px rgba(0,0,0,.25); }
+.coin-dialog h2 { margin: 0 0 20px; font-size: clamp(22px,5vw,32px); }
+.coin-choices { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.coin-choice { display: flex; align-items: center; flex-direction: column; gap: 12px; padding: 18px 8px; min-width: 0; border: 2px solid #d8deea; border-radius: 12px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.coin-choice.is-selected { border-color: #8160cc; background: rgba(129,96,204,.12); }
+.coin-choice:disabled { cursor: default; }
+.coin-choice:disabled:not(.is-selected) { opacity: .55; }
+.coin-choice small { font-size: 12px; overflow-wrap: anywhere; }
+.coin-choice:focus-visible,.coin-leave:focus-visible { outline: 3px solid #8160cc; outline-offset: 3px; }
+.coin-face { display: grid; place-items: center; width: 128px; height: 128px; box-sizing: border-box; border: 7px solid #c7902b; border-radius: 50%; background: #ffe5a0; color: #65420a; }
+.coin-face__brand { font-size: 30px; font-weight: 900; letter-spacing: .02em; }
+.coin-face__mascot { width: 92%; height: 92%; object-fit: contain; }
+.coin-choice__face { position: relative; width: clamp(78px,23vw,116px); height: clamp(78px,23vw,116px); }
+.coin-stage { position: relative; display: grid; place-items: end center; height: 260px; padding-bottom: 22px; perspective: 900px; }
+.coin-flight { width: 128px; height: 128px; transform-style: preserve-3d; animation: coin-flight 3600ms linear both; }
+.coin-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; animation: coin-spin 3600ms cubic-bezier(.28,.1,.56,1) both; }
+.coin-body .coin-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.coin-face--front { transform: translateZ(3px); }
+.coin-face--back { transform: rotateX(180deg) translateZ(3px); }
+.coin-shadow { position: absolute; bottom: 10px; width: 112px; height: 16px; border-radius: 50%; background: rgba(93,61,10,.2); animation: coin-shadow 3600ms linear both; }
+.coin-status { min-height: 48px; margin: 20px 0 0; font-weight: 700; font-size: 16px; line-height: 1.5; }
+.coin-error { color: #b9223b; font-size: 14px; }
+.coin-leave { min-height: 44px; padding: 8px 16px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+@keyframes coin-flight { 0% { transform: translateY(0) rotateZ(-12deg); } 42% { transform: translateY(-125px) rotateZ(8deg); } 82% { transform: translateY(0) rotateZ(-6deg); } 91% { transform: translateY(-14px) rotateZ(3deg); } 100% { transform: translateY(0) rotateZ(0); } }
+@keyframes coin-spin { from { transform: rotateX(0deg); } to { transform: rotateX(var(--coin-end)); } }
+@keyframes coin-shadow { 0%,82%,100% { transform: scale(1); opacity: .6; } 42% { transform: scale(.45); opacity: .2; } 91% { transform: scale(.85); opacity: .45; } }
+.coin-stage--reduced .coin-flight,.coin-stage--reduced .coin-shadow { animation: none; }
+.coin-stage--reduced .coin-body { animation: none; transform: rotateX(var(--coin-end)); }
+html[data-theme="dark"] .coin-dialog,html.dark .coin-dialog { background: #1b1c2e; color: #f1effa; }
+html[data-theme="dark"] .coin-choice,html.dark .coin-choice { border-color: #535067; }
+html[data-theme="dark"] .coin-choice.is-selected,html.dark .coin-choice.is-selected { border-color: #c18bff; }
+html[data-theme="dark"] .coin-error,html.dark .coin-error { color: #ffacb9; }
+@media (max-width: 380px) { .coin-dialog { padding: 20px 12px; } .coin-choices { gap: 8px; } .coin-choice__face .coin-face__brand { font-size: 24px; } }
+@media (prefers-reduced-motion: reduce) { .coin-flight,.coin-shadow { animation: none; } .coin-body { animation: none; transform: rotateX(var(--coin-end)); } }

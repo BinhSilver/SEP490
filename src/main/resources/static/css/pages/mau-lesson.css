@@ -123,3 +123,101 @@ html { scroll-behavior: smooth; }
 .notes-modal__footer { justify-content: flex-end; border-top: 1px solid rgba(203,196,210,.5); border-bottom: 0; }
 @media (max-width: 991px) { .lesson-layout { padding-inline: 1rem; } .lesson-sidebar { display: none; } .lesson-breadcrumb--mobile { display: flex; } .lesson-main { gap: 2.5rem; } .rule-grid { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { .lesson-hero { padding: 1.5rem; } .lesson-meta { gap: .5rem; } .lesson-meta span { width: 100%; } .section-heading { gap: .65rem; } .section-number { flex-basis: 2.1rem; width: 2.1rem; height: 2.1rem; } .insight-card { flex-direction: column; } .notes-fab { right: 1rem; bottom: 1rem; } }
+
+/* Page-owned dark mode: css/pages/mau-lesson.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-onyomi-bg: #100e16;
+  --dm-onyomi-surface: #1c1825;
+  --dm-onyomi-raised: #2b2537;
+  --dm-onyomi-ink: #f8f2fc;
+  --dm-onyomi-muted: #c1b6d0;
+  --dm-onyomi-line: #4c405e;
+  --dm-onyomi-accent: #d0a1ff;
+  --dm-onyomi-action: #7335a6;
+  --dm-onyomi-accent-soft: #302140;
+  --dm-onyomi-on-accent: #211b34;
+  --dm-onyomi-success: #8eddb6;
+  --dm-onyomi-success-bg: #1b3d32;
+  --dm-onyomi-success-line: #43816b;
+  --dm-onyomi-danger: #ffb4bd;
+  --dm-onyomi-danger-bg: #452832;
+  --dm-onyomi-danger-line: #96616d;
+  --dm-onyomi-warning: #f3d28a;
+  --dm-onyomi-warning-bg: #403522;
+  --dm-onyomi-warning-line: #947a46;
+  --dm-onyomi-pink: #f4aed2;
+  --dm-onyomi-pink-bg: #432d40;
+  --dm-onyomi-pink-line: #88637b;
+}
+html[data-theme="dark"] .lesson-toc__link:hover,
+html[data-theme="dark"] .lesson-toc__link.is-active {
+    background: var(--dm-onyomi-accent-soft);
+    color: var(--dm-onyomi-accent)
+}
+html[data-theme="dark"] .lesson-hero {
+    background: var(--dm-onyomi-accent-soft);
+    border: 1px solid var(--dm-onyomi-line)
+}
+html[data-theme="dark"] .lesson-hero__glow {
+    background: var(--dm-onyomi-action)
+}
+html[data-theme="dark"] .badge--primary {
+    color: var(--dm-onyomi-on-accent)
+}
+html[data-theme="dark"] .badge--soft {
+    background: var(--dm-onyomi-surface)
+}
+html[data-theme="dark"] .lesson-meta span {
+    background: var(--dm-onyomi-surface)
+}
+html[data-theme="dark"] .section-number {
+    color: var(--dm-onyomi-on-accent)
+}
+html[data-theme="dark"] .rule-card__mapping .rule-card__target strong {
+    color: var(--dm-onyomi-on-accent)
+}
+html[data-theme="dark"] .flashcard__back {
+    color: var(--dm-onyomi-on-accent)
+}
+html[data-theme="dark"] .flashcard__rule {
+    background: var(--dm-onyomi-surface)
+}
+html[data-theme="dark"] .flashcard__back .flashcard__hint {
+    color: var(--dm-onyomi-ink)
+}
+html[data-theme="dark"] .insight-card {
+    border-color: var(--dm-onyomi-warning-line);
+    background: var(--dm-onyomi-warning-bg)
+}
+html[data-theme="dark"] .insight-card__icon {
+    color: var(--dm-onyomi-warning)
+}
+html[data-theme="dark"] .insight-card mark {
+    background: var(--dm-onyomi-accent-soft)
+}
+html[data-theme="dark"] .quiz-option.is-wrong {
+    background: var(--dm-onyomi-danger-bg)
+}
+html[data-theme="dark"] .feedback--correct {
+    border: 1px solid var(--dm-onyomi-success-line)
+}
+html[data-theme="dark"] .feedback--wrong {
+    border: 1px solid var(--dm-onyomi-danger-line);
+    background: var(--dm-onyomi-danger-bg)
+}
+html[data-theme="dark"] .summary-card__icon {
+    color: var(--dm-onyomi-success);
+    background: var(--dm-onyomi-success-bg)
+}
+html[data-theme="dark"] .notes-fab {
+    color: var(--dm-onyomi-on-accent)
+}
+html[data-theme="dark"] .notes-modal__header,
+html[data-theme="dark"] .notes-modal__footer {
+    border-bottom: 1px solid var(--dm-onyomi-line)
+}
+html[data-theme="dark"] .notes-modal__footer {
+    border-top: 1px solid var(--dm-onyomi-line)
+}

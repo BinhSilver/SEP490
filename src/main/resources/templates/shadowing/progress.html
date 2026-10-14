@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiến độ Shadowing | JLAS</title>
@@ -12,8 +13,9 @@
     <link rel="stylesheet" href="/css/pages/shadowing-progress.css?v=20260929-progress-hover">
     <link rel="stylesheet" href="/css/jlab-base-shell.css">
     <link rel="icon" href="/images/jlab.png" type="image/png">
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing-progress">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing-progress">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent">
     <div id="progress-shell" class="is-loading">
@@ -39,9 +41,7 @@
                 <span class="progress-sparkle" style="--s:0"></span>
                 <span class="progress-sparkle" style="--s:1"></span>
                 <span class="progress-sparkle" style="--s:2"></span>
-                <video id="progress-kitsu" autoplay muted loop playsinline preload="auto" poster="/images/kitsu.png">
-                    <source src="/videos/linhvat-alpha.webm?v=20260915" type="video/webm">
-                </video>
+                <img id="progress-kitsu" src="/images/mascots/kitsu/kitsu-cheer-30.webp?v=20261012" alt="">
             </div>
         </header>
 

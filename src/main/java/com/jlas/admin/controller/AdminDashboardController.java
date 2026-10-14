@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/admin/system")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
     private final AdminDashboardService dashboard;
     private final AdminPaymentService payments;

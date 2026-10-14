@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi" th:fragment="layout(title, content)">
 
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:replace="${title}">JLAS</title>
@@ -23,9 +24,10 @@
     <script th:src="@{/js/sakura-background.js}"></script>
     <script th:src="@{/js/auth-session.js}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
 
-<body id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent" th:insert="${content}">nội dung</main>
     <script th:src="@{/js/jlab-base-shell.js}"></script>

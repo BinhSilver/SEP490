@@ -3,6 +3,9 @@ package com.jlas.shadowing.service;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
+import com.jlas.shadowing.dto.LibraryPageDto;
+import com.jlas.shadowing.repository.ShadowingLibraryCatalog;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.jlas.shadowing.dto.SeriesCreateRequest;
 import com.jlas.shadowing.dto.SeriesDetailDto;
 import com.jlas.shadowing.dto.SeriesSummaryDto;
@@ -10,6 +13,7 @@ import com.jlas.shadowing.dto.VideoSummaryDto;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.model.VideoStatus;
 import com.jlas.shadowing.model.VideoVisibility;
+import com.jlas.shadowing.util.LibraryFilters;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +27,23 @@ import java.util.stream.Collectors;
 public class SeriesService {
     private final JdbcTemplate jdbc;
     private final VideoService videoService;
+    @Autowired private ShadowingLibraryCatalog libraryCatalog;
 
     public SeriesService(JdbcTemplate jdbc, VideoService videoService) {
         this.jdbc = jdbc;
         this.videoService = videoService;
     }
 
+    public LibraryPageDto<SeriesSummaryDto> listPublicPage(String query, String sort, String category,
+            String level, int page, int size) {
+        return libraryCatalog.series(query, category, level, sort, CurrentUser.currentUserId().orElse(null), page, size);
+    }
+
     public List<SeriesSummaryDto> listPublic(String query, String sort) {
+        return listPublic(query, sort, null, null);
+    }
+
+    public List<SeriesSummaryDto> listPublic(String query, String sort, String category, String level) {
         List<SeriesSummaryDto> rows = jdbc.query(
                 "SELECT id, owner_id, title, description, estimated_level, level_source, visibility, created_at "
                         + "FROM shadowing_series WHERE visibility = 'PUBLIC' ORDER BY created_at DESC",
@@ -48,7 +62,16 @@ public class SeriesService {
             }).collect(Collectors.toList());
         }
         rows.forEach(this::enrichStats);
-        if ("title".equalsIgnoreCase(sort)) {
+        Set<String> categories = LibraryFilters.values(category);
+        Set<String> levels = LibraryFilters.values(level);
+        rows = rows.stream().filter(s -> categories.isEmpty() || s.getCategories().stream()
+                        .anyMatch(c -> categories.contains(c.toLowerCase(Locale.ROOT))))
+                .filter(s -> levels.isEmpty() || (s.getEstimatedLevel() != null
+                        && levels.contains(s.getEstimatedLevel().toLowerCase(Locale.ROOT))))
+                .collect(Collectors.toList());
+        if ("duration-asc".equals(sort) || "duration-desc".equals(sort)) {
+            rows.sort(LibraryFilters.duration(SeriesSummaryDto::getDuration, "duration-desc".equals(sort)));
+        } else if ("title".equalsIgnoreCase(sort)) {
             rows.sort(Comparator.comparing(s -> Optional.ofNullable(s.getTitle()).orElse(""), String.CASE_INSENSITIVE_ORDER));
         } else if ("views".equalsIgnoreCase(sort)) {
             rows.sort(Comparator.comparingInt(SeriesSummaryDto::getViewCount).reversed());
@@ -65,12 +88,7 @@ public class SeriesService {
                 && !Objects.equals(me, series.getOwnerId())) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Series này đang ở chế độ riêng tư");
         }
-        List<Long> videoIds = jdbc.query(
-                "SELECT video_id FROM shadowing_series_video WHERE series_id = ? ORDER BY position ASC",
-                (rs, n) -> rs.getLong("video_id"), id);
-        List<VideoSummaryDto> videos = videoIds.stream()
-                .map(videoId -> videoService.getSummary(videoId, null))
-                .collect(Collectors.toList());
+        List<VideoSummaryDto> videos = readableVideos(series);
         SeriesDetailDto result = new SeriesDetailDto();
         result.setSeries(series);
         result.setVideos(videos);
@@ -131,12 +149,13 @@ public class SeriesService {
     }
 
     private void enrichStats(SeriesSummaryDto series) {
-        List<Long> ids = jdbc.query("SELECT video_id FROM shadowing_series_video WHERE series_id = ?",
-                (rs, n) -> rs.getLong("video_id"), series.getId());
-        series.setVideoCount(ids.size());
-        List<VideoSummaryDto> videos = ids.stream().map(id -> {
-            try { return videoService.getSummary(id, null); } catch (RuntimeException ignored) { return null; }
-        }).filter(Objects::nonNull).toList();
+        List<VideoSummaryDto> videos = readableVideos(series);
+        series.setVideoCount(videos.size());
+        double seconds = videos.stream().map(VideoSummaryDto::getDuration)
+                .filter(d -> d != null && Double.isFinite(d) && d > 0).mapToDouble(Double::doubleValue).sum();
+        series.setDuration(seconds > 0 ? seconds : null);
+        series.setCategories(videos.stream().map(VideoSummaryDto::getCategory).filter(Objects::nonNull)
+                .distinct().toList());
         series.setViewCount(videos.stream().mapToInt(VideoSummaryDto::getViewCount).sum());
         int ratings = videos.stream().mapToInt(VideoSummaryDto::getRatingCount).sum();
         series.setRatingCount(ratings);
@@ -145,6 +164,22 @@ public class SeriesService {
                     .mapToDouble(v -> v.getAvgRating() * v.getRatingCount()).sum();
             series.setAvgRating(weighted / ratings);
         }
+    }
+
+    private List<VideoSummaryDto> readableVideos(SeriesSummaryDto series) {
+        List<Long> ids = jdbc.query(
+                "SELECT video_id FROM shadowing_series_video WHERE series_id = ? ORDER BY position ASC",
+                (rs, n) -> rs.getLong("video_id"), series.getId());
+        List<VideoSummaryDto> videos = new ArrayList<>();
+        for (Long id : ids) {
+            try {
+                videos.add(videoService.getSummary(id, null));
+            } catch (ApiException e) {
+                // A member may have become private since its public series was created.
+                if (e.getErrorCode() != ErrorCode.FORBIDDEN) throw e;
+            }
+        }
+        return videos;
     }
 
     private static SeriesSummaryDto mapRow(long id, long ownerId, String title, String description, String level,

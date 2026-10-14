@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Retention Onboarding Demo · JLAS</title>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet" />
@@ -13,8 +15,9 @@
     <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="retention-demo-body">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="retention-demo-body">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
     <div class="demo-noise" aria-hidden="true"></div>

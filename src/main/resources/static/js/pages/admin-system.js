@@ -6,7 +6,7 @@
   var API = '/api/admin/system';
   var ROLE_NAMES = { LEARNER: 'Học viên', CONTENT_CREATOR: 'Content Creator' };
   // Roles a System Admin may assign (server enforces the same list). Premium is a plan, not a role.
-  var ASSIGNABLE = ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'SUPER_ADMIN'];
+  var ASSIGNABLE = ['LEARNER', 'CONTENT_CREATOR', 'MODERATOR', 'ADMIN'];
   var STATUS = { ACTIVE: 'Đang hoạt động', LOCKED: 'Đã khoá' };
   var ACTIONS = {
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',

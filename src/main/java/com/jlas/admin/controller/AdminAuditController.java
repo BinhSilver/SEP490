@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/admin/system/audit-logs")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminAuditController {
     private final AdminAuditService audit;
 

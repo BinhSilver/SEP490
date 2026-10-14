@@ -3,6 +3,8 @@ package com.jlas.shadowing.service;
 import com.jlas.shadowing.model.FuriganaCache;
 import com.jlas.shadowing.repository.FuriganaCacheRepository;
 import com.jlas.shadowing.util.SubtitleText;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,6 +176,32 @@ public class OpenRouterService {
         Map<String, String> result = processJapaneseBatch(List.of(clean), lang, generateFurigana).get(0);
         saveCache(clean, lang, result);
         return result;
+    }
+
+    /** Explicit user regeneration bypasses cache and never replaces saved fields with a fallback. */
+    public Map<String, String> regenerateJapanese(String text, String targetLanguage) {
+        String clean = SubtitleText.normalizeJapanese(text);
+        if (clean.isBlank()) throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy nhập câu tiếng Nhật trước khi tạo lại AI.");
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "AI chưa được cấu hình. Hãy thử lại sau.");
+        }
+        String lang = targetLanguage == null ? "vi" : targetLanguage;
+        FetchOutcome outcome = fetchBatchWithJsonRetry(List.of(clean), lang, true);
+        if (outcome.array == null || !outcome.array.isArray() || outcome.array.size() != 1 || outcome.lengthHit) {
+            throw regenerationFailure();
+        }
+        JsonNode entry = outcome.array.get(0);
+        String furigana = SubtitleText.sanitizeAiField(entry.path("furigana").asText(""));
+        String translation = SubtitleText.sanitizeAiField(entry.path("translation").asText(""));
+        if (!isValidFurigana(clean, furigana) || translation.isBlank()) throw regenerationFailure();
+        Map<String, String> result = Map.of("furigana", furigana, "translation", translation);
+        saveCache(clean, lang, result);
+        return result;
+    }
+
+    private ApiException regenerationFailure() {
+        return new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR,
+                "AI chưa trả về cách đọc và bản dịch hợp lệ. Nội dung đã lưu được giữ nguyên; hãy thử lại.");
     }
 
     public List<Map<String, String>> processJapaneseBatch(List<String> texts, String targetLanguage) {
@@ -800,7 +828,8 @@ public class OpenRouterService {
 
     private void saveCache(String text, String lang, Map<String, String> result) {
         try {
-            FuriganaCache cache = new FuriganaCache();
+            FuriganaCache cache = furiganaCacheRepository.findByOriginalTextAndTargetLanguage(text, lang)
+                    .orElseGet(FuriganaCache::new);
             cache.setTextHash(sha256(text + ":" + lang));
             cache.setOriginalText(text);
             cache.setFurigana(result.get("furigana"));

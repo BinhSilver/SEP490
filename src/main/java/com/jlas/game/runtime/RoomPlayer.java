@@ -8,14 +8,23 @@ public class RoomPlayer {
     private final long userId;
     private final String displayName;
     private final String avatarUrl;
+    private final String avatarFrame;
+    private final String nameStyle;
     private final int slot;
     private final Instant joinedAt;
     private boolean ready;
 
     public RoomPlayer(long userId, String displayName, String avatarUrl, int slot, Instant joinedAt) {
-        this.userId = userId;
-        this.displayName = displayName;
-        this.avatarUrl = avatarUrl;
+        this(new PlayerSeat(userId, displayName, avatarUrl, slot), slot, joinedAt);
+    }
+
+    /** Ngồi vào phòng ở {@code slot}, giữ tên/avatar/khung/màu tên chụp lúc vào. */
+    public RoomPlayer(PlayerSeat seat, int slot, Instant joinedAt) {
+        this.userId = seat.userId();
+        this.displayName = seat.displayName();
+        this.avatarUrl = seat.avatarUrl();
+        this.avatarFrame = seat.avatarFrame();
+        this.nameStyle = seat.nameStyle();
         this.slot = slot;
         this.joinedAt = joinedAt;
     }
@@ -30,6 +39,14 @@ public class RoomPlayer {
 
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    public String getAvatarFrame() {
+        return avatarFrame;
+    }
+
+    public String getNameStyle() {
+        return nameStyle;
     }
 
     public int getSlot() {
@@ -49,6 +66,6 @@ public class RoomPlayer {
     }
 
     public PlayerSeat toSeat() {
-        return new PlayerSeat(userId, displayName, avatarUrl, slot);
+        return new PlayerSeat(userId, displayName, avatarUrl, slot, avatarFrame, nameStyle);
     }
 }

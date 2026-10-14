@@ -111,6 +111,7 @@ public class FreeChatPromptComposer {
         }
 
         parts.add(compactFinalOverride());
+        parts.add(settingBehavior(style, length, personality));
 
         StringBuilder out = new StringBuilder();
         for (String p : parts) {
@@ -150,6 +151,8 @@ public class FreeChatPromptComposer {
                 Detect wrong collocation/particle/tense/keigo/unnatural JP.
                 hasError=true + corrected JP + grammarReason Vietnamese; reply continues natural chat.
                 Examples: ゲームを食べますゲームをします; アニメをしますアニメを見ます; ケーキを飲みたいケーキを食べたい; 学校を行く学校に行く; 昨日行きます昨日行きました.
+                Preserve the learner's intended tense, subject, people and place. Do not change present/future
+                to past just because the assistant previously asked a past-tense question.
                 Never lecture inside reply.
                 """;
     }
@@ -160,7 +163,7 @@ public class FreeChatPromptComposer {
         return """
                 # Profile
                 personality=%s | level=%s | style=%s | emotion=%s | initiative=%s | length=%s | mode=%s
-                Match JP difficulty to level. One move per reply (react OR one concrete question OR short share).
+                Match JP difficulty to level. Answer questions with useful content; at most one follow-up question.
                 Empathize first if user is tired/sad/happy/worried. 100%% Japanese in reply field only.
                 """.formatted(personality, level, style, emotion, initiative, length, mode);
     }
@@ -186,8 +189,26 @@ public class FreeChatPromptComposer {
                 # FINAL (highest priority)
                 reply=JP only, zero teaching. hasError for clear mistakes; grammarReason=Vietnamese.
                 N5–N3: concrete questions only (not あなたにとって〜はどんな存在).
-                Stay on entity; one move; return ONLY JSON.
+                Stay on entity; answer the request before asking a follow-up; return ONLY JSON.
                 """;
+    }
+
+    private static String settingBehavior(String style, String length, String personality) {
+        String speech = switch (style) {
+            case "casual" -> "Use natural FRIEND-TO-FRIEND plain forms (だ、だね、する、かな). Avoid です/ます endings in reply. Never copy polite example endings from other blocks.";
+            case "polite" -> "Use consistent です/ます politeness, friendly and respectful.";
+            case "keigo" -> "Use respectful Japanese. In corrected, honor actions of superiors using 尊敬語 (e.g. 食べる -> 召し上がる), own actions toward them using 謙譲語. Adding です/ます alone is insufficient. Explain in Vietnamese.";
+            default -> "Use the selected speech style consistently.";
+        };
+        String size = switch (length) {
+            case "short" -> "Reply with 1–2 brief sentences, about 15–60 Japanese characters.";
+            case "long" -> "Reply with 5–7 substantive sentences, about 180–350 Japanese characters. Explain, compare, or give concrete examples relevant to the question; do not just ask a question.";
+            default -> "Reply with 2–3 concise sentences, about 60–150 Japanese characters.";
+        };
+        String role = "teacher".equals(personality)
+                ? "As a teacher, provide reassuring guidance. When a learner describes a learning difficulty or requests advice, include one concrete, achievable practice action in this reply; encouragement and a diagnostic question alone are insufficient. Keep it conversational, not a lecture."
+                : "friend".equals(personality) ? "As a friend, empathize and share personal encouragement naturally." : "Be warm and attentive.";
+        return "# Selected behavior (overrides conflicting example styles and one-move hints)\n" + speech + "\n" + size + "\n" + role;
     }
 
     private static String truncate(String s, int max) {

@@ -2,11 +2,11 @@
 (function (global) {
   'use strict';
 
-  // Roles: MODERATOR moderates; SUPER_ADMIN (System Admin) runs the system and also moderates,
+  // Roles: MODERATOR moderates; ADMIN (System Admin) runs the system and also moderates,
   // including user sanctions. CONTENT_CREATOR works only in the content tools.
-  var MODERATION = ['MODERATOR', 'SUPER_ADMIN'];
-  var ADMINS = ['SUPER_ADMIN']; // may sanction users
-  var SYSTEM = ['SUPER_ADMIN'];
+  var MODERATION = ['MODERATOR', 'ADMIN'];
+  var ADMINS = ['ADMIN']; // may sanction users
+  var SYSTEM = ['ADMIN'];
 
   /**
    * Sidebar registry. A new management area = a new group or item here plus a section script.
@@ -29,6 +29,10 @@
       { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM },
       { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
+    { title: 'Trò chơi', items: [
+      { key: 'game-skins', label: 'Trang phục game', icon: 'fa-shirt', href: '/admin/game-skins', roles: ADMINS },
+      { key: 'game-effects', label: 'Xem hiệu ứng game', icon: 'fa-gamepad', href: '/admin/game-effects', roles: MODERATION }
+    ] },
     { title: 'Kiểm duyệt', items: [
       { key: 'reports', label: 'Báo cáo nội dung', icon: 'fa-flag', href: '/admin/moderation/reports', roles: MODERATION, badge: 'pendingReports' },
       { key: 'queue', label: 'Hàng đợi AI', icon: 'fa-robot', href: '/admin/moderation/queue', roles: MODERATION, badge: 'pendingQueue' },
@@ -40,10 +44,10 @@
     ] }
   ];
 
-  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', SUPER_ADMIN: 'Quản trị hệ thống', CONTENT_CREATOR: 'Người biên soạn' };
+  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', CONTENT_CREATOR: 'Người biên soạn' };
 
   var TYPE_LABELS = {
-    FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
+    USER_AVATAR: 'Ảnh đại diện', FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
     APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',

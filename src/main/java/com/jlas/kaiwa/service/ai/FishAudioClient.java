@@ -45,7 +45,11 @@ public class FishAudioClient {
      * @return mp3 bytes
      */
     public byte[] synthesize(String text, String gender, double speed) {
-        TtsRequest request = buildRequest(text, gender, speed);
+        return synthesizeVoice(text, config.resolveVoiceId(gender), speed);
+    }
+
+    public byte[] synthesizeVoice(String text, String referenceId, double speed) {
+        TtsRequest request = buildRequest(text, referenceId, speed);
 
         String url = trimSlash(config.getApiUrl()) + "/v1/tts";
         HttpHeaders headers = createHeaders(request.apiKey());
@@ -61,8 +65,8 @@ public class FishAudioClient {
             if (audio == null || audio.length == 0) {
                 throw new IllegalStateException("Fish Audio returned empty audio");
             }
-            log.info("Fish Audio TTS OK gender={} ref={} bytes={} model={}",
-                    gender, request.referenceId(), audio.length, config.getModel());
+            log.info("Fish Audio TTS OK ref={} bytes={} model={}",
+                    request.referenceId(), audio.length, config.getModel());
             return audio;
         } catch (HttpStatusCodeException e) {
             String errBody = e.getResponseBodyAsString();
@@ -86,7 +90,11 @@ public class FishAudioClient {
      * as soon as the provider emits its first audio frames.
      */
     public void synthesizeStreaming(String text, String gender, double speed, OutputStream target) {
-        TtsRequest request = buildRequest(text, gender, speed);
+        synthesizeVoiceStreaming(text, config.resolveVoiceId(gender), speed, target);
+    }
+
+    public void synthesizeVoiceStreaming(String text, String referenceId, double speed, OutputStream target) {
+        TtsRequest request = buildRequest(text, referenceId, speed);
         String url = trimSlash(config.getApiUrl()) + "/v1/tts";
         HttpHeaders headers = createHeaders(request.apiKey());
         long startedAt = System.nanoTime();
@@ -102,8 +110,7 @@ public class FishAudioClient {
                     response -> copyProgressively(response.getBody(), target, startedAt));
 
             long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000;
-            log.info("Fish Audio streaming TTS OK gender={} ref={} bytes={} firstByteMs={} elapsedMs={} model={}",
-                    gender,
+            log.info("Fish Audio streaming TTS OK ref={} bytes={} firstByteMs={} elapsedMs={} model={}",
                     request.referenceId(),
                     stats == null ? 0 : stats.bytes(),
                     stats == null ? -1 : stats.firstByteMs(),
@@ -125,7 +132,7 @@ public class FishAudioClient {
         }
     }
 
-    private TtsRequest buildRequest(String text, String gender, double speed) {
+    private TtsRequest buildRequest(String text, String referenceId, double speed) {
         if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("text is required");
         }
@@ -133,11 +140,8 @@ public class FishAudioClient {
         if (apiKey == null || apiKey.isBlank() || apiKey.startsWith("YOUR_")) {
             throw new IllegalStateException("fish.audio.api.key is not set in application.properties");
         }
-        String referenceId = config.resolveVoiceId(gender);
         if (referenceId == null || referenceId.isBlank() || referenceId.startsWith("YOUR_")) {
-            throw new IllegalStateException(
-                    "fish.audio.voice." + ("male".equalsIgnoreCase(gender) ? "male" : "female")
-                            + " is not set in application.properties");
+            throw new IllegalStateException("Chưa cấu hình giọng đọc cho nhân vật này.");
         }
 
         double spd = Math.min(2.0, Math.max(0.5, speed));

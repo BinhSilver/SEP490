@@ -12,6 +12,9 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,37 +30,46 @@ public class AppealController {
     private final AppealService appeals;
     private final UserSanctionService sanctions;
 
-    @PostMapping("/api/appeals")
-    public ApiResponse<AppealView> submit(@Valid @RequestBody AppealRequest request,
+    @PostMapping(value = "/api/appeals", consumes = "application/json")
+    public ResponseEntity<ApiResponse<AppealView>> submit(@Valid @RequestBody AppealRequest request,
                                           @AuthenticationPrincipal UserPrincipal user) {
-        return ApiResponse.ok("Đã gửi đơn kháng nghị", appeals.submit(user.userId(),
-                request.getSanctionId(), request.getReason(), request.getEvidenceUrl()));
+        return ResponseEntity.ok(ApiResponse.ok("Đã gửi đơn kháng nghị", appeals.submit(user.userId(),
+                request.getSanctionId(), request.getReason(), request.getEvidenceUrl())));
+    }
+
+    @PostMapping(value = "/api/appeals", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<AppealView>> submitFile(
+            @Valid @ModelAttribute AppealRequest request,
+            @RequestParam(required = false) MultipartFile file,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã gửi đơn kháng nghị", appeals.submit(
+                user.userId(), request.getSanctionId(), request.getReason(), request.getEvidenceUrl(), file)));
     }
 
     @GetMapping("/api/appeals/me")
-    public ApiResponse<List<AppealView>> mine(@AuthenticationPrincipal UserPrincipal user) {
-        return ApiResponse.ok("OK", appeals.mine(user.userId()));
+    public ResponseEntity<ApiResponse<List<AppealView>>> mine(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", appeals.mine(user.userId())));
     }
 
     @GetMapping("/api/appeals/sanctions")
-    public ApiResponse<List<UserSanctionService.SanctionView>> activeSanctions(
+    public ResponseEntity<ApiResponse<List<UserSanctionService.SanctionView>>> activeSanctions(
             @AuthenticationPrincipal UserPrincipal user) {
-        return ApiResponse.ok("OK", sanctions.activeFor(user.userId()));
+        return ResponseEntity.ok(ApiResponse.ok("OK", sanctions.activeFor(user.userId())));
     }
 
     @GetMapping("/api/admin/moderation/appeals")
-    @PreAuthorize("hasAnyRole('MODERATOR','SUPER_ADMIN')")
-    public ApiResponse<List<AppealView>> list(@RequestParam(required = false) String status) {
-        return ApiResponse.ok("OK", appeals.list(status));
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN')")
+    public ResponseEntity<ApiResponse<List<AppealView>>> list(@RequestParam(required = false) String status) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", appeals.list(status)));
     }
 
     @PostMapping("/api/admin/moderation/appeals/{id}/resolve")
-    @PreAuthorize("hasAnyRole('MODERATOR','SUPER_ADMIN')")
-    public ApiResponse<AppealView> resolve(@PathVariable Long id,
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN')")
+    public ResponseEntity<ApiResponse<AppealView>> resolve(@PathVariable Long id,
                                            @Valid @RequestBody AppealResolution request,
                                            @AuthenticationPrincipal UserPrincipal reviewer) {
-        return ApiResponse.ok("Đã xử lý đơn kháng nghị", appeals.resolve(id, reviewer.userId(),
-                request.getApprove(), request.getNote()));
+        return ResponseEntity.ok(ApiResponse.ok("Đã xử lý đơn kháng nghị", appeals.resolve(id, reviewer.userId(),
+                request.getApprove(), request.getNote())));
     }
 
     @Data
@@ -65,7 +77,7 @@ public class AppealController {
         @NotNull
         private Long sanctionId;
         @NotBlank
-        @Size(max = 1000)
+        @Size(min = 20, max = 1000, message = "Lý do cần từ 20 đến 1000 ký tự")
         private String reason;
         @Size(max = 500)
         private String evidenceUrl;

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đang xử lý | JLAS Shadowing</title>
@@ -14,8 +15,9 @@
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260924-processing-actions"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-processing">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-processing">
     <div id="jlabBaseShellMount"></div>
 
     <input type="hidden" id="video-id" th:value="${videoId}">
@@ -30,9 +32,7 @@
                 <aside id="processingKitsuGuide" role="status" aria-live="polite">
                     <div class="kitsu-guide">
                         <div class="kitsu-guide__mascot">
-                            <video id="processing-kitsu-animation" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-                                <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
-                            </video>
+                            <img id="processing-kitsu-animation" src="/images/mascots/kitsu/kitsu-preparing.webp?v=20261012" alt="" aria-hidden="true">
                         </div>
                         <div class="kitsu-guide__bubble">
                             <strong class="kitsu-guide__title">Kitsu-chan đang xử lý</strong>

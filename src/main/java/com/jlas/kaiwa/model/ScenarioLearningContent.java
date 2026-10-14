@@ -9,7 +9,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record ScenarioLearningContent(
         List<Vocabulary> vocabulary,
         List<Grammar> grammar,
-        List<ExampleDialogue> exampleDialogue) {
+        List<ExampleDialogue> exampleDialogue,
+        List<DialoguePractice> branchDialogues) {
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record DialoguePractice(String code, String title, String description,
+                                  List<ExampleDialogue> exampleDialogue) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Vocabulary(

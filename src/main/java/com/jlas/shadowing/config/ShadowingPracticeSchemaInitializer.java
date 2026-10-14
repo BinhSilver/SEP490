@@ -76,19 +76,22 @@ public class ShadowingPracticeSchemaInitializer implements ApplicationRunner {
                 + "progress TINYINT UNSIGNED NOT NULL DEFAULT 0, error_message VARCHAR(500) NULL, "
                 + "suggestions_csv VARCHAR(240) NULL, suggestion_hash CHAR(64) NULL, "
                 + "targets_csv VARCHAR(300) NULL, capacities_csv VARCHAR(300) NULL, "
+                + "analysis_version VARCHAR(40) NULL, evidence_plans_json MEDIUMTEXT NULL, "
                 + "suggested_jlpt_level VARCHAR(2) NULL, selected_jlpt_level VARCHAR(2) NULL, "
                 + "claim_token CHAR(36) NULL, lease_until TIMESTAMP(6) NULL, "
                 + "updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), "
                 + "CONSTRAINT fk_shadowing_preparation_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE, "
                 + "INDEX idx_shadowing_preparation_status (status, updated_at), "
                 + "UNIQUE KEY uk_shadowing_preparation_claim (claim_token))");
-        for (String column : new String[] {"suggested_jlpt_level", "selected_jlpt_level", "targets_csv", "capacities_csv"}) {
+        for (String column : new String[] {"suggested_jlpt_level", "selected_jlpt_level", "targets_csv", "capacities_csv", "analysis_version", "evidence_plans_json"}) {
             Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.COLUMNS "
                     + "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='shadowing_preparation_job' "
                     + "AND COLUMN_NAME=?", Integer.class, column);
             if (count != null && count == 0) {
                 jdbc.execute("ALTER TABLE shadowing_preparation_job ADD COLUMN " + column
-                        + (column.endsWith("_csv") ? " VARCHAR(300) NULL" : " VARCHAR(2) NULL"));
+                        + (column.equals("evidence_plans_json") ? " MEDIUMTEXT NULL"
+                        : column.equals("analysis_version") ? " VARCHAR(40) NULL"
+                        : column.endsWith("_csv") ? " VARCHAR(300) NULL" : " VARCHAR(2) NULL"));
             }
         }
         jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_question_bank ("
@@ -115,17 +118,21 @@ public class ShadowingPracticeSchemaInitializer implements ApplicationRunner {
                 + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, "
                 + "video_id BIGINT UNSIGNED NOT NULL, kind VARCHAR(40) NULL, level_code VARCHAR(10) NULL, "
                 + "prompt_text TEXT NULL, answer_text TEXT NULL, choices_json TEXT NULL, "
+                + "source_ids_json TEXT NULL, supplied_ids_json TEXT NULL, evidence_json MEDIUMTEXT NULL, "
                 + "reason VARCHAR(300) NOT NULL, "
                 + "start_time DECIMAL(10,3) NULL, attempt_number TINYINT UNSIGNED NOT NULL, "
                 + "created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), "
                 + "CONSTRAINT fk_shadowing_generation_issue_video FOREIGN KEY (video_id) "
                 + "REFERENCES video(id) ON DELETE CASCADE, "
                 + "INDEX idx_shadowing_generation_issue_video (video_id, id))");
+        for (String column : new String[] {"choices_json", "source_ids_json", "supplied_ids_json", "evidence_json"}) {
         Integer issueChoices = jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.COLUMNS "
                 + "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='shadowing_question_generation_issue' "
-                + "AND COLUMN_NAME='choices_json'", Integer.class);
+                + "AND COLUMN_NAME=?", Integer.class, column);
         if (issueChoices != null && issueChoices == 0)
-            jdbc.execute("ALTER TABLE shadowing_question_generation_issue ADD COLUMN choices_json TEXT NULL");
+            jdbc.execute("ALTER TABLE shadowing_question_generation_issue ADD COLUMN " + column
+                    + (column.equals("evidence_json") ? " MEDIUMTEXT NULL" : " TEXT NULL"));
+        }
         Integer columnCount = jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.COLUMNS "
                 + "WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='shadowing_practice_item' "
                 + "AND COLUMN_NAME='prepared_question_id'", Integer.class);

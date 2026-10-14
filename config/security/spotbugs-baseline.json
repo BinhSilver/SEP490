@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "recorded_on": "2026-10-12",
+  "description": "Existing findings outside the six approved fixes. These remain visible in the report; this is a backlog, not a declaration that they are safe. Only these exact findings are allowed by the incremental CI gate.",
+  "findings": [
+    {
+      "type": "SPRING_CSRF_PROTECTION_DISABLED",
+      "class": "com.jlas.config.SecurityConfig",
+      "method": "lambda$securityFilterChain$0",
+      "signature": "(Lorg/springframework/security/config/annotation/web/configurers/CsrfConfigurer;)V",
+      "instance_hash": "7e81eeb79fde7603547474eb2767f7a4",
+      "reason": "Existing global CSRF configuration with cookie JWT authentication. Needs a coordinated CSRF token and frontend request change."
+    },
+    {
+      "type": "SPRING_CSRF_UNRESTRICTED_REQUEST_MAPPING",
+      "class": "com.jlas.kaiwa.controller.ConversationPageController",
+      "method": "start",
+      "signature": "(Ljava/lang/Long;Lcom/jlas/auth/security/UserPrincipal;Ljava/lang/String;)Ljava/lang/String;",
+      "instance_hash": "379eed60b6fe1a762d2d763ed976b9ff",
+      "reason": "Existing GET/POST session creation route. Needs POST-only navigation together with CSRF protection."
+    },
+    {
+      "type": "SPRING_CSRF_UNRESTRICTED_REQUEST_MAPPING",
+      "class": "com.jlas.kaiwa.controller.ConversationPageController",
+      "method": "startFreeChat",
+      "signature": "(Lcom/jlas/auth/security/UserPrincipal;)Ljava/lang/String;",
+      "instance_hash": "ea8d77845c95313ef07a558c0ca3450f",
+      "reason": "Existing GET/POST free-chat creation route. Needs POST-only navigation together with CSRF protection."
+    },
+    {
+      "type": "PATH_TRAVERSAL_IN",
+      "class": "com.jlas.shadowing.service.VideoModerationService",
+      "method": "extractFrame",
+      "signature": "(Ljava/lang/Long;Ljava/lang/String;D)Ljava/nio/file/Path;",
+      "instance_hash": "93a811682bcc7c9bbf1aa3d5031a0ee2",
+      "reason": "Reported path is built from server tempDir, a Long video id, and a formatted double timestamp. No arbitrary client path was confirmed; retain for path containment review."
+    }
+  ]
+}

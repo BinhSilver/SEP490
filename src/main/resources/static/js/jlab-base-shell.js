@@ -13,7 +13,7 @@
   'use strict';
 
   // Set the active theme before first paint to avoid a light→dark flash.
-  // The original SVG cord is mounted separately by theme.js. Resolve the same
+  // The theme switch is mounted separately by theme.js. Resolve the same
   // saved/system preference here before the shared navigation is mounted.
   (function () {
     var stored = null;
@@ -32,6 +32,8 @@
   var state = {
     mounted: false,
     eventsBound: false,
+    mobileNavOpen: false,
+    bottomNavCollapsed: false,
     noticeTimer: null,
     unread: 0
   };
@@ -46,6 +48,10 @@
     brand: 'jlabBaseBrand',
     brandLogo: 'jlabBaseBrandLogo',
     primaryNav: 'jlabBasePrimaryNav',
+    navToggle: 'jlabBaseNavToggle',
+    bottomNav: 'jlabBaseBottomNav',
+    bottomNavToggle: 'jlabBaseBottomNavToggle',
+    bottomAccountButton: 'jlabBaseBottomAccountButton',
     homeLink: 'jlabBaseHomeLink',
     homeIcon: 'jlabBaseHomeIcon',
     homeLabel: 'jlabBaseHomeLabel',
@@ -136,6 +142,8 @@
     accountMenu: 'jlabBaseAccountMenu',
     accountSummary: 'jlabBaseAccountSummary',
     accountAvatar: 'jlabBaseAccountAvatar',
+    avatarFrameHost: 'jlabBaseAvatarFrameHost',
+    accountAvatarFrameHost: 'jlabBaseAccountAvatarFrameHost',
     accountAvatarImage: 'jlabBaseAccountAvatarImage',
     accountAvatarInitials: 'jlabBaseAccountAvatarInitials',
     accountIdentity: 'jlabBaseAccountIdentity',
@@ -147,9 +155,6 @@
     myLearningPathLink: 'jlabBaseMyLearningPathLink',
     myLearningPathIcon: 'jlabBaseMyLearningPathIcon',
     myLearningPathLabel: 'jlabBaseMyLearningPathLabel',
-    progressLink: 'jlabBaseProgressLink',
-    progressIcon: 'jlabBaseProgressIcon',
-    progressLabel: 'jlabBaseProgressLabel',
     streakLink: 'jlabBaseStreakLink',
     streakIcon: 'jlabBaseStreakIcon',
     streakLabel: 'jlabBaseStreakLabel',
@@ -193,7 +198,7 @@
   };
 
   // Roles that can open the shared admin workspace (/admin). Each page and API re-checks on the server.
-  var ADMIN_ROLES = ['MODERATOR', 'SUPER_ADMIN'];
+  var ADMIN_ROLES = ['MODERATOR', 'ADMIN'];
 
   function byId(id) {
     return document.getElementById(id);
@@ -212,6 +217,7 @@
       filePlus: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M12 18v-6M9 15h6"></path>',
       graduation: '<path d="M22 10 12 5 2 10l10 5 10-5Z"></path><path d="M6 12v5c3 2 7 2 10 0v-5"></path>',
       search: '<circle cx="11" cy="11" r="6"></circle><path d="m20 20-4.2-4.2"></path>',
+      info: '<circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7h.01"></path>',
       game: '<path d="M6 9h12a4 4 0 0 1 3.9 4.9l-1 4A3 3 0 0 1 18 20H6a3 3 0 0 1-2.9-2.1l-1-4A4 4 0 0 1 6 9Z"></path><path d="M8 14h4M10 12v4M16 14h.01M18 16h.01"></path>',
       grid: '<rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect>',
       chevron: '<path d="m6 9 6 6 6-6"></path>',
@@ -256,7 +262,7 @@
     replaceIcon(ids.shadowingIcon, 'headphones');
     replaceIcon(ids.notificationIcon, 'bell');
     replaceIcon(ids.profileIcon, 'user');
-    replaceIcon(ids.progressIcon, 'chart');
+    replaceIcon(ids.myLearningPathIcon, 'route');
     replaceIcon(ids.adminIcon, 'shield');
     replaceIcon(ids.streakIcon, 'flame');
     replaceIcon(ids.rewardStreakIcon, 'flame');
@@ -324,7 +330,7 @@
                 '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
               '</div>' +
             '</div>' +
-            '<a id="' + ids.aboutLink + '" href="/#about" aria-label="Giới thiệu"><span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
+            '<a id="' + ids.aboutLink + '" href="/#about" aria-label="Giới thiệu">' + icon('', 'info') + '<span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
           '</nav>' +
           '<div id="' + ids.actions + '" class="site-header__actions">' +
             '<div id="' + ids.guestActions + '" class="user-actions" data-auth-guest>' +
@@ -356,16 +362,20 @@
                 '</section>' +
               '</div>' +
               '<div id="' + ids.accountWrapper + '" class="dropdown">' +
+                '<span id="' + ids.avatarFrameHost + '" class="af-host">' +
                 '<button id="' + ids.avatarButton + '" class="user-avatar" type="button" aria-label="Mở menu tài khoản" aria-haspopup="menu" aria-expanded="false" aria-controls="' + ids.accountMenu + '">' +
                   '<img id="' + ids.avatarButtonImage + '" class="user-avatar__img" alt="" hidden>' +
                   '<span id="' + ids.avatarButtonInitials + '" class="user-avatar__initials">?</span>' +
                 '</button>' +
+                '</span>' +
                 '<div id="' + ids.accountMenu + '" class="dropdown__menu profile-menu" role="menu" hidden>' +
                   '<div id="' + ids.accountSummary + '" class="profile-menu__header">' +
+                    '<span id="' + ids.accountAvatarFrameHost + '" class="af-host">' +
                     '<div id="' + ids.accountAvatar + '" class="user-avatar">' +
                       '<img id="' + ids.accountAvatarImage + '" class="user-avatar__img" alt="" hidden>' +
                       '<span id="' + ids.accountAvatarInitials + '" class="user-avatar__initials">?</span>' +
                     '</div>' +
+                    '</span>' +
                     '<div id="' + ids.accountIdentity + '">' +
                       '<strong id="' + ids.accountName + '">Người dùng</strong>' +
                       '<span id="' + ids.accountEmail + '"></span>' +
@@ -373,7 +383,6 @@
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
-                  '<a id="' + ids.progressLink + '" class="dropdown__item" href="/progress" role="menuitem"><span id="' + ids.progressIcon + '" class="material-symbols-outlined" aria-hidden="true">monitoring</span><span id="' + ids.progressLabel + '">Tiến độ học tập</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.premiumLink + '" class="dropdown__item" href="/premium/billing" role="menuitem" hidden><span id="' + ids.premiumIcon + '" class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><span id="' + ids.premiumLabel + '">Gói &amp; thanh toán</span></a>' +
                   '<a class="dropdown__item" href="/credits" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">toll</span> Mua CP</a>' +
@@ -384,8 +393,19 @@
               '</div>' +
             '</div>' +
           '</div>' +
+          '<button id="' + ids.navToggle + '" type="button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="' + ids.primaryNav + '">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>' +
+          '</button>' +
         '</div>' +
       '</header>' +
+      '<nav id="' + ids.bottomNav + '" aria-label="Điều hướng nhanh">' +
+        '<button id="' + ids.bottomAccountButton + '" type="button" aria-label="Tài khoản">' +
+          icon('', 'user') + '<span>Tài khoản</span>' +
+        '</button>' +
+      '</nav>' +
+      '<button id="' + ids.bottomNavToggle + '" type="button" aria-label="Ẩn thanh điều hướng" title="Ẩn thanh điều hướng" aria-expanded="true" aria-controls="' + ids.bottomNav + '">' +
+        icon('', 'chevron') +
+      '</button>' +
       '<div id="' + ids.sanctionBanner + '" role="alert" hidden></div>' +
       '<div id="' + ids.notice + '" role="status" hidden><span id="' + ids.noticeText + '"></span></div>';
   }
@@ -438,7 +458,6 @@
     var isJlpt = path === '/jlpt' || (path.indexOf('/jlpt/') === 0 && path !== '/jlpt/practice');
     var isJlptPractice = path === '/jlpt/practice';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
-    var isProgress = path === '/progress';
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.textbooksLink, isTextbooks);
@@ -450,10 +469,11 @@
     markCurrent(ids.shadowingLink, isShadowing);
     markCurrent(ids.smartTestLink, isSmartTest);
     markCurrent(ids.learnPathItem, isLearningPath);
-    markCurrent(ids.progressLink, isProgress);
     markCurrent(ids.jlptLink, isJlpt);
     markCurrent(ids.jlptPracticeLink, isJlptPractice);
     markCurrent(ids.streakLink, isGoals);
+    markCurrent(ids.bottomAccountButton, path === '/profile' || path.indexOf('/profile/') === 0 ||
+      path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
     markCurrent(ids.adminLink, path === '/admin' || path.indexOf('/admin/') === 0);
     markCurrent(ids.premiumLink, path === '/premium' || path.indexOf('/premium/') === 0);
 
@@ -577,6 +597,18 @@
     var account = byId(ids.userActions);
     if (guest) guest.hidden = current.loggedIn;
     if (account) account.hidden = !current.loggedIn;
+    var bottomAccount = byId(ids.bottomAccountButton);
+    if (bottomAccount) {
+      if (current.loggedIn) {
+        bottomAccount.setAttribute('aria-haspopup', 'menu');
+        bottomAccount.setAttribute('aria-controls', ids.accountMenu);
+        bottomAccount.setAttribute('aria-expanded', String(!byId(ids.accountMenu).hidden));
+      } else {
+        bottomAccount.removeAttribute('aria-haspopup');
+        bottomAccount.removeAttribute('aria-controls');
+        bottomAccount.removeAttribute('aria-expanded');
+      }
+    }
     syncNavRoles(current);
 
     if (!current.loggedIn) {
@@ -596,6 +628,11 @@
     var nameNode = byId(ids.accountName);
     var emailNode = byId(ids.accountEmail);
     if (nameNode) nameNode.textContent = name;
+    if (window.JlasAvatarFrame) {
+      window.JlasAvatarFrame.applyNameStyle(nameNode, user.nameStyle);
+      window.JlasAvatarFrame.mount(byId(ids.avatarFrameHost), user.avatarFrame);
+      window.JlasAvatarFrame.mount(byId(ids.accountAvatarFrameHost), user.avatarFrame);
+    }
     if (emailNode) emailNode.textContent = user.email || '';
     var adminLink = byId(ids.adminLink);
     if (adminLink) adminLink.hidden = ADMIN_ROLES.indexOf(String(user.role || '').toUpperCase()) < 0;
@@ -706,21 +743,46 @@
   // Streak/CP chip and reward animations load on every page for signed-in learners, so rewards
   // earned anywhere are celebrated on the next page the learner opens.
   function loadRewardFx() {
-    if (window.RewardFX) {
-      window.RewardFX.boot();
-      return;
-    }
-    if (state.rewardFxLoading) return;
-    state.rewardFxLoading = true;
+    // Pages may preload RewardFX without its CSS; always ensure styles before booting it.
     if (!document.querySelector('link[href*="font-awesome"]')) {
       addStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
     }
     if (!document.querySelector('link[href*="reward-fx.css"]')) {
       addStylesheet('/css/components/reward-fx.css?v=20260926y');
     }
+    if (window.RewardFX) {
+      window.RewardFX.boot();
+      return;
+    }
+    if (state.rewardFxLoading) return;
+    state.rewardFxLoading = true;
     var script = document.createElement('script');
     script.src = '/js/components/reward-fx.js?v=20260927c';
     script.onload = function () { if (window.RewardFX) window.RewardFX.boot(); };
+    document.head.appendChild(script);
+  }
+
+  /**
+   * Khung avatar + màu tên (mua ở Cửa hàng). Trang dùng fragments/head đã nạp sẵn; trang có head riêng
+   * (AI Call, Shadowing, Goals…) thì shell tự nạp để header ở mọi trang đều hiện khung/màu tên.
+   */
+  function ensureAvatarFrameStyles() {
+    // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
+    if (!document.querySelector('link[href*="avatar-frame.css"]')) {
+      addStylesheet('/css/components/avatar-frame.css?v=20261014-frames3');
+    }
+  }
+
+  function loadAvatarFrames() {
+    ensureAvatarFrameStyles();
+    if (window.JlasAvatarFrame || state.avatarFramesLoading) return;
+    state.avatarFramesLoading = true;
+    var script = document.createElement('script');
+    script.src = '/js/components/avatar-frame.js?v=20261014-frames3';
+    script.onload = function () {
+      if (window.JlasAuth && typeof window.JlasAuth.applyNav === 'function') window.JlasAuth.applyNav();
+      else syncAuth();
+    };
     document.head.appendChild(script);
   }
 
@@ -900,14 +962,133 @@
       button.setAttribute('aria-expanded', 'false');
       if (restoreFocus) button.focus();
     }
+    if (menuId === ids.accountMenu) {
+      var bottomAccount = byId(ids.bottomAccountButton);
+      if (bottomAccount && bottomAccount.hasAttribute('aria-expanded')) bottomAccount.setAttribute('aria-expanded', 'false');
+    }
   }
 
   function closeAllMenus(restoreFocusId) {
     closeMenu(ids.toolsMenu, ids.toolsButton, restoreFocusId === ids.toolsButton);
     closeMenu(ids.accountMenu, ids.avatarButton, restoreFocusId === ids.avatarButton);
+    if (restoreFocusId === ids.bottomAccountButton) byId(ids.bottomAccountButton).focus();
     closeMenu(ids.notificationPanel, ids.notificationButton, restoreFocusId === ids.notificationButton);
     closeMenu(ids.testBuilderMenu, ids.testBuilderButton, restoreFocusId === ids.testBuilderButton);
     closeMenu(ids.examsMenu, ids.examsButton, restoreFocusId === ids.examsButton);
+  }
+
+  function setMobileNavigation(open, restoreFocus) {
+    var nav = byId(ids.primaryNav);
+    var button = byId(ids.navToggle);
+    if (!nav || !button) return;
+    var mobile = window.matchMedia('(max-width: 900px)').matches;
+    state.mobileNavOpen = mobile && open;
+    nav.hidden = mobile && !state.mobileNavOpen;
+    button.setAttribute('aria-expanded', String(state.mobileNavOpen));
+    button.setAttribute('aria-label', state.mobileNavOpen ? 'Đóng menu điều hướng' : 'Mở menu điều hướng');
+    if (!state.mobileNavOpen) {
+      closeMenu(ids.toolsMenu, ids.toolsButton);
+      closeMenu(ids.examsMenu, ids.examsButton);
+      closeMenu(ids.testBuilderMenu, ids.testBuilderButton);
+      if (mobile && (restoreFocus || nav.contains(document.activeElement))) button.focus();
+    }
+  }
+
+  function syncBottomNavigation() {
+    var mobile = window.matchMedia('(max-width: 900px)').matches;
+    var collapsed = mobile && state.bottomNavCollapsed;
+    byId(ids.bottomNav).hidden = collapsed;
+    document.body.setAttribute('data-bottom-nav-collapsed', String(collapsed));
+    document.documentElement.setAttribute('data-bottom-nav-collapsed', String(collapsed));
+    var toggle = byId(ids.bottomNavToggle);
+    var label = collapsed ? 'Hiện thanh điều hướng' : 'Ẩn thanh điều hướng';
+    toggle.setAttribute('aria-expanded', String(!collapsed));
+    toggle.setAttribute('aria-label', label);
+    toggle.setAttribute('title', label);
+  }
+
+  function bindMobileNavigation() {
+    var nav = byId(ids.primaryNav);
+    var button = byId(ids.navToggle);
+    var viewport = window.matchMedia('(max-width: 900px)');
+    var lastFocusedNavigation = null;
+    var bottomToggle = byId(ids.bottomNavToggle);
+    try { state.bottomNavCollapsed = sessionStorage.getItem('jlas-bottom-nav-collapsed') === 'true'; } catch (error) { /* Storage may be unavailable. */ }
+    [byId(ids.header), byId(ids.bottomNav), bottomToggle].forEach(function (region) {
+      region.addEventListener('focusin', function (event) { lastFocusedNavigation = event.target; });
+    });
+    function relocateLinks() {
+      var bottomNav = byId(ids.bottomNav);
+      if (viewport.matches) {
+        bottomNav.insertBefore(byId(ids.homeLink), byId(ids.bottomAccountButton));
+        bottomNav.insertBefore(byId(ids.gameLink), byId(ids.bottomAccountButton));
+        bottomNav.insertBefore(byId(ids.textbooksLink), byId(ids.bottomAccountButton));
+      } else {
+        nav.insertBefore(byId(ids.homeLink), byId(ids.learningPathLink));
+        nav.insertBefore(byId(ids.textbooksLink), byId(ids.examsWrapper));
+        nav.insertBefore(byId(ids.gameLink), byId(ids.toolsWrapper));
+      }
+    }
+    relocateLinks();
+    setMobileNavigation(false);
+    syncBottomNavigation();
+    bottomToggle.addEventListener('click', function () {
+      if (!viewport.matches) return;
+      closeAllMenus();
+      setMobileNavigation(false);
+      state.bottomNavCollapsed = !state.bottomNavCollapsed;
+      try { sessionStorage.setItem('jlas-bottom-nav-collapsed', String(state.bottomNavCollapsed)); } catch (error) { /* Keep the control usable without storage. */ }
+      syncBottomNavigation();
+      bottomToggle.focus();
+    });
+    button.addEventListener('click', function () {
+      var willOpen = !state.mobileNavOpen;
+      closeAllMenus();
+      setMobileNavigation(willOpen);
+      if (state.mobileNavOpen) byId(ids.learningPathLink).focus();
+    });
+    nav.addEventListener('click', function (event) {
+      var link = event.target.closest('a[href]');
+      if (state.mobileNavOpen && link && link.getAttribute('aria-disabled') !== 'true') setMobileNavigation(false);
+    });
+    [ids.avatarButton, ids.notificationButton].forEach(function (buttonId) {
+      byId(buttonId).addEventListener('click', function () { setMobileNavigation(false); });
+    });
+    byId(ids.header).addEventListener('focusout', function (event) {
+      if (state.mobileNavOpen && event.relatedTarget && !byId(ids.header).contains(event.relatedTarget)) setMobileNavigation(false);
+    });
+    viewport.addEventListener('change', function () {
+      // CSS may hide the previously focused control before the media event fires.
+      var focused = document.activeElement;
+      if (focused === document.body && lastFocusedNavigation && !lastFocusedNavigation.getClientRects().length) focused = lastFocusedNavigation;
+      var toggleFocused = focused === button;
+      var bottomToggleFocused = focused === bottomToggle;
+      var bottomAccountFocused = focused === byId(ids.bottomAccountButton);
+      var focusedLink = [ids.homeLink, ids.gameLink, ids.textbooksLink].filter(function (id) { return focused === byId(id); })[0];
+      var avatarFocused = focused === byId(ids.avatarButton);
+      var accountOpen = !byId(ids.accountMenu).hidden;
+      closeAllMenus(accountOpen ? (viewport.matches ? ids.bottomAccountButton : ids.avatarButton) : null);
+      relocateLinks();
+      setMobileNavigation(false);
+      syncBottomNavigation();
+      if (!viewport.matches && toggleFocused) byId(ids.homeLink).focus();
+      if (!viewport.matches && bottomToggleFocused) byId(ids.homeLink).focus();
+      if (!viewport.matches && bottomAccountFocused) byId(authState().loggedIn ? ids.avatarButton : ids.loginLink).focus();
+      if (viewport.matches && avatarFocused) byId(state.bottomNavCollapsed ? ids.bottomNavToggle : ids.bottomAccountButton).focus();
+      if (focusedLink) byId(viewport.matches && state.bottomNavCollapsed ? ids.bottomNavToggle : focusedLink).focus();
+      if (viewport.matches && state.bottomNavCollapsed && accountOpen) bottomToggle.focus();
+    });
+    byId(ids.bottomNav).addEventListener('click', function () { setMobileNavigation(false); });
+    byId(ids.bottomAccountButton).addEventListener('click', function () {
+      setMobileNavigation(false);
+      if (!authState().loggedIn) {
+        window.location.href = '/login?redirect=' + encodeURIComponent('/profile');
+        return;
+      }
+      var willOpen = byId(ids.accountMenu).hidden;
+      closeAllMenus();
+      if (willOpen) toggleMenu(ids.accountMenu, ids.bottomAccountButton, ids.toolsMenu, ids.toolsButton, ids.profileLink);
+    });
   }
 
   function toggleMenu(menuId, buttonId, otherMenuId, otherButtonId, firstItemId) {
@@ -960,7 +1141,7 @@
     if (document.getElementById('jlasThemeScript')) return;
     var script = document.createElement('script');
     script.id = 'jlasThemeScript';
-    script.src = '/js/theme.js';
+    script.src = '/js/theme.js?v=20261009-nav-switch';
     document.head.appendChild(script);
   }
 
@@ -983,6 +1164,7 @@
     state.eventsBound = true;
 
     bindThemeCord();
+    bindMobileNavigation();
 
     byId(ids.toolsButton).addEventListener('click', function () {
       closeMenu(ids.notificationPanel, ids.notificationButton);
@@ -1026,7 +1208,11 @@
 
     document.addEventListener('click', function (event) {
       var header = byId(ids.header);
-      if (header && !header.contains(event.target)) closeAllMenus();
+      var bottomNav = byId(ids.bottomNav);
+      if (header && !header.contains(event.target) && !bottomNav.contains(event.target)) {
+        closeAllMenus();
+        setMobileNavigation(false);
+      }
     });
 
     byId(ids.examsButton).addEventListener('click', function () {
@@ -1048,19 +1234,16 @@
     byId(ids.notificationButton).addEventListener('click', function () { closeMenu(ids.testBuilderMenu, ids.testBuilderButton); });
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return;
-      var menu = byId(ids.testBuilderMenu);
-      if (menu && !menu.hidden) closeMenu(ids.testBuilderMenu, ids.testBuilderButton, true);
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key !== 'Escape') return;
       var toolsOpen = byId(ids.toolsMenu) && !byId(ids.toolsMenu).hidden;
       var accountOpen = byId(ids.accountMenu) && !byId(ids.accountMenu).hidden;
       var notificationsOpen = byId(ids.notificationPanel) && !byId(ids.notificationPanel).hidden;
       var examsOpen = byId(ids.examsMenu) && !byId(ids.examsMenu).hidden;
+      var builderOpen = byId(ids.testBuilderMenu) && !byId(ids.testBuilderMenu).hidden;
       closeAllMenus(toolsOpen ? ids.toolsButton
-        : accountOpen ? ids.avatarButton
-        : notificationsOpen ? ids.notificationButton : examsOpen ? ids.examsButton : null);
+        : accountOpen ? (window.matchMedia('(max-width: 900px)').matches ? ids.bottomAccountButton : ids.avatarButton)
+        : notificationsOpen ? ids.notificationButton
+        : examsOpen ? ids.examsButton : builderOpen ? ids.testBuilderButton : null);
+      if (!toolsOpen && !accountOpen && !notificationsOpen && !examsOpen && !builderOpen && state.mobileNavOpen) setMobileNavigation(false, true);
     });
 
     window.addEventListener('popstate', syncActiveLink);
@@ -1086,6 +1269,8 @@
 
     mountPoint.innerHTML = shellMarkup();
     replaceShellIcons();
+    // Nạp cả khi chưa đăng nhập: khung + màu tên của người khác (bình luận, xếp hạng) cũng cần.
+    loadAvatarFrames();
     state.mounted = true;
     bindEvents();
     syncActiveLink();

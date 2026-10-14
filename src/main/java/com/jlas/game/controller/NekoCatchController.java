@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** API trong trận Neko Catch. Base path: /api/games/neko/{sessionId} */
@@ -27,8 +28,9 @@ public class NekoCatchController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<NekoStateView>> state(@PathVariable String sessionId,
+                                                            @RequestParam(defaultValue = "7") int choiceLimit,
                                                             @AuthenticationPrincipal UserPrincipal user) {
-        return ok(nekoCatchService.state(sessionId, user.userId()));
+        return ok(nekoCatchService.state(sessionId, user.userId(), choiceLimit));
     }
 
     @PostMapping("/catch")
@@ -54,27 +56,35 @@ public class NekoCatchController {
 
     @PostMapping("/time-up")
     public ResponseEntity<ApiResponse<NekoStateView>> timeUp(@PathVariable String sessionId,
+                                                             @RequestParam(defaultValue = "7") int choiceLimit,
                                                              @AuthenticationPrincipal UserPrincipal user) {
-        return ok(nekoCatchService.timeUp(sessionId, user.userId()));
+        nekoCatchService.timeUp(sessionId, user.userId());
+        return ok(nekoCatchService.state(sessionId, user.userId(), choiceLimit));
     }
 
     @PostMapping("/start")
     public ResponseEntity<ApiResponse<NekoStateView>> start(@PathVariable String sessionId,
+                                                            @RequestParam(defaultValue = "7") int choiceLimit,
                                                             @RequestBody(required = false) NekoStartRequest request,
                                                             @AuthenticationPrincipal UserPrincipal user) {
-        return ok(nekoCatchService.start(sessionId, user.userId(), request));
+        nekoCatchService.start(sessionId, user.userId(), request);
+        return ok(nekoCatchService.state(sessionId, user.userId(), choiceLimit));
     }
 
     @PostMapping("/pause")
     public ResponseEntity<ApiResponse<NekoStateView>> pause(@PathVariable String sessionId,
+                                                            @RequestParam(defaultValue = "7") int choiceLimit,
                                                             @AuthenticationPrincipal UserPrincipal user) {
-        return ok(nekoCatchService.setPaused(sessionId, user.userId(), true));
+        nekoCatchService.setPaused(sessionId, user.userId(), true);
+        return ok(nekoCatchService.state(sessionId, user.userId(), choiceLimit));
     }
 
     @PostMapping("/resume")
     public ResponseEntity<ApiResponse<NekoStateView>> resume(@PathVariable String sessionId,
+                                                             @RequestParam(defaultValue = "7") int choiceLimit,
                                                              @AuthenticationPrincipal UserPrincipal user) {
-        return ok(nekoCatchService.setPaused(sessionId, user.userId(), false));
+        nekoCatchService.setPaused(sessionId, user.userId(), false);
+        return ok(nekoCatchService.state(sessionId, user.userId(), choiceLimit));
     }
 
     private static <T> ResponseEntity<ApiResponse<T>> ok(T data) {

@@ -43,6 +43,12 @@ public class VideoViewRepository {
         return viewCount(videoId);
     }
 
+    /** Called only when the locked tracker accepts a valid view; same transaction as the counter. */
+    public void recordViewEvent(Long userId, Long videoId, LocalDateTime countedAt) {
+        jdbc.update("INSERT INTO shadowing_view_event (user_id, video_id, counted_at) VALUES (?, ?, ?)",
+                userId, videoId, toTimestamp(countedAt));
+    }
+
     public Set<Integer> rewardedMilestones(Long videoId) {
         return new HashSet<>(jdbc.queryForList(
                 "SELECT milestone FROM shadowing_view_milestone WHERE video_id = ?", Integer.class, videoId));

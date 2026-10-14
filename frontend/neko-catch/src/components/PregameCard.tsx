@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { DeckCardView, DeckField, NekoPlayerView, NekoStartOptions, NekoStateView } from '../arena/types';
 import { assetUrl } from '../assets';
 import type { CatSkinId } from '../graphics/CatSpriteSheet';
 import { CAT_SKINS } from '../graphics/CatSpriteSheet';
 import { difficultyLabel, DISPLAY_FONT_STACK, VI_FONT_STACK } from '../lib/text';
+import { MOBILE_GAME_MAX_WIDTH, MOBILE_MAX_FISH } from '../lib/playfield';
+import { durationLabel, recommendDuration, SECONDS_PER_TURN, SOLO_DURATIONS as DURATIONS } from '../lib/setup';
 import { Avatar } from './Avatar';
 import { ArrowLeftIcon, MaximizeIcon as Maximize, MinimizeIcon as Minimize } from './Icons';
 import { LobbyCat } from './LobbyCat';
@@ -19,10 +21,17 @@ interface PregameCardProps {
   awaitingStart: boolean;
   /** Thẻ của bộ (null khi đang tải) để chọn cặp hỏi – đáp và thẻ muốn chơi. */
   deckCards: DeckCardView[] | null;
-  /** Trang phục mèo trong Cửa hàng (null khi đang tải); chọn được món đã mua. */
+  /** Trang phục mèo trong Cửa hàng (null khi đang tải); có thể mua và dùng ngay. */
   skinOptions: SkinOption[] | null;
-  onSkinChange: (skin: CatSkinId) => void;
+  skinBalance: number | null;
+  skinBusy: string | null;
+  skinError: string | null;
+  onSkinRetry: () => void;
+  onSkinChange: (skin: CatSkinId) => Promise<boolean>;
   starting: boolean;
+  assetsReady: boolean;
+  assetError: string | null;
+  onAssetRetry: () => void;
   onStart: (options: NekoStartOptions) => void;
   skin: CatSkinId;
   /** Luyện tập, trước khi bấm "Bắt đầu": rời trận và quay về trang trước. */
@@ -35,21 +44,48 @@ export interface SkinOption {
   id: CatSkinId;
   code: string;
   name: string;
+  image: string;
   owned: boolean;
   price: number;
 }
 
-/** Cột trang phục: xem trước mèo đang chọn, chọn trong các món đã mua; món chưa mua dẫn sang Cửa hàng. */
-const SkinPanel: React.FC<{ skin: CatSkinId; options: SkinOption[] | null; onChange: (skin: CatSkinId) => void }> = ({
+/** Mua và dùng trang phục ngay ở màn chuẩn bị. */
+const SkinPanel: React.FC<{
+  skin: CatSkinId;
+  options: SkinOption[] | null;
+  balance: number | null;
+  busy: string | null;
+  disabled: boolean;
+  error: string | null;
+  onRetry: () => void;
+  onChange: (skin: CatSkinId) => Promise<boolean>;
+}> = ({
   skin,
   options,
+  balance,
+  busy,
+  disabled,
+  error,
+  onRetry,
   onChange,
 }) => {
+  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const confirmRef = useRef<HTMLDialogElement>(null);
+  const pending = options?.find(option => option.code === pendingCode && !option.owned);
+  useEffect(() => {
+    const dialog = confirmRef.current;
+    if (!dialog) return;
+    if (pending && !dialog.open) dialog.showModal();
+    else if (!pending && dialog.open) dialog.close();
+  }, [pending]);
   const name = options?.find(option => option.id === skin)?.name ?? (CAT_SKINS.find(item => item.id === skin) ?? CAT_SKINS[0]).name;
   return (
-    <div className="w-full p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left">
-      <span className="block text-[10px] text-amber-300/70 uppercase tracking-widest mb-1.5">Trang phục</span>
-      <div className="relative w-full h-44 overflow-hidden rounded-xl border border-amber-300/30 bg-slate-950">
+    <section className="neko-skins w-full p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left" aria-label="Trang phục" aria-busy={!!busy}>
+      <div className="neko-skins__header">
+        <h3>Trang phục</h3>
+        <output aria-label="Số dư" aria-live="polite">{balance === null ? '…' : balance.toLocaleString('vi-VN')} CP</output>
+      </div>
+      <div className="neko-skins__preview relative w-full h-44 overflow-hidden rounded-xl border border-amber-300/30 bg-slate-950">
         <img src={assetUrl('/sprites/tasser_hand_drawn/bg_panoramic_composite.png')} alt="" aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
@@ -58,46 +94,59 @@ const SkinPanel: React.FC<{ skin: CatSkinId; options: SkinOption[] | null; onCha
         </div>
         <p className="absolute left-2 top-2 rounded-lg bg-slate-950/80 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300">{name}</p>
       </div>
-      <div className="mt-2 grid gap-1" role="radiogroup" aria-label="Trang phục">
+      <div className="neko-skins__list" role="group" aria-label="Chọn hoặc mua trang phục">
         {(options ?? []).map(option => {
           const selected = option.id === skin;
+          const affordable = balance !== null && balance >= option.price;
+          const label = busy === option.code ? 'Đang lưu…' : selected ? 'Đang dùng' : option.owned ? 'Dùng' : `Mua · ${option.price} CP`;
           return (
-            <button key={option.code} type="button" role="radio" aria-checked={selected} disabled={!option.owned}
-              onClick={() => onChange(option.id)}
-              title={option.owned ? undefined : `Chưa mua · ${option.price} CP ở Cửa hàng`}
-              className={`flex items-center justify-between gap-2 min-h-[36px] px-2.5 rounded-lg text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:cursor-not-allowed ${
-                selected ? 'bg-amber-400 text-slate-950' : option.owned ? 'bg-white/10 text-white/85 hover:bg-white/20' : 'bg-white/[0.03] text-white/35'
-              }`}>
-              <span className="truncate">{option.name}</span>
-              <span className="shrink-0 text-[10px]">{selected ? 'Đang dùng' : option.owned ? 'Dùng' : `🔒 ${option.price} CP`}</span>
+            <button key={option.code} type="button" aria-pressed={selected}
+              disabled={disabled || !!busy || selected || (!option.owned && !affordable)}
+              onClick={() => { if (option.owned) { setPendingCode(null); void onChange(option.id); } else setPendingCode(option.code); }}
+              title={!option.owned && !affordable ? `Cần ${option.price} CP để mua` : undefined}
+              aria-label={`${option.name}, ${label}${!option.owned && !affordable ? ', chưa đủ CP' : ''}`}
+              className={`neko-skins__item ${selected ? 'is-selected' : ''}`}>
+              <img className="neko-skins__image" src={option.image} alt="" loading="lazy" />
+              <span className="neko-skins__name">{option.name}</span>
+              <span className="neko-skins__action">{label}</span>
             </button>
           );
         })}
-        {options === null && <p className="text-[11px] text-white/50">Đang tải trang phục…</p>}
+        {options === null && !error && <p className="text-[11px] text-white/50">Đang tải trang phục…</p>}
       </div>
-      <a href="/games/shop" target="_blank" rel="noopener"
-        className="mt-2 block text-center text-[11px] font-bold text-amber-300 hover:text-amber-200 underline-offset-2 hover:underline">
-        Mua thêm ở Cửa hàng ↗
-      </a>
-    </div>
+      <dialog ref={confirmRef} className="neko-skin-purchase" aria-labelledby="neko-skin-purchase-title"
+        aria-describedby="neko-skin-purchase-details"
+        onCancel={event => { if (busy) event.preventDefault(); else setPendingCode(null); }}
+        onClose={() => setPendingCode(null)}>
+        {pending && <>
+          <h3 id="neko-skin-purchase-title">Xác nhận mua skin</h3>
+          <img src={pending.image} alt="" />
+          <p id="neko-skin-purchase-details">Mua <strong>{pending.name}</strong> với <strong>{pending.price} CP</strong>?</p>
+          <p className="neko-skin-purchase__balance">Số dư sau khi mua: {Math.max(0, (balance ?? 0) - pending.price).toLocaleString('vi-VN')} CP</p>
+          {error && <p className="neko-skins__error" role="alert">{error}</p>}
+          <div className="neko-skin-purchase__actions">
+            <button type="button" autoFocus disabled={disabled || !!busy} onClick={() => setPendingCode(null)}>Hủy</button>
+            <button type="button" disabled={disabled || !!busy || balance === null || balance < pending.price}
+              onClick={async () => { if (await onChange(pending.id)) setPendingCode(null); }}>
+              {busy ? 'Đang mua…' : `Mua · ${pending.price} CP`}
+            </button>
+          </div>
+        </>}
+      </dialog>
+      {error && <div className="neko-skins__error" role="alert">
+        <p>{error}</p>
+        {!options && <button type="button" onClick={onRetry}>Thử lại</button>}
+      </div>}
+    </section>
   );
 };
 
 /** Giống GameRules.NEKO_DURATIONS / NEKO_MIN_WORDS và giới hạn của NekoCatchServiceImpl. */
-const DURATIONS = [60, 90, 120];
 const LIVES = [1, 2, 3, 4, 5];
 const MIN_CARDS = 4;
 const MAX_CHOICES = 7;
 /** Ước tính ~7 giây một câu (một đợt cá rơi); mức vừa là mỗi thẻ gặp khoảng 2 lần. */
-const SECONDS_PER_TURN = 7;
-const GOOD_REPEATS = 2;
 const MAX_REPEATS = 6;
-
-/** Mức thời gian gần nhất với số thẻ × 2 lượt × 7 giây. */
-function recommendDuration(cardCount: number): number {
-  const target = cardCount * GOOD_REPEATS * SECONDS_PER_TURN;
-  return DURATIONS.reduce((best, s) => (Math.abs(s - target) < Math.abs(best - target) ? s : best));
-}
 
 /** Cảnh báo khi bấm Bắt đầu: quá ngắn (không kịp gặp hết thẻ) hoặc quá dài (một thẻ lặp quá nhiều). */
 function paceWarning(cardCount: number, seconds: number): string | null {
@@ -189,8 +238,12 @@ const SoloSetup: React.FC<{
   state: NekoStateView;
   deckCards: DeckCardView[] | null;
   starting: boolean;
+  skinSaving: boolean;
+  assetsReady: boolean;
+  assetError: string | null;
+  onAssetRetry: () => void;
   onStart: (options: NekoStartOptions) => void;
-}> = ({ state, deckCards, starting, onStart }) => {
+}> = ({ state, deckCards, starting, skinSaving, assetsReady, assetError, onAssetRetry, onStart }) => {
   const { config } = state;
   const [question, setQuestion] = useState<DeckField>(config.questionField);
   const [answer, setAnswer] = useState<DeckField>(config.answerField);
@@ -199,6 +252,12 @@ const SoloSetup: React.FC<{
   const [warning, setWarning] = useState<string | null>(null);
   const [lives, setLives] = useState(config.lives);
   const [choices, setChoices] = useState(config.choices);
+  const [mobile, setMobile] = useState(() => window.innerWidth <= MOBILE_GAME_MAX_WIDTH);
+  useEffect(() => {
+    const resize = () => setMobile(window.innerWidth <= MOBILE_GAME_MAX_WIDTH);
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
   // Lúc đầu chọn mọi thẻ đủ cặp trường hiện tại (đúng như trận đã mở).
   const [selected, setSelected] = useState<Set<number> | null>(null);
   const cards = deckCards ?? [];
@@ -217,7 +276,8 @@ const SoloSetup: React.FC<{
 
   // Cá sai lấy từ đáp án của cả bộ (như server), nên số cá tối đa tính trên mọi thẻ của bộ chứ không chỉ thẻ đang chọn.
   const deckAnswers = new Set(cards.map(card => (fieldValue(card, answer) || '').toLowerCase()).filter(Boolean));
-  const maxChoices = Math.max(2, deckCards && deckCards.length ? Math.min(MAX_CHOICES, deckAnswers.size) : config.maxChoices);
+  const maxChoices = Math.min(mobile ? MOBILE_MAX_FISH : MAX_CHOICES,
+    Math.max(2, deckCards && deckCards.length ? Math.min(MAX_CHOICES, deckAnswers.size) : config.maxChoices));
   const choiceOptions = Array.from({ length: maxChoices - 1 }, (_, i) => i + 2).filter(n => n >= Math.min(3, maxChoices));
   const fishCount = Math.min(choices, maxChoices);
 
@@ -302,20 +362,41 @@ const SoloSetup: React.FC<{
         </ul>
       </div>
 
-      {/* Bề ngang mỗi ô theo số nút (3 : 5 : 5) để không ô nào thừa chỗ hay phải xuống dòng. */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] gap-2 mt-2 text-xs">
-        <OptionGroup label="Thời gian" value={durationSeconds} options={DURATIONS} format={s => `${s}s`} onChange={setDuration} stretch
+      <div className="neko-setup__quick-mobile">
+        <label><span>Thời gian</span>
+          <select aria-label="Thời gian" value={durationSeconds} onChange={event => setDuration(Number(event.target.value))}
+            disabled={starting || skinSaving} title={`Gợi ý: ${suggested}s`}>
+            {DURATIONS.map(seconds => <option key={seconds} value={seconds}>{durationLabel(seconds)}{seconds === suggested ? ' · Gợi ý' : ''}</option>)}
+          </select>
+        </label>
+        <label><span>Số tim</span>
+          <select aria-label="Số tim" value={lives} onChange={event => setLives(Number(event.target.value))} disabled={starting || skinSaving}>
+            {LIVES.map(count => <option key={count} value={count}>{count}</option>)}
+          </select>
+        </label>
+        <label><span>Số cá/lượt</span>
+          <select aria-label="Số cá/lượt" value={fishCount} onChange={event => setChoices(Number(event.target.value))} disabled={starting || skinSaving}>
+            {choiceOptions.map(count => <option key={count} value={count}>{count}</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="neko-setup__quick-desktop w-full grid grid-cols-1 sm:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] gap-2 mt-2 text-xs">
+        <OptionGroup label="Thời gian" value={durationSeconds} options={DURATIONS} format={durationLabel} onChange={setDuration}
           recommended={deckCards ? suggested : null} />
         <OptionGroup label="Số tim" value={lives} options={LIVES} format={String} onChange={setLives} stretch />
         <OptionGroup label="Số cá / lượt" value={fishCount} options={choiceOptions} format={String} onChange={setChoices} stretch />
       </div>
 
       {problem && <p className="w-full mt-2 text-xs font-bold text-amber-200" role="status">{problem}</p>}
+      {!assetsReady && <div className="mt-2 text-xs text-amber-100 text-center" role={assetError ? 'alert' : 'status'}>
+        <p>{assetError ?? 'Đang tải hình trò chơi…'}</p>
+        {assetError && <button type="button" onClick={onAssetRetry} className="mt-2 min-h-[44px] px-4 rounded-lg bg-white/10 font-bold">Thử tải lại</button>}
+      </div>}
 
       <button
         type="button"
         onClick={() => start(durationSeconds)}
-        disabled={starting || !!problem}
+        disabled={starting || skinSaving || !assetsReady || !!problem}
         autoFocus
         className="self-center w-full sm:w-auto sm:min-w-[14rem] mt-3 px-8 py-2.5 min-h-[44px] rounded-xl text-base font-black uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-300 to-orange-400 shadow-[0_4px_0_#b45309] hover:brightness-105 active:translate-y-0.5 active:shadow-[0_2px_0_#b45309] disabled:opacity-50 disabled:cursor-not-allowed transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200"
         style={{ fontFamily: DISPLAY_FONT_STACK }}
@@ -361,8 +442,15 @@ export const PregameCard: React.FC<PregameCardProps> = ({
   awaitingStart,
   deckCards,
   skinOptions,
+  skinBalance,
+  skinBusy,
+  skinError,
+  onSkinRetry,
   onSkinChange,
   starting,
+  assetsReady,
+  assetError,
+  onAssetRetry,
   onStart,
   skin,
   onBack,
@@ -422,12 +510,14 @@ export const PregameCard: React.FC<PregameCardProps> = ({
         </p>
 
         {awaitingStart ? (
-          <div className="w-full grid gap-3 lg:grid-cols-[minmax(0,1fr)_15rem] items-start">
+          <div className="w-full min-w-0 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_15rem] items-start">
             <div className="min-w-0">
-              <SoloSetup state={state} deckCards={deckCards} starting={starting} onStart={onStart} />
+              <SoloSetup state={state} deckCards={deckCards} starting={starting} skinSaving={!!skinBusy}
+                assetsReady={assetsReady} assetError={assetError} onAssetRetry={onAssetRetry} onStart={onStart} />
             </div>
-            <div className="lg:mt-4">
-              <SkinPanel skin={skin} options={skinOptions} onChange={onSkinChange} />
+            <div className="min-w-0 lg:mt-4">
+              <SkinPanel skin={skin} options={skinOptions} balance={skinBalance} busy={skinBusy}
+                disabled={starting} error={skinError} onRetry={onSkinRetry} onChange={onSkinChange} />
             </div>
           </div>
         ) : (

@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@RestController @RequiredArgsConstructor @PreAuthorize("hasRole('SUPER_ADMIN')")
+@RestController @RequiredArgsConstructor @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/admin/system")
 public class AdminCatalogController {
     private final AdminCatalogService catalog;

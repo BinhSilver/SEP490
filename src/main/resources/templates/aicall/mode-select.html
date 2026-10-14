@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>AI Call · Chọn chế độ · JLAS</title>
@@ -12,8 +13,10 @@
     <link rel="stylesheet" th:href="@{/css/app.css?v=20260901-aicall-mode-dark-text}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" th:href="@{/css/pages/aicall-mode-select.css?v=20261010-mobile-cards}"/>
 </head>
-<body id="jlabBasePage" class="page-mode-select">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-mode-select">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="mode-select-main">
@@ -24,10 +27,7 @@
                 <h3>Trò Chuyện AI</h3>
                 <div class="jp">フリートーク</div>
             </div>
-            <p class="mode-desc">
-                Nói chuyện tự do như với người Nhật. Không kịch bản, không điểm, không nhiệm vụ. Nếu bạn nói sai, thẻ sửa nhẹ sẽ hiện (hội thoại vẫn trôi).
-            </p>
-        </a>
+            </a>
 
         <a class="card cat-card mode-card" th:href="@{/ai-call/scenarios}">
             <div class="cat-icon"><i class="fa-solid fa-scroll"></i></div>
@@ -35,10 +35,6 @@
                 <h3>AI Theo Kịch Bản</h3>
                 <div class="jp">シナリオ会話</div>
             </div>
-            <p class="mode-desc">
-                Luyện kaiwa theo nhiệm vụ (ミッション): mục tiêu, từ vựng, ngữ pháp, gợi ý và chấm điểm —
-                giữ nguyên toàn bộ hệ thống hiện tại.
-            </p>
             <div class="meta">
                 <span class="badge"><i class="fa-solid fa-bullseye"></i> Nhiệm vụ (ミッション)</span>
                 <span class="badge"><i class="fa-solid fa-graduation-cap"></i> Học tập</span>
