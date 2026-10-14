@@ -35,26 +35,27 @@ INSERT INTO smart_test_session
 SELECT 19001, 'JLPT', 'N4', 'N4', 12, 30, 'N4', 42.00, 'LOW'
 WHERE NOT EXISTS (SELECT 1 FROM smart_test_session WHERE attempt_id = 19001);
 
--- 4) Đáp án Smart Test (question_id N4 thật, câu sai đủ 5 skill).
---    Sai: selected_option != correct_option (is_correct=0); Đúng: is_correct=1.
+-- 4) Đáp án Smart Test (câu N4 thật trong ngân hàng Smart Test, câu sai đủ 5 skill).
+--    Chọn câu theo skill thay vì id cứng: id câu hỏi đổi mỗi lần dựng lại seed.
+--    KANJI/VOCABULARY/GRAMMAR: 1 sai + 1 đúng; READING/LISTENING: 2 sai + 1 đúng.
+--    Sai: selected_option = đáp án kế tiếp (!= correct_option, is_correct=0); Đúng: is_correct=1.
 INSERT INTO assessment_answer
     (attempt_id, question_id, selected_option, is_correct, answered_at)
-SELECT a.attempt_id, a.question_id, a.selected_option, a.is_correct, a.answered_at
+SELECT 19001, q.id,
+       CASE WHEN q.rn <= q.wrong_n THEN MOD(q.correct_option, 4) + 1 ELSE q.correct_option END,
+       CASE WHEN q.rn <= q.wrong_n THEN 0 ELSE 1 END,
+       NOW()
 FROM (
-    SELECT 19001 AS attempt_id, 151  AS question_id, 2 AS selected_option, 0 AS is_correct, NOW() AS answered_at
-    UNION ALL SELECT 19001, 153,  3, 1, NOW()
-    UNION ALL SELECT 19001, 901,  2, 0, NOW()
-    UNION ALL SELECT 19001, 902,  2, 1, NOW()
-    UNION ALL SELECT 19001, 1551, 2, 0, NOW()
-    UNION ALL SELECT 19001, 1552, 2, 1, NOW()
-    UNION ALL SELECT 19001, 1801, 2, 0, NOW()
-    UNION ALL SELECT 19001, 1802, 3, 0, NOW()
-    UNION ALL SELECT 19001, 1803, 3, 1, NOW()
-    UNION ALL SELECT 19001, 2051, 2, 0, NOW()
-    UNION ALL SELECT 19001, 2052, 3, 0, NOW()
-    UNION ALL SELECT 19001, 2053, 3, 1, NOW()
-) a
-WHERE NOT EXISTS (SELECT 1 FROM assessment_answer WHERE attempt_id = 19001);
+    SELECT aq.id, aq.correct_option,
+           ROW_NUMBER() OVER (PARTITION BY aq.skill ORDER BY aq.id) AS rn,
+           CASE WHEN aq.skill IN ('READING', 'LISTENING') THEN 2 ELSE 1 END AS wrong_n
+    FROM assessment_question aq
+    WHERE aq.jlpt_level = 'N4' AND aq.quiz_id IS NULL AND aq.is_active = 1
+      AND aq.correct_option BETWEEN 1 AND 4
+      AND aq.skill IN ('KANJI', 'VOCABULARY', 'GRAMMAR', 'READING', 'LISTENING')
+) q
+WHERE q.rn <= q.wrong_n + 1
+  AND NOT EXISTS (SELECT 1 FROM assessment_answer WHERE attempt_id = 19001);
 
 
 
