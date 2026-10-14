@@ -176,7 +176,8 @@
     closeTimer: null
   };
 
-  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Luôn chạy hoạt ảnh, không theo prefers-reduced-motion của hệ điều hành (quyết định sản phẩm).
+  var prefersReducedMotion = false;
 
   function ensureAiProgressModal() {
     var modal = document.getElementById('sakura-ai-progress-modal');

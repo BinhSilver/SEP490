@@ -92,7 +92,8 @@
     scene = candidate;
     fullMotion = candidate.getAttribute('data-home-motion') === 'full';
     visual = target = document.documentElement.getAttribute('data-theme') === 'dark' ? 1 : 0;
-    media = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    // Luôn chạy hoạt ảnh ngày/đêm, không theo prefers-reduced-motion của hệ điều hành (quyết định sản phẩm).
+    media = null;
     if (media && media.addEventListener) media.addEventListener('change', function (event) {
       if (event.matches && !fullMotion) settleIfActive();
     });

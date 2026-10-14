@@ -96,7 +96,6 @@
   .ilp-phase-tabs { gap: 4px; overflow-x: auto; }
   .ilp-activity { min-height: 44px; }
 }
-@media (prefers-reduced-motion: reduce) { .ilp-loader { animation: none; } }
 
 /* [JLAS-W0193] Task 8 — package completion popup */
 .ilp-popup-backdrop { position: fixed; inset: 0; background: rgba(21, 26, 45, .55); display: grid; place-items: center; padding: 20px; z-index: 50; }
@@ -112,11 +111,9 @@
 .ilp-popup__secondary { border: 1px solid var(--lp-line); background: var(--lp-surface); color: var(--lp-ink); }
 .ilp-popup__quiet { border: 0; background: transparent; color: var(--lp-muted); }
 .ilp-popup__primary:focus-visible, .ilp-popup__secondary:focus-visible, .ilp-popup__quiet:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) { .ilp-popup-backdrop, .ilp-popup { transition: none; } }
 
 .ilp-day.is-highlighted { animation: ilpHighlight 1.6s ease-out 1; }
 @keyframes ilpHighlight { 0% { box-shadow: 0 0 0 4px var(--lp-lime); } 100% { box-shadow: 0 0 0 0 rgba(126, 214, 0, 0); } }
-@media (prefers-reduced-motion: reduce) { .ilp-day.is-highlighted { animation: none; box-shadow: 0 0 0 4px var(--lp-lime); } }
 
 .ilp-state { max-width: 680px; margin: 40px auto; }
 .ilp-state p { color: var(--lp-muted); line-height: 1.7; }
