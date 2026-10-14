@@ -95,6 +95,12 @@ public class KanaChallengeRepository {
                 (rs, row) -> challenge(rs), userId, boardId).stream().findFirst();
     }
 
+    /** The learner's progress rows on every board of one local day. */
+    public List<Challenge> findForDay(Long userId, LocalDate day) {
+        return jdbc.query(CHALLENGE_SELECT + " WHERE c.user_id = ? AND p.challenge_date = ?",
+                (rs, row) -> challenge(rs), userId, day);
+    }
+
     public Optional<Challenge> findById(Long userId, long id) {
         return jdbc.query(CHALLENGE_SELECT + " WHERE c.user_id = ? AND c.id = ?",
                 (rs, row) -> challenge(rs), userId, id).stream().findFirst();
@@ -139,6 +145,11 @@ public class KanaChallengeRepository {
 
     public void saveProgress(long id, String progress) {
         jdbc.update("UPDATE daily_kana_challenge SET solution_json = ? WHERE id = ?", progress, id);
+    }
+
+    /** The legacy hint_count column keeps a plain total next to the revealed kana in solution_json. */
+    public void saveHint(long id, String progress) {
+        jdbc.update("UPDATE daily_kana_challenge SET solution_json = ?, hint_count = hint_count + 1 WHERE id = ?", progress, id);
     }
 
     public void complete(long id, Instant now, int seconds) {

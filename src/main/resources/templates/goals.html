@@ -12,8 +12,7 @@
     <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
     <link rel="stylesheet" th:href="@{/css/components/reward-fx.css?v=20260926y}" />
-    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261009-readable}" />
-    <link rel="stylesheet" th:href="@{/css/pages/kana-connect.css?v=20261013-rank1}" />
+    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261014-kana-entry-contrast}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -106,51 +105,6 @@
                     </div>
                 </article>
 
-                <article id="kanaChallenge" class="gp-card kc" aria-labelledby="kanaTitle">
-                    <div class="gp-card__head">
-                        <div class="gp-card__title">
-                            <span class="gp-card__icon gp-card__icon--violet"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i></span>
-                            <div><h2 id="kanaTitle">Thử thách hằng ngày</h2><p class="kc-intro">Kana Connect</p></div>
-                        </div>
-                        <div class="kc-launch">
-                            <span id="kanaStatus" class="kc-status">8+ từ đang chờ bạn</span>
-                            <button type="button" id="kanaOpen" class="gp-primary-btn" aria-expanded="false" aria-controls="kanaPanel"><i class="fa-solid fa-play" aria-hidden="true"></i> Chơi thử thách</button>
-                        </div>
-                    </div>
-                    <div id="kanaPanel" class="kc-panel" hidden>
-                        <div id="kanaLevels" class="kc-levels" role="group" aria-label="Chọn cấp độ bàn chơi">
-                            <button type="button" data-level="N5" aria-pressed="false">N5</button>
-                            <button type="button" data-level="N4" aria-pressed="false">N4</button>
-                            <button type="button" data-level="N3" aria-pressed="false">N3</button>
-                            <button type="button" data-level="N2" aria-pressed="false">N2</button>
-                            <button type="button" data-level="N1" aria-pressed="false">N1</button>
-                            <button type="button" data-level="MIX" aria-pressed="false">Trộn</button>
-                        </div>
-                        <div id="kanaPlay" class="kc-play" hidden>
-                            <div class="kc-meta">
-                                <span class="kc-clock"><i class="fa-regular fa-clock" aria-hidden="true"></i><time id="kanaClock" aria-label="Thời gian chơi">00:00</time></span>
-                                <span id="kanaWordProgress" class="kc-progress" aria-live="polite"></span>
-                                <button type="button" id="kanaSound" class="gp-icon-btn" aria-pressed="false" aria-label="Bật âm thanh"><i class="fa-solid fa-volume-xmark" aria-hidden="true"></i></button>
-                            </div>
-                            <div class="kc-frame">
-                                <div id="kanaBoard" class="kc-board" role="group" aria-label="Nối các ô kana liền kề để tìm từ. Kéo hoặc chạm để chọn; dùng phím Tab, mũi tên và Enter với bàn phím." hidden></div>
-                            </div>
-                            <p id="kanaSelected" class="kc-selection" lang="ja" aria-live="polite"></p>
-                            <ul id="kanaWords" class="kc-words" aria-label="Các từ cần tìm" aria-live="polite"></ul>
-                            <section class="kc-rank" aria-labelledby="kanaRankTitle">
-                                <div class="kc-rank__head">
-                                    <h3 id="kanaRankTitle"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Xếp hạng hôm nay</h3>
-                                    <span id="kanaRankCount"></span>
-                                </div>
-                                <ol id="kanaRankList" class="kc-rank__list"></ol>
-                                <p id="kanaRankMe" class="kc-rank__me" hidden></p>
-                            </section>
-                        </div>
-                        <p id="kanaMessage" class="kc-message" role="status" aria-live="polite"></p>
-                        <button type="button" id="kanaRetry" class="gp-soft-btn" hidden><i class="fa-solid fa-rotate" aria-hidden="true"></i> Tải thử thách hôm nay</button>
-                    </div>
-                </article>
-
                 <article id="dailyMissionsCard" class="gp-card gp-missions">
                     <div class="gp-card__head">
                         <div class="gp-card__title">
@@ -160,6 +114,14 @@
                         <b class="gp-chip" id="missionSummary">0/4</b>
                     </div>
                     <div id="dailyMissionList" class="gp-mission-list" aria-live="polite"></div>
+                    <a class="gp-kana-entry" th:href="@{/kana-connect}">
+                        <span class="gp-kana-entry__icon" aria-hidden="true">かな</span>
+                        <span class="gp-kana-entry__text">
+                            <b>Thử thách hằng ngày · Kana Connect</b>
+                            <small>Nối kana tìm 8+ từ, đua top cùng mọi người</small>
+                        </span>
+                        <span class="gp-kana-entry__cta">Chơi</span>
+                    </a>
                     <p class="gp-card__foot"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Nhiệm vụ mới mỗi ngày lúc 00:00</p>
                 </article>
 
@@ -239,8 +201,6 @@
     <script th:src="@{/js/jlab-base-shell.js}"></script>
     <script th:src="@{/js/components/reward-fx.js?v=20260927c}"></script>
     <script th:src="@{/js/pages/profile-retention.js?v=20260927j}"></script>
-    <script th:src="@{/js/pages/kana-connect-engine.js?v=20261013-multi3-nullfix}"></script>
-    <script th:src="@{/js/pages/kana-connect.js?v=20261013-rank1}"></script>
     <script th:src="@{/js/pages/mission-demo-panel.js?v=20260926k}"></script>
     <script>
         (function () {

@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",

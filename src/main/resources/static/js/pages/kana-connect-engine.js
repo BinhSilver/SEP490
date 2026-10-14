@@ -25,6 +25,10 @@
         var cells = normalizeCells(challenge.cells);
         var solvedWordIds = challenge.solvedWordIds == null ? [] : challenge.solvedWordIds;
         var solvedPaths = challenge.solvedPaths == null ? [] : challenge.solvedPaths;
+        // Revealed hint kana; older servers and finished boards send none.
+        var hints = Array.isArray(challenge.hints) ? challenge.hints.filter(function (hint) {
+            return hint && Number.isInteger(hint.wordId) && Number.isInteger(hint.index) && typeof hint.kana === 'string';
+        }) : [];
         if (cells.length !== challenge.gridSize * challenge.gridSize || !Array.isArray(solvedWordIds) || !Array.isArray(solvedPaths) ||
                 challenge.words.some(function (word) { return !word || !Number.isInteger(word.id) || !Number.isInteger(word.kanaCount) || word.kanaCount < 2 || word.kanaCount > 12; }) ||
                 solvedPaths.some(function (solution) {
@@ -33,7 +37,8 @@
                 })) {
             throw new Error('Dữ liệu bàn chơi không hợp lệ. Hãy tải lại thử thách.');
         }
-        return Object.assign({}, challenge, { cells: cells, solvedWordIds: solvedWordIds, solvedPaths: solvedPaths,
+        return Object.assign({}, challenge, { cells: cells, solvedWordIds: solvedWordIds, solvedPaths: solvedPaths, hints: hints,
+            nextHintAt: challenge.nextHintAt == null ? null : challenge.nextHintAt,
             blockedCells: cells.filter(function (cell) { return cell.kana === null; }).map(function (cell) { return cell.id; }) });
     }
     function GameState(cells) {

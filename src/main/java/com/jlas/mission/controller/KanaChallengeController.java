@@ -23,6 +23,21 @@ public class KanaChallengeController {
         return ResponseEntity.ok(ApiResponse.ok("Thử thách hôm nay", service.today(user.userId(), level)));
     }
 
+    /** Reveals one kana of an unsolved word; available once a minute. */
+    @PostMapping("/hint")
+    public ResponseEntity<ApiResponse<Today>> hint(@AuthenticationPrincipal UserPrincipal user,
+                                                   @Valid @RequestBody HintRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã mở một chữ", service.hint(user.userId(), request.challengeId())));
+    }
+
+    /** Stops this board's clock while the learner is away; opening the board again resumes it. */
+    @PostMapping("/pause")
+    public ResponseEntity<ApiResponse<Void>> pause(@AuthenticationPrincipal UserPrincipal user,
+                                                   @Valid @RequestBody HintRequest request) {
+        service.pause(user.userId(), request.challengeId());
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng", null));
+    }
+
     @GetMapping("/leaderboard")
     public ResponseEntity<ApiResponse<Leaderboard>> leaderboard(@AuthenticationPrincipal UserPrincipal user,
                                                                 @RequestParam(required = false) String level) {

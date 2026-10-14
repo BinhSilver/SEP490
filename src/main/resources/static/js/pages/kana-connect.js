@@ -2,10 +2,10 @@
     'use strict';
     var root = document.getElementById('kanaChallenge');
     if (!root || !window.KanaConnect || !window.JlasAuth) return;
-    var toggle = document.getElementById('kanaOpen'), panel = document.getElementById('kanaPanel');
+    // Dedicated page: the board loads straight away (the Goals page only links here from its missions).
     var board = document.getElementById('kanaBoard'), message = document.getElementById('kanaMessage');
     var challenge, state, busy = false, activePointer = null, dragged = false, pointerStart;
-    var suppressClick = false, expiryTimer, pendingCheck, audioContext;
+    var suppressClick = false, expiryTimer, pendingCheck;
     // null until the first load: the server then opens the learner's learning-path level (MIX without one).
     var level = null, levels = document.getElementById('kanaLevels');
     function say(text, error) { message.textContent = text; message.classList.toggle('is-error', !!error); }
@@ -20,22 +20,61 @@
         if (!response.ok || !payload || !payload.success) throw new Error((payload && payload.message) || 'Chưa thể tải thử thách. Hãy thử lại.');
         return payload.data;
     }
-    function tone() {
-        if (document.getElementById('kanaSound').getAttribute('aria-pressed') !== 'true') return;
+    // Each level keeps its own play time on the server; it only runs while that board is on screen.
+    function accept(data) {
+        var next = KanaConnect.normalizeChallenge(data);
+        next.receivedAt = Date.now();
+        return next;
+    }
+    function playedMs() {
+        return Math.max(0, (challenge.playedMs || 0) + (challenge.running ? Date.now() - challenge.receivedAt : 0));
+    }
+    function pauseClock() {
+        if (!challenge || challenge.completed || !challenge.running) return;
+        challenge.playedMs = playedMs(); challenge.running = false; challenge.receivedAt = Date.now();
         try {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            audioContext.resume().catch(function () {});
-            var oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
-            oscillator.connect(gain); gain.connect(audioContext.destination); oscillator.frequency.value = 660;
-            gain.gain.setValueAtTime(0.045, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + .12);
-            oscillator.start(); oscillator.stop(audioContext.currentTime + .13);
-        } catch (e) { /* Optional sound. */ }
+            fetch('/api/mission/kana-connect/pause', {
+                method: 'POST', keepalive: true, body: JSON.stringify({ challengeId: challenge.id }),
+                headers: Object.assign({ 'Content-Type': 'application/json' }, JlasAuth.authHeaders())
+            }).catch(function () { /* the next open resumes from the server's own state */ });
+        } catch (e) { /* ignore */ }
+    }
+    async function resumeClock() {
+        if (!challenge || challenge.completed || busy) return;
+        if (Date.now() >= Date.parse(challenge.expiresAt)) { load(); return; }
+        try {
+            var fresh = accept(await api('today?level=' + encodeURIComponent(challenge.jlptLevel)));
+            if (fresh.id !== challenge.id) { load(); return; }
+            ['playedMs', 'running', 'receivedAt', 'nextHintAt'].forEach(function (key) { challenge[key] = fresh[key]; });
+            clock();
+        } catch (error) { /* keep the paused clock; the next move resumes it */ }
     }
     function clock() {
         if (!challenge) return;
-        var seconds = challenge.completed ? challenge.elapsedSeconds : Math.max(0, Math.floor((Date.now() - Date.parse(challenge.startedAt)) / 1000));
+        var seconds = challenge.completed ? challenge.elapsedSeconds : Math.floor(playedMs() / 1000);
         document.getElementById('kanaClock').textContent = String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+        hintButton();
+    }
+    // One hint a minute: the server decides; the button only mirrors its next opening time.
+    function hintButton() {
+        var button = document.getElementById('kanaHint'), label = document.getElementById('kanaHintLabel');
+        if (!challenge || challenge.completed || !challenge.nextHintAt) {
+            button.disabled = true; label.textContent = challenge && challenge.completed ? 'Gợi ý' : 'Hết gợi ý'; return;
+        }
+        var wait = Math.ceil((Date.parse(challenge.nextHintAt) - Date.now()) / 1000);
+        button.disabled = busy || wait > 0;
+        label.textContent = wait > 0 ? 'Gợi ý ' + Math.floor(wait / 60) + ':' + String(wait % 60).padStart(2, '0') : 'Gợi ý';
+        button.setAttribute('aria-label', wait > 0 ? 'Gợi ý mở sau ' + wait + ' giây' : 'Mở một chữ gợi ý');
+    }
+    async function useHint() {
+        if (busy || !challenge || challenge.completed) return;
+        busy = true; hintButton();
+        var keep = state.path.slice();
+        try {
+            challenge = accept(await api('hint', { challengeId: challenge.id }));
+            state.sync(challenge); state.restore(keep); wordList(); save(); say('');
+        } catch (error) { say(error.message, true); }
+        finally { busy = false; draw(); hintButton(); }
     }
     function center(id) { var c = state.cells[id]; return [c.col * 100 + 50, c.row * 100 + 50]; }
     function svgNode(name, attrs) {
@@ -74,8 +113,6 @@
         snake(svg, state.path, 'active');
         document.getElementById('kanaSelected').textContent = state.text() || '\u00a0';
         document.getElementById('kanaWordProgress').textContent = state.solvedWordIds.length + '/' + state.words.length + ' từ';
-        document.getElementById('kanaStatus').textContent = state.solvedWordIds.length + '/' + state.words.length + ' từ';
-        toggle.innerHTML = '<i class="fa-solid ' + (state.completed ? 'fa-check' : 'fa-play') + '" aria-hidden="true"></i> ' + (state.completed ? 'Xem lại bàn chơi' : 'Chơi thử thách');
         board.setAttribute('aria-busy', String(busy)); clock();
     }
     function wordList() {
@@ -89,6 +126,10 @@
             for (var i = 0; i < word.kanaCount; i++) {
                 var slot = document.createElement('span'); slot.className = 'kc-slot';
                 var kana = found && solution.path[i] != null ? state.cells[solution.path[i]].kana : '';
+                if (!found) {
+                    var hint = challenge.hints.find(function (h) { return h.wordId === word.id && h.index === i; });
+                    if (hint) { kana = hint.kana; slot.classList.add('is-hint'); }
+                }
                 if (kana.length > 1) slot.classList.add('is-compound');
                 slot.textContent = kana; slots.append(slot);
             }
@@ -127,7 +168,7 @@
         svg.setAttribute('aria-hidden', 'true'); board.append(svg);
         try { state.restore(JSON.parse(localStorage.getItem(storageKey()) || '[]')); } catch (e) { /* Optional. */ }
         wordList(); draw(); clearTimeout(expiryTimer);
-        expiryTimer = setTimeout(function () { if (!panel.hidden) load(); else challenge = null; }, Math.max(1000, Math.min(2147483647, Date.parse(challenge.expiresAt) - Date.now() + 100)));
+        expiryTimer = setTimeout(load, Math.max(1000, Math.min(2147483647, Date.parse(challenge.expiresAt) - Date.now() + 100)));
     }
     function markLevels() {
         levels.querySelectorAll('[data-level]').forEach(function (button) {
@@ -138,33 +179,70 @@
         });
     }
     function duration(seconds) { return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0'); }
-    function rankRow(entry) {
-        var item = document.createElement('li'); item.className = 'kc-rank__row' + (entry.me ? ' is-me' : '');
-        var position = document.createElement('span'); position.className = 'kc-rank__pos'; position.textContent = entry.rank;
-        if (entry.rank <= 3) position.classList.add('is-top' + entry.rank);
-        var name = document.createElement('span'); name.className = 'kc-rank__name'; name.textContent = entry.me ? entry.name + ' (bạn)' : entry.name;
-        var time = document.createElement('time'); time.className = 'kc-rank__time'; time.textContent = duration(entry.elapsedSeconds);
-        item.append(position, name, time); return item;
+    // Titles for the five fastest, highest tier first (rank 1 is "Chí tôn").
+    var TITLES = [
+        ['Chí tôn', 'Tồn tại ở đỉnh cao nhất, được vạn người kính sợ'],
+        ['Vô thượng cường giả', 'Đứng trên gần như toàn bộ cường giả'],
+        ['Tuyệt thế cường giả', 'Sức mạnh hiếm người sánh kịp'],
+        ['Đỉnh cấp cường giả', 'Cao thủ hàng đầu trong một lĩnh vực'],
+        ['Cường giả', 'Người sở hữu sức mạnh vượt trội']
+    ];
+    var PODIUM_ORDER = [4, 2, 1, 3, 5];
+    function initials(name) {
+        return String(name || '?').trim().split(/\s+/).slice(-2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || '?';
+    }
+    function avatar(entry) {
+        var holder = document.createElement('span'); holder.className = 'kc-podium__avatar'; holder.setAttribute('aria-hidden', 'true');
+        var fallback = function () { holder.replaceChildren(); holder.textContent = entry ? initials(entry.name) : '?'; };
+        var url = entry && entry.avatarUrl;
+        if (url && /^(https?:\/\/|\/)/.test(url)) {
+            var image = document.createElement('img'); image.alt = ''; image.loading = 'lazy'; image.referrerPolicy = 'no-referrer';
+            image.addEventListener('error', fallback); image.src = url; holder.append(image);
+        } else fallback();
+        return holder;
+    }
+    function podiumSpot(rank, entry) {
+        var item = document.createElement('li');
+        item.className = 'kc-podium__spot is-rank' + rank + (entry ? '' : ' is-empty') + (entry && entry.me ? ' is-me' : '');
+        if (rank <= 3) {
+            var crown = document.createElement('i'); crown.className = 'fa-solid fa-crown kc-podium__crown'; crown.setAttribute('aria-hidden', 'true');
+            item.append(crown);
+        }
+        var badge = document.createElement('span'); badge.className = 'kc-podium__badge'; badge.textContent = rank;
+        // Khung avatar + màu tên người chơi mua ở Cửa hàng (components/avatar-frame.js).
+        var frames = window.JlasAvatarFrame;
+        var framed = document.createElement('span'); framed.className = 'af-host'; framed.append(avatar(entry));
+        var face = document.createElement('span'); face.className = 'kc-podium__face'; face.append(framed, badge);
+        if (frames && entry) frames.mount(framed, entry.avatarFrame);
+        var name = document.createElement('strong'); name.className = 'kc-podium__name';
+        name.textContent = entry ? (entry.me ? entry.name + ' (bạn)' : entry.name) : 'Còn trống';
+        if (frames && entry) frames.applyNameStyle(name, entry.nameStyle);
+        var title = document.createElement('span'); title.className = 'kc-podium__title';
+        title.textContent = TITLES[rank - 1][0]; title.title = TITLES[rank - 1][1];
+        var time = document.createElement('time'); time.className = 'kc-podium__time';
+        time.textContent = entry ? duration(entry.elapsedSeconds) : '--:--';
+        item.append(face, name, title, time);
+        item.setAttribute('aria-label', 'Hạng ' + rank + ', ' + TITLES[rank - 1][0] + ': '
+            + (entry ? entry.name + ', ' + duration(entry.elapsedSeconds) : 'còn trống'));
+        return item;
     }
     // Today's ranking for the board on screen; a late response for a previous level is ignored.
     async function ranking() {
-        var forLevel = challenge.jlptLevel, list = document.getElementById('kanaRankList');
+        var forLevel = challenge.jlptLevel, podium = document.getElementById('kanaPodium');
         var count = document.getElementById('kanaRankCount'), me = document.getElementById('kanaRankMe');
+        document.getElementById('kanaPodiumLevel').textContent = '· ' + (forLevel === 'MIX' ? 'Trộn' : forLevel);
         try {
             var data = await api('leaderboard?level=' + encodeURIComponent(forLevel));
             if (!challenge || challenge.jlptLevel !== forLevel) return;
-            count.textContent = data.finishers ? data.finishers + ' người hoàn thành' : '';
-            list.replaceChildren();
-            if (!data.top.length) {
-                var empty = document.createElement('li'); empty.className = 'kc-rank__empty';
-                empty.textContent = 'Chưa có ai hoàn thành bàn này. Hãy là người đầu tiên!'; list.append(empty);
-            }
-            data.top.forEach(function (entry) { list.append(rankRow(entry)); });
-            var outside = data.me && !data.top.some(function (entry) { return entry.me; });
+            count.textContent = data.finishers ? data.finishers + ' người hoàn thành' : 'Chưa có ai hoàn thành, hãy là người đầu tiên!';
+            podium.replaceChildren();
+            PODIUM_ORDER.forEach(function (rank) { podium.append(podiumSpot(rank, data.top[rank - 1])); });
+            // Only the top five are shown; a learner below them still sees their own rank.
+            var outside = data.me && !data.top.slice(0, 5).some(function (entry) { return entry.me; });
             me.hidden = !outside;
             if (outside) me.textContent = 'Hạng của bạn: #' + data.me.rank + ' · ' + duration(data.me.elapsedSeconds);
         } catch (error) {
-            if (challenge && challenge.jlptLevel === forLevel) { list.replaceChildren(); count.textContent = 'Chưa tải được bảng xếp hạng'; me.hidden = true; }
+            if (challenge && challenge.jlptLevel === forLevel) { podium.replaceChildren(); count.textContent = 'Chưa tải được bảng xếp hạng'; me.hidden = true; }
         }
     }
     async function load() {
@@ -172,7 +250,7 @@
         busy = true; board.hidden = true; document.getElementById('kanaPlay').hidden = true;
         document.getElementById('kanaRetry').hidden = true; say('Đang chuẩn bị bàn chơi…');
         try {
-            challenge = KanaConnect.normalizeChallenge(await api('today' + (level ? '?level=' + encodeURIComponent(level) : '')));
+            challenge = accept(await api('today' + (level ? '?level=' + encodeURIComponent(level) : '')));
             level = challenge.jlptLevel; markLevels(); render();
             board.hidden = false; document.getElementById('kanaPlay').hidden = false; say(''); ranking();
         }
@@ -185,8 +263,8 @@
         busy = true; draw();
         try {
             var result = await api('submit', { challengeId: challenge.id, path: state.path.slice() });
-            challenge = KanaConnect.normalizeChallenge(result && result.challenge);
-            if (result.correct) { state.sync(challenge); wordList(); save(); tone(); say(''); if (challenge.completed) ranking(); }
+            challenge = accept(result && result.challenge);
+            if (result.correct) { state.sync(challenge); wordList(); save(); say(''); if (challenge.completed) ranking(); }
             else if (clearWrong) { state.reset(); save(); say('Thử một đường nối khác nhé.'); }
         } catch (error) { say(error.message, true); document.getElementById('kanaRetry').hidden = false; }
         finally {
@@ -194,7 +272,7 @@
             if (focusedCell != null) {
                 var focused = board.querySelector('[data-cell="' + focusedCell + '"]');
                 var next = focused && !focused.disabled ? focused : board.querySelector('button:not(:disabled)');
-                (next || toggle).focus({ preventScroll: true });
+                if (next) next.focus({ preventScroll: true });
             }
         }
     }
@@ -246,18 +324,23 @@
         var next = state.cells.find(function (c) { return c.row === from.row + delta[0] && c.col === from.col + delta[1] && c.kana !== null && !state.locked.has(c.id); });
         if (next) board.querySelector('[data-cell="' + next.id + '"]').focus();
     });
-    toggle.addEventListener('click', function () { var open = panel.hidden; panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); if (open && (!challenge || Date.now() >= Date.parse(challenge.expiresAt))) load(); });
-    document.getElementById('kanaSound').addEventListener('click', function () {
-        var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', String(on));
-        this.setAttribute('aria-label', on ? 'Tắt âm thanh' : 'Bật âm thanh');
-        this.querySelector('i').className = 'fa-solid ' + (on ? 'fa-volume-high' : 'fa-volume-xmark');
-    });
     document.getElementById('kanaRetry').addEventListener('click', load);
+    document.getElementById('kanaHint').addEventListener('click', useHint);
+    // Read-only hooks for the dev demo panel (kana-demo-panel.js); it never changes state directly.
+    window.JlasKana = {
+        current: function () { return challenge ? { id: challenge.id, level: challenge.jlptLevel, completed: challenge.completed } : null; },
+        reload: function () { challenge = null; return load(); }
+    };
     levels.addEventListener('click', function (event) {
         var button = event.target.closest('[data-level]');
         if (!button || busy || (challenge && button.dataset.level === level && !document.getElementById('kanaPlay').hidden)) return;
         clearTimeout(pendingCheck); level = button.dataset.level; markLevels(); load();
     });
-    document.addEventListener('visibilitychange', function () { if (document.hidden) cancelPointer(); else if (!panel.hidden && challenge && Date.now() >= Date.parse(challenge.expiresAt)) load(); });
+    // Away from the page (other tab, minimised, closed): stop this board's clock; back: resume it.
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { cancelPointer(); pauseClock(); } else resumeClock();
+    });
+    window.addEventListener('pagehide', pauseClock);
     setInterval(clock, 1000);
+    load();
 }());
