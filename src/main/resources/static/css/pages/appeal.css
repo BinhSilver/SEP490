@@ -151,3 +151,80 @@
   #jlabBaseContent .apl-sanction { grid-template-columns: 36px minmax(0, 1fr); gap: 10px; }
   #jlabBaseContent .apl-sanction__icon { width: 36px; height: 36px; font-size: 15px; }
 }
+
+.apl-input[type="file"], [data-file] { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+
+/* Page-owned dark mode: css/pages/appeal.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-admin-bg: #0b0d13;
+  --dm-admin-surface: #12151f;
+  --dm-admin-raised: #1e2635;
+  --dm-admin-ink: #f8fafc;
+  --dm-admin-muted: #b2bfd2;
+  --dm-admin-line: #40485d;
+  --dm-admin-accent: #c084fc;
+  --dm-admin-action: #7335a6;
+  --dm-admin-accent-soft: #281d3a;
+  --dm-admin-on-accent: #211b34;
+  --dm-admin-success: #8eddb6;
+  --dm-admin-success-bg: #1b3d32;
+  --dm-admin-success-line: #43816b;
+  --dm-admin-danger: #ffb4bd;
+  --dm-admin-danger-bg: #452832;
+  --dm-admin-danger-line: #96616d;
+  --dm-admin-warning: #f3d28a;
+  --dm-admin-warning-bg: #403522;
+  --dm-admin-warning-line: #947a46;
+  --dm-admin-pink: #f4aed2;
+  --dm-admin-pink-bg: #432d40;
+  --dm-admin-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBaseContent .apl-sanction.is-ban {
+    background: var(--dm-admin-danger-bg);
+    border-color: var(--dm-admin-danger-line)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-sanction.is-mute {
+    background: var(--dm-admin-warning-bg);
+    border-color: var(--dm-admin-warning-line)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-sanction__icon {
+    background: var(--dm-admin-surface)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-sanction.is-ban .apl-sanction__icon {
+    color: var(--dm-admin-danger)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-sanction.is-mute .apl-sanction__icon {
+    color: var(--dm-admin-warning)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-pill.is-open {
+    background: var(--dm-admin-warning-bg);
+    color: var(--dm-admin-warning)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-pill.is-ok {
+    background: var(--dm-admin-success-bg);
+    color: var(--dm-admin-success)
+}
+html[data-theme="dark"] #jlabBaseContent .apl-pill.is-no {
+    background: var(--dm-admin-danger-bg);
+    color: var(--dm-admin-danger)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .page-appeal{--color-background:var(--dm-admin-bg);--color-surface:var(--dm-admin-bg);--color-surface-lowest:var(--dm-admin-surface);--color-surface-low:var(--dm-admin-raised);--color-surface-mid:var(--dm-admin-raised);--color-surface-high:var(--dm-admin-raised);--color-surface-container:var(--dm-admin-raised);--color-surface-container-high:var(--dm-admin-raised);--color-on-surface:var(--dm-admin-ink);--color-on-surface-variant:var(--dm-admin-muted);--color-secondary:var(--dm-admin-muted);--color-outline:var(--dm-admin-muted);--color-outline-variant:var(--dm-admin-line);--color-primary:var(--dm-admin-accent);--color-primary-container:var(--dm-admin-action);--color-on-primary:var(--dm-admin-on-accent);--color-on-primary-container:var(--dm-admin-ink);--color-primary-fixed:var(--dm-admin-accent-soft);--color-on-primary-fixed:var(--dm-admin-accent);--color-secondary-container:var(--dm-admin-accent-soft);--color-secondary-fixed:var(--dm-admin-accent-soft);--color-success:var(--dm-admin-success);--color-success-bg:var(--dm-admin-success-bg);--color-error:var(--dm-admin-danger);--color-error-container:var(--dm-admin-danger-bg);--color-on-error-container:var(--dm-admin-danger);--color-tertiary:var(--dm-admin-warning);--color-tertiary-container:var(--dm-admin-warning-bg);--color-on-tertiary-container:var(--dm-admin-warning);--color-focus:var(--dm-admin-accent);--jlab-base-page-background:var(--dm-admin-bg);}
+html[data-theme="dark"] .page-appeal .btn--primary{background:var(--dm-admin-action)!important;color:var(--dm-admin-ink)!important;}
+html[data-theme="dark"] .page-appeal .btn--primary:hover{background:#8166c4!important;}
+html[data-theme="dark"] #jlabBaseContent .apl-input::placeholder {
+  color: var(--dm-admin-muted);
+  opacity: 1;
+}
+html[data-theme="dark"] #jlabBaseContent .apl-input::file-selector-button {
+  padding: 5px 9px;
+  margin-right: 9px;
+  border: 1px solid var(--dm-admin-line);
+  border-radius: 6px;
+  background: var(--dm-admin-accent-soft);
+  color: var(--dm-admin-accent);
+  cursor: pointer;
+}

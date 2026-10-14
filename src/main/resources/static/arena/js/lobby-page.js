@@ -28,6 +28,12 @@
   };
 
   var picker = null;
+  var mobile = window.matchMedia('(max-width: 900px)');
+  var savedHistory = window.history.state || {};
+  // Nút trên thẻ game đã chọn cả game lẫn chế độ: mở thẳng bộ thẻ trên mobile.
+  var entryStep = params.get('game') && ['QUICK', 'VERSUS', 'SOLO'].indexOf(params.get('mode')) >= 0 ? 3 : 1;
+  var mobileStep = [1, 2, 3].indexOf(savedHistory.jlasArenaSetupStep) >= 0 ? savedHistory.jlasArenaSetupStep : entryStep;
+  var historyId = savedHistory.jlasArenaSetupId || Date.now().toString(36) + Math.random().toString(36).slice(2);
 
   var el = {
     title: document.querySelector('[data-setup-title]'),
@@ -40,6 +46,13 @@
     submits: document.querySelectorAll('[data-submit]'),
     stepFields: document.querySelector('[data-step-fields]'),
     stepOptions: document.querySelector('[data-step-options]'),
+    stepMode: document.querySelector('[data-step-mode]'),
+    stepGame: document.querySelector('[data-step-game]'),
+    stepDeck: document.querySelector('[data-step-deck]'),
+    mobileMode: document.querySelector('[data-mobile-mode]'),
+    mobileBar: document.querySelector('.ar-mobile-bar'),
+    mobileSubmit: document.querySelector('.ar-mobile-bar [data-submit]'),
+    error: document.querySelector('[data-setup-error]'),
     overlay: document.querySelector('[data-search-overlay]'),
     searchGame: document.querySelector('[data-search-game]'),
     searchDeck: document.querySelector('[data-search-deck]'),
@@ -52,20 +65,40 @@
   var SUBMIT_LABELS = { QUICK: 'Tìm đối thủ', VERSUS: 'Tạo phòng', SOLO: 'Bắt đầu luyện tập' };
 
   function item() {
-    return state.catalog.games.find(function (game) { return game.type === state.gameType; }) || state.catalog.games[0];
+    var games = availableGames();
+    return games.find(function (game) { return game.type === state.gameType; }) || games[0];
   }
+
+  function availableGames() {
+    return state.catalog.games.filter(function (game) { return arena.canPlayGame(game.type); });
+  }
+
+  arena.phoneMedia.addEventListener('change', function () {
+    if (!state.catalog) return;
+    if (!arena.canPlayGame(state.gameType)) {
+      state.gameType = availableGames()[0].type;
+      state.options = {};
+      if (picker) picker.setGame(state.gameType);
+      mobileStep = 2;
+      if (mobile.matches) window.history.replaceState(stepHistory(mobileStep), '');
+      normalize();
+    }
+    render();
+  });
 
   function syncUrl() {
     var next = new URLSearchParams();
     next.set('game', state.gameType);
     next.set('mode', state.mode);
     if (state.deck) next.set('setId', state.deck.id);
-    window.history.replaceState(null, '', window.location.pathname + '?' + next.toString());
+    window.history.replaceState(window.history.state, '', window.location.pathname + '?' + next.toString());
+  }
+
+  function stepHistory(step) {
+    return Object.assign({}, window.history.state, { jlasArenaSetupStep: step, jlasArenaSetupId: historyId });
   }
 
   function renderMode() {
-    var quick = state.mode === 'QUICK';
-    var solo = state.mode === 'SOLO';
     el.title.textContent = TITLES[state.mode];
     el.modeSeg.querySelectorAll('[data-value]').forEach(function (button) {
       var checked = button.dataset.value === state.mode;
@@ -75,11 +108,61 @@
     el.submits.forEach(function (button) {
       button.textContent = SUBMIT_LABELS[state.mode];
     });
-    // Ghép trận nhanh: cặp hỏi–đáp và tuỳ chọn do đồng xu quyết định trong phòng.
-    // Luyện tập: game nào cũng có màn chuẩn bị riêng nên ở đây chỉ còn chọn game và bộ thẻ.
-    el.stepFields.hidden = quick || solo;
-    el.stepOptions.hidden = quick || solo;
   }
+
+  /** Mobile dùng lại các bộ chọn hiện có để giữ nguyên lựa chọn khi quay lại hoặc đổi kích thước. */
+  function renderWizard() {
+    var isMobile = mobile.matches;
+    if (isMobile && (!window.history.state || window.history.state.jlasArenaSetupId !== historyId)) {
+      window.history.replaceState(stepHistory(mobileStep), '');
+    }
+    var modeParent = isMobile ? el.mobileMode : el.stepGame;
+    if (el.modeSeg.parentElement !== modeParent) {
+      modeParent.insertBefore(el.modeSeg, isMobile ? null : el.gamePicker);
+    }
+    el.stepMode.hidden = !isMobile || mobileStep !== 1;
+    el.stepGame.hidden = isMobile && mobileStep !== 2;
+    el.stepDeck.hidden = isMobile && mobileStep !== 3;
+    el.stepGame.querySelector('.ar-step__no').textContent = isMobile ? '2' : '1';
+    el.stepDeck.querySelector('.ar-step__no').textContent = isMobile ? '3' : '2';
+    // Phòng riêng giữ phần hỏi–đáp và tuỳ chọn ngay sau bộ thẻ ở bước cuối.
+    var hideSettings = state.mode !== 'VERSUS' || (isMobile && mobileStep !== 3);
+    el.stepFields.hidden = hideSettings;
+    el.stepOptions.hidden = hideSettings;
+    el.mobileBar.hidden = !isMobile || mobileStep !== 3;
+    el.mobileSubmit.hidden = !isMobile || mobileStep !== 3;
+  }
+
+  function focusStep() {
+    var heading = [el.stepMode, el.stepGame, el.stepDeck][mobileStep - 1].querySelector('h2');
+    heading.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function changeStep(step) {
+    if (!mobile.matches || state.submitting) return;
+    var nextStep = Math.max(1, Math.min(3, step));
+    if (nextStep === mobileStep) return;
+    mobileStep = nextStep;
+    window.history.pushState(stepHistory(mobileStep), '', window.location.href);
+    renderWizard();
+    focusStep();
+  }
+
+  // Nút Back/Forward của máy chuyển giữa các bước, không xoá những lựa chọn đã chọn.
+  window.addEventListener('popstate', function (event) {
+    var entry = event.state;
+    if (!entry || entry.jlasArenaSetupId !== historyId) return;
+    mobileStep = entry.jlasArenaSetupStep;
+    renderWizard();
+    syncUrl();
+    if (mobile.matches) focusStep();
+  });
+  mobile.addEventListener('change', function () {
+    var active = document.activeElement;
+    renderWizard();
+    if (mobile.matches && active && active.closest('[hidden]')) focusStep();
+  });
 
   /** Dựng thẻ game một lần (cảnh xem trước chạy liên tục); các lần sau chỉ đổi trạng thái chọn. */
   function renderGames() {
@@ -94,6 +177,7 @@
       if (window.JlasGamePreviews) window.JlasGamePreviews.mountAll(el.gamePicker);
     }
     el.gamePicker.querySelectorAll('[data-game]').forEach(function (button) {
+      button.hidden = !arena.canPlayGame(button.dataset.game);
       var checked = button.dataset.game === state.gameType;
       button.setAttribute('aria-checked', String(checked));
       button.tabIndex = checked ? 0 : -1;
@@ -140,7 +224,8 @@
   }
 
   function problem() {
-    if (!state.deck) return 'Chọn một bộ flashcard ở bước 2.';
+    if (!arena.canPlayGame(state.gameType)) return 'Bắn máy bay cần bàn phím. Hãy mở game trên máy tính.';
+    if (!state.deck) return 'Chọn một bộ flashcard để tiếp tục.';
     if (state.deck.draft) return 'Bộ này đang là bản nháp; xuất bản bộ ở trang Flashcard rồi mới chơi được.';
     if (state.mode === 'QUICK') {
       var need = quickNeed();
@@ -186,6 +271,7 @@
   function render() {
     var key = focusKey();
     renderMode();
+    renderWizard();
     renderGames();
     renderFields();
     renderOptions();
@@ -224,7 +310,7 @@
   }
 
   function submit() {
-    if (problem() || state.submitting) return;
+    if (problem() || state.submitting || (mobile.matches && mobileStep !== 3)) return;
     state.submitting = true;
     renderSummary();
     var settings = {
@@ -323,28 +409,49 @@
     if (payload && payload.roomId) goToRoom(payload.roomId);
   });
 
+  function selectMode(value) {
+    state.mode = value;
+    if (state.catalog) {
+      normalize();
+      render();
+    } else renderMode();
+  }
+
   el.modeSeg.addEventListener('click', function (event) {
     var button = event.target.closest('[data-value]');
     if (!button) return;
-    state.mode = button.dataset.value;
-    normalize();
-    render();
+    selectMode(button.dataset.value);
+    changeStep(2);
+  });
+
+  el.modeSeg.addEventListener('keydown', function (event) {
+    if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].indexOf(event.key) < 0) return;
+    event.preventDefault();
+    var buttons = Array.prototype.slice.call(el.modeSeg.querySelectorAll('[data-value]'));
+    var index = buttons.indexOf(event.target.closest('[data-value]'));
+    var direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
+    var next = buttons[(index + direction + buttons.length) % buttons.length];
+    selectMode(next.dataset.value);
+    next.focus();
   });
 
   el.gamePicker.addEventListener('click', function (event) {
     var button = event.target.closest('[data-game]');
-    if (!button || button.dataset.game === state.gameType) return;
-    state.gameType = button.dataset.game;
-    state.options = {};
-    if (picker) picker.setGame(state.gameType);
-    normalize();
-    render();
+    if (!button || !arena.canPlayGame(button.dataset.game)) return;
+    if (button.dataset.game !== state.gameType) {
+      state.gameType = button.dataset.game;
+      state.options = {};
+      if (picker) picker.setGame(state.gameType);
+      normalize();
+      render();
+    }
+    changeStep(3);
   });
 
   el.gamePicker.addEventListener('keydown', function (event) {
     if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].indexOf(event.key) < 0) return;
     event.preventDefault();
-    var games = state.catalog.games;
+    var games = availableGames();
     var index = games.findIndex(function (game) { return game.type === state.gameType; });
     var step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
     state.gameType = games[(index + step + games.length) % games.length].type;
@@ -358,10 +465,17 @@
 
   el.submits.forEach(function (button) { button.addEventListener('click', submit); });
 
+  renderMode();
+  renderWizard();
+
   arena.api.catalog().then(function (catalog) {
     state.catalog = catalog;
-    if (!catalog.games.some(function (game) { return game.type === state.gameType; })) {
-      state.gameType = catalog.games[0].type;
+    if (!availableGames().some(function (game) { return game.type === state.gameType; })) {
+      state.gameType = availableGames()[0].type;
+      if (mobileStep === 3) {
+        mobileStep = 2;
+        if (mobile.matches) window.history.replaceState(stepHistory(mobileStep), '');
+      }
     }
     normalize();
     render();
@@ -371,7 +485,7 @@
     if (setId) picker.select(setId).catch(function () {});
     // Quay lại trang khi vẫn đang trong hàng chờ: hiện lại màn tìm trận.
     arena.api.quickMatchStatus().then(function (status) {
-      if (status.status === 'SEARCHING') {
+      if (status.status === 'SEARCHING' && arena.canPlayGame(status.gameType)) {
         state.mode = 'QUICK';
         state.gameType = status.gameType;
         picker.setGame(state.gameType);
@@ -380,6 +494,7 @@
       }
     }).catch(function () {});
   }).catch(function (error) {
-    el.gamePicker.innerHTML = '<p class="ar-error-text">' + esc(error.message) + '</p>';
+    el.error.hidden = false;
+    el.error.textContent = error.message;
   });
 })();

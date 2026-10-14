@@ -5,6 +5,11 @@ import com.jlas.kaiwa.config.FishAudioConfig;
 import com.jlas.kaiwa.service.ai.FishAudioClient;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.moderation.service.UserSanctionService;
+import com.jlas.kaiwa.repository.ConversationMessageRepository;
+import com.jlas.kaiwa.repository.ConversationSessionRepository;
+import com.jlas.kaiwa.service.scenario.ConversationSpeakerService;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,12 +25,18 @@ public class TtsApiController {
     private final FishAudioClient fishAudioClient;
     private final FishAudioConfig fishAudioConfig;
     private final UserSanctionService sanctions;
+    private final ConversationMessageRepository messages;
+    private final ConversationSpeakerService speakers;
+    private final ConversationSessionRepository sessions;
 
     public TtsApiController(FishAudioClient fishAudioClient, FishAudioConfig fishAudioConfig,
-            UserSanctionService sanctions) {
+            UserSanctionService sanctions, ConversationMessageRepository messages, ConversationSpeakerService speakers,
+            ConversationSessionRepository sessions) {
         this.fishAudioClient = fishAudioClient;
         this.fishAudioConfig = fishAudioConfig;
         this.sanctions = sanctions;
+        this.messages = messages; this.speakers = speakers;
+        this.sessions = sessions;
     }
 
     @GetMapping("/status")
@@ -48,7 +59,9 @@ public class TtsApiController {
         }
 
         try {
-            byte[] audio = fishAudioClient.synthesize(input.text(), input.gender(), input.speed());
+            byte[] audio = input.voiceId() == null
+                    ? fishAudioClient.synthesize(input.text(), input.gender(), input.speed())
+                    : fishAudioClient.synthesizeVoice(input.text(), input.voiceId(), input.speed());
             HttpHeaders headers = audioHeaders();
             headers.setContentLength(audio.length);
             return new ResponseEntity<>(audio, headers, HttpStatus.OK);
@@ -70,15 +83,17 @@ public class TtsApiController {
             return input.error();
         }
 
-        StreamingResponseBody stream = output ->
-                fishAudioClient.synthesizeStreaming(input.text(), input.gender(), input.speed(), output);
+        StreamingResponseBody stream = output -> {
+            if (input.voiceId() == null) fishAudioClient.synthesizeStreaming(input.text(), input.gender(), input.speed(), output);
+            else fishAudioClient.synthesizeVoiceStreaming(input.text(), input.voiceId(), input.speed(), output);
+        };
         return new ResponseEntity<>(stream, audioHeaders(), HttpStatus.OK);
     }
 
     private TtsInput parseInput(Map<String, Object> body) {
         String text = body.get("text") == null ? "" : String.valueOf(body.get("text")).trim();
         if (text.isEmpty()) {
-            return new TtsInput("", "female", 1.0, badRequest("text is required"));
+            return new TtsInput("", "female", 1.0, null, badRequest("text is required"));
         }
         // Chặn user mute dùng AI Call
         UserPrincipal current = CurrentUser.current().orElse(null);
@@ -86,7 +101,7 @@ public class TtsApiController {
             sanctions.assertCanAct(current.userId());
         }
         if (text.length() > 2000) {
-            return new TtsInput("", "female", 1.0, badRequest("text too long (max 2000 chars)"));
+            return new TtsInput("", "female", 1.0, null, badRequest("text too long (max 2000 chars)"));
         }
 
         String gender = body.get("gender") == null ? "female" : String.valueOf(body.get("gender"));
@@ -103,7 +118,39 @@ public class TtsApiController {
             }
         }
 
-        return new TtsInput(text, gender, speed, null);
+        String voiceId = null;
+        if (body.get("messageId") != null) {
+            long messageId;
+            try { messageId = Long.parseLong(String.valueOf(body.get("messageId"))); }
+            catch (NumberFormatException e) { throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mã lời thoại không hợp lệ."); }
+            if (current == null) throw new ApiException(ErrorCode.UNAUTHORIZED);
+            var message = messages.findOwnedAssistant(messageId, current.userId())
+                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+            var actor = speakers.forMessage(message);
+            if (actor != null) {
+                voiceId = actor.voiceId();
+                if (actor.voiceVariants() != null && body.get("gender") != null) {
+                    voiceId = actor.voiceVariants().getOrDefault(gender.toLowerCase(java.util.Locale.ROOT), voiceId);
+                }
+                // The client cannot replace a stored speaker's line or submit arbitrary voice IDs.
+                text = message.getContent();
+            }
+        } else if (body.get("speakerCode") != null) {
+            if (current == null) throw new ApiException(ErrorCode.UNAUTHORIZED);
+            long sessionId;
+            try { sessionId = Long.parseLong(String.valueOf(body.get("sessionId"))); }
+            catch (NumberFormatException e) { throw new ApiException(ErrorCode.VALIDATION_FAILED); }
+            var session = sessions.findDetail(sessionId).filter(s -> current.userId().equals(s.getUserId()))
+                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+            String code = String.valueOf(body.get("speakerCode"));
+            var actor = speakers.cast(session).stream().filter(s -> code.equals(s.code())).findFirst()
+                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+            voiceId = actor.voiceId();
+            if (actor.voiceVariants() != null && body.get("gender") != null) {
+                voiceId = actor.voiceVariants().getOrDefault(gender.toLowerCase(java.util.Locale.ROOT), voiceId);
+            }
+        }
+        return new TtsInput(text, gender, speed, voiceId, null);
     }
 
     private static HttpHeaders audioHeaders() {
@@ -126,6 +173,6 @@ public class TtsApiController {
                 .body(Map.of("error", message));
     }
 
-    private record TtsInput(String text, String gender, double speed, ResponseEntity<?> error) {
+    private record TtsInput(String text, String gender, double speed, String voiceId, ResponseEntity<?> error) {
     }
 }

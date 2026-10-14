@@ -1,7 +1,12 @@
 package com.jlas.shadowing.controller;
 
 import com.jlas.auth.security.CurrentUser;
+import com.jlas.auth.dto.ApiResponse;
+import com.jlas.shadowing.dto.ManualQuestionRequest;
+import com.jlas.shadowing.model.practice.PreparedQuestion;
 import com.jlas.shadowing.service.ShadowingQuestionPreparationService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +57,13 @@ public class ShadowingQuestionPreparationController {
     @DeleteMapping("/questions/{questionId}")
     public void reject(@PathVariable long videoId, @PathVariable long questionId) {
         service.reject(CurrentUser.requireUserId(), videoId, questionId);
+    }
+
+    @PostMapping("/questions/manual")
+    public ResponseEntity<ApiResponse<PreparedQuestion>> createManual(@PathVariable long videoId,
+                                                    @Valid @RequestBody ManualQuestionRequest request) {
+        PreparedQuestion question = service.createManual(CurrentUser.requireUserId(), videoId, request);
+        return ResponseEntity.status(201).body(ApiResponse.ok("Đã lưu câu hỏi nháp", question));
     }
 
     @PostMapping("/approve")

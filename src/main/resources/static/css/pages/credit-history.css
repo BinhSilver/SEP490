@@ -53,3 +53,101 @@
 #jlabBaseContent .credit-history-page__error { color: #ba1a1a; }
 @media (max-width: 900px) { #jlabBaseContent .credit-history-page__summary { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { #jlabBaseContent.credit-history-page__content { padding: 26px 16px 48px; } #jlabBaseContent .credit-history-page__heading { align-items: flex-start; flex-direction: column; } #jlabBaseContent .credit-history-page__summary { gap: 10px; } #jlabBaseContent .credit-history-page__summary-card { min-height: 124px; padding: 15px; } #jlabBaseContent .credit-history-page__summary-card strong { font-size: 1.4rem; } #jlabBaseContent .credit-history-page__card { padding: 18px; border-radius: 20px; } #jlabBaseContent .credit-history-page__card-head { align-items: stretch; flex-direction: column; } #jlabBaseContent .credit-history-page__filters { justify-content: center; } #jlabBaseContent .credit-history-page__row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 9px; } #jlabBaseContent .credit-history-page__row-icon { width: 36px; height: 36px; } #jlabBaseContent .credit-history-page__row-date { grid-column: 2; grid-row: 2; } #jlabBaseContent .credit-history-page__row-amount { grid-column: 3; grid-row: 1 / span 2; } }
+
+/* Page-owned dark mode: css/pages/credit-history.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-progress-bg: #0b0d13;
+  --dm-progress-surface: #171b26;
+  --dm-progress-raised: #242a39;
+  --dm-progress-ink: #f8fafc;
+  --dm-progress-muted: #b2bfd2;
+  --dm-progress-line: #40485d;
+  --dm-progress-accent: #c084fc;
+  --dm-progress-action: #7335a6;
+  --dm-progress-accent-soft: #2a203d;
+  --dm-progress-on-accent: #211b34;
+  --dm-progress-success: #8eddb6;
+  --dm-progress-success-bg: #1b3d32;
+  --dm-progress-success-line: #43816b;
+  --dm-progress-danger: #ffb4bd;
+  --dm-progress-danger-bg: #452832;
+  --dm-progress-danger-line: #96616d;
+  --dm-progress-warning: #f3d28a;
+  --dm-progress-warning-bg: #403522;
+  --dm-progress-warning-line: #947a46;
+  --dm-progress-pink: #f4aed2;
+  --dm-progress-pink-bg: #432d40;
+  --dm-progress-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.credit-history-page {
+    background: var(--dm-progress-surface)
+}
+html[data-theme="dark"] #jlabBaseContent.credit-history-page__content {
+    --credit-bg: var(--dm-progress-bg);
+    --credit-surface: var(--dm-progress-surface);
+    --credit-purple: var(--dm-progress-accent);
+    --credit-purple-soft: var(--dm-progress-accent-soft);
+    --credit-ink: var(--dm-progress-ink);
+    --credit-muted: var(--dm-progress-muted);
+    --credit-grey: var(--dm-progress-muted);
+    --credit-line: var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__heading {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__badge {
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__summary-card {
+    border: 1px solid var(--dm-progress-line);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.16)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__card {
+    background: var(--dm-progress-surface);
+    border: 1px solid var(--dm-progress-line);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.16)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__card-head {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters {
+    background: var(--dm-progress-accent-soft);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters button.is-active,
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters button:hover {
+    color: var(--dm-progress-ink)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__row {
+    border-bottom: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__row-icon {
+    color: var(--dm-progress-success);
+    background: var(--dm-progress-accent-soft);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__row.is-negative .credit-history-page__row-icon {
+    color: var(--dm-progress-danger);
+    background: var(--dm-progress-danger-bg);
+    border-color: var(--dm-progress-danger-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__row-amount {
+    color: var(--dm-progress-success);
+    background: var(--dm-progress-accent-soft);
+    border: 1px solid var(--dm-progress-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__row.is-negative .credit-history-page__row-amount {
+    color: var(--dm-progress-danger);
+    background: var(--dm-progress-danger-bg);
+    border-color: var(--dm-progress-danger-line)
+}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__error {
+    color: var(--dm-progress-danger)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .credit-history-page{--color-background:var(--dm-progress-bg);--color-surface:var(--dm-progress-bg);--color-surface-lowest:var(--dm-progress-surface);--color-surface-low:var(--dm-progress-raised);--color-surface-mid:var(--dm-progress-raised);--color-surface-high:var(--dm-progress-raised);--color-surface-container:var(--dm-progress-raised);--color-surface-container-high:var(--dm-progress-raised);--color-on-surface:var(--dm-progress-ink);--color-on-surface-variant:var(--dm-progress-muted);--color-secondary:var(--dm-progress-muted);--color-outline:var(--dm-progress-muted);--color-outline-variant:var(--dm-progress-line);--color-primary:var(--dm-progress-accent);--color-primary-container:var(--dm-progress-action);--color-on-primary:var(--dm-progress-on-accent);--color-on-primary-container:var(--dm-progress-ink);--color-primary-fixed:var(--dm-progress-accent-soft);--color-on-primary-fixed:var(--dm-progress-accent);--color-secondary-container:var(--dm-progress-accent-soft);--color-secondary-fixed:var(--dm-progress-accent-soft);--color-success:var(--dm-progress-success);--color-success-bg:var(--dm-progress-success-bg);--color-error:var(--dm-progress-danger);--color-error-container:var(--dm-progress-danger-bg);--color-on-error-container:var(--dm-progress-danger);--color-tertiary:var(--dm-progress-warning);--color-tertiary-container:var(--dm-progress-warning-bg);--color-on-tertiary-container:var(--dm-progress-warning);--color-focus:var(--dm-progress-accent);--jlab-base-page-background:var(--dm-progress-bg);}
+html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters button:is(.is-active,:hover){background:var(--dm-progress-action);color:var(--dm-progress-ink);}
+#jlabBaseContent :is(.credit-history-page__empty,.credit-history-page__error)[hidden]{display:none!important;}

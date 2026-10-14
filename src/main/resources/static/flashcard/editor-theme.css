@@ -806,7 +806,16 @@
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__field .label {
+  min-height: 24px;
   margin-bottom: 7px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field .optional-label {
+  font-size: 12px;
+  line-height: 20px;
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__field .input-wrap {
@@ -824,18 +833,20 @@
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__field input[data-f] {
+  display: block;
+  box-sizing: border-box;
   width: 100%;
+  height: 50px;
   min-height: 50px;
   padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
   color: var(--fc-on-surface);
   background: transparent !important;
   border: 0 !important;
   outline: 0;
-}
-
-#jlabBasePage.flashcard-page--editor .edit-card__field input[data-f="front"] {
-  font-family: "Noto Sans JP", sans-serif;
-  font-size: 21px;
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__image-control {
@@ -913,4 +924,180 @@
   #jlabBasePage.flashcard-page--editor .ai-review-item { grid-template-columns: auto 1fr; }
   #jlabBasePage.flashcard-page--editor .ai-review-item__value { grid-column: 2; }
   #jlabBasePage.flashcard-page--editor .ai-review-item__warning { grid-column: 2; }
+}
+
+/* AI import preview stays beside its source data in the existing import dialog. */
+#import-modal .import-ai-cards { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+#import-modal .import-ai-card { display: flex; gap: 10px; padding: 12px; border: 1px solid var(--fc-outline-soft); border-radius: 12px; background: var(--fc-surface-lowest); }
+#import-modal .import-ai-card__number { flex-shrink: 0; color: var(--fc-on-variant); font-size: 14px; }
+#import-modal .import-ai-card > div { min-width: 0; overflow-wrap: anywhere; }
+#import-modal .import-ai-card strong { display: inline-block; margin-right: 16px; font-size: 20px; }
+#import-modal .import-ai-card p { margin: 4px 0; }
+#import-modal .import-ai-card small { color: var(--fc-on-variant); font-size: 14px; }
+
+/* Import dialog shares the website palette, including legacy button variables. */
+#jlabBasePage.flashcard-page--editor > #import-modal {
+  --bg-base: var(--fc-surface);
+  --bg-surface: var(--fc-surface);
+  --bg-elevated: var(--fc-surface-low);
+  --accent: var(--fc-primary);
+  --accent-soft: var(--fc-primary-soft);
+  --text-primary: var(--fc-on-surface);
+  --text-secondary: var(--fc-on-variant);
+  --text-muted: var(--fc-on-variant);
+  --border: var(--fc-outline-soft);
+  --border-strong: var(--fc-outline);
+  --wrong: var(--fc-error);
+  --wrong-bg: var(--fc-error-soft);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal {
+  background: var(--fc-surface) !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header,
+#jlabBasePage.flashcard-page--editor #import-modal .modal-footer {
+  padding: 12px 20px;
+  gap: 8px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header h3 {
+  margin: 0;
+  color: var(--fc-on-surface);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header i {
+  color: var(--fc-primary);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body {
+  padding: 16px 20px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body > p {
+  margin: 0 0 10px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .form-group {
+  margin: 12px 0;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .input-wrap {
+  background: var(--fc-surface);
+  border-color: var(--fc-outline-soft);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .input-wrap:focus-within {
+  border-color: var(--fc-primary);
+  box-shadow: 0 0 0 3px rgba(79, 55, 138, .15);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body code {
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border-color: var(--fc-outline-soft);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .import-actions {
+  gap: 8px;
+  margin: 0 0 10px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn {
+  min-height: 44px;
+  padding: 10px 16px;
+  box-shadow: none !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn-primary {
+  color: #fff;
+  background: var(--fc-primary);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn-primary:hover {
+  background: var(--fc-primary-hover);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn-ghost {
+  color: var(--fc-primary);
+  background: var(--fc-surface);
+}
+#jlabBasePage.flashcard-page--editor #import-modal #import-ai-status:empty {
+  display: none;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .import-result-note {
+  margin: 10px 0 0;
+}
+@media (max-width: 640px) {
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-header,
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-body,
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-footer {
+    padding-inline: 16px;
+  }
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-footer {
+    flex-wrap: wrap;
+  }
+}
+
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon,
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon i {
+  color: var(--fc-primary) !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon {
+  background: var(--fc-surface) !important;
+  border-color: var(--fc-outline-soft) !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon:hover {
+  background: var(--fc-primary-soft) !important;
+  border-color: var(--fc-primary) !important;
+}
+
+/* Page-owned dark mode: flashcard/editor-theme.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-section {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-meta--sheet .input-wrap:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.24)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-toolbar--sheet {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-table tbody tr {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-table .input-wrap:focus-within {
+    background: var(--dm-flashcard-surface) !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.23)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-table-footer {
+    border: 1px dashed var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor kbd {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .validation-banner {
+    color: var(--dm-flashcard-danger)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .edit-card {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .edit-card__field .input-wrap:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.23)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .input-wrap:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .btn-primary {
+    color: var(--dm-flashcard-on-accent)
 }

@@ -61,6 +61,118 @@ document.addEventListener('DOMContentLoaded', () => {
     let undoStack = [];
     let redoStack = [];
     const MAX_UNDO = 10;
+    const operations = window.ShadowingEditorOperations;
+    const aiDialog = document.getElementById('editor-ai-dialog');
+    const aiPrimary = document.getElementById('editor-ai-primary');
+    const aiProgress = document.getElementById('editor-ai-progress');
+    let regeneratingId = null;
+    let retrySubtitleId = null;
+    const saves = operations.saves(async (id, body) => {
+        await operations.response(await fetch(`/api/subtitles/${id}`, {
+            method: 'PUT', headers: headers(), body: JSON.stringify(body)
+        }));
+    });
+    const playback = operations.playback(video, syncPlayback, message => {
+        showAlert({ title: 'Không phát được đoạn', message, variant: 'error' });
+    });
+
+    function syncPlayback() {
+        playIcon.className = video.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+        playBtn.setAttribute('aria-label', video.paused ? 'Phát video' : 'Dừng video');
+        listEl.querySelectorAll('.editor-sub-item').forEach(item => {
+            const btn = item.querySelector('.play-segment');
+            const active = playback.playing(Number(item.dataset.id));
+            btn.title = active ? 'Dừng đoạn này' : 'Phát đoạn này';
+            btn.setAttribute('aria-label', btn.title);
+            btn.setAttribute('aria-pressed', String(active));
+            btn.querySelector('i').className = active ? 'fa-solid fa-stop' : 'fa-solid fa-play';
+        });
+    }
+
+    function openAiDialog() {
+        if (!aiDialog.open) aiDialog.showModal();
+        document.documentElement.classList.add('editor-ai-open');
+        aiProgress.hidden = true;
+    }
+    function aiState(state, message) {
+        aiDialog.dataset.state = state;
+        document.getElementById('editor-ai-status').textContent = state === 'success'
+            ? 'Đã tạo lại AI' : state === 'error' ? 'Chưa tạo lại được' : 'Đang tạo cách đọc và bản dịch…';
+        document.getElementById('editor-ai-detail').textContent = message;
+        aiPrimary.disabled = state === 'loading';
+        aiPrimary.textContent = state === 'success' ? 'Xong' : state === 'error' ? 'Thử lại' : 'Đang xử lý…';
+        aiProgress.textContent = state === 'loading' ? 'Xem tiến trình AI' : 'Xem kết quả AI';
+    }
+    aiDialog.querySelectorAll('[data-ai-close]').forEach(button => button.addEventListener('click', () => aiDialog.close()));
+    aiDialog.addEventListener('close', () => {
+        document.documentElement.classList.remove('editor-ai-open');
+        aiProgress.hidden = false;
+        aiProgress.focus();
+    });
+    aiProgress.addEventListener('click', openAiDialog);
+    aiPrimary.addEventListener('click', () => {
+        if (aiDialog.dataset.state === 'error') regenerateSubtitle(retrySubtitleId);
+        else aiDialog.close();
+    });
+
+    function syncAiControls() {
+        const busy = regeneratingId !== null;
+        undoBtn.disabled = busy || undoStack.length === 0;
+        redoBtn.disabled = busy || redoStack.length === 0;
+        regenerateAllBtn.disabled = busy;
+        publishBtn.disabled = busy;
+        listEl.querySelectorAll('.editor-sub-item').forEach(item => {
+            const current = Number(item.dataset.id) === regeneratingId;
+            item.draggable = !busy && !focusMode;
+            item.setAttribute('aria-busy', String(current));
+            item.querySelectorAll('textarea, input').forEach(input => { input.disabled = current; });
+            item.querySelector('.regenerate-btn').disabled = busy;
+            item.querySelector('.delete-btn').disabled = busy;
+            item.querySelectorAll('.quality-use-source, .quality-use-audio, .quality-approve').forEach(button => { button.disabled = busy; });
+        });
+    }
+
+    async function flushSaves() {
+        clearTimeout(saveTimer);
+        if (!saves.dirty) return;
+        setSaveStatus('saving');
+        try { await saves.flush(); setSaveStatus('saved'); }
+        catch (error) { setSaveStatus('error'); throw error; }
+    }
+
+    async function regenerateSubtitle(id) {
+        if (regeneratingId !== null) return;
+        const sub = subtitles.find(s => s.id === id);
+        if (!sub) { aiState('error', 'Câu phụ đề này không còn tồn tại.'); return; }
+        retrySubtitleId = id;
+        regeneratingId = id;
+        document.getElementById('editor-ai-title').textContent = 'Tạo lại AI · Câu #' + (subtitles.indexOf(sub) + 1);
+        document.getElementById('editor-ai-source').textContent = sub.text || '';
+        aiState('loading', 'Đang lưu thay đổi trước khi gửi câu phụ đề cho AI.');
+        openAiDialog();
+        syncAiControls();
+        try {
+            await flushSaves();
+            pushUndo();
+            syncAiControls();
+            aiState('loading', 'AI đang xử lý câu phụ đề bạn đã chọn. Bạn có thể xem trang trong khi chờ.');
+            const updated = await operations.response(await fetch(`/api/subtitles/${id}/regenerate`, {
+                method: 'POST', headers: headers(), body: JSON.stringify({ text: sub.text })
+            }));
+            if (updated.id !== id || typeof updated.furigana !== 'string' || !updated.translation?.trim()) {
+                throw new Error('AI chưa trả về cách đọc và bản dịch hợp lệ. Hãy thử lại.');
+            }
+            Object.assign(sub, updated);
+            renderList();
+            setSaveStatus(saves.dirty ? 'unsaved' : 'saved');
+            aiState('success', 'Cách đọc và bản dịch đã được cập nhật và lưu vào câu phụ đề.');
+        } catch (error) {
+            aiState('error', error.message || 'Không kết nối được tới AI. Hãy thử lại.');
+        } finally {
+            regeneratingId = null;
+            syncAiControls();
+        }
+    }
 
     prepareLink?.addEventListener('click', async (event) => {
         if (saveIndicator.classList.contains('synced') || saveIndicator.classList.contains('saved')) return;
@@ -89,8 +201,27 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert(msg);
             }
-            if (vRes.status === 401 || vRes.status === 403) {
+            if (vRes.status === 401) {
                 window.location.href = '/login?redirect=' + encodeURIComponent(location.pathname);
+            } else if (vRes.status === 403) {
+                window.location.href = '/shadowing';
+            }
+            return;
+        }
+        // This owner-only endpoint also protects already-open editor tabs after access changes.
+        // Never render editing controls when ownership could not be verified.
+        if (!qRes.ok) {
+            const err = await qRes.json().catch(() => ({}));
+            const msg = err.message || 'Không xác nhận được quyền chỉnh sửa phụ đề. Hãy tải lại trang.';
+            if (typeof showAlert === 'function') {
+                await showAlert({ title: 'Không thể chỉnh sửa phụ đề', message: msg, variant: 'error' });
+            } else {
+                alert(msg);
+            }
+            if (qRes.status === 401) {
+                window.location.href = '/login?redirect=' + encodeURIComponent(location.pathname);
+            } else if (qRes.status === 403) {
+                window.location.href = `/shadowing/player/${videoId}?mode=shadowing`;
             }
             return;
         }
@@ -127,9 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasPending = subtitles.some(s => s.aiStatus === 'PENDING');
         if (!hasPending) return;
         await new Promise(r => setTimeout(r, 2500));
+        if (regeneratingId !== null || saves.dirty) return pollAiPending();
         const res = await fetch(`/api/videos/${videoId}/subtitles`, { headers: headers() });
         if (!res.ok) return pollAiPending();
         const fresh = await res.json();
+        if (regeneratingId !== null || saves.dirty) return pollAiPending();
         const stillPending = fresh.some(s => s.aiStatus === 'PENDING');
         subtitles = fresh;
         renderList();
@@ -149,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function applySnapshot(targetSubs) {
-        clearTimeout(saveTimer);
+        await flushSaves();
         setSaveStatus('saving');
 
         const res = await fetch(`/api/videos/${videoId}/subtitles`, { headers: headers() });
@@ -237,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             variant: 'danger'
         });
         if (!ok) return;
+        await flushSaves();
         pushUndo();
         await fetch(`/api/videos/${videoId}/regenerate-subtitles`, { method: 'POST', headers: headers() });
         regenerateAllBtn.disabled = true;
@@ -263,20 +397,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const w = waveformCanvas.width = waveformCanvas.offsetWidth * 2;
         const h = waveformCanvas.height = 80;
         const dur = video.duration;
+        const timelineStyle = getComputedStyle(waveformCanvas);
+        const timelineColor = (name, fallback) => timelineStyle.getPropertyValue(name).trim() || fallback;
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#f0f0f0';
+        ctx.fillStyle = timelineColor('--timeline-bg', '#f0f0f0');
         ctx.fillRect(0, 30, w, 20);
         subtitles.forEach((sub, i) => {
             const x1 = (sub.startTime / dur) * w;
             const x2 = (sub.endTime / dur) * w;
-            ctx.fillStyle = sub.id === focusedId ? '#0066cc' : '#99c2eb';
+            ctx.fillStyle = sub.id === focusedId
+                ? timelineColor('--timeline-active', '#0066cc')
+                : timelineColor('--timeline-segment', '#99c2eb');
             ctx.fillRect(x1, 20, Math.max(x2 - x1, 2), 40);
-            ctx.fillStyle = '#1d1d1f';
+            ctx.fillStyle = timelineColor('--timeline-text', '#1d1d1f');
             ctx.font = '20px Inter';
             ctx.fillText(String(i + 1), x1 + 4, 18);
         });
         const curX = (video.currentTime / dur) * w;
-        ctx.strokeStyle = '#ff3b30';
+        ctx.strokeStyle = timelineColor('--timeline-playhead', '#ff3b30');
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(curX, 0);
@@ -285,6 +423,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     video.addEventListener('timeupdate', drawTimeline);
+    // Canvas pixels must be repainted when the theme changes, including while paused.
+    new MutationObserver(drawTimeline).observe(document.documentElement, {
+        attributes: true, attributeFilter: ['data-theme']
+    });
 
     waveformCanvas?.addEventListener('click', e => {
         const rect = waveformCanvas.getBoundingClientRect();
@@ -318,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="editor-time-inputs">
                         <input type="number" step="0.1" class="time-start" value="${sub.startTime}">
                         <input type="number" step="0.1" class="time-end" value="${sub.endTime}">
-                        <button class="control-btn play-segment" title="Nghe" style="width:28px;height:28px;">
+                        <button class="control-btn play-segment" title="Phát đoạn này" aria-label="Phát đoạn này" aria-pressed="false">
                             <i class="fa-solid fa-play" style="font-size:12px;"></i>
                         </button>
                         <button class="control-btn delete-btn" title="Xóa" style="width:28px;height:28px;"><i class="fa-solid fa-trash" style="font-size:12px;"></i></button>
@@ -330,7 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${qualityReviewPanel(qualityReview)}
                 <div class="editor-actions">
                     <button class="button-secondary regenerate-btn btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại AI</button>
-                    ${index < subtitles.length - 1 ? '<button class="button-secondary merge-btn btn-sm"><i class="fa-solid fa-object-group"></i> Gộp câu tiếp</button>' : ''}
                 </div>
             `;
 
@@ -344,6 +485,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.classList.remove('drag-over');
                     const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
                     if (draggedId === sub.id) return;
+                    if (regeneratingId !== null) return;
+                    await flushSaves();
                     pushUndo();
                     const order = subtitles.map(s => s.id);
                     const from = order.indexOf(draggedId);
@@ -361,11 +504,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            item.querySelector('.play-segment').addEventListener('click', () => {
+            item.querySelector('.play-segment').addEventListener('click', e => {
+                e.stopPropagation();
                 focusedId = sub.id;
-                video.currentTime = parseFloat(item.querySelector('.time-start').value);
-                video.play();
-                renderList();
+                listEl.querySelectorAll('.editor-sub-item').forEach(card => card.classList.toggle('focused', Number(card.dataset.id) === sub.id));
+                playback.toggle(sub.id, Number(item.querySelector('.time-start').value), Number(item.querySelector('.time-end').value));
+                drawTimeline();
             });
 
             item.querySelector('.delete-btn').addEventListener('click', async e => {
@@ -378,6 +522,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     variant: 'danger'
                 });
                 if (!confirmed) return;
+                await flushSaves();
+                if (playback.playing(sub.id)) playback.stop();
                 pushUndo();
                 const res = await fetch(`/api/subtitles/${sub.id}`, { method: 'DELETE', headers: headers() });
                 if (!res.ok) {
@@ -388,20 +534,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setSaveStatus('saved');
             });
 
-            item.querySelector('.regenerate-btn').addEventListener('click', async (e) => {
-                const btn = e.target;
-                btn.disabled = true;
-                const text = item.querySelector('.field-text').value;
-                const res = await fetch(`/api/subtitles/${sub.id}/regenerate`, {
-                    method: 'POST',
-                    headers: headers(),
-                    body: JSON.stringify({ text })
-                });
-                const updated = await res.json();
-                item.querySelector('.field-furigana').value = updated.furigana || '';
-                item.querySelector('.field-translation').value = updated.translation || '';
-                btn.disabled = false;
-                setSaveStatus('saved');
+            item.querySelector('.regenerate-btn').addEventListener('click', e => {
+                e.stopPropagation();
+                regenerateSubtitle(sub.id);
             });
 
             const sourceChoice = item.querySelector('.quality-use-source');
@@ -412,20 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
             approveChoice?.addEventListener('click', () => approveQualityReview(
                 sub, item, item.querySelector('.field-text').value));
 
-            const mergeBtn = item.querySelector('.merge-btn');
-            if (mergeBtn) {
-                mergeBtn.addEventListener('click', async () => {
-                    pushUndo();
-                    const next = subtitles[index + 1];
-                    await fetch('/api/subtitles/merge', {
-                        method: 'POST',
-                        headers: headers(),
-                        body: JSON.stringify({ id1: sub.id, id2: next.id })
-                    });
-                    await reloadSubs();
-                });
-            }
-
             item.querySelectorAll('textarea, input[type="number"]').forEach(el => {
                 el.addEventListener('input', () => scheduleSave(sub.id, item));
                 el.addEventListener('focus', () => { focusedId = sub.id; drawTimeline(); });
@@ -435,33 +556,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             listEl.appendChild(item);
         });
+        syncPlayback();
+        syncAiControls();
         drawTimeline();
     }
 
     function scheduleSave(id, item) {
         setSaveStatus('unsaved');
         clearTimeout(saveTimer);
-        saveTimer = setTimeout(async () => {
-            setSaveStatus('saving');
-            const body = {
+        const body = {
                 text: item.querySelector('.field-text').value,
                 furigana: item.querySelector('.field-furigana').value,
                 translation: item.querySelector('.field-translation').value,
                 startTime: parseFloat(item.querySelector('.time-start').value),
                 endTime: parseFloat(item.querySelector('.time-end').value)
-            };
-            try {
-                await fetch(`/api/subtitles/${id}`, {
-                    method: 'PUT',
-                    headers: headers(),
-                    body: JSON.stringify(body)
-                });
-                const idx = subtitles.findIndex(s => s.id === id);
-                if (idx >= 0) Object.assign(subtitles[idx], body);
-                setSaveStatus('saved');
-                drawTimeline();
-            } catch { setSaveStatus('error'); }
-        }, 1500);
+        };
+        const sub = subtitles.find(s => s.id === id);
+        if (sub) Object.assign(sub, body);
+        saves.queue(id, body);
+        saveTimer = setTimeout(() => { flushSaves().catch(() => {}); }, 1500);
+        drawTimeline();
     }
 
     const SAVE_STATES = {
@@ -655,9 +769,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    playBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
-    video.addEventListener('play', () => { playIcon.className = 'fa-solid fa-pause'; });
-    video.addEventListener('pause', () => { playIcon.className = 'fa-solid fa-play'; });
+    playBtn.addEventListener('click', () => {
+        if (video.paused) {
+            playback.full();
+            video.play().catch(() => showAlert({ title: 'Không phát được video', message: 'Hãy kiểm tra video rồi thử lại.', variant: 'error' }));
+        } else playback.stop();
+    });
 
     init();
 });

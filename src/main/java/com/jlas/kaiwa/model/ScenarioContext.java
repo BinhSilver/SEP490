@@ -21,9 +21,6 @@ public class ScenarioContext {
     @Column(name = "time_of_day", length = 100)
     private String time;
 
-    @Column(name = "culture_note", columnDefinition = "TEXT")
-    private String cultureNote;
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Scenario getScenario() { return scenario; }
@@ -34,6 +31,4 @@ public class ScenarioContext {
     public void setLocation(String location) { this.location = location; }
     public String getTime() { return time; }
     public void setTime(String time) { this.time = time; }
-    public String getCultureNote() { return cultureNote; }
-    public void setCultureNote(String cultureNote) { this.cultureNote = cultureNote; }
 }

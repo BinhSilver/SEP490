@@ -201,3 +201,34 @@
     flex: 1;
   }
 }
+
+/* Page-owned dark mode: css/pages/moderation.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-admin-bg: #0b0d13;
+  --dm-admin-surface: #12151f;
+  --dm-admin-raised: #1e2635;
+  --dm-admin-ink: #f8fafc;
+  --dm-admin-muted: #b2bfd2;
+  --dm-admin-line: #40485d;
+  --dm-admin-accent: #c084fc;
+  --dm-admin-action: #7335a6;
+  --dm-admin-accent-soft: #281d3a;
+  --dm-admin-on-accent: #211b34;
+  --dm-admin-success: #8eddb6;
+  --dm-admin-success-bg: #1b3d32;
+  --dm-admin-success-line: #43816b;
+  --dm-admin-danger: #ffb4bd;
+  --dm-admin-danger-bg: #452832;
+  --dm-admin-danger-line: #96616d;
+  --dm-admin-warning: #f3d28a;
+  --dm-admin-warning-bg: #403522;
+  --dm-admin-warning-line: #947a46;
+  --dm-admin-pink: #f4aed2;
+  --dm-admin-pink-bg: #432d40;
+  --dm-admin-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.page-moderation #empty {
+    background: var(--dm-admin-surface)
+}

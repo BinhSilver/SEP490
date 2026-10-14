@@ -15,6 +15,8 @@
   var reason = $('aplReason');
   var evidence = $('aplEvidence');
   var submit = $('aplSubmit');
+  var attachment = $('aplFile');
+  var sending = false;
   var touched = { reason: false, evidence: false };
 
   function esc(value) {
@@ -42,15 +44,23 @@
     var reasonError = !text ? 'Vui lòng nhập lý do.'
       : text.length < REASON_MIN ? 'Lý do cần ít nhất ' + REASON_MIN + ' ký tự (còn thiếu ' + (REASON_MIN - text.length) + ').' : '';
     var evidenceError = link && !isHttpUrl(link) ? 'Liên kết phải bắt đầu bằng http:// hoặc https://' : '';
+    var file = attachment.files[0];
+    var fileError = file && !file.size ? 'File không được để trống.'
+      : file && !/\.(jpe?g|png|webp|pdf)$/i.test(file.name) ? 'Chỉ nhận ảnh JPG, PNG, WEBP hoặc PDF.'
+      : file && file.size > 5 * 1024 * 1024 ? 'File không được vượt quá 5 MB.' : '';
+    $('aplFileError').textContent = fileError;
+    attachment.setAttribute('aria-invalid', String(!!fileError));
     $('aplReasonCount').textContent = reason.value.length + '/1000';
     $('aplReasonError').textContent = touched.reason ? reasonError : '';
     $('aplEvidenceError').textContent = touched.evidence ? evidenceError : '';
     reason.setAttribute('aria-invalid', String(touched.reason && !!reasonError));
     evidence.setAttribute('aria-invalid', String(touched.evidence && !!evidenceError));
-    submit.disabled = !!(reasonError || evidenceError) || !select.value;
-    return !reasonError && !evidenceError;
+    submit.disabled = sending || !!(reasonError || evidenceError || fileError) || !select.value;
+    return !reasonError && !evidenceError && !fileError;
   }
 
+  attachment.addEventListener('change', validate);
+  select.addEventListener('change', validate);
   reason.addEventListener('input', function () { touched.reason = true; validate(); });
   evidence.addEventListener('input', function () { touched.evidence = true; validate(); });
   evidence.addEventListener('blur', function () { touched.evidence = true; validate(); });
@@ -116,6 +126,9 @@
           '<span class="apl-muted">' + esc(typeName(a.sanctionType)) + ' · gửi lúc ' + esc(date(a.createdAt)) + '</span>' +
         '</div>' +
         '<p>' + esc(a.reason) + '</p>' + link +
+        (a.evidenceFile ? '<button type="button" class="btn btn--secondary btn--sm" data-file="' + a.id +
+          '" data-name="' + esc(a.evidenceFile.name) + '"><i class="fa-solid fa-download" aria-hidden="true"></i> ' +
+          esc(a.evidenceFile.name) + ' (' + Math.ceil(a.evidenceFile.size / 1024) + ' KB)</button>' : '') +
         (a.resolutionNote ? '<div class="apl-reply"><span class="apl-muted">Phản hồi của kiểm duyệt viên' +
           (a.resolvedAt ? ' · ' + esc(date(a.resolvedAt)) : '') + '</span><p>' + esc(a.resolutionNote) + '</p></div>' : '') +
       '</li>';
@@ -140,14 +153,18 @@
     event.preventDefault();
     touched.reason = touched.evidence = true;
     if (!validate()) return;
+    if (sending) return;
+    sending = true;
     submit.disabled = true;
+    submit.textContent = 'Đang gửi…';
     $('aplSubmitError').textContent = '';
     try {
-      await FlashApi.post('/api/appeals', {
-        sanctionId: Number(select.value),
-        reason: reason.value.trim(),
-        evidenceUrl: evidence.value.trim() || null
-      });
+      var data = new FormData();
+      data.append('sanctionId', select.value);
+      data.append('reason', reason.value.trim());
+      if (evidence.value.trim()) data.append('evidenceUrl', evidence.value.trim());
+      if (attachment.files[0]) data.append('file', attachment.files[0]);
+      await FlashApi.postForm('/api/appeals', data);
       form.reset();
       touched.reason = touched.evidence = false;
       await load();
@@ -156,8 +173,21 @@
       $('aplPendingNote').focus();
     } catch (error) {
       $('aplSubmitError').textContent = (error && error.message) || 'Không gửi được đơn, vui lòng thử lại.';
+    } finally {
+      sending = false;
+      submit.textContent = 'Gửi đơn';
       validate();
     }
+  });
+
+  $('aplHistory').addEventListener('click', async function (event) {
+    var button = event.target.closest('[data-file]');
+    if (!button) return;
+    button.disabled = true;
+    $('aplHistoryError').textContent = '';
+    try { await FlashApi.download('/api/appeals/' + button.dataset.file + '/file', button.dataset.name); }
+    catch (error) { $('aplHistoryError').textContent = error.message || 'Không tải được file'; }
+    finally { button.disabled = false; }
   });
 
   if (window.JlasAuth && !JlasAuth.requireLogin()) return;

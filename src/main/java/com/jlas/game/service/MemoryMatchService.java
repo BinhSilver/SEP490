@@ -8,6 +8,8 @@ public interface MemoryMatchService extends GameEngine {
 
     MemoryStateView state(String sessionId, long userId);
 
+    MemoryStateView chooseCoinSide(String sessionId, long userId, String side);
+
     /** Ý định lật một thẻ; hợp lệ hay không, khớp cặp hay không đều do server quyết định. */
     MemoryStateView flip(String sessionId, long userId, String cardInstanceId);
 

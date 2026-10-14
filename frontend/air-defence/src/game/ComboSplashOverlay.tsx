@@ -19,6 +19,8 @@ export const ComboSplashOverlay: React.FC = () => {
   const [animatingMilestone, setAnimatingMilestone] = useState<ComboMilestoneData | null>(null);
 
   useEffect(() => {
+    // Clearing a milestone during a wave transition must also remove its local badge.
+    if (!activeComboMilestone) { setAnimatingMilestone(null); return; }
     if (activeComboMilestone) {
       setAnimatingMilestone(activeComboMilestone);
       const timer = setTimeout(() => {
@@ -54,7 +56,7 @@ export const ComboSplashOverlay: React.FC = () => {
       default:
         return {
           badgeBorder: "border-cyan-300 shadow-[0_0_40px_rgba(85,244,255,1)] bg-cyan-950/90",
-          textGlow: "text-cyan drop-shadow-[0_0_25px_rgba(85,244,255,1)]",
+          textGlow: "text-[#a5f3fc] drop-shadow-[0_0_25px_rgba(85,244,255,1)]",
           subText: "text-cyan-100"
         };
     }
@@ -76,7 +78,7 @@ export const ComboSplashOverlay: React.FC = () => {
               top: `${posY}%`
             }}
           >
-            <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border-2 backdrop-blur-md shadow-[0_0_35px_rgba(255,255,255,0.5)] ${styles.badgeBorder} flex items-center gap-2 whitespace-nowrap`}>
+            <div className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl border-2 backdrop-blur-md shadow-[0_0_35px_rgba(255,255,255,0.5)] ${styles.badgeBorder} ${styles.subText} flex items-center gap-2 whitespace-nowrap`}>
               <i className="fa-solid fa-bolt text-base sm:text-lg animate-bounce" aria-hidden="true" />
               <div className="flex flex-col items-center">
                 <span className={`font-display text-sm sm:text-base font-black tracking-wider ${styles.textGlow}`}>
@@ -112,7 +114,7 @@ export const ComboSplashOverlay: React.FC = () => {
         <div
           className={`absolute top-2 right-4 transition-opacity duration-300 font-mono text-xs font-extrabold flex items-center gap-1.5 px-3 py-1 rounded-full border backdrop-blur ${
             combo >= 30
-              ? "border-cyan-300 bg-cyan-950/60 text-cyan shadow-[0_0_20px_rgba(85,244,255,0.7)] animate-pulse"
+              ? "border-cyan-300 bg-cyan-950/60 text-[#a5f3fc] shadow-[0_0_20px_rgba(85,244,255,0.7)] animate-pulse"
               : combo >= 20
               ? "border-rose-400 bg-rose-950/60 text-rose-300 shadow-[0_0_18px_rgba(255,77,109,0.6)]"
               : combo >= 10

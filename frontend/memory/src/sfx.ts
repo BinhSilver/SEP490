@@ -14,6 +14,7 @@ let preloaded = false
 let backgroundAudio: HTMLAudioElement | null = null
 let masterVolume = 1
 let countdownContext: AudioContext | null = null
+let audioGeneration = 0
 
 const VOLUMES: Record<MemorySound, number> = {
   flip: 1,
@@ -32,11 +33,14 @@ function play(sound: MemorySound, playbackRate = 1) {
   audio.volume = VOLUMES[sound] * masterVolume
   audio.playbackRate = playbackRate
   activeAudio.add(audio)
+  const generation = audioGeneration
 
   const release = () => activeAudio.delete(audio)
   audio.addEventListener('ended', release, { once: true })
   audio.addEventListener('error', release, { once: true })
-  void audio.play().catch(release)
+  void audio.play().then(() => {
+    if (generation !== audioGeneration) audio.pause()
+  }).catch(release)
 }
 
 export function unlockMemoryAudio() {
@@ -97,7 +101,11 @@ export function startBackgroundMusic() {
     backgroundAudio.loop = true
     backgroundAudio.volume = BACKGROUND_VOLUME * masterVolume
   }
-  void backgroundAudio.play().catch(() => {
+  const audio = backgroundAudio
+  const generation = audioGeneration
+  void audio.play().then(() => {
+    if (generation !== audioGeneration) audio.pause()
+  }).catch(() => {
     // Trình duyệt sẽ cho phát lại ở tương tác trực tiếp tiếp theo.
   })
 }
@@ -105,6 +113,24 @@ export function startBackgroundMusic() {
 export function stopBackgroundMusic() {
   if (!backgroundAudio) return
   backgroundAudio.pause()
+}
+
+/** Admin preview teardown, including pending clips and scheduled countdown notes. */
+export function stopMemoryAudio() {
+  audioGeneration++
+  activeAudio.forEach(audio => {
+    audio.pause()
+    try { audio.currentTime = 0 } catch { /* Media may not be seekable yet. */ }
+  })
+  activeAudio.clear()
+  if (backgroundAudio) {
+    backgroundAudio.pause()
+    try { backgroundAudio.currentTime = 0 } catch { /* Metadata may still be loading. */ }
+    backgroundAudio = null
+  }
+  const ctx = countdownContext
+  countdownContext = null
+  if (ctx && ctx.state !== 'closed') void ctx.close().catch(() => {})
 }
 
 export function setMemoryVolume(volume: number) {

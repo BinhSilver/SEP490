@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/moderation")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('MODERATOR','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('MODERATOR','ADMIN')")
 public class ModerationAdminController {
     private final ModerationAdminService moderation;
     private final ModerationOverviewService overview;
@@ -131,7 +131,7 @@ public class ModerationAdminController {
     }
 
     private static boolean isAdmin() {
-        return CurrentUser.hasRole("ROLE_SUPER_ADMIN");
+        return CurrentUser.hasRole("ROLE_ADMIN");
     }
 
     public record ReportList(boolean available, List<ReportView> items) {

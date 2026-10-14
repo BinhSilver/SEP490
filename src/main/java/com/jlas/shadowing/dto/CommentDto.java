@@ -13,4 +13,8 @@ public class CommentDto {
     private Integer rating;
     private LocalDateTime createdAt;
     private boolean own;
+    /** Ảnh đại diện + khung avatar + màu tên người bình luận (khung/màu mua ở Cửa hàng; null = không có). */
+    private String avatarUrl;
+    private String avatarFrame;
+    private String nameStyle;
 }

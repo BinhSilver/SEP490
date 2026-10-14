@@ -22,7 +22,6 @@
   const waitingTitle = document.getElementById('exercise-waiting-title');
   const waitingText = document.getElementById('exercise-waiting-text');
   const kitsuTip = document.getElementById('exercise-kitsu-tip');
-  const kitsuVideo = document.getElementById('exercise-kitsu-video');
   const prompt = document.getElementById('exercise-prompt');
   const answerInput = document.getElementById('exercise-answer');
   const choicesBox = document.getElementById('exercise-choices');
@@ -79,7 +78,7 @@
 
   function setStatus(value, error) {
     status.textContent = value || '';
-    status.style.color = error ? '#a71919' : '';
+    status.style.color = error ? 'var(--color-error, #a71919)' : '';
   }
 
   function pauseSession() {
@@ -96,7 +95,6 @@
     workspace.classList.add('is-session-paused');
     workspace.setAttribute('aria-disabled', 'true');
     media.pause();
-    kitsuVideo.pause();
     pauseButton.hidden = true;
     resumeButton.hidden = false;
     setStatus('Phiên học đang tạm dừng.');
@@ -174,23 +172,7 @@
   }
 
   function renderFurigana(value) {
-    const source = String(value || '');
-    const pattern = /([^\s()（）]+)[(（]([^()（）]+)[)）]/g;
-    const fragment = document.createDocumentFragment();
-    let cursor = 0;
-    let match;
-    while ((match = pattern.exec(source))) {
-      fragment.append(document.createTextNode(source.slice(cursor, match.index)));
-      const ruby = document.createElement('ruby');
-      ruby.append(document.createTextNode(match[1]));
-      const reading = document.createElement('rt');
-      reading.textContent = match[2];
-      ruby.append(reading);
-      fragment.append(ruby);
-      cursor = match.index + match[0].length;
-    }
-    fragment.append(document.createTextNode(source.slice(cursor)));
-    liveJapanese.replaceChildren(fragment);
+    liveJapanese.innerHTML = window.ShadowingSubtitleDisplay.furigana(value);
   }
 
   function renderLiveJapanese(subtitle, stop) {
@@ -201,6 +183,7 @@
     const isLong = sentenceLength >= 46;
     const isExtraLong = sentenceLength >= 76;
     liveJapanese.classList.toggle('has-furigana', Boolean(showFurigana));
+    liveJapanese.classList.toggle('is-short', !isMedium);
     liveJapanese.classList.toggle('is-medium', isMedium && !isLong);
     liveJapanese.classList.toggle('is-long', isLong);
     mediaPanel.classList.toggle('has-long-live-subtitle', isLong && Boolean(showFurigana));
@@ -326,9 +309,9 @@
     activeLiveSubtitle = subtitle;
     transcriptRows.forEach(function (row) { row.classList.remove('is-active'); });
     if (!subtitle) {
-      liveJapanese.classList.remove('has-furigana', 'is-medium', 'is-long');
+      liveJapanese.classList.remove('has-furigana', 'is-short', 'is-medium', 'is-long');
       mediaPanel.classList.remove('has-long-live-subtitle', 'has-extra-long-live-subtitle');
-      liveJapanese.textContent = media.paused ? 'Nhấn Phát bài để tiếp tục.' : '';
+      liveJapanese.textContent = window.ShadowingSubtitleDisplay.gapLabel(media.currentTime, subtitles);
       liveTranslation.textContent = '';
       updatePreparationTip(null);
       return;
@@ -370,15 +353,12 @@
       answerInput.hidden = true;
       actions.hidden = true;
       setStatus('Sắp đến câu có cờ #' + pendingStop.number + '…', false);
-      const playback = kitsuVideo.play();
-      if (playback?.catch) playback.catch(function () { /* poster remains visible */ });
     } else if (!stoppedAtQuestion && !question?.answered && !finishingRemainder) {
       answerDock.hidden = true;
       questionPanel.classList.add('is-listening');
       waitingState.hidden = false;
       setWaitingState('Đang chờ câu hỏi xuất hiện', 'Video đang phát. Khi đến câu có cờ, video sẽ tự dừng để bạn làm bài.');
       kitsuTip.hidden = true;
-      kitsuVideo.pause();
     }
   }
 
@@ -501,7 +481,6 @@
     waitingState.hidden = false;
     setWaitingState('Đang chờ câu hỏi xuất hiện', 'Video đang phát. Khi đến câu có cờ, video sẽ tự dừng để bạn làm bài.');
     kitsuTip.hidden = true;
-    kitsuVideo.pause();
     prompt.hidden = true;
     answerInput.hidden = true;
     actions.hidden = true;
@@ -533,7 +512,7 @@
     document.getElementById('exercise-mode-label').textContent = view.mode === 'LISTENING'
       ? 'Nghe cả bài · Luyện nghe' : view.mode === 'CLOZE'
       ? 'Nghe cả bài · Điền từ hoặc cụm' : 'Nghe cả bài · Điền cả câu';
-    document.getElementById('exercise-back-link').href = '/shadowing/practice/' + view.videoId;
+    document.getElementById('exercise-back-link').href = '/shadowing/practice/' + view.videoId + '/setup';
     setMedia(view.videoId, view.audioOnly);
 
     if (view.completed || !view.question) {
@@ -549,8 +528,8 @@
     renderPrompt();
     answerInput.rows = view.mode === 'CLOZE' || question.level === 'EASY' ? 2 : 4;
     answerInput.placeholder = view.mode === 'CLOZE' || question.level === 'EASY'
-      ? 'Video dừng xong, nhập từ hoặc cụm từ còn thiếu…'
-      : 'Video dừng xong, nhập toàn bộ câu bạn vừa nghe…';
+      ? 'Nhập từ/cụm còn thiếu bằng kanji, kana hoặc romaji…'
+      : 'Nhập cả câu bằng kanji, kana hoặc romaji…';
     renderChoices();
     renderMarkers();
     renderTranscript();
@@ -579,7 +558,6 @@
     answerDock.hidden = false;
     waitingState.hidden = true;
     kitsuTip.hidden = true;
-    kitsuVideo.pause();
     prompt.hidden = false;
     answerInput.hidden = isChoiceQuestion();
     actions.hidden = isChoiceQuestion();
@@ -777,7 +755,6 @@
     answerDock.hidden = false;
     waitingState.hidden = true;
     kitsuTip.hidden = true;
-    kitsuVideo.pause();
     prompt.hidden = false;
     answerInput.hidden = isChoiceQuestion();
     actions.hidden = false;
@@ -792,9 +769,10 @@
     answerInput.classList.toggle('is-correct', isCorrect);
     answerInput.classList.toggle('is-incorrect', incorrect);
     renderPartialFeedback(result, incorrect);
-    explanation.hidden = incorrect || !result.explanation;
-    explanation.textContent = result.explanation || '';
-    setStatus(result.feedback || '', incorrect);
+    const explanationText = isChoiceQuestion() ? result.explanation : result.translation;
+    explanation.hidden = incorrect || !explanationText;
+    explanation.textContent = explanationText || '';
+    setStatus(incorrect && !isChoiceQuestion() ? '' : (result.feedback || ''), incorrect);
     renderMarkers();
     renderTranscript();
     showLiveSubtitle(subtitles.find(function (item) { return Number(item.id) === Number(question?.subtitleId); }));
@@ -834,7 +812,7 @@
     parts.forEach(function (part) {
       const piece = document.createElement('span');
       piece.className = part.type === 'MATCH' ? 'is-match' : 'is-mismatch';
-      piece.textContent = part.type === 'MISSING' ? '…' : (part.actual || '');
+      piece.textContent = part.type === 'MISSING' ? '..' : (part.actual || '');
       if (piece.textContent) partialLine.appendChild(piece);
     });
   }
@@ -993,7 +971,7 @@
       'Bạn trả lời đúng ' + view.correctCount + '/' + view.totalQuestions
       + ' câu · điểm trung bình ' + view.averageScore + '/100.';
     document.getElementById('exercise-restart').onclick = function () {
-      location.href = '/shadowing/practice/' + view.videoId;
+      location.href = '/shadowing/practice/' + view.videoId + '/setup';
     };
   }
 

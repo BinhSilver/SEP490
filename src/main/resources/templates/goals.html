@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mục tiêu &amp; Chuỗi ngày · J-LAB</title>
@@ -11,11 +12,12 @@
     <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
     <link rel="stylesheet" th:href="@{/css/components/reward-fx.css?v=20260926y}" />
-    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20260927i}" />
+    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261014-kana-entry-contrast}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="goals-page">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="goals-page">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
         <div id="goalsApp" class="gp">
@@ -112,6 +114,14 @@
                         <b class="gp-chip" id="missionSummary">0/4</b>
                     </div>
                     <div id="dailyMissionList" class="gp-mission-list" aria-live="polite"></div>
+                    <a class="gp-kana-entry" th:href="@{/kana-connect}">
+                        <span class="gp-kana-entry__icon" aria-hidden="true">かな</span>
+                        <span class="gp-kana-entry__text">
+                            <b>Thử thách hằng ngày · Kana Connect</b>
+                            <small>Nối kana tìm 8+ từ, đua top cùng mọi người</small>
+                        </span>
+                        <span class="gp-kana-entry__cta">Chơi</span>
+                    </a>
                     <p class="gp-card__foot"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Nhiệm vụ mới mỗi ngày lúc 00:00</p>
                 </article>
 

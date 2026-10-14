@@ -479,9 +479,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public List<TextbookResponse> listTextbooks() {
-        List<Textbook> textbooks = canViewDraft()
-                ? textbookRepository.findByStatusNotOrderByIdAsc(STATUS_ARCHIVED)
-                : textbookRepository.findByStatusOrderByIdAsc(STATUS_PUBLISHED);
+        List<Textbook> textbooks = textbookRepository.findLibraryTextbooks(canViewDraft(), STATUS_PUBLISHED);
         if (textbooks.isEmpty()) return Collections.emptyList();
 
         List<Long> textbookIds = textbooks.stream().map(Textbook::getId).toList();
@@ -509,6 +507,9 @@ public class DictionaryServiceImpl implements DictionaryService {
                 ? textbookRepository.findByIdAndStatusNot(textbookId, STATUS_ARCHIVED)
                 : textbookRepository.findByIdAndStatus(textbookId, STATUS_PUBLISHED))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Textbook not found: " + textbookId));
+        if (textbookRepository.countOnyomiLessonsByTextbookId(textbookId) > 0) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "Textbook not found: " + textbookId);
+        }
 
         List<Unit> units = unitRepository.findByTextbookIdOrderByOrderIndexAscIdAsc(textbookId);
         List<Lesson> lessons = viewDraft
@@ -601,6 +602,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Transactional(readOnly = true)
     public LessonContentResponse getLessonContent(Long lessonId) {
         Lesson lesson = lessonRepository.findWithUnitById(lessonId)
+                .filter(l -> !("AMON".equals(l.getLessonType()) && "ONYOMI".equals(l.getSkill())))
                 .filter(l -> canViewDraft() || isPublished(l))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found: " + lessonId));
 

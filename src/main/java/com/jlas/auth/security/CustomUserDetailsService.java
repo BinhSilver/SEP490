@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user.getLockedAt() != null) {
             throw new LockedException("Tài khoản đã bị khóa.");
         }
-        String role = user.getRole() == null ? "LEARNER" : user.getRole().getName();
+        String role = Roles.canonical(user.getRole() == null ? null : user.getRole().getName());
         return new UserPrincipal(user.getId(), user.getEmail(), user.getPasswordHash(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }

@@ -93,7 +93,7 @@ class SystemAdminIntegrationTest {
         packages.deleteAll();
         users.deleteAll();
         plans.deleteAll();
-        superAdmin = createUser("super", "SUPER_ADMIN");
+        superAdmin = createUser("super", "ADMIN");
         learner = createUser("learner", "LEARNER");
         adminToken = jwt(superAdmin);
     }
@@ -239,7 +239,7 @@ class SystemAdminIntegrationTest {
     @Test
     void selfLockAndLastAdminRejectionsSurviveRollback() throws Exception {
         action(superAdmin.getId(), "lock", "Không tự khóa", 409);
-        // The last-admin guard is defensive: a second unlocked SUPER_ADMIN actor would
+        // The last-admin guard is defensive: a second unlocked ADMIN actor would
         // itself make the target no longer the last one. Exercise it at the service boundary.
         assertThatThrownBy(() -> admin.lock(learner.getId(), superAdmin.getId(), "Kiểm tra cuối"))
                 .isInstanceOf(ApiException.class).hasMessageContaining("cuối cùng");
@@ -352,7 +352,7 @@ class SystemAdminIntegrationTest {
 
     @Test
     void canLockAnotherAdminButLockedAdminsDoNotCountAsAvailable() {
-        User secondAdmin = createUser("second-super", "SUPER_ADMIN");
+        User secondAdmin = createUser("second-super", "ADMIN");
         admin.lock(superAdmin.getId(), secondAdmin.getId(), "Khóa quản trị");
         assertThatThrownBy(() -> admin.lock(learner.getId(), superAdmin.getId(), "Kiểm tra cuối"))
                 .isInstanceOf(ApiException.class).hasMessageContaining("cuối cùng");
@@ -394,14 +394,14 @@ class SystemAdminIntegrationTest {
         String learnerToken = jwt(learner);
         mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(learnerToken)))
                 .andExpect(status().isForbidden());
-        roleAction(learner.getId(), "SUPER_ADMIN", "Thăng quyền để kiểm tra", 200)
-                .andExpect(jsonPath("$.data.role").value("SUPER_ADMIN"));
+        roleAction(learner.getId(), "ADMIN", "Thăng quyền để kiểm tra", 200)
+                .andExpect(jsonPath("$.data.role").value("ADMIN"));
         // Authorities are rebuilt per request: the same token now carries the new role.
         mvc.perform(get("/api/admin/system/users").header("Authorization", bearer(learnerToken)))
                 .andExpect(status().isOk());
-        roleAction(learner.getId(), "SUPER_ADMIN", "Lặp lại vai trò", 409);
+        roleAction(learner.getId(), "ADMIN", "Lặp lại vai trò", 409);
         roleAction(learner.getId(), "CONTENT_ADMIN", "Vai trò cũ không được gán", 400);
-        roleAction(learner.getId(), "ADMIN", "Vai trò cũ không được gán", 400);
+        roleAction(learner.getId(), "SUPER_ADMIN", "Vai trò cũ không được gán", 400);
         roleAction(learner.getId(), "ROOT", "Vai trò lạ", 400);
         roles.findByName("CONTENT_CREATOR").ifPresent(roles::delete); // other tests may have created it
         roleAction(learner.getId(), "CONTENT_CREATOR", "Chưa có trong DB", 400);
@@ -410,10 +410,10 @@ class SystemAdminIntegrationTest {
         assertThatThrownBy(() -> admin.changeRole(learner.getId(), superAdmin.getId(), "LEARNER", "Hạ người cuối"))
                 .isInstanceOf(ApiException.class).hasMessageContaining("cuối cùng");
         mvc.perform(get("/api/admin/system/users/{id}", superAdmin.getId()).header("Authorization", bearer(adminToken)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.data.role").value("SUPER_ADMIN"));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.role").value("ADMIN"));
         var success = audit.list(null, "USER_ROLE_CHANGE", "USER", learner.getId().toString(), "SUCCESS", null, null, 0, 20);
         assertThat(success.getContent()).hasSize(2);
-        assertThat(success.getContent().get(1).changesJson()).contains("LEARNER", "SUPER_ADMIN");
+        assertThat(success.getContent().get(1).changesJson()).contains("LEARNER", "ADMIN");
         var rejected = audit.list(null, "USER_ROLE_CHANGE", null, null, "REJECTED", null, null, 0, 20);
         assertThat(rejected.getTotalElements()).isEqualTo(3);
     }

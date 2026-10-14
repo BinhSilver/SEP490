@@ -38,6 +38,10 @@ public class AuthToken {
     @Column(name = "otp_hash", length = 64)
     private String otpHash;
 
+    @Builder.Default
+    @Column(name = "attempt_count", nullable = false)
+    private int attemptCount = 0;
+
     @Column(name = "device_info", length = 255)
     private String deviceInfo;
 

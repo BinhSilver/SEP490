@@ -1,12 +1,14 @@
 // ============================================================================
 // AIR DEFENCE - PROCEDURAL SCI-FI AUDIO & CONTEXTUAL ADAPTIVE BGM SYNTHESIZER
-// Zero external asset dependencies, crystal clear, ultra-low latency audio.
+// Procedural effects and BGM; the shared hyper beam uses the selected Pixabay recording.
 // ============================================================================
 
 import { GAME_CONFIG } from "./gameConfig";
 import { AudioSettings, LootItemType } from "./types";
 
 export type BgmTrack = "lobby" | "battle" | "boss" | "off";
+
+const HYPER_BEAM_AUDIO_URL = '/arena/app/air-defense/sound/sci-fi-weapon-laser-shot-04-316416.mp3';
 
 const STORAGE_KEY = "AIR_DEFENSE_AUDIO_SETTINGS_V1";
 
@@ -20,7 +22,13 @@ const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   keystrokeEnabled: true
 };
 
-class SoundManager {
+export class SoundManager {
+  // Cache the recording across the game and isolated admin preview instances.
+  private static hyperBeamBytes: Promise<ArrayBuffer> | null = null;
+  private hyperBeamBuffer: AudioBuffer | null = null;
+  private hyperBeamLoading: Promise<AudioBuffer | null> | null = null;
+  private hyperBeamRevision = 0;
+  private hyperBeamSources = new Map<AudioBufferSourceNode, GainNode>();
   private ctx: AudioContext | null = null;
   private bgmGain: GainNode | null = null;
   private currentBgmTrack: BgmTrack = "off";
@@ -29,8 +37,8 @@ class SoundManager {
 
   private settings: AudioSettings = { ...DEFAULT_AUDIO_SETTINGS };
 
-  constructor() {
-    this.loadSettings();
+  constructor(private persistSettings = true) {
+    if (persistSettings) this.loadSettings();
   }
 
   private loadSettings() {
@@ -48,9 +56,19 @@ class SoundManager {
 
   updateSettings(partial: Partial<AudioSettings>) {
     this.settings = { ...this.settings, ...partial };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.settings));
-    } catch (e) {}
+    if (this.persistSettings) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.settings));
+      } catch (e) {}
+    }
+
+    const beamVolume = this.getCalculatedSfxVolume(GAME_CONFIG.AUDIO.hyperBeamVolume);
+    if (beamVolume <= 0) {
+      this.hyperBeamRevision++;
+      this.stopHyperBeam();
+    } else if (this.ctx) {
+      for (const gain of this.hyperBeamSources.values()) gain.gain.setValueAtTime(beamVolume, this.ctx.currentTime);
+    }
 
     // Update active BGM gain
     if (this.bgmGain && this.ctx) {
@@ -89,12 +107,32 @@ class SoundManager {
           this.bgmGain = this.ctx.createGain();
           this.bgmGain.gain.setValueAtTime(this.getCalculatedBgmVolume(), this.ctx.currentTime);
           this.bgmGain.connect(this.ctx.destination);
+          void this.loadHyperBeam(this.ctx);
         }
       } catch (e) {}
     }
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume().catch(() => {});
     }
+  }
+
+  /** Unlock an isolated preview directly from the user's audio-enable gesture. */
+  unlock() {
+    this.initContext();
+  }
+
+  /** Stop this instance's scheduled notes and loops; it can be unlocked and reused later. */
+  dispose() {
+    this.hyperBeamRevision++;
+    this.stopHyperBeam();
+    this.hyperBeamBuffer = null;
+    this.hyperBeamLoading = null;
+    this.stopBgm();
+    this.currentBgmTrack = 'off';
+    const ctx = this.ctx;
+    this.ctx = null;
+    this.bgmGain = null;
+    if (ctx && ctx.state !== 'closed') void ctx.close().catch(() => {});
   }
 
   // ==========================================================================
@@ -637,58 +675,59 @@ class SoundManager {
     } catch (e) {}
   }
 
+  private loadHyperBeam(ctx: AudioContext): Promise<AudioBuffer | null> {
+    if (this.hyperBeamBuffer) return Promise.resolve(this.hyperBeamBuffer);
+    if (this.hyperBeamLoading) return this.hyperBeamLoading;
+    if (!SoundManager.hyperBeamBytes) {
+      SoundManager.hyperBeamBytes = fetch(HYPER_BEAM_AUDIO_URL).then(response => {
+        if (!response.ok) throw new Error(`Hyper beam audio: HTTP ${response.status}`);
+        return response.arrayBuffer();
+      }).catch(error => { SoundManager.hyperBeamBytes = null; throw error; });
+    }
+    const loading = SoundManager.hyperBeamBytes.then(bytes => ctx.decodeAudioData(bytes.slice(0)))
+      .then(buffer => {
+        if (this.ctx !== ctx) return null;
+        this.hyperBeamBuffer = buffer;
+        return buffer;
+      }).catch(() => {
+        if (this.ctx === ctx) this.hyperBeamLoading = null;
+        return null;
+      });
+    this.hyperBeamLoading = loading;
+    return loading;
+  }
+
+  private stopHyperBeam() {
+    for (const [source, gain] of this.hyperBeamSources) {
+      source.onended = null;
+      try { source.stop(); } catch { /* An already ended source is harmless. */ }
+      source.disconnect(); gain.disconnect();
+    }
+    this.hyperBeamSources.clear();
+  }
+
   playHyperBeam() {
-    const vol = this.getCalculatedSfxVolume(GAME_CONFIG.AUDIO.hyperBeamVolume);
-    if (vol <= 0) return;
-    try {
-      this.initContext();
-      if (!this.ctx) return;
-
-      const now = this.ctx.currentTime;
-      const duration = 3.0;
-
-      // 1. Heavy Plasma Roar (Noise)
-      const bufferSize = this.ctx.sampleRate * duration;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-      const noise = this.ctx.createBufferSource();
-      noise.buffer = buffer;
-      const noiseFilter = this.ctx.createBiquadFilter();
-      noiseFilter.type = "bandpass";
-      noiseFilter.frequency.setValueAtTime(450, now);
-      noiseFilter.Q.setValueAtTime(1.5, now);
-
-      const noiseGain = this.ctx.createGain();
-      noiseGain.gain.setValueAtTime(vol * 0.8, now);
-      noiseGain.gain.setValueAtTime(vol * 0.75, now + duration - 0.4);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(this.ctx.destination);
-      noise.start(now);
-      noise.stop(now + duration);
-
-      // 2. Sub-bass & Sawtooth Blast
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.linearRampToValueAtTime(80, now + 0.5);
-      osc.frequency.setValueAtTime(65, now + 1.0);
-
-      gain.gain.setValueAtTime(vol * 0.9, now);
-      gain.gain.setValueAtTime(vol * 0.8, now + duration - 0.3);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + duration);
-    } catch (e) {}
+    if (this.getCalculatedSfxVolume(GAME_CONFIG.AUDIO.hyperBeamVolume) <= 0) return;
+    this.initContext();
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const revision = ++this.hyperBeamRevision;
+    this.stopHyperBeam();
+    void this.loadHyperBeam(ctx).then(buffer => {
+      const vol = this.getCalculatedSfxVolume(GAME_CONFIG.AUDIO.hyperBeamVolume);
+      // Loading may finish after muting, switching previews or leaving a match.
+      if (!buffer || this.ctx !== ctx || ctx.state === 'closed' || revision !== this.hyperBeamRevision || vol <= 0) return;
+      const source = ctx.createBufferSource(), gain = ctx.createGain();
+      source.buffer = buffer;
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      source.connect(gain); gain.connect(ctx.destination);
+      this.hyperBeamSources.set(source, gain);
+      source.onended = () => {
+        this.hyperBeamSources.delete(source);
+        source.disconnect(); gain.disconnect();
+      };
+      source.start();
+    }).catch(() => {});
   }
 
   playComboDing(combo: number) {

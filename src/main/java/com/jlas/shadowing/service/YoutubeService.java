@@ -4,12 +4,11 @@ import com.jlas.shadowing.util.youtube.YoutubeUrlValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -17,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,6 +37,15 @@ public class YoutubeService {
 
     @Value("${yt-dlp.bin.path:yt-dlp}")
     private String ytdlpBin;
+
+    @Value("${yt-dlp.python.path:}")
+    private String pythonBin;
+
+    @Value("${yt-dlp.js-runtime:}")
+    private String jsRuntime;
+
+    @Value("${yt-dlp.download.helper-path:}")
+    private String downloadHelperPath;
 
     @Value("${upload.path.video}")
     private String videoDir;
@@ -102,12 +111,37 @@ public class YoutubeService {
         String normalized = YoutubeUrlValidator.normalizeWatchUrl(url);
         String outPath = new File(videoDir, UUID.randomUUID() + ".mp4").getAbsolutePath();
 
-        // Prefer mobile clients first — works without Node/Deno JS runtime on many machines
+        // The Python helper uses yt-dlp's format selection and validates both streams.
+        // Its fixed-range retry handles CDN transfers that reject the native request.
+        Path helper = resolveDownloadHelper();
+        if (helper != null) {
+            try {
+                String python = resolvePython();
+                if (python == null) {
+                    throw new IOException("Cần Python có yt-dlp để chạy công cụ tải video.");
+                }
+                List<String> cmd = new ArrayList<>(List.of(python, "-X", "utf8",
+                        helper.toAbsolutePath().toString(),
+                        "--url", normalized, "--output", outPath, "--max-height", "720",
+                        "--timeout", Long.toString(Math.max(1, timeout.toSeconds() - 5))));
+                if (jsRuntime != null && !jsRuntime.isBlank()) {
+                    cmd.addAll(List.of("--js-runtime", jsRuntime.trim()));
+                }
+                runCommand(cmd, timeout);
+                if (Files.isRegularFile(Path.of(outPath)) && Files.size(Path.of(outPath)) > 0) {
+                    return outPath;
+                }
+                throw new IOException("Công cụ tải không tạo được video MP4 hợp lệ.");
+            } finally {
+                if (downloadHelperPath == null || downloadHelperPath.isBlank()) deleteTemporaryFile(helper);
+            }
+        }
+
         String[] formatAttempts = {
-                "best[height<=720][ext=mp4]/best[height<=720]/best",
-                "bv*[height<=720]+ba/b[height<=720]/b",
-                "best"
+                "bv[height<=720][ext=mp4][vcodec^=avc1]+ba[ext=m4a][language^=ja]/bv[height<=720][ext=mp4][vcodec^=avc1]+ba[ext=m4a]/b[height<=720][ext=mp4][vcodec^=avc1]",
+                "b[height<=720][ext=mp4]"
         };
+        long deadline = System.nanoTime() + timeout.toNanos();
         Exception last = null;
         for (String format : formatAttempts) {
             try {
@@ -118,10 +152,17 @@ public class YoutubeService {
                         "-o", outPath,
                         normalized
                 );
-                runCommand(cmd, timeout);
+                Duration remaining = Duration.ofNanos(deadline - System.nanoTime());
+                if (remaining.isNegative() || remaining.isZero()) {
+                    throw new IOException("Đã hết thời gian tải video YouTube.");
+                }
+                runCommand(cmd, remaining);
                 if (new File(outPath).exists() && new File(outPath).length() > 0) {
                     return outPath;
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
             } catch (Exception e) {
                 last = e;
                 System.err.println("[yt-dlp] video format attempt failed (" + format + "): " + e.getMessage());
@@ -140,7 +181,7 @@ public class YoutubeService {
         String normalized = YoutubeUrlValidator.normalizeWatchUrl(url);
         String outPath = new File(audioDir, "yt_" + UUID.randomUUID() + ".mp3").getAbsolutePath();
         List<String> cmd = buildYoutubeCommand(
-                "-f", "bestaudio/best",
+                "-f", "bestaudio[language^=ja]/bestaudio/best",
                 "-x",
                 "--audio-format", "mp3",
                 "--no-playlist",
@@ -408,27 +449,31 @@ public class YoutubeService {
         return cmd;
     }
 
-    /**
-     * yt-dlp base command with YouTube extractor args that avoid requiring
-     * Node/Deno JS runtime (common failure: "No supported JavaScript runtime").
-     */
+    /** Let the installed yt-dlp select current clients; old forced clients become stale. */
     private List<String> buildYoutubeCommand(String... args) throws IOException {
         List<String> cmd = new ArrayList<>(resolveYtdlpLauncher());
-        cmd.add("--extractor-args");
-        // android/ios often work without JS; web as fallback for metadata
-        cmd.add("youtube:player_client=android,ios,tv,web");
+        cmd.addAll(List.of("--ignore-config", "--socket-timeout", "20", "--retries", "2",
+                "--fragment-retries", "2", "--abort-on-unavailable-fragments", "--no-progress"));
+        if (jsRuntime != null && !jsRuntime.isBlank()) {
+            cmd.addAll(List.of("--js-runtimes", jsRuntime.trim()));
+        }
         cmd.addAll(List.of(args));
         return cmd;
     }
 
     /** Resolve yt-dlp executable; falls back to python -m yt_dlp on Windows. */
     private List<String> resolveYtdlpLauncher() throws IOException {
+        if (pythonBin != null && !pythonBin.isBlank()) {
+            String python = resolvePython();
+            if (python != null) return List.of(python, "-m", "yt_dlp");
+            throw new IOException("Python đã cấu hình chưa cài yt-dlp. Cài yt-dlp[default] trong môi trường đó.");
+        }
         if (ytdlpBin != null && !ytdlpBin.isBlank()) {
             File bin = new File(ytdlpBin);
             if (bin.isFile()) {
                 return List.of(bin.getAbsolutePath());
             }
-            if (!ytdlpBin.contains("/") && !ytdlpBin.contains("\\")) {
+            if (!ytdlpBin.contains("/") && !ytdlpBin.contains("\\") && commandOnPath(ytdlpBin)) {
                 return List.of(ytdlpBin);
             }
         }
@@ -442,68 +487,136 @@ public class YoutubeService {
     }
 
     private String resolvePython() {
-        String[] candidates = {
-                "python",
-                "python3",
-                "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
-        };
+        String[] candidates = pythonBin != null && !pythonBin.isBlank()
+                ? new String[]{pythonBin.trim()} : new String[]{"python", "python3"};
         for (String candidate : candidates) {
             try {
-                Process p = new ProcessBuilder(candidate, "--version").redirectErrorStream(true).start();
+                Process p = new ProcessBuilder(candidate, "-c", "import yt_dlp")
+                        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                        .redirectError(ProcessBuilder.Redirect.DISCARD).start();
                 if (p.waitFor(5, TimeUnit.SECONDS) && p.exitValue() == 0) {
                     return candidate;
                 }
+                terminate(p);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
             } catch (Exception ignored) {
             }
         }
         return null;
     }
 
-    private String runCommand(List<String> command, Duration timeout) throws Exception {
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
-        Process process;
-        try {
-            process = pb.start();
-        } catch (IOException e) {
-            throw new IOException("Không chạy được yt-dlp: " + String.join(" ", command)
-                    + " — " + e.getMessage(), e);
-        }
-
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append('\n');
+    private static boolean commandOnPath(String name) {
+        String path = System.getenv("PATH");
+        if (path == null) return false;
+        boolean windows = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("win");
+        for (String directory : path.split(java.util.regex.Pattern.quote(File.pathSeparator))) {
+            if (directory.isBlank()) continue;
+            for (String suffix : windows ? List.of("", ".exe", ".cmd", ".bat") : List.of("")) {
+                Path file = Path.of(directory.replace("\"", ""), name + suffix);
+                if (Files.isRegularFile(file) && (windows || Files.isExecutable(file))) return true;
             }
         }
-
-        boolean finished = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
-        if (!finished) {
-            process.destroyForcibly();
-            throw new RuntimeException("yt-dlp quá thời gian chờ (" + timeout.getSeconds() + "s)");
-        }
-        int code = process.exitValue();
-        if (code != 0) {
-            String msg = output.toString();
-            String lower = msg.toLowerCase(java.util.Locale.ROOT);
-            if (lower.contains("private video") || lower.contains("video is private")) {
-                throw new IllegalArgumentException("Video riêng tư — không thể truy cập.");
-            }
-            if (lower.contains("video unavailable") || lower.contains("video is unavailable")
-                    || lower.contains("not available") || lower.contains("has been removed")
-                    || lower.contains("not found")) {
-                throw new IllegalArgumentException(
-                        "Video YouTube này không khả dụng. Video có thể đã bị xóa, đặt riêng tư, bị giới hạn khu vực hoặc link không còn đúng. Hãy kiểm tra lại link hoặc chọn video khác.");
-            }
-            throw new RuntimeException("yt-dlp thất bại (mã " + code + "): " + truncate(msg, 500));
-        }
-        return output.toString();
+        return false;
     }
 
-    private static String truncate(String s, int max) {
-        if (s == null) return "";
-        return s.length() <= max ? s : s.substring(0, max) + "...";
+    private static void terminate(Process process) {
+        var descendants = process.descendants().toList();
+        descendants.reversed().forEach(ProcessHandle::destroyForcibly);
+        if (process.isAlive()) process.destroyForcibly();
+        try {
+            java.util.concurrent.CompletableFuture.allOf(descendants.stream()
+                    .map(ProcessHandle::onExit).toArray(java.util.concurrent.CompletableFuture[]::new))
+                    .get(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException ignored) { }
+    }
+
+    private Path resolveDownloadHelper() throws IOException {
+        if (downloadHelperPath != null && !downloadHelperPath.isBlank()) {
+            Path helper = Path.of(downloadHelperPath);
+            if (!Files.isRegularFile(helper)) throw new IOException("Không tìm thấy công cụ tải video đã cấu hình.");
+            return helper;
+        }
+        var resource = new ClassPathResource("shadowing/youtube_media.py");
+        if (!resource.exists()) return null;
+        Path helper = Files.createTempFile("jlas-youtube-helper-", ".py");
+        try (var input = resource.getInputStream()) {
+            Files.copy(input, helper, StandardCopyOption.REPLACE_EXISTING);
+            return helper;
+        } catch (IOException e) {
+            deleteTemporaryFile(helper);
+            throw e;
+        }
+    }
+
+    private static void deleteTemporaryFile(Path file) {
+        for (int attempt = 0; attempt < 5; attempt++) {
+            try {
+                Files.deleteIfExists(file);
+                return;
+            } catch (IOException e) {
+                // Windows may retain the redirected handle briefly after process exit.
+                try { Thread.sleep(50); } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        file.toFile().deleteOnExit();
+    }
+
+    String runCommand(List<String> command, Duration timeout) throws Exception {
+        if (timeout.isZero() || timeout.isNegative()) throw new IllegalArgumentException("Timeout must be positive");
+        Path log = Files.createTempFile("jlas-ytdlp-", ".log");
+        Process process = null;
+        try {
+            ProcessBuilder pb = new ProcessBuilder(command);
+            // A pipe read before waitFor blocks indefinitely when the child hangs.
+            // A temporary log also lets metadata exceed the OS pipe buffer safely.
+            pb.redirectErrorStream(true).redirectOutput(log.toFile());
+            try {
+                process = pb.start();
+            } catch (IOException e) {
+                throw new IOException("Không chạy được công cụ tải: " + command.getFirst()
+                        + " — " + e.getMessage(), e);
+            }
+
+            boolean finished = process.waitFor(Math.max(1, timeout.toMillis()), TimeUnit.MILLISECONDS);
+            if (!finished) {
+                terminate(process);
+                process.waitFor(5, TimeUnit.SECONDS);
+                throw new RuntimeException("yt-dlp quá thời gian chờ (" + timeout.getSeconds() + "s)");
+            }
+            if (Files.size(log) > 16L * 1024 * 1024) {
+                throw new IOException("Đầu ra công cụ tải vượt giới hạn 16 MiB.");
+            }
+            String output = Files.readString(log, StandardCharsets.UTF_8);
+            int code = process.exitValue();
+            if (code != 0) {
+                String msg = output;
+                String lower = msg.toLowerCase(java.util.Locale.ROOT);
+                if (lower.contains("private video") || lower.contains("video is private")) {
+                    throw new IllegalArgumentException("Video riêng tư — không thể truy cập.");
+                }
+                if (lower.contains("video unavailable") || lower.contains("video is unavailable")
+                        || lower.contains("video has been removed")) {
+                    throw new IllegalArgumentException(
+                            "Video YouTube này không khả dụng. Video có thể đã bị xóa, đặt riêng tư, bị giới hạn khu vực hoặc link không còn đúng. Hãy kiểm tra lại link hoặc chọn video khác.");
+                }
+                throw new RuntimeException("yt-dlp thất bại (mã " + code + "): "
+                        + msg.substring(Math.max(0, msg.length() - 1500)));
+            }
+            return output;
+        } catch (InterruptedException e) {
+            if (process != null) terminate(process);
+            Thread.currentThread().interrupt();
+            throw e;
+        } finally {
+            if (process != null && process.isAlive()) terminate(process);
+            deleteTemporaryFile(log);
+        }
     }
 }

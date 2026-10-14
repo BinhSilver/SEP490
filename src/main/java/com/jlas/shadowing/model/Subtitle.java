@@ -1,6 +1,7 @@
 package com.jlas.shadowing.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -16,6 +17,7 @@ public class Subtitle {
 
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false)
+    @JsonIgnore
     private Video video;
 
     @Column(columnDefinition = "TEXT", nullable = false)

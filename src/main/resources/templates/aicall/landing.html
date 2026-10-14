@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>JLAS · Luyện hội thoại tiếng Nhật</title>
@@ -20,9 +21,10 @@
     <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
 
-<body id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
 
@@ -44,7 +46,6 @@
             <div class="hero-card">
                 <div class="badge badge-accent"><i class="fa-solid fa-robot"></i> Scenario Engine + AI tách biệt</div>
                 <h2 style="margin:14px 0 8px;font-size:1.35rem;">Luyện tập theo nhiệm vụ</h2>
-                <p style="color:var(--muted)">Máy trạng thái · Sửa ngữ pháp · Gợi ý · Theo dõi tiến độ</p>
                 <div class="stat-row">
                     <div class="stat"><strong>23+</strong><span>Chủ đề</span></div>
                     <div class="stat"><strong>N5–N1</strong><span>Trình độ</span></div>
@@ -58,29 +59,24 @@
         <div class="container">
             <div class="section-head">
                 <h2>Luồng học tập</h2>
-                <p>Chọn kịch bản · hội thoại · phản hồi · hoàn thành nhiệm vụ · xem kết quả</p>
-            </div>
+                </div>
             <div class="grid-cats">
                 <div class="card">
                     <div class="cat-icon"><i class="fa-solid fa-layer-group"></i></div>
                     <h3>1. Chọn chủ đề</h3>
-                    <p style="color:var(--muted)">Nhà hàng, ga tàu, phỏng vấn…</p>
-                </div>
+                    </div>
                 <div class="card">
                     <div class="cat-icon"><i class="fa-solid fa-bullseye"></i></div>
                     <h3>2. Nhận nhiệm vụ</h3>
-                    <p style="color:var(--muted)">Mục tiêu, từ vựng, ngữ pháp sẵn</p>
-                </div>
+                    </div>
                 <div class="card">
                     <div class="cat-icon"><i class="fa-solid fa-comments"></i></div>
                     <h3>3. Nói với AI</h3>
-                    <p style="color:var(--muted)">AI ở trong vai, hội thoại linh hoạt</p>
-                </div>
+                    </div>
                 <div class="card">
                     <div class="cat-icon"><i class="fa-solid fa-chart-simple"></i></div>
                     <h3>4. Xem kết quả</h3>
-                    <p style="color:var(--muted)">Điểm, lỗi, gợi ý cá nhân hóa</p>
-                </div>
+                    </div>
             </div>
             <div style="margin-top:28px">
                 <a class="btn btn-primary" th:href="@{/home}">Vào thư viện kịch

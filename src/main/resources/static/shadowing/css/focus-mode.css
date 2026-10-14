@@ -1,0 +1,39 @@
+/* The complete learning surface enters fullscreen, including controls and subtitles. */
+html.shadowing-focus-open,
+html.shadowing-focus-open body { overflow: hidden; overscroll-behavior: none; }
+
+#jlabBasePage #jlabBaseContent #player-shell.is-shadowing-focus {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  min-height: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--color-surface, #f7f9fc);
+  color: var(--color-on-surface, #1d1b20);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+#jlabBasePage #player-shell.is-shadowing-focus > .video-column { display: grid; grid-template-rows: minmax(0, 1fr) auto auto minmax(var(--focus-subtitle-min, 100px), 30%); height: 100%; min-height: 0; gap: 6px; }
+#jlabBasePage #player-shell.is-shadowing-focus .video-media-row { flex: 1 1 0; min-height: 0; }
+#jlabBasePage #player-shell.is-shadowing-focus .video-stack { display: flex; flex: 1 1 auto; flex-direction: column; height: auto; min-height: 0; gap: 6px; }
+#jlabBasePage #player-shell.is-shadowing-focus .video-surface { flex: 1 1 0; width: 100%; min-height: 0; aspect-ratio: auto; }
+#jlabBasePage #player-shell.is-shadowing-focus #video-timeline { flex: 0 0 auto; }
+#jlabBasePage #player-shell.is-shadowing-focus #player-quick-controls { grid-row: 2; flex: 0 0 auto; }
+#jlabBasePage #player-shell.is-shadowing-focus #listen-record-status { grid-row: 3; }
+#jlabBasePage #player-shell.is-shadowing-focus #large-subtitle-viewer { grid-row: 4; min-height: 0; max-height: none; margin: 0; padding: 10px 12px; overflow: auto; }
+
+@media (max-height: 500px) and (orientation: landscape) {
+  #jlabBasePage #player-shell.is-shadowing-focus { --focus-subtitle-min: 60px; }
+  #jlabBasePage #player-shell.is-shadowing-focus #large-subtitle-viewer { min-height: 60px; padding-block: 4px; }
+}

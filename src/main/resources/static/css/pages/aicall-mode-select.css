@@ -1,0 +1,112 @@
+/* Keep the illustrated AI choices readable without changing the light cards. */
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card {
+  background-color: #111827;
+  border-color: #465169;
+  color: #ffffff;
+  text-shadow: none;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card:first-child {
+  background-image:
+    linear-gradient(115deg, rgba(12, 19, 34, .94), rgba(12, 19, 34, .84) 60%, rgba(12, 19, 34, .72)),
+    url('/images/aicall-free-chat-bg.png?v=20260902-aicall');
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card:nth-child(2) {
+  background-image:
+    linear-gradient(115deg, rgba(12, 19, 34, .94), rgba(12, 19, 34, .84) 60%, rgba(12, 19, 34, .72)),
+    url('/images/aicall-scenario-bg.png?v=20260902-scenario');
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card h3 {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card .jp {
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card .mode-desc {
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card .badge {
+  background: #242b40;
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card .cat-icon {
+  background: #302341;
+  color: #d8b4fe;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card:hover {
+  border-color: #c084fc;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card:hover .cat-icon {
+  background: #5b3681;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-card:focus-visible {
+  outline: 3px solid #d8b4fe;
+  outline-offset: 4px;
+}
+
+/* Keep the artwork visible on phones, with the scrim concentrated behind the copy. */
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card {
+    --mode-copy-surface: #ffffff;
+    min-height: 188px;
+    padding: 20px;
+    background-position: 62% center;
+    box-shadow: none;
+    text-shadow: none;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card::before {
+    background: linear-gradient(90deg,
+      color-mix(in srgb, var(--mode-copy-surface) 96%, transparent) 0%,
+      color-mix(in srgb, var(--mode-copy-surface) 84%, transparent) 42%,
+      color-mix(in srgb, var(--mode-copy-surface) 22%, transparent) 72%,
+      transparent 100%);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card h3 {
+    font-size: clamp(20px, 5.2vw, 24px);
+    margin-block: 8px 6px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card .jp {
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card .cat-icon {
+    background: var(--color-secondary-container);
+    color: var(--color-primary);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card .badge {
+    background: var(--color-surface-lowest);
+    font-size: 12px;
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  html[data-theme="dark"] #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card {
+    --mode-copy-surface: #111827;
+  }
+
+  html[data-theme="dark"] #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card:first-child {
+    background-image: url('/images/aicall-free-chat-bg.png?v=20260902-aicall');
+  }
+
+  html[data-theme="dark"] #jlabBasePage[data-mobile-adapt="owned"].page-mode-select #jlabBaseContent .mode-card:nth-child(2) {
+    background-image: url('/images/aicall-scenario-bg.png?v=20260902-scenario');
+  }
+}

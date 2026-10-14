@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface AdminUserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     // Serialize account lock/unlock decisions, including the last-admin check.
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select r from Role r where r.name = 'SUPER_ADMIN'")
+    @Query("select r from Role r where r.name = 'ADMIN'")
     Role lockAdminRole();
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

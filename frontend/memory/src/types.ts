@@ -1,17 +1,7 @@
 export type ConnectionState = 'connecting' | 'online' | 'offline'
-export type CardState = 'HIDDEN' | 'TEMP_REVEALED' | 'MATCHED'
-/** Trường của thẻ flashcard mà mặt thẻ đang hiển thị. */
-export type DeckField = 'KANJI' | 'HIRAGANA' | 'MEANING' | 'HAN_VIET'
+import type { MemoryCard, DeckField } from './cardTypes'
+export type { MemoryCard, DeckField, CardState } from './cardTypes'
 export type SessionStatus = 'RUNNING' | 'PAUSED' | 'FINISHED' | 'ABORTED'
-
-export interface MemoryCard {
-  cardInstanceId: string
-  position: number
-  state: CardState
-  face?: DeckField
-  content?: string
-  matchedByUserId?: number
-}
 
 export interface MemoryPlayer {
   userId: number
@@ -43,6 +33,7 @@ export interface MemoryConfig {
   revealDelayMs: number
   questionField: DeckField
   answerField: DeckField
+  distinguishCardTypes: boolean
 }
 
 export interface MemoryTerm {
@@ -66,6 +57,7 @@ export interface MemoryResult {
 }
 
 export interface MemoryState {
+  coinToss?: CoinTossState | null
   sessionId: string
   roomId?: string
   playMode: 'SOLO' | 'MULTIPLAYER'
@@ -95,6 +87,15 @@ export interface MemoryState {
   serverTime: number
 }
 
+export type CoinSide = 'JLAS' | 'MASCOT'
+export interface CoinTossState {
+  choices: Record<string, CoinSide>
+  result: CoinSide | null
+  starterUserId: number | null
+  startedAt: number | null
+  playStartsAt: number | null
+}
+
 /** Một thẻ của bộ (GET /api/games/decks/{setId}/cards); trường thẻ không có là null. */
 export interface DeckCardView {
   id: number
@@ -113,6 +114,7 @@ export interface MemoryStartOptions {
   boardSize: number | null
   objective: 'CLASSIC' | 'TIME_ATTACK'
   totalSeconds: number | null
+  distinguishCardTypes: boolean
 }
 
 export interface MemoryEnvelope {

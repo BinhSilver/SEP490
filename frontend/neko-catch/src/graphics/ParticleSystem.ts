@@ -73,12 +73,12 @@ export class ParticleSystem {
     }
   }
 
-  public updateAndDraw(ctx: CanvasRenderingContext2D) {
+  public updateAndDraw(ctx: CanvasRenderingContext2D, visualScale = 1) {
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.life++;
-      p.x += p.vx;
-      p.y += p.vy;
+      p.x += p.vx * visualScale;
+      p.y += p.vy * visualScale;
       p.vy += 0.15; // Gravity
       p.alpha = 1 - (p.life / p.maxLife);
 
@@ -89,6 +89,9 @@ export class ParticleSystem {
 
       ctx.save();
       ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.scale(visualScale, visualScale);
+      ctx.translate(-p.x, -p.y);
 
       if (p.type === 'sparkle' || p.type === 'star') {
         ctx.fillStyle = p.color;

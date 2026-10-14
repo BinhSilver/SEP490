@@ -26,7 +26,7 @@ function setup(role, pathname = '/admin/jlpt', status = 200) {
     document,
     location: { pathname, search: '', replace(url) { this.redirect = url; } },
     JlasAuth: {
-      getUser: () => ({ role: 'SUPER_ADMIN' }),
+      getUser: () => ({ role: 'ADMIN' }),
       authHeaders: () => ({ Authorization: 'Bearer test' }),
       setSession(...args) { calls.push(['session', ...args]); },
       clearSession() { calls.push(['clear']); },
@@ -48,7 +48,7 @@ test('role navigation follows backend identifiers without granting creator right
   for (const [role, route, expected, excluded] of [
     ['CONTENT_CREATOR', '/admin/jlpt', '/textbooks/manage', '/admin/system/users'],
     ['MODERATOR', '/admin/moderation/reports', '/admin/moderation/queue', '/textbooks/manage'],
-    ['SUPER_ADMIN', '/admin/system/dashboard', '/admin/system/users', '/admin/jlpt']
+    ['ADMIN', '/admin/system/dashboard', '/admin/system/users', '/admin/jlpt']
   ]) {
     const runtime = setup(role, route);
     assert.equal(await runtime.window.AdminShell.ready, true);
@@ -65,7 +65,7 @@ test('direct editor URLs activate content navigation; mismatched and unknown rol
   const creator = setup('CONTENT_CREATOR', '/textbooks/lessons/12/edit');
   assert.equal(await creator.window.AdminShell.ready, true);
   assert.ok(creator.elements.adminShellNav.innerHTML.includes('aria-current="page"'));
-  for (const role of ['MODERATOR', 'SUPER_ADMIN', 'FREE', 'ADMIN']) {
+  for (const role of ['MODERATOR', 'ADMIN', 'FREE', 'SUPER_ADMIN']) {
     const runtime = setup(role);
     assert.equal(await runtime.window.AdminShell.ready, false);
     assert.equal(runtime.elements.jlabBaseContent.hidden, true);
@@ -121,7 +121,7 @@ test('shared logout retains student destination and clears the existing session 
 
 test('default login destinations separate all staff roles without changing student or explicit return URLs', () => {
   for (const [role, expected] of [
-    ['CONTENT_CREATOR', '/textbooks/manage'], ['SUPER_ADMIN', '/admin'], ['MODERATOR', '/admin'], ['FREE', '/']
+    ['CONTENT_CREATOR', '/textbooks/manage'], ['ADMIN', '/admin'], ['MODERATOR', '/admin'], ['FREE', '/']
   ]) {
     const window = { location: { search: '' } };
     const context = vm.createContext({ window, document: {}, URLSearchParams,

@@ -5,7 +5,7 @@ import { assetUrl } from '../assets';
 export const cowboyEndingCaption = `Mèo cao bồi ăn mừng · ${Math.round(ending.durationMs / 1000)} giây`;
 
 /** Native video playback keeps the full nine-second choreography at 30 FPS. */
-export function CowboyVictoryScene() {
+export function CowboyVictoryScene({ forceMotion = false }: { forceMotion?: boolean } = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const resumeRef = useRef(false);
   const [take, setTake] = useState(0);
@@ -17,7 +17,7 @@ export function CowboyVictoryScene() {
     if (!video) return;
     let disposed = false;
     let started = false;
-    const reduced = take === 0 && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = !forceMotion && take === 0 && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setMotionSuppressed(reduced);
     setStatus('loading');
     resumeRef.current = false;
@@ -61,7 +61,7 @@ export function CowboyVictoryScene() {
       document.removeEventListener('visibilitychange', visibility);
       video.pause();
     };
-  }, [take]);
+  }, [take, forceMotion]);
 
   const skip = () => {
     const video = videoRef.current;
