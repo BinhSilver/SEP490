@@ -377,11 +377,11 @@ class LessonContentSeedTests {
         assertEquals("PUBLISHED", lessonRepository.findById(LESSON_1).orElseThrow().getStatus(), "không có gì bị đổi");
     }
 
-    /** Quyết định team: ADMIN là role riêng, KHÔNG có quyền biên soạn — 403 như learner, không được đổi gì. */
+    /** System Admin không có quyền biên soạn (chỉ CONTENT_CREATOR) — 403 như learner, không được đổi gì. */
     @Test
     @Transactional
-    @WithMockUser(roles = "ADMIN")
-    void adminCannotChangeStatus() throws Exception {
+    @WithMockUser(roles = "SUPER_ADMIN")
+    void systemAdminCannotChangeStatus() throws Exception {
         String before = lessonRepository.findById(21L).orElseThrow().getStatus();
         mockMvc.perform(patch("/api/dictionary/lessons/21/status")
                         .contentType(MediaType.APPLICATION_JSON)

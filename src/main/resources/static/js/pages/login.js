@@ -2,6 +2,7 @@
   'use strict';
 
   var redirectingAuthenticatedUser = false;
+  var LOCKED_MESSAGE = 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.';
 
   function loginRedirectTarget() {
     return window.JLabAuth && typeof JLabAuth.getSafeRedirect === 'function'
@@ -28,8 +29,13 @@
     });
   }
 
+  // A locked account is sent here as /login?locked=1: drop its stale session so the form stays usable.
+  var lockedRedirect = new URLSearchParams(window.location.search).get('locked') === '1';
+  if (lockedRedirect && window.JlasAuth) JlasAuth.clearSession();
+
   redirectIfAlreadyAuthenticated();
   window.addEventListener('pageshow', redirectIfAlreadyAuthenticated);
+  if (lockedRedirect && window.JlasUI) JlasUI.toast(LOCKED_MESSAGE, 'error');
 
   var form = document.getElementById('loginForm');
   var submitBtn = document.getElementById('submitBtn');
@@ -309,6 +315,7 @@
           || message.toLowerCase().includes('not verified')
           || message.toLowerCase().includes('chưa xác thực');
         if (isUnverified) showUnverifiedAlert(emailInput.value.trim());
+        else if (json.code === 'ACCOUNT_LOCKED') JlasUI.toast(LOCKED_MESSAGE, 'error');
         else if (json.code === 'TOO_MANY_REQUESTS') {
           loginRateLimited = true;
           JlasUI.toast(message, 'error');

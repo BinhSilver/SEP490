@@ -1,5 +1,6 @@
-(function () {
+window.AdminShell.ready.then(function (allowed) {
   'use strict';
+  if (!allowed) return;
 
   var API = '/api/admin/jlpt';
   var state = { exams: [], activeCode: null, content: null, treeFilter: 'all', editingExamCode: null, editingQuestion: null, pendingAction: null };
@@ -180,4 +181,4 @@
   function refreshActive() { var code = state.activeCode; return loadCatalog().then(function () { return openWorkspace(code); }); }
   function confirmAction(title, message, action, options) { options = options || {}; $('confirmTitle').textContent = title; $('confirmMessage').textContent = message; $('confirmActionButton').textContent = options.confirmLabel || 'Xác nhận'; $('confirmDialog').classList.toggle('is-danger', !!options.danger); state.pendingAction = action; $('confirmDialog').showModal(); }
   function toast(message) { var el = $('adminToast'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(function () { el.hidden = true; }, 3500); }
-})();
+});

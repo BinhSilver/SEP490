@@ -53,8 +53,14 @@ INSERT IGNORE INTO roles (name, description) VALUES
 
 INSERT IGNORE INTO premium_plans (name, description, price, duration_days, is_active) VALUES
     ('FREE',    'Free tier',       0.00, 36500, 1),
-    ('MONTHLY', 'Monthly premium', 9.99, 30,    1),
-    ('YEARLY',  'Yearly premium',  99.99, 365,  1);
+    ('MONTHLY', 'Monthly premium', 10000.00, 30,  1),
+    ('YEARLY',  'Yearly premium',  100000.00, 365, 1);
+
+-- [JLAS2-51] Demo CP packages; only after schema/migration 031.
+INSERT IGNORE INTO credit_packages (name, description, credit_amount, price, is_active) VALUES
+    ('CP 100', '100 CP', 100, 10000.00, 1),
+    ('CP 500', '500 CP', 500, 45000.00, 1),
+    ('CP 1200', '1200 CP', 1200, 100000.00, 1);
 
 INSERT IGNORE INTO users
     (role_id, premium_plan_id, email, username, password_hash, login_type,
@@ -3723,7 +3729,7 @@ DELETE FROM moderation_audit_log
 -- ── 2) Test accounts (email + password login) ─────────────────────────────
 -- Tạo nếu chưa có; nếu đã có thì chỉ đặt lại vai trò, mật khẩu và tên hiển thị.
 INSERT INTO users (role_id, email, password_hash, login_type, full_name, is_verified) VALUES
-  ((SELECT id FROM roles WHERE name = 'ADMIN'),     'admin@jlas.local',         @pwd, 'LOCAL', 'Quản trị viên (test)', 1),
+  ((SELECT id FROM roles WHERE name = 'ADMIN'), 'admin@jlas.local',       @pwd, 'LOCAL', 'Quản trị hệ thống (test)', 1),
   ((SELECT id FROM roles WHERE name = 'MODERATOR'), 'mod@jlas.local',           @pwd, 'LOCAL', 'Kiểm duyệt viên (test)', 1),
   ((SELECT id FROM roles WHERE name = 'LEARNER'),   'learner.mute@jlas.local',  @pwd, 'LOCAL', 'Nguyễn Văn An (bị cấm bình luận)', 1),
   ((SELECT id FROM roles WHERE name = 'LEARNER'),   'learner.ban@jlas.local',   @pwd, 'LOCAL', 'Trần Thị Bình (bị khoá)', 1),

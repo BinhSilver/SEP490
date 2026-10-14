@@ -2,8 +2,11 @@
 (function (global) {
   'use strict';
 
+  // Roles: MODERATOR moderates; ADMIN (System Admin) runs the system and also moderates,
+  // including user sanctions. CONTENT_CREATOR works only in the content tools.
   var MODERATION = ['MODERATOR', 'ADMIN'];
-  var ADMINS = ['ADMIN'];
+  var ADMINS = ['ADMIN']; // may sanction users
+  var SYSTEM = ['ADMIN'];
 
   /**
    * Sidebar registry. A new management area = a new group or item here plus a section script.
@@ -11,7 +14,20 @@
    */
   var MODULES = [
     { title: null, items: [
-      { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: MODERATION }
+      { key: 'overview', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin', roles: ['MODERATOR'] },
+      { key: 'system-dashboard', label: 'Tổng quan', icon: 'fa-gauge-high', href: '/admin/system/dashboard', roles: SYSTEM }
+    ] },
+    { title: 'Quản lý nội dung', items: [
+      { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
+      { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] }
+    ] },
+    { title: 'Quản trị hệ thống', items: [
+      { key: 'system-users', label: 'Người dùng', icon: 'fa-users', href: '/admin/system/users', roles: SYSTEM },
+      { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
+      { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
+      { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
+      { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM },
+      { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
     { title: 'Trò chơi', items: [
       { key: 'game-skins', label: 'Trang phục game', icon: 'fa-shirt', href: '/admin/game-skins', roles: ADMINS },
@@ -24,17 +40,18 @@
       { key: 'dictionary', label: 'Đóng góp từ điển', icon: 'fa-book', href: '/admin/moderation/dictionary', roles: MODERATION, badge: 'pendingContributions' },
       { key: 'denylist', label: 'Từ khoá cấm', icon: 'fa-ban', href: '/admin/moderation/denylist', roles: MODERATION },
       { key: 'sanctions', label: 'Chế tài người dùng', icon: 'fa-user-lock', href: '/admin/moderation/sanctions', roles: ADMINS },
-      { key: 'audit', label: 'Nhật ký', icon: 'fa-clock-rotate-left', href: '/admin/moderation/audit', roles: MODERATION }
+      { key: 'audit', label: 'Nhật ký kiểm duyệt', icon: 'fa-clock-rotate-left', href: '/admin/moderation/audit', roles: MODERATION }
     ] }
   ];
 
-  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên' };
+  var ROLE_LABELS = { MODERATOR: 'Kiểm duyệt viên', ADMIN: 'Quản trị viên', CONTENT_CREATOR: 'Người biên soạn' };
 
   var TYPE_LABELS = {
     USER_AVATAR: 'Ảnh đại diện', FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
-    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm'
+    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
+    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP'
   };
 
   // ── Auth & API ─────────────────────────────────────────────────────────
@@ -43,7 +60,7 @@
   }
 
   function role() {
-    var u = user();
+    var u = global.AdminShell ? global.AdminShell.user : user();
     return u && u.role ? String(u.role).toUpperCase() : '';
   }
 
@@ -282,6 +299,7 @@
     MODULES: MODULES,
     MODERATION: MODERATION,
     ADMINS: ADMINS,
+    SYSTEM: SYSTEM,
     ROLE_LABELS: ROLE_LABELS,
     role: role,
     can: can,
@@ -289,7 +307,7 @@
       get: function (url) { return request('GET', url); },
       post: function (url, body) { return request('POST', url, body === undefined ? {} : body); },
       put: function (url, body) { return request('PUT', url, body); },
-      delete: function (url) { return request('DELETE', url); }
+      delete: function (url, body) { return request('DELETE', url, body); }
     },
     esc: esc,
     date: date,

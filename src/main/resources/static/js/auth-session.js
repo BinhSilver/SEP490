@@ -280,7 +280,7 @@
       return true;
     },
 
-    logout: async function () {
+    logout: async function (redirectTo) {
       var refresh = localStorage.getItem(REFRESH_KEY);
       try {
         if (refresh) {
@@ -292,7 +292,7 @@
         }
       } catch (e) { /* ignore */ }
       this.clearSession();
-      window.location.href = '/';
+      window.location.href = redirectTo === '/login' ? '/login' : '/';
     }
   };
 
@@ -325,8 +325,10 @@
       JlasAuth.refreshUser().then(async function (user) {
         var path = window.location.pathname.replace(/\/$/, '') || '/';
         var authPages = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password', '/survey'];
-        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0
-            || user.role === 'ADMIN' || user.role === 'MODERATOR') return;
+        // The placement survey is for learners only; staff accounts never get sent to it.
+        var staffRoles = ['ADMIN', 'MODERATOR', 'CONTENT_CREATOR'];
+        if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0 || path.indexOf('/premium') === 0 || path.indexOf('/credits') === 0
+            || staffRoles.indexOf(user.role) >= 0) return;
         try {
           var response = await fetch('/api/assessment/survey', { headers: JlasAuth.authHeaders() });
           if (!response.ok) return;

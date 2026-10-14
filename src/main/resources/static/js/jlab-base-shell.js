@@ -158,6 +158,9 @@
     streakLink: 'jlabBaseStreakLink',
     streakIcon: 'jlabBaseStreakIcon',
     streakLabel: 'jlabBaseStreakLabel',
+    premiumLink: 'jlabBasePremiumLink',
+    premiumIcon: 'jlabBasePremiumIcon',
+    premiumLabel: 'jlabBasePremiumLabel',
     adminLink: 'jlabBaseAdminLink',
     adminIcon: 'jlabBaseAdminIcon',
     adminLabel: 'jlabBaseAdminLabel',
@@ -381,6 +384,8 @@
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
+                  '<a id="' + ids.premiumLink + '" class="dropdown__item" href="/premium/billing" role="menuitem" hidden><span id="' + ids.premiumIcon + '" class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><span id="' + ids.premiumLabel + '">Gói &amp; thanh toán</span></a>' +
+                  '<a class="dropdown__item" href="/credits" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">toll</span> Mua CP</a>' +
                   '<a id="' + ids.adminLink + '" class="dropdown__item" href="/admin" role="menuitem" hidden><i id="' + ids.adminIcon + '" aria-hidden="true"></i><span id="' + ids.adminLabel + '">Trang quản trị</span></a>' +
                   '<div id="' + ids.accountDivider + '" class="dropdown__divider" aria-hidden="true"></div>' +
                   '<button id="' + ids.logoutButton + '" class="dropdown__item" type="button" role="menuitem"><span id="' + ids.logoutIcon + '" class="material-symbols-outlined" aria-hidden="true">logout</span><span id="' + ids.logoutLabel + '">Đăng xuất</span></button>' +
@@ -470,6 +475,7 @@
     markCurrent(ids.bottomAccountButton, path === '/profile' || path.indexOf('/profile/') === 0 ||
       path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
     markCurrent(ids.adminLink, path === '/admin' || path.indexOf('/admin/') === 0);
+    markCurrent(ids.premiumLink, path === '/premium' || path.indexOf('/premium/') === 0);
 
     var toolsButton = byId(ids.toolsButton);
     if (toolsButton) {
@@ -630,6 +636,9 @@
     if (emailNode) emailNode.textContent = user.email || '';
     var adminLink = byId(ids.adminLink);
     if (adminLink) adminLink.hidden = ADMIN_ROLES.indexOf(String(user.role || '').toUpperCase()) < 0;
+    // Premium is sold to learners only (JLAS2-49).
+    var premiumLink = byId(ids.premiumLink);
+    if (premiumLink) premiumLink.hidden = ['', 'LEARNER'].indexOf(String(user.role || '').toUpperCase()) < 0;
     renderAvatar(ids.avatarButtonImage, ids.avatarButtonInitials, avatar, label);
     renderAvatar(ids.accountAvatarImage, ids.accountAvatarInitials, avatar, label);
     loadNotifications();
