@@ -91,6 +91,7 @@ public class AuthServiceImpl implements AuthService {
             throw unauthorized("Invalid email or password");
         }
         loginAttemptThrottle.recordSuccess(email, clientIp);
+        assertUnlocked(user);
         if (!Boolean.TRUE.equals(user.getIsVerified())) {
             throw new ApiException(ErrorCode.EMAIL_UNVERIFIED,
                     "Email is not verified. Please verify your email before logging in.");
@@ -141,6 +142,7 @@ public class AuthServiceImpl implements AuthService {
                 .filter(token -> token.getRevokedAt() == null && token.getUsedAt() == null)
                 .filter(token -> token.getExpiresAt().isAfter(LocalDateTime.now()))
                 .orElseThrow(() -> unauthorized("Invalid or expired refresh token"));
+        assertUnlocked(stored.getUser());
         stored.setUsedAt(LocalDateTime.now());
         stored.setRevokedAt(LocalDateTime.now());
         return issueTokens(stored.getUser(), stored.getIpAddress(), stored.getDeviceInfo());
@@ -177,6 +179,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification token has expired");
         }
         User user = token.getUser();
+        assertUnlocked(user);
         if (Boolean.TRUE.equals(user.getIsVerified())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already verified");
         }
@@ -236,6 +239,7 @@ public class AuthServiceImpl implements AuthService {
                     .isVerified(true)
                     .build();
         } else {
+            assertUnlocked(user);
             if (blankToNull(user.getGoogleId()) == null) user.setGoogleId(googleUser.googleId());
             if (blankToNull(user.getAvatarUrl()) == null) user.setAvatarUrl(blankToNull(googleUser.avatar()));
             user.setIsVerified(true);
@@ -296,6 +300,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginResponse issueTokens(User user, String clientIp, String deviceInfo) {
+        assertUnlocked(user);
         String normalizedIp = truncate(blankToNull(clientIp), 45);
         String normalizedDevice = truncate(blankToNull(deviceInfo), 255);
         notifyOnNewLogin(user, normalizedIp, normalizedDevice);
@@ -422,6 +427,10 @@ public class AuthServiceImpl implements AuthService {
     private User findUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    private static void assertUnlocked(User user) {
+        if (user.getLockedAt() != null) throw new ApiException(ErrorCode.ACCOUNT_LOCKED);
     }
 
     private static ResponseStatusException unauthorized(String message) {

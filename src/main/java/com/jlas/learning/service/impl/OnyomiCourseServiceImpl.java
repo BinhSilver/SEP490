@@ -56,7 +56,7 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
     private static final Pattern BREAKDOWN_ROMAJI = Pattern.compile("\\(([^)]+)\\)");
     private static final String BREAKDOWN_WORD = " · ";
     /** Roles that review the course content, so every lesson and final test is open to them. */
-    private static final List<String> REVIEWER_ROLES = List.of("ROLE_CONTENT_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN");
+    private static final List<String> REVIEWER_ROLES = List.of("ROLE_CONTENT_CREATOR", "ROLE_SUPER_ADMIN");
 
     private final OnyomiCourseRepository repository;
     private final ObjectMapper objectMapper;

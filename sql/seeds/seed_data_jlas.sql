@@ -49,10 +49,9 @@ DELETE FROM textbook;
 DELETE FROM tag WHERE tag_type = 'KNOWLEDGE'  AND (code REGEXP '^N[45]-B[0-9]{2}$' OR code LIKE 'KANA-%'       OR code REGEXP '^N[123]-V[0-9]{3}$'       OR code REGEXP '^N[123]-[BGD][0-9]{3}$'       OR code REGEXP '^(IT|TRV|DLY)-'       OR code REGEXP '^N[123]-T-');
 DELETE FROM tag WHERE tag_type = 'SITUATION' AND code LIKE 'TOPIC-%';
 DELETE FROM content_voice;
--- roles: 3 dong
+-- roles: 2 dong
 INSERT IGNORE INTO roles (name, description) VALUES
 ('LEARNER', 'Học viên'),
-('ADMIN', 'Quản trị viên'),
 ('CONTENT_CREATOR', 'Người biên soạn nội dung');
 
 -- tag: 222 dong

@@ -5,8 +5,9 @@
  * Trang này là nơi DUY NHẤT nhìn thấy mục đã lưu trữ (ARCHIVED). Mọi màn hình khác đều giấu chúng.
  * Quyền thật chặn ở server; JS chỉ ẩn/hiện nút.
  */
-(function () {
+window.AdminShell.ready.then(function (allowed) {
   'use strict';
+  if (!allowed) return;
 
   var API = '/api/dictionary';
   var KNOWLEDGE_TAG_TYPE = 'KNOWLEDGE';
@@ -938,4 +939,4 @@
   loadTextbooks().catch(function (err) {
     showError(err.message || 'Không tải được danh sách giáo trình.');
   });
-})();
+});

@@ -2,6 +2,8 @@
   'use strict';
 
   var DEFAULT_REDIRECT = '/';
+  // Admin-area roles land in their workspace instead of the learner home (/admin routes each role).
+  var ROLE_HOME = { SUPER_ADMIN: '/admin', MODERATOR: '/admin', CONTENT_CREATOR: '/textbooks/manage' };
 
   function getField(fieldId) {
     return document.getElementById(fieldId);
@@ -86,9 +88,17 @@
   function getSafeRedirect() {
     var redirect = new URLSearchParams(window.location.search).get('redirect');
     if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
-      return DEFAULT_REDIRECT;
+      return ROLE_HOME[savedRole()] || DEFAULT_REDIRECT;
     }
     return redirect;
+  }
+
+  function savedRole() {
+    try {
+      return (JSON.parse(localStorage.getItem('user') || '{}') || {}).role;
+    } catch (error) {
+      return null;
+    }
   }
 
   async function readJson(response) {
