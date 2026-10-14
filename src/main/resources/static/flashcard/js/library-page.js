@@ -20,6 +20,17 @@
   var exportSet = null;
   var mobileLibrary = window.matchMedia('(max-width: 900px)');
 
+  /** Số thẻ SRS đến hạn cạnh mục "Ôn hôm nay"; lỗi thì chỉ ẩn nhãn. */
+  function loadDueBadge() {
+    var badge = document.getElementById('srs-due-badge');
+    if (!badge) return;
+    FlashApi.get('/api/study/due?limit=1').then(function (queue) {
+      var due = queue && queue.dueCount ? queue.dueCount : 0;
+      badge.textContent = due > 99 ? '99+' : String(due);
+      badge.hidden = due === 0;
+    }).catch(function () { badge.hidden = true; });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     var redirectTarget = window.location.pathname + window.location.search;
     if (window.JlasAuth && typeof JlasAuth.requireLogin === 'function') {
@@ -53,6 +64,7 @@
       handleContextAction(action.getAttribute('data-context-action'));
     });
     bindExportModal();
+    loadDueBadge();
     document.addEventListener('click', function (event) {
       if (!event.target.closest('#lib-context-menu')) closeContextMenu();
     });

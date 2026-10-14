@@ -3,8 +3,10 @@ package com.jlas.flashcard.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -73,6 +75,18 @@ public final class FlashcardDtos {
     @Data @NoArgsConstructor @AllArgsConstructor public static class BatchHanVietRequest { private List<Long> cardIds; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class EnrichResponse { private String front; private String back; private String reading; private String meaning; private String hanViet; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class ReviewRequest { private Long setId; private Long cardId; private Integer quality; }
+    /** Thẻ trong hàng "Ôn hôm nay"; intervalPreview: mức chấm 0–5 → số ngày tới lần ôn kế tiếp. */
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class DueCardDto { private CardDto card; private Long setId; private String setTitle; private int intervalDays; private LocalDateTime nextReviewAt; private Map<Integer, Integer> intervalPreview; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class DueQueueDto { private long dueCount; private List<DueCardDto> cards; }
+    @Data @NoArgsConstructor @AllArgsConstructor public static class DueReviewRequest { private Long cardId; private Integer quality; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class DueReviewResultDto { private Long cardId; private String memoryStatus; private int intervalDays; private LocalDateTime nextReviewAt; private boolean scheduled; private long dueCount; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class DayCountDto { private LocalDate date; private long count; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class SrsStatsDto {
+        private long dueNow; private long learning; private long mastered; private long reviewsToday; private int streakDays;
+        /** Tỉ lệ nhớ (%) của các lượt ôn đúng hạn trong 30 ngày; null khi chưa có lượt nào. */
+        private Double retention30d; private long reviews30d;
+        private List<DayCountDto> forecast; private List<DayCountDto> heatmap;
+    }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class StudySessionDto { private Long setId; private String title; private String mode; private List<CardDto> cards; private int total; private int learning; private int mastered; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class StudySummaryDto { private int remembered; private int notRemembered; private int total; private int starred; private List<CardDto> notRememberedCards; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class StartQuizRequest { private Long setId; private List<Long> selectedCardIds; private boolean wrongOnly; /** KANJI/HIRAGANA/MEANING/HAN_VIET; mặc định Kanji → Nghĩa. */ private String questionField; private String answerField; }
@@ -81,7 +95,7 @@ public final class FlashcardDtos {
     @Data @NoArgsConstructor @AllArgsConstructor public static class AnswerRequest { private Long sessionId; private Long cardId; private Long chosenCardId; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class AnswerResultDto { private boolean correct; private Long correctCardId; private String correctText; private int currentCorrect; private int currentWrong; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class QuizSummaryDto { private Long sessionId; private int total; private int correct; private int wrong; private double percentage; private int durationSeconds; private double avgSecondsPerQuestion; private List<CardDto> wrongCards; }
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class CommentDto { private Long id; private Long userId; private String displayName; private String content; private Integer rating; private boolean ownedByMe; private LocalDateTime createdAt; }
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class CommentDto { private Long id; private Long userId; private String displayName; private String content; private Integer rating; private boolean ownedByMe; private LocalDateTime createdAt; /** Ảnh đại diện + khung avatar + màu tên người bình luận (khung/màu mua ở Cửa hàng; null = không có). */ private String avatarUrl; private String avatarFrame; private String nameStyle; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class CommentRequest { @NotBlank @Size(max = 2000) private String content; private Integer rating; }
     @Data @NoArgsConstructor @AllArgsConstructor public static class SetRatingRequest { private Integer rating; }
     @Data @Builder @NoArgsConstructor @AllArgsConstructor public static class FavoriteResponse { private boolean favorited; }

@@ -457,16 +457,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #jlabBasePage.flashcard-page #jlabBaseContent *,
-  #jlabBasePage.flashcard-page #jlabBaseContent *::before,
-  #jlabBasePage.flashcard-page #jlabBaseContent *::after {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-}
 
 /* Shared folder form: top-layer dialog keeps focus inside and the page inert. */
 #jlabBasePage.flashcard-page > .fc-folder-dialog {
@@ -596,3 +586,9 @@ html[data-theme="dark"] .fc-folder-dialog__button--primary {
 /* Dark interaction and state pairs for this page. */
 html[data-theme="dark"] #jlabBasePage.flashcard-page :is(#jlabBaseContent,.modal-backdrop,.toast,.fc-folder-dialog){--fc-surface:var(--dm-flashcard-surface);--fc-surface-lowest:var(--dm-flashcard-surface);--fc-surface-low:var(--dm-flashcard-raised);--fc-surface-mid:var(--dm-flashcard-raised);--fc-surface-high:var(--dm-flashcard-accent-soft);--fc-on-surface:var(--dm-flashcard-ink);--fc-on-variant:var(--dm-flashcard-muted);--fc-outline:var(--dm-flashcard-muted);--fc-outline-soft:var(--dm-flashcard-line);--fc-primary:var(--dm-flashcard-accent);--fc-primary-hover:var(--dm-flashcard-action);--fc-primary-soft:var(--dm-flashcard-accent-soft);--fc-primary-soft-2:var(--dm-flashcard-raised);--fc-success:var(--dm-flashcard-success);--fc-success-strong:var(--dm-flashcard-success);--fc-success-soft:var(--dm-flashcard-success-bg);--fc-error:var(--dm-flashcard-danger);--fc-error-soft:var(--dm-flashcard-danger-bg);}
 html[data-theme="dark"] #jlabBasePage.flashcard-page :is(.fc-button--primary,.btn--primary){background:var(--dm-flashcard-action)!important;color:var(--dm-flashcard-ink)!important;}
+
+/* Sidebar thư viện: nhãn số thẻ đến hạn cạnh "Ôn hôm nay". */
+#jlabBasePage.flashcard-page .fc-srs-due-badge {
+  margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: 999px; text-align: center;
+  background: var(--color-error, #ba1a1a); color: var(--color-on-error, #fff); font-size: .72rem; font-weight: 700;
+}
