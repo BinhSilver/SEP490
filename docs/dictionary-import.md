@@ -5,6 +5,119 @@ MySQL schema. It is run explicitly by an operator. It is not registered as a
 Spring `ApplicationRunner`, `CommandLineRunner`, request handler, or scheduled
 job.
 
+## Japanese-Vietnamese dictionary (current)
+
+The dictionary vocabulary is now Japanese-Vietnamese. JMdict (Japanese-English)
+vocabulary was removed; KANJIDIC2 Kanji rows, readings and KanjiVG stroke data
+are kept and enriched with Vietnamese Han Viet readings and meanings.
+
+| Source code | Data | Input |
+|---|---|---|
+| `MAZII_VI` | ~278k Vietnamese entries: Han Viet of the word, numbered meanings, Yomitan popularity score | `tu-dien-nhat-viet-mazii` folder or ZIP from [yomitan-japanese-vietnamese-dictionary](https://github.com/Buiduyanh20/yomitan-japanese-vietnamese-dictionary) |
+| (POS only) | JMdict part-of-speech tags, matched by expression + reading | `Yomitan Japanese-Vietnamese Dictionary.zip` from the same repository (`--pos-file`) |
+| `KANJIDICT_VN` | Han Viet readings, Vietnamese Kanji meanings, Vietnamese radical names | `KANJIDIC_vietnamese.zip` from [KanjiDictVN](https://github.com/trungnt2910/KanjiDictVN) |
+
+> **Licensing is not verified.** The Mazii-derived dataset and KanjiDictVN
+> (readings/meanings from hvdic.thivien.net) publish no explicit licence. This
+> contradicts the earlier rule below ("do not scrape Mazii"). The data is fine
+> for development/testing; confirm redistribution rights before any public
+> release.
+
+Schema changes are in `sql/migrations/005_vietnamese_dictionary.sql`:
+`vocabulary_entry.han_viet`, binary collation for the normalized Japanese
+lookup keys (so は/ば and つ/っ are distinct words and the Java exact/prefix
+queries can use their indexes), binary collation for `kanji.character` (all
+characters outside the BMP otherwise collide on the unique key) and
+`kanji_reading.reading_text` (ハク/バク of 博 were collapsed), and the two
+source rows above.
+
+Team members do not run these imports: they restore the Git LFS seed with
+`seed_bootstrap.py` (see `docs/HUONG-DAN-CHAY-DU-AN.md`). The steps below rebuild
+the dictionary data from the raw sources into an empty dictionary schema; the
+order matters because each step links to rows created by the previous ones
+(vocabulary is linked to the Kanji that already exist when it is imported).
+
+```powershell
+# 1-2. Schema: jlas_schema.sql already contains migrations 005 and 006. For an older database:
+mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/005_vietnamese_dictionary.sql
+mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/006_kanji_component_lookup.sql
+
+# 3. Every KANJIDIC2 character (the vocabulary uses ~5,000 Kanji, not only the 2,136 Joyo),
+#    then KanjiVG stroke SVGs for the new rows.
+python scripts/dictionary_import/import_data.py --source kanjidic2 --all-kanji --file data/kanjidic2.xml --source-version 2026-10-14 --chunk-size 1000
+python scripts/dictionary_import/import_data.py --source kanjivg --file src/main/resources/static/assets/kanjivg/kanji --source-version r20250816 --svg-uri-prefix /assets/kanjivg/kanji
+
+# 4. Vietnamese Kanji data. --variants-file borrows meanings listed only under the
+#    traditional form (駅 <- 驛, 絵 <- 繪).
+python scripts/dictionary_import/import_data.py --source kanjidict-vn --file D:/SEP490/dictionary/KANJIDIC_vietnamese.zip --variants-file data/kanjidic2.xml --source-version trungnt2910.hannom.20251225-154650
+
+# 5. Vocabulary (~25 minutes). Must run after the Kanji steps so words link to their Kanji.
+python scripts/dictionary_import/import_data.py --source mazii-vi --file D:/SEP490/dictionary/yomitan-japanese-vietnamese-dictionary/tu-dien-nhat-viet-mazii --pos-file "D:/SEP490/dictionary/yomitan-japanese-vietnamese-dictionary/Yomitan Japanese-Vietnamese Dictionary.zip" --source-version 2026.02.14 --chunk-size 1000
+
+# 6. Radical (component) lookup data: RADKFILEX from kradzip.zip
+#    (http://ftp.edrdg.org/pub/Nihongo/kradzip.zip), after KANJIDIC2.
+python scripts/dictionary_import/import_data.py --source radkfile --file kradzip/radkfilex --source-version 2023-08-09
+
+# 7. Stroke order for vocabulary Kanji missing from KanjiVG r20250816 (rare characters).
+#    Sources: KanjiVG latest release ZIP, AnimCJK repository, Make Me a Hanzi graphics.txt,
+#    and KanjiVG components combined by IDS from cjkvi-ids ids.txt / KanjiDictVN "Shape".
+python scripts/dictionary_import/build_extra_stroke_svgs.py --kanjivg-zip kanjivg-20260714-all.zip --animcjk animCJK --mmah graphics.txt --cjkvi-ids ids.txt --kanjidict-vn D:/SEP490/dictionary/KANJIDIC_vietnamese.zip --update-db
+
+# 8. Publish the result to the team: export the Git LFS seed and verify it in a scratch DB.
+python scripts/dictionary_import/export_seed.py --snapshot <label>
+python scripts/dictionary_import/seed_bootstrap.py --database jlas_seedcheck_test
+```
+
+Step 7 writes files to `src/main/resources/static/assets/stroke-order-extra` (see
+its README for licences; `export_seed.py` packs that folder into
+`data/dictionary-seed/stroke-order-extra.zip`, which `seed_bootstrap.py` extracts
+back) and fills `kanji.stroke_svg_uri` only where it is
+empty. Candidates are tried in order KanjiVG -> AnimCJK Japanese -> composed from
+KanjiVG components (Japanese order) -> Chinese-order sources, and only a file
+whose stroke count matches KANJIDIC2 is accepted. On 2026-10-15 it covered 113 of
+the 140 vocabulary Kanji without a KanjiVG file (1 KanjiVG r20260714, 47 AnimCJK
+Japanese, 64 composed, 1 Chinese order: 鷉). The remaining 27 very rare characters
+(mostly fish/bird names) have no usable source; the UI shows "no stroke order".
+Overall 5,006 of the 5,033 Kanji used by vocabulary have stroke order.
+
+Radical lookup ("Tra theo bộ thủ" in the dictionary page) uses
+`sql/migrations/006_kanji_component_lookup.sql`: `kanji_component` holds the 253
+RADKFILE components (shown with their real glyph, e.g. 亻 instead of RADKFILE's
+substitute 化, and linked to the Kangxi radical for the Vietnamese name) and
+`kanji_component_map` links 12,156 Kanji to their components.
+`GET /api/dictionary/components` lists them; `GET /api/dictionary/components/search?ids=..`
+returns the Kanji containing all selected components (max 300, by stroke count
+then vocabulary usage) plus the components still selectable.
+
+Kanji handwriting recognition (`POST /api/dictionary/handwriting/recognize`, the
+drawing board in the dictionary page) is taken unchanged from branch
+`feat/JLAS2-36-kanji-handwriting` (commits 7387833, 121ef54). One adaptation in
+`KanjiStrokeIndex`: Kanji without `stroke_svg_uri` are ignored instead of
+counting against the "more than half missing -> 503" check (the table now holds
+all 13,033 KANJIDIC2 characters, about half without stroke data), and URIs under
+`/assets/stroke-order-extra/` are read from that folder. The index holds ~6,500
+Kanji; a recognition request takes about 80-320 ms depending on stroke count.
+
+In Git Bash, prefix commands that pass `/assets/...` with `MSYS_NO_PATHCONV=1`;
+otherwise Git Bash rewrites the URI prefix to `C:/Program Files/Git/assets/...`.
+
+KANJIDIC2 CJK compatibility ideographs (U+F900 block) are skipped: they
+NFKC-normalize to a unified ideograph that already has its own entry.
+
+Import notes:
+
+- Entries are inserted in descending popularity, so search tiers that order by
+  id show common words first.
+- Rows with the same expression and (hiragana-normalized) reading are merged;
+  duplicated meanings are removed.
+- About 29k Kanji entries have no reading in the source. The reading is taken
+  from another Mazii/JMdict entry with the same expression when possible,
+  otherwise derived with pykakasi and reported as `READING_DERIVED`.
+- Glosses use language code `vie`; part-of-speech labels are Vietnamese and are
+  attached to sense 1 because Mazii senses do not align with JMdict senses.
+- `vocabulary_entry.meaning` holds the first three meanings for list views and
+  the shadowing lookup.
+
 ## Official data sources and attribution
 
 Use only the official distributions:

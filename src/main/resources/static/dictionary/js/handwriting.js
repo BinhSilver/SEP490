@@ -1,144 +1,168 @@
 /**
  * Bảng viết tay Kanji cho trang từ điển.
- * Phần nhận diện hiện là dữ liệu demo từ prototype; chọn một ứng viên sẽ đưa
- * ký tự đó về ô tìm kiếm và dùng luồng tìm kiếm hiện có của Dictionary Home.
+ *
+ * Mỗi nét vẽ xong sẽ được gửi nhận diện (debounce, xem handwriting-core.js) và danh sách ứng viên
+ * được cập nhật realtime — kể cả khi chữ chưa vẽ xong hay sai thứ tự nét. Chọn một ứng viên sẽ xoá
+ * canvas, đóng bảng, đưa ký tự vào ô tìm kiếm và dùng đúng luồng tìm kiếm hiện có của Dictionary.
+ * Không lưu nét vẽ sau khi chọn.
  */
 (function (global) {
   'use strict';
 
-  var canvas, ctx, strokeCounter;
-  var strokes = [];
-  var currentStroke = null;
-  var drawing = false;
-  var selectedKanji = '作';
+  var core = global.DictHandwritingCore;
+  var MIN_POINT_DISTANCE = 1.5; // px canvas: bỏ qua điểm quá sát nhau
+  var LINE_WIDTH = 11;
 
-  var demoStrokes = [
-    { points: [[130, 80], [105, 130], [80, 190]], token: '--color-primary', width: 13 },
-    { points: [[105, 175], [105, 230], [105, 305]], token: '--color-primary', width: 12 },
-    { points: [[175, 95], [235, 90], [295, 86]], token: '--color-primary', width: 11 },
-    { points: [[205, 98], [202, 165], [180, 205]], token: '--color-primary', width: 11 },
-    { points: [[175, 185], [230, 180], [290, 175]], token: '--color-primary', width: 11 },
-    { points: [[245, 94], [250, 260], [245, 300], [215, 280]], token: '--color-primary', width: 12 },
-    { points: [[165, 308], [230, 304], [305, 300]], token: '--color-tertiary', width: 11 }
-  ];
+  var canvas, ctx, strokeCounter, statusEl, candidatesEl, session;
+  var activePointer = null;
+  var currentStroke = null;
+
+  var STATUS_TEXT = {
+    idle: 'Vẽ một nét để xem gợi ý.',
+    loading: 'Đang nhận diện…',
+    ready: 'Chọn chữ Kanji đúng, hoặc tiếp tục vẽ để thu hẹp gợi ý.',
+    empty: 'Chưa tìm thấy chữ phù hợp — thử vẽ thêm hoặc hoàn tác một nét.'
+  };
 
   function tokenColor(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
-  function updateStrokeCounter(count) {
-    if (strokeCounter) strokeCounter.textContent = count + ' nét';
-  }
-
-  function paintStroke(points, color, width) {
+  function paintStroke(points, color) {
     if (!points.length) return;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = width;
+    ctx.lineWidth = LINE_WIDTH;
     ctx.strokeStyle = color;
-
     if (points.length === 1) {
       ctx.beginPath();
-      ctx.arc(points[0].x, points[0].y, width / 2, 0, Math.PI * 2);
+      ctx.arc(points[0][0], points[0][1], LINE_WIDTH / 2, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
       return;
     }
-
     ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (var i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+    ctx.moveTo(points[0][0], points[0][1]);
+    for (var i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
     ctx.stroke();
   }
 
-  function drawDemo() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    demoStrokes.forEach(function (stroke, index) {
-      var points = stroke.points.map(function (point) { return { x: point[0], y: point[1] }; });
-      var color = tokenColor(stroke.token);
-      paintStroke(points, color, stroke.width);
-
-      var start = points[0];
-      ctx.fillStyle = tokenColor('--color-surface-lowest');
-      ctx.beginPath();
-      ctx.arc(start.x - 6, start.y - 6, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = color;
-      ctx.font = '700 9px "JetBrains Mono", monospace';
-      ctx.fillText(String(index + 1), start.x - 9, start.y - 3);
-    });
-    updateStrokeCounter(demoStrokes.length);
-  }
-
-  function redrawUserStrokes() {
+  function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     var color = tokenColor('--color-primary');
-    strokes.forEach(function (stroke) { paintStroke(stroke, color, 11); });
-    updateStrokeCounter(strokes.length);
+    session.strokes().forEach(function (stroke) { paintStroke(stroke, color); });
+    if (currentStroke) paintStroke(currentStroke, color);
   }
 
   function pointFromEvent(event) {
     var rect = canvas.getBoundingClientRect();
-    var source = (event.touches && event.touches[0]) || event;
-    return {
-      x: (source.clientX - rect.left) * (canvas.width / rect.width),
-      y: (source.clientY - rect.top) * (canvas.height / rect.height)
-    };
+    return [
+      (event.clientX - rect.left) * (canvas.width / rect.width),
+      (event.clientY - rect.top) * (canvas.height / rect.height)
+    ];
   }
 
-  function start(event) {
-    event.preventDefault();
-    drawing = true;
-    currentStroke = [pointFromEvent(event)];
-    strokes.push(currentStroke);
-    redrawUserStrokes();
+  function readingHint(kanji) {
+    var readings = kanji.readings || [];
+    var preferred = readings.filter(function (r) { return r.readingType === 'ON'; })[0]
+      || readings.filter(function (r) { return r.readingType === 'KUN'; })[0];
+    return preferred ? preferred.readingText : '';
   }
 
-  function move(event) {
-    if (!drawing) return;
-    event.preventDefault();
-    currentStroke.push(pointFromEvent(event));
-    redrawUserStrokes();
+  function candidateButton(kanji) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'dict-handwriting-candidate';
+    button.dataset.kanji = kanji.character;
+    button.setAttribute('aria-label', 'Chọn ' + kanji.character);
+
+    var glyph = document.createElement('span');
+    glyph.className = 'dict-handwriting-candidate__kanji';
+    glyph.textContent = kanji.character;
+    var strokes = document.createElement('strong');
+    strokes.textContent = kanji.strokeCount ? kanji.strokeCount + ' nét' : '';
+    var reading = document.createElement('small');
+    reading.textContent = readingHint(kanji);
+
+    button.append(glyph, strokes, reading);
+    button.addEventListener('click', function () { selectCandidate(kanji.character); });
+    return button;
   }
 
-  function end() {
-    drawing = false;
-    currentStroke = null;
+  function render(state) {
+    if (strokeCounter) strokeCounter.textContent = state.strokeCount + ' nét';
+
+    statusEl.textContent = state.status === 'error' ? state.error : STATUS_TEXT[state.status];
+    statusEl.classList.toggle('is-error', state.status === 'error');
+    candidatesEl.classList.toggle('is-loading', state.status === 'loading');
+    // Đang chờ kết quả mới: giữ nguyên ứng viên cũ (đỡ nhấp nháy), chỉ làm mờ.
+    if (state.status !== 'loading') {
+      candidatesEl.replaceChildren.apply(candidatesEl, state.candidates.map(candidateButton));
+    }
   }
 
-  function undo() {
-    strokes.pop();
-    if (strokes.length) redrawUserStrokes(); else drawDemo();
+  function recognize(payload, signal) {
+    return global.DictApi.recognizeHandwriting(payload, signal);
   }
 
-  function clearCanvas() {
-    strokes = [];
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    updateStrokeCounter(0);
-  }
-
-  function reset() {
-    strokes = [];
-    drawDemo();
-  }
-
-  function selectCandidate(button, candidates, submitLabel) {
-    selectedKanji = button.dataset.kanji || '作';
-    Array.prototype.forEach.call(candidates, function (candidate) {
-      var isSelected = candidate === button;
-      candidate.classList.toggle('is-selected', isSelected);
-      candidate.setAttribute('aria-pressed', String(isSelected));
-    });
-    if (submitLabel) submitLabel.textContent = 'Tra từ điển với “' + selectedKanji + '”';
-  }
-
-  function submitSearch() {
+  function selectCandidate(character) {
+    session.clear();
+    redraw();
     var searchInput = document.getElementById('dict-search-input');
     if (!searchInput) return;
-    searchInput.value = selectedKanji;
+    searchInput.value = character;
     if (global.JlasUI) global.JlasUI.closeModal('dict-handwriting-modal');
     searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     if (searchInput.focus) searchInput.focus();
+  }
+
+  function onPointerDown(event) {
+    if (activePointer !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    event.preventDefault();
+    if (session.isFull()) {
+      statusEl.textContent = 'Đã đạt tối đa ' + core.MAX_STROKES + ' nét — hãy hoàn tác hoặc xoá bớt.';
+      return;
+    }
+    activePointer = event.pointerId;
+    if (canvas.setPointerCapture) canvas.setPointerCapture(event.pointerId);
+    currentStroke = [pointFromEvent(event)];
+    redraw();
+  }
+
+  function onPointerMove(event) {
+    if (event.pointerId !== activePointer) return;
+    event.preventDefault();
+    var point = pointFromEvent(event);
+    var last = currentStroke[currentStroke.length - 1];
+    if (Math.hypot(point[0] - last[0], point[1] - last[1]) < MIN_POINT_DISTANCE) return;
+    currentStroke.push(point);
+    redraw(); // chỉ vẽ lại canvas cục bộ — không gọi API ở đây
+  }
+
+  function onPointerEnd(event) {
+    if (event.pointerId !== activePointer) return;
+    activePointer = null;
+    var stroke = currentStroke;
+    currentStroke = null;
+    if (event.type === 'pointercancel') { redraw(); return; }
+    // Nét vẽ nhanh có thể không kịp có pointermove cuối: lấy luôn điểm nhả bút để không mất đoạn cuối.
+    var release = pointFromEvent(event);
+    var last = stroke[stroke.length - 1];
+    if (Math.hypot(release[0] - last[0], release[1] - last[1]) >= MIN_POINT_DISTANCE) stroke.push(release);
+    session.addStroke(stroke); // một nét hoàn tất => một lần nhận diện (đã debounce)
+    redraw();
+  }
+
+  function undo() {
+    session.undo();
+    redraw();
+  }
+
+  function clear() {
+    activePointer = null;
+    currentStroke = null;
+    session.clear();
+    redraw();
   }
 
   function init() {
@@ -146,36 +170,27 @@
     if (!canvas) return;
     ctx = canvas.getContext('2d');
     strokeCounter = document.getElementById('dict-hw-stroke-count');
+    statusEl = document.getElementById('dict-hw-status');
+    candidatesEl = document.getElementById('dict-hw-candidates');
 
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', move);
-    global.addEventListener('mouseup', end);
-    canvas.addEventListener('touchstart', start, { passive: false });
-    canvas.addEventListener('touchmove', move, { passive: false });
-    global.addEventListener('touchend', end);
-
-    var undoButton = document.getElementById('dict-hw-undo');
-    var clearButton = document.getElementById('dict-hw-clear');
-    var resetButton = document.getElementById('dict-hw-reset');
-    var submitButton = document.getElementById('dict-hw-submit');
-    var submitLabel = document.getElementById('dict-hw-submit-label');
-    var candidates = document.querySelectorAll('.dict-handwriting-candidate');
-
-    if (undoButton) undoButton.addEventListener('click', undo);
-    if (clearButton) clearButton.addEventListener('click', clearCanvas);
-    if (resetButton) resetButton.addEventListener('click', reset);
-    if (submitButton) submitButton.addEventListener('click', submitSearch);
-    Array.prototype.forEach.call(candidates, function (candidate) {
-      candidate.addEventListener('click', function () {
-        selectCandidate(candidate, candidates, submitLabel);
-      });
+    session = core.createSession({
+      recognize: recognize,
+      onChange: render,
+      width: canvas.width,
+      height: canvas.height
     });
 
-    if (candidates.length) selectCandidate(candidates[0], candidates, submitLabel);
-    reset();
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerEnd);
+    canvas.addEventListener('pointercancel', onPointerEnd);
+
+    document.getElementById('dict-hw-undo').addEventListener('click', undo);
+    document.getElementById('dict-hw-clear').addEventListener('click', clear);
+    clear();
   }
 
   document.addEventListener('DOMContentLoaded', init);
 
-  global.DictHandwriting = { clear: reset, reset: reset };
+  global.DictHandwriting = { clear: function () { if (session) clear(); } };
 })(window);

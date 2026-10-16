@@ -57,6 +57,7 @@ public class DictionaryMapper {
                 .expression(entry.getExpression())
                 .reading(entry.getReading())
                 .readingRomaji(entry.getReadingRomaji())
+                .hanViet(entry.getHanViet())
                 .meaning(entry.getMeaning())
                 .wordType(entry.getWordType())
                 .jlptLevel(entry.getJlptLevel())

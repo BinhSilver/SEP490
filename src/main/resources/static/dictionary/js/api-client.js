@@ -40,6 +40,27 @@
     kanjiDetail: function (character) {
       return fetch('/api/dictionary/kanji/' + encodeURIComponent(character), { headers: authHeaders() }).then(parse);
     },
+    /** Nhận diện Kanji vẽ tay: payload = { width, height, strokes: [[[x, y], ...], ...] }. */
+    recognizeHandwriting: function (payload, signal) {
+      var headers = authHeaders();
+      headers['Content-Type'] = 'application/json';
+      return fetch('/api/dictionary/handwriting/recognize', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload),
+        signal: signal
+      }).then(parse);
+    },
+    /** Bảng bộ phận (bộ thủ) để tra Kanji, đã sắp theo số nét. */
+    kanjiComponents: function () {
+      return fetch('/api/dictionary/components', { headers: authHeaders() }).then(parse);
+    },
+    /** Kanji chứa tất cả bộ phận có id trong `ids`. */
+    searchByComponents: function (ids, signal) {
+      var params = new URLSearchParams({ ids: ids.join(',') });
+      return fetch('/api/dictionary/components/search?' + params.toString(),
+        { headers: authHeaders(), signal: signal }).then(parse);
+    },
     history: function () {
       return fetch('/api/dictionary/history', { headers: authHeaders() }).then(parse);
     }

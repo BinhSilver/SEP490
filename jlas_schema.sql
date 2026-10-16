@@ -382,7 +382,7 @@ CREATE TABLE radical (
 -- khong tron vao bang cach doc tieng Nhat.
 CREATE TABLE kanji (
     id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh Kanji.
-    `character`    VARCHAR(8) NOT NULL,                      -- Ky tu Kanji duy nhat, vi du 間.
+    `character`    VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, -- Ky tu Kanji duy nhat, vi du 間.
     unicode_code   VARCHAR(10) NOT NULL,                     -- Ma Unicode, vi du 9593.
     radical_id     SMALLINT UNSIGNED NULL,                   -- FK -> radical.id; bo thu chinh.
     stroke_count   TINYINT UNSIGNED NULL,                    -- Tong so net cua Kanji.
@@ -415,7 +415,7 @@ CREATE TABLE kanji_reading (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh cach doc.
     kanji_id     BIGINT UNSIGNED NOT NULL,                -- FK -> kanji.id; Kanji so huu cach doc.
     reading_type VARCHAR(20) NOT NULL,                     -- ON/KUN/NANORI/OTHER.
-    reading_text VARCHAR(100) NOT NULL,                    -- Noi dung cach doc, vi du カン hoac あいだ.
+    reading_text VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, -- Noi dung cach doc, vi du カン hoac あいだ.
     is_common    TINYINT(1) NOT NULL DEFAULT 0,            -- 1 neu la cach doc thuong dung.
     PRIMARY KEY (id),
     UNIQUE KEY uk_kanji_reading (kanji_id, reading_type, reading_text), -- Chong trung reading.
@@ -424,6 +424,38 @@ CREATE TABLE kanji_reading (
         REFERENCES kanji(id) ON DELETE CASCADE,            -- Xoa Kanji thi xoa cac reading cua no.
     CONSTRAINT chk_kanji_reading_type
         CHECK (reading_type IN ('ON','KUN','NANORI','OTHER'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Bo phan dung de tra Kanji theo bo thu (multi-radical lookup, du lieu RADKFILE cua EDRDG).
+-- `character` la glyph hien thi (vi du 亻); source_character la ky tu RADKFILE dung thay khi
+-- glyph khong co trong JIS (vi du 化 cho 亻).
+-- Quan he: kanji (N) <-> (N) kanji_component qua kanji_component_map.
+CREATE TABLE kanji_component (
+    id               SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `character`      VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    source_character VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    stroke_count     TINYINT UNSIGNED NOT NULL,
+    radical_id       SMALLINT UNSIGNED NULL,       -- Bo thu Khang Hi tuong ung (lay ten tieng Viet).
+    display_order    SMALLINT UNSIGNED NOT NULL,   -- Thu tu trong RADKFILE (theo so net).
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_kanji_component_character (`character`),
+    UNIQUE KEY uk_kanji_component_source (source_character),
+    KEY idx_kanji_component_order (stroke_count, display_order),
+    CONSTRAINT fk_kanji_component_radical FOREIGN KEY (radical_id)
+        REFERENCES radical(id) ON DELETE SET NULL,
+    CONSTRAINT chk_kanji_component_strokes CHECK (stroke_count > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Kanji chua bo phan nao. Tra nhieu bo phan = giao cac tap kanji_id.
+CREATE TABLE kanji_component_map (
+    kanji_id     BIGINT UNSIGNED NOT NULL,
+    component_id SMALLINT UNSIGNED NOT NULL,
+    PRIMARY KEY (kanji_id, component_id),
+    KEY idx_kanji_component_map_component (component_id, kanji_id),
+    CONSTRAINT fk_kanji_component_map_kanji FOREIGN KEY (kanji_id)
+        REFERENCES kanji(id) ON DELETE CASCADE,
+    CONSTRAINT fk_kanji_component_map_component FOREIGN KEY (component_id)
+        REFERENCES kanji_component(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tu hoan chinh; reading la cach doc CHINH va la nguon furigana uu tien.
@@ -436,10 +468,13 @@ CREATE TABLE kanji_reading (
 CREATE TABLE vocabulary_entry (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh tu vung.
     expression            VARCHAR(255) NOT NULL,                   -- Dang viet, vi du 時間.
-    normalized_expression VARCHAR(255) NOT NULL,                   -- Dang chuan hoa de tim/chong trung.
+    normalized_expression VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+                                                                   -- Dang chuan hoa de tim/chong trung (so khop dung byte).
     reading               VARCHAR(255) NOT NULL,                   -- Cach doc chinh, vi du じかん.
-    normalized_reading    VARCHAR(255) NOT NULL,                   -- Cach doc da chuan hoa.
+    normalized_reading    VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+                                                                   -- Cach doc da chuan hoa (so khop dung byte).
     reading_romaji        VARCHAR(255) NULL,                       -- Romaji cua cach doc chinh.
+    han_viet              VARCHAR(255) NULL,                       -- Am Han Viet cua ca tu, vi du THOI GIAN.
     meaning               TEXT NULL,                               -- Nghia tom tat cho noi dung giao trinh.
     word_type             VARCHAR(50) NULL,                        -- Tu loai tom tat cho giao trinh.
     jlpt_level            VARCHAR(10) NULL,                        -- Cap JLPT N5..N1.
@@ -456,6 +491,7 @@ CREATE TABLE vocabulary_entry (
     KEY idx_vocabulary_expression (normalized_expression),
     KEY idx_vocabulary_reading (normalized_reading),
     KEY idx_vocabulary_romaji (reading_romaji),
+    KEY idx_vocabulary_han_viet (han_viet),
     KEY idx_vocabulary_jlpt (jlpt_level),
     CONSTRAINT chk_vocabulary_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')),
@@ -473,7 +509,8 @@ CREATE TABLE vocabulary_reading (
     id                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh reading bo sung.
     vocabulary_id      BIGINT UNSIGNED NOT NULL,                -- FK -> vocabulary_entry.id.
     reading            VARCHAR(255) NOT NULL,                    -- Cach doc khac cua tu.
-    normalized_reading VARCHAR(255) NOT NULL,                    -- Cach doc phu da chuan hoa.
+    normalized_reading VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+                                                                 -- Cach doc phu da chuan hoa.
     reading_romaji     VARCHAR(255) NULL,                        -- Romaji cua cach doc phu.
     usage_note         VARCHAR(255) NULL,                        -- Ghi chu ngu canh/cach dung cua reading.
     PRIMARY KEY (id),
@@ -489,7 +526,7 @@ CREATE TABLE vocabulary_variant (
     id                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     vocabulary_id         BIGINT UNSIGNED NOT NULL,
     variant_expression    VARCHAR(255) NOT NULL,
-    normalized_expression VARCHAR(255) NOT NULL,
+    normalized_expression VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     variant_type          VARCHAR(30) NOT NULL DEFAULT 'OTHER',
     PRIMARY KEY (id),
     UNIQUE KEY uk_vocabulary_variant (vocabulary_id, normalized_expression),
@@ -678,7 +715,16 @@ VALUES
      'https://www.edrdg.org/edrdg/licence.html', 1),
     ('KANJIVG', 'KanjiVG', 'https://kanjivg.tagaini.net/',
      'Creative Commons Attribution-ShareAlike 3.0',
-     'https://creativecommons.org/licenses/by-sa/3.0/', 1);
+     'https://creativecommons.org/licenses/by-sa/3.0/', 1),
+    ('MAZII_VI', 'Tu dien Nhat - Viet (Mazii, ban Yomitan)',
+     'https://github.com/Buiduyanh20/yomitan-japanese-vietnamese-dictionary',
+     NULL, NULL, 1),
+    ('KANJIDICT_VN', 'Tu dien Han Nom (KanjiDictVN)',
+     'https://github.com/trungnt2910/KanjiDictVN',
+     NULL, NULL, 1),
+    ('RADKFILE', 'RADKFILE/KRADFILE', 'https://www.edrdg.org/krad/kradinf.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1);
 
 -- Lich su tra cuu dung chung cho moi truy van tu dien.
 -- Khi user chon Kanji/tu trong hop nhan dien, frontend xoa net ve, dua gia tri

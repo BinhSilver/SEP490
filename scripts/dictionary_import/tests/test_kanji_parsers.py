@@ -23,6 +23,22 @@ class KanjiParserTest(unittest.TestCase):
         )
         self.assertIsNone(day.jlpt_level)
 
+    def test_kanjidic2_all_kanji_includes_non_joyo_and_skips_compatibility_forms(self):
+        records = list(iter_kanjidic2(FIXTURES / "kanjidic2.xml", include_non_joyo=True))
+        self.assertEqual(["日", "亙"], [row.literal for row in records])
+
+        compat = FIXTURES.parent / "_compat_kanjidic2.xml"
+        compat.write_text(
+            "<kanjidic2><character><literal>渚</literal>"
+            "<codepoint><cp_value cp_type=\"ucs\">FA46</cp_value></codepoint>"
+            "<misc><stroke_count>11</stroke_count></misc></character></kanjidic2>",
+            encoding="utf-8",
+        )
+        try:
+            self.assertEqual([], list(iter_kanjidic2(compat, include_non_joyo=True)))
+        finally:
+            compat.unlink()
+
     def test_kanjivg_accepts_directory_and_builds_stable_uri(self):
         records = list(iter_kanjivg(FIXTURES / "kanjivg", "/kanjivg/kanji/"))
 

@@ -69,6 +69,7 @@
         '<div class="dict-vocab-row__head">' +
           '<span class="dict-vocab-row__expression">' + escapeHtml(vocab.expression) + '</span>' +
           '<span class="dict-vocab-row__reading">' + escapeHtml(vocab.reading) + '</span>' +
+          (vocab.hanViet ? '<span class="dict-vocab-row__hanviet">' + escapeHtml(vocab.hanViet) + '</span>' : '') +
           (vocab.jlptLevel ? '<span class="' + jlptBadgeClass(vocab.jlptLevel) + '">' + escapeHtml(vocab.jlptLevel) + '</span>' : '') +
         '</div>' +
         (gloss ? '<div class="dict-vocab-row__gloss">' + escapeHtml(gloss) + '</div>' : '') +
@@ -565,6 +566,7 @@
           '<p class="dict-vocab-detail__reading" lang="ja">' + escapeHtml(vocab.reading) +
             (vocab.readingRomaji ? '<span>' + escapeHtml(vocab.readingRomaji) + '</span>' : '') + '</p>' +
           '<h1 lang="ja">' + escapeHtml(vocab.expression) + '</h1>' +
+          (vocab.hanViet ? '<p class="dict-vocab-detail__hanviet">' + escapeHtml(vocab.hanViet) + '</p>' : '') +
           '<div class="dict-detail__chips">' +
             (vocab.wordType ? '<span class="dict-badge dict-badge--outline">' + escapeHtml(vocab.wordType) + '</span>' : '') +
             (vocab.jlptLevel ? '<span class="' + jlptBadgeClass(vocab.jlptLevel) + '">' + escapeHtml(vocab.jlptLevel) + '</span>' : '') +
@@ -1001,6 +1003,10 @@
 
     [byId('dict-open-handwriting'), byId('dict-mode-handwriting'), byId('dict-empty-handwriting')]
       .forEach(function (btn) { if (btn) btn.addEventListener('click', openHandwritingModal); });
+    var radicalButton = byId('dict-mode-radical');
+    if (radicalButton) radicalButton.addEventListener('click', function () {
+      if (window.DictRadical) window.DictRadical.open();
+    });
 
     var emptyClearBtn = byId('dict-empty-clear');
     if (emptyClearBtn) emptyClearBtn.addEventListener('click', resetToHome);

@@ -195,10 +195,11 @@ The `utf8mb4` character set is recommended because the system stores Japanese ch
 
 ### Dictionary/Kanji test data
 
-The complete Dictionary/Kanji test snapshot is stored with Git LFS. After
-cloning, run `git lfs pull`, then follow
-[`data/dictionary-seed/README.md`](data/dictionary-seed/README.md) to create a
-fully populated `jlas_dictionary_test` database and install KanjiVG assets.
+The complete Japanese-Vietnamese Dictionary/Kanji test snapshot is stored with
+Git LFS. Step-by-step setup for team members (data, local config, test account,
+run and troubleshooting) is in
+[`docs/HUONG-DAN-CHAY-DU-AN.md`](docs/HUONG-DAN-CHAY-DU-AN.md); seed details are
+in [`data/dictionary-seed/README.md`](data/dictionary-seed/README.md).
 The snapshot contains no account or user/business rows.
 
 ---

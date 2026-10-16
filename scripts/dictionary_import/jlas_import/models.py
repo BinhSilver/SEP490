@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 class CatalogValue:
     code: str
     name_en: str | None = None
+    name_vi: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,6 +42,8 @@ class VocabularyRecord:
     alternate_readings: tuple[VocabularyReadingRecord, ...] = ()
     senses: tuple[VocabularySenseRecord, ...] = ()
     warnings: tuple["ImportWarning", ...] = ()
+    han_viet: str | None = None
+    meaning: str | None = None
 
     @property
     def record_id(self) -> str:
@@ -66,6 +69,22 @@ class KanjiRecord:
     @property
     def record_id(self) -> str:
         return self.unicode_code
+
+
+@dataclass(frozen=True, slots=True)
+class KanjiVietnameseRecord:
+    """Vietnamese Han Viet reading/meaning that enriches an existing Kanji row."""
+
+    literal: str
+    han_viet: str | None
+    meaning_vi: str | None
+    radical_character: str | None = None
+    radical_name_vi: str | None = None
+    warnings: tuple["ImportWarning", ...] = ()
+
+    @property
+    def record_id(self) -> str:
+        return self.literal
 
 
 @dataclass(frozen=True, slots=True)

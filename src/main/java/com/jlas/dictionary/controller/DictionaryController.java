@@ -2,11 +2,16 @@ package com.jlas.dictionary.controller;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.dictionary.dto.ComponentSearchResponse;
+import com.jlas.dictionary.dto.HandwritingRequest;
+import com.jlas.dictionary.dto.KanjiComponentResponse;
 import com.jlas.dictionary.dto.KanjiResponse;
 import com.jlas.dictionary.dto.SearchHistoryResponse;
 import com.jlas.dictionary.dto.SearchResultResponse;
 import com.jlas.dictionary.dto.VocabularyResponse;
+import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
 import com.jlas.dictionary.service.DictionaryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DictionaryController {
     private final DictionaryService dictionaryService;
+    private final HandwritingRateLimiter handwritingRateLimiter;
 
     @GetMapping("/search")
     public ApiResponse<SearchResultResponse> search(
@@ -40,6 +46,28 @@ public class DictionaryController {
     @GetMapping("/kanji/{character}")
     public ApiResponse<KanjiResponse> kanjiDetail(@PathVariable String character) {
         return ApiResponse.ok("OK", dictionaryService.getKanjiDetail(character));
+    }
+
+    /** Nhận diện Kanji vẽ tay theo thời gian thực; FE gọi sau mỗi nét (đã debounce), không gọi theo mousemove. */
+    @PostMapping("/handwriting/recognize")
+    public ApiResponse<List<KanjiResponse>> recognizeHandwriting(
+            @Valid @RequestBody HandwritingRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        handwritingRateLimiter.check(id(user));
+        return ApiResponse.ok("OK", dictionaryService.recognizeHandwriting(request));
+    }
+
+    /** Bảng bộ phận (bộ thủ) để tra Kanji, đã sắp theo số nét. */
+    @GetMapping("/components")
+    public ApiResponse<List<KanjiComponentResponse>> kanjiComponents() {
+        return ApiResponse.ok("OK", dictionaryService.listKanjiComponents());
+    }
+
+    /** Kanji chứa tất cả bộ phận đã chọn, ví dụ {@code ?ids=12,40} (亻 + 木). */
+    @GetMapping("/components/search")
+    public ApiResponse<ComponentSearchResponse> searchByComponents(
+            @RequestParam(name = "ids", required = false) List<Integer> componentIds) {
+        return ApiResponse.ok("OK", dictionaryService.searchByComponents(componentIds));
     }
 
     @GetMapping("/history")

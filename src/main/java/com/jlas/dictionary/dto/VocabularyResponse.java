@@ -12,7 +12,9 @@ public class VocabularyResponse {
     private String expression;
     private String reading;
     private String readingRomaji;
-    /** Nghĩa tóm tắt cho nội dung giáo trình; có thể null với vocabulary thuần DICTIONARY. */
+    /** Âm Hán Việt của cả từ; null nếu nguồn không có. */
+    private String hanViet;
+    /** Nghĩa tóm tắt (giáo trình hoặc vài nghĩa đầu của từ điển Nhật-Việt). */
     private String meaning;
     private String wordType;
     private String jlptLevel;

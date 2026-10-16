@@ -5,6 +5,8 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.dto.*;
 import com.jlas.dictionary.entity.*;
+import com.jlas.dictionary.handwriting.KanjiStrokeIndex;
+import com.jlas.dictionary.handwriting.StrokeMatcher;
 import com.jlas.dictionary.mapper.DictionaryMapper;
 import com.jlas.dictionary.repository.*;
 import com.jlas.dictionary.service.DictionaryService;
@@ -31,14 +33,22 @@ import java.util.*;
 public class DictionaryServiceImpl implements DictionaryService {
 
     private static final String PUBLISHED = "PUBLISHED";
-    /** JMdict là multilingual; ưu tiên hiện tiếng Việt nếu có, sau đó tiếng Anh. */
-    private static final List<String> PREFERRED_GLOSS_LANGUAGES = List.of("vie", "eng");
+    /**
+     * Ưu tiên hiện tiếng Việt nếu có, sau đó tiếng Anh. Từ điển import dùng mã ISO 639-2
+     * (vie/eng), dữ liệu giáo trình dùng mã 2 ký tự (vi/en) — coi là cùng một ngôn ngữ.
+     */
+    private static final List<Set<String>> PREFERRED_GLOSS_LANGUAGES =
+            List.of(Set.of("vie", "vi"), Set.of("eng", "en"));
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final int MAX_PAGE_SIZE = 50;
     /** Chặn trên tổng số candidate gộp từ mọi tier trong một lần search, tránh query quá nặng. */
     private static final int MAX_TOTAL_CANDIDATES = 200;
     private static final int KANJI_RESULT_LIMIT = 8;
     private static final int RELATED_VOCABULARY_LIMIT = 50;
+    private static final int HANDWRITING_CANDIDATE_LIMIT = 8;
+    /** Số Kanji tối đa trả về cho một lần tra bộ thủ (bộ phận 口 có gần 3.000 Kanji). */
+    private static final int COMPONENT_RESULT_LIMIT = 300;
+    private static final int MAX_SELECTED_COMPONENTS = 10;
 
     private final VocabularyEntryRepository vocabularyEntryRepository;
     private final VocabularyKanjiRepository vocabularyKanjiRepository;
@@ -51,6 +61,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     private final SensePartOfSpeechRepository sensePartOfSpeechRepository;
     private final SenseDomainRepository senseDomainRepository;
     private final UserRepository userRepository;
+    private final KanjiStrokeIndex kanjiStrokeIndex;
+    private final KanjiComponentRepository kanjiComponentRepository;
     private final DictionaryMapper mapper;
 
     @Override
@@ -123,6 +135,89 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<KanjiResponse> recognizeHandwriting(HandwritingRequest request) {
+        double scaleX = StrokeMatcher.FRAME / request.getWidth();
+        double scaleY = StrokeMatcher.FRAME / request.getHeight();
+        List<List<double[]>> strokes = new ArrayList<>();
+        for (List<double[]> stroke : request.getStrokes()) {
+            List<double[]> scaled = new ArrayList<>(stroke.size());
+            for (double[] point : stroke) {
+                if (!(point[0] >= 0 && point[0] <= request.getWidth() && point[1] >= 0 && point[1] <= request.getHeight())) {
+                    throw new ApiException(ErrorCode.VALIDATION_FAILED, "Toạ độ nét vẽ nằm ngoài canvas");
+                }
+                scaled.add(new double[]{point[0] * scaleX, point[1] * scaleY});
+            }
+            strokes.add(scaled);
+        }
+
+        List<String> ranked = StrokeMatcher.rank(kanjiStrokeIndex.refs(), strokes, HANDWRITING_CANDIDATE_LIMIT);
+        if (ranked.isEmpty()) return List.of();
+
+        Map<String, Kanji> byCharacter = new HashMap<>();
+        for (Kanji kanji : kanjiRepository.findByCharacterIn(ranked)) byCharacter.put(kanji.getCharacter(), kanji);
+        Map<Long, List<KanjiReadingResponse>> readings = groupReadings(
+                byCharacter.values().stream().map(Kanji::getId).toList());
+
+        List<KanjiResponse> candidates = new ArrayList<>();
+        for (String character : ranked) {
+            Kanji kanji = byCharacter.get(character);
+            if (kanji != null) {
+                candidates.add(mapper.toKanjiResponse(kanji, readings.getOrDefault(kanji.getId(), List.of())));
+            }
+        }
+        return candidates;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<KanjiComponentResponse> listKanjiComponents() {
+        return kanjiComponentRepository.findAllForPicker().stream()
+                .map(component -> KanjiComponentResponse.builder()
+                        .id(component.getId().intValue())
+                        .character(component.getCharacter())
+                        .strokeCount(component.getStrokeCount().intValue())
+                        .nameVi(component.getRadical() == null ? null : component.getRadical().getNameVi())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ComponentSearchResponse searchByComponents(List<Integer> componentIds) {
+        List<Short> ids = componentIds == null ? List.of() : componentIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(Integer::shortValue)
+                .toList();
+        if (ids.isEmpty()) {
+            return ComponentSearchResponse.builder()
+                    .total(0).kanji(List.of()).availableComponentIds(List.of()).build();
+        }
+        if (ids.size() > MAX_SELECTED_COMPONENTS) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                    "Chỉ chọn tối đa " + MAX_SELECTED_COMPONENTS + " bộ thủ");
+        }
+        long total = kanjiComponentRepository.countKanjiWithAll(ids, ids.size());
+        List<ComponentSearchResponse.Item> kanji = total == 0 ? List.of()
+                : kanjiComponentRepository.findKanjiWithAll(ids, ids.size(), COMPONENT_RESULT_LIMIT).stream()
+                        .map(row -> ComponentSearchResponse.Item.builder()
+                                .character(row.getKanjiCharacter())
+                                .strokeCount(row.getStrokeCount())
+                                .hanViet(row.getHanViet())
+                                .jlptLevel(row.getJlptLevel())
+                                .build())
+                        .toList();
+        List<Integer> available = total == 0 ? List.of()
+                : kanjiComponentRepository.findCooccurringComponentIds(ids, ids.size()).stream()
+                        .map(Number::intValue)
+                        .sorted()
+                        .toList();
+        return ComponentSearchResponse.builder()
+                .total(total).kanji(kanji).availableComponentIds(available).build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<SearchHistoryResponse> getRecentHistory(Long userId) {
         if (userId == null) return List.of();
         return searchHistoryRepository.findTop20ByUser_IdOrderBySearchedAtDesc(userId)
@@ -139,8 +234,15 @@ public class DictionaryServiceImpl implements DictionaryService {
         switch (mode) {
             case KANJI -> collectKanjiModeCandidates(normalizedQuery, limit, collected);
             case HIRAGANA, KATAKANA -> collectReadingModeCandidates(normalizedQuery, limit, collected);
-            case ROMAJI -> collectRomajiModeCandidates(normalizedQuery, limit, collected);
-            case VIETNAMESE -> collectMeaningModeCandidates(normalizedQuery, limit, collected);
+            case ROMAJI -> {
+                collectRomajiModeCandidates(normalizedQuery, limit, collected);
+                // Chữ Latin không dấu vừa có thể là romaji vừa là tiếng Việt/Anh ("con", "xe"). Chỉ
+                // dùng các tier có index để "taberu" không phải quét toàn bảng gloss.
+                if (collected.size() < limit) {
+                    collectMeaningModeCandidates(normalizedQuery, limit, collected, false);
+                }
+            }
+            case VIETNAMESE -> collectMeaningModeCandidates(normalizedQuery, limit, collected, true);
         }
         return new ArrayList<>(collected.values());
     }
@@ -163,10 +265,24 @@ public class DictionaryServiceImpl implements DictionaryService {
                     .findByNormalizedExpressionStartingWithAndDictionaryStatusOrderByIdAsc(
                             query, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
             if (collected.size() >= limit) return;
-            addAll(collected, vocabularyEntryRepository
-                    .findByNormalizedExpressionContainingAndDictionaryStatusOrderByIdAsc(
-                            query, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
+            String anchor = firstKanjiInTable(query);
+            addAll(collected, anchor != null
+                    ? vocabularyKanjiRepository.findVocabularyContainingViaKanji(
+                            anchor, escapeLike(query), PageRequest.of(0, remaining(collected, limit)))
+                    : vocabularyEntryRepository
+                            .findByNormalizedExpressionContainingAndDictionaryStatusOrderByIdAsc(
+                                    query, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
         }
+    }
+
+    /** Kanji đầu tiên của query có trong bảng kanji (để neo tier "chứa"), hoặc null. */
+    private String firstKanjiInTable(String query) {
+        return query.codePoints()
+                .filter(DictionaryUtil::isKanjiCodepoint)
+                .mapToObj(cp -> new String(Character.toChars(cp)))
+                .filter(character -> kanjiRepository.findByCharacter(character).isPresent())
+                .findFirst()
+                .orElse(null);
     }
 
     private void collectReadingModeCandidates(
@@ -197,22 +313,56 @@ public class DictionaryServiceImpl implements DictionaryService {
                         romajiKey, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
     }
 
-    private void collectMeaningModeCandidates(
-            String query, int limit, LinkedHashMap<Long, VocabularyEntry> collected) {
-        addAll(collected, vocabularyEntryRepository.findByMeaningContainingAndDictionaryStatusOrderByIdAsc(
-                query, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
+    /**
+     * Tìm theo nghĩa (tiếng Việt, hoặc tiếng Anh với dữ liệu cũ), đúng dấu: âm Hán Việt của từ ->
+     * gloss trùng khớp -> gloss bắt đầu bằng query -> gloss chứa query ở đầu một từ (quét toàn bảng,
+     * chỉ chạy khi {@code includeContains}). Cột meaning không cần tier riêng: với từ điển nó là vài
+     * gloss đầu, với giáo trình gloss tiếng Việt cũng đã được lưu.
+     */
+    private void collectMeaningModeCandidates(String query, int limit,
+                                              LinkedHashMap<Long, VocabularyEntry> collected,
+                                              boolean includeContains) {
+        String likeQuery = escapeLike(query);
+        addAll(collected, vocabularyEntryRepository.findByHanViet(
+                query, PageRequest.of(0, remaining(collected, limit))));
         if (collected.size() >= limit) return;
 
-        List<Long> glossVocabularyIds = vocabularyGlossRepository.findVocabularyIdsByGlossContaining(
-                query, PageRequest.of(0, remaining(collected, limit)));
-        if (!glossVocabularyIds.isEmpty()) {
-            addAll(collected, vocabularyEntryRepository.findByIdIn(glossVocabularyIds));
-        }
+        addAllById(collected, vocabularyGlossRepository.findVocabularyIdsByGlossExact(
+                query, PageRequest.of(0, remaining(collected, limit))));
+        if (collected.size() >= limit) return;
+
+        addAllById(collected, vocabularyGlossRepository.findVocabularyIdsByGlossPrefix(
+                likeQuery, PageRequest.of(0, remaining(collected, limit))));
+        if (collected.size() >= limit) return;
+
+        if (!includeContains) return;
+
+        addAllById(collected, vocabularyGlossRepository.findVocabularyIdsByGlossWord(
+                likeQuery, PageRequest.of(0, remaining(collected, limit))));
+    }
+
+    /** Escape ký tự đại diện của LIKE (escape char mặc định của MySQL là dấu gạch chéo ngược). */
+    private static String escapeLike(String value) {
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     private static void addAll(LinkedHashMap<Long, VocabularyEntry> collected, List<VocabularyEntry> entries) {
         for (VocabularyEntry entry : entries) {
             collected.putIfAbsent(entry.getId(), entry);
+        }
+    }
+
+    /** Load entry theo lô và giữ đúng thứ tự xếp hạng của danh sách id. */
+    private void addAllById(LinkedHashMap<Long, VocabularyEntry> collected, List<Long> ids) {
+        List<Long> missing = ids.stream().filter(id -> !collected.containsKey(id)).toList();
+        if (missing.isEmpty()) return;
+        Map<Long, VocabularyEntry> byId = new HashMap<>();
+        for (VocabularyEntry entry : vocabularyEntryRepository.findByIdIn(missing)) {
+            byId.put(entry.getId(), entry);
+        }
+        for (Long id : missing) {
+            VocabularyEntry entry = byId.get(id);
+            if (entry != null) collected.putIfAbsent(id, entry);
         }
     }
 
@@ -225,6 +375,9 @@ public class DictionaryServiceImpl implements DictionaryService {
     // -------------------------------------------------------------------
 
     private List<KanjiResponse> findKanjiResults(String normalizedQuery, DictionaryUtil.SearchMode mode) {
+        if (mode == DictionaryUtil.SearchMode.VIETNAMESE || mode == DictionaryUtil.SearchMode.ROMAJI) {
+            return findKanjiByHanViet(normalizedQuery);
+        }
         if (mode != DictionaryUtil.SearchMode.KANJI) return List.of();
 
         LinkedHashSet<String> distinctKanjiChars = new LinkedHashSet<>();
@@ -250,6 +403,19 @@ public class DictionaryServiceImpl implements DictionaryService {
             }
         }
         return results;
+    }
+
+    /** Một âm tiết Hán Việt ("học", "thực") -> các Kanji có âm đó. */
+    private List<KanjiResponse> findKanjiByHanViet(String normalizedQuery) {
+        if (normalizedQuery.contains(" ") || normalizedQuery.contains(",")) return List.of();
+        List<Kanji> kanjis = kanjiRepository.findByHanVietReading(
+                escapeLike(normalizedQuery), PageRequest.of(0, KANJI_RESULT_LIMIT));
+        Map<Long, List<KanjiReadingResponse>> readingsByKanjiId =
+                groupReadings(kanjis.stream().map(Kanji::getId).toList());
+        return kanjis.stream()
+                .map(kanji -> mapper.toKanjiResponse(kanji,
+                        readingsByKanjiId.getOrDefault(kanji.getId(), List.of())))
+                .toList();
     }
 
     private Map<Long, List<KanjiReadingResponse>> groupReadings(List<Long> kanjiIds) {
@@ -309,12 +475,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         Map<Long, List<SenseResponse>> sensesByVocabulary = new LinkedHashMap<>();
         for (Map.Entry<Long, List<VocabularySense>> vocabSenses : sensesByVocabularyId.entrySet()) {
-            String preferredLanguage = preferredGlossLanguage(vocabSenses.getValue(), glossesBySense);
+            Set<String> preferredLanguage = preferredGlossLanguage(vocabSenses.getValue(), glossesBySense);
             List<SenseResponse> responses = new ArrayList<>();
             for (VocabularySense sense : vocabSenses.getValue()) {
                 List<GlossResponse> allGlosses = glossesBySense.getOrDefault(sense.getId(), List.of());
                 List<GlossResponse> glosses2 = preferredLanguage == null ? allGlosses
-                        : allGlosses.stream().filter(g -> preferredLanguage.equals(g.getLanguageCode())).toList();
+                        : allGlosses.stream().filter(g -> preferredLanguage.contains(g.getLanguageCode())).toList();
                 // JMdict multilingual: mỗi sense có thể chỉ tồn tại trong 1 ngôn ngữ khác (ví dụ
                 // sense riêng cho bản dịch tiếng Hà Lan). Bỏ qua sense không có gloss ở ngôn ngữ đã
                 // chọn thay vì hiện một sense trống hoặc lẫn lộn nhiều thứ tiếng cùng lúc.
@@ -346,12 +512,12 @@ public class DictionaryServiceImpl implements DictionaryService {
      * ngược lại tiếng Anh, ngược lại {@code null} (giữ nguyên mọi ngôn ngữ — trường hợp hiếm khi
      * JMdict entry hoàn toàn không có eng/vie).
      */
-    private static String preferredGlossLanguage(List<VocabularySense> vocabSenses,
-                                                   Map<Long, List<GlossResponse>> glossesBySense) {
-        for (String language : PREFERRED_GLOSS_LANGUAGES) {
+    private static Set<String> preferredGlossLanguage(List<VocabularySense> vocabSenses,
+                                                        Map<Long, List<GlossResponse>> glossesBySense) {
+        for (Set<String> language : PREFERRED_GLOSS_LANGUAGES) {
             boolean present = vocabSenses.stream().anyMatch(sense ->
                     glossesBySense.getOrDefault(sense.getId(), List.of()).stream()
-                            .anyMatch(gloss -> language.equals(gloss.getLanguageCode())));
+                            .anyMatch(gloss -> language.contains(gloss.getLanguageCode())));
             if (present) return language;
         }
         return null;
