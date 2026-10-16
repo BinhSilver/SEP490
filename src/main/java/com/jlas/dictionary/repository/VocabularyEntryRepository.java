@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,12 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByNormalizedExpressionAndDictionaryStatus(
             @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
+
+    @Query(value = "select * from vocabulary_entry "
+            + "where normalized_expression in (:expressions) "
+            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(
+            @Param("expressions") Collection<String> normalizedExpressions, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression like concat(:prefix, '%') "

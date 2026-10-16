@@ -49,6 +49,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     /** Số Kanji tối đa trả về cho một lần tra bộ thủ (bộ phận 口 có gần 3.000 Kanji). */
     private static final int COMPONENT_RESULT_LIMIT = 300;
     private static final int MAX_SELECTED_COMPONENTS = 10;
+    /** Độ dài tối đa (code point) của query khi tách thành từ con: tối đa 78 chuỗi con trong IN. */
+    private static final int SEGMENT_MAX_QUERY_LENGTH = 12;
 
     private final VocabularyEntryRepository vocabularyEntryRepository;
     private final VocabularyKanjiRepository vocabularyKanjiRepository;
@@ -272,6 +274,42 @@ public class DictionaryServiceImpl implements DictionaryService {
                     : vocabularyEntryRepository
                             .findByNormalizedExpressionContainingAndDictionaryStatusOrderByIdAsc(
                                     query, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
+            if (collected.isEmpty()) collectSegmentedWords(query, limit, collected);
+        }
+    }
+
+    /**
+     * Cụm không có trong từ điển (防錆剤): tách thành các từ có trong từ điển theo kiểu khớp dài
+     * nhất từ trái sang phải (防錆 + 剤), giống Mazii, thay vì chỉ còn các thẻ Kanji lẻ.
+     * Một query IN cho mọi chuỗi con.
+     */
+    private void collectSegmentedWords(String query, int limit, LinkedHashMap<Long, VocabularyEntry> collected) {
+        int[] codePoints = query.codePoints().limit(SEGMENT_MAX_QUERY_LENGTH).toArray();
+        Set<String> substrings = new HashSet<>();
+        for (int start = 0; start < codePoints.length; start++) {
+            for (int end = start + 1; end <= codePoints.length; end++) {
+                substrings.add(new String(codePoints, start, end - start));
+            }
+        }
+        Map<String, List<VocabularyEntry>> byExpression = new HashMap<>();
+        for (VocabularyEntry entry : vocabularyEntryRepository
+                .findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(substrings, PUBLISHED)) {
+            byExpression.computeIfAbsent(entry.getNormalizedExpression(), key -> new ArrayList<>()).add(entry);
+        }
+
+        int start = 0;
+        while (start < codePoints.length && collected.size() < limit) {
+            int matchedEnd = -1;
+            for (int end = codePoints.length; end > start && matchedEnd < 0; end--) {
+                if (byExpression.containsKey(new String(codePoints, start, end - start))) matchedEnd = end;
+            }
+            if (matchedEnd < 0) {
+                start++;
+                continue;
+            }
+            List<VocabularyEntry> words = byExpression.get(new String(codePoints, start, matchedEnd - start));
+            addAll(collected, words.subList(0, Math.min(words.size(), remaining(collected, limit))));
+            start = matchedEnd;
         }
     }
 
