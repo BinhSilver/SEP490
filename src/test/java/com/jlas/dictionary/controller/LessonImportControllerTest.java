@@ -136,7 +136,7 @@ class LessonImportControllerTest {
                 .andExpect(jsonPath("$.data.errors.length()").value(1))
                 .andExpect(jsonPath("$.data.errors[0].sheet").value("TuVung"))
                 .andExpect(jsonPath("$.data.errors[0].row").value(3))
-                .andExpect(jsonPath("$.data.errors[0].message").value("Thiếu cột \"Nghĩa *\""))
+                .andExpect(jsonPath("$.data.errors[0].message").value("Ô cột \"Nghĩa\" đang trống (cột bắt buộc)"))
                 .andExpect(jsonPath("$.data.vocabularyCreated").value(0));
 
         verify(contentAdminService, never()).createVocabulary(anyLong(), any());
