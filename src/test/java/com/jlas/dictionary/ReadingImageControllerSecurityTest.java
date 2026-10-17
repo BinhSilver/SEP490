@@ -44,7 +44,8 @@ import static org.mockito.Mockito.when;
  *   <li>@PreAuthorize thật (context nhỏ bật method security, controller thật, service mock): chưa đăng nhập →
  *       AuthenticationCredentialsNotFoundException (filter chain trả 401), sai vai → AccessDeniedException (403),
  *       chỉ CONTENT_CREATOR qua được — đúng quyền {@code hasRole('CONTENT_CREATOR')} của mọi API quản trị nội dung
- *       JLAS2-17 (DictionaryController /manage/**, JlptAdminController), CONTENT_ADMIN cũng bị 403;</li>
+ *       JLAS2-17 (DictionaryController /manage/**, JlptAdminController), ADMIN cũng bị 403 (vai sau JLAS-W0250:
+ *       LEARNER, MODERATOR, ADMIN, CONTENT_CREATOR);</li>
  *   <li>SecurityConfig: route ghi không nằm trong matcher permitAll nào (trừ matcher chỉ cho GET), nên rơi vào
  *       anyRequest().authenticated() → 401 khi chưa đăng nhập.</li>
  * </ul>
@@ -94,7 +95,7 @@ class ReadingImageControllerSecurityTest {
 
     @Test
     void otherRolesWriteIsForbidden() {
-        for (String role : List.of("LEARNER", "MODERATOR", "ADMIN", "CONTENT_ADMIN", "SUPER_ADMIN")) {
+        for (String role : List.of("LEARNER", "MODERATOR", "ADMIN")) {
             loginAs(role);
             assertThrows(AccessDeniedException.class, () -> controller.upload(CODE, FILE, null), role);
             assertThrows(AccessDeniedException.class, () -> controller.hide(CODE, null), role);

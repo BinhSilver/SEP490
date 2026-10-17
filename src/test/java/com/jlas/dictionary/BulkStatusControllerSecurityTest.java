@@ -5,6 +5,7 @@ import com.jlas.dictionary.dto.BulkStatusRequest;
 import com.jlas.dictionary.dto.BulkStatusResponse;
 import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
 import com.jlas.dictionary.service.ContentAdminService;
+import com.jlas.dictionary.service.DictionaryEngagementService;
 import com.jlas.dictionary.service.DictionaryService;
 import com.jlas.dictionary.service.LessonImportService;
 import jakarta.validation.Validation;
@@ -59,6 +60,7 @@ class BulkStatusControllerSecurityTest {
         @Bean DictionaryService dictionaryService() { return Mockito.mock(DictionaryService.class); }
         @Bean DictionaryController dictionaryController(DictionaryService service) {
             return new DictionaryController(service, Mockito.mock(HandwritingRateLimiter.class),
+                    Mockito.mock(DictionaryEngagementService.class),
                     Mockito.mock(ContentAdminService.class), Mockito.mock(LessonImportService.class));
         }
     }
@@ -105,7 +107,8 @@ class BulkStatusControllerSecurityTest {
 
     @Test
     void otherRolesAreForbidden() {
-        for (String role : List.of("LEARNER", "MODERATOR", "ADMIN", "SUPER_ADMIN", "CONTENT_ADMIN")) {
+        // Vai sau JLAS-W0250 (SUPER_ADMIN → ADMIN, CONTENT_ADMIN → CONTENT_CREATOR): chỉ CONTENT_CREATOR được gọi.
+        for (String role : List.of("LEARNER", "MODERATOR", "ADMIN")) {
             loginAs(role);
             assertThrows(AccessDeniedException.class,
                     () -> controller.bulkUpdateStatus(request("LESSON", "PUBLISH", List.of(1L)), null), role);
