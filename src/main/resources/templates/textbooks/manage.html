@@ -23,15 +23,81 @@
             </p>
         </header>
 
-        <!-- Thanh công cụ: lọc mục đã lưu trữ + thêm giáo trình -->
-        <div class="manage-toolbar">
-            <label class="manage-filter">
-                <input type="checkbox" id="showArchived">
-                <span>Hiện mục đã lưu trữ</span>
-            </label>
-            <button type="button" class="manage-btn manage-btn--primary" id="addTextbookBtn">
-                <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm giáo trình
+        <!-- [JLAS2-17] Tìm kiếm + bộ lọc (js/pages/textbook-manage.js). Desktop: hiện sẵn; mobile: khung trượt mở bằng nút "Bộ lọc".
+             Bộ lọc lưu vào query string (q, level, topic, source, status, archived, sort). -->
+        <div class="manage-toolbar manage-toolbar--top">
+            <div class="manage-search" role="search">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" id="manageSearch" class="manage-search__input" placeholder="Tìm giáo trình, phần hoặc bài…"
+                       aria-label="Tìm theo tên giáo trình, phần hoặc bài" autocomplete="off">
+                <button type="button" class="manage-search__clear" id="manageSearchClear" aria-label="Xoá ô tìm kiếm" hidden>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <button type="button" class="manage-btn manage-filters-toggle" id="manageFiltersToggle" aria-controls="manageFilters" aria-expanded="false">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i> Bộ lọc <span class="manage-filters-toggle__count" id="manageFiltersCount" hidden></span>
             </button>
+            <!-- [JLAS2-17] Tạo giáo trình ở trang riêng 3 bước (thay modal); modal Sửa giáo trình giữ nguyên -->
+            <a class="manage-btn manage-btn--primary" id="addTextbookBtn" th:href="@{/textbooks/manage/new}">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm giáo trình
+            </a>
+        </div>
+
+        <div class="manage-filters-backdrop" id="manageFiltersBackdrop" hidden></div>
+        <section class="manage-filters" id="manageFilters" aria-label="Bộ lọc giáo trình">
+            <div class="manage-filters__head">
+                <strong>Bộ lọc</strong>
+                <button type="button" class="manage-icon-btn" id="manageFiltersClose" aria-label="Đóng bộ lọc">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="manage-filters__group">
+                <span class="manage-filters__label" id="levelFilterLabel">Cấp độ</span>
+                <div class="manage-chips" id="levelFilter" role="group" aria-labelledby="levelFilterLabel"></div>
+            </div>
+            <div class="manage-filters__group">
+                <span class="manage-filters__label" id="sourceFilterLabel">Nguồn</span>
+                <div class="manage-chips" id="sourceFilter" role="group" aria-labelledby="sourceFilterLabel"></div>
+            </div>
+            <div class="manage-filters__row">
+                <label class="manage-filter manage-filter--select">
+                    <span>Chủ đề</span>
+                    <select id="topicFilter" class="manage-select"><option value="">Tất cả</option></select>
+                </label>
+                <!-- [JLAS2-17] Lọc trạng thái + chọn để công bố / ẩn hàng loạt -->
+                <label class="manage-filter manage-filter--select">
+                    <span>Trạng thái</span>
+                    <select id="statusFilter" class="manage-select">
+                        <option value="ALL">Tất cả</option>
+                        <option value="PUBLISHED">Đã công bố</option>
+                        <option value="DRAFT">Nháp</option>
+                    </select>
+                </label>
+                <label class="manage-filter manage-filter--select">
+                    <span>Sắp xếp</span>
+                    <select id="sortSelect" class="manage-select">
+                        <option value="level">Theo cấp độ</option>
+                        <option value="name">Tên A→Z</option>
+                        <option value="updated">Mới cập nhật</option>
+                    </select>
+                </label>
+                <label class="manage-filter">
+                    <input type="checkbox" id="showArchived">
+                    <span>Hiện mục đã lưu trữ</span>
+                </label>
+            </div>
+            <div class="manage-filters__foot">
+                <button type="button" class="manage-btn manage-btn--primary" id="manageFiltersDone">Xem kết quả</button>
+            </div>
+        </section>
+
+        <div class="manage-toolbar manage-resultbar">
+            <span class="manage-resultbar__count" id="filterSummary" aria-live="polite"></span>
+            <button type="button" class="manage-link-btn" id="clearFilters" hidden>Xoá bộ lọc</button>
+            <label class="manage-filter manage-resultbar__select">
+                <input type="checkbox" id="selectAllVisible">
+                <span id="selectAllLabel">Chọn tất cả</span>
+            </label>
         </div>
 
         <div id="manageLoading" class="textbooks-loading">
@@ -49,6 +115,22 @@
 
         <!-- Cây 3 cấp: giáo trình → phần → bài; render bằng js/pages/textbook-manage.js -->
         <div id="manageTree" class="manage-tree" hidden></div>
+
+        <!-- [JLAS2-17] Thanh thao tác hàng loạt: hiện khi có mục được chọn (hoặc đang chạy / có kết quả) -->
+        <div id="bulkBar" class="manage-bulkbar" role="region" aria-label="Thao tác hàng loạt" hidden>
+            <div class="manage-bulkbar__row">
+                <strong class="manage-bulkbar__count" data-bulk-count>Chưa chọn mục nào</strong>
+                <button type="button" class="manage-btn manage-btn--primary" data-bulk-run="PUBLISH">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i> Công bố
+                </button>
+                <button type="button" class="manage-btn" data-bulk-run="UNPUBLISH">
+                    <i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Ẩn (về Nháp)
+                </button>
+                <button type="button" class="manage-btn manage-btn--ghost" data-bulk-clear>Bỏ chọn</button>
+                <span class="manage-bulkbar__progress" data-bulk-progress hidden></span>
+            </div>
+            <div class="manage-bulkbar__result" data-bulk-result aria-live="polite" hidden></div>
+        </div>
     </main>
 
     <!-- Form dùng chung cho cả 4 loại (giáo trình / phần / bài / điểm kiến thức); JS đổi nội dung theo ngữ cảnh -->
@@ -70,7 +152,7 @@
     <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 
     <script th:src="@{/js/jlab-base-shell.js}"></script>
-    <script th:src="@{/js/pages/textbook-manage.js}"></script>
+    <script th:src="@{/js/pages/textbook-manage.js(v=20261017gp)}"></script>
 
 </body>
 

@@ -68,4 +68,15 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
             """)
     List<Object[]> countSituationTaggedLessonsByTextbookIds(@Param("textbookIds") List<Long> textbookIds,
                                                             @Param("tagType") String tagType);
+
+    /** [textbookId, tagCode] riêng biệt của các bài gắn tag loại {@code tagType} (lesson_tag), 1 query. */
+    @Query("""
+            select distinct l.unit.textbook.id, tg.code from LessonTag lt
+            join lt.lesson l
+            join lt.tag tg
+            where l.unit.textbook.id in :textbookIds and tg.tagType = :tagType
+            order by tg.code
+            """)
+    List<Object[]> findTagCodesByTextbookIds(@Param("textbookIds") List<Long> textbookIds,
+                                             @Param("tagType") String tagType);
 }
