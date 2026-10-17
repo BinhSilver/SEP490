@@ -3,7 +3,7 @@ package com.jlas.learning.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jlas.auth.security.CurrentUser;
+import com.jlas.common.security.ContentReviewAccess;
 import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.entity.ConversionRule;
 import com.jlas.assessment.entity.RuleExample;
@@ -55,9 +55,6 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
     /** The romaji in an example breakdown such as "Công → コウ (kou) · 工場 こうじょう: nhà máy". */
     private static final Pattern BREAKDOWN_ROMAJI = Pattern.compile("\\(([^)]+)\\)");
     private static final String BREAKDOWN_WORD = " · ";
-    /** Roles that review the course content, so every lesson and final test is open to them. */
-    private static final List<String> REVIEWER_ROLES = List.of("ROLE_CONTENT_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN");
-
     private final OnyomiCourseRepository repository;
     private final ObjectMapper objectMapper;
 
@@ -203,7 +200,7 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
      * A content reviewer gets every lesson and final test unlocked; their progress is still recorded.
      */
     private Course load(Long userId) {
-        boolean unrestricted = isReviewer();
+        boolean unrestricted = ContentReviewAccess.allowed(userId);
         List<Lesson> lessons = repository.findCourseLessons();
         if (lessons.isEmpty()) {
             return new Course(List.of(), List.of(), Map.of(), unrestricted);
@@ -281,9 +278,6 @@ public class OnyomiCourseServiceImpl implements OnyomiCourseService {
         return new Course(stages, ordered, questionCounts, unrestricted);
     }
 
-    private static boolean isReviewer() {
-        return REVIEWER_ROLES.stream().anyMatch(CurrentUser::hasRole);
-    }
 
     private OnyomiCourseView.LessonCard card(LessonState state, List<ConversionRule> rules,
                                              Map<Long, List<RuleExample>> examples) {

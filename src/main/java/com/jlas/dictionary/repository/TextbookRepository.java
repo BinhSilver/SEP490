@@ -17,6 +17,25 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
 
     List<Textbook> findByStatusOrderByIdAsc(String status);
 
+    /** Library textbooks exclude the separately presented Onyomi course, identified by its lessons. */
+    @Query("""
+            select t from Textbook t
+            where ((:includeDraft = true and t.status <> 'ARCHIVED') or t.status = :status)
+              and not exists (
+                select l.id from Lesson l join l.unit u
+                where u.textbook = t and l.lessonType = 'AMON' and l.skill = 'ONYOMI'
+              )
+            order by t.id
+            """)
+    List<Textbook> findLibraryTextbooks(@Param("includeDraft") boolean includeDraft,
+                                        @Param("status") String status);
+
+    @Query("""
+            select count(l.id) from Lesson l join l.unit u
+            where u.textbook.id = :textbookId and l.lessonType = 'AMON' and l.skill = 'ONYOMI'
+            """)
+    long countOnyomiLessonsByTextbookId(@Param("textbookId") Long textbookId);
+
     /** Cho CONTENT_CREATOR ở màn hình duyệt thường: thấy DRAFT nhưng KHÔNG thấy bản đã lưu trữ. */
     List<Textbook> findByStatusNotOrderByIdAsc(String status);
 

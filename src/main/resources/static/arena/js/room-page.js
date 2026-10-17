@@ -15,6 +15,9 @@
   var draft = null;
   var dialogPicker = null;
   var countdownTimer = null;
+  var skinPicker = null;
+  var returnedFromMatch = new URLSearchParams(window.location.search).get('fromMatch') === '1';
+  arena.phoneMedia.addEventListener('change', render);
 
   var el = {
     status: document.querySelector('[data-room-status]'),
@@ -97,6 +100,17 @@
   function render() {
     var room = state.room;
     if (!room) return;
+    if (!arena.canPlayGame(room.gameType)) {
+      el.vs.hidden = true;
+      el.shell.hidden = false;
+      el.countdown.hidden = true;
+      window.clearInterval(countdownTimer);
+      document.body.classList.remove('is-vs-room');
+      showStatus('<h1>Chơi Bắn máy bay trên máy tính</h1>'
+        + '<p>Game cần bàn phím để gõ đáp án. Bạn hãy mở bằng máy tính để chơi.</p>'
+        + '<a class="ar-btn ar-btn--primary" href="/games">Về trang Trò chơi</a>');
+      return;
+    }
     if (room.quickMatch) {
       // Ghép trận nhanh: màn VS toàn khung, tung đồng xu chọn cài đặt.
       el.status.hidden = true;
@@ -114,6 +128,13 @@
     el.game.textContent = room.gameName + ' · Đấu tay đôi';
     el.code.textContent = room.code;
     el.visibility.textContent = 'Chỉ người có mã hoặc link mời mới vào được';
+    var skinRoot = document.querySelector('[data-room-skins]');
+    skinRoot.hidden = room.gameType !== 'NEKO_CATCH' && room.gameType !== 'AIR_DEFENSE';
+    if (!skinRoot.hidden && !skinPicker) skinPicker = window.JlasRoomSkins.mount(skinRoot, room.gameType, function (busy) {
+      state.skinBusy = busy;
+      renderActions(state.room);
+    });
+    if (skinPicker) skinPicker.setDisabled(room.status !== 'WAITING' || !!(!isHost() && me() && me().ready));
     renderSeats(room);
     renderSettings(room);
     renderActions(room);
@@ -142,9 +163,13 @@
       var avatar = player.avatarUrl
         ? '<img src="' + esc(player.avatarUrl) + '" alt="">'
         : esc(initials(player.displayName));
-      seat.innerHTML = '<div class="ar-avatar" aria-hidden="true">' + avatar + '</div>'
-        + '<h2>' + esc(player.displayName) + '</h2>'
+      // Khung avatar + màu tên người chơi mua ở Cửa hàng (components/avatar-frame.js).
+      var frames = window.JlasAvatarFrame;
+      var face = '<div class="ar-avatar" aria-hidden="true">' + avatar + '</div>';
+      seat.innerHTML = (frames ? frames.host(face, player.avatarFrame, 'ar-avatar-host') : face)
+        + '<h2' + (frames ? frames.nameAttr(player.nameStyle) : '') + '>' + esc(player.displayName) + '</h2>'
         + '<div class="ar-seat__tags">' + tags.join('') + '</div>';
+      if (frames) frames.mountAll(seat);
     }
   }
 
@@ -177,14 +202,14 @@
           : guest.displayName + ' đã sẵn sàng. Bấm bắt đầu khi bạn muốn.';
       html += '<p class="ar-room-actions__hint">' + esc(hint) + '</p>'
         + '<button type="button" class="ar-btn ar-btn--primary ar-btn--lg ar-btn--block" data-action="start"'
-        + (guest && guest.ready && !state.busy ? '' : ' disabled') + '>'
+        + (guest && guest.ready && !state.busy && !state.skinBusy ? '' : ' disabled') + '>'
         + '<i class="fa-solid fa-play" aria-hidden="true"></i> ' + (room.lastResult ? 'Đấu lại' : 'Bắt đầu') + '</button>';
     } else if (mine) {
       html += '<p class="ar-room-actions__hint">' + (mine.ready
         ? 'Bạn đã sẵn sàng. Chờ chủ phòng bắt đầu.'
         : 'Xem cài đặt trận rồi bấm "Sẵn sàng".') + '</p>'
         + '<button type="button" class="ar-btn ar-btn--lg ar-btn--block ' + (mine.ready ? '' : 'ar-btn--ok') + '" data-action="ready"'
-        + (state.busy ? ' disabled' : '') + '>'
+        + (state.busy || state.skinBusy ? ' disabled' : '') + '>'
         + (mine.ready ? 'Huỷ sẵn sàng' : '<i class="fa-solid fa-check" aria-hidden="true"></i> Sẵn sàng') + '</button>';
     }
     html += '<button type="button" class="ar-btn ar-btn--danger ar-btn--block" data-action="leave">'
@@ -243,7 +268,7 @@
   }
 
   function goToPlay(url) {
-    if (state.navigating || !url) return;
+    if (state.navigating || !url || (state.room && !arena.canPlayGame(state.room.gameType))) return;
     state.navigating = true;
     window.location.href = url;
   }
@@ -311,6 +336,34 @@
 
   function renderDialog() {
     var item = catalogItem();
+    var advanced = ['NEKO_CATCH', 'AIR_DEFENSE', 'MEMORY_MATCH'].indexOf(state.room.gameType) >= 0;
+    var gameSetup = document.querySelector('[data-dialog-game-setup]');
+    el.dialogDeck.parentElement.classList.toggle('ar-room-deck-summary', advanced);
+    el.dialogDeck.parentElement.querySelector('h2').hidden = advanced;
+    document.querySelector('[data-dialog-deck-summary]').hidden = !advanced;
+    document.querySelector('[data-dialog-deck-name]').textContent = draft.deck ? draft.deck.title : state.room.settings.setTitle;
+    document.querySelector('[data-dialog-toggle-decks]').setAttribute('aria-expanded', String(!!draft.changeDeck));
+    el.dialogDeck.hidden = advanced && !draft.changeDeck;
+    el.dialogFields.parentElement.hidden = advanced;
+    el.dialogOptions.parentElement.hidden = advanced;
+    gameSetup.hidden = !advanced;
+    if (advanced) {
+      var chosen = window.JlasRoomSettings.render(gameSetup, {
+        cards: draft.cards, question: draft.question, answer: draft.answer, options: draft.options,
+        gameType: state.room.gameType, manualDuration: draft.manualDuration,
+        onChange: function (next) {
+          draft.question = next.question; draft.answer = next.answer;
+          draft.options = next.options; draft.manualDuration = next.manualDuration;
+          renderDialog();
+        }
+      });
+      if (chosen.options) draft.options = chosen.options;
+      el.dialogProblem.hidden = !chosen.problem;
+      el.dialogProblem.textContent = draft.cardError || chosen.problem || '';
+      el.saveSettings.disabled = !!chosen.problem || !!draft.cardError;
+      if (draft.cardError) el.dialogProblem.hidden = false;
+      return;
+    }
     if (draft.detail) {
       setup.renderFieldPicker(el.dialogFields, {
         detail: draft.detail,
@@ -351,6 +404,10 @@
     var settings = state.room.settings;
     draft = {
       deck: null,
+      cards: null,
+      cardError: null,
+      changeDeck: false,
+      manualDuration: Array.isArray(settings.options && settings.options.cardIds),
       detail: null,
       question: settings.questionField,
       answer: settings.answerField,
@@ -361,8 +418,23 @@
         gameType: state.room.gameType,
         onSelect: function (deck, detail) {
           var changedDeck = draft.deck && draft.deck.id !== deck.id;
+          if (draft.deck) draft.changeDeck = false;
           draft.deck = deck;
           draft.detail = detail;
+          if (['NEKO_CATCH', 'AIR_DEFENSE', 'MEMORY_MATCH'].indexOf(state.room.gameType) >= 0) {
+            if (changedDeck) { draft.options.cardIds = null; draft.manualDuration = false; }
+            draft.cards = null; draft.cardError = null;
+            var targetDraft = draft;
+            arena.api.get('/api/games/decks/' + encodeURIComponent(deck.id) + '/cards').then(function (cards) {
+              if (draft !== targetDraft || draft.deck.id !== deck.id) return;
+              draft.cards = cards; renderDialog();
+            }).catch(function (error) {
+              if (draft !== targetDraft) return;
+              draft.cardError = error.message; renderDialog();
+            });
+            renderDialog();
+            return;
+          }
           var need = setup.minWords(state.room.gameType, draft.options);
           if (changedDeck && setup.usable(detail, draft.question, draft.answer) < need) {
             var pair = setup.bestPair(detail, state.room.gameType, draft.options);
@@ -383,6 +455,10 @@
 
   document.querySelectorAll('[data-close-dialog]').forEach(function (button) {
     button.addEventListener('click', function () { el.dialog.close(); });
+  });
+  document.querySelector('[data-dialog-toggle-decks]').addEventListener('click', function () {
+    draft.changeDeck = !draft.changeDeck;
+    renderDialog();
   });
 
   el.saveSettings.addEventListener('click', function () {
@@ -449,7 +525,7 @@
     state.catalog = results[1];
     arena.live.connect();
     applyRoom(results[2]);
-    if (state.room.status === 'PLAYING' && state.room.playUrl) {
+    if (state.room.status === 'PLAYING' && state.room.playUrl && !returnedFromMatch) {
       // Quay lại phòng khi trận của mình vẫn đang chạy: đưa thẳng về trận.
       goToPlay(state.room.playUrl);
     }

@@ -1,21 +1,32 @@
 package com.jlas.shadowing.service;
 
+import com.atilika.kuromoji.ipadic.Tokenizer;
+import com.jlas.common.util.RomajiKana;
+
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Matches Japanese answers without forcing the learner to use one exact mix of kanji and kana.
+ * Matches Japanese answers written in kanji, kana or romaji against approved transcript readings.
  * Only readings explicitly attached to the expected kanji are accepted, so an unrelated
  * homophonous kanji is not treated as correct.
  */
 final class JapaneseAnswerMatcher {
     private static final Pattern FURIGANA_ANNOTATION = Pattern.compile(
             "([\\p{IsHan}\\u3005\\u3006\\u30F5\\u30F6]+)[\\uFF08(]([^\\uFF09)]+)[\\uFF09)]");
+    private static final Pattern ROMAJI_INPUT = Pattern.compile("[A-Za-zāīūēōĀĪŪĒŌ]");
+    private static final Map<String, String> PARTICLE_READINGS = Map.of("は", "わ", "へ", "え", "を", "お");
+    private static final List<String> VOWEL_ROWS = List.of("aあかさたなはまやらわがざだばぱぁゃ",
+            "iいきしちにひみりぎじぢびぴぃ", "uうくすつぬふむゆるぐずづぶぷゔぅゅ",
+            "eえけせてねへめれげぜでべぺぇ", "oおこそとのほもよろをごぞどぼぽぉょ");
 
     private JapaneseAnswerMatcher() {
     }
@@ -32,7 +43,8 @@ final class JapaneseAnswerMatcher {
             segments = singleSegment(expected, expectedReading);
         } else if (isUsableReading(expectedReading)) {
             String normalizedActual = normalizeKana(actual);
-            if (normalizeKana(expectedReading).equals(normalizedActual)) {
+            if (normalizeKana(expectedReading).equals(normalizedActual)
+                    || matchesRomaji(singleSegment(expected, expectedReading), actual)) {
                 return result(expected, actual, MatchKind.EQUIVALENT, segments);
             }
         }
@@ -56,14 +68,184 @@ final class JapaneseAnswerMatcher {
         if (matchesSegments(segments, normalizeKana(actual))) {
             return result(expected, actual, MatchKind.EQUIVALENT, segments);
         }
+        if (matchesRomaji(segments, actual)) {
+            return result(expected, actual, MatchKind.EQUIVALENT, segments);
+        }
         return result(expected, actual, MatchKind.NONE, segments);
     }
 
     private static MatchResult result(String expected, String actual, MatchKind kind, List<Segment> segments) {
+        boolean romaji = isRomaji(actual);
+        List<Segment> comparedSegments = romaji ? romajiSegments(segments) : segments;
+        String comparedActual = romaji ? romajiKana(actual) : normalizeKana(actual);
         int score = kind == MatchKind.NONE
-                ? similarityScore(segments, normalizeKana(actual))
+                ? similarityScore(comparedSegments, comparedActual)
                 : 100;
-        return new MatchResult(kind, normalize(expected), normalize(actual), score);
+        return new MatchResult(kind, normalize(expected), normalize(actual), score,
+                kind == MatchKind.NONE ? partialFeedback(comparedSegments, comparedActual, romaji) : List.of());
+    }
+
+    /**
+     * Align against the answer's surface positions, rather than the submitted spelling's positions.
+     * Reading alternatives span their entire approved kanji group: a fragment of a reading must not
+     * reveal an unrelated kanji. Extras never move the output or expose the concealed answer.
+     */
+    private static List<FeedbackPart> partialFeedback(List<Segment> segments, String actual, boolean romaji) {
+        List<Integer> surface = new ArrayList<>();
+        List<List<FeedbackOption>> options = new ArrayList<>();
+        for (Segment segment : segments) {
+            int[] characters = normalize(segment.surface()).codePoints().toArray();
+            int start = surface.size();
+            for (int character : characters) {
+                surface.add(character);
+                List<FeedbackOption> alternatives = new ArrayList<>();
+                alternatives.add(new FeedbackOption(1, new int[]{katakanaToHiragana(character)}, false));
+                options.add(alternatives);
+            }
+            if (characters.length == 0) continue;
+            for (String reading : segment.readings()) {
+                int[] value = normalizeKana(reading).codePoints().toArray();
+                if (value.length > 0) options.get(start).add(new FeedbackOption(characters.length, value, romaji));
+            }
+            // Keep long-vowel alternatives local to a literal span, just as full-answer matching does.
+            if (romaji && segment.readings().isEmpty()) {
+                for (int index = 0; index + 1 < characters.length; index++) {
+                    int[] pair = {katakanaToHiragana(characters[index]), katakanaToHiragana(characters[index + 1])};
+                    if (romajiKey(new String(pair, 0, pair.length)).endsWith("ー")) {
+                        options.get(start + index).add(new FeedbackOption(2, pair, true));
+                    }
+                }
+            }
+        }
+
+        int[] submitted = actual.codePoints().toArray();
+        int[][] matched = new int[surface.size() + 1][submitted.length + 1];
+        for (int position = surface.size() - 1; position >= 0; position--) {
+            for (int input = submitted.length - 1; input >= 0; input--) {
+                int best = Math.max(matched[position + 1][input], matched[position][input + 1]);
+                for (FeedbackOption option : options.get(position)) {
+                    if (option.matches(submitted, input)) {
+                        best = Math.max(best, option.span() + matched[position + option.span()][input + option.value().length]);
+                    }
+                }
+                matched[position][input] = best;
+            }
+        }
+
+        boolean[] visible = new boolean[surface.size()];
+        int position = 0;
+        int input = 0;
+        while (position < surface.size() && input < submitted.length) {
+            FeedbackOption selected = null;
+            for (FeedbackOption option : options.get(position)) {
+                if (option.matches(submitted, input) && matched[position][input]
+                        == option.span() + matched[position + option.span()][input + option.value().length]) {
+                    selected = option;
+                    break;
+                }
+            }
+            if (selected != null) {
+                java.util.Arrays.fill(visible, position, position + selected.span(), true);
+                position += selected.span();
+                input += selected.value().length;
+            } else if (matched[position][input + 1] == matched[position][input]) {
+                input++;
+            } else {
+                position++;
+            }
+        }
+
+        List<FeedbackPart> parts = new ArrayList<>();
+        for (int start = 0; start < surface.size();) {
+            boolean show = visible[start];
+            StringBuilder text = new StringBuilder();
+            int end = start;
+            while (end < surface.size() && visible[end] == show) {
+                if (show) text.appendCodePoint(surface.get(end));
+                else text.append("..");
+                end++;
+            }
+            parts.add(new FeedbackPart(show, text.toString()));
+            start = end;
+        }
+        return List.copyOf(parts);
+    }
+
+    private static boolean isRomaji(String value) {
+        return value != null && ROMAJI_INPUT.matcher(Normalizer.normalize(value, Normalizer.Form.NFKC)).find();
+    }
+
+    private static boolean matchesRomaji(List<Segment> segments, String actual) {
+        return isRomaji(actual) && matchesSegments(romajiSegments(segments), romajiKana(actual), true);
+    }
+
+    private static List<Segment> romajiSegments(List<Segment> segments) {
+        String surface = segments.stream().map(Segment::surface).collect(java.util.stream.Collectors.joining());
+        Map<Integer, String> particles = new HashMap<>();
+        // Use tokenization only for particle pronunciation; kanji readings still come from the approved transcript.
+        RomajiTokenizer.INSTANCE.tokenize(surface).forEach(token -> {
+            String reading = PARTICLE_READINGS.get(token.getSurface());
+            if (reading != null && "助詞".equals(token.getPartOfSpeechLevel1())) {
+                particles.put(token.getPosition(), reading);
+            }
+        });
+        List<Segment> result = new ArrayList<>();
+        int position = 0;
+        for (Segment segment : segments) {
+            int start = 0;
+            if (segment.readings().isEmpty()) {
+                for (int index = 0; index < segment.surface().length(); index++) {
+                    String reading = particles.get(position + index);
+                    if (reading == null) continue;
+                    if (index > start) result.add(new Segment(segment.surface().substring(start, index), List.of()));
+                    result.add(new Segment(segment.surface().substring(index, index + 1), List.of(reading)));
+                    start = index + 1;
+                }
+            }
+            if (start < segment.surface().length()) {
+                result.add(new Segment(segment.surface().substring(start), segment.readings()));
+            }
+            position += segment.surface().length();
+        }
+        return result;
+    }
+
+    private static String romajiKana(String value) {
+        // Convert before removing spaces/apostrophes: shin'you and shinyou have different readings.
+        String raw = Normalizer.normalize(value == null ? "" : value, Normalizer.Form.NFKC)
+                .toLowerCase(Locale.ROOT).replace('’', '\'')
+                .replace("ā", "a-").replace("ī", "i-").replace("ū", "u-")
+                .replace("ē", "e-").replace("ō", "o-");
+        return normalizeKana(RomajiKana.toHiragana(raw));
+    }
+
+    private static String romajiKey(String value) {
+        String kana = romajiKana(value);
+        StringBuilder key = new StringBuilder();
+        char previousVowel = 0;
+        for (int index = 0; index < kana.length(); index++) {
+            char current = kana.charAt(index);
+            char vowel = vowelOf(current);
+            boolean pureVowel = "あいうえお".indexOf(current) >= 0;
+            if (pureVowel && previousVowel != 0 && (previousVowel == vowel
+                    || previousVowel == 'o' && vowel == 'u' || previousVowel == 'e' && vowel == 'i')) {
+                key.append('ー');
+                previousVowel = 0;
+            } else {
+                key.append(current);
+                previousVowel = vowel;
+            }
+        }
+        return key.toString();
+    }
+
+    private static char vowelOf(char kana) {
+        for (String row : VOWEL_ROWS) if (row.indexOf(kana, 1) >= 0) return row.charAt(0);
+        return 0;
+    }
+
+    private static final class RomajiTokenizer {
+        private static final Tokenizer INSTANCE = new Tokenizer();
     }
 
     private static List<Segment> sentenceSegments(String expected, String furigana) {
@@ -142,6 +324,10 @@ final class JapaneseAnswerMatcher {
     }
 
     private static boolean matchesSegments(List<Segment> segments, String actual) {
+        return matchesSegments(segments, actual, false);
+    }
+
+    private static boolean matchesSegments(List<Segment> segments, String actual, boolean romaji) {
         int[] actualCodePoints = actual.codePoints().toArray();
         Set<Integer> positions = new LinkedHashSet<>();
         positions.add(0);
@@ -151,7 +337,8 @@ final class JapaneseAnswerMatcher {
             for (String option : segment.options()) {
                 int[] optionCodePoints = option.codePoints().toArray();
                 for (int position : positions) {
-                    if (startsWith(actualCodePoints, position, optionCodePoints)) {
+                    if (romaji ? startsWithRomaji(actualCodePoints, position, optionCodePoints)
+                            : startsWith(actualCodePoints, position, optionCodePoints)) {
                         next.add(position + optionCodePoints.length);
                     }
                 }
@@ -160,6 +347,13 @@ final class JapaneseAnswerMatcher {
             positions = next;
         }
         return positions.contains(actualCodePoints.length);
+    }
+
+    private static boolean startsWithRomaji(int[] value, int offset, int[] prefix) {
+        if (offset + prefix.length > value.length) return false;
+        // Normalize long vowels inside the same approved segment, never across a particle/word boundary.
+        return romajiKey(new String(prefix, 0, prefix.length))
+                .equals(romajiKey(new String(value, offset, prefix.length)));
     }
 
     private static boolean startsWith(int[] value, int offset, int[] prefix) {
@@ -259,13 +453,23 @@ final class JapaneseAnswerMatcher {
         NONE
     }
 
-    record MatchResult(MatchKind kind, String normalizedExpected, String normalizedActual, int score) {
+    record MatchResult(MatchKind kind, String normalizedExpected, String normalizedActual, int score,
+                       List<FeedbackPart> feedback) {
         boolean isCorrect() {
             return kind != MatchKind.NONE;
         }
 
         boolean usesEquivalentWriting() {
             return kind == MatchKind.EQUIVALENT;
+        }
+    }
+
+    record FeedbackPart(boolean matched, String text) {
+    }
+
+    private record FeedbackOption(int span, int[] value, boolean romaji) {
+        boolean matches(int[] actual, int offset) {
+            return romaji ? startsWithRomaji(actual, offset, value) : startsWith(actual, offset, value);
         }
     }
 

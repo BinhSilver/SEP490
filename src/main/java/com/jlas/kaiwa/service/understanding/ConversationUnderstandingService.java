@@ -144,6 +144,10 @@ public class ConversationUnderstandingService {
         boolean explicitAsk = false;
         Matcher m = VOCAB_Q.matcher(msg);
         if (m.matches()) {
+            // 何ですか alone asks for an answer, not necessarily a definition.
+            // Require explicit meaning markers; ordinary personal questions go to chat.
+            boolean meaning = msg.matches("(?is).*(意味|とは|って|nghĩa|là\\s*gì|what\\s+is|意思).*");
+            if (!meaning) return null;
             candidate = cleanWord(m.group(1));
             explicitAsk = true;
         } else {

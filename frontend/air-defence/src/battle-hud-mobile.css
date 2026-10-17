@@ -1,0 +1,82 @@
+/* Desktop keeps its status rail and keyboard-oriented controls. */
+.ad-hud .ad-hud__vitals, .ad-hud .ad-hud__mobile-menu { display: none; }
+.ad-hud__mission-meta { display: contents; }
+
+@media (max-width: 600px) {
+  .ad-battle .ad-hud {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 0 0 4px;
+  }
+  .ad-battle .ad-hud__mission {
+    display: grid;
+    grid-area: 1 / 1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 8px;
+  }
+  .ad-battle .ad-hud__mission h1 { grid-area: 1 / 1; font-size: 14px; line-height: 1.3; margin: 0; }
+  .ad-battle .ad-hud__mission-meta { display: flex; grid-area: 1 / 2 / 3 / 3; align-items: center; gap: 2px; }
+  .ad-battle .ad-hud__wave { font-size: 9px; }
+  .ad-battle .ad-hud__wave > span { display: none; }
+  .ad-battle .ad-hud__wave b { padding: 0; border: 0; white-space: nowrap; }
+  .ad-battle .ad-hud__mobile-menu { display: grid; width: 44px; height: 44px; font-size: 16px; }
+  .ad-battle .ad-hud__fields { grid-area: 2 / 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; line-height: 1.5; }
+  .ad-battle .ad-hud__connection { grid-area: 3 / 1 / auto / -1; }
+  .ad-battle .ad-hud__actions, .ad-battle .ad-status-rail { display: none; }
+
+  .ad-battle .ad-hud__readouts {
+    display: grid;
+    grid-area: 2 / 1;
+    grid-template-columns: max-content repeat(3, minmax(0, 1fr)) 32px 44px;
+    align-items: center;
+    gap: 8px;
+  }
+  .ad-battle .ad-hud__stat { flex-direction: row; align-items: baseline; justify-content: center; gap: 4px; min-width: 0; white-space: nowrap; }
+  .ad-battle .ad-hud__stat > span { font-size: 10px; line-height: 1.2; }
+  .ad-battle .ad-hud__stat strong { font-size: 16px; line-height: 1.2; }
+  .ad-battle .ad-hud__time strong { font-size: 18px; }
+  .ad-battle .ad-hud__coins strong { font-size: 15px; }
+  .ad-battle .ad-hud__combo { min-width: 0; }
+  .ad-battle .ad-hud__vitals { display: contents; }
+
+  .ad-vital {
+    --vital-color: #55f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--vital-color);
+    font: inherit;
+  }
+  .ad-vital__face { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; width: 32px; height: 32px; }
+  .ad-vital__ring { position: absolute; inset: 0; width: 32px; height: 32px; fill: none; stroke-width: 3px; transform: rotate(-90deg); }
+  .ad-vital__track { stroke: #27374b; }
+  .ad-vital__fill { stroke: var(--vital-color); stroke-linecap: round; transition: stroke-dashoffset .2s ease-out; }
+  .ad-vital__face > i { font-size: 8px; }
+  .ad-vital__face > strong { color: #eef7ff; font: 700 9px/1 Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .ad-vital__face small { font-size: 6px; }
+  .ad-vital__shield { position: absolute; right: -6px; top: -5px; padding: 1px 2px; border-radius: 3px; background: #0d182b; color: #ffc857; font: 600 8px/1.2 Inter, sans-serif; }
+  .ad-vital--health.is-low { --vital-color: #ff6d86; }
+  .ad-vital--beam { --vital-color: #bca8ef; width: 44px; cursor: pointer; border-radius: 8px; touch-action: manipulation; }
+  .ad-vital--beam:disabled { cursor: default; opacity: 1; }
+  .ad-vital--beam.is-ready { --vital-color: #d2bfff; background: #a979ff18; }
+  .ad-vital--beam.is-ready:not(:disabled):active { background: #a979ff40; }
+  .ad-vital--beam:focus-visible { outline: 2px solid #d2bfff; outline-offset: 1px; }
+}
+
+@media (max-width: 420px) {
+  .ad-battle .ad-hud__readouts { gap: 5px; }
+  .ad-battle .ad-hud__stat { flex-direction: column; align-items: center; gap: 1px; }
+  .ad-battle .ad-hud__stat > span { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-vital__fill { transition: none; }
+}
+.ad-reduced-motion .ad-vital__fill { transition: none; }

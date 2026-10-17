@@ -1,5 +1,7 @@
 package com.jlas.shadowing.service;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.SubtitleRepository;
@@ -8,6 +10,7 @@ import com.jlas.shadowing.repository.VocabularyEntryRepository;
 import com.jlas.shadowing.util.NullSafe;
 import com.jlas.shadowing.util.SubtitleText;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
+import com.jlas.shadowing.util.VideoOwnership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -38,7 +41,7 @@ public class SubtitleService {
 
     @Transactional
     public Subtitle update(Long id, SubtitleUpdateRequest req) {
-        Subtitle sub = getById(id);
+        Subtitle sub = getEditableSubtitle(id);
         if (req.getText() != null) sub.setText(req.getText());
         if (req.getFurigana() != null) sub.setFurigana(req.getFurigana());
         if (req.getTranslation() != null) sub.setTranslation(req.getTranslation());
@@ -51,6 +54,7 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> bulkUpdate(Long videoId, List<SubtitleUpdateRequest> requests) {
+        Video video = getEditableVideo(videoId);
         List<Subtitle> subs = getByVideoId(videoId);
         for (int i = 0; i < Math.min(subs.size(), requests.size()); i++) {
             SubtitleUpdateRequest req = requests.get(i);
@@ -62,13 +66,13 @@ public class SubtitleService {
             if (req.getEndTime() != null) sub.setEndTime(req.getEndTime());
             NullSafe.ref(subtitleRepository.save(sub));
         }
-        markModerationStale(videoRepository.findById(NullSafe.longId(videoId)).orElse(null));
+        markModerationStale(video);
         return getByVideoId(videoId);
     }
 
     @Transactional
     public Subtitle create(Long videoId, SubtitleCreateRequest req) {
-        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        Video video = getEditableVideo(videoId);
         Subtitle sub = new Subtitle();
         sub.setVideo(video);
         sub.setText(req.getText() != null ? req.getText() : "");
@@ -85,7 +89,7 @@ public class SubtitleService {
 
     @Transactional
     public void delete(Long id) {
-        Subtitle subtitle = subtitleRepository.findById(NullSafe.longId(id)).orElseThrow();
+        Subtitle subtitle = getEditableSubtitle(id);
         Video video = subtitle.getVideo();
 
         // A blank subtitle is created only by the manual "add at playhead"
@@ -119,13 +123,12 @@ public class SubtitleService {
 
     @Transactional
     public Subtitle regenerate(Long id, String overrideText) {
-        Subtitle sub = getById(id);
+        Subtitle sub = getEditableSubtitle(id);
         String text = overrideText != null && !overrideText.isBlank() ? overrideText : sub.getText();
         String cleanText = SubtitleText.normalizeJapanese(text);
-        sub.setText(cleanText);
-
         String lang = sub.getVideo().getTargetLanguage() != null ? sub.getVideo().getTargetLanguage() : "vi";
-        Map<String, String> processed = openRouterService.processJapanese(cleanText, lang);
+        Map<String, String> processed = openRouterService.regenerateJapanese(cleanText, lang);
+        sub.setText(cleanText);
         sub.setFurigana(processed.get("furigana"));
         sub.setTranslation(processed.get("translation"));
         sub.setAiStatus(AiStatus.COMPLETED);
@@ -136,7 +139,7 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> split(Long id, SplitSubtitleRequest req) {
-        Subtitle original = getById(id);
+        Subtitle original = getEditableSubtitle(id);
         double splitTime = req.getSplitAtTime() != null ? req.getSplitAtTime()
                 : (original.getStartTime() + original.getEndTime()) / 2;
 
@@ -163,8 +166,13 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> merge(MergeSubtitleRequest req) {
-        Subtitle s1 = getById(req.getId1());
-        Subtitle s2 = getById(req.getId2());
+        Subtitle s1 = getEditableSubtitle(req.getId1());
+        Subtitle s2 = getEditableSubtitle(req.getId2());
+        if (Objects.equals(s1.getId(), s2.getId())
+                || !Objects.equals(s1.getVideo().getId(), s2.getVideo().getId())) {
+            throw new ApiException(ErrorCode.BAD_REQUEST,
+                    "Chỉ có thể ghép hai câu phụ đề khác nhau trong cùng một video");
+        }
 
         Subtitle merged = new Subtitle();
         merged.setVideo(s1.getVideo());
@@ -184,6 +192,7 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> reorder(Long videoId, List<Long> order) {
+        Video video = getEditableVideo(videoId);
         List<Subtitle> subs = getByVideoId(videoId);
         Map<Long, Subtitle> map = new HashMap<>();
         subs.forEach(s -> map.put(s.getId(), s));
@@ -220,12 +229,26 @@ public class SubtitleService {
             finalOrder.get(i).setSortOrder(i);
         }
         subtitleRepository.saveAll(finalOrder);
-        markModerationStale(videoRepository.findById(NullSafe.longId(videoId)).orElse(null));
+        markModerationStale(video);
         return subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
     }
 
     public void regenerateAllSubtitles(Long videoId) {
+        getEditableVideo(videoId);
         processingJobService.regenerateTranscript(videoId);
+    }
+
+    private Video getEditableVideo(Long videoId) {
+        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        VideoOwnership.requireOwner(video);
+        return video;
+    }
+
+    private Subtitle getEditableSubtitle(Long id) {
+        Subtitle subtitle = subtitleRepository.findById(NullSafe.longId(id)).orElseThrow();
+        VideoOwnership.requireOwner(subtitle.getVideo());
+        attachRuntimeFurigana(subtitle);
+        return subtitle;
     }
 
     private void attachRuntimeFurigana(Subtitle subtitle) {

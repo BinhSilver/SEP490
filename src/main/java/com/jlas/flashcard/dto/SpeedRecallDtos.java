@@ -9,9 +9,10 @@ public final class SpeedRecallDtos {
     private SpeedRecallDtos() {}
     public record CreateRequest(
         @NotBlank @Pattern(regexp="[0-9a-fA-F-]{36}") String requestId,
-        @NotBlank @Pattern(regexp="ALL|LEARNING|STARRED") String filter,
+        @NotBlank @Pattern(regexp="ALL|LEARNING|STARRED|CUSTOM|RANDOM") String filter,
         @Min(1) int count, boolean autoSubmit,
-        @Pattern(regexp=SpeedRecallMode.PATTERN, message="Chế độ luyện không hợp lệ") String mode) {}
+        @Pattern(regexp=SpeedRecallMode.PATTERN, message="Chế độ luyện không hợp lệ") String mode,
+        List<@NotNull @Positive Long> selectedCardIds) {}
     public record RetryRequest(@NotBlank @Pattern(regexp="[0-9a-fA-F-]{36}") String requestId) {}
     public record NextRequest(@Min(0) int questionIndex) {}
     public record AnswerRequest(@NotNull @Positive Long questionId,
@@ -20,7 +21,9 @@ public final class SpeedRecallDtos {
     public record Options(Long setId, String title, int totalCards, int eligible, int excluded,
                           int learning, int starred, String mode,
                           /** Eligible cards per mode (all cards filter), so the picker can hide empty choices. */
-                          java.util.Map<String, Integer> modeCounts) {}
+                          java.util.Map<String, Integer> modeCounts, List<OptionCard> cards) {}
+    public record OptionCard(Long id, String kanji, String hiragana, String meaning, String hanViet,
+                             boolean eligible, boolean learning, String unavailableReason) {}
     public record Question(Long id, int index, String text, String expectedAnswer,
                            int timeLimitMs, Instant deadlineAt) {}
     public record Answer(Long questionId, Long cardId, String question, String reading, String meaning,

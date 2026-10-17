@@ -1,5 +1,5 @@
 -- =============================================================================
--- JLAS - TOÀN BỘ PHẦN BỔ SUNG SAU jlas_schema.sql (gộp từ sql/migrations 001 -> 012)
+-- JLAS - TOÀN BỘ PHẦN BỔ SUNG SAU jlas_schema.sql (gộp từ sql/migrations 001 -> 013)
 --
 -- Thứ tự chạy trên DB mới:
 --   1) mysql -u root -p --default-character-set=utf8mb4 < jlas_schema.sql
@@ -46,8 +46,7 @@ CREATE TABLE IF NOT EXISTS subtitle_quality_review (
 -- 1) Roles used by the admin area (code already checks these names).
 INSERT IGNORE INTO roles (name, description) VALUES
     ('MODERATOR',   'Kiem duyet noi dung cong dong, tu khoa cam, khang nghi, dong gop tu dien'),
-    ('ADMIN',       'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung'),
-    ('SUPER_ADMIN', 'Quan tri cao nhat');
+    ('ADMIN',       'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung');
 
 -- 2) Append-only audit trail: every moderation state transition writes one row
 --    in the same transaction as the change itself.
@@ -482,7 +481,88 @@ CREATE TABLE IF NOT EXISTS shadowing_view_milestone (
 
 
 -- #############################################################################
--- 013) Giáo trình: kanji gắn tay vào bài học (lesson_kanji)
+-- 013) JLAS-W0205: alternate scenario cases
+-- #############################################################################
+-- [JLAS-W0205] Apply after the original base schema, for both fresh and existing databases.
+-- Run against the intended database; no USE statement. Safe to run again.
+SET @aicall_parent_exists = (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'parent_scenario_id');
+SET @aicall_parent_ddl = IF(@aicall_parent_exists = 0,
+    'ALTER TABLE scenario ADD COLUMN parent_scenario_id BIGINT UNSIGNED NULL, ADD KEY idx_scenario_parent (parent_scenario_id,is_active), ADD CONSTRAINT fk_scenario_parent FOREIGN KEY (parent_scenario_id) REFERENCES scenario(id)',
+    'SELECT 1');
+PREPARE aicall_parent_stmt FROM @aicall_parent_ddl;
+EXECUTE aicall_parent_stmt;
+DEALLOCATE PREPARE aicall_parent_stmt;
+
+SET @aicall_title_exists = (SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'variant_title');
+SET @aicall_title_ddl = IF(@aicall_title_exists = 0,
+    'ALTER TABLE scenario ADD COLUMN variant_title VARCHAR(200) NOT NULL DEFAULT ''Tình huống thông thường''',
+    'SELECT 1');
+PREPARE aicall_title_stmt FROM @aicall_title_ddl;
+EXECUTE aicall_title_stmt;
+DEALLOCATE PREPARE aicall_title_stmt;
+
+-- #############################################################################
+-- 014) JLAS-W0206: durable stage progress
+-- #############################################################################
+-- [JLAS-W0206] Durable AI Call stage progress and review attempts. Safe to re-run.
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_code');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_code VARCHAR(100) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_definition_json');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_definition_json JSON NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_cursor');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_cursor INT NOT NULL DEFAULT 0','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='stage_passed');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN stage_passed BOOLEAN NOT NULL DEFAULT FALSE','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='content_review');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN content_review BOOLEAN NOT NULL DEFAULT FALSE','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='current_state_code');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN current_state_code VARCHAR(80) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='completed_objectives');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN completed_objectives JSON NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_exists=(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='conversation_session' AND column_name='last_activity_at');
+SET @stage_ddl=IF(@stage_exists=0,'ALTER TABLE conversation_session ADD COLUMN last_activity_at DATETIME(6) NULL','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+SET @stage_index_exists=(SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='conversation_session' AND index_name='idx_session_stage_progress');
+SET @stage_ddl=IF(@stage_index_exists=0,'ALTER TABLE conversation_session ADD KEY idx_session_stage_progress (user_id,scenario_id,stage_code,stage_passed)','SELECT 1');
+PREPARE stage_stmt FROM @stage_ddl;
+EXECUTE stage_stmt;
+DEALLOCATE PREPARE stage_stmt;
+
+-- #############################################################################
+-- 015) Giáo trình: kanji gắn tay vào bài học (lesson_kanji)
 -- #############################################################################
 -- Trang học viên gộp kanji gắn tay với kanji suy ra từ từ vựng của bài, không trùng lặp.
 CREATE TABLE IF NOT EXISTS lesson_kanji (
@@ -498,4 +578,343 @@ CREATE TABLE IF NOT EXISTS lesson_kanji (
         REFERENCES lesson(id) ON DELETE CASCADE,
     CONSTRAINT fk_lesson_kanji_kanji FOREIGN KEY (kanji_id)
         REFERENCES kanji(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- [JLAS-SHADOWING-POPULAR] Valid view history for the rolling seven-day popularity score.
+-- Keep the accepted-view timestamp; refreshing a page never creates an event.
+CREATE TABLE IF NOT EXISTS shadowing_view_event (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    video_id   BIGINT UNSIGNED NOT NULL,
+    counted_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (user_id, video_id, counted_at),
+    KEY idx_shadowing_view_event_recent (counted_at, video_id),
+    KEY idx_shadowing_view_event_video (video_id),
+    CONSTRAINT fk_shadowing_view_event_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_shadowing_view_event_video FOREIGN KEY (video_id)
+        REFERENCES video(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Recover only the last accepted view actually known by the old tracker.
+-- Older repeated views cannot be reconstructed. Do not infer them from last_watched_at.
+INSERT IGNORE INTO shadowing_view_event (user_id, video_id, counted_at)
+SELECT user_id, video_id, last_counted_at FROM video_view_tracker
+WHERE last_counted_at >= CURRENT_TIMESTAMP(6) - INTERVAL 7 DAY
+  AND last_counted_at <= CURRENT_TIMESTAMP(6);
+
+-- [JLAS-W0252] Live Shadowing counters, derived from real interactions.
+-- Re-runnable; does not manufacture votes, views or user activity.
+-- Run after 026_shadowing_popularity.sql on an older database.
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW shadowing_video_statistics AS
+SELECT v.id AS video_id,
+       v.view_count,
+       COALESCE(e.views_last_7_days,0) AS views_last_7_days,
+       r.avg_rating,
+       COALESCE(r.rating_count,0) AS rating_count,
+       COALESCE(r.rating_1,0) AS rating_1,
+       COALESCE(r.rating_2,0) AS rating_2,
+       COALESCE(r.rating_3,0) AS rating_3,
+       COALESCE(r.rating_4,0) AS rating_4,
+       COALESCE(r.rating_5,0) AS rating_5,
+       COALESCE(r.favorite_count,0) AS favorite_count,
+       COALESCE(c.comment_count,0) AS comment_count,
+       COALESCE(s.subtitle_count,0) AS subtitle_count,
+       COALESCE(q.ready_question_count,0) AS ready_question_count,
+       COALESCE(l.series_count,0) AS series_count
+FROM video v
+LEFT JOIN (SELECT video_id, AVG(rating) AS avg_rating, COUNT(rating) AS rating_count,
+                  SUM(rating=1) AS rating_1,SUM(rating=2) AS rating_2,SUM(rating=3) AS rating_3,
+                  SUM(rating=4) AS rating_4,SUM(rating=5) AS rating_5,
+                  SUM(is_favorite) AS favorite_count
+           FROM video_user_state GROUP BY video_id) r ON r.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS views_last_7_days FROM shadowing_view_event
+           WHERE counted_at >= CURRENT_TIMESTAMP(6)-INTERVAL 7 DAY
+             AND counted_at <= CURRENT_TIMESTAMP(6) GROUP BY video_id) e ON e.video_id=v.id
+LEFT JOIN (SELECT target_id,COUNT(*) AS comment_count FROM content_comment
+           WHERE target_type='VIDEO' AND is_hidden=0 GROUP BY target_id) c ON c.target_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS subtitle_count FROM subtitle GROUP BY video_id) s ON s.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS ready_question_count FROM shadowing_question_bank
+           WHERE status='READY' GROUP BY video_id) q ON q.video_id=v.id
+LEFT JOIN (SELECT video_id,COUNT(*) AS series_count FROM shadowing_series_video GROUP BY video_id) l ON l.video_id=v.id;
+
+
+-- #############################################################################
+-- 022a) Auth: OTP attempt accounting (sql/migrations/022_auth_otp_attempts.sql)
+-- #############################################################################
+-- [JLAS-SECURITY] Add persistent OTP attempt accounting without resetting existing data.
+-- Run on the selected J-LAS database before starting the updated application. Re-runnable.
+SET @jlas_otp_ddl = IF(
+    (SELECT COUNT(*) FROM information_schema.columns
+     WHERE table_schema = DATABASE() AND table_name = 'auth_tokens' AND column_name = 'attempt_count') = 0,
+    'ALTER TABLE auth_tokens ADD COLUMN attempt_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER otp_hash',
+    'SELECT 1');
+PREPARE jlas_otp_stmt FROM @jlas_otp_ddl;
+EXECUTE jlas_otp_stmt;
+DEALLOCATE PREPARE jlas_otp_stmt;
+
+
+-- #############################################################################
+-- 022b) Avatar moderation + appeal evidence (sql/migrations/022_avatar_moderation_appeal_evidence.sql)
+-- #############################################################################
+-- [JLAS-W0250] Avatar moderation and private appeal evidence. MySQL 8.0+, re-runnable.
+-- Apply to an existing database before starting the updated app (ddl-auto=validate).
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS avatar_submission (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id       BIGINT UNSIGNED NOT NULL,
+    storage_key   VARCHAR(100) NOT NULL,
+    original_name VARCHAR(200) NOT NULL,
+    status        VARCHAR(20) NOT NULL,
+    created_at    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_avatar_submission_storage (storage_key),
+    KEY idx_avatar_submission_user (user_id, id),
+    CONSTRAINT fk_avatar_submission_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_avatar_submission_status CHECK (status IN ('SAFE','REVIEW','BLOCKED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_key');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_key VARCHAR(100) NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_name');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_name VARCHAR(200) NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_type');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_type VARCHAR(100) NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+SET @j022_column_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review_case' AND COLUMN_NAME = 'evidence_file_size');
+SET @j022_sql = IF(@j022_column_exists = 0,
+    'ALTER TABLE review_case ADD COLUMN evidence_file_size BIGINT NULL', 'DO 0');
+PREPARE j022_stmt FROM @j022_sql;
+EXECUTE j022_stmt;
+DEALLOCATE PREPARE j022_stmt;
+
+
+-- #############################################################################
+-- 024) AI Call: remove retired preparation resources (sql/migrations/024_ai_call_remove_preparation_resources.sql)
+-- #############################################################################
+-- [JLAS-W0210] Remove retired AI Call preparation metadata.
+-- Safe to rerun. Conversation samples, learning vocabulary/grammar, IDs and sessions stay intact.
+SET NAMES utf8mb4;
+
+UPDATE scenario
+SET flow_json = JSON_REMOVE(flow_json, '$.hints', '$.skillTransfers')
+WHERE JSON_CONTAINS_PATH(flow_json, 'one', '$.hints', '$.skillTransfers');
+
+UPDATE prompt_template
+SET system_prompt = REPLACE(REPLACE(REPLACE(REPLACE(system_prompt,
+    ' Lưu ý văn hóa: {{culture_note}}.', ''),
+    '- Culture note: {{culture_note}}', ''),
+    '{{culture_note}}', ''), '{{hints}}', '')
+WHERE system_prompt LIKE '%{{culture_note}}%' OR system_prompt LIKE '%{{hints}}%';
+
+-- The compact schema stores the retired resources in flow_json and a scalar column.
+SET @drop_culture_note = IF(
+    EXISTS(SELECT 1 FROM information_schema.columns
+           WHERE table_schema = DATABASE() AND table_name = 'scenario' AND column_name = 'culture_note'),
+    'ALTER TABLE scenario DROP COLUMN culture_note', 'SELECT 1');
+PREPARE cleanup_column FROM @drop_culture_note;
+EXECUTE cleanup_column;
+DEALLOCATE PREPARE cleanup_column;
+
+
+-- #############################################################################
+-- 025) Game shop skin catalog (sql/migrations/025_game_skin_catalog.sql)
+-- #############################################################################
+-- [JLAS-XXXX] Admin CRUD skin. Re-runnable on existing databases.
+-- Current built-in skins are seeded without overwriting admin changes by GameShopSchemaInitializer.
+CREATE TABLE IF NOT EXISTS game_shop_skin (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(40) NOT NULL UNIQUE,
+    game_type VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500) NOT NULL DEFAULT '',
+    price INT NOT NULL DEFAULT 0,
+    image VARCHAR(1024) NOT NULL,
+    render_code VARCHAR(40) NOT NULL,
+    starter BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT chk_game_shop_skin_price CHECK (price >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- #############################################################################
+-- 028) Kana Connect daily challenge (sql/migrations/028_daily_kana_challenge.sql)
+-- #############################################################################
+-- [JLAS-W0260] Kana Connect: safe to rerun against an existing installation.
+CREATE TABLE IF NOT EXISTS daily_kana_challenge (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    challenge_date DATE NOT NULL,
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    jlpt_level VARCHAR(10) NOT NULL,
+    mixed_levels BOOLEAN NOT NULL DEFAULT FALSE,
+    expression VARCHAR(255) NOT NULL,
+    reading VARCHAR(255) NOT NULL,
+    meaning TEXT NOT NULL,
+    cells_json TEXT NOT NULL,
+    solution_json TEXT NOT NULL,
+    hint_count INT NOT NULL DEFAULT 0,
+    started_at TIMESTAMP(6) NOT NULL,
+    completed_at TIMESTAMP(6) NULL,
+    elapsed_seconds INT NULL,
+    UNIQUE KEY uk_daily_kana_user_date (user_id, challenge_date),
+    CONSTRAINT fk_daily_kana_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- #############################################################################
+-- 029) Kana Connect shared boards + leaderboard (sql/migrations/029_kana_connect_shared_boards.sql)
+-- #############################################################################
+-- [JLAS-W0260] Kana Connect: one shared board per local day and level (N5..N1, MIX),
+-- with per-learner progress and a daily leaderboard per board.
+-- Run after 028_daily_kana_challenge.sql. Safe to re-run; keeps existing rows.
+-- Rows created before this migration have puzzle_id = NULL: they stay as history and are
+-- never shown again or ranked.
+
+CREATE TABLE IF NOT EXISTS daily_kana_puzzle (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    challenge_date DATE NOT NULL,
+    board_level    VARCHAR(10) NOT NULL,          -- N5..N1 or MIX (validated by KanaChallengeService)
+    puzzle_json    TEXT NOT NULL,                 -- versioned multi-word board (cells, words, solutions)
+    created_at     TIMESTAMP(6) NOT NULL,
+    UNIQUE KEY uk_daily_kana_puzzle_day_level (challenge_date, board_level)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 1) daily_kana_challenge.puzzle_id -> the shared board this progress row belongs to.
+SET @kana_has_puzzle_id = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'daily_kana_challenge' AND COLUMN_NAME = 'puzzle_id'
+);
+SET @kana_puzzle_id_sql = IF(@kana_has_puzzle_id = 0,
+    'ALTER TABLE daily_kana_challenge ADD COLUMN puzzle_id BIGINT UNSIGNED NULL AFTER challenge_date',
+    'SELECT 1');
+PREPARE kana_puzzle_id_stmt FROM @kana_puzzle_id_sql;
+EXECUTE kana_puzzle_id_stmt;
+DEALLOCATE PREPARE kana_puzzle_id_stmt;
+
+-- 2) One progress row per learner and board. Add it before dropping the old key, because
+--    fk_daily_kana_user needs an index that starts with user_id.
+SET @kana_has_user_puzzle = (
+    SELECT COUNT(*) FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'daily_kana_challenge'
+      AND INDEX_NAME = 'uk_daily_kana_user_puzzle'
+);
+SET @kana_user_puzzle_sql = IF(@kana_has_user_puzzle = 0,
+    'ALTER TABLE daily_kana_challenge ADD UNIQUE KEY uk_daily_kana_user_puzzle (user_id, puzzle_id)',
+    'SELECT 1');
+PREPARE kana_user_puzzle_stmt FROM @kana_user_puzzle_sql;
+EXECUTE kana_user_puzzle_stmt;
+DEALLOCATE PREPARE kana_user_puzzle_stmt;
+
+-- 3) A learner may now play several boards (levels) on the same day.
+SET @kana_has_user_date = (
+    SELECT COUNT(*) FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'daily_kana_challenge'
+      AND INDEX_NAME = 'uk_daily_kana_user_date'
+);
+SET @kana_user_date_sql = IF(@kana_has_user_date > 0,
+    'ALTER TABLE daily_kana_challenge DROP INDEX uk_daily_kana_user_date',
+    'SELECT 1');
+PREPARE kana_user_date_stmt FROM @kana_user_date_sql;
+EXECUTE kana_user_date_stmt;
+DEALLOCATE PREPARE kana_user_date_stmt;
+
+-- 4) Leaderboard lookup: finishers of one board, fastest first.
+SET @kana_has_board_idx = (
+    SELECT COUNT(*) FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'daily_kana_challenge'
+      AND INDEX_NAME = 'idx_daily_kana_board_rank'
+);
+SET @kana_board_idx_sql = IF(@kana_has_board_idx = 0,
+    'ALTER TABLE daily_kana_challenge ADD KEY idx_daily_kana_board_rank (puzzle_id, elapsed_seconds, completed_at)',
+    'SELECT 1');
+PREPARE kana_board_idx_stmt FROM @kana_board_idx_sql;
+EXECUTE kana_board_idx_stmt;
+DEALLOCATE PREPARE kana_board_idx_stmt;
+
+-- 5) Progress rows follow their board.
+SET @kana_has_puzzle_fk = (
+    SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'daily_kana_challenge'
+      AND CONSTRAINT_NAME = 'fk_daily_kana_puzzle'
+);
+SET @kana_puzzle_fk_sql = IF(@kana_has_puzzle_fk = 0,
+    'ALTER TABLE daily_kana_challenge ADD CONSTRAINT fk_daily_kana_puzzle FOREIGN KEY (puzzle_id) REFERENCES daily_kana_puzzle(id) ON DELETE CASCADE',
+    'SELECT 1');
+PREPARE kana_puzzle_fk_stmt FROM @kana_puzzle_fk_sql;
+EXECUTE kana_puzzle_fk_stmt;
+DEALLOCATE PREPARE kana_puzzle_fk_stmt;
+
+-- #############################################################################
+-- 033) Merge roles: SUPER_ADMIN -> ADMIN, CONTENT_ADMIN -> CONTENT_CREATOR (sql/migrations/033_merge_roles.sql)
+-- #############################################################################
+-- [JLAS-W0250] Merge account roles: SUPER_ADMIN -> ADMIN, CONTENT_ADMIN -> CONTENT_CREATOR.
+-- Four roles remain: LEARNER, MODERATOR, ADMIN, CONTENT_CREATOR. ADMIN does not get content-editing
+-- rights; CONTENT_CREATOR now also has the content-review access CONTENT_ADMIN had (Onyomi, AI Call).
+-- Safe to re-run; moves users first, then deletes the retired role rows (users.role_id has a FK).
+-- The app also folds the old names at login (com.jlas.auth.security.Roles), so order is not critical.
+SET NAMES utf8mb4;
+
+INSERT IGNORE INTO roles (name, description) VALUES
+    ('ADMIN',           'Quan tri: toan bo quyen kiem duyet va che tai nguoi dung'),
+    ('CONTENT_CREATOR', 'Người biên soạn nội dung');
+
+UPDATE users u
+JOIN roles old_role ON old_role.id = u.role_id AND old_role.name = 'SUPER_ADMIN'
+JOIN roles new_role ON new_role.name = 'ADMIN'
+SET u.role_id = new_role.id;
+
+UPDATE users u
+JOIN roles old_role ON old_role.id = u.role_id AND old_role.name = 'CONTENT_ADMIN'
+JOIN roles new_role ON new_role.name = 'CONTENT_CREATOR'
+SET u.role_id = new_role.id;
+
+DELETE r FROM roles r
+LEFT JOIN users u ON u.role_id = r.id
+WHERE r.name IN ('SUPER_ADMIN', 'CONTENT_ADMIN') AND u.id IS NULL;
+
+
+-- #############################################################################
+-- 035) Khung avatar + màu tên (sql/migrations/035_avatar_frames.sql)
+-- #############################################################################
+-- [JLAS-XXXX] Khung avatar + màu tên: món trang trí hồ sơ bán trong Cửa hàng bằng CP chung.
+-- Danh mục khung nằm trong code (AvatarFrameCatalog); DB chỉ lưu khung đã mua và lựa chọn đang dùng. Safe to rerun.
+-- Mua một khung là mở luôn màu tên đi kèm, nên không có bảng riêng cho màu tên.
+CREATE TABLE IF NOT EXISTS user_avatar_frame (
+    user_id      BIGINT UNSIGNED NOT NULL,
+    frame_code   VARCHAR(40) NOT NULL,
+    price_paid   INT NOT NULL DEFAULT 0,
+    purchased_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, frame_code),
+    CONSTRAINT fk_user_avatar_frame_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_user_avatar_frame_price CHECK (price_paid >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- NULL = không dùng khung / màu tên mặc định.
+CREATE TABLE IF NOT EXISTS user_profile_style (
+    user_id    BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    frame_code VARCHAR(40) NULL,
+    name_style VARCHAR(40) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    CONSTRAINT fk_user_profile_style_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

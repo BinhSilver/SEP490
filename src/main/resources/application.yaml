@@ -37,6 +37,17 @@ spring:
 # ── Server ───────────────────────────────────────────────────────────────────
 server:
   port: 8080
+  forward-headers-strategy: none
+
+game:
+  voice:
+    enabled: ${GAME_VOICE_ENABLED:false}
+    url: ${GAME_VOICE_URL:}
+    api-key: ${GAME_VOICE_API_KEY:}
+    api-secret: ${GAME_VOICE_API_SECRET:}
+    allowed-origins: ${GAME_VOICE_ALLOWED_ORIGINS:}
+    token-ttl-seconds: ${GAME_VOICE_TOKEN_TTL_SECONDS:60}
+    tokens-per-minute: ${GAME_VOICE_TOKENS_PER_MINUTE:10}
 
 management:
   endpoints:
@@ -77,6 +88,11 @@ ffmpeg:
 yt-dlp:
   bin:
     path: ${YT_DLP_BIN_PATH:yt-dlp}
+  python:
+    path: ${YT_DLP_PYTHON_PATH:}
+  js-runtime: ${YT_DLP_JS_RUNTIME:}
+  download:
+    helper-path: ${YT_DLP_DOWNLOAD_HELPER_PATH:}
 
 youtube:
   max:
@@ -191,6 +207,10 @@ shadowing:
       max-subtitles-per-session: ${SHADOWING_PRACTICE_AI_MAX_SUBTITLES:120}
 
 moderation:
+  avatar:
+    storage: ${MODERATION_AVATAR_STORAGE:storage/moderation/avatar}
+  appeal:
+    storage: ${MODERATION_APPEAL_STORAGE:storage/moderation/appeals}
   enabled: ${MODERATION_ENABLED:true}
   image:
     enabled: ${MODERATION_IMAGE_ENABLED:true}

@@ -3,6 +3,7 @@ package com.jlas.game.controller;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.game.dto.MemoryDtos.FlipRequest;
+import com.jlas.game.dto.MemoryDtos.CoinChoiceRequest;
 import com.jlas.game.dto.MemoryDtos.MemoryStartRequest;
 import com.jlas.game.dto.MemoryDtos.MemoryStateView;
 import com.jlas.game.service.MemoryMatchService;
@@ -35,6 +36,12 @@ public class MemoryMatchController {
                                                              @Valid @RequestBody FlipRequest request,
                                                              @AuthenticationPrincipal UserPrincipal user) {
         return ok(memoryMatchService.flip(sessionId, user.userId(), request.cardInstanceId()));
+    }
+
+    @PostMapping("/coin")
+    public ResponseEntity<ApiResponse<MemoryStateView>> coin(@PathVariable String sessionId,
+            @Valid @RequestBody CoinChoiceRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        return ok(memoryMatchService.chooseCoinSide(sessionId, user.userId(), request.side()));
     }
 
     @PostMapping("/start")

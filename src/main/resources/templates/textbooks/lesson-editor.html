@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: standard('Biên soạn bài học - JLAS', 'textbooks')}"></head>
+<head th:replace="~{fragments/admin-head :: head('Biên soạn bài học - JLAS', 'textbooks')}"></head>
 
-<body id="jlabBasePage" class="app-body page-textbooks">
+<body id="jlabBasePage" class="admin-portal page-textbooks">
 
-    <div id="jlabBaseShellMount"></div>
+    <div id="adminShellMount"></div>
 
-    <main id="jlabBaseContent" class="app-main textbooks-main editor-main" th:attr="data-lesson-id=${lessonId}">
+    <main id="jlabBaseContent" class="app-main textbooks-main editor-main" th:attr="data-lesson-id=${lessonId}" hidden>
         <nav class="textbooks-breadcrumb" aria-label="Breadcrumb">
             <a th:href="@{/textbooks/manage}"><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i> Quản lý nội dung</a>
             <span aria-hidden="true">/</span>
@@ -182,8 +182,9 @@
 
     <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 
-    <script th:src="@{/js/jlab-base-shell.js}"></script>
-    <script th:src="@{/js/pages/lesson-editor.js}"></script>
+    <script th:src="@{/js/pages/admin-core.js}"></script>
+    <script th:src="@{/js/admin-shell.js}"></script>
+    <script th:src="@{/js/pages/lesson-editor.js(v=20261013portal)}"></script>
 
 </body>
 

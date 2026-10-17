@@ -17,6 +17,7 @@ import com.jlas.kaiwa.service.learning.SuggestedReplyService;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService.QuotaExceededException;
 import com.jlas.kaiwa.service.turn.AiCallTurnService;
+import com.jlas.kaiwa.service.understanding.JapaneseChatInputValidator;
 import com.jlas.moderation.service.UserSanctionService;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class ConversationApiController {
     private final AiCallQuotaService quotaService;
     private final UserSanctionService sanctions;
     private final AiCallTurnService turnService;
+    private final JapaneseChatInputValidator inputValidator;
 
     public ConversationApiController(
             AIConversationService conversationService,
@@ -48,7 +50,8 @@ public class ConversationApiController {
             ConversationSessionRepository sessionRepository,
             AiCallQuotaService quotaService,
             UserSanctionService sanctions,
-            AiCallTurnService turnService) {
+            AiCallTurnService turnService,
+            JapaneseChatInputValidator inputValidator) {
         this.conversationService = conversationService;
         this.annotationService = annotationService;
         this.suggestedReplyService = suggestedReplyService;
@@ -56,6 +59,7 @@ public class ConversationApiController {
         this.quotaService = quotaService;
         this.sanctions = sanctions;
         this.turnService = turnService;
+        this.inputValidator = inputValidator;
     }
 
     @PostMapping("/chat")
@@ -68,6 +72,7 @@ public class ConversationApiController {
         UserPrincipal current = currentUser();
         ownedSession(request.getSessionId(), current);
         sanctions.assertCanAct(current.userId());
+        inputValidator.validate(request.getMessage());
         // Giữ chỗ hạn mức/CP -> gọi AI -> chốt hoặc hoàn (JLAS-W0199).
         return ResponseEntity.ok(turnService.chat(current, request));
     }
@@ -78,7 +83,8 @@ public class ConversationApiController {
         ConversationSession session = ownedSession(sessionId, currentUser());
         conversationService.endSession(session.getId());
         String next = FreeChatSupport.isFreeChat(session) ? "/ai-call" : "/conversation/" + sessionId + "/result";
-        return ResponseEntity.ok(Map.of("ended", true, "redirectUrl", next));
+        return ResponseEntity.ok(Map.of("ended", true, "redirectUrl", next,
+                "memoryProcessing", FreeChatSupport.isFreeChat(session) ? "QUEUED" : "NOT_APPLICABLE"));
     }
 
     /** Quota hiện tại để giao diện hiển thị hạn mức còn lại. */
@@ -87,29 +93,17 @@ public class ConversationApiController {
         return ResponseEntity.ok(quotaService.snapshot(currentUser()));
     }
 
-    @GetMapping("/{sessionId}/hint")
-    public ResponseEntity<Map<String, String>> hint(
-            @PathVariable Long sessionId,
-            @RequestParam(defaultValue = "1") int level) {
-        ownedSession(sessionId, currentUser());
-        return ResponseEntity.ok(Map.of("hint", conversationService.getHint(sessionId, level)));
-    }
-
     @PostMapping("/{sessionId}/furigana")
     public ResponseEntity<Map<String, Object>> furigana(
             @PathVariable Long sessionId,
             @RequestBody Map<String, Object> body) {
         ConversationSession session = ownedSession(sessionId, currentUser());
-        if (FreeChatSupport.isFreeChat(session)) {
-            // Free chat: no learning annotation pipeline
-            return ResponseEntity.ok(Map.of("tokens", List.of()));
-        }
         String text = body.get("text") == null ? "" : String.valueOf(body.get("text"));
         // allowAi=true only when client asks (nút あ); mặc định chỉ DB vocab + cache
         boolean allowAi = Boolean.TRUE.equals(body.get("allowAi"))
                 || "true".equalsIgnoreCase(String.valueOf(body.getOrDefault("allowAi", "false")));
         List<FuriganaTokenDto> tokens = annotationService.annotateFurigana(
-                session.getScenario().getId(), text, allowAi);
+                FreeChatSupport.isFreeChat(session) ? null : session.getScenario().getId(), text, allowAi);
         long rubyCount = tokens.stream()
                 .filter(token -> token.getReading() != null && !token.getReading().isBlank())
                 .count();
@@ -123,11 +117,8 @@ public class ConversationApiController {
             @PathVariable Long sessionId,
             @RequestBody Map<String, String> body) {
         ConversationSession session = ownedSession(sessionId, currentUser());
-        if (FreeChatSupport.isFreeChat(session)) {
-            return ResponseEntity.ok(Map.of("translation", ""));
-        }
         String text = body.getOrDefault("text", "");
-        String vi = annotationService.translate(session.getScenario().getId(), text);
+        String vi = annotationService.translate(FreeChatSupport.isFreeChat(session) ? null : session.getScenario().getId(), text);
         return ResponseEntity.ok(Map.of("translation", vi != null ? vi : ""));
     }
 

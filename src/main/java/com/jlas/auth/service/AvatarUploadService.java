@@ -1,87 +1,125 @@
 package com.jlas.auth.service;
 
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
-
+import com.jlas.auth.entity.AvatarSubmission;
+import com.jlas.auth.repository.AvatarSubmissionRepository;
+import com.jlas.auth.repository.UserRepository;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
+import com.jlas.moderation.dto.ModerationTargetSnapshot;
+import com.jlas.moderation.service.ContentModerationPort;
+import com.jlas.moderation.service.ModerationRateLimitService;
+import com.jlas.moderation.service.ModerationTargetHandler;
+import com.jlas.moderation.service.UserActionPolicyPort;
+import com.jlas.moderation.model.ModerationVerdict;
+import com.jlas.moderation.util.ImageUploads;
+import com.jlas.moderation.util.UploadFiles;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class AvatarUploadService {
-    // Dùng chung với thumbnail giáo trình (ContentAdminServiceImpl): cùng giới hạn, cùng định dạng ảnh.
-    public static final long MAX_SIZE = 2L * 1024 * 1024;
+public class AvatarUploadService implements ModerationTargetHandler {
+    public static final long MAX_SIZE = 10L * 1024 * 1024;
     public static final Set<String> EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp");
     public static final Set<String> MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+    public record UploadResult(Long id, String avatar, String moderationStatus) {}
+    private final Path publicDirectory;
+    private final Path privateDirectory;
+    private final AvatarSubmissionRepository submissions;
+    private final UserRepository users;
+    private final ContentModerationPort moderation;
+    private final ModerationRateLimitService rateLimits;
+    private final UserActionPolicyPort actionPolicy;
 
-    private final Path uploadDirectory;
-
-    public AvatarUploadService(@Value("${upload.path.avatar:uploads/avatar}") String uploadDirectory) {
-        this.uploadDirectory = Paths.get(uploadDirectory).toAbsolutePath().normalize();
+    public AvatarUploadService(@Value("${upload.path.avatar:uploads/avatar}") String publicDirectory,
+            @Value("${moderation.avatar.storage:storage/moderation/avatar}") String privateDirectory,
+            AvatarSubmissionRepository submissions, UserRepository users,
+            ContentModerationPort moderation, ModerationRateLimitService rateLimits,
+            UserActionPolicyPort actionPolicy) {
+        this.publicDirectory = Path.of(publicDirectory).toAbsolutePath().normalize();
+        this.privateDirectory = Path.of(privateDirectory).toAbsolutePath().normalize();
+        this.submissions = submissions; this.users = users; this.moderation = moderation; this.rateLimits = rateLimits; this.actionPolicy = actionPolicy;
     }
-
-    @PostConstruct
-    void initialize() throws IOException {
-        Files.createDirectories(uploadDirectory);
-    }
-
-    public String store(Long userId, MultipartFile file) {
-        if (file == null || file.isEmpty()) throw badRequest("File is empty");
-        if (file.getSize() > MAX_SIZE) throw badRequest("File is too large (maximum 2 MB)");
-
-        String extension = extension(file.getOriginalFilename());
-        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
-        if (!EXTENSIONS.contains(extension) || !MIME_TYPES.contains(contentType)) {
-            throw badRequest("Only JPG, PNG and WEBP images are supported");
+    @Transactional
+    public UploadResult store(Long userId, MultipartFile file) {
+        actionPolicy.assertCanAct(userId);
+        byte[] bytes = ImageUploads.validate(file, MAX_SIZE, false);
+        rateLimits.checkImageUpload("avatar:" + userId);
+        String key = "u" + userId + "-" + UUID.randomUUID() + "." + extension(file.getOriginalFilename());
+        Path target = privateDirectory.resolve(key);
+        UploadFiles.write(target, bytes);
+        var result = moderation.scanImage(target, file.getOriginalFilename());
+        // Acquire the lock after the external scan; reviewer decisions use this same lock.
+        var user = users.findForProfileUpdate(userId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        // Skipped deep scans require a reviewer; errors also remain private.
+        boolean safe = result.isSafe() && !"vision-skipped".equals(result.getModelName());
+        if (!safe && !result.isBlocked()) result.setVerdict(ModerationVerdict.REVIEW);
+        String status = safe ? "SAFE" : result.isBlocked() ? "BLOCKED" : "REVIEW";
+        var submission = submissions.save(AvatarSubmission.builder().userId(userId).storageKey(key)
+                .originalName(UploadFiles.displayName(file.getOriginalFilename())).status(status).build());
+        Long logId = moderation.persistLog("USER_AVATAR", submission.getId(), userId, "UPLOAD", key, result);
+        if (safe) {
+            UploadFiles.write(publicDirectory.resolve(key), bytes);
+            user.setAvatarUrl(url(submission)); users.save(user);
+        } else {
+            moderation.enqueueReview(logId, "USER_AVATAR", submission.getId(), userId,
+                    "Ảnh đại diện: " + submission.getOriginalName(), result.getSummary());
         }
-
-        byte[] content;
-        try {
-            content = file.getBytes();
-        } catch (IOException exception) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not read avatar", exception);
-        }
-        if (!hasImageSignature(content, extension)) throw badRequest("Invalid image content");
-
-        String filename = "u" + userId + "-" + UUID.randomUUID() + "." + extension;
-        Path target = uploadDirectory.resolve(filename).normalize();
-        if (!target.startsWith(uploadDirectory)) throw badRequest("Invalid upload path");
-        try {
-            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException exception) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not save avatar", exception);
-        }
-        return "/uploads/avatar/" + filename;
+        return new UploadResult(submission.getId(), safe ? url(submission) : null, status);
     }
-
-    public static String extension(String filename) {
-        if (filename == null || !filename.contains(".")) return "";
-        return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+    public void assertApproved(Long userId, String url) {
+        String prefix = "/uploads/avatar/";
+        if (!url.startsWith(prefix) || !submissions.existsByUserIdAndStorageKeyAndStatus(
+                userId, url.substring(prefix.length()), "SAFE")) {
+            throw new ApiException(ErrorCode.CONTENT_PENDING_REVIEW, "Hãy tải ảnh đại diện lên và chờ kiểm duyệt");
+        }
     }
-
-    /** Magic bytes phải khớp đuôi file (JPEG FF D8 FF, PNG 89 'PNG', WEBP 'RIFF'....'WEBP'). */
+    public Path preview(Long id) { return privateDirectory.resolve(find(id).getStorageKey()); }
+    @Override public boolean supports(String type) { return "USER_AVATAR".equals(type); }
+    @Override public ModerationTargetSnapshot snapshot(String type, Long id) {
+        return submissions.findById(id)
+                .map(submission -> new ModerationTargetSnapshot(submission.getOriginalName(),
+                        "/api/admin/moderation/avatars/" + id + "/file"))
+                .orElseGet(ModerationTargetSnapshot::empty);
+    }
+    @Override @Transactional
+    public void resolve(String type, Long id, boolean approve, String note) {
+        var submission = find(id);
+        var user = users.findForProfileUpdate(submission.getUserId()).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        if (approve) {
+            var latest = submissions.findFirstByUserIdOrderByIdDesc(submission.getUserId());
+            if (latest.isEmpty() || !id.equals(latest.get().getId())) {
+                throw new ApiException(ErrorCode.CONFLICT, "Người dùng đã tải ảnh mới hơn; hãy từ chối mục cũ");
+            }
+            try { UploadFiles.write(publicDirectory.resolve(submission.getStorageKey()), Files.readAllBytes(preview(id))); }
+            catch (IOException e) { throw new ApiException(ErrorCode.INTERNAL_ERROR, "Không đọc được ảnh đại diện"); }
+            user.setAvatarUrl(url(submission));
+        } else {
+            if (url(submission).equals(user.getAvatarUrl())) user.setAvatarUrl(null);
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() { UploadFiles.delete(publicDirectory.resolve(submission.getStorageKey())); }
+            });
+        }
+        submission.setStatus(approve ? "SAFE" : "BLOCKED");
+        submissions.save(submission); users.save(user);
+    }
+    private AvatarSubmission find(Long id) {
+        return submissions.findById(id).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy ảnh"));
+    }
+    private String url(AvatarSubmission submission) { return "/uploads/avatar/" + submission.getStorageKey(); }
+    public static String extension(String filename) { return UploadFiles.extension(filename); }
     public static boolean hasImageSignature(byte[] bytes, String extension) {
         if (bytes == null || bytes.length < 12) return false;
-        if (extension.equals("jpg") || extension.equals("jpeg")) {
-            return (bytes[0] & 0xff) == 0xff && (bytes[1] & 0xff) == 0xd8 && (bytes[2] & 0xff) == 0xff;
-        }
-        if (extension.equals("png")) {
-            return (bytes[0] & 0xff) == 0x89 && bytes[1] == 'P' && bytes[2] == 'N' && bytes[3] == 'G';
-        }
+        if (!"webp".equals(extension)) return ImageUploads.hasSignature(bytes, extension);
         return bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
                 && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P';
-    }
-
-    private static ResponseStatusException badRequest(String message) {
-        return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 }

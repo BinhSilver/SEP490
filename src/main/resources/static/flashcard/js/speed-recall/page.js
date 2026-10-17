@@ -1,22 +1,25 @@
 import { createApi } from './api.js';
-import { RecallEngine } from './engine.js';
-import { isKanaAnswer, normalizeAnswer, ANSWER_TYPES } from './rules.js';
+import { RecallEngine } from './engine.js?v=20261006-romaji';
+import { romajiToHiragana } from './romaji.js';
+import { normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
+import { bindSetupUi } from './setup-ui.js?v=20261011';
+import '../card-selection.js?v=20261011-four-modes';
 
 const params = new URLSearchParams(location.search);
 const setId = params.get('setId');
 const autoStart = params.get('autostart') === '1';
 let sessionId = params.get('sessionId'), page = 0, options, retryOperation;
-let compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false, incorrectResetTimer;
-const INCORRECT_REVEAL_MS = 1000;
+let pendingEnterQuestionId, compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false;
 const api = createApi(setId), engine = new RecallEngine(), timer = createTimer();
 const events = new AbortController();
+bindSetupUi(events.signal);
 const studyUrl = '/flashcard/speed-recall.html?setId=' + encodeURIComponent(setId || '');
 const setUrl = '/flashcard/study.html?setId=' + encodeURIComponent(setId || '');
 const terminal = state => ['FINISHED', 'ABANDONED', 'EXPIRED'].includes(state);
 const labels = { READY: 'Chưa bắt đầu', PLAYING: 'Đang học', ANSWER_FEEDBACK: 'Đang học', PAUSED: 'Tạm dừng', FINISHED: 'Đã hoàn tất', ABANDONED: 'Đã kết thúc sớm', EXPIRED: 'Phiên đã hết hạn' };
-const filters = { ALL: 'Tất cả thẻ', LEARNING: 'Thẻ mới / chưa nhớ', STARRED: 'Thẻ có sao', RETRY: 'Luyện lại từ sai' };
+const filters = { ALL: 'Tất cả thẻ', LEARNING: 'Thẻ mới / chưa nhớ', STARRED: 'Thẻ có sao', CUSTOM: 'Chọn cặp từ tùy ý', RANDOM: 'Ngẫu nhiên', RETRY: 'Luyện lại từ sai' };
 
 // ── Question / answer mode ─────────────────────────────────────────────
 // Any card field can be asked and any other one answered. A card joins a mode only when it has both
@@ -25,17 +28,18 @@ const FIELDS = ['KANJI', 'HIRAGANA', 'MEANING', 'HAN_VIET'];
 const FIELD_NAMES = { KANJI: 'Kanji', HIRAGANA: 'Hiragana', MEANING: 'Nghĩa', HAN_VIET: 'Hán Việt' };
 const FIELD_LABELS = { KANJI: 'Kanji', HIRAGANA: 'cách đọc', MEANING: 'nghĩa', HAN_VIET: 'âm Hán Việt' };
 const ANSWER_PROMPTS = {
-  HIRAGANA: 'Nhập cách đọc bằng kana',
+  HIRAGANA: 'Gõ Romaji hoặc kana, Enter để kiểm tra',
   KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật, Enter để kiểm tra',
   MEANING: 'Gõ nghĩa tiếng Việt (có dấu hay không đều được), Enter để kiểm tra',
   HAN_VIET: 'Gõ âm Hán Việt (có dấu hay không đều được), Enter để kiểm tra'
 };
 const ANSWER_HINTS = {
-  HIRAGANA: 'Gõ bằng kana', KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật',
+  HIRAGANA: 'Gõ Romaji bằng bàn phím ENG hoặc nhập kana', KANJI: 'Gõ Kanji bằng bộ gõ tiếng Nhật',
   MEANING: 'Gõ nghĩa, có dấu hay không dấu đều được', HAN_VIET: 'Gõ âm Hán Việt, có dấu hay không dấu đều được'
 };
 const MODE_KEY = 'jlas.speedRecall.mode';
 let mode = { question: 'KANJI', answer: 'HIRAGANA' };
+let selectedCardIds = null, randomSelection = null;
 // The original mode is named KANJI_TO_READING, so a Hiragana answer is "READING" on the wire.
 function modeName(m = mode) { return m.question + '_TO_' + (m.answer === 'HIRAGANA' ? 'READING' : m.answer); }
 function parseMode(name) {
@@ -88,6 +92,7 @@ function renderModePicker() {
   text('answer-hint', ANSWER_HINTS[mode.answer]);
 }
 async function changeMode(next) {
+  if (engine.busy || retryOperation) return;
   if (!validMode(next)) next = nearestMode(next);
   if (next.question === mode.question && next.answer === mode.answer) return;
   mode = next; saveMode(); renderModePicker();
@@ -100,11 +105,11 @@ function applySessionMode(name) {
   engine.type = ANSWER_TYPES[m.answer];
   if (!$('playing') || !$('typing-input')) return; // result/history pages have no play surface
   // Read by CSS (::before / ::after) for the mode chip and the footer line.
-  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name).toUpperCase().replace(' → ', '  →  ');
+  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name).replace(' → ', '  →  ');
   $('playing').dataset.answerHint = ANSWER_HINTS[m.answer] + ' để trả lời';
   $('question-word').lang = m.question === 'KANJI' || m.question === 'HIRAGANA' ? 'ja' : 'vi';
   const input = $('typing-input');
-  input.lang = ANSWER_TYPES[m.answer].lang;
+  input.lang = m.answer === 'HIRAGANA' ? 'en' : ANSWER_TYPES[m.answer].lang;
   text('answer-prompt', ANSWER_PROMPTS[m.answer]);
   input.setAttribute('aria-label', ANSWER_PROMPTS[m.answer]);
   $('typing-slots').setAttribute('aria-label', 'Chạm để nhập đáp án');
@@ -130,21 +135,57 @@ function controls() {
   if (next) {
     next.hidden = engine.view?.state !== 'ANSWER_FEEDBACK';
     next.disabled = busy || !canAdvance;
+    text('game-keyboard-hint', engine.view?.state === 'ANSWER_FEEDBACK'
+      ? (busy ? 'Đang đồng bộ kết quả…' : canAdvance ? 'Nhấn Enter để sang câu tiếp' : 'Chờ một chút để sang câu tiếp…')
+      : 'Nhấn Enter để kiểm tra đáp án');
   }
-  $('typing-input').disabled = engine.view?.state !== 'PLAYING' || !!incorrectResetTimer;
+  $('typing-input').disabled = engine.view?.state !== 'PLAYING' || busy;
+  show('answer-tools', engine.view?.state === 'PLAYING');
+  $('clear-answer').disabled = busy || !engine.input;
 }
 function available() {
-  if (!options) return 0;
-  return options[{ ALL: 'eligible', LEARNING: 'learning', STARRED: 'starred' }[$('filter').value]] || 0;
+  return selectionPool().length;
+}
+function selectionPool() {
+  return window.FlashcardSelection.pool(options?.cards || [], $('filter').value,
+    card => $('filter').value === 'LEARNING' ? card.learning : card.eligible,
+    card => card.learning, selectedCardIds || new Set());
+}
+function sessionCards() {
+  const pool = selectionPool();
+  if ($('filter').value !== 'RANDOM') return pool;
+  const count = Number($('count').value);
+  const key = [modeName(), count, ...pool.map(card => card.id)].join('|');
+  if (randomSelection?.key !== key) randomSelection = { key, cards: window.FlashcardSelection.sample(pool, count) };
+  return randomSelection.cards;
+}
+function renderSelection() {
+  const host = $('selection-list');
+  if (!host) return;
+  const fieldValue = (card, field) => card[{ KANJI: 'kanji', HIRAGANA: 'hiragana', MEANING: 'meaning', HAN_VIET: 'hanViet' }[field]] || '';
+  const cards = sessionCards(), custom = $('filter').value === 'CUSTOM';
+  host.innerHTML = window.FlashcardSelection.table({
+    cards: custom ? options?.cards || [] : cards, mode: $('filter').value,
+    selected: custom ? selectedCardIds || new Set() : new Set(cards.map(card => card.id)),
+    eligible: card => $('filter').value === 'LEARNING' ? card.learning : card.eligible,
+    questionLabel: FIELD_NAMES[mode.question], answerLabel: FIELD_NAMES[mode.answer],
+    question: card => fieldValue(card, mode.question), answer: card => fieldValue(card, mode.answer),
+    reason: card => card.unavailableReason
+  });
 }
 function optionSummary() {
+  const eligible = new Set((options?.cards || []).filter(card => card.eligible).map(card => card.id));
+  if (selectedCardIds === null) selectedCardIds = new Set(eligible);
+  else selectedCardIds.forEach(id => { if (!eligible.has(id)) selectedCardIds.delete(id); });
   const total = available(), count = $('count');
   const current = Number(count.value);
   count.max = String(total);
-  count.value = String(Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
+  count.readOnly = $('filter').value !== 'RANDOM';
+  count.value = String(count.readOnly ? total : Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
   text('count-label', 'Số câu');
   text('count-suffix', '/ ' + total + ' thẻ');
   text('eligible-count', total + ' thẻ sẵn sàng');
+  renderSelection();
   controls();
 }
 function validQuestionCount(report) {
@@ -170,10 +211,12 @@ async function run(operation) {
   } finally {
     engine.busy = false; show('loading', false); controls();
     if (!retryOperation && engine.view) schedule();
+    if (!retryOperation && engine.view?.state === 'PLAYING' && !document.hidden) $('typing-input').focus({ preventScroll: true });
   }
 }
 function accept(view) {
   applySessionMode(view.mode);
+  if (view.state !== 'PLAYING' || view.question?.id !== pendingEnterQuestionId) pendingEnterQuestionId = undefined;
   engine.setView(view); sessionId = String(view.id);
   canAdvance = view.state === 'ANSWER_FEEDBACK' && remaining(view.feedbackUntil, view.serverNow) === 0;
   const path = terminal(view.state) ? '/flashcard/speed-recall-result.html' : '/flashcard/speed-recall.html';
@@ -187,24 +230,42 @@ function render() {
   if (v.state !== 'PAUSED' && dialog.open) dialog.close();
   if (terminal(v.state)) {
     section('result');
+    const perfect = v.state === 'FINISHED' && v.stats.correct === v.stats.total && v.stats.correct > 0;
+    $('result').dataset.outcome = perfect ? 'perfect' : 'review';
+    resultMascot(perfect ? 'celebrate' : 'cheer');
+    text('result-mascot-title', perfect ? 'Đúng hết rồi!' : 'Kitsu cổ vũ bạn!');
+    text('result-mascot-message', perfect ? '' : v.state === 'FINISHED' ? 'Luyện lại những từ bên dưới, rồi thử một lượt mới nhé.' : 'Tiến trình đã được lưu. Bạn có thể bắt đầu lượt mới.');
+    text('result-title', v.state === 'FINISHED' ? 'Hoàn thành lượt chơi' : v.state === 'ABANDONED' ? 'Kết thúc lượt chơi' : 'Phiên chơi đã hết hạn');
+    text('result-badge', v.state === 'FINISHED' && v.stats.wrong === 0 && v.stats.correct > 0 ? 'Không bỏ sót từ nào!' : 'Đã lưu kết quả');
     text('result-set', v.title); text('result-status', labels[v.state] + ' · Đã lưu ' + (v.stats.correct + v.stats.wrong) + '/' + v.stats.total + ' câu.');
     text('result-score', v.stats.score); text('result-accuracy', v.stats.accuracy + '%');
     text('result-time', (v.stats.averageResponseMs / 1000).toFixed(1) + 's');
     text('result-streak', v.stats.bestStreak); text('result-correct', v.stats.correct + '/' + v.stats.total);
-    text('personal-best', v.personalBestScore == null ? '' : 'Điểm tốt nhất của bạn với cùng dữ liệu và thiết lập: ' + v.personalBestScore + '.');
+    text('personal-best', v.personalBestScore == null ? '' : 'Kỷ lục với cùng dữ liệu và thiết lập: ' + v.personalBestScore + ' điểm.');
     const wrong = v.results.filter(a => a.result !== 'CORRECT');
     review($('review-list'), wrong);
+    show('review-title', wrong.length > 0);
+    show('review-list', wrong.length > 0);
+    requestAnimationFrame(reviewNavigation);
     show('no-mistakes', !wrong.length && v.stats.correct > 0);
-    show('retry-wrong', v.state === 'FINISHED' && wrong.some(a => a.cardId != null));
+    const retryable = v.state === 'FINISHED' && wrong.some(a => a.cardId != null);
+    show('retry-wrong', retryable);
     text('live-announcement', labels[v.state] + '. Điểm ' + v.stats.score);
     return;
   }
   section('playing');
   text('round', (v.currentQuestionIndex + 1) + ' / ' + v.stats.total);
   text('score', v.stats.score); text('streak', v.stats.streak);
+  $('playing').dataset.feedback = v.state === 'ANSWER_FEEDBACK' ? (v.feedback?.result || '') : '';
+  const completed = v.stats.correct + v.stats.wrong, total = Math.max(1, v.stats.total);
+  $('run-progress').setAttribute('aria-valuemax', String(total));
+  $('run-progress').setAttribute('aria-valuenow', String(completed));
+  $('run-progress').setAttribute('aria-valuetext', 'Đã trả lời ' + completed + ' trên ' + v.stats.total + ' câu');
+  $('run-progress-fill').style.transform = 'scaleX(' + Math.min(1, completed / total) + ')';
+  document.querySelector('.sr-game-timer').classList.remove('is-urgent');
   if (v.question) {
     text('question-word', v.question.text);
-    $('typing-input').value = engine.input;
+    $('typing-input').value = engine.rawInput;
     slots($('typing-slots'), engine.slots());
     if (lastRenderedQuestion !== v.question.id) {
       text('live-announcement', 'Câu ' + (v.question.index + 1) + '. ' + v.question.text + '. ' + v.question.timeLimitMs / 1000 + ' giây.');
@@ -221,9 +282,17 @@ function render() {
     text('feedback-meaning', parseMode(v.mode).question === 'MEANING' ? '' : a.meaning);
     text('feedback-answer', 'Bạn nhập: ' + (a.userAnswer || '(trống)'));
   }
+  show('answer-status', false);
   controls();
   if (v.state === 'PAUSED' && !dialog.open) dialog.showModal();
   if (v.state === 'PLAYING' && !document.hidden) $('typing-input').focus({ preventScroll: true });
+}
+/** Native WebP keeps all 30 painted frames together and loops without a CSS sprite timer. */
+function resultMascot(pose) {
+  const sprite = $('result-mascot-sprite');
+  if (sprite.dataset.pose === pose) return;
+  sprite.dataset.pose = pose;
+  $('result-mascot-image').src = '/images/mascots/kitsu/kitsu-' + pose + '-30.webp';
 }
 function remaining(deadline, serverNow) { return Math.max(0, Date.parse(deadline) - Date.parse(serverNow)); }
 function schedule() {
@@ -250,93 +319,121 @@ function schedule() {
   if (v.state === 'PLAYING') {
     timer.start(remaining(v.question.deadlineAt, v.serverNow) + 80, left => {
       text('time-left', (Math.max(0, left - 80) / 1000).toFixed(1) + 's');
+      document.querySelector('.sr-game-timer').classList.toggle('is-urgent', left - 80 <= 1500);
       $('timer-bar').style.transform = 'scaleX(' + Math.min(1, Math.max(0, left - 80) / v.question.timeLimitMs) + ')';
     }, () => submit(true));
   }
 }
-function updateInput() {
-  const input = $('typing-input');
-  // IME can deliver queued input/composition events after the answer is marked wrong.
-  // Keep the red answer immutable until its single reset timer finishes.
-  if (incorrectResetTimer) {
-    input.value = engine.input;
-    return;
-  }
-  engine.input = input.value;
+function updateInput(event, commitRomaji = false) {
+  if (engine.view?.state !== 'PLAYING' || engine.busy || retryOperation) return;
+  if (event?.isComposing) engine.composing = true;
+  const raw = $('typing-input').value;
+  engine.updateInput(engine.type === ANSWER_TYPES.HIRAGANA && !engine.composing
+    ? romajiToHiragana(raw, { commit: commitRomaji }) : raw, raw);
+  $('typing-slots').classList.remove('is-mistake');
   slots($('typing-slots'), engine.slots());
-  if (!retryOperation && engine.view?.state === 'PLAYING' && engine.type.free) {
-    // Free-text answers are never judged by length: Vietnamese IMEs pass through partial words
-    // ("thưc" before "thực") and kanji IMEs pass through kana. Submit on a match, otherwise on Enter.
-    if (!engine.composing && engine.matches()) {
-      submit(false);
+  show('answer-status', false);
+  // Typing only edits; a physical Enter can request a check after IME commits.
+  controls();
+  queueEnterCheck();
+}
+/** Wait for compositionend and the final input event before checking an IME Enter. */
+function queueEnterCheck() {
+  const questionId = pendingEnterQuestionId;
+  if (questionId == null) return;
+  window.setTimeout(() => {
+    if (pendingEnterQuestionId !== questionId) return;
+    if (engine.view?.state !== 'PLAYING' || engine.view.question?.id !== questionId
+        || disposed || engine.busy || retryOperation) {
+      pendingEnterQuestionId = undefined;
       return;
     }
-    controls();
+    if (engine.composing) return;
+    if (engine.type === ANSWER_TYPES.HIRAGANA) {
+      const raw = $('typing-input').value;
+      engine.updateInput(romajiToHiragana(raw, { commit: true }), raw);
+      slots($('typing-slots'), engine.slots());
+    }
+    if (engine.pendingInput()) {
+      if (engine.type === ANSWER_TYPES.HIRAGANA) {
+        pendingEnterQuestionId = undefined;
+        unfinishedRomaji();
+      }
+      return;
+    }
+    pendingEnterQuestionId = undefined;
+    submit(false);
+  }, 0);
+}
+function checkTypedAnswer(event) {
+  if (!['Enter', 'NumpadEnter'].includes(event.code) && event.key !== 'Enter') return;
+  if (event.repeat || engine.busy || retryOperation || engine.view?.state !== 'PLAYING') return;
+  const composing = event.isComposing || engine.composing || event.keyCode === 229;
+  if (composing || performance.now() - compositionEnded <= 80) {
+    // Let the IME finish its native Enter action; grade the committed text next.
+    if (!composing) event.preventDefault();
+    pendingEnterQuestionId = engine.view.question.id;
+    queueEnterCheck();
     return;
   }
-  if (!retryOperation && engine.view?.state === 'PLAYING') {
-    const answer = normalizeAnswer(engine.input);
-    const expected = normalizeAnswer(engine.view.question?.expectedAnswer);
-    const answerChars = Array.from(answer);
-    const expectedLength = Array.from(expected).length;
-    // Japanese IME may keep composition open while producing kana. Non-kana input
-    // can be judged immediately so Vietnamese/Latin composition cannot overflow.
-    const canJudge = !engine.composing || !isKanaAnswer(answer);
-    if (expectedLength && canJudge && answerChars.length >= expectedLength) {
-      if (!engine.composing && answer === expected) {
-        submit(false);
-        return;
-      }
-      engine.input = answerChars.slice(0, expectedLength).join('');
-      input.value = engine.input;
-      slots($('typing-slots'), engine.slots());
-      const slotSurface = $('typing-slots');
-      slotSurface.classList.remove('is-mistake');
-      void slotSurface.offsetWidth;
-      slotSurface.classList.add('is-mistake');
-      text('live-announcement', 'Chưa đúng.');
-      incorrectResetTimer = window.setTimeout(() => {
-        incorrectResetTimer = undefined;
-        if (engine.view?.state !== 'PLAYING' || engine.busy || retryOperation) return;
-        engine.input = '';
-        input.value = '';
-        slots($('typing-slots'), engine.slots());
-        slotSurface.classList.remove('is-mistake');
-        controls();
-        input.focus({ preventScroll: true });
-        text('live-announcement', 'Hãy nhập lại.');
-      }, INCORRECT_REVEAL_MS);
-      input.disabled = true;
-    }
+  if (engine.type === ANSWER_TYPES.HIRAGANA) updateInput(undefined, true);
+  if (engine.pendingInput()) {
+    event.preventDefault();
+    unfinishedRomaji();
+    return;
   }
-  controls();
+  if (normalizeAnswer(engine.input) !== '') {
+    event.preventDefault();
+    pendingEnterQuestionId = undefined;
+    submit(false);
+  }
 }
-/** Enter on a wrong free-text answer: same "wrong, try again" reveal as a wrong kana answer. */
+function unfinishedRomaji() {
+  if (engine.type !== ANSWER_TYPES.HIRAGANA) return;
+  text('answer-status', 'Âm Romaji chưa hoàn tất. Gõ tiếp hoặc sửa rồi nhấn Enter.');
+  show('answer-status', true);
+}
+/** The clear button and edit keys preserve the active question and its deadline. */
+function editTypedAnswer(key = 'clear') {
+  if (engine.busy || retryOperation || engine.composing || engine.view?.state !== 'PLAYING') return false;
+  pendingEnterQuestionId = undefined;
+  const input = $('typing-input'), surface = $('typing-slots'), value = engine.rawInput;
+  let start = Math.min(input.selectionStart ?? value.length, value.length);
+  let end = Math.min(input.selectionEnd ?? start, value.length);
+  if (key === 'clear') { start = 0; end = value.length; }
+  else if (start === end && key === 'Backspace') start -= Array.from(value.slice(0, start)).at(-1)?.length || 0;
+  else if (start === end && key === 'Delete') end += Array.from(value.slice(end))[0]?.length || 0;
+  const raw = value.slice(0, start) + value.slice(end);
+  engine.updateInput(engine.type === ANSWER_TYPES.HIRAGANA ? romajiToHiragana(raw) : raw, raw);
+  input.value = raw;
+  surface.classList.remove('is-mistake');
+  show('answer-status', false);
+  slots(surface, engine.slots());
+  controls();
+  input.focus({ preventScroll: true });
+  input.setSelectionRange?.(start, start);
+  text('live-announcement', key === 'clear' ? 'Đã xóa đáp án. Hãy nhập lại.' : 'Bạn có thể sửa đáp án.');
+  return true;
+}
+/** A wrong check leaves the answer editable immediately; the question timer keeps running. */
 function rejectTypedAnswer() {
-  const input = $('typing-input'), slotSurface = $('typing-slots');
-  slotSurface.classList.remove('is-mistake');
-  void slotSurface.offsetWidth;
-  slotSurface.classList.add('is-mistake');
-  text('live-announcement', 'Chưa đúng.');
-  input.disabled = true;
-  incorrectResetTimer = window.setTimeout(() => {
-    incorrectResetTimer = undefined;
-    if (engine.view?.state !== 'PLAYING' || engine.busy || retryOperation) return;
-    engine.input = ''; input.value = '';
-    slots(slotSurface, engine.slots());
-    slotSurface.classList.remove('is-mistake');
-    controls();
-    input.focus({ preventScroll: true });
-    text('live-announcement', 'Hãy nhập lại.');
-  }, INCORRECT_REVEAL_MS);
+  $('typing-slots').classList.add('is-mistake');
+  text('answer-status', 'Chưa đúng. Sửa đáp án rồi nhấn Enter để thử lại.');
+  show('answer-status', true);
+  text('live-announcement', 'Chưa đúng. Bạn có thể thử lại khi còn thời gian.');
 }
 function submit(timeout) {
   if (engine.busy || retryOperation || (!timeout && !engine.canSubmit())) return;
   const v = engine.view;
   if (v?.state !== 'PLAYING') return;
-  const body = { questionId: v.question.id, requestId: crypto.randomUUID(), userAnswer: engine.input };
+  const body = { questionId: v.question.id, requestId: crypto.randomUUID(), userAnswer: engine.type.lang === 'ja' && engine.pendingInput() ? engine.confirmedInput : engine.input };
   timer.stop();
-  void run(async () => accept(await api.action(sessionId, timeout ? 'timeout' : 'answers', body)));
+  void run(async () => {
+    const response = await api.action(sessionId, timeout ? 'timeout' : 'answers', body);
+    accept(response);
+    if (response.state === 'PLAYING' && response.feedback?.result === 'WRONG'
+        && response.feedback.questionId === body.questionId) rejectTypedAnswer();
+  });
 }
 async function loadHistory() {
   const h = await api.history(page);
@@ -358,46 +455,75 @@ on('setup-form', 'submit', event => {
   if (!available()) return;
   const count = validQuestionCount(true);
   if (count === null) return;
-  const body = { requestId: crypto.randomUUID(), filter: $('filter').value, count, autoSubmit: true, mode: modeName() };
+  const body = { requestId: crypto.randomUUID(), filter: $('filter').value, count, autoSubmit: false, mode: modeName() };
+  if (['CUSTOM', 'RANDOM'].includes(body.filter)) body.selectedCardIds = sessionCards().map(card => card.id);
   void run(async () => accept(await api.create(body)));
 });
 on('filter', 'change', optionSummary);
-on('count', 'input', () => validQuestionCount(false));
-on('retry-request', 'click', () => { const op = retryOperation; if (op) void run(op); });
-on('typing-input', 'compositionstart', () => { engine.composing = true; });
-on('typing-input', 'compositionend', () => { engine.composing = false; compositionEnded = performance.now(); updateInput(); });
-on('typing-input', 'input', updateInput);
-on('typing-input', 'keydown', event => {
-  if (event.key === 'Enter' && (event.isComposing || engine.composing || event.keyCode === 229 || performance.now() - compositionEnded <= 80)) {
-    // Do not prevent the native IME commit while composing.
-    if (!event.isComposing && !engine.composing && event.keyCode !== 229) event.preventDefault();
-    return;
-  }
-  if (event.key === 'Enter' && engine.type.free && !incorrectResetTimer
-      && engine.view?.state === 'PLAYING' && normalizeAnswer(engine.input) !== '') {
-    event.preventDefault();
-    rejectTypedAnswer();
-  }
+on('count', 'input', () => { if (validQuestionCount(false) !== null) renderSelection(); });
+on('selection-list', 'change', event => {
+  const input = event.target.closest('[data-selection-card]');
+  if (!input || input.disabled || $('filter').value !== 'CUSTOM') return;
+  const id = Number(input.dataset.selectionCard);
+  if (input.checked) selectedCardIds.add(id); else selectedCardIds.delete(id);
+  optionSummary();
 });
+on('selection-list', 'click', event => {
+  if (!event.target.closest('[data-selection-shuffle]')) return;
+  randomSelection = null;
+  renderSelection();
+});
+on('retry-request', 'click', () => { const op = retryOperation; if (op) void run(op); });
+on('typing-input', 'compositionstart', () => {
+  engine.composing = true;
+  slots($('typing-slots'), engine.slots());
+});
+on('typing-input', 'compositionend', event => { engine.composing = false; compositionEnded = performance.now(); updateInput(event); });
+on('typing-input', 'input', updateInput);
+on('typing-input', 'keydown', checkTypedAnswer);
+
 document.querySelectorAll('[data-question]').forEach(button =>
   button.addEventListener('click', () => void changeMode({ question: button.dataset.question, answer: mode.answer }), { signal: events.signal }));
 document.querySelectorAll('[data-answer]').forEach(button =>
   button.addEventListener('click', () => void changeMode({ question: mode.question, answer: button.dataset.answer }), { signal: events.signal }));
 on('typing-slots', 'click', () => $('typing-input').focus({ preventScroll: true }));
 on('typing-slots', 'keydown', event => {
+  if (event.key === 'Enter' && engine.view?.state === 'ANSWER_FEEDBACK') {
+    event.preventDefault();
+    if (!event.repeat && !event.isComposing && event.keyCode !== 229 && !engine.composing && performance.now() - compositionEnded > 80) advanceQuestion();
+    return;
+  }
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault();
     $('typing-input').focus({ preventScroll: true });
   }
 });
+function reviewNavigation() {
+  const list = $('review-list');
+  const max = list.scrollWidth - list.clientWidth;
+  show('review-navigation', !list.hidden && max > 2);
+  $('review-previous').disabled = list.scrollLeft <= 2;
+  $('review-next').disabled = list.scrollLeft >= max - 2;
+}
+function scrollReview(direction) {
+  const list = $('review-list'), card = list.firstElementChild;
+  if (!card) return;
+  list.scrollBy({ left: direction * (card.getBoundingClientRect().width + 10), behavior: 'smooth' });
+}
+on('review-previous', 'click', () => scrollReview(-1));
+on('review-next', 'click', () => scrollReview(1));
+on('review-list', 'scroll', reviewNavigation);
+window.addEventListener('resize', reviewNavigation, { signal: events.signal });
+on('clear-answer', 'click', () => editTypedAnswer());
 on('pause', 'click', () => void run(async () => accept(await api.action(sessionId, 'pause'))));
 on('resume', 'click', () => void run(async () => accept(await api.action(sessionId, 'resume'))));
 on('pause-dialog', 'cancel', event => { event.preventDefault(); if (!retryOperation) $('resume').click(); });
 on('abandon', 'click', () => void run(async () => accept(await api.action(sessionId, 'abandon'))));
-on('next-question', 'click', () => {
-  if (!canAdvance || engine.view?.state !== 'ANSWER_FEEDBACK') return;
+function advanceQuestion() {
+  if (engine.busy || retryOperation || !canAdvance || engine.view?.state !== 'ANSWER_FEEDBACK') return;
   void run(async () => accept(await api.action(sessionId, 'next', { questionIndex: engine.view.currentQuestionIndex + 1 })));
-});
+}
+on('next-question', 'click', advanceQuestion);
 on('retry-wrong', 'click', () => {
   const source = sessionId, body = { requestId: crypto.randomUUID() };
   void run(async () => accept(await api.action(source, 'retry-wrong', body)));
@@ -405,6 +531,20 @@ on('retry-wrong', 'click', () => {
 on('previous-page', 'click', () => { if (engine.busy) return; page = Math.max(0, page - 1); void run(loadHistory); });
 on('next-page', 'click', () => { if (engine.busy) return; page++; void run(loadHistory); });
 document.addEventListener('keydown', event => {
+  // Enter confirms IME composition first; it must never consume that same key to skip a question.
+  if (event.key === 'Enter' && !event.defaultPrevented && !event.repeat && !event.isComposing
+      && !engine.composing && event.keyCode !== 229 && performance.now() - compositionEnded > 80
+      && !event.target?.closest('button, a, input, textarea, select, [contenteditable="true"]')) {
+    if (engine.view?.state === 'ANSWER_FEEDBACK') {
+      event.preventDefault();
+      advanceQuestion();
+    } else if (terminal(engine.view?.state) && !engine.busy && !retryOperation) {
+      event.preventDefault();
+      const retry = $('retry-wrong');
+      if (!retry.hidden && !retry.disabled) retry.click();
+      else $('new-session').click();
+    }
+  }
   if (event.key === 'Escape' && !event.isComposing && !engine.composing && ['PLAYING', 'ANSWER_FEEDBACK'].includes(engine.view?.state)) {
     event.preventDefault(); $('pause').click();
   }
@@ -413,7 +553,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden && !engine.busy && !retryOperation && ['PLAYING', 'ANSWER_FEEDBACK'].includes(engine.view?.state)) $('pause').click();
   else if (!document.hidden && sessionId && !engine.busy && !retryOperation && !terminal(engine.view?.state)) void run(async () => accept(await api.state(sessionId)));
 }, { signal: events.signal });
-window.addEventListener('pagehide', () => { disposed = true; clearTimeout(incorrectResetTimer); timer.stop(); events.abort(); }, { once: true });
+window.addEventListener('pagehide', () => { disposed = true; timer.stop(); events.abort(); }, { once: true });
 window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
 links();
 void run(async () => {
@@ -428,6 +568,6 @@ void run(async () => {
   else if (autoStart) {
     const count = available();
     if (!count) throw new Error('Bộ thẻ này chưa có thẻ hợp lệ để luyện phản xạ.');
-    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: true, mode: modeName() }));
+    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: false, mode: modeName() }));
   } else section('setup');
 });

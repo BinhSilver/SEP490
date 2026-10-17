@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <script src="/js/theme-init.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ôn hôm nay · JLAS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/toast.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261014-srs" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+</head>
+<body id="jlabBasePage" class="flashcard-page flashcard-page--review">
+  <div id="jlabBaseShellMount"></div>
+
+  <main id="jlabBaseContent" class="app-main srs-page">
+    <header class="srs-head">
+      <div>
+        <a class="srs-back" href="/flashcard/library.html?tab=my"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Thư viện</a>
+        <h1>Ôn hôm nay</h1>
+        <p>Thẻ đến hạn từ mọi bộ bạn đã học, xếp theo lịch lặp lại ngắt quãng (SM-2).</p>
+      </div>
+      <dl class="srs-tiles" aria-label="Tổng quan ôn tập">
+        <div><dt>Đến hạn</dt><dd id="srs-due">–</dd></div>
+        <div><dt>Đã ôn hôm nay</dt><dd id="srs-today">–</dd></div>
+        <div><dt>Chuỗi ngày</dt><dd id="srs-streak">–</dd></div>
+        <div><dt>Tỉ lệ nhớ 30 ngày</dt><dd id="srs-retention">–</dd></div>
+      </dl>
+    </header>
+
+    <section class="srs-session" aria-label="Phiên ôn tập">
+      <div class="srs-progress" id="srs-progress" hidden>
+        <span id="srs-progress-label">0 / 0</span>
+        <div class="srs-progress__bar"><i id="srs-progress-fill"></i></div>
+      </div>
+
+      <article class="srs-card" id="srs-card" hidden aria-live="polite">
+        <div class="srs-card__meta">
+          <a id="srs-card-set" class="srs-chip" href="#"></a>
+          <span id="srs-card-relearn" class="srs-chip srs-chip--warn" hidden>Xem lại</span>
+          <button type="button" class="srs-icon-btn" id="srs-speak" title="Nghe phát âm" aria-label="Nghe phát âm"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+        </div>
+        <div class="srs-card__front" id="srs-front" lang="ja"></div>
+        <div class="srs-card__back" id="srs-back" hidden>
+          <div class="srs-card__reading" id="srs-reading" lang="ja"></div>
+          <div class="srs-card__meaning" id="srs-meaning"></div>
+          <div class="srs-card__hanviet" id="srs-hanviet"></div>
+          <div class="srs-card__example" id="srs-example"></div>
+        </div>
+        <div class="srs-actions">
+          <button type="button" class="btn btn-primary srs-reveal" id="srs-reveal">Hiện đáp án <kbd>Space</kbd></button>
+          <div class="srs-grades" id="srs-grades" hidden role="group" aria-label="Bạn nhớ thẻ này thế nào?"></div>
+          <button type="button" class="btn btn-primary srs-reveal" id="srs-relearn-next" hidden>Nhớ rồi, tiếp tục <kbd>Space</kbd></button>
+        </div>
+      </article>
+
+      <div class="srs-empty" id="srs-empty" hidden>
+        <span class="srs-empty__icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+        <h2 id="srs-empty-title">Không còn thẻ đến hạn</h2>
+        <p id="srs-empty-text">Hãy quay lại theo lịch dự báo bên dưới, hoặc học thêm bộ thẻ mới.</p>
+        <a class="btn btn-ghost" href="/flashcard/library.html?tab=my">Mở thư viện thẻ</a>
+      </div>
+      <p class="srs-loading" id="srs-loading">Đang tải hàng ôn…</p>
+    </section>
+
+    <section class="srs-stats" aria-label="Thống kê ôn tập">
+      <div class="srs-panel">
+        <h2>Dự báo 7 ngày</h2>
+        <div class="srs-forecast" id="srs-forecast"></div>
+      </div>
+      <div class="srs-panel">
+        <div class="srs-panel__head">
+          <h2>Lịch học 26 tuần</h2>
+          <span class="srs-legend" aria-hidden="true">Ít <i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i> Nhiều</span>
+        </div>
+        <div class="srs-heatmap" id="srs-heatmap" role="img" aria-label="Số lượt ôn mỗi ngày"></div>
+        <p class="srs-counts" id="srs-counts"></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/flashcard/js/api-client.js?v=4"></script>
+  <script src="/flashcard/js/shell.js"></script>
+  <script src="/flashcard/js/srs-review.js?v=20261014-srs"></script>
+  <script src="/flashcard/js/review-page.js?v=20261014-srs"></script>
+</body>
+</html>

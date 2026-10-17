@@ -110,6 +110,8 @@ CREATE TABLE users (
     updated_at         DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                        ON UPDATE CURRENT_TIMESTAMP(6),
     last_login_at      DATETIME(6) NULL,
+    locked_at          DATETIME(6) NULL,
+    locked_reason      VARCHAR(500) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_user_email (email),
     UNIQUE KEY uk_user_username (username),
@@ -123,7 +125,71 @@ CREATE TABLE users (
     CONSTRAINT chk_user_credit_balance CHECK (credit_balance >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Nhat ky append-only cho thao tac System Admin (migration 028); changes_json da che du lieu nhay cam.
+CREATE TABLE admin_audit_log (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    actor_user_id BIGINT UNSIGNED NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    target_type VARCHAR(40) NOT NULL,
+    target_id VARCHAR(64) NULL,
+    reason VARCHAR(500) NULL,
+    result VARCHAR(20) NOT NULL,
+    changes_json TEXT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_admin_audit_created (created_at),
+    KEY idx_admin_audit_actor_created (actor_user_id, created_at),
+    KEY idx_admin_audit_target (target_type, target_id),
+    KEY idx_admin_audit_action_created (action, created_at),
+    CONSTRAINT fk_admin_audit_actor FOREIGN KEY (actor_user_id) REFERENCES users(id),
+    CONSTRAINT chk_admin_audit_result CHECK (result IN ('SUCCESS','REJECTED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO roles (name, description) VALUES ('SUPER_ADMIN', 'System Admin');
+
 -- Lich su thanh toan premium.
+-- [JLAS2-51] Goi CP va ma giam gia dung chung cho Premium/CP.
+CREATE TABLE credit_packages (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500) NULL,
+    credit_amount INT UNSIGNED NOT NULL,
+    price DECIMAL(12,2) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id), UNIQUE KEY uk_credit_package_name (name),
+    CONSTRAINT chk_credit_package_amount CHECK (credit_amount > 0),
+    CONSTRAINT chk_credit_package_price CHECK (price > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE coupons (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code VARCHAR(40) NOT NULL,
+    description VARCHAR(500) NULL,
+    discount_type VARCHAR(10) NOT NULL,
+    discount_value DECIMAL(12,2) NOT NULL,
+    max_discount DECIMAL(12,2) NULL,
+    min_order_amount DECIMAL(12,2) NULL,
+    applies_to VARCHAR(10) NOT NULL,
+    starts_at DATETIME(6) NULL,
+    ends_at DATETIME(6) NULL,
+    usage_limit INT NULL,
+    per_user_limit INT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id), UNIQUE KEY uk_coupon_code (code),
+    CONSTRAINT chk_coupon_code CHECK (REGEXP_LIKE(code, '^[A-Z0-9_-]{3,40}$', 'c')),
+    CONSTRAINT chk_coupon_type CHECK (discount_type IN ('PERCENT','FIXED')),
+    CONSTRAINT chk_coupon_value CHECK (discount_value > 0 AND (discount_type <> 'PERCENT' OR discount_value BETWEEN 1 AND 100)),
+    CONSTRAINT chk_coupon_max CHECK (max_discount IS NULL OR max_discount > 0),
+    CONSTRAINT chk_coupon_min CHECK (min_order_amount IS NULL OR min_order_amount >= 0),
+    CONSTRAINT chk_coupon_scope CHECK (applies_to IN ('ALL','PREMIUM','CREDIT')),
+    CONSTRAINT chk_coupon_dates CHECK (starts_at IS NULL OR ends_at IS NULL OR ends_at > starts_at),
+    CONSTRAINT chk_coupon_limits CHECK ((usage_limit IS NULL OR usage_limit > 0) AND (per_user_limit IS NULL OR per_user_limit > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Quan he:
 --   payments.user_id -> users.id: user thuc hien giao dich.
 --   payments.premium_plan_id -> premium_plans.id: goi duoc mua.
@@ -131,17 +197,30 @@ CREATE TABLE users (
 CREATE TABLE payments (
     id                      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh giao dich noi bo.
     user_id                 BIGINT UNSIGNED NOT NULL,                -- FK -> users.id; nguoi thanh toan.
-    premium_plan_id         BIGINT UNSIGNED NOT NULL,                -- FK -> premium_plans.id; goi duoc mua.
+    premium_plan_id         BIGINT UNSIGNED NULL,                    -- [JLAS2-51] Premium only.
+    product_type            VARCHAR(20) NOT NULL DEFAULT 'PREMIUM', -- [JLAS2-51] PREMIUM/CREDIT.
+    credit_package_id       BIGINT UNSIGNED NULL,
+    credit_amount_snapshot  INT NULL,
+    coupon_id               BIGINT UNSIGNED NULL,
+    coupon_code_snapshot    VARCHAR(40) NULL,
+    original_amount         DECIMAL(12,2) NULL,
+    discount_amount         DECIMAL(12,2) NOT NULL DEFAULT 0,
     provider                VARCHAR(30) NOT NULL,                    -- Cong thanh toan, vi du VNPAY/MOMO.
     order_code              VARCHAR(100) NOT NULL,                   -- Ma don hang gui sang cong thanh toan.
     provider_transaction_id VARCHAR(150) NULL,                       -- Ma giao dich do cong thanh toan tra ve.
-    status                  VARCHAR(20) NOT NULL DEFAULT 'PENDING',  -- PENDING/PAID/FAILED/CANCELLED/REFUNDED.
+    payment_link_id         VARCHAR(100) NULL,                       -- Ma link thanh toan PayOS.
+    checkout_url            VARCHAR(500) NULL,                       -- Trang thanh toan PayOS.
+    qr_code                 VARCHAR(1000) NULL,                      -- Chuoi VietQR de hien ma QR.
+    status                  VARCHAR(20) NOT NULL DEFAULT 'PENDING',  -- PENDING/PAID/FAILED/CANCELLED/EXPIRED/REFUNDED.
     amount_paid             DECIMAL(12,2) NOT NULL,                 -- So tien thuc te user da thanh toan.
     currency                CHAR(3) NOT NULL DEFAULT 'VND',         -- Ma tien te ISO 4217, vi du VND/USD.
     response_code           VARCHAR(50) NULL,                        -- Ma ket qua cuoi cung tu cong thanh toan.
     plan_name_snapshot      VARCHAR(100) NOT NULL,                   -- Ten goi tai luc mua, phuc vu hoa don lich su.
-    duration_days_snapshot  INT UNSIGNED NOT NULL,                   -- So ngay duoc mua tai luc giao dich.
+    duration_days_snapshot  INT UNSIGNED NULL,                       -- [JLAS2-51] Premium only.
     paid_at                 DATETIME(6) NULL,                        -- Thoi diem thanh toan thanh cong.
+    expires_at              DATETIME(6) NULL,                        -- Link thanh toan het han luc nay.
+    checked_at              DATETIME(6) NULL,                        -- Lan gan nhat server hoi PayOS.
+    premium_until           DATETIME(6) NULL,                        -- Premium co hieu luc den dau sau don nay.
     created_at              DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), -- Luc tao payment.
     updated_at              DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
                             ON UPDATE CURRENT_TIMESTAMP(6),         -- Luc payment thay doi gan nhat.
@@ -151,14 +230,21 @@ CREATE TABLE payments (
         (provider, provider_transaction_id),                         -- Chong ghi trung callback giao dich.
     KEY idx_payment_user_created (user_id, created_at),              -- Xem lich su thanh toan cua mot user.
     KEY idx_payment_status_created (status, created_at),             -- Loc payment theo trang thai/thoi gian.
+    KEY idx_payment_status_checked (status, checked_at),             -- Doi soat don dang cho voi PayOS.
     CONSTRAINT fk_payment_user FOREIGN KEY (user_id)
         REFERENCES users(id),                                       -- RESTRICT mac dinh de bao toan lich su.
     CONSTRAINT fk_payment_plan FOREIGN KEY (premium_plan_id)
         REFERENCES premium_plans(id),                               -- RESTRICT mac dinh de bao toan lich su.
+    CONSTRAINT fk_payment_credit_package FOREIGN KEY (credit_package_id) REFERENCES credit_packages(id),
+    CONSTRAINT fk_payment_coupon FOREIGN KEY (coupon_id) REFERENCES coupons(id),
     CONSTRAINT chk_payment_status
-        CHECK (status IN ('PENDING','PAID','FAILED','CANCELLED','REFUNDED')),
+        CHECK (status IN ('PENDING','PAID','FAILED','CANCELLED','EXPIRED','REFUNDED')),
     CONSTRAINT chk_payment_amount CHECK (amount_paid >= 0),
-    CONSTRAINT chk_payment_duration CHECK (duration_days_snapshot > 0)
+    CONSTRAINT chk_payment_duration CHECK (duration_days_snapshot IS NULL OR duration_days_snapshot > 0),
+    CONSTRAINT chk_payment_product CHECK (product_type IN ('PREMIUM','CREDIT')),
+    CONSTRAINT chk_payment_product_fields CHECK ((product_type = 'PREMIUM' AND premium_plan_id IS NOT NULL AND duration_days_snapshot > 0 AND credit_package_id IS NULL)
+        OR (product_type = 'CREDIT' AND credit_package_id IS NOT NULL AND credit_amount_snapshot > 0 AND premium_plan_id IS NULL)),
+    CONSTRAINT chk_payment_discount CHECK (discount_amount >= 0 AND (original_amount IS NULL OR original_amount >= amount_paid))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Token xac thuc dung chung cho refresh, verify email va reset password.

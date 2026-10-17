@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAirDefenseStore } from "./game/useAirDefenseStore";
 import { errorMessage, fetchDeckCards } from "./game/arenaClient";
 import { leaveSetup, startSoloMatch } from "./game/matchController";
 import type { DeckCardView, DeckField } from "./game/arenaTypes";
+import { AirHangar } from "./AirHangar";
 
 /** Khớp AirDefenseServiceImpl.SOLO_DURATIONS và GameRules.AIR_MIN_WORDS của server. */
 const DURATIONS = [0, 120, 180, 300];
@@ -104,6 +105,13 @@ export function AirSetup() {
   const [selected, setSelected] = useState<Set<number> | null>(null);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hangarBusy, setHangarBusy] = useState(true);
+  const hangarBusyRef = useRef(true);
+  const startingRef = useRef(false);
+  const onHangarBusy = useCallback((busy: boolean) => {
+    hangarBusyRef.current = busy;
+    setHangarBusy(busy);
+  }, []);
 
   const deckId = view?.deckId;
   useEffect(() => {
@@ -147,6 +155,7 @@ export function AirSetup() {
   const duration = durationChoice ?? suggested;
 
   const onStart = async (seconds: number, confirmed = false) => {
+    if (startingRef.current || hangarBusyRef.current || problem) return;
     const warn = confirmed ? null : paceWarning(playable.length, seconds);
     if (warn) {
       setWarning(warn);
@@ -155,6 +164,7 @@ export function AirSetup() {
     setWarning(null);
     setDuration(seconds);
     setStarting(true);
+    startingRef.current = true;
     setError(null);
     try {
       await startSoloMatch({
@@ -166,6 +176,7 @@ export function AirSetup() {
     } catch (e) {
       setError(errorMessage(e, "Không bắt đầu được. Vui lòng thử lại."));
       setStarting(false);
+      startingRef.current = false;
     }
   };
 
@@ -182,6 +193,8 @@ export function AirSetup() {
             <p className="ad-setup__deck">{view.deckTitle}</p>
           </div>
         </header>
+
+        <AirHangar starting={starting} onBusyChange={onHangarBusy} />
 
         <div className="ad-setup__row">
           <OptionGroup<DeckField> label="Hỏi bằng" value={question} options={FIELDS} format={(f) => FIELD_LABELS[f]}
@@ -222,8 +235,8 @@ export function AirSetup() {
 
         {(problem || error) && <p className="ad-setup__problem" role="status">{error || problem}</p>}
 
-        <button type="button" className="ad-setup__start" disabled={starting || !!problem} onClick={() => void onStart(duration)}>
-          {starting ? "Đang chuẩn bị…" : "Bắt đầu"}
+        <button type="button" className="ad-setup__start" disabled={starting || hangarBusy || !!problem} onClick={() => void onStart(duration)}>
+          {starting ? "Đang chuẩn bị…" : hangarBusy ? "Đang cập nhật máy bay…" : "Bắt đầu"}
         </button>
       </section>
 

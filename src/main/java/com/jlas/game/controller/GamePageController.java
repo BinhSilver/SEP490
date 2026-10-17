@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class GamePageController {
     private final GameService gameService;
     private final GameShopService shopService;
+    private final com.jlas.game.service.GameSkinCatalogService skinCatalog;
 
     @GetMapping
     public String hub(Model model) {
@@ -86,7 +87,9 @@ public class GamePageController {
         }
         model.addAttribute("session", session);
         // Trang phục mèo / máy bay đang dùng; chọn ở Cửa hàng, trong trận không đổi được.
-        model.addAttribute("skin", shopService.equippedCode(user.userId(), type));
+        String skinCode = shopService.equippedCode(user.userId(), type);
+        model.addAttribute("skin", skinCode);
+        model.addAttribute("skinItem", skinCatalog.find(skinCode).orElse(null));
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("pageTitle", session.deckTitle() + " - Trò chơi - JLAS");
         return view;

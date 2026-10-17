@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thư viện thẻ từ · JLAS</title>
@@ -14,14 +15,14 @@
   <link rel="stylesheet" href="/css/components/cards.css" />
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
-  <link rel="stylesheet" href="/css/components/footer.css" />
   <link rel="stylesheet" href="/flashcard/styles.css" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261014-srs-due" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css?v=14" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261011-search-focus" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="flashcard-page flashcard-page--library">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--library">
   <div id="jlabBaseShellMount"></div>
 
   <main id="jlabBaseContent" class="app-main">
@@ -30,6 +31,7 @@
       <nav class="fc-stitch-sidebar__nav">
         <a data-sidebar-tab="public" href="/flashcard/library.html"><i class="fa-regular fa-rectangle-list"></i> Bộ thẻ công khai</a>
         <a data-sidebar-tab="my" href="/flashcard/library.html?tab=my"><i class="fa-regular fa-folder-open"></i> Bộ thẻ của tôi</a>
+        <a href="/flashcard/review.html"><i class="fa-regular fa-calendar-check"></i> Ôn hôm nay <span class="fc-srs-due-badge" id="srs-due-badge" hidden></span></a>
         <span class="fc-stitch-sidebar__item is-muted" aria-disabled="true"><i class="fa-regular fa-star"></i> Yêu thích</span>
       </nav>
       <section id="folder-panel" class="folder-panel" hidden>
@@ -61,14 +63,23 @@
             </select>
           </label>
         </div>
+        <div class="lib-mobile-filters" aria-label="Lọc bộ thẻ">
+          <select id="lib-scope-filter" aria-label="Nguồn bộ thẻ">
+            <option value="public">Bộ thẻ công khai</option>
+            <option value="my">Bộ thẻ của tôi</option>
+          </select>
+          <details id="lib-folder-filter" class="lib-folder-dropdown">
+            <summary aria-label="Lọc theo thư mục"><i class="fa-regular fa-folder" aria-hidden="true"></i><span id="lib-folder-label">Thư mục của tôi</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+          </details>
+        </div>
       </div>
 
       <div class="library-results-heading">
         <div>
           <h2 id="library-heading"><span class="library-results-heading__icon"><i class="fa-solid fa-fire"></i></span> Đang thịnh hành</h2>
-          <p id="library-subheading">Khám phá các bộ thẻ được cộng đồng JLAS sử dụng nhiều.</p>
+          <p id="library-subheading" hidden>Khám phá các bộ thẻ được cộng đồng JLAS sử dụng nhiều.</p>
         </div>
-        <a class="btn btn--primary btn-primary library-create-btn" href="/flashcard/editor.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> Tạo bộ thẻ</a>
+        <a class="btn btn--primary btn-primary library-create-btn" href="/flashcard/editor.html" aria-label="Tạo bộ thẻ" title="Tạo bộ thẻ"><i class="fa-solid fa-plus" aria-hidden="true"></i><span> Tạo bộ thẻ</span></a>
       </div>
       <div id="lib-grid" class="lib-grid" aria-live="polite"></div>
       <div id="lib-empty" class="lib-empty" hidden>
@@ -108,7 +119,7 @@
         <span class="lib-export__badge" aria-hidden="true"><i class="fa-solid fa-file-lines" id="export-badge-icon"></i></span>
         <div class="lib-export__heading">
           <h2 id="export-title">Xuất bộ thẻ</h2>
-          <p id="export-subtitle">Chọn định dạng và tải xuống bộ thẻ của bạn.</p>
+          <p id="export-subtitle" hidden>Chọn định dạng và tải xuống bộ thẻ của bạn.</p>
         </div>
         <i class="fa-solid fa-file-export lib-export__deco" aria-hidden="true"></i>
         <button type="button" class="lib-export__close" id="export-close" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
@@ -175,6 +186,6 @@
   <script src="/js/components.js"></script>
   <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
-  <script src="/flashcard/js/library-page.js?v=13"></script>
+  <script src="/flashcard/js/library-page.js?v=20261014-srs-due"></script>
 </body>
 </html>

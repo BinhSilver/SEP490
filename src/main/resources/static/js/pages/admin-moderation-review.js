@@ -11,6 +11,30 @@
       '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i> ' + A.esc(text) + '</a>' : '';
   }
 
+  async function privateFile(path) {
+    var headers = window.JlasAuth.authHeaders();
+    delete headers['Content-Type'];
+    var response = await fetch(path, { headers: headers });
+    if (!response.ok) {
+      var error = await response.json().catch(function () { return {}; });
+      throw new Error(error.message || 'Không tải được file');
+    }
+    return response.blob();
+  }
+
+  async function downloadEvidence(button) {
+    button.disabled = true;
+    try {
+      var blob = await privateFile('/api/appeals/' + button.dataset.evidence + '/file');
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = button.dataset.name || 'bang-chung';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    } catch (error) { A.toast(error.message, 'error'); }
+    finally { button.disabled = false; }
+  }
+
   // ── Overview ───────────────────────────────────────────────────────────
   A.section('overview', {
     subtitle: 'Các việc đang chờ xử lý trong khu kiểm duyệt.',
@@ -129,13 +153,29 @@
       (item.summary ? '<p class="adm-muted">Lý do gắn cờ: ' + A.esc(item.summary) + '</p>' : '') +
       A.flaggedTerms(item.highlights) +
       (extra || '') +
-      '<p class="adm-muted">' + (item.ownerUserId ? 'Người đăng #' + item.ownerUserId + ' ' : '') + link(item.targetUrl, 'Xem nội dung') + '</p>' +
+      '<p class="adm-muted">' + (item.ownerUserId ? 'Người đăng #' + item.ownerUserId + ' ' : '') + (item.targetType === 'USER_AVATAR'
+        ? '<button type="button" class="btn btn--secondary btn--sm" data-avatar="' + item.targetId + '">Xem ảnh đại diện</button>'
+        : link(item.targetUrl, 'Xem nội dung')) + '</p>' +
+      (item.targetType === 'USER_AVATAR' ? '<img class="adm-avatar-preview" alt="Ảnh đại diện đang chờ kiểm duyệt" hidden>' : '') +
       '<div class="adm-card__actions" data-actions></div>' +
     '</article>';
   }
 
   function bindQueue(root, ctx, labels, emptyText) {
     root.onclick = async function (event) {
+      var preview = event.target.closest('[data-avatar]');
+      if (preview) {
+        preview.disabled = true;
+        try {
+          var blob = await privateFile(API + '/avatars/' + preview.dataset.avatar + '/file');
+          var url = URL.createObjectURL(blob);
+          var image = preview.closest('.adm-card').querySelector('.adm-avatar-preview');
+          image.onload = image.onerror = function () { URL.revokeObjectURL(url); };
+          image.src = url; image.hidden = false;
+        } catch (error) { A.toast(error.message, 'error'); }
+        finally { preview.disabled = false; }
+        return;
+      }
       var button = event.target.closest('[data-approve]');
       if (!button) return;
       var card = button.closest('.adm-card');
@@ -175,7 +215,7 @@
   };
 
   A.section('queue', {
-    subtitle: 'Nội dung được AI hoặc từ khoá gắn cờ. Bình luận vẫn hiển thị ngay, đây là bước xem lại sau.',
+    subtitle: 'Ảnh đại diện và nội dung được AI hoặc từ khoá gắn cờ. Ảnh đại diện cần duyệt được giữ riêng tư; bình luận được xem lại sau khi đăng.',
     render: async function (root, ctx) {
       var items = await A.api.get(API + '/queue');
       if (!items.length) {
@@ -266,6 +306,9 @@
               '</div>' +
               '<p class="adm-card__preview">' + A.esc(a.reason) + '</p>' +
               (a.evidenceUrl ? '<p>' + link(a.evidenceUrl, 'Bằng chứng đính kèm') + '</p>' : '') +
+              (a.evidenceFile ? '<p><button type="button" class="btn btn--secondary btn--sm" data-evidence="' + a.id +
+                '" data-name="' + A.esc(a.evidenceFile.name) + '"><i class="fa-solid fa-download" aria-hidden="true"></i> ' +
+                A.esc(a.evidenceFile.name) + ' (' + Math.ceil(a.evidenceFile.size / 1024) + ' KB)</button></p>' : '') +
               (a.resolutionNote ? '<p class="adm-muted">Kết quả: ' + A.esc(a.resolutionNote) + ' · ' + A.date(a.resolvedAt) + '</p>' : '') +
               (open ? '<div class="adm-card__actions">' +
                 '<button type="button" class="btn btn--primary btn--sm" data-approve="true"><i class="fa-solid fa-check" aria-hidden="true"></i> Chấp nhận, gỡ chế tài</button>' +
@@ -279,6 +322,8 @@
       }
 
       root.onclick = async function (event) {
+        var evidence = event.target.closest('[data-evidence]');
+        if (evidence) { await downloadEvidence(evidence); return; }
         var tab = event.target.closest('.adm-tab');
         if (tab) {
           status = tab.dataset.status;

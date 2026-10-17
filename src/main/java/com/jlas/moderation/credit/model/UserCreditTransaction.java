@@ -15,6 +15,8 @@ public final class UserCreditTransaction {
         STREAK_FREEZE,
         VIDEO_UNLOCK,
         ADMIN_GRANT,
+        ADMIN_DEDUCT,
+        CREDIT_PURCHASE,
         WORD_CONTRIBUTION_REWARD,
         REFUND,
         /** A dictionary approval was revised to rejected; the reward is taken back. */

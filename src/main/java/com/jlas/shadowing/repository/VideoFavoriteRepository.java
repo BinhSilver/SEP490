@@ -21,15 +21,17 @@ public class VideoFavoriteRepository {
     }
     public VideoFavorite save(VideoFavorite favorite) {
         Long user = userId(favorite.getClientId());
-        VideoUserState state = states.findByUserIdAndVideoId(user, favorite.getVideo().getId())
-                .orElseGet(() -> VideoUserState.builder().userId(user).videoId(favorite.getVideo().getId()).build());
-        state.setFavorite(true); states.save(state); return projection(state);
+        states.storeFavorite(user, favorite.getVideo().getId(), true);
+        return favorite;
     }
     public void delete(VideoFavorite favorite) {
         Long user = userId(favorite.getClientId());
-        states.findByUserIdAndVideoId(user, favorite.getVideo().getId()).ifPresent(state -> {
-            state.setFavorite(false); states.save(state);
-        });
+        states.storeFavorite(user, favorite.getVideo().getId(), false);
+    }
+    public boolean toggle(String client, Long video) {
+        Long user = userId(client);
+        states.toggleFavorite(user, video);
+        return states.findByUserIdAndVideoId(user, video).map(VideoUserState::isFavorite).orElse(false);
     }
     public void deleteByVideoId(Long video) { states.deleteByVideoId(video); }
     private VideoFavorite projection(VideoUserState state) {

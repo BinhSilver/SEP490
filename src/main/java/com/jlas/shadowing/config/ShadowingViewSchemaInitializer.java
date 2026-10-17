@@ -33,6 +33,17 @@ public class ShadowingViewSchemaInitializer implements ApplicationRunner {
                 + "CONSTRAINT fk_video_view_tracker_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, "
                 + "CONSTRAINT fk_video_view_tracker_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        // [JLAS-SHADOWING-POPULAR] Same additive, rerunnable DDL as migration 026.
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_view_event ("
+                + "user_id BIGINT UNSIGNED NOT NULL, video_id BIGINT UNSIGNED NOT NULL, counted_at DATETIME(6) NOT NULL, "
+                + "PRIMARY KEY (user_id, video_id, counted_at), KEY idx_shadowing_view_event_recent (counted_at, video_id), "
+                + "KEY idx_shadowing_view_event_video (video_id), "
+                + "CONSTRAINT fk_shadowing_view_event_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, "
+                + "CONSTRAINT fk_shadowing_view_event_video FOREIGN KEY (video_id) REFERENCES video(id) ON DELETE CASCADE"
+                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        jdbc.update("INSERT IGNORE INTO shadowing_view_event (user_id, video_id, counted_at) "
+                + "SELECT user_id, video_id, last_counted_at FROM video_view_tracker "
+                + "WHERE last_counted_at >= CURRENT_TIMESTAMP(6) - INTERVAL 7 DAY AND last_counted_at <= CURRENT_TIMESTAMP(6)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_view_milestone ("
                 + "video_id BIGINT UNSIGNED NOT NULL, milestone INT UNSIGNED NOT NULL, "
                 + "owner_id BIGINT UNSIGNED NOT NULL, credit INT UNSIGNED NOT NULL, "

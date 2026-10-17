@@ -69,6 +69,11 @@
       var r = await fetch(path, { method: 'DELETE', headers: authHeaders() });
       return parse(r);
     },
+    postForm: async function (path, data) {
+      var h = authHeaders(false);
+      delete h['Content-Type'];
+      return parse(await fetch(path, { method: 'POST', headers: h, body: data }));
+    },
     upload: async function (path, file) {
       var fd = new FormData();
       fd.append('file', file);

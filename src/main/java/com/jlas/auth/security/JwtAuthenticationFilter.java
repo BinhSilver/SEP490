@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,8 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    public static final String ACCOUNT_LOCKED_ATTRIBUTE = "jlas.accountLocked";
+
     private final AuthProperties authProperties;
     private final UserDetailsService userDetailsService;
 
@@ -37,6 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
+            } catch (LockedException exception) {
+                SecurityContextHolder.clearContext();
+                request.setAttribute(ACCOUNT_LOCKED_ATTRIBUTE, true);
             } catch (RuntimeException ignored) {
                 // Invalid tokens are treated as anonymous; Security handles the 401 response.
             }

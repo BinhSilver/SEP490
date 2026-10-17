@@ -361,6 +361,8 @@
         WORD_CONTRIBUTION_REWARD: 'Đóng góp từ điển',
         VIDEO_UNLOCK: 'Mở khoá video',
         ADMIN_GRANT: 'Quản trị viên tặng',
+        ADMIN_DEDUCT: 'Quản trị viên trừ CP',
+        CREDIT_PURCHASE: 'Mua CP',
         REFUND: 'Hoàn điểm',
         GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi'
     };

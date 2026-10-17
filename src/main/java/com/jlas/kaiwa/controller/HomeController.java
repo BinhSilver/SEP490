@@ -1,6 +1,8 @@
 package com.jlas.kaiwa.controller;
 
 import com.jlas.kaiwa.model.Category;
+import com.jlas.kaiwa.model.Scenario;
+import com.jlas.kaiwa.util.ScenarioIcons;
 import com.jlas.kaiwa.service.CatalogService;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,11 +31,18 @@ public class HomeController {
     public String scenarios(Model model) {
         List<Category> categories = catalogService.listCategories();
         Map<Long, Long> counts = new LinkedHashMap<>();
+        Map<Long, List<Scenario>> scenariosByCategory = new LinkedHashMap<>();
+        Map<Long, String> icons = new LinkedHashMap<>();
         for (Category c : categories) {
-            counts.put(c.getId(), catalogService.countScenarios(c.getId()));
+            var roots = catalogService.listScenarios(c.getId());
+            counts.put(c.getId(), (long) roots.size());
+            scenariosByCategory.put(c.getId(), roots);
+            roots.forEach(s -> icons.put(s.getId(), ScenarioIcons.topic(s)));
         }
         model.addAttribute("categories", categories);
         model.addAttribute("scenarioCounts", counts);
+        model.addAttribute("scenariosByCategory", scenariosByCategory);
+        model.addAttribute("scenarioIcons", icons);
         model.addAttribute("showWelcome", true);
         return "aicall/home";
     }

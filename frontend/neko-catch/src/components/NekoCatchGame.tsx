@@ -14,14 +14,18 @@ import type {
   PresencePayload,
   ResultSummary,
   SessionFinishedPayload,
+  ShopView,
 } from '../arena/types';
 import type { SkinOption } from './PregameCard';
 import { soundManager } from '../audio/SoundManager';
-import { CatSpriteSheet, type CatSkinId, SKIN_CODES, skinFromCode } from '../graphics/CatSpriteSheet';
+import { CatSpriteSheet, type CatSkinId, SKIN_CODES, skinFromCode, registerShopSkins } from '../graphics/CatSpriteSheet';
 import { ParallaxBackground } from '../graphics/ParallaxBackground';
 import { ParticleSystem } from '../graphics/ParticleSystem';
 import { SpriteRenderer } from '../graphics/SpriteRenderer';
 import { DISPLAY_FONT_STACK, fieldFont, isJapaneseField, VI_FONT_STACK } from '../lib/text';
+import { answerFishSize, MOBILE_GAME_MAX_WIDTH, playfieldSize } from '../lib/playfield';
+import { fallSpeedMultiplier, stepFallingObjects } from '../lib/fallingObjects';
+import { gameBackUrl } from '../../../shared/gameNavigation';
 import type { AnswerItemType, BonusItemType, CatPlayer, FallingObject } from '../types/game';
 import { HelpModal } from './HelpModal';
 import {
@@ -44,6 +48,7 @@ export interface HostConfig {
   sessionId: string;
   mode: PlayMode;
   backUrl: string;
+  roomId?: string | null;
   meId: number | null;
   /** Trang phục đang dùng (chọn ở Cửa hàng); trong trận không đổi được. */
   skin: CatSkinId;
@@ -141,15 +146,19 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [effectStatus, setEffectStatus] = useState({ freezeMs: 0, shield: false });
   const [reveal, setReveal] = useState<Reveal | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [pausedUi, setPausedUi] = useState(false);
 
   // ── Chrome
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [skin, setSkin] = useState<CatSkinId>(host.skin);
+  const [assetsReady, setAssetsReady] = useState(false);
+  const [assetError, setAssetError] = useState<string | null>(null);
+  const [assetRetry, setAssetRetry] = useState(0);
+  const assetsReadyRef = useRef(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [narrow, setNarrow] = useState(() => window.innerWidth < 640);
+  const [mobile, setMobile] = useState(() => window.innerWidth <= MOBILE_GAME_MAX_WIDTH);
   const [liveStatus, setLiveStatus] = useState<LiveStatus>('idle');
   const [audioLocked, setAudioLocked] = useState(() => soundManager.isLocked());
   const [replaying, setReplaying] = useState(false);
@@ -229,8 +238,8 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   // ──────────────────────────────────────────────────────────
   // Small UI helpers
   // ──────────────────────────────────────────────────────────
-  const showToast = useCallback((message: string) => {
-    setToast(message);
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'error') => {
+    setToast({ message, type });
     if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
     toastTimerRef.current = window.setTimeout(() => setToast(null), 3500);
   }, []);
@@ -312,20 +321,21 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       const st = stateRef.current;
       if (!st) return;
       const { w, h } = screenDimRef.current;
+      const field = playfieldSize(w, h);
       const count = Math.max(1, round.choices.length);
       const spacing = w / (count + 1);
-      const width = Math.round(Math.max(96, Math.min(140, spacing * 1.7)));
-      const height = Math.round((width * 64) / 140);
+      const { width, height } = answerFishSize(w, count);
       // Narrow screens: alternate two rows so neighbouring cards do not cover each other's text.
       const staggered = spacing < width * 0.95;
       const baseSpeed = BASE_SPEED[st.config.difficulty] ?? BASE_SPEED.NORMAL;
+      const speedMultiplier = fallSpeedMultiplier(meRef.current?.roundIndex ?? 0);
       const japanese = isJapaneseField(st.config.answerField);
 
       const fish: FallingObject[] = round.choices.map((choice, i) => ({
         id: `${round.id}:${choice.id}`,
         x: Math.max(width / 2 + 4, Math.min(w - width / 2 - 4, spacing * (i + 1) + (Math.random() * 20 - 10))),
         y: -30 - i * 20 - Math.random() * 20 - (staggered && i % 2 === 1 ? height + 26 : 0),
-        speed: baseSpeed + Math.random() * 0.3,
+        speed: (baseSpeed + Math.random() * 0.3) * speedMultiplier,
         width,
         height,
         type: ANSWER_TYPES[i % ANSWER_TYPES.length],
@@ -338,7 +348,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       }));
 
       // Bonus items still falling from earlier rounds stay on screen (they keep their own roundId).
-      const bonuses = fallingRef.current.filter(item => item.isBonus && item.y < h - 90);
+      const bonuses = fallingRef.current.filter(item => item.isBonus && item.y < field.missY);
       if (round.bonus && !spawnedBonusRef.current.has(round.id)) {
         const type = BONUS_ITEMS[round.bonus];
         if (type) {
@@ -347,9 +357,9 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             id: `${round.id}:bonus`,
             x: Math.random() * Math.max(1, w - 240) + Math.min(120, w / 2),
             y: -90,
-            speed: 1.4,
-            width: 72,
-            height: 72,
+            speed: 1.4 * speedMultiplier,
+            width: field.bonusSize,
+            height: field.bonusSize,
             type,
             roundId: round.id,
             choiceId: null,
@@ -417,6 +427,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
     else if (summaryRef.current) next = 'result';
     else if (fatalErrorRef.current) next = 'error';
     else if (!st || !mine) next = 'loading';
+    else if (!assetsReadyRef.current && !st.awaitingStart) next = 'loading';
     else if (st.status === 'FINISHED') next = 'aborted';
     else if (mine.finished) next = 'waiting';
     else if (!startedRef.current && (st.awaitingStart || serverClock.now() < st.startAt)) next = 'pregame';
@@ -621,7 +632,6 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         addFloatingText(at.x, at.y - 20, 'KHIÊN!', '#00B894', 22, -1.8);
       } else if (bonus === 'FREEZE') {
         freezeUntilRef.current = Math.max(freezeUntilRef.current, serverClock.now()) + FREEZE_MS;
-        soundManager.playSFX('freeze');
         addFloatingText(at.x, at.y - 20, 'ĐÓNG BĂNG 2s!', '#38BDF8', 26, -1.8);
       }
     },
@@ -693,12 +703,13 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
       if (ownsLock) {
         setLock(null);
+        const exhaustedWhileLocked = missedWhileLockedRef.current;
+        missedWhileLockedRef.current = false;
         if (reply.advanced) {
           clearAnswerFish();
           activeRoundRef.current = null;
-        } else if (missedWhileLockedRef.current) {
-          // Shield blocked a wrong catch, but another fish of this round touched the ground meanwhile.
-          missedWhileLockedRef.current = false;
+        } else if (exhaustedWhileLocked) {
+          // A shield blocked the catch, but no answer fish remain to finish this round.
           const { w, h } = screenDimRef.current;
           sendActionRef.current('miss', roundId, null, { x: w / 2, y: h - 100 });
         }
@@ -788,7 +799,12 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
   const [starting, setStarting] = useState(false);
   const [deckCards, setDeckCards] = useState<DeckCardView[] | null>(null);
-  const [skinOptions, setSkinOptions] = useState<SkinOption[] | null>(null);
+  const [skinShop, setSkinShop] = useState<ShopView | null>(null);
+  const [skinBusy, setSkinBusy] = useState<string | null>(null);
+  const [skinError, setSkinError] = useState<string | null>(null);
+  const skinRequestInFlight = useRef(false);
+  const skinOptions: SkinOption[] | null = skinShop?.sections.find(section => section.gameType === 'NEKO_CATCH')?.items
+    .map(item => ({ ...item, id: skinFromCode(item.code) })) ?? null;
   const awaitingStart = !!state?.awaitingStart;
   const deckId = state?.deckId;
   useEffect(() => {
@@ -805,26 +821,54 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
     if (awaitingStart) soundManager.playBGM();
   }, [awaitingStart]);
 
-  // Trang phục đã mua để chọn ngay ở màn cài đặt (chỉ trước khi bắt đầu; trong trận không đổi được).
+  // Số dư, quyền sở hữu và trang phục đang dùng đều lấy từ phản hồi của Cửa hàng.
+  const applySkinShop = useCallback((view: ShopView) => {
+    registerShopSkins(view.sections.find(section => section.gameType === 'NEKO_CATCH')?.items ?? []);
+    setSkinShop(view);
+    const equipped = view.sections.find(section => section.gameType === 'NEKO_CATCH')?.items.find(item => item.equipped);
+    if (equipped) setSkin(skinFromCode(equipped.code));
+  }, []);
+  const reloadSkinShop = useCallback(() => {
+    setSkinError(null);
+    nekoApi.shop().then(applySkinShop)
+      .catch(error => setSkinError(errorMessage(error, 'Không tải được trang phục. Hãy thử lại.')));
+  }, [applySkinShop]);
   useEffect(() => {
-    if (!awaitingStart || skinOptions) return;
+    if (!awaitingStart) return;
     let cancelled = false;
     nekoApi.shop()
       .then(view => {
-        const items = view.sections.find(section => section.gameType === 'NEKO_CATCH')?.items ?? [];
-        if (!cancelled) setSkinOptions(items.map(item => ({ id: skinFromCode(item.code), code: item.code, name: item.name, owned: item.owned, price: item.price })));
+        if (!cancelled) applySkinShop(view);
       })
-      .catch(() => { if (!cancelled) setSkinOptions([]); });
+      .catch(error => { if (!cancelled) setSkinError(errorMessage(error, 'Không tải được trang phục. Hãy thử lại.')); });
     return () => { cancelled = true; };
-  }, [awaitingStart, skinOptions]);
+  }, [awaitingStart, applySkinShop]);
 
-  const changeSkin = useCallback((next: CatSkinId) => {
+  const changeSkin = useCallback(async (next: CatSkinId) => {
+    if (!awaitingStart || starting || skinRequestInFlight.current || !skinShop) return false;
+    const item = skinShop.sections.find(section => section.gameType === 'NEKO_CATCH')?.items.find(item => item.code === SKIN_CODES[next]);
+    if (!item || item.equipped) return false;
+    if (!item.owned && skinShop.balance < item.price) return false;
+    skinRequestInFlight.current = true;
+    setSkinBusy(item.code);
+    setSkinError(null);
     soundManager.playSFX('click');
-    setSkin(next);
-    nekoApi.equip(SKIN_CODES[next]).catch(error => showToast(errorMessage(error, 'Không lưu được trang phục.')));
-  }, [showToast]);
+    try {
+      applySkinShop(await (item.owned ? nekoApi.equip(item.code) : nekoApi.buy(item.code)));
+      showToast(item.owned ? `Đang dùng ${item.name}.` : `Đã mua ${item.name} và đang dùng.`, 'success');
+      return true;
+    } catch (error) {
+      setSkinError(errorMessage(error, 'Không lưu được trang phục. Hãy thử lại.'));
+      // Có thể số dư đã thay đổi ở tab khác; không đổi skin trước khi server xác nhận.
+      try { applySkinShop(await nekoApi.shop()); } catch { /* Giữ danh sách hiện tại để thử lại. */ }
+      return false;
+    } finally {
+      skinRequestInFlight.current = false;
+      setSkinBusy(null);
+    }
+  }, [awaitingStart, starting, skinShop, applySkinShop, showToast]);
   const startMatch = useCallback(async (options: NekoStartOptions) => {
-    if (!stateRef.current?.awaitingStart) return;
+    if (!stateRef.current?.awaitingStart || skinRequestInFlight.current || !assetsReadyRef.current) return;
     setStarting(true);
     soundManager.playSFX('click');
     try {
@@ -906,8 +950,8 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       if (status !== 404 && status !== 410) throw error;
     }
     soundManager.stopBGM();
-    window.location.href = host.backUrl;
-  }, [host.backUrl, sessionId]);
+    window.location.href = gameBackUrl(stateRef.current?.roomId || host.roomId, host.backUrl);
+  }, [host.backUrl, host.roomId, sessionId]);
 
   const playAgain = useCallback(async () => {
     const st = stateRef.current;
@@ -996,6 +1040,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   // Direct choice (number keys / accessible buttons): move the cat under that fish
   // ──────────────────────────────────────────────────────────
   const selectChoice = useCallback((index: number) => {
+    if (screenDimRef.current.w <= MOBILE_GAME_MAX_WIDTH) return;
     const round = activeRoundRef.current;
     const mine = meRef.current;
     if (!round || !mine || mine.finished || phaseRef.current !== 'playing' || pausedRef.current || lockRef.current) return;
@@ -1134,7 +1179,20 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
   useEffect(() => {
     CatSpriteSheet.setSkin(skin);
-  }, [skin]);
+    let cancelled = false;
+    assetsReadyRef.current = false;
+    setAssetsReady(false);
+    setAssetError(null);
+    void Promise.all([CatSpriteSheet.prepare(skin), bgRef.current!.prepare(), SpriteRenderer.prepare()])
+      .then(() => {
+        if (cancelled) return;
+        assetsReadyRef.current = true;
+        setAssetsReady(true);
+        refreshPhase();
+      })
+      .catch(error => { if (!cancelled) setAssetError(errorMessage(error, 'Không tải được hình trò chơi. Hãy thử lại.')); });
+    return () => { cancelled = true; };
+  }, [skin, assetRetry, refreshPhase]);
 
   useEffect(() => soundManager.onLockChange(setAudioLocked), []);
 
@@ -1148,10 +1206,29 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
     const handleResize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
+      const previous = screenDimRef.current;
+      const field = playfieldSize(w, h);
+      const cat = catRef.current;
+      cat.width = field.catWidth;
+      cat.height = field.catHeight;
+      cat.y = field.catY;
+      cat.basketWidth = 72 * field.scale;
+      cat.basketHeight = 32 * field.scale;
+      cat.basketOffsetY = -8 * field.scale;
+      cat.x = Math.max(field.edge, Math.min(w - field.edge, cat.x * w / previous.w));
+      mouseTargetXRef.current = Math.max(field.edge, Math.min(w - field.edge, mouseTargetXRef.current * w / previous.w));
+      const fishSize = answerFishSize(w, activeRoundRef.current?.choices.length ?? 1);
+      for (const item of fallingRef.current) {
+        item.width = item.isBonus ? field.bonusSize : fishSize.width;
+        item.height = item.isBonus ? field.bonusSize : fishSize.height;
+        item.x = Math.max(item.width / 2 + 4, Math.min(w - item.width / 2 - 4, item.x * w / previous.w));
+        item.y *= h / previous.h;
+      }
       screenDimRef.current = { w, h };
-      catRef.current.y = h - 120;
-      mouseTargetXRef.current = Math.max(60, Math.min(w - 60, mouseTargetXRef.current));
-      setNarrow(w < 640);
+      setMobile(field.mobile);
+      if ((previous.w <= MOBILE_GAME_MAX_WIDTH) !== field.mobile && stateRef.current) {
+        void loadStateRef.current(true);
+      }
     };
     window.addEventListener('resize', handleResize);
     handleResize();
@@ -1161,6 +1238,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   useEffect(
     () => () => {
       soundManager.stopBGM();
+      soundManager.stopFreeze();
       if (resumeTimerRef.current) window.clearInterval(resumeTimerRef.current);
       if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
       if (revealTimerRef.current) window.clearTimeout(revealTimerRef.current);
@@ -1225,7 +1303,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
       const width = screenDimRef.current.w;
       const height = screenDimRef.current.h;
-      const groundY = height - 110;
+      const field = playfieldSize(width, height);
       const dpr = window.devicePixelRatio || 1;
       if (canvas.width !== Math.floor(width * dpr) || canvas.height !== Math.floor(height * dpr)) {
         canvas.width = Math.floor(width * dpr);
@@ -1238,6 +1316,12 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       const now = serverClock.now();
       tickClock(now);
       const currentPhase = phaseRef.current;
+      const freezeState = stateRef.current;
+      const freezeReference = freezeState?.status === 'PAUSED' && freezeState.pausedAt ? freezeState.pausedAt : now;
+      soundManager.syncFreeze(
+        currentPhase === 'playing' ? Math.max(0, freezeUntilRef.current - freezeReference) : 0,
+        pausedRef.current || freezeState?.status !== 'RUNNING'
+      );
 
       const pending = lockRef.current;
       if (pending && currentPhase === 'playing' && time - pending.at > LOCK_TIMEOUT_MS) {
@@ -1263,7 +1347,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       bgRef.current?.draw(ctx, width, height, time);
 
       const cat = catRef.current;
-      cat.y = groundY - 10;
+      cat.y = field.catY;
 
       if (currentPhase !== 'playing' && currentPhase !== 'waiting') {
         if (currentPhase === 'pregame' || currentPhase === 'loading') {
@@ -1292,8 +1376,8 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
           mouseTargetXRef.current = targetX;
         }
         cat.x += (targetX - cat.x) * lerp;
-        cat.x = Math.max(60, Math.min(width - 60, cat.x));
-        mouseTargetXRef.current = Math.max(60, Math.min(width - 60, mouseTargetXRef.current));
+        cat.x = Math.max(field.edge, Math.min(width - field.edge, cat.x));
+        mouseTargetXRef.current = Math.max(field.edge, Math.min(width - field.edge, mouseTargetXRef.current));
 
         const showingFeedback = cat.state === 'catch_success' || cat.state === 'catch_wrong';
         if (!showingFeedback) {
@@ -1307,48 +1391,26 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         }
 
         // ── Falling objects: report collisions, let the server decide
-        const catchRadius = 56;
-        const basketX = cat.x;
-        const basketY = cat.y - 22;
-        const objs = fallingRef.current;
-        let answersChanged = false;
-        for (let i = objs.length - 1; i >= 0; i--) {
-          const item = objs[i];
-          if (!frozen) {
-            item.y += item.speed * f;
-            item.rotation += item.rotSpeed * f;
-          }
-          const dx = item.x - basketX;
-          const dy = item.y - basketY;
-          const hit = Math.sqrt(dx * dx + dy * dy) < catchRadius + item.width * 0.35;
-
-          if (item.isBonus) {
-            if (hit) {
-              objs.splice(i, 1);
-              sendActionRef.current('bonus', item.roundId, null, { x: item.x, y: item.y });
-            } else if (item.y > height - 90) {
-              objs.splice(i, 1);
-            }
-            continue;
-          }
-
-          const lock = lockRef.current;
-          if (hit && !lock) {
-            objs.splice(i, 1);
-            answersChanged = true;
-            sendActionRef.current('catch', item.roundId, item.choiceId, { x: item.x, y: item.y });
-          } else if (item.y > height - 90) {
-            objs.splice(i, 1);
-            answersChanged = true;
-            if (lock) {
-              // Round awaiting a reply: remember the miss in case the round continues (shield block).
-              if (lock.roundId === item.roundId) missedWhileLockedRef.current = true;
-            } else {
-              sendActionRef.current('miss', item.roundId, null, { x: item.x, y: item.y });
-            }
+        const roundId = activeRoundRef.current?.id ?? null;
+        const step = stepFallingObjects(fallingRef.current, {
+          frames: f, frozen, basketX: cat.x, basketY: cat.y - field.basketOffset,
+          catchRadius: field.catchRadius, missY: field.missY, roundId, locked: !!lockRef.current,
+        });
+        for (const item of step.bonuses) {
+          sendActionRef.current('bonus', item.roundId, null, { x: item.x, y: item.y });
+        }
+        if (step.caught) {
+          const item = step.caught;
+          sendActionRef.current('catch', item.roundId, item.choiceId, { x: item.x, y: item.y });
+        }
+        if (step.exhausted && roundId) {
+          if (lockRef.current?.roundId === roundId) {
+            missedWhileLockedRef.current = true;
+          } else {
+            sendActionRef.current('miss', roundId, null, { x: cat.x, y: field.missY });
           }
         }
-        if (answersChanged) updatePresentChoices();
+        if (step.answersChanged) updatePresentChoices();
       }
 
       if (time - lastEffectUiRef.current >= 100) {
@@ -1365,7 +1427,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         SpriteRenderer.drawFallingItem(ctx, item);
       }
       CatSpriteSheet.draw(ctx, cat, time);
-      particlesRef.current.updateAndDraw(ctx);
+      particlesRef.current.updateAndDraw(ctx, field.scale);
 
       if (running && frozen) {
         ctx.save();
@@ -1380,7 +1442,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       const texts = floatingTextsRef.current;
       for (let i = texts.length - 1; i >= 0; i--) {
         const ft = texts[i];
-        ft.y += ft.vy * f;
+        ft.y += ft.vy * f * field.scale;
         ft.alpha -= 0.02 * f;
         if (ft.alpha <= 0) {
           texts.splice(i, 1);
@@ -1388,7 +1450,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         }
         ctx.save();
         ctx.globalAlpha = Math.max(0, ft.alpha);
-        ctx.font = `900 ${ft.size}px ${DISPLAY_FONT_STACK}`;
+        ctx.font = `900 ${Math.max(12, ft.size * field.scale)}px ${DISPLAY_FONT_STACK}`;
         ctx.fillStyle = ft.color;
         ctx.textAlign = 'center';
         ctx.shadowColor = 'rgba(0,0,0,0.8)';
@@ -1409,6 +1471,9 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   // ──────────────────────────────────────────────────────────
   const handlePointer = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (phaseRef.current !== 'playing' || pausedRef.current) return;
+    if (event.type === 'pointerdown' && event.pointerType === 'touch') {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
     const rect = event.currentTarget.getBoundingClientRect();
     mouseTargetXRef.current = event.clientX - rect.left;
   };
@@ -1438,11 +1503,6 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   const config = state?.config ?? null;
   const meUserId = state?.meUserId ?? host.meId;
   const showHud = phase === 'playing' && !!state && !!me && !!config;
-  // Thanh điều hướng của trang chỉ hiện ở màn chuẩn bị (luyện tập), tổng kết và lỗi; lúc chơi thì ẩn.
-  const siteNav = (phase === 'pregame' && !!state?.awaitingStart) || phase === 'result' || phase === 'aborted' || phase === 'error';
-  useEffect(() => {
-    document.body.classList.toggle('site-nav-hidden', !siteNav);
-  }, [siteNav]);
   const timeRatio = config ? Math.max(0, Math.min(1, timeLeft / Math.max(1, config.durationSeconds))) : 0;
   const timeIsLow = showHud && timeLeft <= 10;
   const questionFont = fieldFont(config?.questionField);
@@ -1450,12 +1510,13 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
   const questionLang = isJapaneseField(config?.questionField) ? 'ja' : 'vi';
   const answerLang = isJapaneseField(config?.answerField) ? 'ja' : 'vi';
   const choiceCount = activeRound?.choices.length ?? 0;
-  const choiceColumns = narrow ? (choiceCount <= 3 ? choiceCount : choiceCount <= 4 ? 2 : 4) : choiceCount;
+  const choiceColumns = choiceCount;
   const liveDown = liveStatus === 'offline' || (liveStatus === 'connecting' && liveWasOnlineRef.current);
   const backLabel = versus ? 'Về phòng' : 'Về trang Trò chơi';
+  const returnUrl = gameBackUrl(state?.roomId || host.roomId, host.backUrl);
 
   return (
-    <div className="neko-stage fixed inset-0 w-screen h-screen overflow-hidden bg-[#0d0520] select-none" style={{ fontFamily: VI_FONT_STACK }}>
+    <div className="neko-stage fixed inset-0 w-screen h-dvh overflow-hidden bg-[#0d0520] select-none" style={{ fontFamily: VI_FONT_STACK }}>
       <canvas
         ref={canvasRef}
         role="img"
@@ -1475,11 +1536,11 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             {effectStatus.shield ? ' Khiên đang sẵn sàng.' : ''}
           </div>
 
-          <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-5 sm:right-5 z-20 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
+          <div className="neko-hud absolute top-3 left-3 right-3 sm:top-4 sm:left-5 sm:right-5 z-20 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
             {/* LEFT: score, combo, opponent */}
-            <div className="flex flex-col gap-2 pointer-events-auto min-w-0">
+            <div className="neko-hud__score-group flex flex-col gap-2 pointer-events-auto min-w-0">
               <div
-                className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-2xl"
+                className="neko-hud__score flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-2xl"
                 style={{ background: 'rgba(10,5,30,0.7)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}
               >
                 <Trophy className="w-5 h-5 text-amber-400" />
@@ -1491,7 +1552,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
               {me.combo >= 2 && (
                 <div
-                  className="self-start flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl animate-bounce"
+                  className="neko-hud__combo self-start flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl animate-bounce"
                   style={{ background: 'linear-gradient(135deg, #FF4757, #FF6B35)', boxShadow: '0 0 25px rgba(255,71,87,0.75)', border: '1px solid rgba(255,255,255,0.3)' }}
                 >
                   <Sparkles className="w-4 h-4 text-yellow-200" />
@@ -1501,14 +1562,14 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                 </div>
               )}
 
-              {versus && opponent && <OpponentPanel opponent={opponent} compact />}
+              {versus && opponent && <div className="neko-hud__opponent"><OpponentPanel opponent={opponent} compact /></div>}
             </div>
 
             {/* CENTER: target word (second row on phones) */}
             {activeRound && (
-              <div className="order-last w-full sm:order-none sm:w-auto sm:flex-1 flex flex-col items-center gap-1.5 pointer-events-none">
+              <div className="neko-hud__target-group order-last w-full sm:order-none sm:w-auto sm:flex-1 flex flex-col items-center gap-1.5 pointer-events-none">
                 <div
-                  className="flex flex-col items-center px-5 sm:px-8 py-2.5 rounded-2xl pointer-events-auto max-w-[min(92vw,34rem)]"
+                  className="neko-hud__target flex flex-col items-center px-5 sm:px-8 py-2.5 rounded-2xl pointer-events-auto max-w-[min(92vw,34rem)]"
                   style={{
                     background: 'linear-gradient(160deg, rgba(255,120,40,0.95), rgba(220,70,20,0.98))',
                     backdropFilter: 'blur(16px)',
@@ -1517,10 +1578,10 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                     minWidth: 'min(220px, 92vw)',
                   }}
                 >
-                  <span className="text-[10px] tracking-[0.22em] font-black text-amber-200/90 uppercase mb-0.5">MỤC TIÊU</span>
+                  <span className="text-[10px] tracking-[0.22em] font-black text-amber-950 uppercase mb-0.5">MỤC TIÊU</span>
                   <span
                     lang={questionLang}
-                    className={`${promptSizeClass(activeRound.prompt)} font-black text-white leading-tight text-center break-words max-w-full`}
+                    className={`neko-hud__prompt ${promptSizeClass(activeRound.prompt)} font-black text-white leading-tight text-center break-words max-w-full`}
                     style={{ fontFamily: questionFont, textShadow: '0 2px 14px rgba(0,0,0,0.5)' }}
                   >
                     {activeRound.prompt}
@@ -1545,7 +1606,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             )}
 
             {/* RIGHT: hearts, buttons, timer, effects */}
-            <div className="flex flex-col items-end gap-2 pointer-events-auto">
+            <div className="neko-hud__right flex flex-col items-end gap-2 pointer-events-auto">
               <div className="flex items-center gap-2">
                 <div
                   className="flex items-center gap-1 sm:gap-1.5 px-3 sm:px-3.5 py-2 rounded-2xl"
@@ -1563,7 +1624,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                   onClick={toggleFullscreen}
                   aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Mở toàn màn hình'}
                   title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
-                  className="hidden sm:flex w-11 h-11 rounded-2xl items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 text-amber-300 shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-400"
+                  className="neko-hud__fullscreen hidden sm:flex w-11 h-11 rounded-2xl items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 text-amber-300 shadow-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-400"
                 >
                   <span aria-hidden="true">{isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}</span>
                 </button>
@@ -1583,7 +1644,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                 <div
                   role="timer"
                   aria-label={`Còn ${timeLeft} giây`}
-                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl"
+                  className="neko-hud__timer flex items-center gap-2 px-3.5 py-1.5 rounded-2xl"
                   style={{
                     background: timeIsLow ? 'rgba(220,38,38,0.85)' : 'rgba(10,5,30,0.7)',
                     backdropFilter: 'blur(12px)',
@@ -1597,7 +1658,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                   </span>
                   {timeIsLow && <span className="hidden sm:inline text-[10px] font-black text-white uppercase tracking-wider">Sắp hết giờ</span>}
                 </div>
-                <div className="w-28 h-2 rounded-full overflow-hidden bg-white/15" aria-hidden="true">
+                <div className="neko-hud__time-bar w-28 h-2 rounded-full overflow-hidden bg-white/15" aria-hidden="true">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -1609,7 +1670,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
               </div>
 
               {(effectStatus.freezeMs > 0 || effectStatus.shield) && (
-                <div className="flex flex-col items-end gap-1.5" role="status" aria-live="polite">
+                <div className="neko-hud__effects flex flex-col items-end gap-1.5" role="status" aria-live="polite">
                   {effectStatus.freezeMs > 0 && (
                     <div className="w-40 overflow-hidden rounded-xl border border-sky-300/50 bg-sky-950/85 px-3 py-2 shadow-lg backdrop-blur-md">
                       <div className="flex items-center justify-between text-[11px] font-bold text-sky-100">
@@ -1635,7 +1696,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
           </div>
 
           {/* BOTTOM: accessible keyboard / touch choices */}
-          {activeRound && choiceCount > 0 && (
+          {!mobile && activeRound && choiceCount > 0 && (
             <div
               className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-auto grid gap-1.5 sm:gap-2 bg-slate-950/85 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-amber-400/40 shadow-2xl w-[min(96vw,980px)]"
               style={{ gridTemplateColumns: `repeat(${Math.max(1, choiceColumns)}, minmax(0, 1fr))` }}
@@ -1677,10 +1738,13 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
 
       {/* ═══ STATUS PILLS ═══ */}
       {(toast || (liveDown && (phase === 'playing' || phase === 'waiting')) || (audioLocked && phase === 'playing')) && (
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-32 sm:bottom-28 z-40 flex flex-col items-center gap-2 pointer-events-none w-[min(92vw,26rem)]">
+        <div className="neko-status absolute left-1/2 -translate-x-1/2 bottom-32 sm:bottom-28 z-40 flex flex-col items-center gap-2 pointer-events-none w-[min(92vw,26rem)]">
           {toast && (
-            <p role="alert" className="pointer-events-auto w-full text-center text-xs font-semibold text-rose-50 bg-rose-900/90 border border-rose-400/50 rounded-xl px-3 py-2 shadow-lg">
-              {toast}
+            <p role={toast.type === 'success' ? 'status' : 'alert'}
+              className={`pointer-events-auto w-full text-center text-xs font-semibold border rounded-xl px-3 py-2 shadow-lg ${toast.type === 'success'
+                ? 'text-emerald-50 bg-emerald-900/90 border-emerald-400/50'
+                : 'text-rose-50 bg-rose-900/90 border-rose-400/50'}`}>
+              {toast.message}
             </p>
           )}
           {liveDown && (phase === 'playing' || phase === 'waiting') && (
@@ -1734,8 +1798,9 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       {phase === 'loading' && (
         <div className="absolute inset-0 z-30 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
           <div role="status" className="flex flex-col items-center gap-3 px-8 py-6 rounded-3xl text-center" style={panelStyle}>
-            <Spinner />
-            <p className="text-sm font-bold text-white/85">Đang tải trận đấu…</p>
+            {!assetError && <Spinner />}
+            <p className="text-sm font-bold text-white/85">{assetError ?? (state ? 'Đang tải hình trò chơi…' : 'Đang tải trận đấu…')}</p>
+            {assetError && <button type="button" onClick={() => setAssetRetry(value => value + 1)} className="min-h-[44px] px-4 rounded-lg bg-white/10 font-bold text-white">Thử tải lại</button>}
           </div>
         </div>
       )}
@@ -1760,7 +1825,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
                 </button>
               )}
               <a
-                href={host.backUrl}
+                href={returnUrl}
                 className="flex-1 py-3 min-h-[44px] rounded-2xl font-bold text-white/85 text-xs uppercase tracking-widest bg-white/10 border border-white/15 hover:bg-white/20 flex items-center justify-center no-underline focus-visible:ring-2 focus-visible:ring-amber-300"
                 style={{ fontFamily: DISPLAY_FONT_STACK }}
               >
@@ -1798,11 +1863,18 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
           awaitingStart={!!state.awaitingStart}
           deckCards={deckCards}
           skinOptions={skinOptions}
+          skinBalance={skinShop?.balance ?? null}
+          skinBusy={skinBusy}
+          skinError={skinError}
+          onSkinRetry={reloadSkinShop}
           onSkinChange={changeSkin}
           starting={starting}
+          assetsReady={assetsReady}
+          assetError={assetError}
+          onAssetRetry={() => setAssetRetry(value => value + 1)}
           onStart={startMatch}
           skin={skin}
-          onBack={() => { void leaveMatch().catch(() => { window.location.href = host.backUrl; }); }}
+          onBack={() => { void leaveMatch().catch(() => { window.location.href = returnUrl; }); }}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
         />
@@ -1853,7 +1925,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
           questionField={state.config.questionField}
           answerField={state.config.answerField}
           skin={skin}
-          backUrl={host.backUrl}
+          backUrl={returnUrl}
           onReplay={playAgain}
           replaying={replaying}
           replayError={replayError}
@@ -1869,7 +1941,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             </h2>
             <p className="text-sm text-white/75">Trận kết thúc mà không có kết quả.</p>
             <a
-              href={versus ? host.backUrl : '/games'}
+              href={versus ? returnUrl : '/games'}
               className="w-full py-3 min-h-[44px] rounded-2xl font-black text-white text-xs uppercase tracking-widest flex items-center justify-center no-underline focus-visible:ring-2 focus-visible:ring-amber-300"
               style={{ fontFamily: DISPLAY_FONT_STACK, background: 'linear-gradient(135deg, #FF9F43, #FF6B35)' }}
             >
@@ -1898,6 +1970,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         answerLabel={config?.answerLabel ?? 'đáp án'}
         choiceCount={config?.choices ?? 4}
         versus={versus}
+        mobile={mobile}
       />
     </div>
   );

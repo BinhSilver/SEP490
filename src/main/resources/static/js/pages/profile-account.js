@@ -52,43 +52,6 @@
     return element;
   }
 
-  function renderCreditHistory(transactions) {
-    var list = document.getElementById('creditHistoryList');
-    if (!list) return;
-    list.replaceChildren();
-    if (!transactions || !transactions.length) {
-      list.appendChild(empty('Chưa có biến động Credit.'));
-      return;
-    }
-    transactions.slice(0, 5).forEach(function (transaction) {
-      var row = document.createElement('div');
-      row.className = 'profile-ledger__row';
-      var body = document.createElement('div');
-      var title = document.createElement('strong');
-      title.textContent = transaction.note || creditReason(transaction.reason);
-      var date = document.createElement('span');
-      date.textContent = formatDate(transaction.createdAt);
-      body.append(title, date);
-      var amount = document.createElement('b');
-      amount.className = Number(transaction.amount) >= 0 ? 'is-positive' : 'is-negative';
-      amount.textContent = (Number(transaction.amount) >= 0 ? '+' : '') + transaction.amount;
-      row.append(body, amount);
-      list.appendChild(row);
-    });
-  }
-
-  function creditReason(reason) {
-    var labels = {
-      ADMIN_GRANT: 'Credit được tặng', CREATOR_REWARD: 'Thưởng nội dung',
-      DAILY_CHECKIN: 'Điểm danh hằng ngày', STUDY_REWARD: 'Thưởng học tập',
-      QUIZ_REWARD: 'Thưởng hoàn thành Quiz', SHADOWING_REWARD: 'Thưởng luyện Shadowing',
-      STREAK_MILESTONE_REWARD: 'Thưởng chuỗi ngày', STREAK_FREEZE: 'Dùng bảo vệ chuỗi',
-      VIDEO_UNLOCK: 'Mở khóa video', WORD_CONTRIBUTION_REWARD: 'Thưởng đóng góp từ', WORD_CONTRIBUTION_REVOKED: 'Thu hồi thưởng đóng góp từ',
-      REFUND: 'Hoàn Credit', GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi', AI_CALL_TURN: 'Lượt AI Call'
-    };
-    return labels[reason] || 'Biến động Credit';
-  }
-
   function renderPayments(payments) {
     var list = document.getElementById('paymentHistoryList');
     if (!list) return;
@@ -124,47 +87,20 @@
       CANCELLED: 'Đã hủy', REFUNDED: 'Đã hoàn tiền' })[status] || status;
   }
 
-  function renderProgress(id, current, target) {
-    var progress = document.getElementById(id + 'Progress');
-    setText(id + 'Value', current + ' / ' + target);
-    if (progress) {
-      progress.max = Math.max(1, Number(target));
-      progress.value = Math.min(Number(current), progress.max);
-    }
-  }
-
   var loginHistoryEntries = [];
   var visibleLoginHistory = 6;
 
-  async function loadDashboard() {
-    var loading = document.getElementById('dashboardLoading');
-    var content = document.getElementById('dashboardContent');
-    var errorBox = document.getElementById('dashboardError');
+  async function loadPlanSummary() {
+    var errorBox = document.getElementById('premiumSummaryAlert');
     try {
-      var results = await Promise.all([
-        api('/api/profile/dashboard'),
-        api('/api/credits/me')
-      ]);
-      var dashboard = results[0];
-      var credit = results[1];
-      var learning = dashboard.learning;
-      setText('dashCurrentStreak', learning.currentStreak + ' ngày');
-      setText('dashLongestStreak', learning.longestStreak + ' ngày');
-      setText('dashCreditBalance', Number(credit.balance || 0).toLocaleString('vi-VN'));
-      renderProgress('dashVocab', learning.vocabularyLearned, learning.dailyVocabTarget);
-      renderProgress('dashQuiz', learning.quizzesCompleted, learning.dailyQuizTarget);
-      renderProgress('dashMinutes', learning.studyMinutes, learning.dailyStudyMinutes);
-      renderCreditHistory(credit.transactions);
+      var dashboard = await api('/api/profile/dashboard');
       renderPayments(dashboard.payments);
       setText('premiumPlanName', dashboard.plan.name);
       setText('premiumStatus', dashboard.plan.status === 'ACTIVE' ? 'Đang sử dụng'
         : dashboard.plan.status === 'EXPIRED' ? 'Đã hết hạn' : 'Miễn phí');
       setText('premiumExpires', formatDate(dashboard.plan.expiresAt));
-      if (content) content.hidden = false;
     } catch (error) {
       showAlert(errorBox, error.message, 'error');
-    } finally {
-      if (loading) loading.hidden = true;
     }
   }
 
@@ -367,6 +303,6 @@
     updateGoogleState(user);
     if (!user.googleLinked) initGoogleLink(0);
   });
-  loadDashboard();
+  loadPlanSummary();
   loadLoginHistory();
 })();

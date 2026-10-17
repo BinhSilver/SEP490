@@ -8,6 +8,7 @@
 // ============================================================================
 
 import { buildReport, matchHooks, useAirDefenseStore } from "./useAirDefenseStore";
+import { gameBackUrl } from '../../../shared/gameNavigation';
 import {
   connectLive,
   errorMessage,
@@ -38,6 +39,7 @@ export interface HostConfig {
   sessionId: string;
   playMode: PlayMode | null;
   backUrl: string;
+  roomId?: string | null;
   meId: number | null;
 }
 
@@ -46,6 +48,11 @@ const REPORT_BACKOFF_MS = 1500;
 const RESULT_POLL_MS = 3000;
 
 let host: HostConfig | null = null;
+let controllerGeneration = 0;
+
+function isCurrentController(generation: number): boolean {
+  return host !== null && generation === controllerGeneration;
+}
 
 // --------------------------------------------------------------------- report throttle
 
@@ -107,6 +114,8 @@ function requestReport(immediate: boolean) {
 async function sendReport(force = false) {
   const state = useAirDefenseStore.getState();
   if (!host || !state.match) return;
+  const generation = controllerGeneration;
+  const sessionId = host.sessionId;
   if (!force && state.outcome !== "playing") return;
   const report = buildReport(state);
   if (!force && lastSent && sameReport(lastSent, report)) return;
@@ -115,21 +124,25 @@ async function sendReport(force = false) {
   lastSent = report;
   lastSentAt = Date.now();
   try {
-    const view = await postReport(host.sessionId, report);
+    const view = await postReport(sessionId, report);
+    if (!isCurrentController(generation)) return;
     if (view) useAirDefenseStore.getState().syncFromServer(view);
   } catch {
+    if (!isCurrentController(generation)) return;
     // Mạng chập chờn / bị giới hạn tần suất: gửi lại sau một nhịp nghỉ.
     lastSent = null;
     backoffUntil = Date.now() + REPORT_BACKOFF_MS;
   } finally {
-    inFlight = false;
-    if (pending) {
-      const immediate = pendingImmediate;
-      pending = false;
-      pendingImmediate = false;
-      requestReport(immediate);
-    } else if (lastSent === null && useAirDefenseStore.getState().outcome === "playing") {
-      requestReport(false);
+    if (isCurrentController(generation)) {
+      inFlight = false;
+      if (pending) {
+        const immediate = pendingImmediate;
+        pending = false;
+        pendingImmediate = false;
+        requestReport(immediate);
+      } else if (lastSent === null && useAirDefenseStore.getState().outcome === "playing") {
+        requestReport(false);
+      }
     }
   }
 }
@@ -158,7 +171,9 @@ function stopResultPolling() {
 function startResultPolling() {
   if (resultPoll !== null || !host) return;
   const sessionId = host.sessionId;
+  const generation = controllerGeneration;
   resultPoll = setInterval(() => {
+    if (!isCurrentController(generation)) return;
     const state = useAirDefenseStore.getState();
     if (state.outcome === "over") {
       stopResultPolling();
@@ -166,7 +181,7 @@ function startResultPolling() {
     }
     if (state.outcome === "playing") return;
     fetchAirState(sessionId)
-      .then((view) => useAirDefenseStore.getState().syncFromServer(view))
+      .then((view) => { if (isCurrentController(generation)) useAirDefenseStore.getState().syncFromServer(view); })
       .catch(() => undefined);
   }, RESULT_POLL_MS);
 }
@@ -177,14 +192,18 @@ function delay(ms: number) {
 
 async function finishWithRetry(defeated: boolean): Promise<AirStateView> {
   if (!host) throw new Error("Chưa kết nối trận đấu");
+  const generation = controllerGeneration;
+  const sessionId = host.sessionId;
   const report = buildReport(useAirDefenseStore.getState());
   if (defeated) report.hp = 0;
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 3; attempt++) {
+    if (!isCurrentController(generation)) throw new Error("Trận đấu đã đóng");
     try {
-      return await postFinish(host.sessionId, defeated, report);
+      return await postFinish(sessionId, defeated, report);
     } catch (error) {
       lastError = error;
+      if (!isCurrentController(generation)) throw error;
       const status = errorStatus(error);
       // 4xx (trừ 429) là lỗi nghiệp vụ, thử lại cũng vậy.
       if (status >= 400 && status < 500 && status !== 429) break;
@@ -195,34 +214,40 @@ async function finishWithRetry(defeated: boolean): Promise<AirStateView> {
 }
 
 function handleDefeated() {
+  const generation = controllerGeneration;
   clearReportTimer();
   finishWithRetry(true)
-    .then((view) => useAirDefenseStore.getState().syncFromServer(view))
+    .then((view) => { if (isCurrentController(generation)) useAirDefenseStore.getState().syncFromServer(view); })
     .catch((error) => {
+      if (!isCurrentController(generation)) return;
       useAirDefenseStore.getState().setNotice(errorMessage(error, "Chưa lưu được kết quả trận. Kiểm tra mạng rồi thử lại."));
     })
     .finally(() => {
-      if (useAirDefenseStore.getState().outcome !== "over") startResultPolling();
+      if (isCurrentController(generation) && useAirDefenseStore.getState().outcome !== "over") startResultPolling();
     });
 }
 
 function handleTimeUp() {
+  const generation = controllerGeneration;
   clearReportTimer();
   // Báo cáo cuối cùng để server chốt HP/điểm, sau đó chờ SESSION_FINISHED (server chốt ≈2 giây sau endsAt).
-  void sendReport(true).finally(() => startResultPolling());
+  void sendReport(true).finally(() => { if (isCurrentController(generation)) startResultPolling(); });
 }
 
 /** Chơi đơn: dừng trận, xem tổng kết (server lưu kết quả "SURVIVED"). */
 export async function finishSoloMatch(): Promise<void> {
   const store = useAirDefenseStore.getState();
   if (!host || !store.match || store.match.playMode !== "SOLO" || store.outcome !== "playing") return;
+  const generation = controllerGeneration;
   clearReportTimer();
   store.setOutcome("stopping");
   try {
     const view = await finishWithRetry(false);
+    if (!isCurrentController(generation)) return;
     useAirDefenseStore.getState().syncFromServer(view);
     if (useAirDefenseStore.getState().outcome !== "over") startResultPolling();
   } catch (error) {
+    if (!isCurrentController(generation)) return;
     const current = useAirDefenseStore.getState();
     if (current.outcome === "stopping") current.setOutcome("playing");
     current.setNotice(errorMessage(error, "Không kết thúc được trận. Vui lòng thử lại."));
@@ -232,7 +257,7 @@ export async function finishSoloMatch(): Promise<void> {
 /** "Rời trận": trong đối kháng rời trận = thua. */
 export async function leaveMatch(): Promise<void> {
   if (!host) return;
-  const target = host.backUrl;
+  const target = backUrl();
   try {
     await leaveSession(host.sessionId);
   } catch {
@@ -244,7 +269,9 @@ export async function leaveMatch(): Promise<void> {
 /** Luyện tập: gửi cài đặt ở màn chuẩn bị; server dựng lại dãy từ, intro đếm ngược tới startAt. */
 export async function startSoloMatch(options: AirStartOptions): Promise<void> {
   if (!host) throw new Error("Chưa kết nối trận đấu");
+  const generation = controllerGeneration;
   const view = await postStart(host.sessionId, options);
+  if (!isCurrentController(generation)) return;
   const store = useAirDefenseStore.getState();
   if (view.awaitingStart) {
     store.showSetup(view);
@@ -274,14 +301,16 @@ export async function replaySolo(): Promise<void> {
 }
 
 export function backUrl(): string {
-  return host?.backUrl || "/games";
+  return gameBackUrl(useAirDefenseStore.getState().match?.roomId || host?.roomId, host?.backUrl || "/games");
 }
 
 // --------------------------------------------------------------------- boot
 
 async function loadInitial(sessionId: string) {
+  const generation = controllerGeneration;
   try {
     const state = await fetchAirState(sessionId);
+    if (!isCurrentController(generation)) return;
     const store = useAirDefenseStore.getState();
     if (state.awaitingStart && state.mode === "SOLO" && state.status === "RUNNING") {
       store.showSetup(state);
@@ -294,13 +323,16 @@ async function loadInitial(sessionId: string) {
       startResultPolling();
     }
   } catch (error) {
+    if (!isCurrentController(generation)) return;
     useAirDefenseStore.getState().setBootError(errorMessage(error, "Không tải được trận đấu. Vui lòng thử lại."));
   }
 }
 
 async function refresh(sessionId: string) {
+  const generation = controllerGeneration;
   try {
     const state = await fetchAirState(sessionId);
+    if (!isCurrentController(generation)) return;
     const store = useAirDefenseStore.getState();
     if (store.bootStatus === "setup") {
       if (!state.awaitingStart) store.initMatch(state);
@@ -317,7 +349,16 @@ async function refresh(sessionId: string) {
 }
 
 export function startMatchController(config: HostConfig): () => void {
+  const generation = ++controllerGeneration;
   host = config;
+  clearReportTimer();
+  stopResultPolling();
+  lastSent = null;
+  lastSentAt = 0;
+  backoffUntil = 0;
+  inFlight = false;
+  pending = false;
+  pendingImmediate = false;
   const store = useAirDefenseStore;
 
   if (!hasArena()) {
@@ -364,8 +405,12 @@ export function startMatchController(config: HostConfig): () => void {
         // bỏ qua
       }
     });
+    if (!isCurrentController(generation)) return;
+    controllerGeneration += 1;
+    host = null;
     clearReportTimer();
     stopResultPolling();
+    store.getState().cancelFinishPresentation();
     matchHooks.onDefeated = undefined;
     matchHooks.onTimeUp = undefined;
   };

@@ -65,7 +65,7 @@ public class GameMapper {
     public SessionInfoView toSessionInfo(GameSession session, long userId) {
         List<SessionPlayerView> players = session.getSeats().stream()
                 .map(seat -> new SessionPlayerView(seat.userId(), seat.displayName(), seat.avatarUrl(), seat.slot(),
-                        session.isOnline(seat.userId())))
+                        session.isOnline(seat.userId()), seat.avatarFrame(), seat.nameStyle()))
                 .toList();
         String backUrl = session.getRoomId() == null ? "/games" : "/games/room/" + session.getRoomId();
         return new SessionInfoView(session.getSessionId(), session.getGameType(), session.getMode(),
@@ -80,6 +80,7 @@ public class GameMapper {
         // Phòng bạn bè: chủ phòng bấm "Bắt đầu" nên coi như luôn sẵn sàng; ghép trận nhanh: cả hai tự bấm.
         boolean ready = player.isReady() || (host && !room.isQuickMatch());
         return new RoomPlayerView(player.getUserId(), player.getDisplayName(), player.getAvatarUrl(),
-                player.getSlot(), host, ready, hub.isOnline(player.getUserId()));
+                player.getSlot(), host, ready, hub.isOnline(player.getUserId()), player.getAvatarFrame(),
+                player.getNameStyle());
     }
 }

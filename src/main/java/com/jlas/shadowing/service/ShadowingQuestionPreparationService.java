@@ -2,10 +2,12 @@ package com.jlas.shadowing.service;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.shadowing.dto.ManualQuestionRequest;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.model.VideoStatus;
 import com.jlas.shadowing.model.practice.PreparedQuestion;
+import com.jlas.shadowing.model.practice.QuestionEvidencePlan;
 import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.SubtitleRepository;
 import com.jlas.shadowing.repository.VideoRepository;
@@ -44,9 +46,7 @@ public class ShadowingQuestionPreparationService {
     public static final Set<String> KINDS = Set.of("GAP", "ACTION_SEQUENCE", "DETAIL", "REASON_PURPOSE",
             "MAIN_IDEA", "PROBLEM_SOLUTION", "ATTITUDE_DECISION");
     private static final String SOURCE_VERSION = "listening-v1";
-    private static final String QUESTION_VERSION = "listening-v2-ja";
-    private static final int BATCH_SIZE = 24;
-    private static final int MAX_SUBTITLES = 72;
+    private static final String QUESTION_VERSION = "listening-v3-evidence";
     private static final int MAX_QUESTIONS_PER_JOB = 21;
 
     private final VideoRepository videos;
@@ -85,7 +85,8 @@ public class ShadowingQuestionPreparationService {
             if (target > present) missing.put(kind, target - (int) present);
         });
         int missingTotal = missing.values().stream().mapToInt(Integer::intValue).sum();
-        String effectiveStatus = job == null ? "IDLE"
+        String effectiveStatus = job == null || "IDLE".equals(job.status())
+                ? draftCount > 0 ? "REVIEW" : questions.isEmpty() ? "IDLE" : "READY"
                 : "RUNNING".equals(job.status()) || "QUEUED".equals(job.status())
                 ? job.status()
                 : missingTotal > 0 && "READY".equals(job.status()) ? "PARTIAL"
@@ -106,10 +107,11 @@ public class ShadowingQuestionPreparationService {
                 ? "" : job.selectedJlptLevel());
         status.put("suggestedJlptLevel", job == null || job.suggestedJlptLevel() == null
                 ? "" : job.suggestedJlptLevel());
-        status.put("levelOutdated", job != null && job.suggestionHash() != null
-                && !job.suggestionHash().equals(hashSources(source)));
+        status.put("levelOutdated", job != null && !analysisCurrent(job, source));
         status.put("capacities", capacities(job, source));
         status.put("remaining", remaining(job, source, allQuestions));
+        status.put("evidencePlans", analysisCurrent(job, source)
+                ? availablePlans(bank.evidencePlans(job), allQuestions) : List.of());
         Map<String, Integer> preparedCounts = new LinkedHashMap<>();
         allQuestions.forEach(question -> preparedCounts.merge(question.kind(), 1, Integer::sum));
         status.put("preparedCounts", preparedCounts);
@@ -123,6 +125,10 @@ public class ShadowingQuestionPreparationService {
         status.put("generationIssues", owner && job != null && !missingAfterCompletion
                 ? bank.generationIssues(videoId) : List.of());
         status.put("owner", owner);
+        status.put("manualSources", owner ? source.stream().map(line -> Map.of(
+                "id", line.getId(), "text", QuestionTranscript.spoken(line.getText()),
+                "startTime", line.getStartTime(), "endTime", line.getEndTime(),
+                "hash", hashSources(List.of(line)))).toList() : List.of());
         status.put("contributedToday", !owner && bank.contributedToday(videoId, userId));
         return status;
     }
@@ -139,7 +145,9 @@ public class ShadowingQuestionPreparationService {
         List<PreparedQuestion> valid = validQuestions(videoId, source);
         List<PreparedQuestion> allPrepared = validQuestions(videoId, source, true);
         ShadowingQuestionBankRepository.PreparationJob job = bank.findJob(videoId);
-        String currentStatus = job == null ? "IDLE" : job.status();
+        String currentStatus = job == null || "IDLE".equals(job.status())
+                ? allPrepared.stream().anyMatch(q -> "DRAFT".equals(q.status())) ? "REVIEW"
+                : valid.isEmpty() ? "IDLE" : "READY" : job.status();
         if (job != null && "READY".equals(job.status())) {
             boolean belowTarget = missingCounts(job, allPrepared).values().stream()
                     .anyMatch(count -> count > 0);
@@ -160,29 +168,78 @@ public class ShadowingQuestionPreparationService {
         requireCanPrepare(userId, videoId);
         List<Subtitle> source = source(videoId);
         if (source.isEmpty()) throw new ApiException(ErrorCode.BAD_REQUEST, "Video chưa có phụ đề");
-        List<Subtitle> sample = spread(source, 28);
         String hash = hashSources(source);
         ShadowingQuestionBankRepository.PreparationJob job = bank.findJob(videoId);
-        if (job != null && hash.equals(job.suggestionHash()) && job.suggestionsCsv() != null
-                && job.suggestedJlptLevel() != null && job.capacitiesCsv() != null) {
-            return Map.of("suggestions", job.suggestionsCsv().isBlank()
-                            ? List.of() : List.of(job.suggestionsCsv().split(",")),
-                    "suggestedJlptLevel", job.suggestedJlptLevel() == null
-                            ? "" : job.suggestedJlptLevel(),
-                    "capacities", capacities(job, source));
+        if (analysisCurrent(job, source)) {
+            return suggestionResponse(job, source);
         }
+        if (job != null && Set.of("RUNNING", "QUEUED").contains(job.status()))
+            throw new ApiException(ErrorCode.CONFLICT, "Hãy đợi lượt tạo hiện tại hoàn tất trước khi phân tích lại.");
         if (!ai.available()) throw new ApiException(ErrorCode.BAD_REQUEST, "Chưa cấu hình AI tạo câu hỏi");
-        ShadowingQuestionAiClient.Suggestion result = ai.suggest(sample);
-        if (result == null || result.jlptLevel() == null) {
-            throw new ApiException(ErrorCode.BAD_REQUEST,
-                    "Chưa lấy được gợi ý cấp độ hợp lệ từ AI. Vui lòng thử lại.");
+        Map<Long, Integer> positions = positions(source);
+        List<QuestionEvidencePlan> plans = new ArrayList<>();
+        Map<String, Integer> levels = new LinkedHashMap<>();
+        List<List<Subtitle>> windows = QuestionTranscript.windows(source);
+        // Work in bounded waves; do not enqueue every passage of a long video at once.
+        for (int start = 0; start < windows.size(); start += 3) {
+            List<List<Subtitle>> wave = windows.subList(start, Math.min(start + 3, windows.size()));
+            List<CompletableFuture<ShadowingQuestionAiClient.Analysis>> futures = wave.stream()
+                    .map(window -> CompletableFuture.supplyAsync(() -> ai.analyze(window), batches)).toList();
+            for (int index = 0; index < wave.size(); index++) {
+                ShadowingQuestionAiClient.Analysis result = futures.get(index).join();
+                if (result == null || result.jlptLevel() == null) {
+                    throw new ApiException(ErrorCode.BAD_REQUEST,
+                            "Chưa phân tích đủ các đoạn phụ đề. Vui lòng thử lại; ước tính cũ chưa bị thay thế.");
+                }
+                levels.merge(result.jlptLevel(), 1, Integer::sum);
+                Set<Long> supplied = new HashSet<>(wave.get(index).stream().map(Subtitle::getId).toList());
+                for (QuestionEvidencePlan proposed : result.plans()) {
+                    QuestionEvidencePlan plan = validatePlan(proposed, source, positions, supplied);
+                    if (plan != null && plans.stream().noneMatch(other -> QuestionTranscript.sameFact(other, plan)))
+                        plans.add(plan);
+                }
+            }
         }
-        bank.saveSuggestions(videoId, String.join(",", result.kinds()), hash, result.jlptLevel(),
-                ShadowingQuestionBankRepository.PreparationJob.serialize(result.capacities()));
-        ShadowingQuestionBankRepository.PreparationJob saved = bank.findJob(videoId);
-        return Map.of("suggestions", result.kinds(),
-                "suggestedJlptLevel", result.jlptLevel() == null ? "" : result.jlptLevel(),
-                "capacities", capacities(saved, source));
+        for (Subtitle line : source) {
+            String text = QuestionTranscript.spoken(line.getText());
+            if (text.length() < 5 || japaneseCount(text) < 4) continue;
+            QuestionEvidencePlan gap = new QuestionEvidencePlan("GAP", List.of(line.getId()),
+                    "Nghe và điền nội dung của câu phụ đề", text,
+                    QuestionTranscript.neighbors(List.of(line.getId()), source), "");
+            if (plans.stream().noneMatch(other -> QuestionTranscript.sameFact(other, gap))) plans.add(gap);
+        }
+        // Never publish analysis of a transcript that changed while the AI was reading it.
+        if (!hash.equals(hashSources(source(videoId))))
+            throw new ApiException(ErrorCode.CONFLICT, "Phụ đề đã thay đổi trong lúc phân tích. Hãy thử lại.");
+        String level = levels.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow().getKey();
+        Map<String, Integer> capacities = planCounts(plans);
+        List<String> kinds = COMPREHENSION_KINDS.stream().sorted()
+                .filter(kind -> capacities.getOrDefault(kind, 0) > 0).toList();
+        bank.saveSuggestions(videoId, String.join(",", kinds), hash, level,
+                ShadowingQuestionBankRepository.PreparationJob.serialize(capacities),
+                QuestionTranscript.ANALYSIS_VERSION, plans);
+        return suggestionResponse(bank.findJob(videoId), source);
+    }
+
+    private Map<String, Object> suggestionResponse(ShadowingQuestionBankRepository.PreparationJob job,
+                                                    List<Subtitle> source) {
+        return Map.of("suggestions", job.suggestionsCsv().isBlank() ? List.of()
+                        : List.of(job.suggestionsCsv().split(",")),
+                "suggestedJlptLevel", job.suggestedJlptLevel(), "capacities", capacities(job, source),
+                "evidencePlans", bank.evidencePlans(job));
+    }
+
+    static QuestionEvidencePlan validatePlan(QuestionEvidencePlan plan, List<Subtitle> source,
+                                             Map<Long, Integer> positions, Set<Long> supplied) {
+        if (plan == null || !COMPREHENSION_KINDS.contains(plan.kind()) || plan.focus() == null
+                || plan.focus().isBlank() || plan.answerQuote() == null || plan.answerQuote().isBlank()
+                || !QuestionTranscript.contiguous(plan.sourceIds(), positions)
+                || !supplied.containsAll(plan.sourceIds())) return null;
+        List<Subtitle> evidence = QuestionTranscript.evidence(plan, source);
+        if (evidence.stream().noneMatch(s -> QuestionTranscript.spoken(s.getText()).contains(plan.answerQuote()))
+                || !categoryEvidenceSupported(plan.kind(), plan.answerQuote(), evidence)) return null;
+        return new QuestionEvidencePlan(plan.kind(), List.copyOf(plan.sourceIds()), plan.focus(),
+                plan.answerQuote(), QuestionTranscript.neighbors(plan.sourceIds(), source), plan.contextSummary());
     }
 
     public Map<String, Object> selectVideoLevel(long userId, long videoId, String level) {
@@ -216,13 +273,15 @@ public class ShadowingQuestionPreparationService {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Mỗi lượt tạo tối đa 21 câu hỏi");
         }
         if (!ai.available()) throw new ApiException(ErrorCode.BAD_REQUEST, "Chưa cấu hình AI tạo câu hỏi");
+        // The same lock as manual authoring: a queued job must see the newly committed owner questions.
+        bank.lockVideo(videoId);
         List<Subtitle> source = source(videoId);
         if (source.isEmpty()) throw new ApiException(ErrorCode.BAD_REQUEST, "Video chưa có phụ đề");
         ShadowingQuestionBankRepository.PreparationJob existing = bank.findJob(videoId);
         if (existing != null && ("QUEUED".equals(existing.status()) || "RUNNING".equals(existing.status()))) {
             throw new ApiException(ErrorCode.CONFLICT, "Bài tập đang được chuẩn bị");
         }
-        if (existing == null || !hashSources(source).equals(existing.suggestionHash())) {
+        if (!analysisCurrent(existing, source)) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy lấy gợi ý cho phụ đề hiện tại trước khi tạo câu hỏi");
         }
         List<PreparedQuestion> current = validQuestions(videoId, source, true);
@@ -251,6 +310,60 @@ public class ShadowingQuestionPreparationService {
     public void reject(long userId, long videoId, long questionId) {
         requireOwner(userId, videoId);
         bank.reject(videoId, questionId);
+    }
+
+    @Transactional
+    public PreparedQuestion createManual(long userId, long videoId, ManualQuestionRequest request) {
+        Video video = requireOwner(userId, videoId);
+        if (video.getStatus() != VideoStatus.READY && video.getStatus() != VideoStatus.DRAFT)
+            throw new ApiException(ErrorCode.CONFLICT, "Hãy đợi xử lý phụ đề hoàn tất trước khi nhập câu hỏi.");
+        if (request == null || request.kind() == null || !KINDS.contains(request.kind())
+                || request.level() == null || !LEVELS.contains(request.level())
+                || request.sourceIds() == null || request.sourceHashes() == null
+                || request.sourceIds().isEmpty() || request.sourceIds().size() > 6
+                || request.sourceIds().size() != request.sourceHashes().size()
+                || request.sourceIds().stream().anyMatch(java.util.Objects::isNull)
+                || request.answer() == null || request.answer().isBlank() || request.answer().length() > 500
+                || request.explanation() == null || request.explanation().isBlank() || request.explanation().length() > 4000
+                || request.prompt() != null && request.prompt().length() > 2000
+                || request.choices() == null || request.choices().size() > 4
+                || request.choices().stream().anyMatch(c -> c == null || c.isBlank() || c.length() > 500))
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy nhập đầy đủ dạng câu, mức nghe, dẫn chứng, đáp án và giải thích.");
+        bank.lockVideo(videoId);
+        var job = bank.findJob(videoId);
+        if (job != null && Set.of("RUNNING", "QUEUED").contains(job.status()))
+            throw new ApiException(ErrorCode.CONFLICT, "Hãy đợi lượt tạo câu hỏi hiện tại hoàn tất rồi lưu câu nhập tay.");
+        List<Subtitle> source = source(videoId);
+        Map<Long, Subtitle> byId = new HashMap<>();
+        source.forEach(line -> byId.put(line.getId(), line));
+        for (int i = 0; i < request.sourceIds().size(); i++) {
+            Subtitle line = byId.get(request.sourceIds().get(i));
+            if (line == null || !hashSources(List.of(line)).equals(request.sourceHashes().get(i)))
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Phụ đề dẫn chứng đã thay đổi hoặc không còn dùng được. Hãy tải lại trang và chọn lại.");
+        }
+        if ("GAP".equals(request.kind()) && !request.choices().isEmpty())
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Câu điền nội dung không dùng lựa chọn trắc nghiệm.");
+        var candidate = new ShadowingQuestionAiClient.AiQuestion(request.sourceIds(), request.kind(), request.level(),
+                request.prompt() == null ? "" : request.prompt().strip(), request.answer().strip(),
+                request.choices().stream().map(String::strip).toList(), request.explanation().strip());
+        List<String> levels = List.of(request.level()), kinds = List.of(request.kind());
+        List<String> pairs = List.of(request.level() + ":" + request.kind());
+        PreparedQuestion validated = validated(videoId, candidate, byId, positions(source), levels, kinds, pairs);
+        if (validated == null)
+            throw new ApiException(ErrorCode.BAD_REQUEST,
+                    invalidReason(candidate, byId, positions(source), levels, kinds, pairs)
+                            .replace("AI ", "Bạn ").replace("AI", "Câu hỏi"));
+        if (isDuplicate(validated, validQuestions(videoId, source, true), List.of()))
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Đã có câu hỏi cùng dạng dùng dẫn chứng hoặc đáp án này. Hãy chọn nội dung khác.");
+        PreparedQuestion question = new PreparedQuestion(null, videoId, validated.subtitleId(), validated.sourceIds(),
+                validated.kind(), validated.level(), validated.prompt(), validated.answer(), validated.choices(),
+                request.explanation().strip(), validated.startTime(), validated.endTime(), validated.sourceHash(),
+                validated.occurrence(), validated.contentHash(), "DRAFT");
+        if (!bank.save(question))
+            throw new ApiException(ErrorCode.CONFLICT, "Câu hỏi này đã được lưu hoặc bị xóa trước đó. Hãy đổi nội dung.");
+        return bank.findByContentHash(videoId, question.contentHash());
     }
 
     public Map<String, Object> approve(long userId, long videoId) {
@@ -341,112 +454,102 @@ public class ShadowingQuestionPreparationService {
         int saved = 0;
         try {
             List<Subtitle> all = source(job.videoId());
-            if (all.isEmpty()) {
-                bank.finish(job.videoId(), "FAILED", "Video không còn phụ đề để tạo câu hỏi.");
+            if (!analysisCurrent(job, all)) {
+                bank.finish(job.videoId(), "FAILED", "Phụ đề hoặc cách phân tích đã thay đổi. Hãy lấy lại gợi ý.");
                 return;
             }
-            Map<Long, Integer> originalPositions = new HashMap<>();
-            for (int index = 0; index < all.size(); index++) {
-                originalPositions.put(all.get(index).getId(), index);
-            }
+            Map<Long, Integer> originalPositions = positions(all);
             List<ShadowingQuestionBankRepository.RejectedQuestion> rejected = bank.rejected(job.videoId());
             List<PreparedQuestion> accepted = new ArrayList<>(validQuestions(job.videoId(), all, true));
-            int initialDesired = missingCounts(job, accepted).values().stream()
-                    .mapToInt(Integer::intValue).sum();
-            List<List<Subtitle>> chunks = evidenceWindows(all,
-                    Math.min(MAX_SUBTITLES, Math.max(36, initialDesired * 4)));
-            List<String> failedCandidates = new ArrayList<>();
-            int issueCount = 0;
-            int failedBatches = 0;
+            List<QuestionEvidencePlan> plans = bank.evidencePlans(job);
+            Map<QuestionEvidencePlan, List<String>> repairs = new LinkedHashMap<>();
+            int issueCount = 0, failedBatches = 0;
             for (int attempt = 1; attempt <= 2; attempt++) {
                 Map<String, Integer> needed = missingCounts(job, accepted);
-                int desired = needed.values().stream().mapToInt(Integer::intValue).sum();
-                if (desired == 0) break;
-                List<String> pairs = missingPairs(job, accepted);
-                Map<String, Integer> perBatch = new LinkedHashMap<>();
-                needed.forEach((kind, count) -> {
-                    if (count > 0) perBatch.put(kind,
-                            Math.min(6, (int) Math.ceil((double) count / chunks.size()) + 1));
-                });
-                int maxPerBatch = Math.min(7, (int) Math.ceil((double) desired / chunks.size()) + 1);
-                List<CompletableFuture<List<ShadowingQuestionAiClient.AiQuestion>>> futures = new ArrayList<>();
-                for (List<Subtitle> chunk : chunks) {
-                    Set<Long> ids = new HashSet<>(chunk.stream().map(Subtitle::getId).toList());
-                    List<String> avoid = new ArrayList<>(rejected.stream()
-                            .filter(question -> ids.contains(question.subtitleId()) && relevantRejected(question))
-                            .limit(8).map(question -> "REJECTED " + question.kind() + ":" + question.prompt()
-                                    + "→" + question.answer()).toList());
-                    accepted.stream().filter(question -> ids.contains(question.subtitleId()))
-                            .limit(8).forEach(question -> avoid.add("EXISTING " + question.kind() + ":"
-                                    + question.prompt() + "→" + question.answer()));
-                    failedCandidates.stream().filter(entry -> avoid.size() < 20)
-                            .forEach(avoid::add);
-                    futures.add(CompletableFuture.supplyAsync(() -> ai.generate(chunk,
-                            job.levels(), new ArrayList<>(perBatch.keySet()), pairs, avoid,
-                            perBatch, maxPerBatch), batches));
+                if (needed.values().stream().mapToInt(Integer::intValue).sum() == 0) break;
+                List<QuestionEvidencePlan> selected = new ArrayList<>();
+                for (String kind : job.kinds()) {
+                    availablePlans(plans, accepted).stream().filter(plan -> kind.equals(plan.kind()))
+                            .sorted(Comparator.comparingInt(plan -> repairs.containsKey(plan) ? 0 : 1))
+                            .limit(needed.getOrDefault(kind, 0)).forEach(selected::add);
                 }
-                for (int index = 0; index < chunks.size(); index++) {
-                    List<Subtitle> chunk = chunks.get(index);
-                    Map<Long, Subtitle> byId = new HashMap<>();
-                    chunk.forEach(subtitle -> byId.put(subtitle.getId(), subtitle));
-                    List<ShadowingQuestionAiClient.AiQuestion> generated = futures.get(index).join();
-                    if (generated == null) {
-                        failedBatches++;
-                        if (issueCount++ < 40) bank.recordGenerationIssue(job.videoId(), null, null,
-                                null, null, List.of(), "AI không trả về dữ liệu hợp lệ cho đoạn phụ đề này.",
-                                chunk.get(0).getStartTime(), attempt);
-                    } else {
-                        if (generated.isEmpty() && issueCount++ < 40)
-                            bank.recordGenerationIssue(job.videoId(), null, null, null, null, List.of(),
-                                    "AI chưa tìm được câu hỏi có dẫn chứng trong đoạn này.",
-                                    chunk.get(0).getStartTime(), attempt);
-                        for (ShadowingQuestionAiClient.AiQuestion candidate : generated) {
-                            if (job.targets().containsKey(candidate.kind())
-                                    && missingCounts(job, accepted).getOrDefault(candidate.kind(), 0) == 0) continue;
-                            PreparedQuestion question = validated(job.videoId(), candidate, byId,
+                List<String> pairs = missingPairs(job, accepted);
+                for (int waveStart = 0; waveStart < selected.size(); waveStart += 3) {
+                    List<QuestionEvidencePlan> wave = selected.subList(waveStart, Math.min(waveStart + 3, selected.size()));
+                    List<CompletableFuture<List<ShadowingQuestionAiClient.AiQuestion>>> futures = new ArrayList<>();
+                    for (QuestionEvidencePlan plan : wave) {
+                        List<Subtitle> neighborhood = all.stream().filter(s -> plan.contextIds().contains(s.getId())).toList();
+                        List<String> avoid = new ArrayList<>(repairs.getOrDefault(plan, List.of()));
+                        accepted.stream().filter(q -> plan.kind().equals(q.kind())).limit(20)
+                                .forEach(q -> avoid.add("EXISTING " + q.prompt() + "→" + q.answer()));
+                        rejected.stream().filter(q -> plan.kind().equals(q.kind()) && relevantRejected(q)).limit(8)
+                                .forEach(q -> avoid.add("REJECTED " + q.prompt() + "→" + q.answer()));
+                        futures.add(CompletableFuture.supplyAsync(() -> ai.generate(neighborhood, job.levels(),
+                                List.of(plan.kind()), pairs, avoid, Map.of(plan.kind(), 1), 1, plan), batches));
+                    }
+                    for (int index = 0; index < wave.size(); index++) {
+                        QuestionEvidencePlan plan = wave.get(index);
+                        List<Subtitle> evidence = QuestionTranscript.evidence(plan, all);
+                        List<Subtitle> supplied = all.stream().filter(s -> plan.contextIds().contains(s.getId())).toList();
+                        Map<Long, Subtitle> marked = new HashMap<>();
+                        evidence.forEach(s -> marked.put(s.getId(), s));
+                        List<ShadowingQuestionAiClient.AiQuestion> generated = futures.get(index).join();
+                        if (!job.suggestionHash().equals(hashSources(source(job.videoId())))) {
+                            bank.finish(job.videoId(), "PARTIAL", "Phụ đề đã thay đổi. Hãy phân tích lại trước khi tạo tiếp.");
+                            return;
+                        }
+                        if (generated == null || generated.isEmpty()) {
+                            failedBatches++;
+                            String reason = generated == null ? "AI không trả về dữ liệu hợp lệ cho dẫn chứng đã chọn."
+                                    : "AI chưa tạo được câu hỏi cho dẫn chứng đã chọn.";
+                            repairs.put(plan, List.of("INVALID: " + reason + " Use exactly marked sourceIds " + plan.sourceIds()));
+                            if (issueCount++ < 40) bank.recordGenerationIssue(job.videoId(), plan.kind(), null,
+                                    null, plan.answerQuote(), List.of(), reason, evidence.get(0).getStartTime(), attempt,
+                                    plan.sourceIds(), supplied.stream().map(Subtitle::getId).toList(), QuestionTranscript.diagnosticView(supplied, plan.sourceIds()));
+                        } else {
+                            // Each request has one evidence plan and may save at most one question.
+                            ShadowingQuestionAiClient.AiQuestion candidate = generated.get(0);
+                            String reason = !plan.kind().equals(candidate.kind())
+                                    || !plan.sourceIds().equals(candidate.subtitleIds())
+                                    ? "Câu hỏi không dùng đúng dạng và các dòng dẫn chứng đã đánh dấu."
+                                    : !"GAP".equals(plan.kind()) && !plan.answerQuote().equals(candidate.answer().strip())
+                                    ? "Đáp án không khớp nội dung đã chọn khi ước tính." : null;
+                            PreparedQuestion question = reason == null ? validated(job.videoId(), candidate, marked,
+                                    originalPositions, job.levels(), job.kinds(), pairs) : null;
+                            if (reason == null && question == null) reason = invalidReason(candidate, marked,
                                     originalPositions, job.levels(), job.kinds(), pairs);
-                            String reason = question == null
-                                    ? invalidReason(candidate, byId, originalPositions, job.levels(),
-                                            job.kinds(), pairs)
-                                    : isDuplicate(question, accepted, rejected)
-                                    ? "Trùng ý, đáp án hoặc đoạn dẫn chứng với câu đã có." : null;
+                            if (reason == null && isDuplicate(question, accepted, rejected))
+                                reason = "Trùng ý, đáp án hoặc đoạn dẫn chứng với câu đã có.";
+                            if (reason == null && !bank.save(question)) reason = "Câu này đã được lưu ở lượt tạo trước.";
                             if (reason != null) {
-                                failedCandidates.add("INVALID " + candidate.kind() + ":"
-                                        + candidate.question() + "→" + candidate.answer()
-                                        + " (" + reason + ")");
-                                if (issueCount++ < 40) bank.recordGenerationIssue(job.videoId(),
-                                        candidate.kind(), candidate.level(), candidate.question(),
-                                        candidate.answer(), candidate.choices(), reason, candidate.subtitleIds().stream()
-                                                .map(byId::get).filter(java.util.Objects::nonNull)
-                                                .map(Subtitle::getStartTime).findFirst().orElse(null), attempt);
-                            } else if (bank.save(question)) {
+                                repairs.put(plan, List.of("INVALID sourceIds=" + candidate.subtitleIds()
+                                        + ": " + candidate.question() + "→" + candidate.answer() + " choices="
+                                        + candidate.choices() + " (" + reason + "). Repair THIS question using the same evidencePlan."));
+                                if (issueCount++ < 40) bank.recordGenerationIssue(job.videoId(), candidate.kind(),
+                                        candidate.level(), candidate.question(), candidate.answer(), candidate.choices(), reason,
+                                        evidence.get(0).getStartTime(), attempt, candidate.subtitleIds(),
+                                        supplied.stream().map(Subtitle::getId).toList(), QuestionTranscript.diagnosticView(supplied, plan.sourceIds()));
+                            } else {
                                 accepted.add(question);
                                 saved++;
-                            } else if (issueCount++ < 40) {
-                                bank.recordGenerationIssue(job.videoId(), candidate.kind(),
-                                        candidate.level(), candidate.question(), candidate.answer(),
-                                        candidate.choices(), "Câu này đã được lưu ở lượt tạo trước.",
-                                        question.startTime(), attempt);
                             }
                         }
+                        bank.progress(job.videoId(), (attempt - 1) * 45
+                                + (waveStart + index + 1) * 45 / Math.max(1, selected.size()));
                     }
-                    bank.progress(job.videoId(), (attempt - 1) * 45
-                            + (index + 1) * 45 / Math.max(1, chunks.size()));
                 }
             }
-            Map<String, Integer> stillMissing = missingCounts(job,
-                    validQuestions(job.videoId(), all, true));
+            Map<String, Integer> stillMissing = missingCounts(job, validQuestions(job.videoId(), all, true));
             int missingTotal = stillMissing.values().stream().mapToInt(Integer::intValue).sum();
             for (Map.Entry<String, Integer> entry : stillMissing.entrySet()) {
                 if (entry.getValue() > 0 && issueCount++ < 40)
                     bank.recordGenerationIssue(job.videoId(), entry.getKey(), null, null, null, List.of(),
-                            "Sau hai lượt vẫn thiếu " + entry.getValue()
-                            + " câu khác nhau có dẫn chứng. AI có thể đã trả ít câu hoặc các câu bị loại như trên.",
-                            null, 2);
+                            "Sau lượt tạo và sửa vẫn thiếu " + entry.getValue()
+                                    + " câu đạt yêu cầu. Ước tính có dẫn chứng chưa bảo đảm AI tạo được câu hợp lệ.", null, 2);
             }
             bank.finish(job.videoId(), missingTotal == 0 ? "READY" : saved > 0 ? "PARTIAL" : "FAILED",
                     missingTotal == 0 ? "Đã tạo đủ câu hỏi để xem lại."
-                            : "Còn thiếu " + missingTotal + " câu sau khi đã thử tạo bù. "
+                            : "Còn thiếu " + missingTotal + " câu sau khi đã thử sửa. "
                             + (failedBatches > 0 ? "Một số lần gọi AI không có kết quả. " : "")
                             + "Xem dạng còn thiếu và lý do loại bên dưới.");
             log.info("Shadowing questions prepared: videoId={}, saved={}, durationMs={}",
@@ -466,7 +569,7 @@ public class ShadowingQuestionPreparationService {
                                        List<String> kinds, List<String> pairs) {
         if (!levels.contains(aiQuestion.level()) || !kinds.contains(aiQuestion.kind())
                 || !pairs.contains(aiQuestion.level() + ":" + aiQuestion.kind())
-                || aiQuestion.subtitleIds().isEmpty() || aiQuestion.subtitleIds().size() > 3
+                || aiQuestion.subtitleIds().isEmpty() || aiQuestion.subtitleIds().size() > QuestionTranscript.MAX_EVIDENCE_LINES
                 || new HashSet<>(aiQuestion.subtitleIds()).size() != aiQuestion.subtitleIds().size()) return null;
         List<Subtitle> evidence = new ArrayList<>();
         for (Long id : aiQuestion.subtitleIds()) {
@@ -493,7 +596,7 @@ public class ShadowingQuestionPreparationService {
         int occurrence = 1;
         if ("GAP".equals(aiQuestion.kind())) {
             if (evidence.size() != 1 || answer.isBlank() || answer.length() > 500) return null;
-            String sentence = first.getText();
+            String sentence = QuestionTranscript.spoken(first.getText());
             int chars = sentence.codePointCount(0, sentence.length());
             int gapChars = answer.codePointCount(0, answer.length());
             if (chars < 5 || !sentence.contains(answer)
@@ -506,8 +609,9 @@ public class ShadowingQuestionPreparationService {
                     || gapChars > chars * .65)) return null;
             if ("HARD".equals(aiQuestion.level())
                     && (chars < 12 || chars > 90 || last.getEndTime() - first.getStartTime() > 18
-                    || !sentence.strip().equals(answer))) return null;
+                    || !QuestionTranscript.sentenceKey(sentence).equals(QuestionTranscript.sentenceKey(answer)))) return null;
             if ("HARD".equals(aiQuestion.level())) {
+                answer = sentence;
                 prompt = "音声の一文を日本語で書いてください。";
             } else {
                 int start = sentence.indexOf(answer);
@@ -526,11 +630,11 @@ public class ShadowingQuestionPreparationService {
                     || aiQuestion.choices().size() != 4
                     || new HashSet<>(aiQuestion.choices()).size() != 4
                     || aiQuestion.choices().stream().filter(answer::equals).count() != 1
-                    || japaneseCount(aiQuestion.question()) < 4 || japaneseCount(answer) < 1
-                    || aiQuestion.choices().stream().anyMatch(choice -> japaneseCount(choice) < 1)
+                    || japaneseCount(aiQuestion.question()) < 4 || !japaneseChoice(answer, evidence)
+                    || aiQuestion.choices().stream().anyMatch(choice -> !japaneseChoice(choice, evidence))
                     || !isJapaneseQuestion(aiQuestion.question())
                     || !categoryEvidenceSupported(aiQuestion.kind(), answer, evidence)
-                    || evidence.stream().noneMatch(item -> item.getText().contains(answer))
+                    || !answerInEvidence(answer, evidence)
                     || evidence.stream().anyMatch(item -> normalize(item.getText())
                     .equals(normalize(aiQuestion.question())))) return null;
             prompt = aiQuestion.question().strip();
@@ -572,29 +676,6 @@ public class ShadowingQuestionPreparationService {
                 .filter(subtitle -> !blocked.contains(subtitle.getId())).toList();
     }
 
-    private static List<Subtitle> spread(List<Subtitle> all, int limit) {
-        if (all.size() <= limit) return all;
-        List<Subtitle> chosen = new ArrayList<>();
-        for (int index = 0; index < limit; index++) {
-            chosen.add(all.get((int) Math.round(index * (all.size() - 1.0) / (limit - 1.0))));
-        }
-        return chosen;
-    }
-
-    private static List<List<Subtitle>> evidenceWindows(List<Subtitle> all, int target) {
-        if (all.isEmpty()) return List.of();
-        int windows = Math.min(3, Math.max(1, (int) Math.ceil((double) all.size() / BATCH_SIZE)));
-        int size = Math.min(BATCH_SIZE, Math.min(all.size() / windows,
-                (int) Math.ceil((double) target / windows)));
-        List<List<Subtitle>> result = new ArrayList<>();
-        for (int index = 0; index < windows; index++) {
-            int start = windows == 1 ? 0
-                    : (int) Math.round(index * (all.size() - size) / (double) (windows - 1));
-            result.add(all.subList(start, start + size));
-        }
-        return result;
-    }
-
     private static int japaneseCount(String value) {
         if (value == null) return 0;
         return (int) value.codePoints().filter(codePoint -> {
@@ -611,13 +692,16 @@ public class ShadowingQuestionPreparationService {
                 || value.endsWith("か?") || value.endsWith("？") || value.endsWith("?");
     }
 
-    private static boolean categoryEvidenceSupported(String kind, String answer, List<Subtitle> evidence) {
+    static boolean categoryEvidenceSupported(String kind, String answer, List<Subtitle> evidence) {
         String complete = answer.replaceAll("[。！!？?\\s]+$", "");
-        if (complete.endsWith("し") || complete.endsWith("けど")
-                || complete.endsWith("けれど")) return false;
+        if (complete.matches(".*(?:ですし|ますし|だし|けど|けれど(?:も)?)$")) return false;
         if ("ACTION_SEQUENCE".equals(kind)) {
-            String source = evidence.stream().map(Subtitle::getText)
+            String source = evidence.stream().map(item -> QuestionTranscript.spoken(item.getText()))
                     .reduce("", (left, right) -> left + " " + right);
+            // A sequencing word followed only by topic nouns (e.g. まず夏と冬) is not an action.
+            boolean hasAction = source.matches("(?s).*(?:[いきぎしちにびみり]ます|[いきぎしちにびみり]ました"
+                    + "|[べえけせてねめれ]ます|[べえけせてねめれ]ました|します|しました|して|行って|食べて|飲んで|帰って|取って|買って|見て|作って|た後|てから).*");
+            if (!hasAction) return false;
             for (String cue : List.of("まず", "最初", "次に", "その後", "それから", "続いて",
                     "先に", "後で", "あとで", "前に", "てから", "た後")) {
                 if (source.contains(cue)) return true;
@@ -629,23 +713,41 @@ public class ShadowingQuestionPreparationService {
             for (String cue : List.of("から", "ので", "ため", "せい", "おかげ", "理由")) {
                 if (answer.contains(cue)) return true;
             }
-            for (Subtitle subtitle : evidence) {
-                int start = subtitle.getText().indexOf(answer);
-                if (start < 0) continue;
-                String leadIn = subtitle.getText().substring(0, start);
+            String joined = evidence.stream().map(item -> QuestionTranscript.spoken(item.getText()))
+                    .collect(java.util.stream.Collectors.joining(" "));
+            int start = joined.indexOf(answer);
+            if (start >= 0) {
+                String leadIn = joined.substring(0, start);
                 if (leadIn.contains("というと") || leadIn.contains("理由は")
                         || leadIn.contains("原因は") || leadIn.contains("なぜなら")) return true;
+                String following = joined.substring(start + answer.length());
+                // The cause may be one line and its causal link the next: 東京より小さいです。そうだから…
+                if (following.matches("^[。.!！?？\\s]*(?:そう)?(?:だから|なので|ですから|ので|ため).*")) return true;
             }
             return false;
         }
         return true;
     }
 
+    private static boolean answerInEvidence(String answer, List<Subtitle> evidence) {
+        return evidence.stream().anyMatch(item -> QuestionTranscript.spoken(item.getText()).contains(answer));
+    }
+
+    private static boolean japaneseChoice(String value, List<Subtitle> evidence) {
+        if (japaneseCount(value) > 0) return true;
+        // Allow single proper-name tokens in a passage that actually mentions Latin names, not English sentences.
+        return value != null && value.matches("[A-Z][A-Za-z0-9+._-]{0,79}")
+                && evidence.stream().anyMatch(item -> QuestionTranscript.spoken(item.getText())
+                .matches("(?s).*[A-Z][A-Za-z0-9+._-]+.*"));
+    }
+
     static boolean validStoredQuestion(PreparedQuestion question, List<Subtitle> evidence) {
         if ("GAP".equals(question.kind())) {
-            if (evidence.size() != 1 || !evidence.get(0).getText().contains(question.answer())) return false;
+            if (evidence.size() != 1 || !answerInEvidence(question.answer(), evidence)) return false;
             if ("HARD".equals(question.level())) return japaneseCount(question.prompt()) >= 4
-                    && !question.prompt().contains("＿") && !question.prompt().contains("_");
+                    && !question.prompt().contains("＿") && !question.prompt().contains("_")
+                    && QuestionTranscript.sentenceKey(evidence.get(0).getText())
+                    .equals(QuestionTranscript.sentenceKey(question.answer()));
             String line = question.prompt().substring(question.prompt().lastIndexOf('\n') + 1);
             String visible = line.replaceAll("[＿_]+", "");
             return japaneseCount(visible) >= 4 && line.matches(".*[＿_]{3,}.*");
@@ -653,11 +755,12 @@ public class ShadowingQuestionPreparationService {
         return COMPREHENSION_KINDS.contains(question.kind())
                 && japaneseCount(question.prompt()) >= 4
                 && isJapaneseQuestion(question.prompt())
-                && japaneseCount(question.answer()) >= 1
-                && evidence.stream().anyMatch(item -> item.getText().contains(question.answer()))
+                && japaneseChoice(question.answer(), evidence)
+                && answerInEvidence(question.answer(), evidence)
                 && categoryEvidenceSupported(question.kind(), question.answer(), evidence)
                 && question.choices().size() == 4
-                && question.choices().stream().allMatch(choice -> japaneseCount(choice) >= 1)
+                && new HashSet<>(question.choices()).size() == 4
+                && question.choices().stream().allMatch(choice -> japaneseChoice(choice, evidence))
                 && question.choices().stream().filter(question.answer()::equals).count() == 1;
     }
 
@@ -698,9 +801,12 @@ public class ShadowingQuestionPreparationService {
                 || !pairs.contains(candidate.level() + ":" + candidate.kind()))
             return "Sai mức nghe hoặc dạng câu hỏi đã chọn.";
         List<Long> ids = candidate.subtitleIds();
-        if (ids.isEmpty() || ids.size() > 3 || new HashSet<>(ids).size() != ids.size()
-                || ids.stream().anyMatch(id -> !byId.containsKey(id)))
-            return "Dẫn chứng không nằm trong đoạn phụ đề được cung cấp.";
+        if (ids.isEmpty()) return "AI chưa ghi ID dòng phụ đề làm dẫn chứng.";
+        if (ids.size() > QuestionTranscript.MAX_EVIDENCE_LINES) return "Dẫn chứng vượt quá sáu dòng phụ đề liên tiếp.";
+        if (new HashSet<>(ids).size() != ids.size()) return "AI ghi lặp ID dòng phụ đề dẫn chứng.";
+        if (ids.stream().anyMatch(id -> !byId.containsKey(id)))
+            return "AI dùng ID ngoài các dòng dẫn chứng đã đánh dấu: "
+                    + ids.stream().filter(id -> !byId.containsKey(id)).toList();
         for (int index = 1; index < ids.size(); index++) {
             Integer previous = positions.get(ids.get(index - 1));
             Integer next = positions.get(ids.get(index));
@@ -712,7 +818,7 @@ public class ShadowingQuestionPreparationService {
         if ("GAP".equals(candidate.kind())) {
             if (ids.size() != 1 || answer.isBlank() || answer.length() > 500)
                 return "Câu điền cần đúng một dòng phụ đề và đáp án có độ dài hợp lệ.";
-            String line = evidence.get(0).getText();
+            String line = QuestionTranscript.spoken(evidence.get(0).getText());
             int chars = line.codePointCount(0, line.length());
             int gapChars = answer.codePointCount(0, answer.length());
             if (!line.contains(answer) || answer.codePoints().noneMatch(Character::isLetter))
@@ -724,7 +830,8 @@ public class ShadowingQuestionPreparationService {
                     && (gapChars < 5 || gapChars >= chars || gapChars < chars * .3
                     || gapChars > chars * .65))
                 return "Mức Vừa cần một cụm đủ dài nhưng vẫn để lại ngữ cảnh nghe.";
-            if ("HARD".equals(candidate.level()) && !line.strip().equals(answer))
+            if ("HARD".equals(candidate.level()) && !QuestionTranscript.sentenceKey(line)
+                    .equals(QuestionTranscript.sentenceKey(answer)))
                 return "Mức Khó cần chép chính xác cả câu phụ đề.";
             return "Câu phụ đề quá ngắn, quá dài hoặc thiếu ngữ cảnh để tạo chỗ trống.";
         }
@@ -736,10 +843,10 @@ public class ShadowingQuestionPreparationService {
         if (candidate.choices().size() != 4 || new HashSet<>(candidate.choices()).size() != 4
                 || candidate.choices().stream().filter(answer::equals).count() != 1)
             return "Cần đúng bốn lựa chọn khác nhau, trong đó chỉ một lựa chọn khớp đáp án.";
-        if (japaneseCount(answer) < 1
-                || candidate.choices().stream().anyMatch(choice -> japaneseCount(choice) < 1))
-            return "Đáp án và bốn lựa chọn phải bằng tiếng Nhật.";
-        if (evidence.stream().noneMatch(item -> item.getText().contains(answer)))
+        if (!japaneseChoice(answer, evidence)
+                || candidate.choices().stream().anyMatch(choice -> !japaneseChoice(choice, evidence)))
+            return "Đáp án và lựa chọn cần dùng tiếng Nhật hoặc tên riêng có trong ngữ cảnh.";
+        if (!answerInEvidence(answer, evidence))
             return "Đáp án không xuất hiện nguyên văn trong phụ đề dẫn chứng.";
         if (!categoryEvidenceSupported(candidate.kind(), answer, evidence))
             return "Dẫn chứng chưa chứng minh đúng dạng câu hỏi này, hoặc đáp án bị cụt ý.";
@@ -782,28 +889,48 @@ public class ShadowingQuestionPreparationService {
                 && ("GAP".equals(question.kind()) || isJapaneseQuestion(question.prompt()));
     }
 
-    private static Map<String, Integer> capacities(ShadowingQuestionBankRepository.PreparationJob job,
+    private Map<String, Integer> capacities(ShadowingQuestionBankRepository.PreparationJob job,
                                                     List<Subtitle> source) {
-        Map<String, Integer> result = new LinkedHashMap<>();
-        int eligible = (int) source.stream().filter(subtitle -> subtitle.getText() != null
-                && subtitle.getText().codePointCount(0, subtitle.getText().length()) >= 5).count();
-        result.put("GAP", Math.min(20, eligible));
-        for (String kind : COMPREHENSION_KINDS) {
-            int estimated = job == null ? 0 : job.capacities().getOrDefault(kind, 0);
-            int typeLimit = "MAIN_IDEA".equals(kind) ? 2 : 20;
-            result.put(kind, Math.min(Math.min(typeLimit, eligible), Math.max(0, estimated)));
+        return planCounts(analysisCurrent(job, source) ? bank.evidencePlans(job) : List.of());
+    }
+
+    private Map<String, Integer> remaining(ShadowingQuestionBankRepository.PreparationJob job,
+                                                   List<Subtitle> source, List<PreparedQuestion> questions) {
+        Map<String, Integer> result = capacities(job, source);
+        Map<String, Integer> unused = planCounts(analysisCurrent(job, source)
+                ? availablePlans(bank.evidencePlans(job), questions) : List.of());
+        for (String kind : KINDS) {
+            long used = questions.stream().filter(question -> kind.equals(question.kind())).count();
+            result.put(kind, Math.min(unused.getOrDefault(kind, 0),
+                    Math.max(0, result.getOrDefault(kind, 0) - (int) used)));
         }
         return result;
     }
 
-    private static Map<String, Integer> remaining(ShadowingQuestionBankRepository.PreparationJob job,
-                                                   List<Subtitle> source, List<PreparedQuestion> questions) {
-        Map<String, Integer> result = capacities(job, source);
-        for (String kind : KINDS) {
-            long used = questions.stream().filter(question -> kind.equals(question.kind())).count();
-            result.put(kind, Math.max(0, result.getOrDefault(kind, 0) - (int) used));
-        }
-        return result;
+    static boolean analysisCurrent(ShadowingQuestionBankRepository.PreparationJob job, List<Subtitle> source) {
+        return job != null && !source.isEmpty() && hashSources(source).equals(job.suggestionHash())
+                && QuestionTranscript.ANALYSIS_VERSION.equals(job.analysisVersion())
+                && job.evidencePlansJson() != null && job.suggestedJlptLevel() != null;
+    }
+
+    static Map<Long, Integer> positions(List<Subtitle> source) {
+        Map<Long, Integer> positions = new HashMap<>();
+        for (int i = 0; i < source.size(); i++) positions.put(source.get(i).getId(), i);
+        return positions;
+    }
+
+    static Map<String, Integer> planCounts(List<QuestionEvidencePlan> plans) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        // 20 per kind / 21 per generation job are request budgets, not video capacity.
+        for (String kind : KINDS) counts.put(kind,
+                (int) plans.stream().filter(p -> kind.equals(p.kind())).count());
+        return counts;
+    }
+
+    static List<QuestionEvidencePlan> availablePlans(List<QuestionEvidencePlan> plans, List<PreparedQuestion> existing) {
+        return plans.stream().filter(plan -> existing.stream().noneMatch(question ->
+                QuestionTranscript.sameFact(plan, new QuestionEvidencePlan(question.kind(), question.sourceIds(),
+                        "", question.answer(), List.of(), "")))).toList();
     }
 
     private static String hashSources(List<Subtitle> sources) {

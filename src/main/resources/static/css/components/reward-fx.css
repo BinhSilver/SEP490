@@ -657,28 +657,32 @@
 
 /* Gentle motion: used when the OS asks for reduced motion, unless the learner chose full effects
    (html.rfx-full-motion). Things still appear, fill and count; only large movement is removed. */
-@media (prefers-reduced-motion: reduce) {
-  :root:not(.rfx-full-motion) .rfx-gift { animation: rfx-fade-in .35s ease-out var(--gift-start, 0s) both; }
-  :root:not(.rfx-full-motion) .rfx-gift__box { animation: none; }
-  :root:not(.rfx-full-motion) .rfx-gift__lid { animation: rfx-gift-open .6s ease-out calc(var(--gift-start, 0s) + .45s) forwards; }
-  :root:not(.rfx-full-motion) .rfx-gift__glow { animation: rfx-fade-in .6s ease-out calc(var(--gift-start, 0s) + .5s) both; opacity: .7; }
-  :root:not(.rfx-full-motion) .rfx-scene__context { animation: rfx-scene-corner .01s linear calc(var(--gift-start, 0s) - .1s) forwards; }
-  :root:not(.rfx-full-motion) .rfx-flame { animation: rfx-fade-in .4s ease-out both; }
-  :root:not(.rfx-full-motion) .rfx-streak .rfx-flame.is-ignited { animation: rfx-fade-in .4s ease-out both; }
-  :root:not(.rfx-full-motion) .rfx-weekbar__day.is-lit-now { animation: none; }
-  :root:not(.rfx-full-motion) .rfx-hop { display: none; }
 
-
-  :root:not(.rfx-full-motion) .rfx-weekbar__day.is-chain { animation: none; }
-  :root:not(.rfx-full-motion) .rfx-shield { animation: rfx-fade-in .45s ease-out both; }
-  :root:not(.rfx-full-motion) .rfx-shield::before,
-  :root:not(.rfx-full-motion) .rfx-flame::after,
-  :root:not(.rfx-full-motion) .rfx-card__actions .rfx-btn { animation: none; }
-  :root:not(.rfx-full-motion) .rfx-gift__rays,
-  :root:not(.rfx-full-motion) .rfx-gift__coin,
-  :root:not(.rfx-full-motion) .rfx-frost,
-  :root:not(.rfx-full-motion) .rfx-spark,
-  :root:not(.rfx-full-motion) .rfx-sparkle,
-  :root:not(.rfx-full-motion) .rfx-snow,
-  :root:not(.rfx-full-motion) .rfx-cheer { display: none; }
+/* Rewards pair vivid artwork with readable night surfaces. */
+html[data-theme="dark"] {
+  --rfx-card: var(--color-surface-lowest, #171b26);
+  --rfx-text: var(--color-on-surface, #f8fafc);
+  --rfx-muted: var(--color-on-surface-variant, #b2bfd2);
+  --rfx-coral: #ffb4a9;
+  --rfx-ink: #171b26;
+}
+html[data-theme="dark"] .rfx-card {
+  background: var(--rfx-card);
+  border-color: var(--color-outline-variant, #40485d);
+}
+html[data-theme="dark"] .rfx-btn {
+  background: var(--color-primary-container, #7335a6);
+  color: var(--color-on-primary-container, #f8fafc);
+}
+html[data-theme="dark"] .rfx-btn:hover {
+  background: var(--color-primary, #c084fc);
+  color: var(--color-on-primary, #211b34);
+}
+html[data-theme="dark"] .rfx-btn--ghost {
+  background: var(--color-surface-low, #232938);
+  color: var(--rfx-muted);
+  border-color: var(--color-outline-variant, #40485d);
+}
+html[data-theme="dark"] .rfx-week span.is-done {
+  color: var(--color-on-primary, #211b34);
 }

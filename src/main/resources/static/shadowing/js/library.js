@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStatus = '';     // '' | READY | DRAFT | PROCESSING | FAILED
     let allVideos = [];
     let searchTimer = null;
+    let loadVersion = 0;
+    let currentPage = 1;
+    const pager = window.ShadowingLibraryUi.createPager(document.getElementById('video-pagination'), page => loadVideos(page));
 
     function authHeaders(json) {
         if (window.JlasAuth && typeof JlasAuth.authHeaders === 'function') {
@@ -57,24 +60,29 @@ document.addEventListener('DOMContentLoaded', () => {
             statusBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentStatus = btn.dataset.status || '';
-            render();
+            loadVideos();
         });
     });
 
     searchInput?.addEventListener('input', () => {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(loadVideos, 300);
+        searchTimer = setTimeout(reloadVisibleVideos, 300);
     });
 
-    sortSelect?.addEventListener('change', loadVideos);
-    categoryFilter?.addEventListener('change', loadVideos);
-    levelFilter?.addEventListener('change', loadVideos);
+    function reloadVisibleVideos() {
+        if (document.getElementById('series-grid')?.hidden !== false) loadVideos();
+    }
+    sortSelect?.addEventListener('change', reloadVisibleVideos);
+    categoryFilter?.addEventListener('change', reloadVisibleVideos);
+    levelFilter?.addEventListener('change', reloadVisibleVideos);
 
-    async function loadVideos() {
+    async function loadVideos(page = 1) {
+        const version = ++loadVersion;
         const q = (searchInput?.value || '').trim();
-        const sort = sortSelect?.value || 'newest';
+        const sort = sortSelect?.value || 'popular';
         const category = categoryFilter?.value || '';
-        const params = new URLSearchParams({ clientId, sort });
+        const params = new URLSearchParams({ sort, page: String(page), size: '12' });
+        if (currentScope === 'my' && currentStatus) params.set('status', currentStatus);
         if (q) params.set('q', q);
         if (category) params.set('category', category);
         if (levelFilter?.value) params.set('level', levelFilter.value);
@@ -88,13 +96,29 @@ document.addEventListener('DOMContentLoaded', () => {
             params.set('scope', 'public');
         }
 
+        pager.setBusy(true);
+        videoGrid.setAttribute('aria-busy', 'true');
+        if (videoEmptyState) videoEmptyState.hidden = true;
         try {
-            const res = await fetch(`/api/videos?${params}`, { headers: authHeaders() });
-            if (!res.ok) throw new Error('load failed');
-            allVideos = await res.json();
+            const res = await fetch(`/api/videos/library?${params}`, { headers: authHeaders() });
+            if (!res.ok) throw new Error(res.status === 401 ? 'Vui lòng đăng nhập lại để xem thư viện.' : 'Không tải được thư viện. Hãy thử lại.');
+            const body = await res.json();
+            const data = body.data;
+            if (!body.success || !data || !Array.isArray(data.items)) throw new Error('Không tải được thư viện. Hãy thử lại.');
+            if (version !== loadVersion) return;
+            allVideos = data.items;
+            const pageChanged = currentPage !== data.page;
+            currentPage = data.page;
             render();
+            pager.render(data);
+            if (videoGrid.hidden) pager.hide();
+            if (pageChanged && !videoGrid.hidden) videoGrid.scrollIntoView({ block: 'start', behavior: 'auto' });
         } catch (e) {
-            videoGrid.innerHTML = '<p class="lead" style="grid-column:1/-1;text-align:center;">Không tải được thư viện.</p>';
+            if (version !== loadVersion) return;
+            pager.hide();
+            videoGrid.innerHTML = `<p class="lead library-load-error" role="alert">${esc(e.message || 'Không tải được thư viện. Hãy thử lại.')}</p>`;
+        } finally {
+            if (version === loadVersion) { pager.setBusy(false); videoGrid.setAttribute('aria-busy', 'false'); }
         }
     }
 
@@ -114,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         v.favorited = data.favorited;
         btn.classList.toggle('favorited', v.favorited);
         btn.querySelector('i').className = v.favorited ? 'fa-solid fa-star' : 'fa-regular fa-star';
+        if (currentScope === 'favorites' && !v.favorited) loadVideos(currentPage);
     }
 
     async function toggleVisibility(e, v) {
@@ -131,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         v.visibility = next;
         showToast(next === 'PUBLIC' ? 'Đã đặt công khai' : 'Đã đặt riêng tư');
-        loadVideos();
+        loadVideos(currentPage);
     }
 
     async function shareCard(e, v) {
@@ -143,10 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function render() {
-        let videos = allVideos;
-        if (currentScope === 'my' && currentStatus) {
-            videos = videos.filter(v => v.status === currentStatus);
-        }
+        const videos = allVideos;
 
         videoGrid.innerHTML = '';
         if (videoEmptyState) videoEmptyState.hidden = true;
@@ -177,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 videoEmptyAction.textContent = emptyContent.action;
                 videoEmptyAction.href = emptyContent.href;
             }
-            if (videoEmptyState) videoEmptyState.hidden = false;
+            if (videoEmptyState) videoEmptyState.hidden = videoGrid.hidden;
             return;
         }
 
@@ -238,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                     <button class="text-link card-edit-btn" title="Sửa" aria-label="Sửa" ${canManage ? '' : 'style="display:none"'}><i class="fa-solid fa-pen"></i></button>
                     <button class="text-link card-delete-btn" title="Xóa" aria-label="Xóa" style="color:var(--red);${canManage ? '' : 'display:none'}"><i class="fa-solid fa-trash"></i></button>
+                    ${window.ShadowingLibraryUi.ratingHtml(v.avgRating, v.ratingCount)}
                 </div>
             `;
 
@@ -284,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         showToast('Không thể xóa video. Thử lại sau.');
                         return;
                     }
-                    loadVideos();
+                    loadVideos(currentPage);
                 });
             }
 
