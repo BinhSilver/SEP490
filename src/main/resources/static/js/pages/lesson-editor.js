@@ -69,6 +69,141 @@ window.AdminShell.ready.then(function (allowed) {
     if (window.JlasUI && typeof JlasUI.toast === 'function') JlasUI.toast(message, kind || 'info');
   }
 
+  // ── [JLAS2-17] Hộp xác nhận dùng chung (thay window.confirm) ─────────────────
+  // openDialog: buttons [{value, label, kind: 'primary'|'danger'|'', primary, disabled}], cancelValue (Esc / nền),
+  // busyValue + onAction(ui) → Promise<boolean>: bấm nút đó thì giữ hộp mở, khoá nút ("busyLabel") tới khi xong;
+  // true → đóng hộp, false → ở lại (ui.setError để báo). Focus trap; Enter = nút chính; trả Promise<value>.
+  var dialogHost = document.getElementById('editorDialog');
+  var dialogState = null;
+
+  function openDialog(opts) {
+    return new Promise(function (resolve) {
+      var previous = document.activeElement;
+      var buttons = opts.buttons || [];
+      dialogHost.innerHTML = '<div class="editor-dlg__backdrop" data-dlg-backdrop></div>'
+        + '<div class="editor-dlg' + (opts.wide ? ' editor-dlg--wide' : '') + '" role="dialog" aria-modal="true"'
+        + ' aria-labelledby="editorDlgTitle" aria-describedby="editorDlgBody">'
+        + '<h2 class="editor-dlg__title" id="editorDlgTitle">' + escapeHtml(opts.title) + '</h2>'
+        + '<div class="editor-dlg__body" id="editorDlgBody">' + (opts.bodyHtml || '') + '</div>'
+        + '<p class="editor-dlg__error" role="alert" hidden></p>'
+        + '<div class="editor-dlg__actions">' + buttons.map(function (b) {
+          return '<button type="button" class="manage-btn editor-dlg__btn'
+            + (b.kind === 'primary' ? ' manage-btn--primary' : '') + (b.kind === 'danger' ? ' editor-dlg__btn--danger' : '') + '"'
+            + ' data-dlg-value="' + escapeHtml(b.value) + '"' + (b.primary ? ' data-dlg-primary' : '') + (b.disabled ? ' disabled' : '')
+            + '>' + escapeHtml(b.label) + '</button>';
+        }).join('') + '</div></div>';
+      dialogHost.hidden = false;
+      var panel = dialogHost.querySelector('.editor-dlg');
+      var errorBox = dialogHost.querySelector('.editor-dlg__error');
+      var busy = false;
+      function focusables() {
+        return Array.prototype.slice.call(panel.querySelectorAll('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
+      }
+      function finish(value) {
+        document.removeEventListener('keydown', onKey, true);
+        dialogHost.hidden = true;
+        dialogHost.innerHTML = '';
+        dialogState = null;
+        if (previous && typeof previous.focus === 'function' && document.contains(previous)) previous.focus();
+        resolve(value);
+      }
+      function setBusy(on) {
+        busy = on;
+        Array.prototype.forEach.call(panel.querySelectorAll('button'), function (b) {
+          if (on) { b.dataset.wasDisabled = b.disabled ? '1' : ''; b.disabled = true; }
+          else b.disabled = b.dataset.wasDisabled === '1';
+        });
+        var main_ = panel.querySelector('[data-dlg-value="' + opts.busyValue + '"]');
+        if (main_) {
+          if (on) { main_.dataset.label = main_.textContent; main_.textContent = opts.busyLabel || 'Đang xử lý…'; }
+          else if (main_.dataset.label) main_.textContent = main_.dataset.label;
+        }
+      }
+      var ui = {
+        setError: function (message) { errorBox.textContent = message || ''; errorBox.hidden = !message; },
+        setBusy: setBusy
+      };
+      function choose(value) {
+        if (busy) return;
+        if (opts.onAction && value === opts.busyValue) {
+          ui.setError('');
+          setBusy(true);
+          Promise.resolve(opts.onAction(ui)).then(function (done) {
+            setBusy(false);
+            if (done) finish(value);
+          }, function (err) {
+            setBusy(false);
+            ui.setError((err && err.message) || 'Không thực hiện được.');
+          });
+          return;
+        }
+        finish(value);
+      }
+      function onKey(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          if (!busy) finish(opts.cancelValue);
+          return;
+        }
+        if (event.key === 'Enter' && !(event.target && event.target.tagName === 'BUTTON')) {
+          var primary = panel.querySelector('[data-dlg-primary]:not([disabled])');
+          if (primary) { event.preventDefault(); choose(primary.getAttribute('data-dlg-value')); }
+          return;
+        }
+        if (event.key === 'Tab') {
+          var items = focusables();
+          if (!items.length) { event.preventDefault(); return; }
+          var first = items[0];
+          var last = items[items.length - 1];
+          if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+            event.preventDefault(); last.focus();
+          } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+            event.preventDefault(); first.focus();
+          }
+        }
+      }
+      panel.addEventListener('click', function (event) {
+        var btn = event.target.closest('[data-dlg-value]');
+        if (btn && !btn.disabled) choose(btn.getAttribute('data-dlg-value'));
+      });
+      dialogHost.querySelector('[data-dlg-backdrop]').addEventListener('click', function () {
+        if (!busy) finish(opts.cancelValue);
+      });
+      document.addEventListener('keydown', onKey, true);
+      dialogState = { finish: finish };
+      var start = panel.querySelector('[data-dlg-primary]:not([disabled])') || focusables()[0];
+      if (start) start.focus();
+    });
+  }
+
+  /** Hỏi có / không. Promise<boolean>. danger: nút chính màu đỏ. confirmDisabled: khoá nút chính (chỉ để đọc). */
+  function confirmDialog(o) {
+    return openDialog({
+      title: o.title, bodyHtml: o.bodyHtml, wide: o.wide,
+      buttons: [
+        { value: 'cancel', label: o.cancelLabel || 'Huỷ' },
+        { value: 'ok', label: o.confirmLabel || 'Đồng ý', kind: o.danger ? 'danger' : 'primary', primary: true, disabled: !!o.confirmDisabled }
+      ],
+      cancelValue: 'cancel',
+      busyValue: o.onConfirm ? 'ok' : null, busyLabel: o.busyLabel, onAction: o.onConfirm
+    }).then(function (value) { return value === 'ok'; });
+  }
+
+  /** Có thay đổi chưa lưu: Promise<'save' | 'discard' | 'stay'>. */
+  function unsavedDialog() {
+    return openDialog({
+      title: 'Bạn có thay đổi chưa lưu',
+      bodyHtml: '<p>Nội dung đang sửa chưa được lưu. Lưu lại, bỏ thay đổi, hay ở lại để sửa tiếp?</p>',
+      buttons: [
+        { value: 'stay', label: 'Ở lại' },
+        { value: 'discard', label: 'Bỏ thay đổi', kind: 'danger' },
+        { value: 'save', label: 'Lưu', kind: 'primary', primary: true }
+      ],
+      cancelValue: 'stay'
+    });
+  }
+
   function clearError() {
     errorEl.textContent = '';
     errorEl.classList.remove('is-visible');
@@ -470,6 +605,7 @@ window.AdminShell.ready.then(function (allowed) {
     submitBtn.disabled = false;
     state.submitting = false;
     modalEl.hidden = false;
+    modalSnapshot = JSON.stringify(formValues());
     var first = formFieldsEl.querySelector('input, textarea, select');
     if (first) first.focus();
   }
@@ -477,7 +613,55 @@ window.AdminShell.ready.then(function (allowed) {
   function closeModal() {
     modalEl.hidden = true;
     modalContext = null;
+    modalSnapshot = null;
     state.submitting = false;
+  }
+
+  // ── [JLAS2-17] Thay đổi chưa lưu: ô sửa đang mở (so với lúc mở) + ô nhập kanji đang có chữ ─────────────
+  var modalSnapshot = null;
+
+  function isModalDirty() {
+    return !modalEl.hidden && modalSnapshot !== null && JSON.stringify(formValues()) !== modalSnapshot;
+  }
+
+  function isKanjiDirty() {
+    return !!(kanjiInput && kanjiInput.value.trim());
+  }
+
+  function hasUnsaved() {
+    return isModalDirty() || isKanjiDirty();
+  }
+
+  function discardUnsaved() {
+    if (!modalEl.hidden) closeModal();
+    if (kanjiInput) kanjiInput.value = '';
+  }
+
+  /** Lưu mọi thứ đang dở (ô sửa rồi tới kanji); Promise<boolean> — false nếu có phần không lưu được (lỗi hiện tại chỗ). */
+  function saveUnsaved() {
+    var chain = Promise.resolve(true);
+    if (isModalDirty()) chain = chain.then(submitModal);
+    if (isKanjiDirty()) chain = chain.then(function (ok) { return ok ? submitKanji() : false; });
+    return chain;
+  }
+
+  /** Chạy proceed ngay nếu không có gì dở; có thì hỏi Lưu / Bỏ thay đổi / Ở lại. */
+  function guardUnsaved(proceed) {
+    if (!hasUnsaved()) { proceed(); return; }
+    unsavedDialog().then(function (choice) {
+      if (choice === 'discard') { discardUnsaved(); proceed(); }
+      else if (choice === 'save') saveUnsaved().then(function (ok) { if (ok) proceed(); });
+    });
+  }
+
+  /** Đóng ô sửa (Huỷ / nền / Esc): có thay đổi thì hỏi "Bỏ thay đổi?". */
+  function requestCloseModal() {
+    if (!isModalDirty()) { closeModal(); return; }
+    confirmDialog({
+      title: 'Bỏ thay đổi?',
+      bodyHtml: '<p>Nội dung bạn vừa sửa trong ô này chưa được lưu và sẽ mất.</p>',
+      confirmLabel: 'Bỏ thay đổi', cancelLabel: 'Tiếp tục sửa', danger: true
+    }).then(function (ok) { if (ok) closeModal(); });
   }
 
   function formValues() {
@@ -643,19 +827,39 @@ window.AdminShell.ready.then(function (allowed) {
       .catch(function (err) { showStickyError(err.message); return loadGrammar(); });
   }
 
+  /** Hộp xác nhận xoá chung: nút "Xoá" đỏ; blocked = lý do không xoá được (nút khoá, chỉ để đọc). */
+  function confirmDelete(title, bodyHtml, blocked, confirmLabel) {
+    return confirmDialog({
+      title: title,
+      bodyHtml: bodyHtml + (blocked ? '<p class="editor-dlg__warn">' + escapeHtml(blocked) + '</p>' : ''),
+      confirmLabel: confirmLabel || 'Xoá', danger: true, confirmDisabled: !!blocked
+    });
+  }
+
   function deleteGrammar(id) {
     var entry = findGrammar(id);
     if (!entry) return;
-    if (!window.confirm('Xoá mẫu ngữ pháp “' + entry.point.pattern + '”?\n\n'
-      + 'Thao tác KHÔNG hoàn tác được. Chỉ xoá được khi mẫu không còn câu ví dụ nào.')) return;
-    clearError();
-    request('/grammar-points/' + encodeURIComponent(id), { method: 'DELETE' })
-      .then(function () { toast('Đã xoá mẫu ngữ pháp.', 'success'); return loadGrammar(); })
-      .catch(function (err) { showStickyError(err.message); });
+    var count = (entry.examples || []).length;
+    confirmDelete('Xoá mẫu ngữ pháp “' + entry.point.pattern + '”?',
+      '<p>Thao tác KHÔNG hoàn tác được.</p>',
+      count ? 'Mẫu này đang có ' + count + ' câu ví dụ. Chỉ xoá được mẫu khi không còn câu ví dụ nào — hãy xoá các câu ví dụ trước.' : '')
+      .then(function (ok) {
+        if (!ok) return;
+        clearError();
+        request('/grammar-points/' + encodeURIComponent(id), { method: 'DELETE' })
+          .then(function () { toast('Đã xoá mẫu ngữ pháp.', 'success'); return loadGrammar(); })
+          .catch(function (err) { showStickyError(err.message); });
+      });
   }
 
   function deleteExample(id) {
-    if (!window.confirm('Xoá câu ví dụ này? Thao tác KHÔNG hoàn tác được.')) return;
+    var example = findExample(id);
+    confirmDelete('Xoá câu ví dụ?',
+      (example ? '<p lang="ja" class="editor-dlg__quote">' + escapeHtml(example.textJa || '') + '</p>' : '')
+      + '<p>Thao tác KHÔNG hoàn tác được.</p>', '').then(function (ok) { if (ok) doDeleteExample(id); });
+  }
+
+  function doDeleteExample(id) {
     clearError();
     request('/examples/' + encodeURIComponent(id), { method: 'DELETE' })
       .then(function () { toast('Đã xoá câu ví dụ.', 'success'); return loadGrammar(); })
@@ -677,22 +881,28 @@ window.AdminShell.ready.then(function (allowed) {
   function detachVocab(vocabularyId) {
     var word = state.lessonVocab.filter(function (w) { return String(w.id) === String(vocabularyId); })[0];
     var name = word ? word.expression : 'này';
-    if (!window.confirm('Gỡ từ “' + name + '” khỏi bài học này?\n\n'
-      + 'Từ vẫn còn nguyên trong từ điển và trong các bài khác — chỉ bỏ nó khỏi bài đang soạn.')) return;
-    clearError();
-    request('/lessons/' + lessonId + '/vocabulary/' + encodeURIComponent(vocabularyId), { method: 'DELETE' })
-      .then(function () { toast('Đã gỡ từ khỏi bài học.', 'success'); return reloadAll(); })
-      .catch(function (err) { showStickyError(err.message); });
+    confirmDelete('Gỡ từ “' + name + '” khỏi bài học?',
+      '<p>Từ vẫn còn nguyên trong từ điển và trong các bài khác — chỉ bỏ nó khỏi bài đang soạn.</p>', '', 'Gỡ khỏi bài')
+      .then(function (ok) {
+        if (!ok) return;
+        clearError();
+        request('/lessons/' + lessonId + '/vocabulary/' + encodeURIComponent(vocabularyId), { method: 'DELETE' })
+          .then(function () { toast('Đã gỡ từ khỏi bài học.', 'success'); return reloadAll(); })
+          .catch(function (err) { showStickyError(err.message); });
+      });
   }
 
   function detachKanji(kanjiId) {
     var kanji = state.kanji.manual.filter(function (k) { return String(k.id) === String(kanjiId); })[0];
-    if (!window.confirm('Gỡ chữ “' + (kanji ? kanji.character : '') + '” khỏi bài học này?\n\n'
-      + 'Chữ vẫn còn trong từ điển. Nếu từ vựng của bài có chứa chữ này thì nó vẫn hiện ở nhóm “Từ từ vựng”.')) return;
-    clearError();
-    request('/lessons/' + lessonId + '/kanji/' + encodeURIComponent(kanjiId), { method: 'DELETE' })
-      .then(function () { toast('Đã gỡ kanji khỏi bài học.', 'success'); return loadKanji(); })
-      .catch(function (err) { showStickyError(err.message); });
+    confirmDelete('Gỡ chữ “' + (kanji ? kanji.character : '') + '” khỏi bài học?',
+      '<p>Chữ vẫn còn trong từ điển. Nếu từ vựng của bài có chứa chữ này thì nó vẫn hiện ở nhóm “Từ từ vựng”.</p>', '', 'Gỡ khỏi bài')
+      .then(function (ok) {
+        if (!ok) return;
+        clearError();
+        request('/lessons/' + lessonId + '/kanji/' + encodeURIComponent(kanjiId), { method: 'DELETE' })
+          .then(function () { toast('Đã gỡ kanji khỏi bài học.', 'success'); return loadKanji(); })
+          .catch(function (err) { showStickyError(err.message); });
+      });
   }
 
   function findRole(id) {
@@ -715,17 +925,30 @@ window.AdminShell.ready.then(function (allowed) {
 
   function deleteRole(id) {
     var role = findRole(id);
-    if (!role || !window.confirm('Xoá vai “' + role.nameVi + '”?\n\nChỉ xoá được khi vai chưa có lời thoại nào.')) return;
-    clearError();
-    request('/dialogue-roles/' + encodeURIComponent(id), { method: 'DELETE' })
-      .then(function () { toast('Đã xoá vai.', 'success'); return loadDialogue(); })
-      .catch(function (err) { showStickyError(err.message); });
+    if (!role) return;
+    var used = 0;
+    state.scenes.forEach(function (sc) { (sc.lines || []).forEach(function (l) { if (String(l.roleId) === String(id)) used++; }); });
+    confirmDelete('Xoá vai “' + role.nameVi + '”?', '<p>Thao tác KHÔNG hoàn tác được.</p>',
+      used ? 'Vai này đang có ' + used + ' lời thoại. Chỉ xoá được vai khi chưa có lời thoại nào — hãy xoá hoặc đổi vai các lời thoại trước.' : '')
+      .then(function (ok) {
+        if (!ok) return;
+        clearError();
+        request('/dialogue-roles/' + encodeURIComponent(id), { method: 'DELETE' })
+          .then(function () { toast('Đã xoá vai.', 'success'); return loadDialogue(); })
+          .catch(function (err) { showStickyError(err.message); });
+      });
   }
 
   function deleteScene(sectionId) {
     var scene = findScene(sectionId);
-    if (!scene || !window.confirm('Xoá đoạn hội thoại “' + scene.title + '”?\n\n'
-      + 'Chỉ xoá được khi đoạn không còn lời thoại nào — xoá hết lời trước.')) return;
+    if (!scene) return;
+    var lineCount = (scene.lines || []).length;
+    confirmDelete('Xoá đoạn hội thoại “' + scene.title + '”?', '<p>Thao tác KHÔNG hoàn tác được.</p>',
+      lineCount ? 'Đoạn này đang có ' + lineCount + ' lời thoại. Chỉ xoá được đoạn khi không còn lời thoại — hãy xoá các lời thoại trước.' : '')
+      .then(function (ok) { if (ok) doDeleteScene(sectionId); });
+  }
+
+  function doDeleteScene(sectionId) {
     clearError();
     request('/sections/' + encodeURIComponent(sectionId), { method: 'DELETE' })
       .then(function () { toast('Đã xoá đoạn hội thoại.', 'success'); return loadDialogue(); })
@@ -733,7 +956,13 @@ window.AdminShell.ready.then(function (allowed) {
   }
 
   function deleteLine(id) {
-    if (!window.confirm('Xoá lời thoại này? Thao tác KHÔNG hoàn tác được.')) return;
+    var found = findLine(id);
+    confirmDelete('Xoá lời thoại?',
+      (found ? '<p lang="ja" class="editor-dlg__quote">' + escapeHtml(found.line.text || '') + '</p>' : '')
+      + '<p>Thao tác KHÔNG hoàn tác được.</p>', '').then(function (ok) { if (ok) doDeleteLine(id); });
+  }
+
+  function doDeleteLine(id) {
     clearError();
     request('/dialogue-lines/' + encodeURIComponent(id), { method: 'DELETE' })
       .then(function () { toast('Đã xoá lời thoại.', 'success'); return loadDialogue(); })
@@ -776,6 +1005,10 @@ window.AdminShell.ready.then(function (allowed) {
       .catch(function (err) { showStickyError(err.message); });
   }
 
+  /**
+   * [JLAS2-17] Import 2 bước: chạy thử (dryRun=true: đọc + kiểm tra, không ghi) → hộp xem trước (tóm tắt / lỗi theo
+   * sheet-dòng) → bấm "Nhập" mới gọi import thật. File lỗi hoặc không có gì để nhập: nút Nhập bị khoá.
+   */
   function importExcel(file) {
     if (!file) return;
     var importBtn = importEl.querySelector('[data-action="import-excel"]');
@@ -783,21 +1016,77 @@ window.AdminShell.ready.then(function (allowed) {
     form.append('file', file);
     clearError();
     importBtn.disabled = true;
-    importResultEl.hidden = true;
-    request('/lessons/' + lessonId + '/import', { method: 'POST', body: form })
-      .then(function (result) {
-        renderImportResult(result);
-        if (result.imported) {
-          toast('Đã nhập nội dung từ file.', 'success');
-          return reloadAll();
-        }
-        return null;
-      })
-      .catch(function (err) { showStickyError(err.message); })
+    request('/lessons/' + lessonId + '/import?dryRun=true', { method: 'POST', body: form })
+      .then(function (preview) { return showImportPreview(file, preview, null); },
+        function (err) { return showImportPreview(file, null, err.message || 'Không đọc được file.'); })
       .then(function () {
         importBtn.disabled = !!state.locked;
         importFileInput.value = '';
       });
+  }
+
+  var IMPORT_ROWS = [
+    ['vocabularyCreated', 'Từ vựng mới (tạo trong từ điển, gắn vào bài)'],
+    ['vocabularyAttached', 'Từ có sẵn trong từ điển, gắn vào bài'],
+    ['grammarCreated', 'Mẫu ngữ pháp'],
+    ['examplesCreated', 'Câu ví dụ'],
+    ['dialogueScenesCreated', 'Đoạn hội thoại'],
+    ['dialogueRolesCreated', 'Vai hội thoại'],
+    ['dialogueLinesCreated', 'Lời thoại'],
+    ['kanjiAttached', 'Kanji']
+  ];
+
+  function existingContentSummary() {
+    var examples = state.grammar.reduce(function (n, g) { return n + (g.examples || []).length; }, 0);
+    var lines = state.scenes.reduce(function (n, sc) { return n + (sc.lines || []).length; }, 0);
+    var parts = [[state.grammar.length, 'mẫu ngữ pháp'], [examples, 'câu ví dụ'], [state.lessonVocab.length, 'từ vựng'],
+      [state.kanji.manual.length, 'kanji gắn tay'], [state.scenes.length, 'đoạn hội thoại'], [lines, 'lời thoại']]
+      .filter(function (x) { return x[0] > 0; }).map(function (x) { return x[0] + ' ' + x[1]; });
+    return parts.join(', ');
+  }
+
+  function showImportPreview(file, preview, failure) {
+    var errors = preview ? (preview.errors || []) : [];
+    var total = preview ? IMPORT_ROWS.reduce(function (n, r) { return n + (preview[r[0]] || 0); }, 0) : 0;
+    var nothing = !!preview && !errors.length && total === 0;
+    var body = '<p class="editor-dlg__file"><i class="fa-solid fa-file-excel" aria-hidden="true"></i> ' + escapeHtml(file.name) + '</p>';
+    if (failure) {
+      body += '<div class="editor-dlg__warn">' + escapeHtml(failure) + '</div>';
+    } else if (errors.length) {
+      body += '<p class="editor-dlg__warn">File có ' + errors.length + ' lỗi — file có lỗi thì KHÔNG nhập gì. Sửa các dòng dưới đây rồi chọn lại file.</p>'
+        + '<ul class="editor-dlg__errors">' + errors.map(function (e) {
+          return '<li><b>' + escapeHtml(e.sheet) + ', dòng ' + escapeHtml(e.row) + ':</b> ' + escapeHtml(e.message) + '</li>';
+        }).join('') + '</ul>';
+    } else {
+      body += '<table class="editor-dlg__table"><caption>Sẽ nhập vào bài</caption><tbody>'
+        + IMPORT_ROWS.filter(function (r) { return (preview[r[0]] || 0) > 0; }).map(function (r) {
+          return '<tr><th scope="row">' + escapeHtml(r[1]) + '</th><td>' + preview[r[0]] + '</td></tr>';
+        }).join('') + '</tbody></table>';
+      var skipped = [[preview.vocabularySkipped, 'từ đã có'], [preview.grammarSkipped, 'mẫu ngữ pháp đã có'], [preview.kanjiSkipped, 'kanji đã có']]
+        .filter(function (x) { return x[0] > 0; }).map(function (x) { return x[0] + ' ' + x[1]; });
+      if (skipped.length) body += '<p class="editor-panel__hint">Bỏ qua (trùng với bài hoặc lặp trong file): ' + escapeHtml(skipped.join(', ')) + '.</p>';
+      if (nothing) body += '<p class="editor-dlg__warn">Không có mục mới nào để nhập.</p>';
+      var existing = existingContentSummary();
+      if (existing && !nothing) {
+        body += '<p class="editor-dlg__note">Bài đang có: ' + escapeHtml(existing) + '. Import sẽ <b>THÊM</b> vào nội dung hiện có'
+          + ' — không ghi đè, không xoá; mục trùng (cùng cách viết) được bỏ qua.</p>';
+      }
+    }
+    var blocked = !!failure || errors.length > 0 || nothing;
+    return confirmDialog({
+      title: 'Xem trước nội dung nhập từ Excel', bodyHtml: body, wide: true,
+      confirmLabel: 'Nhập', confirmDisabled: blocked, busyLabel: 'Đang nhập…',
+      onConfirm: function (ui) {
+        var form = new FormData();
+        form.append('file', file);
+        return request('/lessons/' + lessonId + '/import', { method: 'POST', body: form }).then(function (result) {
+          renderImportResult(result);
+          if (!result.imported) { ui.setError('File có lỗi, chưa nhập dữ liệu nào (xem danh sách bên dưới trang).'); return true; }
+          toast('Đã nhập nội dung từ file.', 'success');
+          return reloadAll().then(function () { return true; });
+        });
+      }
+    });
   }
 
   // ── Sự kiện ────────────────────────────────────────────────────────────────
@@ -832,57 +1121,91 @@ window.AdminShell.ready.then(function (allowed) {
     'import-excel': function () { importFileInput.click(); }
   };
 
+  /** Mở một ô sửa khác (thêm / sửa / đổi tên) khi còn thay đổi chưa lưu → hỏi trước. */
+  var OPENS_EDITOR = /^(add-|edit-|rename-|create-)/;
+
   main.addEventListener('click', function (event) {
     var btn = event.target.closest('[data-action]');
     if (!btn || btn.disabled) return;
-    var handler = ACTIONS[btn.getAttribute('data-action')];
-    if (handler) handler(btn.getAttribute('data-id'));
+    var action = btn.getAttribute('data-action');
+    var handler = ACTIONS[action];
+    if (!handler) return;
+    var id = btn.getAttribute('data-id');
+    if (OPENS_EDITOR.test(action)) guardUnsaved(function () { handler(id); });
+    else handler(id);
   });
 
-  formEl.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!modalContext || state.submitting) return;
+  /** Lưu ô sửa đang mở; Promise<boolean> (lỗi hiện trong ô, ô vẫn mở). Dùng cho nút Lưu và nút "Lưu" của hộp chưa lưu. */
+  function submitModal() {
+    if (!modalContext || state.submitting) return Promise.resolve(false);
     state.submitting = true;
     submitBtn.disabled = true;
     formErrorEl.hidden = true;
     var reload = modalContext.reload;
-    modalContext.onSubmit(formValues())
+    return modalContext.onSubmit(formValues())
       .then(function () {
         closeModal();
         toast('Đã lưu.', 'success');
-        return reload();
+        return Promise.resolve(reload()).then(function () { return true; });
       })
       .catch(function (err) {
         state.submitting = false;
         submitBtn.disabled = false;
         formErrorEl.textContent = err.message || 'Không lưu được.';
         formErrorEl.hidden = false;
+        return false;
       });
+  }
+
+  formEl.addEventListener('submit', function (event) {
+    event.preventDefault();
+    submitModal();
   });
 
   modalEl.addEventListener('click', function (event) {
-    if (event.target.closest('[data-close]')) closeModal();
+    if (event.target.closest('[data-close]')) requestCloseModal();
   });
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && !modalEl.hidden) closeModal();
+    if (event.key === 'Escape' && !modalEl.hidden && !dialogState) requestCloseModal();
   });
+
+  // Rời trang / F5 / đóng tab khi còn thay đổi chưa lưu → hộp cảnh báo của trình duyệt.
+  window.addEventListener('beforeunload', function (event) {
+    if (hasUnsaved()) { event.preventDefault(); event.returnValue = ''; }
+  });
+
+  // Bấm link khác (menu cổng quản trị, breadcrumb, …) khi còn thay đổi chưa lưu → hỏi Lưu / Bỏ thay đổi / Ở lại.
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest('a[href]');
+    if (!link || dialogState || !hasUnsaved()) return;
+    if (link.target === '_blank' || link.hasAttribute('download') || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    var href = link.getAttribute('href');
+    if (!href || href.charAt(0) === '#') return;
+    event.preventDefault();
+    guardUnsaved(function () { window.location.href = link.href; });
+  }, true);
 
   importFileInput.addEventListener('change', function () {
     importExcel(importFileInput.files && importFileInput.files[0]);
   });
 
-  kanjiForm.addEventListener('submit', function (event) {
-    event.preventDefault();
+  /** Gắn kanji đang gõ; Promise<boolean>. */
+  function submitKanji() {
     var characters = kanjiInput.value.trim();
-    if (!characters || state.locked) return;
+    if (!characters || state.locked) return Promise.resolve(false);
     clearError();
-    request('/lessons/' + lessonId + '/kanji', { method: 'POST', body: JSON.stringify({ characters: characters }) })
+    return request('/lessons/' + lessonId + '/kanji', { method: 'POST', body: JSON.stringify({ characters: characters }) })
       .then(function () {
         kanjiInput.value = '';
         toast('Đã gắn kanji vào bài học.', 'success');
-        return loadKanji();
+        return loadKanji().then(function () { return true; });
       })
-      .catch(function (err) { showStickyError(err.message); });
+      .catch(function (err) { showStickyError(err.message); return false; });
+  }
+
+  kanjiForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    submitKanji();
   });
 
   /** Gõ tới đâu tìm tới đó, nhưng gom lại: chỉ bắn request khi người dùng ngừng gõ. */
@@ -912,7 +1235,10 @@ window.AdminShell.ready.then(function (allowed) {
       }
     }
     tabs.forEach(function (tab) {
-      tab.addEventListener('click', function () { activate(tab.getAttribute('data-tab')); });
+      tab.addEventListener('click', function () {
+        if (tab.classList.contains('is-active')) return;
+        guardUnsaved(function () { activate(tab.getAttribute('data-tab')); });
+      });
     });
     activate('grammar');
   }

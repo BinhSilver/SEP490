@@ -136,6 +136,11 @@ public class LessonImportServiceImpl implements LessonImportService {
 
     @Override
     public LessonImportResult importLesson(Long lessonId, MultipartFile file) {
+        return importLesson(lessonId, file, false);
+    }
+
+    @Override
+    public LessonImportResult importLesson(Long lessonId, MultipartFile file, boolean dryRun) {
         Lesson lesson = lessonRepository.findWithUnitById(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found: " + lessonId));
         if (STATUS_ARCHIVED.equals(lesson.getUnit().getTextbook().getStatus())) {
@@ -146,7 +151,7 @@ public class LessonImportServiceImpl implements LessonImportService {
         Map<String, List<SheetRow>> sheets = data.rows();
         // Lỗi tiêu đề (thiếu cột bắt buộc / không thấy dòng tiêu đề): báo theo sheet, chưa đọc dữ liệu của sheet đó.
         if (!data.headerErrors().isEmpty()) {
-            return LessonImportResult.builder().imported(false).errors(data.headerErrors()).build();
+            return LessonImportResult.builder().imported(false).dryRun(dryRun).errors(data.headerErrors()).build();
         }
         if (sheets.values().stream().allMatch(List::isEmpty)) {
             throw new ApiException(ErrorCode.BAD_REQUEST, emptyFileMessage(data));
@@ -161,9 +166,29 @@ public class LessonImportServiceImpl implements LessonImportService {
         planDialogue(lessonId, sheets.get(SHEET_DIALOGUE), plan, errors);
 
         if (!errors.isEmpty()) {
-            return LessonImportResult.builder().imported(false).errors(errors).build();
+            return LessonImportResult.builder().imported(false).dryRun(dryRun).errors(errors).build();
         }
-        return apply(lessonId, plan);
+        return dryRun ? preview(plan) : apply(lessonId, plan);
+    }
+
+    /** Chạy thử: cùng các bộ đếm như apply() nhưng tính từ kế hoạch, không gọi thao tác ghi nào. */
+    private static LessonImportResult preview(ImportPlan plan) {
+        int attached = (int) plan.vocabularies.stream().filter(PlannedVocabulary::inDictionary).count();
+        return LessonImportResult.builder()
+                .imported(false)
+                .dryRun(true)
+                .vocabularyCreated(plan.vocabularies.size() - attached)
+                .vocabularyAttached(attached)
+                .vocabularySkipped(plan.vocabularySkipped)
+                .kanjiAttached(plan.kanjiCharacters.size())
+                .kanjiSkipped(plan.kanjiSkipped)
+                .grammarCreated(plan.grammarToCreate.size())
+                .grammarSkipped(plan.grammarSkipped)
+                .examplesCreated(plan.examples.size())
+                .dialogueRolesCreated(plan.rolesToCreate.size())
+                .dialogueScenesCreated(plan.scenesToCreate.size())
+                .dialogueLinesCreated(plan.lines.size())
+                .build();
     }
 
     private LessonImportResult apply(Long lessonId, ImportPlan plan) {

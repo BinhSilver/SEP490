@@ -557,16 +557,19 @@ public class DictionaryController {
     /**
      * POST /api/dictionary/lessons/{lessonId}/import — nhập từ vựng, ngữ pháp + ví dụ, hội thoại, kanji từ
      * file .xlsx (multipart, field "file"). Tất cả hoặc không: file có dòng lỗi thì không lưu gì và trả
-     * {@code imported = false} kèm danh sách lỗi theo sheet/dòng.
+     * {@code imported = false} kèm danh sách lỗi theo sheet/dòng. {@code dryRun=true} ([JLAS2-17]): chỉ đọc + kiểm tra,
+     * trả tóm tắt sẽ nhập ({@code dryRun = true}, các bộ đếm) và lỗi, KHÔNG ghi gì — trang biên soạn dùng để xem trước.
      */
     @PostMapping(value = "/lessons/{lessonId}/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CONTENT_CREATOR')")
     public ResponseEntity<ApiResponse<LessonImportResult>> importLesson(@PathVariable Long lessonId,
-                                                                        @RequestParam("file") MultipartFile file) {
-        LessonImportResult result = lessonImportService.importLesson(lessonId, file);
-        return ResponseEntity.ok(ApiResponse.ok(
-                result.isImported() ? "Đã nhập nội dung từ file" : "File có lỗi, chưa nhập dữ liệu nào",
-                result));
+                                                                        @RequestParam("file") MultipartFile file,
+                                                                        @RequestParam(value = "dryRun", defaultValue = "false") boolean dryRun) {
+        LessonImportResult result = lessonImportService.importLesson(lessonId, file, dryRun);
+        String message = dryRun
+                ? (result.getErrors().isEmpty() ? "Kiểm tra file xong, chưa nhập gì" : "File có lỗi")
+                : (result.isImported() ? "Đã nhập nội dung từ file" : "File có lỗi, chưa nhập dữ liệu nào");
+        return ResponseEntity.ok(ApiResponse.ok(message, result));
     }
 
     /** GET /api/dictionary/manage/lessons/import-template — tải file Excel mẫu để nhập nội dung bài học. */

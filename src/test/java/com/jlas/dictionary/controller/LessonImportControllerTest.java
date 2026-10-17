@@ -105,6 +105,43 @@ class LessonImportControllerTest {
     }
 
     @Test
+    void dryRun_returnsSummaryAndWritesNothing() throws Exception {
+        MockMultipartFile file = vocabularyFile(
+                new String[]{"学生", "がくせい", "gakusei", "học sinh"},
+                new String[]{"先生", "せんせい", "sensei", "giáo viên"},
+                new String[]{"学生", "がくせい", "gakusei", "học sinh"});   // lặp trong file → bỏ qua
+
+        mvc.perform(multipart(URL).file(file).param("dryRun", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.dryRun").value(true))
+                .andExpect(jsonPath("$.data.imported").value(false))
+                .andExpect(jsonPath("$.data.vocabularyCreated").value(2))
+                .andExpect(jsonPath("$.data.vocabularySkipped").value(1))
+                .andExpect(jsonPath("$.data.errors").isEmpty());
+
+        verify(contentAdminService, never()).createVocabulary(anyLong(), any());
+        verify(contentAdminService, never()).attachLessonKanji(anyLong(), any());
+        verify(contentAdminService, never()).createGrammarPoint(anyLong(), any());
+        verify(contentAdminService, never()).createExample(anyLong(), any());
+        verify(contentAdminService, never()).createDialogueRole(anyLong(), any());
+        verify(contentAdminService, never()).createDialogueScene(anyLong(), any());
+        verify(contentAdminService, never()).createDialogueLine(anyLong(), any());
+    }
+
+    @Test
+    void dryRun_withRowErrors_listsErrorsAndWritesNothing() throws Exception {
+        MockMultipartFile file = vocabularyFile(new String[]{"先生", "せんせい", "sensei", null});
+
+        mvc.perform(multipart(URL).file(file).param("dryRun", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.dryRun").value(true))
+                .andExpect(jsonPath("$.data.errors.length()").value(1))
+                .andExpect(jsonPath("$.data.errors[0].row").value(2));
+
+        verify(contentAdminService, never()).createVocabulary(anyLong(), any());
+    }
+
+    @Test
     void validFile_importsEveryRow() throws Exception {
         MockMultipartFile file = vocabularyFile(
                 new String[]{"学生", "がくせい", "gakusei", "học sinh"},
