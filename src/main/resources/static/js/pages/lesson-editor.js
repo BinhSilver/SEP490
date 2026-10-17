@@ -177,13 +177,16 @@ window.AdminShell.ready.then(function (allowed) {
     });
   }
 
-  /** Hỏi có / không. Promise<boolean>. danger: nút chính màu đỏ. confirmDisabled: khoá nút chính (chỉ để đọc). */
+  /**
+   * Hỏi có / không. Promise<boolean>. danger: nút chính màu đỏ. confirmDisabled: khoá nút chính (chỉ để đọc).
+   * safeDefault: focus mặc định + Enter = "Huỷ" (hộp xoá / gỡ) — muốn xoá phải bấm hoặc Tab tới nút đỏ.
+   */
   function confirmDialog(o) {
     return openDialog({
       title: o.title, bodyHtml: o.bodyHtml, wide: o.wide,
       buttons: [
-        { value: 'cancel', label: o.cancelLabel || 'Huỷ' },
-        { value: 'ok', label: o.confirmLabel || 'Đồng ý', kind: o.danger ? 'danger' : 'primary', primary: true, disabled: !!o.confirmDisabled }
+        { value: 'cancel', label: o.cancelLabel || 'Huỷ', primary: !!o.safeDefault },
+        { value: 'ok', label: o.confirmLabel || 'Đồng ý', kind: o.danger ? 'danger' : 'primary', primary: !o.safeDefault, disabled: !!o.confirmDisabled }
       ],
       cancelValue: 'cancel',
       busyValue: o.onConfirm ? 'ok' : null, busyLabel: o.busyLabel, onAction: o.onConfirm
@@ -844,7 +847,7 @@ window.AdminShell.ready.then(function (allowed) {
     return confirmDialog({
       title: title,
       bodyHtml: bodyHtml + (blocked ? '<p class="editor-dlg__warn">' + escapeHtml(blocked) + '</p>' : ''),
-      confirmLabel: confirmLabel || 'Xoá', danger: true, confirmDisabled: !!blocked
+      confirmLabel: confirmLabel || 'Xoá', danger: true, confirmDisabled: !!blocked, safeDefault: true
     });
   }
 
