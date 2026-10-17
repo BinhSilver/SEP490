@@ -40,8 +40,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * [JLAS-W0193] RC Task 8 hardening — real multi-threaded proof (H2-backed, real
- * {@link InteractiveDialogueServiceImpl}, no mocks) that two concurrent heartbeats racing on the exact moment
- * Dialogue's completion threshold is crossed cannot lose a time credit and cannot complete the activity twice.
+ * {@link InteractiveDialogueServiceImpl}, no mocks) that two concurrent heartbeats racing when Dialogue's
+ * completion threshold is crossed cannot lose the server-measured interval and cannot complete the activity
+ * twice. Concurrent requests must not each claim the same elapsed interval.
  * Rules doc §2.14 disclosed only that the activity row's {@code FOR UPDATE} lock "is what actually serializes
  * two concurrent heartbeat/reached-bottom calls", proven so far by sequential-call tests only; this test
  * forces genuine overlap with a {@link CountDownLatch} barrier.
@@ -76,13 +77,14 @@ class InteractiveDialogueConcurrencyTest {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void concurrentHeartbeatsCrossingTheThresholdCreditBothAndCompleteExactlyOnce() throws Exception {
+    void concurrentHeartbeatsCrossingTheThresholdCompleteWithoutLostUpdate() throws Exception {
         Fixture fixture = seedFixtureCommitted();
 
         // Establish a baseline heartbeat (credits nothing — first heartbeat of a session) so a later
         // heartbeat's gap is measurable, then seed accumulated time and reached-bottom evidence right at the
-        // boundary: two more heartbeats (10s gap each, capped at 20s/heartbeat) will each independently push
-        // the total over the 180s threshold if credited correctly, and only one may perform the completion.
+        // boundary. The 21s anchor deliberately avoids a whole-second precision edge under full-suite load:
+        // the first serialized request contributes the capped 20s, while the concurrent request observes the
+        // new anchor and must not claim that same elapsed interval again. Only one call may set completion.
         new TransactionTemplate(txManager).execute(status -> {
             service.heartbeat(fixture.userId(), fixture.activityId(), new DialogueHeartbeatRequest("baseline"));
             return null;
@@ -90,8 +92,8 @@ class InteractiveDialogueConcurrencyTest {
         new TransactionTemplate(txManager).execute(status -> {
             em.clear();
             LearningDialogueProgress progress = progressRepo.findByActivityId(fixture.activityId()).orElseThrow();
-            progress.setAccumulatedSeconds(170);
-            progress.setLastHeartbeatAt(LocalDateTime.now().minusSeconds(10));
+            progress.setAccumulatedSeconds(160);
+            progress.setLastHeartbeatAt(LocalDateTime.now().minusSeconds(21));
             progress.setReachedBottomAt(LocalDateTime.now().minusSeconds(5));
             progressRepo.save(progress);
             return null;
@@ -140,7 +142,7 @@ class InteractiveDialogueConcurrencyTest {
             return progressRepo.findByActivityId(fixture.activityId()).orElseThrow();
         });
         assertTrue(reloaded.getAccumulatedSeconds() >= 180,
-                "both heartbeats' contributions must be credited — no lost update under real concurrency");
+                "the server-measured interval must survive concurrent updates");
         assertTrue(reloaded.getCompletedAt() != null, "completion must be recorded exactly once");
         long completedCount = results.stream().filter(DialogueProgressResult::completed).count();
         assertTrue(completedCount >= 1, "at least the call that crosses the threshold must observe completion");

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Khảo sát lộ trình - JLAS', 'smart-test')}"></head>
+<body id="jlabBasePage" class="app-body smart-test-body journey-ui"><div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="survey-page">
+  <section id="goalSurveyPage" class="survey-wizard" th:attr="data-goal-code=${goalCode}">
+    <div id="goalSurveyNotice" class="smart-test-notice" role="alert" hidden></div>
+    <form id="goalSurveyForm" novalidate>
+      <div id="goalSurveyContent" aria-live="polite"><p>Đang tải khảo sát…</p></div>
+      <footer class="survey-wizard-footer">
+        <button class="smart-test-primary survey-next" type="submit"><span>Lưu và tạo lộ trình</span><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>
+      </footer>
+    </form>
+  </section>
+</main>
+<script th:src="@{/js/jlab-base-shell.js}"></script><script th:src="@{/js/pages/goal-survey.js}"></script>
+</body></html>

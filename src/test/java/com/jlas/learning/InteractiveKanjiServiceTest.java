@@ -125,33 +125,43 @@ class InteractiveKanjiServiceTest {
         assertTrue(view.kunReadings().isEmpty());
     }
 
-    @Test void issueRequiresAllCardsRemembered() {
+    /** [JLAS-W0125] A part created by a pace change knows its position so the page can show "Phần x / n". */
+    @Test void studyStateReportsThePartPositionInsideItsPackage() {
         var activity = kanjiActivity(1L, 7L);
+        var pkg = com.jlas.learning.entity.LearningPathPackage.builder().id(55L).build();
+        activity.setLearningPackage(pkg);
+        activity.setPartIndex(5);
+        activity.setOrderIndex(40);
         var member = member(1, 201L);
         var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        var card = LearningStudyCard.builder().id(20L).session(session).canonicalId(201L)
-                .orderIndex(1).flipped(true).remembered(false).build();
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(items.countByLearningPackageIdAndActivityType(55L, LearningActivityType.KANJI)).thenReturn(3L);
+        // part_index 5 is an identity left by a repeated split; the position comes from study order.
+        when(items.countByLearningPackageIdAndActivityTypeAndOrderIndexLessThan(55L, LearningActivityType.KANJI, 40))
+                .thenReturn(1L);
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
         when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
+        when(studySessions.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        var card = LearningStudyCard.builder().id(20L).session(session).canonicalId(201L)
+                .orderIndex(1).flipped(false).remembered(false).build();
         when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(new ArrayList<>(List.of(card)));
+        when(kanjiRepo.findAllById(any())).thenReturn(List.of(kanji(201L, "間", "GIAN", "khoang, giua")));
+        when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(List.of());
 
-        ApiException error = assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L));
-        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
+        var result = service.studyState(7L, 1L);
+
+        assertEquals(2, result.partIndex());
+        assertEquals(3, result.partCount());
     }
 
-    @Test void issueCoversEveryTargetWithFourQuestionShapes() {
+    @Test void issueCoversEveryTargetBeforeAnyCardWasViewed() {
         var activity = kanjiActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
         for (int i = 0; i < 5; i++) membership.add(member(i + 1, 200L + i));
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
         List<Kanji> kanjiList = new ArrayList<>();
         List<KanjiReading> readings = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             long id = 200L + i;
-            cards.add(LearningStudyCard.builder().id(30L + i).session(session).canonicalId(id)
-                    .orderIndex(i + 1).flipped(true).remembered(true).build());
             Kanji k = kanji(id, "字" + i, "TU" + i, "nghia " + i);
             kanjiList.add(k);
             readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
@@ -159,12 +169,14 @@ class InteractiveKanjiServiceTest {
         }
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
         when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
         when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
-        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        var questionRef = new java.util.concurrent.atomic.AtomicReference<List<com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion>>();
+        when(mapper.writeQuizQuestions(any())).thenAnswer(inv -> {
+            questionRef.set(inv.getArgument(0));
+            return "[]";
+        });
         var keyRef = new java.util.concurrent.atomic.AtomicReference<Map<Long, QuizAnswerKey>>();
         when(mapper.writeQuizAnswerKey(any())).thenAnswer(inv -> {
             keyRef.set(inv.getArgument(0));
@@ -182,9 +194,52 @@ class InteractiveKanjiServiceTest {
         // 5 select questions (round-robin over 3 types) + 5 matching = 10
         assertEquals(10, result.totalQuestions());
         assertEquals(10, keyRef.get().size());
-        assertTrue(keyRef.get().values().stream().allMatch(k -> k.correctOption() >= 1 && k.correctOption() <= 4));
+        var matching = questionRef.get().stream().filter(q -> "MATCHING".equals(q.questionType())).toList();
+        assertEquals(5, matching.size());
+        assertEquals(5, matching.getFirst().options().size());
+        assertTrue(matching.stream().allMatch(q -> q.options().equals(matching.getFirst().options())));
+        assertEquals(5, matching.stream().map(q -> keyRef.get().get(q.questionId()).correctOption())
+                .distinct().count());
         long distinctTypes = result.questions().stream().map(q -> q.questionType()).distinct().count();
         assertTrue(distinctTypes >= 2, "expected multiple question shapes, got " + distinctTypes);
+    }
+
+    /** R2 — eleven members used to be cut 10+1; the one-item batch could never produce a choice question
+     * (options are drawn from the batch itself), so the learner was blocked forever after passing batch one. */
+    @Test void elevenKanjiNeverLeaveAOneItemFinalBatch() {
+        var activity = kanjiActivity(1L, 7L);
+        List<LearningActivityMember> membership = new ArrayList<>();
+        List<Kanji> kanjiList = new ArrayList<>();
+        List<KanjiReading> readings = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            long id = 200L + i;
+            membership.add(member(i + 1, id));
+            Kanji k = kanji(id, String.valueOf((char) ('一' + i)), "TU" + i, "nghia " + i);
+            kanjiList.add(k);
+            readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
+                    .isCommon(true).build());
+        }
+        var firstPassed = LearningMicroCheckState.builder().activity(activity).batchIndex(0).passed(true).build();
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(firstPassed));
+        when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
+        when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
+        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
+        when(quizSessions.save(any())).thenAnswer(inv -> {
+            LearningQuizSession s = inv.getArgument(0);
+            s.setId(500L);
+            return s;
+        });
+
+        var result = service.issueMicroCheck(7L, 1L);
+
+        // Batch count is unchanged (still two), only the trailing 10+1 is rebalanced to 6+5.
+        assertEquals(1, result.batchIndex());
+        assertEquals(2, result.batchCount());
+        assertEquals(10, result.totalQuestions(), "five targets x (one select + one matching)");
+        assertTrue(result.questions().stream().allMatch(q -> q.options() != null && q.options().size() >= 2));
     }
 
     /** [JLAS-W0193] Task 10 audit finding — same fix/rationale as
@@ -194,14 +249,10 @@ class InteractiveKanjiServiceTest {
         var activity = kanjiActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
         for (int i = 0; i < 4; i++) membership.add(member(i + 1, 200L + i));
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
         List<Kanji> kanjiList = new ArrayList<>();
         List<KanjiReading> readings = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             long id = 200L + i;
-            cards.add(LearningStudyCard.builder().id(30L + i).session(session).canonicalId(id)
-                    .orderIndex(i + 1).flipped(true).remembered(true).build());
             Kanji k = kanji(id, "字" + i, "TU" + i, "nghia " + i);
             kanjiList.add(k);
             readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
@@ -209,8 +260,6 @@ class InteractiveKanjiServiceTest {
         }
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
         when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
         when(mapper.writeQuizQuestions(any())).thenReturn("[]");

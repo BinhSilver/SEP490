@@ -24,6 +24,8 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Service unavailable"),
     EXTERNAL_SERVICE_ERROR(HttpStatus.BAD_GATEWAY, "External service error"),
     TARGET_NOT_AVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Mục tiêu này đang được phát triển"),
+    TARGET_LEVEL_NOT_ALLOWED(HttpStatus.UNPROCESSABLE_ENTITY,
+            "Mục tiêu vượt quá khoảng cách phù hợp với trình độ hiện tại"),
     KANA_CHALLENGE_UNAVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có từ vựng đã duyệt phù hợp để tạo thử thách. Bạn hãy quay lại sau nhé."),
     KANA_CHALLENGE_LEVEL_INVALID(HttpStatus.BAD_REQUEST, "Cấp độ thử thách chỉ nhận N5, N4, N3, N2, N1 hoặc MIX."),
     KANA_HINT_NOT_READY(HttpStatus.TOO_MANY_REQUESTS, "Gợi ý tiếp theo chưa mở. Bạn chờ thêm chút nhé."),
@@ -37,6 +39,8 @@ public enum ErrorCode {
     /** [JLAS-W0108] P6 — cấp trong lộ trình chưa đủ học liệu đã duyệt (readiness BLOCKED_CONTENT);
      *  bị chặn minh bạch, KHÔNG fallback demo và KHÔNG tính là người học trượt. */
     BLOCKED_CONTENT(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu cho cấp độ này"),
+    /** [JLAS-W0108] A legacy issued quiz has no immutable passage/audio snapshot and cannot be replayed safely. */
+    SOURCE_SNAPSHOT_UNAVAILABLE(HttpStatus.CONFLICT, "Lượt học cũ không có bản nguồn để ôn lại an toàn"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;

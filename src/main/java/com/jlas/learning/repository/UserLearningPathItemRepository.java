@@ -1,6 +1,7 @@
 package com.jlas.learning.repository;
 
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.enums.LearningActivityType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,16 @@ import org.springframework.stereotype.Repository;
 /** Repository cho {@link UserLearningPathItem}. */
 @Repository
 public interface UserLearningPathItemRepository extends JpaRepository<UserLearningPathItem, Long> {
+    /** Guard historical evidence even when a legacy activity's summary state is stale. */
+    @Query("""
+            select i.id from UserLearningPathItem i where i.learningPath.id = :pathId and (
+              exists (select s.id from LearningStudySession s where s.activity = i) or
+              exists (select q.id from LearningQuizSession q where q.activityId = i.id) or
+              exists (select c.id from LearningMicroCheckState c where c.activity = i) or
+              exists (select g.id from LearningGrammarPracticeProgress g where g.activity = i) or
+              exists (select d.id from LearningDialogueProgress d where d.activity = i))
+            """)
+    List<Long> findActivityIdsWithHistory(@Param("pathId") Long pathId);
     @Query("select coalesce(max(item.orderIndex), 0) from UserLearningPathItem item where item.learningPath.id = :pathId")
     int findMaxOrderIndexByLearningPathId(@Param("pathId") Long pathId);
 
@@ -18,6 +29,13 @@ public interface UserLearningPathItemRepository extends JpaRepository<UserLearni
     int findMaxDayNumberByLearningPathId(@Param("pathId") Long pathId);
 
     List<UserLearningPathItem> findByLearningPackageIdOrderByOrderIndex(Long packageId);
+
+    /** [JLAS-W0125] Number of ordered parts of one skill inside a package ("Phần x / n"). */
+    long countByLearningPackageIdAndActivityType(Long packageId, LearningActivityType activityType);
+
+    /** Earlier same-skill parts in study order; part_index is an identity, not a position, after repeated splits. */
+    long countByLearningPackageIdAndActivityTypeAndOrderIndexLessThan(Long packageId, LearningActivityType activityType,
+            Integer orderIndex);
 
     @Query("""
             select item from UserLearningPathItem item
@@ -27,6 +45,10 @@ public interface UserLearningPathItemRepository extends JpaRepository<UserLearni
     Optional<UserLearningPathItem> findOwnedPackageActivity(@Param("itemId") Long itemId,
             @Param("packageId") Long packageId, @Param("userId") Long userId);
     List<UserLearningPathItem> findByLearningPathIdOrderByOrderIndex(Long learningPathId);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select item from UserLearningPathItem item where item.learningPath.id = :pathId order by item.orderIndex")
+    List<UserLearningPathItem> findByPathForUpdate(@Param("pathId") Long pathId);
 
     /** [JLAS-W0108] Item của một chặng cụ thể trong path (để kiểm eligibility bài final). */
     List<UserLearningPathItem> findByLearningPathIdAndStageId(Long learningPathId, Long stageId);

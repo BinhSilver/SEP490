@@ -33,7 +33,7 @@ public class LearningQuizSession {
     private User user;
 
     /** GATE / LESSON / GRAMMAR / FLASHCARD. */
-    @Column(name = "quiz_type", nullable = false, length = 20)
+    @Column(name = "quiz_type", nullable = false, length = 30)
     private String quizType;
 
     /** null cho GATE/GRAMMAR/FLASHCARD; id bài học cho LESSON quiz. */
@@ -68,6 +68,17 @@ public class LearningQuizSession {
     /** JSON map questionId -> {correctOption, explanation}; đáp án bất biến khi chấm. */
     @Column(name = "answer_key_json", columnDefinition = "TEXT", nullable = false)
     private String answerKeyJson;
+
+    /** [JLAS-W0108] Frozen source (passage / audio) of the batch this session asked about. Only Reading/Listening
+     * write it; null on every other quiz type and on sessions issued before this column existed. */
+    @Column(name = "source_snapshot_json", columnDefinition = "TEXT")
+    private String sourceSnapshotJson;
+
+    /** [JLAS-W0113] Autosaved selections for this attempt while it is still ISSUED (questionId -> selectedOption;
+     * a null/absent entry means unselected). Written only by autosave, read only by reopen/restore; submit never
+     * grades from it, so autosave can neither score nor reward. Null until the learner first saves a draft. */
+    @Column(name = "draft_answers_json", columnDefinition = "TEXT")
+    private String draftAnswersJson;
 
     /** Mẫu số: tổng số câu đã phát (kể cả câu client bỏ trống vẫn tính là sai). */
     @Column(name = "question_count", nullable = false)

@@ -11,12 +11,10 @@ import java.util.List;
  * of that skill are warranted, and how those lessons pack into days under the "at most two Reading +
  * Listening combined per day" cap and the learner's minutes-per-day budget.
  *
- * <p><b>Deliberately not wired into persisted V2 activities this session</b> — {@code LearningActivityType}
- * has no {@code READING}/{@code LISTENING} value yet, and adding one requires a new
- * {@code LearningMemberType}, schema, and dedicated practice/micro-check pages (a slice comparable in
- * size to Task 4 or Task 6 by itself). See the Task 9 completion handoff for the explicit scope decision.
- * This class exists so the banding/packing rules themselves are real, tested, ready-to-wire code rather
- * than left undesigned.</p>
+ * <p>{@link WarmUpBComposerImpl} uses this planner when composing persisted Reading/Listening activities:
+ * the score band determines baseline practice volume, every mapped wrong outcome can raise that volume,
+ * and this method splits the selected exercises across days under both the daily skill cap and time budget.
+ * Missing evidence remains a verification state rather than being treated as a zero score.</p>
  */
 public final class ComprehensionWarmUpPlanner {
     private ComprehensionWarmUpPlanner() { }

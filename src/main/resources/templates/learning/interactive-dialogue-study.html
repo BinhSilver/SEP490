@@ -4,10 +4,10 @@
 <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css}" />
 <body id="jlabBasePage" class="app-body ilp-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="ilp-page ilp-study-page">
+<main id="jlabBaseContent" class="ilp-page ilp-study-page" data-inline-dictionary>
     <nav class="ilp-breadcrumb" aria-label="Breadcrumb">
-        <span class="ilp-system">// SYSTEM</span><span>/</span><span>Học tập</span><span>/</span>
-        <a href="/learning/path/v2">Lộ trình cá nhân</a><span>/</span>
+        <span>Học tập</span><span aria-hidden="true">›</span>
+        <a href="/learning/path/v2">Lộ trình cá nhân</a><span aria-hidden="true">›</span>
         <strong aria-current="page">Hội thoại</strong>
     </nav>
     <div id="interactiveDialogueStudyRoot" aria-live="polite" aria-busy="true">
@@ -15,7 +15,7 @@
             <h1>Đang tải phần Hội thoại</h1><p>J-LAS đang chuẩn bị đoạn hội thoại cho bạn.</p></section>
     </div>
 </main>
-<script th:src="@{/js/pages/interactive-dialogue-study.js}"></script>
+<script th:src="@{/js/pages/interactive-study-mode.js}"></script><script th:src="@{/js/pages/interactive-dialogue-study.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

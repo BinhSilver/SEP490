@@ -505,16 +505,19 @@ INSERT INTO tag (id, code, name, tag_type) VALUES
 (458, 'DLY-D08', 'DLY hội thoại 8', 'KNOWLEDGE');
 
 -- textbook: 9 dong
-INSERT INTO textbook (id, title, description, jlpt_level, status) VALUES
-(1, 'Sekai N5 — Giáo trình tiếng Nhật', 'Bộ giáo trình N5 số hoá từ nguồn Sekai Gen, 25 bài.', 'N5', 'PUBLISHED'),
-(2, 'Sekai N4 — Giáo trình tiếng Nhật', 'Bộ giáo trình N4 số hoá từ nguồn Sekai Gen, 25 bài.', 'N4', 'PUBLISHED'),
-(3, 'Bảng chữ cái tiếng Nhật', 'Hiragana và Katakana — nền tảng cần học trước khi vào N5.', NULL, 'PUBLISHED'),
-(4, 'Tiếng Nhật N3', '1855 từ vựng theo chủ đề, 139 mẫu ngữ pháp, 17 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N3', 'PUBLISHED'),
-(5, 'Tiếng Nhật N2', '2037 từ vựng theo chủ đề, 137 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N2', 'PUBLISHED'),
-(6, 'Tiếng Nhật N1', '3591 từ vựng theo chủ đề, 117 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N1', 'PUBLISHED'),
-(7, 'Tiếng Nhật chuyên ngành IT', '140 từ vựng, 14 hội thoại BrSE theo 7 chủ đề công việc. Nghĩa tiếng Việt là nội dung gốc, 19 từ ghép cần người rà soát.', NULL, 'DRAFT'),
-(8, 'Tiếng Nhật du lịch', '94 từ vựng, 8 hội thoại tình huống đi lại, lưu trú, mua sắm và sự cố. Cách đọc đã đối chiếu JMdict; nghĩa và hội thoại chưa được kiểm.', NULL, 'DRAFT'),
-(9, 'Tiếng Nhật đời sống', '100 từ vựng, 8 hội thoại sinh hoạt hằng ngày. Cách đọc đã đối chiếu JMdict; nghĩa và hội thoại chưa được kiểm.', NULL, 'DRAFT');
+-- [JLAS-W0108] is_learning_path_source: 1/2/3/4/5/6 (JLPT + bang chu cai) la nguon lo trinh
+-- THAT hien tai (Huong B); 7/8/9 (IT/du lich/doi song) chua co composer cho goal ngoai JLPT
+-- nen giu 0 de khong bi vo tinh keo vao khi feature do lam sau.
+INSERT INTO textbook (id, title, description, jlpt_level, status, is_learning_path_source) VALUES
+(1, 'Sekai N5 — Giáo trình tiếng Nhật', 'Bộ giáo trình N5 số hoá từ nguồn Sekai Gen, 25 bài.', 'N5', 'PUBLISHED', 1),
+(2, 'Sekai N4 — Giáo trình tiếng Nhật', 'Bộ giáo trình N4 số hoá từ nguồn Sekai Gen, 25 bài.', 'N4', 'PUBLISHED', 1),
+(3, 'Bảng chữ cái tiếng Nhật', 'Hiragana và Katakana — nền tảng cần học trước khi vào N5.', NULL, 'PUBLISHED', 1),
+(4, 'Tiếng Nhật N3', '1855 từ vựng theo chủ đề, 139 mẫu ngữ pháp, 17 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N3', 'PUBLISHED', 1),
+(5, 'Tiếng Nhật N2', '2037 từ vựng theo chủ đề, 137 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N2', 'PUBLISHED', 1),
+(6, 'Tiếng Nhật N1', '3591 từ vựng theo chủ đề, 117 mẫu ngữ pháp, 16 hội thoại. Nội dung soạn tay, cách đọc đã đối chiếu JMdict; nghĩa và ngữ pháp CHƯA được người đọc được tiếng Nhật kiểm.', 'N1', 'PUBLISHED', 1),
+(7, 'Tiếng Nhật chuyên ngành IT', '140 từ vựng, 14 hội thoại BrSE theo 7 chủ đề công việc. Nghĩa tiếng Việt là nội dung gốc, 19 từ ghép cần người rà soát.', NULL, 'DRAFT', 0),
+(8, 'Tiếng Nhật du lịch', '94 từ vựng, 8 hội thoại tình huống đi lại, lưu trú, mua sắm và sự cố. Cách đọc đã đối chiếu JMdict; nghĩa và hội thoại chưa được kiểm.', NULL, 'DRAFT', 0),
+(9, 'Tiếng Nhật đời sống', '100 từ vựng, 8 hội thoại sinh hoạt hằng ngày. Cách đọc đã đối chiếu JMdict; nghĩa và hội thoại chưa được kiểm.', NULL, 'DRAFT', 0);
 
 -- unit: 50 dong
 INSERT INTO unit (id, textbook_id, title, description, order_index) VALUES

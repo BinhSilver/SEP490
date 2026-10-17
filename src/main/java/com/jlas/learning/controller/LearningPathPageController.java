@@ -51,6 +51,13 @@ public class LearningPathPageController {
         return "learning/interactive-kanji-study";
     }
 
+    /** [JLAS-W0108] Hiragana/Katakana foundation warm-up for from-zero learners. */
+    @GetMapping("/learning/v2/foundation")
+    public String interactiveFoundation(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-foundation-study";
+    }
+
     @GetMapping("/learning/v2/grammar")
     public String interactiveGrammar(Model model) {
         model.addAttribute("layoutMode", "app");

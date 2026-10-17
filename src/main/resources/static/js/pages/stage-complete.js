@@ -42,6 +42,19 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
+  function renderRecommendation(recommendation) {
+    if (!recommendation) return '';
+    if (recommendation.available && recommendation.recommendedTarget && recommendation.actionUrl === '/survey') {
+      return '<div class="sc-next-level"><p>Bạn đã sẵn sàng cho mục tiêu tiếp theo.</p>' +
+        '<a class="sc-button" href="/survey">Tiếp tục với ' +
+        escapeHtml(recommendation.recommendedTarget) + '</a></div>';
+    }
+    if (recommendation.reasonCode === 'HIGHEST_LEVEL_REACHED') {
+      return '<div class="sc-next-level"><p>Bạn đã hoàn thành cấp cao nhất. Hãy tiếp tục duy trì năng lực N1.</p></div>';
+    }
+    return '';
+  }
+
   function render(root, path, stageId) {
     var stage = findStage(path, stageId);
     var level = stage ? escapeHtml(stage.level) : '';
@@ -58,7 +71,7 @@
       '<span class="sc-eyebrow">' + icon('emoji_events') + ' Hoàn thành chặng</span>' +
       '<h1>Chúc mừng bạn đã hoàn thành cấp ' + level + '!</h1>' +
       (isPathDone ? '<p>Bạn đã hoàn thành toàn bộ lộ trình học.</p>' : '') +
-      cert + '</section>';
+      cert + (isPathDone ? renderRecommendation(path.nextTargetRecommendation) : '') + '</section>';
   }
 
   function renderError(root, message) {
@@ -85,5 +98,6 @@
     }
   }
 
-  return { mount: mount, findStage: findStage, isPathCompletionFor: isPathCompletionFor };
+  return { mount: mount, findStage: findStage, isPathCompletionFor: isPathCompletionFor,
+    renderRecommendation: renderRecommendation };
 });

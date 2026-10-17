@@ -75,6 +75,53 @@ class InteractiveGrammarServiceTest {
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
     }
 
+    @Test void reviewStateReturnsCompletedCanonicalGrammarWithoutWritingProgress() {
+        var activity = grammarActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.PASSED);
+        var member = member(activity, 1, 501L, "rev-1");
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(point(501L, "N1 は N2 です", "N1 là N2",
+                "わたしは 学生です。\nTôi là học sinh.", null)));
+        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.empty());
+
+        var state = service.reviewState(7L, 1L);
+
+        assertEquals("N1 は N2 です", state.points().getFirst().pattern());
+        assertEquals(LearningActivityState.PASSED, state.activityState());
+        verify(items, never()).findOwnedByIdForUpdate(anyLong(), anyLong());
+        verify(progress, never()).save(any());
+    }
+
+    @Test void reviewStateRejectsUnfinishedGrammar() {
+        var activity = grammarActivity(1L, 7L);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        assertEquals(ErrorCode.NOT_FOUND, assertThrows(ApiException.class,
+                () -> service.reviewState(7L, 1L)).getErrorCode());
+        verifyNoInteractions(members, grammarPoints, progress);
+    }
+
+    @Test void reviewFailsClosedWhenCanonicalGrammarWasRemoved() {
+        var activity = grammarActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.PASSED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member(activity, 1, 501L, "rev-1")));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, assertThrows(ApiException.class,
+                () -> service.reviewState(7L, 1L)).getErrorCode());
+        verify(progress, never()).save(any());
+    }
+
+    @Test void lockedGrammarCannotBeOpenedThroughDirectStudyEndpoint(){
+        var activity=grammarActivity(1L,7L);
+        activity.setActivityState(LearningActivityState.LOCKED);
+        when(items.findOwnedByIdForUpdate(1L,7L)).thenReturn(Optional.of(activity));
+
+        ApiException error=assertThrows(ApiException.class,()->service.studyState(7L,1L));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET,error.getErrorCode());
+        verifyNoInteractions(members,grammarPoints,progress);
+    }
+
     @Test void vocabularyActivityIsRejectedAsNotFoundForGrammarService() {
         User user = User.builder().id(7L).build();
         UserLearningPath path = UserLearningPath.builder().id(100L).user(user).build();
@@ -100,7 +147,7 @@ class InteractiveGrammarServiceTest {
 
         assertEquals(1, state.totalPoints());
         assertEquals(0, state.gateSatisfiedCount());
-        assertFalse(state.checkEligible());
+        assertTrue(state.checkEligible(), "The learner can choose an early check after the warning");
         var view = state.points().get(0);
         assertEquals("N1 là N2", view.objective());
         assertEquals("Câu khẳng định cơ bản.", view.usageNote());
@@ -116,6 +163,30 @@ class InteractiveGrammarServiceTest {
         // The blank must never reveal the missing word itself.
         assertFalse(view.fill().promptWithBlank().contains("グエンです"));
         assertFalse(view.gateSatisfied());
+    }
+
+    /** [JLAS-W0125] Grammar parts created by a pace change show "Phần x / n" like card-based skills. */
+    @Test void studyStateReportsThePartPositionInsideItsPackage() {
+        var activity = grammarActivity(1L, 7L);
+        activity.setLearningPackage(com.jlas.learning.entity.LearningPathPackage.builder().id(55L).build());
+        activity.setPartIndex(5);
+        activity.setOrderIndex(40);
+        var member = member(activity, 1, 501L, "rev-1");
+        var point = point(501L, "N1 は N2 です", "N1 là N2\nCâu khẳng định cơ bản.",
+                "わたしは グエンです。\nTôi là Nguyễn.", null);
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(items.countByLearningPackageIdAndActivityType(55L, LearningActivityType.GRAMMAR)).thenReturn(3L);
+        // part_index 5 is an identity left by a repeated split; the position comes from study order.
+        when(items.countByLearningPackageIdAndActivityTypeAndOrderIndexLessThan(55L, LearningActivityType.GRAMMAR, 40))
+                .thenReturn(1L);
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(point));
+        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.empty());
+
+        GrammarStudyState state = service.studyState(7L, 1L);
+
+        assertEquals(2, state.partIndex());
+        assertEquals(3, state.partCount());
     }
 
     @Test void grammarPointOutsideThisActivitysMembershipIsRejectedAsNotFound() {
@@ -222,31 +293,14 @@ class InteractiveGrammarServiceTest {
         assertFalse(result.gateSatisfied(), "a new revision must not silently inherit the old revision's completed gate");
     }
 
-    @Test void issueRequiresBothPracticesDoneForEveryPoint() {
-        var activity = grammarActivity(1L, 7L);
-        var member = member(activity, 1, 501L, "rev-1");
-        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
-        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
-        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.empty());
-
-        ApiException error = assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L));
-        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
-    }
-
-    @Test void issueProducesAtLeastTwoNonVerbatimQuestionsPerPointOnceGateSatisfied() {
+    @Test void issueProducesAtLeastTwoNonVerbatimQuestionsPerPointEvenBeforePracticeIsFinished() {
         var activity = grammarActivity(1L, 7L);
         var pointA = point(501L, "N1 は N2 です", "N1 là N2\nGiải thích A", "わたしは グエンです。\nTôi là Nguyễn.", null);
-        var pointB = point(502L, "N1 の N2", "N2 của N1\nGiải thích B", "これは ほんです。\nCái này là sách.", null);
+        var pointB = point(502L, "N1 の N2", "N2 của N1\nGiải thích B", "わたしの ほんです。\nSách của tôi.", null);
         List<LearningActivityMember> membership = List.of(
                 member(activity, 1, 501L, "rev-1"), member(activity, 2, 502L, "rev-1"));
-        var progressA = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(501L)
-                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
-        var progressB = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(502L)
-                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.of(progressA));
-        when(progress.findByActivityIdAndGrammarPointId(1L, 502L)).thenReturn(Optional.of(progressB));
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
         when(grammarPoints.findAllById(any())).thenReturn(List.of(pointA, pointB));
         when(mapper.writeQuizQuestions(any())).thenReturn("[]");
@@ -285,17 +339,11 @@ class InteractiveGrammarServiceTest {
     @Test void reIssuingTheSameUnpassedBatchAfterAFailedAttemptVariesTheOptionArrangement() {
         var activity = grammarActivity(1L, 7L);
         var pointA = point(501L, "N1 は N2 です", "N1 là N2\nGiải thích A", "わたしは グエンです。\nTôi là Nguyễn.", null);
-        var pointB = point(502L, "N1 の N2", "N2 của N1\nGiải thích B", "これは ほんです。\nCái này là sách.", null);
+        var pointB = point(502L, "N1 の N2", "N2 của N1\nGiải thích B", "わたしの ほんです。\nSách của tôi.", null);
         List<LearningActivityMember> membership = List.of(
                 member(activity, 1, 501L, "rev-1"), member(activity, 2, 502L, "rev-1"));
-        var progressA = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(501L)
-                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
-        var progressB = LearningGrammarPracticeProgress.builder().activity(activity).grammarPointId(502L)
-                .sourceRevision("rev-1").orderingDone(true).fillDone(true).build();
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(progress.findByActivityIdAndGrammarPointId(1L, 501L)).thenReturn(Optional.of(progressA));
-        when(progress.findByActivityIdAndGrammarPointId(1L, 502L)).thenReturn(Optional.of(progressB));
         when(grammarPoints.findAllById(any())).thenReturn(List.of(pointA, pointB));
         when(mapper.writeQuizQuestions(any())).thenReturn("[]");
         when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
@@ -323,6 +371,18 @@ class InteractiveGrammarServiceTest {
         }
         assertTrue(anyOptionsDiffer,
                 "re-issuing the same unpassed batch after a failed attempt should vary the option arrangement");
+    }
+
+    @Test void singleGrammarPointWithoutAValidDistractorNeverCreatesOneOptionQuiz() {
+        var activity = grammarActivity(1L, 7L);
+        var member = member(activity, 1, 501L, "rev-1");
+        var only = point(501L, "V てはいけません", "Không được làm", "ここで写真を撮ってはいけません。", null);
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
+        when(grammarPoints.findAllById(any())).thenReturn(List.of(only));
+        ApiException error = assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L));
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
     }
 
     @Test void submitPassesAtExactlySeventyPercent() {

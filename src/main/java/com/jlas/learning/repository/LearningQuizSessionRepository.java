@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LearningQuizSessionRepository extends JpaRepository<LearningQuizSession, Long> {
 
+    /** Saved quiz attempt for an owned activity; used for read-only, on-demand answer explanations. */
+    Optional<LearningQuizSession> findByIdAndUserIdAndActivityId(Long id, Long userId, Long activityId);
+
     /**
      * Tìm session theo attemptId + chủ sở hữu + loại quiz; {@code lessonId} null khớp GATE,
      * khác null khớp đúng bài LESSON. Chỉ chủ sở hữu mới đọc được session của mình.
@@ -47,4 +50,17 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
      * batch passes it never reopens, so at most one row per (activity, batch) is ever SUBMITTED+passed. */
     List<LearningQuizSession> findByActivityIdAndQuizTypeAndStatusAndPassed(
             Long activityId, String quizType, String status, Boolean passed);
+
+    /** [JLAS-W0108] Task 10 - how many non-credit replays an activity already has (rotates the replay batch). */
+    long countByActivityIdAndQuizType(Long activityId, String quizType);
+
+    /** [JLAS-W0113] In-progress micro-check attempt for the current batch, newest first. Reopening a quiz the
+     * learner left mid-attempt returns this exact snapshot (same {@code id}, same question order) instead of
+     * issuing a fresh one, so no new attempt is created and no quota is consumed a second time. */
+    Optional<LearningQuizSession> findFirstByActivityIdAndQuizTypeAndBatchIndexAndUserIdAndStatusOrderByIdDesc(
+            Long activityId, String quizType, Integer batchIndex, Long userId, String status);
+
+    /** [JLAS-W0108] REVIEW feedback source: submitted sessions of one quiz type, newest first. */
+    List<LearningQuizSession> findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+            Long activityId, String quizType, String status);
 }

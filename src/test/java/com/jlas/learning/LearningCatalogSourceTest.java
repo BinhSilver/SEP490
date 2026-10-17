@@ -61,7 +61,7 @@ class LearningCatalogSourceTest {
         em.flush();
         em.clear();
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(WeaknessEvidence.grammar(weakTag.getId(), weakTag.getCode(), weakTag.getId(), 5, 3)));
         var result = selector.select(7L, profile,
                 new LearningCatalogScope(List.of(foundationBook.getId()), List.of(goalBook.getId())));
@@ -75,7 +75,7 @@ class LearningCatalogSourceTest {
                 + " (N5, weak secondary tag 4/5); GOAL_LEARNING lesson=" + goal.getId() + " (N4).");
     }
 
-    @Test void springConfigurationOverridesWeakTagDefaults() {
+    @Test void insufficientGrammarEvidenceKeepsSharedLessonInGoalWithoutWeakClassification() {
         var book = book("PUBLISHED");
         var lesson = lesson(book, "PUBLISHED", "KNOWLEDGE");
         em.flush();
@@ -84,8 +84,10 @@ class LearningCatalogSourceTest {
                 List.of(WeaknessEvidence.grammar(lesson.getKnowledgeTag().getId(),
                         lesson.getKnowledgeTag().getCode(), lesson.getKnowledgeTag().getId(), 3, 3)));
         var result = selector.select(7L, profile, new LearningCatalogScope(List.of(book.getId()), List.of(book.getId())));
-        assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
-        assertEquals("INSUFFICIENT_ASSESSMENT", result.coverageGaps().getFirst().reasonCode());
+        assertEquals(List.of(LearningPhase.GOAL_LEARNING),
+                result.resources().stream().map(item -> item.phase()).toList());
+        assertTrue(result.weakEvidence().isEmpty());
+        assertTrue(result.coverageGaps().isEmpty(), "Same-level curriculum does not open a separate warm-up gap");
     }
 
     @Test void readsOnlyPublishedLessonsInsideTheRequestedPublishedTextbooks() {
