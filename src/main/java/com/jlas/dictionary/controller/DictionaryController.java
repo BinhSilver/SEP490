@@ -163,6 +163,20 @@ public class DictionaryController {
                 dictionaryService.updateLessonStatus(id, request.getStatus())));
     }
 
+    /**
+     * POST /api/dictionary/manage/status/bulk — [JLAS2-17] công bố / ẩn về nháp hàng loạt giáo trình hoặc bài học
+     * (≤ 500 id mỗi lần, một transaction: lỗi thì không đổi gì). Chỉ THÊM, hai PATCH từng mục ở trên giữ nguyên.
+     */
+    @PostMapping("/manage/status/bulk")
+    @PreAuthorize("hasRole('CONTENT_CREATOR')")
+    public ResponseEntity<ApiResponse<com.jlas.dictionary.dto.BulkStatusResponse>> bulkUpdateStatus(
+            @Valid @RequestBody com.jlas.dictionary.dto.BulkStatusRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        com.jlas.dictionary.dto.BulkStatusResponse result = dictionaryService.bulkUpdateStatus(
+                request.getKind(), request.getAction(), request.getIds(), user == null ? null : user.userId());
+        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật " + result.getUpdated() + " mục", result));
+    }
+
     /** GET /api/dictionary/lessons/{id}/content — nội dung đầy đủ một bài học. */
     @GetMapping("/lessons/{id}/content")
     public ResponseEntity<ApiResponse<LessonContentResponse>> getLessonContent(@PathVariable Long id) {
