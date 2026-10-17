@@ -154,33 +154,14 @@ class InteractiveKanjiServiceTest {
         assertEquals(3, result.partCount());
     }
 
-    @Test void issueRequiresAllCardsRemembered() {
-        var activity = kanjiActivity(1L, 7L);
-        var member = member(1, 201L);
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        var card = LearningStudyCard.builder().id(20L).session(session).canonicalId(201L)
-                .orderIndex(1).flipped(true).remembered(false).build();
-        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
-        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(new ArrayList<>(List.of(card)));
-
-        ApiException error = assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L));
-        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
-    }
-
-    @Test void issueCoversEveryTargetWithFourQuestionShapes() {
+    @Test void issueCoversEveryTargetBeforeAnyCardWasViewed() {
         var activity = kanjiActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
         for (int i = 0; i < 5; i++) membership.add(member(i + 1, 200L + i));
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
         List<Kanji> kanjiList = new ArrayList<>();
         List<KanjiReading> readings = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             long id = 200L + i;
-            cards.add(LearningStudyCard.builder().id(30L + i).session(session).canonicalId(id)
-                    .orderIndex(i + 1).flipped(true).remembered(true).build());
             Kanji k = kanji(id, "字" + i, "TU" + i, "nghia " + i);
             kanjiList.add(k);
             readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
@@ -188,8 +169,6 @@ class InteractiveKanjiServiceTest {
         }
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
         when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
         when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
@@ -230,15 +209,11 @@ class InteractiveKanjiServiceTest {
     @Test void elevenKanjiNeverLeaveAOneItemFinalBatch() {
         var activity = kanjiActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
         List<Kanji> kanjiList = new ArrayList<>();
         List<KanjiReading> readings = new ArrayList<>();
         for (int i = 0; i < 11; i++) {
             long id = 200L + i;
             membership.add(member(i + 1, id));
-            cards.add(LearningStudyCard.builder().id(30L + i).session(session).canonicalId(id)
-                    .orderIndex(i + 1).flipped(true).remembered(true).build());
             Kanji k = kanji(id, String.valueOf((char) ('一' + i)), "TU" + i, "nghia " + i);
             kanjiList.add(k);
             readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
@@ -247,8 +222,6 @@ class InteractiveKanjiServiceTest {
         var firstPassed = LearningMicroCheckState.builder().activity(activity).batchIndex(0).passed(true).build();
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(firstPassed));
         when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
         when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
@@ -276,14 +249,10 @@ class InteractiveKanjiServiceTest {
         var activity = kanjiActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
         for (int i = 0; i < 4; i++) membership.add(member(i + 1, 200L + i));
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
         List<Kanji> kanjiList = new ArrayList<>();
         List<KanjiReading> readings = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             long id = 200L + i;
-            cards.add(LearningStudyCard.builder().id(30L + i).session(session).canonicalId(id)
-                    .orderIndex(i + 1).flipped(true).remembered(true).build());
             Kanji k = kanji(id, "字" + i, "TU" + i, "nghia " + i);
             kanjiList.add(k);
             readings.add(KanjiReading.builder().id(id * 10).kanji(k).readingType("ON").readingText("on" + i)
@@ -291,8 +260,6 @@ class InteractiveKanjiServiceTest {
         }
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(kanjiRepo.findAllById(any())).thenReturn(kanjiList);
         when(kanjiReadingRepo.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(any())).thenReturn(readings);
         when(mapper.writeQuizQuestions(any())).thenReturn("[]");

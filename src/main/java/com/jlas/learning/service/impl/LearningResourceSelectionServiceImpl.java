@@ -37,10 +37,9 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
     @Override
     public LearningSelectionResult select(Long userId, LearningProfileSnapshot profile, LearningCatalogScope scope) {
         validate(userId, profile, scope);
-        // [JLAS-W0108] Giai đoạn GOAL chỉ lấy bài Ở TRÊN trình độ đã kết luận (loại trừ assessedLevel):
-        // người học đã đạt cấp hiện tại nên GOAL phải là nội dung MỚI tới target, không lặp lại cấp cũ.
-        // VD N5→N4 lấy đúng 25 bài N4 (không trộn 25 bài N5 đã biết); N5→N3 lấy N4+N3; N4→N4 giữ N4.
-        int goalMin = Math.min(rank(profile.assessedLevel()) + 1, rank(profile.targetLevel()));
+        // Overall Smart Test band determines whether the survey level is relearned, mistakes are
+        // warmed up, or only the target is studied. Legacy profiles retain their former range.
+        int goalMin = rank(LearningStartPolicy.firstGoalLevel(profile));
         var goals = candidates(scope.goalTextbookIds(), goalMin, rank(profile.targetLevel()));
         if (goals.isEmpty()) {
             throw new ApiException(ErrorCode.NOT_FOUND, "No published lessons match the selected JLPT curriculum and levels.");
@@ -55,6 +54,11 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
         // rồi vào thẳng GOAL N5..target.
         if (BELOW_N5.equals(profile.assessedLevel())) {
             addKanaFoundationWarmUps(scope.warmUpTextbookIds(), selectedIds, resources);
+            addGoals(goals, selectedIds, resources, profile);
+            return new LearningSelectionResult(resources, gaps, policy.version(), List.of());
+        }
+
+        if (!LearningStartPolicy.needsMistakeWarmUp(profile)) {
             addGoals(goals, selectedIds, resources, profile);
             return new LearningSelectionResult(resources, gaps, policy.version(), List.of());
         }
@@ -189,8 +193,8 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
     }
 
     /**
-     * [JLAS-W0108] Giai đoạn GOAL — lấy trọn vẹn từng bài trong giáo trình đã công bố ở dải
-     * [assessedLevel, targetLevel]. Whole-lesson warm-ups for lessons outside the target are
+     * [JLAS-W0108] Giai đoạn GOAL — lấy trọn vẹn từng bài trong dải đã chọn theo ability band.
+     * Whole-lesson warm-ups for lessons outside the target are
      * deduped; a target lesson stays in GOAL rather than being repeated in both phases.
      */
     private void addGoals(List<LearningResourceCandidate> goals, HashSet<Long> selectedIds,
@@ -375,7 +379,7 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
 
     private void requireDuration(LearningResourceCandidate lesson) {
         if (lesson.estimatedMinutes() == null || lesson.estimatedMinutes() <= 0) {
-            throw new ApiException(ErrorCode.CONFLICT, "Selected lessons must have a positive estimated duration.");
+            throw new ApiException(ErrorCode.CONFLICT, "Bài học chưa có thời lượng phù hợp. Vui lòng thử lại sau.");
         }
     }
 

@@ -22,10 +22,11 @@ class ComprehensionSourceSnapshotTest {
 
     @Test void listeningRoundTripsTheAudioUrl() {
         String json = ComprehensionSourceSnapshot.toJson(LearningActivityType.LISTENING, 0, "rev-1",
-                new ComprehensionExerciseSource(null, "/audio/a.mp3"));
+                new ComprehensionExerciseSource(null, "/audio/a.mp3", "女：こんにちは。"));
         var parsed = ComprehensionSourceSnapshot.parse(json).orElseThrow();
         assertEquals("/audio/a.mp3", parsed.audioUrl());
         assertNull(parsed.passage());
+        assertEquals("女：こんにちは。", parsed.transcriptJa());
     }
 
     @Test void missingBlankOrBrokenSnapshotsAreUnavailable() {

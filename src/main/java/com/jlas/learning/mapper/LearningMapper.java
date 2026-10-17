@@ -11,6 +11,7 @@ import com.jlas.learning.dto.LearningPhaseGroup;
 import com.jlas.learning.dto.LearningStageResponse;
 import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.NextTargetRecommendation;
 import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.entity.UserLearningPath;
@@ -38,6 +39,8 @@ public class LearningMapper {
     private static final TypeReference<List<LessonQuizResponse.LessonQuizQuestion>> QUIZ_QUESTION_LIST =
             new TypeReference<>() { };
     private static final TypeReference<Map<Long, QuizAnswerKey>> QUIZ_ANSWER_KEY = new TypeReference<>() { };
+    // [JLAS-W0113] Autosaved draft selections (questionId -> selectedOption) for an in-progress attempt.
+    private static final TypeReference<List<MicroCheckDraftAnswer>> DRAFT_ANSWER_LIST = new TypeReference<>() { };
 
     // The app does not expose a Spring-managed ObjectMapper (webmvc starter without starter-json),
     // so this mapper owns its own instance for the small JSON snapshot columns it persists.
@@ -324,6 +327,25 @@ public class LearningMapper {
             return OBJECT_MAPPER.readValue(json, LessonQuizResult.class);
         } catch (Exception exception) {
             throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read quiz result snapshot.");
+        }
+    }
+
+    /** [JLAS-W0113] Serialize autosaved draft selections (questionId -> selectedOption) into the session. */
+    public String writeDraftAnswers(List<MicroCheckDraftAnswer> draft) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(draft);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to serialize draft answers.");
+        }
+    }
+
+    /** [JLAS-W0113] Read back the autosaved draft selections; empty when none saved yet. */
+    public List<MicroCheckDraftAnswer> readDraftAnswers(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            return OBJECT_MAPPER.readValue(json, DRAFT_ANSWER_LIST);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read draft answers snapshot.");
         }
     }
 }

@@ -71,6 +71,10 @@ public class GoalSurveyService {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Vui lòng trả lời đầy đủ khảo sát.");
             }
             if (answer == null) continue;
+            if (answer.optionCodes() == null || answer.optionCodes().isEmpty()) {
+                throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                        "Câu trả lời khảo sát phải có ít nhất một lựa chọn.");
+            }
             if ("SINGLE".equals(question.getSelectionType()) && answer.optionCodes().size() != 1) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu hỏi chỉ cho phép chọn một phương án.");
             }
@@ -118,6 +122,13 @@ public class GoalSurveyService {
         List<Long> ids = approvedQuestions.stream().map(LearningSurveyQuestion::getId).toList();
         List<LearningSurveyOption> approvedOptions = options
                 .findByQuestionIdInAndReviewStatusOrderByQuestionIdAscOptionOrderAsc(ids, APPROVED);
+        Set<Long> questionIdsWithOptions = approvedOptions.stream()
+                .map(LearningSurveyOption::getQuestionId).collect(Collectors.toSet());
+        if (approvedQuestions.stream().anyMatch(question -> question.isRequired()
+                && !questionIdsWithOptions.contains(question.getId()))) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "Khảo sát chưa có đủ lựa chọn đã duyệt.");
+        }
         return new SurveyData(goal, approvedQuestions, approvedOptions);
     }
 

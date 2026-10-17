@@ -57,8 +57,8 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     private static final Set<String> GOALS = Set.of(
             "JLPT", "BA", "TRAVEL", "DAILY_LIFE");
-    /** Mục tiêu thiên về sử dụng thực tế (tình huống) thay vì thi cử kiến thức. */
-    private static final Set<String> USAGE_GOALS = Set.of("TRAVEL", "DAILY_LIFE");
+    /** [JLAS-W0108] Mục tiêu chỉ dùng survey (không Smart Test): BA/TRAVEL/DAILY_LIFE — owner decision 2026-10-14. */
+    private static final Set<String> USAGE_GOALS = Set.of("TRAVEL", "DAILY_LIFE", "BA");
     private static final Map<String, List<String>> GOAL_TAG_PRIORITY = Map.of(
             "JLPT", List.of("JLPT"), "BA", List.of("BA"),
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
@@ -69,8 +69,8 @@ public class AssessmentServiceImpl implements AssessmentService {
             "READING", "LISTENING", "VOCABULARY", "GRAMMAR", "KANJI");
     private static final Set<String> CURRENT_LEVELS = Set.of(
             "FROM_ZERO", "UNKNOWN", "N5", "N4", "N3", "N2", "N1");
-    /** [JLAS-W0108] Mục tiêu có target JLPT (JLPT/BRSE); N2/N1 được phép chọn, readiness kiểm ở lộ trình (P6/P8). */
-    private static final Set<String> GOALS_WITH_TARGET = Set.of("JLPT", "BA");
+    /** [JLAS-W0108] Chỉ JLPT còn target; N2/N1 được phép chọn, readiness kiểm ở lộ trình (P6/P8). */
+    private static final Set<String> GOALS_WITH_TARGET = Set.of("JLPT");
 
     private final UserRepository userRepository;
     private final AssessmentAttemptRepository attemptRepository;

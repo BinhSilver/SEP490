@@ -1,6 +1,9 @@
 package com.jlas.common.learning;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,9 +24,10 @@ class JlptPathPolicyTest {
             "N4,N4,true,N4,N4",
             "N4,N3,true,N3,N3",
             "N4,N2,false,N3,",
-            "N3,N2,true,N2,N2",
-            "N3,N1,false,N2,",
-            "N2,N1,true,N1,N1"
+            "N3,N3,true,N3,N3",
+            "N3,N2,false,N3,",
+            "N3,N1,false,N3,",
+            "N2,N1,false,N3,"
     })
     void targetMatrix(String assessed, String requested, boolean allowed,
             String recommended, String stageText) {
@@ -45,13 +49,43 @@ class JlptPathPolicyTest {
     }
 
     @Test
-    void recommendsTheImmediateNextLevelAfterN3AndN2() {
-        assertThat(policy.nextTargetAfter("N3")).contains("N2");
-        assertThat(policy.nextTargetAfter("N2")).contains("N1");
+    void recommendsOnlySupportedNextRoutes() {
+        assertThat(policy.nextTargetAfter("N5")).contains("N4");
+        assertThat(policy.nextTargetAfter("N4")).contains("N3");
+        assertThat(policy.nextTargetAfter("N3")).isEmpty();
+        assertThat(policy.nextTargetAfter("N2")).isEmpty();
     }
 
     @Test
     void n1HasNoHigherJlptTarget() {
         assertThat(policy.nextTargetAfter("N1")).isEmpty();
+    }
+
+    @Test
+    void unknownSurveyCannotOfferAnUnsupportedN2Path() {
+        TargetEligibility result = policy.evaluate("UNKNOWN", "N2");
+        assertThat(result.allowed()).isFalse();
+        assertThat(result.stageLevels()).isEmpty();
+        assertThat(result.reasonCode()).isEqualTo("PATH_NOT_SUPPORTED");
+    }
+
+    @Test
+    void lowerAssessmentRequiresAnExplicitChoiceAndKeepsTheSurveyTargetOnDecline() {
+        assertThat(policy.confirmedStages("N3", "N5", "N3", JlptPathPolicy.Choice.ACCEPT_RECOMMENDATION))
+                .isEqualTo(List.of("N5", "N4", "N3"));
+        assertThat(policy.confirmedStages("N3", "N5", "N3", JlptPathPolicy.Choice.DECLINE_RECOMMENDATION))
+                .isEqualTo(List.of("N3"));
+        assertThat(policy.confirmedStages("N4", "N5", "N3", JlptPathPolicy.Choice.DECLINE_RECOMMENDATION))
+                .isEqualTo(List.of("N4", "N3"));
+    }
+
+    @Test
+    void consentCannotInventAnUnsupportedZeroToN3Route() {
+        assertThatThrownBy(() -> policy.confirmedStages("N3", "BELOW_N5", "N3",
+                JlptPathPolicy.Choice.ACCEPT_RECOMMENDATION))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> policy.confirmedStages("N3", "N5", "N2",
+                JlptPathPolicy.Choice.DECLINE_RECOMMENDATION))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

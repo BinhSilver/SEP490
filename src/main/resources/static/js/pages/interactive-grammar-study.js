@@ -36,6 +36,7 @@
       totalPoints: num(data.totalPoints),
       gateSatisfiedCount: num(data.gateSatisfiedCount),
       checkEligible: !!data.checkEligible,
+      checkRequired: data.checkRequired !== false,
       points: points
     };
   }
@@ -63,7 +64,7 @@
 
   /** {@code placedIds} is this page's own ephemeral client state for the ordering pool (never sent until
    * the learner submits) — passed in explicitly so this render stays a pure, testable function. */
-  function renderOrdering(pointId, ordering, placedIds) {
+  function renderOrdering(pointId, ordering, placedIds, feedback) {
     if (!ordering || !ordering.words.length) return '';
     placedIds = list(placedIds);
     var byId = {};
@@ -82,18 +83,20 @@
       '<div class="ilp-order__slots">' + slots + '</div>' +
       '<div class="ilp-order__pool">' + pool + '</div>' +
       '<button type="button" class="ilp-practice__submit" data-order-check="' + pointId + '"' + (ready ? '' : ' disabled') + '>Kiểm tra thứ tự</button>' +
-      (ordering.completed ? '<p class="ilp-practice__feedback is-correct">Đã hoàn thành.</p>' : '') +
+      (feedback ? '<p class="ilp-practice__feedback ' + (feedback.correct ? 'is-correct' : 'is-incorrect') + '">' + esc(feedback.explanation) + '</p>' :
+        ordering.completed ? '<p class="ilp-practice__feedback is-correct">Đã hoàn thành.</p>' : '') +
       '</div>';
   }
 
-  function renderFill(pointId, fill) {
+  function renderFill(pointId, fill, feedback) {
     if (!fill || !fill.promptWithBlank) return '';
     return '<div class="ilp-practice" data-practice="fill">' +
       '<h3>2. Điền phần còn thiếu</h3>' +
       '<div class="ilp-fill__row"><span class="ilp-fill__sentence">' + esc(fill.promptWithBlank) + '</span>' +
       '<input class="ilp-fill__input" type="text" data-fill-input="' + pointId + '" aria-label="Điền phần còn thiếu" />' +
       '<button type="button" class="ilp-practice__submit" data-fill-check="' + pointId + '">Kiểm tra</button></div>' +
-      (fill.completed ? '<p class="ilp-practice__feedback is-correct">Đã hoàn thành.</p>' : '') +
+      (feedback ? '<p class="ilp-practice__feedback ' + (feedback.correct ? 'is-correct' : 'is-incorrect') + '">' + esc(feedback.explanation) + '</p>' :
+        fill.completed ? '<p class="ilp-practice__feedback is-correct">Đã hoàn thành.</p>' : '') +
       '</div>';
   }
 
@@ -109,9 +112,8 @@
       (point.usageNote ? '<p class="ilp-point__objective">' + esc(point.usageNote) + '</p>' : '') +
       renderExample(point.example) +
       (point.note ? '<p class="ilp-note">' + esc(point.note) + '</p>' : '') +
-      renderOrdering(point.pointId, point.ordering, orderState) +
-      renderFill(point.pointId, point.fill) +
-      (feedback ? '<p class="ilp-practice__feedback ' + (feedback.correct ? 'is-correct' : 'is-incorrect') + '">' + esc(feedback.explanation) + '</p>' : '') +
+      renderOrdering(point.pointId, point.ordering, orderState, feedback && (feedback.ordering || feedback.explanation && feedback)) +
+      renderFill(point.pointId, point.fill, feedback && feedback.fill) +
       '</section>';
   }
 
@@ -122,7 +124,7 @@
       return '<section class="ilp-state"><h1>Chưa có mẫu ngữ pháp</h1><p>Hoạt động này chưa có nội dung.</p></section>';
     }
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
-    var canCheck = v.checkEligible && !gateBlocked;
+    var canCheck = v.checkRequired && v.checkEligible && !gateBlocked;
     var gateNote = gateBlocked
       ? '<p class="ilp-gate-note">' + (gate.reviewRequired ? 'Bạn cần ôn lại phần đã sai trước khi kiểm tra lại.' : 'Bạn đang trong thời gian chờ.') + '</p>'
       : '';
@@ -134,19 +136,18 @@
       : '';
     return modeBanner + '<section class="ilp-grammar">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">NGỮ PHÁP // ' +
-      (v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG LUYỆN TẬP') + '</span><h1>Luyện ngữ pháp</h1>' + partLabel(v) +
-      '<p>Hoàn thành xếp câu và điền từ cho từng mẫu để mở bài kiểm tra nhỏ.</p></div>' +
+      (v.gateSatisfiedCount === v.totalPoints ? 'ĐÃ LUYỆN ĐỦ MẪU' : 'CÓ THỂ KIỂM TRA SỚM') + '</span><h1>Luyện ngữ pháp</h1>' + partLabel(v) +
+      '<p>Luyện xếp câu và điền từ trước khi kiểm tra để nắm chắc từng mẫu.</p></div>' +
       '<div class="ilp-study__count"><strong>' + v.gateSatisfiedCount + '/' + v.totalPoints + '</strong><span>mẫu đã xong</span></div></header>' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.gateSatisfiedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalPoints + '">' +
       '<span style="width:' + (v.totalPoints ? Math.round(v.gateSatisfiedCount / v.totalPoints * 100) : 0) + '%"></span></div>' +
-      points + gateNote +
-      '<section class="ilp-attempt-history"><button type="button" class="ilp-check ilp-check--ghost" data-attempt-history>' +
-      'Xem lại bài kiểm tra</button><div data-attempt-history-results></div></section>' +
-      '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' +
+      points + (v.checkRequired ? gateNote +
+      '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' :
+      '<p class="ilp-result__pass">Hoàn thành các bài luyện để hoàn tất kỹ năng này; tình huống giao tiếp không có bài kiểm tra.</p>') +
       '</section>';
   }
 
-  function renderReview(v, feedback) {
+  function renderReview(v, practice) {
     var items = v.points.map(function (p) {
       return { html: '<article class="ilp-point"><h2>' + esc(p.pattern) + '</h2>' +
         (p.objective ? '<p>' + esc(p.objective) + '</p>' : '') + renderFormula(p.components) +
@@ -154,11 +155,16 @@
         (p.note ? '<p class="ilp-note">' + esc(p.note) + '</p>' : '') + '</article>' };
     });
     var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
-    var feedbackHtml = StudyMode
-      ? StudyMode.feedbackList(feedback)
-      : '';
+    if (practice === true) {
+      return (StudyMode ? StudyMode.banner('PRACTICE') :
+        '<p class="ilp-mode-banner" role="note" data-mode-banner="PRACTICE"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ.</p>') +
+        '<section class="ilp-grammar"><header class="ilp-study__head"><div><span class="ilp-kicker">NGỮ PHÁP // ÔN BÀI</span>' +
+        '<h1>Ôn lại mẫu ngữ pháp</h1><p>Xem mẫu và ví dụ trước khi làm lại bài kiểm tra. Việc ôn này không thay đổi tiến độ.</p>' +
+        '</div></header>' + items.map(function (item) { return item.html; }).join('') +
+        '<button class="ilp-check" type="button" data-check>Làm lại bài kiểm tra →</button></section>';
+    }
     return StudyMode
-      ? StudyMode.reviewList('Ngữ pháp đã học', items, feedbackHtml)
+      ? StudyMode.reviewList('Ngữ pháp đã học', items)
       : '<section class="ilp-result"><h1>Xem lại ngữ pháp</h1>' + items.map(function (x) { return x.html; }).join('') + '</section>';
   }
 
@@ -171,7 +177,7 @@
       return '<fieldset class="ilp-question"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
         '<span>' + esc(q.questionText) + '</span></legend><div class="ilp-options">' + options + '</div></fieldset>';
     }).join('');
-    return '<section class="ilp-check">' +
+    return '<section class="ilp-check no-inline-dictionary">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">MICRO CHECK // ' + (num(check.batchIndex) + 1) + '/' + num(check.batchCount) + '</span>' +
       '<h1>Kiểm tra nhanh Ngữ pháp</h1><p>Chọn đáp án đúng cho từng câu rồi nộp.</p></div></header>' +
       '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
@@ -198,7 +204,8 @@
         (result.reviewRequired ? '<p>Hãy ôn lại các mẫu đã sai trước khi thử lại.</p>' : '') +
         (cooldown ? '<p>Vui lòng quay lại sau <strong>' + esc(formatCooldown(result.cooldownUntil)) + '</strong>.</p>' : '') +
         '</div>') +
-      (wrong.length ? '<ol class="ilp-review">' + wrong.map(function (r) { return '<li>Câu ' + esc(r.questionId) + '</li>'; }).join('') + '</ol>' : '') +
+      (wrong.length ? '<p class="ilp-review-summary">' + wrong.length +
+        ' câu cần xem lại. Đáp án, lựa chọn và giải thích của từng câu nằm trong “Các lần làm bài” bên dưới.</p>' : '') +
       '<div class="ilp-result__actions">' +
       (result.reviewRequired ? '<button class="ilp-check" type="button" data-review>Ôn lại phần đã sai</button>' : '') +
       (passed && num(activityId) > 0
@@ -229,6 +236,7 @@
     // [JLAS-W0108] Task 11 - LEARN / REVIEW / PRACTICE. The server enforces each mode; the page only picks endpoints.
     var StudyMode = window.InteractiveStudyMode;
     if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
+    if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
@@ -236,6 +244,7 @@
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['REVIEW', 'PRACTICE']) : '';
     var orderState = {};
     var feedback = {};
+    var currentStudy = null;
 
     async function api(path, options) {
       var response = await fetch(base + path, Object.assign({ headers: window.JlasAuth.authHeaders() }, options));
@@ -255,27 +264,33 @@
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'RESULTS') {
+          await StudyMode.loadSavedResults(node, api, '/learning/v2/grammar', id);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         if (mode === 'REVIEW') {
           var reviewData = await api('/review');
-          var attempts = [];
-          try { attempts = await api('/review/attempts'); } catch (ignored) { attempts = []; }
-          node.innerHTML = renderReview(viewModel(reviewData), attempts);
+          node.innerHTML = renderReview(viewModel(reviewData));
           node.setAttribute('aria-busy', 'false');
           return;
         }
         if (mode === 'PRACTICE') {
           var rehearsal = viewModel(await api('/review'));
-          rehearsal.checkEligible = true;
-          node.innerHTML = renderStudy(rehearsal,
-              { checkEligible: true, passed: false, reviewRequired: false }, orderState, feedback, 'PRACTICE');
+          node.innerHTML = renderReview(rehearsal, true);
           node.setAttribute('aria-busy', 'false');
           return;
         }
         var study = await api('/study');
+        currentStudy = viewModel(study);
         var gate = null;
-        try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
-        if (gate && gate.passed) { node.innerHTML = renderPassed(PASSED_ACTIONS); }
-        else { node.innerHTML = renderStudy(viewModel(study), gate, orderState, feedback, mode); }
+        if (currentStudy.checkRequired) {
+          try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+        }
+        if ((gate && gate.passed) || currentStudy.activityState === 'PASSED') {
+          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/grammar', id, renderPassed(PASSED_ACTIONS));
+        }
+        else { node.innerHTML = renderStudy(currentStudy, gate, orderState, feedback, mode); }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
@@ -293,22 +308,20 @@
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
       if (event.target.closest('[data-back-to-study]')) return loadStudy();
-      if (event.target.closest('[data-practice-again]')) return loadStudy();
-      if (event.target.closest('[data-attempt-history]')) {
-        try {
-          var attempts = await api('/review/attempts');
-          var history = node.querySelector('[data-attempt-history-results]');
-          if (history && StudyMode) history.innerHTML = StudyMode.feedbackList(attempts);
-        } catch (e) { node.innerHTML = error(e.message); }
-        return;
+      if (event.target.closest('[data-practice-review]')) return loadStudy();
+      if (event.target.closest('[data-check]')) {
+        if (mode === 'LEARN' && currentStudy && currentStudy.gateSatisfiedCount < currentStudy.totalPoints &&
+            !(await window.JlasConfirm('Bạn chưa luyện xong tất cả mẫu ngữ pháp. Bạn muốn kiểm tra ngay hay tiếp tục luyện tập?',
+              { confirmText: 'Vẫn kiểm tra', cancelText: 'Tiếp tục luyện' }))) return;
+        return doCheck();
       }
-      if (event.target.closest('[data-check]')) return doCheck();
       if (event.target.closest('[data-review]')) {
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
         return loadStudy();
       }
       var addToken = event.target.closest('[data-order-add]');
       if (addToken) {
+        if (mode === 'PRACTICE') return;
         var addId = addToken.getAttribute('data-order-add');
         var addToken2 = Number(addToken.dataset.token);
         orderState[addId] = list(orderState[addId]).concat([addToken2]);
@@ -316,6 +329,7 @@
       }
       var removeToken = event.target.closest('[data-order-remove]');
       if (removeToken) {
+        if (mode === 'PRACTICE') return;
         var removeId = removeToken.getAttribute('data-order-remove');
         var removeVal = Number(removeToken.dataset.token);
         orderState[removeId] = list(orderState[removeId]).filter(function (t) { return t !== removeVal; });
@@ -323,23 +337,25 @@
       }
       var orderCheck = event.target.closest('[data-order-check]');
       if (orderCheck) {
+        if (mode === 'PRACTICE') return;
         var pointId = orderCheck.getAttribute('data-order-check');
         try {
           var result = await postJson('/points/' + encodeURIComponent(pointId) + '/practice/ordering',
               { order: list(orderState[pointId]) });
-          feedback[pointId] = result;
+          feedback[pointId] = Object.assign({}, feedback[pointId], { ordering: result });
           if (result.correct) orderState[pointId] = [];
         } catch (e) { node.innerHTML = error(e.message); return; }
         return loadStudy();
       }
       var fillCheck = event.target.closest('[data-fill-check]');
       if (fillCheck) {
+        if (mode === 'PRACTICE') return;
         var fillPointId = fillCheck.getAttribute('data-fill-check');
         var input = node.querySelector('[data-fill-input="' + fillPointId + '"]');
         try {
           var fillResult = await postJson('/points/' + encodeURIComponent(fillPointId) + '/practice/fill',
               { answer: input ? input.value : '' });
-          feedback[fillPointId] = fillResult;
+          feedback[fillPointId] = Object.assign({}, feedback[fillPointId], { fill: fillResult });
         } catch (e) { node.innerHTML = error(e.message); return; }
         return loadStudy();
       }
@@ -355,7 +371,15 @@
       node.setAttribute('aria-busy', 'true');
       try {
         var result = await postJson(submitPath, { attemptId: Number(form.dataset.attemptId), answers: answers });
-        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result, id);
+        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, id);
+        if (StudyMode && StudyMode.attemptHistory) {
+          try {
+            var attempts = await api('/attempt-history');
+            var resultPanel = node.querySelector('.ilp-result');
+            if (resultPanel && attempts && attempts.length)
+              resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+          } catch (historyError) { /* Keep the current quiz result usable if history is unavailable. */ }
+        }
         if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
           await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message); }

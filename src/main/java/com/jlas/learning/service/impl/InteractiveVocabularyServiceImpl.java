@@ -1,12 +1,19 @@
 package com.jlas.learning.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.dto.VocabularyStudyState;
+import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.mapper.LearningMapper;
@@ -30,6 +37,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** [JLAS-W0193] Vocabulary study + micro-check. Every mutating method locks the owned activity row first so
@@ -83,6 +91,12 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
 
     @Override
     @Transactional
+    public java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        return engine.saveDraft(userId, activityId, request);
+    }
+
+    @Override
+    @Transactional
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         return engine.microCheckState(userId, activityId);
     }
@@ -103,6 +117,12 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     @Transactional(readOnly = true)
     public java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
         return engine.reviewFeedback(userId, activityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        return engine.quizAttemptHistory(userId, activityId);
     }
 
     @Override
@@ -127,7 +147,8 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
                     value(e, VocabularyEntry::getExampleVi), c.flipped(), c.remembered());
         }).toList();
         return new VocabularyStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
-                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
+                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(),
+                s.checkRequired(), cards,
                 s.partIndex(), s.partCount());
     }
 
@@ -136,7 +157,8 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     }
 
     /** Vocabulary-specific seam: canonical loading + deterministic, no-AI question generation. */
-    private static final class VocabularyContentAdapter implements InteractiveContentAdapter<VocabularyEntry> {
+    static final class VocabularyContentAdapter implements InteractiveContentAdapter<VocabularyEntry> {
+        private static final ObjectMapper JSON = new ObjectMapper();
         private final VocabularyEntryRepository vocabularyRepo;
 
         VocabularyContentAdapter(VocabularyEntryRepository vocabularyRepo) {
@@ -165,12 +187,47 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
         }
 
         @Override
+        public Map<Long, VocabularyEntry> loadForMembers(List<LearningActivityMember> membership) {
+            Map<Long, VocabularyEntry> canonical = loadByIds(membership.stream()
+                    .map(LearningActivityMember::getCanonicalId).distinct().toList());
+            Map<Long, VocabularyEntry> result = new java.util.HashMap<>(canonical);
+            for (LearningActivityMember member : membership) {
+                if (member.getContentSnapshotJson() == null) continue;
+                VocabularyEntry word = canonical.get(member.getCanonicalId());
+                if (word == null) continue;
+                try {
+                    JsonNode snapshot = JSON.readTree(member.getContentSnapshotJson());
+                    String meaning = snapshot.path("meaning").asText();
+                    if (meaning.isBlank()) throw new IllegalArgumentException("Missing lesson meaning");
+                    result.put(member.getCanonicalId(), VocabularyEntry.builder()
+                            .id(word.getId()).expression(word.getExpression()).reading(word.getReading())
+                            .meaning(meaning).wordType(word.getWordType()).jlptLevel(word.getJlptLevel())
+                            .exampleJa(snapshot.path("exampleJa").isNull() ? null : snapshot.path("exampleJa").asText())
+                            .exampleVi(snapshot.path("exampleVi").isNull() ? null : snapshot.path("exampleVi").asText())
+                            .build());
+                } catch (Exception ex) {
+                    throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Nội dung bài học đã lưu không đọc được.");
+                }
+            }
+            return result;
+        }
+
+        @Override
         public List<QuestionSpec> buildQuestions(List<VocabularyEntry> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
+            Set<String> duplicatedMeanings = duplicatedValues(batch, VocabularyEntry::getMeaning);
+            Set<String> duplicatedReadings = duplicatedValues(batch, VocabularyEntry::getReading);
             long qid = 1;
             for (int i = 0; i < batch.size(); i++) {
                 VocabularyEntry m = batch.get(i);
                 String type = SELECT_TYPES[(i + variationSeed) % SELECT_TYPES.length];
+                if (isAmbiguousReverse(type, m, duplicatedMeanings, duplicatedReadings)) {
+                    // A reverse question ("which word means/reads X?") has two valid answers when two words in the
+                    // batch share X, so the learner cannot pick a single canonical option. Fall back to the always
+                    // unambiguous word->meaning direction, mirroring the MATCHING guard below and the Kanji
+                    // reading->meaning fallback at docs/rules-and-business-logic.md §2.12.
+                    type = "WORD_TO_MEANING";
+                }
                 specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, m), selectCorrect(type, m),
                         selectDistractors(type, m, batch)));
             }
@@ -185,6 +242,26 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
                 }
             }
             return specs;
+        }
+
+        private static boolean isAmbiguousReverse(String type, VocabularyEntry m,
+                Set<String> duplicatedMeanings, Set<String> duplicatedReadings) {
+            return switch (type) {
+                case "MEANING_TO_WORD" -> m.getMeaning() != null && duplicatedMeanings.contains(m.getMeaning());
+                case "READING_TO_WORD" -> m.getReading() != null && duplicatedReadings.contains(m.getReading());
+                default -> false;
+            };
+        }
+
+        private static Set<String> duplicatedValues(List<VocabularyEntry> batch,
+                java.util.function.Function<VocabularyEntry, String> field) {
+            Set<String> seen = new HashSet<>();
+            Set<String> duplicated = new HashSet<>();
+            for (VocabularyEntry entry : batch) {
+                String value = field.apply(entry);
+                if (value != null && !value.isBlank() && !seen.add(value)) duplicated.add(value);
+            }
+            return duplicated;
         }
 
         private static String selectPrompt(String type, VocabularyEntry m) {

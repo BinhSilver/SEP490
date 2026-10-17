@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * [JLAS-W0108] P6 — resolve phạm vi giáo trình nhiều chặng từ sách JLPT đã xuất bản.
  *
  * <p>Lộ trình JLPT chia thành các chặng liên tiếp (D5): mỗi chặng nhắm đúng một cấp mục tiêu.
- * N5→N4 là một chặng N4; N5→N3 là hai chặng N4 rồi N3; N2→N1 là một chặng N1; N1→N1 (củng cố
- * chính cấp) là một chặng N1. Warm-up chỉ thuộc chặng đầu tiên, từ điểm yếu ở cấp đã kết luận
- * (hoặc bảng chữ cái nền tảng cho người from-zero).
+ * Với nhãn Căn bản, N5→N4 là một chặng N4; Nhập môn bắt đầu lại từ cấp survey, và Thành thạo
+ * chỉ có chặng target. Warm-up lỗi sai thuộc nhánh Căn bản cần chuyển cấp;
+ * Căn bản cùng cấp học full cấp đó, from-zero giữ bảng chữ cái nền tảng.
  *
  * <p>Khác bản cũ: <b>không còn fallback demo seed</b> (id &gt;= 9000). Cấp trong lộ trình thiếu
  * học liệu đã duyệt trả {@link ErrorCode#BLOCKED_CONTENT} minh bạch thay vì âm thầm nhét sách demo
@@ -50,10 +50,11 @@ public class JpaLearningScopeSource implements LearningScopeSource {
                             + eligibility.recommendedTarget() + ".");
         }
 
-        // Warm-up: from-zero = sách nền tảng bảng chữ cái; còn lại = sách ở cấp đã kết luận (điểm yếu).
+        // Warm-up: from-zero = sách nền tảng bảng chữ cái; nhánh chuyển cấp Căn bản = sách ở cấp đã kết luận.
         List<Long> warmUpIds = fromZero
                 ? textbooks.findKanaFoundationByStatus("PUBLISHED").stream().map(Textbook::getId).toList()
-                : realBookIds(List.of(profile.assessedLevel()));
+                : LearningStartPolicy.needsMistakeWarmUp(profile)
+                        ? realBookIds(List.of(profile.assessedLevel())) : List.of();
         if (fromZero && warmUpIds.isEmpty()) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "MISSING_FOUNDATION: Chưa có học liệu bảng chữ cái đã duyệt.");
@@ -66,8 +67,10 @@ public class JpaLearningScopeSource implements LearningScopeSource {
             stages.add(new LearningStageScope("FOUNDATION",
                     curriculumVersion("FOUNDATION", foundationBooks), warmUpIds));
         }
-        for (String level : eligibility.stageLevels().stream()
-                .filter(level -> !"FOUNDATION".equals(level)).toList()) {
+        List<String> goalLevels = fromZero
+                ? eligibility.stageLevels().stream().filter(level -> !"FOUNDATION".equals(level)).toList()
+                : LearningStartPolicy.goalLevels(profile);
+        for (String level : goalLevels) {
             List<Textbook> books = realBooks(List.of(level));
             if (books.isEmpty()) {
                 // [JLAS-W0108] P6/R6 — thiếu cấp (giữa hoặc đích) trả BLOCKED_CONTENT, không fallback demo.

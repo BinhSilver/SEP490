@@ -5,8 +5,10 @@ import com.jlas.learning.dto.GrammarFillSubmitRequest;
 import com.jlas.learning.dto.GrammarOrderingSubmitRequest;
 import com.jlas.learning.dto.GrammarPracticeResult;
 import com.jlas.learning.dto.GrammarStudyState;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 
@@ -29,6 +31,9 @@ public interface InteractiveGrammarService {
 
     MicroCheckResult submitMicroCheck(Long userId, Long activityId, MicroCheckSubmitRequest request);
 
+    /** [JLAS-W0113] Autosaves in-progress selections for an issued attempt (restored on reopen/reload). */
+    java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request);
+
     MicroCheckStateResponse microCheckState(Long userId, Long activityId);
 
     MicroCheckStateResponse completeReview(Long userId, Long activityId);
@@ -37,4 +42,5 @@ public interface InteractiveGrammarService {
     MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request);
     /** [JLAS-W0108] REVIEW: stored feedback of the newest submitted attempt per batch (read-only). */
     java.util.List<AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId);
+    java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId);
 }

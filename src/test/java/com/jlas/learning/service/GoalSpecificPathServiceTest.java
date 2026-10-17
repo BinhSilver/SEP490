@@ -29,13 +29,11 @@ class GoalSpecificPathServiceTest {
     @Mock UserLearningPathRepository paths;
     @Mock UserLearningStageRepository stages;
     @Mock GoalLessonSelectionService selection;
-    @Mock GoalPrerequisitePlanner prerequisites;
-    @Mock BrseFoundationQualificationPort foundation;
     @Mock InteractivePackageComposer composer;
     GoalSpecificPathService service;
 
     @BeforeEach void setUp() {
-        service = new GoalSpecificPathService(users, goals, paths, stages, selection, prerequisites, foundation, composer);
+        service = new GoalSpecificPathService(users, goals, paths, stages, selection, composer);
     }
 
     @Test void travelCreatesSurveyOnlyInteractivePathAndComposesApprovedLessons() {
@@ -50,36 +48,39 @@ class GoalSpecificPathServiceTest {
         when(paths.findMaxVersionByUserId(7L)).thenReturn(2);
         when(paths.save(any())).thenAnswer(invocation -> { var path = invocation.getArgument(0, UserLearningPath.class); path.setId(80L); return path; });
         when(stages.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(prerequisites.plan(List.of(lesson))).thenReturn(List.of(lesson));
         when(composer.compose(any(), any())).thenReturn(new InteractiveCompositionResult(true, 1, List.of()));
 
         var result = service.create(7L, 50L, null);
 
         assertTrue(result.created());
         assertEquals(80L, result.pathId());
-        verifyNoInteractions(foundation);
         verify(composer).compose(any(), argThat(schedule -> schedule.size() == 1
                 && "BASIC".equals(schedule.getFirst().resource().level())));
     }
 
-    @Test void brseRequiresOwnedSubmittedFoundationAttemptButDoesNotGateLowLevel() {
+    @Test void brseIsSurveyOnlyAndRejectsAssessmentAttempt() {
         Lesson lesson = publishedLesson(12L);
         when(selection.select(7L, 51L)).thenReturn(new GoalLessonSelectionService.GoalLessonSelection(
                 51L, 4L, "COMMUNICATION_FIRST", List.of(lesson), Map.of(12L, "BASIC")));
         when(goals.findById(4L)).thenReturn(Optional.of(LearningGoal.builder().id(4L).goalCode("BA")
                 .displayNameVi("BrSE").active(true).reviewStatus("APPROVED").build()));
-        when(foundation.verify(7L, 9L)).thenReturn(BrseFoundationQualificationPort.Result.rejected("ATTEMPT_NOT_SUBMITTED"));
+
         assertThrows(ApiException.class, () -> service.create(7L, 51L, 9L));
 
-        when(foundation.verify(7L, 9L)).thenReturn(new BrseFoundationQualificationPort.Result(true, null, "N5", 20));
         when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
         when(paths.findByUserIdAndSurveyIdAndExperienceVersion(7L, 51L, LearningExperienceVersion.INTERACTIVE_V2))
                 .thenReturn(Optional.empty());
+        when(paths.findMaxVersionByUserId(7L)).thenReturn(2);
         when(paths.save(any())).thenAnswer(invocation -> { var path = invocation.getArgument(0, UserLearningPath.class); path.setId(81L); return path; });
         when(stages.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(prerequisites.plan(List.of(lesson))).thenReturn(List.of(lesson));
         when(composer.compose(any(), any())).thenReturn(new InteractiveCompositionResult(true, 1, List.of()));
-        assertTrue(service.create(7L, 51L, 9L).created());
+
+        var result = service.create(7L, 51L, null);
+
+        assertTrue(result.created());
+        assertEquals(81L, result.pathId());
+        verify(paths).save(argThat(path -> path.getAssessmentAttemptId() == null
+                && path.getCurrentLevel() == null && path.getMinutesPerDay() == 20));
     }
 
     @Test void retryBySameSurveyIsIdempotent() {
@@ -95,7 +96,7 @@ class GoalSpecificPathServiceTest {
 
         assertFalse(result.created());
         assertEquals(99L, result.pathId());
-        verifyNoInteractions(users, stages, prerequisites, composer);
+        verifyNoInteractions(users, stages, composer);
     }
 
     private static Lesson publishedLesson(Long id) {

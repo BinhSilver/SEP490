@@ -7,8 +7,11 @@ import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
+import com.jlas.learning.dto.QuizAttemptHistoryResponse;
 import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.LearningMicroCheckState;
@@ -27,11 +30,13 @@ import com.jlas.learning.repository.LearningStudySessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.service.impl.LearningActivityParts;
 import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
+import com.jlas.learning.service.GoalPathPolicy;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,10 +129,12 @@ public class InteractiveStudyEngine<T> {
 
     public MicroCheckResponse issueMicroCheck(Long userId, Long activityId) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
+        if (GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Bài tình huống giao tiếp hoàn thành bằng hoạt động học, không có bài kiểm tra.");
+        }
         List<LearningActivityMember> membership = loadMembership(activity);
-        if (adapter.requiresFlipRememberGate()) {
-            requireAllRemembered(activityId, membership);
-        } else {
+        if (adapter.requiresPracticeGate()) {
             adapter.assertPracticeGateSatisfied(activityId, membership);
         }
 
@@ -137,6 +144,15 @@ public class InteractiveStudyEngine<T> {
         int currentBatch = firstUnpassedBatch(states, batchCount);
         if (currentBatch >= batchCount) {
             throw new ApiException(ErrorCode.CONFLICT, "Phần này đã hoàn thành.");
+        }
+        // [JLAS-W0113] Reopen an in-progress attempt for this batch instead of issuing a fresh snapshot: the
+        // learner left mid-quiz, so return the exact stored questions under the same attemptId rather than
+        // creating another session (which would also re-arrange the questions and leak a second snapshot).
+        Optional<LearningQuizSession> inProgress = quizSessions
+                .findFirstByActivityIdAndQuizTypeAndBatchIndexAndUserIdAndStatusOrderByIdDesc(
+                        activityId, adapter.microCheckType(), currentBatch, userId, "ISSUED");
+        if (inProgress.isPresent()) {
+            return reopenMicroCheck(inProgress.get(), activity, currentBatch, batchCount);
         }
         LearningMicroCheckState state = stateForBatch(states, currentBatch);
         LocalDateTime now = LocalDateTime.now();
@@ -246,6 +262,43 @@ public class InteractiveStudyEngine<T> {
                 state.getCooldownUntil(), state.isReviewRequired(), activityState, grade.review());
     }
 
+    /** [JLAS-W0113] Autosaves a learner's in-progress selections for a specific issued attempt. Validates that
+     * the attempt is owned by the caller, belongs to this activity and quiz type, is still {@code ISSUED}, and
+     * that every question/option id is part of the frozen snapshot. It never grades, spends an attempt, changes
+     * score/state or rewards — it only persists the draft for the next reopen/restore. A submitted attempt is
+     * rejected outright (CONFLICT) so a late autosave from another tab can never overwrite a graded attempt. */
+    public List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        LearningQuizSession session = quizSessions.findOwnedByActivity(
+                        request.attemptId(), userId, adapter.microCheckType(), activityId)
+                .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên kiểm tra không hợp lệ."));
+        if (!"ISSUED".equals(session.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Bài kiểm tra đã nộp, không thể lưu nháp.");
+        }
+        Map<Long, QuizAnswerKey> key = mapper.readQuizAnswerKey(session.getAnswerKeyJson());
+        Map<Long, Integer> optionCounts = new java.util.HashMap<>();
+        for (LessonQuizResponse.LessonQuizQuestion question : mapper.readQuizQuestions(session.getQuestionsJson())) {
+            optionCounts.put(question.questionId(), question.options() == null ? 0 : question.options().size());
+        }
+        java.util.LinkedHashMap<Long, Integer> draft = new java.util.LinkedHashMap<>();
+        for (MicroCheckDraftAnswer answer : request.answers()) {
+            if (!key.containsKey(answer.questionId())) {
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời không thuộc đề kiểm tra này.");
+            }
+            Integer selected = answer.selectedOption();
+            if (selected == null) continue; // unselect -> drop from the stored draft
+            int optionCount = optionCounts.getOrDefault(answer.questionId(), 0);
+            if (selected < 1 || selected > optionCount) {
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lựa chọn không hợp lệ.");
+            }
+            draft.put(answer.questionId(), selected);
+        }
+        session.setDraftAnswersJson(mapper.writeDraftAnswers(draft.entrySet().stream()
+                .map(entry -> new MicroCheckDraftAnswer(entry.getKey(), entry.getValue()))
+                .toList()));
+        quizSessions.save(session);
+        return mapper.readDraftAnswers(session.getDraftAnswersJson());
+    }
+
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
         return buildStateResponse(activity);
@@ -304,17 +357,17 @@ public class InteractiveStudyEngine<T> {
     /** REVIEW mode: read-only view of a finished activity. Writes nothing (no session, card, attempt or state
      * change) and takes no row lock; the content is shown as remembered because it is already passed. */
     public EngineStudyState<T> reviewState(Long userId, Long activityId) {
-        UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        UserLearningPathItem activity = loadOwnedActivity(userId, activityId);
         List<LearningActivityMember> membership = loadMembership(activity);
-        Map<Long, T> byId = adapter.loadByIds(membership.stream()
-                .map(LearningActivityMember::getCanonicalId).distinct().toList());
+        Map<Long, T> byId = adapter.loadForMembers(membership);
         List<EngineStudyState.EngineCard<T>> views = new ArrayList<>();
         for (LearningActivityMember member : membership) {
             views.add(new EngineStudyState.EngineCard<>(member.getCanonicalId(), member.getOrderIndex(),
                     byId.get(member.getCanonicalId()), true, true));
         }
         return new EngineStudyState<>(activity.getId(), activity.getActivityType(), activity.getActivityState(),
-                revisionOf(membership), membership.size(), membership.size(), membership.size(), 0, false, views,
+                revisionOf(membership), membership.size(), membership.size(), membership.size(), 0, false,
+                !GoalPathPolicy.isCommunicationGoal(activity.getLearningPath()), views,
                 LearningActivityParts.index(activity, items), LearningActivityParts.count(activity, items));
     }
 
@@ -359,6 +412,54 @@ public class InteractiveStudyEngine<T> {
                     session.getSourceSnapshotJson()));
         }
         return feedback;
+    }
+
+    /** All submitted scored and replay attempts, kept chronological for the learner's quiz history UI. */
+    public List<QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        loadOwnedActivity(userId, activityId);
+        List<LearningQuizSession> sessions = new ArrayList<>();
+        sessions.addAll(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                activityId, adapter.microCheckType(), "SUBMITTED"));
+        sessions.addAll(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                activityId, PRACTICE_REPLAY, "SUBMITTED"));
+        sessions.removeIf(session -> session.getBatchIndex() == null || session.getResultJson() == null);
+        sessions.sort((left, right) -> {
+            int byTime = java.util.Comparator.nullsLast(LocalDateTime::compareTo)
+                    .compare(left.getSubmittedAt(), right.getSubmittedAt());
+            return byTime != 0 ? byTime : java.util.Comparator.nullsLast(Long::compareTo)
+                    .compare(left.getId(), right.getId());
+        });
+
+        Map<String, Integer> attemptsByBatch = new java.util.HashMap<>();
+        List<QuizAttemptHistoryResponse> history = new ArrayList<>();
+        for (LearningQuizSession session : sessions) {
+            String mode = PRACTICE_REPLAY.equals(session.getQuizType()) ? "PRACTICE" : "LEARN";
+            String batchKey = mode + ":" + session.getBatchIndex();
+            int number = attemptsByBatch.merge(batchKey, 1, Integer::sum);
+            LessonQuizResult result = mapper.readQuizResult(session.getResultJson());
+            boolean comprehension = adapter.activityType() == LearningActivityType.READING
+                    || adapter.activityType() == LearningActivityType.LISTENING;
+            var source = comprehension ? ComprehensionSourceSnapshot.parse(session.getSourceSnapshotJson()).orElse(null) : null;
+            history.add(new QuizAttemptHistoryResponse(session.getId(), number, session.getBatchIndex(), mode,
+                    result.scorePercent(), result.correctAnswers(), result.totalQuestions(), result.passed(),
+                    session.getSubmittedAt(), feedbackItems(session, result),
+                    comprehension ? (source == null ? "UNAVAILABLE" : "AVAILABLE") : null, source));
+        }
+        return history;
+    }
+
+    private List<AttemptFeedbackResponse.Item> feedbackItems(LearningQuizSession session, LessonQuizResult result) {
+        Map<Long, LessonQuizResponse.LessonQuizQuestion> prompts = new java.util.HashMap<>();
+        for (LessonQuizResponse.LessonQuizQuestion question : mapper.readQuizQuestions(session.getQuestionsJson())) {
+            prompts.put(question.questionId(), question);
+        }
+        return result.review().stream().map(r -> {
+            var question = prompts.get(r.questionId());
+            var options = question == null ? List.<String>of() : question.options();
+            return new AttemptFeedbackResponse.Item(r.questionId(), question == null ? null : question.questionText(),
+                    r.correctOption(), r.selectedOption(), answerText(options, r.correctOption()),
+                    answerText(options, r.selectedOption()), Boolean.TRUE.equals(r.correct()), r.explanation());
+        }).toList();
     }
 
     private static String answerText(List<String> options, Integer oneBasedIndex) {
@@ -449,14 +550,20 @@ public class InteractiveStudyEngine<T> {
 
     /** Review and practice only make sense once the activity is finished; ownership is checked without a lock. */
     private UserLearningPathItem loadFinishedActivity(Long userId, Long activityId) {
+        UserLearningPathItem activity = loadOwnedActivity(userId, activityId);
+        LearningActivityState state = activity.getActivityState();
+        if (state != LearningActivityState.PASSED && state != LearningActivityState.COMPLETED) {
+            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET, "Hãy hoàn thành phần học này trước khi ôn lại.");
+        }
+        return activity;
+    }
+
+    /** Ownership and activity type are sufficient for quiz history; the current quiz may not have passed yet. */
+    private UserLearningPathItem loadOwnedActivity(Long userId, Long activityId) {
         UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
         if (activity.getActivityType() != adapter.activityType()) {
             throw new ApiException(ErrorCode.NOT_FOUND);
-        }
-        LearningActivityState state = activity.getActivityState();
-        if (state != LearningActivityState.PASSED && state != LearningActivityState.COMPLETED) {
-            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET, "Hãy hoàn thành phần học này trước khi ôn lại.");
         }
         return activity;
     }
@@ -518,7 +625,7 @@ public class InteractiveStudyEngine<T> {
         List<LearningStudyCard> cards = studyCards.findBySessionIdOrderByOrderIndex(session.getId());
         Map<Long, LearningStudyCard> cardById = cards.stream()
                 .collect(Collectors.toMap(LearningStudyCard::getCanonicalId, c -> c));
-        Map<Long, T> byId = adapter.loadByIds(membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList());
+        Map<Long, T> byId = adapter.loadForMembers(membership);
 
         List<EngineStudyState.EngineCard<T>> views = new ArrayList<>();
         int flipped = 0;
@@ -533,31 +640,21 @@ public class InteractiveStudyEngine<T> {
             views.add(new EngineStudyState.EngineCard<>(member.getCanonicalId(), member.getOrderIndex(), entity,
                     isFlipped, isRemembered));
         }
-        boolean checkEligible = !membership.isEmpty() && remembered == membership.size();
-        if (checkEligible && activity.getActivityState() == LearningActivityState.STUDYING) {
-            activity.setActivityState(LearningActivityState.CHECK_READY);
+        boolean studyComplete = !membership.isEmpty() && flipped == membership.size();
+        boolean communicationGoal = GoalPathPolicy.isCommunicationGoal(activity.getLearningPath());
+        boolean checkEligible = studyComplete && !communicationGoal;
+        if (studyComplete && activity.getActivityState() == LearningActivityState.STUDYING) {
+            activity.setActivityState(communicationGoal ? LearningActivityState.PASSED
+                    : LearningActivityState.CHECK_READY);
         }
         return new EngineStudyState<>(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 session.getSourceRevision(), membership.size(), flipped, remembered, membership.size() - remembered,
-                checkEligible, views, LearningActivityParts.index(activity, items),
+                checkEligible, !communicationGoal, views, LearningActivityParts.index(activity, items),
                 LearningActivityParts.count(activity, items));
     }
 
-    private void requireAllRemembered(Long activityId, List<LearningActivityMember> membership) {
-        LearningStudySession session = studySessions.findByActivityId(activityId).orElse(null);
-        Set<Long> remembered = session == null ? Set.of()
-                : studyCards.findBySessionIdOrderByOrderIndex(session.getId()).stream()
-                        .filter(LearningStudyCard::isRemembered).map(LearningStudyCard::getCanonicalId)
-                        .collect(Collectors.toSet());
-        boolean all = membership.stream().allMatch(m -> remembered.contains(m.getCanonicalId()));
-        if (!all) {
-            throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET, "Hãy nhớ hết thẻ trước khi kiểm tra.");
-        }
-    }
-
     private List<List<T>> contentBatches(List<LearningActivityMember> membership) {
-        Map<Long, T> byId = adapter.loadByIds(membership.stream()
-                .map(LearningActivityMember::getCanonicalId).distinct().toList());
+        Map<Long, T> byId = adapter.loadForMembers(membership);
         List<T> ordered = new ArrayList<>();
         for (LearningActivityMember member : membership) {
             T content = byId.get(member.getCanonicalId());
@@ -706,5 +803,19 @@ public class InteractiveStudyEngine<T> {
     private List<MicroCheckResponse.MicroCheckQuestion> toMicroCheckQuestions(List<QuestionSpec> specs) {
         return specs.stream().map(s -> new MicroCheckResponse.MicroCheckQuestion(s.questionId(), s.type(),
                 s.prompt(), s.options())).toList();
+    }
+
+    /** Rebuilds a response for an in-progress attempt from its stored question snapshot. The attempt id and the
+     * exact question order are preserved, so the client resumes the same quiz it was issued (never a re-shuffle);
+     * any autosaved draft selections are returned alongside so the client restores them. */
+    private MicroCheckResponse reopenMicroCheck(LearningQuizSession session, UserLearningPathItem activity,
+            int currentBatch, int batchCount) {
+        List<MicroCheckResponse.MicroCheckQuestion> questions = mapper.readQuizQuestions(session.getQuestionsJson())
+                .stream()
+                .map(q -> new MicroCheckResponse.MicroCheckQuestion(q.questionId(), q.questionType(),
+                        q.questionText(), q.options()))
+                .toList();
+        return new MicroCheckResponse(session.getId(), activity.getId(), currentBatch, batchCount,
+                questions.size(), questions, mapper.readDraftAnswers(session.getDraftAnswersJson()));
     }
 }

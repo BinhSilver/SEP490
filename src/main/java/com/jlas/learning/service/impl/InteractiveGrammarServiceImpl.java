@@ -14,8 +14,10 @@ import com.jlas.learning.dto.GrammarStudyState.FillPractice;
 import com.jlas.learning.dto.GrammarStudyState.GrammarPointView;
 import com.jlas.learning.dto.GrammarStudyState.OrderingPractice;
 import com.jlas.learning.dto.GrammarStudyState.OrderingWord;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.entity.LearningActivityMember;
@@ -32,6 +34,7 @@ import com.jlas.learning.repository.LearningStudySessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.service.InteractiveGrammarService;
+import com.jlas.learning.service.GoalPathPolicy;
 import com.jlas.learning.service.impl.engine.InteractiveContentAdapter;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
 import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
@@ -49,12 +52,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/** [JLAS-W0193] Task 6 — Grammar: 1-3 approved points, each gated by ordering + fill-blank practice before
- * its micro-check opens. Unlike Vocabulary/Kanji, Grammar has no flip/remember card, so the study/practice
+/** Grammar: ordering and fill-blank practice are saved per point and encouraged before the scored check.
+ * The learner may choose an early check after the UI warning. Grammar has no flip/remember card, so the study/practice
  * half is Grammar-specific code (this class), while the micro-check half (issue/submit/state/review —
  * attempt cycle, cooldown, review, idempotent submit, 70% pass, first/latest/best) is unchanged, reused
  * verbatim via {@link InteractiveStudyEngine}, exactly the same as Kanji reuses it. The engine's eligibility
- * check is generalized (not duplicated) via {@link InteractiveContentAdapter#requiresFlipRememberGate()} /
+ * check is generalized (not duplicated) via {@link InteractiveContentAdapter#requiresPracticeGate()} /
  * {@link InteractiveContentAdapter#assertPracticeGateSatisfied}, which this class's adapter implements by
  * consulting {@link LearningGrammarPracticeProgressRepository} instead of the flip/remember card table. */
 @Service
@@ -98,9 +101,18 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
             if (view.gateSatisfied()) satisfied++;
             views.add(view);
         }
-        boolean checkEligible = !membership.isEmpty() && satisfied == membership.size();
+        // Practice remains visible and its progress is saved, but the learner may opt into the scored check
+        // early after a clear warning, just as with unseen flashcards.
+        boolean communicationGoal = GoalPathPolicy.isCommunicationGoal(activity.getLearningPath());
+        boolean practiceComplete = !membership.isEmpty() && satisfied == membership.size();
+        if (communicationGoal && practiceComplete
+                && activity.getActivityState() == com.jlas.learning.enums.LearningActivityState.STUDYING) {
+            activity.setActivityState(com.jlas.learning.enums.LearningActivityState.PASSED);
+        }
+        boolean checkEligible = !communicationGoal && !membership.isEmpty();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
-                membership.getFirst().getSourceRevision(), membership.size(), satisfied, checkEligible, views,
+                membership.getFirst().getSourceRevision(), membership.size(), satisfied, checkEligible,
+                !communicationGoal, views,
                 LearningActivityParts.index(activity, items), LearningActivityParts.count(activity, items));
     }
 
@@ -119,7 +131,8 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                         currentProgress(activityId, member))).toList();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 membership.getFirst().getSourceRevision(), membership.size(),
-                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false, views,
+                (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false,
+                !GoalPathPolicy.isCommunicationGoal(activity.getLearningPath()), views,
                 LearningActivityParts.index(activity, items), LearningActivityParts.count(activity, items));
     }
 
@@ -198,6 +211,12 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
 
     @Override
     @Transactional
+    public java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        return engine.saveDraft(userId, activityId, request);
+    }
+
+    @Override
+    @Transactional
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         return engine.microCheckState(userId, activityId);
     }
@@ -212,6 +231,12 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
     @Transactional(readOnly = true)
     public java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
         return engine.reviewFeedback(userId, activityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        return engine.quizAttemptHistory(userId, activityId);
     }
 
     @Override
@@ -362,10 +387,9 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
 
     // ---- Content adapter for the micro-check half (engine-owned state machine, Grammar-owned content) ----
 
-    /** [JLAS-W0193] Task 6 — Grammar's seam into {@link InteractiveStudyEngine}: supplies canonical loading
-     * and deterministic, no-AI question generation, and swaps the flip/remember eligibility gate for the
-     * ordering+fill practice-progress gate via {@link #requiresFlipRememberGate()} /
-     * {@link #assertPracticeGateSatisfied}. The attempt/cooldown/review/idempotent-submit machinery itself
+    /** Grammar's seam into {@link InteractiveStudyEngine}: supplies canonical loading
+     * and deterministic, no-AI question generation. Practice progress is tracked separately from the quiz;
+     * the attempt/cooldown/review/idempotent-submit machinery itself
      * is not touched — it stays entirely inside the engine. */
     static final class GrammarContentAdapter implements InteractiveContentAdapter<GrammarPoint> {
         private final GrammarPointRepository grammarPoints;
@@ -398,24 +422,6 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         }
 
         @Override
-        public boolean requiresFlipRememberGate() {
-            return false;
-        }
-
-        @Override
-        public void assertPracticeGateSatisfied(Long activityId, List<LearningActivityMember> membership) {
-            for (LearningActivityMember member : membership) {
-                var state = progress.findByActivityIdAndGrammarPointId(activityId, member.getCanonicalId())
-                        .filter(p -> p.getSourceRevision().equals(member.getSourceRevision()))
-                        .orElse(null);
-                if (state == null || !state.isGateSatisfied()) {
-                    throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
-                            "Hãy hoàn thành luyện tập sắp xếp câu và điền từ trước khi kiểm tra.");
-                }
-            }
-        }
-
-        @Override
         public List<QuestionSpec> buildQuestions(List<GrammarPoint> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
             long qid = 1;
@@ -440,15 +446,38 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                             "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors);
                     if (question != null) { specs.add(question); qid++; }
                 }
-                if (exampleJapanese != null) {
+                Boolean exampleMatchesPattern = grammarApplicability(point.getPattern(), exampleJapanese);
+                if (exampleJapanese != null && !Boolean.FALSE.equals(exampleMatchesPattern)) {
                     List<String> distractors = distractorPool.stream()
-                            .map(b -> splitFirstLine(b.getExample())[0]).toList();
+                            .map(b -> splitFirstLine(b.getExample())[0])
+                            .filter(candidate -> !Boolean.TRUE.equals(grammarApplicability(point.getPattern(), candidate)))
+                            .toList();
                     QuestionSpec question = optionQuestion(qid, i + variationSeed, "USAGE_SELECT",
                             "Câu nào dùng đúng mẫu “" + point.getPattern() + "”?", exampleJapanese, distractors);
                     if (question != null) { specs.add(question); qid++; }
                 }
             }
             return specs;
+        }
+
+        /** Returns null for patterns whose structure is not covered by this conservative validator. */
+        private static Boolean grammarApplicability(String pattern, String example) {
+            if (pattern == null || example == null || example.isBlank()) return false;
+            String p = pattern.replaceAll("\\s+", "");
+            String text = example.replaceAll("\\s+", "").replace("。", "").trim();
+            if (p.contains("はじめまして")) return text.contains("はじめまして") && text.contains("よろしく");
+            if (p.contains("なんさい") || p.contains("何歳"))
+                return text.contains("なんさい") || text.contains("何歳") || text.contains("おいくつ");
+            if (p.contains("じゃありません") || p.contains("ではありません"))
+                return text.contains("じゃありません") || text.contains("ではありません");
+            if (p.contains("ですか")) return text.endsWith("ですか");
+            if (p.contains("も")) return text.contains("も") && text.endsWith("です");
+            if (p.contains("の")) return text.contains("の");
+            if (p.contains("さん")) return text.contains("さん");
+            if (p.contains("N1はN2です"))
+                return text.contains("は") && !text.contains("も") && !text.contains("じゃありません")
+                        && !text.contains("ではありません") && !text.endsWith("ですか") && text.endsWith("です");
+            return null;
         }
 
         private static QuestionSpec optionQuestion(long questionId, int rotateSeed, String type, String prompt,

@@ -37,6 +37,12 @@ public class InteractiveLearningPathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.current(user.userId())));
     }
 
+    @GetMapping("/paths/completed/roadmap")
+    public ResponseEntity<ApiResponse<InteractiveLearningPathResponse>> completedRoadmap(
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.completedRoadmap(user.userId())));
+    }
+
     /** [JLAS-W0193] Task 10 — real content for the completion popup's "Xem tổng kết chặng" destination.
      * Resolves the caller's most recent V2 path itself (never accepts a path id), so it stays reachable once
      * the path has transitioned to COMPLETED (Task 10's path-completion fix) when {@code current} would no

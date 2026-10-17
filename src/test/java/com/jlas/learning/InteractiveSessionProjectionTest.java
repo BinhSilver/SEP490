@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InteractiveSessionProjectionTest {
     private final InteractiveSessionProjector projector = new InteractiveSessionProjector();
 
-    @Test void groupsExistingActivitiesAndKeepsTheServerOrderedSessionGate(){
+    @Test void groupsExistingActivitiesWithoutLockingAnotherSkill(){
         var activities=List.of(
                 activity(1,LearningActivityType.VOCABULARY,LearningActivityState.PASSED,1),
                 activity(2,LearningActivityType.KANJI,LearningActivityState.STUDYING,2),
@@ -31,11 +31,11 @@ class InteractiveSessionProjectionTest {
 
         assertEquals(List.of("VOCABULARY","KANJI_GRAMMAR","DIALOGUE"),
                 sessions.stream().map(s->s.sessionType().name()).toList());
-        assertEquals(List.of("COMPLETED","IN_PROGRESS","LOCKED"),
+        assertEquals(List.of("COMPLETED","IN_PROGRESS","AVAILABLE"),
                 sessions.stream().map(s->s.state().name()).toList());
         assertEquals(List.of("REVIEW","PRACTICE"),sessions.get(0).allowedActions());
         assertEquals(List.of("CONTINUE"),sessions.get(1).allowedActions());
-        assertTrue(sessions.get(2).allowedActions().isEmpty());
+        assertEquals(List.of("START"),sessions.get(2).allowedActions());
         assertEquals(2,sessions.get(1).activities().size());
         assertEquals(5,sessions.get(0).contentCount());
     }
@@ -54,6 +54,19 @@ class InteractiveSessionProjectionTest {
         assertEquals(references,sessions.getFirst().referenceVocabulary());
         assertEquals(2,sessions.getFirst().contentCounts().get("vocabulary"));
         assertEquals(3,sessions.getFirst().contentCount());
+    }
+
+    @Test void projectsReadingAndListeningAsSelectableChapterSkills(){
+        var activities=List.of(
+                activity(11,LearningActivityType.READING,LearningActivityState.STUDYING,1),
+                activity(12,LearningActivityType.LISTENING,LearningActivityState.LOCKED,2));
+
+        var sessions=projector.project(LearningPackageStatus.IN_PROGRESS,null,activities,counts(0,0,0,0),List.of(),20);
+
+        assertEquals(List.of("READING","LISTENING"),sessions.stream().map(s->s.sessionType().name()).toList());
+        assertEquals(List.of("IN_PROGRESS","AVAILABLE"),sessions.stream().map(s->s.state().name()).toList());
+        assertEquals(1,sessions.get(0).contentCounts().get("reading"));
+        assertEquals(1,sessions.get(1).contentCounts().get("listening"));
     }
 
     @Test void completedPackageExposesReviewAndPracticeForEveryPresentSession(){

@@ -32,6 +32,13 @@
       escapeHtml(definition.displayNameVi) + '</h1><p>Chọn nội dung bạn muốn học. Lựa chọn này là nhu cầu, không phải kết luận năng lực.</p></div></header>' + questions;
   }
 
+  function renderUnavailable(message) {
+    return '<section class="goal-survey-unavailable" role="status"><h1>Khảo sát hiện chưa thể tải</h1>' +
+      '<p>Vui lòng thử lại sau. Nếu tình trạng tiếp diễn, mục tiêu này có thể chưa có nội dung khảo sát được duyệt.</p>' +
+      (message ? '<p class="goal-survey-unavailable__detail">' + escapeHtml(message) + '</p>' : '') +
+      '<button type="button" class="smart-test-secondary" data-goal-survey-retry>Thử tải lại khảo sát</button></section>';
+  }
+
   function buildSubmission(learningMode, controls) {
     var grouped = {};
     (controls || []).forEach(function (control) {
@@ -44,15 +51,12 @@
     }) };
   }
 
-  function nextAction(definition, response, pathCreated) {
-    return response && response.assessmentRequirement === 'BRSE_FOUNDATION' && !pathCreated
-      ? '/smart-test' : '/learning/path/v2';
+  function nextAction() {
+    return '/learning/path/v2';
   }
 
-  function buildPathRequest(submission, search) {
-    var raw = new URLSearchParams(search || '').get('assessmentAttemptId');
-    var attemptId = raw && /^\d+$/.test(raw) && Number(raw) > 0 ? Number(raw) : null;
-    return { submissionId: submission.submissionId, assessmentAttemptId: attemptId };
+  function buildPathRequest(submission) {
+    return { submissionId: submission.submissionId, assessmentAttemptId: null };
   }
 
   async function api(url, options) {
@@ -71,10 +75,19 @@
     var form = document.getElementById('goalSurveyForm');
     var content = document.getElementById('goalSurveyContent');
     var notice = document.getElementById('goalSurveyNotice');
-    try {
-      var definition = await api('/api/learning/v2/goals/' + encodeURIComponent(goalCode) + '/survey');
-      content.innerHTML = renderDefinition(definition);
-      form.addEventListener('submit', async function (event) {
+    var footer = form.querySelector('.survey-wizard-footer');
+    var submitBound = false;
+    footer.hidden = true;
+
+    async function loadDefinition() {
+      notice.hidden = true;
+      try {
+        var definition = await api('/api/learning/v2/goals/' + encodeURIComponent(goalCode) + '/survey');
+        content.innerHTML = renderDefinition(definition);
+        footer.hidden = false;
+        if (submitBound) return;
+        submitBound = true;
+        form.addEventListener('submit', async function (event) {
         event.preventDefault();
         notice.hidden = true;
         var inputs = Array.from(form.querySelectorAll('input[type="radio"],input[type="checkbox"]'));
@@ -86,20 +99,23 @@
           var result = await api('/api/learning/v2/goals/' + encodeURIComponent(goalCode) + '/survey', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request)
           });
-          var pathRequest = buildPathRequest(result, window.location.search);
-          if (result.assessmentRequirement === 'BRSE_FOUNDATION' && !pathRequest.assessmentAttemptId) {
-            window.location.assign(nextAction(definition, result, false));
-            return;
-          }
+          var pathRequest = buildPathRequest(result);
           await api('/api/learning/v2/goal-paths', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pathRequest)
           });
-          window.location.assign(nextAction(definition, result, true));
+          window.location.assign(nextAction());
         } catch (error) { notice.textContent = error.message; notice.hidden = false; }
-      });
-    } catch (error) { notice.textContent = error.message; notice.hidden = false; }
+        });
+      } catch (error) {
+        content.innerHTML = renderUnavailable(error.message);
+        footer.hidden = true;
+        content.querySelector('[data-goal-survey-retry]').addEventListener('click', loadDefinition, { once: true });
+      }
+    }
+
+    loadDefinition();
   }
 
   return { escapeHtml: escapeHtml, renderDefinition: renderDefinition, buildSubmission: buildSubmission,
-    buildPathRequest: buildPathRequest, nextAction: nextAction, mount: mount };
+    renderUnavailable: renderUnavailable, buildPathRequest: buildPathRequest, nextAction: nextAction, mount: mount };
 });

@@ -28,11 +28,23 @@ class PaceActivityPartitionerTest {
                 .stream().map(p -> p.members().size()).toList());
     }
 
-    @Test void splittingDoesNotTurnVocabularyIntoBelowThresholdReferenceParts() {
+    @Test void splittingNeverCreatesASingletonVocabularyQuizPart() {
         var activity = UserLearningPathItem.builder().activityType(LearningActivityType.VOCABULARY)
                 .estimatedMinutes(60).build();
         assertThrows(ApiException.class, () -> PaceActivityPartitioner.partition(activity,
                 members(activity, LearningMemberType.VOCABULARY_ENTRY, 6), 15));
+    }
+
+    @Test void aFourWordCurriculumActivityCanBeSplitIntoTwoAnswerableOrderedParts() {
+        var activity = UserLearningPathItem.builder().activityType(LearningActivityType.VOCABULARY)
+                .estimatedMinutes(20).build();
+        var source = members(activity, LearningMemberType.VOCABULARY_ENTRY, 4);
+
+        var parts = PaceActivityPartitioner.partition(activity, source, 15);
+
+        assertEquals(List.of(2, 2), parts.stream().map(part -> part.members().size()).toList());
+        assertEquals(source, parts.stream().flatMap(part -> part.members().stream()).toList());
+        assertTrue(parts.stream().allMatch(part -> part.minutes() <= 15));
     }
 
     @Test void sourceDependentPassagesAreNotCutByQuestionCount() {

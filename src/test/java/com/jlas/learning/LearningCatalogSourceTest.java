@@ -61,7 +61,7 @@ class LearningCatalogSourceTest {
         em.flush();
         em.clear();
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(WeaknessEvidence.grammar(weakTag.getId(), weakTag.getCode(), weakTag.getId(), 5, 3)));
         var result = selector.select(7L, profile,
                 new LearningCatalogScope(List.of(foundationBook.getId()), List.of(goalBook.getId())));
@@ -87,7 +87,7 @@ class LearningCatalogSourceTest {
         assertEquals(List.of(LearningPhase.GOAL_LEARNING),
                 result.resources().stream().map(item -> item.phase()).toList());
         assertTrue(result.weakEvidence().isEmpty());
-        assertEquals("INSUFFICIENT_ASSESSMENT", result.coverageGaps().getFirst().reasonCode());
+        assertTrue(result.coverageGaps().isEmpty(), "Same-level curriculum does not open a separate warm-up gap");
     }
 
     @Test void readsOnlyPublishedLessonsInsideTheRequestedPublishedTextbooks() {

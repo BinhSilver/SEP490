@@ -15,6 +15,9 @@ public interface AssessmentQuestionRepository extends JpaRepository<AssessmentQu
     /** [JLAS-W0108] Câu reading/listening ở một cấp độ, thứ tự ổn định cho gate quiz. */
     List<AssessmentQuestion> findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(String skill, String jlptLevel);
 
+    List<AssessmentQuestion> findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+            String skill, String jlptLevel, String sourceCodePrefix);
+
     List<AssessmentQuestion> findByIsActiveTrueAndSkillOrderByIdAsc(String skill);
 
     /** [JLAS-W0113] Câu hỏi cho lesson quiz: gom theo knowledge tag của bài học. */

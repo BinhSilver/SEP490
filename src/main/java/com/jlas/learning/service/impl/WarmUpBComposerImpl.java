@@ -90,6 +90,9 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         if (path.getExperienceVersion() != LearningExperienceVersion.INTERACTIVE_V2) {
             throw new ApiException(ErrorCode.CONFLICT, "Warm-up B composer chỉ nhận path INTERACTIVE_V2.");
         }
+        if (!LearningStartPolicy.needsMistakeWarmUp(profile)) {
+            return new InteractiveCompositionResult(true, 0, List.of());
+        }
         if (packages.existsByLearningPathIdAndPhase(path.getId(), "WARM_UP")) {
             int existing = (int) packages.findByLearningPathIdOrderByOrderIndex(path.getId()).stream()
                     .filter(p -> "WARM_UP".equals(p.getPhase())).count();

@@ -105,6 +105,18 @@ class WarmUpBComposerTest {
                 minutesPerDay, weaknesses, skillScores);
     }
 
+    @Test void noviceAndProficientNeverCreateSeparateMistakePackages() {
+        for (String band : List.of("N4 Nhập môn", "N4 Thành thạo")) {
+            var profile = new LearningProfileSnapshot(7L, 99L, 1L, "rev-1", true, true,
+                    "N4", "N3", "JLPT", 30, List.of(vocabEvidence(1, "N4", 42L)),
+                    List.of(), "N4", band);
+            var result = composer.composeWarmUp(path(), profile);
+            assertTrue(result.published());
+            assertEquals(0, result.packageCount());
+        }
+        verifyNoInteractions(vocabularyEntries, kanjiRepo, grammarPoints, comprehensionCatalog);
+    }
+
     @Test void readingBandIsPackedAsAtMostTwoExercisesPerDay() {
         var ready = List.of(exercise("READING", 1), exercise("READING", 2),
                 exercise("READING", 3), exercise("READING", 4));

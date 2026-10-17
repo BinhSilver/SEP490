@@ -17,9 +17,27 @@
     return v.partCount > 1 && v.partIndex > 0
       ? '<p class="ilp-part-indicator">Phần ' + v.partIndex + ' / ' + v.partCount + '</p>' : '';
   }
+  // [JLAS-W0108] Quiz split into multiple parts: name the exact next part so "continue" clearly resumes
+  // part n of total rather than a fresh quiz. `currentBatch` is the server's 0-based first unpassed batch.
+  function checkButtonLabel(gate) {
+    if (!gate) return 'Bắt đầu kiểm tra →';
+    var total = num(gate.batchCount);
+    if (total > 1) {
+      var part = num(gate.currentBatch) + 1;
+      return (num(gate.currentBatch) > 0 ? 'Tiếp tục kiểm tra' : 'Bắt đầu kiểm tra') + ' — phần ' + part + '/' + total;
+    }
+    return 'Bắt đầu kiểm tra →';
+  }
   function checkTypedAnswer(expected, entered) {
     return String(expected || '').normalize('NFKC').trim() === String(entered || '').normalize('NFKC').trim()
       && String(expected || '').trim().length > 0;
+  }
+  function checkProgressText(answeredQuestions, totalQuestions, answeredPairs, totalPairs) {
+    return 'Đã trả lời ' + answeredQuestions + '/' + totalQuestions + ' câu trắc nghiệm · ' +
+      answeredPairs + '/' + totalPairs + ' cặp nối';
+  }
+  function shouldPersistFlip(mode, flashMode) {
+    return mode !== 'REVIEW' && mode !== 'PRACTICE';
   }
   function speakJapanese(value) {
     if (typeof window === 'undefined' || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return false;
@@ -50,6 +68,7 @@
       rememberedCount: num(data.rememberedCount),
       reviewRemaining: num(data.reviewRemaining),
       checkEligible: !!data.checkEligible,
+      checkRequired: data.checkRequired !== false,
       current: current,
       cards: cards
     };
@@ -57,23 +76,21 @@
 
   function cardFace(card) {
     if (!card) return '<div class="ilp-card__empty"><h2>Chưa có thẻ từ vựng</h2></div>';
-    if (card.flipped) {
-      return '<div class="ilp-card__back">' +
+    return '<div class="ilp-card__inner">' +
+      '<div class="ilp-card__front"' + (card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
+      '<span class="ilp-card__kicker">' + (card.wordType ? esc(card.wordType) : 'TỪ VỰNG') + '</span>' +
+      '<h2 class="ilp-card__word">' + esc(card.front) + '</h2>' +
+      '<span class="ilp-card__reading">' + esc(card.reading) + '</span>' +
+      '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.front) + '" aria-label="Nghe phát âm ' + esc(card.front) + '">🔊</button>' +
+      '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span></div>' +
+      '<div class="ilp-card__back"' + (!card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
         '<span class="ilp-card__meaning">' + esc(card.meaning) + '</span>' +
         '<div class="ilp-card__chips">' + (card.wordType ? '<span class="ilp-chip">' + esc(card.wordType) + '</span>' : '') +
         (card.jlptLevel ? '<span class="ilp-chip">' + esc(card.jlptLevel) + '</span>' : '') + '</div>' +
         (card.exampleJa ? '<p class="ilp-card__example"><strong>' + esc(card.exampleJa) + '</strong>' +
           (card.exampleVi ? '<span>' + esc(card.exampleVi) + '</span>' : '') + '</p>' : '') +
         '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.front) + '" aria-label="Nghe phát âm ' + esc(card.front) + '">🔊</button>' +
-        '</div>';
-    }
-    return '<div class="ilp-card__front">' +
-      '<span class="ilp-card__kicker">' + (card.wordType ? esc(card.wordType) : 'TỪ VỰNG') + '</span>' +
-      '<h2 class="ilp-card__word">' + esc(card.front) + '</h2>' +
-      '<span class="ilp-card__reading">' + esc(card.reading) + '</span>' +
-      '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.front) + '" aria-label="Nghe phát âm ' + esc(card.front) + '">🔊</button>' +
-      '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span>' +
-      '</div>';
+      '</div></div>';
   }
 
   function renderVocabularyList(cards) {
@@ -96,22 +113,38 @@
     return result;
   }
 
+  function partNavigation(groups, selected) {
+    if (groups.length < 2) return '';
+    return '<nav class="ilp-study-parts" aria-label="Chia phần nội dung">' + groups.map(function (_, index) {
+      return '<button type="button" data-study-part="' + index + '" aria-current="' + (index === selected) + '">Phần ' +
+        (index + 1) + ' / ' + groups.length + '</button>';
+    }).join('') + '</nav>';
+  }
+
   // Study view. `gate` is the optional server micro-check state; the check action only opens when the
   // server says every card is remembered AND the batch is attemptable (no cooldown / review pending).
   function renderStudy(v, gate, activeTab, partIndex, ui) {
     activeTab = activeTab === 'flashcards' ? 'flashcards' : 'content';
     ui = ui || {};
-    var flashMode = ['browse', 'remember', 'check', 'type'].includes(ui.mode) ? ui.mode : 'remember';
+    var flashMode = ui.mode === 'check' ? 'check' : 'browse';
     var groups = displayGroups(v.cards);
     partIndex = Math.min(Math.max(num(partIndex), 0), Math.max(groups.length - 1, 0));
-    var browseIndex = Math.min(Math.max(num(ui.browseIndex), 0), Math.max(v.cards.length - 1, 0));
-    var card = flashMode === 'remember' ? v.current : v.cards[browseIndex] || null;
-    var shownCard = card && flashMode === 'browse' ? Object.assign({}, card, { flipped: !!ui.browseFlipped }) : card;
-    var progress = v.totalCards ? Math.round(v.rememberedCount / v.totalCards * 100) : 0;
+    var partCards = groups[partIndex] || [];
+    var readOnly = !!ui.readOnly;
+    if (readOnly) flashMode = 'browse';
+    var firstUnseen = partCards.findIndex(function (item) { return !item.flipped; });
+    var browseIndex = ui.browseIndex == null ? Math.max(0, firstUnseen) : num(ui.browseIndex);
+    browseIndex = Math.min(Math.max(browseIndex, 0), Math.max(partCards.length - 1, 0));
+    var card = flashMode === 'remember' ? (partCards.find(function (item) { return !item.remembered; }) || partCards[0] || null)
+      : partCards[browseIndex] || null;
+    var shownCard = card && flashMode === 'browse' ? Object.assign({}, card,
+      { flipped: !!ui.browseFlipped }) : card;
+    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
-    var canCheck = v.checkEligible && !gateBlocked;
+    var canCheck = v.checkRequired && v.checkEligible && !gateBlocked;
+    var checkLabel = checkButtonLabel(gate);
     var actions = '';
-    if (card && flashMode === 'remember') {
+    if (card && flashMode === 'remember' && !readOnly) {
       actions = gate && gate.passed ? '' : card.flipped
         ? '<button class="ilp-action ilp-action--forget" type="button" data-remember="' + card.memberId + '" data-value="false">Chưa nhớ</button>' +
           '<button class="ilp-action ilp-action--know" type="button" data-remember="' + card.memberId + '" data-value="true">Đã nhớ</button>'
@@ -120,50 +153,89 @@
     var gateNote = gateBlocked
       ? '<p class="ilp-gate-note">' + (gate.reviewRequired ? 'Bạn cần ôn lại phần đã sai trước khi kiểm tra lại.' : 'Bạn đang trong thời gian chờ.') + '</p>'
       : '';
-    var modeNav = '<nav class="ilp-card-modes" aria-label="Cách luyện Flashcard">' +
-      [['browse', 'Lướt thẻ'], ['remember', 'Ghi nhớ'], ['check', 'Kiểm tra'], ['type', 'Gõ phản xạ']].map(function (mode) {
-        return '<button type="button" data-card-mode="' + mode[0] + '" aria-current="' + (flashMode === mode[0]) + '">' + mode[1] + '</button>';
-      }).join('') + '</nav>';
-    var flashContent = flashMode === 'type'
-      ? '<div class="ilp-typing"><p>Nhìn nghĩa và gõ lại từ tiếng Nhật. Đây là lượt luyện riêng, không thay đổi kết quả quiz.</p>' +
-        '<strong>' + esc(card && card.meaning) + '</strong>' +
-        '<form data-typed-recall><label for="ilp-typed-word">Từ tiếng Nhật</label><input id="ilp-typed-word" autocomplete="off" lang="ja" required>' +
-        '<button type="submit">Kiểm tra phản xạ</button></form>' +
-        (ui.typedFeedback ? '<p role="status">' + esc(ui.typedFeedback) + '</p>' : '') + '</div>'
-      : flashMode === 'check'
-        ? '<div class="ilp-card-mode-check"><p>' + (canCheck ? 'Đã sẵn sàng làm bài kiểm tra nhỏ.' : 'Học và ghi nhớ các thẻ trước khi kiểm tra.') + '</p>' +
-          '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra →</button></div>'
-        : '<article class="ilp-card' + (shownCard && (shownCard.flipped || gate && gate.passed && flashMode !== 'browse') ? ' is-flipped' : '') + '"' +
-          (shownCard && (flashMode === 'browse' || !(gate && gate.passed)) ? ' data-card="' + shownCard.memberId + '" tabindex="0" role="button" aria-label="Thẻ từ vựng"' : '') + '>' +
-          cardFace(shownCard && gate && gate.passed && flashMode !== 'browse' ? Object.assign({}, shownCard, { flipped: true }) : shownCard) + '</article>' +
-          (flashMode === 'browse' ? '<div class="ilp-browse-nav"><button type="button" data-browse-step="-1"' + (browseIndex === 0 ? ' disabled' : '') + '>← Trước</button>' +
-            '<span>' + (v.cards.length ? browseIndex + 1 : 0) + '/' + v.cards.length + '</span>' +
-            '<button type="button" data-browse-step="1"' + (browseIndex >= v.cards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' :
-            '<div class="ilp-card__actions">' + actions + '</div>' + gateNote +
-            (gate && gate.passed ? '' : '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>'));
+    var flashContent = v.checkRequired && flashMode === 'check'
+      ? '<div class="ilp-card-mode-check"><p>' + (gate && gate.passed ? 'Bạn đã hoàn thành bài kiểm tra của phần này.' :
+          canCheck ? 'Đã lướt hết thẻ. Bạn có thể bắt đầu kiểm tra.' : 'Bạn có thể kiểm tra ngay hoặc lướt hết thẻ trước.') + '</p>' + gateNote +
+          (readOnly || gate && gate.passed ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>') + '</div>'
+      : '<article class="ilp-card' + (shownCard && shownCard.flipped ? ' is-flipped' : '') + (ui.turning ? ' is-turning' : '') + '"' +
+          (shownCard ? (readOnly ? ' data-browse-card tabindex="0" role="button" aria-label="Thẻ từ vựng; chạm để lật"' :
+            !(gate && gate.passed) ? ' data-card="' + shownCard.memberId + '" tabindex="0" role="button" aria-label="Thẻ từ vựng; chạm để lật"' : '') : '') + '>' +
+          cardFace(shownCard) + '</article>' +
+          '<div class="ilp-browse-nav"><button type="button" data-browse-step="-1"' + (browseIndex === 0 ? ' disabled' : '') + '>← Trước</button>' +
+          '<span>' + (partCards.length ? browseIndex + 1 : 0) + '/' + partCards.length + ' trong phần này</span>' +
+          '<button type="button" data-browse-step="1"' + (browseIndex >= partCards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' + gateNote +
+          (readOnly || gate && gate.passed || !v.checkRequired ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>') +
+          (!readOnly && !v.checkRequired ? '<p class="ilp-result__pass">Xem hết các thẻ để hoàn tất kỹ năng này; tình huống giao tiếp không có bài kiểm tra.</p>' : '');
     return '<section class="ilp-study">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">VOCABULARY // ' +
-      (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Từ vựng</h1>' + partLabel(v) +
+      (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Từ vựng</h1>' + partLabel(v) +
       '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p></div>' +
-      '<div class="ilp-study__count"><strong>' + v.rememberedCount + '/' + v.totalCards + '</strong><span>đã nhớ</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.rememberedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
+      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
+      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
       '<span style="width:' + progress + '%"></span></div>' +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học từ vựng">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'flashcards') + '" data-study-tab="flashcards">Học bằng Flashcard</button></div>' +
       '<section role="tabpanel"' + (activeTab === 'content' ? '' : ' hidden') + '><h2>Các từ trong phần này</h2>' +
-      (groups.length > 1 ? '<div class="ilp-study-parts" aria-label="Các phần từ vựng">' + groups.map(function (_, index) {
-        return '<button type="button" data-study-part="' + index + '" aria-current="' + (index === partIndex) + '">Phần ' + (index + 1) + '</button>';
-      }).join('') + '</div>' : '') +
-      renderVocabularyList(groups[partIndex] || []) + '</section>' +
+      partNavigation(groups, partIndex) +
+      renderVocabularyList(groups[partIndex] || []) +
+      (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next"><button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+        (v.checkRequired ? '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button><p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p>' :
+          '<p>Xem hết các thẻ để hoàn thành phần Từ vựng của tình huống.</p>') + '</div>') + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
-      modeNav + flashContent +
+      partNavigation(groups, partIndex) + flashContent +
       '</section>' +
       '</section>';
   }
 
+  // [JLAS-W0108] Deterministic per-attempt column shuffle for MATCHING. Seeded by attemptId so a
+  // re-render / reload / resume of the same attempt keeps the same order, while a new attempt reshuffles.
+  // The answer key never reaches the client, so "avoid all-correct-aligned rows" is enforced only by the
+  // server-side meaning rotation plus a client-side Fisher-Yates shuffle that rejects a no-op permutation.
+  function hashSeed(value) {
+    var h = 2166136261;
+    for (var i = 0; i < value.length; i++) { h ^= value.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function shuffled(array, rng) {
+    var out = array.slice();
+    for (var i = out.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1));
+      var swap = out[i]; out[i] = out[j]; out[j] = swap;
+    }
+    return out;
+  }
+  function matchingColumns(questions, attemptId) {
+    var matching = (questions || []).filter(function (q) { return q.questionType === 'MATCHING'; });
+    if (matching.length < 2) return { wordOrder: matching.map(function (q) { return q.questionId; }), meaningOrder: [] };
+    var wordIds = matching.map(function (q) { return q.questionId; });
+    var meaningCount = (matching[0].options || []).length;
+    var meaningIndices = [];
+    for (var i = 1; i <= meaningCount; i++) meaningIndices.push(i);
+    var rng = mulberry32(hashSeed(String(attemptId == null ? '' : attemptId) + ':' + matching.length + ':' + meaningCount));
+    var wordOrder = shuffled(wordIds, rng);
+    var meaningOrder = shuffled(meaningIndices, rng);
+    if (wordOrder.length > 1 && wordOrder.every(function (id, i) { return id === wordIds[i]; })) wordOrder = shuffled(wordIds, rng);
+    if (meaningOrder.length > 1 && meaningOrder.every(function (idx, i) { return idx === meaningIndices[i]; })) meaningOrder = shuffled(meaningIndices, rng);
+    return { wordOrder: wordOrder, meaningOrder: meaningOrder };
+  }
   function renderCheck(check) {
     var all = check.questions || [];
+    // [JLAS-W0113] Restore previously autosaved selections (questionId -> selectedOption) so a reopen/reload
+    // shows the learner's saved MCQ choices and matching pairs instead of a blank quiz.
+    var selectedByQuestion = {};
+    (check.draftAnswers || []).forEach(function (d) {
+      if (d && d.selectedOption != null) selectedByQuestion[String(d.questionId)] = Number(d.selectedOption);
+    });
     var matching = all.filter(function (q) { return q.questionType === 'MATCHING'; });
     var canPair = matching.length >= 2 && matching.every(function (q) {
       return q.options && q.options.length === matching.length && q.options.every(function (option, index) {
@@ -172,29 +244,104 @@
     });
     var questions = all.filter(function (q) { return !canPair || q.questionType !== 'MATCHING'; }).map(function (q, i) {
       var options = (q.options || []).map(function (opt, oi) {
-        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
+        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '"' +
+          (selectedByQuestion[String(q.questionId)] === (oi + 1) ? ' checked' : '') + '>' +
           '<span class="ilp-option__mark">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(opt) + '</span></label>';
       }).join('');
       return '<fieldset class="ilp-question"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
         '<span>' + esc(q.questionText) + '</span></legend><div class="ilp-options">' + options + '</div></fieldset>';
     }).join('');
     if (canPair) {
+      var matchOrder = matchingColumns(all, check.attemptId);
+      var matchById = {};
+      matching.forEach(function (q) { matchById[q.questionId] = q; });
+      var matchMeaningByIndex = {};
+      matching[0].options.forEach(function (option, i) { matchMeaningByIndex[i + 1] = option; });
+      var matchNumber = {};
+      matchOrder.wordOrder.forEach(function (id, i) { matchNumber[id] = i + 1; });
       questions += '<fieldset class="ilp-matching"><legend>Nối từ ở cột trái với nghĩa ở cột phải</legend>' +
-        '<p>Chọn một từ, sau đó chọn nghĩa tương ứng. Có thể chọn lại để sửa.</p>' +
+        '<p>Chọn một từ rồi chọn nghĩa tương ứng (hoặc ngược lại). Chọn mục khác để đổi; bấm vào cặp đã nối để tháo.</p>' +
         '<div class="ilp-matching__columns"><div class="ilp-matching__column"><h2>Từ vựng</h2>' +
-        matching.map(function (q, i) { return '<button type="button" data-match-word="' + q.questionId + '" aria-pressed="false"><span>' + (i + 1) + '.</span> ' + esc(q.questionText) + '<small data-match-label="' + q.questionId + '">Chưa nối</small></button>'; }).join('') +
+        matchOrder.wordOrder.map(function (id) { return '<button type="button" data-match-word="' + id + '" aria-pressed="false"><span>' + matchNumber[id] + '.</span> ' + esc(matchById[id].questionText) + '</button>'; }).join('') +
         '</div><div class="ilp-matching__column"><h2>Nghĩa</h2>' +
-        matching[0].options.map(function (option, i) { return '<button type="button" data-match-meaning="' + (i + 1) + '"><span>' + String.fromCharCode(65 + i) + '.</span> ' + esc(option) + '</button>'; }).join('') +
+        matchOrder.meaningOrder.map(function (idx, i) { return '<button type="button" data-match-meaning="' + idx + '" aria-pressed="false"><span>' + String.fromCharCode(65 + i) + '.</span> ' + esc(matchMeaningByIndex[idx]) + '</button>'; }).join('') +
         '</div></div><div class="ilp-matching__answers">' + matching.map(function (q) {
-          return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '">'; }).join('');
+          return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '"' +
+            (selectedByQuestion[String(q.questionId)] === (i + 1) ? ' checked' : '') + '>'; }).join('');
         }).join('') + '</div></fieldset>';
     }
-    return '<section class="ilp-check">' +
+    // [JLAS-W0126] no-inline-dictionary locks the scored check against the inline dictionary popover (and its
+    // "Lưu từ"/"Mở từ điển"), which would reveal the answer. The study/result views stay unlocked.
+    return '<section class="ilp-check no-inline-dictionary"><form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">MICRO CHECK // ' + (num(check.batchIndex) + 1) + '/' + num(check.batchCount) + '</span>' +
-      '<h1>Bài kiểm tra nhỏ</h1><p>Chọn đáp án đúng cho từng câu rồi nộp.</p></div></header>' +
-      '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
+      '<h1>Bài kiểm tra nhỏ</h1><p>Hoàn thành phần trắc nghiệm và ghép các cặp từ – nghĩa.</p><span class="ilp-check__answered" role="status" data-check-progress>' +
+        checkProgressText(0, canPair ? all.length - matching.length : all.length, 0, canPair ? matching.length : 0) + '</span></div></header>' +
+      questions +
+      '<span class="ilp-check__draft" data-draft-status role="status" aria-live="polite"></span>' +
       '<button class="ilp-check__submit" type="submit">Nộp bài</button></form>' +
       '</section>';
+  }
+
+  function syncMatchingHighlights(form, selectedWord, selectedMeaning) {
+    form.querySelectorAll('[data-match-word]').forEach(function (button) {
+      var questionId = button.dataset.matchWord;
+      var answer = form.querySelector('input[name="q-' + questionId + '"]:checked');
+      var matched = !!answer;
+      button.classList.toggle('is-matched', matched);
+      button.classList.toggle('is-selected', !matched && selectedWord === questionId);
+      button.setAttribute('aria-pressed', String(matched || selectedWord === questionId));
+      var badge = button.querySelector('[data-match-badge]');
+      if (matched) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.setAttribute('data-match-badge', '');
+          badge.className = 'ilp-matching__badge';
+          button.appendChild(badge);
+        }
+        var meaningButton = form.querySelector('[data-match-meaning="' + answer.value + '"]');
+        badge.textContent = meaningButton && meaningButton.querySelector('span')
+          ? String(meaningButton.querySelector('span').textContent || '').replace(/\.\s*$/, '') : answer.value;
+      } else if (badge) {
+        badge.textContent = '';
+      }
+    });
+    form.querySelectorAll('[data-match-meaning]').forEach(function (button) {
+      var idx = button.dataset.matchMeaning;
+      var matched = !!form.querySelector('.ilp-matching__answers input[value="' + idx + '"]:checked');
+      button.classList.toggle('is-matched', matched);
+      button.classList.toggle('is-selected', !matched && selectedMeaning === idx);
+      button.setAttribute('aria-pressed', String(matched || selectedMeaning === idx));
+    });
+  }
+
+  function updateCheckProgress(form) {
+    var questionNames = new Set(Array.prototype.map.call(form.querySelectorAll('.ilp-question input[type="radio"]'), function (input) { return input.name; }));
+    var pairNames = new Set(Array.prototype.map.call(form.querySelectorAll('.ilp-matching__answers input[type="radio"]'), function (input) { return input.name; }));
+    var answeredQuestions = 0;
+    var answeredPairs = 0;
+    form.querySelectorAll('input[type="radio"]:checked').forEach(function (input) {
+      if (questionNames.has(input.name)) answeredQuestions++;
+      else if (pairNames.has(input.name)) answeredPairs++;
+    });
+    var output = form.querySelector('[data-check-progress]');
+    if (output) output.textContent = checkProgressText(answeredQuestions, questionNames.size, answeredPairs, pairNames.size);
+  }
+
+  function selectMatchingAnswer(form, wordId, value) {
+    form.querySelectorAll('.ilp-matching__answers input[type="radio"]:checked').forEach(function (input) {
+      if (input.value === value && input.name !== 'q-' + wordId) input.checked = false;
+    });
+    var radio = form.querySelector('input[name="q-' + wordId + '"][value="' + value + '"]');
+    if (radio) radio.checked = true;
+  }
+
+  // [JLAS-W0113] Re-run the derived UI after the form HTML (with restored `checked` radios) is in the DOM:
+  // refresh matching highlights and the answered progress counter so a reopened/reloaded attempt shows its
+  // saved state, not a blank quiz.
+  function restoreCheckForm(form) {
+    if (!form) return;
+    syncMatchingHighlights(form, null, null);
+    updateCheckProgress(form);
   }
 
   function formatCooldown(value) {
@@ -219,20 +366,20 @@
         (result.reviewRequired ? '<p>Hãy ôn lại các từ đã sai trước khi thử lại.</p>' : '') +
         (cooldown ? '<p>Vui lòng quay lại sau <strong>' + esc(formatCooldown(result.cooldownUntil)) + '</strong>.</p>' : '') +
         '</div>') +
-      (wrong.length ? '<ol class="ilp-review">' + wrong.map(function (r) { return '<li>Câu ' + esc(r.questionId) + '</li>'; }).join('') + '</ol>' : '') +
+      (wrong.length ? '<p class="ilp-review-summary">Có ' + wrong.length + ' câu cần xem lại. Chi tiết câu hỏi và đáp án nằm trong lịch sử lượt làm bên dưới.</p>' : '') +
       '<div class="ilp-result__actions">' +
       (nextBatch ? '<button class="ilp-check" type="button" data-check-next>Làm tiếp phần kiểm tra →</button>' : '') +
       (result.reviewRequired ? '<button class="ilp-check" type="button" data-review>Ôn lại phần đã sai</button>' : '') +
-      '<a class="ilp-check ilp-check--ghost" href="/learning/v2/vocabulary?activity=' + encodeURIComponent(activityId() || '') + '&amp;tab=content">Xem lại bài học</a>' +
+      '<a class="ilp-check ilp-check--ghost" href="/learning/v2/vocabulary?activity=' + encodeURIComponent(activityId() || '') +
+        (passed ? '&amp;mode=review&amp;tab=content">Xem lại bài giảng' : '&amp;tab=content">Quay lại bài học') + '</a>' +
       '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a>' +
       '</div></section>';
   }
 
   // [JLAS-W0108] Task 11 - REVIEW: the server's read-only view, rendered with no flip/remember/check controls.
-  function renderReview(v, feedback) {
-    return window.InteractiveStudyMode.reviewList('Từ vựng đã học', v.cards.map(function (card) {
-      return { html: '<article class="ilp-card is-flipped">' + cardFace(Object.assign({}, card, { flipped: true })) + '</article>' };
-    }), feedback === null ? '' : window.InteractiveStudyMode.feedbackList(feedback));
+  function renderReview(v, feedback, activeTab, partIndex, ui) {
+    return '<p class="ilp-mode-banner" role="note" data-mode-banner="REVIEW"><strong>Chế độ xem lại</strong> — chỉ xem, không ghi nhận tiến độ.</p>' +
+      renderStudy(v, null, activeTab || 'content', partIndex || 0, Object.assign({}, ui || {}, { mode: 'browse', readOnly: true }));
   }
 
   function renderPassed(extra) {
@@ -255,26 +402,49 @@
     // [JLAS-W0108] Task 11 - LEARN / REVIEW / PRACTICE. The server enforces each mode; the page only picks endpoints.
     var StudyMode = window.InteractiveStudyMode;
     if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
-    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
+    if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
     var rehearsalState = null;
-    var selectedTab = new URLSearchParams(window.location.search).get('tab') === 'flashcards' ? 'flashcards' : 'content';
+    var selectedTab = mode === 'PRACTICE' || new URLSearchParams(window.location.search).get('tab') === 'flashcards'
+      ? 'flashcards' : 'content';
     var currentStudy = null;
     var currentGate = null;
+    var reviewStudy = null;
     var selectedWord = null;
+    var selectedMeaning = null;
     var selectedPart = 0;
-    var flashUi = { mode: 'remember', browseIndex: 0, browseFlipped: false, typedFeedback: '' };
+    var flashUi = { mode: 'browse', browseIndex: null, browseFlipped: false, typedFeedback: '' };
+    var flipPending = false;
+    // [JLAS-W0113] Autosave state: debounce timer, retry count, and the draft endpoint (same path for every
+    // content adapter). Drafts only ever autosave in LEARN mode (the credit-earning micro-check); PRACTICE and
+    // REVIEW replays are ephemeral and never write a draft.
+    var draftPath = '/micro-check/draft';
+    var draftTimer = null;
+    var draftRetries = 0;
+    // [JLAS-W0126] Draft dirtiness + in-flight guard for app-controlled page-leave protection. `draftDirty`
+    // is set whenever an edit schedules a save and cleared once the latest save is acknowledged; `draftSeq`
+    // ignores a stale in-flight response so an out-of-order write can never regress a newer selection.
+    var draftDirty = false;
+    var draftInFlight = null;
+    var draftSeq = 0;
     function renderRehearsal() {
-      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi) +
-        '<button class="ilp-check ilp-check--ghost" type="button" data-attempt-history>Xem lại bài kiểm tra</button>';
+      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
     }
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/vocabulary', id, ['REVIEW', 'PRACTICE']) : '';
     function showStudy() {
       if (mode === 'PRACTICE') return renderRehearsal();
+      if (mode === 'REVIEW' && reviewStudy) {
+        node.innerHTML = renderReview(viewModel(reviewStudy), null, selectedTab, selectedPart, flashUi);
+        return;
+      }
       if (!currentStudy) return;
+      if (currentStudy.activityState === 'PASSED' && currentStudy.checkRequired === false) {
+        node.innerHTML = renderPassed(PASSED_ACTIONS);
+        return;
+      }
       node.innerHTML = renderStudy(viewModel(currentStudy), currentGate, selectedTab, selectedPart, flashUi) +
         (currentGate && currentGate.passed ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
     }
@@ -286,38 +456,122 @@
       return body.data;
     }
 
+    // [JLAS-W0113] Autosave a draft of the learner's in-progress selections. The draft is the FULL current
+    // checked set (an unselected/unpaired answer is simply omitted, and the server drops it), so "unselect" is
+    // represented naturally. Autosave never grades and never consumes quota/rewards — the server only writes
+    // `draft_answers_json` and rejects the write once the attempt is submitted.
+    function setDraftStatus(text, isError) {
+      var el = node.querySelector('[data-draft-status]');
+      if (el) {
+        el.textContent = text;
+        el.classList.toggle('is-error', !!isError);
+      }
+    }
+
+    function collectDraft(form) {
+      return Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
+        return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
+      });
+    }
+
+    async function flushDraft() {
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return true; // quiz already submitted or navigated away — nothing left to save
+      if (draftInFlight) return draftInFlight; // serialise writes; never stack two saves for the same form
+      if (!draftDirty) return true;
+      var seq = ++draftSeq;
+      var attemptId = Number(form.dataset.attemptId);
+      setDraftStatus('Đang lưu…');
+      var pending = api(draftPath, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+        body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+      }).then(function () {
+        if (seq !== draftSeq) return false; // a newer edit superseded this write; keep the draft dirty
+        draftRetries = 0;
+        draftDirty = false;
+        setDraftStatus('Đã lưu');
+        return true;
+      }, function () {
+        if (seq !== draftSeq) return false;
+        draftRetries += 1;
+        if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
+          setDraftStatus('Lưu thất bại — thử lại…', true);
+          draftTimer = setTimeout(flushDraft, 2500);
+        } else {
+          setDraftStatus('Chưa lưu được nháp. Kiểm tra kết nối.', true);
+        }
+        return false;
+      }).finally(function () { draftInFlight = null; });
+      draftInFlight = pending;
+      return pending;
+    }
+
+    function scheduleDraftSave(form) {
+      if (mode !== 'LEARN' || !form) return;
+      draftDirty = true;
+      if (draftTimer) clearTimeout(draftTimer);
+      setDraftStatus('Đang lưu…');
+      draftTimer = setTimeout(flushDraft, 800);
+    }
+
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'RESULTS') {
+          await StudyMode.loadSavedResults(node, api, '/learning/v2/vocabulary', id);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         if (mode === 'REVIEW') {
-          var feedback = null;
-          try { feedback = await api('/review/attempts'); } catch (e) { feedback = null; }
-          node.innerHTML = renderReview(viewModel(await api(modeApi.study)), feedback);
+          reviewStudy = await api(modeApi.study);
+          showStudy();
           node.setAttribute('aria-busy', 'false');
           return;
         }
         if (mode === 'PRACTICE') {
-          rehearsalState = StudyMode.rehearsal(await api('/review'));
+          var practiceSource = await api('/review');
+          if (practiceSource.activityState !== 'PASSED' && practiceSource.activityState !== 'COMPLETED') {
+            node.innerHTML = '<section class="ilp-state"><h1>Bài học chưa hoàn thành</h1>' +
+              '<p>Hoàn thành bài học và kiểm tra trước khi ôn lại.</p>' +
+              '<a class="ilp-check" href="/learning/v2/vocabulary?activity=' + encodeURIComponent(id) +
+              '">Tiếp tục học</a></section>';
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
+          rehearsalState = StudyMode.rehearsal(practiceSource);
           renderRehearsal();
           node.setAttribute('aria-busy', 'false');
           return;
         }
         currentStudy = await api('/study');
         currentGate = null;
-        try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
-        showStudy();
+        if (currentStudy.checkRequired !== false) {
+          try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
+        }
+        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
+          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/vocabulary', id, renderPassed(PASSED_ACTIONS));
+        } else showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
 
     async function doPractice() {
-      try { node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' })); }
-      catch (e) { node.innerHTML = error(e.message); }
+      try {
+        selectedWord = null; selectedMeaning = null;
+        var practiceCheck = await api(issuePath, { method: 'POST' });
+        node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(practiceCheck);
+        restoreCheckForm(node.querySelector('.ilp-check__form'));
+      } catch (e) { node.innerHTML = error(e.message); }
     }
 
     async function doCheck() {
-      try { node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' })); }
-      catch (e) { node.innerHTML = error(e.message); }
+      try {
+        selectedWord = null; selectedMeaning = null;
+        var check = await api(issuePath, { method: 'POST' });
+        node.innerHTML = renderCheck(check);
+        restoreCheckForm(node.querySelector('.ilp-check__form'));
+      } catch (e) { node.innerHTML = error(e.message); }
     }
 
     node.addEventListener('click', async function (event) {
@@ -330,7 +584,21 @@
       var part = event.target.closest('[data-study-part]');
       if (part) {
         selectedPart = Number(part.dataset.studyPart);
+        flashUi.browseIndex = null;
+        flashUi.browseFlipped = false;
+        flashUi.turning = false;
         showStudy();
+        return;
+      }
+      var historyTab = event.target.closest('[data-quiz-history-index]');
+      if (historyTab) {
+        var selectedHistory = historyTab.dataset.quizHistoryIndex;
+        node.querySelectorAll('[data-quiz-history-index]').forEach(function (button) {
+          button.setAttribute('aria-current', String(button === historyTab));
+        });
+        node.querySelectorAll('[data-quiz-history-detail]').forEach(function (detail) {
+          detail.hidden = detail.dataset.quizHistoryDetail !== selectedHistory;
+        });
         return;
       }
       var cardMode = event.target.closest('[data-card-mode]');
@@ -342,39 +610,55 @@
       }
       var browseStep = event.target.closest('[data-browse-step]');
       if (browseStep) {
-        var cards = viewModel(mode === 'PRACTICE' ? rehearsalState : currentStudy).cards;
-        flashUi.browseIndex = Math.min(Math.max(flashUi.browseIndex + Number(browseStep.dataset.browseStep), 0), Math.max(cards.length - 1, 0));
+        var sourceState = mode === 'PRACTICE' ? rehearsalState : mode === 'REVIEW' ? reviewStudy : currentStudy;
+        var cards = displayGroups(viewModel(sourceState).cards)[selectedPart] || [];
+        var firstUnseen = cards.findIndex(function (card) { return !card.flipped; });
+        var from = flashUi.browseIndex == null ? Math.max(0, firstUnseen) : flashUi.browseIndex;
+        flashUi.browseIndex = Math.min(Math.max(from + Number(browseStep.dataset.browseStep), 0), Math.max(cards.length - 1, 0));
         flashUi.browseFlipped = false;
+        flashUi.turning = false;
         showStudy();
         return;
       }
       var audio = event.target.closest('[data-speak]');
       if (audio) { event.stopPropagation(); speakJapanese(audio.dataset.speak); return; }
+      if (event.target.closest('[data-browse-card]')) { flashUi.browseFlipped = !flashUi.browseFlipped; flashUi.turning = true; showStudy(); return; }
       var matchWord = event.target.closest('[data-match-word]');
       if (matchWord) {
-        selectedWord = matchWord.dataset.matchWord;
-        node.querySelectorAll('[data-match-word]').forEach(function (button) {
-          button.setAttribute('aria-pressed', String(button === matchWord));
-        });
+        var matchForm = matchWord.closest('form');
+        var wordId = matchWord.dataset.matchWord;
+        var wordAnswer = matchForm.querySelector('input[name="q-' + wordId + '"]:checked');
+        if (wordAnswer) { wordAnswer.checked = false; selectedWord = null; selectedMeaning = null; }
+        else if (selectedWord === wordId) { selectedWord = null; }
+        else {
+          selectedWord = wordId;
+          if (selectedMeaning != null) {
+            selectMatchingAnswer(matchForm, wordId, selectedMeaning);
+            selectedWord = null; selectedMeaning = null;
+          }
+        }
+        syncMatchingHighlights(matchForm, selectedWord, selectedMeaning);
+        updateCheckProgress(matchForm);
+        scheduleDraftSave(matchForm);
         return;
       }
       var matchMeaning = event.target.closest('[data-match-meaning]');
-      if (matchMeaning && selectedWord) {
+      if (matchMeaning) {
         var form = matchMeaning.closest('form');
         var value = matchMeaning.dataset.matchMeaning;
-        form.querySelectorAll('input[type="radio"]:checked').forEach(function (input) {
-          if (input.value === value && input.name !== 'q-' + selectedWord) {
-            input.checked = false;
-            var oldLabel = form.querySelector('[data-match-label="' + input.name.slice(2) + '"]');
-            if (oldLabel) oldLabel.textContent = 'Chưa nối';
+        var meaningAnswer = form.querySelector('.ilp-matching__answers input[value="' + value + '"]:checked');
+        if (meaningAnswer) { meaningAnswer.checked = false; selectedWord = null; selectedMeaning = null; }
+        else if (selectedMeaning === value) { selectedMeaning = null; }
+        else {
+          selectedMeaning = value;
+          if (selectedWord != null) {
+            selectMatchingAnswer(form, selectedWord, value);
+            selectedWord = null; selectedMeaning = null;
           }
-        });
-        var radio = form.querySelector('input[name="q-' + selectedWord + '"][value="' + value + '"]');
-        if (radio) radio.checked = true;
-        var label = form.querySelector('[data-match-label="' + selectedWord + '"]');
-        if (label) label.textContent = 'Đã nối với ' + matchMeaning.textContent.trim();
-        selectedWord = null;
-        form.querySelectorAll('[data-match-word]').forEach(function (button) { button.setAttribute('aria-pressed', 'false'); });
+        }
+        syncMatchingHighlights(form, selectedWord, selectedMeaning);
+        updateCheckProgress(form);
+        scheduleDraftSave(form);
         return;
       }
       if (event.target.closest('[data-attempt-history]')) {
@@ -386,27 +670,45 @@
       }
       if (event.target.closest('[data-retry]')) return loadStudy();
       if (event.target.closest('[data-practice-again]')) return doPractice();
+      if (event.target.closest('[data-practice-review]')) {
+        rehearsalState = StudyMode.rehearsal(rehearsalState);
+        selectedTab = 'flashcards'; selectedPart = 0;
+        flashUi = { mode: 'browse', browseIndex: 0, browseFlipped: false, typedFeedback: '' };
+        renderRehearsal();
+        return;
+      }
       if (event.target.closest('[data-check-next]')) return doCheck();
-      if (event.target.closest('[data-check]')) return doCheck();
+      if (event.target.closest('[data-check]')) {
+        if (mode === 'LEARN' && currentStudy && currentStudy.flippedCount < currentStudy.totalCards &&
+            !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Bạn muốn kiểm tra ngay hay tiếp tục ôn thẻ?',
+              { confirmText: 'Vẫn kiểm tra', cancelText: 'Ôn hết thẻ' }))) return;
+        return doCheck();
+      }
       if (event.target.closest('[data-review]')) {
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
+        selectedTab = 'flashcards'; flashUi.mode = 'browse';
         return loadStudy();
       }
       var flip = event.target.closest('[data-card]');
       if (flip) {
-        if (flashUi.mode === 'browse') {
-          flashUi.browseFlipped = !flashUi.browseFlipped;
-          showStudy();
-          return;
+        if (flipPending) return;
+        var sourceState = mode === 'PRACTICE' ? rehearsalState : currentStudy;
+        var visibleCards = displayGroups(viewModel(sourceState).cards)[selectedPart] || [];
+        var visibleIndex = visibleCards.findIndex(function (card) { return String(card.memberId) === String(flip.dataset.card); });
+        if (visibleIndex >= 0) flashUi.browseIndex = visibleIndex;
+        var firstReveal = visibleIndex >= 0 && !visibleCards[visibleIndex].flipped && !flashUi.browseFlipped;
+        if (firstReveal) {
+          if (!shouldPersistFlip(mode, flashUi.mode)) StudyMode.rehearseCard(rehearsalState, flip.dataset.card, 'flip');
+          else {
+            flipPending = true;
+            try { currentStudy = await api('/cards/' + encodeURIComponent(flip.dataset.card) + '/flip', { method: 'POST' }); }
+            catch (e) { node.innerHTML = error(e.message); return; }
+            finally { flipPending = false; }
+          }
         }
-        if (mode === 'PRACTICE') {
-          StudyMode.rehearseCard(rehearsalState, flip.dataset.card, 'flip');
-          renderRehearsal();
-          return;
-        }
-        try { currentStudy = await api('/cards/' + encodeURIComponent(flip.dataset.card) + '/flip', { method: 'POST' });
-          showStudy(); }
-        catch (e) { node.innerHTML = error(e.message); }
+        flashUi.browseFlipped = !flashUi.browseFlipped;
+        flashUi.turning = true;
+        showStudy();
         return;
       }
       var remember = event.target.closest('[data-remember]');
@@ -421,6 +723,25 @@
           showStudy(); }
         catch (e) { node.innerHTML = error(e.message); }
         return;
+      }
+    });
+
+    // Clicking a label may target its text/mark rather than the radio itself. Read the browser's
+    // post-default checked state on the next task so the live counter never stays stale.
+    node.addEventListener('click', function (event) {
+      var option = event.target.closest && event.target.closest('.ilp-check__form .ilp-option');
+      if (!option) return;
+      window.setTimeout(function () {
+        var form = option.closest('form');
+        if (form) updateCheckProgress(form);
+      }, 0);
+    });
+
+    node.addEventListener('change', function (event) {
+      if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
+        var changeForm = event.target.closest('form');
+        updateCheckProgress(changeForm);
+        scheduleDraftSave(changeForm);
       }
     });
 
@@ -445,6 +766,13 @@
       var form = event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      // A submitted attempt must never be re-autosaved: stop any pending debounce and cancel in-flight retries.
+      if (draftTimer) { clearTimeout(draftTimer); draftTimer = null; }
+      draftDirty = false;
+      var unanswered = new Set(Array.prototype.map.call(form.querySelectorAll('input[type="radio"]'), function (input) {
+        return input.name;
+      })).size - form.querySelectorAll('input[type="radio"]:checked').length;
+      if (unanswered > 0 && !(await window.JlasConfirm('Bạn còn ' + unanswered + ' câu chưa trả lời. Câu bỏ trống sẽ bị tính sai. Vẫn nộp bài?'))) return;
       var answers = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
         return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
       });
@@ -456,16 +784,68 @@
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
         node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result);
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
-          await StudyMode.showNextAction(node, id);
+        try {
+          var attempts = await api('/attempt-history');
+          var resultPanel = node.querySelector('.ilp-result');
+          if (resultPanel && attempts && attempts.length) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+        } catch (historyError) { /* Keep the current quiz result usable if the optional history request fails. */ }
         if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
           await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });
 
+    // [JLAS-W0126] App-controlled page-leave protection for the in-progress micro-check draft. The browser
+    // cannot reliably block unload, so we own the two navigations the app performs while a dirty draft is on
+    // screen — in-page anchors (breadcrumb/shell links) and the shared "Quay lại" button — and flush the draft
+    // first, warning only when the flush genuinely fails. A pagehide keepalive POST is a best-effort backstop
+    // for tab close/reload (not guaranteed: the server may never see it).
+    if (typeof document.addEventListener === 'function') document.addEventListener('click', function (event) {
+      if (!draftDirty) return;
+      var target = event.target && event.target.closest ? event.target : null;
+      if (!target) return;
+      var back = target.closest('.lp-page-nav__back');
+      var anchor = back ? null : target.closest('a[href]');
+      var href = anchor ? anchor.getAttribute('href') : null;
+      if (!back && (!href || href.charAt(0) === '#')) return; // in-page jump, not a leave
+      event.preventDefault();
+      event.stopPropagation();
+      flushDraft().then(function (ok) {
+        var proceed = ok ? Promise.resolve(true)
+          : (window.JlasConfirm ? window.JlasConfirm('Chưa lưu được nháp của bạn. Vẫn rời trang?') : Promise.resolve(true));
+        proceed.then(function (yes) {
+          if (!yes) return;
+          if (back) {
+            var nav = window.JlasPageNavigation;
+            var action = nav && nav.resolveBackAction
+              ? nav.resolveBackAction(document.referrer, window.location.origin, '/learning/path/v2')
+              : { type: 'fallback', href: '/learning/path/v2' };
+            if (action.type === 'history') window.history.back();
+            else window.location.assign(action.href);
+          } else {
+            window.location.assign(href);
+          }
+        });
+      });
+    }, true);
+
+    if (typeof window.addEventListener === 'function') window.addEventListener('pagehide', function () {
+      if (!draftDirty) return;
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return;
+      var attemptId = Number(form.dataset.attemptId);
+      // sendBeacon cannot carry the JWT header, so use fetch(keepalive) for the authenticated draft write.
+      if (typeof fetch === 'function') {
+        fetch(base + draftPath, {
+          method: 'POST', keepalive: true,
+          headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+          body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+        });
+      }
+    });
+
     loadStudy();
   }
 
-  return { viewModel: viewModel, checkTypedAnswer: checkTypedAnswer, renderStudy: renderStudy, renderCheck: renderCheck, renderResult: renderResult, mount: mount };
+  return { viewModel: viewModel, checkTypedAnswer: checkTypedAnswer, checkProgressText: checkProgressText, shouldPersistFlip: shouldPersistFlip, selectMatchingAnswer: selectMatchingAnswer, renderStudy: renderStudy, renderReview: renderReview, renderCheck: renderCheck, renderResult: renderResult, mount: mount };
 });

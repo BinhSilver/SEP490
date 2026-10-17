@@ -21,26 +21,20 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GoalLessonSelectionServiceTest {
     @Mock UserGoalSurveySubmissionRepository submissions;
-    @Mock UserGoalSurveySelectionRepository selections;
-    @Mock LearningSurveyOptionRepository options;
     @Mock LessonLearningScopeRepository scopes;
     @Mock LessonRepository lessons;
     @Mock CompetencyLevelRepository competencyLevels;
     GoalLessonSelectionService service;
 
     @BeforeEach void setUp() {
-        service = new GoalLessonSelectionService(submissions, selections, options, scopes, lessons, competencyLevels);
+        service = new GoalLessonSelectionService(submissions, scopes, lessons, competencyLevels);
     }
 
     @Test
-    void selectedTopicPlusRequiredFoundationAreOrderedWithoutTreatingPreferenceAsMastery() {
+    void surveyPreferencesKeepTheFullApprovedSituationSetInScopeOrder() {
         UserGoalSurveySubmission submission = UserGoalSurveySubmission.builder().id(50L).userId(7L).goalId(3L)
                 .learningMode("BALANCED").status("SUBMITTED").version(1).build();
         when(submissions.findByIdAndUserId(50L, 7L)).thenReturn(Optional.of(submission));
-        when(selections.findBySubmissionId(50L)).thenReturn(List.of(
-                UserGoalSurveySelection.builder().optionId(20L).build()));
-        when(options.findAllById(List.of(20L))).thenReturn(List.of(
-                LearningSurveyOption.builder().id(20L).questionId(10L).topicId(100L).build()));
         when(scopes.findByGoalIdAndReviewStatusOrderByScopeOrderAsc(3L, "APPROVED")).thenReturn(List.of(
                 LessonLearningScope.builder().lessonId(1L).goalId(3L).topicId(999L).required(true)
                         .scopeOrder(1).learningMode("BALANCED").reviewStatus("APPROVED").build(),
@@ -50,11 +44,12 @@ class GoalLessonSelectionServiceTest {
                         .scopeOrder(3).learningMode("BALANCED").reviewStatus("APPROVED").build()));
         Lesson foundation = Lesson.builder().id(1L).status("PUBLISHED").build();
         Lesson selected = Lesson.builder().id(2L).status("PUBLISHED").build();
-        when(lessons.findAllById(List.of(1L, 2L))).thenReturn(List.of(selected, foundation));
+        Lesson anotherSituation = Lesson.builder().id(3L).status("PUBLISHED").build();
+        when(lessons.findAllById(List.of(1L, 2L, 3L))).thenReturn(List.of(selected, anotherSituation, foundation));
 
         var result = service.select(7L, 50L);
 
-        assertEquals(List.of(1L, 2L), result.lessons().stream().map(Lesson::getId).toList());
+        assertEquals(List.of(1L, 2L, 3L), result.lessons().stream().map(Lesson::getId).toList());
         assertEquals("BALANCED", result.learningMode());
     }
 
@@ -63,7 +58,6 @@ class GoalLessonSelectionServiceTest {
         UserGoalSurveySubmission submission = UserGoalSurveySubmission.builder().id(51L).userId(7L).goalId(4L)
                 .learningMode("COMMUNICATION_FIRST").status("SUBMITTED").version(1).build();
         when(submissions.findByIdAndUserId(51L, 7L)).thenReturn(Optional.of(submission));
-        when(selections.findBySubmissionId(51L)).thenReturn(List.of());
         when(scopes.findByGoalIdAndReviewStatusOrderByScopeOrderAsc(4L, "APPROVED")).thenReturn(List.of());
 
         assertThrows(ApiException.class, () -> service.select(7L, 51L));

@@ -10,10 +10,13 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.LearningPacePreviewResponse;
 import com.jlas.learning.dto.LearningPaceRequest;
 import com.jlas.learning.entity.LearningPathPackage;
+import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.enums.LearningPackageStatus;
+import com.jlas.learning.enums.LearningActivityType;
+import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.repository.LearningPathPackageRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
@@ -211,6 +214,34 @@ class InteractivePaceReplanServiceTest {
         assertEquals(LearningActivityState.STUDYING, activities.get(5).getActivityState());
         assertEquals(List.of(4,5,6,7,8,9), activities.subList(6,12).stream()
                 .map(UserLearningPathItem::getDayNumber).toList());
+    }
+
+    @Test
+    void loweringPaceSplitsFourCurriculumWordsWithoutLosingOrDuplicatingMembership() {
+        var original = activities.get(4);
+        original.setActivityType(LearningActivityType.VOCABULARY);
+        original.setEstimatedMinutes(24);
+        pkgs.get(2).setEstimatedMinutes(39);
+        var memberRows = java.util.stream.LongStream.rangeClosed(1, 4).mapToObj(id ->
+                LearningActivityMember.builder().id(id).activity(original)
+                        .memberType(LearningMemberType.VOCABULARY_ENTRY).canonicalId(100L + id)
+                        .orderIndex(Math.toIntExact(id)).sourceRevision("v1").build()).toList();
+        when(members.findByPathInStudyOrder(1L)).thenReturn(memberRows);
+        when(items.save(any())).thenAnswer(call -> {
+            var item = call.getArgument(0, UserLearningPathItem.class);
+            if (item.getId() == null) item.setId(90L);
+            return item;
+        });
+
+        var preview = service.preview(USER, "LIGHTER");
+        service.apply(USER, new LearningPaceRequest("LIGHTER", preview.newMinutesPerDay(), preview.previewToken()));
+
+        assertEquals(20, path.getMinutesPerDay());
+        assertEquals(List.of(101L, 102L, 103L, 104L),
+                memberRows.stream().map(LearningActivityMember::getCanonicalId).toList());
+        assertEquals(List.of(30L, 30L, 90L, 90L),
+                memberRows.stream().map(member -> member.getActivity().getId()).toList());
+        verify(members, times(4)).save(any(LearningActivityMember.class));
     }
 
     @Test

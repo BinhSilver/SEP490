@@ -26,8 +26,6 @@ public class GoalSpecificPathService {
     private final UserLearningPathRepository paths;
     private final UserLearningStageRepository stages;
     private final GoalLessonSelectionService selection;
-    private final GoalPrerequisitePlanner prerequisites;
-    private final BrseFoundationQualificationPort foundation;
     private final InteractivePackageComposer composer;
 
     @Transactional
@@ -42,19 +40,9 @@ public class GoalSpecificPathService {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu không hỗ trợ lộ trình theo survey.");
         }
 
-        String assessedLevel = null;
-        Integer dailyMinutes = null;
-        if ("BA".equals(goal.getGoalCode())) {
-            var qualification = foundation.verify(userId, assessmentAttemptId);
-            if (!qualification.qualified()) {
-                throw new ApiException(ErrorCode.CONFLICT,
-                        "Kết quả Japanese Foundation chưa hợp lệ: " + qualification.reasonCode());
-            }
-            assessedLevel = qualification.assessedLevel();
-            dailyMinutes = qualification.dailyStudyMinutes();
-        } else if (assessmentAttemptId != null) {
+        if (assessmentAttemptId != null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED,
-                    "Travel và Daily Life chỉ dùng survey, không nhận assessment attempt.");
+                    "Các mục tiêu giao tiếp (BrSE/BA, Travel, Daily Life) chỉ dùng survey, không nhận assessment attempt.");
         }
 
         var existing = paths.findByUserIdAndSurveyIdAndExperienceVersion(
@@ -71,13 +59,13 @@ public class GoalSpecificPathService {
         UserLearningPath path = paths.save(UserLearningPath.builder()
                 .user(user).title("Lộ trình " + goal.getDisplayNameVi()).goal(goal.getGoalCode())
                 .learningMode(selected.learningMode()).surveyId(submissionId)
-                .assessmentAttemptId("BA".equals(goal.getGoalCode()) ? assessmentAttemptId : null)
+                .assessmentAttemptId(null)
                 .assessmentRevision("goal-survey-v1").policyVersion("GOAL_PATH_R1")
-                .currentLevel(assessedLevel).minutesPerDay(dailyMinutes != null ? dailyMinutes : 20)
+                .currentLevel(null).minutesPerDay(20)
                 .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2)
                 .status("ACTIVE").version(paths.findMaxVersionByUserId(userId) + 1).build());
 
-        List<Lesson> ordered = prerequisites.plan(selected.lessons());
+        List<Lesson> ordered = selected.lessons();
         if (ordered.isEmpty()) throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                 "Chưa có bài học đã duyệt cho nhu cầu này.");
         LinkedHashSet<String> levels = new LinkedHashSet<>();
@@ -86,7 +74,8 @@ public class GoalSpecificPathService {
         for (String level : levels) {
             stages.save(UserLearningStage.builder().learningPath(path).level(level).stageIndex(stageIndex)
                     .curriculumVersion("goal-scope-v1").assessmentCycle("R1")
-                    .status(stageIndex++ == 0 ? "ACTIVE" : "PENDING").build());
+                    .status("ACTIVE").build());
+            stageIndex++;
         }
 
         List<ScheduledLearningResource> schedule = new ArrayList<>();

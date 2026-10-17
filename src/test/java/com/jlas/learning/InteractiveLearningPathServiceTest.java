@@ -61,13 +61,33 @@ class InteractiveLearningPathServiceTest {
         }
     }
 
+    @Test void completedRoadmapKeepsReplayAndDoesNotWriteOrReward() {
+        var path = interactivePath();
+        path.setStatus("COMPLETED");
+        var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.COMPLETED);
+        var finished = activities(pkg);
+        markAllTerminal(finished);
+        when(paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(7L, LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(finished);
+        var result = service.completedRoadmap(7L);
+        assertEquals(100, result.progressPercent());
+        assertEquals(1, result.completedPackages());
+        assertNull(result.currentPackageId());
+        assertFalse(result.packages().getFirst().activities().isEmpty());
+        verify(packages, never()).save(any());
+        verify(packages, never()).findByPathForUpdate(anyLong());
+        verifyNoInteractions(creditService, streakRepository);
+    }
+
     @Test void currentReadsOnlyInteractiveVersionAndKeepsPackageOrder() {
         var path = interactivePath();
         var second = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
         var first = learningPackage(path, 11L, 1, LearningPackageStatus.AVAILABLE);
         when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
                 .thenReturn(Optional.of(path));
-        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(first, second));
+        when(packages.findByPathForUpdate(2L)).thenReturn(List.of(first, second));
         when(items.findByLearningPackageIdOrderByOrderIndex(anyLong())).thenAnswer(inv -> activities(
                 inv.getArgument(0, Long.class).equals(11L) ? first : second));
 
@@ -75,6 +95,49 @@ class InteractiveLearningPathServiceTest {
 
         assertEquals(List.of(11L, 12L), result.packages().stream().map(p -> p.id()).toList());
         assertEquals(11L, result.currentPackageId());
+    }
+
+    @Test void currentOpensEverySegmentInTheAvailableChapterButKeepsTheNextChapterLocked() {
+        var path = interactivePath();
+        var firstSegment = learningPackage(path, 11L, 1, LearningPackageStatus.AVAILABLE);
+        var sameChapter = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        sameChapter.setSourceLesson(firstSegment.getSourceLesson());
+        var nextChapter = learningPackage(path, 13L, 3, LearningPackageStatus.LOCKED);
+        when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+        when(packages.findByPathForUpdate(2L)).thenReturn(List.of(firstSegment, sameChapter, nextChapter));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities(firstSegment));
+        when(items.findByLearningPackageIdOrderByOrderIndex(12L)).thenReturn(activities(sameChapter));
+        when(items.findByLearningPackageIdOrderByOrderIndex(13L)).thenReturn(activities(nextChapter));
+
+        var result = service.current(7L);
+
+        assertEquals(LearningPackageStatus.AVAILABLE, result.packages().get(0).status());
+        assertEquals(LearningPackageStatus.AVAILABLE, result.packages().get(1).status(),
+                "all skill segments of the current chapter should be selectable");
+        assertEquals(LearningPackageStatus.LOCKED, result.packages().get(2).status(),
+                "the next chapter stays locked until every segment in this chapter is complete");
+    }
+
+    @Test void currentLocksPackageSnapshotBeforeRefreshingProgress() {
+        var path = interactivePath();
+        var first = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var next = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        var finished = activities(first);
+        markAllTerminal(finished);
+        when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.of(path));
+        when(packages.findByPathForUpdate(2L)).thenReturn(List.of(first, next));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(finished);
+        when(items.findByLearningPackageIdOrderByOrderIndex(12L)).thenReturn(activities(next));
+        stubNoScoredSessions();
+
+        var result = service.current(7L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, result.packages().getFirst().status());
+        assertEquals(LearningPackageStatus.AVAILABLE, result.packages().get(1).status());
+        verify(packages).findByPathForUpdate(2L);
+        verify(packages, never()).findOwnedByIdForUpdate(anyLong(), anyLong());
     }
 
     @Test void currentExposesSmartTestSmallTargetSetsAsReviewOnlyWithoutCreatingActivities() {
@@ -85,7 +148,7 @@ class InteractiveLearningPathServiceTest {
         pkg.setPhase("WARM_UP");
         when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
                 .thenReturn(Optional.of(path));
-        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        when(packages.findByPathForUpdate(2L)).thenReturn(List.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(List.of());
 
         var result = service.current(7L);
@@ -96,55 +159,22 @@ class InteractiveLearningPathServiceTest {
                 "Read-only targets must not be represented as progress-bearing activities");
     }
 
-    /** UAT 2026-10-06: every wrong Smart Test grammar question without a grammar lesson is shown from the
-     * question contract itself. MCQ answers come from correctOption; fill-blank answers come from answerText. */
-    @Test void currentExposesUnmappedWrongGrammarQuestionsForReview() {
+    /** Owner clarification 2026-10-11: full Smart Test question/result details belong to test results, not the roadmap. */
+    @Test void currentDoesNotExposeUnmappedGrammarQuizDetailsOnTheRoadmap() {
         var path = interactivePath();
         path.setCoverageGapsJson("[{\"tagCode\":\"GRAMMAR_QUESTION:1513\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR\"},"
                 + "{\"tagCode\":\"GRAMMAR_QUESTION:1514\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR\"},"
                 + "{\"tagCode\":\"GRAMMAR_QUESTION:1599\",\"reasonCode\":\"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR\"}]");
-        var questions = org.mockito.Mockito.mock(com.jlas.assessment.repository.AssessmentQuestionRepository.class);
-        setField("assessmentQuestions", questions);
-        when(questions.findAllById(List.of(1513L, 1514L, 1599L))).thenReturn(List.of(
-                com.jlas.assessment.entity.AssessmentQuestion.builder()
-                        .id(1513L).questionType("FILL_BLANK").questionText("Điền trợ từ phù hợp.")
-                        .passageHtml("駅で切符<b>＿＿＿＿</b>買います。").answerText("を")
-                        .explanation("Cấu trúc を phù hợp với ý nghĩa và cách kết hợp trong câu.")
-                        .contextJson("{\"grammar_point\": \"を\", \"format\": \"GRAMMAR_FORM_SELECTION\"}").build(),
-                com.jlas.assessment.entity.AssessmentQuestion.builder()
-                        .id(1514L).questionType("MULTIPLE_CHOICE").questionText("Chọn liên từ phù hợp.")
-                        .passageHtml("<p>雨でした。<br>＿＿、出かけました。</p>")
-                        .option1("しかし").option2("それから").option3("だから").correctOption(1)
-                        .explanation("Hai ý tương phản nên dùng しかし.").contextJson("{}").build()));
         var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.AVAILABLE);
         pkg.setPhase("WARM_UP");
         when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
                 .thenReturn(Optional.of(path));
-        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
+        when(packages.findByPathForUpdate(2L)).thenReturn(List.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(List.of());
 
         var targets = service.current(7L).smartTestReviewOnlyTargets();
-        var fillBlank = targets.getFirst();
-        var multipleChoice = targets.get(1);
-        var missingQuestion = targets.get(2);
 
-        assertEquals("GRAMMAR", fillBlank.skill());
-        assertEquals("を", fillBlank.target());
-        assertEquals("Điền trợ từ phù hợp.\n駅で切符＿＿＿＿買います。", fillBlank.sentence());
-        assertEquals("を", fillBlank.answer());
-        assertEquals("Cấu trúc を phù hợp với ý nghĩa và cách kết hợp trong câu.", fillBlank.explanation());
-
-        assertEquals("GRAMMAR", multipleChoice.skill());
-        assertEquals("Câu hỏi ngữ pháp #1514", multipleChoice.target());
-        assertEquals("Chọn liên từ phù hợp.\n雨でした。 ＿＿、出かけました。", multipleChoice.sentence());
-        assertEquals("しかし", multipleChoice.answer());
-        assertEquals("Hai ý tương phản nên dùng しかし.", multipleChoice.explanation());
-
-        assertEquals("GRAMMAR", missingQuestion.skill());
-        assertEquals("Câu hỏi ngữ pháp #1599", missingQuestion.target());
-        assertNull(missingQuestion.sentence());
-        assertNull(missingQuestion.answer());
-        assertNull(missingQuestion.explanation());
+        assertTrue(targets.stream().noneMatch(target -> "GRAMMAR".equals(target.skill())));
     }
 
     @Test void anotherUsersPackageLooksNotFound() {
@@ -171,7 +201,7 @@ class InteractiveLearningPathServiceTest {
         verifyNoInteractions(items);
     }
 
-    @Test void startIsIdempotentAndMovesOnlyFirstActivityToStudying() {
+    @Test void startIsIdempotentAndOffersEverySkillInTheCurrentPackage() {
         var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.AVAILABLE);
         var activities = activities(pkg);
         when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
@@ -184,7 +214,7 @@ class InteractiveLearningPathServiceTest {
 
         assertEquals(LearningPackageStatus.IN_PROGRESS, first.status());
         assertEquals(LearningActivityState.STUDYING, activities.getFirst().getActivityState());
-        assertEquals(LearningActivityState.LOCKED, activities.get(1).getActivityState());
+        assertTrue(activities.stream().allMatch(a -> a.getActivityState() == LearningActivityState.STUDYING));
         assertEquals(startedAt, pkg.getStartedAt());
         assertEquals(first.resumeActivityType(), second.resumeActivityType());
     }
@@ -216,7 +246,7 @@ class InteractiveLearningPathServiceTest {
         assertEquals(LearningPackageStatus.IN_PROGRESS, result.status());
         assertEquals(3, result.totalActivities());
         assertEquals(LearningActivityState.STUDYING, activities.getFirst().getActivityState());
-        assertEquals(LearningActivityState.LOCKED, activities.get(1).getActivityState());
+        assertTrue(activities.stream().allMatch(a -> a.getActivityState() == LearningActivityState.STUDYING));
     }
 
     @Test void vocabularyOnlyTargetSegmentCompletesAfterAllItsBatchesPass() {
@@ -238,21 +268,23 @@ class InteractiveLearningPathServiceTest {
         assertEquals(2, completed.completedActivities());
     }
 
-    // ---- Task 8: cascading unlock ----
+    // ---- Current package: freely selectable skills ----
 
-    @Test void passingVocabularyUnlocksKanjiButNotFurther() {
+    @Test void refreshingAnAlreadyStartedPackageOpensEveryRemainingSkill() {
         var pkg = learningPackage(interactivePath(), 11L, 1, LearningPackageStatus.IN_PROGRESS);
         var activities = activities(pkg);
-        activities.get(0).setActivityState(LearningActivityState.PASSED);
+        activities.get(2).setActivityState(LearningActivityState.PASSED); // Grammar can finish before Vocabulary.
         when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(activities);
         when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(pkg));
 
-        service.packageDetail(7L, 11L);
+        var result = service.packageDetail(7L, 11L);
 
+        assertEquals(LearningPackageStatus.IN_PROGRESS, result.status());
+        assertEquals(LearningActivityState.STUDYING, activities.get(0).getActivityState());
         assertEquals(LearningActivityState.STUDYING, activities.get(1).getActivityState());
-        assertEquals(LearningActivityState.LOCKED, activities.get(2).getActivityState());
-        assertEquals(LearningActivityState.LOCKED, activities.get(3).getActivityState());
+        assertEquals(LearningActivityState.PASSED, activities.get(2).getActivityState());
+        assertEquals(LearningActivityState.STUDYING, activities.get(3).getActivityState());
     }
 
     @Test void dialogueRequiresCompletedNotPassedToUnlockNothingFurther() {
@@ -326,6 +358,14 @@ class InteractiveLearningPathServiceTest {
         assertTargetPackageCompletes(LearningActivityType.KANJI,LearningActivityType.GRAMMAR);
     }
 
+    @Test void readingOnlyTargetPackageCompletes(){
+        assertTargetPackageCompletes(LearningActivityType.READING);
+    }
+
+    @Test void listeningOnlyTargetPackageCompletes(){
+        assertTargetPackageCompletes(LearningActivityType.LISTENING);
+    }
+
     @Test void emptyTargetPackageIsBlockedAndNeverStarted(){
         var pkg=learningPackage(interactivePath(),11L,1,LearningPackageStatus.AVAILABLE);
         when(packages.findOwnedByIdForUpdate(11L,7L)).thenReturn(Optional.of(pkg));
@@ -339,7 +379,7 @@ class InteractiveLearningPathServiceTest {
 
     @Test void targetPackageWithUnknownActivityTypeIsBlocked(){
         var pkg=learningPackage(interactivePath(),11L,1,LearningPackageStatus.IN_PROGRESS);
-        var unknown=warmUpActivities(pkg,LearningActivityType.READING,LearningActivityType.GRAMMAR);
+        var unknown=warmUpActivities(pkg,LearningActivityType.FOUNDATION,LearningActivityType.GRAMMAR);
         when(packages.findOwnedByIdForUpdate(11L,7L)).thenReturn(Optional.of(pkg));
         when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(unknown);
 
@@ -533,9 +573,107 @@ class InteractiveLearningPathServiceTest {
         service.packageDetail(7L, 11L); // first call: completes, rewards
         service.packageDetail(7L, 11L); // retry: already COMPLETED, must not reward again
 
-        verify(creditService, times(1)).earn(eq(7L), anyInt(), eq(CreditReason.STUDY_REWARD),
-                eq("PACKAGE"), eq(11L), anyString());
+        // Exactly 5 CP, referenced by the stable source lesson (chapter), never by the package.
+        verify(creditService, times(1)).earn(eq(7L), eq(5), eq(CreditReason.STUDY_REWARD),
+                eq("SOURCE_LESSON"), eq(111L), anyString());
         verify(streakRepository, times(1)).save(any());
+    }
+
+    /** A source lesson split into several day packages is one chapter. The first segment earns 0 CP (the chapter
+     * is not yet complete); the final segment that finishes the chapter earns 5 CP exactly once, referenced by the
+     * stable source lesson (never per-package). Streak still records each completed package as activity on its own
+     * policy, so it does not wait for the chapter reward. (owner decision 2026-10-14) */
+    @Test void chapterSplitAcrossSegmentsRewardsOnlyWhenTheWholeChapterCompletes() {
+        var path = interactivePath();
+        var segment1 = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var segment2 = learningPackage(path, 12L, 2, LearningPackageStatus.IN_PROGRESS);
+        segment2.setSourceLesson(segment1.getSourceLesson()); // same source lesson -> same chapter
+        var first = activities(segment1);
+        var second = activities(segment2);
+        markAllTerminal(first);
+        markAllTerminal(second);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(segment1));
+        when(packages.findOwnedByIdForUpdate(12L, 7L)).thenReturn(Optional.of(segment2));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(first);
+        when(items.findByLearningPackageIdOrderByOrderIndex(12L)).thenReturn(second);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(segment1, segment2));
+        stubNoScoredSessions();
+        when(streakRepository.findByUserId(7L)).thenReturn(Optional.empty());
+
+        service.packageDetail(7L, 11L); // segment 1 completes -> chapter not yet done -> 0 CP
+
+        verify(creditService, never()).earn(anyLong(), anyInt(), any(), anyString(), anyLong(), anyString());
+        verify(streakRepository, times(1)).save(any()); // streak records the activity, not the chapter reward
+
+        service.packageDetail(7L, 12L); // segment 2 completes -> whole chapter done -> 5 CP once
+
+        verify(creditService, times(1)).earn(eq(7L), eq(5), eq(CreditReason.STUDY_REWARD),
+                eq("SOURCE_LESSON"), eq(111L), anyString());
+        verify(creditService, never()).earn(eq(7L), anyInt(), eq(CreditReason.STUDY_REWARD),
+                eq("PACKAGE"), anyLong(), anyString());
+        verify(streakRepository, times(2)).save(any());
+    }
+
+    @Test void nextChapterOpensOnlyAfterEveryCurrentChapterSegmentCompletes() {
+        var path = interactivePath();
+        var firstSegment = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var secondSegment = learningPackage(path, 12L, 2, LearningPackageStatus.LOCKED);
+        secondSegment.setSourceLesson(firstSegment.getSourceLesson());
+        var nextChapterFirst = learningPackage(path, 13L, 3, LearningPackageStatus.LOCKED);
+        var nextChapterSecond = learningPackage(path, 14L, 4, LearningPackageStatus.LOCKED);
+        nextChapterSecond.setSourceLesson(nextChapterFirst.getSourceLesson());
+        var firstActivities = activities(firstSegment);
+        var secondActivities = activities(secondSegment);
+        markAllTerminal(firstActivities);
+        markAllTerminal(secondActivities);
+        var pathPackages = List.of(firstSegment, secondSegment, nextChapterFirst, nextChapterSecond);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(firstSegment));
+        when(packages.findOwnedByIdForUpdate(12L, 7L)).thenReturn(Optional.of(secondSegment));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(firstActivities);
+        when(items.findByLearningPackageIdOrderByOrderIndex(12L)).thenReturn(secondActivities);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(pathPackages);
+        stubNoScoredSessions();
+
+        service.packageDetail(7L, 11L);
+
+        assertEquals(LearningPackageStatus.AVAILABLE, secondSegment.getStatus());
+        assertEquals(LearningPackageStatus.LOCKED, nextChapterFirst.getStatus());
+        assertEquals(LearningPackageStatus.LOCKED, nextChapterSecond.getStatus());
+
+        service.start(7L, 12L);
+        service.packageDetail(7L, 12L);
+
+        assertEquals(LearningPackageStatus.COMPLETED, firstSegment.getStatus());
+        assertEquals(LearningPackageStatus.COMPLETED, secondSegment.getStatus());
+        assertEquals(LearningPackageStatus.AVAILABLE, nextChapterFirst.getStatus());
+        assertEquals(LearningPackageStatus.AVAILABLE, nextChapterSecond.getStatus());
+    }
+
+    /** Replan/retry of the already-completed final segment must not re-grant the chapter: the second call sees the
+     * package already {@code COMPLETED} and returns before touching credit. */
+    @Test void completingTheFinalSegmentAgainDoesNotReGrantTheChapter() {
+        var path = interactivePath();
+        var segment1 = learningPackage(path, 11L, 1, LearningPackageStatus.IN_PROGRESS);
+        var segment2 = learningPackage(path, 12L, 2, LearningPackageStatus.IN_PROGRESS);
+        segment2.setSourceLesson(segment1.getSourceLesson());
+        var first = activities(segment1);
+        var second = activities(segment2);
+        markAllTerminal(first);
+        markAllTerminal(second);
+        when(packages.findOwnedByIdForUpdate(11L, 7L)).thenReturn(Optional.of(segment1));
+        when(packages.findOwnedByIdForUpdate(12L, 7L)).thenReturn(Optional.of(segment2));
+        when(items.findByLearningPackageIdOrderByOrderIndex(11L)).thenReturn(first);
+        when(items.findByLearningPackageIdOrderByOrderIndex(12L)).thenReturn(second);
+        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of(segment1, segment2));
+        stubNoScoredSessions();
+        when(streakRepository.findByUserId(7L)).thenReturn(Optional.empty());
+
+        service.packageDetail(7L, 11L);
+        service.packageDetail(7L, 12L); // grants 5 CP
+        service.packageDetail(7L, 12L); // retry: already COMPLETED, no re-grant
+
+        verify(creditService, times(1)).earn(eq(7L), eq(5), eq(CreditReason.STUDY_REWARD),
+                eq("SOURCE_LESSON"), eq(111L), anyString());
     }
 
     @Test void rewardIsSkippedWhenStreakAndCreditBeansAreUnavailable() {
@@ -580,7 +718,7 @@ class InteractiveLearningPathServiceTest {
         var path = interactivePath();
         when(paths.findByUserIdAndStatusAndExperienceVersion(7L, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2))
                 .thenReturn(Optional.of(path));
-        when(packages.findByLearningPathIdOrderByOrderIndex(2L)).thenReturn(List.of());
+        when(packages.findByPathForUpdate(2L)).thenReturn(List.of());
 
         ApiException error = assertThrows(ApiException.class, () -> service.current(7L));
 
@@ -666,6 +804,7 @@ class InteractiveLearningPathServiceTest {
         assertEquals("COMPLETED", pkg.getLearningPath().getStatus());
         assertNotNull(pkg.getLearningPath().getCompletedAt());
         assertNull(pkg.getLearningPath().getCompletionAttemptId());
+        verify(creditService, never()).earn(anyLong(), anyInt(), any(), anyString(), anyLong(), anyString());
     }
 
     /** Option A (2026-10-06): a legacy path without a goal is treated as JLPT, which now also completes on packages. */

@@ -31,7 +31,6 @@ function summary(overrides = {}) {
 test('viewModel defaults missing collections to empty arrays instead of throwing', () => {
   const model = page.viewModel({});
   assert.deepEqual(model.skills, []);
-  assert.deepEqual(model.comprehension, []);
   assert.deepEqual(model.comprehensionInPath, []);
   assert.equal(model.dialogue.totalCount, 0);
 });
@@ -72,22 +71,6 @@ test('renderDialogue reports a plain completed/total count, never a percentage s
   assert.doesNotMatch(html, /%/);
 });
 
-test('comprehensionCard always discloses the Smart-Test-only, not-re-tested-in-path note', () => {
-  const html = page.comprehensionCard({ skill: 'READING', hasEvidence: true, correctPercent: 40, weak: true, note: 'chưa được đánh giá lại trong lộ trình' });
-  assert.match(html, /còn yếu/);
-  assert.match(html, /chưa được đánh giá lại trong lộ trình/);
-});
-
-test('comprehensionCard reports insufficient evidence plainly rather than a 0% score', () => {
-  const html = page.comprehensionCard({ skill: 'LISTENING', hasEvidence: false, correctPercent: null, weak: false, note: 'note' });
-  assert.match(html, /Chưa có dữ liệu Smart Test/);
-});
-
-test('comprehensionCard labels its data explicitly as the Smart Test baseline', () => {
-  const html = page.comprehensionCard({ skill: 'READING', hasEvidence: true, correctPercent: 80, weak: false, note: 'note' });
-  assert.match(html, /Đánh giá nền \(Smart Test\)/);
-});
-
 // ---- RC Task 6: in-path Reading/Listening evidence, distinct from the Smart Test baseline above ----
 
 test('comprehensionInPathCard shows no-evidence state without implying a 0% score', () => {
@@ -111,16 +94,10 @@ test('comprehensionInPathCard surfaces an unresolved in-path batch explicitly, n
   assert.match(html, /Batch 0/);
 });
 
-test('comprehensionInPathCard explicitly distinguishes itself from the Smart Test baseline, never silently replacing it', () => {
+test('comprehensionInPathCard shows only in-path progress, without Smart Test baseline copy', () => {
   const html = page.comprehensionInPathCard({ skill: 'READING', hasEvidence: true, firstScore: 60, latestScore: 85, bestScore: 85, resolved: true, unresolved: [] });
-  assert.match(html, /khác với đánh giá nền Smart Test/);
-  assert.doesNotMatch(html, /Đánh giá nền \(Smart Test\)/); // that exact phrase is the baseline card's own label
-});
-
-test('renderReadiness always states this is an internal estimate, not a JLPT pass confirmation', () => {
-  const html = page.renderReadiness({ level: 'MEDIUM', explanation: 'vì abc' });
-  assert.match(html, /không phải xác nhận đỗ JLPT/);
-  assert.match(html, /vì abc/);
+  assert.match(html, /Đọc hiểu — trong lộ trình/);
+  assert.doesNotMatch(html, /đánh giá nền Smart Test/);
 });
 
 test('renderActions omits a live certificate link and explains why when not yet eligible', () => {
@@ -130,8 +107,57 @@ test('renderActions omits a live certificate link and explains why when not yet 
 });
 
 test('renderActions links to the certificate page once eligible', () => {
-  const html = page.renderActions({ certificateEligible: true });
+  const html = page.renderActions({
+    certificateEligible: true,
+    mockTest: { status: 'BLOCKED_INTEGRATION', targetLevel: 'N5' },
+    latestMockResult: { level: 'N5', passed: true, attemptId: 15 }
+  });
   assert.match(html, /href="\/learning\/v2\/certificate"/);
+});
+
+test('a completed JLPT path does not expose its certificate before a passing mock attempt', () => {
+  const html = page.renderActions({
+    certificateEligible: true,
+    mockTest: { status: 'BLOCKED_INTEGRATION', targetLevel: 'N5' },
+    latestMockResult: null
+  });
+  assert.doesNotMatch(html, /href="\/learning\/v2\/certificate"/);
+});
+
+test('a failed or wrong-level JLPT mock attempt does not expose the path certificate', () => {
+  for (const latestMockResult of [
+    { level: 'N5', passed: false, attemptId: 15 },
+    { level: 'N4', passed: true, attemptId: 16 }
+  ]) {
+    const html = page.renderActions({
+      certificateEligible: true,
+      mockTest: { status: 'BLOCKED_INTEGRATION', targetLevel: 'N5' },
+      latestMockResult
+    });
+    assert.doesNotMatch(html, /href="\/learning\/v2\/certificate"/);
+  }
+});
+
+test('completion message congratulates the learner without calling itself a certificate', () => {
+  const html = page.render(summary({ status: 'COMPLETED', certificateEligible: true }));
+  assert.match(html, /Chúc mừng/);
+  assert.match(html, /hoàn thành xuất sắc lộ trình/);
+  assert.match(html, /thi thử JLPT/);
+  assert.match(html, /chứng nhận vàng J-LAS/);
+  assert.match(html, /data-path-congratulation/);
+  const notice = html.match(/<aside[^>]*data-path-congratulation[^>]*>[\s\S]*?<\/aside>/)?.[0] || '';
+  assert.doesNotMatch(notice, /href="\/learning\/v2\/certificate"/);
+});
+
+test('completion message is absent while path is still active', () => {
+  const html = page.render(summary({ status: 'ACTIVE', certificateEligible: false }));
+  assert.doesNotMatch(html, /data-path-congratulation/);
+});
+
+test('a completed path offers a fresh survey instead of linking back to an active-only path page', () => {
+  const html = page.renderActions({ certificateEligible: true, status: 'COMPLETED' });
+  assert.match(html, /href="\/survey"[^>]*>Chọn mục tiêu mới<\/a>/);
+  assert.doesNotMatch(html, /href="\/learning\/path\/v2"/);
 });
 
 // ---- RC Task 7: Mock Test handoff seam — server decides availability/destination, never the browser ----
@@ -190,14 +216,12 @@ test('error renders a retry affordance', () => {
   assert.match(html, /data-retry/);
 });
 
-test('summary exposes both replay modes for finished Grammar and Dialogue', () => {
+test('path summary omits the replay and review section even when replay links exist', () => {
   const html = page.render(summary({ studyLinks: [
     { activityId: 81, type: 'GRAMMAR', state: 'PASSED' },
     { activityId: 82, type: 'DIALOGUE', state: 'COMPLETED' }
   ] }));
-  for (const [type, id] of [['grammar', 81], ['dialogue', 82]]) {
-    for (const mode of ['review', 'practice']) {
-      assert.ok(html.includes(`/learning/v2/${type}?activity=${id}&amp;mode=${mode}`));
-    }
-  }
+  assert.doesNotMatch(html, /Xem lại và ôn lại/);
+  assert.doesNotMatch(html, /data-study-links/);
+  assert.doesNotMatch(html, /mode=(review|practice)/);
 });

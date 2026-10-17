@@ -74,6 +74,12 @@ public class LearningQuizSession {
     @Column(name = "source_snapshot_json", columnDefinition = "TEXT")
     private String sourceSnapshotJson;
 
+    /** [JLAS-W0113] Autosaved selections for this attempt while it is still ISSUED (questionId -> selectedOption;
+     * a null/absent entry means unselected). Written only by autosave, read only by reopen/restore; submit never
+     * grades from it, so autosave can neither score nor reward. Null until the learner first saves a draft. */
+    @Column(name = "draft_answers_json", columnDefinition = "TEXT")
+    private String draftAnswersJson;
+
     /** Mẫu số: tổng số câu đã phát (kể cả câu client bỏ trống vẫn tính là sai). */
     @Column(name = "question_count", nullable = false)
     private Integer questionCount;

@@ -19,8 +19,7 @@ public record GoalEntryPolicy(
 
     public enum AssessmentRequirement {
         NONE,
-        JLPT_PLACEMENT,
-        BRSE_FOUNDATION
+        JLPT_PLACEMENT
     }
 
     public static GoalEntryPolicy forGoal(String rawGoal) {
@@ -30,7 +29,7 @@ public record GoalEntryPolicy(
         return switch (rawGoal.trim().toUpperCase(Locale.ROOT)) {
             case "JLPT" -> new GoalEntryPolicy(true, AssessmentRequirement.JLPT_PLACEMENT,
                     false, Set.of());
-            case "BA" -> new GoalEntryPolicy(true, AssessmentRequirement.BRSE_FOUNDATION,
+            case "BA" -> new GoalEntryPolicy(true, AssessmentRequirement.NONE,
                     false, GOAL_MODES);
             case "TRAVEL", "DAILY_LIFE" -> new GoalEntryPolicy(true, AssessmentRequirement.NONE,
                     false, GOAL_MODES);

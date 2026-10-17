@@ -11,13 +11,13 @@ function state() {
       fill: { promptWithBlank: 'ここで写真を_____。', completed: true }, gateSatisfied: true }] };
 }
 
-test('grammar rehearsal shows the lesson interaction before its replay quiz and exposes prior quiz history', () => {
-  const html = grammar.renderStudy(grammar.viewModel(state()), { checkEligible: true, passed: false }, {}, {}, 'PRACTICE');
+test('grammar rehearsal shows the original lesson without progress-writing exercises', () => {
+  const html = grammar.renderReview(grammar.viewModel(state()), true);
   assert.match(html, /Chế độ luyện tập/);
-  assert.match(html, /Xếp từ thành câu hoàn chỉnh/);
-  assert.match(html, /Điền phần còn thiếu/);
-  assert.match(html, /Bắt đầu kiểm tra/);
-  assert.match(html, /data-attempt-history/);
+  assert.match(html, /V てはいけません/);
+  assert.match(html, /Làm lại bài kiểm tra/);
+  assert.doesNotMatch(html, /data-order-check|data-fill-check/);
+  assert.doesNotMatch(html, /data-attempt-history|Xem lại bài kiểm tra/);
 });
 
 test('grammar quiz result returns to its lesson content instead of leaving only the roadmap', () => {

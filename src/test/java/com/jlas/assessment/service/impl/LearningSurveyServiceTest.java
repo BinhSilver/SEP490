@@ -82,18 +82,17 @@ class LearningSurveyServiceTest {
         verify(surveys).saveAndFlush(argThat(s -> s.getSelfReportedLevel().equals("N4")));
     }
 
-    @Test void n2TargetLevelIsAcceptedForJlptSurvey() {
-        when(surveys.findById(7L)).thenReturn(Optional.empty());
-        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
-        var response = service.saveLearningSurvey(7L, request("JLPT", "N2", "N3"));
-        assertThat(response.survey().targetLevel()).isEqualTo("N2");
+    @Test void n2PathTargetIsNotOfferedForJlptSurvey() {
+        assertThatThrownBy(() -> service.saveLearningSurvey(7L, request("JLPT", "N2", "N3")))
+                .isInstanceOfSatisfying(ApiException.class,
+                        error -> assertThat(error.getErrorCode()).isEqualTo(ErrorCode.TARGET_LEVEL_NOT_ALLOWED));
+        verifyNoInteractions(surveys, users, attempts);
     }
 
-    @Test void n1TargetLevelIsNotBlockedAtTargetValidationForSmartTest() {
-        // N1 không còn bị chặn ở bước target (readiness kiểm sau ở lộ trình); request đi tiếp tới tra user.
+    @Test void n1PathTargetIsRejectedBeforeStartingSmartTest() {
         assertThatThrownBy(() -> service.startSmartTest(7L, request("JLPT", "N1", "N2")))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Không tìm thấy người dùng");
+                .isInstanceOfSatisfying(ApiException.class,
+                        error -> assertThat(error.getErrorCode()).isEqualTo(ErrorCode.TARGET_LEVEL_NOT_ALLOWED));
         verifyNoInteractions(attempts, questions, answers, sessions, issued, results);
     }
 
@@ -113,7 +112,11 @@ class LearningSurveyServiceTest {
 
     @Test void unknownLevelGetsTemporaryOptionsUntilSmartTestFinishes() {
         assertThat(service.getTargetOptions("UNKNOWN"))
+                .filteredOn(option -> java.util.List.of("N5", "N4", "N3").contains(option.targetLevel()))
                 .allSatisfy(option -> assertThat(option.allowed()).isTrue());
+        assertThat(service.getTargetOptions("UNKNOWN"))
+                .filteredOn(option -> java.util.List.of("N2", "N1").contains(option.targetLevel()))
+                .allSatisfy(option -> assertThat(option.allowed()).isFalse());
     }
 
     @Test void savingSurveyPreservesFromZeroLevel() {
@@ -136,8 +139,8 @@ class LearningSurveyServiceTest {
         verifyNoInteractions(users, attempts, questions, answers, sessions, issued, results);
     }
 
-    @Test void travelAndDailyLifeNeverStartSmartTestRegardlessOfExperience() {
-        for (String goal : java.util.List.of("TRAVEL", "DAILY_LIFE")) {
+    @Test void surveyOnlyGoalsNeverStartSmartTestRegardlessOfExperience() {
+        for (String goal : java.util.List.of("TRAVEL", "DAILY_LIFE", "BA")) {
             assertThatThrownBy(() -> service.startSmartTest(7L, request(goal, null, "N3", 36)))
                     .isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("chỉ cần làm khảo sát");

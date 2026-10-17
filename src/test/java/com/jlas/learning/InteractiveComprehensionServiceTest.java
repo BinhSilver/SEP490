@@ -180,6 +180,17 @@ class InteractiveComprehensionServiceTest {
         verify(quizSessions, never()).save(any());
     }
 
+    @Test void reviewFeedbackUsesOwnedReadWithoutWriteLock() {
+        var finished = activity(LearningActivityType.LISTENING);
+        finished.setActivityState(LearningActivityState.PASSED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(finished));
+
+        assertEquals(List.of(), service.reviewFeedback(7L, 1L));
+
+        verify(items, never()).findOwnedByIdForUpdate(anyLong(), anyLong());
+        verifyNoInteractions(members, studySessions, studyCards, checkStates, questions, catalog);
+    }
+
     private void arrangeTwoReadingExercises() {
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity(LearningActivityType.READING)));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership());

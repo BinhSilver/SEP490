@@ -20,7 +20,11 @@ public record FoundationStudyState(
         List<FoundationStudyCard> cards,
         /** [JLAS-W0125] "Phần x / n" among same-skill parts of the package; 1/1 when not split. */
         int partIndex,
-        int partCount
+        int partCount,
+        /** CHARACTER for the original chart, EXAMPLE_WORD for the separately reviewed Kana-rule lessons. */
+        String contentKind,
+        String lessonTitle,
+        String lessonDescription
 ) {
     public FoundationStudyState {
         cards = List.copyOf(cards);
@@ -29,7 +33,7 @@ public record FoundationStudyState(
             String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
             boolean checkEligible, List<FoundationStudyCard> cards) {
         this(activityId, activityType, activityState, sourceRevision, totalCards, flippedCount, rememberedCount,
-                reviewRemaining, checkEligible, cards, 1, 1);
+                reviewRemaining, checkEligible, cards, 1, 1, "CHARACTER", null, null);
     }
 
     public record FoundationStudyCard(
@@ -38,7 +42,8 @@ public record FoundationStudyState(
             String character,
             String romaji,
             boolean flipped,
-            boolean remembered
+            boolean remembered,
+            String meaningVi
     ) {
     }
 }

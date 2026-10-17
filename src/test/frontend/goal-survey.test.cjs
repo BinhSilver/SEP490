@@ -28,17 +28,24 @@ test('builds structured answers and never sends competency evidence', () => {
   assert.equal('competencyEvidence' in request, false);
 });
 
-test('describes survey-only next action separately from assessment', () => {
+test('survey completion always proceeds to the goal path, never to Smart Test', () => {
   assert.equal(survey.nextAction(definition, { assessmentRequirement: 'NONE' }, true), '/learning/path/v2');
-  assert.equal(survey.nextAction({ ...definition, goalCode: 'BA', requiresAssessment: true },
-    { assessmentRequirement: 'BRSE_FOUNDATION' }, false), '/smart-test');
-  assert.equal(survey.nextAction({ ...definition, goalCode: 'BA', requiresAssessment: true },
-    { assessmentRequirement: 'BRSE_FOUNDATION' }, true), '/learning/path/v2');
+  assert.equal(survey.nextAction({ ...definition, goalCode: 'BA', requiresAssessment: false },
+    { assessmentRequirement: 'NONE' }, false), '/learning/path/v2');
 });
 
-test('builds goal path request from immutable submission and server-side attempt reference', () => {
+test('builds goal path request from immutable submission without an assessment attempt', () => {
   assert.deepEqual(survey.buildPathRequest({ submissionId: 51 }, '?assessmentAttemptId=9'),
-    { submissionId: 51, assessmentAttemptId: 9 });
+    { submissionId: 51, assessmentAttemptId: null });
   assert.deepEqual(survey.buildPathRequest({ submissionId: 50 }, ''),
     { submissionId: 50, assessmentAttemptId: null });
+});
+
+test('renders a safe retry state instead of leaving an unavailable survey stuck in loading', () => {
+  const html = survey.renderUnavailable('Mục tiêu học chưa sẵn sàng. <script>alert(1)</script>');
+  assert.match(html, /role="status"/);
+  assert.match(html, /Khảo sát hiện chưa thể tải/);
+  assert.match(html, /Thử tải lại khảo sát/);
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+  assert.doesNotMatch(html, /<script>/);
 });

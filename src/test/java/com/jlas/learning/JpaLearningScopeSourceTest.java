@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(properties = {
         "spring.profiles.include=",
-        "spring.datasource.url=jdbc:h2:mem:learning-scope-test;DB_CLOSE_DELAY=-1",
+        "spring.datasource.url=jdbc:h2:mem:learning-scope-test;MODE=MySQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa", "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop",
@@ -68,6 +68,34 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
+    void noviceIncludesSurveyLevelAsFirstStage() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N4", "N4", "N5", "N4 Nhập môn"));
+
+        assertTrue(result.warmUpTextbookIds().isEmpty());
+        assertEquals(List.of(n5.getId(), n4.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N5", "N4"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void proficientHasOnlyTargetStageAndNoWarmUp() {
+        book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N5", "N4", "N5", "N5 Thành thạo"));
+
+        assertTrue(result.warmUpTextbookIds().isEmpty());
+        assertEquals(List.of(n4.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N4"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
     void fromZeroResolvesKanaFoundationWarmUpAndGoalScope() {
         var kana = kanaBook();
         var n5 = book("N5", "Sekai N5");
@@ -92,7 +120,7 @@ class JpaLearningScopeSourceTest {
         var result = scope.resolve(7L, snapshot("N5", "N5"));
 
         assertEquals(List.of(learningBook.getId()), result.goalTextbookIds());
-        assertEquals(List.of(learningBook.getId()), result.warmUpTextbookIds());
+        assertTrue(result.warmUpTextbookIds().isEmpty());
     }
 
     @Test
@@ -113,17 +141,14 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
-    void n2ToN1ProducesSingleN1Stage() {
-        var n2 = book("N2", "Sekai N2");
-        var n1 = book("N1", "Sekai N1");
+    void n2ToN1IsOutsideSupportedDemoRoutes() {
+        book("N2", "Sekai N2");
+        book("N1", "Sekai N1");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N2", "N1"));
-
-        assertEquals(List.of(n2.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n1.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N1"), result.stages().stream().map(s -> s.level()).toList());
+        var error = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N2", "N1")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, error.getErrorCode());
     }
 
     @Test
@@ -141,31 +166,24 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
-    void n3ToN2ProducesSingleN2Stage() {
-        var n3 = book("N3", "Sekai N3");
-        var n2 = book("N2", "Sekai N2");
+    void n3ToN2IsOutsideSupportedDemoRoutes() {
+        book("N3", "Sekai N3");
+        book("N2", "Sekai N2");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N3", "N2"));
-
-        assertEquals(List.of(n3.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n2.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N2"), result.stages().stream().map(s -> s.level()).toList());
+        var error = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N3", "N2")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, error.getErrorCode());
     }
 
     @Test
-    void n1ToN1ProducesConsolidationStage() {
-        var n1 = book("N1", "Sekai N1");
+    void n1ToN1IsOutsideSupportedDemoRoutes() {
+        book("N1", "Sekai N1");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N1", "N1"));
-
-        // Củng cố chính cấp N1: warm-up và goal cùng cấp, một chặng N1.
-        assertEquals(List.of(n1.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n1.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N1"), result.stages().stream().map(s -> s.level()).toList());
+        var error = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N1", "N1")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, error.getErrorCode());
     }
 
     /** [JLAS-W0108] Sách nền tảng bảng chữ cái: jlpt_level NULL + bài gắn tag {@code KANA-*}. */
@@ -187,6 +205,11 @@ class JpaLearningScopeSourceTest {
     private LearningProfileSnapshot snapshot(String assessed, String target) {
         return new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
                 assessed, target, "JLPT", 30, List.of());
+    }
+
+    private LearningProfileSnapshot snapshot(String assessed, String target, String survey, String band) {
+        return new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                assessed, target, "JLPT", 30, List.of(), List.of(), survey, band);
     }
 
     private Textbook book(String level, String title) {

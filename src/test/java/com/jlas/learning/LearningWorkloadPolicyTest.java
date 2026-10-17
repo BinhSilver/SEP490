@@ -78,7 +78,7 @@ class LearningWorkloadPolicyTest {
         assertEquals(List.of(2, 2), policy.partition(LearningActivityType.KANJI,
                 LongStream.rangeClosed(1, 4).boxed().toList(), 5).stream().map(List::size).toList());
 
-        for (int count : List.of(54, 61)) {
+        for (int count : List.of(15, 16, 54, 61)) {
             var ids = LongStream.rangeClosed(1, count).boxed().toList();
             var groups = policy.partition(LearningActivityType.KANJI, ids, 30);
             assertEquals(ids, groups.stream().flatMap(List::stream).toList());

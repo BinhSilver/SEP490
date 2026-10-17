@@ -2,6 +2,7 @@ package com.jlas.learning.service.impl.engine;
 
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningMemberType;
+import com.jlas.learning.entity.LearningActivityMember;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,11 @@ public interface InteractiveContentAdapter<T> {
     /** Bulk-loads canonical entities for the given membership ids, keyed by id. Missing ids are simply
      * absent from the map (never fabricated). */
     Map<Long, T> loadByIds(List<Long> canonicalIds);
+
+    /** The membership can carry a frozen, lesson-specific display. Existing adapters use canonical content. */
+    default Map<Long, T> loadForMembers(List<LearningActivityMember> membership) {
+        return loadByIds(membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList());
+    }
 
     /** Builds the deterministic, no-AI question set for one micro-check batch. Distractors must come only
      * from {@code batch} (canonical/approved data), never generated at runtime.
@@ -71,19 +77,15 @@ public interface InteractiveContentAdapter<T> {
     /** Comprehension review is a server-recorded source event after the third failure. */
     default boolean requiresServerReviewEvidence() { return false; }
 
-    /** [JLAS-W0193] Task 6 — whether {@link InteractiveStudyEngine#issueMicroCheck} should gate eligibility
-     * on the flip/remember study-card contract (Vocabulary, Kanji). Default {@code true} preserves the
-     * exact pre-Task-6 behavior for every existing adapter with zero code change. A content type whose
-     * prerequisite is not flip/remember — Grammar's ordering + fill practice — overrides this to
-     * {@code false} and supplies {@link #assertPracticeGateSatisfied} instead. */
-    default boolean requiresFlipRememberGate() {
-        return true;
+    /** Whether this activity has a required learning exercise before its quiz. Flashcard-based activities
+     * are deliberately quiz-accessible before all cards are viewed; the UI asks the learner to confirm first.
+     * Grammar overrides this because sentence ordering and fill-in practice are real prerequisites. */
+    default boolean requiresPracticeGate() {
+        return false;
     }
 
-    /** [JLAS-W0193] Task 6 — only consulted when {@link #requiresFlipRememberGate()} is {@code false}.
-     * Must throw {@code ApiException(ErrorCode.PREREQUISITE_NOT_MET)} when the content type's own practice
-     * gate is not yet satisfied for every membership target. No-op default (unused by any adapter that
-     * keeps the flip/remember gate). */
+    /** Only consulted when {@link #requiresPracticeGate()} is true. Must throw
+     * {@code ApiException(ErrorCode.PREREQUISITE_NOT_MET)} until the activity's own practice gate is satisfied. */
     default void assertPracticeGateSatisfied(Long activityId, List<com.jlas.learning.entity.LearningActivityMember> membership) {
     }
 }

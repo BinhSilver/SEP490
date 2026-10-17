@@ -23,6 +23,7 @@ public final class ComprehensionSourceSnapshot {
         node.put("sourceRevision", sourceRevision);
         node.put("passage", source.passage());
         node.put("audioUrl", source.audioUrl());
+        node.put("transcriptJa", source.transcriptJa());
         return node.toString();
     }
 
@@ -33,7 +34,7 @@ public final class ComprehensionSourceSnapshot {
             String passage = text(node, "passage");
             String audio = text(node, "audioUrl");
             if (passage == null && audio == null) return Optional.empty();
-            return Optional.of(new ComprehensionExerciseSource(passage, audio));
+            return Optional.of(new ComprehensionExerciseSource(passage, audio, text(node, "transcriptJa")));
         } catch (Exception unreadable) {
             return Optional.empty();
         }

@@ -13,6 +13,10 @@ import java.util.List;
 @Repository
 public interface ContentItemRepository extends JpaRepository<ContentItem, Long> {
 
+    /** Foundation player fetches the source lesson with each item to distinguish Kana from whole-word examples. */
+    @Query("select ci from ContentItem ci join fetch ci.section s join fetch s.lesson where ci.id in :ids")
+    List<ContentItem> findAllWithLessonByIdIn(@Param("ids") Collection<Long> ids);
+
     /**
      * Content item của một lesson theo loại (READING/GRAMMAR/LISTENING), kèm section (fetch join),
      * thứ tự section rồi order_index, 1 query.

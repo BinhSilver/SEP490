@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GoalEntryPolicyTest {
 
     @Test
-    void jlptUsesPlacementAssessmentWhileBrseUsesJapaneseFoundationAssessment() {
+    void jlptUsesPlacementAssessmentWhileBrseIsSurveyOnly() {
         assertEquals(GoalEntryPolicy.AssessmentRequirement.JLPT_PLACEMENT,
                 GoalEntryPolicy.forGoal("JLPT").assessmentRequirement());
-        assertEquals(GoalEntryPolicy.AssessmentRequirement.BRSE_FOUNDATION,
+        assertEquals(GoalEntryPolicy.AssessmentRequirement.NONE,
                 GoalEntryPolicy.forGoal("BA").assessmentRequirement());
     }
 

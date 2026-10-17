@@ -284,7 +284,7 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
         return new InteractiveReadinessConfidence("MEDIUM", explanation.toString());
     }
 
-    // ---- Certificate eligibility: mirrors the certificate page's own gate exactly ----
+    // ---- Path-completion eligibility; JLPT mock-pass gating is enforced by the certificate controller/UI ----
 
     private boolean isCertificateEligible(UserLearningPath path) {
         List<LearningPathPackage> pathPackages = packages.findByLearningPathIdOrderByOrderIndex(path.getId());

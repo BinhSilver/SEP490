@@ -84,6 +84,11 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     }
 
     @Override @Transactional
+    public java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        return engineFor(userId, activityId).saveDraft(userId, activityId, request);
+    }
+
+    @Override @Transactional
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         return engineFor(userId, activityId).microCheckState(userId, activityId);
     }
@@ -101,7 +106,8 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     @Override
     @Transactional(readOnly = true)
     public java.util.List<com.jlas.learning.dto.ComprehensionAttemptFeedback> reviewFeedback(Long userId, Long activityId) {
-        return engineFor(userId, activityId).reviewEntries(userId, activityId).stream().map(entry -> {
+        return engine(ownedComprehensionReadOnly(userId, activityId).getActivityType())
+                .reviewEntries(userId, activityId).stream().map(entry -> {
             var f = entry.feedback();
             var source = ComprehensionSourceSnapshot.parse(entry.sourceSnapshotJson());
             return new com.jlas.learning.dto.ComprehensionAttemptFeedback(f.batchIndex(), f.scorePercent(), f.correctAnswers(),
@@ -110,6 +116,13 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
                             : com.jlas.learning.dto.ComprehensionAttemptFeedback.UNAVAILABLE,
                     source.orElse(null), f.review());
         }).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        return engine(ownedComprehensionReadOnly(userId, activityId).getActivityType())
+                .quizAttemptHistory(userId, activityId);
     }
 
     @Override
@@ -141,6 +154,16 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
         InteractiveActivityStatePolicy.requireUnlocked(activity);
+        return activity;
+    }
+
+    private UserLearningPathItem ownedComprehensionReadOnly(Long userId, Long activityId) {
+        UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        if (activity.getActivityType() != LearningActivityType.READING
+                && activity.getActivityType() != LearningActivityType.LISTENING) {
+            throw new ApiException(ErrorCode.NOT_FOUND);
+        }
         return activity;
     }
 

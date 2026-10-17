@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class GoalSurveyServiceTest {
@@ -72,8 +73,8 @@ class GoalSurveyServiceTest {
     @Test
     void submissionPersistsPreferenceWithoutClaimingCompetencyEvidence() {
         LearningGoal goal = LearningGoal.builder().id(3L).goalCode("BA")
-                .displayNameVi("BrSE").entryPolicy("FOUNDATION_AND_SURVEY")
-                .requiresAssessment(true).active(true).reviewStatus("APPROVED").build();
+                .displayNameVi("BrSE").entryPolicy("SURVEY_ONLY")
+                .requiresAssessment(false).active(true).reviewStatus("APPROVED").build();
         LearningSurveyQuestion question = LearningSurveyQuestion.builder().id(11L).goalId(3L)
                 .surveyQuestionCode("SV-BA-COMPETENCY").questionOrder(1).questionVi("Chọn kỹ năng")
                 .selectionType("MULTIPLE").required(true).active(true).reviewStatus("APPROVED").build();
@@ -96,7 +97,7 @@ class GoalSurveyServiceTest {
                 "BALANCED", List.of(new GoalSurveyAnswerRequest("SV-BA-COMPETENCY", List.of("SV-BA-MEETING")))));
 
         assertEquals(100L, result.submissionId());
-        assertEquals("BRSE_FOUNDATION", result.assessmentRequirement());
+        assertEquals("NONE", result.assessmentRequirement());
         assertFalse(result.competencyEvidence());
     }
 
@@ -120,5 +121,44 @@ class GoalSurveyServiceTest {
         assertThrows(ApiException.class, () -> service.submit(99L, "TRAVEL",
                 new GoalSurveySubmissionRequest("BALANCED", List.of(
                         new GoalSurveyAnswerRequest("SV-TRAVEL-TOPICS", List.of("FOREIGN"))))));
+    }
+
+    @Test
+    void optionalAnswerWithNullOptionsIsRejectedAsValidationError() {
+        LearningGoal goal = LearningGoal.builder().id(2L).goalCode("TRAVEL")
+                .displayNameVi("Du lịch").entryPolicy("SURVEY_ONLY")
+                .requiresAssessment(false).active(true).reviewStatus("APPROVED").build();
+        LearningSurveyQuestion question = LearningSurveyQuestion.builder().id(10L).goalId(2L)
+                .surveyQuestionCode("SV-TRAVEL-OPTIONAL").questionOrder(1)
+                .questionVi("Chọn thêm nếu muốn").selectionType("MULTIPLE")
+                .required(false).active(true).reviewStatus("APPROVED").build();
+        when(goals.findByGoalCodeAndActiveTrue("TRAVEL")).thenReturn(Optional.of(goal));
+        when(questions.findByGoalIdAndActiveTrueAndReviewStatusOrderByQuestionOrder(2L, "APPROVED"))
+                .thenReturn(List.of(question));
+        when(options.findByQuestionIdInAndReviewStatusOrderByQuestionIdAscOptionOrderAsc(List.of(10L), "APPROVED"))
+                .thenReturn(List.of());
+
+        assertThrows(ApiException.class, () -> service.submit(99L, "TRAVEL",
+                new GoalSurveySubmissionRequest("BALANCED", List.of(
+                        new GoalSurveyAnswerRequest("SV-TRAVEL-OPTIONAL", null)))));
+        verifyNoInteractions(submissions, selections);
+    }
+
+    @Test
+    void definitionDoesNotPublishARequiredQuestionWithoutApprovedOptions() {
+        LearningGoal goal = LearningGoal.builder().id(2L).goalCode("TRAVEL")
+                .displayNameVi("Du lịch").entryPolicy("SURVEY_ONLY")
+                .requiresAssessment(false).active(true).reviewStatus("APPROVED").build();
+        LearningSurveyQuestion question = LearningSurveyQuestion.builder().id(10L).goalId(2L)
+                .surveyQuestionCode("SV-TRAVEL-TOPICS").questionOrder(1)
+                .questionVi("Bạn muốn học tình huống nào?").selectionType("MULTIPLE")
+                .required(true).active(true).reviewStatus("APPROVED").build();
+        when(goals.findByGoalCodeAndActiveTrue("TRAVEL")).thenReturn(Optional.of(goal));
+        when(questions.findByGoalIdAndActiveTrueAndReviewStatusOrderByQuestionOrder(2L, "APPROVED"))
+                .thenReturn(List.of(question));
+        when(options.findByQuestionIdInAndReviewStatusOrderByQuestionIdAscOptionOrderAsc(List.of(10L), "APPROVED"))
+                .thenReturn(List.of());
+
+        assertThrows(ApiException.class, () -> service.definition("TRAVEL"));
     }
 }

@@ -3,8 +3,10 @@ package com.jlas.learning.service.impl;
 import com.jlas.dictionary.entity.ContentItem;
 import com.jlas.dictionary.repository.ContentItemRepository;
 import com.jlas.learning.dto.FoundationStudyState;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.enums.LearningActivityType;
@@ -83,6 +85,12 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
 
     @Override
     @Transactional
+    public java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        return engine.saveDraft(userId, activityId, request);
+    }
+
+    @Override
+    @Transactional
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         return engine.microCheckState(userId, activityId);
     }
@@ -106,6 +114,12 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        return engine.quizAttemptHistory(userId, activityId);
+    }
+
+    @Override
     @Transactional
     public MicroCheckResponse issuePractice(Long userId, Long activityId) {
         return engine.issuePractice(userId, activityId);
@@ -117,21 +131,25 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
         return engine.submitPractice(userId, activityId, request);
     }
 
-    private FoundationStudyState toDto(EngineStudyState<ContentItem> s) {
+    static FoundationStudyState toDto(EngineStudyState<ContentItem> s) {
+        ContentItem first = s.cards().isEmpty() ? null : s.cards().getFirst().entity();
+        var lesson = first == null || first.getSection() == null ? null : first.getSection().getLesson();
+        String kind = FoundationContentAdapter.isWordExample(first) ? "EXAMPLE_WORD" : "CHARACTER";
         List<FoundationStudyState.FoundationStudyCard> cards = s.cards().stream().map(c -> {
             ContentItem ci = c.entity();
             return new FoundationStudyState.FoundationStudyCard(c.memberId(), c.orderIndex(),
                     ci == null ? null : ci.getContent(), ci == null ? null : ci.getTitle(),
-                    c.flipped(), c.remembered());
+                    c.flipped(), c.remembered(), ci == null ? null : ci.getTranslatedText());
         }).toList();
         return new FoundationStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
-                s.partIndex(), s.partCount());
+                s.partIndex(), s.partCount(), kind, lesson == null ? null : lesson.getTitle(),
+                lesson == null ? null : lesson.getDescription());
     }
 
     /** Foundation-specific seam: canonical loading (content_item) + deterministic, no-AI question
      * generation across the two available shapes (character→romaji, romaji→character). */
-    private static final class FoundationContentAdapter implements InteractiveContentAdapter<ContentItem> {
+    static final class FoundationContentAdapter implements InteractiveContentAdapter<ContentItem> {
         private final ContentItemRepository contentItems;
 
         FoundationContentAdapter(ContentItemRepository contentItems) {
@@ -155,7 +173,7 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
 
         @Override
         public Map<Long, ContentItem> loadByIds(List<Long> canonicalIds) {
-            return contentItems.findAllById(canonicalIds).stream()
+            return contentItems.findAllWithLessonByIdIn(canonicalIds).stream()
                     .collect(java.util.stream.Collectors.toMap(ContentItem::getId, ci -> ci));
         }
 
@@ -167,26 +185,36 @@ public class InteractiveFoundationServiceImpl implements InteractiveFoundationSe
                 ContentItem e = batch.get(i);
                 if (e.getContent() == null || e.getTitle() == null) continue; // no usable field (should not happen with approved content)
                 String type = SELECT_TYPES[(i + variationSeed) % SELECT_TYPES.length];
+                if (isWordExample(e)) type = "CHARACTER_TO_ROMAJI".equals(type) ? "WORD_TO_ROMAJI" : "ROMAJI_TO_WORD";
                 specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, e), selectCorrect(type, e),
                         selectDistractors(type, e, batch)));
             }
             return specs;
         }
 
+        static boolean isWordExample(ContentItem item) {
+            if (item == null || item.getSection() == null || item.getSection().getLesson() == null) return false;
+            String code = item.getSection().getLesson().getSourceCode();
+            return code != null && code.matches("KANA-RULE-\\d{2}");
+        }
+
         private static String selectPrompt(String type, ContentItem e) {
             return switch (type) {
                 case "CHARACTER_TO_ROMAJI" -> "Chữ “" + e.getContent() + "” đọc là gì?";
                 case "ROMAJI_TO_CHARACTER" -> "Chữ nào đọc là “" + e.getTitle() + "”?";
+                case "WORD_TO_ROMAJI" -> "Từ “" + e.getContent() + "” đọc là gì?";
+                case "ROMAJI_TO_WORD" -> "Từ nào đọc là “" + e.getTitle() + "”?";
                 default -> throw new IllegalArgumentException(type);
             };
         }
 
         private static String selectCorrect(String type, ContentItem e) {
-            return "CHARACTER_TO_ROMAJI".equals(type) ? e.getTitle() : e.getContent();
+            return "CHARACTER_TO_ROMAJI".equals(type) || "WORD_TO_ROMAJI".equals(type)
+                    ? e.getTitle() : e.getContent();
         }
 
         private static List<String> selectDistractors(String type, ContentItem e, List<ContentItem> batch) {
-            return "CHARACTER_TO_ROMAJI".equals(type)
+            return "CHARACTER_TO_ROMAJI".equals(type) || "WORD_TO_ROMAJI".equals(type)
                     ? batch.stream().map(ContentItem::getTitle).toList()
                     : batch.stream().map(ContentItem::getContent).toList();
         }

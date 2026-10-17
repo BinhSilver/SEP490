@@ -19,7 +19,8 @@ import java.util.Set;
 /** Pure projection: it never reads persistence and accepts state/actions only from the server's activity rows. */
 public final class InteractiveSessionProjector {
     private static final List<LearningSessionType> ORDER = List.of(
-            LearningSessionType.VOCABULARY, LearningSessionType.KANJI_GRAMMAR, LearningSessionType.DIALOGUE);
+            LearningSessionType.VOCABULARY, LearningSessionType.KANJI_GRAMMAR,
+            LearningSessionType.READING, LearningSessionType.LISTENING, LearningSessionType.DIALOGUE);
     private static final Set<LearningActivityState> TERMINAL = Set.of(
             LearningActivityState.PASSED, LearningActivityState.COMPLETED);
 
@@ -28,7 +29,6 @@ public final class InteractiveSessionProjector {
             Map<LearningMemberType, Integer> memberCounts, List<ReferenceVocabularyResponse> references,
             int packageMinutes) {
         List<InteractiveLearningSessionResponse> result = new ArrayList<>();
-        boolean previousComplete = true;
         int groupCount = (int) ORDER.stream().filter(type -> !group(type, activities).isEmpty()).count();
         boolean activityEstimatesMatchPackage = activities != null && !activities.isEmpty()
                 && activities.stream().allMatch(activity -> activity.estimatedMinutes() != null
@@ -51,9 +51,6 @@ public final class InteractiveSessionProjector {
             } else if (packageStatus == LearningPackageStatus.LOCKED) {
                 state = LearningSessionState.LOCKED;
                 blockedReason = packageLockReason;
-            } else if (!previousComplete) {
-                state = LearningSessionState.LOCKED;
-                blockedReason = "Hoàn thành phiên học trước để mở khóa phần này.";
             } else if (packageStatus == LearningPackageStatus.COMPLETED) {
                 state = LearningSessionState.LOCKED;
                 blockedReason = "Trạng thái hoạt động chưa đồng bộ với package đã hoàn thành.";
@@ -63,7 +60,7 @@ public final class InteractiveSessionProjector {
                 state = LearningSessionState.AVAILABLE;
             }
 
-            Map<String, Integer> counts = countsFor(type, memberCounts, references);
+            Map<String, Integer> counts = countsFor(type, memberCounts, references, children.size());
             int contentCount = counts.values().stream().mapToInt(Integer::intValue).sum();
             int groupMinutes = activityEstimatesMatchPackage
                     ? children.stream().mapToInt(InteractiveLearningActivityResponse::estimatedMinutes).sum()
@@ -78,13 +75,13 @@ public final class InteractiveSessionProjector {
             };
             result.add(new InteractiveLearningSessionResponse(type, state, children, actions, counts,
                     contentCount, groupMinutes, referenceWords, blockedReason));
-            previousComplete = complete;
         }
         return List.copyOf(result);
     }
 
     private Map<String, Integer> countsFor(LearningSessionType type,
-            Map<LearningMemberType, Integer> memberCounts, List<ReferenceVocabularyResponse> references) {
+            Map<LearningMemberType, Integer> memberCounts, List<ReferenceVocabularyResponse> references,
+            int activityCount) {
         Map<LearningMemberType, Integer> counts = memberCounts == null ? Map.of() : memberCounts;
         Map<String, Integer> result = new java.util.LinkedHashMap<>();
         if (type == LearningSessionType.VOCABULARY) {
@@ -93,6 +90,10 @@ public final class InteractiveSessionProjector {
             result.put("vocabulary", safe(references).size());
             result.put("kanji", count(counts, LearningMemberType.KANJI));
             result.put("grammar", count(counts, LearningMemberType.GRAMMAR_POINT));
+        } else if (type == LearningSessionType.READING) {
+            result.put("reading", activityCount);
+        } else if (type == LearningSessionType.LISTENING) {
+            result.put("listening", activityCount);
         } else {
             result.put("dialogue", count(counts, LearningMemberType.DIALOGUE_LINE));
         }
@@ -110,6 +111,8 @@ public final class InteractiveSessionProjector {
             case VOCABULARY -> activity.type() == LearningActivityType.VOCABULARY;
             case KANJI_GRAMMAR -> activity.type() == LearningActivityType.KANJI
                     || activity.type() == LearningActivityType.GRAMMAR;
+            case READING -> activity.type() == LearningActivityType.READING;
+            case LISTENING -> activity.type() == LearningActivityType.LISTENING;
             case DIALOGUE -> activity.type() == LearningActivityType.DIALOGUE;
         }).toList();
     }

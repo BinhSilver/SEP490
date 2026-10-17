@@ -124,13 +124,13 @@ test('finished activities link to review and practice, unfinished ones do not', 
   assert.doesNotMatch(html, /activity=12&(amp;)?mode=/);
 });
 
-test('grammar offers practice only, reading and listening both modes, dialogue none', () => {
-  assert.deepEqual(roadmap.modesFor('VOCABULARY'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('KANJI'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('FOUNDATION'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('GRAMMAR'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('READING'), ['REVIEW', 'PRACTICE']);
-  assert.deepEqual(roadmap.modesFor('LISTENING'), ['REVIEW', 'PRACTICE']);
+test('quiz skills expose lesson review, replay, and saved results; dialogue has no quiz result', () => {
+  assert.deepEqual(roadmap.modesFor('VOCABULARY'), ['REVIEW', 'PRACTICE', 'RESULTS']);
+  assert.deepEqual(roadmap.modesFor('KANJI'), ['REVIEW', 'PRACTICE', 'RESULTS']);
+  assert.deepEqual(roadmap.modesFor('FOUNDATION'), ['REVIEW', 'PRACTICE', 'RESULTS']);
+  assert.deepEqual(roadmap.modesFor('GRAMMAR'), ['REVIEW', 'PRACTICE', 'RESULTS']);
+  assert.deepEqual(roadmap.modesFor('READING'), ['REVIEW', 'PRACTICE', 'RESULTS']);
+  assert.deepEqual(roadmap.modesFor('LISTENING'), ['REVIEW', 'PRACTICE', 'RESULTS']);
   assert.deepEqual(roadmap.modesFor('DIALOGUE'), ['REVIEW', 'PRACTICE']);
 });
 
@@ -264,7 +264,8 @@ test('practice result shows score and the no-progress note, with no attempts, co
   assert.match(html, /2\/5/);
   assert.match(html, /không ảnh hưởng/);
   assert.match(html, /href="\/learning\/path\/v2"/);
-  assert.match(html, /data-practice-again/);
+  assert.match(html, /data-practice-review/);
+  assert.match(html, /Ôn flashcard rồi kiểm tra lại/);
   assert.doesNotMatch(html, /lượt|Lần thử|Vui lòng quay lại sau/);
 });
 
@@ -391,13 +392,12 @@ test('Listening PRACTICE renders the frozen audio player', () => {
   assert.doesNotMatch(html, /data-reached-passage/);
 });
 
-test('Reading REVIEW renders the stored passage with each attempt feedback', () => {
+test('Reading REVIEW renders only the stored lesson source, never quiz feedback', () => {
   const html = comprehension.renderReview([{ batchIndex: 0, scorePercent: 80, correctAnswers: 4, totalQuestions: 5,
     sourceStatus: 'AVAILABLE', source: { passage: 'Đoạn văn đã học', audioUrl: null },
     review: [{ questionId: 1, questionText: 'Câu một?', correctOption: 2, selectedOption: 1, correct: false, explanation: 'Vì...' }] }], 'READING');
   assert.match(html, /Đoạn văn đã học/);
-  assert.match(html, /Câu một\?/);
-  assert.match(html, /Vì\.\.\./);
+  assert.doesNotMatch(html, /Câu một\?|Vì\.\.\.|80%|4\/5|Kết quả/);
   assert.match(html, /Chế độ xem lại|chỉ xem/);
 });
 
@@ -405,6 +405,7 @@ test('Listening REVIEW renders the stored audio', () => {
   const html = comprehension.renderReview([{ batchIndex: 0, scorePercent: 100, correctAnswers: 1, totalQuestions: 1,
     sourceStatus: 'AVAILABLE', source: { passage: null, audioUrl: '/audio/old.mp3' }, review: [] }], 'LISTENING');
   assert.match(html, /<audio[^>]*src="\/audio\/old\.mp3"/);
+  assert.doesNotMatch(html, /trả lời câu hỏi bên dưới/);
 });
 
 test('a legacy attempt without a snapshot says so and never renders a passage or audio', () => {
@@ -412,7 +413,7 @@ test('a legacy attempt without a snapshot says so and never renders a passage or
     sourceStatus: 'SOURCE_SNAPSHOT_UNAVAILABLE', source: null,
     review: [{ questionId: 1, questionText: 'Câu một?', correctOption: 1, selectedOption: 1, correct: true, explanation: 'ok' }] }], 'READING');
   assert.match(html, /data-source-unavailable/);
-  assert.match(html, /Câu một\?/);
+  assert.doesNotMatch(html, /Câu một\?|correctOption|selectedOption/);
   assert.doesNotMatch(html, /ilp-passage__text|<audio/);
 });
 
@@ -425,15 +426,12 @@ test('the passed screen offers both modes for Reading and Listening', () => {
   assert.match(html, /mode=review/);
 });
 
-test('summary lists review and practice links including score-free dialogue replay', () => {
+test('summary omits review and practice links even when the API provides replay targets', () => {
   const html = summary.render({ pathId: 1, status: 'ACTIVE', studyLinks: [
     { activityId: 11, type: 'READING', state: 'PASSED' }, { activityId: 12, type: 'VOCABULARY', state: 'PASSED' },
     { activityId: 13, type: 'DIALOGUE', state: 'COMPLETED' }] });
-  assert.match(html, /\/learning\/v2\/reading\?activity=11&amp;mode=review/);
-  assert.match(html, /\/learning\/v2\/reading\?activity=11&amp;mode=practice/);
-  assert.match(html, /\/learning\/v2\/vocabulary\?activity=12&amp;mode=review/);
-  assert.match(html, /dialogue\?activity=13&amp;mode=review/);
-  assert.match(html, /dialogue\?activity=13&amp;mode=practice/);
+  assert.doesNotMatch(html, /data-study-links/);
+  assert.doesNotMatch(html, /mode=(review|practice)/);
 });
 
 test('summary without study links renders no review section', () => {

@@ -6,8 +6,10 @@ import com.jlas.learning.dto.GrammarFillSubmitRequest;
 import com.jlas.learning.dto.GrammarOrderingSubmitRequest;
 import com.jlas.learning.dto.GrammarPracticeResult;
 import com.jlas.learning.dto.GrammarStudyState;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.service.InteractiveGrammarService;
@@ -71,6 +73,15 @@ public class InteractiveGrammarController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitMicroCheck(user.userId(), activityId, request)));
     }
 
+    /** [JLAS-W0113] Autosave in-progress selections for an issued attempt (restored on reopen/reload). */
+    @PostMapping("/micro-check/draft")
+    public ResponseEntity<ApiResponse<java.util.List<MicroCheckDraftAnswer>>> saveDraft(
+            @PathVariable Long activityId, @Valid @RequestBody MicroCheckSaveDraftRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_DRAFT);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.saveDraft(user.userId(), activityId, request)));
+    }
+
     @GetMapping("/micro-check/state")
     public ResponseEntity<ApiResponse<MicroCheckStateResponse>> state(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
@@ -105,5 +116,11 @@ public class InteractiveGrammarController {
     public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse>>> reviewAttempts(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewFeedback(user.userId(), activityId)));
+    }
+
+    @GetMapping("/attempt-history")
+    public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse>>> attemptHistory(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.quizAttemptHistory(user.userId(), activityId)));
     }
 }

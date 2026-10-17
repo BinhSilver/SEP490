@@ -37,8 +37,9 @@ final class PaceActivityPartitioner {
         while (maximum > 0 && estimate(activity, maximum, members.size(), policy) > budget) maximum--;
         if (maximum == 0) throw blocked();
         int count = (members.size() + maximum - 1) / maximum;
-        // Do not turn a quiz-bearing Vocabulary part into reference-only, or a choice quiz into one item.
-        int minimum = expected == LearningMemberType.VOCABULARY_ENTRY ? 5 : 2;
+        // The five-item threshold belongs only to Smart Test remediation, not curriculum lessons.
+        // Every scored part still needs at least two real members for a choice quiz.
+        int minimum = 2;
         if (members.size() / count < minimum) throw blocked();
         List<Part> parts = new ArrayList<>();
         int offset = 0;

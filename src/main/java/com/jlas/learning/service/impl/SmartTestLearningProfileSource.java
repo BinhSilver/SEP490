@@ -11,6 +11,7 @@ import com.jlas.assessment.repository.AssessmentAttemptRepository;
 import com.jlas.assessment.repository.SmartTestSessionRepository;
 import com.jlas.assessment.repository.SmartTestSessionQuestionRepository;
 import com.jlas.assessment.repository.UserLearningSurveyRepository;
+import com.jlas.assessment.service.AssessmentService;
 import com.jlas.assessment.service.impl.SmartTestQuestionSelector;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
@@ -63,6 +64,7 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
     private final SmartTestSessionQuestionRepository sessionQuestions;
     private final UserLearningSurveyRepository surveys;
     private final AssessmentAnswerRepository answers;
+    private final AssessmentService assessmentService;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,6 +78,10 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Smart Test session not found."));
         UserLearningSurvey survey = surveys.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Learning survey not found."));
+        var assessmentResult = assessmentService.getSmartTest(userId, assessmentAttemptId).result();
+        if (assessmentResult == null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Smart Test result is not available yet.");
+        }
 
         List<AssessmentAnswer> effectiveAnswers = answersIncludingNoResponses(assessmentAttemptId, attempt);
         return new LearningProfileSnapshot(userId, assessmentAttemptId, survey.getUserId(),
@@ -83,7 +89,8 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 assessedLevel(session), targetLevel(session, survey), session.getGoal(),
                 session.getDailyStudyMinutes() != null ? session.getDailyStudyMinutes() : survey.getDailyStudyMinutes(),
                 aggregateWeaknesses(effectiveAnswers),
-                aggregateSkillScores(effectiveAnswers));
+                aggregateSkillScores(effectiveAnswers), surveyLevel(session, survey),
+                assessmentResult.abilityBand());
     }
 
     /**
@@ -111,7 +118,8 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         }
         return new LearningProfileSnapshot(userId, null, userId, FROM_ZERO_REVISION,
                 true, true, FROM_ZERO_LEVEL, survey.getTargetLevel(), survey.getGoal(),
-                survey.getDailyStudyMinutes(), List.of(), List.of());
+                survey.getDailyStudyMinutes(), List.of(), List.of(),
+                survey.getSelfReportedLevel(), null);
     }
 
     private static String assessedLevel(SmartTestSession session) {
@@ -122,6 +130,11 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
 
     private static String targetLevel(SmartTestSession session, UserLearningSurvey survey) {
         return session.getTargetLevel() != null ? session.getTargetLevel() : survey.getTargetLevel();
+    }
+
+    private static String surveyLevel(SmartTestSession session, UserLearningSurvey survey) {
+        return session.getSelfReportedLevel() != null
+                ? session.getSelfReportedLevel() : survey.getSelfReportedLevel();
     }
 
     /** Gom evidence theo 5 skill; chỉ item/điểm thực sự sai mới trở thành điểm yếu. */

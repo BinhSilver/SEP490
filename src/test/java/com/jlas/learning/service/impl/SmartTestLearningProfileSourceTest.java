@@ -9,6 +9,8 @@ import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.entity.SmartTestSession;
 import com.jlas.assessment.entity.SmartTestSessionQuestion;
 import com.jlas.assessment.entity.UserLearningSurvey;
+import com.jlas.assessment.dto.SmartTestResponse;
+import com.jlas.assessment.service.AssessmentService;
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
 import com.jlas.dictionary.entity.Outcome;
@@ -19,6 +21,7 @@ import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
@@ -26,6 +29,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 /**
  * [JLAS-W0108][MP01] R/L weakness evidence phải giữ đủ từng outcome đã sai, không chỉ outcome sai
@@ -50,6 +56,17 @@ class SmartTestLearningProfileSourceTest {
 
     @Autowired EntityManager em;
     @Autowired SmartTestLearningProfileSource source;
+    @MockitoBean AssessmentService assessmentService;
+
+    @BeforeEach
+    void assessmentReturnsItsFinalOverallBand() {
+        var result = new SmartTestResponse.ResultView("N5", "N5 Căn bản", null,
+                "HIGH", null, "N4", null, List.of(), false, false,
+                0, 0, 0, List.of(), List.of(), List.of());
+        when(assessmentService.getSmartTest(anyLong(), anyLong())).thenAnswer(call ->
+                new SmartTestResponse(call.getArgument(1), "SUBMITTED", "JLPT", 0, 0,
+                        List.of(), null, result));
+    }
 
     @Test
     void preservesWrongGrammarWithoutMappingForCoverageDiagnostics() {
@@ -60,7 +77,7 @@ class SmartTestLearningProfileSourceTest {
         em.persist(SmartTestSession.builder().attemptId(attempt.getId()).attempt(attempt)
                 .goal("JLPT").targetLevel("N4").selfReportedLevel("N5").estimatedOverallLevel("N4").build());
         em.persist(UserLearningSurvey.builder().userId(user.getId()).user(user).goal("JLPT")
-                .targetLevel("N4").selfReportedLevel("N5").skills("GRAMMAR")
+                .targetLevel("N4").selfReportedLevel("N4").skills("GRAMMAR")
                 .dailyStudyMinutes(30).completedAt(LocalDateTime.now()).build());
         var tag = Tag.builder().code("GRAMMAR_TEST").name("Grammar").tagType("KNOWLEDGE").build();
         em.persist(tag);
@@ -72,6 +89,9 @@ class SmartTestLearningProfileSourceTest {
         em.clear();
 
         var snapshot = source.loadForUser(user.getId(), attempt.getId());
+        // The learner edited the survey after this attempt; planning must use the attempt's level.
+        assertEquals("N5", snapshot.surveyLevel());
+        assertEquals("N5 Căn bản", snapshot.overallAbilityBand());
         var evidence = snapshot.weaknesses().stream().filter(e -> "GRAMMAR".equals(e.skill())).toList();
         assertEquals(1, evidence.size());
         assertEquals("UNMAPPED_QUESTION:" + question.getId(), evidence.getFirst().canonicalId());

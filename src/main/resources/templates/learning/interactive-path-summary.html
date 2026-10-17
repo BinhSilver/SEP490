@@ -10,15 +10,12 @@
         <a href="/learning/path/v2">Lộ trình cá nhân</a><span>/</span>
         <strong aria-current="page">Tổng kết chặng</strong>
     </nav>
-    <!-- [JLAS-W0193] Task 10 — real first/latest/best-per-skill, unresolved-dimension, Dialogue completion,
-         Reading/Listening (Smart Test) evidence and readiness content (design spec §6), fetched from
-         GET /api/learning/v2/paths/current/summary and rendered by interactive-path-summary.js. Task 8 only
-         routed here with a placeholder; this replaces that placeholder body. -->
+    <!-- Path-only skill and activity summary fetched from GET /api/learning/v2/paths/current/summary. -->
     <div id="interactivePathSummaryRoot" aria-busy="false">
         <section class="ilp-state"><p>Đang tải tổng kết…</p></section>
     </div>
 </main>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/interactive-path-summary.js}"></script>
+<script th:src="@{/js/pages/interactive-path-summary.js?v=5}"></script>
 </body>
 </html>

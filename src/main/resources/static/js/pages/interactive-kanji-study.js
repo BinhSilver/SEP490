@@ -20,10 +20,24 @@
     return v.partCount > 1 && v.partIndex > 0
       ? '<p class="ilp-part-indicator">Phần ' + v.partIndex + ' / ' + v.partCount + '</p>' : '';
   }
+  // [JLAS-W0108] Quiz split into multiple parts: name the exact next part (mirrors interactive-study.js).
+  function checkButtonLabel(gate) {
+    if (!gate) return 'Bắt đầu kiểm tra →';
+    var total = num(gate.batchCount);
+    if (total > 1) {
+      var part = num(gate.currentBatch) + 1;
+      return (num(gate.currentBatch) > 0 ? 'Tiếp tục kiểm tra' : 'Bắt đầu kiểm tra') + ' — phần ' + part + '/' + total;
+    }
+    return 'Bắt đầu kiểm tra →';
+  }
   function list(value) { return Array.isArray(value) ? value : []; }
   function checkTypedAnswer(expected, entered) {
     return String(expected || '').normalize('NFKC').trim() === String(entered || '').normalize('NFKC').trim()
       && String(expected || '').trim().length > 0;
+  }
+  function checkProgressText(answeredQuestions, totalQuestions, answeredPairs, totalPairs) {
+    return 'Đã trả lời ' + answeredQuestions + '/' + totalQuestions + ' câu trắc nghiệm · ' +
+      answeredPairs + '/' + totalPairs + ' cặp nối';
   }
   function speakJapanese(value) {
     if (typeof window === 'undefined' || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return false;
@@ -65,8 +79,12 @@
 
   function cardFace(card) {
     if (!card) return '<div class="ilp-card__empty"><h2>Chưa có thẻ Kanji</h2></div>';
-    if (card.flipped) {
-      return '<div class="ilp-card__back">' +
+    return '<div class="ilp-card__inner"><div class="ilp-card__front"' + (card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
+      '<span class="ilp-card__kicker">KANJI</span>' +
+      '<h2 class="ilp-card__word ilp-card__word--kanji">' + esc(card.character) + '</h2>' +
+      '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.character) + '" aria-label="Nghe phát âm ' + esc(card.character) + '">🔊</button>' +
+      '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span></div>' +
+      '<div class="ilp-card__back"' + (!card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
         '<span class="ilp-kanji-glyph">' + esc(card.character) + '</span>' +
         '<span class="ilp-card__meaning">' + esc(card.meaningVi) + '</span>' +
         '<div class="ilp-kanji-details">' +
@@ -74,14 +92,7 @@
         (card.jlptLevel ? '<span class="ilp-chip">' + esc(card.jlptLevel) + '</span>' : '') +
         (card.strokeCount != null ? '<span class="ilp-chip">' + num(card.strokeCount) + ' nét</span>' : '') +
         readingChip('On', card.onReadings) + readingChip('Kun', card.kunReadings) +
-        '</div><button class="ilp-study-audio" type="button" data-speak="' + esc(card.character) + '" aria-label="Nghe phát âm ' + esc(card.character) + '">🔊</button></div>';
-    }
-    return '<div class="ilp-card__front">' +
-      '<span class="ilp-card__kicker">KANJI</span>' +
-      '<h2 class="ilp-card__word ilp-card__word--kanji">' + esc(card.character) + '</h2>' +
-      '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.character) + '" aria-label="Nghe phát âm ' + esc(card.character) + '">🔊</button>' +
-      '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span>' +
-      '</div>';
+        '</div><button class="ilp-study-audio" type="button" data-speak="' + esc(card.character) + '" aria-label="Nghe phát âm ' + esc(card.character) + '">🔊</button></div></div>';
   }
 
   function renderKanjiList(cards) {
@@ -108,17 +119,23 @@
   function renderStudy(v, gate, activeTab, partIndex, ui) {
     activeTab = activeTab === 'flashcards' ? 'flashcards' : 'content';
     ui = ui || {};
-    var flashMode = ['browse', 'remember', 'check', 'type'].includes(ui.mode) ? ui.mode : 'remember';
+    var readOnly = !!ui.readOnly;
+    var flashMode = readOnly ? 'browse' : (ui.mode === 'check' ? 'check' : 'browse');
     var groups = displayGroups(v.cards);
     partIndex = Math.min(Math.max(num(partIndex), 0), Math.max(groups.length - 1, 0));
-    var browseIndex = Math.min(Math.max(num(ui.browseIndex), 0), Math.max(v.cards.length - 1, 0));
-    var card = flashMode === 'remember' ? v.current : v.cards[browseIndex] || null;
-    var shownCard = card && flashMode === 'browse' ? Object.assign({}, card, { flipped: !!ui.browseFlipped }) : card;
-    var progress = v.totalCards ? Math.round(v.rememberedCount / v.totalCards * 100) : 0;
+    var partCards = groups[partIndex] || [];
+    var firstUnseen = partCards.findIndex(function (item) { return !item.flipped; });
+    var browseIndex = ui.browseIndex == null ? Math.max(0, firstUnseen) : num(ui.browseIndex);
+    browseIndex = Math.min(Math.max(browseIndex, 0), Math.max(partCards.length - 1, 0));
+    var card = partCards[browseIndex] || null;
+    var shownCard = card && flashMode === 'browse' ? Object.assign({}, card,
+      { flipped: !!ui.browseFlipped }) : card;
+    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
-    var canCheck = v.checkEligible && !gateBlocked;
+    var canCheck = !readOnly && v.checkEligible && !gateBlocked;
+    var checkLabel = checkButtonLabel(gate);
     var actions = '';
-    if (card && flashMode === 'remember') {
+    if (!readOnly && card && flashMode === 'remember') {
       actions = gate && gate.passed ? '' : card.flipped
         ? '<button class="ilp-action ilp-action--forget" type="button" data-remember="' + card.memberId + '" data-value="false">Chưa nhớ</button>' +
           '<button class="ilp-action ilp-action--know" type="button" data-remember="' + card.memberId + '" data-value="true">Đã nhớ</button>'
@@ -127,33 +144,24 @@
     var gateNote = gateBlocked
       ? '<p class="ilp-gate-note">' + (gate.reviewRequired ? 'Bạn cần ôn lại phần đã sai trước khi kiểm tra lại.' : 'Bạn đang trong thời gian chờ.') + '</p>'
       : '';
-    var modeNav = '<nav class="ilp-card-modes" aria-label="Cách luyện Flashcard">' +
-      [['browse', 'Lướt thẻ'], ['remember', 'Ghi nhớ'], ['check', 'Kiểm tra'], ['type', 'Gõ phản xạ']].map(function (mode) {
-        return '<button type="button" data-card-mode="' + mode[0] + '" aria-current="' + (flashMode === mode[0]) + '">' + mode[1] + '</button>';
-      }).join('') + '</nav>';
-    var flashContent = flashMode === 'type'
-      ? '<div class="ilp-typing"><p>Nhìn nghĩa và gõ lại chữ Hán. Đây là lượt luyện riêng, không thay đổi kết quả quiz.</p>' +
-        '<strong>' + esc(card && card.meaningVi) + '</strong>' +
-        '<form data-typed-recall><label for="ilp-typed-kanji">Chữ Hán</label><input id="ilp-typed-kanji" autocomplete="off" lang="ja" required>' +
-        '<button type="submit">Kiểm tra phản xạ</button></form>' +
-        (ui.typedFeedback ? '<p role="status">' + esc(ui.typedFeedback) + '</p>' : '') + '</div>'
-      : flashMode === 'check'
-        ? '<div class="ilp-card-mode-check"><p>' + (canCheck ? 'Đã sẵn sàng làm bài kiểm tra nhỏ.' : 'Học và ghi nhớ các thẻ trước khi kiểm tra.') + '</p>' +
-          '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra →</button></div>'
-        : '<article class="ilp-card' + (shownCard && (shownCard.flipped || gate && gate.passed && flashMode !== 'browse') ? ' is-flipped' : '') + '"' +
-          (shownCard && (flashMode === 'browse' || !(gate && gate.passed)) ? ' data-card="' + shownCard.memberId + '" tabindex="0" role="button" aria-label="Thẻ Kanji"' : '') + '>' +
-          cardFace(shownCard && gate && gate.passed && flashMode !== 'browse' ? Object.assign({}, shownCard, { flipped: true }) : shownCard) + '</article>' +
-          (flashMode === 'browse' ? '<div class="ilp-browse-nav"><button type="button" data-browse-step="-1"' + (browseIndex === 0 ? ' disabled' : '') + '>← Trước</button>' +
-            '<span>' + (v.cards.length ? browseIndex + 1 : 0) + '/' + v.cards.length + '</span>' +
-            '<button type="button" data-browse-step="1"' + (browseIndex >= v.cards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' :
-            '<div class="ilp-card__actions">' + actions + '</div>' + gateNote +
-            (gate && gate.passed ? '' : '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>'));
+    var flashContent = flashMode === 'check'
+      ? '<div class="ilp-card-mode-check"><p>' + (gate && gate.passed ? 'Bạn đã hoàn thành bài kiểm tra của phần này.' :
+          canCheck ? 'Đã lướt hết thẻ. Bạn có thể bắt đầu kiểm tra.' : 'Bạn có thể kiểm tra ngay hoặc lướt hết thẻ trước.') + '</p>' + gateNote +
+          (readOnly || gate && gate.passed ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>') + '</div>'
+      : '<article class="ilp-card' + (shownCard && shownCard.flipped ? ' is-flipped' : '') + (ui.turning ? ' is-turning' : '') + '"' +
+          (shownCard ? (readOnly ? ' data-browse-card tabindex="0" role="button" aria-label="Thẻ Kanji; chạm để lật"' :
+            !(gate && gate.passed) ? ' data-card="' + shownCard.memberId + '" tabindex="0" role="button" aria-label="Thẻ Kanji; chạm để lật"' : '') : '') + '>' +
+          cardFace(shownCard) + '</article>' +
+          '<div class="ilp-browse-nav"><button type="button" data-browse-step="-1"' + (browseIndex === 0 ? ' disabled' : '') + '>← Trước</button>' +
+          '<span>' + (partCards.length ? browseIndex + 1 : 0) + '/' + partCards.length + ' trong phần này</span>' +
+          '<button type="button" data-browse-step="1"' + (browseIndex >= partCards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' + gateNote +
+          (readOnly || gate && gate.passed ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>');
     return '<section class="ilp-study">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">KANJI // ' +
       (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Chữ Hán</h1>' + partLabel(v) +
       '<p>Xem chữ, nghĩa và âm đọc trước; sau đó học bằng Flashcard.</p></div>' +
-      '<div class="ilp-study__count"><strong>' + v.rememberedCount + '/' + v.totalCards + '</strong><span>đã nhớ</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.rememberedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
+      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
+      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
       '<span style="width:' + progress + '%"></span></div>' +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học Kanji">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
@@ -164,11 +172,48 @@
       }).join('') + '</div>' : '') +
       renderKanjiList(groups[partIndex] || []) + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
-      modeNav + flashContent +
+      flashContent +
       '</section>' +
       '</section>';
   }
 
+  // [JLAS-W0108] Deterministic per-attempt column shuffle for MATCHING (mirrors interactive-study.js).
+  function hashSeed(value) {
+    var h = 2166136261;
+    for (var i = 0; i < value.length; i++) { h ^= value.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function shuffled(array, rng) {
+    var out = array.slice();
+    for (var i = out.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1));
+      var swap = out[i]; out[i] = out[j]; out[j] = swap;
+    }
+    return out;
+  }
+  function matchingColumns(questions, attemptId) {
+    var matching = (questions || []).filter(function (q) { return q.questionType === 'MATCHING'; });
+    if (matching.length < 2) return { wordOrder: matching.map(function (q) { return q.questionId; }), meaningOrder: [] };
+    var wordIds = matching.map(function (q) { return q.questionId; });
+    var meaningCount = (matching[0].options || []).length;
+    var meaningIndices = [];
+    for (var i = 1; i <= meaningCount; i++) meaningIndices.push(i);
+    var rng = mulberry32(hashSeed(String(attemptId == null ? '' : attemptId) + ':' + matching.length + ':' + meaningCount));
+    var wordOrder = shuffled(wordIds, rng);
+    var meaningOrder = shuffled(meaningIndices, rng);
+    if (wordOrder.length > 1 && wordOrder.every(function (id, i) { return id === wordIds[i]; })) wordOrder = shuffled(wordIds, rng);
+    if (meaningOrder.length > 1 && meaningOrder.every(function (idx, i) { return idx === meaningIndices[i]; })) meaningOrder = shuffled(meaningIndices, rng);
+    return { wordOrder: wordOrder, meaningOrder: meaningOrder };
+  }
   function renderCheck(check) {
     var all = list(check.questions);
     var matching = all.filter(function (q) { return q.questionType === 'MATCHING'; });
@@ -186,22 +231,84 @@
         '<span>' + esc(q.questionText) + '</span></legend><div class="ilp-options">' + options + '</div></fieldset>';
     }).join('');
     if (canPair) {
+      var matchOrder = matchingColumns(all, check.attemptId);
+      var matchById = {};
+      matching.forEach(function (q) { matchById[q.questionId] = q; });
+      var matchMeaningByIndex = {};
+      matching[0].options.forEach(function (option, i) { matchMeaningByIndex[i + 1] = option; });
+      var matchNumber = {};
+      matchOrder.wordOrder.forEach(function (id, i) { matchNumber[id] = i + 1; });
       questions += '<fieldset class="ilp-matching"><legend>Nối chữ Hán ở cột trái với nghĩa ở cột phải</legend>' +
-        '<p>Chọn một chữ, sau đó chọn nghĩa tương ứng. Có thể chọn lại để sửa.</p>' +
+        '<p>Chọn một chữ rồi chọn nghĩa tương ứng (hoặc ngược lại). Chọn mục khác để đổi; bấm vào cặp đã nối để tháo.</p>' +
         '<div class="ilp-matching__columns"><div class="ilp-matching__column"><h2>Chữ Hán</h2>' +
-        matching.map(function (q, i) { return '<button type="button" data-match-word="' + q.questionId + '" aria-pressed="false"><span>' + (i + 1) + '.</span> ' + esc(q.questionText) + '<small data-match-label="' + q.questionId + '">Chưa nối</small></button>'; }).join('') +
+        matchOrder.wordOrder.map(function (id) { return '<button type="button" data-match-word="' + id + '" aria-pressed="false"><span>' + matchNumber[id] + '.</span> ' + esc(matchById[id].questionText) + '</button>'; }).join('') +
         '</div><div class="ilp-matching__column"><h2>Nghĩa</h2>' +
-        matching[0].options.map(function (option, i) { return '<button type="button" data-match-meaning="' + (i + 1) + '"><span>' + String.fromCharCode(65 + i) + '.</span> ' + esc(option) + '</button>'; }).join('') +
+        matchOrder.meaningOrder.map(function (idx, i) { return '<button type="button" data-match-meaning="' + idx + '" aria-pressed="false"><span>' + String.fromCharCode(65 + i) + '.</span> ' + esc(matchMeaningByIndex[idx]) + '</button>'; }).join('') +
         '</div></div><div class="ilp-matching__answers">' + matching.map(function (q) {
           return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '">'; }).join('');
         }).join('') + '</div></fieldset>';
     }
-    return '<section class="ilp-check">' +
+    return '<section class="ilp-check no-inline-dictionary">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">MICRO CHECK // ' + (num(check.batchIndex) + 1) + '/' + num(check.batchCount) + '</span>' +
-      '<h1>Bài kiểm tra nhỏ</h1><p>Chọn đáp án đúng cho từng câu rồi nộp.</p></div></header>' +
+      '<h1>Bài kiểm tra nhỏ</h1><p>Hoàn thành phần trắc nghiệm và ghép các cặp chữ Hán – nghĩa.</p><span class="ilp-check__answered" role="status" data-check-progress>' +
+        checkProgressText(0, canPair ? all.length - matching.length : all.length, 0, canPair ? matching.length : 0) + '</span></div></header>' +
       '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
       '<button class="ilp-check__submit" type="submit">Nộp bài</button></form>' +
       '</section>';
+  }
+
+  function syncMatchingHighlights(form, selectedWord, selectedMeaning) {
+    form.querySelectorAll('[data-match-word]').forEach(function (button) {
+      var questionId = button.dataset.matchWord;
+      var answer = form.querySelector('input[name="q-' + questionId + '"]:checked');
+      var matched = !!answer;
+      button.classList.toggle('is-matched', matched);
+      button.classList.toggle('is-selected', !matched && selectedWord === questionId);
+      button.setAttribute('aria-pressed', String(matched || selectedWord === questionId));
+      var badge = button.querySelector('[data-match-badge]');
+      if (matched) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.setAttribute('data-match-badge', '');
+          badge.className = 'ilp-matching__badge';
+          button.appendChild(badge);
+        }
+        var meaningButton = form.querySelector('[data-match-meaning="' + answer.value + '"]');
+        badge.textContent = meaningButton && meaningButton.querySelector('span')
+          ? String(meaningButton.querySelector('span').textContent || '').replace(/\.\s*$/, '') : answer.value;
+      } else if (badge) {
+        badge.textContent = '';
+      }
+    });
+    form.querySelectorAll('[data-match-meaning]').forEach(function (button) {
+      var idx = button.dataset.matchMeaning;
+      var matched = !!form.querySelector('.ilp-matching__answers input[value="' + idx + '"]:checked');
+      button.classList.toggle('is-matched', matched);
+      button.classList.toggle('is-selected', !matched && selectedMeaning === idx);
+      button.setAttribute('aria-pressed', String(matched || selectedMeaning === idx));
+    });
+  }
+
+  function selectMatchingAnswer(form, wordId, value) {
+    form.querySelectorAll('.ilp-matching__answers input[type="radio"]:checked').forEach(function (input) {
+      if (input.value === value && input.name !== 'q-' + wordId) input.checked = false;
+    });
+    var radio = form.querySelector('input[name="q-' + wordId + '"][value="' + value + '"]');
+    if (radio) radio.checked = true;
+  }
+
+  function updateCheckProgress(form) {
+    var questionNames = new Set(Array.prototype.map.call(form.querySelectorAll('.ilp-question input[type="radio"]'), function (input) { return input.name; }));
+    var pairNames = new Set(Array.prototype.map.call(form.querySelectorAll('.ilp-matching__answers input[type="radio"]'), function (input) { return input.name; }));
+    var answeredQuestions = 0;
+    var answeredPairs = 0;
+    form.querySelectorAll('input[type="radio"]:checked').forEach(function (input) {
+      if (questionNames.has(input.name)) answeredQuestions++;
+      else if (pairNames.has(input.name)) answeredPairs++;
+    });
+    var output = form.querySelector('[data-check-progress]');
+    if (!output) { var section = form.closest('.ilp-check'); if (section) output = section.querySelector('[data-check-progress]'); }
+    if (output) output.textContent = checkProgressText(answeredQuestions, questionNames.size, answeredPairs, pairNames.size);
   }
 
   function formatCooldown(value) {
@@ -210,7 +317,8 @@
     return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function renderResult(result) {
+  function renderResult(result, context) {
+    context = context || {};
     var passed = !!result.passed;
     var nextBatch = passed && result.activityState === 'CHECK_READY';
     var wrong = list(result.review).filter(function (r) { return r.correct === false; });
@@ -226,20 +334,21 @@
         (result.reviewRequired ? '<p>Hãy ôn lại các chữ đã sai trước khi thử lại.</p>' : '') +
         (cooldown ? '<p>Vui lòng quay lại sau <strong>' + esc(formatCooldown(result.cooldownUntil)) + '</strong>.</p>' : '') +
         '</div>') +
-      (wrong.length ? '<ol class="ilp-review">' + wrong.map(function (r) { return '<li>Câu ' + esc(r.questionId) + '</li>'; }).join('') + '</ol>' : '') +
+      (wrong.length ? '<p class="ilp-review-summary">Có ' + wrong.length + ' câu cần xem lại. Chi tiết câu hỏi và đáp án nằm trong lịch sử lượt làm bên dưới.</p>' : '') +
+      (context.attemptHistoryHtml || '') +
       '<div class="ilp-result__actions">' +
       (nextBatch ? '<button class="ilp-check" type="button" data-check-next>Làm tiếp phần kiểm tra →</button>' : '') +
       (result.reviewRequired ? '<button class="ilp-check" type="button" data-review>Ôn lại phần đã sai</button>' : '') +
-      '<a class="ilp-check ilp-check--ghost" href="/learning/v2/kanji?activity=' + encodeURIComponent(activityId() || '') + '&amp;tab=content">Xem lại bài học</a>' +
+      '<a class="ilp-check ilp-check--ghost" href="/learning/v2/kanji?activity=' + encodeURIComponent(activityId() || '') +
+        (passed ? '&amp;mode=review&amp;tab=content">Xem lại bài giảng' : '&amp;tab=content">Quay lại bài học') + '</a>' +
       '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a>' +
       '</div></section>';
   }
 
   // [JLAS-W0108] Task 11 - REVIEW: the server's read-only view, rendered with no flip/remember/check controls.
-  function renderReview(v, feedback) {
-    return window.InteractiveStudyMode.reviewList('Kanji đã học', v.cards.map(function (card) {
-      return { html: '<article class="ilp-card is-flipped">' + cardFace(Object.assign({}, card, { flipped: true })) + '</article>' };
-    }), feedback === null ? '' : window.InteractiveStudyMode.feedbackList(feedback));
+  function renderReview(v, activeTab, partIndex, ui) {
+    return '<p class="ilp-mode-banner" role="note" data-mode-banner="REVIEW"><strong>Chế độ xem lại</strong> — chỉ xem, không ghi nhận tiến độ.</p>' +
+      renderStudy(v, null, activeTab || 'content', partIndex || 0, Object.assign({}, ui || {}, { mode: 'browse', readOnly: true }));
   }
 
   function renderPassed(extra) {
@@ -262,7 +371,7 @@
     // [JLAS-W0108] Task 11 - LEARN / REVIEW / PRACTICE. The server enforces each mode; the page only picks endpoints.
     var StudyMode = window.InteractiveStudyMode;
     if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
-    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
+    if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
@@ -272,17 +381,20 @@
     var currentStudy = null;
     var currentGate = null;
     var selectedWord = null;
+    var selectedMeaning = null;
     var selectedPart = 0;
-    var flashUi = { mode: 'remember', browseIndex: 0, browseFlipped: false, typedFeedback: '' };
+    var flashUi = { mode: 'browse', browseIndex: null, browseFlipped: false, turning: false, typedFeedback: '' };
+    var flipPending = false;
     function renderRehearsal() {
-      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi) +
-        '<button class="ilp-check ilp-check--ghost" type="button" data-attempt-history>Xem lại bài kiểm tra</button>';
+      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
     }
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/kanji', id, ['REVIEW', 'PRACTICE']) : '';
     function showStudy() {
       if (mode === 'PRACTICE') return renderRehearsal();
       if (!currentStudy) return;
-      node.innerHTML = renderStudy(viewModel(currentStudy), currentGate, selectedTab, selectedPart, flashUi) +
+      node.innerHTML = (mode === 'REVIEW'
+        ? renderReview(viewModel(currentStudy), selectedTab, selectedPart, flashUi)
+        : renderStudy(viewModel(currentStudy), currentGate, selectedTab, selectedPart, flashUi)) +
         (currentGate && currentGate.passed ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
     }
 
@@ -296,15 +408,30 @@
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'RESULTS') {
+          await StudyMode.loadSavedResults(node, api, '/learning/v2/kanji', id);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         if (mode === 'REVIEW') {
-          var feedback = null;
-          try { feedback = await api('/review/attempts'); } catch (e) { feedback = null; }
-          node.innerHTML = renderReview(viewModel(await api(modeApi.study)), feedback);
+          currentStudy = await api(modeApi.study);
+          showStudy();
           node.setAttribute('aria-busy', 'false');
           return;
         }
         if (mode === 'PRACTICE') {
-          rehearsalState = StudyMode.rehearsal(await api('/review'));
+          var practiceSource = await api('/review');
+          if (practiceSource.activityState !== 'PASSED' && practiceSource.activityState !== 'COMPLETED') {
+            node.innerHTML = '<section class="ilp-state"><h1>Bài học chưa hoàn thành</h1>' +
+              '<p>Hoàn thành bài học và kiểm tra trước khi ôn lại.</p>' +
+              '<a class="ilp-check" href="/learning/v2/kanji?activity=' + encodeURIComponent(id) +
+              '">Tiếp tục học</a></section>';
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
+          rehearsalState = StudyMode.rehearsal(practiceSource);
+          selectedTab = 'flashcards';
+          flashUi.mode = 'browse';
           renderRehearsal();
           node.setAttribute('aria-busy', 'false');
           return;
@@ -312,17 +439,23 @@
         currentStudy = await api('/study');
         currentGate = null;
         try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
-        showStudy();
+        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
+          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/kanji', id, renderPassed(PASSED_ACTIONS));
+        } else showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
 
     async function doPractice() {
+      selectedWord = null;
+      selectedMeaning = null;
       try { node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' })); }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
     async function doCheck() {
+      selectedWord = null;
+      selectedMeaning = null;
       try { node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' })); }
       catch (e) { node.innerHTML = error(e.message); }
     }
@@ -337,6 +470,9 @@
       var part = event.target.closest('[data-study-part]');
       if (part) {
         selectedPart = Number(part.dataset.studyPart);
+        flashUi.browseIndex = null;
+        flashUi.browseFlipped = false;
+        flashUi.turning = false;
         showStudy();
         return;
       }
@@ -349,71 +485,89 @@
       }
       var browseStep = event.target.closest('[data-browse-step]');
       if (browseStep) {
-        var cards = viewModel(mode === 'PRACTICE' ? rehearsalState : currentStudy).cards;
-        flashUi.browseIndex = Math.min(Math.max(flashUi.browseIndex + Number(browseStep.dataset.browseStep), 0), Math.max(cards.length - 1, 0));
+        var cards = displayGroups(viewModel(mode === 'PRACTICE' ? rehearsalState : currentStudy).cards)[selectedPart] || [];
+        var firstUnseen = cards.findIndex(function (item) { return !item.flipped; });
+        var from = flashUi.browseIndex == null ? Math.max(0, firstUnseen) : flashUi.browseIndex;
+        flashUi.browseIndex = Math.min(Math.max(from + Number(browseStep.dataset.browseStep), 0), Math.max(cards.length - 1, 0));
         flashUi.browseFlipped = false;
+        flashUi.turning = false;
         showStudy();
         return;
       }
       var audio = event.target.closest('[data-speak]');
       if (audio) { event.stopPropagation(); speakJapanese(audio.dataset.speak); return; }
+      if (event.target.closest('[data-browse-card]')) { flashUi.browseFlipped = !flashUi.browseFlipped; flashUi.turning = true; showStudy(); return; }
       var matchWord = event.target.closest('[data-match-word]');
       if (matchWord) {
-        selectedWord = matchWord.dataset.matchWord;
-        node.querySelectorAll('[data-match-word]').forEach(function (button) {
-          button.setAttribute('aria-pressed', String(button === matchWord));
-        });
+        var form = matchWord.closest('form');
+        var wordId = matchWord.dataset.matchWord;
+        var existing = form.querySelector('input[name="q-' + wordId + '"]:checked');
+        if (existing) {
+          existing.checked = false;
+          selectedWord = null;
+          selectedMeaning = null;
+        } else if (selectedWord === wordId) {
+          selectedWord = null;
+        } else {
+          selectedWord = wordId;
+          if (selectedMeaning) selectMatchingAnswer(form, wordId, selectedMeaning);
+        }
+        syncMatchingHighlights(form, selectedWord, selectedMeaning);
+        updateCheckProgress(form);
         return;
       }
       var matchMeaning = event.target.closest('[data-match-meaning]');
-      if (matchMeaning && selectedWord) {
-        var form = matchMeaning.closest('form');
+      if (matchMeaning) {
+        var mform = matchMeaning.closest('form');
         var value = matchMeaning.dataset.matchMeaning;
-        form.querySelectorAll('input[type="radio"]:checked').forEach(function (input) {
-          if (input.value === value && input.name !== 'q-' + selectedWord) {
-            input.checked = false;
-            var oldLabel = form.querySelector('[data-match-label="' + input.name.slice(2) + '"]');
-            if (oldLabel) oldLabel.textContent = 'Chưa nối';
-          }
-        });
-        var radio = form.querySelector('input[name="q-' + selectedWord + '"][value="' + value + '"]');
-        if (radio) radio.checked = true;
-        var label = form.querySelector('[data-match-label="' + selectedWord + '"]');
-        if (label) label.textContent = 'Đã nối với ' + matchMeaning.textContent.trim();
-        selectedWord = null;
-        form.querySelectorAll('[data-match-word]').forEach(function (button) { button.setAttribute('aria-pressed', 'false'); });
-        return;
-      }
-      if (event.target.closest('[data-attempt-history]')) {
-        try {
-          node.innerHTML = StudyMode.feedbackList(await api('/review/attempts')) +
-            '<button class="ilp-check" type="button" data-retry>Trở lại ôn bài</button>';
-        } catch (e) { node.innerHTML = error(e.message); }
+        var owner = mform.querySelector('.ilp-matching__answers input[value="' + value + '"]:checked');
+        if (owner) {
+          owner.checked = false;
+          selectedWord = null;
+          selectedMeaning = null;
+        } else if (selectedMeaning === value) {
+          selectedMeaning = null;
+        } else {
+          selectedMeaning = value;
+          if (selectedWord) selectMatchingAnswer(mform, selectedWord, value);
+        }
+        syncMatchingHighlights(mform, selectedWord, selectedMeaning);
+        updateCheckProgress(mform);
         return;
       }
       if (event.target.closest('[data-retry]')) return loadStudy();
-      if (event.target.closest('[data-practice-again]')) return doPractice();
+      if (event.target.closest('[data-practice-review]')) return loadStudy();
       if (event.target.closest('[data-check-next]')) return doCheck();
-      if (event.target.closest('[data-check]')) return doCheck();
+      if (event.target.closest('[data-check]')) {
+        if (mode === 'LEARN' && currentStudy && currentStudy.flippedCount < currentStudy.totalCards &&
+            !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Chọn OK để vẫn kiểm tra; chọn Hủy để lướt ôn tập hết thẻ.'))) return;
+        return doCheck();
+      }
       if (event.target.closest('[data-review]')) {
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
         return loadStudy();
       }
       var flip = event.target.closest('[data-card]');
       if (flip) {
-        if (flashUi.mode === 'browse') {
-          flashUi.browseFlipped = !flashUi.browseFlipped;
-          showStudy();
-          return;
+        if (flipPending) return;
+        var cardId = flip.dataset.card;
+        var source = mode === 'PRACTICE' ? rehearsalState : currentStudy;
+        var partCards = displayGroups(viewModel(source).cards)[selectedPart] || [];
+        var visibleIndex = partCards.findIndex(function (item) { return String(item.memberId) === cardId; });
+        if (visibleIndex < 0) return;
+        flashUi.browseIndex = visibleIndex;
+        var viewed = !!partCards[visibleIndex].flipped;
+        if (!flashUi.browseFlipped && !viewed) {
+          flipPending = true;
+          try {
+            if (mode === 'PRACTICE') StudyMode.rehearseCard(rehearsalState, cardId, 'flip');
+            else currentStudy = await api('/cards/' + encodeURIComponent(cardId) + '/flip', { method: 'POST' });
+          } catch (e) { node.innerHTML = error(e.message); return; }
+          finally { flipPending = false; }
         }
-        if (mode === 'PRACTICE') {
-          StudyMode.rehearseCard(rehearsalState, flip.dataset.card, 'flip');
-          renderRehearsal();
-          return;
-        }
-        try { currentStudy = await api('/cards/' + encodeURIComponent(flip.dataset.card) + '/flip', { method: 'POST' });
-          showStudy(); }
-        catch (e) { node.innerHTML = error(e.message); }
+        flashUi.browseFlipped = !flashUi.browseFlipped;
+        flashUi.turning = true;
+        showStudy();
         return;
       }
       var remember = event.target.closest('[data-remember]');
@@ -429,6 +583,21 @@
         catch (e) { node.innerHTML = error(e.message); }
         return;
       }
+    });
+
+    node.addEventListener('change', function (event) {
+      if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
+        updateCheckProgress(event.target.closest('form'));
+      }
+    });
+
+    node.addEventListener('click', function (event) {
+      var option = event.target.closest && event.target.closest('.ilp-check__form .ilp-option');
+      if (!option) return;
+      window.setTimeout(function () {
+        var form = option.closest('form');
+        if (form) updateCheckProgress(form);
+      }, 0);
     });
 
     node.addEventListener('keydown', function (event) {
@@ -452,6 +621,10 @@
       var form = event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      var unanswered = new Set(Array.prototype.map.call(form.querySelectorAll('input[type="radio"]'), function (input) {
+        return input.name;
+      })).size - form.querySelectorAll('input[type="radio"]:checked').length;
+      if (unanswered > 0 && !(await window.JlasConfirm('Bạn còn ' + unanswered + ' câu chưa trả lời. Câu bỏ trống sẽ bị tính sai. Vẫn nộp bài?'))) return;
       var answers = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
         return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
       });
@@ -463,8 +636,14 @@
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
         node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result);
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
-          await StudyMode.showNextAction(node, id);
+        if (StudyMode && StudyMode.attemptHistory) {
+          try {
+            var attempts = await api('/attempt-history');
+            var resultPanel = node.querySelector('.ilp-result');
+            if (resultPanel && attempts && attempts.length)
+              resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+          } catch (historyError) { /* Keep the scored result usable if optional history is unavailable. */ }
+        }
         if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
           await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message); }
@@ -474,5 +653,5 @@
     loadStudy();
   }
 
-  return { viewModel: viewModel, checkTypedAnswer: checkTypedAnswer, renderStudy: renderStudy, renderCheck: renderCheck, renderResult: renderResult, mount: mount };
+  return { viewModel: viewModel, checkTypedAnswer: checkTypedAnswer, checkProgressText: checkProgressText, renderStudy: renderStudy, renderReview: renderReview, renderCheck: renderCheck, renderResult: renderResult, mount: mount };
 });

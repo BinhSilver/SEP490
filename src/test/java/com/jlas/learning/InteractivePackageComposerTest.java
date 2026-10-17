@@ -10,6 +10,7 @@ import com.jlas.learning.entity.*;
 import com.jlas.learning.enums.*;
 import com.jlas.learning.repository.*;
 import com.jlas.learning.service.InteractiveContentCatalog;
+import com.jlas.learning.service.ComprehensionExerciseCatalog;
 import com.jlas.learning.service.impl.InteractivePackageComposerImpl;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +27,11 @@ class InteractivePackageComposerTest {
     @Mock InteractiveContentCatalog catalog; @Mock LearningPathPackageRepository packages;
     @Mock UserLearningPathItemRepository items; @Mock LearningActivityMemberRepository members;
     @Mock UserLearningStageRepository stages;
+    @Mock ComprehensionExerciseCatalog comprehensionCatalog;
     InteractiveLearningV2Properties properties; InteractivePackageComposerImpl composer;
 
     @BeforeEach void setUp(){properties=new InteractiveLearningV2Properties(); properties.setEnabled(true);
-        composer=new InteractivePackageComposerImpl(properties,catalog,packages,items,members,stages);
+        composer=new InteractivePackageComposerImpl(properties,catalog,packages,items,members,stages,comprehensionCatalog);
         lenient().when(packages.existsByLearningPathId(anyLong())).thenReturn(false);
         lenient().when(packages.existsByLearningPathIdAndPhase(anyLong(),anyString())).thenReturn(false);
         lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
@@ -82,7 +84,7 @@ class InteractivePackageComposerTest {
         verify(packages).save(argThat(value -> Long.valueOf(41L).equals(value.getStageId())));
     }
 
-    @Test void skipsVocabularyActivityBelowFiveWordsAndAllowsOptionalDialogue(){
+    @Test void keepsAllFourCurriculumWordsRatherThanApplyingTheSmartTestRemediationThreshold(){
         var smallVocabulary=new InteractiveContentSnapshot(Lesson.builder().id(10L).build(),"revision",
                 List.of(1L,2L,3L,4L),List.of(30L),List.of(40L),List.of(),List.of());
         when(catalog.inspect(10L,"N4")).thenReturn(smallVocabulary);
@@ -91,10 +93,49 @@ class InteractivePackageComposerTest {
 
         assertTrue(result.published());
         var captor=ArgumentCaptor.forClass(UserLearningPathItem.class);
-        verify(items,times(2)).save(captor.capture());
-        assertEquals(List.of(LearningActivityType.KANJI,LearningActivityType.GRAMMAR),
+        verify(items,times(3)).save(captor.capture());
+        assertEquals(List.of(LearningActivityType.VOCABULARY,LearningActivityType.KANJI,LearningActivityType.GRAMMAR),
                 captor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
-        verify(members,times(2)).saveAll(any());
+        verify(members,times(3)).saveAll(any());
+        verify(members).saveAll(argThat(rows -> {
+            var savedRows=StreamSupport.stream(rows.spliterator(),false).toList();
+            return savedRows.size()==4 && savedRows.stream().allMatch(row ->
+                    row.getMemberType()==LearningMemberType.VOCABULARY_ENTRY);
+        }));
+    }
+
+    @Test void communicationGoalComposesOnlyThreeUnscoredSkillsAndKeepsEverySituationAvailable(){
+        var communication = path();
+        communication.setGoal("TRAVEL");
+        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
+        when(catalog.inspect(20L,"N4")).thenReturn(snapshot(20L,List.of()));
+
+        var result = composer.compose(communication,List.of(seed(10L,1),seed(20L,2)));
+
+        assertTrue(result.published());
+        var packageCaptor=ArgumentCaptor.forClass(LearningPathPackage.class);
+        verify(packages,times(2)).save(packageCaptor.capture());
+        assertTrue(packageCaptor.getAllValues().stream()
+                .allMatch(pkg -> pkg.getStatus()==LearningPackageStatus.AVAILABLE));
+        var activityCaptor=ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items,times(6)).save(activityCaptor.capture());
+        assertEquals(List.of(LearningActivityType.VOCABULARY,LearningActivityType.GRAMMAR,
+                        LearningActivityType.DIALOGUE,LearningActivityType.VOCABULARY,
+                        LearningActivityType.GRAMMAR,LearningActivityType.DIALOGUE),
+                activityCaptor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+    }
+
+    @Test void aSingletonCurriculumWordIsReportedInsteadOfSilentlyLostOrQuizzedWithoutOptions(){
+        when(catalog.inspect(10L,"N4")).thenReturn(new InteractiveContentSnapshot(
+                Lesson.builder().id(10L).build(),"revision",List.of(1L),List.of(30L),
+                List.of(40L),List.of(),List.of()));
+
+        var result=composer.compose(path(),List.of(seed(10L,1)));
+
+        assertFalse(result.published());
+        assertEquals(List.of(new CoverageGap("LESSON:10", "VOCAB_QUIZ_DISTRACTOR_NOT_READY")), result.gaps());
+        verify(packages,never()).save(any());
+        verify(items,never()).save(any());
     }
 
     @Test void createsVocabularyActivityAtFiveAndKeepsEveryVocabularyMember(){
@@ -113,6 +154,23 @@ class InteractivePackageComposerTest {
             var savedRows=StreamSupport.stream(rows.spliterator(),false).toList();
             return savedRows.size()==5 && savedRows.stream().allMatch(row -> row.getMemberType()==LearningMemberType.VOCABULARY_ENTRY);
         }));
+    }
+
+    @Test void freezesLessonMeaningOnVocabularyMembersAtComposition() {
+        var contextual = new InteractiveContentSnapshot(Lesson.builder().id(10L).build(), "revision",
+                List.of(1L,2L,3L,4L,5L), List.of(), List.of(), List.of(), List.of(),
+                Map.of(1L, new VocabularyLessonContext("nghĩa theo bài", "例です。", "Ví dụ.")));
+        when(catalog.inspect(10L,"N4")).thenReturn(contextual);
+
+        assertTrue(composer.compose(path(),List.of(seed(10L,1))).published());
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<LearningActivityMember>> captured = ArgumentCaptor.forClass(Iterable.class);
+        verify(members).saveAll(captured.capture());
+        var persisted = StreamSupport.stream(captured.getValue().spliterator(),false).toList();
+        assertEquals("{\"meaning\":\"nghĩa theo bài\",\"exampleJa\":\"例です。\",\"exampleVi\":\"Ví dụ.\"}",
+                persisted.getFirst().getContentSnapshotJson());
+        assertNull(persisted.get(1).getContentSnapshotJson());
     }
 
     @Test void splitsLongVocabularyAndKanjiMembershipIntoOrderedActivitiesOfAtMostFifteen(){
@@ -214,6 +272,73 @@ class InteractivePackageComposerTest {
         assertTrue(result.published());
         verify(catalog).inspect(30L,"N3");
         verify(packages).save(argThat(value -> Long.valueOf(51L).equals(value.getStageId())));
+    }
+
+    @Test void mapsReadingAndListeningMembersIntoVisibleGoalActivitiesWithSourceRevision() {
+        var textbook=com.jlas.dictionary.entity.Textbook.builder().id(1L).title("Sekai N5 — Giáo trình tiếng Nhật")
+                .jlptLevel("N5").build();
+        var lesson=Lesson.builder().id(10L).unit(com.jlas.dictionary.entity.Unit.builder().id(1L).textbook(textbook).build())
+                .build();
+        var source = new InteractiveContentSnapshot(lesson,"lesson-rev",List.of(),List.of(),List.of(),List.of(),List.of(),
+                Map.of(),List.of(601L,602L),List.of(603L,604L));
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(
+                UserLearningStage.builder().id(41L).level("N5").stageIndex(0).status("ACTIVE").build()));
+        when(catalog.inspect(10L,"N5")).thenReturn(source);
+        when(comprehensionCatalog.resolve("READING","N5")).thenReturn(exercises("READING",List.of(601L,602L)));
+        when(comprehensionCatalog.resolve("LISTENING","N5")).thenReturn(exercises("LISTENING",List.of(603L,604L)));
+
+        var result=composer.compose(path(),List.of(seed(10L,1,"N5")));
+
+        assertTrue(result.published(),result.gaps().toString());
+        @SuppressWarnings("unchecked") ArgumentCaptor<Iterable<LearningActivityMember>> saved = ArgumentCaptor.forClass(Iterable.class);
+        verify(members,times(3)).saveAll(saved.capture());
+        var all=saved.getAllValues().stream().flatMap(group -> StreamSupport.stream(group.spliterator(),false)).toList();
+        assertEquals(List.of(601L,602L),all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.READING)
+                .map(LearningActivityMember::getCanonicalId).toList());
+        assertEquals(List.of(603L,604L),all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.LISTENING)
+                .map(LearningActivityMember::getCanonicalId).toList());
+        assertEquals(1,all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.READING)
+                .map(LearningActivityMember::getSourceRevision).distinct().count());
+    }
+
+    private ComprehensionExerciseCatalog.CatalogResult exercises(String skill,List<Long> ids) {
+        var rows=ids.stream().map(id -> new ComprehensionQuestionSpec(id,"prompt",List.of("a","b","c","d"),1,"why")).toList();
+        var result=new ArrayList<com.jlas.learning.dto.ComprehensionExercise>();
+        for(int i=0;i<rows.size();i++) {
+            var question=rows.get(i); String fingerprint=skill+"-fingerprint-"+question.id();
+            result.add(new com.jlas.learning.dto.ComprehensionExercise(fingerprint,skill,"N5","source-"+i,
+                    null,null,List.of(question),"revision-"+i));
+        }
+        return new ComprehensionExerciseCatalog.CatalogResult(result,List.of());
+    }
+
+    @Test void keepsAllQuestionsForEachMinnaClipTogetherInCurriculumOrder() {
+        var book = com.jlas.dictionary.entity.Textbook.builder().jlptLevel("N4").build();
+        var unit = com.jlas.dictionary.entity.Unit.builder().textbook(book).build();
+        var lesson = Lesson.builder().id(10L).unit(unit).build();
+        var snapshot = new InteractiveContentSnapshot(lesson, "lesson-rev", List.of(), List.of(),
+                List.of(), List.of(), List.of(), Map.of(), List.of(), List.of(701L, 702L, 703L));
+        when(catalog.inspect(10L, "N4")).thenReturn(snapshot);
+        var first = new ComprehensionExercise("clip-1", "LISTENING", "N4", "audio-1", null, null,
+                List.of(new ComprehensionQuestionSpec(701L, "Q1", List.of("A", "B"), 1, "why"),
+                        new ComprehensionQuestionSpec(702L, "Q2", List.of("A", "B"), 2, "why")), "rev-1");
+        var second = new ComprehensionExercise("clip-2", "LISTENING", "N4", "audio-2", null, null,
+                List.of(new ComprehensionQuestionSpec(703L, "Q3", List.of("A", "B"), 1, "why")), "rev-2");
+        when(comprehensionCatalog.resolve("LISTENING", "N4"))
+                .thenReturn(new ComprehensionExerciseCatalog.CatalogResult(List.of(first, second), List.of()));
+
+        var result = composer.compose(path(), List.of(seed(10L, 1)));
+
+        assertTrue(result.published(), result.gaps().toString());
+        var activity = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items, times(2)).save(activity.capture());
+        assertEquals(List.of(15, 15), activity.getAllValues().stream()
+                .map(UserLearningPathItem::getEstimatedMinutes).toList());
+        @SuppressWarnings("unchecked") var saved = ArgumentCaptor.forClass(Iterable.class);
+        verify(members, times(2)).saveAll(saved.capture());
+        assertEquals(List.of(List.of(701L, 702L), List.of(703L)), saved.getAllValues().stream()
+                .map(group -> StreamSupport.stream(((Iterable<LearningActivityMember>) group).spliterator(), false)
+                        .map(LearningActivityMember::getCanonicalId).toList()).toList());
     }
 
     @Test void missingStageBlocksCompositionWithLevelMismatch(){

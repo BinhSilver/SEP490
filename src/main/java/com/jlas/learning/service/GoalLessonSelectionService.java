@@ -4,7 +4,6 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.repository.LessonRepository;
-import com.jlas.learning.entity.LearningSurveyOption;
 import com.jlas.learning.entity.LessonLearningScope;
 import com.jlas.learning.entity.UserGoalSurveySubmission;
 import com.jlas.learning.entity.CompetencyLevel;
@@ -22,8 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GoalLessonSelectionService {
     private final UserGoalSurveySubmissionRepository submissions;
-    private final UserGoalSurveySelectionRepository selections;
-    private final LearningSurveyOptionRepository options;
     private final LessonLearningScopeRepository scopes;
     private final LessonRepository lessons;
     private final CompetencyLevelRepository competencyLevels;
@@ -33,22 +30,9 @@ public class GoalLessonSelectionService {
         UserGoalSurveySubmission submission = submissions.findByIdAndUserId(submissionId, userId)
                 .filter(row -> "SUBMITTED".equals(row.getStatus()))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy khảo sát đã nộp."));
-        List<Long> optionIds = selections.findBySubmissionId(submissionId).stream()
-                .map(row -> row.getOptionId()).distinct().toList();
-        List<LearningSurveyOption> chosen = optionIds.isEmpty() ? List.of() : options.findAllById(optionIds);
-        Set<Long> topicIds = chosen.stream().map(LearningSurveyOption::getTopicId)
-                .filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<Long> competencyIds = chosen.stream().map(LearningSurveyOption::getCompetencyId)
-                .filter(Objects::nonNull).collect(Collectors.toSet());
-
+        // Survey answers describe needs; they do not remove situations from a communication path.
         List<LessonLearningScope> eligible = scopes
-                .findByGoalIdAndReviewStatusOrderByScopeOrderAsc(submission.getGoalId(), "APPROVED").stream()
-                .filter(scope -> scope.getLearningMode() == null
-                        || Objects.equals(scope.getLearningMode(), submission.getLearningMode()))
-                .filter(scope -> scope.isRequired()
-                        || (scope.getTopicId() != null && topicIds.contains(scope.getTopicId()))
-                        || (scope.getCompetencyId() != null && competencyIds.contains(scope.getCompetencyId())))
-                .toList();
+                .findByGoalIdAndReviewStatusOrderByScopeOrderAsc(submission.getGoalId(), "APPROVED");
         if (eligible.isEmpty()) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Chưa có bài học đã duyệt phù hợp với nhu cầu đã chọn.");
