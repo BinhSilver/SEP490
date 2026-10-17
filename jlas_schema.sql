@@ -1037,6 +1037,23 @@ CREATE TABLE IF NOT EXISTS content_source (
         CHECK (review_status IN ('NGUON','CHUA_DUYET','DA_DUYET'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-17] Anh doan doc do nguoi bien soan tai len / thay / an (migration 022). Khoa theo MA ON DINH cua bai doc
+-- (content_source.stable_code cua content_item READING), KHONG theo id: seed chay lai giu nguyen bang nay va anh.
+-- Khong dat FK (seed xoa/chen lai content_source theo dai id). App doc bang nay truoc, khong co dong thi dung anh seed
+-- (assessment_question.image_url). image_url = /uploads/reading-images/<uuid>.<ext>; NULL + hide_seed_image = 1
+-- nghia la an anh goc, khong thay anh khac. Seed KHONG duoc xoa bang nay.
+CREATE TABLE IF NOT EXISTS reading_image_override (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    stable_code     VARCHAR(255)  NOT NULL,     -- vd. LUYEN-DOC-N5-L001-RDG-001.
+    image_url       VARCHAR(500)  NULL,
+    hide_seed_image TINYINT(1)    NOT NULL DEFAULT 0,
+    updated_by      BIGINT UNSIGNED NULL,       -- users.id nguoi sua gan nhat (khong FK, chi de doi chieu).
+    created_at      DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at      DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_reading_image_override_code (stable_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS dialogue_role (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     lesson_id   BIGINT UNSIGNED NOT NULL,

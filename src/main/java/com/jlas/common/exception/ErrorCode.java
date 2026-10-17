@@ -18,6 +18,8 @@ public enum ErrorCode {
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     /** [JLAS2-XX] Ảnh tải lên sai định dạng hoặc nội dung không phải ảnh thật (magic bytes không khớp). */
     INVALID_IMAGE(HttpStatus.BAD_REQUEST, "Ảnh chỉ nhận định dạng JPG, PNG hoặc WEBP"),
+    /** [JLAS2-17] Ảnh bài đọc: DB chưa chạy migration 022 (chưa có bảng reading_image_override). */
+    READING_IMAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Chức năng ảnh bài đọc chưa được bật trên cơ sở dữ liệu này"),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Service unavailable"),
     EXTERNAL_SERVICE_ERROR(HttpStatus.BAD_GATEWAY, "External service error"),
     TARGET_NOT_AVAILABLE(HttpStatus.UNPROCESSABLE_ENTITY, "Mục tiêu này đang được phát triển"),
