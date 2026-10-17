@@ -57,6 +57,12 @@ public record LearningEvent(String eventId, LearningEventType type, Long userId,
                 LearningEventType.SHADOWING_PUBLISHED, userId, videoId, 0, 0, Instant.now());
     }
 
+    /** [JLAS-W0108] Deterministic id per (user, path) so any downstream consumer dedupes a replayed event. */
+    public static LearningEvent pathCompleted(Long userId, Long pathId) {
+        return new LearningEvent(key(LearningEventType.PATH_COMPLETED, userId, pathId),
+                LearningEventType.PATH_COMPLETED, userId, pathId, 0, 0, Instant.now());
+    }
+
     private static String key(LearningEventType type, Long userId, Long referenceId) {
         return type.name() + ":" + userId + ":" + referenceId;
     }

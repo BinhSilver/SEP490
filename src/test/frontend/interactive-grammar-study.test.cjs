@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const page = require('../../main/resources/static/js/pages/interactive-grammar-study.js');
+const studyMode = require('../../main/resources/static/js/pages/interactive-study-mode.js');
 
 function point(overrides = {}) {
   return Object.assign({
@@ -68,13 +69,25 @@ test('a completed practice shows a positive state instead of the input again bei
   assert.match(html, /Đã hoàn thành/);
 });
 
-test('opens the check only when every point\'s gate is satisfied', () => {
-  const notReady = page.renderStudy(page.viewModel(study()), null, {}, {});
-  assert.match(notReady, /data-check disabled/);
+test('offers an early check while retaining practice progress guidance', () => {
+  const notReady = page.renderStudy(page.viewModel(study({ checkEligible: true })), null, {}, {});
+  assert.doesNotMatch(notReady, /data-check disabled/);
+  assert.match(notReady, /0\/1/);
 
   const ready = page.renderStudy(page.viewModel(study({ gateSatisfiedCount: 1, checkEligible: true,
     points: [point({ gateSatisfied: true, ordering: { words: [], completed: true }, fill: { promptWithBlank: null, completed: true } })] })), null, {}, {});
   assert.doesNotMatch(ready, /data-check disabled/);
+});
+
+test('communication grammar completes through practice without showing a quiz action', () => {
+  const html = page.renderStudy(page.viewModel(study({ checkRequired: false })), null, {}, {});
+  assert.match(html, /tình huống giao tiếp không có bài kiểm tra/);
+  assert.doesNotMatch(html, /data-check|Bắt đầu kiểm tra/);
+});
+
+test('grammar lesson does not display quiz history controls', () => {
+  const html = page.renderStudy(page.viewModel(study()), null, {}, {});
+  assert.doesNotMatch(html, /data-attempt-history|Xem lại bài kiểm tra/);
 });
 
 test('shows immediate feedback text next to the point it belongs to', () => {
@@ -82,6 +95,22 @@ test('shows immediate feedback text next to the point it belongs to', () => {
     { 501: { correct: false, explanation: 'Câu đúng là: わたしは グエンです。' } });
   assert.match(html, /is-incorrect/);
   assert.match(html, /Câu đúng là/);
+});
+
+test('ordering and fill feedback stay directly beneath their own exercise', () => {
+  const html = page.renderStudy(page.viewModel(study()), null, {}, {
+    501: {
+      ordering: { correct: true, explanation: 'Thứ tự đúng: わたしは グエンです。' },
+      fill: { correct: false, explanation: 'Phần điền cần là グエンです。' }
+    }
+  });
+  const orderHeading = html.indexOf('1. Xếp từ thành câu hoàn chỉnh');
+  const orderFeedback = html.indexOf('Thứ tự đúng:');
+  const fillHeading = html.indexOf('2. Điền phần còn thiếu');
+  const fillFeedback = html.indexOf('Phần điền cần là');
+  assert.ok(orderHeading < orderFeedback && orderFeedback < fillHeading,
+    'phản hồi xếp câu phải nằm trước bài điền từ');
+  assert.ok(fillHeading < fillFeedback, 'phản hồi điền từ phải nằm sau chính bài điền từ');
 });
 
 test('renders every micro-check question with 1-based options and never exposes an answer key', () => {
@@ -112,7 +141,33 @@ test('renders a pass and a cooldown/review gate', () => {
   assert.match(fail, /Hãy ôn lại các mẫu đã sai/);
 });
 
+test('result points to saved answer details instead of exposing opaque question IDs', () => {
+  const html = page.renderResult({ totalQuestions: 2, correctAnswers: 1, scorePercent: 50,
+    passed: false, passThresholdPercent: 70, attemptsUsed: 1, attemptsRemaining: 2,
+    review: [{ questionId: 9876, correct: false }] });
+  assert.match(html, /câu cần xem lại/i);
+  assert.doesNotMatch(html, /Câu 9876/);
+});
+
 test('empty-safe rendering when there are no points at all', () => {
   const html = page.renderStudy(page.viewModel({ points: [], totalPoints: 0, gateSatisfiedCount: 0 }), null, {}, {});
   assert.match(html, /Chưa có mẫu ngữ pháp/);
+});
+
+test('review rendering exposes canonical grammar only and has no practice or quiz controls', () => {
+  const previousWindow = global.window;
+  global.window = { InteractiveStudyMode: studyMode };
+  const html = page.renderReview(study(), [{ batchIndex: 0, scorePercent: 50,
+    correctAnswers: 1, totalQuestions: 2, review: [{ questionText: 'Câu quiz cũ' }] }]);
+  global.window = previousWindow;
+  assert.match(html, /Ngữ pháp đã học/);
+  assert.match(html, /N1 は N2 です/);
+  assert.doesNotMatch(html, /data-order-add|data-fill-check|data-check|data-submit|Câu quiz cũ|Kết quả các lượt làm bài/);
+});
+
+test('[JLAS-W0125] a part created by a pace change shows its position; an unsplit activity does not', () => {
+  const render = (o) => page.renderStudy(page.viewModel(study(o)), null, {}, {});
+  assert.match(render({ partIndex: 2, partCount: 3 }), /Phần 2 \/ 3/);
+  assert.doesNotMatch(render({ partIndex: 1, partCount: 1 }), /Phần 1 \/ 1/);
+  assert.doesNotMatch(render({}), /Phần \d+ \/ \d+/);
 });

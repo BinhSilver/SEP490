@@ -29,6 +29,8 @@ import com.jlas.dictionary.entity.GrammarPoint;
 import com.jlas.auth.repository.UserRepository;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.learning.JlptPathPolicy;
+import com.jlas.common.learning.TargetEligibility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -55,8 +57,8 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     private static final Set<String> GOALS = Set.of(
             "JLPT", "BA", "TRAVEL", "DAILY_LIFE");
-    /** Mục tiêu thiên về sử dụng thực tế (tình huống) thay vì thi cử kiến thức. */
-    private static final Set<String> USAGE_GOALS = Set.of("TRAVEL", "DAILY_LIFE");
+    /** [JLAS-W0108] Mục tiêu chỉ dùng survey (không Smart Test): BA/TRAVEL/DAILY_LIFE — owner decision 2026-10-14. */
+    private static final Set<String> USAGE_GOALS = Set.of("TRAVEL", "DAILY_LIFE", "BA");
     private static final Map<String, List<String>> GOAL_TAG_PRIORITY = Map.of(
             "JLPT", List.of("JLPT"), "BA", List.of("BA"),
             "TRAVEL", List.of("TRAVEL", "DAILY_LIFE"), "DAILY_LIFE", List.of("DAILY_LIFE"));
@@ -67,8 +69,8 @@ public class AssessmentServiceImpl implements AssessmentService {
             "READING", "LISTENING", "VOCABULARY", "GRAMMAR", "KANJI");
     private static final Set<String> CURRENT_LEVELS = Set.of(
             "FROM_ZERO", "UNKNOWN", "N5", "N4", "N3", "N2", "N1");
-    /** [JLAS-W0108] Mục tiêu có target JLPT (JLPT/BRSE); N2/N1 được phép chọn, readiness kiểm ở lộ trình (P6/P8). */
-    private static final Set<String> GOALS_WITH_TARGET = Set.of("JLPT", "BA");
+    /** [JLAS-W0108] Chỉ JLPT còn target; N2/N1 được phép chọn, readiness kiểm ở lộ trình (P6/P8). */
+    private static final Set<String> GOALS_WITH_TARGET = Set.of("JLPT");
 
     private final UserRepository userRepository;
     private final AssessmentAttemptRepository attemptRepository;
@@ -79,6 +81,7 @@ public class AssessmentServiceImpl implements AssessmentService {
     private final SmartTestSkillResultRepository skillResultRepository;
     private final com.jlas.assessment.repository.UserLearningSurveyRepository surveyRepository;
     private final SmartTestAdaptivePolicy adaptivePolicy = new SmartTestAdaptivePolicy();
+    private final JlptPathPolicy pathPolicy = new JlptPathPolicy();
 
     @Override
     @Transactional(readOnly = true)
@@ -99,6 +102,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         if ("JLPT".equals(goal) && target == null) throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS,
                 "Level tự đánh giá không hợp lệ.");
+        if ("JLPT".equals(goal)) requireEligibleTarget(self, target);
         Integer duration = normalizeStudyDuration(self, request.studyDurationMonths());
         com.jlas.assessment.entity.UserLearningSurvey survey = surveyRepository.findById(userId)
                 .orElseGet(() -> com.jlas.assessment.entity.UserLearningSurvey.builder()
@@ -122,15 +126,28 @@ public class AssessmentServiceImpl implements AssessmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<com.jlas.assessment.dto.TargetOptionResponse> getTargetOptions(String assessedLevel) {
+        try {
+            return pathPolicy.options(assessedLevel).stream().map(option ->
+                    new com.jlas.assessment.dto.TargetOptionResponse(option.requestedTarget(), option.allowed(),
+                            option.recommendedTarget(), option.stageLevels(), option.reasonCode(),
+                            option.requiresTargetConfirmation())).toList();
+        } catch (IllegalArgumentException exception) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, exception.getMessage());
+        }
+    }
+
+    @Override
     public SmartTestResponse startSmartTest(Long userId, SmartTestStartRequest request) {
         String goal = allowed(request.goal(), GOALS, "Mục tiêu không hợp lệ.");
         String self = allowed(request.selfReportedLevel(), CURRENT_LEVELS, "Level tự đánh giá không hợp lệ.");
+        if (USAGE_GOALS.contains(goal)) {
+            throw badRequest("Mục tiêu " + goal
+                    + " chỉ cần làm khảo sát tình huống, không thực hiện Smart Test.");
+        }
         if ("FROM_ZERO".equals(self)) {
             throw badRequest("Bạn chưa từng học tiếng Nhật nên không cần làm Smart Test.");
-        }
-        if (USAGE_GOALS.contains(goal)
-                && (request.studyDurationMonths() == null || request.studyDurationMonths() <= 6)) {
-            throw badRequest("Với mục tiêu " + goal + ", bạn cần học tiếng Nhật trên 6 tháng mới cần làm Smart Test.");
         }
         String selfLevel = normalizeLevel(self);
         String targetLevel = request.targetLevel() == null || request.targetLevel().isBlank()
@@ -140,6 +157,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         if ("JLPT".equals(goal) && targetLevel == null) {
             throw badRequest("Vui lòng chọn cấp độ JLPT mục tiêu.");
         }
+        if ("JLPT".equals(goal)) requireEligibleTarget(self, targetLevel);
 
         AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                 .user(userRepository.findById(userId)
@@ -425,7 +443,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .filter(item -> item.getQuestion().getSkill().equals(activeSkill))
                 .filter(item -> !answeredIds.contains(item.getQuestion().getId()))
                 .count();
-        return new SmartTestResponse(session.getAttemptId(), session.getAttempt().getStatus(), answers.size(),
+        return new SmartTestResponse(session.getAttemptId(), session.getAttempt().getStatus(), session.getGoal(), answers.size(),
                 visibleTotal, selectedSkills(session.getGoal(), questions),
                 current == null ? null : withDisplayNumber(current, answers.size() + 1), result);
     }
@@ -506,8 +524,13 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .sorted(Comparator.comparingDouble(AssessmentServiceImpl::abilityPosition))
                 .map(skill -> skillLabel(skill.skill()) + ": " + skill.recommendation())
                 .toList();
+        TargetEligibility eligibility = resultTargetEligibility(
+                session.getGoal(), session.getEstimatedOverallLevel(), session.getTargetLevel());
+        List<String> recommendedStages = eligibility.allowed() ? eligibility.stageLevels()
+                : pathPolicy.evaluate(session.getEstimatedOverallLevel(), eligibility.recommendedTarget()).stageLevels();
         return new ResultView(session.getEstimatedOverallLevel(), band, session.getOverallMasteryScore(),
-                confidence, readiness, session.getTargetLevel(), partial,
+                confidence, readiness, session.getTargetLevel(), eligibility.recommendedTarget(),
+                recommendedStages, eligibility.requiresTargetConfirmation(), partial,
                 correct, answers.size(), selectedSkills(session.getGoal(), questions).size(), recommendations, skills,
                 answerReview(answers));
     }
@@ -781,6 +804,30 @@ public class AssessmentServiceImpl implements AssessmentService {
             throw new ApiException(ErrorCode.TARGET_NOT_AVAILABLE,
                     "Cấp độ " + target + " chưa được phát hành cho lộ trình học.");
         }
+    }
+
+    private void requireEligibleTarget(String assessed, String target) {
+        TargetEligibility eligibility = targetEligibility(assessed, target);
+        if (!eligibility.allowed()) {
+            throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
+                    "Mục tiêu " + target + " chưa phù hợp; hệ thống khuyến nghị "
+                            + eligibility.recommendedTarget() + ".");
+        }
+    }
+
+    private TargetEligibility targetEligibility(String assessed, String target) {
+        try {
+            return pathPolicy.evaluate(assessed, target);
+        } catch (IllegalArgumentException exception) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, exception.getMessage());
+        }
+    }
+
+    static TargetEligibility resultTargetEligibility(String goal, String assessed, String target) {
+        if (!"JLPT".equals(goal) || target == null || target.isBlank()) {
+            return new TargetEligibility(true, null, null, List.of(), null, false);
+        }
+        return new JlptPathPolicy().evaluate(assessed, target);
     }
 
     private static String text(String value) {

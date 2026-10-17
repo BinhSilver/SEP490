@@ -6,6 +6,8 @@ import com.jlas.dictionary.entity.Tag;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -16,7 +18,8 @@ import java.util.Set;
  * Table: assessment_question
  */
 @Entity
-@Table(name = "assessment_question")
+@Table(name = "assessment_question", uniqueConstraints =
+        @UniqueConstraint(name = "uk_assessment_question_source_code", columnNames = "source_code"))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,6 +30,10 @@ public class AssessmentQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0108] Stable workbook/import key; null for legacy assessment-bank rows. */
+    @Column(name = "source_code", length = 100)
+    private String sourceCode;
 
     /** Chỉ dùng khi câu hỏi gắn rule Amon. */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -131,6 +138,7 @@ public class AssessmentQuestion {
     @Column(name = "explanation", columnDefinition = "TEXT")
     private String explanation;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "context_json", columnDefinition = "json")
     private String contextJson;
 

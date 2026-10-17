@@ -28,7 +28,7 @@ public class SmartTestSession {
             foreignKey = @ForeignKey(name = "fk_smart_test_session_attempt"))
     private AssessmentAttempt attempt;
 
-    /** Four Smart Test goals: JLPT/BA/TRAVEL/DAILY_LIFE. */
+    /** Assessment goals in Release 1: JLPT or BA (Japanese foundation). */
     @Column(name = "goal", nullable = false, length = 30)
     private String goal;
 

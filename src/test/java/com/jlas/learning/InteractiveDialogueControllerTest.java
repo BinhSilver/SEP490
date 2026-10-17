@@ -36,6 +36,20 @@ class InteractiveDialogueControllerTest {
         verify(service).studyState(7L, 1L);
     }
 
+    @Test void reviewAndPracticeRoutesReturnReadOnlyScriptForAuthenticatedOwner() {
+        var service = mock(InteractiveDialogueService.class);
+        var state = new DialogueStudyState(1L, LearningActivityType.DIALOGUE, LearningActivityState.COMPLETED,
+                "rev", 180, 180, 0, true, true, List.of());
+        when(service.reviewState(7L, 1L)).thenReturn(state);
+        when(service.practiceState(7L, 1L)).thenReturn(state);
+        var controller = new InteractiveDialogueController(service, new InteractiveRateLimitService());
+
+        assertSame(state, controller.review(1L, user).getBody().getData());
+        assertSame(state, controller.practice(1L, user).getBody().getData());
+        verify(service).reviewState(7L, 1L);
+        verify(service).practiceState(7L, 1L);
+    }
+
     @Test void heartbeatDelegatesRequestAndPrincipal() {
         var service = mock(InteractiveDialogueService.class);
         var request = new DialogueHeartbeatRequest("token-1");

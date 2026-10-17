@@ -12,6 +12,10 @@ import com.jlas.learning.dto.DialogueStudyState;
 public interface InteractiveDialogueService {
     DialogueStudyState studyState(Long userId, Long activityId);
 
+    /** Read-only replay of a completed dialogue; neither endpoint records learning progress. */
+    DialogueStudyState reviewState(Long userId, Long activityId);
+    DialogueStudyState practiceState(Long userId, Long activityId);
+
     DialogueProgressResult heartbeat(Long userId, Long activityId, DialogueHeartbeatRequest request);
 
     DialogueProgressResult reachedBottom(Long userId, Long activityId);

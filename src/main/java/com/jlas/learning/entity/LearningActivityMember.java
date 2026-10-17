@@ -20,4 +20,6 @@ public class LearningActivityMember {
     @Column(name = "canonical_id", nullable = false) private Long canonicalId;
     @Column(name = "order_index", nullable = false) private Integer orderIndex;
     @Column(name = "source_revision", nullable = false, length = 64) private String sourceRevision;
+    /** Frozen lesson-specific presentation for content with contextual meanings. Null for legacy members. */
+    @Column(name = "content_snapshot_json", columnDefinition = "TEXT") private String contentSnapshotJson;
 }

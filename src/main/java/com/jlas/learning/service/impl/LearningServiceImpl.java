@@ -98,6 +98,10 @@ public class LearningServiceImpl implements LearningService {
     // never enable V2 don't need to wire it, same pattern as interactivePackageComposer above.
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private WarmUpBComposer warmUpBComposer;
+    // [JLAS-W0108] Composes the alphabet foundation warm-up for from-zero learners; same optional-wiring
+    // reason as warmUpBComposer above.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.service.FoundationWarmUpComposer foundationWarmUpComposer;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private InteractiveLearningV2Properties interactiveV2Properties;
     private final UserRepository users;
@@ -322,6 +326,13 @@ public class LearningServiceImpl implements LearningService {
             // outcome (e.g. the learner passed their current level and has nothing to warm up), unlike a
             // target package's all-or-nothing readiness gate.
             var warmUpGaps = new ArrayList<CoverageGap>();
+            // [JLAS-W0108] Foundation composes first (before Warm-up B) so a from-zero learner's alphabet
+            // package occupies the earliest day/order — Warm-up B has nothing to compose for them anyway
+            // (no Smart Test weakness evidence exists yet at this level).
+            if (foundationWarmUpComposer != null) {
+                var foundationComposition = foundationWarmUpComposer.composeFoundation(path, profile);
+                warmUpGaps.addAll(foundationComposition.gaps());
+            }
             if (warmUpBComposer != null) {
                 var warmUpComposition = warmUpBComposer.composeWarmUp(path, profile);
                 warmUpGaps.addAll(warmUpComposition.gaps());
@@ -338,9 +349,11 @@ public class LearningServiceImpl implements LearningService {
                 throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                         "Lộ trình V2 chưa được phát hành vì thiếu học liệu: " + composition.gaps());
             }
-            if (!warmUpGaps.isEmpty()) {
+            // Published paths still record non-blocking notes, e.g. listening lessons deferred until their audio exists.
+            if (!warmUpGaps.isEmpty() || !composition.gaps().isEmpty()) {
                 var allGaps = new ArrayList<>(selection.coverageGaps());
                 allGaps.addAll(warmUpGaps);
+                allGaps.addAll(composition.gaps());
                 path.setCoverageGapsJson(mapper.writeCoverageGaps(allGaps));
             }
         }

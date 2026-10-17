@@ -446,6 +446,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     private void logHistory(String rawQuery, String normalizedQuery, DictionaryUtil.SearchMode mode,
                              int resultCount, Long userId) {
+        if (userId == null) return;
         DictionarySearchHistory history = DictionarySearchHistory.builder()
                 .user(userId == null ? null : userRepository.getReferenceById(userId))
                 .queryText(rawQuery)

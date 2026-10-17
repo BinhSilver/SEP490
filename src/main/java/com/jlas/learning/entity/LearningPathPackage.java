@@ -11,7 +11,9 @@ import com.jlas.dictionary.entity.Lesson;
 @Entity
 @Table(name = "learning_path_package", uniqueConstraints = {
         @UniqueConstraint(name = "uk_learning_package_path_day", columnNames = {"learning_path_id", "day_number"}),
-        @UniqueConstraint(name = "uk_learning_package_path_order", columnNames = {"learning_path_id", "order_index"})
+        @UniqueConstraint(name = "uk_learning_package_path_order", columnNames = {"learning_path_id", "order_index"}),
+        @UniqueConstraint(name = "uk_learning_package_path_source_segment",
+                columnNames = {"learning_path_id", "source_lesson_id", "source_segment_index"})
 })
 @Getter
 @Setter
@@ -32,6 +34,11 @@ public class LearningPathPackage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_lesson_id", foreignKey = @ForeignKey(name = "fk_learning_package_source_lesson"))
     private Lesson sourceLesson;
+
+    /** 1-based segment of a single source lesson split across the learner's daily time budget. */
+    @Column(name = "source_segment_index", nullable = false)
+    @Builder.Default
+    private Integer sourceSegmentIndex = 1;
 
     /** Canonical membership fingerprint; nullable only for pre-011 compatibility. */
     @Column(name = "content_revision", length = 64)

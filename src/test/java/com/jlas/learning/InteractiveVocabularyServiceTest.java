@@ -62,6 +62,22 @@ class InteractiveVocabularyServiceTest {
 
     // ---- Study ----
 
+    @Test void reviewUsesFrozenLessonMeaningInsteadOfCurrentDictionaryMeaning() {
+        var activity = vocabActivity(1L, 7L);
+        activity.setActivityState(LearningActivityState.PASSED);
+        var member = member(1L, 1, 101L);
+        member.setContentSnapshotJson("{\"meaning\":\"nghĩa theo bài\",\"exampleJa\":\"例です。\",\"exampleVi\":\"Ví dụ.\"}");
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(vocabularyRepo.findAllById(any())).thenReturn(List.of(vocab(101L, "時間", "じかん", "nghĩa chung")));
+
+        var state = service.reviewState(7L, 1L);
+
+        assertEquals("nghĩa theo bài", state.cards().getFirst().meaning());
+        assertEquals("例です。", state.cards().getFirst().exampleJa());
+        assertEquals("Ví dụ.", state.cards().getFirst().exampleVi());
+    }
+
     @Test void studyStateIsOwnerScoped() {
         when(items.findOwnedByIdForUpdate(99L, 7L)).thenReturn(Optional.empty());
         ApiException error = assertThrows(ApiException.class, () -> service.studyState(7L, 99L));
@@ -129,40 +145,47 @@ class InteractiveVocabularyServiceTest {
         assertEquals(LearningActivityState.CHECK_READY, activity.getActivityState());
     }
 
-    // ---- Micro-check issue ----
-
-    @Test void issueRequiresAllCardsRemembered() {
+    @Test void communicationVocabularyCompletesAfterStudyAndNeverIssuesAQuiz() {
         var activity = vocabActivity(1L, 7L);
+        activity.getLearningPath().setGoal("TRAVEL");
         var member = member(1L, 1, 101L);
         var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
         var card = LearningStudyCard.builder().id(20L).session(session).canonicalId(101L)
-                .orderIndex(1).flipped(true).remembered(false).build();
+                .orderIndex(1).flipped(true).remembered(true).build();
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
         when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(new ArrayList<>(List.of(card)));
+        when(studySessions.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(List.of(card));
+        when(vocabularyRepo.findAllById(any())).thenReturn(List.of(vocab(101L, "時間", "じかん", "thời gian")));
 
-        ApiException error = assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L));
-        assertEquals(ErrorCode.PREREQUISITE_NOT_MET, error.getErrorCode());
+        var result = service.studyState(7L, 1L);
+
+        assertFalse(result.checkEligible());
+        assertEquals(LearningActivityState.PASSED, result.activityState());
+        assertEquals(ErrorCode.CONFLICT,
+                assertThrows(ApiException.class, () -> service.issueMicroCheck(7L, 1L)).getErrorCode());
+        verifyNoInteractions(checkStates, quizSessions);
     }
 
-    @Test void issueBatchesAndCoversEveryTarget() {
+    // ---- Micro-check issue ----
+
+    @Test void issueBatchesAndCoversEveryTargetBeforeAnyCardWasViewed() {
         var activity = vocabActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
         for (int i = 0; i < 15; i++) membership.add(member(1L, i + 1, 100L + i));
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
-        for (int i = 0; i < 15; i++) cards.add(LearningStudyCard.builder().id(30L + i).session(session)
-                .canonicalId(100L + i).orderIndex(i + 1).flipped(true).remembered(true).build());
+        membership.getFirst().setContentSnapshotJson("{\"meaning\":\"nghĩa theo bài\",\"exampleJa\":null,\"exampleVi\":null}");
         List<VocabularyEntry> vocab = new ArrayList<>();
         for (int i = 0; i < 15; i++) vocab.add(vocab(100L + i, "word" + i, "reading" + i, "meaning" + i));
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
         when(vocabularyRepo.findAllById(any())).thenReturn(vocab);
-        when(mapper.writeQuizQuestions(any())).thenReturn("[]");
+        var questionRef = new java.util.concurrent.atomic.AtomicReference<List<com.jlas.learning.dto.LessonQuizResponse.LessonQuizQuestion>>();
+        when(mapper.writeQuizQuestions(any())).thenAnswer(inv -> {
+            questionRef.set(inv.getArgument(0));
+            return "[]";
+        });
         var keyRef = new java.util.concurrent.atomic.AtomicReference<Map<Long, QuizAnswerKey>>();
         when(mapper.writeQuizAnswerKey(any())).thenAnswer(inv -> {
             keyRef.set(inv.getArgument(0));
@@ -183,7 +206,16 @@ class InteractiveVocabularyServiceTest {
         assertEquals(20, result.questions().size());
         // answer key stays server-side and uses the 1-based option index shared with LessonQuiz grading
         assertEquals(20, keyRef.get().size());
-        assertTrue(keyRef.get().values().stream().allMatch(k -> k.correctOption() >= 1 && k.correctOption() <= 4));
+        var select = questionRef.get().stream().filter(q -> !"MATCHING".equals(q.questionType())).toList();
+        var matching = questionRef.get().stream().filter(q -> "MATCHING".equals(q.questionType())).toList();
+        assertEquals(10, matching.size());
+        assertTrue(matching.getFirst().options().contains("nghĩa theo bài"));
+        assertFalse(matching.getFirst().options().contains("meaning0"));
+        assertTrue(select.stream().allMatch(q -> q.options().size() <= 4));
+        assertEquals(10, matching.getFirst().options().size());
+        assertTrue(matching.stream().allMatch(q -> q.options().equals(matching.getFirst().options())));
+        assertEquals(10, matching.stream().map(q -> keyRef.get().get(q.questionId()).correctOption())
+                .distinct().count());
     }
 
     /** [JLAS-W0193] Task 10 audit finding — re-issuing the same still-unpassed batch after a failed attempt
@@ -195,22 +227,17 @@ class InteractiveVocabularyServiceTest {
         var activity = vocabActivity(1L, 7L);
         List<LearningActivityMember> membership = new ArrayList<>();
         for (int i = 0; i < 4; i++) membership.add(member(1L, i + 1, 100L + i));
-        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
-        List<LearningStudyCard> cards = new ArrayList<>();
-        for (int i = 0; i < 4; i++) cards.add(LearningStudyCard.builder().id(30L + i).session(session)
-                .canonicalId(100L + i).orderIndex(i + 1).flipped(true).remembered(true).build());
         List<VocabularyEntry> vocab = new ArrayList<>();
         for (int i = 0; i < 4; i++) vocab.add(vocab(100L + i, "word" + i, "reading" + i, "meaning" + i));
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(membership);
-        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
-        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(cards);
         when(vocabularyRepo.findAllById(any())).thenReturn(vocab);
         when(mapper.writeQuizQuestions(any())).thenReturn("[]");
         when(mapper.writeQuizAnswerKey(any())).thenReturn("{}");
+        var nextAttempt = new java.util.concurrent.atomic.AtomicLong(500L);
         when(quizSessions.save(any())).thenAnswer(inv -> {
             LearningQuizSession s = inv.getArgument(0);
-            s.setId(500L);
+            s.setId(nextAttempt.getAndIncrement());
             return s;
         });
 
@@ -224,7 +251,13 @@ class InteractiveVocabularyServiceTest {
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of(failedOnceState));
         var secondIssue = service.issueMicroCheck(7L, 1L);
 
+        assertNotEquals(firstIssue.attemptId(), secondIssue.attemptId());
+        assertEquals(firstIssue.batchIndex(), secondIssue.batchIndex());
+        assertEquals(firstIssue.totalQuestions(), secondIssue.totalQuestions());
         assertEquals(firstIssue.questions().size(), secondIssue.questions().size());
+        assertEquals(firstIssue.questions().stream().map(q -> q.questionId()).collect(java.util.stream.Collectors.toSet()),
+                secondIssue.questions().stream().map(q -> q.questionId()).collect(java.util.stream.Collectors.toSet()),
+                "retry must retain the whole batch, not just missed targets");
         boolean anyOptionsDiffer = false;
         for (int i = 0; i < firstIssue.questions().size(); i++) {
             if (!firstIssue.questions().get(i).options().equals(secondIssue.questions().get(i).options())) {

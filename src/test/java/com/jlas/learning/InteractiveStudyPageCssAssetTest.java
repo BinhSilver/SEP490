@@ -67,4 +67,38 @@ class InteractiveStudyPageCssAssetTest {
         assertTrue(Files.exists(CSS_PAGES.resolve(extraName + ".css")),
                 "dedicated stylesheet " + extraName + ".css must exist or the <link> silently 404s");
     }
+
+    /** The shared shell paints {@code #jlabBasePage} with {@code var(--jlab-base-page-background, transparent)
+     * !important}, which beats a plain {@code .ilp-body} background. Without the hook every V2 page fell back to
+     * the browser canvas, so a light site theme on a dark OS showed dark text on a dark canvas. */
+    @ParameterizedTest
+    @ValueSource(strings = {"interactive-study.css", "interactive-learning-path.css"})
+    void v2PagesFeedTheirCanvasThroughTheShellBackgroundHook(String cssName) throws IOException {
+        String css = Files.readString(CSS_PAGES.resolve(cssName)).replaceAll("\\s+", "");
+        assertTrue(css.matches("(?s).*\\.ilp-body\\{[^}]*--jlab-base-page-background:var\\(--lp-canvas\\).*"),
+                cssName + " must set --jlab-base-page-background:var(--lp-canvas) on .ilp-body");
+    }
+
+    /** A native fieldset draws its top border through the middle of the legend; at 375px the matching instruction
+     * wraps to two lines and the border crossed the text. The legend is floated into the fieldset content instead
+     * (still a real legend for screen readers). */
+    @ParameterizedTest
+    @ValueSource(strings = {"ilp-matching", "ilp-question"})
+    void quizLegendsSitInsideTheirFieldsetInsteadOfOnTheBorder(String fieldset) throws IOException {
+        // UAT 2026-10-06: the same defect showed on every multiple-choice question ("Chữ あ đọc là gì?").
+        String css = Files.readString(CSS_PAGES.resolve("interactive-study.css")).replaceAll("\\s+", "");
+        Matcher rule = Pattern.compile("\\." + fieldset + "legend\\{([^}]*)\\}").matcher(css);
+        assertTrue(rule.find(), "missing ." + fieldset + " legend rule");
+        assertTrue(rule.group(1).contains("float:left") && rule.group(1).contains("width:100%"),
+                fieldset + " legend must be floated full-width inside the fieldset: " + rule.group(1));
+    }
+
+    /** Spec 2026-10-05 §4.2: the Kanji (and kana) glyph is the focal point of the card front, not a caption-sized
+     * word — it used to share the 40px-minimum vocabulary size. */
+    @Test void singleGlyphCardsUseADedicatedLargeSize() throws IOException {
+        String css = Files.readString(CSS_PAGES.resolve("interactive-study.css")).replaceAll("\\s+", "");
+        Matcher rule = Pattern.compile("\\.ilp-card__word--kanji\\{[^}]*font-size:clamp\\((\\d+)px").matcher(css);
+        assertTrue(rule.find(), "missing a dedicated .ilp-card__word--kanji font-size");
+        assertTrue(Integer.parseInt(rule.group(1)) >= 80, "glyph minimum must be at least 80px, was " + rule.group(1));
+    }
 }

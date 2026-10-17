@@ -36,6 +36,9 @@ test('viewModel normalizes a Listening study state, exposing only the audio url'
   assert.equal(v.activityType, 'LISTENING');
   assert.equal(v.audioUrl, '/audio/comprehension/exercise-1.mp3');
   assert.equal(v.passage, null);
+  const html = page.renderStudy(v, false);
+  assert.match(html, /Người nói đang ở đâu/);
+  assert.doesNotMatch(html, /Nhà|Trường/);
 });
 
 test('viewModel never invents eligibility - defaults to ineligible/not-passed when the server omits microCheck', () => {
@@ -75,6 +78,7 @@ test('renders an audio element only for an approved server-issued url, never fab
   const html = page.renderSourcePanel(page.viewModel(studyListening()), false, true);
   assert.match(html, /data-comprehension-audio/);
   assert.match(html, /src="\/audio\/comprehension\/exercise-1\.mp3"/);
+  assert.match(html, /data-audio-error/);
 });
 
 test('shows an explicit missing-audio state instead of a broken or fabricated player', () => {
@@ -95,17 +99,35 @@ test('study view shows exercise progress and question count from server data onl
   assert.match(html, /1 câu hỏi/);
 });
 
-test('the check CTA is disabled until the server reports eligibility', () => {
-  const v = page.viewModel(studyReading({ microCheck: Object.assign({}, studyReading().microCheck, { checkEligible: false }) }));
+test('the Listening answer CTA is disabled until the server reports eligibility', () => {
+  const v = page.viewModel(studyListening({ microCheck: Object.assign({}, studyListening().microCheck, { checkEligible: false }) }));
   const html = page.renderStudy(v, false);
   assert.match(html, /data-check disabled/);
 });
 
-test('the check CTA enables only when the server reports eligibility, and exactly one primary action exists', () => {
-  const html = page.renderStudy(page.viewModel(studyReading()), false);
+test('the Listening answer CTA enables only when the server reports eligibility, and exactly one primary action exists', () => {
+  const html = page.renderStudy(page.viewModel(studyListening()), false);
   assert.doesNotMatch(html, /data-check disabled/);
   const buttons = html.match(/class="ilp-check"/g) || [];
   assert.equal(buttons.length, 1);
+});
+
+test('reading answers are presented inline and never described as a separate quiz', () => {
+  const view = page.viewModel(studyReading());
+  assert.equal(page.shouldOpenInlineQuestions(view), true);
+  const check = { attemptId: 900, activityId: 1, batchIndex: 0, batchCount: 1, totalQuestions: 1,
+    questions: [{ questionId: 10, questionText: 'Ý chính?', options: ['A', 'B'] }] };
+  const html = page.renderCheckScreen(view, check);
+  assert.match(html, /Câu hỏi trong bài đọc/);
+  assert.match(html, /Hoàn tất bài đọc/);
+  assert.doesNotMatch(html, /KIỂM TRA|Kiểm tra đọc hiểu|Bắt đầu kiểm tra/);
+});
+
+test('only eligible Reading auto-opens inline questions; Listening keeps its explicit answer action', () => {
+  assert.equal(page.shouldOpenInlineQuestions(page.viewModel(studyReading())), true);
+  assert.equal(page.shouldOpenInlineQuestions(page.viewModel(studyListening())), false);
+  const blocked = Object.assign({}, studyReading().microCheck, { checkEligible: false });
+  assert.equal(page.shouldOpenInlineQuestions(page.viewModel(studyReading({ microCheck: blocked }))), false);
 });
 
 test('shows a review-required gate note distinct for Reading vs Listening', () => {
@@ -116,6 +138,19 @@ test('shows a review-required gate note distinct for Reading vs Listening', () =
   const listeningGate = Object.assign({}, studyListening().microCheck, { reviewRequired: true, checkEligible: false });
   const listeningHtml = page.renderStudy(page.viewModel(studyListening({ microCheck: listeningGate })), false);
   assert.match(listeningHtml, /nghe lại audio/);
+});
+
+test('listening keeps question answering inside the lesson instead of presenting a separate quiz', () => {
+  const view = page.viewModel(studyListening());
+  const studyHtml = page.renderStudy(view, false);
+  assert.match(studyHtml, /Trả lời câu hỏi nghe hiểu/);
+  assert.doesNotMatch(studyHtml, /Bắt đầu kiểm tra|SẴN SÀNG KIỂM TRA/);
+  const check = { attemptId: 901, totalQuestions: 1,
+    questions: [{ questionId: 20, questionText: 'Ai đang nói?', options: ['A', 'B'] }] };
+  const answerHtml = page.renderCheckScreen(view, check);
+  assert.match(answerHtml, /Trả lời câu hỏi của bài nghe/);
+  assert.match(answerHtml, /Xem kết quả bài nghe/);
+  assert.doesNotMatch(answerHtml, /KIỂM TRA|Kiểm tra nghe hiểu/);
 });
 
 test('shows a cooldown message with the server-issued time once review evidence is satisfied but cooldown remains', () => {
@@ -157,11 +192,12 @@ test('renders a pass that unlocks the next exercise (not fully passed yet) with 
   assert.equal((actions.match(/ilp-check/g) || []).length, 1);
 });
 
-test('renders a full pass (all exercises done) with a single return-to-roadmap CTA', () => {
+test('renders a full pass with lesson replay and roadmap actions', () => {
   const html = page.renderResult({ totalQuestions: 2, correctAnswers: 2, scorePercent: 100, passed: true,
     passThresholdPercent: 70, attemptsUsed: 1, attemptsRemaining: 2, cooldownUntil: null, reviewRequired: false,
-    activityState: 'PASSED', review: [] }, 'READING');
+    activityState: 'PASSED', review: [] }, 'READING', 23);
   assert.match(html, /href="\/learning\/path\/v2"/);
+  assert.match(html, /\/learning\/v2\/reading\?activity=23&amp;mode=review/);
   assert.doesNotMatch(html, /data-next-exercise/);
 });
 
@@ -176,6 +212,8 @@ test('renders a cooldown/review fail state with a single back-to-study CTA and L
   assert.match(html, /data-back-to-study/);
   const actions = html.match(/<div class="ilp-result__actions">([\s\S]*?)<\/div>/)[1];
   assert.equal((actions.match(/ilp-check/g) || []).length, 1);
+  assert.match(html, /1 câu cần xem lại/);
+  assert.doesNotMatch(html, />Câu 20</);
 });
 
 test('never leaks the correct option or a wrong answer\'s selected text in the result review list', () => {

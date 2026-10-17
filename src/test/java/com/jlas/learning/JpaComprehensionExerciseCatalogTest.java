@@ -5,6 +5,7 @@ import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.repository.AssessmentQuestionRepository;
 import com.jlas.dictionary.entity.Outcome;
 import com.jlas.dictionary.entity.Tag;
+import com.jlas.learning.dto.ComprehensionQuestionSpec;
 import com.jlas.learning.service.impl.JpaComprehensionExerciseCatalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,6 +97,84 @@ class JpaComprehensionExerciseCatalogTest {
         assertTrue(result.gaps().stream().anyMatch(g -> g.reasonCode().equals("AUDIO_MISSING")));
     }
 
+    @Test void listeningWithoutTranscriptIsHeldEvenWithValidAudioAndAnswers() {
+        var row = listening(1, "/audio/a.mp3", "TASK");
+        row.setPassageHtml(null);
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("LISTENING", "N3"))
+                .thenReturn(List.of(row));
+
+        var result = catalog.resolve("LISTENING", "N3");
+
+        assertTrue(result.exercises().isEmpty());
+        assertTrue(result.gaps().stream().anyMatch(g -> "TRANSCRIPT_MISSING".equals(g.reasonCode())));
+    }
+
+    @Test void groupsAllMinnaQuestionsByTheExactLessonAudioWithoutAnAssessmentTag() {
+        var first = question(101, "LISTENING", "N4", "<p>A: そうです。</p>",
+                "https://www.vnjpclub.com/Audio/minnaln/minna2/a/01A-1.mp3", null, null);
+        first.setSourceCode("LP-OWNED-MINNA-N4-L26-LISTEN-c1-L-c1-1");
+        var second = question(102, "LISTENING", "N4", "<p>A: そうです。</p>",
+                "https://www.vnjpclub.com/Audio/minnaln/minna2/a/01A-1.mp3", null, null);
+        second.setSourceCode("LP-OWNED-MINNA-N4-L26-LISTEN-c1-W-c1-2-1");
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("LISTENING", "N4"))
+                .thenReturn(List.of(first, second));
+
+        var result = catalog.resolve("LISTENING", "N4");
+
+        assertEquals(1, result.exercises().size());
+        assertEquals(List.of(101L, 102L), result.exercises().getFirst().questions().stream()
+                .map(ComprehensionQuestionSpec::id).toList());
+        assertTrue(result.gaps().isEmpty(), result.gaps().toString());
+    }
+
+    @Test void groupsMinnaReadingQuestionsByTheExactPassageWithinTheLesson() {
+        var first = question(201, "READING", "N4", "<p>本文です。</p>", null, null, null);
+        first.setSourceCode("LP-OWNED-MINNA-N4-L26-READ-P001-Q001");
+        var second = question(202, "READING", "N4", "<p>本文です。</p>", null, null, null);
+        second.setSourceCode("LP-OWNED-MINNA-N4-L26-READ-P001-Q002");
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
+                .thenReturn(List.of(first, second));
+
+        var result = catalog.resolve("READING", "N4");
+
+        assertEquals(1, result.exercises().size());
+        assertEquals(List.of(201L, 202L), result.exercises().getFirst().questions().stream()
+                .map(ComprehensionQuestionSpec::id).toList());
+        assertTrue(result.gaps().isEmpty(), result.gaps().toString());
+    }
+
+    @Test void localMinnaAudioPreservesExistingExerciseRevisionAndOnlyChangesPlaybackSource() {
+        var row = question(101, "LISTENING", "N5", "<p>はい。</p>",
+                "https://www.vnjpclub.com/Audio/minnaln/minna1/a/01A-1.mp3", null, null);
+        row.setSourceCode("LP-OWNED-MINNA-N5-L01-LISTEN-c1-L-c1-1");
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("LISTENING", "N5"))
+                .thenReturn(List.of(row));
+        var before = catalog.resolve("LISTENING", "N5").exercises().getFirst();
+        row.setContextJson("{\"audio_file\":\"audio/vnjpclub/N5/minna-so-cap-1/bai-01/01A-1.mp3\"}");
+        var after = catalog.resolve("LISTENING", "N5").exercises().getFirst();
+        assertEquals(before.fingerprint(), after.fingerprint());
+        assertEquals(before.sourceRevision(), after.sourceRevision());
+        assertEquals("/uploads/content-audio/minna/vnjpclub/N5/minna-so-cap-1/bai-01/01A-1.mp3", after.source());
+    }
+
+    @Test void listeningKeepsItsOwnTranscriptForPostAnswerReview() {
+        var first = listening(1, "/audio/a.mp3", "TASK");
+        var second = listening(2, "/audio/a.mp3", "TASK");
+        first.setPassageHtml("<p>女：こんにちは。</p>");
+        second.setPassageHtml("<p>女：こんにちは。</p>");
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("LISTENING", "N3"))
+                .thenReturn(List.of(first, second));
+        var exercise = catalog.resolve("LISTENING", "N3").exercises().getFirst();
+        assertEquals("女：こんにちは。", exercise.transcriptJa());
+        second.setPassageHtml("<p>女：こんばんは。</p>");
+        var mismatched = catalog.resolve("LISTENING", "N3");
+        assertEquals(1, mismatched.exercises().size());
+        assertEquals(List.of(1L), mismatched.exercises().getFirst().questions().stream()
+                .map(ComprehensionQuestionSpec::id).toList(),
+                "the mismatched question must never be combined with the original script");
+        assertTrue(mismatched.gaps().stream().anyMatch(g -> "TRANSCRIPT_MISMATCH".equals(g.reasonCode())));
+    }
+
     /** [JLAS-W0193] RC Task 8 hardening — a protocol-relative URL ({@code //host/...}) has no scheme, so a
      * naive "is it absolute" check alone would treat it as safely internal; a browser instead silently
      * resolves it against whatever scheme the current page happens to use, reaching an attacker-controlled
@@ -110,7 +189,18 @@ class JpaComprehensionExerciseCatalogTest {
         assertTrue(result.gaps().stream().allMatch(g -> g.reasonCode().equals("AUDIO_MISSING")));
     }
 
-    @Test void invalidQuestionsAndSingleQuestionGroupsAreRejected() {
+    @Test void validSingleQuestionReadingWithDistinctChoicesIsAccepted() {
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
+                .thenReturn(List.of(reading(3, "別", "MAIN", "DAILY")));
+
+        var result = catalog.resolve("READING", "N4");
+
+        assertEquals(1, result.exercises().size());
+        assertEquals(1, result.exercises().getFirst().questions().size());
+        assertTrue(result.gaps().isEmpty());
+    }
+
+    @Test void invalidQuestionsAreRejectedEvenWhenAValidSingleQuestionExists() {
         var duplicate = reading(1, "本文", "MAIN", "DAILY");
         duplicate.setOption2(" A ");
         var badCorrect = reading(2, "本文", "MAIN", "DAILY");
@@ -119,9 +209,21 @@ class JpaComprehensionExerciseCatalogTest {
         when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
                 .thenReturn(List.of(duplicate, badCorrect, alone));
         var result = catalog.resolve("READING", "N4");
-        assertTrue(result.exercises().isEmpty());
+        assertEquals(1, result.exercises().size());
         assertEquals(2, result.gaps().stream().filter(g -> g.reasonCode().equals("QUESTION_INVALID")).count());
-        assertTrue(result.gaps().stream().anyMatch(g -> g.reasonCode().equals("QUESTION_COUNT_INSUFFICIENT")));
+    }
+
+    @Test void blankOptionBeforeAnotherOptionDoesNotShiftTheCorrectAnswer() {
+        var row = reading(4, "本文", "MAIN", "DAILY");
+        row.setOption1(" ");
+        row.setCorrectOption(2);
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N4"))
+                .thenReturn(List.of(row));
+
+        var result = catalog.resolve("READING", "N4");
+
+        assertTrue(result.exercises().isEmpty());
+        assertEquals("QUESTION_INVALID", result.gaps().getFirst().reasonCode());
     }
 
     @Test void missingSourceAndIdentityBecomeExplicitGaps() {
@@ -157,7 +259,7 @@ class JpaComprehensionExerciseCatalogTest {
     }
 
     private AssessmentQuestion listening(long id, String audio, String outcome) {
-        return question(id, "LISTENING", "N3", null, audio, outcome, null);
+        return question(id, "LISTENING", "N3", "<p>女：こんにちは。</p>", audio, outcome, null);
     }
 
     private AssessmentQuestion question(long id, String skill, String level, String passage, String audio,

@@ -24,7 +24,10 @@ class InteractiveLearningPathControllerTest {
         var response = new InteractiveLearningPathResponse(1L, "Path", "JLPT", "N5", "N4", 30,
                 0, 0, 0, null, List.of());
         when(service.current(7L)).thenReturn(response);
-        var controller = new InteractiveLearningPathController(service, summaryService);
+        var controller = new InteractiveLearningPathController(service, summaryService,
+                mock(com.jlas.learning.service.LearningFinalEligibilityService.class),
+                mock(com.jlas.learning.service.LearningPathCompletionService.class),
+                mock(com.jlas.learning.service.InteractivePaceReplanService.class));
 
         var body = controller.current(new UserPrincipal(7L, "learner", "", List.of())).getBody();
 
@@ -43,7 +46,10 @@ class InteractiveLearningPathControllerTest {
                 List.of(), new InteractiveReadinessConfidence("MEDIUM", "explanation"), true,
                 MockTestDestination.blocked("N4"));
         when(summaryService.summary(7L)).thenReturn(response);
-        var controller = new InteractiveLearningPathController(service, summaryService);
+        var controller = new InteractiveLearningPathController(service, summaryService,
+                mock(com.jlas.learning.service.LearningFinalEligibilityService.class),
+                mock(com.jlas.learning.service.LearningPathCompletionService.class),
+                mock(com.jlas.learning.service.InteractivePaceReplanService.class));
 
         var body = controller.summary(new UserPrincipal(7L, "learner", "", List.of())).getBody();
 
@@ -63,7 +69,10 @@ class InteractiveLearningPathControllerTest {
                 new InteractiveReadinessConfidence("LOW", "explanation"), false,
                 MockTestDestination.blocked("N4"));
         when(summaryService.summary(7L)).thenReturn(response);
-        var controller = new InteractiveLearningPathController(service, summaryService);
+        var controller = new InteractiveLearningPathController(service, summaryService,
+                mock(com.jlas.learning.service.LearningFinalEligibilityService.class),
+                mock(com.jlas.learning.service.LearningPathCompletionService.class),
+                mock(com.jlas.learning.service.InteractivePaceReplanService.class));
 
         var body = controller.summary(new UserPrincipal(7L, "learner", "", List.of())).getBody();
 

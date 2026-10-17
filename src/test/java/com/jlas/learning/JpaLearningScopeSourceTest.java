@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(properties = {
         "spring.profiles.include=",
-        "spring.datasource.url=jdbc:h2:mem:learning-scope-test;DB_CLOSE_DELAY=-1",
+        "spring.datasource.url=jdbc:h2:mem:learning-scope-test;MODE=MySQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.datasource.username=sa", "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop",
@@ -41,34 +41,58 @@ class JpaLearningScopeSourceTest {
     @Autowired LearningScopeSource scope;
 
     @Test
-    void missingMiddleLevelThrowsBlockedContentInsteadOfDemoFallback() {
-        // Real published textbooks only cover N5 and N4; N3 has no real content yet.
+    void targetBeyondPolicyIsRejectedBeforeCurriculumLookup() {
         book("N5", "Sekai N5");
         book("N4", "Sekai N4");
-        demoBook(9003L, "N3"); // demo seed KHÔNG được dùng thay học liệu thật (P6/R6)
         em.flush();
         em.clear();
 
         var exception = assertThrows(ApiException.class,
                 () -> scope.resolve(7L, snapshot("N5", "N3")));
-        assertEquals(ErrorCode.BLOCKED_CONTENT, exception.getErrorCode());
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, exception.getErrorCode());
     }
 
     @Test
-    void prefersRealTextbookOverDemoSeedForTheSameLevel() {
+    void excludesDemoSeedForTheSameLevel() {
         var n5 = book("N5", "Sekai N5");
         var n4 = book("N4", "Sekai N4");
-        var n3 = book("N3", "Sekai N3");
-        demoBook(9003L, "N3"); // shadowed by the real N3 textbook
+        demoBook(9004L, "N4");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N5", "N3"));
+        var result = scope.resolve(7L, snapshot("N5", "N4"));
 
-        // Goal chỉ gồm cấp TRÊN assessed (N4+N3), không trộn N5; demo bị loại.
-        assertEquals(List.of(n4.getId(), n3.getId()), result.goalTextbookIds());
+        assertEquals(List.of(n4.getId()), result.goalTextbookIds());
         assertEquals(List.of(n5.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of("N4", "N3"), result.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of("N4"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void noviceIncludesSurveyLevelAsFirstStage() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N4", "N4", "N5", "N4 Nhập môn"));
+
+        assertTrue(result.warmUpTextbookIds().isEmpty());
+        assertEquals(List.of(n5.getId(), n4.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N5", "N4"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void proficientHasOnlyTargetStageAndNoWarmUp() {
+        book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N5", "N4", "N5", "N5 Thành thạo"));
+
+        assertTrue(result.warmUpTextbookIds().isEmpty());
+        assertEquals(List.of(n4.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N4"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     @Test
@@ -82,59 +106,90 @@ class JpaLearningScopeSourceTest {
 
         assertEquals(List.of(kana.getId()), result.warmUpTextbookIds());
         assertEquals(List.of(n5.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N5"), result.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of("FOUNDATION", "N5"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     @Test
-    void n5ToN3ProducesTwoSequentialStages() {
+    void resolveExcludesPublishedModuleBookAndDraftLearningBook() {
+        var learningBook = book("N5", "Learning Path N5");
+        moduleBook("N5", "Module-owned N5");
+        draftLearningBook("N5", "Draft Learning Path N5");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N5", "N5"));
+
+        assertEquals(List.of(learningBook.getId()), result.goalTextbookIds());
+        assertTrue(result.warmUpTextbookIds().isEmpty());
+    }
+
+    @Test
+    void fromZeroToN4ProducesFoundationN5N4Stages() {
+        var kana = kanaBook();
         var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("BELOW_N5", "N4"));
+
+        assertEquals(List.of(kana.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n5.getId(), n4.getId()), result.goalTextbookIds());
+        assertEquals(List.of("FOUNDATION", "N5", "N4"),
+                result.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of(kana.getId()), result.stages().getFirst().goalTextbookIds());
+    }
+
+    @Test
+    void n2ToN1IsOutsideSupportedDemoRoutes() {
+        book("N2", "Sekai N2");
+        book("N1", "Sekai N1");
+        em.flush();
+        em.clear();
+
+        var error = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N2", "N1")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, error.getErrorCode());
+    }
+
+    @Test
+    void n4ToN3ProducesSingleN3Stage() {
         var n4 = book("N4", "Sekai N4");
         var n3 = book("N3", "Sekai N3");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N5", "N3"));
+        var result = scope.resolve(7L, snapshot("N4", "N3"));
 
-        assertEquals(List.of(n5.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n4.getId(), n3.getId()), result.goalTextbookIds());
-        assertEquals(2, result.stages().size());
-        assertEquals("N4", result.stages().get(0).level());
-        assertEquals(List.of(n4.getId()), result.stages().get(0).goalTextbookIds());
-        assertEquals("N3", result.stages().get(1).level());
-        assertEquals(List.of(n3.getId()), result.stages().get(1).goalTextbookIds());
+        assertEquals(List.of(n4.getId()), result.warmUpTextbookIds());
+        assertEquals(List.of(n3.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N3"), result.stages().stream().map(s -> s.level()).toList());
     }
 
     @Test
-    void n2ToN1ProducesSingleN1Stage() {
-        var n2 = book("N2", "Sekai N2");
-        var n1 = book("N1", "Sekai N1");
+    void n3ToN2IsOutsideSupportedDemoRoutes() {
+        book("N3", "Sekai N3");
+        book("N2", "Sekai N2");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N2", "N1"));
-
-        assertEquals(List.of(n2.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n1.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N1"), result.stages().stream().map(s -> s.level()).toList());
+        var error = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N3", "N2")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, error.getErrorCode());
     }
 
     @Test
-    void n1ToN1ProducesConsolidationStage() {
-        var n1 = book("N1", "Sekai N1");
+    void n1ToN1IsOutsideSupportedDemoRoutes() {
+        book("N1", "Sekai N1");
         em.flush();
         em.clear();
 
-        var result = scope.resolve(7L, snapshot("N1", "N1"));
-
-        // Củng cố chính cấp N1: warm-up và goal cùng cấp, một chặng N1.
-        assertEquals(List.of(n1.getId()), result.warmUpTextbookIds());
-        assertEquals(List.of(n1.getId()), result.goalTextbookIds());
-        assertEquals(List.of("N1"), result.stages().stream().map(s -> s.level()).toList());
+        var error = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N1", "N1")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, error.getErrorCode());
     }
 
     /** [JLAS-W0108] Sách nền tảng bảng chữ cái: jlpt_level NULL + bài gắn tag {@code KANA-*}. */
     private Textbook kanaBook() {
-        var book = Textbook.builder().title("Bảng chữ cái tiếng Nhật").status("PUBLISHED").build();
+        var book = Textbook.builder().title("Bảng chữ cái tiếng Nhật").status("PUBLISHED")
+                .isLearningPathSource(true).build();
         em.persist(book);
         var unit = Unit.builder().textbook(book).title("Unit 1").orderIndex(1).build();
         em.persist(unit);
@@ -152,16 +207,38 @@ class JpaLearningScopeSourceTest {
                 assessed, target, "JLPT", 30, List.of());
     }
 
+    private LearningProfileSnapshot snapshot(String assessed, String target, String survey, String band) {
+        return new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                assessed, target, "JLPT", 30, List.of(), List.of(), survey, band);
+    }
+
     private Textbook book(String level, String title) {
-        var b = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED").build();
+        var b = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED")
+                .isLearningPathSource(true).build();
         em.persist(b);
         return b;
     }
 
+    private Textbook moduleBook(String level, String title) {
+        var book = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED")
+                .isLearningPathSource(false).build();
+        em.persist(book);
+        return book;
+    }
+
+    private Textbook draftLearningBook(String level, String title) {
+        var book = Textbook.builder().title(title).jlptLevel(level).status("DRAFT")
+                .isLearningPathSource(true).build();
+        em.persist(book);
+        return book;
+    }
+
+    /** Simulates a textbook NOT flagged as a Learning Path source (e.g. the demo seed, or any
+     * other team's textbook) — must never be picked up by {@link #scope}, hence is_learning_path_source=0. */
     private void demoBook(long id, String level) {
         em.createNativeQuery(
-                        "insert into textbook (id, title, jlpt_level, status, version, created_at, updated_at) " +
-                        "values (?1, ?2, ?3, 'PUBLISHED', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
+                        "insert into textbook (id, title, jlpt_level, status, version, is_learning_path_source, created_at, updated_at) " +
+                        "values (?1, ?2, ?3, 'PUBLISHED', 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
                 .setParameter(1, id)
                 .setParameter(2, "demo " + level)
                 .setParameter(3, level)

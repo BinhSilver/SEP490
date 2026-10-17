@@ -6,19 +6,26 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.learning.dto.InteractiveLearningActivityResponse;
 import com.jlas.learning.dto.InteractiveLearningPackageResponse;
 import com.jlas.learning.dto.InteractiveLearningPathResponse;
+import com.jlas.learning.dto.ReferenceVocabularyResponse;
+import com.jlas.learning.dto.SmartTestReviewTarget;
 import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.LearningQuizSession;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
 import com.jlas.learning.enums.LearningActivityState;
 import com.jlas.learning.enums.LearningActivityType;
+import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.enums.LearningExperienceVersion;
 import com.jlas.learning.enums.LearningPackageStatus;
 import com.jlas.learning.repository.LearningPathPackageRepository;
+import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
+import com.jlas.learning.repository.UserLearningStageRepository;
+import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.service.InteractiveLearningPathService;
+import com.jlas.learning.service.InteractiveContentCatalog;
 import com.jlas.mission.entity.UserStreaks;
 import com.jlas.mission.repository.UserStreaksRepository;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
@@ -31,12 +38,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-/** [JLAS-W0193] Task 2 owns the V2 roadmap/package read+start surface; Task 8 extends it with package
- * completion: cascading intra-package activity unlock, the four-activity completion gate, real (never
+/** [JLAS-W0193] Task 2 owns the V2 roadmap/package read+start surface; Task 8 extends it with chapter/package
+ * completion: free skill choice within a started package, the composed-activity completion gate, real (never
  * hard-coded) score aggregation from immutable micro-check snapshots, exactly-once reward/streak via the
  * existing credit/streak contract, and next-package unlock. Completion is folded into the existing read
  * paths ({@link #current} / {@link #packageDetail}) rather than a separate endpoint — the same
@@ -49,7 +59,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             EnumSet.of(LearningActivityState.PASSED, LearningActivityState.COMPLETED);
     private static final EnumSet<LearningActivityType> TARGET_TYPES =
             EnumSet.of(LearningActivityType.VOCABULARY, LearningActivityType.KANJI,
-                    LearningActivityType.GRAMMAR, LearningActivityType.DIALOGUE);
+                    LearningActivityType.GRAMMAR, LearningActivityType.DIALOGUE,
+                    LearningActivityType.READING, LearningActivityType.LISTENING);
     /** [JLAS-W0193] Task 8 — micro-check quiz types that contribute a real score to package completion.
      * DIALOGUE is intentionally absent: it has no score field anywhere, by design (rules doc §2.14), so it
      * can never enter the numerator or denominator of {@link #computePackageScore}. */
@@ -58,15 +69,24 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             LearningActivityType.KANJI, "KANJI_MICRO_CHECK",
             LearningActivityType.GRAMMAR, "GRAMMAR_MICRO_CHECK");
     private static final String SUBMITTED = "SUBMITTED";
-    /** [JLAS-W0193] Package-completion credit reward. No numeric value is specified by the approved spec;
-     * this reuses the existing per-lesson reward magnitude ({@code LearningServiceImpl.STUDY_REWARD_PER_LESSON})
-     * as the closest analogous "one unit of study completed" reward. Flagged as a ruling for review. */
-    private static final int PACKAGE_COMPLETION_CREDIT = 10;
+    /** [JLAS-W0193] Chapter-completion credit reward. A chapter is a source lesson (owner decision
+     * 2026-10-06, the same mapping the roadmap/UI uses: a lesson split across the daily budget is one
+     * chapter, its ordered day packages are the parts); a lesson-less package is its own chapter. The
+     * release directive sets the magnitude to exactly 5 CP per completed chapter — not per package — so a
+     * lesson split into N parts still rewards exactly 5 CP once. Idempotency is guaranteed by
+     * {@link UserCreditService#earn} de-duping on (userId, reason, referenceType, referenceId), where the
+     * reference is the stable source-lesson id (unchanged across replan, which re-schedules packages but
+     * never re-keys the source lesson). */
+    private static final int CHAPTER_COMPLETION_CREDIT = 5;
+    /** Ledger reference for a chapter that has a source lesson; a lesson-less package uses {@code PACKAGE}. */
+    private static final String REF_SOURCE_LESSON = "SOURCE_LESSON";
+    private static final String REF_PACKAGE = "PACKAGE";
 
     private final UserLearningPathRepository paths;
     private final LearningPathPackageRepository packages;
     private final UserLearningPathItemRepository items;
     private final LearningQuizSessionRepository quizSessions;
+    private final InteractiveSessionProjector sessionProjector = new InteractiveSessionProjector();
 
     /** [JLAS-W0193] Optional so slice tests don't need to wire the reward/streak stack — same pattern
      * {@code LearningServiceImpl} already uses for these exact two dependencies. */
@@ -74,7 +94,12 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private UserStreaksRepository streakRepository;
     @Autowired(required = false)
     private UserCreditService creditService;
-
+    @Autowired(required = false)
+    private UserLearningStageRepository stages;
+    @Autowired(required = false)
+    private LearningActivityMemberRepository activityMembers;
+    @Autowired(required = false)
+    private InteractiveContentCatalog contentCatalog;
     @Override
     @Transactional
     public InteractiveLearningPathResponse current(Long userId) {
@@ -82,10 +107,20 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                         userId, "ACTIVE", LearningExperienceVersion.INTERACTIVE_V2)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,
                         "Bạn chưa có lộ trình tương tác đang hoạt động."));
-        List<LearningPathPackage> packageEntities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
+        // A second request may finish the in-progress package while this roadmap is loading.
+        // Load its version only after the lock; loading it first and locking it later can
+        // make Hibernate reject the newer row against the stale managed entity.
+        List<LearningPathPackage> packageEntities = packages.findByPathForUpdate(path.getId());
+        if (packageEntities.isEmpty()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "EMPTY_LESSON: Lộ trình chưa có package học hợp lệ.");
+        }
+        unlockCurrentChapterSegments(packageEntities);
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
+        Map<Long, Map<LearningMemberType, Integer>> countsByPackage = memberCounts(packageEntities);
         List<InteractiveLearningPackageResponse> packageViews = packageEntities.stream()
-                .map(p -> mapPackage(p, packageEntities, p.getId().equals(justCompletedId)))
+                .map(p -> mapPackage(p, orderedActivities(p), packageEntities,
+                        p.getId().equals(justCompletedId), countsByPackage))
                 .toList();
         int completed = (int) packageViews.stream()
                 .filter(view -> view.status() == LearningPackageStatus.COMPLETED).count();
@@ -97,7 +132,49 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                         .map(InteractiveLearningPackageResponse::id).findFirst().orElse(null));
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
-                packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews);
+                packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews,
+                smartTestReviewOnlyTargets(path));
+    }
+
+    /** Read-only roadmap replay: never refresh, unlock or grant rewards on a finished path. */
+    @Override
+    @Transactional(readOnly = true)
+    public InteractiveLearningPathResponse completedRoadmap(Long userId) {
+        UserLearningPath path = paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(
+                userId, LearningExperienceVersion.INTERACTIVE_V2)
+                .filter(p -> "COMPLETED".equals(p.getStatus()))
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        var entities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
+        var counts = memberCounts(entities);
+        var views = entities.stream().map(p -> mapPackage(p, orderedActivities(p), entities, false, counts)).toList();
+        int completed = (int) views.stream().filter(p -> p.status() == LearningPackageStatus.COMPLETED).count();
+        return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
+                path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
+                views.size(), percent(completed, views.size()), null, views, smartTestReviewOnlyTargets(path));
+    }
+
+    private List<SmartTestReviewTarget> smartTestReviewOnlyTargets(UserLearningPath path) {
+        var gaps = LearningMapper.readCoverageGapsSnapshot(path.getCoverageGapsJson());
+        return itemReviewTargets(gaps);
+    }
+
+    private List<SmartTestReviewTarget> itemReviewTargets(List<com.jlas.learning.dto.CoverageGap> gaps) {
+        return gaps.stream()
+                .filter(gap -> "SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode()))
+                .map(gap -> {
+                    String canonicalId = gap.tagCode();
+                    if (canonicalId == null) return null;
+                    int separator = canonicalId.indexOf(':');
+                    if (separator <= 0 || separator == canonicalId.length() - 1) return null;
+                    String skill = canonicalId.substring(0, separator);
+                    if (!"VOCABULARY".equals(skill) && !"KANJI".equals(skill)) return null;
+                    return new SmartTestReviewTarget(skill, canonicalId.substring(separator + 1));
+                })
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .sorted(java.util.Comparator.comparing(SmartTestReviewTarget::skill)
+                        .thenComparing(SmartTestReviewTarget::target))
+                .toList();
     }
 
     @Override
@@ -108,8 +185,12 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         requireInteractive(learningPackage);
         List<UserLearningPathItem> activities = orderedActivities(learningPackage);
         List<LearningPathPackage> siblings = siblingsOf(learningPackage);
+        if (learningPackage.getStatus() == LearningPackageStatus.IN_PROGRESS
+                || learningPackage.getStatus() == LearningPackageStatus.AVAILABLE) {
+            unlockChapterSegments(learningPackage, siblings);
+        }
         boolean justCompleted = refresh(userId, learningPackage, activities, siblings);
-        return mapPackage(learningPackage, activities, siblings, justCompleted);
+        return mapPackage(learningPackage, activities, siblings, justCompleted, memberCounts(siblings));
     }
 
     @Override
@@ -120,38 +201,38 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         requireInteractive(learningPackage);
         if (learningPackage.getStatus() == LearningPackageStatus.LOCKED) {
             throw new ApiException(ErrorCode.PREREQUISITE_NOT_MET,
-                    "Hãy hoàn thành package trước để mở ngày học này.");
+                    "Hãy hoàn thành các phần bắt buộc của chương trước để mở chương này.");
         }
         List<UserLearningPathItem> activities = orderedActivities(learningPackage);
+        if (activities.isEmpty()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Package chưa có hoạt động học hợp lệ.");
+        }
         validateTargetPackage(learningPackage, activities);
         if (learningPackage.getStatus() == LearningPackageStatus.AVAILABLE) {
             learningPackage.setStatus(LearningPackageStatus.IN_PROGRESS);
             learningPackage.setStartedAt(LocalDateTime.now());
-            UserLearningPathItem first = activities.getFirst();
-            if (first.getActivityState() == LearningActivityState.LOCKED) {
-                first.setActivityState(LearningActivityState.STUDYING);
-            }
         }
-        return mapPackage(learningPackage, activities, siblingsOf(learningPackage), false);
+        // The package is the ordering boundary. Its skills are independent choices for the learner.
+        unlockActivities(learningPackage, activities);
+        List<LearningPathPackage> siblings = siblingsOf(learningPackage);
+        unlockChapterSegments(learningPackage, siblings);
+        return mapPackage(learningPackage, activities, siblings, false, memberCounts(siblings));
     }
 
     // ---- Task 8: package completion, unlock, score, reward ----
 
-    /** At most one package per path is ever {@code IN_PROGRESS} at a time (the next one only reaches
-     * {@code AVAILABLE} on unlock; the learner must call {@link #start} to advance it further), so refreshing
-     * that single package on every roadmap read is enough to reflect fresh completion without re-locking the
-     * whole list. Returns the id of the package that completed as part of THIS call (or {@code null}), so the
-     * frontend can distinguish "just finished — show the popup" from "already completed a while ago" without
-     * needing a separate acknowledgement table. */
+    /** A learner can work on several segments of the current chapter in any order, so refresh every in-progress
+     * segment. Returns the first package completed as part of THIS call for the completion popup. */
     private Long refreshInProgressPackage(Long userId, List<LearningPathPackage> packageEntities) {
-        LearningPathPackage inProgress = packageEntities.stream()
+        Long justCompletedId = null;
+        List<LearningPathPackage> inProgress = packageEntities.stream()
                 .filter(p -> p.getStatus() == LearningPackageStatus.IN_PROGRESS)
-                .findFirst().orElse(null);
-        if (inProgress == null) return null;
-        LearningPathPackage locked = packages.findOwnedByIdForUpdate(inProgress.getId(), userId).orElse(null);
-        if (locked == null) return null;
-        boolean justCompleted = refresh(userId, locked, orderedActivities(locked), packageEntities);
-        return justCompleted ? locked.getId() : null;
+                .sorted(Comparator.comparing(LearningPathPackage::getOrderIndex)).toList();
+        for (LearningPathPackage learningPackage : inProgress) {
+            boolean justCompleted = refresh(userId, learningPackage, orderedActivities(learningPackage), packageEntities);
+            if (justCompleted && justCompletedId == null) justCompletedId = learningPackage.getId();
+        }
+        return justCompletedId;
     }
 
     /** Cascades intra-package activity unlock, then completes the package exactly once (transactionally,
@@ -161,7 +242,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
      * already {@code COMPLETED} on entry), so callers can show the completion popup exactly once. */
     private boolean refresh(Long userId, LearningPathPackage learningPackage, List<UserLearningPathItem> activities,
             List<LearningPathPackage> siblings) {
-        cascadeUnlock(activities);
+        unlockActivities(learningPackage, activities);
         if (learningPackage.getStatus() == LearningPackageStatus.COMPLETED) return false;
         String phase = learningPackage.getPhase();
         boolean requiredDone;
@@ -172,7 +253,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             // actually had weak evidence: any of Vocabulary/Kanji/Grammar, never Dialogue), unlike a
             // GOAL_LEARNING package's fixed four. It completes once EVERY activity it actually has reaches
             // its terminal state; an empty activity list is defensively never considered complete.
-            requiredDone = allWarmUpActivitiesDone(activities);
+            requiredDone = allComposedActivitiesDone(activities);
         } else {
             requiredDone = false;
         }
@@ -182,10 +263,38 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         learningPackage.setCompletedAt(LocalDateTime.now());
         learningPackage.setScorePercent(score);
         packages.save(learningPackage);
-        grantCompletionReward(userId, learningPackage);
+        recordCompletionActivity(learningPackage);
+        // Communication goals have no approved CP policy yet; do not inherit the JLPT chapter reward.
+        if (chapterComplete(learningPackage, siblings)
+                && !com.jlas.learning.service.GoalPathPolicy.isCommunicationGoal(learningPackage.getLearningPath())) {
+            grantChapterCredit(userId, learningPackage);
+        }
+        advanceStageIfComplete(learningPackage, siblings);
         unlockNextPackage(learningPackage, siblings);
         maybeCompletePath(learningPackage, siblings);
         return true;
+    }
+
+    private void advanceStageIfComplete(LearningPathPackage completed,
+            List<LearningPathPackage> siblings) {
+        if (stages == null || completed.getStageId() == null) return;
+        boolean stageComplete = siblings.stream()
+                .filter(pkg -> completed.getStageId().equals(pkg.getStageId()))
+                .allMatch(pkg -> pkg.getStatus() == LearningPackageStatus.COMPLETED);
+        if (!stageComplete) return;
+        stages.findById(completed.getStageId()).ifPresent(stage -> {
+            if (!"COMPLETED".equals(stage.getStatus())) {
+                stage.setStatus("COMPLETED");
+                stages.save(stage);
+            }
+            stages.findByLearningPathIdAndStageIndex(
+                    completed.getLearningPath().getId(), stage.getStageIndex() + 1).ifPresent(next -> {
+                if ("PENDING".equals(next.getStatus())) {
+                    next.setStatus("ACTIVE");
+                    stages.save(next);
+                }
+            });
+        });
     }
 
     /** [JLAS-W0193] Task 10 — once every {@code GOAL_LEARNING} package in the path is {@code COMPLETED}, the
@@ -201,6 +310,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private void maybeCompletePath(LearningPathPackage justCompleted, List<LearningPathPackage> siblings) {
         UserLearningPath path = justCompleted.getLearningPath();
         if (!"ACTIVE".equals(path.getStatus())) return;
+        // Owner decision 2026-10-06 (option A): the JLPT Mock Test is a self-assessment the learner is pointed to,
+        // not a completion gate, so every goal completes when its GOAL_LEARNING packages are done.
         boolean hasGoalLearningPackage = false;
         for (LearningPathPackage sibling : siblings) {
             if (!"GOAL_LEARNING".equals(sibling.getPhase())) continue;
@@ -213,17 +324,13 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         paths.save(path);
     }
 
-    /** Walks the ordered activities and unlocks each one's successor once it reaches its terminal state —
-     * {@code PASSED} for Vocabulary/Kanji/Grammar, {@code COMPLETED} for Dialogue — cascading through any
-     * number of already-finished activities in one call so a learner who studies several activities before
-     * reloading still sees every eligible one unlocked. */
-    private void cascadeUnlock(List<UserLearningPathItem> activities) {
-        for (int i = 0; i + 1 < activities.size(); i++) {
-            UserLearningPathItem current = activities.get(i);
-            UserLearningPathItem next = activities.get(i + 1);
-            if (isActivityDone(current) && next.getActivityState() == LearningActivityState.LOCKED) {
-                next.setActivityState(LearningActivityState.STUDYING);
-                items.save(next);
+    /** Skills within a started package are freely selectable. Also upgrades already-started paths. */
+    private void unlockActivities(LearningPathPackage learningPackage, List<UserLearningPathItem> activities) {
+        if (learningPackage.getStatus() != LearningPackageStatus.IN_PROGRESS) return;
+        for (UserLearningPathItem activity : activities) {
+            if (activity.getActivityState() == LearningActivityState.LOCKED) {
+                activity.setActivityState(LearningActivityState.STUDYING);
+                items.save(activity);
             }
         }
     }
@@ -234,13 +341,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return activity.getActivityState() == required;
     }
 
-    /** [JLAS-W0193] Task 9 — Warm-up B completion: unlike {@link #allRequiredActivitiesDone}, the set of
-     * activity types is not fixed (a warm-up day may have only Vocabulary, or Vocabulary+Grammar, etc.,
-     * depending on which skills actually had weak evidence) — completion just requires every activity the
-     * package actually has to be at its own terminal state (always PASSED here; Warm-up B never schedules
-     * Dialogue). An empty list is never complete (a package with zero activities should not exist, but this
-     * is defensive, not assumed). */
-    private boolean allWarmUpActivitiesDone(List<UserLearningPathItem> activities) {
+    /** A non-empty composed package completes only when every activity it actually contains reaches its own
+     * terminal state. This is shared by optional target activities and dynamic Warm-up packages. */
+    private boolean allComposedActivitiesDone(List<UserLearningPathItem> activities) {
         if (activities.isEmpty()) return false;
         for (UserLearningPathItem activity : activities) {
             if (activity.getActivityType() == null || !isActivityDone(activity)) return false;
@@ -249,64 +352,81 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     }
 
     private boolean allRequiredActivitiesDone(List<UserLearningPathItem> activities) {
-        if (activities.size() != TARGET_TYPES.size()) return false;
-        EnumSet<LearningActivityType> seen = EnumSet.noneOf(LearningActivityType.class);
-        for (UserLearningPathItem activity : activities) {
-            if (activity.getActivityType() == null || !isActivityDone(activity)) return false;
-            seen.add(activity.getActivityType());
-        }
-        return seen.equals(TARGET_TYPES);
+        return allComposedActivitiesDone(activities);
     }
 
     /** {@code targetScore = round((vocabularyScore + kanjiScore + grammarScore) / N)} where N is the number
      * of those three skills that actually have a valid score in THIS package — never a hard-coded division by
-     * 3 — and each skill's own score is {@code round(Σcorrect / Σtotal)} pooled across that activity's batches
+     * 3 — and each skill's own score is {@code round(Σcorrect / Σtotal)} pooled across every batch of every
+     * part of that skill
      * (design spec §2.2: "không lấy trung bình các phần trăm batch"), not an average of per-batch percentages.
      * Dialogue never contributes to either the numerator or the denominator. An activity with no passing
      * micro-check session (should not happen once {@link #allRequiredActivitiesDone} is true, but checked
      * defensively) is skipped rather than counted as a zero. */
     private Integer computePackageScore(List<UserLearningPathItem> activities) {
-        int sum = 0;
-        int count = 0;
+        // A pace replan may split one skill into several parts; pool them so the skill still counts once.
+        Map<LearningActivityType, long[]> pooled = new EnumMap<>(LearningActivityType.class);
         for (UserLearningPathItem activity : activities) {
             String quizType = SCORED_MICRO_CHECK_TYPES.get(activity.getActivityType());
             if (quizType == null) continue;
-            Integer score = skillScore(activity.getId(), quizType);
-            if (score != null) {
-                sum += score;
-                count++;
+            long[] tally = pooled.computeIfAbsent(activity.getActivityType(), type -> new long[2]);
+            for (LearningQuizSession session : quizSessions
+                    .findByActivityIdAndQuizTypeAndStatusAndPassed(activity.getId(), quizType, SUBMITTED, true)) {
+                tally[0] += session.getCorrectCount() == null ? 0 : session.getCorrectCount();
+                tally[1] += session.getQuestionCount() == null ? 0 : session.getQuestionCount();
             }
+        }
+        int sum = 0;
+        int count = 0;
+        for (long[] tally : pooled.values()) {
+            if (tally[1] == 0) continue;
+            sum += Math.round(tally[0] * 100f / tally[1]);
+            count++;
         }
         return count == 0 ? null : Math.round((float) sum / count);
     }
 
-    private Integer skillScore(Long activityId, String quizType) {
-        List<LearningQuizSession> passing =
-                quizSessions.findByActivityIdAndQuizTypeAndStatusAndPassed(activityId, quizType, SUBMITTED, true);
-        if (passing.isEmpty()) return null;
-        long correct = 0;
-        long total = 0;
-        for (LearningQuizSession session : passing) {
-            correct += session.getCorrectCount() == null ? 0 : session.getCorrectCount();
-            total += session.getQuestionCount() == null ? 0 : session.getQuestionCount();
-        }
-        if (total == 0) return null;
-        return Math.round(correct * 100f / total);
-    }
-
-    /** Reward/streak via the project's existing contract (moderation credit ledger + mission streak), never a
-     * parallel mechanism. Exactly-once is primarily guaranteed by the caller holding a pessimistic lock on
-     * {@code learningPackage} and only reaching this method once per row via the {@code status != COMPLETED}
-     * guard in {@link #refresh}; {@link UserCreditService#earn} additionally de-dupes by
-     * {@code (userId, reason, referenceType=PACKAGE, referenceId=packageId)} as a second line of defense. */
-    private void grantCompletionReward(Long userId, LearningPathPackage learningPackage) {
+    /** Streak records the completion *activity* on its own policy, independently of the chapter reward: every
+     * completed package (warm-up or GOAL_LEARNING) advances the streak once, and a multi-segment chapter's first
+     * segments still count as study activity even though they grant no chapter credit yet. */
+    private void recordCompletionActivity(LearningPathPackage learningPackage) {
         if (streakRepository != null) {
             updateStreak(learningPackage.getLearningPath().getUser());
         }
-        if (creditService != null) {
-            creditService.earn(userId, PACKAGE_COMPLETION_CREDIT, CreditReason.STUDY_REWARD,
-                    "PACKAGE", learningPackage.getId(), "Hoàn thành package học tương tác");
-        }
+    }
+
+    /** Chapter credit (5 CP) is granted only once the WHOLE chapter is complete — not when its first segment
+     * completes (owner decision 2026-10-14: first segment of a multi-segment chapter earns 0 CP; all mandatory
+     * segments done earns 5 CP once). A chapter is the source lesson; a lesson-less package is its own
+     * single-package chapter. The reference is the chapter (source lesson), not the package, so it stays stable
+     * across a pace replan (which re-schedules packages but never changes the source lesson id). Exactly-once
+     * rests on the caller's pessimistic lock on {@code learningPackage} plus the {@code status != COMPLETED} guard
+     * in {@link #refresh}, with {@link UserCreditService#earn} de-duping by {@code (userId, reason, referenceType,
+     * referenceId)} as a second line of defense against replan/retry/concurrency. */
+    private void grantChapterCredit(Long userId, LearningPathPackage learningPackage) {
+        if (creditService == null) return;
+        creditService.earn(userId, CHAPTER_COMPLETION_CREDIT, CreditReason.STUDY_REWARD,
+                chapterReferenceType(learningPackage), chapterReferenceId(learningPackage),
+                "Hoàn thành chương học tương tác");
+    }
+
+    /** True when every sibling package that belongs to this package's chapter is already {@code COMPLETED}. A
+     * lesson-less package (no source lesson) is its own chapter, so it is complete the moment it completes. */
+    private boolean chapterComplete(LearningPathPackage completed, List<LearningPathPackage> siblings) {
+        if (completed.getSourceLesson() == null) return true;
+        Long lessonId = completed.getSourceLesson().getId();
+        return siblings.stream()
+                .filter(pkg -> pkg.getSourceLesson() != null && lessonId.equals(pkg.getSourceLesson().getId()))
+                .allMatch(pkg -> pkg.getStatus() == LearningPackageStatus.COMPLETED);
+    }
+
+    /** A chapter with a source lesson is referenced by that lesson; a lesson-less package is its own chapter. */
+    private static String chapterReferenceType(LearningPathPackage pkg) {
+        return pkg.getSourceLesson() == null ? REF_PACKAGE : REF_SOURCE_LESSON;
+    }
+
+    private static Long chapterReferenceId(LearningPathPackage pkg) {
+        return pkg.getSourceLesson() == null ? pkg.getId() : pkg.getSourceLesson().getId();
     }
 
     /** Reuses {@link LearningServiceImpl#advanceStreak} (package-private, same package) instead of
@@ -324,19 +444,42 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         streakRepository.save(streak);
     }
 
-    /** Unlocks only the immediate next package by order index — same one-step-at-a-time posture as activity
-     * unlock — so "học vượt" opens exactly the next package in path order, never further ahead, and never
-     * changes any package's scheduled {@code dayNumber}. */
+    /** Unlocks every package segment of the next chapter, and only after the current chapter is complete. */
     private void unlockNextPackage(LearningPathPackage learningPackage, List<LearningPathPackage> siblings) {
+        if (!chapterComplete(learningPackage, siblings)) return;
+        int chapterEndOrder = siblings.stream()
+                .filter(pkg -> sameChapter(learningPackage, pkg))
+                .mapToInt(LearningPathPackage::getOrderIndex).max().orElse(learningPackage.getOrderIndex());
         siblings.stream()
-                .filter(p -> p.getOrderIndex() > learningPackage.getOrderIndex())
+                .filter(pkg -> pkg.getOrderIndex() > chapterEndOrder)
                 .min(Comparator.comparing(LearningPathPackage::getOrderIndex))
-                .ifPresent(next -> {
-                    if (next.getStatus() == LearningPackageStatus.LOCKED) {
-                        next.setStatus(LearningPackageStatus.AVAILABLE);
-                        packages.save(next);
-                    }
-                });
+                .ifPresent(nextChapter -> unlockChapterSegments(nextChapter, siblings));
+    }
+
+    /** Once a chapter becomes the earliest startable chapter, all its daily-budget segments are selectable. */
+    private void unlockCurrentChapterSegments(List<LearningPathPackage> siblings) {
+        siblings.stream()
+                .filter(pkg -> pkg.getStatus() == LearningPackageStatus.IN_PROGRESS
+                        || pkg.getStatus() == LearningPackageStatus.AVAILABLE)
+                .min(Comparator.comparing(LearningPathPackage::getOrderIndex))
+                .ifPresent(chapter -> unlockChapterSegments(chapter, siblings));
+    }
+
+    private void unlockChapterSegments(LearningPathPackage chapter, List<LearningPathPackage> siblings) {
+        for (LearningPathPackage segment : siblings) {
+            if (sameChapter(chapter, segment) && segment.getStatus() == LearningPackageStatus.LOCKED) {
+                segment.setStatus(LearningPackageStatus.AVAILABLE);
+                packages.save(segment);
+            }
+        }
+    }
+
+    private boolean sameChapter(LearningPathPackage left, LearningPathPackage right) {
+        if (left.getSourceLesson() == null || right.getSourceLesson() == null) {
+            return left.getSourceLesson() == null && right.getSourceLesson() == null
+                    && left.getId().equals(right.getId());
+        }
+        return left.getSourceLesson().getId().equals(right.getSourceLesson().getId());
     }
 
     /** Only a package the server actually considers startable now (already unlocked) is offered as "học
@@ -380,14 +523,16 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Package chưa có snapshot nguồn canonical hợp lệ.");
         }
-        EnumSet<LearningActivityType> actual = EnumSet.noneOf(LearningActivityType.class);
-        activities.forEach(item -> {
-            if (item.getActivityType() != null) actual.add(item.getActivityType());
-        });
-        boolean missingState = activities.stream().anyMatch(item -> item.getActivityState() == null);
-        if (activities.size() != 4 || !actual.equals(TARGET_TYPES) || missingState) {
+        boolean invalidMember = activities.isEmpty();
+        for (UserLearningPathItem item : activities) {
+            LearningActivityType type = item.getActivityType();
+            if (type == null || !TARGET_TYPES.contains(type) || item.getActivityState() == null) {
+                invalidMember = true;
+            }
+        }
+        if (invalidMember) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
-                    "Package chưa đủ Từ vựng, Kanji, Ngữ pháp và Hội thoại.");
+                    "Package chưa có tập hoạt động học hợp lệ.");
         }
     }
 
@@ -397,16 +542,21 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         }
     }
 
-    private InteractiveLearningPackageResponse mapPackage(
-            LearningPathPackage learningPackage, List<LearningPathPackage> siblings, boolean justCompleted) {
-        return mapPackage(learningPackage, orderedActivities(learningPackage), siblings, justCompleted);
-    }
-
     private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
-            List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted) {
+            List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
+            Map<Long, Map<LearningMemberType, Integer>> countsByPackage) {
+        Map<LearningActivityType, Long> partCounts = activities.stream()
+                .filter(item -> item.getActivityType() != null)
+                .collect(Collectors.groupingBy(UserLearningPathItem::getActivityType,
+                        () -> new EnumMap<>(LearningActivityType.class), Collectors.counting()));
+        // "Phần x" follows study order: a repeated split appends part_index values after the part it was cut from.
+        Map<LearningActivityType, Integer> seen = new EnumMap<>(LearningActivityType.class);
         List<InteractiveLearningActivityResponse> activityViews = activities.stream()
                 .map(item -> new InteractiveLearningActivityResponse(item.getId(), item.getActivityType(),
-                        item.getActivityState(), item.getOrderIndex(), item.getReasonCode(), item.getReason()))
+                        item.getActivityState(), item.getOrderIndex(), item.getReasonCode(), item.getReason(),
+                        item.getEstimatedMinutes(), item.getDayNumber(),
+                        item.getActivityType() == null ? 1 : seen.merge(item.getActivityType(), 1, Integer::sum),
+                        Math.toIntExact(partCounts.getOrDefault(item.getActivityType(), 1L))))
                 .toList();
         int completed = (int) activityViews.stream()
                 .filter(view -> view.state() != null && DONE.contains(view.state())).count();
@@ -414,14 +564,80 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 .filter(view -> view.state() != null && !DONE.contains(view.state()))
                 .map(InteractiveLearningActivityResponse::type).findFirst().orElse(null);
         String lockReason = learningPackage.getStatus() == LearningPackageStatus.LOCKED
-                ? "Hoàn thành ngày học trước để mở khóa." : null;
+                ? "Hoàn thành phần trước để mở khóa." : null;
+        List<ReferenceVocabularyResponse> references = List.of();
+        if ("GOAL_LEARNING".equals(learningPackage.getPhase())
+                && activityViews.stream().noneMatch(view -> view.type() == LearningActivityType.VOCABULARY)
+                && contentCatalog != null && learningPackage.getSourceLesson() != null) {
+            references = contentCatalog.referenceVocabularyForLesson(learningPackage.getSourceLesson().getId());
+        }
+        List<com.jlas.learning.dto.InteractiveLearningSessionResponse> sessions = "GOAL_LEARNING".equals(learningPackage.getPhase())
+                ? sessionProjector.project(learningPackage.getStatus(), lockReason, activityViews,
+                        countsByPackage.getOrDefault(learningPackage.getId(), Map.of()), references,
+                        learningPackage.getEstimatedMinutes())
+                : List.of();
         return new InteractiveLearningPackageResponse(learningPackage.getId(), learningPackage.getPhase(),
                 learningPackage.getDayNumber(), learningPackage.getOrderIndex(), learningPackage.getTitle(),
                 learningPackage.getStatus(), learningPackage.getEstimatedMinutes(), completed,
                 activityViews.size(), percent(completed, activityViews.size()), resume, lockReason,
                 learningPackage.getStartedAt(), learningPackage.getCompletedAt(), activityViews,
                 learningPackage.getScorePercent(), nextAvailablePackageId(learningPackage, siblings),
-                isLastPackage(learningPackage, siblings), justCompleted);
+                isLastPackage(learningPackage, siblings), justCompleted, sessions,
+                chapterLessonId(learningPackage), chapterTitle(learningPackage), chapterNumber(learningPackage, siblings),
+                learningPackage.getSourceSegmentIndex() == null ? 1 : learningPackage.getSourceSegmentIndex(),
+                segmentCount(learningPackage, siblings));
+    }
+
+    // ---- Chapter view (owner decision 2026-10-06): a source lesson is a chapter, its day segments are parts ----
+
+    private static Long chapterLessonId(LearningPathPackage pkg) {
+        return pkg.getSourceLesson() == null ? null : pkg.getSourceLesson().getId();
+    }
+
+    /** Packages of the same source lesson and phase form one chapter; a lesson-less package is its own chapter. */
+    private static String chapterKey(LearningPathPackage pkg) {
+        Long lessonId = chapterLessonId(pkg);
+        return lessonId == null ? "PACKAGE:" + pkg.getId() : pkg.getPhase() + ":" + lessonId;
+    }
+
+    /** "Bài 17: ..." — the textbook's own lesson number, which leaks catalog order into the learner's roadmap. */
+    private static final java.util.regex.Pattern LESSON_NUMBER_PREFIX =
+            java.util.regex.Pattern.compile("^\\s*Bài\\s*\\d+\\s*[:：.\\-–—]\\s*");
+
+    private static String chapterTitle(LearningPathPackage pkg) {
+        String lessonTitle = pkg.getSourceLesson() == null ? null : pkg.getSourceLesson().getTitle();
+        if (lessonTitle == null || lessonTitle.isBlank()) return pkg.getTitle();
+        String withoutNumber = LESSON_NUMBER_PREFIX.matcher(lessonTitle).replaceFirst("");
+        return withoutNumber.isBlank() ? lessonTitle : withoutNumber;
+    }
+
+    private static int chapterNumber(LearningPathPackage pkg, List<LearningPathPackage> siblings) {
+        var keys = new java.util.LinkedHashSet<String>();
+        siblings.stream().sorted(Comparator.comparingInt(LearningPathPackage::getOrderIndex))
+                .forEach(sibling -> keys.add(chapterKey(sibling)));
+        int number = 1;
+        for (String key : keys) {
+            if (key.equals(chapterKey(pkg))) return number;
+            number++;
+        }
+        return number;
+    }
+
+    private static int segmentCount(LearningPathPackage pkg, List<LearningPathPackage> siblings) {
+        String key = chapterKey(pkg);
+        return (int) Math.max(1, siblings.stream().filter(sibling -> key.equals(chapterKey(sibling))).count());
+    }
+
+    private Map<Long, Map<LearningMemberType, Integer>> memberCounts(List<LearningPathPackage> packages) {
+        if (packages == null || packages.isEmpty() || activityMembers == null) return Map.of();
+        List<Long> packageIds = packages.stream().map(LearningPathPackage::getId).filter(java.util.Objects::nonNull).toList();
+        if (packageIds.isEmpty()) return Map.of();
+        Map<Long, Map<LearningMemberType, Integer>> result = new HashMap<>();
+        for (LearningActivityMemberRepository.PackageMemberCount row : activityMembers.findPackageMemberCounts(packageIds)) {
+            result.computeIfAbsent(row.getPackageId(), ignored -> new EnumMap<>(LearningMemberType.class))
+                    .put(row.getMemberType(), Math.toIntExact(Math.min(Integer.MAX_VALUE, row.getMemberCount())));
+        }
+        return result;
     }
 
     private int percent(int completed, int total) {

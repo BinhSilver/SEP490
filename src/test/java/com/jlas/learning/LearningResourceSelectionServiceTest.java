@@ -32,13 +32,15 @@ class LearningResourceSelectionServiceTest {
     @Test void selectsWeakFoundationsBeforeGoalLessonsEvenBelowAssessedLevel() {
         var result = select(tag("PARTICLE", 5, 4),
                 tag("VERB", 5, 2), tag("UNKNOWN", 1, 1));
-        assertEquals(List.of(11L, 21L), ids(result));
-        assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
+        assertEquals(List.of(11L, 12L, 21L), ids(result));
+        assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
                 result.resources().stream().map(SelectedLearningResource::phase).toList());
         assertEquals("WEAK_TAG", result.resources().getFirst().reasonCode());
         assertEquals(Set.of("PARTICLE"), result.resources().getFirst().matchedTagCodes());
         assertFalse(result.resources().getFirst().reasonText().isBlank());
-        assertEquals(List.of(new CoverageGap("UNKNOWN", "INSUFFICIENT_ASSESSMENT")), result.coverageGaps());
+        assertEquals(List.of(new CoverageGap("UNKNOWN", "INSUFFICIENT_ASSESSMENT"),
+                new CoverageGap("UNKNOWN", "MISSING_WARM_UP_RESOURCE")), result.coverageGaps());
+        assertEquals(1, result.weakEvidence().size(), "Only the policy-qualified point is classified weak");
     }
 
     @Test void prioritizesErrorRatioThenWrongCountThenStableTagCode() {
@@ -53,7 +55,8 @@ class LearningResourceSelectionServiceTest {
     @CsvSource({"2,2,false", "3,1,false", "4,2,true", "3,2,true", "0,0,false"})
     void respectsSampleAndRatioBoundaries(int assessed, int wrong, boolean weak) {
         var result = select(tag("PARTICLE", assessed, wrong));
-        assertEquals(weak ? List.of(11L, 21L) : List.of(21L), ids(result));
+        assertEquals(wrong > 0 ? List.of(11L, 21L) : List.of(21L), ids(result));
+        assertEquals(weak ? 1 : 0, result.weakEvidence().size(), "Review eligibility must not change weakness classification");
         assertEquals(assessed < 3 ? 1 : 0, result.coverageGaps().size());
     }
 
@@ -62,7 +65,9 @@ class LearningResourceSelectionServiceTest {
         var relaxed = selector(2, "0.5").select(7L, profile, scope);
         var stricter = selector(2, "0.75").select(7L, profile, scope);
         assertEquals(List.of(11L, 21L), ids(relaxed));
-        assertEquals(List.of(21L), ids(stricter));
+        assertEquals(List.of(11L, 21L), ids(stricter), "A stricter weakness threshold must not hide a wrong answer from review");
+        assertEquals(1, relaxed.weakEvidence().size());
+        assertTrue(stricter.weakEvidence().isEmpty());
         assertNotEquals(relaxed.policyVersion(), stricter.policyVersion());
     }
 
@@ -89,6 +94,45 @@ class LearningResourceSelectionServiceTest {
         assertEquals(List.of(11L, 21L), ids(result));
         assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
                 result.resources().stream().map(SelectedLearningResource::phase).toList());
+    }
+
+    @Test void noviceStartsAtSurveyLevelWithoutSeparateMistakeWarmUp() {
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N4", "N4", "JLPT", 30, validTags(), List.of(), "N5", "N4 Nhập môn");
+        var result = selector.select(7L, profile,
+                new LearningCatalogScope(List.of(1L), List.of(1L, 2L)));
+
+        assertEquals(List.of(11L, 12L, 21L), ids(result));
+        assertTrue(result.resources().stream().allMatch(item -> item.phase() == LearningPhase.GOAL_LEARNING));
+    }
+
+    @Test void proficientStartsDirectlyAtTargetWithoutMistakeWarmUp() {
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N5", "N4", "JLPT", 30, validTags(), List.of(), "N5", "N5 Thành thạo");
+        var result = selector.select(7L, profile,
+                new LearningCatalogScope(List.of(1L), List.of(1L, 2L)));
+
+        assertEquals(List.of(21L), ids(result));
+        assertTrue(result.resources().stream().allMatch(item -> item.phase() == LearningPhase.GOAL_LEARNING));
+    }
+
+    @Test void basicStillReviewsExactWrongItemsBeforeTarget() {
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N5", "N4", "JLPT", 30, validTags(), List.of(), "N5", "N5 Căn bản");
+        var result = selector.select(7L, profile, scope);
+
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
+                result.resources().stream().map(SelectedLearningResource::phase).toList());
+    }
+
+    @Test void noviceWithUnknownSurveyFallsBackToAssessedLevel() {
+        var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N5", "N4", "JLPT", 30, validTags(), List.of(), "UNKNOWN", "N5 Nhập môn");
+        var result = selector.select(7L, profile,
+                new LearningCatalogScope(List.of(1L), List.of(1L, 2L)));
+        assertEquals(List.of(11L, 12L, 21L), ids(result));
+        assertTrue(result.resources().stream().allMatch(item -> item.phase() == LearningPhase.GOAL_LEARNING));
     }
 
     @Test void missingWarmUpResourcesAreReportedWithoutInventingLessons() {
@@ -122,6 +166,32 @@ class LearningResourceSelectionServiceTest {
         assertTrue(result.coverageGaps().isEmpty());
     }
 
+    @Test void wrongGrammarPointBelowWeaknessThresholdStillGetsReviewWithoutBeingClassifiedWeak() {
+        var grammarCatalog = new LearningCatalogSource() {
+            @Override
+            public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
+                return lessons.stream().filter(lesson -> textbookIds.contains(lesson.textbookId())).toList();
+            }
+
+            @Override
+            public Optional<LearningResourceCandidate> findGrammarPoint(Long grammarPointId) {
+                return Optional.of(new LearningResourceCandidate(11L, "～てください", 1L, 10L,
+                        Set.of("PARTICLE"), "N5", 10, 1, 1, grammarPointId, null));
+            }
+        };
+        var grammarSelector = new LearningResourceSelectionServiceImpl(
+                grammarCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var evidence = WeaknessEvidence.grammar(77L, "PARTICLE", 1L, 4, 1, "N5");
+
+        var result = grammarSelector.select(7L, profile(List.of(evidence)), scope);
+
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals("WEAK_GRAMMAR_POINT", result.resources().getFirst().reasonCode());
+        assertEquals(77L, result.resources().getFirst().resource().grammarPointId());
+        assertTrue(result.coverageGaps().isEmpty());
+        assertTrue(result.weakEvidence().isEmpty(), "One wrong answer is reviewed but does not label the point weak");
+    }
+
     @Test void aboveLevelWeaknessIsNotWarmedUpNorReportedAsGap() {
         var above = WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 3, "N3");
         var result = select(above);
@@ -153,7 +223,7 @@ class LearningResourceSelectionServiceTest {
         assertEquals("Lesson 21", result.resources().getFirst().resource().title());
     }
 
-    @Test void warmedUpGrammarPointStillYieldsFullGoalLesson() {
+    @Test void grammarQuestionAboveAssessedLevelStaysInGoalWithoutWarmUp() {
         var grammarCatalog = new LearningCatalogSource() {
             @Override
             public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
@@ -171,13 +241,10 @@ class LearningResourceSelectionServiceTest {
                 grammarCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
         var result = grammarSelector.select(7L,
                 profile(List.of(WeaknessEvidence.grammar(201L, "TARGET", 201L, 5, 3, "N4"))), scope);
-        assertEquals(List.of(21L, 21L), ids(result));
-        assertEquals(List.of(LearningPhase.WARM_UP, LearningPhase.GOAL_LEARNING),
-                result.resources().stream().map(SelectedLearningResource::phase).toList());
-        assertEquals(List.of("WEAK_GRAMMAR_POINT", "GOAL_TARGET"),
-                result.resources().stream().map(SelectedLearningResource::reasonCode).toList());
-        assertEquals(Arrays.asList(201L, null),
-                result.resources().stream().map(item -> item.resource().grammarPointId()).toList());
+        // A question above the assessed N5 level belongs to GOAL N4, never a pre-goal review.
+        assertEquals(List.of(21L), ids(result));
+        assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
+        assertNull(result.resources().getFirst().resource().grammarPointId());
     }
 
     @Test void vocabWeaknessWarmUpResolvesTheSpecificVocabularyEntry() {
@@ -206,6 +273,33 @@ class LearningResourceSelectionServiceTest {
         assertTrue(result.coverageGaps().isEmpty());
     }
 
+    @Test void vocabWeaknessWithoutForeignKeyResolvesByExactCanonicalExpression() {
+        var vocabCatalog = new LearningCatalogSource() {
+            @Override
+            public List<LearningResourceCandidate> findPublishedLessons(List<Long> textbookIds) {
+                return lessons.stream().filter(lesson -> textbookIds.contains(lesson.textbookId())).toList();
+            }
+
+            @Override
+            public Optional<LearningResourceCandidate> findVocabularyItemByExpression(String expression) {
+                if (!"コンピューター".equals(expression)) return Optional.empty();
+                return Optional.of(new LearningResourceCandidate(11L, expression, 1L, 10L,
+                        Set.of("PARTICLE"), "N5", 5, 1, 1, null, 77L));
+            }
+        };
+        var vocabSelector = new LearningResourceSelectionServiceImpl(
+                vocabCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
+        var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                "VOCABULARY:コンピューター", 1, 1, "N5");
+
+        var result = vocabSelector.select(7L, profile(List.of(evidence)), scope);
+
+        assertEquals(List.of(11L, 21L), ids(result));
+        assertEquals("WEAK_VOCAB_ITEM", result.resources().getFirst().reasonCode());
+        assertEquals(77L, result.resources().getFirst().resource().vocabularyEntryId());
+        assertTrue(result.coverageGaps().isEmpty());
+    }
+
     @Test void vocabWeaknessWithoutLessonReportsGap() {
         var result = select(WeaknessEvidence.item(
                 WeaknessEvidence.SKILL_VOCABULARY, "VOCAB:ときどき", 5, 3, "N5", 99L));
@@ -224,7 +318,7 @@ class LearningResourceSelectionServiceTest {
         // [JLAS-W0108] P3 — kỹ năng ngữ pháp rất yếu KHÔNG tự ôn toàn bộ cấp (D1 chưa kích hoạt);
         // chỉ ôn đúng điểm/tag yếu, phần còn lại giữ cho GOAL.
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(tag("PARTICLE", 5, 4)),
                 List.of(new SkillScore("GRAMMAR", 5, 4)));
         var result = selector.select(7L, profile, scope);
@@ -242,7 +336,7 @@ class LearningResourceSelectionServiceTest {
         var compSelector = new LearningResourceSelectionServiceImpl(
                 comprehensionCatalog(10, 10), new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(tag("PARTICLE", 5, 0)),
                 List.of(new SkillScore("KANJI", 10, 0),
                         new SkillScore("VOCABULARY", 10, 1),
@@ -264,7 +358,7 @@ class LearningResourceSelectionServiceTest {
         var compSelector = new LearningResourceSelectionServiceImpl(
                 comprehensionCatalog(10, 10), new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(tag("PARTICLE", 5, 0)),
                 List.of(new SkillScore("READING", assessed, wrong)));
         var result = compSelector.select(7L, profile, scope);
@@ -278,7 +372,7 @@ class LearningResourceSelectionServiceTest {
         var compSelector = new LearningResourceSelectionServiceImpl(
                 comprehensionCatalog(10, 10), new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(tag("PARTICLE", 5, 0)),
                 List.of(new SkillScore("READING", 0, 0)));
         var result = compSelector.select(7L, profile, scope);
@@ -293,7 +387,7 @@ class LearningResourceSelectionServiceTest {
         var compSelector = new LearningResourceSelectionServiceImpl(
                 comprehensionCatalog(3, 0), new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(tag("PARTICLE", 5, 0)),
                 List.of(new SkillScore("READING", 10, 6)));
         var result = compSelector.select(7L, profile, scope);
@@ -321,7 +415,7 @@ class LearningResourceSelectionServiceTest {
         var vocabSelector = new LearningResourceSelectionServiceImpl(
                 vocabCatalog, new WeakTagPolicy(3, new BigDecimal("0.5")));
         var profile = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(WeaknessEvidence.item("VOCABULARY", "VOCAB:学校", 10, 2, "N5", 77L)),
                 List.of(new SkillScore("VOCABULARY", 10, 2)));
         var result = vocabSelector.select(7L, profile, scope);
@@ -337,11 +431,13 @@ class LearningResourceSelectionServiceTest {
         assertEquals(Set.of("PARTICLE", "VERB"), result.resources().getFirst().matchedTagCodes());
     }
 
-    @Test void lessonSharedByBothPhasesAppearsOnlyInWarmUp() {
+    @Test void sameLevelSharedScopeKeepsGoalLessonWithoutDuplicateWarmUp() {
         var sharedScope = new LearningCatalogScope(List.of(2L), List.of(2L));
-        var result = selector.select(7L, profile(List.of(tag("TARGET", 5, 4))), sharedScope);
+        var sameLevel = new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true,
+                "N4", "N4", "JLPT", 30, List.of(tag("TARGET", 5, 4)));
+        var result = selector.select(7L, sameLevel, sharedScope);
         assertEquals(List.of(21L), ids(result));
-        assertEquals(LearningPhase.WARM_UP, result.resources().getFirst().phase());
+        assertEquals(LearningPhase.GOAL_LEARNING, result.resources().getFirst().phase());
         assertTrue(result.coverageGaps().isEmpty());
     }
 
@@ -393,7 +489,9 @@ class LearningResourceSelectionServiceTest {
 
     @Test void selectedLessonWithInvalidDurationFailsInsteadOfMakingAnImpossibleSchedule() {
         lessons.set(2, lesson(21, 2, "N4", 0, 1, "TARGET"));
-        assertError(ErrorCode.CONFLICT, () -> select(tag("PARTICLE", 5, 0)));
+        var failure = assertThrows(ApiException.class, () -> select(tag("PARTICLE", 5, 0)));
+        assertEquals(ErrorCode.CONFLICT, failure.getErrorCode());
+        assertEquals("Bài học chưa có thời lượng phù hợp. Vui lòng thử lại sau.", failure.getMessage());
     }
 
     @Test void rejectsForeignProfile() {
@@ -482,7 +580,9 @@ class LearningResourceSelectionServiceTest {
     }
 
     private static LearningProfileSnapshot profile(List<WeaknessEvidence> tags) {
-        return new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true, "N4", "N4", "JLPT", 30, tags);
+        // Legacy warm-up assertions model a learner advancing N5→N4. Same-level
+        // Căn bản now studies the full N4 curriculum without a separate warm-up.
+        return new LearningProfileSnapshot(7L, 91L, 10L, "1", true, true, "N5", "N4", "JLPT", 30, tags);
     }
 
     private static LearningResourceCandidate lesson(long id, long book, String level, int minutes, int order, String... tags) {

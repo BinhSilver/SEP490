@@ -19,8 +19,10 @@ import com.jlas.learning.entity.LearningActivityMember;
 import com.jlas.learning.entity.LearningPathPackage;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
+import com.jlas.learning.entity.UserLearningStage;
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningExperienceVersion;
+import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.enums.LearningPackageStatus;
 import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.LearningPathPackageRepository;
@@ -73,7 +75,9 @@ class WarmUpBComposerTest {
         lenient().when(packages.findByLearningPathIdOrderByOrderIndex(anyLong())).thenReturn(List.of());
         lenient().when(items.findMaxOrderIndexByLearningPathId(anyLong())).thenReturn(0);
         lenient().when(items.findMaxDayNumberByLearningPathId(anyLong())).thenReturn(0);
-        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of());
+        lenient().when(stages.findByLearningPathIdOrderByStageIndexAsc(anyLong())).thenReturn(List.of(
+                UserLearningStage.builder().id(40L).level("FOUNDATION").stageIndex(0).build(),
+                UserLearningStage.builder().id(41L).level("N3").stageIndex(1).build()));
         lenient().when(packages.save(any())).thenAnswer(i -> {
             var p = i.getArgument(0, LearningPathPackage.class);
             p.setId((long) p.getOrderIndex());
@@ -101,6 +105,18 @@ class WarmUpBComposerTest {
                 minutesPerDay, weaknesses, skillScores);
     }
 
+    @Test void noviceAndProficientNeverCreateSeparateMistakePackages() {
+        for (String band : List.of("N4 Nhập môn", "N4 Thành thạo")) {
+            var profile = new LearningProfileSnapshot(7L, 99L, 1L, "rev-1", true, true,
+                    "N4", "N3", "JLPT", 30, List.of(vocabEvidence(1, "N4", 42L)),
+                    List.of(), "N4", band);
+            var result = composer.composeWarmUp(path(), profile);
+            assertTrue(result.published());
+            assertEquals(0, result.packageCount());
+        }
+        verifyNoInteractions(vocabularyEntries, kanjiRepo, grammarPoints, comprehensionCatalog);
+    }
+
     @Test void readingBandIsPackedAsAtMostTwoExercisesPerDay() {
         var ready = List.of(exercise("READING", 1), exercise("READING", 2),
                 exercise("READING", 3), exercise("READING", 4));
@@ -118,6 +134,23 @@ class WarmUpBComposerTest {
         var saved = ArgumentCaptor.forClass(List.class);
         verify(members, times(2)).saveAll(saved.capture());
         assertTrue(saved.getAllValues().stream().allMatch(rows -> rows.size() == 4));
+    }
+
+    @Test void comprehensionWorkThatCannotFitDailyBudgetIsReportedBeforeAnyPackageIsSaved() {
+        when(comprehensionCatalog.resolve("READING", "N4")).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(List.of(exercise("READING", 1)), List.of()));
+        when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
+        var profile = profile("N4", fiveVocabularyEvidence(42L, "N4"),
+                List.of(new SkillScore("READING", 10, 4)), 5);
+
+        var result = composer.composeWarmUp(path(), profile);
+
+        assertFalse(result.published());
+        assertTrue(result.gaps().stream().anyMatch(gap ->
+                gap.reasonCode().equals("DAILY_BUDGET_TOO_SMALL_FOR_COMPREHENSION")));
+        verify(packages, never()).save(any());
+        verify(items, never()).save(any());
+        verify(members, never()).saveAll(any());
     }
 
     @Test void readingAndListeningAreInterleavedWithinCombinedDailyCap() {
@@ -161,6 +194,98 @@ class WarmUpBComposerTest {
         verifyNoInteractions(comprehensionCatalog);
     }
 
+    @Test void unmappedWrongReadingQuestionIsReportedAsCoverageGap() {
+        var evidence = WeaknessEvidence.comprehension("READING", 5, 4, null, null,
+                List.of(new WeaknessEvidence.OutcomeBreakdown("UNMAPPED_QUESTION:77", null, 1, 1)),
+                null, null, "N4");
+        when(comprehensionCatalog.resolve("READING", "N4")).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(List.of(exercise("READING", 1)), List.of()));
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence),
+                List.of(new SkillScore("READING", 5, 4)), 30));
+
+        assertEquals(1, result.packageCount());
+        assertTrue(result.gaps().stream().anyMatch(g -> g.tagCode().equals("READING:UNMAPPED_QUESTION:77")
+                && g.reasonCode().equals("CONTENT_MAPPING_PENDING")));
+    }
+
+    @Test void everyWrongReadingOutcomeIsScheduledEvenWhenOverallBandWouldSkipPractice() {
+        var evidence = WeaknessEvidence.comprehension("READING", 10, 2, null, null,
+                List.of(new WeaknessEvidence.OutcomeBreakdown("DETAIL", 21L, 1, 1),
+                        new WeaknessEvidence.OutcomeBreakdown("INFERENCE", 22L, 1, 1)),
+                null, null, "N4");
+        var targeted = List.of(exerciseWithOutcome("READING", 1, "DETAIL"),
+                exerciseWithOutcome("READING", 2, "INFERENCE"));
+        when(comprehensionCatalog.resolve("READING", "N4")).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(targeted, List.of()));
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence),
+                List.of(new SkillScore("READING", 10, 2)), 30));
+
+        assertEquals(1, result.packageCount());
+        var saved = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(saved.capture());
+        List<LearningActivityMember> membersForQuiz = (List<LearningActivityMember>) saved.getValue();
+        assertTrue(membersForQuiz.stream().anyMatch(member -> member.getCanonicalId().equals(11L)));
+        assertTrue(membersForQuiz.stream().anyMatch(member -> member.getCanonicalId().equals(21L)));
+        assertTrue(membersForQuiz.stream().anyMatch(member -> member.getCanonicalId().equals(22L)));
+    }
+
+    @Test void everyWrongListeningOutcomeIsScheduledEvenWhenOverallBandWouldSkipPractice() {
+        var evidence = WeaknessEvidence.comprehension("LISTENING", 10, 2, null, null,
+                List.of(new WeaknessEvidence.OutcomeBreakdown("AUDIO_DETAIL", 31L, 1, 1),
+                        new WeaknessEvidence.OutcomeBreakdown("SPEAKER_INTENT", 32L, 1, 1)),
+                null, null, "N4");
+        var targeted = List.of(exerciseWithOutcome("LISTENING", 3, "AUDIO_DETAIL"),
+                exerciseWithOutcome("LISTENING", 4, "SPEAKER_INTENT"));
+        when(comprehensionCatalog.resolve("LISTENING", "N4")).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(targeted, List.of()));
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence),
+                List.of(new SkillScore("LISTENING", 10, 2)), 30));
+
+        assertEquals(1, result.packageCount());
+        var saved = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(saved.capture());
+        List<LearningActivityMember> membersForQuiz = (List<LearningActivityMember>) saved.getValue();
+        assertTrue(membersForQuiz.stream().anyMatch(member -> member.getCanonicalId().equals(31L)));
+        assertTrue(membersForQuiz.stream().anyMatch(member -> member.getCanonicalId().equals(32L)));
+        assertEquals(4, membersForQuiz.stream().filter(member -> member.getMemberType() == LearningMemberType.COMPREHENSION_QUESTION).count());
+    }
+
+    @Test void comprehensionOutcomesBeyondDailyCapAreCarriedForwardWithoutLossOrDuplication() {
+        var outcomes = List.of("DETAIL_A", "DETAIL_B", "INTENT_A", "INTENT_B", "CONTEXT");
+        var evidence = WeaknessEvidence.comprehension("LISTENING", 10, 2, null, null,
+                java.util.stream.IntStream.range(0, outcomes.size())
+                        .mapToObj(index -> new WeaknessEvidence.OutcomeBreakdown(
+                                outcomes.get(index), 41L + index, 1, 1)).toList(),
+                null, null, "N4");
+        var targeted = java.util.stream.IntStream.range(0, outcomes.size())
+                .mapToObj(index -> exerciseWithOutcome("LISTENING", index + 5L, outcomes.get(index))).toList();
+        when(comprehensionCatalog.resolve("LISTENING", "N4")).thenReturn(
+                new ComprehensionExerciseCatalog.CatalogResult(targeted, List.of()));
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence),
+                List.of(new SkillScore("LISTENING", 10, 2)), 30));
+
+        assertEquals(3, result.packageCount(), "Five exercises at a two-per-day cap must span three days");
+        var packagesCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
+        verify(packages, times(3)).save(packagesCaptor.capture());
+        assertEquals(List.of(1, 2, 3), packagesCaptor.getAllValues().stream()
+                .map(LearningPathPackage::getDayNumber).toList());
+
+        var membersCaptor = ArgumentCaptor.forClass(List.class);
+        verify(members, times(3)).saveAll(membersCaptor.capture());
+        List<Long> questionIds = membersCaptor.getAllValues().stream()
+                .flatMap(List::stream)
+                .map(member -> ((LearningActivityMember) member).getCanonicalId())
+                .toList();
+        assertEquals(10, questionIds.size());
+        assertEquals(10, questionIds.stream().distinct().count(), "Overflow must not duplicate question membership");
+        assertEquals(List.of(91L, 92L, 51L, 52L, 61L, 62L, 71L, 72L, 81L, 82L), questionIds,
+                "Outcome mapping order is deterministic and every selected exercise remains scheduled");
+    }
+
     @Test void scoreAboveSeventySkipsComprehensionWarmUp() {
         var result = composer.composeWarmUp(path(), profile("N4", List.of(),
                 List.of(new SkillScore("READING", 10, 2)), 30));
@@ -172,6 +297,15 @@ class WarmUpBComposerTest {
         long base = index * 10;
         return new ComprehensionExercise(skill + "-" + index, skill, "N4", "source-" + index,
                 "OUTCOME", null, List.of(
+                new ComprehensionQuestionSpec(base + 1, "Q1", List.of("A", "B"), 1, "E1"),
+                new ComprehensionQuestionSpec(base + 2, "Q2", List.of("A", "B"), 2, "E2")),
+                String.format("%064d", index));
+    }
+
+    private ComprehensionExercise exerciseWithOutcome(String skill, long index, String outcome) {
+        long base = index * 10;
+        return new ComprehensionExercise(skill + "-" + index, skill, "N4", "source-" + index,
+                outcome, null, List.of(
                 new ComprehensionQuestionSpec(base + 1, "Q1", List.of("A", "B"), 1, "E1"),
                 new ComprehensionQuestionSpec(base + 2, "Q2", List.of("A", "B"), 2, "E2")),
                 String.format("%064d", index));
@@ -216,7 +350,14 @@ class WarmUpBComposerTest {
 
     @Test void weakVocabularyItemBecomesOwnActivityScopedToExactItems() {
         when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
-        var result = composer.composeWarmUp(path(), profile("N4", List.of(vocabEvidence(1, "N4", 42L))));
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        evidence.add(vocabEvidence(1, "N4", 42L));
+        for (long id = 43; id <= 46; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
         assertTrue(result.published());
         assertEquals(1, result.packageCount());
 
@@ -224,18 +365,130 @@ class WarmUpBComposerTest {
         verify(packages).save(pkgCaptor.capture());
         assertEquals("WARM_UP", pkgCaptor.getValue().getPhase());
         assertNull(pkgCaptor.getValue().getSourceLesson());
+        assertEquals(41L, pkgCaptor.getValue().getStageId());
 
         var itemCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
         verify(items).save(itemCaptor.capture());
         assertEquals(LearningActivityType.VOCABULARY, itemCaptor.getValue().getActivityType());
         assertEquals("WEAK_VOCAB_ITEM", itemCaptor.getValue().getReasonCode());
-        assertTrue(itemCaptor.getValue().getReason().contains("1"));
+        assertTrue(itemCaptor.getValue().getReason().contains("5"));
 
         var memberCaptor = ArgumentCaptor.forClass(List.class);
         verify(members).saveAll(memberCaptor.capture());
         List<LearningActivityMember> rows = memberCaptor.getValue();
-        assertEquals(1, rows.size());
-        assertEquals(42L, rows.getFirst().getCanonicalId());
+        assertEquals(5, rows.size());
+        assertEquals(List.of(42L, 43L, 44L, 45L, 46L), rows.stream()
+                .map(LearningActivityMember::getCanonicalId).toList());
+    }
+
+    @Test void smartTestVocabularyBelowFiveMappedTargetsIsReviewOnly() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (long id = 1; id <= 4; id++) {
+            var entry = published(id);
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(entry));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
+
+        assertEquals(0, result.packageCount());
+        assertEquals(4, result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")).count());
+        assertTrue(result.gaps().stream().allMatch(gap -> gap.tagCode().startsWith("VOCABULARY:語")));
+        verify(packages, never()).save(any());
+        verify(items, never()).save(any());
+        verify(members, never()).saveAll(any());
+    }
+
+    @Test void fiveMappedVocabularyTargetsOpenFullSmartTestRemediation() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (long id = 1; id <= 5; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
+
+        assertEquals(1, result.packageCount());
+        assertFalse(result.gaps().stream()
+                .anyMatch(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")));
+        var memberCaptor = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(memberCaptor.capture());
+        assertEquals(List.of(1L, 2L, 3L, 4L, 5L), ((List<LearningActivityMember>) memberCaptor.getValue())
+                .stream().map(LearningActivityMember::getCanonicalId).toList());
+    }
+
+    @Test void moreThanFiveMappedKanjiTargetsStayInOneFullSkillActivity() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            String character = String.valueOf((char) ('日' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(90L + i).character(character).build()));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 1, 1, "N4", null));
+        }
+
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
+
+        assertEquals(1, result.packageCount());
+        assertFalse(result.gaps().stream()
+                .anyMatch(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")));
+        var captured = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(captured.capture());
+        assertEquals(6, ((List<LearningActivityMember>) captured.getValue()).size());
+    }
+
+    @Test void duplicateMappedVocabularyTargetsDoNotReachFiveAndUnmappedItemsDoNotCount() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (long id = 1; id <= 4; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+        evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                "VOCABULARY:別表記", 1, 1, "N4", 1L));
+        evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                "VOCABULARY:未登録", 1, 1, "N4", null));
+
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
+
+        assertEquals(0, result.packageCount());
+        assertEquals(4, result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")).count());
+        assertTrue(result.gaps().stream().anyMatch(gap -> gap.tagCode().equals("VOCABULARY:未登録")
+                && gap.reasonCode().equals("CONTENT_MAPPING_PENDING")));
+        verify(packages, never()).save(any());
+        verify(members, never()).saveAll(any());
+    }
+
+    @Test void vocabularyAndKanjiRemediationThresholdsAreIndependent() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (long id = 1; id <= 4; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+        for (int i = 0; i < 5; i++) {
+            String kanji = String.valueOf((char) ('日' + i));
+            when(kanjiRepo.findByCharacter(kanji)).thenReturn(Optional.of(Kanji.builder()
+                    .id(80L + i).character(kanji).build()));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + kanji, 1, 1, "N4", null));
+        }
+
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
+
+        assertEquals(1, result.packageCount());
+        assertEquals(4, result.gaps().stream().filter(gap -> gap.reasonCode()
+                .equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")).count());
+        var itemsCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items).save(itemsCaptor.capture());
+        assertEquals(LearningActivityType.KANJI, itemsCaptor.getValue().getActivityType());
+        var membersCaptor = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(membersCaptor.capture());
+        assertEquals(5, ((List<LearningActivityMember>) membersCaptor.getValue()).size());
     }
 
     @Test void vocabularyItemWithoutAnchorIsSkippedAsGapNotFabricated() {
@@ -257,14 +510,40 @@ class WarmUpBComposerTest {
     // ---- Kanji ----
 
     @Test void weakKanjiSingleCharacterResolvesToCanonicalKanjiId() {
-        var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI, "KANJI:食", 2, 1, "N4", 7L);
-        when(kanjiRepo.findByCharacter("食")).thenReturn(Optional.of(Kanji.builder().id(88L).character("食").build()));
-        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence)));
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            String character = String.valueOf((char) ('食' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(88L + i).character(character).build()));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 2, 1, "N4", null));
+        }
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
         assertEquals(1, result.packageCount());
         var memberCaptor = ArgumentCaptor.forClass(List.class);
         verify(members).saveAll(memberCaptor.capture());
         List<LearningActivityMember> rows = (List<LearningActivityMember>) memberCaptor.getValue();
-        assertEquals(88L, rows.getFirst().getCanonicalId());
+        assertEquals(List.of(88L, 89L, 90L, 91L, 92L), rows.stream()
+                .map(LearningActivityMember::getCanonicalId).toList());
+    }
+
+    @Test void fiveKanjiWithFiveMinuteBudgetFailsBeforePersistingAnUnquizzableSingletonPart() {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            String character = String.valueOf((char) ('食' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(88L + i).character(character).build()));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 2, 1, "N4", null));
+        }
+
+        var error = assertThrows(ApiException.class, () -> composer.composeWarmUp(path(),
+                profile("N4", evidence, List.of(), 5)));
+
+        assertEquals(ErrorCode.BLOCKED_CONTENT, error.getErrorCode());
+        verify(packages, never()).save(any());
+        verify(items, never()).save(any());
+        verify(members, never()).saveAll(any());
     }
 
     @Test void kanjiMultiCharacterLexemeCannotResolveAndIsReportedAsGap() {
@@ -277,11 +556,49 @@ class WarmUpBComposerTest {
 
     // ---- Grammar ----
 
-    @Test void grammarBelowWeakThresholdIsExcluded() {
-        // 1 wrong out of 4 assessed = 25% < 50% threshold -> not weak, no warm-up scheduled.
+    @Test void everyWrongGrammarPointIsIncludedEvenBelowTheMasteryThreshold() {
         var evidence = WeaknessEvidence.grammar(10L, "TAG", 1L, 4, 1, "N4");
+        when(grammarPoints.findById(10L)).thenReturn(Optional.of(GrammarPoint.builder().id(10L).build()));
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence)));
+        assertEquals(1, result.packageCount());
+        var captured = ArgumentCaptor.forClass(List.class);
+        verify(members).saveAll(captured.capture());
+        assertEquals(10L, ((LearningActivityMember) captured.getValue().getFirst()).getCanonicalId());
+    }
+
+    @Test void wrongGrammarWithoutAnAnchorReportsMappingGapInsteadOfDisappearing() {
+        var evidence = WeaknessEvidence.item("GRAMMAR", "UNMAPPED:Q12", 1, 1, "N4");
         var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence)));
         assertEquals(0, result.packageCount());
+        assertEquals(1, result.gaps().size());
+        assertEquals("CONTENT_MAPPING_PENDING", result.gaps().getFirst().reasonCode());
+    }
+
+    /** UAT 2026-10-06: 2 of 3 wrong Smart Test grammar questions (を, それから) had no grammar_point mapping and
+     * vanished from the learner's view. Every wrong grammar question stays visible as a review-only target. */
+    @Test void everyWrongUnmappedGrammarQuestionBecomesAReviewOnlyTarget() {
+        var first = WeaknessEvidence.item("GRAMMAR", "UNMAPPED_QUESTION:1513", 1, 1, "N5");
+        var second = WeaknessEvidence.item("GRAMMAR", "UNMAPPED_QUESTION:1548", 1, 1, "N5");
+        var result = composer.composeWarmUp(path(), profile("N5", List.of(first, second)));
+        assertEquals(List.of("GRAMMAR_QUESTION:1513", "GRAMMAR_QUESTION:1548"), result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR"))
+                .map(gap -> gap.tagCode()).toList());
+        assertEquals(2, result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("CONTENT_MAPPING_PENDING")).count(),
+                "the content team still needs the mapping gap");
+    }
+
+    @Test void unmappedGrammarAboveAssessedLevelIsReviewOnlyAndNeverBecomesAWarmUpActivity() {
+        var evidence = WeaknessEvidence.item("GRAMMAR", "UNMAPPED_QUESTION:1601", 1, 1, "N4");
+
+        var result = composer.composeWarmUp(path(), profile("N5", List.of(evidence)));
+
+        assertEquals(0, result.packageCount(), "An N4 mistake must not create a warm-up activity for an N5 learner");
+        assertTrue(result.gaps().stream().anyMatch(gap -> gap.tagCode().equals("UNMAPPED_QUESTION:1601")
+                && gap.reasonCode().equals("CONTENT_MAPPING_PENDING")));
+        assertTrue(result.gaps().stream().anyMatch(gap -> gap.tagCode().equals("GRAMMAR_QUESTION:1601")
+                && gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR")),
+                "The mistake must remain visible even though it is above the assessed warm-up bound");
         verifyNoInteractions(grammarPoints);
     }
 
@@ -296,40 +613,49 @@ class WarmUpBComposerTest {
         assertEquals(LearningActivityType.GRAMMAR, itemCaptor.getValue().getActivityType());
     }
 
-    @Test void moreThanThreeWeakGrammarPointsOverflowsIntoASecondDay() {
-        List<WeaknessEvidence> weaknesses = List.of(
-                WeaknessEvidence.grammar(1L, "TAG", 1L, 2, 2, "N4"),
-                WeaknessEvidence.grammar(2L, "TAG", 1L, 2, 2, "N4"),
-                WeaknessEvidence.grammar(3L, "TAG", 1L, 2, 2, "N4"),
-                WeaknessEvidence.grammar(4L, "TAG", 1L, 2, 2, "N4"),
-                WeaknessEvidence.grammar(5L, "TAG", 1L, 2, 2, "N4"));
-        for (long id = 1; id <= 5; id++) {
+    @Test void grammarBeyondDailyCapIsCarriedForwardWithoutLossOrDuplication() {
+        List<WeaknessEvidence> weaknesses = new java.util.ArrayList<>();
+        for (long id = 1; id <= 8; id++) {
+            weaknesses.add(WeaknessEvidence.grammar(id, "TAG", 1L, 2, 2, "N4"));
             when(grammarPoints.findById(id)).thenReturn(Optional.of(GrammarPoint.builder().id(id).build()));
         }
         var result = composer.composeWarmUp(path(), profile("N4", weaknesses));
-        assertEquals(2, result.packageCount());
+        assertEquals(3, result.packageCount());
 
         var pkgCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
-        verify(packages, times(2)).save(pkgCaptor.capture());
-        assertEquals(List.of(1, 2), pkgCaptor.getAllValues().stream().map(LearningPathPackage::getDayNumber).toList());
+        verify(packages, times(3)).save(pkgCaptor.capture());
+        assertEquals(List.of(1, 2, 3), pkgCaptor.getAllValues().stream().map(LearningPathPackage::getDayNumber).toList());
 
         var memberCaptor = ArgumentCaptor.forClass(List.class);
-        verify(members, times(2)).saveAll(memberCaptor.capture());
+        verify(members, times(3)).saveAll(memberCaptor.capture());
         List<List> allBatches = memberCaptor.getAllValues();
         assertEquals(3, allBatches.get(0).size());
-        assertEquals(2, allBatches.get(1).size());
+        assertEquals(3, allBatches.get(1).size());
+        assertEquals(2, allBatches.get(2).size());
+        List<Long> grammarIds = allBatches.stream().flatMap(List::stream)
+                .map(member -> ((LearningActivityMember) member).getCanonicalId()).toList();
+        assertEquals(List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L), grammarIds);
+        assertEquals(8, grammarIds.stream().distinct().count(), "Daily overflow must not duplicate grammar points");
     }
 
     // ---- combined day-1 packaging, ordering, dedupe ----
 
     @Test void combinedDayOnePackageOrdersVocabularyThenKanjiThenGrammar() {
-        when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
-        when(kanjiRepo.findByCharacter("食")).thenReturn(Optional.of(Kanji.builder().id(88L).character("食").build()));
+        List<WeaknessEvidence> weaknesses = new java.util.ArrayList<>();
+        for (long id = 42; id <= 46; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            weaknesses.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+        for (int i = 0; i < 5; i++) {
+            String character = String.valueOf((char) ('食' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(88L + i).character(character).build()));
+            weaknesses.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 1, 1, "N4", null));
+        }
         when(grammarPoints.findById(10L)).thenReturn(Optional.of(GrammarPoint.builder().id(10L).build()));
-        List<WeaknessEvidence> weaknesses = List.of(
-                vocabEvidence(1, "N4", 42L),
-                WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI, "KANJI:食", 2, 1, "N4", 7L),
-                WeaknessEvidence.grammar(10L, "TAG", 1L, 2, 2, "N4"));
+        weaknesses.add(WeaknessEvidence.grammar(10L, "TAG", 1L, 2, 2, "N4"));
         var result = composer.composeWarmUp(path(), profile("N4", weaknesses));
         assertEquals(1, result.packageCount());
         var itemCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
@@ -345,22 +671,56 @@ class WarmUpBComposerTest {
                 WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY, "VOCABULARY:先生", 1, 1, "N4", 42L),
                 WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY, "VOCABULARY:先生に", 1, 1, "N4", 42L));
         var result = composer.composeWarmUp(path(), profile("N4", weaknesses));
-        assertEquals(1, result.packageCount());
-        var memberCaptor = ArgumentCaptor.forClass(List.class);
-        verify(members).saveAll(memberCaptor.capture());
-        List<LearningActivityMember> rows = (List<LearningActivityMember>) memberCaptor.getValue();
-        assertEquals(1, rows.size());
+        assertEquals(0, result.packageCount());
+        assertEquals(1, result.gaps().stream().filter(gap -> gap.reasonCode()
+                .equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD")).count(),
+                "Two wrong evidence rows mapping to one canonical item count once");
+        verify(members, never()).saveAll(any());
+    }
+
+    @Test void resolvesWrongVocabularyByNormalizedCanonicalExpressionWhenQuestionHasNoForeignKey() {
+        when(vocabularyEntries.findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+                "こんぴゅーたー", "PUBLISHED")).thenReturn(List.of(published()));
+        when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
+        var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                "VOCABULARY:コンピューター", 1, 1, "N4");
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence)));
+
+        assertEquals(0, result.packageCount());
+        assertFalse(result.gaps().stream().anyMatch(gap -> gap.reasonCode().equals("CONTENT_MAPPING_PENDING")),
+                "Exact published dictionary match must not be reported as unmapped");
+        assertEquals(List.of("VOCABULARY:コンピューター"), result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD"))
+                .map(com.jlas.learning.dto.CoverageGap::tagCode).toList());
+        verify(members, never()).saveAll(any());
+    }
+
+    @Test void ambiguousVocabularyExpressionIsReportedInsteadOfSelectingAnArbitraryReading() {
+        when(vocabularyEntries.findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+                "はし", "PUBLISHED")).thenReturn(List.of(published(42L), published(43L)));
+        var evidence = WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                "VOCABULARY:はし", 1, 1, "N4");
+
+        var result = composer.composeWarmUp(path(), profile("N4", List.of(evidence)));
+
+        assertEquals(0, result.packageCount());
+        assertEquals(List.of("VOCABULARY:はし"), result.gaps().stream()
+                .filter(gap -> gap.reasonCode().equals("CONTENT_MAPPING_PENDING"))
+                .map(com.jlas.learning.dto.CoverageGap::tagCode).toList());
+        verify(vocabularyEntries, never()).findById(anyLong());
+        verify(members, never()).saveAll(any());
     }
 
     @Test void packageAndDayNumberingContinueAfterExistingPathContent() {
-        when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
+        var evidence = fiveVocabularyEvidence(42L, "N4");
         when(items.findMaxDayNumberByLearningPathId(5L)).thenReturn(3);
         when(items.findMaxOrderIndexByLearningPathId(5L)).thenReturn(7);
         when(packages.findByLearningPathIdOrderByOrderIndex(5L)).thenReturn(
                 List.of(LearningPathPackage.builder().orderIndex(2).phase("GOAL_LEARNING").build()));
         when(packages.existsByLearningPathId(5L)).thenReturn(true);
 
-        var result = composer.composeWarmUp(path(), profile("N4", List.of(vocabEvidence(1, "N4", 42L))));
+        var result = composer.composeWarmUp(path(), profile("N4", evidence));
         assertEquals(1, result.packageCount());
 
         var pkgCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
@@ -375,8 +735,7 @@ class WarmUpBComposerTest {
     }
 
     @Test void firstPackageOverallIsAvailableWhenNothingElseExistsYet() {
-        when(vocabularyEntries.findById(42L)).thenReturn(Optional.of(published()));
-        var result = composer.composeWarmUp(path(), profile("N4", List.of(vocabEvidence(1, "N4", 42L))));
+        var result = composer.composeWarmUp(path(), profile("N4", fiveVocabularyEvidence(42L, "N4")));
         assertEquals(1, result.packageCount());
         var pkgCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
         verify(packages).save(pkgCaptor.capture());
@@ -387,8 +746,93 @@ class WarmUpBComposerTest {
         return WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY, "VOCABULARY:先生", 1, wrongCount, level, vocabularyEntryId);
     }
 
+    @Test void longSmartTestRemediationSplitsEachSkillWithoutDroppingMappedTargets() {
+        List<WeaknessEvidence> weaknesses = new java.util.ArrayList<>();
+        for (long id = 100; id < 132; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            weaknesses.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+        for (int i = 0; i < 17; i++) {
+            String character = String.valueOf((char) ('一' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(300L + i).character(character).build()));
+            weaknesses.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 1, 1, "N4", null));
+        }
+
+        assertTrue(composer.composeWarmUp(path(), profile("N4", weaknesses)).published());
+        var itemCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items, times(5)).save(itemCaptor.capture());
+        assertEquals(List.of(LearningActivityType.VOCABULARY, LearningActivityType.VOCABULARY,
+                        LearningActivityType.VOCABULARY, LearningActivityType.KANJI, LearningActivityType.KANJI),
+                itemCaptor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<LearningActivityMember>> memberCaptor = ArgumentCaptor.forClass(Iterable.class);
+        verify(members, times(5)).saveAll(memberCaptor.capture());
+        var groups = memberCaptor.getAllValues().stream().map(group ->
+                java.util.stream.StreamSupport.stream(group.spliterator(), false).toList()).toList();
+        assertEquals(List.of(11, 11, 10, 9, 8), groups.stream().map(List::size).toList());
+        assertEquals(49, groups.stream().mapToInt(List::size).sum());
+        // UAT 2026-10-06: same-type parts in one package need distinct part_index (MySQL unique key).
+        var parts = itemCaptor.getAllValues().stream().collect(java.util.stream.Collectors.groupingBy(
+                i -> i.getLearningPackage().getOrderIndex() + ":" + i.getActivityType(), java.util.LinkedHashMap::new,
+                java.util.stream.Collectors.mapping(UserLearningPathItem::getPartIndex, java.util.stream.Collectors.toList())));
+        parts.values().forEach(p -> assertEquals(
+                java.util.stream.IntStream.rangeClosed(1, p.size()).boxed().toList(), p, parts.toString()));
+    }
+
+    @Test void warmUpVocabularyAndKanjiWorkSpillsToLaterDaysWithinTheUserBudget(){
+        List<WeaknessEvidence> weaknesses = new java.util.ArrayList<>();
+        for (long id = 100; id < 110; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            weaknesses.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, "N4", id));
+        }
+        for (int i = 0; i < 10; i++) {
+            String character = String.valueOf((char) ('一' + i));
+            when(kanjiRepo.findByCharacter(character)).thenReturn(Optional.of(Kanji.builder()
+                    .id(300L + i).character(character).build()));
+            weaknesses.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_KANJI,
+                    "KANJI:" + character, 1, 1, "N4", null));
+        }
+
+        var result = composer.composeWarmUp(path(), profile("N4", weaknesses, List.of(), 15));
+
+        assertEquals(2, result.packageCount(), "The two mandatory skill blocks cannot share a 15-minute day");
+        var packageCaptor = ArgumentCaptor.forClass(LearningPathPackage.class);
+        verify(packages, times(2)).save(packageCaptor.capture());
+        assertTrue(packageCaptor.getAllValues().stream().allMatch(pkg -> pkg.getEstimatedMinutes() <= 15));
+        assertEquals(List.of(1, 2), packageCaptor.getAllValues().stream()
+                .map(LearningPathPackage::getDayNumber).toList());
+
+        var activityCaptor = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items, times(2)).save(activityCaptor.capture());
+        assertEquals(List.of(LearningActivityType.VOCABULARY, LearningActivityType.KANJI),
+                activityCaptor.getAllValues().stream().map(UserLearningPathItem::getActivityType).toList());
+        assertTrue(activityCaptor.getAllValues().stream().allMatch(activity -> activity.getEstimatedMinutes() <= 15));
+
+        var memberCaptor = ArgumentCaptor.forClass(List.class);
+        verify(members, times(2)).saveAll(memberCaptor.capture());
+        assertEquals(20, memberCaptor.getAllValues().stream().mapToInt(List::size).sum());
+    }
+
+    private List<WeaknessEvidence> fiveVocabularyEvidence(long firstId, String level) {
+        List<WeaknessEvidence> evidence = new java.util.ArrayList<>();
+        for (long id = firstId; id < firstId + 5; id++) {
+            when(vocabularyEntries.findById(id)).thenReturn(Optional.of(published(id)));
+            evidence.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_VOCABULARY,
+                    "VOCABULARY:語" + id, 1, 1, level, id));
+        }
+        return evidence;
+    }
+
     private VocabularyEntry published() {
-        var entry = VocabularyEntry.builder().id(42L).build();
+        return published(42L);
+    }
+
+    private VocabularyEntry published(Long id) {
+        var entry = VocabularyEntry.builder().id(id).build();
         entry.setDictionaryStatus("PUBLISHED");
         return entry;
     }

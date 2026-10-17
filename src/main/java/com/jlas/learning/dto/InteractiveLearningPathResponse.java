@@ -13,8 +13,17 @@ public record InteractiveLearningPathResponse(
         int totalPackages,
         int progressPercent,
         Long currentPackageId,
-        List<InteractiveLearningPackageResponse> packages) {
+        List<InteractiveLearningPackageResponse> packages,
+        List<SmartTestReviewTarget> smartTestReviewOnlyTargets) {
     public InteractiveLearningPathResponse {
         packages = List.copyOf(packages);
+        smartTestReviewOnlyTargets = List.copyOf(smartTestReviewOnlyTargets);
+    }
+
+    public InteractiveLearningPathResponse(Long id, String title, String goal, String currentLevel,
+            String targetLevel, Integer minutesPerDay, int completedPackages, int totalPackages,
+            int progressPercent, Long currentPackageId, List<InteractiveLearningPackageResponse> packages) {
+        this(id, title, goal, currentLevel, targetLevel, minutesPerDay, completedPackages, totalPackages,
+                progressPercent, currentPackageId, packages, List.of());
     }
 }
