@@ -473,6 +473,18 @@ window.AdminShell.ready.then(function (allowed) {
     document.getElementById('editorTitle').textContent = lesson.title;
     document.getElementById('editorContext').textContent =
       [lesson.textbookTitle, lesson.unitTitle].filter(function (v) { return !!v; }).join(' · ');
+    // [JLAS2-17] Xem trước bài ở trang học viên (tab mới). Người biên soạn xem được cả bài Nháp; tooltip ghi rõ học viên chưa thấy.
+    var previewEl = document.getElementById('editorPreviewLesson');
+    if (previewEl && lesson.textbookId) {
+      var hiddenNote = lesson.status === 'ARCHIVED' ? 'Học viên không thấy bài này (Đã lưu trữ)'
+        : lesson.status !== 'PUBLISHED' ? 'Học viên chưa thấy bài này (Nháp)'
+          : lesson.textbookStatus && lesson.textbookStatus !== 'PUBLISHED' ? 'Học viên chưa thấy bài này (giáo trình đang Nháp)' : '';
+      var previewLabel = 'Xem trước bài này như học viên' + (hiddenNote ? ' — ' + hiddenNote : '') + ' (mở tab mới)';
+      previewEl.href = '/textbooks/' + encodeURIComponent(lesson.textbookId) + '/lessons/' + encodeURIComponent(lessonId);
+      previewEl.title = previewLabel;
+      previewEl.setAttribute('aria-label', previewLabel);
+      previewEl.hidden = false;
+    }
     document.getElementById('editorMeta').innerHTML =
       '<span class="tb-badge">' + escapeHtml(lesson.status) + '</span>'
       + (lesson.knowledgeTagName ? '<span class="tb-badge">' + escapeHtml(lesson.knowledgeTagName) + '</span>' : '');

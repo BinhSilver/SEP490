@@ -421,6 +421,32 @@ window.AdminShell.ready.then(function (allowed) {
   var ARCHIVED_PARENT_REASON = 'Giáo trình đang lưu trữ — khôi phục giáo trình để sửa nội dung bên trong';
 
   /**
+   * [JLAS2-17] Nút "Xem trước" = link sang trang học viên (tab mới). Tài khoản biên soạn xem được cả mục Nháp
+   * (DictionaryServiceImpl.canViewDraft), nên chỉ cần ghi chú trong tooltip. Giáo trình đã lưu trữ không hiện ở
+   * trang học viên (404 kể cả với người biên soạn) → nút bị khoá kèm lý do.
+   */
+  function previewLink(href, hiddenNote, disabledReason) {
+    var title = disabledReason || ('Xem như học viên' + (hiddenNote ? ' — ' + hiddenNote : '') + ' (mở tab mới)');
+    if (disabledReason) {
+      return '<span class="manage-icon-btn manage-preview-btn is-disabled" role="link" aria-disabled="true"'
+        + ' title="' + escapeHtml(title) + '" aria-label="' + escapeHtml(title) + '">'
+        + '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>';
+    }
+    return '<a class="manage-icon-btn manage-preview-btn' + (hiddenNote ? ' is-hidden-from-learner' : '') + '"'
+      + ' href="' + escapeHtml(href) + '" target="_blank" rel="noopener" draggable="false"'
+      + ' title="' + escapeHtml(title) + '" aria-label="' + escapeHtml(title) + '">'
+      + '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>';
+  }
+
+  /** Ghi chú "học viên chưa thấy" cho bài: chính bài hoặc giáo trình cha chưa công bố. */
+  function lessonHiddenNote(lesson, textbook) {
+    if (lesson.status === 'ARCHIVED') return 'Học viên không thấy bài này (Đã lưu trữ)';
+    if (lesson.status !== 'PUBLISHED') return 'Học viên chưa thấy bài này (Nháp)';
+    if (textbook && textbook.status !== 'PUBLISHED') return 'Học viên chưa thấy bài này (giáo trình đang Nháp)';
+    return '';
+  }
+
+  /**
    * Nút trạng thái. Mục đã lưu trữ chỉ có một lối ra là Khôi phục (về nháp).
    * KHÔNG có nút xoá cứng cho giáo trình và bài học ở bất kỳ đâu: FK đều ON DELETE CASCADE và
    * lesson_progress cascade theo lesson, nên xoá cứng sẽ cuốn cả tiến độ học viên.
@@ -468,7 +494,7 @@ window.AdminShell.ready.then(function (allowed) {
       + '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Ẩn tất cả bài</button></span>';
   }
 
-  function lessonRow(lesson, lockReason) {
+  function lessonRow(lesson, lockReason, textbook) {
     var meta = [LESSON_TYPE_LABELS[lesson.lessonType] || lesson.lessonType,
       SKILL_LABELS[lesson.skill] || lesson.skill];
     if (lesson.estimatedMinutes) meta.push(lesson.estimatedMinutes + ' phút');
@@ -489,6 +515,7 @@ window.AdminShell.ready.then(function (allowed) {
       // Biên soạn nội dung bên trong bài (ngữ pháp, từ vựng) nằm ở trang riêng: màn này lo cấu trúc và
       // trạng thái, còn soạn thảo cần trường văn bản dài nên không nhét vừa modal ở đây.
       + iconBtn('open-editor', 'lesson', lesson.id, 'fa-list-check', 'Biên soạn nội dung bài học')
+      + (textbook ? previewLink('/textbooks/' + textbook.id + '/lessons/' + lesson.id, lessonHiddenNote(lesson, textbook)) : '')
       + statusButtons('lesson', lesson, lockReason)
       // Xoá cứng chỉ dành cho bài nháp tạo nhầm; server chặn bằng 409 nếu bài đã có nội dung, có người
       // học hoặc gắn quiz. Cùng kiểu trình bày với nút xoá phần: vạch ngăn + màu cảnh báo thường trực.
@@ -498,7 +525,7 @@ window.AdminShell.ready.then(function (allowed) {
       + '</span></li>';
   }
 
-  function unitBlock(unit, lockReason, hit) {
+  function unitBlock(unit, lockReason, hit, textbook) {
     var shown = (unit.lessons || []).filter(function (l) { return showArchived() || !isArchived(l); });
     var hiddenCount = (unit.lessons || []).length - shown.length;
     var lessons = shown.filter(function (l) { return matchesFilter(l) && lessonInSearch(hit, unit, l); });
@@ -535,7 +562,7 @@ window.AdminShell.ready.then(function (allowed) {
       + '</span></div>'
       + '<ul class="manage-lessons" data-sort-group="lesson" data-unit-id="' + unit.id + '">'
       + (lessons.length
-        ? lessons.map(function (l) { return lessonRow(l, lockReason); }).join('')
+        ? lessons.map(function (l) { return lessonRow(l, lockReason, textbook); }).join('')
         : '<li class="manage-empty-hint">' + (shown.length ? 'Không có bài nào khớp bộ lọc.' : 'Phần này chưa có bài học nào.') + '</li>')
       + '</ul></li>';
   }
@@ -559,7 +586,7 @@ window.AdminShell.ready.then(function (allowed) {
           : '')
           + '<ul class="manage-units" data-sort-group="unit" data-textbook-id="' + textbook.id + '">'
           + (units.length
-            ? units.filter(function (u) { return unitInSearch(hit, u); }).map(function (u) { return unitBlock(u, lockReason, hit); }).join('')
+            ? units.filter(function (u) { return unitInSearch(hit, u); }).map(function (u) { return unitBlock(u, lockReason, hit, textbook); }).join('')
             : '<li class="manage-empty-hint">Giáo trình này chưa có phần nào.</li>')
           + '</ul>';
       }
@@ -580,6 +607,9 @@ window.AdminShell.ready.then(function (allowed) {
       + '<span class="manage-row__actions">'
       + iconBtn('add-unit', 'textbook', textbook.id, 'fa-plus', 'Thêm phần', '', lockReason)
       + iconBtn('edit', 'textbook', textbook.id, 'fa-pen', 'Sửa giáo trình', '', lockReason)
+      + previewLink('/textbooks/' + textbook.id,
+        textbook.status === 'PUBLISHED' ? '' : 'Học viên chưa thấy giáo trình này (Nháp)',
+        isArchived(textbook) ? 'Giáo trình đã lưu trữ — không hiện ở trang học viên, khôi phục để xem trước' : '')
       // Nút trạng thái của CHÍNH giáo trình không khoá: đó là lối khôi phục duy nhất.
       + statusButtons('textbook', textbook)
       + '</span></div>'

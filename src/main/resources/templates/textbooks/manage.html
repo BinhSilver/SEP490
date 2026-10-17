@@ -16,7 +16,14 @@
 
         <header class="textbooks-hero textbooks-hero--compact">
             <p class="textbooks-hero__eyebrow">Biên soạn</p>
-            <h1 class="textbooks-hero__title">Quản lý nội dung</h1>
+            <!-- [JLAS2-17] Lối về trang học viên (tab mới) — không đụng sidebar chung của cổng quản trị -->
+            <div class="tb-hero-row">
+                <h1 class="textbooks-hero__title">Quản lý nội dung</h1>
+                <a class="manage-btn tb-learner-link" th:href="@{/textbooks}" target="_blank" rel="noopener"
+                   aria-label="Xem trang học viên: danh sách giáo trình (mở tab mới)">
+                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Xem trang học viên
+                </a>
+            </div>
             <p class="textbooks-hero__subtitle">
                 Giáo trình, phần và bài học. Mục đã lưu trữ không hiện với học viên nhưng vẫn giữ nguyên
                 dữ liệu và tiến độ đã học.
@@ -153,7 +160,7 @@
 
     <script th:src="@{/js/pages/admin-core.js}"></script>
     <script th:src="@{/js/admin-shell.js}"></script>
-    <script th:src="@{/js/pages/textbook-manage.js(v=20261017gp)}"></script>
+    <script th:src="@{/js/pages/textbook-manage.js(v=20261017hv)}"></script>
 
 </body>
 

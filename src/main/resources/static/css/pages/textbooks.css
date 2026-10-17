@@ -1736,3 +1736,43 @@
 }
 @keyframes editor-dlg-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 @keyframes editor-dlg-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ─── [JLAS2-17] Lối về trang học viên / xem trước — chỉ trong trang Quản lý nội dung và Biên soạn bài ──── */
+.manage-main .tb-hero-row,
+.editor-main .tb-hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.manage-main .tb-hero-row .textbooks-hero__title,
+.editor-main .tb-hero-row .textbooks-hero__title { flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; }
+.editor-main .tb-hero-links { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.manage-main .tb-learner-link,
+.editor-main .tb-learner-link {
+  min-height: 44px;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.editor-main .tb-learner-link[hidden] { display: none; }
+.manage-main .tb-learner-link:focus-visible,
+.editor-main .tb-learner-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+/* Nút xem trước trong cây: vùng bấm 44px nhưng lề âm giữ nguyên chiều cao dòng như các nút 30px bên cạnh */
+.manage-main .manage-preview-btn {
+  width: 44px;
+  height: 44px;
+  margin: -7px 0;
+  text-decoration: none;
+}
+.manage-main .manage-preview-btn.is-hidden-from-learner { color: var(--color-on-surface-variant); opacity: 0.85; }
+.manage-main .manage-preview-btn.is-disabled { opacity: 0.38; cursor: not-allowed; }
+.manage-main .manage-preview-btn.is-disabled:hover { color: var(--color-on-surface-variant); border-color: transparent; }
+.manage-main .manage-preview-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+@media (max-width: 560px) {
+  .manage-main .tb-learner-link,
+  .editor-main .tb-learner-link { flex: 1 1 auto; }
+  .editor-main .tb-hero-links { width: 100%; }
+}
