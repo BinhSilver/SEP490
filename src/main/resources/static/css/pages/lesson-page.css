@@ -1,0 +1,1185 @@
+/* =====================================================================
+ * Giao diện mới trang học bài /textbooks/{textbookId}/lessons/{lessonId}
+ * Chỉ áp dụng trong main.lesson-page (textbooks/lesson.html). Không đụng navbar / CSS global.
+ * Component JS tương ứng: js/pages/textbook-lesson.js (nhánh NEW_UI).
+ * ===================================================================== */
+.lesson-page {
+  --primary: #5B3BB5;
+  --primary-deep: #3F2785;
+  --primary-soft: #EEE9FB;
+  --bg: #F5F3FB;
+  --card: #FFFFFF;
+  --border: #E7E3F3;
+  --ink: #1E1B2E;
+  --muted: #6B6580;
+  --success: #1F8A5B;
+  --success-soft: #F4FBF7;
+  --success-ink: #18764D;   /* chu tren nen --success-soft: tuong phan 5.35:1 (#1F8A5B chi 4.13:1) */
+  --warn-soft: #FFF6E5;
+  --gold-soft: #FFE7B8;
+  --lp-ease: cubic-bezier(.2, .8, .2, 1);
+  --lp-font-vi: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --lp-font-ja: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  /* Thang chữ câu: tiếng Nhật 17px / 1.9, tiếng Việt 16px / 1.7 (mobile 16 / 15) */
+  --lp-ja-size: 17px;
+  --lp-ja-lh: 1.9;
+  --lp-vi-size: 16px;
+  --lp-vi-lh: 1.7;
+  font-family: var(--lp-font-vi);
+  color: var(--ink);
+  background: var(--bg);
+  border-radius: 30px;
+  padding: clamp(12px, 2.5vw, 28px);
+  overflow-x: clip;
+}
+.lesson-page [lang="ja"] { font-family: var(--lp-font-ja); }
+.lesson-page .textbooks-breadcrumb a { color: var(--primary); }
+
+/* ---------- Hero ---------- */
+.lesson-page .lp-hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 22px;
+  padding: clamp(22px, 4vw, 40px);
+  border-radius: 30px;
+  background: var(--primary-deep);
+  color: #fff;
+}
+.lesson-page .lp-hero[hidden] { display: none; }
+.lesson-page .lp-hero__body { position: relative; z-index: 1; max-width: 760px; }
+.lesson-page .lp-hero__eyebrow {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .78);
+}
+.lesson-page .lp-dot { margin: 0 8px; opacity: .7; }
+.lesson-page .lp-hero__title {
+  margin: 0 0 12px;
+  font-size: 38px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #fff;
+}
+.lesson-page .lp-hero__desc { margin: 0 0 16px; max-width: 640px; line-height: 1.6; color: rgba(255, 255, 255, .86); }
+.lesson-page .lp-hero__desc[hidden] { display: none; }
+.lesson-page .lp-hero__meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lesson-page .lp-hero__chip,
+.lesson-page .lp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+.lesson-page .lp-status--published { background: var(--success-soft); color: var(--success-ink); }
+.lesson-page .lp-status--draft { background: var(--gold-soft); color: #7A4A00; }
+.lesson-page .lp-hero .status-toggle { min-height: 32px; border-radius: 999px; }
+.lesson-page .lp-hero__kanji {
+  position: absolute;
+  right: clamp(8px, 4vw, 48px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--lp-font-ja);
+  font-size: clamp(140px, 18vw, 220px);
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  opacity: .06;
+  pointer-events: none;
+  user-select: none;
+  animation: lp-floaty 6s ease-in-out infinite;
+}
+@keyframes lp-floaty {
+  0%, 100% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 10px)); }
+}
+
+/* ---------- Tabs (segmented control + khối nền trượt) ---------- */
+.lesson-page .lesson-tabs {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  margin: 0 0 22px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--card);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.lesson-page .lp-tabs__slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  border-radius: 14px;
+  background: var(--primary);
+  box-shadow: 0 8px 18px rgba(91, 59, 181, .28);
+  opacity: 0;
+  transition: transform .5s cubic-bezier(.3, 1.35, .5, 1), width .5s cubic-bezier(.3, 1.35, .5, 1), opacity .2s;
+  pointer-events: none;
+}
+.lesson-page .lesson-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 0 auto;
+  justify-content: center;
+  min-height: 46px;
+  padding: 8px 18px;
+  margin: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .3s var(--lp-ease);
+}
+.lesson-page .lesson-tab:hover { color: var(--primary); }
+.lesson-page .lesson-tab:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lesson-tab.is-active { color: #fff; border-bottom-color: transparent; }
+.lesson-page .lesson-tab[hidden] { display: none; }
+.lesson-page .lesson-tab__count {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.lesson-page .lesson-tab.is-active .lesson-tab__count { background: rgba(255, 255, 255, .22); color: #fff; }
+
+/* ---------- Khung chung ---------- */
+.lesson-page .lesson-panel__empty {
+  padding: 28px;
+  border: 1px dashed var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--muted);
+}
+.lesson-page .lp-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  scroll-margin-top: 96px;
+}
+.lesson-page .lp-section-title { margin: 0; font-size: 24px; font-weight: 800; color: var(--ink); }
+.lesson-page .lp-section-sub { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+.lesson-page .lp-section-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.lesson-page .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .25s var(--lp-ease), transform .25s var(--lp-ease), border-color .25s;
+}
+.lesson-page .lp-btn:hover { background: var(--primary-soft); border-color: var(--primary); text-decoration: none; }
+.lesson-page .lp-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lp-btn[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.lesson-page .lp-muted { color: var(--muted); }
+
+/* ---------- Nút loa (mọi nút .speak-btn trong trang mới) ---------- */
+.lesson-page .speak-btn {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border);
+  background: var(--primary-soft);
+  color: var(--primary);
+  overflow: visible;
+}
+.lesson-page .speak-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.lesson-page .speak-btn.is-playing { background: var(--primary); color: #fff; border-color: var(--primary); }
+.lesson-page .speak-btn.is-playing .speak-btn__icon { animation: none; }
+.lesson-page .lp-wave { display: none; }
+.lesson-page .lp-ring { display: none; }
+.lesson-page .speak-btn.is-playing .speak-btn__icon { display: none; }
+.lesson-page .speak-btn.is-playing .lp-wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+}
+.lesson-page .lp-wave i {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  animation: lp-wave .9s ease-in-out infinite;
+  transform-origin: center;
+}
+.lesson-page .lp-wave i:nth-child(2) { animation-delay: .15s; }
+.lesson-page .lp-wave i:nth-child(3) { animation-delay: .3s; }
+.lesson-page .lp-wave i:nth-child(4) { animation-delay: .45s; }
+@keyframes lp-wave { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+.lesson-page .speak-btn.is-playing .lp-ring {
+  display: block;
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  border: 2px solid var(--primary);
+  animation: lp-ring 1.2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes lp-ring { from { transform: scale(1); opacity: .7; } to { transform: scale(1.55); opacity: 0; } }
+
+/* ---------- Tab Từ vựng ---------- */
+.lesson-page .lp-vgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+.lesson-page .lp-vcard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card);
+  transition: transform .3s var(--lp-ease), box-shadow .3s var(--lp-ease), border-color .3s;
+}
+.lesson-page .lp-vcard:hover {
+  transform: translateY(-5px);
+  border-color: #D8CFF1;
+  box-shadow: 0 16px 32px rgba(91, 59, 181, .12);
+}
+.lesson-page .lp-vcard__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.lesson-page .lp-vcard__word { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lesson-page .lp-vcard__expr {
+  font-size: 40px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.lesson-page .lp-vcard__kana { font-size: 17px; font-weight: 700; color: var(--primary); }
+.lesson-page .lp-vcard__romaji { font-size: 13px; color: var(--muted); letter-spacing: .02em; }
+.lesson-page .lp-vcard__meaning { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink); }
+.lesson-page .lp-tag {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.lesson-page .lp-vcard__example {
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #F7F5FC;
+}
+.lesson-page .lp-ex__ja { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.lesson-page .lp-ex__vi { margin: 2px 0 8px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.lesson-page .lp-ex__vi:last-child { margin-bottom: 0; }
+
+/* ---------- Phân trang ---------- */
+.lesson-page .lp-pager {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  text-align: center;
+}
+.lesson-page .lp-pager__info { margin: 0; font-size: 13px; color: var(--muted); }
+.lesson-page .lp-pager__buttons { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; max-width: 100%; }
+.lesson-page .lp-pager__btn {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .25s var(--lp-ease), transform .25s var(--lp-ease);
+}
+.lesson-page .lp-pager__btn:hover:not([disabled]) { background: var(--primary-soft); color: var(--primary); }
+.lesson-page .lp-pager__btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lp-pager__btn.is-current {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  animation: lp-pop .35s var(--lp-ease);
+}
+.lesson-page .lp-pager__btn[disabled] { opacity: .4; cursor: not-allowed; }
+.lesson-page .lp-pager__gap { padding: 0 4px; color: var(--muted); }
+@keyframes lp-pop { 0% { transform: scale(.85); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+/* ---------- Tab Ngữ pháp ---------- */
+.lesson-page .lp-grammar {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.lesson-page .lp-glist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 24px;
+  background: #EFEBF8;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.lesson-page .lp-gitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .25s var(--lp-ease), background .25s, border-color .25s;
+}
+.lesson-page .lp-gitem:hover { transform: translateX(4px); background: rgba(255, 255, 255, .6); }
+.lesson-page .lp-gitem:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lp-gitem.is-selected { background: var(--card); border-color: var(--primary); }
+.lesson-page .lp-gitem__num {
+  flex: 0 0 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 13px;
+}
+.lesson-page .lp-gitem.is-selected .lp-gitem__num { background: var(--primary); color: #fff; }
+.lesson-page .lp-gitem__text { min-width: 0; overflow-wrap: anywhere; }
+.lesson-page .lp-gdetail {
+  padding: clamp(18px, 3vw, 30px);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background: var(--card);
+}
+.lesson-page .lp-glabel { margin: 0 0 12px; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: var(--primary); }
+.lesson-page .lp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.lesson-page .lp-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 700;
+  background: var(--primary-soft);
+  color: var(--ink);
+  animation: lp-chip-in .45s var(--lp-ease) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.lesson-page .lp-chip--slot { background: #fff; border: 2px dashed #C9BDEB; color: var(--primary-deep); }
+.lesson-page .lp-chip--particle { background: var(--primary); color: #fff; }
+.lesson-page .lp-chip--copula { background: var(--gold-soft); color: #5C3A00; }
+@keyframes lp-chip-in { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
+.lesson-page .lp-gmeaning { margin: 0 0 16px; font-size: 16px; line-height: 1.7; white-space: pre-line; color: var(--ink); }
+.lesson-page .lp-note {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--warn-soft);
+}
+.lesson-page .lp-note > i { margin-top: 3px; color: #B7791F; font-size: 18px; }
+.lesson-page .lp-note p { margin: 4px 0 0; line-height: 1.6; white-space: pre-line; }
+.lesson-page .lp-gsub { margin: 0 0 10px; font-size: 16px; font-weight: 800; color: var(--ink); }
+.lesson-page .lp-examples { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lesson-page .lp-example {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #FBFAFE;
+  transition: transform .25s var(--lp-ease), border-color .25s;
+}
+.lesson-page .lp-example:hover { transform: translateX(4px); border-color: #D8CFF1; }
+.lesson-page .lp-example:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lp-example__num {
+  flex: 0 0 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 13px;
+}
+.lesson-page .lp-example__body { flex: 1 1 auto; min-width: 0; }
+.lesson-page .lp-example__ja { margin: 0; font-size: 17px; line-height: 1.6; overflow-wrap: anywhere; }
+.lesson-page .lp-example__vi { margin: 2px 0 0; font-size: 14px; color: var(--muted); line-height: 1.5; }
+.lesson-page .lp-example__single { margin: 0; font-size: 16px; line-height: 1.7; white-space: pre-line; }
+
+/* Ẩn nghĩa để tự kiểm tra: blur phần tiếng Việt, rê chuột / chạm (focus) vào dòng mới hiện */
+.lesson-page .lp-vi { transition: filter .3s var(--lp-ease); }
+.lesson-page .lp-hide-vi .lp-vi { filter: blur(6px); }
+.lesson-page .lp-hide-vi .lp-example:hover .lp-vi,
+.lesson-page .lp-hide-vi .lp-example:focus-within .lp-vi,
+.lesson-page .lp-hide-vi .lp-bubble:hover .lp-vi,
+.lesson-page .lp-hide-vi .lp-bubble:focus .lp-vi { filter: none; }
+
+/* ---------- Tab Kanji ---------- */
+.lesson-page .lp-kanji-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+.lesson-page .lp-kgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+/* Ô Kanji: cao cố định, không dịch chuyển khi hover/focus/chọn (chỉ đổi màu viền + nền) */
+.lesson-page .lp-ktile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 128px;
+  min-width: 0;
+  padding: 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--card);
+  color: var(--ink);
+  overflow: hidden;
+  cursor: pointer;
+  transform: none;
+  transition: background-color .2s, border-color .2s, color .2s;
+}
+.lesson-page .lp-ktile:hover,
+.lesson-page .lp-ktile:active { transform: none; border-color: var(--primary); background: var(--primary-soft); }
+.lesson-page .lp-ktile:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; transform: none; }
+.lesson-page .lp-ktile.is-selected,
+.lesson-page .lp-ktile.is-selected:hover { background: var(--primary-deep); border-color: var(--primary-deep); color: #fff; }
+.lesson-page .lp-ktile__char { font-family: var(--lp-font-ja); font-size: 52px; line-height: 1.1; font-weight: 700; }
+.lesson-page .lp-ktile__hvrow { display: flex; align-items: center; justify-content: center; gap: 4px; max-width: 100%; min-width: 0; }
+.lesson-page .lp-ktile__hv {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.lesson-page .lp-ktile__more {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.lesson-page .lp-ktile.is-selected .lp-ktile__hv { color: #D9CEFF; }
+.lesson-page .lp-ktile.is-selected .lp-ktile__more { background: rgba(255, 255, 255, .2); color: #fff; }
+.lesson-page .lp-ktile__meaning {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--muted);
+}
+.lesson-page .lp-ktile.is-selected .lp-ktile__meaning { color: rgba(255, 255, 255, .8); }
+.lesson-page .lp-kdetail {
+  position: sticky;
+  top: 96px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background: var(--card);
+}
+.lesson-page .lp-kdetail__char {
+  font-family: var(--lp-font-ja);
+  font-size: 110px;
+  line-height: 1.05;
+  font-weight: 700;
+  text-align: center;
+  color: var(--primary-deep);
+}
+.lesson-page .lp-kdetail__hv { margin: 6px 0 2px; text-align: center; font-size: 16px; line-height: 1.6; color: var(--ink); }
+.lesson-page .lp-hvchips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 8px 0 4px; }
+.lesson-page .lp-hvchip {
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.lesson-page .lp-kdetail__strokes { margin: 0 0 14px; text-align: center; font-size: 13px; }
+.lesson-page .lp-kread {
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #F7F5FC;
+}
+.lesson-page .lp-kread__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lesson-page .lp-kread__list { display: flex; flex-wrap: wrap; gap: 6px; }
+.lesson-page .lp-kread__item {
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-size: 15px;
+}
+.lesson-page .lp-kwords { margin: 6px 0 14px; }
+.lesson-page .lp-kwords ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lesson-page .lp-kwords li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.lesson-page .lp-kwords__ja { font-size: 17px; font-weight: 700; }
+.lesson-page .lp-kwords__kana { color: var(--primary); font-size: 14px; }
+.lesson-page .lp-kwords__vi { color: var(--muted); font-size: 13px; }
+.lesson-page .speak-btn.lp-listen {
+  width: 100%;
+  height: auto;
+  min-height: 46px;
+  gap: 8px;
+  border-radius: 14px;
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+.lesson-page .speak-btn.lp-listen:hover { background: var(--primary-deep); }
+.lesson-page .speak-btn.lp-listen.is-playing .speak-btn__icon { display: inline-block; }
+.lesson-page .lesson-attribution { margin-top: 18px; font-size: 12px; color: var(--muted); }
+
+/* ---------- Tab Hội thoại ---------- */
+.lesson-page .lp-scene {
+  margin-bottom: 20px;
+  padding: clamp(16px, 3vw, 26px);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background: var(--card);
+}
+.lesson-page .lp-scene__title { margin: 0 0 14px; font-size: 17px; font-weight: 800; color: var(--primary-deep); }
+.lesson-page .lp-chat { display: flex; flex-direction: column; gap: 12px; }
+.lesson-page .lp-msg { display: flex; align-items: flex-end; gap: 10px; max-width: 86%; }
+.lesson-page .lp-msg--right { flex-direction: row-reverse; margin-left: auto; }
+.lesson-page .lp-msg__avatar {
+  flex: 0 0 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 800;
+}
+.lesson-page .lp-msg--right .lp-msg__avatar { background: var(--primary); color: #fff; }
+.lesson-page .lp-msg__col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lesson-page .lp-msg--right .lp-msg__col { align-items: flex-end; }
+.lesson-page .lp-msg__name { font-size: 12px; font-weight: 700; color: var(--muted); }
+.lesson-page .speak-btn.lp-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: auto;
+  height: auto;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px 20px 20px 6px;
+  background: var(--card);
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+}
+.lesson-page .lp-msg--right .speak-btn.lp-bubble {
+  border-radius: 20px 20px 6px 20px;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.lesson-page .speak-btn.lp-bubble:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--ink); }
+.lesson-page .lp-msg--right .speak-btn.lp-bubble:hover { background: var(--primary-deep); color: #fff; }
+.lesson-page .speak-btn.lp-bubble.is-playing { box-shadow: 0 0 0 3px rgba(91, 59, 181, .3); background: var(--primary-soft); color: var(--ink); }
+.lesson-page .lp-msg--right .speak-btn.lp-bubble.is-playing { background: var(--primary-deep); color: #fff; }
+.lesson-page .lp-bubble__ja { font-size: 17px; line-height: 1.6; overflow-wrap: anywhere; }
+.lesson-page .lp-bubble__vi { font-size: 13px; line-height: 1.5; opacity: .85; }
+.lesson-page .lp-bubble .speak-btn__icon,
+.lesson-page .lp-bubble .speak-btn__spinner { position: absolute; right: 14px; top: 14px; font-size: 13px; opacity: .7; }
+.lesson-page .speak-btn.lp-bubble.is-playing .speak-btn__icon { display: inline-block; opacity: 1; }
+
+/* ---------- Bài đọc / Nghe / Luyện tập: chỉ đồng bộ phong cách ---------- */
+.lesson-page .reading-block,
+.lesson-page .practice-q {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card);
+}
+.lesson-page .reading-block { padding: clamp(16px, 3vw, 26px); }
+.lesson-page .reading-block__title { color: var(--primary-deep); }
+.lesson-page .reading-block__audio { width: 100%; margin: 6px 0 12px; }
+.lesson-page .practice-q { border-radius: 20px; background: #FBFAFE; }
+.lesson-page .practice-q__num { color: var(--primary); }
+.lesson-page .practice-q__option { min-height: 44px; border-radius: 14px; }
+.lesson-page .practice-q__passage { border-left-color: var(--primary); border-radius: 16px; background: #F7F5FC; }
+.lesson-page .practice-q__image { max-height: 380px; object-fit: contain; border-radius: 16px; }
+.lesson-page .kana-tile { border-radius: 20px; }
+
+/* ---------- Thang chữ câu Nhật / Việt thống nhất (Bài đọc, Nghe, Hội thoại, Luyện tập, ví dụ) ---------- */
+.lesson-page .reading-line--ja,
+.lesson-page .reading-line--plain,
+.lesson-page .lp-ex__ja,
+.lesson-page .lp-example__ja,
+.lesson-page .lp-example__single,
+.lesson-page .lp-bubble__ja,
+.lesson-page .practice-q__text,
+.lesson-page .practice-q__option[lang="ja"] .practice-q__option-text {
+  font-family: var(--lp-font-ja);
+  font-size: var(--lp-ja-size);
+  line-height: var(--lp-ja-lh);
+}
+.lesson-page .reading-line--vi,
+.lesson-page .lp-ex__vi,
+.lesson-page .lp-example__vi,
+.lesson-page .lp-bubble__vi,
+.lesson-page .practice-q__script-vi,
+.lesson-page .practice-q__translation p,
+.lesson-page .practice-q__explanation {
+  font-family: var(--lp-font-vi);
+  font-size: var(--lp-vi-size);
+  line-height: var(--lp-vi-lh);
+  color: var(--muted);
+}
+/* Bong bóng hội thoại nền tím: chữ Việt sáng để đủ tương phản */
+.lesson-page .lp-msg--right .lp-bubble__vi { color: rgba(255, 255, 255, .88); opacity: 1; }
+.lesson-page .lp-bubble__vi { opacity: 1; }
+
+/* Dòng "từ Nhật（cách đọc）+ chú thích Việt": tách 2 phần, hiển thị như danh sách */
+.lesson-page .reading-line--pair {
+  display: block;
+  margin: 2px 0;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #F7F5FC;
+  white-space: normal;
+}
+.lesson-page .reading-line--pair .jp {
+  font-family: var(--lp-font-ja);
+  font-size: var(--lp-ja-size);
+  line-height: var(--lp-ja-lh);
+  font-weight: 500;
+  color: var(--ink);
+}
+.lesson-page .reading-line--pair .sep { margin: 0 6px; color: var(--muted); }
+.lesson-page .reading-line--pair .vi {
+  font-family: var(--lp-font-vi);
+  font-size: var(--lp-vi-size);
+  line-height: var(--lp-vi-lh);
+  color: var(--muted);
+}
+
+/* ---------- Khối văn bản dài: script bài nghe / bài đọc / lời giải (bộ phân loại dòng của giao diện mới) ---------- */
+.lesson-page .reading-pair,
+.lesson-page .reading-pair + .reading-pair { border-top: 0; padding: 0; }
+.lesson-page .reading-block__text { white-space: normal; }
+.lesson-page .lp-script { display: flex; flex-direction: column; gap: 8px; }
+.lesson-page .lp-sline { min-width: 0; overflow-wrap: anywhere; }
+.lesson-page .lp-sline__text--ja,
+.lesson-page .lp-sline__text--plain {
+  font-family: var(--lp-font-ja);
+  font-size: var(--lp-ja-size);
+  line-height: var(--lp-ja-lh);
+  color: var(--ink);
+}
+.lesson-page .lp-sline__text--vi,
+.lesson-page .lp-sline--tr {
+  font-family: var(--lp-font-vi);
+  font-size: var(--lp-vi-size);
+  line-height: var(--lp-vi-lh);
+  color: var(--muted);
+}
+.lesson-page .lp-sline .jp {
+  font-family: var(--lp-font-ja);
+  font-size: var(--lp-ja-size);
+  line-height: var(--lp-ja-lh);
+  font-weight: 500;
+  color: var(--ink);
+}
+.lesson-page .lp-sline .sep { margin: 0 6px; color: var(--muted); }
+.lesson-page .lp-sline .vi {
+  font-family: var(--lp-font-vi);
+  font-size: var(--lp-vi-size);
+  line-height: var(--lp-vi-lh);
+  color: var(--muted);
+}
+.lesson-page .lp-sline--tr { padding-left: 12px; border-left: 2px solid var(--primary-soft); margin-top: -4px; }
+/* Tiêu đề mục (学習のポイント, スクリプト, Dịch...) */
+.lesson-page .lp-sline--heading {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary-deep);
+}
+.lesson-page .lp-script > .lp-sline--heading:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+/* Chip nhỏ: người nói / Ví dụ / Đáp án */
+.lesson-page .lp-chip-s {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 44px;
+  margin-right: 10px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  vertical-align: 2px;
+}
+.lesson-page .lp-chip-s--spk.lp-spk--a { background: var(--primary-soft); color: var(--primary); }
+.lesson-page .lp-chip-s--spk.lp-spk--b { background: var(--card); color: var(--primary-deep); box-shadow: inset 0 0 0 1px var(--primary); }
+.lesson-page .lp-chip-s--ex { background: var(--warn-soft); color: #7A4A00; }
+.lesson-page .lp-chip-s--answer { background: var(--success-soft); color: var(--success-ink); box-shadow: inset 0 0 0 1px #CDEBDC; }
+.lesson-page .lp-sline--speaker { display: flex; align-items: baseline; }
+.lesson-page .lp-sline--speaker .lp-chip-s { min-width: 56px; }
+.lesson-page .lp-sline--speaker + .lp-sline--speaker { margin-top: -4px; }   /* hội thoại liên tiếp: sát nhau hơn */
+.lesson-page .lp-sline--example { display: block; }   /* chip nội dòng: câu ví dụ chảy tiếp ngay sau chip, kể cả mobile */
+.lesson-page .lp-sline--example .lp-chip-s { margin-right: 8px; }
+.lesson-page .lp-sline--answer {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  margin: 2px 0 4px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 14px;
+  background: var(--success-soft);
+}
+.lesson-page .lp-sline__answer { font-size: 17px; color: var(--success-ink); }
+/* Mục đánh số: badge số + nội dung */
+.lesson-page .lp-sline--point { display: flex; align-items: baseline; gap: 10px; }
+.lesson-page .lp-num {
+  flex: 0 0 auto;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  transform: translateY(-2px);
+}
+.lesson-page .lp-sline__body { min-width: 0; }
+/* Thẻ gom một mục điểm học (số + giải thích + ví dụ) */
+.lesson-page .lp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #F7F5FC;
+}
+.lesson-page .lp-card .lp-sline--pair { padding: 0; background: transparent; }
+.lesson-page .lp-sline--pair {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #F7F5FC;
+}
+
+/* ---------- Bước 6: phần chia theo nhãn (Luyện tập / Đáp án / Bản dịch / Lời thoại) ---------- */
+.lesson-page .lp-sec { margin-top: 14px; border-radius: 18px; }
+.lesson-page .lp-sec__title { margin: 0 0 8px; font-size: 15px; font-weight: 800; color: var(--primary-deep); }
+.lesson-page .lp-sec--practice { padding: 14px 16px; border: 1px solid var(--border); background: #FBFAFE; }
+.lesson-page details.lp-sec { border: 1px solid var(--border); background: var(--card); }
+.lesson-page .lp-sec__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  list-style: none;
+}
+.lesson-page .lp-sec__summary::-webkit-details-marker { display: none; }
+.lesson-page .lp-sec__summary::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform .2s var(--lp-ease);
+}
+.lesson-page details[open] > .lp-sec__summary::before { transform: rotate(45deg); }
+.lesson-page details.lp-sec > .reading-block__text { padding: 4px 16px 14px; }
+.lesson-page .lp-sec--answer[open] { background: var(--success-soft); border-color: #CDEBDC; }
+.lesson-page .lp-sec--answer > .lp-sec__summary { color: var(--success-ink); }
+
+/* Phần 1: mục khác (Từ vựng / Ngữ pháp / Hướng dẫn) + đoạn văn mới; nhóm Luyện tập & "khác" ở cuối tab */
+.lesson-page .lp-sec--note,
+.lesson-page .lp-sec--passage { padding: 14px 16px; border: 1px solid var(--border); background: var(--card); }
+.lesson-page .lp-part { margin-top: 28px; }
+.lesson-page .lp-part--practice > .reading-section__title,
+.lesson-page .lp-part--other > .reading-section__title { padding-top: 18px; border-top: 1px solid var(--border); }
+.lesson-page .lp-part .reading-block > .lp-sec:first-child,
+.lesson-page .lp-part .reading-block > .reading-block__title + .lp-sec { margin-top: 0; }
+
+/* [JLAS2-17] Ảnh đoạn đọc: ảnh đã chỉnh + công cụ thêm / thay / ẩn / gỡ (chỉ người biên soạn thấy công cụ) */
+.lesson-page .lp-rimg { margin: 6px 0 14px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: #FBFAFE; }
+.lesson-page .lp-rimg__img { display: block; width: 100%; max-height: 380px; object-fit: cover; }
+.lesson-page .lp-rimg-tools {
+  margin: 6px 0 14px;
+  padding: 12px 14px;
+  border: 1.5px dashed #CFC4EE;
+  border-radius: 18px;
+  background: #FBFAFE;
+  transition: border-color .15s var(--lp-ease), background-color .15s var(--lp-ease);
+}
+.lesson-page .lp-rimg-tools.is-drag { border-color: var(--primary); background: var(--primary-soft); }
+.lesson-page .lp-rimg-tools__hint { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+.lesson-page .lp-rimg-tools__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lesson-page .lp-rimg-btn {
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.lesson-page .lp-rimg-btn--ghost { background: var(--card); color: var(--primary); }
+.lesson-page .lp-rimg-btn--danger { background: var(--card); color: #B42318; border-color: #F1B8B2; }
+.lesson-page .lp-rimg-btn:disabled { opacity: .55; cursor: progress; }
+.lesson-page .lp-rimg-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lp-rimg-tools__spinner {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--primary-soft);
+  border-top-color: var(--primary);
+  border-radius: 999px;
+  animation: lp-rimg-spin .8s linear infinite;
+}
+.lesson-page .lp-rimg-tools.is-busy .lp-rimg-tools__spinner { display: inline-block; }
+.lesson-page .lp-rimg-tools__error { margin: 10px 0 0; font-size: 14px; font-weight: 600; color: #B42318; }
+@keyframes lp-rimg-spin { to { transform: rotate(360deg); } }
+/* Chưa có ảnh: chỉ một nút nhỏ "Thêm ảnh" (vẫn thả ảnh lên được), bấm mới mở khung kéo thả */
+.lesson-page .lp-rimg-tools.is-collapsed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 2px 0 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.lesson-page .lp-rimg-tools.is-collapsed.is-drag { outline: 2px dashed var(--primary); outline-offset: 4px; border-radius: 999px; }
+.lesson-page .lp-rimg-tools.is-collapsed .lp-rimg-tools__error { flex-basis: 100%; margin: 0; }
+.lesson-page .lp-rimg-btn--sm {
+  min-height: 34px;
+  padding: 5px 12px;
+  border-color: #CFC4EE;
+  background: var(--card);
+  color: var(--primary);
+  font-size: 13px;
+}
+.lesson-page .lp-rimg-btn--sm:hover { border-color: var(--primary); background: var(--primary-soft); }
+
+/* [E] Ảnh câu hỏi: dưới đề, trước phương án; nhiều ảnh xếp lưới; bấm để phóng to */
+.lesson-page .practice-q__images { margin: 4px 0 14px; }
+.lesson-page .practice-q__images--grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.lesson-page .practice-q__zoom {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  cursor: zoom-in;
+}
+.lesson-page .practice-q__images--grid .practice-q__zoom { width: 100%; }
+.lesson-page .practice-q__zoom:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.lesson-page .practice-q__images--grid .practice-q__image { width: 100%; height: 160px; object-fit: contain; background: #FBFAFE; }
+/* [JLAS2-17] Ảnh chung của bài đọc / bài nghe (context_json.common_images): đầu khối, trước audio / đoạn văn */
+.lesson-page .lp-common-images { margin: 6px 0 16px; }
+.lesson-page .lp-common-images--grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.lesson-page .lp-common-images--grid .practice-q__zoom { width: 100%; }
+.lesson-page .lp-common-images__img { display: block; max-width: 100%; max-height: 420px; border-radius: 16px; border: 1px solid var(--border); background: #FBFAFE; }
+.lesson-page .lp-common-images--grid .lp-common-images__img { width: 100%; height: 180px; object-fit: contain; }
+.lp-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;   /* tren moi lop cua shell (ke ca linh vat) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 16px 24px;
+  background: rgba(20, 16, 36, .82);
+  cursor: zoom-out;
+}
+.lp-zoom[hidden] { display: none; }
+.lp-zoom__img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; background: #fff; cursor: default; }
+.lp-zoom__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #1E1B2E;
+  font-size: 20px;
+  cursor: pointer;
+}
+.lp-zoom__close:focus-visible { outline: 3px solid #C9B8FF; outline-offset: 2px; }
+html.lp-zoom-open { overflow: hidden; }
+
+/* [B] Bảng chữ cái: bảng gojūon chuẩn — 5 cột a i u e o (âm ghép 3 cột), ô vuông đều, ô trống đúng vị trí.
+   Hover / focus chỉ đổi màu viền + nền, không dịch chuyển ô. */
+.lesson-page .lp-gojuon {
+  /* Lưới chiếm gần hết khu nội dung (≤ 760px, căn giữa): 5 cột → ô ~140px. Âm ghép 3 cột dùng ĐÚNG cỡ ô của
+     5 cột (--gj-cell tính theo bề rộng lưới) và căn giữa, nên hai bảng cùng tỷ lệ. */
+  --gj-gap: 14px;
+  --gj-cell: calc((100% - 4 * var(--gj-gap)) / 5);
+  display: grid;
+  gap: var(--gj-gap);
+  width: min(760px, 100%);
+  margin: 0 auto;
+  container-type: inline-size; /* chữ âm ghép co theo bề rộng lưới (cqw) */
+}
+.lesson-page .lp-gojuon__row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--gj-gap); }
+.lesson-page .lp-gojuon--3 .lp-gojuon__row { grid-template-columns: repeat(3, var(--gj-cell)); justify-content: center; }
+.lesson-page .lp-gojuon__cell { aspect-ratio: 1 / 1; min-width: 0; }
+.lesson-page .lp-gojuon__cell--empty { border-radius: 18px; background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(91, 59, 181, .04) 6px 12px); }
+.lesson-page .lp-gojuon .kana-tile {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 6px;
+  gap: 4px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  transition: background-color .15s var(--lp-ease), border-color .15s var(--lp-ease), box-shadow .15s var(--lp-ease);
+}
+.lesson-page .lp-gojuon .kana-tile.is-playing { background: var(--primary); border-color: var(--primary); }
+.lesson-page .lp-gojuon .kana-tile.is-playing .kana-tile__kana,
+.lesson-page .lp-gojuon .kana-tile.is-playing .kana-tile__romaji { color: #fff; }
+.lesson-page .lp-gojuon .kana-tile:hover,
+.lesson-page .lp-gojuon .kana-tile.speak-btn--silent:hover { transform: none; }
+.lesson-page .lp-gojuon .kana-tile:hover { border-color: var(--primary); background: var(--primary-soft); }
+.lesson-page .lp-gojuon .kana-tile.is-playing:hover { background: var(--primary); }
+.lesson-page .lp-gojuon .kana-tile:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91, 59, 181, .35); }
+.lesson-page .lp-gojuon .kana-tile__kana { font-size: 64px; line-height: 1.05; }
+.lesson-page .lp-gojuon--3 .kana-tile__kana { font-size: min(54px, 7.1cqw); } /* âm ghép 2 chữ (きゃ): 54px ở lưới 760px, co theo ô khi hẹp hơn */
+.lesson-page .lp-gojuon .kana-tile__romaji { font-size: 16px; }
+.lesson-page .lp-gojuon + .kana-hint { text-align: center; }
+
+/* Track audio đứng riêng: thẻ nhỏ có số thứ tự */
+.lesson-page .reading-block.lp-track { display: flex; align-items: center; gap: 14px; padding: 12px 16px; }
+.lesson-page .lp-track__num {
+  flex: 0 0 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+}
+.lesson-page .lp-track__body { flex: 1 1 auto; min-width: 0; }
+.lesson-page .lp-track .reading-block__title { margin: 0 0 4px; font-size: 14px; }
+.lesson-page .lp-track .reading-block__audio { margin: 0; }
+
+/* Thẻ câu hỏi luyện tập: số tròn, lựa chọn dạng nút >= 44px */
+.lesson-page .practice-q { padding: 16px 18px; }
+.lesson-page .practice-q__num {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+.lesson-page .practice-q__num::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--primary);
+}
+.lesson-page .practice-q__option { min-height: 44px; border-radius: 14px; }
+.lesson-page .practice-q__option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Giải thích ngữ pháp dài: mục chính hiện sẵn, mục phụ thu gọn; dòng không quá rộng */
+.lesson-page .lp-gmeaning,
+.lesson-page .lp-gsecs,
+.lesson-page .lp-note { max-width: 72ch; }
+.lesson-page .lp-gmeaning--rich { white-space: normal; }
+.lesson-page .lp-gmeaning__short { margin: 0 0 8px; font-weight: 700; font-size: 17px; }
+.lesson-page .lp-gmeaning__list { margin: 0 0 16px; padding-left: 20px; line-height: 1.8; color: var(--ink); }
+.lesson-page .lp-gmeaning__list li + li { margin-top: 4px; }
+.lesson-page .lp-gsecs { margin-bottom: 18px; }
+.lesson-page .lp-gsec { margin-top: 10px; border-radius: 16px; }
+.lesson-page .lp-gsec--open { padding: 4px 0; }
+.lesson-page details.lp-gsec { border: 1px solid var(--border); background: #FBFAFE; }
+.lesson-page .lp-gsec__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary-deep);
+}
+.lesson-page details.lp-gsec > .lp-gsec__title { min-height: 44px; margin: 0; padding: 8px 14px; cursor: pointer; list-style: none; }
+.lesson-page details.lp-gsec > .lp-gsec__title::-webkit-details-marker { display: none; }
+.lesson-page details.lp-gsec > .lp-gsec__title::after { content: '+'; margin-left: auto; font-size: 18px; color: var(--primary); }
+.lesson-page details.lp-gsec[open] > .lp-gsec__title::after { content: '–'; }
+.lesson-page details.lp-gsec > .lp-gsec__line { padding: 0 14px; }
+.lesson-page details.lp-gsec > .lp-gsec__line:last-child { padding-bottom: 12px; }
+.lesson-page .lp-gsec__num {
+  flex: 0 0 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 12px;
+}
+.lesson-page .lp-gsec__line { margin: 0 0 6px; line-height: 1.8; font-size: var(--lp-vi-size); color: var(--ink); }
+.lesson-page .lp-gsec__line[lang="ja"] { font-family: var(--lp-font-ja); font-size: var(--lp-ja-size); }
+.lesson-page .lp-gsec__lead { margin-bottom: 8px; }
+
+/* Tiếp cận: focus rõ ràng cho tab, panel, summary */
+.lesson-page .lesson-panel:focus-visible,
+.lesson-page summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 14px; }
+
+/* ---------- Xuất hiện lần lượt ---------- */
+.lesson-page .lp-in {
+  animation: lp-in .45s var(--lp-ease) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+@keyframes lp-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .lesson-page .lp-grammar { grid-template-columns: minmax(0, 1fr); }
+  .lesson-page .lp-glist { flex-direction: row; overflow-x: auto; overflow-y: hidden; max-height: none; }
+  .lesson-page .lp-gitem { flex: 0 0 auto; max-width: 260px; }
+  .lesson-page .lp-gitem:hover { transform: none; }
+  .lesson-page .lp-kanji-layout { grid-template-columns: minmax(0, 1fr); }
+  .lesson-page .lp-kdetail { position: static; scroll-margin-top: 96px; }
+}
+@media (max-width: 600px) {
+  .lesson-page { border-radius: 0; padding: 12px 0; background: transparent; --lp-ja-size: 16px; --lp-vi-size: 15px; }
+  .lesson-page .lp-hero { border-radius: 24px; }
+  .lesson-page .lp-hero__title { font-size: 28px; }
+  .lesson-page .lp-hero__kanji { display: none; }
+  .lesson-page .lesson-tab { flex-direction: column; gap: 2px; min-height: 52px; padding: 6px 12px; font-size: 13px; }
+  .lesson-page .lesson-tab__count { font-size: 11px; padding: 0 6px; }
+  .lesson-page .lp-vgrid { grid-template-columns: minmax(0, 1fr); }
+  .lesson-page .lp-vcard__expr { font-size: 34px; }
+  .lesson-page .lp-kgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .lesson-page .lp-ktile { height: 112px; }
+  .lesson-page .lp-pager__btn { min-width: 40px; height: 44px; padding: 0 8px; }
+  .lesson-page .lp-pager__buttons { gap: 4px; }
+  .lesson-page .lp-ktile__char { font-size: 42px; }
+  .lesson-page .lp-kdetail__char { font-size: 88px; }
+  .lesson-page .lp-msg { max-width: 100%; }
+  .lesson-page .lp-pager { justify-content: center; }
+  /* Bảng chữ vẫn 5 cột, ô co theo bề ngang (không cuộn ngang) */
+  .lesson-page .lp-gojuon { --gj-gap: 6px; width: calc(100% - 24px); } /* chừa lề 12px, ô không chạm mép màn hình */
+  .lesson-page .lp-gojuon .kana-tile { padding: 2px; gap: 1px; border-radius: 12px; }
+  .lesson-page .lp-gojuon__cell--empty { border-radius: 12px; }
+  .lesson-page .lp-gojuon .kana-tile__kana { font-size: clamp(24px, 9.5vw, 40px); }
+  .lesson-page .lp-gojuon--3 .kana-tile__kana { font-size: clamp(18px, 7vw, 30px); }
+  .lesson-page .lp-gojuon .kana-tile__romaji { font-size: 12px; }
+  .lesson-page .lp-gojuon .speak-btn__tts { display: none; }
+  .lesson-page .practice-q__images--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lesson-page .practice-q__images--grid .practice-q__image { height: 120px; }
+}
+
+/* ---------- Giảm chuyển động ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-page *,
+  .lesson-page *::before,
+  .lesson-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* [JLAS2-17] Nguồn nội dung (nhập từ ngoài): dòng nhỏ cuối trang */
+.lesson-page .lp-source-note { margin: 28px 0 8px; font-size: 13px; color: var(--muted); text-align: center; }

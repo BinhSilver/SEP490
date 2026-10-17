@@ -583,7 +583,110 @@ public class DictionaryServiceImpl implements DictionaryService {
                             + ". Hãy công bố giáo trình trước rồi mới công bố bài học.");
         }
         lesson.setStatus(status);
-        return mapper.toLessonSummaryResponse(lessonRepository.save(lesson));
+        LessonSummaryResponse response = mapper.toLessonSummaryResponse(lessonRepository.save(lesson));
+        syncPracticeQuizzes(List.of(lessonId), status);
+        return response;
+    }
+
+    /**
+     * [JLAS2-17] Quiz luyện tập đi theo trạng thái bài: bài PUBLISHED → quiz PUBLISHED + bật câu hỏi (học viên thấy đủ câu
+     * như CONTENT_CREATOR); bài DRAFT / ARCHIVED → quiz DRAFT. Quiz lộ trình không đổi (xem LessonRepository).
+     * Chạy cả với bài vốn đã ở trạng thái đích để sửa dữ liệu lệch cũ; câu lệnh không đổi gì nếu đã khớp.
+     */
+    private void syncPracticeQuizzes(List<Long> lessonIds, String lessonStatus) {
+        if (lessonIds.isEmpty()) return;
+        int questions = 0;
+        int quizzes;
+        if (STATUS_PUBLISHED.equals(lessonStatus)) {
+            questions = lessonRepository.activatePracticeQuestions(lessonIds);
+            quizzes = lessonRepository.updatePracticeQuizStatus(lessonIds, STATUS_PUBLISHED);
+        } else {
+            quizzes = lessonRepository.updatePracticeQuizStatus(lessonIds, "DRAFT");
+        }
+        if (questions > 0 || quizzes > 0) {
+            BULK_LOG.info("[content-practice-quiz] lessonStatus={} lessons={} quizzes={} questionsActivated={}",
+                    lessonStatus, lessonIds.size(), quizzes, questions);
+        }
+    }
+
+    private static final org.slf4j.Logger BULK_LOG = org.slf4j.LoggerFactory.getLogger(DictionaryServiceImpl.class);
+    /** Số id tối đa nêu trong thông báo lỗi (danh sách dài chỉ ghi vài id đầu). */
+    private static final int BULK_ERROR_SAMPLE = 10;
+
+    /**
+     * Kiểm TẤT CẢ id trước, có lỗi thì ném luôn (chưa đổi gì); class-level @Transactional nên lỗi phát sinh sau đó
+     * cũng rollback cả lô. Mục đã ở trạng thái đích đếm là "unchanged", không ghi lại.
+     */
+    @Override
+    public com.jlas.dictionary.dto.BulkStatusResponse bulkUpdateStatus(String kind, String action, List<Long> ids, Long userId) {
+        String target = "PUBLISH".equals(action) ? STATUS_PUBLISHED : "DRAFT";
+        List<Long> unique = new ArrayList<>(new LinkedHashSet<>(ids));
+        int updated = 0;
+        if ("TEXTBOOK".equals(kind)) {
+            Map<Long, Textbook> found = textbookRepository.findAllById(unique).stream()
+                    .collect(Collectors.toMap(Textbook::getId, t -> t));
+            requireAllFound(unique, found.keySet(), "giáo trình");
+            requireNoneArchived(unique.stream().map(found::get).filter(t -> STATUS_ARCHIVED.equals(t.getStatus()))
+                    .map(Textbook::getId).toList(), "giáo trình");
+            for (Long id : unique) {
+                Textbook textbook = found.get(id);
+                if (target.equals(textbook.getStatus())) continue;
+                textbook.setStatus(target);   // không cascade xuống bài (giống API từng mục)
+                updated++;
+            }
+            textbookRepository.saveAll(found.values());
+        } else {
+            Map<Long, Lesson> found = lessonRepository.findWithUnitByIdIn(unique).stream()
+                    .collect(Collectors.toMap(Lesson::getId, l -> l));
+            requireAllFound(unique, found.keySet(), "bài học");
+            requireNoneArchived(unique.stream().map(found::get).filter(l -> STATUS_ARCHIVED.equals(l.getStatus()))
+                    .map(Lesson::getId).toList(), "bài học");
+            if (STATUS_PUBLISHED.equals(target)) {
+                // Bài PUBLISHED trong giáo trình chưa công bố = bài mồ côi (cùng luật updateLessonStatus).
+                List<Long> orphan = unique.stream()
+                        .filter(id -> !STATUS_PUBLISHED.equals(found.get(id).getUnit().getTextbook().getStatus())).toList();
+                if (!orphan.isEmpty()) {
+                    Set<String> books = orphan.stream().map(id -> found.get(id).getUnit().getTextbook().getTitle())
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                    throw new ApiException(ErrorCode.CONFLICT, orphan.size() + " bài thuộc giáo trình chưa công bố ("
+                            + String.join(", ", books) + "). Hãy công bố giáo trình trước rồi mới công bố bài học."
+                            + " Không bài nào bị thay đổi.");
+                }
+            }
+            for (Long id : unique) {
+                Lesson lesson = found.get(id);
+                if (target.equals(lesson.getStatus())) continue;
+                lesson.setStatus(target);
+                updated++;
+            }
+            lessonRepository.saveAll(found.values());
+            syncPracticeQuizzes(unique, target);
+        }
+        BULK_LOG.info("[content-bulk-status] user={} kind={} status={} requested={} updated={} ids={}",
+                userId, kind, target, unique.size(), updated, sample(unique));
+        return com.jlas.dictionary.dto.BulkStatusResponse.builder()
+                .kind(kind).status(target).requested(unique.size()).updated(updated)
+                .unchanged(unique.size() - updated).ids(unique).build();
+    }
+
+    private static void requireAllFound(List<Long> ids, Set<Long> found, String label) {
+        List<Long> missing = ids.stream().filter(id -> !found.contains(id)).toList();
+        if (!missing.isEmpty()) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy " + missing.size() + " " + label + " (id "
+                    + sample(missing) + "). Không mục nào bị thay đổi.");
+        }
+    }
+
+    private static void requireNoneArchived(List<Long> archived, String label) {
+        if (!archived.isEmpty()) {
+            throw new ApiException(ErrorCode.CONFLICT, archived.size() + " " + label + " đang lưu trữ (id "
+                    + sample(archived) + ") — khôi phục từng mục trước. Không mục nào bị thay đổi.");
+        }
+    }
+
+    private static String sample(List<Long> ids) {
+        String head = ids.stream().limit(BULK_ERROR_SAMPLE).map(String::valueOf).collect(Collectors.joining(", "));
+        return ids.size() > BULK_ERROR_SAMPLE ? head + ", …" : head;
     }
 
     /**
@@ -613,7 +716,18 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         // Câu ví dụ, mục đọc (bảng chữ kana / chú thích), mục nghe và lời thoại đều là content_item
         // → audio lấy chung MỘT lần theo CONTENT_ITEM cho cả bốn.
-        List<ContentItem> examples = contentItemRepository.findByLessonIdAndContentType(lessonId, CONTENT_TYPE_EXAMPLE);
+        List<ContentItem> allExamples = contentItemRepository.findByLessonIdAndContentType(lessonId, CONTENT_TYPE_EXAMPLE);
+        // Câu ví dụ của TỪ VỰNG theo bài (nối với từ qua content_vocabulary) hiện ở tab Từ vựng dưới từ đó,
+        // không gom vào "Câu ví dụ khác" của tab Ngữ pháp.
+        Map<Long, List<Long>> vocabularyIdsByExample = new HashMap<>();
+        for (Object[] link : contentVocabularyRepository.findVocabularyExampleLinksByLessonId(lessonId)) {
+            vocabularyIdsByExample.computeIfAbsent(((Number) link[0]).longValue(), k -> new ArrayList<>())
+                    .add(((Number) link[1]).longValue());
+        }
+        List<ContentItem> examples = allExamples.stream()
+                .filter(ci -> !vocabularyIdsByExample.containsKey(ci.getId())).toList();
+        List<ContentItem> vocabularyExamples = allExamples.stream()
+                .filter(ci -> vocabularyIdsByExample.containsKey(ci.getId())).toList();
         List<ContentItem> readings = contentItemRepository.findByLessonIdAndContentType(lessonId, CONTENT_TYPE_READING);
         List<DialogueLineDetail> dialogueLines = dialogueLineDetailRepository.findByLessonId(lessonId);
         // Mục LISTENING không có dialogue_line_detail (transcript / file audio bài nghe) — trước đây không
@@ -625,8 +739,8 @@ public class DictionaryServiceImpl implements DictionaryService {
                 .stream().filter(ci -> !dialogueItemIds.contains(ci.getId())).toList();
 
         List<Long> contentItemIds = new ArrayList<>(
-                examples.size() + readings.size() + listenings.size() + dialogueLines.size());
-        examples.forEach(ci -> contentItemIds.add(ci.getId()));
+                allExamples.size() + readings.size() + listenings.size() + dialogueLines.size());
+        allExamples.forEach(ci -> contentItemIds.add(ci.getId()));
         readings.forEach(ci -> contentItemIds.add(ci.getId()));
         listenings.forEach(ci -> contentItemIds.add(ci.getId()));
         dialogueLines.forEach(d -> contentItemIds.add(d.getContentItemId()));
@@ -645,12 +759,27 @@ public class DictionaryServiceImpl implements DictionaryService {
         listeningResponses.forEach(r -> r.setStableCode(sourceStableCode(sourceByItem, r.getContentItemId())));
 
         response.setExampleSentences(toExampleSentences(examples, audioByItem));
+        attachLessonExamples(response.getVocabularies(), vocabularyExamples, vocabularyIdsByExample, audioByItem);
         response.setReadingItems(readingResponses);
         response.setListeningItems(listeningResponses);
         response.setDialogueLines(toDialogueLines(dialogueLines, audioByItem));
         response.setPracticeQuestions(loadPracticeQuestions(lessonId, listenings, sourceByItem, audioByItem));
         response.setQuizAvailable(lessonRepository.countPublishedLessonQuizzes(lessonId) > 0);
+        response.setContentSource(lessonRepository.findLessonSourceCode(lessonId).orElse(null));
         return response;
+    }
+
+    /** Gắn câu ví dụ theo bài vào từng từ (giữ thứ tự câu trong bài); từ không có câu riêng giữ danh sách rỗng. */
+    private void attachLessonExamples(List<LessonVocabularyResponse> vocabularies, List<ContentItem> vocabularyExamples,
+                                      Map<Long, List<Long>> vocabularyIdsByExample,
+                                      Map<Long, List<ContentAudioResponse>> audioByItem) {
+        Map<Long, List<ExampleSentenceResponse>> byVocabulary = new HashMap<>();
+        for (ExampleSentenceResponse example : toExampleSentences(vocabularyExamples, audioByItem)) {
+            for (Long vocabularyId : vocabularyIdsByExample.getOrDefault(example.getContentItemId(), List.of())) {
+                byVocabulary.computeIfAbsent(vocabularyId, k -> new ArrayList<>()).add(example);
+            }
+        }
+        vocabularies.forEach(v -> v.setLessonExamples(byVocabulary.getOrDefault(v.getId(), List.of())));
     }
 
     /** content_item id → {stable_code, source_url}. */
@@ -729,6 +858,8 @@ public class DictionaryServiceImpl implements DictionaryService {
                 }
             }
             List<ContentAudioResponse> audios = audioItemId == null ? List.of() : audioByItem.getOrDefault(audioItemId, List.of());
+            String imageUrl = row.length > 12 && row[12] != null && !row[12].toString().isBlank() ? row[12].toString() : null;
+            List<String> questionImages = imageList(null, context, "question_images", "question_image");
 
             questions.add(LessonContentResponse.PracticeQuestion.builder()
                     .id(((Number) row[0]).longValue())
@@ -743,6 +874,12 @@ public class DictionaryServiceImpl implements DictionaryService {
                     .parentCode(textOrNull(context, "parent_code"))
                     .audioUrl(audios.isEmpty() ? null : audios.get(0).getAudioUrl())
                     .audioContentItemId(audios.isEmpty() ? null : audioItemId)
+                    .passageHtml(row.length > 11 && row[11] != null && !row[11].toString().isBlank() ? row[11].toString() : null)
+                    .imageUrl(imageUrl)
+                    .passageCode(textOrNull(context, "passage_code"))
+                    .passageImages(imageList(passageImageUrl(imageUrl, questionImages), context, "passage_images", null))
+                    .questionImages(questionImages)
+                    .commonImages(imageList(null, context, "common_images", null))
                     .build());
         }
         assignReadingTargets(questions);
@@ -816,6 +953,28 @@ public class DictionaryServiceImpl implements DictionaryService {
         if (node == null) return null;
         JsonNode value = node.path(field);
         return value.isTextual() && !value.asText().isBlank() ? value.asText() : null;
+    }
+
+    /**
+     * Danh sách ảnh không trùng, giữ thứ tự: first (cột image_url) → context_json[arrayField] (mảng chuỗi) →
+     * context_json[singleField] (một chuỗi). Bỏ phần tử rỗng / không phải chuỗi; context_json hỏng chỉ mất ảnh phụ.
+     */
+    /** image_url là ảnh đầu của chính câu hỏi (câu không có ảnh đoạn văn) → không phải ảnh đoạn văn. */
+    private static String passageImageUrl(String imageUrl, List<String> questionImages) {
+        return imageUrl != null && questionImages.contains(imageUrl.strip()) ? null : imageUrl;
+    }
+
+    private static List<String> imageList(String first, JsonNode context, String arrayField, String singleField) {
+        Set<String> urls = new LinkedHashSet<>();
+        if (first != null && !first.isBlank()) urls.add(first.strip());
+        if (context != null) {
+            for (JsonNode value : context.path(arrayField)) {
+                if (value.isTextual() && !value.asText().isBlank()) urls.add(value.asText().strip());
+            }
+            String single = singleField == null ? null : textOrNull(context, singleField);
+            if (single != null) urls.add(single.strip());
+        }
+        return new ArrayList<>(urls);
     }
 
     /**
