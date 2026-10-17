@@ -32,7 +32,7 @@
     STABLE: function () { return 'Trình độ hiện tại của bạn đã ổn định — tiếp tục duy trì và mở rộng vùng kiến thức.'; },
     PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
   };
-  var state = { attemptId: null, currentQuestion: null };
+  var state = { attemptId: null, currentQuestion: null, goal: null };
   var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
@@ -156,6 +156,7 @@
 
   function render(data) {
     state.attemptId = data.attemptId;
+    state.goal = data.goal || state.goal;
     if (data.status === 'SUBMITTED' && data.result) {
       localStorage.removeItem(ACTIVE_ATTEMPT_KEY);
       renderResult(data.result);
@@ -570,12 +571,15 @@
     createPathButton.addEventListener('click', function (event) {
       event.preventDefault();
       if (!state.attemptId) return;
-      window.location.assign('/learning/path?assessmentAttemptId=' + state.attemptId);
+      var destination = state.goal === 'BA'
+        ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
+        : '/learning/path?assessmentAttemptId=' + state.attemptId;
+      window.location.assign(destination);
     });
   }
 
   document.getElementById('restartButton').addEventListener('click', function () {
-    state = { attemptId: null, currentQuestion: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
+    state = { attemptId: null, currentQuestion: null, goal: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);

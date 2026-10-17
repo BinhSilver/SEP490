@@ -5,8 +5,9 @@
  * Tách khỏi textbook-manage.js vì đây là màn hình soạn thảo: mẫu ngữ pháp có bốn trường văn bản dài và
  * kèm danh sách câu ví dụ phải nhìn cùng lúc. Quyền thật chặn ở server; JS chỉ ẩn/hiện và khoá nút.
  */
-(function () {
+window.AdminShell.ready.then(function (allowed) {
   'use strict';
+  if (!allowed) return;
 
   var API = '/api/dictionary';
   var SEARCH_PAGE_SIZE = 20;
@@ -932,4 +933,4 @@
       loadingEl.hidden = true;
       showStickyError(err.message || 'Không tải được nội dung bài học.');
     });
-})();
+});

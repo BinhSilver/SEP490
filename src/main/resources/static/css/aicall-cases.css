@@ -1,0 +1,162 @@
+/* Scenario preparation uses the shared website palette and typography. */
+.aicall-case-page,
+html[data-theme="dark"] .aicall-case-page {
+  --tree-paper: var(--color-surface-low);
+  --tree-grid: var(--color-outline-variant);
+  --tree-node: var(--color-surface-lowest);
+  --tree-ink: var(--color-on-surface);
+  --tree-muted: var(--color-secondary);
+  --tree-accent: var(--color-primary);
+  --tree-line: var(--color-secondary-fixed-dim);
+  --tree-border: var(--color-outline-variant);
+  --tree-tint: var(--color-secondary-container);
+  --tree-shadow: var(--shadow-1);
+}
+.aicall-case-page .stage-map,
+html[data-theme="dark"] .aicall-case-page .stage-map {
+  --stage-success: var(--color-success);
+  --stage-success-bg: var(--color-success-bg);
+  --stage-success-border: var(--color-success);
+  --stage-success-line: var(--color-success);
+}
+.aicall-case-page :is(.graph-practice, .stage-start) { color: var(--color-on-primary); }
+.aicall-case-page { color: var(--tree-ink); font-size: 1rem; line-height: 1.65; }
+.aicall-case-page .case-back { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; color: var(--tree-accent); font-size: .875rem; font-weight: 600; }
+.aicall-case-page .case-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+.aicall-case-page .case-hero { display: grid; grid-template-columns: minmax(0, 1fr) 210px; align-items: center; gap: 24px; padding: 28px 32px; border: 1px solid var(--tree-border); border-radius: 22px; background: var(--tree-paper); }
+.aicall-case-page h1 { font-family: var(--font-body); font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.3; max-width: 26ch; text-wrap: balance; overflow-wrap: anywhere; }
+.aicall-case-page h2 { font-family: var(--font-body); font-size: 1.25rem; line-height: 1.45; margin: 0 0 18px; }
+.aicall-case-page h3 { font-family: var(--font-body); font-size: 1.125rem; line-height: 1.5; }
+.aicall-case-page [lang="ja"] { font-family: var(--font-jp); }
+.aicall-case-page .case-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; font-size: .875rem; color: var(--tree-muted); }
+.aicall-case-page .case-meta > span { display: inline-flex; gap: 8px; align-items: center; padding: 6px 12px; background: var(--tree-node); border-radius: 8px; }
+.aicall-case-page .case-meta > span:first-child { color: var(--tree-accent); font-weight: 700; }
+.aicall-case-page .case-hero-art { position: relative; width: 210px; height: 156px; }
+.aicall-case-page .case-art-orbit { position: absolute; width: 150px; height: 150px; border: 1px dashed var(--tree-line); border-radius: 50%; top: 3px; left: 30px; }
+.aicall-case-page .case-art-topic { position: absolute; inset: 35px 63px; display: grid; place-items: center; border: 1px solid var(--tree-border); border-radius: 24px; background: var(--tree-node); color: var(--tree-accent); font-size: 2.2rem; box-shadow: var(--tree-shadow); }
+.aicall-case-page :is(.case-art-person, .case-art-chat, .case-art-wave) { position: absolute; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--tree-node); border: 1px solid var(--tree-border); color: var(--tree-accent); font-size: 1.25rem; }
+.aicall-case-page .case-art-person { left: 5px; top: 36px; }
+.aicall-case-page .case-art-chat { right: 12px; top: 5px; transform: rotate(8deg); }
+.aicall-case-page .case-art-wave { bottom: 0; right: 26px; color: var(--color-success); background: var(--color-success-bg); }
+.aicall-case-page .case-content { padding-bottom: 48px; }
+.aicall-case-page .case-section-heading { display: flex; align-items: center; gap: 12px; }
+.aicall-case-page :is(#case-resources-heading, #case-context-heading) { scroll-margin-top: 120px; }
+@media(max-width:600px) { .aicall-case-page :is(#case-resources-heading, #case-context-heading) { scroll-margin-top: 150px; } }
+.aicall-case-page .case-heading-icon { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 11px; background: var(--tree-tint); color: var(--tree-accent); font-size: 1rem; }
+.aicall-case-page .case-flow-section { padding: 22px 24px; border: 1px solid var(--tree-border); border-radius: 16px; background: var(--tree-node); }
+.aicall-case-page .case-flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 24px; padding: 4px 0 0; margin: 0; list-style: none; }
+.aicall-case-page .case-flow li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; text-align: center; }
+.aicall-case-page .case-flow li:not(:last-child)::after { content: ""; position: absolute; right: -15px; top: 24px; width: 6px; height: 6px; border-top: 1px solid var(--tree-line); border-right: 1px solid var(--tree-line); transform: rotate(45deg); }
+.aicall-case-page .case-flow-icon { position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--tree-tint); color: var(--tree-accent); font-size: 1.3rem; }
+.aicall-case-page .case-flow-title { font-size: .9375rem; line-height: 1.5; font-weight: 600; }
+.aicall-case-page .case-step { display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--tree-node); border-radius: 50%; background: var(--tree-accent); color: var(--tree-node); font-size: .6875rem; font-weight: 700; line-height: 1; }
+.aicall-case-page :is(.case-flow-icon, .case-goal-icon) .case-step { position: absolute; bottom: -6px; right: -6px; }
+.aicall-case-page .case-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; padding-top: 24px; }
+.aicall-case-page .case-main { min-width: 0; display: grid; gap: 28px; }
+.aicall-case-page .case-context { padding: 24px; border: 1px solid var(--tree-border); border-radius: 16px; background: var(--tree-node); }
+.aicall-case-page .case-background { font-size: 1rem; line-height: 1.75; max-width: 65ch; }
+.aicall-case-page .case-location { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.aicall-case-page .case-location > div { padding: 12px 14px; background: var(--tree-tint); border-radius: 10px; }
+.aicall-case-page :is(.case-location, .case-roles) dt { font-size: .8125rem; color: var(--tree-muted); margin-bottom: 6px; }
+.aicall-case-page :is(.case-location, .case-roles) dt i { color: var(--tree-accent); margin-right: 4px; }
+.aicall-case-page :is(.case-location, .case-roles) dd { margin: 0; font-size: .9375rem; line-height: 1.6; font-weight: 600; }
+.aicall-case-page .case-goals { display: grid; gap: 12px; list-style: none; margin: 0; padding: 0; }
+.aicall-case-page .case-goals li { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; border: 1px solid var(--tree-border); border-radius: 14px; background: var(--tree-node); }
+.aicall-case-page .case-goal-icon { position: relative; display: grid; place-items: center; flex: 0 0 42px; height: 42px; border-radius: 12px; color: var(--tree-accent); background: var(--tree-tint); font-size: 1.2rem; }
+.aicall-case-page .case-goals p { font-size: 1rem; color: var(--tree-muted); line-height: 1.65; margin-top: 6px; }
+.aicall-case-page .case-optional { color: var(--tree-muted); font-size: .8125rem; }
+.aicall-case-page .case-practice { position: sticky; top: 112px; min-width: 0; }
+.aicall-case-page .case-practice-inner { padding: 24px; border: 1px solid var(--tree-line); border-radius: 18px; background: var(--tree-node); text-align: center; box-shadow: var(--tree-shadow); }
+.aicall-case-page .case-coach-icon { display: grid; place-items: center; width: 68px; height: 68px; margin: 0 auto 18px; border-radius: 50%; border: 6px solid var(--tree-paper); background: var(--tree-tint); color: var(--tree-accent); font-size: 1.7rem; }
+.aicall-case-page .case-practice h2 { margin-bottom: 8px; }
+.aicall-case-page .case-selected-title { color: var(--tree-muted); font-size: .9375rem; line-height: 1.5; margin-bottom: 20px; }
+.aicall-case-page .case-roles { display: grid; gap: 12px; text-align: left; }
+.aicall-case-page .case-roles > div { padding: 12px 14px; background: var(--tree-tint); border-radius: 10px; }
+.aicall-case-page .case-start { display: flex; gap: 10px; justify-content: center; align-items: center; min-height: 52px; padding: 12px; margin-top: 20px; border-radius: 10px; background: var(--tree-accent); color: var(--color-on-primary); font-weight: 700; font-size: .9375rem; text-decoration: none; white-space: nowrap; box-shadow: var(--tree-shadow); transition: filter 160ms ease; }
+.aicall-case-page .case-start:hover { filter: brightness(1.1); }
+.aicall-case-page .case-start:active { filter: brightness(.9); }
+.aicall-case-page :is(a, summary):focus-visible { outline: 3px solid var(--tree-accent); outline-offset: 4px; }
+.aicall-case-page .case-resource { margin-bottom: 12px; border: 1px solid var(--tree-border); border-radius: 14px; background: var(--tree-node); }
+.aicall-case-page summary { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 16px 20px; font-size: 1rem; font-weight: 600; cursor: pointer; list-style: none; border-radius: 14px; }
+.aicall-case-page summary::-webkit-details-marker { display: none; }
+.aicall-case-page summary:hover { background: var(--tree-tint); }
+.aicall-case-page .case-resource-icon { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 10px; color: var(--tree-accent); background: var(--tree-tint); font-size: 1.1rem; }
+.aicall-case-page .case-resource-chevron { margin-left: auto; color: var(--tree-muted); font-size: .75rem; }
+.aicall-case-page details[open] .case-resource-chevron { transform: rotate(180deg); }
+.aicall-case-page details[open] summary { border-bottom: 1px solid var(--tree-border); border-radius: 14px 14px 0 0; }
+.aicall-case-page .case-sample-open { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin: 16px 20px 0; padding: 10px 16px; border: 1px solid var(--tree-accent); border-radius: 10px; background: var(--tree-tint); color: var(--tree-accent); font-weight: 700; }
+.aicall-case-page .case-sample-open:hover { filter: brightness(.95); }
+
+
+.aicall-case-page .case-resource-list { list-style: none; margin: 0; padding: 20px; display: grid; gap: 14px; }
+.aicall-case-page .case-resource-list > li { padding: 16px; border-radius: 10px; background: var(--tree-tint); }
+.aicall-case-page .case-resource-list strong { font-size: 1.125rem; }
+.aicall-case-page .case-resource-list p { margin-top: 8px; font-size: 1rem; line-height: 1.7; }
+.aicall-case-page .case-resource-list .case-example { padding-top: 8px; color: var(--tree-accent); font-size: .9375rem; }
+.aicall-case-page .case-vocabulary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.aicall-case-page .case-vocabulary strong { font-size: 1.375rem; }
+.aicall-case-page .case-word-term { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--tree-border); }
+.aicall-case-page .case-word-label { color: var(--tree-accent); font-size: .8125rem; font-weight: 600; }
+.aicall-case-page .case-word-label i { margin-right: 4px; }
+.aicall-case-page .case-word-details { display: grid; gap: 12px; margin-top: 14px; }
+.aicall-case-page .case-word-details > div { display: grid; grid-template-columns: 86px minmax(0, 1fr); align-items: baseline; gap: 10px; }
+.aicall-case-page .case-word-details dt { font-size: .8125rem; font-weight: 600; color: var(--tree-muted); }
+.aicall-case-page .case-word-details dt i { display: inline-block; width: 16px; color: var(--tree-accent); margin-right: 4px; }
+.aicall-case-page .case-word-details dd { margin: 0; font-size: 1rem; line-height: 1.7; }
+.aicall-case-page .case-word-details .case-reading { font-size: 1rem; }
+.aicall-case-page .case-word-details .case-word-example { color: var(--tree-accent); }
+.aicall-case-page :is(.case-main, .case-practice) { overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .aicall-case-page .case-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .aicall-case-page .case-practice { position: static; grid-row: 1; }
+  .aicall-case-page .case-coach-icon { display: none; }
+  .aicall-case-page .case-roles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .aicall-case-page .case-header { padding-top: 8px; }
+  .aicall-case-page .case-hero { grid-template-columns: minmax(0, 1fr); padding: 24px 20px; border-radius: 16px; }
+  .aicall-case-page .case-hero-art { display: none; }
+  .aicall-case-page .case-flow-section { padding: 20px 16px; }
+  .aicall-case-page .case-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+  .aicall-case-page .case-flow li:not(:last-child)::after { display: none; }
+  .aicall-case-page .case-flow-title { font-size: .875rem; }
+  .aicall-case-page :is(.case-context, .case-practice-inner) { padding: 20px; }
+  .aicall-case-page .case-location { grid-template-columns: minmax(0, 1fr); }
+  .aicall-case-page .case-goals li { padding: 16px; gap: 12px; }
+  .aicall-case-page .case-goal-icon { flex-basis: 36px; height: 36px; font-size: 1rem; }
+  .aicall-case-page .case-goals h3 { font-size: 1rem; }
+  .aicall-case-page .case-goals p { font-size: .9375rem; }
+  .aicall-case-page .case-vocabulary { grid-template-columns: minmax(0, 1fr); }
+  .aicall-case-page .case-word-details > div { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .aicall-case-page summary { padding: 14px 16px; }
+  .aicall-case-page .case-resource-list { padding: 16px; }
+}
+.aicall-case-page .case-sample-direct { display: flex; justify-content: center; margin: 12px 0 0; text-decoration: none; }
+
+/* Page-owned dark mode: css/aicall-cases.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-ai-bg: #0b0d13;
+  --dm-ai-surface: #12151f;
+  --dm-ai-raised: #1e2332;
+  --dm-ai-ink: #f8fafc;
+  --dm-ai-muted: #b2bfd2;
+  --dm-ai-line: #394155;
+  --dm-ai-accent: #c084fc;
+  --dm-ai-action: #7335a6;
+  --dm-ai-accent-soft: #281d3a;
+  --dm-ai-on-accent: #211b34;
+  --dm-ai-success: #8eddb6;
+  --dm-ai-success-bg: #1b3d32;
+  --dm-ai-success-line: #43816b;
+  --dm-ai-danger: #ffb4bd;
+  --dm-ai-danger-bg: #452832;
+  --dm-ai-danger-line: #96616d;
+  --dm-ai-warning: #f3d28a;
+  --dm-ai-warning-bg: #403522;
+  --dm-ai-warning-line: #947a46;
+  --dm-ai-pink: #f4aed2;
+  --dm-ai-pink-bg: #432d40;
+  --dm-ai-pink-line: #88637b;
+}

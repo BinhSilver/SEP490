@@ -3,7 +3,8 @@
   const shell = document.getElementById('progress-shell');
   const chart = document.getElementById('progress-chart');
   const tooltip = document.getElementById('progress-chart-tooltip');
-  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Luôn chạy hoạt ảnh, không theo prefers-reduced-motion của hệ điều hành (quyết định sản phẩm).
+  const reduceMotion = false;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(false) : {};

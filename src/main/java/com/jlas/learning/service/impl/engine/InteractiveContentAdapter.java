@@ -2,6 +2,7 @@ package com.jlas.learning.service.impl.engine;
 
 import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningMemberType;
+import com.jlas.learning.entity.LearningActivityMember;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,11 @@ public interface InteractiveContentAdapter<T> {
      * absent from the map (never fabricated). */
     Map<Long, T> loadByIds(List<Long> canonicalIds);
 
+    /** The membership can carry a frozen, lesson-specific display. Existing adapters use canonical content. */
+    default Map<Long, T> loadForMembers(List<LearningActivityMember> membership) {
+        return loadByIds(membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList());
+    }
+
     /** Builds the deterministic, no-AI question set for one micro-check batch. Distractors must come only
      * from {@code batch} (canonical/approved data), never generated at runtime.
      *
@@ -41,16 +47,29 @@ public interface InteractiveContentAdapter<T> {
     List<QuestionSpec> buildQuestions(List<T> batch, int batchIndex, int variationSeed);
 
     /** Splits ordered canonical content into score batches. Existing card-based skills keep the historical
-     * fixed chunks of ten; comprehension overrides this so one canonical source is exactly one batch. */
+     * fixed chunks of ten; comprehension overrides this so one canonical source is exactly one batch.
+     * Choice options come from the batch itself, so a trailing 10+1 is rebalanced to 6+5: a one-item batch
+     * could never be quizzed. Batch count and every earlier boundary stay as before. */
     default List<List<T>> partition(List<T> orderedContent) {
+        int size = orderedContent.size();
+        // Start of the last two batches when the tail would otherwise be a single item.
+        int rebalanceFrom = size > 10 && size % 10 == 1 ? size - 11 : size;
         List<List<T>> batches = new ArrayList<>();
-        for (int i = 0; i < orderedContent.size(); i += 10) {
-            batches.add(List.copyOf(orderedContent.subList(i, Math.min(i + 10, orderedContent.size()))));
+        for (int i = 0; i < rebalanceFrom; i += 10) {
+            batches.add(List.copyOf(orderedContent.subList(i, Math.min(i + 10, rebalanceFrom))));
+        }
+        if (rebalanceFrom < size) {
+            batches.add(List.copyOf(orderedContent.subList(rebalanceFrom, rebalanceFrom + 6)));
+            batches.add(List.copyOf(orderedContent.subList(rebalanceFrom + 6, size)));
         }
         return batches;
     }
 
     default boolean requiresCanonicalPartitioning() { return false; }
+
+    /** [JLAS-W0108] Frozen source of one batch (Reading passage / Listening audio) stored on every session the engine
+     * issues for it, so review and replay never re-read canonical content. Null for content with no source. */
+    default String sourceSnapshotJson(List<T> batch, int batchIndex, String sourceRevision) { return null; }
 
     /** Validates that current canonical content still matches the immutable activity snapshot. */
     default void validateSourceRevision(String persistedRevision, List<T> orderedContent) { }
@@ -58,19 +77,15 @@ public interface InteractiveContentAdapter<T> {
     /** Comprehension review is a server-recorded source event after the third failure. */
     default boolean requiresServerReviewEvidence() { return false; }
 
-    /** [JLAS-W0193] Task 6 — whether {@link InteractiveStudyEngine#issueMicroCheck} should gate eligibility
-     * on the flip/remember study-card contract (Vocabulary, Kanji). Default {@code true} preserves the
-     * exact pre-Task-6 behavior for every existing adapter with zero code change. A content type whose
-     * prerequisite is not flip/remember — Grammar's ordering + fill practice — overrides this to
-     * {@code false} and supplies {@link #assertPracticeGateSatisfied} instead. */
-    default boolean requiresFlipRememberGate() {
-        return true;
+    /** Whether this activity has a required learning exercise before its quiz. Flashcard-based activities
+     * are deliberately quiz-accessible before all cards are viewed; the UI asks the learner to confirm first.
+     * Grammar overrides this because sentence ordering and fill-in practice are real prerequisites. */
+    default boolean requiresPracticeGate() {
+        return false;
     }
 
-    /** [JLAS-W0193] Task 6 — only consulted when {@link #requiresFlipRememberGate()} is {@code false}.
-     * Must throw {@code ApiException(ErrorCode.PREREQUISITE_NOT_MET)} when the content type's own practice
-     * gate is not yet satisfied for every membership target. No-op default (unused by any adapter that
-     * keeps the flip/remember gate). */
+    /** Only consulted when {@link #requiresPracticeGate()} is true. Must throw
+     * {@code ApiException(ErrorCode.PREREQUISITE_NOT_MET)} until the activity's own practice gate is satisfied. */
     default void assertPracticeGateSatisfied(Long activityId, List<com.jlas.learning.entity.LearningActivityMember> membership) {
     }
 }

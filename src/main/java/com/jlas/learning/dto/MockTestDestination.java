@@ -5,7 +5,8 @@ package com.jlas.learning.dto;
  * browser never composes {@code url} itself and never trusts a query parameter to pick it — this record
  * is the only source of truth the summary page's "Thi thử JLPT" action may use.
  *
- * <p>{@code status} is either {@link #STATUS_AVAILABLE} or {@link #STATUS_BLOCKED_INTEGRATION}. A missing
+ * <p>{@code status} is {@link #STATUS_AVAILABLE}, {@link #STATUS_BLOCKED_INTEGRATION}, or
+ * {@link #STATUS_NOT_APPLICABLE}. A missing
  * owner contract (the default, since no real Mock Test module exists in this codebase — see
  * docs/rules-and-business-logic.md) is reported as {@code BLOCKED_INTEGRATION}: an honest, expected state,
  * never a reason to fabricate a link. {@code url} is null unless {@code available} is true, and is always
@@ -17,6 +18,7 @@ public record MockTestDestination(boolean available, String status, String url, 
 
     public static final String STATUS_AVAILABLE = "AVAILABLE";
     public static final String STATUS_BLOCKED_INTEGRATION = "BLOCKED_INTEGRATION";
+    public static final String STATUS_NOT_APPLICABLE = "NOT_APPLICABLE";
 
     public MockTestDestination {
         if (available && (url == null || url.isBlank())) {
@@ -30,5 +32,10 @@ public record MockTestDestination(boolean available, String status, String url, 
     /** The honest default/fallback: no owner contract, no fabricated link. */
     public static MockTestDestination blocked(String targetLevel) {
         return new MockTestDestination(false, STATUS_BLOCKED_INTEGRATION, null, targetLevel);
+    }
+
+    /** Communication goals are survey-only and never receive a JLPT Mock Test action. */
+    public static MockTestDestination notApplicable() {
+        return new MockTestDestination(false, STATUS_NOT_APPLICABLE, null, null);
     }
 }

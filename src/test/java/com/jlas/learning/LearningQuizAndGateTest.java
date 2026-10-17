@@ -375,7 +375,7 @@ class LearningQuizAndGateTest {
         em.clear();
 
         profileSource.snapshot = new LearningProfileSnapshot(user.getId(), 91L, 10L, "rev-1", true, true,
-                "N4", "N4", "JLPT", 30,
+                "N5", "N4", "JLPT", 30,
                 List.of(WeaknessEvidence.grammar(point.getId(), "PARTICLE", tag.getId(), 5, 4)));
         scopeSource.scope = new LearningCatalogScope(List.of(warmBook.getId()), List.of(goalBook.getId()));
         service.create(user.getId(), 91L);
@@ -962,7 +962,7 @@ class LearningQuizAndGateTest {
 
     private LearningProfileSnapshot profile(Long userId, Long attemptId, String revision) {
         return new LearningProfileSnapshot(userId, attemptId, 10L, revision, true, true,
-                "N4", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
+                "N5", "N4", "JLPT", 30, List.of(WeaknessEvidence.grammar(1L, "PARTICLE", 1L, 5, 4)));
     }
 
     private record Fixture(User user, Lesson warmLesson, List<AssessmentQuestion> questions) { }

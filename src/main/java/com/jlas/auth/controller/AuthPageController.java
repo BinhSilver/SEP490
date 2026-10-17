@@ -73,10 +73,10 @@ public class AuthPageController {
         return "goals";
     }
 
-    @GetMapping("/progress")
-    public String progress(Model model) {
+    @GetMapping("/kana-connect")
+    public String kanaConnect(Model model) {
         model.addAttribute("layoutMode", "app");
-        return "progress";
+        return "kana-connect";
     }
 
     @GetMapping("/credit-history")

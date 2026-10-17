@@ -56,6 +56,16 @@ class ConfiguredMockTestDestinationProviderTest {
         assertEquals("N4", destination.targetLevel());
     }
 
+    @Test void jlptLibraryOpensAtTheLearnersTargetLevel() {
+        var props = properties();
+        props.setDestinationUrl("/jlpt");
+        var provider = new ConfiguredMockTestDestinationProvider(props);
+
+        assertEquals("/jlpt?level=N5", provider.resolveDestination("N5").url());
+        assertEquals("/jlpt?level=N4", provider.resolveDestination("N4").url());
+        assertEquals("/jlpt?level=N3", provider.resolveDestination("N3").url());
+    }
+
     @Test void acceptsAnAbsoluteHttpsUrlWhoseHostIsExplicitlyApproved() {
         var props = properties();
         props.setDestinationUrl("https://mock-test.jlas.example.com/start");

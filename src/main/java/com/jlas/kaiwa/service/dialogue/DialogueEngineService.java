@@ -30,7 +30,7 @@ public class DialogueEngineService {
     private static final int SHORT_REPLY_RECOVERY = 2;
 
     private static final Pattern PRONOUN = Pattern.compile(
-            "(それ|これ|あれ|彼|彼女|あの人|その人|この人|そっち|こっち|あっち)");
+            "(それ(?!ぞれ|でも|では|から)|これ(?!から|まで)|あれ(?!これ)|彼女|彼(?!女)|あの人|その人|この人|そっち|こっち|あっち)");
     private static final Pattern SHORT_ACK = Pattern.compile(
             "^[\\s　]*(はい|うん|ええ|そう|そうです|そうですね|わかりません|分かりません|"
                     + "知らない|わからない|分からない|yes|ok|okay|hmm+|…|\\.\\.\\.)[\\s　!！.。?？]*$",
@@ -157,10 +157,10 @@ public class DialogueEngineService {
             forceClarify = true;
             clarifyReply = understanding.getClarificationReply();
             confidence = Math.min(confidence, understanding.getConfidence());
-        } else if (pronoun != null && pronoun.confidence < PRONOUN_CONFIDENCE_THRESHOLD
-                && pronoun.candidates.size() >= 2) {
+        } else if (pronoun != null && pronoun.confidence < PRONOUN_CONFIDENCE_THRESHOLD) {
             forceClarify = true;
-            clarifyReply = buildPronounClarify(pronoun);
+            clarifyReply = pronoun.candidates.size() >= 2 ? buildPronounClarify(pronoun)
+                    : "何についての話か、もう少し教えてくれる？";
             confidence = pronoun.confidence;
         } else if (confidence < CLARIFY_THRESHOLD && !shortAck
                 && (understanding == null
@@ -452,46 +452,30 @@ public class DialogueEngineService {
         PronounHit hit = new PronounHit();
         hit.pronoun = m.group(1);
 
-        LinkedHashSet<String> candidates = new LinkedHashSet<>();
-        // Prefer entity stack (leaf first)
-        for (int i = s.getEntityStack().size() - 1; i >= 0; i--) {
-            DialogueEntity e = s.getEntityStack().get(i);
-            if (e.getName() != null && !e.getName().isBlank()) {
-                candidates.add(e.getName());
-            }
+        // Definitions such as "これはロールプレイです" already contain their referent.
+        if (msg.matches("(?s)^(これ|それ|あれ)は[^。.!！?？]+(?:です|だ)(?:[。.!！].*|$)")) return null;
+        ConversationMessage previous = null;
+        for (int i = hist.size() - 1; i >= 0; i--) {
+            ConversationMessage turn = hist.get(i);
+            if (!"user".equals(turn.getRole()) || turn.getContent() == null) continue;
+            String text = turn.getContent().trim();
+            // The repository includes the just-saved question. It is not evidence.
+            if (i == hist.size() - 1 && text.equals(msg)) continue;
+            if (isShortReply(text) || text.replaceAll("[。.!！?？\\s　]", "").matches("こんにちは|こんばんは|おはよう|はじめまして|hello|hi")) continue;
+            previous = turn;
+            break;
         }
-        // Recent messages entities
-        List<ConversationMessage> tail = hist.size() > 10 ? hist.subList(hist.size() - 10, hist.size()) : hist;
-        for (int i = tail.size() - 1; i >= 0; i--) {
-            for (String e : extractEntities(tail.get(i).getContent())) {
-                candidates.add(e);
-            }
-        }
-        hit.candidates = new ArrayList<>(candidates);
-        if (hit.candidates.isEmpty()) {
+        if (previous == null) {
             hit.confidence = 0.35;
-            hit.referent = null;
             return hit;
         }
-        // 彼/彼女  prefer character-typed or shorter person-like names
-        if ("彼".equals(hit.pronoun) || "彼女".equals(hit.pronoun) || hit.pronoun.contains("人")) {
-            String best = null;
-            for (String c : hit.candidates) {
-                if (c.endsWith("くん") || c.endsWith("さん") || c.endsWith("ちゃん") || c.length() <= 5) {
-                    best = c;
-                    break;
-                }
-            }
-            hit.referent = best != null ? best : hit.candidates.get(0);
-            hit.confidence = best != null ? 0.88 : 0.55;
-        } else {
-            // これ/それ/あれ  most recent active entity
-            hit.referent = hit.candidates.get(0);
-            hit.confidence = hit.candidates.size() == 1 ? 0.92 : 0.72;
-            if (hit.candidates.size() >= 3) {
-                hit.confidence = 0.55;
-            }
-        }
+        String text = previous.getContent();
+        hit.candidates = new ArrayList<>(extractEntities(text));
+        hit.referent = text.length() > 120 ? text.substring(0, 120) : text;
+        // Same-session discourse can resolve demonstratives even with several words
+        // describing ONE topic. Let the model read the actual preceding exchange.
+        boolean person = hit.pronoun.equals("彼") || hit.pronoun.equals("彼女") || hit.pronoun.contains("人");
+        hit.confidence = person && hit.candidates.size() > 1 ? 0.55 : 0.90;
         return hit;
     }
 

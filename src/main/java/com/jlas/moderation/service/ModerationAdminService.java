@@ -49,7 +49,7 @@ public class ModerationAdminService {
 
     @Transactional
     public ModerationResolution resolve(Long queueId, Long reviewerId, boolean approve, String note) {
-        ReviewCase item = reviewCases.findById(queueId)
+        ReviewCase item = reviewCases.findForDecisionUpdate(queueId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy mục duyệt"));
         if (!"CONTENT_REVIEW".equals(item.getCaseType())) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Case không thuộc hàng đợi nội dung");
@@ -96,7 +96,7 @@ public class ModerationAdminService {
                     WORD_CONTRIBUTION_REWARD, why, item.getId());
         } else {
             notifier.queueDecision(ownerId, item.getTargetType(), item.getTargetId(), approve, why,
-                    snapshot.targetUrl(), item.getId());
+                    "USER_AVATAR".equals(item.getTargetType()) ? "/profile" : snapshot.targetUrl(), item.getId());
         }
 
         return new ModerationResolution(item.getId(), item.getStatus(), item.getTargetType(),

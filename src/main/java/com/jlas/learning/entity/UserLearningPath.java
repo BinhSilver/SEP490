@@ -38,9 +38,13 @@ public class UserLearningPath {
     @Column(name = "title", nullable = false, length = 255)
     private String title;
 
-    /** JLPT/TRAVEL/BA/FROM_ZERO. */
+    /** JLPT/TRAVEL/DAILY_LIFE/BA/FROM_ZERO. */
     @Column(name = "goal", length = 20)
     private String goal;
+
+    /** Goal-specific delivery preference; null for legacy and JLPT paths. */
+    @Column(name = "learning_mode", length = 30)
+    private String learningMode;
 
     @Column(name = "target_level", length = 10)
     private String targetLevel;
@@ -61,6 +65,10 @@ public class UserLearningPath {
 
     @Column(name = "policy_version", length = 100)
     private String policyVersion;
+
+    /** [JLAS-W0108] The Mock Test attempt that qualified this path; only that attempt may replay the completion. */
+    @Column(name = "completion_attempt_id")
+    private Long completionAttemptId;
 
     @Column(name = "minutes_per_day")
     private Integer minutesPerDay;

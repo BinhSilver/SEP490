@@ -1,9 +1,12 @@
+import { PlayerPanel, ResultPanel } from './MemoryEffects';
+import { CoinTossOverlay } from './CoinTossOverlay'
+import { MemoryCardButton } from './MemoryCardButton'
+import { MemoryIcon } from './MemoryIcon'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type {
   DeckCardView,
   DeckField,
-  MemoryCard,
   MemoryEnvelope,
   MemoryPlayer,
   MemoryStartOptions,
@@ -64,260 +67,6 @@ function PlayerChip({ player, isMe }: { player: MemoryPlayer; isMe: boolean }) {
   )
 }
 
-function PlayerPanel({ player, isMe, side, active }: {
-  player?: MemoryPlayer
-  isMe?: boolean
-  side: 'sakura' | 'kaito'
-  active: boolean
-}) {
-  const name = player?.displayName ?? 'Đang chờ người chơi'
-  const score = player ? player.pairsFound * 100 : 0
-  return (
-    <aside className={`memory-player-panel memory-player-panel--${side} ${active ? 'is-active' : ''} ${player ? '' : 'is-empty'}`}>
-      <div className="memory-player-panel__turn">{active ? (isMe ? 'LƯỢT CỦA BẠN' : 'ĐANG TỚI LƯỢT') : 'ĐANG CHỜ LƯỢT'}</div>
-      <div className="memory-player-panel__avatar">
-        {player?.avatar ? <img src={player.avatar} alt="" /> : <span>{player ? initials(name) : '?'}</span>}
-      </div>
-      <h2>{name}</h2>
-      <p className="memory-player-panel__status"><i />{player && !player.connected ? 'Mất kết nối' : active ? 'Đang tới lượt' : 'Đang chờ lượt'}</p>
-      <div className="memory-player-panel__score"><small>ĐIỂM</small><strong>{score}</strong></div>
-      {player && <div className="memory-player-panel__pairs">Cặp đã tìm <strong>{player.pairsFound}</strong></div>}
-    </aside>
-  )
-}
-
-function DiceFace({ value, rolling }: { value: number; rolling: boolean }) {
-  return (
-    <motion.div
-      className={`memory-dice-face ${rolling ? 'is-rolling' : ''}`}
-      animate={rolling ? { rotate: [0, -10, 10, -8, 8, 0], scale: [1, 1.08, 1] } : { rotate: 0, scale: 1 }}
-      transition={rolling ? { duration: 0.55, repeat: Infinity } : { duration: 0.22 }}
-      aria-label={`Xúc xắc ${value}`}
-    >
-      {Array.from({ length: value }, (_, index) => <i key={index} />)}
-    </motion.div>
-  )
-}
-
-function DiceRollOverlay({
-  players,
-  starterIndex,
-  onStart
-}: {
-  players: MemoryPlayer[]
-  starterIndex: number
-  onStart: () => void
-}) {
-  const [rolling, setRolling] = useState(true)
-  const [countdown, setCountdown] = useState(3)
-  const [values, setValues] = useState<[number, number]>([4, 2])
-  const starter = players[starterIndex]
-
-  useEffect(() => {
-    let step = 3
-    playCountdownSfx(step)
-    const timer = window.setInterval(() => {
-      step -= 1
-      if (step > 0) {
-        setCountdown(step)
-        playCountdownSfx(step)
-        return
-      }
-      window.clearInterval(timer)
-      setCountdown(0)
-      setValues(starterIndex === 0 ? [4, 2] : [2, 4])
-      setRolling(false)
-      playCountdownSfx(1)
-    }, 700)
-    return () => window.clearInterval(timer)
-  }, [starterIndex])
-
-  // App vẽ lại mỗi 250 ms nên onStart luôn là hàm mới; giữ nó trong ref để bộ đếm 5,2 giây không bị đặt lại mãi.
-  const onStartRef = useRef(onStart)
-  onStartRef.current = onStart
-  useEffect(() => {
-    const timer = window.setTimeout(() => onStartRef.current(), 5200)
-    return () => window.clearTimeout(timer)
-  }, [])
-
-  return (
-    <motion.div className="memory-dice-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-labelledby="memory-dice-title">
-      <motion.section className="memory-dice-dialog" initial={{ y: 22, scale: .96 }} animate={{ y: 0, scale: 1 }}>
-        <p className="memory-dice-kicker">VÒNG ĐẤU BẮT ĐẦU</p>
-        <h2 id="memory-dice-title">Ai đi trước?</h2>
-        <p className="memory-dice-subtitle">Xem ai được lật thẻ trước</p>
-        <div className="memory-dice-countdown" aria-live="assertive">{countdown || 'GO!'}</div>
-        <div className="memory-dice-players">
-          {players.slice(0, 2).map((player, index) => (
-            <div className={`memory-dice-player ${index === starterIndex && !rolling ? 'is-winner' : ''}`} key={player.userId}>
-              <div className="memory-dice-avatar">{player.avatar ? <img src={player.avatar} alt="" /> : initials(player.displayName)}</div>
-              <strong>{player.displayName}</strong>
-              <DiceFace value={values[index]} rolling={rolling} />
-              <small>{rolling ? 'Đang tung…' : index === starterIndex ? 'Đi trước' : 'Đi sau'}</small>
-            </div>
-          ))}
-        </div>
-        <motion.p className="memory-dice-result" animate={{ opacity: rolling ? 0 : 1, y: rolling ? 5 : 0 }}>
-          {starter?.displayName} đi trước!
-        </motion.p>
-        <button className="memory-btn memory-btn--primary memory-dice-start" type="button" onClick={onStart} disabled={rolling}>
-          {rolling ? 'ĐANG TUNG XÚC XẮC…' : 'BẮT ĐẦU'}
-        </button>
-      </motion.section>
-    </motion.div>
-  )
-}
-
-/**
- * Cỡ chữ vừa khít mặt thẻ: thử 1–4 dòng, chọn số dòng cho chữ to nhất mà vẫn nằm gọn theo cả bề ngang (--fit-w)
- * lẫn bề cao (--fit-h). Đơn vị cqw/cqh theo khung thẻ (container-type: size) nên đúng ở mọi cỡ màn hình.
- */
-function fitText(text: string, japanese: boolean): React.CSSProperties {
-  const length = Math.max(1, Array.from(text.trim()).length)
-  // Bề rộng trung bình một ký tự theo em: chữ Nhật ~1em, chữ Latin ~0.56em (+ dư cho chỗ ngắt từ).
-  const charWidth = japanese ? 1 : 0.62
-  let best = { width: 1, lines: 1, score: 0 }
-  for (let lines = 1; lines <= (japanese ? 3 : 4); lines += 1) {
-    const perLine = Math.ceil(length / lines) * charWidth
-    // Thẻ ngang khoảng 1.6 : 1 → 72cqh ≈ 45cqw.
-    const score = Math.min(84 / perLine, 45 / (lines * 1.22))
-    if (score > best.score) best = { width: perLine, lines, score }
-  }
-  return { '--fit-w': best.width, '--fit-h': best.lines } as React.CSSProperties
-}
-
-function MemoryCardButton({
-  card,
-  disabled,
-  onFlip,
-  reduceMotion,
-  feedback
-}: {
-  card: MemoryCard
-  disabled: boolean
-  onFlip: (id: string) => void
-  reduceMotion: boolean | null
-  feedback: 'match' | 'mismatch' | null
-}) {
-  const revealed = card.state !== 'HIDDEN'
-  const matched = card.state === 'MATCHED'
-  const faceLabel = card.face ? FIELD_LABELS[card.face] : 'Thẻ'
-
-  return (
-    <motion.button
-      type="button"
-      className={`memory-card ${revealed ? 'is-revealed' : ''} ${matched ? 'is-matched' : ''} ${feedback ? `has-${feedback}-feedback` : ''}`}
-      disabled={disabled || revealed}
-      onClick={() => onFlip(card.cardInstanceId)}
-      aria-label={revealed ? `${faceLabel}: ${card.content ?? ''}` : `Thẻ úp số ${card.position + 1}`}
-      animate={{ rotateY: revealed ? 180 : 0, scale: 1 }}
-      transition={reduceMotion ? { duration: 0 } : {
-        rotateY: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
-        scale: { duration: 0.36, ease: [0.22, 1, 0.36, 1] }
-      }}
-      whileHover={!disabled && !revealed && !reduceMotion ? { y: -5, scale: 1.025 } : undefined}
-      whileTap={!disabled && !revealed && !reduceMotion ? { scale: 0.96 } : undefined}
-    >
-      <span className="memory-card__back" aria-hidden={revealed}>
-        <span className="memory-card__crest">❄</span>
-        <span className="memory-card__index">{String(card.position + 1).padStart(2, '0')}</span>
-      </span>
-      <span className="memory-card__front" aria-hidden={!revealed}>
-        <span className="memory-card__face">{faceLabel}</span>
-        <span className={`memory-card__content ${isJapaneseField(card.face) ? 'jp' : 'is-latin'}`}
-          style={fitText(card.content ?? '—', isJapaneseField(card.face))}>
-          {card.content ?? '—'}
-        </span>
-        {matched && <span className="memory-card__matched">✓ Đã ghép</span>}
-      </span>
-    </motion.button>
-  )
-}
-
-function ResultPanel({ state, userId, backUrl, onReplay, replaying }: {
-  state: MemoryState
-  userId: number | null
-  backUrl: string
-  onReplay: () => void
-  replaying: boolean
-}) {
-  const result = state.result
-  const versus = state.playMode === 'MULTIPLAYER'
-  const title = state.status === 'ABORTED'
-    ? 'Ván đã bị huỷ'
-    : versus
-      ? result?.draw ? 'Hoà!' : result?.winnerUserId === userId ? 'Bạn thắng!' : 'Đối thủ thắng'
-      : result?.success ? 'Hoàn thành!' : 'Ván chơi kết thúc'
-  const subtitle = state.status === 'ABORTED'
-    ? 'Phòng đã đóng giữa ván nên kết quả không được tính.'
-    : state.outcome === 'ABANDONED'
-      ? 'Một người chơi đã rời bàn giữa ván.'
-      : state.outcome === 'TIME_UP'
-        ? 'Hết thời gian, những cặp đã ghép vẫn được tính.'
-        : versus
-          ? 'Ai ghép nhiều cặp hơn thắng; bằng cặp thì ai ít lần sai hơn thắng.'
-          : 'Bạn đã ghép hết các cặp trên bàn.'
-  const ranked = [...state.players].sort((a, b) => b.pairsFound - a.pairsFound || a.mistakes - b.mistakes)
-
-  return (
-    <motion.section
-      className="memory-result"
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      role="dialog"
-      aria-labelledby="memory-result-title"
-    >
-      <div className="memory-result__seal" aria-hidden="true">勝</div>
-      <p className="memory-kicker">Kết quả Lật thẻ</p>
-      <h2 id="memory-result-title">{title}</h2>
-      <p>{subtitle}</p>
-      {versus ? (
-        <ol className="memory-result__ranking" aria-label="Bảng xếp hạng ván đấu">
-          {ranked.map((player) => (
-            <li key={player.userId} className={result?.winnerUserId === player.userId ? 'is-winner' : ''}>
-              <strong>{player.displayName}{player.userId === userId ? ' (bạn)' : ''}</strong>
-              <span>{player.pairsFound} cặp · {player.mistakes} lần sai · {player.moves} lượt</span>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <div className="memory-result__stats">
-          <span><strong>{state.pairsMatched}/{state.pairsTotal}</strong>Cặp đúng</span>
-          <span><strong>{state.movesUsed}</strong>Lượt lật</span>
-          <span><strong>{formatDuration(result?.durationMs ?? state.elapsedMs)}</strong>Thời gian</span>
-        </div>
-      )}
-      {!!result?.strugglingTerms?.length && (
-        <div className="memory-review">
-          <h3>Từ nên ôn lại</h3>
-          <div className="memory-review__list">
-            {result.strugglingTerms.map((term) => (
-              <div key={`${term.question}-${term.answer}`}>
-                <strong className={isJapaneseField(state.config.questionField) ? 'jp' : ''}>{term.question}</strong>
-                <span>
-                  {[term.answer, term.reading, term.meaning, term.hanViet]
-                    .filter((value, index, list): value is string => !!value && value !== term.question && list.indexOf(value) === index)
-                    .join(' · ')}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="memory-result__actions">
-        {!versus && (
-          <button className="memory-btn memory-btn--primary" onClick={onReplay} disabled={replaying}>
-            {replaying ? 'Đang tạo ván…' : 'Chơi lại'}
-          </button>
-        )}
-        <a className="memory-btn" href={backUrl}>
-          {versus ? 'Về phòng' : 'Về trang Trò chơi'}
-        </a>
-      </div>
-    </motion.section>
-  )
-}
-
 export default function App({ sessionId, backUrl }: { sessionId: string; backUrl: string }) {
   const reduceMotion = useReducedMotion()
   const storeRef = useRef<MemoryStoreLike | null>(null)
@@ -345,13 +94,15 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
     return Number.isFinite(saved) && saved >= 0 && saved <= 1 ? saved : 1
   })
   const [volumeOpen, setVolumeOpen] = useState(false)
-  const [showDiceRoll, setShowDiceRoll] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [showCoinToss, setShowCoinToss] = useState(false)
   const [deckCards, setDeckCards] = useState<DeckCardView[] | null>(null)
   const [starting, setStarting] = useState(false)
   const [setupError, setSetupError] = useState<string | null>(null)
   const countdownBeepRef = useRef<number | null>(null)
-  const diceSessionRef = useRef<string | null>(null)
   const soundEnabledRef = useRef(soundEnabled)
+  const settingsRef = useRef<HTMLDivElement | null>(null)
+  const settingsToggleRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
     resetUi()
@@ -427,6 +178,39 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   }, [volume])
 
   useEffect(() => {
+    if (!settingsOpen) return
+    const closeSettings = () => {
+      setSettingsOpen(false)
+      setVolumeOpen(false)
+    }
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !settingsRef.current?.contains(event.target)) closeSettings()
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      closeSettings()
+      settingsToggleRef.current?.focus()
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [settingsOpen])
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 760px)')
+    const closeSettings = () => {
+      setSettingsOpen(false)
+      setVolumeOpen(false)
+    }
+    mobileQuery.addEventListener('change', closeSettings)
+    return () => mobileQuery.removeEventListener('change', closeSettings)
+  }, [])
+
+  useEffect(() => {
     if (!soundEnabled) return
     const startMusic = () => startBackgroundMusic()
     window.addEventListener('pointerdown', startMusic, { once: true })
@@ -456,11 +240,9 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   }, [state?.players, userId])
 
   useEffect(() => {
-    if (!state || state.playMode !== 'MULTIPLAYER' || state.status !== 'RUNNING' || state.players.length < 2) return
-    if (diceSessionRef.current === state.sessionId) return
-    diceSessionRef.current = state.sessionId
-    setShowDiceRoll(true)
-  }, [state?.sessionId, state?.playMode, state?.status, state?.players.length])
+    if (!state || state.playMode !== 'MULTIPLAYER' || state.status !== 'RUNNING' || !state.coinToss) return
+    setShowCoinToss(state.coinToss.playStartsAt == null || state.serverTime < state.coinToss.playStartsAt)
+  }, [state?.sessionId, state?.status, state?.coinToss?.playStartsAt])
 
   useEffect(() => {
     const previous = previousStatusRef.current
@@ -469,18 +251,36 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   }, [soundEnabled, state?.status])
 
   const serverNow = storeRef.current?.serverNow() ?? now
-  const turnLeft = secondsLeft(state?.turnDeadlineAt, serverNow)
-  const totalLeft = secondsLeft(state?.totalDeadlineAt, serverNow)
+  const countdownNow = Math.max(serverNow, state?.coinToss?.playStartsAt ?? serverNow)
+  const turnLeft = secondsLeft(state?.turnDeadlineAt, countdownNow)
+  const totalLeft = secondsLeft(state?.totalDeadlineAt, countdownNow)
   const me = state?.players.find((player) => player.userId === userId)
   const myTurn = state?.playMode === 'SOLO' || state?.currentTurnUserId === userId
-  // Bàn luyện tập có thể là số ô bất kỳ (12–40): chọn số cột ít ô trống nhất, hoà thì lấy mức quen thuộc 4/5/6.
-  const boardColumns = useMemo(() => {
-    const count = state?.cards.length ?? 20
-    const preferred = count <= 12 ? 4 : count <= 20 ? 5 : 6
-    const candidates = count <= 12 ? [4, 3] : count <= 20 ? [5, 4, 6] : [6, 5, 7]
-    const empty = (cols: number) => Math.ceil(count / cols) * cols - count
-    return candidates.reduce((best, cols) => (empty(cols) < empty(best) ? cols : best), preferred)
-  }, [state?.cards.length])
+  const boardRef = useRef<HTMLDivElement>(null)
+  const [boardFit, setBoardFit] = useState({ columns: 4, size: 0 })
+  const boardColumns = boardFit.columns
+  const boardRows = Math.max(1, Math.ceil((state?.cards.length ?? 20) / boardColumns))
+  useLayoutEffect(() => {
+    const board = boardRef.current
+    if (!board) return
+    const fit = () => {
+      const count = state?.cards.length ?? 20
+      const gap = parseFloat(getComputedStyle(board).columnGap) || 0
+      // Prefer four cards across and require complete rows (20 cards → 4 × 5).
+      const columns = [4, 3, 2, 1].find(value => count % value === 0) ?? 1
+      const rows = count / columns
+      const size = Math.max(0, Math.floor(Math.min(
+        (board.clientWidth - (columns - 1) * gap) / columns,
+        (board.clientHeight - (rows - 1) * gap) / rows
+      )))
+      const best = { columns, size }
+      setBoardFit(current => current.columns === best.columns && current.size === best.size ? current : best)
+    }
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(board)
+    return () => observer.disconnect()
+  }, [state?.cards.length, state?.status, state?.awaitingStart])
   // Luyện tập: sau khi bấm "Bắt đầu", đếm ngược 3-2-1 tới lúc bắt đầu tính giờ (turnStartedAt).
   const soloCountdown = state && state.playMode === 'SOLO' && !state.awaitingStart && state.turnStartedAt
     && state.movesUsed === 0 && serverNow < state.turnStartedAt
@@ -490,7 +290,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
     countdownBeepRef.current = soloCountdown
     if (soundEnabled) playCountdownSfx(soloCountdown)
   }, [soloCountdown, soundEnabled])
-  const canFlip = Boolean(state && !showDiceRoll && soloCountdown == null && state.status === 'RUNNING' && !state.resolving && myTurn && connection === 'online')
+  const canFlip = Boolean(state && !showCoinToss && soloCountdown == null && state.status === 'RUNNING' && !state.resolving && myTurn && connection === 'online')
 
   const flip = (cardId: string) => {
     setError(null)
@@ -643,11 +443,14 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
               <span className={myTurn ? 'is-mine' : ''}>{state.status === 'PAUSED' ? 'VÁN ĐANG TẠM DỪNG' : myTurn ? 'CHỌN HAI THẺ' : 'ĐỐI THỦ ĐANG CHỌN THẺ…'}</span>
               <small>{state.deckTitle} · {FIELD_LABELS[state.config.questionField]} ↔ {FIELD_LABELS[state.config.answerField]}</small>
             </div>
-            <div className="memory-board" style={{ '--board-cols': boardColumns } as React.CSSProperties}>
+            <div ref={boardRef} className="memory-board" style={{ '--board-cols': boardColumns, '--board-rows': boardRows, '--card-size': `${boardFit.size}px` } as React.CSSProperties}>
               {state.cards.slice().sort((a, b) => a.position - b.position).map((card) => (
                 <MemoryCardButton
                   key={card.cardInstanceId}
                   card={card}
+                  colorGroup={state.config.distinguishCardTypes && card.face
+                    ? card.face === state.config.questionField ? 'question' : 'answer'
+                    : undefined}
                   disabled={!canFlip}
                   onFlip={flip}
                   reduceMotion={reduceMotion}
@@ -675,8 +478,27 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
             <i />
             <span><small>Combo</small><strong className={(me?.streak ?? 0) >= 2 ? 'is-combo' : ''}>x{me?.streak ?? 0}</strong></span>
           </div>
-          <div className="memory-sidebar-controls">
+          <div className="memory-sidebar-controls" ref={settingsRef}>
             <span className={`memory-connection is-${connection}`}><i />{connection === 'online' ? 'Đã kết nối' : connection === 'connecting' ? 'Đang kết nối' : 'Mất kết nối'}</span>
+            <button
+              type="button"
+              ref={settingsToggleRef}
+              className="memory-mobile-settings-toggle"
+              onClick={() => {
+                if (soundEnabled) playClickSfx()
+                if (settingsOpen) setVolumeOpen(false)
+                setSettingsOpen((open) => !open)
+              }}
+              aria-expanded={settingsOpen}
+              aria-controls="memory-game-settings"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="m9.5 3-.5 2.1-1.8 1-2.1-.6-2.5 4.3 1.6 1.5v2.1l-1.6 1.5 2.5 4.3 2.1-.6 1.8 1 .5 2.1h5l.5-2.1 1.8-1 2.1.6 2.5-4.3-1.6-1.5v-2.1l1.6-1.5-2.5-4.3-2.1.6-1.8-1-.5-2.1z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span>Cài đặt</span>
+            </button>
+            <div id="memory-game-settings" className={`memory-mobile-settings-panel${settingsOpen ? ' is-open' : ''}`} role="group" aria-label="Cài đặt ván chơi">
             <div className="memory-sidebar-controls__buttons">
           <div className="memory-volume-control">
             <button
@@ -692,7 +514,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
               aria-label={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
               title={soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
             >
-              {soundEnabled ? '🔊' : '🔇'}
+              <MemoryIcon name={soundEnabled ? 'sound' : 'muted'} />
               <span className="memory-icon-btn__label">{soundEnabled ? 'Tắt tiếng' : 'Bật tiếng'}</span>
             </button>
             <button
@@ -703,7 +525,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
               aria-expanded={volumeOpen}
               title="Tùy chỉnh âm lượng"
             >
-              ⚙
+              <MemoryIcon name="volume" />
             </button>
             <AnimatePresence>
               {volumeOpen && (
@@ -728,12 +550,26 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
             </AnimatePresence>
           </div>
           {state.playMode === 'SOLO' && (
-            <button type="button" className="memory-icon-btn" onClick={() => { if (soundEnabled) playClickSfx(); void togglePause() }} disabled={pendingPause} aria-label={state.status === 'PAUSED' ? 'Tiếp tục' : 'Tạm dừng'}>
-              {state.status === 'PAUSED' ? '▶' : 'Ⅱ'}
+            <button
+              type="button"
+              className="memory-icon-btn"
+              onClick={() => {
+                if (soundEnabled) playClickSfx()
+                if (settingsOpen) {
+                  setSettingsOpen(false)
+                  setVolumeOpen(false)
+                }
+                void togglePause()
+              }}
+              disabled={pendingPause}
+              aria-label={state.status === 'PAUSED' ? 'Tiếp tục' : 'Tạm dừng'}
+            >
+              <MemoryIcon name={state.status === 'PAUSED' ? 'play' : 'pause'} />
               <span className="memory-icon-btn__label">{state.status === 'PAUSED' ? 'Tiếp tục' : 'Tạm dừng'}</span>
             </button>
           )}
-          <a className="memory-icon-btn memory-icon-btn--exit" href={backUrl} onClick={leaveBoard} aria-label="Rời bàn" title="Rời bàn">↪<span className="memory-icon-btn__label">Rời bàn</span></a>
+          <a className="memory-icon-btn memory-icon-btn--exit" href={backUrl} onClick={leaveBoard} aria-label="Rời bàn" title="Rời bàn"><MemoryIcon name="exit" /><span className="memory-icon-btn__label">Rời bàn</span></a>
+            </div>
             </div>
           </div>
         </div>
@@ -755,12 +591,13 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
         </div>
       )}
       <AnimatePresence>
-        {showDiceRoll && state.playMode === 'MULTIPLAYER' && state.players.length >= 2 && (
-          <DiceRollOverlay
-            players={state.players}
-            starterIndex={state.players.findIndex((player) => player.userId === state.currentTurnUserId) === 1 ? 1 : 0}
-            onStart={() => setShowDiceRoll(false)}
-          />
+        {showCoinToss && state.playMode === 'MULTIPLAYER' && state.coinToss && (
+          <CoinTossOverlay coin={state.coinToss} players={state.players} meId={userId} serverNow={serverNow}
+            onChoose={async (side) => {
+              const next = await window.JlasArena.api.post<MemoryState>(`/api/games/memory/${sessionId}/coin`, { side })
+              storeRef.current?.applyState(next)
+            }}
+            onDone={() => setShowCoinToss(false)} onLeave={() => { void backFromSetup() }} />
         )}
       </AnimatePresence>
     </main>

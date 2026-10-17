@@ -6,6 +6,7 @@ import java.util.List;
 public record SmartTestResponse(
         Long attemptId,
         String status,
+        String goal,
         int answeredCount,
         int totalQuestions,
         List<String> selectedSkills,
@@ -35,6 +36,9 @@ public record SmartTestResponse(
             String confidence,
             String readinessLevel,
             String targetLevel,
+            String recommendedTarget,
+            List<String> recommendedStageLevels,
+            boolean requiresTargetConfirmation,
             boolean partial,
             int correctAnswers,
             int totalQuestions,

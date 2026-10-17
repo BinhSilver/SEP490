@@ -8,7 +8,8 @@ import lombok.*;
  * Table: unit
  */
 @Entity
-@Table(name = "unit")
+@Table(name = "unit", uniqueConstraints =
+        @UniqueConstraint(name = "uk_unit_source_code", columnNames = {"textbook_id", "source_code"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,6 +20,10 @@ public class Unit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0108] Stable key within a textbook; null preserves legacy/module rows. */
+    @Column(name = "source_code", length = 64)
+    private String sourceCode;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "textbook_id", nullable = false,

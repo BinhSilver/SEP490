@@ -9,6 +9,7 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
 import com.jlas.dictionary.service.ContentAdminService;
 import com.jlas.dictionary.service.DictionaryService;
+import com.jlas.dictionary.service.DictionaryEngagementService;
 import com.jlas.dictionary.service.LessonImportService;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,8 +49,8 @@ class DictionaryControllerHandwritingTest {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         mvc = MockMvcBuilders.standaloneSetup(
-                        new DictionaryController(service, limiter, mock(ContentAdminService.class),
-                                mock(LessonImportService.class)))
+                        new DictionaryController(service, limiter, mock(DictionaryEngagementService.class),
+                                mock(ContentAdminService.class), mock(LessonImportService.class)))
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .setControllerAdvice(new GlobalApiExceptionHandler())
                 .setValidator(validator)

@@ -393,7 +393,7 @@
   gap: var(--space-4);
   margin-top: var(--space-5);
   padding: var(--space-5);
-  border-style: dashed;
+  border-style: solid;
 }
 
 .oy-final-card.is-passed {
@@ -1397,12 +1397,40 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .oy-card__inner,
-  .oy-progress__fill,
-  .oy-lesson-card,
-  .oy-quiz__option,
-  .oy-quiz__step {
-    transition: none;
-  }
+
+/* Page-owned dark mode: css/pages/onyomi.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-onyomi-bg: #100e16;
+  --dm-onyomi-surface: #1c1825;
+  --dm-onyomi-raised: #2b2537;
+  --dm-onyomi-ink: #f8f2fc;
+  --dm-onyomi-muted: #c1b6d0;
+  --dm-onyomi-line: #4c405e;
+  --dm-onyomi-accent: #d0a1ff;
+  --dm-onyomi-action: #7335a6;
+  --dm-onyomi-accent-soft: #302140;
+  --dm-onyomi-on-accent: #211b34;
+  --dm-onyomi-success: #8eddb6;
+  --dm-onyomi-success-bg: #1b3d32;
+  --dm-onyomi-success-line: #43816b;
+  --dm-onyomi-danger: #ffb4bd;
+  --dm-onyomi-danger-bg: #452832;
+  --dm-onyomi-danger-line: #96616d;
+  --dm-onyomi-warning: #f3d28a;
+  --dm-onyomi-warning-bg: #403522;
+  --dm-onyomi-warning-line: #947a46;
+  --dm-onyomi-pink: #f4aed2;
+  --dm-onyomi-pink-bg: #432d40;
+  --dm-onyomi-pink-line: #88637b;
 }
+html[data-theme="dark"] .onyomi-body {
+    --oy-paper: var(--dm-onyomi-surface);
+    --oy-gold-soft: var(--dm-onyomi-warning-bg)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .onyomi-body{--color-background:var(--dm-onyomi-bg);--color-surface:var(--dm-onyomi-bg);--color-surface-lowest:var(--dm-onyomi-surface);--color-surface-low:var(--dm-onyomi-raised);--color-surface-mid:var(--dm-onyomi-raised);--color-surface-high:var(--dm-onyomi-raised);--color-surface-container:var(--dm-onyomi-raised);--color-surface-container-high:var(--dm-onyomi-raised);--color-on-surface:var(--dm-onyomi-ink);--color-on-surface-variant:var(--dm-onyomi-muted);--color-secondary:var(--dm-onyomi-muted);--color-outline:var(--dm-onyomi-muted);--color-outline-variant:var(--dm-onyomi-line);--color-primary:var(--dm-onyomi-accent);--color-primary-container:var(--dm-onyomi-action);--color-on-primary:var(--dm-onyomi-on-accent);--color-on-primary-container:var(--dm-onyomi-ink);--color-primary-fixed:var(--dm-onyomi-accent-soft);--color-on-primary-fixed:var(--dm-onyomi-accent);--color-secondary-container:var(--dm-onyomi-accent-soft);--color-secondary-fixed:var(--dm-onyomi-accent-soft);--color-success:var(--dm-onyomi-success);--color-success-bg:var(--dm-onyomi-success-bg);--color-error:var(--dm-onyomi-danger);--color-error-container:var(--dm-onyomi-danger-bg);--color-on-error-container:var(--dm-onyomi-danger);--color-tertiary:var(--dm-onyomi-warning);--color-tertiary-container:var(--dm-onyomi-warning-bg);--color-on-tertiary-container:var(--dm-onyomi-warning);--color-focus:var(--dm-onyomi-accent);--jlab-base-page-background:var(--dm-onyomi-bg);--oy-paper:var(--dm-onyomi-surface);--oy-gold-soft:var(--dm-onyomi-warning-bg);--oy-accent-soft:var(--dm-onyomi-accent-soft);}
+html[data-theme="dark"] .onyomi-body .btn--primary{background:var(--dm-onyomi-action)!important;color:var(--dm-onyomi-ink)!important;}
+html[data-theme="dark"] .onyomi-body .btn--primary:hover{background:#8263bd!important;}

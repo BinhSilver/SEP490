@@ -4,6 +4,88 @@ const fs = require('node:fs');
 const pathModule = require('node:path');
 const page = require('../../main/resources/static/js/pages/interactive-learning-path.js');
 
+// Owner decision 2026-10-06: the roadmap unit is the chapter (source lesson) with ordered parts, not the
+// calendar day; a learner may finish several parts in one sitting, so no "DAY n" / "Ngày n" labels.
+test('parts of one lesson render inside one chapter card with numbered parts and no day labels', () => {
+  const part = (id, index, status) => ({ id, phase: 'GOAL_LEARNING', dayNumber: 12 + index, orderIndex: index,
+    title: 'Bài 1: Giới thiệu bản thân · Phần ' + index + '/2', status, progressPercent: 0,
+    chapterLessonId: 501, chapterTitle: 'Bài 1: Giới thiệu bản thân', chapterNumber: 3, segmentIndex: index, segmentCount: 2,
+    lockReason: status === 'LOCKED' ? 'Hoàn thành phần trước để mở khóa.' : null,
+    activities: [{ id: id * 10, type: 'VOCABULARY', state: status === 'LOCKED' ? 'LOCKED' : 'STUDYING', orderIndex: 1, dayNumber: 12 + index }] });
+  const html = page.render(path({ packages: [part(1, 1, 'IN_PROGRESS'), part(2, 2, 'LOCKED')] }));
+  assert.equal((html.match(/class="ilp-chapter"/g) || []).length, 1);
+  assert.match(html, /CHƯƠNG 3 · MỤC TIÊU/);
+  // UAT 2026-10-06: the source textbook's lesson number ("Bài 17") leaks catalog order — the first target chapter
+  // read "Bài 17". Only the lesson title is shown; the chapter kicker carries the learner's own numbering.
+  assert.match(html, /<h3>Giới thiệu bản thân<\/h3>/);
+  assert.doesNotMatch(html, /Bài 1:/);
+  assert.match(html, /Phần 1\/2/);
+  assert.match(html, /Phần 2\/2/);
+  assert.match(html, /Hoàn thành phần trước để mở khóa/);
+  assert.doesNotMatch(html, /DAY \d/);
+  assert.doesNotMatch(html, /Ngày \d/);
+});
+
+test('chapter progress counts finished learning activities, not hidden daily package segments', () => {
+  const packages = [
+    { id: 101, phase: 'GOAL_LEARNING', orderIndex: 1, status: 'COMPLETED', progressPercent: 100,
+      chapterLessonId: 811, chapterTitle: 'Giới thiệu bản thân', chapterNumber: 11,
+      activities: [
+        { id: 1, type: 'VOCABULARY', state: 'PASSED' },
+        { id: 2, type: 'KANJI', state: 'PASSED' }
+      ] },
+    { id: 102, phase: 'GOAL_LEARNING', orderIndex: 2, status: 'COMPLETED', progressPercent: 100,
+      chapterLessonId: 811, chapterTitle: 'Giới thiệu bản thân', chapterNumber: 11,
+      activities: [
+        { id: 3, type: 'VOCABULARY', state: 'PASSED' },
+        { id: 4, type: 'KANJI', state: 'PASSED' }
+      ] },
+    { id: 103, phase: 'GOAL_LEARNING', orderIndex: 3, status: 'COMPLETED', progressPercent: 100,
+      chapterLessonId: 811, chapterTitle: 'Giới thiệu bản thân', chapterNumber: 11,
+      activities: [
+        { id: 5, type: 'VOCABULARY', state: 'PASSED' },
+        { id: 6, type: 'KANJI', state: 'PASSED' }
+      ] },
+    { id: 104, phase: 'GOAL_LEARNING', orderIndex: 4, status: 'COMPLETED', progressPercent: 100,
+      chapterLessonId: 811, chapterTitle: 'Giới thiệu bản thân', chapterNumber: 11,
+      activities: [
+        { id: 7, type: 'VOCABULARY', state: 'PASSED' },
+        { id: 8, type: 'KANJI', state: 'PASSED' }
+      ] },
+    { id: 105, phase: 'GOAL_LEARNING', orderIndex: 5, status: 'COMPLETED', progressPercent: 100,
+      chapterLessonId: 811, chapterTitle: 'Giới thiệu bản thân', chapterNumber: 11,
+      activities: [
+        { id: 9, type: 'KANJI', state: 'PASSED' },
+        { id: 10, type: 'GRAMMAR', state: 'STUDYING' }
+      ] },
+    { id: 106, phase: 'GOAL_LEARNING', orderIndex: 6, status: 'IN_PROGRESS', progressPercent: 0,
+      chapterLessonId: 811, chapterTitle: 'Giới thiệu bản thân', chapterNumber: 11,
+      activities: [{ id: 11, type: 'DIALOGUE', state: 'LOCKED' }] }
+  ];
+  const html = page.render(path({ packages }));
+  assert.match(html, /9\/11 hoạt động đã hoàn thành/);
+  assert.match(html, /aria-valuenow="82"/);
+  assert.doesNotMatch(html, /5\/6 phần đã xong/);
+});
+
+test('a package without a source lesson is its own chapter', () => {
+  const html = page.render(path({ packages: [{ id: 7, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1, title: 'Khởi động Từ vựng',
+    status: 'AVAILABLE', chapterLessonId: null, chapterTitle: 'Khởi động Từ vựng', chapterNumber: 1, segmentIndex: 1, segmentCount: 1,
+    activities: [{ id: 70, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 }] }] }));
+  assert.match(html, /CHƯƠNG 1 · KHỞI ĐỘNG/);
+  assert.match(html, /class="ilp-chapter"/);
+  assert.doesNotMatch(html, /DAY \d/);
+});
+
+test('a single-part chapter shows the lesson title without the textbook lesson number', () => {
+  const html = page.render(path({ packages: [{ id: 8, phase: 'GOAL_LEARNING', dayNumber: 6, orderIndex: 6,
+    title: 'Bài 17: Đừng làm, phải làm · Phần 1/1', status: 'AVAILABLE', chapterLessonId: 17,
+    chapterTitle: 'Bài 17: Đừng làm, phải làm', chapterNumber: 6, segmentIndex: 1, segmentCount: 1,
+    activities: [{ id: 80, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 }] }] }));
+  assert.match(html, /<h3>Đừng làm, phải làm<\/h3>/);
+  assert.doesNotMatch(html, /Bài 17/);
+});
+
 function path(overrides = {}) {
   return Object.assign({
     title: 'Ôn vững nền tảng', currentLevel: 'N5', targetLevel: 'N4', minutesPerDay: 30,
@@ -19,6 +101,27 @@ function path(overrides = {}) {
   }, overrides);
 }
 
+test('communication path renders independent situations without JLPT phases or quiz copy', () => {
+  const html = page.render(path({
+    goal: 'TRAVEL',
+    title: 'Tiếng Nhật du lịch',
+    packages: [{
+      id: 31, phase: 'GOAL_LEARNING', orderIndex: 1, status: 'AVAILABLE',
+      chapterLessonId: 901, chapterNumber: 1, chapterTitle: 'Tại sân bay',
+      activities: [
+        { id: 311, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 },
+        { id: 312, type: 'GRAMMAR', state: 'LOCKED', orderIndex: 2 },
+        { id: 313, type: 'DIALOGUE', state: 'LOCKED', orderIndex: 3 }
+      ]
+    }]
+  }), 'WARM_UP', { mockResult: { passed: true, level: 'N5' } });
+
+  assert.match(html, /TÌNH HUỐNG 1/);
+  assert.match(html, /Bạn có thể học Từ vựng, Ngữ pháp hoặc Hội thoại theo thứ tự phù hợp/);
+  assert.doesNotMatch(html, /CHƯƠNG 1|Khởi động|Mục tiêu|làm bài kiểm tra|thi thử N5/);
+  assert.match(html, /từ và cụm từ dùng ngay trong tình huống này/i);
+});
+
 /** [JLAS-W0193] RC Task 5 — a warm-up day with the two new comprehension activities, kept separate from the
  * four-activity `path()` fixture above so its own "orders the four target activities" assertion stays exact. */
 function pathWithComprehension() {
@@ -29,6 +132,19 @@ function pathWithComprehension() {
       { id: 6, type: 'LISTENING', state: 'LOCKED', orderIndex: 2 }
     ] }] });
 }
+
+test('active warm-up activity exposes an explicit continue action', () => {
+  const data = pathWithComprehension();
+  data.packages[0].status = 'IN_PROGRESS';
+  data.packages[0].activities[0].state = 'STUDYING';
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=5"[^>]*>[\s\S]*?Tiếp tục học/);
+});
+
+test('goal sidebar does not expose server implementation details', () => {
+  const html = page.render(path());
+  assert.doesNotMatch(html, /lưu trạng thái trên máy chủ/);
+});
 
 test('resolves the Smart Test attempt from the redirected V2 URL before storage', () => {
   const storage = { getItem: () => '41' };
@@ -53,9 +169,42 @@ test('orders the four target activities using the approved rail', () => {
 
 test('renders only supported roadmap data and no legacy aggregate quiz', () => {
   const html = page.render(path());
-  assert.match(html, /MISSION DIRECTIVE/);
-  assert.match(html, /Bắt đầu học/);
-  assert.doesNotMatch(html, /Mini Quiz|quiz cuối bài|daily quiz|XP|Tải xuống|Luyện nghe/);
+  assert.match(html, /Lộ trình của bạn/);
+  assert.doesNotMatch(html, /MISSION DIRECTIVE/);
+  assert.match(html, /Bắt đầu phần học/);
+  assert.doesNotMatch(html, /Mini Quiz|quiz cuối bài|daily quiz|XP|Tải xuống/);
+});
+
+test('shows small Smart Test remediation sets as a read-only list with no quiz or progress actions', () => {
+  const html = page.render(path({ smartTestReviewOnlyTargets: [
+    { skill: 'VOCABULARY', target: '学生' }, { skill: 'KANJI', target: '食' }
+  ] }));
+  assert.match(html, /Nội dung nên xem lại/);
+  assert.match(html, /学生/);
+  assert.match(html, /食/);
+  assert.doesNotMatch(html, /Bắt đầu kiểm tra|Ôn lại bằng Flashcard|smart-test-review-only/);
+});
+
+// Owner clarification 2026-10-11: detailed Smart Test questions and answers belong to test results,
+// not the roadmap's compact list of content to revisit.
+test('keeps Smart Test grammar prompts, answers and explanations out of the roadmap', () => {
+  const html = page.render(path({ smartTestReviewOnlyTargets: [
+    { skill: 'GRAMMAR', target: 'を', sentence: '駅で切符＿＿＿＿買います。', answer: 'を', explanation: 'Trợ từ chỉ đối tượng.' }
+  ] }));
+  assert.doesNotMatch(html, /class="ilp-review-only"/);
+  assert.doesNotMatch(html, /駅で切符|Đáp án:|Trợ từ chỉ đối tượng/);
+});
+
+test('roadmap review list remains limited to compact vocabulary and kanji targets', () => {
+  const html = page.render(path({ smartTestReviewOnlyTargets: [
+    { skill: 'VOCABULARY', target: '学生' }, { skill: 'KANJI', target: '食' },
+    { skill: 'GRAMMAR', target: 'を', sentence: 'sentence', answer: 'answer', explanation: 'detail' }
+  ] }));
+  const panel = (html.match(/<aside class="ilp-review-only"[\s\S]*?<\/aside>/) || [''])[0];
+  assert.match(panel, /Nội dung nên xem lại/);
+  assert.match(panel, /学生/);
+  assert.match(panel, />食</);
+  assert.doesNotMatch(panel, /Ngữ pháp|sentence|answer|detail/);
 });
 
 test('renders Vietnamese package states instead of backend enum names', () => {
@@ -91,6 +240,24 @@ test('keeps roadmap actions in normal layout flow so they cannot overlap the nex
   assert.match(css, /\.ilp-state button\{[^}]*float:none/);
 });
 
+test('roadmap uses flat completed chapters and reserves a warm accent for the active lesson', () => {
+  const css = fs.readFileSync(pathModule.join(__dirname,
+    '../../main/resources/static/css/pages/interactive-learning-path.css'), 'utf8');
+  assert.match(css, /\.ilp-page \.ilp-hero\s*\{[^}]*border:\s*0/);
+  assert.match(css, /\.ilp-page \.ilp-chapter\s*\{[^}]*border:\s*0/);
+  assert.match(css, /\.ilp-page \.ilp-day--completed,\s*\.ilp-page \.ilp-day--locked\s*\{[^}]*border-bottom/);
+  assert.match(css, /\.ilp-page \.ilp-day--in_progress,\s*\.ilp-page \.ilp-day--available\s*\{[^}]*border-left:[^;}]*var\(--color-tertiary-container\)/);
+  assert.match(css, /\.ilp-page \.ilp-total strong\s*\{[^}]*color:\s*var\(--color-on-tertiary-container\)/);
+});
+
+test('roadmap controls visibly respond to hover and press without styling disabled controls as active', () => {
+  const css = fs.readFileSync(pathModule.join(__dirname,
+    '../../main/resources/static/css/pages/interactive-learning-path.css'), 'utf8');
+  assert.match(css, /\.ilp-page :is\([^}]*\):hover:not\(:disabled\)\s*\{/);
+  assert.match(css, /\.ilp-page :is\([^}]*\):active:not\(:disabled\)\s*\{/);
+  assert.match(css, /\.ilp-page :is\([^}]*\):active:not\(:disabled\)\s*\{[^}]*background-color:[^;}]*color-mix/);
+});
+
 test('omits optional intensity when the API has no value', () => {
   const html = page.render(path({ minutesPerDay: null }));
   assert.doesNotMatch(html, /phút\/ngày/);
@@ -101,6 +268,19 @@ test('links an unlocked Kanji activity to its own study page (Task 5)', () => {
   data.packages[0].activities[3].state = 'STUDYING';
   const html = page.render(data);
   assert.match(html, /href="\/learning\/v2\/kanji\?activity=4"/);
+});
+
+test('routes to the first server-unlocked activity after a package starts', () => {
+  assert.equal(page.startedPackageStudyHref({ activities: [
+    { id: 4, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 },
+    { id: 8, type: 'KANJI', state: 'STUDYING', orderIndex: 2 }
+  ] }), '/learning/v2/kanji?activity=8');
+  assert.equal(page.startedPackageStudyHref({ activities: [
+    { id: 4, type: 'VOCABULARY', state: 'LOCKED', orderIndex: 1 }
+  ] }), null);
+  assert.equal(page.startedPackageStudyHref({ activities: [
+    { id: 4, type: 'UNKNOWN', state: 'STUDYING', orderIndex: 1 }
+  ] }), null);
 });
 
 test('does not link a locked Kanji activity', () => {
@@ -141,7 +321,7 @@ test('links an unlocked Reading activity to its own study page (RC Task 5)', () 
 
 test('does not link a locked Reading activity', () => {
   const html = page.render(pathWithComprehension());
-  assert.doesNotMatch(html, /\/learning\/v2\/reading\?activity=5/);
+  assert.doesNotMatch(html, /\shref="\/learning\/v2\/reading\?activity=5"/);
 });
 
 test('links an unlocked Listening activity to its own study page (RC Task 5)', () => {
@@ -153,7 +333,7 @@ test('links an unlocked Listening activity to its own study page (RC Task 5)', (
 
 test('does not link a locked Listening activity', () => {
   const html = page.render(pathWithComprehension());
-  assert.doesNotMatch(html, /\/learning\/v2\/listening\?activity=6/);
+  assert.doesNotMatch(html, /\shref="\/learning\/v2\/listening\?activity=6"/);
 });
 
 test('marks a passed Reading/Listening activity as done without a link', () => {
@@ -161,19 +341,83 @@ test('marks a passed Reading/Listening activity as done without a link', () => {
   data.packages[0].activities[0].state = 'PASSED';
   data.packages[0].activities[1].state = 'PASSED';
   const html = page.render(data);
-  assert.doesNotMatch(html, /\/learning\/v2\/reading\?activity=5/);
-  assert.doesNotMatch(html, /\/learning\/v2\/listening\?activity=6/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/reading\?activity=5"/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/listening\?activity=6"/);
+  assert.doesNotMatch(html, /data-start-href="\/learning\/v2\/(reading|listening)\?activity=[56]"/);
   assert.match(html, /Đọc hiểu/);
   assert.match(html, /Nghe hiểu/);
 });
 
-test('marks a completed Dialogue activity as done without a link (Dialogue has no micro-check state)', () => {
+test('completed Grammar and Dialogue activities expose only their supported replay actions', () => {
   const data = path();
+  data.packages[0].activities[2].state = 'PASSED';
   data.packages[0].activities[0].state = 'COMPLETED';
   const html = page.render(data);
-  assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1/);
-  assert.match(html, /is-done/);
+  assert.match(html, /\/learning\/v2\/grammar\?activity=3&amp;mode=review/);
+  assert.match(html, /\/learning\/v2\/grammar\?activity=3&amp;mode=practice/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=1&amp;mode=review/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=1&amp;mode=practice/);
+  assert.doesNotMatch(html, /\/learning\/v2\/dialogue\?activity=1"/);
 });
+
+test('renders server-owned completed sessions and only server-allowed replay actions', () => {
+  const data = path({ packages: [{ id: 9, phase: 'GOAL_LEARNING', dayNumber: 3, orderIndex: 1,
+    title: 'Bài 3', status: 'COMPLETED', progressPercent: 100, activities: [], sessions: [
+      { sessionType: 'VOCABULARY', state: 'COMPLETED', allowedActions: ['REVIEW', 'PRACTICE'],
+        activities: [{ id: 44, type: 'VOCABULARY', state: 'PASSED' }], contentCounts: { vocabulary: 8 },
+        contentCount: 8, estimatedMinutes: 10, referenceVocabulary: [] },
+      { sessionType: 'KANJI_GRAMMAR', state: 'COMPLETED', allowedActions: [],
+        activities: [{ id: 45, type: 'GRAMMAR', state: 'PASSED' }], contentCounts: { grammar: 2 },
+        contentCount: 2, estimatedMinutes: 10, referenceVocabulary: [
+          { canonicalId: 900, expression: '<学校>', reading: 'がっこう', meaning: 'trường học', wordType: 'NOUN' }
+        ] },
+      { sessionType: 'DIALOGUE', state: 'COMPLETED', allowedActions: ['REVIEW', 'PRACTICE'],
+        activities: [{ id: 46, type: 'DIALOGUE', state: 'COMPLETED' }], contentCounts: { dialogue: 4 },
+        contentCount: 4, estimatedMinutes: 10, referenceVocabulary: [] }
+    ] }] });
+  const html = page.render(data);
+  assert.match(html, /Từ vựng/);
+  assert.match(html, /8 từ/);
+  assert.match(html, /\/learning\/v2\/vocabulary\?activity=44&amp;mode=review/);
+  assert.match(html, /&lt;学校&gt;/);
+  assert.match(html, /Hội thoại/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=46&amp;mode=review/);
+  assert.doesNotMatch(html, /\/learning\/v2\/grammar\?activity=45/);
+});
+
+test('session continuation links only unlocked children and keeps completed child replay available', () => {
+  const data = path({ packages: [{ id: 9, phase: 'GOAL_LEARNING', dayNumber: 1, orderIndex: 1,
+    title: 'Bài 1', status: 'IN_PROGRESS', activities: [], sessions: [
+      { sessionType: 'KANJI_GRAMMAR', state: 'IN_PROGRESS', allowedActions: ['CONTINUE'], activities: [
+        { id: 41, type: 'KANJI', state: 'PASSED' }, { id: 42, type: 'GRAMMAR', state: 'STUDYING' }] },
+      { sessionType: 'DIALOGUE', state: 'LOCKED', allowedActions: [], activities: [
+        { id: 43, type: 'DIALOGUE', state: 'LOCKED' }] }
+    ] }] });
+  const html = page.render(data);
+  assert.match(html, /href="\/learning\/v2\/grammar\?activity=42"/);
+  assert.match(html, /href="\/learning\/v2\/kanji\?activity=41&amp;mode=review"/);
+  assert.doesNotMatch(html, /href="\/learning\/v2\/dialogue\?activity=43/);
+});
+
+test('completed legacy and warm-up packages retain replay actions without session projection', () => {
+  const html = page.render(path({ packages: [{ id: 9, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1,
+    title: 'Ôn đọc', status: 'COMPLETED', activities: [{ id: 7, type: 'READING', state: 'PASSED' }] }] }));
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=7&amp;mode=review"/);
+  assert.match(html, /href="\/learning\/v2\/reading\?activity=7&amp;mode=practice"/);
+});
+
+for (const count of [0, 1, 4]) {
+  test(`reference-only vocabulary renders ${count} words without a flashcard activity`, () => {
+    const words = Array.from({ length: count }, (_, i) => ({ expression: '語' + i, meaning: 'từ ' + i }));
+    const html = page.render(path({ packages: [{ id: 1, phase: 'GOAL_LEARNING', dayNumber: 1, orderIndex: 1,
+      title: 'Ngữ pháp', status: 'IN_PROGRESS', activities: [], sessions: [{ sessionType: 'KANJI_GRAMMAR',
+        state: 'IN_PROGRESS', allowedActions: ['CONTINUE'], activities: [{ id: 2, type: 'GRAMMAR', state: 'STUDYING' }],
+        referenceVocabulary: words }] }] }));
+    assert.equal(html.includes('Từ tham khảo ngắn'), count > 0);
+    for (const word of words) assert.ok(html.includes(word.expression));
+    assert.doesNotMatch(html, /\/learning\/v2\/vocabulary/);
+  });
+}
 
 // ---- Task 8: package completion popup ----
 
@@ -198,9 +442,8 @@ test('renderPopup shows the exact completion copy and three ranked actions', () 
     lastPackage: false, nextAvailablePackageId: 10 });
   assert.match(html, /Bạn đã hoàn thành phần bài học hôm nay/);
   assert.match(html, /Bạn muốn tiếp tục như thế nào\?/);
-  assert.match(html, /data-popup-advance="10"[^>]*>Học vượt</);
+  assert.match(html, /data-popup-advance="10"[^>]*>Tiếp tục</);
   assert.match(html, /data-popup-return>Trở về lộ trình</);
-  assert.match(html, /data-popup-rest>Nghỉ ngơi</);
   assert.match(html, /Điểm phần này: <strong>90%<\/strong>/);
 });
 
@@ -209,15 +452,15 @@ test('renderPopup omits the score line when the package has no valid score', () 
   assert.doesNotMatch(html, /Điểm phần này/);
 });
 
-test('renderPopup disables Học vượt when no next package is unlocked yet', () => {
+test('renderPopup disables Tiếp tục when no next package is unlocked yet', () => {
   const html = page.renderPopup({ id: 9, justCompleted: true, lastPackage: false, nextAvailablePackageId: null });
-  assert.match(html, /class="ilp-popup__primary" disabled>Học vượt</);
+  assert.match(html, /class="ilp-popup__primary" disabled>Tiếp tục</);
 });
 
 test('renderPopup swaps the primary action for the last package in the path', () => {
   const html = page.renderPopup({ id: 9, justCompleted: true, lastPackage: true, nextAvailablePackageId: null });
   assert.match(html, /data-popup-summary>Xem tổng kết chặng</);
-  assert.doesNotMatch(html, />Học vượt</);
+  assert.doesNotMatch(html, />Tiếp tục</);
 });
 
 test('render shows the popup only for the package the server just completed, not older completed ones', () => {
@@ -236,4 +479,56 @@ test('render shows the popup only for the package the server just completed, not
 test('render shows no popup when nothing just completed', () => {
   const html = page.render(path());
   assert.doesNotMatch(html, /ilp-popup-backdrop/);
+});
+
+/** [JLAS-W0108] A from-zero learner's alphabet day: one WARM_UP package with a single FOUNDATION activity. */
+function pathWithFoundation(state) {
+  return path({ packages: [{ id: 9, phase: 'WARM_UP', dayNumber: 1, orderIndex: 1, title: 'Bài 1: Hàng あ, か, さ',
+    status: 'AVAILABLE', progressPercent: 0,
+    activities: [{ id: 7, type: 'FOUNDATION', state: state, orderIndex: 1 }] }] });
+}
+
+test('labels a FOUNDATION activity in Vietnamese instead of the raw enum name', () => {
+  const html = page.render(pathWithFoundation('LOCKED'));
+  assert.match(html, /Bảng chữ cái/);
+  assert.doesNotMatch(html, />FOUNDATION</);
+});
+
+test('links an unlocked FOUNDATION activity to the alphabet study page', () => {
+  const html = page.render(pathWithFoundation('STUDYING'));
+  assert.match(html, /href="\/learning\/v2\/foundation\?activity=7"/);
+});
+
+test('does not link a locked FOUNDATION activity', () => {
+  const html = page.render(pathWithFoundation('LOCKED'));
+  assert.doesNotMatch(html, /\/learning\/v2\/foundation\?activity=7/);
+});
+
+// ---- [JLAS-W0125] split parts and approved roadmap action names ----
+
+test('activities split by a pace change show their part position, single parts stay unlabelled', () => {
+  const data = path();
+  data.packages[0].status = 'IN_PROGRESS';
+  data.packages[0].activities = [
+    { id: 2, type: 'VOCABULARY', state: 'PASSED', orderIndex: 1, partIndex: 1, partCount: 2 },
+    { id: 7, type: 'VOCABULARY', state: 'STUDYING', orderIndex: 2, partIndex: 2, partCount: 2 },
+    { id: 4, type: 'KANJI', state: 'LOCKED', orderIndex: 3, partIndex: 1, partCount: 1 }
+  ];
+  const html = page.render(data);
+  assert.match(html, /Từ vựng · Phần 1\/2/);
+  assert.match(html, /Từ vựng · Phần 2\/2[\s\S]*?href="\/learning\/v2\/vocabulary\?activity=7"/);
+  assert.doesNotMatch(html, /Kanji · Phần/);
+});
+
+test('completed quiz activities offer "Xem lại bài giảng" and "Kiểm tra lại"; Dialogue has no quiz to retake', () => {
+  const data = path();
+  data.packages[0].activities[1].state = 'PASSED';
+  data.packages[0].activities[0].state = 'COMPLETED';
+  const html = page.render(data);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=review">Xem lại bài giảng</);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=practice">Kiểm tra lại</);
+  assert.match(html, /dialogue\?activity=1&amp;mode=review">Xem lại bài giảng</);
+  assert.match(html, /dialogue\?activity=1&amp;mode=practice">Ôn lại</);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=results">Kết quả kiểm tra</);
+  assert.doesNotMatch(html, /dialogue\?activity=1&amp;mode=results/);
 });

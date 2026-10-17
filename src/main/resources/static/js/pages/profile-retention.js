@@ -86,6 +86,13 @@
         setText('dailyVocabProgress', goal.vocabularyDone + '/' + goal.vocabularyTarget);
         setText('dailyQuizProgress', goal.quizDone + '/' + goal.quizTarget);
         setText('dailyMinutesProgress', goal.minutesDone + '/' + goal.minutesTarget);
+        var source = byId('dailyGoalSource');
+        if (source) {
+            source.textContent = goal.source === 'ACTIVE_PATH' ? 'Theo bài học tiếp theo trong lộ trình'
+                : goal.source === 'USER_TARGETS' ? 'Theo mục tiêu bạn đã đặt'
+                    : 'Mục tiêu mặc định';
+            source.title = goal.fallbackReason || '';
+        }
         var ring = byId('dailyGoalRing');
         if (ring) {
             ring.setAttribute('aria-valuenow', goal.percent);
@@ -354,6 +361,8 @@
         WORD_CONTRIBUTION_REWARD: 'Đóng góp từ điển',
         VIDEO_UNLOCK: 'Mở khoá video',
         ADMIN_GRANT: 'Quản trị viên tặng',
+        ADMIN_DEDUCT: 'Quản trị viên trừ CP',
+        CREDIT_PURCHASE: 'Mua CP',
         REFUND: 'Hoàn điểm',
         GAME_ITEM_PURCHASE: 'Mua đồ trong Trò chơi'
     };

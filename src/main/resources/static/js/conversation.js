@@ -64,20 +64,18 @@
   const scenarioId = body.dataset.scenarioId;
   const freeChat = body.dataset.freeChat === 'true' || window.__FREE_CHAT__ === true;
   const scenarioBackgroundUrl = body.dataset.backgroundUrl;
-  if (!freeChat && scenarioBackgroundUrl) {
-    const chatFrame = document.querySelector('.cv-main');
-    if (chatFrame) {
-      chatFrame.style.setProperty(
-        '--scenario-chat-background-image',
-        'url(' + JSON.stringify(scenarioBackgroundUrl) + ')'
-      );
-    }
-  }
+  const setSceneBackground = window.AiCallSceneImage.createSceneImageLoader(function(url){
+    if(freeChat)return;
+    const chatFrame=document.querySelector('.cv-main');
+    if(chatFrame)chatFrame.style.setProperty('--scenario-chat-background-image','url('+JSON.stringify(url)+')');
+  },function(){return new Image();});
+  if(!freeChat)setSceneBackground(scenarioBackgroundUrl);
   let ended = body.dataset.ended === 'true';
 
   const messagesEl = document.getElementById('chatMessages');
   const input = document.getElementById('messageInput');
   const btnSend = document.getElementById('btnSend');
+  const composeError = document.getElementById('composeError');
   const btnMic = document.getElementById('btnMic');
   const suggestRow = document.getElementById('suggestRow');
   const typing = document.getElementById('typingIndicator');
@@ -90,10 +88,11 @@
 
   let busy = false;
   let settings = loadSettings();
+  const hasCast = body.dataset.hasCast === 'true';
+  const teacherVoice = body.dataset.teacherVoice === 'true';
+  if (teacherVoice) settings.ttsGender = settings.teacherGender || 'male';
   if (freeChat) {
-    // Trò chuyện tự do: chỉ phản hồi ngữ pháp cơ bản (không furigana/dịch/gợi ý/nhiệm vụ)
-    settings.furigana = false;
-    settings.translation = false;
+    // Free chat keeps reading/translation preferences; suggestions remain scenario-only.
     settings.suggestions = false;
     // feedback defaults true via defaultSettings; user can toggle in sidebar
   }
@@ -114,6 +113,7 @@
   }
 
   const ttsRateRange = document.getElementById('ttsRateRange');
+  const ttsGenderSelect = document.getElementById('ttsGenderSelect');
   const ttsRateLabel = document.getElementById('ttsRateLabel');
   const btnTtsTest = document.getElementById('btnTtsTest');
   const btnTtsFemale = document.getElementById('btnTtsFemale');
@@ -176,6 +176,8 @@
         prefs.favoriteTopics = prefs.favoriteTopics.map(function (t) {
           return t === 'Programming' || t === 'Lập trình' ? 'Technology' : t;
         });
+      } else {
+        prefs.favoriteTopics = [];
       }
       return prefs;
     } catch (e) {
@@ -196,6 +198,8 @@
     const level = document.getElementById('fcLevel');
     const style = document.getElementById('fcStyle');
     const initiative = document.getElementById('fcInitiative');
+    const topicInputs = [...document.querySelectorAll('#favoriteTopicsCard input[data-topic]')];
+    const topicSummary = document.getElementById('fcTopicSummary');
 
     function applyDriveUi() {
       if (btnDrive) {
@@ -204,7 +208,7 @@
       }
       if (topicsCard) {
         topicsCard.style.opacity = freeChatPrefs.conversationActive ? '1' : '0.45';
-        topicsCard.style.pointerEvents = freeChatPrefs.conversationActive ? '' : 'none';
+        topicInputs.forEach(function (input) { input.disabled = !freeChatPrefs.conversationActive; });
       }
     }
 
@@ -216,23 +220,31 @@
       });
     }
 
-    document.querySelectorAll('#favoriteTopicChips .topic-chip').forEach(function (chip) {
-      const topic = chip.dataset.topic;
-      if ((freeChatPrefs.favoriteTopics || []).indexOf(topic) >= 0) chip.classList.add('active');
-      chip.addEventListener('click', function () {
-        const list = freeChatPrefs.favoriteTopics || [];
-        const i = list.indexOf(topic);
-        if (i >= 0) {
-          list.splice(i, 1);
-          chip.classList.remove('active');
-        } else {
-          list.push(topic);
-          chip.classList.add('active');
-        }
-        freeChatPrefs.favoriteTopics = list;
+    function applyTopicSummary() {
+      if (topicSummary) topicSummary.textContent = freeChatPrefs.favoriteTopics.length
+        ? freeChatPrefs.favoriteTopics.length + ' đã chọn' : 'Chưa chọn';
+    }
+    topicInputs.forEach(function (input) {
+      input.checked = (freeChatPrefs.favoriteTopics || []).includes(input.dataset.topic);
+      input.addEventListener('change', function () {
+        freeChatPrefs.favoriteTopics = topicInputs.filter(function (item) { return item.checked; })
+          .map(function (item) { return item.dataset.topic; });
         saveFreeChatPrefs();
+        applyTopicSummary();
       });
     });
+    applyTopicSummary();
+    if (topicsCard) {
+      document.addEventListener('click', function (event) {
+        if (!topicsCard.contains(event.target)) topicsCard.open = false;
+      });
+      topicsCard.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          topicsCard.open = false;
+          topicsCard.querySelector('summary').focus();
+        }
+      });
+    }
 
     function bindSelect(el, key) {
       if (!el) return;
@@ -365,6 +377,7 @@
 
   function applyGenderButtons() {
     const g = normalizeGender(settings.ttsGender);
+    if (ttsGenderSelect) ttsGenderSelect.value = g;
     if (btnTtsFemale) {
       btnTtsFemale.setAttribute('aria-pressed', g === 'female' ? 'true' : 'false');
     }
@@ -405,11 +418,13 @@
   function bindTtsControls() {
     function setGender(g) {
       settings.ttsGender = normalizeGender(g);
+      if (teacherVoice) settings.teacherGender = settings.ttsGender;
       saveSettings();
       applyGenderButtons();
       updateTtsHint();
     }
 
+    if (ttsGenderSelect) ttsGenderSelect.addEventListener('change', function () { setGender(ttsGenderSelect.value); });
     if (btnTtsFemale) {
       btnTtsFemale.addEventListener('click', function () { setGender('female'); });
     }
@@ -429,6 +444,10 @@
     }
     if (btnTtsTest) {
       btnTtsTest.addEventListener('click', function () {
+        if (hasCast) {
+          const latest = [...messagesEl.querySelectorAll('.msg-row.assistant[data-message-id]')].pop();
+          if (latest) return speak(latest.dataset.text, latest.querySelector('.btn-tts'));
+        }
         speak('こんにちは。よろしくお願いします。', btnTtsTest);
       });
     }
@@ -438,6 +457,8 @@
       .then(function (data) {
         if (ttsHint && data && data.configured === false) {
           ttsHint.textContent = 'Chưa cấu hình Fish Audio — điền fish.audio.api.key và voice model id trong application.properties';
+        } else if (ttsHint && hasCast) {
+          updateTtsHint();
         } else if (ttsHint && data && data.model) {
         ttsHint.textContent = 'Fish Audio · mô hình ' + data.model + ' · '
             + (normalizeGender(settings.ttsGender) === 'male' ? 'Nam' : 'Nữ');
@@ -448,6 +469,7 @@
 
   function updateTtsHint() {
     if (!ttsHint) return;
+    if (hasCast) { ttsHint.textContent = 'Giọng đọc theo nhân vật trong câu chuyện'; return; }
     const g = normalizeGender(settings.ttsGender) === 'male' ? 'Nam' : 'Nữ';
     ttsHint.textContent = 'Fish Audio · giọng ' + g + ' (model id trong application.properties)';
   }
@@ -523,22 +545,7 @@
         setTimeout(function () { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Chép'; }, 1200);
       });
     });
-    row.querySelectorAll('.btn-ruby').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        settings.furigana = true;
-        saveSettings();
-        applySettings();
-        ensureAnnotations(row, true);
-      });
-    });
-    row.querySelectorAll('.btn-tr').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        settings.translation = true;
-        saveSettings();
-        applySettings();
-        ensureAnnotations(row, true);
-      });
-    });
+
   }
 
   async function ensureAnnotations(row, force) {
@@ -585,7 +592,7 @@
       }
     }
 
-    if ((settings.translation || force) && trEl && !row.dataset.trDone) {
+    if (settings.translation && trEl && !row.dataset.trDone) {
       try {
         const res = await fetch('/api/conversation/' + sessionId + '/translate', {
           method: 'POST',
@@ -593,11 +600,16 @@
           body: JSON.stringify({ text: text })
         });
         const data = await res.json();
-        trEl.textContent = data.translation || '';
+        if (!res.ok || !data.translation) throw new Error('Không thể tải bản dịch.');
+        trEl.textContent = data.translation;
         trEl.hidden = false;
         trEl.classList.add('show');
         row.dataset.trDone = '1';
-      } catch (e) {}
+      } catch (e) {
+        trEl.textContent = 'Không thể tải bản dịch. Tắt rồi bật lại công tắc dịch trong Công cụ để thử lại.';
+        trEl.hidden = false;
+        trEl.classList.add('show');
+      }
     } else if (trEl && row.dataset.trDone) {
       trEl.classList.add('show');
       trEl.hidden = false;
@@ -683,6 +695,8 @@
   function bindCompose() {
     btnSend.addEventListener('click', send);
     input.addEventListener('keydown', function (e) {
+      // Enter commits a Japanese IME candidate before it submits a chat turn.
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         send();
@@ -755,15 +769,38 @@
     const col = row.querySelector('.msg-col') || row;
     const note = document.createElement('div');
     note.className = 'turn-charge-note';
-    note.style.cssText = 'font-size:.75rem;margin-top:4px;color:' + (isError ? '#b42318' : '#667085') + ';';
+    note.style.cssText = 'font-size:.75rem;margin-top:4px;color:' + (isError ? 'var(--wrong, #b42318)' : 'var(--muted, #667085)') + ';';
     note.textContent = text;
     col.appendChild(note);
   }
+
+  function showComposeError(message) {
+    if (composeError) { composeError.textContent = message || ''; composeError.hidden = !message; }
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+  }
+
+  // Fast script check for typing/STT; the server also validates ambiguous Kanji-only text.
+  function hasJapaneseInput(text) {
+    const content = text.normalize('NFKC').replace(/(?<![A-Za-z0-9])(?:JLPT|AI|N[1-5])(?![A-Za-z0-9])/g, '');
+    if (!/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(content)) return false;
+    return ![...content].some(function (char) {
+      return (/\p{L}/u.test(char) && !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]/u.test(char))
+        || (/[\p{Cc}\p{Cf}]/u.test(char) && !/\s/u.test(char) && char !== '\u200d');
+    });
+  }
+
+  if (input) input.addEventListener('input', function () { showComposeError(''); });
 
   async function send() {
     if (busy || ended) return;
     const text = (input.value || '').trim();
     if (!text) return;
+    if (!hasJapaneseInput(text)) {
+      showComposeError('AI Call chỉ nhận tiếng Nhật. Vui lòng nhập bằng Hiragana/Katakana hoặc viết câu Kanji kèm kana.');
+      input.focus();
+      return;
+    }
+    showComposeError('');
     busy = true;
     btnSend.disabled = true;
     const learnerRow = addMessageRow('user', text);
@@ -786,6 +823,14 @@
       const data = await res.json().catch(function () { return {}; });
       showTyping(false);
 
+      if (!res.ok && data.code === 'AICALL_JAPANESE_REQUIRED') {
+        if (learnerRow) learnerRow.remove();
+        if (!input.value) input.value = text;
+        showComposeError(data.message || 'AI Call chỉ nhận tiếng Nhật.');
+        input.focus();
+        return;
+      }
+
       // Hết hạn mức (hoặc không đủ CP): hiện modal chờ hạn mức mới / dùng CP / nâng cấp.
       if (res.status === 402) {
         if (data && data.code === 'QUOTA_EXCEEDED') creditRetry = { text: text, learnerRow: learnerRow, requestId: requestId };
@@ -806,18 +851,29 @@
       if (data.error && !data.assistantReply) {
         addMessageRow('assistant', data.error);
       } else {
-        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, data.assistantTranslation);
+        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, data.assistantTranslation, data.assistantSpeaker, data.assistantMessageId);
         if (data.feedback) appendFeedbackCard(learnerRow, data.feedback);
         if (data.error) {
           // hiện lỗi kỹ thuật nhỏ dưới bubble (không giả làm thoại AI)
           const note = document.createElement('div');
-          note.style.cssText = 'font-size:.78rem;color:#b42318;margin-top:4px;';
+          note.style.cssText = 'font-size:.78rem;color:var(--wrong, #b42318);margin-top:4px;';
           note.textContent = '⚠️ ' + data.error;
           row.querySelector('.msg-col').appendChild(note);
         }
         if (data.sceneTransition) addSceneTransition(data.sceneTransition);
-        if (settings.autoplay) speak(data.assistantReply || '', row.querySelector('.btn-tts'));
-        if (settings.furigana || settings.translation) ensureAnnotations(row, true);
+        if (data.sceneImageUrl) setSceneBackground(data.sceneImageUrl);
+        let audibleRow = row;
+        if (data.speakerOpening) {
+          const opening = data.speakerOpening;
+          audibleRow = addMessageRow('assistant', opening.text, null, null, null, opening.speaker, opening.messageId);
+          if (settings.furigana || settings.translation) ensureAnnotations(audibleRow, settings.furigana);
+        }
+        if (data.currentSpeaker) {
+          window.__AI_ROLE__ = data.currentSpeaker.name;
+          document.querySelectorAll('[data-current-speaker]').forEach(function (label) { label.textContent = data.currentSpeaker.name; });
+        }
+        if (settings.autoplay) speak(audibleRow.dataset.text || '', audibleRow.querySelector('.btn-tts'));
+        if (settings.furigana || settings.translation) ensureAnnotations(row, settings.furigana);
       }
       if (data.chargeRefunded) {
         addChargeNote(learnerRow, 'AI gặp lỗi nên lượt này không bị tính.', false);
@@ -866,29 +922,28 @@
     });
   }
 
-  function addMessageRow(role, text, feedback, tokens, translation) {
+  function addMessageRow(role, text, feedback, tokens, translation, speaker, messageId) {
     const row = document.createElement('div');
     row.className = 'msg-row ' + role;
     row.dataset.role = role;
     row.dataset.text = text;
+    if (messageId) row.dataset.messageId = messageId;
+    if (speaker) row.dataset.speakerCode = speaker.code;
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const learnerRole = window.__USER_ROLE__ || 'Bạn';
     const roleLabel = role === 'assistant'
-      ? (window.__AI_ROLE__ || 'AI')
+      ? (speaker ? speaker.name : window.__AI_ROLE__ || 'AI')
       : (freeChat || learnerRole === 'Bạn' ? 'Bạn' : 'Bạn · ' + learnerRole);
 
     let bubbleInner = '<div class="bubble-text jp msg-text"></div>';
     if (role === 'assistant') {
       bubbleInner +=
-        (freeChat ? '' : '<div class="translation-line" hidden></div>') +
+        '<div class="translation-line" hidden></div>' +
         '<div class="bubble-tools">' +
         '<button type="button" class="tool-chip btn-tts"><i class="fa-solid fa-volume-high"></i> Phát</button>' +
         '<button type="button" class="tool-chip btn-copy"><i class="fa-solid fa-copy"></i> Chép</button>' +
-        (freeChat ? '' :
-          '<button type="button" class="tool-chip btn-ruby"><i class="fa-solid fa-language"></i> あ</button>' +
-          '<button type="button" class="tool-chip btn-tr"><i class="fa-solid fa-globe"></i> Việt</button>') +
         '</div>';
     }
 
@@ -1008,12 +1063,19 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function ttsPayload(text) {
-    return JSON.stringify({
+  function ttsPayload(text, btn) {
+    const payload = {
       text: text,
       gender: normalizeGender(settings.ttsGender),
       speed: clampTtsRate(settings.ttsRate)
-    });
+    };
+    const row = btn && btn.closest('.msg-row');
+    if (row && row.dataset.messageId) payload.messageId = Number(row.dataset.messageId);
+    else if (btn && btn.dataset.speakerCode) {
+      payload.sessionId = sessionId;
+      payload.speakerCode = btn.dataset.speakerCode;
+    }
+    return JSON.stringify(payload);
   }
 
   async function ttsResponseError(res) {
@@ -1119,7 +1181,7 @@
     const responsePromise = fetch('/api/tts/speak-stream', {
       method: 'POST',
       headers: jsonHeaders(),
-      body: ttsPayload(text),
+      body: ttsPayload(text, btn),
       signal: controller.signal
     });
 
@@ -1205,7 +1267,7 @@
       const res = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: jsonHeaders(),
-        body: ttsPayload(text),
+        body: ttsPayload(text, btn),
         signal: controller.signal
       });
 

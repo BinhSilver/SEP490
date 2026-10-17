@@ -1140,7 +1140,7 @@
 
 }
 
-/* Full Stitch structure: page hero -> workspace -> footer. */
+/* Full Stitch structure: page hero -> workspace. */
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.app-main--wide {
   display: block;
   padding: 0 0 var(--space-8);
@@ -1604,15 +1604,6 @@
   margin-top: var(--space-4);
 }
 
-#jlabBasePage.flashcard-page--quiz .quiz-footer {
-  padding: var(--space-7) var(--space-5);
-  color: var(--color-on-surface-variant);
-  background: var(--color-surface-low);
-  border-top: 1px solid var(--color-outline-variant);
-  text-align: center;
-  font-size: var(--text-sm);
-}
-
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-sidebar,
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-summary .quiz-sidebar { display: none; }
 
@@ -1910,6 +1901,11 @@
   font-weight: 700;
 }
 
+/* Trên thanh "Sẵn sàng kiểm tra" nền tím: nhãn dùng màu chữ trên nền primary. */
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-start-bar .quiz-field-picker label {
+  color: var(--color-on-primary, #fff);
+}
+
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-field-picker .select,
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-field-select {
   min-height: 2.25rem;
@@ -2088,4 +2084,57 @@
   font-size: clamp(1.5rem, 1.1rem + 2vw, 2.4rem);
   line-height: 1.25;
   overflow-wrap: anywhere;
+}
+
+/* Page-owned dark mode: flashcard/quiz-theme.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz #jlabBaseContent {
+    background: radial-gradient(circle at 45% 24%, var(--dm-flashcard-accent-soft), transparent 330px),
+    var(--fc-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .toggle-ui {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .progress-row .progress-bar {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .progress-row + .card {
+    background: radial-gradient(circle at 88% 12%, var(--dm-flashcard-action), transparent 30%),
+    var(--fc-surface-lowest) !important;
+    border: 1px solid var(--dm-flashcard-line);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.23)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .ai-messages {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz .stat-card {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-start-bar .quiz-mode-picker .btn--secondary {
+    border-color: var(--dm-flashcard-line)
 }

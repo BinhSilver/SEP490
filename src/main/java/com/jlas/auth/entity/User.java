@@ -2,6 +2,7 @@ package com.jlas.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "users")
+@DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor
@@ -88,6 +90,12 @@ public class User {
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @Column(name = "locked_at")
+    private LocalDateTime lockedAt;
+
+    @Column(name = "locked_reason", length = 500)
+    private String lockedReason;
 
     @PrePersist
     protected void onCreate() {

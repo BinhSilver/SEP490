@@ -13,7 +13,10 @@ import com.jlas.learning.enums.LearningActivityType;
  * Table: user_learning_path_item
  */
 @Entity
-@Table(name = "user_learning_path_item")
+@Table(name = "user_learning_path_item", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_learning_path_item_order", columnNames = {"learning_path_id", "order_index"}),
+        @UniqueConstraint(name = "uk_learning_path_item_package_part",
+                columnNames = {"package_id", "activity_type", "part_index"})})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,6 +45,11 @@ public class UserLearningPathItem {
     @Enumerated(EnumType.STRING)
     @Column(name = "activity_state", length = 20)
     private LearningActivityState activityState;
+
+    /** [JLAS-W0125] Stable part identity within one package/skill; legacy activities retain part 1. */
+    @Builder.Default
+    @Column(name = "part_index", nullable = false)
+    private Integer partIndex = 1;
 
     /** [JLAS-W0108] P2c — bài nguồn có thể NULL khi activity trỏ tài nguyên khác (grammar_point /
      * vocabulary_entry / reading-listening content_item) mà không bắt buộc một lesson_id giả. */

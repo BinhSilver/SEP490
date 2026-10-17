@@ -201,10 +201,12 @@
         var box = root.getBoundingClientRect();
         var from = player.getBoundingClientRect();
         var to = enemy.querySelector('.pv-enemy__ship').getBoundingClientRect();
-        var x1 = from.left + from.width / 2 - box.left;
-        var y1 = from.top + from.height * 0.15 - box.top;
-        var x2 = to.left + to.width / 2 - box.left;
-        var y2 = to.top + to.height / 2 - box.top;
+        // Khung cha có thể bị zoom (sảnh thu nhỏ 90%): đổi px màn hình về px của khung.
+        var scale = root.offsetWidth ? box.width / root.offsetWidth : 1;
+        var x1 = (from.left + from.width / 2 - box.left) / scale;
+        var y1 = (from.top + from.height * 0.15 - box.top) / scale;
+        var x2 = (to.left + to.width / 2 - box.left) / scale;
+        var y2 = (to.top + to.height / 2 - box.top) / scale;
         laser.style.left = x1 + 'px';
         laser.style.top = y1 + 'px';
         laser.style.width = Math.hypot(x2 - x1, y2 - y1) + 'px';

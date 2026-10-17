@@ -80,6 +80,7 @@ class LessonImportControllerTest {
 
         mvc = MockMvcBuilders.standaloneSetup(new DictionaryController(
                         mock(DictionaryService.class), mock(HandwritingRateLimiter.class),
+                        mock(com.jlas.dictionary.service.DictionaryEngagementService.class),
                         contentAdminService, importService))
                 .setControllerAdvice(new GlobalApiExceptionHandler())
                 .build();

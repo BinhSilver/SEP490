@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
  * Table: lesson
  */
 @Entity
-@Table(name = "lesson")
+@Table(name = "lesson", uniqueConstraints =
+        @UniqueConstraint(name = "uk_lesson_source_code", columnNames = {"unit_id", "source_code"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,6 +22,10 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** [JLAS-W0108] Stable key within a unit; null preserves legacy/module rows. */
+    @Column(name = "source_code", length = 64)
+    private String sourceCode;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "unit_id", nullable = false,

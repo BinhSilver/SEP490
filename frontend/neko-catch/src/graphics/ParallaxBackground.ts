@@ -1,4 +1,5 @@
-import { assetUrl } from '../assets';
+import { prepareImage, spriteImage } from './ImageAssets';
+import { backgroundCover } from '../lib/playfield';
 
 /**
  * Stage background: the hand-drawn panoramic composite with drifting sakura petals. While the image
@@ -33,9 +34,11 @@ export class ParallaxBackground {
 
   private initImages() {
     if (typeof window === 'undefined') return;
-    const img = new Image();
-    img.src = assetUrl('/sprites/tasser_hand_drawn/bg_panoramic_composite.png');
-    this.composite = img;
+    this.composite = spriteImage('/sprites/tasser_hand_drawn/bg_panoramic_composite.png');
+  }
+
+  public async prepare() {
+    this.composite = await prepareImage('/sprites/tasser_hand_drawn/bg_panoramic_composite.png');
   }
 
   public draw(ctx: CanvasRenderingContext2D, width: number, height: number, time: number) {
@@ -43,7 +46,8 @@ export class ParallaxBackground {
 
     const imgComp = this.composite;
     if (imgComp && imgComp.complete && imgComp.naturalWidth > 0) {
-      ctx.drawImage(imgComp, 0, 0, width, height);
+      const cover = backgroundCover(imgComp.naturalWidth, imgComp.naturalHeight, width, height);
+      ctx.drawImage(imgComp, cover.x, cover.y, cover.width, cover.height);
       this.drawPetals(ctx, width, height);
       return;
     }

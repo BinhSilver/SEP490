@@ -33,19 +33,22 @@ const state = {
   aiBusy: false,
   search: '',
   questionCount: 'ALL',
-  quickPairMode: 'ALL'
+  quickPairMode: 'ALL',
+  randomSelection: null
 };
 
 const pageParams = new URLSearchParams(location.search);
 const requestedSetId = Number(pageParams.get('setId') || 0);
 const sourceSetId = Number(pageParams.get('sourceSetId') || 0);
 let quizHeightObserver = null;
+let quickPairDropdownController = null;
 
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   const redirectTarget = `${location.pathname}${location.search}`;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin(redirectTarget)) return;
+  window.matchMedia('(max-width: 640px)').addEventListener('change', placeQuickSetupHeading);
 
   const prefs = getPrefs();
   Object.assign(state.filters, {
@@ -176,12 +179,13 @@ function visibleCards() {
 }
 
 function render() {
+  quickPairDropdownController?.abort();
   const page = document.getElementById('jlabBaseContent');
   const hero = document.getElementById('quiz-hero-root');
   const toolbar = document.getElementById('quiz-toolbar-root');
   if (page) {
     page.classList.toggle('is-quiz-setup', state.phase === 'setup');
-    page.classList.toggle('is-quiz-quick-setup', state.phase === 'setup' && !!sourceSetId);
+    page.classList.toggle('is-quiz-quick-setup', state.phase === 'setup');
     page.classList.toggle('is-quiz-playing', state.phase === 'playing');
     page.classList.toggle('is-quiz-summary', state.phase === 'summary');
   }
@@ -196,14 +200,9 @@ function render() {
     return renderEmptySet(root);
   }
   if (state.phase === 'setup') {
-    if (sourceSetId) {
-      if (hero) hero.innerHTML = '';
-      if (toolbar) toolbar.innerHTML = '';
-      return renderQuickSetup(root);
-    }
-    if (hero) renderPrepHero(hero);
+    if (hero) hero.innerHTML = '';
     if (toolbar) toolbar.innerHTML = '';
-    return renderSetup(root);
+    return renderQuickSetup(root);
   }
   if (state.phase === 'playing') {
     if (hero) hero.innerHTML = '';
@@ -215,19 +214,89 @@ function render() {
   return renderSummary(root);
 }
 
+function placeQuickSetupHeading() {
+  const setup = document.querySelector('.quiz-quick-setup');
+  if (!setup) return;
+  const heading = setup.querySelector('.sr-setup__heading');
+  const form = setup.querySelector('#quiz-quick-form');
+  if (!heading || !form) return;
+  if (window.matchMedia('(max-width: 640px)').matches) form.prepend(heading);
+  else setup.insertBefore(heading, form);
+}
+
+function bindQuickPairDropdown(root) {
+  quickPairDropdownController?.abort();
+  quickPairDropdownController = new AbortController();
+  const { signal } = quickPairDropdownController;
+  const dropdown = root.querySelector('.quiz-pair-select');
+  const trigger = dropdown.querySelector('#quiz-pair-mode');
+  const menu = dropdown.querySelector('[role="listbox"]');
+  const options = Array.from(menu.querySelectorAll('[role="option"]'));
+  let focusedIndex = options.findIndex(option => option.getAttribute('aria-selected') === 'true');
+  let search = '';
+  let lastSearchAt = 0;
+  const focusOption = index => {
+    focusedIndex = (index + options.length) % options.length;
+    options.forEach((option, i) => { option.tabIndex = i === focusedIndex ? 0 : -1; });
+    options[focusedIndex].focus();
+  };
+  const setOpen = (open, restoreFocus = false) => {
+    trigger.setAttribute('aria-expanded', String(open));
+    menu.hidden = !open;
+    if (open) focusOption(focusedIndex);
+    else if (restoreFocus) trigger.focus();
+  };
+  trigger.addEventListener('click', () => setOpen(menu.hidden), { signal });
+  dropdown.addEventListener('keydown', event => {
+    const keys = ['ArrowDown', 'ArrowUp', 'Home', 'End', 'Escape'];
+    if (keys.includes(event.key)) {
+      event.preventDefault();
+      if (event.key === 'Escape') return setOpen(false, true);
+      const wasClosed = menu.hidden;
+      setOpen(true);
+      if (event.key === 'Home') focusOption(0);
+      else if (event.key === 'End') focusOption(options.length - 1);
+      else if (!wasClosed) focusOption(focusedIndex + (event.key === 'ArrowDown' ? 1 : -1));
+    } else if (event.key === 'Tab') {
+      if (!menu.hidden) setOpen(false, true);
+    } else if (event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      search = (Date.now() - lastSearchAt > 700 ? '' : search) + event.key.toLocaleLowerCase('vi');
+      lastSearchAt = Date.now();
+      const match = options.findIndex(option => option.textContent.trim().toLocaleLowerCase('vi').startsWith(search));
+      if (match >= 0) { event.preventDefault(); setOpen(true); focusOption(match); }
+    }
+  }, { signal });
+  options.forEach(option => option.addEventListener('click', () => {
+    state.quickPairMode = option.dataset.pairMode;
+    ensureAnswerField();
+    renderQuickSetup(root);
+    root.querySelector('#quiz-pair-mode').focus();
+  }, { signal }));
+  dropdown.addEventListener('focusout', event => {
+    if (!dropdown.contains(event.relatedTarget)) setOpen(false);
+  }, { signal });
+  document.addEventListener('pointerdown', event => {
+    if (!dropdown.contains(event.target)) setOpen(false);
+  }, { signal });
+}
+
 function renderQuickSetup(root) {
   const allCards = state.activeSet.cards || [];
-  const total = allCards.length;
   ensureAnswerField();
-  const fields = availableQuizFields();
   const isCustomPair = state.quickPairMode === 'CUSTOM';
   const isRandom = state.quickPairMode === 'RANDOM';
-  const selectedCards = allCards.filter(card => state.selectedIds.has(card.id));
+  // Eligibility is independent of the checked cards, so an unchecked valid card
+  // remains selectable. Drop incompatible selections when the field pair changes.
+  const eligibleIds = new Set(quizPairCards(state.questionField, state.answerField, allCards).map(card => card.id));
+  if (isCustomPair) {
+    state.selectedIds.forEach(id => { if (!eligibleIds.has(id)) state.selectedIds.delete(id); });
+  }
+  const fields = availableQuizFields();
+  const pairModes = window.FlashcardSelection.modes;
+  const pairModeLabel = pairModes.find(mode => mode.value === state.quickPairMode).label;
   const pairCards = quizPairCards();
-  const pairIds = new Set(pairCards.map(card => card.id));
   // Only cards with both fields become questions; the rest are skipped.
   const availableCount = pairCards.length;
-  const skipped = (isCustomPair ? selectedCards.length : total) - availableCount;
   const randomPool = pairCards.length;
   const minimumRandomCount = randomPool >= MIN_QUIZ_CARDS ? MIN_QUIZ_CARDS : 1;
   const requestedRandomCount = Number(state.questionCount);
@@ -250,27 +319,15 @@ function renderQuickSetup(root) {
   }).join('');
   const missingLabel = card => [state.questionField, state.answerField]
     .filter(field => field && !hasQuizField(card, field)).map(field => QUIZ_FIELD_LABELS[field]).join(', ');
-  const cardRows = allCards.map((card, index) => `
-    <tr class="quiz-quick-card-row ${state.selectedIds.has(card.id) ? 'is-selected' : ''} ${pairIds.has(card.id) ? '' : 'is-skipped'}"
-        ${pairIds.has(card.id) ? '' : `title="Thiếu ${esc(missingLabel(card))}: sẽ bỏ qua với lựa chọn hiện tại"`}>
-      <td><input type="checkbox" data-quick-card="${card.id}" ${state.selectedIds.has(card.id) ? 'checked' : ''} aria-label="Chọn ${esc(card.kanji || card.hiragana || `thẻ ${index + 1}`)}"></td>
-      <th scope="row">${index + 1}</th>
-      <td class="quiz-quick-card-kanji">${esc(card.kanji || '')}</td>
-      <td>${esc(card.hiragana || '')}</td>
-      <td>${esc(card.hanViet || '')}</td>
-    </tr>
-  `).join('');
-  const customCardPicker = isCustomPair ? `
-    <div class="quiz-quick-card-picker">
-      <div class="quiz-quick-card-picker__header"><strong>Chọn cặp từ</strong><span>${selectedCards.length}/${total} thẻ đã chọn${skipped > 0 ? ` · ${skipped} thẻ thiếu nội dung sẽ bỏ qua` : ''}</span></div>
-      <div class="quiz-quick-card-table-wrap">
-        <table class="quiz-quick-card-table">
-          <thead><tr><th scope="col" aria-label="Chọn"></th><th scope="col">#</th><th scope="col">Kanji</th><th scope="col">Hiragana</th><th scope="col">Hán Việt</th></tr></thead>
-          <tbody>${cardRows}</tbody>
-        </table>
-      </div>
-    </div>
-  ` : '';
+  const cardPickerMarkup = sessionCards => window.FlashcardSelection.table({
+    cards: isCustomPair ? allCards : sessionCards, mode: state.quickPairMode,
+    selected: isCustomPair ? state.selectedIds : new Set(sessionCards.map(card => card.id)),
+    eligible: card => eligibleIds.has(card.id),
+    questionLabel: QUIZ_FIELD_LABELS[state.questionField], answerLabel: QUIZ_FIELD_LABELS[state.answerField],
+    question: card => quizFieldValue(card, state.questionField), answer: card => quizFieldValue(card, state.answerField),
+    reason: card => 'Thiếu ' + missingLabel(card)
+  });
+  const customCardPicker = cardPickerMarkup(isRandom ? quizRandomCards(pairCards, randomQuestionCount) : pairCards);
   const questionCountControl = isRandom
     ? `<span class="sr-setup__stepper" role="group" aria-label="Số câu ngẫu nhiên">
         <button type="button" data-random-count-change="-1" aria-label="Giảm số câu" title="Giảm số câu" ${randomQuestionCount <= minimumRandomCount ? 'disabled' : ''}><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
@@ -286,13 +343,16 @@ function renderQuickSetup(root) {
       </header>
       <form id="quiz-quick-form" class="sr-setup__card">
         <div class="sr-setup__grid">
-          <label class="sr-setup__field">Thẻ
-            <span class="sr-setup__control"><select id="quiz-pair-mode" aria-label="Cách chọn cặp từ">
-              <option value="ALL" ${state.quickPairMode === 'ALL' ? 'selected' : ''}>Tất cả thẻ hợp lệ</option>
-              <option value="CUSTOM" ${isCustomPair ? 'selected' : ''}>Chọn cặp từ tùy ý</option>
-              <option value="RANDOM" ${isRandom ? 'selected' : ''}>Ngẫu nhiên</option>
-            </select></span>
-          </label>
+          <div class="sr-setup__field"><span id="quiz-pair-label">Thẻ</span>
+            <div class="quiz-pair-select">
+              <button type="button" id="quiz-pair-mode" class="quiz-pair-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="quiz-pair-options" aria-labelledby="quiz-pair-label quiz-pair-value">
+                <span id="quiz-pair-value">${pairModeLabel}</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              </button>
+              <div id="quiz-pair-options" class="quiz-pair-select__menu" role="listbox" aria-label="Cách chọn cặp từ" hidden>
+                ${pairModes.map(mode => `<button type="button" class="quiz-pair-select__option" role="option" data-pair-mode="${mode.value}" aria-selected="${mode.value === state.quickPairMode}" tabindex="-1"><span>${mode.label}</span><i class="fa-solid fa-check" aria-hidden="true"></i></button>`).join('')}
+              </div>
+            </div>
+          </div>
           <label class="sr-setup__field">Số câu
             <span class="sr-setup__control">${questionCountControl}</span>
           </label>
@@ -305,17 +365,20 @@ function renderQuickSetup(root) {
     </section>
   `;
 
-  root.querySelector('#quiz-pair-mode').onchange = event => {
-    state.quickPairMode = event.target.value;
-    ensureAnswerField();
-    renderQuickSetup(root);
-  };
+  placeQuickSetupHeading();
+  bindQuickPairDropdown(root);
   const questionCountInput = root.querySelector('#quiz-question-count');
+  const refreshRandomPreview = count => {
+    if (Number.isInteger(count) && count >= minimumRandomCount && count <= randomPool) {
+      root.querySelector('.fc-selection').outerHTML = cardPickerMarkup(quizRandomCards(pairCards, count));
+    }
+  };
   if (questionCountInput) {
     questionCountInput.addEventListener('input', () => {
       const digits = questionCountInput.value.replace(/[^0-9]/g, '');
       if (questionCountInput.value !== digits) questionCountInput.value = digits;
       state.questionCount = digits;
+      refreshRandomPreview(Number(digits));
     });
     questionCountInput.addEventListener('blur', () => {
       const typedCount = Number(state.questionCount);
@@ -324,6 +387,7 @@ function renderQuickSetup(root) {
         : randomQuestionCount;
       questionCountInput.value = String(normalizedCount);
       state.questionCount = normalizedCount;
+      refreshRandomPreview(normalizedCount);
     });
   }
   root.querySelectorAll('[data-random-count-change]').forEach(button => button.onclick = () => {
@@ -335,13 +399,23 @@ function renderQuickSetup(root) {
     state.questionCount = nextCount;
     renderQuickSetup(root);
   });
-  root.querySelectorAll('[data-quick-card]').forEach(input => input.onchange = event => {
-    const cardId = Number(event.target.dataset.quickCard);
+  root.querySelectorAll('[data-selection-card]').forEach(input => input.onchange = event => {
+    const cardId = Number(event.target.dataset.selectionCard);
+    if (input.disabled || !eligibleIds.has(cardId)) {
+      state.selectedIds.delete(cardId);
+      renderQuickSetup(root);
+      return;
+    }
     if (event.target.checked) state.selectedIds.add(cardId);
     else state.selectedIds.delete(cardId);
     ensureAnswerField();
     renderQuickSetup(root);
   });
+  root.onclick = event => {
+    if (!event.target.closest('[data-selection-shuffle]')) return;
+    state.randomSelection = null;
+    renderQuickSetup(root);
+  };
   root.querySelectorAll('[data-quick-question]').forEach(button => button.onclick = () => {
     if (button.disabled) return;
     state.questionField = button.dataset.quickQuestion;
@@ -445,8 +519,17 @@ function hasQuizField(card, field) { return quizFieldValue(card, field) !== ''; 
 /** Cards the quiz is built from: the ticked ones in "Chọn cặp từ tùy ý" / the classic setup, otherwise the whole set. */
 function quizPool() {
   const cards = state.activeSet?.cards || [];
-  const custom = !sourceSetId || state.quickPairMode === 'CUSTOM';
-  return custom ? cards.filter(card => state.selectedIds.has(card.id)) : cards;
+  const custom = state.quickPairMode === 'CUSTOM';
+  if (custom) return cards.filter(card => state.selectedIds.has(card.id));
+  return state.quickPairMode === 'LEARNING' ? cards.filter(card => !['REMEMBERED', 'MASTERED'].includes(card.memoryStatus)) : cards;
+}
+
+function quizRandomCards(cards, count) {
+  const key = [state.questionField, state.answerField, count, ...cards.map(card => card.id)].join('|');
+  if (state.randomSelection?.key !== key) {
+    state.randomSelection = { key, cards: window.FlashcardSelection.sample(cards, count) };
+  }
+  return state.randomSelection.cards;
 }
 
 /** Cards that have both the question and the answer field; the others are skipped (the server does the same). */
@@ -662,7 +745,7 @@ async function startQuiz(wrongOnly) {
       return;
     }
     let ids = [...state.selectedIds];
-    if (sourceSetId) {
+    if (state.activeSet) {
       // Cards missing the question or answer field are skipped, so count only the usable ones.
       ids = quizPairCards().map(card => card.id);
       if (ids.length < MIN_QUIZ_CARDS) {
@@ -675,7 +758,7 @@ async function startQuiz(wrongOnly) {
           showToast(`Nhập số câu từ ${MIN_QUIZ_CARDS} đến ${ids.length}`, 'err');
           return;
         }
-        ids = shuffle(ids).slice(0, requestedCount);
+        ids = quizRandomCards(quizPairCards(), requestedCount).map(card => card.id);
       }
     }
     const body = {
@@ -820,10 +903,10 @@ async function submitAnswer(chosenId) {
         opt.style.setProperty('color', color, 'important');
         opt.style.setProperty('background', background, 'important');
         opt.style.setProperty('border-color', color, 'important');
-        opt.style.setProperty('box-shadow', `0 0 0 3px ${resultIsCorrect ? 'rgba(0, 105, 71, .18)' : 'rgba(186, 26, 26, .16)'}`, 'important');
+        opt.style.setProperty('box-shadow', `0 0 0 3px ${resultIsCorrect ? 'var(--quiz-correct-ring, rgba(0, 105, 71, .18))' : 'var(--quiz-wrong-ring, rgba(186, 26, 26, .16))'}`, 'important');
         const label = opt.querySelector('.opt-label');
         if (label) {
-          label.style.setProperty('color', '#fff', 'important');
+          label.style.setProperty('color', resultIsCorrect ? 'var(--quiz-on-correct, #fff)' : 'var(--quiz-on-wrong, #fff)', 'important');
           label.style.setProperty('background', color, 'important');
         }
         if (typeof opt.animate === 'function') {
@@ -846,7 +929,7 @@ async function submitAnswer(chosenId) {
         }
       } else {
         opt.classList.add('is-dimmed');
-        opt.style.setProperty('opacity', '.42', 'important');
+        opt.style.setProperty('opacity', 'var(--quiz-dimmed-opacity, .42)', 'important');
       }
       opt.disabled = true;
     });

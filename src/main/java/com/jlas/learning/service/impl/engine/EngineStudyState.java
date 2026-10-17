@@ -17,10 +17,21 @@ public record EngineStudyState<T>(
         int rememberedCount,
         int reviewRemaining,
         boolean checkEligible,
-        List<EngineCard<T>> cards
+        boolean checkRequired,
+        List<EngineCard<T>> cards,
+        /** [JLAS-W0125] Position among same-skill parts of the package; 1/1 when the skill is not split. */
+        int partIndex,
+        int partCount
 ) {
     public EngineStudyState {
         cards = List.copyOf(cards);
+    }
+
+    public EngineStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
+            String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
+            boolean checkEligible, List<EngineCard<T>> cards, int partIndex, int partCount) {
+        this(activityId, activityType, activityState, sourceRevision, totalCards, flippedCount, rememberedCount,
+                reviewRemaining, checkEligible, true, cards, partIndex, partCount);
     }
 
     public record EngineCard<T>(Long memberId, int orderIndex, T entity, boolean flipped, boolean remembered) { }

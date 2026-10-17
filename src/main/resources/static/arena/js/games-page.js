@@ -13,9 +13,20 @@
   var joinError = document.querySelector('[data-join-error]');
   var refreshTimer = null;
   var resumeRoomId = null;
+  arena.phoneMedia.addEventListener('change', function () {
+    resumeRoomId = null;
+    loadLobby();
+  });
+
+  var mobileLayout = window.matchMedia('(max-width: 900px)');
+  function updateJoinPlaceholder() {
+    joinForm.elements.code.placeholder = mobileLayout.matches ? 'Mã phòng' : '123456';
+  }
+  updateJoinPlaceholder();
+  mobileLayout.addEventListener('change', updateJoinPlaceholder);
 
   function renderQuick(ticket) {
-    var searching = ticket && ticket.status === 'SEARCHING';
+    var searching = ticket && ticket.status === 'SEARCHING' && arena.canPlayGame(ticket.gameType);
     quickStatus.hidden = !searching;
     if (!searching) return;
     quickStatus.querySelector('[data-quick-game]').textContent = ticket.gameName;
@@ -42,6 +53,7 @@
     if (roomId === resumeRoomId) return;
     resumeRoomId = roomId;
     arena.api.room(roomId).then(function (room) {
+      if (!arena.canPlayGame(room.gameType)) { resume.hidden = true; return; }
       resume.querySelector('[data-resume-code]').textContent = room.quickMatch ? room.gameName : room.code;
       resume.querySelector('[data-resume-link]').href = '/games/room/' + encodeURIComponent(room.roomId);
       resume.hidden = false;
@@ -59,10 +71,10 @@
   joinForm.addEventListener('submit', function (event) {
     event.preventDefault();
     var input = joinForm.elements.code;
-    var code = String(input.value || '').replace(/[^a-z0-9]/gi, '').toUpperCase();
+    var code = String(input.value || '').trim();
     joinError.hidden = true;
-    if (code.length !== 6) {
-      joinError.textContent = 'Mã phòng gồm 6 ký tự, ví dụ ABC-123.';
+    if (!/^[0-9]{6}$/.test(code)) {
+      joinError.textContent = 'Mã phòng gồm 6 chữ số, ví dụ 123456.';
       joinError.hidden = false;
       input.focus();
       return;
@@ -81,8 +93,7 @@
   });
 
   joinForm.elements.code.addEventListener('input', function (event) {
-    var raw = event.target.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 6);
-    event.target.value = raw.length > 3 ? raw.slice(0, 3) + '-' + raw.slice(3) : raw;
+    event.target.value = event.target.value.replace(/[^0-9]/g, '').slice(0, 6);
   });
 
   arena.live.connect();

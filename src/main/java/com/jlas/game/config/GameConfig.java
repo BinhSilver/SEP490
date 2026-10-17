@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration;
 
 /** Game module wiring. */
 @Configuration
-@EnableConfigurationProperties(GameProperties.class)
+@EnableConfigurationProperties({GameProperties.class, GameVoiceProperties.class})
 public class GameConfig {
 }

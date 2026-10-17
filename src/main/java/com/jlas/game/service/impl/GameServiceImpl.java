@@ -30,6 +30,7 @@ import com.jlas.game.enums.PlayMode;
 import com.jlas.game.enums.RoomStatus;
 import com.jlas.game.enums.RoomVisibility;
 import com.jlas.game.mapper.GameMapper;
+import com.jlas.game.repository.AvatarFrameJdbcRepository.Style;
 import com.jlas.game.runtime.ArenaEventHub;
 import com.jlas.game.runtime.ArenaEventType;
 import com.jlas.game.runtime.ArenaPresenceEvent;
@@ -44,10 +45,12 @@ import com.jlas.game.runtime.PlayerSeat;
 import com.jlas.game.runtime.QuickDraft;
 import com.jlas.game.runtime.RoomPlayer;
 import com.jlas.game.runtime.RoomRegistry;
+import com.jlas.game.service.AvatarFrameService;
 import com.jlas.game.service.GameDeckService;
 import com.jlas.game.service.GameDeckService.DeckWords;
 import com.jlas.game.service.GameEngine;
 import com.jlas.game.service.GameService;
+import com.jlas.game.service.GameVoiceService;
 import com.jlas.game.util.GameRules;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -98,12 +101,15 @@ public class GameServiceImpl implements GameService {
     private final GameScheduler scheduler;
     private final GameProperties properties;
     private final UserRepository users;
+    private final GameVoiceService voice;
+    private final AvatarFrameService frames;
     private final Map<GameType, GameEngine> engines = new EnumMap<>(GameType.class);
 
     public GameServiceImpl(RoomRegistry rooms, GameSessionRegistry sessions, GameDeckService decks,
                            GameMatchRecorder recorder, GameMapper mapper, ArenaEventHub hub,
                            ArenaRateLimiter rateLimiter, GameScheduler scheduler, GameProperties properties,
-                           UserRepository users, List<GameEngine> engineBeans) {
+                           UserRepository users, GameVoiceService voice, AvatarFrameService frames,
+                           List<GameEngine> engineBeans) {
         this.rooms = rooms;
         this.sessions = sessions;
         this.decks = decks;
@@ -114,6 +120,8 @@ public class GameServiceImpl implements GameService {
         this.scheduler = scheduler;
         this.properties = properties;
         this.users = users;
+        this.voice = voice;
+        this.frames = frames;
         for (GameEngine engine : engineBeans) {
             engines.put(engine.type(), engine);
         }
@@ -170,7 +178,7 @@ public class GameServiceImpl implements GameService {
         RoomVisibility visibility = request.visibility() == null ? RoomVisibility.PRIVATE : request.visibility();
         GameRoom room = new GameRoom(UUID.randomUUID().toString().replace("-", "").substring(0, 12), rooms.newCode(),
                 type, visibility, userId, settings, now, false);
-        room.playersByUserId().put(userId, new RoomPlayer(userId, me.displayName(), me.avatarUrl(), 0, now));
+        room.playersByUserId().put(userId, new RoomPlayer(me, 0, now));
         rooms.register(room);
         rooms.bindUser(userId, room.getRoomId());
         log.info("Phòng {} ({}) được tạo bởi user {}", room.getCode(), type, userId);
@@ -213,7 +221,7 @@ public class GameServiceImpl implements GameService {
             }
             Instant now = Instant.now();
             room.playersByUserId().put(userId,
-                    new RoomPlayer(userId, me.displayName(), me.avatarUrl(), room.freeSlot(), now));
+                    new RoomPlayer(me, room.freeSlot(), now));
             rooms.bindUser(userId, roomId);
             room.touch(now);
             return mapper.toRoomView(room);
@@ -390,6 +398,7 @@ public class GameServiceImpl implements GameService {
             if (room.playersByUserId().remove(userId) == null) {
                 return new LeaveResult(false, false, null);
             }
+            voice.memberLeft(roomId, userId);
             rooms.unbindUser(userId, roomId);
             if (room.getDraftTask() != null) {
                 room.getDraftTask().cancel(false);
@@ -426,6 +435,7 @@ public class GameServiceImpl implements GameService {
         }
         if (result.closed()) {
             rooms.remove(room);
+            voice.roomClosed(roomId);
             log.info("Phòng {} đóng (không còn ai)", room.getCode());
         } else {
             notice(room, "Đối thủ đã rời phòng");
@@ -525,10 +535,8 @@ public class GameServiceImpl implements GameService {
         GameSettings initial = initialQuickSettings(type, host, pairs);
         GameRoom room = new GameRoom(UUID.randomUUID().toString().replace("-", "").substring(0, 12), rooms.newCode(),
                 type, RoomVisibility.PRIVATE, host.userId(), initial, now, true);
-        room.playersByUserId().put(host.userId(), new RoomPlayer(host.userId(), host.seat().displayName(),
-                host.seat().avatarUrl(), 0, now));
-        room.playersByUserId().put(guest.userId(), new RoomPlayer(guest.userId(), guest.seat().displayName(),
-                guest.seat().avatarUrl(), 1, now));
+        room.playersByUserId().put(host.userId(), new RoomPlayer(host.seat(), 0, now));
+        room.playersByUserId().put(guest.userId(), new RoomPlayer(guest.seat(), 1, now));
         leaveCurrentRoom(host.userId(), null);
         rooms.register(room);
         rooms.bindUser(host.userId(), room.getRoomId());
@@ -655,8 +663,7 @@ public class GameServiceImpl implements GameService {
     private GameSession openSession(GameType type, PlayMode mode, String roomId, String roomCode,
                                     GameSettings settings, List<PlayerSeat> seats, long authorityUserId) {
         GameOptions options = GameRules.normalize(type, mode, settings.options());
-        DeckWords deck = decks.loadWords(authorityUserId, settings.setId(), settings.questionField(),
-                settings.answerField());
+        DeckWords deck = configuredWords(authorityUserId, settings, options);
         requireEnoughWords(type, options, deck, settings);
         String sessionId = UUID.randomUUID().toString();
         Long matchId = recorder.start(type, roomId == null ? "solo:" + sessionId : roomId, roomCode, deck.setId(),
@@ -767,6 +774,7 @@ public class GameServiceImpl implements GameService {
                     return room.memberIds();
                 });
                 rooms.remove(room);
+                voice.roomClosed(room.getRoomId());
                 hub.send(members, ArenaEvent.of(ArenaEventType.ROOM_CLOSED, room.getRoomId(), null,
                         new RoomClosedPayload("Phòng đã đóng vì lâu không hoạt động")));
             }
@@ -795,9 +803,17 @@ public class GameServiceImpl implements GameService {
         }
         GameRules.validateFields(raw.questionField(), raw.answerField());
         GameOptions options = GameRules.normalize(type, mode, raw.options());
-        DeckWords deck = decks.loadWords(authorityUserId, raw.setId(), raw.questionField(), raw.answerField());
+        DeckWords deck = configuredWords(authorityUserId, raw, options);
         requireEnoughWords(type, options, deck, raw);
         return new GameSettings(deck.setId(), deck.title(), raw.questionField(), raw.answerField(), options);
+    }
+
+    private DeckWords configuredWords(long authorityUserId, GameSettings settings, GameOptions options) {
+        DeckWords deck = decks.loadWords(authorityUserId, settings.setId(), settings.questionField(), settings.answerField());
+        if (options.cardIds() == null) return deck;
+        var picked = decks.pickCards(authorityUserId, settings.setId(), settings.questionField(), settings.answerField(),
+                options.cardIds(), 1, "Trận đấu");
+        return new DeckWords(deck.setId(), deck.title(), picked.words());
     }
 
     private static void requireEnoughWords(GameType type, GameOptions options, DeckWords deck, GameSettings settings) {
@@ -863,7 +879,8 @@ public class GameServiceImpl implements GameService {
         User user = users.findById(userId).orElseThrow(() -> new ApiException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập"));
         String name = firstText(user.getFullName(), user.getUsername(),
                 user.getEmail() == null ? null : user.getEmail().split("@")[0], "Người chơi");
-        return new PlayerSeat(userId, name, user.getAvatarUrl(), slot);
+        Style style = frames.styles(List.of(userId)).getOrDefault(userId, Style.NONE);
+        return new PlayerSeat(userId, name, user.getAvatarUrl(), slot, style.frameCode(), style.nameStyle());
     }
 
     private static String firstText(String... values) {

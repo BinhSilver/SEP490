@@ -96,8 +96,12 @@ public class NekoCatchServiceImpl implements NekoCatchService {
 
     @Override
     public GameSession launch(LaunchRequest request) {
-        NekoSession.Config config = config(request.options().difficulty(), request.options().durationSeconds());
+        NekoSession.Config preset = config(request.options().difficulty(), request.options().durationSeconds());
         List<String> answerPool = request.words().stream().map(GameWord::answer).distinct().toList();
+        int lives = request.options().lives() == null ? preset.lives() : request.options().lives();
+        int choices = request.options().choices() == null ? preset.distractors() + 1 : request.options().choices();
+        NekoSession.Config config = new NekoSession.Config(preset.difficulty(), lives,
+                Math.min(choices, answerPool.size()) - 1, preset.durationSeconds());
         List<NekoRound> rounds = buildRounds(request.words(), answerPool, config, ThreadLocalRandom.current());
         Instant now = Instant.now();
         Instant startAt = now.plusMillis(START_DELAY_MS);
@@ -172,8 +176,16 @@ public class NekoCatchServiceImpl implements NekoCatchService {
 
     @Override
     public NekoStateView state(String sessionId, long userId) {
+        return state(sessionId, userId, MAX_CHOICES);
+    }
+
+    @Override
+    public NekoStateView state(String sessionId, long userId, int choiceLimit) {
+        if (choiceLimit < 2 || choiceLimit > MAX_CHOICES) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Số cá mỗi lượt từ 2 đến " + MAX_CHOICES);
+        }
         NekoSession session = registry.require(sessionId, NekoSession.class, userId);
-        return session.withLock(() -> toState(session, userId));
+        return session.withLock(() -> toState(session, userId, choiceLimit));
     }
 
     @Override
@@ -284,7 +296,7 @@ public class NekoCatchServiceImpl implements NekoCatchService {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Độ khó không hợp lệ");
         }
         int duration = request.durationSeconds() == null ? current.durationSeconds() : request.durationSeconds();
-        if (!GameRules.NEKO_DURATIONS.contains(duration)) {
+        if (!(session.isVersus() ? GameRules.NEKO_DURATIONS : GameRules.NEKO_SOLO_DURATIONS).contains(duration)) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Thời gian không hợp lệ");
         }
         NekoSession.Config preset = config(difficulty, duration);
@@ -647,13 +659,27 @@ public class NekoCatchServiceImpl implements NekoCatchService {
     // -------------------------------------------------------------------- views
 
     private NekoStateView toState(NekoSession session, long userId) {
+        return toState(session, userId, MAX_CHOICES);
+    }
+
+    /** Small screens receive fewer distractors; the correct fish always stays, without exposing its ID. */
+    static List<NekoChoiceView> visibleChoices(NekoRound round, int limit) {
+        if (round.choices().size() <= limit) return round.choices();
+        List<NekoChoiceView> choices = new ArrayList<>(round.choices().stream()
+                .filter(choice -> !choice.id().equals(round.correctChoiceId())).limit(limit - 1).toList());
+        choices.add(round.choices().stream().filter(choice -> choice.id().equals(round.correctChoiceId())).findFirst().orElseThrow());
+        java.util.Collections.shuffle(choices, new Random(round.id().hashCode()));
+        return List.copyOf(choices);
+    }
+
+    private NekoStateView toState(NekoSession session, long userId, int choiceLimit) {
         NekoSession.Config config = session.getConfig();
         NekoConfigView configView = new NekoConfigView(config.difficulty(), config.lives(),
-                Math.min(config.distractors() + 1, maxChoices(session)), maxChoices(session), config.durationSeconds(), session.getQuestionField(), session.getAnswerField(),
+                Math.min(config.distractors() + 1, Math.min(choiceLimit, maxChoices(session))), Math.min(choiceLimit, maxChoices(session)), config.durationSeconds(), session.getQuestionField(), session.getAnswerField(),
                 session.getQuestionField().label(), session.getAnswerField().label(),
                 session.getMode() == PlayMode.SOLO);
         List<NekoRoundView> rounds = session.getRounds().stream()
-                .map(round -> new NekoRoundView(round.id(), round.index(), round.word().prompt(), round.choices(),
+                .map(round -> new NekoRoundView(round.id(), round.index(), round.word().prompt(), visibleChoices(round, choiceLimit),
                         round.bonus()))
                 .toList();
         List<NekoPlayerView> players = session.orderedPlayers().stream()

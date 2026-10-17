@@ -5,6 +5,8 @@ import com.jlas.game.enums.DeckField;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
+import java.util.Map;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * DTO của Memory Match. Hình dạng giữ như bản demo để bảng React dùng lại được; thẻ úp không
@@ -27,7 +29,8 @@ public final class MemoryDtos {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record MemoryConfigView(int boardSize, int pairCount, String objective, String pairMode, String level,
                                    int turnSeconds, Integer totalSeconds, Integer moveLimit, boolean keepTurnOnMatch,
-                                   int revealDelayMs, DeckField questionField, DeckField answerField) {
+                                   int revealDelayMs, DeckField questionField, DeckField answerField,
+                                   boolean distinguishCardTypes) {
     }
 
     /** Một cặp đã dùng trên bàn, kèm đủ 4 trường để ôn lại. */
@@ -49,8 +52,14 @@ public final class MemoryDtos {
                                   Integer movesRemaining, Long turnStartedAt, Long turnDeadlineAt,
                                   Long totalDeadlineAt, long elapsedMs, String outcome, boolean ranked,
                                   MemoryResultView result, Long deckId, String deckTitle, boolean awaitingStart,
-                                  long serverTime) {
+                                  long serverTime, CoinTossView coinToss) {
     }
+
+    public record CoinTossView(Map<Long, String> choices, String result, Long starterUserId,
+                               Long startedAt, Long playStartsAt) { }
+
+    public record CoinChoiceRequest(@NotBlank(message = "Chọn mặt đồng xu") @Pattern(regexp = "JLAS|MASCOT",
+            message = "Chọn mặt JLAS hoặc mascot") String side) { }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record FlipRequest(@NotBlank(message = "Thiếu thẻ") String cardInstanceId) {
@@ -63,7 +72,8 @@ public final class MemoryDtos {
      * đủ cả trường hỏi lẫn trường đáp. {@code totalSeconds} chỉ dùng khi {@code objective} = TIME_ATTACK.
      */
     public record MemoryStartRequest(DeckField questionField, DeckField answerField, List<Long> cardIds,
-                                     Integer boardSize, String objective, Integer totalSeconds) {
+                                     Integer boardSize, String objective, Integer totalSeconds,
+                                     Boolean distinguishCardTypes) {
     }
 
     public record MemoryEnvelope(String type, MemoryStateView payload) {

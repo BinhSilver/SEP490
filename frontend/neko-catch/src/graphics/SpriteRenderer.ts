@@ -1,4 +1,4 @@
-import { assetUrl } from '../assets';
+import { prepareImage, spriteImage } from './ImageAssets';
 import { CatPlayer, FallingObject } from '../types/game';
 import { layoutCardText } from './CardText';
 
@@ -400,6 +400,13 @@ export class SpriteRenderer {
   private static handDrawnImages: Map<string, HTMLImageElement> = new Map();
   private static isHandDrawnLoaded = false;
 
+  public static async prepare() {
+    this.initHandDrawnAssets();
+    await Promise.all([...this.handDrawnImages].map(async ([key, image]) => {
+      this.handDrawnImages.set(key, await prepareImage(image.src));
+    }));
+  }
+
   public static initHandDrawnAssets() {
     if (this.isHandDrawnLoaded || typeof window === 'undefined') return;
     const assets = [
@@ -415,9 +422,7 @@ export class SpriteRenderer {
       { key: 'freeze', path: '/sprites/tasser_hand_drawn/item_freeze.png' },
     ];
     assets.forEach(({ key, path }) => {
-      const img = new Image();
-      img.src = assetUrl(path);
-      this.handDrawnImages.set(key, img);
+      this.handDrawnImages.set(key, spriteImage(path));
     });
     this.isHandDrawnLoaded = true;
   }

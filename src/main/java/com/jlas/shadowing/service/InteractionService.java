@@ -4,6 +4,8 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.auth.service.UserDirectoryPort;
+import com.jlas.game.repository.AvatarFrameJdbcRepository.Style;
+import com.jlas.game.service.AvatarFrameService;
 import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.service.ContentModerationPort;
 import com.jlas.moderation.service.UserActionPolicyPort;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,8 @@ public class InteractionService {
     @Autowired private VideoViewRepository videoViews;
     @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private UserNotificationPort notifications;
+    /** Khung + màu tên người bình luận; không có (test dựng tay) thì để mặc định. */
+    @Autowired(required = false) private AvatarFrameService frames;
 
     public Set<Long> getFavoriteVideoIds(String clientId) {
         return CurrentUser.currentUserId().map(String::valueOf)
@@ -60,27 +65,18 @@ public class InteractionService {
     @Transactional
     public boolean toggleFavorite(String clientId, Long videoId) {
         final String effectiveClientId = String.valueOf(CurrentUser.requireUserId());
-        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
-        return favoriteRepository.findByClientIdAndVideoId(effectiveClientId, videoId)
-                .map(fav -> {
-                    favoriteRepository.delete(NullSafe.ref(fav));
-                    return false;
-                })
-                .orElseGet(() -> {
-                    VideoFavorite fav = new VideoFavorite();
-                    fav.setClientId(effectiveClientId);
-                    fav.setVideo(video);
-                    favoriteRepository.save(NullSafe.ref(fav));
-                    return true;
-                });
+        videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        return favoriteRepository.toggle(effectiveClientId, videoId);
     }
 
+    @Transactional(readOnly = true)
     public RatingSummaryDto getRatingSummary(String clientId, Long videoId) {
         clientId = CurrentUser.currentUserId().map(String::valueOf).orElse(null);
-        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
         RatingSummaryDto dto = new RatingSummaryDto();
-        dto.setAvgRating(video.getAvgRating());
-        dto.setRatingCount(video.getRatingCount() != null ? video.getRatingCount() : 0);
+        Double average = ratingRepository.averageByVideoId(videoId);
+        dto.setAvgRating(average == null ? null : Math.round(average * 10.0) / 10.0);
+        dto.setRatingCount(Math.toIntExact(ratingRepository.countByVideoId(videoId)));
         if (clientId != null) {
             ratingRepository.findByClientIdAndVideoId(clientId, videoId)
                     .ifPresent(r -> dto.setUserRating(r.getRating()));
@@ -92,39 +88,57 @@ public class InteractionService {
     public RatingSummaryDto saveRating(String clientId, Long videoId, int rating) {
         final String effectiveClientId = String.valueOf(CurrentUser.requireUserId());
         if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating must be between 1 and 5");
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Đánh giá phải từ 1 đến 5 sao");
         }
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
-        VideoRating vr = ratingRepository.findByClientIdAndVideoId(effectiveClientId, videoId)
-                .orElseGet(() -> {
-                    VideoRating r = new VideoRating();
-                    r.setClientId(effectiveClientId);
-                    r.setVideo(video);
-                    return r;
-                });
+        VideoRating vr = new VideoRating();
+        vr.setClientId(effectiveClientId);
+        vr.setVideo(video);
         vr.setRating(rating);
         ratingRepository.save(vr);
-        updateVideoRatingAggregates(video);
         return getRatingSummary(effectiveClientId, videoId);
-    }
-
-    private void updateVideoRatingAggregates(Video video) {
-        Double avg = ratingRepository.averageByVideoId(video.getId());
-        long count = ratingRepository.countByVideoId(video.getId());
-        video.setAvgRating(avg != null ? Math.round(avg * 10.0) / 10.0 : null);
-        video.setRatingCount((int) count);
-        videoRepository.save(video);
     }
 
     public List<CommentDto> getComments(Long videoId, String clientId) {
         String currentClientId = CurrentUser.currentUserId().map(String::valueOf).orElse(null);
-        return commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId).stream()
+        return withProfiles(commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId).stream()
                 .filter(c -> !Boolean.TRUE.equals(c.getHidden()))
                 .map(c -> {
                     commentRatingRepository.find(c.getId()).ifPresent(c::setRating);
                     return toCommentDto(c, currentClientId);
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Gắn ảnh đại diện + khung avatar + màu tên (mua ở Cửa hàng) cho mỗi người bình luận,
+     * một lần truy vấn cho cả danh sách.
+     */
+    private List<CommentDto> withProfiles(List<CommentDto> list) {
+        if (list.isEmpty()) return list;
+        List<Long> ids = list.stream().map(dto -> userIdOf(dto.getClientId())).filter(java.util.Objects::nonNull).toList();
+        Map<Long, String> avatars = userDirectory == null ? Map.of() : userDirectory.avatarUrls(ids);
+        Map<Long, Style> styles = frames == null ? Map.of() : frames.styles(ids);
+        list.forEach(dto -> {
+            Long userId = userIdOf(dto.getClientId());
+            if (userId == null) return;
+            dto.setAvatarUrl(avatars.get(userId));
+            Style style = styles.get(userId);
+            if (style != null) {
+                dto.setAvatarFrame(style.frameCode());
+                dto.setNameStyle(style.nameStyle());
+            }
+        });
+        return list;
+    }
+
+    /** clientId của bình luận là userId dạng chuỗi ("null" với dữ liệu cũ không có người dùng). */
+    private static Long userIdOf(String clientId) {
+        try {
+            return clientId == null ? null : Long.valueOf(clientId);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     @Transactional
@@ -171,7 +185,7 @@ public class InteractionService {
                     saved.getDisplayName() + " đã bình luận về “" + video.getTitle() + "”.",
                     "/shadowing/player/" + video.getId(), "SHADOWING_COMMENT_" + saved.getId());
         }
-        return toCommentDto(saved, String.valueOf(userId));
+        return withProfiles(List.of(toCommentDto(saved, String.valueOf(userId)))).get(0);
     }
 
     @Transactional
@@ -193,10 +207,15 @@ public class InteractionService {
     public WatchResultDto recordWatch(Long videoId, WatchRequest req) {
         Long currentUserId = CurrentUser.requireUserId();
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
-        if (req.getDuration() == null || req.getDuration() <= 0) {
+        if (req.getDuration() == null || !Double.isFinite(req.getDuration()) || req.getDuration() <= 0) {
             return new WatchResultDto(false, videoViews.viewCount(videoId), false);
         }
         double current = req.getCurrentTime() != null ? req.getCurrentTime() : 0;
+        if (!Double.isFinite(current) || current < 0) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Vị trí phát không hợp lệ");
+        }
+        if (video.getDuration() != null && Double.isFinite(video.getDuration()) && video.getDuration() > 0)
+            current = Math.min(current, video.getDuration());
 
         String clientId = String.valueOf(currentUserId);
         VideoWatchSession session = watchSessionRepository
@@ -223,8 +242,11 @@ public class InteractionService {
         }
 
         double listened = tracker.listenedSec() + creditedListenSec(req.getListenedSec(), tracker.lastPingAt(), now);
+        // Use server metadata: a client cannot claim that a long video is a short clip.
+        double duration = video.getDuration() != null && Double.isFinite(video.getDuration()) && video.getDuration() > 0
+                ? video.getDuration() : VIEW_LISTEN_SEC / SHORT_CLIP_RATIO;
         // Clips shorter than 30s must be heard almost to the end instead.
-        if (listened < Math.min(VIEW_LISTEN_SEC, req.getDuration() * SHORT_CLIP_RATIO)) {
+        if (listened < Math.min(VIEW_LISTEN_SEC, duration * SHORT_CLIP_RATIO)) {
             videoViews.saveTracker(currentUserId, videoId, listened, now, tracker.lastCountedAt());
             watchSessionRepository.save(session);
             return new WatchResultDto(false, videoViews.viewCount(videoId), false);
@@ -233,6 +255,7 @@ public class InteractionService {
         videoViews.saveTracker(currentUserId, videoId, 0, now, now);
         session.setCountedAsView(true);
         watchSessionRepository.save(session);
+        videoViews.recordViewEvent(currentUserId, videoId, now);
         int viewCount = videoViews.incrementViewCount(videoId);
         eventPublisher.publishEvent(new ShadowingViewCounted(videoId, video.getOwnerId(), video.getTitle(), viewCount));
         return new WatchResultDto(true, viewCount, true);
@@ -243,7 +266,7 @@ public class InteractionService {
      * at the fastest playback speed, so replayed or parallel requests cannot inflate views.
      */
     private static double creditedListenSec(Double reported, LocalDateTime lastPingAt, LocalDateTime now) {
-        if (reported == null || !(reported > 0)) return 0;
+        if (reported == null || !Double.isFinite(reported) || !(reported > 0)) return 0;
         double cap = MAX_LISTEN_PER_PING_SEC;
         if (lastPingAt != null) {
             double elapsedSec = Duration.between(lastPingAt, now).toMillis() / 1000.0;

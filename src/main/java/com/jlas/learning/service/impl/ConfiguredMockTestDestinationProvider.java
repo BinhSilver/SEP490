@@ -36,7 +36,13 @@ public class ConfiguredMockTestDestinationProvider implements MockTestDestinatio
         if (configured == null || configured.isBlank() || !isApprovedDestination(configured.trim())) {
             return MockTestDestination.blocked(targetLevel);
         }
-        return new MockTestDestination(true, MockTestDestination.STATUS_AVAILABLE, configured.trim(), targetLevel);
+        String destination = configured.trim();
+        // The bundled JLPT library otherwise opens on N3 for every learner. Carry the server-owned
+        // path target into its level filter; leave external provider contracts unchanged.
+        if ("/jlpt".equals(destination) && targetLevel != null && targetLevel.matches("N[1-5]")) {
+            destination = "/jlpt?level=" + targetLevel;
+        }
+        return new MockTestDestination(true, MockTestDestination.STATUS_AVAILABLE, destination, targetLevel);
     }
 
     /** Package-private so the RC Task 7 security test can exercise the validation rule directly. */

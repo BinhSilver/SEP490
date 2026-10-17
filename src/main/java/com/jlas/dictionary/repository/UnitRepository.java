@@ -7,12 +7,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /** Repository cho {@link Unit}. */
 @Repository
 public interface UnitRepository extends JpaRepository<Unit, Long> {
 
     List<Unit> findByTextbookIdOrderByOrderIndexAscIdAsc(Long textbookId);
+
+    Optional<Unit> findByTextbookIdAndSourceCode(Long textbookId, String sourceCode);
 
     /**
      * Số bài thuộc một unit, MỌI trạng thái (kể cả ARCHIVED). Dùng để chặn xoá cứng unit còn bài:

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thư viện luyện nghe | JLAS</title>
@@ -14,14 +15,17 @@
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260929-merge-ti"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20260901-no-bell-hover"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-1">
+    <link rel="stylesheet" href="/shadowing/css/library-mobile.css?v=20261012-no-sort-hint">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-library">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-library">
     <div id="jlabBaseShellMount"></div>
 
     <main id="jlabBaseContent" class="container">
         <section>
             <div class="search-bar">
-                <input type="text" id="search-input" class="search-input" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
+                <input type="search" id="search-input" class="search-input" aria-label="Tìm video hoặc câu thoại" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
                 <select id="category-filter" class="form-input form-select" style="width:auto; border-radius:9999px;">
                     <option value="">Tất cả thể loại</option>
                     <option value="Podcast">Podcast</option>
@@ -41,12 +45,21 @@
                     <option value="N2">N2</option>
                     <option value="N1">N1</option>
                 </select>
-                <select id="sort-select" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                <select id="sort-select" aria-label="Sắp xếp thư viện" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                    <option value="popular" selected>Phổ biến</option>
                     <option value="newest">Mới nhất</option>
                     <option value="title">Tên A-Z</option>
-                    <option value="rating">Nổi bật (sao cao)</option>
-                    <option value="views">Lượt xem nhiều</option>
+                    <option value="rating">Đánh giá cao nhất</option>
+                    <option value="views">Lượt xem nhiều nhất</option>
+                    <option value="duration-asc">Ngắn nhất</option>
+                    <option value="duration-desc">Dài nhất</option>
                 </select>
+                <button type="button" id="library-filter-toggle" class="library-filter-toggle" aria-label="Bộ lọc" aria-expanded="false" aria-controls="library-filter-panel" title="Bộ lọc">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i><span id="library-filter-count" hidden></span>
+                </button>
+                <div id="library-filter-panel" class="library-filter-panel" role="region" aria-label="Lọc thư viện" hidden>
+                    <div class="library-filter-header"><strong>Bộ lọc</strong><button id="library-filter-reset" type="button">Đặt lại</button><button id="library-filter-close" type="button" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+                </div>
             </div>
 
             <div class="library-navigation">
@@ -89,7 +102,9 @@
             </div>
 
             <div id="video-grid" class="video-grid"></div>
+            <nav id="video-pagination" class="library-pagination" aria-label="Phân trang video" hidden></nav>
             <div id="series-grid" class="video-grid" hidden></div>
+            <nav id="series-pagination" class="library-pagination" aria-label="Phân trang danh sách" hidden></nav>
             <section id="video-empty-state" hidden>
                 <div th:replace="~{fragments/components/kitsu-guide :: guide(
                     'Kitsu-chan chưa tìm thấy video',
@@ -109,7 +124,6 @@
         <form method="dialog" id="series-form" class="store-utility-card">
             <button type="button" id="series-dialog-close" class="dialog-close" aria-label="Đóng">×</button>
             <h2>Tạo chuỗi luyện nghe</h2>
-            <p class="caption">Gom các video đã tạo thành một danh sách học như playlist.</p>
             <input id="series-title" class="form-input" required maxlength="255" placeholder="Tên series, ví dụ: Luyện nghe gọi món ramen">
             <textarea id="series-description" class="form-input" rows="2" placeholder="Mô tả ngắn (tùy chọn)"></textarea>
             <div class="series-form-grid">
@@ -124,15 +138,12 @@
         </form>
     </dialog>
 
-    <footer class="footer">
-        <p class="fine-print">© 2026 JLAS — Luyện shadowing tiếng Nhật</p>
-    </footer>
-
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js?v=20260901-logo3"></script>
     <script src="/shadowing/js/client.js"></script>
     <script src="/shadowing/js/confirm-modal.js"></script>
-    <script src="/shadowing/js/library.js?v=20260929-merge-ti"></script>
-    <script src="/shadowing/js/series-library.js?v=20260929-level-corner"></script>
+    <script src="/shadowing/js/library-controls.js?v=20261012-3"></script>
+    <script src="/shadowing/js/library.js?v=20261012-no-sort-hint"></script>
+    <script src="/shadowing/js/series-library.js?v=20261012-3"></script>
 </body>
 </html>

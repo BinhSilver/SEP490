@@ -56,6 +56,17 @@ class InteractiveComprehensionServiceTest {
                 assertThrows(ApiException.class, () -> service.studyState(7L, 1L)).getErrorCode());
     }
 
+    @Test void lockedReadingCannotBeOpenedThroughDirectStudyEndpoint(){
+        var locked=activity(LearningActivityType.READING);
+        locked.setActivityState(LearningActivityState.LOCKED);
+        when(items.findOwnedByIdForUpdate(1L,7L)).thenReturn(Optional.of(locked));
+
+        ApiException error=assertThrows(ApiException.class,()->service.studyState(7L,1L));
+
+        assertEquals(ErrorCode.PREREQUISITE_NOT_MET,error.getErrorCode());
+        verifyNoInteractions(members,studySessions,studyCards,checkStates,quizSessions,questions,catalog,mapper);
+    }
+
     @Test void exactExerciseGroupsBecomeSeparateBatchesWithoutAnswerLeakage() {
         arrangeTwoReadingExercises();
         when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
@@ -150,6 +161,34 @@ class InteractiveComprehensionServiceTest {
         service.recordReviewEvidence(7L, 1L);
         assertDoesNotThrow(() -> service.completeReview(7L, 1L));
         assertFalse(state.isReviewRequired());
+    }
+
+    @Test void practiceKeepsTheSourceSnapshotUnavailableContractForLegacyAttempts() {
+        var finished = activity(LearningActivityType.READING);
+        finished.setActivityState(LearningActivityState.PASSED);
+        var legacy = LearningQuizSession.builder().id(41L).user(User.builder().id(7L).build())
+                .quizType("READING_MICRO_CHECK").activityId(1L).batchIndex(0).status("SUBMITTED")
+                .questionsJson("questions").answerKeyJson("answers").build();
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(finished));
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(finished));
+        when(quizSessions.findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+                1L, "READING_MICRO_CHECK", "SUBMITTED")).thenReturn(List.of(legacy));
+
+        ApiException error = assertThrows(ApiException.class, () -> service.issuePractice(7L, 1L));
+
+        assertEquals(ErrorCode.SOURCE_SNAPSHOT_UNAVAILABLE, error.getErrorCode());
+        verify(quizSessions, never()).save(any());
+    }
+
+    @Test void reviewFeedbackUsesOwnedReadWithoutWriteLock() {
+        var finished = activity(LearningActivityType.LISTENING);
+        finished.setActivityState(LearningActivityState.PASSED);
+        when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(finished));
+
+        assertEquals(List.of(), service.reviewFeedback(7L, 1L));
+
+        verify(items, never()).findOwnedByIdForUpdate(anyLong(), anyLong());
+        verifyNoInteractions(members, studySessions, studyCards, checkStates, questions, catalog);
     }
 
     private void arrangeTwoReadingExercises() {
