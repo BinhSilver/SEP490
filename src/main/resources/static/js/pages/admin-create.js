@@ -9,8 +9,10 @@
  * "Component" = hàm JS thuần: renderStepper, renderTextbookPreview, renderKnowledgePointPicker, renderLessonAside…
  * Không thư viện; style trong css/pages/admin-create.css (scope .admin-create-page).
  */
-(function () {
+// [JLAS2-17] Chạy trong cổng quản trị: AdminShell xác nhận tài khoản + quyền (CONTENT_CREATOR) rồi mới mở trang.
+window.AdminShell.ready.then(function (allowed) {
   'use strict';
+  if (!allowed) return;
 
   var API = '/api/dictionary';
   var main = document.getElementById('jlabBaseContent');
@@ -1198,4 +1200,4 @@
   }
   if (MODE === 'textbook') startTextbook();
   else if (MODE === 'lesson') startLesson();
-})();
+});

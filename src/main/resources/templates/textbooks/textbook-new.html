@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: standard('Tạo giáo trình - JLAS', 'textbooks')}"></head>
+<!-- [JLAS2-17] Cổng quản trị (giống manage.html): admin-head + #adminShellMount; main hiện khi AdminShell xác nhận quyền. -->
+<head th:replace="~{fragments/admin-head :: head('Tạo giáo trình - JLAS', 'textbooks')}"></head>
 
-<body id="jlabBasePage" class="app-body page-textbooks">
+<body id="jlabBasePage" class="admin-portal page-textbooks">
 
-    <div id="jlabBaseShellMount"></div>
+    <div id="adminShellMount"></div>
 
     <!-- [JLAS2-17] Trang tạo giáo trình 3 bước (thay modal "Thêm giáo trình"). Style: css/pages/admin-create.css
          (scope .admin-create-page); logic: js/pages/admin-create.js. API: POST /api/dictionary/textbooks + upload thumbnail. -->
-    <link rel="stylesheet" th:href="@{/css/pages/admin-create.css(v=20261017gp)}" />
+    <link rel="stylesheet" th:href="@{/css/pages/admin-create.css(v=20261017ap)}" />
 
-    <main id="jlabBaseContent" class="app-main textbooks-main admin-create-page" data-create="textbook">
+    <main id="jlabBaseContent" class="app-main textbooks-main admin-create-page" hidden data-create="textbook">
         <nav class="textbooks-breadcrumb" aria-label="Breadcrumb">
             <a th:href="@{/textbooks/manage}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Quản lý nội dung</a>
             <span aria-hidden="true">/</span>
@@ -34,8 +35,9 @@
 
     <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 
-    <script th:src="@{/js/jlab-base-shell.js}"></script>
-    <script th:src="@{/js/pages/admin-create.js(v=20261017gp)}"></script>
+    <script th:src="@{/js/pages/admin-core.js}"></script>
+    <script th:src="@{/js/admin-shell.js}"></script>
+    <script th:src="@{/js/pages/admin-create.js(v=20261017ap)}"></script>
 
 </body>
 
