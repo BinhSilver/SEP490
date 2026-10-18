@@ -669,13 +669,13 @@ window.AdminShell.ready.then(function (allowed) {
     });
   }
 
-  /** Đóng ô sửa (Huỷ / nền / Esc): có thay đổi thì hỏi "Bỏ thay đổi?". */
+  /** Đóng ô sửa (Huỷ / nền / Esc): có thay đổi thì hỏi "Bỏ thay đổi?" — mặc định + Enter = "Tiếp tục sửa" (không mất dữ liệu). */
   function requestCloseModal() {
     if (!isModalDirty()) { closeModal(); return; }
     confirmDialog({
       title: 'Bỏ thay đổi?',
       bodyHtml: '<p>Nội dung bạn vừa sửa trong ô này chưa được lưu và sẽ mất.</p>',
-      confirmLabel: 'Bỏ thay đổi', cancelLabel: 'Tiếp tục sửa', danger: true
+      confirmLabel: 'Bỏ thay đổi', cancelLabel: 'Tiếp tục sửa', danger: true, safeDefault: true
     }).then(function (ok) { if (ok) closeModal(); });
   }
 
