@@ -1015,6 +1015,8 @@
     if (!(t.length > 0 && t.length <= 40 && !JA_CHAR.test(t) && SOLUTION_MARKER.test(t) && !/^POPUP SCRIPT$/i.test(t))) return false;
     // [JLAS2-17] G1: câu văn tiếng Việt có chữ "đáp án / dịch / giải thích" ("Không có vườn nên đáp án này sai.", "Chọn đáp án
     // nào?") không phải nhãn mục. Dòng có khung nhãn (☞, 【】, <<< >>>, [ ], kết thúc ":") vẫn là nhãn như cũ.
+    // Dòng gạch đầu dòng ("– Giải thích", "- Đề nghị …") là nội dung liệt kê, không phải nhãn.
+    if (/^[–—\-・]\s/.test(t) && !/[–—\-]$/.test(t)) return false;
     var framed = /^[☞✏■●◆◇▶►<\[【(（]/.test(t) || /[:：>\]】)）]$/.test(t);
     if (framed) return true;
     var words = t.split(/\s+/).filter(function (w) { return /[0-9A-Za-zÀ-ỹĐđ]/.test(w); }).length;
@@ -1608,17 +1610,21 @@
   }
 
   function tailPartsHtml() {
-    var many = tailParts.practice.length > 1;
-    var html = tailParts.practice.length
+    // [JLAS2-17] Phần đã bị bỏ hết (đáp án / bản dịch trùng nội dung đã hiện) → không vẽ khối rỗng.
+    var practice = tailParts.practice.map(function (p) { return { title: p.title, body: p.secs.map(sectionHtml).join('') }; })
+      .filter(function (p) { return p.body; });
+    var many = practice.length > 1;
+    var html = practice.length
       ? '<section class="reading-section lp-part lp-part--practice"><h3 class="reading-section__title">Luyện tập</h3>' +
-        tailParts.practice.map(function (p) {
+        practice.map(function (p) {
           return '<article class="reading-block">' + (many && p.title ? '<h4 class="reading-block__title">' + escapeHtml(p.title) + '</h4>' : '') +
-            p.secs.map(sectionHtml).join('') + '</article>';
+            p.body + '</article>';
         }).join('') + '</section>'
       : '';
-    html += tailParts.other.length
+    var other = tailParts.other.map(function (o) { return sectionHtml(o.sec); }).join('');
+    html += other
       ? '<section class="reading-section lp-part lp-part--other"><h3 class="reading-section__title">Đáp án / bản dịch khác</h3>' +
-        '<article class="reading-block">' + tailParts.other.map(function (o) { return sectionHtml(o.sec); }).join('') + '</article></section>'
+        '<article class="reading-block">' + other + '</article></section>'
       : '';
     return html;
   }
