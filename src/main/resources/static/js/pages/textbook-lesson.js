@@ -726,7 +726,9 @@
   function practiceImagesHtml(q, number, media) {
     var passage = !media || media.image !== false ? passageImagesOf(q) : [];
     var seen = {};
-    var urls = passage.concat(q.questionImages || []).filter(function (u) {
+    // [JLAS2-17] Tranh dùng chung của nhóm câu đã hiện một lần ở đầu nhóm (sharedImagesHtml) → thẻ câu không lặp lại.
+    var own = media && media.sharedImages ? [] : (q.questionImages || []);
+    var urls = passage.concat(own).filter(function (u) {
       u = String(u || '').trim();
       if (!u || seen[u]) return false;
       seen[u] = true;
@@ -740,6 +742,30 @@
         return '<button type="button" class="practice-q__zoom" data-zoom-src="' + src + '" data-zoom-alt="' + alt + '"' +
           ' aria-label="Phóng to ' + alt + '"><img class="practice-q__image" loading="lazy" src="' + src + '" alt="' + alt + '"></button>';
       }).join('') + '</div>';
+  }
+
+  /** Danh sách ảnh của chính câu hỏi (bỏ rỗng / trùng, giữ thứ tự) — khoá so nhóm tranh dùng chung. */
+  function ownImagesOf(q) {
+    var seen = {};
+    return (q.questionImages || []).map(function (u) { return String(u || '').trim(); })
+      .filter(function (u) { if (!u || seen[u]) return false; seen[u] = true; return true; });
+  }
+
+  /**
+   * [JLAS2-17] Bộ tranh dùng chung của một nhóm câu LIỀN NHAU có question_images giống hệt (vd Minna Topic 25: tranh a–f
+   * xếp trình tự): hiện một lần ở đầu nhóm, lưới, bấm phóng to (cùng lớp phóng to với ảnh câu hỏi).
+   */
+  function sharedImagesHtml(urls, from, to) {
+    var label = 'Tranh dùng chung cho câu ' + from + '–' + to;
+    return '<figure class="practice-q-shared" role="group" aria-label="' + escapeHtml(label) + '">' +
+      '<figcaption class="practice-q-shared__caption">' + escapeHtml(label) + '</figcaption>' +
+      '<div class="practice-q__images' + (urls.length > 1 ? ' practice-q__images--grid' : '') + '">' +
+      urls.map(function (u, i) {
+        var src = escapeHtml(mediaUrl(u));
+        var alt = escapeHtml('Tranh ' + (urls.length > 1 ? (i + 1) + ' ' : '') + 'dùng chung cho câu ' + from + '–' + to);
+        return '<button type="button" class="practice-q__zoom" data-zoom-src="' + src + '" data-zoom-alt="' + alt + '"' +
+          ' aria-label="Phóng to ' + alt + '"><img class="practice-q__image" loading="lazy" src="' + src + '" alt="' + alt + '"></button>';
+      }).join('') + '</div></figure>';
   }
 
   /** Lớp phóng to ảnh câu hỏi: bấm nền / nút đóng / Esc để thoát, trả focus về ảnh vừa bấm. */
@@ -1389,6 +1415,21 @@
       if (q.passageHtml) lastPassage = q.passageHtml;
       if (passageImgs) lastImage = passageImgs;
       return flags;
+    }).map(function (flags, i, all) {
+      // [JLAS2-17] Nhóm tranh dùng chung: ≥ 2 câu liền nhau có question_images giống hệt → câu đầu nhóm mang
+      // groupImages (+ số câu của nhóm), mọi câu trong nhóm sharedImages = true (thẻ câu không vẽ lại tranh).
+      var key = ownImagesOf(block.questions[i]).join('|');
+      if (!key) return flags;
+      var prev = i > 0 ? ownImagesOf(block.questions[i - 1]).join('|') : '';
+      if (prev === key) { flags.sharedImages = true; return flags; }
+      var size = 1;
+      while (i + size < all.length && ownImagesOf(block.questions[i + size]).join('|') === key) size++;
+      if (size > 1) {
+        flags.sharedImages = true;
+        flags.groupImages = ownImagesOf(block.questions[i]);
+        flags.groupSize = size;
+      }
+      return flags;
     });
   }
 
@@ -1526,7 +1567,9 @@
       (block.questions.length
         ? '<div class="practice-list">' + block.questions.map(function (q, i) {
             number++;
-            return practiceCard(q, number, q.hatsuwa, mediaFlags[i]);
+            var f = mediaFlags[i];
+            return (f.groupImages ? sharedImagesHtml(f.groupImages, number, number + f.groupSize - 1) : '') +
+              practiceCard(q, number, q.hatsuwa, f);
           }).join('') + '</div>'
         : '') +
       readingTailHtml(block, sections) +
