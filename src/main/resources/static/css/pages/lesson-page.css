@@ -969,6 +969,31 @@
 .lesson-page .practice-q__images--grid .practice-q__zoom { width: 100%; }
 .lesson-page .practice-q__zoom:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 .lesson-page .practice-q__images--grid .practice-q__image { width: 100%; height: 160px; object-fit: contain; background: #FBFAFE; }
+/* [JLAS2-17] Ảnh trang sách gốc ở đầu tab Từ vựng / Ngữ pháp / Kanji (lesson_page_image): lưới, bấm phóng to */
+.lesson-page .lp-page-images {
+  margin: 0 0 18px;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #FBFAFE;
+}
+.lesson-page .lp-page-images__caption { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.lesson-page .lp-page-images__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; align-items: start; }
+.lesson-page .lp-page-images__item { width: 100%; min-height: 44px; }
+.lesson-page .lp-page-images__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+@media (max-width: 600px) {
+  .lesson-page .lp-page-images__grid { grid-template-columns: minmax(0, 1fr); }
+  .lesson-page .lp-page-images__img { max-height: 260px; }
+}
 /* [JLAS2-17] Tranh dùng chung của nhóm câu liền nhau (cùng question_images): một lần ở đầu nhóm */
 .lesson-page .practice-q-shared {
   margin: 0;

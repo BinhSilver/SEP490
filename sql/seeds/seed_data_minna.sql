@@ -19,6 +19,7 @@
 -- Thu tu chay (MySQL 8.0.16+), KHONG co lenh USE: chon schema truoc khi chay.
 --   1) jlas_schema.sql -> migration (sql/migrations/018_content_source.sql, sql/jlas_migrations_all.sql,
 --      sql/migrations/019_situation_tag_ba.sql, sql/migrations/020_align_checks_credit_reference.sql; DB cu)
+--      + sql/migrations/037_lesson_page_image.sql (DB tao truoc khi schema co bang lesson_page_image) [JLAS2-17]
 --   2) sql/seeds/seed_data_jlas.sql (tools/generate_seed.py) -> sql/seeds/jlas_seed_all.sql, questionbank.sql, ...
 --   3) sql/seeds/demo_content_creator.sql (chi dev/demo)
 --   4) sql/seeds/seed_data_vnjpclub.sql -> 5) sql/seeds/seed_data_minna.sql (vnjpclub truoc, Minna sau)
@@ -50,6 +51,7 @@ DELETE FROM assessment_quiz_question WHERE quiz_id BETWEEN 3000001 AND 3999999;
 DELETE FROM assessment_question WHERE id BETWEEN 3000001 AND 3999999;
 DELETE FROM assessment_quiz WHERE id BETWEEN 3000001 AND 3999999;
 DELETE FROM content_audio WHERE id BETWEEN 3000001 AND 3999999;
+DELETE FROM lesson_page_image WHERE id BETWEEN 3000001 AND 3999999;
 DELETE FROM content_vocabulary WHERE content_item_id BETWEEN 3000001 AND 3999999;
 DELETE FROM content_item WHERE id BETWEEN 3000001 AND 3999999;
 DELETE FROM lesson_kanji WHERE lesson_id BETWEEN 3000001 AND 3999999;
@@ -58395,6 +58397,7 @@ ALTER TABLE lesson_section AUTO_INCREMENT = 4000001;
 ALTER TABLE grammar_point AUTO_INCREMENT = 4000001;
 ALTER TABLE content_item AUTO_INCREMENT = 4000001;
 ALTER TABLE content_audio AUTO_INCREMENT = 4000001;
+ALTER TABLE lesson_page_image AUTO_INCREMENT = 4000001;
 ALTER TABLE assessment_quiz AUTO_INCREMENT = 4000001;
 ALTER TABLE assessment_question AUTO_INCREMENT = 4000001;
 ALTER TABLE content_source AUTO_INCREMENT = 4000001;

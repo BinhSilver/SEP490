@@ -103,6 +103,9 @@
    * chưa chạy migration 022 → không hiện nút, trang dùng ảnh seed như cũ. Nút chỉ là giao diện; backend tự chặn 401/403.
    */
   var readingImages = { available: false, byCode: {} };
+  /** [JLAS2-17] Ảnh trang sách gốc theo tab (lesson_page_image, migration 037); rỗng khi DB chưa có bảng. */
+  var pageImages = { VOCAB: [], GRAMMAR: [], KANJI: [] };
+  var PAGE_IMAGE_LABELS = { VOCAB: 'từ vựng', GRAMMAR: 'ngữ pháp', KANJI: 'kanji' };
   var readingImageToolsOpen = {};   // [F] mã bài đọc đã mở khung thêm ảnh (giữ qua các lần vẽ lại tab)
   var canEditReadingImages = (function () {
     var u = window.JlasAuth && typeof JlasAuth.getUser === 'function' ? JlasAuth.getUser() : null;
@@ -1742,6 +1745,43 @@
     });
   }
 
+  /**
+   * [JLAS2-17] Ảnh trang sách gốc ở đầu tab Từ vựng / Ngữ pháp / Kanji: lưới ảnh, bấm để phóng to (cùng lớp phóng to
+   * với ảnh câu hỏi). Rỗng khi bài không có ảnh trang cho tab đó.
+   */
+  function pageImagesHtml(tab) {
+    var list = pageImages[tab] || [];
+    if (!list.length) return '';
+    var label = 'Trang ' + PAGE_IMAGE_LABELS[tab] + ' trong sách gốc';
+    return '<figure class="lp-page-images" role="group" aria-label="' + escapeHtml(label) + '">' +
+      '<figcaption class="lp-page-images__caption"><i class="fa-regular fa-image" aria-hidden="true"></i> ' +
+        escapeHtml(label) + (list.length > 1 ? ' (' + list.length + ' trang)' : '') + ' · bấm ảnh để phóng to</figcaption>' +
+      '<div class="lp-page-images__grid">' + list.map(function (u, i) {
+        var src = escapeHtml(mediaUrl(u));
+        var alt = escapeHtml(label + (list.length > 1 ? ' – trang ' + (i + 1) : ''));
+        return '<button type="button" class="practice-q__zoom lp-page-images__item" data-zoom-src="' + src + '" data-zoom-alt="' + alt + '"' +
+          ' aria-label="Phóng to ' + alt + '"><img class="lp-page-images__img" loading="lazy" src="' + src + '" alt="' + alt + '"></button>';
+      }).join('') + '</div></figure>';
+  }
+
+  /** Tải ảnh trang sau khi bài học đã hiện (kèm token: người biên soạn xem được bài Nháp); lỗi / chưa có bảng → bỏ qua. */
+  function loadPageImages() {
+    if (!NEW_UI || !lessonId) return;
+    var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
+    fetch('/api/dictionary/lessons/' + encodeURIComponent(lessonId) + '/page-images', { headers: headers })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (json) {
+        var data = json && json.data;
+        if (!data || !data.available || !(data.items || []).length) return;
+        pageImages = { VOCAB: [], GRAMMAR: [], KANJI: [] };
+        data.items.forEach(function (x) { if (pageImages[x.tab] && x.imageUrl) pageImages[x.tab].push(x.imageUrl); });
+        if (pageImages.VOCAB.length) renderVocab();
+        if (pageImages.GRAMMAR.length) renderGrammar();
+        if (pageImages.KANJI.length) renderKanji();
+      })
+      .catch(function () { /* không có ảnh trang */ });
+  }
+
   /** Tải ảnh đã chỉnh sau khi bài học đã hiện; lỗi (kể cả DB chưa có bảng) thì giữ nguyên ảnh seed. */
   function loadReadingImages() {
     if (!NEW_UI || !lessonId || !document.getElementById('panelReading')) return;
@@ -2378,6 +2418,7 @@
     var action = isLearningPath ? '' : '<a class="lp-btn lp-btn--ghost" href="' + FLASHCARD_URL + '">' +
       '<i class="fa-solid fa-layer-group" aria-hidden="true"></i><span>Ôn tập bằng Flashcard</span></a>';
     panel.innerHTML = sectionHead('Từ vựng', 'lpVocabHead', 'Trang ' + ui.vocabPage + ' / ' + total + ' · ' + list.length + ' từ', action) +
+      pageImagesHtml('VOCAB') +
       '<div class="lp-vgrid">' + list.slice(start, start + VOCAB_PER_PAGE).map(vocabCard).join('') + '</div>' +
       renderPagination('vocab', ui.vocabPage, total, list.length, VOCAB_PER_PAGE, 'từ');
     applySpeakButtonVisibility();
@@ -2415,6 +2456,7 @@
     var start = (ui.kanjiPage - 1) * KANJI_PER_PAGE;
     if (ui.kanjiIndex < start || ui.kanjiIndex >= Math.min(list.length, start + KANJI_PER_PAGE)) ui.kanjiIndex = start;
     host.innerHTML = sectionHead('Kanji', 'lpKanjiHead', 'Trang ' + ui.kanjiPage + ' / ' + total + ' · ' + list.length + ' chữ') +
+      pageImagesHtml('KANJI') +
       '<div class="lp-kanji-layout">' +
         '<div class="lp-kanji-main"><div class="lp-kgrid">' +
           list.slice(start, start + KANJI_PER_PAGE).map(function (k, i) { return kanjiTile(k, start + i); }).join('') +
@@ -2577,6 +2619,7 @@
     ui.grammarIndex = clamp(ui.grammarIndex, 0, blocks.length - 1);
     var points = (lesson.grammarPoints || []).length;
     panel.innerHTML = sectionHead('Ngữ pháp', 'lpGrammarHead', points ? points + ' mẫu câu' : '', hideMeaningButton()) +
+      pageImagesHtml('GRAMMAR') +
       '<div class="lp-grammar">' +
         '<nav class="lp-glist" aria-label="Danh sách mẫu câu">' + blocks.map(function (b, i) {
           var selected = i === ui.grammarIndex;
@@ -2811,6 +2854,7 @@
       })
       .then(render)
       .then(loadReadingImages)
+      .then(loadPageImages)
       .catch(function (err) { showError(err.message || 'Không tải được bài học.'); });
   }
 

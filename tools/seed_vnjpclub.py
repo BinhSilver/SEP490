@@ -35,6 +35,9 @@ from collections import OrderedDict, defaultdict
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TABLES = ['giao_trinh', 'unit', 'lesson', 'tu_vung', 'ngu_phap', 'vi_du', 'kanji', 'tu_ghep', 'hoi_thoai',
           'cau_song_ngu', 'bai_doc', 'bai_nghe', 'cau_hoi', 'phuong_an', 'audio_lien_ket']
+# [JLAS2-17] Bang tuy chon: co thi doc / chep, thieu (ban xuat cu) thi coi nhu rong. lesson_nguon.anh_trang = anh cua trang
+# nguon tu vung / ngu phap / kanji -> bang lesson_page_image (migration 037).
+OPTIONAL_TABLES = ['lesson_nguon']
 ID_BASE, ID_MAX = 1000001, 1999999          # dai ID danh rieng cho du lieu vnjpclub
 AUTO_INCREMENT_AFTER = 2000001             # ban legacy (seed cu); ban moi dung PROFILE['auto_increment']
 # Anh xa ma on dinh -> ID DB (giu ID cu khi them / bot bai). Khoi tao bang --bootstrap-id-map tu ban xuat cu.
@@ -280,12 +283,21 @@ def load_export(d):
                 data[n] = json.load(fh)
         else:
             raise SystemExit('Thieu {} (.json/.json.gz) trong {}'.format(n, d))
+    for n in OPTIONAL_TABLES:
+        p = os.path.join(d, n + '.json')
+        if os.path.exists(p):
+            data[n] = json.load(open(p, encoding='utf-8'))
+        elif os.path.exists(p + '.gz'):
+            with gzip.open(p + '.gz', 'rt', encoding='utf-8') as fh:
+                data[n] = json.load(fh)
+        else:
+            data[n] = []
     return data
 
 
 def copy_data(src, dst):
     os.makedirs(dst, exist_ok=True)
-    for n in TABLES:
+    for n in TABLES + [t for t in OPTIONAL_TABLES if os.path.exists(os.path.join(src, t + '.json'))]:
         with open(os.path.join(src, n + '.json'), 'rb') as fi, gzip.GzipFile(os.path.join(dst, n + '.json.gz'), 'wb', 9, mtime=0) as fo:
             fo.write(fi.read())
 
@@ -308,6 +320,9 @@ def build(D, nid, legacy=False):
                                                'translated_text', 'order_index'])
     B['content_audio'] = Batch('content_audio', ['id', 'owner_type', 'owner_id', 'voice_code', 'audio_url', 'merged_url',
                                                  'start_ms', 'end_ms'])
+    if not legacy:
+        # [JLAS2-17] Anh trang tu vung / ngu phap / kanji (migration 037); trang hoc hien o dau tab tuong ung.
+        B['lesson_page_image'] = Batch('lesson_page_image', ['id', 'lesson_id', 'tab', 'image_url', 'order_index', 'stable_code'])
     B['assessment_quiz'] = Batch('assessment_quiz', ['id', 'lesson_id', 'unit_id', 'title', 'quiz_type', 'status'])
     B['assessment_question'] = Batch('assessment_question', [
         'id', 'knowledge_tag_id', 'grammar_point_id', 'skill', 'jlpt_level', 'difficulty', 'question_type', 'title',
@@ -457,7 +472,45 @@ def build(D, nid, legacy=False):
         T['kanji'].add(ch, '{:04X}'.format(ord(ch)), cut(hv, 255) or None, mv or None, lv)
     stats['khoa_tu_vung'] = len(vocab)
     stats['ky_tu_kanji'] = len(kanji_chars)
+    if not legacy:
+        build_page_images(D.get('lesson_nguon') or [], B, nid, stats, skipped)
     return B, T, stats, skipped
+
+
+def page_image_tab(source_code):
+    """Tab hien anh trang theo trang nguon ('somatome-n3-han-tu/...' -> KANJI; ngu-phap / bunpo -> GRAMMAR; con lai
+    (tu-vung, goi, tuvung, katakana) -> VOCAB)."""
+    book = (source_code or '').split('/', 1)[0].lower()
+    if 'han-tu' in book or 'kanji' in book:
+        return 'KANJI'
+    if 'ngu-phap' in book or 'bunpo' in book or 'bunpou' in book:
+        return 'GRAMMAR'
+    return 'VOCAB'
+
+
+def build_page_images(rows, B, nid, stats, skipped):
+    """[JLAS2-17] lesson_nguon.anh_trang ('a.png;media/N3/.../b.png') -> lesson_page_image: moi anh mot dong, thu tu
+    theo trang nguon (order_index) roi thu tu anh trong trang. Khoa ID on dinh = ma trang nguon + so thu tu anh; bai khong
+    duoc dung (bi bo) thi bo qua anh cua bai do."""
+    used_lessons = nid.used.get('lesson', set())
+    order = defaultdict(int)
+    for r in sorted(rows, key=lambda x: (x['lesson_ma'], int(x.get('order_index') or 0), x['ma'])):
+        imgs = split_images(r.get('anh_trang'))
+        if not imgs:
+            continue
+        L = r['lesson_ma']
+        if L not in used_lessons:
+            skipped['anh_trang_bai_khong_co'].append(r['ma'])
+            continue
+        les_id = nid.map['lesson'][L]
+        tab = page_image_tab(r.get('ma_nguon'))
+        for k, rel in enumerate(imgs, start=1):
+            order[(L, tab)] += 1
+            code = '{}-IMG{:02d}'.format(r['ma'], k)
+            B['lesson_page_image'].add(nid('page_image', code), les_id, tab, cut(rel, 500), order[(L, tab)], cut(code, 255))
+            stats['anh_trang'] += 1
+            stats['anh_trang_' + tab] += 1
+        stats['anh_trang_trang_nguon'] += 1
 
 
 def build_lesson(les, u_id, lv, tb, B, T, nid, src, stats, skipped, add_vocab, kanji_chars,
@@ -954,6 +1007,7 @@ DELETE FROM assessment_quiz_question WHERE quiz_id BETWEEN {lo} AND {hi};
 DELETE FROM assessment_question WHERE id BETWEEN {lo} AND {hi};
 DELETE FROM assessment_quiz WHERE id BETWEEN {lo} AND {hi};
 DELETE FROM content_audio WHERE id BETWEEN {lo} AND {hi};
+DELETE FROM lesson_page_image WHERE id BETWEEN {lo} AND {hi};
 DELETE FROM content_vocabulary WHERE content_item_id BETWEEN {lo} AND {hi};
 DELETE FROM content_item WHERE id BETWEEN {lo} AND {hi};
 DELETE FROM lesson_kanji WHERE lesson_id BETWEEN {lo} AND {hi};
@@ -988,6 +1042,7 @@ HEADER_INTRO_V2 = """-- ========================================================
 -- Thu tu chay (MySQL 8.0.16+), KHONG co lenh USE: chon schema truoc khi chay.
 --   1) jlas_schema.sql -> migration (sql/migrations/018_content_source.sql, sql/jlas_migrations_all.sql,
 --      sql/migrations/019_situation_tag_ba.sql, sql/migrations/020_align_checks_credit_reference.sql; DB cu)
+--      + sql/migrations/037_lesson_page_image.sql (DB tao truoc khi schema co bang lesson_page_image) [JLAS2-17]
 --   2) sql/seeds/seed_data_jlas.sql (tools/generate_seed.py) -> sql/seeds/jlas_seed_all.sql, questionbank.sql, ...
 --   3) sql/seeds/demo_content_creator.sql (chi dev/demo)
 --   4) sql/seeds/seed_data_vnjpclub.sql -> 5) sql/seeds/seed_data_minna.sql (vnjpclub truoc, Minna sau)
@@ -1036,6 +1091,8 @@ def render(B, T, stats, nid, legacy=False):
                                       title=esc(title), lo=lo))
     tables = ['tag', 'textbook', 'unit', 'lesson', 'lesson_section', 'grammar_point', 'content_item', 'content_audio',
               'assessment_quiz', 'assessment_question', 'content_source']
+    if not legacy:
+        tables.insert(tables.index('content_audio') + 1, 'lesson_page_image')
     auto = AUTO_INCREMENT_AFTER if legacy else PROFILE['auto_increment']
     alters = '\n'.join('ALTER TABLE {} AUTO_INCREMENT = {};'.format(t, auto) for t in tables)
     footer = FOOTER.format(alters=alters)
