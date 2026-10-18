@@ -537,6 +537,7 @@
   var SCRIPT_ANSWER = /^(答え?|Đáp án)\s*[:：]\s*(.+)$/;
   var SCRIPT_EXAMPLE = /^例\s*[:：]\s*(.*)$/;
   var SCRIPT_SPEAKER = /^(男の人|女の人|男|女|[A-DＡ-Ｄ])\s*(?:[:：]\s*|(?=「))(.+)$/;
+  var SCRIPT_BREAK = /^(CHECK|[QＱ]\s*[0-9０-９]{1,2}\b|問\s*[0-9０-９]{1,2}(?![0-9０-９]))/;
   var SCRIPT_NUMBER = /^(?:[(（]\s*([0-9０-９]{1,2})\s*[)）]|([0-9０-９]{1,2})\s*[)）.．]|([①-⑳]))\s*(.+)$/;
 
   function digits(value) {
@@ -588,6 +589,10 @@
         '<span class="lp-chip-s lp-chip-s--spk lp-spk--' + speakerTone(m[1]) + '" lang="ja">' + escapeHtml(m[1]) + '</span>' +
         plainSpan(m[2].trim()) + '</div>' };
     }
+    // [JLAS2-17] G3: tiêu đề con (CHECK, Q1, 問1) đóng thẻ của mục đánh số trước — câu hỏi không dồn vào thẻ ví dụ.
+    if (SCRIPT_BREAK.test(t)) {
+      return { type: 'break', html: '<div class="lp-sline' + (/^CHECK$/.test(t) ? ' lp-sline--heading' : '') + '">' + plainSpan(t) + '</div>' };
+    }
     if ((m = t.match(SCRIPT_NUMBER))) {
       var n = digits(m[1] || m[2] || String('①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'.indexOf(m[3]) + 1));
       return { type: 'point', html: '<div class="lp-sline lp-sline--point"><span class="lp-num" aria-hidden="true">' + escapeHtml(n) + '</span>' +
@@ -602,14 +607,86 @@
    * Gom nhóm: mục đánh số mở một thẻ, kéo dài qua giải thích / ví dụ cho tới mục kế tiếp, tiêu đề, đáp án, hoặc dòng
    * ngay trước một đoạn hội thoại "男：…" (thường là câu hỏi của bài tiếp theo). translations: dòng dịch gắn sau dòng chính.
    */
+  /** Số của mục đánh số (1）, ①, (1)…) hoặc null. */
+  function pointNumber(line) {
+    var m = String(line || '').trim().match(SCRIPT_NUMBER);
+    if (!m) return null;
+    return parseInt(digits(m[1] || m[2] || String('①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'.indexOf(m[3]) + 1)), 10);
+  }
+
+  function isTranslationLine(line) {
+    var t = String(line || '').trim();
+    return !!t && lineKind(t) === 'vi' && !BRACKET_LINE.test(t) && !SCRIPT_HEADING.test(t) && !sectionLabel(t);
+  }
+
+  /** Các dãy mục đánh số tiếng Nhật liên tiếp (số tăng dần): [{start, end}] (end không gồm). */
+  function pointRuns(items) {
+    var runs = [];
+    var i = 0;
+    while (i < items.length) {
+      var n = pointNumber(items[i].main);
+      if (n == null || lineKind(items[i].main) !== 'ja') { i++; continue; }
+      var j = i + 1;
+      var last = n;
+      while (j < items.length) {
+        var nj = pointNumber(items[j].main);
+        if (nj == null || nj <= last || lineKind(items[j].main) !== 'ja') break;
+        last = nj;
+        j++;
+      }
+      runs.push({ start: i, end: j });
+      i = j;
+    }
+    return runs;
+  }
+
+  /**
+   * [JLAS2-17] Chuẩn hoá danh sách câu đánh số (chỉ tầng hiển thị):
+   * G3 — k câu đánh số liên tiếp rồi đúng k dòng dịch dồn sau câu cuối → mỗi dòng dịch về dưới câu của nó;
+   * G4 — cùng một danh sách câu (giống hệt, chưa có dịch) lặp lại ngay trước bản có dịch → chỉ giữ một bản.
+   */
+  function normalizeScriptItems(items) {
+    var list = items.map(function (x) { return { main: x.main, vi: (x.vi || []).slice() }; });
+    pointRuns(list).reverse().forEach(function (r) {
+      var k = r.end - r.start;
+      if (k < 2) return;
+      for (var t = r.start; t < r.end - 1; t++) if (list[t].vi.length) return;
+      var lastItem = list[r.end - 1];
+      var vis = lastItem.vi.slice();
+      var m = r.end;
+      while (m < list.length && !list[m].vi.length && isTranslationLine(list[m].main)) { vis.push(list[m].main); m++; }
+      if (vis.length !== k || vis.length < 2) return;
+      for (var q = 0; q < k; q++) list[r.start + q].vi = [vis[q]];
+      list.splice(r.end, m - r.end);
+    });
+    var runs = pointRuns(list);
+    var drop = {};
+    for (var a = 0; a + 1 < runs.length; a++) {
+      var A = runs[a];
+      var Bn = runs[a + 1];
+      var gap = Bn.start - A.end;
+      if (gap > 1 || A.end - A.start !== Bn.end - Bn.start || A.end - A.start < 2) continue;
+      if (gap === 1 && !(A.start > 0 && matchKey(list[A.start - 1].main) === matchKey(list[A.end].main))) continue;
+      var same = true;
+      for (var u = 0; u < A.end - A.start; u++) {
+        if (list[A.start + u].vi.length || matchKey(list[A.start + u].main) !== matchKey(list[Bn.start + u].main)) { same = false; break; }
+      }
+      if (!same) continue;
+      for (var w = A.start; w < A.end; w++) drop[w] = true;
+      if (gap === 1) drop[A.end] = true;
+    }
+    return list.filter(function (x, i) { return !drop[i]; });
+  }
+
   function scriptBlockHtml(items) {
     var out = [];
     var card = null;
     function close() { if (card) { out.push('<div class="lp-card">' + card.join('') + '</div>'); card = null; } }
+    items = normalizeScriptItems(items);
     items.forEach(function (item, i) {
       var e = scriptEntry(item.main);
       var next = items[i + 1] ? scriptEntry(items[i + 1].main).type : null;
-      if (e.type === 'heading' || e.type === 'answer' || e.type === 'dialogue') close();
+      if (e.type === 'heading' || e.type === 'answer' || e.type === 'dialogue' || e.type === 'break') close();
       if (e.type === 'point') { close(); card = []; }
       if (card && e.type === 'line' && next === 'dialogue') close();
       var html = e.html + (item.vi || []).map(function (v) {
@@ -935,7 +1012,13 @@
 
   function isSolutionMarker(line) {
     var t = String(line || '').trim();
-    return t.length > 0 && t.length <= 40 && !JA_CHAR.test(t) && SOLUTION_MARKER.test(t) && !/^POPUP SCRIPT$/i.test(t);
+    if (!(t.length > 0 && t.length <= 40 && !JA_CHAR.test(t) && SOLUTION_MARKER.test(t) && !/^POPUP SCRIPT$/i.test(t))) return false;
+    // [JLAS2-17] G1: câu văn tiếng Việt có chữ "đáp án / dịch / giải thích" ("Không có vườn nên đáp án này sai.", "Chọn đáp án
+    // nào?") không phải nhãn mục. Dòng có khung nhãn (☞, 【】, <<< >>>, [ ], kết thúc ":") vẫn là nhãn như cũ.
+    var framed = /^[☞✏■●◆◇▶►<\[【(（]/.test(t) || /[:：>\]】)）]$/.test(t);
+    if (framed) return true;
+    var words = t.split(/\s+/).filter(function (w) { return /[0-9A-Za-zÀ-ỹĐđ]/.test(w); }).length;
+    return !(/[.?!。？！]$/.test(t) || words >= 5);
   }
 
   /*
@@ -961,6 +1044,8 @@
     if (isSolutionMarker(t)) return { kind: 'answer', label: core };
     return null;
   }
+
+  var BRACKET_LINE = /^[☞\s]*【[^】]{1,30}】\s*[:：]?$/;
 
   // Nhãn đứng riêng dạng 【…】 không khớp nhãn nào ở trên: mục khác (Từ vựng, Ngữ pháp, Hướng dẫn…) hoặc đoạn văn mới.
   var PASSAGE_LABEL = /^(đọc\s*hiểu|đề|đề\s*bài|読解|本文|文章|問題\s*[0-9０-９]+|mondai\s*[0-9]+)$/i;
@@ -1030,6 +1115,9 @@
       if (!t) return;
       var kind = lineKind(t);
       var prev = pairs[pairs.length - 1];
+      // [JLAS2-17] G2: dòng nhãn 【…】 (vd 【Đọc Hiểu】 sau phần ví dụ ngữ pháp của Marugoto) không bao giờ là bản dịch của câu
+      // trước — thành tiêu đề riêng, đóng thẻ câu ví dụ (đoạn văn phía sau không còn dồn vào thẻ).
+      if (NEW_UI && BRACKET_LINE.test(t)) { pairs.push({ main: t, kind: 'plain', vi: [] }); return; }
       // Phần lời giải: dòng chữ Latin không dấu ngay sau câu Nhật chưa có dịch là bản dịch tên riêng ("山川" → "Yamakawa").
       if (latinIsTranslation && kind === 'plain' && /[A-Za-z]/.test(t) && prev && prev.kind === 'ja' && !prev.vi.length) {
         prev.vi.push(t);
