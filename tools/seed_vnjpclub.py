@@ -527,7 +527,15 @@ def build_lesson(les, u_id, lv, tb, B, T, nid, src, stats, skipped, add_vocab, k
         qs = kept
     is_practice = les.get('loai_bai') == 'practice'
     # ky nang chinh
+    # [JLAS2-17] khoi bai tap dinh kem phan tu vung (bai_doc.phan = 'vocabulary', vd. Speed N2–N5) khong doi ky nang chinh:
+    # bai co danh sach tu vung + chi co khoi bai tap do van la bai VOCABULARY. Bai ngu phap chi con bang tong hop
+    # (phan = 'grammar', khong cau hoi — "Tong hop ngu phap de nham") van la GRAMMAR.
+    main_rdgs = [r for r in rdgs if r.get('phan') != 'vocabulary']
     if gras:
+        skill = 'GRAMMAR'
+    elif vocs and rdgs and not main_rdgs and not liss:
+        skill = 'VOCABULARY'
+    elif rdgs and not liss and not qs and not vocs and all(r.get('phan') == 'grammar' for r in rdgs):
         skill = 'GRAMMAR'
     elif (vocs or kans) and not (rdgs or liss):
         skill = 'VOCABULARY'
