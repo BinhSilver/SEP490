@@ -2234,9 +2234,37 @@
     return blocks;
   }
 
+  /*
+   * [JLAS2-17] Bài hội thoại nhóm biên soạn (IT / du lịch / đời sống): grammar_point.example chỉ là CÁCH ĐỌC của mẫu
+   * ("予定どおり" → "よていどおり"), không phải câu ví dụ. Nhận ra (toàn kana, ngắn, không dấu câu) → hiện "Cách đọc", và lấy
+   * câu hội thoại của chính bài có chứa mẫu làm ví dụ.
+   */
+  function isReadingOnlyExample(g) {
+    var ex = String((g && g.example) || '').trim();
+    var pattern = String((g && g.pattern) || '').trim();
+    return !!ex && /^[\u3040-\u30ff〜～・ー\s、（）()]+$/.test(ex) && !/[。？！?!]/.test(ex) &&
+      ex.length <= Math.max(12, pattern.length * 3);
+  }
+
+  function dialogueExamplesFor(g) {
+    var frags = String(g.pattern || '').split(/[〜～…・\s\u3000/／]+/).filter(function (f) { return f.length >= 2; });
+    if (!frags.length) return [];
+    var key = frags.sort(function (a, b) { return b.length - a.length; })[0];
+    return (lesson.dialogueLines || []).filter(function (line) { return String(line.text || '').indexOf(key) !== -1; })
+      .slice(0, 3).map(function (line) { return { textJa: line.text, textVi: line.translatedText, audios: line.audios }; });
+  }
+
+  function readingLineHtml(g, cls) {
+    var ex = String(g.example || '').trim();
+    if (ex === String(g.pattern || '').trim()) return '';
+    return '<p class="' + cls + '"><span class="grammar-item__label">Cách đọc: </span><span lang="ja">' + escapeHtml(ex) + '</span></p>';
+  }
+
   function grammarBlock(block) {
     var g = block.point;
     var examples = block.examples;
+    var readingOnly = g && !examples.length && isReadingOnlyExample(g);
+    if (readingOnly) examples = dialogueExamplesFor(g);
     var listHtml = examples.length
       ? '<div class="example-list grammar-item__examples">' + examples.map(exampleItem).join('') + '</div>'
       : '';
@@ -2252,7 +2280,8 @@
         '<h3 class="grammar-item__pattern" lang="ja">' + escapeHtml(g.pattern) + '</h3>' +
         '<p class="grammar-item__meaning">' + escapeHtml(g.meaning || '') + '</p>' +
         (g.note ? '<p class="grammar-item__note"><span class="grammar-item__label">Ghi chú: </span>' + escapeHtml(g.note) + '</p>' : '') +
-        (examples.length === 0 && g.example
+        (readingOnly ? readingLineHtml(g, 'grammar-item__example') : '') +
+        (examples.length === 0 && g.example && !readingOnly
           ? '<p class="grammar-item__example"><span class="grammar-item__label">Ví dụ: </span>' + escapeHtml(g.example) + '</p>'
           : listHtml) +
       '</article>';
@@ -2746,6 +2775,8 @@
   function grammarDetail(block, index) {
     var g = block.point;
     var examples = block.examples;
+    var readingOnly = g && !examples.length && isReadingOnlyExample(g);
+    if (readingOnly) examples = dialogueExamplesFor(g);
     var exHtml = examples.length
       ? '<ol class="lp-examples">' + examples.map(function (s, i) {
           return '<li class="lp-example lp-anim" tabindex="0">' +
@@ -2755,13 +2786,14 @@
             speakButton(s.audios, s.textJa, 'Nghe câu ví dụ ' + (i + 1)) +
             '</li>';
         }).join('') + '</ol>'
-      : (g && g.example ? '<p class="lp-example__single" lang="ja">' + escapeHtml(g.example) + '</p>' : '');
+      : (g && g.example && !readingOnly ? '<p class="lp-example__single" lang="ja">' + escapeHtml(g.example) + '</p>' : '');
     if (!g) {
       return '<p class="lp-glabel">' + escapeHtml(OTHER_EXAMPLES_TITLE.toUpperCase()) + '</p>' +
         '<p class="lp-gmeaning">Câu ví dụ của bài không thuộc riêng mẫu ngữ pháp nào.</p>' + exHtml;
     }
     return '<p class="lp-glabel">MẪU CÂU ' + (index + 1) + '</p>' +
       patternChips(g.pattern) +
+      (readingOnly ? readingLineHtml(g, 'lp-greading') : '') +
       (g.meaning ? (grammarSectionsHtml(g.meaning) || grammarMeaningHtml(g.meaning)) : '') +
       (g.note
         ? (grammarSectionsHtml(g.note)
@@ -2769,7 +2801,7 @@
           : '<div class="lp-note"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i>' +
             '<div><strong>Ghi chú</strong><p>' + escapeHtml(g.note) + '</p></div></div>')
         : '') +
-      (exHtml ? '<h3 class="lp-gsub">Ví dụ</h3>' + exHtml : '');
+      (exHtml ? '<h3 class="lp-gsub">' + (readingOnly ? 'Ví dụ trong hội thoại' : 'Ví dụ') + '</h3>' + exHtml : '');
   }
 
   function renderGrammarNew() {
