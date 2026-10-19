@@ -1217,3 +1217,10 @@ html.lp-zoom-open { overflow: hidden; }
 
 /* [JLAS2-17] Nguồn nội dung (nhập từ ngoài): dòng nhỏ cuối trang */
 .lesson-page .lp-source-note { margin: 28px 0 8px; font-size: 13px; color: var(--muted); text-align: center; }
+
+/* [JLAS2-17] G9: phương án dài (> 5 ký tự) → 1 cột trên màn hẹp, chữ không vỡ 2–3 ký tự mỗi dòng */
+@media (max-width: 480px) {
+  .lesson-page .practice-q__options--long { grid-template-columns: minmax(0, 1fr); }
+}
+/* [JLAS2-17] G5: trang giải thích sau câu hỏi (thu gọn) */
+.lesson-page .lp-sec--explain { margin-top: 14px; }

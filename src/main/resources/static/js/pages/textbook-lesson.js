@@ -512,6 +512,9 @@
     var jp = t.slice(0, m.index);
     var vi = t.slice(m.index).trim();
     if (!vi || JA_CHAR.test(vi) || !VI_CHAR.test(vi)) return null;
+    // [JLAS2-17] G6: "質問（ : các bạn chọn câu đúng)" — ngoặc mở chưa đóng thì không phải cặp "từ：nghĩa".
+    // Chỉ ngoặc toàn khổ: dòng "ふしぎ (: a-na) kì lạ", "昼食はご持参ください。(: Xin vui lòng …)" vẫn là cặp như cũ.
+    if (/（[\s:：]*$/.test(jp) && /[)）]\s*$/.test(vi)) return null;
     var sep = '：';
     var sm = jp.match(MIX_SEP_END);
     if (sm) { sep = sm[1] === ':' ? '：' : sm[1]; jp = jp.slice(0, sm.index); }
@@ -537,6 +540,11 @@
   var SCRIPT_ANSWER = /^(答え?|Đáp án)\s*[:：]\s*(.+)$/;
   var SCRIPT_EXAMPLE = /^例\s*[:：]\s*(.*)$/;
   var SCRIPT_SPEAKER = /^(男の人|女の人|男|女|[A-DＡ-Ｄ])\s*(?:[:：]\s*|(?=「))(.+)$/;
+  // [JLAS2-17] G6: tên người nói viết dính liền lời thoại ("女子学生これからどうするの？") — chỉ tên nhiều chữ, cần ≥ 2 dòng.
+  // Tên + trợ từ ("女子学生はどうしますか。") là câu hỏi, không phải lời thoại dính tên.
+  var STUCK_SPEAKER = /^(男子学生|女子学生|修理の人|店員|駅員|係員)(?![\s:：「はがをにのもとへでや、。A-DＡ-Ｄ])(.+)$/;
+  // Dòng từ vựng thiếu "：" ("あまい adj 甘い CAM ngọt") → "あまい 甘い：adj CAM ngọt" để hiện như các dòng "từ：nghĩa".
+  var VOCAB_NO_COLON = /^([\u3040-\u30ffー〜～（）()]+)\s+((?:n|v|adj|adv|a-i|a-na|na-adj|i-adj|v,n|n,v|vt|vi)\b\.?)\s+(\S*[\u3400-\u9fff々]\S*)\s+(.+)$/;
   var SCRIPT_BREAK = /^(CHECK|[QＱ]\s*[0-9０-９]{1,2}\b|問\s*[0-9０-９]{1,2}(?![0-9０-９]))/;
   var SCRIPT_NUMBER = /^(?:[(（]\s*([0-9０-９]{1,2})\s*[)）]|([0-9０-９]{1,2})\s*[)）.．]|([①-⑳]))\s*(.+)$/;
 
@@ -647,6 +655,19 @@
    */
   function normalizeScriptItems(items) {
     var list = items.map(function (x) { return { main: x.main, vi: (x.vi || []).slice() }; });
+    if (list.filter(function (x) { return STUCK_SPEAKER.test(String(x.main).trim()); }).length >= 2) {
+      list.forEach(function (x) {
+        var m = String(x.main).trim().match(STUCK_SPEAKER);
+        if (m) x.main = m[1] + '：' + m[2];
+      });
+    }
+    if (list.filter(function (x) { return VOCAB_NO_COLON.test(String(x.main).trim()); }).length >= 3 &&
+        list.some(function (x) { return /^[\u3040-\u30ff\u3400-\u9fff々ー〜～（）()]+[:：]\s*\S/.test(String(x.main).trim()); })) {
+      list.forEach(function (x) {
+        var m = String(x.main).trim().match(VOCAB_NO_COLON);
+        if (m && VI_CHAR.test(m[4]) && !JA_CHAR.test(m[4])) x.main = m[1] + ' ' + m[3] + '：' + m[2] + ' ' + m[4];
+      });
+    }
     pointRuns(list).reverse().forEach(function (r) {
       var k = r.end - r.start;
       if (k < 2) return;
@@ -925,6 +946,7 @@
       practiceImagesHtml(q, number, media) +
       // Phương án không có chữ (nguồn chỉ có hình, ví dụ "Nghe chọn tranh"): một hàng nút số gọn.
       '<div class="practice-q__options' + (numbersOnly ? ' practice-q__options--numbers' : '') +
+        (options.some(function (o) { return String(o || '').trim().length > 5; }) ? ' practice-q__options--long' : '') +
         '" role="group" aria-label="Phương án câu ' + number + '">' +
       options.map(function (o, i) {
         var kind = lineKind(o || '');
@@ -1017,7 +1039,16 @@
     // nào?") không phải nhãn mục. Dòng có khung nhãn (☞, 【】, <<< >>>, [ ], kết thúc ":") vẫn là nhãn như cũ.
     // Dòng gạch đầu dòng ("– Giải thích", "- Đề nghị …") là nội dung liệt kê, không phải nhãn.
     if (/^[–—\-・]\s/.test(t) && !/[–—\-]$/.test(t)) return false;
-    var framed = /^[☞✏■●◆◇▶►<\[【(（]/.test(t) || /[:：>\]】)）]$/.test(t);
+    // Ngoặc đơn ( … ) / （ … ）: chỉ là khung nhãn khi bọc cả dòng VÀ bên trong là nhãn ngắn ("(Đáp án)"); câu văn trong
+    // ngoặc ("(Đáp án: Một tách cà phê…)", "※Rẻ hơn quầy giao dịch (210 Yên)") là nội dung.
+    var paren = /^[(（](.*)[)）]$/.exec(t);
+    if (paren || /[)）]$/.test(t)) {
+      var inner = paren ? paren[1].trim() : '';
+      var innerWords = inner.split(/\s+/).filter(function (w) { return /[0-9A-Za-zÀ-ỹĐđ]/.test(w); }).length;
+      if (!paren || /[.?!。？！:：]/.test(inner) || innerWords >= 4) return false;
+      return true;
+    }
+    var framed = /^[☞✏■●◆◇▶►<\[【]/.test(t) || /[:：>\]】]$/.test(t);
     if (framed) return true;
     var words = t.split(/\s+/).filter(function (w) { return /[0-9A-Za-zÀ-ỹĐđ]/.test(w); }).length;
     return !(/[.?!。？！]$/.test(t) || words >= 5);
@@ -1596,9 +1627,23 @@
    * Phần của khối theo thứ tự gốc: khối đọc hiểu (đáp án / bản dịch / đoạn văn mới / lời thoại / mục khác) trả về để
    * vẽ ngay dưới câu hỏi; đề luyện tập + đáp án / bản dịch của nó, và khối không rõ phần, gom vào tailParts.
    */
+  /** [JLAS2-17] G5: mọi câu đánh số của phần luyện tập đã có trên thẻ câu hỏi của khối (so nội dung câu) → không vẽ lại. */
+  function practiceCoveredByCards(sec, questions) {
+    if (!questions || !questions.length) return false;
+    var keys = questions.map(function (q) { return matchKey(q.questionText || ''); });
+    var nums = sec.lines.filter(function (l) { return pointNumber(l) != null; });
+    if (nums.length < 2) return false;
+    return nums.every(function (l) {
+      var m = l.trim().match(SCRIPT_NUMBER);
+      var body = matchKey(m ? m[4] : l);
+      return body.length >= 4 && keys.some(function (k) { return k.indexOf(body) !== -1; });
+    });
+  }
+
   function readingTailHtml(block, sections) {
     var here = [];
     var practice = [];
+    sections = sections.filter(function (x) { return !(x.kind === 'practice' && practiceCoveredByCards(x, block.questions)); });
     sections.forEach(function (x) {
       if (x.kind === 'practice' || ((x.kind === 'answer' || x.kind === 'translation') && x.owner === 'practice')) practice.push(x);
       else if ((x.kind === 'answer' || x.kind === 'translation') && !x.owner) tailParts.other.push({ title: block.item.title, sec: x });
@@ -1639,10 +1684,21 @@
       ' aria-label="' + escapeHtml(block.item.title || 'Audio') + '"></audio></div></article>';
   }
 
+  /**
+   * [JLAS2-17] G5: khối là TRANG GIẢI THÍCH sau đề (500 câu hỏi: kanji, từ, mẫu ◇… kèm đáp án) — có câu hỏi riêng và ≥ 3 dòng
+   * "◇". Hiện câu hỏi trước, giải thích thu gọn sau ("xem sau khi làm") để không lộ đáp án.
+   */
+  function isExplanationBlock(block) {
+    if (!NEW_UI || !block.questions.length) return false;
+    var diamonds = (block.lines || []).filter(function (l) { return /^\s*◇/.test(l); }).length;
+    return diamonds >= 3;
+  }
+
   function readingBlockHtml(block) {
     var it = block.item;
     var number = block.numberStart || 0;
     var mediaFlags = questionMediaFlags(block);
+    var explain = isExplanationBlock(block);
     if (NEW_UI && block.audio && !block.lines.length && !block.questions.length && !(block.sections || []).length &&
         !block.translation) {
       return trackHtml(block);
@@ -1654,7 +1710,7 @@
       // preload="none": bài nghe có thể vài chục file, không tải trước khi người học bấm phát.
       (block.audio ? '<audio class="reading-block__audio" controls preload="none" src="' +
         escapeHtml(AUDIO_BASE + block.audio.audioUrl) + '"></audio>' : '') +
-      (block.lines.length
+      (block.lines.length && !explain
         ? (isListeningBlock(block)
           // Bài nghe: transcript thu gọn để nghe trước, không đọc trước được đáp án.
           ? '<details class="reading-block__script"><summary>Xem lời thoại (transcript)</summary>' +
@@ -1668,6 +1724,10 @@
             return (f.groupImages ? sharedImagesHtml(f.groupImages, number, number + f.groupSize - 1) : '') +
               practiceCard(q, number, q.hatsuwa, f);
           }).join('') + '</div>'
+        : '') +
+      (explain
+        ? '<details class="lp-sec lp-sec--explain"><summary class="lp-sec__summary">Giải thích &amp; từ vựng (xem sau khi làm)</summary>' +
+          passageHtml(block.lines) + '</details>'
         : '') +
       readingTailHtml(block, sections) +
       // Lời giải để CUỐI (sau câu hỏi) và thu gọn: chứa bản dịch lẫn đáp án.
@@ -2628,7 +2688,13 @@
 
   /** Công thức mẫu câu → chip: tách theo khoảng trắng, phân loại bằng danh sách cố định ở trên. */
   function patternChips(pattern) {
-    var tokens = String(pattern || '').split(/[\s\u3000]+/).filter(Boolean);
+    var raw = String(pattern || '').trim();
+    var tokens = raw.split(/[\s\u3000]+/).filter(Boolean);
+    // [JLAS2-17] G8: tên mẫu là cụm tiếng Việt ("Trợ từ は", "N3 dễ nhầm", "Thể khả năng") hiện nguyên một khối, không tách
+    // từng chữ thành chip. Mẫu có cấu trúc (V / N / + / ～ / ngoặc) giữ cách tách cũ.
+    var head = /^[\u3040-\u309f]{1,2}$/.test(tokens[tokens.length - 1] || '') ? tokens.slice(0, -1) : tokens;
+    if (tokens.length > 1 && /^([A-Za-zÀ-ỹĐđ]*[a-zà-ỹđ]|[A-Z][0-9])/.test(tokens[0]) && !/[+＋\/／～〜()（）]/.test(raw) &&
+        !head.some(function (t) { return JA_CHAR.test(t); })) tokens = [raw];
     if (!tokens.length) return '';
     return '<div class="lp-chips" lang="ja">' + tokens.map(function (t, i) {
       return '<span class="lp-chip lp-chip--' + chipKind(t) + '" style="--i:' + Math.min(i, 12) + '">' + escapeHtml(t) + '</span>';
