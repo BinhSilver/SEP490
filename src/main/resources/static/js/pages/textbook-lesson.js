@@ -773,6 +773,14 @@
     var answer = q.correctOption ? (q.options || [])[q.correctOption - 1] : null;
     var runs = text.match(KANJI_RUN) || [];
     var allKana = (q.options || []).length > 0 && q.options.every(function (o) { return KANA_ONLY.test(o || ''); });
+    // [JLAS2-17] Nguồn đánh dấu từ gạch chân bằng ［…］ (Tanki N5 文字・語彙): đúng một cặp, bên trong không phải chỗ
+    // trống / danh sách lựa chọn (＿ ／ 、 — kiểu Minna) và phương án toàn kana → gạch đúng phần trong ngoặc.
+    var marked = text.match(/［([^］＿_／/、]{1,12})］/g);
+    if (allKana && marked && marked.length === 1) {
+      var m = text.match(/［([^］＿_／/、]{1,12})］/);
+      return escapeHtml(text.slice(0, m.index + 1)) + '<u class="practice-q__target">' + escapeHtml(m[1]) + '</u>' +
+        escapeHtml(text.slice(m.index + 1 + m[1].length));
+    }
     // Đề có chỗ trống （）/＿/★ là câu ngữ pháp (phương án là trợ từ...), không phải câu đọc chữ Hán.
     if (!answer || !allKana || runs.length !== 1 || BLANK_MARK.test(text)) return escapeHtml(text);
     var start = text.indexOf(runs[0]);
@@ -1518,6 +1526,34 @@
    * Cờ hiện đoạn văn/ảnh cho từng câu của khối: đoạn văn đã hiện bằng bài đọc chứa câu (cùng mã, hoặc câu không ghi
    * mã đoạn văn) thì không hiện lại; nhiều câu liền nhau chung một đoạn văn/ảnh thì chỉ câu đầu hiện.
    */
+  /**
+   * [JLAS2-17] Đoạn văn của câu (passageHtml) chỉ là danh sách câu dạng chữ của chính các thẻ trong khối (bản dịch đề +
+   * phương án "1. …" — vd Tanki N5 文字・語彙: doan_van còn nguyên khối đề cũ) → không phải đoạn văn, không hiện (mọi
+   * dòng đã có trên thẻ). Cần ≥ 4 dòng, ≥ 80 % dòng khớp đề / bản dịch / phương án, trong đó ≥ max(2, nửa số câu) dòng
+   * là đề / bản dịch của câu, và không dòng lạ nào dài (> 60 ký tự) — đoạn văn thật kèm phương án (Shinkanzen N4) giữ nguyên.
+   */
+  function passageIsQuestionList(passageHtml, questions) {
+    if (!NEW_UI || !passageHtml || !questions || questions.length < 2) return false;
+    var stems = {};
+    var opts = {};
+    questions.forEach(function (q) {
+      [q.questionText, q.translation].forEach(function (v) { var k = matchKey(v); if (k) stems[k] = true; });
+      (q.options || []).forEach(function (v) { var k = matchKey(v); if (k) opts[k] = true; });
+    });
+    var lines = passageText(passageHtml).split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+    if (lines.length < 4) return false;
+    var stemHits = 0;
+    var hit = 0;
+    var longOther = false;
+    lines.forEach(function (l) {
+      var k = matchKey(l);
+      var bare = matchKey(l.replace(/^[1-9１-９][.．、)]\s*/, ''));
+      if (stems[k]) { stemHits++; hit++; } else if (opts[bare] || opts[k]) hit++;
+      else if (l.length > 60) longOther = true;
+    });
+    return !longOther && stemHits >= Math.max(2, Math.ceil(questions.length / 2)) && hit / lines.length >= 0.8;
+  }
+
   function questionMediaFlags(block) {
     var it = block.item || {};
     var override = readingImageFor(it);
@@ -1525,7 +1561,11 @@
     var blockHasPassage = block.lines && block.lines.length > 0 && !!it.stableCode;
     var lastPassage = null;
     var lastImage = null;
+    var listPassages = {};
     return block.questions.map(function (q) {
+      if (q.passageHtml && listPassages[q.passageHtml] == null) {
+        listPassages[q.passageHtml] = passageIsQuestionList(q.passageHtml, block.questions);
+      }
       // Khối tách từ một mục nhiều đoạn văn: đoạn văn của mục đã hiện qua các khối của nó (kể cả khối chỉ có câu hỏi).
       var shownByBlock = block.passageShown
         ? (!q.passageCode || block.passageShown === true || q.passageCode === block.passageShown)
@@ -1533,7 +1573,7 @@
       // Ảnh đoạn văn: nhiều câu liền nhau chung ảnh thì chỉ câu đầu hiện (so cả danh sách ảnh).
       var passageImgs = passageImagesOf(q).join('|');
       var flags = {
-        passage: !!q.passageHtml && !shownByBlock && q.passageHtml !== lastPassage,
+        passage: !!q.passageHtml && !shownByBlock && q.passageHtml !== lastPassage && !listPassages[q.passageHtml],
         image: !hideSeed && !!passageImgs && passageImgs !== lastImage
       };
       if (q.passageHtml) lastPassage = q.passageHtml;
