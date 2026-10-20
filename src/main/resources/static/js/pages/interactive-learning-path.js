@@ -67,10 +67,21 @@
     if (!storage || typeof storage.getItem !== 'function') return null;
     return positiveInteger(storage.getItem('assessmentAttemptId'));
   }
-  function pathCreationRequest(attemptId) {
-    return attemptId
-      ? { url: '/api/learning/paths', body: JSON.stringify({ assessmentAttemptId: attemptId }) }
-      : { url: '/api/learning/paths/from-zero', body: '{}' };
+  function resolveReviewStartLevel(search) {
+    var level = new URLSearchParams(search || '').get('reviewStartLevel');
+    return /^(N5|N4|N3)$/.test(String(level || '')) ? level : null;
+  }
+  // The learner's answer to a Smart Test result below the self-reported level (owner 2026-10-19).
+  function resolveDiscrepancyChoice(search) {
+    var choice = new URLSearchParams(search || '').get('discrepancyChoice');
+    return /^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(choice || '')) ? choice : null;
+  }
+  function pathCreationRequest(attemptId, reviewStartLevel, discrepancyChoice) {
+    if (!attemptId) return { url: '/api/learning/paths/from-zero', body: '{}' };
+    var body = { assessmentAttemptId: attemptId,
+      reviewStartLevel: /^(N5|N4|N3)$/.test(String(reviewStartLevel || '')) ? reviewStartLevel : null };
+    if (/^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(discrepancyChoice || ''))) body.discrepancyChoice = discrepancyChoice;
+    return { url: '/api/learning/paths', body: JSON.stringify(body) };
   }
   function viewModel(data) {
     data = data || {};
@@ -88,7 +99,9 @@
         ? data.smartTestReviewOnlyTargets.filter(function (target) {
           return target && (target.skill === 'VOCABULARY' || target.skill === 'KANJI') &&
             target.target;
-        }) : []
+        }) : [],
+      communicationGuide: data.communicationGuide && Array.isArray(data.communicationGuide.topics)
+        ? data.communicationGuide : null
     };
   }
   function renderMockResult(result) {
@@ -160,7 +173,12 @@
         var actions = session.legacy && done ? modesFor(type) :
           (Array.isArray(session.allowedActions) ? session.allowedActions : []);
         var childActions = done && (actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0) ? modesFor(type) : actions;
-        if (done && RESULTS_TYPES[type] && childActions.indexOf('REVIEW') >= 0 && childActions.indexOf('RESULTS') < 0) childActions = childActions.concat('RESULTS');
+        // [JLAS-W0193] §2.24 — communication-goal paths have no quiz: a completed vocabulary/grammar activity
+        // offers only its read-only review, never RESULTS or scored Practice-style modes.
+        if (communicationGoal && done && (type === 'VOCABULARY' || type === 'GRAMMAR')) {
+          childActions = childActions.filter(function (action) { return action === 'REVIEW'; });
+        }
+        if (done && !communicationGoal && RESULTS_TYPES[type] && childActions.indexOf('REVIEW') >= 0 && childActions.indexOf('RESULTS') < 0) childActions = childActions.concat('RESULTS');
         var links = childActions.filter(function (action) {
           return done && (action === 'REVIEW' || action === 'PRACTICE' || action === 'RESULTS') && ACTIVITY_PATH[type];
         }).map(function (action) {
@@ -357,8 +375,9 @@
   function chapterKey(pkg) {
     return positiveInteger(pkg.chapterLessonId) ? pkg.phase + ':' + pkg.chapterLessonId : 'PACKAGE:' + pkg.id;
   }
-  /** Consecutive packages from one source lesson render as a single chapter with skills spanning all parts. */
-  function chapterCards(packages, communicationGoal) {
+  /** Consecutive packages from one source lesson render as a single chapter with skills spanning all parts.
+   * {@code kickerFor}/{@code noteFor} let the communication topic view relabel a card without changing it. */
+  function chapterCards(packages, communicationGoal, kickerFor, noteFor) {
     var groups = [];
     packages.forEach(function (pkg) {
       var last = groups[groups.length - 1];
@@ -374,11 +393,83 @@
       var total = activities.length;
       var progress = total ? Math.round(done * 100 / total) : 0;
       return '<section class="ilp-chapter" data-chapter="' + esc(group.key) + '"><header class="ilp-chapter__head"><div>' +
-        '<span class="ilp-kicker">' + chapterKicker(first, communicationGoal) + '</span><h3>' + esc(chapterTitle(first)) + '</h3></div>' +
+        '<span class="ilp-kicker">' + (kickerFor ? kickerFor(first) : chapterKicker(first, communicationGoal)) + '</span><h3>' + esc(chapterTitle(first)) + '</h3></div>' +
         '<span class="ilp-status">' + (total ? done + '/' + total + ' hoạt động đã hoàn thành' : 'Chưa có hoạt động học') + '</span></header>' +
+        (noteFor ? noteFor(first) : '') + sourceReviewNote(first) +
         '<div class="ilp-chapter__progress" role="progressbar" aria-label="Tiến độ ' + (communicationGoal ? 'tình huống ' : 'chương ') + chapterNumber(first) + '" aria-valuenow="' + progress + '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + progress + '%"></span></div>' +
         foundationRows(group.parts) + chapterSkillCards(group.parts, communicationGoal) + '</section>';
     }).join('');
+  }
+  /** §2.28 / OD-44: the server notes a chapter whose textbook is still DRAFT; it is studied, never called reviewed. */
+  function sourceReviewNote(pkg) {
+    return pkg && pkg.sourceReviewNote
+      ? '<p class="ilp-chapter__hint ilp-chapter__unreviewed">' + esc(pkg.sourceReviewNote) + '</p>' : '';
+  }
+  /** §2.24 (owner 2026-10-19, Q5): optional J-LAS textbooks for BrSE learners; a book learners cannot open yet has no link.
+   * OD-45 (owner 2026-10-20): a book open while still DRAFT links normally and carries a "Chưa duyệt" label. */
+  function bookSuggestions(guide) {
+    var books = guide && Array.isArray(guide.bookSuggestions) ? guide.bookSuggestions : [];
+    if (!books.length) return '';
+    return '<aside class="ilp-books" aria-label="Sách tham khảo"><h2>Sách tham khảo (tự nguyện)</h2>' +
+      '<p>Không bắt buộc — bạn vẫn học mọi tình huống bình thường. Đọc thêm giáo trình giúp nắm chắc nền ngữ pháp và từ vựng.</p><ul>' +
+      books.map(function (book) {
+        var label = 'Giáo trình ' + esc(book.level) + ' — ' + esc(book.title);
+        return '<li>' + (book.available && Number(book.textbookId) > 0
+          ? '<a class="ilp-books__link" href="/textbooks/' + encodeURIComponent(book.textbookId) + '">' + label + '</a>' +
+            (book.unreviewed ? ' <span class="ilp-books__unreviewed" title="Giáo trình chưa được duyệt — nội dung có thể còn sai sót.">Chưa duyệt</span>' : '')
+          : '<span class="ilp-books__pending">' + label + ' · đang được biên soạn, sẽ mở khi phát hành</span>') + '</li>';
+      }).join('') + '</ul></aside>';
+  }
+
+  // Owner 2026-10-19: a communication roadmap groups units by topic — topic vocabulary first, then its dialogue
+  // situations easy → hard, survey focus topics first. Display only: every unit stays freely selectable.
+  var JLPT_RANK = { FROM_ZERO: 0, N5: 1, N4: 2, N3: 3, N2: 4, N1: 5 };
+  function communicationTopics(packages, guide) {
+    var byLesson = {};
+    packages.forEach(function (pkg) {
+      var key = String(pkg.chapterLessonId || '');
+      (byLesson[key] = byLesson[key] || []).push(pkg);
+    });
+    var selfKey = String(guide.learnerSelfLevel || '').toUpperCase();
+    var selfRank = Object.prototype.hasOwnProperty.call(JLPT_RANK, selfKey) ? JLPT_RANK[selfKey] : null;
+    var used = {};
+    var sections = guide.topics.map(function (topic) {
+      var units = {};
+      var parts = [];
+      (Array.isArray(topic.units) ? topic.units : []).forEach(function (unit) {
+        var key = String(unit.lessonId);
+        if (!byLesson[key] || used[key]) return;
+        used[key] = true;
+        units[key] = unit;
+        parts = parts.concat(byLesson[key]);
+      });
+      if (!parts.length) return '';
+      var activities = parts.reduce(function (all, pkg) { return all.concat(Array.isArray(pkg.activities) ? pkg.activities : []); }, []);
+      var done = activities.filter(activityDone).length;
+      var levelOf = function (pkg) {
+        var unit = units[String(pkg.chapterLessonId)] || {};
+        return unit.vocabularyTopic ? '' : String(unit.jlptLevel || '').toUpperCase();
+      };
+      var kicker = function (pkg) {
+        var unit = units[String(pkg.chapterLessonId)] || {};
+        if (unit.vocabularyTopic) return 'TỪ VỰNG CHỦ ĐỀ';
+        var level = levelOf(pkg);
+        return 'TÌNH HUỐNG' + (level ? ' · ' + esc(level) : '');
+      };
+      var note = function (pkg) {
+        var level = levelOf(pkg);
+        if (selfRank === null || !JLPT_RANK[level] || JLPT_RANK[level] <= selfRank) return '';
+        return '<p class="ilp-chapter__hint">Khó hơn trình độ hiện tại của bạn (' + esc(selfKey === 'FROM_ZERO' ? 'mới bắt đầu' : selfKey) +
+          '). Bạn vẫn học được — nên xem Từ vựng chủ đề trước, bật bản dịch và dùng “Nghe chậm”.</p>';
+      };
+      return '<section class="ilp-topic" data-topic="' + esc(topic.code) + '"><header class="ilp-topic__head"><div>' +
+        '<span class="ilp-kicker">CHỦ ĐỀ</span><h2>' + esc(topic.titleVi) + '</h2></div>' +
+        (topic.priority ? '<span class="ilp-topic__priority">Ưu tiên của bạn</span>' : '') +
+        '<span class="ilp-status">' + done + '/' + activities.length + ' hoạt động</span></header>' +
+        chapterCards(parts, true, kicker, note) + '</section>';
+    }).join('');
+    var rest = packages.filter(function (pkg) { return !used[String(pkg.chapterLessonId || '')]; });
+    return sections + (rest.length ? chapterCards(rest, true) : '');
   }
   function phaseTabs(activePhase) {
     var tabs = [{ value: 'ALL', label: 'Tất cả' }, { value: 'WARM_UP', label: 'Khởi động' },
@@ -419,7 +510,9 @@
       v.completedPackages + '/' + v.totalPackages + ' bài hoàn thành</small></div></section>' +
       (communicationGoal ? '' : renderMockResult(extras.mockResult) + renderStageProgress(extras.eligibility) + renderMockGate(extras.eligibility) + renderSmartTestReviewOnly(v.smartTestReviewOnlyTargets)) +
       '<div class="ilp-layout"><section>' + (communicationGoal ? '' : phaseTabs(phaseFilter)) + '<div class="ilp-days">' +
-      (visiblePackages.length ? chapterCards(visiblePackages, communicationGoal) : '<div class="ilp-empty"><h2>Chưa có bài học trong giai đoạn này</h2><p>Nội dung đang được hoàn thiện để phát hành.</p></div>') +
+      (visiblePackages.length ? (communicationGoal && v.communicationGuide
+        ? bookSuggestions(v.communicationGuide) + communicationTopics(visiblePackages, v.communicationGuide)
+        : chapterCards(visiblePackages, communicationGoal)) :'<div class="ilp-empty"><h2>Chưa có bài học trong giai đoạn này</h2><p>Nội dung đang được hoàn thiện để phát hành.</p></div>') +
       '</div></section><aside class="ilp-aside"><span class="ilp-kicker">MỤC TIÊU HIỆN TẠI</span><dl><div><dt>Cấp độ</dt><dd>' + esc(v.currentLevel) + ' → ' + esc(v.targetLevel) +
       '</dd></div>' + (v.minutesPerDay ? '<div><dt>Cường độ</dt><dd>' + v.minutesPerDay + ' phút/ngày</dd></div>' : '') +
       '</dl>' + renderPaceControls(v.minutesPerDay) + '</aside></div>' +
@@ -429,6 +522,8 @@
     if (code === 'BLOCKED_CONTENT' || /CoverageGap|thiếu học liệu|chưa được phát hành/i.test(message || '')) {
       return '<section class="ilp-state ilp-state--readiness"><span class="ilp-state__icon" aria-hidden="true">文</span>' +
         '<h1>Học liệu đang được hoàn thiện</h1><p>Lộ trình của bạn đã được phân tích, nhưng một số nội dung chưa đủ điều kiện phát hành. Tiến độ Smart Test vẫn được giữ nguyên.</p>' +
+        // OD-48 + spec §2.1: the readiness gate's learner message names the level and the missing skills.
+        (/^Chưa thể tạo lộ trình đầy đủ:/.test(message || '') ? '<p class="ilp-state__detail">' + esc(message) + '</p>' : '') +
         '<div class="ilp-state__actions"><button data-retry type="button">Kiểm tra lại</button>' +
         '<a href="/smart-test">Quay lại Smart Test</a></div></section>';
     }
@@ -456,8 +551,10 @@
     var toastMessage = '';
     var toastTimer = null;
     var assessmentAttemptId = resolveAssessmentAttemptId(window.location.search, window.localStorage);
+    var reviewStartLevel = resolveReviewStartLevel(window.location.search);
+    var discrepancyChoice = resolveDiscrepancyChoice(window.location.search);
     async function bootstrapPath() {
-      var request = pathCreationRequest(assessmentAttemptId);
+      var request = pathCreationRequest(assessmentAttemptId, reviewStartLevel, discrepancyChoice);
       var response = await fetch(request.url, {
         method: 'POST', headers: window.JlasAuth.authHeaders(), body: request.body
       });
@@ -524,7 +621,9 @@
               return;
             }
           }
-          await bootstrapPath();
+          try { await bootstrapPath(); }
+          // A refused creation (e.g. the OD-48 readiness gate) is re-attempted by "Kiểm tra lại", not skipped.
+          catch (failure) { attemptedBootstrap = false; throw failure; }
           return load();
         }
         if (response.ok && body.data) {
@@ -673,6 +772,8 @@
   return { viewModel: viewModel, render: render, mount: mount, modesFor: modesFor, renderStageProgress: renderStageProgress,
     renderMockGate: renderMockGate, renderMockResult: renderMockResult, renderPaceControls: renderPaceControls, renderPaceDialog: renderPaceDialog,
     paceRequestBody: paceRequestBody, renderToast: renderToast, nextFocusIndex: nextFocusIndex, popupModel: popupModel, renderPopup: renderPopup, errorState: errorState,
-    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId, pathCreationRequest: pathCreationRequest,
+    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId,
+    resolveReviewStartLevel: resolveReviewStartLevel, resolveDiscrepancyChoice: resolveDiscrepancyChoice,
+    pathCreationRequest: pathCreationRequest,
     startedPackageStudyHref: startedPackageStudyHref, completedPathDestination: completedPathDestination };
 });

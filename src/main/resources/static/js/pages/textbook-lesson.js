@@ -74,6 +74,10 @@
 
   function statusBadge(status) {
     if (status === 'PUBLISHED') return '';
+    // OD-45 (owner 2026-10-20): learners may open the DRAFT J-LAS N3 textbook; it is never shown as reviewed.
+    if (status === 'DRAFT') {
+      return '<span class="tb-badge tb-badge--draft" title="Giáo trình chưa được duyệt — nội dung có thể còn sai sót.">Chưa duyệt</span>';
+    }
     return '<span class="tb-badge tb-badge--draft">' + escapeHtml(status) + '</span>';
   }
 

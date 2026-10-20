@@ -48,7 +48,8 @@
       cooldownUntil: check.cooldownUntil || null,
       attemptsUsed: num(check.attemptsUsed),
       attemptsRemaining: num(check.attemptsRemaining),
-      passed: !!check.passed
+      passed: !!check.passed,
+      sourceNote: data.sourceNote || null
     };
   }
 
@@ -106,6 +107,7 @@
       (v.checkEligible ? (isListening ? 'SẴN SÀNG TRẢ LỜI' : 'SẴN SÀNG KIỂM TRA') : 'ĐANG LUYỆN TẬP') + '</span><h1>' + title + '</h1><p>' + instructions + '</p></div>' +
       '<span class="ilp-comprehension__progress-badge">Bài ' + (v.currentExercise + 1) + '/' + v.exerciseCount +
       ' · ' + v.questionCount + ' câu hỏi</span></header>' +
+      sourceNote(v) +
       (isListening && v.questionPrompts.length ? '<aside class="ilp-listening-preview"><h2>Trước khi nghe</h2>' +
         '<p>Đọc câu hỏi để biết mình cần chú ý thông tin nào; đáp án sẽ xuất hiện sau khi nghe.</p><ol>' +
         v.questionPrompts.map(function (prompt) { return '<li>' + esc(prompt) + '</li>'; }).join('') +
@@ -119,22 +121,61 @@
   }
 
   function renderCheckForm(check, isListening) {
+    // [JLAS-W0113] Restore previously autosaved selections (questionId -> selectedOption) so a reopen/reload
+    // shows the learner's saved choices instead of a blank quiz. A PRACTICE replay carries no draftAnswers;
+    // the empty restore set keeps those forms untouched.
+    var selectedByQuestion = {};
+    list(check.draftAnswers).forEach(function (d) {
+      if (d && d.selectedOption != null) selectedByQuestion[String(d.questionId)] = Number(d.selectedOption);
+    });
     var questions = list(check.questions).map(function (q, i) {
       var options = list(q.options).map(function (opt, oi) {
-        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
+        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '"' +
+          (selectedByQuestion[String(q.questionId)] === (oi + 1) ? ' checked' : '') + '>' +
           '<span class="ilp-option__mark">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(opt) + '</span></label>';
       }).join('');
-      return '<fieldset class="ilp-question"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
+      return '<fieldset class="ilp-question" data-question-page="' + i + '"' + (i === 0 ? '' : ' hidden') +
+        ' tabindex="-1"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
         '<span>' + esc(q.questionText) + '</span></legend><div class="ilp-options">' + options + '</div></fieldset>';
     }).join('');
-    return '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
-      '<button class="ilp-check__submit" type="submit">' + (isListening ? 'Xem kết quả bài nghe' : 'Hoàn tất bài đọc') + '</button></form>';
+    var questionCount = list(check.questions).length;
+    var lastIndex = Math.max(0, questionCount - 1);
+    return '<form class="ilp-check__form" data-submit data-question-pager data-attempt-id="' + esc(check.attemptId) + '">' + questions +
+      '<nav class="ilp-question-pager" aria-label="Điều hướng câu hỏi">' +
+      '<button class="ilp-check ilp-check--ghost" type="button" data-question-prev disabled>Câu trước</button>' +
+      '<span data-question-counter role="status" aria-live="polite">Câu 1 / ' + questionCount + '</span>' +
+      '<button class="ilp-check ilp-check--ghost" type="button" data-question-next' + (lastIndex === 0 ? ' hidden' : '') + '>Câu tiếp</button>' +
+      '</nav>' +
+      '<span class="ilp-check__draft" data-draft-status role="status" aria-live="polite"></span>' +
+      '<button class="ilp-check__submit" type="submit" data-question-submit' + (lastIndex > 0 ? ' hidden' : '') + '>' +
+      (isListening ? 'Xem kết quả bài nghe' : 'Hoàn tất bài đọc') + '</button></form>';
+  }
+
+  function showQuestionPage(form, nextIndex) {
+    var pages = Array.prototype.slice.call(form.querySelectorAll('fieldset[data-question-page]'));
+    if (!pages.length) return;
+    var index = Math.max(0, Math.min(pages.length - 1, Number(nextIndex) || 0));
+    pages.forEach(function (page, pageIndex) { page.hidden = pageIndex !== index; });
+    var previous = form.querySelector('[data-question-prev]');
+    var next = form.querySelector('[data-question-next]');
+    var counter = form.querySelector('[data-question-counter]');
+    var submit = form.querySelector('[data-question-submit]');
+    if (previous) previous.disabled = index === 0;
+    if (next) next.hidden = index === pages.length - 1;
+    if (counter) counter.textContent = 'Câu ' + (index + 1) + ' / ' + pages.length;
+    if (submit) submit.hidden = index !== pages.length - 1;
+    if (pages[index] && typeof pages[index].focus === 'function') pages[index].focus();
   }
 
   /** The source (passage/audio) stays visible and re-playable/re-readable during the check itself - unlike
    * Vocabulary/Kanji/Grammar, the source IS the basis for these questions, so hiding it would make the
    * activity untestable rather than just less convenient. `interactive=false` suppresses the reached-end
    * evidence controls here: reading/listening again mid-attempt is not the post-failure review interaction. */
+  /** OD-44 follow-up: unreviewed material names its source on every screen it is studied or answered on. */
+  function sourceNote(v) {
+    return v && v.sourceNote ? '<p class="ilp-comprehension__source-note">' + esc(v.sourceNote) + '</p>' : '';
+  }
+
   function renderCheckScreen(v, check) {
     var isListening = v.activityType === 'LISTENING';
     // The passage/audio stays visible during the check (it is the question basis), but lookups are locked
@@ -147,6 +188,7 @@
         'Đọc nội dung và trả lời ngay bên dưới. Sau khi hoàn tất, bạn có thể xem đáp án và yêu cầu AI giải thích từng câu.') + '</p></div>' +
       '<span class="ilp-comprehension__progress-badge">Bài ' + (v.currentExercise + 1) + '/' + v.exerciseCount +
       ' · ' + num(check.totalQuestions) + ' câu hỏi</span></header>' +
+      sourceNote(v) +
       renderSourcePanel(v, false, false) +
       renderCheckForm(check, isListening) +
       '</section>';
@@ -261,10 +303,20 @@
     var evidenceSent = false;
     var evidenceObserver = null;
     var StudyMode = window.InteractiveStudyMode;
+    var PRACTICE_RESULT_STATE_KEY = 'jlasComprehensionPracticeResult';
+    var LEARN_RESULT_STATE_KEY = 'jlasComprehensionLearnResult';
     if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
     if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions(fallbackPath, id, ['REVIEW', 'PRACTICE']) : '';
+    // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
+    // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
+    var draftPath = '/micro-check/draft';
+    var draftTimer = null;
+    var draftRetries = 0;
+    var draftDirty = false;
+    var draftInFlight = null;
+    var draftSeq = 0;
 
     async function api(path, options) {
       var response = await fetch(base + path, Object.assign({ headers: window.JlasAuth.authHeaders() }, options));
@@ -274,6 +326,156 @@
     }
     async function postJson(path) {
       return api(path, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()) });
+    }
+
+    function savedPracticeResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[PRACTICE_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result ? saved : null;
+    }
+
+    function rememberPracticeResult(result, attempts) {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[PRACTICE_RESULT_STATE_KEY] = {
+        activityId: Number(id), result: result, attempts: Array.isArray(attempts) ? attempts : []
+      };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearPracticeResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[PRACTICE_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[PRACTICE_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    // A submitted LEARN attempt is remembered on its own history entry, so browser Back/Forward shows that
+    // result again instead of issuing a new check. The server's attempt history stays the source of truth.
+    function savedLearnResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[LEARN_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result && saved.attemptId ? saved : null;
+    }
+
+    function rememberLearnResult(result, attemptId) {
+      if (!window.history || typeof window.history.replaceState !== 'function' || !(attemptId > 0)) return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[LEARN_RESULT_STATE_KEY] = { activityId: Number(id), attemptId: attemptId, activityType: currentType, result: result };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearLearnResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[LEARN_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[LEARN_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    // The newest attempt this tab opened. A remembered result is only shown again while it is still the
+    // learner's latest attempt; a check opened later (even unsubmitted) wins.
+    function issuedKey() { return 'jlasComprehensionIssued:' + id; }
+    function rememberIssuedAttempt(attemptId) {
+      if (mode !== 'LEARN' || !(Number(attemptId) > 0)) return;
+      try { window.sessionStorage.setItem(issuedKey(), String(Number(attemptId))); } catch (ignored) { /* storage unavailable */ }
+    }
+    function issuedAttempt() {
+      try { return Number(window.sessionStorage.getItem(issuedKey())) || 0; } catch (ignored) { return 0; }
+    }
+
+    async function restoreLearnResult(saved) {
+      var attempts;
+      try { attempts = await api('/attempt-history'); } catch (historyError) { return false; }
+      var learnAttempts = Array.isArray(attempts) ? attempts.filter(function (attempt) { return attempt.mode !== 'PRACTICE'; }) : [];
+      var latest = learnAttempts.length ? learnAttempts[learnAttempts.length - 1] : null;
+      if (!latest || String(latest.attemptId) !== String(saved.attemptId) || issuedAttempt() > Number(saved.attemptId)) {
+        clearLearnResult();
+        return false;
+      }
+      currentType = saved.activityType === 'LISTENING' ? 'LISTENING' : 'READING';
+      node.innerHTML = renderResult(saved.result, currentType, id);
+      var resultPanel = node.querySelector('.ilp-result');
+      if (resultPanel && attempts.length && StudyMode && StudyMode.attemptHistory)
+        resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+      if (saved.result.passed && saved.result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        await StudyMode.showNextAction(node, id);
+      return true;
+    }
+
+    function renderSavedPracticeResult(saved) {
+      node.innerHTML = StudyMode.practiceResult(saved.result, 'Ôn bài rồi kiểm tra lại');
+      if (saved.attempts.length && StudyMode.attemptHistory) {
+        var resultPanel = node.querySelector('.ilp-result');
+        if (resultPanel) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(saved.attempts));
+      }
+    }
+
+    // [JLAS-W0113] Autosave a draft of the learner's in-progress selections. The draft is the FULL current
+    // checked set (an unselected answer is simply omitted, and the server drops it), so "unselect" is
+    // represented naturally. Autosave never grades and never consumes quota/rewards — the server only writes
+    // `draft_answers_json` and rejects the write once the attempt is submitted.
+    function setDraftStatus(text, isError) {
+      var el = node.querySelector('[data-draft-status]');
+      if (el) {
+        el.textContent = text;
+        el.classList.toggle('is-error', !!isError);
+      }
+    }
+
+    function collectDraft(form) {
+      return Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
+        return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
+      });
+    }
+
+    async function flushDraft() {
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return true; // quiz already submitted or navigated away — nothing left to save
+      if (draftInFlight) return draftInFlight.then(function (ok) {
+        return ok && draftDirty ? flushDraft() : ok;
+      }); // serialise writes, including edits made during the first request
+      if (!draftDirty) return true;
+      var seq = draftSeq;
+      var attemptId = Number(form.dataset.attemptId);
+      setDraftStatus('Đang lưu…');
+      var pending = api(draftPath, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+        body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+      }).then(function () {
+        if (seq !== draftSeq) return true; // keep dirty and save the newer selection next
+        draftRetries = 0;
+        draftDirty = false;
+        setDraftStatus('Đã lưu');
+        return true;
+      }, function () {
+        if (seq !== draftSeq) return true;
+        draftRetries += 1;
+        if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
+          setDraftStatus('Lưu thất bại — thử lại…', true);
+          draftTimer = setTimeout(flushDraft, 2500);
+        } else {
+          setDraftStatus('Chưa lưu được nháp. Kiểm tra kết nối.', true);
+        }
+        return false;
+      }).finally(function () { draftInFlight = null; });
+      draftInFlight = pending;
+      return pending.then(function (ok) { return ok && draftDirty ? flushDraft() : ok; });
+    }
+
+    function scheduleDraftSave(form) {
+      if (mode !== 'LEARN' || !form) return;
+      draftDirty = true;
+      draftSeq += 1;
+      if (draftTimer) clearTimeout(draftTimer);
+      setDraftStatus('Đang lưu…');
+      draftTimer = setTimeout(flushDraft, 800);
     }
 
     function stopWatching() { if (evidenceObserver) { evidenceObserver.disconnect(); evidenceObserver = null; } }
@@ -321,11 +523,27 @@
         }
         if (mode === 'REVIEW') {
           node.innerHTML = renderReview(await api('/review/attempts'), currentType);
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          // The comprehension study payload carries the gate inside `microCheck`, not on the attempts feed.
+          var gate = null;
+          try { var reviewStudy = await api('/study'); gate = reviewStudy && reviewStudy.microCheck; } catch (e) { gate = null; }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, fallbackPath, id));
           node.setAttribute('aria-busy', 'false');
           return;
         }
         if (mode === 'PRACTICE') {
+          var saved = savedPracticeResult();
+          if (saved) {
+            renderSavedPracticeResult(saved);
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           node.innerHTML = renderPracticeSources(await api('/review/attempts'), currentType);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        var savedLearn = mode === 'LEARN' ? savedLearnResult() : null;
+        if (savedLearn && await restoreLearnResult(savedLearn)) {
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -340,6 +558,7 @@
         }
         else if (shouldOpenInlineQuestions(v)) {
           var inlineCheck = await postJson('/micro-check');
+          rememberIssuedAttempt(inlineCheck && inlineCheck.attemptId);
           node.innerHTML = renderCheckScreen(v, inlineCheck);
         }
         else {
@@ -351,6 +570,7 @@
     }
 
     async function doPractice() {
+      clearPracticeResult();
       try { node.innerHTML = renderPractice(await postJson('/practice'), currentType); }
       catch (e) { node.innerHTML = error(e.message, e.code); }
     }
@@ -361,22 +581,26 @@
         var v = viewModel(study);
         currentType = v.activityType;
         var check = await postJson('/micro-check');
+        rememberIssuedAttempt(check && check.attemptId);
         node.innerHTML = renderCheckScreen(v, check);
       } catch (e) { node.innerHTML = error(e.message, e.code); }
     }
 
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
-      if (event.target.closest('[data-check]')) return mode === 'PRACTICE' ? doPractice() : doCheck();
-      if (event.target.closest('[data-practice-review]')) return loadStudy();
+      if (event.target.closest('[data-check]')) { clearLearnResult(); return mode === 'PRACTICE' ? doPractice() : doCheck(); }
+      if (event.target.closest('[data-practice-review]')) { clearPracticeResult(); return loadStudy(); }
       if (event.target.closest('[data-reached-passage]')) return sendReviewEvidence();
-      if (event.target.closest('[data-next-exercise]') || event.target.closest('[data-back-to-study]')) return loadStudy();
+      if (event.target.closest('[data-next-exercise]') || event.target.closest('[data-back-to-study]')) { clearLearnResult(); return loadStudy(); }
     });
 
     node.addEventListener('submit', async function (event) {
       var form = event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      // A submitted attempt must never be re-autosaved: stop any pending debounce and cancel in-flight retries.
+      if (draftTimer) { clearTimeout(draftTimer); draftTimer = null; }
+      draftDirty = false;
       var answers = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
         return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
       });
@@ -387,19 +611,91 @@
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
+        if (mode === 'PRACTICE') rememberPracticeResult(result, []);
+        else rememberLearnResult(result, Number(form.dataset.attemptId));
         node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, currentType, id);
         if (StudyMode && StudyMode.attemptHistory) {
           try {
             var attempts = await api('/attempt-history');
             var resultPanel = node.querySelector('.ilp-result');
-            if (resultPanel && attempts && attempts.length)
+            if (resultPanel && attempts && attempts.length) {
               resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+              if (mode === 'PRACTICE') rememberPracticeResult(result, attempts);
+            }
           } catch (historyError) { /* Keep the current quiz result usable if history is unavailable. */ }
         }
         if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
           await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
+    });
+
+    node.addEventListener('click', function (event) {
+      var target = event.target && event.target.closest ? event.target : null;
+      if (!target) return;
+      var button = target.closest('[data-question-prev], [data-question-next]');
+      if (!button) return;
+      var form = button.closest('[data-question-pager]');
+      if (!form) return;
+      event.preventDefault();
+      var pages = Array.prototype.slice.call(form.querySelectorAll('fieldset[data-question-page]'));
+      var current = pages.findIndex(function (page) { return !page.hidden; });
+      showQuestionPage(form, current + (button.matches('[data-question-next]') ? 1 : -1));
+    });
+
+    node.addEventListener('change', function (event) {
+      if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
+        scheduleDraftSave(event.target.closest('form'));
+      }
+    });
+
+    // [JLAS-W0126] App-controlled page-leave protection for the in-progress micro-check draft. The browser
+    // cannot reliably block unload, so we own the two navigations the app performs while a dirty draft is on
+    // screen — in-page anchors (breadcrumb/shell links) and the shared "Quay lại" button — and flush the draft
+    // first, warning only when the flush genuinely fails. A pagehide keepalive POST is a best-effort backstop
+    // for tab close/reload (not guaranteed: the server may never see it).
+    if (typeof document.addEventListener === 'function') document.addEventListener('click', function (event) {
+      if (!draftDirty) return;
+      var target = event.target && event.target.closest ? event.target : null;
+      if (!target) return;
+      var back = target.closest('.lp-page-nav__back');
+      var anchor = back ? null : target.closest('a[href]');
+      var href = anchor ? anchor.getAttribute('href') : null;
+      if (!back && (!href || href.charAt(0) === '#')) return; // in-page jump, not a leave
+      event.preventDefault();
+      event.stopPropagation();
+      flushDraft().then(function (ok) {
+        var proceed = ok ? Promise.resolve(true)
+          : (window.JlasConfirm ? window.JlasConfirm('Chưa lưu được nháp của bạn. Vẫn rời trang?') : Promise.resolve(true));
+        proceed.then(function (yes) {
+          if (!yes) return;
+          if (back) {
+            var nav = window.JlasPageNavigation;
+            var action = nav && nav.resolveBackAction
+              ? nav.resolveBackAction(document.referrer, window.location.origin, '/learning/path/v2')
+              : { type: 'fallback', href: '/learning/path/v2' };
+            if (action.type === 'history') window.history.back();
+            else window.location.assign(action.href);
+          } else {
+            window.location.assign(href);
+          }
+        });
+      });
+    }, true);
+
+    if (typeof window.addEventListener === 'function') window.addEventListener('pagehide', function () {
+      if (!draftDirty) return;
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return;
+      var attemptId = Number(form.dataset.attemptId);
+      // sendBeacon cannot carry the JWT header, so use fetch(keepalive) for the authenticated draft write.
+      if (typeof fetch === 'function') {
+        fetch(base + draftPath, {
+          method: 'POST', keepalive: true,
+          headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+          body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+        });
+      }
     });
 
     loadStudy();
@@ -409,6 +705,7 @@
     viewModel: viewModel, formatCooldown: formatCooldown, shouldOpenInlineQuestions: shouldOpenInlineQuestions,
     renderSourcePanel: renderSourcePanel,
     renderEvidenceList: renderEvidenceList, renderStudy: renderStudy, renderCheckForm: renderCheckForm,
+    showQuestionPage: showQuestionPage,
     renderCheckScreen: renderCheckScreen, renderResult: renderResult, renderPassed: renderPassed,
     renderPractice: renderPractice, renderReview: renderReview, renderPracticeSources: renderPracticeSources,
     error: error, mount: mount

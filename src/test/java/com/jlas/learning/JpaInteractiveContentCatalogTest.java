@@ -117,6 +117,61 @@ class JpaInteractiveContentCatalogTest {
         return AssessmentQuestion.builder().id(id).sourceCode(sourceCode).skill(skill).jlptLevel("N5").isActive(true).build();
     }
 
+    /** OD-44 follow-up (owner 2026-10-20): each J-LAS N3 chapter carries its two Speed Master N3 reading passages and
+     * two listening clips; chapter = (unit order - 1) * 5 + lesson order. */
+    @Test void mapsSpeedMasterN3ExercisesToTheMatchingJlasN3Chapter() {
+        var lesson = draftN3Lesson(67L, 2, 2);
+        var reading = List.of(question(801L, "LP-OWNED-SPEED-N3-C07-READ-P1-Q001", "READING"),
+                question(802L, "LP-OWNED-SPEED-N3-C07-READ-P2-Q001", "READING"),
+                question(803L, "LP-OWNED-SPEED-N3-C07-READ-P2-Q002", "READING"));
+        var listening = List.of(question(811L, "LP-OWNED-SPEED-N3-C07-LISTEN-P1-Q001", "LISTENING"),
+                question(812L, "LP-OWNED-SPEED-N3-C07-LISTEN-P2-Q001", "LISTENING"));
+        reading.forEach(row -> row.setJlptLevel("N3"));
+        listening.forEach(row -> row.setJlptLevel("N3"));
+        when(assessmentQuestions.findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+                "READING", "N3", "LP-OWNED-SPEED-N3-C07-READ-")).thenReturn(reading);
+        when(assessmentQuestions.findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+                "LISTENING", "N3", "LP-OWNED-SPEED-N3-C07-LISTEN-")).thenReturn(listening);
+
+        var snapshot = new JpaInteractiveContentCatalog(lessons, vocabRepo, links, readings, grammar,
+                items, dialogue, audio, assessmentQuestions).inspect(67L, "N3");
+
+        assertTrue(snapshot.gaps().isEmpty(), snapshot.gaps().toString());
+        assertEquals(List.of(801L, 802L, 803L), snapshot.readingQuestionIds());
+        assertEquals(List.of(811L, 812L), snapshot.listeningQuestionIds());
+    }
+
+    @Test void anN3ChapterWithoutSpeedMasterRowsYetStaysUsableWithoutReadingOrListening() {
+        draftN3Lesson(61L, 1, 1);
+        when(assessmentQuestions.findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+                any(), eq("N3"), any())).thenReturn(List.of());
+
+        var snapshot = new JpaInteractiveContentCatalog(lessons, vocabRepo, links, readings, grammar,
+                items, dialogue, audio, assessmentQuestions).inspect(61L, "N3");
+
+        assertTrue(snapshot.gaps().isEmpty(), "the readiness gate reports the missing skills; the chapter is not blocked");
+        assertTrue(snapshot.readingQuestionIds().isEmpty());
+        assertTrue(snapshot.listeningQuestionIds().isEmpty());
+        verify(assessmentQuestions).findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+                "READING", "N3", "LP-OWNED-SPEED-N3-C01-READ-");
+    }
+
+    private Lesson draftN3Lesson(Long id, int unitOrder, int lessonOrder) {
+        var book = Textbook.builder().id(4L).title("Tiếng Nhật N3").jlptLevel("N3").status("DRAFT")
+                .isLearningPathSource(true).version(1).build();
+        var lesson = Lesson.builder().id(id).unit(Unit.builder().id(13L + unitOrder).textbook(book).orderIndex(unitOrder).build())
+                .orderIndex(lessonOrder).lessonType("CURRICULUM").title("Bài").status("DRAFT").build();
+        when(lessons.findWithUnitById(id)).thenReturn(Optional.of(lesson));
+        var words = java.util.stream.IntStream.rangeClosed(1, 5).mapToObj(i -> VocabularyEntry.builder()
+                .id((long) i).expression("語" + i).reading("ご" + i).normalizedExpression("語" + i)
+                .normalizedReading("ご" + i).meaning("nghĩa" + i).dictionaryStatus("PUBLISHED").build()).toList();
+        when(vocabRepo.findVocabularyByLessonId(id)).thenReturn(words);
+        when(links.findByVocabularyIdIn(any())).thenReturn(List.of());
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(id)).thenReturn(List.of());
+        when(dialogue.findByLessonId(id)).thenReturn(List.of());
+        return lesson;
+    }
+
     @Test void mapsMinnaN4ChecksToTheMatchingOwnedSekaiChapter() {
         var book = Textbook.builder().id(4000002L).sourceCode("LP-OWNED-SEKAI-N4-CORE")
                 .title("Learning N4 — Sekai N4 — Giáo trình tiếng Nhật").jlptLevel("N4")
@@ -171,6 +226,62 @@ class JpaInteractiveContentCatalogTest {
         assertTrue(reasons.containsAll(List.of("SOURCE_NOT_PUBLISHED", "SOURCE_NOT_LEARNING_PATH", "LEVEL_MISMATCH",
                 "DUPLICATE_VOCABULARY_IDENTITY", "KANJI_AND_GRAMMAR_NOT_READY")));
         verifyNoInteractions(readings,audio);
+    }
+
+    /** Owner 2026-10-19 (§2.28) + OD-44: the J-LAS N3 textbook is studied while DRAFT; its dialogues have no recorded
+     * audio yet and use the labelled synthesized voice, and Kanji above the stage level are not N3 study items. */
+    @Test void openDraftN3LessonIsTargetReadyWithStageLevelKanjiAndSynthesizedDialogueVoice(){
+        var book=Textbook.builder().id(4L).title("Tiếng Nhật N3").jlptLevel("N3").status("DRAFT")
+                .isLearningPathSource(true).version(1).build();
+        var lesson=Lesson.builder().id(61L).unit(Unit.builder().id(2L).textbook(book).build()).title("Bài 1").status("DRAFT").build();
+        var words=java.util.stream.IntStream.rangeClosed(1,5).mapToObj(i->VocabularyEntry.builder().id((long)i)
+                .normalizedExpression("語"+i).normalizedReading("ご"+i).expression("語"+i).reading("ご"+i)
+                .meaning("nghĩa "+i).dictionaryStatus("PUBLISHED").build()).toList();
+        var n3=Kanji.builder().id(301L).character("営").hanViet("DOANH").jlptLevel("N3").build();
+        var n5=Kanji.builder().id(305L).character("日").hanViet("NHẬT").jlptLevel("N5").build();
+        var n1=Kanji.builder().id(309L).character("璽").hanViet("TỶ").jlptLevel("N1").build();
+        when(lessons.findWithUnitById(61L)).thenReturn(Optional.of(lesson));
+        when(vocabRepo.findVocabularyByLessonId(61L)).thenReturn(words);
+        when(links.findByVocabularyIdIn(any())).thenReturn(List.of(
+                VocabularyKanji.builder().vocabularyEntry(words.get(0)).kanji(n3).build(),
+                VocabularyKanji.builder().vocabularyEntry(words.get(1)).kanji(n5).build(),
+                VocabularyKanji.builder().vocabularyEntry(words.get(2)).kanji(n1).build()));
+        when(readings.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(List.of(301L,305L))).thenReturn(List.of(
+                KanjiReading.builder().id(1L).kanji(n3).readingType("ON").readingText("エイ").build(),
+                KanjiReading.builder().id(2L).kanji(n5).readingType("ON").readingText("ニチ").build()));
+        when(grammar.findByLessonIdOrderByOrderIndexAsc(61L)).thenReturn(List.of(GrammarPoint.builder().id(81L)
+                .pattern("～ばかり").meaning("chỉ toàn").example("遊んでばかりいる。").orderIndex(1).build()));
+        var line=DialogueLineDetail.builder().contentItemId(70L)
+                .contentItem(ContentItem.builder().id(70L).content("すみません。").build()).build();
+        when(dialogue.findByLessonId(61L)).thenReturn(List.of(line));
+        var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio,assessmentQuestions);
+
+        var snapshot=catalog.inspect(61L,"N3");
+
+        assertEquals(List.of(), snapshot.gaps());
+        assertEquals(List.of(301L,305L), snapshot.kanjiIds(), "N1 kanji stays inside its word, not an N3 Kanji item");
+        assertEquals(List.of(81L), snapshot.grammarPointIds());
+        assertEquals(List.of(70L), snapshot.dialogueLineIds());
+        assertEquals("DRAFT", book.getStatus());
+        verifyNoInteractions(audio);
+    }
+
+    @Test void draftN5LessonAndUnflaggedDraftN3LessonStayUnpublishedGaps(){
+        for (var book : List.of(
+                Textbook.builder().id(1L).jlptLevel("N5").status("DRAFT").isLearningPathSource(true).version(1).build(),
+                Textbook.builder().id(2L).jlptLevel("N3").status("DRAFT").isLearningPathSource(false).version(1).build())) {
+            reset(lessons, vocabRepo, links, readings, grammar, items, dialogue, audio);
+            var lesson=Lesson.builder().id(10L).unit(Unit.builder().id(2L).textbook(book).build()).title("L").status("DRAFT").build();
+            when(lessons.findWithUnitById(10L)).thenReturn(Optional.of(lesson));
+            when(vocabRepo.findVocabularyByLessonId(10L)).thenReturn(List.of());
+            when(grammar.findByLessonIdOrderByOrderIndexAsc(10L)).thenReturn(List.of());
+            when(dialogue.findByLessonId(10L)).thenReturn(List.of());
+            var catalog=new JpaInteractiveContentCatalog(lessons,vocabRepo,links,readings,grammar,items,dialogue,audio,assessmentQuestions);
+
+            var reasons=catalog.inspect(10L,book.getJlptLevel()).gaps().stream().map(g->g.reasonCode()).toList();
+
+            assertTrue(reasons.contains("SOURCE_NOT_PUBLISHED"), book.getJlptLevel()+": "+reasons);
+        }
     }
 
     /** Owner decision 2026-10-06: a textbook lesson that is only vocabulary (>= 5 words, no Kanji/grammar) or only a

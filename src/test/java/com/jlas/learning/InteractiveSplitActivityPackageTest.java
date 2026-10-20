@@ -1,6 +1,7 @@
 package com.jlas.learning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.jlas.auth.entity.Role;
 import com.jlas.auth.entity.User;
@@ -148,6 +149,20 @@ class InteractiveSplitActivityPackageTest {
         em.clear();
 
         assertEquals("Đừng làm, phải làm", service.packageDetail(ownerId, pkgId).chapterTitle());
+    }
+
+    /** §2.28 / OD-44: chapters from the J-LAS N3 textbook that is still DRAFT say so; published chapters say nothing. */
+    @Test
+    void chapterFromTheOpenDraftN3TextbookCarriesAnUnreviewedNote() {
+        var pkgId = seed("draftnote", 10, 10, 10, 10);
+        assertNull(service.packageDetail(ownerId, pkgId).sourceReviewNote());
+        em.createQuery("update Textbook t set t.status = 'DRAFT', t.jlptLevel = 'N3', t.isLearningPathSource = true "
+                        + "where t.id = (select p.sourceLesson.unit.textbook.id from LearningPathPackage p where p.id = :pkg)")
+                .setParameter("pkg", pkgId).executeUpdate();
+        em.clear();
+
+        assertEquals("Giáo trình chưa duyệt — nội dung đang được rà soát.",
+                service.packageDetail(ownerId, pkgId).sourceReviewNote());
     }
 
     private Long ownerId;

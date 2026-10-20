@@ -53,6 +53,59 @@ class JpaLearningScopeSourceTest {
     }
 
     @Test
+    void confirmedHigherAssessmentReviewUsesEveryPublishedStageInOrder() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        var n3 = book("N3", "Sekai N3");
+        em.flush();
+        em.clear();
+
+        var profile = snapshot("N1", "N3", "N3", "N1 Thành thạo").withReviewStartLevel("N5");
+        var result = scope.resolve(7L, profile);
+
+        assertTrue(result.warmUpTextbookIds().isEmpty());
+        assertEquals(List.of(n5.getId(), n4.getId(), n3.getId()), result.goalTextbookIds());
+        assertEquals(List.of("N5", "N4", "N3"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void confirmedReviewAlsoWorksWhenTheSurveyLevelWasUnknownOrAnUpgrade() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        em.flush();
+        em.clear();
+
+        var unknown = scope.resolve(7L, snapshot("N2", "N4", "UNKNOWN", "N2 Căn bản").withReviewStartLevel("N5"));
+        assertEquals(List.of(n5.getId(), n4.getId()), unknown.goalTextbookIds());
+        assertEquals(List.of("N5", "N4"), unknown.stages().stream().map(s -> s.level()).toList());
+
+        var upgrade = scope.resolve(7L, snapshot("N3", "N4", "N5", "N3 Thành thạo").withReviewStartLevel("N4"));
+        assertEquals(List.of(n4.getId()), upgrade.goalTextbookIds());
+        assertTrue(upgrade.warmUpTextbookIds().isEmpty());
+    }
+
+    @Test
+    void lowerResultChoiceBuildsTheAcceptedChainOrTheOrdinarySurveyRoute() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        var n3 = book("N3", "Sekai N3");
+        em.flush();
+        em.clear();
+
+        var accepted = scope.resolve(7L, snapshot("N5", "N3", "N4", "N5 Nhập môn").withDiscrepancyChoice("ACCEPT_RECOMMENDATION"));
+        assertEquals(List.of("N5", "N4", "N3"), accepted.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of(n5.getId(), n4.getId(), n3.getId()), accepted.goalTextbookIds());
+
+        var declined = scope.resolve(7L, snapshot("N5", "N3", "N4", "N5 Căn bản").withDiscrepancyChoice("DECLINE_RECOMMENDATION"));
+        assertEquals(List.of("N3"), declined.stages().stream().map(s -> s.level()).toList());
+        assertTrue(declined.warmUpTextbookIds().isEmpty());
+
+        var notLower = assertThrows(ApiException.class, () -> scope.resolve(7L,
+                snapshot("N4", "N4", "N4", "N4 Căn bản").withDiscrepancyChoice("ACCEPT_RECOMMENDATION")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, notLower.getErrorCode());
+    }
+
+    @Test
     void excludesDemoSeedForTheSameLevel() {
         var n5 = book("N5", "Sekai N5");
         var n4 = book("N4", "Sekai N4");
@@ -163,6 +216,25 @@ class JpaLearningScopeSourceTest {
         assertEquals(List.of(n4.getId()), result.warmUpTextbookIds());
         assertEquals(List.of(n3.getId()), result.goalTextbookIds());
         assertEquals(List.of("N3"), result.stages().stream().map(s -> s.level()).toList());
+    }
+
+    @Test
+    void n3StageAlsoStudiesTheDraftJlasN3TextbookWithoutPublishingIt() {
+        // Owner 2026-10-19 (§2.28) + OD-44: the J-LAS N3 textbook feeds N3 paths while it stays DRAFT.
+        var n4 = book("N4", "Sekai N4");
+        var draftN3 = draftLearningBook("N3", "Tiếng Nhật N3");
+        var reviewedN3 = book("N3", "Học liệu bổ sung N3");
+        moduleBook("N3", "Module-owned N3");
+        var draftN4 = draftLearningBook("N4", "Draft Learning Path N4");
+        em.flush();
+        em.clear();
+
+        var result = scope.resolve(7L, snapshot("N4", "N3"));
+
+        assertEquals(List.of(draftN3.getId(), reviewedN3.getId()), result.goalTextbookIds(), "book id order, draft kept");
+        assertEquals(List.of(n4.getId()), result.warmUpTextbookIds(), "N4 warm-up stays published-only");
+        assertFalse(result.warmUpTextbookIds().contains(draftN4.getId()));
+        assertEquals("DRAFT", em.find(Textbook.class, draftN3.getId()).getStatus());
     }
 
     @Test

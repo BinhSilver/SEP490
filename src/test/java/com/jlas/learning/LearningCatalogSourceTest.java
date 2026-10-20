@@ -49,6 +49,7 @@ class LearningCatalogSourceTest {
     @Autowired EntityManager em;
     @Autowired LearningCatalogSource catalog;
     @Autowired LearningResourceSelectionService selector;
+    @Autowired com.jlas.learning.repository.LearningCatalogRepository catalogRepository;
 
     @Test void selectsBothPhasesFromPersistedCatalogAndSecondaryTagEvidence() {
         var foundationBook = book("PUBLISHED");
@@ -104,6 +105,34 @@ class LearningCatalogSourceTest {
         assertEquals(List.of(published.getId()), results.stream().map(value -> value.lessonId()).toList());
         assertEquals("N5", results.getFirst().level());
         assertEquals(15, results.getFirst().estimatedMinutes());
+    }
+
+    @Test void readsDraftAndPublishedLessonsOfTheOpenDraftN3LearningBookButNeverArchivedOnes() {
+        // Owner 2026-10-19 (§2.28) + OD-44: the J-LAS N3 textbook is studied while it and its lessons stay DRAFT.
+        var n3Draft = Textbook.builder().title("Tiếng Nhật N3").status("DRAFT").jlptLevel("N3")
+                .isLearningPathSource(true).build();
+        em.persist(n3Draft);
+        var draftLesson = lesson(n3Draft, "DRAFT", "KNOWLEDGE");
+        var publishedLesson = lesson(n3Draft, "PUBLISHED", "KNOWLEDGE");
+        lesson(n3Draft, "ARCHIVED", "KNOWLEDGE");
+        var n3NotPathSource = Textbook.builder().title("Module N3").status("DRAFT").jlptLevel("N3")
+                .isLearningPathSource(false).build();
+        em.persist(n3NotPathSource);
+        lesson(n3NotPathSource, "DRAFT", "KNOWLEDGE");
+        var n4Draft = Textbook.builder().title("Sekai N4").status("DRAFT").jlptLevel("N4")
+                .isLearningPathSource(true).build();
+        em.persist(n4Draft);
+        lesson(n4Draft, "DRAFT", "KNOWLEDGE");
+        em.flush();
+        em.clear();
+        var results = catalog.findPublishedLessons(List.of(n3Draft.getId(), n3NotPathSource.getId(), n4Draft.getId()));
+        assertEquals(Set.of(draftLesson.getId(), publishedLesson.getId()),
+                results.stream().map(value -> value.lessonId()).collect(java.util.stream.Collectors.toSet()));
+        assertEquals("N3", results.getFirst().level());
+        assertTrue(catalogRepository.findPublishedLessonDetail(draftLesson.getId()).isPresent(),
+                "the lesson player opens the same open-draft lesson");
+        assertTrue(catalogRepository.findPublishedLessonDetail(
+                lesson(n4Draft, "DRAFT", "KNOWLEDGE").getId()).isEmpty());
     }
 
     @Test void includesSecondaryKnowledgeTagsButNotSituationTagsOrDuplicates() {

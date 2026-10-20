@@ -75,6 +75,26 @@ class SmartTestQuestionSelectorTest {
                 List.of("TRAVEL"), new Random(1))).containsExactly(situation);
     }
 
+    @Test
+    void keepsLearningOnlyMinnaReadingOutsideTheJlptSmartTestPool() {
+        var reading = question(3, "LP-OWNED-MINNA-READING", "本文");
+        reading.setSkill("READING");
+        reading.setContextJson("{\"learning_owned\":true,\"learning_path_only\":true}");
+        assertThat(SmartTestQuestionSelector.matchesGoal(reading, List.of("JLPT"))).isFalse();
+    }
+
+    /** OD-44 follow-up (owner 2026-10-20): Speed Master N3 reading/listening copies are Learning-path study material. */
+    @Test
+    void keepsLearningOnlySpeedMasterN3ComprehensionOutsideEveryJlptSmartTestPool() {
+        for (String skill : List.of("READING", "LISTENING")) {
+            var row = question(4, "LP-OWNED-SPEED-N3-COMPREHENSION", "本文");
+            row.setSkill(skill);
+            row.setSourceCode("LP-OWNED-SPEED-N3-C01-" + ("READING".equals(skill) ? "READ" : "LISTEN") + "-P1-Q001");
+            row.setContextJson("{\"learning_owned\":true,\"learning_path_only\":true,\"quiz_eligible\":false,\"smart_test_eligible\":false}");
+            assertThat(SmartTestQuestionSelector.matchesGoal(row, AssessmentServiceImpl.preferredTags("JLPT"))).isFalse();
+        }
+    }
+
     private AssessmentQuestion question(long id, String tag, String word) {
         return AssessmentQuestion.builder().id(id).skill("KANJI").jlptLevel("N3")
                 .contextJson("{\"lexeme\":\"" + word + "\"}")

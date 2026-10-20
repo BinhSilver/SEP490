@@ -61,7 +61,7 @@ class InteractiveLearningPathServiceTest {
         }
     }
 
-    @Test void completedRoadmapKeepsReplayAndDoesNotWriteOrReward() {
+    @Test void completedRoadmapKeepsReplayAndLocksThePathWithoutProgressOrRewards() {
         var path = interactivePath();
         path.setStatus("COMPLETED");
         var pkg = learningPackage(path, 11L, 1, LearningPackageStatus.COMPLETED);
@@ -77,7 +77,7 @@ class InteractiveLearningPathServiceTest {
         assertNull(result.currentPackageId());
         assertFalse(result.packages().getFirst().activities().isEmpty());
         verify(packages, never()).save(any());
-        verify(packages, never()).findByPathForUpdate(anyLong());
+        verify(packages).findByPathForUpdate(2L);
         verifyNoInteractions(creditService, streakRepository);
     }
 

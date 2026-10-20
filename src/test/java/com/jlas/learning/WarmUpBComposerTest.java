@@ -173,6 +173,27 @@ class WarmUpBComposerTest {
         }
     }
 
+    /** Review 2026-10-20: Speed Master N3 passages belong to their J-LAS N3 chapters (labelled, unreviewed); they are
+     * never warm-up filler, which would show them unlabelled and again later in the chapter. */
+    @Test void speedMasterN3ChapterMaterialIsNeverUsedAsWarmUpFiller() {
+        var bank = exercise("READING", 1);
+        var speed = new ComprehensionExercise("speed", "READING", "N3", "speed passage", null, null,
+                List.of(new ComprehensionQuestionSpec(91L, "Q", List.of("A", "B", "C"), 1, "E")),
+                String.format("%064d", 9), "speed passage", null, "LP-OWNED-SPEED-N3-C01-READ-P1");
+        when(comprehensionCatalog.resolve("READING", "N3"))
+                .thenReturn(new ComprehensionExerciseCatalog.CatalogResult(List.of(speed, bank), List.of()));
+
+        // Warm-up B at N3 means an N3 learner moving up (N3 → N2): not released today, guarded for when it opens.
+        composer.composeWarmUp(path(), new LearningProfileSnapshot(7L, 99L, 1L, "rev-1", true, true, "N3", "N2", "JLPT",
+                30, List.of(), List.of(new SkillScore("READING", 10, 4))));
+
+        var saved = ArgumentCaptor.forClass(List.class);
+        verify(members, atLeastOnce()).saveAll(saved.capture());
+        List<Long> ids = saved.getAllValues().stream().flatMap(rows -> ((List<LearningActivityMember>) rows).stream())
+                .map(LearningActivityMember::getCanonicalId).toList();
+        assertFalse(ids.contains(91L), "Speed Master N3 question used as warm-up filler: " + ids);
+    }
+
     @Test void shortageCreatesCoverageGapAndNeverDuplicatesExercise() {
         when(comprehensionCatalog.resolve("READING", "N4")).thenReturn(
                 new ComprehensionExerciseCatalog.CatalogResult(List.of(exercise("READING", 1)), List.of()));

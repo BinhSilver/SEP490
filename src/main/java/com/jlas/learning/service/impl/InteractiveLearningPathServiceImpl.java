@@ -100,6 +100,12 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private LearningActivityMemberRepository activityMembers;
     @Autowired(required = false)
     private InteractiveContentCatalog contentCatalog;
+    @Autowired(required = false)
+    private InteractiveComprehensionPathUpgradeService comprehensionPathUpgrade;
+    @Autowired(required = false)
+    private InteractiveCommunicationPathUpgradeService communicationPathUpgrade;
+    @Autowired(required = false)
+    private com.jlas.learning.service.CommunicationGuideService communicationGuides;
     @Override
     @Transactional
     public InteractiveLearningPathResponse current(Long userId) {
@@ -115,6 +121,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "EMPTY_LESSON: Lộ trình chưa có package học hợp lệ.");
         }
+        if (comprehensionPathUpgrade != null) comprehensionPathUpgrade.reconcile(userId, path);
+        if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         unlockCurrentChapterSegments(packageEntities);
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
         Map<Long, Map<LearningMemberType, Integer>> countsByPackage = memberCounts(packageEntities);
@@ -133,24 +141,37 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
                 packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews,
-                smartTestReviewOnlyTargets(path));
+                smartTestReviewOnlyTargets(path), communicationGuide(path, packageEntities));
     }
 
-    /** Read-only roadmap replay: never refresh, unlock or grant rewards on a finished path. */
+    /** Owner 2026-10-19: topic grouping for communication roadmaps (display only; never locks a unit). */
+    private com.jlas.learning.dto.CommunicationGuide communicationGuide(UserLearningPath path,
+            List<LearningPathPackage> packageEntities) {
+        if (communicationGuides == null) return null;
+        List<Long> lessonIds = packageEntities.stream().map(LearningPathPackage::getSourceLesson)
+                .filter(java.util.Objects::nonNull).map(lesson -> lesson.getId()).distinct().toList();
+        return communicationGuides.guide(path, lessonIds);
+    }
+
+    /** Finished-roadmap replay upgrades old Reading activity shape, but never refreshes, unlocks, or grants rewards. */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public InteractiveLearningPathResponse completedRoadmap(Long userId) {
         UserLearningPath path = paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(
                 userId, LearningExperienceVersion.INTERACTIVE_V2)
                 .filter(p -> "COMPLETED".equals(p.getStatus()))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        packages.findByPathForUpdate(path.getId());
+        if (comprehensionPathUpgrade != null) comprehensionPathUpgrade.reconcile(userId, path);
+        if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         var entities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
         var counts = memberCounts(entities);
         var views = entities.stream().map(p -> mapPackage(p, orderedActivities(p), entities, false, counts)).toList();
         int completed = (int) views.stream().filter(p -> p.status() == LearningPackageStatus.COMPLETED).count();
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
-                views.size(), percent(completed, views.size()), null, views, smartTestReviewOnlyTargets(path));
+                views.size(), percent(completed, views.size()), null, views, smartTestReviewOnlyTargets(path),
+                communicationGuide(path, entities));
     }
 
     private List<SmartTestReviewTarget> smartTestReviewOnlyTargets(UserLearningPath path) {
@@ -585,7 +606,18 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 isLastPackage(learningPackage, siblings), justCompleted, sessions,
                 chapterLessonId(learningPackage), chapterTitle(learningPackage), chapterNumber(learningPackage, siblings),
                 learningPackage.getSourceSegmentIndex() == null ? 1 : learningPackage.getSourceSegmentIndex(),
-                segmentCount(learningPackage, siblings));
+                segmentCount(learningPackage, siblings), sourceReviewNote(learningPackage));
+    }
+
+    static final String UNREVIEWED_SOURCE_NOTE = "Giáo trình chưa duyệt — nội dung đang được rà soát.";
+
+    /** §2.28 / OD-44: the owner opened the DRAFT J-LAS N3 textbook for study without calling it reviewed. */
+    private static String sourceReviewNote(LearningPathPackage pkg) {
+        var lesson = pkg.getSourceLesson();
+        var textbook = lesson == null || lesson.getUnit() == null ? null : lesson.getUnit().getTextbook();
+        return textbook != null && com.jlas.common.learning.DraftStudySourcePolicy.isOpenDraftTextbook(
+                textbook.getStatus(), textbook.getIsLearningPathSource(), textbook.getJlptLevel())
+                ? UNREVIEWED_SOURCE_NOTE : null;
     }
 
     // ---- Chapter view (owner decision 2026-10-06): a source lesson is a chapter, its day segments are parts ----

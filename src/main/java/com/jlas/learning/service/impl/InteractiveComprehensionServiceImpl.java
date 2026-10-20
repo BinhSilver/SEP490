@@ -29,6 +29,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     private final AssessmentComprehensionContentAdapter listeningAdapter;
     private final InteractiveStudyEngine<ComprehensionContent> readingEngine;
     private final InteractiveStudyEngine<ComprehensionContent> listeningEngine;
+    private final AssessmentQuestionRepository questionRows;
 
     public InteractiveComprehensionServiceImpl(UserLearningPathItemRepository items,
             LearningActivityMemberRepository members, LearningStudySessionRepository studySessions,
@@ -37,6 +38,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
             ComprehensionExerciseCatalog catalog, LearningMapper mapper) {
         this.items = items;
         this.members = members;
+        this.questionRows = questions;
         this.readingAdapter = new AssessmentComprehensionContentAdapter(LearningActivityType.READING, questions, catalog);
         this.listeningAdapter = new AssessmentComprehensionContentAdapter(LearningActivityType.LISTENING, questions, catalog);
         this.readingEngine = new InteractiveStudyEngine<>(items, members, studySessions, studyCards,
@@ -70,7 +72,27 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
                 .map(content -> new ComprehensionStudyQuestion(content.question().id(),
                         content.question().prompt(), content.question().options())).toList();
         return new ComprehensionStudyState(activityId, activity.getActivityType(), check.activityState(),
-                membership.getFirst().getSourceRevision(), batches.size(), selected, source, questions, check);
+                membership.getFirst().getSourceRevision(), batches.size(), selected, source, questions, check,
+                sourceNote(batch.stream().map(content -> content.question().id()).toList()));
+    }
+
+    private static final com.fasterxml.jackson.databind.ObjectMapper CONTEXT = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /** OD-44 follow-up (review 2026-10-20): unreviewed Learning-owned rows (e.g. Speed Master N3) carry their own
+     * source label in context_json; the note follows that content wherever it is studied, never the book status. */
+    private String sourceNote(List<Long> questionIds) {
+        for (var row : questionRows.findAllById(questionIds)) {
+            String context = row.getContextJson();
+            if (context == null || context.isBlank()) continue;
+            try {
+                var node = CONTEXT.readTree(context);
+                String label = node.path("label").asText("");
+                if ("CHUA_DUYET".equals(node.path("review_status").asText("")) && !label.isBlank()) return label;
+            } catch (Exception unreadable) {
+                // A row without a readable context has no label to show.
+            }
+        }
+        return null;
     }
 
     @Override @Transactional

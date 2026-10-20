@@ -1,6 +1,7 @@
 package com.jlas.learning.service.impl;
 
 import com.jlas.common.exception.*;
+import com.jlas.common.learning.DraftStudySourcePolicy;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import com.jlas.dictionary.repository.*;
@@ -29,7 +30,10 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         var lesson=lessons.findWithUnitById(lessonId).orElseThrow(()->new ApiException(ErrorCode.NOT_FOUND,"Không tìm thấy bài nguồn."));
         var gaps=new ArrayList<CoverageGap>(); String key="LESSON:"+lessonId;
         String actualLevel=lesson.getUnit().getTextbook().getJlptLevel();
-        if(!"PUBLISHED".equals(lesson.getStatus())||!"PUBLISHED".equals(lesson.getUnit().getTextbook().getStatus())) gap(gaps,key,"SOURCE_NOT_PUBLISHED");
+        var textbook=lesson.getUnit().getTextbook();
+        // §2.28 / OD-44: an owner-opened DRAFT learning-path book is studied as it is; its statuses never change.
+        boolean openDraft=DraftStudySourcePolicy.isOpenDraftTextbook(textbook.getStatus(),textbook.getIsLearningPathSource(),textbook.getJlptLevel());
+        if(!DraftStudySourcePolicy.isStudyableLesson(lesson.getStatus(),textbook.getStatus(),textbook.getIsLearningPathSource(),textbook.getJlptLevel())) gap(gaps,key,"SOURCE_NOT_PUBLISHED");
         if (!Boolean.TRUE.equals(lesson.getUnit().getTextbook().getIsLearningPathSource())) gap(gaps,key,"SOURCE_NOT_LEARNING_PATH");
         // JLPT stages must match their textbook exactly. Goal-specific communication stages
         // (BASIC/FUNCTIONAL/PROBLEM_SOLVING/FLEXIBLE) are validated by APPROVED lesson scope,
@@ -66,6 +70,8 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
                     && !(ownedLesson && "DRAFT".equals(v.getDictionaryStatus()) && contexts.containsKey(v.getId())))))
             gap(gaps,key,"VOCABULARY_NOT_READY");
         var links=vocabIds.isEmpty()?List.<com.jlas.dictionary.entity.VocabularyKanji>of():vocabularyKanji.findByVocabularyIdIn(vocabIds);
+        if (openDraft) links=links.stream()
+                .filter(link->DraftStudySourcePolicy.isKanjiWithinStage(link.getKanji().getJlptLevel(),textbook.getJlptLevel())).toList();
         List<Long> kanjiIds=links.stream().map(v->v.getKanji().getId()).distinct().sorted().toList();
         if (!kanjiIds.isEmpty()) {
             if(links.stream().anyMatch(link->blank(link.getKanji().getCharacter())||(blank(link.getKanji().getMeaningVi())&&blank(link.getKanji().getHanViet())))) gap(gaps,key,"KANJI_NOT_READY");
@@ -76,11 +82,12 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         if(grammarIds.size()>12) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
         if(grammar.stream().anyMatch(g->blank(g.getPattern())||blank(g.getMeaning())||(blank(g.getExample())&&contentItems.findGrammarExamples(g.getId(),lessonId).isEmpty()))) gap(gaps,key,"GRAMMAR_EXAMPLE_NOT_READY");
         var dialogue=dialogueLines.findByLessonId(lessonId); List<Long> dialogueIds=dialogue.stream().map(d->d.getContentItemId()).distinct().toList();
-        if(!dialogueIds.isEmpty()) {
+        // Open-draft dialogues have no recorded audio yet; the player uses the labelled synthesized voice instead.
+        if(!dialogueIds.isEmpty() && !openDraft) {
             var audioOwners=audio.findByOwnerTypeAndOwnerIdIn("CONTENT_ITEM",dialogueIds).stream().filter(a->!blank(a.getAudioUrl())).map(a->a.getOwnerId()).collect(Collectors.toSet());
             if(!audioOwners.containsAll(dialogueIds)) gap(gaps,key,"DIALOGUE_AUDIO_NOT_READY");
-            if(dialogue.stream().anyMatch(d->blank(d.getContentItem().getContent()))) gap(gaps,key,"DIALOGUE_SCRIPT_NOT_READY");
         }
+        if(dialogue.stream().anyMatch(d->blank(d.getContentItem().getContent()))) gap(gaps,key,"DIALOGUE_SCRIPT_NOT_READY");
         List<Long> readingIds = ownedMinnaReadingIds(lesson, expectedLevel, gaps, key);
         if (readingIds.isEmpty() && "N5".equals(expectedLevel)) {
             // Preserve existing N5 paths until the Learning-owned Minna reading bundle is applied.
@@ -91,6 +98,8 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
             // Keep existing in-progress N5 paths usable until the Minna bundle is imported.
             listeningIds = ownedSekaiComprehensionIds(lesson, expectedLevel, "LISTENING", gaps, key);
         }
+        if (readingIds.isEmpty()) readingIds = ownedSpeedN3Ids(lesson, expectedLevel, "READING", gaps, key);
+        if (listeningIds.isEmpty()) listeningIds = ownedSpeedN3Ids(lesson, expectedLevel, "LISTENING", gaps, key);
         // Owner decision 2026-10-06: a vocabulary-only lesson (>= 5 words, the flashcard threshold) or a dialogue-only
         // listening lesson is a valid target; only a lesson with nothing learnable beyond a short word list is not.
         if (kanjiIds.isEmpty() && grammarIds.isEmpty() && vocabIds.size() < 5 && dialogueIds.isEmpty()
@@ -128,6 +137,39 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
                 && row.getSourceCode()!=null && row.getSourceCode().startsWith(lessonCode+"-"+("READING".equals(skill)?"READ":"LISTEN")+"-"))
                 .map(AssessmentQuestion::getId).distinct().toList();
         if (ids.size()!=2) gap(gaps,gapKey,"SEKAI_N5_"+skill+"_COVERAGE_INVALID");
+        return ids;
+    }
+
+    /** Title of the J-LAS N3 textbook the owner named for N3 paths and the BrSE N3 link. */
+    static final String JLAS_N3_TEXTBOOK_TITLE = "Tiếng Nhật N3";
+
+    /**
+     * OD-44 follow-up (owner 2026-10-20): J-LAS N3 textbook chapter n carries the Speed Master N3 reading passages and
+     * listening clips seeded as {@code LP-OWNED-SPEED-N3-Cnn-READ|LISTEN-Pp-Qqqq}, chapter = (unit - 1) * 5 + lesson.
+     * Before that seed is applied a chapter simply has none — the readiness gate reports the missing skill.
+     */
+    private List<Long> ownedSpeedN3Ids(Lesson lesson, String expectedLevel, String skill,
+            List<CoverageGap> gaps, String gapKey) {
+        var textbook = lesson.getUnit().getTextbook();
+        if (!"N3".equals(expectedLevel) || !"N3".equals(textbook.getJlptLevel())
+                || !JLAS_N3_TEXTBOOK_TITLE.equals(textbook.getTitle())
+                || !"CURRICULUM".equals(lesson.getLessonType())) return List.of();
+        int unitOrder = lesson.getUnit().getOrderIndex() == null ? 0 : lesson.getUnit().getOrderIndex();
+        int lessonOrder = lesson.getOrderIndex() == null ? 0 : lesson.getOrderIndex();
+        int chapter = (unitOrder - 1) * 5 + lessonOrder;
+        if (unitOrder < 1 || lessonOrder < 1 || lessonOrder > 5 || chapter > 27) return List.of();
+        String prefix = "LP-OWNED-SPEED-N3-C" + String.format(Locale.ROOT, "%02d", chapter)
+                + ("READING".equals(skill) ? "-READ-" : "-LISTEN-");
+        List<AssessmentQuestion> rows = assessmentQuestions
+                .findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(skill, "N3", prefix);
+        List<Long> ids = rows.stream().filter(row -> row.getId() != null && Boolean.TRUE.equals(row.getIsActive())
+                && skill.equals(row.getSkill()) && "N3".equals(row.getJlptLevel())
+                && row.getSourceCode() != null && row.getSourceCode().startsWith(prefix))
+                .map(AssessmentQuestion::getId).distinct().toList();
+        if (ids.size() != rows.size()) {
+            gaps.add(new CoverageGap(gapKey, "SPEED_N3_" + skill + "_COVERAGE_INVALID"));
+            return List.of();
+        }
         return ids;
     }
 
@@ -205,8 +247,9 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
         var lesson=lessons.findWithUnitById(lessonId).orElse(null);
         // Called for an existing package, not for selecting a source for a new path.
         // A legacy book may lose source eligibility while its learner packages remain valid.
-        if (lesson == null || !"PUBLISHED".equals(lesson.getStatus())
-                || !"PUBLISHED".equals(lesson.getUnit().getTextbook().getStatus())) {
+        if (lesson == null || !DraftStudySourcePolicy.isStudyableLesson(lesson.getStatus(),
+                lesson.getUnit().getTextbook().getStatus(), lesson.getUnit().getTextbook().getIsLearningPathSource(),
+                lesson.getUnit().getTextbook().getJlptLevel())) {
             return List.of();
         }
         List<VocabularyEntry> words=contentVocabulary.findVocabularyByLessonId(lessonId);

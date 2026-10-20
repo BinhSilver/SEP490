@@ -81,7 +81,8 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
             }
             String display = normalizedSkill.equals("READING") ? displayPassage(row.getPassageHtml()) : playbackSource;
             Group group = groups.computeIfAbsent(fingerprint,
-                    ignored -> new Group(fingerprint, playbackSource, display, transcript, outcome, topic, new ArrayList<>()));
+                    ignored -> new Group(fingerprint, playbackSource, display, transcript, outcome, topic, ownedSourceGroup,
+                            new ArrayList<>()));
             if (!Objects.equals(group.source, playbackSource)) {
                 gaps.add(gap(row, "AUDIO_SOURCE_MISMATCH"));
                 continue;
@@ -103,7 +104,7 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
                     .map(this::revisionPart).reduce("", (left, right) -> left + "|" + right);
             exercises.add(new ComprehensionExercise(group.fingerprint, normalizedSkill, normalizedLevel,
                     group.source, group.outcome, group.topic, group.questions, sha256(revisionMaterial),
-                    group.display, group.transcript));
+                    group.display, group.transcript, group.ownedGroup));
         });
         gaps.sort(Comparator.comparing(CatalogGap::canonicalRef).thenComparing(CatalogGap::reasonCode));
         return new CatalogResult(exercises, gaps);
@@ -210,6 +211,12 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
                     + "-L\\d{2}-LISTEN-c\\d+)-[LW]-c\\d+-[A-Za-z0-9-]+$").matcher(sourceCode);
             if (matcher.matches()) return matcher.group(1);
         }
+        // OD-44 follow-up (owner 2026-10-20): one Speed Master N3 passage or clip per chapter slot.
+        if ("N3".equals(level)) {
+            var matcher = java.util.regex.Pattern.compile("^(LP-OWNED-SPEED-N3-C\\d{2}-"
+                    + ("READING".equals(skill) ? "READ" : "LISTEN") + "-P[12])-Q\\d{3}$").matcher(sourceCode);
+            if (matcher.matches()) return matcher.group(1);
+        }
         return null;
     }
 
@@ -271,5 +278,5 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
     }
 
     private record Group(String fingerprint, String source, String display, String transcript, String outcome, String topic,
-            List<ComprehensionQuestionSpec> questions) { }
+            String ownedGroup, List<ComprehensionQuestionSpec> questions) { }
 }

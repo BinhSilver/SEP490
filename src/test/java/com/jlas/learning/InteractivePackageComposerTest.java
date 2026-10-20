@@ -61,7 +61,9 @@ class InteractivePackageComposerTest {
                 List.of(),List.of(),List.of(),List.of(70L,71L),List.of(new CoverageGap("LESSON:20","DIALOGUE_AUDIO_NOT_READY"))));
         var result=composer.compose(path(),List.of(seed(10L,1),seed(20L,2)));
         assertTrue(result.published()); assertEquals(1,result.packageCount());
-        assertEquals(List.of(new CoverageGap("LESSON:20","DEFERRED_DIALOGUE_AUDIO_NOT_READY")),result.gaps());
+        assertEquals(List.of(new CoverageGap("LESSON:20","DEFERRED_DIALOGUE_AUDIO_NOT_READY"),
+                new CoverageGap("LEVEL:N4","MISSING_SKILL_READING"),new CoverageGap("LEVEL:N4","MISSING_SKILL_LISTENING")),result.gaps(),
+                "report mode records the level's missing skills as non-blocking notes");
         verify(packages,times(1)).save(any());
     }
 
@@ -274,6 +276,65 @@ class InteractivePackageComposerTest {
         verify(packages).save(argThat(value -> Long.valueOf(51L).equals(value.getStageId())));
     }
 
+    // ---- Spec §2.1 readiness: every stage level needs Vocabulary, Kanji, Grammar, Reading and Listening ----
+
+    @Test void reportModeRecordsEveryMissingJlptSkillOfALevelWithoutBlockingThePath(){
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(
+                UserLearningStage.builder().id(51L).level("N3").stageIndex(0).status("ACTIVE").build()));
+        when(catalog.inspect(30L,"N3")).thenReturn(snapshot(30L,List.of()));
+
+        var result=composer.compose(path(),List.of(seed(30L,1,"N3")));
+
+        assertTrue(result.published(), "REPORT (the code default; the app ships ENFORCE since OD-48) never blocks");
+        assertEquals(List.of(new CoverageGap("LEVEL:N3","MISSING_SKILL_READING"),new CoverageGap("LEVEL:N3","MISSING_SKILL_LISTENING")),
+                result.gaps());
+    }
+
+    @Test void enforceModeBlocksAPathWhoseLevelMissesARequiredSkillBeforeSavingAnything(){
+        properties.setReadinessGate("ENFORCE");
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(
+                UserLearningStage.builder().id(51L).level("N3").stageIndex(0).status("ACTIVE").build()));
+        when(catalog.inspect(30L,"N3")).thenReturn(new InteractiveContentSnapshot(Lesson.builder().id(30L).build(),"rev",
+                List.of(1L,2L,3L,4L,5L),List.of(),List.of(),List.of(),List.of()));
+
+        var result=composer.compose(path(),List.of(seed(30L,1,"N3")));
+
+        assertFalse(result.published());
+        assertEquals(List.of("MISSING_SKILL_KANJI","MISSING_SKILL_GRAMMAR","MISSING_SKILL_READING","MISSING_SKILL_LISTENING"),
+                result.gaps().stream().map(CoverageGap::reasonCode).toList());
+        assertTrue(result.gaps().stream().allMatch(gap -> gap.tagCode().equals("LEVEL:N3")));
+        verify(packages,never()).save(any());
+        verify(items,never()).save(any());
+    }
+
+    @Test void enforceModePublishesALevelThatHasAllFiveSkills(){
+        properties.setReadinessGate("ENFORCE");
+        var textbook=com.jlas.dictionary.entity.Textbook.builder().id(1L).title("Sekai N5").jlptLevel("N5").build();
+        var lesson=Lesson.builder().id(10L).unit(com.jlas.dictionary.entity.Unit.builder().id(1L).textbook(textbook).build()).build();
+        when(stages.findByLearningPathIdOrderByStageIndexAsc(5L)).thenReturn(List.of(
+                UserLearningStage.builder().id(41L).level("N5").stageIndex(0).status("ACTIVE").build()));
+        when(catalog.inspect(10L,"N5")).thenReturn(new InteractiveContentSnapshot(lesson,"rev",List.of(1L,2L,3L,4L,5L),List.of(3L),
+                List.of(4L),List.of(),List.of(),Map.of(),List.of(601L),List.of(603L)));
+        when(comprehensionCatalog.resolve("READING","N5")).thenReturn(exercises("READING",List.of(601L)));
+        when(comprehensionCatalog.resolve("LISTENING","N5")).thenReturn(exercises("LISTENING",List.of(603L)));
+
+        var result=composer.compose(path(),List.of(seed(10L,1,"N5")));
+
+        assertTrue(result.published(), result.gaps().toString());
+        assertTrue(result.gaps().isEmpty());
+    }
+
+    @Test void communicationGoalsAreNotSubjectToTheJlptSkillGate(){
+        properties.setReadinessGate("ENFORCE");
+        var travel=path(); travel.setGoal("TRAVEL");
+        when(catalog.inspect(10L,"N4")).thenReturn(snapshot(10L,List.of()));
+
+        var result=composer.compose(travel,List.of(seed(10L,1)));
+
+        assertTrue(result.published(), result.gaps().toString());
+        assertTrue(result.gaps().stream().noneMatch(gap -> gap.reasonCode().startsWith("MISSING_SKILL_")));
+    }
+
     @Test void mapsReadingAndListeningMembersIntoVisibleGoalActivitiesWithSourceRevision() {
         var textbook=com.jlas.dictionary.entity.Textbook.builder().id(1L).title("Sekai N5 — Giáo trình tiếng Nhật")
                 .jlptLevel("N5").build();
@@ -290,15 +351,23 @@ class InteractivePackageComposerTest {
         var result=composer.compose(path(),List.of(seed(10L,1,"N5")));
 
         assertTrue(result.published(),result.gaps().toString());
+        ArgumentCaptor<UserLearningPathItem> savedActivities = ArgumentCaptor.forClass(UserLearningPathItem.class);
+        verify(items,times(4)).save(savedActivities.capture());
         @SuppressWarnings("unchecked") ArgumentCaptor<Iterable<LearningActivityMember>> saved = ArgumentCaptor.forClass(Iterable.class);
-        verify(members,times(3)).saveAll(saved.capture());
+        verify(members,times(4)).saveAll(saved.capture());
         var all=saved.getAllValues().stream().flatMap(group -> StreamSupport.stream(group.spliterator(),false)).toList();
-        assertEquals(List.of(601L,602L),all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.READING)
-                .map(LearningActivityMember::getCanonicalId).toList());
+        var readingGroups=saved.getAllValues().stream()
+                .map(group -> StreamSupport.stream(group.spliterator(),false).toList())
+                .filter(group -> !group.isEmpty() && group.getFirst().getActivity().getActivityType()==LearningActivityType.READING)
+                .map(group -> group.stream().map(LearningActivityMember::getCanonicalId).toList()).toList();
+        assertEquals(List.of(List.of(601L),List.of(602L)),readingGroups);
         assertEquals(List.of(603L,604L),all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.LISTENING)
                 .map(LearningActivityMember::getCanonicalId).toList());
-        assertEquals(1,all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.READING)
+        assertEquals(2,all.stream().filter(member -> member.getActivity().getActivityType()==LearningActivityType.READING)
                 .map(LearningActivityMember::getSourceRevision).distinct().count());
+        assertEquals(1,savedActivities.getAllValues().stream()
+                .filter(activity -> activity.getActivityType()==LearningActivityType.READING)
+                .map(activity -> activity.getLearningPackage().getId()).distinct().count());
     }
 
     private ComprehensionExerciseCatalog.CatalogResult exercises(String skill,List<Long> ids) {

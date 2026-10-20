@@ -33,7 +33,9 @@ public record InteractiveLearningPackageResponse(
         String chapterTitle,
         int chapterNumber,
         int segmentIndex,
-        int segmentCount) {
+        int segmentCount,
+        /** §2.28 / OD-44: a note when the chapter comes from an owner-opened DRAFT textbook; null otherwise. */
+        String sourceReviewNote) {
     public InteractiveLearningPackageResponse {
         activities = List.copyOf(activities);
         sessions = sessions == null ? List.of() : List.copyOf(sessions);
@@ -46,6 +48,6 @@ public record InteractiveLearningPackageResponse(
             List<InteractiveLearningSessionResponse> sessions) {
         this(id, phase, dayNumber, orderIndex, title, status, estimatedMinutes, completedActivities, totalActivities,
                 progressPercent, resumeActivityType, lockReason, startedAt, completedAt, activities, scorePercent,
-                nextAvailablePackageId, lastPackage, justCompleted, sessions, null, title, 1, 1, 1);
+                nextAvailablePackageId, lastPackage, justCompleted, sessions, null, title, 1, 1, 1, null);
     }
 }

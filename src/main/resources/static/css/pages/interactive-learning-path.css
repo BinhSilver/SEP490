@@ -462,6 +462,31 @@
 .ilp-page .ilp-button:disabled:hover,
 .ilp-page .ilp-button:disabled:active { background-color: var(--lp-line); color: var(--lp-muted); transform: none; }
 
+/* [JLAS-W0108] Communication roadmap grouped by topic (owner 2026-10-19). */
+.ilp-page .ilp-topic { display: grid; gap: 0; padding: 22px 0 6px; border-bottom: 2px solid var(--lp-line); }
+.ilp-page .ilp-topic:last-child { border-bottom: 0; }
+.ilp-page .ilp-topic__head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 0 6px 4px; }
+.ilp-page .ilp-topic__head > div { flex: 1 1 220px; min-width: 0; }
+.ilp-page .ilp-topic__head h2 { margin: 4px 0 0; font-size: clamp(20px, 2.4vw, 26px); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.ilp-page .ilp-topic__head .ilp-status { padding: 0; background: transparent; color: var(--lp-muted); font: 600 12px var(--font-body); }
+.ilp-page .ilp-topic__priority {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-tertiary-container) 28%, transparent);
+  color: var(--color-on-tertiary-container);
+  font: 700 12px/1.4 var(--font-body);
+}
+.ilp-page .ilp-topic .ilp-chapter { padding-left: 18px; }
+.ilp-page .ilp-topic .ilp-chapter:last-child { border-bottom: 0; }
+.ilp-page .ilp-chapter__hint {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--color-tertiary-container);
+  background: color-mix(in srgb, var(--color-tertiary-container) 12%, transparent);
+  color: var(--lp-ink);
+  font: 500 13px/1.5 var(--font-body);
+}
+
 @media (max-width: 820px) {
   .ilp-page .ilp-hero { grid-template-columns: 1fr; gap: 18px; }
   .ilp-page .ilp-total { max-width: 340px; padding-left: 16px; }
@@ -477,4 +502,23 @@
   .ilp-page .ilp-day--available { padding: 14px 12px; }
   .ilp-page .ilp-chapter__head { align-items: flex-start; }
   .ilp-page .ilp-chapter .ilp-status { width: 100%; margin-left: 0; }
+}
+
+/* [JLAS-W0108] BrSE optional textbook suggestions (owner 2026-10-19, Q5): never gating. */
+.ilp-page .ilp-books { margin: 18px 0 6px; padding: 14px 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-page .ilp-books h2 { margin: 0 0 6px; font-size: 1rem; }
+.ilp-page .ilp-books p { margin: 0 0 8px; color: var(--lp-muted); font-size: .9rem; }
+.ilp-page .ilp-books ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.ilp-page .ilp-books__link { color: var(--color-on-tertiary-container); font-weight: 700; overflow-wrap: anywhere; }
+.ilp-page .ilp-books__link:focus-visible { outline: 3px solid var(--color-tertiary-container); outline-offset: 2px; }
+.ilp-page .ilp-books__pending { color: var(--lp-muted); overflow-wrap: anywhere; }
+/* OD-45 / §2.28: a DRAFT J-LAS textbook is studied but never presented as reviewed. */
+.ilp-page .ilp-books__unreviewed {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  font-size: 0.8em;
+  font-weight: 700;
 }

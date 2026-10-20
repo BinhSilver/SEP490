@@ -143,6 +143,32 @@ class JpaComprehensionExerciseCatalogTest {
         assertTrue(result.gaps().isEmpty(), result.gaps().toString());
     }
 
+    /** OD-44 follow-up (owner 2026-10-20): Speed Master N3 passages and clips group by chapter slot, play local audio. */
+    @Test void groupsSpeedMasterN3QuestionsByChapterSlotAndPlaysTheLocalClip() {
+        var first = question(301, "READING", "N3", "<p>本文です。</p>", null, null, null);
+        first.setSourceCode("LP-OWNED-SPEED-N3-C07-READ-P2-Q001");
+        var second = question(302, "READING", "N3", "<p>本文です。</p>", null, null, null);
+        second.setSourceCode("LP-OWNED-SPEED-N3-C07-READ-P2-Q002");
+        var other = question(303, "READING", "N3", "<p>別の本文です。</p>", null, null, null);
+        other.setSourceCode("LP-OWNED-SPEED-N3-C07-READ-P1-Q001");
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("READING", "N3"))
+                .thenReturn(List.of(first, second, other));
+        var reading = catalog.resolve("READING", "N3");
+        assertEquals(2, reading.exercises().size(), reading.gaps().toString());
+        assertTrue(reading.gaps().isEmpty(), reading.gaps().toString());
+        assertTrue(reading.exercises().stream().anyMatch(e -> e.questions().stream()
+                .map(ComprehensionQuestionSpec::id).toList().equals(List.of(301L, 302L))));
+
+        var clip = question(311, "LISTENING", "N3", "<p>Ⓜ：どうする？</p>",
+                "/uploads/content-audio/vnjpclub/N3/speed-n3-nghe-hieu/2.mp3", null, null);
+        clip.setSourceCode("LP-OWNED-SPEED-N3-C01-LISTEN-P1-Q001");
+        when(questions.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc("LISTENING", "N3")).thenReturn(List.of(clip));
+        var listening = catalog.resolve("LISTENING", "N3");
+        assertTrue(listening.gaps().isEmpty(), listening.gaps().toString());
+        assertEquals("/uploads/content-audio/vnjpclub/N3/speed-n3-nghe-hieu/2.mp3", listening.exercises().getFirst().source());
+        assertEquals("Ⓜ：どうする？", listening.exercises().getFirst().transcriptJa());
+    }
+
     @Test void localMinnaAudioPreservesExistingExerciseRevisionAndOnlyChangesPlaybackSource() {
         var row = question(101, "LISTENING", "N5", "<p>はい。</p>",
                 "https://www.vnjpclub.com/Audio/minnaln/minna1/a/01A-1.mp3", null, null);

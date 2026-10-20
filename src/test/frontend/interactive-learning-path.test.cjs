@@ -154,11 +154,30 @@ test('resolves the Smart Test attempt from the redirected V2 URL before storage'
 test('builds the existing learning-path creation request for V2 bootstrap', () => {
   assert.deepEqual(page.pathCreationRequest(91), {
     url: '/api/learning/paths',
-    body: JSON.stringify({ assessmentAttemptId: 91 })
+    body: JSON.stringify({ assessmentAttemptId: 91, reviewStartLevel: null })
   });
   assert.deepEqual(page.pathCreationRequest(null), {
     url: '/api/learning/paths/from-zero',
     body: '{}'
+  });
+});
+
+test('sends a validated explicitly selected review start level with the assessment attempt', () => {
+  assert.equal(page.resolveReviewStartLevel('?reviewStartLevel=N5'), 'N5');
+  assert.equal(page.resolveReviewStartLevel('?reviewStartLevel=N1'), null);
+  assert.deepEqual(page.pathCreationRequest(3, 'N5'), {
+    url: '/api/learning/paths',
+    body: JSON.stringify({ assessmentAttemptId: 3, reviewStartLevel: 'N5' })
+  });
+});
+
+test('sends the learner answer to a lower Smart Test result only when it is a known choice', () => {
+  assert.equal(page.resolveDiscrepancyChoice('?discrepancyChoice=ACCEPT_RECOMMENDATION'), 'ACCEPT_RECOMMENDATION');
+  assert.equal(page.resolveDiscrepancyChoice('?discrepancyChoice=DECLINE_RECOMMENDATION'), 'DECLINE_RECOMMENDATION');
+  assert.equal(page.resolveDiscrepancyChoice('?discrepancyChoice=SKIP_ALL'), null);
+  assert.deepEqual(page.pathCreationRequest(3, null, 'ACCEPT_RECOMMENDATION'), {
+    url: '/api/learning/paths',
+    body: JSON.stringify({ assessmentAttemptId: 3, reviewStartLevel: null, discrepancyChoice: 'ACCEPT_RECOMMENDATION' })
   });
 });
 
@@ -531,4 +550,152 @@ test('completed quiz activities offer "Xem lại bài giảng" and "Kiểm tra l
   assert.match(html, /dialogue\?activity=1&amp;mode=practice">Ôn lại</);
   assert.match(html, /vocabulary\?activity=2&amp;mode=results">Kết quả kiểm tra</);
   assert.doesNotMatch(html, /dialogue\?activity=1&amp;mode=results/);
+});
+
+// ---- §2.24: communication-goal roadmap — done content links are REVIEW-only, never scored retakes ----
+
+test('done Vocabulary/Grammar in a communication goal offer only the read-only review, never practice or results', () => {
+  const data = path({ goal: 'TRAVEL' });
+  data.packages[0].activities = [
+    { id: 2, type: 'VOCABULARY', state: 'PASSED', orderIndex: 1 },
+    { id: 3, type: 'GRAMMAR', state: 'PASSED', orderIndex: 2 },
+    { id: 1, type: 'DIALOGUE', state: 'COMPLETED', orderIndex: 3 }
+  ];
+  const html = page.render(data);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=review">Xem lại bài giảng</);
+  assert.doesNotMatch(html, /vocabulary\?activity=2&amp;mode=(practice|results)/);
+  assert.match(html, /grammar\?activity=3&amp;mode=review">Xem lại bài giảng</);
+  assert.doesNotMatch(html, /grammar\?activity=3&amp;mode=(practice|results)/);
+  // §2.24 covers only the no-quiz content types; Dialogue rehearsal keeps its own actions.
+  assert.match(html, /dialogue\?activity=1&amp;mode=review/);
+});
+
+test('a non-communication path keeps scored retake links for the same done activities', () => {
+  const data = path();
+  data.packages[0].activities = [{ id: 2, type: 'VOCABULARY', state: 'PASSED', orderIndex: 1 }];
+  const html = page.render(data);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=practice">Kiểm tra lại</);
+  assert.match(html, /vocabulary\?activity=2&amp;mode=results">Kết quả kiểm tra</);
+});
+
+// ---- Owner 2026-10-19: communication roadmaps group units by topic (display only, never locked) ----
+
+function commPackage(id, lessonId, title, types) {
+  return { id, phase: 'GOAL_LEARNING', orderIndex: id, status: 'AVAILABLE', progressPercent: 0,
+    chapterLessonId: lessonId, chapterTitle: title, chapterNumber: id, segmentIndex: 1, segmentCount: 1,
+    activities: types.map((type, index) => ({ id: id * 10 + index, type, state: 'LOCKED', orderIndex: index + 1 })) };
+}
+
+test('communication roadmap groups units by topic, survey focus first, with level chips and a soft warning', () => {
+  const data = path({ goal: 'TRAVEL', packages: [
+    commPackage(1, 11, 'J-LAS · Từ vựng · Sân bay & xuất nhập cảnh', ['VOCABULARY']),
+    commPackage(2, 12, 'J-LAS · Làm thủ tục ở sân bay', ['GRAMMAR', 'DIALOGUE']),
+    commPackage(3, 21, 'J-LAS · Từ vựng · Hỏi đường & sự cố', ['VOCABULARY']),
+    commPackage(4, 22, 'J-LAS · Để quên đồ', ['GRAMMAR', 'DIALOGUE'])],
+    communicationGuide: { learnerSelfLevel: 'N5', topics: [
+      { code: 'TROUBLE', titleVi: 'Hỏi đường & sự cố', order: 11, priority: true, units: [
+        { lessonId: 21, vocabularyTopic: true, jlptLevel: null }, { lessonId: 22, vocabularyTopic: false, jlptLevel: 'N3' }] },
+      { code: 'AIR', titleVi: 'Sân bay & xuất nhập cảnh', order: 1, priority: false, units: [
+        { lessonId: 11, vocabularyTopic: true, jlptLevel: null }, { lessonId: 12, vocabularyTopic: false, jlptLevel: 'N5' }] }] } });
+  const html = page.render(data);
+  assert.equal((html.match(/class="ilp-topic"/g) || []).length, 2);
+  assert.ok(html.indexOf('Hỏi đường &amp; sự cố') < html.indexOf('Sân bay &amp; xuất nhập cảnh'), 'focus topic first');
+  assert.match(html, /Ưu tiên của bạn/);
+  assert.match(html, /TỪ VỰNG CHỦ ĐỀ/);
+  assert.match(html, /TÌNH HUỐNG · N3/);
+  assert.match(html, /Khó hơn trình độ hiện tại/, 'N3 situation above a self-reported N5 learner is flagged');
+  assert.equal((html.match(/Khó hơn trình độ hiện tại/g) || []).length, 1, 'the N5 situation is not flagged');
+  assert.doesNotMatch(html, /ilp-skill-part__lock/, 'grouping never locks a unit');
+});
+
+test('a BrSE roadmap offers optional J-LAS book links, shows a book that is not open yet without a link, and never gates units', () => {
+  const data = path({ goal: 'BA', packages: [commPackage(1, 11, 'J-LAS · Từ vựng · Giao tiếp', ['VOCABULARY'])],
+    communicationGuide: { learnerSelfLevel: 'N5', topics: [{ code: 'COM', titleVi: 'Giao tiếp công việc', order: 1, priority: false,
+      units: [{ lessonId: 11, vocabularyTopic: true, jlptLevel: null }] }],
+      bookSuggestions: [{ level: 'N4', title: 'Learning N4 — Sekai N4', textbookId: 4000002, available: true },
+        { level: 'N3', title: 'Tiếng Nhật <N3>', textbookId: 4, available: false }] } });
+  const html = page.render(data);
+  assert.match(html, /class="ilp-books"/);
+  assert.match(html, /Sách tham khảo \(tự nguyện\)/);
+  assert.match(html, /href="\/textbooks\/4000002"[^>]*>[^<]*Learning N4 — Sekai N4/);
+  assert.doesNotMatch(html, /href="\/textbooks\/4"/, 'a book learners cannot open has no link');
+  assert.match(html, /Tiếng Nhật &lt;N3&gt;[\s\S]*đang được biên soạn/);
+  assert.match(html, /không bắt buộc/i);
+  assert.doesNotMatch(html, /ilp-skill-part__lock/);
+  const travel = page.render(path({ goal: 'TRAVEL', packages: [commPackage(1, 11, 'J-LAS · Từ vựng · Sân bay', ['VOCABULARY'])],
+    communicationGuide: { learnerSelfLevel: 'N5', topics: [], bookSuggestions: [] } }));
+  assert.doesNotMatch(travel, /ilp-books/);
+});
+
+// OD-45 (owner 2026-10-20): the BrSE N3 link opens the J-LAS N3 textbook while it is still DRAFT, labelled unreviewed.
+test('a BrSE book that is open but unreviewed links to the textbook and says it is not reviewed yet', () => {
+  const data = path({ goal: 'BA', packages: [commPackage(1, 11, 'J-LAS · Từ vựng · Giao tiếp', ['VOCABULARY'])],
+    communicationGuide: { learnerSelfLevel: 'N4', topics: [{ code: 'COM', titleVi: 'Giao tiếp công việc', order: 1, priority: false,
+      units: [{ lessonId: 11, vocabularyTopic: true, jlptLevel: null }] }],
+      bookSuggestions: [{ level: 'N3', title: 'Tiếng Nhật N3', textbookId: 4, available: true, unreviewed: true }] } });
+  const html = page.render(data);
+  assert.match(html, /href="\/textbooks\/4"[^>]*>[^<]*Tiếng Nhật N3<\/a>/);
+  assert.match(html, /ilp-books__unreviewed[^>]*>Chưa duyệt</);
+  assert.doesNotMatch(html, /đang được biên soạn/);
+});
+
+// §2.28 / OD-44: chapters from the DRAFT J-LAS N3 textbook carry the server's unreviewed note; others carry none.
+test('a chapter from an unreviewed textbook shows the server note once and a reviewed chapter shows nothing', () => {
+  const chapter = (id, lessonId, note) => ({ id, phase: 'GOAL_LEARNING', dayNumber: id, orderIndex: id, title: 'Chủ đề ' + id,
+    status: 'IN_PROGRESS', progressPercent: 0, chapterLessonId: lessonId, chapterTitle: 'Chủ đề ' + id, chapterNumber: id,
+    segmentIndex: 1, segmentCount: 1, sourceReviewNote: note,
+    activities: [{ id: id * 10, type: 'GRAMMAR', state: 'STUDYING', orderIndex: 1, dayNumber: id }] });
+  const html = page.render(path({ packages: [chapter(1, 61, 'Giáo trình chưa duyệt — <nội dung> đang được rà soát.'),
+    chapter(2, 902, null)] }));
+  assert.equal((html.match(/ilp-chapter__unreviewed/g) || []).length, 1);
+  assert.match(html, /Giáo trình chưa duyệt — &lt;nội dung&gt; đang được rà soát\./);
+});
+
+// OD-48 (owner 2026-10-20) + spec §2.1: when the readiness gate refuses a path, say which level misses which skill.
+test('a path refused by the readiness gate names the level and the missing skills, escaped', () => {
+  const html = page.errorState('BLOCKED_CONTENT', 'Chưa thể tạo lộ trình đầy đủ: cấp N3 còn thiếu Đọc, Nghe <b>. '
+    + 'J-LAS không tạo lộ trình thiếu kỹ năng — nội dung sẽ được bổ sung trước khi mở cấp này.');
+  assert.match(html, /Học liệu đang được hoàn thiện/);
+  assert.match(html, /ilp-state__detail[^>]*>Chưa thể tạo lộ trình đầy đủ: cấp N3 còn thiếu Đọc, Nghe &lt;b&gt;\./);
+  assert.match(html, /href="\/smart-test"/);
+});
+
+// Review 2026-10-20 (OD-48): after the readiness gate refuses a new path, "Kiểm tra lại" must really check again —
+// retry the creation and keep naming the missing skills — instead of falling to a misleading "no path" state.
+test('retrying after a readiness-gate refusal asks the server to create the path again and keeps the skill detail', async () => {
+  const previousWindow = global.window, previousDocument = global.document, previousFetch = global.fetch;
+  const listeners = {};
+  const node = { innerHTML: '', addEventListener(type, listener) { (listeners[type] ||= []).push(listener); },
+    setAttribute() {}, querySelector() { return null; }, querySelectorAll() { return []; } };
+  const posts = [];
+  global.window = {
+    location: { search: '?assessmentAttemptId=55', pathname: '/learning/path/v2' },
+    localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
+    JlasAuth: { requireLogin() { return true; }, authHeaders() { return {}; } }
+  };
+  global.document = { getElementById(id) { return id === 'interactivePathRoot' ? node : null; },
+    querySelector() { return null; }, addEventListener() {}, body: { contains() { return false; } } };
+  const refusal = 'Chưa thể tạo lộ trình đầy đủ: cấp N3 còn thiếu Đọc, Nghe. J-LAS không tạo lộ trình thiếu kỹ năng — nội dung sẽ được bổ sung trước khi mở cấp này.';
+  global.fetch = async (url, options = {}) => {
+    if (url === '/api/learning/v2/paths/current') return { ok: false, status: 404, json: async () => ({ success: false, code: 'NOT_FOUND', message: 'Bạn chưa có lộ trình tương tác đang hoạt động.' }) };
+    if (url === '/api/learning/paths' && options.method === 'POST') {
+      posts.push(options.body);
+      return { ok: false, status: 422, json: async () => ({ success: false, code: 'BLOCKED_CONTENT', message: refusal }) };
+    }
+    throw new Error('Unexpected request: ' + url);
+  };
+  try {
+    page.mount();
+    for (let i = 0; i < 5; i++) await new Promise(resolve => setImmediate(resolve));
+    assert.equal(posts.length, 1);
+    assert.match(node.innerHTML, /cấp N3 còn thiếu Đọc, Nghe/);
+    const target = { closest(selector) { return selector === '[data-retry]' ? target : null; } };
+    for (const listener of listeners.click || []) await listener({ target });
+    for (let i = 0; i < 5; i++) await new Promise(resolve => setImmediate(resolve));
+    assert.equal(posts.length, 2, 'Kiểm tra lại retries the creation');
+    assert.match(node.innerHTML, /cấp N3 còn thiếu Đọc, Nghe/);
+    assert.doesNotMatch(node.innerHTML, /Chưa thể mở lộ trình/);
+  } finally {
+    global.window = previousWindow; global.document = previousDocument; global.fetch = previousFetch;
+  }
 });

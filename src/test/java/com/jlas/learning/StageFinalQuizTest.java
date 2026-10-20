@@ -181,6 +181,26 @@ class StageFinalQuizTest {
         assertEquals(ErrorCode.QUIZ_NOT_READY, ex.getErrorCode());
     }
 
+    /** Learning-path-only comprehension copies (e.g. Speed Master N3, Minna) declare quiz_eligible=false: they are study
+     * material and never enter the legacy stage-final quiz, even when they sort first by id. */
+    @Test
+    void learningPathOnlyComprehensionRowsNeverEnterTheStageFinalQuiz() {
+        var fixture = seed(true);
+        em.createQuery("select q from AssessmentQuestion q where q.skill = 'READING' and q.questionText in ('READING Q1','READING Q2')",
+                        AssessmentQuestion.class).getResultList().forEach(question -> {
+                    question.setContextJson("{\"learning_path_only\":true,\"quiz_eligible\":false}");
+                    question.setSourceCode("LP-OWNED-TEST-" + question.getId());
+                });
+        em.flush();
+        em.clear();
+
+        var quiz = service.getStageFinalQuiz(fixture.user().getId(), fixture.stage().getId());
+
+        assertTrue(quiz.questions().stream().noneMatch(q -> q.questionText().equals("READING Q1") || q.questionText().equals("READING Q2")),
+                "study-only rows were drawn into the quiz");
+        assertEquals(10, quiz.questions().stream().filter(q -> "READING".equals(q.skill())).count());
+    }
+
     private LessonQuizSubmitRequest allCorrectAnswers(LessonQuizResponse quiz) {
         var answers = quiz.questions().stream()
                 .map(q -> new LessonQuizSubmitRequest.LessonQuizAnswerRequest(q.questionId(), 1))

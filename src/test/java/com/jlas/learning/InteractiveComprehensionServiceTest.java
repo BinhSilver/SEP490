@@ -99,6 +99,28 @@ class InteractiveComprehensionServiceTest {
         assertEquals(3, ComprehensionStudyQuestion.class.getRecordComponents().length);
     }
 
+    /** OD-44 follow-up (owner 2026-10-20): unreviewed study material carries its own source label (context_json), so
+     * the note follows the content — not the textbook status — wherever the rows are studied (review 2026-10-20). */
+    @Test void studyStateShowsTheUnreviewedSourceLabelCarriedByTheQuestionRowsThemselves() {
+        arrangeTwoReadingExercises();
+        when(checkStates.findByActivityIdOrderByBatchIndex(1L)).thenReturn(List.of());
+        var draftN3 = activity(LearningActivityType.READING);
+        draftN3.setLesson(com.jlas.dictionary.entity.Lesson.builder().id(61L).status("DRAFT")
+                .unit(com.jlas.dictionary.entity.Unit.builder().id(13L).textbook(com.jlas.dictionary.entity.Textbook.builder()
+                        .id(4L).title("Tiếng Nhật N3").jlptLevel("N3").status("DRAFT").isLearningPathSource(true).build()).build()).build());
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(draftN3));
+        assertNull(service.studyState(7L, 1L).sourceNote(), "rows without a review label carry no note, whatever the book");
+
+        var labelled = questionRows();
+        labelled.forEach(row -> row.setContextJson(
+                "{\"review_status\": \"CHUA_DUYET\", \"label\": \"Nguồn VNJPClub · Speed Master N3 · chưa duyệt\"}"));
+        when(questions.findAllById(any())).thenReturn(labelled);
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity(LearningActivityType.READING)));
+
+        assertEquals("Nguồn VNJPClub · Speed Master N3 · chưa duyệt", service.studyState(7L, 1L).sourceNote(),
+                "a published-book activity with unreviewed rows is still labelled");
+    }
+
     @Test void canonicalRevisionDriftBlocksInsteadOfMixingNewContentIntoOldActivity() {
         when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity(LearningActivityType.READING)));
         var activity = activity(LearningActivityType.READING);

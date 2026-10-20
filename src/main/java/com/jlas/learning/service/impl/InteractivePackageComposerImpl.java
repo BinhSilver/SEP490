@@ -104,6 +104,14 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                 .forEach(level -> gaps.add(new CoverageGap("LEVEL:" + level, "LEVEL_MISMATCH")));
         if(!gaps.isEmpty()) return new InteractiveCompositionResult(false,0,gaps);
 
+        // Spec §2.1: a JLPT stage needs content for every required skill — never a partial path. REPORT records the
+        // missing skills as non-blocking notes; ENFORCE (owner-approved switch) refuses the path before saving anything.
+        if (!communicationGoal) {
+            List<CoverageGap> missing = missingRequiredSkills(lessonPlans);
+            if (!missing.isEmpty() && properties.enforcesReadiness()) return new InteractiveCompositionResult(false, 0, missing);
+            deferred.addAll(missing);
+        }
+
         int packageOrder=0; int activityOrder=items.findMaxOrderIndexByLearningPathId(path.getId());
         int dayNumber=items.findMaxDayNumberByLearningPathId(path.getId());
         // [JLAS-W0193] Task 9 fix: package order_index must continue after any Warm-up B packages already
@@ -146,6 +154,22 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
         return new InteractiveCompositionResult(true,packageOrder,deferred);
     }
 
+    static final List<LearningActivityType> REQUIRED_JLPT_SKILLS = List.of(LearningActivityType.VOCABULARY,
+            LearningActivityType.KANJI, LearningActivityType.GRAMMAR, LearningActivityType.READING, LearningActivityType.LISTENING);
+
+    /** Required skills with no activity at a stage level, in a stable level-then-skill order. */
+    private static List<CoverageGap> missingRequiredSkills(List<LessonWorkPlan> lessonPlans) {
+        Map<String, java.util.Set<LearningActivityType>> covered = new LinkedHashMap<>();
+        for (LessonWorkPlan plan : lessonPlans) {
+            var skills = covered.computeIfAbsent(plan.seed().resource().level(), level -> java.util.EnumSet.noneOf(LearningActivityType.class));
+            plan.segments().forEach(segment -> segment.activities().forEach(activity -> skills.add(activity.activityType())));
+        }
+        List<CoverageGap> missing = new ArrayList<>();
+        covered.forEach((level, skills) -> REQUIRED_JLPT_SKILLS.stream().filter(skill -> !skills.contains(skill))
+                .forEach(skill -> missing.add(new CoverageGap("LEVEL:" + level, "MISSING_SKILL_" + skill.name()))));
+        return missing;
+    }
+
     private List<LearningWorkloadPolicy.ActivityPlan> activitiesFor(
             InteractiveContentSnapshot snapshot, int dailyBudget, boolean communicationGoal) {
         List<LearningWorkloadPolicy.ActivityPlan> result = new ArrayList<>();
@@ -160,12 +184,28 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
         addActivities(result, LearningActivityType.DIALOGUE, LearningMemberType.DIALOGUE_LINE,
                 snapshot.dialogueLineIds(), dailyBudget);
         if (!communicationGoal && !snapshot.readingQuestionIds().isEmpty()) {
-            result.add(comprehensionWorkloadPolicy.plan(LearningActivityType.READING,snapshot.readingQuestionIds()));
+            result.addAll(readingExerciseActivities(snapshot));
         }
         if (!communicationGoal && !snapshot.listeningQuestionIds().isEmpty()) {
             result.addAll(listeningClipActivities(snapshot));
         }
         return List.copyOf(result);
+    }
+
+    private List<LearningWorkloadPolicy.ActivityPlan> readingExerciseActivities(InteractiveContentSnapshot snapshot) {
+        var resolved = comprehensionCatalog.resolve("READING",
+                snapshot.lesson().getUnit().getTextbook().getJlptLevel());
+        Map<Long,String> groupByQuestion = new HashMap<>();
+        resolved.exercises().forEach(exercise -> exercise.questions().forEach(question ->
+                groupByQuestion.put(question.id(), exercise.fingerprint())));
+        Map<String,List<Long>> groups = new LinkedHashMap<>();
+        for (Long id : snapshot.readingQuestionIds()) {
+            String group = groupByQuestion.get(id);
+            if (group == null) throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "Bài đọc của chương chưa khớp với bài đọc đã phát hành.");
+            groups.computeIfAbsent(group, ignored -> new ArrayList<>()).add(id);
+        }
+        return groups.values().stream().map(ids -> comprehensionWorkloadPolicy.plan(LearningActivityType.READING,ids)).toList();
     }
 
     private List<LearningWorkloadPolicy.ActivityPlan> listeningClipActivities(InteractiveContentSnapshot snapshot) {
