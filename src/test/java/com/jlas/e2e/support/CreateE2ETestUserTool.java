@@ -18,47 +18,41 @@ import java.sql.Statement;
  * Run once with:
  *   mvnw.cmd test -Dtest=CreateE2ETestUserTool -De2e.excludedGroups=
  *
- * Reads connection settings from the same env vars as application-local.yaml
- * defaults (root/root on localhost:3306/jlas); override with
- * JLAS_DB_URL / JLAS_DB_USER / JLAS_DB_PASSWORD if your local DB differs.
+ * Requires JLAS_TEST_EMAIL, JLAS_TEST_PASSWORD and JLAS_DB_PASSWORD in the
+ * process environment. Never logs the password or stores it in source.
  */
 @Tag("e2e")
 class CreateE2ETestUserTool {
 
-    private static final String EMAIL = System.getProperty("jlas.newUser.email", "e2e.selenium.test@jlas.local");
-    private static final String PASSWORD = System.getProperty("jlas.newUser.password", "E2eSelenium#2026");
-
     @Test
     void createLocalTestUser() throws Exception {
+        String email = required("JLAS_TEST_EMAIL");
+        String accountPassword = required("JLAS_TEST_PASSWORD");
         String url = env("JLAS_DB_URL", "jdbc:mysql://localhost:3306/jlas?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8");
         String user = env("JLAS_DB_USER", "root");
-        String password = env("JLAS_DB_PASSWORD", "root");
+        String password = required("JLAS_DB_PASSWORD");
 
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
-            Long existingId = findUserId(conn, EMAIL);
+            Long existingId = findUserId(conn, email);
             if (existingId != null) {
-                System.out.println("[e2e-setup] User already exists: " + EMAIL + " (id=" + existingId + ")");
+                System.out.println("[e2e-setup] Dedicated test user already exists (id=" + existingId + ")");
                 return;
             }
 
             long roleId = findLearnerRoleId(conn);
-            String hash = new BCryptPasswordEncoder().encode(PASSWORD);
+            String hash = new BCryptPasswordEncoder().encode(accountPassword);
 
             try (PreparedStatement insert = conn.prepareStatement(
                 "INSERT INTO users (role_id, email, password_hash, login_type, full_name, is_verified) "
                     + "VALUES (?, ?, ?, 'LOCAL', ?, 1)")) {
                 insert.setLong(1, roleId);
-                insert.setString(2, EMAIL);
+                insert.setString(2, email);
                 insert.setString(3, hash);
                 insert.setString(4, "Selenium E2E Tester");
                 insert.executeUpdate();
             }
 
-            System.out.println("[e2e-setup] Created test user: " + EMAIL);
-            System.out.println("[e2e-setup] Password: " + PASSWORD);
-            System.out.println("[e2e-setup] Set these before running the flow test:");
-            System.out.println("  JLAS_TEST_EMAIL=" + EMAIL);
-            System.out.println("  JLAS_TEST_PASSWORD=" + PASSWORD);
+            System.out.println("[e2e-setup] Created dedicated local test user");
         }
     }
 
@@ -84,5 +78,13 @@ class CreateE2ETestUserTool {
     private static String env(String key, String fallback) {
         String value = System.getenv(key);
         return (value == null || value.isBlank()) ? fallback : value;
+    }
+
+    private static String required(String key) {
+        String value = System.getenv(key);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("Missing required environment variable " + key);
+        }
+        return value;
     }
 }
