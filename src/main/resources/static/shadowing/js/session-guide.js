@@ -54,7 +54,7 @@
     steps = hasQuestions ? [
       ['.practice-kind-card:has(input:not(:disabled))', 'Chọn dạng câu và mức nghe', 'Bấm vào Dễ, Vừa hoặc Khó trong dạng câu bạn muốn luyện. Mỗi ô cho biết số câu có sẵn.'],
       ['.practice-selection-actions', 'Chọn nhanh khi cần', '“Chọn tất cả” chọn các mức có câu hỏi. “Bỏ chọn tất cả” giúp bạn chọn lại từ đầu. Bạn có thể thử nút hoặc bấm Tiếp.'],
-      ['.practice-selected-count', 'Kiểm tra số câu của phiên học', 'Số câu cập nhật theo lựa chọn. Các câu nghe trùng đoạn được tính một lần để phiên học không lặp lại.'],
+      ['.practice-selected-count', 'Kiểm tra số câu của phiên học', 'Số câu cập nhật theo lựa chọn. Mỗi mức của từng dạng được tính riêng; trong cùng một mức, các câu nghe trùng đoạn chỉ tính một lần.'],
       ['#practice-start-button', 'Bắt đầu khi đã chọn xong', 'Chọn ít nhất một mức có câu hỏi, rồi bấm “Bắt đầu luyện nghe” để vào bài.']
     ] : [
       ['.practice-kind-card', 'Video chưa có câu hỏi để luyện', 'Các mức đang hiển thị 0 câu sẽ chưa chọn được. Khi câu hỏi được chuẩn bị và duyệt, chúng sẽ xuất hiện tại đây.'],
