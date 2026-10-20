@@ -45,8 +45,20 @@ public record SmartTestResponse(
             int selectedSkillCount,
             List<String> recommendations,
             List<SkillResultView> skills,
-            List<AnswerReviewView> review
-    ) { }
+            List<AnswerReviewView> review,
+            String selfReportedLevel
+    ) {
+        /** Callers without a survey snapshot (tests/adapters) carry no self-reported level. */
+        public ResultView(String estimatedOverallLevel, String abilityBand, BigDecimal overallMasteryScore,
+                String confidence, String readinessLevel, String targetLevel, String recommendedTarget,
+                List<String> recommendedStageLevels, boolean requiresTargetConfirmation, boolean partial,
+                int correctAnswers, int totalQuestions, int selectedSkillCount, List<String> recommendations,
+                List<SkillResultView> skills, List<AnswerReviewView> review) {
+            this(estimatedOverallLevel, abilityBand, overallMasteryScore, confidence, readinessLevel, targetLevel,
+                    recommendedTarget, recommendedStageLevels, requiresTargetConfirmation, partial, correctAnswers,
+                    totalQuestions, selectedSkillCount, recommendations, skills, review, null);
+        }
+    }
 
     public record SkillResultView(
             String skill,

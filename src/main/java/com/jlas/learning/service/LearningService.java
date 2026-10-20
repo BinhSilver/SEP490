@@ -11,6 +11,13 @@ public interface LearningService {
     /** Creates a path for a finalized assessment attempt, or returns the existing one on retry. */
     CreateLearningPathResult create(Long userId, Long assessmentAttemptId);
 
+    /** Creates a path after the learner explicitly selects an earlier review stage. */
+    CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel);
+
+    /** Creates a path after an explicit review start (higher result) or an answer to a lower result
+     * (ACCEPT_RECOMMENDATION / DECLINE_RECOMMENDATION); at most one of the two may be given. */
+    CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel, String discrepancyChoice);
+
     /**
      * [JLAS-W0108] Creates a from-zero path from a completed survey (no Smart Test needed), or
      * returns the existing one on retry. The path warms up with the kana foundation before the goal.

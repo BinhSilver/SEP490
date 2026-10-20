@@ -119,6 +119,49 @@ class LearningPathApiTest {
         assertEquals(35, reloaded.totalMinutes());
     }
 
+    /** A confirmed review start is part of the path identity; it must fit the VARCHAR(100) column with headroom
+     * for the selection policy string, keep the stored Smart Test result, and stay idempotent on retry. */
+    @Test
+    void confirmedReviewStartPathFitsPolicyColumnAndIsIdempotent() {
+        var fixture = seedFixture();
+        profileSource.snapshot = new LearningProfileSnapshot(fixture.user.getId(), 91L, 10L, "rev-1", true, true,
+                "N3", "N4", "JLPT", 30, List.of(), List.of(), "UNKNOWN", "N3 Thành thạo");
+        scopeSource.scope = scope(fixture.warmBook, fixture.goalBook);
+
+        var first = service.create(fixture.user.getId(), 91L, "N5");
+        var second = service.create(fixture.user.getId(), 91L, "N5");
+
+        assertTrue(first.created());
+        assertFalse(second.created());
+        assertEquals(first.path().id(), second.path().id());
+        var stored = (String) em.createQuery("select p.policyVersion from UserLearningPath p").getSingleResult();
+        assertTrue(stored.endsWith(":REVIEW_FROM_N5"), stored);
+        assertTrue(stored.length() <= 90, "policy version leaves <10 chars headroom: " + stored.length());
+    }
+
+    /** Owner 2026-10-19: an accepted lower Smart Test result starts the path at the assessed level, keeps its own
+     * identity, stays idempotent, and cannot be combined with a higher-result review start. */
+    @Test
+    void acceptedLowerResultPathStartsAtTheAssessedLevelAndIsIdempotent() {
+        var fixture = seedFixture();
+        profileSource.snapshot = new LearningProfileSnapshot(fixture.user.getId(), 91L, 10L, "rev-1", true, true,
+                "N5", "N4", "JLPT", 30, List.of(), List.of(), "N4", "N5 Nhập môn");
+        scopeSource.scope = scope(fixture.warmBook, fixture.goalBook);
+
+        var first = service.create(fixture.user.getId(), 91L, null, "ACCEPT_RECOMMENDATION");
+        var second = service.create(fixture.user.getId(), 91L, null, "ACCEPT_RECOMMENDATION");
+
+        assertTrue(first.created());
+        assertFalse(second.created());
+        assertEquals(first.path().id(), second.path().id());
+        var stored = (Object[]) em.createQuery("select p.policyVersion, p.currentLevel from UserLearningPath p").getSingleResult();
+        assertTrue(((String) stored[0]).endsWith(":LOWER_ACCEPT"), String.valueOf(stored[0]));
+        assertTrue(((String) stored[0]).length() <= 90);
+        assertEquals("N5", stored[1]);
+        assertError(ErrorCode.VALIDATION_FAILED,
+                () -> service.create(fixture.user.getId(), 91L, "N5", "DECLINE_RECOMMENDATION"));
+    }
+
     @Test
     void duplicateSameGenerationIdentityReusesExistingPathWithoutNewVersion() {
         var fixture = seedFixture();

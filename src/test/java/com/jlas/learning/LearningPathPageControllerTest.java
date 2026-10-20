@@ -14,7 +14,7 @@ class LearningPathPageControllerTest {
         var controller = controller(false);
         var model = new ConcurrentModel();
 
-        var view = controller.learningPath(model, 91L);
+        var view = controller.learningPath(model, 91L, null, null);
 
         assertEquals("learning/path", view);
         assertEquals("app", model.getAttribute("layoutMode"));
@@ -24,9 +24,36 @@ class LearningPathPageControllerTest {
     void learningPathRedirectsToInteractiveExperienceAndKeepsAssessmentAttempt() {
         var controller = controller(true);
 
-        var view = controller.learningPath(new ConcurrentModel(), 91L);
+        var view = controller.learningPath(new ConcurrentModel(), 91L, null, null);
 
         assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91", view);
+    }
+
+    /** A confirmed review start below a higher Smart Test result survives the V2 redirect; anything else is dropped. */
+    @Test
+    void learningPathRedirectKeepsOnlyASupportedReviewStartLevel() {
+        var controller = controller(true);
+
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91&reviewStartLevel=N4",
+                controller.learningPath(new ConcurrentModel(), 91L, "N4", null));
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91",
+                controller.learningPath(new ConcurrentModel(), 91L, "N4&x=//evil", null));
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91",
+                controller.learningPath(new ConcurrentModel(), 91L, "N1", null));
+        assertEquals("redirect:/learning/path/v2", controller.learningPath(new ConcurrentModel(), null, "N4", null));
+    }
+
+    /** Owner 2026-10-19: the learner's answer to a lower Smart Test result survives the V2 redirect; junk is dropped. */
+    @Test
+    void learningPathRedirectKeepsOnlyASupportedLowerResultChoice() {
+        var controller = controller(true);
+
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91&discrepancyChoice=ACCEPT_RECOMMENDATION",
+                controller.learningPath(new ConcurrentModel(), 91L, null, "ACCEPT_RECOMMENDATION"));
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91&discrepancyChoice=DECLINE_RECOMMENDATION",
+                controller.learningPath(new ConcurrentModel(), 91L, null, "DECLINE_RECOMMENDATION"));
+        assertEquals("redirect:/learning/path/v2?assessmentAttemptId=91",
+                controller.learningPath(new ConcurrentModel(), 91L, null, "ACCEPT&next=//evil"));
     }
 
     /** [JLAS-W0193] Task 8 — the completion popup's last-package "Xem tổng kết chặng" action routes here. */

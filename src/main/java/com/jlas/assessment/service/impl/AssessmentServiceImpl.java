@@ -532,7 +532,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 confidence, readiness, session.getTargetLevel(), eligibility.recommendedTarget(),
                 recommendedStages, eligibility.requiresTargetConfirmation(), partial,
                 correct, answers.size(), selectedSkills(session.getGoal(), questions).size(), recommendations, skills,
-                answerReview(answers));
+                answerReview(answers), session.getSelfReportedLevel());
     }
 
     private static List<BatchResultView> batchResults(String skill,

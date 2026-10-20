@@ -37,7 +37,8 @@ public class LearningController {
     public ResponseEntity<ApiResponse<LearningPathResponse>> create(
             @RequestBody CreateLearningPathRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
-        CreateLearningPathResult result = learningService.create(user.userId(), request.assessmentAttemptId());
+        CreateLearningPathResult result = learningService.create(user.userId(), request.assessmentAttemptId(),
+                request.reviewStartLevel(), request.discrepancyChoice());
         return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK)
                 .body(ApiResponse.ok(result.created() ? "Learning path created" : "Learning path already exists",
                         result.path()));

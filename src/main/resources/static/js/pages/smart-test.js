@@ -24,7 +24,7 @@
     STABLE: function () { return 'Trình độ hiện tại của bạn đã ổn định — tiếp tục duy trì và mở rộng vùng kiến thức.'; },
     PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
   };
-  var state = { attemptId: null, currentQuestion: null, goal: null };
+  var state = { attemptId: null, currentQuestion: null, goal: null, result: null };
   var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
@@ -151,6 +151,7 @@
     state.goal = data.goal || state.goal;
     if (data.status === 'SUBMITTED' && data.result) {
       localStorage.removeItem(ACTIVE_ATTEMPT_KEY);
+      state.result = data.result;
       renderResult(data.result);
       return;
     }
@@ -161,6 +162,9 @@
   function renderQuestion(data) {
     var q = data.currentQuestion;
     if (!q) return showError('Không tìm thấy câu hỏi tiếp theo.');
+    // Test-support: expose the canonical question id so the E2E answer oracle
+    // can look up the correct option without a privileged route.
+    questionView.setAttribute('data-question-id', q.id);
     var storedSkills = [];
     try {
       var parsedSkills = JSON.parse(localStorage.getItem(SELECTED_SKILLS_KEY) || '[]');
@@ -315,7 +319,19 @@
     section.hidden = !result.readinessLevel && !recommendations.length && !grammarPoints.length;
 
     banner.hidden = true; banner.innerHTML = '';
-    var copy = readinessCopy[result.readinessLevel];
+    var targetLevel = String(result.targetLevel || '').toUpperCase();
+    var assessedLevel = String(result.estimatedOverallLevel || '').toUpperCase();
+    var isHigherThanTarget = Boolean(result.requiresTargetConfirmation && levelValue[assessedLevel] &&
+      levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
+    var selfLevel = String(result.selfReportedLevel || '').toUpperCase();
+    var copy = isLowerThanSelfReport(result)
+      ? function () { return 'Kết quả Smart Test của bạn là ' + assessedLevel + ', thấp hơn mức bạn tự khai ' + selfLevel +
+        '. Khi tạo lộ trình, bạn có thể chọn củng cố nền từ ' + assessedLevel + ' hoặc giữ theo khảo sát; mục tiêu ' +
+        targetLevel + ' không thay đổi.'; }
+      : isHigherThanTarget
+      ? function () { return 'Kết quả Smart Test của bạn là ' + assessedLevel + ', cao hơn mục tiêu đã chọn ' + targetLevel +
+        '. Kết quả đánh giá được giữ nguyên; hãy chọn cấp muốn ôn trước khi tạo lộ trình.'; }
+      : readinessCopy[result.readinessLevel];
     if (copy) {
       var icon = document.createElement('span');
       icon.className = 'material-symbols-outlined';
@@ -558,20 +574,67 @@
     }
   });
 
+  // Owner 2026-10-19: a JLPT result below a known self-reported level needs the learner's explicit answer.
+  function isLowerThanSelfReport(result) {
+    if (!result || state.goal === 'BA') return false;
+    var self = String(result.selfReportedLevel || '').toUpperCase();
+    var assessed = String(result.estimatedOverallLevel || '').toUpperCase();
+    return Boolean(levelValue[self] && levelValue[assessed] && result.targetLevel && levelValue[assessed] < levelValue[self]);
+  }
+
   var createPathButton = document.getElementById('createPathButton');
   if (createPathButton) {
-    createPathButton.addEventListener('click', function (event) {
+    createPathButton.addEventListener('click', async function (event) {
       event.preventDefault();
       if (!state.attemptId) return;
+      var targetLevel = state.result && String(state.result.targetLevel || '').toUpperCase();
+      var assessedLevel = state.result && String(state.result.estimatedOverallLevel || '').toUpperCase();
+      var needsReviewChoice = Boolean(state.result && state.result.requiresTargetConfirmation &&
+        levelValue[assessedLevel] && levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
+      var reviewStartLevel = null;
+      var discrepancyChoice = null;
+      if (!needsReviewChoice && isLowerThanSelfReport(state.result)) {
+        var selfLevel = String(state.result.selfReportedLevel || '').toUpperCase();
+        var choicePicker = document.getElementById('discrepancyPicker');
+        choicePicker.querySelector('[data-discrepancy-accept]').textContent =
+          'Củng cố nền từ ' + assessedLevel + ' rồi đi tiếp tới ' + targetLevel + ' (khuyến nghị)';
+        choicePicker.querySelector('[data-discrepancy-decline]').textContent =
+          'Giữ theo khảo sát: ' + selfLevel + ' → ' + targetLevel + ' (có thể hụt nền tảng)';
+        choicePicker.querySelector('input[value="ACCEPT_RECOMMENDATION"]').checked = true;
+        choicePicker.hidden = false;
+        var confirmed = await askConfirmation('Kết quả thấp hơn mức tự khai',
+          'Smart Test ước lượng bạn ở ' + assessedLevel + ', thấp hơn mức tự khai ' + selfLevel + '. Mục tiêu ' + targetLevel +
+          ' được giữ nguyên; hãy chọn cách bắt đầu. Bạn có thể học mọi phần theo nhịp của mình.', 'Tạo lộ trình');
+        choicePicker.hidden = true;
+        if (!confirmed) return;
+        discrepancyChoice = choicePicker.querySelector('input[name="discrepancyChoice"]:checked').value;
+      }
+      if (needsReviewChoice) {
+        var picker = document.getElementById('reviewStartPicker');
+        var select = document.getElementById('reviewStartLevel');
+        Array.from(select.options).forEach(function (option) {
+          option.hidden = option.disabled = levelValue[option.value] > levelValue[targetLevel];
+        });
+        select.value = 'N5';
+        picker.hidden = false;
+        var accepted = await askConfirmation('Chọn cấp bắt đầu ôn',
+          'Smart Test ước lượng bạn ở ' + assessedLevel + ', còn target bạn chọn là ' + targetLevel +
+          '. Hãy chọn cấp bắt đầu. Lộ trình sẽ đi lần lượt đến target; kết quả Smart Test không thay đổi.', 'Tạo lộ trình');
+        picker.hidden = true;
+        if (!accepted) return;
+        reviewStartLevel = select.value;
+      }
       var destination = state.goal === 'BA'
         ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
-        : '/learning/path?assessmentAttemptId=' + state.attemptId;
+        : '/learning/path?assessmentAttemptId=' + state.attemptId +
+          (reviewStartLevel ? '&reviewStartLevel=' + encodeURIComponent(reviewStartLevel) : '') +
+          (discrepancyChoice ? '&discrepancyChoice=' + encodeURIComponent(discrepancyChoice) : '');
       window.location.assign(destination);
     });
   }
 
   document.getElementById('restartButton').addEventListener('click', function () {
-    state = { attemptId: null, currentQuestion: null, goal: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
+    state = { attemptId: null, currentQuestion: null, goal: null, result: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);

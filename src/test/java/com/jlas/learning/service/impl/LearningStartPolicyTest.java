@@ -49,6 +49,40 @@ class LearningStartPolicyTest {
         assertEquals(List.of("N4", "N3"), LearningStartPolicy.goalLevels(profile));
     }
 
+    @Test
+    void confirmedReviewStartsAtLearnerChosenLevelAndSkipsMistakeWarmup() {
+        var profile = profile("N1", "N3", "N3", "N1 Thành thạo").withReviewStartLevel("N5");
+        assertEquals("N5", LearningStartPolicy.firstGoalLevel(profile));
+        assertEquals(List.of("N5", "N4", "N3"), LearningStartPolicy.goalLevels(profile));
+        assertFalse(LearningStartPolicy.needsMistakeWarmUp(profile));
+    }
+
+    /** Owner 2026-10-19: accepting a lower Smart Test result starts at the assessed level; the band decides
+     * whether that level is studied in full (Nhập môn), reviewed from mistakes (Căn bản) or passed (Thành thạo). */
+    @Test
+    void acceptingALowerResultWalksAdjacentStagesFromTheAssessedLevelByBand() {
+        var basic = profile("N5", "N3", "N4", "N5 Căn bản").withDiscrepancyChoice("ACCEPT_RECOMMENDATION");
+        assertEquals(List.of("N4", "N3"), LearningStartPolicy.goalLevels(basic));
+        assertEquals("N4", LearningStartPolicy.firstGoalLevel(basic));
+        assertTrue(LearningStartPolicy.needsMistakeWarmUp(basic));
+
+        var beginner = profile("N5", "N3", "N4", "N5 Nhập môn").withDiscrepancyChoice("ACCEPT_RECOMMENDATION");
+        assertEquals(List.of("N5", "N4", "N3"), LearningStartPolicy.goalLevels(beginner));
+        assertFalse(LearningStartPolicy.needsMistakeWarmUp(beginner));
+
+        var proficient = profile("N5", "N3", "N4", "N5 Thành thạo").withDiscrepancyChoice("ACCEPT_RECOMMENDATION");
+        assertEquals(List.of("N4", "N3"), LearningStartPolicy.goalLevels(proficient));
+        assertFalse(LearningStartPolicy.needsMistakeWarmUp(proficient));
+    }
+
+    @Test
+    void decliningALowerResultKeepsTheOrdinarySurveyRouteWithoutWarmUp() {
+        var declined = profile("N5", "N3", "N4", "N5 Căn bản").withDiscrepancyChoice("DECLINE_RECOMMENDATION");
+        assertEquals(List.of("N3"), LearningStartPolicy.goalLevels(declined));
+        assertEquals("N3", LearningStartPolicy.firstGoalLevel(declined));
+        assertFalse(LearningStartPolicy.needsMistakeWarmUp(declined));
+    }
+
     private LearningProfileSnapshot profile(String assessed, String target, String survey, String band) {
         return new LearningProfileSnapshot(7L, 91L, 10L, "rev", true, true,
                 assessed, target, "JLPT", 30, List.of(), List.of(), survey, band);
