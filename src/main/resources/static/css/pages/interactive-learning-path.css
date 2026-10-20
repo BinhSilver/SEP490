@@ -73,13 +73,13 @@
 .ilp-skill-card:hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--lp-line)); box-shadow: 0 8px 20px rgba(24, 38, 62, .07); transform: translateY(-1px); }
 .ilp-skill-card__toggle { display: grid; width: 100%; grid-template-columns: 38px minmax(0, 1fr) auto 14px; align-items: center; gap: 11px; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
 .ilp-skill-card__toggle:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; border-radius: 8px; }
-.ilp-skill-card__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: color-mix(in srgb, var(--color-tertiary-container) 18%, white); color: var(--color-on-tertiary-container); font-size: 17px; font-weight: 800; }
+.ilp-skill-card__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: color-mix(in srgb, var(--color-primary-container) 18%, white); color: var(--color-primary); font-size: 17px; font-weight: 800; }
 .ilp-skill-card--completed .ilp-skill-card__icon { background: color-mix(in srgb, var(--color-success) 14%, white); color: var(--color-success); }
 .ilp-skill-card__summary { display: grid; gap: 5px; min-width: 0; }
 .ilp-skill-card__summary strong { color: var(--lp-ink); font-size: 16px; }
 .ilp-skill-card__summary > span { color: var(--lp-muted); font-size: 12px; line-height: 1.5; }
 .ilp-skill-card__status { padding: 5px 8px; border-radius: 999px; background: var(--lp-surface); color: var(--lp-muted); font-size: 10px; font-weight: 700; white-space: nowrap; }
-.ilp-skill-card--in_progress .ilp-skill-card__status { background: color-mix(in srgb, var(--color-tertiary-container) 20%, white); color: var(--color-on-tertiary-container); }
+.ilp-skill-card--in_progress .ilp-skill-card__status { background: color-mix(in srgb, var(--color-primary-container) 20%, white); color: var(--color-primary); }
 .ilp-skill-card--completed .ilp-skill-card__status { background: color-mix(in srgb, var(--color-success) 12%, white); color: var(--color-success); }
 .ilp-skill-card__chevron { color: var(--lp-muted); transition: transform 140ms ease; }
 .ilp-skill-card__toggle[aria-expanded="true"] .ilp-skill-card__chevron { transform: rotate(180deg); }
@@ -96,11 +96,11 @@
 .ilp-skill-part__number { color: var(--color-primary) !important; font-weight: 700; }
 .ilp-skill-part__actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
 .ilp-skill-part__start, .ilp-skill-part__continue { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; padding: 7px 11px; border: 1px solid var(--lp-line); border-radius: 8px; background: var(--lp-surface); color: var(--color-primary); font: 700 11px var(--font-body); text-decoration: none; cursor: pointer; }
-.ilp-skill-part__start { border-color: var(--color-primary); background: var(--color-primary); color: white; }
+.ilp-skill-part__start { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
 .ilp-skill-part__lock { max-width: 210px; color: var(--lp-muted); text-align: right; }
 .ilp-skill-part .ilp-activity__mode { min-height: 34px; }
-.ilp-chapter__progress { height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--color-tertiary-container) 18%, white); }
-.ilp-chapter__progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-tertiary-container); transition: width 180ms ease; }
+.ilp-chapter__progress { height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--color-primary-container) 18%, white); }
+.ilp-chapter__progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary-container); transition: width 180ms ease; }
 .ilp-reference { margin-top: 8px; font-size: 13px; }
 .ilp-reference summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; font-weight: 700; }
 .ilp-reference ul { padding-left: 20px; overflow-wrap: anywhere; }
@@ -294,7 +294,7 @@
 .ilp-page .ilp-label {
   padding: 0 0 0 12px;
   border-radius: 0;
-  border-left: 3px solid var(--color-tertiary-container);
+  border-left: 3px solid var(--color-primary-container);
   background: transparent;
   color: var(--color-on-surface-variant);
   font: 700 13px/1.5 var(--font-body);
@@ -320,13 +320,13 @@
   align-content: center;
   padding: 4px 0 4px 22px;
   border: 0;
-  border-left: 3px solid var(--color-tertiary-container);
+  border-left: 3px solid var(--color-primary-container);
   border-radius: 0;
   background: transparent;
 }
 .ilp-page .ilp-total div { color: var(--lp-muted); font: 600 13px var(--font-body); }
-.ilp-page .ilp-total strong { color: var(--color-on-tertiary-container); font-size: 34px; line-height: 1; }
-.ilp-page .ilp-total progress { height: 7px; accent-color: var(--color-tertiary-container); }
+.ilp-page .ilp-total strong { color: var(--color-primary); font-size: 34px; line-height: 1; }
+.ilp-page .ilp-total progress { height: 7px; accent-color: var(--color-primary-container); }
 .ilp-page .ilp-total small { color: var(--lp-muted); }
 
 .ilp-page .ilp-stage-progress {
@@ -338,15 +338,15 @@
   background: transparent;
 }
 .ilp-page .ilp-kicker { color: var(--color-on-surface-variant); font: 700 12px/1.5 var(--font-body); letter-spacing: .02em; }
-.ilp-page .ilp-stage progress { accent-color: var(--color-tertiary-container); }
+.ilp-page .ilp-stage progress { accent-color: var(--color-primary-container); }
 .ilp-page .ilp-stage.is-done .ilp-stage__head span { color: var(--color-success); }
 .ilp-page .ilp-phase-tabs button { border-radius: 0; }
 .ilp-page .ilp-phase-tabs button.is-active {
   color: var(--lp-ink);
   background: transparent;
-  box-shadow: inset 0 -3px var(--color-tertiary-container);
+  box-shadow: inset 0 -3px var(--color-primary-container);
 }
-.ilp-page .ilp-phase-tabs button:hover { color: var(--color-on-tertiary-container); }
+.ilp-page .ilp-phase-tabs button:hover { color: var(--color-primary); }
 .ilp-page .ilp-days { gap: 0; margin-top: 10px; }
 .ilp-page .ilp-chapter {
   gap: 10px;
@@ -396,25 +396,25 @@
 .ilp-page .ilp-day--available {
   padding: 16px 18px;
   border: 0;
-  border-left: 3px solid var(--color-tertiary-container);
+  border-left: 3px solid var(--color-primary-container);
   border-radius: 0;
-  background: color-mix(in srgb, var(--color-tertiary-container) 12%, var(--lp-surface));
+  background: color-mix(in srgb, var(--color-primary-container) 12%, var(--lp-surface));
   box-shadow: none;
 }
-.ilp-page .ilp-day__number { border-radius: 50%; background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
-.ilp-page .ilp-day__progress { background: color-mix(in srgb, var(--color-tertiary-container) 24%, white); }
-.ilp-page .ilp-day__progress span { background: var(--color-tertiary-container); }
+.ilp-page .ilp-day__number { border-radius: 50%; background: var(--color-primary-container); color: var(--color-on-primary); }
+.ilp-page .ilp-day__progress { background: color-mix(in srgb, var(--color-primary-container) 24%, white); }
+.ilp-page .ilp-day__progress span { background: var(--color-primary-container); }
 .ilp-page .ilp-status { padding: 0; border-radius: 0; background: transparent; color: var(--lp-muted); font: 600 12px var(--font-body); }
 .ilp-page .ilp-activity { padding: 11px 4px; }
 .ilp-page .ilp-activity__mark { width: 24px; background: transparent; color: var(--lp-muted); font: 600 12px var(--font-body); }
 .ilp-page .ilp-activity.is-done .ilp-activity__mark { color: var(--color-success); }
 .ilp-page .ilp-activity.is-active { border-radius: 0; background: transparent; }
-.ilp-page .ilp-activity.is-active .ilp-activity__mark { background: transparent; color: var(--color-on-tertiary-container); }
+.ilp-page .ilp-activity.is-active .ilp-activity__mark { background: transparent; color: var(--color-primary); }
 .ilp-page .ilp-activity__cta,
 .ilp-page .ilp-button {
   border-radius: 7px;
-  background: var(--color-tertiary-container);
-  color: var(--color-on-tertiary-container);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   box-shadow: none;
 }
 .ilp-page .ilp-activity__cta { padding: 9px 13px; }
@@ -451,16 +451,24 @@
   transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 .ilp-page :is(.ilp-button, .ilp-activity__cta, .ilp-activity__mode, .ilp-pace__actions button, .ilp-phase-tabs button):hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-tertiary-container) 24%, var(--lp-surface));
-  color: var(--color-on-tertiary-container);
+  background-color: color-mix(in srgb, var(--color-primary-container) 24%, var(--lp-surface));
+  color: var(--color-primary);
 }
 .ilp-page :is(.ilp-button, .ilp-activity__cta, .ilp-activity__mode, .ilp-pace__actions button, .ilp-phase-tabs button):active:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-tertiary-container) 78%, var(--color-on-tertiary-container));
-  color: var(--color-on-tertiary-container);
+  background-color: color-mix(in srgb, var(--color-primary-container) 78%, var(--color-primary));
+  color: var(--color-on-primary);
   transform: translateY(1px);
 }
 .ilp-page .ilp-button:disabled:hover,
 .ilp-page .ilp-button:disabled:active { background-color: var(--lp-line); color: var(--lp-muted); transform: none; }
+
+/* [JLAS-W0108] JLPT roadmaps follow the communication template (owner 2026-10-20) without changing their structure:
+   plum accents and one level of framing — a skill stays a card, its parts become plain rows inside it. */
+.ilp-page .ilp-chapter__head h3 { color: var(--color-primary); }
+.ilp-page .ilp-skill-card__parts { gap: 0; margin-top: 12px; border-top: 1px solid var(--lp-line); }
+.ilp-page .ilp-skill-card__parts .ilp-skill-part { padding: 10px 0; border: 0; border-bottom: 1px solid var(--lp-line); border-radius: 0; background: none; }
+.ilp-page .ilp-skill-card__parts .ilp-skill-part:last-child { padding-bottom: 0; border-bottom: 0; }
+.ilp-page .ilp-skill-card__parts .ilp-skill-part.is-done .ilp-activity__mark { color: var(--color-success); }
 
 /* [JLAS-W0108] Communication roadmap grouped by topic (owner 2026-10-19). */
 .ilp-page .ilp-topic { display: grid; gap: 0; padding: 22px 0 6px; border-bottom: 2px solid var(--lp-line); }
@@ -472,8 +480,8 @@
 .ilp-page .ilp-topic__priority {
   padding: 4px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-tertiary-container) 28%, transparent);
-  color: var(--color-on-tertiary-container);
+  background: color-mix(in srgb, var(--color-primary-container) 28%, transparent);
+  color: var(--color-primary);
   font: 700 12px/1.4 var(--font-body);
 }
 .ilp-page .ilp-topic .ilp-chapter { padding-left: 18px; }
@@ -481,8 +489,8 @@
 .ilp-page .ilp-chapter__hint {
   margin: 0;
   padding: 8px 12px;
-  border-left: 3px solid var(--color-tertiary-container);
-  background: color-mix(in srgb, var(--color-tertiary-container) 12%, transparent);
+  border-left: 3px solid var(--color-primary-container);
+  background: color-mix(in srgb, var(--color-primary-container) 12%, transparent);
   color: var(--lp-ink);
   font: 500 13px/1.5 var(--font-body);
 }
@@ -509,8 +517,8 @@
 .ilp-page .ilp-books h2 { margin: 0 0 6px; font-size: 1rem; }
 .ilp-page .ilp-books p { margin: 0 0 8px; color: var(--lp-muted); font-size: .9rem; }
 .ilp-page .ilp-books ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
-.ilp-page .ilp-books__link { color: var(--color-on-tertiary-container); font-weight: 700; overflow-wrap: anywhere; }
-.ilp-page .ilp-books__link:focus-visible { outline: 3px solid var(--color-tertiary-container); outline-offset: 2px; }
+.ilp-page .ilp-books__link { color: var(--color-primary); font-weight: 700; overflow-wrap: anywhere; }
+.ilp-page .ilp-books__link:focus-visible { outline: 3px solid var(--color-primary-container); outline-offset: 2px; }
 .ilp-page .ilp-books__pending { color: var(--lp-muted); overflow-wrap: anywhere; }
 /* OD-45 / §2.28: a DRAFT J-LAS textbook is studied but never presented as reviewed. */
 .ilp-page .ilp-books__unreviewed {

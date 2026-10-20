@@ -259,14 +259,23 @@ test('keeps roadmap actions in normal layout flow so they cannot overlap the nex
   assert.match(css, /\.ilp-state button\{[^}]*float:none/);
 });
 
-test('roadmap uses flat completed chapters and reserves a warm accent for the active lesson', () => {
+// Owner 2026-10-20: every roadmap uses the site's plum primary instead of the gold accent.
+test('roadmap uses flat completed chapters and marks the active lesson with the plum accent, never gold', () => {
   const css = fs.readFileSync(pathModule.join(__dirname,
     '../../main/resources/static/css/pages/interactive-learning-path.css'), 'utf8');
   assert.match(css, /\.ilp-page \.ilp-hero\s*\{[^}]*border:\s*0/);
   assert.match(css, /\.ilp-page \.ilp-chapter\s*\{[^}]*border:\s*0/);
   assert.match(css, /\.ilp-page \.ilp-day--completed,\s*\.ilp-page \.ilp-day--locked\s*\{[^}]*border-bottom/);
-  assert.match(css, /\.ilp-page \.ilp-day--in_progress,\s*\.ilp-page \.ilp-day--available\s*\{[^}]*border-left:[^;}]*var\(--color-tertiary-container\)/);
-  assert.match(css, /\.ilp-page \.ilp-total strong\s*\{[^}]*color:\s*var\(--color-on-tertiary-container\)/);
+  assert.match(css, /\.ilp-page \.ilp-day--in_progress,\s*\.ilp-page \.ilp-day--available\s*\{[^}]*border-left:[^;}]*var\(--color-primary-container\)/);
+  assert.match(css, /\.ilp-page \.ilp-total strong\s*\{[^}]*color:\s*var\(--color-primary\)/);
+  assert.doesNotMatch(css, /tertiary/, 'no gold accent left on the roadmap');
+});
+
+test('a JLPT skill keeps its card while its parts become plain rows inside it', () => {
+  const css = fs.readFileSync(pathModule.join(__dirname,
+    '../../main/resources/static/css/pages/interactive-learning-path.css'), 'utf8');
+  assert.match(css, /\.ilp-page \.ilp-skill-card__parts \.ilp-skill-part\s*\{[^}]*border:\s*0;[^}]*border-bottom:\s*1px solid/);
+  assert.match(css, /\.ilp-skill-card\s*\{[^}]*border:\s*1px solid/);
 });
 
 test('roadmap controls visibly respond to hover and press without styling disabled controls as active', () => {
