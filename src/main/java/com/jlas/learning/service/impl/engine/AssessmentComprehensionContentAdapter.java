@@ -34,7 +34,6 @@ public final class AssessmentComprehensionContentAdapter implements InteractiveC
     @Override public LearningActivityType activityType() { return type; }
     @Override public LearningMemberType memberType() { return LearningMemberType.COMPREHENSION_QUESTION; }
     @Override public String microCheckType() { return type.name() + "_MICRO_CHECK"; }
-    @Override public boolean requiresFlipRememberGate() { return false; }
     @Override public boolean requiresServerReviewEvidence() { return true; }
     @Override public boolean requiresCanonicalPartitioning() { return true; }
 
@@ -87,6 +86,16 @@ public final class AssessmentComprehensionContentAdapter implements InteractiveC
         return batch.stream().map(content -> new QuestionSpec(content.question().id(), "MULTIPLE_CHOICE",
                 content.question().prompt(), content.question().options(), content.question().correctOption(),
                 content.question().explanation())).toList();
+    }
+
+    @Override
+    public String sourceSnapshotJson(List<ComprehensionContent> batch, int batchIndex, String sourceRevision) {
+        String source = batch.getFirst().exercise().source();
+        // Replay shows what the learner read: the passage with its paragraph breaks (not part of any revision).
+        var frozen = type == LearningActivityType.READING
+                ? new com.jlas.learning.dto.ComprehensionExerciseSource(batch.getFirst().exercise().displaySource(), null)
+                : new com.jlas.learning.dto.ComprehensionExerciseSource(null, source, batch.getFirst().exercise().transcriptJa());
+        return ComprehensionSourceSnapshot.toJson(type, batchIndex, sourceRevision, frozen);
     }
 
     @Override

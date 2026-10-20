@@ -42,6 +42,9 @@ import com.jlas.dictionary.dto.VocabularyResponse;
 import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
 import com.jlas.dictionary.service.ContentAdminService;
 import com.jlas.dictionary.service.DictionaryService;
+import com.jlas.dictionary.service.DictionaryEngagementService;
+import com.jlas.dictionary.dto.DictionaryFavoriteResponse;
+import com.jlas.dictionary.dto.InlineLookupResponse;
 import com.jlas.dictionary.service.LessonImportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +61,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Controller xử lý các API từ điển (Dictionary Search / Kanji Search / Vocabulary Search — cũng là API
@@ -74,6 +78,7 @@ import java.util.List;
 public class DictionaryController {
     private final DictionaryService dictionaryService;
     private final HandwritingRateLimiter handwritingRateLimiter;
+    private final DictionaryEngagementService engagementService;
     private final ContentAdminService contentAdminService;
     private final LessonImportService lessonImportService;
 
@@ -112,6 +117,39 @@ public class DictionaryController {
     @GetMapping("/history")
     public ApiResponse<List<SearchHistoryResponse>> history(@AuthenticationPrincipal UserPrincipal user) {
         return ApiResponse.ok("OK", dictionaryService.getRecentHistory(id(user)));
+    }
+
+    @GetMapping("/history/page")
+    public ApiResponse<Page<SearchHistoryResponse>> historyPage(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size, @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", engagementService.history(requiredId(user), page, size));
+    }
+
+    @GetMapping("/inline")
+    public ApiResponse<InlineLookupResponse> inlineLookup(@RequestParam("q") String query,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", engagementService.inlineLookup(query, id(user)));
+    }
+
+    @GetMapping("/favorites")
+    public ApiResponse<Page<DictionaryFavoriteResponse>> favorites(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size, @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", engagementService.favorites(requiredId(user), page, size));
+    }
+
+    @PostMapping("/favorites/{vocabularyId}")
+    public ResponseEntity<ApiResponse<DictionaryFavoriteResponse>> saveFavorite(@PathVariable Long vocabularyId,
+            @AuthenticationPrincipal UserPrincipal user) {
+        var result = engagementService.saveFavorite(requiredId(user), vocabularyId);
+        return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK)
+                .body(ApiResponse.ok(result.created() ? "Đã lưu từ" : "Từ đã được lưu", result));
+    }
+
+    @DeleteMapping("/favorites/{vocabularyId}")
+    public ApiResponse<Void> deleteFavorite(@PathVariable Long vocabularyId,
+            @AuthenticationPrincipal UserPrincipal user) {
+        engagementService.deleteFavorite(requiredId(user), vocabularyId);
+        return ApiResponse.ok("Đã bỏ lưu từ");
     }
 
     // ---------------------------------------------------------------------
@@ -669,5 +707,11 @@ public class DictionaryController {
 
     private Long id(UserPrincipal user) {
         return user == null ? null : user.userId();
+    }
+
+    private Long requiredId(UserPrincipal user) {
+        if (user == null) throw new com.jlas.common.exception.ApiException(
+                com.jlas.common.exception.ErrorCode.UNAUTHORIZED, "Bạn cần đăng nhập.");
+        return user.userId();
     }
 }

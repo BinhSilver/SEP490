@@ -13,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
+    Optional<Lesson> findByUnitIdAndSourceCode(Long unitId, String sourceCode);
+
     /**
      * Lesson kèm unit, textbook của unit và knowledge tag (fetch join, 1 query)
      * để dựng header nội dung bài và kiểm tra trạng thái duyệt của cả lesson lẫn textbook.

@@ -10,6 +10,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SmartTestResultAnalysisTest {
 
     @Test
+    void usageGoalResultDoesNotRequireJlptTargetConfirmation() {
+        var decision = AssessmentServiceImpl.resultTargetEligibility("TRAVEL", "N4", null);
+
+        assertThat(decision.allowed()).isTrue();
+        assertThat(decision.recommendedTarget()).isNull();
+        assertThat(decision.requiresTargetConfirmation()).isFalse();
+    }
+
+    @Test
     void failedHigherProbeIsShownAsBoundaryInsteadOfFlatLevel() {
         String band = AssessmentServiceImpl.abilityBand("N3", List.of(
                 batch(1, "N3", 3),

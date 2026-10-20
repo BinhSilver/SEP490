@@ -14,7 +14,6 @@
   // directly, same pattern every other V2 page in this module already uses.
   var SKILL_LABEL = { VOCABULARY: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp' };
   var COMPREHENSION_LABEL = { READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu' };
-  var READINESS_LABEL = { LOW: 'Còn thiếu bằng chứng', MEDIUM: 'Có bằng chứng, chưa xác nhận toàn diện' };
 
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function scoreText(value) { return (value === null || value === undefined) ? '—' : String(value) + '%'; }
@@ -22,9 +21,7 @@
   function viewModel(data) {
     data = data || {};
     var skills = Array.isArray(data.skills) ? data.skills : [];
-    var comprehension = Array.isArray(data.comprehension) ? data.comprehension : [];
-    // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence, separate from the Smart Test baseline
-    // list above. Defaults to [] so an older/placeholder response never throws.
+    // Reading and Listening here summarize only activities completed inside this path.
     var comprehensionInPath = Array.isArray(data.comprehensionInPath) ? data.comprehensionInPath : [];
     // [JLAS-W0193] RC Task 7 — server-resolved Mock Test hand-off destination. Missing/malformed data
     // degrades to the honest BLOCKED_INTEGRATION state, never to a fabricated "available" default.
@@ -33,10 +30,11 @@
     return {
       pathId: data.pathId, status: data.status || null, completedAt: data.completedAt || null,
       skills: skills, dialogue: data.dialogue || { totalCount: 0, completedCount: 0, allCompleted: false },
-      comprehension: comprehension, comprehensionInPath: comprehensionInPath,
-      readiness: data.readiness || { level: 'LOW', explanation: '' },
+      comprehensionInPath: comprehensionInPath,
       certificateEligible: !!data.certificateEligible,
-      mockTest: mockTest
+      mockTest: mockTest,
+      latestMockResult: data.latestMockResult || null,
+      studyLinks: Array.isArray(data.studyLinks) ? data.studyLinks : []
     };
   }
 
@@ -73,20 +71,7 @@
     return '<article class="ilp-summary-card"><h3>Hội thoại</h3><p>' + text + '</p></article>';
   }
 
-  function comprehensionCard(item) {
-    var label = COMPREHENSION_LABEL[item.skill] || item.skill;
-    var body = item.hasEvidence
-      ? '<p><strong>Đánh giá nền (Smart Test):</strong> ' + esc(item.correctPercent) + '% đúng' +
-        (item.weak ? ' — còn yếu' : '') + '.</p>'
-      : '<p>Chưa có dữ liệu Smart Test cho kỹ năng này.</p>';
-    return '<article class="ilp-summary-card is-secondary"><h3>' + esc(label) + '</h3>' + body +
-      '<p class="ilp-summary-note">' + esc(item.note) + '</p></article>';
-  }
-
-  // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence card. Deliberately reuses the same
-  // first/latest/best + unresolved-batch presentation as skillCard (Vocabulary/Kanji/Grammar) so a failed
-  // in-path comprehension batch is surfaced exactly as visibly as a failed Vocabulary/Kanji/Grammar one,
-  // never hidden inside the baseline comprehensionCard above.
+  // [JLAS-W0193] In-path Reading/Listening evidence card.
   function comprehensionInPathCard(item) {
     var label = COMPREHENSION_LABEL[item.skill] || item.skill;
     if (!item.hasEvidence) {
@@ -104,48 +89,73 @@
       '<div><dt>Gần nhất</dt><dd>' + scoreText(item.latestScore) + '</dd></div>' +
       '<div><dt>Tốt nhất</dt><dd>' + scoreText(item.bestScore) + '</dd></div>' +
       '</dl>' + status + unresolved +
-      '<p class="ilp-summary-note">Đây là bằng chứng mới từ chính lộ trình, khác với đánh giá nền Smart Test ở trên.</p>' +
       '</article>';
   }
 
-  function renderReadiness(readiness) {
-    var label = READINESS_LABEL[readiness.level] || readiness.level;
-    return '<section class="ilp-summary-readiness"><h2>Độ sẵn sàng ước tính: ' + esc(label) + '</h2>' +
-      '<p>' + esc(readiness.explanation) + '</p>' +
-      '<p class="ilp-summary-note">Đây là ước tính nội bộ, không phải xác nhận đỗ JLPT.</p></section>';
-  }
-
-  function renderMockTestAction(mockTest) {
+  function renderMockTestAction(mockTest, latestResult) {
     // [JLAS-W0193] RC Task 7 — the server (MockTestDestinationProvider) alone decides availability and the
     // destination URL; this only ever echoes `mockTest.url` verbatim, never composes or guesses one, and
     // never trusts a query parameter. No real Mock Test owner contract exists in this codebase today, so
     // the honest default is BLOCKED_INTEGRATION — rendered as a disabled button, never a fabricated link.
+    if (mockTest && mockTest.status === 'NOT_APPLICABLE') return '';
     if (mockTest && mockTest.available && mockTest.url) {
-      return '<a class="ilp-summary__quiet" href="' + esc(mockTest.url) + '">Thi thử JLPT</a>';
+      var destination = latestResult && /^N[1-5]$/.test(latestResult.level || '')
+        ? '/jlpt/result?level=' + encodeURIComponent(latestResult.level) : mockTest.url;
+      return '<a class="ilp-summary__quiet" href="' + esc(destination) + '">' +
+        (latestResult ? 'Xem kết quả thi thử' : 'Thi thử JLPT') + '</a>';
     }
     return '<button class="ilp-summary__quiet" type="button" disabled aria-disabled="true" ' +
       'title="Chức năng thi thử JLPT sắp ra mắt">Thi thử JLPT (sắp có)</button>';
   }
 
+  function renderMockResult(result) {
+    if (!result) return '';
+    var status = result.passed ? 'ĐẠT' : 'CHƯA ĐẠT';
+    return '<article class="ilp-summary-card ilp-summary-mock-result"><h2>Kết quả thi thử JLPT</h2>' +
+      '<p class="ilp-summary-status ' + (result.passed ? 'is-ok' : 'is-weak') + '">' + esc(result.level) + ' · ' + status + '</p>' +
+      '<p><strong>' + esc(result.correctCount) + '/' + esc(result.questionCount) + ' câu đúng</strong> · ' + esc(result.scorePercent) + '%</p>' +
+      '<p>Mã lượt thi #' + esc(result.attemptId) + '</p></article>';
+  }
+
   function renderActions(v) {
-    var certificate = v.certificateEligible
+    var targetLevel = v.mockTest && v.mockTest.targetLevel;
+    var isJlptPath = /^N[1-5]$/.test(String(targetLevel || ''));
+    var latestMockPassed = v.latestMockResult && v.latestMockResult.passed === true &&
+      v.latestMockResult.level === targetLevel;
+    var certificate = v.certificateEligible && (!isJlptPath || latestMockPassed)
       ? '<a class="ilp-summary__primary" href="/learning/v2/certificate">Xem chứng nhận hoàn thành</a>'
-      : '<p class="ilp-summary-note">Chứng nhận sẽ mở khi bạn hoàn thành mọi ngày học bắt buộc.</p>';
-    var mockTest = renderMockTestAction(v.mockTest);
+      : (v.certificateEligible && isJlptPath
+        ? '<p class="ilp-summary-note">Giấy chứng nhận sẽ mở sau khi bạn thi thử JLPT đúng cấp mục tiêu và đạt.</p>'
+        : '<p class="ilp-summary-note">Chứng nhận sẽ mở khi bạn hoàn thành mọi ngày học bắt buộc.</p>');
+    var mockTest = renderMockTestAction(v.mockTest, v.latestMockResult);
+    var nextPath = v.status === 'COMPLETED'
+      ? '<a class="ilp-summary__secondary" href="/survey">Chọn mục tiêu mới</a>'
+      : '<a class="ilp-summary__secondary" href="/learning/path/v2">Về lộ trình</a>';
     return '<div class="ilp-summary-actions">' + certificate + mockTest +
-      '<a class="ilp-summary__secondary" href="/learning/path/v2">Về lộ trình</a></div>';
+      nextPath + '</div>';
+  }
+
+  function renderCompletionMessage(data) {
+    if (!data || data.status !== 'COMPLETED' || !data.certificateEligible) return '';
+    var targetLevel = data.mockTest && data.mockTest.targetLevel;
+    var mockPrompt = /^N[1-5]$/.test(String(targetLevel || ''))
+      ? '<p>Hãy thi thử JLPT ' + esc(targetLevel) + ' ngay để xem bạn đã chinh phục target chưa. Nếu thi đạt, bạn sẽ nhận chứng nhận vàng J-LAS.</p>'
+      : '<p>Bạn đã đi hết các nội dung học bắt buộc. Hãy tự hào về chặng đường này và giữ vững nhịp học cho mục tiêu tiếp theo.</p>';
+    return '<aside class="ilp-completion-note" data-path-congratulation aria-labelledby="ilpCompletionTitle">' +
+      '<span class="ilp-completion-note__mark" aria-hidden="true">✓</span>' +
+      '<div><h2 id="ilpCompletionTitle">Chúc mừng! Bạn đã hoàn thành xuất sắc lộ trình</h2>' +
+      mockPrompt + '</div>' +
+      '</aside>';
   }
 
   function render(data) {
     var v = viewModel(data);
-    // In-path comprehension cards render first (more actionable "what I've done"), the Smart Test baseline
-    // cards after (historical context) — both always visible together, never one replacing the other.
     return '<section class="ilp-summary">' +
       '<h1>Tổng kết lộ trình</h1>' +
       '<div class="ilp-summary-grid">' + v.skills.map(skillCard).join('') + renderDialogue(v.dialogue) +
-      v.comprehensionInPath.map(comprehensionInPathCard).join('') +
-      v.comprehension.map(comprehensionCard).join('') + '</div>' +
-      renderReadiness(v.readiness) + renderActions(v) + '</section>';
+      v.comprehensionInPath.map(comprehensionInPathCard).join('') + renderMockResult(v.latestMockResult) + '</div>' +
+      renderCompletionMessage(data) +
+      renderActions(v) + '</section>';
   }
 
   function error(message) {
@@ -161,7 +171,19 @@
       try {
         var response = await fetch('/api/learning/v2/paths/current/summary', { headers: window.JlasAuth.authHeaders() });
         var body = await response.json();
-        node.innerHTML = response.ok && body.data ? render(body.data) : error(body.message);
+        if (response.ok && body.data) {
+          var data = body.data;
+          var level = data.mockTest && data.mockTest.targetLevel;
+          if (/^N[1-5]$/.test(String(level || ''))) {
+            try {
+              var resultResponse = await fetch('/api/jlpt/mock-attempts/latest?level=' + encodeURIComponent(level),
+                { headers: window.JlasAuth.authHeaders() });
+              var resultBody = await resultResponse.json();
+              data.latestMockResult = resultResponse.ok && resultBody.success !== false ? resultBody.data : null;
+            } catch (ignored) { data.latestMockResult = null; }
+          }
+          node.innerHTML = render(data);
+        } else node.innerHTML = error(body.message);
       } catch (e) {
         node.innerHTML = error('Không thể kết nối tới máy chủ.');
       }
@@ -175,8 +197,8 @@
 
   return {
     viewModel: viewModel, skillCard: skillCard, renderDialogue: renderDialogue,
-    comprehensionCard: comprehensionCard, comprehensionInPathCard: comprehensionInPathCard,
-    renderReadiness: renderReadiness, renderActions: renderActions,
+    comprehensionInPathCard: comprehensionInPathCard, renderActions: renderActions, renderMockResult: renderMockResult,
+    renderCompletionMessage: renderCompletionMessage,
     render: render, error: error, mount: mount
   };
 });

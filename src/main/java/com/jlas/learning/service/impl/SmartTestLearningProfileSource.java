@@ -4,11 +4,14 @@ import com.jlas.assessment.entity.AssessmentAnswer;
 import com.jlas.assessment.entity.AssessmentAttempt;
 import com.jlas.assessment.entity.AssessmentQuestion;
 import com.jlas.assessment.entity.SmartTestSession;
+import com.jlas.assessment.entity.SmartTestSessionQuestion;
 import com.jlas.assessment.entity.UserLearningSurvey;
 import com.jlas.assessment.repository.AssessmentAnswerRepository;
 import com.jlas.assessment.repository.AssessmentAttemptRepository;
 import com.jlas.assessment.repository.SmartTestSessionRepository;
+import com.jlas.assessment.repository.SmartTestSessionQuestionRepository;
 import com.jlas.assessment.repository.UserLearningSurveyRepository;
+import com.jlas.assessment.service.AssessmentService;
 import com.jlas.assessment.service.impl.SmartTestQuestionSelector;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
@@ -58,8 +61,10 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
 
     private final AssessmentAttemptRepository attempts;
     private final SmartTestSessionRepository sessions;
+    private final SmartTestSessionQuestionRepository sessionQuestions;
     private final UserLearningSurveyRepository surveys;
     private final AssessmentAnswerRepository answers;
+    private final AssessmentService assessmentService;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,13 +78,19 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Smart Test session not found."));
         UserLearningSurvey survey = surveys.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Learning survey not found."));
+        var assessmentResult = assessmentService.getSmartTest(userId, assessmentAttemptId).result();
+        if (assessmentResult == null) {
+            throw new ApiException(ErrorCode.CONFLICT, "Smart Test result is not available yet.");
+        }
 
+        List<AssessmentAnswer> effectiveAnswers = answersIncludingNoResponses(assessmentAttemptId, attempt);
         return new LearningProfileSnapshot(userId, assessmentAttemptId, survey.getUserId(),
                 ASSESSMENT_REVISION, survey.getCompletedAt() != null, true,
                 assessedLevel(session), targetLevel(session, survey), session.getGoal(),
                 session.getDailyStudyMinutes() != null ? session.getDailyStudyMinutes() : survey.getDailyStudyMinutes(),
-                aggregateWeaknesses(assessmentAttemptId),
-                aggregateSkillScores(assessmentAttemptId));
+                aggregateWeaknesses(effectiveAnswers),
+                aggregateSkillScores(effectiveAnswers), surveyLevel(session, survey),
+                assessmentResult.abilityBand());
     }
 
     /**
@@ -107,7 +118,8 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         }
         return new LearningProfileSnapshot(userId, null, userId, FROM_ZERO_REVISION,
                 true, true, FROM_ZERO_LEVEL, survey.getTargetLevel(), survey.getGoal(),
-                survey.getDailyStudyMinutes(), List.of(), List.of());
+                survey.getDailyStudyMinutes(), List.of(), List.of(),
+                survey.getSelfReportedLevel(), null);
     }
 
     private static String assessedLevel(SmartTestSession session) {
@@ -120,10 +132,40 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         return session.getTargetLevel() != null ? session.getTargetLevel() : survey.getTargetLevel();
     }
 
+    private static String surveyLevel(SmartTestSession session, UserLearningSurvey survey) {
+        return session.getSelfReportedLevel() != null
+                ? session.getSelfReportedLevel() : survey.getSelfReportedLevel();
+    }
+
     /** Gom evidence theo 5 skill; chỉ item/điểm thực sự sai mới trở thành điểm yếu. */
-    private List<WeaknessEvidence> aggregateWeaknesses(Long attemptId) {
+    private List<AssessmentAnswer> answersIncludingNoResponses(Long attemptId, AssessmentAttempt attempt) {
+        List<SmartTestSessionQuestion> presented = sessionQuestions.findAllForAttempt(attemptId);
+        if (presented.isEmpty()) {
+            // Legacy attempts created before question snapshots remain answer-only; do not fabricate a denominator.
+            return answers.findWithQuestionContextByAttemptId(attemptId);
+        }
+        Map<Long, AssessmentAnswer> answeredByQuestion = new HashMap<>();
+        answers.findWithQuestionContextByAttemptId(attemptId).forEach(answer ->
+                answeredByQuestion.put(answer.getQuestion().getId(), answer));
+
+        List<AssessmentAnswer> effective = new ArrayList<>(presented.size());
+        for (SmartTestSessionQuestion item : presented) {
+            AssessmentQuestion question = item.getQuestion();
+            AssessmentAnswer answer = answeredByQuestion.get(question.getId());
+            if (answer == null) {
+                // No persisted answer means the presented question was left blank; represent that fact only
+                // in this read-only projection so it participates in the same per-skill/item aggregation.
+                answer = AssessmentAnswer.builder().attempt(attempt).question(question)
+                        .selectedOption(null).isCorrect(false).build();
+            }
+            effective.add(answer);
+        }
+        return List.copyOf(effective);
+    }
+
+    private List<WeaknessEvidence> aggregateWeaknesses(List<AssessmentAnswer> attemptAnswers) {
         Map<String, List<AssessmentAnswer>> bySkill = new HashMap<>();
-        for (AssessmentAnswer answer : answers.findWithQuestionContextByAttemptId(attemptId)) {
+        for (AssessmentAnswer answer : attemptAnswers) {
             bySkill.computeIfAbsent(answer.getQuestion().getSkill(), key -> new ArrayList<>()).add(answer);
         }
         List<WeaknessEvidence> result = new ArrayList<>();
@@ -136,9 +178,9 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
     }
 
     /** [JLAS-W0108] Điểm số từng skill trên TOÀN BỘ câu trả lời (kể cả câu đúng, không lọc bỏ). */
-    private List<SkillScore> aggregateSkillScores(Long attemptId) {
+    private List<SkillScore> aggregateSkillScores(List<AssessmentAnswer> attemptAnswers) {
         Map<String, int[]> counts = new LinkedHashMap<>();
-        for (AssessmentAnswer answer : answers.findWithQuestionContextByAttemptId(attemptId)) {
+        for (AssessmentAnswer answer : attemptAnswers) {
             String skill = answer.getQuestion().getSkill();
             if (skill == null || skill.isBlank()) continue;
             int[] count = counts.computeIfAbsent(skill, key -> new int[2]);
@@ -161,9 +203,18 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         Map<String, int[]> counts = new LinkedHashMap<>();
         Map<String, String> levels = new LinkedHashMap<>();
         Map<String, Long> vocabIds = new LinkedHashMap<>();
+        List<WeaknessEvidence> unmapped = new ArrayList<>();
         for (AssessmentAnswer answer : answers) {
             String lexeme = SmartTestQuestionSelector.lexeme(answer.getQuestion());
-            if (lexeme == null) continue;
+            if (lexeme == null) {
+                // Keep failed/no-response items visible so path composition can report a content gap.
+                if (isWrong(answer)) {
+                    unmapped.add(WeaknessEvidence.item(skill,
+                            skill + ":UNMAPPED_QUESTION:" + answer.getQuestion().getId(), 1, 1,
+                            answer.getQuestion().getJlptLevel()));
+                }
+                continue;
+            }
             String key = skill + ":" + lexeme;
             int[] count = counts.computeIfAbsent(key, k -> new int[2]);
             count[0]++;
@@ -172,12 +223,14 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
             VocabularyEntry entry = answer.getQuestion().getVocabularyEntry();
             if (entry != null) vocabIds.putIfAbsent(key, entry.getId());
         }
-        return counts.entrySet().stream()
+        List<WeaknessEvidence> mapped = counts.entrySet().stream()
                 .filter(entry -> entry.getValue()[1] >= 1)
                 .map(entry -> WeaknessEvidence.item(skill, entry.getKey(),
                         entry.getValue()[0], entry.getValue()[1], levels.get(entry.getKey()),
                         vocabIds.get(entry.getKey())))
                 .toList();
+        unmapped.addAll(mapped);
+        return List.copyOf(unmapped);
     }
 
     /** GRAMMAR: tổng hợp theo grammarPointId; tag lesson là phân loại bổ sung. */
@@ -186,16 +239,24 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         Map<Long, int[]> counts = new LinkedHashMap<>();
         Map<Long, GrammarPoint> points = new HashMap<>();
         Map<Long, String> levels = new HashMap<>();
+        List<WeaknessEvidence> result = new ArrayList<>();
         for (AssessmentAnswer answer : answers) {
             GrammarPoint point = answer.getQuestion().getGrammarPoint();
-            if (point == null) continue; // chưa gắn grammar_point_id (ambiguous / ngoài chương trình)
+            if (point == null) {
+                // Preserve the failed question for coverage diagnostics; do not guess its grammar mapping.
+                if (isWrong(answer)) {
+                    result.add(WeaknessEvidence.item(WeaknessEvidence.SKILL_GRAMMAR,
+                            "UNMAPPED_QUESTION:" + answer.getQuestion().getId(), 1, 1,
+                            answer.getQuestion().getJlptLevel()));
+                }
+                continue;
+            }
             points.putIfAbsent(point.getId(), point);
             levels.putIfAbsent(point.getId(), answer.getQuestion().getJlptLevel());
             int[] count = counts.computeIfAbsent(point.getId(), key -> new int[2]);
             count[0]++;
             if (isWrong(answer)) count[1]++;
         }
-        List<WeaknessEvidence> result = new ArrayList<>();
         for (var entry : counts.entrySet()) {
             GrammarPoint point = points.get(entry.getKey());
             Tag lessonTag = point.getLesson() == null ? null : point.getLesson().getKnowledgeTag();
@@ -234,6 +295,9 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 count[0]++;
                 if (wasWrong) count[1]++;
                 outcomeIdByCode.putIfAbsent(outcome.getCode(), outcome.getId());
+            } else if (wasWrong) {
+                // Keep a per-question marker for the composer; never infer an outcome from its wording.
+                byOutcome.put("UNMAPPED_QUESTION:" + question.getId(), new int[] {1, 1});
             }
             if (!wasWrong) continue;
             Tag topic = question.getTopicTag();

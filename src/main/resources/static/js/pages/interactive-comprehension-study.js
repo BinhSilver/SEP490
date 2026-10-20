@@ -42,6 +42,7 @@
       passage: source.passage || null,
       audioUrl: source.audioUrl || null,
       questionCount: list(data.questions).length,
+      questionPrompts: list(data.questions).map(function (q) { return q.prompt || ''; }).filter(Boolean),
       checkEligible: !!check.checkEligible,
       reviewRequired: !!check.reviewRequired,
       cooldownUntil: check.cooldownUntil || null,
@@ -57,10 +58,14 @@
     return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   }
 
+  function shouldOpenInlineQuestions(v) {
+    return !!v && v.activityType === 'READING' && v.checkEligible === true && v.passed !== true;
+  }
+
   /** {@code interactive=false} suppresses the sentinel/manual-evidence button (used while a micro-check
    * attempt is in progress) - reading/listening the source again mid-check should not itself count as
    * post-failure review evidence. {@code evidenceDone} only affects the manual button's own visual state. */
-  function renderSourcePanel(v, evidenceDone, interactive) {
+  function renderSourcePanel(v, evidenceDone, interactive, showQuizHint) {
     var showControls = interactive !== false;
     if (v.activityType === 'LISTENING') {
       if (!v.audioUrl) {
@@ -69,7 +74,8 @@
       return '<div class="ilp-audio"><span class="ilp-audio__icon" aria-hidden="true">🎧</span>' +
         '<audio class="ilp-audio__player" controls preload="none" data-comprehension-audio src="' + esc(v.audioUrl) + '">' +
         'Trình duyệt của bạn không hỗ trợ phát âm thanh.</audio>' +
-        '<p class="ilp-audio__hint">Nghe kỹ audio rồi trả lời câu hỏi bên dưới.</p></div>';
+        (showQuizHint === false ? '' : '<p class="ilp-audio__hint">Nghe hết audio, ghi lại ý chính rồi trả lời câu hỏi.</p>') +
+        '<p class="ilp-audio__missing" role="alert" data-audio-error hidden>Không tải được file nghe. Hãy thử tải lại trang; nếu vẫn lỗi, bài này chưa thể học tiếp.</p></div>';
     }
     var button = showControls
       ? '<button type="button" class="ilp-passage__reached-btn' + (evidenceDone ? ' is-done' : '') +
@@ -89,7 +95,7 @@
     var isListening = v.activityType === 'LISTENING';
     var kicker = isListening ? 'NGHE HIỂU' : 'ĐỌC HIỂU';
     var title = isListening ? 'Luyện nghe hiểu' : 'Luyện đọc hiểu';
-    var instructions = isListening ? 'Nghe kỹ audio rồi mở bài kiểm tra nhỏ.' : 'Đọc kỹ đoạn văn rồi mở bài kiểm tra nhỏ.';
+    var instructions = isListening ? 'Bước 1: xem dạng câu hỏi và dự đoán thông tin cần nghe. Bước 2: nghe hết audio, ghi ý chính. Bước 3: trả lời câu hỏi nghe hiểu.' : 'Đọc kỹ nội dung. Khi bạn đọc đến cuối bài, các câu hỏi sẽ hiện ngay bên dưới để trả lời tại đây.';
     var gateNote = v.reviewRequired
       ? '<p class="ilp-gate-note">' + (isListening ? 'Bạn cần nghe lại audio trước khi kiểm tra lại.' : 'Bạn cần đọc lại đoạn văn trước khi kiểm tra lại.') + '</p>'
       : (!v.checkEligible && v.cooldownUntil
@@ -97,17 +103,22 @@
         : '');
     return '<section class="ilp-comprehension">' +
       '<header class="ilp-comprehension__head"><div><span class="ilp-kicker">' + kicker + ' // ' +
-      (v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG LUYỆN TẬP') + '</span><h1>' + title + '</h1><p>' + instructions + '</p></div>' +
+      (v.checkEligible ? (isListening ? 'SẴN SÀNG TRẢ LỜI' : 'SẴN SÀNG KIỂM TRA') : 'ĐANG LUYỆN TẬP') + '</span><h1>' + title + '</h1><p>' + instructions + '</p></div>' +
       '<span class="ilp-comprehension__progress-badge">Bài ' + (v.currentExercise + 1) + '/' + v.exerciseCount +
       ' · ' + v.questionCount + ' câu hỏi</span></header>' +
+      (isListening && v.questionPrompts.length ? '<aside class="ilp-listening-preview"><h2>Trước khi nghe</h2>' +
+        '<p>Đọc câu hỏi để biết mình cần chú ý thông tin nào; đáp án sẽ xuất hiện sau khi nghe.</p><ol>' +
+        v.questionPrompts.map(function (prompt) { return '<li>' + esc(prompt) + '</li>'; }).join('') +
+        '</ol></aside>' : '') +
       renderSourcePanel(v, evidenceDone, true) +
       renderEvidenceList(v, evidenceDone) +
       gateNote +
-      '<button class="ilp-check" type="button" data-check' + (v.checkEligible ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' +
+      (isListening ? '<button class="ilp-check" type="button" data-check' + (v.checkEligible ? '' : ' disabled') + '>' +
+        'Trả lời câu hỏi nghe hiểu <span aria-hidden="true">→</span></button>' : '') +
       '</section>';
   }
 
-  function renderCheckForm(check) {
+  function renderCheckForm(check, isListening) {
     var questions = list(check.questions).map(function (q, i) {
       var options = list(q.options).map(function (opt, oi) {
         return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
@@ -117,7 +128,7 @@
         '<span>' + esc(q.questionText) + '</span></legend><div class="ilp-options">' + options + '</div></fieldset>';
     }).join('');
     return '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
-      '<button class="ilp-check__submit" type="submit">Nộp bài</button></form>';
+      '<button class="ilp-check__submit" type="submit">' + (isListening ? 'Xem kết quả bài nghe' : 'Hoàn tất bài đọc') + '</button></form>';
   }
 
   /** The source (passage/audio) stays visible and re-playable/re-readable during the check itself - unlike
@@ -126,25 +137,31 @@
    * evidence controls here: reading/listening again mid-attempt is not the post-failure review interaction. */
   function renderCheckScreen(v, check) {
     var isListening = v.activityType === 'LISTENING';
-    return '<section class="ilp-comprehension">' +
+    // The passage/audio stays visible during the check (it is the question basis), but lookups are locked
+    // so the inline dictionary cannot reveal the answer while scoring.
+    return '<section class="ilp-comprehension no-inline-dictionary">' +
       '<header class="ilp-comprehension__head"><div><span class="ilp-kicker">' + (isListening ? 'NGHE HIỂU' : 'ĐỌC HIỂU') +
-      ' // KIỂM TRA</span><h1>' + (isListening ? 'Kiểm tra nghe hiểu' : 'Kiểm tra đọc hiểu') + '</h1>' +
-      '<p>Xem/nghe lại nội dung bên dưới nếu cần, rồi chọn đáp án đúng cho từng câu.</p></div>' +
+      (isListening ? ' // TRẢ LỜI CÂU HỎI' : ' // HỌC TRỰC TIẾP') + '</span><h1>' +
+      (isListening ? 'Trả lời câu hỏi của bài nghe' : 'Câu hỏi trong bài đọc') + '</h1>' +
+      '<p>' + (isListening ? 'Nghe lại nội dung nếu cần, rồi chọn đáp án đúng cho từng câu.' :
+        'Đọc nội dung và trả lời ngay bên dưới. Sau khi hoàn tất, bạn có thể xem đáp án và yêu cầu AI giải thích từng câu.') + '</p></div>' +
       '<span class="ilp-comprehension__progress-badge">Bài ' + (v.currentExercise + 1) + '/' + v.exerciseCount +
       ' · ' + num(check.totalQuestions) + ' câu hỏi</span></header>' +
       renderSourcePanel(v, false, false) +
-      renderCheckForm(check) +
+      renderCheckForm(check, isListening) +
       '</section>';
   }
 
-  function renderResult(result, activityType) {
+  function renderResult(result, activityType, activityId) {
     var passed = !!result.passed;
     var fullyPassed = passed && result.activityState === 'PASSED';
     var isListening = activityType === 'LISTENING';
     var wrong = list(result.review).filter(function (r) { return r.correct === false; });
     var cooldown = result.activityState === 'COOLDOWN';
     var actionHtml = fullyPassed
-      ? '<a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>'
+      ? (num(activityId) > 0 ? '<a class="ilp-check" href="/learning/v2/' + (isListening ? 'listening' : 'reading') +
+        '?activity=' + encodeURIComponent(activityId) + '&amp;mode=review">Xem lại bài học</a>' : '') +
+        '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a>'
       : passed
         ? '<button class="ilp-check" type="button" data-next-exercise>Bài tiếp theo <span aria-hidden="true">→</span></button>'
         : '<button class="ilp-check" type="button" data-back-to-study>Quay lại bài</button>';
@@ -159,15 +176,67 @@
           (result.reviewRequired ? '<p>' + (isListening ? 'Hãy nghe lại audio trước khi thử lại.' : 'Hãy đọc lại đoạn văn trước khi thử lại.') + '</p>' : '') +
           (cooldown ? '<p>Vui lòng quay lại sau <strong>' + esc(formatCooldown(result.cooldownUntil)) + '</strong>.</p>' : '') +
           '</div>') +
-      (wrong.length ? '<ol class="ilp-review">' + wrong.map(function (r) { return '<li>Câu ' + esc(r.questionId) + '</li>'; }).join('') + '</ol>' : '') +
+      (wrong.length ? '<p class="ilp-review">' + wrong.length + ' câu cần xem lại. Đáp án, lời giải và nội dung bài ' +
+        (isListening ? 'nghe' : 'đọc') + ' nằm trong lịch sử làm bài bên dưới.</p>' : '') +
       '<div class="ilp-result__actions">' + actionHtml + '</div></section>';
   }
 
-  function renderPassed(activityType) {
+  // [JLAS-W0108] PRACTICE: the frozen source of the replayed batch stays above every question.
+  function sourceView(type, source) {
+    source = source || {};
+    return { activityType: type === 'LISTENING' ? 'LISTENING' : 'READING', passage: source.passage || null, audioUrl: source.audioUrl || null };
+  }
+  function renderPractice(replay, activityType) {
+    var banner = (typeof window !== 'undefined' && window.InteractiveStudyMode) ? window.InteractiveStudyMode.banner('PRACTICE') :
+      '<p class="ilp-mode-banner" role="note"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>';
+    return banner + '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div><span class="ilp-kicker">' +
+      (activityType === 'LISTENING' ? 'NGHE HIỂU' : 'ĐỌC HIỂU') + ' // LUYỆN TẬP</span><h1>Luyện tập</h1></div>' +
+      '<span class="ilp-comprehension__progress-badge">Bài ' + (num(replay.batchIndex) + 1) + '/' + num(replay.batchCount) +
+      '</span></header>' + renderSourcePanel(sourceView(activityType, replay.source), false, false) + renderCheckForm(replay) + '</section>';
+  }
+  // [JLAS-W0108] REVIEW is the lesson replay, not the quiz-history screen. Each batch reuses the frozen
+  // source it was actually asked against, but deliberately omits scores, answers and explanations.
+  function renderReview(feedback, activityType) {
+    var banner = '<p class="ilp-mode-banner" role="note" data-mode-banner="REVIEW"><strong>Chế độ xem lại</strong> — chỉ xem, không ghi nhận gì vào tiến độ.</p>';
+    if (!Array.isArray(feedback) || !feedback.length) {
+      return banner + '<p class="ilp-result__meta" data-feedback-empty>Chưa có nội dung bài học để xem lại.</p>' +
+        '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div>';
+    }
+    var title = activityType === 'LISTENING' ? 'Bài nghe đã học' : 'Bài đọc đã học';
+    return banner + '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div>' +
+      '<span class="ilp-kicker">XEM LẠI</span><h1>' + title + '</h1>' +
+      '<p>Xem/nghe lại đúng nội dung của từng phần đã học.</p></div></header>' + renderStoredSources(feedback, activityType) +
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+  }
+
+  function renderStoredSources(feedback, activityType) {
+    return feedback.map(function (batch) {
+      var source = batch.sourceStatus === 'AVAILABLE' && batch.source
+        ? renderSourcePanel(sourceView(activityType, batch.source), false, false, false)
+        : '<p class="ilp-gate-note" data-source-unavailable>Nội dung bài đọc/nghe của phần này không còn được lưu nên chưa thể hiển thị lại.</p>';
+      return '<article class="ilp-review-source" data-review-source="' + num(batch.batchIndex) + '"><h2>Phần ' +
+        (num(batch.batchIndex) + 1) + '</h2>' + source + '</article>';
+    }).join('');
+  }
+
+  function renderPracticeSources(feedback, activityType) {
+    var available = list(feedback).some(function (batch) { return batch.sourceStatus === 'AVAILABLE' && batch.source; });
+    return '<p class="ilp-mode-banner" role="note" data-mode-banner="PRACTICE"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>' +
+      '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div><span class="ilp-kicker">' +
+      (activityType === 'LISTENING' ? 'NGHE HIỂU' : 'ĐỌC HIỂU') + ' // ÔN BÀI</span><h1>' +
+      (activityType === 'LISTENING' ? 'Nghe lại bài học' : 'Đọc lại bài học') + '</h1>' +
+      '<p>Xem/nghe lại nguồn đã học trước khi làm bài kiểm tra luyện tập.</p></div></header>' +
+      renderStoredSources(list(feedback), activityType) +
+      (available ? '<button class="ilp-check" type="button" data-check>Làm lại bài kiểm tra →</button>'
+        : '<p class="ilp-gate-note" data-source-unavailable>Chưa có nguồn bài học để luyện tập lại.</p>') +
+      '</section>';
+  }
+
+  function renderPassed(activityType, extra) {
     var title = activityType === 'LISTENING' ? 'Phần Nghe hiểu đã đạt' : 'Phần Đọc hiểu đã đạt';
     return '<section class="ilp-result"><header class="ilp-study__head"><div><span class="ilp-kicker">HOÀN THÀNH</span>' +
       '<h1>' + esc(title) + '</h1></div></header>' +
-      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>' + (extra || '') + '</div></section>';
   }
 
   function error(message, code) {
@@ -191,6 +260,11 @@
     var currentReviewRequired = false;
     var evidenceSent = false;
     var evidenceObserver = null;
+    var StudyMode = window.InteractiveStudyMode;
+    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
+    if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
+    var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions(fallbackPath, id, ['REVIEW', 'PRACTICE']) : '';
 
     async function api(path, options) {
       var response = await fetch(base + path, Object.assign({ headers: window.JlasAuth.authHeaders() }, options));
@@ -226,25 +300,59 @@
 
     function watchAudioPlay() {
       var audio = node.querySelector('[data-comprehension-audio]');
-      if (audio) audio.addEventListener('play', function () { sendReviewEvidence(); }, { once: true });
+      if (!audio) return;
+      audio.addEventListener('ended', function () { sendReviewEvidence(); }, { once: true });
+      audio.addEventListener('error', function () {
+        var message = node.querySelector('[data-audio-error]');
+        if (message) message.hidden = false;
+        var check = node.querySelector('[data-check]');
+        if (check) check.disabled = true;
+      });
     }
 
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       stopWatching();
       try {
+        if (mode === 'RESULTS') {
+          await StudyMode.loadSavedResults(node, api, fallbackPath, id);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        if (mode === 'REVIEW') {
+          node.innerHTML = renderReview(await api('/review/attempts'), currentType);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        if (mode === 'PRACTICE') {
+          node.innerHTML = renderPracticeSources(await api('/review/attempts'), currentType);
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         var study = await api('/study');
         var v = viewModel(study);
         currentType = v.activityType;
         currentReviewRequired = v.reviewRequired;
         evidenceSent = false;
-        if (v.passed) { node.innerHTML = renderPassed(v.activityType); }
+        if (v.passed) {
+          await StudyMode.restoreCompletedResult(node, api, fallbackPath, id,
+            renderPassed(v.activityType, PASSED_ACTIONS));
+        }
+        else if (shouldOpenInlineQuestions(v)) {
+          var inlineCheck = await postJson('/micro-check');
+          node.innerHTML = renderCheckScreen(v, inlineCheck);
+        }
         else {
           node.innerHTML = renderStudy(v, false);
           if (v.activityType === 'LISTENING') watchAudioPlay(); else watchPassageEnd();
         }
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
+    }
+
+    async function doPractice() {
+      try { node.innerHTML = renderPractice(await postJson('/practice'), currentType); }
+      catch (e) { node.innerHTML = error(e.message, e.code); }
     }
 
     async function doCheck() {
@@ -259,7 +367,8 @@
 
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
-      if (event.target.closest('[data-check]')) return doCheck();
+      if (event.target.closest('[data-check]')) return mode === 'PRACTICE' ? doPractice() : doCheck();
+      if (event.target.closest('[data-practice-review]')) return loadStudy();
       if (event.target.closest('[data-reached-passage]')) return sendReviewEvidence();
       if (event.target.closest('[data-next-exercise]') || event.target.closest('[data-back-to-study]')) return loadStudy();
     });
@@ -273,12 +382,22 @@
       });
       node.setAttribute('aria-busy', 'true');
       try {
-        var result = await api('/micro-check/submit', {
+        var result = await api(mode === 'PRACTICE' ? '/practice/submit' : '/micro-check/submit', {
           method: 'POST',
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
-        node.innerHTML = renderResult(result, currentType);
+        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, currentType, id);
+        if (StudyMode && StudyMode.attemptHistory) {
+          try {
+            var attempts = await api('/attempt-history');
+            var resultPanel = node.querySelector('.ilp-result');
+            if (resultPanel && attempts && attempts.length)
+              resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+          } catch (historyError) { /* Keep the current quiz result usable if history is unavailable. */ }
+        }
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+          await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
     });
@@ -287,9 +406,11 @@
   }
 
   return {
-    viewModel: viewModel, formatCooldown: formatCooldown, renderSourcePanel: renderSourcePanel,
+    viewModel: viewModel, formatCooldown: formatCooldown, shouldOpenInlineQuestions: shouldOpenInlineQuestions,
+    renderSourcePanel: renderSourcePanel,
     renderEvidenceList: renderEvidenceList, renderStudy: renderStudy, renderCheckForm: renderCheckForm,
     renderCheckScreen: renderCheckScreen, renderResult: renderResult, renderPassed: renderPassed,
+    renderPractice: renderPractice, renderReview: renderReview, renderPracticeSources: renderPracticeSources,
     error: error, mount: mount
   };
 });

@@ -15,6 +15,9 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
 
     Optional<UserLearningPath> findByUserIdAndStatus(Long userId, String status);
 
+    Optional<UserLearningPath> findByUserIdAndSurveyIdAndExperienceVersion(
+            Long userId, Long surveyId, LearningExperienceVersion experienceVersion);
+
     Optional<UserLearningPath> findByUserIdAndStatusAndExperienceVersion(
             Long userId, String status, LearningExperienceVersion experienceVersion);
 
@@ -29,6 +32,13 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from UserLearningPath p where p.user.id = :userId and p.status = 'ACTIVE'")
     Optional<UserLearningPath> findActiveForFlashcardUpdate(@Param("userId") Long userId);
+
+    /** [JLAS-W0108] Task 9 — row lock on the learner's ACTIVE interactive path so concurrent Mock Test
+     * completions serialize: the loser waits, then no longer finds an ACTIVE path and returns the completed state. */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from UserLearningPath p where p.user.id = :userId and p.status = 'ACTIVE' "
+            + "and p.experienceVersion = com.jlas.learning.enums.LearningExperienceVersion.INTERACTIVE_V2")
+    Optional<UserLearningPath> lockActiveInteractive(@Param("userId") Long userId);
 
     /**
      * [JLAS-W0122] Idempotency lookup: same user + attempt + revision + policy must not create a

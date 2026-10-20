@@ -128,7 +128,7 @@ INSERT IGNORE INTO moderation_policy (policy_type, policy_key, language, action,
 -- #############################################################################
 -- 006) JLAS-W0127/W0193: mục tiêu ngày, thưởng CP, nhiệm vụ, bảo vệ chuỗi
 -- #############################################################################
--- The application also creates these tables at startup (MissionSchemaInitializer).
+-- Runtime DDL was removed in [JLAS-W0194]; canonical ownership is jlas_schema.sql plus migration 013.
 -- 1) Learning events already applied (dedupe by deterministic event id).
 CREATE TABLE IF NOT EXISTS learning_event_receipt (
     event_id     VARCHAR(120) NOT NULL,
@@ -440,10 +440,18 @@ DEALLOCATE PREPARE video_view_count_stmt;
 
 -- Carry over views counted under the old one-view-per-account rule (only when the column is new).
 SET @video_view_seed_sql = IF(@video_has_view_count = 0,
-    'UPDATE video v JOIN (SELECT video_id, COUNT(*) AS views FROM video_user_state WHERE counted_as_view = 1 GROUP BY video_id) s ON s.video_id = v.id SET v.view_count = s.views',
+    -- Keep the update scoped to matching video IDs. MySQL can still reject this
+    -- aggregate JOIN under SQL_SAFE_UPDATES depending on the selected query plan.
+    'UPDATE video v JOIN (SELECT video_id, COUNT(*) AS views FROM video_user_state WHERE counted_as_view = 1 GROUP BY video_id) s ON s.video_id = v.id SET v.view_count = s.views WHERE v.id = s.video_id',
     'SELECT 1');
 PREPARE video_view_seed_stmt FROM @video_view_seed_sql;
+-- [JLAS-W0108] Bootstrap compatibility: relax safe updates only for this backfill,
+-- then restore this connection's original setting. No global preference changes.
+-- If execution fails, restore with the final SET below before leaving this session.
+SET @jlas_video_seed_previous_safe_updates = @@SESSION.SQL_SAFE_UPDATES;
+SET SESSION SQL_SAFE_UPDATES = 0;
 EXECUTE video_view_seed_stmt;
+SET SESSION SQL_SAFE_UPDATES = @jlas_video_seed_previous_safe_updates;
 DEALLOCATE PREPARE video_view_seed_stmt;
 
 CREATE TABLE IF NOT EXISTS video_view_tracker (

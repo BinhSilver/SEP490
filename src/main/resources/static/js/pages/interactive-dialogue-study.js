@@ -96,9 +96,25 @@
       v.requiredSeconds + ' giây hoạt động</li></ul></div>';
   }
 
-  function renderCompleted() {
+  function renderCompleted(activityId) {
     return '<section class="ilp-result"><header class="ilp-study__head"><div><span class="ilp-kicker">HOÀN THÀNH</span>' +
       '<h1>Phần Hội thoại đã đạt</h1><p>Bạn đã đọc đủ thời gian và cuộn hết đoạn hội thoại.</p></div></header>' +
+      '<div class="ilp-result__actions">' + (num(activityId) > 0
+        ? '<a class="ilp-check" href="/learning/v2/dialogue?activity=' + encodeURIComponent(activityId) +
+          '&amp;mode=review">Xem lại bài học</a>' : '') +
+      '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a></div></section>';
+  }
+
+  function renderReplay(mode, v) {
+    var title = mode === 'REVIEW' ? 'Xem lại hội thoại' : 'Luyện lại hội thoại';
+    var lines = v.lines.length ? v.lines.map(renderLine).join('') :
+      '<li class="ilp-state">Hoạt động này chưa có nội dung.</li>';
+    var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
+    return (StudyMode ? StudyMode.banner(mode) : '') +
+      '<section class="ilp-dialogue"><header class="ilp-study__head"><div><span class="ilp-kicker">HỘI THOẠI // ' +
+      (mode === 'REVIEW' ? 'XEM LẠI' : 'LUYỆN TẬP') + '</span><h1>' + title + '</h1>' +
+      '<p>Đọc lại kịch bản và nghe các dòng có âm thanh.</p></div></header>' +
+      '<ol class="ilp-dialogue__script">' + lines + '</ol>' +
       '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
   }
 
@@ -117,6 +133,9 @@
     if (!node || !window.JlasAuth || !window.JlasAuth.requireLogin('/learning/v2/dialogue' + (id ? '?activity=' + encodeURIComponent(id) : ''))) return;
     if (!id) { node.innerHTML = error('Thiếu mã hoạt động Hội thoại.'); return; }
     var base = '/api/learning/v2/activities/' + encodeURIComponent(id) + '/dialogue';
+    var StudyMode = window.InteractiveStudyMode;
+    if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
+    var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var heartbeatTimer = null;
     var observer = null;
     var bottomReported = false;
@@ -150,18 +169,19 @@
       if (result.completed) {
         finished = true;
         stopTracking();
-        node.innerHTML = renderCompleted();
+        node.innerHTML = renderCompleted(id);
+        if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id);
       }
     }
 
     async function sendHeartbeat() {
-      if (finished || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
+      if (mode !== 'LEARN' || finished || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
       try { applyProgress(await postJson('/heartbeat', { heartbeatToken: genToken() })); }
       catch (e) { /* transient network errors do not interrupt the reading session */ }
     }
 
     async function reportBottom() {
-      if (finished || bottomReported) return;
+      if (mode !== 'LEARN' || finished || bottomReported) return;
       bottomReported = true;
       try { applyProgress(await postJson('/reached-bottom', {})); }
       catch (e) { bottomReported = false; }
@@ -179,9 +199,16 @@
     async function load() {
       node.setAttribute('aria-busy', 'true');
       try {
+        if (mode === 'REVIEW' || mode === 'PRACTICE') {
+          var replay = await api(mode === 'REVIEW' ? '/review' : '/practice');
+          node.innerHTML = renderReplay(mode, viewModel(replay));
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         var study = await api('/study');
         var v = viewModel(study);
-        if (v.completed) { node.innerHTML = renderCompleted(); finished = true; }
+        if (v.completed) { node.innerHTML = renderCompleted(id); finished = true;
+          if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id); }
         else {
           node.innerHTML = renderScript(v) + renderProgress(v);
           watchBottom();
@@ -209,6 +236,6 @@
 
   return {
     viewModel: viewModel, formatRemaining: formatRemaining, renderLine: renderLine, renderScript: renderScript,
-    renderProgress: renderProgress, renderCompleted: renderCompleted, error: error, mount: mount
+    renderProgress: renderProgress, renderCompleted: renderCompleted, renderReplay: renderReplay, error: error, mount: mount
   };
 });

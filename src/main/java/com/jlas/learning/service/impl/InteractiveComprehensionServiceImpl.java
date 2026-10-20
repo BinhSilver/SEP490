@@ -12,6 +12,7 @@ import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.repository.*;
 import com.jlas.learning.service.ComprehensionExerciseCatalog;
 import com.jlas.learning.service.InteractiveComprehensionService;
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.learning.service.impl.engine.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         List<ComprehensionContent> batch = batches.get(selected);
         var exercise = batch.getFirst().exercise();
         var source = activity.getActivityType() == LearningActivityType.READING
-                ? new ComprehensionExerciseSource(exercise.source(), null)
+                ? new ComprehensionExerciseSource(exercise.displaySource(), null)
                 : new ComprehensionExerciseSource(null, exercise.source());
         List<ComprehensionStudyQuestion> questions = batch.stream()
                 .map(content -> new ComprehensionStudyQuestion(content.question().id(),
@@ -83,6 +84,11 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     }
 
     @Override @Transactional
+    public java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        return engineFor(userId, activityId).saveDraft(userId, activityId, request);
+    }
+
+    @Override @Transactional
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         return engineFor(userId, activityId).microCheckState(userId, activityId);
     }
@@ -97,12 +103,62 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         return engineFor(userId, activityId).completeReview(userId, activityId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.ComprehensionAttemptFeedback> reviewFeedback(Long userId, Long activityId) {
+        return engine(ownedComprehensionReadOnly(userId, activityId).getActivityType())
+                .reviewEntries(userId, activityId).stream().map(entry -> {
+            var f = entry.feedback();
+            var source = ComprehensionSourceSnapshot.parse(entry.sourceSnapshotJson());
+            return new com.jlas.learning.dto.ComprehensionAttemptFeedback(f.batchIndex(), f.scorePercent(), f.correctAnswers(),
+                    f.totalQuestions(), f.passed(), f.submittedAt(),
+                    source.isPresent() ? com.jlas.learning.dto.ComprehensionAttemptFeedback.AVAILABLE
+                            : com.jlas.learning.dto.ComprehensionAttemptFeedback.UNAVAILABLE,
+                    source.orElse(null), f.review());
+        }).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        return engine(ownedComprehensionReadOnly(userId, activityId).getActivityType())
+                .quizAttemptHistory(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public com.jlas.learning.dto.ComprehensionReplayResponse issuePractice(Long userId, Long activityId) {
+        var issued = engineFor(userId, activityId).issuePracticeWithSource(userId, activityId);
+        var source = ComprehensionSourceSnapshot.parse(issued.sourceSnapshotJson())
+                .orElseThrow(() -> new ApiException(ErrorCode.BLOCKED_CONTENT, "Không dựng được nguồn bài đọc/nghe cho lượt luyện tập."));
+        var r = issued.response();
+        return new com.jlas.learning.dto.ComprehensionReplayResponse(r.attemptId(), r.activityId(), r.batchIndex(),
+                r.batchCount(), source, r.questions());
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        return engineFor(userId, activityId).submitPractice(userId, activityId, request);
+    }
+
     private InteractiveStudyEngine<ComprehensionContent> engineFor(Long userId, Long activityId) {
         return engine(ownedComprehension(userId, activityId).getActivityType());
     }
 
     private UserLearningPathItem ownedComprehension(Long userId, Long activityId) {
         UserLearningPathItem activity = items.findOwnedByIdForUpdate(activityId, userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        if (activity.getActivityType() != LearningActivityType.READING
+                && activity.getActivityType() != LearningActivityType.LISTENING) {
+            throw new ApiException(ErrorCode.NOT_FOUND);
+        }
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
+        return activity;
+    }
+
+    private UserLearningPathItem ownedComprehensionReadOnly(Long userId, Long activityId) {
+        UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
         if (activity.getActivityType() != LearningActivityType.READING
                 && activity.getActivityType() != LearningActivityType.LISTENING) {

@@ -11,6 +11,8 @@ import com.jlas.learning.dto.LearningPhaseGroup;
 import com.jlas.learning.dto.LearningStageResponse;
 import com.jlas.learning.dto.LessonQuizResponse;
 import com.jlas.learning.dto.LessonQuizResult;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
+import com.jlas.learning.dto.NextTargetRecommendation;
 import com.jlas.learning.dto.QuizAnswerKey;
 import com.jlas.learning.entity.UserLearningPath;
 import com.jlas.learning.entity.UserLearningPathItem;
@@ -29,12 +31,16 @@ import org.springframework.stereotype.Component;
 /** Maps persisted learning-path entities into the API read model and (de)serializes JSON snapshots. */
 @Component
 public class LearningMapper {
+    private static final com.jlas.common.learning.JlptPathPolicy JLPT_PATH_POLICY =
+            new com.jlas.common.learning.JlptPathPolicy();
     private static final TypeReference<List<String>> STRING_LIST = new TypeReference<>() { };
     private static final TypeReference<List<CoverageGap>> GAP_LIST = new TypeReference<>() { };
     // [JLAS-W0108] Snapshot đề thi bất biến (learning_quiz_session).
     private static final TypeReference<List<LessonQuizResponse.LessonQuizQuestion>> QUIZ_QUESTION_LIST =
             new TypeReference<>() { };
     private static final TypeReference<Map<Long, QuizAnswerKey>> QUIZ_ANSWER_KEY = new TypeReference<>() { };
+    // [JLAS-W0113] Autosaved draft selections (questionId -> selectedOption) for an in-progress attempt.
+    private static final TypeReference<List<MicroCheckDraftAnswer>> DRAFT_ANSWER_LIST = new TypeReference<>() { };
 
     // The app does not expose a Spring-managed ObjectMapper (webmvc starter without starter-json),
     // so this mapper owns its own instance for the small JSON snapshot columns it persists.
@@ -117,7 +123,19 @@ public class LearningMapper {
                 groups, readCoverageGaps(path.getCoverageGapsJson()),
                 totalLessons, totalMinutes, totalDays, completed,
                 warmUpCompleted, path.getGatePassedAt() != null, readAiPlan(path.getAiPlanJson()), stageResponses,
-                path.getCompletedAt());
+                path.getCompletedAt(), nextTargetRecommendation(path));
+    }
+
+    private static NextTargetRecommendation nextTargetRecommendation(UserLearningPath path) {
+        if (!"JLPT".equals(path.getGoal())) {
+            return NextTargetRecommendation.unavailable("NOT_APPLICABLE");
+        }
+        if (!"COMPLETED".equals(path.getStatus())) {
+            return NextTargetRecommendation.unavailable("PATH_NOT_COMPLETED");
+        }
+        return JLPT_PATH_POLICY.nextTargetAfter(path.getTargetLevel())
+                .map(NextTargetRecommendation::next)
+                .orElseGet(() -> NextTargetRecommendation.unavailable("HIGHEST_LEVEL_REACHED"));
     }
 
     /** [JLAS-W0108] Chặng ACTIVE và mọi item của chặng đã STUDIED -> bài final sẵn sàng phát. */
@@ -229,13 +247,20 @@ public class LearningMapper {
         }
     }
 
-    private List<CoverageGap> readCoverageGaps(String json) {
+    public static List<CoverageGap> readCoverageGapsSnapshot(String json) {
         if (json == null || json.isBlank()) return List.of();
         try {
             return OBJECT_MAPPER.readValue(json, GAP_LIST);
         } catch (Exception exception) {
             throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read coverage gaps snapshot.");
         }
+    }
+
+    private List<CoverageGap> readCoverageGaps(String json) {
+        return readCoverageGapsSnapshot(json).stream()
+                .filter(gap -> !"SMART_TEST_REVIEW_ONLY_BELOW_THRESHOLD".equals(gap.reasonCode())
+                        && !"SMART_TEST_REVIEW_ONLY_UNMAPPED_GRAMMAR".equals(gap.reasonCode()))
+                .toList();
     }
 
     /** [JLAS-W0108] Parse kế hoạch narrative Gemini; {@code null} nếu chưa sinh/JSON hỏng (UI fallback). */
@@ -302,6 +327,25 @@ public class LearningMapper {
             return OBJECT_MAPPER.readValue(json, LessonQuizResult.class);
         } catch (Exception exception) {
             throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read quiz result snapshot.");
+        }
+    }
+
+    /** [JLAS-W0113] Serialize autosaved draft selections (questionId -> selectedOption) into the session. */
+    public String writeDraftAnswers(List<MicroCheckDraftAnswer> draft) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(draft);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to serialize draft answers.");
+        }
+    }
+
+    /** [JLAS-W0113] Read back the autosaved draft selections; empty when none saved yet. */
+    public List<MicroCheckDraftAnswer> readDraftAnswers(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            return OBJECT_MAPPER.readValue(json, DRAFT_ANSWER_LIST);
+        } catch (Exception exception) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Failed to read draft answers snapshot.");
         }
     }
 }

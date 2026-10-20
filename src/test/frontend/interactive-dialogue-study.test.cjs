@@ -2,6 +2,32 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const page = require('../../main/resources/static/js/pages/interactive-dialogue-study.js');
 
+for (const mode of ['REVIEW', 'PRACTICE']) {
+  test(`mounted ${mode} never sends engagement writes after visibility changes`, async () => {
+    const vm = require('node:vm');
+    const fs = require('node:fs');
+    const events = {}, requests = [];
+    const node = { innerHTML: '', setAttribute() {}, addEventListener() {}, querySelector() { return null; } };
+    const document = { readyState: 'loading', visibilityState: 'visible',
+      getElementById: () => node, addEventListener: (name, handler) => { events[name] = handler; } };
+    const window = { document, location: { search: '?activity=1&mode=' + mode.toLowerCase() },
+      JlasAuth: { requireLogin: () => true, authHeaders: () => ({}) },
+      InteractiveStudyMode: { resolveMode: () => mode, banner: () => '' } };
+    const context = vm.createContext({ window, document, URLSearchParams, setInterval() { throw Error('Replay timer'); },
+      clearInterval() {}, fetch: async (url, options) => { requests.push({ url, method: options.method || 'GET' });
+        return { ok: true, json: async () => ({ data: study({ completed: true }) }) }; } });
+    vm.runInContext(fs.readFileSync(require.resolve('../../main/resources/static/js/pages/interactive-dialogue-study.js'), 'utf8'), context);
+    events.DOMContentLoaded();
+    await new Promise(setImmediate);
+    document.visibilityState = 'hidden'; events.visibilitychange();
+    document.visibilityState = 'visible'; events.visibilitychange();
+    await new Promise(setImmediate);
+    assert.deepEqual(requests.map(r => r.method), ['GET']);
+    assert.match(requests[0].url, new RegExp('/' + mode.toLowerCase() + '$'));
+    assert.doesNotMatch(node.innerHTML, /dialogueBottomSentinel/);
+  });
+}
+
 function line(overrides = {}) {
   return Object.assign({
     lineId: 201, orderIndex: 1, roleCode: 'STAFF', roleName: 'Nhân viên', sceneCode: 'scene-1',
@@ -90,13 +116,21 @@ test('progress panel marks both evidence items done only when both are true', ()
 });
 
 test('renders a completion state with a return-to-roadmap action', () => {
-  const html = page.renderCompleted();
+  const html = page.renderCompleted(17);
   assert.match(html, /Phần Hội thoại đã đạt/);
   assert.match(html, /href="\/learning\/path\/v2"/);
+  assert.match(html, /\/learning\/v2\/dialogue\?activity=17&amp;mode=review/);
 });
 
 test('error state renders a retry affordance', () => {
   const html = page.error('mất kết nối');
   assert.match(html, /mất kết nối/);
   assert.match(html, /data-retry/);
+});
+
+test('review/practice banner and script have no tracking/progress controls', () => {
+  const html = page.renderReplay('REVIEW', page.viewModel(study({ completed: true })));
+  assert.match(html, /Xem lại hội thoại/);
+  assert.match(html, /いらっしゃいませ/);
+  assert.doesNotMatch(html, /dialogueBottomSentinel|role="progressbar"|data-retry/);
 });

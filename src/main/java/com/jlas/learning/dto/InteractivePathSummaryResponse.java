@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /** [JLAS-W0193] Task 10 — the real content behind {@code GET /learning/path/v2/summary} (Task 8 shipped only
- * a placeholder route for this). {@code certificateEligible} mirrors exactly the gate the certificate page
- * itself enforces (every {@code GOAL_LEARNING} package in the path {@code COMPLETED}; warm-up packages are
- * prerequisites, not counted requirements — design spec §6.3), so the summary page can offer or withhold the
- * certificate CTA without duplicating that business rule.
+ * a placeholder route for this). {@code certificateEligible} reports path-completion eligibility (every
+ * {@code GOAL_LEARNING} package in the path {@code COMPLETED}; warm-up packages are prerequisites, not counted
+ * requirements). For JLPT paths, the certificate page and summary action additionally require a passing mock
+ * attempt at the target level; the congratulation notice is not a certificate.
  *
  * <p>[JLAS-W0193] RC Task 6 — {@code comprehension} stays exactly what Task 10 shipped: Reading/Listening
  * evidence read only from the Smart Test snapshot, kept forever as the <b>baseline</b> record of what the
@@ -35,9 +35,19 @@ public record InteractivePathSummaryResponse(
         List<InteractiveSkillProgress> comprehensionInPath,
         InteractiveReadinessConfidence readiness,
         boolean certificateEligible,
-        MockTestDestination mockTest
+        MockTestDestination mockTest,
+        List<InteractiveStudyLink> studyLinks
 ) {
+    public InteractivePathSummaryResponse(Long pathId, String status, LocalDateTime completedAt,
+            List<InteractiveSkillProgress> skills, InteractiveDialogueSummary dialogue,
+            List<InteractiveComprehensionEvidence> comprehension, List<InteractiveSkillProgress> comprehensionInPath,
+            InteractiveReadinessConfidence readiness, boolean certificateEligible, MockTestDestination mockTest) {
+        this(pathId, status, completedAt, skills, dialogue, comprehension, comprehensionInPath, readiness,
+                certificateEligible, mockTest, List.of());
+    }
+
     public InteractivePathSummaryResponse {
+        studyLinks = studyLinks == null ? List.of() : List.copyOf(studyLinks);
         skills = List.copyOf(skills);
         comprehension = List.copyOf(comprehension);
         comprehensionInPath = List.copyOf(comprehensionInPath);

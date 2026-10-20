@@ -2,8 +2,10 @@ package com.jlas.learning.controller;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.dto.VocabularyStudyState;
@@ -59,6 +61,15 @@ public class InteractiveVocabularyController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitMicroCheck(user.userId(), activityId, request)));
     }
 
+    /** [JLAS-W0113] Autosave in-progress selections for an issued attempt (restored on reopen/reload). */
+    @PostMapping("/micro-check/draft")
+    public ResponseEntity<ApiResponse<java.util.List<MicroCheckDraftAnswer>>> saveDraft(
+            @PathVariable Long activityId, @Valid @RequestBody MicroCheckSaveDraftRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_DRAFT);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.saveDraft(user.userId(), activityId, request)));
+    }
+
     @GetMapping("/micro-check/state")
     public ResponseEntity<ApiResponse<MicroCheckStateResponse>> state(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
@@ -69,5 +80,42 @@ public class InteractiveVocabularyController {
     public ResponseEntity<ApiResponse<MicroCheckStateResponse>> completeReview(
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.completeReview(user.userId(), activityId)));
+    }
+
+    /** [JLAS-W0108] Task 10 - read-only REVIEW of a finished activity; writes nothing. */
+    @GetMapping("/review")
+    public ResponseEntity<ApiResponse<VocabularyStudyState>> review(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewState(user.userId(), activityId)));
+    }
+
+    /** [JLAS-W0108] Task 10 - PRACTICE replay: recorded but never completes, rewards or unlocks. */
+    @PostMapping("/practice")
+    public ResponseEntity<ApiResponse<MicroCheckResponse>> issuePractice(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_ISSUE);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.issuePractice(user.userId(), activityId)));
+    }
+
+    @PostMapping("/practice/submit")
+    public ResponseEntity<ApiResponse<MicroCheckResult>> submitPractice(
+            @PathVariable Long activityId, @Valid @RequestBody MicroCheckSubmitRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.MICRO_CHECK_SUBMIT);
+        return ResponseEntity.ok(ApiResponse.ok("OK",
+                service.submitPractice(user.userId(), activityId, request)));
+    }
+
+    /** [JLAS-W0108] REVIEW feedback of past attempts; read-only. */
+    @GetMapping("/review/attempts")
+    public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse>>> reviewAttempts(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewFeedback(user.userId(), activityId)));
+    }
+
+    @GetMapping("/attempt-history")
+    public ResponseEntity<ApiResponse<java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse>>> attemptHistory(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.quizAttemptHistory(user.userId(), activityId)));
     }
 }

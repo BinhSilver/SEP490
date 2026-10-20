@@ -29,6 +29,18 @@ public class InteractiveDialogueController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.studyState(user.userId(), activityId)));
     }
 
+    @GetMapping("/review")
+    public ResponseEntity<ApiResponse<DialogueStudyState>> review(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewState(user.userId(), activityId)));
+    }
+
+    @GetMapping("/practice")
+    public ResponseEntity<ApiResponse<DialogueStudyState>> practice(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.practiceState(user.userId(), activityId)));
+    }
+
     @PostMapping("/heartbeat")
     public ResponseEntity<ApiResponse<DialogueProgressResult>> heartbeat(
             @PathVariable Long activityId, @Valid @RequestBody DialogueHeartbeatRequest request,

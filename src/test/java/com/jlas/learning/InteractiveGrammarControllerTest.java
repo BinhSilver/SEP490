@@ -41,6 +41,19 @@ class InteractiveGrammarControllerTest {
         verify(service).studyState(7L, 1L);
     }
 
+    @Test void reviewContentIsReadOnlyRouteUsingAuthenticatedOwner() {
+        var service = mock(InteractiveGrammarService.class);
+        var state = new GrammarStudyState(1L, LearningActivityType.GRAMMAR,
+                LearningActivityState.PASSED, "rev", 1, 1, true, List.of());
+        when(service.reviewState(7L, 1L)).thenReturn(state);
+        var controller = new InteractiveGrammarController(service, new InteractiveRateLimitService());
+
+        var body = controller.review(1L, user).getBody();
+
+        assertSame(state, body.getData());
+        verify(service).reviewState(7L, 1L);
+    }
+
     @Test void practiceSubmitsDelegateWithPrincipal() {
         var service = mock(InteractiveGrammarService.class);
         var orderingRequest = new GrammarOrderingSubmitRequest(List.of(0, 1));
