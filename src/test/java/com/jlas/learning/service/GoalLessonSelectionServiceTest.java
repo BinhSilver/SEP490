@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,10 +25,49 @@ class GoalLessonSelectionServiceTest {
     @Mock LessonLearningScopeRepository scopes;
     @Mock LessonRepository lessons;
     @Mock CompetencyLevelRepository competencyLevels;
+    @Mock com.jlas.learning.repository.LearningTopicRepository topics;
+    @Mock com.jlas.learning.repository.UserGoalSurveySelectionRepository selections;
+    @Mock com.jlas.learning.repository.LearningSurveyOptionRepository options;
     GoalLessonSelectionService service;
 
     @BeforeEach void setUp() {
-        service = new GoalLessonSelectionService(submissions, scopes, lessons, competencyLevels);
+        service = new GoalLessonSelectionService(submissions, scopes, lessons, competencyLevels, topics, selections, options);
+    }
+
+    /** Owner 2026-10-19: topics chosen in the survey come first, each followed by its own dialogues; nothing is removed. */
+    @Test
+    void surveyFocusTopicsComeFirstTogetherWithTheirDialogueSituations() {
+        UserGoalSurveySubmission submission = UserGoalSurveySubmission.builder().id(60L).userId(7L).goalId(3L)
+                .learningMode("BALANCED").status("SUBMITTED").version(1).build();
+        when(submissions.findByIdAndUserId(60L, 7L)).thenReturn(Optional.of(submission));
+        when(scopes.findByGoalIdAndReviewStatusOrderByScopeOrderAsc(3L, "APPROVED")).thenReturn(List.of(
+                scope(1L, 100L, 1), scope(2L, 101L, 2), scope(3L, 200L, 3), scope(4L, 201L, 4)));
+        when(lessons.findAllById(any())).thenReturn(List.of(
+                published(1L), published(2L), published(3L), published(4L)));
+        when(topics.findAllById(any())).thenReturn(List.of(topic(100L, null), topic(101L, 100L),
+                topic(200L, null), topic(201L, 200L)));
+        when(selections.findBySubmissionId(60L)).thenReturn(List.of(
+                com.jlas.learning.entity.UserGoalSurveySelection.builder().submissionId(60L).questionId(9L).optionId(77L).build()));
+        when(options.findAllById(any())).thenReturn(List.of(
+                com.jlas.learning.entity.LearningSurveyOption.builder().id(77L).questionId(9L).topicId(200L).build()));
+
+        var result = service.select(7L, 60L);
+
+        assertEquals(List.of(3L, 4L, 1L, 2L), result.lessons().stream().map(Lesson::getId).toList());
+    }
+
+    private static LessonLearningScope scope(Long lessonId, Long topicId, int order) {
+        return LessonLearningScope.builder().lessonId(lessonId).goalId(3L).topicId(topicId).required(true)
+                .scopeOrder(order).reviewStatus("APPROVED").build();
+    }
+
+    private static Lesson published(Long id) {
+        return Lesson.builder().id(id).status("PUBLISHED").build();
+    }
+
+    private static com.jlas.learning.entity.LearningTopic topic(Long id, Long parentId) {
+        return com.jlas.learning.entity.LearningTopic.builder().id(id).goalId(3L).parentTopicId(parentId)
+                .topicCode("T" + id).titleVi("Topic " + id).topicOrder(id.intValue()).build();
     }
 
     @Test

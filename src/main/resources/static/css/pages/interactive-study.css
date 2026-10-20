@@ -156,6 +156,10 @@
 .ilp-check--ghost{background:var(--lp-surface);border:1px solid var(--lp-line);color:var(--lp-muted)}
 .ilp-check:has(.ilp-check__form){box-sizing:border-box;display:grid;justify-self:stretch;width:100%;min-width:0;min-height:0;border:0;border-radius:0;background:transparent;padding:0;color:inherit;cursor:auto;text-align:left}
 .ilp-check__form{display:grid;gap:16px;width:100%;min-width:0}
+.ilp-question-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+.ilp-question-pager [data-question-prev],.ilp-question-pager [data-question-next]{min-width:120px;padding:12px 16px}
+.ilp-question-pager [data-question-counter]{font-weight:700;color:var(--lp-muted);text-align:center}
+[data-question-pager] [hidden]{display:none!important}
 .ilp-question{box-sizing:border-box;width:100%;min-width:0;border:1px solid var(--lp-line);border-radius:var(--lp-radius-panel);background:var(--lp-surface);padding:20px;margin:0;overflow-wrap:anywhere}
 /* Floated full-width so the legend sits inside the box: a native legend straddles the top border (UAT 2026-10-06). */
 .ilp-question legend{float:left;width:100%;box-sizing:border-box;display:flex;gap:12px;align-items:baseline;font-weight:700;line-height:1.6;padding:0;margin:0 0 14px;max-width:100%;min-width:0;overflow-wrap:anywhere}
@@ -249,11 +253,46 @@
 .ilp-dialogue__vi{margin:0;color:var(--lp-muted)}
 .ilp-dialogue__audio{justify-self:start;border:1px solid var(--lp-line);background:var(--lp-surface);border-radius:999px;width:36px;height:36px;min-width:44px;min-height:44px;display:grid;place-items:center;cursor:pointer;font-size:16px}
 .ilp-dialogue__audio:focus-visible{outline:3px solid var(--lp-purple);outline-offset:3px}
+.ilp-comprehension__source-note{margin:8px 0 12px;padding:8px 12px;border-radius:8px;background:var(--lp-soft);color:var(--lp-muted);font-size:.9rem}
+.ilp-dialogue__audio-note{margin:12px 0;padding:8px 12px;border-radius:8px;background:var(--lp-soft);color:var(--lp-muted);font-size:.9rem}
+.ilp-dialogue__audio-status:empty{display:none}.ilp-dialogue__audio-status:not(:empty){margin:8px 0;color:var(--lp-muted);font-size:.9rem}
 .ilp-dialogue__sentinel{height:1px}
 .ilp-dialogue__progress{position:sticky;bottom:16px;display:grid;gap:10px;padding:18px 20px;border-radius:var(--lp-radius-panel);background:var(--lp-surface);border:1px solid var(--lp-line);box-shadow:var(--lp-shadow-active)}
 .ilp-dialogue__note{margin:0;color:var(--lp-ink);font-weight:600}
 .ilp-dialogue__evidence{list-style:none;margin:0;padding:0;display:flex;gap:16px;flex-wrap:wrap;font:700 12px var(--font-body);color:var(--lp-muted)}
 .ilp-dialogue__evidence li{padding-left:20px;position:relative}
+/* [JLAS-W0108] Communication dialogue practice (owner 2026-10-19): toolbar, slow listening, per-line practice, role-play. */
+.ilp-dialogue__toolbar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin:0 0 14px;font:600 14px var(--font-body)}
+.ilp-dialogue__toolbar label{display:inline-flex;align-items:center;gap:8px}
+.ilp-dialogue__toolbar select{min-height:40px;border:1px solid var(--lp-line);border-radius:10px;background:var(--lp-surface);padding:0 10px;font:inherit;color:inherit}
+.ilp-dialogue__audio.is-slow{width:auto;padding:0 12px;gap:6px;display:inline-flex;font:600 13px var(--font-body)}
+.ilp-dialogue__practice,.ilp-dialogue__reveal{justify-self:start;min-height:40px;padding:0 14px;border:1px solid var(--lp-line);border-radius:999px;background:var(--lp-surface);font:600 13px var(--font-body);cursor:pointer;color:inherit}
+.ilp-dialogue__practice.is-done{border-color:var(--lp-on-lime-soft);color:var(--lp-on-lime-soft)}
+.ilp-dialogue__ja.is-hidden{font-style:italic;opacity:.75}
+@media (prefers-reduced-motion: reduce){.ilp-dialogue__practice,.ilp-dialogue__reveal{transition:none}}
+/* [JLAS-W0108] Furigana, "Từ & cụm từ" and "Tóm tắt cuối bài" (owner 2026-10-19 C2/C4). */
+.ilp-dialogue__ja ruby{ruby-position:over}.ilp-dialogue__ja rt{font-size:.55em;font-weight:500;color:var(--lp-muted)}
+.ilp-dialogue__phrases{margin:0 0 18px;padding:14px 16px;border:1px solid var(--lp-line);border-radius:var(--lp-radius-panel);background:var(--lp-surface)}
+.ilp-dialogue__phrases>summary{cursor:pointer;font:700 15px var(--font-body);color:var(--lp-ink)}
+.ilp-dialogue__phrases ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.ilp-dialogue__phrase{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;padding:8px 0;border-top:1px solid var(--lp-line)}
+.ilp-dialogue__card{display:grid;gap:2px;justify-items:start;width:100%;min-height:48px;padding:8px 12px;border:1px dashed var(--lp-line);border-radius:12px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ilp-dialogue__card:focus-visible{outline:3px solid var(--lp-purple);outline-offset:2px}
+.ilp-dialogue__phrase.is-flipped .ilp-dialogue__card{border-style:solid;border-color:var(--lp-on-lime-soft);cursor:default}
+.ilp-dialogue__phrase-ja{font-size:1.05rem;font-weight:700;overflow-wrap:anywhere}
+.ilp-dialogue__phrase-reading{color:var(--lp-muted);font-size:.85rem}
+.ilp-dialogue__phrase-vi{overflow-wrap:anywhere}
+.ilp-dialogue__phrase-hint{color:var(--lp-muted);font-size:.8rem;font-style:italic}
+.ilp-dialogue__phrase-actions{display:inline-flex;gap:8px;align-items:center}
+.ilp-dialogue__jump{min-height:36px;padding:0 12px;border:1px solid var(--lp-line);border-radius:999px;background:transparent;font:600 12px var(--font-body);color:inherit;cursor:pointer}
+.ilp-dialogue__jump:focus-visible{outline:3px solid var(--lp-purple);outline-offset:3px}
+.ilp-dialogue__supplement{margin:6px 0 0;color:var(--lp-muted);font-size:.85rem}
+.ilp-dialogue__line.is-highlighted .ilp-dialogue__bubble{box-shadow:0 0 0 3px var(--lp-purple);transition:box-shadow .2s ease}
+.ilp-dialogue__summary{margin:18px 0;padding:16px 18px;border:1px solid var(--lp-line);border-radius:var(--lp-radius-panel);background:var(--lp-surface)}
+.ilp-dialogue__summary h2{margin:0 0 8px;font-size:1.15rem}.ilp-dialogue__summary h3{margin:12px 0 6px;font-size:1rem}
+.ilp-dialogue__summary ul{margin:0;padding-left:20px;display:grid;gap:4px}
+@media (prefers-reduced-motion: reduce){.ilp-dialogue__line.is-highlighted .ilp-dialogue__bubble{transition:none}}
+@media(max-width:520px){.ilp-dialogue__phrase{grid-template-columns:minmax(0,1fr)}}
 .ilp-dialogue__evidence li::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:var(--lp-line)}
 .ilp-dialogue__evidence li.is-done{color:var(--lp-on-lime-soft)}
 .ilp-dialogue__evidence li.is-done::before{background:var(--lp-lime)}
@@ -295,3 +334,17 @@
 .ilp-listening-preview h2 { margin:0 0 6px; font-size:17px; }
 .ilp-listening-preview p { margin:0 0 10px; color:var(--lp-muted); }
 .ilp-listening-preview ol { margin:0; padding-left:22px; line-height:1.6; }
+/* [JLAS-W0108] "Vượt ải" reply challenge (owner 2026-10-19 G1–G3): optional, never gating. */
+.ilp-challenge__cta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:0 0 16px;color:var(--lp-muted);font-size:.9rem}
+.ilp-challenge__reward{margin:6px 0 0;font-weight:700;color:var(--lp-on-lime-soft)}
+.ilp-challenge__turn{display:grid;gap:10px;margin:8px 0 16px;padding:16px;border:1px solid var(--lp-line);border-radius:var(--lp-radius-panel);background:var(--lp-surface)}
+.ilp-challenge__turn h2{margin:0;font-size:1.05rem}
+.ilp-challenge__options{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ilp-challenge__option{display:grid;gap:2px;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--lp-line);border-radius:12px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ilp-challenge__option:focus-visible{outline:3px solid var(--lp-purple);outline-offset:2px}
+.ilp-challenge__option:disabled{cursor:default}
+.ilp-challenge__option.is-correct{border-color:var(--lp-on-lime-soft);box-shadow:inset 0 0 0 1px var(--lp-on-lime-soft)}
+.ilp-challenge__option.is-wrong{border-color:var(--color-error,#c0392b);opacity:.85}
+.ilp-challenge__option rt{font-size:.55em;color:var(--lp-muted)}
+.ilp-challenge__vi{color:var(--lp-muted);font-size:.85rem}
+.ilp-challenge__feedback{display:grid;gap:8px}.ilp-challenge__feedback p{margin:0}

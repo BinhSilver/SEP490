@@ -118,6 +118,23 @@ class InteractiveRateLimitServiceTest {
         service.check(1L, InteractiveRateLimitService.Bucket.DIALOGUE_HEARTBEAT);
     }
 
+    @Test
+    void dialoguePracticeBucketLetsALearnerFlipEveryCardAndPractiseEveryLineQuicklyWithoutTouchingHeartbeats() {
+        // §2.24: up to 8 "Từ & cụm từ" cards + 12 lines, each one click; 2026-10-19 Selenium hit the 8/30s heartbeat cap.
+        var service = new InteractiveRateLimitService(new MutableClock(0));
+        for (int i = 0; i < 20; i++) {
+            service.check(1L, InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        }
+        for (int i = 0; i < 8; i++) {
+            service.check(1L, InteractiveRateLimitService.Bucket.DIALOGUE_HEARTBEAT);
+        }
+        for (int i = 20; i < 60; i++) {
+            service.check(1L, InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        }
+        assertThatThrownBy(() -> service.check(1L, InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE))
+                .isInstanceOf(ApiException.class);
+    }
+
     // [JLAS-W0193] RC Task 8 hardening — the four tests above already prove the limiter using an injectable
     // Clock, but only ever advance well past the window edge (e.g. +30_001ms/+60_001ms). The eviction
     // predicate itself (`now - requests.peekFirst() >= bucket.windowMillis`) is an off-by-one-prone boundary

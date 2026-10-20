@@ -24,6 +24,9 @@ public class GoalLessonSelectionService {
     private final LessonLearningScopeRepository scopes;
     private final LessonRepository lessons;
     private final CompetencyLevelRepository competencyLevels;
+    private final LearningTopicRepository topics;
+    private final UserGoalSurveySelectionRepository selections;
+    private final LearningSurveyOptionRepository options;
 
     @Transactional(readOnly = true)
     public GoalLessonSelection select(Long userId, Long submissionId) {
@@ -38,7 +41,7 @@ public class GoalLessonSelectionService {
                     "Chưa có bài học đã duyệt phù hợp với nhu cầu đã chọn.");
         }
 
-        List<Long> orderedIds = eligible.stream().map(LessonLearningScope::getLessonId).distinct().toList();
+        List<Long> orderedIds = prioritiseSurveyTopics(eligible, submissionId);
         Map<Long, Lesson> published = lessons.findAllById(orderedIds).stream()
                 .filter(lesson -> "PUBLISHED".equals(lesson.getStatus()))
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
@@ -55,6 +58,33 @@ public class GoalLessonSelectionService {
                 levelCodes.getOrDefault(scope.getCompetencyLevelId(), "BASIC")));
         return new GoalLessonSelection(submissionId, submission.getGoalId(), submission.getLearningMode(),
                 orderedIds.stream().map(published::get).toList(), levelByLesson);
+    }
+
+    /** Owner 2026-10-19: the topics chosen in the survey (with their dialogue situations) come first; the rest keep
+     * the approved scope order. Survey answers only reorder — they never remove a situation. */
+    private List<Long> prioritiseSurveyTopics(List<LessonLearningScope> eligible, Long submissionId) {
+        List<Long> ordered = eligible.stream().map(LessonLearningScope::getLessonId).distinct().toList();
+        List<Long> optionIds = selections.findBySubmissionId(submissionId).stream()
+                .map(com.jlas.learning.entity.UserGoalSurveySelection::getOptionId).distinct().toList();
+        Set<Long> focus = optionIds.isEmpty() ? Set.of() : options.findAllById(optionIds).stream()
+                .map(com.jlas.learning.entity.LearningSurveyOption::getTopicId).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (focus.isEmpty()) return ordered;
+        Map<Long, Long> rootByTopic = topics.findAllById(eligible.stream().map(LessonLearningScope::getTopicId)
+                        .filter(Objects::nonNull).distinct().toList()).stream()
+                .collect(Collectors.toMap(com.jlas.learning.entity.LearningTopic::getId,
+                        com.jlas.learning.entity.LearningTopic::rootTopicId));
+        Map<Long, Long> topicByLesson = new HashMap<>();
+        eligible.forEach(scope -> topicByLesson.putIfAbsent(scope.getLessonId(), scope.getTopicId()));
+        List<Long> first = new ArrayList<>();
+        List<Long> rest = new ArrayList<>();
+        for (Long lessonId : ordered) {
+            Long topicId = topicByLesson.get(lessonId);
+            Long root = topicId == null ? null : rootByTopic.getOrDefault(topicId, topicId);
+            (root != null && focus.contains(root) ? first : rest).add(lessonId);
+        }
+        first.addAll(rest);
+        return List.copyOf(first);
     }
 
     public record GoalLessonSelection(Long submissionId, Long goalId, String learningMode, List<Lesson> lessons,

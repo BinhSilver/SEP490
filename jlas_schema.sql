@@ -2276,6 +2276,41 @@ CREATE TABLE learning_dialogue_progress (
         REFERENCES user_learning_path_item(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0108] 2026-10-19 (owner C2/C4/G1): J-LAS supplement aids of one communication dialogue lesson, generated
+-- from learning-content.json: furigana per line ({漢字|かな} groups; the base text equals the line), "Từ & cụm từ"
+-- taken from the lines, and the optional "chọn câu đáp đúng" challenge whose answer key never leaves the server.
+-- A content change resets review_status to NEEDS_REVIEW.
+CREATE TABLE learning_dialogue_aid (
+    lesson_id       BIGINT UNSIGNED NOT NULL,
+    aid_json        MEDIUMTEXT NOT NULL,
+    content_sha256  CHAR(64) NOT NULL,
+    source_code     VARCHAR(64) NOT NULL,
+    review_status   VARCHAR(20) NOT NULL DEFAULT 'NEEDS_REVIEW',
+    updated_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                    ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (lesson_id),
+    CONSTRAINT fk_dialogue_aid_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT chk_dialogue_aid_review
+        CHECK (review_status IN ('NEEDS_REVIEW','APPROVED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] 2026-10-19 (owner G2/G3): first clear of a dialogue lesson's optional challenge. The row is the
+-- idempotency guard for the one-time 2 CP reward; replays never award again.
+CREATE TABLE learning_dialogue_challenge_clear (
+    user_id         BIGINT UNSIGNED NOT NULL,
+    lesson_id       BIGINT UNSIGNED NOT NULL,
+    correct_count   INT UNSIGNED NOT NULL,
+    question_count  INT UNSIGNED NOT NULL,
+    cleared_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, lesson_id),
+    KEY idx_dialogue_challenge_lesson (lesson_id),
+    CONSTRAINT fk_dialogue_challenge_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_challenge_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Goi y lesson on tap tu mot weakness.
 CREATE TABLE user_lesson_recommendation (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -3491,6 +3526,9 @@ CREATE TABLE learning_topic (
     title_vi VARCHAR(255) NOT NULL,
     title_ja VARCHAR(255) NULL,
     topic_order INT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] 2026-10-19: approximate JLPT level of a communication dialogue situation (N5..N1);
+    -- NULL for vocabulary topics. Used only to order/label situations easy -> hard, never to lock them.
+    jlpt_level VARCHAR(10) NULL,
     description TEXT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     external_key VARCHAR(100) NULL,

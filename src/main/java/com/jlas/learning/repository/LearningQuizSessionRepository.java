@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LearningQuizSessionRepository extends JpaRepository<LearningQuizSession, Long> {
 
+    /** All quiz evidence anchored to one activity, including issued drafts and non-scoring practice replays. */
+    List<LearningQuizSession> findByActivityIdOrderByIdAsc(Long activityId);
+
     /** Saved quiz attempt for an owned activity; used for read-only, on-demand answer explanations. */
     Optional<LearningQuizSession> findByIdAndUserIdAndActivityId(Long id, Long userId, Long activityId);
 

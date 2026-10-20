@@ -65,8 +65,14 @@ class InteractiveDialogueConcurrencyTest {
         @Bean InteractiveDialogueServiceImpl service(UserLearningPathItemRepository items,
                 LearningActivityMemberRepository members, LearningDialogueProgressRepository progressRepo,
                 com.jlas.dictionary.repository.DialogueLineDetailRepository dialogueLines,
-                com.jlas.dictionary.repository.ContentAudioRepository audio) {
-            return new InteractiveDialogueServiceImpl(items, members, progressRepo, dialogueLines, audio);
+                com.jlas.dictionary.repository.ContentAudioRepository audio,
+                com.jlas.learning.repository.LearningStudySessionRepository studySessions,
+                com.jlas.learning.repository.LearningStudyCardRepository studyCards,
+                com.jlas.learning.repository.LearningDialogueAidRepository dialogueAids,
+                com.jlas.dictionary.repository.GrammarPointRepository grammarPoints,
+                com.jlas.learning.repository.LearningDialogueChallengeClearRepository challengeClears) {
+            return new InteractiveDialogueServiceImpl(items, members, progressRepo, dialogueLines, audio,
+                    studySessions, studyCards, dialogueAids, grammarPoints, challengeClears);
         }
     }
 

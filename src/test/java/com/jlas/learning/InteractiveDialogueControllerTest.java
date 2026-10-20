@@ -79,8 +79,41 @@ class InteractiveDialogueControllerTest {
     }
 
     @Test void progressResultNeverExposesAClientSettableCompletedOrScoreField() {
-        // DialogueProgressResult has exactly these 7 server-computed components — no client-settable field.
-        assertEquals(7, DialogueProgressResult.class.getRecordComponents().length);
+        // DialogueProgressResult has exactly these 12 server-computed components (then: the communication
+        // line-practice counts and the "Từ & cụm từ" card counts) — no client-settable field.
+        assertEquals(java.util.List.of("activityId", "activityState", "requiredSeconds", "accumulatedSeconds",
+                "remainingSeconds", "reachedBottom", "completed", "lineByLinePractice", "practicedLines", "totalLines",
+                "flippedPhrases", "totalPhrases"), java.util.Arrays.stream(DialogueProgressResult.class.getRecordComponents())
+                .map(java.lang.reflect.RecordComponent::getName).toList());
+    }
+
+    @Test void challengeWritesAreRateLimitedAndPassOnlyTheChoicesToTheService() {
+        var service = mock(InteractiveDialogueService.class);
+        var rateLimit = mock(InteractiveRateLimitService.class);
+        var controller = new InteractiveDialogueController(service, rateLimit);
+
+        controller.challenge(1L, user);
+        controller.answerChallenge(1L, new com.jlas.learning.dto.DialogueChallenge.AnswerRequest(0, "b"), user);
+        controller.completeChallenge(1L, new com.jlas.learning.dto.DialogueChallenge.CompleteRequest(java.util.List.of("b", "a")), user);
+
+        verify(service).challenge(7L, 1L);
+        verify(service).answerChallenge(7L, 1L, 0, "b");
+        verify(service).completeChallenge(7L, 1L, java.util.List.of("b", "a"));
+        verify(rateLimit, times(2)).check(7L, InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+    }
+
+    @Test void flippingAPhraseChecksTheRateLimitAndDelegatesOnlyTheIndex() {
+        var service = mock(InteractiveDialogueService.class);
+        var rateLimit = mock(InteractiveRateLimitService.class);
+        var controller = new InteractiveDialogueController(service, rateLimit);
+
+        controller.flipPhrase(1L, 3, user);
+        controller.practiceLine(1L, 201L, user);
+
+        verify(rateLimit, times(2)).check(7L, InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        verify(rateLimit, never()).check(7L, InteractiveRateLimitService.Bucket.DIALOGUE_HEARTBEAT);
+        verify(service).flipPhrase(7L, 1L, 3);
+        verify(service).practiceLine(7L, 1L, 201L);
     }
 
     @Test void heartbeatChecksRateLimitBeforeDelegatingAndRejectsWhenExceeded() {

@@ -49,3 +49,13 @@ test('renders a safe retry state instead of leaving an unavailable survey stuck 
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.doesNotMatch(html, /<script>/);
 });
+
+test('goal survey options have no icon column, so their label is not squeezed into the icon slot', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const css = fs.readFileSync(path.join(__dirname, '../../main/resources/static/css/pages/smart-test.css'), 'utf8');
+  const html = survey.renderDefinition({ displayNameVi: 'Du lịch', questions: [{ questionCode: 'Q', selectionType: 'MULTIPLE',
+    textVi: 'Chủ đề?', required: true, options: [{ optionCode: 'A', labelVi: 'Sân bay & xuất nhập cảnh' }] }] });
+  assert.doesNotMatch(html, /survey-option__icon/, 'goal survey options render no icon');
+  assert.match(css, /\.survey-option\.goal-survey-option\s*\{[^}]*grid-template-columns:\s*1fr auto/);
+});
