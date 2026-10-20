@@ -470,30 +470,142 @@
 .ilp-page .ilp-skill-card__parts .ilp-skill-part:last-child { padding-bottom: 0; border-bottom: 0; }
 .ilp-page .ilp-skill-card__parts .ilp-skill-part.is-done .ilp-activity__mark { color: var(--color-success); }
 
-/* [JLAS-W0108] Communication roadmap grouped by topic (owner 2026-10-19). */
-.ilp-page .ilp-topic { display: grid; gap: 0; padding: 22px 0 6px; border-bottom: 2px solid var(--lp-line); }
-.ilp-page .ilp-topic:last-child { border-bottom: 0; }
-.ilp-page .ilp-topic__head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 0 6px 4px; }
-.ilp-page .ilp-topic__head > div { flex: 1 1 220px; min-width: 0; }
-.ilp-page .ilp-topic__head h2 { margin: 4px 0 0; font-size: clamp(20px, 2.4vw, 26px); letter-spacing: -.02em; overflow-wrap: anywhere; }
-.ilp-page .ilp-topic__head .ilp-status { padding: 0; background: transparent; color: var(--lp-muted); font: 600 12px var(--font-body); }
-.ilp-page .ilp-topic__priority {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-primary-container) 28%, transparent);
-  color: var(--color-primary);
-  font: 700 12px/1.4 var(--font-body);
-}
-.ilp-page .ilp-topic .ilp-chapter { padding-left: 18px; }
-.ilp-page .ilp-topic .ilp-chapter:last-child { border-bottom: 0; }
+/* §2.28 / OD-44: the server's note on a chapter from an unreviewed textbook. */
 .ilp-page .ilp-chapter__hint {
   margin: 0;
   padding: 8px 12px;
   border-left: 3px solid var(--color-primary-container);
-  background: color-mix(in srgb, var(--color-primary-container) 12%, transparent);
+  background: color-mix(in srgb, var(--color-primary-fixed) 35%, transparent);
   color: var(--lp-ink);
   font: 500 13px/1.5 var(--font-body);
 }
+
+/* [JLAS-W0108] Communication roadmap (owner 2026-10-19 topics; 2026-10-20 option A, balanced): one topic per page
+   behind a tab bar and one level of framing — a tinted topic header, the topic vocabulary as one panel and one card
+   per situation, parts as plain rows inside it. Plum primary only. */
+.ilp-page .ilp-comm { display: grid; min-width: 0; margin-top: 8px; }
+.ilp-page .ilp-topic-tabs { display: flex; flex-wrap: wrap; gap: 0 22px; min-width: 0; margin: 0 0 18px; padding: 4px 4px 0; border-bottom: 1px solid var(--lp-line); }
+.ilp-page .ilp-topic-tabs button {
+  flex: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--lp-muted);
+  font: 500 14px/1.4 var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ilp-page .ilp-topic-tabs button small { color: var(--lp-muted); font-size: 12px; font-weight: 400; }
+.ilp-page .ilp-topic-tabs button:hover { color: var(--color-primary); }
+.ilp-page .ilp-topic-tabs button[aria-selected="true"] { border-bottom-color: var(--color-primary); color: var(--color-primary); font-weight: 650; }
+.ilp-page .ilp-topic-tabs button[aria-selected="true"] small { color: var(--color-primary); }
+.ilp-page .ilp-topic-tabs__done { color: var(--color-primary-container); }
+.ilp-page .ilp-topic { display: grid; gap: 14px; }
+.ilp-page .ilp-topic[hidden] { display: none; }
+.ilp-page .ilp-topic__head {
+  padding: 18px 20px 16px;
+  border-radius: var(--lp-radius-panel);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary-fixed) 62%, var(--lp-surface)), color-mix(in srgb, var(--color-primary-fixed) 18%, var(--lp-surface)));
+}
+.ilp-page .ilp-topic__head h2 { margin: 0; color: var(--color-primary); font-size: clamp(21px, 2.4vw, 26px); line-height: 1.25; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.ilp-page .ilp-topic__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 6px; color: var(--lp-muted); font-size: 13px; }
+.ilp-page .ilp-topic__priority { padding: 1px 10px; border-radius: 999px; background: var(--color-primary-fixed); color: var(--color-primary); font: 600 12px/1.6 var(--font-body); }
+.ilp-page .ilp-topic__progress { max-width: 420px; height: 4px; margin-top: 12px; overflow: hidden; border-radius: 999px; background: var(--lp-surface); }
+.ilp-page .ilp-topic__progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary-container); }
+.ilp-page .ilp-topic-vocab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--lp-line);
+  border-left: 4px solid var(--color-primary-container);
+  border-radius: var(--lp-radius-interactive);
+  background: var(--lp-surface);
+}
+.ilp-page .ilp-topic-vocab__text strong { display: block; font-size: 15px; }
+.ilp-page .ilp-topic-vocab :is(.ilp-situation__parts, .ilp-chapter__hint) { grid-column: 1 / -1; }
+.ilp-page .ilp-topic__sub { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 10px 0 -4px; }
+.ilp-page .ilp-topic__sub strong { font-size: 16px; }
+.ilp-page .ilp-topic__sub span { color: var(--lp-muted); font-size: 13px; }
+.ilp-page .ilp-situations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ilp-page .ilp-situation {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--lp-line);
+  border-radius: var(--lp-radius-interactive);
+  background: var(--lp-surface);
+}
+.ilp-page .ilp-situation.is-done { background: color-mix(in srgb, var(--color-primary-fixed) 22%, var(--lp-surface)); }
+.ilp-page .ilp-situation:has([data-situation-toggle][aria-expanded="true"]) { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--color-primary-container) 45%, var(--lp-line)); }
+.ilp-page .ilp-situation__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.ilp-page .ilp-situation__top h3 { margin: 0; font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; }
+.ilp-page .ilp-situation__level { flex: none; padding: 1px 8px; border-radius: 6px; background: color-mix(in srgb, var(--color-primary-fixed) 70%, var(--lp-surface)); color: var(--color-primary); font: 600 12px/1.6 var(--font-body); }
+.ilp-page .ilp-situation__level.is-harder { border: 1px dashed color-mix(in srgb, var(--color-primary-container) 55%, var(--lp-surface)); background: var(--lp-surface); }
+.ilp-page :is(.ilp-situation__status, .ilp-situation__hint) { margin: 0; color: var(--lp-muted); font-size: 13px; line-height: 1.5; }
+.ilp-page .ilp-situation__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: auto; padding-top: 6px; }
+.ilp-page .ilp-topic-vocab .ilp-situation__actions { margin-top: 0; padding-top: 0; }
+.ilp-page :is(.ilp-situation__toggle, .ilp-topic__go) {
+  min-height: 36px;
+  padding: 6px 13px;
+  border: 1px solid var(--lp-line);
+  border-radius: 8px;
+  background: var(--lp-surface);
+  color: var(--color-primary);
+  font: 600 13px/1.3 var(--font-body);
+  cursor: pointer;
+}
+.ilp-page :is(.ilp-situation__toggle, .ilp-topic__go):hover { border-color: var(--color-primary-container); background: color-mix(in srgb, var(--color-primary-fixed) 35%, var(--lp-surface)); }
+.ilp-page .ilp-situation__toggle[aria-expanded="true"] { border-color: transparent; background: var(--color-primary-fixed); }
+.ilp-page :is(.ilp-topic-tabs button, .ilp-situation__toggle, .ilp-topic__go):focus-visible { outline: 3px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+.ilp-page .ilp-situation__parts { display: grid; margin: 6px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--lp-line); }
+.ilp-page .ilp-situation__parts[hidden] { display: none; }
+.ilp-page .ilp-situation__parts .ilp-skill-part { padding: 10px 0; border: 0; border-bottom: 1px solid var(--lp-line); border-radius: 0; background: none; }
+.ilp-page .ilp-situation__parts .ilp-skill-part:last-child { padding-bottom: 0; border-bottom: 0; }
+.ilp-page .ilp-situation__parts .ilp-skill-part__title strong { font-size: 14px; }
+.ilp-page .ilp-situation__parts .ilp-activity__mark { color: var(--color-primary-container); }
+.ilp-page .ilp-skill-part__hint { display: block; }
+.ilp-page .ilp-comm .ilp-skill-part__continue { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+.ilp-page .ilp-comm :is(.ilp-skill-part__start, .ilp-skill-part__continue) { font-size: 13px; }
+.ilp-page .ilp-topic__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px; color: var(--lp-muted); font-size: 13px; }
+.ilp-page .ilp-topic__nav { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.ilp-page .ilp-topic__source { margin: 0; color: var(--lp-muted); font-size: 12px; }
+@media (max-width: 720px) {
+  .ilp-page .ilp-situations, .ilp-page .ilp-topic-vocab { grid-template-columns: 1fr; }
+  /* Narrow screens: one swipeable row with a thin visible scrollbar as the cue that more topics follow. */
+  .ilp-page .ilp-topic-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+  .ilp-page .ilp-topic__head { padding: 16px; }
+  .ilp-page .ilp-topic__nav { width: 100%; margin-left: 0; }
+  .ilp-page .ilp-topic__go { flex: 1 1 100%; }
+}
+
+/* BrSE optional textbook suggestions (owner 2026-10-19, Q5): never gating. */
+.ilp-page .ilp-books { margin: 18px 0 14px; padding: 14px 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-page .ilp-books h2 { margin: 0 0 6px; font-size: 1rem; }
+.ilp-page .ilp-books p { margin: 0 0 8px; color: var(--lp-muted); font-size: .9rem; }
+.ilp-page .ilp-books ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.ilp-page .ilp-books__link { color: var(--color-primary); font-weight: 700; overflow-wrap: anywhere; }
+.ilp-page .ilp-books__link:focus-visible { outline: 3px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+.ilp-page .ilp-books__pending { color: var(--lp-muted); overflow-wrap: anywhere; }
+/* OD-45 / §2.28: a DRAFT J-LAS textbook is studied but never presented as reviewed. */
+.ilp-page .ilp-books__unreviewed {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  font-size: 0.8em;
+  font-weight: 700;
+}
+/* end communication roadmap */
 
 @media (max-width: 820px) {
   .ilp-page .ilp-hero { grid-template-columns: 1fr; gap: 18px; }
@@ -510,23 +622,4 @@
   .ilp-page .ilp-day--available { padding: 14px 12px; }
   .ilp-page .ilp-chapter__head { align-items: flex-start; }
   .ilp-page .ilp-chapter .ilp-status { width: 100%; margin-left: 0; }
-}
-
-/* [JLAS-W0108] BrSE optional textbook suggestions (owner 2026-10-19, Q5): never gating. */
-.ilp-page .ilp-books { margin: 18px 0 6px; padding: 14px 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
-.ilp-page .ilp-books h2 { margin: 0 0 6px; font-size: 1rem; }
-.ilp-page .ilp-books p { margin: 0 0 8px; color: var(--lp-muted); font-size: .9rem; }
-.ilp-page .ilp-books ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
-.ilp-page .ilp-books__link { color: var(--color-primary); font-weight: 700; overflow-wrap: anywhere; }
-.ilp-page .ilp-books__link:focus-visible { outline: 3px solid var(--color-primary-container); outline-offset: 2px; }
-.ilp-page .ilp-books__pending { color: var(--lp-muted); overflow-wrap: anywhere; }
-/* OD-45 / §2.28: a DRAFT J-LAS textbook is studied but never presented as reviewed. */
-.ilp-page .ilp-books__unreviewed {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: var(--color-error-container);
-  color: var(--color-on-error-container);
-  font-size: 0.8em;
-  font-weight: 700;
 }

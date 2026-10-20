@@ -595,26 +595,173 @@ function commPackage(id, lessonId, title, types) {
     activities: types.map((type, index) => ({ id: id * 10 + index, type, state: 'LOCKED', orderIndex: index + 1 })) };
 }
 
-test('communication roadmap groups units by topic, survey focus first, with level chips and a soft warning', () => {
-  const data = path({ goal: 'TRAVEL', packages: [
+function travelTopics(overrides) {
+  const packages = [
     commPackage(1, 11, 'J-LAS · Từ vựng · Sân bay & xuất nhập cảnh', ['VOCABULARY']),
     commPackage(2, 12, 'J-LAS · Làm thủ tục ở sân bay', ['GRAMMAR', 'DIALOGUE']),
     commPackage(3, 21, 'J-LAS · Từ vựng · Hỏi đường & sự cố', ['VOCABULARY']),
-    commPackage(4, 22, 'J-LAS · Để quên đồ', ['GRAMMAR', 'DIALOGUE'])],
+    commPackage(4, 22, 'J-LAS · Để quên đồ', ['GRAMMAR', 'DIALOGUE'])];
+  (overrides || (() => {}))(packages);
+  return path({ goal: 'TRAVEL', packages,
     communicationGuide: { learnerSelfLevel: 'N5', topics: [
       { code: 'TROUBLE', titleVi: 'Hỏi đường & sự cố', order: 11, priority: true, units: [
         { lessonId: 21, vocabularyTopic: true, jlptLevel: null }, { lessonId: 22, vocabularyTopic: false, jlptLevel: 'N3' }] },
       { code: 'AIR', titleVi: 'Sân bay & xuất nhập cảnh', order: 1, priority: false, units: [
         { lessonId: 11, vocabularyTopic: true, jlptLevel: null }, { lessonId: 12, vocabularyTopic: false, jlptLevel: 'N5' }] }] } });
-  const html = page.render(data);
-  assert.equal((html.match(/class="ilp-topic"/g) || []).length, 2);
-  assert.ok(html.indexOf('Hỏi đường &amp; sự cố') < html.indexOf('Sân bay &amp; xuất nhập cảnh'), 'focus topic first');
-  assert.match(html, /Ưu tiên của bạn/);
-  assert.match(html, /TỪ VỰNG CHỦ ĐỀ/);
-  assert.match(html, /TÌNH HUỐNG · N3/);
-  assert.match(html, /Khó hơn trình độ hiện tại/, 'N3 situation above a self-reported N5 learner is flagged');
-  assert.equal((html.match(/Khó hơn trình độ hiện tại/g) || []).length, 1, 'the N5 situation is not flagged');
+}
+function topicSection(html, code) {
+  const start = html.indexOf('data-topic="' + code + '"');
+  assert.ok(start >= 0, 'topic ' + code + ' rendered');
+  const open = html.lastIndexOf('<section', start);
+  const end = html.indexOf('</section>', start);
+  return html.slice(open, end);
+}
+
+// Owner 2026-10-20 (option A, balanced): one topic per page behind a topic tab bar; inside a topic the vocabulary
+// comes first, then freely chosen situation cards. Display only — no unit is ever locked.
+test('communication roadmap shows one topic at a time behind a topic tab bar, survey focus first', () => {
+  const html = page.render(travelTopics());
+  assert.match(html, /role="tablist" aria-label="Chủ đề"/);
+  const tabs = html.match(/data-topic-tab="[A-Z_]+"/g);
+  assert.deepEqual(tabs, ['data-topic-tab="TROUBLE"', 'data-topic-tab="AIR"'], 'focus topic first');
+  assert.match(html, /data-topic-tab="TROUBLE"[^>]*aria-selected="true"/);
+  assert.match(html, /data-topic-tab="AIR"[^>]*aria-selected="false"/);
+  assert.equal((html.match(/class="ilp-topic"/g) || []).length, 2, 'every topic stays in the page, inactive ones hidden');
+  assert.doesNotMatch(topicSection(html, 'TROUBLE'), /^<section[^>]*hidden/);
+  assert.match(topicSection(html, 'AIR'), /^<section[^>]*hidden/);
+  assert.match(topicSection(html, 'TROUBLE'), /Ưu tiên của bạn/);
+  assert.doesNotMatch(topicSection(html, 'AIR'), /Ưu tiên của bạn/);
+  assert.match(html, /Nên học trước: từ vựng chủ đề/);
+  assert.match(topicSection(html, 'AIR'), /Chủ đề 2 trên 2/);
+  assert.match(topicSection(html, 'TROUBLE'), /data-topic-go="AIR"[^>]*>Chủ đề tiếp theo: Sân bay &amp; xuất nhập cảnh</);
+  assert.match(topicSection(html, 'AIR'), /data-topic-go="TROUBLE"[^>]*>Chủ đề trước: Hỏi đường &amp; sự cố</);
   assert.doesNotMatch(html, /ilp-skill-part__lock/, 'grouping never locks a unit');
+});
+
+test('communication topics drop the repeated skill header and the J-LAS title prefix but keep one supplement label per topic', () => {
+  const html = page.render(travelTopics());
+  assert.doesNotMatch(html, /NỘI DUNG TÌNH HUỐNG|Chọn kỹ năng muốn học|TỪ VỰNG CHỦ ĐỀ|TÌNH HUỐNG ·/);
+  assert.doesNotMatch(html, /hoàn thành cả ba kỹ năng/i);
+  assert.doesNotMatch(html, /<h3>J-LAS ·/);
+  assert.match(html, /<h3>Để quên đồ<\/h3>/);
+  assert.match(html, /<h3>Làm thủ tục ở sân bay<\/h3>/);
+  assert.equal((topicSection(html, 'TROUBLE').match(/Nội dung bổ sung do J-LAS biên soạn/g) || []).length, 1);
+  assert.equal((topicSection(html, 'AIR').match(/Nội dung bổ sung do J-LAS biên soạn/g) || []).length, 1);
+});
+
+test('a situation above the learner level carries a short level chip and one study hint; an easier one carries the level only', () => {
+  const html = page.render(travelTopics());
+  assert.match(topicSection(html, 'TROUBLE'), /ilp-situation__level is-harder"[^>]*title="Khó hơn trình độ hiện tại của bạn \(N5\)">N3, khó hơn</);
+  assert.match(topicSection(html, 'AIR'), /ilp-situation__level">N5</);
+  assert.equal((html.match(/khó hơn/g) || []).length, 1, 'the N5 situation is not flagged');
+  assert.equal((html.match(/Nên học từ vựng chủ đề trước/g) || []).length, 1);
+});
+
+test('a situation card says where the learner is and offers the next step; its parts open on demand', () => {
+  const fresh = page.render(travelTopics());
+  const trouble = topicSection(fresh, 'TROUBLE');
+  assert.match(trouble, /ilp-situation__status">Chưa bắt đầu</);
+  assert.match(trouble, /ilp-situation__actions"><button class="ilp-skill-part__start" type="button" data-start-package="4" data-preferred-activity="40">Bắt đầu</);
+  assert.match(trouble, /data-situation-toggle aria-expanded="false"/);
+  assert.match(trouble, /class="ilp-situation__parts"[^>]*hidden/);
+  assert.match(trouble, /<strong>Mẫu câu<\/strong>/);
+  assert.match(trouble, /<strong>Hội thoại<\/strong>/);
+
+  const studying = page.render(travelTopics(packages => {
+    packages[3].status = 'IN_PROGRESS';
+    packages[3].activities[0].state = 'PASSED';
+    packages[3].activities[1].state = 'STUDYING';
+  }));
+  const active = topicSection(studying, 'TROUBLE');
+  assert.match(active, /ilp-situation__status">Mẫu câu đã xong, đang học Hội thoại</);
+  assert.match(active, /ilp-situation__actions"><a class="ilp-skill-part__continue" href="\/learning\/v2\/dialogue\?activity=41">Tiếp tục học</);
+
+  const done = page.render(travelTopics(packages => {
+    packages[3].status = 'COMPLETED';
+    packages[3].activities[0].state = 'PASSED';
+    packages[3].activities[1].state = 'COMPLETED';
+  }));
+  const finished = topicSection(done, 'TROUBLE');
+  assert.match(finished, /class="ilp-situation is-done"/);
+  assert.match(finished, /ilp-situation__status">Đã hoàn thành</);
+  assert.match(finished, /data-situation-toggle aria-expanded="false"[^>]*>Ôn lại các phần</);
+  assert.doesNotMatch(finished, /data-start-package="4"/);
+});
+
+test('the topic with unfinished study opens by default; a remembered topic wins; an unknown one falls back', () => {
+  const studying = travelTopics(packages => {
+    packages[1].status = 'IN_PROGRESS';
+    packages[1].activities[0].state = 'STUDYING';
+  });
+  assert.match(page.render(studying), /data-topic-tab="AIR"[^>]*aria-selected="true"/, 'in-progress topic beats the survey focus');
+  assert.match(page.render(travelTopics(), 'ALL', { topic: 'AIR' }), /data-topic-tab="AIR"[^>]*aria-selected="true"/);
+  assert.match(page.render(travelTopics(), 'ALL', { topic: 'NOPE' }), /data-topic-tab="TROUBLE"[^>]*aria-selected="true"/);
+  const allDone = travelTopics(packages => packages.slice(2).forEach(pkg => {
+    pkg.status = 'COMPLETED';
+    pkg.activities.forEach(a => { a.state = a.type === 'DIALOGUE' ? 'COMPLETED' : 'PASSED'; });
+  }));
+  assert.match(page.render(allDone), /data-topic-tab="AIR"[^>]*aria-selected="true"/, 'a finished focus topic yields to unfinished work');
+  assert.match(page.render(allDone), /data-topic-tab="TROUBLE"[^>]*>(<span[^>]*>✓<\/span>)/, 'a finished topic is ticked');
+});
+
+test('a remembered topic beats the topic with study in progress', () => {
+  const studying = travelTopics(packages => {
+    packages[3].status = 'IN_PROGRESS';
+    packages[3].activities[0].state = 'STUDYING';
+  });
+  assert.match(page.render(studying, 'ALL', { topic: 'AIR' }), /data-topic-tab="AIR"[^>]*aria-selected="true"/);
+});
+
+test('a situation with part of a skill done after a pace split reads as under way and keeps its topic in front', () => {
+  const data = travelTopics(packages => {
+    packages[1].status = 'COMPLETED';
+    packages[1].activities = [{ id: 20, type: 'GRAMMAR', state: 'PASSED', orderIndex: 1, partIndex: 1, partCount: 2 }];
+    packages.splice(2, 0, Object.assign(commPackage(9, 12, 'J-LAS · Làm thủ tục ở sân bay', ['GRAMMAR', 'DIALOGUE']),
+      { segmentIndex: 2, segmentCount: 2 }));
+    packages[2].activities[0].partIndex = 2;
+    packages[2].activities[0].partCount = 2;
+  });
+  const html = page.render(data);
+  assert.match(topicSection(html, 'AIR'), /ilp-situation__status">Đang học Mẫu câu</);
+  assert.match(html, /data-topic-tab="AIR"[^>]*aria-selected="true"/);
+});
+
+test('a topic code outside the id alphabet keeps its units under a positional key; a vocabulary-only topic points nowhere else', () => {
+  const data = travelTopics();
+  data.communicationGuide.topics[0].code = 'TRAVEL.TROUBLE';
+  data.communicationGuide.topics[1].units = data.communicationGuide.topics[1].units.slice(0, 1);
+  const html = page.render(data);
+  assert.match(html, /data-topic-tab="T1"/);
+  assert.match(html, /data-package-card="4"/);
+  const air = topicSection(html, 'AIR');
+  assert.doesNotMatch(air, /Nên học trước|bên dưới/);
+  assert.match(air, /<strong>Từ vựng chủ đề<\/strong>/);
+});
+
+test('the remembered topic lives in the URL hash so reload and Back return to it', () => {
+  assert.equal(page.topicFromHash('#chu-de=AIR'), 'AIR');
+  assert.equal(page.topicFromHash('#chu-de=BA_PM'), 'BA_PM');
+  assert.equal(page.topicFromHash('#other'), null);
+  assert.equal(page.topicFromHash('#chu-de=<x>'), null);
+  assert.equal(page.topicFromHash(''), null);
+  assert.equal(page.topicHash('AIR'), '#chu-de=AIR');
+});
+
+test('units outside every guide topic still appear behind an extra tab', () => {
+  const data = travelTopics(packages => packages.push(commPackage(5, 99, 'J-LAS · Tình huống lẻ', ['GRAMMAR', 'DIALOGUE'])));
+  const html = page.render(data);
+  assert.match(html, /data-topic-tab="__OTHER__"[^>]*>Khác/);
+  assert.match(topicSection(html, '__OTHER__'), /<h3>Tình huống lẻ<\/h3>/);
+});
+
+test('the communication roadmap styles use the plum primary, never the gold accent', () => {
+  const css = fs.readFileSync(pathModule.join(__dirname, '../../main/resources/static/css/pages/interactive-learning-path.css'), 'utf8');
+  const block = css.slice(css.indexOf('/* [JLAS-W0108] Communication roadmap'), css.indexOf('/* end communication roadmap */'));
+  assert.ok(block.length > 200, 'communication roadmap block present');
+  assert.match(block, /\.ilp-topic-tabs/);
+  assert.match(block, /\.ilp-situation\b/);
+  assert.doesNotMatch(block, /tertiary/, 'no gold in the communication roadmap');
+  assert.match(block, /var\(--color-primary/);
 });
 
 test('a BrSE roadmap offers optional J-LAS book links, shows a book that is not open yet without a link, and never gates units', () => {

@@ -2,6 +2,8 @@
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Lộ trình tương tác - JLAS', 'interactive-learning-path')}"></head>
 <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css}" />
+<!-- The shared head pins this page's stylesheet to an old version key; reload it with the topic-tab version. -->
+<link rel="stylesheet" th:href="@{/css/pages/interactive-learning-path.css?v=20261020-topics}" />
 <body id="jlabBasePage" class="app-body ilp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="ilp-page">
@@ -14,7 +16,7 @@
             <h1>Đang tải lộ trình</h1><p>J-LAS đang đồng bộ tiến độ của bạn.</p></section>
     </div>
 </main>
-<script th:src="@{/js/pages/interactive-learning-path.js?v=20261020-gate}"></script>
+<script th:src="@{/js/pages/interactive-learning-path.js?v=20261020-topics}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

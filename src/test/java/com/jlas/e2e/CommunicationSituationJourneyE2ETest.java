@@ -272,11 +272,38 @@ class CommunicationSituationJourneyE2ETest extends BaseE2ETest {
             }
         }
         assertTrue(topics.stream().anyMatch(t -> Boolean.TRUE.equals(t.get("priority"))), "The survey focus must be marked");
-        WebElement first = sections.get(0);
-        assertTrue(first.getText().contains("Ưu tiên của bạn"), "Focus chip missing on the first topic: " + first.getText());
-        assertTrue(first.getText().contains("TỪ VỰNG CHỦ ĐỀ") || first.getText().contains("Từ vựng chủ đề"), first.getText());
+        // Inactive topics stay in the page but hidden, so read their text content rather than the visible text.
+        String firstText = sections.get(0).getDomProperty("textContent");
+        assertTrue(firstText.contains("Ưu tiên của bạn"), "Focus chip missing on the first topic: " + firstText);
+        assertTrue(firstText.contains("Nên học trước: từ vựng chủ đề"), firstText);
+        assertFalse(firstText.contains("Chọn kỹ năng muốn học"), "the repeated skill header is gone: " + firstText);
         assertTrue(driver.findElements(By.cssSelector(".ilp-topic .ilp-skill-part__lock")).isEmpty(),
             "Communication units are never locked");
+
+        // Owner 2026-10-20 (option A): one topic per page behind a tab bar, remembered in the URL across a reload.
+        List<WebElement> tabs = driver.findElements(By.cssSelector("[data-topic-tab]"));
+        assertEquals(topics.stream().map(t -> t.get("code")).toList(),
+            tabs.stream().map(tab -> tab.getAttribute("data-topic-tab")).toList(), "Topic tabs follow the guide order");
+        assertEquals(1, tabs.stream().filter(tab -> "true".equals(tab.getAttribute("aria-selected"))).count(), "one topic selected");
+        assertEquals(1, sections.stream().filter(WebElement::isDisplayed).count(), "only the selected topic is shown");
+        WebElement other = tabs.stream().filter(tab -> !"true".equals(tab.getAttribute("aria-selected"))).findFirst().orElseThrow();
+        String otherCode = other.getAttribute("data-topic-tab");
+        stepLog.step(driver, "Switch topic", "Only the chosen topic shows and the URL remembers it", () -> {
+            other.click();
+            wait.until(d -> d.findElement(By.id("ilp-topic-" + otherCode)).isDisplayed());
+            assertTrue(driver.getCurrentUrl().endsWith("#chu-de=" + otherCode), driver.getCurrentUrl());
+            driver.navigate().refresh();
+            new LearningPathPage(driver).waitUntilLoaded();
+            wait.until(d -> d.findElement(By.id("ilp-topic-" + otherCode)).isDisplayed());
+            assertEquals("true", driver.findElement(By.cssSelector("[data-topic-tab='" + otherCode + "']")).getAttribute("aria-selected"));
+        });
+        stepLog.step(driver, "Open a situation's parts", "Its parts list opens inside the card", () -> {
+            WebElement panel = driver.findElement(By.id("ilp-topic-" + otherCode));
+            WebElement toggle = panel.findElements(By.cssSelector(".ilp-situation [data-situation-toggle]")).get(0);
+            jsClick(toggle);
+            wait.until(d -> "true".equals(toggle.getAttribute("aria-expanded")));
+            assertTrue(driver.findElement(By.id(toggle.getAttribute("aria-controls"))).isDisplayed(), "parts list visible");
+        });
 
         // §2.24 Q5: only BrSE shows optional J-LAS book suggestions; every offered link opens a learner-visible textbook.
         String goal = System.getenv().getOrDefault("JLAS_GOAL", "TRAVEL");

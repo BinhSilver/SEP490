@@ -135,7 +135,8 @@
     });
     return next ? ACTIVITY_PATH[next.type] + '?activity=' + encodeURIComponent(next.id) : null;
   }
-  function chapterSkillCards(parts, communicationGoal) {
+  /** Skills of one chapter or situation, each with its ordered (package, session, activity) entries. */
+  function collectSkills(parts) {
     var skills = {};
     parts.forEach(function (pkg) {
       var sessions = Array.isArray(pkg.sessions) ? pkg.sessions : [];
@@ -160,6 +161,46 @@
         });
       });
     });
+    return skills;
+  }
+  /** What one part (package activity) of a skill offers right now: start, continue, review links or a lock. */
+  function partActions(entry, type, communicationGoal) {
+    var pkg = entry.pkg, session = entry.session, activity = entry.activity;
+    var done = activityDone(activity);
+    var actions = session.legacy && done ? modesFor(type) :
+      (Array.isArray(session.allowedActions) ? session.allowedActions : []);
+    var childActions = done && (actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0) ? modesFor(type) : actions;
+    // [JLAS-W0193] §2.24 — communication-goal paths have no quiz: a completed vocabulary/grammar activity
+    // offers only its read-only review, never RESULTS or scored Practice-style modes.
+    if (communicationGoal && done && (type === 'VOCABULARY' || type === 'GRAMMAR')) {
+      childActions = childActions.filter(function (action) { return action === 'REVIEW'; });
+    }
+    if (done && !communicationGoal && RESULTS_TYPES[type] && childActions.indexOf('REVIEW') >= 0 && childActions.indexOf('RESULTS') < 0) childActions = childActions.concat('RESULTS');
+    var links = childActions.filter(function (action) {
+      return done && (action === 'REVIEW' || action === 'PRACTICE' || action === 'RESULTS') && ACTIVITY_PATH[type];
+    }).map(function (action) {
+      return '<a class="ilp-activity__mode" href="' + modeHref(type, activity.id, action) + '">' + modeLinkLabel(type, action) + '</a>';
+    }).join('');
+    var active = ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(activity.state) >= 0;
+    // The activity state is the server-owned access decision. Keep the link usable even when an
+    // older response still reports the package as AVAILABLE while its selected child is STUDYING.
+    var continueHref = active && ACTIVITY_PATH[type] ? ACTIVITY_PATH[type] + '?activity=' + encodeURIComponent(activity.id) : '';
+    var canStart = pkg.status === 'AVAILABLE' && !done && !active;
+    return {
+      done: done, active: active, links: links, continueHref: continueHref, canStart: canStart,
+      start: function (label) {
+        return canStart ? '<button class="ilp-skill-part__start" type="button" data-start-package="' + esc(String(pkg.id)) +
+          '" data-preferred-activity="' + esc(String(activity.id)) + '">' + label + '</button>' : '';
+      },
+      continueLink: continueHref ? '<a class="ilp-skill-part__continue" href="' + continueHref + '">Tiếp tục học</a>' : '',
+      locked: pkg.status === 'LOCKED' ? '<small class="ilp-skill-part__lock">' + esc(pkg.lockReason || 'Hoàn thành phần trước để mở.') + '</small>' : '',
+      stateLabel: pkg.status === 'LOCKED' ? 'Đang khóa' : pkg.status === 'AVAILABLE' ? 'Sẵn sàng' :
+        ACTIVITY_STATE_LABEL[activity.state] || activity.state || '',
+      part: positiveInteger(pkg.segmentCount) > 1 ? '<small class="ilp-skill-part__number">' + esc(partLabel(pkg)) + '</small>' : ''
+    };
+  }
+  function chapterSkillCards(parts, communicationGoal) {
+    var skills = collectSkills(parts);
     var skillOrder = ['VOCABULARY', 'KANJI', 'GRAMMAR', 'READING', 'LISTENING', 'DIALOGUE'];
     var skillCards = skillOrder.filter(function (type) { return skills[type]; }).map(function (type) {
       var skill = skills[type];
@@ -168,37 +209,13 @@
         skill.entries.some(function (entry) { return entry.pkg.status === 'IN_PROGRESS'; }) ? 'IN_PROGRESS' :
         skill.entries.some(function (entry) { return entry.pkg.status === 'AVAILABLE'; }) ? 'AVAILABLE' : 'LOCKED';
       var rows = skill.entries.map(function (entry, index) {
-        var pkg = entry.pkg, session = entry.session, activity = entry.activity;
-        var done = activityDone(activity);
-        var actions = session.legacy && done ? modesFor(type) :
-          (Array.isArray(session.allowedActions) ? session.allowedActions : []);
-        var childActions = done && (actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0) ? modesFor(type) : actions;
-        // [JLAS-W0193] §2.24 — communication-goal paths have no quiz: a completed vocabulary/grammar activity
-        // offers only its read-only review, never RESULTS or scored Practice-style modes.
-        if (communicationGoal && done && (type === 'VOCABULARY' || type === 'GRAMMAR')) {
-          childActions = childActions.filter(function (action) { return action === 'REVIEW'; });
-        }
-        if (done && !communicationGoal && RESULTS_TYPES[type] && childActions.indexOf('REVIEW') >= 0 && childActions.indexOf('RESULTS') < 0) childActions = childActions.concat('RESULTS');
-        var links = childActions.filter(function (action) {
-          return done && (action === 'REVIEW' || action === 'PRACTICE' || action === 'RESULTS') && ACTIVITY_PATH[type];
-        }).map(function (action) {
-          return '<a class="ilp-activity__mode" href="' + modeHref(type, activity.id, action) + '">' + modeLinkLabel(type, action) + '</a>';
-        }).join('');
-        var active = ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(activity.state) >= 0;
-        // The activity state is the server-owned access decision. Keep the link usable even when an
-        // older response still reports the package as AVAILABLE while its selected child is STUDYING.
-        var continueLink = active && ACTIVITY_PATH[type]
-          ? '<a class="ilp-skill-part__continue" href="' + ACTIVITY_PATH[type] + '?activity=' + encodeURIComponent(activity.id) + '">Tiếp tục học</a>' : '';
-        var start = pkg.status === 'AVAILABLE' && !done && !active ? '<button class="ilp-skill-part__start" type="button" data-start-package="' + esc(String(pkg.id)) +
-          '" data-preferred-activity="' + esc(String(activity.id)) + '">Bắt đầu phần học</button>' : '';
-        var locked = pkg.status === 'LOCKED' ? '<small class="ilp-skill-part__lock">' + esc(pkg.lockReason || 'Hoàn thành phần trước để mở.') + '</small>' : '';
-        var stateLabel = pkg.status === 'LOCKED' ? 'Đang khóa' : pkg.status === 'AVAILABLE' ? 'Sẵn sàng' :
-          ACTIVITY_STATE_LABEL[activity.state] || activity.state || '';
-        var part = positiveInteger(pkg.segmentCount) > 1 ? '<small class="ilp-skill-part__number">' + esc(partLabel(pkg)) + '</small>' : '';
-        return '<li class="ilp-skill-part' + (done ? ' is-done' : '') + '" data-package-card="' + esc(String(pkg.id)) + '">' +
-          '<div class="ilp-skill-part__title"><span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span><div>' + part +
-          '<strong>' + esc(activityLabel(activity)) + '</strong><small>' + esc(stateLabel) + '</small></div></div>' +
-          (start || locked || continueLink || links ? '<div class="ilp-skill-part__actions">' + start + locked + continueLink + links + '</div>' : '') + '</li>';
+        var pkg = entry.pkg, activity = entry.activity;
+        var a = partActions(entry, type, communicationGoal);
+        var start = a.start('Bắt đầu phần học');
+        return '<li class="ilp-skill-part' + (a.done ? ' is-done' : '') + '" data-package-card="' + esc(String(pkg.id)) + '">' +
+          '<div class="ilp-skill-part__title"><span class="ilp-activity__mark">' + (a.done ? '✓' : String(index + 1).padStart(2, '0')) + '</span><div>' + a.part +
+          '<strong>' + esc(activityLabel(activity)) + '</strong><small>' + esc(a.stateLabel) + '</small></div></div>' +
+          (start || a.locked || a.continueLink || a.links ? '<div class="ilp-skill-part__actions">' + start + a.locked + a.continueLink + a.links + '</div>' : '') + '</li>';
       }).join('');
       var unit = { VOCABULARY: 'từ mới', KANJI: 'chữ Kanji', GRAMMAR: 'mẫu ngữ pháp', DIALOGUE: 'lượt thoại', READING: 'bài đọc', LISTENING: 'bài nghe' }[type];
       var words = skill.words.map(function (word) { return '<li><strong lang="ja">' + esc(word.expression) + '</strong>' +
@@ -423,8 +440,78 @@
 
   // Owner 2026-10-19: a communication roadmap groups units by topic — topic vocabulary first, then its dialogue
   // situations easy → hard, survey focus topics first. Display only: every unit stays freely selectable.
+  // Owner 2026-10-20 (option A, balanced): one topic per page behind a tab bar; one level of framing — a tinted topic
+  // header, the topic vocabulary as one panel, each situation as one card whose parts open on demand.
   var JLPT_RANK = { FROM_ZERO: 0, N5: 1, N4: 2, N3: 3, N2: 4, N1: 5 };
-  function communicationTopics(packages, guide) {
+  var COMMUNICATION_PART_LABEL = { VOCABULARY: 'Từ vựng', GRAMMAR: 'Mẫu câu', DIALOGUE: 'Hội thoại' };
+  var COMMUNICATION_PART_HINT = { DIALOGUE: 'Lật thẻ Từ & cụm từ rồi luyện từng lượt thoại' };
+  var COMMUNICATION_SKILL_ORDER = ['VOCABULARY', 'GRAMMAR', 'DIALOGUE', 'KANJI', 'READING', 'LISTENING'];
+  var OTHER_TOPIC = '__OTHER__';
+  var TOPIC_HASH = /^#chu-de=([A-Za-z0-9_-]{1,40})$/;
+  function topicFromHash(hash) {
+    var match = TOPIC_HASH.exec(String(hash || ''));
+    return match ? match[1] : null;
+  }
+  function topicHash(code) { return '#chu-de=' + code; }
+  /** The supplement label is shown once per topic, so titles drop their "J-LAS · " prefix. */
+  function situationTitle(pkg) { return chapterTitle(pkg).replace(/^\s*J-LAS\s*·\s*/, ''); }
+  function joinNames(names) { return names.length > 1 ? names.slice(0, -1).join(', ') + ' và ' + names[names.length - 1] : names[0]; }
+  function upperFirst(text) { return text.charAt(0).toUpperCase() + text.slice(1); }
+  /** One situation or topic-vocabulary unit: its parts, progress, a one-line status and the next step. */
+  function communicationUnit(parts) {
+    var skills = collectSkills(parts);
+    var rows = [], doneNames = [], activeNames = [], openNames = [];
+    var total = 0, finished = 0, primary = '';
+    var continueAction = '', startAction = '';
+    COMMUNICATION_SKILL_ORDER.filter(function (type) { return skills[type]; }).forEach(function (type) {
+      var label = COMMUNICATION_PART_LABEL[type] || ACTIVITY_LABEL[type] || type;
+      var skillDone = true, skillActive = false;
+      skills[type].entries.forEach(function (entry) {
+        var a = partActions(entry, type, true);
+        total++;
+        if (a.done) finished++; else skillDone = false;
+        if (a.active) skillActive = true;
+        if (!continueAction && a.continueHref) continueAction = a.continueLink;
+        if (!startAction && a.canStart) startAction = a.start('Bắt đầu');
+        var count = positiveInteger(entry.activity.partCount), index = positiveInteger(entry.activity.partIndex);
+        var name = label + (count > 1 && index ? ' · Phần ' + index + '/' + count : '');
+        var hint = !a.done && COMMUNICATION_PART_HINT[type] ? '<small class="ilp-skill-part__hint">' + esc(COMMUNICATION_PART_HINT[type]) + '</small>' : '';
+        var start = a.start('Bắt đầu');
+        rows.push('<li class="ilp-skill-part' + (a.done ? ' is-done' : '') + '" data-package-card="' + esc(String(entry.pkg.id)) + '">' +
+          '<div class="ilp-skill-part__title"><span class="ilp-activity__mark" aria-hidden="true">' + (a.done ? '✓' : '○') + '</span><div>' + a.part +
+          '<strong>' + esc(name) + '</strong><small>' + esc(a.done ? 'Đã hoàn thành' : a.stateLabel) + '</small>' + hint + '</div></div>' +
+          (start || a.locked || a.continueLink || a.links ? '<div class="ilp-skill-part__actions">' + start + a.locked + a.continueLink + a.links + '</div>' : '') + '</li>');
+      });
+      var skillStarted = skills[type].entries.some(function (entry) { return activityDone(entry.activity); });
+      if (skillDone) doneNames.push(label);
+      // A pace split can finish part 1 of a skill while part 2 waits: that skill is under way, not untouched.
+      else if (skillActive || skillStarted) activeNames.push(label);
+      else openNames.push(label);
+    });
+    primary = continueAction || startAction;
+    var status;
+    if (total && finished === total) status = 'Đã hoàn thành';
+    else if (!doneNames.length && !activeNames.length) status = 'Chưa bắt đầu';
+    else {
+      var bits = [];
+      if (doneNames.length) bits.push(joinNames(doneNames) + ' đã xong');
+      if (activeNames.length) bits.push('đang học ' + joinNames(activeNames));
+      else if (openNames.length) bits.push('còn ' + joinNames(openNames));
+      status = upperFirst(bits.join(', '));
+    }
+    return { rows: rows.join(''), total: total, finished: finished, done: total > 0 && finished === total,
+      active: activeNames.length > 0 || finished > 0 && finished < total ||
+        parts.some(function (pkg) { return pkg.status === 'IN_PROGRESS'; }) && finished < total,
+      status: status, primary: primary };
+  }
+  function unitDomId(key) { return 'ilp-parts-' + String(key).replace(/[^A-Za-z0-9_-]/g, '-'); }
+  function unitActions(unit, key) {
+    return '<div class="ilp-situation__actions">' + unit.primary +
+      '<button class="ilp-situation__toggle" type="button" data-situation-toggle aria-expanded="false" aria-controls="' + unitDomId(key) + '">' +
+      (unit.done ? 'Ôn lại các phần' : 'Xem các phần') + '</button></div>' +
+      '<ol class="ilp-situation__parts" id="' + unitDomId(key) + '" hidden>' + unit.rows + '</ol>';
+  }
+  function communicationTopics(packages, guide, requestedTopic) {
     var byLesson = {};
     packages.forEach(function (pkg) {
       var key = String(pkg.chapterLessonId || '');
@@ -433,43 +520,105 @@
     var selfKey = String(guide.learnerSelfLevel || '').toUpperCase();
     var selfRank = Object.prototype.hasOwnProperty.call(JLPT_RANK, selfKey) ? JLPT_RANK[selfKey] : null;
     var used = {};
-    var sections = guide.topics.map(function (topic) {
-      var units = {};
-      var parts = [];
+    var topics = guide.topics.map(function (topic) {
+      var units = [];
       (Array.isArray(topic.units) ? topic.units : []).forEach(function (unit) {
         var key = String(unit.lessonId);
         if (!byLesson[key] || used[key]) return;
         used[key] = true;
-        units[key] = unit;
-        parts = parts.concat(byLesson[key]);
+        units.push({ meta: unit, parts: byLesson[key] });
       });
-      if (!parts.length) return '';
-      var activities = parts.reduce(function (all, pkg) { return all.concat(Array.isArray(pkg.activities) ? pkg.activities : []); }, []);
-      var done = activities.filter(activityDone).length;
-      var levelOf = function (pkg) {
-        var unit = units[String(pkg.chapterLessonId)] || {};
-        return unit.vocabularyTopic ? '' : String(unit.jlptLevel || '').toUpperCase();
-      };
-      var kicker = function (pkg) {
-        var unit = units[String(pkg.chapterLessonId)] || {};
-        if (unit.vocabularyTopic) return 'TỪ VỰNG CHỦ ĐỀ';
-        var level = levelOf(pkg);
-        return 'TÌNH HUỐNG' + (level ? ' · ' + esc(level) : '');
-      };
-      var note = function (pkg) {
-        var level = levelOf(pkg);
-        if (selfRank === null || !JLPT_RANK[level] || JLPT_RANK[level] <= selfRank) return '';
-        return '<p class="ilp-chapter__hint">Khó hơn trình độ hiện tại của bạn (' + esc(selfKey === 'FROM_ZERO' ? 'mới bắt đầu' : selfKey) +
-          '). Bạn vẫn học được — nên xem Từ vựng chủ đề trước, bật bản dịch và dùng “Nghe chậm”.</p>';
-      };
-      return '<section class="ilp-topic" data-topic="' + esc(topic.code) + '"><header class="ilp-topic__head"><div>' +
-        '<span class="ilp-kicker">CHỦ ĐỀ</span><h2>' + esc(topic.titleVi) + '</h2></div>' +
-        (topic.priority ? '<span class="ilp-topic__priority">Ưu tiên của bạn</span>' : '') +
-        '<span class="ilp-status">' + done + '/' + activities.length + ' hoạt động</span></header>' +
-        chapterCards(parts, true, kicker, note) + '</section>';
-    }).join('');
+      return { code: String(topic.code), title: topic.titleVi, priority: !!topic.priority, units: units };
+    }).filter(function (topic) { return topic.units.length; });
+    // The code is the DOM id and URL-hash key; a code outside that alphabet gets a positional key, never dropped.
+    topics.forEach(function (topic, index) { if (!/^[A-Za-z0-9_-]{1,40}$/.test(topic.code)) topic.code = 'T' + (index + 1); });
     var rest = packages.filter(function (pkg) { return !used[String(pkg.chapterLessonId || '')]; });
-    return sections + (rest.length ? chapterCards(rest, true) : '');
+    if (rest.length) {
+      var restGroups = [];
+      rest.forEach(function (pkg) {
+        var last = restGroups[restGroups.length - 1];
+        if (last && chapterKey(last.parts[0]) === chapterKey(pkg)) last.parts.push(pkg);
+        else restGroups.push({ meta: {}, parts: [pkg] });
+      });
+      topics.push({ code: OTHER_TOPIC, title: 'Khác', priority: false, units: restGroups });
+    }
+    if (!topics.length) return '';
+    topics.forEach(function (topic) {
+      topic.units.forEach(function (unit) { unit.view = communicationUnit(unit.parts); });
+      topic.total = topic.units.reduce(function (sum, unit) { return sum + unit.view.total; }, 0);
+      topic.finished = topic.units.reduce(function (sum, unit) { return sum + unit.view.finished; }, 0);
+      topic.done = topic.total > 0 && topic.finished === topic.total;
+      topic.active = topic.units.some(function (unit) { return unit.view.active; });
+    });
+    var byCode = function (code) { return topics.filter(function (topic) { return topic.code === code; })[0]; };
+    var selected = byCode(requestedTopic) ||
+      topics.filter(function (topic) { return topic.active; })[0] ||
+      topics.filter(function (topic) { return topic.priority && !topic.done; })[0] ||
+      topics.filter(function (topic) { return !topic.done; })[0] || topics[0];
+    var tabs = '<div class="ilp-topic-tabs" role="tablist" aria-label="Chủ đề">' + topics.map(function (topic) {
+      var on = topic === selected;
+      return '<button type="button" data-topic-tab="' + esc(topic.code) + '" role="tab" id="ilp-topic-tab-' + esc(topic.code) +
+        '" aria-controls="ilp-topic-' + esc(topic.code) + '" aria-selected="' + on + '" tabindex="' + (on ? '0' : '-1') + '">' +
+        (topic.done ? '<span class="ilp-topic-tabs__done" aria-hidden="true">✓</span>' : '') + esc(topic.title) +
+        '<small>' + topic.finished + '/' + topic.total + '</small></button>';
+    }).join('') + '</div>';
+    var sections = topics.map(function (topic, index) {
+      var vocabulary = topic.units.filter(function (unit) { return unit.meta.vocabularyTopic; });
+      var situations = topic.units.filter(function (unit) { return !unit.meta.vocabularyTopic; });
+      var percent = topic.total ? Math.round(topic.finished * 100 / topic.total) : 0;
+      var head = '<header class="ilp-topic__head"><h2>' + esc(topic.title) + '</h2><div class="ilp-topic__meta">' +
+        (topic.priority ? '<span class="ilp-topic__priority">Ưu tiên của bạn</span>' : '') +
+        (situations.length ? '<span>' + situations.length + ' tình huống</span>' : '') +
+        '<span>' + topic.finished + '/' + topic.total + ' hoạt động đã xong</span></div>' +
+        '<div class="ilp-topic__progress" role="progressbar" aria-label="Tiến độ chủ đề ' + esc(topic.title) + '" aria-valuenow="' + percent +
+        '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + percent + '%"></span></div></header>';
+      var vocabularyHtml = vocabulary.map(function (unit) {
+        var key = chapterKey(unit.parts[0]), view = unit.view;
+        var progress = view.done ? 'Đã xong ' + view.total + '/' + view.total + ' phần' : view.finished || view.active
+          ? 'Đã xong ' + view.finished + '/' + view.total + ' phần' : 'Chưa bắt đầu, ' + view.total + ' phần';
+        return '<div class="ilp-topic-vocab' + (view.done ? ' is-done' : '') + '" data-chapter="' + esc(key) + '"><div class="ilp-topic-vocab__text">' +
+          '<strong>' + (situations.length ? 'Nên học trước: từ vựng chủ đề' : 'Từ vựng chủ đề') + '</strong><p class="ilp-situation__status">' + esc(progress) +
+          (situations.length ? '. Các từ này dùng trong các tình huống bên dưới.' : '.') + '</p></div>' + sourceReviewNote(unit.parts[0]) + unitActions(view, key) + '</div>';
+      }).join('');
+      var cards = situations.map(function (unit) {
+        var key = chapterKey(unit.parts[0]), view = unit.view;
+        var level = String(unit.meta.jlptLevel || '').toUpperCase();
+        var harder = selfRank !== null && JLPT_RANK[level] > selfRank;
+        var levelChip = JLPT_RANK[level] ? '<span class="ilp-situation__level' + (harder ? ' is-harder' : '') + '"' +
+          (harder ? ' title="Khó hơn trình độ hiện tại của bạn (' + esc(selfKey === 'FROM_ZERO' ? 'mới bắt đầu' : selfKey) + ')"' : '') + '>' +
+          esc(level) + (harder ? ', khó hơn' : '') + '</span>' : '';
+        return '<article class="ilp-situation' + (view.done ? ' is-done' : '') + '" data-chapter="' + esc(key) + '">' +
+          '<div class="ilp-situation__top"><h3>' + esc(situationTitle(unit.parts[0])) + '</h3>' + levelChip + '</div>' +
+          '<p class="ilp-situation__status">' + esc(view.status) + '</p>' +
+          (harder && !view.done ? '<p class="ilp-situation__hint">Nên học từ vựng chủ đề trước, bật bản dịch và dùng “Nghe chậm”.</p>' : '') +
+          sourceReviewNote(unit.parts[0]) + unitActions(view, key) + '</article>';
+      }).join('');
+      var previous = topics[index - 1], next = topics[index + 1];
+      var nav = (previous ? '<button type="button" class="ilp-topic__go" data-topic-go="' + esc(previous.code) + '">Chủ đề trước: ' + esc(previous.title) + '</button>' : '') +
+        (next ? '<button type="button" class="ilp-topic__go is-next" data-topic-go="' + esc(next.code) + '">Chủ đề tiếp theo: ' + esc(next.title) + '</button>' : '');
+      return '<section class="ilp-topic" id="ilp-topic-' + esc(topic.code) + '" role="tabpanel" aria-labelledby="ilp-topic-tab-' + esc(topic.code) +
+        '" data-topic="' + esc(topic.code) + '"' + (topic === selected ? '' : ' hidden') + '>' + head + vocabularyHtml +
+        (cards ? '<p class="ilp-topic__sub"><strong>Tình huống</strong><span>Chọn tình huống bất kỳ, không cần theo thứ tự</span></p>' +
+          '<div class="ilp-situations">' + cards + '</div>' : '') +
+        '<footer class="ilp-topic__foot"><span>Chủ đề ' + (index + 1) + ' trên ' + topics.length + '</span><span class="ilp-topic__nav">' + nav + '</span></footer>' +
+        '<p class="ilp-topic__source">Nội dung bổ sung do J-LAS biên soạn, giọng đọc tiếng Nhật tổng hợp.</p></section>';
+    }).join('');
+    return '<div class="ilp-comm">' + tabs + sections + '</div>';
+  }
+  /** Shows one topic panel and marks its tab; returns false when the code names no rendered topic. */
+  function showTopic(node, code) {
+    var tabs = node.querySelectorAll('[data-topic-tab]');
+    var found = Array.prototype.some.call(tabs, function (tab) { return tab.getAttribute('data-topic-tab') === code; });
+    if (!found) return false;
+    Array.prototype.forEach.call(tabs, function (tab) {
+      var on = tab.getAttribute('data-topic-tab') === code;
+      tab.setAttribute('aria-selected', String(on));
+      tab.tabIndex = on ? 0 : -1;
+    });
+    Array.prototype.forEach.call(node.querySelectorAll('.ilp-topic[data-topic]'), function (section) {
+      section.hidden = section.getAttribute('data-topic') !== code;
+    });
+    return true;
   }
   function phaseTabs(activePhase) {
     var tabs = [{ value: 'ALL', label: 'Tất cả' }, { value: 'WARM_UP', label: 'Khởi động' },
@@ -511,7 +660,7 @@
       (communicationGoal ? '' : renderMockResult(extras.mockResult) + renderStageProgress(extras.eligibility) + renderMockGate(extras.eligibility) + renderSmartTestReviewOnly(v.smartTestReviewOnlyTargets)) +
       '<div class="ilp-layout"><section>' + (communicationGoal ? '' : phaseTabs(phaseFilter)) + '<div class="ilp-days">' +
       (visiblePackages.length ? (communicationGoal && v.communicationGuide
-        ? bookSuggestions(v.communicationGuide) + communicationTopics(visiblePackages, v.communicationGuide)
+        ? bookSuggestions(v.communicationGuide) + communicationTopics(visiblePackages, v.communicationGuide, extras.topic)
         : chapterCards(visiblePackages, communicationGoal)) :'<div class="ilp-empty"><h2>Chưa có bài học trong giai đoạn này</h2><p>Nội dung đang được hoàn thiện để phát hành.</p></div>') +
       '</div></section><aside class="ilp-aside"><span class="ilp-kicker">MỤC TIÊU HIỆN TẠI</span><dl><div><dt>Cấp độ</dt><dd>' + esc(v.currentLevel) + ' → ' + esc(v.targetLevel) +
       '</dd></div>' + (v.minutesPerDay ? '<div><dt>Cường độ</dt><dd>' + v.minutesPerDay + ' phút/ngày</dd></div>' : '') +
@@ -546,6 +695,8 @@
     var attemptedBootstrap = false;
     var currentPathData = null;
     var phaseFilter = 'ALL';
+    // Communication roadmap: the topic on screen, remembered in the URL hash so reload and Back return to it.
+    var activeTopic = topicFromHash(window.location.hash);
     var eligibilityData = null;
     var latestMockResult = null;
     var toastMessage = '';
@@ -573,7 +724,22 @@
         return response.ok && body.data ? body.data : null;
       } catch (e) { return null; }
     }
-    function viewExtras() { return { eligibility: eligibilityData, mockResult: latestMockResult, toast: toastMessage }; }
+    function viewExtras() { return { eligibility: eligibilityData, mockResult: latestMockResult, toast: toastMessage, topic: activeTopic }; }
+    function selectTopic(code, focusTab) {
+      if (!showTopic(node, code)) return;
+      activeTopic = code;
+      try { window.history.replaceState(window.history.state, '', topicHash(code)); } catch (e) { /* hash memory is best effort */ }
+      var tab = node.querySelector('[data-topic-tab="' + CSS.escape(code) + '"]');
+      if (!tab) return;
+      if (typeof tab.scrollIntoView === 'function') tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (focusTab) tab.focus();
+    }
+    function setPartsOpen(toggle, open) {
+      var list = toggle && node.querySelector('#' + CSS.escape(toggle.getAttribute('aria-controls') || ''));
+      if (!list) return;
+      toggle.setAttribute('aria-expanded', String(open));
+      list.hidden = !open;
+    }
     async function loadLatestMockResult(level) {
       if (!/^N[1-5]$/.test(String(level || ''))) return null;
       try {
@@ -650,6 +816,11 @@
       if (!packageId) return;
       var card = node.querySelector('[data-package-card="' + CSS.escape(packageId) + '"]');
       if (!card) return;
+      // A communication part lives in one topic panel and a collapsed parts list: reveal both before scrolling.
+      var topic = card.closest('.ilp-topic[data-topic]');
+      if (topic && topic.hidden) selectTopic(topic.getAttribute('data-topic'), false);
+      var parts = card.closest('.ilp-situation__parts');
+      if (parts && parts.hidden) setPartsOpen(node.querySelector('[aria-controls="' + CSS.escape(parts.id) + '"]'), true);
       card.scrollIntoView({ block: 'center', behavior: 'auto' });
       card.classList.add('is-highlighted');
       var clear = function () { card.classList.remove('is-highlighted'); };
@@ -674,6 +845,17 @@
         var expanded = skillToggle.getAttribute('aria-expanded') === 'true';
         skillToggle.setAttribute('aria-expanded', String(!expanded));
         skillToggle.closest('.ilp-skill-card').querySelector('.ilp-skill-card__details').hidden = expanded;
+        return;
+      }
+      var topicButton = event.target.closest('[data-topic-tab], [data-topic-go]');
+      if (topicButton) {
+        var fromTab = topicButton.hasAttribute('data-topic-tab');
+        selectTopic(topicButton.getAttribute(fromTab ? 'data-topic-tab' : 'data-topic-go'), !fromTab);
+        return;
+      }
+      var partsToggle = event.target.closest('[data-situation-toggle]');
+      if (partsToggle) {
+        setPartsOpen(partsToggle, partsToggle.getAttribute('aria-expanded') !== 'true');
         return;
       }
       var phaseButton = event.target.closest('[data-phase-filter]');
@@ -759,6 +941,17 @@
         trapDialogFocus(event, node.querySelector('[data-pace-dialog]'));
         return;
       }
+      // WAI-ARIA tabs: arrow keys, Home and End move between topics and show the focused one.
+      var focusedTab = event.target.closest && event.target.closest('[data-topic-tab]');
+      if (focusedTab && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(event.key) >= 0) {
+        var tabs = Array.prototype.slice.call(node.querySelectorAll('[data-topic-tab]'));
+        var at = tabs.indexOf(focusedTab);
+        var to = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 :
+          (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        event.preventDefault();
+        selectTopic(tabs[to].getAttribute('data-topic-tab'), true);
+        return;
+      }
       var popup = node.querySelector('[data-popup]'); if (!popup) return;
       if (event.key === 'Escape') { closePopup(); return; }
       trapFocus(event);
@@ -766,6 +959,10 @@
     load();
   }
   function afterRender(node) {
+    // On a narrow screen the topic strip scrolls sideways: bring the selected topic into view without moving the page.
+    var selectedTab = node.querySelector('[data-topic-tab][aria-selected="true"]');
+    var strip = selectedTab && selectedTab.parentElement;
+    if (strip && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = Math.max(0, selectedTab.offsetLeft - strip.offsetLeft - 16);
     var popup = node.querySelector('[data-popup]');
     if (popup) popup.focus();
   }
@@ -774,6 +971,6 @@
     paceRequestBody: paceRequestBody, renderToast: renderToast, nextFocusIndex: nextFocusIndex, popupModel: popupModel, renderPopup: renderPopup, errorState: errorState,
     afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId,
     resolveReviewStartLevel: resolveReviewStartLevel, resolveDiscrepancyChoice: resolveDiscrepancyChoice,
-    pathCreationRequest: pathCreationRequest,
+    pathCreationRequest: pathCreationRequest, topicFromHash: topicFromHash, topicHash: topicHash, showTopic: showTopic,
     startedPackageStudyHref: startedPackageStudyHref, completedPathDestination: completedPathDestination };
 });
