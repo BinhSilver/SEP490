@@ -6,7 +6,7 @@ import { useVisualSettings } from "./game/visualSettings";
 import { PixiBattleCanvas } from "./game/PixiBattleCanvas";
 import { GAME_CONFIG } from "./game/gameConfig";
 import { soundManager } from "./game/soundEffects";
-import type { AugmentCard, WeakWord } from "./game/types";
+import type { AugmentCard, AugmentCategory, WeakWord } from "./game/types";
 import type { AirPlayerView, DeckField, ResultLine } from "./game/arenaTypes";
 import { errorMessage, getArena, serverNow } from "./game/arenaClient";
 import { backUrl, finishSoloMatch, leaveMatch, replaySolo, startMatchController, type HostConfig } from "./game/matchController";
@@ -635,6 +635,15 @@ function MatchMenu() {
   );
 }
 
+const AUGMENT_CATEGORY_LABELS: Record<AugmentCategory, string> = {
+  OFFENSE: "Tấn công",
+  DEFENSE: "Phòng thủ",
+  CONTROL: "Khống chế",
+  UTILITY: "Hỗ trợ",
+  SURVIVAL: "Sinh tồn",
+  TACTICAL: "Chiến thuật",
+};
+
 // ============================================================
 // SCREEN: AugmentDraft (10_augment_modal)
 // ============================================================
@@ -823,7 +832,7 @@ export function AugmentDraft({ preview }: { preview?: { sound: (action:string) =
                 <div style={{ marginTop: 20, paddingTop: 12, borderTop: "1px solid var(--ok-surface-container)" }}>
                   <OkBadge variant={isChosen ? "primary" : "outline"}>
                     <i className="fa-solid fa-bolt" style={{ fontSize: 14 }} aria-hidden="true" />
-                    &nbsp;{String(card.category)}
+                    &nbsp;{AUGMENT_CATEGORY_LABELS[card.category]}
                   </OkBadge>
                 </div>
               </div>
@@ -838,7 +847,7 @@ export function AugmentDraft({ preview }: { preview?: { sound: (action:string) =
             disabled={remainingRerolls <= 0 || !!selectedCard}
           >
             <i className="fa-solid fa-rotate-right" style={{ fontSize: 18 }} aria-hidden="true" />
-            Đổi lõi (Reroll) · Còn {remainingRerolls} lần
+            Đổi lõi · Còn {remainingRerolls} lần
           </OkBtnGhost>
         </div>
       </div>
