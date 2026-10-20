@@ -1506,7 +1506,8 @@
       // không), không câu hỏi, không audio, không ảnh → không hiện, kể cả nút đáp án / bản dịch của nó.
       if (NEW_UI && !hasPassage && !audio && own.length === 0 && !readingImageFor(it) &&
           !sections.some(function (x) { return x.kind !== 'answer' && x.kind !== 'translation' && hasText(x.lines); })) return;
-      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio,
+      var drill = NEW_UI && hasPassage ? drillGroups(lines, own) : null;
+      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio, drillGroups: drill,
         extra: !NEW_UI && hasExtra ? split.extra : [], extraLabel: split.label, sections: sections,
         translation: hasTranslation ? it.textVi : null, questions: own, practiceQuestions: practiceQs });
     });
@@ -1540,6 +1541,43 @@
     if (first <= 0) return [];
     for (var i = first; i < inMain.length; i++) if (inMain[i]) return [];
     return own.slice(first);
+  }
+
+  /*
+   * [JLAS2-17] Bài tập nhiều nhóm trong một khối (Speed 【ドリル】: "1）a. ちち b. おとうさん …", "2）a. かぞく …", hoặc
+   * "1）食べる噛む…" cho câu điền "（ことば：…）"): mỗi câu thuộc nhóm có đúng bộ phương án a–e của nó (câu chọn) hoặc có
+   * danh sách từ của nhóm trong đề (câu điền). Chỉ tách khi MỌI câu khớp đúng một nhóm, nhóm theo thứ tự câu, nhóm nào
+   * cũng có câu — khi đó mỗi dòng nhóm hiện ngay trên các câu của nó.
+   */
+  var DRILL_GROUP = /^\s*([0-9０-９]{1,2})\s*[）)]\s*(.+)$/;
+
+  function drillGroups(lines, qs) {
+    if (!NEW_UI || qs.length < 2) return null;
+    var groups = [];
+    lines.forEach(function (l, i) {
+      var m = String(l || '').trim().match(DRILL_GROUP);
+      if (!m) return;
+      var items = m[2].split(/\s*[a-eａ-ｅ]\s*[.．]\s*/).map(matchKey).filter(Boolean);
+      groups.push({ index: i, line: l, body: matchKey(m[2]), items: items, questions: [] });
+    });
+    if (groups.length < 2) return null;
+    var last = -1;
+    for (var i = 0; i < qs.length; i++) {
+      var q = qs[i];
+      var opts = (q.options || []).map(matchKey).filter(Boolean);
+      var text = matchKey(q.questionText || '');
+      var hits = groups.filter(function (g) {
+        return opts.length
+          ? g.items.length === opts.length && opts.every(function (o) { return g.items.indexOf(o) !== -1; })
+          : g.body.length >= 4 && text.indexOf(g.body) !== -1;
+      });
+      if (hits.length !== 1) return null;
+      var gi = groups.indexOf(hits[0]);
+      if (gi < last) return null;
+      last = gi;
+      hits[0].questions.push(q);
+    }
+    return groups.every(function (g) { return g.questions.length; }) ? groups : null;
   }
 
   /** Khối là bài nghe: mục LISTENING, hoặc mục có câu hỏi mang audio riêng. */
@@ -1792,6 +1830,9 @@
     var number = block.numberStart || 0;
     var mediaFlags = questionMediaFlags(block);
     var explain = isExplanationBlock(block);
+    var drill = !explain && block.drillGroups ? block.drillGroups : null;
+    var drillAt = {};
+    (drill || []).forEach(function (g) { drillAt[g.index] = true; });
     if (NEW_UI && block.audio && !block.lines.length && !block.questions.length && !(block.sections || []).length &&
         !block.translation) {
       return trackHtml(block);
@@ -1808,9 +1849,19 @@
           // Bài nghe: transcript thu gọn để nghe trước, không đọc trước được đáp án.
           ? '<details class="reading-block__script"><summary>Xem lời thoại (transcript)</summary>' +
             '<div class="reading-block__text">' + bilingualHtml(block.lines) + '</div></details>'
-          : passageHtml(block.lines))
+          : passageHtml(drill ? block.lines.filter(function (l, i) { return !drillAt[i]; }) : block.lines))
         : '') +
-      (block.questions.length
+      (drill
+        ? drill.map(function (g) {
+            return '<div class="lp-drill">' + passageHtml([g.line]) + '<div class="practice-list">' + g.questions.map(function (q) {
+              number++;
+              var f = mediaFlags[block.questions.indexOf(q)];
+              return (f.groupImages ? sharedImagesHtml(f.groupImages, number, number + f.groupSize - 1) : '') +
+                practiceCard(q, number, q.hatsuwa, f);
+            }).join('') + '</div></div>';
+          }).join('')
+        : '') +
+      (block.questions.length && !drill
         ? '<div class="practice-list">' + block.questions.map(function (q, i) {
             number++;
             var f = mediaFlags[i];
