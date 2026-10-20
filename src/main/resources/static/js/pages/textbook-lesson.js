@@ -1592,6 +1592,11 @@
       var audio = itemAudio(it);
       var marugoto = NEW_UI && /(^|\n)\s*Mục Từ Nghĩa\s*(\n|$)/.test(it.textJa || '');
       var hasTranslation = !!(it.textVi && it.textVi.trim()) && own.length === 0;
+      // [JLAS2-17] M3 (Marugoto): bản dịch đoạn văn đã có trong mục "☞ Dịch" (song ngữ, từng câu) → không hiện thêm bản
+      // dịch riêng của mục (textVi, cùng nội dung, mất câu Nhật đi kèm).
+      if (marugoto && hasTranslation && sections.some(function (x) {
+        return (x.kind === 'translation' || x.kind === 'answer') && x.owner === 'reading';
+      })) hasTranslation = false;
       if (!hasPassage && !hasExtra && !audio && !hasTranslation && own.length === 0) return;
       // [C] Giao diện mới: khối không có chữ (đoạn văn / đề / mục khác — chỉ còn nhãn, số, dòng rác thì coi như
       // không), không câu hỏi, không audio, không ảnh → không hiện, kể cả nút đáp án / bản dịch của nó.
