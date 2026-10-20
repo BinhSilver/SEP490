@@ -723,11 +723,21 @@
    * [JLAS2-17] Khuôn Marugoto N5–N2 (nhận diện: mục có dòng "Mục Từ Nghĩa" — chỉ Marugoto có; xem readingModel → block.marugoto).
    * Trong vùng 【Từ Vựng】 / 【Ngữ Pháp】 / 【Từ Vựng + Ngữ Pháp】 dữ liệu không đánh dấu cấu trúc, nên đọc theo khuôn:
    *   M1 dòng "Từ Vựng" / "Ngữ Pháp" / "Mục Từ Nghĩa" là tiêu đề mục (không phải bản dịch của dòng trước);
+   *   M2 mẫu ngữ pháp = dòng mẫu + dòng nghĩa, "◎ …" là ghi chú riêng, ví dụ đánh số + dòng dịch là một thẻ — không dồn
+   *      mẫu / ghi chú sau vào thẻ ví dụ trước.
    * Dòng không thuộc các nhánh trên đi qua cách hiển thị cũ (fallback) theo từng đoạn liên tiếp.
    */
   var mgBlock = false;
   var MG_SUB = /^(Từ Vựng|Ngữ Pháp|Mục Từ Nghĩa)$/;
   var MG_REGION = /Từ\s*Vựng|Ngữ\s*Pháp/i;
+
+  function mgIsTranslation(x) {
+    return !!x && lineKind(x) === 'vi' && !/^◎/.test(x) && !MG_SUB.test(x) && !/^【/.test(x);
+  }
+
+  function mgViLine(x) {
+    return '<div class="lp-sline lp-sline--tr reading-line--vi" lang="vi">' + escapeHtml(x) + '</div>';
+  }
 
   /** regionLabel: nhãn của mục đã tách (sectionHtml của 【Ngữ Pháp】…) — các dòng nằm sẵn trong vùng đó. */
   function marugotoHtml(lines, fallback, regionLabel) {
@@ -763,6 +773,24 @@
           flushRun();
         }
         continue;
+      }
+      // M2: ví dụ đánh số + một dòng dịch = thẻ; "◎ …" = ghi chú; dòng mẫu + dòng nghĩa = tiêu đề mẫu.
+      if (sub !== 'Mục Từ Nghĩa') {
+        if (SCRIPT_NUMBER.test(t) && lineKind(t) === 'ja') {
+          var card = scriptEntry(t).html;
+          if (mgIsTranslation(nx)) { card += mgViLine(nx); i++; }
+          emit('<div class="lp-card">' + card + '</div>');
+          continue;
+        }
+        if (/^◎/.test(t)) {
+          emit('<div class="lp-sline lp-sline--note">' + plainSpan(t) + '</div>');
+          continue;
+        }
+        if (lineKind(t) !== 'vi' && mgIsTranslation(nx)) {
+          emit('<div class="lp-sline lp-sline--pattern">' + plainSpan(t) + '</div>' + mgViLine(nx));
+          i++;
+          continue;
+        }
       }
       keep(t);
     }
