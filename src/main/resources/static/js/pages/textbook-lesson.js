@@ -1493,6 +1493,11 @@
           sections[0] = { kind: 'note', label: sections[0].label, lines: sections[0].lines, owner: null };
         }
       }
+      // [JLAS2-17] Mục có cả đọc hiểu và một phần 【Luyện Tập】 mà mọi câu chung một mã cha: câu có đề nằm trong phần đọc
+      // hiểu (問1 / 問2…) đi với đoạn văn; các câu còn lại (liền sau, đề không có trong phần đọc hiểu) là câu của đề luyện
+      // tập → vẽ ngay dưới "Đề luyện tập", không trộn vào danh sách câu đọc hiểu.
+      var practiceQs = NEW_UI ? splitPracticeQuestions(own, sp.main, sections) : [];
+      if (practiceQs.length) own = own.slice(0, own.length - practiceQs.length);
       var hasExtra = NEW_UI ? sections.length > 0 : split.extra.some(function (l) { return l.trim(); });
       var audio = itemAudio(it);
       var hasTranslation = !!(it.textVi && it.textVi.trim()) && own.length === 0;
@@ -1503,7 +1508,7 @@
           !sections.some(function (x) { return x.kind !== 'answer' && x.kind !== 'translation' && hasText(x.lines); })) return;
       blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio,
         extra: !NEW_UI && hasExtra ? split.extra : [], extraLabel: split.label, sections: sections,
-        translation: hasTranslation ? it.textVi : null, questions: own });
+        translation: hasTranslation ? it.textVi : null, questions: own, practiceQuestions: practiceQs });
     });
     var rest = questions.filter(function (q) { return !assigned[q.id]; });
     if (rest.length) {
@@ -1513,8 +1518,28 @@
     var hasRead = blocks.some(function (b) { return !b.listening; });
     var hasListen = blocks.some(function (b) { return b.listening || b.questions.some(function (q) { return !!q.audioUrl; }); });
     var label = hasRead && hasListen ? 'Bài đọc & nghe' : (hasListen ? 'Bài nghe' : 'Bài đọc');
-    var count = blocks.reduce(function (n, b) { return n + (b.questions.length || 1); }, 0) + (cta && blocks.length === 0 ? 1 : 0);
+    var count = blocks.reduce(function (n, b) {
+      return n + ((b.questions.length + (b.practiceQuestions || []).length) || 1);
+    }, 0) + (cta && blocks.length === 0 ? 1 : 0);
     return { blocks: blocks, cta: cta, label: label, count: count, pictureHidden: pictureHidden };
+  }
+
+  /**
+   * [JLAS2-17] Câu của đề luyện tập trong một mục đọc hiểu (xem readingModel): đúng một phần practice; có câu mà đề nằm
+   * trong phần đọc hiểu (main) và các câu còn lại đứng liền sau, đề không có trong main. Trả về các câu luyện tập (đuôi
+   * của own) hoặc [] khi không chắc.
+   */
+  function splitPracticeQuestions(own, mainText, sections) {
+    if (own.length < 2 || sections.filter(function (x) { return x.kind === 'practice'; }).length !== 1) return [];
+    var mainKey = matchKey(mainText);
+    var inMain = own.map(function (q) {
+      var k = matchKey(q.questionText || '');
+      return k.length >= 4 && mainKey.indexOf(k) !== -1;
+    });
+    var first = inMain.indexOf(false);
+    if (first <= 0) return [];
+    for (var i = first; i < inMain.length; i++) if (inMain[i]) return [];
+    return own.slice(first);
   }
 
   /** Khối là bài nghe: mục LISTENING, hoặc mục có câu hỏi mang audio riêng. */
@@ -1680,9 +1705,37 @@
     });
   }
 
-  function readingTailHtml(block, sections) {
+  /** [JLAS2-17] Thẻ câu của đề luyện tập (block.practiceQuestions), đánh số tiếp sau câu đọc hiểu. */
+  function practiceCardsHtml(block, number) {
+    var qs = block.practiceQuestions;
+    var flags = questionMediaFlags({ item: block.item, lines: block.lines, questions: qs, passageShown: block.passageShown });
+    return '<div class="practice-list">' + qs.map(function (q, i) {
+      number++;
+      var f = flags[i];
+      return (f.groupImages ? sharedImagesHtml(f.groupImages, number, number + f.groupSize - 1) : '') +
+        practiceCard(q, number, q.hatsuwa, f);
+    }).join('') + '</div>';
+  }
+
+  function readingTailHtml(block, sections, number) {
     var here = [];
     var practice = [];
+    if ((block.practiceQuestions || []).length) {
+      // Đề luyện tập có câu riêng: vẽ ngay trong khối — đề → thẻ câu → đáp án / bản dịch luyện tập; phần khác như cũ.
+      var html = '';
+      var cardsDone = false;
+      sections.forEach(function (x) {
+        var mine = x.kind === 'practice' || ((x.kind === 'answer' || x.kind === 'translation') && x.owner === 'practice');
+        if (!mine) {
+          if ((x.kind === 'answer' || x.kind === 'translation') && !x.owner) tailParts.other.push({ title: block.item.title, sec: x });
+          else html += sectionHtml(x);
+          return;
+        }
+        html += sectionHtml(x);
+        if (x.kind === 'practice' && !cardsDone) { html += practiceCardsHtml(block, number); cardsDone = true; }
+      });
+      return html;
+    }
     sections = sections.filter(function (x) { return !(x.kind === 'practice' && practiceCoveredByCards(x, block.questions)); });
     sections.forEach(function (x) {
       if (x.kind === 'practice' || ((x.kind === 'answer' || x.kind === 'translation') && x.owner === 'practice')) practice.push(x);
@@ -1769,7 +1822,7 @@
         ? '<details class="lp-sec lp-sec--explain"><summary class="lp-sec__summary">Giải thích &amp; từ vựng (xem sau khi làm)</summary>' +
           passageHtml(block.lines) + '</details>'
         : '') +
-      readingTailHtml(block, sections) +
+      readingTailHtml(block, sections, number) +
       // Lời giải để CUỐI (sau câu hỏi) và thu gọn: chứa bản dịch lẫn đáp án.
       (block.extra && block.extra.length
         ? '<details class="reading-block__script reading-block__solution"><summary>Xem ' +
