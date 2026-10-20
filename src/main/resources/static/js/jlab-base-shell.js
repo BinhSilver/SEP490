@@ -807,7 +807,8 @@
   var NOTIFICATION_ICONS = {
     MODERATION_CONTENT: 'shield', MODERATION_SANCTION: 'shield', MODERATION_APPEAL: 'shield',
     SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message',
-    SHADOWING_COMMENT: 'message', WELCOME: 'home'
+    SHADOWING_COMMENT: 'message', SHADOWING_VIDEO_READY: 'headphones', SHADOWING_VIDEO_FAILED: 'info',
+    WELCOME: 'home'
   };
 
   async function loadNotifications() {

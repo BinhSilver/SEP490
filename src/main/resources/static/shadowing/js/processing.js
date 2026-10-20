@@ -80,19 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 : 'Quá trình xử lý gặp trục trặc. Bạn có thể bấm Thử lại; video gốc vẫn được giữ nguyên.';
             return;
         }
-        const messages = {
-            UPLOADED: 'Mình đang kiểm tra video và chuẩn bị các bước cần thiết.',
-            YOUTUBE_DOWNLOAD: 'Mình đang mang video về thư viện. Video dài sẽ cần thêm một chút thời gian.',
-            SUBTITLE_DOWNLOAD: 'Mình đang tìm phụ đề phù hợp để tạo bài luyện nghe.',
-            EXTRACTING_AUDIO: 'Mình đang tách phần âm thanh để nhận diện lời thoại.',
-            TRANSCRIBING: 'Mình đang nghe và chia lời thoại thành từng câu shadowing.',
-            AI_PROCESSING: 'Mình đang thêm furigana và bản dịch. Bạn có thể rời trang rồi quay lại sau.',
-            DONE: 'Bài học đã sẵn sàng. Bạn có thể trở về thư viện Shadowing.'
-        };
+        // Processing runs on the server and the owner is notified when it ends, so leaving is safe.
         kitsuTitle.textContent = step === 'DONE'
             ? 'Kitsu-chan đã chuẩn bị xong'
             : 'Kitsu-chan đang chuẩn bị bài học';
-        kitsuMessage.textContent = messages[step] || messages.UPLOADED;
+        kitsuMessage.textContent = step === 'DONE'
+            ? 'Bài học đã sẵn sàng. Bạn có thể trở về thư viện Shadowing.'
+            : 'Bạn có thể về trang chủ, khi xong mình sẽ thông báo.';
     }
 
     function isNonJapaneseFailure(message) {

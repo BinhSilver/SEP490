@@ -31,6 +31,7 @@ public class ProcessingJobService {
     @Autowired private OpenRouterService openRouterService;
     @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
     @Autowired private VideoModerationService videoModerationService;
+    @Autowired private ShadowingProcessingNotifier notifier;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -79,6 +80,7 @@ public class ProcessingJobService {
             } catch (Exception modEx) {
                 System.err.println("regenerateTranscript: moderation failed id=" + videoId + " " + modEx.getMessage());
             }
+            notifier.ready(video);
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
                 Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
@@ -86,6 +88,7 @@ public class ProcessingJobService {
                     failed.setStatus(VideoStatus.FAILED);
                     failed.setErrorMessage(e.getMessage());
                     videoRepository.save(failed);
+                    notifier.failed(failed, e.getMessage());
                 }
             }
         }
@@ -181,6 +184,7 @@ public class ProcessingJobService {
                 video.setStatus(VideoStatus.FAILED);
                 video.setErrorMessage(e.getMessage());
                 videoRepository.save(video);
+                notifier.failed(video, e.getMessage());
                 e.printStackTrace();
             } else {
                 System.out.println("processVideo: error ignored (superseded) id=" + videoId + " runId=" + runId);
@@ -317,6 +321,7 @@ public class ProcessingJobService {
         } catch (Exception modEx) {
             System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
         }
+        notifier.ready(video);
     }
 
     private void failProcessing(Long videoId, long runId, Exception e) {
@@ -326,6 +331,7 @@ public class ProcessingJobService {
             failed.setStatus(VideoStatus.FAILED);
             failed.setErrorMessage(e.getMessage());
             videoRepository.save(failed);
+            notifier.failed(failed, e.getMessage());
         }
     }
 
