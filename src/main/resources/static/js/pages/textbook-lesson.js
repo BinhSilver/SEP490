@@ -723,6 +723,7 @@
    * [JLAS2-17] Khuôn Marugoto N5–N2 (nhận diện: mục có dòng "Mục Từ Nghĩa" — chỉ Marugoto có; xem readingModel → block.marugoto).
    * Trong vùng 【Từ Vựng】 / 【Ngữ Pháp】 / 【Từ Vựng + Ngữ Pháp】 dữ liệu không đánh dấu cấu trúc, nên đọc theo khuôn:
    *   M1 dòng "Từ Vựng" / "Ngữ Pháp" / "Mục Từ Nghĩa" là tiêu đề mục (không phải bản dịch của dòng trước);
+   *   M4 dưới "Mục Từ Nghĩa": "từ nghĩa" tách thành cặp từ：nghĩa ("～年間 ~ năm", "ゲーム game");
    *   M2 mẫu ngữ pháp = dòng mẫu + dòng nghĩa, "◎ …" là ghi chú riêng, ví dụ đánh số + dòng dịch là một thẻ — không dồn
    *      mẫu / ghi chú sau vào thẻ ví dụ trước.
    * Dòng không thuộc các nhánh trên đi qua cách hiển thị cũ (fallback) theo từng đoạn liên tiếp.
@@ -730,6 +731,17 @@
   var mgBlock = false;
   var MG_SUB = /^(Từ Vựng|Ngữ Pháp|Mục Từ Nghĩa)$/;
   var MG_REGION = /Từ\s*Vựng|Ngữ\s*Pháp/i;
+
+  function mgVocabPair(t) {
+    var toks = t.split(/\s+/);
+    var k = 0;
+    while (k < toks.length && /[぀-ヿ㐀-鿿々〆～〜]/.test(toks[k])) k++;
+    if (k === 0 || k === toks.length) return null;
+    var vi = toks.slice(k).join(' ');
+    // Nghĩa bắt đầu bằng chữ Latin; chữ Nhật chỉ được nằm trong ngoặc trích dẫn ("kính ngữ của ｢知っている｣").
+    if (!/^[~～(（]?\s*[A-Za-zÀ-ỹĐđ]/.test(vi) || JA_CHAR.test(vi.replace(/[「｢『][^」｣』]*[」｣』]/g, ''))) return null;
+    return { jp: toks.slice(0, k).join(' '), vi: vi };
+  }
 
   function mgIsTranslation(x) {
     return !!x && lineKind(x) === 'vi' && !/^◎/.test(x) && !MG_SUB.test(x) && !/^【/.test(x);
@@ -773,6 +785,15 @@
           flushRun();
         }
         continue;
+      }
+      // M4: dòng bảng từ vựng "từ nghĩa" → cặp từ：nghĩa.
+      if (sub === 'Mục Từ Nghĩa') {
+        var vp = mgVocabPair(t);
+        if (vp) {
+          emit('<div class="lp-sline lp-sline--pair"><span class="jp" lang="ja">' + escapeHtml(vp.jp) + '</span>' +
+            '<span class="sep">：</span><span class="vi" lang="vi">' + escapeHtml(vp.vi) + '</span></div>');
+          continue;
+        }
       }
       // M2: ví dụ đánh số + một dòng dịch = thẻ; "◎ …" = ghi chú; dòng mẫu + dòng nghĩa = tiêu đề mẫu.
       if (sub !== 'Mục Từ Nghĩa') {
