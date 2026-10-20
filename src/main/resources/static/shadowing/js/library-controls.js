@@ -51,28 +51,56 @@
         };
     }
 
+    /** Ghi trạng thái lọc vào URL (không thêm lịch sử) để quay lại trang vẫn đúng bộ lọc; giá trị rỗng thì bỏ khoá. */
+    function remember(updates) {
+        const location = root.location, history = root.history;
+        if (!location || !history || typeof history.replaceState !== 'function') return;
+        const url = new URL(location.href);
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+        });
+        history.replaceState(history.state, '', url);
+    }
+
+    function setChoice(document, select, group, selected) {
+        select.querySelector('[data-combined-filter]')?.remove();
+        if (group.multiple && selected.length > 1) {
+            const combinedOption = document.createElement('option');
+            combinedOption.value = selected.join(',');
+            combinedOption.textContent = `${selected.length} ${group.unit}`;
+            combinedOption.dataset.combinedFilter = 'true';
+            select.appendChild(combinedOption);
+        }
+        select.value = group.multiple ? selected.join(',') : selected[0] || 'popular';
+    }
+
     function mount(document) {
         const toggle = document.getElementById('library-filter-toggle');
         const panel = document.getElementById('library-filter-panel');
         if (!toggle || !panel) return;
         const groups = [
-            { id: 'category-filter', label: 'Thể loại', multiple: true, unit: 'thể loại' },
-            { id: 'level-filter', label: 'Cấp độ', multiple: true, unit: 'cấp độ' },
-            { id: 'sort-select', label: 'Sắp xếp', multiple: false }
+            { id: 'category-filter', param: 'category', label: 'Hình thức', multiple: true, unit: 'hình thức' },
+            { id: 'genre-filter', param: 'genre', label: 'Thể loại', multiple: true, unit: 'thể loại' },
+            { id: 'level-filter', param: 'level', label: 'Cấp độ', multiple: true, unit: 'cấp độ' },
+            { id: 'sort-select', param: 'sort', label: 'Sắp xếp', multiple: false }
         ];
         const fields = [];
         const count = document.getElementById('library-filter-count');
+        const search = document.getElementById('search-input');
 
         function sync() {
             let active = 0;
+            const state = { q: search.value.trim() };
             fields.forEach(({ group, select, inputs }) => {
                 const selected = values(select.value);
                 inputs.forEach(input => { input.checked = input.value ? selected.includes(input.value) : !selected.length; });
                 active += group.multiple ? selected.length : Number(select.value !== 'popular');
+                state[group.param] = select.value === 'popular' ? '' : select.value;
             });
             count.textContent = String(active);
             count.hidden = active === 0;
             toggle.setAttribute('aria-label', active ? `Bộ lọc, ${active} điều kiện đang áp dụng` : 'Bộ lọc');
+            remember(state);
         }
 
         groups.forEach(group => {
@@ -99,23 +127,14 @@
                     if (!group.multiple) selected = [input.value];
                     else if (!input.value) selected = [];
                     else selected = input.checked ? [...new Set([...selected, input.value])] : selected.filter(v => v !== input.value);
-                    const combined = selected.join(',');
-                    select.querySelector('[data-combined-filter]')?.remove();
-                    if (selected.length > 1) {
-                        const combinedOption = document.createElement('option');
-                        combinedOption.value = combined;
-                        combinedOption.textContent = `${selected.length} ${group.unit}`;
-                        combinedOption.dataset.combinedFilter = 'true';
-                        select.appendChild(combinedOption);
-                    }
-                    select.value = combined;
+                    setChoice(document, select, group, selected);
                     select.dispatchEvent(new Event('change', { bubbles: true }));
                 });
                 choices.appendChild(label);
             });
             field.appendChild(choices);
             panel.appendChild(field);
-            fields.push({ group, select, inputs });
+            fields.push({ group, select, inputs, known: inputs.map(input => input.value).filter(Boolean) });
             select.addEventListener('change', sync);
         });
 
@@ -143,16 +162,22 @@
         document.addEventListener('focusin', event => {
             if (!panel.hidden && !panel.contains(event.target) && !toggle.contains(event.target)) close(false);
         });
-        const search = document.getElementById('search-input');
         const placeholder = search.placeholder;
         const mobile = root.matchMedia('(max-width: 900px)');
         const adapt = () => { search.placeholder = mobile.matches ? 'Tìm video, câu thoại…' : placeholder; if (!mobile.matches) close(false); };
         mobile.addEventListener('change', adapt);
         adapt();
+        // Chạy trước library.js: lấy bộ lọc từ URL để danh sách tải lần đầu khớp với ô lọc khi quay lại trang.
+        const params = new URLSearchParams(root.location?.search || '');
+        search.value = params.get('q') || '';
+        fields.forEach(({ group, select, known }) => {
+            setChoice(document, select, group, values(params.get(group.param)).filter(value => known.includes(value)));
+        });
+        search.addEventListener('input', sync);
         sync();
     }
 
-    root.ShadowingLibraryUi = { values, compactTitle, compactDescription, ratingHtml, pageNumbers, createPager, mount };
+    root.ShadowingLibraryUi = { values, compactTitle, compactDescription, ratingHtml, pageNumbers, createPager, mount, remember };
     if (typeof module === 'object' && module.exports) module.exports = root.ShadowingLibraryUi;
     if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => mount(document));
 })(typeof window !== 'undefined' ? window : globalThis);

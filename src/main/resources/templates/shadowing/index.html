@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261017-genres-2">
     <link rel="icon" href="/images/logo.png" type="image/png"/>
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260929-merge-ti"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261017-genres"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20260901-no-bell-hover"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-1">
-    <link rel="stylesheet" href="/shadowing/css/library-mobile.css?v=20261012-no-sort-hint">
+    <link rel="stylesheet" href="/shadowing/css/library-mobile.css?v=20261017-genres">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-library">
     <div id="jlabBaseShellMount"></div>
@@ -25,9 +25,9 @@
     <main id="jlabBaseContent" class="container">
         <section>
             <div class="search-bar">
-                <input type="search" id="search-input" class="search-input" aria-label="Tìm video hoặc câu thoại" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
-                <select id="category-filter" class="form-input form-select" style="width:auto; border-radius:9999px;">
-                    <option value="">Tất cả thể loại</option>
+                <input type="search" id="search-input" autocomplete="off" class="search-input" aria-label="Tìm video hoặc câu thoại" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
+                <select id="category-filter" autocomplete="off" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo hình thức">
+                    <option value="">Mọi hình thức</option>
                     <option value="Podcast">Podcast</option>
                     <option value="Anime">Anime</option>
                     <option value="Drama">Phim kịch</option>
@@ -37,7 +37,11 @@
                     <option value="Story">Truyện</option>
                     <option value="JLPT">JLPT</option>
                 </select>
-                <select id="level-filter" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo cấp độ JLPT">
+                <select id="genre-filter" autocomplete="off" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo thể loại">
+                    <option value="">Mọi thể loại</option>
+                    <option th:each="genre : ${shadowingGenres}" th:value="${genre.code()}" th:text="${genre.label()}">Hành động</option>
+                </select>
+                <select id="level-filter" autocomplete="off" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo cấp độ JLPT">
                     <option value="">Mọi cấp độ</option>
                     <option value="N5">N5</option>
                     <option value="N4">N4</option>
@@ -45,7 +49,7 @@
                     <option value="N2">N2</option>
                     <option value="N1">N1</option>
                 </select>
-                <select id="sort-select" aria-label="Sắp xếp thư viện" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                <select id="sort-select" autocomplete="off" aria-label="Sắp xếp thư viện" class="form-input form-select" style="width:auto; border-radius:9999px;">
                     <option value="popular" selected>Phổ biến</option>
                     <option value="newest">Mới nhất</option>
                     <option value="title">Tên A-Z</option>
@@ -140,10 +144,10 @@
 
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js?v=20260901-logo3"></script>
-    <script src="/shadowing/js/client.js"></script>
+    <script src="/shadowing/js/client.js?v=20261017-genres"></script>
     <script src="/shadowing/js/confirm-modal.js"></script>
-    <script src="/shadowing/js/library-controls.js?v=20261012-3"></script>
-    <script src="/shadowing/js/library.js?v=20261012-no-sort-hint"></script>
-    <script src="/shadowing/js/series-library.js?v=20261012-3"></script>
+    <script src="/shadowing/js/library-controls.js?v=20261017-genres"></script>
+    <script src="/shadowing/js/library.js?v=20261017-genres-2"></script>
+    <script src="/shadowing/js/series-library.js?v=20261017-genres"></script>
 </body>
 </html>

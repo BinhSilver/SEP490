@@ -9,6 +9,39 @@ window.CATEGORY_LABELS = {
     JLPT: 'JLPT'
 };
 
+/** Genre chips rendered by templates/shadowing/genre-picker.html: several per video, at most MAX. */
+window.ShadowingGenres = {
+    MAX: 5,
+    read(root) {
+        return root ? Array.from(root.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value) : [];
+    },
+    write(root, codes) {
+        if (!root) return;
+        const wanted = new Set(codes || []);
+        root.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = wanted.has(input.value); });
+        this.limit(root);
+    },
+    limit(root) {
+        const boxes = Array.from(root.querySelectorAll('input[type="checkbox"]'));
+        const full = boxes.filter(input => input.checked).length >= this.MAX;
+        boxes.forEach(input => { input.disabled = full && !input.checked; });
+    },
+    bind(root, onChange) {
+        if (!root) return;
+        root.addEventListener('change', () => { this.limit(root); if (onChange) onChange(this.read(root)); });
+        this.limit(root);
+    },
+    /** Compact badges for a card: the first few genres and "+n" for the rest. */
+    badges(genres, shown) {
+        const list = Array.isArray(genres) ? genres : [];
+        const visible = list.slice(0, shown || 2);
+        const escape = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const rest = list.length - visible.length;
+        return visible.map(g => `<span class="badge badge-genre">${escape(g.label)}</span>`).join('')
+            + (rest > 0 ? `<span class="badge badge-genre" title="${escape(list.slice(visible.length).map(g => g.label).join(', '))}">+${rest}</span>` : '');
+    }
+};
+
 window.truncateTitle = function truncateTitle(text, maxLen) {
     if (!text) return '';
     const limit = maxLen || 48;

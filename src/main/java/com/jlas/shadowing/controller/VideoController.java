@@ -3,6 +3,7 @@ package com.jlas.shadowing.controller;
 import com.jlas.common.exception.ApiException;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.shadowing.dto.*;
+import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.service.VideoService;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +45,7 @@ public class VideoController {
     public ResponseEntity<ApiResponse<LibraryPageDto<VideoSummaryDto>>> library(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String genre,
             @RequestParam(required = false) String level,
             @RequestParam(defaultValue = "popular") String sort,
             @RequestParam(defaultValue = "public") String scope,
@@ -50,8 +53,13 @@ public class VideoController {
             @RequestParam(defaultValue = "false") boolean favoritesOnly,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size) {
-        return ResponseEntity.ok(ApiResponse.ok("Thư viện video", videoService.searchPage(q, category, level,
+        return ResponseEntity.ok(ApiResponse.ok("Thư viện video", videoService.searchPage(q, category, genre, level,
                 sort, scope, status, favoritesOnly, page, size)));
+    }
+
+    @GetMapping("/genres")
+    public ResponseEntity<List<GenreOption>> getGenres() {
+        return ResponseEntity.ok(Arrays.stream(ShadowingGenre.values()).map(GenreOption::of).toList());
     }
 
     @GetMapping("/categories")
@@ -66,10 +74,11 @@ public class VideoController {
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "tags", required = false) List<String> tags,
+            @RequestParam(value = "genres", required = false) List<String> genres,
             @RequestParam(value = "targetLanguage", defaultValue = "vi") String targetLanguage,
             @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana) {
         try {
-            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage, generateFurigana);
+            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage, generateFurigana, genres);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "id", video.getId(),
                     "status", video.getStatus().name(),
@@ -196,7 +205,9 @@ public class VideoController {
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);
         MediaType mediaType = resolveThumbnailMediaType(file.getName().toLowerCase());
+        // Thư viện hiển thị nhiều thumbnail mỗi trang; cho trình duyệt giữ lại thay vì tải lại mỗi lần đổi tab.
         return ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofHours(1)).cachePrivate())
                 .contentType(Objects.requireNonNull(mediaType))
                 .body(resource);
     }

@@ -21,4 +21,6 @@ public class SeriesSummaryDto {
     private boolean ownedByMe;
     private Double duration;
     private List<String> categories;
+    /** Video đầu tiên (theo thứ tự trong series) có ảnh bìa; dùng làm thumbnail của thẻ danh sách. */
+    private Long coverVideoId;
 }

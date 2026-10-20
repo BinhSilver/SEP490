@@ -1800,7 +1800,7 @@ rt {
 
 .stat-chip i { font-size: 14px; }
 .stat-chip i.fa-bullseye { color: var(--color-primary); }
-.stat-chip i.fa-star    { color: var(--color-warning); }
+.stat-chip i.fa-star    { color: var(--color-star, #f5a400); }
 .stat-chip strong       { color: var(--color-text); font-weight: 600; }
 
 .mic-level-wrap {
@@ -3127,9 +3127,52 @@ body.confirm-modal-open { overflow: hidden; }
 
 .waveform-canvas {
     width: 100%;
-    height: 40px;
+    height: 56px;
     cursor: pointer;
     border-radius: var(--radius-sm);
+    touch-action: pan-y;
+}
+.waveform-canvas.is-panning { cursor: grabbing; }
+
+.timeline-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-bottom: 8px;
+}
+.timeline-title { margin: 0; }
+.timeline-zoom {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+.timeline-zoom__btn {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-card);
+    color: var(--color-text);
+    cursor: pointer;
+}
+.timeline-zoom__btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.timeline-zoom__btn:focus-visible,
+.timeline-zoom__slider:focus-visible,
+.timeline-scroll:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.timeline-zoom__slider { width: 140px; min-width: 80px; accent-color: var(--color-primary); }
+.timeline-zoom__label { min-width: 92px; white-space: nowrap; }
+.timeline-scroll { display: block; width: 100%; margin: 6px 0 0; accent-color: var(--color-primary); }
+.timeline-scroll[hidden] { display: none; }
+.timeline-hint { margin: 6px 0 0; opacity: .75; }
+@media (max-width: 600px) {
+    .timeline-zoom { width: 100%; }
+    .timeline-zoom__slider { flex: 1; width: auto; }
+    .timeline-zoom__label { min-width: 0; }
 }
 
 .editor-layout.focus-mode .editor-list-col { max-width: 100%; }
@@ -3408,12 +3451,12 @@ body.confirm-modal-open { overflow: hidden; }
 }
 
 .star-rating .star-btn.filled {
-    color: var(--color-warning);
+    color: var(--color-star, #f5a400);
 }
 
 .star-rating.interactive .star-btn:hover {
     transform: scale(1.15);
-    color: var(--color-warning);
+    color: var(--color-star, #f5a400);
 }
 
 .video-card-thumb {
@@ -3439,7 +3482,7 @@ body.confirm-modal-open { overflow: hidden; }
 }
 
 .card-fav-btn:hover { transform: scale(1.08); }
-.card-fav-btn.favorited { color: var(--color-warning); }
+.card-fav-btn.favorited { color: var(--color-star, #f5a400); }
 
 .video-card-stats {
     display: flex;
@@ -3458,7 +3501,8 @@ body.confirm-modal-open { overflow: hidden; }
 .avg-star-icons {
     display: inline-flex;
     gap: 1px;
-    color: var(--color-warning);
+    /* Một màu sao chung cho mọi trang (css/tokens.css). */
+    color: var(--color-star, #f5a400);
     font-size: 13px;
 }
 
@@ -4336,3 +4380,29 @@ html[data-theme="dark"] .btn-recording {
     background: var(--dm-shadowing-danger-bg) !important;
     color: var(--dm-shadowing-ink) !important
 }
+
+/* ---- Genres: several per video (Hành động, Học đường…), separate from the single format ---- */
+.genre-picker { border: 0; margin: 0; padding: 0; min-width: 0; }
+.genre-picker legend { padding: 0; margin-bottom: 8px; }
+.genre-picker__hint { font-weight: 400; }
+.genre-picker__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.genre-chip { position: relative; display: inline-flex; cursor: pointer; }
+.genre-chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.genre-chip span {
+    display: inline-flex; align-items: center; min-height: 34px; padding: 6px 12px;
+    border: 1px solid var(--color-border); border-radius: 999px;
+    background: var(--color-card); color: var(--color-text); font-size: 14px; line-height: 1.2;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.genre-chip:hover span { border-color: var(--color-primary); }
+.genre-chip input:checked + span {
+    background: var(--color-primary-soft); border-color: var(--color-primary); color: var(--color-primary); font-weight: 600;
+}
+.genre-chip input:checked + span::before { content: '✓'; margin-right: 6px; }
+.genre-chip input:focus-visible + span { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.genre-chip input:disabled { cursor: not-allowed; }
+.genre-chip input:disabled + span { opacity: .45; cursor: not-allowed; }
+.create-shared-options .genre-picker, .metadata-panel .genre-picker { grid-column: 1 / -1; margin-bottom: var(--space-md); }
+.badge-genre { background: transparent; color: var(--color-text-secondary); box-shadow: inset 0 0 0 1px var(--color-border); }
+.video-card-genres { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.video-card-genres .badge { white-space: nowrap; }
