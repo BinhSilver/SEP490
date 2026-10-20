@@ -394,6 +394,123 @@
   font-weight: 600;
 }
 
+/* Face pickers: up to three fields per face, one line each on the card. */
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-bottom: var(--space-2);
+  padding: 0;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__hint {
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 10px;
+  background: var(--color-surface-lowest, #fff);
+  color: var(--color-on-surface);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+/* Selected: solid primary with white text. Locked: readable grey text on a quiet surface, no fading. */
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option:has(input:checked) {
+  border-color: var(--color-primary, #6256b9);
+  background: var(--color-primary, #6256b9);
+  color: var(--color-on-primary, #fff);
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option:has(input:checked) input {
+  accent-color: var(--color-on-primary, #fff);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option:has(input:disabled:not(:checked)) {
+  border-style: dashed;
+  background: var(--color-surface-low, #f6f7fb);
+  color: var(--color-on-surface-variant, #5f5d6b);
+  cursor: not-allowed;
+}
+
+/* "thiếu N": the field is missing on N cards of this set. */
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option { position: relative; }
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option > span { white-space: nowrap; }
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option input { flex: none; }
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__badge {
+  position: absolute;
+  top: -9px;
+  right: 8px;
+  padding: 0 7px;
+  border: 1px solid #b45309;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+html[data-theme="dark"] #jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__badge {
+  border-color: #fbbf24;
+  background: #422006;
+  color: #fde68a;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option:not(:has(input:disabled)):hover {
+  border-color: var(--color-primary, #6256b9);
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__option:has(input:focus-visible) {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal :is(.study-face-picker__note, .study-face-picker__error) {
+  margin: var(--space-3) 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__note { color: var(--color-on-surface-variant); }
+#jlabBasePage.flashcard-page--study #settings-modal .study-face-picker__error { color: var(--color-error, #b3261e); font-weight: 600; }
+
+#jlabBasePage.flashcard-page--study :is(#face-front, #face-back) { white-space: pre-line; }
+
 #jlabBasePage.flashcard-page--study #settings-modal .select {
   min-height: 44px;
 }
@@ -698,7 +815,7 @@
   font: inherit;
 }
 
-#jlabBasePage.flashcard-page--study .study-set-rating i { color: #f2b744; }
+#jlabBasePage.flashcard-page--study .study-set-rating i { color: var(--color-star, #f5a400); }
 #jlabBasePage.flashcard-page--study .study-set-rating:hover:not(:disabled) { color: var(--fc-primary); }
 #jlabBasePage.flashcard-page--study .study-set-rating:disabled { cursor: default; opacity: .68; }
 
@@ -786,6 +903,10 @@
 
 #jlabBasePage.flashcard-page--study .study-card-list__han-viet {
   color: var(--fc-on-surface-muted);
+}
+
+#jlabBasePage.flashcard-page--study .study-card-list__meaning {
+  color: var(--fc-on-surface);
 }
 
 #jlabBasePage.flashcard-page--study .study-card-list__table[data-content-columns="2"] tbody td { font-size: 15px; }
