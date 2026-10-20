@@ -719,6 +719,58 @@
     return '<div class="lp-script">' + out.join('') + '</div>';
   }
 
+  /*
+   * [JLAS2-17] Khuôn Marugoto N5–N2 (nhận diện: mục có dòng "Mục Từ Nghĩa" — chỉ Marugoto có; xem readingModel → block.marugoto).
+   * Trong vùng 【Từ Vựng】 / 【Ngữ Pháp】 / 【Từ Vựng + Ngữ Pháp】 dữ liệu không đánh dấu cấu trúc, nên đọc theo khuôn:
+   *   M1 dòng "Từ Vựng" / "Ngữ Pháp" / "Mục Từ Nghĩa" là tiêu đề mục (không phải bản dịch của dòng trước);
+   * Dòng không thuộc các nhánh trên đi qua cách hiển thị cũ (fallback) theo từng đoạn liên tiếp.
+   */
+  var mgBlock = false;
+  var MG_SUB = /^(Từ Vựng|Ngữ Pháp|Mục Từ Nghĩa)$/;
+  var MG_REGION = /Từ\s*Vựng|Ngữ\s*Pháp/i;
+
+  /** regionLabel: nhãn của mục đã tách (sectionHtml của 【Ngữ Pháp】…) — các dòng nằm sẵn trong vùng đó. */
+  function marugotoHtml(lines, fallback, regionLabel) {
+    var out = [];
+    var run = [];
+    var mg = [];
+    var inRegion = !!regionLabel && MG_REGION.test(regionLabel);
+    var sub = null;
+    var bracket = regionLabel || null;
+    function flushMg() { if (mg.length) { out.push('<div class="lp-script">' + mg.join('') + '</div>'); mg = []; } }
+    function flushRun() { if (run.length) { out.push(fallback(run)); run = []; } }
+    function keep(t) { flushMg(); run.push(t); }
+    function emit(html) { flushRun(); mg.push(html); }
+    var ls = lines.map(function (l) { return String(l || '').trim(); }).filter(Boolean);
+    for (var i = 0; i < ls.length; i++) {
+      var t = ls[i];
+      var nx = ls[i + 1];
+      var b = t.match(/^【\s*([^】]+?)\s*】$/);
+      if (b) {
+        inRegion = MG_REGION.test(b[1]);
+        bracket = b[1];
+        sub = null;
+        keep(t);
+        continue;
+      }
+      if (!inRegion) { keep(t); continue; }
+      // M1: tiêu đề con (bỏ khi trùng nhãn 【…】 ngay trên: "【Từ Vựng】" + "Từ Vựng").
+      if (MG_SUB.test(t)) {
+        sub = t;
+        if (t.replace(/\s+/g, '') !== String(bracket || '').replace(/\s+/g, '')) {
+          emit('<div class="lp-sline lp-sline--heading">' + escapeHtml(t) + '</div>');
+        } else {
+          flushRun();
+        }
+        continue;
+      }
+      keep(t);
+    }
+    flushRun();
+    flushMg();
+    return out.join('');
+  }
+
   function readingLines(text) {
     if (NEW_UI) {
       return scriptBlockHtml(String(text).split('\n').filter(function (l) { return l.trim(); })
@@ -1149,7 +1201,17 @@
    * Song ngữ: mỗi dòng Nhật (hoặc trung tính) mở một cặp, các dòng Việt ngay sau nó thuộc cặp đó — để bản dịch nằm
    * dưới đúng câu của nó thay vì xen lẫn từng dòng.
    */
+  var mgInside = false;
+
   function bilingualHtml(lines, latinIsTranslation) {
+    if (NEW_UI && mgBlock && !mgInside) {
+      mgInside = true;
+      try {
+        return marugotoHtml(lines, function (run) { return bilingualHtml(run, latinIsTranslation); });
+      } finally {
+        mgInside = false;
+      }
+    }
     var pairs = [];
     lines.forEach(function (line) {
       var t = line.trim();
@@ -1500,6 +1562,7 @@
       if (practiceQs.length) own = own.slice(0, own.length - practiceQs.length);
       var hasExtra = NEW_UI ? sections.length > 0 : split.extra.some(function (l) { return l.trim(); });
       var audio = itemAudio(it);
+      var marugoto = NEW_UI && /(^|\n)\s*Mục Từ Nghĩa\s*(\n|$)/.test(it.textJa || '');
       var hasTranslation = !!(it.textVi && it.textVi.trim()) && own.length === 0;
       if (!hasPassage && !hasExtra && !audio && !hasTranslation && own.length === 0) return;
       // [C] Giao diện mới: khối không có chữ (đoạn văn / đề / mục khác — chỉ còn nhãn, số, dòng rác thì coi như
@@ -1507,7 +1570,7 @@
       if (NEW_UI && !hasPassage && !audio && own.length === 0 && !readingImageFor(it) &&
           !sections.some(function (x) { return x.kind !== 'answer' && x.kind !== 'translation' && hasText(x.lines); })) return;
       var drill = NEW_UI && hasPassage ? drillGroups(lines, own) : null;
-      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio, drillGroups: drill,
+      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio, drillGroups: drill, marugoto: marugoto,
         extra: !NEW_UI && hasExtra ? split.extra : [], extraLabel: split.label, sections: sections,
         translation: hasTranslation ? it.textVi : null, questions: own, practiceQuestions: practiceQs });
     });
@@ -1662,8 +1725,13 @@
 
   /** Một phần đã chia theo nhãn (giao diện mới). Nhãn nút ghi rõ phần (đọc hiểu / luyện tập / khác). */
   function sectionHtml(sec) {
-    var body = '<div class="reading-block__text">' + scriptBlockHtml(sec.lines.filter(function (l) { return l.trim(); })
-      .map(function (l) { return { main: l, vi: [] }; })) + '</div>';
+    var secLines = sec.lines.filter(function (l) { return l.trim(); });
+    function plainScript(ls) { return scriptBlockHtml(ls.map(function (l) { return { main: l, vi: [] }; })); }
+    // [JLAS2-17] Khuôn Marugoto: mục 【Ngữ Pháp】 / 【Từ Vựng】 đọc theo marugotoHtml (nhãn của mục là dòng đầu vùng).
+    var body = '<div class="reading-block__text">' +
+      (NEW_UI && mgBlock && (sec.kind === 'note' || sec.kind === 'passage') && MG_REGION.test(sec.label || '')
+        ? marugotoHtml(secLines, plainScript, sec.label)
+        : plainScript(secLines)) + '</div>';
     if (sec.kind === 'practice') {
       return '<section class="lp-sec lp-sec--practice"><h5 class="lp-sec__title">Đề luyện tập</h5>' + body + '</section>';
     }
@@ -1826,6 +1894,15 @@
   }
 
   function readingBlockHtml(block) {
+    mgBlock = !!block.marugoto;
+    try {
+      return readingBlockInnerHtml(block);
+    } finally {
+      mgBlock = false;
+    }
+  }
+
+  function readingBlockInnerHtml(block) {
     var it = block.item;
     var number = block.numberStart || 0;
     var mediaFlags = questionMediaFlags(block);
