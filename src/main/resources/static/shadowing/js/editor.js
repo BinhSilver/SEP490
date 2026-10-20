@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const metaTitle = document.getElementById('meta-title');
     const metaCategory = document.getElementById('meta-category');
     const saveMetaBtn = document.getElementById('save-meta-btn');
+    const metaGenres = document.getElementById('meta-genres');
+    window.ShadowingGenres.bind(metaGenres);
     const waveformCanvas = document.getElementById('waveform-canvas');
     const editorLayout = document.getElementById('editor-layout');
 
@@ -120,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         undoBtn.disabled = busy || undoStack.length === 0;
         redoBtn.disabled = busy || redoStack.length === 0;
         regenerateAllBtn.disabled = busy;
+        if (addBtn) addBtn.disabled = busy;
         publishBtn.disabled = busy;
         listEl.querySelectorAll('.editor-sub-item').forEach(item => {
             const current = Number(item.dataset.id) === regeneratingId;
@@ -235,6 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 ['Podcast','Anime','Drama','News','Speech','Daily','Story','JLPT'].includes(t))
             || 'Daily';
         if (metaCategory) metaCategory.value = cat;
+        window.ShadowingGenres.write(metaGenres, (videoData.tags || [])
+            .map(tag => tag && tag.code || '').filter(code => code.startsWith('VIDEO_GENRE_'))
+            .map(code => code.slice('VIDEO_GENRE_'.length)));
         if (videoData.status === 'READY') {
             publishBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi';
         }
@@ -343,11 +349,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     saveMetaBtn.addEventListener('click', async () => {
-        await fetch(`/api/videos/${videoId}`, {
+        const res = await fetch(`/api/videos/${videoId}`, {
             method: 'PUT',
             headers: headers(),
-            body: JSON.stringify({ title: metaTitle.value, category: metaCategory?.value || 'Daily' })
+            body: JSON.stringify({
+                title: metaTitle.value,
+                category: metaCategory?.value || 'Daily',
+                genres: window.ShadowingGenres.read(metaGenres)
+            })
         });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            await showAlert({ title: 'Chưa lưu được thông tin', message: err.message || 'Hãy kiểm tra lại rồi thử lại.', variant: 'error' });
+            return;
+        }
         updateEditorTitle(metaTitle.value);
         metadataPanel.style.display = 'none';
         setSaveStatus('saved');
@@ -391,49 +406,399 @@ document.addEventListener('DOMContentLoaded', () => {
         pollAiPending();
     }
 
+    // Zoomable view of the timeline (CapCut-style): zoomLevel = whole duration / visible seconds.
+    const zoomSlider = document.getElementById('timeline-zoom');
+    const zoomLabel = document.getElementById('timeline-zoom-label');
+    const timelineScroll = document.getElementById('timeline-scroll');
+    const MIN_VISIBLE_SECONDS = 4;
+    const ZOOM_STEP = 1.6;
+    const RULER_STEPS = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1200];
+    let zoomLevel = 1;
+    let viewStart = 0;
+    let lastRevealedId = null;
+    let draftRange = null; // the line being added, drawn on the timeline
+
+    function maxZoom() { return Math.max(1, (video.duration || 0) / MIN_VISIBLE_SECONDS); }
+    function visibleSpan() { return video.duration / zoomLevel; }
+    function clampView() {
+        viewStart = Math.min(Math.max(0, viewStart), Math.max(0, video.duration - visibleSpan()));
+    }
+    function timeAt(clientX) {
+        const rect = waveformCanvas.getBoundingClientRect();
+        return viewStart + Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) * visibleSpan();
+    }
+    function formatClock(seconds) {
+        const s = Math.max(0, seconds);
+        const m = Math.floor(s / 60);
+        const rest = s - m * 60;
+        return m + ':' + (rest < 10 ? '0' : '') + (Number.isInteger(rest) ? rest : rest.toFixed(1));
+    }
+
+    function formatSpan(seconds) {
+        const s = Math.round(seconds);
+        return s < 60 ? s + ' giây' : Math.floor(s / 60) + ' phút' + (s % 60 ? ' ' + (s % 60) + ' giây' : '');
+    }
+
+    function syncZoomControls() {
+        if (!video.duration) return;
+        const zoomed = zoomLevel > 1.01;
+        if (zoomSlider) zoomSlider.value = maxZoom() > 1 ? Math.round(Math.log(zoomLevel) / Math.log(maxZoom()) * 100) : 0;
+        if (zoomLabel) zoomLabel.textContent = zoomed ? 'Khung ' + formatSpan(visibleSpan()) : 'Toàn bộ';
+        if (timelineScroll) {
+            timelineScroll.hidden = !zoomed;
+            const room = video.duration - visibleSpan();
+            timelineScroll.value = room > 0 ? Math.round(viewStart / room * 1000) : 0;
+        }
+    }
+
+    /** Zooms keeping {@code anchor} (seconds) at the same spot on screen; defaults to the playhead. */
+    function setZoom(level, anchor) {
+        if (!video.duration) return;
+        const at = anchor ?? video.currentTime;
+        const ratio = Math.min(1, Math.max(0, (at - viewStart) / visibleSpan()));
+        zoomLevel = Math.min(maxZoom(), Math.max(1, level));
+        viewStart = at - ratio * visibleSpan();
+        clampView();
+        syncZoomControls();
+        drawTimeline();
+    }
+
+    function panBy(seconds) {
+        viewStart += seconds;
+        clampView();
+        syncZoomControls();
+        drawTimeline();
+    }
+
+    /** Keeps what the learner works on in view: the playing position, and a newly selected subtitle. */
+    function followView() {
+        if (zoomLevel <= 1.01) { lastRevealedId = focusedId; return; }
+        const span = visibleSpan();
+        if (!video.paused && (video.currentTime < viewStart || video.currentTime > viewStart + span)) {
+            viewStart = video.currentTime - span * 0.1;
+        }
+        if (focusedId !== lastRevealedId) {
+            lastRevealedId = focusedId;
+            const sub = subtitles.find(s => s.id === focusedId);
+            if (sub && (sub.endTime < viewStart || sub.startTime > viewStart + span)) {
+                viewStart = (sub.startTime + sub.endTime) / 2 - span / 2;
+            }
+        }
+        clampView();
+        syncZoomControls();
+    }
+
     function drawTimeline() {
         if (!waveformCanvas || !subtitles.length || !video.duration) return;
+        followView();
         const ctx = waveformCanvas.getContext('2d');
         const w = waveformCanvas.width = waveformCanvas.offsetWidth * 2;
-        const h = waveformCanvas.height = 80;
-        const dur = video.duration;
+        const h = waveformCanvas.height = 112;
+        const span = visibleSpan();
+        const viewEnd = viewStart + span;
+        const xOf = t => (t - viewStart) / span * w;
         const timelineStyle = getComputedStyle(waveformCanvas);
         const timelineColor = (name, fallback) => timelineStyle.getPropertyValue(name).trim() || fallback;
+        const textColor = timelineColor('--timeline-text', '#1d1d1f');
         ctx.clearRect(0, 0, w, h);
         ctx.fillStyle = timelineColor('--timeline-bg', '#f0f0f0');
-        ctx.fillRect(0, 30, w, 20);
+        ctx.fillRect(0, 32, w, 20);
+
+        // Numbers are skipped where they would overlap; the selected one is always drawn on top.
+        ctx.font = '20px Inter';
+        let labelEnd = -Infinity;
+        let focusedLabel = null;
         subtitles.forEach((sub, i) => {
-            const x1 = (sub.startTime / dur) * w;
-            const x2 = (sub.endTime / dur) * w;
-            ctx.fillStyle = sub.id === focusedId
+            if (sub.endTime < viewStart || sub.startTime > viewEnd) return;
+            const x1 = xOf(sub.startTime);
+            const x2 = xOf(sub.endTime);
+            const focused = sub.id === focusedId;
+            ctx.fillStyle = focused
                 ? timelineColor('--timeline-active', '#0066cc')
                 : timelineColor('--timeline-segment', '#99c2eb');
-            ctx.fillRect(x1, 20, Math.max(x2 - x1, 2), 40);
-            ctx.fillStyle = timelineColor('--timeline-text', '#1d1d1f');
-            ctx.font = '20px Inter';
-            ctx.fillText(String(i + 1), x1 + 4, 18);
+            ctx.fillRect(x1, 22, Math.max(x2 - x1, 2), 40);
+            const label = String(i + 1);
+            const labelX = Math.max(x1 + 4, 0);
+            if (focused) { focusedLabel = { label, x: labelX }; return; }
+            if (labelX < labelEnd + 6) return;
+            ctx.fillStyle = textColor;
+            ctx.fillText(label, labelX, 18);
+            labelEnd = labelX + ctx.measureText(label).width;
         });
-        const curX = (video.currentTime / dur) * w;
-        ctx.strokeStyle = timelineColor('--timeline-playhead', '#ff3b30');
-        ctx.lineWidth = 2;
+        if (focusedLabel) {
+            ctx.font = 'bold 20px Inter';
+            const width = ctx.measureText(focusedLabel.label).width;
+            ctx.clearRect(focusedLabel.x - 3, 0, width + 6, 21);
+            ctx.fillStyle = timelineColor('--timeline-active', '#0066cc');
+            ctx.fillText(focusedLabel.label, focusedLabel.x, 18);
+        }
+
+        // The line being added: green when it can be saved, red when it overlaps or is invalid.
+        if (draftRange && draftRange.end >= viewStart && draftRange.start <= viewEnd) {
+            const x1 = xOf(draftRange.start);
+            const width = Math.max(xOf(draftRange.end) - x1, 2);
+            ctx.fillStyle = draftRange.ok ? 'rgba(20, 150, 90, 0.28)' : 'rgba(200, 40, 70, 0.28)';
+            ctx.fillRect(x1, 22, width, 40);
+            ctx.strokeStyle = draftRange.ok ? '#16935a' : '#c8284a';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 6]);
+            ctx.strokeRect(x1, 22, width, 40);
+            ctx.setLineDash([]);
+        }
+
+        // Time ruler: about one tick per 70 CSS pixels.
+        const step = RULER_STEPS.find(s => span / s <= w / 140) || RULER_STEPS[RULER_STEPS.length - 1];
+        ctx.strokeStyle = textColor;
+        ctx.fillStyle = textColor;
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 1;
+        ctx.font = '17px Inter';
         ctx.beginPath();
-        ctx.moveTo(curX, 0);
-        ctx.lineTo(curX, h);
+        ctx.moveTo(0, 72);
+        ctx.lineTo(w, 72);
+        for (let t = Math.ceil(viewStart / step) * step; t <= viewEnd; t += step) {
+            const x = xOf(t);
+            ctx.moveTo(x, 72);
+            ctx.lineTo(x, 82);
+            const text = formatClock(t);
+            const textX = Math.min(Math.max(0, x - ctx.measureText(text).width / 2), w - ctx.measureText(text).width);
+            ctx.fillText(text, textX, 104);
+        }
         ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        if (video.currentTime >= viewStart && video.currentTime <= viewEnd) {
+            const curX = xOf(video.currentTime);
+            ctx.strokeStyle = timelineColor('--timeline-playhead', '#ff3b30');
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(curX, 0);
+            ctx.lineTo(curX, h);
+            ctx.stroke();
+        }
     }
 
     video.addEventListener('timeupdate', drawTimeline);
+    video.addEventListener('loadedmetadata', () => { clampView(); syncZoomControls(); drawTimeline(); });
+    window.addEventListener('resize', drawTimeline);
     // Canvas pixels must be repainted when the theme changes, including while paused.
     new MutationObserver(drawTimeline).observe(document.documentElement, {
         attributes: true, attributeFilter: ['data-theme']
     });
 
-    waveformCanvas?.addEventListener('click', e => {
-        const rect = waveformCanvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        video.currentTime = x * video.duration;
+    zoomSlider?.addEventListener('input', () => setZoom(Math.pow(maxZoom(), Number(zoomSlider.value) / 100)));
+    document.getElementById('timeline-zoom-in')?.addEventListener('click', () => setZoom(zoomLevel * ZOOM_STEP));
+    document.getElementById('timeline-zoom-out')?.addEventListener('click', () => setZoom(zoomLevel / ZOOM_STEP));
+    document.getElementById('timeline-zoom-fit')?.addEventListener('click', () => setZoom(1));
+    timelineScroll?.addEventListener('input', () => {
+        viewStart = Number(timelineScroll.value) / 1000 * Math.max(0, video.duration - visibleSpan());
+        clampView();
+        drawTimeline();
+    });
+
+    // Ctrl/⌘ + wheel zooms around the pointer; once zoomed, the wheel pans like a horizontal scroll.
+    waveformCanvas?.addEventListener('wheel', e => {
+        if (!video.duration) return;
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setZoom(zoomLevel * Math.exp(-e.deltaY * 0.0015), timeAt(e.clientX));
+            return;
+        }
+        if (zoomLevel <= 1.01) return;
+        e.preventDefault();
+        const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        panBy(delta / waveformCanvas.getBoundingClientRect().width * visibleSpan());
+    }, { passive: false });
+
+    // Drag pans the zoomed view; a click without dragging seeks there as before.
+    let timelineDrag = null;
+    waveformCanvas?.addEventListener('pointerdown', e => {
+        if (e.button !== 0) return;
+        timelineDrag = { x: e.clientX, start: viewStart, moved: false };
+        waveformCanvas.setPointerCapture(e.pointerId);
+    });
+    waveformCanvas?.addEventListener('pointermove', e => {
+        if (!timelineDrag) return;
+        const dx = e.clientX - timelineDrag.x;
+        if (Math.abs(dx) > 4) timelineDrag.moved = true;
+        if (!timelineDrag.moved || zoomLevel <= 1.01) return;
+        waveformCanvas.classList.add('is-panning');
+        viewStart = timelineDrag.start - dx / waveformCanvas.getBoundingClientRect().width * visibleSpan();
+        clampView();
+        syncZoomControls();
+        drawTimeline();
+    });
+    const endTimelineDrag = e => {
+        if (!timelineDrag) return;
+        const seek = !timelineDrag.moved && e.type === 'pointerup';
+        timelineDrag = null;
+        waveformCanvas.classList.remove('is-panning');
+        if (!seek) return;
+        video.currentTime = timeAt(e.clientX);
         const sub = subtitles.find(s => video.currentTime >= s.startTime && video.currentTime <= s.endTime);
-        if (sub) { focusedId = sub.id; renderList(); }
+        if (sub) { focusedId = sub.id; lastRevealedId = sub.id; renderList(); }
+        drawTimeline();
+    };
+    waveformCanvas?.addEventListener('pointerup', endTimelineDrag);
+    waveformCanvas?.addEventListener('pointercancel', endTimelineDrag);
+
+    // ===== Add a subtitle: timing first, checked like publishing, so the new line never blocks it =====
+    const addBtn = document.getElementById('add-subtitle-btn');
+    const addDialog = document.getElementById('editor-add-dialog');
+    const addForm = document.getElementById('editor-add-form');
+    const addStart = document.getElementById('add-start');
+    const addEnd = document.getElementById('add-end');
+    const addText = document.getElementById('add-text');
+    const addFurigana = document.getElementById('add-furigana');
+    const addTranslation = document.getElementById('add-translation');
+    const addAi = document.getElementById('add-ai');
+    const addSubmit = document.getElementById('add-submit');
+    const addFit = document.getElementById('add-fit');
+    const addStatus = document.getElementById('add-time-status');
+    const addRangeLabel = document.getElementById('add-range-label');
+    const newRange = operations.newRange;
+    const PREVIEW_ID = -1;
+    let addFitRange = null;
+    let addAiTouched = false;
+
+    function mediaDuration() {
+        return Number.isFinite(video.duration) && video.duration > 0 ? video.duration : Number(videoData?.duration) || 0;
+    }
+    function readAddRange() {
+        return { start: parseFloat(addStart.value), end: parseFloat(addEnd.value) };
+    }
+    function revealRange(range) {
+        if (zoomLevel <= 1.01 || !video.duration) return;
+        if (range.start < viewStart || range.end > viewStart + visibleSpan()) {
+            viewStart = (range.start + range.end) / 2 - visibleSpan() / 2;
+            clampView();
+            syncZoomControls();
+        }
+    }
+
+    function updateAddRange() {
+        const { start, end } = readAddRange();
+        const result = newRange.check(subtitles, mediaDuration(), start, end);
+        draftRange = Number.isFinite(start) && Number.isFinite(end) && end > start ? { start, end, ok: result.ok } : null;
+        addFitRange = result.fit;
+        addFit.hidden = !result.fit;
+        addStatus.innerHTML = '';
+        addStatus.classList.toggle('is-ok', result.ok);
+        (result.ok ? ['Thời gian hợp lệ, không chồng lên câu nào.'] : result.errors).forEach(message => {
+            const line = document.createElement('li');
+            line.textContent = message;
+            addStatus.appendChild(line);
+        });
+        addRangeLabel.textContent = draftRange
+            ? newRange.clock(start) + ' → ' + newRange.clock(end) + ' · dài ' + (end - start).toFixed(1).replace('.', ',') + ' giây'
+            : '';
+        [addStart, addEnd].forEach(input => input.setAttribute('aria-invalid', String(!result.ok)));
+        addSubmit.disabled = !result.ok || !addText.value.trim();
+        if (draftRange) revealRange(draftRange);
+        drawTimeline();
+        return result;
+    }
+
+    function openAddDialog(at) {
+        if (regeneratingId !== null || !subtitles) return;
+        const range = newRange.suggest(subtitles, mediaDuration(), at ?? video.currentTime);
+        if (!range) {
+            showAlert({ title: 'Không còn khoảng trống', variant: 'info',
+                message: 'Dòng thời gian đã kín. Hãy rút ngắn một câu hiện có rồi thêm câu mới.' });
+            return;
+        }
+        addStart.value = range.start;
+        addEnd.value = range.end;
+        addText.value = addFurigana.value = addTranslation.value = '';
+        addAi.checked = true;
+        addAiTouched = false;
+        addSubmit.textContent = 'Thêm câu';
+        addDialog.showModal();
+        document.documentElement.classList.add('editor-ai-open');
+        updateAddRange();
+        addText.focus();
+    }
+
+    addBtn?.addEventListener('click', () => openAddDialog());
+    // Double-click on an empty part of the timeline adds a line right there.
+    waveformCanvas?.addEventListener('dblclick', e => {
+        const at = timeAt(e.clientX);
+        if (subtitles.some(s => at >= s.startTime && at < s.endTime)) return;
+        openAddDialog(at);
+    });
+    [addStart, addEnd].forEach(input => input.addEventListener('input', updateAddRange));
+    addText.addEventListener('input', () => { addSubmit.disabled = !draftRange?.ok || !addText.value.trim(); });
+    [addFurigana, addTranslation].forEach(input => input.addEventListener('input', () => {
+        // Both filled by hand: AI is no longer needed unless the learner asks for it.
+        if (!addAiTouched) addAi.checked = !(addFurigana.value.trim() && addTranslation.value.trim());
+    }));
+    addAi.addEventListener('change', () => { addAiTouched = true; });
+    addDialog.querySelectorAll('[data-take]').forEach(button => button.addEventListener('click', () => {
+        const target = button.dataset.take === 'start' ? addStart : addEnd;
+        target.value = Math.round(video.currentTime * 100) / 100;
+        updateAddRange();
+    }));
+    document.getElementById('add-preview').addEventListener('click', () => {
+        const { start, end } = readAddRange();
+        playback.toggle(PREVIEW_ID, start, end);
+    });
+    addFit.addEventListener('click', () => {
+        if (!addFitRange) return;
+        addStart.value = addFitRange.start;
+        addEnd.value = addFitRange.end;
+        updateAddRange();
+    });
+    addDialog.querySelectorAll('[data-add-close]').forEach(button => button.addEventListener('click', () => addDialog.close()));
+    addDialog.addEventListener('close', () => {
+        if (playback.playing(PREVIEW_ID)) playback.stop();
+        draftRange = null;
+        document.documentElement.classList.remove('editor-ai-open');
+        drawTimeline();
+        addBtn?.focus();
+    });
+
+    addForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const text = addText.value.trim();
+        if (!updateAddRange().ok || !text) return;
+        const { start, end } = readAddRange();
+        addSubmit.disabled = true;
+        addSubmit.textContent = 'Đang thêm…';
+        try {
+            await flushSaves();
+            pushUndo();
+            // Append with a free order first (sort order is unique), then move it to its place in time.
+            const nextOrder = subtitles.reduce((max, s) => Math.max(max, Number(s.sortOrder) || 0), -1) + 1;
+            const created = await operations.response(await fetch(`/api/videos/${videoId}/subtitles`, {
+                method: 'POST', headers: headers(), body: JSON.stringify({
+                    text, furigana: addFurigana.value.trim() || null, translation: addTranslation.value.trim() || null,
+                    startTime: start, endTime: end, sortOrder: nextOrder, manual: true
+                })
+            }));
+            const order = subtitles.map(s => s.id);
+            order.splice(newRange.insertIndex(subtitles, start), 0, created.id);
+            subtitles = await operations.response(await fetch(`/api/videos/${videoId}/subtitles/reorder`, {
+                method: 'PUT', headers: headers(), body: JSON.stringify({ order })
+            }));
+            const runAi = addAi.checked;
+            addDialog.close();
+            focusedId = created.id;
+            renderList();
+            drawTimeline();
+            listEl.querySelector(`.editor-sub-item[data-id="${created.id}"]`)?.scrollIntoView({ block: 'center' });
+            setSaveStatus('saved');
+            notify('Đã thêm câu #' + (subtitles.findIndex(s => s.id === created.id) + 1), 'success');
+            if (runAi) regenerateSubtitle(created.id);
+        } catch (error) {
+            addStatus.classList.remove('is-ok');
+            addStatus.innerHTML = '';
+            const line = document.createElement('li');
+            line.textContent = error.message || 'Không thêm được câu. Hãy thử lại.';
+            addStatus.appendChild(line);
+            addSubmit.disabled = false;
+        } finally {
+            addSubmit.textContent = 'Thêm câu';
+        }
     });
 
     function renderList() {
