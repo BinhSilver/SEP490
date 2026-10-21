@@ -1671,6 +1671,16 @@
       if (marugoto && hasTranslation && sections.some(function (x) {
         return (x.kind === 'translation' || x.kind === 'answer') && x.owner === 'reading';
       })) hasTranslation = false;
+      // [JLAS2-17] D4 (mọi giáo trình): MỌI dòng của bản dịch riêng đã có nguyên văn trong mục dịch / đáp án của chính mục
+      // (vd Hội thoại Business: "☞ Dịch" + cau_song_ngu) → không hiện bản dịch thứ hai.
+      if (NEW_UI && hasTranslation) {
+        var shown = {};
+        sp.sections.forEach(function (x) {
+          if (x.kind === 'translation' || x.kind === 'answer') x.lines.forEach(function (l) { shown[matchKey(l)] = true; });
+        });
+        var viLines = it.textVi.split('\n').map(matchKey).filter(Boolean);
+        if (viLines.length && viLines.every(function (k) { return shown[k]; })) hasTranslation = false;
+      }
       if (!hasPassage && !hasExtra && !audio && !hasTranslation && own.length === 0) return;
       // [C] Giao diện mới: khối không có chữ (đoạn văn / đề / mục khác — chỉ còn nhãn, số, dòng rác thì coi như
       // không), không câu hỏi, không audio, không ảnh → không hiện, kể cả nút đáp án / bản dịch của nó.
