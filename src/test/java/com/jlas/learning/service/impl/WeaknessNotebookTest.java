@@ -82,6 +82,22 @@ class WeaknessNotebookTest {
                 null, null, "N4");
     }
 
+    @Test
+    void repeatedSyncPreservesReviewButNewEvidenceReopensTheItem() {
+        User user = seedUser();
+        var evidence = WeaknessEvidence.item("KANJI", "KANJI:食", 1, 1, "N5");
+        notebook.record(user, 100L, List.of(evidence));
+        var row = weaknesses.findByUserId(user.getId()).getFirst();
+        row.setStatus("REVIEWED");
+        notebook.record(user, 100L, List.of(evidence));
+        assertEquals("REVIEWED", row.getStatus());
+        notebook.record(user, 99L, List.of(evidence));
+        assertEquals("REVIEWED", row.getStatus());
+        notebook.record(user, 101L, List.of(evidence));
+        assertEquals("OPEN", row.getStatus());
+        assertEquals(1, weaknesses.findByUserId(user.getId()).size());
+    }
+
     private Outcomes seedOutcomes() {
         var mainIdea = Outcome.builder().code("READ_MAIN_IDEA").nameVi("Ý chính").skill("READING").build();
         var detail = Outcome.builder().code("READ_DETAIL").nameVi("Chi tiết").skill("READING").build();

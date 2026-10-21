@@ -35,7 +35,7 @@
       '<p class="inline-dict__meaning">' + escapeHtml(word.meaning || 'Chưa có nghĩa tóm tắt') + '</p>' +
       '<p class="inline-dict__type">' + escapeHtml(word.wordType || 'Chưa phân loại') + '</p>' +
       '<div class="inline-dict__actions"><button type="button" data-inline-save="' +
-      escapeHtml(word.vocabularyId) + '">Lưu từ</button><a href="' + escapeHtml(word.detailUrl) +
+      escapeHtml(word.vocabularyId) + '">Lưu vào sổ tay</button><a href="' + escapeHtml(word.detailUrl) +
       '">Mở từ điển</a></div><p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 
@@ -62,9 +62,16 @@
       var status = popup.querySelector('.inline-dict__status');
       save.disabled = true;
       try {
-        await request('/api/dictionary/favorites/' + encodeURIComponent(save.dataset.inlineSave), { method: 'POST' });
-        save.textContent = 'Đã lưu';
-        status.textContent = 'Từ này đã có trong danh sách yêu thích.';
+        var notebooks = await request('/api/dictionary/notebooks');
+        var choices = notebooks.map(function (n) { return '<button type="button" data-inline-notebook="' + escapeHtml(n.id) + '">' + escapeHtml(n.name) + '<small>' + n.wordCount + ' từ</small></button>'; }).join('');
+        var chooser = document.createElement('div'); chooser.className = 'inline-dict__notebooks'; chooser.innerHTML = '<strong>Chọn sổ tay</strong>' + choices;
+        popup.appendChild(chooser);
+        chooser.addEventListener('click', async function (event) {
+          var choice = event.target.closest('[data-inline-notebook]'); if (!choice) return;
+          choice.disabled = true;
+          try { await request('/api/dictionary/notebooks/' + choice.dataset.inlineNotebook + '/entries/' + encodeURIComponent(save.dataset.inlineSave), { method: 'POST' }); save.textContent = 'Đã lưu'; chooser.remove(); status.textContent = 'Đã thêm vào ' + choice.firstChild.textContent + '.'; }
+          catch (error) { status.textContent = error.message; choice.disabled = false; }
+        });
       } catch (error) { status.textContent = error.message; save.disabled = false; }
     });
     return popup;
