@@ -116,7 +116,7 @@ public class AvatarFrameCatalogService {
         try {
             frames = List.copyOf(repository.all());
         } catch (DataAccessException ex) {
-            log.warn("Chưa đọc được bảng avatar_frame (chạy migration 042?), dùng 4 khung gốc: {}", ex.getMessage());
+            log.warn("Chưa đọc được bảng avatar_frame (chạy migration 050?), dùng 4 khung gốc: {}", ex.getMessage());
             return AvatarFrameCatalog.seeds();
         }
         cache = frames;

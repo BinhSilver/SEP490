@@ -37,7 +37,7 @@ public class AvatarFrameSchemaInitializer implements ApplicationRunner {
                 + "updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), "
                 + "CONSTRAINT fk_user_profile_style_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-        // Migration 042: danh mục khung do admin quản lý; nạp sẵn 4 khung gốc, không ghi đè chỉnh sửa của admin.
+        // Migration 050: danh mục khung do admin quản lý; nạp sẵn 4 khung gốc, không ghi đè chỉnh sửa của admin.
         jdbc.execute("CREATE TABLE IF NOT EXISTS avatar_frame ("
                 + "id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, code VARCHAR(40) NOT NULL UNIQUE, "
                 + "name VARCHAR(100) NOT NULL, description VARCHAR(500) NOT NULL DEFAULT '', price INT NOT NULL DEFAULT 0, "

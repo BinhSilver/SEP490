@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Dữ liệu khởi tạo của danh mục khung avatar (bảng {@code avatar_frame}, migration 042). Danh mục thật do admin
+ * Dữ liệu khởi tạo của danh mục khung avatar (bảng {@code avatar_frame}, migration 050). Danh mục thật do admin
  * quản lý trong DB; lớp này chỉ còn nạp sẵn 4 khung gốc và là danh mục dự phòng khi DB chưa có bảng.
  * Ảnh đã chuẩn hoá: lỗ tròn nằm giữa, khung = 1,5 lần đường kính avatar (xem avatar-frame.css).
  */
