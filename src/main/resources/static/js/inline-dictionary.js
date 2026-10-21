@@ -61,7 +61,11 @@
       '<div class="inline-dict__actions"><button type="button" data-inline-save="' +
       escapeHtml(word.vocabularyId) + '" aria-pressed="' + saved + '" title="' +
       (saved ? 'Bấm để bỏ lưu' : 'Lưu vào danh sách yêu thích') + '"' + (saved ? ' class="is-saved"' : '') + '>' +
-      saveButtonMarkup(saved) + '</button><a href="' + escapeHtml(word.detailUrl) +
+      saveButtonMarkup(saved) + '</button>' +
+      // Sổ tay (Sổ tay của tôi, Sổ tay điểm yếu, sổ tự tạo) là tính năng riêng với danh sách yêu thích.
+      '<button type="button" class="inline-dict__notebook-btn" data-inline-notebook-open="' + escapeHtml(word.vocabularyId) +
+      '" aria-expanded="false"><i class="fa-regular fa-folder-open" aria-hidden="true"></i> Sổ tay</button>' +
+      '<a href="' + escapeHtml(word.detailUrl) +
       '">Mở từ điển</a></div><p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 
@@ -87,6 +91,10 @@
     popup.addEventListener('click', function (event) {
       var save = event.target.closest('[data-inline-save]');
       if (!save) return;
+      var notebookButton = event.target.closest('[data-inline-notebook-open]');
+      if (notebookButton) { openNotebooks(notebookButton); return; }
+      var save = event.target.closest('[data-inline-save]');
+      if (!save) return;
       // Đổi nút ngay khi bấm (không chờ máy chủ); syncSaved gửi request phía sau và hoàn tác nếu lỗi.
       popup.querySelector('.inline-dict__status').textContent = '';
       setSaved(save, save.getAttribute('aria-pressed') !== 'true');
@@ -97,6 +105,49 @@
 
   // Đưa máy chủ về đúng trạng thái nút đang hiện. Bấm liên tục khi request trước chưa xong thì chỉ gửi thêm
   // khi trạng thái cuối khác máy chủ, nên không có request thừa và không bị lệch.
+  /** Mở (hoặc đóng) danh sách sổ tay ngay trong popup, chọn một sổ để thêm từ này vào. */
+  async function openNotebooks(button) {
+    var status = popup.querySelector('.inline-dict__status');
+    var open = popup.querySelector('.inline-dict__notebooks');
+    if (open) { open.remove(); button.setAttribute('aria-expanded', 'false'); return; }
+    if (button.disabled) return;
+    button.disabled = true;
+    status.textContent = '';
+    try {
+      var notebooks = await request('/api/dictionary/notebooks');
+      // Popup có thể đã chuyển sang từ khác trong lúc chờ.
+      if (!popup.contains(button)) return;
+      var choices = notebooks.map(function (n) {
+        return '<button type="button" data-inline-notebook="' + escapeHtml(n.id) + '">' + escapeHtml(n.name) +
+          '<small>' + escapeHtml(n.wordCount) + ' từ</small></button>';
+      }).join('');
+      var chooser = document.createElement('div');
+      chooser.className = 'inline-dict__notebooks';
+      chooser.innerHTML = '<strong>Chọn sổ tay</strong>' + choices;
+      popup.appendChild(chooser);
+      button.setAttribute('aria-expanded', 'true');
+      chooser.addEventListener('click', async function (event) {
+        var choice = event.target.closest('[data-inline-notebook]');
+        if (!choice) return;
+        choice.disabled = true;
+        try {
+          await request('/api/dictionary/notebooks/' + encodeURIComponent(choice.dataset.inlineNotebook) + '/entries/' +
+            encodeURIComponent(button.dataset.inlineNotebookOpen), { method: 'POST' });
+          chooser.remove();
+          button.setAttribute('aria-expanded', 'false');
+          status.textContent = 'Đã thêm vào ' + choice.firstChild.textContent + '.';
+        } catch (error) {
+          status.textContent = error.message;
+          choice.disabled = false;
+        }
+      });
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   async function syncSaved(button, status) {
     if (button.syncing) return;
     button.syncing = true;

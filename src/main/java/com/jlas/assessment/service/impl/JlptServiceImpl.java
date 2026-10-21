@@ -54,28 +54,40 @@ public class JlptServiceImpl implements JlptService {
     @Override
     public List<JlptPracticeTypeResponse> listPracticeTypes(String level) {
         return jdbc.query("""
-                SELECT COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
-                                CONCAT(UPPER(p.part_code), '_OTHER')) AS type_code,
-                       COUNT(q.id) AS question_count,
-                       MIN(p.order_index) AS part_order,
-                       MIN(m.order_index) AS mondai_order
-                FROM jlpt_question q
-                JOIN jlpt_mondai m ON m.id=q.mondai_id
-                JOIN jlpt_part p ON p.id=m.part_id
-                JOIN jlpt_exam e ON e.id=p.exam_id
-                LEFT JOIN jlpt_question_type qt ON qt.id=q.question_type_id
-                WHERE e.jlpt_level=? AND e.status IN ('DRAFT','PUBLISHED')
-                  AND NOT (p.part_code = 'listening' AND
-                      REPLACE(REPLACE(TRIM(q.question_text),' ',''),'　','') IN
-                      ('れい','例','(れい)','（れい）','(例)','（例）','(例(れい))','（例（れい））'))
-                GROUP BY COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
-                                  CONCAT(UPPER(p.part_code), '_OTHER'))
-                ORDER BY part_order,mondai_order,type_code
+                SELECT inventory.type_code, inventory.question_count,
+                       config.name_vi, config.name_ja, config.order_index
+                FROM (
+                    SELECT COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
+                                    CONCAT(UPPER(p.part_code), '_OTHER')) AS type_code,
+                           COUNT(q.id) AS question_count,
+                           MIN(p.order_index) AS part_order,
+                           MIN(m.order_index) AS mondai_order
+                    FROM jlpt_question q
+                    JOIN jlpt_mondai m ON m.id=q.mondai_id
+                    JOIN jlpt_part p ON p.id=m.part_id
+                    JOIN jlpt_exam e ON e.id=p.exam_id
+                    LEFT JOIN jlpt_question_type qt ON qt.id=q.question_type_id
+                    WHERE e.jlpt_level=? AND e.status IN ('DRAFT','PUBLISHED')
+                      AND NOT (p.part_code = 'listening' AND
+                          REPLACE(REPLACE(TRIM(q.question_text),' ',''),'　','') IN
+                          ('れい','例','(れい)','（れい）','(例)','（例）','(例(れい))','（例（れい））'))
+                    GROUP BY COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
+                                      CONCAT(UPPER(p.part_code), '_OTHER'))
+                ) inventory
+                LEFT JOIN jlpt_practice_type_config config
+                  ON config.level_code=? AND config.type_code=inventory.type_code
+                WHERE COALESCE(config.is_enabled, TRUE)=TRUE
+                ORDER BY COALESCE(config.order_index, inventory.part_order * 1000 + inventory.mondai_order),
+                         inventory.part_order,inventory.mondai_order,inventory.type_code
                 """, (rs, row) -> {
             String code = rs.getString("type_code");
-            return new JlptPracticeTypeResponse(code, sectionForType(code), typeName(code),
-                    typeNameJa(code), rs.getInt("question_count"));
-        }, level);
+            String nameVi = rs.getString("name_vi");
+            String nameJa = rs.getString("name_ja");
+            return new JlptPracticeTypeResponse(code, sectionForType(code),
+                    nameVi == null || nameVi.isBlank() ? typeName(code) : nameVi,
+                    nameJa == null || nameJa.isBlank() ? typeNameJa(code) : nameJa,
+                    rs.getInt("question_count"));
+        }, level, level);
     }
 
     @Override
@@ -83,6 +95,13 @@ public class JlptServiceImpl implements JlptService {
             String level, String section, String typeCode, int limit) {
         if (!section.equals(sectionForType(typeCode))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dạng câu hỏi không thuộc phần đã chọn.");
+        }
+        Boolean enabled = jdbc.queryForObject("""
+                SELECT COALESCE((SELECT is_enabled FROM jlpt_practice_type_config
+                                 WHERE level_code=? AND type_code=?), TRUE)
+                """, Boolean.class, level, typeCode);
+        if (!Boolean.TRUE.equals(enabled)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dạng luyện này hiện đang ẩn.");
         }
         List<Map<String, Object>> rows = jdbc.queryForList("""
                 SELECT q.id,q.source_question_id,q.question_number,q.question_text,q.question_furigana,
@@ -122,7 +141,7 @@ public class JlptServiceImpl implements JlptService {
                 clip = localAudio.resolve(string(row.get("exam_code")), intValue(row.get("mondai_number")),
                         intValue(row.get("question_number")), questionId, clip);
             }
-            boolean local = clip != null && clip.audioUrl().startsWith("/audio/JLPT/N3/");
+            boolean local = clip != null && clip.audioUrl() != null && clip.audioUrl().startsWith("/audio/JLPT/");
             result.add(new JlptPracticeQuestionResponse(
                     questionId,
                     string(row.get("exam_code")),
@@ -185,7 +204,7 @@ public class JlptServiceImpl implements JlptService {
                 rs.getString("text_ja_furigana"), rs.getString("text_vi")), mondaiId);
     }
 
-    private static String sectionForType(String code) {
+    public static String sectionForType(String code) {
         if (code == null) return "vocabulary";
         if (code.startsWith("LISTENING_")) return "listening";
         if (code.startsWith("READING_") || code.equals("INFO_RETRIEVAL")
@@ -199,7 +218,7 @@ public class JlptServiceImpl implements JlptService {
         return "vocabulary";
     }
 
-    private static String typeName(String code) {
+    public static String typeName(String code) {
         return switch (code) {
             case "KANJI_READING" -> "Cách đọc Kanji";
             case "ORTHOGRAPHY" -> "Chọn Kanji đúng";
@@ -226,7 +245,7 @@ public class JlptServiceImpl implements JlptService {
         };
     }
 
-    private static String typeNameJa(String code) {
+    public static String typeNameJa(String code) {
         return switch (code) {
             case "KANJI_READING" -> "漢字読み";
             case "ORTHOGRAPHY" -> "表記";
@@ -423,7 +442,7 @@ public class JlptServiceImpl implements JlptService {
             long id = rs.getLong("id");
             List<JlptExamResponse.Question> items = questions.getOrDefault(id, List.of());
             boolean allLocal = !items.isEmpty() && items.stream().allMatch(q -> q.audioClip() != null
-                    && q.audioClip().audioUrl().startsWith("/audio/JLPT/N3/"));
+                    && q.audioClip().audioUrl() != null && q.audioClip().audioUrl().startsWith("/audio/JLPT/"));
             result.computeIfAbsent(rs.getLong("part_id"), ignored -> new java.util.ArrayList<>())
                     .add(new JlptExamResponse.Mondai(id, rs.getInt("mondai_number"),
                             rs.getString("format_code"), rs.getString("instruction_html"),
