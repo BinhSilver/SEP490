@@ -25,10 +25,22 @@ public class AssessmentPageController {
         return "jlpt-library";
     }
 
+    @GetMapping("/jlpt/history")
+    public String jlptHistory(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "jlpt-history";
+    }
+
     @GetMapping("/jlpt/exam")
     public String jlptExam(Model model) {
         model.addAttribute("layoutMode", "app");
         return "jlpt-exam";
+    }
+
+    @GetMapping({"/jlpt/detail", "/jlpt/study"})
+    public String jlptStudy(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "jlpt-study";
     }
 
     @GetMapping("/jlpt/practice")
@@ -41,5 +53,11 @@ public class AssessmentPageController {
     public String jlptContentAdmin(Model model) {
         model.addAttribute("layoutMode", "app");
         return "admin/jlpt-content";
+    }
+
+    @GetMapping("/admin/jlpt/practice-types")
+    public String jlptPracticeTypesAdmin(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "admin/jlpt-practice-types";
     }
 }
