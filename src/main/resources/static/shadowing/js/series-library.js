@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /** Thẻ danh sách kiểu playlist: ảnh bìa xếp chồng + số video, rồi tên và "Xem toàn bộ danh sách". */
+    /** Thẻ danh sách kiểu playlist: ảnh bìa xếp chồng + số video, rồi tên và đánh giá. */
     function renderSeries(s) {
         const card = document.createElement('article');
         card.className = 'store-utility-card video-card series-card';
@@ -71,14 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const level = s.estimatedLevel ? `<span class="card-level-badge" title="Cấp độ JLPT">${esc(s.estimatedLevel)}</span>` : '';
         const rating = s.avgRating ? ` · <span class="series-card-rating">★ ${Number(s.avgRating).toFixed(1)}</span>` : '';
         card.innerHTML = `<a class="series-card-cover" href="${href}" aria-label="Mở danh sách ${esc(ui.compactTitle(s.title))}">
-                <span class="series-card-stack" aria-hidden="true"></span>
                 <span class="video-card-thumb">${cover}${level}
                     <span class="series-card-count"><i class="fa-solid fa-list-ul" aria-hidden="true"></i> ${Number(s.videoCount) || 0} video</span>
                 </span>
             </a>
             <a class="video-card-title series-card-title" href="${href}" title="${esc(s.title)}"><span class="series-copy-full">${esc(s.title)}</span><span class="series-copy-compact">${esc(ui.compactTitle(s.title))}</span></a>
-            <p class="caption series-card-kind">Danh sách phát · <i class="fa-solid fa-eye" aria-hidden="true"></i> ${Number(s.viewCount) || 0} lượt xem${rating}</p>
-            <div class="card-actions"><a class="series-open-all" href="${href}">Xem toàn bộ danh sách</a>${ui.ratingHtml(s.avgRating, s.ratingCount)}</div>`;
+            <p class="caption series-card-kind">Danh sách phát · <i class="fa-solid fa-eye" aria-hidden="true"></i> ${Number(s.viewCount) || 0} lượt xem${rating}</p>`;
         seriesGrid.appendChild(card);
     }
 

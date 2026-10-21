@@ -201,7 +201,6 @@
 #jlabBasePage.page-shadowing-library .library-tabs {
   gap: 10px;
   margin-bottom: 0;
-  border-bottom: 1px solid rgba(203, 196, 210, .55);
 }
 
 #jlabBasePage.page-shadowing-library .library-navigation {
@@ -319,32 +318,14 @@
   display: none !important;
 }
 
-/* Series card styled as a playlist: stacked cover + video count, then title and "Xem toàn bộ danh sách". */
+/* Series card styled as a playlist: stacked cover + video count, then title and rating. */
 #jlabBasePage.page-shadowing-library .series-card { overflow: visible; }
 #jlabBasePage.page-shadowing-library .series-card-cover {
   position: relative;
   display: block;
-  margin: 16px 0 14px;
+  margin: 0 0 14px;
   color: inherit;
   text-decoration: none;
-}
-#jlabBasePage.page-shadowing-library .series-card-stack,
-#jlabBasePage.page-shadowing-library .series-card-stack::before {
-  position: absolute;
-  left: 7%;
-  right: 7%;
-  top: -10px;
-  height: 10px;
-  border-radius: 8px 8px 0 0;
-  background: color-mix(in srgb, var(--color-primary, #4f378a) 28%, #cbc4d2);
-  content: "";
-}
-#jlabBasePage.page-shadowing-library .series-card-stack::before {
-  left: 5%;
-  right: 5%;
-  top: 5px;
-  height: 5px;
-  background: color-mix(in srgb, var(--color-primary, #4f378a) 50%, #cbc4d2);
 }
 #jlabBasePage.page-shadowing-library .series-card .video-card-thumb {
   margin: 0;
@@ -382,21 +363,16 @@
   color: var(--color-on-surface-variant, #49454f);
 }
 #jlabBasePage.page-shadowing-library .series-card-rating { color: var(--color-star, #f5a400); }
-#jlabBasePage.page-shadowing-library .series-card .card-actions { padding-top: 8px; }
-#jlabBasePage.page-shadowing-library .series-open-all {
-  color: var(--color-primary, #4f378a);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-#jlabBasePage.page-shadowing-library .series-open-all:hover,
-#jlabBasePage.page-shadowing-library .series-open-all:focus-visible,
 #jlabBasePage.page-shadowing-library .series-card-title:hover { text-decoration: underline; }
 .series-detail-header { margin: 28px 0 22px; }
-.series-video-list { display: grid; gap: 10px; max-width: 900px; }
-.series-video-row { display: flex; gap: 14px; align-items: center; }
-.series-position { width: 32px; color: #64748b; font-weight: 700; text-align: center; }
-.series-video-main { flex: 1; }
+.series-video-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 20px; }
+.series-video-row { display: flex; gap: 14px; align-items: center; padding: 0 20px 0 0; overflow: hidden; }
+.series-video-thumb { position: relative; flex: 0 0 200px; width: 200px; height: 113px; overflow: hidden; border-radius: var(--radius-lg, 12px) 0 0 var(--radius-lg, 12px); background: var(--color-surface-container, #e7e0ec); display: grid; place-items: center; color: var(--color-on-surface-variant, #49454f); }
+.series-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.series-video-thumb > i { font-size: 28px; }
+.series-position { position: absolute; top: 6px; left: 6px; min-width: 20px; padding: 1px 6px; border-radius: 4px; background: rgba(0, 0, 0, .65); color: #fff; font-weight: 700; font-size: 12px; text-align: center; line-height: 16px; }
+.series-video-duration { position: absolute; right: 6px; bottom: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0, 0, 0, .75); color: #fff; font-size: 13px; font-weight: 600; line-height: 18px; font-variant-numeric: tabular-nums; }
+.series-video-main { flex: 1; min-width: 0; }
 .series-video-main h3 { margin: 0 0 7px; }
 
 #jlabBasePage.page-shadowing-library .video-card {
@@ -1650,10 +1626,7 @@ html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action
     color: var(--dm-shadowing-on-accent)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-library .search-bar {
-    background: var(--dm-shadowing-accent-soft)
-}
-html[data-theme="dark"] #jlabBasePage.page-shadowing-library .library-tabs {
-    border-bottom: 1px solid var(--dm-shadowing-line)
+    background: rgba(11, 16, 23, .94)
 }
 html[data-theme="dark"] .series-video-picker {
     border: 1px solid var(--dm-shadowing-line)
@@ -1662,12 +1635,6 @@ html[data-theme="dark"] .series-video-option:hover {
     background: var(--dm-shadowing-accent-soft)
 }
 html[data-theme="dark"] .series-video-option small {
-    color: var(--dm-shadowing-muted)
-}
-html[data-theme="dark"] #jlabBasePage.page-shadowing-library .series-open-all {
-    color: var(--dm-shadowing-accent)
-}
-html[data-theme="dark"] .series-position {
     color: var(--dm-shadowing-muted)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-library .card-level-badge {
