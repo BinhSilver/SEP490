@@ -25,7 +25,8 @@ class WeaknessNotebookTemplateTest {
         });
         String html = engine.process("learning/weakness-notebook", new Context());
         assertTrue(html.contains("Sổ tay của tôi - JLAS"));
-        assertTrue(html.contains("value=\"OPEN\""));
+        assertTrue(html.contains("id=\"notebookOverview\""));
+        assertTrue(html.contains("id=\"notebookStudy\""));
         assertTrue(html.contains("/js/pages/weakness-notebook.js"));
         String study = engine.process("jlpt-study", new Context());
         assertTrue(study.contains("studyVocabularyLink"));

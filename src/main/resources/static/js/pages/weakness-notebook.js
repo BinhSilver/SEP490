@@ -1,130 +1,393 @@
 (function () {
   'use strict';
+
   var app = document.getElementById('notebookApp');
   if (!app) return;
   var $ = function (id) { return document.getElementById(id); };
-  var skills = { KANJI: 'Kanji', VOCABULARY: 'Từ vựng', GRAMMAR: 'Ngữ pháp', READING: 'Đọc hiểu', LISTENING: 'Nghe hiểu' };
-  var statuses = { OPEN: 'Cần ôn', REVIEWED: 'Đã ôn', MASTERED: 'Thành thạo' };
-  var state = { skill: '', page: 0, data: null, sequence: 0, cards: [], cursor: 0, flipped: false, saving: false };
-  function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function date(value) { if (!value) return '—'; var d = new Date(value); return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('vi-VN'); }
-  function notice(message, review) { var el = $(review ? 'notebookReviewNotice' : 'notebookNotice'); el.textContent = message || ''; el.hidden = !message; }
-  async function request(path, method, body) {
+  var state = { books: [], active: null, entries: [], sort: 'newest', requestId: 0, studyCard: null, studyBusy: false, studyAnswered: 0 };
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  }
+
+  function notice(id, message) {
+    var element = $(id);
+    element.textContent = message || '';
+    element.hidden = !message;
+  }
+
+  async function request(path, options) {
     var headers = window.JlasAuth ? window.JlasAuth.authHeaders() : {};
-    if (body) headers['Content-Type'] = 'application/json';
-    var response = await fetch('/api/learning/notebook' + path, { method: method || 'GET', headers: headers, body: body ? JSON.stringify(body) : undefined });
-    var result; try { result = await response.json(); } catch (e) { throw new Error('Không đọc được phản hồi. Vui lòng thử lại.'); }
-    if (!response.ok || result.success === false) throw new Error(response.status === 401 ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : result.message || 'Không thể tải sổ tay. Vui lòng thử lại.');
-    return result.data;
+    if (options && options.body) headers['Content-Type'] = 'application/json';
+    var response = await fetch('/api/dictionary' + path, Object.assign({ headers: headers }, options || {}));
+    var payload;
+    try { payload = await response.json(); }
+    catch (error) { throw new Error('Không đọc được phản hồi từ máy chủ.'); }
+    if (!response.ok || payload.success === false) {
+      throw new Error(response.status === 401 ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : payload.message || 'Không thể tải sổ tay.');
+    }
+    return payload.data;
   }
-  function params(page, size) {
-    return '?' + new URLSearchParams({ skill: state.skill, level: $('notebookLevel').value, status: $('notebookStatus').value,
-      q: $('notebookQuery').value.trim(), sort: $('notebookSort').value, page: page, size: size });
-  }
-  function renderStats(data) {
-    var s = data.summary;
-    $('notebookTotal').textContent = s.total + ' mục';
-    $('notebookStats').innerHTML = ['MASTERED', 'REVIEWED', 'OPEN'].map(function (key) {
-      return '<span><i class="wn-dot ' + key + '"></i>' + statuses[key] + '<strong>' + ({ MASTERED: s.mastered, REVIEWED: s.reviewed, OPEN: s.open })[key] + '</strong></span>';
+
+  function renderBooks() {
+    $('notebookBooks').innerHTML = state.books.map(function (book) {
+      return '<button class="notebook-book" type="button" data-book="' + book.id + '">' +
+        '<span class="notebook-book-icon" aria-hidden="true">▤</span>' +
+        '<span class="notebook-book-info"><strong>' + escapeHtml(book.name) + '</strong><small>' + book.wordCount + ' từ</small></span>' +
+        '<span class="notebook-book-arrow" aria-hidden="true">›</span></button>';
     }).join('');
-    var percent = s.total ? Math.round((s.reviewed + s.mastered) / s.total * 100) : 0;
-    $('notebookProgress').setAttribute('aria-valuenow', percent);
-    $('notebookProgress').firstElementChild.style.width = percent + '%';
-    $('notebookSkills').innerHTML = [''].concat(Object.keys(skills)).map(function (key) {
-      return '<button type="button" data-skill="' + key + '" aria-pressed="' + (state.skill === key) + '">' + (skills[key] || 'Tất cả') + '<small>' + (key ? s.skills[key] || 0 : s.total) + '</small></button>';
-    }).join('');
-    var a = data.latestAssessment;
-    var readiness = { HIGH: 'Sẵn sàng cao', MEDIUM: 'Gần mục tiêu', LOW: 'Cần củng cố' };
-    $('notebookReadiness').textContent = a ? 'Smart Test ' + date(a.submittedAt) + ' · Trình độ ' + (a.assessedLevel || 'chưa xác định') + (a.targetLevel ? ' → mục tiêu ' + a.targetLevel : '') + ' · ' + (readiness[a.readiness] || 'Chưa đủ đánh giá') : 'Chưa có Smart Test hoàn thành. Làm bài đánh giá để xác định nội dung cần ôn.';
   }
-  function entry(item) {
-    var spoken = item.skill === 'KANJI' || item.skill === 'VOCABULARY' || item.skill === 'GRAMMAR';
-    return '<details class="wn-entry"><summary><i class="wn-dot ' + esc(item.status) + '"></i><div><span class="wn-term" lang="ja">' + esc(item.title) + '</span>' + (item.reading ? '<span class="wn-reading" lang="ja">' + esc(item.reading) + '</span>' : '') +
-      '<div class="wn-badges"><span class="wn-badge">' + esc(skills[item.skill] || item.skill) + '</span>' + (item.level ? '<span class="wn-badge">' + esc(item.level) + '</span>' : '') + '<span class="wn-badge">' + esc(statuses[item.status] || item.status) + '</span></div></div></summary>' +
-      '<div class="wn-detail"><p>' + esc(item.description || 'Mở tài liệu học để xem nội dung chi tiết.') + '</p>' + example(item) +
-      '<div class="wn-evidence"><span>Sai ' + item.wrongCount + ' câu</span><span>Độ chính xác: ' + (item.accuracy == null ? 'chưa đủ dữ liệu' : Number(item.accuracy) + '%') + '</span><span>Ghi nhận ' + date(item.detectedAt) + '</span>' + (item.lastReviewedAt ? '<span>Ôn gần nhất ' + date(item.lastReviewedAt) + '</span>' : '') + '</div>' +
-      (item.topic ? '<p class="wn-muted">Chủ đề: ' + esc(item.topic) + '</p>' : '') +
-      '<div class="wn-card-actions">' + (spoken && 'speechSynthesis' in window ? '<button class="wn-button wn-outline" data-speak="' + item.id + '" type="button">♫ Phát âm</button>' : '') +
-      (item.status !== 'MASTERED' ? '<button class="wn-button wn-outline" type="button" data-review="' + item.id + '" data-status="' + (item.status === 'OPEN' ? 'REVIEWED' : 'OPEN') + '">' + (item.status === 'OPEN' ? '✓ Đánh dấu đã ôn' : '↻ Cần ôn lại') + '</button>' : '') +
-      '<a class="wn-button wn-outline" href="' + esc(item.studyUrl) + '">' + (item.studyUrl.indexOf('/dictionary/') === 0 ? 'Tra cứu từ điển' : 'Mở lộ trình học') + ' ↗</a></div></div></details>';
+
+  function renderEntries() {
+    var query = $('notebookQuery').value.trim().toLocaleLowerCase();
+    var entries = state.entries.filter(function (entry) {
+      return !query || [entry.expression, entry.reading, entry.meaning].join(' ').toLocaleLowerCase().includes(query);
+    });
+    if (state.sort === 'oldest') entries.reverse();
+    $('notebookEntries').innerHTML = entries.length ? entries.map(function (entry, index) {
+      var status = entry.repetitions == null ? 'new' : entry.repetitions >= 3 ? 'deep' : entry.repetitions >= 2 ? 'good' : 'learning';
+      var example = entry.exampleJa || entry.exampleVi
+        ? '<div class="notebook-entry-example">' + (entry.exampleJa ? '<span lang="ja">' + escapeHtml(entry.exampleJa) + '</span>' : '') +
+          (entry.exampleVi ? '<span>→ ' + escapeHtml(entry.exampleVi) + '</span>' : '') + '</div>' : '';
+      return '<details class="notebook-entry"' + (index === 0 ? ' open' : '') + '><summary class="notebook-entry-summary"><span class="notebook-entry-dot notebook-entry-dot--' + status + '"></span>' +
+        '<span class="notebook-entry-main"><span><strong class="notebook-entry-term" lang="ja">' + escapeHtml(entry.expression) + '</strong>' +
+        (entry.reading ? '<small class="notebook-entry-reading" lang="ja">' + escapeHtml(entry.reading) + '</small>' : '') + '</span>' +
+        '<span class="notebook-entry-meaning">' + escapeHtml(entry.meaning || 'Chưa có nghĩa trong từ điển.') + '</span></span>' +
+        '<span class="notebook-entry-chevron" aria-hidden="true">⌄</span></summary><div class="notebook-entry-body">' + example +
+        '<div class="notebook-entry-actions"><button type="button" data-speak="' + entry.vocabularyId + '"><span class="material-symbols-outlined" aria-hidden="true">volume_up</span> Phát âm</button>' +
+        '<a href="/dictionary/index.html?q=' + encodeURIComponent(entry.expression || '') + '">Mở từ điển ↗</a>' +
+        '<button type="button" data-remove="' + entry.vocabularyId + '"><span class="material-symbols-outlined" aria-hidden="true">delete</span> Xóa</button></div></div></details>';
+    }).join('') : '<div class="notebook-empty"><h2>' + (query ? 'Không tìm thấy từ phù hợp' : 'Sổ này chưa có từ nào') +
+      '</h2><p>' + (query ? 'Thử tìm bằng từ, cách đọc hoặc nghĩa khác.' : 'Bôi đen từ tiếng Nhật và chọn sổ này khi lưu.') + '</p></div>';
   }
-  function example(item) { return item.example ? '<div class="wn-example"><span lang="ja">' + esc(item.example) + '</span>' + (item.exampleTranslation ? '<small>' + esc(item.exampleTranslation) + '</small>' : '') + '</div>' : ''; }
-  function render(data) {
-    renderStats(data);
-    $('notebookResultCount').textContent = data.total + ' kết quả';
-    $('notebookEntries').innerHTML = data.items.length ? data.items.map(entry).join('') : '<div class="wn-empty"><span class="wn-book" style="margin:auto">▤</span><h3>' + (data.summary.total ? 'Chưa có mục khớp bộ lọc' : 'Sổ tay đang chờ những điều bạn cần ôn') + '</h3><p>' + (data.summary.total ? 'Thử chọn kỹ năng, cấp độ hoặc trạng thái khác.' : 'Cập nhật từ Smart Test gần nhất để lưu nội dung cần củng cố.') + '</p><a class="wn-button wn-outline" href="/survey">Mở Smart Test</a></div>';
-    $('notebookPage').textContent = (data.page + 1) + ' / ' + Math.max(1, Math.ceil(data.total / data.size));
-    $('notebookPrev').disabled = data.page === 0;
-    $('notebookNext').disabled = (data.page + 1) * data.size >= data.total;
-    $('notebookStudy').disabled = !data.total || $('notebookStatus').value === 'MASTERED';
+
+  function renderProgress() {
+    var counts = { deep: 0, good: 0, learning: 0, new: 0 };
+    state.entries.forEach(function (entry) {
+      var status = entry.repetitions == null ? 'new' : entry.repetitions >= 3 ? 'deep' : entry.repetitions >= 2 ? 'good' : 'learning';
+      counts[status]++;
+    });
+    $('notebookDeepCount').textContent = counts.deep;
+    $('notebookGoodCount').textContent = counts.good;
+    $('notebookLearningCount').textContent = counts.learning;
+    $('notebookNewCount').textContent = counts.new;
+    $('notebookVocabularyCount').textContent = state.entries.length;
+    $('notebookProgressTotal').textContent = state.entries.length + ' từ vựng';
+    var percent = state.entries.length ? Math.round((state.entries.length - counts.new) / state.entries.length * 100) : 0;
+    $('notebookProgressFill').style.width = percent + '%';
+    $('notebookProgressTrack').setAttribute('aria-valuenow', String(percent));
   }
-  async function load() {
-    var sequence = ++state.sequence;
-    $('notebookEntries').setAttribute('aria-busy', 'true');
-    $('notebookStudy').disabled = true;
-    $('notebookPrev').disabled = $('notebookNext').disabled = true;
+
+  async function refreshBooks() {
+    state.books = await request('/notebooks');
+    renderBooks();
+    $('notebookBooks').setAttribute('aria-busy', 'false');
+  }
+
+  async function openBook(book) {
+    var requestId = ++state.requestId;
+    notice('notebookNotice', '');
     try {
-      var data = await request(params(state.page, 12));
-      if (sequence !== state.sequence) return;
-      state.data = data; render(data);
-    } catch (error) { if (sequence === state.sequence) { notice(error.message); $('notebookEntries').innerHTML = '<div class="wn-empty"><h3>Chưa tải được sổ tay</h3><button class="wn-button wn-outline" data-retry type="button">Thử lại</button></div>'; } }
-    finally { if (sequence === state.sequence) $('notebookEntries').setAttribute('aria-busy', 'false'); }
+      var entries = await request('/notebooks/' + book.id + '/entries');
+      if (requestId !== state.requestId) return;
+      state.active = book;
+      state.entries = entries;
+      $('notebookQuery').value = '';
+      state.sort = 'newest';
+      $('notebookSortLabel').textContent = 'Mới nhất';
+      $('notebookSortMenu').hidden = true;
+      $('notebookSortToggle').setAttribute('aria-expanded', 'false');
+      $('notebookSortMenu').querySelectorAll('[data-sort]').forEach(function (item) {
+        item.setAttribute('aria-pressed', String(item.dataset.sort === state.sort));
+      });
+      $('notebookTitle').textContent = book.name;
+      $('notebookTotal').textContent = 'Sổ tay · ' + entries.length + ' từ vựng';
+      $('notebookManage').hidden = false;
+      $('notebookDelete').setAttribute('aria-label', book.type === 'CUSTOM' ? 'Xóa sổ tay' : 'Xóa toàn bộ từ trong sổ');
+      $('notebookDelete').title = book.type === 'CUSTOM' ? 'Xóa sổ tay' : 'Xóa toàn bộ từ trong sổ';
+      $('notebookLearningProgress').hidden = book.type === 'WEAKNESS';
+      $('notebookQuery').parentElement.hidden = entries.length < 8;
+      notice('notebookDetailNotice', '');
+      renderProgress();
+      renderEntries();
+      $('notebookOverview').hidden = true;
+      $('notebookDetail').hidden = false;
+    } catch (error) {
+      if (requestId === state.requestId) notice('notebookNotice', error.message);
+    }
   }
-  function reset() { state.page = 0; notice(''); load(); }
-  $('notebookSkills').addEventListener('click', function (e) { var b = e.target.closest('[data-skill]'); if (b) { state.skill = b.dataset.skill; reset(); } });
-  $('notebookFilters').addEventListener('submit', function (e) { e.preventDefault(); reset(); });
-  ['notebookLevel', 'notebookStatus', 'notebookSort'].forEach(function (id) { $(id).addEventListener('change', reset); });
-  var timer; $('notebookQuery').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(reset, 250); });
-  $('notebookPrev').onclick = function () { if (state.page) { state.page--; load(); } };
-  $('notebookNext').onclick = function () { state.page++; load(); };
-  $('notebookSync').onclick = async function () {
-    this.disabled = true; notice('');
-    try { await request('/sync', 'POST'); state.page = 0; await load(); notice('Đã cập nhật từ Smart Test gần nhất. Những mục đã ôn của cùng bài đánh giá được giữ nguyên.'); }
-    catch (error) { notice(error.message); } finally { this.disabled = false; }
-  };
-  $('notebookEntries').addEventListener('click', async function (e) {
-    if (e.target.closest('[data-retry]')) { notice(''); load(); return; }
-    var speak = e.target.closest('[data-speak]');
-    if (speak) { var item = state.data.items.find(function (x) { return x.id === Number(speak.dataset.speak); }); var utterance = new SpeechSynthesisUtterance(item.reading || item.title); utterance.lang = 'ja-JP'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance); return; }
-    var button = e.target.closest('[data-review]'); if (!button) return;
-    button.disabled = true;
-    try { await request('/' + button.dataset.review + '/status', 'PATCH', { status: button.dataset.status }); notice('Đã lưu trạng thái ôn tập.'); await load(); }
-    catch (error) { notice(error.message); button.disabled = false; }
+
+  $('notebookBooks').addEventListener('click', function (event) {
+    var button = event.target.closest('[data-book]');
+    if (!button) return;
+    var book = state.books.find(function (item) { return String(item.id) === button.dataset.book; });
+    if (book) openBook(book);
   });
-  function paintCard() {
-    var item = state.cards[state.cursor];
-    $('notebookReviewCounter').textContent = (state.cursor + 1) + ' / ' + state.cards.length;
-    $('notebookReviewBar').style.width = (state.cursor / state.cards.length * 100) + '%';
-    $('notebookCard').innerHTML = '<small>' + esc(skills[item.skill]) + (item.level ? ' · ' + esc(item.level) : '') + '</small><strong lang="ja">' + esc(item.title) + '</strong>' + (state.flipped ? '<p>' + esc(item.reading || '') + '</p><p>' + esc(item.description || 'Xem thêm nội dung trong từ điển hoặc lộ trình học.') + '</p>' + example(item) : '<small>Chạm để lật</small>');
-    $('notebookReviewActions').hidden = !state.flipped;
-    $('notebookCard').setAttribute('aria-label', state.flipped ? 'Ẩn nội dung thẻ' : 'Lật thẻ');
-  }
-  $('notebookStudy').onclick = async function () {
-    this.disabled = true; notice('');
+
+  $('notebookBack').addEventListener('click', async function () {
+    ++state.requestId;
+    $('notebookDetail').hidden = true;
+    $('notebookOverview').hidden = false;
+    try { await refreshBooks(); } catch (error) { notice('notebookNotice', error.message); }
+  });
+
+  $('notebookCreate').addEventListener('click', function () {
+    $('notebookName').value = '';
+    notice('notebookCreateNotice', '');
+    $('notebookCreateDialog').showModal();
+    $('notebookName').focus();
+  });
+  $('notebookCancel').addEventListener('click', function () { $('notebookCreateDialog').close(); });
+  $('notebookCreateForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var name = $('notebookName').value.trim();
+    if (!name) { notice('notebookCreateNotice', 'Vui lòng nhập tên sổ tay.'); return; }
+    var submit = $('notebookSubmit');
+    submit.disabled = true;
     try {
-      var query = new URLSearchParams(params(0, 50).slice(1));
-      var cards = [], page = 0, data;
-      do { query.set('page', page++); data = await request('?' + query); cards = cards.concat(data.items.filter(function (x) { return x.status !== 'MASTERED'; })); } while (page * 50 < data.total);
-      if (!cards.length) { notice('Không có mục cần ôn trong bộ lọc hiện tại.'); return; }
-      state.cards = cards; state.cursor = 0; state.flipped = false;
-      $('notebookBrowse').hidden = true; $('notebookReview').hidden = false; notice('', true); paintCard(); $('notebookCard').focus();
-    } catch (error) { notice(error.message); } finally { this.disabled = !state.data || !state.data.total || $('notebookStatus').value === 'MASTERED'; }
-  };
-  $('notebookCard').onclick = function () { if (!state.saving) { state.flipped = !state.flipped; paintCard(); } };
-  $('notebookExit').onclick = function () { if (state.saving) return; $('notebookReview').hidden = true; $('notebookBrowse').hidden = false; load(); $('notebookStudy').focus(); };
-  async function grade(status) {
-    if (!state.flipped || state.saving) return;
-    state.saving = true; $('notebookAgain').disabled = $('notebookRemembered').disabled = $('notebookExit').disabled = true; notice('', true);
+      var book = await request('/notebooks', { method: 'POST', body: JSON.stringify({ name: name }) });
+      await refreshBooks();
+      $('notebookCreateDialog').close();
+      await openBook(book);
+    } catch (error) { notice('notebookCreateNotice', error.message); }
+    finally { submit.disabled = false; }
+  });
+
+  $('notebookRename').addEventListener('click', function () {
+    if (!state.active) return;
+    $('notebookManageName').value = state.active.name;
+    notice('notebookManageNotice', '');
+    $('notebookManageDialog').showModal();
+    $('notebookManageName').focus();
+  });
+  $('notebookManageCancel').addEventListener('click', function () { $('notebookManageDialog').close(); });
+  $('notebookManageForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (!state.active) return;
+    var button = $('notebookManageSubmit');
+    button.disabled = true;
     try {
-      await request('/' + state.cards[state.cursor].id + '/status', 'PATCH', { status: status });
-      state.cursor++; state.flipped = false;
-      if (state.cursor === state.cards.length) {
-        $('notebookReview').hidden = true; $('notebookBrowse').hidden = false; await load(); notice('Đã hoàn thành và lưu phiên ôn ' + state.cards.length + ' thẻ.'); $('notebookStudy').focus();
-      } else { paintCard(); $('notebookCard').focus(); }
-    } catch (error) { notice(error.message, true); }
-    finally { state.saving = false; $('notebookAgain').disabled = $('notebookRemembered').disabled = $('notebookExit').disabled = false; }
+      state.active = await request('/notebooks/' + state.active.id,
+        { method: 'PUT', body: JSON.stringify({ name: $('notebookManageName').value.trim() }) });
+      $('notebookTitle').textContent = state.active.name;
+      $('notebookManageDialog').close();
+      await refreshBooks();
+      notice('notebookDetailNotice', 'Đã đổi tên sổ tay.');
+    } catch (error) { notice('notebookManageNotice', error.message); }
+    finally { button.disabled = false; }
+  });
+  $('notebookDelete').addEventListener('click', function () {
+    if (!state.active) return;
+    var custom = state.active.type === 'CUSTOM';
+    $('notebookDeleteTitle').textContent = custom ? 'Xóa sổ tay?' : 'Xóa toàn bộ từ trong sổ?';
+    $('notebookDeleteMessage').textContent = custom
+      ? 'Xóa “' + state.active.name + '” và toàn bộ từ đã lưu trong sổ này?'
+      : 'Xóa toàn bộ từ đã lưu trong “' + state.active.name + '”? Sổ mặc định vẫn được giữ lại.';
+    $('notebookDeleteConfirm').textContent = custom ? 'Xóa sổ tay' : 'Xóa toàn bộ từ';
+    notice('notebookDeleteNotice', '');
+    $('notebookDeleteDialog').showModal();
+  });
+  $('notebookDeleteCancel').addEventListener('click', function () { $('notebookDeleteDialog').close(); });
+  $('notebookDeleteConfirm').addEventListener('click', async function () {
+    if (!state.active) return;
+    var button = this;
+    button.disabled = true;
+    try {
+      if (state.active.type === 'CUSTOM') {
+        await request('/notebooks/' + state.active.id, { method: 'DELETE' });
+        state.active = null;
+        $('notebookDeleteDialog').close();
+        $('notebookDetail').hidden = true;
+        $('notebookOverview').hidden = false;
+        await refreshBooks();
+        notice('notebookNotice', 'Đã xóa sổ tay.');
+      } else {
+        await request('/notebooks/' + state.active.id + '/entries', { method: 'DELETE' });
+        $('notebookDeleteDialog').close();
+        await openBook(state.active);
+        notice('notebookDetailNotice', 'Đã xóa toàn bộ từ trong sổ.');
+      }
+    } catch (error) { notice('notebookDeleteNotice', error.message); }
+    finally { button.disabled = false; }
+  });
+
+  $('notebookQuery').addEventListener('input', renderEntries);
+  $('notebookSortToggle').addEventListener('click', function () {
+    var menu = $('notebookSortMenu');
+    menu.hidden = !menu.hidden;
+    this.setAttribute('aria-expanded', String(!menu.hidden));
+  });
+  $('notebookSortMenu').addEventListener('click', function (event) {
+    var button = event.target.closest('[data-sort]');
+    if (!button) return;
+    state.sort = button.dataset.sort;
+    $('notebookSortLabel').textContent = state.sort === 'oldest' ? 'Cũ nhất' : 'Mới nhất';
+    this.querySelectorAll('[data-sort]').forEach(function (item) {
+      item.setAttribute('aria-pressed', String(item.dataset.sort === state.sort));
+    });
+    this.hidden = true;
+    $('notebookSortToggle').setAttribute('aria-expanded', 'false');
+    $('notebookSortToggle').focus();
+    renderEntries();
+  });
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.notebook-sort')) {
+      $('notebookSortMenu').hidden = true;
+      $('notebookSortToggle').setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !$('notebookSortMenu').hidden) {
+      $('notebookSortMenu').hidden = true;
+      $('notebookSortToggle').setAttribute('aria-expanded', 'false');
+      $('notebookSortToggle').focus();
+    }
+  });
+
+  async function loadStudyCard() {
+    if (!state.active) return;
+    state.studyBusy = true;
+    state.studyCard = null;
+    $('notebookCard').hidden = true;
+    $('notebookRatings').hidden = true;
+    $('notebookStudyDone').hidden = true;
+    $('notebookStudyRefresh').hidden = true;
+    notice('notebookStudyNotice', '');
+    try {
+      var session = await request('/notebooks/' + state.active.id + '/study');
+      if ($('notebookStudy').hidden) return;
+      state.studyCard = session.card;
+      $('notebookStudyLimit').value = String(session.dailyNewLimit);
+      $('notebookStudyCount').textContent = session.dueCount + ' từ đến hạn · ' +
+        Math.min(session.newCount, session.newRemaining) + ' từ mới có thể học hôm nay';
+      var remaining = session.dueCount + Math.min(session.newCount, session.newRemaining);
+      var total = state.studyAnswered + remaining;
+      var progress = total ? Math.round(state.studyAnswered / total * 100) : 100;
+      $('notebookStudyPosition').textContent = session.card
+        ? (state.studyAnswered + 1) + ' / ' + total
+        : state.studyAnswered + ' / ' + state.studyAnswered;
+      $('notebookStudyProgress').setAttribute('aria-valuenow', String(progress));
+      $('notebookStudyProgressFill').style.width = progress + '%';
+      if (!session.card) {
+        $('notebookStudyDone').textContent = session.newCount > 0 && session.newRemaining === 0
+          ? 'Đã học đủ ' + session.dailyNewLimit + ' từ mới hôm nay. Bạn có thể tăng mục tiêu hoặc học tiếp vào ngày mai.'
+          : 'Không có thẻ cần học lúc này. Từ vừa quên sẽ xuất hiện lại khi đến hạn.';
+        $('notebookStudyDone').hidden = false;
+        $('notebookStudyRefresh').hidden = false;
+        return;
+      }
+      $('notebookCardWord').textContent = session.card.expression;
+      $('notebookCardAnswer').textContent = session.card.expression;
+      $('notebookCardReading').textContent = session.card.reading || '';
+      $('notebookCardMeaning').textContent = session.card.meaning || 'Chưa có nghĩa trong từ điển.';
+      $('notebookCardExampleJa').textContent = session.card.exampleJa || '';
+      $('notebookCardExampleVi').textContent = session.card.exampleVi || '';
+      $('notebookCardExample').hidden = !session.card.exampleJa && !session.card.exampleVi;
+      $('notebookAgainTime').textContent = session.intervals.AGAIN;
+      $('notebookHardTime').textContent = session.intervals.HARD;
+      $('notebookGoodTime').textContent = session.intervals.GOOD;
+      $('notebookEasyTime').textContent = session.intervals.EASY;
+      $('notebookCardFront').hidden = false;
+      $('notebookCardBack').hidden = true;
+      $('notebookCard').setAttribute('aria-label', 'Lật thẻ để xem đáp án');
+      $('notebookCard').hidden = false;
+      $('notebookCard').focus();
+    } catch (error) { notice('notebookStudyNotice', error.message); }
+    finally { state.studyBusy = false; }
   }
-  $('notebookAgain').onclick = function () { grade('OPEN'); };
-  $('notebookRemembered').onclick = function () { grade('REVIEWED'); };
-  load();
+
+  $('notebookStudyStart').addEventListener('click', function () {
+    if (!state.active || state.active.type === 'WEAKNESS') return;
+    state.studyAnswered = 0;
+    app.classList.add('notebook-page--studying');
+    $('notebookOverview').hidden = true;
+    $('notebookDetail').hidden = true;
+    $('notebookStudy').hidden = false;
+    $('notebookStudyTitle').textContent = state.active.name;
+    loadStudyCard();
+  });
+  $('notebookStudyBack').addEventListener('click', function () {
+    state.studyCard = null;
+    app.classList.remove('notebook-page--studying');
+    $('notebookStudy').hidden = true;
+    $('notebookDetail').hidden = false;
+    if (state.active) openBook(state.active);
+  });
+  $('notebookStudyRefresh').addEventListener('click', loadStudyCard);
+  $('notebookStudyLimit').addEventListener('change', async function () {
+    if (!state.active) return;
+    var select = this;
+    select.disabled = true;
+    try {
+      await request('/notebooks/' + state.active.id + '/study/settings',
+        { method: 'PUT', body: JSON.stringify({ dailyNewLimit: Number(select.value) }) });
+      await loadStudyCard();
+    } catch (error) { notice('notebookStudyNotice', error.message); }
+    finally { select.disabled = false; }
+  });
+  $('notebookCard').addEventListener('click', function () {
+    if (!state.studyCard || state.studyBusy || !$('notebookRatings').hidden) return;
+    $('notebookCardFront').hidden = true;
+    $('notebookCardBack').hidden = false;
+    $('notebookCard').setAttribute('aria-label', 'Đáp án của thẻ');
+    $('notebookRatings').hidden = false;
+  });
+  $('notebookRatings').addEventListener('click', async function (event) {
+    var button = event.target.closest('[data-rating]');
+    if (!button || !state.studyCard || state.studyBusy) return;
+    state.studyBusy = true;
+    var buttons = $('notebookRatings').querySelectorAll('button');
+    buttons.forEach(function (item) { item.disabled = true; });
+    try {
+      await request('/notebooks/' + state.active.id + '/study/' + state.studyCard.vocabularyId,
+        { method: 'POST', body: JSON.stringify({ rating: button.dataset.rating }) });
+      state.studyAnswered++;
+      await loadStudyCard();
+    } catch (error) { notice('notebookStudyNotice', error.message); }
+    finally { buttons.forEach(function (item) { item.disabled = false; }); state.studyBusy = false; }
+  });
+  document.addEventListener('keydown', function (event) {
+    if ($('notebookStudy').hidden || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'Escape') { $('notebookStudyBack').click(); return; }
+    if (event.key === ' ' && event.target !== $('notebookCard')) { event.preventDefault(); $('notebookCard').click(); return; }
+    var rating = { '1': 'AGAIN', '2': 'HARD', '3': 'GOOD', '4': 'EASY' }[event.key];
+    if (rating && !$('notebookRatings').hidden) {
+      event.preventDefault();
+      $('notebookRatings').querySelector('[data-rating="' + rating + '"]').click();
+    }
+  });
+
+  $('notebookEntries').addEventListener('click', async function (event) {
+    var speak = event.target.closest('[data-speak]');
+    if (speak) {
+      var word = state.entries.find(function (item) { return String(item.vocabularyId) === speak.dataset.speak; });
+      if (!word) return;
+      if (!('speechSynthesis' in window)) { notice('notebookDetailNotice', 'Trình duyệt này chưa hỗ trợ phát âm.'); return; }
+      window.speechSynthesis.cancel();
+      var utterance = new SpeechSynthesisUtterance(word.expression || word.reading);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+    var button = event.target.closest('[data-remove]');
+    if (!button || !state.active) return;
+    button.disabled = true;
+    try {
+      await request('/notebooks/' + state.active.id + '/entries/' + button.dataset.remove, { method: 'DELETE' });
+      state.entries = await request('/notebooks/' + state.active.id + '/entries');
+      $('notebookTotal').textContent = 'Sổ tay · ' + state.entries.length + ' từ vựng';
+      $('notebookQuery').parentElement.hidden = state.entries.length < 8;
+      renderProgress();
+      renderEntries();
+      notice('notebookDetailNotice', 'Đã bỏ từ khỏi sổ tay.');
+    } catch (error) { notice('notebookDetailNotice', error.message); button.disabled = false; }
+  });
+
+  refreshBooks().catch(function (error) {
+    $('notebookBooks').setAttribute('aria-busy', 'false');
+    notice('notebookNotice', error.message);
+  });
 })();
