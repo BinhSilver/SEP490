@@ -1679,6 +1679,7 @@
     });
     if (groups.length < 2) return null;
     var last = -1;
+    var lead = [];
     for (var i = 0; i < qs.length; i++) {
       var q = qs[i];
       var opts = (q.options || []).map(matchKey).filter(Boolean);
@@ -1688,13 +1689,18 @@
           ? g.items.length === opts.length && opts.every(function (o) { return g.items.indexOf(o) !== -1; })
           : g.body.length >= 4 && text.indexOf(g.body) !== -1;
       });
+      // [JLAS2-17] Speed N2: nhóm đầu (chọn 1 trong 2, mỗi câu một cặp phương án riêng) không có dòng nhóm trong đề → các
+      // câu đứng TRƯỚC mọi nhóm, không khớp nhóm nào, giữ ở đầu (không tiêu đề); câu sau đó vẫn phải khớp đúng một nhóm.
+      if (!hits.length && last === -1 && opts.length) { lead.push(q); continue; }
       if (hits.length !== 1) return null;
       var gi = groups.indexOf(hits[0]);
       if (gi < last) return null;
       last = gi;
       hits[0].questions.push(q);
     }
-    return groups.every(function (g) { return g.questions.length; }) ? groups : null;
+    if (!groups.every(function (g) { return g.questions.length; })) return null;
+    if (lead.length) groups.unshift({ index: -1, line: null, body: '', items: [], questions: lead });
+    return groups;
   }
 
   /** Khối là bài nghe: mục LISTENING, hoặc mục có câu hỏi mang audio riêng. */
@@ -2012,7 +2018,7 @@
         : '') +
       (drill
         ? drill.map(function (g) {
-            return '<div class="lp-drill">' + passageHtml([g.line]) + '<div class="practice-list">' + g.questions.map(function (q) {
+            return '<div class="lp-drill">' + (g.line ? passageHtml([g.line]) : '') + '<div class="practice-list">' + g.questions.map(function (q) {
               number++;
               var f = mediaFlags[block.questions.indexOf(q)];
               return (f.groupImages ? sharedImagesHtml(f.groupImages, number, number + f.groupSize - 1) : '') +
