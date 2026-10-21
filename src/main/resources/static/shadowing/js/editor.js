@@ -253,8 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('audio-mode');
         }
 
-        video.src = streamUrl();
         video.addEventListener('loadedmetadata', drawTimeline);
+        await window.ShadowingYoutube.load(video, videoId, { meta: videoData, streamUrl: streamUrl() });
         renderList();
         pollAiPending();
         setSaveStatus('synced');
@@ -1055,6 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
     publishBtn.addEventListener('click', async () => {
         const isPublished = videoData?.status === 'READY';
         // Pre-check: only hard errors block; warnings (gaps) are OK
+        let warnings = [];
         try {
             const vRes = await fetch(`/api/videos/${videoId}/subtitles/validate`, { headers: headers() });
             const vData = await vRes.json();
@@ -1062,18 +1063,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 await showValidationModal(vData);
                 return;
             }
-            if (vData.warnings && vData.warnings.length) {
-                const proceed = await showConfirm({
-                    title: 'Có cảnh báo (không chặn xuất bản)',
-                    message: vData.warnings.slice(0, 5).join('\n')
-                        + (vData.warnings.length > 5 ? '\n…' : '')
-                        + '\n\nVẫn xuất bản?',
-                    confirmText: 'Xuất bản',
-                    cancelText: 'Hủy'
-                });
-                if (!proceed) return;
-            }
+            warnings = vData.warnings || [];
         } catch (_) { /* continue to publish */ }
+
+        // Lần xuất bản đầu: bắt buộc tick cam kết bản quyền, không tick thì không xuất bản được.
+        // Cảnh báo (nếu có) nằm chung hộp thoại để người dùng chỉ phải xác nhận một lần.
+        if (warnings.length || !isPublished) {
+            const proceed = await showConfirm({
+                title: warnings.length ? 'Có cảnh báo (không chặn xuất bản)' : 'Xác nhận xuất bản',
+                message: warnings.length
+                    ? warnings.slice(0, 5).join('\n') + (warnings.length > 5 ? '\n…' : '') + '\n\nVẫn xuất bản?'
+                    : 'Bài học sẽ được lưu và sẵn sàng để luyện tập.',
+                acknowledge: isPublished ? '' : 'Tôi xác nhận có quyền sử dụng nội dung này và chịu hoàn toàn trách nhiệm về việc đăng tải này.',
+                confirmText: 'Xuất bản',
+                cancelText: 'Hủy'
+            });
+            if (!proceed) return;
+        }
 
         publishBtn.disabled = true;
         const publishLabel = publishBtn.innerHTML;
