@@ -63,6 +63,8 @@ public class SecurityConfig {
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin/game-skins", "/api/admin/game-skins", "/api/admin/game-skins/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
+                        .hasRole("ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
@@ -80,6 +82,8 @@ public class SecurityConfig {
                                 "/api/learning/curriculum", "/api/learning/lessons/**",
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Danh mục hiển thị khung avatar: khung hiện cả ở trang không cần đăng nhập.
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/avatar-frames").permitAll()
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
                         .requestMatchers("/api/mission/kana-connect/**").authenticated()
                         .requestMatchers(

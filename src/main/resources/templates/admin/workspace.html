@@ -3,7 +3,9 @@
 <head th:replace="~{fragments/admin-head :: head('Trang quản trị | JLAS', 'admin')}"></head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-admin admin-portal">
 <link rel="stylesheet" th:if="${section == 'game-effects'}" th:href="@{/css/pages/game-effects.css}"/>
-<link rel="stylesheet" th:if="${section == 'game-skins'}" th:href="@{/css/pages/admin-game-skins.css(v='20261015')}"/>
+<link rel="stylesheet" th:if="${section == 'game-skins' or section == 'avatar-frames'}" th:href="@{/css/pages/admin-game-skins.css(v='20261015')}"/>
+<link rel="stylesheet" th:if="${section == 'avatar-frames'}" th:href="@{/css/components/avatar-frame.css(v='20261021-catalog')}"/>
+<link rel="stylesheet" th:if="${section == 'avatar-frames'}" th:href="@{/css/pages/admin-avatar-frames.css(v='20261021')}"/>
 <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 <div id="adminShellMount"></div>
 
@@ -21,14 +23,16 @@
     </div>
 </main>
 
-<script th:src="@{/js/pages/admin-core.js(v=20261014-roles)}"></script>
+<script th:src="@{/js/pages/admin-core.js(v=20261021-frames)}"></script>
 <script th:src="@{/js/admin-shell.js}"></script>
-<script th:src="@{/js/pages/admin-moderation-review.js(v=20260925)}"></script>
+<script th:src="@{/js/pages/admin-moderation-review.js(v=20261021-video-block)}"></script>
 <script th:src="@{/js/pages/admin-moderation-tools.js(v=20260925)}"></script>
 <script th:src="@{/js/pages/admin-system.js(v=20261014-roles)}"></script>
 <script th:src="@{/js/pages/admin-game-effects.js}"></script>
 <script th:if="${section == 'game-skins'}" th:src="@{/arena/js/character-skin-preview.js(v='20261005-aligned-1')}"></script>
 <script th:if="${section == 'game-skins'}" th:src="@{/js/pages/admin-game-skins.js(v=20261015)}"></script>
+<script th:if="${section == 'avatar-frames'}" th:src="@{/js/components/avatar-frame.js(v='20261021-catalog')}"></script>
+<script th:if="${section == 'avatar-frames'}" th:src="@{/js/pages/admin-avatar-frames.js(v='20261021')}"></script>
 <script th:src="@{/js/pages/admin-boot.js(v=20261013portal)}"></script>
 </body>
 </html>
