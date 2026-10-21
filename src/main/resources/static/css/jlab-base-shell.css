@@ -860,6 +860,9 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
 #jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
 #jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:var(--color-surface-lowest, #ffffff); box-shadow:0 10px 40px rgba(22,29,31,.14); }
 #jlabBaseExamsMenu[hidden] { display:none; }
+#jlabBaseExamsMenu>.dropdown__item,.nav-tools-menu>.dropdown__item { display:grid!important; grid-template-columns:18px minmax(0,1fr); align-items:center; column-gap:10px; min-height:40px; padding:10px 12px; box-sizing:border-box; font:500 .875rem/1.25 var(--font-body); }
+#jlabBaseExamsMenu>.dropdown__item>:first-child,.nav-tools-menu>.dropdown__item>:first-child { display:flex; align-items:center; justify-content:center; width:18px; min-width:18px; height:18px; }
+#jlabBaseExamsMenu>.dropdown__item>.jlab-base-icon,.nav-tools-menu>.dropdown__item>.jlab-base-icon { width:18px; height:18px; }
 #jlabBaseExamJlptItem,#jlabBaseExamJlptPracticeItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface-variant, #494551); font:500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; text-align:left; opacity:1; cursor:pointer; }
 #jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
 #jlabBaseExamsButton:focus-visible,#jlabBaseExamJlptItem:focus-visible,#jlabBaseExamJlptPracticeItem:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
