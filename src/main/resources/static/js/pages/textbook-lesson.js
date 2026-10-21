@@ -1645,6 +1645,14 @@
         if ((x.kind === 'translation' || x.kind === 'answer') && x.owner === 'reading') {
           return { kind: x.kind, label: x.label, lines: translationLines(x.lines, own.concat(hiddenOwn)), owner: x.owner };
         }
+        // [JLAS2-17] D6: mục 【Hướng dẫn】 lặp đề + phương án của các câu trong mục (kèm dịch, có khi "☞ Câu trả lời là …")
+        // là lời giải → thu gọn, xem sau khi làm (Luyện đọc N4, Luyện đọc hiểu N3 / N2). Cần ≥ 2 dòng trùng phương án.
+        if (x.kind === 'note' && /^Hướng\s*dẫn$/i.test(x.label || '') && own.length) {
+          var optKeys = {};
+          own.forEach(function (q) { (q.options || []).forEach(function (o) { var kk = matchKey(o); if (kk.length >= 2) optKeys[kk] = true; }); });
+          var optHits = x.lines.filter(function (l) { return optKeys[matchKey(String(l).replace(/^\s*[1-4１-４]\s*/, ''))]; }).length;
+          if (optHits >= 2) return { kind: x.kind, label: x.label, lines: x.lines, owner: x.owner, solution: true };
+        }
         return x;
       }).filter(function (x) { return x.lines.some(function (l) { return l.trim(); }); }) : [];
       if (NEW_UI) {
@@ -1887,6 +1895,10 @@
             : plainScript(secLines)) + '</div>';
     if (sec.kind === 'practice') {
       return '<section class="lp-sec lp-sec--practice"><h5 class="lp-sec__title">Đề luyện tập</h5>' + body + '</section>';
+    }
+    if (sec.kind === 'note' && sec.solution) {
+      return '<details class="lp-sec lp-sec--answer lp-sec--guide"><summary class="lp-sec__summary">' + escapeHtml(sec.label) +
+        ' &amp; lời giải (xem sau khi làm)</summary>' + body + '</details>';
     }
     if (sec.kind === 'note') {
       return '<section class="lp-sec lp-sec--note"><h5 class="lp-sec__title">' + escapeHtml(sec.label) + '</h5>' + body + '</section>';
