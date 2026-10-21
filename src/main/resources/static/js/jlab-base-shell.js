@@ -472,6 +472,7 @@
     markCurrent(ids.learnPathItem, isLearningPath);
     markCurrent(ids.jlptLink, isJlpt);
     markCurrent(ids.jlptPracticeLink, isJlptPractice);
+    markCurrent('jlabBaseNotebookLink', path === '/learning/notebook');
     markCurrent(ids.streakLink, isGoals);
     markCurrent(ids.bottomAccountButton, path === '/profile' || path.indexOf('/profile/') === 0 ||
       path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
@@ -486,7 +487,6 @@
         toolsButton.removeAttribute('aria-current');
       }
     }
-    markCurrent('jlabBaseNotebookLink', path === '/learning/notebook');
     markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice);
   }
 

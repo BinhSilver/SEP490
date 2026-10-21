@@ -1,4 +1,4 @@
--- Run after sql/migrations/20261021_user_notebooks.sql.
+-- Run after sql/migrations/038_user_notebooks.sql.
 -- Review state belongs to a word in one notebook, never to the dictionary word globally.
 CREATE TABLE IF NOT EXISTS user_notebook_review (
     notebook_id BIGINT NOT NULL,
