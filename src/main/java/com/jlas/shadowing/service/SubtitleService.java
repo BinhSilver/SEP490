@@ -284,7 +284,7 @@ public class SubtitleService {
     }
 
     private void markModerationStale(Video video) {
-        if (video == null) return;
+        if (video == null || com.jlas.shadowing.util.ShadowingModerationState.isLocked(video.getModerationStatus())) return;
         video.setModerationStatus("NOT_SCANNED");
         video.setModerationSummary(null);
         video.setModerationCheckedAt(null);

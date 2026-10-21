@@ -10,13 +10,14 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261014-star-gold">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261021-report">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261015-rescore"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
     <link rel="stylesheet" href="/shadowing/css/focus-mode.css?v=20261012-shadowing-focus">
+    <link rel="stylesheet" href="/css/components/inline-dictionary.css?v=20261021-examples"/>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
     <div id="jlabBaseShellMount"></div>
@@ -34,6 +35,7 @@
                 <div class="player-header-actions">
                     <button id="favorite-btn" class="pill-btn toggle-btn" title="Yêu thích" aria-label="Yêu thích"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
                     <button id="share-btn" class="pill-btn toggle-btn" title="Chia sẻ" aria-label="Chia sẻ"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
+                    <button id="report-btn" class="pill-btn toggle-btn" title="Báo cáo video" aria-label="Báo cáo video"><i class="fa-regular fa-flag" aria-hidden="true"></i></button>
                 </div>
             </div>
             <div class="player-rating-row">
@@ -118,7 +120,7 @@
                         </div>
                         <p id="listen-record-status" class="listen-record-status" role="status" aria-live="polite" hidden></p>
                         <!-- Khung lời — audio: hero full; video: dưới media (không cover/meta) -->
-                        <div id="large-subtitle-viewer" class="subtitle-viewer-card subtitle-viewer-inline lyrics-stage shadowing-live-subtitle">
+                        <div id="large-subtitle-viewer" data-inline-dictionary class="subtitle-viewer-card subtitle-viewer-inline lyrics-stage shadowing-live-subtitle">
                             <div id="viewer-japanese" class="viewer-japanese shadowing-live-japanese"></div>
                             <div id="viewer-translation" class="viewer-translation shadowing-live-translation"></div>
                         </div>
@@ -229,6 +231,7 @@
     </main>
 
     <script src="/js/auth-session.js"></script>
+    <script defer src="/js/inline-dictionary.js?v=20261021-examples"></script>
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20260712"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
@@ -238,7 +241,9 @@
     <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
     <script src="/shadowing/js/focus-mode.js?v=20261012-focus-romaji"></script>
     <script src="/shadowing/js/listen-record.js?v=20261012-mic-tools"></script>
-    <script src="/shadowing/js/app.js?v=20261014-start-hint"></script>
+    <script src="/shadowing/js/youtube-media.js?v=20261021-yt"></script>
+    <script src="/shadowing/js/app.js?v=20261021-yt"></script>
+    <script src="/shadowing/js/video-report.js?v=20261021-report-3"></script>
     <script src="/shadowing/js/player-timeline.js?v=20261012-mic-tools"></script>
     <script src="/shadowing/js/player-mobile.js?v=20261012-5"></script>
     <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->

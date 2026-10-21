@@ -27,6 +27,7 @@ public class ProcessingJobService {
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private FfmpegService ffmpegService;
+    @Autowired private YoutubeService youtubeService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
     @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
@@ -57,11 +58,11 @@ public class ProcessingJobService {
             clearSubtitles(videoId);
             if (!isActiveRun(videoId, runId)) return;
 
-            String audioPath = ffmpegService.prepareAudioForStt(video.getVideoPath());
+            String audioPath = audioForStt(video);
             updateProgress(video, ProcessingStep.TRANSCRIBING, 30, null);
             if (!isActiveRun(videoId, runId)) return;
 
-            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(deepgramService.transcribe(audioPath));
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(transcribe(video, audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -164,11 +165,11 @@ public class ProcessingJobService {
             }
 
             updateProgress(video, ProcessingStep.EXTRACTING_AUDIO, 10, null);
-            String audioPath = ffmpegService.prepareAudioForStt(video.getVideoPath());
+            String audioPath = audioForStt(video);
             if (!isActiveRun(videoId, runId)) return;
 
             updateProgress(video, ProcessingStep.TRANSCRIBING, 25, null);
-            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(deepgramService.transcribe(audioPath));
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(transcribe(video, audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -242,6 +243,30 @@ public class ProcessingJobService {
                     "Video không được nhận diện là tiếng Nhật. " + result.reason()
                             + " JLAS đã dừng tạo bài để tránh tạo phụ đề sai ngôn ngữ.");
         }
+    }
+
+    /** Transcribes {@code audioPath}; a temporary YouTube audio file is deleted whatever the outcome. */
+    private List<SubtitleDto> transcribe(Video video, String audioPath) throws Exception {
+        try {
+            return deepgramService.transcribe(audioPath);
+        } finally {
+            if (video.getVideoPath() == null || video.getVideoPath().isBlank()) {
+                try { java.nio.file.Files.deleteIfExists(java.nio.file.Path.of(audioPath)); } catch (Exception ignored) { }
+            }
+        }
+    }
+
+    /**
+     * Audio to transcribe. Uploaded files are prepared from their stored media; YouTube videos keep no file on
+     * the server, so their audio is fetched temporarily from the link.
+     */
+    private String audioForStt(Video video) throws Exception {
+        String path = video.getVideoPath();
+        if (path != null && !path.isBlank()) return ffmpegService.prepareAudioForStt(path);
+        if (ShadowingTakedownService.sourceKey(video.getSourceUrl()).isPresent()) {
+            return youtubeService.downloadAudio(video.getSourceUrl());
+        }
+        throw new IllegalStateException("Video không có tệp âm thanh để tạo phụ đề.");
     }
 
     /**

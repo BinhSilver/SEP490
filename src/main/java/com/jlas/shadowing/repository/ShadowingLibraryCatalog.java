@@ -25,7 +25,8 @@ public class ShadowingLibraryCatalog {
                         LibraryPopularity.Metrics metrics, Set<String> genres) {
         public boolean publicReady() {
             return "READY".equals(status) && (visibility == null || "PUBLIC".equals(visibility))
-                    && !"REVIEW".equalsIgnoreCase(moderation) && !"BLOCKED".equalsIgnoreCase(moderation);
+                    && !"REVIEW".equalsIgnoreCase(moderation) && !"BLOCKED".equalsIgnoreCase(moderation)
+                    && !com.jlas.shadowing.util.ShadowingModerationState.isLocked(moderation);
         }
     }
     public record Snapshot(List<Entry> entries, LibraryPopularity.Caps caps) {}
@@ -78,6 +79,7 @@ public class ShadowingLibraryCatalog {
                 "SELECT video_id FROM video_user_state WHERE user_id=? AND is_favorite=1", Long.class, userId)) : Set.of();
         Set<String> categories = LibraryFilters.values(category), levels = LibraryFilters.values(level);
         List<Entry> filtered = catalog.entries().stream()
+                .filter(v -> !com.jlas.shadowing.util.ShadowingModerationState.isRemoved(v.moderation()))
                 .filter(v -> "my".equals(scope) ? userId != null && Objects.equals(userId, v.ownerId())
                         : "all".equals(scope) ? v.publicReady() || userId != null && Objects.equals(userId, v.ownerId()) : v.publicReady())
                 .filter(v -> status == null || status.isBlank() || status.equals(v.status()))
