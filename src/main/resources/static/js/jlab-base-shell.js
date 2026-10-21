@@ -769,7 +769,7 @@
   function ensureAvatarFrameStyles() {
     // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
     if (!document.querySelector('link[href*="avatar-frame.css"]')) {
-      addStylesheet('/css/components/avatar-frame.css?v=20261014-frames3');
+      addStylesheet('/css/components/avatar-frame.css?v=20261021-catalog');
     }
   }
 
@@ -778,7 +778,7 @@
     if (window.JlasAvatarFrame || state.avatarFramesLoading) return;
     state.avatarFramesLoading = true;
     var script = document.createElement('script');
-    script.src = '/js/components/avatar-frame.js?v=20261014-frames3';
+    script.src = '/js/components/avatar-frame.js?v=20261021-catalog';
     script.onload = function () {
       if (window.JlasAuth && typeof window.JlasAuth.applyNav === 'function') window.JlasAuth.applyNav();
       else syncAuth();
