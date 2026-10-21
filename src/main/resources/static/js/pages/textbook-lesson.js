@@ -820,6 +820,57 @@
     return out.join('');
   }
 
+  /*
+   * [JLAS2-17] Bảng từ vựng 5 cột của Somatome 20 Point N4 / Hội thoại Business N2 (nhận diện: dòng tiêu đề "Mục từ Loại Hán
+   * Tự Âm Hán" — chỉ hai giáo trình này có; xem readingModel → block.vocabTable). Hàng tiêu đề (+ dòng "Nghĩa") là tiêu đề
+   * mục, không phải bản dịch; hàng "じゅぎょう n 授業 THỤ NGHIỆP Giờ học" → cặp "じゅぎょう 授業：n THỤ NGHIỆP Giờ học",
+   * "ほら Nhìn kìa" → "ほら：Nhìn kìa". Dòng không đọc được giữ cách cũ. Bảng kết thúc ở 【…】 / 練習 / dòng trống.
+   */
+  var vtBlock = false;
+  var VT_HEAD = /^Mục từ\s+Loại\s+Hán/i;
+  var VT_ROW = /^(\S+?)\s+((?:n|v|adj|adv|na-adj|i-adj|a-i|a-na|prefix|suffix)(?:\s*[,/]\s*(?:n|v|adj|adv))*(?:\s*\((?:v|n|adj)\))?)\s+(.+)$/;
+
+  function vtPairHtml(jp, vi) {
+    return '<div class="lp-sline lp-sline--pair"><span class="jp" lang="ja">' + escapeHtml(jp) + '</span>' +
+      '<span class="sep">：</span><span class="vi" lang="vi">' + escapeHtml(vi) + '</span></div>';
+  }
+
+  function vocabTableHtml(lines, fallback) {
+    var out = [];
+    var run = [];
+    var mg = [];
+    var inTable = false;
+    function flushMg() { if (mg.length) { out.push('<div class="lp-script">' + mg.join('') + '</div>'); mg = []; } }
+    function flushRun() { if (run.length) { out.push(fallback(run)); run = []; } }
+    function keep(t) { flushMg(); run.push(t); }
+    function emit(html) { flushRun(); mg.push(html); }
+    for (var i = 0; i < lines.length; i++) {
+      var t = String(lines[i] || '').trim();
+      if (VT_HEAD.test(t)) {
+        var head = t;
+        if (i + 1 < lines.length && String(lines[i + 1]).trim() === 'Nghĩa') { head += ' · Nghĩa'; i++; }
+        emit('<div class="lp-sline lp-sline--heading">' + escapeHtml(head) + '</div>');
+        inTable = true;
+        continue;
+      }
+      if (inTable && (!t || /^【/.test(t) || /^練習/.test(t))) inTable = false;
+      if (!inTable || !t) { keep(lines[i]); continue; }
+      var m = t.match(VT_ROW);
+      if (m && JA_CHAR.test(m[1])) {
+        var rest = m[3].split(/\s+/);
+        var kanji = rest.length > 1 && /[㐀-鿿々]/.test(rest[0]) ? rest.shift() : '';
+        emit(vtPairHtml(m[1] + (kanji ? ' ' + kanji : ''), m[2] + ' ' + rest.join(' ')));
+        continue;
+      }
+      var vp = mgVocabPair(t);
+      if (vp) { emit(vtPairHtml(vp.jp, vp.vi)); continue; }
+      keep(lines[i]);
+    }
+    flushRun();
+    flushMg();
+    return out.join('');
+  }
+
   function readingLines(text) {
     if (NEW_UI) {
       return scriptBlockHtml(String(text).split('\n').filter(function (l) { return l.trim(); })
@@ -1253,10 +1304,11 @@
   var mgInside = false;
 
   function bilingualHtml(lines, latinIsTranslation) {
-    if (NEW_UI && mgBlock && !mgInside) {
+    if (NEW_UI && (mgBlock || vtBlock) && !mgInside) {
       mgInside = true;
       try {
-        return marugotoHtml(lines, function (run) { return bilingualHtml(run, latinIsTranslation); });
+        var again = function (run) { return bilingualHtml(run, latinIsTranslation); };
+        return mgBlock ? marugotoHtml(lines, again) : vocabTableHtml(lines, again);
       } finally {
         mgInside = false;
       }
@@ -1612,6 +1664,7 @@
       var hasExtra = NEW_UI ? sections.length > 0 : split.extra.some(function (l) { return l.trim(); });
       var audio = itemAudio(it);
       var marugoto = NEW_UI && /(^|\n)\s*Mục Từ Nghĩa\s*(\n|$)/.test(it.textJa || '');
+      var vocabTable = NEW_UI && /(^|\n)\s*Mục từ\s+Loại\s+Hán/i.test(it.textJa || '');
       var hasTranslation = !!(it.textVi && it.textVi.trim()) && own.length === 0;
       // [JLAS2-17] M3 (Marugoto): bản dịch đoạn văn đã có trong mục "☞ Dịch" (song ngữ, từng câu) → không hiện thêm bản
       // dịch riêng của mục (textVi, cùng nội dung, mất câu Nhật đi kèm).
@@ -1624,7 +1677,7 @@
       if (NEW_UI && !hasPassage && !audio && own.length === 0 && !readingImageFor(it) &&
           !sections.some(function (x) { return x.kind !== 'answer' && x.kind !== 'translation' && hasText(x.lines); })) return;
       var drill = NEW_UI && hasPassage ? drillGroups(lines, own) : null;
-      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio, drillGroups: drill, marugoto: marugoto,
+      blocks.push({ item: it, listening: x.listening, lines: hasPassage ? lines : [], audio: audio, drillGroups: drill, marugoto: marugoto, vocabTable: vocabTable,
         extra: !NEW_UI && hasExtra ? split.extra : [], extraLabel: split.label, sections: sections,
         translation: hasTranslation ? it.textVi : null, questions: own, practiceQuestions: practiceQs });
     });
@@ -1819,7 +1872,9 @@
       (mgAnswers ? mgAnswerHtml(secLines, plainScript)
         : NEW_UI && mgBlock && (sec.kind === 'note' || sec.kind === 'passage') && MG_REGION.test(sec.label || '')
           ? marugotoHtml(secLines, plainScript, sec.label)
-          : plainScript(secLines)) + '</div>';
+          : NEW_UI && vtBlock && secLines.some(function (l) { return VT_HEAD.test(l.trim()); })
+            ? vocabTableHtml(secLines, plainScript)
+            : plainScript(secLines)) + '</div>';
     if (sec.kind === 'practice') {
       return '<section class="lp-sec lp-sec--practice"><h5 class="lp-sec__title">Đề luyện tập</h5>' + body + '</section>';
     }
@@ -1983,10 +2038,12 @@
 
   function readingBlockHtml(block) {
     mgBlock = !!block.marugoto;
+    vtBlock = !mgBlock && !!block.vocabTable;
     try {
       return readingBlockInnerHtml(block);
     } finally {
       mgBlock = false;
+      vtBlock = false;
     }
   }
 
