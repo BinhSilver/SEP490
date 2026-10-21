@@ -1778,14 +1778,42 @@
   }
 
   /** Một phần đã chia theo nhãn (giao diện mới). Nhãn nút ghi rõ phần (đọc hiểu / luyện tập / khác). */
+  /*
+   * [JLAS2-17] Marugoto N3 — phần CHECK trong bản dịch: dòng đáp án "An b （…）" / "An ✕（…）" và dòng giải thích ngay sau
+   * ("b (Có nêu rằng …)") là lời giải → gói vào "Xem đáp án" thu gọn, không hiện lộ trong thẻ lựa chọn.
+   */
+  var MG_ANSWER = /^An\s*([a-dａ-ｄA-DＡ-Ｄ]|[〇○✕×XＸ])(\s|（|\(|$)/;
+  var MG_ANSWER_NOTE = /^([a-dA-D]|[〇○✕×XＸOo])\s*[(（]/;
+
+  function mgAnswerHtml(lines, plainScript) {
+    var out = [];
+    var run = [];
+    function flush() { if (run.length) { out.push(plainScript(run)); run = []; } }
+    for (var i = 0; i < lines.length; i++) {
+      var t = String(lines[i] || '').trim();
+      if (!MG_ANSWER.test(t)) { run.push(lines[i]); continue; }
+      flush();
+      var body = [t];
+      if (i + 1 < lines.length && MG_ANSWER_NOTE.test(String(lines[i + 1]).trim())) body.push(String(lines[++i]).trim());
+      out.push('<details class="lp-sec lp-sec--answer lp-mg-answer"><summary class="lp-sec__summary">Xem đáp án</summary>' +
+        '<div class="lp-script">' + body.map(function (b) { return '<div class="lp-sline">' + plainSpan(b) + '</div>'; }).join('') +
+        '</div></details>');
+    }
+    flush();
+    return out.join('');
+  }
+
   function sectionHtml(sec) {
     var secLines = sec.lines.filter(function (l) { return l.trim(); });
     function plainScript(ls) { return scriptBlockHtml(ls.map(function (l) { return { main: l, vi: [] }; })); }
+    var mgAnswers = NEW_UI && mgBlock && (sec.kind === 'translation' || sec.kind === 'answer') &&
+      secLines.some(function (l) { return MG_ANSWER.test(l.trim()); });
     // [JLAS2-17] Khuôn Marugoto: mục 【Ngữ Pháp】 / 【Từ Vựng】 đọc theo marugotoHtml (nhãn của mục là dòng đầu vùng).
     var body = '<div class="reading-block__text">' +
-      (NEW_UI && mgBlock && (sec.kind === 'note' || sec.kind === 'passage') && MG_REGION.test(sec.label || '')
-        ? marugotoHtml(secLines, plainScript, sec.label)
-        : plainScript(secLines)) + '</div>';
+      (mgAnswers ? mgAnswerHtml(secLines, plainScript)
+        : NEW_UI && mgBlock && (sec.kind === 'note' || sec.kind === 'passage') && MG_REGION.test(sec.label || '')
+          ? marugotoHtml(secLines, plainScript, sec.label)
+          : plainScript(secLines)) + '</div>';
     if (sec.kind === 'practice') {
       return '<section class="lp-sec lp-sec--practice"><h5 class="lp-sec__title">Đề luyện tập</h5>' + body + '</section>';
     }
