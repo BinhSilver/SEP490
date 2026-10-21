@@ -17,6 +17,11 @@
 .inline-dict__actions button { color: #fff; background: #b94b58; }
 .inline-dict__actions a { color: #8d3440; background: transparent; }
 .inline-dict__status { min-height: 16px; margin: 8px 0 0; color: var(--color-on-surface-variant, #68635c); font-size: 11px; }
+.inline-dict__notebooks { display: grid; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee8df; }
+.inline-dict__notebooks strong { font-size: 12px; }
+.inline-dict__notebooks button { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid #ded9d0; border-radius: 7px; background: #fff; color: inherit; font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.inline-dict__notebooks button:hover { border-color: #b94b58; background: #fff8f7; }
+.inline-dict__notebooks small { color: #68635c; }
 .inline-dict :focus-visible { outline: 3px solid rgba(61, 117, 187, .42); outline-offset: 2px; }
 @media (max-width: 640px) { .inline-dict { inset: auto 12px 12px; width: auto; padding: 20px 20px 17px 27px; border-radius: 10px 18px 18px 10px; } }
 @media (prefers-reduced-motion: no-preference) { .inline-dict:not([hidden]) { animation: inline-dict-open .16s ease-out; } @keyframes inline-dict-open { from { opacity: 0; transform: translateY(5px); } } }
