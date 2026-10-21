@@ -346,7 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-            video.src = streamUrl();
+            // Video YouTube phát bằng trình phát nhúng của YouTube; chỉ video tải lên mới phát từ file trên server.
+            await window.ShadowingYoutube.load(video, videoId, { meta: videoMeta, streamUrl: streamUrl() });
             renderSubtitles();
             if (typeof window.loadPronunciationAttempts === 'function') {
                 window.loadPronunciationAttempts(videoId);

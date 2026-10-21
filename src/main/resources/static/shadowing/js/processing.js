@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'PROCESSING' || (data.status === 'DRAFT' && step !== 'DONE' && pct < 100)) {
                 const stepLabels = {
                     UPLOADED: 'Đang bắt đầu...',
-                    YOUTUBE_DOWNLOAD: 'Đang tải video...',
+                    YOUTUBE_DOWNLOAD: 'Đang hoàn tất...',
                     SUBTITLE_DOWNLOAD: 'Đang tải phụ đề...',
                     EXTRACTING_AUDIO: 'Đang tách audio...',
                     TRANSCRIBING: 'Đang nhận dạng giọng nói...',
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (Date.now() - stuckSince > stuckThresholdMs(currentStep)) {
                 errorMsg.style.display = 'block';
                 const stepHint = {
-                    YOUTUBE_DOWNLOAD: 'Đang tải file video (~24 phút nội dung = 10–30 phút chờ). Không phải treo.',
+                    YOUTUBE_DOWNLOAD: 'Đang lưu thông tin video, sắp xong.',
                     SUBTITLE_DOWNLOAD: 'Đang tải phụ đề từ YouTube (ja + vi/en)...',
                     AI_PROCESSING: 'AI đang xử lý nhiều câu — video dài sẽ lâu hơn.'
                 }[currentStep] || 'Xử lý có vẻ bị treo thật.';

@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PROCESSING_POLL_MS = 5000;
     const PROCESSING_STEPS = {
         UPLOADED: 'Đang bắt đầu',
-        YOUTUBE_DOWNLOAD: 'Đang tải video',
+        YOUTUBE_DOWNLOAD: 'Đang hoàn tất',
         SUBTITLE_DOWNLOAD: 'Đang tải phụ đề',
         EXTRACTING_AUDIO: 'Đang tách âm thanh',
         TRANSCRIBING: 'Đang nhận dạng giọng nói',

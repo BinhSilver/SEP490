@@ -149,7 +149,34 @@ public class YoutubeImportJobService {
         }
     }
 
+    /**
+     * Last import step. Embeddable YouTube videos are played through the YouTube embed, so nothing is downloaded:
+     * only the duration and a thumbnail are stored. Videos whose owner does not allow embedding
+     * (playback mode FILE) are downloaded as before and played from the file.
+     */
     private void downloadVideoWithProgress(Video video, String url, YoutubeAnalyzeResultDto meta,
+                                           Long videoId, long runId) throws Exception {
+        if (Video.PLAYBACK_FILE.equals(video.getPlaybackMode())) {
+            downloadVideoFile(video, url, meta, videoId, runId);
+            return;
+        }
+        updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 90, null);
+        if (!isActiveRun(videoId, runId)) return;
+        video.setDuration((double) meta.getDuration());
+        if (video.getThumbnailPath() == null) {
+            try {
+                String thumb = meta.getThumbnail() != null && !meta.getThumbnail().isBlank()
+                        ? youtubeService.downloadThumbnailFromUrl(meta.getThumbnail())
+                        : youtubeService.downloadThumbnailWithYtdlp(url);
+                video.setThumbnailPath(thumb);
+            } catch (Exception e) {
+                System.err.println("Thumbnail download failed: " + e.getMessage());
+            }
+        }
+        updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 95, null);
+    }
+
+    private void downloadVideoFile(Video video, String url, YoutubeAnalyzeResultDto meta,
                                            Long videoId, long runId) throws Exception {
         updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 65, null);
         int minutes = Math.max(15, meta.getDuration() / 60 + 10);

@@ -84,6 +84,7 @@ public class YoutubeImportService {
             video.setOwnerId(null);
         }
         video.setVisibility(VideoVisibility.PRIVATE);
+        video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
 
         try {
             String thumbPath = meta.getThumbnail() != null && !meta.getThumbnail().isBlank()
@@ -137,6 +138,9 @@ public class YoutubeImportService {
 
         try {
             YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(video.getSourceUrl());
+            // The owner may have changed the embed setting since the first import.
+            video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
+            videoRepository.save(video);
             youtubeImportJobService.processImport(NullSafe.longId(videoId), video.getSourceUrl(), meta);
         } catch (Exception e) {
             video.setStatus(VideoStatus.FAILED);
@@ -188,7 +192,7 @@ public class YoutubeImportService {
         if (step == null) return "Đang xử lý...";
         return switch (step) {
             case UPLOADED -> "Bắt đầu import YouTube...";
-            case YOUTUBE_DOWNLOAD -> "Đang tải video (video dài có thể mất 10–30 phút)...";
+            case YOUTUBE_DOWNLOAD -> "Đang lưu thông tin video...";
             case SUBTITLE_DOWNLOAD -> "Đang tải phụ đề (JP + dịch YouTube)...";
             case EXTRACTING_AUDIO -> "Đang tải audio...";
             case TRANSCRIBING -> "Đang nhận dạng giọng nói (Deepgram)...";

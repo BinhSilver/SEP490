@@ -175,6 +175,11 @@ public class VideoController {
     @GetMapping("/{id}/stream")
     public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
         Video video = videoService.getVideo(id);
+        // Embeddable YouTube videos are played through the YouTube embed; the server never serves a copy of them.
+        // Only uploads and YouTube videos that cannot be embedded (playback mode FILE) are streamed from file.
+        if (video.getVideoPath() == null || video.getVideoPath().isBlank() || video.isYoutubeEmbed()) {
+            return ResponseEntity.notFound().build();
+        }
         File file = new File(video.getVideoPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);
