@@ -88,12 +88,20 @@
         const count = document.getElementById('library-filter-count');
         const search = document.getElementById('search-input');
 
+        /** Đưa chip trong popup về đúng bộ lọc đang áp dụng (bỏ các thay đổi chưa bấm "Áp dụng"). */
+        function paint() {
+            fields.forEach(({ select, inputs }) => {
+                const selected = values(select.value);
+                inputs.forEach(input => { input.checked = input.value ? selected.includes(input.value) : !selected.length; });
+            });
+        }
+
         function sync() {
             let active = 0;
             const state = { q: search.value.trim() };
-            fields.forEach(({ group, select, inputs }) => {
+            paint();
+            fields.forEach(({ group, select }) => {
                 const selected = values(select.value);
-                inputs.forEach(input => { input.checked = input.value ? selected.includes(input.value) : !selected.length; });
                 active += group.multiple ? selected.length : Number(select.value !== 'popular');
                 state[group.param] = select.value === 'popular' ? '' : select.value;
             });
@@ -122,13 +130,12 @@
                 text.textContent = option.textContent;
                 label.append(input, text);
                 inputs.push(input);
+                // Chỉ đổi lựa chọn nháp trong popup; danh sách chỉ tải lại khi bấm "Áp dụng".
                 input.addEventListener('change', () => {
-                    let selected = values(select.value);
-                    if (!group.multiple) selected = [input.value];
-                    else if (!input.value) selected = [];
-                    else selected = input.checked ? [...new Set([...selected, input.value])] : selected.filter(v => v !== input.value);
-                    setChoice(document, select, group, selected);
-                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (!group.multiple) return;
+                    const all = inputs.find(item => !item.value);
+                    if (!input.value) inputs.forEach(item => { item.checked = !item.value; });
+                    else if (all) all.checked = !inputs.some(item => item.value && item.checked);
                 });
                 choices.appendChild(label);
             });
@@ -138,22 +145,43 @@
             select.addEventListener('change', sync);
         });
 
+        const footer = document.createElement('div');
+        footer.className = 'library-filter-footer';
+        const apply = document.createElement('button');
+        apply.type = 'button';
+        apply.id = 'library-filter-apply';
+        apply.className = 'button-primary';
+        apply.textContent = 'Áp dụng';
+        footer.appendChild(apply);
+        panel.appendChild(footer);
+
         function close(restoreFocus) {
             panel.hidden = true;
             toggle.setAttribute('aria-expanded', 'false');
+            paint();
             if (restoreFocus) toggle.focus();
         }
         toggle.addEventListener('click', () => {
-            panel.hidden = !panel.hidden;
-            toggle.setAttribute('aria-expanded', String(!panel.hidden));
+            if (!panel.hidden) { close(false); return; }
+            paint();
+            panel.hidden = false;
+            toggle.setAttribute('aria-expanded', 'true');
         });
         document.getElementById('library-filter-close').addEventListener('click', () => close(true));
+        // "Đặt lại" chỉ xoá lựa chọn nháp; người dùng vẫn phải bấm "Áp dụng".
         document.getElementById('library-filter-reset').addEventListener('click', () => {
-            fields.forEach(({ group, select }) => {
-                select.querySelector('[data-combined-filter]')?.remove();
-                select.value = group.multiple ? '' : 'popular';
+            fields.forEach(({ group, inputs }) => inputs.forEach(input => {
+                input.checked = group.multiple ? !input.value : input.value === 'popular';
+            }));
+        });
+        // Ghi toàn bộ lựa chọn vào các <select> rồi phát đúng một sự kiện change → chỉ một request cho cả bộ lọc.
+        apply.addEventListener('click', () => {
+            fields.forEach(({ group, select, inputs }) => {
+                const checked = inputs.filter(input => input.checked && input.value).map(input => input.value);
+                setChoice(document, select, group, checked);
             });
             document.getElementById('sort-select').dispatchEvent(new Event('change', { bubbles: true }));
+            close(true);
         });
         document.addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.hidden) close(true); });
         document.addEventListener('pointerdown', event => {
@@ -164,7 +192,7 @@
         });
         const placeholder = search.placeholder;
         const mobile = root.matchMedia('(max-width: 900px)');
-        const adapt = () => { search.placeholder = mobile.matches ? 'Tìm video, câu thoại…' : placeholder; if (!mobile.matches) close(false); };
+        const adapt = () => { search.placeholder = mobile.matches ? 'Tìm video, câu thoại…' : placeholder; };
         mobile.addEventListener('change', adapt);
         adapt();
         // Chạy trước library.js: lấy bộ lọc từ URL để danh sách tải lần đầu khớp với ô lọc khi quay lại trang.
