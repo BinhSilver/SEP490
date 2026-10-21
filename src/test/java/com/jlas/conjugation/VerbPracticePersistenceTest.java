@@ -21,7 +21,7 @@ import static com.jlas.conjugation.VerbPracticeService.*;
 
 @DataJpaTest(properties={"spring.profiles.include=","spring.datasource.url=jdbc:h2:mem:verb-practice;MODE=MySQL;DB_CLOSE_DELAY=-1","spring.jpa.hibernate.ddl-auto=create-drop"},showSql=false)
 @ContextConfiguration(classes=VerbPracticePersistenceTest.Cfg.class)
-@Sql(scripts="file:sql/seeds/verb_practice_catalog.sql")
+@Sql(scripts="file:sql/seeds/seed_data_verb_practice.sql")
 class VerbPracticePersistenceTest {
     @Configuration(proxyBeanMethods=false) @EntityScan({"com.jlas.conjugation","com.jlas.auth.entity"})
     @EnableJpaRepositories(basePackages={"com.jlas.conjugation","com.jlas.auth.repository"})

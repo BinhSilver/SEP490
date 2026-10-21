@@ -52,7 +52,7 @@ public class VerbCatalog {
     private synchronized void ensureLoaded() {
         if (data == null || data.verbs().isEmpty()) reloadFromDatabase();
         if (data.verbs().isEmpty())
-            throw new IllegalStateException("Verb practice catalog is empty. Run sql/seeds/verb_practice_catalog.sql first.");
+            throw new IllegalStateException("Verb practice catalog is empty. Run sql/seeds/seed_data_verb_practice.sql first.");
     }
 
     private synchronized void reloadFromDatabase() {

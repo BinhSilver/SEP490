@@ -1,6 +1,6 @@
 -- [JLAS-VERB-PRACTICE] Run once in an existing JLAS database before restarting the app.
 -- Catalog data is stored as regular SQL rows and columns; no serialized JSON payload is used.
--- Catalog starter rows are kept separately in sql/seeds/verb_practice_catalog.sql.
+-- Catalog starter rows are kept separately in sql/seeds/seed_data_verb_practice.sql.
 CREATE TABLE IF NOT EXISTS verb_practice_catalog_verb (
     id VARCHAR(40) NOT NULL PRIMARY KEY,
     word VARCHAR(80) NOT NULL,
