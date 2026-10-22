@@ -79,10 +79,22 @@ test('offers an early check while retaining practice progress guidance', () => {
   assert.doesNotMatch(ready, /data-check disabled/);
 });
 
-test('communication grammar completes through practice without showing a quiz action', () => {
+// Owner 2026-10-21: communication grammar ("Mẫu câu") drops the quiz eyebrow and the check copy.
+test('communication grammar completes through practice without showing a quiz action or a quiz eyebrow', () => {
   const html = page.renderStudy(page.viewModel(study({ checkRequired: false })), null, {}, {});
-  assert.match(html, /tình huống giao tiếp không có bài kiểm tra/);
-  assert.doesNotMatch(html, /data-check|Bắt đầu kiểm tra/);
+  assert.match(html, /<h1>Mẫu câu<\/h1>/);
+  assert.doesNotMatch(html, /data-check|Bắt đầu kiểm tra|NGỮ PHÁP \/\/|CÓ THỂ KIỂM TRA SỚM|không có bài kiểm tra/);
+});
+
+test('a finished point shows the sentence already ordered and the blank already filled', () => {
+  const v = page.viewModel(study({ checkRequired: false, activityState: 'PASSED' }));
+  v.points[0].ordering = { completed: true, words: [{ tokenId: 1, text: 'グエンです。' }, { tokenId: 0, text: 'わたしは' }] };
+  v.points[0].fill = { completed: true, promptWithBlank: 'わたしは _____', answer: 'グエンです。' };
+  const html = page.renderStudy(v, null, {}, {});
+  assert.match(html, /ilp-done-pill">Đã hoàn thành</);
+  assert.match(html, /is-solved"><span class="ilp-order__token is-placed">わたしは<\/span><span class="ilp-order__token is-placed">グエンです。<\/span>/);
+  assert.match(html, /<mark class="ilp-fill__answer">グエンです。<\/mark>/);
+  assert.doesNotMatch(html, /data-order-add|data-fill-check|data-order-check/);
 });
 
 test('grammar lesson does not display quiz history controls', () => {
@@ -160,7 +172,8 @@ test('review rendering exposes canonical grammar only and has no practice or qui
   const html = page.renderReview(study(), [{ batchIndex: 0, scorePercent: 50,
     correctAnswers: 1, totalQuestions: 2, review: [{ questionText: 'Câu quiz cũ' }] }]);
   global.window = previousWindow;
-  assert.match(html, /Ngữ pháp đã học/);
+  // Owner 2026-10-21: the review is the lesson layout itself in its finished state, read-only.
+  assert.match(html, /data-mode-banner="REVIEW"/);
   assert.match(html, /N1 は N2 です/);
   assert.doesNotMatch(html, /data-order-add|data-fill-check|data-check|data-submit|Câu quiz cũ|Kết quả các lượt làm bài/);
 });

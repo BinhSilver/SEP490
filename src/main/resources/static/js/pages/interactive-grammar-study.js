@@ -64,9 +64,18 @@
 
   /** {@code placedIds} is this page's own ephemeral client state for the ordering pool (never sent until
    * the learner submits) — passed in explicitly so this render stays a pure, testable function. */
-  function renderOrdering(pointId, ordering, placedIds, feedback) {
+  function renderOrdering(pointId, ordering, placedIds, feedback, readOnly) {
     if (!ordering || !ordering.words.length) return '';
     placedIds = list(placedIds);
+    // Owner 2026-10-21: a finished point (and the read-only review) shows the sentence as it was solved.
+    if (ordering.completed && (readOnly || !placedIds.length) && !(feedback && !feedback.correct)) {
+      var solved = list(ordering.words).slice().sort(function (a, b) { return a.tokenId - b.tokenId; });
+      return '<div class="ilp-practice is-done" data-practice="ordering"><h3>1. Xếp từ thành câu hoàn chỉnh</h3>' +
+        '<div class="ilp-order__slots is-solved">' + solved.map(function (w) {
+          return '<span class="ilp-order__token is-placed">' + esc(w.text) + '</span>'; }).join('') + '</div>' +
+        '<p class="ilp-practice__feedback is-correct">' + esc(feedback && feedback.explanation || 'Đã hoàn thành.') + '</p></div>';
+    }
+    if (readOnly) return '';
     var byId = {};
     list(ordering.words).forEach(function (w) { byId[w.tokenId] = w.text; });
     var placedSet = {};
@@ -88,8 +97,16 @@
       '</div>';
   }
 
-  function renderFill(pointId, fill, feedback) {
+  function renderFill(pointId, fill, feedback, readOnly) {
     if (!fill || !fill.promptWithBlank) return '';
+    if (fill.completed && fill.answer != null && !(feedback && !feedback.correct)) {
+      var parts = String(fill.promptWithBlank).split('_____');
+      return '<div class="ilp-practice is-done" data-practice="fill"><h3>2. Điền phần còn thiếu</h3>' +
+        '<p class="ilp-fill__sentence is-solved">' + esc(parts[0]) + '<mark class="ilp-fill__answer">' + esc(fill.answer) + '</mark>' +
+        esc(parts.slice(1).join('_____')) + '</p>' +
+        '<p class="ilp-practice__feedback is-correct">' + esc(feedback && feedback.explanation || 'Đã hoàn thành.') + '</p></div>';
+    }
+    if (readOnly) return '';
     return '<div class="ilp-practice" data-practice="fill">' +
       '<h3>2. Điền phần còn thiếu</h3>' +
       '<div class="ilp-fill__row"><span class="ilp-fill__sentence">' + esc(fill.promptWithBlank) + '</span>' +
@@ -100,26 +117,118 @@
       '</div>';
   }
 
-  function renderPoint(point, index, total, orderState, feedback) {
+  /** The longest literal piece of a pattern ("〜をお願いします" → "をお願いします"), to mark it inside the example. */
+  function patternCore(pattern) {
+    return String(pattern || '').split(/[〜～~〇○◯…]+|\s+|\bN\d*\b/).map(function (piece) {
+      return piece.replace(/[。、！？]+$/, '').trim();
+    }).reduce(function (best, piece) { return piece.length > best.length ? piece : best; }, '');
+  }
+  function exampleWithPattern(japanese, pattern) {
+    var text = String(japanese || '');
+    var core = patternCore(pattern);
+    var at = core.length > 1 ? text.indexOf(core) : -1;
+    if (at < 0) return esc(text);
+    return esc(text.slice(0, at)) + '<mark class="ilp-point__pattern-in-example">' + esc(core) + '</mark>' + esc(text.slice(at + core.length));
+  }
+  /** A formula that only repeats the heading (one unit equal to the pattern) adds nothing, so it is not shown. */
+  function usefulFormula(point) {
+    var components = list(point.components);
+    return components.length > 1 || components.length === 1 && components[0].text !== point.pattern;
+  }
+  function fact(label, body) {
+    return '<div class="ilp-point__fact"><dt>' + label + '</dt><dd>' + body + '</dd></div>';
+  }
+
+  // Owner 2026-10-21: every block says what it is — meaning, structure (only when it adds something), example with the
+  // pattern marked, how to use it, a note — then the practice; nothing repeats the heading.
+  function renderPoint(point, index, total, orderState, feedback, readOnly, extra) {
     var gate = point.gateSatisfied;
+    var example = point.example && point.example.japanese
+      ? fact('Ví dụ', '<p class="ilp-point__example-ja" lang="ja">' + exampleWithPattern(point.example.japanese, point.pattern) + '</p>' +
+          (point.example.meaningVi ? '<p class="ilp-point__example-vi">' + esc(point.example.meaningVi) + '</p>' : '')) : '';
+    var facts = (usefulFormula(point) ? fact('Cấu trúc', renderFormula(point.components)) : '') + example +
+      (point.usageNote ? fact('Cách dùng', esc(point.usageNote)) : '') +
+      (point.note ? fact('Lưu ý', esc(point.note)) : '');
     return '<section class="ilp-point" data-point="' + point.pointId + '">' +
-      '<header class="ilp-point__head"><div><span class="ilp-kicker">MẪU ' + (index + 1) + '/' + total + '</span>' +
-      '<h2>' + esc(point.pattern) + '</h2>' +
-      (point.objective ? '<p class="ilp-point__objective">' + esc(point.objective) + '</p>' : '') + '</div>' +
+      '<header class="ilp-point__head"><div><span class="ilp-point__index">Mẫu ' + (index + 1) + '/' + total + '</span>' +
+      '<h2 lang="ja">' + esc(point.pattern) + '</h2>' +
+      (point.objective ? '<p class="ilp-point__meaning"><span>Nghĩa</span>' + esc(point.objective) + '</p>' : '') + '</div>' +
       '<span class="ilp-point__gate' + (gate ? ' is-done' : '') + '">' + (gate ? 'Đã luyện xong' : 'Cần luyện tập') + '</span>' +
       '</header>' +
-      renderFormula(point.components) +
-      (point.usageNote ? '<p class="ilp-point__objective">' + esc(point.usageNote) + '</p>' : '') +
-      renderExample(point.example) +
-      (point.note ? '<p class="ilp-note">' + esc(point.note) + '</p>' : '') +
-      renderOrdering(point.pointId, point.ordering, orderState, feedback && (feedback.ordering || feedback.explanation && feedback)) +
-      renderFill(point.pointId, point.fill, feedback && feedback.fill) +
+      (facts ? '<dl class="ilp-point__facts">' + facts + '</dl>' : '') +
+      '<h3 class="ilp-point__practice-title">Luyện tập</h3>' +
+      renderOrdering(point.pointId, point.ordering, orderState, feedback && (feedback.ordering || feedback.explanation && feedback), readOnly) +
+      renderFill(point.pointId, point.fill, feedback && feedback.fill, readOnly) +
+      (readOnly ? '' : renderExtra(point.pointId, extra)) +
       '</section>';
   }
 
-  function renderStudy(v, gate, orderStates, feedbacks, mode) {
+  /** Stable shuffle of tile indexes for an extra item, never the solved order when there are several tiles. */
+  function extraOrder(count, seed) {
+    var order = [];
+    for (var i = 0; i < count; i++) order.push(i);
+    order.sort(function (a, b) { return ((a * 7 + seed * 13) % 11) - ((b * 7 + seed * 13) % 11) || a - b; });
+    if (count > 1 && order.every(function (value, index) { return value === index; })) order.reverse();
+    return order;
+  }
+  function sameAnswer(a, b) {
+    var clean = function (s) { return String(s || '').replace(/\s+/g, '').replace(/[、。！？]+$/, ''); };
+    return clean(a) !== '' && clean(a) === clean(b);
+  }
+
+  /** Owner 2026-10-21: optional AI-written sentences for the same pattern — ordering and fill per sentence, checked on the
+   * page, never scored and never part of completion. {@code extra}: {status, label, message, items:[{placed, order,
+   * orderCorrect, fill, fillCorrect}]}. */
+  function renderExtra(pointId, extra) {
+    extra = extra || {};
+    var head = '<div class="ilp-extra__head"><div><h3>Luyện thêm <span>tùy chọn</span></h3>' +
+      '<p>3 câu mới dùng cùng mẫu này, do AI soạn để bạn luyện thêm. Không tính điểm, không bắt buộc.</p></div>' +
+      (extra.status === 'ready' ? '' : '<button type="button" class="ilp-extra__generate" data-extra-generate="' + pointId + '"' +
+        (extra.status === 'loading' ? ' disabled' : '') + '>' + (extra.status === 'loading' ? 'Đang tạo câu…' :
+        extra.status === 'error' ? 'Thử tạo lại' : 'Tạo 3 câu luyện thêm') + '</button>') + '</div>';
+    if (extra.status === 'error') return '<div class="ilp-extra" data-extra="' + pointId + '">' + head +
+      '<p class="ilp-extra__error" role="alert">' + esc(extra.message || 'Chưa tạo được câu luyện thêm lúc này.') + '</p></div>';
+    if (extra.status !== 'ready') return '<div class="ilp-extra" data-extra="' + pointId + '">' + head + '</div>';
+    var items = list(extra.items).map(function (item, index) {
+      var placed = list(item.placed);
+      var placedSet = {};
+      placed.forEach(function (i) { placedSet[i] = true; });
+      var solved = item.orderCorrect === true;
+      var slots = solved ? item.parts.map(function (t) { return '<span class="ilp-order__token is-placed">' + esc(t) + '</span>'; }).join('')
+        : placed.map(function (i) {
+          return '<button type="button" class="ilp-order__token is-placed" data-extra-remove="' + pointId + ':' + index + ':' + i + '">' +
+            esc(item.parts[i]) + '</button>'; }).join('') || '<span class="ilp-card__hint">Chạm vào cụm từ theo đúng thứ tự</span>';
+      var pool = solved ? '' : item.order.filter(function (i) { return !placedSet[i]; }).map(function (i) {
+        return '<button type="button" class="ilp-order__token" data-extra-add="' + pointId + ':' + index + ':' + i + '">' + esc(item.parts[i]) + '</button>';
+      }).join('');
+      var orderFeedback = item.orderCorrect == null ? '' : '<p class="ilp-practice__feedback ' + (solved ? 'is-correct">Chính xác!' :
+        'is-incorrect">Chưa đúng thứ tự, thử lại nhé.') + '</p>';
+      var fillDone = item.fillCorrect === true;
+      var promptParts = String(item.prompt || '').split('_____');
+      var fill = fillDone
+        ? '<p class="ilp-fill__sentence is-solved">' + esc(promptParts[0]) + '<mark class="ilp-fill__answer">' + esc(item.answer) + '</mark>' +
+          esc(promptParts.slice(1).join('_____')) + '</p>'
+        : '<div class="ilp-fill__row"><span class="ilp-fill__sentence">' + esc(item.prompt) + '</span>' +
+          '<input class="ilp-fill__input" type="text" data-extra-fill-input="' + pointId + ':' + index + '" value="' + esc(item.fill || '') +
+          '" aria-label="Điền phần còn thiếu, câu ' + (index + 1) + '" />' +
+          '<button type="button" class="ilp-practice__submit" data-extra-fill-check="' + pointId + ':' + index + '">Kiểm tra</button></div>' +
+          (item.fillCorrect === false ? '<p class="ilp-practice__feedback is-incorrect">Chưa đúng. Đáp án: ' + esc(item.answer) + '</p>' : '');
+      return '<li class="ilp-extra__item"><p class="ilp-extra__label">Câu ' + (index + 1) + '</p>' +
+        '<div class="ilp-practice" data-practice="ordering"><h4>Xếp cụm từ thành câu</h4><div class="ilp-order__slots' + (solved ? ' is-solved' : '') + '">' +
+        slots + '</div>' + (pool ? '<div class="ilp-order__pool">' + pool + '</div>' : '') +
+        (solved ? '' : '<button type="button" class="ilp-practice__submit" data-extra-order-check="' + pointId + ':' + index + '"' +
+          (placed.length === item.parts.length ? '' : ' disabled') + '>Kiểm tra thứ tự</button>') + orderFeedback + '</div>' +
+        '<div class="ilp-practice" data-practice="fill"><h4>Điền phần còn thiếu</h4>' + fill + '</div>' +
+        (solved && fillDone && item.meaningVi ? '<p class="ilp-extra__vi">' + esc(item.meaningVi) + '</p>' : '') + '</li>';
+    }).join('');
+    return '<div class="ilp-extra" data-extra="' + pointId + '">' + head + '<ol class="ilp-extra__items">' + items + '</ol>' +
+      '<p class="ilp-extra__source">' + esc(extra.label || 'Câu luyện thêm do AI tạo · chưa rà soát') + '</p></div>';
+  }
+
+  function renderStudy(v, gate, orderStates, feedbacks, mode, extras) {
     orderStates = orderStates || {};
     feedbacks = feedbacks || {};
+    extras = extras || {};
     if (!v.points.length) {
       return '<section class="ilp-state"><h1>Chưa có mẫu ngữ pháp</h1><p>Hoạt động này chưa có nội dung.</p></section>';
     }
@@ -128,22 +237,26 @@
     var gateNote = gateBlocked
       ? '<p class="ilp-gate-note">' + (gate.reviewRequired ? 'Bạn cần ôn lại phần đã sai trước khi kiểm tra lại.' : 'Bạn đang trong thời gian chờ.') + '</p>'
       : '';
+    var readOnly = mode === 'REVIEW';
+    var communication = v.checkRequired === false;
+    var done = v.activityState === 'PASSED' || v.activityState === 'COMPLETED';
     var points = v.points.map(function (p, i) {
-      return renderPoint(p, i, v.points.length, orderStates[p.pointId], feedbacks[p.pointId]);
+      return renderPoint(p, i, v.points.length, orderStates[p.pointId], feedbacks[p.pointId], readOnly, extras[p.pointId]);
     }).join('');
     var modeBanner = mode === 'PRACTICE'
       ? '<p class="ilp-mode-banner" role="note" data-mode-banner="PRACTICE"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>'
       : '';
+    // Communication grammar has no quiz: no technical eyebrow and no check copy (owner 2026-10-21).
     return modeBanner + '<section class="ilp-grammar">' +
-      '<header class="ilp-study__head"><div><span class="ilp-kicker">NGỮ PHÁP // ' +
-      (v.gateSatisfiedCount === v.totalPoints ? 'ĐÃ LUYỆN ĐỦ MẪU' : 'CÓ THỂ KIỂM TRA SỚM') + '</span><h1>Luyện ngữ pháp</h1>' + partLabel(v) +
-      '<p>Luyện xếp câu và điền từ trước khi kiểm tra để nắm chắc từng mẫu.</p></div>' +
+      '<header class="ilp-study__head"><div>' + (communication ? '' : '<span class="ilp-kicker">NGỮ PHÁP // ' +
+      (v.gateSatisfiedCount === v.totalPoints ? 'ĐÃ LUYỆN ĐỦ MẪU' : 'CÓ THỂ KIỂM TRA SỚM') + '</span>') +
+      '<h1>' + (communication ? 'Mẫu câu' : 'Luyện ngữ pháp') + (done ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' + partLabel(v) +
+      '<p>' + (communication ? 'Xếp câu rồi điền phần còn thiếu cho từng mẫu.' : 'Luyện xếp câu và điền từ trước khi kiểm tra để nắm chắc từng mẫu.') + '</p></div>' +
       '<div class="ilp-study__count"><strong>' + v.gateSatisfiedCount + '/' + v.totalPoints + '</strong><span>mẫu đã xong</span></div></header>' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.gateSatisfiedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalPoints + '">' +
       '<span style="width:' + (v.totalPoints ? Math.round(v.gateSatisfiedCount / v.totalPoints * 100) : 0) + '%"></span></div>' +
-      points + (v.checkRequired ? gateNote +
-      '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' :
-      '<p class="ilp-result__pass">Hoàn thành các bài luyện để hoàn tất kỹ năng này; tình huống giao tiếp không có bài kiểm tra.</p>') +
+      points + (v.checkRequired && !readOnly && !done ? gateNote +
+      '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' : '') +
       '</section>';
   }
 
@@ -163,9 +276,9 @@
         '</div></header>' + items.map(function (item) { return item.html; }).join('') +
         '<button class="ilp-check" type="button" data-check>Làm lại bài kiểm tra →</button></section>';
     }
-    return StudyMode
-      ? StudyMode.reviewList('Ngữ pháp đã học', items)
-      : '<section class="ilp-result"><h1>Xem lại ngữ pháp</h1>' + items.map(function (x) { return x.html; }).join('') + '</section>';
+    // Owner 2026-10-21: "Xem lại bài giảng" looks like the lesson itself, every exercise already done.
+    return (StudyMode ? StudyMode.banner('REVIEW') : '') + renderStudy(v, null, {}, {}, 'REVIEW') +
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div>';
   }
 
   function renderCheck(check) {
@@ -258,6 +371,20 @@
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['REVIEW', 'PRACTICE']) : '';
     var orderState = {};
     var feedback = {};
+    var extraStates = {};
+    var lastGate = null;
+    /** Repaints from memory (no request) — for the optional extra practice, which is checked on the page. */
+    function paint() {
+      if (!currentStudy) return;
+      var done = (lastGate && lastGate.passed) || currentStudy.activityState === 'PASSED' || currentStudy.activityState === 'COMPLETED';
+      node.innerHTML = renderStudy(currentStudy, lastGate, orderState, feedback, mode, extraStates) +
+        (done && currentStudy.checkRequired ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
+    }
+    function extraItem(key) {
+      var bits = String(key).split(':');
+      var state = extraStates[bits[0]];
+      return state && state.items ? { state: state, item: state.items[Number(bits[1])], tile: Number(bits[2]) } : null;
+    }
     var currentStudy = null;
     // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
     // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
@@ -380,7 +507,6 @@
         if ((gate && gate.passed) || currentStudy.activityState === 'PASSED') {
           await StudyMode.restoreCompletedResult(node, api, '/learning/v2/grammar', id, renderPassed(PASSED_ACTIONS));
         }
-        else { node.innerHTML = renderStudy(currentStudy, gate, orderState, feedback, mode); }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
@@ -396,6 +522,57 @@
     }
 
     node.addEventListener('click', async function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
+      // ---- Optional AI extra practice: generated on request, checked on the page, never sent as progress ----
+      var generate = event.target.closest('[data-extra-generate]');
+      if (generate) {
+        var genId = generate.getAttribute('data-extra-generate');
+        extraStates[genId] = { status: 'loading' };
+        paint();
+        try {
+          var made = await postJson('/points/' + encodeURIComponent(genId) + '/extra-practice', {});
+          extraStates[genId] = { status: 'ready', label: made.label, items: list(made.items).map(function (item, index) {
+            return Object.assign({}, item, { placed: [], order: extraOrder(list(item.parts).length, Number(genId) + index), fill: '' });
+          }) };
+        } catch (e) { extraStates[genId] = { status: 'error', message: e.message }; }
+        return paint();
+      }
+      var extraAdd = event.target.closest('[data-extra-add]');
+      if (extraAdd) {
+        var added = extraItem(extraAdd.getAttribute('data-extra-add'));
+        if (added && added.item) { added.item.placed = list(added.item.placed).concat([added.tile]); added.item.orderCorrect = null; }
+        return paint();
+      }
+      var extraRemove = event.target.closest('[data-extra-remove]');
+      if (extraRemove) {
+        var removed = extraItem(extraRemove.getAttribute('data-extra-remove'));
+        if (removed && removed.item) {
+          removed.item.placed = list(removed.item.placed).filter(function (t) { return t !== removed.tile; });
+          removed.item.orderCorrect = null;
+        }
+        return paint();
+      }
+      var extraOrderCheck = event.target.closest('[data-extra-order-check]');
+      if (extraOrderCheck) {
+        var ordered = extraItem(extraOrderCheck.getAttribute('data-extra-order-check'));
+        if (ordered && ordered.item) {
+          ordered.item.orderCorrect = ordered.item.placed.every(function (t, i) { return t === i; }) &&
+            ordered.item.placed.length === ordered.item.parts.length;
+          if (!ordered.item.orderCorrect) ordered.item.placed = [];
+        }
+        return paint();
+      }
+      var extraFillCheck = event.target.closest('[data-extra-fill-check]');
+      if (extraFillCheck) {
+        var key = extraFillCheck.getAttribute('data-extra-fill-check');
+        var filled = extraItem(key);
+        var box = node.querySelector('[data-extra-fill-input="' + key + '"]');
+        if (filled && filled.item) {
+          filled.item.fill = box ? box.value : '';
+          filled.item.fillCorrect = sameAnswer(filled.item.fill, filled.item.answer);
+        }
+        return paint();
+      }
       if (event.target.closest('[data-retry]')) return loadStudy();
       if (event.target.closest('[data-check-next]')) return doCheck();
       if (event.target.closest('[data-back-to-study]')) return loadStudy();
@@ -541,6 +718,7 @@
   return {
     viewModel: viewModel, renderFormula: renderFormula, renderExample: renderExample, renderOrdering: renderOrdering,
     renderFill: renderFill, renderPoint: renderPoint, renderStudy: renderStudy, renderCheck: renderCheck,
+    renderExtra: renderExtra, extraOrder: extraOrder, sameAnswer: sameAnswer,
     renderReview: renderReview, renderResult: renderResult, mount: mount
   };
 });

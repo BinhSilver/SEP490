@@ -41,6 +41,8 @@ import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.learning.service.impl.engine.QuestionSpec;
 import com.jlas.learning.service.impl.grammar.GrammarTextAnalyzer;
 import com.jlas.learning.service.impl.grammar.GrammarTextAnalyzer.Role;
+import com.jlas.learning.service.impl.grammar.GrammarPhraseSegmenter;
+import com.jlas.learning.service.impl.grammar.GrammarPhraseSegmenter.Practice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +99,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         for (LearningActivityMember member : membership) {
             GrammarPoint point = byId.get(member.getCanonicalId());
             LearningGrammarPracticeProgress p = currentProgress(activityId, member);
-            GrammarPointView view = toView(member, point, p);
+            GrammarPointView view = toView(member, point, p, false);
             if (view.gateSatisfied()) satisfied++;
             views.add(view);
         }
@@ -128,7 +130,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         Map<Long, GrammarPoint> byId = loadPoints(membership);
         List<GrammarPointView> views = membership.stream().map(member ->
                 toView(member, byId.get(member.getCanonicalId()),
-                        currentProgress(activityId, member))).toList();
+                        currentProgress(activityId, member), true)).toList();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 membership.getFirst().getSourceRevision(), membership.size(),
                 (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false,
@@ -143,7 +145,8 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         UserLearningPathItem activity = loadActivity(userId, activityId);
         LearningActivityMember member = requireMember(activity, grammarPointId);
         GrammarPoint point = requirePoint(grammarPointId);
-        List<String> words = exampleWords(point);
+        Practice practice = practice(point);
+        List<String> words = practice.parts();
         if (words.isEmpty()) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Mẫu ngữ pháp này chưa có câu ví dụ để luyện tập.");
         }
@@ -157,7 +160,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         }
         progress.save(state);
 
-        String correctText = String.join(" ", words);
+        String correctText = practice.text();
         String explanation = correct
                 ? "Chính xác! Câu đúng thứ tự là: " + correctText
                 : "Câu đúng là: " + correctText + ". " + meaningExplanation(point);
@@ -172,12 +175,11 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         UserLearningPathItem activity = loadActivity(userId, activityId);
         LearningActivityMember member = requireMember(activity, grammarPointId);
         GrammarPoint point = requirePoint(grammarPointId);
-        List<String> words = exampleWords(point);
-        int blankIndex = GrammarTextAnalyzer.chooseBlankIndex(words);
-        if (blankIndex < 0) {
+        Practice practice = practice(point);
+        if (practice.blankIndex() < 0) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Mẫu ngữ pháp này chưa có câu ví dụ để luyện tập.");
         }
-        String canonicalAnswer = words.get(blankIndex);
+        String canonicalAnswer = practice.answer();
         boolean correct = GrammarTextAnalyzer.normalizeAnswer(request.answer())
                 .equals(GrammarTextAnalyzer.normalizeAnswer(canonicalAnswer));
 
@@ -323,8 +325,9 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         return state;
     }
 
+    /** {@code reveal}: a read-only review of a finished activity shows every point solved, as it was when completed. */
     private GrammarPointView toView(LearningActivityMember member, GrammarPoint point,
-            LearningGrammarPracticeProgress p) {
+            LearningGrammarPracticeProgress p, boolean reveal) {
         String pattern = point == null ? null : point.getPattern();
         String[] meaningParts = splitFirstLine(point == null ? null : point.getMeaning());
         String[] exampleParts = splitFirstLine(point == null ? null : point.getExample());
@@ -333,11 +336,12 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                         .map(t -> new ComponentToken(t.text(), t.role().name())).toList();
         ExampleView example = exampleParts[0] == null ? null : new ExampleView(exampleParts[0], exampleParts[1]);
 
-        List<String> words = exampleParts[0] == null ? List.of() : GrammarTextAnalyzer.splitWords(exampleParts[0]);
-        boolean orderingDone = p != null && p.isOrderingDone();
-        boolean fillDone = p != null && p.isFillDone();
-        OrderingPractice ordering = buildOrderingView(member.getCanonicalId(), words, orderingDone);
-        FillPractice fill = buildFillView(words, fillDone);
+        Practice practice = GrammarPhraseSegmenter.practice(exampleParts[0], pattern);
+        boolean orderingDone = reveal || p != null && p.isOrderingDone();
+        boolean fillDone = reveal || p != null && p.isFillDone();
+        OrderingPractice ordering = buildOrderingView(member.getCanonicalId(), practice.parts(), orderingDone);
+        FillPractice fill = practice.parts().isEmpty() ? new FillPractice(null, fillDone) : new FillPractice(practice.prompt(), fillDone,
+                fillDone ? practice.answer() : null);
 
         boolean gateSatisfied = orderingDone && fillDone;
         String note = point == null || point.getNote() == null || point.getNote().isBlank() ? null : point.getNote();
@@ -352,20 +356,10 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         return new OrderingPractice(view, completed);
     }
 
-    private FillPractice buildFillView(List<String> words, boolean completed) {
-        if (words.isEmpty()) return new FillPractice(null, completed);
-        int blankIndex = GrammarTextAnalyzer.chooseBlankIndex(words);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < words.size(); i++) {
-            if (i > 0) sb.append(' ');
-            sb.append(i == blankIndex ? "_____" : words.get(i));
-        }
-        return new FillPractice(sb.toString(), completed);
-    }
-
-    private List<String> exampleWords(GrammarPoint point) {
-        String[] parts = splitFirstLine(point.getExample());
-        return parts[0] == null ? List.of() : GrammarTextAnalyzer.splitWords(parts[0]);
+    /** Ordering parts and fill blank of the point's first example line: spaced JLPT units as they are, plain communication
+     * sentences cut into phrase chunks with the pattern as the blank (owner 2026-10-21). */
+    private Practice practice(GrammarPoint point) {
+        return GrammarPhraseSegmenter.practice(splitFirstLine(point.getExample())[0], point.getPattern());
     }
 
     private String meaningExplanation(GrammarPoint point) {
