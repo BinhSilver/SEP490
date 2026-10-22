@@ -301,6 +301,22 @@ class JpaLearningScopeSourceTest {
                 assessed, target, "JLPT", 30, List.of(), List.of(), survey, band);
     }
 
+    /** Owner 2026-10-21 (OD-11): supplementary LP-REVIEWED books stay in the stage but come after its core book. */
+    @Test
+    void supplementaryReviewedBooksComeAfterTheCoreBookOfTheirStage() {
+        var supplement = book("N4", "Đã duyệt — Học liệu bổ sung N4");
+        supplement.setSourceCode("LP-REVIEWED-SPEED-N4");
+        var core = book("N4", "Learning N4 — Sekai N4");
+        core.setSourceCode("LP-OWNED-SEKAI-N4-CORE");
+        em.flush();
+        em.clear();
+        assertTrue(supplement.getId() < core.getId(), "the supplement has the lower id, as tb19 < tb4000002");
+
+        var result = scope.resolve(7L, snapshot("N4", "N4", "N4", "N4 Nhập môn"));
+
+        assertEquals(List.of(core.getId(), supplement.getId()), result.goalTextbookIds());
+    }
+
     private Textbook book(String level, String title) {
         var b = Textbook.builder().title(title).jlptLevel(level).status("PUBLISHED")
                 .isLearningPathSource(true).build();

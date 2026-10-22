@@ -103,6 +103,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     @Autowired(required = false)
     private InteractiveComprehensionPathUpgradeService comprehensionPathUpgrade;
     @Autowired(required = false)
+    private HeldComprehensionQuestionPruner heldQuestionPruner;
+    @Autowired(required = false)
     private InteractiveCommunicationPathUpgradeService communicationPathUpgrade;
     @Autowired(required = false)
     private com.jlas.learning.service.CommunicationGuideService communicationGuides;
@@ -121,6 +123,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "EMPTY_LESSON: Lộ trình chưa có package học hợp lệ.");
         }
+        // OD-09: checks switched off at the source leave unstarted activities before the shape upgrade inspects them.
+        if (heldQuestionPruner != null) heldQuestionPruner.prune(userId, path);
         if (comprehensionPathUpgrade != null) comprehensionPathUpgrade.reconcile(userId, path);
         if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         unlockCurrentChapterSegments(packageEntities);

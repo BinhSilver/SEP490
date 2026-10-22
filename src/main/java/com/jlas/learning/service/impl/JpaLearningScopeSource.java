@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Primary
 @RequiredArgsConstructor
 public class JpaLearningScopeSource implements LearningScopeSource {
+    private static final String SUPPLEMENTARY_PREFIX = "LP-REVIEWED-";
     private final TextbookRepository textbooks;
     private final JlptPathPolicy pathPolicy = new JlptPathPolicy();
 
@@ -116,8 +117,10 @@ public class JpaLearningScopeSource implements LearningScopeSource {
         List<String> openDraftLevels = levels.stream().filter(DraftStudySourcePolicy.OPEN_DRAFT_LEVELS::contains).toList();
         if (!openDraftLevels.isEmpty()) {
             books.addAll(textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(openDraftLevels, "DRAFT"));
-            books.sort(Comparator.comparing(Textbook::getId));
         }
+        // Owner 2026-10-21 (OD-11): supplementary LP-REVIEWED books close their stage, after the core book.
+        books.sort(Comparator.comparing((Textbook book) -> book.getSourceCode() != null
+                && book.getSourceCode().startsWith(SUPPLEMENTARY_PREFIX)).thenComparing(Textbook::getId));
         return books;
     }
 
