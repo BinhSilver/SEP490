@@ -405,11 +405,8 @@
         currentStudy = await api('/study');
         currentGate = null;
         try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
-        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
-          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/foundation', id,
-            '<section class="ilp-result"><h1>Đã hoàn thành phần này</h1>' +
-            '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>');
-        } else showStudy();
+        // Owner 2026-10-21: a finished part reopens on its own page, never on an empty result screen.
+        showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
@@ -445,6 +442,7 @@
     }
 
     node.addEventListener('click', async function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
       if (event.target.closest('[data-retry]')) return loadStudy();
       var tab = event.target.closest('[data-study-tab]');
       if (tab && currentStudy) {
@@ -561,8 +559,10 @@
               resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
           } catch (historyError) { /* Keep the scored result usable if optional history is unavailable. */ }
         }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần ' + 'Bảng chữ cái' + '.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });

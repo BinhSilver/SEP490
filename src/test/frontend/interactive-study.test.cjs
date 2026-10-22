@@ -221,10 +221,22 @@ test('allows early check after the UI confirmation and keeps post-failure review
   assert.match(gated, /cần ôn lại/);
 });
 
-test('communication vocabulary uses flashcards only and exposes no quiz action', () => {
+// Owner 2026-10-21: communication vocabulary is finished with a button on the content page — no need to flip every card —
+// and a finished part keeps its page (cards still browsable) instead of an empty result screen.
+test('communication vocabulary offers a mark-complete button, no quiz and no technical eyebrow', () => {
   const html = page.renderStudy(page.viewModel(study({ checkRequired: false })), null);
-  assert.match(html, /Xem hết các thẻ để hoàn thành phần Từ vựng của tình huống/);
+  assert.match(html, /data-mark-studied>Đánh dấu hoàn thành</);
   assert.doesNotMatch(html, /data-check|Bắt đầu kiểm tra|kiểm tra ngay/);
+  assert.doesNotMatch(html, /VOCABULARY \/\/|Xem hết các thẻ/);
+});
+
+test('finished communication vocabulary keeps its words and flashcards and says it is done', () => {
+  const html = page.renderStudy(page.viewModel(study({ checkRequired: false, activityState: 'PASSED' })), null);
+  assert.match(html, /ilp-done-pill">Đã hoàn thành</);
+  assert.match(html, /ilp-study-items__word">時間</);
+  assert.match(html, /class="ilp-flashcards"/);
+  assert.match(html, /data-studied-done>Bạn đã hoàn thành phần Từ vựng này\. <a href="\/learning\/path\/v2">Về lộ trình<\/a>/);
+  assert.doesNotMatch(html, /data-mark-studied|Phần từ vựng đã đạt/);
 });
 
 test('renders every question with 1-based options and never exposes an answer key', () => {

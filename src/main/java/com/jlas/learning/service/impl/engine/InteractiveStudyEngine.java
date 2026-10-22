@@ -101,6 +101,21 @@ public class InteractiveStudyEngine<T> {
         return buildStudyState(activity, session, membership);
     }
 
+    /** Owner 2026-10-21: a communication learner may finish the part from its content page without flipping every card.
+     * Scored JLPT parts keep their check, so they refuse this. */
+    public EngineStudyState<T> markStudied(Long userId, Long activityId) {
+        UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
+        if (!GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Phần này hoàn thành qua bài kiểm tra.");
+        }
+        List<LearningActivityMember> membership = loadMembership(activity);
+        LearningStudySession session = getOrCreateSession(activity, revisionOf(membership), membership);
+        if (activity.getActivityState() == LearningActivityState.STUDYING) {
+            activity.setActivityState(LearningActivityState.PASSED);
+        }
+        return buildStudyState(activity, session, membership);
+    }
+
     public EngineStudyState<T> remember(Long userId, Long activityId, Long memberId, boolean remembered) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
         List<LearningActivityMember> membership = loadMembership(activity);

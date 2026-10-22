@@ -236,6 +236,16 @@
       '<span class="ilp-comprehension__progress-badge">Bài ' + (num(replay.batchIndex) + 1) + '/' + num(replay.batchCount) +
       '</span></header>' + renderSourcePanel(sourceView(activityType, replay.source), false, false) + renderCheckForm(replay) + '</section>';
   }
+  /** A finished Reading/Listening part: its sources as studied, then the saved attempts with the learner's answers. */
+  function renderDoneLesson(sources, attempts, activityType, actions) {
+    var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
+    var title = activityType === 'LISTENING' ? 'Nghe hiểu' : 'Đọc hiểu';
+    return '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div><h1>' + title +
+      ' <span class="ilp-done-pill">Đã hoàn thành</span></h1><p>Bài và câu trả lời của bạn được giữ nguyên để xem lại.</p></div></header>' +
+      (Array.isArray(sources) && sources.length ? renderStoredSources(sources, activityType) : '') +
+      (StudyMode && Array.isArray(attempts) && attempts.length ? StudyMode.attemptHistory(attempts) : '') +
+      '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>' + (actions || '') + '</div></section>';
+  }
   // [JLAS-W0108] REVIEW is the lesson replay, not the quiz-history screen. Each batch reuses the frozen
   // source it was actually asked against, but deliberately omits scores, answers and explanations.
   function renderReview(feedback, activityType) {
@@ -553,8 +563,11 @@
         currentReviewRequired = v.reviewRequired;
         evidenceSent = false;
         if (v.passed) {
-          await StudyMode.restoreCompletedResult(node, api, fallbackPath, id,
-            renderPassed(v.activityType, PASSED_ACTIONS));
+          // Owner 2026-10-21: a finished part reopens on its passages and the learner's saved answers, not an empty screen.
+          var doneSources = [], doneAttempts = [];
+          try { doneSources = await api('/review/attempts'); } catch (e) { doneSources = []; }
+          try { doneAttempts = await api('/attempt-history'); } catch (e) { doneAttempts = []; }
+          node.innerHTML = renderDoneLesson(doneSources, doneAttempts, v.activityType, PASSED_ACTIONS);
         }
         else if (shouldOpenInlineQuestions(v)) {
           var inlineCheck = await postJson('/micro-check');
@@ -624,8 +637,10 @@
             }
           } catch (historyError) { /* Keep the current quiz result usable if history is unavailable. */ }
         }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần ' + (currentType === 'LISTENING' ? 'Nghe hiểu' : 'Đọc hiểu') + '.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
     });
@@ -706,7 +721,7 @@
     renderSourcePanel: renderSourcePanel,
     renderEvidenceList: renderEvidenceList, renderStudy: renderStudy, renderCheckForm: renderCheckForm,
     showQuestionPage: showQuestionPage,
-    renderCheckScreen: renderCheckScreen, renderResult: renderResult, renderPassed: renderPassed,
+    renderCheckScreen: renderCheckScreen, renderResult: renderResult, renderPassed: renderPassed, renderDoneLesson: renderDoneLesson,
     renderPractice: renderPractice, renderReview: renderReview, renderPracticeSources: renderPracticeSources,
     error: error, mount: mount
   };

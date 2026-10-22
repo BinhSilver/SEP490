@@ -83,3 +83,14 @@ test('completed lesson without a saved passing attempt keeps its fallback', asyn
   await studyMode.restoreCompletedResult(node, async () => [], '/learning/v2/reading', 42, 'fallback');
   assert.equal(node.innerHTML, 'fallback');
 });
+
+// Owner 2026-10-21: finishing a part keeps the page and adds a congratulation popup instead of an empty screen.
+test('the congratulation popup is a labelled dialog with a roadmap link and a way to stay on the page', () => {
+  const html = studyMode.celebrationHtml('Chúc mừng!', 'Bạn đã hoàn thành phần <Từ vựng>.');
+  assert.match(html, /role="dialog" aria-modal="true" aria-labelledby="ilpCelebrateTitle"/);
+  assert.match(html, /<h2 id="ilpCelebrateTitle">Chúc mừng!<\/h2>/);
+  assert.match(html, /Bạn đã hoàn thành phần &lt;Từ vựng&gt;\./);
+  assert.match(html, /class="ilp-result__actions"><a class="ilp-check" href="\/learning\/path\/v2">Về lộ trình<\/a>/);
+  assert.match(html, /data-celebrate-close>Ở lại trang này</);
+  assert.match(html, /<canvas class="ilp-celebrate__canvas" aria-hidden="true">/);
+});

@@ -373,7 +373,119 @@
     });
   }
 
+  // Owner 2026-10-21: finishing a part keeps the study page as it is and only adds a congratulation popup with confetti —
+  // never an empty "HOÀN THÀNH" screen. One popup per completion; reopening a finished part shows the page, no popup.
+  var CELEBRATE_STYLE = '.ilp-celebrate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:16px;' +
+    'background:color-mix(in srgb,var(--color-on-surface,#161d1f) 38%,transparent)}' +
+    '.ilp-celebrate__canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}' +
+    '.ilp-celebrate__card{position:relative;width:min(420px,100%);padding:26px 24px 22px;border-radius:18px;text-align:center;' +
+    'background:var(--color-surface-lowest,#fff);color:var(--color-on-surface,#161d1f);box-shadow:0 18px 50px rgba(30,20,60,.25)}' +
+    '.ilp-celebrate__icon{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 10px;border-radius:50%;font-size:28px;' +
+    'background:var(--color-primary-fixed,#e9ddff);color:var(--color-primary,#4f378a)}' +
+    '.ilp-celebrate__card h2{margin:0 0 6px;color:var(--color-primary,#4f378a);font-size:22px}' +
+    '.ilp-celebrate__card p{margin:0 0 18px;color:var(--color-on-surface-variant,#494551)}' +
+    '.ilp-celebrate .ilp-result__actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0}' +
+    '.ilp-celebrate__stay{min-height:40px;padding:8px 16px;border:1px solid var(--color-outline-variant,#cbc4d2);border-radius:10px;' +
+    'background:var(--color-surface-lowest,#fff);color:var(--color-primary,#4f378a);font-weight:600;cursor:pointer}' +
+    '.ilp-celebrate :focus-visible{outline:3px solid var(--color-focus,#4f378a);outline-offset:2px}';
+  var CONFETTI_COLORS = ['#4f378a', '#6750a4', '#b69df8', '#e9ddff', '#7ad5a0', '#f48fb1'];
+
+  function celebrationHtml(title, message) {
+    return '<div class="ilp-celebrate" role="dialog" aria-modal="true" aria-labelledby="ilpCelebrateTitle" data-celebrate>' +
+      '<canvas class="ilp-celebrate__canvas" aria-hidden="true"></canvas><section class="ilp-celebrate__card" tabindex="-1">' +
+      '<span class="ilp-celebrate__icon" aria-hidden="true">🎉</span><h2 id="ilpCelebrateTitle">' + esc(title || 'Chúc mừng!') + '</h2>' +
+      '<p>' + esc(message || 'Bạn đã hoàn thành phần học này.') + '</p><div class="ilp-result__actions">' +
+      '<a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>' +
+      '<button class="ilp-celebrate__stay" type="button" data-celebrate-close>Ở lại trang này</button></div></section></div>';
+  }
+
+  function confetti(canvas, browser) {
+    if (!canvas || !canvas.getContext || !browser || !browser.requestAnimationFrame) return;
+    if (browser.matchMedia && browser.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var ctx = canvas.getContext('2d');
+    var width = canvas.width = browser.innerWidth, height = canvas.height = browser.innerHeight;
+    var pieces = [];
+    for (var i = 0; i < 140; i++) {
+      pieces.push({ x: width / 2 + (Math.random() - 0.5) * width * 0.3, y: height * 0.35, size: 5 + Math.random() * 6,
+        vx: (Math.random() - 0.5) * 14, vy: -6 - Math.random() * 9, spin: Math.random() * Math.PI,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length] });
+    }
+    var started = null;
+    function frame(time) {
+      if (started === null) started = time;
+      var elapsed = time - started;
+      ctx.clearRect(0, 0, width, height);
+      pieces.forEach(function (p) {
+        p.vy += 0.32; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.spin += 0.18;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.spin); ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, 1 - elapsed / 2600);
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2); ctx.restore();
+      });
+      if (elapsed < 2600 && canvas.isConnected) browser.requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, width, height);
+    }
+    browser.requestAnimationFrame(frame);
+  }
+
+  /** Shows the congratulation popup over the page (which stays as it is) and offers the next lesson when the path has one. */
+  function celebrate(node, options) {
+    options = options || {};
+    var browser = root || (typeof window !== 'undefined' ? window : null);
+    if (!node || !browser || !browser.document) return null;
+    var doc = browser.document;
+    if (!doc.getElementById('ilpCelebrateStyle')) {
+      var style = doc.createElement('style');
+      style.id = 'ilpCelebrateStyle';
+      style.textContent = CELEBRATE_STYLE;
+      doc.head.appendChild(style);
+    }
+    var old = doc.querySelector('[data-celebrate]');
+    if (old) old.remove();
+    var opener = doc.activeElement;
+    doc.body.insertAdjacentHTML('beforeend', celebrationHtml(options.title, options.message));
+    var popup = doc.querySelector('[data-celebrate]');
+    var close = function () {
+      popup.remove();
+      doc.removeEventListener('keydown', onKey);
+      if (opener && typeof opener.focus === 'function' && doc.body.contains(opener)) opener.focus();
+    };
+    var onKey = function (event) {
+      if (event.key === 'Escape') close();
+      if (event.key !== 'Tab') return;
+      var focusable = Array.prototype.slice.call(popup.querySelectorAll('a[href], button:not([disabled])'));
+      if (!focusable.length) return;
+      var index = focusable.indexOf(doc.activeElement);
+      if (event.shiftKey ? index <= 0 : index === focusable.length - 1) {
+        event.preventDefault();
+        focusable[event.shiftKey ? focusable.length - 1 : 0].focus();
+      }
+    };
+    popup.addEventListener('click', function (event) {
+      if (event.target === popup || event.target.closest('[data-celebrate-close]')) close();
+    });
+    doc.addEventListener('keydown', onKey);
+    var first = popup.querySelector('.ilp-result__actions a, .ilp-result__actions button');
+    if (first) first.focus();
+    confetti(popup.querySelector('canvas'), browser);
+    if (options.activityId) {
+      bindNextAction(popup);
+      showNextAction(popup, options.activityId);
+    }
+    return popup;
+  }
+
+  /** Owner 2026-10-21: lookup works on Japanese inside cards, tiles and options too. A click that ends a text
+   * selection there is the learner looking a word up, not flipping the card or choosing the option. */
+  function isSelectingText(node) {
+    var browser = root || (typeof window !== 'undefined' ? window : null);
+    var selection = browser && browser.getSelection ? browser.getSelection() : null;
+    if (!selection || selection.isCollapsed || !String(selection).trim()) return false;
+    var anchor = selection.anchorNode;
+    return !!(anchor && node && node.contains(anchor.nodeType === 3 ? anchor.parentNode : anchor));
+  }
+
   return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, passedActions: passedActions,
+    celebrate: celebrate, celebrationHtml: celebrationHtml, isSelectingText: isSelectingText,
     practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList,
     reviewGateActions: reviewGateActions,
     attemptHistory: attemptHistory, bindAttemptHistory: bindAttemptHistory, loadSavedResults: loadSavedResults,

@@ -73,6 +73,12 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
 
     @Override
     @Transactional
+    public VocabularyStudyState markStudied(Long userId, Long activityId) {
+        return toDto(engine.markStudied(userId, activityId));
+    }
+
+    @Override
+    @Transactional
     public VocabularyStudyState remember(Long userId, Long activityId, Long memberId, boolean remembered) {
         return toDto(engine.remember(userId, activityId, memberId, remembered));
     }

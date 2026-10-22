@@ -168,6 +168,35 @@ class InteractiveVocabularyServiceTest {
         verifyNoInteractions(checkStates, quizSessions);
     }
 
+    /** Owner 2026-10-21: a communication learner finishes vocabulary from the content page without flipping every card. */
+    @Test void communicationVocabularyCanBeMarkedStudiedBeforeEveryCardIsFlipped() {
+        var activity = vocabActivity(1L, 7L);
+        activity.getLearningPath().setGoal("BA");
+        var member = member(1L, 1, 101L);
+        var session = LearningStudySession.builder().id(10L).activity(activity).sourceRevision("rev").build();
+        var card = LearningStudyCard.builder().id(20L).session(session).canonicalId(101L).orderIndex(1).build();
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+        when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member));
+        when(studySessions.findByActivityId(1L)).thenReturn(Optional.of(session));
+        when(studySessions.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(studyCards.findBySessionIdOrderByOrderIndex(10L)).thenReturn(List.of(card));
+        when(vocabularyRepo.findAllById(any())).thenReturn(List.of(vocab(101L, "時間", "じかん", "thời gian")));
+
+        var result = service.markStudied(7L, 1L);
+
+        assertEquals(LearningActivityState.PASSED, result.activityState());
+        assertEquals(0, result.flippedCount(), "no card was flipped on the learner's behalf");
+        verifyNoInteractions(checkStates, quizSessions);
+    }
+
+    @Test void jlptVocabularyCannotBeMarkedStudiedAndKeepsItsCheck() {
+        var activity = vocabActivity(1L, 7L);
+        when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
+
+        assertEquals(ErrorCode.CONFLICT, assertThrows(ApiException.class, () -> service.markStudied(7L, 1L)).getErrorCode());
+        assertEquals(LearningActivityState.STUDYING, activity.getActivityState());
+    }
+
     // ---- Micro-check issue ----
 
     @Test void issueBatchesAndCoversEveryTargetBeforeAnyCardWasViewed() {

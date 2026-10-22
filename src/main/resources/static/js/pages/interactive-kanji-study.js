@@ -539,9 +539,8 @@
         currentStudy = await api('/study');
         currentGate = null;
         try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
-        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
-          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/kanji', id, renderPassed(PASSED_ACTIONS));
-        } else showStudy();
+        // Owner 2026-10-21: a finished part reopens on its own page, never on an empty result screen.
+        showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
@@ -567,6 +566,7 @@
     }
 
     node.addEventListener('click', async function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
       var tab = event.target.closest('[data-study-tab]');
       if (tab) {
         selectedTab = tab.dataset.studyTab;
@@ -757,8 +757,10 @@
               resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
           } catch (historyError) { /* Keep the scored result usable if optional history is unavailable. */ }
         }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần ' + 'Kanji' + '.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });

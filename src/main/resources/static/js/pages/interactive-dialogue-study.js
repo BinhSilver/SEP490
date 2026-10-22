@@ -516,6 +516,9 @@
         if (current) { current.practicedCount = v.practicedCount; current.totalLines = v.totalLines; }
         node.innerHTML = renderCompleted(id, v.lineByLinePractice, current);
         if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id);
+        if (StudyMode && StudyMode.celebrate) {
+          StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã hoàn thành phần Hội thoại.', activityId: id });
+        }
       }
     }
 

@@ -368,7 +368,7 @@
     var modeApi = StudyMode ? StudyMode.endpoints(mode) : StudyMode;
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
-    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['REVIEW', 'PRACTICE']) : '';
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/grammar', id, ['REVIEW', 'PRACTICE', 'RESULTS']) : '';
     var orderState = {};
     var feedback = {};
     var extraStates = {};
@@ -499,13 +499,20 @@
           return;
         }
         var study = await api('/study');
+        var wasDone = currentStudy && (currentStudy.activityState === 'PASSED' || currentStudy.activityState === 'COMPLETED');
         currentStudy = viewModel(study);
         var gate = null;
         if (currentStudy.checkRequired) {
           try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
         }
-        if ((gate && gate.passed) || currentStudy.activityState === 'PASSED') {
-          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/grammar', id, renderPassed(PASSED_ACTIONS));
+        // Owner 2026-10-21: a finished part stays on its page (solved) and the moment of finishing gets a popup.
+        var done = (gate && gate.passed) || currentStudy.activityState === 'PASSED' || currentStudy.activityState === 'COMPLETED';
+        lastGate = gate;
+        node.innerHTML = renderStudy(currentStudy, gate, orderState, feedback, mode, extraStates) +
+          (done && currentStudy.checkRequired ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
+        if (done && wasDone === false && StudyMode && StudyMode.celebrate) {
+          StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã hoàn thành phần ' +
+            (currentStudy.checkRequired ? 'Ngữ pháp' : 'Mẫu câu') + '.', activityId: id });
         }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
@@ -651,8 +658,10 @@
               resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
           } catch (historyError) { /* Keep the current quiz result usable if history is unavailable. */ }
         }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần Ngữ pháp.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });

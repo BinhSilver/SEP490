@@ -202,7 +202,8 @@ test('progress panel marks both evidence items done only when both are true', ()
   assert.match(html, /Bạn đã hoàn thành phần hội thoại này\./);
 });
 
-test('renders a completion state with a return-to-roadmap action', () => {
+// Owner 2026-10-21: a finished dialogue keeps its page; the "đã đạt" screen is gone (a popup celebrates instead).
+test('renders a completion state with a return-to-roadmap action and no empty result screen', () => {
   const html = page.renderCompleted(17);
   assert.match(html, /Phần Hội thoại đã đạt/);
   assert.match(html, /href="\/learning\/path\/v2"/);

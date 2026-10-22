@@ -123,6 +123,14 @@
 
   // Study view. `gate` is the optional server micro-check state; the check action only opens when the
   // server says every card is remembered AND the batch is attemptable (no cooldown / review pending).
+  function studiedDone(v) { return v.activityState === 'PASSED' || v.activityState === 'COMPLETED'; }
+  /** Owner 2026-10-21: communication vocabulary has no quiz; the learner may finish it here without flipping every card. */
+  function markStudiedBlock(v) {
+    return studiedDone(v)
+      ? '<p class="ilp-study__done" data-studied-done>Bạn đã hoàn thành phần Từ vựng này. <a href="/learning/path/v2">Về lộ trình</a></p>'
+      : '<button class="ilp-check" type="button" data-mark-studied>Đánh dấu hoàn thành</button>';
+  }
+
   function renderStudy(v, gate, activeTab, partIndex, ui) {
     activeTab = activeTab === 'flashcards' ? 'flashcards' : 'content';
     ui = ui || {};
@@ -165,10 +173,12 @@
           '<span>' + (partCards.length ? browseIndex + 1 : 0) + '/' + partCards.length + ' trong phần này</span>' +
           '<button type="button" data-browse-step="1"' + (browseIndex >= partCards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' + gateNote +
           (readOnly || gate && gate.passed || !v.checkRequired ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>') +
-          (!readOnly && !v.checkRequired ? '<p class="ilp-result__pass">Xem hết các thẻ để hoàn tất kỹ năng này; tình huống giao tiếp không có bài kiểm tra.</p>' : '');
+          (!readOnly && !v.checkRequired ? markStudiedBlock(v) : '');
     return '<section class="ilp-study">' +
-      '<header class="ilp-study__head"><div><span class="ilp-kicker">VOCABULARY // ' +
-      (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Từ vựng</h1>' + partLabel(v) +
+      '<header class="ilp-study__head"><div>' + (v.checkRequired === false
+        ? '' : '<span class="ilp-kicker">VOCABULARY // ' +
+      (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span>') +
+      '<h1>Từ vựng' + (v.checkRequired === false && studiedDone(v) ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' + partLabel(v) +
       '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p></div>' +
       '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
@@ -433,7 +443,11 @@
     function renderRehearsal() {
       node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
     }
-    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/vocabulary', id, ['REVIEW', 'PRACTICE']) : '';
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/vocabulary', id, ['REVIEW', 'PRACTICE', 'RESULTS']) : '';
+    function celebrateIfFinished(wasDone) {
+      if (wasDone || !currentStudy || !studiedDone(currentStudy) || !StudyMode || !StudyMode.celebrate) return;
+      StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã hoàn thành phần Từ vựng.', activityId: id });
+    }
     function showStudy() {
       if (mode === 'PRACTICE') return renderRehearsal();
       if (mode === 'REVIEW' && reviewStudy) {
@@ -441,10 +455,6 @@
         return;
       }
       if (!currentStudy) return;
-      if (currentStudy.activityState === 'PASSED' && currentStudy.checkRequired === false) {
-        node.innerHTML = renderPassed(PASSED_ACTIONS);
-        return;
-      }
       node.innerHTML = renderStudy(viewModel(currentStudy), currentGate, selectedTab, selectedPart, flashUi) +
         (currentGate && currentGate.passed ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
     }
@@ -558,9 +568,8 @@
         if (currentStudy.checkRequired !== false) {
           try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
         }
-        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
-          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/vocabulary', id, renderPassed(PASSED_ACTIONS));
-        } else showStudy();
+        // Owner 2026-10-21: a finished part reopens on its own page (done state), never on an empty result screen.
+        showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
@@ -584,6 +593,18 @@
     }
 
     node.addEventListener('click', async function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
+      var markStudied = event.target.closest('[data-mark-studied]');
+      if (markStudied) {
+        if (markStudied.disabled) return;
+        markStudied.disabled = true;
+        var doneBefore = studiedDone(currentStudy);
+        try { currentStudy = await api('/complete', { method: 'POST' }); }
+        catch (e) { markStudied.disabled = false; node.innerHTML = error(e.message); return; }
+        showStudy();
+        celebrateIfFinished(doneBefore);
+        return;
+      }
       var tab = event.target.closest('[data-study-tab]');
       if (tab) {
         selectedTab = tab.dataset.studyTab;
@@ -710,9 +731,15 @@
           if (!shouldPersistFlip(mode, flashUi.mode)) StudyMode.rehearseCard(rehearsalState, flip.dataset.card, 'flip');
           else {
             flipPending = true;
+            var doneBeforeFlip = studiedDone(currentStudy);
             try { currentStudy = await api('/cards/' + encodeURIComponent(flip.dataset.card) + '/flip', { method: 'POST' }); }
             catch (e) { node.innerHTML = error(e.message); return; }
             finally { flipPending = false; }
+            flashUi.browseFlipped = !flashUi.browseFlipped;
+            flashUi.turning = true;
+            showStudy();
+            celebrateIfFinished(doneBeforeFlip);
+            return;
           }
         }
         flashUi.browseFlipped = !flashUi.browseFlipped;
@@ -798,8 +825,10 @@
           var resultPanel = node.querySelector('.ilp-result');
           if (resultPanel && attempts && attempts.length) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
         } catch (historyError) { /* Keep the current quiz result usable if the optional history request fails. */ }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần Từ vựng.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });
