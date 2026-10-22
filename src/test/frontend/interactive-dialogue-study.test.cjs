@@ -471,3 +471,41 @@ test('communication dialogues with aids offer the optional challenge on the stud
   assert.doesNotMatch(page.renderScript(page.viewModel(study()), {}), /data-challenge-start/);
   assert.doesNotMatch(page.renderCompleted(1, false), /data-challenge-start/);
 });
+
+test('a challenge turn the learner opens says so instead of showing an empty cue', () => {
+  const v = page.viewModel(aidStudy());
+  const view = challengeView();
+  view.turns[0].lineId = v.lines[0].lineId;
+  const html = page.renderChallenge(view, v.lines, { turn: 0, answers: [] }, {});
+  assert.match(html, /ilp-challenge__cue is-opening"><p class="ilp-challenge__cue-label">Bạn là người mở lời\./);
+  assert.match(html, /<h2>Bạn sẽ mở lời thế nào\?<\/h2>/);
+});
+
+test('phrase cards sit in a compact grid and each "find" action names the phrase it flashes', () => {
+  const html = page.renderScript(page.viewModel(aidStudy()), {});
+  assert.match(html, /<ul class="ilp-dialogue__phrase-grid">/);
+  assert.match(html, /data-jump-line="202" data-jump-phrase="[^"]+"/);
+  assert.doesNotMatch(html, /HỘI THOẠI \/\//, 'no technical eyebrow on a communication dialogue');
+});
+
+// Owner 2026-10-21: the challenge is headed by its situation's name, also on its result screen.
+test('the challenge and its result name the situation', () => {
+  const v = page.viewModel(aidStudy());
+  const view = Object.assign(challengeView(), { situationTitle: 'Sắp xếp <lịch> họp' });
+  assert.match(page.renderChallenge(view, v.lines, { turn: 0, answers: [] }, {}), /<h1>Sắp xếp &lt;lịch&gt; họp<\/h1>/);
+  assert.match(page.renderChallengeResult({ cleared: true }, view), /Tình huống: Sắp xếp &lt;lịch&gt; họp/);
+  assert.match(page.renderChallenge(challengeView(), v.lines, { turn: 0, answers: [] }, {}), /<h1>Thử thách vượt ải<\/h1>/);
+});
+
+test('OD-10: Sekai audio is labelled as a synthetic voice but not as J-LAS supplementary content', () => {
+  const html = page.renderScript(page.viewModel(study({
+    lines: [line({ audioUrl: '/uploads/content-audio/sekai-n5/audio/chuan-nu/abc-chuan-nu.mp3' })] })));
+  assert.match(html, /Giọng đọc tiếng Nhật tổng hợp/);
+  assert.doesNotMatch(html, /Nội dung bổ sung J-LAS/);
+});
+
+test('OD-10: other recorded audio carries no synthetic-voice note', () => {
+  const html = page.renderScript(page.viewModel(study({
+    lines: [line({ audioUrl: '/uploads/content-audio/vnjpclub/audio/a.mp3' })] })));
+  assert.doesNotMatch(html, /tổng hợp/i);
+});

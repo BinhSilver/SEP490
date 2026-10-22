@@ -61,6 +61,7 @@
     return {
       activityId: data.activityId, partIndex: num(data.partIndex), partCount: num(data.partCount),
       activityState: data.activityState,
+      meaningAttribution: data.meaningAttribution || null,
       totalCards: num(data.totalCards),
       flippedCount: num(data.flippedCount),
       rememberedCount: num(data.rememberedCount),
@@ -77,6 +78,13 @@
     return '<span class="ilp-chip">' + esc(label) + ': ' + esc(values.join('、')) + '</span>';
   }
 
+  // Owner 2026-10-21 (OD-13): with no Vietnamese meaning, the KANJIDIC2 English meanings stand in, credited on the page.
+  function meaningHtml(card, className) {
+    if (card.meaningVi) return '<span class="' + className + '">' + esc(card.meaningVi) + '</span>';
+    if (card.meaningEn) return '<span class="' + className + '" lang="en">' + esc(card.meaningEn) + '</span>';
+    return '';
+  }
+
   function cardFace(card) {
     if (!card) return '<div class="ilp-card__empty"><h2>Chưa có thẻ Kanji</h2></div>';
     return '<div class="ilp-card__inner"><div class="ilp-card__front"' + (card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
@@ -86,7 +94,7 @@
       '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span></div>' +
       '<div class="ilp-card__back"' + (!card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
         '<span class="ilp-kanji-glyph">' + esc(card.character) + '</span>' +
-        '<span class="ilp-card__meaning">' + esc(card.meaningVi) + '</span>' +
+        meaningHtml(card, 'ilp-card__meaning') +
         '<div class="ilp-kanji-details">' +
         (card.hanViet ? '<span class="ilp-chip">' + esc(card.hanViet) + '</span>' : '') +
         (card.jlptLevel ? '<span class="ilp-chip">' + esc(card.jlptLevel) + '</span>' : '') +
@@ -98,7 +106,7 @@
   function renderKanjiList(cards) {
     return '<ol class="ilp-study-items ilp-kanji-list">' + cards.map(function (card) {
       return '<li class="ilp-study-items__item"><span class="ilp-study-items__word">' + esc(card.character) + '</span>' +
-        '<span class="ilp-study-items__meaning">' + esc(card.meaningVi) + '</span>' +
+        meaningHtml(card, 'ilp-study-items__meaning') +
         (card.hanViet ? '<span class="ilp-study-items__reading">' + esc(card.hanViet) + '</span>' : '') +
         '<div class="ilp-kanji-list__readings">' + readingChip('On', card.onReadings) + readingChip('Kun', card.kunReadings) + '</div>' +
         '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.character) + '" aria-label="Nghe phát âm ' + esc(card.character) + '">🔊</button></li>';
@@ -171,6 +179,7 @@
         return '<button type="button" data-study-part="' + index + '" aria-current="' + (index === partIndex) + '">Phần ' + (index + 1) + '</button>';
       }).join('') + '</div>' : '') +
       renderKanjiList(groups[partIndex] || []) +
+      (v.meaningAttribution ? '<p class="ilp-source-note">' + esc(v.meaningAttribution) + '</p>' : '') +
       // [JLAS-W0193] §2.6 — the quiz entry must be visible on the content tab too, not only inside the
       // flashcard panel; hidden entirely once the activity is passed or the view is read-only (review).
       (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next">' +

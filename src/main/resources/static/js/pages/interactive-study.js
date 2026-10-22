@@ -189,9 +189,13 @@
       '<section role="tabpanel"' + (activeTab === 'content' ? '' : ' hidden') + '><h2>Các từ trong phần này</h2>' +
       partNavigation(groups, partIndex) +
       renderVocabularyList(groups[partIndex] || []) +
-      (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next"><button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
-        (v.checkRequired ? '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button><p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p>' :
-          '<p>Xem hết các thẻ để hoàn thành phần Từ vựng của tình huống.</p>') + '</div>') + '</section>' +
+      // Owner 2026-10-21 (OD-10): the 🔊 buttons use the browser's Japanese speech, said as such.
+      '<p class="ilp-source-note">Phát âm bằng giọng đọc tiếng Nhật tổng hợp.</p>' +
+      (readOnly || gate && gate.passed ? '' : v.checkRequired === false
+        ? '<div class="ilp-study__next"><button class="ilp-check ilp-check--ghost" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+          markStudiedBlock(v) + '</div>'
+        : '<div class="ilp-study__next"><button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+        '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button><p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p></div>') + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
       partNavigation(groups, partIndex) + flashContent +
       '</section>' +

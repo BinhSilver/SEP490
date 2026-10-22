@@ -17,6 +17,7 @@
 
   var HEARTBEAT_INTERVAL_MS = 15000;
 
+  function isSekaiAudio(line) { return /\/content-audio\/sekai-n\d\//.test(String(line && line.audioUrl || '')); }
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
   function list(value) { return Array.isArray(value) ? value : []; }
@@ -315,13 +316,18 @@
     var intro = v.lineByLinePractice
       ? 'Nghe từng lượt, tự nói theo rồi bấm “Tôi đã luyện câu này”. Chọn một vai để luyện đóng vai; bạn có thể tắt bản dịch khi đã quen.'
       : 'Đọc và nghe toàn bộ đoạn hội thoại, cuộn tới cuối để hoàn thành.';
+    // Owner 2026-10-21: communication dialogues drop the technical eyebrow; the required labels share one line.
+    var tts = v.lines.some(function (line) { return line.audioUrl === 'tts:ja-JP'; });
+    var label = v.aids && v.aids.label ? v.aids.label : tts ? 'Nội dung bổ sung J-LAS' : '';
+    // Owner 2026-10-21 (OD-10): Sekai mp3s are machine-read per their source; they are labelled as a synthetic voice.
+    var synthetic = tts || v.lines.some(isSekaiAudio);
     return '<section class="ilp-dialogue">' +
       '<header class="ilp-study__head"><div>' + (v.lineByLinePractice ? '' : '<span class="ilp-kicker">HỘI THOẠI // ' +
       (v.completed ? 'ĐÃ HOÀN THÀNH' : 'ĐANG LUYỆN TẬP') + '</span>') + '<h1>Luyện hội thoại' +
       (v.lineByLinePractice && v.completed ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' +
       '<p>' + esc(intro) + '</p></div></header>' + (v.lineByLinePractice ? renderToolbar(v, prefs) : '') +
-      (v.lines.some(function (line) { return line.audioUrl === 'tts:ja-JP'; })
-        ? '<p class="ilp-dialogue__audio-note">Nội dung bổ sung J-LAS · Giọng đọc tiếng Nhật tổng hợp</p>' : '') +
+      (label || synthetic ? '<p class="ilp-dialogue__audio-note">' + esc([label, synthetic ? 'Giọng đọc tiếng Nhật tổng hợp' : '']
+        .filter(Boolean).join(' · ')) + '</p>' : '') +
       '<p class="ilp-dialogue__audio-status" data-audio-status role="status" aria-live="polite"></p>' +
       (v.lineByLinePractice ? renderPhrases(v) : '') + (v.lineByLinePractice && v.aids ? CHALLENGE_CTA : '') +
       '<ol class="ilp-dialogue__script">' + lines + '</ol>' +
@@ -390,7 +396,8 @@
       (mode === 'REVIEW' ? 'XEM LẠI' : 'LUYỆN TẬP') + '</span><h1>' + title + '</h1>' +
       '<p>Đọc lại kịch bản và nghe các dòng có âm thanh.</p></div></header>' +
       (v.lines.some(function (line) { return line.audioUrl === 'tts:ja-JP'; })
-        ? '<p class="ilp-dialogue__audio-note">Nội dung bổ sung J-LAS · Giọng đọc tiếng Nhật tổng hợp</p>' : '') +
+        ? '<p class="ilp-dialogue__audio-note">Nội dung bổ sung J-LAS · Giọng đọc tiếng Nhật tổng hợp</p>'
+        : v.lines.some(isSekaiAudio) ? '<p class="ilp-dialogue__audio-note">Giọng đọc tiếng Nhật tổng hợp</p>' : '') +
       '<p class="ilp-dialogue__audio-status" data-audio-status role="status" aria-live="polite"></p>' +
       '<ol class="ilp-dialogue__script">' + lines + '</ol>' + renderSummary(v) +
       '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';

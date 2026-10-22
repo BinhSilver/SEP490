@@ -448,3 +448,8 @@ test('[JLAS-W0113] a draft that only unselects is stored as the empty selection 
   assert.doesNotMatch(html, /name="q-1" value="\d+" checked>/);
   assert.match(html, /data-draft-status/);
 });
+
+test('OD-10: vocabulary pronunciation says it is a synthetic voice', () => {
+  const html = page.renderStudy(page.viewModel(study()), null);
+  assert.match(html, /Phát âm bằng giọng đọc tiếng Nhật tổng hợp/);
+});

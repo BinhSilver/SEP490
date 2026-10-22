@@ -49,13 +49,25 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
     private static final String[] SELECT_TYPES = {"KANJI_TO_READING", "READING_TO_KANJI", "KANJI_TO_MEANING"};
 
     private final InteractiveStudyEngine<KanjiEntry> engine;
+    private final KanjiGlossCatalog gloss;
 
     public InteractiveKanjiServiceImpl(UserLearningPathItemRepository items, LearningActivityMemberRepository members,
             LearningStudySessionRepository studySessions, LearningStudyCardRepository studyCards,
             LearningMicroCheckStateRepository checkStates, LearningQuizSessionRepository quizSessions,
             KanjiRepository kanjiRepo, KanjiReadingRepository kanjiReadingRepo, LearningMapper mapper) {
+        this(items, members, studySessions, studyCards, checkStates, quizSessions, kanjiRepo, kanjiReadingRepo, mapper,
+                new KanjiGlossCatalog());
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public InteractiveKanjiServiceImpl(UserLearningPathItemRepository items, LearningActivityMemberRepository members,
+            LearningStudySessionRepository studySessions, LearningStudyCardRepository studyCards,
+            LearningMicroCheckStateRepository checkStates, LearningQuizSessionRepository quizSessions,
+            KanjiRepository kanjiRepo, KanjiReadingRepository kanjiReadingRepo, LearningMapper mapper,
+            KanjiGlossCatalog gloss) {
         this.engine = new InteractiveStudyEngine<>(items, members, studySessions, studyCards, checkStates,
                 quizSessions, mapper, new KanjiContentAdapter(kanjiRepo, kanjiReadingRepo));
+        this.gloss = gloss;
     }
 
     @Override
@@ -145,11 +157,12 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
                     k == null ? null : k.getMeaningVi(), k == null ? null : k.getJlptLevel(),
                     k == null || k.getStrokeCount() == null ? null : k.getStrokeCount().intValue(),
                     e == null ? List.of() : e.onReadings(), e == null ? List.of() : e.kunReadings(),
-                    c.flipped(), c.remembered());
+                    c.flipped(), c.remembered(), k == null ? null : gloss.meaningEn(k.getCharacter()));
         }).toList();
+        boolean anyGloss = cards.stream().anyMatch(card -> card.meaningEn() != null);
         return new KanjiStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
-                s.partIndex(), s.partCount());
+                s.partIndex(), s.partCount(), anyGloss ? gloss.attribution() : null);
     }
 
     /** Canonical Kanji + its On/Kun readings, loaded once per batch — never fabricated when absent. */

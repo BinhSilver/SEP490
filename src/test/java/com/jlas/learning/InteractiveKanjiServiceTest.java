@@ -123,6 +123,10 @@ class InteractiveKanjiServiceTest {
         assertEquals("GIAN", view.hanViet());
         assertTrue(view.onReadings().isEmpty());
         assertTrue(view.kunReadings().isEmpty());
+        // Owner 2026-10-21 (OD-13): KANJIDIC2 English meanings from Learning's own copy, credited once per page.
+        assertNotNull(view.meaningEn());
+        assertTrue(view.meaningEn().contains("interval"), view.meaningEn());
+        assertTrue(result.meaningAttribution().contains("KANJIDIC2"), result.meaningAttribution());
     }
 
     /** [JLAS-W0125] A part created by a pace change knows its position so the page can show "Phần x / n". */
