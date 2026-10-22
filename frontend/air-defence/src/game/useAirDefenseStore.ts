@@ -52,7 +52,7 @@ export const AUGMENTS_POOL: AugmentCard[] = [
     id: "DUAL_CANNON",
     title: "PHÁO ĐÔI PLASMA",
     category: "OFFENSE",
-    description: "Tăng 50% năng lượng Hyper Beam nhận được mỗi lần gõ trúng.",
+    description: "Tăng 50% năng lượng Siêu pháo nhận được mỗi lần gõ trúng.",
     icon: "fa-angles-up",
     tone: "cyan"
   },

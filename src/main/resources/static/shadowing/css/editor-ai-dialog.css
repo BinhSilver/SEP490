@@ -62,3 +62,46 @@ html.editor-ai-open { overflow: hidden; }
   .editor-ai-dialog__footer { padding: 16px; }
   .editor-ai-dialog__footer button { flex: 1; }
 }
+
+/* Add a subtitle: timing first, then text. Reuses the AI dialog surface and tokens. */
+.editor-add-dialog { width: min(620px, calc(100vw - 32px)); }
+.editor-add { display: grid; gap: 18px; }
+.editor-add__step { margin: 0; padding: 16px; border: 1px solid var(--ai-line); border-radius: 16px; display: grid; gap: 8px; min-width: 0; }
+.editor-add__step legend { padding: 0 6px; font-weight: 700; color: var(--ai-ink); }
+.editor-add label { color: var(--ai-ink); font-weight: 600; font-size: 14px; }
+.editor-add .caption { color: var(--ai-muted); font-weight: 400; }
+.editor-add input[type="number"],
+.editor-add textarea {
+  box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid var(--ai-line); border-radius: 10px;
+  background: var(--ai-surface); color: var(--ai-ink); font: inherit;
+}
+.editor-add textarea { resize: vertical; font-family: 'Noto Sans JP', 'Hanken Grotesk', sans-serif; }
+.editor-add input:focus-visible,
+.editor-add textarea:focus-visible { outline: 3px solid var(--ai-accent); outline-offset: 1px; }
+.editor-add input[aria-invalid="true"] { border-color: var(--ai-error); }
+.editor-add__times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.editor-add__time { display: grid; gap: 6px; min-width: 0; }
+.editor-add__take {
+  justify-self: start; min-height: 36px; padding: 6px 10px; border: 1px solid var(--ai-line); border-radius: 999px;
+  background: var(--ai-raised); color: var(--ai-ink); font: inherit; font-size: 13px; cursor: pointer;
+}
+.editor-add__take:hover { border-color: var(--ai-accent); color: var(--ai-accent); }
+.editor-add__summary { margin: 0; color: var(--ai-muted); font-variant-numeric: tabular-nums; }
+.editor-add__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.editor-add__actions [hidden] { display: none; }
+.editor-add__status { margin: 0; padding: 10px 12px 10px 30px; border-radius: 10px; background: var(--ai-raised); color: var(--ai-error); line-height: 1.5; }
+.editor-add__status:empty { display: none; }
+.editor-add__status.is-ok { color: var(--ai-success); list-style: none; padding-left: 12px; }
+.editor-add__status.is-ok li::before { content: '✓ '; font-weight: 700; }
+.editor-add__check { display: flex; align-items: center; gap: 8px; font-weight: 500 !important; margin-top: 4px; }
+.editor-add__check input { width: 18px; height: 18px; accent-color: var(--ai-accent); }
+.editor-add-dialog .button-primary:disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 480px) {
+  .editor-add__times { grid-template-columns: 1fr; }
+  .editor-add__step { padding: 12px; }
+}
+/* Wide screens: dock to the right so the video and the draft on the timeline stay visible. */
+@media (min-width: 1100px) {
+  .editor-add-dialog { width: min(520px, 40vw); margin: 16px 24px 16px auto; max-height: calc(100svh - 32px); }
+  .editor-add-dialog::backdrop { background: #07101b33; backdrop-filter: none; }
+}

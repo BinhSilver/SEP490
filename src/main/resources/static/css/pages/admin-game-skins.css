@@ -13,7 +13,7 @@
 .skin-admin__table th { color: var(--text-secondary); font-weight: 600; padding: 12px; }
 .skin-admin__table td { padding: 12px; border-top: 1px solid var(--color-outline-variant); }
 .skin-admin__identity { display: flex; align-items: center; gap: 12px; min-width: 180px; }
-.skin-admin__identity img { object-fit: contain; border-radius: 8px; background: var(--color-surface-low); }
+.skin-admin__identity img, .skin-admin__identity canvas { flex: none; object-fit: contain; border-radius: 8px; background: var(--color-surface-low); }
 .skin-admin__identity strong, .skin-admin__identity small { display: block; }
 .skin-admin__identity small { margin-top: 4px; color: var(--text-secondary); }
 .skin-admin__actions { display: flex; justify-content: flex-end; gap: 8px; }
@@ -27,7 +27,7 @@
 .skin-editor label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
 .skin-editor__description { grid-column: 1 / -1; }
 .skin-editor__art { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
-.skin-editor__art img { width: 80px; height: 80px; object-fit: contain; }
+.skin-editor__art img, .skin-editor__art canvas { width: 80px; height: 80px; object-fit: contain; border-radius: 8px; background: var(--color-surface-low); }
 .skin-editor__art label { position: relative; overflow: hidden; cursor: pointer; }
 .skin-editor__art input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .skin-editor label.skin-editor__active { flex-direction: row; align-items: center; gap: 8px; }

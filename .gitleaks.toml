@@ -10,3 +10,19 @@ condition = "AND"
 paths = ['''(^|/)questionbank\.sql$''']
 regexTarget = "match"
 regexes = ['''^seed_key\\?"\s*:\s*\\?"''']
+
+[[allowlists]]
+description = "Demo seed \"key\" values are lowercase slugs naming comments and flashcard sets, not credentials"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(^|/)data/shadowing/demo_engagement\.json$''', '''(^|/)data/flashcard/community_sets\.json$''']
+regexTarget = "match"
+regexes = ['''^key"\s*:\s*"[a-z0-9]+(-[a-z0-9]+)*"?$''']
+
+[[allowlists]]
+description = "Learning content gap codes passed next to a gapKey argument are UPPER_SNAKE_CASE constants"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(^|/)src/main/java/com/jlas/learning/service/impl/JpaInteractiveContentCatalog\.java$''']
+regexTarget = "match"
+regexes = ['''^gapKey\s*,\s*"[A-Z0-9_]+"?$''']

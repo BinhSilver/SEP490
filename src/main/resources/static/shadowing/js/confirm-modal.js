@@ -42,7 +42,8 @@
             message = '',
             confirmText = 'Xác nhận',
             cancelText = 'Hủy',
-            variant = 'default'
+            variant = 'default',
+            acknowledge = ''
         } = options;
 
         return new Promise(resolve => {
@@ -67,6 +68,7 @@
                 </div>
                 <h2 class="confirm-modal-title" id="confirm-modal-title">${esc(title)}</h2>
                 ${message ? `<p class="confirm-modal-message" id="confirm-modal-message">${esc(message)}</p>` : ''}
+                ${acknowledge ? `<label class="confirm-modal-acknowledge"><input type="checkbox" class="confirm-modal-acknowledge-input"><span>${esc(acknowledge)}</span></label>` : ''}
                 <div class="confirm-modal-actions">
                     <button type="button" class="button-secondary confirm-modal-cancel">${esc(cancelText)}</button>
                     <button type="button" class="button-primary confirm-modal-confirm ${variant === 'danger' ? 'confirm-modal-danger' : ''}">${esc(confirmText)}</button>
@@ -82,8 +84,15 @@
 
             activeModal = { overlay, dialog, resolve };
 
+            // Có ô cam kết thì chỉ cho xác nhận sau khi đã tick.
+            const acknowledgeInput = dialog.querySelector('.confirm-modal-acknowledge-input');
+            if (acknowledgeInput) {
+                confirmBtn.disabled = true;
+                acknowledgeInput.addEventListener('change', () => { confirmBtn.disabled = !acknowledgeInput.checked; });
+            }
+
             cancelBtn.addEventListener('click', () => closeModal(false));
-            confirmBtn.addEventListener('click', () => closeModal(true));
+            confirmBtn.addEventListener('click', () => { if (!confirmBtn.disabled) closeModal(true); });
             overlay.addEventListener('click', () => closeModal(false));
 
             const onKeyDown = e => {
@@ -97,7 +106,7 @@
             requestAnimationFrame(() => {
                 overlay.classList.add('is-open');
                 dialog.classList.add('is-open');
-                cancelBtn.focus();
+                (acknowledgeInput || cancelBtn).focus();
             });
         });
     };

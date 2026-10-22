@@ -29,6 +29,7 @@ public class YoutubeImportService {
     @Autowired private YoutubeService youtubeService;
     @Autowired private VideoRepository videoRepository;
     @Autowired private TagRepository tagRepository;
+    @Autowired private ShadowingVideoTags videoTags;
 
     public YoutubeAnalyzeResultDto analyze(String url) throws Exception {
         return youtubeAnalyzeService.analyze(url);
@@ -37,6 +38,13 @@ public class YoutubeImportService {
     @Transactional
     public YoutubeImportResultDto startImport(String url, String category, String targetLanguage,
                                               Boolean generateFurigana) throws Exception {
+        return startImport(url, category, targetLanguage, generateFurigana, null);
+    }
+
+    @Transactional
+    public YoutubeImportResultDto startImport(String url, String category, String targetLanguage,
+                                              Boolean generateFurigana, List<String> genres) throws Exception {
+        List<Tag> genreTags = videoTags.genreTags(genres);
         YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(url);
         if (meta.isBlockedNonJapanese()) {
             throw new IllegalArgumentException(meta.getLanguageMessage() != null
@@ -69,13 +77,14 @@ public class YoutubeImportService {
         video.setTargetLanguage(targetLanguage != null ? targetLanguage : "vi");
         // Default false = faster (skip furigana AI). User can opt-in on upload form.
         video.setGenerateFurigana(wantAi);
-        video.setTags(resolveCategory(category));
+        video.setTags(ShadowingVideoTags.withGenres(resolveCategory(category), genreTags));
         try {
             video.setOwnerId(com.jlas.auth.security.CurrentUser.currentUserId().orElse(null));
         } catch (Exception ignored) {
             video.setOwnerId(null);
         }
         video.setVisibility(VideoVisibility.PRIVATE);
+        video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
 
         try {
             String thumbPath = meta.getThumbnail() != null && !meta.getThumbnail().isBlank()
@@ -129,6 +138,9 @@ public class YoutubeImportService {
 
         try {
             YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(video.getSourceUrl());
+            // The owner may have changed the embed setting since the first import.
+            video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
+            videoRepository.save(video);
             youtubeImportJobService.processImport(NullSafe.longId(videoId), video.getSourceUrl(), meta);
         } catch (Exception e) {
             video.setStatus(VideoStatus.FAILED);
@@ -180,7 +192,7 @@ public class YoutubeImportService {
         if (step == null) return "Đang xử lý...";
         return switch (step) {
             case UPLOADED -> "Bắt đầu import YouTube...";
-            case YOUTUBE_DOWNLOAD -> "Đang tải video (video dài có thể mất 10–30 phút)...";
+            case YOUTUBE_DOWNLOAD -> "Đang lưu thông tin video...";
             case SUBTITLE_DOWNLOAD -> "Đang tải phụ đề (JP + dịch YouTube)...";
             case EXTRACTING_AUDIO -> "Đang tải audio...";
             case TRANSCRIBING -> "Đang nhận dạng giọng nói (Deepgram)...";

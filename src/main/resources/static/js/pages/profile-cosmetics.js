@@ -94,9 +94,7 @@
     if (!buy) {
       el.save.textContent = 'Lưu khung & màu tên';
       el.save.disabled = state.busy || !dirty();
-      el.status.textContent = state.view.frames.some(function (f) { return f.owned; })
-        ? (dirty() ? 'Chưa lưu thay đổi.' : '')
-        : 'Bấm vào một khung để xem thử trên avatar của bạn, rồi mua ngay tại đây.';
+      el.status.textContent = dirty() ? 'Chưa lưu thay đổi.' : '';
       return;
     }
     var enough = balance >= buy.price;
@@ -104,7 +102,7 @@
     el.save.textContent = !enough ? 'Cần thêm ' + (buy.price - balance) + ' CP'
       : state.confirming === buy.code ? 'Bấm lần nữa để mua · ' + buy.price + ' CP'
       : 'Mua · ' + buy.price + ' CP';
-    el.status.textContent = 'Đang xem thử ' + buy.name + ' (kèm màu tên ' + buy.nameStyleLabel + ') · Bạn có ' + balance + ' CP.';
+    el.status.textContent = '';
   }
 
   function render() {

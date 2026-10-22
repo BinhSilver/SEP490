@@ -33,11 +33,12 @@ public class SeriesController {
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "popular") String sort,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String genre,
             @RequestParam(required = false) String level,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size) {
         return ResponseEntity.ok(ApiResponse.ok("Danh sách Shadowing",
-                seriesService.listPublicPage(q, sort, category, level, page, size)));
+                seriesService.listPublicPage(q, sort, category, genre, level, page, size)));
     }
 
     @GetMapping("/{id}")

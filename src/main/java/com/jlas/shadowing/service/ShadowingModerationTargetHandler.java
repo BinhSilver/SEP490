@@ -46,6 +46,7 @@ public class ShadowingModerationTargetHandler implements ModerationTargetHandler
         if ("VIDEO".equals(targetType)) {
             Video video = videos.findById(targetId)
                     .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Video không còn tồn tại"));
+            if (com.jlas.shadowing.util.ShadowingModerationState.isLocked(video.getModerationStatus())) return;
             video.setModerationStatus(approve ? "SAFE" : "BLOCKED");
             video.setModerationSummary(approve ? "Moderator đã duyệt" : fallback(note, "Moderator từ chối"));
             video.setModerationCheckedAt(LocalDateTime.now());

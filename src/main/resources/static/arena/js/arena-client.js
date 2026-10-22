@@ -51,6 +51,10 @@
 
   /** Làm mới access token bằng refresh token; nhiều lời gọi cùng lúc dùng chung một request. */
   function refreshToken() {
+    // Dùng chung bộ làm mới của trang (một lần gọi, xếp hàng giữa các tab) vì refresh token chỉ dùng được một lần.
+    if (global.JlasAuth && typeof global.JlasAuth.refreshSession === 'function') {
+      return global.JlasAuth.refreshSession().then(function (result) { return result === true; });
+    }
     if (refreshing) return refreshing;
     var refresh = null;
     try {
