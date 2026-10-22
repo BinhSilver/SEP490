@@ -225,3 +225,48 @@ test('path summary omits the replay and review section even when replay links ex
   assert.doesNotMatch(html, /data-study-links/);
   assert.doesNotMatch(html, /mode=(review|practice)/);
 });
+
+// ---- §2.24: communication-goal (BA/Travel/Daily Life) summary — content completion, no quiz wording ----
+
+test('viewModel defaults communicationGoal to false when the field is missing', () => {
+  const model = page.viewModel(summary());
+  assert.equal(model.communicationGoal, false);
+});
+
+test('communicationSkillCard shows a pending state without any score when the content was never started', () => {
+  const html = page.communicationSkillCard({ skill: 'VOCABULARY', hasEvidence: false, resolved: false, unresolved: [] });
+  assert.match(html, /Chưa hoàn thành nội dung trong lộ trình này/);
+  assert.doesNotMatch(html, /%/);
+});
+
+test('communicationSkillCard reports completion without any score and without micro-check wording', () => {
+  const html = page.communicationSkillCard({ skill: 'GRAMMAR', hasEvidence: true, resolved: true, unresolved: [] });
+  assert.match(html, /Đã hoàn thành nội dung\. Tình huống giao tiếp không có bài kiểm tra\./);
+  assert.doesNotMatch(html, /%/);
+  assert.doesNotMatch(html, /micro-check/);
+});
+
+test('communicationSkillCard flags unfinished content without any score table', () => {
+  const html = page.communicationSkillCard({ skill: 'VOCABULARY', hasEvidence: true, resolved: false, unresolved: [] });
+  assert.match(html, /Còn nội dung chưa hoàn thành trong lộ trình này/);
+  assert.doesNotMatch(html, /%/);
+});
+
+test('a communication-goal summary renders completion cards instead of first/latest/best score tables', () => {
+  const html = page.render(summary({
+    communicationGoal: true,
+    skills: [
+      { skill: 'VOCABULARY', hasEvidence: true, firstScore: null, latestScore: null, bestScore: null, resolved: true, unresolved: [] },
+      { skill: 'GRAMMAR', hasEvidence: true, firstScore: null, latestScore: null, bestScore: null, resolved: true, unresolved: [] }
+    ],
+    comprehensionInPath: [
+      { skill: 'READING', hasEvidence: false, firstScore: null, latestScore: null, bestScore: null, resolved: false, unresolved: [] },
+      { skill: 'LISTENING', hasEvidence: false, firstScore: null, latestScore: null, bestScore: null, resolved: false, unresolved: [] }
+    ]
+  }));
+  assert.match(html, /Đã hoàn thành nội dung\. Tình huống giao tiếp không có bài kiểm tra\./);
+  assert.doesNotMatch(html, /Tốt nhất/);
+  assert.doesNotMatch(html, /micro-check/);
+  assert.doesNotMatch(html, /Kanji/);
+  assert.doesNotMatch(html, /Đọc hiểu|Nghe hiểu|Chưa làm bài/);
+});

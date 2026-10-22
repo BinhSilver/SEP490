@@ -32,6 +32,9 @@
       skills: skills, dialogue: data.dialogue || { totalCount: 0, completedCount: 0, allCompleted: false },
       comprehensionInPath: comprehensionInPath,
       certificateEligible: !!data.certificateEligible,
+      // [JLAS-W0193] §2.24 — communication-goal paths (BA/Travel/Daily Life) have no quiz; the summary
+      // renders content completion instead of the first/latest/best micro-check table.
+      communicationGoal: !!data.communicationGoal,
       mockTest: mockTest,
       latestMockResult: data.latestMockResult || null,
       studyLinks: Array.isArray(data.studyLinks) ? data.studyLinks : []
@@ -62,6 +65,20 @@
       '<div><dt>Gần nhất</dt><dd>' + scoreText(skill.latestScore) + '</dd></div>' +
       '<div><dt>Tốt nhất</dt><dd>' + scoreText(skill.bestScore) + '</dd></div>' +
       '</dl>' + status + unresolved + '</article>';
+  }
+
+  // [JLAS-W0193] §2.24 — communication-goal paths (BA/Travel/Daily Life) have no quiz: completion of the
+  // content itself is the evidence, so no score table and no micro-check wording is ever shown.
+  function communicationSkillCard(skill) {
+    var label = SKILL_LABEL[skill.skill] || skill.skill;
+    if (!skill.hasEvidence) {
+      return '<article class="ilp-summary-card is-pending"><h3>' + esc(label) + '</h3>' +
+        '<p>Chưa hoàn thành nội dung trong lộ trình này.</p></article>';
+    }
+    var status = skill.resolved
+      ? '<p class="ilp-summary-status is-ok">Đã hoàn thành nội dung. Tình huống giao tiếp không có bài kiểm tra.</p>'
+      : '<p class="ilp-summary-status is-weak">Còn nội dung chưa hoàn thành trong lộ trình này.</p>';
+    return '<article class="ilp-summary-card"><h3>' + esc(label) + '</h3>' + status + '</article>';
   }
 
   function renderDialogue(dialogue) {
@@ -152,8 +169,10 @@
     var v = viewModel(data);
     return '<section class="ilp-summary">' +
       '<h1>Tổng kết lộ trình</h1>' +
-      '<div class="ilp-summary-grid">' + v.skills.map(skillCard).join('') + renderDialogue(v.dialogue) +
-      v.comprehensionInPath.map(comprehensionInPathCard).join('') + renderMockResult(v.latestMockResult) + '</div>' +
+      '<div class="ilp-summary-grid">' +
+      v.skills.map(v.communicationGoal ? communicationSkillCard : skillCard).join('') + renderDialogue(v.dialogue) +
+      (v.communicationGoal ? '' : v.comprehensionInPath.map(comprehensionInPathCard).join('')) +
+      renderMockResult(v.latestMockResult) + '</div>' +
       renderCompletionMessage(data) +
       renderActions(v) + '</section>';
   }
@@ -196,7 +215,8 @@
   }
 
   return {
-    viewModel: viewModel, skillCard: skillCard, renderDialogue: renderDialogue,
+    viewModel: viewModel, skillCard: skillCard, communicationSkillCard: communicationSkillCard,
+    renderDialogue: renderDialogue,
     comprehensionInPathCard: comprehensionInPathCard, renderActions: renderActions, renderMockResult: renderMockResult,
     renderCompletionMessage: renderCompletionMessage,
     render: render, error: error, mount: mount

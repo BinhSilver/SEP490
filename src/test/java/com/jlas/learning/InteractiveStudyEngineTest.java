@@ -118,6 +118,50 @@ class InteractiveStudyEngineTest {
     }
 
     @Test
+    void communicationActivitiesCannotSubmitLegacyMicroCheckAttempts() {
+        activity.getLearningPath().setGoal("TRAVEL");
+
+        ApiException error = assertThrows(ApiException.class, () -> engine.submitMicroCheck(USER, ACTIVITY,
+                new MicroCheckSubmitRequest(900L, List.of())));
+
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        verifyNoInteractions(quizSessions, checkStates);
+    }
+
+    @Test
+    void communicationActivitiesCannotSaveQuizDrafts() {
+        activity.getLearningPath().setGoal("BA");
+
+        ApiException error = assertThrows(ApiException.class, () -> engine.saveDraft(USER, ACTIVITY,
+                new MicroCheckSaveDraftRequest(900L, List.of())));
+
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        verify(quizSessions, never()).findOwnedByActivity(any(), any(), any(), any());
+        verify(quizSessions, never()).save(any());
+    }
+
+    @Test
+    void communicationActivitiesCannotIssuePracticeReplays() {
+        activity.getLearningPath().setGoal("DAILY_LIFE");
+
+        ApiException error = assertThrows(ApiException.class, () -> engine.issuePractice(USER, ACTIVITY));
+
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        verifyNoInteractions(quizSessions);
+    }
+
+    @Test
+    void communicationActivitiesCannotSubmitPracticeReplays() {
+        activity.getLearningPath().setGoal("TRAVEL");
+
+        ApiException error = assertThrows(ApiException.class, () -> engine.submitPractice(USER, ACTIVITY,
+                new MicroCheckSubmitRequest(900L, List.of())));
+
+        assertEquals(ErrorCode.CONFLICT, error.getErrorCode());
+        verifyNoInteractions(quizSessions);
+    }
+
+    @Test
     void reviewOfAnotherUsersActivityIsNotFound() {
         ApiException error = assertThrows(ApiException.class, () -> engine.reviewState(99L, ACTIVITY));
         assertEquals(ErrorCode.NOT_FOUND, error.getErrorCode());
@@ -499,7 +543,7 @@ class InteractiveStudyEngineTest {
         assertNull(session.getResultJson());
         assertNull(session.getScorePercent());
         assertNull(session.getSubmittedAt());
-        verifyNoInteractions(checkStates, items, studySessions, studyCards);
+        verifyNoInteractions(checkStates, studySessions, studyCards);
         verify(items, never()).save(any());
     }
 

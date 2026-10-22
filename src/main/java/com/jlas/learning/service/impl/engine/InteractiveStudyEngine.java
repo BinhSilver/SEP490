@@ -129,10 +129,7 @@ public class InteractiveStudyEngine<T> {
 
     public MicroCheckResponse issueMicroCheck(Long userId, Long activityId) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
-        if (GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
-            throw new ApiException(ErrorCode.CONFLICT,
-                    "Bài tình huống giao tiếp hoàn thành bằng hoạt động học, không có bài kiểm tra.");
-        }
+        assertQuizAllowed(activity);
         List<LearningActivityMember> membership = loadMembership(activity);
         if (adapter.requiresPracticeGate()) {
             adapter.assertPracticeGateSatisfied(activityId, membership);
@@ -192,6 +189,7 @@ public class InteractiveStudyEngine<T> {
 
     public MicroCheckResult submitMicroCheck(Long userId, Long activityId, MicroCheckSubmitRequest request) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
+        assertQuizAllowed(activity);
         LearningQuizSession session = quizSessions.findOwnedByActivity(
                         request.attemptId(), userId, adapter.microCheckType(), activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên kiểm tra không hợp lệ."));
@@ -268,6 +266,8 @@ public class InteractiveStudyEngine<T> {
      * score/state or rewards — it only persists the draft for the next reopen/restore. A submitted attempt is
      * rejected outright (CONFLICT) so a late autosave from another tab can never overwrite a graded attempt. */
     public List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        UserLearningPathItem activity = loadOwnedActivity(userId, activityId);
+        assertQuizAllowed(activity);
         LearningQuizSession session = quizSessions.findOwnedByActivity(
                         request.attemptId(), userId, adapter.microCheckType(), activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên kiểm tra không hợp lệ."));
@@ -478,6 +478,7 @@ public class InteractiveStudyEngine<T> {
 
     public PracticeIssue issuePracticeWithSource(Long userId, Long activityId) {
         UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        assertQuizAllowed(activity);
         Map<Integer, LearningQuizSession> latestByBatch = new java.util.TreeMap<>();
         for (LearningQuizSession original : quizSessions
                 .findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
@@ -522,6 +523,7 @@ public class InteractiveStudyEngine<T> {
      * complete, reward, unlock, consume attempts or lower the activity state or any best score. */
     public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
         UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        assertQuizAllowed(activity);
         LearningQuizSession session = quizSessions.findOwnedByActivity(
                         request.attemptId(), userId, PRACTICE_REPLAY, activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên luyện tập không hợp lệ."));
@@ -566,6 +568,13 @@ public class InteractiveStudyEngine<T> {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
         return activity;
+    }
+
+    private static void assertQuizAllowed(UserLearningPathItem activity) {
+        if (GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Bài tình huống giao tiếp hoàn thành bằng hoạt động học, không có bài kiểm tra.");
+        }
     }
 
     // ---- Internal helpers ----

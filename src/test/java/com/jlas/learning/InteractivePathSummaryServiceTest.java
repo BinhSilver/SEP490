@@ -513,6 +513,7 @@ class InteractivePathSummaryServiceTest {
         var result = service.summary(7L);
 
         assertFalse(result.mockTest().available());
+        assertTrue(result.comprehensionInPath().isEmpty());
         assertEquals(MockTestDestination.STATUS_NOT_APPLICABLE, result.mockTest().status());
         assertNull(result.mockTest().url());
         verifyNoInteractions(mockTestDestinationProvider);
