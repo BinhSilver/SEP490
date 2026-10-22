@@ -258,3 +258,43 @@ test('[JLAS-W0125] a part created by a pace change shows its position; an unspli
   assert.doesNotMatch(render({ partIndex: 1, partCount: 1 }), /Phần 1 \/ 1/);
   assert.doesNotMatch(render({}), /Phần \d+ \/ \d+/);
 });
+
+// ---- [JLAS-W0113] draft autosave/restore: reopened quiz restores both MCQ and matching selections ----
+
+test('renderCheck restores previously autosaved selections for MCQ radios and hidden matching answers', () => {
+  const check = { attemptId: 505, activityId: 1, batchIndex: 0, batchCount: 1, totalQuestions: 2,
+    draftAnswers: [{ questionId: 1, selectedOption: 2 }, { questionId: 2, selectedOption: 1 }],
+    questions: [
+      { questionId: 1, questionType: 'KANJI_TO_READING', questionText: 'Chữ "間" đọc là gì?', options: ['カン', 'コウ'] },
+      { questionId: 2, questionType: 'MATCHING', questionText: '校', options: ['khoảng, giữa', 'trường học'] }
+    ] };
+  const html = page.renderCheck(check);
+  assert.match(html, /name="q-1" value="2" checked>/);
+  assert.doesNotMatch(html, /name="q-1" value="1" checked/);
+  assert.match(html, /name="q-2" value="1" checked>/);
+  assert.doesNotMatch(html, /name="q-2" value="2" checked/);
+  assert.match(html, /data-draft-status/);
+});
+
+test('renderCheck tolerates a missing draftAnswers feed and renders a fresh unchecked quiz', () => {
+  const check = { attemptId: 506, activityId: 1, batchIndex: 0, batchCount: 1, totalQuestions: 1,
+    questions: [{ questionId: 1, questionType: 'KANJI_TO_READING', questionText: 'Chữ "間" đọc là gì?', options: ['カン', 'コウ'] }] };
+  const html = page.renderCheck(check);
+  assert.match(html, /name="q-1" value="1">/);
+  assert.doesNotMatch(html, /checked/);
+});
+
+test('OD-13: a Kanji without a Vietnamese meaning shows its KANJIDIC2 English meaning and the credit line', () => {
+  const data = study({ meaningAttribution: 'Nghĩa tiếng Anh: KANJIDIC2 (EDRDG), CC BY-SA 4.0.' });
+  data.cards[0].meaningVi = null;
+  data.cards[0].meaningEn = 'school; exam';
+  const html = page.renderStudy(page.viewModel(data), null);
+  assert.match(html, /<span[^>]*lang="en"[^>]*>school; exam<\/span>/);
+  assert.match(html, /KANJIDIC2 \(EDRDG\), CC BY-SA 4\.0/);
+  assert.match(html, /khoảng, giữa/, 'a Vietnamese meaning, when present, still shows');
+});
+
+test('OD-13: no credit line when no English meaning is shown', () => {
+  const html = page.renderStudy(page.viewModel(study()), null);
+  assert.doesNotMatch(html, /KANJIDIC2/);
+});

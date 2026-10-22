@@ -171,6 +171,96 @@ test('each quiz skill reopens saved results after reload with one read-only hist
   }
 });
 
+test('comprehension practice restores the submitted result from its browser history entry', async () => {
+  const oldWindow = global.window, oldDocument = global.document, oldFetch = global.fetch;
+  const requests = [];
+  const listeners = {};
+  const result = { scorePercent: 100, correctAnswers: 3, totalQuestions: 3, review: [] };
+  const node = {
+    innerHTML: '',
+    addEventListener(type, listener) { (listeners[type] ||= []).push(listener); },
+    setAttribute() {},
+    querySelector() { return null; }
+  };
+  global.window = {
+    location: { search: '?activity=17&mode=practice', pathname: '/learning/v2/reading' },
+    history: { state: { jlasComprehensionPracticeResult: { activityId: 17, result, attempts: [] } } },
+    JlasAuth: { requireLogin() { return true; }, authHeaders() { return {}; } },
+    InteractiveStudyMode: studyMode
+  };
+  global.document = { getElementById(id) { return id === 'interactiveComprehensionStudyRoot' ? node : null; }, querySelector() { return null; } };
+  global.fetch = async (url, options = {}) => {
+    requests.push({ url, method: options.method || 'GET' });
+    throw new Error('A saved practice result should restore without reloading the lesson: ' + url);
+  };
+  try {
+    comprehension.mount();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(requests.length, 0);
+    assert.match(node.innerHTML, /KẾT QUẢ LUYỆN TẬP/);
+    assert.match(node.innerHTML, /100%/);
+    assert.doesNotMatch(node.innerHTML, /Đọc lại bài học|data-check/);
+  } finally {
+    global.window = oldWindow; global.document = oldDocument; global.fetch = oldFetch;
+  }
+});
+
+test('comprehension practice saves its result before leaving the current history entry', async () => {
+  const oldWindow = global.window, oldDocument = global.document, oldFetch = global.fetch;
+  const requests = [];
+  const listeners = {};
+  const history = { state: null, replaceState(state) { this.state = state; } };
+  const form = { dataset: { attemptId: '91' }, querySelectorAll() { return []; } };
+  let attemptHistoryMarkup = '';
+  const node = {
+    innerHTML: '',
+    addEventListener(type, listener) { (listeners[type] ||= []).push(listener); },
+    setAttribute() {},
+    querySelector(selector) {
+      if (selector === '.ilp-check__form') return form;
+      if (selector === '.ilp-result') return { insertAdjacentHTML(_position, html) { attemptHistoryMarkup = html; } };
+      return null;
+    }
+  };
+  const result = { scorePercent: 100, correctAnswers: 1, totalQuestions: 1, review: [] };
+  const attempts = [{ attemptId: 91, attemptNumber: 1, batchIndex: 0, mode: 'PRACTICE', scorePercent: 100,
+    correctAnswers: 1, totalQuestions: 1, review: [] }];
+  global.window = {
+    location: { href: 'http://localhost/learning/v2/reading?activity=17&mode=practice',
+      search: '?activity=17&mode=practice', pathname: '/learning/v2/reading' },
+    history,
+    JlasAuth: { requireLogin() { return true; }, authHeaders() { return {}; } },
+    InteractiveStudyMode: studyMode
+  };
+  global.document = { getElementById(id) { return id === 'interactiveComprehensionStudyRoot' ? node : null; }, querySelector() { return null; } };
+  global.fetch = async (url, options = {}) => {
+    requests.push({ url, method: options.method || 'GET' });
+    let data;
+    if (url.endsWith('/review/attempts')) data = [{ batchIndex: 0, sourceStatus: 'AVAILABLE', source: { passage: '駅へ行きます。' } }];
+    else if (url.endsWith('/practice')) data = { attemptId: 91, batchIndex: 0, batchCount: 1, questions: [] };
+    else if (url.endsWith('/practice/submit')) data = result;
+    else if (url.endsWith('/attempt-history')) data = attempts;
+    else throw new Error('Unexpected request: ' + url);
+    return { ok: true, json: async () => ({ data }) };
+  };
+  try {
+    comprehension.mount();
+    await new Promise(resolve => setImmediate(resolve));
+    const clickTarget = { closest(selector) { return selector === '[data-check]' ? clickTarget : null; } };
+    for (const listener of listeners.click || []) await listener({ target: clickTarget });
+    const submitTarget = { closest(selector) { return selector === '[data-submit]' ? form : null; } };
+    for (const listener of listeners.submit || []) await listener({ target: submitTarget, preventDefault() {} });
+    assert.deepEqual(requests.map(request => request.url.split('/').pop()), ['attempts', 'practice', 'submit', 'attempt-history']);
+    assert.equal(history.state.jlasComprehensionPracticeResult.activityId, 17);
+    assert.equal(history.state.jlasComprehensionPracticeResult.result.scorePercent, 100);
+    assert.equal(history.state.jlasComprehensionPracticeResult.attempts[0].mode, 'PRACTICE');
+    assert.match(node.innerHTML, /KẾT QUẢ LUYỆN TẬP/);
+    assert.match(attemptHistoryMarkup, /Lượt ôn tập/);
+  } finally {
+    global.window = oldWindow; global.document = oldDocument; global.fetch = oldFetch;
+  }
+});
+
 test('legacy quiz history identifies a missing saved question instead of implying its text survived', () => {
   const html = studyMode.attemptHistory([{ attemptId: 5, attemptNumber: 1, batchIndex: 0,
     mode: 'LEARN', scorePercent: 0, correctAnswers: 0, totalQuestions: 1,

@@ -477,9 +477,11 @@
     async function flushDraft() {
       var form = node.querySelector('.ilp-check__form');
       if (!form) return true; // quiz already submitted or navigated away — nothing left to save
-      if (draftInFlight) return draftInFlight; // serialise writes; never stack two saves for the same form
+      if (draftInFlight) return draftInFlight.then(function (ok) {
+        return ok && draftDirty ? flushDraft() : ok;
+      }); // serialise writes, including edits made during the first request
       if (!draftDirty) return true;
-      var seq = ++draftSeq;
+      var seq = draftSeq;
       var attemptId = Number(form.dataset.attemptId);
       setDraftStatus('Đang lưu…');
       var pending = api(draftPath, {
@@ -487,13 +489,13 @@
         headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
         body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
       }).then(function () {
-        if (seq !== draftSeq) return false; // a newer edit superseded this write; keep the draft dirty
+        if (seq !== draftSeq) return true; // keep dirty and save the newer selection next
         draftRetries = 0;
         draftDirty = false;
         setDraftStatus('Đã lưu');
         return true;
       }, function () {
-        if (seq !== draftSeq) return false;
+        if (seq !== draftSeq) return true;
         draftRetries += 1;
         if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
           setDraftStatus('Lưu thất bại — thử lại…', true);
@@ -504,12 +506,13 @@
         return false;
       }).finally(function () { draftInFlight = null; });
       draftInFlight = pending;
-      return pending;
+      return pending.then(function (ok) { return ok && draftDirty ? flushDraft() : ok; });
     }
 
     function scheduleDraftSave(form) {
       if (mode !== 'LEARN' || !form) return;
       draftDirty = true;
+      draftSeq += 1;
       if (draftTimer) clearTimeout(draftTimer);
       setDraftStatus('Đang lưu…');
       draftTimer = setTimeout(flushDraft, 800);

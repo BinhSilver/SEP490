@@ -144,7 +144,13 @@
       '<h2>' + (isWord ? 'Các từ trong phần này' : 'Các chữ trong phần này') + '</h2><p>' +
       (isWord ? 'Nghe cả từ để nhận ra âm và kiểm tra cách đọc.' : 'Nghe từng chữ để làm quen với âm đọc.') + '</p>' +
       (gate && gate.passed ? '<p class="ilp-result__pass">Bạn đã hoàn thành phần này. Có thể xem lại nội dung bất cứ lúc nào.</p>' : '') +
-      renderKanaList(v.cards, v.contentKind) + '</section>' +
+      renderKanaList(v.cards, v.contentKind) +
+      // [JLAS-W0193] §2.6 — the quiz entry must be visible on the content tab too, not only inside the
+      // flashcard panel; hidden entirely once the activity is passed or the view is read-only (review).
+      (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next">' +
+        '<button class="ilp-check" type="button" data-study-tab="flashcard">Học bằng Flashcard</button>' +
+        '<button class="ilp-check" type="button" data-check>' + checkButtonLabel(gate) + '</button>' +
+        '<p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p></div>') + '</section>' +
       '<section id="kana-flashcard-panel" role="tabpanel" aria-labelledby="kana-flashcard-tab"' + (activeTab === 'flashcard' ? '' : ' hidden') + ' class="ilp-kana-flashcards">' +
       renderFlashModes(v, card, flashMode, browseIndex, ui, actions, gateNote, gate, canCheck) + '</section>' +
       '</section>';
@@ -175,10 +181,17 @@
   }
 
   function renderCheck(check) {
+    // [JLAS-W0113] Restore previously autosaved selections (questionId -> selectedOption) so a reopen/reload
+    // shows the learner's saved choices instead of a blank quiz.
+    var selectedByQuestion = {};
+    list(check.draftAnswers).forEach(function (d) {
+      if (d && d.selectedOption != null) selectedByQuestion[String(d.questionId)] = Number(d.selectedOption);
+    });
     var isWord = list(check.questions).some(function (q) { return q.questionType === 'WORD_TO_ROMAJI' || q.questionType === 'ROMAJI_TO_WORD'; });
     var questions = list(check.questions).map(function (q, i) {
       var options = list(q.options).map(function (opt, oi) {
-        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
+        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '"' +
+          (selectedByQuestion[String(q.questionId)] === (oi + 1) ? ' checked' : '') + '>' +
           '<span class="ilp-option__mark">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(opt) + '</span></label>';
       }).join('');
       return '<fieldset class="ilp-question"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
@@ -188,6 +201,7 @@
       '<header class="ilp-study__head"><div><span class="ilp-kicker">MICRO CHECK // ' + (num(check.batchIndex) + 1) + '/' + num(check.batchCount) + '</span>' +
       '<h1>Kiểm tra nhanh ' + (isWord ? 'từ ví dụ Kana' : 'Bảng chữ cái') + '</h1><p>Chọn đáp án đúng cho từng câu rồi nộp.</p></div></header>' +
       '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
+      '<span class="ilp-check__draft" data-draft-status role="status" aria-live="polite"></span>' +
       '<button class="ilp-check__submit" type="submit">Nộp bài</button></form>' +
       '</section>';
   }
@@ -256,6 +270,14 @@
     var currentGate = null;
     var flashUi = { mode: 'browse', browseIndex: null, browseFlipped: false, turning: false, typedFeedback: '' };
     var flipPending = false;
+    // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
+    // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
+    var draftPath = '/micro-check/draft';
+    var draftTimer = null;
+    var draftRetries = 0;
+    var draftDirty = false;
+    var draftInFlight = null;
+    var draftSeq = 0;
     function updateLessonHeading() {
       if (!currentStudy) return;
       var title = currentStudy.contentKind === 'EXAMPLE_WORD'
@@ -278,6 +300,68 @@
       var body = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(body.message || 'Không thể kết nối tới máy chủ.');
       return body.data;
+    }
+
+    // [JLAS-W0113] Autosave a draft of the learner's in-progress selections. The draft is the FULL current
+    // checked set (an unselected answer is simply omitted, and the server drops it), so "unselect" is
+    // represented naturally. Autosave never grades and never consumes quota/rewards — the server only writes
+    // `draft_answers_json` and rejects the write once the attempt is submitted.
+    function setDraftStatus(text, isError) {
+      var el = node.querySelector('[data-draft-status]');
+      if (el) {
+        el.textContent = text;
+        el.classList.toggle('is-error', !!isError);
+      }
+    }
+
+    function collectDraft(form) {
+      return Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
+        return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
+      });
+    }
+
+    async function flushDraft() {
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return true; // quiz already submitted or navigated away — nothing left to save
+      if (draftInFlight) return draftInFlight.then(function (ok) {
+        return ok && draftDirty ? flushDraft() : ok;
+      }); // serialise writes, including edits made during the first request
+      if (!draftDirty) return true;
+      var seq = draftSeq;
+      var attemptId = Number(form.dataset.attemptId);
+      setDraftStatus('Đang lưu…');
+      var pending = api(draftPath, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+        body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+      }).then(function () {
+        if (seq !== draftSeq) return true; // keep dirty and save the newer selection next
+        draftRetries = 0;
+        draftDirty = false;
+        setDraftStatus('Đã lưu');
+        return true;
+      }, function () {
+        if (seq !== draftSeq) return true;
+        draftRetries += 1;
+        if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
+          setDraftStatus('Lưu thất bại — thử lại…', true);
+          draftTimer = setTimeout(flushDraft, 2500);
+        } else {
+          setDraftStatus('Chưa lưu được nháp. Kiểm tra kết nối.', true);
+        }
+        return false;
+      }).finally(function () { draftInFlight = null; });
+      draftInFlight = pending;
+      return pending.then(function (ok) { return ok && draftDirty ? flushDraft() : ok; });
+    }
+
+    function scheduleDraftSave(form) {
+      if (mode !== 'LEARN' || !form) return;
+      draftDirty = true;
+      draftSeq += 1;
+      if (draftTimer) clearTimeout(draftTimer);
+      setDraftStatus('Đang lưu…');
+      draftTimer = setTimeout(flushDraft, 800);
     }
 
     async function loadStudy() {
@@ -454,6 +538,9 @@
       var form = event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      // A submitted attempt must never be re-autosaved: stop any pending debounce and cancel in-flight retries.
+      if (draftTimer) { clearTimeout(draftTimer); draftTimer = null; }
+      draftDirty = false;
       var answers = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
         return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
       });
@@ -478,6 +565,61 @@
           await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
+    });
+
+    node.addEventListener('change', function (event) {
+      if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
+        scheduleDraftSave(event.target.closest('form'));
+      }
+    });
+
+    // [JLAS-W0126] App-controlled page-leave protection for the in-progress micro-check draft. The browser
+    // cannot reliably block unload, so we own the two navigations the app performs while a dirty draft is on
+    // screen — in-page anchors (breadcrumb/shell links) and the shared "Quay lại" button — and flush the draft
+    // first, warning only when the flush genuinely fails. A pagehide keepalive POST is a best-effort backstop
+    // for tab close/reload (not guaranteed: the server may never see it).
+    if (typeof document.addEventListener === 'function') document.addEventListener('click', function (event) {
+      if (!draftDirty) return;
+      var target = event.target && event.target.closest ? event.target : null;
+      if (!target) return;
+      var back = target.closest('.lp-page-nav__back');
+      var anchor = back ? null : target.closest('a[href]');
+      var href = anchor ? anchor.getAttribute('href') : null;
+      if (!back && (!href || href.charAt(0) === '#')) return; // in-page jump, not a leave
+      event.preventDefault();
+      event.stopPropagation();
+      flushDraft().then(function (ok) {
+        var proceed = ok ? Promise.resolve(true)
+          : (window.JlasConfirm ? window.JlasConfirm('Chưa lưu được nháp của bạn. Vẫn rời trang?') : Promise.resolve(true));
+        proceed.then(function (yes) {
+          if (!yes) return;
+          if (back) {
+            var nav = window.JlasPageNavigation;
+            var action = nav && nav.resolveBackAction
+              ? nav.resolveBackAction(document.referrer, window.location.origin, '/learning/path/v2')
+              : { type: 'fallback', href: '/learning/path/v2' };
+            if (action.type === 'history') window.history.back();
+            else window.location.assign(action.href);
+          } else {
+            window.location.assign(href);
+          }
+        });
+      });
+    }, true);
+
+    if (typeof window.addEventListener === 'function') window.addEventListener('pagehide', function () {
+      if (!draftDirty) return;
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return;
+      var attemptId = Number(form.dataset.attemptId);
+      // sendBeacon cannot carry the JWT header, so use fetch(keepalive) for the authenticated draft write.
+      if (typeof fetch === 'function') {
+        fetch(base + draftPath, {
+          method: 'POST', keepalive: true,
+          headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+          body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+        });
+      }
     });
 
     loadStudy();

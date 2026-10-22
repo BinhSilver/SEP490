@@ -222,6 +222,12 @@
   }
   function renderCheck(check) {
     var all = list(check.questions);
+    // [JLAS-W0113] Restore previously autosaved selections (questionId -> selectedOption) so a reopen/reload
+    // shows the learner's saved MCQ choices and matching pairs instead of a blank quiz.
+    var selectedByQuestion = {};
+    list(check.draftAnswers).forEach(function (d) {
+      if (d && d.selectedOption != null) selectedByQuestion[String(d.questionId)] = Number(d.selectedOption);
+    });
     var matching = all.filter(function (q) { return q.questionType === 'MATCHING'; });
     var canPair = matching.length >= 2 && matching.every(function (q) {
       return q.options && q.options.length === matching.length && q.options.every(function (option, index) {
@@ -230,7 +236,8 @@
     });
     var questions = all.filter(function (q) { return !canPair || q.questionType !== 'MATCHING'; }).map(function (q, i) {
       var options = list(q.options).map(function (opt, oi) {
-        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
+        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '"' +
+          (selectedByQuestion[String(q.questionId)] === (oi + 1) ? ' checked' : '') + '>' +
           '<span class="ilp-option__mark">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(opt) + '</span></label>';
       }).join('');
       return '<fieldset class="ilp-question"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
@@ -251,7 +258,8 @@
         '</div><div class="ilp-matching__column"><h2>Nghĩa</h2>' +
         matchOrder.meaningOrder.map(function (idx, i) { return '<button type="button" data-match-meaning="' + idx + '" aria-pressed="false"><span>' + String.fromCharCode(65 + i) + '.</span> ' + esc(matchMeaningByIndex[idx]) + '</button>'; }).join('') +
         '</div></div><div class="ilp-matching__answers">' + matching.map(function (q) {
-          return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '">'; }).join('');
+          return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '"' +
+            (selectedByQuestion[String(q.questionId)] === (i + 1) ? ' checked' : '') + '>'; }).join('');
         }).join('') + '</div></fieldset>';
     }
     return '<section class="ilp-check no-inline-dictionary">' +
@@ -259,6 +267,7 @@
       '<h1>Bài kiểm tra nhỏ</h1><p>Hoàn thành phần trắc nghiệm và ghép các cặp chữ Hán – nghĩa.</p><span class="ilp-check__answered" role="status" data-check-progress>' +
         checkProgressText(0, canPair ? all.length - matching.length : all.length, 0, canPair ? matching.length : 0) + '</span></div></header>' +
       '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
+      '<span class="ilp-check__draft" data-draft-status role="status" aria-live="polite"></span>' +
       '<button class="ilp-check__submit" type="submit">Nộp bài</button></form>' +
       '</section>';
   }
@@ -315,6 +324,15 @@
     var output = form.querySelector('[data-check-progress]');
     if (!output) { var section = form.closest('.ilp-check'); if (section) output = section.querySelector('[data-check-progress]'); }
     if (output) output.textContent = checkProgressText(answeredQuestions, questionNames.size, answeredPairs, pairNames.size);
+  }
+
+  // [JLAS-W0113] Re-run the derived UI after the form HTML (with restored `checked` radios) is in the DOM:
+  // refresh matching highlights and the answered progress counter so a reopened/reloaded attempt shows its
+  // saved state, not a blank quiz.
+  function restoreCheckForm(form) {
+    if (!form) return;
+    syncMatchingHighlights(form, null, null);
+    updateCheckProgress(form);
   }
 
   function formatCooldown(value) {
@@ -391,6 +409,14 @@
     var selectedPart = 0;
     var flashUi = { mode: 'browse', browseIndex: null, browseFlipped: false, turning: false, typedFeedback: '' };
     var flipPending = false;
+    // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
+    // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
+    var draftPath = '/micro-check/draft';
+    var draftTimer = null;
+    var draftRetries = 0;
+    var draftDirty = false;
+    var draftInFlight = null;
+    var draftSeq = 0;
     function renderRehearsal() {
       node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
     }
@@ -409,6 +435,68 @@
       var body = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(body.message || 'Không thể kết nối tới máy chủ.');
       return body.data;
+    }
+
+    // [JLAS-W0113] Autosave a draft of the learner's in-progress selections. The draft is the FULL current
+    // checked set (an unselected/unpaired answer is simply omitted, and the server drops it), so "unselect" is
+    // represented naturally. Autosave never grades and never consumes quota/rewards — the server only writes
+    // `draft_answers_json` and rejects the write once the attempt is submitted.
+    function setDraftStatus(text, isError) {
+      var el = node.querySelector('[data-draft-status]');
+      if (el) {
+        el.textContent = text;
+        el.classList.toggle('is-error', !!isError);
+      }
+    }
+
+    function collectDraft(form) {
+      return Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
+        return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
+      });
+    }
+
+    async function flushDraft() {
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return true; // quiz already submitted or navigated away — nothing left to save
+      if (draftInFlight) return draftInFlight.then(function (ok) {
+        return ok && draftDirty ? flushDraft() : ok;
+      }); // serialise writes, including edits made during the first request
+      if (!draftDirty) return true;
+      var seq = draftSeq;
+      var attemptId = Number(form.dataset.attemptId);
+      setDraftStatus('Đang lưu…');
+      var pending = api(draftPath, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+        body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+      }).then(function () {
+        if (seq !== draftSeq) return true; // keep dirty and save the newer selection next
+        draftRetries = 0;
+        draftDirty = false;
+        setDraftStatus('Đã lưu');
+        return true;
+      }, function () {
+        if (seq !== draftSeq) return true;
+        draftRetries += 1;
+        if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
+          setDraftStatus('Lưu thất bại — thử lại…', true);
+          draftTimer = setTimeout(flushDraft, 2500);
+        } else {
+          setDraftStatus('Chưa lưu được nháp. Kiểm tra kết nối.', true);
+        }
+        return false;
+      }).finally(function () { draftInFlight = null; });
+      draftInFlight = pending;
+      return pending.then(function (ok) { return ok && draftDirty ? flushDraft() : ok; });
+    }
+
+    function scheduleDraftSave(form) {
+      if (mode !== 'LEARN' || !form) return;
+      draftDirty = true;
+      draftSeq += 1;
+      if (draftTimer) clearTimeout(draftTimer);
+      setDraftStatus('Đang lưu…');
+      draftTimer = setTimeout(flushDraft, 800);
     }
 
     async function loadStudy() {
@@ -461,14 +549,20 @@
     async function doPractice() {
       selectedWord = null;
       selectedMeaning = null;
-      try { node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' })); }
+      try {
+        node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' }));
+        restoreCheckForm(node.querySelector('.ilp-check__form'));
+      }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
     async function doCheck() {
       selectedWord = null;
       selectedMeaning = null;
-      try { node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' })); }
+      try {
+        node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' }));
+        restoreCheckForm(node.querySelector('.ilp-check__form'));
+      }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
@@ -526,6 +620,7 @@
         }
         syncMatchingHighlights(form, selectedWord, selectedMeaning);
         updateCheckProgress(form);
+        scheduleDraftSave(form);
         return;
       }
       var matchMeaning = event.target.closest('[data-match-meaning]');
@@ -545,6 +640,7 @@
         }
         syncMatchingHighlights(mform, selectedWord, selectedMeaning);
         updateCheckProgress(mform);
+        scheduleDraftSave(mform);
         return;
       }
       if (event.target.closest('[data-retry]')) return loadStudy();
@@ -599,7 +695,9 @@
 
     node.addEventListener('change', function (event) {
       if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
-        updateCheckProgress(event.target.closest('form'));
+        var changeForm = event.target.closest('form');
+        updateCheckProgress(changeForm);
+        scheduleDraftSave(changeForm);
       }
     });
 
@@ -633,6 +731,9 @@
       var form = event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      // A submitted attempt must never be re-autosaved: stop any pending debounce and cancel in-flight retries.
+      if (draftTimer) { clearTimeout(draftTimer); draftTimer = null; }
+      draftDirty = false;
       var unanswered = new Set(Array.prototype.map.call(form.querySelectorAll('input[type="radio"]'), function (input) {
         return input.name;
       })).size - form.querySelectorAll('input[type="radio"]:checked').length;
@@ -660,6 +761,55 @@
           await StudyMode.showNextAction(node, id);
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
+    });
+
+    // [JLAS-W0126] App-controlled page-leave protection for the in-progress micro-check draft. The browser
+    // cannot reliably block unload, so we own the two navigations the app performs while a dirty draft is on
+    // screen — in-page anchors (breadcrumb/shell links) and the shared "Quay lại" button — and flush the draft
+    // first, warning only when the flush genuinely fails. A pagehide keepalive POST is a best-effort backstop
+    // for tab close/reload (not guaranteed: the server may never see it).
+    if (typeof document.addEventListener === 'function') document.addEventListener('click', function (event) {
+      if (!draftDirty) return;
+      var target = event.target && event.target.closest ? event.target : null;
+      if (!target) return;
+      var back = target.closest('.lp-page-nav__back');
+      var anchor = back ? null : target.closest('a[href]');
+      var href = anchor ? anchor.getAttribute('href') : null;
+      if (!back && (!href || href.charAt(0) === '#')) return; // in-page jump, not a leave
+      event.preventDefault();
+      event.stopPropagation();
+      flushDraft().then(function (ok) {
+        var proceed = ok ? Promise.resolve(true)
+          : (window.JlasConfirm ? window.JlasConfirm('Chưa lưu được nháp của bạn. Vẫn rời trang?') : Promise.resolve(true));
+        proceed.then(function (yes) {
+          if (!yes) return;
+          if (back) {
+            var nav = window.JlasPageNavigation;
+            var action = nav && nav.resolveBackAction
+              ? nav.resolveBackAction(document.referrer, window.location.origin, '/learning/path/v2')
+              : { type: 'fallback', href: '/learning/path/v2' };
+            if (action.type === 'history') window.history.back();
+            else window.location.assign(action.href);
+          } else {
+            window.location.assign(href);
+          }
+        });
+      });
+    }, true);
+
+    if (typeof window.addEventListener === 'function') window.addEventListener('pagehide', function () {
+      if (!draftDirty) return;
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return;
+      var attemptId = Number(form.dataset.attemptId);
+      // sendBeacon cannot carry the JWT header, so use fetch(keepalive) for the authenticated draft write.
+      if (typeof fetch === 'function') {
+        fetch(base + draftPath, {
+          method: 'POST', keepalive: true,
+          headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+          body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+        });
+      }
     });
 
     loadStudy();

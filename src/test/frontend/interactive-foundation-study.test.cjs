@@ -332,3 +332,35 @@ test('Kana word pronunciation sends the whole Japanese word to browser speech, n
     else global.window = originalWindow;
   }
 });
+
+// ---- [JLAS-W0113] draft autosave/restore: reopened quiz shows the learner's saved selections ----
+
+test('renderCheck restores previously autosaved selections as checked options', () => {
+  const check = { attemptId: 703, activityId: 1, batchIndex: 0, batchCount: 1, totalQuestions: 2,
+    draftAnswers: [{ questionId: 1, selectedOption: 2 }, { questionId: 2, selectedOption: 1 }],
+    questions: [
+      { questionId: 1, questionType: 'CHARACTER_TO_ROMAJI', questionText: 'Chữ “あ” đọc là gì?', options: ['a', 'ka'] },
+      { questionId: 2, questionType: 'ROMAJI_TO_CHARACTER', questionText: 'Chữ nào đọc là “ka”?', options: ['か', 'あ'] }
+    ] };
+  const html = page.renderCheck(check);
+  assert.match(html, /name="q-1" value="2" checked>/);
+  assert.match(html, /name="q-2" value="1" checked>/);
+  assert.doesNotMatch(html, /name="q-1" value="1" checked/);
+  assert.match(html, /data-draft-status/);
+});
+
+test('renderCheck tolerates a missing draftAnswers feed and renders a fresh unchecked quiz', () => {
+  const check = { attemptId: 704, activityId: 1, batchIndex: 0, batchCount: 1, totalQuestions: 1,
+    questions: [{ questionId: 1, questionType: 'CHARACTER_TO_ROMAJI', questionText: 'Chữ “あ” đọc là gì?', options: ['a', 'ka'] }] };
+  const html = page.renderCheck(check);
+  assert.match(html, /name="q-1" value="1">/);
+  assert.doesNotMatch(html, /checked/);
+});
+
+test('OD-33: Kana rule lessons are labelled as J-LAS supplementary content that is not reviewed yet', () => {
+  const word = study({ contentKind: 'EXAMPLE_WORD', lessonTitle: 'Âm ngắt với っ / ッ', totalCards: 1, cards: [
+    { memberId: 901, orderIndex: 1, character: 'きっぷ', romaji: 'kippu', meaningVi: 'vé', flipped: false, remembered: false }] });
+  assert.match(page.renderStudy(page.viewModel(word), null), /Nội dung bổ sung J-LAS · cần rà soát/);
+  assert.doesNotMatch(page.renderStudy(page.viewModel(study()), null), /Nội dung bổ sung J-LAS/,
+    'the original Kana chart carries no supplementary label');
+});
