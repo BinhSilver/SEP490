@@ -133,7 +133,9 @@
     return '<section class="ilp-study">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">' + (isWord ? 'TỪ VÍ DỤ KANA' : 'BẢNG CHỮ CÁI') + ' // ' +
       (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : (v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN')) + '</span><h1>' + esc(heading) + '</h1>' + partLabel(v) +
-      '<p>' + (isWord ? esc(v.lessonDescription || 'Đọc cả từ, nghe phát âm rồi luyện bằng Flashcard.') : 'Xem bảng chữ theo thứ tự, nghe cách đọc rồi lật thẻ để kiểm tra cách đọc.') + '</p></div>' +
+      '<p>' + (isWord ? esc(v.lessonDescription || 'Đọc cả từ, nghe phát âm rồi luyện bằng Flashcard.') : 'Xem bảng chữ theo thứ tự, nghe cách đọc rồi lật thẻ để kiểm tra cách đọc.') + '</p>' +
+      // Owner 2026-10-21 (OD-33): the Kana rule examples are J-LAS-written (AI) and still await review.
+      (isWord ? '<p class="ilp-source-note">Nội dung bổ sung J-LAS · cần rà soát</p>' : '') + '</div>' +
       '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
       '<span style="width:' + progress + '%"></span></div>' +
