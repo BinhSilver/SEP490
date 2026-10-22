@@ -526,6 +526,12 @@
         if (mode === 'REVIEW') {
           reviewStudy = await api(modeApi.study);
           showStudy();
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          var gate = null;
+          if (reviewStudy && reviewStudy.checkRequired !== false) {
+            try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+          }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, '/learning/v2/vocabulary', id));
           node.setAttribute('aria-busy', 'false');
           return;
         }

@@ -116,6 +116,29 @@
     }).join('') + '</section>';
   }
 
+  /**
+   * [JLAS-W0193] §2.23 - while a multi-batch check is mid-flight, the read-only REVIEW screen must still hand the
+   * learner the exact next batch with the server's current state, not strand them on a list with no way forward.
+   * A review is read-only: link to LEARN instead of issuing a scored check here.
+   */
+  function reviewGateActions(gate, page, activityId) {
+    if (!gate || gate.passed) return '';
+    if (gate.checkEligible) {
+      var total = num(gate.batchCount);
+      var part = total > 1 ? num(gate.currentBatch) + 1 : 1;
+      return '<div class="ilp-result__actions"><a class="ilp-check" href="' + esc(page) +
+        '?activity=' + encodeURIComponent(activityId) + '&amp;mode=learn">Vào bài học để tiếp tục kiểm tra' +
+        (total > 1 ? ' — phần ' + part + '/' + total : '') + '</a></div>';
+    }
+    if (gate.reviewRequired) {
+      return '<p class="ilp-gate-note" role="note">Bạn cần ôn lại nội dung bài học trước khi tiếp tục phần kiểm tra còn lại.</p>';
+    }
+    if (gate.cooldownUntil) {
+      return '<p class="ilp-gate-note" role="note">Phần kiểm tra còn lại đang tạm khóa. Vui lòng quay lại sau.</p>';
+    }
+    return '<p class="ilp-gate-note" role="note">Phần kiểm tra chưa mở. Quay lại bài học để hoàn thành nội dung rồi kiểm tra.</p>';
+  }
+
   /** Persistent attempt tabs and saved feedback, rendered only alongside quiz results. */
   function attemptSource(attempt) {
     if (!attempt.sourceStatus) return '';
@@ -352,6 +375,7 @@
 
   return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, passedActions: passedActions,
     practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList,
+    reviewGateActions: reviewGateActions,
     attemptHistory: attemptHistory, bindAttemptHistory: bindAttemptHistory, loadSavedResults: loadSavedResults,
     restoreCompletedResult: restoreCompletedResult,
     rehearsal: rehearsal, rehearseCard: rehearseCard,

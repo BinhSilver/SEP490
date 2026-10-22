@@ -193,13 +193,18 @@
 
   function renderResult(result, activityId) {
     var passed = !!result.passed;
+    // [JLAS-W0193] §2.23 — a passed batch of a multi-batch activity must hand the learner the exact next
+    // batch, exactly like Vocabulary/Kanji/Foundation do; Grammar was the only page missing this CTA.
+    var nextBatch = passed && result.activityState === 'CHECK_READY';
     var wrong = list(result.review).filter(function (r) { return r.correct === false; });
     var cooldown = result.activityState === 'COOLDOWN';
     return '<section class="ilp-result">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">KẾT QUẢ</span><h1>' + (passed ? 'Đã đạt' : 'Chưa đạt') + '</h1></div>' +
       '<div class="ilp-score' + (passed ? ' is-pass' : ' is-fail') + '"><strong>' + num(result.scorePercent) + '%</strong></div></header>' +
       '<p class="ilp-result__meta">' + num(result.correctAnswers) + '/' + num(result.totalQuestions) + ' câu đúng · ngưỡng ' + num(result.passThresholdPercent) + '%</p>' +
-      (passed ? '<p class="ilp-result__pass">Tuyệt vời! Bạn đã hoàn thành phần này.</p>' :
+      (passed ? '<p class="ilp-result__pass">' + (nextBatch
+        ? 'Đã đạt phần kiểm tra này; còn phần kiểm tra tiếp theo để hoàn tất bài học.'
+        : 'Tuyệt vời! Bạn đã hoàn thành phần này.') + '</p>' :
         '<div class="ilp-result__fail"><p>Lần thử ' + num(result.attemptsUsed) + '/3 · còn ' + num(result.attemptsRemaining) + ' lượt.</p>' +
         (result.reviewRequired ? '<p>Hãy ôn lại các mẫu đã sai trước khi thử lại.</p>' : '') +
         (cooldown ? '<p>Vui lòng quay lại sau <strong>' + esc(formatCooldown(result.cooldownUntil)) + '</strong>.</p>' : '') +
@@ -207,6 +212,7 @@
       (wrong.length ? '<p class="ilp-review-summary">' + wrong.length +
         ' câu cần xem lại. Đáp án, lựa chọn và giải thích của từng câu nằm trong “Các lần làm bài” bên dưới.</p>' : '') +
       '<div class="ilp-result__actions">' +
+      (nextBatch ? '<button class="ilp-check" type="button" data-check-next>Làm tiếp phần kiểm tra →</button>' : '') +
       (result.reviewRequired ? '<button class="ilp-check" type="button" data-review>Ôn lại phần đã sai</button>' : '') +
       (passed && num(activityId) > 0
         ? '<a class="ilp-check" href="/learning/v2/grammar?activity=' + encodeURIComponent(activityId) +
@@ -272,6 +278,12 @@
         if (mode === 'REVIEW') {
           var reviewData = await api('/review');
           node.innerHTML = renderReview(viewModel(reviewData));
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          var gate = null;
+          if (reviewData && reviewData.checkRequired !== false) {
+            try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+          }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, '/learning/v2/grammar', id));
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -307,6 +319,7 @@
 
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return loadStudy();
+      if (event.target.closest('[data-check-next]')) return doCheck();
       if (event.target.closest('[data-back-to-study]')) return loadStudy();
       if (event.target.closest('[data-practice-review]')) return loadStudy();
       if (event.target.closest('[data-check]')) {

@@ -25,6 +25,16 @@
     return v.partCount > 1 && v.partIndex > 0
       ? '<p class="ilp-part-indicator">Phần ' + v.partIndex + ' / ' + v.partCount + '</p>' : '';
   }
+  // [JLAS-W0108] Quiz split into multiple parts: name the exact next part (mirrors interactive-kanji-study.js).
+  function checkButtonLabel(gate) {
+    if (!gate) return 'Bắt đầu kiểm tra →';
+    var total = num(gate.batchCount);
+    if (total > 1) {
+      var part = num(gate.currentBatch) + 1;
+      return (num(gate.currentBatch) > 0 ? 'Tiếp tục kiểm tra' : 'Bắt đầu kiểm tra') + ' — phần ' + part + '/' + total;
+    }
+    return 'Bắt đầu kiểm tra →';
+  }
   function list(value) { return Array.isArray(value) ? value : []; }
   function speakJapanese(text) {
     if (typeof window === 'undefined' || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return false;
@@ -281,6 +291,12 @@
         if (mode === 'REVIEW') {
           currentStudy = await api(modeApi.study);
           showStudy();
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          var gate = null;
+          if (currentStudy && currentStudy.checkRequired !== false) {
+            try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+          }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, '/learning/v2/foundation', id));
           node.setAttribute('aria-busy', 'false');
           return;
         }

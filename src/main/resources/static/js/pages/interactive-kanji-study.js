@@ -170,7 +170,13 @@
       (groups.length > 1 ? '<div class="ilp-study-parts" aria-label="Các phần Kanji">' + groups.map(function (_, index) {
         return '<button type="button" data-study-part="' + index + '" aria-current="' + (index === partIndex) + '">Phần ' + (index + 1) + '</button>';
       }).join('') + '</div>' : '') +
-      renderKanjiList(groups[partIndex] || []) + '</section>' +
+      renderKanjiList(groups[partIndex] || []) +
+      // [JLAS-W0193] §2.6 — the quiz entry must be visible on the content tab too, not only inside the
+      // flashcard panel; hidden entirely once the activity is passed or the view is read-only (review).
+      (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next">' +
+        '<button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+        '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>' +
+        '<p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p></div>') + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
       flashContent +
       '</section>' +
@@ -416,6 +422,12 @@
         if (mode === 'REVIEW') {
           currentStudy = await api(modeApi.study);
           showStudy();
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          var gate = null;
+          if (currentStudy && currentStudy.checkRequired !== false) {
+            try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+          }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, '/learning/v2/kanji', id));
           node.setAttribute('aria-busy', 'false');
           return;
         }

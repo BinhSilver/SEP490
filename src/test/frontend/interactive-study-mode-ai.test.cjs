@@ -2,6 +2,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const studyMode = require('../../main/resources/static/js/pages/interactive-study-mode.js');
 
+test('review gate directs a learner to LEARN mode before starting a scored check', () => {
+  const html = studyMode.reviewGateActions({ checkEligible: true, batchCount: 3, currentBatch: 1 },
+    '/learning/v2/grammar', 42);
+  assert.match(html, /href="\/learning\/v2\/grammar\?activity=42&amp;mode=learn"/);
+  assert.match(html, /phần 2\/3/);
+  assert.doesNotMatch(html, /data-check/);
+});
+
 test('the AI explanation button sends the saved attempt question and displays the response', async () => {
   const oldWindow = global.window;
   const oldFetch = global.fetch;
