@@ -49,10 +49,34 @@
       icon('refresh') + '<span>Thử lại</span></button></div>';
   }
 
+  /** Media tương đối nằm trong kho audio giáo trình; URL tuyệt đối hoặc '/...' giữ nguyên. */
+  function mediaUrl(path) {
+    var p = String(path == null ? '' : path).trim();
+    if (!p) return '';
+    if (/^(https?:|data:|blob:|\/)/i.test(p)) return p;
+    return '/uploads/content-audio/' + p.replace(/^\.\//, '');
+  }
+
+  /** passage_html → chữ thuần giữ xuống dòng (CSS pre-line); bỏ thẻ rồi escape nên không chèn được HTML. */
+  function passageText(html) {
+    return String(html == null ? '' : html)
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p\s*>\s*/gi, '\n\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"').replace(/&#0*39;/g, "'").replace(/&amp;/g, '&')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
   function renderQuestion(question, index) {
     question = question || {};
-    var passage = question.passageHtml
-      ? '<div class="lq-passage">' + escapeHtml(question.passageHtml) + '</div>' : '';
+    var text = passageText(question.passageHtml);
+    var passage = text ? '<div class="lq-passage" lang="ja">' + escapeHtml(text) + '</div>' : '';
+    var image = question.imageUrl
+      ? '<figure class="lq-figure"><img class="lq-image" loading="lazy" src="' + escapeHtml(mediaUrl(question.imageUrl)) +
+        '" alt="Đoạn văn / hình minh hoạ của câu ' + index + '"></figure>'
+      : '';
 
     var answer;
     if (question.questionType === 'FILL_BLANK') {
@@ -73,7 +97,7 @@
       '<span class="lq-question__index">' + index + '</span>' +
       '<span class="lq-question__type">' + escapeHtml(questionTypeLabel(question.questionType)) + '</span>' +
       '</legend>' +
-      passage +
+      passage + image +
       '<p class="lq-question__text">' + escapeHtml(question.questionText) + '</p>' +
       '<div class="lq-options">' + answer + '</div></fieldset>';
   }
@@ -278,6 +302,8 @@
     renderQuiz: renderQuiz,
     renderResult: renderResult,
     collectAnswers: collectAnswers,
+    mediaUrl: mediaUrl,
+    passageText: passageText,
     mount: mount
   };
 });

@@ -107,8 +107,27 @@
     { bg: '#fbe1ec', ink: '#a5426d' }
   ];
   var THUMB_DEFAULT_KANJI = '日';
-  /** theme_color do người biên soạn chọn có thể là màu bất kỳ → chữ Hán dùng màu tối trung tính. */
-  var THUMB_CUSTOM_INK = '#161d1f';
+  /**
+   * theme_color do người biên soạn chọn có thể là màu bất kỳ → chữ Hán trắng hoặc đậm, lấy màu có tỉ lệ tương
+   * phản WCAG cao hơn; ở vùng nền trung tính cả hai đều < 4.5:1 thì dùng đen (khi đó luôn ≥ 4.6:1).
+   * GIỮ GIỐNG HỆT inkFor trong admin-create.js (thẻ xem trước ở trang tạo giáo trình).
+   */
+  function relativeLuminance(hex) {
+    var n = parseInt(hex.slice(1), 16);
+    var ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(function (c) {
+      c /= 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+  }
+
+  function inkFor(hex) {
+    var lum = relativeLuminance(hex);
+    var onWhite = 1.05 / (lum + 0.05);
+    var onDark = (lum + 0.05) / (relativeLuminance('#1E1B2E') + 0.05);
+    if (Math.max(onWhite, onDark) >= 4.5) return onWhite >= onDark ? '#FFFFFF' : '#1E1B2E';
+    return '#000000';
+  }
 
   /** Hash ổn định theo tên: cùng tên luôn ra cùng màu, giữa các lần tải trang và giữa các máy. */
   function hashString(value) {
@@ -119,7 +138,7 @@
   }
 
   function thumbnailColors(t) {
-    if (t.themeColor && /^#[0-9a-f]{6}$/i.test(t.themeColor)) return { bg: t.themeColor, ink: THUMB_CUSTOM_INK };
+    if (t.themeColor && /^#[0-9a-f]{6}$/i.test(t.themeColor)) return { bg: t.themeColor, ink: inkFor(t.themeColor), custom: true };
     return THUMB_PALETTE[hashString(t.title) % THUMB_PALETTE.length];
   }
 
@@ -137,7 +156,7 @@
     var colors = thumbnailColors(t);
     var kanji = t.thumbnailKanji && t.thumbnailKanji.trim() ? t.thumbnailKanji.trim() : THUMB_DEFAULT_KANJI;
     return '' +
-      '<div class="textbook-thumb" style="--thumb-bg:' + escapeHtml(colors.bg) + ';--thumb-ink:' + escapeHtml(colors.ink) + '">' +
+      '<div class="textbook-thumb' + (colors.custom ? ' textbook-thumb--custom' : '') + '" style="--thumb-bg:' + escapeHtml(colors.bg) + ';--thumb-ink:' + escapeHtml(colors.ink) + '">' +
         '<span class="textbook-thumb__kanji" lang="ja" aria-hidden="true">' + escapeHtml(kanji) + '</span>' +
         (t.thumbnailUrl
           ? '<img class="textbook-thumb__img" src="' + escapeHtml(t.thumbnailUrl) + '" alt="" loading="lazy" decoding="async">'

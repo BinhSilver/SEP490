@@ -27,4 +27,8 @@ public interface ContentAudioRepository extends JpaRepository<ContentAudio, Long
             """)
     List<ContentAudio> findByOwnerTypeAndOwnerIdIn(@Param("ownerType") String ownerType,
                                                    @Param("ownerIds") Collection<Long> ownerIds);
+
+    /** Mọi audio_url khác nhau (đường dẫn tương đối trong content.audio.path); dùng để kiểm tra file lúc khởi động. */
+    @Query("select distinct a.audioUrl from ContentAudio a")
+    List<String> findDistinctAudioUrls();
 }

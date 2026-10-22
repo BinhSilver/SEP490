@@ -1,5 +1,7 @@
 package com.jlas.dictionary.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,4 +26,13 @@ public class TextbookResponse {
      * Trang danh sách dùng cờ này để tách nhóm "Theo chủ đề" khỏi nhóm "Nhập môn".
      */
     private Boolean topicBased;
+
+    /** Lần sửa gần nhất (textbook.updated_at) — trang quản lý sắp xếp "Mới cập nhật". */
+    private LocalDateTime updatedAt;
+
+    /**
+     * [JLAS2-17] Mã chủ đề (tag SITUATION qua lesson_tag) của các bài trong giáo trình — chỉ điền ở danh sách quản lý
+     * (GET /manage/textbooks) cho bộ lọc "Chủ đề"; các API khác để null.
+     */
+    private List<String> topicCodes;
 }

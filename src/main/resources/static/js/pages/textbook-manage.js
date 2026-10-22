@@ -35,6 +35,301 @@ window.AdminShell.ready.then(function (allowed) {
   /** textbooks: danh sách phẳng; trees[id]: cây đã tải; expanded: id đang mở. */
   var state = { textbooks: [], trees: {}, expanded: {}, knowledgeTags: null, submitting: false };
 
+  /*
+   * [JLAS2-17] Công bố / ẩn hàng loạt. selected.textbook / selected.lesson: id → true. Mục đã lưu trữ không chọn được
+   * (endpoint hàng loạt từ chối, phải khôi phục từng mục). filter: ALL / PUBLISHED / DRAFT.
+   */
+  var bulk = { selected: { textbook: {}, lesson: {} }, filter: 'ALL', busy: false, result: null };
+  var BULK_CHUNK = 500;
+  var statusFilterEl = document.getElementById('statusFilter');
+  var selectAllEl = document.getElementById('selectAllVisible');
+  var selectAllLabelEl = document.getElementById('selectAllLabel');
+  var bulkBarEl = document.getElementById('bulkBar');
+
+  /*
+   * [JLAS2-17] Tìm kiếm + bộ lọc. q: chuỗi đã chuẩn hoá (thường, bỏ dấu); levels: [] = tất cả, 'NONE' = không theo cấp độ;
+   * topic: mã tag SITUATION ('' = tất cả, '__none' = không gắn chủ đề); source: ALL / TEAM / VNJP / MINNA.
+   * Nguồn suy theo dải id seed (vnjpclub 1.000.001–1.999.999, Minna 3.000.001–3.999.999, còn lại = nhóm biên soạn).
+   * Chủ đề của giáo trình = các tag SITUATION gắn vào bài của nó (topicCodes trong GET /manage/textbooks), cùng nguồn
+   * với tab "Theo chủ đề" của học viên. Tìm theo tên phần / bài cần cây giáo trình → tải ngầm các cây chưa có
+   * (API sẵn có, 4 yêu cầu song song) khi bắt đầu tìm.
+   */
+  var LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
+  var LEVEL_CHIPS = [{ value: 'ALL', label: 'Tất cả' }].concat(LEVELS.map(function (l) { return { value: l, label: l }; }))
+    .concat([{ value: 'NONE', label: 'Không theo cấp độ' }]);
+  var SOURCE_CHIPS = [{ value: 'ALL', label: 'Tất cả' }, { value: 'TEAM', label: 'Nhóm biên soạn' },
+    { value: 'VNJP', label: 'vnjpclub' }, { value: 'MINNA', label: 'Minna' }];
+  var filters = { qRaw: '', q: '', levels: [], topic: '', source: 'ALL', sort: 'level' };
+  var trees = { loading: false, done: 0, total: 0, all: false };
+  var topicNames = {};
+  var searchEl = document.getElementById('manageSearch');
+  var searchClearEl = document.getElementById('manageSearchClear');
+  var levelFilterEl = document.getElementById('levelFilter');
+  var sourceFilterEl = document.getElementById('sourceFilter');
+  var topicFilterEl = document.getElementById('topicFilter');
+  var sortSelectEl = document.getElementById('sortSelect');
+  var summaryEl = document.getElementById('filterSummary');
+  var clearFiltersEl = document.getElementById('clearFilters');
+  var filtersPanelEl = document.getElementById('manageFilters');
+  var filtersToggleEl = document.getElementById('manageFiltersToggle');
+  var filtersBackdropEl = document.getElementById('manageFiltersBackdrop');
+  var filtersCountEl = document.getElementById('manageFiltersCount');
+
+  /** Thường + bỏ dấu tiếng Việt (đ → d) để "giao trinh" khớp "Giáo trình". */
+  function norm(value) {
+    return String(value == null ? '' : value).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+  }
+
+  function sourceOf(textbookId) {
+    var n = Number(textbookId);
+    if (n >= 1000001 && n <= 1999999) return 'VNJP';
+    if (n >= 3000001 && n <= 3999999) return 'MINNA';
+    return 'TEAM';
+  }
+
+  /** Lọc theo thuộc tính của chính giáo trình (cấp độ, chủ đề, nguồn) — chưa xét tìm kiếm / trạng thái. */
+  function passesAttrFilters(t) {
+    if (filters.levels.length) {
+      var lv = t.jlptLevel ? String(t.jlptLevel).toUpperCase() : 'NONE';
+      if (filters.levels.indexOf(lv) < 0) return false;
+    }
+    if (filters.topic) {
+      var codes = t.topicCodes || [];
+      if (filters.topic === '__none' ? codes.length > 0 : codes.indexOf(filters.topic) < 0) return false;
+    }
+    return filters.source === 'ALL' || sourceOf(t.id) === filters.source;
+  }
+
+  /**
+   * Kết quả tìm của một giáo trình: null = không tìm / khớp tên giáo trình (hiện cả cây); object = chỉ khớp ở phần / bài
+   * ({ units, lessonUnits, lessons, unitCount, lessonCount }); undefined = không khớp (hoặc cây chưa tải xong).
+   */
+  function searchHit(t) {
+    if (!filters.q || norm(t.title).indexOf(filters.q) >= 0) return null;
+    var tree = state.trees[t.id];
+    if (!tree) return undefined;
+    var hit = { units: {}, lessonUnits: {}, lessons: {}, unitCount: 0, lessonCount: 0 };
+    (tree.units || []).forEach(function (u) {
+      if (norm(u.title).indexOf(filters.q) >= 0) { hit.units[u.id] = true; hit.unitCount++; }
+      (u.lessons || []).forEach(function (l) {
+        if (norm(l.title).indexOf(filters.q) >= 0) { hit.lessons[l.id] = true; hit.lessonUnits[u.id] = true; hit.lessonCount++; }
+      });
+    });
+    return hit.unitCount || hit.lessonCount ? hit : undefined;
+  }
+
+  function hitOfUnit(unitId) {
+    var found = null;
+    state.textbooks.forEach(function (t) {
+      ((state.trees[t.id] && state.trees[t.id].units) || []).forEach(function (u) { if (String(u.id) === String(unitId)) found = t; });
+    });
+    return found ? (searchHit(found) || null) : null;
+  }
+
+  function unitInSearch(hit, unit) { return !hit || !!hit.units[unit.id] || !!hit.lessonUnits[unit.id]; }
+  function lessonInSearch(hit, unit, lesson) { return !hit || !!hit.units[unit.id] || !!hit.lessons[lesson.id]; }
+
+  var LEVEL_ORDER = { N5: 0, N4: 1, N3: 2, N2: 3, N1: 4 };
+  function compareTextbooks(a, b) {
+    if (filters.sort === 'name') return String(a.title).localeCompare(String(b.title), 'vi', { sensitivity: 'base' });
+    if (filters.sort === 'updated') {
+      var ta = a.updatedAt ? Date.parse(a.updatedAt) : 0;
+      var tb = b.updatedAt ? Date.parse(b.updatedAt) : 0;
+      return tb - ta || b.id - a.id;
+    }
+    var la = a.jlptLevel && LEVEL_ORDER[a.jlptLevel] != null ? LEVEL_ORDER[a.jlptLevel] : 5;
+    var lb = b.jlptLevel && LEVEL_ORDER[b.jlptLevel] != null ? LEVEL_ORDER[b.jlptLevel] : 5;
+    return la - lb || a.id - b.id;
+  }
+
+  function activeFilterCount() {
+    return (filters.q ? 1 : 0) + (filters.levels.length ? 1 : 0) + (filters.topic ? 1 : 0) + (filters.source !== 'ALL' ? 1 : 0)
+      + (bulk.filter !== 'ALL' ? 1 : 0) + (showArchived() ? 1 : 0);
+  }
+
+  function chipsHtml(chips, isOn) {
+    return chips.map(function (c) {
+      var on = isOn(c.value);
+      return '<button type="button" class="manage-chip' + (on ? ' is-on' : '') + '" data-value="' + c.value + '" aria-pressed="' + on + '">'
+        + escapeHtml(c.label) + '</button>';
+    }).join('');
+  }
+
+  function renderFilterControls() {
+    if (levelFilterEl) levelFilterEl.innerHTML = chipsHtml(LEVEL_CHIPS, function (v) {
+      return v === 'ALL' ? !filters.levels.length : filters.levels.indexOf(v) >= 0;
+    });
+    if (sourceFilterEl) sourceFilterEl.innerHTML = chipsHtml(SOURCE_CHIPS, function (v) { return filters.source === v; });
+    if (searchClearEl) searchClearEl.hidden = !filters.qRaw;
+    var n = activeFilterCount();
+    if (filtersCountEl) { filtersCountEl.hidden = !n; filtersCountEl.textContent = n; }
+  }
+
+  function renderTopicOptions() {
+    if (!topicFilterEl) return;
+    var used = {};
+    state.textbooks.forEach(function (t) { (t.topicCodes || []).forEach(function (c) { used[c] = true; }); });
+    var codes = Object.keys(used).sort(function (a, b) { return String(topicNames[a] || a).localeCompare(String(topicNames[b] || b), 'vi'); });
+    if (filters.topic && filters.topic !== '__none' && !used[filters.topic]) codes.push(filters.topic);
+    topicFilterEl.innerHTML = '<option value="">Tất cả</option>'
+      + codes.map(function (c) { return '<option value="' + escapeHtml(c) + '">' + escapeHtml(topicNames[c] || c) + '</option>'; }).join('')
+      + '<option value="__none">Không gắn chủ đề</option>';
+    topicFilterEl.value = filters.topic;
+  }
+
+  function writeQuery() {
+    var params = new URLSearchParams();
+    if (filters.qRaw) params.set('q', filters.qRaw);
+    if (filters.levels.length) params.set('level', filters.levels.join(','));
+    if (filters.topic) params.set('topic', filters.topic);
+    if (filters.source !== 'ALL') params.set('source', filters.source);
+    if (bulk.filter !== 'ALL') params.set('status', bulk.filter);
+    if (showArchived()) params.set('archived', '1');
+    if (filters.sort !== 'level') params.set('sort', filters.sort);
+    var qs = params.toString();
+    try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '')); } catch (e) { /* bỏ qua */ }
+  }
+
+  function readQuery() {
+    var params = new URLSearchParams(location.search);
+    filters.qRaw = params.get('q') || '';
+    filters.q = norm(filters.qRaw);
+    filters.levels = (params.get('level') || '').split(',').filter(function (v) { return v === 'NONE' || LEVELS.indexOf(v) >= 0; });
+    filters.topic = params.get('topic') || '';
+    var src = params.get('source');
+    filters.source = SOURCE_CHIPS.some(function (c) { return c.value === src; }) ? src : 'ALL';
+    var st = params.get('status');
+    bulk.filter = st === 'PUBLISHED' || st === 'DRAFT' ? st : 'ALL';
+    var sort = params.get('sort');
+    filters.sort = sort === 'name' || sort === 'updated' ? sort : 'level';
+    if (searchEl) searchEl.value = filters.qRaw;
+    if (statusFilterEl) statusFilterEl.value = bulk.filter;
+    if (sortSelectEl) sortSelectEl.value = filters.sort;
+    if (showArchivedEl) showArchivedEl.checked = params.get('archived') === '1';
+  }
+
+  /** Bộ lọc đổi: vẽ lại + ghi query string. */
+  function applyFilters() {
+    renderFilterControls();
+    writeQuery();
+    if (filters.q) ensureAllTrees();
+    render();
+  }
+
+  /** Tải ngầm cây của mọi giáo trình chưa có (để tìm theo tên phần / bài); vẽ lại theo từng đợt, không theo từng cây. */
+  function ensureAllTrees() {
+    if (trees.loading || trees.all) return;
+    var missing = state.textbooks.filter(function (t) { return !state.trees[t.id]; }).map(function (t) { return t.id; });
+    if (!missing.length) { trees.all = true; return; }
+    trees.loading = true;
+    trees.done = 0;
+    trees.total = missing.length;
+    var queue = missing.slice();
+    var lastPaint = 0;
+    function worker() {
+      var id = queue.shift();
+      if (id == null) return Promise.resolve();
+      return request('/manage/textbooks/' + encodeURIComponent(id))
+        .then(function (data) { if (!state.trees[id]) state.trees[id] = data; })
+        .catch(function () { /* giáo trình lỗi: chỉ tìm được theo tên giáo trình */ })
+        .then(function () {
+          trees.done++;
+          if (filters.q && Date.now() - lastPaint > 400) { lastPaint = Date.now(); render(); }
+          return worker();
+        });
+    }
+    Promise.all([worker(), worker(), worker(), worker()]).then(function () {
+      trees.loading = false;
+      trees.all = true;
+      render();
+    });
+  }
+
+  function renderSummary(visibleCount) {
+    if (!summaryEl) return;
+    var total = state.textbooks.filter(function (t) { return showArchived() || !isArchived(t); }).length;
+    var text = 'Hiển thị ' + visibleCount + ' / ' + total + ' giáo trình';
+    if (filters.q && trees.loading) text += ' · đang tải tên phần / bài để tìm (' + trees.done + '/' + trees.total + ')…';
+    summaryEl.textContent = text;
+    if (clearFiltersEl) clearFiltersEl.hidden = activeFilterCount() === 0;
+  }
+
+  function openFilters(open) {
+    if (!filtersPanelEl) return;
+    filtersPanelEl.classList.toggle('is-open', open);
+    if (filtersBackdropEl) filtersBackdropEl.hidden = !open;
+    if (filtersToggleEl) filtersToggleEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.classList.toggle('manage-filters-open', open);
+    if (open) {
+      var first = filtersPanelEl.querySelector('button, select, input');
+      if (first) first.focus();
+    } else if (filtersToggleEl && filtersToggleEl.offsetParent) {
+      filtersToggleEl.focus();
+    }
+  }
+
+  function setupFilters() {
+    readQuery();
+    renderFilterControls();
+    var timer = null;
+    if (searchEl) searchEl.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        filters.qRaw = searchEl.value;
+        filters.q = norm(searchEl.value);
+        applyFilters();
+      }, 200);
+    });
+    if (searchClearEl) searchClearEl.addEventListener('click', function () {
+      searchEl.value = '';
+      filters.qRaw = '';
+      filters.q = '';
+      applyFilters();
+      searchEl.focus();
+    });
+    if (levelFilterEl) levelFilterEl.addEventListener('click', function (event) {
+      var chip = event.target.closest('.manage-chip');
+      if (!chip) return;
+      var v = chip.getAttribute('data-value');
+      if (v === 'ALL') filters.levels = [];
+      else if (filters.levels.indexOf(v) >= 0) filters.levels = filters.levels.filter(function (x) { return x !== v; });
+      else filters.levels = filters.levels.concat([v]);
+      applyFilters();
+    });
+    if (sourceFilterEl) sourceFilterEl.addEventListener('click', function (event) {
+      var chip = event.target.closest('.manage-chip');
+      if (!chip) return;
+      filters.source = chip.getAttribute('data-value');
+      applyFilters();
+    });
+    if (topicFilterEl) topicFilterEl.addEventListener('change', function () { filters.topic = topicFilterEl.value; applyFilters(); });
+    if (sortSelectEl) sortSelectEl.addEventListener('change', function () { filters.sort = sortSelectEl.value; applyFilters(); });
+    if (clearFiltersEl) clearFiltersEl.addEventListener('click', function () {
+      filters = { qRaw: '', q: '', levels: [], topic: '', source: 'ALL', sort: filters.sort };
+      bulk.filter = 'ALL';
+      if (searchEl) searchEl.value = '';
+      if (statusFilterEl) statusFilterEl.value = 'ALL';
+      if (showArchivedEl) showArchivedEl.checked = false;
+      if (topicFilterEl) topicFilterEl.value = '';
+      applyFilters();
+    });
+    if (filtersToggleEl) filtersToggleEl.addEventListener('click', function () { openFilters(!filtersPanelEl.classList.contains('is-open')); });
+    ['manageFiltersClose', 'manageFiltersDone'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('click', function () { openFilters(false); });
+    });
+    if (filtersBackdropEl) filtersBackdropEl.addEventListener('click', function () { openFilters(false); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && filtersPanelEl && filtersPanelEl.classList.contains('is-open')) openFilters(false);
+    });
+    // Tên chủ đề: API công khai sẵn có (tag SITUATION); lỗi thì hiện mã.
+    fetch(API + '/topics').then(function (res) { return res.ok ? res.json() : null; }).then(function (json) {
+      ((json && json.data) || []).forEach(function (t) { topicNames[t.code] = t.name; });
+      renderTopicOptions();
+    }).catch(function () { renderTopicOptions(); });
+  }
+
   function escapeHtml(value) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -126,6 +421,32 @@ window.AdminShell.ready.then(function (allowed) {
   var ARCHIVED_PARENT_REASON = 'Giáo trình đang lưu trữ — khôi phục giáo trình để sửa nội dung bên trong';
 
   /**
+   * [JLAS2-17] Nút "Xem trước" = link sang trang học viên (tab mới). Tài khoản biên soạn xem được cả mục Nháp
+   * (DictionaryServiceImpl.canViewDraft), nên chỉ cần ghi chú trong tooltip. Giáo trình đã lưu trữ không hiện ở
+   * trang học viên (404 kể cả với người biên soạn) → nút bị khoá kèm lý do.
+   */
+  function previewLink(href, hiddenNote, disabledReason) {
+    var title = disabledReason || ('Xem như học viên' + (hiddenNote ? ' — ' + hiddenNote : '') + ' (mở tab mới)');
+    if (disabledReason) {
+      return '<span class="manage-icon-btn manage-preview-btn is-disabled" role="link" aria-disabled="true"'
+        + ' title="' + escapeHtml(title) + '" aria-label="' + escapeHtml(title) + '">'
+        + '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>';
+    }
+    return '<a class="manage-icon-btn manage-preview-btn' + (hiddenNote ? ' is-hidden-from-learner' : '') + '"'
+      + ' href="' + escapeHtml(href) + '" target="_blank" rel="noopener" draggable="false"'
+      + ' title="' + escapeHtml(title) + '" aria-label="' + escapeHtml(title) + '">'
+      + '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>';
+  }
+
+  /** Ghi chú "học viên chưa thấy" cho bài: chính bài hoặc giáo trình cha chưa công bố. */
+  function lessonHiddenNote(lesson, textbook) {
+    if (lesson.status === 'ARCHIVED') return 'Học viên không thấy bài này (Đã lưu trữ)';
+    if (lesson.status !== 'PUBLISHED') return 'Học viên chưa thấy bài này (Nháp)';
+    if (textbook && textbook.status !== 'PUBLISHED') return 'Học viên chưa thấy bài này (giáo trình đang Nháp)';
+    return '';
+  }
+
+  /**
    * Nút trạng thái. Mục đã lưu trữ chỉ có một lối ra là Khôi phục (về nháp).
    * KHÔNG có nút xoá cứng cho giáo trình và bài học ở bất kỳ đâu: FK đều ON DELETE CASCADE và
    * lesson_progress cascade theo lesson, nên xoá cứng sẽ cuốn cả tiến độ học viên.
@@ -145,12 +466,41 @@ window.AdminShell.ready.then(function (allowed) {
         'Lưu trữ — ẩn khỏi học viên, khôi phục được', '', lockReason);
   }
 
-  function lessonRow(lesson, lockReason) {
+  /** Lọc theo trạng thái (Tất cả / Đã công bố / Nháp); mục đã lưu trữ vẫn do ô "Hiện mục đã lưu trữ" quyết. */
+  function matchesFilter(item) {
+    return bulk.filter === 'ALL' || item.status === bulk.filter;
+  }
+
+  function lessonVisible(lesson, hit, unit) {
+    return (showArchived() || !isArchived(lesson)) && matchesFilter(lesson) && (!hit || lessonInSearch(hit, unit, lesson));
+  }
+
+  function selectBox(kind, item, label) {
+    var archived = isArchived(item);
+    return '<input type="checkbox" class="manage-check" data-select="' + kind + '" data-id="' + item.id + '"'
+      + (bulk.selected[kind][item.id] ? ' checked' : '') + (archived || bulk.busy ? ' disabled' : '')
+      + ' title="' + escapeHtml(archived ? 'Mục đã lưu trữ — khôi phục trước khi công bố / ẩn hàng loạt' : 'Chọn ' + label) + '"'
+      + ' aria-label="' + escapeHtml('Chọn ' + label) + '">';
+  }
+
+  /** Nút chữ nhỏ "Công bố tất cả bài" / "Ẩn tất cả bài" cho một phần hoặc cả giáo trình. */
+  function bulkScopeButtons(scope, id, disabledReason) {
+    var dis = disabledReason || bulk.busy ? ' disabled' : '';
+    var title = disabledReason ? ' title="' + escapeHtml(disabledReason) + '"' : '';
+    return '<span class="manage-bulk-scope">'
+      + '<button type="button" class="manage-chip-btn" data-bulk-scope="' + scope + '" data-bulk-action="PUBLISH" data-id="' + id + '"' + dis + title + '>'
+      + '<i class="fa-solid fa-eye" aria-hidden="true"></i> Công bố tất cả bài</button>'
+      + '<button type="button" class="manage-chip-btn" data-bulk-scope="' + scope + '" data-bulk-action="UNPUBLISH" data-id="' + id + '"' + dis + title + '>'
+      + '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Ẩn tất cả bài</button></span>';
+  }
+
+  function lessonRow(lesson, lockReason, textbook) {
     var meta = [LESSON_TYPE_LABELS[lesson.lessonType] || lesson.lessonType,
       SKILL_LABELS[lesson.skill] || lesson.skill];
     if (lesson.estimatedMinutes) meta.push(lesson.estimatedMinutes + ' phút');
     return '<li class="manage-row manage-row--lesson' + (isArchived(lesson) ? ' is-archived-row' : '') + '"'
       + ' draggable="' + (lockReason ? 'false' : 'true') + '" data-sort-kind="lesson" data-id="' + lesson.id + '">'
+      + selectBox('lesson', lesson, 'bài ' + lesson.title)
       + '<span class="manage-grip" aria-hidden="true"><i class="fa-solid fa-grip-vertical"></i></span>'
       + '<span class="manage-row__order">' + escapeHtml(lesson.orderIndex) + '</span>'
       + '<span class="manage-row__main">'
@@ -165,6 +515,7 @@ window.AdminShell.ready.then(function (allowed) {
       // Biên soạn nội dung bên trong bài (ngữ pháp, từ vựng) nằm ở trang riêng: màn này lo cấu trúc và
       // trạng thái, còn soạn thảo cần trường văn bản dài nên không nhét vừa modal ở đây.
       + iconBtn('open-editor', 'lesson', lesson.id, 'fa-list-check', 'Biên soạn nội dung bài học')
+      + (textbook ? previewLink('/textbooks/' + textbook.id + '/lessons/' + lesson.id, lessonHiddenNote(lesson, textbook)) : '')
       + statusButtons('lesson', lesson, lockReason)
       // Xoá cứng chỉ dành cho bài nháp tạo nhầm; server chặn bằng 409 nếu bài đã có nội dung, có người
       // học hoặc gắn quiz. Cùng kiểu trình bày với nút xoá phần: vạch ngăn + màu cảnh báo thường trực.
@@ -174,19 +525,30 @@ window.AdminShell.ready.then(function (allowed) {
       + '</span></li>';
   }
 
-  function unitBlock(unit, lockReason) {
-    var lessons = (unit.lessons || []).filter(function (l) { return showArchived() || !isArchived(l); });
-    var hiddenCount = (unit.lessons || []).length - lessons.length;
+  function unitBlock(unit, lockReason, hit, textbook) {
+    var shown = (unit.lessons || []).filter(function (l) { return showArchived() || !isArchived(l); });
+    var hiddenCount = (unit.lessons || []).length - shown.length;
+    var lessons = shown.filter(function (l) { return matchesFilter(l) && lessonInSearch(hit, unit, l); });
+    var selectable = lessons.filter(function (l) { return !isArchived(l); });
+    var picked = selectable.filter(function (l) { return bulk.selected.lesson[l.id]; }).length;
     return '<li class="manage-unit" data-sort-kind="unit" data-id="' + unit.id + '"'
       + ' draggable="' + (lockReason ? 'false' : 'true') + '">'
       + '<div class="manage-row manage-row--unit">'
+      // Ô chọn của phần = chọn / bỏ chọn mọi bài đang hiện của phần (trạng thái lửng khi chọn một phần).
+      + '<input type="checkbox" class="manage-check" data-select="unit" data-id="' + unit.id + '"'
+      + (selectable.length && picked === selectable.length ? ' checked' : '')
+      + (picked > 0 && picked < selectable.length ? ' data-indeterminate="1"' : '')
+      + (!selectable.length || bulk.busy ? ' disabled' : '')
+      + ' aria-label="' + escapeHtml('Chọn mọi bài đang hiện của ' + unit.title) + '">'
       + '<span class="manage-grip" aria-hidden="true"><i class="fa-solid fa-grip-vertical"></i></span>'
       + '<span class="manage-row__order">' + escapeHtml(unit.orderIndex) + '</span>'
       + '<span class="manage-row__main">'
       + '<span class="manage-row__title">' + escapeHtml(unit.title) + '</span>'
-      + '<span class="manage-row__meta">' + lessons.length + ' bài'
-      + (hiddenCount > 0 ? ' · ' + hiddenCount + ' đã lưu trữ đang ẩn' : '') + '</span>'
+      + '<span class="manage-row__meta">' + shown.length + ' bài'
+      + (hiddenCount > 0 ? ' · ' + hiddenCount + ' đã lưu trữ đang ẩn' : '')
+      + (bulk.filter !== 'ALL' || hit ? ' · ' + lessons.length + ' khớp bộ lọc' : '') + '</span>'
       + '</span>'
+      + bulkScopeButtons('unit', unit.id, lockReason)
       + '<span class="manage-row__actions">'
       + iconBtn('move-up', 'unit', unit.id, 'fa-arrow-up', 'Lên trên', '', lockReason)
       + iconBtn('move-down', 'unit', unit.id, 'fa-arrow-down', 'Xuống dưới', '', lockReason)
@@ -200,13 +562,14 @@ window.AdminShell.ready.then(function (allowed) {
       + '</span></div>'
       + '<ul class="manage-lessons" data-sort-group="lesson" data-unit-id="' + unit.id + '">'
       + (lessons.length
-        ? lessons.map(function (l) { return lessonRow(l, lockReason); }).join('')
-        : '<li class="manage-empty-hint">Phần này chưa có bài học nào.</li>')
+        ? lessons.map(function (l) { return lessonRow(l, lockReason, textbook); }).join('')
+        : '<li class="manage-empty-hint">' + (shown.length ? 'Không có bài nào khớp bộ lọc.' : 'Phần này chưa có bài học nào.') + '</li>')
       + '</ul></li>';
   }
 
   function textbookBlock(textbook) {
     var open = !!state.expanded[textbook.id];
+    var hit = searchHit(textbook) || null;
     var tree = state.trees[textbook.id];
     var level = textbook.jlptLevel ? escapeHtml(textbook.jlptLevel) : 'Không theo cấp độ';
     // Giáo trình đã lưu trữ: khoá mọi thao tác thêm/sửa/đổi thứ tự bên trong (backend cũng chặn bằng 409).
@@ -217,38 +580,66 @@ window.AdminShell.ready.then(function (allowed) {
         body = '<div class="manage-tree__loading"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Đang tải…</div>';
       } else {
         var units = tree.units || [];
-        body = '<ul class="manage-units" data-sort-group="unit" data-textbook-id="' + textbook.id + '">'
+        body = (units.length
+          ? '<div class="manage-book-bulk"><span class="manage-book-bulk__label">Cả giáo trình:</span>'
+            + bulkScopeButtons('textbook', textbook.id, lockReason) + '</div>'
+          : '')
+          + '<ul class="manage-units" data-sort-group="unit" data-textbook-id="' + textbook.id + '">'
           + (units.length
-            ? units.map(function (u) { return unitBlock(u, lockReason); }).join('')
+            ? units.filter(function (u) { return unitInSearch(hit, u); }).map(function (u) { return unitBlock(u, lockReason, hit, textbook); }).join('')
             : '<li class="manage-empty-hint">Giáo trình này chưa có phần nào.</li>')
           + '</ul>';
       }
     }
     return '<section class="manage-book' + (isArchived(textbook) ? ' is-archived-row' : '') + '" data-id="' + textbook.id + '">'
       + '<div class="manage-row manage-row--book">'
+      + selectBox('textbook', textbook, 'giáo trình ' + textbook.title)
       + '<button type="button" class="manage-toggle" data-action="toggle" data-kind="textbook" data-id="' + textbook.id + '"'
       + ' aria-expanded="' + (open ? 'true' : 'false') + '">'
       + '<i class="fa-solid ' + (open ? 'fa-chevron-down' : 'fa-chevron-right') + '" aria-hidden="true"></i></button>'
       + '<span class="manage-row__main">'
       + '<span class="manage-row__title">' + escapeHtml(textbook.title) + '</span>'
-      + '<span class="manage-row__meta">' + level + ' · ' + (textbook.unitCount || 0) + ' phần</span>'
+      + '<span class="manage-row__meta">' + level + ' · ' + (textbook.unitCount || 0) + ' phần'
+      + (hit ? ' · <mark class="manage-hit">khớp ' + [hit.unitCount ? hit.unitCount + ' phần' : '', hit.lessonCount ? hit.lessonCount + ' bài' : '']
+        .filter(Boolean).join(', ') + '</mark>' : '') + '</span>'
       + '</span>'
       + statusBadge(textbook.status)
       + '<span class="manage-row__actions">'
       + iconBtn('add-unit', 'textbook', textbook.id, 'fa-plus', 'Thêm phần', '', lockReason)
       + iconBtn('edit', 'textbook', textbook.id, 'fa-pen', 'Sửa giáo trình', '', lockReason)
+      + previewLink('/textbooks/' + textbook.id,
+        textbook.status === 'PUBLISHED' ? '' : 'Học viên chưa thấy giáo trình này (Nháp)',
+        isArchived(textbook) ? 'Giáo trình đã lưu trữ — không hiện ở trang học viên, khôi phục để xem trước' : '')
       // Nút trạng thái của CHÍNH giáo trình không khoá: đó là lối khôi phục duy nhất.
       + statusButtons('textbook', textbook)
       + '</span></div>'
       + body + '</section>';
   }
 
+  /** Giáo trình hiện khi khớp bộ lọc, hoặc đang mở (để vẫn thấy các bài khớp bộ lọc bên trong). */
+  function visibleTextbooks() {
+    return state.textbooks.filter(function (t) {
+      return (showArchived() || !isArchived(t)) && (matchesFilter(t) || state.expanded[t.id])
+        && passesAttrFilters(t) && searchHit(t) !== undefined;
+    }).sort(compareTextbooks);
+  }
+
   function render() {
     loadingEl.hidden = true;
-    var visible = state.textbooks.filter(function (t) { return showArchived() || !isArchived(t); });
+    var visible = visibleTextbooks();
+    renderSummary(visible.length);
+    if (!visible.length && state.textbooks.length) {   // có dữ liệu nhưng bộ lọc / ô lưu trữ ẩn hết
+      emptyEl.hidden = true;
+      treeEl.hidden = false;
+      treeEl.innerHTML = '<p class="manage-empty-hint">Không có giáo trình nào khớp bộ lọc.</p>';
+      renderBulkBar();
+      return;
+    }
     emptyEl.hidden = visible.length > 0;
     treeEl.hidden = visible.length === 0;
     treeEl.innerHTML = visible.map(textbookBlock).join('');
+    Array.prototype.forEach.call(treeEl.querySelectorAll('[data-indeterminate]'), function (el) { el.indeterminate = true; });
+    renderBulkBar();
   }
 
   // ── Tải dữ liệu ────────────────────────────────────────────────────────────
@@ -256,7 +647,10 @@ window.AdminShell.ready.then(function (allowed) {
   function loadTextbooks() {
     return request('/manage/textbooks').then(function (data) {
       state.textbooks = data || [];
+      trees.all = false;
       clearError();
+      renderTopicOptions();
+      if (filters.q) ensureAllTrees();
       render();
     });
   }
@@ -307,6 +701,212 @@ window.AdminShell.ready.then(function (allowed) {
         return reloadAll();
       })
       .catch(function (err) { toast(err.message || 'Không đổi được trạng thái.', 'error'); });
+  }
+
+  // ── Công bố / ẩn hàng loạt ─────────────────────────────────────────────────
+
+  var KIND_LABELS = { textbook: 'giáo trình', lesson: 'bài học' };
+  var BULK_ACTIONS = {
+    PUBLISH: { status: 'PUBLISHED', verb: 'Công bố', effect: 'Học viên sẽ thấy các nội dung này.' },
+    UNPUBLISH: { status: 'DRAFT', verb: 'Ẩn (về Nháp)', effect: 'Học viên sẽ không còn thấy các nội dung này.' }
+  };
+
+  /** Giáo trình lấy từ nguồn ngoài theo dải id seed: vnjpclub 1.000.001–1.999.999, Minna 3.000.001–3.999.999. */
+  function isExternalTextbook(id) {
+    var n = Number(id);
+    return (n >= 1000001 && n <= 1999999) || (n >= 3000001 && n <= 3999999);
+  }
+
+  function textbookIdOfLesson(lessonId) {
+    var found = null;
+    Object.keys(state.trees).forEach(function (bookId) {
+      ((state.trees[bookId] && state.trees[bookId].units) || []).forEach(function (u) {
+        (u.lessons || []).forEach(function (l) { if (String(l.id) === String(lessonId)) found = bookId; });
+      });
+    });
+    return found;
+  }
+
+  function selectedIds(kind) {
+    return Object.keys(bulk.selected[kind]).filter(function (id) { return bulk.selected[kind][id]; }).map(Number);
+  }
+
+  /** Mọi mục đang hiện, khớp bộ lọc và chọn được (không lưu trữ): giáo trình + bài của các giáo trình đang mở. */
+  function selectableVisible() {
+    var out = { textbook: [], lesson: [] };
+    visibleTextbooks().forEach(function (t) {
+      if (matchesFilter(t) && !isArchived(t)) out.textbook.push(t.id);
+      var tree = state.expanded[t.id] && state.trees[t.id];
+      var hit = searchHit(t) || null;
+      ((tree && tree.units) || []).forEach(function (u) {
+        if (!unitInSearch(hit, u)) return;
+        (u.lessons || []).forEach(function (l) { if (lessonVisible(l, hit, u) && !isArchived(l)) out.lesson.push(l.id); });
+      });
+    });
+    return out;
+  }
+
+  function renderBulkBar() {
+    var nBooks = selectedIds('textbook').length;
+    var nLessons = selectedIds('lesson').length;
+    var total = nBooks + nLessons;
+    var pool = selectableVisible();
+    var poolSize = pool.textbook.length + pool.lesson.length;
+    var pickedInPool = pool.textbook.filter(function (id) { return bulk.selected.textbook[id]; }).length
+      + pool.lesson.filter(function (id) { return bulk.selected.lesson[id]; }).length;
+    if (selectAllEl) {
+      selectAllEl.checked = poolSize > 0 && pickedInPool === poolSize;
+      selectAllEl.indeterminate = pickedInPool > 0 && pickedInPool < poolSize;
+      selectAllEl.disabled = poolSize === 0 || bulk.busy;
+      selectAllLabelEl.textContent = 'Chọn tất cả ' + poolSize + ' mục đang hiện' + (activeFilterCount() ? ' (theo bộ lọc)' : '');
+    }
+    if (!bulkBarEl) return;
+    bulkBarEl.hidden = total === 0 && !bulk.result && !bulk.busy;
+    var parts = [];
+    if (nBooks) parts.push(nBooks + ' giáo trình');
+    if (nLessons) parts.push(nLessons + ' bài');
+    bulkBarEl.querySelector('[data-bulk-count]').textContent = total
+      ? 'Đã chọn ' + total + ' (' + parts.join(', ') + ')' : 'Chưa chọn mục nào';
+    Array.prototype.forEach.call(bulkBarEl.querySelectorAll('button[data-bulk-run], button[data-bulk-clear]'), function (b) {
+      b.disabled = bulk.busy || total === 0;
+    });
+    var progressEl = bulkBarEl.querySelector('[data-bulk-progress]');
+    var resultEl = bulkBarEl.querySelector('[data-bulk-result]');
+    progressEl.hidden = !bulk.busy;
+    if (bulk.result) {
+      resultEl.hidden = false;
+      resultEl.className = 'manage-bulkbar__result ' + (bulk.result.failed ? 'is-error' : 'is-ok');
+      resultEl.innerHTML = escapeHtml(bulk.result.text) +
+        (bulk.result.reasons.length ? '<ul>' + bulk.result.reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') + '</ul>' : '') +
+        ' <button type="button" class="manage-bulkbar__dismiss" data-bulk-dismiss aria-label="Ẩn kết quả">×</button>';
+    } else {
+      resultEl.hidden = true;
+      resultEl.innerHTML = '';
+    }
+  }
+
+  function setSelected(kind, ids, on) {
+    ids.forEach(function (id) { if (on) bulk.selected[kind][id] = true; else delete bulk.selected[kind][id]; });
+  }
+
+  /** Cập nhật trạng thái trong state (không tải lại) cho các id đã xử lý thành công. */
+  function applyLocalStatus(kind, ids, status) {
+    var set = {};
+    ids.forEach(function (id) { set[id] = true; });
+    if (kind === 'textbook') {
+      state.textbooks.forEach(function (t) { if (set[t.id]) t.status = status; });
+      Object.keys(state.trees).forEach(function (bookId) {
+        var tree = state.trees[bookId];
+        if (tree && tree.textbook && set[tree.textbook.id]) tree.textbook.status = status;
+      });
+    } else {
+      Object.keys(state.trees).forEach(function (bookId) {
+        ((state.trees[bookId] && state.trees[bookId].units) || []).forEach(function (u) {
+          (u.lessons || []).forEach(function (l) { if (set[l.id]) l.status = status; });
+        });
+      });
+    }
+  }
+
+  function bulkConfirmText(action, groups) {
+    var rule = BULK_ACTIONS[action];
+    var counts = groups.filter(function (g) { return g.ids.length; })
+      .map(function (g) { return g.ids.length + ' ' + KIND_LABELS[g.kind]; });
+    var external = groups.some(function (g) {
+      return g.ids.some(function (id) { return isExternalTextbook(g.kind === 'textbook' ? id : textbookIdOfLesson(id)); });
+    });
+    return rule.verb + ' ' + counts.join(' và ') + '?\n' + rule.effect +
+      (external ? '\nNội dung lấy từ nguồn bên ngoài — chỉ công bố khi nhóm đã thống nhất.' : '');
+  }
+
+  /**
+   * Chạy hàng loạt: chia lô ≤ 500 id gọi POST /manage/status/bulk (mỗi lô một transaction ở server). Công bố thì
+   * giáo trình trước rồi mới tới bài (bài cần giáo trình đã công bố). Lô lỗi giữ nguyên lựa chọn để thử lại.
+   */
+  function runBulk(action, groups) {
+    if (bulk.busy) return;
+    var rule = BULK_ACTIONS[action];
+    var ordered = groups.filter(function (g) { return g.ids.length; });
+    if (action === 'UNPUBLISH') ordered.reverse();
+    var chunks = [];
+    ordered.forEach(function (g) {
+      for (var i = 0; i < g.ids.length; i += BULK_CHUNK) chunks.push({ kind: g.kind, ids: g.ids.slice(i, i + BULK_CHUNK) });
+    });
+    if (!chunks.length) return;
+    bulk.busy = true;
+    bulk.result = null;
+    var done = 0, failed = 0, reasons = [];
+    var progressEl = bulkBarEl.querySelector('[data-bulk-progress]');
+    render();
+    var chain = Promise.resolve();
+    chunks.forEach(function (chunk, index) {
+      chain = chain.then(function () {
+        progressEl.textContent = 'Đang xử lý lô ' + (index + 1) + '/' + chunks.length + '…';
+        return request('/manage/status/bulk', {
+          method: 'POST',
+          body: JSON.stringify({ kind: chunk.kind.toUpperCase(), action: action, ids: chunk.ids })
+        }).then(function (data) {
+          var ids = (data && data.ids) || chunk.ids;
+          applyLocalStatus(chunk.kind, ids, rule.status);
+          setSelected(chunk.kind, ids, false);
+          done += ids.length;
+        }).catch(function (err) {
+          failed += chunk.ids.length;
+          reasons.push(err.message || 'Lỗi không xác định.');
+        });
+      });
+    });
+    return chain.then(function () {
+      bulk.busy = false;
+      bulk.result = {
+        failed: failed,
+        text: rule.verb + ': thành công ' + done + ', lỗi ' + failed + (failed ? ' (các mục lỗi vẫn được chọn để thử lại).' : '.'),
+        reasons: reasons
+      };
+      toast(bulk.result.text, failed ? 'error' : 'success');
+      // Số liệu đếm của danh sách giáo trình (unitCount…) không đổi theo trạng thái, nên chỉ vẽ lại từ state.
+      render();
+    });
+  }
+
+  function runSelected(action) {
+    var groups = [{ kind: 'textbook', ids: selectedIds('textbook') }, { kind: 'lesson', ids: selectedIds('lesson') }];
+    if (!groups[0].ids.length && !groups[1].ids.length) return;
+    if (!window.confirm(bulkConfirmText(action, groups))) return;
+    runBulk(action, groups);
+  }
+
+  /** "Công bố / Ẩn tất cả bài" của một phần hoặc cả giáo trình: mọi bài chưa lưu trữ trong phạm vi (không theo bộ lọc). */
+  function runScope(scope, id, action) {
+    var lessons = [];
+    Object.keys(state.trees).forEach(function (bookId) {
+      if (scope === 'textbook' && String(bookId) !== String(id)) return;
+      ((state.trees[bookId] && state.trees[bookId].units) || []).forEach(function (u) {
+        if (scope === 'unit' && String(u.id) !== String(id)) return;
+        (u.lessons || []).forEach(function (l) { if (!isArchived(l)) lessons.push(l.id); });
+      });
+    });
+    if (!lessons.length) { toast('Không có bài nào để ' + (action === 'PUBLISH' ? 'công bố.' : 'ẩn.'), 'info'); return; }
+    var groups = [{ kind: 'lesson', ids: lessons }];
+    if (!window.confirm(bulkConfirmText(action, groups))) return;
+    runBulk(action, groups);
+  }
+
+  function onSelectChange(event) {
+    var box = event.target.closest('.manage-check');
+    if (!box) return;
+    var kind = box.getAttribute('data-select');
+    var id = box.getAttribute('data-id');
+    if (kind === 'unit') {
+      var unit = findUnit(id);
+      var unitHit = hitOfUnit(id);
+      var ids = ((unit && unit.lessons) || []).filter(function (l) { return lessonVisible(l, unitHit, unit) && !isArchived(l); })
+        .map(function (l) { return l.id; });
+      setSelected('lesson', ids, box.checked);
+    } else {
+      setSelected(kind, [id], box.checked);
+    }
+    render();
   }
 
   /** Dùng chung cho xoá phần và xoá bài: cùng cách xác nhận, cùng cách báo lỗi. */
@@ -768,7 +1368,7 @@ window.AdminShell.ready.then(function (allowed) {
         + selectField('Loại bài', 'lessonType', existing ? existing.lessonType : 'CURRICULUM', optionsOf(LESSON_TYPE_LABELS))
         + selectField('Kỹ năng', 'skill', existing ? existing.skill : 'VOCABULARY', optionsOf(SKILL_LABELS))
         + selectField('Tình huống', 'situationTag', existing ? existing.situationTag : '',
-          optionsOf({ TRAVEL: 'Du lịch', WORK: 'Công việc', FOUNDATION: 'Nền tảng' }, true))
+          optionsOf({ TRAVEL: 'Du lịch', BA: 'Công việc', FOUNDATION: 'Nền tảng' }, true))
         + field('Thời lượng (phút)', 'estimatedMinutes', existing ? existing.estimatedMinutes : '', 'type="number" min="1"')
         + selectField('Điểm kiến thức', 'knowledgeTagId', existing ? existing.knowledgeTagId : '', tagOptions,
           'data-role="tag-select"')
@@ -785,7 +1385,7 @@ window.AdminShell.ready.then(function (allowed) {
               description: values.description,
               lessonType: values.lessonType,
               skill: values.skill,
-              situationTag: values.situationTag,
+              situationTag: values.situationTag || null,
               estimatedMinutes: values.estimatedMinutes ? Number(values.estimatedMinutes) : null
             });
             return existing
@@ -890,7 +1490,14 @@ window.AdminShell.ready.then(function (allowed) {
       return;
     }
     if (action === 'add-unit') { unitForm(id, null); return; }
-    if (action === 'add-lesson') { lessonForm(id, null); return; }
+    if (action === 'add-lesson') {
+      // [JLAS2-17] Thêm bài học ở trang riêng 3 bước (thay modal); modal Sửa bài học giữ nguyên.
+      var bookId = Object.keys(state.trees).filter(function (tid) {
+        return ((state.trees[tid] && state.trees[tid].units) || []).some(function (u) { return String(u.id) === String(id); });
+      })[0];
+      window.location.href = '/textbooks/manage/' + encodeURIComponent(bookId) + '/lessons/new?unitId=' + encodeURIComponent(id);
+      return;
+    }
     if (action === 'delete') { deleteEntity(kind, id); return; }
     if (action === 'move-up') { moveBy(kind, id, -1); return; }
     if (action === 'move-down') { moveBy(kind, id, 1); return; }
@@ -932,9 +1539,41 @@ window.AdminShell.ready.then(function (allowed) {
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && !modalEl.hidden) requestCloseModal();
   });
-  document.getElementById('addTextbookBtn').addEventListener('click', function () { textbookForm(null); });
-  showArchivedEl.addEventListener('change', render);
+  showArchivedEl.addEventListener('change', applyFilters);
+  // [JLAS2-17] Công bố / ẩn hàng loạt
+  treeEl.addEventListener('change', onSelectChange);
+  treeEl.addEventListener('click', function (event) {
+    var scopeBtn = event.target.closest('[data-bulk-scope]');
+    if (scopeBtn && !scopeBtn.disabled) {
+      runScope(scopeBtn.getAttribute('data-bulk-scope'), scopeBtn.getAttribute('data-id'), scopeBtn.getAttribute('data-bulk-action'));
+    }
+  });
+  if (statusFilterEl) {
+    statusFilterEl.addEventListener('change', function () { bulk.filter = statusFilterEl.value; applyFilters(); });
+  }
+  if (selectAllEl) {
+    selectAllEl.addEventListener('change', function () {
+      var pool = selectableVisible();
+      setSelected('textbook', pool.textbook, selectAllEl.checked);
+      setSelected('lesson', pool.lesson, selectAllEl.checked);
+      render();
+    });
+  }
+  if (bulkBarEl) {
+    bulkBarEl.addEventListener('click', function (event) {
+      var run = event.target.closest('[data-bulk-run]');
+      if (run && !run.disabled) { runSelected(run.getAttribute('data-bulk-run')); return; }
+      if (event.target.closest('[data-bulk-clear]')) {
+        bulk.selected = { textbook: {}, lesson: {} };
+        bulk.result = null;
+        render();
+        return;
+      }
+      if (event.target.closest('[data-bulk-dismiss]')) { bulk.result = null; render(); }
+    });
+  }
   setupDragAndDrop();
+  setupFilters();
 
   loadTextbooks().catch(function (err) {
     showError(err.message || 'Không tải được danh sách giáo trình.');

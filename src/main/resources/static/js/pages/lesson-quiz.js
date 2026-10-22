@@ -37,6 +37,24 @@
       .replace(/'/g, '&#039;');
   }
 
+  /**
+   * Media của câu (audio_url / image_url): đường dẫn tương đối nằm trong kho audio giáo trình
+   * (/uploads/content-audio/); URL tuyệt đối hoặc '/...' (vd. /audio/smart-test/...) giữ nguyên.
+   */
+  function mediaUrl(path) {
+    var p = String(path == null ? '' : path).trim();
+    if (!p) return '';
+    if (/^(https?:|data:|blob:|\/)/i.test(p)) return p;
+    return '/uploads/content-audio/' + p.replace(/^\.\//, '');
+  }
+
+  function questionImage(question, index) {
+    return question.imageUrl
+      ? '<figure class="lq-figure"><img class="lq-image" loading="lazy" src="' + escapeHtml(mediaUrl(question.imageUrl)) +
+        '" alt="Đoạn văn / hình minh hoạ của câu ' + (index + 1) + '"></figure>'
+      : '';
+  }
+
   function positiveInteger(value) {
     var result = Number(value);
     return Number.isInteger(result) && result > 0 ? result : null;
@@ -103,7 +121,7 @@
 
   function renderQuestion(question, index) {
     var audio = question.audioUrl
-      ? '<audio class="lq-audio" controls preload="metadata" src="' + escapeHtml(question.audioUrl) + '"></audio>'
+      ? '<audio class="lq-audio" controls preload="metadata" src="' + escapeHtml(mediaUrl(question.audioUrl)) + '"></audio>'
       : '';
     var passage = question.passageHtml
       ? '<div class="lq-passage">' + question.passageHtml + '</div>'
@@ -120,7 +138,7 @@
         '<span class="lq-question__num">Câu ' + (index + 1) + '</span>' + skillBadge(question.skill, question.jlptLevel) +
       '</div>' +
       (question.title ? '<h3 class="lq-question__title">' + escapeHtml(question.title) + '</h3>' : '') +
-      audio + passage +
+      audio + passage + questionImage(question, index) +
       '<p class="lq-question__text">' + escapeHtml(question.questionText) + '</p>' +
       '<div class="lq-options" role="radiogroup" aria-label="Câu ' + (index + 1) + '">' + options + '</div></li>';
   }
@@ -206,7 +224,7 @@
 
   function renderMcqScreen(q) {
     var audio = q.audioUrl
-      ? '<audio class="lq-audio" controls preload="metadata" src="' + escapeHtml(q.audioUrl) + '"></audio>'
+      ? '<audio class="lq-audio" controls preload="metadata" src="' + escapeHtml(mediaUrl(q.audioUrl)) + '"></audio>'
       : '';
     var passage = q.passageHtml
       ? '<div class="lq-passage">' + q.passageHtml + '</div>'
@@ -226,7 +244,7 @@
         '<span class="lq-question__num">Chọn 1 đáp án</span>' + skillBadge(q.skill, q.jlptLevel) +
       '</div>' +
       (q.title ? '<h3 class="lq-question__title">' + escapeHtml(q.title) + '</h3>' : '') +
-      audio + passage +
+      audio + passage + questionImage(q, state.current) +
       '<p class="lq-question__text">' + escapeHtml(q.questionText) + '</p>' +
       '<div class="lq-options" role="radiogroup">' + options + '</div></div>';
   }
@@ -506,5 +524,5 @@
     load();
   }
 
-  return { mount: mount, quizUrl: quizUrl, submitUrl: submitUrl };
+  return { mount: mount, quizUrl: quizUrl, submitUrl: submitUrl, mediaUrl: mediaUrl };
 });
