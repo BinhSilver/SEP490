@@ -114,6 +114,40 @@ class InteractiveComprehensionPathUpgradeServiceTest {
         assertEquals(2, fixture.pathItems.stream().filter(item -> item.getActivityType() == LearningActivityType.READING).count());
     }
 
+    /** Owner 2026-10-21: opening an existing JLPT path failed on MySQL — user_learning_path_item.order_index is
+     * INT UNSIGNED, and the split parked rows at negative orders before renumbering (H2 accepts negatives). */
+    @Test void neverWritesANegativeOrZeroOrderWhileMakingRoomForSplitParts() {
+        var fixture = fixture(List.of(11L, 12L, 21L));
+        when(items.findByPathForUpdate(50L)).thenReturn(fixture.pathItems);
+        when(items.save(any(UserLearningPathItem.class))).thenAnswer(invocation -> {
+            UserLearningPathItem saved = invocation.getArgument(0);
+            if (saved.getId() == null) {
+                saved.setId(101L);
+                fixture.pathItems.add(saved);
+            }
+            return saved;
+        });
+        var written = new ArrayList<Integer>();
+        when(items.saveAll(anyList())).thenAnswer(invocation -> {
+            List<UserLearningPathItem> rows = invocation.getArgument(0);
+            rows.forEach(row -> written.add(row.getOrderIndex()));
+            return rows;
+        });
+        when(members.findByActivityIdOrderByOrderIndex(100L)).thenReturn(fixture.members);
+        when(states.findByActivityIdOrderByBatchIndex(100L)).thenReturn(fixture.states);
+        when(quizSessions.findByActivityIdOrderByIdAsc(100L)).thenReturn(fixture.attempts);
+        when(studySessions.findByActivityId(100L)).thenReturn(Optional.of(fixture.studySession));
+        when(studySessions.save(any(LearningStudySession.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(studyCards.findBySessionIdOrderByOrderIndex(300L)).thenReturn(fixture.cards);
+        when(catalog.resolve("READING", "N5")).thenReturn(readingCatalog());
+
+        assertEquals(1, service.reconcile(7L, fixture.path).splitActivities());
+
+        assertFalse(written.isEmpty());
+        assertTrue(written.stream().allMatch(order -> order != null && order > 0), "orders written: " + written);
+        assertEquals(4, fixture.after.getOrderIndex(), "the dense final order is unchanged");
+    }
+
     @Test void leavesAnActivityUntouchedAndReportsWhenAQuestionCannotBeMappedToItsSourceExercise() {
         var fixture = fixture(List.of(11L, 999L));
         when(items.findByPathForUpdate(50L)).thenReturn(fixture.pathItems);

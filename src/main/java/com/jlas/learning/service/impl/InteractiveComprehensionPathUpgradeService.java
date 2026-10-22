@@ -66,10 +66,14 @@ public class InteractiveComprehensionPathUpgradeService {
         }
         if (plans.isEmpty()) return report(path.getId(), 0, diagnostics);
 
-        // Move every existing order out of the unique positive range before assigning the dense new order.
-        // This avoids transient collisions in (path_id, order_index) when a split inserts rows mid-path.
+        // Park every row above both the current and the final dense order before renumbering, so a split that inserts
+        // rows mid-path never collides in (path_id, order_index). order_index is INT UNSIGNED in MySQL: no negatives.
+        int finalCount = orderedPathItems.size() + plans.values().stream().mapToInt(plan -> plan.groups().size() - 1).sum();
+        int currentMax = orderedPathItems.stream().map(UserLearningPathItem::getOrderIndex).filter(Objects::nonNull)
+                .mapToInt(Integer::intValue).max().orElse(0);
+        int parkingBase = Math.max(currentMax, finalCount);
         for (int i = 0; i < orderedPathItems.size(); i++) {
-            orderedPathItems.get(i).setOrderIndex(-(i + 1));
+            orderedPathItems.get(i).setOrderIndex(parkingBase + i + 1);
         }
         items.saveAll(orderedPathItems);
         items.flush();
