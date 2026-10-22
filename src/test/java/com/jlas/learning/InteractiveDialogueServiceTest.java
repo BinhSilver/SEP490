@@ -79,7 +79,7 @@ class InteractiveDialogueServiceTest {
 
     private UserLearningPathItem challengeActivity() {
         var activity = communicationActivity(1L, 7L);
-        activity.setLesson(Lesson.builder().id(40L).build());
+        activity.setLesson(Lesson.builder().id(40L).title("J-LAS · Nhận phòng khách sạn").build());
         when(items.findByIdAndUserId(1L, 7L)).thenReturn(Optional.of(activity));
         org.mockito.Mockito.lenient().when(items.findOwnedByIdForUpdate(1L, 7L)).thenReturn(Optional.of(activity));
         when(members.findByActivityIdOrderByOrderIndex(1L)).thenReturn(List.of(member(activity, 1, 201L, "rev-1"),
@@ -102,6 +102,7 @@ class InteractiveDialogueServiceTest {
         assertTrue(view.available());
         assertFalse(view.cleared());
         assertEquals(2, view.rewardCredits());
+        assertEquals("Nhận phòng khách sạn", view.situationTitle(), "the challenge names its situation, without the J-LAS prefix");
         assertEquals(1, view.turns().size());
         var turn = view.turns().get(0);
         assertEquals(202L, turn.lineId(), "the turn sits at the learner's line in the script");

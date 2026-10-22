@@ -85,6 +85,7 @@
    * The front shows the Japanese and its reading; flipping reveals the meaning and is saved by the server. */
   function renderPhrases(v) {
     if (!v.aids || !v.aids.phrases.length) return '';
+    // Owner 2026-10-21: a compact grid of small flip cards, each with listen and "find in the dialogue" tools.
     var items = v.aids.phrases.map(function (phrase, position) {
       var index = phrase.index != null ? num(phrase.index) : position;
       var flipped = phrase.flipped === true;
@@ -94,17 +95,43 @@
         '<span class="ilp-dialogue__phrase-ja" lang="ja">' + esc(phrase.japanese) + '</span>' +
         (phrase.reading ? '<span class="ilp-dialogue__phrase-reading" lang="ja">' + esc(phrase.reading) + '</span>' : '') +
         (flipped ? '<span class="ilp-dialogue__phrase-vi">' + esc(phrase.meaningVi || '') + '</span>'
-          : '<span class="ilp-dialogue__phrase-hint">Bấm để lật xem nghĩa</span>') + '</button>' +
+          : '<span class="ilp-dialogue__phrase-hint">Chạm để xem nghĩa</span>') + '</button>' +
         '<span class="ilp-dialogue__phrase-actions">' + speakButton(phrase.japanese, 'Nghe ' + phrase.japanese) +
         (phrase.lineId != null ? '<button type="button" class="ilp-dialogue__jump" data-jump-line="' + esc(phrase.lineId) +
-          '">Xem trong hội thoại</button>' : '') + '</span></li>';
+          '" data-jump-phrase="' + esc(phrase.japanese) + '" aria-label="Xem “' + esc(phrase.japanese) + '” trong hội thoại">' +
+          'Xem trong hội thoại</button>' : '') + '</span></li>';
     }).join('');
     return '<details class="ilp-dialogue__phrases" open><summary>Từ &amp; cụm từ trong hội thoại (' + v.flippedPhrases + '/' +
-      v.totalPhrases + ' thẻ đã lật)</summary><p class="ilp-dialogue__supplement">' + esc(v.aids.label) + '</p><ul>' +
-      items + '</ul></details>';
+      v.totalPhrases + ' thẻ đã lật)</summary><ul class="ilp-dialogue__phrase-grid">' + items + '</ul></details>';
   }
 
-  var CHALLENGE_CTA = '<p class="ilp-challenge__cta"><button type="button" class="ilp-check" data-challenge-start>' +
+  /** Wraps every text piece of {@code phrase} inside {@code container} in a flash mark, skipping furigana readings
+   * (rt), so ruby lines still match their base text. Returns the marks; empty when the phrase is not in the line. */
+  function highlightPhrase(container, phrase) {
+    if (!container || !phrase || typeof document === 'undefined') return [];
+    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) { return n.parentNode && n.parentNode.closest && n.parentNode.closest('rt, rp') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; }
+    });
+    var nodes = [], text = '', node;
+    while ((node = walker.nextNode())) { nodes.push({ node: node, start: text.length }); text += node.nodeValue; }
+    var at = text.indexOf(phrase);
+    if (at < 0) return [];
+    var end = at + phrase.length, marks = [];
+    nodes.forEach(function (piece) {
+      var from = Math.max(at, piece.start), to = Math.min(end, piece.start + piece.node.nodeValue.length);
+      if (from >= to) return;
+      var range = document.createRange();
+      range.setStart(piece.node, from - piece.start);
+      range.setEnd(piece.node, to - piece.start);
+      var mark = document.createElement('mark');
+      mark.className = 'ilp-dialogue__flash';
+      range.surroundContents(mark);
+      marks.push(mark);
+    });
+    return marks;
+  }
+
+  var CHALLENGE_CTA ='<p class="ilp-challenge__cta"><button type="button" class="ilp-check" data-challenge-start>' +
     'Thử thách vượt ải (+2 CP lần đầu)</button> <span>Trò chơi tùy chọn — không ảnh hưởng việc hoàn thành bài.</span></p>';
 
   /** Owner 2026-10-19 (G1–G3): the dialogue runs turn by turn; at the learner's turn they pick the right reply (1 of 3).
@@ -122,9 +149,20 @@
     var turn = turns[index];
     lines = list(lines);
     var stop = lines.findIndex(function (line) { return String(line.lineId) === String(turn.lineId); });
-    var before = lines.slice(0, stop < 0 ? 0 : stop).map(function (line) {
-      return renderLine(line, { showFurigana: prefs.showFurigana !== false, showTranslation: prefs.showTranslation });
-    }).join('');
+    var lineOpts = { showFurigana: prefs.showFurigana !== false, showTranslation: prefs.showTranslation };
+    // Owner 2026-10-21: each turn opens on its "obstacle" — the line just said to the learner — so the choice is a reply
+    // to something concrete; earlier lines stay one tap away. A learner who speaks first is told they open the talk.
+    var prev = stop > 0 ? lines[stop - 1] : null;
+    var ownTurn = prev && turns.some(function (t) { return String(t.lineId) === String(prev.lineId); });
+    var history = stop > 1 ? '<details class="ilp-challenge__history"><summary>Đoạn hội thoại trước đó (' + (stop - 1) +
+      ' lượt)</summary><ol class="ilp-dialogue__script">' + lines.slice(0, stop - 1).map(function (line) {
+        return renderLine(line, lineOpts); }).join('') + '</ol></details>' : '';
+    var before = history + (prev
+      ? '<div class="ilp-challenge__cue"><p class="ilp-challenge__cue-label">' + (ownTurn ? 'Bạn vừa nói:' :
+        esc(prev.roleName || 'Đối phương') + ' nói với bạn:') + '</p><ol class="ilp-dialogue__script">' + renderLine(prev, lineOpts) + '</ol></div>'
+      : '<div class="ilp-challenge__cue is-opening"><p class="ilp-challenge__cue-label">Bạn là người mở lời.</p>' +
+        '<p>Hãy chọn câu mở đầu phù hợp với tình huống.</p></div>');
+    var question = prev && !ownTurn ? 'Bạn đáp lại thế nào?' : prev ? 'Bạn nói tiếp thế nào?' : 'Bạn sẽ mở lời thế nào?';
     var feedback = state.feedback || null;
     var options = list(turn.options).map(function (option) {
       var mark = feedback ? (option.id === feedback.correctOptionId ? ' is-right' : (option.id === feedback.chosen ? ' is-wrong' : '')) : '';
@@ -142,19 +180,19 @@
       : '<div class="ilp-challenge__feedback is-fail" role="status"><p><strong>Chưa đúng.</strong> Câu đúng đã được đánh dấu. ' +
         esc(feedback.explanationVi || '') + '</p><p>Làm sai không mất gì — bạn có thể thử lại bao nhiêu lần cũng được.</p>' +
         '<button type="button" class="ilp-check" data-challenge-retry>Thử lại ải</button></div>';
-    return '<section class="ilp-dialogue ilp-challenge"><header class="ilp-study__head"><div><span class="ilp-kicker">THỬ THÁCH VƯỢT ẢI · LƯỢT ' +
-      (index + 1) + '/' + turns.length + '</span><h1>Thử thách vượt ải</h1><p>Bạn đóng vai ' + esc(view.learnerRole || 'người học') +
+    // Owner 2026-10-21: the challenge is headed by its situation's name.
+    return '<section class="ilp-dialogue ilp-challenge"><header class="ilp-study__head"><div><span class="ilp-kicker">Thử thách vượt ải · Lượt ' +
+      (index + 1) + '/' + turns.length + '</span><h1>' + esc(view.situationTitle || 'Thử thách vượt ải') + '</h1><p>Bạn đóng vai ' + esc(view.learnerRole || 'người học') +
       '. Tới lượt bạn, hãy chọn câu đáp đúng trong 3 câu.</p><p class="ilp-challenge__reward">' + (view.cleared
         ? 'Bạn đã vượt ải này — chơi lại thoải mái, không cộng thêm CP.'
         : 'Vượt ải lần đầu: +' + num(view.rewardCredits) + ' CP') + '</p></div></header>' +
+      '<p class="ilp-dialogue__audio-status" data-audio-status role="status" aria-live="polite"></p>' + before +
+      '<div class="ilp-challenge__turn"><h2>' + question + '</h2><ul class="ilp-challenge__options">' + options + '</ul>' + after + '</div>' +
       '<p class="ilp-dialogue__supplement">' + esc(view.label || 'Nội dung bổ sung J-LAS') + '</p>' +
-      '<p class="ilp-dialogue__audio-status" data-audio-status role="status" aria-live="polite"></p>' +
-      '<ol class="ilp-dialogue__script">' + before + '</ol>' +
-      '<div class="ilp-challenge__turn"><h2>Bạn sẽ nói gì?</h2><ul class="ilp-challenge__options">' + options + '</ul>' + after + '</div>' +
       close + '</section>';
   }
 
-  function renderChallengeResult(result) {
+  function renderChallengeResult(result, view) {
     result = result || {};
     var cleared = !!result.cleared;
     var message = !cleared
@@ -162,7 +200,9 @@
       : num(result.creditsAwarded) > 0 ? 'Bạn đã chọn đúng mọi lượt. +' + num(result.creditsAwarded) + ' CP đã được cộng cho lần vượt ải đầu tiên.'
         : result.firstClear ? 'Bạn đã chọn đúng mọi lượt.' : 'Bạn đã vượt ải này trước đó nên không cộng thêm CP.';
     return '<section class="ilp-result ilp-challenge"><header class="ilp-study__head"><div><span class="ilp-kicker">THỬ THÁCH VƯỢT ẢI</span>' +
-      '<h1>' + (cleared ? 'Vượt ải thành công!' : 'Chưa vượt ải') + '</h1><p>' + esc(message) + '</p></div></header>' +
+      '<h1>' + (cleared ? 'Vượt ải thành công!' : 'Chưa vượt ải') + '</h1>' +
+      (view && view.situationTitle ? '<p class="ilp-challenge__situation">Tình huống: ' + esc(view.situationTitle) + '</p>' : '') +
+      '<p>' + esc(message) + '</p></div></header>' +
       '<div class="ilp-result__actions"><button type="button" class="ilp-check" data-challenge-retry>Chơi lại</button>' +
       '<button type="button" class="ilp-check ilp-check--ghost" data-challenge-close>Xem lại hội thoại</button>' +
       '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a></div></section>';
@@ -238,17 +278,23 @@
   }
 
   function renderToolbar(v, prefs) {
-    var options = roles(v).map(function (role) {
-      return '<option value="' + esc(role.code) + '"' + (prefs.rolePlay === role.code ? ' selected' : '') + '>' +
-        'Tôi đóng vai ' + esc(role.name) + '</option>';
-    }).join('');
-    return '<div class="ilp-dialogue__toolbar">' +
-      (hasFurigana(v) ? '<label><input type="checkbox" data-toggle-furigana' + (prefs.showFurigana !== false ? ' checked' : '') +
-        '> Hiện furigana</label>' : '') +
-      '<label><input type="checkbox" data-toggle-translation' + (prefs.showTranslation !== false ? ' checked' : '') +
-      '> Hiện bản dịch</label>' +
-      '<label>Luyện đóng vai <select data-roleplay><option value="">Không đóng vai</option>' + options + '</select></label>' +
-      '</div>';
+    // Owner 2026-10-21: switches for furigana/translation and a segmented role picker instead of bare checkboxes and a select.
+    var role = function (code, label) {
+      var on = (prefs.rolePlay || '') === code;
+      return '<label class="ilp-segmented__item' + (on ? ' is-on' : '') + '"><input type="radio" name="ilpRolePlay" data-roleplay value="' +
+        esc(code) + '"' + (on ? ' checked' : '') + '><span>' + label + '</span></label>';
+    };
+    var toggle = function (attr, on, label) {
+      return '<label class="ilp-switch"><input type="checkbox" role="switch" ' + attr + (on ? ' checked' : '') + '>' +
+        '<span class="ilp-switch__track" aria-hidden="true"></span><span>' + label + '</span></label>';
+    };
+    return '<div class="ilp-dialogue__toolbar" role="group" aria-label="Cách hiển thị hội thoại">' +
+      '<div class="ilp-dialogue__switches">' +
+      (hasFurigana(v) ? toggle('data-toggle-furigana', prefs.showFurigana !== false, 'Furigana') : '') +
+      toggle('data-toggle-translation', prefs.showTranslation !== false, 'Bản dịch') + '</div>' +
+      '<fieldset class="ilp-dialogue__roles"><legend>Luyện đóng vai</legend><div class="ilp-segmented">' +
+      role('', 'Không') + roles(v).map(function (r) { return role(r.code, 'Tôi là ' + esc(r.name)); }).join('') +
+      '</div></fieldset></div>';
   }
 
   function renderScript(v, prefs) {
@@ -270,8 +316,9 @@
       ? 'Nghe từng lượt, tự nói theo rồi bấm “Tôi đã luyện câu này”. Chọn một vai để luyện đóng vai; bạn có thể tắt bản dịch khi đã quen.'
       : 'Đọc và nghe toàn bộ đoạn hội thoại, cuộn tới cuối để hoàn thành.';
     return '<section class="ilp-dialogue">' +
-      '<header class="ilp-study__head"><div><span class="ilp-kicker">HỘI THOẠI // ' +
-      (v.completed ? 'ĐÃ HOÀN THÀNH' : 'ĐANG LUYỆN TẬP') + '</span><h1>Luyện hội thoại</h1>' +
+      '<header class="ilp-study__head"><div>' + (v.lineByLinePractice ? '' : '<span class="ilp-kicker">HỘI THOẠI // ' +
+      (v.completed ? 'ĐÃ HOÀN THÀNH' : 'ĐANG LUYỆN TẬP') + '</span>') + '<h1>Luyện hội thoại' +
+      (v.lineByLinePractice && v.completed ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' +
       '<p>' + esc(intro) + '</p></div></header>' + (v.lineByLinePractice ? renderToolbar(v, prefs) : '') +
       (v.lines.some(function (line) { return line.audioUrl === 'tts:ja-JP'; })
         ? '<p class="ilp-dialogue__audio-note">Nội dung bổ sung J-LAS · Giọng đọc tiếng Nhật tổng hợp</p>' : '') +
@@ -321,12 +368,12 @@
   }
 
   /** {@code v} (optional): the study view model, whose aids feed "Tóm tắt cuối bài" for communication dialogues. */
-  function renderCompleted(activityId, lineByLine, v) {
-    return '<section class="ilp-result"><header class="ilp-study__head"><div><span class="ilp-kicker">HOÀN THÀNH</span>' +
-      '<h1>Phần Hội thoại đã đạt</h1><p>' + (lineByLine
-        ? 'Bạn đã luyện đủ các lượt thoại và đọc hết đoạn hội thoại.'
-        : 'Bạn đã đọc đủ thời gian và cuộn hết đoạn hội thoại.') + '</p></div></header>' +
-      (lineByLine ? renderSummary(v) : '') + (lineByLine && v && v.aids ? CHALLENGE_CTA : '') +
+  // Owner 2026-10-21: a finished dialogue keeps its script on screen (plus the end-of-lesson summary); the moment of
+  // finishing gets the shared congratulation popup instead of an empty "đã đạt" screen.
+  function renderCompleted(activityId, lineByLine, v, prefs) {
+    var done = Object.assign({ lines: [], practicedLineIds: [], aids: null }, v || {}, { completed: true });
+    return (done.lines.length ? renderScript(done, prefs || {}) : '') +
+      (lineByLine ? renderSummary(done) : '') +
       '<div class="ilp-result__actions">' + (num(activityId) > 0
         ? '<a class="ilp-check" href="/learning/v2/dialogue?activity=' + encodeURIComponent(activityId) +
           '&amp;mode=review">Xem lại bài học</a>' : '') +
@@ -405,7 +452,13 @@
       try { if (window.localStorage) window.localStorage.setItem(key, value); } catch (e) { /* storage unavailable */ }
     }
     function rerender() {
-      if (!current || finished) return;
+      if (!current) return;
+      if (finished) {
+        // The finished page keeps its script: furigana/translation toggles and phrase cards still work there.
+        node.innerHTML = renderCompleted(id, current.lineByLinePractice, current, prefs);
+        if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id);
+        return;
+      }
       if (observer) { observer.disconnect(); observer = null; }
       node.innerHTML = renderScript(current, prefs) + renderProgress(current);
       watchBottom();
@@ -468,7 +521,7 @@
       try {
         var result = await postJson('/challenge/complete', { answers: challenge.state.answers });
         if (result.cleared) challenge.view.cleared = true;
-        node.innerHTML = renderChallengeResult(result);
+        node.innerHTML = renderChallengeResult(result, challenge.view);
       } catch (e) { challengeStatus('Chưa ghi nhận được kết quả thử thách. Vui lòng thử lại.'); }
     }
     function retryChallenge() {
@@ -479,7 +532,7 @@
     function closeChallenge() {
       challenge = null;
       if (finished) {
-        node.innerHTML = renderCompleted(id, true, current || completedView);
+        node.innerHTML = renderCompleted(id, true, current || completedView, prefs);
         if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id);
       } else rerender();
     }
@@ -513,8 +566,9 @@
       if (result.completed) {
         finished = true;
         stopTracking();
-        if (current) { current.practicedCount = v.practicedCount; current.totalLines = v.totalLines; }
-        node.innerHTML = renderCompleted(id, v.lineByLinePractice, current);
+        if (current) { current.practicedCount = v.practicedCount; current.totalLines = v.totalLines; current.completed = true; }
+        completedView = current;
+        node.innerHTML = renderCompleted(id, v.lineByLinePractice, current, prefs);
         if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id);
         if (StudyMode && StudyMode.celebrate) {
           StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã hoàn thành phần Hội thoại.', activityId: id });
@@ -558,7 +612,7 @@
         }
         var study = await api('/study');
         var v = viewModel(study);
-        if (v.completed) { completedView = v; node.innerHTML = renderCompleted(id, v.lineByLinePractice, v); finished = true;
+        if (v.completed) { completedView = v; current = v; node.innerHTML = renderCompleted(id, v.lineByLinePractice, v, prefs); finished = true;
           if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id); }
         else if (v.lineByLinePractice) {
           // Owner 2026-10-19: no time requirement, so no heartbeat — practice and the end are the evidence.
@@ -595,6 +649,7 @@
     });
 
     node.addEventListener('click', function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
       if (event.target.closest('[data-retry]')) return load();
       if (event.target.closest('[data-challenge-start]')) return startChallenge();
       var challengeOption = event.target.closest('[data-challenge-option]');
@@ -617,8 +672,19 @@
         if (target) {
           var reduce = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           target.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
-          target.classList.add('is-highlighted');
-          window.setTimeout(function () { target.classList.remove('is-highlighted'); }, 1600);
+          // Owner 2026-10-21: flash the phrase itself inside the line; the whole line only when it cannot be found.
+          var marks = highlightPhrase(target.querySelector('.ilp-dialogue__ja'), jumpButton.getAttribute('data-jump-phrase'));
+          if (!marks.length) target.classList.add('is-highlighted');
+          window.setTimeout(function () {
+            target.classList.remove('is-highlighted');
+            marks.forEach(function (mark) {
+              var parent = mark.parentNode;
+              if (!parent) return;
+              while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+              parent.removeChild(mark);
+              parent.normalize();
+            });
+          }, 2200);
         }
         return;
       }

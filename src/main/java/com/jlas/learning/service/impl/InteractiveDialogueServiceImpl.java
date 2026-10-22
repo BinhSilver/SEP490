@@ -202,6 +202,12 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
         return new LoadedChallenge(activity, lessonId, learnerRole, resolved);
     }
 
+    /** The lesson title without the "J-LAS · " prefix the roadmap also drops. */
+    private static String situationTitle(UserLearningPathItem activity) {
+        String title = activity.getLesson() == null ? null : activity.getLesson().getTitle();
+        return title == null ? null : title.replaceFirst("^\\s*J-LAS\\s*·\\s*", "");
+    }
+
     private LoadedChallenge challengeFor(Long userId, Long activityId) {
         UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
                 .filter(item -> item.getActivityType() == LearningActivityType.DIALOGUE)
@@ -223,7 +229,7 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
                         }).toList())).toList();
         return new com.jlas.learning.dto.DialogueChallenge.View(true,
                 challengeClears.existsByUserIdAndLessonId(userId, loaded.lessonId()), CHALLENGE_CREDITS, loaded.learnerRole(),
-                AID_LABEL, turns);
+                AID_LABEL, turns, situationTitle(loaded.activity()));
     }
 
     @Override

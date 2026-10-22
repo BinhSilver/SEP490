@@ -205,7 +205,7 @@ test('progress panel marks both evidence items done only when both are true', ()
 // Owner 2026-10-21: a finished dialogue keeps its page; the "đã đạt" screen is gone (a popup celebrates instead).
 test('renders a completion state with a return-to-roadmap action and no empty result screen', () => {
   const html = page.renderCompleted(17);
-  assert.match(html, /Phần Hội thoại đã đạt/);
+  assert.doesNotMatch(html, /Phần Hội thoại đã đạt/);
   assert.match(html, /href="\/learning\/path\/v2"/);
   assert.match(html, /\/learning\/v2\/dialogue\?activity=17&amp;mode=review/);
 });
@@ -432,7 +432,9 @@ test('the challenge plays the script up to the learner turn and offers three esc
   assert.match(html, /Thử thách vượt ải/);
   assert.match(html, /Vượt ải lần đầu: \+2 CP/);
   assert.match(html, /いらっしゃいませ/, 'the partner line before the learner turn is shown');
-  assert.match(html, /Bạn sẽ nói gì\?/);
+  // Owner 2026-10-21: the partner's line is the turn's "obstacle", shown on its own right above the choices.
+  assert.match(html, /ilp-challenge__cue"><p class="ilp-challenge__cue-label">[^<]* nói với bạn:<\/p>[\s\S]*いらっしゃいませ/);
+  assert.match(html, /<h2>Bạn đáp lại thế nào\?<\/h2>/);
   assert.equal((html.match(/data-challenge-option="/g) || []).length, 3);
   assert.match(html, /<ruby>予約<rt>よやく<\/rt><\/ruby>/);
   assert.doesNotMatch(html, /<b>またね/);

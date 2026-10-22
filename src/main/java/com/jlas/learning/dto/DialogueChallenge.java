@@ -11,10 +11,14 @@ import java.util.List;
 public final class DialogueChallenge {
     private DialogueChallenge() { }
 
+    /** {@code situationTitle}: the situation the challenge belongs to, shown as its heading (owner 2026-10-21). */
     public record View(boolean available, boolean cleared, int rewardCredits, String learnerRole, String label,
-            List<Turn> turns) {
+            List<Turn> turns, String situationTitle) {
         public View {
             turns = turns == null ? List.of() : List.copyOf(turns);
+        }
+        public View(boolean available, boolean cleared, int rewardCredits, String learnerRole, String label, List<Turn> turns) {
+            this(available, cleared, rewardCredits, learnerRole, label, turns, null);
         }
     }
 
