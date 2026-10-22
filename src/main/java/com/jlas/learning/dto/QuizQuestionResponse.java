@@ -13,6 +13,7 @@ public record QuizQuestionResponse(
         String questionType,
         String questionText,
         String passageHtml,
+        String imageUrl,
         List<String> options,
         String focus) {
 }

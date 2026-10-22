@@ -36,6 +36,11 @@ VOICES = ['chuan-nu', 'chuan-nam', 'nam-tre', 'nu-tre', 'ong-cu', 'tinh-nghich']
 # Muon bat lai giong khac: them vao danh sach nay roi sinh lai seed.
 AUDIO_VOICES = ['chuan-nu']
 LEVELS = [('sekai-n5', 'N5'), ('sekai-n4', 'N4')]
+# Mo ta giao trinh cho hoc vien ({n} = so bai); trung voi ban da UPDATE vao DB jlas ngay 17/10/2026.
+TEXTBOOK_DESCRIPTIONS = {
+    'N5': 'Giáo trình N5 gồm {n} bài: chào hỏi, giới thiệu bản thân và các mẫu câu cơ bản dùng hằng ngày.',
+    'N4': 'Giáo trình N4 gồm {n} bài: thể khả năng, bị động, sai khiến, kính ngữ và các mẫu câu giao tiếp mở rộng.',
+}
 LESSONS_PER_UNIT = 5
 
 
@@ -410,8 +415,9 @@ def build(input_dir, kanji_data=None, kana_data=None, vocab_review=None,
         # [JLAS-W0108] N4 cong bo theo PUBLISH_JLPT_N4_N1 (ban db/ cu dat PUBLISHED).
         tb_status = 'PUBLISHED' if (level == 'N5' or PUBLISH_JLPT_N4_N1) else 'DRAFT'
         tb_id = nid('textbook')
+        # Mo ta cho hoc vien: noi hoc duoc gi, KHONG ghi nguon / ban quyen (ghi chu nguon de trong meta cua tung bai).
         b['textbook'].add(tb_id, 'Sekai {} \u2014 Gi\u00e1o tr\u00ecnh ti\u1ebfng Nh\u1eadt'.format(level),
-                          'B\u1ed9 gi\u00e1o tr\u00ecnh {} s\u1ed1 ho\u00e1 t\u1eeb ngu\u1ed3n Sekai Gen, {} b\u00e0i.'.format(level, len(files)),
+                          TEXTBOOK_DESCRIPTIONS[level].format(n=len(files)),
                           level, tb_status)
 
         st = stats[level] = {'lesson': 0, 'grammar': 0, 'vocab_raw': 0, 'scene': 0, 'line': 0, 'example': 0, 'lesson_published': 0, 'lesson_travel': 0}
@@ -440,8 +446,10 @@ def build(input_dir, kanji_data=None, kana_data=None, vocab_review=None,
             # PUBLISHED tu dung tien de trong transaction.
             lesson_status = 'PUBLISHED' if tb_status == 'PUBLISHED' else 'DRAFT'
             lesson_id = nid('lesson')
+            # Mo ta cho hoc vien = meta.mo_ta (1 cau "hoc duoc gi"); meta.ban_quyen la ghi chu noi bo cua nguon,
+            # KHONG dua ra trang hoc.
             b['lesson'].add(lesson_id, unit_id, tag_id, 'B\u00e0i {}: {}'.format(bai, title),
-                            meta.get('ban_quyen'), idx % LESSONS_PER_UNIT + 1, 45,
+                            meta.get('mo_ta'), idx % LESSONS_PER_UNIT + 1, 45,
                             'CURRICULUM', 'GRAMMAR', 'FOUNDATION', 0, lesson_status)
             b['lesson_tag'].add(lesson_id, tag_id)
 

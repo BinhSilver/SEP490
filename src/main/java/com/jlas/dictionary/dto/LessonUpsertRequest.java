@@ -40,9 +40,12 @@ public class LessonUpsertRequest {
             message = "Kỹ năng chỉ nhận VOCABULARY, GRAMMAR, READING, LISTENING, SPEAKING, ONYOMI hoặc KUNYOMI")
     private String skill;
 
-    /** Để trống nếu bài không gắn tình huống nào. */
-    @Pattern(regexp = "^(TRAVEL|WORK|FOUNDATION)?$",
-            message = "Tình huống chỉ nhận TRAVEL, WORK hoặc FOUNDATION")
+    /**
+     * Để trống nếu bài không gắn tình huống nào. Mã đúng theo chk_lesson_situation_tag: TRAVEL, BA ("Công việc"),
+     * FOUNDATION. "WORK" (mã cũ trước migration 019) vẫn nhận để client cũ không vỡ — service đổi thành BA trước khi lưu.
+     */
+    @Pattern(regexp = "^(TRAVEL|BA|WORK|FOUNDATION)?$",
+            message = "Tình huống chỉ nhận TRAVEL (Du lịch), BA (Công việc) hoặc FOUNDATION (Nền tảng)")
     private String situationTag;
 
     @Positive(message = "Thời lượng phải lớn hơn 0")
