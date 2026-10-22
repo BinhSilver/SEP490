@@ -151,6 +151,9 @@ public class FreeChatPromptComposer {
                 Detect wrong collocation/particle/tense/keigo/unnatural JP.
                 hasError=true + corrected JP + grammarReason Vietnamese; reply continues natural chat.
                 Examples: ゲームを食べますゲームをします; アニメをしますアニメを見ます; ケーキを飲みたいケーキを食べたい; 学校を行く学校に行く; 昨日行きます昨日行きました.
+                Learners speak, so a wrong READING (いちひと for 一人) is a mistake about how to say it: write that
+                part of corrected in hiragana as it must be said (ひとりです) and give kanji with its reading in
+                grammarReason, e.g. 「一人（ひとり）」.
                 Preserve the learner's intended tense, subject, people and place. Do not change present/future
                 to past just because the assistant previously asked a past-tense question.
                 Never lecture inside reply.

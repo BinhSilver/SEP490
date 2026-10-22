@@ -110,13 +110,14 @@ public class ShadowingPracticeService {
                         }));
             }
             byEnd.sort(Comparator.comparingDouble(seedItem -> seedItem.prepared().endTime()));
-            available = new ArrayList<>();
-            double lastEnd = Double.NEGATIVE_INFINITY;
-            for (QuestionSeed seedItem : byEnd) {
-                if (seedItem.prepared().startTime() >= lastEnd) {
-                    available.add(seedItem);
-                    lastEnd = seedItem.prepared().endTime();
-                }
+            if (selectionCounts != null) {
+                // Mỗi "MỨC:DẠNG" có tối đa riêng như màn chọn hiển thị; câu khác dạng trùng đoạn không lấy mất suất của nhau.
+                Map<String, List<QuestionSeed>> byPair = new LinkedHashMap<>();
+                byEnd.forEach(seedItem -> byPair.computeIfAbsent(pairOf(seedItem), ignored -> new ArrayList<>()).add(seedItem));
+                available = new ArrayList<>();
+                for (List<QuestionSeed> group : byPair.values()) available.addAll(nonOverlapping(group));
+            } else {
+                available = nonOverlapping(byEnd);
             }
             if (selectionCounts != null) {
                 for (Map.Entry<String, Integer> entry : selectionCounts.entrySet()) {
@@ -312,6 +313,17 @@ public class ShadowingPracticeService {
             return JapaneseAnswerMatcher.matchSentence(question.answer(), reading, actual);
         }
         return JapaneseAnswerMatcher.matchCloze(spoken, reading, question.answer(), "", question.occurrence(), actual);
+    }
+
+    /** What a learner may type in kana for this GAP question; null when its kanji could only be typed as kanji. */
+    static String preparedGapReading(String level, String answer, int occurrence, Subtitle subtitle) {
+        String spoken = QuestionTranscript.spoken(subtitle.getText());
+        String reading = QuestionTranscript.spoken(subtitle.getFurigana());
+        if ("HARD".equals(level) || QuestionTranscript.sentenceKey(answer)
+                .equals(QuestionTranscript.sentenceKey(spoken))) {
+            return JapaneseAnswerMatcher.sentenceReading(answer, reading);
+        }
+        return JapaneseAnswerMatcher.clozeReading(spoken, reading, answer, occurrence);
     }
 
     @Transactional
@@ -593,11 +605,38 @@ public class ShadowingPracticeService {
         return question.prepared().level() + ":" + question.prepared().kind();
     }
 
-    /** Lấy ngẫu nhiên đúng số câu của từng mức trong từng dạng, rồi xếp theo thời gian trong video. */
+    /** Giữ các câu không chồng thời gian, ưu tiên câu kết thúc sớm (đầu vào đã xếp theo endTime). */
+    private static List<QuestionSeed> nonOverlapping(List<QuestionSeed> byEnd) {
+        List<QuestionSeed> result = new ArrayList<>();
+        double lastEnd = Double.NEGATIVE_INFINITY;
+        for (QuestionSeed seedItem : byEnd) {
+            if (seedItem.prepared().startTime() >= lastEnd) {
+                result.add(seedItem);
+                lastEnd = seedItem.prepared().endTime();
+            }
+        }
+        return result;
+    }
+
+    private static boolean overlaps(QuestionSeed left, QuestionSeed right) {
+        return left.prepared().startTime() < right.prepared().endTime()
+                && right.prepared().startTime() < left.prepared().endTime();
+    }
+
+    /**
+     * Lấy ngẫu nhiên đúng số câu của từng mức trong từng dạng, ưu tiên câu không trùng đoạn với dạng khác đã lấy
+     * (vẫn đủ số câu khi buộc phải trùng), rồi xếp theo thời gian trong video.
+     */
     private static List<QuestionSeed> stopsPerSelection(List<QuestionSeed> available, Map<String, Integer> counts, long seed) {
+        Random random = new Random(seed);
         List<QuestionSeed> selected = new ArrayList<>();
-        counts.forEach((pair, count) -> selected.addAll(balancedStops(available.stream()
-                .filter(question -> pair.equals(pairOf(question))).toList(), count, seed)));
+        counts.forEach((pair, count) -> {
+            List<QuestionSeed> pool = new ArrayList<>(available.stream()
+                    .filter(question -> pair.equals(pairOf(question))).toList());
+            java.util.Collections.shuffle(pool, random);
+            pool.sort(Comparator.comparing(question -> selected.stream().anyMatch(taken -> overlaps(taken, question))));
+            selected.addAll(pool.subList(0, Math.min(count, pool.size())));
+        });
         selected.sort(Comparator.comparingDouble(question -> question.subtitle().getStartTime()));
         return selected;
     }

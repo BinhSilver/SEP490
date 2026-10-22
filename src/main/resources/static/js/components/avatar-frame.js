@@ -7,6 +7,10 @@
  *
  * Dùng: phần tử bọc avatar có [data-avatar-frame] → JlasAvatarFrame.applyUser(user) gắn khung đang dùng;
  * mọi [data-user-name] nhận màu tên qua [data-name-style].
+ *
+ * Danh mục: 4 khung gốc dưới đây là dự phòng; danh mục đầy đủ (kể cả khung admin thêm ở /admin/avatar-frames)
+ * tải từ GET /api/avatar-frames. Avatar có mã khung chưa biết được đánh dấu [data-frame-pending] và gắn khung
+ * ngay khi danh mục về.
  */
 (function () {
   'use strict';
@@ -37,6 +41,11 @@
       drips: [[15.8, 76.3], [84.1, 76.4]]
     }
   };
+  var THEMES = { cosmic: 1, seraph: 1, inferno: 1, vampire: 1 };
+  var CODE = /^frame-[a-z0-9-]{2,35}$/;
+  var IMAGE = /^\/(images|uploads)\/avatar-frames\/[A-Za-z0-9._-]+\.(png|webp)$/;
+  var catalogRequest = null;
+
   /** Giây cho một vòng dải sáng; khớp --af-period trong CSS. */
   var PERIOD = 4;
   var GLITTER = 18;
@@ -93,6 +102,11 @@
   /** Gắn (hoặc gỡ khi code rỗng) khung vào phần tử bọc avatar. Không vẽ lại nếu khung không đổi. */
   function mount(host, code) {
     if (!host) return;
+    // Mã khung chưa có trong danh mục (khung admin mới thêm): gỡ khung cũ, chờ danh mục từ API rồi gắn lại.
+    var waiting = !!code && !FRAMES[code] && CODE.test(code);
+    if (waiting) host.setAttribute('data-frame-pending', code);
+    else host.removeAttribute('data-frame-pending');
+    if (waiting) loadCatalog();
     var current = host.getAttribute('data-frame-mounted') || '';
     var next = code && FRAMES[code] ? code : '';
     if (current === next) return;
@@ -117,7 +131,7 @@
    */
   function host(avatarHtml, frameCode, extraClass) {
     return '<span class="af-host' + (extraClass ? ' ' + extraClass : '') + '"'
-      + (frameCode && FRAMES[frameCode] ? ' data-frame-host="' + frameCode + '"' : '') + '>' + avatarHtml + '</span>';
+      + (frameCode && CODE.test(frameCode) ? ' data-frame-host="' + frameCode + '"' : '') + '>' + avatarHtml + '</span>';
   }
 
   function mountAll(root) {
@@ -130,6 +144,40 @@
   /** Thuộc tính HTML cho tên có màu (chuỗi rỗng khi màu mặc định). */
   function nameAttr(style) {
     return style && /^[a-z]+$/.test(style) ? ' data-name-style="' + style + '"' : '';
+  }
+
+  /**
+   * Thêm / cập nhật khung từ danh mục của server ({code, image, theme, gems}). Khung đã gắn mà đổi ảnh hoặc chủ đề
+   * thì vẽ lại; avatar đang chờ mã khung này thì gắn luôn.
+   */
+  function register(items) {
+    var changed = {};
+    (Array.isArray(items) ? items : []).forEach(function (item) {
+      if (!item || !CODE.test(item.code) || !IMAGE.test(item.image || '') || !THEMES[item.theme]) return;
+      var gems = item.gems && typeof item.gems === 'object' ? item.gems : {};
+      var old = FRAMES[item.code];
+      FRAMES[item.code] = { img: item.image, theme: item.theme, big: gems.big, gems: gems.gems, orbs: gems.orbs, drips: gems.drips };
+      if (old && (old.img !== item.image || old.theme !== item.theme)) changed[item.code] = true;
+    });
+    if (typeof document === 'undefined' || !document.querySelectorAll) return;
+    document.querySelectorAll('[data-frame-mounted]').forEach(function (host) {
+      var code = host.getAttribute('data-frame-mounted');
+      if (changed[code]) { host.removeAttribute('data-frame-mounted'); mount(host, code); }
+    });
+    document.querySelectorAll('[data-frame-pending]').forEach(function (host) {
+      var code = host.getAttribute('data-frame-pending');
+      if (FRAMES[code]) mount(host, code); else host.removeAttribute('data-frame-pending');
+    });
+  }
+
+  /** Tải danh mục một lần; lỗi mạng thì giữ 4 khung gốc. */
+  function loadCatalog() {
+    if (catalogRequest || typeof fetch !== 'function') return catalogRequest || Promise.resolve();
+    catalogRequest = fetch('/api/avatar-frames', { credentials: 'same-origin' })
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (body) { if (body && body.success) register(body.data); })
+      .catch(function () { /* giữ danh mục dự phòng */ });
+    return catalogRequest;
   }
 
   function applyUser(user) {
@@ -148,8 +196,12 @@
     mountAll(document);
   }
 
+  loadCatalog();
+
   window.JlasAvatarFrame = {
     FRAMES: FRAMES,
+    register: register,
+    loadCatalog: loadCatalog,
     markup: markup,
     mount: mount,
     host: host,

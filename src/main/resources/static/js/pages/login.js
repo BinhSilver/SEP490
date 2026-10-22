@@ -33,7 +33,8 @@
   var lockedRedirect = new URLSearchParams(window.location.search).get('locked') === '1';
   if (lockedRedirect && window.JlasAuth) JlasAuth.clearSession();
 
-  redirectIfAlreadyAuthenticated();
+  // Hết hạn access token thì server đưa về đây; nếu refresh token còn hạn, phiên được làm mới rồi quay lại trang cũ.
+  ((window.JlasAuth && JlasAuth.ready) || Promise.resolve()).then(redirectIfAlreadyAuthenticated);
   window.addEventListener('pageshow', redirectIfAlreadyAuthenticated);
   if (lockedRedirect && window.JlasUI) JlasUI.toast(LOCKED_MESSAGE, 'error');
 

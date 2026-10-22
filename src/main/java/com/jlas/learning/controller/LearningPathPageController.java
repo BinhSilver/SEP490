@@ -14,6 +14,12 @@ import java.util.List;
 public class LearningPathPageController {
     private final InteractiveLearningV2Properties interactiveV2Properties;
 
+    @GetMapping("/learning/notebook")
+    public String weaknessNotebook(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/weakness-notebook";
+    }
+
     @GetMapping("/learning/path")
     public String learningPath(Model model,
             @RequestParam(required = false) Long assessmentAttemptId,

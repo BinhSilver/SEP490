@@ -29,7 +29,6 @@ public class ChatTurnResponse {
     private boolean conversationEnded;
     private String error;
     private List<FuriganaTokenDto> assistantTokens = new ArrayList<>();
-    private String assistantTranslation;
     private List<String> suggestedReplies = new ArrayList<>();
     private String sceneTransition;
     private String sceneImageUrl;
@@ -66,8 +65,6 @@ public class ChatTurnResponse {
     public void setAllObjectives(List<String> allObjectives) { this.allObjectives = allObjectives; }
     public List<FuriganaTokenDto> getAssistantTokens() { return assistantTokens; }
     public void setAssistantTokens(List<FuriganaTokenDto> assistantTokens) { this.assistantTokens = assistantTokens; }
-    public String getAssistantTranslation() { return assistantTranslation; }
-    public void setAssistantTranslation(String assistantTranslation) { this.assistantTranslation = assistantTranslation; }
     public List<String> getSuggestedReplies() { return suggestedReplies; }
     public void setSuggestedReplies(List<String> suggestedReplies) { this.suggestedReplies = suggestedReplies; }
     public String getSceneTransition() { return sceneTransition; }

@@ -16,22 +16,124 @@
     return item ? decodeURIComponent(item.substring(prefix.length)) : null;
   }
 
-  function isTokenExpired(token) {
-    if (!token) return true;
+  /** Làm mới khi access token còn dưới 10 phút, kiểm tra mỗi phút: dùng thường xuyên thì không bao giờ phải đăng nhập lại. */
+  var REFRESH_AHEAD_MS = 10 * 60 * 1000;
+  var CHECK_EVERY_MS = 60 * 1000;
+
+  /** Thời điểm hết hạn (ms) trong JWT; null nếu không đọc được. */
+  function tokenExpiry(token) {
+    if (!token) return null;
     var parts = token.split('.');
-    if (parts.length !== 3) return false;
+    if (parts.length !== 3) return null;
     try {
       var payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
       while (payload.length % 4) payload += '=';
-      var claims = JSON.parse(atob(payload));
-      return Number.isFinite(Number(claims.exp)) && Number(claims.exp) * 1000 <= Date.now();
+      var exp = Number(JSON.parse(atob(payload)).exp);
+      return Number.isFinite(exp) ? exp * 1000 : null;
     } catch (e) {
-      return false;
+      return null;
+    }
+  }
+
+  function isTokenExpired(token) {
+    if (!token) return true;
+    var expiry = tokenExpiry(token);
+    return expiry !== null && expiry <= Date.now();
+  }
+
+  function expiresSoon(token) {
+    var expiry = tokenExpiry(token);
+    return expiry !== null && expiry - Date.now() < REFRESH_AHEAD_MS;
+  }
+
+  function storedRefreshToken() {
+    try {
+      return localStorage.getItem(REFRESH_KEY) || null;
+    } catch (e) {
+      return null;
     }
   }
 
   var nativeFetch = window.fetch.bind(window);
   var unauthorizedRedirecting = false;
+  var refreshing = null;
+
+  /**
+   * Đổi refresh token lấy cặp token mới. Kết quả: true = đã có phiên còn hạn, false = server từ chối
+   * (refresh token hết hạn/bị thu hồi → phải đăng nhập lại), null = lỗi mạng (giữ phiên, thử lại sau).
+   * Mỗi lần làm mới server cấp refresh token mới và vô hiệu cái cũ, nên các yêu cầu đồng thời dùng chung
+   * một lần gọi và các tab xếp hàng qua navigator.locks: tab đến sau dùng luôn token tab trước vừa lấy.
+   */
+  function refreshSession() {
+    if (refreshing) return refreshing;
+    function run() {
+      var before = localStorage.getItem(TOKEN_KEY);
+      if (before && !expiresSoon(before)) return true;
+      var refresh = storedRefreshToken();
+      if (!refresh) return false;
+      return nativeFetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ refreshToken: refresh })
+      }).then(function (response) {
+        if (response.status >= 500) return null;
+        return response.ok ? response.json() : false;
+      }).then(function (payload) {
+        if (payload === null) return null;
+        var data = payload && payload.data;
+        if (data && data.accessToken) {
+          window.JlasAuth.setSession(data.accessToken, data.refreshToken, data.user);
+          return true;
+        }
+        // Một tab khác có thể vừa dùng refresh token này và lưu cặp token mới.
+        var latest = localStorage.getItem(TOKEN_KEY);
+        return !!latest && latest !== before && !isTokenExpired(latest);
+      }).catch(function () {
+        return null;
+      });
+    }
+    var locked = navigator.locks && typeof navigator.locks.request === 'function'
+      ? navigator.locks.request('jlas-auth-refresh', run)
+      : Promise.resolve().then(run);
+    refreshing = locked.then(function (result) {
+      refreshing = null;
+      return result;
+    }, function () {
+      refreshing = null;
+      return null;
+    });
+    return refreshing;
+  }
+
+  function refreshIfExpiringSoon() {
+    var token = localStorage.getItem(TOKEN_KEY);
+    if (!storedRefreshToken() || (token && !expiresSoon(token))) return;
+    refreshSession().then(function (result) {
+      if (result === false) window.JlasAuth.clearSession();
+    });
+  }
+
+  /** 401 vì access token hết hạn thì làm mới rồi gửi lại; trừ các API đăng nhập/OTP (401 là sai thông tin). */
+  function canRefreshAfter(response) {
+    if (!response || response.status !== 401 || !storedRefreshToken()) return false;
+    try {
+      var path = new URL(response.url || '', window.location.origin).pathname;
+      return path.indexOf('/api/auth/') !== 0 || path === '/api/auth/me' || path === '/api/auth/profile';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /** Request object có thể đã đọc body nên không gửi lại; URL + options thì thay Authorization bằng token mới. */
+  function retryArguments(input, init) {
+    if (typeof Request !== 'undefined' && input instanceof Request) return null;
+    var options = Object.assign({}, init || {});
+    var headers = new Headers(options.headers || {});
+    if (headers.has('Authorization')) headers.set('Authorization', 'Bearer ' + localStorage.getItem(TOKEN_KEY));
+    options.headers = headers;
+    return [input, options];
+  }
 
   function redirectToLoginAfterUnauthorized(response) {
     if (unauthorizedRedirecting || !response || response.status !== 401) return;
@@ -63,11 +165,23 @@
     }).catch(function () {});
   }
 
-  window.fetch = function () {
-    return nativeFetch.apply(window, arguments).then(function (response) {
-      redirectToLoginAfterUnauthorized(response);
-      redirectToAppealWhenBanned(response);
-      return response;
+  function afterResponse(response) {
+    redirectToLoginAfterUnauthorized(response);
+    redirectToAppealWhenBanned(response);
+    return response;
+  }
+
+  window.fetch = function (input, init) {
+    return nativeFetch(input, init).then(function (response) {
+      if (!canRefreshAfter(response)) return afterResponse(response);
+      return refreshSession().then(function (result) {
+        var retry = result === true ? retryArguments(input, init) : null;
+        if (!retry) {
+          if (result === false) return afterResponse(response);
+          return response;
+        }
+        return nativeFetch(retry[0], retry[1]).then(afterResponse);
+      });
     });
   };
 
@@ -108,8 +222,11 @@
 
     isLoggedIn: function () {
       var token = this.getAccessToken();
-      return !!token && !isTokenExpired(token);
+      // Đang làm mới phiên thì vẫn coi là đăng nhập, để trang không chuyển về /login trước khi có token mới.
+      return (!!token && !isTokenExpired(token)) || !!refreshing;
     },
+
+    refreshSession: refreshSession,
 
     authHeaders: function () {
       var t = this.getAccessToken();
@@ -296,10 +413,28 @@
     }
   };
 
+  // Bắt đầu ngay khi script chạy (trước DOMContentLoaded) để các script trang sau gặp token đã làm mới.
+  var startupToken = localStorage.getItem(TOKEN_KEY);
+  var needsRefresh = storedRefreshToken() && (!startupToken || expiresSoon(startupToken));
+  window.JlasAuth.ready = needsRefresh
+    ? refreshSession().then(function (result) {
+      if (result === false) window.JlasAuth.clearSession();
+    })
+    : Promise.resolve();
+  window.setInterval(refreshIfExpiringSoon, CHECK_EVERY_MS);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') refreshIfExpiringSoon();
+  });
+
   document.addEventListener('DOMContentLoaded', function () {
+    window.JlasAuth.ready.then(startPage);
+  });
+
+  function startPage() {
     var token = JlasAuth.getAccessToken();
     if (token && isTokenExpired(token)) {
-      JlasAuth.clearSession();
+      // Còn refresh token (lần làm mới vừa lỗi mạng) thì giữ phiên; lần kiểm tra sau sẽ thử lại.
+      if (!storedRefreshToken()) JlasAuth.clearSession();
       token = null;
     }
     if (token && !document.cookie.includes('accessToken=')) {
@@ -339,7 +474,7 @@
         } catch (error) { /* Keep the current page available when the server cannot be reached. */ }
       });
     }
-  });
+  }
 
   document.addEventListener('click', function (e) {
     var logoutBtn = e.target.closest('[data-auth-logout]');

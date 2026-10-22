@@ -851,7 +851,7 @@
       if (data.error && !data.assistantReply) {
         addMessageRow('assistant', data.error);
       } else {
-        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, data.assistantTranslation, data.assistantSpeaker, data.assistantMessageId);
+        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, null, data.assistantSpeaker, data.assistantMessageId);
         if (data.feedback) appendFeedbackCard(learnerRow, data.feedback);
         if (data.error) {
           // hiện lỗi kỹ thuật nhỏ dưới bubble (không giả làm thoại AI)
@@ -1019,6 +1019,31 @@
     if (feedback.mistakeType === 'vocab_help') card.classList.add('is-vocab-help');
     column.appendChild(card);
     scrollBottom();
+    if (feedback.mistakeType !== 'vocab_help') showCorrectionReadings(card.querySelector('.ok'), feedback.correctedText);
+  }
+
+  // Learners speak their answer, so the correction always shows how its kanji are read (一人 → ひとり),
+  // whatever the furigana toggle says.
+  async function showCorrectionReadings(el, text) {
+    if (!el || !/[一-鿿]/.test(text || '')) return;
+    for (const allowAi of [false, true]) {
+      try {
+        const res = await fetch('/api/conversation/' + sessionId + '/furigana', {
+          method: 'POST',
+          headers: jsonHeaders(),
+          body: JSON.stringify({ text: text, allowAi: allowAi })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.tokens || !data.tokens.length) continue;
+        el.innerHTML = tokensToRuby(data.tokens);
+        bindTokenClicks(el);
+        if (hasCompleteKanjiReadings(data.tokens)) return;
+      } catch (e) {
+        console.error('[JLAS Furigana] Không thể tải cách đọc của câu sửa', e);
+        return;
+      }
+    }
   }
 
   function updateProgress(data) {

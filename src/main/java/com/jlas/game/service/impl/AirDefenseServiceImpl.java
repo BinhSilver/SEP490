@@ -66,8 +66,11 @@ public class AirDefenseServiceImpl implements AirDefenseService {
     /** Client chạy đoạn intro ~3,8 giây trước khi địch xuất hiện. */
     private static final long START_DELAY_MS = 4_000;
     private static final long TIME_GRACE_MS = 2_000;
-    /** Luyện tập: thời gian chọn được ở màn cài đặt (0 = không giới hạn). */
-    private static final List<Integer> SOLO_DURATIONS = List.of(0, 120, 180, 300);
+    /**
+     * Luyện tập: thời gian chọn được ở màn cài đặt (0 = không giới hạn). Đủ dày để mức gợi ý theo số thẻ
+     * (số thẻ × 3 lượt × 8 giây) luôn có một lựa chọn sát; khớp DURATIONS trong frontend/air-defence/src/AirSetup.tsx.
+     */
+    private static final List<Integer> SOLO_DURATIONS = List.of(0, 60, 120, 180, 240, 300, 420, 600, 900, 1200, 1800);
     private static final List<Integer> ATTACK_MILESTONES = List.of(10, 15, 20);
     private static final int REPORT_PER_MINUTE = 600;
     private static final int MAX_HP_CAP = 1_000;

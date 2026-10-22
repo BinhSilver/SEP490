@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import type { DeckCardView, DeckField, NekoPlayerView, NekoStartOptions, NekoStateView } from '../arena/types';
 import { assetUrl } from '../assets';
 import type { CatSkinId } from '../graphics/CatSpriteSheet';
@@ -70,6 +70,33 @@ const SkinPanel: React.FC<{
   onChange,
 }) => {
   const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [placement, setPlacement] = useState<{ up: boolean; maxHeight: number }>({ up: false, maxHeight: 240 });
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const listId = useId();
+  /** Thẻ cài đặt cắt phần tràn: mở về phía còn nhiều chỗ hơn và giới hạn chiều cao cho vừa. */
+  const toggleOpen = () => {
+    const picker = pickerRef.current;
+    if (!open && picker) {
+      let clip: HTMLElement | null = picker.parentElement;
+      while (clip && getComputedStyle(clip).overflow === 'visible') clip = clip.parentElement;
+      const bound = clip?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight };
+      const rect = picker.getBoundingClientRect();
+      const below = Math.min(bound.bottom, window.innerHeight) - rect.bottom - 12;
+      const above = rect.top - Math.max(bound.top, 0) - 12;
+      const up = below < 240 && above > below;
+      setPlacement({ up, maxHeight: Math.max(120, Math.min(240, up ? above : below)) });
+    }
+    setOpen(value => !value);
+  };
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (event: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
   const confirmRef = useRef<HTMLDialogElement>(null);
   const pending = options?.find(option => option.code === pendingCode && !option.owned);
   useEffect(() => {
@@ -94,7 +121,20 @@ const SkinPanel: React.FC<{
         </div>
         <p className="absolute left-2 top-2 rounded-lg bg-slate-950/80 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300">{name}</p>
       </div>
-      <div className="neko-skins__list" role="group" aria-label="Chọn hoặc mua trang phục">
+      {/* Máy tính: ô thả xuống; điện thoại (CSS) ẩn nút này và luôn hiện dải trang phục kéo ngang. */}
+      <div className="neko-skins__picker" ref={pickerRef}
+        onKeyDown={event => { if (event.key === 'Escape' && open) { event.stopPropagation(); setOpen(false); } }}>
+        <button type="button" className="neko-skins__trigger" aria-expanded={open} aria-controls={listId}
+          disabled={options === null} onClick={toggleOpen}>
+          <span className="neko-skins__name">{name}</span>
+          <span className="neko-skins__action">Đổi</span>
+          <svg className="neko-skins__caret" viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      <div id={listId} className={`neko-skins__list ${open ? 'is-open' : ''} ${placement.up ? 'is-up' : ''}`}
+        style={{ '--neko-skins-max': `${placement.maxHeight}px` } as React.CSSProperties}
+        role="group" aria-label="Chọn hoặc mua trang phục">
         {(options ?? []).map(option => {
           const selected = option.id === skin;
           const affordable = balance !== null && balance >= option.price;
@@ -102,7 +142,10 @@ const SkinPanel: React.FC<{
           return (
             <button key={option.code} type="button" aria-pressed={selected}
               disabled={disabled || !!busy || selected || (!option.owned && !affordable)}
-              onClick={() => { if (option.owned) { setPendingCode(null); void onChange(option.id); } else setPendingCode(option.code); }}
+              onClick={() => {
+                setOpen(false);
+                if (option.owned) { setPendingCode(null); void onChange(option.id); } else setPendingCode(option.code);
+              }}
               title={!option.owned && !affordable ? `Cần ${option.price} CP để mua` : undefined}
               aria-label={`${option.name}, ${label}${!option.owned && !affordable ? ', chưa đủ CP' : ''}`}
               className={`neko-skins__item ${selected ? 'is-selected' : ''}`}>
@@ -112,8 +155,9 @@ const SkinPanel: React.FC<{
             </button>
           );
         })}
-        {options === null && !error && <p className="text-[11px] text-white/50">Đang tải trang phục…</p>}
       </div>
+      </div>
+      {options === null && !error && <p className="mt-2 text-[11px] text-white/50">Đang tải trang phục…</p>}
       <dialog ref={confirmRef} className="neko-skin-purchase" aria-labelledby="neko-skin-purchase-title"
         aria-describedby="neko-skin-purchase-details"
         onCancel={event => { if (busy) event.preventDefault(); else setPendingCode(null); }}
@@ -176,7 +220,7 @@ function fieldValue(card: DeckCardView, field: DeckField): string | null {
 }
 
 /** Một nhóm lựa chọn dạng nút bấm (radiogroup); nút bị khoá có lý do ở tooltip. */
-function OptionGroup<T extends string | number>({ label, value, options, format, onChange, disabledReason, stretch = false, recommended }: {
+function OptionGroup<T extends string | number>({ label, value, options, format, onChange, disabledReason, stretch = false }: {
   label: string;
   value: T;
   options: T[];
@@ -185,8 +229,6 @@ function OptionGroup<T extends string | number>({ label, value, options, format,
   disabledReason?: (option: T) => string | null;
   /** Các nút giãn đều lấp kín ô, không xuống dòng. */
   stretch?: boolean;
-  /** Mức hợp với số thẻ đang chọn: gắn nhãn "Gợi ý". */
-  recommended?: T | null;
 }) {
   return (
     <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left">
@@ -209,14 +251,102 @@ function OptionGroup<T extends string | number>({ label, value, options, format,
               }`}
             >
               {format(option)}
-              {option === recommended && (
-                <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 rounded-full bg-emerald-400 text-slate-950 text-[8px] font-black leading-[14px] whitespace-nowrap pointer-events-none">
-                  Gợi ý
-                </span>
-              )}
             </button>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Ô chọn thả xuống (như Bắn máy bay, Lật thẻ): bấm vào để xổ danh sách; mức hợp với số thẻ có nhãn "Gợi ý".
+ * Danh sách mở lên trên vì ô nằm sát đáy thẻ cài đặt (thẻ cắt phần tràn).
+ */
+function DropdownGroup<T extends string | number>({ label, value, options, format, onChange, recommended, disabled = false }: {
+  label: string;
+  value: T;
+  options: T[];
+  format: (option: T) => string;
+  onChange: (option: T) => void;
+  recommended?: T | null;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const id = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) listRef.current?.children[active]?.scrollIntoView({ block: 'nearest' });
+  }, [open, active]);
+
+  useEffect(() => { if (disabled) setOpen(false); }, [disabled]);
+
+  const tag = (option: T) => (recommended != null && option === recommended
+    ? <span className="shrink-0 px-1.5 rounded-full bg-emerald-400 text-slate-950 text-[9px] font-black leading-[16px]">Gợi ý</span>
+    : null);
+  const choose = (option: T) => { onChange(option); setOpen(false); };
+  const openAtValue = () => { setOpen(true); setActive(Math.max(0, options.indexOf(value))); };
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') { setOpen(false); return; }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!open) { openAtValue(); return; }
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      setActive(index => (index + step + options.length) % options.length);
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (open) choose(options[active]);
+      else openAtValue();
+    }
+  };
+
+  return (
+    <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left">
+      <span className="block text-[10px] text-amber-300/70 uppercase tracking-widest mb-1.5" id={`${id}-label`}>{label}</span>
+      <div className="relative" ref={rootRef}>
+        <button type="button" disabled={disabled} aria-haspopup="listbox" aria-expanded={open}
+          aria-labelledby={`${id}-label`} aria-controls={`${id}-list`} onKeyDown={onKeyDown}
+          onClick={() => (open ? setOpen(false) : openAtValue())}
+          className={`w-full min-h-[36px] flex items-center justify-between gap-2 px-3 rounded-lg border text-xs font-black text-white bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+            open ? 'border-amber-300' : 'border-white/10'
+          }`}>
+          <span className="flex items-center gap-1.5 min-w-0 truncate">{format(value)}{tag(value)}</span>
+          <svg className={`w-3 h-3 shrink-0 text-amber-300 transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        {open && (
+          <ul ref={listRef} id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`}
+            className="absolute left-0 right-0 bottom-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto custom-scrollbar p-1 rounded-xl border border-white/15 bg-[#1e1638] shadow-[0_16px_40px_rgba(0,0,0,.5)]">
+            {options.map((option, index) => {
+              const selected = option === value;
+              return (
+                <li key={String(option)} role="option" aria-selected={selected}
+                  onMouseEnter={() => setActive(index)}
+                  onMouseDown={event => { event.preventDefault(); choose(option); }}
+                  className={`flex items-center justify-between gap-2 min-h-[32px] px-2.5 rounded-lg text-xs font-black cursor-pointer ${
+                    selected ? 'bg-amber-400 text-slate-950' : index === active ? 'bg-white/15 text-white' : 'text-white/80'
+                  }`}>
+                  <span>{format(option)}</span>{tag(option)}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
@@ -381,8 +511,8 @@ const SoloSetup: React.FC<{
         </label>
       </div>
       <div className="neko-setup__quick-desktop w-full grid grid-cols-1 sm:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] gap-2 mt-2 text-xs">
-        <OptionGroup label="Thời gian" value={durationSeconds} options={DURATIONS} format={durationLabel} onChange={setDuration}
-          recommended={deckCards ? suggested : null} />
+        <DropdownGroup label="Thời gian" value={durationSeconds} options={DURATIONS} format={durationLabel} onChange={setDuration}
+          recommended={deckCards ? suggested : null} disabled={starting || skinSaving} />
         <OptionGroup label="Số tim" value={lives} options={LIVES} format={String} onChange={setLives} stretch />
         <OptionGroup label="Số cá / lượt" value={fishCount} options={choiceOptions} format={String} onChange={setChoices} stretch />
       </div>

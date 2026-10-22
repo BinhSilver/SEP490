@@ -1,18 +1,30 @@
 package com.jlas.shadowing.controller;
 
+import com.jlas.shadowing.dto.GenreOption;
+import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Controller
 public class ShadowingPageController {
 
     @Autowired private VideoService videoService;
+
+    /** Genre choices for the library filter, upload form and editor. */
+    @ModelAttribute("shadowingGenres")
+    public List<GenreOption> shadowingGenres() {
+        return Arrays.stream(ShadowingGenre.values()).map(GenreOption::of).toList();
+    }
 
     @GetMapping({"/shadowing", "/shadowing/"})
     public String library() {

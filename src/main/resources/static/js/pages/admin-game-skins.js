@@ -2,6 +2,19 @@
   'use strict';
   var A = window.Admin, API = '/api/admin/game-skins';
   var names = { NEKO_CATCH: 'Bắt cá', AIR_DEFENSE: 'Bắn máy bay' };
+  /** Ảnh máy bay là atlas nhiều khung hình; vẽ một khung qua canvas như trang cửa hàng thay vì hiện cả tấm. */
+  function atlasRenderer(renderCode, image) {
+    var skins = window.JlasCharacterSkins;
+    return renderCode && renderCode !== 'CUSTOM' && /\/assets\/space\/skins\//.test(image || '')
+      && skins && skins.supports(renderCode) ? renderCode : null;
+  }
+  function art(renderCode, image, size, attrs) {
+    var renderer = atlasRenderer(renderCode, image);
+    if (renderer) return '<canvas class="skin-admin__sprite" width="' + size * 2 + '" height="' + size * 2 + '" style="width:' + size + 'px;height:' + size + 'px"'
+      + ' data-character-skin="' + A.esc(renderer) + '" ' + (attrs || '') + '></canvas>';
+    return '<img src="' + A.esc(image) + '" alt="" width="' + size + '" height="' + size + '" ' + (attrs || '') + '>';
+  }
+  function mountArt(container) { if (window.JlasCharacterSkins) window.JlasCharacterSkins.mount(container); }
   A.section('game-skins', { render: async function (host) {
     var loaded = await Promise.all([A.api.get(API), A.api.get(API + '/renderers')]);
     var items = loaded[0], renderers = loaded[1], editing = false;
@@ -22,12 +35,13 @@
       root.querySelector('[data-count]').textContent = shown.length + ' trang phục';
       if (!shown.length) { results.innerHTML = A.empty('fa-shirt', 'Không có trang phục phù hợp'); return; }
       results.innerHTML = '<table class="skin-admin__table"><thead><tr><th>Trang phục</th><th>Game</th><th>Giá</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead><tbody>' + shown.map(function (item) {
-        return '<tr><td><div class="skin-admin__identity"><img src="' + A.esc(item.image) + '" alt="" width="56" height="56"><div><strong>' + A.esc(item.name) + '</strong><small>' + A.esc(item.code) + '</small></div></div></td>'
+        return '<tr><td><div class="skin-admin__identity">' + art(item.renderCode, item.image, 56) + '<div><strong>' + A.esc(item.name) + '</strong><small>' + A.esc(item.code) + '</small></div></div></td>'
           + '<td>' + names[item.gameType] + '</td><td>' + item.price.toLocaleString('vi-VN') + ' CP</td>'
           + '<td><span class="skin-admin__status" data-state="' + (item.deleted ? 'deleted' : item.active ? 'active' : 'hidden') + '">' + (item.deleted ? 'Đã xóa' : item.starter ? 'Mặc định' : item.active ? 'Đang bán' : 'Đã ẩn') + '</span></td>'
           + '<td><div class="skin-admin__actions">' + (item.deleted ? '' : '<button type="button" class="btn btn--secondary" data-edit="' + A.esc(item.code) + '" aria-label="Sửa ' + A.esc(item.name) + '">Sửa</button>'
             + (item.starter ? '' : '<button type="button" class="btn btn--secondary" data-delete="' + A.esc(item.code) + '" aria-label="Xóa ' + A.esc(item.name) + '">Xóa</button>')) + '</div></td></tr>';
       }).join('') + '</tbody></table>';
+      mountArt(results);
     }
     async function reload() { items = await A.api.get(API); paint(); }
     search.addEventListener('input', paint);
@@ -45,12 +59,17 @@
         + '<label>Hình trong game<select class="input" name="renderCode"></select></label>'
         + '<label>Ảnh trang phục<input class="input" name="image" required maxlength="1024" value="' + A.esc(current.image) + '" placeholder="/uploads/game-skins/…"></label>'
         + '<label class="skin-editor__description">Mô tả<textarea class="textarea" name="description" maxlength="500" rows="2">' + A.esc(current.description) + '</textarea></label></div>'
-        + '<div class="skin-editor__art"><img data-preview alt="Xem trước trang phục" hidden><label class="btn btn--secondary">Tải ảnh PNG/JPG<input type="file" accept="image/png,image/jpeg" data-upload></label><span class="adm-muted">Tối đa 5 MB · 2048 × 2048</span></div>'
+        + '<div class="skin-editor__art"><span data-preview-slot></span><label class="btn btn--secondary">Tải ảnh PNG/JPG<input type="file" accept="image/png,image/jpeg" data-upload></label><span class="adm-muted">Tối đa 5 MB · 2048 × 2048</span></div>'
         + '<label class="skin-editor__active"><input type="checkbox" name="active" ' + (current.active ? 'checked' : '') + ' ' + (current.starter ? 'disabled' : '') + '> Hiển thị trong cửa hàng</label>'
         + '<p class="adm-error" data-error role="alert"></p><footer><button type="button" class="btn btn--secondary" data-cancel>Hủy</button><button class="btn btn--primary" type="submit">Lưu trang phục</button></footer></form>';
-      var form = mount.querySelector('form'), fields = form.elements, image = fields.namedItem('image'), preview = form.querySelector('[data-preview]');
+      var form = mount.querySelector('form'), fields = form.elements, image = fields.namedItem('image'), previewSlot = form.querySelector('[data-preview-slot]');
       fields.namedItem('gameType').value = current.gameType;
-      function previewImage() { preview.hidden = !image.value; if (image.value.startsWith('/arena/') || image.value.startsWith('/uploads/game-skins/')) preview.src = image.value; }
+      function previewImage() {
+        var value = image.value;
+        previewSlot.innerHTML = value.startsWith('/arena/') || value.startsWith('/uploads/game-skins/')
+          ? art(fields.namedItem('renderCode').value, value, 80, 'aria-label="Xem trước trang phục" role="img"') : '';
+        mountArt(previewSlot);
+      }
       function rendererOptions(value) {
         var game = fields.namedItem('gameType').value;
         fields.namedItem('renderCode').innerHTML = '<option value="CUSTOM">Dùng ảnh đã tải lên</option>' + renderers.filter(function (r) { return r.gameType === game; }).map(function (r) { return '<option value="' + A.esc(r.code) + '">' + A.esc(r.name) + ' · chuyển động có sẵn</option>'; }).join('');
@@ -62,7 +81,8 @@
       fields.namedItem('gameType').addEventListener('change', function () { rendererOptions(); });
       fields.namedItem('renderCode').addEventListener('change', function () {
         var renderer = renderers.find(function (r) { return r.code === fields.namedItem('renderCode').value; });
-        if (renderer) { image.value = renderer.image; previewImage(); }
+        if (renderer) image.value = renderer.image;
+        previewImage();
       });
       form.querySelector('[data-upload]').addEventListener('change', async function (event) {
         var file = event.target.files[0]; if (!file) return;

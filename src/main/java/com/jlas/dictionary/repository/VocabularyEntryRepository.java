@@ -30,6 +30,8 @@ import java.util.Optional;
 @Repository
 public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry, Long> {
 
+    List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatus(Collection<String> expressions, String status);
+
     List<VocabularyEntry> findByReadingContainingIgnoreCase(String keyword);
 
     List<VocabularyEntry> findByIdIn(List<Long> ids);

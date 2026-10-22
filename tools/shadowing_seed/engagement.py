@@ -4,6 +4,10 @@ from __future__ import annotations
 from hashlib import sha256
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from demo_learners import build_learners  # noqa: E402  (shared with tools/flashcard_seed)
 
 DATA = Path(__file__).resolve().parents[2] / "data/shadowing"
 
@@ -18,17 +22,11 @@ def ranked(values, *salt):
 
 def build_engagement(catalog, source=None):
     source = source or json.loads((DATA / "demo_engagement.json").read_text(encoding="utf-8"))
-    names = source["learners"]
-    if len(names) != len(set(names)) or not 20 <= len(names) <= 200:
-        raise ValueError("Demo learners must have distinct full names; expected 20-200 profiles")
+    learners = build_learners(source["learners"])
     videos = {v["source_key"]: v for v in catalog["videos"]}
     profiles = source["videos"]
     if len(profiles) != len(videos) or {p["source_key"] for p in profiles} != set(videos):
         raise ValueError("Every catalog source must have exactly one engagement profile")
-    learners = [{"key": f"learner-{index:03}", "name": name,
-                 "email": f"shadowing-demo-{index:03}@seed.jlas.invalid", "username": f"shadowing_demo_{index:03}",
-                 "level": ("N5", "N4", "N4", "N3", "N3", "N2")[index % 6]}
-                for index, name in enumerate(names, 1)]
     keys = [p["key"] for p in learners]
     events, states, comments, summary = [], [], [], []
     for profile in profiles:
@@ -85,7 +83,8 @@ def build_engagement(catalog, source=None):
                                             + number(source_key, comment["key"], "time") % 1440})
         summary.append({"source_key": source_key, "title": videos[source_key]["title"], "views": views,
                         "views_last_7_days": recent, "rating_count": len(votes),
-                        "average_rating": round(sum(votes.values()) / len(votes), 4),
+                        # A new source may have no demo activity yet: no rating rather than a made-up one.
+                        "average_rating": round(sum(votes.values()) / len(votes), 4) if votes else None,
                         "rating_distribution": distribution, "favorites": len(favorites),
                         "comments": len(profile["comments"])})
     identities = [(e["source_key"], e["user_key"], e["minutes_ago"]) for e in events]
