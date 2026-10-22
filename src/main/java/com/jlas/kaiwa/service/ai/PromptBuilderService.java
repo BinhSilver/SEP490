@@ -245,6 +245,9 @@ public class PromptBuilderService {
                 - Người học nói sai/Việt/không rõ  hỏi lại bằng câu đơn giản (お名前は？どちらから？) và ghi lỗi ở hasError.
                 - Nếu người học sai: hasError=true, originalWrong=nguyên văn, corrected=câu Nhật đúng,
                   grammarReason=giải thích tiếng Việt cụ thể. Không giảng hay chèn câu sửa vào reply.
+                - Người học nói bằng giọng, nên lỗi hay gặp là ĐỌC SAI (vd いちひと thay vì ひとり). Khi lỗi là cách đọc
+                  từ/số đếm, corrected viết phần đó bằng hiragana đúng như phải nói (ひとりです), và grammarReason
+                  ghi cả kanji lẫn cách đọc: 「一人（ひとり）」.
                 - reply gồm phần phản hồi trong vai và tối đa một câu hỏi tiếp theo; đặt câu hỏi đó trên dòng mới.
                 - Bạn là nhân vật trong tình huống, không phải giáo viên đang kiểm tra. CẤM hỏi kiểu
                   「何と言いますか」「どう言いますか」「言ってみてください」để bắt người học đọc đáp án.
@@ -365,6 +368,9 @@ public class PromptBuilderService {
                 10) NEVER reply with only すみません / もう一度お願いします / もう一度言ってください.
                     If input is unclear/Vietnamese/typo: still continue the scene with a simple question
                     (e.g. お名前は何ですか。 / どちらから来ましたか。) and put correction in hasError fields.
+                    Learners speak, so a wrong READING (いちひと for 一人) is a mistake about how to say it: write
+                    that part of "corrected" in hiragana as it must be said (ひとりです) and give kanji with its
+                    reading in grammarReason, e.g. 「一人（ひとり）」.
                 11) You are a character, not a teacher testing a memorized line. Never ask meta-prompts such as
                     何と言いますか / どう言いますか / 言ってみてください. When this state is complete,
                     close the current beat naturally; the UI narrates the transition to the next scene.

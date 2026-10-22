@@ -397,7 +397,7 @@ public class AIConversationService {
         response.setSceneTransition(sceneTransition);
         try {
             response.setAssistantTokens(annotationService.annotateFurigana(scenarioId, assistantMsg.getContent()));
-            response.setAssistantTranslation(annotationService.translate(scenarioId, assistantMsg.getContent()));
+            // Bản dịch là một lượt gọi AI riêng (~1,5–2 giây): giao diện tự tải qua /translate sau khi hiện câu trả lời.
             if (!response.isConversationEnded()) {
                 response.setSuggestedReplies(suggestedReplyService.suggestions(session));
             }

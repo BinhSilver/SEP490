@@ -201,7 +201,6 @@
 #jlabBasePage.page-shadowing-library .library-tabs {
   gap: 10px;
   margin-bottom: 0;
-  border-bottom: 1px solid rgba(203, 196, 210, .55);
 }
 
 #jlabBasePage.page-shadowing-library .library-navigation {
@@ -313,13 +312,67 @@
 .series-video-option { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: center; padding: 9px; border-radius: 8px; }
 .series-video-option:hover { background: #f8fafc; }
 .series-video-option small { color: #64748b; }
-.series-card-icon { color: #4f46e5; font-size: 34px; margin-bottom: 10px; }
-.series-description { min-height: 38px; }
+/* .video-grid sets display:grid, which beats the [hidden] attribute: without this the video grid stayed
+   on top of the "Danh sách" tab and series only showed once the video list was empty (e.g. Yêu thích). */
+#jlabBasePage.page-shadowing-library :is(#video-grid, #series-grid, #video-empty-state, #series-empty-state)[hidden] {
+  display: none !important;
+}
+
+/* Series card styled as a playlist: stacked cover + video count, then title and rating. */
+#jlabBasePage.page-shadowing-library .series-card { overflow: visible; }
+#jlabBasePage.page-shadowing-library .series-card-cover {
+  position: relative;
+  display: block;
+  margin: 0 0 14px;
+  color: inherit;
+  text-decoration: none;
+}
+#jlabBasePage.page-shadowing-library .series-card .video-card-thumb {
+  margin: 0;
+  border-radius: var(--radius-lg, 1rem) var(--radius-lg, 1rem) 0 0;
+}
+#jlabBasePage.page-shadowing-library .series-card .video-card-thumb > i { font-size: 34px; }
+#jlabBasePage.page-shadowing-library .series-card-count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .72);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+#jlabBasePage.page-shadowing-library .series-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 0;
+  margin-bottom: 4px;
+  overflow: hidden;
+  color: var(--color-on-surface, #1d1b20);
+  font-weight: 600;
+  text-decoration: none;
+}
+#jlabBasePage.page-shadowing-library .series-card-kind {
+  margin: 0 16px 4px;
+  color: var(--color-on-surface-variant, #49454f);
+}
+#jlabBasePage.page-shadowing-library .series-card-rating { color: var(--color-star, #f5a400); }
+#jlabBasePage.page-shadowing-library .series-card-title:hover { text-decoration: underline; }
 .series-detail-header { margin: 28px 0 22px; }
-.series-video-list { display: grid; gap: 10px; max-width: 900px; }
-.series-video-row { display: flex; gap: 14px; align-items: center; }
-.series-position { width: 32px; color: #64748b; font-weight: 700; text-align: center; }
-.series-video-main { flex: 1; }
+.series-video-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 20px; }
+.series-video-row { display: flex; gap: 14px; align-items: center; padding: 0 20px 0 0; overflow: hidden; }
+.series-video-thumb { position: relative; flex: 0 0 200px; width: 200px; height: 113px; overflow: hidden; border-radius: var(--radius-lg, 12px) 0 0 var(--radius-lg, 12px); background: var(--color-surface-container, #e7e0ec); display: grid; place-items: center; color: var(--color-on-surface-variant, #49454f); }
+.series-video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.series-video-thumb > i { font-size: 28px; }
+.series-position { position: absolute; top: 6px; left: 6px; min-width: 20px; padding: 1px 6px; border-radius: 4px; background: rgba(0, 0, 0, .65); color: #fff; font-weight: 700; font-size: 12px; text-align: center; line-height: 16px; }
+.series-video-duration { position: absolute; right: 6px; bottom: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(0, 0, 0, .75); color: #fff; font-size: 13px; font-weight: 600; line-height: 18px; font-variant-numeric: tabular-nums; }
+.series-video-main { flex: 1; min-width: 0; }
 .series-video-main h3 { margin: 0 0 7px; }
 
 #jlabBasePage.page-shadowing-library .video-card {
@@ -374,6 +427,7 @@
 
 #jlabBasePage.page-shadowing-library .video-card-title,
 #jlabBasePage.page-shadowing-library .video-card-meta,
+#jlabBasePage.page-shadowing-library .video-card-genres,
 #jlabBasePage.page-shadowing-library .video-card-stats,
 #jlabBasePage.page-shadowing-library .card-rating-row,
 #jlabBasePage.page-shadowing-library .card-progress,
@@ -786,12 +840,12 @@
 }
 
 #jlabBasePage.page-shadowing-player .player-rating-summary .avg-star-icons .fa-solid {
-  color: #ffc107;
+  color: var(--color-star, #f5a400);
 }
 
 #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating .star-btn.filled,
 #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating.interactive .star-btn:hover {
-  color: #ffc107;
+  color: var(--color-star, #f5a400);
 }
 
 #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating .star-btn.filled i {
@@ -1138,6 +1192,12 @@
 }
 
 #jlabBasePage.page-shadowing-player .sub-pronunciation-result strong { font-size: 18px; }
+
+/* display:flex/grid above would otherwise override [hidden] and keep the previous score visible after re-recording. */
+#jlabBasePage.page-shadowing-player .sub-pronunciation-panel[hidden],
+#jlabBasePage.page-shadowing-player .sub-pronunciation-panel [hidden] {
+  display: none !important;
+}
 
 #jlabBasePage.page-shadowing-player .sub-pronunciation-details-btn {
   margin-left: auto;
@@ -1566,10 +1626,7 @@ html[data-theme="dark"] #jlabBasePage.page-shadowing-library #video-empty-action
     color: var(--dm-shadowing-on-accent)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-library .search-bar {
-    background: var(--dm-shadowing-accent-soft)
-}
-html[data-theme="dark"] #jlabBasePage.page-shadowing-library .library-tabs {
-    border-bottom: 1px solid var(--dm-shadowing-line)
+    background: rgba(11, 16, 23, .94)
 }
 html[data-theme="dark"] .series-video-picker {
     border: 1px solid var(--dm-shadowing-line)
@@ -1578,12 +1635,6 @@ html[data-theme="dark"] .series-video-option:hover {
     background: var(--dm-shadowing-accent-soft)
 }
 html[data-theme="dark"] .series-video-option small {
-    color: var(--dm-shadowing-muted)
-}
-html[data-theme="dark"] .series-card-icon {
-    color: var(--dm-shadowing-accent)
-}
-html[data-theme="dark"] .series-position {
     color: var(--dm-shadowing-muted)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-library .card-level-badge {
@@ -1642,11 +1693,11 @@ html[data-theme="dark"] #jlabBasePage.page-shadowing-editor #subtitle-editor-lis
     color: var(--dm-shadowing-success)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-player .player-rating-summary .avg-star-icons .fa-solid {
-    color: var(--dm-shadowing-warning)
+    color: var(--color-star, #f5a400)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating .star-btn.filled,
 html[data-theme="dark"] #jlabBasePage.page-shadowing-player .comment-rating-field .star-rating.interactive .star-btn:hover {
-    color: var(--dm-shadowing-warning)
+    color: var(--color-star, #f5a400)
 }
 html[data-theme="dark"] #jlabBasePage.page-shadowing-player .record-panel {
     border: 1px solid var(--dm-shadowing-success-line);

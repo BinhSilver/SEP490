@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/editor-theme.css?v=20261006-purple-import" />
+  <link rel="stylesheet" href="/flashcard/editor-theme.css?v=20261015-source" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -147,40 +147,81 @@
         <button type="button" class="btn-icon" id="btn-close-import" aria-label="Đóng"><i
             class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="modal-body">
-        <p class="muted import-guide">
-          Dán danh sách từ hoặc ghi chú học tập. AI tạo thẻ từ dữ liệu này và bổ sung cách đọc, nghĩa, Hán Việt còn thiếu. Bạn cũng có thể nhập trực tiếp theo mẫu Từ - Cách đọc : Nghĩa (Hán Việt).
-        </p>
-        <p class="muted import-example">
-          Ví dụ: 日本 - にほん : Nhật Bản (NHẬT BẢN) · 学校 : Trường học · コーヒー : Cà phê
-        </p>
-        <div class="import-actions">
-          <input type="file" id="import-file" accept=".xlsx,.csv,.txt,.tsv" hidden />
-          <button type="button" class="btn btn-ghost" id="btn-import-file">
-            <i class="fa-solid fa-file-arrow-up"></i> Chọn file (Excel, CSV, TXT)
-          </button>
-          <span class="muted">Cột: Mặt trước · Mặt sau · Hán Việt — cùng định dạng với file xuất từ thư viện.</span>
+      <div class="modal-body" data-source="manual">
+        <div class="import-option import-option--source">
+          <label for="import-source">Cách nhập</label>
+          <select id="import-source" class="select import-select">
+            <option value="manual">Nhập thủ công</option>
+            <option value="ai">AI tạo thẻ</option>
+            <option value="file">File (Excel, CSV, TXT)</option>
+          </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" data-import-source="manual ai">
           <label class="label" for="import-text">Dữ liệu nguồn</label>
           <div class="input-wrap">
             <textarea id="import-text" class="textarea" rows="8"
-              placeholder="Ví dụ: 食べる ăn Thực&#10;飲む uống Ẩm&#10;Hoặc dán danh sách từ, bảng dữ liệu, ghi chú học tập…"></textarea>
+              placeholder="Ví dụ: 日本 - にほん : Nhật Bản (Nhật Bản)&#10;学校 : Trường học&#10;Hoặc dán danh sách từ, bảng dữ liệu, ghi chú học tập…"></textarea>
           </div>
         </div>
-        <div class="import-actions">
+        <div class="import-actions import-actions--single" data-import-source="ai">
           <button type="button" class="btn btn-ghost" id="btn-import-ai">
             <i class="fa-solid fa-wand-magic-sparkles"></i> AI tạo thẻ từ dữ liệu
           </button>
         </div>
-        <p id="import-ai-status" class="muted" role="status" aria-live="polite"></p>
-        <section id="import-ai-preview" class="import-ai-preview" aria-labelledby="import-ai-preview-title" hidden>
+        <div class="import-actions import-actions--single" data-import-source="file">
+          <input type="file" id="import-file" accept=".xlsx,.csv,.txt,.tsv" hidden />
+          <button type="button" class="btn btn-ghost" id="btn-import-file">
+            <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i> Chọn file (Excel, CSV, TXT)
+          </button>
+        </div>
+        <p id="import-ai-status" class="muted" role="status" aria-live="polite" data-import-source="ai"></p>
+        <section id="import-ai-preview" class="import-ai-preview" aria-labelledby="import-ai-preview-title" data-import-source="ai" hidden>
           <h4 id="import-ai-preview-title">Thẻ AI đã tạo</h4>
           <ol id="import-ai-cards" class="import-ai-cards"></ol>
         </section>
-        <p class="muted import-result-note">
-          Kiểm tra các thẻ AI đã tạo rồi bấm Áp dụng để thêm vào danh sách soạn thẻ. Dữ liệu nguồn được giữ nguyên.
-        </p>
+        <div class="import-options" data-import-source="manual">
+          <div class="import-option import-option--mode">
+            <label for="import-mode">Kiểu dữ liệu</label>
+            <select id="import-mode" class="select import-select">
+              <option value="pair">2 cột</option>
+              <option value="quad" title="Kanji, Cách đọc, Nghĩa, Hán Việt">4 trường </option>
+            </select>
+          </div>
+          <div class="import-option" data-import-mode="pair">
+            <label for="import-term-sep">Giữa từ và định nghĩa</label>
+            <div class="import-option__row">
+              <select id="import-term-sep" class="select import-select">
+                <option value="tab">Tab</option>
+                <option value="comma">Phẩy</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+              <input type="text" class="input import-sep-custom" id="import-term-sep-custom" placeholder="Ký tự" hidden aria-label="Ký tự tùy chỉnh giữa thuật ngữ và định nghĩa">
+            </div>
+          </div>
+          <div class="import-option" data-import-mode="both">
+            <label for="import-card-sep">Giữa các thẻ</label>
+            <div class="import-option__row">
+              <select id="import-card-sep" class="select import-select">
+                <option value="newline">Dòng mới</option>
+                <option value="semicolon">Chấm phẩy</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+              <input type="text" class="input import-sep-custom" id="import-card-sep-custom" placeholder="Ký tự" hidden aria-label="Ký tự tùy chỉnh giữa các thẻ">
+            </div>
+          </div>
+        </div>
+        <fieldset class="import-template" data-import-mode="quad" data-import-source="manual" hidden>
+          <legend>Mẫu mỗi dòng <i class="fa-solid fa-circle-info import-template-info" title="Đọc theo thứ tự từ trên xuống: dấu đầu tiên gặp trong dòng ứng với hàng thứ 2, dấu tiếp theo ứng với hàng thứ 3… Dòng thiếu dấu thì các hàng cuối để trống; dấu thừa nằm luôn trong trường cuối. Ô ký tự: gõ nhiều dấu cách nhau bằng khoảng trắng để nhận dấu nào cũng được (ví dụ : -); để trống là khoảng trắng; dấu mở ngoặc như ( tự bỏ dấu đóng ngoặc." aria-label="Đọc theo thứ tự từ trên xuống: dấu đầu tiên gặp trong dòng ứng với hàng thứ 2, dấu tiếp theo ứng với hàng thứ 3… Dòng thiếu dấu thì các hàng cuối để trống; dấu thừa nằm luôn trong trường cuối. Ô ký tự: gõ nhiều dấu cách nhau bằng khoảng trắng để nhận dấu nào cũng được (ví dụ : -); để trống là khoảng trắng; dấu mở ngoặc như ( tự bỏ dấu đóng ngoặc."></i></legend>
+          <ol class="import-template-slots" id="import-template-slots"></ol>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-template-add"><i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm trường</button>
+          <p class="import-template-error" id="import-template-error" role="alert" hidden></p>
+        </fieldset>
+        <section class="import-preview" aria-live="polite" data-import-source="manual file">
+          <h4>Xem trước <span id="import-preview-count">0 thẻ</span> <span class="import-preview-issues" id="import-preview-issues" hidden></span></h4>
+          <div id="import-preview-list" class="import-preview-list">
+            <p class="muted">Không có nội dung để xem trước</p>
+          </div>
+        </section>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-ghost" id="btn-cancel-import">Hủy</button>
@@ -231,7 +272,8 @@
   <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/prevalidation.js"></script>
-  <script src="/flashcard/js/editor-page.js?v=7"></script>
+  <script src="/flashcard/js/import-separators.js?v=20261015-automode"></script>
+  <script src="/flashcard/js/editor-page.js?v=19"></script>
 </body>
 
 </html>

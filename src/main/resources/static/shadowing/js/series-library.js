@@ -26,8 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (q) params.set('q', q);
         const level = document.getElementById('level-filter')?.value;
         const category = document.getElementById('category-filter')?.value;
+        const genre = document.getElementById('genre-filter')?.value;
         if (level) params.set('level', level);
         if (category) params.set('category', category);
+        if (genre) params.set('genre', genre);
         pager.setBusy(true);
         seriesGrid.setAttribute('aria-busy', 'true');
         if (seriesEmptyState) seriesEmptyState.hidden = true;
@@ -57,19 +59,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /** Thẻ danh sách kiểu playlist: ảnh bìa xếp chồng + số video, rồi tên và đánh giá. */
     function renderSeries(s) {
         const card = document.createElement('article');
         card.className = 'store-utility-card video-card series-card';
-        const level = s.estimatedLevel ? `<span class="badge badge-primary">${esc(s.estimatedLevel)}</span>` : '<span class="badge badge-category">Chưa xác định trình độ</span>';
         const ui = window.ShadowingLibraryUi;
-        const description = s.description || 'Series luyện nghe shadowing tiếng Nhật';
-        card.innerHTML = `<div class="series-card-icon"><i class="fa-solid fa-list-ul"></i></div>
-            <div class="video-card-title"><span class="series-copy-full">${esc(s.title)}</span><span class="series-copy-compact">${esc(ui.compactTitle(s.title))}</span></div>
-            <p class="caption series-description"><span class="series-copy-full">${esc(description)}</span><span class="series-copy-compact">${esc(ui.compactDescription(description))}</span></p>
-            <div class="video-card-meta">${level}<span class="badge badge-lesson"><i class="fa-solid fa-film"></i> ${s.videoCount} video</span></div>
-            <div class="video-card-stats"><span class="caption"><i class="fa-solid fa-eye"></i> ${s.viewCount || 0} lượt xem</span><span class="caption">${s.avgRating ? `★ ${Number(s.avgRating).toFixed(1)}` : 'Chưa có đánh giá'}</span></div>
-            <div class="card-actions"><button class="text-link series-open" aria-label="Mở danh sách ${esc(ui.compactTitle(s.title))}" title="Mở danh sách"><i class="fa-solid fa-play" aria-hidden="true"></i><span class="series-open-label">Mở series</span></button>${ui.ratingHtml(s.avgRating, s.ratingCount)}</div>`;
-        card.querySelector('.series-open').addEventListener('click', () => { location.href = `/shadowing/series/${s.id}`; });
+        const href = `/shadowing/series/${encodeURIComponent(s.id)}`;
+        const cover = s.coverVideoId
+            ? `<img src="/api/videos/${encodeURIComponent(s.coverVideoId)}/thumbnail" alt="" loading="lazy" decoding="async">`
+            : '<i class="fa-solid fa-list-ul" aria-hidden="true"></i>';
+        const level = s.estimatedLevel ? `<span class="card-level-badge" title="Cấp độ JLPT">${esc(s.estimatedLevel)}</span>` : '';
+        const rating = s.avgRating ? ` · <span class="series-card-rating">★ ${Number(s.avgRating).toFixed(1)}</span>` : '';
+        card.innerHTML = `<a class="series-card-cover" href="${href}" aria-label="Mở danh sách ${esc(ui.compactTitle(s.title))}">
+                <span class="video-card-thumb">${cover}${level}
+                    <span class="series-card-count"><i class="fa-solid fa-list-ul" aria-hidden="true"></i> ${Number(s.videoCount) || 0} video</span>
+                </span>
+            </a>
+            <a class="video-card-title series-card-title" href="${href}" title="${esc(s.title)}"><span class="series-copy-full">${esc(s.title)}</span><span class="series-copy-compact">${esc(ui.compactTitle(s.title))}</span></a>
+            <p class="caption series-card-kind">Danh sách phát · <i class="fa-solid fa-eye" aria-hidden="true"></i> ${Number(s.viewCount) || 0} lượt xem${rating}</p>`;
         seriesGrid.appendChild(card);
     }
 
@@ -100,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sort-select')?.addEventListener('change', () => { if (!seriesGrid.hidden) loadSeries(); });
     document.getElementById('level-filter')?.addEventListener('change', () => { if (!seriesGrid.hidden) loadSeries(); });
     document.getElementById('category-filter')?.addEventListener('change', () => { if (!seriesGrid.hidden) loadSeries(); });
+    document.getElementById('genre-filter')?.addEventListener('change', () => { if (!seriesGrid.hidden) loadSeries(); });
     createBtn?.addEventListener('click', openCreate);
     emptyCreateBtn?.addEventListener('click', openCreate);
     document.getElementById('series-dialog-close')?.addEventListener('click', () => dialog.close());

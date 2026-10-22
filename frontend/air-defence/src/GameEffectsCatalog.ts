@@ -24,7 +24,7 @@ export const GAME_EFFECTS:Record<PreviewGame,PreviewEffect[]> = {
   ],
   memory: [
     ...group('Thẻ và ghép cặp', [['hidden','Thẻ úp'],['flip','Lật thẻ'],['match','Ghép đúng'],['mismatch','Ghép sai rồi úp lại'],['combo2','Ghép liên tiếp · combo 2'],['combo5','Ghép liên tiếp · combo 5'],['complete_board','Ghép cặp cuối cùng']]),
-    ...group('Bắt đầu và lượt chơi', [['dice','Tung xúc xắc chọn người đi trước'],['countdown','Đếm ngược bắt đầu'],['turn_my','Đến lượt của bạn'],['turn_other','Đến lượt đối thủ'],['turn_timeout','Hết thời gian lượt'],['time_low','Sắp hết thời gian'],['paused','Tạm dừng']]),
+    ...group('Bắt đầu và lượt chơi', [['dice','Tung đồng xu chọn người đi trước'],['countdown','Đếm ngược bắt đầu'],['turn_my','Đến lượt của bạn'],['turn_other','Đến lượt đối thủ'],['turn_timeout','Hết thời gian lượt'],['time_low','Sắp hết thời gian'],['paused','Tạm dừng']]),
     ...group('Kết quả', [['complete','Hoàn thành ván đơn'],['win','Thắng đối kháng'],['lose','Thua đối kháng'],['draw','Hòa'],['aborted','Ván bị hủy']]),
     ...group('Tương tác và nhạc', [['click','Bấm nút'],['bgm','Nhạc nền']]),
   ],

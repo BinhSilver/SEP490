@@ -150,32 +150,19 @@
     return wrap;
   }
 
-  /** Câu không chồng thời gian trong các mức đã chọn (cùng cách backend chọn), đếm theo "MỨC:DẠNG". */
-  function maxPerSelection() {
-    const selected = new Set(selectedCombos());
-    const result = {};
-    if (!Array.isArray(availability.questions)) return result;
-    let lastEnd = -Infinity;
-    availability.questions.filter(function (question) {
-      return selected.has(question.level + ':' + question.kind);
-    }).sort(function (left, right) {
-      return Number(left.endTime) - Number(right.endTime);
-    }).forEach(function (question) {
-      if (Number(question.startTime) >= lastEnd) {
-        const pair = question.level + ':' + question.kind;
-        result[pair] = (result[pair] || 0) + 1;
-        lastEnd = Number(question.endTime);
-      }
-    });
-    return result;
+  /** Tối đa của mỗi "MỨC:DẠNG" tính riêng (câu không chồng thời gian trong chính mức đó), không phụ thuộc mức khác. */
+  function pairLimit(pair) {
+    if (!Array.isArray(availability.questions)) return 0;
+    return nonOverlappingCount(availability.questions.filter(function (question) {
+      return question.level + ':' + question.kind === pair;
+    }));
   }
 
   /** Chạy sau updateLevelCounts: mức đang chọn hiện ô số câu và "/ tối đa" thay cho "N câu". */
   function syncLevelCounts() {
-    const max = maxPerSelection();
     Object.entries(levelRows).forEach(function ([pair, control]) {
       const active = control.checkbox.checked && !control.checkbox.disabled;
-      const limit = active ? max[pair] || 0 : 0;
+      const limit = active ? pairLimit(pair) : 0;
       control.wrap.hidden = !active;
       if (!active) {
         levelTouched[pair] = false;

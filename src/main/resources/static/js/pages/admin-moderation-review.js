@@ -107,7 +107,10 @@
         var decision = await A.decide({
           title: valid ? 'Gỡ nội dung vi phạm?' : 'Khôi phục nội dung?',
           message: valid
-            ? 'Nội dung sẽ chuyển sang <strong>Đã gỡ</strong> và mọi báo cáo của nó được đóng.'
+            ? 'Nội dung sẽ chuyển sang <strong>Đã gỡ</strong> và mọi báo cáo của nó được đóng.' +
+              (card.dataset.type === 'VIDEO'
+                ? '<br>Link YouTube gốc cũng bị <strong>chặn</strong>: không ai (kể cả người đăng) tạo lại được, và các bản copy của người khác từ cùng link bị gỡ theo.'
+                : '')
             : 'Nội dung sẽ <strong>hiển thị lại</strong> và mọi báo cáo của nó được đóng.',
           danger: valid,
           userVisible: valid,

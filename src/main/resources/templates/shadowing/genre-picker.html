@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+<!-- Multi-select genre chips (Hành động, Học đường…); read and written by ShadowingGenres in client.js. -->
+<fieldset th:fragment="picker(id)" class="genre-picker" th:id="${id}" data-genre-picker>
+    <legend class="form-label">Thể loại <span class="caption genre-picker__hint">· chọn nhiều, tối đa 5</span></legend>
+    <div class="genre-picker__chips">
+        <label class="genre-chip" th:each="genre : ${shadowingGenres}">
+            <input type="checkbox" th:name="${id}" th:value="${genre.code()}">
+            <span th:text="${genre.label()}">Hành động</span>
+        </label>
+    </div>
+</fieldset>
+</body>
+</html>

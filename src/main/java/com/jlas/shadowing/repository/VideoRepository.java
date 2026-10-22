@@ -11,6 +11,8 @@ import java.util.List;
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
     List<Video> findByStatusOrderByCreatedAtDesc(VideoStatus status);
+    List<Video> findBySourceUrlContaining(String fragment);
+    List<Video> findByModerationStatus(String moderationStatus);
     List<Video> findByStatusInOrderByCreatedAtDesc(List<VideoStatus> statuses);
 
     List<Video> findByOwnerIdOrderByCreatedAtDesc(Long ownerId);
