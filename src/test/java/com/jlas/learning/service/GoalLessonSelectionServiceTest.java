@@ -93,6 +93,33 @@ class GoalLessonSelectionServiceTest {
         assertEquals("BALANCED", result.learningMode());
     }
 
+    /** Owner 2026-10-21 (OD-38): the 10/20/30-minute survey answer sets the path's minutes per day; no answer keeps 20. */
+    @Test
+    void timeAnswerSetsMinutesPerDay() {
+        UserGoalSurveySubmission submission = UserGoalSurveySubmission.builder().id(61L).userId(7L).goalId(3L)
+                .learningMode("BALANCED").status("SUBMITTED").version(1).build();
+        when(submissions.findByIdAndUserId(61L, 7L)).thenReturn(Optional.of(submission));
+        when(scopes.findByGoalIdAndReviewStatusOrderByScopeOrderAsc(3L, "APPROVED")).thenReturn(List.of(scope(1L, 100L, 1)));
+        when(lessons.findAllById(any())).thenReturn(List.of(published(1L)));
+        when(selections.findBySubmissionId(61L)).thenReturn(List.of(
+                com.jlas.learning.entity.UserGoalSurveySelection.builder().submissionId(61L).questionId(6L).optionId(23L).build()));
+        when(options.findAllById(any())).thenReturn(List.of(com.jlas.learning.entity.LearningSurveyOption.builder()
+                .id(23L).questionId(6L).valueCode("10_MIN").build()));
+
+        assertEquals(10, service.select(7L, 61L).minutesPerDay());
+    }
+
+    @Test
+    void noTimeAnswerKeepsTwentyMinutes() {
+        UserGoalSurveySubmission submission = UserGoalSurveySubmission.builder().id(62L).userId(7L).goalId(3L)
+                .learningMode("BALANCED").status("SUBMITTED").version(1).build();
+        when(submissions.findByIdAndUserId(62L, 7L)).thenReturn(Optional.of(submission));
+        when(scopes.findByGoalIdAndReviewStatusOrderByScopeOrderAsc(3L, "APPROVED")).thenReturn(List.of(scope(1L, 100L, 1)));
+        when(lessons.findAllById(any())).thenReturn(List.of(published(1L)));
+
+        assertEquals(20, service.select(7L, 62L).minutesPerDay());
+    }
+
     @Test
     void unapprovedOrMissingPublishedContentFailsClosed() {
         UserGoalSurveySubmission submission = UserGoalSurveySubmission.builder().id(51L).userId(7L).goalId(4L)

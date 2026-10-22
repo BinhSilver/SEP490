@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class GoalLessonSelectionService {
+    static final int DEFAULT_MINUTES_PER_DAY = 20;
     private final UserGoalSurveySubmissionRepository submissions;
     private final LessonLearningScopeRepository scopes;
     private final LessonRepository lessons;
@@ -41,7 +42,8 @@ public class GoalLessonSelectionService {
                     "Chưa có bài học đã duyệt phù hợp với nhu cầu đã chọn.");
         }
 
-        List<Long> orderedIds = prioritiseSurveyTopics(eligible, submissionId);
+        List<com.jlas.learning.entity.LearningSurveyOption> chosen = chosenOptions(submissionId);
+        List<Long> orderedIds = prioritiseSurveyTopics(eligible, chosen);
         Map<Long, Lesson> published = lessons.findAllById(orderedIds).stream()
                 .filter(lesson -> "PUBLISHED".equals(lesson.getStatus()))
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
@@ -57,16 +59,33 @@ public class GoalLessonSelectionService {
         eligible.forEach(scope -> levelByLesson.putIfAbsent(scope.getLessonId(),
                 levelCodes.getOrDefault(scope.getCompetencyLevelId(), "BASIC")));
         return new GoalLessonSelection(submissionId, submission.getGoalId(), submission.getLearningMode(),
-                orderedIds.stream().map(published::get).toList(), levelByLesson);
+                orderedIds.stream().map(published::get).toList(), levelByLesson, minutesPerDay(chosen));
+    }
+
+    private List<com.jlas.learning.entity.LearningSurveyOption> chosenOptions(Long submissionId) {
+        List<Long> optionIds = selections.findBySubmissionId(submissionId).stream()
+                .map(com.jlas.learning.entity.UserGoalSurveySelection::getOptionId).distinct().toList();
+        return optionIds.isEmpty() ? List.of() : options.findAllById(optionIds);
+    }
+
+    /** Owner 2026-10-21 (OD-38): the time answer ("10_MIN", "20_MIN", "30_MIN") is the path's pace; none keeps 20. */
+    static int minutesPerDay(List<com.jlas.learning.entity.LearningSurveyOption> chosen) {
+        for (var option : chosen) {
+            String code = option.getValueCode();
+            if (code != null && code.matches("\\d{1,3}_MIN")) {
+                int minutes = Integer.parseInt(code.substring(0, code.indexOf('_')));
+                if (minutes >= 5 && minutes <= 180) return minutes;
+            }
+        }
+        return DEFAULT_MINUTES_PER_DAY;
     }
 
     /** Owner 2026-10-19: the topics chosen in the survey (with their dialogue situations) come first; the rest keep
      * the approved scope order. Survey answers only reorder — they never remove a situation. */
-    private List<Long> prioritiseSurveyTopics(List<LessonLearningScope> eligible, Long submissionId) {
+    private List<Long> prioritiseSurveyTopics(List<LessonLearningScope> eligible,
+                                              List<com.jlas.learning.entity.LearningSurveyOption> chosen) {
         List<Long> ordered = eligible.stream().map(LessonLearningScope::getLessonId).distinct().toList();
-        List<Long> optionIds = selections.findBySubmissionId(submissionId).stream()
-                .map(com.jlas.learning.entity.UserGoalSurveySelection::getOptionId).distinct().toList();
-        Set<Long> focus = optionIds.isEmpty() ? Set.of() : options.findAllById(optionIds).stream()
+        Set<Long> focus = chosen.stream()
                 .map(com.jlas.learning.entity.LearningSurveyOption::getTopicId).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         if (focus.isEmpty()) return ordered;
@@ -88,10 +107,14 @@ public class GoalLessonSelectionService {
     }
 
     public record GoalLessonSelection(Long submissionId, Long goalId, String learningMode, List<Lesson> lessons,
-                                      Map<Long, String> levelByLesson) {
+                                      Map<Long, String> levelByLesson, int minutesPerDay) {
         public GoalLessonSelection {
             lessons = List.copyOf(lessons);
             levelByLesson = Map.copyOf(levelByLesson);
+        }
+        public GoalLessonSelection(Long submissionId, Long goalId, String learningMode, List<Lesson> lessons,
+                                   Map<Long, String> levelByLesson) {
+            this(submissionId, goalId, learningMode, lessons, levelByLesson, DEFAULT_MINUTES_PER_DAY);
         }
     }
 }

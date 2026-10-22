@@ -58,6 +58,25 @@ class GoalSpecificPathServiceTest {
                 && "BASIC".equals(schedule.getFirst().resource().level())));
     }
 
+    /** Owner 2026-10-21 (OD-38): the survey's time answer is the path's pace. */
+    @Test void pathTakesMinutesPerDayFromTheSurvey() {
+        Lesson lesson = publishedLesson(13L);
+        when(selection.select(7L, 52L)).thenReturn(new GoalLessonSelectionService.GoalLessonSelection(
+                52L, 3L, "BALANCED", List.of(lesson), Map.of(13L, "BASIC"), 30));
+        when(goals.findById(3L)).thenReturn(Optional.of(LearningGoal.builder().id(3L).goalCode("TRAVEL")
+                .displayNameVi("Du lịch").active(true).reviewStatus("APPROVED").build()));
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        when(paths.findByUserIdAndSurveyIdAndExperienceVersion(7L, 52L, LearningExperienceVersion.INTERACTIVE_V2))
+                .thenReturn(Optional.empty());
+        when(paths.save(any())).thenAnswer(invocation -> invocation.getArgument(0, UserLearningPath.class));
+        when(stages.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(composer.compose(any(), any())).thenReturn(new InteractiveCompositionResult(true, 1, List.of()));
+
+        service.create(7L, 52L, null);
+
+        verify(paths).save(argThat(path -> path.getMinutesPerDay() == 30));
+    }
+
     @Test void brseIsSurveyOnlyAndRejectsAssessmentAttempt() {
         Lesson lesson = publishedLesson(12L);
         when(selection.select(7L, 51L)).thenReturn(new GoalLessonSelectionService.GoalLessonSelection(
