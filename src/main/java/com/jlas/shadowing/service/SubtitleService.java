@@ -73,6 +73,7 @@ public class SubtitleService {
     @Transactional
     public Subtitle create(Long videoId, SubtitleCreateRequest req) {
         Video video = getEditableVideo(videoId);
+        if (Boolean.TRUE.equals(req.getManual())) requirePublishableTiming(video, req);
         Subtitle sub = new Subtitle();
         sub.setVideo(video);
         sub.setText(req.getText() != null ? req.getText() : "");
@@ -115,6 +116,31 @@ public class SubtitleService {
         }
         subtitleRepository.delete(subtitle);
         markModerationStale(video);
+    }
+
+    /**
+     * A line added by hand must not create an error that later blocks publishing (see {@link #validate}):
+     * it needs text, a positive length inside the video, and no overlap with another line.
+     * Undo restores old lines through the same endpoint without {@code manual}, so it is not checked here.
+     */
+    private void requirePublishableTiming(Video video, SubtitleCreateRequest req) {
+        Double start = req.getStartTime();
+        Double end = req.getEndTime();
+        if (req.getText() == null || req.getText().isBlank())
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy nhập nội dung tiếng Nhật cho câu mới.");
+        if (start == null || end == null || start < 0 || end - start < 0.3)
+            throw new ApiException(ErrorCode.BAD_REQUEST,
+                    "Thời gian không hợp lệ: kết thúc phải sau bắt đầu ít nhất 0,3 giây.");
+        if (video.getDuration() != null && video.getDuration() > 0 && end > video.getDuration() + 0.05)
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Thời gian kết thúc vượt quá độ dài video.");
+        List<Subtitle> existing = getByVideoId(video.getId());
+        for (int i = 0; i < existing.size(); i++) {
+            Subtitle other = existing.get(i);
+            if (other.getStartTime() == null || other.getEndTime() == null) continue;
+            if (start < other.getEndTime() - 0.15 && end > other.getStartTime() + 0.15)
+                throw new ApiException(ErrorCode.CONFLICT, "Câu mới chồng thời gian với câu #" + (i + 1)
+                        + ". Hãy chọn khoảng trống khác.");
+        }
     }
 
     private boolean sameTime(Double left, Double right) {
@@ -258,7 +284,7 @@ public class SubtitleService {
     }
 
     private void markModerationStale(Video video) {
-        if (video == null) return;
+        if (video == null || com.jlas.shadowing.util.ShadowingModerationState.isLocked(video.getModerationStatus())) return;
         video.setModerationStatus("NOT_SCANNED");
         video.setModerationSummary(null);
         video.setModerationCheckedAt(null);
@@ -339,6 +365,9 @@ public class SubtitleService {
             }
         }
 
+        addRecheckHint(warnings, subs, SubtitleText::hasLatinInJapanese, "có chữ Latin, có thể là lỗi nhận dạng");
+        addRecheckHint(warnings, subs, SubtitleText::hasRepeatedRun, "có chuỗi ký tự lặp (tiếng hét hoặc lỗi nhận dạng)");
+
         // Only extreme gaps (broken timeline). 3–8s pauses in speech are normal.
         final double gapWarnSeconds = 20.0;
         for (int i = 1; i < subs.size(); i++) {
@@ -363,5 +392,18 @@ public class SubtitleService {
         result.put("canPublish", errors.isEmpty());
         result.put("pendingQualityReviews", pendingQualityReviews);
         return result;
+    }
+
+    /** Advisory only: names the lines a creator may want to re-listen to; never blocks publish. */
+    private static void addRecheckHint(List<String> warnings, List<Subtitle> subs,
+                                       java.util.function.Predicate<String> suspicious, String reason) {
+        List<String> lines = new ArrayList<>();
+        for (int i = 0; i < subs.size(); i++) {
+            if (suspicious.test(subs.get(i).getText())) lines.add("#" + (i + 1));
+        }
+        if (lines.isEmpty()) return;
+        int shown = Math.min(lines.size(), 15);
+        warnings.add(lines.size() + " câu " + reason + ", nên nghe và kiểm tra lại: "
+                + String.join(", ", lines.subList(0, shown)) + (lines.size() > shown ? ", …" : ""));
     }
 }

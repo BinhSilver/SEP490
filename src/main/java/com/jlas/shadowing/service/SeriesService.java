@@ -36,7 +36,12 @@ public class SeriesService {
 
     public LibraryPageDto<SeriesSummaryDto> listPublicPage(String query, String sort, String category,
             String level, int page, int size) {
-        return libraryCatalog.series(query, category, level, sort, CurrentUser.currentUserId().orElse(null), page, size);
+        return listPublicPage(query, sort, category, null, level, page, size);
+    }
+
+    public LibraryPageDto<SeriesSummaryDto> listPublicPage(String query, String sort, String category, String genre,
+            String level, int page, int size) {
+        return libraryCatalog.series(query, category, genre, level, sort, CurrentUser.currentUserId().orElse(null), page, size);
     }
 
     public List<SeriesSummaryDto> listPublic(String query, String sort) {

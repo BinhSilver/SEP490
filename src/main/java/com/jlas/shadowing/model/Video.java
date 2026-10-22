@@ -106,6 +106,25 @@ public class Video {
     @Column(name = "moderation_summary", length = 500)
     private String moderationSummary;
 
+    /** Playback of a YouTube video: EMBED = YouTube's own player (no file kept), FILE = downloaded copy
+     *  (only for videos whose owner does not allow embedding). Null = row imported before this column existed:
+     *  played from its file when it has one (the bundled sample videos), otherwise through the embed. */
+    @Column(name = "playback_mode", length = 10)
+    private String playbackMode;
+
+    public static final String PLAYBACK_EMBED = "EMBED";
+    public static final String PLAYBACK_FILE = "FILE";
+
+    /** True when this is a YouTube video played through the YouTube embed (the server serves no file for it). */
+    @Transient
+    @JsonProperty("youtubeEmbed")
+    public boolean isYoutubeEmbed() {
+        if (com.jlas.shadowing.util.youtube.YoutubeUrlValidator.extractVideoId(sourceUrl).isEmpty()) return false;
+        if (PLAYBACK_FILE.equals(playbackMode)) return false;
+        if (PLAYBACK_EMBED.equals(playbackMode)) return true;
+        return videoPath == null || videoPath.isBlank();
+    }
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "video_tag",

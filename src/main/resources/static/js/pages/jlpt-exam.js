@@ -5,6 +5,10 @@
   var code = params.get('code') || 'N3_2025_12';
   var mode = params.get('mode') === 'exam' ? 'exam' : 'practice';
   var isExamMode = mode === 'exam';
+  var isPartPractice = !isExamMode && !!params.get('part');
+  var historyId = params.get('history');
+  var reviewMode = !!historyId;
+  var historyDetail = null;
   var exam = null;
   var partIndex = 0;
   var pageIndex = 0;
@@ -24,8 +28,11 @@
   var deadline = null;
   var timerHandle = null;
   var examFinished = false;
+  var practiceFinished = false;
   var submitIntent = 'part';
   var sessionKey = 'jlpt-exam-session:' + code;
+  var practiceSessionKey = 'jlpt-practice-session:' + code + ':' + (params.get('part') || 'all');
+  var historyPendingKey = 'jlpt-history-pending:' + code + ':' + mode + ':' + (params.get('part') || 'all');
   var $ = function (id) { return document.getElementById(id); };
 
   fetch('/api/jlpt/exams/' + encodeURIComponent(code))
@@ -35,7 +42,34 @@
         return body.data;
       });
     })
-    .then(function (data) { exam = data; init(); })
+    .then(function (data) {
+      exam = data;
+      if (!reviewMode) { init(); return; }
+      var headers = window.JlasAuth ? window.JlasAuth.authHeaders() : { 'Content-Type': 'application/json' };
+      return fetch('/api/jlpt/history/' + encodeURIComponent(historyId), { headers: headers })
+        .then(function (response) {
+          return response.json().then(function (body) {
+            if (!response.ok || body.success === false) throw new Error(body.message || 'Không tải được chi tiết bài làm.');
+            return body.data;
+          });
+        })
+        .then(function (detail) {
+          historyDetail = detail;
+          if (detail.attempt.examCode !== code) throw new Error('Đề thi không khớp với lần làm bài đã chọn.');
+          mode = detail.attempt.mode === 'EXAM' ? 'exam' : 'practice';
+          isExamMode = mode === 'exam';
+          isPartPractice = !isExamMode && !!detail.attempt.partCode;
+          if (isPartPractice) {
+            var selectedPartIndex = exam.parts.findIndex(function (part) { return part.code === detail.attempt.partCode; });
+            if (selectedPartIndex >= 0) partIndex = selectedPartIndex;
+          }
+          answers = detail.answers || {};
+          Object.keys(detail.sentenceOrders || {}).forEach(function (questionId) {
+            sentenceOrders[questionId] = { order: detail.sentenceOrders[questionId], checked: true, showCorrect: false };
+          });
+          init();
+        });
+    })
     .catch(function (error) { $('jlptNotice').textContent = error.message; });
 
   function esc(value) {
@@ -79,6 +113,11 @@
   }
 
   function currentPart() { return exam.parts[partIndex]; }
+
+  function practiceRows() {
+    var rows = allQuestionRows();
+    return isPartPractice ? rows.filter(function (row) { return row.partIndex === partIndex; }) : rows;
+  }
 
   function questionRows() {
     var list = [];
@@ -142,7 +181,10 @@
   }
 
   function init() {
-    if (isExamMode) restoreExamSession();
+    if (!reviewMode) {
+      if (isExamMode) restoreExamSession();
+      else restorePracticeSession();
+    }
     $('jlptNotice').hidden = true;
     $('jlptWorkspace').hidden = false;
     document.body.classList.toggle('is-jlpt-test-mode', isExamMode);
@@ -150,14 +192,28 @@
       ? exam.level + ' · Đề thi thử'
       : exam.level + ' · ' + String(exam.month).padStart(2, '0') + '/' + exam.year;
     $('jlptTitle').textContent = exam.title;
-    $('jlptMode').textContent = isExamMode ? 'LUYỆN THI' : 'LUYỆN TẬP';
+    $('jlptMode').textContent = reviewMode ? 'XEM LẠI BÀI ĐÃ NỘP' : (isExamMode ? 'LUYỆN THI' : 'LUYỆN TẬP');
     $('jlptExamStep').hidden = !isExamMode;
     $('jlptTimerWrap').hidden = !isExamMode;
     $('jlptSubmitMondai').hidden = false;
     $('jlptFurigana').hidden = isExamMode;
     $('jlptReview').textContent = exam.reviewStatus === 'CHUA_DUYET' ? 'Dữ liệu chưa duyệt' : exam.reviewStatus;
     bind();
+    if (reviewMode) {
+      allQuestionRows().forEach(function (row) { revealed[row.question.id] = true; });
+      $('jlptRestartExam').textContent = 'Quay lại lịch sử';
+      finishExam(true);
+      return;
+    }
     if (isExamMode && examFinished) { finishExam(true); return; }
+    if (!isExamMode) {
+      var requestedId = params.get('question');
+      var requested = requestedId ? allQuestionRows().find(function(row){return String(row.question.id) === requestedId;}) : null;
+      var requestedPart = requested ? requested.partIndex : exam.parts.findIndex(function(part){return part.code === params.get('part');});
+      if (requestedPart >= 0) partIndex = requestedPart;
+      if (requested) { pageIndex = Math.max(0, pageIndexForQuestion(requestedId)); pendingFocus = requestedId; }
+      if (practiceFinished) { finishExam(true); return; }
+    }
     renderTabs();
     render();
     if (isExamMode) startTimer();
@@ -170,6 +226,7 @@
       partIndex = Number(button.dataset.part);
       pageIndex = 0;
       scriptOpen = false;
+      if (!isExamMode) savePracticeSession();
       renderTabs();
       render();
     });
@@ -179,6 +236,7 @@
       pageIndex = Number(button.dataset.pageIndex);
       pendingFocus = button.dataset.questionId;
       scriptOpen = false;
+      if (!isExamMode) savePracticeSession();
       render();
     });
     $('jlptQuestionGroup').addEventListener('change', function (event) {
@@ -186,6 +244,23 @@
       var questionId = event.target.dataset.question;
       answers[questionId] = Number(event.target.value);
       if (isExamMode) saveExamSession();
+      else savePracticeSession();
+      delete revealed[questionId];
+      delete explanations[questionId];
+      renderChoices(questionById(questionId));
+      renderExplanation(questionById(questionId));
+      renderPalette();
+      if (furiganaOn) applyFurigana(currentPage());
+    });
+    $('jlptQuestionGroup').addEventListener('click', function (event) {
+      var choice = event.target.closest('.jlpt-exam-choice');
+      var input = choice && choice.querySelector('input[type=radio]');
+      if (!input || answers[input.dataset.question] == null || Number(answers[input.dataset.question]) !== Number(input.value)) return;
+      event.preventDefault();
+      var questionId = input.dataset.question;
+      delete answers[questionId];
+      if (isExamMode) saveExamSession();
+      else savePracticeSession();
       delete revealed[questionId];
       delete explanations[questionId];
       renderChoices(questionById(questionId));
@@ -202,8 +277,8 @@
       if (!isExamMode && action.dataset.action === 'check') showAnswer(question);
       if (!isExamMode && action.dataset.action === 'explain') requestExplanation(question);
     });
-    $('jlptPrevious').onclick = function () { if (pageIndex > 0) { pageIndex--; scriptOpen = false; render(); } };
-    $('jlptNext').onclick = function () { if (pageIndex < pages().length - 1) { pageIndex++; scriptOpen = false; render(); } };
+    $('jlptPrevious').onclick = function () { if (pageIndex > 0) { pageIndex--; scriptOpen = false; if (!isExamMode) savePracticeSession(); render(); } };
+    $('jlptNext').onclick = function () { if (pageIndex < pages().length - 1) { pageIndex++; scriptOpen = false; if (!isExamMode) savePracticeSession(); render(); } };
     $('jlptFurigana').addEventListener('click', function () {
       furiganaOn = !furiganaOn;
       this.classList.toggle('is-active', furiganaOn);
@@ -229,8 +304,13 @@
       if (submitIntent === 'practice') finishExam(false);
       else submitCurrentPart(false, true);
     });
-    $('jlptRestartExam').addEventListener('click', restartExam);
+    $('jlptRestartExam').addEventListener('click', function () {
+      if (reviewMode) location.href = '/jlpt/history';
+      else restartExam();
+    });
     $('jlptResultReview').addEventListener('click', handleReviewAction);
+    $('jlptReviewPartFilter').addEventListener('change', applyReviewFilters);
+    $('jlptReviewStatusFilter').addEventListener('change', applyReviewFilters);
   }
 
   function questionById(questionId) {
@@ -239,6 +319,11 @@
   }
 
   function renderTabs() {
+    $('jlptPartTabs').hidden = isPartPractice;
+    if (isPartPractice) {
+      $('jlptPartTabs').innerHTML = '';
+      return;
+    }
     $('jlptPartTabs').innerHTML = exam.parts.map(function (part, index) {
       var locked = isExamMode && index !== partIndex;
       return '<button type="button" data-part="' + index + '" class="' + (index === partIndex ? 'is-active' : '') + '"' + (locked ? ' disabled title="Hãy nộp phần hiện tại để mở phần này"' : '') + '>' + esc(partShortName(part)) + '</button>';
@@ -268,11 +353,10 @@
     } else $('jlptSubmitMondai').textContent = 'Nộp bài luyện tập';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (pendingFocus) {
-      var focusId = pendingFocus;
       pendingFocus = null;
       requestAnimationFrame(function () {
-        var target = document.querySelector('[data-question-id="' + focusId + '"]');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var card = document.querySelector('.jlpt-exam-card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }
   }
@@ -358,8 +442,9 @@
 
   function renderPalette() {
     var list = questionRows();
-    var answered = allQuestionRows().filter(function (row) { return isQuestionAnswered(row.question); }).length;
-    var total = exam.parts.reduce(function (partTotal, part) { return partTotal + part.mondai.reduce(function (sum, mondai) { return sum + mondai.questions.length; }, 0); }, 0);
+    var rows = practiceRows();
+    var answered = rows.filter(function (row) { return isQuestionAnswered(row.question); }).length;
+    var total = rows.length;
     $('jlptProgress').textContent = answered + '/' + total;
     var visible = list.map(function (row) { return { row: row, originalIndex: questionPosition(row.question.id) }; }).filter(function (item) {
       var question = item.row.question;
@@ -610,6 +695,27 @@
     } catch (error) { /* Bắt đầu phiên mới nếu dữ liệu lưu bị hỏng. */ }
   }
 
+  function restorePracticeSession() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(practiceSessionKey) || 'null');
+      if (!saved || saved.mode !== 'practice') return;
+      answers = saved.answers && typeof saved.answers === 'object' ? saved.answers : {};
+      partIndex = Math.max(0, Math.min(Number(saved.partIndex) || 0, exam.parts.length - 1));
+      pageIndex = Math.max(0, Number(saved.pageIndex) || 0);
+      practiceFinished = !!saved.finished;
+    } catch (error) { /* Bắt đầu phiên mới nếu dữ liệu lưu bị hỏng. */ }
+  }
+
+  function savePracticeSession() {
+    if (isExamMode) return;
+    try {
+      localStorage.setItem(practiceSessionKey, JSON.stringify({
+        mode: 'practice', answers: answers, partIndex: partIndex, pageIndex: pageIndex,
+        finished: practiceFinished
+      }));
+    } catch (error) { /* Trình duyệt riêng tư có thể chặn localStorage. */ }
+  }
+
   function saveExamSession() {
     if (!isExamMode) return;
     try {
@@ -670,12 +776,12 @@
 
   function openPracticeSubmitDialog() {
     submitIntent = 'practice';
-    var questions = allQuestionRows().map(function (row) { return row.question; });
+    var questions = practiceRows().map(function (row) { return row.question; });
     var unanswered = questions.filter(function (question) { return !isQuestionAnswered(question); }).length;
     $('jlptSubmitDialogTitle').textContent = 'Nộp bài luyện tập?';
     $('jlptSubmitDialogText').innerHTML = unanswered > 0
-      ? 'Bạn còn <strong>' + unanswered + ' câu chưa làm</strong> trong toàn bộ đề. Bạn vẫn có thể nộp để xem kết quả và đáp án.'
-      : 'Bạn đã trả lời tất cả câu trong đề. Hãy nộp bài để xem kết quả và đáp án.';
+      ? 'Bạn còn <strong>' + unanswered + ' câu chưa làm</strong> trong ' + (isPartPractice ? 'phần này' : 'toàn bộ đề') + '. Bạn vẫn có thể nộp để xem kết quả và đáp án.'
+      : 'Bạn đã trả lời tất cả câu trong ' + (isPartPractice ? 'phần này' : 'đề') + '. Hãy nộp bài để xem kết quả và đáp án.';
     $('jlptSubmitConfirm').textContent = 'Nộp bài luyện tập';
     $('jlptSubmitDialog').showModal();
   }
@@ -684,32 +790,180 @@
     clearInterval(timerHandle);
     examFinished = true;
     deadline = null;
-    saveExamSession();
-    var rows = allQuestionRows();
-    var questions = rows.map(function (row) { return row.question; });
-    var answered = questions.filter(isQuestionAnswered).length;
-    var correct = questions.filter(isQuestionCorrect).length;
-    var ratios = exam.parts.map(function (part) {
-      var partQuestions = [];
-      part.mondai.forEach(function (mondai) { partQuestions = partQuestions.concat(mondai.questions); });
-      var partCorrect = partQuestions.filter(isQuestionCorrect).length;
-      return { part: part, correct: partCorrect, total: partQuestions.length, ratio: partQuestions.length ? partCorrect / partQuestions.length : 0 };
+    if (!reviewMode) saveExamSession();
+    if (!isExamMode && !reviewMode) {
+      practiceFinished = true;
+      savePracticeSession();
+    }
+    var rows = practiceRows();
+    var fullAttempt = !isPartPractice;
+    var scoreBuckets = collectScoreBuckets(rows, fullAttempt);
+    var sectionScores = {};
+    var totalScore = 0;
+    Object.keys(scoreBuckets).forEach(function (key) {
+      var bucket = scoreBuckets[key];
+      bucket.maximum = scoreSectionMaximum(exam.level, key, fullAttempt);
+      bucket.points = bucket.total ? Math.round(bucket.correct * bucket.maximum / bucket.total) : 0;
+      sectionScores[key] = bucket.points;
+      totalScore += bucket.points;
     });
-    var totalThreshold = { N1: .556, N2: .5, N3: .528, N4: .5, N5: .444 }[exam.level] || .5;
-    var passed = questions.length > 0 && correct / questions.length >= totalThreshold && ratios.every(function (item) { return item.ratio >= .317; });
+    var passMark = { N1: 100, N2: 90, N3: 95, N4: 90, N5: 80 }[exam.level] || 100;
+    var sectionalPass = passingSections(exam.level, sectionScores);
+    var passed = fullAttempt && totalScore >= passMark && sectionalPass;
+    if (reviewMode && historyDetail) {
+      passed = historyDetail.attempt.passed;
+      totalScore = historyDetail.attempt.totalScore == null ? totalScore : historyDetail.attempt.totalScore;
+      sectionScores = historyDetail.attempt.sectionScores || sectionScores;
+      Object.keys(scoreBuckets).forEach(function (key) {
+        if (sectionScores[key] != null) scoreBuckets[key].points = sectionScores[key];
+      });
+    }
     $('jlptWorkspace').hidden = true;
     $('jlptResult').hidden = false;
     $('jlptResultEyebrow').textContent = isExamMode ? 'LUYỆN THI ĐÃ HOÀN THÀNH' : 'LUYỆN TẬP ĐÃ HOÀN THÀNH';
     $('jlptRestartExam').textContent = isExamMode ? 'Thi lại đề này' : 'Luyện lại đề này';
-    $('jlptResultStatus').textContent = passed ? 'ĐẠT ƯỚC TÍNH' : 'CHƯA ĐẠT';
-    $('jlptResultStatus').className = 'jlpt-exam-result__status ' + (passed ? 'is-pass' : 'is-fail');
-    $('jlptResultScore').textContent = correct + ' / ' + questions.length;
-    $('jlptResultDetail').textContent = 'Đã trả lời ' + answered + '/' + questions.length + ' câu · Đúng ' + correct + ' câu.';
-    $('jlptResultBreakdown').innerHTML = ratios.map(function (item) {
-      return '<div><span>' + esc(partShortName(item.part)) + '</span><strong>' + item.correct + '/' + item.total + '</strong><small>' + Math.round(item.ratio * 100) + '%</small></div>';
-    }).join('');
+    $('jlptResultStatus').textContent = !fullAttempt ? 'LUYỆN TẬP MỘT PHẦN' : (passed ? 'ĐẠT' : 'TRƯỢT');
+    $('jlptResultStatus').className = 'jlpt-exam-result__status ' + (!fullAttempt ? 'is-partial' : (passed ? 'is-pass' : 'is-fail'));
+    $('jlptResultScore').textContent = totalScore + ' / ' + (fullAttempt ? 180 : 60);
+    $('jlptResultBreakdown').innerHTML = renderScoreBreakdown(scoreBuckets, exam.level, fullAttempt);
     renderResultReview(rows);
+    if (!reviewMode && !restored) saveHistoryRecord();
+    else if (!reviewMode && hasPendingHistory()) submitHistoryQueue();
     if (!restored) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scoreSectionForQuestion(level, partCode, formatCode, fullAttempt) {
+    if (!fullAttempt) return partCode;
+    if (partCode === 'listening') return 'listening';
+    if (level === 'N1' || level === 'N2') {
+      if (partCode === 'vocabulary') return 'language_knowledge';
+      return String(formatCode || '').toLowerCase().indexOf('reading') >= 0 ? 'reading' : 'language_knowledge';
+    }
+    if (level === 'N4' || level === 'N5') return 'language_reading';
+    return partCode;
+  }
+
+  function scoreSectionMaximum(level, section, fullAttempt) {
+    return fullAttempt && (level === 'N4' || level === 'N5') && section === 'language_reading' ? 120 : 60;
+  }
+
+  function collectScoreBuckets(rows, fullAttempt) {
+    var buckets = {};
+    rows.forEach(function (row) {
+      var section = scoreSectionForQuestion(exam.level, row.part.code, row.mondai.format, fullAttempt);
+      if (!buckets[section]) buckets[section] = { correct: 0, total: 0, points: 0, maximum: 60 };
+      buckets[section].total++;
+      if (isQuestionCorrect(row.question)) buckets[section].correct++;
+    });
+    return buckets;
+  }
+
+  function passingSections(level, scores) {
+    if (level === 'N4' || level === 'N5') {
+      return (scores.language_reading || 0) >= 38 && (scores.listening || 0) >= 19;
+    }
+    if (level === 'N1' || level === 'N2') {
+      return (scores.language_knowledge || 0) >= 19 && (scores.reading || 0) >= 19 && (scores.listening || 0) >= 19;
+    }
+    return (scores.vocabulary || 0) >= 19 && (scores.grammar_reading || 0) >= 19 && (scores.listening || 0) >= 19;
+  }
+
+  function scoreLabel(level, section) {
+    return ({ language_knowledge: 'Ngôn ngữ (từ vựng & ngữ pháp)', reading: 'Đọc hiểu',
+      grammar_reading: 'Ngữ pháp & đọc hiểu', language_reading: 'Ngôn ngữ & đọc hiểu',
+      vocabulary: 'Từ vựng', listening: 'Nghe hiểu' })[section] || section;
+  }
+
+  function renderScoreBreakdown(buckets, level, fullAttempt) {
+    var order = fullAttempt
+      ? (level === 'N1' || level === 'N2' ? ['language_knowledge', 'reading', 'listening']
+        : (level === 'N4' || level === 'N5' ? ['language_reading', 'listening'] : ['vocabulary', 'grammar_reading', 'listening']))
+      : Object.keys(buckets);
+    return order.filter(function (key) { return buckets[key]; }).map(function (key) {
+      var item = buckets[key];
+      var ratio = item.total ? Math.round(item.correct * 100 / item.total) : 0;
+      return '<div><span>' + esc(scoreLabel(level, key)) + '</span><strong>' + item.points + ' / ' + item.maximum + '</strong><small>' + item.correct + '/' + item.total + ' câu · ' + ratio + '%</small></div>';
+    }).join('');
+  }
+
+  function hasPendingHistory() {
+    try { return loadPendingHistory().length > 0; }
+    catch (error) { return false; }
+  }
+
+  function saveHistoryRecord() {
+    var orders = {};
+    Object.keys(sentenceOrders).forEach(function (questionId) {
+      var state = sentenceOrders[questionId];
+      if (state && Array.isArray(state.order)) orders[questionId] = state.order;
+    });
+    var payload = {
+      submissionId: createSubmissionId(),
+      examCode: code,
+      mode: isExamMode ? 'EXAM' : 'PRACTICE',
+      partCode: isPartPractice ? currentPart().code : null,
+      answers: answers,
+      sentenceOrders: orders
+    };
+    var queue = loadPendingHistory();
+    queue.push(payload);
+    try { localStorage.setItem(historyPendingKey, JSON.stringify(queue)); }
+    catch (error) { submitHistoryPayload(payload); return; }
+    submitHistoryQueue();
+  }
+
+  function loadPendingHistory() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(historyPendingKey) || '[]');
+      if (Array.isArray(saved)) return saved;
+      return saved && saved.submissionId ? [saved] : [];
+    } catch (error) { return []; }
+  }
+
+  function submitHistoryQueue() {
+    var queue = loadPendingHistory();
+    if (!queue.length) return;
+    submitHistoryPayload(queue[0]);
+  }
+
+  function submitHistoryPayload(payload) {
+    var notice = $('jlptHistorySaveNotice');
+    notice.hidden = false;
+    notice.textContent = 'Đang lưu kết quả vào lịch sử làm bài…';
+    var headers = window.JlasAuth ? window.JlasAuth.authHeaders() : { 'Content-Type': 'application/json' };
+    fetch('/api/jlpt/history', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(payload)
+    }).then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok || body.success === false) throw new Error(body.message || 'Không lưu được kết quả.');
+        return body.data;
+      });
+    }).then(function () {
+      var queue = loadPendingHistory().filter(function (item) { return item.submissionId !== payload.submissionId; });
+      try {
+        if (queue.length) localStorage.setItem(historyPendingKey, JSON.stringify(queue));
+        else localStorage.removeItem(historyPendingKey);
+      } catch (error) { /* Không cần xử lý. */ }
+      if (!isExamMode) {
+        if (!queue.length) {
+          try { localStorage.removeItem(practiceSessionKey); } catch (error) { /* Không cần xử lý. */ }
+        }
+      }
+      notice.textContent = 'Kết quả đã được lưu. Bạn có thể xem lại trong Lịch sử làm bài.';
+      if (queue.length) submitHistoryQueue();
+    }).catch(function (error) {
+      notice.textContent = (error.message || 'Không lưu được kết quả.') + ' Vui lòng thử tải lại trang hoặc đăng nhập lại.';
+    });
+  }
+
+  function createSubmissionId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (character) {
+      var random = Math.random() * 16 | 0;
+      return (character === 'x' ? random : (random & 3 | 8)).toString(16);
+    });
   }
 
   function allQuestionRows() {
@@ -727,7 +981,11 @@
   }
 
   function renderResultReview(rows) {
-    var groups = exam.parts.map(function (part) {
+    var resultParts = isPartPractice ? [currentPart()] : exam.parts;
+    $('jlptReviewPartFilter').innerHTML = '<option value="all">Tất cả các phần</option>' + resultParts.map(function (part) {
+      return '<option value="' + esc(part.code) + '">' + esc(partShortName(part)) + '</option>';
+    }).join('');
+    var groups = resultParts.map(function (part) {
       return { part: part, rows: rows.filter(function (row) { return String(row.part.id) === String(part.id); }) };
     });
     var sequence = 0;
@@ -738,6 +996,8 @@
         var selected = answers[question.id];
         var correct = isQuestionCorrect(question);
         var answered = isQuestionAnswered(question);
+        var reviewState = !answered ? 'unanswered' : (correct ? 'correct' : 'wrong');
+        var isMarked = !!marked[question.sourceId];
         var state = !answered ? 'is-missing' : (correct ? 'is-correct' : 'is-wrong');
         var stateLabel = !answered ? 'Chưa trả lời' : (correct ? 'Đúng' : 'Sai');
         var passage = question.passage ? '<div class="jlpt-review-passage">' + passageHtml(question.passage) + '</div>' : '';
@@ -748,13 +1008,45 @@
           var optionClass = isCorrect ? 'is-correct' : (isSelectedWrong ? 'is-wrong' : '');
           return '<div class="jlpt-review-option ' + optionClass + '"><b>' + option.number + '</b><span>' + safeHtml(option.html || esc(option.text)) + '</span></div>';
         }).join('');
+        var submittedOrder = sentenceOrders[question.id] && sentenceOrders[question.id].order;
+        var correctOrder = question.correctOrder;
+        var orderReview = usesSentenceOrder(question) && Array.isArray(submittedOrder)
+          ? '<div class="jlpt-review-order"><p><strong>Bạn đã xếp:</strong> ' + renderOrderSequence(question, submittedOrder) + '</p>' +
+            '<p><strong>Thứ tự đúng:</strong> ' + renderOrderSequence(question, correctOrder) + '</p></div>' : '';
         var prompt = displayQuestionHtml(question);
-        return '<article class="jlpt-review-item ' + state + '"><header><span>Câu ' + sequence + ' · 問題' + row.mondai.number + '</span><strong>' + stateLabel + '</strong></header>' +
-          passage + image + (wrapperText(prompt) ? '<h4>' + prompt + '</h4>' : '') + '<div class="jlpt-review-options">' + options + '</div>' +
+        return '<article class="jlpt-review-item ' + state + '" data-review-part="' + esc(row.part.code) + '" data-review-status="' + reviewState + '" data-review-marked="' + isMarked + '"><header><span>Câu ' + sequence + ' · 問題' + row.mondai.number + (isMarked ? ' · Đã đánh dấu' : '') + '</span><strong>' + stateLabel + '</strong></header>' +
+          passage + image + (wrapperText(prompt) ? '<h4>' + prompt + '</h4>' : '') + orderReview + '<div class="jlpt-review-options">' + options + '</div>' +
           '<button type="button" data-review-explain="' + question.id + '"><span class="material-symbols-outlined">lightbulb</span>Giải thích AI</button><div class="jlpt-review-explanation" hidden></div></article>';
       }).join('');
       return '<section class="jlpt-review-part"><h3>' + esc(partShortName(group.part)) + '<span>' + group.rows.length + ' câu</span></h3>' + questions + '</section>';
     }).join('');
+    applyReviewFilters();
+  }
+
+  function applyReviewFilters() {
+    var partFilter = $('jlptReviewPartFilter').value;
+    var statusFilter = $('jlptReviewStatusFilter').value;
+    var visibleCount = 0;
+    var articles = Array.from($('jlptResultReview').querySelectorAll('.jlpt-review-item'));
+    articles.forEach(function (article) {
+      var visible = (partFilter === 'all' || article.dataset.reviewPart === partFilter)
+        && (statusFilter === 'all' || article.dataset.reviewStatus === statusFilter
+          || (statusFilter === 'marked' && article.dataset.reviewMarked === 'true'));
+      article.hidden = !visible;
+      if (visible) visibleCount++;
+    });
+    Array.from($('jlptResultReview').querySelectorAll('.jlpt-review-part')).forEach(function (section) {
+      section.hidden = !section.querySelector('.jlpt-review-item:not([hidden])');
+    });
+    $('jlptReviewFilterCount').textContent = 'Hiển thị ' + visibleCount + '/' + articles.length + ' câu';
+  }
+
+  function renderOrderSequence(question, order) {
+    if (!Array.isArray(order) || order.length !== 4) return '—';
+    return '<ol>' + order.map(function (number) {
+      var option = question.options.find(function (item) { return Number(item.number) === Number(number); });
+      return '<li>' + (option ? safeHtml(option.html || esc(option.text)) : '—') + '</li>';
+    }).join('') + '</ol>';
   }
 
   function wrapperText(html) {
@@ -787,7 +1079,8 @@
 
   function restartExam() {
     try { localStorage.removeItem(sessionKey); } catch (error) { /* Không cần xử lý. */ }
-    location.href = '/jlpt/exam?code=' + encodeURIComponent(code) + '&mode=' + mode;
+    try { localStorage.removeItem(practiceSessionKey); } catch (error) { /* Không cần xử lý. */ }
+    location.href = '/jlpt/exam?code=' + encodeURIComponent(code) + '&mode=' + mode + (isPartPractice ? '&part=' + encodeURIComponent(currentPart().code) : '');
   }
 
   function announce(message) {

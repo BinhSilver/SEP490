@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260830-kitsu-mascot">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261017-genres">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
@@ -64,7 +64,7 @@
 
                 <div class="create-shared-options">
                     <div class="form-group">
-                        <label class="form-label" for="file-category-select">Thể loại</label>
+                        <label class="form-label" for="file-category-select">Hình thức</label>
                         <select id="file-category-select" class="form-input form-select">
                             <option value="Podcast">Podcast</option>
                             <option value="Anime">Anime</option>
@@ -76,6 +76,7 @@
                             <option value="JLPT">JLPT</option>
                         </select>
                     </div>
+                    <div class="form-group create-genres" th:replace="~{shadowing/genre-picker :: picker('file-genres')}"></div>
                     <div class="form-group">
                         <label class="form-label" for="file-lang-select">Dịch sang</label>
                         <select id="file-lang-select" class="form-input form-select">
@@ -130,7 +131,7 @@
 
                     <div class="create-shared-options">
                         <div class="form-group">
-                            <label class="form-label" for="yt-category-select">Thể loại</label>
+                            <label class="form-label" for="yt-category-select">Hình thức</label>
                             <select id="yt-category-select" class="form-input form-select">
                                 <option value="Podcast">Podcast</option>
                                 <option value="Anime">Anime</option>
@@ -142,6 +143,7 @@
                                 <option value="JLPT">JLPT</option>
                             </select>
                         </div>
+                        <div class="form-group create-genres" th:replace="~{shadowing/genre-picker :: picker('yt-genres')}"></div>
                         <div class="form-group">
                             <label class="form-label" for="yt-lang-select">Dịch sang</label>
                             <select id="yt-lang-select" class="form-input form-select">
@@ -166,8 +168,8 @@
 
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js"></script>
-    <script src="/shadowing/js/client.js?v=20260718"></script>
+    <script src="/shadowing/js/client.js?v=20261017-genres"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
-    <script src="/shadowing/js/upload.js?v=20260924-confirm-and-progress"></script>
+    <script src="/shadowing/js/upload.js?v=20261017-genres"></script>
 </body>
 </html>

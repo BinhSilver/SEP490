@@ -13,6 +13,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -120,22 +121,27 @@ public class OpenRouterClient {
     private ResponseEntity<String> exchangeWithRetry(String url, HttpMethod method, HttpEntity<?> entity, Class<String> type) {
         for (int attempt = 0; ; attempt++) {
             try { return restTemplate.exchange(url, method, entity, type); }
-            catch (ResourceAccessException | HttpStatusCodeException failure) {
-                boolean retryable = failure instanceof ResourceAccessException;
-                if (failure instanceof HttpStatusCodeException status)
-                    retryable = status.getStatusCode().value() == 429 || status.getStatusCode().is5xxServerError();
-                // Read timeouts have an uncertain provider outcome; don't replay them automatically.
-                Throwable cause = failure;
-                while (cause != null) {
-                    if (cause instanceof java.net.SocketTimeoutException && cause.getMessage() != null
-                            && cause.getMessage().toLowerCase().contains("read")) retryable = false;
-                    cause = cause.getCause();
-                }
-                if (!retryable || attempt >= 1) throw failure;
+            catch (RestClientException failure) {
+                if (!isRetryable(failure) || attempt >= 1) throw failure;
+                log.warn("OpenRouter transient failure, retrying once: {}", failure.getMessage());
                 try { Thread.sleep(250L); }
                 catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); throw failure; }
             }
         }
+    }
+
+    static boolean isRetryable(RestClientException failure) {
+        if (failure instanceof HttpStatusCodeException status)
+            return status.getStatusCode().value() == 429 || status.getStatusCode().is5xxServerError();
+        boolean ioFailure = failure instanceof ResourceAccessException;
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            // Read timeouts have an uncertain provider outcome; don't replay them automatically.
+            if (cause instanceof java.net.SocketTimeoutException && cause.getMessage() != null
+                    && cause.getMessage().toLowerCase().contains("read")) return false;
+            // A connection reset while the body is being read surfaces as a plain RestClientException.
+            if (cause instanceof java.io.IOException) ioFailure = true;
+        }
+        return ioFailure;
     }
 
     static Map<String, Object> graphResponseFormat() {

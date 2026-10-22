@@ -22,6 +22,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RequestMapping("/api/tts")
 public class TtsApiController {
 
+    private static final com.fasterxml.jackson.databind.ObjectMapper ERROR_JSON = new com.fasterxml.jackson.databind.ObjectMapper();
+
     private final FishAudioClient fishAudioClient;
     private final FishAudioConfig fishAudioConfig;
     private final UserSanctionService sanctions;
@@ -77,10 +79,10 @@ public class TtsApiController {
      * Fish Audio has finished synthesizing the complete message.
      */
     @PostMapping(value = "/speak-stream", produces = "audio/mpeg")
-    public ResponseEntity<?> speakStream(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<StreamingResponseBody> speakStream(@RequestBody Map<String, Object> body) {
         TtsInput input = parseInput(body);
         if (input.error() != null) {
-            return input.error();
+            return streamedError(input.error());
         }
 
         StreamingResponseBody stream = output -> {
@@ -159,6 +161,22 @@ public class TtsApiController {
         headers.set(HttpHeaders.CACHE_CONTROL, "no-store");
         headers.set("X-Accel-Buffering", "no");
         return headers;
+    }
+
+    /**
+     * Spring only streams when the declared body type is StreamingResponseBody (with ResponseEntity&lt;?&gt; it
+     * looks for a message converter and fails), so validation errors are written through the same type.
+     */
+    private static ResponseEntity<StreamingResponseBody> streamedError(ResponseEntity<?> error) {
+        byte[] json;
+        try {
+            json = ERROR_JSON.writeValueAsBytes(error.getBody());
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new IllegalStateException("Cannot encode TTS error", e);
+        }
+        return ResponseEntity.status(error.getStatusCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(output -> output.write(json));
     }
 
     private static ResponseEntity<?> badRequest(String message) {

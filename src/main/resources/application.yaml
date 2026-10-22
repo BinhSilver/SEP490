@@ -115,6 +115,9 @@ youtube:
       no-subtitle:
         seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
   subtitle:
+    # Drop anime opening/ending song lyrics found from [音楽] blocks in YouTube auto captions.
+    skip-theme-songs:
+      enabled: ${YOUTUBE_SUBTITLE_SKIP_THEME_SONGS:true}
     quality:
       enabled: ${YOUTUBE_SUBTITLE_QUALITY_ENABLED:true}
       max-duration-seconds: ${YOUTUBE_SUBTITLE_QUALITY_MAX_DURATION_SECONDS:300}

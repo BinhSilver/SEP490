@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/head :: standard('Luyện thi JLPT - JLAS', 'jlpt')}"></head>
 <body id="jlabBasePage" class="app-body jlpt-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="jlpt-page jlpt-library">
+<main id="jlabBaseContent" class="jlpt-page jlpt-library" data-inline-dictionary>
     <header class="jlpt-library-intro">
         <span class="jlpt-library-intro__eyebrow">Thi thử JLPT</span>
         <h1>Luyện theo nhịp đề thật.</h1>
@@ -14,6 +14,7 @@
             <span><i class="material-symbols-outlined">analytics</i> Xem lại sau khi làm</span>
         </div>
         <a class="jlpt-library-practice-link" href="/jlpt/practice"><span class="material-symbols-outlined">filter_alt</span>Luyện theo dạng câu hỏi</a>
+        <a class="jlpt-library-history-link" href="/jlpt/history"><span class="material-symbols-outlined">history</span>Lịch sử làm bài</a>
     </header>
     <section class="jlpt-library-list" aria-labelledby="examListTitle">
         <div class="jlpt-library-list__heading">
@@ -44,5 +45,5 @@
     </div>
 </dialog>
 <script th:src="@{/js/jlab-base-shell.js?v=6}"></script>
-<script th:src="@{/js/pages/jlpt-library.js?v=4}"></script>
+<script th:src="@{/js/pages/jlpt-library.js?v=7}"></script>
 </body></html>

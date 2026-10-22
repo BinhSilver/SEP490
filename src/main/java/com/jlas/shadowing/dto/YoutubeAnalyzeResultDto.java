@@ -11,6 +11,8 @@ public class YoutubeAnalyzeResultDto {
     private String thumbnail;
     private String channel;
     private boolean hasSubtitle;
+    /** False when the video owner does not allow embedding; such videos are downloaded and played from file. */
+    private boolean embeddable = true;
     private boolean hasAutoSubtitle;
     private boolean viManual;
     private boolean viAuto;

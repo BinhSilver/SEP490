@@ -106,8 +106,8 @@
       const summary = await response.json();
       if (summary.estimatedLevel) {
         fact('practice-fact-level', 'JLPT ' + summary.estimatedLevel);
-        const source = { AI: 'AI ước tính', CREATOR: 'Người đăng chọn' }[summary.levelSource];
-        if (source) detail('level', 'fa-signal', 'Cấp độ', summary.estimatedLevel + ' · ' + source);
+        const source = summary.levelSource === 'AI' ? ' · AI ước tính' : '';
+        if (summary.levelSource) detail('level', 'fa-signal', 'Cấp độ', summary.estimatedLevel + source);
       }
       if (summary.category) detail('category', 'fa-folder-open', 'Thể loại', window.getCategoryLabel ? window.getCategoryLabel(summary.category) : summary.category);
       if (Number(summary.commentCount) > 0) detail('comments', 'fa-comments', 'Bình luận', summary.commentCount + ' bình luận');

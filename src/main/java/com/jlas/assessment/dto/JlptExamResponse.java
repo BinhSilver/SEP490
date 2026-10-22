@@ -56,7 +56,7 @@ public record JlptExamResponse(
         public AudioClip(long id, String type, String audioUrl, double start, double end,
                 List<TranscriptSegment> transcript) {
             this(id, type, audioUrl, start, end, transcript,
-                    audioUrl == null || !audioUrl.startsWith("/audio/JLPT/N3/"));
+                    audioUrl == null || !audioUrl.startsWith("/audio/JLPT/"));
         }
     }
 
