@@ -324,13 +324,20 @@
     var isHigherThanTarget = Boolean(result.requiresTargetConfirmation && levelValue[assessedLevel] &&
       levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
     var selfLevel = String(result.selfReportedLevel || '').toUpperCase();
-    var copy = isLowerThanSelfReport(result)
+    var route = window.SmartTestResultRoute ? window.SmartTestResultRoute.notice(result) : { kind: null };
+    var createButton = document.getElementById('createPathButton');
+    if (createButton) createButton.hidden = Boolean(route.blockCreate);
+    var copy = route.kind === 'PENDING_RELEASE' || route.kind === 'UNKNOWN_FAR'
+      ? function () { return route.text; }
+      : isLowerThanSelfReport(result)
       ? function () { return 'Kết quả Smart Test của bạn là ' + assessedLevel + ', thấp hơn mức bạn tự khai ' + selfLevel +
         '. Khi tạo lộ trình, bạn có thể chọn củng cố nền từ ' + assessedLevel + ' hoặc giữ theo khảo sát; mục tiêu ' +
         targetLevel + ' không thay đổi.'; }
       : isHigherThanTarget
       ? function () { return 'Kết quả Smart Test của bạn là ' + assessedLevel + ', cao hơn mục tiêu đã chọn ' + targetLevel +
         '. Kết quả đánh giá được giữ nguyên; hãy chọn cấp muốn ôn trước khi tạo lộ trình.'; }
+      : route.kind === 'INTRO_STAGE' && readinessCopy[result.readinessLevel]
+      ? function (target) { return readinessCopy[result.readinessLevel](target) + ' ' + route.text; }
       : readinessCopy[result.readinessLevel];
     if (copy) {
       var icon = document.createElement('span');
@@ -593,7 +600,18 @@
         levelValue[assessedLevel] && levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
       var reviewStartLevel = null;
       var discrepancyChoice = null;
-      if (!needsReviewChoice && isLowerThanSelfReport(state.result)) {
+      var route = window.SmartTestResultRoute ? window.SmartTestResultRoute.notice(state.result) : { kind: null };
+      if (route.blockCreate) return;
+      if (route.kind === 'UNKNOWN_FAR') {
+        // Owner 2026-10-21 (OD-35): no self-declared level to fall back to — accept the chain or pick another target.
+        var agreed = await askConfirmation('Học từ ' + route.stages[0] + ' lên ' + targetLevel + '?',
+          'Smart Test ước lượng bạn ở ' + assessedLevel + '. Lộ trình sẽ đi lần lượt ' + route.stages.join(' → ') +
+          '; mục tiêu ' + targetLevel + ' giữ nguyên. Nếu muốn mục tiêu gần hơn, hãy chọn "Thực hiện khảo sát mới".',
+          'Tạo lộ trình');
+        if (!agreed) return;
+        discrepancyChoice = 'ACCEPT_RECOMMENDATION';
+      }
+      if (!discrepancyChoice && !needsReviewChoice && isLowerThanSelfReport(state.result)) {
         var selfLevel = String(state.result.selfReportedLevel || '').toUpperCase();
         var choicePicker = document.getElementById('discrepancyPicker');
         choicePicker.querySelector('[data-discrepancy-accept]').textContent =

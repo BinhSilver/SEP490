@@ -45,6 +45,11 @@ public final class JlptPathPolicy {
         String requested = normalizeTarget(requestedTarget);
         String highest = releasedTargets.get(releasedTargets.size() - 1);
         int highestRank = RANK.get(highest);
+        // Owner 2026-10-21 (OD-34): an UNKNOWN learner may aim at an unreleased N2/N1 and take Smart Test; no path
+        // is offered (no stages) until that level is released with its data.
+        if ("UNKNOWN".equals(assessed) && !releasedTargets.contains(requested)) {
+            return new TargetEligibility(true, requested, requested, List.of(), "PENDING_RELEASE", false);
+        }
         if (!releasedTargets.contains(requested)
                 || (!"UNKNOWN".equals(assessed) && RANK.get(assessed) > highestRank)) {
             return new TargetEligibility(false, requested, highest, List.of(),
@@ -86,7 +91,8 @@ public final class JlptPathPolicy {
         String survey = normalizeAssessed(surveyLevel);
         String assessed = normalizeAssessed(assessedLevel);
         String target = normalizeTarget(requestedTarget);
-        if (choice == null || "UNKNOWN".equals(survey) || "UNKNOWN".equals(assessed)
+        if ("UNKNOWN".equals(survey)) return unknownSurveyStages(assessed, target, choice);
+        if (choice == null || "UNKNOWN".equals(assessed)
                 || !RANK.containsKey(survey) || !RANK.containsKey(assessed)
                 || RANK.get(assessed) >= RANK.get(survey)
                 || !evaluate(survey, target).allowed()) {
@@ -95,6 +101,21 @@ public final class JlptPathPolicy {
         if (choice == Choice.DECLINE_RECOMMENDATION) {
             return evaluate(survey, target).stageLevels();
         }
+        return chainFrom(assessed, target);
+    }
+
+    /** Owner 2026-10-21 (OD-35): with no self-declared level, a Smart Test result two or more levels below the target
+     * is offered the adjacent chain from the assessed level; declining has no survey route, the learner picks another
+     * target instead. A result within the ordinary matrix needs no choice. */
+    private List<String> unknownSurveyStages(String assessed, String target, Choice choice) {
+        if (choice != Choice.ACCEPT_RECOMMENDATION || !RANK.containsKey(assessed) || "BELOW_N5".equals(assessed)
+                || !releasedTargets.contains(target) || RANK.get(assessed) + 1 >= RANK.get(target)) {
+            throw new IllegalArgumentException("No supported lower-assessment decision for this survey and target.");
+        }
+        return chainFrom(assessed, target);
+    }
+
+    private List<String> chainFrom(String assessed, String target) {
         String start = assessed;
         if ("BELOW_N5".equals(start) && "N3".equals(target)) {
             throw new IllegalArgumentException("A from-zero to N3 path is not supported.");

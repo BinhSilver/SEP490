@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class LearningSurveyServiceTest {
@@ -114,9 +115,32 @@ class LearningSurveyServiceTest {
         assertThat(service.getTargetOptions("UNKNOWN"))
                 .filteredOn(option -> java.util.List.of("N5", "N4", "N3").contains(option.targetLevel()))
                 .allSatisfy(option -> assertThat(option.allowed()).isTrue());
+        // Owner 2026-10-21 (OD-34): N2/N1 may be chosen; the path waits for their release.
         assertThat(service.getTargetOptions("UNKNOWN"))
                 .filteredOn(option -> java.util.List.of("N2", "N1").contains(option.targetLevel()))
-                .allSatisfy(option -> assertThat(option.allowed()).isFalse());
+                .allSatisfy(option -> {
+                    assertThat(option.allowed()).isTrue();
+                    assertThat(option.reasonCode()).isEqualTo("PENDING_RELEASE");
+                });
+    }
+
+    @Test void unknownLevelCanSaveAnN2TargetAndWaitForSmartTest() {
+        when(surveys.findById(7L)).thenReturn(Optional.empty());
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        var response = service.saveLearningSurvey(7L, request("JLPT", "N2", "UNKNOWN"));
+        assertThat(response.survey().targetLevel()).isEqualTo("N2");
+    }
+
+    @Test void smartTestSessionKeepsTheUnknownSelfLevel() {
+        when(users.findById(7L)).thenReturn(Optional.of(User.builder().id(7L).build()));
+        when(attempts.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(sessions.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        try {
+            service.startSmartTest(7L, request("JLPT", "N3", "UNKNOWN"));
+        } catch (RuntimeException ignored) {
+            // The mocked bank has no questions; only the stored session matters here.
+        }
+        verify(sessions).save(argThat(session -> "UNKNOWN".equals(session.getSelfReportedLevel())));
     }
 
     @Test void savingSurveyPreservesFromZeroLevel() {

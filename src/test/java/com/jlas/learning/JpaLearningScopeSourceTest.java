@@ -105,6 +105,23 @@ class JpaLearningScopeSourceTest {
         assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, notLower.getErrorCode());
     }
 
+    /** Owner 2026-10-21 (OD-35): UNKNOWN, target N3, Smart Test N5 accepts the N5 → N4 → N3 chain. */
+    @Test
+    void unknownSurveyFarBelowTheTargetBuildsTheAcceptedChain() {
+        var n5 = book("N5", "Sekai N5");
+        var n4 = book("N4", "Sekai N4");
+        var n3 = book("N3", "Sekai N3");
+        em.flush();
+        em.clear();
+
+        var accepted = scope.resolve(7L, snapshot("N5", "N3", "UNKNOWN", "N5 Nhập môn").withDiscrepancyChoice("ACCEPT_RECOMMENDATION"));
+        assertEquals(List.of("N5", "N4", "N3"), accepted.stages().stream().map(s -> s.level()).toList());
+        assertEquals(List.of(n5.getId(), n4.getId(), n3.getId()), accepted.goalTextbookIds());
+
+        var noChoice = assertThrows(ApiException.class, () -> scope.resolve(7L, snapshot("N5", "N3", "UNKNOWN", "N5 Nhập môn")));
+        assertEquals(ErrorCode.TARGET_LEVEL_NOT_ALLOWED, noChoice.getErrorCode());
+    }
+
     @Test
     void excludesDemoSeedForTheSameLevel() {
         var n5 = book("N5", "Sekai N5");

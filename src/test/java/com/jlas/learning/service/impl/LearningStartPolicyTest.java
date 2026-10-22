@@ -28,6 +28,16 @@ class LearningStartPolicyTest {
         assertFalse(LearningStartPolicy.needsMistakeWarmUp(profile));
     }
 
+    /** Owner 2026-10-21 (OD-36): a provisional or not-enough-data band is placed like Căn bản. */
+    @ParameterizedTest
+    @CsvSource({"N4 (tạm tính)", "Chưa đủ dữ liệu"})
+    void provisionalBandIsPlacedLikeBasic(String band) {
+        var provisional = profile("N5", "N4", "N5", band);
+        var basic = profile("N5", "N4", "N5", "N5 Căn bản");
+        assertEquals(LearningStartPolicy.goalLevels(basic), LearningStartPolicy.goalLevels(provisional));
+        assertEquals(LearningStartPolicy.needsMistakeWarmUp(basic), LearningStartPolicy.needsMistakeWarmUp(provisional));
+    }
+
     @Test
     void basicKeepsMistakeWarmUpAndNextTargetStage() {
         var profile = profile("N4", "N3", "N4", "N4 Căn bản");

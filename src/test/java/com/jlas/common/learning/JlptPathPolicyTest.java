@@ -62,11 +62,27 @@ class JlptPathPolicyTest {
     }
 
     @Test
-    void unknownSurveyCannotOfferAnUnsupportedN2Path() {
+    void unknownSurveyMayAimAtUnreleasedN2ButNoPathIsOfferedYet() {
+        // Owner 2026-10-21 (OD-34): the survey is saved and Smart Test runs; the path waits for the N2 release.
         TargetEligibility result = policy.evaluate("UNKNOWN", "N2");
-        assertThat(result.allowed()).isFalse();
+        assertThat(result.allowed()).isTrue();
         assertThat(result.stageLevels()).isEmpty();
-        assertThat(result.reasonCode()).isEqualTo("PATH_NOT_SUPPORTED");
+        assertThat(result.reasonCode()).isEqualTo("PENDING_RELEASE");
+        assertThat(policy.evaluate("N3", "N2").reasonCode()).isEqualTo("PATH_NOT_SUPPORTED");
+        assertThat(policy.evaluate("N3", "N2").allowed()).isFalse();
+    }
+
+    @Test
+    void unknownSurveyFarBelowTheTargetMayAcceptTheChainFromTheAssessedLevel() {
+        // Owner 2026-10-21 (OD-35): UNKNOWN, target N3, Smart Test N5 -> asked to study N5 -> N4 -> N3.
+        assertThat(policy.confirmedStages("UNKNOWN", "N5", "N3", JlptPathPolicy.Choice.ACCEPT_RECOMMENDATION))
+                .isEqualTo(List.of("N5", "N4", "N3"));
+        // There is no self-declared route to fall back to, so declining is not a route.
+        assertThatThrownBy(() -> policy.confirmedStages("UNKNOWN", "N5", "N3",
+                JlptPathPolicy.Choice.DECLINE_RECOMMENDATION)).isInstanceOf(IllegalArgumentException.class);
+        // One level below is an ordinary route and needs no choice.
+        assertThatThrownBy(() -> policy.confirmedStages("UNKNOWN", "N4", "N3",
+                JlptPathPolicy.Choice.ACCEPT_RECOMMENDATION)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

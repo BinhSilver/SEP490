@@ -170,7 +170,8 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .attempt(attempt)
                 .goal(goal)
                 .targetLevel(targetLevel)
-                .selfReportedLevel(selfLevel)
+                // Owner 2026-10-21 (OD-35): keep UNKNOWN so the result can offer its own choice; questions still start at N5.
+                .selfReportedLevel("UNKNOWN".equals(self) ? self : selfLevel)
                 .studyDurationMonths(request.studyDurationMonths())
                 .dailyStudyMinutes(request.dailyStudyMinutes())
                 .build());
@@ -394,7 +395,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         BigDecimal overall = percent(totalCorrect, answers.size());
         double averageLevel = results.stream()
                 .mapToInt(result -> SmartTestAdaptivePolicy.LEVELS.indexOf(result.getEstimatedLevel()) + 1)
-                .average().orElse(SmartTestAdaptivePolicy.LEVELS.indexOf(session.getSelfReportedLevel()) + 1);
+                .average().orElse(SmartTestAdaptivePolicy.LEVELS.indexOf(normalizeLevel(session.getSelfReportedLevel())) + 1);
         int overallIndex = Math.max(0, Math.min(SmartTestAdaptivePolicy.LEVELS.size() - 1,
                 (int) Math.round(averageLevel) - 1));
 
@@ -532,7 +533,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                 confidence, readiness, session.getTargetLevel(), eligibility.recommendedTarget(),
                 recommendedStages, eligibility.requiresTargetConfirmation(), partial,
                 correct, answers.size(), selectedSkills(session.getGoal(), questions).size(), recommendations, skills,
-                answerReview(answers), session.getSelfReportedLevel());
+                answerReview(answers), session.getSelfReportedLevel(), eligibility.reasonCode());
     }
 
     private static List<BatchResultView> batchResults(String skill,
