@@ -1135,6 +1135,41 @@ CREATE TABLE IF NOT EXISTS content_source (
         CHECK (review_status IN ('NGUON','CHUA_DUYET','DA_DUYET'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-17] Anh doan doc do nguoi bien soan tai len / thay / an (migration 022). Khoa theo MA ON DINH cua bai doc
+-- (content_source.stable_code cua content_item READING), KHONG theo id: seed chay lai giu nguyen bang nay va anh.
+-- Khong dat FK (seed xoa/chen lai content_source theo dai id). App doc bang nay truoc, khong co dong thi dung anh seed
+-- (assessment_question.image_url). image_url = /uploads/reading-images/<uuid>.<ext>; NULL + hide_seed_image = 1
+-- nghia la an anh goc, khong thay anh khac. Seed KHONG duoc xoa bang nay.
+CREATE TABLE IF NOT EXISTS reading_image_override (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    stable_code     VARCHAR(255)  NOT NULL,     -- vd. LUYEN-DOC-N5-L001-RDG-001.
+    image_url       VARCHAR(500)  NULL,
+    hide_seed_image TINYINT(1)    NOT NULL DEFAULT 0,
+    updated_by      BIGINT UNSIGNED NULL,       -- users.id nguoi sua gan nhat (khong FK, chi de doi chieu).
+    created_at      DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at      DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_reading_image_override_code (stable_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-17] Anh trang tu vung / ngu phap / kanji (migration 037). Seed vnjpclub ghi tu lesson_nguon.anh_trang theo dai
+-- ID cua seed (xoa / nap lai theo dai). Trang hoc hien o dau tab VOCAB / GRAMMAR / KANJI, bam phong to. image_url tuong
+-- doi trong kho content.audio.path; stable_code = ma trang nguon + so thu tu anh.
+CREATE TABLE IF NOT EXISTS lesson_page_image (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    lesson_id    BIGINT UNSIGNED NOT NULL,
+    tab          VARCHAR(20)   NOT NULL,       -- VOCAB / GRAMMAR / KANJI.
+    image_url    VARCHAR(500)  NOT NULL,
+    order_index  INT UNSIGNED  NOT NULL DEFAULT 0,
+    stable_code  VARCHAR(255)  NOT NULL,       -- vd. SOMATOME-N3-L001-SRC02-IMG01.
+    created_at   DATETIME(6)   NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_lesson_page_image_code (stable_code),
+    KEY idx_lesson_page_image_lesson (lesson_id, tab, order_index),
+    CONSTRAINT fk_lesson_page_image_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT chk_lesson_page_image_tab CHECK (tab IN ('VOCAB','GRAMMAR','KANJI'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS dialogue_role (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     lesson_id   BIGINT UNSIGNED NOT NULL,

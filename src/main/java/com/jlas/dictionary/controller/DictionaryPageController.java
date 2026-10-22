@@ -40,6 +40,31 @@ public class DictionaryPageController {
     }
 
     /**
+     * [JLAS2-17] Trang tạo giáo trình theo 3 bước (thay modal "Thêm giáo trình"). Cũng chỉ là khung: JS gọi đúng các
+     * API modal cũ (POST /api/dictionary/textbooks, upload thumbnail) — đều @PreAuthorize CONTENT_CREATOR.
+     * Đặt dưới /textbooks/manage (không phải /admin/**: SecurityConfig chỉ mở /admin/** cho MODERATOR/ADMIN).
+     */
+    @GetMapping("/textbooks/manage/new")
+    public String newTextbook(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "textbooks/textbook-new";
+    }
+
+    /**
+     * [JLAS2-17] Trang thêm bài học theo 3 bước (thay modal "Thêm bài học"). Bài luôn thuộc một phần:
+     * ?unitId= chọn sẵn phần (từ nút "+" của phần ở danh sách); không có thì trang cho chọn phần của giáo trình.
+     */
+    @GetMapping("/textbooks/manage/{textbookId}/lessons/new")
+    public String newLesson(@PathVariable Long textbookId,
+                            @org.springframework.web.bind.annotation.RequestParam(required = false) Long unitId,
+                            Model model) {
+        model.addAttribute("layoutMode", "app");
+        model.addAttribute("textbookId", textbookId);
+        model.addAttribute("unitId", unitId);
+        return "textbooks/lesson-new";
+    }
+
+    /**
      * Trang biên soạn nội dung bên trong một bài (ngữ pháp, từ vựng; hội thoại sẽ thêm sau).
      * <p>
      * Tách khỏi /textbooks/manage vì đây là màn hình soạn thảo — trường văn bản dài, cấu trúc lồng —

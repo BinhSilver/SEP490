@@ -1,6 +1,14 @@
 (function () {
   'use strict';
 
+  /** Media câu hỏi: URL tuyệt đối hoặc '/...' (vd. /audio/smart-test/...) giữ nguyên; tương đối → kho audio giáo trình. */
+  function mediaUrl(path) {
+    var p = String(path == null ? '' : path).trim();
+    if (!p) return '';
+    if (/^(https?:|data:|blob:|\/)/i.test(p)) return p;
+    return '/uploads/content-audio/' + p.replace(/^\.\//, '');
+  }
+
   var ACTIVE_ATTEMPT_KEY = 'jlasSmartTestAttemptId';
   var SELECTED_SKILLS_KEY = 'jlasSmartTestSelectedSkills';
   var labels = {
@@ -231,10 +239,10 @@
       var audio = document.createElement('audio');
       audio.controls = true;
       audio.preload = 'metadata';
-      audio.src = q.audioUrl;
+      audio.src = mediaUrl(q.audioUrl);
       media.appendChild(audio);
     } else if (q.imageUrl) {
-      var image = document.createElement('img'); image.src = q.imageUrl; image.alt = 'Hình minh họa câu hỏi'; media.appendChild(image);
+      var image = document.createElement('img'); image.src = mediaUrl(q.imageUrl); image.alt = 'Hình minh họa câu hỏi'; media.appendChild(image);
     }
     media.hidden = !q.audioUrl && !q.imageUrl;
 

@@ -114,6 +114,7 @@ public class ContentAdminServiceImpl implements ContentAdminService {
 
     private static final String STATUS_ARCHIVED = "ARCHIVED";
     private static final String STATUS_DRAFT = "DRAFT";
+    private static final String TAG_TYPE_SITUATION = "SITUATION";
     private static final String CONTENT_TYPE_GRAMMAR = "GRAMMAR";
     private static final String SECTION_TYPE_EXAMPLE = "EXAMPLE";
     private static final String SECTION_TYPE_EXPLANATION = "EXPLANATION";
@@ -159,13 +160,22 @@ public class ContentAdminServiceImpl implements ContentAdminService {
         List<Textbook> textbooks = textbookRepository.findAllByOrderByIdAsc();
         if (textbooks.isEmpty()) return Collections.emptyList();
 
+        List<Long> ids = textbooks.stream().map(Textbook::getId).toList();
         Map<Long, Long> unitCountByTextbook = new LinkedHashMap<>();
-        for (Object[] row : textbookRepository.countUnitsByTextbookIds(
-                textbooks.stream().map(Textbook::getId).toList())) {
+        for (Object[] row : textbookRepository.countUnitsByTextbookIds(ids)) {
             unitCountByTextbook.put((Long) row[0], (Long) row[1]);
         }
+        // Chủ đề của giáo trình = các tag SITUATION gắn vào bài của nó (cùng nguồn với tab "Theo chủ đề" của học viên).
+        Map<Long, List<String>> topicsByTextbook = new LinkedHashMap<>();
+        for (Object[] row : textbookRepository.findTagCodesByTextbookIds(ids, TAG_TYPE_SITUATION)) {
+            topicsByTextbook.computeIfAbsent((Long) row[0], k -> new ArrayList<>()).add((String) row[1]);
+        }
         return textbooks.stream()
-                .map(t -> dictionaryMapper.toTextbookResponse(t, unitCountByTextbook.getOrDefault(t.getId(), 0L)))
+                .map(t -> {
+                    TextbookResponse response = dictionaryMapper.toTextbookResponse(t, unitCountByTextbook.getOrDefault(t.getId(), 0L));
+                    response.setTopicCodes(topicsByTextbook.getOrDefault(t.getId(), List.of()));
+                    return response;
+                })
                 .toList();
     }
 
@@ -482,9 +492,15 @@ public class ContentAdminServiceImpl implements ContentAdminService {
         lesson.setDescription(blankToNull(request.getDescription()));
         lesson.setLessonType(request.getLessonType());
         lesson.setSkill(request.getSkill());
-        lesson.setSituationTag(blankToNull(request.getSituationTag()));
+        lesson.setSituationTag(normalizeSituationTag(request.getSituationTag()));
         lesson.setEstimatedMinutes(request.getEstimatedMinutes());
         lesson.setIsReview(Boolean.TRUE.equals(request.getIsReview()));
+    }
+
+    /** Rỗng → null; mã cũ WORK → BA (DB chỉ nhận TRAVEL/BA/FOUNDATION từ migration 019). */
+    static String normalizeSituationTag(String value) {
+        String tag = blankToNull(value);
+        return "WORK".equals(tag) ? "BA" : tag;
     }
 
     // ── Sắp xếp lại thứ tự ───────────────────────────────────────────────────
