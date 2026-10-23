@@ -138,7 +138,7 @@
       '<p>' + (isWord ? esc(v.lessonDescription || 'Đọc cả từ, nghe phát âm rồi luyện bằng Flashcard.') : 'Xem bảng chữ theo thứ tự, nghe cách đọc rồi lật thẻ để kiểm tra cách đọc.') + '</p>' +
       // Owner 2026-10-21 (OD-33): the Kana rule examples are J-LAS-written (AI) and still await review.
       (isWord ? '<p class="ilp-source-note">Nội dung bổ sung J-LAS · cần rà soát</p>' : '') +
-      (readOnly ? '' : StudyModeLib.completionGuide('CHECK', isWord ? 'từ' : 'chữ', gate,
+      (readOnly || ui.replay ? '' : StudyModeLib.completionGuide('CHECK', isWord ? 'từ' : 'chữ', gate,
         v.activityState === 'PASSED' || v.activityState === 'COMPLETED')) + '</div>' +
       position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="' + (isWord ? 'Cách học từ ví dụ Kana' : 'Cách học bảng chữ cái') + '">' +
@@ -270,6 +270,8 @@
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
     var selectedTab = new URLSearchParams(window.location.search).get('tab') === 'flashcard' ? 'flashcard' : 'content';
+    // Owner 2026-10-23: "Xem lại bài giảng" of a finished part replays it from scratch with the practice quiz.
+    var replayLecture = false;
     var currentStudy = null;
     var currentGate = null;
     var flashUi = { mode: 'browse', browseIndex: null, browseFlipped: false, turning: false, typedFeedback: '' };
@@ -295,8 +297,8 @@
       updateLessonHeading();
       node.innerHTML = mode === 'REVIEW'
         ? renderReview(viewModel(currentStudy), selectedTab, flashUi)
-        : (mode === 'PRACTICE' ? StudyMode.banner('PRACTICE') : '') +
-          renderStudy(viewModel(currentStudy), currentGate, selectedTab, flashUi);
+        : (mode === 'PRACTICE' ? StudyMode.banner(replayLecture ? 'REPLAY' : 'PRACTICE') : '') +
+          renderStudy(viewModel(currentStudy), currentGate, selectedTab, Object.assign({}, flashUi, { replay: replayLecture }));
     }
 
     async function api(path, options) {
@@ -378,6 +380,17 @@
         }
         if (mode === 'REVIEW') {
           currentStudy = await api(modeApi.study);
+          if (StudyMode.isFinished && StudyMode.isFinished(currentStudy)) {
+            replayLecture = true;
+            mode = 'PRACTICE';
+            issuePath = '/practice';
+            submitPath = '/practice/submit';
+            currentStudy = StudyMode.rehearsal(currentStudy);
+            currentGate = null;
+            showStudy();
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           showStudy();
           // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
           var gate = null;

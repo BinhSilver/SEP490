@@ -34,7 +34,30 @@
       return '<p class="ilp-mode-banner" role="note" data-mode-banner="PRACTICE"><strong>Chế độ luyện tập</strong> — ' +
         'không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>';
     }
+    // Owner 2026-10-23: "Xem lại bài giảng" replays the lesson as it was the first time, quiz included.
+    if (mode === 'REPLAY') {
+      return '<p class="ilp-mode-banner" role="note" data-mode-banner="REPLAY"><strong>Xem lại bài giảng</strong> — ' +
+        'học lại như lần đầu. Mỗi lần làm bài kiểm tra được lưu vào Kết quả kiểm tra, không ảnh hưởng tiến độ.</p>';
+    }
     return '';
+  }
+
+  /** OD-D2-05: the chapter's words/Kanji already learnt in an earlier chapter — shown, never carded or checked. */
+  function reviewItemsBlock(items) {
+    items = Array.isArray(items) ? items : [];
+    if (!items.length) return '';
+    return '<section class="ilp-review-items" aria-label="Mục ôn"><h3>Ôn lại</h3>' +
+      '<p>Đã học ở bài trước, chỉ để ôn: không tính vào bài kiểm tra của chương này.</p><ul>' +
+      items.map(function (item) {
+        return '<li><strong lang="ja">' + esc(item.front) + '</strong>' + (item.reading ? ' <span lang="ja">' + esc(item.reading) + '</span>' : '') +
+          (item.meaning ? ' — ' + esc(item.meaning) : '') + '<small class="ilp-review-items__from">Ôn — đã học ở bài “' +
+          esc(item.learnedIn) + '”</small></li>';
+      }).join('') + '</ul></section>';
+  }
+
+  /** A part the learner already finished: only then can its lesson be replayed with a practice quiz. */
+  function isFinished(state) {
+    return !!state && (state.activityState === 'PASSED' || state.activityState === 'COMPLETED');
   }
 
   function passedActions(page, activityId, modes) {
@@ -561,7 +584,8 @@
     return { code: 'TODO', tone: 'todo', text: 'Chưa làm bài kiểm tra' + part };
   }
 
-  return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, passedActions: passedActions,
+  return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, isFinished: isFinished, reviewItemsBlock: reviewItemsBlock,
+    passedActions: passedActions,
     positionHeader: positionHeader, completionGuide: completionGuide,
     celebrate: celebrate, celebrationHtml: celebrationHtml, isSelectingText: isSelectingText,
     practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList,

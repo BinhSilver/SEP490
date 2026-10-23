@@ -242,13 +242,14 @@
       : '';
     var readOnly = mode === 'REVIEW';
     var communication = v.checkRequired === false;
-    var done = v.activityState === 'PASSED' || v.activityState === 'COMPLETED';
+    var done = mode !== 'REPLAY' && (v.activityState === 'PASSED' || v.activityState === 'COMPLETED');
     var points = v.points.map(function (p, i) {
       return renderPoint(p, i, v.points.length, orderStates[p.pointId], feedbacks[p.pointId], readOnly, extras[p.pointId]);
     }).join('');
+    var StudyModeBanner = typeof window !== 'undefined' && window.InteractiveStudyMode ? window.InteractiveStudyMode.banner : null;
     var modeBanner = mode === 'PRACTICE'
       ? '<p class="ilp-mode-banner" role="note" data-mode-banner="PRACTICE"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>'
-      : '';
+      : mode === 'REPLAY' && StudyModeBanner ? StudyModeBanner('REPLAY') : '';
     // Communication grammar has no quiz: no technical eyebrow and no check copy (owner 2026-10-21).
     return modeBanner + '<section class="ilp-grammar">' +
       '<header class="ilp-study__head"><div>' + (communication ? '' : '<span class="ilp-kicker">NGỮ PHÁP // ' +
@@ -261,6 +262,34 @@
       points + (v.checkRequired && !readOnly && !done ? gateNote +
       '<button class="ilp-check" type="button" data-check' + (canCheck ? '' : ' disabled') + '>Bắt đầu kiểm tra <span aria-hidden="true">→</span></button>' : '') +
       '</section>';
+  }
+
+  /** Owner 2026-10-23: a finished lesson replayed from scratch — every exercise open again, checked on the page. */
+  function freshLesson(v) {
+    var points = v.points.map(function (p) {
+      return Object.assign({}, p, { gateSatisfied: false,
+        ordering: p.ordering ? Object.assign({}, p.ordering, { completed: false }) : p.ordering,
+        fill: p.fill ? Object.assign({}, p.fill, { completed: false }) : p.fill });
+    });
+    return Object.assign({}, v, { points: points, gateSatisfiedCount: 0, checkEligible: true });
+  }
+  /** Local check of a replayed exercise: the solved order is the token order; the fill answer comes with the review. */
+  function replayCheck(point, kind, value) {
+    if (!point) return null;
+    var correct = kind === 'ordering'
+      ? list(value).length === list(point.ordering && point.ordering.words).length && list(value).every(function (token, index) {
+          return token === list(point.ordering.words).map(function (w) { return w.tokenId; }).sort(function (a, b) { return a - b; })[index];
+        })
+      : sameAnswer(value, point.fill && point.fill.answer);
+    return { correct: correct, explanation: correct ? 'Chính xác.' : 'Chưa đúng — hãy thử lại.' };
+  }
+  function replayProgress(v) {
+    v.points.forEach(function (p) {
+      p.gateSatisfied = (!p.ordering || !list(p.ordering.words).length || p.ordering.completed) &&
+        (!p.fill || !p.fill.promptWithBlank || p.fill.completed);
+    });
+    v.gateSatisfiedCount = v.points.filter(function (p) { return p.gateSatisfied; }).length;
+    return v;
   }
 
   function renderReview(v, practice) {
@@ -483,8 +512,19 @@
           node.setAttribute('aria-busy', 'false');
           return;
         }
-        if (mode === 'REVIEW') {
+        if (mode === 'REVIEW' || mode === 'REPLAY') {
           var reviewData = await api('/review');
+          if (StudyMode.isFinished && StudyMode.isFinished(reviewData)) {
+            mode = 'REPLAY';
+            issuePath = '/practice';
+            submitPath = '/practice/submit';
+            orderState = {}; feedback = {};
+            currentStudy = freshLesson(viewModel(reviewData));
+            lastGate = null;
+            paint();
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           node.innerHTML = renderReview(viewModel(reviewData));
           // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
           var gate = null;
@@ -603,7 +643,7 @@
         var addId = addToken.getAttribute('data-order-add');
         var addToken2 = Number(addToken.dataset.token);
         orderState[addId] = list(orderState[addId]).concat([addToken2]);
-        return loadStudy();
+        return mode === 'REPLAY' ? paint() : loadStudy();
       }
       var removeToken = event.target.closest('[data-order-remove]');
       if (removeToken) {
@@ -611,12 +651,22 @@
         var removeId = removeToken.getAttribute('data-order-remove');
         var removeVal = Number(removeToken.dataset.token);
         orderState[removeId] = list(orderState[removeId]).filter(function (t) { return t !== removeVal; });
-        return loadStudy();
+        return mode === 'REPLAY' ? paint() : loadStudy();
       }
       var orderCheck = event.target.closest('[data-order-check]');
       if (orderCheck) {
         if (mode === 'PRACTICE') return;
         var pointId = orderCheck.getAttribute('data-order-check');
+        if (mode === 'REPLAY') {
+          // A replayed lesson is checked on the page; nothing is sent as progress.
+          var orderPoint = currentStudy.points.filter(function (p) { return String(p.pointId) === String(pointId); })[0];
+          var orderResult = replayCheck(orderPoint, 'ordering', orderState[pointId]);
+          feedback[pointId] = Object.assign({}, feedback[pointId], { ordering: orderResult });
+          if (orderResult && orderResult.correct) { orderPoint.ordering.completed = true; orderState[pointId] = []; }
+          else orderState[pointId] = [];
+          replayProgress(currentStudy);
+          return paint();
+        }
         try {
           var result = await postJson('/points/' + encodeURIComponent(pointId) + '/practice/ordering',
               { order: list(orderState[pointId]) });
@@ -630,6 +680,14 @@
         if (mode === 'PRACTICE') return;
         var fillPointId = fillCheck.getAttribute('data-fill-check');
         var input = node.querySelector('[data-fill-input="' + fillPointId + '"]');
+        if (mode === 'REPLAY') {
+          var fillPoint = currentStudy.points.filter(function (p) { return String(p.pointId) === String(fillPointId); })[0];
+          var fillReplay = replayCheck(fillPoint, 'fill', input ? input.value : '');
+          feedback[fillPointId] = Object.assign({}, feedback[fillPointId], { fill: fillReplay });
+          if (fillReplay && fillReplay.correct) fillPoint.fill.completed = true;
+          replayProgress(currentStudy);
+          return paint();
+        }
         try {
           var fillResult = await postJson('/points/' + encodeURIComponent(fillPointId) + '/practice/fill',
               { answer: input ? input.value : '' });
@@ -652,7 +710,7 @@
       node.setAttribute('aria-busy', 'true');
       try {
         var result = await postJson(submitPath, { attemptId: Number(form.dataset.attemptId), answers: answers });
-        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, id);
+        node.innerHTML = mode === 'PRACTICE' || mode === 'REPLAY' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, id);
         if (StudyMode && StudyMode.attemptHistory) {
           try {
             var attempts = await api('/attempt-history');
@@ -731,6 +789,7 @@
     viewModel: viewModel, renderFormula: renderFormula, renderExample: renderExample, renderOrdering: renderOrdering,
     renderFill: renderFill, renderPoint: renderPoint, renderStudy: renderStudy, renderCheck: renderCheck,
     renderExtra: renderExtra, extraOrder: extraOrder, sameAnswer: sameAnswer,
+    freshLesson: freshLesson, replayCheck: replayCheck, replayProgress: replayProgress,
     renderReview: renderReview, renderResult: renderResult, mount: mount
   };
 });

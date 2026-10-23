@@ -71,6 +71,7 @@
       reviewRemaining: num(data.reviewRemaining),
       checkEligible: !!data.checkEligible,
       checkRequired: data.checkRequired !== false,
+      reviewItems: Array.isArray(data.reviewItems) ? data.reviewItems : [],
       current: current,
       cards: cards
     };
@@ -176,24 +177,24 @@
           '<span>' + (partCards.length ? browseIndex + 1 : 0) + '/' + partCards.length + ' trong phần này</span>' +
           '<button type="button" data-browse-step="1"' + (browseIndex >= partCards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' + gateNote +
           (readOnly || gate && gate.passed || !v.checkRequired ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>') +
-          (!readOnly && !v.checkRequired ? markStudiedBlock(v) : '');
+          (!readOnly && !ui.replay && !v.checkRequired ? markStudiedBlock(v) : '');
     return '<section class="ilp-study">' +
       '<header class="ilp-study__head"><div>' + (v.checkRequired === false
         ? '' : '<span class="ilp-kicker">VOCABULARY // ' +
       (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span>') +
       '<h1>Từ vựng' + (v.checkRequired === false && studiedDone(v) ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' + partLabel(v) +
       '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p>' +
-      (readOnly ? '' : StudyModeLib.completionGuide(v.checkRequired === false ? 'MARK' : 'CHECK', 'từ', gate, studiedDone(v))) +
+      (readOnly || ui.replay ? '' : StudyModeLib.completionGuide(v.checkRequired === false ? 'MARK' : 'CHECK', 'từ', gate, studiedDone(v))) +
       '</div>' + position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học từ vựng">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'flashcards') + '" data-study-tab="flashcards">Học bằng Flashcard</button></div>' +
       '<section role="tabpanel"' + (activeTab === 'content' ? '' : ' hidden') + '><h2>Các từ trong phần này</h2>' +
       partNavigation(groups, partIndex) +
-      renderVocabularyList(groups[partIndex] || []) +
+      renderVocabularyList(groups[partIndex] || []) + StudyModeLib.reviewItemsBlock(v.reviewItems) +
       (readOnly || gate && gate.passed ? '' : v.checkRequired === false
         ? '<div class="ilp-study__next"><button class="ilp-check ilp-check--ghost" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
-          markStudiedBlock(v) + '</div>'
+          (ui.replay ? '' : markStudiedBlock(v)) + '</div>'
         : '<div class="ilp-study__next"><button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
         '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button><p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p></div>') + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
@@ -422,6 +423,9 @@
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
     var rehearsalState = null;
+    // Owner 2026-10-23: a finished part's "Xem lại bài giảng" replays the lesson from scratch (cards unseen, quiz
+    // available) through the practice endpoints, so every replayed quiz is saved in the attempt history.
+    var replayLecture = false;
     var selectedTab = mode === 'PRACTICE' || new URLSearchParams(window.location.search).get('tab') === 'flashcards'
       ? 'flashcards' : 'content';
     var currentStudy = null;
@@ -445,7 +449,8 @@
     var draftInFlight = null;
     var draftSeq = 0;
     function renderRehearsal() {
-      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
+      node.innerHTML = StudyMode.banner(replayLecture ? 'REPLAY' : 'PRACTICE') +
+        renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, Object.assign({}, flashUi, { replay: replayLecture }));
     }
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/vocabulary', id, ['REVIEW', 'PRACTICE', 'RESULTS']) : '';
     function celebrateIfFinished(wasDone) {
@@ -542,6 +547,16 @@
         }
         if (mode === 'REVIEW') {
           reviewStudy = await api(modeApi.study);
+          if (StudyMode.isFinished && StudyMode.isFinished(reviewStudy)) {
+            replayLecture = true;
+            mode = 'PRACTICE';
+            issuePath = '/practice';
+            submitPath = '/practice/submit';
+            rehearsalState = StudyMode.rehearsal(reviewStudy);
+            renderRehearsal();
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           showStudy();
           // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
           var gate = null;

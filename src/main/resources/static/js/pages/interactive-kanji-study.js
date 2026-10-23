@@ -64,6 +64,7 @@
       activityId: data.activityId, partIndex: num(data.partIndex), partCount: num(data.partCount),
       activityState: data.activityState,
       meaningAttribution: data.meaningAttribution || null,
+      reviewItems: list(data.reviewItems),
       totalCards: num(data.totalCards),
       flippedCount: num(data.flippedCount),
       rememberedCount: num(data.rememberedCount),
@@ -170,7 +171,7 @@
       '<header class="ilp-study__head"><div><span class="ilp-kicker">KANJI // ' +
       (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Chữ Hán</h1>' + partLabel(v) +
       '<p>Xem chữ, nghĩa và âm đọc trước; sau đó học bằng Flashcard.</p>' +
-      (readOnly ? '' : StudyModeLib.completionGuide('CHECK', 'chữ', gate,
+      (readOnly || ui.replay ? '' : StudyModeLib.completionGuide('CHECK', 'chữ', gate,
         v.activityState === 'PASSED' || v.activityState === 'COMPLETED')) + '</div>' +
       position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học Kanji">' +
@@ -180,7 +181,7 @@
       (groups.length > 1 ? '<div class="ilp-study-parts" aria-label="Các phần Kanji">' + groups.map(function (_, index) {
         return '<button type="button" data-study-part="' + index + '" aria-current="' + (index === partIndex) + '">Phần ' + (index + 1) + '</button>';
       }).join('') + '</div>' : '') +
-      renderKanjiList(groups[partIndex] || []) +
+      renderKanjiList(groups[partIndex] || []) + StudyModeLib.reviewItemsBlock(v.reviewItems) +
       (v.meaningAttribution ? '<p class="ilp-source-note">' + esc(v.meaningAttribution) + '</p>' : '') +
       // [JLAS-W0193] §2.6 — the quiz entry must be visible on the content tab too, not only inside the
       // flashcard panel; hidden entirely once the activity is passed or the view is read-only (review).
@@ -412,6 +413,8 @@
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
     var rehearsalState = null;
+    // Owner 2026-10-23: "Xem lại bài giảng" of a finished part replays it from scratch with the practice quiz.
+    var replayLecture = false;
     var selectedTab = new URLSearchParams(window.location.search).get('tab') === 'flashcards' ? 'flashcards' : 'content';
     var currentStudy = null;
     var currentGate = null;
@@ -429,7 +432,8 @@
     var draftInFlight = null;
     var draftSeq = 0;
     function renderRehearsal() {
-      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
+      node.innerHTML = StudyMode.banner(replayLecture ? 'REPLAY' : 'PRACTICE') +
+        renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, Object.assign({}, flashUi, { replay: replayLecture }));
     }
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/kanji', id, ['REVIEW', 'PRACTICE']) : '';
     function showStudy() {
@@ -520,6 +524,16 @@
         }
         if (mode === 'REVIEW') {
           currentStudy = await api(modeApi.study);
+          if (StudyMode.isFinished && StudyMode.isFinished(currentStudy)) {
+            replayLecture = true;
+            mode = 'PRACTICE';
+            issuePath = '/practice';
+            submitPath = '/practice/submit';
+            rehearsalState = StudyMode.rehearsal(currentStudy);
+            renderRehearsal();
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           showStudy();
           // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
           var gate = null;

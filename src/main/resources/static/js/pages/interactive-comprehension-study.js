@@ -238,11 +238,13 @@
     source = source || {};
     return { activityType: type === 'LISTENING' ? 'LISTENING' : 'READING', passage: source.passage || null, audioUrl: source.audioUrl || null };
   }
-  function renderPractice(replay, activityType) {
-    var banner = (typeof window !== 'undefined' && window.InteractiveStudyMode) ? window.InteractiveStudyMode.banner('PRACTICE') :
+  function renderPractice(replay, activityType, bannerMode) {
+    var lecture = bannerMode === 'REPLAY';
+    var banner = (typeof window !== 'undefined' && window.InteractiveStudyMode) ? window.InteractiveStudyMode.banner(lecture ? 'REPLAY' : 'PRACTICE') :
       '<p class="ilp-mode-banner" role="note"><strong>Chế độ luyện tập</strong> — không ảnh hưởng tiến độ, điểm hay việc mở khóa.</p>';
     return banner + '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div><span class="ilp-kicker">' +
-      (activityType === 'LISTENING' ? 'NGHE HIỂU' : 'ĐỌC HIỂU') + ' // LUYỆN TẬP</span><h1>Luyện tập</h1></div>' +
+      (activityType === 'LISTENING' ? 'NGHE HIỂU' : 'ĐỌC HIỂU') + (lecture ? '' : ' // LUYỆN TẬP') + '</span><h1>' +
+      (lecture ? (activityType === 'LISTENING' ? 'Nghe hiểu' : 'Đọc hiểu') : 'Luyện tập') + '</h1></div>' +
       '<span class="ilp-comprehension__progress-badge">Bài ' + (num(replay.batchIndex) + 1) + '/' + num(replay.batchCount) +
       '</span></header>' + renderSourcePanel(sourceView(activityType, replay.source), false, false) + renderCheckForm(replay) + '</section>';
   }
@@ -329,6 +331,7 @@
     if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
     if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
+    var replayLecture = false;
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions(fallbackPath, id, ['REVIEW', 'PRACTICE']) : '';
     // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
     // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
@@ -543,6 +546,18 @@
           return;
         }
         if (mode === 'REVIEW') {
+          // Owner 2026-10-23: a finished part replays as the first time (passage + open questions); the quiz
+          // goes through the practice endpoints, so each replay is saved in the attempt history.
+          var replayView = viewModel(await api('/study'));
+          if (replayView.passed) {
+            mode = 'PRACTICE';
+            replayLecture = true;
+            currentType = replayView.activityType;
+            clearPracticeResult();
+            node.innerHTML = renderPractice(await postJson('/practice'), currentType, 'REPLAY');
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           node.innerHTML = renderReview(await api('/review/attempts'), currentType);
           // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
           // The comprehension study payload carries the gate inside `microCheck`, not on the attempts feed.
@@ -595,7 +610,7 @@
 
     async function doPractice() {
       clearPracticeResult();
-      try { node.innerHTML = renderPractice(await postJson('/practice'), currentType); }
+      try { node.innerHTML = renderPractice(await postJson('/practice'), currentType, replayLecture ? 'REPLAY' : 'PRACTICE'); }
       catch (e) { node.innerHTML = error(e.message, e.code); }
     }
 
