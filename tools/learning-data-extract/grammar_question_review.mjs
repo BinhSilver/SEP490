@@ -120,7 +120,8 @@ async function build(root, check) {
   const target = path.join(root, RUNTIME);
   if (check) {
     const current = await readFile(target, 'utf8').catch(() => '');
-    if (current !== text) throw new Error('Reviewed grammar runtime file is stale.');
+    // A Windows checkout may turn LF into CRLF; only the content counts.
+    if (current.replace(/\r\n/g, '\n') !== text) throw new Error('Reviewed grammar runtime file is stale.');
   } else {
     await writeFile(target, text, 'utf8');
   }
