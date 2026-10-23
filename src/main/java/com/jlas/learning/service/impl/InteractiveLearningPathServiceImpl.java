@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -116,6 +117,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private LessonLearningScopeRepository learningScopes;
     @Autowired(required = false)
     private LearningTopicRepository learningTopics;
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
     @Override
     @Transactional
     public InteractiveLearningPathResponse current(Long userId) {
@@ -137,11 +140,19 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         unlockCurrentChapterSegments(packageEntities);
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
+        return readOnlyPhase(() -> currentView(path, packageEntities, justCompletedId));
+    }
+
+    /** Builds the roadmap view; reads only, so it runs after the reconcilers' writes are flushed. */
+    private InteractiveLearningPathResponse currentView(UserLearningPath path, List<LearningPathPackage> packageEntities,
+            Long justCompletedId) {
         Map<Long, Map<LearningMemberType, Integer>> countsByPackage = memberCounts(packageEntities);
         Map<Long, Long> topicKeys = topicKeys(packageEntities);
+        Map<Long, List<UserLearningPathItem>> activitiesByPackage = activitiesByPackage(path.getId());
+        Map<Long, List<ReferenceVocabularyResponse>> referenceCache = new HashMap<>();
         List<InteractiveLearningPackageResponse> packageViews = packageEntities.stream()
-                .map(p -> mapPackage(p, orderedActivities(p), packageEntities,
-                        p.getId().equals(justCompletedId), countsByPackage, topicKeys))
+                .map(p -> mapPackage(p, orderedActivities(p, activitiesByPackage), packageEntities,
+                        p.getId().equals(justCompletedId), countsByPackage, topicKeys, referenceCache))
                 .toList();
         int completed = (int) packageViews.stream()
                 .filter(view -> view.status() == LearningPackageStatus.COMPLETED).count();
@@ -155,6 +166,24 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
                 packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews,
                 smartTestReviewOnlyTargets(path), communicationGuide(path, packageEntities));
+    }
+
+    /**
+     * The roadmap view runs hundreds of small reads over a large persistence context (path items, members,
+     * catalog rows). With AUTO flush Hibernate dirty-checks every managed entity before each of them, which made a
+     * roadmap read take seconds. The writes (reconcilers, unlock, progress refresh) are flushed once here; the
+     * read-only view then queries without auto flush. Commit still flushes as usual.
+     */
+    private <T> T readOnlyPhase(java.util.function.Supplier<T> view) {
+        if (entityManager == null) return view.get();
+        entityManager.flush();
+        jakarta.persistence.FlushModeType previous = entityManager.getFlushMode();
+        entityManager.setFlushMode(jakarta.persistence.FlushModeType.COMMIT);
+        try {
+            return view.get();
+        } finally {
+            entityManager.setFlushMode(previous);
+        }
     }
 
     /** Owner 2026-10-19: topic grouping for communication roadmaps (display only; never locks a unit). */
@@ -178,9 +207,16 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         if (comprehensionPathUpgrade != null) comprehensionPathUpgrade.reconcile(userId, path);
         if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         var entities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
+        return readOnlyPhase(() -> completedView(path, entities));
+    }
+
+    private InteractiveLearningPathResponse completedView(UserLearningPath path, List<LearningPathPackage> entities) {
         var counts = memberCounts(entities);
         var topics = topicKeys(entities);
-        var views = entities.stream().map(p -> mapPackage(p, orderedActivities(p), entities, false, counts, topics)).toList();
+        var byPackage = activitiesByPackage(path.getId());
+        Map<Long, List<ReferenceVocabularyResponse>> referenceCache = new HashMap<>();
+        var views = entities.stream()
+                .map(p -> mapPackage(p, orderedActivities(p, byPackage), entities, false, counts, topics, referenceCache)).toList();
         int completed = (int) views.stream().filter(p -> p.status() == LearningPackageStatus.COMPLETED).count();
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
@@ -551,6 +587,26 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return activities;
     }
 
+    /** Roadmap reads: activities of a package from one path-wide query; a package missing from it is read on its own. */
+    private List<UserLearningPathItem> orderedActivities(LearningPathPackage learningPackage,
+            Map<Long, List<UserLearningPathItem>> activitiesByPackage) {
+        List<UserLearningPathItem> activities = activitiesByPackage.get(learningPackage.getId());
+        if (activities == null) return orderedActivities(learningPackage);
+        validateTargetPackage(learningPackage, activities);
+        return activities;
+    }
+
+    private Map<Long, List<UserLearningPathItem>> activitiesByPackage(Long pathId) {
+        Map<Long, List<UserLearningPathItem>> result = new HashMap<>();
+        List<UserLearningPathItem> pathItems = items.findByLearningPathIdOrderByOrderIndex(pathId);
+        if (pathItems == null) return result;
+        for (UserLearningPathItem item : pathItems) {
+            if (item.getLearningPackage() == null || item.getLearningPackage().getId() == null) continue;
+            result.computeIfAbsent(item.getLearningPackage().getId(), ignored -> new ArrayList<>()).add(item);
+        }
+        return result;
+    }
+
     private void validateTargetPackage(LearningPathPackage learningPackage, List<UserLearningPathItem> activities) {
         if (!"GOAL_LEARNING".equals(learningPackage.getPhase())) return;
         if (learningPackage.getSourceLesson() == null || learningPackage.getContentRevision() == null
@@ -580,6 +636,13 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
             List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
             Map<Long, Map<LearningMemberType, Integer>> countsByPackage, Map<Long, Long> topicKeys) {
+        return mapPackage(learningPackage, activities, siblings, justCompleted, countsByPackage, topicKeys, new HashMap<>());
+    }
+
+    private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
+            List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
+            Map<Long, Map<LearningMemberType, Integer>> countsByPackage, Map<Long, Long> topicKeys,
+            Map<Long, List<ReferenceVocabularyResponse>> referenceCache) {
         Map<LearningActivityType, Long> partCounts = activities.stream()
                 .filter(item -> item.getActivityType() != null)
                 .collect(Collectors.groupingBy(UserLearningPathItem::getActivityType,
@@ -604,7 +667,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         if ("GOAL_LEARNING".equals(learningPackage.getPhase())
                 && activityViews.stream().noneMatch(view -> view.type() == LearningActivityType.VOCABULARY)
                 && contentCatalog != null && learningPackage.getSourceLesson() != null) {
-            references = contentCatalog.referenceVocabularyForLesson(learningPackage.getSourceLesson().getId());
+            // Segments of one chapter share the lesson: read its reference words once per roadmap.
+            references = referenceCache.computeIfAbsent(learningPackage.getSourceLesson().getId(),
+                    contentCatalog::referenceVocabularyForLesson);
         }
         List<com.jlas.learning.dto.InteractiveLearningSessionResponse> sessions = "GOAL_LEARNING".equals(learningPackage.getPhase())
                 ? sessionProjector.project(learningPackage.getStatus(), lockReason, activityViews,

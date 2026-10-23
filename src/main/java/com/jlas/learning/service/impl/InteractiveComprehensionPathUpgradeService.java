@@ -52,6 +52,16 @@ public class InteractiveComprehensionPathUpgradeService {
         var diagnostics = new ArrayList<Diagnostic>();
         var plans = new LinkedHashMap<Long, SplitPlan>();
         Map<String, CatalogResult> readingCatalogByLevel = new HashMap<>();
+        // Runs on every roadmap read: one member query for all Reading activities, not one (or more) per activity.
+        List<Long> readingIds = orderedPathItems.stream()
+                .filter(item -> item.getActivityType() == LearningActivityType.READING && item.getId() != null)
+                .map(UserLearningPathItem::getId).toList();
+        Map<Long, List<LearningActivityMember>> membersByActivity = new HashMap<>();
+        if (!readingIds.isEmpty()) {
+            for (LearningActivityMember member : members.findByActivityIdsInOrder(readingIds)) {
+                membersByActivity.computeIfAbsent(member.getActivity().getId(), ignored -> new ArrayList<>()).add(member);
+            }
+        }
         for (UserLearningPathItem activity : orderedPathItems) {
             if (activity.getActivityType() != LearningActivityType.READING || activity.getId() == null) continue;
             String level = sourceLevel(activity);
@@ -61,7 +71,7 @@ public class InteractiveComprehensionPathUpgradeService {
             }
             CatalogResult readingCatalog = readingCatalogByLevel.computeIfAbsent(level,
                     value -> catalog.resolve("READING", value));
-            var plan = inspect(activity, orderedPathItems, readingCatalog, diagnostics);
+            var plan = inspect(activity, orderedPathItems, readingCatalog, diagnostics, membersByActivity);
             if (plan != null) plans.put(activity.getId(), plan);
         }
         if (plans.isEmpty()) return report(path.getId(), 0, diagnostics);
@@ -122,8 +132,8 @@ public class InteractiveComprehensionPathUpgradeService {
     }
 
     private SplitPlan inspect(UserLearningPathItem activity, List<UserLearningPathItem> pathItems,
-            CatalogResult resolved, List<Diagnostic> diagnostics) {
-        List<LearningActivityMember> activityMembers = members.findByActivityIdOrderByOrderIndex(activity.getId()).stream()
+            CatalogResult resolved, List<Diagnostic> diagnostics, Map<Long, List<LearningActivityMember>> membersByActivity) {
+        List<LearningActivityMember> activityMembers = membersByActivity.getOrDefault(activity.getId(), List.of()).stream()
                 .sorted(Comparator.comparing(LearningActivityMember::getOrderIndex,
                         Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
@@ -180,7 +190,7 @@ public class InteractiveComprehensionPathUpgradeService {
         for (UserLearningPathItem other : pathItems) {
             if (other.getId().equals(activity.getId()) || other.getActivityType() != LearningActivityType.READING
                     || !samePackage(activity, other)) continue;
-            Set<Long> overlap = members.findByActivityIdOrderByOrderIndex(other.getId()).stream()
+            Set<Long> overlap = membersByActivity.getOrDefault(other.getId(), List.of()).stream()
                     .map(LearningActivityMember::getCanonicalId).filter(uniqueQuestionIds::contains)
                     .collect(Collectors.toSet());
             if (!overlap.isEmpty()) {

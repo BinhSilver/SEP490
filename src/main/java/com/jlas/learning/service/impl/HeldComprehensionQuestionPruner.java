@@ -55,9 +55,18 @@ public class HeldComprehensionQuestionPruner {
         List<UserLearningPathItem> pathItems = items.findByPathForUpdate(path.getId());
         Map<Long, List<LearningActivityMember>> membersByActivity = new HashMap<>();
         Set<Long> questionIds = new HashSet<>();
+        List<Long> candidateIds = pathItems.stream()
+                .filter(activity -> TYPES.contains(activity.getActivityType()) && UNSTARTED.contains(activity.getActivityState()))
+                .map(UserLearningPathItem::getId).filter(Objects::nonNull).toList();
+        if (candidateIds.isEmpty()) return new Report(0, 0);
+        // Runs on every roadmap read: one member query for the whole path, not one per activity.
+        Map<Long, List<LearningActivityMember>> loaded = new HashMap<>();
+        for (LearningActivityMember row : members.findByActivityIdsInOrder(candidateIds)) {
+            loaded.computeIfAbsent(row.getActivity().getId(), ignored -> new ArrayList<>()).add(row);
+        }
         for (UserLearningPathItem activity : pathItems) {
             if (!TYPES.contains(activity.getActivityType()) || !UNSTARTED.contains(activity.getActivityState())) continue;
-            List<LearningActivityMember> rows = members.findByActivityIdOrderByOrderIndex(activity.getId());
+            List<LearningActivityMember> rows = loaded.getOrDefault(activity.getId(), List.of());
             if (rows.isEmpty() || rows.stream().anyMatch(row -> row.getMemberType() != LearningMemberType.COMPREHENSION_QUESTION)) {
                 continue;
             }

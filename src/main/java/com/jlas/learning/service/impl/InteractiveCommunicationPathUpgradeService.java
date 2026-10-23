@@ -46,6 +46,17 @@ public class InteractiveCommunicationPathUpgradeService {
                     item.getPartIndex() == null ? 1 : item.getPartIndex(), Math::max);
         }
 
+        // Runs on every roadmap read: one member query for the situation activities, not one per activity.
+        List<Long> situationIds = pathItems.stream()
+                .filter(item -> item.getId() != null && SITUATION_SKILLS.contains(item.getActivityType()))
+                .map(UserLearningPathItem::getId).toList();
+        Map<Long, List<LearningActivityMember>> membersByActivity = new HashMap<>();
+        if (!situationIds.isEmpty()) {
+            for (LearningActivityMember member : members.findByActivityIdsInOrder(situationIds)) {
+                membersByActivity.computeIfAbsent(member.getActivity().getId(), ignored -> new ArrayList<>()).add(member);
+            }
+        }
+
         var diagnostics = new ArrayList<Diagnostic>();
         int added = 0;
         for (LearningPathPackage learningPackage : pathPackages) {
@@ -76,7 +87,7 @@ public class InteractiveCommunicationPathUpgradeService {
                         ? LearningMemberType.GRAMMAR_POINT : LearningMemberType.DIALOGUE_LINE;
                 Set<Long> existingIds = new HashSet<>();
                 for (UserLearningPathItem activity : activitiesInPackage(pathItems, learningPackage.getId(), skill)) {
-                    List<LearningActivityMember> activityMembers = members.findByActivityIdOrderByOrderIndex(activity.getId());
+                    List<LearningActivityMember> activityMembers = membersByActivity.getOrDefault(activity.getId(), List.of());
                     if (activityMembers.stream().anyMatch(member -> member.getMemberType() != memberType)) {
                         diagnostics.add(new Diagnostic(path.getId(), learningPackage.getId(), "MEMBER_TYPE_MISMATCH_" + skill));
                         packageSafe = false;
