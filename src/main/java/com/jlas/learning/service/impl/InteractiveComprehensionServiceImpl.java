@@ -30,6 +30,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     private final InteractiveStudyEngine<ComprehensionContent> readingEngine;
     private final InteractiveStudyEngine<ComprehensionContent> listeningEngine;
     private final AssessmentQuestionRepository questionRows;
+    private final ComprehensionRevisionRebind revisionRebind;
 
     public InteractiveComprehensionServiceImpl(UserLearningPathItemRepository items,
             LearningActivityMemberRepository members, LearningStudySessionRepository studySessions,
@@ -39,6 +40,7 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         this.items = items;
         this.members = members;
         this.questionRows = questions;
+        this.revisionRebind = new ComprehensionRevisionRebind(members, quizSessions, mapper);
         this.readingAdapter = new AssessmentComprehensionContentAdapter(LearningActivityType.READING, questions, catalog);
         this.listeningAdapter = new AssessmentComprehensionContentAdapter(LearningActivityType.LISTENING, questions, catalog);
         this.readingEngine = new InteractiveStudyEngine<>(items, members, studySessions, studyCards,
@@ -51,7 +53,6 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     public ComprehensionStudyState studyState(Long userId, Long activityId) {
         UserLearningPathItem activity = ownedComprehension(userId, activityId);
         var engine = engine(activity.getActivityType());
-        MicroCheckStateResponse check = engine.microCheckState(userId, activityId);
         var adapter = adapter(activity.getActivityType());
         List<LearningActivityMember> membership = membership(activityId);
         Map<Long, ComprehensionContent> loaded = adapter.loadByIds(
@@ -60,7 +61,11 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         if (ordered.stream().anyMatch(java.util.Objects::isNull)) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Nội dung bài đọc/nghe không còn sẵn sàng.");
         }
+        // OD-D2-04: an edited explanation (or spacing) must not lock an activity the learner can still use.
+        revisionRebind.rebindIfSafe(activity, membership, ordered, adapter.currentRevision(ordered));
         adapter.validateSourceRevision(membership.getFirst().getSourceRevision(), ordered);
+        // After the rebind: the engine re-validates the revision while it computes the check state.
+        MicroCheckStateResponse check = engine.microCheckState(userId, activityId);
         List<List<ComprehensionContent>> batches = adapter.partition(ordered);
         int selected = Math.min(check.currentBatch(), batches.size() - 1);
         List<ComprehensionContent> batch = batches.get(selected);

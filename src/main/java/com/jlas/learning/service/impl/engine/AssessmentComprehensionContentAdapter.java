@@ -98,15 +98,20 @@ public final class AssessmentComprehensionContentAdapter implements InteractiveC
         return ComprehensionSourceSnapshot.toJson(type, batchIndex, sourceRevision, frozen);
     }
 
-    @Override
-    public void validateSourceRevision(String persistedRevision, List<ComprehensionContent> orderedContent) {
+    /** The revision a membership over {@code orderedContent} would carry today. */
+    public String currentRevision(List<ComprehensionContent> orderedContent) {
         List<ComprehensionExercise> exercises = new ArrayList<>();
         String last = null;
         for (ComprehensionContent content : orderedContent) {
             if (!content.exercise().fingerprint().equals(last)) exercises.add(content.exercise());
             last = content.exercise().fingerprint();
         }
-        if (!ComprehensionRevision.combined(type, exercises).equals(persistedRevision)) {
+        return ComprehensionRevision.combined(type, exercises);
+    }
+
+    @Override
+    public void validateSourceRevision(String persistedRevision, List<ComprehensionContent> orderedContent) {
+        if (!currentRevision(orderedContent).equals(persistedRevision)) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Nguồn bài đọc/nghe đã thay đổi. Hãy tạo lại lộ trình để dùng snapshot mới.");
         }
