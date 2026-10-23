@@ -67,6 +67,8 @@ export function renderMinnaReadingSql(section, sectionHash) {
       source_status: 'DRAFT',
       rights: section.rights,
       distribution_authorization: section.distribution_authorization,
+      // Source line-by-line translation (cau_song_ngu); kept out of passage_html so the exercise revision is unchanged.
+      ...(row.passage_translation ? { passage_translation: row.passage_translation } : {}),
     });
     const options = [0, 1, 2, 3].map((index) => nullableHex(row.options[index]));
     lines.push(`-- ROW ${row.source_code}`);
