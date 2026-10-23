@@ -588,7 +588,7 @@ public class AssessmentServiceImpl implements AssessmentService {
     }
 
     /** [JLAS-W0090] Ôn tập từng câu đã trả lời theo đúng thứ tự trình bày, kèm giải thích (không lộ tag nội bộ). */
-    private static List<AnswerReviewView> answerReview(List<AssessmentAnswer> answers) {
+    static List<AnswerReviewView> answerReview(List<AssessmentAnswer> answers) {
         List<AssessmentAnswer> ordered = answers.stream()
                 .sorted(Comparator.comparing(AssessmentAnswer::getId))
                 .toList();
@@ -604,7 +604,8 @@ public class AssessmentServiceImpl implements AssessmentService {
                     question.getCorrectOption(), answer.getSelectedOption(),
                     Boolean.TRUE.equals(answer.getIsCorrect()), text(question.getExplanation()),
                     question.getGrammarPoint() == null ? null : question.getGrammarPoint().getPattern(),
-                    question.getGrammarPoint() == null ? null : question.getGrammarPoint().getMeaning()));
+                    question.getGrammarPoint() == null ? null : question.getGrammarPoint().getMeaning(),
+                    "LISTENING".equals(question.getSkill()) ? null : question.getPassageHtml()));
         }
         return review;
     }

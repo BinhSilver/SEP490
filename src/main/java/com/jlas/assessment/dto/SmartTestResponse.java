@@ -115,6 +115,8 @@ public record SmartTestResponse(
             boolean correct,
             String explanation,
             String grammarPattern,
-            String grammarMeaning
+            String grammarMeaning,
+            /** The sentence/passage the question was asked on (holds the underlined part); null for listening scripts. */
+            String passageHtml
     ) { }
 }

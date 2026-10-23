@@ -119,3 +119,28 @@
 .review-start-picker[hidden]{display:none}
 .discrepancy-picker{display:grid;gap:10px;margin:18px 0 0;padding:0;border:0;text-align:left}.discrepancy-picker legend{margin-bottom:6px;font-weight:700;color:var(--color-on-surface)}.discrepancy-picker label{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--color-outline-variant);border-radius:12px;background:var(--color-surface-lowest);cursor:pointer;line-height:1.4}.discrepancy-picker label:has(input:checked){border-color:var(--color-primary)}
 .discrepancy-picker[hidden]{display:none}
+
+/* [JLAS-W0108] 22/10 — exam bar that stays in view, Learning-path tokens, theme-aware review colours. */
+.exam-card { overflow: clip; scroll-margin-top: calc(var(--header-height, 64px) + 12px); }
+.question-sticky { position: sticky; top: calc(var(--header-height, 64px) + 8px); z-index: 6; display: grid; gap: 12px; margin: -6px -10px 20px; padding: 10px; border: 1px solid var(--color-outline-variant); border-radius: 16px; background: var(--color-surface-lowest); box-shadow: var(--shadow-1); }
+.question-sticky .progress-track { margin: 0; }
+.question-timer { padding: 8px 14px; border: 1px solid var(--color-outline-variant); background: var(--color-surface); color: var(--color-on-surface); font-size: 15px; }
+.question-timer.is-warning { border-color: var(--color-error); color: var(--color-error); background: color-mix(in srgb, var(--color-error) 14%, var(--color-surface-lowest)); }
+.question-timer.is-warning .material-symbols-outlined { color: var(--color-error); }
+.question-text:focus, .question-passage:focus { outline: none; }
+.question-text:focus-visible, .question-passage:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: 6px; }
+.option-item:focus-within { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.smart-test-primary { border-radius: 14px; }
+.review-option { color: var(--color-on-surface); }
+.review-option.is-correct { border-color: #2e9b6a; background: color-mix(in srgb, #2e9b6a 16%, var(--color-surface-lowest)); color: var(--color-on-surface); }
+.review-option.is-correct .review-option__mark { background: #1f7a50; color: #fff; }
+.review-option.is-selected-wrong { border-color: #c8553d; background: color-mix(in srgb, #c8553d 16%, var(--color-surface-lowest)); color: var(--color-on-surface); }
+.review-option.is-selected-wrong .review-option__mark { background: #b64b28; color: #fff; }
+.review-item--correct .review-item__verdict { color: var(--color-on-surface); background: color-mix(in srgb, #2e9b6a 20%, var(--color-surface-lowest)); }
+.review-item--wrong .review-item__verdict { color: var(--color-on-surface); background: color-mix(in srgb, #c8553d 20%, var(--color-surface-lowest)); }
+.review-item__passage { margin: 0 0 12px; padding: 12px 14px; border-left: 3px solid var(--color-primary); border-radius: 10px; background: var(--color-surface); color: var(--color-on-surface); font-size: 16px; line-height: 1.7; }
+.review-item__passage summary { cursor: pointer; font-weight: 700; color: var(--color-primary); }
+.review-item__passage u, .question-text u, .option-item u { text-decoration-color: var(--color-primary); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.result-heading__mark { color: #1f7a50; background: color-mix(in srgb, #2e9b6a 18%, var(--color-surface-lowest)); }
+@media (max-width: 560px) { .question-sticky { margin: -4px -6px 16px; padding: 8px; } }
+@media (prefers-reduced-motion: reduce) { .exam-card { scroll-behavior: auto; } }

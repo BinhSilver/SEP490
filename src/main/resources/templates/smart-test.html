@@ -24,10 +24,12 @@
             </div>
         </aside>
         <article class="assessment-card exam-card">
-            <div class="question-topbar"><div class="question-context"><span id="questionSkill" class="question-badge">Kỹ năng</span><span id="questionLevel" class="question-badge question-badge--level">N3</span><span id="questionTag" class="question-badge question-badge--tag">GENERAL</span></div><span id="questionTimer" class="question-timer" role="timer" aria-label="Thời gian còn lại"><span class="material-symbols-outlined">timer</span><b>--:--</b></span></div>
-            <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
-            <div id="questionMedia" class="question-media" hidden></div><div id="questionPassage" class="question-passage" hidden></div>
-            <p id="questionTitle" class="question-kicker"></p><h2 id="questionText" class="question-text"></h2>
+            <div class="question-sticky">
+                <div class="question-topbar"><div class="question-context"><span id="questionSkill" class="question-badge">Kỹ năng</span><span id="questionLevel" class="question-badge question-badge--level">N3</span><span id="questionTag" class="question-badge question-badge--tag">GENERAL</span></div><span id="questionTimer" class="question-timer" role="timer" aria-label="Thời gian còn lại"><span class="material-symbols-outlined">timer</span><b>--:--</b></span></div>
+                <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
+            </div>
+            <div id="questionMedia" class="question-media" hidden></div><div id="questionPassage" class="question-passage" tabindex="-1" hidden></div>
+            <p id="questionTitle" class="question-kicker"></p><h2 id="questionText" class="question-text" tabindex="-1"></h2>
             <form id="answerForm"><div id="optionList" class="option-list"></div><div class="question-actions">
                 <button id="finishButton" class="smart-test-finish" type="button"><span class="material-symbols-outlined">stop_circle</span><span>Kết thúc bài thi</span></button>
                 <button id="answerButton" class="smart-test-primary" type="submit" disabled><span>Trả lời và tiếp tục</span><span class="material-symbols-outlined">arrow_forward</span></button>
@@ -89,5 +91,5 @@
         <div class="smart-confirm__actions"><button id="smartConfirmNo" class="smart-confirm__no" type="button">Không, ở lại</button><button id="smartConfirmYes" class="smart-confirm__yes" type="button"><span class="material-symbols-outlined">check_circle</span><span>Đồng ý</span></button></div>
     </div>
 </div>
-<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-result-route.js?v=20261021-od35}"></script><script th:src="@{/js/pages/smart-test.js?v=20261021-od35}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-result-route.js?v=20261021-od35}"></script><script th:src="@{/js/pages/smart-test-safe-html.js?v=20261022}"></script><script th:src="@{/js/pages/smart-test.js?v=20261022-review}"></script>
 </body></html>

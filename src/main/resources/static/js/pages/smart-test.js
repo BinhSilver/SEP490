@@ -43,10 +43,19 @@
 
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/smart-test')) return;
 
-  function show(view) {
+  /** {@code anchor}: keep the learner's place on the next question — its card lands just under the header (with the
+   * timer bar) instead of the page jumping back above the hero; without it the page starts at the top. */
+  function show(view, anchor) {
     [questionView, resultView, emptyView].forEach(function (item) { item.hidden = item !== view; });
     notice.hidden = true;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** Question-bank markup (<u> marking the hidden kanji, line breaks) is rendered, never shown as raw text. */
+  function setSafeHtml(element, value) {
+    if (window.SmartTestSafeHtml) element.innerHTML = window.SmartTestSafeHtml.html(value);
+    else element.textContent = value == null ? '' : String(value);
   }
 
   function showError(message) {
@@ -201,7 +210,7 @@
     document.getElementById('questionTitle').textContent = q.title || '';
 
     var questionText = document.getElementById('questionText');
-    questionText.textContent = q.questionText || '';
+    setSafeHtml(questionText, q.questionText || '');
     // Hide auxiliary prompts for vocabulary/grammar. Kanji tasks retain their
     // reading/spelling/component instructions (including the component reading hint).
     var passageUsesAuxiliaryPrompt = q.passageHtml && ['VOCABULARY', 'GRAMMAR'].includes(q.skill);
@@ -257,12 +266,15 @@
       var input = document.createElement('input'); input.type = 'radio'; input.name = 'answer'; input.value = String(index + 1);
       input.addEventListener('change', function () { document.getElementById('answerButton').disabled = false; });
       var marker = document.createElement('span'); marker.className = 'option-index'; marker.textContent = String.fromCharCode(65 + index);
-      var text = document.createElement('span'); text.textContent = option;
+      var text = document.createElement('span'); setSafeHtml(text, option);
       label.append(input, marker, text); list.appendChild(label);
     });
     document.getElementById('answerButton').disabled = true;
     scheduleTimer(q);
-    show(questionView);
+    var firstQuestion = questionView.hidden;
+    show(questionView, firstQuestion ? null : questionView.querySelector('.exam-card'));
+    var focusTarget = questionText.hidden ? passage : questionText;
+    if (focusTarget && !firstQuestion) focusTarget.focus({ preventScroll: true });
   }
 
   function renderResult(result) {
@@ -410,8 +422,22 @@
 
     var question = document.createElement('p');
     question.className = 'review-item__question';
-    question.textContent = item.questionText || '';
+    setSafeHtml(question, item.questionText || '');
     article.append(header, question);
+    if (item.passageHtml) {
+      // The sentence the instruction refers to (the underlined part, the blank), as it was shown in the test.
+      var passage = document.createElement(item.skill === 'READING' ? 'details' : 'div');
+      passage.className = 'review-item__passage';
+      var body = document.createElement('div');
+      setSafeHtml(body, item.passageHtml);
+      if (item.skill === 'READING') {
+        var summary = document.createElement('summary');
+        summary.textContent = 'Xem đoạn văn';
+        passage.appendChild(summary);
+      }
+      passage.appendChild(body);
+      article.appendChild(passage);
+    }
 
     var options = document.createElement('ul');
     options.className = 'review-options';
@@ -424,7 +450,9 @@
       var mark = document.createElement('span');
       mark.className = 'review-option__mark';
       mark.textContent = String.fromCharCode(65 + index);
-      li.append(mark, document.createTextNode(option));
+      var optionText = document.createElement('span');
+      setSafeHtml(optionText, option);
+      li.append(mark, optionText);
       options.appendChild(li);
     });
     article.appendChild(options);
