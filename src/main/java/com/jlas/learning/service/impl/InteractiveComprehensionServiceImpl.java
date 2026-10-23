@@ -71,9 +71,38 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         List<ComprehensionStudyQuestion> questions = batch.stream()
                 .map(content -> new ComprehensionStudyQuestion(content.question().id(),
                         content.question().prompt(), content.question().options())).toList();
+        var stored = activity.getActivityState();
+        boolean passed = stored == com.jlas.learning.enums.LearningActivityState.PASSED
+                || stored == com.jlas.learning.enums.LearningActivityState.COMPLETED;
         return new ComprehensionStudyState(activityId, activity.getActivityType(), check.activityState(),
                 membership.getFirst().getSourceRevision(), batches.size(), selected, source, questions, check,
-                sourceNote(batch.stream().map(content -> content.question().id()).toList()));
+                sourceNote(batch.stream().map(content -> content.question().id()).toList()),
+                passed && activity.getActivityType() == LearningActivityType.READING ? passageTranslations(batches) : List.of());
+    }
+
+    /** The source's own line-by-line translation of each passage (context_json.passage_translation), in batch order;
+     * an empty list for a passage the source did not translate. */
+    private List<List<ComprehensionStudyState.TranslationLine>> passageTranslations(List<List<ComprehensionContent>> batches) {
+        List<Long> firstIds = batches.stream().map(batch -> batch.getFirst().question().id()).toList();
+        Map<Long, String> contexts = new java.util.HashMap<>();
+        questionRows.findAllById(firstIds).forEach(row -> contexts.put(row.getId(), row.getContextJson()));
+        List<List<ComprehensionStudyState.TranslationLine>> result = new java.util.ArrayList<>();
+        for (Long id : firstIds) {
+            List<ComprehensionStudyState.TranslationLine> lines = new java.util.ArrayList<>();
+            String context = contexts.get(id);
+            try {
+                if (context != null && !context.isBlank()) {
+                    for (var line : CONTEXT.readTree(context).path("passage_translation")) {
+                        String ja = line.path("ja").asText(""), vi = line.path("vi").asText("");
+                        if (!ja.isBlank() && !vi.isBlank()) lines.add(new ComprehensionStudyState.TranslationLine(ja, vi));
+                    }
+                }
+            } catch (Exception unreadable) {
+                lines.clear(); // a row without a readable context has no translation to show
+            }
+            result.add(lines);
+        }
+        return result;
     }
 
     private static final com.fasterxml.jackson.databind.ObjectMapper CONTEXT = new com.fasterxml.jackson.databind.ObjectMapper();

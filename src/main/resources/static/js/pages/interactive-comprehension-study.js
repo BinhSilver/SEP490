@@ -49,8 +49,18 @@
       attemptsUsed: num(check.attemptsUsed),
       attemptsRemaining: num(check.attemptsRemaining),
       passed: !!check.passed,
-      sourceNote: data.sourceNote || null
+      sourceNote: data.sourceNote || null,
+      passageTranslations: list(data.passageTranslations).map(list)
     };
+  }
+
+  /** Owner 2026-10-22: after the part is passed, the source's own line-by-line translation sits under each passage. */
+  function translationPanel(lines) {
+    if (!lines || !lines.length) return '';
+    return '<details class="ilp-passage-translation" data-passage-translation><summary>Xem bản dịch đoạn văn</summary><ol>' +
+      lines.map(function (line) {
+        return '<li><span lang="ja">' + esc(line.ja) + '</span><span>' + esc(line.vi) + '</span></li>';
+      }).join('') + '</ol><p class="ilp-source-note">Bản dịch theo nguồn VNJPClub.</p></details>';
   }
 
   function formatCooldown(value) {
@@ -237,12 +247,12 @@
       '</span></header>' + renderSourcePanel(sourceView(activityType, replay.source), false, false) + renderCheckForm(replay) + '</section>';
   }
   /** A finished Reading/Listening part: its sources as studied, then the saved attempts with the learner's answers. */
-  function renderDoneLesson(sources, attempts, activityType, actions) {
+  function renderDoneLesson(sources, attempts, activityType, actions, translations) {
     var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
     var title = activityType === 'LISTENING' ? 'Nghe hiểu' : 'Đọc hiểu';
     return '<section class="ilp-comprehension"><header class="ilp-comprehension__head"><div><h1>' + title +
       ' <span class="ilp-done-pill">Đã hoàn thành</span></h1><p>Bài và câu trả lời của bạn được giữ nguyên để xem lại.</p></div></header>' +
-      (Array.isArray(sources) && sources.length ? renderStoredSources(sources, activityType) : '') +
+      (Array.isArray(sources) && sources.length ? renderStoredSources(sources, activityType, translations) : '') +
       (StudyMode && Array.isArray(attempts) && attempts.length ? StudyMode.attemptHistory(attempts) : '') +
       '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a>' + (actions || '') + '</div></section>';
   }
@@ -261,10 +271,11 @@
       '<div class="ilp-result__actions"><a class="ilp-check" href="/learning/path/v2">Về lộ trình</a></div></section>';
   }
 
-  function renderStoredSources(feedback, activityType) {
+  function renderStoredSources(feedback, activityType, translations) {
     return feedback.map(function (batch) {
       var source = batch.sourceStatus === 'AVAILABLE' && batch.source
-        ? renderSourcePanel(sourceView(activityType, batch.source), false, false, false)
+        ? renderSourcePanel(sourceView(activityType, batch.source), false, false, false) +
+          translationPanel(list(translations)[num(batch.batchIndex)])
         : '<p class="ilp-gate-note" data-source-unavailable>Nội dung bài đọc/nghe của phần này không còn được lưu nên chưa thể hiển thị lại.</p>';
       return '<article class="ilp-review-source" data-review-source="' + num(batch.batchIndex) + '"><h2>Phần ' +
         (num(batch.batchIndex) + 1) + '</h2>' + source + '</article>';
@@ -567,7 +578,7 @@
           var doneSources = [], doneAttempts = [];
           try { doneSources = await api('/review/attempts'); } catch (e) { doneSources = []; }
           try { doneAttempts = await api('/attempt-history'); } catch (e) { doneAttempts = []; }
-          node.innerHTML = renderDoneLesson(doneSources, doneAttempts, v.activityType, PASSED_ACTIONS);
+          node.innerHTML = renderDoneLesson(doneSources, doneAttempts, v.activityType, PASSED_ACTIONS, v.passageTranslations);
         }
         else if (shouldOpenInlineQuestions(v)) {
           var inlineCheck = await postJson('/micro-check');
