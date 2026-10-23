@@ -282,6 +282,32 @@
         !STUDY_PAGES[activity.type] || !Number.isSafeInteger(Number(activity.id)) || Number(activity.id) <= 0) return null;
     return STUDY_PAGES[activity.type] + '?activity=' + encodeURIComponent(activity.id);
   }
+  /** Owner 2026-10-22: in a communication path "next" stays inside the learner's topic — its other vocabulary parts and
+   * its unfinished situations — before following path order (paths saved before 20/10 list every topic first). */
+  function nextInTopic(packages, currentPackage, currentActivityId) {
+    var topic = packages[currentPackage].topicKey;
+    if (topic == null) return null;
+    var order = [];
+    for (var i = currentPackage; i < packages.length; i++) order.push(i);
+    for (var k = 0; k < currentPackage; k++) order.push(k);
+    for (var n = 0; n < order.length; n++) {
+      var index = order[n];
+      var pkg = packages[index];
+      if (String(pkg.topicKey) !== String(topic) || pkg.status === 'LOCKED' || pkg.status === 'COMPLETED') continue;
+      var activities = ordered(pkg.activities);
+      var after = index === currentPackage ? activities.findIndex(function (activity) {
+        return String(activity.id) === String(currentActivityId);
+      }) + 1 : 0;
+      for (var j = after; j < activities.length; j++) {
+        var href = activeHref(activities[j]);
+        if (href && pkg.status === 'IN_PROGRESS') return { href: href };
+      }
+      if (index !== currentPackage && pkg.status === 'AVAILABLE' && Number.isSafeInteger(Number(pkg.id)) && Number(pkg.id) > 0) {
+        return { startPackageId: pkg.id };
+      }
+    }
+    return null;
+  }
   /** Only the refreshed server path can nominate the next lesson; locked activities have no URL. */
   function nextStudyAction(path, currentActivityId) {
     var packages = ordered(path && path.packages);
@@ -289,6 +315,8 @@
       return ordered(pkg.activities).some(function (activity) { return String(activity.id) === String(currentActivityId); });
     });
     if (currentPackage < 0) return null;
+    var inTopic = nextInTopic(packages, currentPackage, currentActivityId);
+    if (inTopic) return inTopic;
     for (var i = currentPackage; i < packages.length; i++) {
       var pkg = packages[i];
       if (pkg.status === 'LOCKED') return null;
@@ -484,7 +512,57 @@
     return !!(anchor && node && node.contains(anchor.nodeType === 3 ? anchor.parentNode : anchor));
   }
 
+  /** Owner 2026-10-22: on the Flashcard tab the counter and bar say which card of this part is showing (e.g. 6/8), not how
+   * many were seen — a finished part still read "3/8 đã xem". The content tab shows neither. */
+  function positionHeader(onFlashcards, position, total) {
+    position = Number(position); total = Number(total);
+    if (!onFlashcards || !(total > 0) || !(position > 0)) return { count: '', bar: '' };
+    return {
+      count: '<div class="ilp-study__count" data-card-position><strong>' + position + '/' + total + '</strong><span>thẻ đang xem</span></div>',
+      bar: '<div class="ilp-progress" role="progressbar" aria-label="Vị trí thẻ trong phần này" aria-valuenow="' + position +
+        '" aria-valuemin="1" aria-valuemax="' + total + '"><span style="width:' + Math.round(position / total * 100) + '%"></span></div>'
+    };
+  }
+
+  /**
+   * Owner 2026-10-22 (option A): every study page says what completes it, with the current status, without changing
+   * the rule. JLPT parts (kind CHECK) finish by passing the check at 70% — cards are optional (§2.6, §2.8); communication
+   * vocabulary (kind MARK) finishes with "Đánh dấu hoàn thành" (owner 2026-10-21). {@code itemNoun}: "từ", "chữ".
+   */
+  function completionGuide(kind, itemNoun, gate, done, now) {
+    var noun = itemNoun || 'từ';
+    var steps = kind === 'MARK'
+      ? ['Xem các ' + noun + ' trong phần này (tab Nội dung hoặc Flashcard).', 'Bấm “Đánh dấu hoàn thành”.']
+      : ['Xem các ' + noun + ' ở tab Nội dung hoặc Flashcard — không bắt buộc.', 'Làm bài kiểm tra và đạt từ 70%.'];
+    var status = completionStatus(kind, gate, done, now);
+    return '<div class="ilp-completion-guide" data-completion-guide><p class="ilp-completion-guide__title">Để hoàn thành phần này</p>' +
+      '<ol>' + steps.map(function (step) { return '<li>' + esc(step) + '</li>'; }).join('') + '</ol>' +
+      (kind === 'MARK' ? '<p class="ilp-completion-guide__note">Flashcard giúp ôn lại, không bắt buộc.</p>' : '') +
+      (status ? '<span class="ilp-status-chip ilp-status-chip--' + status.tone + '" data-completion-status="' + status.code + '">' +
+        esc(status.text) + '</span>' : '') + '</div>';
+  }
+
+  function completionStatus(kind, gate, done, now) {
+    if (done || gate && gate.passed) return { code: 'DONE', tone: 'done', text: kind === 'MARK' ? 'Đã hoàn thành' : 'Đã đạt bài kiểm tra' };
+    if (kind === 'MARK') return { code: 'TODO', tone: 'todo', text: 'Chưa đánh dấu hoàn thành' };
+    if (!gate) return null;
+    if (gate.reviewRequired) return { code: 'REVIEW', tone: 'warn', text: 'Cần ôn lại phần sai trước khi làm lại' };
+    var until = gate.cooldownUntil ? new Date(gate.cooldownUntil) : null;
+    if (until && !isNaN(until) && until > (now || new Date())) {
+      return { code: 'COOLDOWN', tone: 'warn', text: 'Làm lại sau ' + String(until.getHours()).padStart(2, '0') + ':' +
+        String(until.getMinutes()).padStart(2, '0') };
+    }
+    var total = Number(gate.batchCount) || 1;
+    var part = total > 1 ? ' · phần ' + ((Number(gate.currentBatch) || 0) + 1) + '/' + total : '';
+    if (Number(gate.attemptsUsed) > 0 && gate.latestScore != null) {
+      return { code: 'RETRY', tone: 'warn', text: 'Lần gần nhất ' + Number(gate.latestScore) + '% · đã làm ' + Number(gate.attemptsUsed) +
+        '/' + (Number(gate.attemptsUsed) + Number(gate.attemptsRemaining || 0)) + ' lần' + part };
+    }
+    return { code: 'TODO', tone: 'todo', text: 'Chưa làm bài kiểm tra' + part };
+  }
+
   return { resolveMode: resolveMode, endpoints: endpoints, banner: banner, passedActions: passedActions,
+    positionHeader: positionHeader, completionGuide: completionGuide,
     celebrate: celebrate, celebrationHtml: celebrationHtml, isSelectingText: isSelectingText,
     practiceResult: practiceResult, reviewList: reviewList, feedbackList: feedbackList,
     reviewGateActions: reviewGateActions,

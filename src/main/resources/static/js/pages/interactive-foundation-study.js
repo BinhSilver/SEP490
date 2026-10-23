@@ -13,6 +13,8 @@
   // shape as interactive-kanji-study.js: the server-owned study + micro-check contract is identical, only the
   // card content (a kana character + its romaji) and the API base path differ.
 
+  var StudyModeLib = typeof window !== 'undefined' && window.InteractiveStudyMode ? window.InteractiveStudyMode
+    : (typeof require === 'function' ? require('./interactive-study-mode.js') : null);
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
   // [JLAS-W0125] "Phần x / n" only when a pace change split this skill into ordered parts of the package.
@@ -117,7 +119,7 @@
     var browseIndex = ui.browseIndex == null ? Math.max(0, firstUnseen) : num(ui.browseIndex);
     browseIndex = Math.min(Math.max(browseIndex, 0), Math.max(v.cards.length - 1, 0));
     var card = v.current;
-    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
+    var position = StudyModeLib.positionHeader(activeTab === 'flashcard' && flashMode !== 'check', browseIndex + 1, v.cards.length);
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
     var canCheck = !readOnly && v.checkEligible && !gateBlocked && !(gate && gate.passed);
     var actions = '';
@@ -135,10 +137,10 @@
       (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : (v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN')) + '</span><h1>' + esc(heading) + '</h1>' + partLabel(v) +
       '<p>' + (isWord ? esc(v.lessonDescription || 'Đọc cả từ, nghe phát âm rồi luyện bằng Flashcard.') : 'Xem bảng chữ theo thứ tự, nghe cách đọc rồi lật thẻ để kiểm tra cách đọc.') + '</p>' +
       // Owner 2026-10-21 (OD-33): the Kana rule examples are J-LAS-written (AI) and still await review.
-      (isWord ? '<p class="ilp-source-note">Nội dung bổ sung J-LAS · cần rà soát</p>' : '') + '</div>' +
-      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
-      '<span style="width:' + progress + '%"></span></div>' +
+      (isWord ? '<p class="ilp-source-note">Nội dung bổ sung J-LAS · cần rà soát</p>' : '') +
+      (readOnly ? '' : StudyModeLib.completionGuide('CHECK', isWord ? 'từ' : 'chữ', gate,
+        v.activityState === 'PASSED' || v.activityState === 'COMPLETED')) + '</div>' +
+      position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="' + (isWord ? 'Cách học từ ví dụ Kana' : 'Cách học bảng chữ cái') + '">' +
       '<button type="button" role="tab" id="kana-content-tab" aria-controls="kana-content-panel" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" id="kana-flashcard-tab" aria-controls="kana-flashcard-panel" aria-selected="' + (activeTab === 'flashcard') + '" data-study-tab="flashcard">Học bằng Flashcard</button></div>' +
@@ -474,7 +476,11 @@
         flashUi.typedFeedback = '';
         return showStudy();
       }
-      if (event.target.closest('[data-practice-review]')) return loadStudy();
+      if (event.target.closest('[data-practice-review]')) {
+        // A new practice round starts on the first card, front side up.
+        flashUi.browseIndex = null; flashUi.browseFlipped = false; flashUi.turning = false;
+        return loadStudy();
+      }
       if (event.target.closest('[data-check-next]')) return doCheck();
       if (event.target.closest('[data-check]')) {
         if (mode === 'LEARN' && currentStudy && currentStudy.flippedCount < currentStudy.totalCards &&

@@ -23,6 +23,9 @@ import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
+import com.jlas.learning.repository.LessonLearningScopeRepository;
+import com.jlas.learning.service.GoalPathPolicy;
+import com.jlas.learning.repository.LearningTopicRepository;
 import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.service.InteractiveLearningPathService;
 import com.jlas.learning.service.InteractiveContentCatalog;
@@ -41,6 +44,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -108,6 +112,10 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private InteractiveCommunicationPathUpgradeService communicationPathUpgrade;
     @Autowired(required = false)
     private com.jlas.learning.service.CommunicationGuideService communicationGuides;
+    @Autowired(required = false)
+    private LessonLearningScopeRepository learningScopes;
+    @Autowired(required = false)
+    private LearningTopicRepository learningTopics;
     @Override
     @Transactional
     public InteractiveLearningPathResponse current(Long userId) {
@@ -130,9 +138,10 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         unlockCurrentChapterSegments(packageEntities);
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
         Map<Long, Map<LearningMemberType, Integer>> countsByPackage = memberCounts(packageEntities);
+        Map<Long, Long> topicKeys = topicKeys(packageEntities);
         List<InteractiveLearningPackageResponse> packageViews = packageEntities.stream()
                 .map(p -> mapPackage(p, orderedActivities(p), packageEntities,
-                        p.getId().equals(justCompletedId), countsByPackage))
+                        p.getId().equals(justCompletedId), countsByPackage, topicKeys))
                 .toList();
         int completed = (int) packageViews.stream()
                 .filter(view -> view.status() == LearningPackageStatus.COMPLETED).count();
@@ -170,7 +179,8 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         var entities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
         var counts = memberCounts(entities);
-        var views = entities.stream().map(p -> mapPackage(p, orderedActivities(p), entities, false, counts)).toList();
+        var topics = topicKeys(entities);
+        var views = entities.stream().map(p -> mapPackage(p, orderedActivities(p), entities, false, counts, topics)).toList();
         int completed = (int) views.stream().filter(p -> p.status() == LearningPackageStatus.COMPLETED).count();
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
@@ -215,7 +225,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             unlockChapterSegments(learningPackage, siblings);
         }
         boolean justCompleted = refresh(userId, learningPackage, activities, siblings);
-        return mapPackage(learningPackage, activities, siblings, justCompleted, memberCounts(siblings));
+        return mapPackage(learningPackage, activities, siblings, justCompleted, memberCounts(siblings), topicKeys(siblings));
     }
 
     @Override
@@ -241,7 +251,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         unlockActivities(learningPackage, activities);
         List<LearningPathPackage> siblings = siblingsOf(learningPackage);
         unlockChapterSegments(learningPackage, siblings);
-        return mapPackage(learningPackage, activities, siblings, false, memberCounts(siblings));
+        return mapPackage(learningPackage, activities, siblings, false, memberCounts(siblings), topicKeys(siblings));
     }
 
     // ---- Task 8: package completion, unlock, score, reward ----
@@ -569,7 +579,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
 
     private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
             List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
-            Map<Long, Map<LearningMemberType, Integer>> countsByPackage) {
+            Map<Long, Map<LearningMemberType, Integer>> countsByPackage, Map<Long, Long> topicKeys) {
         Map<LearningActivityType, Long> partCounts = activities.stream()
                 .filter(item -> item.getActivityType() != null)
                 .collect(Collectors.groupingBy(UserLearningPathItem::getActivityType,
@@ -610,7 +620,26 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 isLastPackage(learningPackage, siblings), justCompleted, sessions,
                 chapterLessonId(learningPackage), chapterTitle(learningPackage), chapterNumber(learningPackage, siblings),
                 learningPackage.getSourceSegmentIndex() == null ? 1 : learningPackage.getSourceSegmentIndex(),
-                segmentCount(learningPackage, siblings), sourceReviewNote(learningPackage));
+                segmentCount(learningPackage, siblings), sourceReviewNote(learningPackage),
+                learningPackage.getSourceLesson() == null ? null : topicKeys.get(learningPackage.getSourceLesson().getId()));
+    }
+
+    /** Communication paths only: source lesson id -> root topic id (its vocabulary lesson and its situations share it). */
+    private Map<Long, Long> topicKeys(List<LearningPathPackage> pathPackages) {
+        if (learningScopes == null || learningTopics == null || pathPackages.isEmpty()
+                || !GoalPathPolicy.isCommunicationGoal(pathPackages.getFirst().getLearningPath())) return Map.of();
+        List<Long> lessonIds = pathPackages.stream().map(LearningPathPackage::getSourceLesson).filter(Objects::nonNull)
+                .map(com.jlas.dictionary.entity.Lesson::getId).distinct().toList();
+        if (lessonIds.isEmpty()) return Map.of();
+        Map<Long, Long> topicByLesson = new HashMap<>();
+        learningScopes.findByLessonIdIn(lessonIds).stream().filter(scope -> scope.getTopicId() != null)
+                .forEach(scope -> topicByLesson.putIfAbsent(scope.getLessonId(), scope.getTopicId()));
+        Map<Long, Long> rootByTopic = new HashMap<>();
+        learningTopics.findAllById(topicByLesson.values().stream().distinct().toList())
+                .forEach(topic -> rootByTopic.put(topic.getId(), topic.rootTopicId()));
+        Map<Long, Long> result = new HashMap<>();
+        topicByLesson.forEach((lessonId, topicId) -> result.put(lessonId, rootByTopic.getOrDefault(topicId, topicId)));
+        return result;
     }
 
     static final String UNREVIEWED_SOURCE_NOTE = "Giáo trình chưa duyệt — nội dung đang được rà soát.";

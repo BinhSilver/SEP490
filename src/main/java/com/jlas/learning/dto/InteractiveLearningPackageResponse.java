@@ -35,7 +35,10 @@ public record InteractiveLearningPackageResponse(
         int segmentIndex,
         int segmentCount,
         /** §2.28 / OD-44: a note when the chapter comes from an owner-opened DRAFT textbook; null otherwise. */
-        String sourceReviewNote) {
+        String sourceReviewNote,
+        /** Communication paths: the root topic of the package's lesson, so "next lesson" stays inside a topic (its
+         * vocabulary, then its situations) whatever order an older path was saved in. Null for JLPT. */
+        Long topicKey) {
     public InteractiveLearningPackageResponse {
         activities = List.copyOf(activities);
         sessions = sessions == null ? List.of() : List.copyOf(sessions);
@@ -48,6 +51,6 @@ public record InteractiveLearningPackageResponse(
             List<InteractiveLearningSessionResponse> sessions) {
         this(id, phase, dayNumber, orderIndex, title, status, estimatedMinutes, completedActivities, totalActivities,
                 progressPercent, resumeActivityType, lockReason, startedAt, completedAt, activities, scorePercent,
-                nextAvailablePackageId, lastPackage, justCompleted, sessions, null, title, 1, 1, 1, null);
+                nextAvailablePackageId, lastPackage, justCompleted, sessions, null, title, 1, 1, 1, null, null);
     }
 }

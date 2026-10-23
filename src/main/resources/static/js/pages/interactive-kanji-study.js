@@ -13,6 +13,8 @@
   // (Vocabulary, Task 4): the server-owned study + micro-check contract is identical, only the card content
   // and the API base path differ, mirroring the InteractiveStudyEngine split on the backend.
 
+  var StudyModeLib = typeof window !== 'undefined' && window.InteractiveStudyMode ? window.InteractiveStudyMode
+    : (typeof require === 'function' ? require('./interactive-study-mode.js') : null);
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
   // [JLAS-W0125] "Phần x / n" only when a pace change split this skill into ordered parts of the package.
@@ -138,7 +140,7 @@
     var card = partCards[browseIndex] || null;
     var shownCard = card && flashMode === 'browse' ? Object.assign({}, card,
       { flipped: !!ui.browseFlipped }) : card;
-    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
+    var position = StudyModeLib.positionHeader(activeTab === 'flashcards' && flashMode !== 'check', browseIndex + 1, partCards.length);
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
     var canCheck = !readOnly && v.checkEligible && !gateBlocked;
     var checkLabel = checkButtonLabel(gate);
@@ -167,10 +169,10 @@
     return '<section class="ilp-study">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">KANJI // ' +
       (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Chữ Hán</h1>' + partLabel(v) +
-      '<p>Xem chữ, nghĩa và âm đọc trước; sau đó học bằng Flashcard.</p></div>' +
-      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
-      '<span style="width:' + progress + '%"></span></div>' +
+      '<p>Xem chữ, nghĩa và âm đọc trước; sau đó học bằng Flashcard.</p>' +
+      (readOnly ? '' : StudyModeLib.completionGuide('CHECK', 'chữ', gate,
+        v.activityState === 'PASSED' || v.activityState === 'COMPLETED')) + '</div>' +
+      position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học Kanji">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'flashcards') + '" data-study-tab="flashcards">Học bằng Flashcard</button></div>' +

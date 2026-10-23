@@ -10,6 +10,8 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
+  var StudyModeLib = typeof window !== 'undefined' && window.InteractiveStudyMode ? window.InteractiveStudyMode
+    : (typeof require === 'function' ? require('./interactive-study-mode.js') : null);
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
   // [JLAS-W0125] "Phần x / n" only when a pace change split this skill into ordered parts of the package.
@@ -147,7 +149,8 @@
       : partCards[browseIndex] || null;
     var shownCard = card && flashMode === 'browse' ? Object.assign({}, card,
       { flipped: !!ui.browseFlipped }) : card;
-    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
+    var position = StudyModeLib.positionHeader(activeTab === 'flashcards' && !(v.checkRequired && flashMode === 'check'),
+      partCards.indexOf(card) + 1, partCards.length);
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
     var canCheck = v.checkRequired && v.checkEligible && !gateBlocked;
     var checkLabel = checkButtonLabel(gate);
@@ -179,18 +182,15 @@
         ? '' : '<span class="ilp-kicker">VOCABULARY // ' +
       (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span>') +
       '<h1>Từ vựng' + (v.checkRequired === false && studiedDone(v) ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' + partLabel(v) +
-      '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p></div>' +
-      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
-      '<span style="width:' + progress + '%"></span></div>' +
+      '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p>' +
+      (readOnly ? '' : StudyModeLib.completionGuide(v.checkRequired === false ? 'MARK' : 'CHECK', 'từ', gate, studiedDone(v))) +
+      '</div>' + position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học từ vựng">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'flashcards') + '" data-study-tab="flashcards">Học bằng Flashcard</button></div>' +
       '<section role="tabpanel"' + (activeTab === 'content' ? '' : ' hidden') + '><h2>Các từ trong phần này</h2>' +
       partNavigation(groups, partIndex) +
       renderVocabularyList(groups[partIndex] || []) +
-      // Owner 2026-10-21 (OD-10): the 🔊 buttons use the browser's Japanese speech, said as such.
-      '<p class="ilp-source-note">Phát âm bằng giọng đọc tiếng Nhật tổng hợp.</p>' +
       (readOnly || gate && gate.passed ? '' : v.checkRequired === false
         ? '<div class="ilp-study__next"><button class="ilp-check ilp-check--ghost" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
           markStudiedBlock(v) + '</div>'
