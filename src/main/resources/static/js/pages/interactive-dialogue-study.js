@@ -293,9 +293,10 @@
       '<div class="ilp-dialogue__switches">' +
       (hasFurigana(v) ? toggle('data-toggle-furigana', prefs.showFurigana !== false, 'Furigana') : '') +
       toggle('data-toggle-translation', prefs.showTranslation !== false, 'Bản dịch') + '</div>' +
-      '<fieldset class="ilp-dialogue__roles"><legend>Luyện đóng vai</legend><div class="ilp-segmented">' +
+      // A script without speaker roles has nothing to role-play; the picker only appears when there is someone to be.
+      (roles(v).length ? '<fieldset class="ilp-dialogue__roles"><legend>Luyện đóng vai</legend><div class="ilp-segmented">' +
       role('', 'Không') + roles(v).map(function (r) { return role(r.code, 'Tôi là ' + esc(r.name)); }).join('') +
-      '</div></fieldset></div>';
+      '</div></fieldset>' : '') + '</div>';
   }
 
   function renderScript(v, prefs) {
@@ -304,18 +305,20 @@
     }
     prefs = prefs || {};
     var revealed = list(prefs.revealed).map(String);
+    // Owner 2026-10-23: JLPT dialogues get the same furigana / translation / role-play tools as communication ones;
+    // only the line-by-line "đã luyện" evidence stays with communication goals (JLPT keeps its timed completion).
     var lines = v.lines.map(function (line) {
-      return renderLine(line, v.lineByLinePractice ? {
-        practice: !v.completed,
+      return renderLine(line, {
+        practice: v.lineByLinePractice && !v.completed,
         practiced: v.practicedLineIds.indexOf(String(line.lineId)) !== -1,
         hidden: !!prefs.rolePlay && line.roleCode === prefs.rolePlay && revealed.indexOf(String(line.lineId)) === -1,
         showTranslation: prefs.showTranslation,
         showFurigana: prefs.showFurigana !== false
-      } : {});
+      });
     }).join('');
     var intro = v.lineByLinePractice
       ? 'Nghe từng lượt, tự nói theo rồi bấm “Tôi đã luyện câu này”. Chọn một vai để luyện đóng vai; bạn có thể tắt bản dịch khi đã quen.'
-      : 'Đọc và nghe toàn bộ đoạn hội thoại, cuộn tới cuối để hoàn thành.';
+      : 'Đọc và nghe toàn bộ đoạn hội thoại, cuộn tới cuối để hoàn thành. Chọn một vai để luyện đóng vai; bạn có thể tắt bản dịch khi đã quen.';
     // Owner 2026-10-21: communication dialogues drop the technical eyebrow; the required labels share one line.
     var tts = v.lines.some(function (line) { return line.audioUrl === 'tts:ja-JP'; });
     var label = v.aids && v.aids.label ? v.aids.label : tts ? 'Nội dung bổ sung J-LAS' : '';
@@ -325,7 +328,7 @@
       '<header class="ilp-study__head"><div>' + (v.lineByLinePractice ? '' : '<span class="ilp-kicker">HỘI THOẠI // ' +
       (v.completed ? 'ĐÃ HOÀN THÀNH' : 'ĐANG LUYỆN TẬP') + '</span>') + '<h1>Luyện hội thoại' +
       (v.lineByLinePractice && v.completed ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' +
-      '<p>' + esc(intro) + '</p></div></header>' + (v.lineByLinePractice ? renderToolbar(v, prefs) : '') +
+      '<p>' + esc(intro) + '</p></div></header>' + renderToolbar(v, prefs) +
       (label || synthetic ? '<p class="ilp-dialogue__audio-note">' + esc([label, synthetic ? 'Giọng đọc tiếng Nhật tổng hợp' : '']
         .filter(Boolean).join(' · ')) + '</p>' : '') +
       '<p class="ilp-dialogue__audio-status" data-audio-status role="status" aria-live="polite"></p>' +
@@ -386,15 +389,19 @@
       '<a class="ilp-check ilp-check--ghost" href="/learning/path/v2">Về lộ trình</a></div></section>';
   }
 
-  function renderReplay(mode, v) {
+  function renderReplay(mode, v, prefs) {
+    prefs = prefs || {};
+    var revealed = list(prefs.revealed).map(String);
     var title = mode === 'REVIEW' ? 'Xem lại hội thoại' : 'Luyện lại hội thoại';
-    var lines = v.lines.length ? v.lines.map(function (line) { return renderLine(line, { showFurigana: true }); }).join('') :
-      '<li class="ilp-state">Hoạt động này chưa có nội dung.</li>';
+    var lines = v.lines.length ? v.lines.map(function (line) {
+      return renderLine(line, { showFurigana: prefs.showFurigana !== false, showTranslation: prefs.showTranslation,
+        hidden: !!prefs.rolePlay && line.roleCode === prefs.rolePlay && revealed.indexOf(String(line.lineId)) === -1 });
+    }).join('') : '<li class="ilp-state">Hoạt động này chưa có nội dung.</li>';
     var StudyMode = typeof window !== 'undefined' ? window.InteractiveStudyMode : null;
     return (StudyMode ? StudyMode.banner(mode) : '') +
       '<section class="ilp-dialogue"><header class="ilp-study__head"><div><span class="ilp-kicker">HỘI THOẠI // ' +
       (mode === 'REVIEW' ? 'XEM LẠI' : 'LUYỆN TẬP') + '</span><h1>' + title + '</h1>' +
-      '<p>Đọc lại kịch bản và nghe các dòng có âm thanh.</p></div></header>' +
+      '<p>Đọc lại kịch bản và nghe các dòng có âm thanh.</p></div></header>' + (v.lines.length ? renderToolbar(v, prefs) : '') +
       (v.lines.some(function (line) { return line.audioUrl === 'tts:ja-JP'; })
         ? '<p class="ilp-dialogue__audio-note">Nội dung bổ sung J-LAS · Giọng đọc tiếng Nhật tổng hợp</p>'
         : v.lines.some(isSekaiAudio) ? '<p class="ilp-dialogue__audio-note">Giọng đọc tiếng Nhật tổng hợp</p>' : '') +
@@ -458,7 +465,9 @@
     function writePref(key, value) {
       try { if (window.localStorage) window.localStorage.setItem(key, value); } catch (e) { /* storage unavailable */ }
     }
+    var replayView = null;
     function rerender() {
+      if (replayView) { node.innerHTML = renderReplay(mode, replayView, prefs); return; }
       if (!current) return;
       if (finished) {
         // The finished page keeps its script: furigana/translation toggles and phrase cards still work there.
@@ -569,6 +578,11 @@
       var panel = node.querySelector('.ilp-dialogue__progress');
       var v = viewModel(Object.assign({}, result, { lines: [] }));
       if (current && v.lineByLinePractice) current.reachedBottom = v.reachedBottom;
+      // A timed (JLPT) view is re-rendered by the display tools, so it keeps the latest server progress too.
+      if (current && !v.lineByLinePractice) {
+        current.accumulatedSeconds = v.accumulatedSeconds; current.remainingSeconds = v.remainingSeconds;
+        current.reachedBottom = v.reachedBottom; current.percent = v.percent;
+      }
       if (panel) panel.outerHTML = renderProgress(v);
       if (result.completed) {
         finished = true;
@@ -613,7 +627,8 @@
       try {
         if (mode === 'REVIEW' || mode === 'PRACTICE') {
           var replay = await api(mode === 'REVIEW' ? '/review' : '/practice');
-          node.innerHTML = renderReplay(mode, viewModel(replay));
+          replayView = viewModel(replay);
+          node.innerHTML = renderReplay(mode, replayView, prefs);
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -628,7 +643,8 @@
           watchBottom();
         }
         else {
-          node.innerHTML = renderScript(v) + renderProgress(v);
+          current = v;
+          node.innerHTML = renderScript(v, prefs) + renderProgress(v);
           watchBottom();
           heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
           sendHeartbeat();
