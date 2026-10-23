@@ -397,10 +397,17 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
     static final class GrammarContentAdapter implements InteractiveContentAdapter<GrammarPoint> {
         private final GrammarPointRepository grammarPoints;
         private final LearningGrammarPracticeProgressRepository progress;
+        private final ReviewedGrammarApplications reviewed;
 
         GrammarContentAdapter(GrammarPointRepository grammarPoints, LearningGrammarPracticeProgressRepository progress) {
+            this(grammarPoints, progress, ReviewedGrammarApplications.shared());
+        }
+
+        GrammarContentAdapter(GrammarPointRepository grammarPoints, LearningGrammarPracticeProgressRepository progress,
+                ReviewedGrammarApplications reviewed) {
             this.grammarPoints = grammarPoints;
             this.progress = progress;
+            this.reviewed = reviewed;
         }
 
         @Override
@@ -449,8 +456,32 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                         "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors,
                         meaningExplanation(point, meaningSummary));
                 if (question != null) { specs.add(question); qid++; }
+                // OD-D2-01: an owner-reviewed application sentence for this pattern, one per attempt, rotating.
+                QuestionSpec usage = reviewedUsage(qid, point, variationSeed + i);
+                if (usage != null) { specs.add(usage); qid++; }
             }
             return specs;
+        }
+
+        private QuestionSpec reviewedUsage(long questionId, GrammarPoint point, int seed) {
+            if (reviewed == null) return null;
+            List<ReviewedGrammarApplications.Item> items = reviewed.forPattern(point.getPattern(), levelOf(point));
+            if (items.isEmpty()) return null;
+            ReviewedGrammarApplications.Item item = items.get(Math.floorMod(seed, items.size()));
+            if (item.correctIndex() < 1 || item.correctIndex() > item.options().size()) return null;
+            String answer = item.options().get(item.correctIndex() - 1);
+            List<String> others = new ArrayList<>(item.options());
+            others.remove(item.correctIndex() - 1);
+            String prompt = (item.contextVi().isBlank() ? "" : item.contextVi() + " — ") + item.promptJa();
+            String explanation = item.explanationVi() + (item.answerJa().isBlank() ? ""
+                    : " Câu đúng: " + item.answerJa() + (item.answerVi().isBlank() ? "" : " (" + item.answerVi() + ")"));
+            return optionQuestion(questionId, seed, "USAGE_REVIEWED", prompt, answer, others, explanation.trim());
+        }
+
+        private static String levelOf(GrammarPoint point) {
+            var lesson = point.getLesson();
+            var textbook = lesson == null || lesson.getUnit() == null ? null : lesson.getUnit().getTextbook();
+            return textbook == null ? null : textbook.getJlptLevel();
         }
 
         private static String normalizedPattern(String pattern) {
