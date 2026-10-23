@@ -50,6 +50,9 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     private static final String[] SELECT_TYPES = {"WORD_TO_MEANING", "READING_TO_WORD", "MEANING_TO_WORD"};
 
     private final InteractiveStudyEngine<VocabularyEntry> engine;
+    /** OD-D2-05: "Ôn" words of a deduplicated JLPT chapter; absent in slice tests. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private LessonReviewLookup reviewLookup;
 
     public InteractiveVocabularyServiceImpl(UserLearningPathItemRepository items, LearningActivityMemberRepository members,
             LearningStudySessionRepository studySessions, LearningStudyCardRepository studyCards,
@@ -155,7 +158,7 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
         return new VocabularyStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(),
                 s.checkRequired(), cards,
-                s.partIndex(), s.partCount());
+                s.partIndex(), s.partCount(), reviewLookup == null ? List.of() : reviewLookup.vocabulary(s.activityId()));
     }
 
     private static String value(VocabularyEntry entry, java.util.function.Function<VocabularyEntry, String> getter) {

@@ -77,6 +77,8 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
 
         List<LessonWorkPlan> lessonPlans = new ArrayList<>();
         boolean communicationGoal = GoalPathPolicy.isCommunicationGoal(path);
+        // OD-D2-05: on a JLPT path each word/Kanji is required only where it first appears (lessons in path order).
+        CanonicalFirstOccurrence firstOccurrence = communicationGoal ? null : new CanonicalFirstOccurrence();
         for (var entry : inspected) {
             // Curriculum membership is not Smart Test remediation: never discard 2–4 real lesson words.
             // A single distinct word cannot yield a valid same-lesson choice question, so surface the
@@ -86,7 +88,8 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                         "VOCAB_QUIZ_DISTRACTOR_NOT_READY"));
                 continue;
             }
-            var activities = activitiesFor(entry.getValue(), dailyBudget, communicationGoal);
+            var activities = activitiesFor(firstOccurrence == null ? entry.getValue() : firstOccurrence.keepFirst(entry.getValue()),
+                    dailyBudget, communicationGoal);
             if (activities.isEmpty()) {
                 gaps.add(new CoverageGap("LESSON:" + entry.getValue().lesson().getId(), "NO_LEARNABLE_CONTENT"));
                 continue;

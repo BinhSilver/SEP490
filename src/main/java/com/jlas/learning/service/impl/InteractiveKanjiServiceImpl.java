@@ -50,6 +50,9 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
 
     private final InteractiveStudyEngine<KanjiEntry> engine;
     private final KanjiGlossCatalog gloss;
+    /** OD-D2-05: "Ôn" Kanji of a deduplicated JLPT chapter; absent in slice tests. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private LessonReviewLookup reviewLookup;
 
     public InteractiveKanjiServiceImpl(UserLearningPathItemRepository items, LearningActivityMemberRepository members,
             LearningStudySessionRepository studySessions, LearningStudyCardRepository studyCards,
@@ -162,7 +165,8 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
         boolean anyGloss = cards.stream().anyMatch(card -> card.meaningEn() != null);
         return new KanjiStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
-                s.partIndex(), s.partCount(), anyGloss ? gloss.attribution() : null);
+                s.partIndex(), s.partCount(), anyGloss ? gloss.attribution() : null,
+                reviewLookup == null ? List.of() : reviewLookup.kanji(s.activityId()));
     }
 
     /** Canonical Kanji + its On/Kun readings, loaded once per batch — never fabricated when absent. */

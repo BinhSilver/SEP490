@@ -22,10 +22,19 @@ public record KanjiStudyState(
         int partIndex,
         int partCount,
         /** Owner 2026-10-21 (OD-13): credit line for the English meanings shown on the cards; null when none is shown. */
-        String meaningAttribution
+        String meaningAttribution,
+        /** OD-D2-05: Kanji of this chapter already learnt in an earlier one ("Ôn"); never cards, never checked. */
+        List<LessonReviewItem> reviewItems
 ) {
     public KanjiStudyState {
         cards = List.copyOf(cards);
+        reviewItems = reviewItems == null ? List.of() : List.copyOf(reviewItems);
+    }
+    public KanjiStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
+            String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
+            boolean checkEligible, List<KanjiStudyCard> cards, int partIndex, int partCount, String meaningAttribution) {
+        this(activityId, activityType, activityState, sourceRevision, totalCards, flippedCount, rememberedCount,
+                reviewRemaining, checkEligible, cards, partIndex, partCount, meaningAttribution, List.of());
     }
     public KanjiStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
             String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,

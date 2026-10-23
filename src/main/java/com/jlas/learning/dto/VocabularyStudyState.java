@@ -19,10 +19,19 @@ public record VocabularyStudyState(
         List<VocabularyStudyCard> cards,
         /** [JLAS-W0125] "Phần x / n" among same-skill parts of the package; 1/1 when not split. */
         int partIndex,
-        int partCount
+        int partCount,
+        /** OD-D2-05: words of this chapter already learnt in an earlier one ("Ôn"); never cards, never checked. */
+        List<LessonReviewItem> reviewItems
 ) {
     public VocabularyStudyState {
         cards = List.copyOf(cards);
+        reviewItems = reviewItems == null ? List.of() : List.copyOf(reviewItems);
+    }
+    public VocabularyStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
+            String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
+            boolean checkEligible, boolean checkRequired, List<VocabularyStudyCard> cards, int partIndex, int partCount) {
+        this(activityId, activityType, activityState, sourceRevision, totalCards, flippedCount, rememberedCount,
+                reviewRemaining, checkEligible, checkRequired, cards, partIndex, partCount, List.of());
     }
     public VocabularyStudyState(Long activityId, LearningActivityType activityType, LearningActivityState activityState,
             String sourceRevision, int totalCards, int flippedCount, int rememberedCount, int reviewRemaining,
