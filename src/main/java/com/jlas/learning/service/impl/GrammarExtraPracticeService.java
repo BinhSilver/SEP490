@@ -12,6 +12,7 @@ import com.jlas.learning.enums.LearningActivityType;
 import com.jlas.learning.enums.LearningMemberType;
 import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
+import com.jlas.learning.service.impl.grammar.GrammarExampleHold;
 import com.jlas.learning.service.impl.grammar.GrammarPhraseSegmenter;
 import com.jlas.learning.service.impl.grammar.GrammarPhraseSegmenter.Practice;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,7 @@ public class GrammarExtraPracticeService {
     private List<GrammarExtraPractice.Item> sentences(GrammarPoint point) {
         String pattern = point.getPattern();
         String example = firstLine(point.getExample());
+        if (GrammarExampleHold.held(pattern, example)) example = null;
         JsonNode reply = ai.generateJson(SYSTEM_PROMPT, userPrompt(pattern, firstLine(point.getMeaning()), example));
         JsonNode list = reply == null ? null : reply.path("items");
         if (list == null || !list.isArray()) return List.of();

@@ -47,7 +47,9 @@ public record GrammarStudyState(
             String note,
             OrderingPractice ordering,
             FillPractice fill,
-            boolean gateSatisfied
+            boolean gateSatisfied,
+            /** The canonical example is held for review: no example or practice is shown for this point. */
+            boolean exampleUnderReview
     ) {
         public GrammarPointView {
             components = List.copyOf(components);

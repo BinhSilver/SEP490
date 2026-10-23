@@ -153,10 +153,13 @@
       '<header class="ilp-point__head"><div><span class="ilp-point__index">Mẫu ' + (index + 1) + '/' + total + '</span>' +
       '<h2 lang="ja">' + esc(point.pattern) + '</h2>' +
       (point.objective ? '<p class="ilp-point__meaning"><span>Nghĩa</span>' + esc(point.objective) + '</p>' : '') + '</div>' +
-      '<span class="ilp-point__gate' + (gate ? ' is-done' : '') + '">' + (gate ? 'Đã luyện xong' : 'Cần luyện tập') + '</span>' +
+      '<span class="ilp-point__gate' + (gate ? ' is-done' : '') + '">' +
+        (gate ? 'Đã luyện xong' : point.exampleUnderReview ? 'Chưa có bài luyện' : 'Cần luyện tập') + '</span>' +
       '</header>' +
       (facts ? '<dl class="ilp-point__facts">' + facts + '</dl>' : '') +
       '<h3 class="ilp-point__practice-title">Luyện tập</h3>' +
+      (point.exampleUnderReview ? '<p class="ilp-gate-note" role="note" data-example-under-review>Câu ví dụ của mẫu này ' +
+        'đang được rà soát nên phần xếp câu và điền từ tạm ẩn. Bạn vẫn học được nghĩa, cách dùng và làm bài kiểm tra.</p>' : '') +
       renderOrdering(point.pointId, point.ordering, orderState, feedback && (feedback.ordering || feedback.explanation && feedback), readOnly) +
       renderFill(point.pointId, point.fill, feedback && feedback.fill, readOnly) +
       (readOnly ? '' : renderExtra(point.pointId, extra)) +
