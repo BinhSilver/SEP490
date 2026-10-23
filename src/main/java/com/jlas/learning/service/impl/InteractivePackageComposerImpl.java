@@ -91,8 +91,10 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                 gaps.add(new CoverageGap("LESSON:" + entry.getValue().lesson().getId(), "NO_LEARNABLE_CONTENT"));
                 continue;
             }
-            lessonPlans.add(new LessonWorkPlan(entry.getKey(), entry.getValue(),
-                    workloadPacker.pack(activities, dailyBudget)));
+            lessonPlans.add(new LessonWorkPlan(entry.getKey(), entry.getValue(), communicationGoal
+                    ? workloadPacker.pack(activities, dailyBudget)
+                    : workloadPacker.pack(activities, dailyBudget, LearningWorkloadPolicy.JLPT_DAILY_MEMBER_LIMITS,
+                            LearningWorkloadPolicy.JLPT_DAILY_ACTIVITY_LIMITS)));
         }
         if (!gaps.isEmpty()) return new InteractiveCompositionResult(false, 0, gaps);
 
@@ -180,7 +182,8 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                     snapshot.kanjiIds(), dailyBudget);
         }
         addActivities(result, LearningActivityType.GRAMMAR, LearningMemberType.GRAMMAR_POINT,
-                snapshot.grammarPointIds(), dailyBudget);
+                snapshot.grammarPointIds(), dailyBudget,
+                communicationGoal ? Integer.MAX_VALUE : LearningWorkloadPolicy.JLPT_MAX_GRAMMAR_POINTS_PER_DAY);
         addActivities(result, LearningActivityType.DIALOGUE, LearningMemberType.DIALOGUE_LINE,
                 snapshot.dialogueLineIds(), dailyBudget);
         if (!communicationGoal && !snapshot.readingQuestionIds().isEmpty()) {
@@ -226,7 +229,12 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
 
     private void addActivities(List<LearningWorkloadPolicy.ActivityPlan> output, LearningActivityType type,
             LearningMemberType memberType, List<Long> memberIds, int dailyBudget) {
-        for (List<Long> group : workloadPolicy.partition(type, memberIds, dailyBudget)) {
+        addActivities(output, type, memberType, memberIds, dailyBudget, Integer.MAX_VALUE);
+    }
+
+    private void addActivities(List<LearningWorkloadPolicy.ActivityPlan> output, LearningActivityType type,
+            LearningMemberType memberType, List<Long> memberIds, int dailyBudget, int memberCap) {
+        for (List<Long> group : workloadPolicy.partition(type, memberIds, dailyBudget, memberCap)) {
             output.add(new LearningWorkloadPolicy.ActivityPlan(type, memberType, group,
                     workloadPolicy.estimateMinutes(type, group.size())));
         }

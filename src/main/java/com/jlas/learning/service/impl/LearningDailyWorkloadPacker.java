@@ -25,25 +25,38 @@ public final class LearningDailyWorkloadPacker {
 
     public List<PackageSegment> pack(List<ActivityPlan> activities, int dailyMinutes,
             Map<LearningActivityType, Integer> dailyMemberLimits) {
+        return pack(activities, dailyMinutes, dailyMemberLimits, Map.of());
+    }
+
+    /** {@code dailyActivityLimits} caps how many activities of a type one day holds (e.g. one reading exercise). */
+    public List<PackageSegment> pack(List<ActivityPlan> activities, int dailyMinutes,
+            Map<LearningActivityType, Integer> dailyMemberLimits,
+            Map<LearningActivityType, Integer> dailyActivityLimits) {
         if (activities == null || dailyMinutes <= 0) {
             throw new IllegalArgumentException("Activities and a positive daily budget are required.");
         }
         Map<LearningActivityType, Integer> limits = dailyMemberLimits == null
                 ? Map.of() : dailyMemberLimits;
+        Map<LearningActivityType, Integer> activityLimits = dailyActivityLimits == null
+                ? Map.of() : dailyActivityLimits;
         if (activities.isEmpty()) return List.of();
         List<PackageSegment> segments = new ArrayList<>();
         List<ActivityPlan> current = new ArrayList<>();
         Map<LearningActivityType, Integer> memberCounts = new EnumMap<>(LearningActivityType.class);
+        Map<LearningActivityType, Integer> activityCounts = new EnumMap<>(LearningActivityType.class);
         int currentMinutes = 0;
         for (ActivityPlan activity : activities) {
             if (activity == null || activity.estimatedMinutes() > dailyMinutes) {
                 throw new IllegalArgumentException("Every atomic activity must fit the selected daily budget.");
             }
+            Integer activityLimit = activityLimits.get(activity.activityType());
             if (!current.isEmpty() && (currentMinutes + activity.estimatedMinutes() > dailyMinutes
-                    || exceedsQuota(activity, memberCounts, limits))) {
+                    || exceedsQuota(activity, memberCounts, limits)
+                    || activityLimit != null && activityCounts.getOrDefault(activity.activityType(), 0) >= activityLimit)) {
                 segments.add(new PackageSegment(current, currentMinutes));
                 current = new ArrayList<>();
                 memberCounts.clear();
+                activityCounts.clear();
                 currentMinutes = 0;
             }
             Integer quota = limits.get(activity.activityType());
@@ -52,6 +65,7 @@ public final class LearningDailyWorkloadPacker {
             }
             current.add(activity);
             memberCounts.merge(activity.activityType(), activity.memberIds().size(), Integer::sum);
+            activityCounts.merge(activity.activityType(), 1, Integer::sum);
             currentMinutes += activity.estimatedMinutes();
         }
         if (!current.isEmpty()) segments.add(new PackageSegment(current, currentMinutes));

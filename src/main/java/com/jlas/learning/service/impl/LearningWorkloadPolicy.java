@@ -8,12 +8,19 @@ import com.jlas.learning.enums.LearningMemberType;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 /** Central planning estimate for mandatory study, flashcards, and one required quiz pass. */
 public final class LearningWorkloadPolicy {
     private static final int QUIZ_BATCH_SIZE = 10;
     private static final int QUIZ_MINUTES_PER_BATCH = 3;
     private static final int MAX_FLASHCARD_PART_SIZE = 15;
+    /** Spec §2.4: a JLPT day holds at most three grammar points, one reading and one listening exercise. */
+    public static final int JLPT_MAX_GRAMMAR_POINTS_PER_DAY = 3;
+    public static final Map<LearningActivityType, Integer> JLPT_DAILY_MEMBER_LIMITS =
+            Map.of(LearningActivityType.GRAMMAR, JLPT_MAX_GRAMMAR_POINTS_PER_DAY);
+    public static final Map<LearningActivityType, Integer> JLPT_DAILY_ACTIVITY_LIMITS =
+            Map.of(LearningActivityType.READING, 1, LearningActivityType.LISTENING, 1);
 
     public record ActivityPlan(LearningActivityType activityType, LearningMemberType memberType,
             List<Long> memberIds, int estimatedMinutes) {
@@ -68,8 +75,14 @@ public final class LearningWorkloadPolicy {
     }
 
     public List<List<Long>> partition(LearningActivityType type, List<Long> canonicalIds, int dailyMinutes) {
+        return partition(type, canonicalIds, dailyMinutes, Integer.MAX_VALUE);
+    }
+
+    /** As {@link #partition(LearningActivityType, List, int)}, with no activity larger than {@code memberCap}. */
+    public List<List<Long>> partition(LearningActivityType type, List<Long> canonicalIds, int dailyMinutes, int memberCap) {
         if (canonicalIds == null) throw new IllegalArgumentException("Canonical member ids are required.");
-        int maxMembers = maxMembersPerActivity(type, dailyMinutes);
+        if (memberCap <= 0) throw new IllegalArgumentException("The member cap must be positive.");
+        int maxMembers = Math.min(maxMembersPerActivity(type, dailyMinutes), memberCap);
         LinkedHashSet<Long> distinct = new LinkedHashSet<>(canonicalIds);
         if (distinct.contains(null)) throw new IllegalArgumentException("Canonical member ids cannot contain null.");
         List<Long> ids = List.copyOf(distinct);
