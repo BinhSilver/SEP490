@@ -236,6 +236,20 @@ public class DictionaryController {
                 dictionaryService.updateLessonStatus(id, request.getStatus())));
     }
 
+    /**
+     * POST /api/dictionary/manage/status/bulk — [JLAS2-17] công bố / ẩn về nháp hàng loạt giáo trình hoặc bài học
+     * (≤ 500 id mỗi lần, một transaction: lỗi thì không đổi gì). Chỉ THÊM, hai PATCH từng mục ở trên giữ nguyên.
+     */
+    @PostMapping("/manage/status/bulk")
+    @PreAuthorize("hasRole('CONTENT_CREATOR')")
+    public ResponseEntity<ApiResponse<com.jlas.dictionary.dto.BulkStatusResponse>> bulkUpdateStatus(
+            @Valid @RequestBody com.jlas.dictionary.dto.BulkStatusRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        com.jlas.dictionary.dto.BulkStatusResponse result = dictionaryService.bulkUpdateStatus(
+                request.getKind(), request.getAction(), request.getIds(), user == null ? null : user.userId());
+        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật " + result.getUpdated() + " mục", result));
+    }
+
     /** GET /api/dictionary/lessons/{id}/content — nội dung đầy đủ một bài học. */
     @GetMapping("/lessons/{id}/content")
     public ResponseEntity<ApiResponse<LessonContentResponse>> getLessonContent(@PathVariable Long id) {
@@ -578,16 +592,19 @@ public class DictionaryController {
     /**
      * POST /api/dictionary/lessons/{lessonId}/import — nhập từ vựng, ngữ pháp + ví dụ, hội thoại, kanji từ
      * file .xlsx (multipart, field "file"). Tất cả hoặc không: file có dòng lỗi thì không lưu gì và trả
-     * {@code imported = false} kèm danh sách lỗi theo sheet/dòng.
+     * {@code imported = false} kèm danh sách lỗi theo sheet/dòng. {@code dryRun=true} ([JLAS2-17]): chỉ đọc + kiểm tra,
+     * trả tóm tắt sẽ nhập ({@code dryRun = true}, các bộ đếm) và lỗi, KHÔNG ghi gì — trang biên soạn dùng để xem trước.
      */
     @PostMapping(value = "/lessons/{lessonId}/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CONTENT_CREATOR')")
     public ResponseEntity<ApiResponse<LessonImportResult>> importLesson(@PathVariable Long lessonId,
-                                                                        @RequestParam("file") MultipartFile file) {
-        LessonImportResult result = lessonImportService.importLesson(lessonId, file);
-        return ResponseEntity.ok(ApiResponse.ok(
-                result.isImported() ? "Đã nhập nội dung từ file" : "File có lỗi, chưa nhập dữ liệu nào",
-                result));
+                                                                        @RequestParam("file") MultipartFile file,
+                                                                        @RequestParam(value = "dryRun", defaultValue = "false") boolean dryRun) {
+        LessonImportResult result = lessonImportService.importLesson(lessonId, file, dryRun);
+        String message = dryRun
+                ? (result.getErrors().isEmpty() ? "Kiểm tra file xong, chưa nhập gì" : "File có lỗi")
+                : (result.isImported() ? "Đã nhập nội dung từ file" : "File có lỗi, chưa nhập dữ liệu nào");
+        return ResponseEntity.ok(ApiResponse.ok(message, result));
     }
 
     /** GET /api/dictionary/manage/lessons/import-template — tải file Excel mẫu để nhập nội dung bài học. */

@@ -124,7 +124,9 @@
       shell.user = payload.data;
       auth.setSession(null, null, shell.user);
       var pathname = global.location.pathname.replace(/\/$/, '') || '/';
-      var route = /^\/textbooks\/lessons\/\d+\/edit$/.test(pathname) ? '/textbooks/manage' : pathname;
+      // Trang con của "Giáo trình và bài học" (soạn bài, tạo giáo trình, thêm bài) tô sáng mục /textbooks/manage.
+      var route = /^\/textbooks\/(lessons\/\d+\/edit|manage\/new|manage\/\d+\/lessons\/new)$/.test(pathname)
+        ? '/textbooks/manage' : pathname;
       admin.MODULES.forEach(function (group) {
         group.items.forEach(function (item) { if (item.href === route) current = item; });
       });

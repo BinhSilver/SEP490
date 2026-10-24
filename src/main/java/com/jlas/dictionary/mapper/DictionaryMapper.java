@@ -37,6 +37,7 @@ public class DictionaryMapper {
                 .version(textbook.getVersion())
                 .unitCount(unitCount)
                 .topicBased(topicBased)
+                .updatedAt(textbook.getUpdatedAt())
                 .build();
     }
 
