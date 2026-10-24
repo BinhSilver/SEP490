@@ -1,6 +1,6 @@
 import { assetUrl } from '../assets';
 import { CatPlayer } from '../types/game';
-import { catActionsReady, drawCatAction, drawCharacterPortrait, hasCatActions, preloadCatActions, prepareCatActions } from './CatActionAtlas';
+import { catActionsReady, catPackLoading, drawCatAction, drawCharacterPortrait, hasCatActions, loadCatPack, preloadCatActions, prepareCatActions } from './CatActionAtlas';
 import { prepareImage, spriteImage } from './ImageAssets';
 import { SpriteRenderer } from './SpriteRenderer';
 
@@ -54,11 +54,19 @@ export function skinFromCode(code: string | null | undefined): CatSkinId {
 }
 
 const shopVisuals = new Map<number, { skin: number; image?: string; name: string }>();
-export function registerShopSkins(items: { id: number; code: string; renderCode: string; image: string; name: string }[]) {
+/** Nhân vật dựng từ gói skin tải lên: mã riêng, không trùng nhân vật gốc (0–6) hay trang phục cửa hàng (10000+). */
+const PACK_SKIN_BASE = 20000;
+export function registerShopSkins(items: { id: number; code: string; renderCode: string; image: string; name: string; packPath?: string | null }[]) {
   for (const item of items) {
     const existing = Object.entries(SKIN_CODES).find(([, code]) => code === item.code);
     const id = existing ? Number(existing[0]) : 10000 + item.id;
     SKIN_CODES[id] = item.code;
+    if (item.renderCode === 'PACK' && item.packPath) {
+      const packSkin = PACK_SKIN_BASE + item.id;
+      shopVisuals.set(id, { skin: packSkin, name: item.name });
+      void loadCatPack(packSkin, item.packPath);
+      continue;
+    }
     const builtin = CAT_SKINS.find(skin => SKIN_CODES[skin.id] === item.renderCode)?.id ?? 0;
     shopVisuals.set(id, { skin: builtin, image: item.renderCode === 'CUSTOM' ? item.image : undefined, name: item.name });
   }
@@ -133,6 +141,7 @@ export class CatSpriteSheet {
     const visual = skinVisual(skin);
     if (visual.image) { await prepareImage(visual.image); return; }
     skin = visual.skin;
+    await catPackLoading(skin);
     if (hasCatActions(skin)) await prepareCatActions(skin);
     else {
       this.baseImage = await prepareImage(ORIGINAL_SHEET_PATH);
