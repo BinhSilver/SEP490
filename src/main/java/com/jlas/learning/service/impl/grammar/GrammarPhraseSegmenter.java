@@ -15,6 +15,10 @@ import java.util.Set;
  * text becomes one chunk of its own and is the fill-blank answer. Deterministic, no AI. */
 public final class GrammarPhraseSegmenter {
     public static final int MAX_PARTS = 8;
+    /** Owner 2026-10-23: a tile this long reads as several words stuck together; it is cut again at word level. */
+    public static final int LONG_TILE = 9;
+    /** Longest text (letters, punctuation excluded) practised as one ordering exercise. */
+    static final int MAX_WINDOW = 36;
     private static final String BLANK = "_____";
     private static final String PUNCTUATION_ONLY = "[、。！？「」…・\\s]+";
     private static final Set<String> CONTENT = Set.of("名詞", "動詞", "形容詞", "副詞", "連体詞", "接続詞", "感動詞", "接頭詞");
@@ -55,7 +59,7 @@ public final class GrammarPhraseSegmenter {
             return new Practice(words, GrammarTextAnalyzer.chooseBlankIndex(words), true);
         }
         String core = patternCore(pattern);
-        Match match = locate(text, core);
+        Match match = window(locate(text, core));
         String sentence = match.sentence();
         List<int[]> spans = chunkSpans(sentence, false);
         if (spans.size() < 3) spans = chunkSpans(sentence, true);
@@ -64,9 +68,11 @@ public final class GrammarPhraseSegmenter {
         boolean isolatePattern = match.exact() && match.length() * 10 < letters(sentence) * 6;
         if (isolatePattern) {
             spans = isolate(spans, match.start(), match.start() + match.length());
+            spans = refineLong(spans, sentence, match.start(), match.start() + match.length());
             spans = capParts(spans, match.start());
             blank = indexOfStart(spans, match.start());
         } else {
+            spans = refineLong(spans, sentence, match.start(), match.start() < 0 ? -1 : match.start() + match.length());
             spans = capParts(spans, -1);
             blank = match.start() < 0 ? -1 : indexContaining(spans, match.start() + match.length() - 1);
         }
@@ -115,6 +121,28 @@ public final class GrammarPhraseSegmenter {
     }
 
     private static int letters(String sentence) { return sentence.replaceAll("[、。！？「」]", "").length(); }
+
+    /** Owner 2026-10-23 ("dính liền"): a long business sentence cut into at most {@link #MAX_PARTS} tiles leaves whole
+     * phrases glued together. Practise the clauses (split at 、) around the pattern instead, preferring earlier clauses
+     * so the practised text keeps the sentence ending; the full example stays in the lesson above the exercise. */
+    private static Match window(Match match) {
+        String sentence = match.sentence();
+        if (match.start() < 0 || letters(sentence) <= MAX_WINDOW) return match;
+        List<int[]> clauses = new ArrayList<>();
+        int from = 0;
+        for (int i = 0; i < sentence.length(); i++) {
+            if (sentence.charAt(i) == '、') { clauses.add(new int[]{from, i + 1}); from = i + 1; }
+        }
+        if (from < sentence.length()) clauses.add(new int[]{from, sentence.length()});
+        int first = indexContaining(clauses, match.start());
+        int last = indexContaining(clauses, Math.max(match.start(), match.start() + match.length() - 1));
+        if (first < 0 || last < 0) return match;
+        while (first > 0 && letters(sentence.substring(clauses.get(first - 1)[0], clauses.get(last)[1])) <= MAX_WINDOW) first--;
+        while (last + 1 < clauses.size() && letters(sentence.substring(clauses.get(first)[0], clauses.get(last + 1)[1])) <= MAX_WINDOW) last++;
+        int start = clauses.get(first)[0], end = clauses.get(last)[1];
+        if (start == 0 && end == sentence.length()) return match;
+        return new Match(sentence.substring(start, end), match.start() - start, match.length(), match.exact());
+    }
 
     /** The longest literal piece of a pattern such as "〜を担当いたします" or "私、〇〇が承りました". */
     /** "をお願いします" → "お願いします"; a pattern that starts with a content word is returned unchanged. */
@@ -190,7 +218,8 @@ public final class GrammarPhraseSegmenter {
         return cuts;
     }
 
-    /** Merges the shortest neighbouring pair (never the pattern chunk) until at most {@link #MAX_PARTS} remain. */
+    /** Merges the shortest neighbouring pair (never the pattern chunk) until at most {@link #MAX_PARTS} remain; a merge that
+     * stays under {@link #LONG_TILE} is preferred over one that would glue words back into a long tile. */
     private static List<int[]> capParts(List<int[]> spans, int coreStart) {
         List<int[]> parts = new ArrayList<>(spans);
         while (parts.size() > MAX_PARTS) {
@@ -198,7 +227,8 @@ public final class GrammarPhraseSegmenter {
             for (int i = 0; i + 1 < parts.size(); i++) {
                 if (coreStart >= 0 && (parts.get(i)[0] == coreStart || parts.get(i + 1)[0] == coreStart)) continue;
                 int length = parts.get(i + 1)[1] - parts.get(i)[0];
-                if (length < bestLength) { best = i; bestLength = length; }
+                int rank = length < LONG_TILE ? length : length + 1000;
+                if (rank < bestLength) { best = i; bestLength = rank; }
             }
             if (best < 0) break;
             parts.set(best, new int[]{parts.get(best)[0], parts.get(best + 1)[1]});
@@ -207,13 +237,31 @@ public final class GrammarPhraseSegmenter {
         return parts;
     }
 
-    /** A chunk of punctuation only (left over after isolating the pattern) joins the chunk before it. */
+    /** Long tiles outside the pattern [patternStart, patternEnd) are re-cut with the fine rules; a tile that does not
+     * split into at least two pieces stays as it was. */
+    private static List<int[]> refineLong(List<int[]> spans, String sentence, int patternStart, int patternEnd) {
+        List<int[]> out = new ArrayList<>();
+        for (int[] span : spans) {
+            boolean holdsPattern = patternStart >= 0 && span[0] < patternEnd && patternStart < span[1];
+            String piece = sentence.substring(span[0], span[1]);
+            List<int[]> fine = holdsPattern || letters(piece) < LONG_TILE ? List.of() : chunkSpans(piece, true);
+            if (fine.size() < 2) { out.add(span); continue; }
+            for (int[] part : fine) out.add(new int[]{span[0] + part[0], span[0] + part[1]});
+        }
+        return out;
+    }
+
+    /** A chunk of punctuation only (left over after isolating the pattern) joins the chunk before it, and a chunk that
+     * starts with 、/。 (a merge across the pattern's edge, "、工数と") hands that punctuation back to the chunk before. */
     private static List<int[]> attachPunctuation(List<int[]> spans, String sentence) {
         List<int[]> out = new ArrayList<>();
         for (int[] span : spans) {
             boolean punctuation = sentence.substring(span[0], span[1]).matches(PUNCTUATION_ONLY);
-            if (punctuation && !out.isEmpty()) out.get(out.size() - 1)[1] = span[1];
-            else out.add(new int[]{span[0], span[1]});
+            if (punctuation && !out.isEmpty()) { out.get(out.size() - 1)[1] = span[1]; continue; }
+            int start = span[0];
+            while (!out.isEmpty() && start < span[1] - 1 && "、。！？".indexOf(sentence.charAt(start)) >= 0) start++;
+            if (start > span[0]) out.get(out.size() - 1)[1] = start;
+            out.add(new int[]{start, span[1]});
         }
         if (out.size() > 1 && sentence.substring(out.get(0)[0], out.get(0)[1]).matches(PUNCTUATION_ONLY)) {
             out.get(1)[0] = out.get(0)[0];
