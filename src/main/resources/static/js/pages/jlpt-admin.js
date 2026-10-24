@@ -48,6 +48,10 @@ window.AdminShell.ready.then(function (allowed) {
   function countQuestions(content) { return allQuestions(content).length; }
 
   function bindEvents() {
+    if (window.Admin && window.Admin.filterPopover) {
+      window.Admin.filterPopover(document.querySelector('.jlpt-admin__filters'));
+      window.Admin.filterPopover(document.querySelector('.jlpt-admin__question-toolbar'));
+    }
     document.querySelectorAll('[data-dialog-close]').forEach(function (button) { button.addEventListener('click', function () { var dialog = button.closest('dialog'); if (dialog) dialog.close('cancel'); }); });
     $('examSearch').addEventListener('input', renderCatalog); $('levelFilter').addEventListener('change', renderCatalog); $('statusFilter').addEventListener('change', renderCatalog);
     $('createExamButton').addEventListener('click', function () { openExamDialog(); });

@@ -6,7 +6,7 @@
 <main id="jlabBaseContent" class="jlpt-admin" hidden>
     <section id="catalogView" class="jlpt-admin-view">
         <header class="jlpt-admin-hero">
-            <div><span class="jlpt-admin__eyebrow">CONTENT CREATOR</span><h1>Quản lý đề JLPT</h1><p>Tạo đề, biên tập câu hỏi và kiểm soát nội dung trước khi phát hành.</p></div>
+            <div><span class="jlpt-admin__eyebrow">NGƯỜI BIÊN SOẠN</span><h1>Quản lý đề JLPT</h1><p>Tạo đề, biên tập câu hỏi và kiểm soát nội dung trước khi phát hành.</p></div>
             <div class="jlpt-admin-editor-hero__actions"><a class="jlpt-admin-button is-secondary" href="/admin/jlpt/practice-types"><span class="material-symbols-outlined">tune</span>Quản lý dạng luyện</a><button id="createExamButton" class="jlpt-admin-button is-primary" type="button"><span class="material-symbols-outlined">add</span>Tạo đề mới</button></div>
         </header>
         <section class="jlpt-admin-overview" aria-label="Tổng quan nội dung">
@@ -17,8 +17,8 @@
                 <div><h2>Danh sách đề</h2><p>Chọn “Soạn nội dung” để quản lý cấu trúc và câu hỏi.</p></div>
                 <div class="jlpt-admin__filters">
                     <label class="jlpt-admin-search"><span class="material-symbols-outlined">search</span><input id="examSearch" type="search" placeholder="Tìm tên hoặc mã đề" /></label>
-                    <select id="levelFilter" aria-label="Lọc cấp độ"><option value="">Mọi cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
-                    <select id="statusFilter" aria-label="Lọc trạng thái"><option value="">Mọi trạng thái</option><option value="PUBLISHED">Đã phát hành</option><option value="DRAFT">Bản nháp</option><option value="ARCHIVED">Đã ẩn</option></select>
+                    <select id="levelFilter" aria-label="Cấp độ"><option value="">Mọi cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+                    <select id="statusFilter" aria-label="Trạng thái"><option value="">Mọi trạng thái</option><option value="PUBLISHED">Đã phát hành</option><option value="DRAFT">Bản nháp</option><option value="ARCHIVED">Đã ẩn</option></select>
                 </div>
             </div>
             <div id="examList" class="jlpt-admin__exam-list"></div>
@@ -37,7 +37,7 @@
             <div class="jlpt-admin__editor">
                 <header class="jlpt-admin__editor-head"><div><span id="editorBreadcrumb">Tất cả nội dung</span><h2 id="editorTitle">Nội dung đề thi</h2><p id="editorDescription"></p></div></header>
                 <div class="jlpt-admin__editor-summary"><span><b id="visibleQuestionCount">0</b> câu</span><span><b id="completeQuestionCount">0</b> hoàn chỉnh</span><span class="is-warning"><b id="missingAnswerCount">0</b> thiếu đáp án</span></div>
-                <div class="jlpt-admin__question-toolbar"><label class="jlpt-admin-search"><span class="material-symbols-outlined">search</span><input id="questionSearch" type="search" placeholder="Tìm nội dung câu hỏi" /></label><select id="qualityFilter"><option value="">Mọi câu hỏi</option><option value="complete">Hoàn chỉnh</option><option value="missing">Thiếu đáp án đúng</option><option value="media">Có hình hoặc audio</option></select></div>
+                <div class="jlpt-admin__question-toolbar"><label class="jlpt-admin-search"><span class="material-symbols-outlined">search</span><input id="questionSearch" type="search" placeholder="Tìm nội dung câu hỏi" /></label><select id="qualityFilter" aria-label="Câu hỏi"><option value="">Mọi câu hỏi</option><option value="complete">Hoàn chỉnh</option><option value="missing">Thiếu đáp án đúng</option><option value="media">Có hình hoặc audio</option></select></div>
                 <div id="questionList" class="jlpt-admin__question-list"></div>
                 <div id="questionEmpty" class="jlpt-admin-empty" hidden><span class="material-symbols-outlined">quiz</span><strong>Chưa có câu hỏi</strong><p>Thêm câu mới vào mục đang chọn.</p></div>
             </div>
@@ -63,7 +63,7 @@
 
 <dialog id="confirmDialog" class="jlpt-admin-confirm"><form method="dialog"><div class="jlpt-admin-confirm__mascot"><img src="/images/mascots/kitsu/kitsu-crying-30.webp" alt="Linh vật Kitsu" /></div><span class="jlpt-admin__eyebrow">XÁC NHẬN THAO TÁC</span><h2 id="confirmTitle">Bạn có chắc không?</h2><p id="confirmMessage"></p><footer><button class="jlpt-admin-button is-secondary" value="cancel">Quay lại</button><button id="confirmActionButton" class="jlpt-admin-button is-primary" value="confirm">Xác nhận</button></footer></form></dialog>
 <div id="adminToast" class="jlpt-admin-toast" role="status" aria-live="polite" hidden></div>
-<script th:src="@{/js/pages/admin-core.js}"></script>
-<script th:src="@{/js/admin-shell.js}"></script>
-<script th:src="@{/js/pages/jlpt-admin.js?v=7}"></script>
+<script th:src="@{/js/pages/admin-core.js(v=20261024-filters)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261024-navscroll)}"></script>
+<script th:src="@{/js/pages/jlpt-admin.js?v=8}"></script>
 </body></html>
