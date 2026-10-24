@@ -33,10 +33,19 @@ public class AvatarFrameCatalogService {
     private final AvatarFrameCatalogRepository repository;
     private volatile List<Frame> cache;
 
+    /**
+     * {@code gems}: vị trí hiệu ứng riêng của khung (JSON {big, gems, orbs, drips}, từ gói khung). Null = giữ nguyên nếu
+     * không đổi ảnh; chuỗi rỗng = không có hiệu ứng riêng.
+     */
     public record FrameInput(@NotBlank @Pattern(regexp = "frame-[a-z0-9][a-z0-9-]{1,33}") String code,
                              @NotBlank @Size(max = 100) String name, @Size(max = 500) String description,
                              @Min(0) @Max(1000000) int price, @NotBlank @Size(max = 1024) String image,
-                             @NotBlank String theme, @Min(0) @Max(9999) int sortOrder, boolean active) {
+                             @NotBlank String theme, @Min(0) @Max(9999) int sortOrder, boolean active,
+                             @Size(max = 8000) String gems) {
+        public FrameInput(String code, String name, String description, int price, String image, String theme,
+                          int sortOrder, boolean active) {
+            this(code, name, description, price, image, theme, sortOrder, active, null);
+        }
     }
 
     /** Mọi khung chưa xoá (kể cả đã ẩn: người đã mua vẫn đeo). */
@@ -103,8 +112,9 @@ public class AvatarFrameCatalogService {
         if (!image.matches(IMAGE_PATTERN)) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn ảnh khung có sẵn hoặc tải ảnh PNG lên");
         }
-        // Toạ độ đá được đo trên đúng ảnh gốc: đổi ảnh thì bỏ, khung mới vẫn có mọi hiệu ứng khác.
-        String gems = current != null && current.image().equals(image) ? current.gemsJson() : null;
+        // Vị trí hiệu ứng đo trên đúng một ảnh: gói khung gửi kèm; không gửi thì chỉ giữ khi ảnh không đổi.
+        String gems = input.gems() != null ? AvatarFramePackService.normalizeGems(input.gems())
+                : current != null && current.image().equals(image) ? current.gemsJson() : null;
         return new Frame(current == null ? 0 : current.id(), input.code(), input.name().trim(),
                 input.description() == null ? "" : input.description().trim(), input.price(), image,
                 input.theme(), input.theme(), label, gems, input.sortOrder(), input.active(), false);
