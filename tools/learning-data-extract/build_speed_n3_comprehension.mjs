@@ -91,7 +91,7 @@ export function parseListening(text) {
   return { script, translation, key: Number.isInteger(key) && key > 0 ? key : null, prompt: clean(prompt) };
 }
 
-function checkQuestion(q, keyInText) {
+export function checkQuestion(q, keyInText) {
   const c = q.content ?? {};
   const options = (q.options ?? []).map((o) => clean(o.content?.noi_dung));
   const flagged = (q.options ?? []).map((o, i) => (o.content?.la_dap_an === true ? i + 1 : 0)).filter(Boolean);

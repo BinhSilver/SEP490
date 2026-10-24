@@ -38,8 +38,8 @@ public record ComprehensionExercise(
                 transcriptJa, null);
     }
 
-    /** Speed Master N3 passages and clips belong to their J-LAS N3 chapter (review 2026-10-20), not to warm-ups. */
-    public boolean chapterBoundSpeedN3() {
-        return ownedSourceGroup != null && ownedSourceGroup.startsWith("LP-OWNED-SPEED-N3-");
+    /** Speed Master passages and clips belong to their chapter (N3 review 2026-10-20, N5/N4 OD-08 2026-10-24), not to warm-ups. */
+    public boolean chapterBoundSpeedMaster() {
+        return ownedSourceGroup != null && ownedSourceGroup.startsWith("LP-OWNED-SPEED-");
     }
 }

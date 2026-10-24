@@ -93,6 +93,10 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
             // Preserve existing N5 paths until the Learning-owned Minna reading bundle is applied.
             readingIds = ownedSekaiComprehensionIds(lesson, expectedLevel, "READING", gaps, key);
         }
+        List<Long> speedReadingIds = ownedSpeedN5N4ReadingIds(lesson, expectedLevel, gaps, key);
+        if (!speedReadingIds.isEmpty()) {
+            readingIds = java.util.stream.Stream.concat(readingIds.stream(), speedReadingIds.stream()).distinct().toList();
+        }
         List<Long> listeningIds = ownedMinnaListeningIds(lesson, expectedLevel, gaps, key);
         if (listeningIds.isEmpty() && "N5".equals(expectedLevel)) {
             // Keep existing in-progress N5 paths usable until the Minna bundle is imported.
@@ -168,6 +172,39 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
                 .map(AssessmentQuestion::getId).distinct().toList();
         if (ids.size() != rows.size()) {
             gaps.add(new CoverageGap(gapKey, "SPEED_N3_" + skill + "_COVERAGE_INVALID"));
+            return List.of();
+        }
+        return ids;
+    }
+
+    /**
+     * OD-08 (owner 2026-10-24): Speed Master N5 reading joins Sekai N5 chapters 13–25 and Speed Master N4 joins Sekai N4
+     * chapters 26–50 (same chapter numbers as the Minna bundle), seeded as {@code LP-OWNED-SPEED-{N5|N4}-Lnn-READ-Pp-Qqqq}
+     * after the chapter's own Minna reading. A chapter without such a passage, or before the seed is applied, has none.
+     */
+    private List<Long> ownedSpeedN5N4ReadingIds(Lesson lesson, String expectedLevel,
+            List<CoverageGap> gaps, String gapKey) {
+        var textbook = lesson.getUnit().getTextbook();
+        if (!("N5".equals(expectedLevel) || "N4".equals(expectedLevel))
+                || !expectedLevel.equals(textbook.getJlptLevel())
+                || textbook.getTitle() == null || !textbook.getTitle().contains("Sekai " + expectedLevel)
+                || !"CURRICULUM".equals(lesson.getLessonType())) return List.of();
+        int unitOrder = lesson.getUnit().getOrderIndex() == null ? 0 : lesson.getUnit().getOrderIndex();
+        int lessonOrder = lesson.getOrderIndex() == null ? 0 : lesson.getOrderIndex();
+        if (unitOrder < 1 || unitOrder > 5 || lessonOrder < 1 || lessonOrder > 5) return List.of();
+        int number = ("N4".equals(expectedLevel) ? 25 : 0) + (unitOrder - 1) * 5 + lessonOrder;
+        if ("N5".equals(expectedLevel) && number < 13) return List.of();
+        String prefix = "LP-OWNED-SPEED-" + expectedLevel + "-L"
+                + String.format(Locale.ROOT, "%02d", number) + "-READ-";
+        List<AssessmentQuestion> rows = assessmentQuestions
+                .findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+                        "READING", expectedLevel, prefix);
+        List<Long> ids = rows.stream().filter(row -> row.getId() != null && Boolean.TRUE.equals(row.getIsActive())
+                && "READING".equals(row.getSkill()) && expectedLevel.equals(row.getJlptLevel())
+                && row.getSourceCode() != null && row.getSourceCode().startsWith(prefix))
+                .map(AssessmentQuestion::getId).distinct().toList();
+        if (ids.size() != rows.size()) {
+            gaps.add(new CoverageGap(gapKey, "SPEED_" + expectedLevel + "_READING_COVERAGE_INVALID"));
             return List.of();
         }
         return ids;

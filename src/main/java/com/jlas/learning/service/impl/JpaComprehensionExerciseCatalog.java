@@ -205,6 +205,10 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
             var matcher = java.util.regex.Pattern.compile("^(LP-OWNED-MINNA-" + level
                     + "-L\\d{2}-READ-P\\d{3})-Q\\d{3}$").matcher(sourceCode);
             if (matcher.matches()) return matcher.group(1);
+            // OD-08 (owner 2026-10-24): one Speed Master N5/N4 passage per chapter slot.
+            var speed = java.util.regex.Pattern.compile("^(LP-OWNED-SPEED-" + level
+                    + "-L\\d{2}-READ-P\\d+)-Q\\d{3}$").matcher(sourceCode);
+            if (speed.matches()) return speed.group(1);
         }
         if ("LISTENING".equals(skill) && ("N5".equals(level) || "N4".equals(level))) {
             var matcher = java.util.regex.Pattern.compile("^(LP-OWNED-MINNA-" + level

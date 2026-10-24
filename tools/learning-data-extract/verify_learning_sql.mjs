@@ -21,6 +21,7 @@ export function verify(migration, seed, content = null) {
     'learning-content.json#sections.jlpt_minna_n5_n4_listening',
     'learning-content.json#sections.jlpt_minna_n5_n4_reading',
     'learning-content.json#sections.jlpt_speed_n3_comprehension',
+    'learning-content.json#sections.jlpt_speed_n5_n4_reading',
   ]) if (!seed.split('\n').some((line) => line.startsWith('-- BEGIN ') && line.includes(`/${marker} SHA256 `)))
     throw new Error(`Missing ${marker}`);
   if (!seed.includes('-- BEGIN generated communication-goal lessons (learning-content.json)'))
@@ -54,7 +55,7 @@ export function verify(migration, seed, content = null) {
     if (/^DELETE\b/i.test(statement) && !ALLOWED_DELETE.test(statement)) throw new Error(`Destructive DELETE outside the allowlist: ${statement.slice(0, 120)}`);
     if (/^DROP\b/i.test(statement) && !ALLOWED_DROP.test(statement)) throw new Error(`Destructive DROP outside the allowlist: ${statement.slice(0, 120)}`);
   }
-  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 17)
+  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 18)
     throw new Error('Unexpected consolidated SQL section count');
   const embeddedOutputs = [...seed.matchAll(/^-- BEGIN (outputs\/[^\r\n]+\.sql) SHA256 ([0-9a-f]{64})\r?\n/gm)];
   if (embeddedOutputs.length !== 6) throw new Error('Unexpected embedded Learning output count');
