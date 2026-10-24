@@ -52,6 +52,11 @@
     return (tmp.textContent || '').trim();
   }
 
+  // Data câu điền kanji dùng □ làm chỗ trống; hiển thị thành ô trống gạch chân thay vì ô vuông.
+  function markBlanks(html) {
+    return (html || '').replace(/□/g, '<span class="kanji-blank" aria-label="ô trống">　</span>');
+  }
+
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
   }
@@ -189,7 +194,7 @@
     document.getElementById('questionTitle').textContent = q.title || '';
 
     var questionText = document.getElementById('questionText');
-    questionText.textContent = q.questionText || '';
+    questionText.innerHTML = markBlanks(q.questionText);
     // Hide auxiliary prompts for vocabulary/grammar. Kanji tasks retain their
     // reading/spelling/component instructions (including the component reading hint).
     var passageUsesAuxiliaryPrompt = q.passageHtml && ['VOCABULARY', 'GRAMMAR'].includes(q.skill);
@@ -211,7 +216,7 @@
     // exposing the answer source while the learner is doing the test.
     passage.hidden = !q.passageHtml || q.skill === 'LISTENING';
     passage.classList.toggle('question-passage--reading', q.skill === 'READING');
-    passage.innerHTML = q.passageHtml || '';
+    passage.innerHTML = markBlanks(q.passageHtml);
 
     var media = document.getElementById('questionMedia');
     media.innerHTML = '';
@@ -379,7 +384,7 @@
 
     var question = document.createElement('p');
     question.className = 'review-item__question';
-    question.textContent = item.questionText || '';
+    question.innerHTML = markBlanks(item.questionText);
     article.append(header, question);
 
     var options = document.createElement('ul');
