@@ -31,6 +31,12 @@ public class GameShopSchemaInitializer implements ApplicationRunner {
                 + "starter BOOLEAN NOT NULL DEFAULT FALSE, active BOOLEAN NOT NULL DEFAULT TRUE, deleted BOOLEAN NOT NULL DEFAULT FALSE, "
                 + "CONSTRAINT chk_game_shop_skin_price CHECK (price >= 0)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        // Migration 051: gói skin tải lên (pack_path) và bộ vũ khí máy bay mượn (weapon_theme).
+        for (String column : new String[]{"pack_path VARCHAR(255) NULL", "weapon_theme VARCHAR(40) NULL"}) {
+            Integer exists = jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() "
+                    + "AND TABLE_NAME = 'game_shop_skin' AND COLUMN_NAME = ?", Integer.class, column.substring(0, column.indexOf(' ')));
+            if (exists == null || exists == 0) jdbc.execute("ALTER TABLE game_shop_skin ADD COLUMN " + column);
+        }
         for (var game : com.jlas.game.util.GameShopCatalog.SHOP_GAMES) {
             for (var item : com.jlas.game.util.GameShopCatalog.items(game)) {
                 jdbc.update("INSERT IGNORE INTO game_shop_skin (id, code, game_type, name, description, price, image, render_code, starter) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
