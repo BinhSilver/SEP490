@@ -43,7 +43,7 @@ const host: HostConfig = {
   meId: parseId(data.meId || query.get("me")),
 };
 
-setPlaneSkin(data.skin || query.get("skin"), data.skinRenderCode, data.skinImage);
+setPlaneSkin(data.skin || query.get("skin"), data.skinRenderCode, data.skinImage, data.skinPack, data.skinWeapon, data.skinName);
 
 ReactDOM.createRoot(rootElement).render(<App host={host} />);
 }
