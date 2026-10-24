@@ -135,7 +135,13 @@ export function renderCommunicationPathSeed(data) {
   if (!config || !snapshots) throw new Error('Communication release configuration or owned source snapshots are missing.');
   // The validator procedure and the expected-shape table are created BEFORE the transaction: CREATE/DROP PROCEDURE
   // commit implicitly, so inside the transaction they would make the validator's SIGNAL unable to roll back.
-  const out = [BEGIN, '-- Generated. Edit the canonical JSON section and run this generator; do not hand-edit this block.',
+  // V06: the block names the exact JSON sections it was rendered from, so a stale block is detectable.
+  const hashes = data.section_sha256 ?? {};
+  if (!/^[0-9a-f]{64}$/.test(hashes.communication_path_release ?? '') || !/^[0-9a-f]{64}$/.test(hashes.goal_source_snapshots ?? '')) {
+    throw new Error('Communication source sections have no SHA-256 in learning-content.json.');
+  }
+  const out = [BEGIN, `-- SOURCE SHA256 communication_path_release=${hashes.communication_path_release} goal_source_snapshots=${hashes.goal_source_snapshots}`,
+    '-- Generated. Edit the canonical JSON section and run this generator; do not hand-edit this block.',
     '-- Communication lessons have no scored quiz or JLPT grading. TTS is an explicit browser-speech sentinel.',
     `-- Attribution: ${config.attribution.jmdict} ${config.attribution.url}`,
     '-- Fails closed: any validator SIGNAL aborts before COMMIT, so the whole block rolls back.',

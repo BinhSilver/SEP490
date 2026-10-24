@@ -87253,6 +87253,7 @@ WHERE JSON_UNQUOTE(JSON_EXTRACT(q.context_json, '$.seed_key')) IN (
   AND JSON_CONTAINS(JSON_EXTRACT(q.context_json, '$.additional_tags'), JSON_QUOTE('JLPT'));
 
 -- BEGIN generated communication-goal lessons (learning-content.json)
+-- SOURCE SHA256 communication_path_release=4b0da62552a9c2cace724b0683b78a262e1a0a4ddbccc3f8e2b484d0327a93d7 goal_source_snapshots=16b3246214903b807ee5b579a0db7cbc7773aecb509a19ef2ed99749d1ce1cba
 -- Generated. Edit the canonical JSON section and run this generator; do not hand-edit this block.
 -- Communication lessons have no scored quiz or JLPT grading. TTS is an explicit browser-speech sentinel.
 -- Attribution: JMdict / EDRDG, CC BY-SA 4.0 https://www.edrdg.org/edrdg/licence.html

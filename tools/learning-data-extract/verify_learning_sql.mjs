@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const migrationFile = path.join(root, 'sql/migrations/022_learning_owned_consolidated.sql');
 const seedFile = path.join(root, 'sql/seeds/learning_owned.sql');
-export function verify(migration, seed) {
+export function verify(migration, seed, content = null) {
   if (!migration.startsWith('-- [JLAS-W0108] Consolidated task-owned Learning migration.'))
     throw new Error('Unexpected Learning migration header');
   if (!seed?.startsWith('-- [JLAS-W0108] Consolidated task-owned Learning seed.'))
@@ -25,6 +25,17 @@ export function verify(migration, seed) {
     throw new Error(`Missing ${marker}`);
   if (!seed.includes('-- BEGIN generated communication-goal lessons (learning-content.json)'))
     throw new Error('Missing generated communication-goal lessons');
+  if (content) {
+    // V05/V06: every JSON-rendered block names the SHA-256 of the section(s) it came from; a stale block fails here.
+    const hashes = content.section_sha256 ?? {};
+    for (const match of seed.matchAll(/^-- BEGIN data\/learning-owned\/learning-content\.json#sections\.([a-z0-9_]+) SHA256 ([0-9a-f]{64})\r?$/gm)) {
+      if (hashes[match[1]] !== match[2]) throw new Error(`Seed block is stale for section ${match[1]}`);
+    }
+    const comm = /^-- SOURCE SHA256 communication_path_release=([0-9a-f]{64}) goal_source_snapshots=([0-9a-f]{64})\r?$/m.exec(seed);
+    if (!comm) throw new Error('Communication block has no source SHA-256 line');
+    if (hashes.communication_path_release !== comm[1] || hashes.goal_source_snapshots !== comm[2])
+      throw new Error('Communication block is stale for its source sections');
+  }
   if (!seed.includes('-- [JLAS-W0108] Approved Smart Test N3 corrections'))
     throw new Error('Missing approved N3 Smart Test corrections');
   for (const key of ["'KANJI-DIVERSE-N3-020'", "'KANJI-DIVERSE-N3-001'"])
@@ -57,5 +68,6 @@ export function verify(migration, seed) {
   return createHash('sha256').update(migration).update('\0').update(seed).digest('hex');
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  console.log(`Verified consolidated Learning SQL SHA256 ${verify(fs.readFileSync(migrationFile, 'utf8'), fs.readFileSync(seedFile, 'utf8'))}`);
+  const content = JSON.parse(fs.readFileSync(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
+  console.log(`Verified consolidated Learning SQL SHA256 ${verify(fs.readFileSync(migrationFile, 'utf8'), fs.readFileSync(seedFile, 'utf8'), content)}`);
 }
