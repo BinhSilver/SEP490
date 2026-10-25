@@ -508,6 +508,7 @@ body.admin-portal:has(#admRoot[data-section="system-dashboard"]) #jlabBaseConten
   font-size: 13px;
   font-weight: 500;
   color: var(--st-on-surface-variant);
+  white-space: nowrap; /* "2026 (Hiện tại)" on one line keeps every bar on the same baseline */
 }
 
 .st-annual-col--peak .st-annual-col__year {
@@ -801,6 +802,11 @@ body.admin-portal:has(#admRoot[data-section="system-dashboard"]) #jlabBaseConten
   padding: 1.5px;
 }
 
+.st-seg-bar__slice { height: 100%; min-width: 0; border-radius: 9999px; }
+.st-seg-bar__slice--green { background: #006947; }
+.st-seg-bar__slice--amber { background: #F5A400; }
+.st-seg-bar__slice--red { background: #BA1A1A; }
+
 .st-status-boxes {
   display: flex;
   flex-direction: column;
@@ -937,3 +943,6 @@ body.admin-portal:has(#admRoot[data-section="system-dashboard"]) #jlabBaseConten
   text-decoration: underline;
 }
 
+
+/* Dashboard links styled as buttons and pills. */
+a.st-icon-btn, a.st-btn-outline-wide, a.st-pill { text-decoration: none; }

@@ -21,9 +21,10 @@ public class AdminDashboardController {
     private final AdminDashboardService dashboard;
     private final AdminPaymentService payments;
 
+    /** {@code period}: year (default), 30d or 7d; drives the KPI cards and their growth figures. */
     @GetMapping("/dashboard")
-    public ApiResponse<AdminDashboardService.Dashboard> dashboard() {
-        return ApiResponse.ok("Tổng quan hệ thống", dashboard.summary());
+    public ApiResponse<AdminDashboardService.Dashboard> dashboard(@RequestParam(required = false) String period) {
+        return ApiResponse.ok("Tổng quan hệ thống", dashboard.summary(AdminDashboardService.Period.parse(period)));
     }
 
     @GetMapping("/payments")

@@ -12,7 +12,10 @@
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
     USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công', USER_CREDIT_ADJUST: 'Điều chỉnh CP',
     PREMIUM_PLAN_CREATE: 'Tạo gói Premium', PREMIUM_PLAN_UPDATE: 'Sửa gói Premium',
-    PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói'
+    PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói',
+    COUPON_CREATE: 'Tạo mã giảm giá', COUPON_UPDATE: 'Sửa mã giảm giá', COUPON_ACTIVE: 'Bật/tắt mã giảm giá',
+    COUPON_DELETE: 'Xoá mã giảm giá', CREDIT_PACKAGE_CREATE: 'Tạo gói CP', CREDIT_PACKAGE_UPDATE: 'Sửa gói CP',
+    CREDIT_PACKAGE_ACTIVE: 'Bật/tắt gói CP', CREDIT_PACKAGE_DELETE: 'Xoá gói CP'
   };
   var PAYMENT_STATUS = {
     PENDING: ['Đang chờ', 'warn'], PAID: ['Đã thanh toán', 'ok'], FAILED: ['Thất bại', 'danger'],
@@ -341,6 +344,17 @@
     try { c = JSON.parse(json); } catch (e) { return '<code>' + A.esc(json) + '</code>'; }
     var to = ' <span class="adm-muted">thành</span> ';
     if (c.rejection) return A.esc(c.rejection);
+    // CP adjustment: {amount, before, after} are plain balances.
+    if (typeof c.amount === 'number' && typeof c.before === 'number') {
+      return A.esc(c.before.toLocaleString('vi-VN')) + ' CP' + to + A.esc(c.after.toLocaleString('vi-VN')) + ' CP' +
+        '<br><span class="adm-muted">' + (c.amount > 0 ? '+' : '') + A.esc(c.amount.toLocaleString('vi-VN')) + ' CP</span>';
+    }
+    // Coupon / CP package created or deleted ({code} / {name}), switched on or off ({active}).
+    if (!c.before && !c.after) {
+      if ('code' in c) return 'Mã: ' + A.esc(c.code);
+      if ('name' in c) return 'Gói: ' + A.esc(c.name);
+      if ('active' in c) return c.active ? 'Bật' : 'Tắt';
+    }
     if (c.before && c.after && c.before.status && c.after.status) {
       return A.esc(STATUS[c.before.status] || c.before.status) + to + A.esc(STATUS[c.after.status] || c.after.status);
     }
@@ -352,8 +366,21 @@
       return A.esc(was) + to + A.esc(c.after.plan + ' đến ' + A.date(c.after.expiresAt)) +
         '<br><span class="adm-muted">+' + A.esc(c.durationDays) + ' ngày' + (c.stacked ? ', cộng dồn' : '') + '</span>';
     }
-    if (c.before && c.after && 'active' in c.after) {
+    if (c.before && c.after && 'active' in c.after && Object.keys(c.after).length === 1) {
       return (c.before.active ? 'Đang bán' : 'Ngừng bán') + to + (c.after.active ? 'Đang bán' : 'Ngừng bán');
+    }
+    // Coupon / CP package edits: list only the fields that changed.
+    if (c.before && c.after && typeof c.after === 'object' && !('durationDays' in c.after)) {
+      var labels = { code: 'Mã', name: 'Tên', description: 'Mô tả', price: 'Giá', creditAmount: 'Số CP',
+        discountType: 'Kiểu giảm', discountValue: 'Mức giảm', maxDiscount: 'Giảm tối đa', minOrderAmount: 'Đơn tối thiểu',
+        appliesTo: 'Áp dụng cho', startsAt: 'Bắt đầu', endsAt: 'Kết thúc', usageLimit: 'Lượt dùng tối đa',
+        perUserLimit: 'Lượt mỗi người', active: 'Trạng thái' };
+      var show = function (k, v) { return v == null ? '—' : k === 'active' ? (v ? 'Bật' : 'Tắt') : v; };
+      var changed = Object.keys(c.after).filter(function (k) { return String(c.before[k]) !== String(c.after[k]); });
+      if (!changed.length) return '<span class="adm-muted">Không đổi</span>';
+      return changed.map(function (k) {
+        return A.esc(labels[k] || k) + ': ' + A.esc(show(k, c.before[k])) + to + A.esc(show(k, c.after[k]));
+      }).join('<br>');
     }
     if (c.after && 'durationDays' in c.after) {
       var fields = { name: 'Tên', description: 'Mô tả', price: 'Giá', durationDays: 'Số ngày' };
@@ -454,472 +481,296 @@
       }).join('') + '</tbody></table>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
   }
 
+  // ── Dashboard: every figure comes from GET /api/admin/system/dashboard?period=… ─────────────────
+  var PERIODS = [
+    { key: 'year', label: 'Năm nay', revenue: 'Doanh thu năm nay', compare: 'so với cùng kỳ năm trước' },
+    { key: '30d', label: '30 ngày qua', revenue: 'Doanh thu 30 ngày', compare: 'so với 30 ngày trước đó' },
+    { key: '7d', label: '7 ngày', revenue: 'Doanh thu 7 ngày', compare: 'so với 7 ngày trước đó' }
+  ];
+  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP' };
+
+  function numberVi(n) { return Number(n || 0).toLocaleString('vi-VN'); }
+
+  /** Sum of one currency (the first one listed, VND in practice) so two periods can be compared. */
+  function revenueOf(list, currency) {
+    return (list || []).filter(function (r) { return r.currency === currency; })
+      .reduce(function (sum, r) { return sum + Number(r.amount || 0); }, 0);
+  }
+
+  /**
+   * Growth pill, e.g. "+51 người mới · +89,3%" or "+12,4% tăng trưởng"; the comparison period is in the tooltip.
+   * No percentage when the previous period had nothing to compare with.
+   */
+  function growthPill(current, previous, compare, prefix) {
+    var pct = previous ? Math.round((current - previous) / previous * 1000) / 10 : null;
+    var pctText = pct == null ? '' : (pct >= 0 ? '+' : '') + pct.toLocaleString('vi-VN') + '%';
+    var text = prefix ? prefix + (pctText ? ' · ' + pctText : '') : (pctText ? pctText + ' tăng trưởng' : '');
+    if (!text || (!current && pct == null)) return '<span class="st-pill st-pill--neutral">Chưa có dữ liệu kỳ trước</span>';
+    return '<span class="st-pill ' + (pct != null && pct < 0 ? 'st-pill--amber' : 'st-pill--growth') + '" title="' +
+      A.esc(pctText ? pctText + ' ' + compare : compare) + '">' + A.esc(text) + '</span>';
+  }
+
+  /** Smallest 1/2/5 × 10^n step that splits {@code max} into at most five gridlines. */
+  function niceScale(max) {
+    if (max <= 0) return 5;
+    var raw = max / 5, magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+    var step = [1, 2, 5, 10].map(function (m) { return m * magnitude; }).filter(function (s) { return s >= raw; })[0];
+    return step * 5;
+  }
+
+  function actionTime(value) {
+    if (!value) return '—';
+    var at = new Date(value), now = new Date();
+    var time = at.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    var yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+    if (at.toDateString() === now.toDateString()) return time + ' - Hôm nay';
+    if (at.toDateString() === yesterday.toDateString()) return 'Hôm qua, ' + time.slice(0, 5);
+    return at.toLocaleDateString('vi-VN') + ' ' + time.slice(0, 5);
+  }
+
+  function initials(email) {
+    var name = String(email || '?').split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').trim().split(/\s+/);
+    return ((name[0] || '?')[0] + (name[1] ? name[1][0] : (name[0] || '?').slice(1, 2))).toUpperCase();
+  }
+
+  function dashboardHtml(d, moderation, period) {
+    var p = PERIODS.filter(function (x) { return x.key === period; })[0];
+    var stats = d.periodStats || {};
+    var currency = ((stats.paid || [])[0] || (stats.paidPrevious || [])[0] || { currency: 'VND' }).currency;
+    var revenueNow = revenueOf(stats.paid, currency), revenueBefore = revenueOf(stats.paidPrevious, currency);
+    var revenueText = (stats.paid || []).length
+      ? stats.paid.map(function (r) { return money(r.amount, r.currency); }).join(' + ') : money(0, currency);
+    var byStatus = d.paymentsByStatus || {};
+    var txOf = function (key) { return Number(byStatus[key] || 0); };
+    var pending = txOf('PENDING');
+    var modCount = moderation ? moderation.pendingQueue + moderation.pendingAppeals + moderation.pendingContributions : null;
+
+    // Premium / Free among learners only (staff roles are left out).
+    var learnerTotal = Number((d.usersByRole || {}).LEARNER || 0);
+    var premiumActive = Math.min(learnerTotal, Number(d.premiumActive || 0));
+    var freeCount = Math.max(0, learnerTotal - premiumActive);
+    var premiumPct = learnerTotal > 0 ? Math.round(premiumActive / learnerTotal * 1000) / 10 : 0;
+    var freePct = learnerTotal > 0 ? Math.round(1000 - premiumPct * 10) / 10 : 0;
+    var donutCirc = 389.55;
+    var premiumLen = (premiumPct / 100 * donutCirc).toFixed(2);
+    var freeLen = (freePct / 100 * donutCirc).toFixed(2);
+
+    // Transaction health (cancelled and expired count as not completed; refunds are left out).
+    var txDone = txOf('PAID'), txPending = pending, txFailed = txOf('FAILED') + txOf('CANCELLED') + txOf('EXPIRED');
+    var txTotal = txDone + txPending + txFailed;
+    var txPct = function (n) { return txTotal > 0 ? Math.round(n / txTotal * 1000) / 10 : 0; };
+    var txDonePct = txPct(txDone), txPendingPct = txPct(txPending), txFailedPct = txPct(txFailed);
+
+    // Registrations per year.
+    var years = d.registrationsByYear || [];
+    var yearMax = niceScale(Math.max.apply(null, years.map(function (y) { return y.count; }).concat([0])));
+    var yearBarMax = 236;
+
+    // Premium purchases per month of the current year.
+    var months = [];
+    for (var m = 1; m <= 12; m++) months.push({ month: m, count: 0, amounts: {} });
+    (d.premiumByMonth || []).forEach(function (r) {
+      var slot = months[r.month - 1];
+      slot.count += r.count;
+      slot.amounts[r.currency] = (slot.amounts[r.currency] || 0) + Number(r.amount || 0);
+    });
+    var monthMax = Math.max.apply(null, months.map(function (x) { return x.count; }).concat([0]));
+    var premiumTotal = months.reduce(function (n, x) { return n + x.count; }, 0);
+    var currentMonth = new Date().getMonth() + 1;
+    var monthBarMax = 150;
+
+    var recent = d.recentActions || [];
+
+    return '<div class="st-dashboard">' +
+      '<header class="st-topbar">' +
+        '<div class="st-topbar__left"><div class="st-topbar__title-wrap"><span class="st-topbar__dot"></span>' +
+          '<h1 class="st-topbar__title">Tổng quan hệ thống</h1></div></div>' +
+        '<div class="st-topbar__actions">' +
+          '<div class="st-segmented" role="tablist" aria-label="Khoảng thời gian">' +
+            PERIODS.map(function (x) {
+              return '<button type="button" role="tab" class="st-segmented__btn' + (x.key === period ? ' active' : '') +
+                '" aria-selected="' + (x.key === period) + '" data-period="' + x.key + '">' + x.label + '</button>';
+            }).join('') +
+          '</div>' +
+          '<a class="st-icon-btn" href="/admin/moderation/queue" title="' +
+            (modCount ? modCount + ' mục đang chờ kiểm duyệt' : 'Không có mục chờ kiểm duyệt') + '">' +
+            '<span class="material-symbols-outlined" style="font-size:20px;">notifications</span>' +
+            (modCount ? '<span class="st-badge-dot"></span>' : '') +
+          '</a>' +
+        '</div>' +
+      '</header>' +
+
+      '<div class="st-grid-kpi">' +
+        kpiCard('Tổng người dùng', 'group', 'purple', numberVi(d.totalUsers),
+          growthPill(stats.newUsers, stats.newUsersPrevious, p.compare, '+' + numberVi(stats.newUsers) + ' người mới')) +
+        kpiCard(p.revenue, 'credit_card', 'purple', revenueText,
+          growthPill(revenueNow, revenueBefore, p.compare, '')) +
+        kpiCard('Giao dịch đang chờ', 'hourglass_empty', 'amber', numberVi(pending) + ' giao dịch',
+          pending ? '<span class="st-pill st-pill--amber">Cần xác nhận</span>' : '<span class="st-pill st-pill--neutral">Không có</span>') +
+        kpiCard('Kiểm duyệt chờ xử lý', 'verified', 'purple', modCount == null ? '—' : numberVi(modCount) + ' mục',
+          modCount ? '<span class="st-pill st-pill--purple">Cần xử lý</span>' : '<span class="st-pill st-pill--neutral">Đã xử lý hết</span>') +
+      '</div>' +
+
+      '<div class="st-card">' +
+        '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
+          '<span class="st-square-mark"></span><h2 class="st-card__title">Số lượng người đăng ký mới mỗi năm</h2>' +
+        '</div></div></div>' +
+        '<div class="st-annual-chart">' +
+          '<div class="st-annual-chart__gridlines">' +
+            [5, 4, 3, 2, 1, 0].map(function (i) {
+              return '<div class="st-gridline-row"><span class="st-gridline-val">' + numberVi(yearMax / 5 * i) + '</span></div>';
+            }).join('') +
+          '</div>' +
+          '<div class="st-annual-chart__bars">' +
+            years.map(function (y, i) {
+              var last = i === years.length - 1;
+              return '<div class="st-annual-col' + (last ? ' st-annual-col--peak' : '') + '" title="' + y.year + ': ' + numberVi(y.count) + ' người đăng ký">' +
+                '<span class="st-annual-col__num"' + (last ? ' style="color:var(--st-primary-container); font-weight:700;"' : '') + '>' + numberVi(y.count) + '</span>' +
+                '<div class="st-annual-col__bar" style="height:' + Math.round(y.count / yearMax * yearBarMax) + 'px;"></div>' +
+                '<span class="st-annual-col__year">' + y.year + (last ? ' (Hiện tại)' : '') + '</span>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="st-grid-trio">' +
+        '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
+          '<div class="st-card__header"><div class="st-card__title-group">' +
+            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2></div>' +
+            '<span class="st-pill st-pill--purple">Tổng ' + numberVi(premiumTotal) + ' lượt</span>' +
+          '</div>' +
+          '<div class="st-monthly-chart"><div class="st-monthly-chart__bars">' +
+            months.map(function (x) {
+              var amounts = Object.keys(x.amounts).map(function (c) { return money(x.amounts[c], c); }).join(' + ') || money(0, currency);
+              var cls = x.count > 0 && x.count === monthMax ? ' st-monthly-col--max' : (x.month === currentMonth ? ' st-monthly-col--highlight' : '');
+              return '<div class="st-monthly-col' + cls + '">' +
+                '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng ' + x.month + '</span>' +
+                  '<span class="st-bar-tooltip__detail">' + numberVi(x.count) + ' lượt • ' + amounts + '</span></div>' +
+                '<div class="st-monthly-col__bar" style="height:' + (monthMax ? Math.round(x.count / monthMax * monthBarMax) : 0) + 'px;"></div>' +
+                '<span class="st-monthly-col__label">T' + x.month + '</span>' +
+              '</div>';
+            }).join('') +
+          '</div></div>' +
+        '</div></div>' +
+
+        '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
+          '<div class="st-card__header"><div class="st-card__title-group">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2></div></div>' +
+          '<div class="st-donut-wrap"><div class="st-donut"><svg viewBox="0 0 160 160">' +
+            '<circle cx="80" cy="80" r="62" fill="none" stroke="#EEF5F7" stroke-width="18"></circle>' +
+            '<circle cx="80" cy="80" r="62" fill="none" stroke="#4F378A" stroke-width="18" stroke-dasharray="' + premiumLen + ' ' + donutCirc + '" stroke-dashoffset="0" stroke-linecap="round"></circle>' +
+            '<circle cx="80" cy="80" r="62" fill="none" stroke="#EAB308" stroke-width="18" stroke-dasharray="' + freeLen + ' ' + donutCirc + '" stroke-dashoffset="-' + premiumLen + '" stroke-linecap="round"></circle>' +
+          '</svg><div class="st-donut__center"><span class="st-donut__center-num">' + numberVi(learnerTotal) + '</span>' +
+            '<span class="st-donut__center-label">Học viên</span></div></div></div>' +
+        '</div>' +
+        '<div class="st-legend-list">' +
+          legendItem('#4F378A', 'Premium', premiumActive, premiumPct, 'purple') +
+          legendItem('#EAB308', 'Miễn phí', freeCount, freePct, 'amber') +
+        '</div></div>' +
+
+        '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
+          '<div class="st-card__header"><div class="st-card__title-group">' +
+            '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2></div></div>' +
+          '<div class="st-tx-health__val-row"><span class="st-tx-health__pct">' + txDonePct + '%</span>' +
+            (txTotal === 0 ? '' : txDonePct >= 90
+              ? '<span class="st-pill st-pill--growth" style="padding:2px 8px; font-size:10px;">Hoàn tất chuẩn</span>'
+              : '<span class="st-pill st-pill--amber" style="padding:2px 8px; font-size:10px;">Cần kiểm tra</span>') +
+          '</div>' +
+          '<div class="st-seg-bar">' +
+            [['green', 'Hoàn tất', txDonePct], ['amber', 'Đang chờ', txPendingPct], ['red', 'Thất bại', txFailedPct]]
+              .filter(function (s) { return s[2] > 0; })
+              .map(function (s) {
+                return '<div class="st-seg-bar__slice st-seg-bar__slice--' + s[0] + '" style="flex:' + s[2] + ' 1 0;" title="' + s[1] + ': ' + s[2] + '%"></div>';
+              }).join('') +
+          '</div>' +
+          '<div class="st-status-boxes">' +
+            statusBox('#006947', 'Hoàn tất', '', txDone, txDonePct) +
+            statusBox('#F5A400', 'Đang chờ', '#B45309', txPending, txPendingPct) +
+            statusBox('#BA1A1A', 'Thất bại', '#BA1A1A', txFailed, txFailedPct) +
+          '</div></div>' +
+          '<a class="st-btn-outline-wide" href="/admin/system/payments">' +
+            '<span class="material-symbols-outlined" style="font-size:16px;">account_balance_wallet</span>' +
+            '<span>Kiểm tra cổng thanh toán</span></a>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="st-card"><div>' +
+        '<div class="st-card__header"><div class="st-card__title-group"><h2 class="st-card__title">Thao tác quản trị gần đây</h2></div>' +
+          '<a class="st-pill st-pill--neutral" href="/admin/system/audit">Xem nhật ký</a></div>' +
+        (recent.length ? '<div class="st-table-wrap"><table class="st-table"><thead><tr>' +
+            '<th>Thời gian</th><th>Người thao tác</th><th>Hành động</th><th>Đối tượng</th><th style="text-align:right;">Trạng thái</th>' +
+          '</tr></thead><tbody>' +
+          recent.map(function (r, i) {
+            var badge = ['purple', 'green', 'amber'][i % 3];
+            var ok = r.result === 'SUCCESS';
+            return '<tr>' +
+              '<td style="color:var(--st-outline); white-space:nowrap;">' + A.esc(actionTime(r.createdAt)) + '</td>' +
+              '<td style="white-space:nowrap;"><div class="st-table-user"><span class="st-avatar-badge st-avatar-badge--' + badge + '">' +
+                A.esc(initials(r.actorEmail)) + '</span><span style="font-weight:500;">' + A.esc(r.actorEmail || ('#' + r.actorId)) + '</span></div></td>' +
+              '<td style="font-weight:500;">' + A.esc(ACTIONS[r.action] || r.action) + '</td>' +
+              '<td style="color:var(--st-on-surface-variant);">' + A.esc(TARGET_TYPES[r.targetType] || r.targetType) +
+                (r.targetId ? ' #' + A.esc(r.targetId) : '') + (r.reason ? ' · ' + A.esc(r.reason) : '') + '</td>' +
+              '<td style="text-align:right; white-space:nowrap;"><span class="st-pill ' + (ok ? 'st-pill--growth">Thành công' : 'st-pill--amber">Bị từ chối') + '</span></td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>'
+          : A.empty('fa-clock-rotate-left', 'Chưa có thao tác quản trị', 'Các thao tác như khoá tài khoản, sửa gói sẽ hiện ở đây.')) +
+      '</div></div>' +
+    '</div>';
+  }
+
+  function kpiCard(label, icon, tone, value, pill) {
+    return '<div class="st-card st-kpi-card"><div class="st-kpi-card__top"><span class="st-kpi-card__label">' + A.esc(label) + '</span>' +
+      '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--' + tone + '"><span class="material-symbols-outlined" style="font-size:20px;">' + icon + '</span></div></div>' +
+      '<div class="st-kpi-card__val-block"><div class="st-kpi-card__value">' + value + '</div>' +
+      '<div class="st-kpi-card__pill-wrap">' + pill + '</div></div></div>';
+  }
+
+  function legendItem(color, label, count, pct, tone) {
+    return '<div class="st-legend-item"><div class="st-legend-item__left"><span class="st-legend-dot" style="background:' + color + ';"></span>' +
+      '<span>' + label + '</span></div><div class="st-legend-item__right"><span>' + numberVi(count) + '</span>' +
+      '<span class="st-pill st-pill--' + tone + '" style="padding:1px 6px; font-size:10px;">' + pct + '%</span></div></div>';
+  }
+
+  function statusBox(dot, label, color, count, pct) {
+    return '<div class="st-status-box"><div class="st-status-box__left">' +
+      '<span style="width:7px; height:7px; border-radius:50%; background:' + dot + '; display:inline-block;"></span><span>' + label + '</span></div>' +
+      '<div class="st-status-box__right"><span' + (color ? ' style="color:' + color + ';"' : '') + '>' + numberVi(count) + ' gd</span>' +
+      '<span class="st-status-box__sub">(' + pct + '%)</span></div></div>';
+  }
+
   A.section('system-dashboard', {
     subtitle: '',
     render: async function (root) {
       document.body.classList.add('dashboard-view');
-      var topbar = document.querySelector('.admin-topbar');
-      if (topbar) topbar.style.display = 'none';
+      var period = 'year';
+      try { period = sessionStorage.getItem('jlas-admin-dashboard-period') || 'year'; } catch (ignored) { /* private mode */ }
 
-      var d = null;
-      try { d = await A.api.get(API + '/dashboard'); } catch (ignored) { /* optional */ }
-      var moderation = null;
-      try { moderation = await A.api.get('/api/admin/moderation/overview'); } catch (ignored) { /* optional */ }
+      async function draw() {
+        root.setAttribute('aria-busy', 'true');
+        var results = await Promise.allSettled([
+          A.api.get(API + '/dashboard?period=' + encodeURIComponent(period)),
+          A.api.get('/api/admin/moderation/overview')
+        ]);
+        root.removeAttribute('aria-busy');
+        if (results[0].status !== 'fulfilled') {
+          root.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được tổng quan hệ thống',
+            (results[0].reason && results[0].reason.message) || 'Vui lòng tải lại trang.');
+          return;
+        }
+        root.innerHTML = dashboardHtml(results[0].value, results[1].status === 'fulfilled' ? results[1].value : null, period);
+      }
 
-      // Safe extraction with graceful fallbacks matching Stitch design specs
-      var totalUsers = d && d.totalUsers ? Number(d.totalUsers).toLocaleString('vi-VN') : '24,850';
-      var newUsers7 = d && d.newUsersLast7Days != null ? d.newUsersLast7Days : 180;
-      var newUsers30 = d && d.newUsersLast30Days != null ? d.newUsersLast30Days : 750;
-      var pending = d && d.paymentsByStatus && d.paymentsByStatus.PENDING != null ? d.paymentsByStatus.PENDING : 14;
-      var revenue = (d && d.paidLast30Days && d.paidLast30Days.length)
-        ? d.paidLast30Days.map(function (r) { return money(r.amount, r.currency); }).join(' + ') : '148.500.000 ₫';
-      var paidCount = (d && d.paidLast30Days && d.paidLast30Days.length)
-        ? d.paidLast30Days.reduce(function (n, r) { return n + r.count; }, 0) : 342;
-      var modCount = moderation
-        ? (moderation.pendingQueue + moderation.pendingAppeals + moderation.pendingContributions)
-        : 28;
-      var learnerTotal = d && d.usersByRole && d.usersByRole.LEARNER != null ? Number(d.usersByRole.LEARNER) : 21868;
-      var premiumActive = d && d.premiumActive != null ? Number(d.premiumActive) : 1750;
-      var freeCount = Math.max(0, learnerTotal - premiumActive);
-      var premiumPct = learnerTotal > 0 ? Math.round(premiumActive / learnerTotal * 1000) / 10 : 0;
-      var freePct = learnerTotal > 0 ? Math.round(1000 - premiumPct * 10) / 10 : 0;
-      var donutCirc = 389.55;
-      var premiumLen = (premiumPct / 100 * donutCirc).toFixed(2);
-      var freeLen = (freePct / 100 * donutCirc).toFixed(2);
-
-      root.innerHTML =
-        '<div class="st-dashboard">' +
-          '<!-- TOP ACTION BAR -->' +
-          '<header class="st-topbar">' +
-            '<div class="st-topbar__left">' +
-              '<div class="st-topbar__title-wrap">' +
-                '<span class="st-topbar__dot"></span>' +
-                '<h1 class="st-topbar__title">Tổng quan hệ thống</h1>' +
-              '</div>' +
-            '</div>' +
-            '<div class="st-topbar__actions">' +
-              '<div class="st-segmented" role="tablist">' +
-                '<button type="button" class="st-segmented__btn active" data-period="year">Năm nay</button>' +
-                '<button type="button" class="st-segmented__btn" data-period="30d">30 ngày qua</button>' +
-                '<button type="button" class="st-segmented__btn" data-period="7d">7 ngày</button>' +
-              '</div>' +
-              '<button type="button" class="st-icon-btn" title="Thông báo">' +
-                '<span class="material-symbols-outlined" style="font-size:20px;">notifications</span>' +
-                '<span class="st-badge-dot"></span>' +
-              '</button>' +
-            '</div>' +
-          '</header>' +
-
-          '<!-- ROW 1: 4 KPI METRIC CARDS -->' +
-          '<div class="st-grid-kpi">' +
-            '<!-- Card 1: Tổng người dùng -->' +
-            '<div class="st-card st-kpi-card">' +
-              '<div class="st-kpi-card__top">' +
-                '<span class="st-kpi-card__label">Tổng người dùng</span>' +
-                '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--purple">' +
-                  '<span class="material-symbols-outlined" style="font-size:20px;">group</span>' +
-                '</div>' +
-              '</div>' +
-              '<div class="st-kpi-card__val-block">' +
-                '<div class="st-kpi-card__value">' + totalUsers + '</div>' +
-                '<div class="st-kpi-card__pill-wrap"><span class="st-pill st-pill--growth">+12.4% vs cùng kỳ</span></div>' +
-              '</div>' +
-            '</div>' +
-
-            '<!-- Card 2: Doanh thu 30 ngày -->' +
-            '<div class="st-card st-kpi-card">' +
-              '<div class="st-kpi-card__top">' +
-                '<span class="st-kpi-card__label">Doanh thu 30 ngày</span>' +
-                '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--purple">' +
-                  '<span class="material-symbols-outlined" style="font-size:20px;">credit_card</span>' +
-                '</div>' +
-              '</div>' +
-              '<div class="st-kpi-card__val-block">' +
-                '<div class="st-kpi-card__value">' + revenue + '</div>' +
-                '<div class="st-kpi-card__pill-wrap"><span class="st-pill st-pill--growth">+8.2% tăng trưởng</span></div>' +
-              '</div>' +
-            '</div>' +
-
-            '<!-- Card 3: Giao dịch đang chờ -->' +
-            '<div class="st-card st-kpi-card">' +
-              '<div class="st-kpi-card__top">' +
-                '<span class="st-kpi-card__label">Giao dịch đang chờ</span>' +
-                '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--amber">' +
-                  '<span class="material-symbols-outlined" style="font-size:20px;">hourglass_empty</span>' +
-                '</div>' +
-              '</div>' +
-              '<div class="st-kpi-card__val-block">' +
-                '<div class="st-kpi-card__value">' + pending + ' giao dịch</div>' +
-                '<div class="st-kpi-card__pill-wrap"><span class="st-pill st-pill--amber">Cần xác nhận</span></div>' +
-              '</div>' +
-            '</div>' +
-
-            '<!-- Card 4: Kiểm duyệt chờ xử lý -->' +
-            '<div class="st-card st-kpi-card">' +
-              '<div class="st-kpi-card__top">' +
-                '<span class="st-kpi-card__label">Kiểm duyệt chờ xử lý</span>' +
-                '<div class="st-kpi-card__icon-wrap st-kpi-card__icon-wrap--purple">' +
-                  '<span class="material-symbols-outlined" style="font-size:20px; font-variation-settings:\'FILL\' 1;">verified</span>' +
-                '</div>' +
-              '</div>' +
-              '<div class="st-kpi-card__val-block">' +
-                '<div class="st-kpi-card__value">' + modCount + ' mục</div>' +
-                '<div class="st-kpi-card__pill-wrap"><span class="st-pill st-pill--purple">Cần xử lý</span></div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-
-          '<!-- ROW 2: ANNUAL REGISTRATIONS BAR CHART (FULL WIDTH) -->' +
-          '<div class="st-card">' +
-            '<div class="st-card__header">' +
-              '<div class="st-card__title-group">' +
-                '<div class="st-card__title-row">' +
-                  '<span class="st-square-mark"></span>' +
-                  '<h2 class="st-card__title">Số lượng người đăng ký mới mỗi năm</h2>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-
-            '<div class="st-annual-chart">' +
-              '<!-- Dashed Background Gridlines -->' +
-              '<div class="st-annual-chart__gridlines">' +
-                '<div class="st-gridline-row"><span class="st-gridline-val">25,000</span></div>' +
-                '<div class="st-gridline-row"><span class="st-gridline-val">20,000</span></div>' +
-                '<div class="st-gridline-row"><span class="st-gridline-val">15,000</span></div>' +
-                '<div class="st-gridline-row"><span class="st-gridline-val">10,000</span></div>' +
-                '<div class="st-gridline-row"><span class="st-gridline-val">5,000</span></div>' +
-                '<div class="st-gridline-row"><span class="st-gridline-val">0</span></div>' +
-              '</div>' +
-
-              '<!-- Bars (2022 - 2026) without percentage pills -->' +
-              '<div class="st-annual-chart__bars">' +
-                '<!-- 2022 -->' +
-                '<div class="st-annual-col">' +
-                  '<span class="st-annual-col__num">4,200</span>' +
-                  '<div class="st-annual-col__bar" style="height:42px;"></div>' +
-                  '<span class="st-annual-col__year">2022</span>' +
-                '</div>' +
-
-                '<!-- 2023 -->' +
-                '<div class="st-annual-col">' +
-                  '<span class="st-annual-col__num">8,500</span>' +
-                  '<div class="st-annual-col__bar" style="height:85px;"></div>' +
-                  '<span class="st-annual-col__year">2023</span>' +
-                '</div>' +
-
-                '<!-- 2024 -->' +
-                '<div class="st-annual-col">' +
-                  '<span class="st-annual-col__num">14,300</span>' +
-                  '<div class="st-annual-col__bar" style="height:143px;"></div>' +
-                  '<span class="st-annual-col__year">2024</span>' +
-                '</div>' +
-
-                '<!-- 2025 -->' +
-                '<div class="st-annual-col">' +
-                  '<span class="st-annual-col__num">19,800</span>' +
-                  '<div class="st-annual-col__bar" style="height:198px;"></div>' +
-                  '<span class="st-annual-col__year">2025</span>' +
-                '</div>' +
-
-                '<!-- 2026 (Peak) -->' +
-                '<div class="st-annual-col st-annual-col--peak">' +
-                  '<span class="st-annual-col__num" style="color:var(--st-primary-container); font-weight:700;">' + totalUsers + '</span>' +
-                  '<div class="st-annual-col__bar" style="height:248px;"></div>' +
-                  '<span class="st-annual-col__year">2026 (Hiện tại)</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-
-          '<!-- ROW 3: TRIO GRID (MONTHLY PREMIUM, ROLES DONUT, TRANSACTIONS) -->' +
-          '<div class="st-grid-trio">' +
-            '<!-- Item 1: Monthly Premium Registrations (Interactive Hover Tooltips) -->' +
-            '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;">' +
-              '<div>' +
-                '<div class="st-card__header">' +
-                  '<div class="st-card__title-group">' +
-                    '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng</h2>' +
-                  '</div>' +
-                  '<span class="st-pill st-pill--purple">Tổng 8,870 lượt</span>' +
-                '</div>' +
-
-                '<div class="st-monthly-chart">' +
-                  '<div class="st-monthly-chart__bars">' +
-                    '<!-- T1 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 1</span><span class="st-bar-tooltip__detail">320 lượt • 12.000.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:48px;"></div><span class="st-monthly-col__label">T1</span>' +
-                    '</div>' +
-                    '<!-- T2 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 2</span><span class="st-bar-tooltip__detail">410 lượt • 15.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:61px;"></div><span class="st-monthly-col__label">T2</span>' +
-                    '</div>' +
-                    '<!-- T3 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 3</span><span class="st-bar-tooltip__detail">550 lượt • 21.000.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:82px;"></div><span class="st-monthly-col__label">T3</span>' +
-                    '</div>' +
-                    '<!-- T4 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 4</span><span class="st-bar-tooltip__detail">490 lượt • 18.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:73px;"></div><span class="st-monthly-col__label">T4</span>' +
-                    '</div>' +
-                    '<!-- T5 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 5</span><span class="st-bar-tooltip__detail">620 lượt • 23.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:93px;"></div><span class="st-monthly-col__label">T5</span>' +
-                    '</div>' +
-                    '<!-- T6* (Summer peak) -->' +
-                    '<div class="st-monthly-col st-monthly-col--highlight">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 6 (Hè)</span><span class="st-bar-tooltip__detail">780 lượt • 29.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:117px;"></div><span class="st-monthly-col__label">T6*</span>' +
-                    '</div>' +
-                    '<!-- T7* (JLPT peak) -->' +
-                    '<div class="st-monthly-col st-monthly-col--peak">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 7 (JLPT)</span><span class="st-bar-tooltip__detail">850 lượt • 32.000.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:127px;"></div><span class="st-monthly-col__label">T7*</span>' +
-                    '</div>' +
-                    '<!-- T8 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 8</span><span class="st-bar-tooltip__detail">690 lượt • 26.000.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:103px;"></div><span class="st-monthly-col__label">T8</span>' +
-                    '</div>' +
-                    '<!-- T9 -->' +
-                    '<div class="st-monthly-col">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 9</span><span class="st-bar-tooltip__detail">720 lượt • 27.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:108px;"></div><span class="st-monthly-col__label">T9</span>' +
-                    '</div>' +
-                    '<!-- T10 -->' +
-                    '<div class="st-monthly-col st-monthly-col--highlight">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 10</span><span class="st-bar-tooltip__detail">810 lượt • 30.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:121px;"></div><span class="st-monthly-col__label">T10</span>' +
-                    '</div>' +
-                    '<!-- T11* (Winter JLPT) -->' +
-                    '<div class="st-monthly-col st-monthly-col--peak">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 11 (JLPT)</span><span class="st-bar-tooltip__detail">950 lượt • 36.000.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:142px;"></div><span class="st-monthly-col__label">T11*</span>' +
-                    '</div>' +
-                    '<!-- T12 (Max peak) -->' +
-                    '<div class="st-monthly-col st-monthly-col--max">' +
-                      '<div class="st-bar-tooltip"><span class="st-bar-tooltip__title">Tháng 12 (Đỉnh điểm)</span><span class="st-bar-tooltip__detail">1,120 lượt • 42.500.000 ₫</span></div>' +
-                      '<div class="st-monthly-col__bar" style="height:168px;"></div><span class="st-monthly-col__label">T12</span>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-
-            '<!-- Item 2: Premium vs Free Donut Chart (học viên, bỏ qua role quản lý) -->' +
-            '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;">' +
-              '<div>' +
-                '<div class="st-card__header">' +
-                  '<div class="st-card__title-group">' +
-                    '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2>' +
-                  '</div>' +
-                '</div>' +
-
-                '<!-- SVG Donut Chart -->' +
-                '<div class="st-donut-wrap">' +
-                  '<div class="st-donut">' +
-                    '<svg viewBox="0 0 160 160">' +
-                      '<!-- Background ring -->' +
-                      '<circle cx="80" cy="80" r="62" fill="none" stroke="#EEF5F7" stroke-width="18"></circle>' +
-                      '<!-- Segment 1: Premium -->' +
-                      '<circle cx="80" cy="80" r="62" fill="none" stroke="#4F378A" stroke-width="18" stroke-dasharray="' + premiumLen + ' ' + donutCirc + '" stroke-dashoffset="0" stroke-linecap="round"></circle>' +
-                      '<!-- Segment 2: Free -->' +
-                      '<circle cx="80" cy="80" r="62" fill="none" stroke="#EAB308" stroke-width="18" stroke-dasharray="' + freeLen + ' ' + donutCirc + '" stroke-dashoffset="-' + premiumLen + '" stroke-linecap="round"></circle>' +
-                    '</svg>' +
-                    '<div class="st-donut__center">' +
-                      '<span class="st-donut__center-num">' + learnerTotal.toLocaleString('vi-VN') + '</span>' +
-                      '<span class="st-donut__center-label">Học viên</span>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Legend List -->' +
-              '<div class="st-legend-list">' +
-                '<div class="st-legend-item">' +
-                  '<div class="st-legend-item__left">' +
-                    '<span class="st-legend-dot" style="background:#4F378A;"></span>' +
-                    '<span>Premium</span>' +
-                  '</div>' +
-                  '<div class="st-legend-item__right">' +
-                    '<span>' + premiumActive.toLocaleString('vi-VN') + '</span>' +
-                    '<span class="st-pill st-pill--purple" style="padding:1px 6px; font-size:10px;">' + premiumPct + '%</span>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="st-legend-item">' +
-                  '<div class="st-legend-item__left">' +
-                    '<span class="st-legend-dot" style="background:#EAB308;"></span>' +
-                    '<span>Miễn phí</span>' +
-                  '</div>' +
-                  '<div class="st-legend-item__right">' +
-                    '<span>' + freeCount.toLocaleString('vi-VN') + '</span>' +
-                    '<span class="st-pill st-pill--amber" style="padding:1px 6px; font-size:10px;">' + freePct + '%</span>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-
-            '<!-- Item 3: Giao dịch (Transaction Health Compact) -->' +
-            '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;">' +
-              '<div>' +
-                '<div class="st-card__header">' +
-                  '<div class="st-card__title-group">' +
-                    '<h2 class="st-card__title" style="font-size:15px;">Giao dịch</h2>' +
-                  '</div>' +
-                '</div>' +
-
-                '<div class="st-tx-health__val-row">' +
-                  '<span class="st-tx-health__pct">94.2%</span>' +
-                  '<span class="st-pill st-pill--growth" style="padding:2px 8px; font-size:10px;">Hoàn tất chuẩn</span>' +
-                '</div>' +
-
-                '<!-- Segmented Progress Bar -->' +
-                '<div class="st-seg-bar">' +
-                  '<div class="st-seg-bar__slice st-seg-bar__slice--green" style="width:94%;" title="Hoàn tất: 94%"></div>' +
-                  '<div class="st-seg-bar__slice st-seg-bar__slice--amber" style="width:4%;" title="Đang chờ: 4%"></div>' +
-                  '<div class="st-seg-bar__slice st-seg-bar__slice--red" style="width:2%;" title="Thất bại: 2%"></div>' +
-                '</div>' +
-
-                '<div class="st-status-boxes">' +
-                  '<div class="st-status-box">' +
-                    '<div class="st-status-box__left">' +
-                      '<span style="width:7px; height:7px; border-radius:50%; background:#006947; display:inline-block;"></span>' +
-                      '<span>Hoàn tất</span>' +
-                    '</div>' +
-                    '<div class="st-status-box__right">' +
-                      '<span>' + paidCount + ' gd</span>' +
-                      '<span class="st-status-box__sub">(94%)</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="st-status-box">' +
-                    '<div class="st-status-box__left">' +
-                      '<span style="width:7px; height:7px; border-radius:50%; background:#F5A400; display:inline-block;"></span>' +
-                      '<span>Đang chờ</span>' +
-                    '</div>' +
-                    '<div class="st-status-box__right">' +
-                      '<span style="color:#B45309;">' + pending + ' gd</span>' +
-                      '<span class="st-status-box__sub">(4%)</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="st-status-box">' +
-                    '<div class="st-status-box__left">' +
-                      '<span style="width:7px; height:7px; border-radius:50%; background:#BA1A1A; display:inline-block;"></span>' +
-                      '<span>Thất bại</span>' +
-                    '</div>' +
-                    '<div class="st-status-box__right">' +
-                      '<span style="color:#BA1A1A;">7 gd</span>' +
-                      '<span class="st-status-box__sub">(2%)</span>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<button type="button" class="st-btn-outline-wide" onclick="window.location.href=\'/admin/system/payments\'">' +
-                '<span class="material-symbols-outlined" style="font-size:16px;">account_balance_wallet</span>' +
-                '<span>Kiểm tra cổng thanh toán</span>' +
-              '</button>' +
-            '</div>' +
-          '</div>' +
-
-          '<!-- ROW 4: RECENT AUDIT ACTIVITIES TABLE (FULL WIDTH) -->' +
-          '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;">' +
-            '<div>' +
-              '<div class="st-card__header">' +
-                '<div class="st-card__title-group">' +
-                  '<h2 class="st-card__title">Thao tác quản trị gần đây</h2>' +
-                '</div>' +
-                '<span class="st-pill st-pill--neutral">Thời gian thực</span>' +
-              '</div>' +
-
-              '<div class="st-table-wrap">' +
-                '<table class="st-table">' +
-                  '<thead>' +
-                    '<tr>' +
-                      '<th>Thời gian</th>' +
-                      '<th>Người thao tác</th>' +
-                      '<th>Hành động</th>' +
-                      '<th>Đối tượng</th>' +
-                      '<th style="text-align:right;">Trạng thái</th>' +
-                    '</tr>' +
-                  '</thead>' +
-                  '<tbody>' +
-                    '<tr>' +
-                      '<td style="color:var(--st-outline); white-space:nowrap;">10:42:15 - Hôm nay</td>' +
-                      '<td style="white-space:nowrap;">' +
-                        '<div class="st-table-user">' +
-                          '<span class="st-avatar-badge st-avatar-badge--purple">TN</span>' +
-                          '<span style="font-weight:500;">Trần Văn Nam</span>' +
-                        '</div>' +
-                      '</td>' +
-                      '<td style="font-weight:500;">Phê duyệt bài thi</td>' +
-                      '<td><span class="st-tag-course">JLPT N2</span> Đề thi thử số 04</td>' +
-                      '<td style="text-align:right; white-space:nowrap;">' +
-                        '<span class="st-pill st-pill--growth">Thành công</span>' +
-                      '</td>' +
-                    '</tr>' +
-
-                    '<tr>' +
-                      '<td style="color:var(--st-outline); white-space:nowrap;">09:30:00 - Hôm nay</td>' +
-                      '<td style="white-space:nowrap;">' +
-                        '<div class="st-table-user">' +
-                          '<span class="st-avatar-badge st-avatar-badge--amber"><span class="material-symbols-outlined" style="font-size:14px;">smart_toy</span></span>' +
-                          '<span style="font-weight:500;">Hệ thống AI</span>' +
-                        '</div>' +
-                      '</td>' +
-                      '<td style="font-weight:500; color:#B45309;">Gắn cờ nghi vấn gian lận</td>' +
-                      '<td style="font-family:monospace; font-size:12px; color:var(--st-on-surface-variant);">Tài khoản user_8831</td>' +
-                      '<td style="text-align:right; white-space:nowrap;">' +
-                        '<span class="st-pill st-pill--amber">Cần xem xét</span>' +
-                      '</td>' +
-                    '</tr>' +
-
-                    '<tr>' +
-                      '<td style="color:var(--st-outline); white-space:nowrap;">08:15:22 - Hôm nay</td>' +
-                      '<td style="white-space:nowrap;">' +
-                        '<div class="st-table-user">' +
-                          '<span class="st-avatar-badge st-avatar-badge--green">LM</span>' +
-                          '<span style="font-weight:500;">Lê Thị Mai</span>' +
-                        '</div>' +
-                      '</td>' +
-                      '<td style="font-weight:500;">Thêm từ vựng Kanji</td>' +
-                      '<td style="color:var(--st-on-surface-variant);">Bộ từ vựng N3 Somatome (45 từ)</td>' +
-                      '<td style="text-align:right; white-space:nowrap;">' +
-                        '<span class="st-pill st-pill--growth">Thành công</span>' +
-                      '</td>' +
-                    '</tr>' +
-
-                    '<tr>' +
-                      '<td style="color:var(--st-outline); white-space:nowrap;">Hôm qua, 18:20</td>' +
-                      '<td style="white-space:nowrap;">' +
-                        '<div class="st-table-user">' +
-                          '<span class="st-avatar-badge st-avatar-badge--purple">NT</span>' +
-                          '<span style="font-weight:500;">Nguyễn Minh Tuấn</span>' +
-                        '</div>' +
-                      '</td>' +
-                      '<td style="font-weight:500;">Kích hoạt gói Premium</td>' +
-                      '<td style="color:var(--st-on-surface-variant);">Gói 12 tháng - KH 091823****</td>' +
-                      '<td style="text-align:right; white-space:nowrap;">' +
-                        '<span class="st-pill st-pill--growth">Thành công</span>' +
-                      '</td>' +
-                    '</tr>' +
-                  '</tbody>' +
-                '</table>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-
-      // Interactive segmented filter button handling
-      root.querySelectorAll('.st-segmented__btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          root.querySelectorAll('.st-segmented__btn').forEach(function (b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-        });
+      root.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-period]');
+        if (!button || button.dataset.period === period) return;
+        period = button.dataset.period;
+        try { sessionStorage.setItem('jlas-admin-dashboard-period', period); } catch (ignored) { /* private mode */ }
+        draw();
       });
+      root.innerHTML = A.loading();
+      await draw();
     }
   });
 
