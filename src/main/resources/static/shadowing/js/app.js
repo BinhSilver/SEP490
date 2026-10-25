@@ -452,10 +452,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             div.addEventListener('click', event => {
                 if (event.target.closest('[data-action]')) return;
+                // Highlighting words to look them up (js/inline-dictionary.js) must not jump the video.
+                if (!window.getSelection().isCollapsed) return;
                 playSentence(index);
             });
             bindSubtitleActions(div, sub, index);
-            makeWordsClickable(div.querySelector('.sub-jp'));
             subtitleList.appendChild(div);
         });
         window.dispatchEvent(new CustomEvent('shadowing:subtitles-rendered'));
@@ -464,51 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatFurigana(text) {
         return window.ShadowingSubtitleDisplay.furigana(text);
-    }
-
-    function makeWordsClickable(el) {
-        if (!el) return;
-        el.querySelectorAll('ruby').forEach(ruby => {
-            ruby.style.cursor = 'pointer';
-            ruby.addEventListener('click', e => {
-                e.stopPropagation();
-                lookupWord(ruby.childNodes[0].textContent);
-            });
-        });
-    }
-
-    async function lookupWord(word) {
-        document.querySelectorAll('.dict-popup, .dict-overlay').forEach(e => e.remove());
-        const overlay = document.createElement('div');
-        overlay.className = 'dict-overlay';
-        overlay.onclick = () => { overlay.remove(); popup.remove(); };
-        document.body.appendChild(overlay);
-
-        const popup = document.createElement('div');
-        popup.className = 'dict-popup';
-        popup.style.top = '50%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.innerHTML = '<p>Đang tra...</p>';
-        document.body.appendChild(popup);
-
-        try {
-            const res = await fetch(`/api/dictionary?q=${encodeURIComponent(word)}`);
-            const data = await res.json();
-            let html = `<h4>${word}</h4>`;
-            if (data.results?.length) {
-                data.results.forEach(r => {
-                    html += `<div class="reading">${r.reading || r.word}</div><ul>`;
-                    (r.meanings || []).slice(0, 3).forEach(m => html += `<li>${m}</li>`);
-                    html += '</ul>';
-                });
-            } else {
-                html += '<p class="caption">Không tìm thấy.</p>';
-            }
-            popup.innerHTML = html;
-        } catch {
-            popup.innerHTML = '<p>Lỗi tra từ.</p>';
-        }
     }
 
     furiganaToggleBtn.addEventListener('click', () => {
@@ -776,7 +732,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActiveIndex !== index) return;
             viewerJapanese.innerHTML = formatFurigana(sub.furigana || sub.text);
             viewerTranslation.textContent = sub.translation || '';
-            makeWordsClickable(viewerJapanese);
             viewerJapanese.classList.remove('viewer-fade');
             viewerTranslation.classList.remove('viewer-fade');
             fitSubtitleViewer();
