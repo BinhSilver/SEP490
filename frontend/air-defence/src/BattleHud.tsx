@@ -44,7 +44,7 @@ export function BattleHud(p: HudProps) {
           </button>
         </div>
         <h1 title={p.match.deckTitle}>{p.match.deckTitle}</h1>
-        <span className="ad-hud__fields">{p.match.questionLabel}<i className="fa-solid fa-arrow-right" aria-hidden="true"/>{p.match.answerLabel}</span>
+        <span className="ad-hud__fields">{p.match.questionLabel} · {p.match.answerLabel}</span>
         {(p.liveStatus === 'offline' || p.liveStatus === 'connecting') && <span role="status" className="ad-hud__connection">{p.liveStatus === 'offline' ? 'Đang kết nối lại…' : 'Đang kết nối…'}</span>}
       </div>
       <div className="ad-hud__readouts">
