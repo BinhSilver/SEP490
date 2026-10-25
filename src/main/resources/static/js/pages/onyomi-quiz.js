@@ -146,7 +146,7 @@
         (left
           ? '<p class="oy-quiz__left">Còn ' + left + ' câu chưa làm</p>'
           : '<button class="oy-button oy-button--primary oy-quiz__finish" type="button" data-action="submit">' +
-            '<span>Xem kết quả</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>') +
+            '<span>Xem kết quả</span></button>') +
         '</aside>';
     }
 
@@ -391,7 +391,7 @@
         : '';
       var nextLink = result.passed && config.nextUrl
         ? '<a class="oy-button oy-button--primary" href="' + escapeHtml(config.nextUrl) + '">' +
-          escapeHtml(config.nextLabel) + ' <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>'
+          escapeHtml(config.nextLabel) + '</a>'
         : '';
       paint(panel('oy-quiz__result',
         '<div class="oy-quiz__score">' + score.toFixed(0) + '<small>/100</small></div>' +
