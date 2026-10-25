@@ -77,6 +77,11 @@ public class FlashcardServiceImpl implements FlashcardService {
         if (folderId != null && folderId > 0) folder(folderId, userId);
         return page(sets.findMine(userId, blank(title), folderId, pageable(sort, page, size)), userId);
     }
+    @Override @Transactional(readOnly = true)
+    public PageResponse<SetSummaryDto> favoriteSets(String title, String sort, int page, int size, Long userId) {
+        login(userId);
+        return page(sets.findFavorites(userId, blank(title), pageable(sort, page, size)), userId);
+    }
     /** Mở một bộ cũng ghi lần truy cập, để bộ đó hiện ở mục "Xem gần đây" (Game Arena). */
     @Override
     public SetDetailDto set(Long id, Long userId) { FlashcardSet set = readable(id, userId); accessed(userId, set); return detail(set, userId); }

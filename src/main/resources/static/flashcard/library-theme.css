@@ -1235,3 +1235,19 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-icon-btn { width: 44px; height: 44px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-list { max-height: none; overflow: visible; }
 }
+
+/* "Ôn hôm nay" tab (?tab=review): the SRS panel takes the place of the set list. On phones the source
+   picker stays so the learner can switch back; everything that filters or lists sets is hidden. */
+#jlabBasePage.flashcard-page--library .library-content.is-review > :not(.lib-control-dock):not(#library-review),
+#jlabBasePage.flashcard-page--library .library-content.is-review .lib-toolbar,
+#jlabBasePage.flashcard-page--library .library-content.is-review #lib-folder-filter { display: none !important; }
+#jlabBasePage.flashcard-page--library .library-content.is-review .lib-control-dock { display: none; }
+#jlabBasePage.flashcard-page--library .library-content > #library-review { max-width: none; margin: 0; padding: 0 0 48px; }
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-review .lib-control-dock { display: grid; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-review .lib-mobile-filters { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Heart toggle on set cards; filled and tinted once the set is a favorite. */
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite,
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite i { color: var(--color-error, #e5484d); }
