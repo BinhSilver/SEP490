@@ -49,7 +49,7 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
     private static final String[] SELECT_TYPES = {"KANJI_TO_READING", "READING_TO_KANJI", "KANJI_TO_MEANING"};
 
     private final InteractiveStudyEngine<KanjiEntry> engine;
-    private final KanjiGlossCatalog gloss;
+    private final KanjiMeaningCatalog meanings;
     /** OD-D2-05: "Ôn" Kanji of a deduplicated JLPT chapter; absent in slice tests. */
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private LessonReviewLookup reviewLookup;
@@ -59,7 +59,7 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
             LearningMicroCheckStateRepository checkStates, LearningQuizSessionRepository quizSessions,
             KanjiRepository kanjiRepo, KanjiReadingRepository kanjiReadingRepo, LearningMapper mapper) {
         this(items, members, studySessions, studyCards, checkStates, quizSessions, kanjiRepo, kanjiReadingRepo, mapper,
-                new KanjiGlossCatalog());
+                new KanjiMeaningCatalog());
     }
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -67,10 +67,10 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
             LearningStudySessionRepository studySessions, LearningStudyCardRepository studyCards,
             LearningMicroCheckStateRepository checkStates, LearningQuizSessionRepository quizSessions,
             KanjiRepository kanjiRepo, KanjiReadingRepository kanjiReadingRepo, LearningMapper mapper,
-            KanjiGlossCatalog gloss) {
+            KanjiMeaningCatalog meanings) {
         this.engine = new InteractiveStudyEngine<>(items, members, studySessions, studyCards, checkStates,
-                quizSessions, mapper, new KanjiContentAdapter(kanjiRepo, kanjiReadingRepo));
-        this.gloss = gloss;
+                quizSessions, mapper, new KanjiContentAdapter(kanjiRepo, kanjiReadingRepo, meanings));
+        this.meanings = meanings;
     }
 
     @Override
@@ -157,20 +157,25 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
             Kanji k = e == null ? null : e.kanji();
             return new KanjiStudyState.KanjiStudyCard(c.memberId(), c.orderIndex(),
                     k == null ? null : k.getCharacter(), k == null ? null : k.getHanViet(),
-                    k == null ? null : k.getMeaningVi(), k == null ? null : k.getJlptLevel(),
+                    e == null ? null : e.meaningVi(), k == null ? null : k.getJlptLevel(),
                     k == null || k.getStrokeCount() == null ? null : k.getStrokeCount().intValue(),
                     e == null ? List.of() : e.onReadings(), e == null ? List.of() : e.kunReadings(),
-                    c.flipped(), c.remembered(), k == null ? null : gloss.meaningEn(k.getCharacter()));
+                    c.flipped(), c.remembered(), null);
         }).toList();
-        boolean anyGloss = cards.stream().anyMatch(card -> card.meaningEn() != null);
+        // D3-03: no English meaning any more; the credit line names VNJPClub when one of its meanings is shown.
+        boolean anyOwned = s.cards().stream().anyMatch(c -> c.entity() != null
+                && meanings.meaningVi(c.entity().kanji().getCharacter()) != null);
         return new KanjiStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
-                s.partIndex(), s.partCount(), anyGloss ? gloss.attribution() : null,
+                s.partIndex(), s.partCount(), anyOwned ? meanings.attribution() : null,
                 reviewLookup == null ? List.of() : reviewLookup.kanji(s.activityId()));
     }
 
     /** Canonical Kanji + its On/Kun readings, loaded once per batch — never fabricated when absent. */
-    record KanjiEntry(Kanji kanji, List<String> onReadings, List<String> kunReadings) {
+    record KanjiEntry(Kanji kanji, List<String> onReadings, List<String> kunReadings, String meaningVi) {
+        KanjiEntry(Kanji kanji, List<String> onReadings, List<String> kunReadings) {
+            this(kanji, onReadings, kunReadings, kanji.getMeaningVi());
+        }
         String primaryReading() {
             if (!onReadings.isEmpty()) return onReadings.get(0);
             if (!kunReadings.isEmpty()) return kunReadings.get(0);
@@ -183,10 +188,19 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
     static final class KanjiContentAdapter implements InteractiveContentAdapter<KanjiEntry> {
         private final KanjiRepository kanjiRepo;
         private final KanjiReadingRepository kanjiReadingRepo;
+        private final KanjiMeaningCatalog meanings;
 
-        KanjiContentAdapter(KanjiRepository kanjiRepo, KanjiReadingRepository kanjiReadingRepo) {
+        KanjiContentAdapter(KanjiRepository kanjiRepo, KanjiReadingRepository kanjiReadingRepo,
+                KanjiMeaningCatalog meanings) {
             this.kanjiRepo = kanjiRepo;
             this.kanjiReadingRepo = kanjiReadingRepo;
+            this.meanings = meanings;
+        }
+
+        /** D3-03: Learning's VNJPClub meaning first; Dictionary's own meaning only for a character outside the books. */
+        private String meaningVi(Kanji k) {
+            String owned = meanings.meaningVi(k.getCharacter());
+            return owned != null ? owned : k.getMeaningVi();
         }
 
         @Override
@@ -217,7 +231,7 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
                         .map(KanjiReading::getReadingText).toList();
                 List<String> kun = forKanji.stream().filter(r -> "KUN".equalsIgnoreCase(r.getReadingType()))
                         .map(KanjiReading::getReadingText).toList();
-                return new KanjiEntry(k, on, kun);
+                return new KanjiEntry(k, on, kun, meaningVi(k));
             }));
         }
 
@@ -233,15 +247,15 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
                 specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, e), selectCorrect(type, e),
                         selectDistractors(type, e, batch)));
             }
-            List<String> meanings = batch.stream().map(e -> e.kanji().getMeaningVi()).toList();
+            List<String> meanings = batch.stream().map(e -> e.meaningVi()).toList();
             if (meanings.size() >= 2 && meanings.stream().allMatch(value -> value != null && !value.isBlank())
                     && new HashSet<>(meanings).size() == meanings.size()) {
                 List<String> commonOptions = new ArrayList<>(meanings);
                 Collections.rotate(commonOptions, (variationSeed + batchIndex + 1) % commonOptions.size());
                 for (KanjiEntry entry : batch) {
                     specs.add(new QuestionSpec(qid++, "MATCHING", entry.kanji().getCharacter(),
-                            commonOptions, commonOptions.indexOf(entry.kanji().getMeaningVi()) + 1,
-                            entry.kanji().getMeaningVi()));
+                            commonOptions, commonOptions.indexOf(entry.meaningVi()) + 1,
+                            entry.meaningVi()));
                 }
             }
             return specs;
@@ -265,13 +279,13 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
             String preferred = SELECT_TYPES[rotateSeed % SELECT_TYPES.length];
             if ("READING_TO_KANJI".equals(preferred) && e.primaryReading() != null
                     && duplicatedReadings.contains(e.primaryReading())) {
-                return e.kanji().getMeaningVi() != null ? "KANJI_TO_MEANING" : "KANJI_TO_READING";
+                return e.meaningVi() != null ? "KANJI_TO_MEANING" : "KANJI_TO_READING";
             }
             boolean needsReading = !"KANJI_TO_MEANING".equals(preferred);
             if (needsReading && e.primaryReading() == null) {
-                return e.kanji().getMeaningVi() != null ? "KANJI_TO_MEANING" : null;
+                return e.meaningVi() != null ? "KANJI_TO_MEANING" : null;
             }
-            if ("KANJI_TO_MEANING".equals(preferred) && e.kanji().getMeaningVi() == null) {
+            if ("KANJI_TO_MEANING".equals(preferred) && e.meaningVi() == null) {
                 return e.primaryReading() != null ? "KANJI_TO_READING" : null;
             }
             return preferred;
@@ -291,7 +305,7 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
             return switch (type) {
                 case "KANJI_TO_READING" -> e.primaryReading();
                 case "READING_TO_KANJI", "KANJI_TO_MEANING" -> type.equals("READING_TO_KANJI")
-                        ? e.kanji().getCharacter() : e.kanji().getMeaningVi();
+                        ? e.kanji().getCharacter() : e.meaningVi();
                 default -> throw new IllegalArgumentException(type);
             };
         }
@@ -300,7 +314,7 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
             return switch (type) {
                 case "KANJI_TO_READING" -> batch.stream().map(KanjiEntry::primaryReading).toList();
                 case "READING_TO_KANJI" -> batch.stream().map(b -> b.kanji().getCharacter()).toList();
-                case "KANJI_TO_MEANING" -> batch.stream().map(b -> b.kanji().getMeaningVi()).toList();
+                case "KANJI_TO_MEANING" -> batch.stream().map(b -> b.meaningVi()).toList();
                 default -> throw new IllegalArgumentException(type);
             };
         }
