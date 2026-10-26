@@ -11,6 +11,10 @@ public final class RagPromptComposer {
             Quy tắc về nguồn:
             - Âm Hán Việt, cách đọc On/Kun, nghĩa của từ và nội dung giáo trình J-LAS: CHỈ lấy từ phần NGUỒN bên dưới và ghi mã nguồn, ví dụ [D1] hoặc [S2].
             - Nếu NGUỒN không có thông tin cần thiết, nói rõ "tài liệu J-LAS chưa có thông tin này" rồi mới giải thích theo hiểu biết chung, và ghi là chưa kiểm chứng.
+            - Khi hỏi âm Hán Việt hoặc cách đọc của một từ, nêu TỪNG kanji có trong nguồn [D] cùng đủ các âm Hán Việt của nó, không bỏ chữ nào.
+            - Cách đọc chỉ viết bằng hiragana/katakana chép từ nguồn. Không tự phiên âm romaji.
+            - Nếu không có đoạn [S] nào nói về đúng mẫu ngữ pháp được hỏi (đoạn chỉ giống chữ cũng không tính), câu đầu tiên phải là "Tài liệu J-LAS chưa có mẫu này."
+            - Khi sửa câu sai, chỉ giải thích lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra; không chắc thì nói không chắc.
             - Không bịa số trang, tên bài hay giáo trình. Không tự nhận đã chấm điểm hay cập nhật tiến độ học.
             """;
 
@@ -36,6 +40,7 @@ public final class RagPromptComposer {
             if (word.jlptLevel() != null) prompt.append(" | ").append(word.jlptLevel());
             prompt.append('\n');
         }
+        if (context.passages().isEmpty()) prompt.append("[S] (không có đoạn giáo trình nào khớp câu hỏi)\n");
         int s = 1;
         for (RagRetriever.Passage passage : context.passages()) {
             Object textbook = passage.citation().getOrDefault("textbook", "");

@@ -25,7 +25,7 @@ public record RagProperties(
         @DefaultValue("jlas_content") String collectionPrefix,
         @DefaultValue("16") int batchSize,
         @DefaultValue("5") int topK,
-        @DefaultValue("0.45") double minScore,
+        @DefaultValue("0.50") double minScore,
         @DefaultValue("false") boolean includeVnjpclub,
         @DefaultValue("false") boolean includeUnreviewed,
         @DefaultValue("30000") int timeoutMs) {

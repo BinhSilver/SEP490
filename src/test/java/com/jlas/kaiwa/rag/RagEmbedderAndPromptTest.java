@@ -98,4 +98,16 @@ class RagEmbedderAndPromptTest {
         assertThat(RagPromptComposer.systemPrompt(new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(List.of(), List.of()))))
                 .contains("(không có nguồn phù hợp)");
     }
+
+    @Test
+    void dictionaryOnlyContextSaysTextbookHasNoMatchingPassage() {
+        var kanji = new RagLexiconLookup.KanjiEntry(1, "強", "Cường, Cưỡng", null, "N4", List.of("キョウ"), List.of("つよ.い"));
+
+        String prompt = RagPromptComposer.systemPrompt(new RagRetriever.Context(List.of(),
+                new RagLexiconLookup.Result(List.of(), List.of(kanji))));
+
+        assertThat(prompt).contains("[D1] Kanji 強 | Hán Việt: Cường, Cưỡng", "[S] (không có đoạn giáo trình nào khớp câu hỏi)",
+                "Tài liệu J-LAS chưa có mẫu này.", "Không tự phiên âm romaji");
+        assertThat(prompt).doesNotContain("[S1]");
+    }
 }

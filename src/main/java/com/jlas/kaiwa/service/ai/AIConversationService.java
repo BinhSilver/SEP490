@@ -489,16 +489,37 @@ public class AIConversationService {
                 || value.matches(".*(?:か|でしょうか|ませんか)[。]$");
     }
 
+    // Time words a correction must keep: dropping one changes what the learner meant (あした → あさ),
+    // which is a rewrite, not a grammar fix. Each entry lists the forms that count as the same word.
+    private static final List<List<String>> PRESERVED_TIME_WORDS = List.of(
+            List.of("あした", "明日"), List.of("あさって", "明後日"), List.of("きのう", "昨日"),
+            List.of("おととい", "一昨日"), List.of("今日", "きょう"), List.of("けさ", "今朝"),
+            List.of("こんばん", "今晩"), List.of("らいしゅう", "来週"), List.of("せんしゅう", "先週"),
+            List.of("らいげつ", "来月"), List.of("せんげつ", "先月"), List.of("らいねん", "来年"),
+            List.of("きょねん", "去年"), List.of("まいにち", "毎日"));
+
     static void discardUnchangedCorrection(AiModelReply reply, String learnerText) {
-        // A correction identical to the learner's sentence cannot establish a grammar error.
+        // A correction identical to the learner's sentence cannot establish a grammar error,
+        // and one that drops the learner's time word changes the meaning instead of fixing it.
         if (reply != null && reply.isHasError() && reply.getCorrected() != null
-                && sameJapaneseText(reply.getCorrected(), learnerText)) {
+                && (sameJapaneseText(reply.getCorrected(), learnerText)
+                    || dropsTimeWord(learnerText, reply.getCorrected()))) {
             reply.setHasError(false);
             reply.setCorrected(null);
             reply.setOriginalWrong(null);
             reply.setGrammarReason(null);
             reply.setMistakeType(null);
         }
+    }
+
+    static boolean dropsTimeWord(String learnerText, String corrected) {
+        if (learnerText == null || corrected == null) return false;
+        for (List<String> forms : PRESERVED_TIME_WORDS) {
+            // きょう also occurs inside other words (べんきょう), so it is accepted in corrected but never detected.
+            boolean used = forms.stream().anyMatch(form -> !"きょう".equals(form) && learnerText.contains(form));
+            if (used && forms.stream().noneMatch(corrected::contains)) return true;
+        }
+        return false;
     }
 
     private static boolean sameJapaneseText(String left, String right) {

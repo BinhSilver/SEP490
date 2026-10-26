@@ -1023,6 +1023,9 @@ ALTER TABLE content_item
 CREATE TABLE content_vocabulary (
     content_item_id BIGINT UNSIGNED NOT NULL,
     vocabulary_id   BIGINT UNSIGNED NOT NULL,
+    learning_meaning_vi TEXT NULL,
+    learning_example_ja TEXT NULL,
+    learning_example_vi TEXT NULL,
     PRIMARY KEY (content_item_id, vocabulary_id),
     KEY idx_content_vocabulary_vocab (vocabulary_id),
     CONSTRAINT fk_content_vocab_content FOREIGN KEY (content_item_id)
@@ -1995,6 +1998,7 @@ CREATE TABLE learning_activity_member (
     canonical_id BIGINT UNSIGNED NOT NULL,
     order_index INT UNSIGNED NOT NULL,
     source_revision VARCHAR(64) NOT NULL,
+    content_snapshot_json TEXT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_learning_activity_member_identity (activity_item_id, member_type, canonical_id),
     KEY idx_learning_activity_member_order (activity_item_id, order_index),
@@ -2177,6 +2181,7 @@ CREATE TABLE learning_quiz_session (
     score_percent    INT NULL,
     passed           TINYINT(1) NULL,
     result_json      TEXT NULL COMMENT 'JSON ket qua da cham de tra lai khi nop lai (idempotent)',
+    draft_answers_json TEXT NULL,
     issued_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     submitted_at     DATETIME(6) NULL,
     PRIMARY KEY (id),

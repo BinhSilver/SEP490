@@ -63,7 +63,7 @@ Biến môi trường (hoặc `application-local.yaml`):
 KAIWA_RAG_ENABLED=true
 QDRANT_URL=http://127.0.0.1:6333
 KAIWA_RAG_TOP_K=5
-KAIWA_RAG_MIN_SCORE=0.45
+KAIWA_RAG_MIN_SCORE=0.50
 ```
 
 Embedding của RAG luôn gọi Ollama cục bộ (`/api/embed`), kể cả khi chat vẫn dùng OpenRouter: nội dung giáo trình và câu hỏi không bị gửi ra ngoài để embed.
@@ -79,7 +79,7 @@ API (chỉ ADMIN, cần `Authorization: Bearer <token-admin>`):
 
 ## 4. Hiệu chỉnh và đánh giá trên máy thật
 
-`min-score: 0.45` là giá trị khởi đầu, **chưa được đo với bge-m3 thật**. Chạy:
+`min-score: 0.50` được chọn từ lần đo bge-m3 thật ngày 2026-10-26 trên RTX 3070 Ti: câu ngoài phạm vi cao nhất 0,485, câu có nguồn đúng thấp nhất 0,518. Khoảng cách này mỏng, nên đo lại mỗi khi index thêm nhiều nội dung. Ngưỡng không chặn được câu hỏi về mẫu chưa có trong giáo trình nhưng giống chữ (ようになる khớp なります 0,674); việc đó do prompt xử lý. Đo lại bằng:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\ai-tutor\rag-eval.ps1 -Token <token-admin> -Reindex -Ask
