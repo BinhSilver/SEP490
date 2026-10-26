@@ -28,8 +28,8 @@ public class OpenRouterClient {
     public OpenRouterClient(OpenRouterConfig config) {
         this.config = config;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(15_000);
-        factory.setReadTimeout(60_000);
+        factory.setConnectTimeout(config.getConnectTimeoutMs());
+        factory.setReadTimeout(config.getReadTimeoutMs());
         this.restTemplate = new RestTemplate(factory);
         // Ensure UTF-8 for Japanese replies (default ISO can garble かな)
         this.restTemplate.getMessageConverters().removeIf(c -> c instanceof StringHttpMessageConverter);
@@ -61,60 +61,100 @@ public class OpenRouterClient {
         body.put("messages", messages);
         body.put("temperature", 0.6);
         body.put("max_tokens", structured ? 2048 : 900);
-        body.put("reasoning", Map.of("effort", "low", "exclude", true));
+        // "reasoning" is an OpenRouter extension; Ollama thinking is turned off via the native API instead.
+        if (!config.isLocal()) body.put("reasoning", Map.of("effort", "low", "exclude", true));
         if (structured) body.put("response_format", Map.of("type", "json_object"));
         if (graph) {
             // Leave room for reasoning plus the full control object. Reasoning
             // must never be substituted for the NPC's JSON dialogue response.
             body.put("max_tokens", 2048);
-            body.put("reasoning", Map.of("effort", "low", "exclude", true));
             body.put("response_format", graphResponseFormat());
         }
+        return send(body);
+    }
 
+    /**
+     * Một lượt gọi rất ngắn để kiểm tra nhà cung cấp/model đang cấu hình có trả lời được không.
+     * Không trả nội dung lỗi của nhà cung cấp ra ngoài, chỉ loại lỗi.
+     */
+    public ProbeResult probe() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("model", config.getModel());
+        body.put("messages", List.of(
+                Map.of("role", "system", "content", "Trả lời đúng một từ."),
+                Map.of("role", "user", "content", "「はい」をローマ字で書いてください。")));
+        body.put("temperature", 0);
+        body.put("max_tokens", 16);
+        long started = System.nanoTime();
+        try {
+            String reply = send(body);
+            return new ProbeResult(config.getProvider(), config.getModel(), true, elapsedMs(started), null, reply.length());
+        } catch (IllegalStateException e) {
+            String error = e.getCause() instanceof ResourceAccessException ? "UNREACHABLE_OR_TIMEOUT"
+                    : e.getCause() instanceof HttpStatusCodeException status ? "HTTP_" + status.getStatusCode().value()
+                    : "INVALID_RESPONSE";
+            return new ProbeResult(config.getProvider(), config.getModel(), false, elapsedMs(started), error, 0);
+        }
+    }
+
+    public record ProbeResult(String provider, String model, boolean ok, long latencyMs, String error, int replyChars) { }
+
+    private static long elapsedMs(long startedNanos) {
+        return (System.nanoTime() - startedNanos) / 1_000_000;
+    }
+
+    private String label() {
+        return config.isLocal() ? "Ollama" : "OpenRouter";
+    }
+
+    private String send(Map<String, Object> body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setAcceptCharset(List.of(StandardCharsets.UTF_8));
-        headers.setBearerAuth(config.getApiKey() == null ? "" : config.getApiKey().trim());
-        headers.set("HTTP-Referer", config.getSiteUrl());
-        headers.set("X-Title", config.getSiteName());
+        String apiKey = config.getApiKey() == null ? "" : config.getApiKey().trim();
+        if (!config.isLocal()) {
+            headers.setBearerAuth(apiKey);
+            headers.set("HTTP-Referer", config.getSiteUrl());
+            headers.set("X-Title", config.getSiteName());
+        }
 
         try {
             // Read as String first so UTF-8 Japanese is preserved, then parse lightly via Map via Jackson-less extract
             ResponseEntity<String> rawResponse = exchangeWithRetry(
-                    config.getApiUrl() + "/chat/completions",
+                    config.isLocal() ? OllamaNativeChat.url(config) : config.getApiUrl() + "/chat/completions",
                     HttpMethod.POST,
-                    new HttpEntity<>(body, headers),
+                    new HttpEntity<>(config.isLocal() ? OllamaNativeChat.toNative(body, config) : body, headers),
                     String.class
             );
 
             if (!rawResponse.getStatusCode().is2xxSuccessful() || rawResponse.getBody() == null) {
-                throw new IllegalStateException("OpenRouter empty HTTP " + rawResponse.getStatusCode());
+                throw new IllegalStateException(label() + " empty HTTP " + rawResponse.getStatusCode());
             }
 
             String raw = rawResponse.getBody();
             Map<?, ?> responseBody = parseJsonMap(raw);
             if (responseBody.get("error") != null) {
-                throw new IllegalStateException("OpenRouter error: " + responseBody.get("error"));
+                throw new IllegalStateException(label() + " error: " + responseBody.get("error"));
             }
 
-            String content = extractGraphContent(responseBody);
+            String content = config.isLocal() ? OllamaNativeChat.content(responseBody) : extractGraphContent(responseBody);
             if (content == null || content.isBlank()) {
-                throw new IllegalStateException("OpenRouter message content empty (model may be thinking-only or wrong id: "
+                throw new IllegalStateException(label() + " message content empty (model may be thinking-only or wrong id: "
                         + config.getModel() + ")");
             }
-            log.info("OpenRouter OK model={} chars={}", config.getModel(), content.length());
+            log.info("{} OK model={} chars={}", label(), config.getModel(), content.length());
             return content.trim();
         } catch (HttpStatusCodeException e) {
             String bodyStr = e.getResponseBodyAsString();
-            log.error("OpenRouter HTTP {}: {}", e.getStatusCode(), bodyStr);
-            throw new IllegalStateException("OpenRouter HTTP " + e.getStatusCode() + ": "
+            log.error("{} HTTP {}: {}", label(), e.getStatusCode(), bodyStr);
+            throw new IllegalStateException(label() + " HTTP " + e.getStatusCode() + ": "
                     + (bodyStr != null && bodyStr.length() > 300 ? bodyStr.substring(0, 300) : bodyStr), e);
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
-            log.error("OpenRouter call failed: {}", e.getMessage(), e);
-            throw new IllegalStateException("OpenRouter call failed: " + e.getMessage(), e);
+            log.error("{} call failed: {}", label(), e.getMessage(), e);
+            throw new IllegalStateException(label() + " call failed: " + e.getMessage(), e);
         }
     }
 
@@ -171,7 +211,7 @@ public class OpenRouterClient {
         try {
             return new com.fasterxml.jackson.databind.ObjectMapper().readValue(raw, Map.class);
         } catch (Exception e) {
-            throw new IllegalStateException("OpenRouter response not JSON: " + e.getMessage(), e);
+            throw new IllegalStateException("LLM response not JSON: " + e.getMessage(), e);
         }
     }
 

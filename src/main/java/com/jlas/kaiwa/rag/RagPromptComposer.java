@@ -1,0 +1,56 @@
+package com.jlas.kaiwa.rag;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/** Dựng prompt gia sư có nguồn: mỗi nguồn được đánh số [D1], [S1] để model trích lại. */
+public final class RagPromptComposer {
+
+    static final String BASE = """
+            Bạn là gia sư tiếng Nhật của J-LAS cho người Việt. Giải thích bằng tiếng Việt, ví dụ bằng tiếng Nhật kèm cách đọc hiragana.
+            Quy tắc về nguồn:
+            - Âm Hán Việt, cách đọc On/Kun, nghĩa của từ và nội dung giáo trình J-LAS: CHỈ lấy từ phần NGUỒN bên dưới và ghi mã nguồn, ví dụ [D1] hoặc [S2].
+            - Nếu NGUỒN không có thông tin cần thiết, nói rõ "tài liệu J-LAS chưa có thông tin này" rồi mới giải thích theo hiểu biết chung, và ghi là chưa kiểm chứng.
+            - Không bịa số trang, tên bài hay giáo trình. Không tự nhận đã chấm điểm hay cập nhật tiến độ học.
+            """;
+
+    private RagPromptComposer() { }
+
+    public static String systemPrompt(RagRetriever.Context context) {
+        StringBuilder prompt = new StringBuilder(BASE).append("\nNGUỒN:\n");
+        if (context.isEmpty()) return prompt.append("(không có nguồn phù hợp)\n").toString();
+        int d = 1;
+        for (RagLexiconLookup.KanjiEntry kanji : context.lexicon().kanji()) {
+            prompt.append("[D").append(d++).append("] Kanji ").append(kanji.character())
+                    .append(" | Hán Việt: ").append(orDash(kanji.hanViet()))
+                    .append(" | On: ").append(join(kanji.onyomi()))
+                    .append(" | Kun: ").append(join(kanji.kunyomi()));
+            if (kanji.meaningVi() != null && !kanji.meaningVi().isBlank()) prompt.append(" | Nghĩa: ").append(kanji.meaningVi());
+            if (kanji.jlptLevel() != null) prompt.append(" | ").append(kanji.jlptLevel());
+            prompt.append('\n');
+        }
+        for (RagLexiconLookup.WordEntry word : context.lexicon().words()) {
+            prompt.append("[D").append(d++).append("] Từ ").append(word.expression()).append(" (").append(word.reading()).append(")")
+                    .append(" | Nghĩa: ").append(orDash(word.meaning()));
+            if (word.wordType() != null) prompt.append(" | Loại: ").append(word.wordType());
+            if (word.jlptLevel() != null) prompt.append(" | ").append(word.jlptLevel());
+            prompt.append('\n');
+        }
+        int s = 1;
+        for (RagRetriever.Passage passage : context.passages()) {
+            Object textbook = passage.citation().getOrDefault("textbook", "");
+            Object lesson = passage.citation().getOrDefault("lesson", "");
+            prompt.append("[S").append(s++).append("] ").append(textbook).append(" › ").append(lesson).append('\n')
+                    .append(passage.text()).append('\n');
+        }
+        return prompt.toString();
+    }
+
+    private static String join(List<String> values) {
+        return values.isEmpty() ? "-" : values.stream().collect(Collectors.joining(", "));
+    }
+
+    private static String orDash(String value) {
+        return value == null || value.isBlank() ? "-" : value;
+    }
+}
