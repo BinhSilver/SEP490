@@ -72,6 +72,8 @@ public class TutorChatService {
         if (q.isEmpty() || q.length() > limits.maxQuestionChars()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu hỏi phải có từ 1 đến " + limits.maxQuestionChars() + " ký tự.");
         }
+        String smallTalk = SmallTalk.reply(q);
+        if (smallTalk != null) return new Reply(smallTalk, List.of(), 0, 0);
         if (!inFlight.add(userId)) {
             throw new ApiException(ErrorCode.TOO_MANY_REQUESTS, "Gia sư đang trả lời câu trước của bạn, chờ một chút nhé.");
         }

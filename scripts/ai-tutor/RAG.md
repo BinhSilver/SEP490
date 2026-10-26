@@ -123,5 +123,6 @@ Nút "Hỏi gia sư" ở góc phải dưới các trang học (trang dùng `frag
 - Giới hạn: `TUTOR_MAX_CONCURRENT` câu cùng lúc cho cả LAN (mặc định 2, Ollama trên một GPU chạy lần lượt), chờ tối đa `TUTOR_WAIT_SECONDS` (30), mỗi người `TUTOR_QUESTIONS_PER_HOUR` câu mỗi giờ (60) và một câu một lúc, câu hỏi tối đa 500 ký tự.
 - Chỉ trả lời theo nguồn J-LAS. Không tìm được nguồn nào thì trả lời cố định, không gọi model. Hỏi mẫu ngữ pháp bằng romaji (ví dụ `nittote`) thì đổi sang kana (`にっとて`) để tìm; giáo trình không có đúng chữ đó thì báo chưa có mẫu này và nhờ người học viết bằng chữ Nhật, không để model đoán sang mẫu khác. `sources` chỉ gồm các nguồn câu trả lời có trích.
 - Hỏi âm Hán Việt thì chép thẳng từ từ điển J-LAS, không gọi model. Câu hỏi khác đã tìm được từ thì bỏ các dòng kanji riêng lẻ, để model không suy nghĩa của từ từ nghĩa từng chữ.
+- Câu chào, cảm ơn và câu hỏi về chính gia sư ("bạn là ai", "dùng model gì") được đáp ngắn cố định, không gọi model. Câu hỏi sức khỏe không có nguồn thì nhắc hỏi bác sĩ hoặc dược sĩ.
 - Câu hỏi nối tiếp ngắn (dưới 40 ký tự, ví dụ "cho thêm ví dụ") được tìm nguồn kèm câu hỏi trước của người học.
 - Không lưu cuộc trò chuyện ở máy chủ: lịch sử nằm trong tab trình duyệt (sessionStorage), gửi kèm 6 lượt cuối. Log chỉ ghi id người dùng, số nguồn và thời gian, không ghi nội dung câu hỏi.

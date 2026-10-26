@@ -24,10 +24,13 @@ public class RagTutorService {
     private static final Pattern KANJI_QUESTION =
             Pattern.compile("\\b(han viet|kanji|chu han|tung chu|am on|am kun|on ?/? ?kun|kun|onyomi|kunyomi|bo thu)\\b");
     private static final Pattern HAN_VIET_QUESTION = Pattern.compile("\\bhan viet\\b");
+    private static final Pattern HEALTH_QUESTION = Pattern.compile(
+            "\\b(bi dau|dau dau|dau bung|dau hong|uong thuoc|thuoc gi|bi sot|bi benh|bi om|bi ho|cam cum|bac si|duoc si|kham benh)\\b");
 
     /** Không có nguồn nào: trả lời cố định, không gọi model để model không tự bịa. */
     static final String NO_SOURCE = "Tài liệu J-LAS chưa có nội dung cho câu hỏi này, nên mình không trả lời để tránh nói sai. "
             + "Bạn thử hỏi về bài đang học, hoặc viết từ hay mẫu ngữ pháp bằng chữ Nhật nhé.";
+    static final String SEE_A_DOCTOR = " Nếu bạn đang không khỏe, hãy hỏi bác sĩ hoặc dược sĩ nhé.";
 
     private final RagRetriever retriever;
     private final LocalLlmClient llm;
@@ -55,7 +58,7 @@ public class RagTutorService {
             return new Answer(hanVietAnswer(context.lexicon()), context.passages(), context.lexicon(),
                     RagPromptComposer.citations(context), retrievalMs, 0);
         }
-        String fixed = context.isEmpty() ? NO_SOURCE
+        String fixed = context.isEmpty() ? NO_SOURCE + (HEALTH_QUESTION.matcher(plain(question)).find() ? SEE_A_DOCTOR : "")
                 : !hints.isEmpty() && isGrammarQuestion(question) && notInSources(hints, context) ? unknownPattern(hints) : null;
         if (fixed != null) return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0);
         String answer = llm.chat(RagPromptComposer.systemPrompt(context, hints), history, question, MAX_ANSWER_TOKENS);

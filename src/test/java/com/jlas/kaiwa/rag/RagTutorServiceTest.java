@@ -55,6 +55,8 @@ class RagTutorServiceTest {
 
         assertThat(answer.answer()).isEqualTo(RagTutorService.NO_SOURCE);
         assertThat(answer.citations()).isEmpty();
+        assertThat(tutor.ask("Mình bị đau đầu thì nên uống thuốc gì?").answer())
+                .isEqualTo(RagTutorService.NO_SOURCE + RagTutorService.SEE_A_DOCTOR);
         verifyNoInteractions(llm);
     }
 

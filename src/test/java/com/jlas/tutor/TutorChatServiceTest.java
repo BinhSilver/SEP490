@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.jlas.common.exception.ApiException;
@@ -59,6 +60,27 @@ class TutorChatServiceTest {
         assertThat(reply.answer()).isEqualTo("**は** là trợ từ chủ đề [S1].");
         assertThat(reply.sources()).extracting(RagPromptComposer.Citation::code).containsExactly("S1");
         verify(rag).ask("は dùng thế nào?", List.of());
+    }
+
+    @Test
+    void greetingsThanksAndQuestionsAboutTheTutorGetAShortFixedReply() {
+        TutorChatService tutor = service(true, limits(2, 1, 60));
+
+        assertThat(tutor.ask(1L, "xin chào", List.of()).answer()).isEqualTo(SmallTalk.GREETING_REPLY);
+        assertThat(tutor.ask(1L, "Hello bạn!", List.of()).answer()).isEqualTo(SmallTalk.GREETING_REPLY);
+        assertThat(tutor.ask(1L, "Cảm ơn bạn nhiều nhé!", List.of()).answer()).isEqualTo(SmallTalk.THANKS_REPLY);
+        assertThat(tutor.ask(1L, "ok thanks", List.of()).answer()).isEqualTo(SmallTalk.THANKS_REPLY);
+        TutorChatService.Reply who = tutor.ask(1L, "Bạn là ai? Bạn dùng model gì?", List.of());
+        assertThat(who.answer()).isEqualTo(SmallTalk.IDENTITY_REPLY);
+        assertThat(who.sources()).isEmpty();
+        verifyNoInteractions(rag);
+
+        // Câu hỏi thật có chứa các chữ đó vẫn được gia sư trả lời.
+        when(rag.ask(anyString(), anyList())).thenReturn(answer("..."));
+        tutor.ask(1L, "Câu \"bạn là ai\" tiếng Nhật nói thế nào?", List.of());
+        tutor.ask(1L, "こんにちは", List.of());
+        verify(rag).ask("Câu \"bạn là ai\" tiếng Nhật nói thế nào?", List.of());
+        verify(rag).ask("こんにちは", List.of());
     }
 
     @Test
