@@ -51,6 +51,28 @@ class CorrectionGuardTest {
     }
 
     @Test
+    void unchangedQuoteOfOneSentenceInALongerMessageIsDropped() {
+        String learner = "はい、元気です。今日は日本語を勉強しました。";
+        AiModelReply quoted = correction("今日は日本語を勉強しました。", "今日は日本語を勉強しました。");
+        AiModelReply noOriginal = correction(null, "今日は日本語を勉強しました");
+
+        AIConversationService.discardUnchangedCorrection(quoted, learner);
+        AIConversationService.discardUnchangedCorrection(noOriginal, learner);
+
+        assertThat(quoted.isHasError()).isFalse();
+        assertThat(noOriginal.isHasError()).isFalse();
+    }
+
+    @Test
+    void realFixOfOneSentenceInALongerMessageIsKept() {
+        AiModelReply reply = correction("学校を行きました。", "学校へ行きました。");
+
+        AIConversationService.discardUnchangedCorrection(reply, "はい、元気です。学校を行きました。");
+
+        assertThat(reply.isHasError()).isTrue();
+    }
+
+    @Test
     void correctionIdenticalToLearnerSentenceIsStillDropped() {
         AiModelReply reply = correction("はい、元気です", "はい、元気です。");
 

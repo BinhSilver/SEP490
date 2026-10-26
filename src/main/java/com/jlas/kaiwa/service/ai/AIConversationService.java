@@ -499,10 +499,12 @@ public class AIConversationService {
             List.of("きょねん", "去年"), List.of("まいにち", "毎日"));
 
     static void discardUnchangedCorrection(AiModelReply reply, String learnerText) {
-        // A correction identical to the learner's sentence cannot establish a grammar error,
-        // and one that drops the learner's time word changes the meaning instead of fixing it.
+        // A correction identical to what the learner wrote cannot establish a grammar error (the model may
+        // quote just one sentence of a longer message), and one that drops the learner's time word changes
+        // the meaning instead of fixing it.
         if (reply != null && reply.isHasError() && reply.getCorrected() != null
                 && (sameJapaneseText(reply.getCorrected(), learnerText)
+                    || unchangedQuote(reply.getOriginalWrong(), reply.getCorrected(), learnerText)
                     || dropsTimeWord(learnerText, reply.getCorrected()))) {
             reply.setHasError(false);
             reply.setCorrected(null);
@@ -510,6 +512,12 @@ public class AIConversationService {
             reply.setGrammarReason(null);
             reply.setMistakeType(null);
         }
+    }
+
+    private static boolean unchangedQuote(String originalWrong, String corrected, String learnerText) {
+        if (originalWrong != null && !originalWrong.isBlank()) return sameJapaneseText(corrected, originalWrong);
+        String quote = normalizeJapaneseText(corrected);
+        return !quote.isEmpty() && normalizeJapaneseText(learnerText).contains(quote);
     }
 
     static boolean dropsTimeWord(String learnerText, String corrected) {
