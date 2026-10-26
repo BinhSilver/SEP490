@@ -109,12 +109,24 @@
       '</article>';
   }
 
+  var MOCK_LOCK_REASON = {
+    BLOCKED_CONTENT: 'Học liệu chưa sẵn sàng cho chặng này nên chưa thể mở bài thi thử.',
+    PRIOR_STAGE_INCOMPLETE: 'Hoàn thành 100% các chặng trước để mở bài thi thử.',
+    TARGET_STAGE_BELOW_THRESHOLD: 'Hoàn thành ít nhất {percent}% chặng mục tiêu để mở bài thi thử.'
+  };
+
   function renderMockTestAction(mockTest, latestResult) {
     // [JLAS-W0193] RC Task 7 — the server (MockTestDestinationProvider) alone decides availability and the
     // destination URL; this only ever echoes `mockTest.url` verbatim, never composes or guesses one, and
     // never trusts a query parameter. No real Mock Test owner contract exists in this codebase today, so
     // the honest default is BLOCKED_INTEGRATION — rendered as a disabled button, never a fabricated link.
     if (mockTest && mockTest.status === 'NOT_APPLICABLE') return '';
+    // Owner 2026-10-26 (lỗi #3): same rule and wording as the roadmap — prior stages 100%, target stage ≥ 50%.
+    if (mockTest && mockTest.status === 'LOCKED_PROGRESS') {
+      var reason = MOCK_LOCK_REASON[mockTest.reasonCode] || 'Chưa đủ điều kiện mở bài thi thử.';
+      return '<button class="ilp-summary__quiet" type="button" disabled aria-disabled="true">Thi thử JLPT (chưa mở)</button>' +
+        '<p class="ilp-summary-note" data-mock-lock>' + esc(reason.replace('{percent}', String(mockTest.requiredTargetPercent || 50))) + '</p>';
+    }
     if (mockTest && mockTest.available && mockTest.url) {
       var destination = latestResult && /^N[1-5]$/.test(latestResult.level || '')
         ? '/jlpt/result?level=' + encodeURIComponent(latestResult.level) : mockTest.url;
@@ -143,7 +155,10 @@
       ? '<a class="ilp-summary__primary" href="/learning/v2/certificate">Xem chứng nhận hoàn thành</a>'
       : (v.certificateEligible && isJlptPath
         ? '<p class="ilp-summary-note">Giấy chứng nhận sẽ mở sau khi bạn thi thử JLPT đúng cấp mục tiêu và đạt.</p>'
-        : '<p class="ilp-summary-note">Chứng nhận sẽ mở khi bạn hoàn thành mọi ngày học bắt buộc.</p>');
+        : (v.communicationGoal
+          // Day 4 (§2.24): a communication goal completes situation by situation, in any order, not by study days.
+          ? '<p class="ilp-summary-note">Chứng nhận sẽ mở khi bạn hoàn thành mọi tình huống (Từ vựng, Mẫu câu và Hội thoại).</p>'
+          : '<p class="ilp-summary-note">Chứng nhận sẽ mở khi bạn hoàn thành mọi ngày học bắt buộc.</p>'));
     var mockTest = renderMockTestAction(v.mockTest, v.latestMockResult);
     var nextPath = v.status === 'COMPLETED'
       ? '<a class="ilp-summary__secondary" href="/survey">Chọn mục tiêu mới</a>'

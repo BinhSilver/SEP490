@@ -76,12 +76,30 @@
     var choice = new URLSearchParams(search || '').get('discrepancyChoice');
     return /^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(choice || '')) ? choice : null;
   }
-  function pathCreationRequest(attemptId, reviewStartLevel, discrepancyChoice) {
+  // Owner 2026-10-25: the learner's answers to the Smart Test entry questions (kana known? solid / review / study level).
+  var ENTRY_CHOICES = /^(SOLID|NOT_SOLID|STUDY_LEVEL|SKIP_LEVEL|REVIEW_MISTAKES|SKIP_REVIEW)$/;
+  function resolveEntryAnswers(search) {
+    var params = new URLSearchParams(search || '');
+    var kana = params.get('kanaKnown');
+    var choice = params.get('entryChoice');
+    return { kanaKnown: kana === 'true' ? true : kana === 'false' ? false : null,
+      entryChoice: ENTRY_CHOICES.test(String(choice || '')) ? choice : null };
+  }
+  function pathCreationRequest(attemptId, reviewStartLevel, discrepancyChoice, entry) {
     if (!attemptId) return { url: '/api/learning/paths/from-zero', body: '{}' };
     var body = { assessmentAttemptId: attemptId,
       reviewStartLevel: /^(N5|N4|N3)$/.test(String(reviewStartLevel || '')) ? reviewStartLevel : null };
     if (/^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(discrepancyChoice || ''))) body.discrepancyChoice = discrepancyChoice;
+    if (entry && typeof entry.kanaKnown === 'boolean') body.kanaKnown = entry.kanaKnown;
+    if (entry && ENTRY_CHOICES.test(String(entry.entryChoice || ''))) body.entryChoice = entry.entryChoice;
     return { url: '/api/learning/paths', body: JSON.stringify(body) };
+  }
+  function levelLabel(level) {
+    var raw = String(level || '').trim();
+    if (!raw) return '—';
+    if (raw === 'BELOW_N5' || raw === 'FROM_ZERO') return 'Bắt đầu từ đầu';
+    if (raw === 'UNKNOWN') return 'Chưa xác định';
+    return raw;
   }
   function viewModel(data) {
     data = data || {};
@@ -92,8 +110,9 @@
       pkg.canStart = pkg.status === 'AVAILABLE';
     });
     return {
-      title: String(data.title || 'Lộ trình cá nhân').replace(/^\[DEMO\]\s*/i, ''), goal: data.goal || 'JLPT', currentLevel: data.currentLevel || '—',
-      targetLevel: data.targetLevel || '—', minutesPerDay: num(data.minutesPerDay), progressPercent: num(data.progressPercent),
+      title: String(data.title || 'Lộ trình cá nhân').replace(/^\[DEMO\]\s*/i, '').replace(/\b(BELOW_N5|FROM_ZERO)\b/g, 'Bắt đầu từ đầu'),
+      goal: data.goal || 'JLPT', currentLevel: levelLabel(data.currentLevel),
+      targetLevel: levelLabel(data.targetLevel), minutesPerDay: num(data.minutesPerDay), progressPercent: num(data.progressPercent),
       completedPackages: num(data.completedPackages), totalPackages: num(data.totalPackages), packages: packages,
       smartTestReviewOnlyTargets: Array.isArray(data.smartTestReviewOnlyTargets)
         ? data.smartTestReviewOnlyTargets.filter(function (target) {
@@ -345,7 +364,7 @@
         '" data-stage-level="' + esc(st.level) + '"><div class="ilp-stage__head"><strong>' + esc(stageName(st.level)) +
         '</strong><span>' + esc(status) + '</span></div><progress max="100" value="' + percent + '" aria-label="' +
         esc(stageName(st.level)) + '">' + percent + '%</progress><small>' + num(st.completedPackages) + '/' +
-        num(st.totalPackages) + ' ngày · ' + percent + '%</small></li>';
+        num(st.totalPackages) + ' phần học · ' + percent + '%</small></li>';
     }).join('');
     return '<section class="ilp-stage-progress" aria-label="Tiến độ theo chặng"><span class="ilp-kicker">TIẾN ĐỘ THEO CHẶNG</span>' +
       '<ol class="ilp-stages">' + items + '</ol></section>';
@@ -731,8 +750,9 @@
     var assessmentAttemptId = resolveAssessmentAttemptId(window.location.search, window.localStorage);
     var reviewStartLevel = resolveReviewStartLevel(window.location.search);
     var discrepancyChoice = resolveDiscrepancyChoice(window.location.search);
+    var entryAnswers = resolveEntryAnswers(window.location.search);
     async function bootstrapPath() {
-      var request = pathCreationRequest(assessmentAttemptId, reviewStartLevel, discrepancyChoice);
+      var request = pathCreationRequest(assessmentAttemptId, reviewStartLevel, discrepancyChoice, entryAnswers);
       var response = await fetch(request.url, {
         method: 'POST', headers: window.JlasAuth.authHeaders(), body: request.body
       });
@@ -802,12 +822,24 @@
     }
     async function load() {
       node.setAttribute('aria-busy', 'true');
-      try { var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() }); var body = await response.json();
+      try {
+        var explicitAttemptInUrl = positiveInteger(new URLSearchParams(window.location.search || '').get('assessmentAttemptId'));
+        if (explicitAttemptInUrl && !attemptedBootstrap) {
+          attemptedBootstrap = true;
+          try { await bootstrapPath(); }
+          catch (failure) { attemptedBootstrap = false; throw failure; }
+          try {
+            if (window.history && typeof window.history.replaceState === 'function') {
+              window.history.replaceState(window.history.state, '', (window.location.pathname || '/learning/path/v2') + (window.location.hash || ''));
+            }
+          } catch (e) { /* query cleanup is best effort */ }
+        }
+        var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() }); var body = await response.json();
         if ((response.status === 404 || body.code === 'NOT_FOUND') && !attemptedBootstrap) {
           attemptedBootstrap = true;
           // A completed path is absent from /current. Ordinary navigation must not create a new one.
           // Only an explicit assessment URL requests generation for a new goal; ignore stale storage here.
-          if (!positiveInteger(new URLSearchParams(window.location.search || '').get('assessmentAttemptId'))) {
+          if (!explicitAttemptInUrl) {
             var completedDestination = await completedPathDestination(fetch, window.JlasAuth.authHeaders());
             if (completedDestination) {
               var finishedResponse = await fetch('/api/learning/v2/paths/completed/roadmap', { headers: window.JlasAuth.authHeaders() });
@@ -1017,6 +1049,7 @@
     paceRequestBody: paceRequestBody, renderToast: renderToast, nextFocusIndex: nextFocusIndex, popupModel: popupModel, renderPopup: renderPopup, errorState: errorState,
     afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId,
     resolveReviewStartLevel: resolveReviewStartLevel, resolveDiscrepancyChoice: resolveDiscrepancyChoice,
+    resolveEntryAnswers: resolveEntryAnswers,
     pathCreationRequest: pathCreationRequest, topicFromHash: topicFromHash, topicHash: topicHash, showTopic: showTopic,
     skillHash: skillHash, skillFromHash: skillFromHash,
     startedPackageStudyHref: startedPackageStudyHref, completedPathDestination: completedPathDestination };

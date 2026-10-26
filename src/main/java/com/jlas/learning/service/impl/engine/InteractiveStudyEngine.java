@@ -756,7 +756,13 @@ public class InteractiveStudyEngine<T> {
                 attemptsUsed, attemptsRemaining(attemptsUsed), state == null ? null : state.getCooldownUntil(),
                 state != null && state.isReviewRequired(), checkEligible, allPassed,
                 state == null ? null : state.getFirstScore(), state == null ? null : state.getLatestScore(),
-                state == null ? null : state.getBestScore());
+                state == null ? null : state.getBestScore(),
+                (!allPassed && activity.getLearningPath() != null && activity.getLearningPath().getUser() != null && quizSessions != null)
+                        ? quizSessions.findFirstByActivityIdAndQuizTypeAndBatchIndexAndUserIdAndStatusOrderByIdDesc(
+                                activity.getId(), adapter.microCheckType(), currentBatch,
+                                activity.getLearningPath().getUser().getId(), "ISSUED")
+                        .map(LearningQuizSession::getId).orElse(null)
+                        : null);
     }
 
     private MicroCheckResult reconstructResult(LearningQuizSession session, UserLearningPathItem activity) {

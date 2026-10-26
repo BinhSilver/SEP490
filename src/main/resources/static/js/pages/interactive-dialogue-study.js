@@ -76,6 +76,8 @@
   }
 
   function hasFurigana(v) { return v.lines.some(function (line) { return !!line.furigana; }); }
+  // Day 3 (24/10): furigana Learning derived itself starts switched off; the learner turns it on (owner D3-02).
+  function generatedFurigana(v) { return v.lines.some(function (line) { return !!line.furigana && line.furiganaGenerated === true; }); }
 
   function speakButton(text, label) {
     return '<button type="button" class="ilp-dialogue__audio" data-play-audio="tts:ja-JP" data-speak-rate="0.8"' +
@@ -103,7 +105,9 @@
           'Xem trong hội thoại</button>' : '') + '</span></li>';
     }).join('');
     return '<details class="ilp-dialogue__phrases" open><summary>Từ &amp; cụm từ trong hội thoại (' + v.flippedPhrases + '/' +
-      v.totalPhrases + ' thẻ đã lật)</summary><ul class="ilp-dialogue__phrase-grid">' + items + '</ul></details>';
+      v.totalPhrases + ' thẻ đã lật)</summary><ul class="ilp-dialogue__phrase-grid">' + items + '</ul>' +
+      // §2.24 (OD-46): the phrases are a J-LAS supplement awaiting review, labelled where they are studied.
+      (v.aids.label ? '<p class="ilp-dialogue__supplement">' + esc(v.aids.label) + '</p>' : '') + '</details>';
   }
 
   /** Wraps every text piece of {@code phrase} inside {@code container} in a flash mark, skipping furigana readings
@@ -339,7 +343,7 @@
   }
 
   /** The friendly nudge text is derived purely from server-reported numbers — never invents progress. */
-  function renderProgress(v) {
+  function renderProgress(v, timingState) {
     if (v.lineByLinePractice) {
       var left = Math.max(0, v.totalLines - v.practicedCount);
       var cardsLeft = Math.max(0, v.totalPhrases - v.flippedPhrases);
@@ -365,15 +369,27 @@
         : v.reachedBottom
           ? 'Đang xác nhận hoàn thành...'
           : 'Hãy cuộn xuống hết đoạn hội thoại để hoàn thành.';
+    var timingNote = v.completed ? '' : timingState === 'paused'
+      ? 'Đang tạm dừng — thời gian sẽ tiếp tục khi trang hiển thị và máy chủ xác nhận.'
+      : timingState === 'error' ? 'Đang tạm dừng cập nhật — chưa kết nối được máy chủ, sẽ tự thử lại.'
+        : timingState === 'resumed' ? 'Đã tiếp tục tính thời gian sau khi quay lại trang.' : '';
+    // Display server evidence only; never run a client countdown or round 179 seconds up to 3 minutes.
+    function clockTime(seconds) {
+      seconds = Math.floor(Math.max(0, seconds));
+      return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+    }
     return '<div class="ilp-dialogue__progress" role="status" aria-live="polite">' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.accumulatedSeconds +
       '" aria-valuemin="0" aria-valuemax="' + v.requiredSeconds + '">' +
       '<span style="width:' + v.percent + '%"></span></div>' +
       '<p class="ilp-dialogue__note">' + esc(note) + '</p>' +
+      '<p class="ilp-dialogue__timing-hint">Thời gian chỉ được tính khi trang đang mở trên màn hình</p>' +
+      (timingNote ? '<p class="ilp-dialogue__timing-state">' + esc(timingNote) + '</p>' : '') +
       '<ul class="ilp-dialogue__evidence">' +
       '<li class="' + (v.reachedBottom ? 'is-done' : '') + '">Đã cuộn đến cuối</li>' +
-      '<li class="' + (v.accumulatedSeconds >= v.requiredSeconds ? 'is-done' : '') + '">Đủ ' +
-      v.requiredSeconds + ' giây hoạt động</li></ul></div>';
+      '<li title="Đủ ' + v.requiredSeconds + ' giây hoạt động" class="' +
+      (v.accumulatedSeconds >= v.requiredSeconds ? 'is-done' : '') + '">Thời gian học: ' +
+      clockTime(Math.min(v.accumulatedSeconds, v.requiredSeconds)) + ' / ' + clockTime(v.requiredSeconds) + '</li></ul></div>';
   }
 
   /** {@code v} (optional): the study view model, whose aids feed "Tóm tắt cuối bài" for communication dialogues. */
@@ -433,6 +449,14 @@
     var bottomReported = false;
     var bottomVisible = false;
     var finished = false;
+    var timingState = document.visibilityState === 'visible' ? '' : 'paused';
+    var visibilityVersion = 0;
+
+    function refreshTimingState() {
+      if (!current || current.lineByLinePractice || finished || mode !== 'LEARN') return;
+      var panel = node.querySelector('.ilp-dialogue__progress');
+      if (panel) panel.outerHTML = renderProgress(current, timingState);
+    }
 
     async function api(path, options) {
       var response = await fetch(base + path, Object.assign({ headers: window.JlasAuth.authHeaders() }, options));
@@ -465,6 +489,12 @@
     function writePref(key, value) {
       try { if (window.localStorage) window.localStorage.setItem(key, value); } catch (e) { /* storage unavailable */ }
     }
+    // Generated furigana has its own switch, off until the learner turns it on.
+    function useGeneratedFuriganaPref(v) {
+      if (!generatedFurigana(v)) return;
+      prefs.generatedFurigana = true;
+      prefs.showFurigana = readPref('jlasDialogueFuriganaGenerated') === 'on';
+    }
     var replayView = null;
     function rerender() {
       if (replayView) { node.innerHTML = renderReplay(mode, replayView, prefs); return; }
@@ -476,7 +506,7 @@
         return;
       }
       if (observer) { observer.disconnect(); observer = null; }
-      node.innerHTML = renderScript(current, prefs) + renderProgress(current);
+      node.innerHTML = renderScript(current, prefs) + renderProgress(current, timingState);
       watchBottom();
     }
 
@@ -583,7 +613,7 @@
         current.accumulatedSeconds = v.accumulatedSeconds; current.remainingSeconds = v.remainingSeconds;
         current.reachedBottom = v.reachedBottom; current.percent = v.percent;
       }
-      if (panel) panel.outerHTML = renderProgress(v);
+      if (panel) panel.outerHTML = renderProgress(v, timingState);
       if (result.completed) {
         finished = true;
         stopTracking();
@@ -598,9 +628,20 @@
     }
 
     async function sendHeartbeat() {
-      if (mode !== 'LEARN' || finished || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
-      try { applyProgress(await postJson('/heartbeat', { heartbeatToken: genToken() })); }
-      catch (e) { return; /* transient network errors do not interrupt the reading session */ }
+      if (mode !== 'LEARN' || finished || !current || current.lineByLinePractice || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
+      var version = visibilityVersion;
+      try {
+        var result = await postJson('/heartbeat', { heartbeatToken: genToken() });
+        // A response started before a visibility change must not announce that timing has resumed.
+        if (version === visibilityVersion && document.visibilityState === 'visible') {
+          timingState = timingState === 'paused' ? 'resumed' : '';
+        }
+        applyProgress(result);
+      } catch (e) {
+        if (version === visibilityVersion && document.visibilityState === 'visible') timingState = 'error';
+        refreshTimingState();
+        return;
+      }
       // A short script is already in view at load, so its reached-bottom report can race ahead of the first
       // stored heartbeat and be rejected; the observer never fires again while the end stays visible.
       if (bottomVisible) reportBottom();
@@ -628,23 +669,25 @@
         if (mode === 'REVIEW' || mode === 'PRACTICE') {
           var replay = await api(mode === 'REVIEW' ? '/review' : '/practice');
           replayView = viewModel(replay);
+          useGeneratedFuriganaPref(replayView);
           node.innerHTML = renderReplay(mode, replayView, prefs);
           node.setAttribute('aria-busy', 'false');
           return;
         }
         var study = await api('/study');
         var v = viewModel(study);
+        useGeneratedFuriganaPref(v);
         if (v.completed) { completedView = v; current = v; node.innerHTML = renderCompleted(id, v.lineByLinePractice, v, prefs); finished = true;
           if (StudyMode && StudyMode.showNextAction) StudyMode.showNextAction(node, id); }
         else if (v.lineByLinePractice) {
           // Owner 2026-10-19: no time requirement, so no heartbeat — practice and the end are the evidence.
           current = v;
-          node.innerHTML = renderScript(v, prefs) + renderProgress(v);
+          node.innerHTML = renderScript(v, prefs) + renderProgress(v, timingState);
           watchBottom();
         }
         else {
           current = v;
-          node.innerHTML = renderScript(v, prefs) + renderProgress(v);
+          node.innerHTML = renderScript(v, prefs) + renderProgress(v, timingState);
           watchBottom();
           heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
           sendHeartbeat();
@@ -662,7 +705,7 @@
         rerender();
       } else if (target.matches('[data-toggle-furigana]')) {
         prefs.showFurigana = !!target.checked;
-        writePref('jlasDialogueFurigana', prefs.showFurigana ? 'on' : 'off');
+        writePref(prefs.generatedFurigana ? 'jlasDialogueFuriganaGenerated' : 'jlasDialogueFurigana', prefs.showFurigana ? 'on' : 'off');
         rerender();
       } else if (target.matches('[data-roleplay]')) {
         prefs.rolePlay = target.value || null;
@@ -771,6 +814,9 @@
     });
 
     document.addEventListener('visibilitychange', function () {
+      visibilityVersion++;
+      timingState = 'paused';
+      refreshTimingState();
       if (document.visibilityState === 'visible') sendHeartbeat();
     });
 

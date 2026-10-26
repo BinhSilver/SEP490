@@ -59,12 +59,20 @@ public record DialogueStudyState(
             String japanese,
             String meaningVi,
             String audioUrl,
-            String furigana
+            String furigana,
+            /** Day 3 (24/10): {@code furigana} was derived by Learning (no reviewed furigana), shown as unreviewed. */
+            boolean furiganaGenerated
     ) {
         /** A line without furigana. */
         public DialogueLineView(Long lineId, int orderIndex, String roleCode, String roleName, String sceneCode,
                 String bubbleSide, String japanese, String meaningVi, String audioUrl) {
-            this(lineId, orderIndex, roleCode, roleName, sceneCode, bubbleSide, japanese, meaningVi, audioUrl, null);
+            this(lineId, orderIndex, roleCode, roleName, sceneCode, bubbleSide, japanese, meaningVi, audioUrl, null, false);
+        }
+
+        /** A line with reviewed furigana (or none). */
+        public DialogueLineView(Long lineId, int orderIndex, String roleCode, String roleName, String sceneCode,
+                String bubbleSide, String japanese, String meaningVi, String audioUrl, String furigana) {
+            this(lineId, orderIndex, roleCode, roleName, sceneCode, bubbleSide, japanese, meaningVi, audioUrl, furigana, false);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.jlas.learning.service.impl.grammar;
 
 import com.atilika.kuromoji.ipadic.Token;
-import com.atilika.kuromoji.ipadic.Tokenizer;
+import com.jlas.learning.service.impl.text.JapaneseTokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,6 @@ public final class GrammarPhraseSegmenter {
     private static final String BLANK = "_____";
     private static final String PUNCTUATION_ONLY = "[、。！？「」…・\\s]+";
     private static final Set<String> CONTENT = Set.of("名詞", "動詞", "形容詞", "副詞", "連体詞", "接続詞", "感動詞", "接頭詞");
-    private static final Tokenizer TOKENIZER = new Tokenizer();
 
     private GrammarPhraseSegmenter() { }
 
@@ -178,7 +177,7 @@ public final class GrammarPhraseSegmenter {
     private static List<int[]> chunkSpans(String sentence, boolean fine) {
         List<int[]> spans = new ArrayList<>();
         Token previous = null;
-        for (Token token : TOKENIZER.tokenize(sentence)) {
+        for (Token token : JapaneseTokenizer.tokenize(sentence)) {
             int start = token.getPosition(), end = start + token.getSurface().length();
             boolean startsChunk = spans.isEmpty() || startsChunk(token, previous, fine);
             if (startsChunk) spans.add(new int[]{start, end});

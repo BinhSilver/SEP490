@@ -49,6 +49,7 @@
       attemptsUsed: num(check.attemptsUsed),
       attemptsRemaining: num(check.attemptsRemaining),
       passed: !!check.passed,
+      inProgressAttemptId: check.inProgressAttemptId ? num(check.inProgressAttemptId) : null,
       sourceNote: data.sourceNote || null,
       passageTranslations: list(data.passageTranslations).map(list)
     };
@@ -70,7 +71,9 @@
   }
 
   function shouldOpenInlineQuestions(v) {
-    return !!v && v.activityType === 'READING' && v.checkEligible === true && v.passed !== true;
+    if (!v || v.passed === true) return false;
+    if (v.inProgressAttemptId > 0) return true;
+    return v.activityType === 'READING' && v.checkEligible === true;
   }
 
   /** {@code interactive=false} suppresses the sentinel/manual-evidence button (used while a micro-check

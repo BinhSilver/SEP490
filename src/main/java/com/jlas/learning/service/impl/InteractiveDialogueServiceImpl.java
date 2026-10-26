@@ -34,6 +34,7 @@ import com.jlas.learning.service.GoalPathPolicy;
 import com.jlas.learning.service.InteractiveDialogueService;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
 import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
+import com.jlas.learning.service.impl.text.GeneratedFurigana;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,11 +135,22 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
         return new ParsedAid(aid.getReviewStatus(), root, List.copyOf(phrases));
     }
 
+    /** Day 3 (24/10): a JLPT line with Kanji and no reviewed furigana gets a generated reading aid, flagged as such. */
+    private static List<DialogueLineView> withGeneratedFurigana(List<DialogueLineView> views) {
+        return views.stream().map(view -> {
+            if (view.furigana() != null) return view;
+            String generated = GeneratedFurigana.markup(view.japanese());
+            return generated == null ? view : new DialogueLineView(view.lineId(), view.orderIndex(), view.roleCode(),
+                    view.roleName(), view.sceneCode(), view.bubbleSide(), view.japanese(), view.meaningVi(), view.audioUrl(),
+                    generated, true);
+        }).toList();
+    }
+
     /** Display aids for communication dialogues. A missing or unreadable aid row never breaks the script. */
     private Aided withAids(UserLearningPathItem activity, List<DialogueLineView> views,
             List<LearningActivityMember> membership) {
         ParsedAid parsed = parsedAid(activity);
-        if (parsed == null) return new Aided(views, null);
+        if (parsed == null) return new Aided(isCommunication(activity) ? views : withGeneratedFurigana(views), null);
         Long lessonId = activity.getLesson().getId();
         JsonNode root = parsed.root();
         java.util.Set<Integer> flipped = flippedPhraseIndexes(activity, membership, parsed.phrases().size());
@@ -543,12 +555,15 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
     }
 
     private List<DialogueLineView> buildLineViews(UserLearningPathItem activity, List<LearningActivityMember> membership) {
-        // §2.28 / OD-44: the owner-opened DRAFT N3 textbook has no recorded dialogue audio yet; its lines use the
-        // browser's labelled synthesized voice. Every other line without an approved clip keeps no audio.
+        // §2.28 / OD-44: the owner-opened DRAFT N3 textbook has no recorded dialogue audio yet; its lines (and their
+        // copies in the J-LAS N3 compiled book, D3-04) use the browser's labelled synthesized voice. Every other line
+        // without an approved clip keeps no audio.
         var textbook = activity.getLesson() == null || activity.getLesson().getUnit() == null ? null
                 : activity.getLesson().getUnit().getTextbook();
-        boolean synthesizeMissing = textbook != null && DraftStudySourcePolicy.isOpenDraftTextbook(
-                textbook.getStatus(), textbook.getIsLearningPathSource(), textbook.getJlptLevel());
+        boolean synthesizeMissing = textbook != null && (DraftStudySourcePolicy.isOpenDraftTextbook(
+                textbook.getStatus(), textbook.getIsLearningPathSource(), textbook.getJlptLevel())
+                || com.jlas.common.learning.CompiledBookPolicy.synthesizesMissingDialogueAudio(
+                        textbook.getSourceCode(), textbook.getJlptLevel()));
         List<Long> ids = membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList();
         Map<Long, DialogueLineDetail> byId = dialogueLines.findAllById(ids).stream()
                 .collect(Collectors.toMap(DialogueLineDetail::getContentItemId, d -> d));

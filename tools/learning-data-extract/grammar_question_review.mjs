@@ -4,12 +4,16 @@
 //           writes the review sheet (UTF-8 CSV with BOM, opens in Excel); fill "quyet_dinh" with DUYET / SUA / BO.
 //   apply:  node tools/learning-data-extract/grammar_question_review.mjs apply . sheet.csv
 //           records the decisions in the Learning-owned candidates and rebuilds the runtime file.
+//   add:    node tools/learning-data-extract/grammar_question_review.mjs add . draft.json [...]
+//           validates new AI drafts against their Sekai lesson and adds them as candidates (NEEDS_HUMAN_REVIEW).
 //   build:  node tools/learning-data-extract/grammar_question_review.mjs build . [--check]
 //           writes src/main/resources/learning/grammar-application-reviewed.json (REVIEWED multiple-choice items only).
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { readLearningContent, readLearningSection, writeLearningSection } from './learning_content_store.mjs';
+import { collectJapaneseText, validateQuestions } from './validate_owned_grammar_questions.mjs';
 
 const SECTION = 'grammar_question_candidates';
 const RUNTIME = 'src/main/resources/learning/grammar-application-reviewed.json';
@@ -88,10 +92,39 @@ export function applyDecisions(section, rows) {
       return { ...item, review_status: DECISION[decision], review_note: row.ghi_chu || undefined,
         reviewed_by: 'OWNER', reviewed_on: new Date().toISOString().slice(0, 10) };
     });
-    return [file, { ...record, text: JSON.stringify(items, null, 2) + '\n' }];
+    const text = JSON.stringify(items, null, 2) + '\n';
+    // The file checksum follows its text (the draft seed generator verifies it).
+    return [file, { ...record, text, ...(record.sha256 ? { sha256: createHash('sha256').update(text).digest('hex') } : {}) }];
   }));
   const reviewed = candidateItems({ files }).filter(({ item }) => item.review_status === 'REVIEWED').length;
   return { ...section, files, reviewed_count: reviewed };
+}
+
+/** Sekai lesson file a candidate's lesson_source_id names (SEKAI-N5-03 → data/seed_jlas/sekai/sekai-n5/json/bai-03.json). */
+export const lessonSourcePath = (lessonSourceId) => {
+  const match = /^SEKAI-(N[1-5])-(\d{2})$/.exec(lessonSourceId ?? '');
+  return match ? `data/seed_jlas/sekai/sekai-${match[1].toLowerCase()}/json/bai-${match[2]}.json` : null;
+};
+
+/**
+ * Pure: adds new AI-draft files to the candidates. Every item goes through the same mechanical validator as the first
+ * slice against its own lesson (examples, lesson and grammar codes); a file name or question ID already present is refused.
+ */
+export function addCandidates(section, batches) {
+  const ids = new Set(candidateItems(section).map(({ item }) => item.id));
+  const files = { ...section.files };
+  for (const { file, items, source } of batches) {
+    if (files[file]) throw new Error(`Candidate file ${file} already exists`);
+    const lessonIds = new Set(items.map((item) => item.lesson_source_id));
+    if (lessonIds.size !== 1) throw new Error(`${file}: one lesson per file`);
+    const errors = validateQuestions(items, { sourceExamples: collectJapaneseText(source),
+      sourceLessonId: [...lessonIds][0], sourceGrammarCodes: (source.mauCau ?? []).map((point) => point.ma) });
+    for (const item of items) if (ids.has(item.id)) errors.push(`${item.id}: already a candidate`); else ids.add(item.id);
+    if (errors.length) throw new Error(`${file}: ${errors.join('; ')}`);
+    const text = JSON.stringify(items, null, 2) + '\n';
+    files[file] = { sha256: createHash('sha256').update(text).digest('hex'), text };
+  }
+  return { ...section, files, question_count: candidateItems({ files }).length };
 }
 
 /** Runtime copy: REVIEWED multiple-choice/fill items, keyed by level + the DB grammar pattern. */
@@ -144,10 +177,23 @@ async function main() {
     const updated = applyDecisions(section, parseCsv(await readFile(path.resolve(fileArg), 'utf8')));
     await writeLearningSection(root, SECTION, updated);
     console.log(`reviewed=${updated.reviewed_count}; runtime items=${await build(root, false)}`);
+  } else if (command === 'add') {
+    const drafts = process.argv.slice(4).filter((arg) => !arg.startsWith('--'));
+    if (!drafts.length) throw new Error('add needs one or more draft JSON files (one lesson per file)');
+    const batches = [];
+    for (const draft of drafts) {
+      const items = JSON.parse(await readFile(path.resolve(draft), 'utf8'));
+      const sourcePath = lessonSourcePath(items[0]?.lesson_source_id);
+      if (!sourcePath) throw new Error(`${draft}: unknown lesson_source_id`);
+      batches.push({ file: path.basename(draft), items, source: JSON.parse(await readFile(path.join(root, sourcePath), 'utf8')) });
+    }
+    const updated = addCandidates(await readLearningSection(root, SECTION), batches);
+    await writeLearningSection(root, SECTION, updated);
+    console.log(`candidates=${updated.question_count} (+${batches.reduce((n, b) => n + b.items.length, 0)})`);
   } else if (command === 'build') {
     console.log(`runtime items=${await build(root, process.argv.includes('--check'))}`);
   } else {
-    throw new Error('Usage: grammar_question_review.mjs export|apply|build <root> [file]');
+    throw new Error('Usage: grammar_question_review.mjs export|apply|add|build <root> [file...]');
   }
 }
 

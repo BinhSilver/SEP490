@@ -370,6 +370,95 @@
       draftTimer = setTimeout(flushDraft, 800);
     }
 
+    var PRACTICE_RESULT_STATE_KEY = 'jlasFoundationPracticeResult';
+    var LEARN_RESULT_STATE_KEY = 'jlasFoundationLearnResult';
+
+    function savedPracticeResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[PRACTICE_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result ? saved : null;
+    }
+
+    function rememberPracticeResult(result, attempts) {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[PRACTICE_RESULT_STATE_KEY] = {
+        activityId: Number(id), result: result, attempts: Array.isArray(attempts) ? attempts : []
+      };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearPracticeResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[PRACTICE_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[PRACTICE_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function savedLearnResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[LEARN_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result && saved.attemptId ? saved : null;
+    }
+
+    function rememberLearnResult(result, attemptId) {
+      if (!window.history || typeof window.history.replaceState !== 'function' || !(attemptId > 0)) return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[LEARN_RESULT_STATE_KEY] = {
+        activityId: Number(id), attemptId: attemptId, result: result,
+        contentKind: currentStudy && currentStudy.contentKind
+      };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearLearnResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[LEARN_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[LEARN_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function issuedKey() { return 'jlasFoundationIssued:' + id; }
+    function rememberIssuedAttempt(attemptId) {
+      if (mode !== 'LEARN' || !(Number(attemptId) > 0)) return;
+      try { window.sessionStorage.setItem(issuedKey(), String(Number(attemptId))); } catch (ignored) { /* storage unavailable */ }
+    }
+    function issuedAttempt() {
+      try { return Number(window.sessionStorage.getItem(issuedKey())) || 0; } catch (ignored) { return 0; }
+    }
+
+    async function restoreLearnResult(saved) {
+      var attempts;
+      try { attempts = await api('/attempt-history'); } catch (historyError) { return false; }
+      var learnAttempts = Array.isArray(attempts) ? attempts.filter(function (attempt) { return attempt.mode !== 'PRACTICE'; }) : [];
+      var latest = learnAttempts.length ? learnAttempts[learnAttempts.length - 1] : null;
+      if (!latest || String(latest.attemptId) !== String(saved.attemptId) || issuedAttempt() > Number(saved.attemptId)) {
+        clearLearnResult();
+        return false;
+      }
+      node.innerHTML = renderResult(saved.result, { activityId: id, contentKind: saved.contentKind });
+      var resultPanel = node.querySelector('.ilp-result');
+      if (resultPanel && attempts.length && StudyMode && StudyMode.attemptHistory)
+        resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+      if (saved.result.passed && saved.result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        await StudyMode.showNextAction(node, id);
+      return true;
+    }
+
+    function renderSavedPracticeResult(saved) {
+      node.innerHTML = StudyMode.practiceResult(saved.result);
+      if (saved.attempts.length && StudyMode && StudyMode.attemptHistory) {
+        var resultPanel = node.querySelector('.ilp-result');
+        if (resultPanel) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(saved.attempts));
+      }
+    }
+
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       try {
@@ -387,7 +476,9 @@
             submitPath = '/practice/submit';
             currentStudy = StudyMode.rehearsal(currentStudy);
             currentGate = null;
-            showStudy();
+            var savedReplay = savedPracticeResult();
+            if (savedReplay) renderSavedPracticeResult(savedReplay);
+            else showStudy();
             node.setAttribute('aria-busy', 'false');
             return;
           }
@@ -415,13 +506,25 @@
           currentGate = null;
           selectedTab = 'flashcard';
           flashUi.mode = 'browse';
-          showStudy();
+          var savedPractice = savedPracticeResult();
+          if (savedPractice) renderSavedPracticeResult(savedPractice);
+          else showStudy();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        var savedLearn = mode === 'LEARN' ? savedLearnResult() : null;
+        if (savedLearn && await restoreLearnResult(savedLearn)) {
           node.setAttribute('aria-busy', 'false');
           return;
         }
         currentStudy = await api('/study');
         currentGate = null;
         try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
+        if (mode === 'LEARN' && currentGate && !currentGate.passed && num(currentGate.inProgressAttemptId) > 0) {
+          await doCheck();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
         // Owner 2026-10-21: a finished part reopens on its own page, never on an empty result screen.
         showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
@@ -429,6 +532,7 @@
     }
 
     async function doPractice() {
+      clearPracticeResult();
       try { node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' })); }
       catch (e) { node.innerHTML = error(e.message); }
     }
@@ -454,13 +558,18 @@
     }
 
     async function doCheck() {
-      try { node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' })); }
+      clearLearnResult();
+      try {
+        var check = await api(issuePath, { method: 'POST' });
+        rememberIssuedAttempt(check && check.attemptId);
+        node.innerHTML = renderCheck(check);
+      }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
     node.addEventListener('click', async function (event) {
       if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
-      if (event.target.closest('[data-retry]')) return loadStudy();
+      if (event.target.closest('[data-retry]')) { clearLearnResult(); return loadStudy(); }
       var tab = event.target.closest('[data-study-tab]');
       if (tab && currentStudy) {
         selectedTab = tab.dataset.studyTab;
@@ -490,17 +599,21 @@
         return showStudy();
       }
       if (event.target.closest('[data-practice-review]')) {
+        clearPracticeResult();
         // A new practice round starts on the first card, front side up.
         flashUi.browseIndex = null; flashUi.browseFlipped = false; flashUi.turning = false;
         return loadStudy();
       }
-      if (event.target.closest('[data-check-next]')) return doCheck();
+      if (event.target.closest('[data-check-next]')) { clearLearnResult(); return doCheck(); }
       if (event.target.closest('[data-check]')) {
         if (mode === 'LEARN' && currentStudy && currentStudy.flippedCount < currentStudy.totalCards &&
-            !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Chọn OK để vẫn kiểm tra; chọn Hủy để lướt ôn tập hết thẻ.'))) return;
+            !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Bạn muốn kiểm tra ngay hay tiếp tục ôn thẻ?',
+              { confirmText: 'Vẫn kiểm tra', cancelText: 'Ôn hết thẻ' }))) return;
+        clearLearnResult();
         return doCheck();
       }
       if (event.target.closest('[data-review]')) {
+        clearLearnResult();
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
         return loadStudy();
       }
@@ -570,14 +683,18 @@
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
+        if (mode === 'PRACTICE') rememberPracticeResult(result, []);
+        else rememberLearnResult(result, Number(form.dataset.attemptId));
         node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result,
           { activityId: id, contentKind: currentStudy && currentStudy.contentKind });
         if (StudyMode && StudyMode.attemptHistory) {
           try {
             var attempts = await api('/attempt-history');
             var resultPanel = node.querySelector('.ilp-result');
-            if (resultPanel && attempts && attempts.length)
+            if (resultPanel && attempts && attempts.length) {
               resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+              if (mode === 'PRACTICE') rememberPracticeResult(result, attempts);
+            }
           } catch (historyError) { /* Keep the scored result usable if optional history is unavailable. */ }
         }
         if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {

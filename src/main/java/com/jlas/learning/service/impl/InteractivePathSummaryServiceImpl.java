@@ -8,6 +8,7 @@ import com.jlas.learning.dto.InteractivePathSummaryResponse;
 import com.jlas.learning.dto.InteractiveReadinessConfidence;
 import com.jlas.learning.dto.InteractiveSkillProgress;
 import com.jlas.learning.dto.InteractiveUnresolvedBatch;
+import com.jlas.learning.dto.FinalEligibilityResponse;
 import com.jlas.learning.dto.MockTestDestination;
 import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
@@ -79,6 +80,10 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
     @Autowired(required = false)
     private LearningProfileSource profileSource;
 
+    /** Owner 2026-10-26 (lỗi #3): the roadmap's Mock Test rule; optional so slice tests need not wire it. */
+    @Autowired(required = false)
+    private com.jlas.learning.service.LearningFinalEligibilityService finalEligibility;
+
     @Override
     @Transactional(readOnly = true)
     public InteractivePathSummaryResponse summary(Long userId) {
@@ -115,6 +120,15 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
         MockTestDestination mockTest = communicationGoal
                 ? MockTestDestination.notApplicable()
                 : mockTestDestinationProvider.resolveDestination(path.getTargetLevel());
+        // Owner 2026-10-26 (lỗi #3): the summary opens the Mock Test under the roadmap's rule — every prior stage
+        // 100% and the target stage at least 50% — never earlier.
+        if (mockTest != null && mockTest.available() && finalEligibility != null) {
+            FinalEligibilityResponse eligibility = finalEligibility.forPath(path.getId());
+            if (!eligibility.eligible()) {
+                mockTest = MockTestDestination.lockedByProgress(path.getTargetLevel(), eligibility.reasonCode(),
+                        eligibility.requiredTargetPercent());
+            }
+        }
 
         return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
                 skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible, mockTest,
