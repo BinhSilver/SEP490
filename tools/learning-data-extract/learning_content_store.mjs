@@ -43,15 +43,31 @@ export async function readReviewedVocabularyBatchTexts(root, document) {
 }
 
 export async function writeLearningSection(root, name, section) {
+  return writeLearningSections(root, { [name]: section });
+}
+
+/** Writes several sections with one rewrite of the (large) canonical file. */
+export async function writeLearningSections(root, sections) {
   const data = await readLearningContent(root);
-  if (typeof name !== 'string' || !/^[a-z][a-z0-9_]*$/.test(name)) {
-    throw new Error(`Invalid Learning section name: ${name}`);
+  for (const [name, section] of Object.entries(sections)) {
+    if (typeof name !== 'string' || !/^[a-z][a-z0-9_]*$/.test(name)) {
+      throw new Error(`Invalid Learning section name: ${name}`);
+    }
+    data.sections[name] = section;
+    data.section_sha256[name] = digest(section);
   }
-  data.sections[name] = section;
-  data.section_sha256[name] = digest(section);
   const target = filename(root);
   const temporary = `${target}.tmp`;
   await fs.writeFile(temporary, JSON.stringify(data), 'utf8');
-  await fs.copyFile(temporary, target);
+  // On Windows an editor or indexer may hold the just-written file for a moment (copyfile UNKNOWN / EBUSY / EPERM).
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await fs.copyFile(temporary, target);
+      break;
+    } catch (error) {
+      if (attempt >= 8 || !['UNKNOWN', 'EBUSY', 'EPERM', 'EACCES'].includes(error.code)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 750 * attempt));
+    }
+  }
   await fs.unlink(temporary);
 }

@@ -357,7 +357,8 @@ export async function writeCommunicationPathSeed(root = ROOT, { check = false } 
   const start = original.indexOf(BEGIN);
   const finish = start < 0 ? -1 : original.indexOf(END, start);
   const current = start < 0 || finish < 0 ? null : original.slice(start, finish + END.length) + '\n';
-  if (check) return current === generated;
+  // A Windows checkout (core.autocrlf) turns the seed's LF into CRLF; only the content counts.
+  if (check) return current?.replace(/\r\n/g, '\n') === generated;
   const prefix = start < 0 ? original.trimEnd() + '\n\n' : original.slice(0, start).trimEnd() + '\n\n';
   const suffix = finish < 0 ? '' : original.slice(finish + END.length).trimStart();
   await fs.writeFile(seedPath, prefix + generated + (suffix ? `\n${suffix}` : ''), 'utf8');

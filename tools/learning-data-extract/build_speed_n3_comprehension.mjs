@@ -37,6 +37,32 @@ export const REVIEW_HOLDS = Object.freeze({
   'SPEED-N3-L117-RDG-001': 'review: thiếu biểu đồ (phương án là 図1–図4)',
 });
 
+/**
+ * Day 3 (24/10, OD-06): the source has no explanation for these information-search questions. J-LAS wrote one from the
+ * passage, re-deriving each source key first (all eight agree); shown labelled as a J-LAS supplement, unreviewed.
+ */
+export const SUPPLEMENT_LABEL = 'Lời giải J-LAS soạn bổ sung (chưa duyệt):';
+export const SUPPLEMENTED_EXPLANATIONS = Object.freeze({
+  'SPEED-N3-L110-QUE-001': 'Mỗi lớp phải học cùng một giảng viên, cùng một giờ, 2 buổi mỗi tuần. Theo bảng, J dạy thứ ba và thứ năm, '
+    + 'T dạy thứ tư và thứ sáu. Chỉ phương án 2 gồm hai cặp hợp lệ: thứ ba + thứ năm lúc 3 giờ (J) và thứ tư + thứ sáu lúc 7 giờ (T). '
+    + 'Các phương án khác ghép hai ngày của hai giảng viên khác nhau.',
+  'SPEED-N3-L110-QUE-002': 'Mục 【申込方法】: viết lên 往復はがき (bưu thiếp có phần trả lời), mỗi người 1 tấm, ghi lớp mong muốn tới '
+    + 'nguyện vọng 2 (第1希望・第2希望), thứ, giờ, địa chỉ, tên, số điện thoại. Phương án 1 và 4 chỉ ghi một lớp; 2 và 4 dùng はがき thường.',
+  'SPEED-N3-L111-QUE-001': 'Tổng tiền tàu của hai người: đi riêng (gặp ở bảo tàng hoặc ở Akihabara) = 1.450 + 1.200 = 2.650 yên; '
+    + 'A sang ga B (130) rồi cùng đi từ B = 130 + 1.200 × 2 = 2.530 yên; B sang ga A = 130 + 1.450 × 2 = 3.030 yên. Rẻ nhất là phương án 2.',
+  'SPEED-N3-L111-QUE-002': 'Tổng thời gian ngồi tàu của hai người: đi riêng = 70 + 95 = 165 phút; A sang B rồi cùng đi = 10 + 95 × 2 = '
+    + '200 phút; B sang A rồi cùng đi = 10 + 70 × 2 = 150 phút. Ngắn nhất là phương án 4.',
+  'SPEED-N3-L115-QUE-001': 'Ngày 5/8 nằm trong đợt giảm giá giày đi bộ (1/8–8/8); đợt giảm giá dép xăng-đan chỉ từ 9/8 đến 17/8. '
+    + 'Vì vậy 2 đôi dép 3.000 yên không được giảm: 3.000 × 2 = 6.000 yên.',
+  'SPEED-N3-L115-QUE-002': 'Ngày 8/8, mua 2 đôi giày đi bộ tổng 9.000 yên (đã gồm thuế) là đủ điều kiện "từ 9.000 yên" nên được giảm thêm '
+    + '20% ở quầy: 9.000 × 0,8 = 7.200 yên.',
+  'SPEED-N3-L116-QUE-001': 'So số tiền được giảm. Buổi sáng (10–12 giờ) giảm 10% mọi món: phương án 1 = (200 + 600) × 10% = 80 yên; '
+    + 'phương án 2 = (200 + 800) × 10% = 100 yên. Buổi chiều (5–7 giờ) chỉ thịt và rau giảm 20%: phương án 3 = (600 + 400) × 20% = 200 yên; '
+    + 'phương án 4 chỉ thịt bò 800 × 20% = 160 yên (bia không giảm). Lợi nhất là phương án 3.',
+  'SPEED-N3-L116-QUE-002': 'Lúc 7 giờ tối vẫn trong giờ giảm giá buổi chiều (5–7 giờ), chỉ thịt và rau được giảm 20%. Trứng 200 + sữa 200 '
+    + '(không giảm) + cà chua 200 × 0,8 = 160 → tổng 560 yên.',
+});
+
 const clean = (value) => String(value ?? '').replace(/ /g, ' ').trim();
 const lines = (text) => String(text ?? '').split(/\r?\n/).map(clean).filter(Boolean);
 const toDigit = (value) => Number(String(value).replace(/[０-９]/g, (d) => '０１２３４５６７８９'.indexOf(d)));
@@ -117,8 +143,11 @@ function readingItem(lesson) {
     const prompt = clean(q.content.cau_hoi);
     if (!prompt) return { reason: 'question prompt missing' };
     const translated = parsed.questionTranslations[index] ?? [];
-    const explanation = [...(index === 0 && parsed.passageTranslation.length ? ['Dịch đoạn văn:', ...parsed.passageTranslation] : []),
+    let explanation = [...(index === 0 && parsed.passageTranslation.length ? ['Dịch đoạn văn:', ...parsed.passageTranslation] : []),
       ...(translated.length ? ['Dịch câu hỏi:', ...translated] : []), clean(q.content.giai_thich)].filter(Boolean).join('\n');
+    if (!explanation && SUPPLEMENTED_EXPLANATIONS[q.content.ma]) {
+      explanation = `${SUPPLEMENT_LABEL}\n${SUPPLEMENTED_EXPLANATIONS[q.content.ma]}`;
+    }
     out.push({ prompt, options: q.options.map((o) => clean(o.content.noi_dung)), correct_option: q.content.dap_an, explanation, question_id: q.content.ma ?? null });
   }
   // A numbered passage line equal to one of the item's options means the answer choices leaked into the passage.

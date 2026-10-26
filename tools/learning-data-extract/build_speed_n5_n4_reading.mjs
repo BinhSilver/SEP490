@@ -24,6 +24,79 @@ const PICTURE_OPTION = /^(?:絵|図|イラスト|写真)\s*[0-9０-９]*$/;
 const PICTURE_LABELS = /^[a-dA-D](?:と[a-dA-D])*$/;
 const PICTURE_TEXT =/(?:絵|図|イラスト|写真|地図)を\s*(?:見て|みて)|下の(?:絵|図|イラスト|写真|地図)/;
 
+/**
+ * D3-07 (owner 2026-10-24) — passages held as "flattened table / information search", reviewed one by one 2026-10-26.
+ * `passage` replaces the parsed lines (the export ran table cells together, dropped a line, or kept the question in the
+ * passage); `options` puts back digits the export cut ("週間前" → "1週間前"); `fixes` names the source typos corrected.
+ * `translation` is the page's own VNJPClub translation re-aligned to those lines (none is written by J-LAS).
+ * `hold` keeps a passage held with the reviewed reason; `chapter` spreads releases that would pile into one chapter.
+ * The source section is never edited.
+ */
+export const REVIEWED_LAYOUTS = Object.freeze({
+  'SPEED-N5-L085-RDG-001': { why: 'không phải bảng; bộ tách lấy nhầm câu hỏi vào đoạn văn',
+    passage: ['こんな調査があります。', '13歳から 29歳の若い人に、「自分が好きですか」と聞きました。',
+      'アメリカやドイツでは「はい」とこたえた人が多かったですが、日本では、「はい」とこたえた人が少なかったです。',
+      'でも、日本では、「はい」とこたえたい人が「いいえ」とこたえると思います。', '日本では、「自分が好き」と言わないほうがいいからです。'], translation: [
+    ['こんな調査があります。', 'Có cuộc khảo sát như thế này.'],
+    ['13歳から 29歳の若い人に、「自分が好きですか」と聞きました。', 'Đã đặt câu hỏi người trẻ từ 13 tuổi đến 29 tuổi rằng "Bạn có yêu bản thân mình không?"'],
+    ['アメリカやドイツでは「はい」とこたえた人が多かったですが、日本では、「はい」とこたえた人が少なかったです。', 'Ở Mỹ và Đức người trả lời "Có" thì nhiều, thế nhưng ở Nhật Bản người trả lời là "Có" thì ít.'],
+    ['でも、日本では、「はい」とこたえたい人が「いいえ」とこたえると思います。', 'Thế nhưng, ở Nhật tôi nghĩ rằng người muốn trả lời là "Có" nhưng sẽ trả lời là "Không".'],
+    ['日本では、「自分が好き」と言わないほうがいいからです。', 'Bởi vì ở Nhật không nên nói "Tôi yêu bản thân mình".']] },
+  'SPEED-N5-L096-RDG-001': { hold: 'source table is inconsistent (7,524円 − 7,433円 ≠ 41円) and lost two company names' },
+  'SPEED-N5-L100-RDG-001': { why: 'bỏ đề bài lẫn vào đầu đoạn văn',
+    passage: ['カクさん、勉強会を、いつしましょう。', '来週、月よう日の午前中は時間がありますが、午後はいそがしいです。',
+      '火よう日は午後、かいぎがありますが、3時に終わります。', '水よう日と木よう日は、東京にいません。', '金よう日は一日だいじょうぶです。',
+      'カクさんはどうですか。', 'まり'], translation: [
+    ['カクさん、勉強会を、いつしましょう。', 'Kaku này, chúng ta học nhóm khi nào?'],
+    ['来週、月よう日の午前中は時間がありますが、午後はいそがしいです。', 'Tuần sau, sáng thứ Hai tôi có thời gian, nhưng buổi chiều thì bận.'],
+    ['火よう日は午後、かいぎがありますが、3時に終わります。', 'Chiều thứ Ba tôi có cuộc họp, nhưng kết thúc lúc 3 giờ.'],
+    ['水よう日と木よう日は、東京にいません。', 'Thứ Tư và thứ Năm thì tôi không ở Tokyo.'],
+    ['金よう日は一日だいじょうぶです。', 'Thứ Sáu thì cả ngày đều được.'],
+    ['カクさんはどうですか。', 'Còn anh Kaku thì như thế nào?']] },
+  'SPEED-N5-L101-RDG-001': { hold: 'the question lost its lead-in (who すずきさん is, the child\'s age): not answerable from the page' },
+  'SPEED-N4-L073-RDG-001': { why: 'tách lại cột "mục" và "nhận xét" bị dính liền',
+    passage: ['これは、アルさんのスピーチについての先生からのコメントです。', 'スピーチタイトル：わたしのねこ「ミー」', '発表者：ダルディン・アル',
+      '内容：アルさんのねこのことがよくわかる話でした。長さもちょうどよかったです。',
+      '日本語：ぶんぽうはただしかったです。かんたんなことばをつかったので、みんなにわかりやすかったです。',
+      '話し方：少しはやかったです。メモを急いで読みましたね。メモを見ない方がいいです。声は大きくてよかったです。',
+      'パワーポイント：字が多くなくて、見やすかったです。'], translation: [
+    ['これは、アルさんのスピーチについての先生からのコメントです。', 'Đây là bình luận từ giáo viên về bài phát biểu của Al.'],
+    ['スピーチタイトル：わたしのねこ「ミー」', 'Tiêu đề bài hùng biện: Con mèo của tôi "Mi"'],
+    ['発表者：ダルディン・アル', 'Người phát biểu: Dardin Al'],
+    ['内容：アルさんのねこのことがよくわかる話でした。長さもちょうどよかったです。', 'Nội dung: Là một câu chuyện có thể hiểu rõ được về con mèo của Al. Có độ dài vừa đủ.'],
+    ['日本語：ぶんぽうはただしかったです。かんたんなことばをつかったので、みんなにわかりやすかったです。', 'Tiếng Nhật: Đúng ngữ pháp. Dùng từ đơn giản nên mọi người dễ hiểu.'],
+    ['話し方：少しはやかったです。メモを急いで読みましたね。メモを見ない方がいいです。声は大きくてよかったです。', 'Cách nói: Hơi nhanh một chút. Đã đọc vội tờ ghi chú nhỉ. Không nên nhìn vào tờ ghi chú. Giọng to rõ ràng.'],
+    ['パワーポイント：字が多くなくて、見やすかったです。', 'Powerpoint: Chữ không nhiều và dễ nhìn.']] },
+  'SPEED-N4-L074-RDG-001': { chapter: 32, why: 'không phải bảng; tách câu theo bản dịch nguồn',
+    passage: ['東京で「そのしごと、自分がします。」と言ったら、「そのしごと、わたしがします。」という意味です。',
+      'でも、先週大阪に行ったとき、大阪の友達が「自分、晩ごはんどうする？」とききました。', 'わたしはどうして自分の晩ごはんのことをわたしにきくのかわかりませんでした。',
+      'あとで、大阪では、会話で「自分」と言ったら、「あなた」という意味になると聞きました。', '日本語は難しいですね。'],
+    fixes: ['大阪っでは → 大阪では'], translation: [
+    ['東京で「そのしごと、自分がします。」と言ったら、「そのしごと、わたしがします。」という意味です。', 'Ở Tokyo nếu nói "そのしごと、自分がします" có nghĩa là "tôi sẽ làm công việc đó."'],
+    ['でも、先週大阪に行ったとき、大阪の友達が「自分、晩ごはんどうする？」とききました。', 'Tuy nhiên, tuần trước lúc mà tôi đi Osaka, người bạn ở Osaka hỏi tôi rằng "自分、晩ごはんどうする？"'],
+    ['わたしはどうして自分の晩ごはんのことをわたしにきくのかわかりませんでした。', 'Tôi không hiểu vì sao cậu ấy lại hỏi tôi về bữa tối của chính mình.'],
+    ['あとで、大阪では、会話で「自分」と言ったら、「あなた」という意味になると聞きました。', 'Sau đó, tôi nghe nói rằng ở Osaka, nếu nói "自分" trong hội thoại thì nó mang nghĩa là "bạn".']] },
+  'SPEED-N4-L097-RDG-001': { hold: 'question 1 does not fit the passage: two adults and an 8-year-old pay 1,500円, not among 800/500/250/200円 (source key 500円)' },
+  'SPEED-N4-L098-RDG-001': { chapter: 47, why: 'phương án bị mất số đầu (1週間前, 4時ごろ)',
+    options: { 0: ['1週間前までに体育館を予約します。', '4時ごろ体育館に行って、人がいたら、終わるのを待ちます。',
+      'その日の3時までに体育館を予約します。', '4時ごろ体育館に行って、人がいたら、いっしょに体育館を使います。'] } },
+  'SPEED-N4-L099-RDG-001': { chapter: 48, why: 'bỏ đường kẻ',
+    passage: ['【町に子どものプールを！】', 'この町には、おとなのプールしかありません。', '子どものために、小さいプールをつくりましょう！',
+      '町のお金だけでは、あまりいいプールができません。', 'みんなのお金で、もっとすてきなプールをつくりましょう！', 'お金を払ったら以下のプレゼントがあります！',
+      '（1）５千円：水泳用のぼうし', '（2）１万円：（1）と、ネームプレート（プールの建物に、あなたの名前を飾ります）',
+      '（3）５万円：（1）と（2）、子どもプールのチケット（5回、使えます）', '（4）１０万円：（1）から（3）と、子どものプールのチケット（一年、使えます）',
+      '※プールは3年後にできる予定です。'] },
+  'SPEED-N4-L100-RDG-001': { chapter: 49, why: 'sửa 5 lỗi gõ của nguồn', fixes: ['冷たくなるまで持って → 冷たくなるまで待って',
+    'そばにい置かない → そばに置かない', '原因にないます → 原因になります',
+    'カメラ買った店 → カメラを買った店', '使うのすぐにやめて → 使うのをすぐにやめて'],
+    passage: ['【カメラの使い方】', '故障？と思ったときは', '◆ 電池を入れても、電源が入らない', '一回、電池をとって、もう一度入れてください。',
+      '電池が冷たいとき、動かない場合があります。', '◆ 写真を撮ることができない',
+      '長い時間使ったとき、カメラが熱くて、ボタンが押せないことがあります。冷たくなるまで待ってください。', '安全に使うために',
+      '◆ 電池は、火のそばに置かない', '火事やけがの原因になります。', '◆ ぬれた手でカメラを使わない', '故障や、けがの原因になります。',
+      '◆ カメラから電池がとれない', '電池を入れたまま、カメラを買った店に持って行ってください。', '◆ 変な音が鳴ったり、においがしたりする',
+      '使うのをすぐにやめてください。店ではなく、サービスセンター（0120-00xx-xxxx）に連絡ください。'] },
+});
+
 const QUESTION_PREFIX = /^問\s*[0-9０-９]+\s*[:：.．、]?\s*/;
 const promptKey = (value) => compact(String(value ?? '').replace(QUESTION_PREFIX, ''));
 /** "東京オリンピック: Thế vận hội Tokyo" — a vocabulary gloss printed under the passage; it belongs to the explanation. */
@@ -156,7 +229,11 @@ export function speedReadingItem(lesson) {
       return { reason: 'answer choices are numbered pictures' };
     }
   }
-  if (clean(lesson.content?.unit) === 'Tìm kiếm thông tin') return { reason: 'information-search layout (flattened table) needs review' };
+  const reviewed = REVIEWED_LAYOUTS[lesson.source_id];
+  if (reviewed?.hold) return { reason: `${reviewed.hold} (reviewed 2026-10-26)` };
+  if (!reviewed && clean(lesson.content?.unit) === 'Tìm kiếm thông tin') {
+    return { reason: 'information-search layout (flattened table) needs review' };
+  }
   const out = [];
   for (const q of questions) {
     const problem = checkQuestion(q, null);
@@ -167,14 +244,22 @@ export function speedReadingItem(lesson) {
       giai_thich: clean(q.content.giai_thich), question_id: q.content.ma ?? null });
   }
   const parsed = parseSpeedPage(lesson.content?.noi_dung, out);
+  if (reviewed?.passage) parsed.passage = reviewed.passage;
+  for (const [index, options] of Object.entries(reviewed?.options ?? {})) parsed.repaired.set(Number(index), options);
   if (parsed.passage.join('').length < 20) return { reason: 'passage not found' };
   if (parsed.passage.some((line) => PICTURE_TEXT.test(line))) return { reason: 'passage points at a picture' };
   // A table or form flattened by the export translates as blocks, not line by line: its layout needs review first.
   const translated = parsed.passageTranslation.map((pair) => compact(pair.ja)).join('').length;
-  if (translated < compact(parsed.passage.join('')).length * 0.8) return { reason: 'table layout flattened by the export needs review' };
+  if (!reviewed && translated < compact(parsed.passage.join('')).length * 0.8) {
+    return { reason: 'table layout flattened by the export needs review' };
+  }
+  // A reviewed layout keeps only the source translations that still match one of its lines.
+  const keys = new Set(parsed.passage.map(compact));
   return {
     text: parsed.passage,
-    passage_translation: parsed.passageTranslation,
+    passage_translation: reviewed?.translation ? reviewed.translation.map(([ja, vi]) => ({ ja, vi }))
+      : reviewed ? parsed.passageTranslation.filter((pair) => keys.has(compact(pair.ja))) : parsed.passageTranslation,
+    ...(reviewed ? { layout_reviewed: { on: '2026-10-26', why: reviewed.why, ...(reviewed.fixes ? { fixes: reviewed.fixes } : {}) } } : {}),
     questions: out.map(({ giai_thich, prompt, ...q }, index) => ({ ...q,
       prompt: clean(prompt.replace(QUESTION_PREFIX, '')) || prompt,
       ...(parsed.repaired.has(index) ? { options: parsed.repaired.get(index), options_repaired_from_page: true } : {}),
@@ -210,6 +295,17 @@ export function buildSection(source, sourceSectionHash, previous = null) {
     const before = (previous?.exercises ?? []).filter((e) => e.level === level);
     if (before.length) {
       for (const old of before) if (usable.some((l) => l.source_id === old.source_id)) placed.set(old.source_id, old);
+      // D3-07: a passage released by REVIEWED_LAYOUTS joins the chapter of the placed passage just before it in the
+      // book, after that chapter's slots; every earlier placement stays where it was. Any other new passage waits in reserve.
+      for (const lesson of usable) {
+        if (placed.has(lesson.source_id) || !REVIEWED_LAYOUTS[lesson.source_id]) continue;
+        const earlier = usable.filter((l) => placed.has(l.source_id) && lessonNumber(l) <= lessonNumber(lesson));
+        const anchor = earlier.length ? earlier[earlier.length - 1] : usable.find((l) => placed.has(l.source_id));
+        if (!anchor) continue;
+        const chapter = REVIEWED_LAYOUTS[lesson.source_id].chapter ?? placed.get(anchor.source_id).chapter;
+        const slot = Math.max(0, ...[...placed.values()].filter((p) => p.chapter === chapter).map((p) => p.slot)) + 1;
+        placed.set(lesson.source_id, { chapter, slot });
+      }
     } else {
       const perChapter = new Map();
       usable.forEach((lesson, index) => {
@@ -230,6 +326,7 @@ export function buildSection(source, sourceSectionHash, previous = null) {
         source_group: group, level, chapter: where.chapter, slot: where.slot, type: entry.type,
         source_id: lesson.source_id, source_lesson_code: lesson.content.lesson_ma ?? null, source_url: lesson.content.url_nguon ?? null,
         title: `${BOOK[level]} · ${entry.type}`, text_lines: item.text, passage_translation: item.passage_translation,
+        ...(item.layout_reviewed ? { layout_reviewed: item.layout_reviewed } : {}),
         questions: item.questions.map((q, i) => ({ ...q, source_code: `${group}-Q${String(i + 1).padStart(3, '0')}`,
           answer_text: q.options[q.correct_option - 1] })),
       });

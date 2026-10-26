@@ -6,6 +6,12 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const migrationFile = path.join(root, 'sql/migrations/022_learning_owned_consolidated.sql');
 const seedFile = path.join(root, 'sql/seeds/learning_owned.sql');
+// Fail closed (2026-10-19 review): every DELETE/DROP line must be one of the known, scoped forms.
+// The second DELETE form (D3-04 compiled books) is set-based, scoped to the words of that block's own temporary table.
+export const ALLOWED_DELETE = new RegExp('^DELETE cv FROM content_vocabulary cv (?:'
+  + String.raw`WHERE cv\.content_item_id=@item_[a-z0-9_]+ AND cv\.vocabulary_id<>@vocab_[a-z0-9_]+`
+  + String.raw`|JOIN jlas_compiled_word_n[1-5] w ON w\.item_id=cv\.content_item_id WHERE cv\.vocabulary_id<>w\.vocab_id);$`);
+export const ALLOWED_DROP = /^DROP (?:PROCEDURE (?:IF EXISTS )?jlas_[a-z0-9_]+(?:;|\/\/|\$\$)|TEMPORARY TABLE IF EXISTS jlas_[a-z0-9_]+;)$/;
 export function verify(migration, seed, content = null) {
   if (!migration.startsWith('-- [JLAS-W0108] Consolidated task-owned Learning migration.'))
     throw new Error('Unexpected Learning migration header');
@@ -22,6 +28,9 @@ export function verify(migration, seed, content = null) {
     'learning-content.json#sections.jlpt_minna_n5_n4_reading',
     'learning-content.json#sections.jlpt_speed_n3_comprehension',
     'learning-content.json#sections.jlpt_speed_n5_n4_reading',
+    'learning-content.json#sections.jlas_compiled_book_n5',
+    'learning-content.json#sections.jlas_compiled_book_n4',
+    'learning-content.json#sections.jlas_compiled_book_n3',
   ]) if (!seed.split('\n').some((line) => line.startsWith('-- BEGIN ') && line.includes(`/${marker} SHA256 `)))
     throw new Error(`Missing ${marker}`);
   if (!seed.includes('-- BEGIN generated communication-goal lessons (learning-content.json)'))
@@ -47,15 +56,18 @@ export function verify(migration, seed, content = null) {
     throw new Error('Destructive or DB-switching SQL');
   if (/^\s*(?:CREATE\s+(?!TEMPORARY\s+TABLE)TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b/im.test(seedSql))
     throw new Error('Schema DDL must stay in the migration');
-  // Fail closed (2026-10-19 review): every DELETE/DROP line must be one of the known, scoped forms.
-  const ALLOWED_DELETE = /^DELETE cv FROM content_vocabulary cv WHERE cv\.content_item_id=@item_[a-z0-9_]+ AND cv\.vocabulary_id<>@vocab_[a-z0-9_]+;$/;
-  const ALLOWED_DROP = /^DROP (?:PROCEDURE (?:IF EXISTS )?jlas_[a-z0-9_]+(?:;|\/\/|\$\$)|TEMPORARY TABLE IF EXISTS jlas_[a-z0-9_]+;)$/;
   for (const line of `${migrationSql}\n${seedSql}`.split('\n')) {
     const statement = line.trim();
+    // V07 (24/10): REPLACE INTO deletes and re-inserts rows (new ids, cascades).
+    if (/^REPLACE\s+INTO\b/i.test(statement)) throw new Error(`REPLACE INTO is not allowed: ${statement.slice(0, 120)}`);
     if (/^DELETE\b/i.test(statement) && !ALLOWED_DELETE.test(statement)) throw new Error(`Destructive DELETE outside the allowlist: ${statement.slice(0, 120)}`);
     if (/^DROP\b/i.test(statement) && !ALLOWED_DROP.test(statement)) throw new Error(`Destructive DROP outside the allowlist: ${statement.slice(0, 120)}`);
   }
-  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 18)
+  // V07 (24/10): an UPDATE statement (it may span lines) without WHERE before its terminating semicolon touches every row.
+  for (const match of `${migrationSql}\n${seedSql}`.matchAll(/^\s*UPDATE\b[^;]*;/gim)) {
+    if (!/\bWHERE\b/i.test(match[0])) throw new Error(`UPDATE without WHERE: ${match[0].trim().slice(0, 120)}`);
+  }
+  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 21)
     throw new Error('Unexpected consolidated SQL section count');
   const embeddedOutputs = [...seed.matchAll(/^-- BEGIN (outputs\/[^\r\n]+\.sql) SHA256 ([0-9a-f]{64})\r?\n/gm)];
   if (embeddedOutputs.length !== 6) throw new Error('Unexpected embedded Learning output count');
