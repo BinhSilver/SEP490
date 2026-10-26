@@ -251,8 +251,8 @@ public class WarmUpBComposerImpl implements WarmUpBComposer {
         int targetCount = Math.max(band.lessonCount(), selected.size());
         for (ComprehensionExercise exercise : resolved.exercises()) {
             if (selected.size() >= targetCount) break;
-            // Review 2026-10-20 / OD-08: chapter-bound Speed Master material is studied in its chapter, never as filler.
-            if (exercise.chapterBoundSpeedMaster()) continue;
+            // Review 2026-10-20 / OD-08 / D3-04: chapter-bound material is studied in its chapter, never as filler.
+            if (exercise.chapterBound()) continue;
             selected.putIfAbsent(exercise.fingerprint(), exercise);
         }
         if (selected.size() < band.lessonCount()) {

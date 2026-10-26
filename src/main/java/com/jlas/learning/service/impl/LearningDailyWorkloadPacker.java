@@ -72,6 +72,48 @@ public final class LearningDailyWorkloadPacker {
         return List.copyOf(segments);
     }
 
+    /** Segments of one chapter; the first one fills the rest of the current day when {@code firstContinuesDay}. */
+    public record DayPlan(List<PackageSegment> segments, boolean firstContinuesDay) {
+        public DayPlan {
+            segments = List.copyOf(segments);
+        }
+    }
+
+    /**
+     * D3-05 (owner 2026-10-24): JLPT days are filled by minutes only, so a chapter starts in what is left of the day
+     * its previous chapter ended in ({@code usedToday} minutes already planned). When even its first activity does
+     * not fit there, the chapter starts on a new day. Activities stay whole and in curriculum order.
+     */
+    public DayPlan packContinuing(List<ActivityPlan> activities, int dailyMinutes, int usedToday) {
+        if (activities == null || dailyMinutes <= 0 || usedToday < 0) {
+            throw new IllegalArgumentException("Activities, a positive daily budget and today's planned minutes are required.");
+        }
+        boolean continues = usedToday > 0 && usedToday < dailyMinutes;
+        int capacity = continues ? dailyMinutes - usedToday : dailyMinutes;
+        List<PackageSegment> segments = new ArrayList<>();
+        List<ActivityPlan> current = new ArrayList<>();
+        int currentMinutes = 0;
+        for (ActivityPlan activity : activities) {
+            if (activity == null || activity.estimatedMinutes() > dailyMinutes) {
+                throw new IllegalArgumentException("Every atomic activity must fit the selected daily budget.");
+            }
+            if (segments.isEmpty() && current.isEmpty() && continues && activity.estimatedMinutes() > capacity) {
+                continues = false;
+                capacity = dailyMinutes;
+            }
+            if (!current.isEmpty() && currentMinutes + activity.estimatedMinutes() > capacity) {
+                segments.add(new PackageSegment(current, currentMinutes));
+                current = new ArrayList<>();
+                currentMinutes = 0;
+                capacity = dailyMinutes;
+            }
+            current.add(activity);
+            currentMinutes += activity.estimatedMinutes();
+        }
+        if (!current.isEmpty()) segments.add(new PackageSegment(current, currentMinutes));
+        return new DayPlan(segments, continues && !segments.isEmpty());
+    }
+
     private boolean exceedsQuota(ActivityPlan activity,
             Map<LearningActivityType, Integer> memberCounts,
             Map<LearningActivityType, Integer> limits) {

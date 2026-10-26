@@ -77,6 +77,13 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
 
         List<LessonWorkPlan> lessonPlans = new ArrayList<>();
         boolean communicationGoal = GoalPathPolicy.isCommunicationGoal(path);
+        // D3-05 (owner 2026-10-24): a JLPT day is filled by minutes only — no per-day grammar, reading or listening
+        // count. A J-LAS compiled-book chapter also starts in what is left of the day its previous chapter ended in, so
+        // the number of days follows the workload; each stage starts on a new day and warm-up days are never shared.
+        // Only compiled chapters share days: the shared-day schema (migration 052) ships together with that book.
+        int usedToday = 0;
+        String dayLevel = null;
+        var comprehension = new ComprehensionIndex();
         // OD-D2-05: on a JLPT path each word/Kanji is required only where it first appears (lessons in path order).
         CanonicalFirstOccurrence firstOccurrence = communicationGoal ? null : new CanonicalFirstOccurrence();
         for (var entry : inspected) {
@@ -89,15 +96,26 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                 continue;
             }
             var activities = activitiesFor(firstOccurrence == null ? entry.getValue() : firstOccurrence.keepFirst(entry.getValue()),
-                    dailyBudget, communicationGoal);
+                    dailyBudget, communicationGoal, comprehension);
             if (activities.isEmpty()) {
                 gaps.add(new CoverageGap("LESSON:" + entry.getValue().lesson().getId(), "NO_LEARNABLE_CONTENT"));
                 continue;
             }
-            lessonPlans.add(new LessonWorkPlan(entry.getKey(), entry.getValue(), communicationGoal
-                    ? workloadPacker.pack(activities, dailyBudget)
-                    : workloadPacker.pack(activities, dailyBudget, LearningWorkloadPolicy.JLPT_DAILY_MEMBER_LIMITS,
-                            LearningWorkloadPolicy.JLPT_DAILY_ACTIVITY_LIMITS)));
+            if (communicationGoal) {
+                lessonPlans.add(new LessonWorkPlan(entry.getKey(), entry.getValue(),
+                        workloadPacker.pack(activities, dailyBudget), false));
+                continue;
+            }
+            String level = entry.getKey().resource().level();
+            boolean compiledChapter = isCompiledChapter(entry.getValue().lesson());
+            boolean sharesDay = compiledChapter && java.util.Objects.equals(level, dayLevel);
+            var dayPlan = workloadPacker.packContinuing(activities, dailyBudget, sharesDay ? usedToday : 0);
+            var segments = dayPlan.segments();
+            int lastMinutes = segments.getLast().estimatedMinutes();
+            usedToday = !compiledChapter ? 0
+                    : segments.size() == 1 && dayPlan.firstContinuesDay() ? usedToday + lastMinutes : lastMinutes;
+            dayLevel = compiledChapter ? level : null;
+            lessonPlans.add(new LessonWorkPlan(entry.getKey(), entry.getValue(), segments, dayPlan.firstContinuesDay()));
         }
         if (!gaps.isEmpty()) return new InteractiveCompositionResult(false, 0, gaps);
 
@@ -129,7 +147,8 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
             for (LearningDailyWorkloadPacker.PackageSegment segment : lessonPlan.segments()) {
                 packageOrder++;
                 segmentIndex++;
-                dayNumber++;
+                // The first part of a chapter may share the day its previous chapter ended in (D3-05).
+                if (!(segmentIndex == 1 && lessonPlan.firstContinuesDay())) dayNumber++;
                 var seed = lessonPlan.seed();
                 var snapshot = lessonPlan.snapshot();
                 String title = lessonPlan.segments().size() == 1 ? seed.resource().title()
@@ -152,11 +171,16 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
                 for (var activity : segment.activities()) {
                     activityOrder = saveActivity(path, learningPackage, activity.activityType(), activity.memberType(),
                             activity.memberIds(), snapshot.revision(), activity.estimatedMinutes(), activityOrder,
-                            parts.merge(activity.activityType(), 1, Integer::sum), snapshot.vocabularyContexts());
+                            parts.merge(activity.activityType(), 1, Integer::sum), snapshot.vocabularyContexts(), comprehension);
                 }
             }
         }
         return new InteractiveCompositionResult(true,packageOrder,deferred);
+    }
+
+    static boolean isCompiledChapter(com.jlas.dictionary.entity.Lesson lesson) {
+        return lesson != null && lesson.getUnit() != null && lesson.getUnit().getTextbook() != null
+                && com.jlas.common.learning.CompiledBookPolicy.isCompiledBook(lesson.getUnit().getTextbook().getSourceCode());
     }
 
     static final List<LearningActivityType> REQUIRED_JLPT_SKILLS = List.of(LearningActivityType.VOCABULARY,
@@ -176,7 +200,7 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
     }
 
     private List<LearningWorkloadPolicy.ActivityPlan> activitiesFor(
-            InteractiveContentSnapshot snapshot, int dailyBudget, boolean communicationGoal) {
+            InteractiveContentSnapshot snapshot, int dailyBudget, boolean communicationGoal, ComprehensionIndex comprehension) {
         List<LearningWorkloadPolicy.ActivityPlan> result = new ArrayList<>();
         addActivities(result, LearningActivityType.VOCABULARY, LearningMemberType.VOCABULARY_ENTRY,
                 snapshot.vocabularyIds(), dailyBudget);
@@ -186,43 +210,55 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
         }
         addActivities(result, LearningActivityType.GRAMMAR, LearningMemberType.GRAMMAR_POINT,
                 snapshot.grammarPointIds(), dailyBudget,
-                communicationGoal ? Integer.MAX_VALUE : LearningWorkloadPolicy.JLPT_MAX_GRAMMAR_POINTS_PER_DAY);
+                communicationGoal ? Integer.MAX_VALUE : LearningWorkloadPolicy.JLPT_GRAMMAR_POINTS_PER_ACTIVITY);
         addActivities(result, LearningActivityType.DIALOGUE, LearningMemberType.DIALOGUE_LINE,
                 snapshot.dialogueLineIds(), dailyBudget);
         if (!communicationGoal && !snapshot.readingQuestionIds().isEmpty()) {
-            result.addAll(readingExerciseActivities(snapshot));
+            result.addAll(readingExerciseActivities(snapshot, comprehension));
         }
         if (!communicationGoal && !snapshot.listeningQuestionIds().isEmpty()) {
-            result.addAll(listeningClipActivities(snapshot));
+            result.addAll(listeningClipActivities(snapshot, comprehension));
         }
         return List.copyOf(result);
     }
 
-    private List<LearningWorkloadPolicy.ActivityPlan> readingExerciseActivities(InteractiveContentSnapshot snapshot) {
-        var resolved = comprehensionCatalog.resolve("READING",
-                snapshot.lesson().getUnit().getTextbook().getJlptLevel());
-        Map<Long,String> groupByQuestion = new HashMap<>();
-        resolved.exercises().forEach(exercise -> exercise.questions().forEach(question ->
-                groupByQuestion.put(question.id(), exercise.fingerprint())));
+    /**
+     * Comprehension exercises by question id, resolved once per skill and level for one composition: a resolve loads
+     * every question of the level, and a compiled-book path asks for it for every chapter and every activity.
+     */
+    private final class ComprehensionIndex {
+        private final Map<String, Map<Long, com.jlas.learning.dto.ComprehensionExercise>> bySkillAndLevel = new HashMap<>();
+
+        Map<Long, com.jlas.learning.dto.ComprehensionExercise> byQuestion(String skill, String level) {
+            return bySkillAndLevel.computeIfAbsent(skill + "|" + level, key -> {
+                Map<Long, com.jlas.learning.dto.ComprehensionExercise> index = new HashMap<>();
+                comprehensionCatalog.resolve(skill, level).exercises().forEach(exercise ->
+                        exercise.questions().forEach(question -> index.put(question.id(), exercise)));
+                return index;
+            });
+        }
+    }
+
+    private List<LearningWorkloadPolicy.ActivityPlan> readingExerciseActivities(InteractiveContentSnapshot snapshot,
+            ComprehensionIndex comprehension) {
+        var byQuestion = comprehension.byQuestion("READING", snapshot.lesson().getUnit().getTextbook().getJlptLevel());
         Map<String,List<Long>> groups = new LinkedHashMap<>();
         for (Long id : snapshot.readingQuestionIds()) {
-            String group = groupByQuestion.get(id);
-            if (group == null) throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+            var exercise = byQuestion.get(id);
+            if (exercise == null) throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Bài đọc của chương chưa khớp với bài đọc đã phát hành.");
-            groups.computeIfAbsent(group, ignored -> new ArrayList<>()).add(id);
+            groups.computeIfAbsent(exercise.fingerprint(), ignored -> new ArrayList<>()).add(id);
         }
         return groups.values().stream().map(ids -> comprehensionWorkloadPolicy.plan(LearningActivityType.READING,ids)).toList();
     }
 
-    private List<LearningWorkloadPolicy.ActivityPlan> listeningClipActivities(InteractiveContentSnapshot snapshot) {
-        var resolved = comprehensionCatalog.resolve("LISTENING",
-                snapshot.lesson().getUnit().getTextbook().getJlptLevel());
-        Map<Long,String> groupByQuestion = new HashMap<>();
-        resolved.exercises().forEach(exercise -> exercise.questions().forEach(question ->
-                groupByQuestion.put(question.id(), exercise.fingerprint())));
+    private List<LearningWorkloadPolicy.ActivityPlan> listeningClipActivities(InteractiveContentSnapshot snapshot,
+            ComprehensionIndex comprehension) {
+        var byQuestion = comprehension.byQuestion("LISTENING", snapshot.lesson().getUnit().getTextbook().getJlptLevel());
         Map<String,List<Long>> groups = new LinkedHashMap<>();
         for (Long id : snapshot.listeningQuestionIds()) {
-            String group = groupByQuestion.get(id);
+            var exercise = byQuestion.get(id);
+            String group = exercise == null ? null : exercise.fingerprint();
             if (group == null) throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "Bài nghe của chương chưa khớp với câu hỏi đã phát hành.");
             groups.computeIfAbsent(group, ignored -> new ArrayList<>()).add(id);
@@ -245,14 +281,15 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
 
     private int saveActivity(UserLearningPath path,LearningPathPackage pkg,LearningActivityType type,
             LearningMemberType memberType,List<Long> ids,String revision,int estimatedMinutes,int globalOrder,int partIndex,
-            Map<Long,VocabularyLessonContext> vocabularyContexts){
+            Map<Long,VocabularyLessonContext> vocabularyContexts, ComprehensionIndex comprehension){
         int next=globalOrder+1;
         var activity=items.save(UserLearningPathItem.builder().learningPath(path).learningPackage(pkg).lesson(pkg.getSourceLesson())
                 .orderIndex(next).partIndex(partIndex).phase(LearningPhase.GOAL_LEARNING.name()).dayNumber(pkg.getDayNumber())
                 .estimatedMinutes(estimatedMinutes).activityType(type).activityState(LearningActivityState.LOCKED).build());
         List<LearningActivityMember> rows=new ArrayList<>(); int index=0;
         String memberRevision = type == LearningActivityType.READING || type == LearningActivityType.LISTENING
-                ? comprehensionRevision(type, ids, pkg.getSourceLesson().getUnit().getTextbook().getJlptLevel()) : revision;
+                ? comprehensionRevision(type, ids, pkg.getSourceLesson().getUnit().getTextbook().getJlptLevel(), comprehension)
+                : revision;
         for(Long id:new LinkedHashSet<>(ids)) rows.add(LearningActivityMember.builder().activity(activity).memberType(memberType)
                 .canonicalId(id).orderIndex(++index).sourceRevision(memberRevision)
                 .contentSnapshotJson(type == LearningActivityType.VOCABULARY && vocabularyContexts.containsKey(id)
@@ -261,11 +298,9 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
         return next;
     }
 
-    private String comprehensionRevision(LearningActivityType type, List<Long> questionIds, String level) {
-        var resolved = comprehensionCatalog.resolve(type.name(),level);
-        Map<Long,com.jlas.learning.dto.ComprehensionExercise> byQuestion = new HashMap<>();
-        resolved.exercises().forEach(exercise -> exercise.questions().forEach(question ->
-                byQuestion.put(question.id(),exercise)));
+    private String comprehensionRevision(LearningActivityType type, List<Long> questionIds, String level,
+            ComprehensionIndex comprehension) {
+        var byQuestion = comprehension.byQuestion(type.name(), level);
         List<com.jlas.learning.dto.ComprehensionExercise> ordered = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
         for (Long id : new LinkedHashSet<>(questionIds)) {
@@ -278,5 +313,5 @@ public class InteractivePackageComposerImpl implements InteractivePackageCompose
     }
 
     private record LessonWorkPlan(ScheduledLearningResource seed, InteractiveContentSnapshot snapshot,
-            List<LearningDailyWorkloadPacker.PackageSegment> segments) { }
+            List<LearningDailyWorkloadPacker.PackageSegment> segments, boolean firstContinuesDay) { }
 }

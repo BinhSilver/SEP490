@@ -8,19 +8,15 @@ import com.jlas.learning.enums.LearningMemberType;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 /** Central planning estimate for mandatory study, flashcards, and one required quiz pass. */
 public final class LearningWorkloadPolicy {
     private static final int QUIZ_BATCH_SIZE = 10;
     private static final int QUIZ_MINUTES_PER_BATCH = 3;
     private static final int MAX_FLASHCARD_PART_SIZE = 15;
-    /** Spec §2.4: a JLPT day holds at most three grammar points, one reading and one listening exercise. */
-    public static final int JLPT_MAX_GRAMMAR_POINTS_PER_DAY = 3;
-    public static final Map<LearningActivityType, Integer> JLPT_DAILY_MEMBER_LIMITS =
-            Map.of(LearningActivityType.GRAMMAR, JLPT_MAX_GRAMMAR_POINTS_PER_DAY);
-    public static final Map<LearningActivityType, Integer> JLPT_DAILY_ACTIVITY_LIMITS =
-            Map.of(LearningActivityType.READING, 1, LearningActivityType.LISTENING, 1);
+    /** A JLPT grammar activity studies and checks at most three patterns. Since D3-05 (owner 2026-10-24) a day has
+     * no count limit of its own: grammar, reading and listening fill it by minutes like every other activity. */
+    public static final int JLPT_GRAMMAR_POINTS_PER_ACTIVITY = 3;
 
     public record ActivityPlan(LearningActivityType activityType, LearningMemberType memberType,
             List<Long> memberIds, int estimatedMinutes) {

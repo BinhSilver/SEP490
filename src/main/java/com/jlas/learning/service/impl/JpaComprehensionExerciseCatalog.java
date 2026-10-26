@@ -7,7 +7,6 @@ import com.jlas.learning.dto.ComprehensionQuestionSpec;
 import com.jlas.learning.service.ComprehensionExerciseCatalog;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
@@ -25,11 +24,28 @@ import java.util.Objects;
 
 /** [JLAS-W0193] Builds exercises only from active, exact-level canonical bank rows. */
 @Service
-@RequiredArgsConstructor
 public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCatalog {
     private static final List<String> SUPPORTED_SKILLS = List.of("READING", "LISTENING");
     private static final ObjectMapper CONTEXT_MAPPER = new ObjectMapper();
     private final AssessmentQuestionRepository questions;
+    /** content.audio.path; null in unit tests that do not touch local media. */
+    private final java.nio.file.Path contentAudioRoot;
+    private final Map<String, Boolean> repoAudioPresent = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public JpaComprehensionExerciseCatalog(AssessmentQuestionRepository questions) {
+        this(questions, (java.nio.file.Path) null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public JpaComprehensionExerciseCatalog(AssessmentQuestionRepository questions,
+            @org.springframework.beans.factory.annotation.Value("${content.audio.path:data/content-audio/}") String contentAudioDirectory) {
+        this(questions, java.nio.file.Paths.get(contentAudioDirectory).toAbsolutePath().normalize());
+    }
+
+    JpaComprehensionExerciseCatalog(AssessmentQuestionRepository questions, java.nio.file.Path contentAudioRoot) {
+        this.questions = questions;
+        this.contentAudioRoot = contentAudioRoot;
+    }
 
     @Override
     public CatalogResult resolve(String skill, String jlptLevel) {
@@ -197,6 +213,9 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
 
     private String ownedLearningGroup(String sourceCode, String skill, String level) {
         if (sourceCode == null) return null;
+        // D3-04 (owner 2026-10-24): a compiled-book chapter's copy of a checked Minna/Speed Master passage or clip.
+        String compiled = com.jlas.common.learning.CompiledBookPolicy.questionGroup(sourceCode, skill, level);
+        if (compiled != null) return compiled;
         if ("N5".equals(level)) {
             String suffix = "READING".equals(skill) ? "-READ-" : "-LISTEN-";
             if (sourceCode.matches("LP-OWNED-SEKAI-N5-L\\d{2}" + suffix + "c\\d+")) return sourceCode;
@@ -224,19 +243,43 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
         return null;
     }
 
+    /** /Audio/minnaln/minna1/a/01A-1.mp3, or the N5 listening task set /Audio/minna-task25/I/CD_B-15.mp3. */
+    private static final java.util.regex.Pattern MINNA_SOURCE_PATH = java.util.regex.Pattern.compile(
+            "^/Audio/(?:minnaln/minna([12])|minna-task25)/([A-Za-z]+)/([A-Za-z0-9_-]+\\.mp3)$");
+
+    /**
+     * Day 2 audio manifest (24/10): the repo's content audio (data/content-audio, Git LFS) already holds every Minna clip,
+     * byte-identical, as vnjpclub/N5|N4/minna-so-cap-1|2/&lt;source folder&gt;_&lt;file&gt;.mp3, while the minna/ folder exists
+     * only in a separately installed audio package. Prefer the copy that is actually under content.audio.path.
+     */
+    private String repoMinnaCopy(String canonicalSource, String level) {
+        if (contentAudioRoot == null) return null;
+        var match = MINNA_SOURCE_PATH.matcher(URI.create(canonicalSource).getPath());
+        if (!match.matches()) return null;
+        String book = "N5".equals(level) ? "1" : "2";
+        if (match.group(1) != null && !match.group(1).equals(book)) return null;
+        String relative = "vnjpclub/" + level + "/minna-so-cap-" + book + "/" + match.group(2) + "_" + match.group(3);
+        return repoAudioPresent.computeIfAbsent(relative,
+                key -> java.nio.file.Files.isRegularFile(contentAudioRoot.resolve(key))) ? relative : null;
+    }
+
     /** Playback may use verified local media; the remote canonical URL stays in the fingerprint so
      * in-progress learner activity revisions remain valid when local media is provisioned later. */
     private String minnaPlaybackSource(AssessmentQuestion row, String level, String canonicalSource,
             String ownedSourceGroup) {
-        if (ownedSourceGroup == null || !ownedSourceGroup.startsWith("LP-OWNED-MINNA-")) return canonicalSource;
+        if (ownedSourceGroup == null) return canonicalSource;
         String context = row.getContextJson();
         if (context == null || context.isBlank()) return canonicalSource;
         try {
             JsonNode node = CONTEXT_MAPPER.readTree(context);
+            // A compiled-book copy plays like the Minna clip it was copied from (context_json.compiled_from).
+            String minnaSource = ownedSourceGroup.startsWith("LP-OWNED-MINNA-") ? ownedSourceGroup
+                    : ownedSourceGroup.startsWith("LP-OWNED-JLAS-") ? node.path("compiled_from").asText("") : "";
+            if (!minnaSource.startsWith("LP-OWNED-MINNA-")) return canonicalSource;
             JsonNode file = node.path("audio_file");
             if (file.isMissingNode() || file.isNull()) return canonicalSource;
             String relative = file.asText();
-            var lesson = java.util.regex.Pattern.compile("-L(\\d{2})-LISTEN-").matcher(ownedSourceGroup);
+            var lesson = java.util.regex.Pattern.compile("-L(\\d{2})-LISTEN-").matcher(minnaSource);
             if (!lesson.find()) return null;
             String prefix = "audio/vnjpclub/" + level + "/"
                     + ("N5".equals(level) ? "minna-so-cap-1" : "minna-so-cap-2")
@@ -245,6 +288,8 @@ public class JpaComprehensionExerciseCatalog implements ComprehensionExerciseCat
                     || !relative.substring(prefix.length()).matches("[A-Za-z0-9_-]+\\.mp3")
                     || !relative.substring(prefix.length()).equals(
                         URI.create(canonicalSource).getPath().replaceAll("^.*/", ""))) return null;
+            String repoCopy = repoMinnaCopy(canonicalSource, level);
+            if (repoCopy != null) return "/uploads/content-audio/" + repoCopy;
             return "/uploads/content-audio/minna/" + relative.substring("audio/".length());
         } catch (Exception invalidContext) {
             return null;

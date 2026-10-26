@@ -2,6 +2,7 @@ package com.jlas.learning.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.learning.CompiledBookPolicy;
 import com.jlas.common.learning.DraftStudySourcePolicy;
 import com.jlas.common.learning.JlptPathPolicy;
 import com.jlas.dictionary.entity.Textbook;
@@ -118,6 +119,11 @@ public class JpaLearningScopeSource implements LearningScopeSource {
         if (!openDraftLevels.isEmpty()) {
             books.addAll(textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(openDraftLevels, "DRAFT"));
         }
+        // D3-04 (owner 2026-10-24): a level with a J-LAS compiled book studies only that book; the books it merges are
+        // its provenance, never a second source. A level without one keeps its own books.
+        List<Textbook> compiled = books.stream()
+                .filter(book -> CompiledBookPolicy.isCompiledBook(book.getSourceCode())).toList();
+        if (!compiled.isEmpty()) return compiled;
         // Owner 2026-10-21 (OD-11): supplementary LP-REVIEWED books close their stage, after the core book.
         books.sort(Comparator.comparing((Textbook book) -> book.getSourceCode() != null
                 && book.getSourceCode().startsWith(SUPPLEMENTARY_PREFIX)).thenComparing(Textbook::getId));

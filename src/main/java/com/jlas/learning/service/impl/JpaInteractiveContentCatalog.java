@@ -1,6 +1,7 @@
 package com.jlas.learning.service.impl;
 
 import com.jlas.common.exception.*;
+import com.jlas.common.learning.CompiledBookPolicy;
 import com.jlas.common.learning.DraftStudySourcePolicy;
 import com.jlas.dictionary.entity.Lesson;
 import com.jlas.dictionary.entity.VocabularyEntry;
@@ -10,7 +11,6 @@ import com.jlas.assessment.repository.AssessmentQuestionRepository;
 import com.jlas.learning.dto.*;
 import com.jlas.learning.service.InteractiveContentCatalog;
 import com.jlas.learning.dto.ReferenceVocabularyResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -18,13 +18,36 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component @RequiredArgsConstructor @Transactional(readOnly = true)
+@Component @Transactional(readOnly = true)
 public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
     private final LessonRepository lessons; private final ContentVocabularyRepository contentVocabulary;
     private final VocabularyKanjiRepository vocabularyKanji; private final KanjiReadingRepository kanjiReadings;
     private final GrammarPointRepository grammarPoints; private final ContentItemRepository contentItems;
     private final DialogueLineDetailRepository dialogueLines; private final ContentAudioRepository audio;
     private final AssessmentQuestionRepository assessmentQuestions;
+    /** D3-04: a compiled-book chapter's Kanji are the book's own list; null keeps word-derived Kanji only. */
+    private final LessonKanjiRepository lessonKanji;
+
+    public JpaInteractiveContentCatalog(LessonRepository lessons, ContentVocabularyRepository contentVocabulary,
+            VocabularyKanjiRepository vocabularyKanji, KanjiReadingRepository kanjiReadings,
+            GrammarPointRepository grammarPoints, ContentItemRepository contentItems,
+            DialogueLineDetailRepository dialogueLines, ContentAudioRepository audio,
+            AssessmentQuestionRepository assessmentQuestions) {
+        this(lessons, contentVocabulary, vocabularyKanji, kanjiReadings, grammarPoints, contentItems, dialogueLines,
+                audio, assessmentQuestions, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public JpaInteractiveContentCatalog(LessonRepository lessons, ContentVocabularyRepository contentVocabulary,
+            VocabularyKanjiRepository vocabularyKanji, KanjiReadingRepository kanjiReadings,
+            GrammarPointRepository grammarPoints, ContentItemRepository contentItems,
+            DialogueLineDetailRepository dialogueLines, ContentAudioRepository audio,
+            AssessmentQuestionRepository assessmentQuestions, LessonKanjiRepository lessonKanji) {
+        this.lessons = lessons; this.contentVocabulary = contentVocabulary; this.vocabularyKanji = vocabularyKanji;
+        this.kanjiReadings = kanjiReadings; this.grammarPoints = grammarPoints; this.contentItems = contentItems;
+        this.dialogueLines = dialogueLines; this.audio = audio; this.assessmentQuestions = assessmentQuestions;
+        this.lessonKanji = lessonKanji;
+    }
 
     @Override public InteractiveContentSnapshot inspect(Long lessonId, String expectedLevel) {
         var lesson=lessons.findWithUnitById(lessonId).orElseThrow(()->new ApiException(ErrorCode.NOT_FOUND,"Không tìm thấy bài nguồn."));
@@ -69,25 +92,44 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
                 || (!("PUBLISHED".equals(v.getDictionaryStatus()) && !blank(v.getMeaning()))
                     && !(ownedLesson && "DRAFT".equals(v.getDictionaryStatus()) && contexts.containsKey(v.getId())))))
             gap(gaps,key,"VOCABULARY_NOT_READY");
-        var links=vocabIds.isEmpty()?List.<com.jlas.dictionary.entity.VocabularyKanji>of():vocabularyKanji.findByVocabularyIdIn(vocabIds);
-        if (openDraft) links=links.stream()
-                .filter(link->DraftStudySourcePolicy.isKanjiWithinStage(link.getKanji().getJlptLevel(),textbook.getJlptLevel())).toList();
-        List<Long> kanjiIds=links.stream().map(v->v.getKanji().getId()).distinct().sorted().toList();
+        // D3-04: a compiled-book chapter teaches the Kanji the book assigned to it (in the book's order, each at its
+        // official level); every other lesson keeps the Kanji of its own words.
+        boolean compiled = CompiledBookPolicy.isCompiledBook(sourceCode);
+        List<com.jlas.dictionary.entity.Kanji> kanji;
+        if (compiled && lessonKanji != null) {
+            kanji = lessonKanji.findByLessonIdWithKanji(lessonId).stream().map(link -> link.getKanji()).toList();
+        } else {
+            var links=vocabIds.isEmpty()?List.<com.jlas.dictionary.entity.VocabularyKanji>of():vocabularyKanji.findByVocabularyIdIn(vocabIds);
+            if (openDraft) links=links.stream()
+                    .filter(link->DraftStudySourcePolicy.isKanjiWithinStage(link.getKanji().getJlptLevel(),textbook.getJlptLevel())).toList();
+            kanji = links.stream().map(link -> link.getKanji()).toList();
+        }
+        List<Long> kanjiIds=kanji.stream().map(k->k.getId()).distinct().toList();
+        if (!compiled) kanjiIds = kanjiIds.stream().sorted().toList();
         if (!kanjiIds.isEmpty()) {
-            if(links.stream().anyMatch(link->blank(link.getKanji().getCharacter())||(blank(link.getKanji().getMeaningVi())&&blank(link.getKanji().getHanViet())))) gap(gaps,key,"KANJI_NOT_READY");
+            if(kanji.stream().anyMatch(k->blank(k.getCharacter())||(blank(k.getMeaningVi())&&blank(k.getHanViet())))) gap(gaps,key,"KANJI_NOT_READY");
             var covered=kanjiReadings.findByKanjiIdInOrderByKanjiIdAscReadingTypeAscIdAsc(kanjiIds).stream().map(r->r.getKanji().getId()).collect(Collectors.toSet());
             if(!covered.containsAll(kanjiIds)) gap(gaps,key,"KANJI_READING_NOT_READY");
         }
         var grammar=grammarPoints.findByLessonIdOrderByOrderIndexAsc(lessonId); List<Long> grammarIds=grammar.stream().map(g->g.getId()).distinct().toList();
-        if(grammarIds.size()>12) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
+        // A compiled chapter holds its share of the level's patterns; the composer splits them into parts and days.
+        if(grammarIds.size()>12 && !compiled) gap(gaps,key,"TOO_MANY_GRAMMAR_POINTS");
         if(grammar.stream().anyMatch(g->blank(g.getPattern())||blank(g.getMeaning())||(blank(g.getExample())&&contentItems.findGrammarExamples(g.getId(),lessonId).isEmpty()))) gap(gaps,key,"GRAMMAR_EXAMPLE_NOT_READY");
         var dialogue=dialogueLines.findByLessonId(lessonId); List<Long> dialogueIds=dialogue.stream().map(d->d.getContentItemId()).distinct().toList();
         // Open-draft dialogues have no recorded audio yet; the player uses the labelled synthesized voice instead.
-        if(!dialogueIds.isEmpty() && !openDraft) {
+        if(!dialogueIds.isEmpty() && !openDraft
+                && !CompiledBookPolicy.synthesizesMissingDialogueAudio(sourceCode, textbook.getJlptLevel())) {
             var audioOwners=audio.findByOwnerTypeAndOwnerIdIn("CONTENT_ITEM",dialogueIds).stream().filter(a->!blank(a.getAudioUrl())).map(a->a.getOwnerId()).collect(Collectors.toSet());
             if(!audioOwners.containsAll(dialogueIds)) gap(gaps,key,"DIALOGUE_AUDIO_NOT_READY");
         }
         if(dialogue.stream().anyMatch(d->blank(d.getContentItem().getContent()))) gap(gaps,key,"DIALOGUE_SCRIPT_NOT_READY");
+        if (compiled) {
+            List<Long> readingIds = compiledComprehensionIds(lesson, expectedLevel, "READING", gaps, key);
+            List<Long> listeningIds = compiledComprehensionIds(lesson, expectedLevel, "LISTENING", gaps, key);
+            if(vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty() && dialogueIds.isEmpty()
+                    && readingIds.isEmpty() && listeningIds.isEmpty()) gap(gaps,key,"EMPTY_LESSON");
+            return snapshot(lesson, vocabIds, kanjiIds, grammarIds, dialogueIds, gaps, contexts, readingIds, listeningIds);
+        }
         List<Long> readingIds = ownedMinnaReadingIds(lesson, expectedLevel, gaps, key);
         if (readingIds.isEmpty() && "N5".equals(expectedLevel)) {
             // Preserve existing N5 paths until the Learning-owned Minna reading bundle is applied.
@@ -111,8 +153,45 @@ public class JpaInteractiveContentCatalog implements InteractiveContentCatalog {
             gap(gaps,key,"KANJI_AND_GRAMMAR_NOT_READY");
         if(vocabIds.isEmpty() && kanjiIds.isEmpty() && grammarIds.isEmpty() && dialogueIds.isEmpty()
                 && readingIds.isEmpty() && listeningIds.isEmpty()) gap(gaps,key,"EMPTY_LESSON");
+        return snapshot(lesson, vocabIds, kanjiIds, grammarIds, dialogueIds, gaps, contexts, readingIds, listeningIds);
+    }
+
+    private static InteractiveContentSnapshot snapshot(Lesson lesson, List<Long> vocabIds, List<Long> kanjiIds,
+            List<Long> grammarIds, List<Long> dialogueIds, List<CoverageGap> gaps, Map<Long, VocabularyLessonContext> contexts,
+            List<Long> readingIds, List<Long> listeningIds) {
         String revision=sha256(lesson.getUnit().getTextbook().getVersion()+"|"+lesson.getUpdatedAt()+"|"+vocabIds+"|"+kanjiIds+"|"+grammarIds+"|"+dialogueIds+"|"+readingIds+"|"+listeningIds+"|"+contexts);
         return new InteractiveContentSnapshot(lesson,revision,vocabIds,kanjiIds,grammarIds,dialogueIds,gaps,contexts,readingIds,listeningIds);
+    }
+
+    /**
+     * D3-04 (owner 2026-10-24): compiled chapter n carries the checked Minna/Speed Master passages and clips copied as
+     * {@code LP-OWNED-JLAS-{L}-Cnn-READ|LISTEN-Pp-…}, in book order (one chapter may hold several of each).
+     */
+    private List<Long> compiledComprehensionIds(Lesson lesson, String expectedLevel, String skill,
+            List<CoverageGap> gaps, String gapKey) {
+        var chapter = CompiledBookPolicy.chapterOf(lesson.getSourceCode());
+        if (chapter.isEmpty() || !isJlptLevel(expectedLevel)) {
+            gap(gaps, gapKey, "COMPILED_CHAPTER_INVALID");
+            return List.of();
+        }
+        String prefix = CompiledBookPolicy.questionPrefix(expectedLevel, chapter.get(), skill);
+        List<AssessmentQuestion> rows = assessmentQuestions
+                .findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(skill, expectedLevel, prefix);
+        List<Long> ids = rows.stream().filter(row -> row.getId() != null && Boolean.TRUE.equals(row.getIsActive())
+                && skill.equals(row.getSkill()) && expectedLevel.equals(row.getJlptLevel())
+                && row.getSourceCode() != null && row.getSourceCode().startsWith(prefix))
+                .map(AssessmentQuestion::getId).distinct().toList();
+        if (ids.size() != rows.size()) {
+            gap(gaps, gapKey, "COMPILED_" + skill + "_COVERAGE_INVALID");
+            return List.of();
+        }
+        // §2.32: only ACCEPTED/REVIEWED, non-pool passages are required; a dropped one is replaced from the store pool
+        // (queried only then). With nothing to drop the chapter keeps exactly these ids, so its revision is unchanged.
+        var selection = CompiledComprehensionSelection.select(rows, () -> assessmentQuestions
+                .findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(skill, expectedLevel,
+                        CompiledBookPolicy.poolPrefix(expectedLevel, skill)), chapter.get(), skill, expectedLevel);
+        if (selection.gapReason() != null) gap(gaps, gapKey, selection.gapReason());
+        return selection.ids();
     }
 
     private List<Long> ownedSekaiComprehensionIds(Lesson lesson, String expectedLevel, String skill,
