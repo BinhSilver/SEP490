@@ -20,14 +20,25 @@ public class LearningPathPageController {
         return "learning/weakness-notebook";
     }
 
+    /** The Smart Test handoff without entry answers. */
+    public String learningPath(Model model, Long assessmentAttemptId, String reviewStartLevel, String discrepancyChoice) {
+        return learningPath(model, assessmentAttemptId, reviewStartLevel, discrepancyChoice, null, null);
+    }
+
     @GetMapping("/learning/path")
     public String learningPath(Model model,
             @RequestParam(required = false) Long assessmentAttemptId,
             @RequestParam(required = false) String reviewStartLevel,
-            @RequestParam(required = false) String discrepancyChoice) {
+            @RequestParam(required = false) String discrepancyChoice,
+            @RequestParam(required = false) String kanaKnown,
+            @RequestParam(required = false) String entryChoice) {
         if (interactiveV2Properties.isEnabled()) {
             if (assessmentAttemptId == null) return "redirect:/learning/path/v2";
             String redirect = "redirect:/learning/path/v2?assessmentAttemptId=" + assessmentAttemptId;
+            // Owner 2026-10-25: the answers to the Smart Test entry questions travel with the handoff.
+            if (kanaKnown != null && List.of("true", "false").contains(kanaKnown)) redirect += "&kanaKnown=" + kanaKnown;
+            if (entryChoice != null && List.of("SOLID", "NOT_SOLID", "STUDY_LEVEL", "SKIP_LEVEL", "REVIEW_MISTAKES",
+                    "SKIP_REVIEW").contains(entryChoice)) redirect += "&entryChoice=" + entryChoice;
             // List.of(...).contains(null) throws, and most Smart Test handoffs carry neither choice.
             if (reviewStartLevel != null && List.of("N5", "N4", "N3").contains(reviewStartLevel)) {
                 return redirect + "&reviewStartLevel=" + reviewStartLevel;

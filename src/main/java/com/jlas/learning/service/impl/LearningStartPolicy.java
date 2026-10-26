@@ -13,6 +13,10 @@ final class LearningStartPolicy {
 
     static boolean needsMistakeWarmUp(LearningProfileSnapshot profile) {
         if (profile.reviewStartLevel() != null) return false;
+        // Owner 2026-10-25 (LearningEntryPolicy): an unfinished test has no mistakes to review, an answer that fixes the
+        // first stage replaces the warm-up, and a learner who chose to skip the review goes straight on.
+        if (profile.partial() || profile.entryStartLevel() != null
+                || LearningEntryPolicy.SKIP_REVIEW.equals(profile.entryChoice())) return false;
         if (profile.discrepancyChoice() != null) {
             // Accepting a lower result reviews the assessed level's mistakes only for the middle (Căn bản) band.
             String band = profile.overallAbilityBand();
@@ -28,6 +32,7 @@ final class LearningStartPolicy {
     }
 
     static String firstGoalLevel(LearningProfileSnapshot profile) {
+        if (profile.entryStartLevel() != null && LEVELS.contains(profile.entryStartLevel())) return profile.entryStartLevel();
         if (profile.discrepancyChoice() != null) return goalLevels(profile).get(0);
         if (profile.reviewStartLevel() != null && LEVELS.contains(profile.reviewStartLevel())) return profile.reviewStartLevel();
         if ("BELOW_N5".equals(profile.assessedLevel())) return "N5";
@@ -48,6 +53,12 @@ final class LearningStartPolicy {
     }
 
     static List<String> goalLevels(LearningProfileSnapshot profile) {
+        if (profile.entryStartLevel() != null && LEVELS.contains(profile.entryStartLevel())
+                && profile.targetLevel() != null && LEVELS.contains(profile.targetLevel())) {
+            int start = LEVELS.indexOf(profile.entryStartLevel());
+            int target = LEVELS.indexOf(profile.targetLevel());
+            return start <= target ? LEVELS.subList(start, target + 1) : List.of(profile.targetLevel());
+        }
         if (profile.reviewStartLevel() != null && LEVELS.contains(profile.reviewStartLevel())
                 && profile.targetLevel() != null && LEVELS.contains(profile.targetLevel())) {
             int reviewStart = LEVELS.indexOf(profile.reviewStartLevel());

@@ -625,6 +625,99 @@
     return Boolean(levelValue[self] && levelValue[assessed] && result.targetLevel && levelValue[assessed] < levelValue[self]);
   }
 
+  // Owner 2026-10-25: a question answered by one of several buttons; "Quay lại" (or Esc) answers null.
+  // The dialog's grid/flex styles override the [hidden] attribute, so display is switched inline.
+  function askChoice(title, message, options) {
+    var box = document.getElementById('smartChoiceOptions');
+    var yes = document.getElementById('smartConfirmYes');
+    var no = document.getElementById('smartConfirmNo');
+    var actions = no.parentNode;
+    var noText = no.textContent;
+    box.innerHTML = '';
+    options.forEach(function (option) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = option.primary ? 'smart-confirm__yes' : 'smart-confirm__no';
+      button.textContent = option.label;
+      button.addEventListener('click', function () { closeConfirmation(option.value); });
+      box.appendChild(button);
+    });
+    box.style.display = 'grid'; yes.style.display = 'none'; actions.style.gridTemplateColumns = '1fr';
+    var answer = askConfirmation(title, message);
+    no.textContent = 'Quay lại';
+    return answer.then(function (value) {
+      box.style.display = 'none'; box.innerHTML = ''; yes.style.display = ''; actions.style.gridTemplateColumns = '';
+      no.textContent = noText;
+      return typeof value === 'string' ? value : null;
+    });
+  }
+
+  function nextLevel(level) {
+    var order = ['N5', 'N4', 'N3', 'N2', 'N1'];
+    var index = order.indexOf(level);
+    return index >= 0 && index < order.length - 1 ? order[index + 1] : level;
+  }
+
+  function mistakeSummary(level) {
+    var wrong = (state.result && state.result.skills || []).filter(function (skill) {
+      return skill.totalQuestions > 0 && skill.correctAnswers < skill.totalQuestions;
+    }).map(function (skill) {
+      return (labels[skill.skill] || skill.skill) + ' sai ' + (skill.totalQuestions - skill.correctAnswers) + '/' + skill.totalQuestions;
+    });
+    return wrong.length ? 'Smart Test còn câu sai ở ' + level + ': ' + wrong.join(', ') + '.' : 'Smart Test còn một số câu sai ở ' + level + '.';
+  }
+
+  async function retakeSmartTest() {
+    var survey = await api('/api/assessment/survey');
+    var payload = survey && survey.survey ? survey.survey : survey;
+    var test = await api('/api/assessment/smart-tests', { method: 'POST', body: JSON.stringify(payload) });
+    localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
+    render(test);
+    window.location.assign('/smart-test');
+  }
+
+  /** Asks the server's entry questions in order; null when the learner went back or started a new Smart Test. */
+  async function askEntryQuestions(questions) {
+    var answers = { kanaKnown: null, entryChoice: null };
+    if (!questions) return answers;
+    if (questions.askKana) {
+      var kana = await askChoice('Bạn đã đọc được bảng chữ cái chưa?', questions.partial
+        ? 'Bạn chưa hoàn thành Smart Test, nên hệ thống cần biết bạn đã đọc được Hiragana và Katakana chưa.'
+        : 'Kết quả Smart Test ở dưới N5. Nếu bạn chưa đọc được Hiragana và Katakana, lộ trình bắt đầu từ bảng chữ cái.',
+        [{ value: 'NO', label: 'Chưa — học bảng chữ cái trước', primary: true }, { value: 'YES', label: 'Đã đọc được' }]);
+      if (kana === null) return null;
+      answers.kanaKnown = kana === 'YES';
+      if (!answers.kanaKnown) return answers;
+    }
+    var level = questions.level;
+    var target = questions.targetLevel;
+    var next = nextLevel(level);
+    var spec = {
+      INCOMPLETE_FOUNDATION: { title: 'Bạn đã vững ' + level + ' chưa?',
+        text: 'Bạn chưa hoàn thành bài test, vì vậy hệ thống không thể xác định được bạn đã vững cấp độ ' + level + ' hay chưa.',
+        options: [{ value: 'SOLID', label: 'Vững rồi — không cần học lại ' + level },
+          { value: 'NOT_SOLID', label: 'Chưa vững — học thêm ' + level + ' trong lộ trình', primary: true },
+          { value: 'RETAKE', label: 'Làm lại Smart Test' }] },
+      INTRO_LEVEL: { title: 'Học lại ' + level + ' trước?',
+        text: 'Kết quả ở mức Nhập môn: nền tảng ' + level + ' còn mỏng. Học lại ' + level + ' giúp bạn theo kịp ' + target + '.',
+        options: [{ value: 'STUDY_LEVEL', label: 'Học lại ' + level + ' rồi lên ' + target + ' (khuyến nghị)', primary: true },
+          { value: 'SKIP_LEVEL', label: next === target ? 'Vào thẳng ' + target : 'Bỏ qua ' + level + ', học từ ' + next }] },
+      MISTAKE_REVIEW: { title: 'Ôn lỗi ' + level + ' trước?',
+        text: mistakeSummary(level) + ' Bạn muốn ôn các lỗi này trước khi học tiếp?',
+        options: [{ value: 'REVIEW_MISTAKES', label: 'Ôn các lỗi này trước (khởi động)', primary: true },
+          { value: 'SKIP_REVIEW', label: next === target ? 'Bỏ qua, vào thẳng ' + target : 'Bỏ qua, học tiếp từ ' + next }] }
+    }[questions.choiceKind];
+    if (!spec) return answers;
+    var choice = await askChoice(spec.title, spec.text, spec.options);
+    if (choice === null) return null;
+    if (choice === 'RETAKE') {
+      await retakeSmartTest();
+      return null;
+    }
+    answers.entryChoice = choice;
+    return answers;
+  }
+
   var createPathButton = document.getElementById('createPathButton');
   if (createPathButton) {
     createPathButton.addEventListener('click', async function (event) {
@@ -632,11 +725,19 @@
       if (!state.attemptId) return;
       var targetLevel = state.result && String(state.result.targetLevel || '').toUpperCase();
       var assessedLevel = state.result && String(state.result.estimatedOverallLevel || '').toUpperCase();
-      var needsReviewChoice = Boolean(state.result && state.result.requiresTargetConfirmation &&
+      var entryQuestions = null;
+      if (state.goal !== 'BA') {
+        try {
+          entryQuestions = await api('/api/learning/paths/entry-questions?assessmentAttemptId=' + encodeURIComponent(state.attemptId));
+        } catch (error) { showError(error.message); return; }
+      }
+      // An unfinished test has its own questions; the result-based choices below need a finished test.
+      var unfinished = Boolean(entryQuestions && entryQuestions.partial);
+      var needsReviewChoice = !unfinished && Boolean(state.result && state.result.requiresTargetConfirmation &&
         levelValue[assessedLevel] && levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
       var reviewStartLevel = null;
       var discrepancyChoice = null;
-      var route = window.SmartTestResultRoute ? window.SmartTestResultRoute.notice(state.result) : { kind: null };
+      var route = window.SmartTestResultRoute && !unfinished ? window.SmartTestResultRoute.notice(state.result) : { kind: null };
       if (route.blockCreate) return;
       if (route.kind === 'UNKNOWN_FAR') {
         // Owner 2026-10-21 (OD-35): no self-declared level to fall back to — accept the chain or pick another target.
@@ -647,7 +748,7 @@
         if (!agreed) return;
         discrepancyChoice = 'ACCEPT_RECOMMENDATION';
       }
-      if (!discrepancyChoice && !needsReviewChoice && isLowerThanSelfReport(state.result)) {
+      if (!unfinished && !discrepancyChoice && !needsReviewChoice && isLowerThanSelfReport(state.result)) {
         var selfLevel = String(state.result.selfReportedLevel || '').toUpperCase();
         var choicePicker = document.getElementById('discrepancyPicker');
         choicePicker.querySelector('[data-discrepancy-accept]').textContent =
@@ -678,9 +779,14 @@
         if (!accepted) return;
         reviewStartLevel = select.value;
       }
+      // Owner 2026-10-25: the server's entry questions (kana known? solid at a level? review mistakes? study again?).
+      var entry; try { entry = await askEntryQuestions(entryQuestions); } catch (error) { showError(error.message); return; }
+      if (entry === null) return;
       var destination = state.goal === 'BA'
         ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
         : '/learning/path?assessmentAttemptId=' + state.attemptId +
+          (entry.kanaKnown !== null ? '&kanaKnown=' + entry.kanaKnown : '') +
+          (entry.entryChoice ? '&entryChoice=' + encodeURIComponent(entry.entryChoice) : '') +
           (reviewStartLevel ? '&reviewStartLevel=' + encodeURIComponent(reviewStartLevel) : '') +
           (discrepancyChoice ? '&discrepancyChoice=' + encodeURIComponent(discrepancyChoice) : '');
       window.location.assign(destination);

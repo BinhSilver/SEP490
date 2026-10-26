@@ -148,11 +148,12 @@
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
-  goHome.addEventListener('click', function () {
+  goHome.addEventListener('click', async function () {
     if (!noTest) return window.location.assign('/');
     if (savedSurvey && savedSurvey.goal !== 'JLPT') {
       return window.location.assign('/learning/goals/' + encodeURIComponent(savedSurvey.goal) + '/survey');
     }
+    try { await api('/api/learning/paths/from-zero', { method: 'POST', body: '{}' }); } catch (error) { showError(error.message); return; }
     window.location.assign('/learning/path');
   });
   document.getElementById('surveyEdit').addEventListener('click', function () {

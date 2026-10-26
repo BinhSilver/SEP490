@@ -18,6 +18,13 @@ public interface LearningService {
      * (ACCEPT_RECOMMENDATION / DECLINE_RECOMMENDATION); at most one of the two may be given. */
     CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel, String discrepancyChoice);
 
+    /** As above, with the learner's answers to the entry questions of {@link #entryQuestions} (owner 2026-10-25). */
+    CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel,
+            String discrepancyChoice, Boolean kanaKnown, String entryChoice);
+
+    /** Owner 2026-10-25: the questions a finalized Smart Test result asks before its path is created. */
+    com.jlas.learning.dto.LearningEntryQuestions entryQuestions(Long userId, Long assessmentAttemptId);
+
     /**
      * [JLAS-W0108] Creates a from-zero path from a completed survey (no Smart Test needed), or
      * returns the existing one on retry. The path warms up with the kana foundation before the goal.

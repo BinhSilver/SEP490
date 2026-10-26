@@ -40,8 +40,9 @@
       if (rank(start) >= 0 && rank(start) < rank(target)) {
         return { kind: 'INTRO_STAGE', askConsent: false, blockCreate: false,
           stages: LEVELS.slice(rank(start), rank(target) + 1),
-          text: 'Kết quả ở mức Nhập môn nên lộ trình bắt đầu bằng chặng ' + start + ' để học lại đủ nền, rồi lên ' +
-            target + '.' };
+          // Owner 2026-10-25: the learner now chooses to study that stage again first (recommended) or go straight on.
+          text: 'Kết quả ở mức Nhập môn: khi tạo lộ trình, bạn chọn học lại chặng ' + start + ' trước (khuyến nghị) rồi lên ' +
+            target + ', hoặc vào thẳng.' };
       }
     }
     return none;

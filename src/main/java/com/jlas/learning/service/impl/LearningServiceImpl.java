@@ -196,6 +196,26 @@ public class LearningServiceImpl implements LearningService {
     @Transactional
     public CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel,
             String discrepancyChoice) {
+        return create(userId, assessmentAttemptId, reviewStartLevel, discrepancyChoice, null, null);
+    }
+
+    /** Owner 2026-10-25: the questions the learner must answer on this Smart Test result before a path is created. */
+    @Override
+    @Transactional(readOnly = true)
+    public com.jlas.learning.dto.LearningEntryQuestions entryQuestions(Long userId, Long assessmentAttemptId) {
+        requirePositiveUserId(userId);
+        if (assessmentAttemptId == null || assessmentAttemptId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "A finalized assessment attempt is required.");
+        }
+        LearningProfileSnapshot profile = profileSource().loadForUser(userId, assessmentAttemptId);
+        if (profile == null || !userId.equals(profile.userId())) throw new ApiException(ErrorCode.FORBIDDEN);
+        return LearningEntryPolicy.questions(profile);
+    }
+
+    @Override
+    @Transactional
+    public CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel,
+            String discrepancyChoice, Boolean kanaKnown, String entryChoice) {
         requirePositiveUserId(userId);
         boolean hasReviewStart = reviewStartLevel != null && !reviewStartLevel.isBlank();
         boolean hasDiscrepancyChoice = discrepancyChoice != null && !discrepancyChoice.isBlank();
@@ -216,12 +236,22 @@ public class LearningServiceImpl implements LearningService {
         if (profile == null || !userId.equals(profile.userId())) {
             throw new ApiException(ErrorCode.FORBIDDEN);
         }
+        // Answers only make sense for a finalized result: an unfinished survey/test is a conflict, not a missing answer.
+        if (!profile.surveyCompleted() || !profile.assessmentFinalized()) {
+            throw new ApiException(ErrorCode.CONFLICT, "Complete the survey and finalize Smart Test results first.");
+        }
+        if (profile.partial() && (hasReviewStart || choice != null)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                    "Bài Smart Test chưa hoàn thành dùng câu hỏi xác nhận riêng, không dùng lựa chọn cấp ôn.");
+        }
         if (hasReviewStart) {
             profile = profile.withReviewStartLevel(reviewStartLevel.trim().toUpperCase(java.util.Locale.ROOT));
         }
         if (choice != null) {
             profile = profile.withDiscrepancyChoice(choice);
         }
+        String entry = entryChoice == null || entryChoice.isBlank() ? null : entryChoice.trim().toUpperCase(java.util.Locale.ROOT);
+        profile = LearningEntryPolicy.apply(profile.withEntryAnswers(kanaKnown, entry));
         return createPath(user, profile, scopeSource());
     }
 
@@ -270,6 +300,8 @@ public class LearningServiceImpl implements LearningService {
         if (profile.discrepancyChoice() != null) {
             pathPolicyVersion += "ACCEPT_RECOMMENDATION".equals(profile.discrepancyChoice()) ? ":LOWER_ACCEPT" : ":LOWER_DECLINE";
         }
+        // Owner 2026-10-25: each set of entry answers is its own path (policy_version is VARCHAR(100); codes are short).
+        pathPolicyVersion += LearningEntryPolicy.policySuffix(profile);
 
         // The user-row lock above already serializes concurrent creation for this user.
         // [JLAS-W0122] Chỉ xét path ACTIVE: replan giữ nguyên generation identity qua các version,
@@ -1624,17 +1656,24 @@ public class LearningServiceImpl implements LearningService {
                 + (missing.size() > 1 ? "các cấp này." : "cấp này.");
     }
 
+    private static String levelLabel(String level) {
+        if ("BELOW_N5".equals(level) || "FROM_ZERO".equals(level)) {
+            return "Bắt đầu từ đầu";
+        }
+        return level;
+    }
+
     private String buildTitle(LearningProfileSnapshot profile) {
         if ("ACCEPT_RECOMMENDATION".equals(profile.discrepancyChoice())) {
-            return "JLPT " + profile.assessedLevel() + " đến " + profile.targetLevel() + " · Củng cố theo Smart Test";
+            return "JLPT " + levelLabel(profile.assessedLevel()) + " đến " + profile.targetLevel() + " · Củng cố theo Smart Test";
         }
         if ("DECLINE_RECOMMENDATION".equals(profile.discrepancyChoice())) {
-            return "JLPT " + profile.surveyLevel() + " đến " + profile.targetLevel()
-                    + " · Theo khảo sát (Smart Test: " + profile.assessedLevel() + ")";
+            return "JLPT " + levelLabel(profile.surveyLevel()) + " đến " + profile.targetLevel()
+                    + " · Theo khảo sát (Smart Test: " + levelLabel(profile.assessedLevel()) + ")";
         }
         if (profile.reviewStartLevel() != null) {
             return "JLPT " + profile.reviewStartLevel() + " đến " + profile.targetLevel()
-                    + " · Ôn theo lựa chọn (Smart Test: " + profile.assessedLevel() + ")";
+                    + " · Ôn theo lựa chọn (Smart Test: " + levelLabel(profile.assessedLevel()) + ")";
         }
         // [JLAS-W0108] From-zero: tiêu đề thân thiện thay vì "JLPT BELOW_N5 to N5".
         if ("BELOW_N5".equals(profile.assessedLevel())) {
