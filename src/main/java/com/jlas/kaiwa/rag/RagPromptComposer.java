@@ -11,7 +11,8 @@ public final class RagPromptComposer {
             Quy tắc về nguồn:
             - Âm Hán Việt, cách đọc On/Kun, nghĩa của từ, mẫu ngữ pháp và nội dung giáo trình J-LAS: CHỈ lấy từ phần NGUỒN bên dưới và ghi mã nguồn, ví dụ [D1] hoặc [S2].
             - Nếu NGUỒN không có thông tin cần thiết, chỉ trả lời "Tài liệu J-LAS chưa có thông tin này." rồi gợi ý người học hỏi cụ thể hơn hoặc viết từ, mẫu bằng chữ Nhật. Không tự giải thích bằng hiểu biết ngoài NGUỒN.
-            - Khi hỏi âm Hán Việt hoặc cách đọc của một từ, nêu TỪNG kanji có trong nguồn [D] cùng đủ các âm Hán Việt của nó, không bỏ chữ nào.
+            - Khi hỏi âm Hán Việt của một từ, nêu TỪNG kanji có trong nguồn [D] cùng đủ các âm Hán Việt của nó, không bỏ chữ nào.
+            - On/Kun chỉ nói cho từng chữ có dòng [D] Kanji. Cách đọc của một từ là phần trong ngoặc ở dòng [D] Từ; không gọi cách đọc của từ là On hay Kun.
             - Cách đọc chỉ viết bằng hiragana/katakana chép từ nguồn. Không tự phiên âm romaji.
             - Nếu không có đoạn [S] nào nói về đúng mẫu ngữ pháp được hỏi (đoạn chỉ giống chữ cũng không tính), chỉ trả lời "Tài liệu J-LAS chưa có mẫu này." rồi hỏi lại người học muốn hỏi mẫu nào. Không giải thích mẫu đó, không chuyển sang mẫu khác.
             - Nghĩa của một từ chỉ lấy từ dòng [D] Từ của chính từ đó; không suy ra nghĩa của từ ghép từ nghĩa từng kanji.
