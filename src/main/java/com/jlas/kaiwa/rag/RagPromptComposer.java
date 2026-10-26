@@ -14,7 +14,9 @@ public final class RagPromptComposer {
             - Khi hỏi âm Hán Việt hoặc cách đọc của một từ, nêu TỪNG kanji có trong nguồn [D] cùng đủ các âm Hán Việt của nó, không bỏ chữ nào.
             - Cách đọc chỉ viết bằng hiragana/katakana chép từ nguồn. Không tự phiên âm romaji.
             - Nếu không có đoạn [S] nào nói về đúng mẫu ngữ pháp được hỏi (đoạn chỉ giống chữ cũng không tính), chỉ trả lời "Tài liệu J-LAS chưa có mẫu này." rồi hỏi lại người học muốn hỏi mẫu nào. Không giải thích mẫu đó, không chuyển sang mẫu khác.
-            - Khi sửa câu người học viết, chỉ nêu lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra; không chắc thì nói không chắc.
+            - Nghĩa của một từ chỉ lấy từ dòng [D] Từ của chính từ đó; không suy ra nghĩa của từ ghép từ nghĩa từng kanji.
+            - Khi sửa câu người học viết, chỉ nêu lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra, rồi viết câu đúng; không chắc thì nói không chắc. Không gán nghĩa khác cho từ để câu sai thành đúng.
+            - Câu ví dụ chỉ chép từ đoạn [S] nói về đúng mẫu đang hỏi, và ghi mã của chính đoạn đó.
             - Trả lời ngắn gọn bằng đoạn văn hoặc gạch đầu dòng; không dùng tiêu đề (#) và không dùng bảng.
             - Không bịa số trang, tên bài hay giáo trình. Không tự nhận đã chấm điểm hay cập nhật tiến độ học.
             """;

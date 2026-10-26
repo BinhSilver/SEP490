@@ -21,6 +21,7 @@ public class RagTutorService {
     /** Câu hỏi ngắn sau một lượt trước (ví dụ "cho thêm ví dụ") được tìm nguồn kèm câu hỏi trước đó. */
     private static final int FOLLOW_UP_CHARS = 40;
     private static final Pattern GRAMMAR_QUESTION = Pattern.compile("\\b(ngu phap|mau|cau truc|cach dung|grammar|bunpou?)\\b");
+    private static final Pattern KANJI_QUESTION = Pattern.compile("\\b(han viet|kanji|chu han|tung chu|am on|am kun|onyomi|kunyomi|bo thu)\\b");
 
     /** Không có nguồn nào: trả lời cố định, không gọi model để model không tự bịa. */
     static final String NO_SOURCE = "Tài liệu J-LAS chưa có nội dung cho câu hỏi này, nên mình không trả lời để tránh nói sai. "
@@ -45,7 +46,7 @@ public class RagTutorService {
     public Answer ask(String question, List<Map<String, String>> history) {
         long started = System.nanoTime();
         List<RomajiKana.Hint> hints = RomajiKana.hints(question);
-        RagRetriever.Context context = retriever.retrieve(retrievalQuery(question, hints, history), null);
+        RagRetriever.Context context = withoutCoveredKanji(retriever.retrieve(retrievalQuery(question, hints, history), null), question);
         long retrieved = System.nanoTime();
         long retrievalMs = (retrieved - started) / 1_000_000;
         String fixed = context.isEmpty() ? NO_SOURCE
@@ -74,9 +75,24 @@ public class RagTutorService {
     }
 
     static boolean isGrammarQuestion(String question) {
-        String plain = Normalizer.normalize(question.toLowerCase(Locale.ROOT), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "").replace('đ', 'd');
-        return GRAMMAR_QUESTION.matcher(plain).find();
+        return GRAMMAR_QUESTION.matcher(plain(question)).find();
+    }
+
+    /**
+     * Bỏ kanji đã nằm trong một từ tìm được, trừ khi người học hỏi về chính chữ kanji (Hán Việt, On/Kun).
+     * Model 4B đã suy nghĩa của 学校 từ một nghĩa riêng của 校 dù nguồn có sẵn từ 学校.
+     */
+    static RagRetriever.Context withoutCoveredKanji(RagRetriever.Context context, String question) {
+        RagLexiconLookup.Result lexicon = context.lexicon();
+        if (lexicon.words().isEmpty() || KANJI_QUESTION.matcher(plain(question)).find()) return context;
+        List<RagLexiconLookup.KanjiEntry> kanji = lexicon.kanji().stream()
+                .filter(k -> lexicon.words().stream().noneMatch(w -> w.expression().contains(k.character()))).toList();
+        return kanji.size() == lexicon.kanji().size() ? context
+                : new RagRetriever.Context(context.passages(), new RagLexiconLookup.Result(lexicon.words(), kanji));
+    }
+
+    private static String plain(String text) {
+        return Normalizer.normalize(text.toLowerCase(Locale.ROOT), Normalizer.Form.NFD).replaceAll("\\p{M}", "").replace('đ', 'd');
     }
 
     /** Không chữ kana nào đổi từ romaji xuất hiện trong nguồn tìm được: giáo trình không nói về mẫu đó. */

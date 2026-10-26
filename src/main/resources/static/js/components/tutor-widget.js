@@ -43,12 +43,13 @@
 
   function inlineMarkup(escaped) {
     return escaped
+      .replace(/`([^`\n]+)`/g, '<code>$1</code>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/(^|[^*])\*([^*\s][^*]*)\*(?!\*)/g, '$1<em>$2</em>')
       .replace(/\[([DS]\d{1,2})\]/g, '<span class="tutor-cite">$1</span>');
   }
 
-  // Model hay trả markdown đơn giản. Thoát HTML trước, rồi chỉ dựng lại tiêu đề, danh sách, đậm/nghiêng và mã nguồn [S1];
+  // Model hay trả markdown đơn giản. Thoát HTML trước, rồi chỉ dựng lại tiêu đề, danh sách, đậm/nghiêng, `mã` và mã nguồn [S1];
   // bảng markdown được đổi thành dòng chữ, bỏ hàng kẻ |---|.
   function formatAnswer(text) {
     var html = [];

@@ -84,6 +84,19 @@ class RagTutorServiceTest {
     }
 
     @Test
+    void kanjiInsideAFoundWordAreDroppedUnlessTheLearnerAsksAboutKanji() {
+        var gaku = new RagLexiconLookup.KanjiEntry(4, "学", "Học", null, "N5", List.of("ガク"), List.of());
+        var kou = new RagLexiconLookup.KanjiEntry(88, "校", "Hiệu", "kiểm tra, sửa chữa", "N5", List.of("コウ"), List.of());
+        var iku = new RagLexiconLookup.KanjiEntry(9, "行", "Hành", null, "N5", List.of("コウ"), List.of("い.く"));
+        var gakkou = new RagLexiconLookup.WordEntry(99, "学校", "がっこう", "trường học", null, "N5");
+        var context = new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(List.of(gakkou), List.of(gaku, kou, iku)));
+
+        assertThat(RagTutorService.withoutCoveredKanji(context, "Câu 学校を行きました sai ở đâu?").lexicon().kanji())
+                .extracting(RagLexiconLookup.KanjiEntry::character).containsExactly("行");
+        assertThat(RagTutorService.withoutCoveredKanji(context, "Âm Hán Việt của 学校 là gì?").lexicon().kanji()).hasSize(3);
+    }
+
+    @Test
     void shortFollowUpIsSearchedTogetherWithThePreviousQuestion() {
         List<Map<String, String>> history = List.of(
                 Map.of("role", "user", "content", "～てもいい là gì?"),
