@@ -156,11 +156,6 @@ public class FreeChatPromptComposer {
                 grammarReason, e.g. 「一人（ひとり）」.
                 Preserve the learner's intended tense, subject, people and place. Do not change present/future
                 to past just because the assistant previously asked a past-tense question.
-                Flag ONLY mistakes you are sure of. A grammatical, natural sentence -> hasError=false; never
-                rewrite a correct sentence into another wording.
-                corrected = learner's sentence with only the wrong part fixed; keep every other word (time words
-                like 明日/あした, people, places, objects) exactly. grammarReason explains only that part.
-                mistakeType: one of grammar | particle | vocabulary | reading | keigo.
                 Never lecture inside reply.
                 """;
     }
