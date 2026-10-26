@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import com.sun.net.httpserver.HttpServer;
 import java.net.InetSocketAddress;
@@ -55,6 +57,23 @@ class RagEmbedderAndPromptTest {
         } finally {
             server.stop(0);
         }
+    }
+
+    @Test
+    void unreachableQdrantOrOllamaGivesCleanServiceUnavailable() {
+        QdrantVectorStore qdrant = new QdrantVectorStore(
+                new RagProperties(true, "http://127.0.0.1:1", "", "jlas_content", 16, 5, 0.45, false, false, 1_000), JSON);
+        OpenRouterConfig config = new OpenRouterConfig();
+        ReflectionTestUtils.setField(config, "ollamaBaseUrl", "http://127.0.0.1:1/v1");
+        ReflectionTestUtils.setField(config, "ollamaEmbeddingModel", "bge-m3");
+        ReflectionTestUtils.setField(config, "readTimeoutMs", 1_000);
+
+        assertThatThrownBy(() -> qdrant.dimension("jlas_content_bge_m3"))
+                .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.SERVICE_UNAVAILABLE))
+                .message().doesNotContain("127.0.0.1");
+        assertThatThrownBy(() -> new RagEmbedder(config, JSON).embed(List.of("勉強")))
+                .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.SERVICE_UNAVAILABLE))
+                .message().doesNotContain("127.0.0.1");
     }
 
     @Test

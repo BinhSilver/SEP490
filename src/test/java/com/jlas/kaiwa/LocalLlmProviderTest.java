@@ -218,6 +218,16 @@ class LocalLlmProviderTest {
     }
 
     @Test
+    void failedCallDoesNotExposeInternalAddressToLearners() {
+        OpenRouterConfig config = config("ollama", 1_000);
+        ReflectionTestUtils.setField(config, "ollamaBaseUrl", "http://127.0.0.1:1/v1");
+
+        assertThatThrownBy(() -> new OpenRouterClient(config).complete("s", List.of(), "こんにちは"))
+                .hasMessageStartingWith("Ollama call failed")
+                .message().doesNotContain("127.0.0.1").doesNotContain("/api/chat");
+    }
+
+    @Test
     void probeMeasuresSuccessfulReply() {
         responseBody = nativeBody("hai");
 

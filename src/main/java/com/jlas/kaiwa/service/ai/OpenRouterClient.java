@@ -154,7 +154,9 @@ public class OpenRouterClient {
             throw e;
         } catch (Exception e) {
             log.error("{} call failed: {}", label(), e.getMessage(), e);
-            throw new IllegalStateException(label() + " call failed: " + e.getMessage(), e);
+            // Lỗi này hiện ra giao diện người học: chỉ nêu loại lỗi, không lộ địa chỉ nội bộ (chi tiết nằm trong log).
+            throw new IllegalStateException(label() + " call failed: " + (e instanceof ResourceAccessException
+                    ? "không kết nối được hoặc quá thời gian" : e.getClass().getSimpleName()), e);
         }
     }
 

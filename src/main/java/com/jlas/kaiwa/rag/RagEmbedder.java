@@ -2,6 +2,8 @@ package com.jlas.kaiwa.rag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +50,8 @@ public class RagEmbedder {
             String raw = http.postForObject(config.getOllamaNativeUrl() + "/api/embed", new HttpEntity<>(body, headers), String.class);
             vectors = json.readTree(raw).path("embeddings");
         } catch (Exception e) {
-            // Không đưa nội dung giáo trình hay câu hỏi vào thông báo lỗi.
-            throw new IllegalStateException("Ollama embedding failed: " + e.getClass().getSimpleName(), e);
+            // Không đưa nội dung giáo trình, câu hỏi hay địa chỉ nội bộ vào thông báo lỗi.
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Không gọi được model embedding của Ollama.");
         }
         if (!vectors.isArray() || vectors.size() != texts.size())
             throw new IllegalStateException("Invalid embedding response");

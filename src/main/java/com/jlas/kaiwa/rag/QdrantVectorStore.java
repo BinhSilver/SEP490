@@ -2,6 +2,8 @@ package com.jlas.kaiwa.rag;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +20,8 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /** Qdrant qua REST API. Không thêm thư viện client; chỉ dùng vài endpoint cố định. */
@@ -124,6 +128,11 @@ public class QdrantVectorStore implements RagVectorStore {
             return raw == null ? json.createObjectNode() : json.readTree(raw);
         } catch (HttpClientErrorException.NotFound e) {
             throw e;
+        } catch (ResourceAccessException e) {
+            // Không trả địa chỉ nội bộ hay stack trace ra ngoài.
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Không kết nối được Qdrant.");
+        } catch (RestClientException e) {
+            throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "Qdrant trả lỗi.");
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             throw new IllegalStateException("Qdrant response not JSON", e);
         }
