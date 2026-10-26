@@ -2,7 +2,7 @@
 
 -- Apply after jlas_schema.sql and applicable shared migrations; select and verify the target database first.
 
--- Re-runnable on MySQL 8. Includes former JLAS-W0193 mock-attempt table and Learning additions formerly numbered 022-025.
+-- Re-runnable on MySQL 8. Includes former JLAS-W0193 mock-attempt table and Learning additions formerly numbered 022-025, 051 and 052.
 
 SET NAMES utf8mb4;
 
@@ -170,3 +170,27 @@ CREATE TABLE IF NOT EXISTS learning_dialogue_challenge_clear (
     CONSTRAINT fk_dialogue_challenge_lesson FOREIGN KEY (lesson_id)
         REFERENCES lesson(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] D3-05 (owner 2026-10-24): a JLPT day is filled by minutes, so the next chapter may start in what is
+-- left of the day its previous chapter ended in - two packages of one path can share a day_number.
+-- Replaces the unique key uk_learning_package_path_day with a plain index (jlas_schema.sql already has the index).
+-- Formerly sql/migrations/052_learning_package_shared_day.sql. Re-runnable; it changes no rows.
+SET @learning_package_ddl = IF(
+    EXISTS (SELECT 1 FROM information_schema.statistics
+            WHERE table_schema = DATABASE() AND table_name = 'learning_path_package'
+              AND index_name = 'idx_learning_package_path_day'),
+    'SELECT 1',
+    'ALTER TABLE learning_path_package ADD INDEX idx_learning_package_path_day (learning_path_id, day_number)');
+PREPARE learning_package_stmt FROM @learning_package_ddl;
+EXECUTE learning_package_stmt;
+DEALLOCATE PREPARE learning_package_stmt;
+
+SET @learning_package_ddl = IF(
+    EXISTS (SELECT 1 FROM information_schema.statistics
+            WHERE table_schema = DATABASE() AND table_name = 'learning_path_package'
+              AND index_name = 'uk_learning_package_path_day'),
+    'ALTER TABLE learning_path_package DROP INDEX uk_learning_package_path_day',
+    'SELECT 1');
+PREPARE learning_package_stmt FROM @learning_package_ddl;
+EXECUTE learning_package_stmt;
+DEALLOCATE PREPARE learning_package_stmt;

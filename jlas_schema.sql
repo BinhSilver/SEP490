@@ -1906,7 +1906,9 @@ CREATE TABLE learning_path_package (
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    UNIQUE KEY uk_learning_package_path_day (learning_path_id, day_number),
+    -- [JLAS-W0108] D3-05 (owner 2026-10-24): a JLPT day is filled by minutes, so two chapters may share one day;
+    -- day_number is indexed, no longer unique (migration 052 drops uk_learning_package_path_day on existing DBs).
+    KEY idx_learning_package_path_day (learning_path_id, day_number),
     UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
     UNIQUE KEY uk_learning_package_path_source_segment (learning_path_id, source_lesson_id, source_segment_index),
     KEY idx_learning_package_status (learning_path_id, status, order_index),
