@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import com.jlas.kaiwa.memory.MemoryAiClient;
 import com.jlas.kaiwa.memory.MemoryProperties;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
+import com.jlas.kaiwa.service.ai.LocalLlmClient;
 import com.jlas.kaiwa.service.ai.OpenRouterClient;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -293,5 +296,33 @@ class LocalLlmProviderTest {
         }
         for (Thread thread : threads) thread.join(5_000);
         assertThat(ok.get()).isEqualTo(4);
+    }
+
+    @Test
+    void tutorClientAlwaysUsesLocalOllamaEvenWhenAiCallUsesOpenRouter() {
+        LocalLlmClient tutor = new LocalLlmClient(config("openrouter", 5_000), JSON);
+
+        assertThat(tutor.chat("system", List.of(Map.of("role", "user", "content", "前の質問")), "勉強", 700))
+                .isEqualTo("はい、わかりました。");
+        Recorded request = requests.getFirst();
+        assertThat(request.path()).isEqualTo("/api/chat");
+        assertThat(request.authorization()).isNull();
+        assertThat(request.body().path("model").asText()).isEqualTo("qwen3.5:4b");
+        assertThat(request.body().path("think").asBoolean(true)).isFalse();
+        assertThat(request.body().path("options").path("num_predict").asInt()).isEqualTo(700);
+        assertThat(request.body().path("messages")).hasSize(3);
+    }
+
+    @Test
+    void tutorClientReportsUnreachableModelWithoutInternalAddress() {
+        OpenRouterConfig unreachable = config("openrouter", 1_000);
+        ReflectionTestUtils.setField(unreachable, "ollamaBaseUrl", "http://127.0.0.1:1/v1");
+
+        assertThatThrownBy(() -> new LocalLlmClient(unreachable, JSON).chat("s", List.of(), "u", 50))
+                .isInstanceOfSatisfying(ApiException.class, e -> {
+                    assertThat(e.getErrorCode()).isEqualTo(ErrorCode.SERVICE_UNAVAILABLE);
+                    assertThat(e.getMessage()).doesNotContain("127.0.0.1");
+                });
+        assertThat(requests).isEmpty();
     }
 }

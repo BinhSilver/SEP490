@@ -80,6 +80,9 @@ public class OpenRouterConfig {
     public String getSiteName() { return siteName; }
     public String getModel() { return isLocal() ? ollamaModel : model; }
 
+    /** Model chat của Ollama, kể cả khi AI Call đang dùng OpenRouter (chatbot gia sư luôn chạy cục bộ). */
+    public String getOllamaModel() { return ollamaModel; }
+
     /** Gốc của API Ollama (bỏ hậu tố {@code /v1}), ví dụ {@code http://127.0.0.1:11434}. */
     public String getOllamaNativeUrl() { return ollamaBaseUrl.trim().replaceAll("/+$", "").replaceAll("/v1$", ""); }
     public String getOllamaKeepAlive() { return ollamaKeepAlive == null || ollamaKeepAlive.isBlank() ? "30m" : ollamaKeepAlive.trim(); }

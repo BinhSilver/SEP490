@@ -51,6 +51,28 @@ public final class RagPromptComposer {
         return prompt.toString();
     }
 
+    /** Một nguồn hiển thị cho người học, cùng mã [D1]/[S1] với prompt. */
+    public record Citation(String code, String kind, String title, String detail) { }
+
+    /** Danh sách nguồn theo đúng thứ tự đánh mã của {@link #systemPrompt}. */
+    public static List<Citation> citations(RagRetriever.Context context) {
+        List<Citation> out = new java.util.ArrayList<>();
+        int d = 1;
+        for (RagLexiconLookup.KanjiEntry kanji : context.lexicon().kanji()) {
+            out.add(new Citation("D" + d++, "KANJI", kanji.character(), "Hán Việt: " + orDash(kanji.hanViet())));
+        }
+        for (RagLexiconLookup.WordEntry word : context.lexicon().words()) {
+            out.add(new Citation("D" + d++, "WORD", word.expression() + " (" + word.reading() + ")", orDash(word.meaning())));
+        }
+        int s = 1;
+        for (RagRetriever.Passage passage : context.passages()) {
+            Object textbook = passage.citation().getOrDefault("textbook", "");
+            Object lesson = passage.citation().getOrDefault("lesson", "");
+            out.add(new Citation("S" + s++, passage.sourceType(), passage.title(), textbook + " › " + lesson));
+        }
+        return out;
+    }
+
     private static String join(List<String> values) {
         return values.isEmpty() ? "-" : values.stream().collect(Collectors.joining(", "));
     }

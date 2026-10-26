@@ -214,6 +214,15 @@ kaiwa:
     include-vnjpclub: false
     include-unreviewed: false
 
+# Chatbot gia sư (nút nổi trên các trang học), tách khỏi AI Call. Bật cùng kaiwa.rag.enabled và luôn dùng
+# model Ollama trên máy chủ AI; Ollama lỗi thì báo lỗi, không chuyển sang API cloud.
+tutor:
+  max-concurrent: ${TUTOR_MAX_CONCURRENT:2}
+  wait-seconds: ${TUTOR_WAIT_SECONDS:30}
+  questions-per-hour: ${TUTOR_QUESTIONS_PER_HOUR:60}
+  max-question-chars: 500
+  history-messages: 6
+
 azure:
   speech:
     pronunciation:

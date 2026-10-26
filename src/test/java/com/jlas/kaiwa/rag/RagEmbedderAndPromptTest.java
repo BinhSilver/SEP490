@@ -100,6 +100,21 @@ class RagEmbedderAndPromptTest {
     }
 
     @Test
+    void citationsUseTheSameCodesAsThePrompt() {
+        var kanji = new RagLexiconLookup.KanjiEntry(1, "勉", "Miễn", null, "N5", List.of("ベン"), List.of());
+        var word = new RagLexiconLookup.WordEntry(2, "勉強", "べんきょう", "việc học", null, "N5");
+        var passage = new RagRetriever.Passage("id", 0.8, "GRAMMAR", "N1 は N2 です", "...",
+                Map.of("textbook", "Sekai N5", "lesson", "Bài 1"));
+
+        var citations = RagPromptComposer.citations(new RagRetriever.Context(List.of(passage),
+                new RagLexiconLookup.Result(List.of(word), List.of(kanji))));
+
+        assertThat(citations).extracting(RagPromptComposer.Citation::code).containsExactly("D1", "D2", "S1");
+        assertThat(citations.get(1).title()).isEqualTo("勉強 (べんきょう)");
+        assertThat(citations.get(2).detail()).isEqualTo("Sekai N5 › Bài 1");
+    }
+
+    @Test
     void dictionaryOnlyContextSaysTextbookHasNoMatchingPassage() {
         var kanji = new RagLexiconLookup.KanjiEntry(1, "強", "Cường, Cưỡng", null, "N4", List.of("キョウ"), List.of("つよ.い"));
 

@@ -112,3 +112,13 @@ $env:JLAS_TEST_QDRANT_URL = "http://127.0.0.1:6333"; .\mvnw.cmd -B test -Dtest=Q
 | Reindex lỗi `Ollama embedding failed` | Chưa `ollama pull bge-m3` hoặc Ollama tắt; lần đầu nạp bge-m3 mất ~15 s |
 | `409` khi reindex | Đang có một lượt reindex khác chạy |
 | Tìm không ra đoạn nào | Chưa reindex, hoặc `min-score` quá cao với bge-m3; xem điểm bằng `search?minScore=0` |
+
+## 7. Chatbot gia sư cho học viên
+
+Nút "Hỏi gia sư" ở góc phải dưới các trang học (trang dùng `fragments/head :: standard`). Đây là tính năng riêng, không liên quan AI Call.
+
+- Hiện khi đã đăng nhập và `KAIWA_RAG_ENABLED=true`. Không hiện với khách, trang quản trị, `/smart-test`, `/jlpt/exam` và các trang quiz (để gia sư không làm bài hộ), và không hiện ở AI Call.
+- API: `GET /api/tutor/status`, `POST /api/tutor/chat` `{"question": "...", "history": [{"role": "user|assistant", "content": "..."}]}`. Trả `answer` và `sources` (mã `[D1]`/`[S1]` khớp với câu trả lời).
+- Luôn dùng model Ollama trên máy chủ AI (`OLLAMA_CHAT_MODEL`), kể cả khi AI Call dùng OpenRouter. Ollama lỗi thì báo lỗi, không chuyển sang API cloud.
+- Giới hạn: `TUTOR_MAX_CONCURRENT` câu cùng lúc cho cả LAN (mặc định 2, Ollama trên một GPU chạy lần lượt), chờ tối đa `TUTOR_WAIT_SECONDS` (30), mỗi người `TUTOR_QUESTIONS_PER_HOUR` câu mỗi giờ (60) và một câu một lúc, câu hỏi tối đa 500 ký tự.
+- Không lưu cuộc trò chuyện ở máy chủ: lịch sử nằm trong tab trình duyệt (sessionStorage), gửi kèm 6 lượt cuối. Log chỉ ghi id người dùng, số nguồn và thời gian, không ghi nội dung câu hỏi.

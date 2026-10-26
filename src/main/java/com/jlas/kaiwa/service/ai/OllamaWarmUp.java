@@ -1,6 +1,8 @@
 package com.jlas.kaiwa.service.ai;
 
 import com.jlas.kaiwa.config.OpenRouterConfig;
+import com.jlas.kaiwa.rag.RagProperties;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -18,19 +20,34 @@ public class OllamaWarmUp {
 
     private final OpenRouterConfig config;
     private final OpenRouterClient client;
+    private final LocalLlmClient localClient;
+    private final RagProperties rag;
 
-    public OllamaWarmUp(OpenRouterConfig config, OpenRouterClient client) {
+    public OllamaWarmUp(OpenRouterConfig config, OpenRouterClient client, LocalLlmClient localClient, RagProperties rag) {
         this.config = config;
         this.client = client;
+        this.localClient = localClient;
+        this.rag = rag;
     }
 
+    /** Nạp model khi AI Call chạy Ollama, hoặc khi chatbot gia sư được bật (chatbot luôn dùng Ollama). */
     @EventListener(ApplicationReadyEvent.class)
     public void warmUp() {
-        if (!config.isLocal() || !config.isOllamaWarmUp()) return;
+        if (!config.isOllamaWarmUp() || (!config.isLocal() && !rag.enabled())) return;
         Thread.ofVirtual().name("ollama-warm-up").start(() -> {
-            OpenRouterClient.ProbeResult result = client.probe();
-            if (result.ok()) log.info("Ollama warm-up OK model={} latencyMs={}", result.model(), result.latencyMs());
-            else log.warn("Ollama warm-up failed model={} error={}", result.model(), result.error());
+            if (config.isLocal()) {
+                OpenRouterClient.ProbeResult result = client.probe();
+                if (result.ok()) log.info("Ollama warm-up OK model={} latencyMs={}", result.model(), result.latencyMs());
+                else log.warn("Ollama warm-up failed model={} error={}", result.model(), result.error());
+                return;
+            }
+            long started = System.nanoTime();
+            try {
+                localClient.chat("Trả lời đúng một từ.", List.of(), "はい", 8);
+                log.info("Ollama warm-up OK model={} latencyMs={}", localClient.model(), (System.nanoTime() - started) / 1_000_000);
+            } catch (RuntimeException e) {
+                log.warn("Ollama warm-up failed model={} error={}", localClient.model(), e.getMessage());
+            }
         });
     }
 }
