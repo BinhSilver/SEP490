@@ -84,16 +84,38 @@ class RagTutorServiceTest {
     }
 
     @Test
-    void kanjiInsideAFoundWordAreDroppedUnlessTheLearnerAsksAboutKanji() {
+    void kanjiLinesAreDroppedOnceAWordIsFoundUnlessTheLearnerAsksAboutKanji() {
         var gaku = new RagLexiconLookup.KanjiEntry(4, "学", "Học", null, "N5", List.of("ガク"), List.of());
         var kou = new RagLexiconLookup.KanjiEntry(88, "校", "Hiệu", "kiểm tra, sửa chữa", "N5", List.of("コウ"), List.of());
         var iku = new RagLexiconLookup.KanjiEntry(9, "行", "Hành", null, "N5", List.of("コウ"), List.of("い.く"));
         var gakkou = new RagLexiconLookup.WordEntry(99, "学校", "がっこう", "trường học", null, "N5");
         var context = new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(List.of(gakkou), List.of(gaku, kou, iku)));
 
-        assertThat(RagTutorService.withoutCoveredKanji(context, "Câu 学校を行きました sai ở đâu?").lexicon().kanji())
-                .extracting(RagLexiconLookup.KanjiEntry::character).containsExactly("行");
-        assertThat(RagTutorService.withoutCoveredKanji(context, "Âm Hán Việt của 学校 là gì?").lexicon().kanji()).hasSize(3);
+        assertThat(RagTutorService.kanjiOnlyWhenNeeded(context, "Câu 学校を行きました sai ở đâu?").lexicon().kanji()).isEmpty();
+        assertThat(RagTutorService.kanjiOnlyWhenNeeded(context, "Âm Hán Việt của 学校 là gì?").lexicon().kanji()).hasSize(3);
+        assertThat(RagTutorService.kanjiOnlyWhenNeeded(context, "学校 đọc On/Kun thế nào?").lexicon().kanji()).hasSize(3);
+        var kanjiOnly = new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(List.of(), List.of(iku)));
+        assertThat(RagTutorService.kanjiOnlyWhenNeeded(kanjiOnly, "行 nghĩa là gì?").lexicon().kanji()).hasSize(1);
+    }
+
+    @Test
+    void hanVietIsCopiedFromTheDictionaryWithoutCallingTheModel() {
+        var ben = new RagLexiconLookup.KanjiEntry(1, "勉", "Miễn, Mẫn", null, "N5", List.of("ベン"), List.of());
+        var kyou = new RagLexiconLookup.KanjiEntry(2, "強", "Cường, Cưỡng", null, "N4", List.of("キョウ"), List.of("つよ.い"));
+        var benkyou = new RagLexiconLookup.WordEntry(3, "勉強", "べんきょう", "việc học", null, "N5");
+        when(retriever.retrieve(anyString(), isNull())).thenReturn(new RagRetriever.Context(List.of(),
+                new RagLexiconLookup.Result(List.of(benkyou), List.of(ben, kyou))));
+
+        RagTutorService.Answer answer = tutor.ask("Âm Hán Việt của 勉強 là gì?");
+
+        assertThat(answer.answer()).isEqualTo("""
+                Âm Hán Việt theo từ điển J-LAS:
+                - 勉: Miễn, Mẫn [D1]
+                - 強: Cường, Cưỡng [D2]
+
+                勉強 (べんきょう) nghĩa là việc học [D3]""");
+        assertThat(answer.citations()).extracting(RagPromptComposer.Citation::code).containsExactly("D1", "D2", "D3");
+        verifyNoInteractions(llm);
     }
 
     @Test
