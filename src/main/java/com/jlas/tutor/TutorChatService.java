@@ -84,13 +84,19 @@ public class TutorChatService {
                 RagTutorService.Answer answer = tutor.ask(q, sanitize(history));
                 log.info("Tutor answered userId={} sources={} retrievalMs={} generationMs={}",
                         userId, answer.citations().size(), answer.retrievalMs(), answer.generationMs());
-                return new Reply(answer.answer().replace("**", ""), answer.citations(), answer.retrievalMs(), answer.generationMs());
+                return new Reply(answer.answer(), cited(answer.answer(), answer.citations()), answer.retrievalMs(), answer.generationMs());
             } finally {
                 slots.release();
             }
         } finally {
             inFlight.remove(userId);
         }
+    }
+
+    /** Chỉ đưa ra nguồn mà câu trả lời có trích, để câu "chưa có trong tài liệu" không kèm nguồn chẳng liên quan. */
+    static List<RagPromptComposer.Citation> cited(String answer, List<RagPromptComposer.Citation> citations) {
+        String text = answer == null ? "" : answer;
+        return citations.stream().filter(c -> text.contains("[" + c.code() + "]")).toList();
     }
 
     private boolean acquireSlot() {

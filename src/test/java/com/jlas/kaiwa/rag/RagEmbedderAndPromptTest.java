@@ -122,7 +122,8 @@ class RagEmbedderAndPromptTest {
                 new RagLexiconLookup.Result(List.of(), List.of(kanji))));
 
         assertThat(prompt).contains("[D1] Kanji 強 | Hán Việt: Cường, Cưỡng", "[S] (không có đoạn giáo trình nào khớp câu hỏi)",
-                "Tài liệu J-LAS chưa có mẫu này.", "Không tự phiên âm romaji");
+                "Tài liệu J-LAS chưa có mẫu này.", "Không tự phiên âm romaji", "Không tự giải thích bằng hiểu biết ngoài NGUỒN",
+                "không dùng tiêu đề (#) và không dùng bảng");
         assertThat(prompt).doesNotContain("[S1]");
     }
 }

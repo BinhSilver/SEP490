@@ -51,14 +51,26 @@ class TutorChatServiceTest {
     }
 
     @Test
-    void answersWithSourcesAndWithoutMarkdownBold() {
+    void answersWithTheSourcesItCites() {
         when(rag.ask(anyString(), anyList())).thenReturn(answer("**は** là trợ từ chủ đề [S1]."));
 
         TutorChatService.Reply reply = service(true, limits(2, 1, 60)).ask(7L, "  は dùng thế nào?  ", List.of());
 
-        assertThat(reply.answer()).isEqualTo("は là trợ từ chủ đề [S1].");
+        assertThat(reply.answer()).isEqualTo("**は** là trợ từ chủ đề [S1].");
         assertThat(reply.sources()).extracting(RagPromptComposer.Citation::code).containsExactly("S1");
         verify(rag).ask("は dùng thế nào?", List.of());
+    }
+
+    @Test
+    void onlyCitedSourcesAreListed() {
+        List<RagPromptComposer.Citation> all = List.of(
+                new RagPromptComposer.Citation("D1", "KANJI", "勉", "Hán Việt: Miễn"),
+                new RagPromptComposer.Citation("D2", "KANJI", "強", "Hán Việt: Cường"),
+                new RagPromptComposer.Citation("S1", "GRAMMAR", "～ます", "Sekai N5 › Bài 3"));
+
+        assertThat(TutorChatService.cited("勉 [D1], 強 [D2].", all)).extracting(RagPromptComposer.Citation::code)
+                .containsExactly("D1", "D2");
+        assertThat(TutorChatService.cited("Tài liệu J-LAS chưa có mẫu này.", all)).isEmpty();
     }
 
     @Test

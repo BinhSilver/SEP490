@@ -41,12 +41,44 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
-  // Văn bản của model hiện dạng chữ thường: thoát HTML trước, rồi mới đánh dấu mã nguồn [S1]/[D2] và xuống dòng.
-  function formatAnswer(text) {
-    return escapeHtml(text)
+  function inlineMarkup(escaped) {
+    return escaped
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/\[([DS]\d{1,2})\]/g, '<span class="tutor-cite">$1</span>')
-      .replace(/\n/g, '<br>');
+      .replace(/(^|[^*])\*([^*\s][^*]*)\*(?!\*)/g, '$1<em>$2</em>')
+      .replace(/\[([DS]\d{1,2})\]/g, '<span class="tutor-cite">$1</span>');
+  }
+
+  // Model hay trả markdown đơn giản. Thoát HTML trước, rồi chỉ dựng lại tiêu đề, danh sách, đậm/nghiêng và mã nguồn [S1];
+  // bảng markdown được đổi thành dòng chữ, bỏ hàng kẻ |---|.
+  function formatAnswer(text) {
+    var html = [];
+    var list = null;
+    function closeList() {
+      if (list) html.push('</' + list + '>');
+      list = null;
+    }
+    String(text == null ? '' : text).split(/\r?\n/).forEach(function (raw) {
+      var line = raw.trim();
+      var bullet = line.match(/^[-*•]\s+(.*)$/);
+      var numbered = line.match(/^\d+[.)]\s+(.*)$/);
+      if (bullet || numbered) {
+        var type = bullet ? 'ul' : 'ol';
+        if (list !== type) { closeList(); html.push('<' + type + '>'); list = type; }
+        html.push('<li>' + inlineMarkup(escapeHtml((bullet || numbered)[1])) + '</li>');
+        return;
+      }
+      closeList();
+      if (!line) return;
+      if (/^\|?\s*:?-{2,}/.test(line) && /^[|:\-\s]+$/.test(line)) return;
+      var heading = line.match(/^#{1,6}\s+(.*)$/);
+      if (heading) { html.push('<p class="tutor-h">' + inlineMarkup(escapeHtml(heading[1])) + '</p>'); return; }
+      if (/^\|.*\|$/.test(line)) {
+        line = line.replace(/^\||\|$/g, '').split('|').map(function (cell) { return cell.trim(); }).join(' · ');
+      }
+      html.push('<p>' + inlineMarkup(escapeHtml(line)) + '</p>');
+    });
+    closeList();
+    return html.join('');
   }
 
   function isHiddenPath(pathname) {

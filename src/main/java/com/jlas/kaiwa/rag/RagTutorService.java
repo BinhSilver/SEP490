@@ -1,8 +1,13 @@
 package com.jlas.kaiwa.rag;
 
 import com.jlas.kaiwa.service.ai.LocalLlmClient;
+import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,6 +18,13 @@ import org.springframework.stereotype.Service;
 public class RagTutorService {
 
     private static final int MAX_ANSWER_TOKENS = 700;
+    /** Câu hỏi ngắn sau một lượt trước (ví dụ "cho thêm ví dụ") được tìm nguồn kèm câu hỏi trước đó. */
+    private static final int FOLLOW_UP_CHARS = 40;
+    private static final Pattern GRAMMAR_QUESTION = Pattern.compile("\\b(ngu phap|mau|cau truc|cach dung|grammar|bunpou?)\\b");
+
+    /** Không có nguồn nào: trả lời cố định, không gọi model để model không tự bịa. */
+    static final String NO_SOURCE = "Tài liệu J-LAS chưa có nội dung cho câu hỏi này, nên mình không trả lời để tránh nói sai. "
+            + "Bạn thử hỏi về bài đang học, hoặc viết từ hay mẫu ngữ pháp bằng chữ Nhật nhé.";
 
     private final RagRetriever retriever;
     private final LocalLlmClient llm;
@@ -32,11 +44,52 @@ public class RagTutorService {
     /** @param history các lượt trước trong cùng cuộc trò chuyện (role user/assistant), đã được giới hạn độ dài */
     public Answer ask(String question, List<Map<String, String>> history) {
         long started = System.nanoTime();
-        RagRetriever.Context context = retriever.retrieve(question, null);
+        List<RomajiKana.Hint> hints = RomajiKana.hints(question);
+        RagRetriever.Context context = retriever.retrieve(retrievalQuery(question, hints, history), null);
         long retrieved = System.nanoTime();
-        String answer = llm.chat(RagPromptComposer.systemPrompt(context), history, question, MAX_ANSWER_TOKENS);
+        long retrievalMs = (retrieved - started) / 1_000_000;
+        String fixed = context.isEmpty() ? NO_SOURCE
+                : !hints.isEmpty() && isGrammarQuestion(question) && notInSources(hints, context) ? unknownPattern(hints) : null;
+        if (fixed != null) return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0);
+        String answer = llm.chat(RagPromptComposer.systemPrompt(context, hints), history, question, MAX_ANSWER_TOKENS);
         long done = System.nanoTime();
         return new Answer(answer, context.passages(), context.lexicon(), RagPromptComposer.citations(context),
-                (retrieved - started) / 1_000_000, (done - retrieved) / 1_000_000);
+                retrievalMs, (done - retrieved) / 1_000_000);
+    }
+
+    /** Câu hỏi kèm chữ kana đổi từ romaji; câu hỏi nối tiếp ngắn thì kèm câu hỏi trước của người học. */
+    static String retrievalQuery(String question, List<RomajiKana.Hint> hints, List<Map<String, String>> history) {
+        List<String> parts = new ArrayList<>();
+        if (question.codePointCount(0, question.length()) < FOLLOW_UP_CHARS) {
+            for (int i = history.size() - 1; i >= 0; i--) {
+                if ("user".equals(history.get(i).get("role"))) {
+                    parts.add(history.get(i).get("content"));
+                    break;
+                }
+            }
+        }
+        parts.add(question);
+        hints.forEach(h -> parts.add(h.kana()));
+        return String.join("\n", parts);
+    }
+
+    static boolean isGrammarQuestion(String question) {
+        String plain = Normalizer.normalize(question.toLowerCase(Locale.ROOT), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").replace('đ', 'd');
+        return GRAMMAR_QUESTION.matcher(plain).find();
+    }
+
+    /** Không chữ kana nào đổi từ romaji xuất hiện trong nguồn tìm được: giáo trình không nói về mẫu đó. */
+    static boolean notInSources(List<RomajiKana.Hint> hints, RagRetriever.Context context) {
+        return hints.stream().map(RomajiKana.Hint::kana).noneMatch(kana ->
+                context.passages().stream().anyMatch(p -> p.text().contains(kana) || p.title().contains(kana))
+                        || context.lexicon().words().stream().anyMatch(w -> w.expression().contains(kana)
+                        || (w.reading() != null && w.reading().contains(kana))));
+    }
+
+    static String unknownPattern(List<RomajiKana.Hint> hints) {
+        String read = hints.stream().map(h -> "\"" + h.romaji() + "\" là 「" + h.kana() + "」").collect(Collectors.joining(", "));
+        return "Tài liệu J-LAS chưa có mẫu này. Mình đọc " + read + " nhưng không thấy trong giáo trình, nên mình không giải thích"
+                + " để tránh nói sai. Bạn kiểm tra lại cách gõ, hoặc viết mẫu bằng chữ Nhật (ví dụ: ～てもいい) rồi hỏi lại nhé.";
     }
 }

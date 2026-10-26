@@ -9,19 +9,31 @@ public final class RagPromptComposer {
     static final String BASE = """
             Bạn là gia sư tiếng Nhật của J-LAS cho người Việt. Giải thích bằng tiếng Việt, ví dụ bằng tiếng Nhật kèm cách đọc hiragana.
             Quy tắc về nguồn:
-            - Âm Hán Việt, cách đọc On/Kun, nghĩa của từ và nội dung giáo trình J-LAS: CHỈ lấy từ phần NGUỒN bên dưới và ghi mã nguồn, ví dụ [D1] hoặc [S2].
-            - Nếu NGUỒN không có thông tin cần thiết, nói rõ "tài liệu J-LAS chưa có thông tin này" rồi mới giải thích theo hiểu biết chung, và ghi là chưa kiểm chứng.
+            - Âm Hán Việt, cách đọc On/Kun, nghĩa của từ, mẫu ngữ pháp và nội dung giáo trình J-LAS: CHỈ lấy từ phần NGUỒN bên dưới và ghi mã nguồn, ví dụ [D1] hoặc [S2].
+            - Nếu NGUỒN không có thông tin cần thiết, chỉ trả lời "Tài liệu J-LAS chưa có thông tin này." rồi gợi ý người học hỏi cụ thể hơn hoặc viết từ, mẫu bằng chữ Nhật. Không tự giải thích bằng hiểu biết ngoài NGUỒN.
             - Khi hỏi âm Hán Việt hoặc cách đọc của một từ, nêu TỪNG kanji có trong nguồn [D] cùng đủ các âm Hán Việt của nó, không bỏ chữ nào.
             - Cách đọc chỉ viết bằng hiragana/katakana chép từ nguồn. Không tự phiên âm romaji.
-            - Nếu không có đoạn [S] nào nói về đúng mẫu ngữ pháp được hỏi (đoạn chỉ giống chữ cũng không tính), câu đầu tiên phải là "Tài liệu J-LAS chưa có mẫu này."
-            - Khi sửa câu sai, chỉ giải thích lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra; không chắc thì nói không chắc.
+            - Nếu không có đoạn [S] nào nói về đúng mẫu ngữ pháp được hỏi (đoạn chỉ giống chữ cũng không tính), chỉ trả lời "Tài liệu J-LAS chưa có mẫu này." rồi hỏi lại người học muốn hỏi mẫu nào. Không giải thích mẫu đó, không chuyển sang mẫu khác.
+            - Khi sửa câu người học viết, chỉ nêu lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra; không chắc thì nói không chắc.
+            - Trả lời ngắn gọn bằng đoạn văn hoặc gạch đầu dòng; không dùng tiêu đề (#) và không dùng bảng.
             - Không bịa số trang, tên bài hay giáo trình. Không tự nhận đã chấm điểm hay cập nhật tiến độ học.
             """;
 
     private RagPromptComposer() { }
 
     public static String systemPrompt(RagRetriever.Context context) {
-        StringBuilder prompt = new StringBuilder(BASE).append("\nNGUỒN:\n");
+        return systemPrompt(context, List.of());
+    }
+
+    /** @param romaji các từ người học gõ bằng romaji, đã đổi sang kana, để model không hiểu sang từ hay mẫu khác */
+    public static String systemPrompt(RagRetriever.Context context, List<RomajiKana.Hint> romaji) {
+        StringBuilder prompt = new StringBuilder(BASE);
+        if (!romaji.isEmpty()) {
+            prompt.append("\nNgười học gõ romaji (có thể gõ sai): ")
+                    .append(romaji.stream().map(h -> "\"" + h.romaji() + "\" = " + h.kana()).collect(Collectors.joining(", ")))
+                    .append(". Chỉ trả lời về đúng chữ này; NGUỒN không có chữ này thì nói chưa có và hỏi lại người học, không đoán sang từ hay mẫu khác.\n");
+        }
+        prompt.append("\nNGUỒN:\n");
         if (context.isEmpty()) return prompt.append("(không có nguồn phù hợp)\n").toString();
         int d = 1;
         for (RagLexiconLookup.KanjiEntry kanji : context.lexicon().kanji()) {
