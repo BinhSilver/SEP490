@@ -27,6 +27,7 @@ import com.jlas.learning.service.InteractiveVocabularyService;
 import com.jlas.learning.service.impl.engine.EngineStudyState;
 import com.jlas.learning.service.impl.engine.InteractiveContentAdapter;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
+import com.jlas.learning.service.impl.text.ReviewedWordType;
 import com.jlas.learning.service.impl.engine.QuestionSpec;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,11 +150,14 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     private VocabularyStudyState toDto(EngineStudyState<VocabularyEntry> s) {
         List<VocabularyStudyState.VocabularyStudyCard> cards = s.cards().stream().map(c -> {
             VocabularyEntry e = c.entity();
+            String sourceWordType = value(e, VocabularyEntry::getWordType);
+            boolean generated = sourceWordType == null || sourceWordType.isBlank();
+            String wordType = ReviewedWordType.labelFor(value(e, VocabularyEntry::getExpression), sourceWordType);
             return new VocabularyStudyState.VocabularyStudyCard(c.memberId(), c.orderIndex(),
                     value(e, VocabularyEntry::getExpression), value(e, VocabularyEntry::getReading),
-                    value(e, VocabularyEntry::getMeaning), value(e, VocabularyEntry::getWordType),
+                    value(e, VocabularyEntry::getMeaning), wordType,
                     value(e, VocabularyEntry::getJlptLevel), value(e, VocabularyEntry::getExampleJa),
-                    value(e, VocabularyEntry::getExampleVi), c.flipped(), c.remembered());
+                    value(e, VocabularyEntry::getExampleVi), c.flipped(), c.remembered(), generated && wordType != null);
         }).toList();
         return new VocabularyStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(),

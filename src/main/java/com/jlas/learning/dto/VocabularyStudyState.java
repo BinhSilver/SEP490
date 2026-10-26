@@ -40,6 +40,8 @@ public record VocabularyStudyState(
                 reviewRemaining, checkEligible, true, cards, 1, 1);
     }
 
+    /** {@code wordTypeGenerated}: the shared dictionary has no word type, so Learning derived {@code wordType} itself
+     * (shown as generated, unreviewed). */
     public record VocabularyStudyCard(
             Long memberId,
             int orderIndex,
@@ -51,6 +53,13 @@ public record VocabularyStudyState(
             String exampleJa,
             String exampleVi,
             boolean flipped,
-            boolean remembered
-    ) { }
+            boolean remembered,
+            boolean wordTypeGenerated
+    ) {
+        public VocabularyStudyCard(Long memberId, int orderIndex, String front, String reading, String meaning,
+                String wordType, String jlptLevel, String exampleJa, String exampleVi, boolean flipped, boolean remembered) {
+            this(memberId, orderIndex, front, reading, meaning, wordType, jlptLevel, exampleJa, exampleVi, flipped,
+                    remembered, false);
+        }
+    }
 }
