@@ -514,6 +514,19 @@ public class AIConversationService {
         }
     }
 
+    /** The chat bubble and feedback card show plain text, so markdown bold (学校**に**) would appear literally. */
+    static void stripMarkdownEmphasis(AiModelReply reply) {
+        if (reply == null) return;
+        reply.setReply(withoutEmphasis(reply.getReply()));
+        reply.setCorrected(withoutEmphasis(reply.getCorrected()));
+        reply.setOriginalWrong(withoutEmphasis(reply.getOriginalWrong()));
+        reply.setGrammarReason(withoutEmphasis(reply.getGrammarReason()));
+    }
+
+    private static String withoutEmphasis(String value) {
+        return value == null ? null : value.replace("**", "");
+    }
+
     private static boolean unchangedQuote(String originalWrong, String corrected, String learnerText) {
         if (originalWrong != null && !originalWrong.isBlank()) return sameJapaneseText(corrected, originalWrong);
         String quote = normalizeJapaneseText(corrected);
@@ -619,6 +632,7 @@ public class AIConversationService {
                             + userMessage;
                 }
                 modelReply = callModel(system, history, llmUser);
+                stripMarkdownEmphasis(modelReply);
                 discardUnchangedCorrection(modelReply, userMessage);
                 replyText = modelReply.getReply();
                 if (replyText == null || replyText.isBlank() || isGenericClarifyLoop(replyText)) {

@@ -73,6 +73,19 @@ class CorrectionGuardTest {
     }
 
     @Test
+    void markdownBoldIsRemovedFromReplyAndCard() {
+        AiModelReply reply = correction("学校を行きました。", "学校**に**行きました。");
+        reply.setReply("学校**に**行ったんですね。");
+        reply.setGrammarReason("Dùng **に** để chỉ nơi đến.");
+
+        AIConversationService.stripMarkdownEmphasis(reply);
+
+        assertThat(reply.getReply()).isEqualTo("学校に行ったんですね。");
+        assertThat(reply.getCorrected()).isEqualTo("学校に行きました。");
+        assertThat(reply.getGrammarReason()).isEqualTo("Dùng に để chỉ nơi đến.");
+    }
+
+    @Test
     void correctionIdenticalToLearnerSentenceIsStillDropped() {
         AiModelReply reply = correction("はい、元気です", "はい、元気です。");
 
