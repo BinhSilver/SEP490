@@ -140,7 +140,45 @@ CREATE TABLE IF NOT EXISTS user_notebook_kanji (
     notebook_id BIGINT NOT NULL,
     kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     saved_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    -- [JLAS-KANJI-MAP] Review progress stays with this Kanji in this notebook.
+    first_seen_at DATETIME NULL,
+    last_reviewed_at DATETIME NULL,
+    due_at DATETIME NULL,
+    ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    repetitions INT NOT NULL DEFAULT 0,
+    interval_days INT NOT NULL DEFAULT 0,
     PRIMARY KEY (notebook_id, kanji_character),
+    KEY idx_notebook_kanji_due (notebook_id, due_at),
     CONSTRAINT fk_notebook_kanji_book FOREIGN KEY (notebook_id) REFERENCES user_notebook(id) ON DELETE CASCADE,
     CONSTRAINT fk_notebook_kanji_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-KANJI-MAP-STUDY] Add review state to existing memberships; safe to re-run.
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND column_name='first_seen_at'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD COLUMN first_seen_at DATETIME NULL');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND column_name='last_reviewed_at'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD COLUMN last_reviewed_at DATETIME NULL');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND column_name='due_at'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD COLUMN due_at DATETIME NULL');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND column_name='ease_factor'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD COLUMN ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND column_name='repetitions'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD COLUMN repetitions INT NOT NULL DEFAULT 0');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND column_name='interval_days'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD COLUMN interval_days INT NOT NULL DEFAULT 0');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;
+SET @kanji_study_ddl = IF(EXISTS(SELECT 1 FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='user_notebook_kanji' AND index_name='idx_notebook_kanji_due'), 'SELECT 1', 'ALTER TABLE user_notebook_kanji ADD INDEX idx_notebook_kanji_due (notebook_id,due_at)');
+PREPARE kanji_study_stmt FROM @kanji_study_ddl;
+EXECUTE kanji_study_stmt;
+DEALLOCATE PREPARE kanji_study_stmt;

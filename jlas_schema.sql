@@ -3865,7 +3865,15 @@ CREATE TABLE IF NOT EXISTS user_notebook_kanji (
     notebook_id BIGINT NOT NULL,
     kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     saved_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    -- [JLAS-KANJI-MAP] Review progress stays with this Kanji in this notebook.
+    first_seen_at DATETIME NULL,
+    last_reviewed_at DATETIME NULL,
+    due_at DATETIME NULL,
+    ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    repetitions INT NOT NULL DEFAULT 0,
+    interval_days INT NOT NULL DEFAULT 0,
     PRIMARY KEY (notebook_id, kanji_character),
+    KEY idx_notebook_kanji_due (notebook_id, due_at),
     CONSTRAINT fk_notebook_kanji_book FOREIGN KEY (notebook_id) REFERENCES user_notebook(id) ON DELETE CASCADE,
     CONSTRAINT fk_notebook_kanji_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -18,22 +18,22 @@ public class KanjiMapNotebookService {
     private final KanjiMapContentService content;
 
     public record Entry(String character, String hanViet, String meaningVi, List<String> on,
-                        List<String> kun, String level, LocalDateTime savedAt) {}
-    private record Saved(String character, LocalDateTime at) {}
+                        List<String> kun, String level, LocalDateTime savedAt, Integer repetitions) {}
+    private record Saved(String character, LocalDateTime at, Integer repetitions) {}
 
     @Transactional(readOnly = true)
     public List<Entry> entries(Long userId, Long notebookId) {
         requireNotebook(userId, notebookId);
-        var saved = jdbc.query("SELECT kanji_character,saved_at FROM user_notebook_kanji WHERE notebook_id=? ORDER BY saved_at DESC,kanji_character",
-                (rs, i) -> new Saved(rs.getString(1), rs.getTimestamp(2).toLocalDateTime()), notebookId);
+        var saved = jdbc.query("SELECT kanji_character,saved_at,CASE WHEN first_seen_at IS NULL THEN NULL ELSE repetitions END FROM user_notebook_kanji WHERE notebook_id=? ORDER BY saved_at DESC,kanji_character",
+                (rs, i) -> new Saved(rs.getString(1), rs.getTimestamp(2).toLocalDateTime(), rs.getObject(3, Integer.class)), notebookId);
         if (saved.isEmpty()) return List.of();
         var nodes = new HashMap<String, JsonNode>();
         content.graph(false).path("nodes").forEach(n -> nodes.put(n.path("character").asText(), n));
         return saved.stream().map(row -> {
             var n = nodes.get(row.character());
-            return n == null ? new Entry(row.character(), "", "", List.of(), List.of(), null, row.at())
+            return n == null ? new Entry(row.character(), "", "", List.of(), List.of(), null, row.at(), row.repetitions())
                     : new Entry(row.character(), n.path("hanViet").asText(""), n.path("meaningVi").asText(""),
-                        readings(n, "on"), readings(n, "kun"), n.path("level").asText(null), row.at());
+                        readings(n, "on"), readings(n, "kun"), n.path("level").asText(null), row.at(), row.repetitions());
         }).toList();
     }
 
