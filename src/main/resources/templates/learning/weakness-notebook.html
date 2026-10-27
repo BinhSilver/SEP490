@@ -6,7 +6,7 @@
 <main id="notebookApp" class="notebook-page" data-inline-dictionary>
     <section id="notebookOverview" aria-labelledby="notebookHeading">
         <header class="notebook-heading">
-            <div><h1 id="notebookHeading">Sổ tay của tôi</h1><p>Quản lý và ôn tập các từ vựng đã lưu</p></div>
+            <div><h1 id="notebookHeading">Sổ tay của tôi</h1><p>Quản lý từ vựng và Kanji đã lưu</p></div>
             <button id="notebookCreate" class="notebook-primary" type="button">＋ Tạo sổ tay</button>
         </header>
         <p id="notebookNotice" class="notebook-notice" role="status" hidden></p>
@@ -33,6 +33,7 @@
         <label class="notebook-search"><span class="notebook-sr">Tìm trong sổ tay</span><input id="notebookQuery" type="search" maxlength="200" placeholder="Tìm từ, cách đọc hoặc nghĩa…"></label>
         <p id="notebookDetailNotice" class="notebook-notice" role="status" hidden></p>
         <div id="notebookEntries" class="notebook-entries" aria-live="polite" aria-busy="false"></div>
+        <section id="notebookKanjiSection" class="notebook-kanji-section" hidden aria-labelledby="notebookKanjiHeading"><h2 id="notebookKanjiHeading">Kanji đã lưu <small id="notebookKanjiCount"></small></h2><div id="notebookKanjiEntries" class="notebook-entries" aria-live="polite"></div></section>
     </section>
 
     <section id="notebookStudy" class="notebook-study" hidden aria-labelledby="notebookStudyTitle">
@@ -101,6 +102,6 @@
     </dialog>
 </main>
 <script th:src="@{/js/jlab-base-shell.js?v=8}"></script>
-<script th:src="@{/js/pages/weakness-notebook.js?v=10}"></script>
+<script th:src="@{/js/pages/weakness-notebook.js?v=12}"></script>
 </body>
 </html>
