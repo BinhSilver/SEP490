@@ -25,7 +25,6 @@ public record JlptAdminQuestionRequest(
         String scriptText,
         String scriptTranslation,
         @Size(max = 1000) String audioUrl,
-        @DecimalMin("0.0") BigDecimal audioStart,
-        @DecimalMin("0.0") BigDecimal audioEnd,
-        @Size(min = 4, max = 4) List<@NotNull @Min(1) @Max(4) Integer> correctOrder) {
+        @Size(min = 4, max = 4) List<@NotNull @Min(1) @Max(4) Integer> correctOrder,
+        @Min(1) Long targetVocabularyId) {
 }
