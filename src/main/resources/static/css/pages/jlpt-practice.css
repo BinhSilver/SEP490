@@ -73,3 +73,17 @@
 .jlpt-practice-segment__text p{font-size:16px;line-height:1.75}
 .jlpt-practice-segment .jlpt-practice-transcript-line{margin-bottom:0}
 @media(max-width:760px){.jlpt-practice-segment{grid-template-columns:46px minmax(0,1fr);gap:10px;padding:12px 4px}}
+
+/* Furigana is opt-in for each new practice session; source ruby remains intact. */
+.jlpt-practice-runner ruby { ruby-align:center; }
+.jlpt-practice-runner ruby rp, .jlpt-practice-runner:not(.is-furigana-on) ruby rt { display:none; }
+.jlpt-practice-runner ruby rt { color:var(--color-on-surface-variant,#8a7698); font:500 .54em/1.15 'Noto Sans JP',sans-serif; }
+.jlpt-practice-runner>header { grid-template-columns:auto minmax(0,1fr) auto minmax(100px,180px); }
+.jlpt-practice-runner>header>#practiceFurigana { display:inline-flex; align-items:center; gap:8px; width:auto; min-height:38px; padding:7px 10px; border:1px solid var(--line,#e9e0f0); border-radius:10px; background:var(--color-surface-lowest,#fff); color:var(--color-on-surface-variant,#8a7698); font:600 12px var(--font-body,sans-serif); }
+.jp-furigana-switch>i { display:inline-block; position:relative; width:32px; height:19px; border-radius:99px; background:#b9c0c8; }
+.jp-furigana-switch>i>b { position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#fff; transition:transform .15s; }
+.jp-furigana-switch.is-active>i { background:#956bdb; }
+.jp-furigana-switch.is-active>i>b { transform:translateX(13px); }
+#practiceFurigana:focus-visible { outline:3px solid #baa0e4; outline-offset:3px; }
+@media(max-width:760px) { .jlpt-practice-runner>header { grid-template-columns:auto minmax(0,1fr) auto; gap:10px; }.jlpt-practice-runner>header>.jlpt-practice-progress { display:block; grid-column:2/-1; width:100%; }.jlpt-practice-runner>header>#practiceFurigana { font-size:11px; padding:6px 8px; gap:6px; } }
+@media(prefers-reduced-motion:reduce) { .jp-furigana-switch>i>b { transition:none; } }
