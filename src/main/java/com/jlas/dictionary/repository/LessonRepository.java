@@ -2,10 +2,12 @@ package com.jlas.dictionary.repository;
 
 import com.jlas.dictionary.entity.Lesson;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,15 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             where l.id = :lessonId
             """)
     Optional<Lesson> findWithUnitById(@Param("lessonId") Long lessonId);
+
+    /** [JLAS2-17] Nhiều lesson kèm unit + textbook (1 query) cho công bố / ẩn hàng loạt. */
+    @Query("""
+            select l from Lesson l
+              join fetch l.unit u
+              join fetch u.textbook
+            where l.id in :ids
+            """)
+    List<Lesson> findWithUnitByIdIn(@Param("ids") java.util.Collection<Long> ids);
 
     /** Toàn bộ lesson của một textbook (mọi trạng thái), kèm unit, 1 query. */
     @Query("""
@@ -192,12 +203,12 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
      * Câu hỏi luyện tập của bài trong các quiz gắn với bài (assessment_*, chỉ ĐỌC), theo thứ tự quiz rồi thứ tự câu.
      * Cùng quy tắc với bài nháp: người học chỉ thấy quiz PUBLISHED + câu đang bật; includeDraft (CONTENT_CREATOR)
      * thấy cả quiz/câu nháp để duyệt nội dung. Cột: id, order_index, question_text, option_1..option_4,
-     * correct_option, explanation, context_json, answer_text. Phương án đầy đủ (câu 5–9 phương án, cờ is_correct
-     * của câu nhiều đáp án) nằm trong context_json.options.
+     * correct_option, explanation, context_json, answer_text, passage_html, image_url. Phương án đầy đủ (câu 5–9
+     * phương án, cờ is_correct của câu nhiều đáp án) nằm trong context_json.options.
      */
     @Query(value = """
             select q.id, qq.order_index, q.question_text, q.option_1, q.option_2, q.option_3, q.option_4,
-                   q.correct_option, q.explanation, q.context_json, q.answer_text
+                   q.correct_option, q.explanation, q.context_json, q.answer_text, q.passage_html, q.image_url
             from assessment_quiz z
               join assessment_quiz_question qq on qq.quiz_id = z.id
               join assessment_question q on q.id = qq.question_id
@@ -222,4 +233,37 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
                  + (select count(*) from lesson_kanji    where lesson_id = :lessonId)
             """, nativeQuery = true)
     long countEditorialContent(@Param("lessonId") Long lessonId);
+
+    /*
+     * [JLAS2-17] Quiz LUYỆN TẬP của bài = quiz_type 'LESSON' gắn bài, id trong dải seed nguồn ngoài (vnjpclub
+     * 1.000.001–1.999.999, Minna 3.000.001–3.999.999; seed đặt tên "Luyện tập: …"). Trạng thái của nó đi theo bài để
+     * học viên thấy đúng nội dung như CONTENT_CREATOR. Quiz lộ trình (quiz LESSON id < 1.000.000, UNIT_FINAL) không đụng.
+     * Viết dạng subquery (không UPDATE … JOIN) để chạy được cả MySQL lẫn H2 của test.
+     */
+
+    /** [JLAS2-17] Nguồn nội dung của bài (content_source cấp LESSON) — trang học hiện dòng "Nguồn nội dung: …". */
+    @Query(value = "select source_code from content_source where entity_type = 'LESSON' and entity_id = :lessonId"
+            + " order by id limit 1", nativeQuery = true)
+    Optional<String> findLessonSourceCode(@Param("lessonId") Long lessonId);
+
+    /** Bật mọi câu hỏi của quiz luyện tập thuộc các bài; trả số câu vừa bật. */
+    @Modifying
+    @Query(value = """
+            update assessment_question set is_active = true
+            where is_active = false and id in (
+              select qq.question_id from assessment_quiz_question qq
+                join assessment_quiz z on z.id = qq.quiz_id
+              where z.lesson_id in (:lessonIds) and z.quiz_type = 'LESSON'
+                and (z.id between 1000001 and 1999999 or z.id between 3000001 and 3999999))
+            """, nativeQuery = true)
+    int activatePracticeQuestions(@Param("lessonIds") Collection<Long> lessonIds);
+
+    /** Đặt trạng thái quiz luyện tập của các bài (PUBLISHED khi bài công bố, DRAFT khi bài ẩn / lưu trữ); trả số quiz đổi. */
+    @Modifying
+    @Query(value = """
+            update assessment_quiz set status = :status
+            where lesson_id in (:lessonIds) and quiz_type = 'LESSON' and status <> :status
+              and (id between 1000001 and 1999999 or id between 3000001 and 3999999)
+            """, nativeQuery = true)
+    int updatePracticeQuizStatus(@Param("lessonIds") Collection<Long> lessonIds, @Param("status") String status);
 }

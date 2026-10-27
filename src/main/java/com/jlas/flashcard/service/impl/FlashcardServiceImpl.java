@@ -170,9 +170,16 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override @Transactional(readOnly = true) public ExportFileDto export(Long id, String format, boolean includeHanViet, Long userId) {
         FlashcardSet set = readable(id, userId); FlashcardFileCodec.Format type = FlashcardFileCodec.Format.of(format);
         List<CardRow> rows = cards.findBySetIdOrderByPositionAscIdAsc(set.getId()).stream()
-                .map(card -> new CardRow(card.getFront(), StringUtils.hasText(card.getBack()) ? card.getBack() : back(card.getReading(), card.getMeaning()), card.getHanViet())).toList();
+                .map(card -> new CardRow(card.getFront(), card.getReading(), exportMeaning(card), card.getHanViet())).toList();
         String name = StringUtils.hasText(set.getTitle()) ? set.getTitle().replaceAll("[\\\\/:*?\"<>|\r\n\t]+", "_").trim() : "flashcards";
         return ExportFileDto.builder().filename(name + "." + type.extension).contentType(type.contentType).content(fileCodec.write(rows, type, includeHanViet)).build();
+    }
+    /** The Nghĩa column: the stored meaning, else the back with its "reading — " prefix removed (older cards). */
+    private static String exportMeaning(FlashcardCard card) {
+        if (StringUtils.hasText(card.getMeaning())) return card.getMeaning();
+        String back = card.getBack() == null ? "" : card.getBack();
+        String prefix = StringUtils.hasText(card.getReading()) ? card.getReading() + " — " : null;
+        return prefix != null && back.startsWith(prefix) ? back.substring(prefix.length()) : back;
     }
     @Override @Transactional(readOnly = true) public ImportFileResponse importFile(MultipartFile file, Long userId) {
         login(userId); if (file == null || file.isEmpty()) throw bad("Cần chọn file");

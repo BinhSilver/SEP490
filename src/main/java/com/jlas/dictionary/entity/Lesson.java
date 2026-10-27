@@ -59,7 +59,7 @@ public class Lesson {
     @Column(name = "skill", nullable = false, length = 20)
     private String skill;
 
-    /** TRAVEL/WORK/FOUNDATION cho goal-based path. */
+    /** TRAVEL / BA ("Công việc") / FOUNDATION cho goal-based path (chk_lesson_situation_tag). */
     @Column(name = "situation_tag", length = 50)
     private String situationTag;
 

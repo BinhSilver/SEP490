@@ -90,9 +90,12 @@
     document.getElementById('prepare-video-title').textContent = video.title || 'Video đang chỉnh sửa';
     preflight.video(video.title || 'Video đang chỉnh sửa', sourceById.size);
     isPublicVideo = video.visibility === 'PUBLIC';
-    media.src = window.mediaStreamUrl
-      ? window.mediaStreamUrl(videoId)
-      : '/api/videos/' + encodeURIComponent(videoId) + '/stream';
+    await window.ShadowingYoutube.load(media, videoId, {
+      meta: video,
+      streamUrl: window.mediaStreamUrl
+        ? window.mediaStreamUrl(videoId)
+        : '/api/videos/' + encodeURIComponent(videoId) + '/stream'
+    });
     document.querySelector('.preparation-listen').classList.toggle('is-audio', Boolean(video.audioOnly));
   }
 

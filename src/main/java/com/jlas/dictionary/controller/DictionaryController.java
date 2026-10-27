@@ -61,6 +61,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 
 /**
@@ -152,6 +153,40 @@ public class DictionaryController {
         return ApiResponse.ok("Đã bỏ lưu từ");
     }
 
+    public record NotebookCreateRequest(String name) {}
+    @GetMapping("/notebooks")
+    public ApiResponse<List<DictionaryEngagementService.NotebookSummary>> notebooks(@AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", engagementService.notebooks(requiredId(user)));
+    }
+    @PostMapping("/notebooks")
+    public ApiResponse<DictionaryEngagementService.NotebookSummary> createNotebook(@RequestBody NotebookCreateRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("Đã tạo sổ tay", engagementService.createNotebook(requiredId(user), request.name()));
+    }
+    @PutMapping("/notebooks/{notebookId}")
+    public ApiResponse<DictionaryEngagementService.NotebookSummary> renameNotebook(@PathVariable Long notebookId, @RequestBody NotebookCreateRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("Đã đổi tên sổ tay", engagementService.renameNotebook(requiredId(user), notebookId, request.name()));
+    }
+    @DeleteMapping("/notebooks/{notebookId}")
+    public ApiResponse<Void> deleteNotebook(@PathVariable Long notebookId, @AuthenticationPrincipal UserPrincipal user) {
+        engagementService.deleteNotebook(requiredId(user), notebookId); return ApiResponse.ok("Đã xóa sổ tay");
+    }
+    @GetMapping("/notebooks/{notebookId}/entries")
+    public ApiResponse<List<DictionaryEngagementService.NotebookEntry>> notebookEntries(@PathVariable Long notebookId, @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", engagementService.notebookEntries(requiredId(user), notebookId));
+    }
+    @DeleteMapping("/notebooks/{notebookId}/entries")
+    public ApiResponse<Void> clearNotebook(@PathVariable Long notebookId, @AuthenticationPrincipal UserPrincipal user) {
+        engagementService.clearNotebook(requiredId(user), notebookId); return ApiResponse.ok("Đã xóa toàn bộ từ trong sổ tay");
+    }
+    @PostMapping("/notebooks/{notebookId}/entries/{vocabularyId}")
+    public ApiResponse<Void> addNotebookEntry(@PathVariable Long notebookId, @PathVariable Long vocabularyId, @AuthenticationPrincipal UserPrincipal user) {
+        engagementService.addToNotebook(requiredId(user), notebookId, vocabularyId); return ApiResponse.ok("Đã thêm vào sổ tay");
+    }
+    @DeleteMapping("/notebooks/{notebookId}/entries/{vocabularyId}")
+    public ApiResponse<Void> removeNotebookEntry(@PathVariable Long notebookId, @PathVariable Long vocabularyId, @AuthenticationPrincipal UserPrincipal user) {
+        engagementService.removeFromNotebook(requiredId(user), notebookId, vocabularyId); return ApiResponse.ok("Đã bỏ khỏi sổ tay");
+    }
+
     // ---------------------------------------------------------------------
     // Duyệt giáo trình đã số hoá
     // ---------------------------------------------------------------------
@@ -199,6 +234,20 @@ public class DictionaryController {
                                                                                 @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật trạng thái bài học",
                 dictionaryService.updateLessonStatus(id, request.getStatus())));
+    }
+
+    /**
+     * POST /api/dictionary/manage/status/bulk — [JLAS2-17] công bố / ẩn về nháp hàng loạt giáo trình hoặc bài học
+     * (≤ 500 id mỗi lần, một transaction: lỗi thì không đổi gì). Chỉ THÊM, hai PATCH từng mục ở trên giữ nguyên.
+     */
+    @PostMapping("/manage/status/bulk")
+    @PreAuthorize("hasRole('CONTENT_CREATOR')")
+    public ResponseEntity<ApiResponse<com.jlas.dictionary.dto.BulkStatusResponse>> bulkUpdateStatus(
+            @Valid @RequestBody com.jlas.dictionary.dto.BulkStatusRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        com.jlas.dictionary.dto.BulkStatusResponse result = dictionaryService.bulkUpdateStatus(
+                request.getKind(), request.getAction(), request.getIds(), user == null ? null : user.userId());
+        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật " + result.getUpdated() + " mục", result));
     }
 
     /** GET /api/dictionary/lessons/{id}/content — nội dung đầy đủ một bài học. */
@@ -543,16 +592,19 @@ public class DictionaryController {
     /**
      * POST /api/dictionary/lessons/{lessonId}/import — nhập từ vựng, ngữ pháp + ví dụ, hội thoại, kanji từ
      * file .xlsx (multipart, field "file"). Tất cả hoặc không: file có dòng lỗi thì không lưu gì và trả
-     * {@code imported = false} kèm danh sách lỗi theo sheet/dòng.
+     * {@code imported = false} kèm danh sách lỗi theo sheet/dòng. {@code dryRun=true} ([JLAS2-17]): chỉ đọc + kiểm tra,
+     * trả tóm tắt sẽ nhập ({@code dryRun = true}, các bộ đếm) và lỗi, KHÔNG ghi gì — trang biên soạn dùng để xem trước.
      */
     @PostMapping(value = "/lessons/{lessonId}/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CONTENT_CREATOR')")
     public ResponseEntity<ApiResponse<LessonImportResult>> importLesson(@PathVariable Long lessonId,
-                                                                        @RequestParam("file") MultipartFile file) {
-        LessonImportResult result = lessonImportService.importLesson(lessonId, file);
-        return ResponseEntity.ok(ApiResponse.ok(
-                result.isImported() ? "Đã nhập nội dung từ file" : "File có lỗi, chưa nhập dữ liệu nào",
-                result));
+                                                                        @RequestParam("file") MultipartFile file,
+                                                                        @RequestParam(value = "dryRun", defaultValue = "false") boolean dryRun) {
+        LessonImportResult result = lessonImportService.importLesson(lessonId, file, dryRun);
+        String message = dryRun
+                ? (result.getErrors().isEmpty() ? "Kiểm tra file xong, chưa nhập gì" : "File có lỗi")
+                : (result.isImported() ? "Đã nhập nội dung từ file" : "File có lỗi, chưa nhập dữ liệu nào");
+        return ResponseEntity.ok(ApiResponse.ok(message, result));
     }
 
     /** GET /api/dictionary/manage/lessons/import-template — tải file Excel mẫu để nhập nội dung bài học. */

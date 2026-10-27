@@ -111,17 +111,20 @@ public class InteractionService {
     }
 
     /**
-     * Gắn ảnh đại diện + khung avatar + màu tên (mua ở Cửa hàng) cho mỗi người bình luận,
-     * một lần truy vấn cho cả danh sách.
+     * Gắn tên hiển thị + ảnh đại diện + khung avatar + màu tên (mua ở Cửa hàng) cho mỗi người bình luận,
+     * một lần truy vấn cho cả danh sách. Tên không lưu trong content_comment nên phải lấy lại từ hồ sơ.
      */
     private List<CommentDto> withProfiles(List<CommentDto> list) {
         if (list.isEmpty()) return list;
         List<Long> ids = list.stream().map(dto -> userIdOf(dto.getClientId())).filter(java.util.Objects::nonNull).toList();
+        Map<Long, String> names = userDirectory == null ? Map.of() : userDirectory.displayNames(ids);
         Map<Long, String> avatars = userDirectory == null ? Map.of() : userDirectory.avatarUrls(ids);
         Map<Long, Style> styles = frames == null ? Map.of() : frames.styles(ids);
         list.forEach(dto -> {
             Long userId = userIdOf(dto.getClientId());
             if (userId == null) return;
+            String name = names.get(userId);
+            if (name != null) dto.setDisplayName(name);
             dto.setAvatarUrl(avatars.get(userId));
             Style style = styles.get(userId);
             if (style != null) {

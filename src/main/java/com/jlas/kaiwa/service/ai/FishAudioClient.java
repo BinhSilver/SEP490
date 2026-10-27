@@ -154,7 +154,11 @@ public class FishAudioClient {
         body.put("reference_id", referenceId);
         body.put("format", "mp3");
         body.put("mp3_bitrate", 128);
-        body.put("latency", "low");
+        // temperature mặc định (0.7) làm nhịp và ngữ điệu lệch giữa các câu; cấu hình này được chọn sau khi nghe so sánh.
+        // "balanced" gửi âm thanh dần (~0,4 giây tới byte đầu); "normal" chỉ gửi khi tạo xong (3,7–6 giây).
+        body.put("latency", "balanced");
+        body.put("temperature", 0.2);
+        body.put("top_p", 0.7);
         body.put("prosody", prosody);
         return new TtsRequest(apiKey.trim(), referenceId, body);
     }

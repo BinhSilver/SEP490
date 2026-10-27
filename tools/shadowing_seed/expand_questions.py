@@ -12,6 +12,41 @@ import fugashi
 from validate import DATA, key, japanese, load_payload, materialize, read_json, spoken, validate
 
 METHOD = "OFFLINE_TRANSCRIPT_GAP_V1"
+# Placeholders and symbols a learner cannot type from what they hear (〇〇 = "something").
+UNREADABLE = re.compile(r'[〇○◯●×※]')
+QUOTES = ('「」', '『』', '（）', '()')
+
+
+def typeable(answer):
+    """An answer must be typed from audio: no placeholder symbols and no quote cut in half."""
+    return not UNREADABLE.search(answer) and all(answer.count(o) == answer.count(c) for o, c in QUOTES)
+
+
+def katakana(char):
+    return 'ァ' <= char <= 'ヺ' or char == 'ー'
+
+
+# A word of the word-level furigana that holds kanji: 秘匿(ひとく), 達し(たっし), 3名(さんめい).
+FURIGANA_WORD = re.compile(r'(?<!\S)([^\s()（）]*[㐀-鿿々〆ヵヶ][^\s()（）]*)[(（]([^)）]+)[)）]')
+
+
+def cuts_furigana_word(row, start, end):
+    """The app reads a blank's kana from whole furigana words; half of one (秘匿 of 秘匿死刑) has no reading."""
+    text, cursor = row['text'], 0
+    for match in FURIGANA_WORD.finditer(row.get('furigana') or ''):
+        begin = text.find(match.group(1), cursor)
+        if begin < 0:
+            continue
+        cursor = begin + len(match.group(1))
+        if begin < start < cursor or begin < end < cursor:
+            return True
+    return False
+
+
+def splits_katakana_word(text, start, end):
+    """Fugashi splits unknown names (フリー|レン); a blank must not cut such a word."""
+    return (0 < start and katakana(text[start - 1]) and katakana(text[start])) \
+        or (end < len(text) and katakana(text[end - 1]) and katakana(text[end]))
 
 
 def duplicate(answer, existing):
@@ -113,7 +148,8 @@ def expand():
                 for start, end in spans:
                     answer = text[start:end]
                     visible = text[:start] + text[end:]
-                    if answer not in spoken(text) or spoken(text).count(answer) != 1:
+                    if answer not in spoken(text) or spoken(text).count(answer) != 1 or not typeable(answer) \
+                            or splits_katakana_word(text, start, end) or cuts_furigana_word(row, start, end):
                         continue
                     if level != 'HARD' and (japanese(visible) < 4 or answer in visible
                             or answer in '音声を聞いて、空欄に入る言葉は何ですか。'):

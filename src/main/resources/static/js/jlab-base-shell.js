@@ -300,6 +300,7 @@
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning/path" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
                 '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
+                '<a id="jlabBaseVerbPracticeLink" class="dropdown__item" href="/practice/verbs" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
               '</div>' +
             '</div>' +
             // "Tạo đề": chỉ CONTENT_CREATOR (NAV_ROLES) — render `hidden`, syncNavRoles() bật. Khung theo đúng "Công cụ".
@@ -312,6 +313,7 @@
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
                 '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
+                '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
               '</div>' +
             '</div>' +
             '<a id="' + ids.lookupLink + '" href="/dictionary/index.html" title="Tra cứu từ điển">' +
@@ -383,6 +385,7 @@
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
+                  '<a id="jlabBaseNotebookLink" class="dropdown__item" href="/learning/notebook" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Sổ tay của tôi</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.premiumLink + '" class="dropdown__item" href="/premium/billing" role="menuitem" hidden><span id="' + ids.premiumIcon + '" class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><span id="' + ids.premiumLabel + '">Gói &amp; thanh toán</span></a>' +
                   '<a class="dropdown__item" href="/credits" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">toll</span> Mua CP</a>' +
@@ -471,6 +474,7 @@
     markCurrent(ids.learnPathItem, isLearningPath);
     markCurrent(ids.jlptLink, isJlpt);
     markCurrent(ids.jlptPracticeLink, isJlptPractice);
+    markCurrent('jlabBaseNotebookLink', path === '/learning/notebook');
     markCurrent(ids.streakLink, isGoals);
     markCurrent(ids.bottomAccountButton, path === '/profile' || path.indexOf('/profile/') === 0 ||
       path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
@@ -485,7 +489,8 @@
         toolsButton.removeAttribute('aria-current');
       }
     }
-    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice);
+    markCurrent('jlabBaseVerbPracticeLink', path === '/practice/verbs');
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice || path === "/practice/verbs");
   }
 
   function fallbackUser() {
@@ -769,7 +774,7 @@
   function ensureAvatarFrameStyles() {
     // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
     if (!document.querySelector('link[href*="avatar-frame.css"]')) {
-      addStylesheet('/css/components/avatar-frame.css?v=20261014-frames3');
+      addStylesheet('/css/components/avatar-frame.css?v=20261021-catalog');
     }
   }
 
@@ -778,7 +783,7 @@
     if (window.JlasAvatarFrame || state.avatarFramesLoading) return;
     state.avatarFramesLoading = true;
     var script = document.createElement('script');
-    script.src = '/js/components/avatar-frame.js?v=20261014-frames3';
+    script.src = '/js/components/avatar-frame.js?v=20261021-catalog';
     script.onload = function () {
       if (window.JlasAuth && typeof window.JlasAuth.applyNav === 'function') window.JlasAuth.applyNav();
       else syncAuth();
@@ -807,7 +812,8 @@
   var NOTIFICATION_ICONS = {
     MODERATION_CONTENT: 'shield', MODERATION_SANCTION: 'shield', MODERATION_APPEAL: 'shield',
     SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message',
-    SHADOWING_COMMENT: 'message', WELCOME: 'home'
+    SHADOWING_COMMENT: 'message', SHADOWING_VIDEO_READY: 'headphones', SHADOWING_VIDEO_FAILED: 'info',
+    WELCOME: 'home'
   };
 
   async function loadNotifications() {

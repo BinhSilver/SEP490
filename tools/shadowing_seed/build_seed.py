@@ -12,6 +12,14 @@ OUTPUT = ROOT / "sql/seeds/seed_data_shadowing.sql"
 RUN_OUTPUT = ROOT / "sqlrun/03_datashadowing.sql"
 INTERACTION_OUTPUT = ROOT / "sql/seeds/seed_data_shadowing_interactions.sql"
 INTERACTION_RUN_OUTPUT = ROOT / "sqlrun/05_shadowing_interactions.sql"
+# Story genres, several per video; codes and labels must match com.jlas.shadowing.model.ShadowingGenre.
+GENRE_LABELS = {
+    "ACTION": "Hành động", "ROMANCE": "Lãng mạn", "SCHOOL": "Học đường", "COMEDY": "Hài hước",
+    "SLICE_OF_LIFE": "Đời thường", "ADVENTURE": "Phiêu lưu", "FANTASY": "Kỳ ảo",
+    "SCI_FI": "Khoa học viễn tưởng", "SUPERNATURAL": "Siêu nhiên", "MYSTERY": "Bí ẩn / Trinh thám",
+    "HORROR": "Kinh dị", "SPORTS": "Thể thao", "MUSIC": "Âm nhạc", "FAMILY": "Gia đình", "FOOD": "Ẩm thực",
+    "WORK": "Công việc", "TRAVEL": "Du lịch", "HISTORY": "Lịch sử", "HEARTWARMING": "Cảm động",
+}
 
 
 def sql_json(value):
@@ -34,6 +42,11 @@ def build():
     tags = [{"name": s["key"], "code": "SHADOWING_GENRE_" + s["key"].upper()} for s in catalog["series"]]
     levels = sorted({v["estimated_jlpt"] for v in catalog["videos"] if v["estimated_jlpt"]})
     tags += [{"name": lv, "code": "SHADOWING_LEVEL_" + lv} for lv in levels]
+    genres = [g for g in GENRE_LABELS if any(g in v.get("genres", []) for v in catalog["videos"])]
+    unknown = {g for v in catalog["videos"] for g in v.get("genres", [])} - set(GENRE_LABELS)
+    if unknown:
+        raise ValueError(f"Unknown genres in catalog.json: {sorted(unknown)}")
+    tags += [{"name": GENRE_LABELS[g], "code": "VIDEO_GENRE_" + g} for g in genres]
     links = [{"source_key": member, "name": s["key"]} for s in catalog["series"] for member in s["members"]]
     for video in catalog["videos"]:
         video["can_publish"] = bool(video["expected_cue_count"])
@@ -51,6 +64,7 @@ def build():
         video["approved_on"] = video.get("approved_on", catalog["approval"]["approved_on"])
         if video["estimated_jlpt"]:
             links.append({"source_key": video["source_key"], "name": video["estimated_jlpt"]})
+        links += [{"source_key": video["source_key"], "name": GENRE_LABELS[g]} for g in video.get("genres", [])]
     template = (Path(__file__).with_name("seed_template.sql")).read_text(encoding="utf-8")
     local_cues = []
     for video in catalog["videos"]:

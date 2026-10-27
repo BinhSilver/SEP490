@@ -27,10 +27,12 @@ public class ProcessingJobService {
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private FfmpegService ffmpegService;
+    @Autowired private YoutubeService youtubeService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
     @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
     @Autowired private VideoModerationService videoModerationService;
+    @Autowired private ShadowingProcessingNotifier notifier;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -56,11 +58,11 @@ public class ProcessingJobService {
             clearSubtitles(videoId);
             if (!isActiveRun(videoId, runId)) return;
 
-            String audioPath = ffmpegService.prepareAudioForStt(video.getVideoPath());
+            String audioPath = audioForStt(video);
             updateProgress(video, ProcessingStep.TRANSCRIBING, 30, null);
             if (!isActiveRun(videoId, runId)) return;
 
-            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(deepgramService.transcribe(audioPath));
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(transcribe(video, audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -79,6 +81,7 @@ public class ProcessingJobService {
             } catch (Exception modEx) {
                 System.err.println("regenerateTranscript: moderation failed id=" + videoId + " " + modEx.getMessage());
             }
+            notifier.ready(video);
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
                 Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
@@ -86,6 +89,7 @@ public class ProcessingJobService {
                     failed.setStatus(VideoStatus.FAILED);
                     failed.setErrorMessage(e.getMessage());
                     videoRepository.save(failed);
+                    notifier.failed(failed, e.getMessage());
                 }
             }
         }
@@ -161,11 +165,11 @@ public class ProcessingJobService {
             }
 
             updateProgress(video, ProcessingStep.EXTRACTING_AUDIO, 10, null);
-            String audioPath = ffmpegService.prepareAudioForStt(video.getVideoPath());
+            String audioPath = audioForStt(video);
             if (!isActiveRun(videoId, runId)) return;
 
             updateProgress(video, ProcessingStep.TRANSCRIBING, 25, null);
-            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(deepgramService.transcribe(audioPath));
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(transcribe(video, audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -181,6 +185,7 @@ public class ProcessingJobService {
                 video.setStatus(VideoStatus.FAILED);
                 video.setErrorMessage(e.getMessage());
                 videoRepository.save(video);
+                notifier.failed(video, e.getMessage());
                 e.printStackTrace();
             } else {
                 System.out.println("processVideo: error ignored (superseded) id=" + videoId + " runId=" + runId);
@@ -238,6 +243,30 @@ public class ProcessingJobService {
                     "Video không được nhận diện là tiếng Nhật. " + result.reason()
                             + " JLAS đã dừng tạo bài để tránh tạo phụ đề sai ngôn ngữ.");
         }
+    }
+
+    /** Transcribes {@code audioPath}; a temporary YouTube audio file is deleted whatever the outcome. */
+    private List<SubtitleDto> transcribe(Video video, String audioPath) throws Exception {
+        try {
+            return deepgramService.transcribe(audioPath);
+        } finally {
+            if (video.getVideoPath() == null || video.getVideoPath().isBlank()) {
+                try { java.nio.file.Files.deleteIfExists(java.nio.file.Path.of(audioPath)); } catch (Exception ignored) { }
+            }
+        }
+    }
+
+    /**
+     * Audio to transcribe. Uploaded files are prepared from their stored media; YouTube videos keep no file on
+     * the server, so their audio is fetched temporarily from the link.
+     */
+    private String audioForStt(Video video) throws Exception {
+        String path = video.getVideoPath();
+        if (path != null && !path.isBlank()) return ffmpegService.prepareAudioForStt(path);
+        if (ShadowingTakedownService.sourceKey(video.getSourceUrl()).isPresent()) {
+            return youtubeService.downloadAudio(video.getSourceUrl());
+        }
+        throw new IllegalStateException("Video không có tệp âm thanh để tạo phụ đề.");
     }
 
     /**
@@ -317,6 +346,7 @@ public class ProcessingJobService {
         } catch (Exception modEx) {
             System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
         }
+        notifier.ready(video);
     }
 
     private void failProcessing(Long videoId, long runId, Exception e) {
@@ -326,6 +356,7 @@ public class ProcessingJobService {
             failed.setStatus(VideoStatus.FAILED);
             failed.setErrorMessage(e.getMessage());
             videoRepository.save(failed);
+            notifier.failed(failed, e.getMessage());
         }
     }
 

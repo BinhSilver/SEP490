@@ -22,8 +22,8 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20261011-swipe-results" />
-  <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261011-compact-list" />
+  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20261015-missing-badge2" />
+  <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261015-selection-pager" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -264,24 +264,16 @@
       </div>
       <div class="modal-body">
         <div class="study-face-fields" aria-label="Nội dung hai mặt thẻ">
-          <div class="field">
-            <label class="field__label" for="face-front-field">Mặt trước hiển thị</label>
-            <select class="select" id="face-front-field">
-              <option value="FRONT">Kanji</option>
-              <option value="HAN_VIET">Hán Việt</option>
-              <option value="BACK">Nghĩa tiếng Việt</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label class="field__label" for="face-back-field">Mặt sau hiển thị</label>
-            <select class="select" id="face-back-field">
-              <option value="BACK" selected>Nghĩa tiếng Việt</option>
-              <option value="HAN_VIET">Hán Việt</option>
-              <option value="FRONT">Kanji</option>
-            </select>
-          </div>
+          <fieldset class="study-face-picker" data-face-picker="front">
+            <legend class="field__label">Mặt trước hiển thị <span class="study-face-picker__hint">chọn 1–3 trường</span></legend>
+            <div class="study-face-picker__options"></div>
+          </fieldset>
+          <fieldset class="study-face-picker" data-face-picker="back">
+            <legend class="field__label">Mặt sau hiển thị <span class="study-face-picker__hint">chọn 1–3 trường</span></legend>
+            <div class="study-face-picker__options"></div>
+          </fieldset>
         </div>
+        <p class="study-face-picker__error" id="face-picker-error" role="alert" hidden></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn--secondary" id="btn-cancel-settings">Hủy</button>
@@ -315,7 +307,9 @@
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/study-clock.js?v=20261005-summary-time"></script>
   <script src="/flashcard/js/study-swipe.js?v=20261011-touch-capture"></script>
-  <script src="/flashcard/js/study-page.js?v=20261011-swipe-results"></script>
+  <script src="/flashcard/js/study-fit-text.js?v=20261015-fit-scale"></script>
+  <script src="/flashcard/js/study-face-fields.js?v=20261015-blank-rule"></script>
+  <script src="/flashcard/js/study-page.js?v=20261015-missing-badge"></script>
 </body>
 
 </html>

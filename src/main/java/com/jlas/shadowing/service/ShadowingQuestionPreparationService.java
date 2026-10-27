@@ -622,6 +622,7 @@ public class ShadowingQuestionPreparationService {
                         + "＿".repeat(Math.max(3, Math.min(12, gapChars)))
                         + sentence.substring(start + answer.length());
             }
+            if (untypeableGapReason(aiQuestion.level(), answer, occurrence, first) != null) return null;
             choices = List.of();
             explanation = "Nghe lại đoạn này và đối chiếu với phụ đề gốc.";
         } else {
@@ -741,6 +742,36 @@ public class ShadowingQuestionPreparationService {
                 .matches("(?s).*[A-Z][A-Za-z0-9+._-]+.*"));
     }
 
+    /**
+     * A GAP answer is typed from what the learner hears, so it must be writable in kana or romaji: every kanji
+     * needs its approved furigana reading (no 〇〇 placeholder, no half a word), and the blank may not cut a
+     * katakana word such as フェルン into 「ルン」. Returns why it is not, or null.
+     */
+    static String untypeableGapReason(String level, String answer, int occurrence, Subtitle line) {
+        if (ShadowingPracticeService.preparedGapReading(level, answer, occurrence, line) == null)
+            return "Đáp án điền phải gõ được bằng kana/romaji: mọi kanji cần có cách đọc trong furigana của phụ đề, "
+                    + "không che nửa từ và không chứa ký hiệu như 〇〇.";
+        if ("HARD".equals(level)) return null;
+        String sentence = QuestionTranscript.spoken(line.getText());
+        int start = -1;
+        for (int seen = 0; seen < Math.max(1, occurrence); seen++) {
+            start = sentence.indexOf(answer, start + 1);
+            if (start < 0) return null;
+        }
+        int end = start + answer.length();
+        if ((start > 0 && isKatakana(sentence.charAt(start - 1)) && isKatakana(sentence.charAt(start)))
+                || (end < sentence.length() && isKatakana(sentence.charAt(end - 1)) && isKatakana(sentence.charAt(end))))
+            return "Chỗ trống cắt ngang một từ katakana; hãy che trọn cả từ.";
+        if (answer.chars().filter(c -> c == '「').count() != answer.chars().filter(c -> c == '」').count()
+                || answer.chars().filter(c -> c == '『').count() != answer.chars().filter(c -> c == '』').count())
+            return "Chỗ trống cắt ngang một đoạn trích 「」; hãy che trọn hoặc tránh dấu ngoặc.";
+        return null;
+    }
+
+    private static boolean isKatakana(char value) {
+        return (value >= 'ァ' && value <= 'ヺ') || value == 'ー';
+    }
+
     static boolean validStoredQuestion(PreparedQuestion question, List<Subtitle> evidence) {
         if ("GAP".equals(question.kind())) {
             if (evidence.size() != 1 || !answerInEvidence(question.answer(), evidence)) return false;
@@ -833,6 +864,9 @@ public class ShadowingQuestionPreparationService {
             if ("HARD".equals(candidate.level()) && !QuestionTranscript.sentenceKey(line)
                     .equals(QuestionTranscript.sentenceKey(answer)))
                 return "Mức Khó cần chép chính xác cả câu phụ đề.";
+            String untypeable = untypeableGapReason(candidate.level(),
+                    "HARD".equals(candidate.level()) ? line : answer, 1, evidence.get(0));
+            if (untypeable != null) return untypeable;
             return "Câu phụ đề quá ngắn, quá dài hoặc thiếu ngữ cảnh để tạo chỗ trống.";
         }
         if (!COMPREHENSION_KINDS.contains(candidate.kind()) || answer.isBlank()

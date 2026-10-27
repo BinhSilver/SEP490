@@ -80,19 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 : 'Quá trình xử lý gặp trục trặc. Bạn có thể bấm Thử lại; video gốc vẫn được giữ nguyên.';
             return;
         }
-        const messages = {
-            UPLOADED: 'Mình đang kiểm tra video và chuẩn bị các bước cần thiết.',
-            YOUTUBE_DOWNLOAD: 'Mình đang mang video về thư viện. Video dài sẽ cần thêm một chút thời gian.',
-            SUBTITLE_DOWNLOAD: 'Mình đang tìm phụ đề phù hợp để tạo bài luyện nghe.',
-            EXTRACTING_AUDIO: 'Mình đang tách phần âm thanh để nhận diện lời thoại.',
-            TRANSCRIBING: 'Mình đang nghe và chia lời thoại thành từng câu shadowing.',
-            AI_PROCESSING: 'Mình đang thêm furigana và bản dịch. Bạn có thể rời trang rồi quay lại sau.',
-            DONE: 'Bài học đã sẵn sàng. Bạn có thể trở về thư viện Shadowing.'
-        };
+        // Processing runs on the server and the owner is notified when it ends, so leaving is safe.
         kitsuTitle.textContent = step === 'DONE'
             ? 'Kitsu-chan đã chuẩn bị xong'
             : 'Kitsu-chan đang chuẩn bị bài học';
-        kitsuMessage.textContent = messages[step] || messages.UPLOADED;
+        kitsuMessage.textContent = step === 'DONE'
+            ? 'Bài học đã sẵn sàng. Bạn có thể trở về thư viện Shadowing.'
+            : 'Bạn có thể về trang chủ, khi xong mình sẽ thông báo.';
     }
 
     function isNonJapaneseFailure(message) {
@@ -244,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'PROCESSING' || (data.status === 'DRAFT' && step !== 'DONE' && pct < 100)) {
                 const stepLabels = {
                     UPLOADED: 'Đang bắt đầu...',
-                    YOUTUBE_DOWNLOAD: 'Đang tải video...',
+                    YOUTUBE_DOWNLOAD: 'Đang hoàn tất...',
                     SUBTITLE_DOWNLOAD: 'Đang tải phụ đề...',
                     EXTRACTING_AUDIO: 'Đang tách audio...',
                     TRANSCRIBING: 'Đang nhận dạng giọng nói...',
@@ -296,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (Date.now() - stuckSince > stuckThresholdMs(currentStep)) {
                 errorMsg.style.display = 'block';
                 const stepHint = {
-                    YOUTUBE_DOWNLOAD: 'Đang tải file video (~24 phút nội dung = 10–30 phút chờ). Không phải treo.',
+                    YOUTUBE_DOWNLOAD: 'Đang lưu thông tin video, sắp xong.',
                     SUBTITLE_DOWNLOAD: 'Đang tải phụ đề từ YouTube (ja + vi/en)...',
                     AI_PROCESSING: 'AI đang xử lý nhiều câu — video dài sẽ lâu hơn.'
                 }[currentStep] || 'Xử lý có vẻ bị treo thật.';
