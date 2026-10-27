@@ -326,7 +326,10 @@
       $('notebookEasyTime').textContent = session.intervals.EASY;
       $('notebookCardFront').hidden = false;
       $('notebookCardBack').hidden = true;
-      $('notebookCard').setAttribute('aria-label', 'Lật thẻ để xem đáp án');
+      $('notebookCard').classList.remove('is-revealed');
+      $('notebookCard').classList.toggle('is-kanji', session.card.type === 'KANJI');
+      $('notebookCardFlip').setAttribute('aria-label', 'Lật sang mặt đáp án');
+      $('notebookCardFlip').setAttribute('aria-pressed', 'false');
       $('notebookCard').hidden = false;
       $('notebookCard').focus();
     } catch (error) { if (revision === studyRevision) notice('notebookStudyNotice', error.message); }
@@ -372,13 +375,22 @@
     } catch (error) { notice('notebookStudyNotice', error.message); }
     finally { select.disabled = false; }
   });
-  $('notebookCard').addEventListener('click', function () {
-    if (!state.studyCard || state.studyBusy || !$('notebookRatings').hidden) return;
-    $('notebookCardFront').hidden = true;
-    $('notebookCardBack').hidden = false;
-    $('notebookCard').setAttribute('aria-label', 'Đáp án của thẻ');
-    $('notebookRatings').hidden = false;
-    kanjiCard.reveal();
+  function flipStudyCard() {
+    if (!state.studyCard || state.studyBusy) return;
+    var showBack = $('notebookCardBack').hidden;
+    $('notebookCardFront').hidden = showBack;
+    $('notebookCardBack').hidden = !showBack;
+    $('notebookCard').classList.toggle('is-revealed', showBack);
+    $('notebookCardFlip').setAttribute('aria-label', showBack ? 'Lật về mặt trước' : 'Lật sang mặt đáp án');
+    $('notebookCardFlip').setAttribute('aria-pressed', String(showBack));
+    $('notebookRatings').hidden = !showBack;
+    kanjiCard.reveal(showBack);
+  }
+  $('notebookCardFlip').addEventListener('click', flipStudyCard);
+  $('notebookCard').addEventListener('click', function (event) {
+    if (event.target.closest('button, a, details, .notebook-kanji-structure')) return;
+    if (window.getSelection().toString()) return;
+    flipStudyCard();
   });
   $('notebookRatings').addEventListener('click', async function (event) {
     var button = event.target.closest('[data-rating]');
@@ -403,7 +415,7 @@
     if (event.key === 'Escape') { $('notebookStudyBack').click(); return; }
     if (event.target.closest('input, textarea, select, a, summary, [contenteditable="true"]') ||
         event.target.closest('button') && event.target.id !== 'notebookCard') return;
-    if (event.key === ' ' && event.target !== $('notebookCard')) { event.preventDefault(); $('notebookCard').click(); return; }
+    if (event.key === ' ' || event.key === 'Enter' && event.target === $('notebookCard')) { event.preventDefault(); flipStudyCard(); return; }
     var rating = { '1': 'AGAIN', '2': 'HARD', '3': 'GOOD', '4': 'EASY' }[event.key];
     if (rating && !$('notebookRatings').hidden) {
       event.preventDefault();
