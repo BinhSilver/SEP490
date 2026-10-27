@@ -83,7 +83,7 @@
 .notebook-entry-actions a, .notebook-entry-actions button { display: inline-flex; justify-content: center; align-items: center; gap: 4px; min-height: 28px; padding: 3px 5px; border: 0; background: transparent; color: #91a3bd; font-size: 11px; text-decoration: none; }
 .notebook-entry-actions .material-symbols-outlined { font-size: 14px; }
 .notebook-entry-actions a:hover, .notebook-entry-actions button:hover { color: #2160bd; }
-.notebook-entry-actions [data-remove] { margin-left: auto; }
+.notebook-entry-actions [data-remove], .notebook-entry-actions [data-remove-kanji] { margin-left: auto; }
 .notebook-dialog-actions > button:not(.notebook-primary) { display: inline-flex; justify-content: center; align-items: center; min-height: 38px; padding: 7px 13px; border: 1px solid var(--color-outline-variant, #dce1eb); border-radius: 8px; background: var(--color-surface-lowest, #fff); color: inherit; font-size: 13px; }
 .notebook-entry-actions button:disabled { opacity: .5; }
 .notebook-empty { width: min(100%, 620px); padding: 34px 24px; border: 1px dashed var(--color-outline-variant, #dce1eb); border-radius: 14px; background: var(--color-surface-lowest, #fff); color: var(--color-on-surface-variant, #68768f); text-align: center; }
@@ -143,10 +143,12 @@
 .notebook-study-done { padding: 36px 24px; border: 1px solid #e2e8f0; border-radius: 15px; background: #fff; color: #34445d; text-align: center; }
 #notebookStudyRefresh { display: block; margin: 16px auto 0; }
 .notebook-page :is(button, a, input, select, summary):focus-visible { outline: 3px solid #91bfff; outline-offset: 3px; }
-.notebook-kanji-section { margin-top:24px; }
-.notebook-kanji-section h2 { font-size:18px; color:var(--color-primary,#4f378a); }
-.notebook-kanji-section h2 small { font-size:12px; margin-left:6px; }
-.notebook-kanji-section .notebook-entry-meaning { color:var(--color-primary,#4f378a); font-weight:600; }
+.notebook-entry-filters { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 12px; }
+.notebook-entry-filters button { display:inline-flex; align-items:center; gap:7px; min-height:34px; padding:7px 12px; border:1px solid #e0e7f1; border-radius:9px; background:#fff; color:#8395af; font-size:12px; }
+.notebook-entry-filters button[aria-pressed="true"] { border-color:#bcd3f5; background:#edf4ff; color:#2868bd; font-weight:650; }
+.notebook-entry-filters button:hover { border-color:#a9c7f2; }
+.notebook-entry-filters button span { color:inherit; font-size:10px; opacity:.8; }
+.notebook-entry-kind { flex-shrink:0; margin-top:4px; padding:3px 7px; border-radius:6px; background:#f3f6fa; color:#94a4bb; font-size:10px; line-height:1.5; }
 .notebook-kanji-readings { font-size:13px; line-height:1.8; }
 .notebook-card { box-sizing:border-box; min-width:0; }
 .notebook-card-front { min-height:275px; align-content:center; cursor:pointer; }

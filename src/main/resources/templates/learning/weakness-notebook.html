@@ -29,11 +29,16 @@
             <div id="notebookProgressTrack" class="notebook-progress-track" role="progressbar" aria-label="Tỉ lệ từ đã học" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="notebookProgressFill"></span></div>
             <div class="notebook-progress-legend"><span class="notebook-status-deep">Ghi nhớ sâu <b id="notebookDeepCount">0</b></span><span class="notebook-status-good">Nhớ khá <b id="notebookGoodCount">0</b></span><span class="notebook-status-learning">Đang học <b id="notebookLearningCount">0</b></span><span class="notebook-status-new">Chưa học <b id="notebookNewCount">0</b></span></div>
         </div>
-        <div class="notebook-vocabulary-heading"><strong>TỪ VỰNG <span id="notebookVocabularyCount">0</span></strong><div class="notebook-sort"><button id="notebookSortToggle" type="button" aria-label="Sắp xếp từ vựng" aria-haspopup="true" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg><span id="notebookSortLabel">Mới nhất</span><svg class="notebook-sort-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="notebookSortMenu" class="notebook-sort-menu" hidden><button type="button" data-sort="newest" aria-pressed="true">Mới nhất</button><button type="button" data-sort="oldest" aria-pressed="false">Cũ nhất</button></div></div></div>
+        <div class="notebook-vocabulary-heading"><strong>NỘI DUNG ĐÃ LƯU <span id="notebookEntryCount">0</span></strong><div class="notebook-sort"><button id="notebookSortToggle" type="button" aria-label="Sắp xếp nội dung đã lưu" aria-haspopup="true" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg><span id="notebookSortLabel">Mới nhất</span><svg class="notebook-sort-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="notebookSortMenu" class="notebook-sort-menu" hidden><button type="button" data-sort="newest" aria-pressed="true">Mới nhất</button><button type="button" data-sort="oldest" aria-pressed="false">Cũ nhất</button></div></div></div>
+        <div id="notebookEntryFilters" class="notebook-entry-filters" role="group" aria-label="Lọc loại nội dung">
+            <button type="button" data-entry-filter="all" aria-pressed="true">Tất cả <span>0</span></button>
+            <button type="button" data-entry-filter="vocabulary" aria-pressed="false">Từ vựng <span>0</span></button>
+            <button type="button" data-entry-filter="kanji" aria-pressed="false">Kanji <span>0</span></button>
+        </div>
         <label class="notebook-search"><span class="notebook-sr">Tìm trong sổ tay</span><input id="notebookQuery" type="search" maxlength="200" placeholder="Tìm từ, cách đọc hoặc nghĩa…"></label>
         <p id="notebookDetailNotice" class="notebook-notice" role="status" hidden></p>
         <div id="notebookEntries" class="notebook-entries" aria-live="polite" aria-busy="false"></div>
-        <section id="notebookKanjiSection" class="notebook-kanji-section" hidden aria-labelledby="notebookKanjiHeading"><h2 id="notebookKanjiHeading">Kanji đã lưu <small id="notebookKanjiCount"></small></h2><div id="notebookKanjiEntries" class="notebook-entries" aria-live="polite"></div></section>
+
     </section>
 
     <section id="notebookStudy" class="notebook-study" hidden aria-labelledby="notebookStudyTitle">
@@ -121,7 +126,7 @@
     </dialog>
 </main>
 <script th:src="@{/js/jlab-base-shell.js?v=8}"></script>
-<script th:src="@{/js/pages/notebook-kanji-card.js(v='20261027-kanji-flip-graph')}"></script>
-<script th:src="@{/js/pages/weakness-notebook.js(v='20261027-kanji-flip-graph')}"></script>
+<script th:src="@{/js/pages/notebook-kanji-card.js(v='20261027-notebook-unified')}"></script>
+<script th:src="@{/js/pages/weakness-notebook.js(v='20261027-notebook-unified')}"></script>
 </body>
 </html>
