@@ -20,6 +20,12 @@ public class LessonImportResult {
 
     private boolean imported;
 
+    /**
+     * [JLAS2-17] Chạy thử (dryRun): file đã đọc + kiểm tra xong, các bộ đếm là số SẼ nhập; KHÔNG có gì được lưu.
+     * {@code imported} luôn false khi chạy thử.
+     */
+    private boolean dryRun;
+
     /** Từ chưa có trong từ điển, được tạo mới (DRAFT) rồi gắn vào bài. */
     private int vocabularyCreated;
     /** Từ đã có trong từ điển, được gắn vào bài. */

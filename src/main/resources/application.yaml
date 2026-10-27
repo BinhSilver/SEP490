@@ -34,6 +34,14 @@ spring:
   jackson:
     default-property-inclusion: non_null
 
+  # Giới hạn chung cho multipart; application-local.yaml có thể đặt lại (ví dụ 100MB cho video shadowing).
+  # Từng tính năng vẫn tự kiểm giới hạn riêng (avatar/thumbnail giáo trình 2MB).
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      # Lớn hơn max-file-size một chút: ảnh đúng 5MB cộng phần đầu multipart vẫn lọt (ảnh bài đọc tối đa 5MB).
+      max-request-size: 6MB
+
 # ── Server ───────────────────────────────────────────────────────────────────
 server:
   port: 8080
@@ -72,12 +80,19 @@ upload:
     video: ${VIDEO_UPLOAD_PATH:uploads/video/}
     audio: ${AUDIO_UPLOAD_PATH:uploads/audio/}
     thumbnail: ${THUMBNAIL_UPLOAD_PATH:uploads/thumbnails/}
+    # Ảnh thumbnail giáo trình (khác thumbnail video shadowing ở trên). Phục vụ tại /uploads/textbook-thumbnails/**.
+    textbook-thumbnail: ${TEXTBOOK_THUMBNAIL_UPLOAD_PATH:uploads/textbook-thumbnails}
+    # [JLAS2-17] Ảnh đoạn đọc do người biên soạn tải lên (≤ 5MB). Phục vụ tại /uploads/reading-images/**.
+    # Ảnh gốc của seed vẫn nằm trong content.audio.path và KHÔNG bao giờ bị ghi/xoá bởi tính năng này.
+    reading-image: ${READING_IMAGE_UPLOAD_PATH:uploads/reading-images}
 
 # Audio giáo trình số hoá (content_audio.audio_url là đường dẫn tương đối trong thư mục này).
 # Khác với upload.path.audio (audio người dùng tải lên). Phục vụ tại /uploads/content-audio/**.
+# Mặc định là data/content-audio/ (commit sẵn trong repo, tính từ thư mục gốc project) nên pull về là có,
+# không cần khai báo CONTENT_AUDIO_PATH.
 content:
   audio:
-    path: ${CONTENT_AUDIO_PATH:uploads/content-audio/}
+    path: ${CONTENT_AUDIO_PATH:data/content-audio/}
 
 ffmpeg:
   bin:
@@ -100,6 +115,9 @@ youtube:
       no-subtitle:
         seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
   subtitle:
+    # Drop anime opening/ending song lyrics found from [音楽] blocks in YouTube auto captions.
+    skip-theme-songs:
+      enabled: ${YOUTUBE_SUBTITLE_SKIP_THEME_SONGS:true}
     quality:
       enabled: ${YOUTUBE_SUBTITLE_QUALITY_ENABLED:true}
       max-duration-seconds: ${YOUTUBE_SUBTITLE_QUALITY_MAX_DURATION_SECONDS:300}

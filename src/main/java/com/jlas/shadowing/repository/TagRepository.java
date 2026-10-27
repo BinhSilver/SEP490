@@ -8,4 +8,5 @@ import java.util.Optional;
 @Repository("shadowingTagRepository")
 public interface TagRepository extends JpaRepository<Tag, Long> {
     Optional<Tag> findByNameAndTagType(String name, Tag.TagType tagType);
+    Optional<Tag> findByCode(String code);
 }

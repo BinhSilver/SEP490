@@ -129,7 +129,7 @@ def main():
             parser.error("Named database password environment variable is absent")
         env["MYSQL_PWD"] = env[args.password_env]
     result = subprocess.run(command, input=sql_input(args.owner_id, payload, media, args.publish), env=env,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300)
     sys.stdout.buffer.write(result.stdout)
     if result.returncode:
         sys.stderr.buffer.write(result.stderr)

@@ -147,9 +147,11 @@
       window.attachWatchTracker(media, videoId);
     }
     mediaVideoId = videoId;
-    media.src = window.mediaStreamUrl
-      ? window.mediaStreamUrl(videoId)
-      : '/api/videos/' + encodeURIComponent(videoId) + '/stream';
+    window.ShadowingYoutube.load(media, videoId, {
+      streamUrl: window.mediaStreamUrl
+        ? window.mediaStreamUrl(videoId)
+        : '/api/videos/' + encodeURIComponent(videoId) + '/stream'
+    });
     mediaPanel.classList.toggle('is-audio', Boolean(audioOnly));
   }
 

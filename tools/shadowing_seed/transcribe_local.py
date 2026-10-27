@@ -1,4 +1,4 @@
-"""Transcribe user-supplied local media on CPU; never sends audio to an API.
+"""Transcribe local media on CPU or a local GPU; never sends audio to an API.
 
 Install faster-whisper in an isolated environment first. Raw recognition output
 is evidence for editorial review, not automatically approved production content.
@@ -15,6 +15,16 @@ ROOT = Path(__file__).resolve().parents[2]
 CACHE = ROOT / "data/shadowing/.cache"
 
 
+def _add_cuda_dlls():
+    """On Windows the CUDA wheels keep their DLLs under site-packages/nvidia/*/bin, off the search path."""
+    import os
+    import sys
+    for base in map(Path, sys.path):
+        for bin_dir in (base / "nvidia").glob("*/bin"):
+            os.add_dll_directory(str(bin_dir))
+            os.environ["PATH"] = str(bin_dir) + os.pathsep + os.environ.get("PATH", "")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="+", type=Path)
@@ -22,9 +32,14 @@ def main():
     parser.add_argument("--model-dir", type=Path, help="Use already downloaded model weights")
     parser.add_argument("--language", help="Omit to detect the actual spoken language")
     parser.add_argument("--no-vad", action="store_true", help="Cross-check speech mixed with anime music")
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu",
+                        help="cuda needs the nvidia-cublas-cu12 and nvidia-cudnn-cu12 wheels in this environment")
     args = parser.parse_args()
+    if args.device == "cuda":
+        _add_cuda_dlls()
     from faster_whisper import WhisperModel
-    model = WhisperModel(str(args.model_dir) if args.model_dir else args.model, device="cpu", compute_type="int8", cpu_threads=8,
+    model = WhisperModel(str(args.model_dir) if args.model_dir else args.model, device=args.device,
+                         compute_type="int8" if args.device == "cpu" else "int8_float16", cpu_threads=8,
                          download_root=str(CACHE / "asr-models"))
     output = CACHE / "asr"
     output.mkdir(parents=True, exist_ok=True)

@@ -20,6 +20,7 @@ import com.jlas.shadowing.repository.VideoViewRepository;
 import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.VideoWatchSessionRepository;
 import com.jlas.shadowing.util.NullSafe;
+import com.jlas.shadowing.util.ShadowingModerationState;
 import com.jlas.shadowing.util.VideoOwnership;
 import com.jlas.shadowing.util.LibraryFilters;
 import com.jlas.shadowing.util.LibraryPopularity;
@@ -56,6 +57,7 @@ public class VideoService {
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private VideoViewRepository videoViews;
     @Autowired private ShadowingLibraryCatalog libraryCatalog;
+    @Autowired private ShadowingVideoTags videoTags;
     @Autowired private ShadowingQuestionBankRepository questionBank;
     @Autowired private YoutubeImportService youtubeImportService;
     @Autowired private YoutubeImportJobService youtubeImportJobService;
@@ -91,22 +93,31 @@ public class VideoService {
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false, null);
     }
 
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, null);
+    }
+
+    @Transactional
+    public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
+                             String category, List<String> tagNames, String targetLanguage,
+                             Boolean generateFurigana, List<String> genres) throws Exception {
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres);
     }
 
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
-                             Boolean generateFurigana) throws Exception {
+                             Boolean generateFurigana, List<String> genres) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
+        // Checked before the file is stored, so an invalid genre never leaves an orphan upload.
+        List<Tag> genreTags = videoTags.genreTags(genres);
 
         String originalFilename = file.getOriginalFilename();
         String extension = resolveExtension(originalFilename, file.getContentType());
@@ -165,6 +176,7 @@ public class VideoService {
         } else {
             video.setTags(resolveCategory(CategoryConstants.DEFAULT));
         }
+        video.setTags(ShadowingVideoTags.withGenres(video.getTags(), genreTags));
         if (thumbnail != null && !thumbnail.isEmpty()) {
             video.setThumbnailPath(saveThumbnail(thumbnail));
         }
@@ -307,6 +319,11 @@ public class VideoService {
             }
         }
 
+        // Removed videos never show up in any list, not even to their owner; reported ones only to the owner.
+        videos = videos.stream()
+                .filter(v -> !ShadowingModerationState.isRemoved(v.getModerationStatus()))
+                .collect(Collectors.toList());
+
         if (!categories.isEmpty()) {
             videos = videos.stream().filter(v -> v.getTags() != null && v.getTags().stream()
                     .anyMatch(t -> t.getName() != null && categories.contains(t.getName().toLowerCase(Locale.ROOT))))
@@ -337,9 +354,14 @@ public class VideoService {
     /** Rank and paginate lightweight metadata before loading subtitles and per-user state. */
     public LibraryPageDto<VideoSummaryDto> searchPage(String query, String category, String level, String sort,
             String scope, String status, boolean favorites, int page, int size) {
+        return searchPage(query, category, null, level, sort, scope, status, favorites, page, size);
+    }
+
+    public LibraryPageDto<VideoSummaryDto> searchPage(String query, String category, String genre, String level,
+            String sort, String scope, String status, boolean favorites, int page, int size) {
         Long me = CurrentUser.currentUserId().orElse(null);
         String client = me == null ? null : String.valueOf(me);
-        return libraryCatalog.videos(query, category, level, sort, scope, status, favorites, me, page, size)
+        return libraryCatalog.videos(query, category, genre, level, sort, scope, status, favorites, me, page, size)
                 .map(entry -> {
                     VideoSummaryDto dto = getSummary(entry.id(), client);
                     dto.setAvgRating(entry.metrics().ratingCount() > 0 ? entry.metrics().averageRating() : null);
@@ -357,9 +379,14 @@ public class VideoService {
         String ms = v.getModerationStatus();
         if (ms != null) {
             String u = ms.toUpperCase(Locale.ROOT);
-            if ("REVIEW".equals(u) || "BLOCKED".equals(u)) return false;
+            if ("REVIEW".equals(u) || "BLOCKED".equals(u) || ShadowingModerationState.isLocked(u)) return false;
         }
         return true;
+    }
+
+    private static boolean isModerator() {
+        return CurrentUser.hasRole("ROLE_MODERATOR") || CurrentUser.hasRole("ROLE_ADMIN")
+                || CurrentUser.hasRole("ROLE_SUPER_ADMIN");
     }
 
     private static boolean isOwner(Video v, Long userId) {
@@ -376,6 +403,15 @@ public class VideoService {
 
     public void requireReadable(Video video) {
         Long me = CurrentUser.currentUserId().orElse(null);
+        // Removed for a valid report: nobody may open it any more, owner included.
+        if (ShadowingModerationState.isRemoved(video.getModerationStatus())) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Video này đã bị gỡ do vi phạm bản quyền hoặc quy định cộng đồng.");
+        }
+        // Reported and hidden: only its owner and moderators (who decide the report) may still open it.
+        if (ShadowingModerationState.REPORTED.equalsIgnoreCase(video.getModerationStatus())
+                && (isOwner(video, me) || isModerator())) {
+            return;
+        }
         // Public library items, or owner (draft/private/processing)
         if (isPublicReady(video) || isOwner(video, me)) {
             return;
@@ -459,14 +495,25 @@ public class VideoService {
         requireOwner(video);
         if (req.getTitle() != null) {
             video.setTitle(req.getTitle());
-            video.setModerationStatus("NOT_SCANNED");
-            video.setModerationSummary(null);
-            video.setModerationCheckedAt(null);
+            // A reported or removed video stays locked; a rename must not clear that and trigger a fresh scan.
+            if (!ShadowingModerationState.isLocked(video.getModerationStatus())) {
+                video.setModerationStatus("NOT_SCANNED");
+                video.setModerationSummary(null);
+                video.setModerationCheckedAt(null);
+            }
         }
+        // Format and genres each replace only their own tags; level and series tags stay.
         if (req.getCategory() != null && !req.getCategory().isBlank()) {
-            video.setTags(resolveCategory(req.getCategory()));
+            video.setTags(ShadowingVideoTags.withFormat(video.getTags(), resolveCategory(req.getCategory())));
         } else if (req.getTags() != null) {
             video.setTags(resolveTags(req.getTags()));
+        }
+        if (req.getGenres() != null) {
+            try {
+                video.setTags(ShadowingVideoTags.withGenres(video.getTags(), videoTags.genreTags(req.getGenres())));
+            } catch (IllegalArgumentException e) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, e.getMessage());
+            }
         }
         if (req.getVisibility() != null && !req.getVisibility().isBlank()) {
             try {
@@ -483,6 +530,12 @@ public class VideoService {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
         actionPolicy.assertCanAct(CurrentUser.requireUserId());
+        if (ShadowingModerationState.isRemoved(video.getModerationStatus())) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Video này đã bị gỡ do vi phạm bản quyền hoặc quy định cộng đồng.");
+        }
+        if (ShadowingModerationState.isLocked(video.getModerationStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Video đang bị báo cáo, hãy chờ quản trị viên xem xét.");
+        }
         boolean wasPublic = video.getVisibility() == VideoVisibility.PUBLIC;
         Map<String, Object> validation = subtitleService.validate(id);
         // Only hard errors block publish — warnings (gaps, missing translation) are ignored here
@@ -659,10 +712,12 @@ public class VideoService {
         dto.setStatus(v.getStatus());
         dto.setThumbnailPath(v.getThumbnailPath());
         dto.setDuration(v.getDuration());
+        dto.setProcessingStep(v.getProcessingStep());
         dto.setProgressPercent(v.getProgressPercent());
         dto.setCreatedAt(v.getCreatedAt());
         dto.setTags(v.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList()));
         dto.setCategory(extractCategory(v));
+        dto.setGenres(ShadowingVideoTags.genresOf(v.getTags()));
         v.getTags().stream().map(Tag::getName).filter(Objects::nonNull)
                 .map(String::trim).filter(name -> name.matches("(?i)N[1-5]"))
                 .findFirst().ifPresent(level -> {

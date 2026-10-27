@@ -32,6 +32,7 @@
     ] },
     { title: 'Trò chơi', items: [
       { key: 'game-skins', label: 'Trang phục game', icon: 'fa-shirt', href: '/admin/game-skins', roles: ADMINS },
+      { key: 'avatar-frames', label: 'Khung avatar', icon: 'fa-crown', href: '/admin/avatar-frames', roles: ADMINS },
       { key: 'game-effects', label: 'Xem hiệu ứng game', icon: 'fa-gamepad', href: '/admin/game-effects', roles: MODERATION }
     ] },
     { title: 'Kiểm duyệt', items: [

@@ -18,7 +18,12 @@
   var sessionDone = false;
   var elapsedTimer = null;
   var totalSetCards = null;
-  var faceFields = { front: 'FRONT', back: 'BACK' };
+  var Faces = window.FlashStudyFaceFields;
+  var FACE_FIELDS_KEY = 'jlab.flashcard.faceFields';
+  var faceFields = readSavedFaceFields();
+  // Fields at least one card of the session has; a face just needs one non-empty field per card.
+  var faceAllowed = Faces.FIELDS.map(function (field) { return field.value; });
+  var faceDraft = null;
   var setDetail = null;
   var pendingRating = 0;
   var settingsListboxes = [];
@@ -28,6 +33,7 @@
   var sessionTitle = '';
   var focusActive = false;
   var swipeController = null;
+  var faceFitter = null;
   // Lướt thẻ: tắt "Theo dõi tiến độ" thì chỉ xem thẻ, không chấm Đã nhớ / Chưa thuộc và không lưu gì.
   var trackProgress = readTrackProgress();
 
@@ -89,6 +95,8 @@
       enabled: function () { return studyMode === 'BROWSE' && trackProgress && !sessionDone && !marking && cards.length > 0; },
       onSwipe: function (direction) { return markBrowse(direction === 'right'); }
     });
+    faceFitter = window.FlashStudyFitText.attach(document.getElementById('flip-card'),
+      [document.getElementById('face-front'), document.getElementById('face-back')], window);
     document.getElementById('btn-speak').addEventListener('click', function (event) {
       event.stopPropagation();
       speakJapanese();
@@ -192,10 +200,11 @@
     var studyTitle = document.getElementById('study-title');
     if (studyTitle) studyTitle.textContent = session.title || 'Học thẻ';
     sessionTitle = session.title || 'Học thẻ';
-    if (session.frontField) faceFields.front = session.frontField;
-    if (session.backField) faceFields.back = session.backField;
-    document.getElementById('face-front-field').value = faceFields.front;
-    document.getElementById('face-back-field').value = faceFields.back;
+    if (session.frontField || session.backField) {
+      faceFields = { front: session.frontField || faceFields.front, back: session.backField || faceFields.back };
+    }
+    faceAllowed = Faces.available(cards);
+    faceFields = Faces.sanitize(faceFields, faceAllowed, cards);
     syncSettingsListboxes();
 
     document.getElementById('study-complete').hidden = true;
@@ -229,6 +238,7 @@
     // so an existing card never renders as a blank face.
     document.getElementById('face-front').textContent = cardFace(c, faceFields.front);
     document.getElementById('face-back').textContent = cardFace(c, faceFields.back);
+    if (faceFitter) faceFitter.refit();
     var img = document.getElementById('face-image');
     if (c.image) {
       img.src = c.image;
@@ -247,17 +257,10 @@
     paintFocus();
   }
 
-  function cardFace(card, field) {
+  /* One line per chosen field (Kanji → Hiragana → Hán Việt → Nghĩa); `separator` joins them inline. */
+  function cardFace(card, fields, separator) {
     if (!card) return '';
-    var values = {
-      FRONT: card.front || card.kanji,
-      BACK: card.back || card.meaning || card.reading,
-      HAN_VIET: card.hanViet,
-      HIRAGANA: card.hiragana || card.reading,
-      READING: card.reading || card.hiragana,
-      MEANING: card.meaning || card.back
-    };
-    return values[String(field || '').toUpperCase()] || card.front || card.kanji || '';
+    return Faces.text(card, fields, separator) || card.front || card.kanji || '';
   }
 
   function flip() {
@@ -521,7 +524,7 @@
         var item = document.createElement('li');
         var word = document.createElement('strong');
         word.lang = 'ja';
-        word.textContent = cardFace(card, faceFields.front);
+        word.textContent = cardFace(card, faceFields.front, ' · ');
         var history = document.createElement('span');
         history.textContent = recall.attempts[id].join(' → ');
         item.append(word, history);
@@ -763,7 +766,8 @@
     var columns = [
       { label: 'Kanji', className: 'study-card-list__kanji', value: function (card) { return String(card.front || '').trim() || String(card.kanji || '').trim(); } },
       { label: 'Hiragana', className: 'study-card-list__hiragana', value: function (card) { return String(card.hiragana || '').trim() || String(card.reading || '').trim(); } },
-      { label: 'Hán Việt', className: 'study-card-list__han-viet', value: function (card) { return String(card.hanViet || '').trim(); } }
+      { label: 'Hán Việt', className: 'study-card-list__han-viet', value: function (card) { return String(card.hanViet || '').trim(); } },
+      { label: 'Nghĩa', className: 'study-card-list__meaning', value: function (card) { return String(card.meaning || '').trim() || String(card.back || '').trim(); } }
     ].filter(function (column) {
       return setCards.some(function (card) { return column.value(card); });
     });
@@ -1191,7 +1195,71 @@
 
   function openSettings() {
     syncSettingsListboxes();
+    faceDraft = { front: faceFields.front.slice(), back: faceFields.back.slice() };
+    renderFacePicker();
     document.getElementById('settings-modal').hidden = false;
+  }
+
+  function readSavedFaceFields() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(FACE_FIELDS_KEY) || 'null');
+      if (saved && saved.front && saved.back) return { front: Faces.normalize(saved.front), back: Faces.normalize(saved.back) };
+    } catch (e) { /* bỏ qua */ }
+    return { front: Faces.DEFAULTS.front.slice(), back: Faces.DEFAULTS.back.slice() };
+  }
+
+  /* Checkbox chips for both faces: 1-3 fields each, never the same field on both, never a blank face. */
+  function renderFacePicker() {
+    if (!faceDraft) return;
+    ['front', 'back'].forEach(function (face) {
+      var other = face === 'front' ? 'back' : 'front';
+      var host = document.querySelector('[data-face-picker="' + face + '"] .study-face-picker__options');
+      host.replaceChildren();
+      Faces.FIELDS.forEach(function (field) {
+        var checked = faceDraft[face].indexOf(field.value) >= 0;
+        var allowed = faceAllowed.indexOf(field.value) >= 0;
+        var onOther = faceDraft[other].indexOf(field.value) >= 0;
+        var full = !checked && faceDraft[face].length >= Faces.MAX_PER_FACE;
+        var label = document.createElement('label');
+        label.className = 'study-face-picker__option';
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = field.value;
+        input.checked = checked;
+        input.disabled = !checked && (!allowed || onOther || full);
+        input.addEventListener('change', function () {
+          var list = faceDraft[face].filter(function (value) { return value !== field.value; });
+          if (input.checked) list.push(field.value);
+          faceDraft[face] = Faces.normalize(list);
+          renderFacePicker();
+        });
+        var text = document.createElement('span');
+        text.textContent = field.label;
+        label.append(input, text);
+        // Mark fields some cards lack: those cards simply show the face's other fields.
+        var missing = allowed ? Faces.missingCount(cards, field.value) : 0;
+        var hints = [];
+        if (missing) {
+          var badge = document.createElement('small');
+          badge.className = 'study-face-picker__badge';
+          badge.textContent = 'thiếu ' + missing;
+          label.appendChild(badge);
+          hints.push(missing + '/' + cards.length + ' thẻ chưa có ' + field.label
+            + ' — các thẻ đó chỉ hiện những trường còn lại của mặt này');
+        }
+        if (!allowed) hints.push('Không thẻ nào trong bộ có ' + field.label);
+        else if (onOther) hints.push('Đang hiển thị ở mặt ' + (other === 'front' ? 'trước' : 'sau'));
+        else if (full) hints.push('Mỗi mặt chọn tối đa ' + Faces.MAX_PER_FACE + ' trường');
+        if (hints.length) label.title = hints.join('. ');
+        if (missing) input.setAttribute('aria-description', hints[0]);
+        host.appendChild(label);
+      });
+    });
+    var error = Faces.validate(faceDraft, faceAllowed, cards);
+    var errorBox = document.getElementById('face-picker-error');
+    errorBox.hidden = !error;
+    errorBox.textContent = error;
+    document.getElementById('btn-apply-settings').disabled = !!error;
   }
   function closeSettings() {
     document.getElementById('settings-modal').hidden = true;
@@ -1216,14 +1284,14 @@
   }
 
   async function applySettings() {
-    var front = document.getElementById('face-front-field').value;
-    var back = document.getElementById('face-back-field').value;
-    if (front === back) {
-      FlashShell.showToast('Mặt trước và mặt sau phải khác nhau', 'err');
+    var draft = faceDraft || faceFields;
+    var error = Faces.validate(draft, faceAllowed, cards);
+    if (error) {
+      FlashShell.showToast(error, 'err');
       return;
     }
-    faceFields.front = front;
-    faceFields.back = back;
+    faceFields = { front: Faces.normalize(draft.front), back: Faces.normalize(draft.back) };
+    try { localStorage.setItem(FACE_FIELDS_KEY, JSON.stringify(faceFields)); } catch (e) { /* bỏ qua */ }
     localStorage.setItem('jlab.flashcard.studyMode', studyMode);
     updateStudyModeUi();
     if (cards.length) renderCard();

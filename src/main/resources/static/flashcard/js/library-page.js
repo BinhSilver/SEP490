@@ -576,11 +576,18 @@
     return String(value || '').replace(/\s*[\r\n]+\s*/g, ' ').trim();
   }
 
-  /* Same columns and fallback as the server export: front, back (or reading — meaning), Hán Việt. */
+  /* Nghĩa: the stored meaning, else the back without its "reading — " prefix (same as the server export). */
+  function exportMeaning(card) {
+    if (card.meaning) return card.meaning;
+    var back = card.back || '';
+    var prefix = card.reading ? card.reading + ' — ' : '';
+    return prefix && back.indexOf(prefix) === 0 ? back.slice(prefix.length) : back;
+  }
+
+  /* Same four columns as the server export: Kanji, Cách đọc, Nghĩa, Hán Việt (the last one optional). */
   function exportRows() {
     return ((exportSet && exportSet.cards) || []).map(function (card) {
-      var back = card.back || [card.reading, card.meaning].filter(Boolean).join(' — ');
-      var cells = [card.front, back];
+      var cells = [card.front, card.reading, exportMeaning(card)];
       if (withHanViet()) cells.push(card.hanViet);
       return cells.map(flattenCell);
     });
@@ -591,14 +598,14 @@
     var termSep = selectedSeparator('export-term-sep', TERM_SEPARATORS, 'export-term-custom');
     var rowSep = selectedSeparator('export-row-sep', ROW_SEPARATORS, 'export-row-custom');
     return exportRows().map(function (cells) {
-      // Drop an empty trailing Hán Việt cell so the line does not end with a separator.
-      while (cells.length > 2 && !cells[cells.length - 1]) cells.pop();
+      // Drop an empty trailing Hán Việt cell; Kanji/Cách đọc/Nghĩa always stay so the import keeps column order.
+      while (cells.length > 3 && !cells[cells.length - 1]) cells.pop();
       return cells.join(termSep);
     }).join(rowSep);
   }
 
   function buildExportTable() {
-    var header = ['#', 'Mặt trước', 'Mặt sau'];
+    var header = ['#', 'Kanji', 'Cách đọc', 'Nghĩa'];
     if (withHanViet()) header.push('Hán Việt');
     var body = exportRows().map(function (cells, index) {
       return '<tr><th scope="row">' + (index + 1) + '</th>' +

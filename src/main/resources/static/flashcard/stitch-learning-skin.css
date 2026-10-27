@@ -1367,7 +1367,14 @@
 #jlabBasePage #jlabBaseContent .fc-selection__table td { padding: 8px; border-bottom: 1px solid var(--color-outline-variant, #dddbe5); text-align: left; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 #jlabBasePage #jlabBaseContent .fc-selection__table thead th { font-size: 12px; font-weight: 600; }
 #jlabBasePage #jlabBaseContent .fc-selection__table th:first-child { width: 34px; }
-#jlabBasePage #jlabBaseContent .fc-selection__table th:nth-child(2) { width: 30px; }
+#jlabBasePage #jlabBaseContent .fc-selection__table th:nth-child(2) { width: 48px; }
+/* Row numbers stay on one line (10, 84 ...) instead of breaking digit by digit. */
+#jlabBasePage #jlabBaseContent .fc-selection__table tbody th { white-space: nowrap; overflow-wrap: normal; font-variant-numeric: tabular-nums; }
+#jlabBasePage #jlabBaseContent .fc-selection__pager { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 12px; }
+#jlabBasePage #jlabBaseContent .fc-selection__page-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--color-outline-variant, #dddbe5); border-radius: 50%; background: var(--color-surface-lowest, #fff); color: var(--color-on-surface, #1d1d1f); cursor: pointer; }
+#jlabBasePage #jlabBaseContent .fc-selection__page-btn:hover:not(:disabled) { border-color: var(--color-primary, #6256b9); color: var(--color-primary, #6256b9); }
+#jlabBasePage #jlabBaseContent .fc-selection__page-btn:disabled { opacity: .4; cursor: default; }
+#jlabBasePage #jlabBaseContent .fc-selection__page-label { min-width: 150px; color: var(--color-on-surface-variant, #6e6e78); font-size: 13px; text-align: center; font-variant-numeric: tabular-nums; }
 #jlabBasePage #jlabBaseContent .fc-selection__table input { display: block; width: 18px; height: 18px; margin: 0; accent-color: var(--color-primary, #6256b9); }
 #jlabBasePage #jlabBaseContent .fc-selection__table input:disabled:checked { opacity: 1; }
 #jlabBasePage #jlabBaseContent .fc-selection__table small { display: block; margin-top: 4px; color: var(--color-on-surface-variant, #6e6e78); font-size: 11px; }

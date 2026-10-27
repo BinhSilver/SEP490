@@ -56,6 +56,9 @@ public class LessonContentResponse {
     /** Bài có quiz LESSON đã xuất bản → trang học hiện nút "Làm bài kiểm tra" (/learning/lesson/{id}/quiz). */
     private Boolean quizAvailable;
 
+    /** [JLAS2-17] Nguồn nội dung của bài (content_source.source_code của LESSON, vd VNJPCLUB); null = nội dung nhóm biên soạn. */
+    private String contentSource;
+
     @Data
     @Builder
     public static class PracticeQuestion {
@@ -83,5 +86,27 @@ public class LessonContentResponse {
         /** Audio riêng của câu (đường dẫn tương đối trong content.audio.path) và mục nghe mang file đó. */
         private String audioUrl;
         private Long audioContentItemId;
+        /** Đoạn văn của câu đọc hiểu (assessment_question.passage_html); có thể null. */
+        private String passageHtml;
+        /** Ảnh đoạn văn / minh hoạ (assessment_question.image_url): tương đối trong content.audio.path, hoặc URL/đường dẫn tuyệt đối. */
+        private String imageUrl;
+        /** Mã gốc của đoạn văn (context_json.passage_code); trùng parentCode khi đoạn văn chính là bài đọc chứa câu. */
+        private String passageCode;
+        /**
+         * Mọi ảnh đoạn văn của câu theo thứ tự: image_url rồi context_json.passage_images (đoạn văn nhiều trang),
+         * không trùng. Rỗng khi không có ảnh. image_url là ảnh của chính câu hỏi (có trong question_images — câu chỉ có
+         * ảnh đề, không có ảnh đoạn văn) thì không tính là ảnh đoạn văn.
+         */
+        private List<String> passageImages;
+        /**
+         * Ảnh của chính câu hỏi (tranh để chọn, hình minh hoạ đề): context_json.question_images (mảng) hoặc
+         * context_json.question_image (một đường dẫn), theo thứ tự trang nguồn.
+         */
+        private List<String> questionImages;
+        /**
+         * [JLAS2-17] Ảnh dùng chung của bài đọc / bài nghe chứa câu (tranh bài nghe, tranh bài tập, hình minh hoạ):
+         * context_json.common_images. Mọi câu cùng bài đọc / nghe mang cùng danh sách; trang học hiện một lần ở đầu khối.
+         */
+        private List<String> commonImages;
     }
 }

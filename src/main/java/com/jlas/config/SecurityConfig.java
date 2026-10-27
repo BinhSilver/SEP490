@@ -56,6 +56,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/kanji-map", "/api/admin/kanji-map/**").hasRole("CONTENT_CREATOR")
                         .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
                         .hasRole("CONTENT_CREATOR")
+                        .requestMatchers("/admin/verb-practice", "/api/admin/verb-practice/**")
+                        .hasRole("CONTENT_CREATOR")
                         // JLAS2-51: System Admin area; moderators have no access.
                         .requestMatchers("/admin/system", "/admin/system/**", "/api/admin/system/**")
                         .hasRole("ADMIN")
@@ -64,10 +66,12 @@ public class SecurityConfig {
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
                         .requestMatchers("/admin/game-skins", "/api/admin/game-skins", "/api/admin/game-skins/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
+                        .hasRole("ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/error").permitAll()
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
@@ -82,6 +86,8 @@ public class SecurityConfig {
                                 "/api/learning/curriculum", "/api/learning/lessons/**",
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Danh mục hiển thị khung avatar: khung hiện cả ở trang không cần đăng nhập.
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/avatar-frames").permitAll()
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
                         .requestMatchers("/api/mission/kana-connect/**").authenticated()
                         .requestMatchers(

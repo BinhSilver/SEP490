@@ -16,7 +16,19 @@
 
         <header class="textbooks-hero textbooks-hero--compact" id="editorHeader" hidden>
             <p class="textbooks-hero__eyebrow" id="editorContext"></p>
-            <h1 class="textbooks-hero__title" id="editorTitle"></h1>
+            <!-- [JLAS2-17] Lối về trang học viên + xem trước bài (tab mới); href bài do lesson-editor.js điền khi có textbookId -->
+            <div class="tb-hero-row">
+                <h1 class="textbooks-hero__title" id="editorTitle"></h1>
+                <div class="tb-hero-links">
+                    <a class="manage-btn tb-learner-link" id="editorPreviewLesson" href="#" target="_blank" rel="noopener" hidden>
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i> Xem trước bài này
+                    </a>
+                    <a class="manage-btn tb-learner-link" th:href="@{/textbooks}" target="_blank" rel="noopener"
+                       aria-label="Xem trang học viên: danh sách giáo trình (mở tab mới)">
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Xem trang học viên
+                    </a>
+                </div>
+            </div>
             <div class="textbooks-hero__meta" id="editorMeta"></div>
         </header>
 
@@ -180,11 +192,14 @@
         </div>
     </div>
 
+    <!-- [JLAS2-17] Hộp xác nhận dùng chung (import, chưa lưu, xoá) — lesson-editor.js dựng nội dung -->
+    <div class="editor-dlg-host" id="editorDialog" hidden></div>
+
     <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 
     <script th:src="@{/js/pages/admin-core.js}"></script>
     <script th:src="@{/js/admin-shell.js}"></script>
-    <script th:src="@{/js/pages/lesson-editor.js(v=20261013portal)}"></script>
+    <script th:src="@{/js/pages/lesson-editor.js(v=20261018tts)}"></script>
 
 </body>
 
