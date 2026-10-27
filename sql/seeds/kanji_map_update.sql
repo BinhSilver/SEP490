@@ -56130,4 +56130,3 @@ INSERT INTO kanji_map_dataset(id,graph_version,source_sha256,sources_json,node_c
 COMMIT;
 
 SET SESSION sql_mode = @kanji_map_previous_sql_mode;
-

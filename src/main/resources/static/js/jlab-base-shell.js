@@ -441,8 +441,8 @@
     var isTextbooks = path === '/textbooks' || path.indexOf('/textbooks/') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
     var isKanjiMap = path === '/dictionary/kanji-map' || path === '/dictionary/kanji-map.html';
-    var isDictionary = path === '/dictionary/index' || path === '/dictionary' ||
-      path.indexOf('/dictionary/') === 0;
+    var isDictionary = !isKanjiMap && (path === '/dictionary/index' || path === '/dictionary' ||
+      path.indexOf('/dictionary/') === 0);
     var isAiCall = path === '/ai-call' ||
       path.indexOf('/ai-call/') === 0 ||
       path.indexOf('/category/') === 0 ||
