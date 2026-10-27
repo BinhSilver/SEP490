@@ -3,9 +3,11 @@
   window.NotebookKanjiCard = {
     create: function () {
       var $ = function (id) { return document.getElementById('notebookKanji' + id); };
-      var animations = [], current = null, expanded = false;
+      var animations = [], current = null, diagramMotion = null, currentDiagram = null;
       var namespace = 'http://www.w3.org/2000/svg';
-      function stop() { animations.forEach(function (animation) { animation.cancel(); }); animations = []; }
+      function stopStrokes() { animations.forEach(function (animation) { animation.cancel(); }); animations = []; }
+      function stopDiagram() { if (diagramMotion) diagramMotion.destroy(); diagramMotion = null; }
+      function stop() { stopStrokes(); stopDiagram(); }
       function svg(tag, attributes, text) {
         var element = document.createElementNS(namespace, tag);
         Object.keys(attributes || {}).forEach(function (key) { element.setAttribute(key, attributes[key]); });
@@ -13,52 +15,48 @@
         return element;
       }
       function diagram() {
-        var canvas = $('Diagram'); canvas.replaceChildren();
-        var data = current && current.kanji || {};
-        var allLeft = Array.from(new Set(data.components || [])).filter(function (ch) { return ch !== current.expression; });
-        var allRight = Array.from(new Set(data.usedIn || [])).filter(function (ch) { return ch !== current.expression; });
-        var left = expanded ? allLeft : allLeft.slice(0, 4);
-        var right = expanded ? allRight : allRight.slice(0, 4);
-        var extra = allLeft.length + allRight.length - left.length - right.length;
-        $('NoRelations').hidden = allLeft.length + allRight.length > 0;
-        $('More').hidden = !extra && !expanded;
-        $('More').textContent = expanded ? 'Thu gọn liên kết' : 'Xem thêm ' + extra + ' liên kết';
-        $('More').setAttribute('aria-expanded', String(expanded));
-        var height = Math.max(220, Math.max(left.length, right.length) * 58 + 56);
-        var centerY = 38 + (height - 38) / 2;
-        canvas.setAttribute('viewBox', '0 0 360 ' + height);
-        canvas.setAttribute('aria-label', 'Thành phần tạo nên ' + current.expression + ' và các chữ có chứa ' + current.expression);
-        canvas.append(svg('text', { x: 48, y: 17, class: 'notebook-graph-caption' }, 'Thành phần'),
-          svg('text', { x: 180, y: 17, class: 'notebook-graph-caption' }, 'Đang ôn'),
-          svg('text', { x: 312, y: 17, class: 'notebook-graph-caption' }, 'Chữ liên quan'));
-        var defs = svg('defs'), marker = svg('marker', { id: 'notebookGraphArrow', viewBox: '0 0 6 6', refX: 5, refY: 3, markerWidth: 5, markerHeight: 5, orient: 'auto' });
-        marker.appendChild(svg('path', { d: 'M0 0L6 3L0 6Z', class: 'notebook-graph-arrow' }));
-        defs.appendChild(marker); canvas.appendChild(defs);
-        function y(index, count) { return centerY + (index - (count - 1) / 2) * 58; }
-        function link(fromX, fromY, toX, toY) {
-          canvas.appendChild(svg('path', { d: 'M' + fromX + ' ' + fromY + ' C' + ((fromX + toX) / 2) + ' ' + fromY + ' ' + ((fromX + toX) / 2) + ' ' + toY + ' ' + toX + ' ' + toY,
-            class: 'notebook-graph-edge', 'marker-end': 'url(#notebookGraphArrow)' }));
-        }
-        left.forEach(function (ch, i) { link(72, y(i, left.length), 146, centerY); });
-        right.forEach(function (ch, i) { link(214, centerY, 287, y(i, right.length)); });
-        function node(ch, x, nodeY, center) {
-          var group = svg(center ? 'g' : 'a', { class: 'notebook-graph-node' + (center ? ' is-current' : '') });
-          if (!center) {
-            group.setAttribute('href', '/dictionary/kanji-map?kanji=' + encodeURIComponent(ch));
-            group.setAttribute('target', '_blank'); group.setAttribute('rel', 'noopener');
-            group.setAttribute('aria-label', 'Xem liên kết chữ ' + ch);
-          }
-          var label = ch.startsWith('CDP-') ? ch.slice(4) : ch;
-          group.append(svg('title', {}, ch), svg('circle', { cx: x, cy: nodeY, r: center ? 32 : 24 }),
-            svg('text', { x: x, y: nodeY, class: ch.startsWith('CDP-') ? 'is-code' : '', lang: 'ja' }, label));
-          canvas.appendChild(group);
-        }
-        left.forEach(function (ch, i) { node(ch, 48, y(i, left.length), false); });
-        right.forEach(function (ch, i) { node(ch, 312, y(i, right.length), false); });
-        node(current.expression, 180, centerY, true);
+        var canvas = $('Diagram'); canvas.replaceChildren(); currentDiagram = null;
+        var data = current.kanji || {};
+        var parts = Array.from(new Set(data.components || [])).filter(function (ch) { return ch !== current.expression; });
+        canvas.hidden = !parts.length; $('Motion').hidden = !parts.length; $('NoRelations').hidden = !!parts.length;
+        if (!parts.length) return;
+        var width = 280, height = Math.max(160, (parts.length - 1) * 78 + 80);
+        var nodes = parts.map(function (ch, i) {
+          return { node: { character: ch }, x: 48, y: parts.length === 1 ? height / 2 : 40 + i * 78, selected: false };
+        });
+        var target = { node: { character: current.expression }, x: 232, y: height / 2, selected: true };
+        var edges = nodes.map(function (item) {
+          var dx = target.x - item.x, dy = target.y - item.y, distance = Math.hypot(dx, dy);
+          return { from: item.node.character, to: current.expression, points: [
+            { x: item.x + dx / distance * 26, y: item.y + dy / distance * 26 },
+            { x: target.x - dx / distance * 28, y: target.y - dy / distance * 28 }
+          ] };
+        });
+        nodes.push(target); currentDiagram = { nodes: nodes, edges: edges, width: width, height: height };
+        canvas.style.aspectRatio = width + '/' + height;
+        var drawing = svg('svg', { viewBox: '0 0 ' + width + ' ' + height, 'aria-hidden': 'true' });
+        var defs = svg('defs'), marker = svg('marker', { id: 'notebookGraphArrow', viewBox: '0 0 10 10', refX: 10, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto' });
+        marker.appendChild(svg('polygon', { points: '0,0 10,5 0,10' })); defs.appendChild(marker); drawing.appendChild(defs);
+        edges.forEach(function (edge) {
+          drawing.appendChild(svg('path', { 'data-from': edge.from, 'data-to': edge.to,
+            'marker-end': 'url(#notebookGraphArrow)', d: 'M' + edge.points[0].x + ',' + edge.points[0].y + ' L' + edge.points[1].x + ',' + edge.points[1].y }));
+        });
+        canvas.appendChild(drawing);
+        nodes.forEach(function (item) {
+          var ch = item.node.character, button = document.createElement('button');
+          button.type = 'button'; button.lang = 'ja'; button.dataset.part = ch;
+          button.className = 'km-detail-graph-node' + (item.selected ? ' is-current' : '') + (ch.startsWith('CDP-') ? ' is-cdp' : '');
+          button.textContent = ch; button.title = ch;
+          button.setAttribute('aria-label', item.selected ? 'Chữ đang học: ' + ch : 'Xem thành phần ' + ch);
+          if (item.selected) button.setAttribute('aria-current', 'true');
+          button.style.left = item.x / width * 100 + '%'; button.style.top = item.y / height * 100 + '%'; canvas.appendChild(button);
+        });
+      }
+      function animateDiagram() {
+        if (currentDiagram && !diagramMotion && window.KanjiMapDiagram) diagramMotion = window.KanjiMapDiagram.mount($('Diagram'), currentDiagram);
       }
       function replay() {
-        stop();
+        stopStrokes();
         if (!current || $('Study').hidden || !$('Writing').open) return;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         Array.from($('Strokes').querySelectorAll('path')).forEach(function (path, index) {
@@ -69,7 +67,7 @@
         });
       }
       function prepare(card) {
-        stop(); current = card && card.type === 'KANJI' ? card : null; expanded = false;
+        stop(); current = card && card.type === 'KANJI' ? card : null; currentDiagram = null;
         $('Study').hidden = true; $('Writing').open = false;
         $('Strokes').replaceChildren(); $('Diagram').replaceChildren();
         if (!current) return;
@@ -88,8 +86,11 @@
       }
       $('Writing').addEventListener('toggle', function () { if (this.open) replay(); else stop(); });
       $('Replay').addEventListener('click', replay);
-      $('More').addEventListener('click', function () { if (current) { expanded = !expanded; diagram(); } });
-      return { prepare: prepare, reveal: function (show) { $('Study').hidden = !current || !show; if (show) replay(); else stop(); }, stop: stop };
+      $('Diagram').addEventListener('click', function (event) {
+        var button = event.target.closest('[data-part]');
+        if (button && !button.classList.contains('is-current')) window.open('/dictionary/kanji-map?kanji=' + encodeURIComponent(button.dataset.part), '_blank', 'noopener');
+      });
+      return { prepare: prepare, reveal: function (show) { $('Study').hidden = !current || !show; if (current && show) { replay(); animateDiagram(); } else stop(); }, stop: stop };
     }
   };
 })();

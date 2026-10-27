@@ -410,7 +410,10 @@
   }
   $('notebookCardFlip').addEventListener('click', flipStudyCard);
   $('notebookCard').addEventListener('click', function (event) {
-    if (event.target.closest('button, a, details, .notebook-kanji-structure')) return;
+    var interactive = event.composedPath().some(function (node) {
+      return node.nodeType === 1 && node.matches('button, a, details, .notebook-kanji-structure');
+    });
+    if (interactive) return;
     if (window.getSelection().toString()) return;
     flipStudyCard();
   });
@@ -419,7 +422,6 @@
     if (!button || !state.studyCard || state.studyBusy || $('notebookRatings').hidden) return;
     state.studyBusy = true;
     var card = state.studyCard, bookId = state.active.id, revision = studyRevision;
-    kanjiCard.stop();
     var buttons = $('notebookRatings').querySelectorAll('button');
     buttons.forEach(function (item) { item.disabled = true; });
     try {

@@ -80,9 +80,8 @@
                                 <button id="notebookKanjiReplay" type="button">↻ Phát lại</button>
                                 <p id="notebookKanjiNoStrokes" hidden>Chưa có dữ liệu nét viết.</p>
                             </details>
-                            <section class="notebook-kanji-structure" aria-labelledby="notebookKanjiDiagramTitle"><h2 id="notebookKanjiDiagramTitle">Sơ đồ liên kết</h2>
-                                <div class="notebook-kanji-diagram-scroll"><svg id="notebookKanjiDiagram" role="img" aria-label="Liên kết giữa Kanji và các thành phần"></svg></div>
-                                <button id="notebookKanjiMore" type="button" hidden>Xem thêm liên kết</button>
+                            <section class="notebook-kanji-structure" aria-labelledby="notebookKanjiDiagramTitle"><div class="notebook-kanji-diagram-heading"><h2 id="notebookKanjiDiagramTitle">Sơ đồ liên kết</h2><button id="notebookKanjiMotion" class="notebook-diagram-motion" type="button" data-diagram-motion aria-label="Tạm dừng chuyển động sơ đồ" aria-pressed="false"></button></div>
+                                <div id="notebookKanjiDiagram" class="km-detail-graph notebook-component-diagram" role="group" aria-label="Các thành phần nối vào Kanji đang học"></div>
                                 <p id="notebookKanjiNoRelations" hidden>Chưa có dữ liệu liên kết cho chữ này.</p>
                             </section>
                         </div>
@@ -126,7 +125,8 @@
     </dialog>
 </main>
 <script th:src="@{/js/jlab-base-shell.js?v=8}"></script>
-<script th:src="@{/js/pages/notebook-kanji-card.js(v='20261027-notebook-unified')}"></script>
-<script th:src="@{/js/pages/weakness-notebook.js(v='20261027-notebook-unified')}"></script>
+<script th:src="@{/js/pages/kanji-map-diagram.js}"></script>
+<script th:src="@{/js/pages/notebook-kanji-card.js(v='20261027-component-diagram')}"></script>
+<script th:src="@{/js/pages/weakness-notebook.js(v='20261027-component-diagram')}"></script>
 </body>
 </html>
