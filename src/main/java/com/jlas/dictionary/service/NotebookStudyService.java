@@ -2,6 +2,7 @@ package com.jlas.dictionary.service;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.flashcard.util.SrsUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.Set;
 
-/** Flashcard scheduling for manually saved vocabulary in personal and custom notebooks. */
+/** Flashcard scheduling for vocabulary in personal, custom, and weakness notebooks. */
 @Service
 @RequiredArgsConstructor
 public class NotebookStudyService {
@@ -28,8 +28,9 @@ public class NotebookStudyService {
     public record Session(Card card, int dueCount, int newCount, int newRemaining, int dailyNewLimit,
                           Map<String, String> intervals) {}
     public record Schedule(String rating, LocalDateTime dueAt, int intervalDays, double easeFactor) {}
-    private record Progress(double easeFactor, int repetitions, int intervalDays, LocalDateTime dueAt) {}
-    private record Outcome(double easeFactor, int repetitions, int intervalDays, LocalDateTime dueAt) {}
+    private record Progress(BigDecimal easeFactor, int repetitions, int intervalDays, LocalDateTime dueAt) {
+        private SrsUtil.State state() { return SrsUtil.State.of(repetitions, intervalDays, easeFactor, dueAt); }
+    }
 
     @Transactional(readOnly = true)
     public Session next(Long userId, Long notebookId) {
@@ -47,7 +48,7 @@ public class NotebookStudyService {
             List<Card> fresh = jdbc.query("SELECT v.id,v.expression,v.reading,v.meaning,v.example_ja,v.example_vi FROM user_notebook_entry e JOIN vocabulary_entry v ON v.id=e.vocabulary_id LEFT JOIN user_notebook_review r ON r.notebook_id=e.notebook_id AND r.vocabulary_id=e.vocabulary_id WHERE e.notebook_id=? AND r.vocabulary_id IS NULL ORDER BY e.created_at,e.vocabulary_id LIMIT 1",
                     (rs, row) -> new Card(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), true), notebookId);
             if (!fresh.isEmpty()) return new Session(fresh.getFirst(), dueCount, unseen, remaining, dailyNewLimit,
-                    intervals(new Progress(2.5, 0, 0, now), now));
+                    intervals(new Progress(SrsUtil.DEFAULT_EASINESS, 0, 0, now), now));
         }
         return new Session(null, dueCount, unseen, remaining, dailyNewLimit, Map.of());
     }
@@ -71,7 +72,7 @@ public class NotebookStudyService {
 
         LocalDateTime now = LocalDateTime.now();
         List<Progress> rows = jdbc.query("SELECT ease_factor,repetitions,interval_days,due_at FROM user_notebook_review WHERE notebook_id=? AND vocabulary_id=? FOR UPDATE",
-                (rs, row) -> new Progress(rs.getDouble(1), rs.getInt(2), rs.getInt(3), rs.getTimestamp(4).toLocalDateTime()), notebookId, vocabularyId);
+                (rs, row) -> new Progress(rs.getBigDecimal(1), rs.getInt(2), rs.getInt(3), rs.getTimestamp(4).toLocalDateTime()), notebookId, vocabularyId);
         if (rows.isEmpty()) {
             if (introducedToday(notebookId) >= dailyNewLimit(notebookId))
                 throw new ApiException(ErrorCode.CONFLICT, "Đã đủ mục tiêu từ mới hôm nay. Bạn có thể tăng mục tiêu hoặc học tiếp vào ngày mai.");
@@ -80,50 +81,26 @@ public class NotebookStudyService {
             throw new ApiException(ErrorCode.CONFLICT, "Từ này chưa tới hạn ôn.");
         }
 
-        Outcome result = calculate(rows.isEmpty() ? new Progress(2.5, 0, 0, now) : rows.getFirst(), rating, now);
+        Progress old = rows.isEmpty() ? new Progress(SrsUtil.DEFAULT_EASINESS, 0, 0, now) : rows.getFirst();
+        int quality = switch (rating) { case "AGAIN" -> 1; case "HARD" -> 3; case "GOOD" -> 4; case "EASY" -> 5; default -> throw new ApiException(ErrorCode.VALIDATION_FAILED); };
+        SrsUtil.Schedule result = SrsUtil.review(old.state(), quality, now);
         jdbc.update("UPDATE user_notebook_review SET ease_factor=?,repetitions=?,interval_days=?,due_at=?,last_reviewed_at=? WHERE notebook_id=? AND vocabulary_id=?",
-                BigDecimal.valueOf(result.easeFactor()), result.repetitions(), result.intervalDays(), result.dueAt(), now, notebookId, vocabularyId);
-        return new Schedule(rating, result.dueAt(), result.intervalDays(), result.easeFactor());
-    }
-
-    private static Outcome calculate(Progress old, String rating, LocalDateTime now) {
-        double ease = old.easeFactor();
-        int repetitions = old.repetitions();
-        int interval = old.intervalDays();
-        LocalDateTime due;
-        switch (rating) {
-            case "AGAIN" -> { repetitions = 0; interval = 0; due = now.plusMinutes(1); }
-            case "HARD" -> {
-                ease = Math.max(1.3, ease - 0.14);
-                if (repetitions == 0) { interval = 0; due = now.plusMinutes(10); }
-                else { repetitions++; interval = clamp(Math.ceil(interval * 1.2)); due = now.plusDays(interval); }
-            }
-            case "GOOD" -> {
-                repetitions++;
-                interval = repetitions == 1 ? 1 : repetitions == 2 ? 6 : clamp(Math.ceil(interval * ease));
-                due = now.plusDays(interval);
-            }
-            case "EASY" -> {
-                ease = Math.min(3.0, ease + 0.1);
-                repetitions++;
-                interval = repetitions == 1 ? 4 : clamp(Math.ceil(Math.max(6, interval * ease * 1.3)));
-                due = now.plusDays(interval);
-            }
-            default -> throw new ApiException(ErrorCode.VALIDATION_FAILED);
-        }
-        return new Outcome(ease, repetitions, interval, due);
+                result.easiness(), result.repetitions(), result.intervalDays(), result.nextReviewAt(), now, notebookId, vocabularyId);
+        return new Schedule(rating, result.nextReviewAt(), result.intervalDays(), result.easiness().doubleValue());
     }
 
     private List<Progress> progress(Long notebookId, Long vocabularyId) {
         return jdbc.query("SELECT ease_factor,repetitions,interval_days,due_at FROM user_notebook_review WHERE notebook_id=? AND vocabulary_id=?",
-                (rs, row) -> new Progress(rs.getDouble(1), rs.getInt(2), rs.getInt(3), rs.getTimestamp(4).toLocalDateTime()), notebookId, vocabularyId);
+                (rs, row) -> new Progress(rs.getBigDecimal(1), rs.getInt(2), rs.getInt(3), rs.getTimestamp(4).toLocalDateTime()), notebookId, vocabularyId);
     }
 
     private static Map<String, String> intervals(Progress progress, LocalDateTime now) {
-        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> result = new java.util.LinkedHashMap<>();
+        Map<Integer, Integer> preview = SrsUtil.preview(progress.state(), now);
         for (String rating : List.of("AGAIN", "HARD", "GOOD", "EASY")) {
-            Outcome outcome = calculate(progress, rating, now);
-            result.put(rating, outcome.intervalDays() == 0 ? (rating.equals("AGAIN") ? "1 phút" : "10 phút") : outcome.intervalDays() + " ngày");
+            int quality = switch (rating) { case "AGAIN" -> 1; case "HARD" -> 3; case "GOOD" -> 4; default -> 5; };
+            int days = preview.get(quality);
+            result.put(rating, days <= 0 ? "Hôm nay" : days + " ngày");
         }
         return result;
     }
@@ -151,5 +128,4 @@ public class NotebookStudyService {
         return value == null ? 0 : value;
     }
 
-    private static int clamp(double days) { return (int) Math.max(1, Math.min(3650, days)); }
 }
