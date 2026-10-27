@@ -107,8 +107,8 @@ public class NotebookStudyService {
 
     private void requireStudyNotebook(Long userId, Long notebookId) {
         if (userId == null || userId <= 0) throw new ApiException(ErrorCode.UNAUTHORIZED);
-        if (notebookId == null || count("SELECT COUNT(*) FROM user_notebook WHERE id=? AND user_id=? AND notebook_type IN ('PERSONAL','CUSTOM')", notebookId, userId) == 0)
-            throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy sổ tay thường.");
+        if (notebookId == null || count("SELECT COUNT(*) FROM user_notebook WHERE id=? AND user_id=? AND notebook_type IN ('PERSONAL','CUSTOM','WEAKNESS')", notebookId, userId) == 0)
+            throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy sổ tay.");
     }
 
     private int introducedToday(Long notebookId) {
