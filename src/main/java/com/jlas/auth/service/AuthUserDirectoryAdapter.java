@@ -28,6 +28,19 @@ public class AuthUserDirectoryAdapter implements UserDirectoryPort {
     }
 
     @Override
+    public Map<Long, String> displayNames(Collection<Long> userIds) {
+        Map<Long, String> result = new HashMap<>();
+        if (userIds == null || userIds.isEmpty()) return result;
+        List<Long> ids = userIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) return result;
+        userRepository.findAllById(ids).forEach(user -> {
+            String name = user.getFullName();
+            if (name != null && !name.isBlank()) result.put(user.getId(), name.trim());
+        });
+        return result;
+    }
+
+    @Override
     public Map<Long, String> avatarUrls(Collection<Long> userIds) {
         Map<Long, String> result = new HashMap<>();
         if (userIds == null || userIds.isEmpty()) return result;

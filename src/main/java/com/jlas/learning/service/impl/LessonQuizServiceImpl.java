@@ -421,6 +421,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 question.getQuestionType(),
                 question.getQuestionText(),
                 question.getPassageHtml(),
+                question.getImageUrl(),
                 optionsOf(question),
                 focusOf(question));
     }

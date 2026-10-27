@@ -59,6 +59,12 @@ public class AdminPageController {
         return "admin/workspace";
     }
 
+    @GetMapping("/admin/avatar-frames")
+    public String avatarFrames(Model model) {
+        model.addAttribute("section", "avatar-frames");
+        return "admin/workspace";
+    }
+
     @GetMapping("/admin/game-effects/preview")
     public String gameEffectsPreview() {
         return "admin/game-effects-preview";

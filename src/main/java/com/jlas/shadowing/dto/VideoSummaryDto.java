@@ -1,5 +1,6 @@
 package com.jlas.shadowing.dto;
 
+import com.jlas.shadowing.model.ProcessingStep;
 import com.jlas.shadowing.model.VideoStatus;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -12,9 +13,11 @@ public class VideoSummaryDto {
     private VideoStatus status;
     private String thumbnailPath;
     private Double duration;
+    private ProcessingStep processingStep;
     private Integer progressPercent;
     private List<String> tags;
     private String category;
+    private List<GenreOption> genres = List.of();
     private String estimatedLevel;
     private String levelSource;
     private LocalDateTime createdAt;

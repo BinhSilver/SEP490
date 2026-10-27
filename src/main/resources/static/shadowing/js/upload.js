@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInfo = document.getElementById('file-info');
     const titleInput = document.getElementById('title-input');
     const fileCategorySelect = document.getElementById('file-category-select');
+    window.ShadowingGenres.bind(document.getElementById('file-genres'));
+    window.ShadowingGenres.bind(document.getElementById('yt-genres'));
     const fileLangSelect = document.getElementById('file-lang-select');
     const uploadBtn = document.getElementById('upload-btn');
     const fileStatus = document.getElementById('file-status');
@@ -260,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedThumb) formData.append('thumbnail', selectedThumb);
         formData.append('title', titleInput.value.trim());
         formData.append('category', fileCategorySelect.value);
+        window.ShadowingGenres.read(document.getElementById('file-genres')).forEach(code => formData.append('genres', code));
         formData.append('targetLanguage', fileLangSelect.value);
         formData.append('generateFurigana', wantAi ? 'true' : 'false');
 
@@ -475,6 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     url: analyzedUrl,
                     category: ytCategorySelect.value,
+                    genres: window.ShadowingGenres.read(document.getElementById('yt-genres')),
                     targetLanguage: ytLangSelect.value,
                     generateFurigana: wantAi
                 })

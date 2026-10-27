@@ -65,6 +65,7 @@ public class VideoModerationService {
             log.error("Async video moderation failed id={}: {}", videoId, e.getMessage(), e);
             try {
                 videoRepository.findById(NullSafe.longId(videoId)).ifPresent(video -> {
+                    if (com.jlas.shadowing.util.ShadowingModerationState.isLocked(video.getModerationStatus())) return;
                     video.setModerationStatus(ModerationVerdict.ERROR.name());
                     video.setModerationSummary("Moderation error: " + e.getMessage());
                     video.setModerationCheckedAt(LocalDateTime.now());
@@ -256,6 +257,8 @@ public class VideoModerationService {
     }
 
     private void applyToVideo(Video video, ModerationResult result, Long moderationLogId) {
+        // Reported / removed videos are decided by moderators; an AI rescan must not overwrite that.
+        if (com.jlas.shadowing.util.ShadowingModerationState.isLocked(video.getModerationStatus())) return;
         video.setModerationStatus(result.getVerdict() != null ? result.getVerdict().name() : "ERROR");
         video.setModerationSummary(result.getSummary());
         video.setModerationCheckedAt(LocalDateTime.now());

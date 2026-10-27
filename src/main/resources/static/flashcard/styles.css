@@ -17,7 +17,7 @@
   --wrong: #ba1a1a;
   --wrong-bg: #ffdad6;
   --warning: #765b00;
-  --star: #765b00;
+  --star: var(--color-star, #f5a400);
   --text-primary: #161d1f;
   --text-secondary: #494551;
   --text-muted: #7a7582;
@@ -46,7 +46,7 @@
   --wrong: #ba1a1a;
   --wrong-bg: #ffdad6;
   --warning: #765b00;
-  --star: #765b00;
+  --star: var(--color-star, #f5a400);
   --text-primary: #161d1f;
   --text-secondary: #494551;
   --text-muted: #7a7582;
@@ -1765,7 +1765,7 @@ kbd {
 
 .star-rating .star-btn.filled,
 .star-rating .star-btn.filled i {
-  color: #f5a623;
+  color: var(--color-star, #f5a400);
 }
 
 .star-rating.interactive .star-btn {
@@ -2003,7 +2003,7 @@ kbd {
   --wrong: #c52f5a;
   --wrong-bg: rgba(197, 47, 90, 0.09);
   --warning: #b7671b;
-  --star: #d9981a;
+  --star: var(--color-star, #f5a400);
   --text-primary: #24151b;
   --text-secondary: #6f5961;
   --text-muted: #967984;
@@ -3335,7 +3335,7 @@ html[data-theme="dark"] {
     --wrong: var(--dm-flashcard-danger);
     --wrong-bg: var(--dm-flashcard-danger-bg);
     --warning: var(--dm-flashcard-warning);
-    --star: var(--dm-flashcard-warning);
+    --star: var(--color-star, #f5a400);
     --text-primary: var(--dm-flashcard-ink);
     --text-secondary: var(--dm-flashcard-muted);
     --text-muted: var(--dm-flashcard-muted);
@@ -3424,7 +3424,7 @@ html[data-theme="dark"] .star-rating .star-btn {
 }
 html[data-theme="dark"] .star-rating .star-btn.filled,
 html[data-theme="dark"] .star-rating .star-btn.filled i {
-    color: var(--dm-flashcard-warning)
+    color: var(--color-star, #f5a400)
 }
 html[data-theme="dark"] .star-rating.interactive .star-btn:hover,
 html[data-theme="dark"] .star-rating.interactive .star-btn:hover i {
@@ -3446,7 +3446,7 @@ html[data-theme="dark"] .editor-sheet {
     --wrong: var(--dm-flashcard-danger);
     --wrong-bg: var(--dm-flashcard-danger-bg);
     --warning: var(--dm-flashcard-warning);
-    --star: var(--dm-flashcard-warning);
+    --star: var(--color-star, #f5a400);
     --text-primary: var(--dm-flashcard-ink);
     --text-secondary: var(--dm-flashcard-muted);
     --text-muted: var(--dm-flashcard-muted);

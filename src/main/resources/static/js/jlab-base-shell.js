@@ -385,6 +385,7 @@
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
                   '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
+                  '<a id="jlabBaseNotebookLink" class="dropdown__item" href="/learning/notebook" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Sổ tay của tôi</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.premiumLink + '" class="dropdown__item" href="/premium/billing" role="menuitem" hidden><span id="' + ids.premiumIcon + '" class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><span id="' + ids.premiumLabel + '">Gói &amp; thanh toán</span></a>' +
                   '<a class="dropdown__item" href="/credits" role="menuitem"><span class="material-symbols-outlined" aria-hidden="true">toll</span> Mua CP</a>' +
@@ -473,6 +474,7 @@
     markCurrent(ids.learnPathItem, isLearningPath);
     markCurrent(ids.jlptLink, isJlpt);
     markCurrent(ids.jlptPracticeLink, isJlptPractice);
+    markCurrent('jlabBaseNotebookLink', path === '/learning/notebook');
     markCurrent(ids.streakLink, isGoals);
     markCurrent(ids.bottomAccountButton, path === '/profile' || path.indexOf('/profile/') === 0 ||
       path === '/login' || path === '/register' || isGoals || path === '/admin' || path.indexOf('/admin/') === 0);
@@ -772,7 +774,7 @@
   function ensureAvatarFrameStyles() {
     // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
     if (!document.querySelector('link[href*="avatar-frame.css"]')) {
-      addStylesheet('/css/components/avatar-frame.css?v=20261014-frames3');
+      addStylesheet('/css/components/avatar-frame.css?v=20261021-catalog');
     }
   }
 
@@ -781,7 +783,7 @@
     if (window.JlasAvatarFrame || state.avatarFramesLoading) return;
     state.avatarFramesLoading = true;
     var script = document.createElement('script');
-    script.src = '/js/components/avatar-frame.js?v=20261014-frames3';
+    script.src = '/js/components/avatar-frame.js?v=20261021-catalog';
     script.onload = function () {
       if (window.JlasAuth && typeof window.JlasAuth.applyNav === 'function') window.JlasAuth.applyNav();
       else syncAuth();
@@ -810,7 +812,8 @@
   var NOTIFICATION_ICONS = {
     MODERATION_CONTENT: 'shield', MODERATION_SANCTION: 'shield', MODERATION_APPEAL: 'shield',
     SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message',
-    SHADOWING_COMMENT: 'message', WELCOME: 'home'
+    SHADOWING_COMMENT: 'message', SHADOWING_VIDEO_READY: 'headphones', SHADOWING_VIDEO_FAILED: 'info',
+    WELCOME: 'home'
   };
 
   async function loadNotifications() {
