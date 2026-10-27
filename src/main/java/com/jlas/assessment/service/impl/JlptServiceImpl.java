@@ -54,28 +54,40 @@ public class JlptServiceImpl implements JlptService {
     @Override
     public List<JlptPracticeTypeResponse> listPracticeTypes(String level) {
         return jdbc.query("""
-                SELECT COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
-                                CONCAT(UPPER(p.part_code), '_OTHER')) AS type_code,
-                       COUNT(q.id) AS question_count,
-                       MIN(p.order_index) AS part_order,
-                       MIN(m.order_index) AS mondai_order
-                FROM jlpt_question q
-                JOIN jlpt_mondai m ON m.id=q.mondai_id
-                JOIN jlpt_part p ON p.id=m.part_id
-                JOIN jlpt_exam e ON e.id=p.exam_id
-                LEFT JOIN jlpt_question_type qt ON qt.id=q.question_type_id
-                WHERE e.jlpt_level=? AND e.status IN ('DRAFT','PUBLISHED')
-                  AND NOT (p.part_code = 'listening' AND
-                      REPLACE(REPLACE(TRIM(q.question_text),' ',''),'　','') IN
-                      ('れい','例','(れい)','（れい）','(例)','（例）','(例(れい))','（例（れい））'))
-                GROUP BY COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
-                                  CONCAT(UPPER(p.part_code), '_OTHER'))
-                ORDER BY part_order,mondai_order,type_code
+                SELECT inventory.type_code, inventory.question_count,
+                       config.name_vi, config.name_ja, config.order_index
+                FROM (
+                    SELECT COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
+                                    CONCAT(UPPER(p.part_code), '_OTHER')) AS type_code,
+                           COUNT(q.id) AS question_count,
+                           MIN(p.order_index) AS part_order,
+                           MIN(m.order_index) AS mondai_order
+                    FROM jlpt_question q
+                    JOIN jlpt_mondai m ON m.id=q.mondai_id
+                    JOIN jlpt_part p ON p.id=m.part_id
+                    JOIN jlpt_exam e ON e.id=p.exam_id
+                    LEFT JOIN jlpt_question_type qt ON qt.id=q.question_type_id
+                    WHERE e.jlpt_level=? AND e.status IN ('DRAFT','PUBLISHED')
+                      AND NOT (p.part_code = 'listening' AND
+                          REPLACE(REPLACE(TRIM(q.question_text),' ',''),'　','') IN
+                          ('れい','例','(れい)','（れい）','(例)','（例）','(例(れい))','（例（れい））'))
+                    GROUP BY COALESCE(qt.type_code, NULLIF(UPPER(m.format_code), ''),
+                                      CONCAT(UPPER(p.part_code), '_OTHER'))
+                ) inventory
+                LEFT JOIN jlpt_practice_type_config config
+                  ON config.level_code=? AND config.type_code=inventory.type_code
+                WHERE COALESCE(config.is_enabled, TRUE)=TRUE
+                ORDER BY COALESCE(config.order_index, inventory.part_order * 1000 + inventory.mondai_order),
+                         inventory.part_order,inventory.mondai_order,inventory.type_code
                 """, (rs, row) -> {
             String code = rs.getString("type_code");
-            return new JlptPracticeTypeResponse(code, sectionForType(code), typeName(code),
-                    typeNameJa(code), rs.getInt("question_count"));
-        }, level);
+            String nameVi = rs.getString("name_vi");
+            String nameJa = rs.getString("name_ja");
+            return new JlptPracticeTypeResponse(code, sectionForType(code),
+                    nameVi == null || nameVi.isBlank() ? typeName(code) : nameVi,
+                    nameJa == null || nameJa.isBlank() ? typeNameJa(code) : nameJa,
+                    rs.getInt("question_count"));
+        }, level, level);
     }
 
     @Override
@@ -84,8 +96,15 @@ public class JlptServiceImpl implements JlptService {
         if (!section.equals(sectionForType(typeCode))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dạng câu hỏi không thuộc phần đã chọn.");
         }
+        Boolean enabled = jdbc.queryForObject("""
+                SELECT COALESCE((SELECT is_enabled FROM jlpt_practice_type_config
+                                 WHERE level_code=? AND type_code=?), TRUE)
+                """, Boolean.class, level, typeCode);
+        if (!Boolean.TRUE.equals(enabled)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dạng luyện này hiện đang ẩn.");
+        }
         List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT q.id,q.source_question_id,q.question_number,q.question_text,q.question_furigana,
+                SELECT q.id,q.question_number,q.question_text,q.question_furigana,
                        q.question_html,q.correct_option,q.correct_order,q.score,q.image_url,q.mondai_id,
                        m.instruction_html,m.audio_url AS mondai_audio_url,m.mondai_number,p.part_code,
                        e.exam_code,e.title AS exam_title,e.jlpt_level,
@@ -122,7 +141,7 @@ public class JlptServiceImpl implements JlptService {
                 clip = localAudio.resolve(string(row.get("exam_code")), intValue(row.get("mondai_number")),
                         intValue(row.get("question_number")), questionId, clip);
             }
-            boolean local = clip != null && clip.audioUrl().startsWith("/audio/JLPT/N3/");
+            boolean local = clip != null && clip.audioUrl() != null && clip.audioUrl().startsWith("/audio/JLPT/");
             result.add(new JlptPracticeQuestionResponse(
                     questionId,
                     string(row.get("exam_code")),
@@ -159,33 +178,32 @@ public class JlptServiceImpl implements JlptService {
 
     private JlptExamResponse.AudioClip practiceClip(long questionId) {
         List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT id,clip_type,audio_url,start_seconds,end_seconds
+                SELECT id,clip_type,audio_url
                 FROM jlpt_audio_clip WHERE question_id=?
                 """, questionId);
         if (rows.isEmpty()) return null;
         Map<String, Object> row = rows.getFirst();
         long clipId = longValue(row.get("id"));
         List<JlptExamResponse.TranscriptSegment> transcript = jdbc.query("""
-                SELECT start_seconds,end_seconds,text_ja,text_ja_furigana,text_vi
+                SELECT text_ja,text_ja_furigana,text_vi
                 FROM jlpt_transcript_segment WHERE audio_clip_id=? ORDER BY order_index
                 """, (rs, index) -> new JlptExamResponse.TranscriptSegment(
-                rs.getDouble("start_seconds"), rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                null, null, rs.getString("text_ja"),
                 rs.getString("text_ja_furigana"), rs.getString("text_vi")), clipId);
         return new JlptExamResponse.AudioClip(clipId, string(row.get("clip_type")),
-                string(row.get("audio_url")), ((Number) row.get("start_seconds")).doubleValue(),
-                ((Number) row.get("end_seconds")).doubleValue(), transcript);
+                string(row.get("audio_url")), 0, null, transcript, false);
     }
 
     private List<JlptExamResponse.TranscriptSegment> practiceTranscript(long mondaiId) {
         return jdbc.query("""
-                SELECT start_seconds,end_seconds,text_ja,text_ja_furigana,text_vi
+                SELECT text_ja,text_ja_furigana,text_vi
                 FROM jlpt_transcript_segment WHERE mondai_id=? ORDER BY order_index
                 """, (rs, row) -> new JlptExamResponse.TranscriptSegment(
-                rs.getDouble("start_seconds"), rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                null, null, rs.getString("text_ja"),
                 rs.getString("text_ja_furigana"), rs.getString("text_vi")), mondaiId);
     }
 
-    private static String sectionForType(String code) {
+    public static String sectionForType(String code) {
         if (code == null) return "vocabulary";
         if (code.startsWith("LISTENING_")) return "listening";
         if (code.startsWith("READING_") || code.equals("INFO_RETRIEVAL")
@@ -199,7 +217,7 @@ public class JlptServiceImpl implements JlptService {
         return "vocabulary";
     }
 
-    private static String typeName(String code) {
+    public static String typeName(String code) {
         return switch (code) {
             case "KANJI_READING" -> "Cách đọc Kanji";
             case "ORTHOGRAPHY" -> "Chọn Kanji đúng";
@@ -226,7 +244,7 @@ public class JlptServiceImpl implements JlptService {
         };
     }
 
-    private static String typeNameJa(String code) {
+    public static String typeNameJa(String code) {
         return switch (code) {
             case "KANJI_READING" -> "漢字読み";
             case "ORTHOGRAPHY" -> "表記";
@@ -351,13 +369,14 @@ public class JlptServiceImpl implements JlptService {
                         rs.getInt("question_number"), id, clip);
             }
             result.computeIfAbsent(rs.getLong("mondai_id"), ignored -> new java.util.ArrayList<>())
-                    .add(new JlptExamResponse.Question(id, rs.getLong("source_question_id"),
+                    .add(new JlptExamResponse.Question(id,
                             rs.getInt("question_number"), rs.getString("question_text"),
                             rs.getString("question_furigana"), rs.getString("question_html"),
                             rs.getString("question_type"), correct,
                             rs.getBigDecimal("score"), rs.getString("image_url"),
                             nullableInt(rs.getObject("source_page")), rs.getString("explanation"), passage, clip,
-                            options.getOrDefault(id, List.of()), JlptSentenceOrder.read(rs.getString("correct_order"))));
+                            options.getOrDefault(id, List.of()), JlptSentenceOrder.read(rs.getString("correct_order")),
+                            nullableLong(rs.getObject("target_vocabulary_id"))));
         }, examId);
         return result;
     }
@@ -369,11 +388,11 @@ public class JlptServiceImpl implements JlptService {
                 JOIN jlpt_audio_clip c ON c.id=t.audio_clip_id
                 JOIN jlpt_mondai m ON m.id=c.mondai_id
                 JOIN jlpt_part p ON p.id=m.part_id
-                WHERE p.exam_id=? ORDER BY t.audio_clip_id,t.start_seconds
+                WHERE p.exam_id=? ORDER BY t.audio_clip_id,t.order_index
                 """, (RowCallbackHandler) rs -> result
                 .computeIfAbsent(rs.getLong("audio_clip_id"), ignored -> new java.util.ArrayList<>())
-                .add(new JlptExamResponse.TranscriptSegment(rs.getDouble("start_seconds"),
-                        rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                .add(new JlptExamResponse.TranscriptSegment(null,
+                        null, rs.getString("text_ja"),
                         rs.getString("text_ja_furigana"), rs.getString("text_vi"))), examId);
         return result;
     }
@@ -390,8 +409,8 @@ public class JlptServiceImpl implements JlptService {
             long clipId = rs.getLong("id");
             result.put(rs.getLong("question_id"), new JlptExamResponse.AudioClip(
                     clipId, rs.getString("clip_type"), rs.getString("audio_url"),
-                    rs.getDouble("start_seconds"), rs.getDouble("end_seconds"),
-                    transcripts.getOrDefault(clipId, List.of())));
+                    0, null,
+                    transcripts.getOrDefault(clipId, List.of()), false));
         }, examId);
         return result;
     }
@@ -404,8 +423,8 @@ public class JlptServiceImpl implements JlptService {
                 JOIN jlpt_part p ON p.id=m.part_id
                 WHERE p.exam_id=? ORDER BY t.mondai_id,t.order_index
                 """, (RowCallbackHandler) rs -> result.computeIfAbsent(rs.getLong("mondai_id"), ignored -> new java.util.ArrayList<>())
-                .add(new JlptExamResponse.TranscriptSegment(rs.getDouble("start_seconds"),
-                        rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                .add(new JlptExamResponse.TranscriptSegment(null,
+                        null, rs.getString("text_ja"),
                         rs.getString("text_ja_furigana"), rs.getString("text_vi"))), examId);
         return result;
     }
@@ -423,7 +442,7 @@ public class JlptServiceImpl implements JlptService {
             long id = rs.getLong("id");
             List<JlptExamResponse.Question> items = questions.getOrDefault(id, List.of());
             boolean allLocal = !items.isEmpty() && items.stream().allMatch(q -> q.audioClip() != null
-                    && q.audioClip().audioUrl().startsWith("/audio/JLPT/N3/"));
+                    && q.audioClip().audioUrl() != null && q.audioClip().audioUrl().startsWith("/audio/JLPT/"));
             result.computeIfAbsent(rs.getLong("part_id"), ignored -> new java.util.ArrayList<>())
                     .add(new JlptExamResponse.Mondai(id, rs.getInt("mondai_number"),
                             rs.getString("format_code"), rs.getString("instruction_html"),

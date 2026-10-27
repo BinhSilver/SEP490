@@ -25,7 +25,6 @@ public record JlptExamResponse(
 
     public record Question(
             long id,
-            long sourceId,
             int number,
             String text,
             String furigana,
@@ -39,7 +38,8 @@ public record JlptExamResponse(
             Passage passage,
             AudioClip audioClip,
             List<Option> options,
-            List<Integer> correctOrder) {}
+            List<Integer> correctOrder,
+            Long targetVocabularyId) {}
 
     public record Option(int number, String text, String furigana, String html) {}
 
@@ -50,15 +50,15 @@ public record JlptExamResponse(
             String type,
             String audioUrl,
             double start,
-            double end,
+            Double end,
             List<TranscriptSegment> transcript,
             boolean transcriptAligned) {
-        public AudioClip(long id, String type, String audioUrl, double start, double end,
+        public AudioClip(long id, String type, String audioUrl, double start, Double end,
                 List<TranscriptSegment> transcript) {
             this(id, type, audioUrl, start, end, transcript,
-                    audioUrl == null || !audioUrl.startsWith("/audio/JLPT/N3/"));
+                    audioUrl == null || !audioUrl.startsWith("/audio/JLPT/"));
         }
     }
 
-    public record TranscriptSegment(double start, double end, String ja, String furigana, String vi) {}
+    public record TranscriptSegment(Double start, Double end, String ja, String furigana, String vi) {}
 }

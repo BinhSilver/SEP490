@@ -98,18 +98,17 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         QuestionLocation old = questionLocation(questionId);
         assertMondaiExists(request.mondaiId());
         Long passageId = upsertPassage(old.passageId(), request.mondaiId(), request.passage());
-        long sourceId = old.mondaiId() == request.mondaiId()
-                ? old.sourceId() : nextLong("jlpt_question", "source_question_id", "mondai_id", request.mondaiId());
         int order = old.mondaiId() == request.mondaiId()
                 ? old.orderIndex() : nextInt("jlpt_question", "order_index", "mondai_id", request.mondaiId());
         Long typeId = ensureQuestionType(request.type(), request.mondaiId());
         jdbc.update("""
-                UPDATE jlpt_question SET mondai_id=?,passage_id=?,question_type_id=?,source_question_id=?,
+                UPDATE jlpt_question SET mondai_id=?,passage_id=?,question_type_id=?,
                     question_number=?,question_text=?,question_furigana=?,question_html=?,correct_option=?,score=?,
-                    image_url=?,source_page=?,explanation=?,order_index=?,correct_order=? WHERE id=?
-                """, request.mondaiId(), passageId, typeId, sourceId, request.number(), request.prompt(),
+                    image_url=?,source_page=?,explanation=?,order_index=?,correct_order=?,target_vocabulary_id=? WHERE id=?
+                """, request.mondaiId(), passageId, typeId, request.number(), request.prompt(),
                 request.prompt(), request.prompt(), JlptSentenceOrder.correctChoice(request), defaultScore(request), blankToNull(request.imageUrl()),
-                request.sourcePage(), blankToNull(request.explanation()), order, JlptSentenceOrder.write(request), questionId);
+                request.sourcePage(), blankToNull(request.explanation()), order, JlptSentenceOrder.write(request),
+                validTargetVocabulary(request.mondaiId(), request.targetVocabularyId()), questionId);
         replaceOptions(questionId, request.choices());
         replaceAudio(questionId, request.mondaiId(), request);
         deletePassageIfOrphan(old.passageId(), passageId);
@@ -132,8 +131,8 @@ public class JlptAdminServiceImpl implements JlptAdminService {
                 (rs, row) -> rs.getString(1), questionId);
         var row = jdbc.queryForMap("""
                 SELECT COALESCE(qt.type_code,m.format_code,'OTHER') type_code,q.question_number,q.question_text,
-                       q.correct_option,q.correct_order,q.score,q.image_url,q.source_page,q.explanation,
-                       ps.passage_html,ps.passage_ja,c.audio_url,c.start_seconds,c.end_seconds
+                       q.correct_option,q.correct_order,q.score,q.image_url,q.source_page,q.explanation,q.target_vocabulary_id,
+                       ps.passage_html,ps.passage_ja,c.audio_url
                 FROM jlpt_question q JOIN jlpt_mondai m ON m.id=q.mondai_id
                 LEFT JOIN jlpt_question_type qt ON qt.id=q.question_type_id
                 LEFT JOIN jlpt_passage ps ON ps.id=q.passage_id
@@ -147,8 +146,8 @@ public class JlptAdminServiceImpl implements JlptAdminService {
                 stringOrNull(row.get("image_url")), nullableInt(row.get("source_page")),
                 stringOrNull(row.get("explanation")), transcriptText(questionId, "text_ja"),
                 transcriptText(questionId, "text_vi"), stringOrNull(row.get("audio_url")),
-                decimalOrNull(row.get("start_seconds")), decimalOrNull(row.get("end_seconds")),
-                row.get("correct_order") == null ? null : JlptSentenceOrder.read(row.get("correct_order")));
+                row.get("correct_order") == null ? null : JlptSentenceOrder.read(row.get("correct_order")),
+                nullableLong(row.get("target_vocabulary_id")));
         return insertQuestion(request, location.passageId());
     }
 
@@ -157,31 +156,30 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         Long passageId = sharedPassageId != null ? sharedPassageId
                 : upsertPassage(null, request.mondaiId(), request.passage());
         Long typeId = ensureQuestionType(request.type(), request.mondaiId());
-        long sourceId = nextLong("jlpt_question", "source_question_id", "mondai_id", request.mondaiId());
         int order = nextInt("jlpt_question", "order_index", "mondai_id", request.mondaiId());
         KeyHolder keys = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             PreparedStatement statement = connection.prepareStatement("""
                     INSERT INTO jlpt_question
-                    (mondai_id,passage_id,question_type_id,source_question_id,question_number,question_text,
-                     question_furigana,question_html,correct_option,score,image_url,source_page,explanation,order_index,correct_order)
+                    (mondai_id,passage_id,question_type_id,question_number,question_text,
+                     question_furigana,question_html,correct_option,score,image_url,source_page,explanation,order_index,correct_order,target_vocabulary_id)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                     """, Statement.RETURN_GENERATED_KEYS);
             statement.setLong(1, request.mondaiId());
             setNullableLong(statement, 2, passageId);
             setNullableLong(statement, 3, typeId);
-            statement.setLong(4, sourceId);
-            statement.setInt(5, request.number());
+            statement.setInt(4, request.number());
+            statement.setString(5, request.prompt());
             statement.setString(6, request.prompt());
             statement.setString(7, request.prompt());
-            statement.setString(8, request.prompt());
-            setNullableInt(statement, 9, JlptSentenceOrder.correctChoice(request));
-            statement.setBigDecimal(10, defaultScore(request));
-            statement.setString(11, blankToNull(request.imageUrl()));
-            setNullableInt(statement, 12, request.sourcePage());
-            statement.setString(13, blankToNull(request.explanation()));
-            statement.setInt(14, order);
-            statement.setString(15, JlptSentenceOrder.write(request));
+            setNullableInt(statement, 8, JlptSentenceOrder.correctChoice(request));
+            statement.setBigDecimal(9, defaultScore(request));
+            statement.setString(10, blankToNull(request.imageUrl()));
+            setNullableInt(statement, 11, request.sourcePage());
+            statement.setString(12, blankToNull(request.explanation()));
+            statement.setInt(13, order);
+            statement.setString(14, JlptSentenceOrder.write(request));
+            setNullableLong(statement, 15, validTargetVocabulary(request.mondaiId(), request.targetVocabularyId()));
             return statement;
         }, keys);
         long id = requiredKey(keys);
@@ -190,8 +188,20 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         return id;
     }
 
+    private Long validTargetVocabulary(long mondaiId, Long vocabularyId) {
+        if (vocabularyId == null) return null;
+        Integer vocabularySection = jdbc.queryForObject("SELECT COUNT(*) FROM jlpt_mondai m JOIN jlpt_part p ON p.id=m.part_id WHERE m.id=? AND p.part_code='vocabulary'", Integer.class, mondaiId);
+        Integer exists = jdbc.queryForObject("SELECT COUNT(*) FROM vocabulary_entry WHERE id=?", Integer.class, vocabularyId);
+        if (vocabularySection == null || vocabularySection == 0 || exists == null || exists == 0)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Từ mục tiêu phải tồn tại trong từ điển và câu thuộc phần Goi.");
+        return vocabularyId;
+    }
+
     private void replaceAudio(long questionId, long mondaiId, JlptAdminQuestionRequest request) {
         String audioUrl = blankToNull(request.audioUrl());
+        if (audioUrl != null && !audioUrl.startsWith("/audio/JLPT/")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Audio JLPT phải là file local đã cắt.");
+        }
         List<Long> existing = jdbc.query("SELECT id FROM jlpt_audio_clip WHERE question_id=?",
                 (rs, row) -> rs.getLong(1), questionId);
         if (audioUrl == null) {
@@ -201,34 +211,27 @@ public class JlptAdminServiceImpl implements JlptAdminService {
             }
             return;
         }
-        java.math.BigDecimal start = request.audioStart() == null ? java.math.BigDecimal.ZERO : request.audioStart();
-        java.math.BigDecimal end = request.audioEnd();
-        if (end == null || end.compareTo(start) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thời gian kết thúc audio phải lớn hơn thời gian bắt đầu.");
-        }
         long clipId;
         if (existing.isEmpty()) {
             KeyHolder keys = new GeneratedKeyHolder();
             int order = nextInt("jlpt_audio_clip", "order_index", "mondai_id", mondaiId);
             jdbc.update(connection -> {
                 PreparedStatement statement = connection.prepareStatement("""
-                        INSERT INTO jlpt_audio_clip(mondai_id,question_id,clip_type,audio_url,start_seconds,end_seconds,order_index)
-                        VALUES (?,?, 'QUESTION', ?,?,?,?)
+                        INSERT INTO jlpt_audio_clip(mondai_id,question_id,clip_type,audio_url,order_index)
+                        VALUES (?,?, 'QUESTION', ?,?)
                         """, Statement.RETURN_GENERATED_KEYS);
                 statement.setLong(1, mondaiId);
                 statement.setLong(2, questionId);
                 statement.setString(3, audioUrl);
-                statement.setBigDecimal(4, start);
-                statement.setBigDecimal(5, end);
-                statement.setInt(6, order);
+                statement.setInt(4, order);
                 return statement;
             }, keys);
             clipId = requiredKey(keys);
         } else {
             clipId = existing.getFirst();
             jdbc.update("""
-                    UPDATE jlpt_audio_clip SET mondai_id=?,audio_url=?,start_seconds=?,end_seconds=? WHERE id=?
-                    """, mondaiId, audioUrl, start, end, clipId);
+                    UPDATE jlpt_audio_clip SET mondai_id=?,audio_url=? WHERE id=?
+                    """, mondaiId, audioUrl, clipId);
             jdbc.update("DELETE FROM jlpt_transcript_segment WHERE audio_clip_id=?", clipId);
         }
         String script = blankToNull(request.scriptText());
@@ -236,9 +239,9 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         if (script != null || translation != null) {
             jdbc.update("""
                     INSERT INTO jlpt_transcript_segment
-                    (mondai_id,audio_clip_id,start_seconds,end_seconds,text_ja,text_ja_furigana,text_vi,order_index)
-                    VALUES (?,?,?,?,?,?,?,1)
-                    """, mondaiId, clipId, start, end, script, script, translation);
+                    (mondai_id,audio_clip_id,text_ja,text_ja_furigana,text_vi,order_index)
+                    VALUES (?,?,?,?,?,1)
+                    """, mondaiId, clipId, script, script, translation);
         }
     }
 
@@ -394,10 +397,10 @@ public class JlptAdminServiceImpl implements JlptAdminService {
 
     private QuestionLocation questionLocation(long questionId) {
         List<QuestionLocation> rows = jdbc.query("""
-                SELECT mondai_id,passage_id,source_question_id,order_index FROM jlpt_question WHERE id=?
+                SELECT mondai_id,passage_id,order_index FROM jlpt_question WHERE id=?
                 """, (rs, row) -> new QuestionLocation(rs.getLong("mondai_id"),
                 rs.getObject("passage_id") == null ? null : rs.getLong("passage_id"),
-                rs.getLong("source_question_id"), rs.getInt("order_index")), questionId);
+                rs.getInt("order_index")), questionId);
         if (rows.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi JLPT.");
         return rows.getFirst();
     }
@@ -432,10 +435,8 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         return value == null ? null : ((Number) value).intValue();
     }
 
-    private static java.math.BigDecimal decimalOrNull(Object value) {
-        if (value == null) return null;
-        if (value instanceof java.math.BigDecimal decimal) return decimal;
-        return new java.math.BigDecimal(value.toString());
+    private static Long nullableLong(Object value) {
+        return value == null ? null : ((Number) value).longValue();
     }
 
     private static long requiredKey(KeyHolder keys) {
@@ -452,5 +453,5 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         if (value == null) statement.setNull(index, Types.INTEGER); else statement.setInt(index, value);
     }
 
-    private record QuestionLocation(long mondaiId, Long passageId, long sourceId, int orderIndex) {}
+    private record QuestionLocation(long mondaiId, Long passageId, int orderIndex) {}
 }

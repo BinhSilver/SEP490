@@ -9,9 +9,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -35,11 +38,15 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
             - Đọc/nghe: trích đúng evidence có trong passage/transcript và chỉ ra bẫy của đáp án sai.
             - Khi nhiều từ tạo thành cụm từ, collocation hoặc cấu trúc cố định, hãy giải thích nghĩa của cả cụm
               và vai trò trong câu, không chỉ dịch rời từng từ.
-            - Không phiên âm Romaji, không ghi cách đọc kiểu "đọc là amari ni" và không thêm hiragana trong ngoặc.
+            - Không phiên âm Romaji, không ghi cách đọc tiếng Nhật bằng hiragana trong ngoặc.
+            - Nếu từ/cụm từ cần giải thích có Kanji và dữ liệu cung cấp âm Hán Việt tra từ điển nội bộ,
+              hãy ghi âm Hán Việt theo từng chữ ngay trong mục Từ vựng / Ngữ pháp, ví dụ:
+              "勉強 (勉: MIỄN, 強: CƯỜNG)". Chỉ dùng âm được cung cấp; không tự suy đoán.
 
             Phản hồi bằng tiếng Việt với ĐÚNG 4 mục, đúng thứ tự, không thêm lời chào hoặc mục khác:
             Đáp án đúng: chỉ ghi số đáp án và nội dung đáp án đúng; không nhận xét học viên đã chọn hay chưa chọn.
-            Từ vựng / Ngữ pháp: giải thích trực tiếp nghĩa, cấu trúc, cách dùng hoặc sắc thái; không ghi cách đọc hay Romaji.
+            Từ vựng / Ngữ pháp: giải thích trực tiếp nghĩa, cấu trúc, cách dùng hoặc sắc thái; ghi âm Hán Việt
+            cho Kanji liên quan nếu có dữ liệu; không ghi cách đọc tiếng Nhật hay Romaji.
             Dịch câu: bản dịch tự nhiên của câu hoặc phần passage/transcript quyết định đáp án.
             Tham khảo: phân tích đủ từng lựa chọn, bắt buộc mỗi lựa chọn ở một dòng riêng theo đúng dạng
             "1. ...", "2. ...", "3. ...", "4. ...". Mẹo ghi nhớ/giải nhanh phải ở dòng riêng bắt đầu bằng "Mẹo:".
@@ -69,7 +76,7 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
 
     @Override
     public JlptExplanationResponse explain(JlptExplanationRequest request) {
-        String key = request.questionId() + ":" + request.selectedChoice();
+        String key = request.questionId() + ":" + request.selectedChoice() + ":han-viet-v1";
         return cache.computeIfAbsent(key, ignored -> createExplanation(request));
     }
 
@@ -101,7 +108,7 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
                 SELECT t.text_ja,t.text_vi FROM jlpt_transcript_segment t
                 LEFT JOIN jlpt_audio_clip c ON c.id=t.audio_clip_id
                 WHERE t.mondai_id=? AND (t.audio_clip_id IS NULL OR c.question_id=?)
-                ORDER BY t.start_seconds
+                ORDER BY t.order_index
                 """, question.get("mondai_id"), request.questionId());
         boolean correct = request.selectedChoice() != null && request.selectedChoice().equals(correctChoice);
         if (apiKey == null || apiKey.isBlank()) {
@@ -148,7 +155,42 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
                 if (context.length() > 14000) break;
             }
         }
+        String hanViet = hanVietReference(question, options, passage, transcript);
+        if (!hanViet.isBlank()) {
+            context.append("\nÂm Hán Việt tra từ điển nội bộ (Kanji: âm Hán Việt): ").append(hanViet);
+        }
         return context.toString();
+    }
+
+    private String hanVietReference(
+            Map<String, Object> question,
+            List<Map<String, Object>> options,
+            String passage,
+            List<Map<String, Object>> transcript) {
+        StringBuilder source = new StringBuilder(text(question.get("question_text"))).append(' ').append(passage);
+        options.forEach(option -> source.append(' ').append(text(option.get("option_text"))));
+        transcript.forEach(segment -> source.append(' ').append(text(segment.get("text_ja"))));
+
+        Set<String> characters = new LinkedHashSet<>();
+        source.toString().codePoints()
+                .filter(codePoint -> Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN)
+                .distinct()
+                .limit(80)
+                .mapToObj(codePoint -> new String(Character.toChars(codePoint)))
+                .forEach(characters::add);
+        if (characters.isEmpty()) return "";
+
+        List<String> parameters = new ArrayList<>(characters);
+        String placeholders = String.join(",", java.util.Collections.nCopies(parameters.size(), "?"));
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT `character` AS kanji_character,han_viet FROM kanji "
+                        + "WHERE `character` IN (" + placeholders + ") "
+                        + "AND han_viet IS NOT NULL AND TRIM(han_viet)<>''",
+                parameters.toArray());
+        return rows.stream()
+                .map(row -> text(row.get("kanji_character")) + ": " + text(row.get("han_viet")))
+                .reduce((left, right) -> left + "; " + right)
+                .orElse("");
     }
 
     private String callAi(String context) throws Exception {
