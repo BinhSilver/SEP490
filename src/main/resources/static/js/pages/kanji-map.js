@@ -15,14 +15,14 @@
   var notebook = window.KanjiMapNotebook.create({request:request, headers:headers, loggedIn:loggedIn, notice:notice, onChange:updateNotebookButton});
   function updateNotebookButton() {
     var button = detail.querySelector('[data-action="notebook"]');
-    if (button) { button.textContent = notebook.has(state.selected) ? '✓ Đã lưu vào sổ tay' : 'Lưu vào sổ tay'; button.disabled = notebook.busy(); }
+    if (button) { button.textContent = notebook.has(state.selected) ? '✓ Đã lưu · Chọn sổ' : 'Lưu vào sổ tay'; button.disabled = notebook.busy(); }
     var book = notebook.book();
     $('notebook-open').href = '/learning/notebook' + (book ? '?book=' + book.id : '');
     var studyButton = $('study-content').querySelector('[data-study-notebook]');
     if (studyButton && state.study) {
       var allSaved = state.study.wrong.every(function(ch) { return notebook.has(ch); });
-      studyButton.disabled = notebook.busy() || allSaved;
-      studyButton.textContent = allSaved ? '✓ Đã lưu vào sổ tay' : 'Lưu chữ sai vào sổ tay';
+      studyButton.disabled = notebook.busy();
+      studyButton.textContent = allSaved ? '✓ Đã lưu · Chọn sổ' : 'Lưu chữ sai vào sổ tay';
     }
   }
   function stopDiagramMotion() { if (diagramMotion) diagramMotion.destroy(); diagramMotion = null; }
@@ -308,7 +308,7 @@
       (hasExtra ? '</details>' : '') +
       (n.strokes.length ? '<h3>Thứ tự nét · KanjiVG</h3><div class="km-stroke-wrap"><svg viewBox="0 0 109 109" role="img" aria-label="Thứ tự nét chữ ' + esc(n.character) + '">' + n.strokes.map(function (d) { return '<path d="' + esc(d) + '"/>'; }).join('') + '</svg><div><button type="button" class="km-text-button" data-action="replay">↻ Phát lại nét viết</button></div></div>' : '') +
       (n.isKanji ? '<div class="km-detail-actions"><button type="button" class="km-button" id="km-master" data-action="master" aria-pressed="' + state.mastered.has(n.character) + '">' + (state.mastered.has(n.character) ? '✓ Đã thành thạo' : 'Đánh dấu thành thạo') + '</button>' +
-        '<button type="button" class="km-button km-primary" data-action="notebook">' + (notebook.has(n.character) ? '✓ Đã lưu vào sổ tay' : 'Lưu vào sổ tay') + '</button><button type="button" class="km-text-button" data-action="notebook-choose">Chọn sổ tay khác</button>' +
+        '<button type="button" class="km-button km-primary" data-action="notebook">' + (notebook.has(n.character) ? '✓ Đã lưu · Chọn sổ' : 'Lưu vào sổ tay') + '</button>' +
         '<a class="km-button" href="/dictionary/index.html?q=' + encodeURIComponent(n.character) + '" target="_blank" rel="noopener">Tra từ điển đầy đủ ↗</a></div><div id="km-related"></div>' : '<p class="km-caption">Đây là thành phần cấu tạo, không phải thẻ Kanji để lưu tiến độ.</p>');
   }
   async function select(character) {
@@ -512,7 +512,6 @@
     if (button.dataset.action === 'replay') animateStrokes();
     if (button.dataset.action === 'master') master();
     if (button.dataset.action === 'notebook' && state.selected) notebook.save([state.selected]);
-    if (button.dataset.action === 'notebook-choose' && state.selected) notebook.open([state.selected]);
   });
   window.addEventListener('pagehide', stopPronunciation);
   window.addEventListener('pagehide', stopDiagramMotion);

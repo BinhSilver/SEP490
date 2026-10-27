@@ -73,18 +73,6 @@ window.KanjiMapNotebook = {
       await request(base + '/' + selected.id + '/kanji', {method:'POST', headers:Object.assign({}, options.headers(), {'Content-Type':'application/json'}), body:JSON.stringify({characters:characters})});
       characters.forEach(function (ch) { saved.add(ch); }); remember(); changed();
     }
-    async function save(characters) {
-      var unique = Array.from(new Set(characters));
-      if (!options.loggedIn()) { options.notice('Đăng nhập để lưu Kanji vào sổ tay.', true); return; }
-      if (busy) return;
-      if (!selected || !ready) { await open(unique); return; }
-      busy = true; changed();
-      try {
-        await persist(unique); options.notice('Đã lưu vào ' + selected.name + '.');
-      } catch (e) {
-        selected = null; saved.clear(); options.notice(e.message); changed();
-      } finally { busy = false; changed(); }
-    }
     $('close').addEventListener('click', function () { if (!busy) $('dialog').close(); });
     $('dialog').addEventListener('cancel', function (e) { if (busy) e.preventDefault(); });
     $('select').addEventListener('change', async function (event) {
@@ -113,8 +101,8 @@ window.KanjiMapNotebook = {
       } catch (e) { error(e.message); }
       finally { busy = false; $('create').disabled = false; render(); }
     });
-    return { load:load, open:open, save:save,
-      has:function (character) { return saved.has(character); },
+    return { load:load, open:open, save:open,
+      has:function (character) { return ready && saved.has(character); },
       busy:function () { return busy; },
       book:function () { return selected; }
     };
