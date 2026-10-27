@@ -45,8 +45,8 @@
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261016-deck-list-top' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261014-profile-trybuy' : '20260929'))))}}" />
-    <link th:if="${pageCss == 'kanji-map'}" rel="stylesheet" th:href="@{/css/pages/kanji-map.css}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261027-kanji-study' : (pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261016-deck-list-top' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261014-profile-trybuy' : '20260929'))))}}" />
+    <link th:if="${pageCss == 'kanji-map'}" rel="stylesheet" th:href="@{/css/pages/kanji-map.css(v='20261027-notebook-cards')}" />
     <link th:if="${pageCss == 'kanji-map-admin'}" rel="stylesheet" th:href="@{/css/pages/kanji-map-admin.css}" />
     <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=5}" />
     <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />

@@ -25,7 +25,7 @@
         </header>
         <div id="notebookLearningProgress" class="notebook-learning-progress" hidden>
             <div class="notebook-progress-heading"><strong>Tiến độ học <small id="notebookProgressTotal"></small></strong><span title="Từ đã học được chia theo số lần ôn thành công">ⓘ</span></div>
-            <button id="notebookStudyStart" class="notebook-study-launch" type="button"><span class="material-symbols-outlined" aria-hidden="true">layers</span> Học thẻ mới</button>
+            <button id="notebookStudyStart" class="notebook-study-launch" type="button"><span class="material-symbols-outlined" aria-hidden="true">layers</span> Học / ôn flashcard</button>
             <div id="notebookProgressTrack" class="notebook-progress-track" role="progressbar" aria-label="Tỉ lệ từ đã học" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="notebookProgressFill"></span></div>
             <div class="notebook-progress-legend"><span class="notebook-status-deep">Ghi nhớ sâu <b id="notebookDeepCount">0</b></span><span class="notebook-status-good">Nhớ khá <b id="notebookGoodCount">0</b></span><span class="notebook-status-learning">Đang học <b id="notebookLearningCount">0</b></span><span class="notebook-status-new">Chưa học <b id="notebookNewCount">0</b></span></div>
         </div>
@@ -44,13 +44,13 @@
                 <details class="notebook-study-options">
                     <summary aria-label="Tùy chọn học thẻ" title="Tùy chọn học thẻ">ⓘ</summary>
                     <div class="notebook-study-options-panel">
-                        <label class="notebook-study-limit">Từ mới mỗi ngày
+                        <label class="notebook-study-limit">Thẻ mới mỗi ngày · từ vựng và Kanji
                             <select id="notebookStudyLimit">
-                                <option value="10">10 từ</option><option value="20">20 từ</option><option value="30">30 từ</option>
-                                <option value="50">50 từ</option><option value="100">100 từ</option>
+                                <option value="10">10 thẻ</option><option value="20">20 thẻ</option><option value="30">30 thẻ</option>
+                                <option value="50">50 thẻ</option><option value="100">100 thẻ</option>
                             </select>
                         </label>
-                        <p>Ngày nghỉ không bị phạt. Từ đến hạn vẫn chờ bạn ôn; mục tiêu từ mới không cộng dồn.</p>
+                        <p>Ngày nghỉ không bị phạt. Thẻ đến hạn vẫn chờ bạn ôn; mục tiêu thẻ mới không cộng dồn.</p>
                     </div>
                 </details>
             </header>
@@ -62,9 +62,23 @@
             <p id="notebookStudyNotice" class="notebook-notice" role="status" hidden></p>
             <button id="notebookCard" class="notebook-card" type="button" aria-label="Lật thẻ để xem đáp án" hidden>
                 <span class="notebook-card-corner" aria-hidden="true">⟳</span>
-                <span id="notebookCardFront" class="notebook-card-face"><small>TỪ VỰNG</small><strong id="notebookCardWord" lang="ja"></strong><span class="notebook-card-hint">Chạm hoặc nhấn Space để lật</span></span>
+                <span id="notebookCardFront" class="notebook-card-face"><small id="notebookCardType">TỪ VỰNG</small><strong id="notebookCardWord" lang="ja"></strong><span class="notebook-card-hint">Chạm hoặc nhấn Space để lật</span></span>
                 <span id="notebookCardBack" class="notebook-card-face" hidden><strong id="notebookCardAnswer" lang="ja"></strong><span id="notebookCardReading" lang="ja"></span><span id="notebookCardMeaning"></span><span id="notebookCardExample" class="notebook-card-example" hidden><span id="notebookCardExampleJa" lang="ja"></span><span id="notebookCardExampleVi"></span></span></span>
             </button>
+            <section id="notebookKanjiStudy" class="notebook-kanji-study" aria-label="Cách viết và liên kết Kanji" hidden>
+                <p id="notebookKanjiReadings"></p>
+                <p id="notebookKanjiHint" hidden></p>
+                <details id="notebookKanjiWriting"><summary>Cách viết · thứ tự nét</summary>
+                    <svg id="notebookKanjiStrokes" viewBox="0 0 109 109" role="img" aria-label="Thứ tự nét Kanji"></svg>
+                    <button id="notebookKanjiReplay" type="button">↻ Phát lại nét viết</button>
+                    <p id="notebookKanjiNoStrokes" hidden>Chưa có dữ liệu nét viết cho chữ này.</p>
+                </details>
+                <details id="notebookKanjiRelations"><summary>Thành phần và chữ liên quan</summary>
+                    <h3>Thành phần cấu tạo</h3><div id="notebookKanjiComponents" class="notebook-kanji-links"></div>
+                    <h3>Chữ có chứa thành phần này</h3><div id="notebookKanjiUsedIn" class="notebook-kanji-links"></div>
+                </details>
+                <a id="notebookKanjiMap" target="_blank" rel="noopener">Mở lược đồ Kanji ↗</a>
+            </section>
             <div id="notebookRatings" class="notebook-ratings" hidden>
                 <button type="button" data-rating="AGAIN"><span>Quên</span><small id="notebookAgainTime"></small></button>
                 <button type="button" data-rating="HARD"><span>Khó</span><small id="notebookHardTime"></small></button>
@@ -102,6 +116,7 @@
     </dialog>
 </main>
 <script th:src="@{/js/jlab-base-shell.js?v=8}"></script>
-<script th:src="@{/js/pages/weakness-notebook.js?v=12}"></script>
+<script th:src="@{/js/pages/notebook-kanji-card.js(v='20261027-kanji-study')}"></script>
+<script th:src="@{/js/pages/weakness-notebook.js(v='20261027-kanji-study')}"></script>
 </body>
 </html>
