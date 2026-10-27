@@ -23,6 +23,12 @@ public interface LessonImportService {
      */
     LessonImportResult importLesson(Long lessonId, MultipartFile file);
 
+    /**
+     * [JLAS2-17] Như {@link #importLesson(Long, MultipartFile)}; {@code dryRun = true}: chỉ đọc + kiểm tra, trả tóm tắt sẽ nhập
+     * (cùng các bộ đếm) và danh sách lỗi, KHÔNG ghi gì vào DB.
+     */
+    LessonImportResult importLesson(Long lessonId, MultipartFile file, boolean dryRun);
+
     /** File mẫu .xlsx: các sheet dữ liệu chỉ có dòng tiêu đề, kèm sheet HuongDan giải thích từng cột. */
     byte[] buildTemplate();
 }

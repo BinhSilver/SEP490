@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface GrammarPointRepository extends JpaRepository<GrammarPoint, Long> {
 
+    List<GrammarPoint> findByLesson_StatusOrderByIdAsc(String status);
+
     List<GrammarPoint> findByLessonIdOrderByOrderIndexAsc(Long lessonId);
 
     /** Thứ tự ổn định khi order_index trùng nhau, dùng cho màn hình biên soạn và lúc đánh số lại. */

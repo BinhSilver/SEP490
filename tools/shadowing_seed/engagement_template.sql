@@ -5,7 +5,9 @@
 -- Production content import does not run this file. Do not use it to manufacture production metrics.
 -- Run after seed_data_shadowing.sql and the current schema (incl. 026/027 on older databases).
 -- Set @shadowing_seed_owner_id to the existing content owner in the SAME fresh connection.
--- No fixed database IDs, passwords, emails to real domains, credit grants, or notifications.
+-- No fixed database IDs, passwords, credit grants, or notifications. Learner accounts come from
+-- tools/demo_learners.py (shared with the Flashcard community seed): name-based @gmail.com addresses,
+-- no password, unverified; an existing login-capable account with the same email aborts the import.
 -- Existing interactions/edited comments are preserved; repeat imports add no duplicate activity.
 -- {{DEMO_USER_COUNT}} fictional learners / {{DEMO_VIDEO_COUNT}} videos / {{DEMO_VIEW_COUNT}} accepted-view fixtures /
 -- {{DEMO_VOTE_COUNT}} votes / {{DEMO_FAVORITE_COUNT}} favorites / {{DEMO_COMMENT_COUNT}} original sample comments.
@@ -74,12 +76,21 @@ BEGIN
     CREATE TEMPORARY TABLE sd_user (
         user_key VARCHAR(20) PRIMARY KEY, full_name VARCHAR(150) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE, username VARCHAR(50) NOT NULL UNIQUE,
+        legacy_email VARCHAR(255) NOT NULL UNIQUE, legacy_username VARCHAR(50) NOT NULL UNIQUE,
         level_code VARCHAR(10) NOT NULL,user_id BIGINT UNSIGNED NULL
     ) ENGINE=InnoDB;
     INSERT INTO sd_user SELECT j.*,NULL FROM JSON_TABLE(@shadowing_demo_payload,'$.learners[*]' COLUMNS (
         user_key VARCHAR(20) PATH '$.key',full_name VARCHAR(150) PATH '$.name',email VARCHAR(255) PATH '$.email',
-        username VARCHAR(50) PATH '$.username',level_code VARCHAR(10) PATH '$.level')) j;
-    -- Reserved .invalid identities must never be adopted from an actual login-capable account.
+        username VARCHAR(50) PATH '$.username',legacy_email VARCHAR(255) PATH '$.legacy_email',
+        legacy_username VARCHAR(50) PATH '$.legacy_username',level_code VARCHAR(10) PATH '$.level')) j;
+    -- Earlier imports used reserved .invalid identities; move those seed-only accounts onto the
+    -- shared identity in place so their views/votes/comments stay attached to the same person.
+    UPDATE users u JOIN sd_user d ON u.email=d.legacy_email AND COALESCE(u.username,'')=d.legacy_username
+    LEFT JOIN users taken ON taken.email=d.email OR taken.username=d.username
+    SET u.email=d.email,u.username=d.username
+    WHERE taken.id IS NULL AND u.role_id=learner_role AND u.password_hash IS NULL AND u.google_id IS NULL
+      AND u.is_verified=0 AND u.login_type='LOCAL';
+    -- Demo identities must never be adopted from an actual login-capable account.
     IF EXISTS (SELECT 1 FROM sd_user d JOIN users u ON u.email=d.email OR u.username=d.username
                WHERE u.email<>d.email OR COALESCE(u.username,'')<>d.username OR u.role_id<>learner_role
                   OR u.password_hash IS NOT NULL OR u.google_id IS NOT NULL OR u.is_verified<>0 OR u.login_type<>'LOCAL') THEN

@@ -51,9 +51,12 @@ public class DictionaryEngagementService {
                     .searchMode(result.getSearchMode() == null ? "AUTO" : result.getSearchMode())
                     .selectedVocabulary(vocabulary.getReferenceById(word.getId())).resultCount(result.getTotal()).build());
         }
+        boolean saved = userId != null
+                && favorites.existsById(new DictionaryFavorite.DictionaryFavoriteId(userId, word.getId()));
         return new InlineLookupResponse(word.getId(), word.getExpression(), word.getReading(),
-                word.getMeaning(), word.getWordType(), "/dictionary/index.html?q="
-                + URLEncoder.encode(word.getExpression(), StandardCharsets.UTF_8));
+                word.getMeaning(), word.getWordType(), word.getJlptLevel(), word.getExampleJa(), word.getExampleVi(),
+                "/dictionary/index.html?q="
+                + URLEncoder.encode(word.getExpression(), StandardCharsets.UTF_8), saved);
     }
 
     @Transactional

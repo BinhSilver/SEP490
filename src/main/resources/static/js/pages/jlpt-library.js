@@ -20,13 +20,11 @@
 
   function card(exam) {
     var period = exam.year == null || exam.month == null ? 'Đề thi thử' : 'Tháng ' + exam.month + ' · ' + exam.year;
-    return '<article class="jlpt-exam-card"><div class="jlpt-exam-card__top"><span class="jlpt-level">' + esc(exam.level) + '</span><span>' + statusLabel(exam.status) + '</span></div>' +
+    return '<article class="jlpt-exam-card"><div class="jlpt-exam-card__top"><span class="jlpt-level">' + esc(exam.level) + '</span></div>' +
       '<div class="jlpt-exam-card__body"><h3>' + esc(period) + '</h3><p>Gồm đầy đủ từ vựng, ngữ pháp, đọc hiểu và nghe hiểu.</p></div>' +
       '<div class="jlpt-exam-card__stats"><span><i class="material-symbols-outlined">format_list_numbered</i>' + exam.questionCount + ' câu</span><span><i class="material-symbols-outlined">timer</i>' + exam.durationMinutes + ' phút</span></div>' +
       '<button class="jlpt-exam-card__start" type="button" data-exam-code="' + esc(exam.code) + '" data-exam-title="' + esc(exam.level + ' · ' + period) + '">Bắt đầu làm đề <i class="material-symbols-outlined">arrow_forward</i></button></article>';
   }
-
-  function statusLabel(status) { return status === 'PUBLISHED' ? 'ĐỀ ĐÃ XUẤT BẢN' : 'ĐỀ CHỜ DUYỆT'; }
 
   function render() {
     var visible = exams.filter(function (exam) { return exam.level === activeLevel; });
@@ -45,7 +43,7 @@
   function openModeDialog(button) {
     var code = button.dataset.examCode;
     document.getElementById('jlptModeExamTitle').textContent = button.dataset.examTitle;
-    document.getElementById('jlptModePractice').href = '/jlpt/exam?code=' + encodeURIComponent(code) + '&mode=practice';
+    document.getElementById('jlptModePractice').href = '/jlpt/detail?code=' + encodeURIComponent(code);
     document.getElementById('jlptModeExam').href = '/jlpt/exam?code=' + encodeURIComponent(code) + '&mode=exam';
     modeDialog.showModal();
   }

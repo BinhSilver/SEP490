@@ -29,8 +29,10 @@ import com.jlas.dictionary.util.DictionaryUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -97,7 +99,7 @@ public class LessonImportServiceImpl implements LessonImportService {
     private final ContentAdminService contentAdminService;
 
     /** Một dòng dữ liệu đã đọc; {@code number} là số dòng như Excel hiển thị. */
-    private record SheetRow(int number, List<String> cells) {
+    record SheetRow(int number, List<String> cells) {
         /** Ô đã strip; ô trống hoặc ngoài phạm vi trả null. */
         String get(int index) {
             if (index >= cells.size()) return null;
@@ -134,17 +136,25 @@ public class LessonImportServiceImpl implements LessonImportService {
 
     @Override
     public LessonImportResult importLesson(Long lessonId, MultipartFile file) {
+        return importLesson(lessonId, file, false);
+    }
+
+    @Override
+    public LessonImportResult importLesson(Long lessonId, MultipartFile file, boolean dryRun) {
         Lesson lesson = lessonRepository.findWithUnitById(lessonId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found: " + lessonId));
         if (STATUS_ARCHIVED.equals(lesson.getUnit().getTextbook().getStatus())) {
             throw new ApiException(ErrorCode.CONFLICT, "Giáo trình đã lưu trữ, không nhập thêm nội dung được.");
         }
 
-        Map<String, List<SheetRow>> sheets = readWorkbook(readBytes(file));
+        WorkbookData data = readWorkbook(readBytes(file));
+        Map<String, List<SheetRow>> sheets = data.rows();
+        // Lỗi tiêu đề (thiếu cột bắt buộc / không thấy dòng tiêu đề): báo theo sheet, chưa đọc dữ liệu của sheet đó.
+        if (!data.headerErrors().isEmpty()) {
+            return LessonImportResult.builder().imported(false).dryRun(dryRun).errors(data.headerErrors()).build();
+        }
         if (sheets.values().stream().allMatch(List::isEmpty)) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "File không có dòng dữ liệu nào trong các sheet "
-                    + String.join(", ", SHEET_VOCABULARY, SHEET_GRAMMAR, SHEET_EXAMPLE, SHEET_DIALOGUE, SHEET_KANJI)
-                    + ". Hãy dùng file mẫu.");
+            throw new ApiException(ErrorCode.BAD_REQUEST, emptyFileMessage(data));
         }
 
         List<RowError> errors = new ArrayList<>();
@@ -156,9 +166,29 @@ public class LessonImportServiceImpl implements LessonImportService {
         planDialogue(lessonId, sheets.get(SHEET_DIALOGUE), plan, errors);
 
         if (!errors.isEmpty()) {
-            return LessonImportResult.builder().imported(false).errors(errors).build();
+            return LessonImportResult.builder().imported(false).dryRun(dryRun).errors(errors).build();
         }
-        return apply(lessonId, plan);
+        return dryRun ? preview(plan) : apply(lessonId, plan);
+    }
+
+    /** Chạy thử: cùng các bộ đếm như apply() nhưng tính từ kế hoạch, không gọi thao tác ghi nào. */
+    private static LessonImportResult preview(ImportPlan plan) {
+        int attached = (int) plan.vocabularies.stream().filter(PlannedVocabulary::inDictionary).count();
+        return LessonImportResult.builder()
+                .imported(false)
+                .dryRun(true)
+                .vocabularyCreated(plan.vocabularies.size() - attached)
+                .vocabularyAttached(attached)
+                .vocabularySkipped(plan.vocabularySkipped)
+                .kanjiAttached(plan.kanjiCharacters.size())
+                .kanjiSkipped(plan.kanjiSkipped)
+                .grammarCreated(plan.grammarToCreate.size())
+                .grammarSkipped(plan.grammarSkipped)
+                .examplesCreated(plan.examples.size())
+                .dialogueRolesCreated(plan.rolesToCreate.size())
+                .dialogueScenesCreated(plan.scenesToCreate.size())
+                .dialogueLinesCreated(plan.lines.size())
+                .build();
     }
 
     private LessonImportResult apply(Long lessonId, ImportPlan plan) {
@@ -408,44 +438,197 @@ public class LessonImportServiceImpl implements LessonImportService {
         }
     }
 
-    /** Sheet dữ liệu → các dòng có nội dung (bỏ dòng tiêu đề và dòng trống). Sheet thiếu cho danh sách rỗng. */
-    private static Map<String, List<SheetRow>> readWorkbook(byte[] content) {
+    /** Số dòng đầu mỗi sheet được dò để tìm dòng tiêu đề (dòng tiêu đề có thể không nằm ở dòng 1). */
+    private static final int HEADER_SCAN_ROWS = 10;
+    private static final List<String> DATA_SHEETS = List.of(SHEET_VOCABULARY, SHEET_GRAMMAR, SHEET_EXAMPLE, SHEET_DIALOGUE, SHEET_KANJI);
+    private static final Map<String, List<String>> HEADERS = Map.of(SHEET_VOCABULARY, VOCABULARY_HEADER,
+            SHEET_GRAMMAR, GRAMMAR_HEADER, SHEET_EXAMPLE, EXAMPLE_HEADER, SHEET_DIALOGUE, DIALOGUE_HEADER, SHEET_KANJI, KANJI_HEADER);
+    /** Tên sheet được nhận thêm (ngoài tên trong file mẫu); so khớp qua sheetKey nên không phân biệt hoa thường / dấu / khoảng trắng. */
+    private static final Map<String, List<String>> SHEET_ALIASES = Map.of(
+            SHEET_VOCABULARY, List.of("Từ vựng", "Tu vung", "Vocabulary"),
+            SHEET_GRAMMAR, List.of("Ngữ pháp", "Ngu phap", "Grammar"),
+            SHEET_EXAMPLE, List.of("Ví dụ", "Vi du", "Câu ví dụ", "Examples", "Example"),
+            SHEET_DIALOGUE, List.of("Hội thoại", "Hoi thoai", "Dialogue", "Dialog"),
+            SHEET_KANJI, List.of("Chữ Kanji", "Hán tự", "Han tu"));
+
+    /**
+     * Kết quả đọc file: dữ liệu đã đưa về đúng thứ tự cột của file mẫu (cột trong file được nhận theo TÊN tiêu đề, không theo vị trí),
+     * kèm thông tin để báo lỗi rõ: sheet tìm thấy (tên sheet chuẩn → tên trong file), sheet không nhận ra, sheet chỉ có tiêu đề,
+     * lỗi tiêu đề (thiếu cột bắt buộc, không thấy dòng tiêu đề).
+     */
+    record WorkbookData(Map<String, List<SheetRow>> rows, Map<String, String> sheetTitles, List<String> unknownSheets,
+                        List<String> headerOnlySheets, List<RowError> headerErrors) {}
+
+    /**
+     * Đọc các sheet dữ liệu. Khoan dung: tên sheet theo sheetKey + bí danh ("Từ vựng" → TuVung); dòng tiêu đề tự dò trong
+     * HEADER_SCAN_ROWS dòng đầu; cột nhận theo tên (bỏ dấu *, không phân biệt hoa thường / dấu); ô công thức lấy giá trị đã tính;
+     * bỏ dòng trống. Sheet thiếu → danh sách rỗng.
+     */
+    static WorkbookData readWorkbook(byte[] content) {
         Map<String, List<SheetRow>> result = new HashMap<>();
         Map<String, String> sheetByKey = new HashMap<>();
-        for (String name : List.of(SHEET_VOCABULARY, SHEET_GRAMMAR, SHEET_EXAMPLE, SHEET_DIALOGUE, SHEET_KANJI)) {
+        for (String name : DATA_SHEETS) {
             result.put(name, new ArrayList<>());
             sheetByKey.put(sheetKey(name), name);
+            for (String alias : SHEET_ALIASES.getOrDefault(name, List.of())) sheetByKey.put(sheetKey(alias), name);
         }
+        Map<String, String> titles = new LinkedHashMap<>();
+        List<String> unknown = new ArrayList<>();
+        List<String> headerOnly = new ArrayList<>();
+        List<RowError> headerErrors = new ArrayList<>();
         DataFormatter formatter = new DataFormatter();
         try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(content))) {
+            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
             for (Sheet sheet : workbook) {
-                String name = sheetByKey.get(sheetKey(sheet.getSheetName()));
-                if (name == null) continue;
-                List<SheetRow> rows = result.get(name);
-                for (int r = Math.max(sheet.getFirstRowNum(), 0) + 1; r <= sheet.getLastRowNum(); r++) {
-                    Row row = sheet.getRow(r);
-                    if (row == null) continue;
-                    List<String> cells = new ArrayList<>();
-                    boolean blank = true;
-                    for (int c = 0; c < Math.max(row.getLastCellNum(), 0); c++) {
-                        Cell cell = row.getCell(c);
-                        String value = cell == null ? "" : formatter.formatCellValue(cell);
-                        cells.add(value);
-                        if (!value.isBlank()) blank = false;
-                    }
-                    if (blank) continue;
-                    if (rows.size() >= MAX_ROWS_PER_SHEET) {
-                        throw new ApiException(ErrorCode.BAD_REQUEST,
-                                "Sheet " + name + " có quá " + MAX_ROWS_PER_SHEET + " dòng dữ liệu.");
-                    }
-                    rows.add(new SheetRow(r + 1, cells));
+                String title = sheet.getSheetName();
+                String name = sheetByKey.get(sheetKey(title));
+                if (name == null) {
+                    if (!sheetKey(title).equals(sheetKey(SHEET_GUIDE))) unknown.add(title);
+                    continue;
                 }
+                if (titles.containsKey(name)) {   // hai sheet cùng nghĩa: chỉ đọc sheet đầu, báo sheet sau
+                    headerErrors.add(new RowError(title, 1, "Sheet '" + title + "' trùng với sheet '" + titles.get(name)
+                            + "' (cùng là " + name + "). Gộp dữ liệu vào một sheet."));
+                    continue;
+                }
+                titles.put(name, title);
+                readSheet(sheet, name, title, formatter, evaluator, result.get(name), headerOnly, headerErrors);
             }
         } catch (IOException | RuntimeException e) {
             if (e instanceof ApiException apiException) throw apiException;
-            throw new ApiException(ErrorCode.BAD_REQUEST, "Không đọc được file Excel (.xlsx).");
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Không đọc được file Excel (.xlsx). Hãy mở bằng Excel, lưu lại dạng .xlsx rồi thử lại.");
         }
-        return result;
+        return new WorkbookData(result, titles, unknown, headerOnly, headerErrors);
+    }
+
+    private static void readSheet(Sheet sheet, String name, String title, DataFormatter formatter, FormulaEvaluator evaluator,
+                                  List<SheetRow> rows, List<String> headerOnly, List<RowError> headerErrors) {
+        List<String> template = HEADERS.get(name);
+        int first = Math.max(sheet.getFirstRowNum(), 0);
+        int last = sheet.getLastRowNum();
+        // 1) Dò dòng tiêu đề: dòng (trong vài dòng đầu) khớp nhiều tên cột của file mẫu nhất.
+        int headerRow = -1;
+        int[] columnOf = null;
+        int best = 0;
+        for (int r = first; r <= Math.min(last, first + HEADER_SCAN_ROWS - 1); r++) {
+            List<String> cells = rowValues(sheet.getRow(r), formatter, evaluator);
+            int[] mapping = new int[template.size()];
+            java.util.Arrays.fill(mapping, -1);
+            int matched = 0;
+            for (int c = 0; c < cells.size(); c++) {
+                int index = headerIndex(template, cells.get(c));
+                if (index >= 0 && mapping[index] < 0) { mapping[index] = c; matched++; }
+            }
+            if (matched > best) { best = matched; headerRow = r; columnOf = mapping; }
+        }
+        boolean hasContent = false;
+        for (int r = first; r <= last && !hasContent; r++) {
+            hasContent = rowValues(sheet.getRow(r), formatter, evaluator).stream().anyMatch(v -> !v.isBlank());
+        }
+        if (headerRow < 0) {
+            if (hasContent) {
+                headerErrors.add(new RowError(title, first + 1, "Sheet '" + title + "' không có dòng tiêu đề như file mẫu trong "
+                        + HEADER_SCAN_ROWS + " dòng đầu. Cần các cột: " + String.join(", ", headerLabels(template)) + "."));
+            }
+            return;
+        }
+        // 2) Cột bắt buộc phải có (theo tên).
+        List<String> missing = new ArrayList<>();
+        for (int i = 0; i < template.size(); i++) {
+            if (columnOf[i] < 0 && template.get(i).endsWith("*")) missing.add(headerLabel(template.get(i)));
+        }
+        if (!missing.isEmpty()) {
+            List<String> present = rowValues(sheet.getRow(headerRow), formatter, evaluator).stream()
+                    .filter(v -> !v.isBlank()).map(String::strip).toList();
+            headerErrors.add(new RowError(title, headerRow + 1, "Sheet '" + title + "' thiếu cột "
+                    + missing.stream().map(m -> "'" + m + "'").collect(Collectors.joining(", "))
+                    + " (dòng tiêu đề " + (headerRow + 1) + " có: " + String.join(", ", present)
+                    + "). Đặt tên cột đúng như file mẫu."));
+            return;
+        }
+        // 3) Dữ liệu: các dòng sau dòng tiêu đề, đưa về thứ tự cột của file mẫu; bỏ dòng trống.
+        for (int r = headerRow + 1; r <= last; r++) {
+            List<String> raw = rowValues(sheet.getRow(r), formatter, evaluator);
+            if (raw.stream().allMatch(String::isBlank)) continue;
+            List<String> cells = new ArrayList<>(template.size());
+            boolean blank = true;
+            for (int i = 0; i < template.size(); i++) {
+                int c = columnOf[i];
+                String value = c >= 0 && c < raw.size() ? raw.get(c) : "";
+                cells.add(value);
+                if (!value.isBlank()) blank = false;
+            }
+            if (blank) continue;   // dòng chỉ có chữ ở cột lạ (ghi chú) — bỏ qua
+            if (rows.size() >= MAX_ROWS_PER_SHEET) {
+                throw new ApiException(ErrorCode.BAD_REQUEST,
+                        "Sheet " + title + " có quá " + MAX_ROWS_PER_SHEET + " dòng dữ liệu.");
+            }
+            rows.add(new SheetRow(r + 1, cells));
+        }
+        if (rows.isEmpty()) headerOnly.add(title);
+    }
+
+    /** Giá trị hiển thị của các ô trong dòng; ô công thức lấy giá trị đã tính (tính lại được thì tính, không thì dùng kết quả lưu sẵn). */
+    private static List<String> rowValues(Row row, DataFormatter formatter, FormulaEvaluator evaluator) {
+        List<String> cells = new ArrayList<>();
+        if (row == null) return cells;
+        for (int c = 0; c < Math.max(row.getLastCellNum(), 0); c++) {
+            cells.add(cellValue(row.getCell(c), formatter, evaluator));
+        }
+        return cells;
+    }
+
+    private static String cellValue(Cell cell, DataFormatter formatter, FormulaEvaluator evaluator) {
+        if (cell == null) return "";
+        if (cell.getCellType() != CellType.FORMULA) return formatter.formatCellValue(cell);
+        try {
+            return formatter.formatCellValue(cell, evaluator);
+        } catch (RuntimeException e) {
+            // Hàm Excel POI không tính được: dùng kết quả Excel đã lưu trong file.
+            return switch (cell.getCachedFormulaResultType()) {
+                case STRING -> cell.getStringCellValue();
+                case NUMERIC -> formatter.formatRawCellContents(cell.getNumericCellValue(), cell.getCellStyle().getDataFormat(),
+                        cell.getCellStyle().getDataFormatString());
+                case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+                default -> "";
+            };
+        }
+    }
+
+    /** Vị trí cột trong file mẫu ứng với tiêu đề trong file (bỏ dấu *, không phân biệt hoa thường / dấu / khoảng trắng); -1 nếu không khớp. */
+    private static int headerIndex(List<String> template, String cell) {
+        if (cell == null || cell.isBlank()) return -1;
+        String key = sheetKey(cell.replace("*", ""));
+        if (key.isEmpty()) return -1;
+        for (int i = 0; i < template.size(); i++) {
+            if (sheetKey(template.get(i).replace("*", "")).equals(key)) return i;
+        }
+        return -1;
+    }
+
+    private static String headerLabel(String header) {
+        return header.replace("*", "").strip();
+    }
+
+    private static List<String> headerLabels(List<String> template) {
+        return template.stream().map(LessonImportServiceImpl::headerLabel).toList();
+    }
+
+    /** File không có dòng dữ liệu: nói rõ sheet tìm thấy / chỉ có tiêu đề / không nhận ra. */
+    static String emptyFileMessage(WorkbookData data) {
+        StringBuilder message = new StringBuilder("File không có dòng dữ liệu nào để nhập.");
+        if (data.sheetTitles().isEmpty()) {
+            message.append(" Không tìm thấy sheet nào trong ").append(String.join(", ", DATA_SHEETS)).append('.');
+        } else if (!data.headerOnlySheets().isEmpty()) {
+            message.append(" Các sheet chỉ có dòng tiêu đề, chưa có dữ liệu: ")
+                    .append(String.join(", ", data.headerOnlySheets())).append('.');
+        }
+        if (!data.unknownSheets().isEmpty()) {
+            message.append(" Sheet không nhận ra (bỏ qua): ").append(String.join(", ", data.unknownSheets()))
+                    .append(" — tên sheet phải là ").append(String.join(", ", DATA_SHEETS)).append(" (hoặc tiếng Việt có dấu như \"Từ vựng\").");
+        }
+        message.append(" Điền dữ liệu từ dòng ngay dưới dòng tiêu đề rồi LƯU file trước khi tải lên.");
+        return message.toString();
     }
 
     // ── File mẫu ─────────────────────────────────────────────────────────────
@@ -514,7 +697,7 @@ public class LessonImportServiceImpl implements LessonImportService {
                                    String sheet, List<RowError> errors) {
         String value = row.get(column);
         if (value == null) {
-            errors.add(error(sheet, row, "Thiếu cột \"" + header.get(column) + "\""));
+            errors.add(error(sheet, row, "Ô cột \"" + headerLabel(header.get(column)) + "\" đang trống (cột bắt buộc)"));
             return null;
         }
         return checkLength(value, row, column, header, maxLength, sheet, errors);

@@ -5,7 +5,7 @@ import { normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
 import { bindSetupUi } from './setup-ui.js?v=20261011';
-import '../card-selection.js?v=20261011-four-modes';
+import '../card-selection.js?v=20261015-pager';
 
 const params = new URLSearchParams(location.search);
 const setId = params.get('setId');

@@ -7,6 +7,7 @@ import com.jlas.shadowing.repository.SubtitleRepository;
 import com.jlas.shadowing.repository.VideoRepository;
 import com.jlas.shadowing.util.youtube.SubtitleAligner;
 import com.jlas.shadowing.util.youtube.SubtitleParser;
+import com.jlas.shadowing.util.youtube.ThemeSongDetector;
 import com.jlas.shadowing.util.youtube.TranslationTrack;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
 import com.jlas.shadowing.util.NullSafe;
@@ -39,6 +40,9 @@ public class YoutubeImportJobService {
     @Value("${processing.ai.max.duration.seconds:1200}")
     private int aiMaxDurationSeconds;
 
+    @Value("${youtube.subtitle.skip-theme-songs.enabled:true}")
+    private boolean skipThemeSongs;
+
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private YoutubeService youtubeService;
@@ -47,6 +51,7 @@ public class YoutubeImportJobService {
     @Autowired private OpenRouterService openRouterService;
     @Autowired private SubtitleQualityReviewService subtitleQualityReviewService;
     @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
+    @Autowired private ShadowingProcessingNotifier notifier;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -99,6 +104,7 @@ public class YoutubeImportJobService {
                 video.setStatus(VideoStatus.FAILED);
                 video.setErrorMessage(e.getMessage());
                 videoRepository.save(video);
+                notifier.failed(video, e.getMessage());
                 System.err.println("[YouTube import] failed videoId=" + videoId + ": " + e.getMessage());
                 e.printStackTrace();
             }
@@ -143,7 +149,34 @@ public class YoutubeImportJobService {
         }
     }
 
+    /**
+     * Last import step. Embeddable YouTube videos are played through the YouTube embed, so nothing is downloaded:
+     * only the duration and a thumbnail are stored. Videos whose owner does not allow embedding
+     * (playback mode FILE) are downloaded as before and played from the file.
+     */
     private void downloadVideoWithProgress(Video video, String url, YoutubeAnalyzeResultDto meta,
+                                           Long videoId, long runId) throws Exception {
+        if (Video.PLAYBACK_FILE.equals(video.getPlaybackMode())) {
+            downloadVideoFile(video, url, meta, videoId, runId);
+            return;
+        }
+        updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 90, null);
+        if (!isActiveRun(videoId, runId)) return;
+        video.setDuration((double) meta.getDuration());
+        if (video.getThumbnailPath() == null) {
+            try {
+                String thumb = meta.getThumbnail() != null && !meta.getThumbnail().isBlank()
+                        ? youtubeService.downloadThumbnailFromUrl(meta.getThumbnail())
+                        : youtubeService.downloadThumbnailWithYtdlp(url);
+                video.setThumbnailPath(thumb);
+            } catch (Exception e) {
+                System.err.println("Thumbnail download failed: " + e.getMessage());
+            }
+        }
+        updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 95, null);
+    }
+
+    private void downloadVideoFile(Video video, String url, YoutubeAnalyzeResultDto meta,
                                            Long videoId, long runId) throws Exception {
         updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 65, null);
         int minutes = Math.max(15, meta.getDuration() / 60 + 10);
@@ -277,7 +310,7 @@ public class YoutubeImportJobService {
                 Path jaFile = files.get(t.langCode());
                 if (jaFile == null) continue;
                 long size = Files.exists(jaFile) ? Files.size(jaFile) : -1;
-                List<SubtitleDto> japanese = SubtitleParser.parseVtt(jaFile);
+                List<SubtitleDto> japanese = parseJapanese(jaFile);
                 if (!japanese.isEmpty()) {
                     System.out.println("[YouTube import] JA-only OK lang=" + t.langCode()
                             + " auto=" + t.autoOnly() + " cues=" + japanese.size());
@@ -316,7 +349,7 @@ public class YoutubeImportJobService {
         }
 
         try {
-            List<SubtitleDto> japanese = SubtitleParser.parseVtt(jaFile);
+            List<SubtitleDto> japanese = parseJapanese(jaFile);
             if (japanese.isEmpty()) {
                 long size = Files.size(jaFile);
                 String head = Files.readString(jaFile).substring(0, (int) Math.min(size, 400));
@@ -356,6 +389,19 @@ public class YoutubeImportJobService {
         } finally {
             cleanupSubtitleTemp(jaFile);
         }
+    }
+
+    /** Japanese cues without the opening/ending song lyrics YouTube transcribes as if they were dialogue. */
+    private List<SubtitleDto> parseJapanese(Path jaFile) throws java.io.IOException {
+        List<SubtitleDto> japanese = SubtitleParser.parseVtt(jaFile);
+        if (!skipThemeSongs || japanese.isEmpty()) return japanese;
+        List<ThemeSongDetector.Interval> songs = ThemeSongDetector.detect(Files.readString(jaFile));
+        List<SubtitleDto> kept = ThemeSongDetector.dropSongCues(japanese, songs);
+        if (kept.size() < japanese.size()) {
+            System.out.println("[YouTube import] dropped " + (japanese.size() - kept.size())
+                    + " theme-song cues in " + songs);
+        }
+        return kept;
     }
 
     private static void cleanupSubtitleTemp(Path jaFile) {
@@ -519,6 +565,7 @@ public class YoutubeImportJobService {
         video.setProgressPercent(100);
         video.setErrorMessage(null);
         videoRepository.save(video);
+        notifier.ready(video);
     }
 
     private void failImport(Long videoId, long runId, Exception e) {
@@ -528,6 +575,7 @@ public class YoutubeImportJobService {
             failed.setStatus(VideoStatus.FAILED);
             failed.setErrorMessage(e.getMessage());
             videoRepository.save(failed);
+            notifier.failed(failed, e.getMessage());
         }
     }
 

@@ -84,16 +84,16 @@ BEGIN
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
     INSERT INTO tmp_seedsqlflashcard_sets (seed_key, title, description, expected_count) VALUES
-        ('SEEDSQLFLASHCARD_10_01', 'Giới thiệu bản thân và nghề nghiệp - 20 từ', '20 từ về giới thiệu bản thân và nghề nghiệp. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-01.json.', 20),
-        ('SEEDSQLFLASHCARD_10_02', 'Đồ dùng học tập và vật dụng hằng ngày - 25 từ', '25 từ về đồ dùng học tập và vật dụng hằng ngày. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-02.json.', 25),
-        ('SEEDSQLFLASHCARD_10_03', 'Thời gian và sinh hoạt hằng ngày - 30 từ', '30 từ về thời gian và sinh hoạt hằng ngày. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-04.json.', 30),
-        ('SEEDSQLFLASHCARD_10_04', 'Đi lại và phương tiện giao thông - 40 từ', '40 từ về đi lại và phương tiện giao thông. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-05.json, travel_data.json.', 40),
-        ('SEEDSQLFLASHCARD_10_05', 'Ăn uống, sinh hoạt và mua sắm - 45 từ', '45 từ về ăn uống, sinh hoạt và mua sắm. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-06.json, daily_data.json.', 45),
-        ('SEEDSQLFLASHCARD_10_06', 'Miêu tả sự vật và so sánh - 50 từ', '50 từ về miêu tả sự vật và so sánh. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-08.json, bai-12.json.', 50),
-        ('SEEDSQLFLASHCARD_10_07', 'Sức khỏe, sự cố và thủ tục hằng ngày - 55 từ', '55 từ về sức khỏe, sự cố và thủ tục hằng ngày. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-26.json, bai-32.json.', 55),
-        ('SEEDSQLFLASHCARD_10_08', 'Du lịch: sân bay và tàu điện - 20 từ', '20 từ về du lịch: sân bay và tàu điện. Có cách đọc và nghĩa tiếng Việt. Nguồn: travel_data.json.', 20),
-        ('SEEDSQLFLASHCARD_10_09', 'Đời sống: nhà ở và thủ tục hành chính - 25 từ', '25 từ về đời sống: nhà ở và thủ tục hành chính. Có cách đọc và nghĩa tiếng Việt. Nguồn: daily_data.json.', 25),
-        ('SEEDSQLFLASHCARD_10_10', 'IT: lập trình và phát triển phần mềm - 30 từ', '30 từ về it: lập trình và phát triển phần mềm. Có cách đọc và nghĩa tiếng Việt. Nguồn: it_data.json.', 30);
+        ('SEEDSQLFLASHCARD_10_01', 'Giới thiệu bản thân và nghề nghiệp', 'Từ vựng về giới thiệu bản thân và nghề nghiệp. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-01.json.', 20),
+        ('SEEDSQLFLASHCARD_10_02', 'Đồ dùng học tập và vật dụng hằng ngày', 'Từ vựng về đồ dùng học tập và vật dụng hằng ngày. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-02.json.', 25),
+        ('SEEDSQLFLASHCARD_10_03', 'Thời gian và sinh hoạt hằng ngày', 'Từ vựng về thời gian và sinh hoạt hằng ngày. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-04.json.', 30),
+        ('SEEDSQLFLASHCARD_10_04', 'Đi lại và phương tiện giao thông', 'Từ vựng về đi lại và phương tiện giao thông. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-05.json, travel_data.json.', 40),
+        ('SEEDSQLFLASHCARD_10_05', 'Ăn uống, sinh hoạt và mua sắm', 'Từ vựng về ăn uống, sinh hoạt và mua sắm. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-06.json, daily_data.json.', 45),
+        ('SEEDSQLFLASHCARD_10_06', 'Miêu tả sự vật và so sánh', 'Từ vựng về miêu tả sự vật và so sánh. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-08.json, bai-12.json.', 50),
+        ('SEEDSQLFLASHCARD_10_07', 'Sức khỏe, sự cố và thủ tục hằng ngày', 'Từ vựng về sức khỏe, sự cố và thủ tục hằng ngày. Có cách đọc và nghĩa tiếng Việt. Nguồn: bai-26.json, bai-32.json.', 55),
+        ('SEEDSQLFLASHCARD_10_08', 'Du lịch: sân bay và tàu điện', 'Từ vựng về du lịch: sân bay và tàu điện. Có cách đọc và nghĩa tiếng Việt. Nguồn: travel_data.json.', 20),
+        ('SEEDSQLFLASHCARD_10_09', 'Đời sống: nhà ở và thủ tục hành chính', 'Từ vựng về đời sống: nhà ở và thủ tục hành chính. Có cách đọc và nghĩa tiếng Việt. Nguồn: daily_data.json.', 25),
+        ('SEEDSQLFLASHCARD_10_10', 'IT: lập trình và phát triển phần mềm', 'Từ vựng IT: lập trình và phát triển phần mềm. Có cách đọc và nghĩa tiếng Việt. Nguồn: it_data.json.', 30);
 
     -- Bộ 01: Giới thiệu bản thân và nghề nghiệp - 20 từ.
     -- Nguồn: data/seed_jlas/sekai/sekai-n5/json/bai-01.json

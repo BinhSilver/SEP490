@@ -299,9 +299,15 @@
       self.detail = detail;
       self.renderList();
       self.renderDetail();
+      // Chỉ cuộn khi bộ đang chọn bị khuất (vd. mở từ link); bấm chọn trong danh sách thì giữ nguyên chỗ đang xem.
       var list = self.container.querySelector('[data-deck-list]');
       var current = list.querySelector('[aria-checked="true"]');
-      if (current) list.scrollTop = Math.max(0, current.offsetTop - list.offsetTop - 4);
+      if (current) {
+        var box = list.getBoundingClientRect();
+        var item = current.getBoundingClientRect();
+        if (item.top < box.top) list.scrollTop -= box.top - item.top + 4;
+        else if (item.bottom > box.bottom) list.scrollTop += item.bottom - box.bottom + 4;
+      }
       self.onSelect(detail.deck, detail);
       return detail;
     }).catch(function (error) {

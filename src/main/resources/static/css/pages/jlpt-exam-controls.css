@@ -88,7 +88,8 @@
 .jlpt-exam-result__status { display: inline-flex; margin-top: 16px; padding: 7px 11px; border-radius: 999px; font: 800 11px var(--font-body); letter-spacing: .08em; }
 .jlpt-exam-result__status.is-pass { background: #dff5e7; color: #17663b; }
 .jlpt-exam-result__status.is-fail { background: #ffe5e3; color: #9b2929; }
-.jlpt-exam-result > .jlpt-exam-result__breakdown { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 4px; }
+.jlpt-exam-result__status.is-partial { background: #eee8fb; color: #514178; }
+.jlpt-exam-result > .jlpt-exam-result__breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 22px 0 4px; }
 .jlpt-exam-result__breakdown > div { display: grid; gap: 4px; padding: 15px; border-radius: 12px; background: var(--color-surface-mid); }
 .jlpt-exam-result__breakdown span { color: var(--color-on-surface-variant); font-size: 10px; font-weight: 800; }
 .jlpt-exam-result__breakdown strong { font: 800 18px var(--font-mono); }
@@ -96,6 +97,10 @@
 .jlpt-exam-result__review { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--color-outline-variant); text-align: left; }
 .jlpt-exam-result__review > summary { font-size: 17px; font-weight: 800; cursor: pointer; }
 .jlpt-exam-result__review > p { color: var(--color-on-surface-variant); font-size: 12px; }
+.jlpt-review-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 18px 0; padding: 14px; border-radius: 12px; background: var(--color-surface-mid); }
+.jlpt-review-filters label { display: grid; gap: 5px; color: var(--color-on-surface-variant); font-size: 11px; font-weight: 750; }
+.jlpt-review-filters select { min-width: 175px; min-height: 40px; padding: 0 10px; border: 1px solid var(--color-outline-variant); border-radius: 9px; background: #fff; color: var(--color-on-surface); font: 650 12px var(--font-body); }
+.jlpt-review-filters > span { margin-left: auto; padding-bottom: 11px; color: var(--color-on-surface-variant); font-size: 11px; font-weight: 700; }
 .jlpt-review-part { margin-top: 30px; }
 .jlpt-review-part > h3 { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 2px solid var(--color-primary); color: var(--color-primary); font-size: 17px; }
 .jlpt-review-part > h3 span { color: var(--color-on-surface-variant); font-size: 11px; }
@@ -107,6 +112,10 @@
 .jlpt-review-item > header strong { font-size: 12px; }
 .jlpt-review-item.is-correct > header strong { color: #247148; }
 .jlpt-review-item.is-wrong > header strong { color: #b23f3f; }
+.jlpt-review-order { padding: 12px 14px; border-radius: 12px; background: #f6f2fb; color: var(--color-on-surface); font: 13px/1.6 var(--font-body); }
+.jlpt-review-order p { margin: 0 0 8px; }
+.jlpt-review-order p:last-child { margin-bottom: 0; }
+.jlpt-review-order ol { display: inline-flex; flex-wrap: wrap; gap: 8px 18px; margin: 6px 0 0; padding-left: 22px; }
 .jlpt-review-item h4 { margin: 16px 0; font-family: "Noto Serif JP", "Noto Serif", serif; font-size: 17px; font-weight: 700; line-height: 1.7; }
 .jlpt-review-passage { margin: 15px 0; padding: 16px; border-radius: 10px; background: var(--color-surface); font-size: 14px; line-height: 1.75; }
 .jlpt-review-image { display: block; max-width: 100%; max-height: 360px; margin: 15px auto; }

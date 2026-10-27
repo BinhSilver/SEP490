@@ -50,6 +50,18 @@ public interface ContentVocabularyRepository extends JpaRepository<ContentVocabu
     List<ContentVocabulary> findByLessonIdAndVocabularyId(@Param("lessonId") Long lessonId,
                                                           @Param("vocabularyId") Long vocabularyId);
 
+    /**
+     * Câu ví dụ của TỪ VỰNG theo bài: content_item GRAMMAR (câu ví dụ) nối với từ qua content_vocabulary.
+     * Câu ví dụ ngữ pháp không bao giờ nối với từ, nên liên kết này là dấu hiệu phân biệt. Cột: content_item id, vocabulary id.
+     */
+    @Query("""
+            select ci.id, cv.vocabularyEntry.id from ContentVocabulary cv
+              join cv.contentItem ci
+              join ci.section s
+            where s.lesson.id = :lessonId and ci.contentType = 'GRAMMAR'
+            """)
+    List<Object[]> findVocabularyExampleLinksByLessonId(@Param("lessonId") Long lessonId);
+
     /** Id các từ đã gắn vào bài, để đánh dấu trong kết quả tìm kiếm. */
     @Query("""
             select cv.vocabularyEntry.id from ContentVocabulary cv

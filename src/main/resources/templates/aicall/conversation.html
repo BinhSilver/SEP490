@@ -10,12 +10,13 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261009-composer-fix')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261017-correction-ruby')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261021-notebooks)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261011-flush-corner')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -52,7 +53,7 @@
             </button>
         </div>
 
-        <div class="cv-messages" id="chatMessages" role="log" aria-live="polite" aria-relevant="additions">
+        <div class="cv-messages" id="chatMessages" data-inline-dictionary role="log" aria-live="polite" aria-relevant="additions">
             <th:block th:each="m : ${messages}">
             <div class="scene-transition" role="separator" th:if="${sceneTransitionByMessageId[m.id] != null}">
                 <span><i class="fa-regular fa-clock" aria-hidden="true"></i>
@@ -266,16 +267,16 @@
                     <option value="n3" selected>N3</option>
                     <option value="n2">N2</option>
                     <option value="n1">N1</option>
-                    <option value="native">Native</option>
+                    <option value="native">Người bản xứ</option>
                 </select>
             </label>
             <label class="freechat-field" for="fcStyle">Giọng nói
                 <select id="fcStyle">
-                    <option value="casual" selected>Casual</option>
+                    <option value="casual" selected>Thân mật</option>
                     <option value="polite">Lịch sự</option>
-                    <option value="keigo">Keigo</option>
-                    <option value="osaka">Osaka</option>
-                    <option value="anime">Anime</option>
+                    <option value="keigo">Kính ngữ (Keigo)</option>
+                    <option value="osaka">Giọng Osaka</option>
+                    <option value="anime">Kiểu anime</option>
                 </select>
             </label>
             <label class="freechat-field" for="fcInitiative">Mức chủ động
@@ -422,10 +423,11 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
+<script defer th:src="@{/js/inline-dictionary.js(v='20261021-notebooks')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261007-japanese-input-ime')}"></script>
+<script th:src="@{/js/conversation.js(v='20261017-correction-ruby')}"></script>
 <script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
 </body>
 </html>
