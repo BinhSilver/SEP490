@@ -1,7 +1,7 @@
 -- [JLAS2-kanji-map] Consolidated feature update. Select the intended database before running.
 -- Prepared for review only; no SQL is executed by the commit workflow.
 
--- ===== 053_kanji_map_catalog.sql =====
+-- ===== Kanji catalog (consolidated) =====
 -- [JLAS-KANJI-MAP] Relational source catalog. Apply before seed_data_kanji_map.sql.
 -- Only adds catalog tables; does not alter dictionary data, editorial overlays or learner progress.
 CREATE TABLE IF NOT EXISTS kanji_map_dataset (
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS kanji_map_stroke (
     CONSTRAINT fk_kanji_map_stroke_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===== 054_kanji_map_trim_unused.sql =====
+-- ===== Remove unused catalog fields =====
 -- [JLAS-KANJI-MAP] Remove source-only fields that no learning/admin feature consumes.
 -- Archive remains in data/kanji-map/graph.json; the seed can reconstruct all retained data.
 -- Deploy with the matching repository and seed. Editorial content and mastery are untouched.
@@ -111,7 +111,7 @@ PREPARE kanji_map_trim_statement FROM @kanji_map_trim_sql;
 EXECUTE kanji_map_trim_statement;
 DEALLOCATE PREPARE kanji_map_trim_statement;
 
--- ===== 045_kanji_map_mastery.sql =====
+-- ===== Kanji mastery =====
 -- [JLAS-KANJI-MAP] Apply once to existing installations; re-runnable.
 CREATE TABLE IF NOT EXISTS user_kanji_mastery (
     user_id BIGINT UNSIGNED NOT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS user_kanji_mastery (
     CONSTRAINT fk_kanji_mastery_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===== 046_kanji_map_content.sql =====
+-- ===== Editorial Kanji content =====
 -- [JLAS-KANJI-MAP] Editorial content for Content Creator; source geometry stays in graph.json.
 CREATE TABLE IF NOT EXISTS kanji_map_content (
     kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -133,8 +133,8 @@ CREATE TABLE IF NOT EXISTS kanji_map_content (
     CONSTRAINT chk_kanji_map_content_version CHECK (version > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===== 055_notebook_kanji.sql =====
--- [JLAS-KANJI-MAP] Run after notebook migrations 038/039 and catalog migration 053/054.
+-- ===== Kanji notebook membership =====
+-- [JLAS-KANJI-MAP] Requires notebook setup (038/039 or 052_notebook_update.sql); catalog tables are created above.
 -- Reuses user_notebook; Kanji are separate from vocabulary entries and their SRS progress.
 CREATE TABLE IF NOT EXISTS user_notebook_kanji (
     notebook_id BIGINT NOT NULL,
