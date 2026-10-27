@@ -31,6 +31,10 @@ public class InteractiveRateLimitService {
     public enum Bucket {
         MICRO_CHECK_ISSUE(20, 60_000L, "Bạn đang mở bài kiểm tra quá nhanh. Vui lòng đợi một chút rồi thử lại."),
         MICRO_CHECK_SUBMIT(20, 60_000L, "Bạn đang nộp bài quá nhanh. Vui lòng đợi một chút rồi thử lại."),
+        // [JLAS-W0113] Autosave is a legitimate high-frequency write (debounced client-side), so its ceiling is
+        // deliberately looser than issue/submit while still rejecting a scripted write loop.
+        MICRO_CHECK_DRAFT(120, 60_000L, "Đang lưu nháp quá nhanh. Vui lòng thử lại sau."),
+        QUIZ_EXPLANATION(10, 60_000L, "Bạn đang yêu cầu giải thích quá nhanh. Vui lòng đợi một chút rồi thử lại."),
         DIALOGUE_HEARTBEAT(8, 30_000L, "Hội thoại đang gửi tín hiệu quá nhanh. Vui lòng thử lại sau."),
         CERTIFICATE_VIEW(20, 60_000L, "Bạn đang mở chứng nhận quá nhanh. Vui lòng đợi một chút rồi thử lại.");
 

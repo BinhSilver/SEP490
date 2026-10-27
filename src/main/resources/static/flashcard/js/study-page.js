@@ -14,14 +14,42 @@
   var browseVisited = {};
   var visitedCards = {};
   var flipCount = 0;
-  var startedAt = Date.now();
+  var studyClock = window.FlashStudyClock.create();
   var sessionDone = false;
   var elapsedTimer = null;
   var totalSetCards = null;
-  var faceFields = { front: 'FRONT', back: 'BACK' };
+  var Faces = window.FlashStudyFaceFields;
+  var FACE_FIELDS_KEY = 'jlab.flashcard.faceFields';
+  var faceFields = readSavedFaceFields();
+  // Fields at least one card of the session has; a face just needs one non-empty field per card.
+  var faceAllowed = Faces.FIELDS.map(function (field) { return field.value; });
+  var faceDraft = null;
   var setDetail = null;
   var pendingRating = 0;
   var settingsListboxes = [];
+  // Ghi nhớ: hàng đợi lặp thẻ trong phiên; recallOnly = chỉ học lại các thẻ khó của phiên trước.
+  var recall = null;
+  var recallOnly = null;
+  var sessionTitle = '';
+  var focusActive = false;
+  var swipeController = null;
+  var faceFitter = null;
+  // Lướt thẻ: tắt "Theo dõi tiến độ" thì chỉ xem thẻ, không chấm Đã nhớ / Chưa thuộc và không lưu gì.
+  var trackProgress = readTrackProgress();
+
+  function syncStudyClock() {
+    if (document.hidden || sessionDone || !cards.length) studyClock.pause();
+    else studyClock.start();
+    updateElapsed();
+    saveRecall();
+  }
+
+  document.addEventListener('visibilitychange', syncStudyClock);
+  window.addEventListener('pageshow', syncStudyClock);
+  window.addEventListener('pagehide', function () {
+    studyClock.pause();
+    saveRecall();
+  });
 
   document.addEventListener('DOMContentLoaded', function () {
     // Học thẻ bắt buộc đăng nhập (để đếm study_count + lưu tiến độ)
@@ -31,6 +59,23 @@
 
     var btnSettings = document.getElementById('btn-settings');
     if (btnSettings) btnSettings.addEventListener('click', openSettings);
+    var trackInput = document.getElementById('track-progress');
+    trackInput.checked = trackProgress;
+    trackInput.addEventListener('change', function () {
+      trackProgress = trackInput.checked;
+      try { localStorage.setItem('jlab.flashcard.trackProgress', trackProgress ? 'true' : 'false'); } catch (e) { /* bỏ qua */ }
+      updateStudyModeUi();
+      paintFocus();
+    });
+    document.getElementById('btn-focus').addEventListener('click', function () {
+      if (focusActive) exitFocus(); else enterFocus();
+    });
+    document.getElementById('btn-focus-exit').addEventListener('click', exitFocus);
+    document.getElementById('btn-focus-settings').addEventListener('click', openSettings);
+    document.addEventListener('fullscreenchange', function () {
+      // Esc của trình duyệt thoát fullscreen thì thoát luôn giao diện tập trung.
+      if (!document.fullscreenElement && focusActive) exitFocus();
+    });
     document.getElementById('btn-close-settings').addEventListener('click', closeSettings);
     document.getElementById('btn-cancel-settings').addEventListener('click', closeSettings);
     document.getElementById('btn-apply-settings').addEventListener('click', applySettings);
@@ -42,8 +87,16 @@
     document.getElementById('btn-prev').addEventListener('click', function () { go(-1); });
     document.getElementById('btn-next').addEventListener('click', function () { go(1); });
     document.getElementById('btn-flip').addEventListener('click', flip);
-    document.getElementById('btn-browse-flip').addEventListener('click', flip);
+    document.getElementById('btn-browse-prev').addEventListener('click', function () { go(-1); });
+    document.getElementById('btn-browse-next').addEventListener('click', function () { go(1); });
+    document.getElementById('btn-actions-settings').addEventListener('click', openSettings);
     document.getElementById('flip-card').addEventListener('click', flip);
+    swipeController = window.FlashStudySwipe.attach(document.getElementById('flip-card'), {
+      enabled: function () { return studyMode === 'BROWSE' && trackProgress && !sessionDone && !marking && cards.length > 0; },
+      onSwipe: function (direction) { return markBrowse(direction === 'right'); }
+    });
+    faceFitter = window.FlashStudyFitText.attach(document.getElementById('flip-card'),
+      [document.getElementById('face-front'), document.getElementById('face-back')], window);
     document.getElementById('btn-speak').addEventListener('click', function (event) {
       event.stopPropagation();
       speakJapanese();
@@ -71,6 +124,14 @@
       }
       location.href = '/flashcard/study.html?setId=' + setId + '&mode=LEARNING';
     });
+    document.getElementById('btn-recall-hard').addEventListener('click', function () {
+      if (!recall) return;
+      var hard = recallHardIds();
+      if (!hard.length) return;
+      recallOnly = hard;
+      clearRecall();
+      load();
+    });
     document.getElementById('btn-study-all').addEventListener('click', function () {
       location.href = '/flashcard/study.html?setId=' + setId + '&mode=ALL';
     });
@@ -87,7 +148,13 @@
       if (!document.getElementById('settings-modal').hidden) return;
       if (!document.getElementById('reset-modal').hidden) return;
       if (!document.getElementById('rating-modal').hidden) return;
+      if (e.key === 'Escape' && focusActive) { exitFocus(); return; }
       if (sessionDone) return;
+      if (studyMode === 'RECALL' && /^[0-5]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        mark(Number(e.key));
+        return;
+      }
       if (e.code === 'Space') { e.preventDefault(); flip(); }
       if (e.key === 'ArrowLeft') go(-1);
       if (e.key === 'ArrowRight') go(1);
@@ -114,6 +181,10 @@
 
   function applySession(session) {
     cards = session.cards || [];
+    if (recallOnly) {
+      cards = cards.filter(function (card) { return recallOnly.indexOf(card.id) >= 0; });
+    }
+    recall = null;
     totalSetCards = null;
     index = 0;
     flipped = false;
@@ -122,16 +193,18 @@
     browseVisited = {};
     visitedCards = {};
     flipCount = 0;
-    startedAt = Date.now();
+    studyClock.reset();
+    stopElapsedTimer();
     sessionDone = false;
     updateStudyModeUi();
-    startElapsedTimer();
     var studyTitle = document.getElementById('study-title');
     if (studyTitle) studyTitle.textContent = session.title || 'Học thẻ';
-    if (session.frontField) faceFields.front = session.frontField;
-    if (session.backField) faceFields.back = session.backField;
-    document.getElementById('face-front-field').value = faceFields.front;
-    document.getElementById('face-back-field').value = faceFields.back;
+    sessionTitle = session.title || 'Học thẻ';
+    if (session.frontField || session.backField) {
+      faceFields = { front: session.frontField || faceFields.front, back: session.backField || faceFields.back };
+    }
+    faceAllowed = Faces.available(cards);
+    faceFields = Faces.sanitize(faceFields, faceAllowed, cards);
     syncSettingsListboxes();
 
     document.getElementById('study-complete').hidden = true;
@@ -147,12 +220,15 @@
     document.getElementById('study-empty').hidden = true;
     document.getElementById('study-stage').hidden = false;
     document.getElementById('study-actions').hidden = false;
+    if (studyMode === 'RECALL') initRecall();
     renderCard();
+    startElapsedTimer();
   }
 
   function renderCard() {
     var c = cards[index];
     if (!c) return;
+    if (swipeController) swipeController.cancel();
     visitedCards[c.id] = true;
     if (studyMode === 'BROWSE') browseVisited[c.id] = true;
     flipped = false;
@@ -162,6 +238,7 @@
     // so an existing card never renders as a blank face.
     document.getElementById('face-front').textContent = cardFace(c, faceFields.front);
     document.getElementById('face-back').textContent = cardFace(c, faceFields.back);
+    if (faceFitter) faceFitter.refit();
     var img = document.getElementById('face-image');
     if (c.image) {
       img.src = c.image;
@@ -174,20 +251,16 @@
     if (studyProgress) studyProgress.textContent = (index + 1) + ' / ' + cards.length;
     var progressFill = document.getElementById('study-progress-fill');
     var progressPercent = Math.round(((index + 1) / cards.length) * 100);
+    if (recall) progressPercent = paintRecallStatus(c.id);
+    document.getElementById('study-browse-position').textContent = (index + 1) + ' / ' + cards.length;
     if (progressFill) progressFill.style.width = progressPercent + '%';
+    paintFocus();
   }
 
-  function cardFace(card, field) {
+  /* One line per chosen field (Kanji → Hiragana → Hán Việt → Nghĩa); `separator` joins them inline. */
+  function cardFace(card, fields, separator) {
     if (!card) return '';
-    var values = {
-      FRONT: card.front || card.kanji,
-      BACK: card.back || card.meaning || card.reading,
-      HAN_VIET: card.hanViet,
-      HIRAGANA: card.hiragana || card.reading,
-      READING: card.reading || card.hiragana,
-      MEANING: card.meaning || card.back
-    };
-    return values[String(field || '').toUpperCase()] || card.front || card.kanji || '';
+    return Faces.text(card, fields, separator) || card.front || card.kanji || '';
   }
 
   function flip() {
@@ -202,7 +275,9 @@
   }
 
   function go(delta) {
-    if (!cards.length || sessionDone) return;
+    if (!cards.length || sessionDone || marking) return;
+    // Ghi nhớ đi theo hàng đợi lặp lại, không lướt tự do.
+    if (recall) return;
     if (delta > 0) {
       if (studyMode === 'BROWSE') recordBrowseLeave();
       if (Object.keys(visitedCards).length >= cards.length) {
@@ -217,6 +292,7 @@
   }
 
   function recordBrowseLeave() {
+    if (!trackProgress) return;
     var c = cards[index];
     if (c && !Object.prototype.hasOwnProperty.call(browseResults, c.id)) {
       // Không bấm lựa chọn = chưa nhớ trong phiên này. Không tạo progress row,
@@ -240,34 +316,241 @@
     window.speechSynthesis.speak(utterance);
   }
 
+  var marking = false;
+
   async function mark(quality) {
     var c = cards[index];
-    if (!c || sessionDone) return;
+    if (!c || sessionDone || marking) return;
     if (studyMode === 'BROWSE') return;
     if (!(window.JlasAuth && JlasAuth.isLoggedIn && JlasAuth.isLoggedIn())) {
       FlashShell.showToast('Đăng nhập để lưu tiến độ', 'err');
       reviewed[c.id] = true;
-      afterMark();
+      if (recall) recallAnswer(quality); else afterMark();
       return;
     }
+    marking = true;
     try {
       await FlashApi.post('/api/study/review', { setId: setId, cardId: c.id, quality: quality });
       reviewed[c.id] = true;
-      FlashShell.showToast('Đã lưu mức ' + quality + '/5', 'ok');
-      afterMark();
+      if (recall) {
+        recallAnswer(quality);
+      } else {
+        afterMark();
+      }
     } catch (e) {
       FlashShell.showToast(e.message || 'Không lưu được', 'err');
+    } finally {
+      marking = false;
     }
+  }
+
+  /* ── Ghi nhớ: lặp thẻ trong phiên tới khi mọi thẻ đủ số lần chấm 5 ───
+   * Thẻ mới cần 2 lần chấm 5. Chấm dưới 5 cộng thêm số lần cần (trần 3, riêng mức 0 trần 4)
+   * và cho thẻ quay lại sau vài thẻ; điểm càng thấp thẻ càng quay lại sớm.
+   * Mỗi lúc chỉ học một nhóm tối đa RECALL_GROUP thẻ; khoảng quay lại tính theo tỉ lệ
+   * số thẻ còn lại trong nhóm (kẹp trong [min, max]) nên hợp với cả bộ mỏng lẫn bộ dày. */
+  var RECALL_START_NEED = 2;
+  var RECALL_GROUP = 12;
+  var RECALL_GAP_RATIO = [0.15, 0.25, 0.35, 0.5, 0.75];
+  var RECALL_GAP_MIN = [1, 2, 2, 3, 3];
+  var RECALL_GAP_MAX = [4, 6, 9, Infinity, Infinity];
+  var RECALL_ADD = [3, 2, 2, 1, 1];
+
+  function recallKey() {
+    return 'jlab.flashcard.recall.' + setId + '.' + mode + (recallOnly ? '.' + recallOnly.join('-') : '');
+  }
+
+  function sortedIds(ids) {
+    return ids.slice().sort(function (a, b) { return a - b; }).join(',');
+  }
+
+  function initRecall() {
+    var ids = cards.map(function (card) { return card.id; });
+    var saved = readRecall(ids);
+    if (saved) {
+      recall = saved;
+      recall.pending = recall.pending || [];
+      // Bản lưu cũ chỉ có mốc bắt đầu, không biết thời gian thực học: giữ tiến độ,
+      // nhưng không cộng khoảng nghỉ vào phiên đang tiếp tục.
+      studyClock.reset(saved.elapsedMs);
+      delete recall.startedAt;
+      flipCount = saved.flipCount || 0;
+    } else {
+      recall = {
+        ids: ids,
+        queue: ids.slice(0, RECALL_GROUP),
+        pending: ids.slice(RECALL_GROUP),
+        need: {},
+        attempts: {},
+        gained: 0
+      };
+      ids.forEach(function (id) {
+        recall.need[id] = RECALL_START_NEED;
+        recall.attempts[id] = [];
+      });
+    }
+    index = cardIndex(recall.queue[0]);
+  }
+
+  function readRecall(ids) {
+    try {
+      var saved = JSON.parse(localStorage.getItem(recallKey()) || 'null');
+      if (saved && saved.queue && saved.queue.length && sortedIds(saved.ids || []) === sortedIds(ids)) return saved;
+    } catch (e) {
+      // Bản lưu hỏng hoặc trình duyệt chặn storage: bắt đầu phiên mới.
+    }
+    return null;
+  }
+
+  function saveRecall() {
+    if (!recall || sessionDone) return;
+    try {
+      localStorage.setItem(recallKey(), JSON.stringify(Object.assign({}, recall, {
+        elapsedMs: studyClock.elapsedMs(),
+        flipCount: flipCount
+      })));
+    } catch (e) {
+      // Không lưu được thì chỉ mất khả năng học tiếp sau khi tải lại trang.
+    }
+  }
+
+  function clearRecall() {
+    try { localStorage.removeItem(recallKey()); } catch (e) { /* bỏ qua */ }
+  }
+
+  function cardIndex(id) {
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].id === id) return i;
+    }
+    return 0;
+  }
+
+  function recallAnswer(quality) {
+    var id = recall.queue.shift();
+    recall.attempts[id].push(quality);
+    if (quality >= 5) {
+      recall.need[id] -= 1;
+      recall.gained += 1;
+      if (recall.need[id] > 0) {
+        recall.queue.push(id);
+      } else if (recall.pending.length) {
+        // Thẻ vừa thuộc rời nhóm: thẻ mới kế tiếp vào cuối hàng.
+        recall.queue.push(recall.pending.shift());
+      }
+    } else {
+      var need = recall.need[id];
+      var cap = quality === 0 ? 4 : 3;
+      recall.need[id] = Math.max(need, Math.min(need + RECALL_ADD[quality], cap));
+      recall.queue.splice(recallGap(quality, recall.queue.length), 0, id);
+    }
+    if (!recall.queue.length) {
+      clearRecall();
+      showComplete();
+      return;
+    }
+    saveRecall();
+    index = cardIndex(recall.queue[0]);
+    renderCard();
+  }
+
+  /** Số thẻ chen giữa trước khi thẻ vừa chấm quay lại; others = số thẻ khác đang trong nhóm. */
+  function recallGap(quality, others) {
+    var gap = Math.round(RECALL_GAP_RATIO[quality] * others);
+    gap = Math.min(Math.max(gap, RECALL_GAP_MIN[quality]), RECALL_GAP_MAX[quality]);
+    return Math.min(gap, others);
+  }
+
+  /** Vẽ dòng trạng thái của thẻ đang hiện và trả về % tiến độ phiên. */
+  function paintRecallStatus(cardId) {
+    var remaining = recall.queue.reduce(function (sum, id) { return sum + recall.need[id]; }, 0)
+      + recall.pending.length * RECALL_START_NEED;
+    var total = recall.gained + remaining;
+    var need = recall.need[cardId] || 0;
+    var needEl = document.getElementById('recall-need');
+    needEl.replaceChildren();
+    for (var i = 0; i < need; i++) {
+      var dot = document.createElement('i');
+      dot.className = 'recall-status__dot';
+      dot.setAttribute('aria-hidden', 'true');
+      needEl.appendChild(dot);
+    }
+    needEl.appendChild(document.createTextNode('Cần chấm 5 thêm ' + need + ' lần'));
+    var left = recall.queue.length + recall.pending.length;
+    var meta = 'Còn ' + left + '/' + recall.ids.length + ' thẻ chưa thuộc';
+    if (recall.pending.length) {
+      meta += ' · Nhóm đang học: ' + recall.queue.length + ' thẻ, ' + recall.pending.length + ' thẻ chưa vào nhóm';
+    }
+    document.getElementById('recall-meta').textContent = meta + ' · ' + recall.gained + '/' + total + ' lần nhớ';
+    document.getElementById('recall-status').hidden = false;
+    return total ? Math.round((recall.gained * 100) / total) : 0;
+  }
+
+  function recallHardIds() {
+    return recall.ids.filter(function (id) { return (recall.attempts[id] || []).length >= 3; });
+  }
+
+  function paintRecallSummary(studyTime) {
+    var ids = recall.ids;
+    var total = ids.length;
+    var answers = ids.reduce(function (sum, id) { return sum + recall.attempts[id].length; }, 0);
+    var knownFirst = ids.filter(function (id) { return recall.attempts[id][0] >= 3; }).length;
+    var hard = recallHardIds();
+    var knownPct = total ? Math.round((knownFirst * 100) / total) : 0;
+
+    document.getElementById('progress-pct').textContent = '100%';
+    document.getElementById('progress-ring').style.setProperty('--pct', '100');
+    document.getElementById('complete-progress-title').textContent = 'Kết quả ghi nhớ';
+    document.getElementById('stat-mastered-label').textContent = 'Đã thuộc';
+    document.getElementById('stat-mastered').textContent = total;
+    document.getElementById('stat-learning-label').textContent = 'Biết ngay lần đầu';
+    document.getElementById('stat-learning').textContent = knownFirst;
+    document.getElementById('stat-new-label').textContent = 'Phải lặp từ 3 lần';
+    document.getElementById('stat-new').textContent = hard.length;
+    document.getElementById('ss-total').textContent = total;
+    document.getElementById('ss-pct-label').textContent = 'Nhớ ngay lần đầu';
+    document.getElementById('ss-pct').textContent = knownPct + '%';
+    document.getElementById('ss-time').textContent = formatTime(studyTime);
+    document.getElementById('ss-flips-label').textContent = 'Lượt chấm';
+    document.getElementById('ss-flips').textContent = answers + ' lần';
+
+    var list = document.getElementById('recall-hard-list');
+    list.replaceChildren();
+    ids.slice()
+      .sort(function (a, b) { return recall.attempts[b].length - recall.attempts[a].length; })
+      .filter(function (id) { return recall.attempts[id].length >= 3; })
+      .slice(0, 5)
+      .forEach(function (id) {
+        var card = cards[cardIndex(id)];
+        var item = document.createElement('li');
+        var word = document.createElement('strong');
+        word.lang = 'ja';
+        word.textContent = cardFace(card, faceFields.front, ' · ');
+        var history = document.createElement('span');
+        history.textContent = recall.attempts[id].join(' → ');
+        item.append(word, history);
+        list.appendChild(item);
+      });
+    document.getElementById('recall-hard').hidden = !list.children.length;
+
+    var btnHard = document.getElementById('btn-recall-hard');
+    btnHard.hidden = !hard.length;
+    document.getElementById('btn-recall-hard-note').textContent = hard.length + ' thẻ phải lặp từ 3 lần trở lên';
+    // Phiên Ghi nhớ kết thúc khi mọi thẻ đã thuộc nên không còn "thẻ chưa nhớ" để lọc.
+    document.getElementById('btn-study-learning').hidden = true;
+    updateQuizAvailability();
+    paintQuote(knownPct);
   }
 
   async function markBrowse(rememberedValue) {
     var c = cards[index];
-    if (!c || sessionDone) return;
+    if (!c || sessionDone || marking || !trackProgress || studyMode !== 'BROWSE') return;
     if (!(window.JlasAuth && JlasAuth.isLoggedIn && JlasAuth.isLoggedIn())) {
       FlashShell.showToast('Đăng nhập để lưu kết quả học', 'err');
       browseResults[c.id] = rememberedValue ? 'REMEMBERED' : 'NOT_REMEMBERED';
+      paintFocus();
       return;
     }
+    marking = true;
     try {
       await FlashApi.post('/api/study/review', {
         setId: setId,
@@ -275,10 +558,11 @@
         quality: rememberedValue ? 5 : 0
       });
       browseResults[c.id] = rememberedValue ? 'REMEMBERED' : 'NOT_REMEMBERED';
-      FlashShell.showToast(rememberedValue ? 'Đã đánh dấu: Đã nhớ' : 'Đã đánh dấu: Chưa thuộc', 'ok');
       afterMark();
     } catch (e) {
       FlashShell.showToast(e.message || 'Không lưu được kết quả', 'err');
+    } finally {
+      marking = false;
     }
   }
 
@@ -304,15 +588,31 @@
 
   async function showComplete() {
     sessionDone = true;
-    if (elapsedTimer) clearInterval(elapsedTimer);
+    studyClock.pause();
+    exitFocus();
+    stopElapsedTimer();
     document.getElementById('study-stage').hidden = true;
     document.getElementById('study-actions').hidden = true;
     document.getElementById('study-card-list').hidden = true;
     document.getElementById('study-mode-nav').hidden = true;
     document.getElementById('study-session-progress').hidden = true;
     document.getElementById('study-complete').hidden = false;
+    requestAnimationFrame(function () {
+      document.getElementById('study-complete').scrollIntoView({ block: 'start', behavior: 'auto' });
+    });
 
-    var studyTime = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+    document.getElementById('recall-status').hidden = true;
+    document.getElementById('recall-hard').hidden = true;
+    document.getElementById('btn-recall-hard').hidden = true;
+
+    var studyTime = Math.max(1, Math.round(studyClock.elapsedMs() / 1000));
+    if (recall) {
+      // Kết quả Ghi nhớ tính từ chính phiên vừa học; vẫn báo server để đếm lượt học bộ thẻ.
+      paintRecallSummary(studyTime);
+      FlashApi.post('/api/study/' + setId + '/complete', { studyTime: studyTime, flipCount: flipCount })
+        .catch(function () { /* khách hoặc mất mạng: kết quả đã hiện đủ */ });
+      return;
+    }
     try {
       await FlashApi.post('/api/study/' + setId + '/complete', {
         studyTime: studyTime,
@@ -321,7 +621,9 @@
       var summary = await FlashApi.get(
         '/api/study/' + setId + '/summary?studyTime=' + studyTime + '&flipCount=' + flipCount
       );
-       paintSummary(summary, studyMode === 'BROWSE');
+      // API tóm tắt không trả thời gian học: dùng thời gian của phiên này.
+      summary.studyTime = summary.studyTime || studyTime;
+      paintSummary(summary, studyMode === 'BROWSE');
     } catch (e) {
       // Guest fallback — local numbers
       paintSummary({
@@ -337,13 +639,23 @@
   }
 
   function startElapsedTimer() {
+    stopElapsedTimer();
+    syncStudyClock();
+    var ticks = 0;
+    elapsedTimer = setInterval(function () {
+      updateElapsed();
+      // Có checkpoint ngắn để vẫn giữ thời gian khi trình duyệt đóng đột ngột.
+      if (++ticks % 5 === 0 && !document.hidden) saveRecall();
+    }, 1000);
+  }
+
+  function stopElapsedTimer() {
     if (elapsedTimer) clearInterval(elapsedTimer);
-    updateElapsed();
-    elapsedTimer = setInterval(updateElapsed, 1000);
+    elapsedTimer = null;
   }
 
   function updateElapsed() {
-    var elapsed = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+    var elapsed = Math.floor(studyClock.elapsedMs() / 1000);
     var minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
     var seconds = String(elapsed % 60).padStart(2, '0');
     var label = document.getElementById('study-elapsed');
@@ -381,6 +693,23 @@
     document.getElementById('ss-time').textContent = formatTime(s.studyTime || 0);
     document.getElementById('ss-flips').textContent = (s.flipCount || flipCount) + ' lần';
     document.getElementById('ss-flips-label').textContent = isBrowse ? 'Lật thẻ' : 'Lật thẻ';
+    if (isBrowse && !trackProgress) {
+      // Lướt không theo dõi tiến độ: chỉ báo đã xem bao nhiêu thẻ.
+      var seen = Object.keys(browseVisited).length;
+      var seenPct = total ? Math.round((seen * 100) / total) : 0;
+      document.getElementById('progress-pct').textContent = seenPct + '%';
+      document.getElementById('progress-ring').style.setProperty('--pct', String(seenPct));
+      document.getElementById('stat-mastered-label').textContent = 'Đã xem';
+      document.getElementById('stat-mastered').textContent = seen;
+      document.getElementById('stat-learning-label').textContent = 'Chưa xem';
+      document.getElementById('stat-learning').textContent = Math.max(0, total - seen);
+      document.getElementById('stat-new-label').textContent = 'Lượt lật thẻ';
+      document.getElementById('stat-new').textContent = flipCount;
+      document.getElementById('ss-pct-label').textContent = 'Tỷ lệ đã xem';
+      document.getElementById('ss-pct').textContent = seenPct + '%';
+      notMastered = 0;
+      pct = seenPct;
+    }
 
     // Chỉ hiện khi còn thẻ chưa thuộc / chưa học
     var btnStudyLearning = document.getElementById('btn-study-learning');
@@ -434,6 +763,28 @@
   function renderStudyCardList(setCards) {
     var container = document.getElementById('study-card-list-items');
     var count = document.getElementById('study-card-list-count');
+    var columns = [
+      { label: 'Kanji', className: 'study-card-list__kanji', value: function (card) { return String(card.front || '').trim() || String(card.kanji || '').trim(); } },
+      { label: 'Hiragana', className: 'study-card-list__hiragana', value: function (card) { return String(card.hiragana || '').trim() || String(card.reading || '').trim(); } },
+      { label: 'Hán Việt', className: 'study-card-list__han-viet', value: function (card) { return String(card.hanViet || '').trim(); } },
+      { label: 'Nghĩa', className: 'study-card-list__meaning', value: function (card) { return String(card.meaning || '').trim() || String(card.back || '').trim(); } }
+    ].filter(function (column) {
+      return setCards.some(function (card) { return column.value(card); });
+    });
+    var table = container.closest('table');
+    table.dataset.contentColumns = String(columns.length);
+    var headingRow = table.tHead.rows[0];
+    var indexHeading = document.createElement('th');
+    indexHeading.scope = 'col';
+    indexHeading.className = 'study-card-list__index-heading';
+    indexHeading.textContent = '#';
+    headingRow.replaceChildren(indexHeading);
+    columns.forEach(function (column) {
+      var heading = document.createElement('th');
+      heading.scope = 'col';
+      heading.textContent = column.label;
+      headingRow.appendChild(heading);
+    });
     container.replaceChildren();
     count.textContent = setCards.length + ' thẻ';
     setCards.forEach(function (card, cardIndex) {
@@ -442,16 +793,13 @@
       number.scope = 'row';
       number.className = 'study-card-list__number';
       number.textContent = String(cardIndex + 1);
-      var kanji = document.createElement('td');
-      kanji.className = 'study-card-list__kanji';
-      kanji.textContent = card.front || card.kanji || '—';
-      var hiragana = document.createElement('td');
-      hiragana.className = 'study-card-list__hiragana';
-      hiragana.textContent = card.hiragana || card.reading || '—';
-      var hanViet = document.createElement('td');
-      hanViet.className = 'study-card-list__han-viet';
-      hanViet.textContent = card.hanViet || '—';
-      item.append(number, kanji, hiragana, hanViet);
+      item.appendChild(number);
+      columns.forEach(function (column) {
+        var cell = document.createElement('td');
+        cell.className = column.className;
+        cell.textContent = column.value(card) || '—';
+        item.appendChild(cell);
+      });
       container.appendChild(item);
     });
   }
@@ -614,6 +962,7 @@
   }
 
   function updateStudyModeUi() {
+    if (swipeController) swipeController.cancel();
     var isBrowse = studyMode === 'BROWSE';
     document.querySelectorAll('[data-study-mode]').forEach(function (button) {
       button.classList.toggle('is-active', button.getAttribute('data-study-mode') === studyMode);
@@ -623,12 +972,94 @@
     var help = document.getElementById('quality-help');
     if (quality) quality.hidden = isBrowse;
     if (browse) browse.hidden = !isBrowse;
+    // Ghi nhớ đi theo hàng đợi nên ẩn mũi tên trước/sau (giữ chỗ để thẻ không bị lệch).
+    ['btn-prev', 'btn-next'].forEach(function (id) {
+      var button = document.getElementById(id);
+      if (button) button.style.visibility = isBrowse ? '' : 'hidden';
+    });
+    var recallStatus = document.getElementById('recall-status');
+    if (recallStatus && isBrowse) recallStatus.hidden = true;
+    // Công tắc theo dõi tiến độ chỉ dành cho Lướt thẻ; Ghi nhớ luôn cần chấm điểm.
+    document.getElementById('study-track-toggle').hidden = !isBrowse;
+    var untracked = isBrowse && !trackProgress;
+    if (browse) browse.classList.toggle('is-untracked', untracked);
+    // Bật theo dõi: ✗ vị trí ✓. Tắt: ← vị trí → (chỉ lướt xem).
+    document.querySelectorAll('[data-browse-result]').forEach(function (button) { button.hidden = untracked; });
+    document.getElementById('btn-browse-prev').hidden = !untracked;
+    document.getElementById('btn-browse-next').hidden = !untracked;
     syncSettingsListboxes();
   }
 
+  function readTrackProgress() {
+    try { return localStorage.getItem('jlab.flashcard.trackProgress') !== 'false'; } catch (e) { return true; }
+  }
+
+  /* ── Toàn màn hình: chỉ còn thẻ, bộ đếm hai bên và nút chấm, căn giữa kiểu Quizlet ── */
+  function enterFocus() {
+    if (sessionDone || !cards.length) return;
+    focusActive = true;
+    document.documentElement.classList.add('study-focus');
+    paintFocusToggle();
+    paintFocus();
+    var root = document.documentElement;
+    if (root.requestFullscreen && !document.fullscreenElement) {
+      // Trình duyệt chặn fullscreen thì vẫn dùng lớp phủ toàn trang.
+      root.requestFullscreen().catch(function () {});
+    }
+  }
+
+  function exitFocus() {
+    if (!focusActive) return;
+    focusActive = false;
+    document.documentElement.classList.remove('study-focus');
+    paintFocusToggle();
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(function () {});
+    }
+  }
+
+  function paintFocusToggle() {
+    var button = document.getElementById('btn-focus');
+    var label = focusActive ? 'Thoát toàn màn hình' : 'Học toàn màn hình';
+    button.title = label;
+    button.setAttribute('aria-label', label);
+    button.querySelector('i').className = 'fa-solid ' + (focusActive ? 'fa-compress' : 'fa-expand');
+  }
+
+  function paintFocus() {
+    var left;
+    var right;
+    var position;
+    if (recall) {
+      left = recall.queue.length + recall.pending.length;
+      right = recall.ids.length - left;
+      position = right + ' / ' + recall.ids.length;
+    } else {
+      left = 0;
+      right = 0;
+      Object.keys(browseResults).forEach(function (id) {
+        if (browseResults[id] === 'REMEMBERED') right++; else left++;
+      });
+      position = (index + 1) + ' / ' + cards.length;
+    }
+    document.getElementById('focus-position').textContent = position;
+    document.getElementById('focus-title').textContent = sessionTitle;
+    document.getElementById('focus-count-left').textContent = left;
+    document.getElementById('focus-count-right').textContent = right;
+    document.getElementById('focus-count-left-label').textContent = recall ? 'Đang học' : 'Chưa thuộc';
+    document.getElementById('focus-count-right-label').textContent = recall ? 'Đã thuộc' : 'Đã nhớ';
+    document.getElementById('study-focus-hint-mode').textContent = recall
+      ? '· Phím 0–5 để chấm điểm'
+      : '· Phím ← → để chuyển thẻ';
+    // Không theo dõi tiến độ thì không có gì để đếm hai bên.
+    document.getElementById('study-focus-counts').classList.toggle('is-off', !recall && !trackProgress);
+  }
+
   function selectStudyMode(nextMode) {
+    if (marking) return;
     nextMode = normalizeStudyMode(nextMode);
     if (nextMode === studyMode) return;
+    recallOnly = null;
     studyMode = nextMode;
     localStorage.setItem('jlab.flashcard.studyMode', studyMode);
     updateStudyModeUi();
@@ -764,7 +1195,71 @@
 
   function openSettings() {
     syncSettingsListboxes();
+    faceDraft = { front: faceFields.front.slice(), back: faceFields.back.slice() };
+    renderFacePicker();
     document.getElementById('settings-modal').hidden = false;
+  }
+
+  function readSavedFaceFields() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(FACE_FIELDS_KEY) || 'null');
+      if (saved && saved.front && saved.back) return { front: Faces.normalize(saved.front), back: Faces.normalize(saved.back) };
+    } catch (e) { /* bỏ qua */ }
+    return { front: Faces.DEFAULTS.front.slice(), back: Faces.DEFAULTS.back.slice() };
+  }
+
+  /* Checkbox chips for both faces: 1-3 fields each, never the same field on both, never a blank face. */
+  function renderFacePicker() {
+    if (!faceDraft) return;
+    ['front', 'back'].forEach(function (face) {
+      var other = face === 'front' ? 'back' : 'front';
+      var host = document.querySelector('[data-face-picker="' + face + '"] .study-face-picker__options');
+      host.replaceChildren();
+      Faces.FIELDS.forEach(function (field) {
+        var checked = faceDraft[face].indexOf(field.value) >= 0;
+        var allowed = faceAllowed.indexOf(field.value) >= 0;
+        var onOther = faceDraft[other].indexOf(field.value) >= 0;
+        var full = !checked && faceDraft[face].length >= Faces.MAX_PER_FACE;
+        var label = document.createElement('label');
+        label.className = 'study-face-picker__option';
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = field.value;
+        input.checked = checked;
+        input.disabled = !checked && (!allowed || onOther || full);
+        input.addEventListener('change', function () {
+          var list = faceDraft[face].filter(function (value) { return value !== field.value; });
+          if (input.checked) list.push(field.value);
+          faceDraft[face] = Faces.normalize(list);
+          renderFacePicker();
+        });
+        var text = document.createElement('span');
+        text.textContent = field.label;
+        label.append(input, text);
+        // Mark fields some cards lack: those cards simply show the face's other fields.
+        var missing = allowed ? Faces.missingCount(cards, field.value) : 0;
+        var hints = [];
+        if (missing) {
+          var badge = document.createElement('small');
+          badge.className = 'study-face-picker__badge';
+          badge.textContent = 'thiếu ' + missing;
+          label.appendChild(badge);
+          hints.push(missing + '/' + cards.length + ' thẻ chưa có ' + field.label
+            + ' — các thẻ đó chỉ hiện những trường còn lại của mặt này');
+        }
+        if (!allowed) hints.push('Không thẻ nào trong bộ có ' + field.label);
+        else if (onOther) hints.push('Đang hiển thị ở mặt ' + (other === 'front' ? 'trước' : 'sau'));
+        else if (full) hints.push('Mỗi mặt chọn tối đa ' + Faces.MAX_PER_FACE + ' trường');
+        if (hints.length) label.title = hints.join('. ');
+        if (missing) input.setAttribute('aria-description', hints[0]);
+        host.appendChild(label);
+      });
+    });
+    var error = Faces.validate(faceDraft, faceAllowed, cards);
+    var errorBox = document.getElementById('face-picker-error');
+    errorBox.hidden = !error;
+    errorBox.textContent = error;
+    document.getElementById('btn-apply-settings').disabled = !!error;
   }
   function closeSettings() {
     document.getElementById('settings-modal').hidden = true;
@@ -789,14 +1284,14 @@
   }
 
   async function applySettings() {
-    var front = document.getElementById('face-front-field').value;
-    var back = document.getElementById('face-back-field').value;
-    if (front === back) {
-      FlashShell.showToast('Mặt trước và mặt sau phải khác nhau', 'err');
+    var draft = faceDraft || faceFields;
+    var error = Faces.validate(draft, faceAllowed, cards);
+    if (error) {
+      FlashShell.showToast(error, 'err');
       return;
     }
-    faceFields.front = front;
-    faceFields.back = back;
+    faceFields = { front: Faces.normalize(draft.front), back: Faces.normalize(draft.back) };
+    try { localStorage.setItem(FACE_FIELDS_KEY, JSON.stringify(faceFields)); } catch (e) { /* bỏ qua */ }
     localStorage.setItem('jlab.flashcard.studyMode', studyMode);
     updateStudyModeUi();
     if (cards.length) renderCard();

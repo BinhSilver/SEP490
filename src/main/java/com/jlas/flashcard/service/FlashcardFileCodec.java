@@ -20,16 +20,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Reads and writes flashcard files. Every format uses the same three columns as the editor
- * import (front, back, Hán Việt), so an exported file can be imported again unchanged.
+ * Reads and writes flashcard files. Every format uses the card's four fields as columns
+ * (Kanji, Cách đọc, Nghĩa, Hán Việt), so an exported file can be imported again unchanged.
+ * Older three-column files (Mặt trước, Mặt sau, Hán Việt) are still read; the editor import
+ * tells the two layouts apart.
  */
 @Component
 public class FlashcardFileCodec {
-    public static final List<String> HEADER = List.of("Mặt trước", "Mặt sau", "Hán Việt");
+    public static final List<String> HEADER = List.of("Kanji", "Cách đọc", "Nghĩa", "Hán Việt");
+    private static final int COLUMNS = HEADER.size();
     public static final long MAX_IMPORT_BYTES = 1024 * 1024;
     public static final int MAX_IMPORT_ROWS = 2000;
 
-    public record CardRow(String front, String back, String hanViet) {}
+    public record CardRow(String front, String reading, String meaning, String hanViet) {}
 
     public enum Format {
         CSV("csv", "text/csv;charset=UTF-8"),
@@ -55,9 +58,9 @@ public class FlashcardFileCodec {
 
     public byte[] write(List<CardRow> rows, Format format) { return write(rows, format, true); }
 
-    /** Without Hán Việt the file has two columns, which the editor import also accepts. */
+    /** Without Hán Việt the file has three columns (Kanji, Cách đọc, Nghĩa), which the editor import also accepts. */
     public byte[] write(List<CardRow> rows, Format format, boolean includeHanViet) {
-        List<String> header = includeHanViet ? HEADER : HEADER.subList(0, 2);
+        List<String> header = includeHanViet ? HEADER : HEADER.subList(0, COLUMNS - 1);
         return switch (format) {
             case CSV -> {
                 // BOM so Excel opens the UTF-8 file with Japanese/Vietnamese text intact.
@@ -75,7 +78,8 @@ public class FlashcardFileCodec {
     }
 
     /**
-     * Converts an uploaded file into editor import text: one "front\tback\thanViet" line per card.
+     * Converts an uploaded file into editor import text: one tab-separated line per card with the
+     * file's columns as-is (Kanji, Cách đọc, Nghĩa, Hán Việt, or the older Mặt trước, Mặt sau, Hán Việt).
      * TXT is passed through so the "Kanji - Hiragana : Nghĩa (Hán Việt)" syntax keeps working.
      */
     public String toImportText(String filename, byte[] content) {
@@ -93,7 +97,7 @@ public class FlashcardFileCodec {
         List<String> lines = new ArrayList<>();
         for (List<String> row : rows) {
             List<String> cells = new ArrayList<>();
-            for (int i = 0; i < 3; i++) cells.add(i < row.size() ? flatten(unguard(row.get(i))) : "");
+            for (int i = 0; i < COLUMNS; i++) cells.add(i < row.size() ? flatten(unguard(row.get(i))) : "");
             if (cells.stream().allMatch(String::isBlank)) continue;
             while (!cells.isEmpty() && cells.get(cells.size() - 1).isBlank()) cells.remove(cells.size() - 1);
             lines.add(String.join("\t", cells));
@@ -102,7 +106,9 @@ public class FlashcardFileCodec {
     }
 
     private static List<String> cells(CardRow row, boolean includeHanViet) {
-        return includeHanViet ? List.of(nz(row.front()), nz(row.back()), nz(row.hanViet())) : List.of(nz(row.front()), nz(row.back()));
+        return includeHanViet
+                ? List.of(nz(row.front()), nz(row.reading()), nz(row.meaning()), nz(row.hanViet()))
+                : List.of(nz(row.front()), nz(row.reading()), nz(row.meaning()));
     }
 
     private static String csvLine(List<String> cells) {
@@ -149,8 +155,9 @@ public class FlashcardFileCodec {
             writeRow(sheet.createRow(0), header, headerStyle);
             for (int i = 0; i < rows.size(); i++) writeRow(sheet.createRow(i + 1), cells(rows.get(i), includeHanViet), null);
             sheet.setColumnWidth(0, 20 * 256);
-            sheet.setColumnWidth(1, 40 * 256);
-            if (includeHanViet) sheet.setColumnWidth(2, 20 * 256);
+            sheet.setColumnWidth(1, 20 * 256);
+            sheet.setColumnWidth(2, 40 * 256);
+            if (includeHanViet) sheet.setColumnWidth(3, 20 * 256);
             sheet.createFreezePane(0, 1);
             workbook.write(out);
             return out.toByteArray();
@@ -179,7 +186,7 @@ public class FlashcardFileCodec {
                 Row row = sheet.getRow(r);
                 List<String> cells = new ArrayList<>();
                 // Formula cells are read as their text, never evaluated.
-                for (int c = 0; c < 3; c++) cells.add(row == null ? "" : formatter.formatCellValue(row.getCell(c)));
+                for (int c = 0; c < COLUMNS; c++) cells.add(row == null ? "" : formatter.formatCellValue(row.getCell(c)));
                 rows.add(cells);
             }
             return rows;
@@ -191,7 +198,7 @@ public class FlashcardFileCodec {
 
     private static boolean isHeader(List<String> row) {
         String first = row.isEmpty() ? "" : row.get(0).trim().toLowerCase(Locale.ROOT);
-        return first.equals("mặt trước") || first.equals("front") || first.equals("kanji");
+        return first.equals("mặt trước") || first.equals("front") || first.equals("kanji") || first.equals("thuật ngữ");
     }
 
     private static boolean isFormulaLike(String value) {

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Thông báo | JLAS</title>
@@ -13,8 +14,9 @@
     <link rel="stylesheet" th:href="@{/css/pages/notifications.css(v=20260925)}"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-notifications">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-notifications">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent">
@@ -48,6 +50,6 @@
 
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/notifications.js(v=20260925)}"></script>
+<script th:src="@{/js/pages/notifications.js(v=20261017-shadowing-processing)}"></script>
 </body>
 </html>

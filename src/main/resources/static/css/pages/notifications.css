@@ -112,3 +112,42 @@
   #jlabBaseContent .ntf-item { grid-template-columns: 36px minmax(0, 1fr); }
   #jlabBaseContent .ntf-item__mark { grid-column: 2; justify-self: start; }
 }
+
+/* Page-owned dark mode: css/pages/notifications.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-admin-bg: #0b0d13;
+  --dm-admin-surface: #12151f;
+  --dm-admin-raised: #1e2635;
+  --dm-admin-ink: #f8fafc;
+  --dm-admin-muted: #b2bfd2;
+  --dm-admin-line: #40485d;
+  --dm-admin-accent: #c084fc;
+  --dm-admin-action: #7335a6;
+  --dm-admin-accent-soft: #281d3a;
+  --dm-admin-on-accent: #211b34;
+  --dm-admin-success: #8eddb6;
+  --dm-admin-success-bg: #1b3d32;
+  --dm-admin-success-line: #43816b;
+  --dm-admin-danger: #ffb4bd;
+  --dm-admin-danger-bg: #452832;
+  --dm-admin-danger-line: #96616d;
+  --dm-admin-warning: #f3d28a;
+  --dm-admin-warning-bg: #403522;
+  --dm-admin-warning-line: #947a46;
+  --dm-admin-pink: #f4aed2;
+  --dm-admin-pink-bg: #432d40;
+  --dm-admin-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBaseContent .ntf-tab[aria-selected="true"] {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22)
+}
+html[data-theme="dark"] #jlabBaseContent .ntf-item.is-unread {
+    background: var(--dm-admin-accent-soft)
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .page-notifications{--color-background:var(--dm-admin-bg);--color-surface:var(--dm-admin-bg);--color-surface-lowest:var(--dm-admin-surface);--color-surface-low:var(--dm-admin-raised);--color-surface-mid:var(--dm-admin-raised);--color-surface-high:var(--dm-admin-raised);--color-surface-container:var(--dm-admin-raised);--color-surface-container-high:var(--dm-admin-raised);--color-on-surface:var(--dm-admin-ink);--color-on-surface-variant:var(--dm-admin-muted);--color-secondary:var(--dm-admin-muted);--color-outline:var(--dm-admin-muted);--color-outline-variant:var(--dm-admin-line);--color-primary:var(--dm-admin-accent);--color-primary-container:var(--dm-admin-action);--color-on-primary:var(--dm-admin-on-accent);--color-on-primary-container:var(--dm-admin-ink);--color-primary-fixed:var(--dm-admin-accent-soft);--color-on-primary-fixed:var(--dm-admin-accent);--color-secondary-container:var(--dm-admin-accent-soft);--color-secondary-fixed:var(--dm-admin-accent-soft);--color-success:var(--dm-admin-success);--color-success-bg:var(--dm-admin-success-bg);--color-error:var(--dm-admin-danger);--color-error-container:var(--dm-admin-danger-bg);--color-on-error-container:var(--dm-admin-danger);--color-tertiary:var(--dm-admin-warning);--color-tertiary-container:var(--dm-admin-warning-bg);--color-on-tertiary-container:var(--dm-admin-warning);--color-focus:var(--dm-admin-accent);--jlab-base-page-background:var(--dm-admin-bg);}
+html[data-theme="dark"] .page-notifications .btn--primary{background:var(--dm-admin-action)!important;color:var(--dm-admin-ink)!important;}
+html[data-theme="dark"] .page-notifications .btn--primary:hover{background:#8166c4!important;}

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đang xử lý | JLAS Shadowing</title>
@@ -14,8 +15,9 @@
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260924-processing-actions"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-processing">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-processing">
     <div id="jlabBaseShellMount"></div>
 
     <input type="hidden" id="video-id" th:value="${videoId}">
@@ -30,13 +32,11 @@
                 <aside id="processingKitsuGuide" role="status" aria-live="polite">
                     <div class="kitsu-guide">
                         <div class="kitsu-guide__mascot">
-                            <video id="processing-kitsu-animation" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-                                <source src="/videos/kitsu-preparing-alpha.webm?v=20260831-hq2" type="video/webm">
-                            </video>
+                            <img id="processing-kitsu-animation" src="/images/mascots/kitsu/kitsu-preparing.webp?v=20261012" alt="" aria-hidden="true">
                         </div>
                         <div class="kitsu-guide__bubble">
-                            <strong class="kitsu-guide__title">Kitsu-chan đang xử lý</strong>
-                            <p class="kitsu-guide__message">Đang xử lý, vui lòng chờ.</p>
+                            <strong class="kitsu-guide__title">Kitsu-chan đang chuẩn bị bài học</strong>
+                            <p class="kitsu-guide__message">Bạn có thể về trang chủ, khi xong mình sẽ thông báo.</p>
                         </div>
                     </div>
                 </aside>
@@ -44,7 +44,7 @@
                 <div id="processingProgressCard" class="store-utility-card">
                 <ul class="progress-steps" id="steps">
                     <li data-step="UPLOADED"><span class="step-icon fa-regular fa-circle"></span> Bắt đầu</li>
-                    <li data-step="YOUTUBE_DOWNLOAD"><span class="step-icon fa-regular fa-circle"></span> Tải video</li>
+                    <li data-step="YOUTUBE_DOWNLOAD"><span class="step-icon fa-regular fa-circle"></span> Hoàn tất</li>
                     <li data-step="SUBTITLE_DOWNLOAD"><span class="step-icon fa-regular fa-circle"></span> Tải / tạo phụ đề</li>
                     <li data-step="EXTRACTING_AUDIO"><span class="step-icon fa-regular fa-circle"></span> Tách âm thanh</li>
                     <li data-step="TRANSCRIBING"><span class="step-icon fa-regular fa-circle"></span> Nhận dạng giọng nói</li>
@@ -76,7 +76,7 @@
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20260711"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260924"></script>
-    <script src="/shadowing/js/processing.js?v=20260924-processing-actions" ></script>
+    <script src="/shadowing/js/processing.js?v=20261017-leave-notice" ></script>
     <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->
     <script src="http://localhost:35729/livereload.js?snipver=1" defer></script>
 </body>

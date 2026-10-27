@@ -64,13 +64,13 @@ public interface OnyomiCourseRepository extends Repository<Lesson, Long> {
     List<RulePattern> findPatterns(@Param("ruleIds") Collection<Long> ruleIds);
 
     /** The EXCEPTION questions of the rules; their context names the kanji that break the rule and why. */
-    @Query("""
-            select question from AssessmentQuestion question
-            where question.conversionRule.id in :ruleIds
-              and question.isActive = true
-              and question.contextJson like '%"EXCEPTION"%'
+    @Query(value = """
+            select question.* from assessment_question question
+            where question.conversion_rule_id in (:ruleIds)
+              and question.is_active = true
+              and cast(question.context_json as char(2048)) like '%"EXCEPTION"%'
             order by question.id
-            """)
+            """, nativeQuery = true)
     List<AssessmentQuestion> findExceptionQuestions(@Param("ruleIds") Collection<Long> ruleIds);
 
     /** Published quizzes owned by the lessons (LESSON) or units (UNIT_FINAL) of the course. */

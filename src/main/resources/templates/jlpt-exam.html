@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/head :: standard('JLPT - JLAS', 'jlpt-exam')}"></head>
 <body id="jlabBasePage" class="app-body jlpt-exam-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlptApp" class="jlpt-exam-page">
+<main id="jlptApp" class="jlpt-exam-page" data-inline-dictionary>
     <div id="jlptNotice" class="jlpt-exam-notice">Đang tải dữ liệu đề…</div>
     <section id="jlptWorkspace" hidden>
         <header class="jlpt-exam-header">
@@ -48,17 +48,32 @@
         <h2>Kết quả bài thi</h2>
         <span id="jlptResultStatus" class="jlpt-exam-result__status"></span>
         <strong id="jlptResultScore">0 / 0</strong>
-        <p id="jlptResultDetail"></p>
+        <p id="jlptHistorySaveNotice" class="jlpt-history-status" role="status" hidden></p>
         <div id="jlptResultBreakdown" class="jlpt-exam-result__breakdown"></div>
-        <div><a href="/jlpt">Về thư viện đề</a><button id="jlptRestartExam" type="button">Thi lại đề này</button></div>
+        <div><a href="/jlpt">Về thư viện đề</a><a href="/jlpt/history">Lịch sử làm bài</a><button id="jlptRestartExam" type="button">Thi lại đề này</button></div>
         <details class="jlpt-exam-result__review">
             <summary>Xem lại đáp án đã làm</summary>
+            <div class="jlpt-review-filters" aria-label="Lọc câu trả lời">
+                <label>Phần thi
+                    <select id="jlptReviewPartFilter"><option value="all">Tất cả các phần</option></select>
+                </label>
+                <label>Kết quả
+                    <select id="jlptReviewStatusFilter">
+                        <option value="all">Tất cả câu</option>
+                        <option value="correct">Trả lời đúng</option>
+                        <option value="wrong">Trả lời sai</option>
+                        <option value="unanswered">Chưa trả lời</option>
+                        <option value="marked">Đã đánh dấu</option>
+                    </select>
+                </label>
+                <span id="jlptReviewFilterCount" role="status"></span>
+            </div>
             <div id="jlptResultReview"></div>
         </details>
     </section>
 </main>
 <dialog id="jlptSubmitDialog" class="jlpt-submit-dialog" aria-labelledby="jlptSubmitDialogTitle">
-    <img src="/images/kitsu.png" alt="Linh vật Kitsu">
+    <img src="/images/mascots/kitsu/kitsu-crying-30.webp" alt="Linh vật Kitsu">
     <div>
         <span>KIỂM TRA TRƯỚC KHI NỘP</span>
         <h2 id="jlptSubmitDialogTitle">Nộp phần thi?</h2>
@@ -68,6 +83,6 @@
 </dialog>
 <script th:src="@{/js/jlab-base-shell.js?v=6}"></script>
 <script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
-<script th:src="@{/js/pages/jlpt-exam.js?v=21}"></script>
+<script th:src="@{/js/pages/jlpt-exam.js?v=35}"></script>
 </body>
 </html>

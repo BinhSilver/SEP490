@@ -106,6 +106,21 @@ public interface DictionaryService {
     LessonSummaryResponse updateLessonStatus(Long lessonId, String status);
 
     /**
+     * [JLAS2-17] Công bố (PUBLISHED) / ẩn về nháp (DRAFT) hàng loạt giáo trình hoặc bài học, trong MỘT transaction:
+     * lỗi ở bất kỳ id nào thì ném ApiException và không mục nào bị đổi. Cùng luật với API từng mục: bài chỉ công bố
+     * được khi giáo trình đã công bố; công bố / ẩn giáo trình không kéo theo bài. Mục đã lưu trữ phải khôi phục từng
+     * mục trước (không công bố / ẩn hàng loạt).
+     *
+     * @param kind   TEXTBOOK / LESSON (đã validate ở DTO)
+     * @param action PUBLISH / UNPUBLISH (đã validate ở DTO)
+     * @param ids    1–500 id (đã validate ở DTO); id trùng được gộp
+     * @param userId người thao tác (ghi log)
+     * @throws com.jlas.common.exception.ApiException NOT_FOUND nếu có id không tồn tại; CONFLICT nếu có mục đang
+     *         lưu trữ hoặc bài thuộc giáo trình chưa công bố
+     */
+    com.jlas.dictionary.dto.BulkStatusResponse bulkUpdateStatus(String kind, String action, List<Long> ids, Long userId);
+
+    /**
      * Nội dung đầy đủ một bài học: từ vựng kèm audio 6 giọng, câu ví dụ kèm audio,
      * mẫu ngữ pháp, hội thoại kèm vai diễn và cụm tách nghĩa.
      * Learner chỉ xem được bài PUBLISHED thuộc giáo trình PUBLISHED.

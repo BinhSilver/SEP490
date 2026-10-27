@@ -1,7 +1,9 @@
 package com.jlas.shadowing.controller;
 
 import com.jlas.common.exception.ApiException;
+import com.jlas.auth.dto.ApiResponse;
 import com.jlas.shadowing.dto.*;
+import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.service.VideoService;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,11 +34,32 @@ public class VideoController {
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String clientId,
-            @RequestParam(required = false, defaultValue = "newest") String sort,
+            @RequestParam(required = false, defaultValue = "popular") String sort,
             @RequestParam(required = false) Boolean favoritesOnly,
             @RequestParam(required = false, defaultValue = "public") String scope,
             @RequestParam(required = false) String level) {
         return ResponseEntity.ok(videoService.search(q, tag, category, clientId, sort, favoritesOnly, scope, level));
+    }
+
+    @GetMapping("/library")
+    public ResponseEntity<ApiResponse<LibraryPageDto<VideoSummaryDto>>> library(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) String level,
+            @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(defaultValue = "public") String scope,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "false") boolean favoritesOnly,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("Thư viện video", videoService.searchPage(q, category, genre, level,
+                sort, scope, status, favoritesOnly, page, size)));
+    }
+
+    @GetMapping("/genres")
+    public ResponseEntity<List<GenreOption>> getGenres() {
+        return ResponseEntity.ok(Arrays.stream(ShadowingGenre.values()).map(GenreOption::of).toList());
     }
 
     @GetMapping("/categories")
@@ -50,10 +74,11 @@ public class VideoController {
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "tags", required = false) List<String> tags,
+            @RequestParam(value = "genres", required = false) List<String> genres,
             @RequestParam(value = "targetLanguage", defaultValue = "vi") String targetLanguage,
             @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana) {
         try {
-            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage, generateFurigana);
+            Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage, generateFurigana, genres);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "id", video.getId(),
                     "status", video.getStatus().name(),
@@ -70,6 +95,13 @@ public class VideoController {
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideo(@PathVariable Long id) {
         return ResponseEntity.ok(videoService.getVideo(id));
+    }
+
+    /** Library card data for one video (level, tags, counts, rating), for the practice page header. */
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<VideoSummaryDto> getSummary(@PathVariable Long id,
+                                                      @RequestParam(required = false) String clientId) {
+        return ResponseEntity.ok(videoService.getSummary(id, clientId));
     }
 
     @GetMapping("/{id}/status")
@@ -143,6 +175,11 @@ public class VideoController {
     @GetMapping("/{id}/stream")
     public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
         Video video = videoService.getVideo(id);
+        // Embeddable YouTube videos are played through the YouTube embed; the server never serves a copy of them.
+        // Only uploads and YouTube videos that cannot be embedded (playback mode FILE) are streamed from file.
+        if (video.getVideoPath() == null || video.getVideoPath().isBlank() || video.isYoutubeEmbed()) {
+            return ResponseEntity.notFound().build();
+        }
         File file = new File(video.getVideoPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);
@@ -173,7 +210,9 @@ public class VideoController {
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);
         MediaType mediaType = resolveThumbnailMediaType(file.getName().toLowerCase());
+        // Thư viện hiển thị nhiều thumbnail mỗi trang; cho trình duyệt giữ lại thay vì tải lại mỗi lần đổi tab.
         return ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofHours(1)).cachePrivate())
                 .contentType(Objects.requireNonNull(mediaType))
                 .body(resource);
     }

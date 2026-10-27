@@ -7,7 +7,11 @@
 
     <div id="jlabBaseShellMount"></div>
 
-    <main id="jlabBaseContent" class="app-main textbooks-main"
+    <!-- Giao diện mới trang học bài: class lesson-page bật bộ component mới trong textbook-lesson.js + css/pages/lesson-page.css.
+         path-lesson.html (lộ trình) dùng chung JS nhưng không có class này nên giữ giao diện cũ. -->
+    <link rel="stylesheet" th:href="@{/css/pages/lesson-page.css(v=20261020mg)}" />
+
+    <main id="jlabBaseContent" class="app-main textbooks-main lesson-page" data-inline-dictionary
           th:attr="data-textbook-id=${textbookId}, data-lesson-id=${lessonId}">
         <nav class="textbooks-breadcrumb" aria-label="Breadcrumb">
             <a th:href="@{/textbooks}"><i class="fa-solid fa-book" aria-hidden="true"></i> Giáo trình</a>
@@ -17,10 +21,14 @@
             <span id="breadcrumbLesson">…</span>
         </nav>
 
-        <header class="textbooks-hero textbooks-hero--compact" id="lessonHeader" hidden>
-            <p class="textbooks-hero__eyebrow" id="lessonUnit"></p>
-            <h1 class="textbooks-hero__title" id="lessonTitle"></h1>
-            <div class="textbooks-hero__meta" id="lessonMeta"></div>
+        <header class="lp-hero" id="lessonHeader" hidden>
+            <div class="lp-hero__body">
+                <p class="lp-hero__eyebrow" id="lessonUnit"></p>
+                <h1 class="lp-hero__title" id="lessonTitle"></h1>
+                <p class="lp-hero__desc" id="lessonDesc" hidden></p>
+                <div class="lp-hero__meta" id="lessonMeta"></div>
+            </div>
+            <span class="lp-hero__kanji" id="lessonKanjiDeco" lang="ja" aria-hidden="true"></span>
         </header>
 
         <div id="lessonLoading" class="textbooks-loading">
@@ -33,6 +41,7 @@
         <section id="lessonContent" class="lesson-content" hidden>
             <!-- Tab rỗng tự ẩn theo dữ liệu (js/pages/textbook-lesson.js); tab đầu tiên còn lại được chọn -->
             <div class="lesson-tabs" role="tablist" aria-label="Nội dung bài học">
+                <span class="lp-tabs__slider" aria-hidden="true"></span>
                 <button type="button" class="lesson-tab" role="tab" data-tab="kana" aria-selected="false" hidden>
                     Bảng chữ <span class="lesson-tab__count" id="countKana">0</span>
                 </button>
@@ -47,6 +56,11 @@
                 </button>
                 <button type="button" class="lesson-tab" role="tab" data-tab="dialogue" aria-selected="false">
                     Hội thoại <span class="lesson-tab__count" id="countDialogue">0</span>
+                </button>
+                <!-- Bài đọc / bài nghe (content_item READING ngoài bảng chữ cái + LISTENING không phải lời thoại).
+                     Đặt cuối để bài có từ vựng/ngữ pháp vẫn mở tab đó trước; tên tab do JS đặt theo dữ liệu. -->
+                <button type="button" class="lesson-tab" role="tab" data-tab="reading" aria-selected="false">
+                    <span id="labelReading">Bài đọc</span> <span class="lesson-tab__count" id="countReading">0</span>
                 </button>
             </div>
 
@@ -63,11 +77,12 @@
             <div class="lesson-panel" id="panelVocab" role="tabpanel" data-panel="vocab" hidden></div>
             <div class="lesson-panel" id="panelGrammar" role="tabpanel" data-panel="grammar" hidden></div>
             <div class="lesson-panel" id="panelDialogue" role="tabpanel" data-panel="dialogue" hidden></div>
+            <div class="lesson-panel" id="panelReading" role="tabpanel" data-panel="reading" hidden></div>
         </section>
     </main>
 
     <script th:src="@{/js/jlab-base-shell.js}"></script>
-    <script th:src="@{/js/pages/textbook-lesson.js}"></script>
+    <script th:src="@{/js/pages/textbook-lesson.js(v=20261021d2)}"></script>
 
 </body>
 

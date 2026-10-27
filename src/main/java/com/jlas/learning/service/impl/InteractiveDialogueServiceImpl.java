@@ -21,6 +21,7 @@ import com.jlas.learning.repository.LearningDialogueProgressRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.service.InteractiveDialogueService;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
+import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +72,35 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
         boolean completed = sameRevision && progress.getCompletedAt() != null;
 
         return new DialogueStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
+                revisionOf(membership), REQUIRED_SECONDS, accumulated, remaining(accumulated), reachedBottom,
+                completed, buildLineViews(membership));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DialogueStudyState reviewState(Long userId, Long activityId) {
+        return replayState(userId, activityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DialogueStudyState practiceState(Long userId, Long activityId) {
+        return replayState(userId, activityId);
+    }
+
+    private DialogueStudyState replayState(Long userId, Long activityId) {
+        UserLearningPathItem activity = items.findByIdAndUserId(activityId, userId)
+                .filter(item -> item.getActivityType() == LearningActivityType.DIALOGUE
+                        && item.getActivityState() == LearningActivityState.COMPLETED)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        List<LearningActivityMember> membership = loadMembership(activity);
+        LearningDialogueProgress state = progressRepo.findByActivityId(activityId).orElse(null);
+        boolean matchingRevision = state != null && state.getSourceRevision().equals(revisionOf(membership));
+        int accumulated = matchingRevision ? state.getAccumulatedSeconds() : 0;
+        boolean reachedBottom = matchingRevision && state.getReachedBottomAt() != null;
+        boolean completed = activity.getActivityState() == LearningActivityState.COMPLETED
+                || (matchingRevision && state.getCompletedAt() != null);
+        return new DialogueStudyState(activityId, LearningActivityType.DIALOGUE, activity.getActivityState(),
                 revisionOf(membership), REQUIRED_SECONDS, accumulated, remaining(accumulated), reachedBottom,
                 completed, buildLineViews(membership));
     }
@@ -131,6 +161,7 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
         if (activity.getActivityType() != LearningActivityType.DIALOGUE) {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
+        InteractiveActivityStatePolicy.requireUnlocked(activity);
         return activity;
     }
 
@@ -195,20 +226,40 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
         List<Long> ids = membership.stream().map(LearningActivityMember::getCanonicalId).distinct().toList();
         Map<Long, DialogueLineDetail> byId = dialogueLines.findAllById(ids).stream()
                 .collect(Collectors.toMap(DialogueLineDetail::getContentItemId, d -> d));
-        Map<Long, String> audioById = audio.findByOwnerTypeAndOwnerIdIn("CONTENT_ITEM", ids).stream()
-                .collect(Collectors.toMap(ContentAudio::getOwnerId, ContentAudio::getAudioUrl, (a, b) -> a));
+        Map<Long, ContentAudio> audioById = audio.findByOwnerTypeAndOwnerIdIn("CONTENT_ITEM", ids).stream()
+                .collect(Collectors.toMap(ContentAudio::getOwnerId, a -> a, (a, b) -> a));
 
         List<DialogueLineView> views = new ArrayList<>();
         for (LearningActivityMember member : membership) {
             DialogueLineDetail detail = byId.get(member.getCanonicalId());
-            if (detail == null) continue; // composer-published membership always resolves; defensive only.
+            if (detail == null || detail.getContentItem() == null) {
+                throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Nội dung hội thoại không còn đầy đủ. Vui lòng thử lại sau.");
+            }
             var item = detail.getContentItem();
             var role = detail.getRole();
             views.add(new DialogueLineView(member.getCanonicalId(), member.getOrderIndex(),
                     role == null ? null : role.getCode(), role == null ? null : role.getNameVi(),
                     detail.getSceneCode(), detail.getBubbleSide(), item.getContent(), item.getTranslatedText(),
-                    audioById.get(member.getCanonicalId())));
+                    publicAudioUrl(audioById.get(member.getCanonicalId()))));
         }
         return views;
+    }
+
+    private String publicAudioUrl(ContentAudio audio) {
+        if (audio == null || audio.getAudioUrl() == null || audio.getAudioUrl().isBlank()) return null;
+        String value = audio.getAudioUrl().strip();
+        if (value.startsWith("//") || value.contains("\\")) return null;
+        try {
+            java.net.URI uri = java.net.URI.create(value);
+            if (uri.isAbsolute()) {
+                return ("https".equalsIgnoreCase(uri.getScheme()) || "http".equalsIgnoreCase(uri.getScheme()))
+                        && uri.getHost() != null && uri.getUserInfo() == null ? uri.toASCIIString() : null;
+            }
+            if (uri.getPath() == null || java.util.Arrays.stream(uri.getPath().split("/"))
+                    .anyMatch(segment -> segment.equals("..") || segment.contains("%") || segment.contains("\\"))) return null;
+            return value.startsWith("/") ? uri.toASCIIString() : "/uploads/content-audio/" + uri.toASCIIString();
+        } catch (IllegalArgumentException invalid) {
+            return null;
+        }
     }
 }

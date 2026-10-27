@@ -58,10 +58,15 @@
     document.getElementById('btn-close-import').addEventListener('click', closeImport);
     document.getElementById('btn-cancel-import').addEventListener('click', closeImport);
     document.getElementById('btn-import-ai').addEventListener('click', importGenerateAi);
+    document.getElementById('import-text').addEventListener('input', function () {
+      clearImportAiPreview();
+      updateImportPreview();
+    });
     document.getElementById('btn-import-file').addEventListener('click', function () {
       document.getElementById('import-file').click();
     });
     document.getElementById('import-file').addEventListener('change', importFromFile);
+    setupImportSeparators();
     document.getElementById('btn-apply-import').addEventListener('click', applyImport);
     document.getElementById('btn-close-ai-review').addEventListener('click', closeAiReview);
     document.getElementById('btn-cancel-ai-review').addEventListener('click', closeAiReview);
@@ -120,7 +125,7 @@
   }
 
   async function createFolder() {
-    var name = prompt('Tên thư mục mới:');
+    var name = await FlashShell.requestFolderName();
     if (!name || !name.trim()) return;
     try {
       var folder = await FlashApi.post('/api/flashcards/folders', { name: name.trim() });
@@ -660,51 +665,227 @@
   }
 
   /* ── Nhập từ ───────────────────────────────────────────── */
-  // "Từ - Cách đọc : Nghĩa (Hán Việt)". Reading and Hán Việt are optional: "学校 : Trường học".
-  var LINE_RE = /^\s*(.+?)\s*(?:-\s*(.+?)\s*)?:\s*(.+?)(?:\s*\(([^)]*)\))?\s*$/;
+  // Two paste-data modes (see import-separators.js header): 'pair' is Quizlet-style — one separator
+  // between term and definition. 'quad' lets the user build the line template (which field comes after
+  // which separator), since our card has 4 fields, not 2.
+  var importSepState = {
+    mode: 'pair',
+    term: Object.assign({}, FlashImportSeparators.DEFAULT_TERM),
+    card: Object.assign({}, FlashImportSeparators.DEFAULT_CARD),
+    template: FlashImportSeparators.DEFAULT_TEMPLATE.map(function (slot) { return Object.assign({}, slot); })
+  };
 
   function openImport() {
     document.getElementById('import-modal').hidden = false;
     document.getElementById('import-text').focus();
+    updateImportPreview();
   }
 
   function closeImport() {
+    importAiRequest++;
+    setImportAiBusy(false);
+    clearImportAiPreview();
     document.getElementById('import-modal').hidden = true;
   }
 
-  function parseImportLines(text) {
-    var out = [];
-    if (!text) return out;
-    text.split(/\r?\n/).forEach(function (raw) {
-      if (!raw.trim()) return;
-      var cells = raw.split('\t').map(function (cell) { return cell.trim(); });
-      if (cells.length >= 2 && cells[0] && cells[1]) {
-        out.push({
-          front: cells[0],
-          back: cells[1],
-          hanViet: cells[2] || '',
-          image: '',
-          _selected: false
-        });
-        return;
-      }
-      var m = raw.trim().match(LINE_RE);
-      if (!m) return;
-      var kanji = m[1].trim();
-      var reading = m[2] ? m[2].trim() : '';
-      var meaning = m[3].trim();
-      var hanViet = m[4] ? m[4].trim() : '';
-      if (isKanaWord(kanji)) hanViet = ''; // no kanji → no Hán Việt; the reading stays as typed
-      // Front = Kanji · Back = hiragana — nghĩa · Hán Việt optional
-      out.push({
-        front: kanji,
-        back: reading ? (reading + ' — ' + meaning) : meaning,
-        hanViet: hanViet,
-        image: '',
-        _selected: false
+  function setupImportSeparators() {
+    // "Tùy chỉnh" reveals a box for the user's own separator; the other choices hide it again.
+    [['term', importSepState.term], ['card', importSepState.card]].forEach(function (pair) {
+      var kind = pair[0], state = pair[1];
+      var select = document.getElementById('import-' + kind + '-sep');
+      var customInput = document.getElementById('import-' + kind + '-sep-custom');
+      select.addEventListener('change', function () {
+        state.type = select.value;
+        customInput.hidden = select.value !== 'custom';
+        if (select.value === 'custom') customInput.focus();
+        updateImportPreview();
+      });
+      customInput.addEventListener('input', function () {
+        state.custom = customInput.value;
+        updateImportPreview();
       });
     });
-    return out;
+
+    // Mode shows only the options relevant to it: 'pair' → term separator, 'quad' → line template;
+    // data-import-mode="both" options always stay visible.
+    document.getElementById('import-source').addEventListener('change', function (event) {
+      setImportSource(event.target.value);
+    });
+    document.getElementById('import-mode').addEventListener('change', function (event) {
+      setImportMode(event.target.value);
+      updateImportPreview();
+    });
+    // Pasting switches the mode to what the data looks like; typing never does, so it can't flip mid-edit.
+    document.getElementById('import-text').addEventListener('paste', function () {
+      if (importSource !== 'manual') return;
+      setTimeout(function () { autoImportMode(); updateImportPreview(); }, 0);
+    });
+
+    document.getElementById('btn-template-add').addEventListener('click', function () {
+      var used = importSepState.template.map(function (slot) { return slot.field; });
+      var free = FlashImportSeparators.FIELDS.filter(function (field) { return used.indexOf(field.value) < 0; })[0];
+      if (!free) return;
+      importSepState.template.push({ sep: '', field: free.value });
+      renderImportTemplate();
+      updateImportPreview();
+    });
+    renderImportTemplate();
+  }
+
+  function setImportMode(mode) {
+    importSepState.mode = mode;
+    document.getElementById('import-mode').value = mode;
+    document.querySelectorAll('#import-modal [data-import-mode]').forEach(function (element) {
+      element.hidden = !['both', mode].includes(element.dataset.importMode);
+    });
+  }
+
+  /* Column data (spreadsheets, exported files) → 2 cột; "Kanji - Cách đọc : Nghĩa (Hán Việt)" lines → 4 trường. */
+  function autoImportMode() {
+    var detected = FlashImportSeparators.detectMode(document.getElementById('import-text').value, importSepState);
+    if (!detected || detected === importSepState.mode) return;
+    setImportMode(detected);
+    FlashShell.showToast(detected === 'quad' ? 'Đã tự chuyển sang kiểu 4 trường theo dữ liệu' : 'Đã tự chuyển sang kiểu 2 cột theo dữ liệu', 'ok');
+  }
+
+  /* One row per slot: "[ký tự] → [trường]"; the first slot starts the line, so it has no separator. */
+  function renderImportTemplate() {
+    var slots = importSepState.template;
+    var list = document.getElementById('import-template-slots');
+    list.replaceChildren();
+    slots.forEach(function (slot, index) {
+      var item = document.createElement('li');
+      item.className = 'import-template-slot';
+      if (index === 0) {
+        var start = document.createElement('span');
+        start.className = 'import-template-start';
+        start.textContent = 'Đầu dòng';
+        item.appendChild(start);
+      } else {
+        var sep = document.createElement('input');
+        sep.type = 'text';
+        sep.className = 'input import-template-sep';
+        sep.value = slot.sep;
+        sep.placeholder = 'khoảng trắng';
+        sep.setAttribute('aria-label', 'Ký tự đứng trước trường thứ ' + (index + 1));
+        sep.addEventListener('input', function () {
+          slot.sep = sep.value;
+          updateImportPreview();
+        });
+        item.appendChild(sep);
+      }
+      var arrow = document.createElement('i');
+      arrow.className = 'fa-solid fa-arrow-right import-template-arrow';
+      arrow.setAttribute('aria-hidden', 'true');
+      item.appendChild(arrow);
+      var select = document.createElement('select');
+      select.className = 'select import-template-field';
+      select.setAttribute('aria-label', 'Trường thứ ' + (index + 1));
+      FlashImportSeparators.FIELDS.forEach(function (field) {
+        var option = document.createElement('option');
+        option.value = field.value;
+        option.textContent = field.label;
+        option.selected = field.value === slot.field;
+        select.appendChild(option);
+      });
+      select.addEventListener('change', function () {
+        // Each field once per line: picking a field another slot holds swaps the two slots' fields.
+        var taken = slots.filter(function (other) { return other !== slot && other.field === select.value; })[0];
+        if (taken) taken.field = slot.field;
+        slot.field = select.value;
+        renderImportTemplate();
+        updateImportPreview();
+      });
+      item.appendChild(select);
+      if (index > 1) {
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'btn-icon import-template-remove';
+        remove.setAttribute('aria-label', 'Bỏ trường thứ ' + (index + 1));
+        remove.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+        remove.addEventListener('click', function () {
+          slots.splice(index, 1);
+          renderImportTemplate();
+          updateImportPreview();
+        });
+        item.appendChild(remove);
+      } else {
+        // Rows that can't be removed keep an empty slot of the same width, so every field picker ends flush.
+        var spacer = document.createElement('span');
+        spacer.className = 'import-template-remove-slot';
+        spacer.setAttribute('aria-hidden', 'true');
+        item.appendChild(spacer);
+      }
+      list.appendChild(item);
+    });
+    document.getElementById('btn-template-add').hidden = slots.length >= FlashImportSeparators.MAX_SLOTS;
+  }
+
+  // Three independent ways in ("Cách nhập"): manual paste with the separator options, AI generation,
+  // or a file. Files are always read as tab columns, whatever the manual separators are set to.
+  var importSource = 'manual';
+  var FILE_PARSE_OPTIONS = { mode: 'pair', term: { type: 'tab', custom: '' }, card: { type: 'newline', custom: '' } };
+
+  function importParseOptions() {
+    return importSource === 'file' ? FILE_PARSE_OPTIONS : importSepState;
+  }
+
+  function setImportSource(source) {
+    importSource = source;
+    document.getElementById('import-source').value = source;
+    document.querySelector('#import-modal .modal-body').dataset.source = source;
+    updateImportPreview();
+  }
+
+  function parseImportLines(text) {
+    return FlashImportSeparators.parse(text, importParseOptions()).cards;
+  }
+
+  function updateImportPreview() {
+    var text = document.getElementById('import-text').value;
+    var result = FlashImportSeparators.parse(text, importParseOptions());
+    var templateError = document.getElementById('import-template-error');
+    templateError.hidden = !result.templateError;
+    templateError.textContent = result.templateError;
+    var countLabel = document.getElementById('import-preview-count');
+    var list = document.getElementById('import-preview-list');
+    countLabel.textContent = result.cards.length + ' thẻ'
+      + (result.invalidCount ? ' · ' + result.invalidCount + ' dòng không nhận ra' : '');
+    var issueLabel = document.getElementById('import-preview-issues');
+    issueLabel.hidden = !result.issueCount;
+    issueLabel.textContent = result.issueCount ? result.issueCount + ' dòng cần xem lại' : '';
+    if (!result.cards.length) {
+      list.replaceChildren();
+      var empty = document.createElement('p');
+      empty.className = 'muted';
+      empty.textContent = 'Không có nội dung để xem trước';
+      list.appendChild(empty);
+      return;
+    }
+    // One column per card field, so a field landing in the wrong place is visible before applying.
+    // Both modes fill the same four card fields, so the preview always shows all four.
+    var columns = [['Kanji', 'front'], ['Cách đọc', 'reading'], ['Nghĩa', 'meaning'], ['Hán Việt', 'hanViet']];
+    // The list scrolls, so show enough rows that a flagged one is never hidden behind "+ N thẻ khác".
+    var SHOWN = 200;
+    var cell = function (value, key, issue) {
+      var text = String(value || '').trim();
+      var classes = [text ? '' : 'is-empty', issue ? 'is-suspect' : ''].filter(Boolean).join(' ');
+      return '<td' + (key === 'front' || key === 'reading' ? ' lang="ja"' : '') + (classes ? ' class="' + classes + '"' : '')
+        + (issue ? ' title="' + FlashShell.esc(issue) + '"' : '') + '>'
+        + (issue ? '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ' : '')
+        + (text ? FlashShell.esc(text) : '—')
+        + (issue ? '<span class="sr-only"> (' + FlashShell.esc(issue) + ')</span>' : '') + '</td>';
+    };
+    list.innerHTML = '<table class="import-preview-table" data-columns="' + columns.length + '"><thead><tr>'
+      + columns.map(function (column) { return '<th scope="col">' + column[0] + '</th>'; }).join('')
+      + '</tr></thead><tbody>'
+      + result.cards.slice(0, SHOWN).map(function (card, index) {
+        var issues = (result.issues && result.issues[index]) || {};
+        return '<tr' + (Object.keys(issues).length ? ' class="has-issue"' : '') + '>'
+          + columns.map(function (column) { return cell(card[column[1]], column[1], issues[column[1]]); }).join('') + '</tr>';
+      }).join('') + '</tbody></table>'
+      + (result.cards.length > SHOWN
+        ? '<p class="muted import-preview-more">+ ' + (result.cards.length - SHOWN) + ' thẻ khác</p>' : '');
   }
 
   /* Server converts CSV/TXT/XLSX into the same text the textarea accepts, so the user can review before applying. */
@@ -727,60 +908,94 @@
         FlashShell.showToast('File không có dòng dữ liệu nào', 'err');
         return;
       }
-      var textarea = document.getElementById('import-text');
-      textarea.value = textarea.value.trim() ? textarea.value.trim() + '\n' + res.text : res.text;
+      // The file replaces the source data: in "File" mode the textarea is hidden and only the preview shows.
+      document.getElementById('import-text').value = res.text;
+      clearImportAiPreview();
+      updateImportPreview();
       FlashShell.showToast('Đã đọc ' + res.lineCount + ' dòng từ ' + file.name + '. Kiểm tra rồi bấm Áp dụng', 'ok');
     } catch (e) {
       FlashShell.showToast(e.message || 'Không đọc được file', 'err');
     }
   }
 
+  var pendingImportCards = null;
+  var importGeneratedFrom = null;
+  var importAiBusy = false;
+  var importAiRequest = 0;
+
+  function clearImportAiPreview() {
+    pendingImportCards = null;
+    importGeneratedFrom = null;
+    document.getElementById('import-ai-preview').hidden = true;
+    document.getElementById('import-ai-cards').replaceChildren();
+    document.getElementById('import-ai-status').textContent = '';
+    document.getElementById('btn-apply-import').innerHTML = '<i class="fa-solid fa-check"></i> Áp dụng vào danh sách thẻ';
+  }
+
+  function setImportAiBusy(busy) {
+    importAiBusy = busy;
+    ['btn-import-ai', 'btn-apply-import', 'btn-import-file', 'import-text'].forEach(function (id) {
+      document.getElementById(id).disabled = busy;
+    });
+    document.getElementById('btn-import-ai').setAttribute('aria-busy', String(busy));
+    document.getElementById('btn-import-ai').innerHTML = busy
+      ? '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Đang tạo thẻ…'
+      : '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> AI tạo thẻ từ dữ liệu';
+  }
+
   async function importGenerateAi() {
+    if (importAiBusy) return;
     var text = document.getElementById('import-text').value;
-    if (!text.trim()) {
-      FlashShell.showToast('Nhập danh sách từ trước', 'err');
-      return;
-    }
-
-    if (window.JlasUI && JlasUI.showAiProgress) {
-      JlasUI.showAiProgress({
-        title: 'AI điền cách đọc & Hán Việt 🌸',
-        category: 'IMPORT ASSISTANT',
-        subtitle: 'Đang phân tích danh sách từ vựng và tự động bổ sung Hán Việt...',
-        total: 100,
-        unit: '%',
-        current: 25,
-        percent: 25,
-        status: 'Đang gửi văn bản tới AI...'
-      });
-    }
-
+    clearImportAiPreview();
+    var status = document.getElementById('import-ai-status');
+    if (!text.trim()) { status.textContent = 'Nhập dữ liệu nguồn trước khi tạo thẻ.'; return; }
+    if (text.length > 12000) { status.textContent = 'Dữ liệu không được quá 12.000 ký tự.'; return; }
+    var request = ++importAiRequest;
+    setImportAiBusy(true);
+    status.textContent = 'AI đang đọc dữ liệu và tạo các thẻ…';
     try {
-      if (window.JlasUI && JlasUI.updateAiProgress) {
-        JlasUI.updateAiProgress({ percent: 28, status: 'AI đang phân tích và dịch Hán Việt...' });
-      }
-
-      var res = await FlashApi.post('/api/flashcards/import/generate-hanviet', { text: text });
-      document.getElementById('import-text').value = res.text || text;
-
-      if (window.JlasUI && JlasUI.completeAiProgress) {
-        JlasUI.completeAiProgress('Đã bổ sung Hán Việt! 🌸', function () {
-          FlashShell.showToast('Đã bổ sung cách đọc và Hán Việt (AI)', 'ok');
-        });
-      } else {
-        FlashShell.showToast('Đã bổ sung cách đọc và Hán Việt (AI)', 'ok');
-      }
+      var res = await FlashApi.post('/api/flashcards/import/generate-cards', { text: text });
+      if (request !== importAiRequest) return;
+      if (document.getElementById('import-text').value !== text) throw new Error('Dữ liệu nguồn đã thay đổi. Hãy tạo thẻ lại từ dữ liệu mới.');
+      if (!Array.isArray(res) || !res.length || res.length > 60) throw new Error('AI chưa trả về thẻ hợp lệ.');
+      var generated = res.map(function (item) {
+        if (!item || typeof item.front !== 'string' || typeof item.reading !== 'string' || typeof item.meaning !== 'string'
+            || !item.front.trim() || !item.reading.trim() || !item.meaning.trim()) throw new Error('Thẻ AI thiếu từ vựng, cách đọc hoặc nghĩa.');
+        var front = item.front.trim(), reading = item.reading.trim(), meaning = item.meaning.trim();
+        return { front: front, reading: reading, meaning: meaning,
+          back: reading + ' — ' + meaning,
+          hanViet: hasKanji(front) ? String(item.hanViet || '').trim() : '', image: '', _selected: false };
+      });
+      pendingImportCards = generated;
+      importGeneratedFrom = text;
+      document.getElementById('import-ai-cards').innerHTML = generated.map(function (card, index) {
+        return '<li class="import-ai-card"><span class="import-ai-card__number">' + (index + 1) + '</span><div>' +
+          '<strong lang="ja">' + FlashShell.esc(card.front) + '</strong><span lang="ja">' + FlashShell.esc(card.reading) + '</span>' +
+          '<p>' + FlashShell.esc(card.meaning) + '</p><small>Hán Việt: ' + FlashShell.esc(card.hanViet || '—') + '</small></div></li>';
+      }).join('');
+      document.getElementById('import-ai-preview').hidden = false;
+      status.textContent = 'Đã tạo ' + generated.length + ' thẻ. Kiểm tra kết quả rồi áp dụng vào danh sách.';
+      document.getElementById('btn-apply-import').innerHTML = '<i class="fa-solid fa-check"></i> Thêm ' + generated.length + ' thẻ vào danh sách';
     } catch (e) {
-      if (window.JlasUI && JlasUI.hideAiProgress) JlasUI.hideAiProgress();
-      FlashShell.showToast(e.message || 'Tạo Hán Việt thất bại', 'err');
+      if (request === importAiRequest) status.textContent = e.message || 'Không tạo được thẻ. Hãy thử lại.';
+    } finally {
+      if (request === importAiRequest) setImportAiBusy(false);
     }
   }
 
   function applyImport() {
+    if (importAiBusy) return;
     var text = document.getElementById('import-text').value;
-    var parsed = parseImportLines(text);
+    var aiReady = pendingImportCards && importGeneratedFrom === text;
+    if (importSource === 'ai' && !aiReady) {
+      FlashShell.showToast('Bấm "AI tạo thẻ từ dữ liệu" để tạo thẻ trước khi áp dụng', 'err');
+      return;
+    }
+    var parsed = importSource === 'ai'
+      ? pendingImportCards.map(function (card) { return Object.assign({}, card); })
+      : parseImportLines(text);
     if (!parsed.length) {
-      FlashShell.showToast('Không có dòng hợp lệ. Dán 2–3 cột Excel hoặc dùng mẫu Từ : Nghĩa (có thể thêm cách đọc và Hán Việt)', 'err');
+      FlashShell.showToast('Không có dòng hợp lệ. Dán 2–3 cột Excel hoặc dùng mẫu Kanji : Nghĩa (có thể thêm cách đọc và Hán Việt)', 'err');
       return;
     }
 

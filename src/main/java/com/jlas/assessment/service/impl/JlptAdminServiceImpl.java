@@ -211,6 +211,15 @@ public class JlptAdminServiceImpl implements JlptAdminService {
             }
             return;
         }
+        String examLevel = jdbc.queryForObject("""
+                SELECT e.jlpt_level FROM jlpt_mondai m JOIN jlpt_part p ON p.id=m.part_id
+                JOIN jlpt_exam e ON e.id=p.exam_id WHERE m.id=?
+                """, String.class, mondaiId);
+        String audioLevel = audioLevelMismatch(audioUrl, examLevel);
+        if (audioLevel != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Audio thuộc cấp " + audioLevel + " nhưng đề là cấp " + examLevel + ".");
+        }
         long clipId;
         if (existing.isEmpty()) {
             KeyHolder keys = new GeneratedKeyHolder();
@@ -421,6 +430,24 @@ public class JlptAdminServiceImpl implements JlptAdminService {
 
     private static String normalizeCode(String code) {
         return code.trim().toUpperCase(Locale.ROOT);
+    }
+
+    /** Mã cấp độ đứng riêng trong đường dẫn: /audio/JLPT/N3/N3_2012_07/..., audio%2FN1%2F2012-12-N1-mondai1.mp3. */
+    private static final java.util.regex.Pattern AUDIO_LEVEL_TOKEN =
+            java.util.regex.Pattern.compile("(?i)(?<=^|[/_.\\-]|%2F)(N[1-5])(?=[/_.\\-]|%2F|$)");
+
+    /**
+     * Cấp độ ghi trong đường dẫn audio nếu khác cấp của đề, ngược lại null. Đường dẫn không mang mã cấp
+     * (vd. link storage dạng UUID) thì không kiểm được nên cho qua.
+     */
+    static String audioLevelMismatch(String audioUrl, String examLevel) {
+        if (audioUrl == null || examLevel == null) return null;
+        java.util.regex.Matcher matcher = AUDIO_LEVEL_TOKEN.matcher(audioUrl);
+        while (matcher.find()) {
+            String level = matcher.group(1).toUpperCase(java.util.Locale.ROOT);
+            if (!level.equalsIgnoreCase(examLevel.trim())) return level;
+        }
+        return null;
     }
 
     private static String blankToNull(String value) {

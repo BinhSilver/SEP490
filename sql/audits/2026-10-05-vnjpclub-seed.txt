@@ -1,0 +1,249 @@
+BÁO CÁO SEED NỘI DUNG VNJPCLUB VÀO J-LAS  [JLAS2-20]
+Ngày: 05/10/2026. Repo: D:\project_capstone\SEP490. Nguồn dữ liệu: D:\project\tool\tool\output\export (chỉ đọc).
+Không sửa generate_seed.py / tools/generate_seed.py / seed_data_jlas.sql (thư mục gốc) / db/seed_data_jlas.sql.
+CẬP NHẬT cuối ngày 05/10: hai bản seed cũ đã gộp thành bản chuẩn sql/seeds/seed_data_jlas.sql (tools/generate_seed.py),
+bản cũ cất ở sql/seeds/_cu/, questionbank.sql chuyển vào sql/seeds/ — chi tiết: sql/audits/2026-10-05-gop-seed-jlas.txt.
+Đã thêm tài khoản demo creator@jlab.local (sql/seeds/demo_content_creator.sql, mục 3.7).
+Không chạy file seed nào lên database jlas đang dùng; mọi kiểm tra làm trên DB tạm jlas_seedtest, jlas_seedtest2
+(đã xoá sau khi kiểm). Không tạo file .md, không chạy git.
+
+======================================================================================================
+1. FILE TẠO / SỬA
+======================================================================================================
+- jlas_schema.sql: thêm CREATE TABLE content_source ngay sau content_audio, ghi chú [JLAS2-20]. Không đổi bảng nào khác.
+- sql/migrations/018_content_source.sql: cùng bảng, CREATE TABLE IF NOT EXISTS (chạy lại được). Không nối vào
+  sql/jlas_migrations_all.sql (file đó chỉ gộp tới 012).
+  content_source: id, entity_type (TEXTBOOK/UNIT/LESSON/VOCABULARY/GRAMMAR_POINT/CONTENT_ITEM/KANJI/QUESTION), entity_id,
+  source_code (SEKAI/VNJPCLUB/AI_GENERATED), stable_code (VARCHAR 255, NOT NULL), source_url, original_title,
+  review_status (NGUON/CHUA_DUYET/DA_DUYET, mặc định CHUA_DUYET), note, created_at; UNIQUE (source_code, stable_code),
+  KEY (entity_type, entity_id); CHECK cho 3 cột enum. Không có FK (đa hình, giống content_audio).
+- tools/seed_vnjpclub.py: script độc lập sinh sql/seeds/seed_data_vnjpclub.sql. Tham số --vnjp-export (mặc định
+  data/vnjpclub; đọc *.json hoặc *.json.gz), --out, --report, --copy-data (chép lại data/vnjpclub dạng gzip).
+- data/vnjpclub/: 15 bảng JSON nén gzip (13 MB, không chép mp3) + _so_dong.json + so_lieu_chot.csv để team chạy lại.
+- sql/seeds/seed_data_vnjpclub.sql: 51,6 MB, tất định (hai lần sinh cùng md5; bản hiện tại sau khi sửa header thứ tự chạy:
+  901eb14095825ca96b66c055c69ab8cb — phần dữ liệu không đổi so với bản 3ca4051c… trước đó).
+- sql/audits/2026-10-05-vnjpclub-seed.txt: báo cáo này.
+
+======================================================================================================
+2. THIẾT KẾ FILE SEED
+======================================================================================================
+- Thứ tự chạy (ghi trong header, CHỐT 05/10, cập nhật sau khi gộp seed):
+    1) jlas_schema.sql
+    2) migration: sql/migrations/018_content_source.sql → sql/jlas_migrations_all.sql (jlas_seed_all.sql cần bảng của
+       file này, vd. moderation_audit_log) → sql/migrations/019_situation_tag_ba.sql (DB tạo từ schema cũ: WORK → BA + CHECK)
+       → sql/migrations/020_align_checks_credit_reference.sql (DB tạo từ schema cũ: 5 CHECK + unique credit reference)
+    3) sql/seeds/seed_data_jlas.sql (bản chuẩn đã gộp)
+    4) các seed khác: sql/seeds/jlas_seed_all.sql, sql/seeds/questionbank.sql, sql/seeds/ai_call_scoring_rules.sql…
+    5) sql/seeds/demo_content_creator.sql
+    6) sql/seeds/seed_data_vnjpclub.sql CUỐI CÙNG (jlas_seed_all.sql xoá cứng 5 từ vựng, chạy vnjpclub sau để không mất
+       liên kết từ vựng của bài).
+- ID tường minh dải riêng 1000001–1999999 (tag, textbook, unit, lesson, lesson_section, grammar_point, content_item,
+  content_audio, assessment_quiz, assessment_question, content_source), cấp tuần tự N5→N1 theo thứ tự curriculum.
+- Đầu file: DELETE dữ liệu của chính file theo dải ID và content_source.source_code='VNJPCLUB' (kèm lesson_tag,
+  lesson_kanji, content_vocabulary, assessment_quiz_question theo khoá cha trong dải; tag KNOWLEDGE 'VNJ-%'), thứ tự
+  ngược FK. Không đụng dữ liệu ngoài dải. Phần INSERT chạy với FOREIGN_KEY_CHECKS = 1 (bắt lỗi FK thật).
+- Từ vựng: bảng tạm theo (normalized_expression, normalized_reading) [collation utf8mb4_0900_as_cs như vocabulary_entry];
+  INSERT IGNORE vào vocabulary_entry không ghi ID; liên kết (content_vocabulary, vocabulary_kanji, sense/gloss) tra ID bằng
+  JOIN theo khoá chuẩn hoá. Từ đã có: chỉ liên kết, không thêm sense, không sửa. Từ mới: usage_scope TEXTBOOK,
+  dictionary_status DRAFT, jlpt theo giáo trình, example_ja/vi = ví dụ đầu tiên; mỗi nghĩa tiếng Việt khác nhau giữa các
+  bộ = 1 vocabulary_sense (usage_note 'Sách: <tên sách> (<cấp>)') + gloss 'vi'. Từ/kanji mới không bị xoá khi chạy lại.
+- Kanji: tra theo ký tự; chữ chưa có thì INSERT IGNORE (unicode_code, han_viet, meaning_vi từ nguồn, jlpt); chữ đã có
+  không UPDATE. lesson_kanji theo ký tự. Từ ghép kanji đi đường từ vựng (kiểm trùng) + content_vocabulary ở section Kanji.
+- Cuối file: ALTER TABLE … AUTO_INCREMENT = 2000001 cho 11 bảng có ID tường minh để dữ liệu tạo sau (giao diện,
+  seed khác) không rơi vào dải dành riêng — nếu không, lesson tạo tay sau seed sẽ nhận ID trong dải và bị xoá khi chạy lại.
+
+======================================================================================================
+3. KẾT QUẢ KIỂM TRA (DB tạm)
+======================================================================================================
+3.1 Seed thư mục gốc (seed cũ chính)
+- PHÁT HIỆN: seed_data_jlas.sql thư mục gốc KHÔNG chạy được trên jlas_schema.sql hiện tại:
+  "ERROR 3819 … chk_lesson_situation_tag is violated" (dòng 326) – 21 lesson (giáo trình IT, id 170…) dùng
+  situation_tag = 'WORK', schema hiện tại chỉ nhận 'BA' ([JLAS-W0108]). DB jlas chạy được vì tạo từ schema cũ
+  (đọc CHECK trên jlas: TRAVEL/WORK/FOUNDATION; 21 lesson WORK; chưa có bảng content_source → cần chạy 018).
+  Để kiểm, dùng BẢN SAO trong thư mục tạm đổi đúng 21 giá trị 'WORK' → 'BA' (không sửa file trong repo).
+- schema → 018 → seed gốc (bản sao) → seed_data_vnjpclub.sql → chạy lại seed_data_vnjpclub.sql: tất cả rc = 0,
+  không lỗi FK / UNIQUE / CHECK. Số dòng sau lần 1 và lần 2 giống hệt (bảng 3.3).
+- Dữ liệu cũ không đổi: checksum CRC32 mọi cột (trừ created_at/updated_at) của 27 bảng, trên các dòng có trước khi chạy
+  seed vnjpclub — giống hệt trước / sau lần 1 / sau lần 2.
+- Các seed khác chạy SAU file vnjpclub (bản sao đổi USE jlas → DB tạm): jlas_migrations_all.sql, jlas_seed_all.sql,
+  ai_call_scoring_rules.sql, questionbank.sql: không lỗi; dữ liệu vnjpclub giữ nguyên; các dòng mới của chúng nhận ID
+  >= 2000001 (1 textbook, 22 quiz, 2874 câu hỏi, 6 tag) – ngoài dải. Chạy lại seed_data_vnjpclub.sql sau đó: rc = 0,
+  2874 câu hỏi questionbank vẫn còn.
+  LƯU Ý: jlas_seed_all.sql có "DELETE FROM vocabulary_entry WHERE (…) IN (('今日','きょう'),('食べる','たべる'),
+  ('今日','こんにち'),('積ん読','つんどく'),('推し','おし'))" → xoá theo cascade 5 liên kết content_vocabulary của bài
+  vnjpclub (25322 → 25317). Chạy lại seed_data_vnjpclub.sql sau jlas_seed_all.sql thì khôi phục đủ (đã kiểm: 25322).
+3.1b Kiểm lại THỨ TỰ CHỐT (vnjpclub chạy cuối cùng) trên DB tạm
+- schema → 018 → jlas_migrations_all.sql → seed gốc (bản sao WORK→BA) → jlas_seed_all.sql → ai_call_scoring_rules.sql →
+  questionbank.sql → seed_data_vnjpclub.sql → seed_data_vnjpclub.sql (lần 2): mọi file rc = 0, không lỗi FK/UNIQUE/CHECK.
+- Sau lần 1 và lần 2 số dòng giống hệt (vd. lesson 238 → 3104, assessment_question 2874 → 12339, content_vocabulary
+  10309 → 35631, vocabulary_entry 9059 → 20863); checksum dữ liệu có trước (seed cũ + seed khác) không đổi.
+- Liên kết từ vựng vnjpclub đủ 25322 (không mất 5 liên kết như khi jlas_seed_all.sql chạy sau); 9465 câu hỏi vnjpclub +
+  2874 câu questionbank còn nguyên; content_source 63192 dòng VNJPCLUB + 8 dòng dữ liệu cũ.
+3.1c Kiểm lại với BẢN CHUẨN đã gộp (sql/seeds/seed_data_jlas.sql) và tài khoản demo
+- schema → 018 → jlas_migrations_all.sql → sql/seeds/seed_data_jlas.sql → jlas_seed_all.sql → questionbank.sql →
+  ai_call_scoring_rules.sql → demo_content_creator.sql → seed_data_vnjpclub.sql → seed_data_vnjpclub.sql (lần 2):
+  mọi file rc = 0 (bản chuẩn nạp thẳng trên jlas_schema.sql hiện tại, không cần bản sao WORK→BA).
+- Sau lần 1 và lần 2 số dòng giống hệt (lesson 238 → 3104, assessment_question 2874 → 12339, vocabulary_entry 9093 →
+  20882); checksum dữ liệu có trước không đổi; liên kết từ vựng vnjpclub 25322; 2874 câu questionbank còn nguyên.
+3.2 Seed db/seed_data_jlas.sql (thử thêm; bản này nay ở sql/seeds/_cu/db/)
+- schema → 018 → db/seed_data_jlas.sql → vnjpclub ×2: tất cả rc = 0, số dòng ổn định, checksum dữ liệu cũ không đổi.
+3.3 Số dòng (DB tạm, seed gốc; trước = sau seed cũ, sau = sau seed vnjpclub, lần 2 giống hệt lần 1)
+  bảng                        trước       sau      phần vnjpclub
+  tag                           222      3088      2866 (VNJ-<mã lesson>)
+  textbook                        9        54        45
+  unit                           41       575       534
+  lesson                        219      3085      2866
+  lesson_tag                    328      3194      2866
+  lesson_section                716      5617      4901
+  grammar_point                 749      3191      2442
+  content_item                 5106     22541     17435
+  content_vocabulary          10315     35637     25322
+  content_audio                5057      6975      1918
+  content_voice                   6         7         1 ('nguon-sach', "Audio gốc")
+  vocabulary_entry             9031     20837     11806 từ mới
+  vocabulary_sense             9031     23020     13989
+  vocabulary_gloss            15850     29839     13989
+  vocabulary_kanji            12844     39335     26491
+  kanji                        2540      2555        15 chữ mới
+  lesson_kanji                    0      5004      5004
+  assessment_quiz                 0      1399      1399
+  assessment_question             0      9465      9465
+  assessment_quiz_question        0      9465      9465
+  content_source                  0     63200     63192 VNJPCLUB + 8 dữ liệu cũ
+  (kanji_reading, radical, dialogue_*, vocabulary_variant: không đổi)
+3.4 Đối chiếu output/so_lieu_chot.csv (chỉ phần vnjpclub)
+  mục              so_lieu_chot     DB         ghi chú
+  giáo trình             45          45
+  unit                  534         534
+  lesson               2866        2866        theo cấp N5/N4/N3/N2/N1: 282/522/692/911/459 (khớp)
+  mẫu ngữ pháp         2442        2442
+  câu hỏi              9465        9465        theo cấp: 707/1681/2889/2624/1564 (khớp); answer_uncertain 5 (khớp)
+  từ vựng (mục)       19518       19518 mã ổn định (content_source) → 14255 từ khác nhau:
+                                   3962 dùng lại từ dữ liệu cũ + 10293 từ mới = 14255.
+                                   19518 − 14255 = 5263 mục trùng giữa / trong các bộ vnjpclub (output/trung_lap.csv:
+                                   "muc_thua_neu_gop_toan_bo" = 5262; lệch 1 do một cặp khoá chỉ trùng dưới collation DB).
+  từ ghép kanji        5887        5883 mã → 3881 từ (1845 dùng lại + 2036 mới); 4 mã thuộc mục kanji bị bỏ (dưới).
+  tổng từ vựng liên kết            16228 từ khác nhau = 4422 dùng lại từ dữ liệu cũ + 11806 từ mới (= số dòng
+                                   vocabulary_entry tăng thêm 20837 − 9031).
+  kanji                5005        5004 mục lesson_kanji (1724 chữ khác nhau); bỏ 1 mục SPEED-N2-L087-KAN-011 '突く'
+                                   (không phải 1 ký tự) cùng 4 từ ghép của nó.
+  bài đọc               782        1216 content_item READING "Bài đọc": export xếp cả bộ trắc nghiệm / đề tổng hợp có
+                                   nội dung vào bai_doc (1247), bỏ 31 bài nội dung rỗng; so_lieu_chot chỉ đếm phần reading.
+  bài nghe              601         642 transcript (bai_nghe gồm cả bài tổng hợp có audio).
+  audio          2036 (124 thiếu)  2060 audio khác nhau trong audio_lien_ket, 142 file 404 bỏ qua → 1918 content_audio
+                                   (so_lieu_chot đếm theo URL ở mức bài nên con số khác).
+3.5 Câu hỏi
+- 9465 câu = 1 quiz LESSON (DRAFT) mỗi lesson có câu hỏi (1399 quiz). is_active = 0, difficulty MEDIUM.
+- Inline (option_1..4 + correct_option): 8624 câu (đúng 2–4 phương án dạng chữ, mỗi phương án ≤ 255 ký tự, 1 đáp án chắc
+  chắn, chỉ số liên tục 1..n).
+- Chỉ context_json (inline NULL): 767 câu — chọn hình 197, phương án rỗng hoặc > 255 ký tự 372, nhiều đáp án 79,
+  không đáp án chắc chắn 66, ≥5 phương án 32 (5:9, 6:11, 7:10, 9:2), phuong_an_loi 11, answer_uncertain 5,
+  1 phương án 2, chỉ số phương án không liên tục 3.
+- FILL_BLANK: 74 câu (Mimikara N1; nhận diện qua answer_text, export gắn nhầm loai_cau).
+- 1097 câu nội dung rỗng → "(Nghe và chọn đáp án đúng)" / "(Đọc và chọn đáp án đúng)", cờ empty_question_text trong
+  context_json.
+- Kỹ năng: READING 5330, LISTENING 2513, GRAMMAR 988, VOCABULARY 349, KANJI 285 (theo phần chứa câu hỏi).
+- context_json luôn có: source, stable_code, review_status, loai_cau, nguon_dap_an, answer_uncertain, ly_do_uncertain,
+  source_url, parent_code, label, question_translation, empty_question_text, inline, not_inline_reason, answer,
+  options[] đầy đủ (text, translation, is_correct, reason), audio_hint[] (liên kết audio gợi ý kèm mức liên kết và
+  trạng thái, 1:1 là CHUA_DUYET), answer_text (câu điền). Không gắn audio vào câu hỏi.
+3.6 content_source dữ liệu cũ (cấp textbook, tra theo tiêu đề duy nhất)
+  Sekai N5 — Giáo trình tiếng Nhật  → SEKAI, DA_DUYET (textbook PUBLISHED)
+  Sekai N4 — Giáo trình tiếng Nhật  → SEKAI, CHUA_DUYET
+  Tiếng Nhật N3 / N2 / N1, Tiếng Nhật chuyên ngành IT, du lịch, đời sống → AI_GENERATED, CHUA_DUYET
+  Bỏ qua: "Bảng chữ cái tiếng Nhật" (không thuộc danh sách nguồn được chốt). Cả 8 giáo trình đều tra được ở 2 bản seed.
+3.7 Test và ứng dụng
+- ./mvnw -q test: XANH – 82 lớp test, 630 test, 0 lỗi, 0 thất bại, 41 bỏ qua (có sẵn) — H2, không dùng MySQL.
+- Khởi động app trỏ DB tạm (tham số dòng lệnh --spring.datasource.url=…/jlas_seedtest --server.port=8099, không sửa file
+  cấu hình): khởi động 15,6 s, ddl validate qua. Lỗi khởi động duy nhất: thiếu thư mục KanjiVG trong classpath
+  (tính năng viết tay) – có sẵn, không liên quan seed.
+- /textbooks/manage: 302 về /login khi chưa đăng nhập, 200 khi có JWT. API /api/dictionary/manage/textbooks (vai
+  CONTENT_CREATOR; trên DB tạm đã đổi vai content@jlab.local sang CONTENT_CREATOR vì CONTENT_ADMIN bị 403): thấy 45 giáo
+  trình vnjpclub trạng thái DRAFT. Cây Somatome (N2) (id 1000037): 8 unit, unit 1 "Nhà ở và sinh hoạt hằng ngày" gồm
+  "Tìm thuê căn hộ" … "Luyện đề tổng hợp".
+- Bài "Tìm thuê căn hộ" (lesson 1002193): /textbooks/1000037/lessons/1002193 → 200; /api/dictionary/lessons/1002193/content:
+  DRAFT, GRAMMAR, knowledge tag VNJ-SOMATOME-N2-L001; 4 mẫu ngữ pháp, 8 câu ví dụ (gắn mẫu), danh sách từ vựng (gồm từ dùng
+  lại từ Sekai, vẫn mang audio Sekai), kanji kèm từ ghép, bài đọc; quản lý section: Từ vựng 1, Ngữ pháp 0, Câu ví dụ 8,
+  Kanji 1, Bài đọc 1, Bài nghe 4, Luyện tập 1.
+- HẠN CHẾ: màn học viên (lessons/{id}/content) chỉ hiển thị mục LISTENING qua dialogue_line_detail (khuôn hội thoại
+  Sekai), nên transcript + audio vnjpclub (content_item LISTENING mang content_audio, không có dialogue_line_detail) chỉ
+  thấy ở màn quản lý, KHÔNG hiện ở trang học. ĐÃ CHỐT: không seed dialogue_line_detail giả; sửa service để hiện mục nghe
+  không phải hội thoại là task riêng sau (xem mục 6).
+- TÀI KHOẢN DEMO: content@jlab.local (sql/seeds/jlas_seed_all.sql) có vai CONTENT_ADMIN, nhưng trang /textbooks/manage và
+  API /api/dictionary/manage/** đòi @PreAuthorize("hasRole('CONTENT_CREATOR')") → tài khoản này nhận 403 ở màn quản lý
+  giáo trình. KHÔNG sửa vì vai CONTENT_ADMIN VẪN CÓ CODE DÙNG – vị trí để team quyết:
+    * src/main/java/com/jlas/learning/service/impl/OnyomiCourseServiceImpl.java:59
+        REVIEWER_ROLES = List.of("ROLE_CONTENT_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN") – dùng ở isReviewer() (dòng 285):
+        người có vai này được mở toàn bộ lộ trình Onyomi để kiểm tra nội dung.
+    * sql/seeds/jlas_seed_all.sql:50  INSERT IGNORE INTO roles … ('CONTENT_ADMIN', 'Soan va kiem tra noi dung hoc')
+    * sql/seeds/jlas_seed_all.sql:70  tài khoản content@jlab.local gán vai CONTENT_ADMIN
+    * sql/seeds/jlas_seed_all.sql:21, 45  chú thích mô tả tài khoản demo
+  Hướng xử lý gợi ý: hoặc tạo thêm một tài khoản demo CONTENT_CREATOR, hoặc thêm ROLE_CONTENT_CREATOR vào REVIEWER_ROLES rồi
+  chuyển content@jlab.local sang CONTENT_CREATOR (mỗi user chỉ có 1 role_id).
+  ĐÃ LÀM (chốt: giữ content@jlab.local, tạo tài khoản riêng): sql/seeds/demo_content_creator.sql — CHỈ DÙNG CHO MÔI TRƯỜNG
+  PHÁT TRIỂN / DEMO, không dùng trên môi trường thật.
+    * email creator@jlab.local, username creator, mật khẩu admin123@@, vai CONTENT_CREATOR, is_verified = 1, login_type LOCAL,
+      gói FREE (nếu có), khai báo giống các tài khoản demo trong jlas_seed_all.sql.
+    * password_hash = BCrypt $2a$10$ZVQm… sinh bằng chính BCryptPasswordEncoder() mà SecurityConfig.passwordEncoder() trả về
+      (spring-security-crypto 7.1.1 trong ~/.m2); kiểm encoder.matches("admin123@@", hash) = true, chuỗi sai = false.
+    * Form /login chỉ có trường Email (LoginRequest.email, AuthServiceImpl tìm theo email) → đăng nhập bằng
+      creator@jlab.local / admin123@@; nhập "creator" vào ô email bị từ chối (HTTP 400).
+    * Chạy lại nhiều lần không lỗi, không nhân đôi (INSERT IGNORE theo uk_role_name / uk_user_email / uk_user_username, rồi
+      UPDATE đúng dòng email creator@jlab.local). Kiểm trên DB tạm: chỉ có schema, và sau toàn bộ seed khác — ×2 đều rc 0,
+      1 user, 1 role.
+    * ĐÃ CHẠY LÊN DB jlas (chỉ file này): users 2 → 3 (id 3), roles giữ 5 (CONTENT_CREATOR đã có). App trỏ DB jlas, cổng 8099:
+      POST /api/auth/login → 200 (role CONTENT_CREATOR); /textbooks/manage → 200 "Quản lý nội dung - JLAS";
+      GET /api/dictionary/manage/textbooks → 200 (13 giáo trình), không token → 401. Đã tắt app sau khi thử.
+
+======================================================================================================
+4. AUDIO
+======================================================================================================
+- Gốc audio: content.audio.path = ${CONTENT_AUDIO_PATH:uploads/content-audio/} (application.yaml), phục vụ tại
+  /uploads/content-audio/**. application-local.yaml, .vscode/settings.json và cấu hình chạy KHÔNG đặt CONTENT_AUDIO_PATH;
+  biến môi trường User/Machine cũng không có. Thư mục uploads/content-audio không tồn tại trong repo; audio Sekai đang
+  nằm ở D:\jlas-audio (sekai-n5, sekai-n4) – có vẻ là gốc thật nhưng chưa được cấu hình ở đâu.
+- audio_url vnjpclub dạng vnjpclub/<cấp>/<category>/<file> (vd. vnjpclub/N5/speed-n5-nghe-hieu/13.mp3), khớp cấu trúc
+  D:\project\tool\tool\output\media\<cấp>\<category>\<file>. 1918 file được tham chiếu; 142 file site 404 đã bỏ.
+- Lệnh chép mp3 (ĐÃ CHẠY 05/10 vào D:\jlas-audio\vnjpclub: 2534 file, 3,23 GB, 0 lỗi; CONTENT_AUDIO_PATH = D:/jlas-audio/
+  đã thêm vào application-local.yaml. Ghi chú ban đầu: thay <GOC_AUDIO> bằng gốc audio thật, vd. D:\jlas-audio nếu đặt CONTENT_AUDIO_PATH=D:\jlas-audio,
+  hoặc D:\project_capstone\SEP490\uploads\content-audio nếu giữ mặc định):
+    robocopy "D:\project\tool\tool\output\media" "<GOC_AUDIO>\vnjpclub" *.mp3 *.wav /S /R:1 /W:1
+  (chép theo cấu trúc <cấp>\<category>\<file>; thư mục media còn ảnh .png/.jpg không cần cho seed này.)
+
+======================================================================================================
+5. QUYẾT ĐỊNH TỰ ĐƯA RA
+======================================================================================================
+- Xoá đầu file theo dải 1000001–1999999 (thay vì ">= 1000001") và đặt AUTO_INCREMENT = 2000001 ở cuối file, để bản ghi tạo
+  sau seed (giao diện, seed khác) không bị xoá khi chạy lại.
+- Phần INSERT bật FOREIGN_KEY_CHECKS = 1; chỉ phần DELETE tắt (giống seed cũ).
+- Tiêu đề giáo trình: giữ tên trong curriculum; tên chưa có cấp thì thêm " (N?)" (vd. "Somatome (N2)", "Somatome (N3)")
+  để phân biệt bộ cùng tên. Mô tả ghi nguồn vnjpclub.com, mã nguồn, ghi chú bản quyền/chưa có giấy phép phân phối lại,
+  "Nội dung chưa duyệt".
+- Kỹ năng lesson: có ngữ pháp → GRAMMAR; chỉ từ vựng/kanji → VOCABULARY; chỉ nghe → LISTENING; chỉ đọc → READING; có cả
+  đọc và nghe → bên nhiều mục hơn; chỉ có câu hỏi → LISTENING nếu > 1/2 câu thuộc bài nghe, ngược lại READING.
+  estimated_minutes = 30. Bài luyện tập (curriculum kind practice) → lesson_type REVIEW, is_review = 1.
+- Section "Luyện tập" (EXERCISE) có 1 content_item READING tóm tắt số câu (câu hỏi nằm ở quiz) để section không rỗng.
+- Bài nghe: transcript = các dòng hoi_thoai (nếu không có thì nội dung bài); bản dịch = dòng dịch hoặc cau_song_ngu.
+  Bài đọc: translated_text = ghép dich_vi của cau_song_ngu (không seed câu song ngữ thành dòng riêng). Không seed rejected_items.
+- Câu ví dụ: chỉ ví dụ của mẫu ngữ pháp thành content_item GRAMMAR (11199); ví dụ của từ vựng chỉ dùng cho example_ja/vi
+  của từ mới (ví dụ đầu tiên).
+- Từ mới không có nghĩa vẫn có 1 sense (gloss rỗng, giống seed cũ) để sense 'Sách: …' là dấu hiệu ổn định "từ do vnjpclub
+  tạo": ghi chú content_source ("Tu moi tu vnjpclub" / "Dung lai tu da co") không đổi giữa các lần chạy.
+- grammar_point.example = ví dụ đầu tiên (giống Sekai); assessment_question.grammar_point_id gán khi câu hỏi thuộc mẫu ngữ pháp.
+- content_source thêm dòng KANJI (mỗi mã KAN một dòng) dù không bắt buộc.
+- Không thêm content_source cho "Bảng chữ cái tiếng Nhật".
+
+======================================================================================================
+6. VIỆC CÒN LẠI / ĐỀ XUẤT
+======================================================================================================
+- TASK RIÊNG (đã chốt, chưa làm): sửa service trang học (DictionaryServiceImpl – lessons/{id}/content) để hiển thị mục
+  LISTENING không thuộc hội thoại (transcript + audio vnjpclub). Không seed dialogue_line_detail giả.
+- Tài khoản demo: ĐÃ XỬ LÝ bằng tài khoản riêng creator@jlab.local (mục 3.7); content@jlab.local giữ CONTENT_ADMIN.
+- ĐÃ LÀM: gộp hai bản seed cũ thành sql/seeds/seed_data_jlas.sql (situation 'BA', nạp thẳng trên jlas_schema.sql hiện tại),
+  dọn file cũ vào sql/seeds/_cu/ — xem sql/audits/2026-10-05-gop-seed-jlas.txt.
+- ĐÃ NẠP lên DB jlas (05/10/2026): 018 → jlas_migrations_all → 019 → 020 → seed_data_jlas → jlas_seed_all → questionbank →
+  ai_call_scoring_rules → demo_content_creator → seed_data_vnjpclub, 10/10 file không lỗi; app kiểm 11/11 đạt – chi tiết
+  sql/audits/2026-10-05-gop-seed-jlas.txt mục 9.
+- Luôn chạy seed_data_vnjpclub.sql SAU các seed khác (thứ tự chốt); nếu lỡ chạy jlas_seed_all.sql sau thì chạy lại
+  seed_data_vnjpclub.sql để khôi phục 5 liên kết từ vựng (mục 3.1).
+- Chép mp3: ĐÃ LÀM (mục 4).

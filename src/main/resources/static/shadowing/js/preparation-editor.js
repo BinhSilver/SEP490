@@ -26,6 +26,28 @@
   const videoLevelStatus = document.getElementById('prepare-video-level-status');
   const contributionSection = document.querySelector('.preparation-contribute');
   const contribution = contributionSection.querySelector('p');
+  const preflight = window.ShadowingPreparationPreflight.create(document.getElementById('prepare-preflight'), {
+    reopen: document.getElementById('prepare-preflight-open'), next: start,
+    retry: function () { preparePage(true); }
+  });
+  const analyze = document.getElementById('prepare-analyze');
+  const manual = window.ShadowingManualQuestions.create(document.getElementById('prepare-manual'), {
+    save: function (payload) { return request(base + '/questions/manual', { method: 'POST', body: JSON.stringify(payload) }); },
+    saved: async function () {
+      currentFilter = 'DRAFT';
+      filterTouched = true;
+      reviewLevel.value = '';
+      reviewKind.value = '';
+      document.querySelectorAll('.preparation-filter button').forEach(function (button) {
+        button.setAttribute('aria-pressed', String(button.dataset.filter === 'DRAFT'));
+      });
+      visibleCount = 8;
+      await loadStatus();
+    },
+    listen: playSegment
+  });
+  let preparationPromise = null;
+  let latestStatus = null;
   let pollTimer = null;
   let initialized = false;
   let hasStoredKinds = false;
@@ -40,6 +62,7 @@
   let filterTouched = false;
   let visibleCount = 8;
   let remainingByKind = {};
+  let evidenceSignature = '';
   let canEdit = false;
   let isPublicVideo = false;
   const selectedQuestionIds = new Set();
@@ -65,10 +88,14 @@
     sourceById = new Map((Array.isArray(subtitles) ? subtitles : [])
       .map(function (subtitle) { return [Number(subtitle.id), subtitle]; }));
     document.getElementById('prepare-video-title').textContent = video.title || 'Video đang chỉnh sửa';
+    preflight.video(video.title || 'Video đang chỉnh sửa', sourceById.size);
     isPublicVideo = video.visibility === 'PUBLIC';
-    media.src = window.mediaStreamUrl
-      ? window.mediaStreamUrl(videoId)
-      : '/api/videos/' + encodeURIComponent(videoId) + '/stream';
+    await window.ShadowingYoutube.load(media, videoId, {
+      meta: video,
+      streamUrl: window.mediaStreamUrl
+        ? window.mediaStreamUrl(videoId)
+        : '/api/videos/' + encodeURIComponent(videoId) + '/stream'
+    });
     document.querySelector('.preparation-listen').classList.toggle('is-audio', Boolean(video.audioOnly));
   }
 
@@ -93,8 +120,7 @@
     const begin = function () {
       media.currentTime = Math.max(0, Number(question.startTime) || 0);
       if (window.matchMedia('(max-width: 900px)').matches) {
-        media.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          ? 'auto' : 'smooth', block: 'center' });
+        media.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       button.classList.add('is-playing');
       button.textContent = 'Đang phát';
@@ -154,8 +180,15 @@
       checkbox.disabled = available === 0;
       if (checkbox.disabled) checkbox.checked = false;
       amount.disabled = !checkbox.checked || available === 0;
+      amount.min = available ? '1' : '0';
       amount.max = String(available);
-      if (available && Number(amount.value) > available) amount.value = String(available);
+      if (available === 0) {
+        amount.value = '0';
+      } else if (Number(amount.value) < 1) {
+        amount.value = String(Math.min(available, Number(amount.defaultValue) || 1));
+      } else if (Number(amount.value) > available) {
+        amount.value = String(available);
+      }
     });
     updateSummaries();
   }
@@ -176,6 +209,72 @@
       icon.setAttribute('aria-label', 'AI gợi ý');
       icon.title = 'AI gợi ý';
       icon.hidden = !values.includes(row.dataset.kind);
+    });
+  }
+
+  function evidenceDetails(lines, ids, label) {
+    const details = document.createElement('details');
+    details.className = 'preparation-evidence';
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    details.appendChild(summary);
+    ids.forEach(function (id) {
+      const line = lines.find(function (item) { return Number(item.id) === Number(id); });
+      const text = document.createElement('p');
+      text.lang = 'ja';
+      text.textContent = line ? formatTime(line.startTime) + ' · ' + (line.originalText || line.text)
+        : 'Dòng #' + id + ' không nằm trong phụ đề AI đã nhận.';
+      details.appendChild(text);
+    });
+    const available = lines.filter(function (item) { return ids.includes(Number(item.id)); });
+    if (available.length) {
+      const play = document.createElement('button');
+      play.type = 'button';
+      play.className = 'preparation-question-play';
+      play.dataset.label = 'Nghe dẫn chứng · ' + formatTime(available[0].startTime);
+      play.textContent = play.dataset.label;
+      play.addEventListener('click', function () {
+        playSegment({ startTime: Math.min(...available.map(item => Number(item.startTime))),
+          endTime: Math.max(...available.map(item => Number(item.endTime))) }, play);
+      });
+      details.appendChild(play);
+    }
+    return details;
+  }
+
+  function renderEvidencePlans(plans) {
+    const values = Array.isArray(plans) ? plans : [];
+    const signature = JSON.stringify(values);
+    if (signature === evidenceSignature) return;
+    evidenceSignature = signature;
+    document.querySelectorAll('.preparation-kind-row').forEach(function (row) {
+      row.querySelector('.preparation-plan-list')?.remove();
+      const matches = values.filter(function (plan) { return plan.kind === row.dataset.kind; });
+      if (!matches.length) return;
+      const list = document.createElement('details');
+      list.className = 'preparation-plan-list';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Xem dẫn chứng cho ước tính';
+      list.appendChild(summary);
+      matches.slice(0, row.dataset.kind === 'MAIN_IDEA' ? 2 : 20).forEach(function (plan) {
+        const item = document.createElement('article');
+        const focus = document.createElement('p');
+        focus.textContent = plan.focus;
+        item.appendChild(focus);
+        item.appendChild(evidenceDetails(Array.from(sourceById.values()), plan.sourceIds || [], 'Phụ đề gốc'));
+        if (plan.contextSummary) {
+          const context = document.createElement('p');
+          context.className = 'preparation-evidence-context';
+          context.textContent = 'Ngữ cảnh: ' + plan.contextSummary;
+          item.appendChild(context);
+        }
+        list.appendChild(item);
+      });
+      const note = document.createElement('p');
+      note.className = 'preparation-evidence-context';
+      note.textContent = 'Ước tính dựa trên dẫn chứng. Câu tạo ra vẫn cần kiểm tra và duyệt.';
+      list.appendChild(note);
+      row.appendChild(list);
     });
   }
 
@@ -268,6 +367,18 @@
       const reason = document.createElement('p');
       reason.textContent = issue.reason;
       row.append(meta, reason);
+      if (issue.sourceIds?.length) {
+        row.appendChild(evidenceDetails(issue.evidence || [], issue.sourceIds,
+          'Dẫn chứng AI dùng · ' + issue.sourceIds.map(id => '#' + id).join(', ')));
+      }
+      if (issue.suppliedIds?.length) {
+        const marked = (issue.evidence || []).filter(line => line.marked).map(line => Number(line.id));
+        if (marked.length && JSON.stringify(marked) !== JSON.stringify(issue.sourceIds)) {
+          row.appendChild(evidenceDetails(issue.evidence || [], marked, 'Dẫn chứng được đánh dấu khi ước tính'));
+        }
+        row.appendChild(evidenceDetails(issue.evidence || [], issue.suppliedIds,
+          'Xem toàn bộ đoạn phụ đề đã gửi cho AI'));
+      }
       if (issue.prompt) {
         const prompt = document.createElement('p');
         prompt.lang = 'ja';
@@ -291,7 +402,7 @@
         });
         row.appendChild(choices);
       }
-      if (issue.startTime !== null && issue.startTime !== undefined) {
+      if (!issue.sourceIds?.length && issue.startTime !== null && issue.startTime !== undefined) {
         const play = document.createElement('button');
         play.type = 'button';
         play.className = 'preparation-question-play';
@@ -485,8 +596,11 @@
 
   async function loadStatus() {
     const data = await request(base);
+    latestStatus = data;
     const owner = Boolean(data.owner);
     canEdit = owner;
+    manual.update(data.manualSources || [], owner);
+    analyze.disabled = !data.aiAvailable || data.status === 'RUNNING' || data.status === 'QUEUED';
     document.getElementById('prepare-back-link').hidden = !owner;
     document.querySelector('.preparation-video-level').hidden = !owner;
     contributionSection.hidden = owner && !isPublicVideo;
@@ -521,6 +635,7 @@
       if (!validQuestionIds.has(id)) selectedQuestionIds.delete(id);
     });
     updateCapacity(data.remaining, data.preparedCounts);
+    renderEvidencePlans(data.evidencePlans);
     const signature = questions.map(function (question) {
       return question.id + ':' + question.status;
     }).join('|');
@@ -533,40 +648,66 @@
       button.hidden = !owner;
     });
     updateSelectionBar();
-    start.disabled = data.status === 'RUNNING' || data.status === 'QUEUED'
-      || !data.aiAvailable || (!owner && data.contributedToday);
+    updateCreateAvailability(data);
     start.textContent = owner
       ? questions.length ? 'Tạo thêm câu hỏi' : 'Tạo câu hỏi' : 'Đóng góp câu hỏi';
-    if (!data.aiAvailable) showSuggestionStatus('Cần cấu hình OpenRouter để tạo và gợi ý câu hỏi.');
+    if (!data.aiAvailable) showSuggestionStatus(owner
+      ? 'Bạn có thể nhập câu hỏi thủ công. Tạo tự động cần cấu hình OpenRouter.'
+      : 'Tạo tự động cần cấu hình OpenRouter.');
     if (data.status === 'RUNNING' || data.status === 'QUEUED') {
       if (!pollTimer) pollTimer = setInterval(function () { loadStatus().catch(function () {}); }, 4000);
     } else if (pollTimer) {
       clearInterval(pollTimer);
       pollTimer = null;
     }
+    return data;
+  }
+
+  function updateCreateAvailability(data) {
+    start.disabled = !preflight.ready || data.status === 'RUNNING' || data.status === 'QUEUED'
+      || !data.aiAvailable || (!data.owner && data.contributedToday)
+      || !Object.values(data.remaining || {}).some(count => Number(count) > 0);
   }
 
   async function loadSuggestions() {
-    showSuggestionStatus('Đang xem phụ đề…');
+    preflight.phase('analysis');
     renderSuggestionIcons([]);
-    try {
-      const data = await request(base + '/suggestions', { method: 'POST', body: '{}' });
-      const values = Array.isArray(data.suggestions) ? data.suggestions : [];
-      renderSuggestionIcons(values);
-      showSuggestionStatus(values.length ? ''
-        : 'AI chưa tìm thấy dạng hỏi hội thoại đủ căn cứ trong phụ đề hiện tại.');
-      await loadStatus();
-      if (values.length && !hasStoredKinds && !kindTouched) {
-        document.querySelectorAll('#prepare-kinds input[type="checkbox"]:not([value="GAP"])').forEach(function (input) {
-          input.checked = values.includes(input.value) && !input.disabled;
-          input.closest('.preparation-kind-row').querySelector('input[type="number"]').disabled = !input.checked;
-        });
-        updateSummaries();
-      }
-    } catch (error) {
-      showSuggestionStatus(error.message);
+    const data = await request(base + '/suggestions', { method: 'POST', body: '{}' });
+    const values = Array.isArray(data.suggestions) ? data.suggestions : [];
+    renderSuggestionIcons(values);
+    showSuggestionStatus(values.length ? ''
+      : 'AI chưa tìm thấy dạng hỏi hội thoại đủ căn cứ trong phụ đề hiện tại.');
+    preflight.phase('finalizing');
+    await loadStatus();
+    if (values.length && !hasStoredKinds && !kindTouched) {
+      document.querySelectorAll('#prepare-kinds input[type="checkbox"]:not([value="GAP"])').forEach(function (input) {
+        input.checked = values.includes(input.value) && !input.disabled;
+        input.closest('.preparation-kind-row').querySelector('input[type="number"]').disabled = !input.checked;
+      });
+      updateSummaries();
     }
   }
+
+  function preparePage(analyzeSources) {
+    if (preparationPromise) return preparationPromise;
+    start.disabled = true;
+    showSuggestionStatus('');
+    if (analyzeSources) preflight.begin();
+    preparationPromise = (async function () {
+      await loadSources();
+      await loadStatus();
+      if (analyzeSources) await loadSuggestions();
+      preflight.complete(latestStatus.remaining);
+      updateCreateAvailability(latestStatus);
+    }()).catch(function (error) {
+      if (analyzeSources) preflight.fail(error.message || 'Không tải được dữ liệu chuẩn bị. Hãy thử lại.');
+      else showSuggestionStatus(error.message || 'Không tải được dữ liệu. Hãy tải lại trang.');
+      start.disabled = true;
+    }).finally(function () { preparationPromise = null; });
+    return preparationPromise;
+  }
+
+  analyze.addEventListener('click', function () { preparePage(true); });
 
   document.querySelectorAll('.preparation-filter button').forEach(function (button) {
     button.addEventListener('click', function () {
@@ -637,6 +778,7 @@
   });
 
   start.addEventListener('click', async function () {
+    if (!preflight.ready) return;
     const levels = selected('prepare-levels');
     const kinds = selected('prepare-kinds');
     if (!levels.length || !kinds.length) {
@@ -721,8 +863,5 @@
     }
   });
 
-  loadSources().then(loadStatus).then(loadSuggestions).catch(function (error) {
-    progress.textContent = error.message || 'Không tải được trang chuẩn bị bài tập.';
-    start.disabled = true;
-  });
+  preparePage();
 }());

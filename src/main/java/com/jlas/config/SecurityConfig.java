@@ -36,6 +36,14 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable())
+                        .addHeaderWriter((request, response) -> {
+                            // Only this admin preview can be embedded by the same website.
+                            boolean preview = request.getRequestURI().equals(
+                                    request.getContextPath() + "/admin/game-effects/preview");
+                            response.setHeader("X-Frame-Options", preview ? "SAMEORIGIN" : "DENY");
+                        }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, exception) ->
@@ -47,12 +55,24 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/jlpt", "/admin/jlpt/**", "/api/admin/jlpt/**")
                         .hasRole("CONTENT_CREATOR")
+                        .requestMatchers("/admin/verb-practice", "/api/admin/verb-practice/**")
+                        .hasRole("CONTENT_CREATOR")
+                        // JLAS2-51: System Admin area; moderators have no access.
+                        .requestMatchers("/admin/system", "/admin/system/**", "/api/admin/system/**")
+                        .hasRole("ADMIN")
+                        // System Admin also runs moderation (incl. sanctions); MODERATOR has moderation only.
+                        .requestMatchers("/admin", "/admin/").hasAnyRole("MODERATOR", "ADMIN")
                         // JLAS-W0250: shared admin workspace; each API narrows access further.
-                        .requestMatchers("/admin", "/admin/**", "/api/admin/moderation/**")
-                        .hasAnyRole("MODERATOR", "ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/progress", "/credit-history", "/retention-demo", "/error").permitAll()
+                        .requestMatchers("/admin/game-skins", "/api/admin/game-skins", "/api/admin/game-skins/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/admin/**", "/api/admin/moderation/**")
+                        .hasAnyRole("MODERATOR", "ADMIN")
+                        .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
+                                "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
                                 "/shadowing/js/**", "/shadowing/icon/**",
                                 "/uploads/**", "/favicon.ico", "/*.png", "/*.svg", "/*.webp").permitAll()
@@ -60,11 +80,14 @@ public class SecurityConfig {
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
                                 "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learning/lessons/*/quiz").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/dictionary/**", "/api/assessment/**",
+                        .requestMatchers(HttpMethod.GET, "/api/premium/plans", "/api/credits/packages", "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",
                                 "/api/flashcards/public", "/api/flashcards/*", "/api/flashcards/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Danh mục hiển thị khung avatar: khung hiện cả ở trang không cần đăng nhập.
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/avatar-frames").permitAll()
                         .requestMatchers("/appeal.html", "/api/appeals/**", "/api/credits/**").authenticated()
+                        .requestMatchers("/api/mission/kana-connect/**").authenticated()
                         .requestMatchers(
                                 "/shadowing", "/shadowing/", "/shadowing/upload",
                                 "/shadowing/create/**", "/shadowing/editor/**", "/shadowing/prepare/**", "/shadowing/practice/**",
@@ -107,6 +130,15 @@ public class SecurityConfig {
 
     private static void handleUnauthenticated(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        if (Boolean.TRUE.equals(request.getAttribute(JwtAuthenticationFilter.ACCOUNT_LOCKED_ATTRIBUTE))) {
+            if (request.getRequestURI().startsWith("/api/")) {
+                writeSecurityError(response, HttpServletResponse.SC_FORBIDDEN,
+                        "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.", "ACCOUNT_LOCKED");
+            } else {
+                response.sendRedirect("/login?locked=1");
+            }
+            return;
+        }
         if (!request.getRequestURI().startsWith("/api/")) {
             String returnUrl = request.getRequestURI();
             if (request.getQueryString() != null && !request.getQueryString().isBlank()) {

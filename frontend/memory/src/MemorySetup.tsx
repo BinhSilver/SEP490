@@ -3,7 +3,7 @@ import type { DeckCardView, DeckField, MemoryStartOptions, MemoryState } from '.
 
 /** Giống GameRules.MEMORY_MIN_PAIRS / MEMORY_MAX_PAIRS / MEMORY_TOTAL_SECONDS của server. */
 const MIN_PAIRS = 6
-const MAX_PAIRS = 20
+const MAX_PAIRS = 10
 const TIME_LIMITS: (number | null)[] = [null, 180, 300, 600]
 /** Ước tính ~15 giây ghép được một cặp. */
 const SECONDS_PER_PAIR = 15
@@ -163,6 +163,7 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
   const { config } = state
   const [question, setQuestion] = useState<DeckField>(config.questionField)
   const [answer, setAnswer] = useState<DeckField>(config.answerField)
+  const [distinguishCardTypes, setDistinguishCardTypes] = useState(config.distinguishCardTypes ?? false)
   const [timeLimit, setTimeLimit] = useState<number | null>(config.objective === 'TIME_ATTACK' ? config.totalSeconds ?? 300 : null)
   const [warning, setWarning] = useState<PaceWarning | null>(null)
   const [selected, setSelected] = useState<Set<number> | null>(null)
@@ -182,7 +183,7 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
 
   // Mỗi cặp trên bàn là một thẻ: bàn N thẻ cần ít nhất N/2 thẻ khác nhau (bỏ trùng câu hỏi / đáp án như server).
   const distinct = new Set(chosenCards.filter(usable).map((card) => `${fieldValue(card, question)}`.toLowerCase())).size
-  // Bàn dựng theo đúng số thẻ đã chọn (mỗi thẻ một cặp = 2 ô), trong khoảng 6–20 cặp như server.
+  // Mỗi từ thành một cặp = 2 ô, tối đa 10 cặp (20 thẻ) như server.
   const pairs = Math.min(distinct, MAX_PAIRS)
   const board = pairs * 2
   const suggestedTime = recommendTime(Math.max(pairs, MIN_PAIRS))
@@ -208,7 +209,8 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
       cardIds: chosenCards.filter(usable).map((card) => card.id),
       boardSize: null,
       objective: seconds == null ? 'CLASSIC' : 'TIME_ATTACK',
-      totalSeconds: seconds
+      totalSeconds: seconds,
+      distinguishCardTypes
     })
   }
 
@@ -250,6 +252,26 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
             disabledReason={(field) => fieldReason(field, question)} onChange={setAnswer} />
         </div>
 
+        <div className="memory-setup__group memory-color-choice">
+          <div className="memory-color-choice__row">
+            <label htmlFor="memory-color-mode" className="memory-setup__label">Màu thẻ</label>
+            <select id="memory-color-mode" value={distinguishCardTypes ? 'DISTINCT' : 'SAME'}
+              onChange={(event) => setDistinguishCardTypes(event.target.value === 'DISTINCT')}
+              aria-describedby="memory-color-help">
+              <option value="SAME">Cùng màu</option>
+              <option value="DISTINCT">Hai màu</option>
+            </select>
+          </div>
+          <p id="memory-color-help" className="memory-color-choice__help">
+            {distinguishCardTypes
+              ? <><span className="memory-color-key memory-color-key--question">{FIELD_LABELS[question]}</span>
+                  <span aria-hidden="true">↔</span>
+                  <span className="memory-color-key memory-color-key--answer">{FIELD_LABELS[answer]}</span>
+                  <span>Lật một thẻ mỗi màu để ghép cặp.</span></>
+              : 'Lật hai thẻ để ghép cặp hỏi – đáp và ghi nhớ vị trí.'}
+          </p>
+        </div>
+
         <div className="memory-setup__group">
           <div className="memory-setup__cards-head">
             <span className="memory-setup__label">Thẻ · {chosenCards.length}/{cards.length} đã chọn</span>
@@ -259,17 +281,22 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
             </span>
           </div>
           <ul className="memory-setup__cards" aria-label="Chọn thẻ muốn chơi">
-            {cards.map((card) => {
+            {cards.map((card, index) => {
               const ok = usable(card)
               const checked = chosen.has(card.id)
-              const missing = [question, answer].filter((field) => !fieldValue(card, field)).map((field) => FIELD_LABELS[field])
+              const missing = FIELDS.filter((field) => !fieldValue(card, field)).map((field) => FIELD_LABELS[field])
+              const term = fieldValue(card, question) || card.kanji || card.reading || card.meaning || card.hanViet || '—'
+              const missingText = missing.length ? `Thiếu ${missing.join(', ')}` : ''
               return (
                 <li key={card.id}>
                   <label className={`${checked && ok ? 'is-checked' : ''} ${ok ? '' : 'is-disabled'}`}
-                    title={ok ? undefined : `Thiếu ${missing.join(', ')}`}>
-                    <input type="checkbox" checked={checked && ok} disabled={!ok && !checked} onChange={() => toggleCard(card.id)} />
-                    <strong>{fieldValue(card, question) || fieldValue(card, 'KANJI') || '—'}</strong>
-                    <small>{ok ? fieldValue(card, answer) : `Thiếu ${missing.join(', ')}`}</small>
+                    title={`Thẻ ${index + 1}${missingText ? ` · ${missingText}` : ''}`}>
+                    <span className="memory-setup__card-number" aria-hidden="true">{index + 1}.</span>
+                    <input type="checkbox" checked={checked && ok} disabled={!ok && !checked} onChange={() => toggleCard(card.id)}
+                      aria-label={`Thẻ ${index + 1}: ${term}${fieldValue(card, answer) ? ` — ${fieldValue(card, answer)}` : ''}${missingText ? `. ${missingText}` : ''}`} />
+                    <strong>{term}</strong>
+                    <small>{fieldValue(card, answer) || '—'}</small>
+                    {missingText && <small className="memory-setup__card-missing">{missingText}</small>}
                   </label>
                 </li>
               )
@@ -281,7 +308,7 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
           <div className="memory-setup__group memory-setup__count" aria-live="polite">
             <span className="memory-setup__label">Số thẻ trên bàn</span>
             <strong>{board}</strong>
-            {distinct > MAX_PAIRS && <small>Mỗi ván lấy ngẫu nhiên {MAX_PAIRS}/{distinct} thẻ</small>}
+            <small>Tối đa 20 thẻ (10 cặp) mỗi ván{distinct > MAX_PAIRS ? ` · Lấy ngẫu nhiên ${MAX_PAIRS}/${distinct} từ đã chọn` : ''}</small>
           </div>
           <Dropdown<number | null> label="Thời gian" value={timeLimit} options={TIME_LIMITS}
             format={formatTime} onChange={setTimeLimit} recommended={deckCards ? suggestedTime : undefined} />

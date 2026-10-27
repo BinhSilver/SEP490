@@ -5,12 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface AssessmentQuestionRepository extends JpaRepository<AssessmentQuestion, Long> {
+    Optional<AssessmentQuestion> findBySourceCode(String sourceCode);
+
     List<AssessmentQuestion> findByIsActiveTrueAndSkillAndJlptLevel(String skill, String jlptLevel);
 
     /** [JLAS-W0108] Câu reading/listening ở một cấp độ, thứ tự ổn định cho gate quiz. */
     List<AssessmentQuestion> findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(String skill, String jlptLevel);
+
+    List<AssessmentQuestion> findByIsActiveTrueAndSkillAndJlptLevelAndSourceCodeStartingWithOrderByIdAsc(
+            String skill, String jlptLevel, String sourceCodePrefix);
 
     List<AssessmentQuestion> findByIsActiveTrueAndSkillOrderByIdAsc(String skill);
 

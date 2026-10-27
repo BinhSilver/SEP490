@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Gõ phản xạ · Flashcard JLAS</title>
+  <link rel="icon" href="/images/jlab.png" type="image/png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="/css/theme-bridge.css">
   <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet" href="/flashcard/speed-recall.css">
-<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=15">
+<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261015-selection-pager">
+  <link rel="stylesheet" href="/flashcard/speed-recall-arcade.css?v=20261011-mobile-hud">
   <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
   <div id="jlabBaseShellMount"></div>
   <main id="jlabBaseContent" class="sr-main">
     <p id="loading" role="status">Đang tải bộ thẻ…</p>
@@ -25,13 +29,13 @@
     <section id="setup" class="sr-setup" aria-labelledby="set-title" hidden>
       <header class="sr-setup__heading">
         <h1 id="set-title" class="sr-set-title"></h1>
-        <div class="sr-setup__meta"><span id="mode-summary">Nhìn Kanji, gõ cách đọc bằng kana.</span><i aria-hidden="true"></i><strong id="eligible-count">0 thẻ sẵn sàng</strong></div>
+        <div class="sr-setup__meta"><span id="mode-summary">Nhìn Kanji, gõ cách đọc bằng Romaji hoặc kana.</span><i aria-hidden="true"></i><strong id="eligible-count">0 thẻ sẵn sàng</strong></div>
       </header>
       <form id="setup-form" class="sr-setup__card">
         <div class="sr-setup__grid">
-          <label class="sr-setup__field">Thẻ
-            <span class="sr-setup__control"><select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="STARRED">Thẻ đánh dấu sao</option></select></span>
-          </label>
+          <div class="sr-setup__field"><label id="filter-label" for="filter">Thẻ</label>
+            <div class="sr-setup__control"><select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="CUSTOM">Chọn cặp từ tùy ý</option><option value="RANDOM">Ngẫu nhiên</option></select></div>
+          </div>
           <label class="sr-setup__field"><span id="count-label">Số câu</span>
             <span class="sr-setup__control"><input id="count" type="number" min="1" step="1" inputmode="numeric" value="1" required><small id="count-suffix">/ 0 thẻ</small></span>
           </label>
@@ -42,59 +46,84 @@
             <div class="sr-setup__segments" style="--mode-count:4" role="group" aria-label="Nội dung đáp án"><button type="button" data-answer="KANJI" aria-pressed="false">Kanji</button><button type="button" data-answer="HIRAGANA" class="is-active" aria-pressed="true">Hiragana</button><button type="button" data-answer="MEANING" aria-pressed="false">Nghĩa</button><button type="button" data-answer="HAN_VIET" aria-pressed="false">Hán Việt</button></div>
           </div>
         </div>
-        <div class="sr-setup__help"><span><i class="fa-regular fa-keyboard" aria-hidden="true"></i> <span id="answer-hint">Gõ bằng kana</span></span><span>Phím tắt Enter để bắt đầu</span></div>
+        <div id="selection-list"></div>
+        <div class="sr-setup__help"><span><i class="fa-regular fa-keyboard" aria-hidden="true"></i> <span id="answer-hint">Gõ Romaji bằng bàn phím ENG hoặc nhập kana</span></span><span>Phím tắt Enter để bắt đầu</span></div>
         <button id="start" class="sr-button sr-primary" type="submit">Bắt đầu luyện</button>
       </form>
     </section>
 
     <section id="playing" aria-labelledby="question-word" hidden>
       <div class="sr-game-hud" aria-label="Trạng thái phiên học">
-        <span class="sr-game-hud__stat"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span class="sr-only">Tiến độ </span><strong id="round"></strong></span>
-        <span class="sr-game-hud__stat"><i class="fa-solid fa-star" aria-hidden="true"></i><span class="sr-only">Điểm </span><strong id="score">0</strong></span>
-        <span class="sr-game-hud__stat"><i class="fa-solid fa-fire" aria-hidden="true"></i><span class="sr-only">Chuỗi đúng </span><strong id="streak">0</strong></span>
+        <span class="sr-game-hud__stat"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span class="sr-hud-label">Tiến độ</span><strong id="round"></strong></span>
+        <span class="sr-game-hud__stat"><i class="fa-solid fa-star" aria-hidden="true"></i><span class="sr-hud-label">Điểm</span><strong id="score">0</strong></span>
+        <span class="sr-game-hud__stat"><i class="fa-solid fa-fire" aria-hidden="true"></i><span class="sr-hud-label">Combo</span><strong id="streak">0</strong></span>
         <div class="sr-game-hud__actions">
           <button id="pause" type="button" class="sr-game-control"><i class="fa-solid fa-pause" aria-hidden="true"></i> Dừng</button>
           <button id="abandon" type="button" class="sr-game-control sr-game-control--end"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Kết thúc</button>
         </div>
       </div>
+      <div id="run-progress" class="sr-run-progress" role="progressbar" aria-label="Số câu đã trả lời" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span id="run-progress-fill"></span></div>
       <div class="sr-question">
         <h1 id="question-word" lang="ja"></h1>
-        <p id="answer-prompt">Nhập cách đọc bằng kana</p>
+        <p id="answer-prompt">Gõ Romaji hoặc kana, Enter để kiểm tra</p>
         <div class="sr-game-timer">
           <div class="sr-game-timer__head"><span><i class="fa-regular fa-clock" aria-hidden="true"></i> Thời gian</span><strong id="time-left">6.0s</strong></div>
           <div class="sr-game-timer__track" aria-hidden="true"><div id="timer-bar"></div></div>
         </div>
         <div id="typing-slots" class="sr-slots" role="button" tabindex="0" aria-label="Chạm để nhập cách đọc bằng kana"></div>
-        <input id="typing-input" class="sr-typing-capture" type="text" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false"
-               aria-label="Nhập cách đọc bằng kana" maxlength="500" enterkeyhint="done">
+        <p id="answer-status" class="sr-answer-status" role="status" hidden></p>
+      <div id="answer-tools" class="sr-answer-tools"><button id="clear-answer" type="button" aria-label="Xóa toàn bộ đáp án đang gõ"><i class="fa-solid fa-delete-left" aria-hidden="true"></i> Xóa đáp án</button><span>Backspace / Delete để sửa</span></div>
+        <input id="typing-input" class="sr-typing-capture" type="text" lang="en" autocomplete="off" autocapitalize="off" spellcheck="false"
+               aria-label="Gõ Romaji hoặc kana, Enter để kiểm tra" maxlength="500" enterkeyhint="done">
       </div>
       <div id="feedback" class="sr-feedback" role="status" hidden>
         <strong id="feedback-title"></strong><span id="feedback-score"></span>
         <p><span id="feedback-word" lang="ja"></span> · <span id="feedback-reading" lang="ja"></span></p>
         <p id="feedback-meaning"></p><p id="feedback-answer"></p>
-        <button id="next-question" type="button" class="sr-game-next" hidden>Câu tiếp</button>
+        <button id="next-question" type="button" class="sr-game-next" hidden>Câu tiếp <kbd>Enter</kbd></button>
       </div>
+      <p id="game-keyboard-hint" class="sr-keyboard-hint">Nhấn Enter để kiểm tra đáp án</p>
     </section>
 
     <section id="result" aria-labelledby="result-title" hidden>
       <p id="result-set" class="sr-set-title"></p>
-      <h1 id="result-title">Một lượt học, thêm một bước nhớ.</h1>
-      <p id="result-status"></p>
+      <div class="sr-result-banner">
+        <div class="sr-result-emblem" aria-hidden="true"><i class="fa-solid fa-flag-checkered"></i></div>
+        <div class="sr-result-heading"><h1 id="result-title">Hoàn thành lượt chơi</h1><p id="result-status"></p></div>
+        <span id="result-badge" class="sr-result-badge">Đã lưu kết quả</span>
+      </div>
       <dl class="sr-stats">
-        <div><dt>Điểm</dt><dd id="result-score"></dd></div>
-        <div><dt>Độ chính xác</dt><dd id="result-accuracy"></dd></div>
-        <div><dt>Phản hồi trung bình</dt><dd id="result-time"></dd></div>
-        <div><dt>Chuỗi đúng dài nhất</dt><dd id="result-streak"></dd></div>
-        <div><dt>Số câu đúng</dt><dd id="result-correct"></dd></div>
+        <div><dt><i class="fa-solid fa-star" aria-hidden="true"></i> Điểm</dt><dd id="result-score"></dd></div>
+        <div><dt><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Độ chính xác</dt><dd id="result-accuracy"></dd></div>
+        <div><dt><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> Phản hồi trung bình</dt><dd id="result-time"></dd></div>
+        <div><dt><i class="fa-solid fa-fire" aria-hidden="true"></i> Chuỗi đúng dài nhất</dt><dd id="result-streak"></dd></div>
+        <div><dt><i class="fa-solid fa-check" aria-hidden="true"></i> Số câu đúng</dt><dd id="result-correct"></dd></div>
       </dl>
-      <p id="personal-best" class="sr-help"></p>
-      <h2 id="review-title">Các từ cần ôn lại</h2>
-      <ul id="review-list" class="sr-review"></ul>
-      <p id="no-mistakes" hidden>Bạn đã trả lời đúng tất cả các câu đã hoàn thành.</p>
+      <div class="sr-result-mascot">
+        <span id="result-mascot-sprite" class="sr-result-mascot__sprite" aria-hidden="true">
+          <img id="result-mascot-image" class="sr-result-mascot__image" src="/images/mascots/kitsu/kitsu-cheer-30.webp" width="176" height="176" alt="" decoding="async">
+        </span>
+        <div class="sr-result-mascot__message">
+          <h2 id="result-mascot-title">Kitsu cổ vũ bạn!</h2>
+          <p id="result-mascot-message"></p>
+          <p id="no-mistakes" hidden>Bạn đã trả lời đúng tất cả các câu đã hoàn thành.</p>
+          <p id="personal-best" class="sr-help"></p>
+        </div>
+      </div>
+      <div class="sr-review-heading">
+        <h2 id="review-title">Thử lại những từ này</h2>
+        <div id="review-navigation" class="sr-review-navigation" hidden>
+          <button id="review-previous" type="button" aria-label="Xem các từ trước" aria-controls="review-list"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+          <button id="review-next" type="button" aria-label="Xem các từ tiếp theo" aria-controls="review-list"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <ul id="review-list" class="sr-review" tabindex="0" aria-labelledby="review-title"></ul>
       <div class="sr-actions">
-        <button id="retry-wrong" class="sr-button sr-primary" type="button">Luyện lại từ sai</button>
-        <a id="new-session" class="sr-button" href="#">Học tiếp</a>
-        <a id="result-back" class="sr-link" href="#">Về bộ thẻ</a>
+        <button id="retry-wrong" class="sr-button sr-primary" type="button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Luyện lại từ sai</button>
+        <div class="sr-actions__continue">
+          <a id="new-session" class="sr-button" href="#">Học tiếp</a>
+          <a id="result-back" class="sr-button" href="#">Về bộ thẻ</a>
+        </div>
       </div>
     </section>
 
@@ -116,6 +145,6 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
-  <script type="module" src="/flashcard/js/speed-recall/page.js?v=5"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261015-pager"></script>
 </body>
 </html>

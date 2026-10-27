@@ -13,6 +13,11 @@
   var REFRESH_BEFORE_EXPIRY_MS = 2 * 60 * 1000;
   var refreshing = null;
   var keepAliveTimer = null;
+  // Keep portrait and landscape phones under the same availability rule.
+  var phoneMedia = global.matchMedia('(max-width: 767px), (max-height: 500px) and (pointer: coarse)');
+  function canPlayGame(type) {
+    return type !== 'AIR_DEFENSE' || !phoneMedia.matches;
+  }
 
   function ArenaError(message, status, code) {
     var error = new Error(message || 'Có lỗi xảy ra, bạn thử lại nhé');
@@ -46,6 +51,10 @@
 
   /** Làm mới access token bằng refresh token; nhiều lời gọi cùng lúc dùng chung một request. */
   function refreshToken() {
+    // Dùng chung bộ làm mới của trang (một lần gọi, xếp hàng giữa các tab) vì refresh token chỉ dùng được một lần.
+    if (global.JlasAuth && typeof global.JlasAuth.refreshSession === 'function') {
+      return global.JlasAuth.refreshSession().then(function (result) { return result === true; });
+    }
     if (refreshing) return refreshing;
     var refresh = null;
     try {
@@ -171,6 +180,15 @@
     },
     equipItem: function (code) {
       return request('POST', '/api/games/shop/items/' + encodeURIComponent(code) + '/equip', null);
+    },
+
+    /** Khung avatar + màu tên (cùng CP với cửa hàng game). */
+    cosmetics: function () { return request('GET', '/api/profile/cosmetics'); },
+    buyFrame: function (code) {
+      return request('POST', '/api/profile/cosmetics/frames/' + encodeURIComponent(code) + '/buy', null);
+    },
+    equipCosmetics: function (frameCode, nameStyle) {
+      return request('PUT', '/api/profile/cosmetics', { frameCode: frameCode, nameStyle: nameStyle });
     }
   };
 
@@ -324,6 +342,8 @@
     me: me,
     refreshToken: refreshToken,
     esc: esc,
+    phoneMedia: phoneMedia,
+    canPlayGame: canPlayGame,
     fieldLabel: function (field) { return FIELD_LABELS[field] || field || ''; },
     gameName: function (type) { return GAME_NAMES[type] || type || ''; },
     FIELD_LABELS: FIELD_LABELS,

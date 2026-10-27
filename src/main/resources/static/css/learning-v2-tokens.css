@@ -1,68 +1,26 @@
-/* [JLAS-W0193] Shared design tokens for the interactive Learning Path V2 flow (spec §10.2).
-   Every V2 page (roadmap, package detail, grammar, micro-check, flashcard, dialogue) imports this
-   file instead of hard-coding the purple/lime palette locally.
-   Colors sourced from the approved design systems:
-   - Light = "Neo-Kyoto Light" (DESIGN (1).md): slate canvas, violet #7c3aed, chartreuse #84cc16.
-   - Dark  = "Neon Ronin" (DESIGN.md): obsidian canvas, neon violet #a855f7, electric lime #a3e635.
-   Radius/shadow property names are unchanged; only their color values follow each system's
-   Elevation section (light = soft tiered shadows, dark = glow-based, no muddy black shadows). */
+/* [JLAS-W0193] Learning Path V2 aliases the shared JLAS design system.
+   Keep these semantic aliases so lesson styling stays isolated, while all pages use the same
+   calm light surfaces, plum primary, muted gold accent, and success/error colors. */
 :root {
-  --lp-canvas: #F8FAFC;
-  --lp-surface: #FFFFFF;
-  --lp-ink: #0F172A;
-  --lp-muted: #64748B;
-  --lp-purple: #7C3AED;
-  --lp-purple-soft: #EADDFF;
-  --lp-lime: #84CC16;
-  --lp-lime-soft: #ECFCCB;
-  --lp-line: #E2E8F0;
-  --lp-danger: #EF4444;
-  --lp-danger-soft: #FEF2F2;
-  --lp-on-lime: #0F172A;
-  --lp-on-lime-soft: #4D7C0F;
+  color-scheme: light;
+  --lp-canvas: var(--color-background);
+  --lp-surface: var(--color-surface-lowest);
+  --lp-ink: var(--color-on-surface);
+  --lp-muted: var(--color-secondary);
+  --lp-purple: var(--color-primary);
+  --lp-purple-soft: var(--color-primary-fixed);
+  --lp-lime: var(--color-primary);
+  --lp-lime-soft: var(--color-primary-fixed);
+  --lp-line: var(--color-outline-variant);
+  --lp-danger: var(--color-error);
+  --lp-danger-soft: var(--color-error-container);
+  --lp-on-lime: var(--color-on-primary);
+  --lp-on-lime-soft: var(--color-on-primary-fixed);
   --lp-radius-hero: 20px;
   --lp-radius-panel: 16px;
   --lp-radius-interactive: 14px;
   --lp-radius-chip: 7px;
-  --lp-shadow-hero: 0 1px 3px rgba(15, 23, 42, .04), 0 4px 12px rgba(15, 23, 42, .03);
-  --lp-shadow-active: 0 8px 24px rgba(15, 23, 42, .06), 0 2px 6px rgba(124, 58, 237, .04);
-  --lp-shadow-popup: 0 16px 40px rgba(15, 23, 42, .08);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --lp-canvas: #0B0D13;
-    --lp-surface: #12151F;
-    --lp-ink: #F8FAFC;
-    --lp-muted: #94A3B8;
-    --lp-purple: #A855F7;
-    --lp-purple-soft: rgba(168, 85, 247, .14);
-    --lp-lime: #A3E635;
-    --lp-lime-soft: rgba(163, 230, 53, .1);
-    --lp-line: #252B3D;
-    --lp-danger: #FFB4AB;
-    --lp-danger-soft: rgba(255, 180, 171, .12);
-    --lp-on-lime: #0B0D13;
-    --lp-on-lime-soft: #BEF264;
-    --lp-shadow-hero: 0 0 16px -4px rgba(168, 85, 247, .25);
-    --lp-shadow-active: 0 0 20px 0px rgba(168, 85, 247, .4);
-    --lp-shadow-popup: 0 24px 60px rgba(0, 0, 0, .55), 0 0 30px rgba(168, 85, 247, .25);
-  }
-}
-:root[data-theme="dark"] {
-  --lp-canvas: #0B0D13;
-  --lp-surface: #12151F;
-  --lp-ink: #F8FAFC;
-  --lp-muted: #94A3B8;
-  --lp-purple: #A855F7;
-  --lp-purple-soft: rgba(168, 85, 247, .14);
-  --lp-lime: #A3E635;
-  --lp-lime-soft: rgba(163, 230, 53, .1);
-  --lp-line: #252B3D;
-  --lp-danger: #FFB4AB;
-  --lp-danger-soft: rgba(255, 180, 171, .12);
-  --lp-on-lime: #0B0D13;
-  --lp-on-lime-soft: #BEF264;
-  --lp-shadow-hero: 0 0 16px -4px rgba(168, 85, 247, .25);
-  --lp-shadow-active: 0 0 20px 0px rgba(168, 85, 247, .4);
-  --lp-shadow-popup: 0 24px 60px rgba(0, 0, 0, .55), 0 0 30px rgba(168, 85, 247, .25);
+  --lp-shadow-hero: var(--shadow-1);
+  --lp-shadow-active: var(--shadow-action);
+  --lp-shadow-popup: var(--shadow-2);
 }

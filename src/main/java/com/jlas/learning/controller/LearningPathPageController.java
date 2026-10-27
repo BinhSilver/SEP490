@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class LearningPathPageController {
     private final InteractiveLearningV2Properties interactiveV2Properties;
 
+    @GetMapping("/learning/notebook")
+    public String weaknessNotebook(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/weakness-notebook";
+    }
+
     @GetMapping("/learning/path")
     public String learningPath(Model model,
             @RequestParam(required = false) Long assessmentAttemptId) {
@@ -49,6 +55,13 @@ public class LearningPathPageController {
     public String interactiveKanji(Model model) {
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-kanji-study";
+    }
+
+    /** [JLAS-W0108] Hiragana/Katakana foundation warm-up for from-zero learners. */
+    @GetMapping("/learning/v2/foundation")
+    public String interactiveFoundation(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "learning/interactive-foundation-study";
     }
 
     @GetMapping("/learning/v2/grammar")

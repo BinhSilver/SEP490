@@ -46,6 +46,8 @@ public class WeaknessNotebook {
             for (WeaknessEvidence perOutcome : expand(evidence)) {
                 Key key = Key.of(perOutcome);
                 UserKnowledgeWeakness row = staged.get(key);
+                // Re-syncing the same (or older) assessment must preserve the learner's review state.
+                if (row != null && assessmentAttemptId != null && recordedAttempt(row.getSource()) >= assessmentAttemptId) continue;
                 if (row == null) {
                     row = UserKnowledgeWeakness.builder()
                             .user(user)
@@ -60,12 +62,19 @@ public class WeaknessNotebook {
                     staged.put(key, row);
                 }
                 row.setWrongCount(perOutcome.wrongCount());
+                row.setStatus("OPEN");
+                row.setMasteryScore(null);
                 row.setScorePercent(accuracy(perOutcome));
                 row.setSeverity("WEAK");
                 row.setSource(source);
                 weaknesses.save(row);
             }
         }
+    }
+
+    private static long recordedAttempt(String source) {
+        try { return source != null && source.startsWith("SMART_TEST:") ? Long.parseLong(source.substring(11)) : -1; }
+        catch (NumberFormatException e) { return -1; }
     }
 
     /** [JLAS-W0108][MP01 follow-up] Evidence đọc/nghe có {@code outcomeBreakdown} tách thành một
@@ -77,6 +86,8 @@ public class WeaknessNotebook {
             return List.of(evidence);
         }
         return evidence.outcomeBreakdown().stream()
+                .filter(outcome -> outcome.outcomeCode() == null
+                        || !outcome.outcomeCode().startsWith("UNMAPPED_QUESTION:"))
                 .map(outcome -> new WeaknessEvidence(evidence.skill(), evidence.canonicalId(),
                         outcome.assessedCount(), outcome.wrongCount(),
                         evidence.tagCode(), evidence.tagId(),

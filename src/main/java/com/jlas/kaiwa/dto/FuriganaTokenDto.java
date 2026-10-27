@@ -1,10 +1,9 @@
 package com.jlas.kaiwa.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.regex.Pattern;
+import com.jlas.kaiwa.util.JapaneseText;
 
 public class FuriganaTokenDto {
-    private static final Pattern KANJI = Pattern.compile("[\\u4E00-\\u9FFF々〆ヵヶ]");
 
     private String surface;
     private String reading;
@@ -35,13 +34,13 @@ public class FuriganaTokenDto {
 
     @JsonIgnore
     public boolean isRuby() {
-        return surface != null && KANJI.matcher(surface).find()
-                && reading != null && !reading.isBlank();
+        return JapaneseText.hasKanji(surface)
+                && !JapaneseText.hiraganaReading(reading).isEmpty();
     }
 
     @JsonIgnore
     public boolean isKanjiReadingComplete() {
-        return surface == null || !KANJI.matcher(surface).find()
-                || (reading != null && !reading.isBlank());
+        return !JapaneseText.hasKanji(surface)
+                || !JapaneseText.hiraganaReading(reading).isEmpty();
     }
 }

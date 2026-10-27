@@ -18,6 +18,14 @@ public class Scenario {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    /** A root is also its standard practice case; children are alternate cases. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_scenario_id")
+    private Scenario parentScenario;
+
+    @Column(name = "variant_title", nullable = false, length = 200)
+    private String variantTitle = "Tình huống thông thường";
+
     @Column(nullable = false, length = 200)
     private String title;
 
@@ -58,9 +66,6 @@ public class Scenario {
 
     @Column(name = "time_of_day", length = 100)
     private String timeOfDay;
-
-    @Column(name = "culture_note", columnDefinition = "TEXT")
-    private String cultureNote;
 
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnail;
@@ -117,6 +122,11 @@ public class Scenario {
     public void setId(Long id) { this.id = id; }
     public Category getCategory() { return category; }
     public void setCategory(Category category) { this.category = category; }
+    public Scenario getParentScenario() { return parentScenario; }
+    public void setParentScenario(Scenario parentScenario) { this.parentScenario = parentScenario; }
+    public String getVariantTitle() { return variantTitle; }
+    public void setVariantTitle(String variantTitle) { this.variantTitle = variantTitle; }
+    public String getCatalogTitle() { return parentScenario == null ? title : parentScenario.getTitle(); }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getSlug() { return slug; }
@@ -139,8 +149,6 @@ public class Scenario {
     public void setLocation(String location) { this.location = location; }
     public String getTimeOfDay() { return timeOfDay; }
     public void setTimeOfDay(String timeOfDay) { this.timeOfDay = timeOfDay; }
-    public String getCultureNote() { return cultureNote; }
-    public void setCultureNote(String cultureNote) { this.cultureNote = cultureNote; }
     public String getThumbnail() { return thumbnail; }
     public void setThumbnail(String thumbnail) { this.thumbnail = thumbnail; }
     public AiRole getAiRole() { return aiRole; }

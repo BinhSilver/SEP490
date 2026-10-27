@@ -37,10 +37,9 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
     @Override
     public LearningSelectionResult select(Long userId, LearningProfileSnapshot profile, LearningCatalogScope scope) {
         validate(userId, profile, scope);
-        // [JLAS-W0108] Giai đoạn GOAL chỉ lấy bài Ở TRÊN trình độ đã kết luận (loại trừ assessedLevel):
-        // người học đã đạt cấp hiện tại nên GOAL phải là nội dung MỚI tới target, không lặp lại cấp cũ.
-        // VD N5→N4 lấy đúng 25 bài N4 (không trộn 25 bài N5 đã biết); N5→N3 lấy N4+N3; N4→N4 giữ N4.
-        int goalMin = Math.min(rank(profile.assessedLevel()) + 1, rank(profile.targetLevel()));
+        // Overall Smart Test band determines whether the survey level is relearned, mistakes are
+        // warmed up, or only the target is studied. Legacy profiles retain their former range.
+        int goalMin = rank(LearningStartPolicy.firstGoalLevel(profile));
         var goals = candidates(scope.goalTextbookIds(), goalMin, rank(profile.targetLevel()));
         if (goals.isEmpty()) {
             throw new ApiException(ErrorCode.NOT_FOUND, "No published lessons match the selected JLPT curriculum and levels.");
@@ -59,13 +58,26 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
             return new LearningSelectionResult(resources, gaps, policy.version(), List.of());
         }
 
+        if (!LearningStartPolicy.needsMistakeWarmUp(profile)) {
+            addGoals(goals, selectedIds, resources, profile);
+            return new LearningSelectionResult(resources, gaps, policy.version(), List.of());
+        }
+
         // [JLAS-W0108] P3 — KHÔNG còn bỏ warm-up toàn cục theo Σcorrect/Σassessed > 60%, và KHÔNG tự giao
         // "ôn toàn bộ" theo một skill thấp (D1). Duyệt từng skill: từ/Kanji sai luôn giữ dù skill cao;
-        // đọc/nghe theo bảng % đúng (§6.1); grammar theo policy yếu.
+        // đọc/nghe theo bảng % đúng (§6.1); Grammar được review theo từng câu sai, còn nhãn yếu
+        // vẫn tuân thủ WeakTagPolicy.
         suggestFoundationVerification(skillScores, gaps);
 
         var weak = weaknesses.stream()
                 .filter(policy::isWeak)
+                .sorted(this::compareWeakness)
+                .toList();
+        // REVIEW selection is broader than weakness classification: one wrong grammar answer
+        // deserves focused practice, but must not be recorded as a concluded weak point unless
+        // the configured WeakTagPolicy threshold is met.
+        var reviewable = weaknesses.stream()
+                .filter(evidence -> policy.isWeak(evidence) || hasWrongGrammarAnswer(evidence))
                 .sorted(this::compareWeakness)
                 .toList();
         weaknesses.stream().filter(e -> !policy.hasEnoughEvidence(e))
@@ -78,14 +90,15 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
         // (1) [JLAS-W0108] P3 — Đọc/nghe warm-up theo bảng % đúng (p-table), riêng từng skill, đủ mẫu.
         addComprehensionWarmUps(skillScores, profile, selectedIds, resources, gaps);
 
-        // (2) [JLAS-W0108] Ôn đúng item/điểm sai: từ/Kanji luôn giữ dù skill cao; grammar theo policy yếu.
-        if (!weak.isEmpty()) {
+        // (2) [JLAS-W0108] Ôn đúng item/điểm sai: grammar sai được review dù chưa đủ ngưỡng yếu;
+        // từ/Kanji giữ theo item; phân loại weakEvidence vẫn theo policy.
+        if (!reviewable.isEmpty()) {
             var warmUp = candidates(scope.warmUpTextbookIds(), 0, rank(profile.assessedLevel()));
             var uncovered = new LinkedHashSet<String>();
-            weak.forEach(e -> {
+            reviewable.forEach(e -> {
                 if (e.tagCode() != null) uncovered.add(e.tagCode());
             });
-            for (var e : weak) {
+            for (var e : reviewable) {
                 // [JLAS-W0108] Đọc/nghe đã xử lý riêng ở p-table (theo điểm skill), không qua nhánh
                 // tag/grammar/vocab bên dưới.
                 if (WeaknessEvidence.SKILL_READING.equals(e.skill())
@@ -98,7 +111,7 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                 if (e.jlptLevel() != null && rank(e.jlptLevel()) > rank(profile.assessedLevel())) {
                     continue;
                 }
-                // [JLAS-W0108] Lát 2.5 — GRAMMAR: warm-up theo đúng grammar point đã sai (không phải cả bài).
+                // [JLAS-W0108] Lát 2.5 — GRAMMAR: review đúng grammar point đã sai (không phải cả bài).
                 // Nếu point chưa có trong catalog thì fallback xuống khớp theo tag lesson bên dưới.
                 if (WeaknessEvidence.SKILL_GRAMMAR.equals(e.skill()) && e.grammarPointId() != null) {
                     var point = catalog.findGrammarPoint(e.grammarPointId());
@@ -111,10 +124,16 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                 }
                 // [JLAS-W0108] Lát 2.5e — KANJI/VOCAB: warm-up theo đúng từ đã sai (không phải cả bài).
                 // Nếu từ chưa có bài dạy trong catalog (từ bổ sung DICTIONARY) thì báo gap rõ ràng.
-                if ((WeaknessEvidence.SKILL_KANJI.equals(e.skill())
-                        || WeaknessEvidence.SKILL_VOCABULARY.equals(e.skill()))
-                        && e.vocabularyEntryId() != null) {
-                    var item = catalog.findVocabularyItem(e.vocabularyEntryId());
+                if (WeaknessEvidence.SKILL_KANJI.equals(e.skill())
+                        || WeaknessEvidence.SKILL_VOCABULARY.equals(e.skill())) {
+                    String lexeme = e.vocabularyEntryId() == null ? lexemeOf(e) : null;
+                    if (e.vocabularyEntryId() == null && lexeme == null) {
+                        gaps.add(new CoverageGap(e.sortKey(), "CONTENT_MAPPING_PENDING"));
+                        continue;
+                    }
+                    var item = e.vocabularyEntryId() != null
+                            ? catalog.findVocabularyItem(e.vocabularyEntryId())
+                            : catalog.findVocabularyItemByExpression(lexeme);
                     if (item.isPresent()) {
                         // [JLAS-W0108] Warm-up ôn đúng từ đã sai; bài dạy từ đó vẫn vào trọn vẹn GOAL.
                         addItemWarmUp(item.get(), e.skill(), resources);
@@ -140,6 +159,9 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
                 var matchedTags = new TreeSet<>(lesson.knowledgeTagCodes());
                 matchedTags.retainAll(uncovered);
                 uncovered.removeAll(matchedTags);
+                // A whole-lesson fallback would duplicate a goal lesson. Keep the full target
+                // curriculum in GOAL; only a resolved grammar point receives focused warm-up.
+                if (goals.stream().anyMatch(goal -> goal.lessonId().equals(lesson.lessonId()))) continue;
                 requireDuration(lesson);
                 selectedIds.add(lesson.lessonId());
                 resources.add(new SelectedLearningResource(lesson, LearningPhase.WARM_UP, "WEAK_TAG",
@@ -150,9 +172,30 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
         return new LearningSelectionResult(resources, gaps, policy.version(), weak);
     }
 
+    private boolean hasWrongGrammarAnswer(WeaknessEvidence evidence) {
+        return WeaknessEvidence.SKILL_GRAMMAR.equals(evidence.skill()) && evidence.wrongCount() > 0;
+    }
+
+    private String lexemeOf(WeaknessEvidence evidence) {
+        String canonical = evidence.canonicalId();
+        String prefix = evidence.skill() + ":";
+        if (canonical != null && canonical.startsWith(prefix)) {
+            String lexeme = canonical.substring(prefix.length()).strip();
+            return lexeme.isEmpty() || lexeme.startsWith("UNMAPPED_QUESTION:") ? null : lexeme;
+        }
+        // Older imported profiles used the shorter VOCAB prefix; keep their remediation resolvable.
+        if (WeaknessEvidence.SKILL_VOCABULARY.equals(evidence.skill())
+                && canonical != null && canonical.startsWith("VOCAB:")) {
+            String lexeme = canonical.substring("VOCAB:".length()).strip();
+            return lexeme.isEmpty() || lexeme.startsWith("UNMAPPED_QUESTION:") ? null : lexeme;
+        }
+        return null;
+    }
+
     /**
-     * [JLAS-W0108] Giai đoạn GOAL — lấy trọn vẹn từng bài trong giáo trình đã công bố ở dải
-     * [assessedLevel, targetLevel]. Bài đã dùng làm warm-up dạng "cả bài" không lặp lại ở GOAL.
+     * [JLAS-W0108] Giai đoạn GOAL — lấy trọn vẹn từng bài trong dải đã chọn theo ability band.
+     * Whole-lesson warm-ups for lessons outside the target are
+     * deduped; a target lesson stays in GOAL rather than being repeated in both phases.
      */
     private void addGoals(List<LearningResourceCandidate> goals, HashSet<Long> selectedIds,
             List<SelectedLearningResource> resources, LearningProfileSnapshot profile) {
@@ -336,7 +379,7 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
 
     private void requireDuration(LearningResourceCandidate lesson) {
         if (lesson.estimatedMinutes() == null || lesson.estimatedMinutes() <= 0) {
-            throw new ApiException(ErrorCode.CONFLICT, "Selected lessons must have a positive estimated duration.");
+            throw new ApiException(ErrorCode.CONFLICT, "Bài học chưa có thời lượng phù hợp. Vui lòng thử lại sau.");
         }
     }
 

@@ -1,0 +1,541 @@
+BÁO CÁO GỘP HAI BẢN SEED CŨ THÀNH MỘT BẢN CHUẨN  (seed_data_jlas)
+Ngày: 05/10/2026. Repo: D:\project_capstone\SEP490.
+Mọi kiểm tra làm trên DB tạm (jlas_cmp_db, jlas_cmp_root, jlas_cmp_new, jlas_seedtest, jlas_seedtest2), đã xoá sau khi kiểm.
+Trên DB jlas đang dùng: chỉ chạy sql/seeds/demo_content_creator.sql (việc A) và truy vấn CHỈ ĐỌC lesson thứ 220.
+Không tạo file .md, không chạy git. AGENTS.md: đã sửa đúng phần đường dẫn seed (mục 7, cập nhật sau chốt).
+
+======================================================================================================
+1. KẾT QUẢ CHÍNH
+======================================================================================================
+- Bản chuẩn duy nhất: tools/generate_seed.py (lấy generate_seed.py thư mục gốc làm gốc) → sql/seeds/seed_data_jlas.sql.
+  Chạy:  pip install openpyxl   rồi   python tools/generate_seed.py   (mọi đầu vào mặc định nằm trong data/seed_jlas/).
+- Situation dùng 'BA' (không còn 'WORK'); nạp thẳng trên jlas_schema.sql hiện tại, không sửa tay.
+- Toàn bộ phần sửa tay của db/seed_data_jlas.sql được sinh từ dữ liệu: data/seed_jlas/phan_sua_tay.json + hằng
+  PUBLISH_JLPT_N4_N1 ở đầu script (không chép khối SQL).
+- Sinh lại hai lần: giống hệt từng byte (md5 hiện tại 2f024fbffe881256cdda9e8a32c1fda6, PUBLISH_JLPT_N4_N1 = False, header có 020; ghi file với newline '\n' nên sinh trên
+  Windows hay Linux đều như nhau).
+- So với bản db/: nội dung ngữ pháp, ví dụ, hội thoại, từ vựng, kanji, audio, tag TOPIC, outcome, từ điển bổ sung, trạng thái
+  publish, phân loại situation khớp. Khác biệt còn lại là cấu trúc bài N3–N1 của script gốc (mục 3), đã giải thích.
+
+======================================================================================================
+2. CÁC NHÓM KHÁC BIỆT VÀ CÁCH ĐƯA VÀO SCRIPT
+======================================================================================================
+Ba nguồn: (a) generate_seed.py thư mục gốc → seed_data_jlas.sql thư mục gốc (219 lesson, DB jlas nạp từ bản này);
+(b) db/seed_data_jlas.sql (455 lesson) = đầu ra tools/generate_seed.py cũ + 157 dòng sửa tay (153 dòng thêm, 4 dòng đổi);
+(c) tools/generate_seed.py cũ.
+
+2.1 Khác nhau giữa script gốc (a) và script tools cũ (c)
+  - [GOP BAI] chỉ có ở (a): N3/N2/N1 dựng theo khuôn Sekai, mỗi bài gồm Từ vựng + Ngữ pháp + Câu ví dụ + Hội thoại, 5 bài/
+    unit (27/30/52 bài). (c) tách unit riêng theo loại nội dung (từ vựng theo chủ đề, từ vựng, ngữ pháp, hội thoại:
+    95/100/150 bài).                                             → GIỮ theo (a) (bản team đang dùng, theo yêu cầu).
+  - situation_tag 'WORK' (a) / 'BA' (c) cho giáo trình IT.        → dùng 'BA'.
+  - SET SQL_SAFE_UPDATES = 0 … = 1 (chạy được trong Workbench) chỉ ở (c). → đưa vào header/footer.
+  - Regex xoá tag KNOWLEDGE: (a) '^N[123]-[BGD]…' (có mã -B của bài gộp), (c) '^N[123]-[GD]…'. → giữ (a).
+2.2 Phần sửa tay của (b) và cách sinh trong bản chuẩn
+  1) Dòng chú thích + SQL_SAFE_UPDATES ở header  → header/footer do script ghi.
+  2) Giáo trình Sekai N4, Tiếng Nhật N3/N2/N1 = PUBLISHED  → hằng PUBLISH_JLPT_N4_N1 (ban đầu True giống bản db/; CHỐT SAU:
+     False – xem mục 3.8) (đầu script, chú thích: nội
+     dung N3–N1 do AI soạn, chưa duyệt; đổi False rồi sinh lại thì giáo trình + bài N4–N1 về DRAFT).
+  3) "UPDATE lesson … SET status='PUBLISHED' WHERE textbook_id IN (1,2,4,5,6)"  → trạng thái ghi thẳng khi sinh dòng lesson:
+     N5 cả 25 bài PUBLISHED (trước đây 5 bài 21–25 DRAFT; bản db/ đã publish – không phụ thuộc hằng); N4 và N3–N1 theo hằng.
+  4) 18 tag TOPIC (migration 007) + 2 tag 交渉/人事 (2.5e)  → phan_sua_tay.json "topics" (20) →
+     INSERT INTO tag (code, name, tag_type) … ON DUPLICATE KEY UPDATE code = code (không đặt id, giống bản db/; tag TOPIC
+     không bị xoá ở đầu file nên chạy lại không nhân đôi).
+  5) 11 outcome  → "outcomes" → INSERT INTO outcome … ON DUPLICATE KEY UPDATE code = code.
+  6) Kanji 千 (WHERE NOT EXISTS)  → "kanji_bo_sung": script chỉ thêm nếu kanji_data.json chưa có chữ đó; id tiếp theo (2541),
+     radical_id tra theo radical_number 24 (giống subquery cũ), meaning_vi 'nghìn; ngàn'.
+  7) 48 từ vựng DICTIONARY [JLAS-W0091] (ON DUPLICATE KEY UPDATE id = id)  → "tu_dien_bo_sung" (48 mục: expression, reading,
+     meaning, jlpt). normalized_* tính bằng norm() của script (khớp 48/48 giá trị cũ). Từ trùng khoá chuẩn hoá với từ đã sinh
+     thì bỏ qua (14 từ, giống ON DUPLICATE cũ) → 34 dòng, id 9032–9065 tường minh (đúng id bản db/ nhận được), vẫn giữ
+     ON DUPLICATE KEY UPDATE id = id để an toàn. Không thêm sense/gloss (giống bản db/).
+  8) Phân loại lại situation 65 bài hội thoại theo ID (BA: 240–255, 390–405, 139, 151; TRAVEL: 433–440, 144, 154)  →
+     "situation_theo_hoi_thoai" theo MÃ HỘI THOẠI (scene_code), mẫu fnmatch:
+        BA:     n3-hd-01, n3-hd-13, n2-hd-*, n1-hd-*        TRAVEL: n3-hd-06, n3-hd-16, TRV-*
+     (ánh xạ suy ra bằng cách đọc lại scene_code của đúng các bài bị UPDATE trên DB nạp bản db/). Lý do không dùng ID: trong
+     cấu trúc gộp các ID đó trỏ sang bài khác (vd. id 139 = "N1 Bài 22: Bên cạnh việc chính"). Ở N3–N1 hội thoại nằm trong
+     bài gộp (skill VOCABULARY, mỗi bài tối đa 1 hội thoại – đã kiểm) nên situation gán cho bài chứa hội thoại; bài hội thoại
+     du lịch (TRV, skill LISTENING) như cũ; giáo trình IT luôn 'BA'; 21 bài đời sống giữ FOUNDATION.
+     Kết quả nhóm theo situation/mã hội thoại giống hệt bản db/ (BA: n3 2, n2 16, n1 16, BRSE 14; TRAVEL: n3 2, TRV 8).
+2.3 Thay đổi khác trong script
+  - Đường dẫn mặc định tính từ vị trí script (chạy được ở thư mục bất kỳ): --input data/seed_jlas/sekai,
+    --out sql/seeds/seed_data_jlas.sql, các đầu vào data/seed_jlas/*, --hand-data data/seed_jlas/phan_sua_tay.json;
+    --report mặc định không ghi (trước ghi validation.json vào thư mục hiện tại).
+  - Thiếu đầu vào hoặc thiếu openpyxl thì DỪNG báo lỗi (bản gốc chỉ cảnh báo rồi sinh seed thiếu nội dung).
+  - Header ghi thứ tự chạy đầy đủ (mục 6) và trạng thái PUBLISH_JLPT_N4_N1.
+2.4 Đầu vào chép vào data/seed_jlas/ (tổng 7.089.966 byte ≈ 6,8 MB, 60 file; không thêm vào .gitignore)
+  - sekai/sekai-n5/json, sekai/sekai-n4/json: 50 file JSON từ D:\project\crawl-aanime\crawl-aanime\output (chỉ JSON, không
+    audio/md). Nội dung bài crawl từ Sekai Gen – cùng nội dung đã có trong seed.
+  - kana_data.json: từ D:\project\files\kana_data.json (trước nằm ngoài repo).
+  - kanji_data.json, tu_vung_N3_N1_duyet.xlsx, grammar_n1/n2/n3.json, it_data.json, travel_data.json, daily_data.json: chép từ
+    thư mục gốc repo (bản gốc vẫn còn ở thư mục gốc, chưa xoá – xem mục 8).
+  - phan_sua_tay.json: mới, dữ liệu phần sửa tay (rút tự động từ khối SQL cuối bản db/, không gõ tay).
+  - vocab_n3/n2/n1.json: không tồn tại ở đâu; tham số --topic-vocab giữ lại nhưng mặc định rỗng (build() không dùng).
+
+======================================================================================================
+3. KẾT QUẢ SO SÁNH TRÊN DB TẠM
+======================================================================================================
+Cách so: nạp jlas_schema.sql hiện tại + một bản seed vào mỗi DB tạm; với 24 bảng nội dung, mỗi dòng chuẩn hoá bỏ id,
+created_at/updated_at, mọi khoá ngoại thay bằng khoá tự nhiên (textbook → tiêu đề, unit/lesson → đường dẫn tiêu đề + thứ tự,
+từ vựng → khoá chuẩn hoá, kanji → ký tự …), so đa tập hợp. Bản db/ nạp được trên schema hiện tại (đã dùng 'BA').
+
+3.1 Bản db/ (jlas_cmp_db) ↔ bản chuẩn mới (jlas_cmp_new)
+  bảng                    db/     mới   chỉ db/  chỉ mới   ghi chú
+  roles                     3       3       0        0
+  tag                     478     242     345      109    toàn bộ là tag KNOWLEDGE của bài N3–N1 (db/: N?-V#, N?-G#,
+                                                          N?-D#, N?-T-<chủ đề> = 345; mới: N?-B# = 109). 20 TOPIC giống.
+  outcome                  11      11       0        0
+  textbook                  9       9       0        0    (cả trạng thái PUBLISHED N4–N1)
+  unit                     50      41      32       23    cấu trúc N3–N1
+  lesson                  455     219     345      109    cấu trúc N3–N1; mọi bài ngoài N3–N1 giống (0 lệch)
+  lesson_tag              564     328     345      109    theo bài N3–N1
+  lesson_section          725     716     385      376    theo bài N3–N1
+  grammar_point           749     749     393      393    cùng nội dung, khác bài chứa/thứ tự/tag (xem 3.2)
+  radical/kanji/kanji_reading/vocabulary_kanji: 200/2541/8068/12844 – giống hệt (có kanji 千)
+  vocabulary_entry       9065    9065    6473     6473    chỉ khác cột usage_scope (xem 3.3)
+  vocabulary_sense       9031    9031    7100     7100    chỉ khác usage_note (xem 3.3)
+  vocabulary_gloss      15570   15850       0      280    +280 nghĩa tiếng Anh (xem 3.3)
+  content_item           5253    5106    1435     1288    cấu trúc N3–N1 (mục "Danh sách từ vựng", số thứ tự "Ví dụ n")
+  content_vocabulary    10315   10315    7483     7483    cùng tập từ, khác mục chứa
+  content_voice / content_audio: 6 / 5057 – giống hệt
+  dialogue_role / dialogue_line_detail / dialogue_line_chunk: 314 / 1435 / 5636 – cùng nội dung, khác bài chứa
+3.2 Nội dung N3–N1 bỏ qua cấu trúc bài (số dòng + tổng CRC32 nội dung, từng giáo trình N3/N2/N1) – GIỐNG HỆT:
+  mẫu ngữ pháp (pattern, meaning, example, note)           139 / 137 / 117
+  câu ví dụ GRAMMAR (content, translated, mẫu gắn)           278 / 274 / 234
+  lời hội thoại (vai, lời, dịch, scene, bên, giọng, thứ tự)  137 / 128 / 128
+  mảnh câu (lời, thứ tự, mặt chữ, nghĩa)                     801 / 778 / 820
+  vai hội thoại (code, tên vi/ja, mô tả, giọng)               35 /  34 /  35
+  từ vựng gắn bài (khoá chuẩn hoá, khác nhau)               1855 / 2037 / 3590 (liên kết 1855 / 2037 / 3591)
+  bài: db/ 95/100/150 → mới 27/30/52; mọi bài PUBLISHED; situation BA/TRAVEL/FOUNDATION như 2.2(8).
+3.3 Lệch giải thích được (KHÔNG sửa – hành vi của script gốc mà DB jlas đang chạy; hàm _ensure_vocab của [GOP BAI]):
+  - usage_scope của 6473 từ N3–N1 không có chủ đề: TEXTBOOK (db/) → BOTH (mới) – từ hiện cả ở tra từ điển.
+  - vocabulary_sense.usage_note: 6473 từ NULL → cấp độ ('N3'/'N2'/'N1'); 627 từ có chủ đề 'N3: <chủ đề>' → '<chủ đề>'.
+  - +280 gloss tiếng Anh cho từ có chủ đề (script gốc thêm meaning_en, script cũ thì không).
+  - ID: textbook 1–9 và mọi thứ của N5/N4/bảng chữ cái giữ nguyên id; ID bài/unit/section/item/tag từ N3 trở đi khác bản db/
+    (cấu trúc khác) nhưng TRÙNG với DB jlas hiện tại (nạp từ bản gốc). Test LessonContentSeedTests (mặc định bỏ qua) dùng
+    id ≤ 50 (N5/N4) – không đổi.
+3.4 Bản gốc thư mục gốc (bản sao WORK→BA, jlas_cmp_root) ↔ bản chuẩn: chỉ khác đúng phần sửa tay
+  tag +20 TOPIC; outcome +11; kanji +1 (千); vocabulary_entry +34 (DICTIONARY); textbook 4 dòng (trạng thái N4, N3, N2, N1);
+  lesson 147 dòng (status/situation: 109 bài N3–N1, 25 bài N4, 5 bài N5 21–25, 8 bài hội thoại TRV); mọi bảng khác giống hệt
+  (unit, lesson_tag, section, grammar, content_item, content_vocabulary, gloss, sense, audio, dialogue_*).
+3.5 Chuỗi chạy đầy đủ (DB tạm jlas_seedtest, bản sao đổi USE jlas → DB tạm cho file có lệnh USE)
+  schema → 018_content_source.sql → jlas_migrations_all.sql → seed_data_jlas.sql (mới) → jlas_seed_all.sql →
+  questionbank.sql → ai_call_scoring_rules.sql → demo_content_creator.sql → seed_data_vnjpclub.sql → seed_data_vnjpclub.sql
+  (lần 2): MỌI FILE rc = 0. Số dòng sau lần 1 = lần 2 (lesson 238 → 3104, assessment_question 2874 → 12339,
+  vocabulary_entry 9093 → 20882 …); checksum dữ liệu có trước không đổi; 25322 liên kết từ vựng vnjpclub; 2874 câu
+  questionbank còn nguyên; creator@jlab.local = CONTENT_CREATOR, content@jlab.local = CONTENT_ADMIN.
+  LƯU Ý: nếu bỏ jlas_migrations_all.sql (chỉ chạy 018) thì jlas_seed_all.sql lỗi "Table 'moderation_audit_log' doesn't
+  exist" – yêu cầu có sẵn của jlas_seed_all.sql (header của nó ghi chạy sau jlas_migrations_all.sql), không do bản gộp.
+  Bản chuẩn chạy 2 lần liên tiếp trên schema mới: rc 0 cả hai.
+3.6 Sinh lại script: 2 lần → giống hệt từng byte (md5 hiện tại 2f024fbffe881256cdda9e8a32c1fda6 – chỉ khác header thêm 020 so với
+  3fb466a1c1b6a5b2d56cbbc8b8cdb005; PUBLISH_JLPT_N4_N1 = False;
+  bản True trước đó acfa0a0b218388e293529c7fa8bbf36f). seed_data_vnjpclub.sql sinh lại
+  (chỉ đổi header thứ tự chạy) cũng tất định: md5 hiện tại 9b2b7d839802513a4de2ac7abda61148.
+3.8 CHỐT SAU: PUBLISH_JLPT_N4_N1 = False (N3–N1 để DRAFT: nội dung AI soạn, còn 7.483 nghĩa tiếng Việt và 393 mẫu ngữ
+  pháp chưa duyệt; đổi lại True khi duyệt xong). Sinh lại 2 lần giống hệt từng byte, md5 3fb466a1c1b6a5b2d56cbbc8b8cdb005.
+  Đổi trạng thái so với bản True (acfa0a0b…), chỉ cột status, không đổi gì khác:
+    giáo trình PUBLISHED → DRAFT: Sekai N4, Tiếng Nhật N3, N2, N1 (4)
+    bài PUBLISHED → DRAFT: N4 25, N3 27, N2 30, N1 52 = 134
+    giữ nguyên: Sekai N5 25 bài PUBLISHED, Bảng chữ cái 10 bài PUBLISHED, IT/du lịch/đời sống DRAFT.
+  Hằng số cũng điều khiển Sekai N4 nên N4 cùng về DRAFT. So với DB jlas hiện tại (seed gốc), về trạng thái chỉ còn khác:
+  N5 bài 21–25 PUBLISHED (situation và phần bổ sung vẫn khác như mục 8).
+  Chuỗi đầy đủ trên DB tạm (schema → 018 → jlas_migrations_all → 019 → seed_data_jlas (False) → jlas_seed_all →
+  questionbank → ai_call_scoring_rules → demo_content_creator → seed_data_vnjpclub ×2): mọi file rc 0, số dòng lần 1 = lần 2
+  (lesson 238 → 3104, assessment_question 2874 → 12339), checksum dữ liệu có trước không đổi, 25322 liên kết từ vựng
+  vnjpclub; content_source cũ: Sekai N5 DA_DUYET, còn lại CHUA_DUYET. DB tạm đã xoá.
+3.7 ./mvnw -q test sau khi chuyển file: XANH – 82 lớp, 630 test, 0 thất bại, 0 lỗi, 41 bỏ qua (giống trước).
+
+======================================================================================================
+4. LESSON THỨ 220 TRÊN DB jlas (truy vấn chỉ đọc)
+======================================================================================================
+- DB jlas: 220 lesson = 219 lesson id 1–219 (từ seed gốc, created_at 23/09/2026 21:49) + 1 lesson id 467.
+- Lesson 467: "ádasd" (mô tả "ádasd"), unit 54 "sdasd" thuộc giáo trình 11 "Mina Nihongo" (N5, DRAFT, tạo 24/09/2026), DRAFT,
+  CURRICULUM / VOCABULARY / TRAVEL, 3 phút, knowledge_tag_id 180 (= tag IT-D01 "IT hội thoại 1" của seed, chọn lại trên giao
+  diện), tạo 27/09/2026 21:40 qua màn quản lý. Nội dung: 3 section (Từ vựng: 1 mục danh sách rỗng; Câu ví dụ: 3 câu
+  わたしは学生です。…; Hội thoại "Tự giới thiệu": 4 lời はじめまして。山田です。…), 2 mẫu ngữ pháp ～は～です / ～は～じゃありません.
+  → Dữ liệu thử tạo tay, không có trong file seed nào.
+- Cùng loại: giáo trình tạo tay id 10 "AAAA" (ARCHIVED), 11 "Mina Nihongo" (DRAFT), 12 "Mimi kara" (ARCHIVED),
+  13 "Minna ni hongna 1" (ARCHIVED). AUTO_INCREMENT lesson lên 467 vì DB từng nạp bản db/ (455 lesson) trước bản gốc.
+- CẢNH BÁO: header mọi bản seed_data_jlas (cũ và mới) "DELETE FROM lesson / unit / textbook …" → nạp lại seed lên DB jlas sẽ
+  xoá lesson 467 và 4 giáo trình tạo tay. Muốn giữ thì sao lưu trước.
+
+======================================================================================================
+5. FILE ĐÃ CHUYỂN / TẠO / SỬA
+======================================================================================================
+5.1 Chuyển vào sql/seeds/_cu/ (không xoá; mỗi bản một thư mục con để giữ tên gốc), theo đúng thứ tự yêu cầu:
+  1. tools/generate_seed.py (bản cũ, chuyển TRƯỚC khi đặt bản chuẩn) → sql/seeds/_cu/tools/generate_seed.py
+                                                                       md5 eef5efa01568271c6028859b74a757c6
+  2. db/seed_data_jlas.sql            → sql/seeds/_cu/db/seed_data_jlas.sql   md5 6d8efa76ce72aa47e4dc8efc19e45755
+  3. seed_data_jlas.sql (thư mục gốc) → sql/seeds/_cu/goc/seed_data_jlas.sql  md5 b19b3e4eb051fbe83993c34a9e3b0ac7
+  4. generate_seed.py (thư mục gốc, SAU khi đã có bản chuẩn) → sql/seeds/_cu/goc/generate_seed.py
+                                                                       md5 e89b14912bf5b7f5ed95f1919c0be3ab
+  questionbank.sql (thư mục gốc) → sql/seeds/questionbank.sql (không phải _cu)  md5 0591b327770614a4730d28b8dce56ee6
+  (db/ còn lại 2026-09-27-w0132-e2e-seed.sql, không thuộc phạm vi.)
+5.2 Tạo mới: tools/generate_seed.py (bản chuẩn), sql/seeds/seed_data_jlas.sql, data/seed_jlas/ (mục 2.4),
+  sql/seeds/demo_content_creator.sql (việc A), báo cáo này.
+5.3 Cập nhật chỗ trỏ đường dẫn cũ:
+  - README.md:843  seed file → sql/seeds/seed_data_jlas.sql, sinh bằng tools/generate_seed.py từ data/seed_jlas/.
+  - src/test/java/com/jlas/dictionary/LessonContentSeedTests.java:63 (chú thích) → sql/seeds/seed_data_jlas.sql.
+  - src/test/java/com/jlas/learning/GrammarTextAnalyzerTest.java:13 (chú thích) → sql/seeds/seed_data_jlas.sql
+    (grammar_point 1–8 thuộc N5 bài 1, id không đổi).
+  - tools/gen_smart_test_supplement_retag.py: QB → sql/seeds/questionbank.sql, SEED_EXISTING → sql/seeds/seed_data_jlas.sql.
+  - tools/check_normalization.py (SEED), tools/match_lexeme_openjlpt.py, tools/missing_words_full.py,
+    tools/unmatched_analysis.py (QB): giữ tiền tố tuyệt đối D:\FALL26_FPT\SEP490 có sẵn, đổi phần sau sang
+    sql\seeds\seed_data_jlas.sql / sql\seeds\questionbank.sql.
+  - tools/gen_openjlpt_seed.py (chú thích "verify với …") → sql/seeds/seed_data_jlas.sql.
+  - tools/seed_vnjpclub.py (docstring + header) và sql/seeds/seed_data_vnjpclub.sql (sinh lại): thứ tự chạy mới.
+  - sql/audits/2026-10-05-vnjpclub-seed.txt: thứ tự chạy, mục tài khoản demo, việc còn lại.
+  - Không có cấu hình (application*.yaml, pom.xml, script build) nào trỏ tới file seed. .gitignore có các dòng
+    tools/grammar_n*.json, tools/kanji_data.json, tools/tu_vung_N3_N1_duyet.xlsx … (bỏ qua bản ở tools/) – không phải
+    đường dẫn seed nên không sửa; data/seed_jlas/ KHÔNG bị bỏ qua → sẽ được commit (team xác nhận có muốn commit 50 JSON
+    Sekai + xlsx không).
+
+======================================================================================================
+6. THỨ TỰ CHẠY CUỐI CÙNG (đã ghi trong header các file seed)
+======================================================================================================
+  1) jlas_schema.sql
+  2) migration: sql/migrations/018_content_source.sql → sql/jlas_migrations_all.sql → sql/migrations/019_situation_tag_ba.sql
+     → sql/migrations/020_align_checks_credit_reference.sql (018/019/020 chỉ cần trên DB tạo từ schema cũ – như DB jlas;
+     cả ba chạy lại được, trên DB đã đúng thì không đổi gì)
+  3) sql/seeds/seed_data_jlas.sql                       (bản chuẩn, sinh bằng tools/generate_seed.py)
+  4) các seed khác: sql/seeds/jlas_seed_all.sql, sql/seeds/questionbank.sql, sql/seeds/ai_call_scoring_rules.sql …
+  5) sql/seeds/demo_content_creator.sql                 (tài khoản demo creator@jlab.local – chỉ môi trường dev/demo)
+  6) sql/seeds/seed_data_vnjpclub.sql                   (CUỐI CÙNG)
+  Lệnh mẫu: mysql -u root -p --default-character-set=utf8mb4 <ten_db> < <file>   (file có "USE jlas;": jlas_seed_all.sql)
+
+======================================================================================================
+7. SỬA AGENTS.md (ĐÃ SỬA theo chốt: chỉ dòng 55 về seed, thay bằng nội dung dưới + thêm 019 và PUBLISH_JLPT_N4_N1;
+   không đổi phần khác)
+======================================================================================================
+- Dòng 55 hiện tại:
+    "- Seed data is kept in separate files (`db/seed_data_jlas.sql`, etc.), never mixed into `jlas_schema.sql`."
+  Đề xuất thay bằng:
+    "- Seed data is kept in separate files under `sql/seeds/`, never mixed into `jlas_schema.sql`. The core content seed
+       `sql/seeds/seed_data_jlas.sql` is GENERATED by `tools/generate_seed.py` from `data/seed_jlas/` (needs
+       `pip install openpyxl`) — never edit it by hand; change the script or `data/seed_jlas/phan_sua_tay.json` and
+       regenerate (output is byte-for-byte deterministic). Old versions are archived in `sql/seeds/_cu/` (do not use).
+     - Seed run order: jlas_schema.sql → sql/migrations/018_content_source.sql, sql/jlas_migrations_all.sql,
+       sql/migrations/019_situation_tag_ba.sql →
+       sql/seeds/seed_data_jlas.sql → other seeds (jlas_seed_all.sql, questionbank.sql, ai_call_scoring_rules.sql …) →
+       sql/seeds/demo_content_creator.sql (dev/demo only) → sql/seeds/seed_data_vnjpclub.sql (last)."
+- Nên thêm 1 dòng: hằng PUBLISH_JLPT_N4_N1 trong tools/generate_seed.py quyết định N4–N1 PUBLISHED/DRAFT (nội dung N3–N1
+  do AI soạn, chưa duyệt).
+
+======================================================================================================
+8. VIỆC CÒN LẠI / LƯU Ý
+======================================================================================================
+- Các file đầu vào gốc ở thư mục gốc repo (kanji_data.json, grammar_n*.json, it/travel/daily_data.json,
+  tu_vung_N3_N1_duyet.xlsx) vẫn còn – CHỐT: chưa xoá.
+- data/seed_jlas/: 7.089.966 byte (≈ 6,8 MB), 60 file – CHỐT: không thêm vào .gitignore.
+- Team quyết giữ hay đổi lệch 3.3 (usage_scope BOTH, usage_note, gloss tiếng Anh cho từ N3–N1): hiện theo script gốc =
+  đúng dữ liệu DB jlas đang chạy.
+- ĐÃ NẠP bản chuẩn lên DB jlas ngày 05/10/2026 khoảng 21:20 (mục 9). Khác biệt so với DB jlas trước khi nạp: N4/N3–N1 giữ DRAFT (PUBLISH_JLPT_N4_N1 = False), N5 bài
+  21–25 PUBLISHED, 44 bài hội thoại chuyển BA (34) / TRAVEL (10), 21 bài IT 'WORK' → 'BA' (DB jlas còn CHECK cũ cho
+  phép WORK; schema hiện tại chỉ nhận BA), thêm 20 tag TOPIC/11 outcome/千/34 từ điển (nếu DB jlas chưa có) — và sẽ xoá dữ liệu tạo
+  tay (mục 4).
+- ĐIỀU KIỆN TRƯỚC KHI NẠP BẢN CHUẨN LÊN DB jlas: CHECK chk_lesson_situation_tag trên DB jlas vẫn là bản cũ
+  (TRAVEL/WORK/FOUNDATION, không nhận 'BA'), và repo CHƯA có migration nào đổi CHECK này ([JLAS-W0108] chỉ sửa
+  jlas_schema.sql) → nạp seed mới lên jlas sẽ lỗi ERROR 3819. ĐÃ TẠO sql/migrations/019_situation_tag_ba.sql ([JLAS2-20]):
+    bỏ CHECK cũ (nếu CHECK chưa đúng) → UPDATE 'WORK' → 'BA' → thêm CHECK (TRAVEL, BA, FOUNDATION) giống jlas_schema.sql.
+    Điều kiện "đã đúng" đọc từ information_schema.CHECK_CONSTRAINTS (có BA, không có WORK); ALTER chạy qua PREPARE nên
+    chạy lại không lỗi. Tạm tắt SQL_SAFE_UPDATES rồi trả lại giá trị cũ. ĐÃ chạy lên DB jlas (mục 9).
+  Kiểm trên DB tạm (đã xoá):
+    * DB dựng từ schema cũ (jlas_schema.sql với CHECK TRAVEL/WORK/FOUNDATION) + seed gốc cũ (_cu/goc, 21 bài WORK):
+      019 lần 1 rc 0 → CHECK mới, BA 21 / FOUNDATION 198; lần 2 rc 0, không đổi; nạp sql/seeds/seed_data_jlas.sql rc 0
+      (BA 55 / TRAVEL 10 / FOUNDATION 154); 019 lần 3 rc 0; UPDATE thử về 'WORK' bị CHECK mới chặn (ERROR 3819).
+    * DB từ jlas_schema.sql hiện tại: 019 ×2 rc 0, CHECK giữ nguyên.
+    * DB không có CHECK (DROP thử): 019 rc 0, thêm lại CHECK đúng.
+  DB tạo mới từ jlas_schema.sql hiện tại không cần bước này (019 không làm gì).
+- Sau khi nạp lại seed_data_jlas.sql lên một DB đã có vnjpclub, phải chạy lại seed_data_vnjpclub.sql (seed chuẩn xoá toàn
+  bộ nội dung bài học).
+
+======================================================================================================
+9. MIGRATION 020 VÀ NẠP THẬT LÊN DB jlas (05/10/2026)
+======================================================================================================
+9.1 Lần thử đầu trên bản sao jlas_thu (từ D:\backup_jlas_20261005-2105.sql), chuỗi 018 → all → 019 → seed …:
+  seed_data_jlas.sql LỖI "ERROR 3819 … chk_tag_type" ở dòng 88008 (khối 20 tag TOPIC). Nguyên nhân: DB jlas tạo từ schema
+  trước [JLAS-W0108]; các đổi CHECK chỉ sửa thẳng jlas_schema.sql. So cấu trúc jlas_thu (sau migration) với DB dựng từ schema
+  hiện tại: bảng và cột khớp; lệch 5 CHECK + thiếu 1 unique index.
+9.2 sql/migrations/020_align_checks_credit_reference.sql ([JLAS2-20], kiểu 019: đọc information_schema, DROP/ADD qua PREPARE,
+  bảng không tồn tại thì bỏ qua, chạy lại không lỗi):
+    tag.chk_tag_type + 'TOPIC'; user_learning_path.chk_learning_path_status + 'COMPLETED';
+    user_learning_path_item.chk_learning_path_item_kind cho phép NULL; user_knowledge_weakness.chk_weakness_skill + 'KANJI';
+    game_match.chk_game_match_type + 'NEKO_CATCH'; user_credit_transaction.uk_credit_transaction_reference
+    UNIQUE (user_id, reason, reference_type, reference_id) – kiểm trùng trước (chỉ xét dòng đủ 4 cột khác NULL vì UNIQUE
+    cho phép nhiều NULL); có trùng thì bỏ qua riêng index này, in danh sách dòng trùng, không xoá gì.
+  Kiểm trên DB tạm (đã xoá):
+    * DB khôi phục từ bản sao lưu jlas (schema cũ thật): 018 → all → 019 → 020 → 020: rc 0; so cấu trúc với DB dựng từ
+      schema hiện tại: KHÔNG CÒN LỆCH (bảng, cột, CHECK, index).
+    * DB dựng từ jlas_schema.sql hiện tại: 020 ×2 rc 0, không đổi gì.
+    * Bản sao có chèn 2 dòng trùng (user, 'TEST', 'LESSON', 1) + 2 dòng reference NULL: 020 ×2 rc 0, in đúng 2 dòng trùng,
+      bỏ qua index, 5 CHECK vẫn được sửa, không xoá dòng nào (2 dòng NULL không bị tính là trùng).
+  Trên DB jlas thật: 0 nhóm trùng → index đã được thêm.
+9.3 Chạy lại trên jlas_thu (xoá, dựng lại từ D:\backup_jlas_20261005-2105.sql), đúng thứ tự mục 6:
+    018 rc 0 | jlas_migrations_all rc 0 (không có lỗi "đã tồn tại") | 019 rc 0 | 020 rc 0 | seed_data_jlas rc 0 |
+    jlas_seed_all rc 0 | questionbank rc 0 | ai_call_scoring_rules rc 0 | demo_content_creator rc 0 | seed_data_vnjpclub rc 0
+    → 0 file lỗi, stderr rỗng ở mọi file.
+  Kiểm tra app trên jlas_thu (biến môi trường SPRING_DATASOURCE_URL, SERVER_PORT; không sửa cấu hình): 11/11 đạt (như 9.5).
+9.4 Nạp lên DB jlas: sao lưu thêm D:\backup_jlas_20261005-2119_truoc_nap.sql ngay trước khi nạp (nội dung giống hệt bản
+  21:05 → jlas không đổi từ lúc thử). Chạy y hệt chuỗi 9.3 lên jlas: 10/10 file rc 0, stderr rỗng.
+  Sau khi nạp (jlas = jlas_thu ở mọi số đếm): 3104 lesson, 55 giáo trình, 578 unit, 12339 câu hỏi, 11 users, 20 tag TOPIC,
+  11 outcome, 20882 vocabulary_entry, 25322 liên kết từ vựng vnjpclub, 63200 content_source, 6975 content_audio;
+  situation BA 55 / TRAVEL 10 / FOUNDATION 3039.
+    giáo trình (số bài, số bài PUBLISHED): Sekai N5 PUBLISHED (25, 25) | Sekai N4 DRAFT (25, 0) | Bảng chữ cái PUBLISHED
+    (10, 10) | Tiếng Nhật N3/N2/N1 DRAFT (27/30/52, 0) | IT, du lịch, đời sống DRAFT (21/14/15, 0) |
+    Amon / Âm On-Kun (id 14, từ jlas_seed_all.sql) PUBLISHED (19, 19) – giữ nguyên theo chốt | 45 vnjpclub DRAFT (2866, 0).
+  Dữ liệu tạo tay trước đó (lesson 467, giáo trình 10–13) đã bị xoá như cảnh báo mục 4 – vẫn còn trong 2 bản sao lưu.
+  Bản sao lưu giữ lại: D:\backup_jlas_20261005-2105.sql, D:\backup_jlas_20261005-2119_truoc_nap.sql (mỗi file 6,5 MB).
+9.5 Audio, cấu hình, kiểm tra app trên jlas
+  - robocopy "D:\project\tool\tool\output\media" "D:\jlas-audio\vnjpclub" *.mp3 *.wav /S /R:1 /W:1 → 2534/2534 file,
+    3,23 GB, 0 lỗi (exit 1 của robocopy = đã chép, thành công). Mọi audio_url trong jlas (sekai-n5 2470, sekai-n4 2450,
+    vnjpclub 1912) đều có file dưới D:\jlas-audio.
+  - src/main/resources/application-local.yaml: thêm CONTENT_AUDIO_PATH: 'D:/jlas-audio/' (application.yaml đọc
+    content.audio.path = ${CONTENT_AUDIO_PATH:...}).
+  - App trên jlas (cổng 8099), 11/11 đạt:
+      creator@jlab.local đăng nhập (CONTENT_CREATOR); /textbooks/manage 200; API quản lý thấy 55 giáo trình (Sekai, N3–N1,
+      45 vnjpclub); mở Sekai N5 bài 1 (trang 200, API 200, 8 mẫu ngữ pháp, 54 ví dụ) và "Tìm thuê căn hộ" Somatome (N2)
+      (lesson 1002193: trang 200, API 200, 4 mẫu, 8 ví dụ);
+      học viên demo@jlab.local thấy đúng 3 giáo trình: Sekai N5, Bảng chữ cái, Amon; Sekai N5 bài 1 → 200, N4 bài 26 → 404,
+      vnjpclub 1002193 → 404, API quản lý → 403.
+    Audio qua /uploads/content-audio/: vnjpclub/N5/speed-n5-nghe-hieu/13.mp3, sekai-n5/audio/chuan-nu/…, vnjpclub/N2/… →
+    HTTP 200 audio/mpeg. Đã tắt app.
+  - jlas_thu đã xoá (chỉ còn DB jlas).
+
+======================================================================================================
+10. AUDIO GỬI TEAM, KIỂM TRA SEED, DỌN FILE TRÙNG (05/10/2026)
+======================================================================================================
+10.1 Audio (ffmpeg/ffprobe 9.0.1 có sẵn, cài qua winget). D:\jlas-audio KHÔNG bị sửa/xoá (kiểm lại kích thước 8087 file).
+  Trước: D:\jlas-audio 8087 file, 3408,4 MB
+    - sekai (sekai-n5, sekai-n4): 5553 mp3, 100,6 MB, mono, 24 kHz, bitrate ≤ 64 kbps (chép nguyên), 7,2 giờ.
+    - vnjpclub: 2534 file, 3307,8 MB, 50,6 giờ: 2490 mp3 stereo (128k 1997 file, 192k 138, 272k 134, 320k 84 …),
+      44 wav PCM mono 24 kHz (384 kbps); 10 mp3 có kèm ảnh bìa.
+  Nén → D:\jlas-audio-nen (giữ cấu trúc thư mục và tên file):
+    - 2490 mp3 vnjpclub → mp3 mono 64 kbps CBR (libmp3lame, giữ sample rate và tag, bỏ ảnh bìa).
+    - 5553 mp3 Sekai ≤ 64 kbps → chép nguyên.
+    - 44 wav → CHÉP NGUYÊN (DB tham chiếu đúng tên .wav – cả 44 file; đổi nội dung sang mp3 mà giữ đuôi .wav thì app trả
+      Content-Type audio/wav sai định dạng; 140,8 MB). Muốn nén thêm phải đổi tên .mp3 và sửa audio_url trong seed.
+  Sau: 8087 file, 1610,7 MB (sekai 100,6 MB, vnjpclub 1510,1 MB) – giảm 52,7 %.
+  Kiểm tra (ffprobe): số file khớp 8087/8087, tên khớp; 0 file lỗi ffprobe; 2490 file nén đều mp3/mono/64k; 5597 file
+  chép nguyên đúng kích thước; 6832 audio_url trong DB jlas đều có file trong D:\jlas-audio-nen.
+  Thời lượng: ffprobe báo 578 file lệch > 0,1 s (max 0,69 s) – do ffprobe ƯỚC TÍNH thời lượng mp3 gốc (không có header
+  Xing/VBR) từ bitrate. Giải mã toàn bộ cả 2 bản (ffmpeg -f null) 578 file đó: lệch 0,000 s. Lệch cuối cùng mọi file
+  ≤ 0,099 s → ĐẠT.
+  Zip: D:\jlas-audio-nen.zip – 1612,0 MB (1.690.342.330 byte) < 2 GB nên 1 file, kiểu STORED (không nén lại), 8087 mục
+  ở gốc zip (giải nén thẳng vào D:\jlas-audio), testzip không lỗi.
+  Hướng dẫn team: D:\HUONG_DAN_AUDIO.txt.
+10.2 Kiểm tra SEP490 đủ seed mới (chỉ đọc): có đủ sql/seeds/seed_data_jlas.sql, seed_data_vnjpclub.sql,
+  demo_content_creator.sql, sql/migrations/018, 019, 020, tools/generate_seed.py, tools/seed_vnjpclub.py, data/seed_jlas/
+  (60 file), data/vnjpclub/ (17 file).
+  - seed_data_jlas.sql: md5 2f024fbffe881256cdda9e8a32c1fda6, KHÔNG phải 3fb466a1c1b6a5b2d56cbbc8b8cdb005: bản 3fb466a1 là
+    trước khi header thêm migration 020; diff giữa hai bản chỉ 4 dòng chú thích thứ tự chạy (dòng 9–12), dữ liệu giống
+    hệt. DB jlas đã nạp đúng bản 2f024fbf.
+  - Sinh lại ra thư mục tạm: seed_data_jlas.sql 2f024fbf… = file repo; seed_data_vnjpclub.sql 901eb14095825ca96b66c055c69ab8cb
+    = file repo. Thư mục tạm đã xoá.
+10.3 Dọn file trùng ở thư mục gốc
+  ĐÃ XOÁ (md5 giống hệt bản trong data/seed_jlas/, không còn chỗ nào trỏ tới đường dẫn thư mục gốc – tools/generate_seed.py
+  đọc data/seed_jlas/, .gitignore chỉ nhắc tools/<tên>):
+    daily_data.json 48839945…, grammar_n1.json ca104430…, grammar_n2.json 5f502b46…, grammar_n3.json 79f46d4d…,
+    it_data.json 1331e37a…, travel_data.json 0f20a7ee…, kanji_data.json b4d9ede5…, tu_vung_N3_N1_duyet.xlsx c20577f6…
+  GIỮ LẠI:
+    - JLAS_tu_vung_nghia_vi_reviewed.json: không có bản sao trong data/seed_jlas/ (script hiện tại không dùng file này).
+    - db/ (giữ cả thư mục): còn db/2026-09-27-w0132-e2e-seed.sql – không phải seed cũ, không có bản trong sql/seeds/_cu/;
+      ngoài ra tools/gen_openjlpt_seed.py và tools/gen_smart_test_supplement_retag.py ghi file đầu ra vào db/.
+    - sql/seeds/_cu/: giữ theo chốt. Lưu ý: 2 script cũ ở đó (_cu/goc/generate_seed.py, _cu/tools/generate_seed.py) đọc các
+      file đầu vào theo đường dẫn tương đối thư mục hiện tại – sau khi xoá ở thư mục gốc, muốn chạy lại phải trỏ tham số
+      sang data/seed_jlas/ (bản lưu trữ, không dùng nữa).
+  Sau khi dọn: sinh lại tools/generate_seed.py ra thư mục tạm → md5 2f024fbf… trùng file repo; ./mvnw -q test XANH
+  (630 test, 0 thất bại, 0 lỗi, 41 bỏ qua).
+
+======================================================================================================
+11. TRANG HỌC: KHUNG "BÀI ĐỌC" CO HẸP + MỤC ĐỌC/NGHE KHÔNG HIỂN THỊ (05/10/2026)
+======================================================================================================
+11.1 Nguyên nhân gốc (không phải flex/max-width)
+  - static/js/pages/textbook-lesson.js (kanaItems/renderKana, cũ dòng 332-369): bài skill = READING vẽ MỌI readingItems
+    thành ô bảng chữ cái .kana-tile trong lưới .kana-grid (textbooks.css: repeat(auto-fill, minmax(112px, 1fr))) →
+    đoạn văn 1.000+ ký tự bị dồn vào ô rộng ~120px, mỗi dòng 1–3 chữ. Code viết cho giáo trình Bảng chữ cái (mỗi mục
+    một chữ kana, tối đa 2 ký tự); bài đọc vnjpclub cũng mang skill READING nên bị vẽ nhầm (tab tên "Bảng chữ").
+  - Cùng chỗ: mục READING của bài GRAMMAR/VOCABULARY/LISTENING bị bỏ qua hoàn toàn (chỉ vẽ khi skill = READING).
+  - Backend: GET /api/dictionary/lessons/{id}/content chỉ trả LISTENING có dialogue_line_detail (lời hội thoại) →
+    2.560 mục LISTENING vnjpclub (transcript + file audio bài nghe, 474 bài) không bao giờ tới trình duyệt.
+  - Bài 1000120 ("Nghe chọn tranh 'Cách làm đúng'") trống do lỗi render, KHÔNG thiếu dữ liệu: DB có 1 transcript,
+    8 file audio (CD1_03…CD1_10.mp3, đều có trong D:\jlas-audio), 1 mục "Luyện tập", 1 quiz. Không có bài nào thiếu dữ liệu
+    con trong số bài được kiểm (mục 11.4: không bài nào "có mục mà trang không hiện gì").
+  - Lỗi dữ liệu (chỉ vnjpclub): 609 content_item mở đầu bằng dòng "【】" rỗng (514 READING, 95 LISTENING; 1 mục có thêm
+    một dòng rỗng như vậy ở giữa) — tools/seed_vnjpclub.py chép nguyên noi_dung của bản xuất. 1.348/2.055 mục đọc không có
+    translated_text: bản dịch nằm XEN trong content (không tách được theo cột). 2 mục có "<…>" là địa chỉ email trong đề
+    (nội dung đúng, giao diện đã escape).
+  - Navbar che tiêu đề (bài 1000110): KHÔNG tái hiện được khi tải trang ở 1280px/375px (#jlabBasePage padding-top 84px /
+    mobile 122px ≥ header cố định 74px). Nghi do trình duyệt khôi phục vị trí cuộn trên trang dài hàng nghìn px vì khung
+    hẹp; trang đã ngắn lại sau khi sửa. Chưa sửa gì riêng cho lỗi này (xem 11.6).
+
+11.2 File đã sửa
+  - src/main/resources/static/js/pages/textbook-lesson.js: quyết định dạng theo CẢ BÀI — ô kana chỉ khi skill READING +
+    tag KANA-* (chỉ giáo trình Bảng chữ cái dùng) + mọi mục 1 dòng ≤ 4 ký tự; còn lại vẽ khung bài đọc renderReading()
+    cho mọi loại bài (readingItems + listeningItems, xếp theo thứ tự phần, gom theo phần). Mỗi dòng giữ nguyên xuống dòng
+    gốc và chỉ được xếp loại để đặt kiểu/lang (không sửa dữ liệu): có kana/Kanji → ja (kể cả lẫn Latin); chữ Latin có dấu
+    tiếng Việt → vi; còn lại (số, "1.", romaji, email) → trung tính, không gắn lang. translated_text (nếu có) hiện khối
+    "Bản dịch" riêng. Mục có audio → <audio controls preload="none"> (mp3 và wav). Tab tự đặt tên Bài đọc / Bài nghe /
+    Bài đọc & nghe; đổi tab thì dừng audio.
+  - src/main/resources/static/css/pages/textbooks.css: .reading-section/.reading-block/.reading-line (width 100%,
+    white-space: pre-wrap, word-break: normal, overflow-wrap: break-word, tiếng Nhật line-break: strict; KHÔNG break-all).
+    Khối .kana-grid/.kana-tile giữ nguyên.
+  - src/main/resources/templates/textbooks/lesson.html: thêm tab + panel "reading" (đặt cuối để bài có từ vựng/ngữ pháp
+    vẫn mở tab đó trước).
+  - src/main/java/com/jlas/dictionary/dto/LessonContentResponse.java: thêm listeningItems.
+  - src/main/java/com/jlas/dictionary/dto/ExampleSentenceResponse.java + mapper/DictionaryMapper.java: thêm sectionOrderIndex.
+  - src/main/java/com/jlas/dictionary/service/impl/DictionaryServiceImpl.java: getLessonContent trả listeningItems
+    (LISTENING không có dialogue_line_detail) kèm audio. Không đổi schema, không đổi URL API.
+  - tools/seed_vnjpclub.py: hàm bo_ngoac_rong() bỏ dòng chỉ gồm "【】" rỗng (có khoảng trắng cũng tính rỗng); ngoặc có chữ
+    ("【練習】", "【全体 例14】") và "【】" nằm giữa dòng chữ giữ nguyên.
+  - sql/seeds/seed_data_vnjpclub.sql sinh lại: md5 cũ 901eb14095825ca96b66c055c69ab8cb → mới
+    96f08b3a45f2c147ce32e0c5191cc918. Trước khi sửa, sinh lại bằng script cũ ra thư mục tạm = 901eb140… (script tất định).
+    Khác biệt: đúng 609 dòng INSERT content_item (diff 1.218 dòng), số dòng file giữ nguyên 224.593; "【】" còn 0 (trước 610);
+    "【練習】" 73 = 73. CHƯA nạp lên DB jlas — DB vẫn còn dòng "【】" cho tới khi seed lại.
+
+11.3 Số bài lỗi trước / sau (đo tự động, toàn bộ 2.754 bài có mục READING hoặc LISTENING ngoài lời hội thoại)
+  Cách đo: Chrome headless có sẵn (không cài thêm thư viện, không dùng selenium vì cần tải chromedriver) + trang khung
+  trong scratchpad nạp đúng CSS/JS thật từ app, dữ liệu SELECT từ DB jlas mô phỏng đúng API (bản trước dùng JS/CSS của
+  HEAD qua git show — chỉ đọc). Mỗi bài mở trong iframe đúng 1280px và 375px. Đạt khi: khung bài đọc rộng > 80% thanh tab,
+  số khung = số mục, tab không bị ẩn, không tràn ngang; bài bảng chữ cái: đủ ô kana, không lẫn khung bài đọc.
+    Trước sửa: 2.744/2.754 bài KHÔNG ĐẠT ở cả 1280px và 375px (core 179, vnjpclub 2.565): 1.612 bài không hiện mục nào,
+               1.622 bài hiện thiếu mục, 1.132 bài khung hẹp. 10 bài đạt = 10 bài bảng chữ cái.
+    Sau sửa:   0/2.754 bài lỗi ở 1280px và 375px; khung hẹp nhất = 100% vùng nội dung; 1.918 trình phát audio
+               (khớp thống kê "audio": 1918 của generator vnjpclub).
+  Audio: 5.216/5.216 file content_item có trong D:\jlas-audio (CONTENT_AUDIO_PATH), gồm 44 file .wav; app phục vụ
+  mp3 = audio/mpeg, wav = audio/x-wav, HTTP 200.
+
+11.4 Bảng chữ cái core (10 bài, id 51–60): ĐẠT — DOM panel bảng chữ trước/sau giống hệt 10/10, số ô và độ rộng ô
+  giống hệt (1280px: 123px; 375px: 159px), tab "Bài đọc" ẩn. So ảnh theo byte không dùng được (2 lần chụp CÙNG một bản
+  đã khác byte do nền sakura động), nên so bằng DOM + số đo; ảnh trước/sau lưu để xem bằng mắt.
+
+11.5 Bài kiểm tra mẫu (ảnh 1280px + 375px trong scratchpad harness/shots/, không đưa vào repo) — tất cả ĐẠT:
+  51 (core, bảng chữ cái Hiragana) · 1 (core Sekai N5, GRAMMAR, mục đọc "Danh sách từ vựng") · 61 (core, VOCABULARY) ·
+  1000110, 1000113 (vnjpclub Gokaku N5, READING — 2 bài báo lỗi) · 1000116 (READING có translated_text → khối Bản dịch) ·
+  1000120 (LISTENING, 8 audio, thứ tự Bài nghe → Luyện tập) · 1000754 (VOCABULARY, "Danh sách kanji") ·
+  1001295 (GRAMMAR, bài đọc 5.460 ký tự) · 1002149 (LISTENING, audio .wav) · 1002436 (Luyện đọc hiểu N1) ·
+  1002686 (READING có địa chỉ email, URL dài).
+
+11.6 Kiểm tra khác và việc còn tồn
+  - ./mvnw -q test: XANH — 82 lớp, 630 test, 0 thất bại, 0 lỗi, 41 bỏ qua.
+  - Test frontend bằng node --test: KHÔNG chạy được (máy chưa có Node.js); chưa viết test node cho renderReading.
+  - App đang chạy cần KHỞI ĐỘNG LẠI để có listeningItems/sectionOrderIndex (đổi Java); CSS/JS đã chép sang target/classes.
+  - DB jlas: còn 609 dòng "【】" cho tới khi seed lại bằng seed_data_vnjpclub.sql mới (chưa nạp theo yêu cầu).
+  - Navbar che tiêu đề: chưa tái hiện được, chưa sửa — cần ảnh chụp + độ rộng cửa sổ nếu còn gặp sau khi khung hết hẹp.
+  - Nhiều mục đọc là chỗ chứa từ vựng ("Bài có 10 từ vựng.", "Danh sách từ vựng bài 2") nay hiện trong tab Bài đọc của
+    bài từ vựng/ngữ pháp (đúng yêu cầu hiện mọi mục); tab đặt cuối nên không đổi tab mở mặc định của các bài đó.
+
+======================================================================================================
+12. TRANG HỌC: CÂU HỎI LUYỆN TẬP TƯƠNG TÁC, BÀI NGHE, ONYOMI, DỌN MỤC CHỖ CHỨA (07/10/2026)
+======================================================================================================
+12.1 Vấn đề báo + nguyên nhân (DB jlas, chỉ SELECT)
+  - "Task từ vựng mất" (vd 1000001): tab Bài đọc chỉ hiện mục chỗ chứa "Danh sách từ vựng — Bài có 45 từ vựng." (mục
+    READING làm chỗ chứa content_vocabulary); danh sách thật vẫn ở tab Từ vựng (45 từ) → ẩn mục chỗ chứa.
+  - Bài Onyomi (giáo trình 14, 19 bài, vd 470) "không có kanji": KHÔNG mất dữ liệu — bài Onyomi không có content_item,
+    nội dung là conversion_rule (41 quy tắc) + rule_example (bài 470: 24 ví dụ) do trang /learning/onyomi/lessons/{id}
+    hiển thị; trang giáo trình không chuyển hướng như /learning/lesson/{id}. Thêm: câu "Bài này chưa có Kanji" ở bài
+    trống là do renderPanels() chạy SAU applyTabVisibility() và ghi đè "Bài này chưa có nội dung."
+  - "Cách đọc hán tự" (1000110) giống đề trắc nghiệm: "Bài đọc" là các câu hỏi bị nối thành chữ thô; DB có sẵn câu hỏi
+    có cấu trúc trong quiz của bài (đề, bản dịch, phương án, đáp án). Nguồn KHÔNG đánh dấu chữ cần gạch chân.
+  - Bài nghe (1000120): audio "Audio 1..8" dồn cuối bài, transcript là "問01: 1 2 3 4…" + "POPUP SCRIPT"; mỗi câu hỏi
+    đã có liên kết 1:1 tới file audio (context_json.audio_hint[].url = content_source.source_url của mục "Audio N").
+  - Dữ liệu câu hỏi vnjpclub theo loai_cau: mot_dap_an 9.104 (480 thiếu correct_option), chon_hinh 197 (phương án là
+    hình, nguồn không có ảnh, đáp án ở context_json.answer), nhieu_dap_an 79 (cờ is_correct), phuong_an_loi 11 (nguồn
+    còn 1–2 phương án, đáp án trỏ ra ngoài), dien 74 (điền, đáp án answer_text). Toàn bộ quiz/câu vnjpclub đang
+    DRAFT / is_active = 0 (chưa duyệt).
+
+12.2 Sửa
+  - DictionaryPageController: /textbooks/{tb}/lessons/{id} chuyển hướng bài skill ONYOMI sang
+    /learning/onyomi/lessons/{id} (giống LearningLessonPageController).
+  - API GET /api/dictionary/lessons/{id}/content (DictionaryServiceImpl.getLessonContent), không đổi schema/URL:
+      + practiceQuestions (DTO lồng LessonContentResponse.PracticeQuestion): câu của quiz gắn với bài (native query chỉ
+        đọc assessment_*). Người học: quiz PUBLISHED + câu is_active; CONTENT_CREATOR: cả nháp (giống quy tắc bài nháp).
+        Phương án từ context_json.options (đủ 5–9 phương án), đáp án từ cờ is_correct (nhiều đáp án) → correct_option →
+        context_json.answer; đáp án ngoài danh sách phương án → coi như chưa chắc. Câu không có phương án: answerText
+        (câu điền) hoặc "Hình số N" (chọn hình, nguồn không có ảnh). Audio của câu ghép theo URL nguồn.
+        targetText: cụm chữ Hán + okurigana trong đề mà từ điển (vocabulary_entry) có cách đọc = đáp án — một query/bài.
+      + quizAvailable (quiz LESSON PUBLISHED, cùng điều kiện LessonQuizRepository.findPublishedLessonQuiz).
+      + ExampleSentenceResponse.stableCode (content_source.stable_code) để gắn câu hỏi vào đúng bài đọc/bài nghe.
+    File: LessonContentResponse, ExampleSentenceResponse, LessonRepository (findPracticeQuestionRows,
+    countPublishedLessonQuizzes), ContentItemRepository (findSourcesByContentItemIds), VocabularyEntryRepository
+    (findReadingsByNormalizedExpressions), DictionaryServiceImpl, DictionaryPageController.
+  - textbook-lesson.js + textbooks.css (tab Bài đọc):
+      + Mỗi câu một thẻ: "Câu N", audio riêng của câu NGAY trong thẻ (bài nghe), đề (gạch chân chữ cần đọc: targetText
+        của backend; dự phòng khi đề chỉ có MỘT cụm chữ Hán và không có chỗ trống （）/＿/★), "Xem nghĩa" ẩn/hiện,
+        phương án dạng nút (2 cột trên mobile), chọn là báo đúng/sai ngay + tô đáp án đúng + "Làm lại"; không lưu điểm.
+        Câu điền / chọn hình: nút "Xem đáp án". Nút "Làm bài kiểm tra" (/learning/lesson/{id}/quiz) chỉ khi quizAvailable.
+      + Bài đọc có đoạn văn (đọc hiểu, email…): hiện đoạn văn rồi câu hỏi ngay bên dưới; các dòng của đoạn văn trùng đề /
+        nghĩa / phương án / "問01:" và dòng rác "【】", "POPUP SCRIPT" không hiện lại (chỉ lọc hiển thị).
+      + Ẩn mục chỗ chứa: "Danh sách từ vựng…", "Danh sách kanji" (khi tab Kanji có chữ), "Luyện tập — Bài có N câu hỏi…",
+        và các mục "Audio N" đã nằm trong thẻ câu hỏi. Bộ đếm tab tính theo đúng những gì hiện.
+      + Bài trống: vẽ panel trước rồi mới ẩn/hiện tab → "Bài này chưa có nội dung." thay vì "chưa có Kanji".
+  - tools/seed_vnjpclub.py: bo_ngoac_rong() bỏ thêm dòng "POPUP SCRIPT" (181 mục: 112 READING, 69 LISTENING; luôn đứng
+    riêng một dòng). seed_data_vnjpclub.sql sinh lại: md5 96f08b3a45f2c147ce32e0c5191cc918 → 04bb847e39f8f8323ef57b9bc88302bd
+    (đúng 181 dòng INSERT khác, số dòng giữ 224.593; "POPUP SCRIPT" còn 0, "【】" còn 0). CHƯA nạp DB jlas (người dùng
+    tự nạp).
+
+12.3 Kiểm tra (Chrome headless + trang khung trong scratchpad, dữ liệu SELECT từ DB mô phỏng đúng API mới theo góc nhìn
+  CONTENT_CREATOR; toàn bộ 2.754 bài có mục đọc/nghe; 1280px và 375px)
+  - 0/2.754 bài lỗi ở cả hai độ rộng. Tiêu chí: khung bài đọc + thẻ câu hỏi rộng > 80% vùng nội dung (hẹp nhất 0,973 ở
+    1280px, 0,898 ở 375px); số thẻ = số câu; bài có mục mà trang trống chỉ khi mọi mục là chỗ chứa có chủ đích; không còn
+    dòng "【】" / "POPUP SCRIPT" / "問NN:"; bấm đáp án đúng câu đầu → báo đúng.
+  - 9.465 câu hỏi / 1.399 bài hiện thành thẻ; 1.465 câu có audio riêng trong thẻ; 584 câu gạch chân (2 bài "Cách đọc
+    hán tự": 79/106 câu xác định bằng từ điển, phần còn lại câu một cụm chữ Hán; còn lại ở các đề ôn tập/tổng hợp dạng
+    đọc chữ Hán); 271 thẻ không có phương án đều có "Xem đáp án" (74 điền + 197 chọn hình).
+  - 10 bài bảng chữ cái (51–60): DOM panel giống hệt bản gốc 10/10.
+  - ./mvnw -q test: XANH — 82 lớp, 630 test, 0 thất bại, 0 lỗi, 41 bỏ qua. (Lần chạy đầu có 1 lỗi giả ở
+    InteractiveComprehensionConcurrencyTest: file .class do trình biên dịch Eclipse của VS Code sinh lúc nguồn đang lỗi
+    tạm — "Unresolved compilation problem"; xoá .class đó để Maven biên dịch lại bằng javac → xanh. Không liên quan code.)
+  - Ảnh đại diện (1280 + 375): 51, 1, 61, 1000110, 1000116, 1000120, 1002686, 1000754, 1002494 (điền), 1000102 (chọn
+    hình) — trong scratchpad harness/shots/v2/, không đưa vào repo.
+
+12.4 Còn tồn
+  - App đang chạy cần KHỞI ĐỘNG LẠI (đổi Java: DTO, repository, service, page controller).
+  - Quiz/câu vnjpclub đang DRAFT + is_active = 0: người học (không phải CONTENT_CREATOR) chưa thấy thẻ câu hỏi và chưa có
+    nút "Làm bài kiểm tra" cho tới khi duyệt/xuất bản quiz. Nút dẫn tới luồng quiz hiện có (findPublishedLessonQuiz).
+  - 197 câu "chọn hình" không có ảnh ở nguồn → chỉ xem được "Hình số N". 11 câu phuong_an_loi hiện phương án còn lại,
+    báo "chưa có đáp án chắc chắn".
+  - Chuyển hướng Onyomi chưa kiểm bằng trình duyệt có đăng nhập (trang /textbooks/** cần đăng nhập); logic giống hệt
+    LearningLessonPageController.
+  - Test frontend bằng node --test vẫn chưa chạy được (máy chưa có Node.js).
+
+12.5 Bổ sung (07/10/2026): kiểm câu hỏi ↔ phần nghe (bài 1000109 "Trả lời nhanh" 即時応答)
+  - Đối chiếu: câu N ↔ audio N KHỚP (context_json.audio_hint[].url = content_source.source_url của "Audio N":
+    CD1/49.mp3 … CD1/64.mp3 cho câu 1…16) và khớp thứ tự lời thoại trong transcript. Không có lệch câu–audio.
+  - Lỗi hiển thị tìm thấy: (a) 4 dòng "Ⓜ：…" sót đầu bài do khác dấu cách (đề lưu "Ⓜ： ここから…", transcript
+    "Ⓜ：ここから…"); (b) câu 2 và 9 mất đề trong dữ liệu (chỉ còn "(Nghe và chọn đáp án đúng)") nên lời thoại thật bị
+    đẩy lên đầu bài. Toàn bộ dữ liệu: 1.097 câu mất đề (= thống kê generator cau_hoi_rong_thay_chuoi).
+  - Sửa (textbook-lesson.js + textbooks.css, chỉ hiển thị, không sửa dữ liệu):
+      + So khớp dòng theo matchKey = NFKC + bỏ khoảng trắng.
+      + Lấy lại đề bị mất từ transcript: dòng chứa phương án 1 mà dòng kế tiếp chứa phương án 2 → dòng lời thoại gần nhất
+        phía trên là đề; phải có ≥ 2 chữ tiếng Nhật (loại nhãn "(3)", "①", "例:" — lần thử đầu lấy nhầm 338 nhãn kiểu
+        này nên đã chặn). Kết quả: 148 câu lấy lại được đề; 949 câu giữ "(… và chọn đáp án đúng)" (chủ yếu chọn tranh /
+        không có phương án chữ để đối chiếu).
+      + Câu nghe có audio: lời thoại (đề + nghĩa) ẩn trong "Xem lời thoại", hiện "Nghe rồi chọn đáp án."; chọn đáp án
+        xong tự mở. Transcript dài của bài nghe thu gọn trong "Xem lời thoại (transcript)".
+  - Kiểm tra: 0/2.754 bài lỗi ở 1280px và 375px với tiêu chí thêm "không câu nghe nào để lộ lời thoại/transcript ngoài
+    khối thu gọn"; 1000109: 2 câu lấy lại đề (câu 2 たんじょう日…, câu 9 初めまして… — khớp đúng 3 phương án trong
+    transcript), 0 dòng sót, 16/16 câu có "Xem lời thoại". Bảng chữ cái 51–60: DOM giống hệt bản gốc 10/10.
+
+12.6 Bổ sung (07/10/2026): câu nghe dạng có tranh — nguồn vnjpclub KHÔNG có ảnh (0/9.465 câu có image_url; bản
+  export cau_hoi/bai_nghe/phuong_an/audio_lien_ket không có trường/đường dẫn ảnh nào).
+  - 発話表現 (問題3): audio đọc câu tình huống, tranh chỉ minh hoạ → giữ: hiện sẵn câu tình huống + nghĩa (thay tranh),
+    chữ 3 câu đáp ẩn (chỉ nút số) để phải nghe, chọn xong mới hiện. 21 thẻ.
+  - Chọn tranh (phương án chính là tranh; nhận diện: đáp án "Hình số N", tiêu đề mục có 絵, tiêu đề bài có "chọn tranh"):
+    ẩn thẻ câu hỏi, audio giữ làm bài nghe + dòng giải thích đầu tab. 251 câu / 58 bài.
+  - Chưa làm chức năng gắn tranh: không có nguồn ảnh hợp lệ (không tự tải từ vnjpclub) và cần ghi assessment_question
+    (quy tắc không đụng assessment_*). Khi có tranh + được phép: thêm upload/gắn tranh ở trình biên soạn, bật lại thẻ.
+  - Kiểm tra: 0/2.754 bài lỗi (1280px, 375px) — thêm tiêu chí "audio của câu chọn tranh đã ẩn vẫn hiện" và "có dòng giải
+    thích"; bảng chữ cái 51–60 DOM giống hệt bản gốc 10/10. Chỉ đổi JS/CSS (textbook-lesson.js, textbooks.css).
+  - Khi duyệt/xuất bản quiz vnjpclub: nên giữ tắt (is_active = 0) các câu chọn tranh để không chấm câu không làm được.
+
+12.7 Bổ sung (07/10/2026): đoạn văn xen kẽ Nhật–Việt (vd 1000075 "Đoạn văn ngắn (14)") — chỉ đổi JS/CSS
+  - Nguồn để lời giải ngay trong content sau một dòng mốc: "<<< Đáp án & Dịch >>>" (354), "Dịch & Giải thích" (318),
+    "☞ Dịch" (215), "Script & Dịch" (213), "Sript & Dịch" (101), "☞ Dịch & Đáp Án" (92), "【Dịch】" (80), "Đáp án:"…
+    Nhận diện chung: dòng ≤ 40 ký tự, không có chữ Nhật, chứa dịch / đáp án / script / giải thích.
+  - Hiển thị: đoạn chính chỉ tiếng Nhật; dòng Việt xen kẽ ẩn sau nút "Hiện bản dịch" (bấm thì mỗi câu dịch nằm ngay
+    dưới câu Nhật của nó); phần sau dòng mốc (dịch + đáp án) gom vào "Xem …" thu gọn, đặt SAU câu hỏi, hiện thành cặp
+    Nhật–Việt (trong phần này dòng Latin không dấu ngay sau câu Nhật được coi là bản dịch tên riêng: 山川 → Yamakawa);
+    translated_text thành "Xem bản dịch" thu gọn; transcript bài nghe vẫn trong "Xem lời thoại". Dòng phương án dạng
+    "１ aとb" nhận ra bằng cách bỏ số đầu dòng.
+  - Kiểm tra: 0/2.754 bài lỗi (1280px, 375px) với tiêu chí thêm: phần đọc chính không lộ dòng tiếng Việt; bấm "Hiện
+    bản dịch" hiện được bản dịch. 1.166 khối lời giải thu gọn / 932 bài; 567 nút "Hiện bản dịch". Bảng chữ cái 10/10.
+  - Không ghép cặp khi bản dịch nằm ở cột riêng (translated_text) vì số dòng thường lệch transcript (vd 1000102: 7 ↔ 8).

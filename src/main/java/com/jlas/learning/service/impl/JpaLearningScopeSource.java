@@ -2,6 +2,7 @@ package com.jlas.learning.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.learning.JlptPathPolicy;
 import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.repository.TextbookRepository;
 import com.jlas.learning.dto.LearningCatalogScope;
@@ -19,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * [JLAS-W0108] P6 — resolve phạm vi giáo trình nhiều chặng từ sách JLPT đã xuất bản.
  *
  * <p>Lộ trình JLPT chia thành các chặng liên tiếp (D5): mỗi chặng nhắm đúng một cấp mục tiêu.
- * N5→N4 là một chặng N4; N5→N3 là hai chặng N4 rồi N3; N2→N1 là một chặng N1; N1→N1 (củng cố
- * chính cấp) là một chặng N1. Warm-up chỉ thuộc chặng đầu tiên, từ điểm yếu ở cấp đã kết luận
- * (hoặc bảng chữ cái nền tảng cho người from-zero).
+ * Với nhãn Căn bản, N5→N4 là một chặng N4; Nhập môn bắt đầu lại từ cấp survey, và Thành thạo
+ * chỉ có chặng target. Warm-up lỗi sai thuộc nhánh Căn bản cần chuyển cấp;
+ * Căn bản cùng cấp học full cấp đó, from-zero giữ bảng chữ cái nền tảng.
  *
  * <p>Khác bản cũ: <b>không còn fallback demo seed</b> (id &gt;= 9000). Cấp trong lộ trình thiếu
  * học liệu đã duyệt trả {@link ErrorCode#BLOCKED_CONTENT} minh bạch thay vì âm thầm nhét sách demo
@@ -31,12 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Primary
 @RequiredArgsConstructor
 public class JpaLearningScopeSource implements LearningScopeSource {
-    private static final List<String> LEVELS = List.of("BELOW_N5", "N5", "N4", "N3", "N2", "N1");
-
-    /** Local demo seed (`db/jlas-learning-demo-seed.sql`) creates textbooks with ids >= 9000; P6 loại bỏ. */
-    private static final long DEMO_TEXTBOOK_ID_FLOOR = 9000L;
-
     private final TextbookRepository textbooks;
+    private final JlptPathPolicy pathPolicy = new JlptPathPolicy();
 
     @Override
     @Transactional(readOnly = true)
@@ -46,30 +43,39 @@ public class JpaLearningScopeSource implements LearningScopeSource {
                     "Curriculum scope is only available for the JLPT goal.");
         }
         boolean fromZero = "BELOW_N5".equals(profile.assessedLevel());
-        int assessedIdx = LEVELS.indexOf(profile.assessedLevel());
-        int targetIdx = LEVELS.indexOf(profile.targetLevel());
-        if (assessedIdx < 0 || targetIdx < 1) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Valid assessed/target levels are required.");
+        var eligibility = pathPolicy.evaluate(profile.assessedLevel(), profile.targetLevel());
+        if (!eligibility.allowed()) {
+            throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
+                    "Mục tiêu " + profile.targetLevel() + " chưa phù hợp; hệ thống khuyến nghị "
+                            + eligibility.recommendedTarget() + ".");
         }
 
-        // Warm-up: from-zero = sách nền tảng bảng chữ cái; còn lại = sách ở cấp đã kết luận (điểm yếu).
+        // Warm-up: from-zero = sách nền tảng bảng chữ cái; nhánh chuyển cấp Căn bản = sách ở cấp đã kết luận.
         List<Long> warmUpIds = fromZero
                 ? textbooks.findKanaFoundationByStatus("PUBLISHED").stream().map(Textbook::getId).toList()
-                : realBookIds(List.of(profile.assessedLevel()));
-
-        // Chặng mục tiêu: củng cố khi target == assessed, ngược lại là các cấp ngay trên assessed tới target.
-        List<String> stageLevels = targetIdx == assessedIdx
-                ? List.of(profile.assessedLevel())
-                : LEVELS.subList(assessedIdx + 1, targetIdx + 1);
+                : LearningStartPolicy.needsMistakeWarmUp(profile)
+                        ? realBookIds(List.of(profile.assessedLevel())) : List.of();
+        if (fromZero && warmUpIds.isEmpty()) {
+            throw new ApiException(ErrorCode.BLOCKED_CONTENT,
+                    "MISSING_FOUNDATION: Chưa có học liệu bảng chữ cái đã duyệt.");
+        }
 
         List<LearningStageScope> stages = new ArrayList<>();
         List<Long> goalIds = new ArrayList<>();
-        for (String level : stageLevels) {
+        if (fromZero) {
+            List<Textbook> foundationBooks = textbooks.findKanaFoundationByStatus("PUBLISHED");
+            stages.add(new LearningStageScope("FOUNDATION",
+                    curriculumVersion("FOUNDATION", foundationBooks), warmUpIds));
+        }
+        List<String> goalLevels = fromZero
+                ? eligibility.stageLevels().stream().filter(level -> !"FOUNDATION".equals(level)).toList()
+                : LearningStartPolicy.goalLevels(profile);
+        for (String level : goalLevels) {
             List<Textbook> books = realBooks(List.of(level));
             if (books.isEmpty()) {
                 // [JLAS-W0108] P6/R6 — thiếu cấp (giữa hoặc đích) trả BLOCKED_CONTENT, không fallback demo.
                 throw new ApiException(ErrorCode.BLOCKED_CONTENT,
-                        "Chưa có đủ học liệu đã duyệt cho cấp độ " + level + ".");
+                        "MISSING_LEVEL_BOOK: Chưa có học liệu đã duyệt cho cấp độ " + level + ".");
             }
             List<Long> ids = books.stream().map(Textbook::getId).toList();
             stages.add(new LearningStageScope(level, curriculumVersion(level, books), ids));
@@ -78,9 +84,10 @@ public class JpaLearningScopeSource implements LearningScopeSource {
         return new LearningCatalogScope(warmUpIds, goalIds, stages);
     }
 
+    /** [JLAS-W0108] Hướng B — chỉ textbook đã đánh cờ {@code is_learning_path_source} mới được
+     * dùng, không còn loại demo seed bằng khoảng id (cờ này đã thay hẳn vai trò đó). */
     private List<Textbook> realBooks(List<String> levels) {
-        return textbooks.findByJlptLevelInAndStatusAndIdLessThanOrderByIdAsc(levels, "PUBLISHED",
-                DEMO_TEXTBOOK_ID_FLOOR);
+        return textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(levels, "PUBLISHED");
     }
 
     private List<Long> realBookIds(List<String> levels) {

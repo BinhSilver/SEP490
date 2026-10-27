@@ -45,7 +45,7 @@ public class DecisionRevisionService {
     public Revision revise(Long auditId, Long actorId, boolean actorIsAdmin, String reason) {
         String why = ModerationAuditService.requireReason(reason);
         ModerationAuditLog decision = audit.requireRevisable(auditId, actorId, actorIsAdmin);
-        ReviewCase item = reviewCases.findById(decision.getCaseId())
+        ReviewCase item = reviewCases.findForDecisionUpdate(decision.getCaseId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy mục đã xử lý"));
         String from = item.getStatus();
         if (!"APPROVED".equals(from) && !"REJECTED".equals(from)) {
@@ -96,7 +96,7 @@ public class DecisionRevisionService {
             notifier.contributionRevised(ownerId, ModerationAdminService.word(snapshot.contentPreview()), approve,
                     creditChange, why, revisionId);
         } else {
-            notifier.queueRevised(ownerId, item.getTargetType(), approve, why, snapshot.targetUrl(), revisionId);
+            notifier.queueRevised(ownerId, item.getTargetType(), approve, why, "USER_AVATAR".equals(item.getTargetType()) ? "/profile" : snapshot.targetUrl(), revisionId);
         }
         return revisionId;
     }

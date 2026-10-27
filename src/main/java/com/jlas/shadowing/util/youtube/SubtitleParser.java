@@ -2,6 +2,7 @@ package com.jlas.shadowing.util.youtube;
 
 import com.jlas.shadowing.dto.SubtitleDto;
 import com.jlas.shadowing.util.SubtitleSegmenter;
+import com.jlas.shadowing.util.SubtitleText;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -81,7 +82,13 @@ public final class SubtitleParser {
             i++;
         }
         // 1) short adjacent merges  2) collapse YouTube rolling auto-captions
-        return SubtitleSegmenter.splitLongCues(collapseRollingCaptions(mergeAdjacent(result)));
+        // 3) runs and screams only show once the fragments are joined
+        List<SubtitleDto> joined = new ArrayList<>();
+        for (SubtitleDto cue : collapseRollingCaptions(mergeAdjacent(result))) {
+            cue.setText(SubtitleText.tidyAssembledCue(cue.getText()));
+            if (!cue.getText().isEmpty()) joined.add(cue);
+        }
+        return SubtitleSegmenter.splitLongCues(joined);
     }
 
     private static CueTiming parseTiming(String line) {
@@ -277,7 +284,7 @@ public final class SubtitleParser {
     }
 
     private static String cleanCueText(String raw) {
-        return raw
+        return SubtitleText.cleanImportedCue(raw
                 .replaceAll("<[^>]+>", "")
                 .replaceAll("\\{[^}]+\\}", "")
                 .replace("&nbsp;", " ")
@@ -285,7 +292,7 @@ public final class SubtitleParser {
                 .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace('\u200B', ' ')
-                .trim();
+                .trim());
     }
 
     private static double toSeconds(String h, String m, String s, String frac) {

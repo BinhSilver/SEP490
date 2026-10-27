@@ -1,6 +1,14 @@
 (function () {
   'use strict';
 
+  /** Media câu hỏi: URL tuyệt đối hoặc '/...' (vd. /audio/smart-test/...) giữ nguyên; tương đối → kho audio giáo trình. */
+  function mediaUrl(path) {
+    var p = String(path == null ? '' : path).trim();
+    if (!p) return '';
+    if (/^(https?:|data:|blob:|\/)/i.test(p)) return p;
+    return '/uploads/content-audio/' + p.replace(/^\.\//, '');
+  }
+
   var ACTIVE_ATTEMPT_KEY = 'jlasSmartTestAttemptId';
   var SELECTED_SKILLS_KEY = 'jlasSmartTestSelectedSkills';
   var labels = {
@@ -24,7 +32,7 @@
     STABLE: function () { return 'Trình độ hiện tại của bạn đã ổn định — tiếp tục duy trì và mở rộng vùng kiến thức.'; },
     PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
   };
-  var state = { attemptId: null, currentQuestion: null };
+  var state = { attemptId: null, currentQuestion: null, goal: null };
   var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
@@ -148,6 +156,7 @@
 
   function render(data) {
     state.attemptId = data.attemptId;
+    state.goal = data.goal || state.goal;
     if (data.status === 'SUBMITTED' && data.result) {
       localStorage.removeItem(ACTIVE_ATTEMPT_KEY);
       renderResult(data.result);
@@ -230,10 +239,10 @@
       var audio = document.createElement('audio');
       audio.controls = true;
       audio.preload = 'metadata';
-      audio.src = q.audioUrl;
+      audio.src = mediaUrl(q.audioUrl);
       media.appendChild(audio);
     } else if (q.imageUrl) {
-      var image = document.createElement('img'); image.src = q.imageUrl; image.alt = 'Hình minh họa câu hỏi'; media.appendChild(image);
+      var image = document.createElement('img'); image.src = mediaUrl(q.imageUrl); image.alt = 'Hình minh họa câu hỏi'; media.appendChild(image);
     }
     media.hidden = !q.audioUrl && !q.imageUrl;
 
@@ -562,12 +571,15 @@
     createPathButton.addEventListener('click', function (event) {
       event.preventDefault();
       if (!state.attemptId) return;
-      window.location.assign('/learning/path?assessmentAttemptId=' + state.attemptId);
+      var destination = state.goal === 'BA'
+        ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
+        : '/learning/path?assessmentAttemptId=' + state.attemptId;
+      window.location.assign(destination);
     });
   }
 
   document.getElementById('restartButton').addEventListener('click', function () {
-    state = { attemptId: null, currentQuestion: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
+    state = { attemptId: null, currentQuestion: null, goal: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);

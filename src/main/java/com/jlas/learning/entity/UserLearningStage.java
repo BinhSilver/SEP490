@@ -30,8 +30,8 @@ public class UserLearningStage {
             foreignKey = @ForeignKey(name = "fk_learning_stage_path"))
     private UserLearningPath learningPath;
 
-    /** Cấp mục tiêu của chặng (N5/N4/N3/N2/N1). */
-    @Column(name = "level", nullable = false, length = 10)
+    /** JLPT level or goal-specific communication level. */
+    @Column(name = "level", nullable = false, length = 30)
     private String level;
 
     /** Thứ tự chặng, bắt đầu từ 0 (chặng đầu tiên). */

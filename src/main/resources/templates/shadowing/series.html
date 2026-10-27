@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách luyện nghe | JLAS</title>
+    <link rel="icon" href="/images/jlab.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/tokens.css"><link rel="stylesheet" href="/css/theme-bridge.css"><link rel="stylesheet" href="/css/base.css"><link rel="stylesheet" href="/shadowing/css/styles.css"><link rel="stylesheet" href="/css/pages/shadowing.css"><link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="stylesheet" href="/css/tokens.css"><link rel="stylesheet" href="/css/theme-bridge.css"><link rel="stylesheet" href="/css/base.css"><link rel="stylesheet" href="/shadowing/css/styles.css?v=20261014-star-gold"><link rel="stylesheet" href="/css/pages/shadowing.css"><link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-1">
+    <link rel="stylesheet" href="/shadowing/css/library-mobile.css?v=20261012-3">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-library">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-library">
 <div id="jlabBaseShellMount"></div><main id="jlabBaseContent" class="container">
-    <button class="text-link" onclick="location.href='/shadowing'">Thư viện</button>
-    <section class="series-detail" id="series-detail" data-series-id="[[${seriesId}]]"><p class="lead">Đang tải series...</p></section>
+    <section class="series-detail" id="series-detail" th:attr="data-series-id=${seriesId}"><p class="lead">Đang tải series...</p></section>
 </main>
-<script src="/js/auth-session.js"></script><script src="/js/jlab-base-shell.js"></script><script src="/shadowing/js/client.js"></script><script src="/shadowing/js/series.js?v=20260929-level-corner"></script>
+<script src="/js/auth-session.js"></script><script src="/js/jlab-base-shell.js"></script><script src="/shadowing/js/client.js"></script><script src="/shadowing/js/library-controls.js?v=20261012-3"></script><script src="/shadowing/js/series.js?v=20261012-1"></script>
 </body></html>

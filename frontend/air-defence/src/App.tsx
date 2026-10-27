@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { useAirDefenseStore, isJapaneseField, type MatchInfo } from "./game/useAirDefenseStore";
+import { useAirDefenseStore, isJapaneseField, playerSpaceshipCode, type MatchInfo } from "./game/useAirDefenseStore";
+import { BattleHud } from "./BattleHud";
+import { useVisualSettings } from "./game/visualSettings";
 import { PixiBattleCanvas } from "./game/PixiBattleCanvas";
 import { GAME_CONFIG } from "./game/gameConfig";
 import { soundManager } from "./game/soundEffects";
-import type { AugmentCard, WeakWord } from "./game/types";
+import type { AugmentCard, AugmentCategory, WeakWord } from "./game/types";
 import type { AirPlayerView, DeckField, ResultLine } from "./game/arenaTypes";
-import { errorMessage, serverNow } from "./game/arenaClient";
+import { errorMessage, getArena, serverNow } from "./game/arenaClient";
 import { backUrl, finishSoloMatch, leaveMatch, replaySolo, startMatchController, type HostConfig } from "./game/matchController";
 import { AirSetup } from "./AirSetup";
+import "./device-notice.css";
 
 // ============================================================
 // Font & nhãn trường thẻ
@@ -370,7 +373,7 @@ function AudioSettingsPanel() {
                       marginTop: 8,
                       padding: "5px 12px", borderRadius: 8,
                       border: "1px solid var(--ok-outline-variant)",
-                      background: "#fff", cursor: "pointer",
+                      background: "var(--ok-surface-container)", cursor: "pointer", minHeight: 44,
                       fontSize: 12, fontWeight: 600, color: "var(--ok-on-surface-variant)",
                     }}
                   >
@@ -420,8 +423,8 @@ function QuickGuide({ match }: { match: MatchInfo }) {
       color: "var(--ok-primary-fixed)",
     },
     { step: 2, title: "Cách gõ đáp án", desc: typingHint, color: "var(--ok-primary-fixed)" },
-    { step: 3, title: "Combo", desc: "Mỗi lần bắn trúng tăng combo và được cộng thêm điểm. Gõ sai hoặc để địch chạm vạch là mất combo.", color: "var(--ok-tertiary-fixed)" },
-    { step: 4, title: "Giữ máu cho hành tinh", desc: "Địch chạm vạch sẽ trừ máu hành tinh. Hết máu là thua.", color: "#ffdad6" },
+    { step: 3, title: "Combo", desc: "Mỗi máy bay bị hạ được 1 điểm. Bắn trúng liên tiếp tăng combo; gõ sai hoặc để địch chạm vạch là mất combo.", color: "var(--ok-tertiary-fixed)" },
+    { step: 4, title: "Giữ máu cho hành tinh", desc: "Địch chạm vạch sẽ trừ máu hành tinh. Hết máu là thua. Tốc độ tăng sau mỗi 3 thẻ đã qua, đạt tối đa 2 lần sau 10 thẻ.", color: "var(--ok-error-container)" },
   ];
 
   return (
@@ -433,7 +436,7 @@ function QuickGuide({ match }: { match: MatchInfo }) {
               <span style={{
                 width: 24, height: 24, borderRadius: 8,
                 background: s.color, display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 12, fontWeight: 700, color: "var(--ok-on-surface)", flexShrink: 0,
+                fontSize: 12, fontWeight: 700, color: s.step === 4 ? "var(--ok-on-error-container)" : s.step === 3 ? "var(--ok-on-tertiary-fixed)" : "var(--ok-on-primary-fixed)", flexShrink: 0,
               }}>{s.step}</span>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--ok-on-surface)", margin: 0 }}>{s.title}</h3>
             </div>
@@ -464,21 +467,45 @@ function QuickGuide({ match }: { match: MatchInfo }) {
 // ============================================================
 // Menu trận đấu: tạm dừng (chơi đơn), âm thanh, hướng dẫn, rời trận
 // ============================================================
+function VisualSettingsPanel() {
+  const visual = useVisualSettings();
+  return <div className="ad-visual-settings">
+    <label><span><strong>Giảm chuyển động</strong><small>Giữ hiệu ứng chính, giảm chuyển cảnh và nhấp nháy.</small></span><input type="checkbox" checked={visual.reducedMotion} onChange={(e) => visual.update({reducedMotion:e.target.checked})}/></label>
+    <label><span><strong>Rung màn hình</strong><small>Phản hồi nhẹ khi bị đánh hoặc dùng siêu pháo.</small></span><input type="checkbox" checked={visual.screenShake} disabled={visual.reducedMotion} onChange={(e) => visual.update({screenShake:e.target.checked})}/></label>
+    <label><span><strong>Hạt hiệu ứng</strong><small>Giảm số hạt trên máy có cấu hình thấp.</small></span><select value={visual.particles} onChange={(e) => visual.update({particles:e.target.value as "high" | "low" | "off"})}><option value="high">Cao</option><option value="low">Thấp</option><option value="off">Tắt</option></select></label>
+    <label><span><strong>Hiển thị FPS</strong><small>Theo dõi tốc độ khung hình thực tế.</small></span><input type="checkbox" checked={visual.showFps} onChange={(e) => visual.update({showFps:e.target.checked})}/></label>
+    <p className="ad-settings-note">Cài đặt hình ảnh được lưu trên thiết bị này.</p>
+  </div>;
+}
+
 function MatchMenu() {
+  const reducedMotion = useVisualSettings((s) => s.reducedMotion);
   const { match, outcome, closeSettings } = useAirDefenseStore(
     useShallow((s) => ({ match: s.match, outcome: s.outcome, closeSettings: s.closeSettings }))
   );
-  const [tab, setTab] = useState<"audio" | "guide">("audio");
+  const [tab, setTab] = useState<"audio" | "visual" | "guide">("audio");
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [busy, setBusy] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    panelRef.current?.focus();
+    const panel = panelRef.current;
+    panel?.focus();
+    const trapFocus = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !panel) return;
+      const buttons = [...panel.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href]')];
+      const first = buttons[0], last = buttons[buttons.length - 1];
+      if (!first) return;
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || document.activeElement === panel)) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", trapFocus);
+    return () => document.removeEventListener("keydown", trapFocus);
   }, []);
 
   if (!match) return null;
   const solo = match.playMode === "SOLO";
+  const canPause = solo && match.endsAt === null;
   const canFinish = solo && outcome === "playing";
 
   const onLeave = async () => {
@@ -501,12 +528,7 @@ function MatchMenu() {
 
   return (
     <div
-      style={{
-        position: "fixed", inset: 0, zIndex: 60,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: "rgba(0,0,0,.6)", backdropFilter: "blur(12px)",
-        padding: 16,
-      }}
+      className={`ad-menu-backdrop ${reducedMotion ? "ad-reduced-motion" : ""}`}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) closeSettings();
       }}
@@ -517,30 +539,20 @@ function MatchMenu() {
         aria-modal="true"
         aria-labelledby="ad-menu-title"
         tabIndex={-1}
-        style={{
-          position: "relative", width: "100%", maxWidth: 720,
-          maxHeight: "90vh", overflowY: "auto",
-          borderRadius: 20,
-          border: "1px solid var(--ok-outline-variant)",
-          background: "#fff",
-          boxShadow: "var(--ok-shadow-2)",
-          padding: 24,
-          color: "var(--ok-on-surface)",
-          outline: "none",
-        }}
+        className="ad-settings-drawer"
       >
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 18 }}>
           <div>
-            <OkBadge variant={solo ? "gold" : "error"}>
-              <i className={`fa-solid ${solo ? "fa-pause" : "fa-bolt"}`} style={{ fontSize: 12 }} aria-hidden="true" />
-              &nbsp;{solo ? (outcome === "playing" ? "Đã tạm dừng" : "Menu") : "Trận vẫn đang diễn ra"}
+            <OkBadge variant={canPause ? "gold" : "error"}>
+              <i className={`fa-solid ${canPause ? "fa-pause" : "fa-bolt"}`} style={{ fontSize: 12 }} aria-hidden="true" />
+              &nbsp;{canPause ? (outcome === "playing" ? "Đã tạm dừng" : "Menu") : "Trận vẫn đang diễn ra"}
             </OkBadge>
             <h2 id="ad-menu-title" style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--ok-primary)", margin: "10px 0 4px" }}>
-              Menu
+              Cài đặt trận đấu
             </h2>
-            {!solo && (
+            {!canPause && (
               <p style={{ fontSize: 14, color: "var(--ok-on-surface-variant)", margin: 0 }}>
-                Trận đối kháng không thể tạm dừng — máy bay địch vẫn đang lao về hành tinh của bạn.
+                {solo ? "Trận có giới hạn thời gian tiếp tục chạy khi mở cài đặt." : "Trận đối kháng tiếp tục chạy khi mở cài đặt."}
               </p>
             )}
           </div>
@@ -549,7 +561,7 @@ function MatchMenu() {
             onClick={closeSettings}
             aria-label="Đóng menu"
             style={{
-              width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+              width: 44, height: 44, borderRadius: 10, flexShrink: 0,
               border: "1px solid var(--ok-outline-variant)",
               background: "var(--ok-surface-low)",
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -578,6 +590,9 @@ function MatchMenu() {
             <button type="button" role="tab" aria-selected={tab === "audio"} onClick={() => setTab("audio")} style={tabStyle(tab === "audio")}>
               <i className="fa-solid fa-sliders" style={{ fontSize: 18 }} aria-hidden="true" />
               Âm thanh
+            </button>
+            <button type="button" role="tab" aria-selected={tab === "visual"} onClick={() => setTab("visual")} style={tabStyle(tab === "visual")}>
+              <i className="fa-solid fa-display" aria-hidden="true"/> Hình ảnh
             </button>
             <button type="button" role="tab" aria-selected={tab === "guide"} onClick={() => setTab("guide")} style={tabStyle(tab === "guide")}>
               <i className="fa-solid fa-book-open" style={{ fontSize: 18 }} aria-hidden="true" />
@@ -614,16 +629,25 @@ function MatchMenu() {
           </div>
         )}
 
-        <div role="tabpanel">{tab === "audio" ? <AudioSettingsPanel /> : <QuickGuide match={match} />}</div>
+        <div role="tabpanel">{tab === "audio" ? <AudioSettingsPanel /> : tab === "visual" ? <VisualSettingsPanel /> : <QuickGuide match={match} />}</div>
       </div>
     </div>
   );
 }
 
+const AUGMENT_CATEGORY_LABELS: Record<AugmentCategory, string> = {
+  OFFENSE: "Tấn công",
+  DEFENSE: "Phòng thủ",
+  CONTROL: "Khống chế",
+  UTILITY: "Hỗ trợ",
+  SURVIVAL: "Sinh tồn",
+  TACTICAL: "Chiến thuật",
+};
+
 // ============================================================
 // SCREEN: AugmentDraft (10_augment_modal)
 // ============================================================
-function AugmentDraft() {
+export function AugmentDraft({ preview }: { preview?: { sound: (action:string) => void; autoSelect?:boolean } } = {}) {
   const { draftAugments, remainingRerolls, selectAugment, rerollAugments, versus } = useAirDefenseStore(
     useShallow((s) => ({
       draftAugments: s.draftAugments,
@@ -641,11 +665,16 @@ function AugmentDraft() {
     if (selectedRef.current) return;
     selectedRef.current = true;
     setSelectedCard(card);
-    soundManager.playAugmentSelect();
-    setTimeout(() => {
-      selectAugment(card);
-    }, 700);
+    if (preview) preview.sound('augment_select');
+    else soundManager.playAugmentSelect();
+    if (!preview) setTimeout(() => { selectAugment(card); }, 700);
   };
+
+  useEffect(() => {
+    if (!preview?.autoSelect || !draftAugments[0]) return;
+    const id = setTimeout(() => handleSelect(draftAugments[0]), 650);
+    return () => clearTimeout(id);
+  }, [preview?.autoSelect, draftAugments]);
 
   // Đối kháng: thế giới của đối thủ vẫn chạy — sau 10 giây tự chọn ngẫu nhiên 1 lõi.
   useEffect(() => {
@@ -673,16 +702,16 @@ function AugmentDraft() {
       aria-modal="true"
       aria-labelledby="ad-augment-title"
       style={{
-        position: "fixed", inset: 0, zIndex: 50,
+        position: preview ? "absolute" : "fixed", inset: 0, zIndex: 50,
         background: "rgba(0,0,0,.35)",
         backdropFilter: "blur(8px)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24,
+        padding: preview ? 12 : 24,
       }}
     >
       {selectedCard && (
         <div style={{
-          position: "fixed", inset: 0, zIndex: 60,
+          position: preview ? "absolute" : "fixed", inset: 0, zIndex: 60,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           background: "rgba(233,221,255,.4)", backdropFilter: "blur(12px)",
         }}>
@@ -752,12 +781,12 @@ function AugmentDraft() {
                     handleSelect(card);
                   }
                 }}
-                onMouseEnter={() => soundManager.playAugmentHover()}
+                onMouseEnter={() => preview ? preview.sound('augment_hover') : soundManager.playAugmentHover()}
                 style={{
                   position: "relative",
                   cursor: selectedCard ? "default" : "pointer",
                   borderRadius: 16,
-                  padding: 24,
+                  padding: preview ? 12 : 24,
                   background: isChosen ? "#f7f2ff" : "#fff",
                   border: isChosen
                     ? "2px solid var(--ok-primary-container)"
@@ -769,7 +798,7 @@ function AugmentDraft() {
                   transform: isOther ? "scale(0.96)" : "none",
                   transition: "all 0.2s",
                   display: "flex", flexDirection: "column", justifyContent: "space-between",
-                  minHeight: 220,
+                  minHeight: preview ? 160 : 220,
                 }}
               >
                 <div>
@@ -803,7 +832,7 @@ function AugmentDraft() {
                 <div style={{ marginTop: 20, paddingTop: 12, borderTop: "1px solid var(--ok-surface-container)" }}>
                   <OkBadge variant={isChosen ? "primary" : "outline"}>
                     <i className="fa-solid fa-bolt" style={{ fontSize: 14 }} aria-hidden="true" />
-                    &nbsp;{String(card.category)}
+                    &nbsp;{AUGMENT_CATEGORY_LABELS[card.category]}
                   </OkBadge>
                 </div>
               </div>
@@ -814,11 +843,11 @@ function AugmentDraft() {
         {/* Footer */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
           <OkBtnGhost
-            onClick={rerollAugments}
+            onClick={() => { if (preview) preview.sound('augment_hover'); rerollAugments(); }}
             disabled={remainingRerolls <= 0 || !!selectedCard}
           >
             <i className="fa-solid fa-rotate-right" style={{ fontSize: 18 }} aria-hidden="true" />
-            Đổi lõi (Reroll) · Còn {remainingRerolls} lần
+            Đổi lõi · Còn {remainingRerolls} lần
           </OkBtnGhost>
         </div>
       </div>
@@ -922,16 +951,21 @@ function useTimeLeft(endsAt: number | null): number | null {
 // ============================================================
 function Battle() {
   const [input, setInput] = useState("");
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reducedMotion = useVisualSettings((s) => s.reducedMotion);
+  useEffect(() => () => { if (feedbackTimer.current) clearTimeout(feedbackTimer.current); }, []);
   const inputRef = useRef<HTMLInputElement>(null);
   const {
-    match, players, outcome, screen, paused, isSettingsOpen, introActive, liveStatus, banner, notice,
-    wave, hp, maxHp, shield, score, combo, creditsEarned, hyperBeamCharge, inboundBoss, bgmEnabled,
+    match, players, outcome, screen, paused, isSettingsOpen, introActive, liveStatus, banner, notice, finishingPresentation,
+    wave, hp, maxHp, shield, score, combo, creditsEarned, hyperBeamCharge, hyperBeamPhase, inboundBoss, bgmEnabled,
     submitAnswer, fireHyperBeam, aimTypingBullet, openSettings, toggleBgm, setNotice,
   } = useAirDefenseStore(
     useShallow((s) => ({
       match: s.match,
       players: s.players,
       outcome: s.outcome,
+      finishingPresentation: s.finishingPresentation,
       screen: s.screen,
       paused: s.paused,
       isSettingsOpen: s.isSettingsOpen,
@@ -947,6 +981,7 @@ function Battle() {
       combo: s.combo,
       creditsEarned: s.creditsEarned,
       hyperBeamCharge: s.hyperBeamCharge,
+      hyperBeamPhase: s.hyperBeamPhase,
       inboundBoss: s.inboundBoss,
       bgmEnabled: s.bgmEnabled,
       submitAnswer: s.submitAnswer,
@@ -1005,7 +1040,12 @@ function Battle() {
     const st = useAirDefenseStore.getState();
     // Đang intro / chuyển đợt: giữ nguyên chữ đã gõ để bắn ngay khi địch xuất hiện.
     if (st.introState.active || st.isTransitioning) return;
-    submitAnswer(input);
+    const correct = submitAnswer(input);
+    // This projectile is cosmetic; the existing answer matcher still resolves the hit.
+    useAirDefenseStore.getState().fireTypingBullet(correct ? useAirDefenseStore.getState().lastLaserTarget : null);
+    setFeedback(correct ? "correct" : "wrong");
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setFeedback(null), 700);
     setInput("");
   };
 
@@ -1021,159 +1061,18 @@ function Battle() {
           : null;
 
   return (
-    <div className="battle-shell" style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10, overflow: "hidden" }}>
-      {/* Top HUD */}
-      <header style={{ flexShrink: 0, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 0 8px", borderBottom: "1px solid rgba(255,255,255,.08)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "1 1 360px" }}>
-          <BattlePill tone={match.versus ? "violet" : "cyan"}>
-            {match.versus ? `ĐẤU TAY ĐÔI · ĐỢT ${String(wave).padStart(2, "0")}` : `LUYỆN TẬP · ĐỢT ${String(wave).padStart(2, "0")}`}
-          </BattlePill>
-          <div style={{ minWidth: 0 }}>
-            <h1 style={{ fontFamily: "Inter", fontSize: 20, fontWeight: 700, color: "#fff", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {match.deckTitle}
-            </h1>
-            <p style={{ margin: 0, fontFamily: "monospace", fontSize: 11, color: "#94a3b8" }}>
-              Hỏi: <span style={{ color: "var(--battle-cyan)" }}>{match.questionLabel}</span> <i className="fa-solid fa-arrow-right" style={{ fontSize: 9 }} aria-hidden="true" /> Đáp: <span style={{ color: "var(--battle-amber)" }}>{match.answerLabel}</span>
-            </p>
-          </div>
-          {(liveStatus === "offline" || liveStatus === "connecting") && (
-            <span role="status"><BattlePill tone="amber">{liveStatus === "offline" ? "Mất kết nối — đang thử lại" : "Đang kết nối…"}</BattlePill></span>
-          )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          {timeLeft !== null && (
-            <BattleStat label="THỜI GIAN" value={formatClock(timeLeft)} tone={timeLeft <= 30_000 ? "var(--battle-rose)" : "var(--battle-amber)"} />
-          )}
-          <BattleStat label="ĐIỂM SỐ" value={score.toLocaleString()} />
-          <BattleStat label="COMBO" value={`×${combo}`} />
-          <BattleStat label="XU" value={`+${creditsEarned}`} />
-          <div style={{ display: "flex", gap: 6 }}>
-            <button
-              type="button"
-              onClick={toggleBgm}
-              aria-label={bgmEnabled ? "Tắt nhạc nền" : "Bật nhạc nền"}
-              title={bgmEnabled ? "Tắt nhạc nền" : "Bật nhạc nền"}
-              style={{
-                width: 36, height: 36, borderRadius: 10,
-                border: bgmEnabled ? "1px solid rgba(85,244,255,.3)" : "1px solid rgba(255,255,255,.08)",
-                background: bgmEnabled ? "rgba(85,244,255,.08)" : "rgba(255,255,255,.03)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: bgmEnabled ? "var(--battle-cyan)" : "#64748b",
-              }}
-            >
-              <i className={`fa-solid ${bgmEnabled ? "fa-music" : "fa-volume-xmark"}`} style={{ fontSize: 17 }} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={openSettings}
-              aria-label={match.versus ? "Mở menu trận đấu (Esc)" : "Tạm dừng và mở menu (Esc)"}
-              title="Menu (Esc)"
-              style={{
-                width: 36, height: 36, borderRadius: 10,
-                border: "1px solid rgba(85,244,255,.3)", background: "rgba(85,244,255,.08)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: "var(--battle-cyan)",
-              }}
-            >
-              <i className={`fa-solid ${match.versus ? "fa-bars" : "fa-pause"}`} style={{ fontSize: 17 }} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className={`battle-shell ad-battle ${reducedMotion ? "ad-reduced-motion" : ""}`}>
+      <BattleHud match={match} wave={wave} timeLeft={timeLeft} score={score} combo={combo}
+        credits={creditsEarned} hp={hp} maxHp={maxHp} shield={shield} charge={hyperBeamCharge}
+        disabled={inputDisabled || introActive} ship={playerSpaceshipCode()} liveStatus={liveStatus}
+        bgm={bgmEnabled} onMusic={toggleBgm} onMenu={openSettings} onBeam={fireHyperBeam} />
 
       {/* PvP opponent bar */}
       {match.versus && <OpponentBar opponent={opponent} inboundBoss={inboundBoss} />}
 
       {/* Canvas */}
-      <div style={{ flex: 1, minHeight: 0, position: "relative", width: "100%" }}>
+      <div className={`ad-battle-viewport ${hpPct <= 25 ? "is-low-hp" : ""} ${beamReady ? "is-super-ready" : ""} is-beam-${hyperBeamPhase}`}>
         <PixiBattleCanvas />
-
-        {/* Overlay HUD */}
-        <div style={{
-          position: "absolute", top: 12, left: 16, right: 16,
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          pointerEvents: "none", zIndex: 20,
-        }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 12,
-            background: "rgba(0,0,0,.45)", backdropFilter: "blur(8px)",
-            padding: "6px 12px", borderRadius: 10,
-            border: "1px solid rgba(255,255,255,.08)",
-          }}>
-            <span style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700, color: "var(--battle-cyan)" }}>
-              MÁU: {Math.max(0, Math.round(hp))}/{maxHp}
-            </span>
-            <div
-              role="meter"
-              aria-label="Máu hành tinh của bạn"
-              aria-valuemin={0}
-              aria-valuemax={maxHp}
-              aria-valuenow={Math.max(0, Math.round(hp))}
-              style={{ width: 72, height: 5, borderRadius: 9999, background: "rgba(255,255,255,.1)", overflow: "hidden" }}
-            >
-              <div style={{ height: "100%", width: `${hpPct}%`, background: hpPct > 25 ? "var(--battle-cyan)" : "var(--battle-rose)", transition: "width .2s" }} />
-            </div>
-            {shield > 0 && (
-              <span style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700, color: "var(--battle-amber)" }}>
-                GIÁP: {shield}
-              </span>
-            )}
-          </div>
-
-          <div style={{ pointerEvents: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10,
-              background: "rgba(0,0,0,.5)", backdropFilter: "blur(8px)",
-              padding: "6px 12px", borderRadius: 10,
-              border: "1px solid rgba(255,255,255,.08)",
-            }}>
-              <div style={{ width: 96 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: 8, color: "#cbd5e1", marginBottom: 2 }}>
-                  <span>SIÊU PHÁO</span>
-                  <span>{hyperBeamCharge}%</span>
-                </div>
-                <div style={{ height: 6, borderRadius: 9999, background: "rgba(255,255,255,.1)", overflow: "hidden" }}>
-                  <div style={{ height: "100%", background: "var(--battle-violet)", width: `${hyperBeamCharge}%`, transition: "width .2s" }} />
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={fireHyperBeam}
-                disabled={!beamReady || inputDisabled}
-                aria-label="Bắn siêu pháo (phím Shift)"
-                style={{
-                  padding: "4px 10px", borderRadius: 8,
-                  border: beamReady ? "1px solid var(--battle-violet)" : "1px solid rgba(255,255,255,.08)",
-                  background: beamReady ? "#8b5cf6" : "rgba(255,255,255,.05)",
-                  color: beamReady ? "#fff" : "#64748b",
-                  fontFamily: "monospace", fontSize: 10, fontWeight: 700,
-                  cursor: beamReady ? "pointer" : "not-allowed",
-                  boxShadow: beamReady ? "0 0 16px rgba(139,92,246,.6)" : "none",
-                }}
-                title="Bấm phím Shift để bắn siêu pháo"
-              >
-                <i className="fa-solid fa-bolt" aria-hidden="true" /> SHIFT · SIÊU PHÁO
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={openSettings}
-              aria-label="Cài đặt âm thanh và menu"
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                background: "rgba(0,0,0,.5)", backdropFilter: "blur(8px)",
-                padding: "6px 10px", borderRadius: 10,
-                border: "1px solid rgba(85,244,255,.25)",
-                color: "var(--battle-cyan)", cursor: "pointer",
-                fontFamily: "monospace", fontSize: 10, fontWeight: 700,
-              }}
-              title="Cài Đặt Âm Thanh"
-            >
-              <i className="fa-solid fa-gear" aria-hidden="true" /> CÀI ĐẶT
-            </button>
-          </div>
-        </div>
 
         {/* Banner đòn tấn công (nhận / gửi mini-boss) */}
         {banner && (
@@ -1201,7 +1100,14 @@ function Battle() {
         )}
 
         {/* Chờ kết quả (hành tinh thất thủ / hết giờ / đang kết thúc) */}
-        {waitingText && (
+        {finishingPresentation && (
+          <div role="status" aria-live="polite" style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+            zIndex: 50, pointerEvents: 'none', padding: '8px 14px', borderRadius: 10, background: 'rgba(3,6,14,.7)',
+            color: '#fff', fontSize: 13, textAlign: 'center', width: 'max-content', maxWidth: 'calc(100% - 32px)' }}>
+            Trận đấu kết thúc · Đang tổng kết…
+          </div>
+        )}
+        {waitingText && !finishingPresentation && (
           <div
             role="status"
             aria-live="polite"
@@ -1247,59 +1153,27 @@ function Battle() {
         )}
       </div>
 
-      {/* Input dock */}
-      <BattlePanel style={{ flexShrink: 0, padding: 10, borderColor: "rgba(85,244,255,.25)" }}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-          style={{ display: "flex", gap: 8, maxWidth: 700, margin: "0 auto" }}
-        >
-          <div style={{
-            flex: 1, display: "flex", alignItems: "center",
-            borderRadius: 12, border: "1px solid rgba(85,244,255,.35)",
-            background: "rgba(0,0,0,.4)", padding: "0 12px",
-            opacity: inputDisabled ? 0.55 : 1,
-          }}>
-            <span style={{ fontFamily: "monospace", fontSize: 12, color: "var(--battle-cyan)", marginRight: 10 }} aria-hidden="true"><i className="fa-solid fa-chevron-right" /></span>
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => {
-                const nextVal = e.target.value;
-                if (nextVal.length > input.length || (nextVal !== "" && nextVal !== input)) {
-                  aimTypingBullet(nextVal);
-                }
-                setInput(nextVal);
-                soundManager.playKeyStroke();
-              }}
-              onKeyDown={(e) => {
-                // Giữ nguyên xử lý IME: Enter lúc đang chọn chữ (isComposing) không bắn.
-                if (e.key === "Enter" && !e.nativeEvent.isComposing && e.nativeEvent.keyCode !== 229) {
-                  e.preventDefault();
-                  handleFire();
-                }
-              }}
-              placeholder={introActive ? "Chuẩn bị… địch sắp xuất hiện" : placeholder}
-              aria-label={`Ô nhập đáp án — ${placeholder}`}
-              autoFocus
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              lang={isJapaneseField(match.answerField) ? "ja" : "vi"}
-              disabled={inputDisabled}
-              style={{
-                height: 40, flex: 1, minWidth: 0, background: "transparent",
-                border: "none", outline: "none",
-                color: "#e2e8f0", fontSize: 15, fontWeight: 500,
-                fontFamily: fontFor(match.answerField),
-              }}
-            />
-          </div>
-          <BattleAction onClick={handleFire} disabled={inputDisabled} ariaLabel="Bắn (Enter)">BẮN <i className="fa-solid fa-arrow-turn-down fa-rotate-90" aria-hidden="true" /></BattleAction>
-        </form>
-      </BattlePanel>
+      <form className={`ad-weapon-console ${feedback ? `is-${feedback}` : ""}`} onSubmit={(e) => e.preventDefault()}>
+        <div className="ad-weapon-console__label"><i className="fa-solid fa-crosshairs" aria-hidden="true"/><span>Đáp án<strong>{match.answerLabel}</strong></span></div>
+        <div className="ad-weapon-console__input" style={{'--input-power': `${Math.min(100,input.length * 8)}%`} as CSSProperties}>
+          <input ref={inputRef} value={input} onChange={(e) => {
+              const nextValue = e.target.value;
+              if (nextValue !== "" && nextValue !== input) aimTypingBullet(nextValue);
+              setInput(nextValue); soundManager.playKeyStroke();
+            }} onKeyDown={(e) => {
+              // Enter during IME composition selects a character, never fires.
+              if (e.key === "Enter" && !e.nativeEvent.isComposing && e.nativeEvent.keyCode !== 229) {
+                e.preventDefault(); handleFire();
+              }
+            }} placeholder={introActive ? "Chuẩn bị… địch sắp xuất hiện" : placeholder}
+            aria-label={`Ô nhập đáp án — ${placeholder}`} autoFocus autoComplete="off" autoCorrect="off"
+            autoCapitalize="off" spellCheck={false} lang={isJapaneseField(match.answerField) ? "ja" : "vi"}
+            disabled={inputDisabled} style={{fontFamily:fontFor(match.answerField)}} />
+          <span className="ad-input-power" aria-hidden="true"/>
+          <span className="ad-weapon-console__feedback" role="status" aria-live="polite">{feedback === "correct" ? "正解 · Trúng mục tiêu" : feedback === "wrong" ? "Chưa khớp đáp án" : ""}</span>
+        </div>
+        <button type="button" className="ad-fire-button" onClick={handleFire} disabled={inputDisabled || !input.trim()} aria-label="Bắn (Enter)"><i className="fa-solid fa-location-arrow" aria-hidden="true"/><span>Bắn<kbd>Enter ↵</kbd></span></button>
+      </form>
 
     </div>
   );
@@ -1361,7 +1235,7 @@ function ResultLineRow({ line, meId }: { line: ResultLine; meId: number }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-        <span style={{ fontWeight: 800, fontSize: 14, width: 28, color: line.rank === 1 ? "var(--ok-tertiary-fixed-dim)" : "var(--ok-on-surface-variant)" }}>
+        <span style={{ fontWeight: 800, fontSize: 14, width: 28, color: line.rank === 1 ? "#9a6400" : "var(--ok-on-surface-variant)" }}>
           #{line.rank}
         </span>
         <div style={{ minWidth: 0 }}>
@@ -1410,7 +1284,7 @@ function ResultScreen() {
       : won ? (versus ? "Bạn thắng!" : "Rút quân an toàn")
         : versus ? "Đối thủ thắng" : "Hành tinh thất thủ";
 
-  const stars = finalScore > 100000 ? 3 : finalScore > 50000 ? 2 : 1;
+  const stars = finalScore >= 50 ? 3 : finalScore >= 20 ? 2 : 1;
   const sortedWeak = [...weakWords].sort((a, b) => b.count - a.count);
 
   const onReplay = async () => {
@@ -1600,6 +1474,25 @@ function ErrorScreen({ message }: { message: string }) {
 // ROOT APP — chỉ có chế độ tích hợp JLAS Arena
 // ============================================================
 export default function App({ host }: { host: HostConfig }) {
+  const [available, setAvailable] = useState(() => getArena().canPlayGame('AIR_DEFENSE'));
+  useEffect(() => {
+    const arena = getArena();
+    const update = () => setAvailable(arena.canPlayGame('AIR_DEFENSE'));
+    arena.phoneMedia.addEventListener('change', update);
+    return () => arena.phoneMedia.removeEventListener('change', update);
+  }, []);
+  if (!available) return (
+    <main className="ad-device-notice">
+      <i className="fa-solid fa-desktop" aria-hidden="true" />
+      <h1>Chơi Bắn máy bay trên máy tính</h1>
+      <p>Game cần bàn phím để gõ đáp án. Bạn hãy mở bằng máy tính để chơi.</p>
+      <a href="/games">Về trang Trò chơi</a>
+    </main>
+  );
+  return <AirDefenseApp host={host} />;
+}
+
+function AirDefenseApp({ host }: { host: HostConfig }) {
   const { bootStatus, bootError, screen, outcome, isSettingsOpen } = useAirDefenseStore(
     useShallow((s) => ({
       bootStatus: s.bootStatus,
@@ -1617,12 +1510,6 @@ export default function App({ host }: { host: HostConfig }) {
     }
     return startMatchController(host);
   }, [host]);
-
-  // Thanh điều hướng của trang chỉ hiện ở màn chuẩn bị, tổng kết và lỗi; lúc chơi thì ẩn cho khung game rộng.
-  const siteNav = bootStatus === "setup" || bootStatus === "error" || screen === "debrief";
-  useEffect(() => {
-    document.body.classList.toggle("site-nav-hidden", !siteNav);
-  }, [siteNav]);
 
   if (bootStatus === "error") {
     return <ErrorScreen message={bootError || "Có lỗi xảy ra, vui lòng thử lại."} />;

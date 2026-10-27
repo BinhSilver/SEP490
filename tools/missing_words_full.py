@@ -3,7 +3,7 @@
 kem phan loai ます-form -> tu dien. Dung de tao seed supplement (Phase 4)."""
 import re, csv, os, collections, unicodedata
 
-QB = r"D:\FALL26_FPT\SEP490\questionbank.sql"
+QB = r"D:\FALL26_FPT\SEP490\sql\seeds\questionbank.sql"
 OJ = r"D:\FALL26_FPT\SEP490\tools\openjlpt-data"
 
 # --- 1. Parse questions ---

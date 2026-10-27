@@ -9,6 +9,7 @@ import com.jlas.moderation.repository.UserSanctionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class UserSanctionService implements UserActionPolicyPort {
     private final ModerationAuditService audit;
     private final ModerationNotifier notifier;
     private final SanctionStatusService status;
+    private final ApplicationEventPublisher events;
 
     public enum SanctionType { MUTE, BAN }
 
@@ -57,6 +59,7 @@ public class UserSanctionService implements UserActionPolicyPort {
                 .build();
         UserSanction saved = sanctions.save(sanction);
         status.invalidate(userId);
+        if (type == SanctionType.BAN) events.publishEvent(new UserBanActivatedEvent(userId));
         notifier.sanctionApplied(userId, saved.getId(), type.name(), saved.getEndsAt(), why);
         audit.record(actorId, new ModerationAuditService.Entry("SANCTION_APPLY", "USER", userId,
                 null, type.name() + (saved.getEndsAt() == null ? ":PERMANENT" : ":" + days + "D"), why, null));
@@ -103,6 +106,9 @@ public class UserSanctionService implements UserActionPolicyPort {
         status.invalidate(sanction.getUser().getId());
         audit.record(actorId, new ModerationAuditService.Entry("SANCTION_REINSTATE", "USER_SANCTION",
                 sanction.getId(), "REVOKED", "ACTIVE", why, caseId));
+        if ("BAN".equals(sanction.getSanctionType())) {
+            events.publishEvent(new UserBanActivatedEvent(sanction.getUser().getId()));
+        }
         return true;
     }
 

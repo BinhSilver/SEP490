@@ -13,7 +13,7 @@ public record LearningPathResponse(Long id, Long userId, Long assessmentAttemptI
         List<LearningPhaseGroup> phases, List<CoverageGap> coverageGaps,
         int totalLessons, int totalMinutes, int totalDays, int completedLessons,
         boolean warmUpCompleted, boolean gatePassed, JsonNode aiPlan, List<LearningStageResponse> stages,
-        LocalDateTime completedAt) {
+        LocalDateTime completedAt, NextTargetRecommendation nextTargetRecommendation) {
     public LearningPathResponse {
         phases = List.copyOf(phases);
         coverageGaps = List.copyOf(coverageGaps);

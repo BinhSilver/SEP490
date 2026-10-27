@@ -4,6 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatTurnResponse {
+    private Long assistantMessageId;
+    private com.jlas.kaiwa.model.ScenarioSpeaker assistantSpeaker;
+    private com.jlas.kaiwa.model.ScenarioSpeaker currentSpeaker;
+    private AssistantOpening speakerOpening;
+    public record AssistantOpening(Long messageId, String text, com.jlas.kaiwa.model.ScenarioSpeaker speaker) {}
+    public Long getAssistantMessageId() { return assistantMessageId; }
+    public void setAssistantMessageId(Long value) { assistantMessageId = value; }
+    public com.jlas.kaiwa.model.ScenarioSpeaker getAssistantSpeaker() { return assistantSpeaker; }
+    public void setAssistantSpeaker(com.jlas.kaiwa.model.ScenarioSpeaker value) { assistantSpeaker = value; }
+    public com.jlas.kaiwa.model.ScenarioSpeaker getCurrentSpeaker() { return currentSpeaker; }
+    public void setCurrentSpeaker(com.jlas.kaiwa.model.ScenarioSpeaker value) { currentSpeaker = value; }
+    public AssistantOpening getSpeakerOpening() { return speakerOpening; }
+    public void setSpeakerOpening(AssistantOpening value) { speakerOpening = value; }
     private Long sessionId;
     private String assistantReply;
     private String currentState;
@@ -14,12 +27,13 @@ public class ChatTurnResponse {
     private FeedbackCardDto feedback;
     private boolean missionComplete;
     private boolean conversationEnded;
-    private String hint;
     private String error;
     private List<FuriganaTokenDto> assistantTokens = new ArrayList<>();
-    private String assistantTranslation;
     private List<String> suggestedReplies = new ArrayList<>();
     private String sceneTransition;
+    private String sceneImageUrl;
+    public String getSceneImageUrl() { return sceneImageUrl; }
+    public void setSceneImageUrl(String value) { sceneImageUrl = value; }
     /** Cách tính phí lượt này: FREE / QUOTA / CREDIT (JLAS-W0199). */
     private String chargeType;
     /** Số CP đã trừ cho lượt này (0 nếu dùng hạn mức). */
@@ -45,16 +59,12 @@ public class ChatTurnResponse {
     public void setMissionComplete(boolean missionComplete) { this.missionComplete = missionComplete; }
     public boolean isConversationEnded() { return conversationEnded; }
     public void setConversationEnded(boolean conversationEnded) { this.conversationEnded = conversationEnded; }
-    public String getHint() { return hint; }
-    public void setHint(String hint) { this.hint = hint; }
     public String getError() { return error; }
     public void setError(String error) { this.error = error; }
     public List<String> getAllObjectives() { return allObjectives; }
     public void setAllObjectives(List<String> allObjectives) { this.allObjectives = allObjectives; }
     public List<FuriganaTokenDto> getAssistantTokens() { return assistantTokens; }
     public void setAssistantTokens(List<FuriganaTokenDto> assistantTokens) { this.assistantTokens = assistantTokens; }
-    public String getAssistantTranslation() { return assistantTranslation; }
-    public void setAssistantTranslation(String assistantTranslation) { this.assistantTranslation = assistantTranslation; }
     public List<String> getSuggestedReplies() { return suggestedReplies; }
     public void setSuggestedReplies(List<String> suggestedReplies) { this.suggestedReplies = suggestedReplies; }
     public String getSceneTransition() { return sceneTransition; }

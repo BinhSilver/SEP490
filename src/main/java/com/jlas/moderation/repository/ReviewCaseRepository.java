@@ -11,6 +11,10 @@ import org.springframework.stereotype.Repository;
 /** Repository cho {@link ReviewCase}. */
 @Repository
 public interface ReviewCaseRepository extends JpaRepository<ReviewCase, Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from ReviewCase c where c.id = :id")
+    Optional<ReviewCase> findForDecisionUpdate(@Param("id") Long id);
+
     List<ReviewCase> findByCaseTypeAndStatusOrderByCreatedAtDesc(String caseType, String status);
 
     long countByCaseTypeAndStatus(String caseType, String status);

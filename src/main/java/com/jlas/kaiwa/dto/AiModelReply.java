@@ -18,6 +18,7 @@ public class AiModelReply {
     private List<String> objectivesMet = new ArrayList<>();
     private boolean readyToAdvanceState;
     private boolean readyToEnd;
+    private String nextStateCode;
     private List<String> expressions = new ArrayList<>();
 
     public String getReply() { return reply; }
@@ -36,6 +37,8 @@ public class AiModelReply {
     public void setObjectivesMet(List<String> objectivesMet) { this.objectivesMet = objectivesMet; }
     public boolean isReadyToAdvanceState() { return readyToAdvanceState; }
     public void setReadyToAdvanceState(boolean readyToAdvanceState) { this.readyToAdvanceState = readyToAdvanceState; }
+    public String getNextStateCode() { return nextStateCode; }
+    public void setNextStateCode(String nextStateCode) { this.nextStateCode = nextStateCode; }
     public boolean isReadyToEnd() { return readyToEnd; }
     public void setReadyToEnd(boolean readyToEnd) { this.readyToEnd = readyToEnd; }
     public List<String> getExpressions() { return expressions; }

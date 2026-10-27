@@ -34,9 +34,28 @@ spring:
   jackson:
     default-property-inclusion: non_null
 
+  # Giới hạn chung cho multipart; application-local.yaml có thể đặt lại (ví dụ 100MB cho video shadowing).
+  # Từng tính năng vẫn tự kiểm giới hạn riêng (avatar/thumbnail giáo trình 2MB).
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      # Lớn hơn max-file-size một chút: ảnh đúng 5MB cộng phần đầu multipart vẫn lọt (ảnh bài đọc tối đa 5MB).
+      max-request-size: 6MB
+
 # ── Server ───────────────────────────────────────────────────────────────────
 server:
   port: 8080
+  forward-headers-strategy: none
+
+game:
+  voice:
+    enabled: ${GAME_VOICE_ENABLED:false}
+    url: ${GAME_VOICE_URL:}
+    api-key: ${GAME_VOICE_API_KEY:}
+    api-secret: ${GAME_VOICE_API_SECRET:}
+    allowed-origins: ${GAME_VOICE_ALLOWED_ORIGINS:}
+    token-ttl-seconds: ${GAME_VOICE_TOKEN_TTL_SECONDS:60}
+    tokens-per-minute: ${GAME_VOICE_TOKENS_PER_MINUTE:10}
 
 management:
   endpoints:
@@ -61,12 +80,19 @@ upload:
     video: ${VIDEO_UPLOAD_PATH:uploads/video/}
     audio: ${AUDIO_UPLOAD_PATH:uploads/audio/}
     thumbnail: ${THUMBNAIL_UPLOAD_PATH:uploads/thumbnails/}
+    # Ảnh thumbnail giáo trình (khác thumbnail video shadowing ở trên). Phục vụ tại /uploads/textbook-thumbnails/**.
+    textbook-thumbnail: ${TEXTBOOK_THUMBNAIL_UPLOAD_PATH:uploads/textbook-thumbnails}
+    # [JLAS2-17] Ảnh đoạn đọc do người biên soạn tải lên (≤ 5MB). Phục vụ tại /uploads/reading-images/**.
+    # Ảnh gốc của seed vẫn nằm trong content.audio.path và KHÔNG bao giờ bị ghi/xoá bởi tính năng này.
+    reading-image: ${READING_IMAGE_UPLOAD_PATH:uploads/reading-images}
 
 # Audio giáo trình số hoá (content_audio.audio_url là đường dẫn tương đối trong thư mục này).
 # Khác với upload.path.audio (audio người dùng tải lên). Phục vụ tại /uploads/content-audio/**.
+# Mặc định là data/content-audio/ (commit sẵn trong repo, tính từ thư mục gốc project) nên pull về là có,
+# không cần khai báo CONTENT_AUDIO_PATH.
 content:
   audio:
-    path: ${CONTENT_AUDIO_PATH:uploads/content-audio/}
+    path: ${CONTENT_AUDIO_PATH:data/content-audio/}
 
 ffmpeg:
   bin:
@@ -77,6 +103,11 @@ ffmpeg:
 yt-dlp:
   bin:
     path: ${YT_DLP_BIN_PATH:yt-dlp}
+  python:
+    path: ${YT_DLP_PYTHON_PATH:}
+  js-runtime: ${YT_DLP_JS_RUNTIME:}
+  download:
+    helper-path: ${YT_DLP_DOWNLOAD_HELPER_PATH:}
 
 youtube:
   max:
@@ -84,6 +115,9 @@ youtube:
       no-subtitle:
         seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
   subtitle:
+    # Drop anime opening/ending song lyrics found from [音楽] blocks in YouTube auto captions.
+    skip-theme-songs:
+      enabled: ${YOUTUBE_SUBTITLE_SKIP_THEME_SONGS:true}
     quality:
       enabled: ${YOUTUBE_SUBTITLE_QUALITY_ENABLED:true}
       max-duration-seconds: ${YOUTUBE_SUBTITLE_QUALITY_MAX_DURATION_SECONDS:300}
@@ -191,6 +225,10 @@ shadowing:
       max-subtitles-per-session: ${SHADOWING_PRACTICE_AI_MAX_SUBTITLES:120}
 
 moderation:
+  avatar:
+    storage: ${MODERATION_AVATAR_STORAGE:storage/moderation/avatar}
+  appeal:
+    storage: ${MODERATION_APPEAL_STORAGE:storage/moderation/appeals}
   enabled: ${MODERATION_ENABLED:true}
   image:
     enabled: ${MODERATION_IMAGE_ENABLED:true}
@@ -228,5 +266,11 @@ learning:
   # approved-origins here (or via env) — ConfiguredMockTestDestinationProvider still rejects anything that
   # is not an internal relative route or an origin on this exact list; never accept an unapproved URL.
   mock-test:
-    destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:}
+    # Owner decision 2026-10-06 (option A): the JLPT module from develop is a self-assessment link, not a gate.
+    destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:/jlpt}
     approved-origins: ${LEARNING_MOCK_TEST_APPROVED_ORIGINS:}
+assessment:
+  jlpt:
+    # [JLAS-W0108] Mock Test policy versions whose attempt snapshots may complete a learning path.
+    # Server-side only; empty = nothing qualifies. The Mock Test owner must write attempt.policy_version from this set.
+    accepted-policy-versions: ${ASSESSMENT_JLPT_ACCEPTED_POLICY_VERSIONS:JLPT_PATH_GATE_V1}

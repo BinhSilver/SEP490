@@ -10,6 +10,7 @@ import com.jlas.mission.repository.UserDailyProgressRepository;
 import com.jlas.mission.repository.UserLearningTargetsRepository;
 import com.jlas.mission.service.CreditAwardService;
 import com.jlas.mission.service.DailyGoalService;
+import com.jlas.mission.service.DailyGoalPlanPort;
 import com.jlas.mission.service.StreakService;
 import com.jlas.mission.service.UserZoneService;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
@@ -38,6 +39,7 @@ public class DailyGoalServiceImpl implements DailyGoalService {
     private final UserZoneService zones;
     private final MissionClock clock;
     private final MissionProperties properties;
+    private final DailyGoalPlanPort plan;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
@@ -63,7 +65,8 @@ public class DailyGoalServiceImpl implements DailyGoalService {
         int percent = completed ? 100 : (ratio(vocabulary, targets.vocabulary())
                 + ratio(quizzes, targets.quizzes()) + ratio(minutes, targets.minutes())) / 3;
         return new DailyGoalProgress(day, vocabulary, targets.vocabulary(), quizzes, targets.quizzes(),
-                minutes, targets.minutes(), percent, completed, properties.dailyGoalReward());
+                minutes, targets.minutes(), percent, completed, properties.dailyGoalReward(),
+                targets.source(), targets.fallbackReason());
     }
 
     @Override
@@ -73,7 +76,7 @@ public class DailyGoalServiceImpl implements DailyGoalService {
         LocalDate today = clock.today(zones.zoneOf(userId));
         progressRepository.findForUpdate(userId, today).ifPresent(progress -> {
             evaluate(userId, progress, today, new Targets(request.dailyVocabTarget(), request.dailyQuizTarget(),
-                    request.dailyStudyMinutes()));
+                    request.dailyStudyMinutes(), "USER_TARGETS", null));
             progressRepository.save(progress);
         });
         return progress(userId, today);
@@ -100,10 +103,17 @@ public class DailyGoalServiceImpl implements DailyGoalService {
     }
 
     private Targets targets(Long userId) {
+        var aligned = plan.resolve(userId);
+        if (aligned.isPresent()) {
+            var value = aligned.get();
+            return new Targets(value.vocabularyTarget(), value.quizTarget(), value.minutesTarget(),
+                    value.source(), null);
+        }
         return targetsRepository.findByUserId(userId)
                 .map(value -> new Targets(value(value.getDailyVocabTarget()), value(value.getDailyQuizTarget()),
-                        value(value.getDailyStudyMinutes())))
-                .orElse(new Targets(DEFAULT_VOCAB_TARGET, DEFAULT_QUIZ_TARGET, DEFAULT_MINUTES_TARGET));
+                        value(value.getDailyStudyMinutes()), "USER_TARGETS", "NO_ACTIONABLE_PATH_PACKAGE"))
+                .orElse(new Targets(DEFAULT_VOCAB_TARGET, DEFAULT_QUIZ_TARGET, DEFAULT_MINUTES_TARGET,
+                        "DEFAULTS", "NO_ACTIVE_PATH_OR_USER_TARGETS"));
     }
 
     private UserDailyProgress lockProgress(Long userId, LocalDate day) {
@@ -119,6 +129,6 @@ public class DailyGoalServiceImpl implements DailyGoalService {
         return number == null ? 0 : number;
     }
 
-    private record Targets(int vocabulary, int quizzes, int minutes) {
+    private record Targets(int vocabulary, int quizzes, int minutes, String source, String fallbackReason) {
     }
 }

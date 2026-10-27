@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện shadowing | JLAS Shadowing</title>
@@ -9,12 +10,16 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20260901-player-title-18-22">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261021-report">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260901-player-spacing-aicall-assets"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261015-rescore"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
+    <link rel="stylesheet" href="/shadowing/css/focus-mode.css?v=20261012-shadowing-focus">
+    <link rel="stylesheet" href="/css/components/inline-dictionary.css?v=20261021-notebooks"/>
 </head>
-<body id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
 
@@ -26,10 +31,11 @@
     <div class="container" id="player-container">
         <header class="player-page-header">
             <div class="player-header-top">
-                <h1 class="player-title" id="lesson-title">Tiêu đề: …</h1>
+                <h1 class="player-title" id="lesson-title"><span class="player-title-prefix">Tiêu đề: </span><span id="lesson-title-text">…</span></h1>
                 <div class="player-header-actions">
-                    <button id="favorite-btn" class="pill-btn toggle-btn" title="Yêu thích"><i class="fa-regular fa-star"></i></button>
-                    <button id="share-btn" class="pill-btn toggle-btn" title="Chia sẻ"><i class="fa-solid fa-share-nodes"></i></button>
+                    <button id="favorite-btn" class="pill-btn toggle-btn" title="Yêu thích" aria-label="Yêu thích"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
+                    <button id="share-btn" class="pill-btn toggle-btn" title="Chia sẻ" aria-label="Chia sẻ"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
+                    <button id="report-btn" class="pill-btn toggle-btn" title="Báo cáo video" aria-label="Báo cáo video"><i class="fa-regular fa-flag" aria-hidden="true"></i></button>
                 </div>
             </div>
             <div class="player-rating-row">
@@ -47,59 +53,30 @@
         <div class="player-layout">
             <div class="main-column">
                 <div class="player-stage-layout" id="player-stage-layout">
-                    <div class="video-container premium-player" id="player-shell">
+                    <div class="video-container premium-player shadowing-mobile-stage" id="player-shell">
                     <div class="video-column">
                         <!-- VIDEO layout: khung video + timeline -->
                         <div class="video-media-row" id="video-media-row">
                             <div class="video-stack">
-                                <div class="video-surface" id="video-surface">
+                                <div class="video-surface shadowing-video-surface" id="video-surface">
                                     <!-- video gắn vào đây khi là video; audio thì media-engine ở ngoài -->
                                 </div>
                                 <div class="video-timeline" id="video-timeline">
-                                    <div class="timeline-track" id="timeline-track">
-                                        <div class="timeline-fill" id="timeline-fill"></div>
-                                    </div>
+                                    <input type="range" class="timeline-track" id="timeline-track" min="0" max="100" step="0.01" value="0" aria-label="Tua video" disabled>
                                     <span class="timeline-time" id="timeline-time">0:00 / 0:00</span>
                                 </div>
                             </div>
 
                         </div>
 
-                        <!-- Khung lời — audio: hero full; video: dưới media (không cover/meta) -->
-                        <div id="large-subtitle-viewer" class="subtitle-viewer-card subtitle-viewer-inline lyrics-stage">
-                            <div id="viewer-japanese" class="viewer-japanese"></div>
-                            <div id="viewer-translation" class="viewer-translation"></div>
-                        </div>
-                    </div>
-                    </div>
-                    <div class="player-controls-slot" id="player-controls-slot">
-                    <aside class="player-controls glass-toolbar floating-toolbar" id="player-controls" aria-label="Điều khiển phát">
-                    <button type="button" class="toolbar-collapse-btn" id="player-controls-toggle"
-                            title="Thu gọn công cụ" aria-label="Thu gọn công cụ"
-                            aria-expanded="true" aria-controls="player-controls-content">
-                        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                        <span class="sr-only">Thu gọn công cụ</span>
-                    </button>
+                        <div id="player-quick-controls" class="shadowing-media-actions" role="group" aria-label="Điều khiển phát">
                     <div id="player-controls-content" class="player-controls-content">
                         <div class="toolbar-group toolbar-nav">
                             <span class="toolbar-label">Điều hướng</span>
-                            <button id="prev-btn" class="control-btn" title="Câu trước"><i class="fa-solid fa-backward-step"></i></button>
-                            <button id="replay-btn" class="control-btn" title="Phát lại câu hiện tại"><i class="fa-solid fa-rotate-left"></i></button>
-                            <button id="play-btn" class="control-btn play-main" title="Phát / Tạm dừng"><i class="fa-solid fa-play" id="play-icon"></i></button>
-                            <button id="next-btn" class="control-btn" title="Câu tiếp theo"><i class="fa-solid fa-forward-step"></i></button>
-                        </div>
-
-                        <div class="toolbar-divider"></div>
-
-                        <div class="toolbar-group toolbar-loop">
-                            <span class="toolbar-label">Lặp lại</span>
-                            <button id="loop-btn" class="control-btn control-btn-loop" title="Bật lặp câu"><i class="fa-solid fa-repeat"></i></button>
-                            <select id="loop-count" class="pill-btn loop-select" title="Số lần lặp">
-                                <option value="0">∞</option>
-                                <option value="3">×3</option>
-                                <option value="5">×5</option>
-                                <option value="10">×10</option>
-                            </select>
+                            <button id="prev-btn" class="control-btn" title="Câu trước" aria-label="Câu trước"><i class="fa-solid fa-backward-step"></i></button>
+                            <button id="replay-btn" class="control-btn" title="Phát lại câu hiện tại" aria-label="Phát lại câu hiện tại"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button id="play-btn" class="control-btn play-main" title="Phát / Tạm dừng" aria-label="Phát / Tạm dừng"><i class="fa-solid fa-play" id="play-icon"></i></button>
+                            <button id="next-btn" class="control-btn" title="Câu tiếp theo" aria-label="Câu tiếp theo"><i class="fa-solid fa-forward-step"></i></button>
                         </div>
 
                         <div class="toolbar-divider"></div>
@@ -107,7 +84,7 @@
                         <div class="toolbar-group toolbar-speed">
                             <span class="toolbar-label">Tốc độ</span>
                             <div class="speed-dropdown">
-                                <button type="button" id="speed-toggle-btn" class="pill-btn speed-toggle" title="Tốc độ phát" aria-expanded="false" aria-haspopup="listbox">
+                                <button type="button" id="speed-toggle-btn" class="pill-btn speed-toggle shadowing-speed-toggle" title="Tốc độ phát" aria-label="Tốc độ phát" aria-expanded="false" aria-haspopup="listbox">
                                     <span id="speed-toggle-label">1×</span>
                                     <i class="fa-solid fa-chevron-down speed-chevron"></i>
                                 </button>
@@ -126,21 +103,35 @@
 
                         <div class="toolbar-group toolbar-display">
                             <span class="toolbar-label">Hiển thị</span>
-                            <button id="translation-toggle-btn" class="pill-btn toggle-btn active" title="Hiện bản dịch">
+                            <button id="translation-toggle-btn" class="pill-btn toggle-btn active" title="Hiện bản dịch" aria-label="Hiện hoặc ẩn bản dịch">
                                 <i class="fa-solid fa-language"></i><span>Dịch</span>
                             </button>
-                            <button id="furigana-toggle-btn" class="pill-btn toggle-btn active" title="Hiện cách đọc">
+                            <button id="furigana-toggle-btn" class="pill-btn toggle-btn active" title="Hiện cách đọc" aria-label="Hiện hoặc ẩn cách đọc">
                                 <i class="fa-solid fa-book-open"></i><span>Cách đọc</span>
                             </button>
                         </div>
                     </div>
-                    </aside>
+                            <div class="toolbar-group toolbar-record">
+                                <button type="button" id="listen-record-mode" class="control-btn" aria-label="Tự dừng sau từng câu để thu âm" title="Tự dừng sau từng câu để thu âm" aria-pressed="false"><i class="fa-solid fa-headset" aria-hidden="true"></i></button>
+                                <button type="button" id="listen-record-mic" class="control-btn" aria-label="Thu câu hiện tại và tự chấm" title="Thu câu hiện tại và tự chấm" disabled><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
+                            </div>
+                            <button type="button" data-media-action="mute" data-media-target="main-video" aria-label="Tắt âm thanh" aria-pressed="false"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+                            <button type="button" data-shadowing-focus="player-shell" aria-label="Bật chế độ toàn màn hình" title="Bật chế độ toàn màn hình" aria-pressed="false"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+                        </div>
+                        <p id="listen-record-status" class="listen-record-status" role="status" aria-live="polite" hidden></p>
+                        <!-- Khung lời — audio: hero full; video: dưới media (không cover/meta) -->
+                        <div id="large-subtitle-viewer" data-inline-dictionary class="subtitle-viewer-card subtitle-viewer-inline lyrics-stage shadowing-live-subtitle">
+                            <div id="viewer-japanese" class="viewer-japanese shadowing-live-japanese"></div>
+                            <div id="viewer-translation" class="viewer-translation shadowing-live-translation"></div>
+                        </div>
                     </div>
+                    </div>
+
                 </div>
             </div>
 
                 <div class="player-footer-links">
-                    <button onclick="window.location.href='/editor/' + document.getElementById('video-id').value" class="text-link">
+                    <button th:if="${canEditVideo}" onclick="window.location.href='/shadowing/editor/' + document.getElementById('video-id').value" class="text-link">
                         <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa phụ đề
                     </button>
                     <button onclick="window.location.href='/shadowing'" class="text-link">
@@ -151,7 +142,7 @@
                 <!-- BR — Self-recording UI: thu giọng đọc theo phụ đề + nghe lại -->
                 <div class="record-panel store-utility-card" id="record-panel">
                     <div class="record-header">
-                        <h3><i class="fa-solid fa-microphone"></i> Thu âm giọng đọc theo phụ đề</h3>
+                        <h2 class="player-section-title"><i class="fa-solid fa-microphone"></i> Thu âm giọng đọc theo phụ đề</h2>
                         <span class="caption" id="record-status">Sẵn sàng</span>
                     </div>
                     <div class="record-target" id="record-target" aria-live="polite">
@@ -209,13 +200,13 @@
                         <div id="pronunciation-word-scores" aria-label="Điểm theo từng từ"></div>
                     </section>
                     <p id="pronunciation-privacy-hint" class="caption">
-                        <i class="fa-solid fa-paw"></i> <strong>Mẹo từ Kitsu-chan:</strong> chọn một câu phụ đề, nghe mẫu một lần rồi thu khi bạn đã bắt được nhịp. Chỉ khi bấm <strong>Chấm phát âm</strong>, bản thu mới được gửi tới dịch vụ chấm và lưu riêng theo tài khoản để bạn xem lại trên thiết bị khác.
+                        <i class="fa-solid fa-paw"></i> <strong>Mẹo từ Kitsu-chan:</strong> nghe câu mẫu rồi bấm mic để thu. Trên mobile, bật nút tai nghe để video tự dừng sau từng câu; dùng thanh tua hoặc nút câu trước/câu tiếp để chọn đoạn luyện. Bản thu từ mic trên thanh công cụ có thêm 3 giây để đọc và tự chấm khi hết giờ. Bản thu được gửi tới dịch vụ chấm và lưu riêng theo tài khoản để bạn xem lại trên thiết bị khác.
                     </p>
                 </div>
 
                 <div class="comments-panel store-utility-card">
                     <div class="comments-header">
-                        <h3><i class="fa-solid fa-comments"></i> Bình luận <span id="comment-count" class="caption">(0)</span></h3>
+                        <h2 class="player-section-title"><i class="fa-solid fa-comments"></i> Bình luận <span id="comment-count" class="caption">(0)</span></h2>
                     </div>
                     <div class="comment-form">
                         <div class="comment-rating-field">
@@ -240,12 +231,21 @@
     </main>
 
     <script src="/js/auth-session.js"></script>
+    <script defer src="/js/inline-dictionary.js?v=20261021-notebooks"></script>
     <script src="/js/jlab-base-shell.js"></script>
     <script src="/shadowing/js/client.js?v=20260712"></script>
     <script src="/shadowing/js/confirm-modal.js?v=20260718"></script>
-    <script src="/shadowing/js/recorder.js?v=20260831-pronunciation-actionable-feedback1"></script>
+    <script src="/shadowing/js/recorder.js?v=20261014-extra3s-label"></script>
     <script src="/shadowing/js/watch-tracker.js?v=20260929-view-30s"></script>
-    <script src="/shadowing/js/app.js?v=20260929-no-ab"></script>
+    <script src="/shadowing/js/subtitle-display.js?v=20261012-7"></script>
+    <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
+    <script src="/shadowing/js/focus-mode.js?v=20261012-focus-romaji"></script>
+    <script src="/shadowing/js/listen-record.js?v=20261012-mic-tools"></script>
+    <script src="/shadowing/js/youtube-media.js?v=20261021-yt"></script>
+    <script src="/shadowing/js/app.js?v=20261021-yt"></script>
+    <script src="/shadowing/js/video-report.js?v=20261021-report-3"></script>
+    <script src="/shadowing/js/player-timeline.js?v=20261012-mic-tools"></script>
+    <script src="/shadowing/js/player-mobile.js?v=20261012-5"></script>
     <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->
     <script src="http://localhost:35729/livereload.js?snipver=1" defer></script>
 </body>

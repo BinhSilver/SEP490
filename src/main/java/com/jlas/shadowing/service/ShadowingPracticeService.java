@@ -71,6 +71,7 @@ public class ShadowingPracticeService {
                 : Math.min(subtitles.size(), request.questionCount() == null
                 ? DEFAULT_QUESTION_COUNT : request.questionCount());
         List<QuestionSeed> available;
+        Map<String, Integer> selectionCounts = null;
         if (request.mode() == PracticeMode.LISTENING) {
             boolean pairSelection = request.selections() != null;
             if (pairSelection ? request.selections().isEmpty() || request.selections().stream().anyMatch(pair -> {
@@ -84,8 +85,9 @@ public class ShadowingPracticeService {
                     || !ShadowingQuestionPreparationService.KINDS.containsAll(request.kinds())) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn mức và dạng bài tập");
             }
+            selectionCounts = selectionCounts(request);
             requested = request.questionCount() == null ? DEFAULT_QUESTION_COUNT : request.questionCount();
-            if (requested < 1 || requested > 500) {
+            if (!request.allQuestions() && (requested < 1 || requested > 500)) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu phải từ 1 đến 500");
             }
             Map<Long, Subtitle> byId = new HashMap<>();
@@ -108,15 +110,26 @@ public class ShadowingPracticeService {
                         }));
             }
             byEnd.sort(Comparator.comparingDouble(seedItem -> seedItem.prepared().endTime()));
-            available = new ArrayList<>();
-            double lastEnd = Double.NEGATIVE_INFINITY;
-            for (QuestionSeed seedItem : byEnd) {
-                if (seedItem.prepared().startTime() >= lastEnd) {
-                    available.add(seedItem);
-                    lastEnd = seedItem.prepared().endTime();
-                }
+            if (selectionCounts != null) {
+                // Mỗi "MỨC:DẠNG" có tối đa riêng như màn chọn hiển thị; câu khác dạng trùng đoạn không lấy mất suất của nhau.
+                Map<String, List<QuestionSeed>> byPair = new LinkedHashMap<>();
+                byEnd.forEach(seedItem -> byPair.computeIfAbsent(pairOf(seedItem), ignored -> new ArrayList<>()).add(seedItem));
+                available = new ArrayList<>();
+                for (List<QuestionSeed> group : byPair.values()) available.addAll(nonOverlapping(group));
+            } else {
+                available = nonOverlapping(byEnd);
             }
-            if (available.size() < requested) {
+            if (selectionCounts != null) {
+                for (Map.Entry<String, Integer> entry : selectionCounts.entrySet()) {
+                    long ofPair = available.stream().filter(seedItem -> entry.getKey().equals(pairOf(seedItem))).count();
+                    if (entry.getValue() > ofPair) {
+                        throw new ApiException(ErrorCode.BAD_REQUEST, "Mức này chỉ còn " + ofPair
+                                + " câu phù hợp; hãy chọn ít câu hơn");
+                    }
+                }
+                requested = selectionCounts.values().stream().mapToInt(Integer::intValue).sum();
+            }
+            if (!request.allQuestions() && available.size() < requested) {
                 throw new ApiException(ErrorCode.BAD_REQUEST,
                         "Bộ câu hỏi đã chuẩn bị chỉ có " + available.size() + " câu phù hợp; hãy chọn ít câu hơn hoặc mức khác");
             }
@@ -134,9 +147,10 @@ public class ShadowingPracticeService {
         long seed = java.util.concurrent.ThreadLocalRandom.current().nextLong();
         PracticeOrder order = request.mode() == PracticeMode.LISTENING ? PracticeOrder.RANDOM
                 : request.order() == null ? PracticeOrder.PROGRESSIVE : request.order();
-        List<QuestionSeed> selected = request.mode() == PracticeMode.LISTENING
-                ? balancedStops(available, requested, seed)
-                : selectQuestions(available, requested, order, seed);
+        List<QuestionSeed> selected = request.mode() != PracticeMode.LISTENING
+                ? selectQuestions(available, requested, order, seed)
+                : selectionCounts != null ? stopsPerSelection(available, selectionCounts, seed)
+                : balancedStops(available, requested, seed);
 
         ShadowingPracticeSession session = new ShadowingPracticeSession();
         session.setUserId(userId);
@@ -236,16 +250,8 @@ public class ShadowingPracticeService {
                 && !prepared.choices().contains(request.answer().strip())) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy chọn một đáp án trong các lựa chọn");
         }
-        JapaneseAnswerMatcher.MatchResult match = prepared != null && !"GAP".equals(prepared.kind())
-                ? null : prepared != null && prepared.answer().equals(subtitle.getText().strip())
-                ? JapaneseAnswerMatcher.matchSentence(expected, subtitle.getFurigana(), request.answer())
-                : prepared != null
-                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), expected,
-                "", prepared.occurrence(), request.answer())
-                : session.getMode() == PracticeMode.CLOZE && candidate != null
-                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), expected,
-                candidate.getReadingText(), candidate.getOccurrenceIndex(), request.answer())
-                : JapaneseAnswerMatcher.matchSentence(expected, subtitle.getFurigana(), request.answer());
+        JapaneseAnswerMatcher.MatchResult match = matchAnswer(session.getMode(), subtitle, candidate,
+                prepared, request.answer());
         String expectedNormalized = match == null ? normalizeAnswer(expected) : match.normalizedExpected();
         String userNormalized = match == null ? normalizeAnswer(request.answer()) : match.normalizedActual();
         boolean correct = match == null ? expected.equals(request.answer().strip()) : match.isCorrect();
@@ -259,7 +265,7 @@ public class ShadowingPracticeService {
             feedback = prepared != null && !"GAP".equals(prepared.kind())
                     ? "Chính xác. Bạn đã hiểu đúng nội dung đoạn nghe."
                     : match != null && match.usesEquivalentWriting()
-                    ? "Chính xác. Cách viết Kanji/kana của bạn khác câu mẫu nhưng có cùng cách đọc."
+                    ? "Chính xác. Đáp án của bạn có cùng cách đọc với câu mẫu."
                     : "Chính xác. Bạn đã nghe và viết đúng nội dung câu.";
         } else {
             result = AnswerResult.INCORRECT;
@@ -283,8 +289,41 @@ public class ShadowingPracticeService {
                 result == AnswerResult.CORRECT ? subtitle.getTranslation() : null,
                 result == AnswerResult.CORRECT
                         ? answerDifferences(result, expectedNormalized, userNormalized)
-                        : concealedDifferences(expectedNormalized, userNormalized),
+                        : concealedDifferences(match),
                 result == AnswerResult.CORRECT && prepared != null ? prepared.explanation() : null);
+    }
+
+    private static JapaneseAnswerMatcher.MatchResult matchAnswer(PracticeMode mode, Subtitle subtitle,
+            ShadowingClozeCandidate candidate, PreparedQuestion prepared, String actual) {
+        if (prepared != null) {
+            return "GAP".equals(prepared.kind()) ? matchPreparedGap(prepared, subtitle, actual) : null;
+        }
+        return mode == PracticeMode.CLOZE && candidate != null
+                ? JapaneseAnswerMatcher.matchCloze(subtitle.getText(), subtitle.getFurigana(), candidate.getAnswerText(),
+                candidate.getReadingText(), candidate.getOccurrenceIndex(), actual)
+                : JapaneseAnswerMatcher.matchSentence(subtitle.getText(), subtitle.getFurigana(), actual);
+    }
+
+    static JapaneseAnswerMatcher.MatchResult matchPreparedGap(PreparedQuestion question, Subtitle subtitle,
+                                                               String actual) {
+        String spoken = QuestionTranscript.spoken(subtitle.getText());
+        String reading = QuestionTranscript.spoken(subtitle.getFurigana());
+        if ("HARD".equals(question.level()) || QuestionTranscript.sentenceKey(question.answer())
+                .equals(QuestionTranscript.sentenceKey(spoken))) {
+            return JapaneseAnswerMatcher.matchSentence(question.answer(), reading, actual);
+        }
+        return JapaneseAnswerMatcher.matchCloze(spoken, reading, question.answer(), "", question.occurrence(), actual);
+    }
+
+    /** What a learner may type in kana for this GAP question; null when its kanji could only be typed as kanji. */
+    static String preparedGapReading(String level, String answer, int occurrence, Subtitle subtitle) {
+        String spoken = QuestionTranscript.spoken(subtitle.getText());
+        String reading = QuestionTranscript.spoken(subtitle.getFurigana());
+        if ("HARD".equals(level) || QuestionTranscript.sentenceKey(answer)
+                .equals(QuestionTranscript.sentenceKey(spoken))) {
+            return JapaneseAnswerMatcher.sentenceReading(answer, reading);
+        }
+        return JapaneseAnswerMatcher.clozeReading(spoken, reading, answer, occurrence);
     }
 
     @Transactional
@@ -541,6 +580,67 @@ public class ShadowingPracticeService {
         return differences(expected, actual);
     }
 
+    /**
+     * Số câu theo từng mức của từng dạng ("MỨC:DẠNG" → số câu; bỏ lựa chọn 0 câu); null khi không gửi để giữ
+     * cách chọn trải đều cũ.
+     */
+    private static Map<String, Integer> selectionCounts(CreatePracticeSessionRequest request) {
+        if (request.selectionCounts() == null || request.selectionCounts().isEmpty()) return null;
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        request.selectionCounts().forEach((pair, count) -> {
+            String[] parts = pair == null ? new String[0] : pair.split(":", -1);
+            if (parts.length != 2 || !ShadowingQuestionPreparationService.LEVELS.contains(parts[0])
+                    || !ShadowingQuestionPreparationService.KINDS.contains(parts[1])
+                    || count == null || count < 0 || count > 500) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Số câu của từng mức không hợp lệ");
+            }
+            if (count > 0) counts.put(pair, count);
+        });
+        int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+        if (total < 1 || total > 500) throw new ApiException(ErrorCode.BAD_REQUEST, "Tổng số câu phải từ 1 đến 500");
+        return counts;
+    }
+
+    private static String pairOf(QuestionSeed question) {
+        return question.prepared().level() + ":" + question.prepared().kind();
+    }
+
+    /** Giữ các câu không chồng thời gian, ưu tiên câu kết thúc sớm (đầu vào đã xếp theo endTime). */
+    private static List<QuestionSeed> nonOverlapping(List<QuestionSeed> byEnd) {
+        List<QuestionSeed> result = new ArrayList<>();
+        double lastEnd = Double.NEGATIVE_INFINITY;
+        for (QuestionSeed seedItem : byEnd) {
+            if (seedItem.prepared().startTime() >= lastEnd) {
+                result.add(seedItem);
+                lastEnd = seedItem.prepared().endTime();
+            }
+        }
+        return result;
+    }
+
+    private static boolean overlaps(QuestionSeed left, QuestionSeed right) {
+        return left.prepared().startTime() < right.prepared().endTime()
+                && right.prepared().startTime() < left.prepared().endTime();
+    }
+
+    /**
+     * Lấy ngẫu nhiên đúng số câu của từng mức trong từng dạng, ưu tiên câu không trùng đoạn với dạng khác đã lấy
+     * (vẫn đủ số câu khi buộc phải trùng), rồi xếp theo thời gian trong video.
+     */
+    private static List<QuestionSeed> stopsPerSelection(List<QuestionSeed> available, Map<String, Integer> counts, long seed) {
+        Random random = new Random(seed);
+        List<QuestionSeed> selected = new ArrayList<>();
+        counts.forEach((pair, count) -> {
+            List<QuestionSeed> pool = new ArrayList<>(available.stream()
+                    .filter(question -> pair.equals(pairOf(question))).toList());
+            java.util.Collections.shuffle(pool, random);
+            pool.sort(Comparator.comparing(question -> selected.stream().anyMatch(taken -> overlaps(taken, question))));
+            selected.addAll(pool.subList(0, Math.min(count, pool.size())));
+        });
+        selected.sort(Comparator.comparingDouble(question -> question.subtitle().getStartTime()));
+        return selected;
+    }
+
     private static List<QuestionSeed> balancedStops(List<QuestionSeed> available, int count, long seed) {
         Map<String, List<QuestionSeed>> buckets = new LinkedHashMap<>();
         for (QuestionSeed question : available) {
@@ -578,12 +678,10 @@ public class ShadowingPracticeService {
         }
     }
 
-    private static List<PracticeDiffPart> concealedDifferences(String expected, String actual) {
-        return differences(expected, actual).stream().map(part -> switch (part.type()) {
-            case "MATCH" -> new PracticeDiffPart("MATCH", "", part.actual());
-            case "MISSING" -> new PracticeDiffPart("MISSING", "", "");
-            default -> new PracticeDiffPart(part.type(), "", part.actual());
-        }).toList();
+    private static List<PracticeDiffPart> concealedDifferences(JapaneseAnswerMatcher.MatchResult match) {
+        if (match == null) return List.of();
+        return match.feedback().stream().map(part ->
+                new PracticeDiffPart(part.matched() ? "MATCH" : "MASK", "", part.text())).toList();
     }
 
     private static String codePoint(int value) {
@@ -601,7 +699,7 @@ public class ShadowingPracticeService {
                 settled ? expected : null, answer.getUserAnswer(),
                 settled ? subtitle.getTranslation() : null,
                 settled ? answerDifferences(answer.getResult(), expectedNormalized, answer.getNormalizedAnswer())
-                        : concealedDifferences(expectedNormalized, answer.getNormalizedAnswer()),
+                        : concealedDifferences(matchAnswer(mode, subtitle, candidate, prepared, answer.getUserAnswer())),
                 settled && prepared != null ? prepared.explanation() : null);
     }
 

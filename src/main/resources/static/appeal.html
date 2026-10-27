@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Kháng nghị chế tài | JLAS</title>
@@ -10,7 +11,7 @@
   <link rel="stylesheet" href="/css/theme-bridge.css">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components/buttons.css">
-  <link rel="stylesheet" href="/css/pages/appeal.css?v=20260925">
+  <link rel="stylesheet" href="/css/pages/appeal.css?v=20261008">
   <link rel="stylesheet" href="/css/jlab-base-shell.css">
   <link rel="icon" href="/images/jlab.png" type="image/png">
 </head>
@@ -52,6 +53,13 @@
                  placeholder="https://…" aria-describedby="aplEvidenceError">
           <p class="apl-error" id="aplEvidenceError" aria-live="polite"></p>
         </div>
+        <div class="apl-field">
+          <label for="aplFile">File bằng chứng (không bắt buộc)</label>
+          <input id="aplFile" class="apl-input" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf"
+                 aria-describedby="aplFileHint aplFileError">
+          <span id="aplFileHint" class="apl-muted">Một ảnh JPG, PNG, WEBP hoặc PDF, tối đa 5 MB. Chỉ bạn và kiểm duyệt viên xem được.</span>
+          <p class="apl-error" id="aplFileError" aria-live="polite"></p>
+        </div>
         <p class="apl-error" id="aplSubmitError" aria-live="polite"></p>
         <button type="submit" class="btn btn--primary" id="aplSubmit" disabled>
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Gửi đơn
@@ -61,6 +69,7 @@
 
     <section class="apl-card" aria-labelledby="aplHistoryTitle">
       <h2 class="apl-card__title" id="aplHistoryTitle">Đơn của tôi</h2>
+      <p class="apl-error" id="aplHistoryError" aria-live="polite"></p>
       <div id="aplHistory" aria-live="polite"><p class="apl-muted">Đang tải…</p></div>
     </section>
   </div>
@@ -69,6 +78,6 @@
 <script src="/js/auth-session.js"></script>
 <script src="/js/jlab-base-shell.js"></script>
 <script src="/flashcard/js/api-client.js"></script>
-<script src="/js/pages/appeal.js?v=20260925"></script>
+<script src="/js/pages/appeal.js?v=20261008"></script>
 </body>
 </html>

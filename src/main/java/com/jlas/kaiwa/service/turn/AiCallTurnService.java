@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -65,6 +67,8 @@ public class AiCallTurnService {
         this.conversationService = conversationService;
         this.objectMapper = objectMapper;
         this.tx = new TransactionTemplate(transactionManager);
+        // Avoid locking gaps belonging to other users when today's quota row is absent.
+        this.tx.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         this.properties = properties;
         this.permits = new Semaphore(Math.max(1, properties.maxConcurrentTurns()), true);
     }
@@ -83,7 +87,7 @@ public class AiCallTurnService {
 
         AiCallTurn turn;
         try {
-            turn = tx.execute(status -> begin(user, request, requestId));
+            turn = reserveWithRetry(user, request, requestId);
         } catch (DataIntegrityViolationException duplicate) {
             // Hai request cùng mã tới cùng lúc: request tới sau nhận kết quả của request tới trước.
             return turns.findByUserIdAndClientRequestId(user.userId(), requestId).map(this::replay)
@@ -125,6 +129,20 @@ public class AiCallTurnService {
         for (AiCallTurn stale : turns.findByStatusAndCreatedAtBefore(Status.PENDING, before)) {
             if (fail(stale.getId(), "TIMEOUT", null)) {
                 log.warn("AI Call turn {} timed out while PENDING; charge refunded", stale.getId());
+            }
+        }
+    }
+
+    private AiCallTurn reserveWithRetry(UserPrincipal user, ChatTurnRequest request, String requestId) {
+        for (int attempt = 0; ; attempt++) {
+            try { return tx.execute(status -> begin(user, request, requestId)); }
+            catch (TransientDataAccessException busy) {
+                if (attempt >= 2) throw busy;
+                // Retry the WHOLE rolled-back reservation, never the external AI call.
+                try { Thread.sleep(50L * (attempt + 1)); }
+                catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt(); throw busy;
+                }
             }
         }
     }

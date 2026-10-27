@@ -9,6 +9,8 @@ import com.jlas.auth.entity.User;
 import com.jlas.auth.mapper.UserMapper;
 import com.jlas.auth.repository.AuthTokenRepository;
 import com.jlas.auth.repository.UserRepository;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -24,6 +26,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -41,10 +46,11 @@ public class AccountSecurityService {
     private final GoogleTokenService googleTokens;
     private final EmailService emailService;
     private final UserMapper userMapper;
+    private final PlatformTransactionManager transactionManager;
 
     @Transactional
     public void requestEmailChange(Long userId, RequestEmailChangeRequest request) {
-        User user = findUser(userId);
+        User user = users.findForProfileUpdate(userId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
         String newEmail = normalizeEmail(request.getNewEmail());
         if (newEmail.equalsIgnoreCase(user.getEmail())) {
             throw badRequest("Email mới phải khác email hiện tại.");
@@ -86,35 +92,42 @@ public class AccountSecurityService {
         emailService.sendEmailChangeOtp(newEmail, user.getFullName(), newOtp, true);
     }
 
-    @Transactional
     public void confirmEmailChange(Long userId, ConfirmEmailChangeRequest request) {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        ApiException error = transaction.execute(status -> confirmEmailChangeInTransaction(userId, request));
+        // Throw only after commit, so failed attempts and expired challenges remain persisted.
+        if (error != null) throw error;
+    }
+
+    private ApiException confirmEmailChangeInTransaction(Long userId, ConfirmEmailChangeRequest request) {
+        User user = users.findForProfileUpdate(userId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
         List<EmailChangeChallenge> challenges = jdbc.query(
                 "SELECT id, new_email, old_otp_hash, new_otp_hash, attempt_count, expires_at "
                         + "FROM email_change_requests WHERE user_id = ? AND confirmed_at IS NULL "
-                        + "AND revoked_at IS NULL ORDER BY created_at DESC LIMIT 1",
+                        + "AND revoked_at IS NULL ORDER BY created_at DESC, id DESC LIMIT 1 FOR UPDATE",
                 (result, row) -> mapChallenge(result), userId);
-        if (challenges.isEmpty()) throw badRequest("Không tìm thấy yêu cầu đổi email đang chờ xác nhận.");
+        if (challenges.isEmpty()) return new ApiException(ErrorCode.BAD_REQUEST, "Không tìm thấy yêu cầu đổi email đang chờ xác nhận.");
 
         EmailChangeChallenge challenge = challenges.getFirst();
         if (!challenge.expiresAt().isAfter(LocalDateTime.now())) {
             jdbc.update("UPDATE email_change_requests SET revoked_at = ? WHERE id = ?", LocalDateTime.now(), challenge.id());
-            throw badRequest("Mã OTP đã hết hạn. Vui lòng gửi yêu cầu mới.");
+            return new ApiException(ErrorCode.BAD_REQUEST, "Mã OTP đã hết hạn. Vui lòng gửi yêu cầu mới.");
         }
         if (challenge.attemptCount() >= MAX_ATTEMPTS) {
-            throw badRequest("Yêu cầu đã bị khóa do nhập sai quá nhiều lần.");
+            return new ApiException(ErrorCode.BAD_REQUEST, "Yêu cầu đã bị khóa do nhập sai quá nhiều lần.");
         }
 
         boolean oldMatches = constantTimeEquals(challenge.oldOtpHash(), hash(request.getOldEmailOtp()));
         boolean newMatches = constantTimeEquals(challenge.newOtpHash(), hash(request.getNewEmailOtp()));
         if (!oldMatches || !newMatches) {
             jdbc.update("UPDATE email_change_requests SET attempt_count = attempt_count + 1 WHERE id = ?", challenge.id());
-            throw badRequest("Một trong hai mã OTP không đúng.");
+            return new ApiException(ErrorCode.BAD_REQUEST, "Một trong hai mã OTP không đúng.");
         }
         if (users.existsByEmail(challenge.newEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email mới đã được sử dụng.");
         }
 
-        User user = findUser(userId);
         String oldEmail = user.getEmail();
         user.setEmail(challenge.newEmail());
         user.setIsVerified(true);
@@ -123,6 +136,7 @@ public class AccountSecurityService {
         authTokens.deleteByUser_IdAndTokenType(userId, REFRESH);
         emailService.sendEmailChangedNotice(oldEmail, user.getFullName(), challenge.newEmail());
         emailService.sendEmailChangedNotice(challenge.newEmail(), user.getFullName(), challenge.newEmail());
+        return null;
     }
 
     @Transactional

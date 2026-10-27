@@ -1,0 +1,474 @@
+{
+ "_ghi_chu": [
+  "Phan sua tay cua ban db/seed_data_jlas.sql cu (sql/seeds/_cu/db/), dua ve dang du lieu de tools/generate_seed.py sinh tat dinh.",
+  "topics: [JLAS-W0108] 18 tag TOPIC (migration 007) + 2 tag 交渉/人事 (2.5e). Khong dat id; INSERT ... ON DUPLICATE KEY theo code.",
+  "outcomes: [JLAS-W0108] 11 outcome theo skill. Khong dat id; ON DUPLICATE KEY theo code.",
+  "kanji_bo_sung: kanji thieu trong kanji_data.json (千, gap KANJI_COMPONENT_CHOICE). Chi them neu kanji_data chua co chu do.",
+  "tu_dien_bo_sung: [JLAS-W0091] 48 tu vung DICTIONARY cho Smart Test. Tu trung khoa chuan hoa voi tu da sinh thi bo qua.",
+  "situation_theo_hoi_thoai: [JLAS-W0108] 2.5e phan loai lai bai hoi thoai: BA/TRAVEL theo ma hoi thoai (scene_code), mau fnmatch. Bai IT luon BA."
+ ],
+ "topics": [
+  {
+   "code": "会議",
+   "name": "Họp"
+  },
+  {
+   "code": "研修",
+   "name": "Đào tạo"
+  },
+  {
+   "code": "報告",
+   "name": "Báo cáo/trao đổi"
+  },
+  {
+   "code": "出張",
+   "name": "Công tác"
+  },
+  {
+   "code": "開発",
+   "name": "Phát triển/quy trình"
+  },
+  {
+   "code": "運用",
+   "name": "Vận hành/tiện ích"
+  },
+  {
+   "code": "移動",
+   "name": "Di chuyển"
+  },
+  {
+   "code": "食事",
+   "name": "Ăn uống"
+  },
+  {
+   "code": "観光",
+   "name": "Tham quan"
+  },
+  {
+   "code": "料理",
+   "name": "Nấu ăn"
+  },
+  {
+   "code": "買い物",
+   "name": "Quà tặng/mua sắm"
+  },
+  {
+   "code": "施設",
+   "name": "Cơ sở công cộng"
+  },
+  {
+   "code": "地域",
+   "name": "Cộng đồng"
+  },
+  {
+   "code": "予定",
+   "name": "Lịch trình"
+  },
+  {
+   "code": "メール",
+   "name": "Thư điện tử"
+  },
+  {
+   "code": "物語",
+   "name": "Truyện kể"
+  },
+  {
+   "code": "案内",
+   "name": "Thông báo & dịch vụ"
+  },
+  {
+   "code": "意見",
+   "name": "Ý kiến"
+  },
+  {
+   "code": "交渉",
+   "name": "Đàm phán/thương lượng"
+  },
+  {
+   "code": "人事",
+   "name": "Nhân sự & phỏng vấn"
+  }
+ ],
+ "outcomes": [
+  {
+   "code": "READ_DETAIL",
+   "name_vi": "Hiểu chi tiết",
+   "name_ja": "詳細理解",
+   "skill": "READING"
+  },
+  {
+   "code": "READ_INFO_RETRIEVAL",
+   "name_vi": "Tìm kiếm thông tin",
+   "name_ja": "情報検索",
+   "skill": "READING"
+  },
+  {
+   "code": "READ_MAIN_IDEA",
+   "name_vi": "Hiểu ý chính",
+   "name_ja": "主旨把握",
+   "skill": "READING"
+  },
+  {
+   "code": "READ_REASON",
+   "name_vi": "Hiểu lý do",
+   "name_ja": "理由把握",
+   "skill": "READING"
+  },
+  {
+   "code": "READ_REQUIRED_ACTION",
+   "name_vi": "Xác định hành động",
+   "name_ja": "行動把握",
+   "skill": "READING"
+  },
+  {
+   "code": "READ_MATCHING",
+   "name_vi": "Ghép nối",
+   "name_ja": "対応付け",
+   "skill": "READING"
+  },
+  {
+   "code": "READ_INFERENCE",
+   "name_vi": "Suy luận",
+   "name_ja": "推論",
+   "skill": "READING"
+  },
+  {
+   "code": "LISTEN_TASK_COMPREHENSION",
+   "name_vi": "Hiểu nhiệm vụ",
+   "name_ja": "課題理解",
+   "skill": "LISTENING"
+  },
+  {
+   "code": "LISTEN_POINT_COMPREHENSION",
+   "name_vi": "Hiểu điểm chính",
+   "name_ja": "ポイント理解",
+   "skill": "LISTENING"
+  },
+  {
+   "code": "LISTEN_GENERAL_OUTLINE",
+   "name_vi": "Hiểu khái quát",
+   "name_ja": "概要把握",
+   "skill": "LISTENING"
+  },
+  {
+   "code": "LISTEN_INTEGRATED_COMPREHENSION",
+   "name_vi": "Hiểu tổng hợp",
+   "name_ja": "統合理解",
+   "skill": "LISTENING"
+  }
+ ],
+ "kanji_bo_sung": [
+  {
+   "character": "千",
+   "unicode_code": "5343",
+   "radical_number": 24,
+   "stroke_count": 3,
+   "han_viet": "THIÊN",
+   "meaning_vi": "nghìn; ngàn",
+   "jlpt_level": "N5"
+  }
+ ],
+ "tu_dien_bo_sung": [
+  {
+   "expression": "すぐ",
+   "reading": "",
+   "meaning": "immediately; right away",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "ときどき",
+   "reading": "",
+   "meaning": "sometimes",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "にぎやか",
+   "reading": "",
+   "meaning": "lively; bustling",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "三人",
+   "reading": "さんにん",
+   "meaning": "three people",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "会社員",
+   "reading": "かいしゃいん",
+   "meaning": "office worker; company employee",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "千円",
+   "reading": "せんえん",
+   "meaning": "1000 yen",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "大雨",
+   "reading": "おおあめ",
+   "meaning": "heavy rain",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "日本語",
+   "reading": "にほんご",
+   "meaning": "Japanese language",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "東京",
+   "reading": "とうきょう",
+   "meaning": "Tokyo",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "母",
+   "reading": "はは",
+   "meaning": "mother (one's own)",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "父",
+   "reading": "ちち",
+   "meaning": "father (one's own)",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "百円",
+   "reading": "ひゃくえん",
+   "meaning": "100 yen",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "西口",
+   "reading": "にしぐち",
+   "meaning": "west exit; west entrance",
+   "jlpt_level": "N5"
+  },
+  {
+   "expression": "主人",
+   "reading": "しゅじん",
+   "meaning": "husband; master; owner",
+   "jlpt_level": "N4"
+  },
+  {
+   "expression": "夕食",
+   "reading": "ゆうしょく",
+   "meaning": "dinner; evening meal",
+   "jlpt_level": "N4"
+  },
+  {
+   "expression": "朝食",
+   "reading": "ちょうしょく",
+   "meaning": "breakfast",
+   "jlpt_level": "N4"
+  },
+  {
+   "expression": "駅員",
+   "reading": "えきいん",
+   "meaning": "station staff; station attendant",
+   "jlpt_level": "N4"
+  },
+  {
+   "expression": "ごみ袋",
+   "reading": "ごみぶくろ",
+   "meaning": "garbage bag",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "体重",
+   "reading": "たいじゅう",
+   "meaning": "body weight",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "帰国",
+   "reading": "きこく",
+   "meaning": "return to one's country",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "帰省",
+   "reading": "きせい",
+   "meaning": "homecoming; returning home",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "残業",
+   "reading": "ざんぎょう",
+   "meaning": "overtime work",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "求人",
+   "reading": "きゅうじん",
+   "meaning": "job opening; recruitment",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "翌日",
+   "reading": "よくじつ",
+   "meaning": "the next day",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "職場",
+   "reading": "しょくば",
+   "meaning": "workplace",
+   "jlpt_level": "N3"
+  },
+  {
+   "expression": "庭園",
+   "reading": "ていえん",
+   "meaning": "garden; park",
+   "jlpt_level": "N2"
+  },
+  {
+   "expression": "振込",
+   "reading": "ふりこみ",
+   "meaning": "bank transfer; deposit",
+   "jlpt_level": "N2"
+  },
+  {
+   "expression": "賃貸",
+   "reading": "ちんたい",
+   "meaning": "rental; lease",
+   "jlpt_level": "N2"
+  },
+  {
+   "expression": "巻",
+   "reading": "かん",
+   "meaning": "volume (of a book/series); roll",
+   "jlpt_level": "N2"
+  },
+  {
+   "expression": "ため息",
+   "reading": "ためいき",
+   "meaning": "sigh",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "使い捨て",
+   "reading": "つかいすて",
+   "meaning": "disposable",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "懸念",
+   "reading": "けねん",
+   "meaning": "concern; worry",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "折衝",
+   "reading": "せっしょう",
+   "meaning": "negotiation",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "抜擢",
+   "reading": "ばってき",
+   "meaning": "selection; appointment",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "挿入",
+   "reading": "そうにゅう",
+   "meaning": "insertion",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "晩年",
+   "reading": "ばんねん",
+   "meaning": "one's later years",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "示唆",
+   "reading": "しさ",
+   "meaning": "suggestion; implication",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "緻密",
+   "reading": "ちみつ",
+   "meaning": "minute; detailed; close",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "脆弱",
+   "reading": "ぜいじゃく",
+   "meaning": "fragile; vulnerable",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "講じる",
+   "reading": "こうじる",
+   "meaning": "to take (measures)",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "踏襲",
+   "reading": "とうしゅう",
+   "meaning": "following; adherence to precedent",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "躊躇",
+   "reading": "ちゅうちょ",
+   "meaning": "hesitation",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "遂行",
+   "reading": "すいこう",
+   "meaning": "execution; accomplishment",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "遮断",
+   "reading": "しゃだん",
+   "meaning": "blocking; isolation; cutoff",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "配属",
+   "reading": "はいぞく",
+   "meaning": "assignment; posting",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "鑑みる",
+   "reading": "かんがみる",
+   "meaning": "to learn from; in light of",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "陥る",
+   "reading": "おちいる",
+   "meaning": "to fall into (a state)",
+   "jlpt_level": "N1"
+  },
+  {
+   "expression": "顕著",
+   "reading": "けんちょ",
+   "meaning": "remarkable; prominent; conspicuous",
+   "jlpt_level": "N1"
+  }
+ ],
+ "situation_theo_hoi_thoai": {
+  "BA": [
+   "n3-hd-01",
+   "n3-hd-13",
+   "n2-hd-*",
+   "n1-hd-*"
+  ],
+  "TRAVEL": [
+   "n3-hd-06",
+   "n3-hd-16",
+   "TRV-*"
+  ]
+ }
+}

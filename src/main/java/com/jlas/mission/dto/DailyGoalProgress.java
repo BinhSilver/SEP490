@@ -10,5 +10,7 @@ public record DailyGoalProgress(
         int minutesDone, int minutesTarget,
         int percent,
         boolean completed,
-        int reward) {
+        int reward,
+        String source,
+        String fallbackReason) {
 }

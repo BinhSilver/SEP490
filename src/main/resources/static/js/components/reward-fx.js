@@ -43,7 +43,8 @@
 
   // ---------- small helpers ----------
   function osReducesMotion() {
-    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    // Coi như mọi máy đều bật hoạt ảnh (quyết định sản phẩm); chỉ tắt khi người dùng tự chọn trong app.
+    return false;
   }
 
   function motionMode() {

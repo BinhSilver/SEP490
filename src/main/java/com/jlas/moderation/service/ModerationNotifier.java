@@ -27,6 +27,7 @@ public class ModerationNotifier {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
     private static final Map<String, String> TARGET_LABELS = Map.of(
+            "USER_AVATAR", "Ảnh đại diện",
             "FLASHCARD_SET", "Bộ thẻ", "FLASHCARD_COMMENT", "Bình luận", "VIDEO", "Video Shadowing",
             "VIDEO_COMMENT", "Bình luận", "LESSON", "Bài học", "SCENARIO", "Kịch bản", "TEXTBOOK", "Giáo trình");
 

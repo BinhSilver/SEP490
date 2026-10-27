@@ -453,6 +453,10 @@ html:has(.arena-body),
   min-width: 0;
 }
 
+.ar-join__submit-icon {
+  display: none;
+}
+
 .ar-empty {
   padding: 18px;
   border: 2px dashed var(--ar-line-strong);
@@ -708,6 +712,10 @@ html:has(.arena-body),
   margin-bottom: 14px;
 }
 
+.ar-deck-filter {
+  display: none;
+}
+
 .ar-search {
   position: relative;
   flex: 1 1 260px;
@@ -729,6 +737,7 @@ html:has(.arena-body),
 
 .ar-deck-list {
   display: grid;
+  align-content: start;
   gap: 8px;
   max-height: 460px;
   margin: 0;
@@ -1445,6 +1454,8 @@ html:has(.arena-body),
   grid-template-columns: minmax(0, 8fr) minmax(350px, 3fr);
   gap: 18px;
   align-items: stretch;
+  /* Thu nhỏ cả khối chọn game + bộ thẻ 10%. */
+  zoom: .9;
 }
 
 /* Thẻ game to (ảnh trên, chữ dưới) để lấp chiều cao; cột bộ thẻ cuộn trong đúng chiều cao đó. */
@@ -1630,24 +1641,132 @@ html:has(.arena-body),
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ar-btn,
-  .ar-game-card__art img {
-    transition: none;
+/* Cùng ngưỡng với điều hướng mobile: mỗi màn chỉ hiện một bước thiết lập. */
+@media (max-width: 900px) {
+  .ar-setup .ar-deck-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 8px;
   }
 
-  .ar-game-card:hover .ar-game-card__art img,
-  .ar-btn:hover,
-  .ar-btn:active {
-    transform: none;
+  .ar-setup .ar-deck-tools > .ar-seg {
+    display: none;
   }
 
-  .ar-countdown strong,
-  .ar-skeleton,
-  .ar-btn[data-loading="true"]::before {
-    animation: none;
+  .ar-setup .ar-deck-filter {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--ar-line);
+    border-radius: 14px;
+    background: var(--ar-paper);
+    color: var(--ar-accent);
+    cursor: pointer;
   }
+
+  .ar-setup .ar-deck-filter:hover {
+    background: var(--ar-accent-soft);
+  }
+
+  .ar-setup .ar-deck-filter:focus-within {
+    box-shadow: var(--ar-focus);
+  }
+
+  .ar-setup .ar-deck-filter select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ar-setup .ar-setup-head {
+    margin-bottom: 16px;
+  }
+
+  .ar-setup .ar-setup-top {
+    zoom: 1;
+  }
+
+  .ar-setup .ar-step {
+    padding: 18px;
+  }
+
+  .ar-setup .ar-mode-seg {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .ar-setup .ar-mode-seg button {
+    min-height: 56px;
+    padding: 12px;
+    border: 2px solid var(--ar-line);
+    border-radius: 14px;
+    text-align: left;
+  }
+
+  .ar-setup .ar-mode-seg [aria-checked="true"] {
+    border-color: var(--ar-accent);
+  }
+
+  .ar-setup .ar-game-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ar-setup .ar-game-option {
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .ar-setup .ar-game-option__art {
+    width: 72px;
+    height: 72px;
+    aspect-ratio: 1;
+  }
+
+  .ar-setup .ar-step--deck .ar-coverage {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .ar-setup [data-step-fields] .ar-step__no,
+  .ar-setup [data-step-options] .ar-step__no,
+  .ar-setup .ar-setup-actions .ar-btn {
+    display: none;
+  }
+
+  .ar-setup .ar-mobile-bar {
+    position: fixed;
+    right: 0;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    z-index: var(--z-header);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--ar-line);
+    background: var(--ar-paper);
+  }
+
+  .ar-setup .ar-mobile-bar .ar-btn {
+    flex: 1;
+    min-width: 0;
+    padding-inline: 12px;
+  }
+
 }
+
 
 .ar-chip--muted {
   opacity: 0.55;
@@ -2044,17 +2163,40 @@ body.is-vs-room .ar-page {
   transform: skewX(-10deg) scale(0.6);
 }
 
-.vs__coin {
+/* ── Đồng xu (vs-room.js): mỗi người một đồng; mặt cáo = thắng, mặt JLAS = thua ── */
+.vs__coins {
   position: absolute;
   z-index: 3;
-  width: 128px;
-  height: 128px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(18px, 4vw, 44px);
+}
+
+.vs__coin {
+  --coin: 112px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: var(--coin);
+  transition: transform 450ms var(--ar-ease), opacity 450ms var(--ar-ease), filter 450ms var(--ar-ease);
+}
+
+.vs__coin.is-winner {
+  transform: scale(1.14);
+  filter: drop-shadow(0 0 22px rgba(255, 214, 102, 0.85));
+}
+
+.vs__coin.is-loser {
+  opacity: 0.5;
+  transform: scale(0.86);
+  filter: grayscale(0.4);
 }
 
 .vs__coin-inner {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: var(--coin);
+  height: var(--coin);
   transform-style: preserve-3d;
 }
 
@@ -2062,43 +2204,95 @@ body.is-vs-room .ar-page {
   animation: vs-flip 1.9s cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
 }
 
+.vs__coin--right .vs__coin-inner.is-flipping {
+  animation-delay: 90ms;
+}
+
 .vs__coin-inner.is-landed {
   transform: rotateY(var(--flip-end, 1800deg));
 }
 
+/* Viền bạc + lòng vàng có vân chấm, giống đồng xu đúc. */
 .vs__coin-face {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 2px;
-  border: 5px solid var(--vs-gold-deep);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff6d2, var(--vs-gold) 45%, var(--vs-gold-deep));
-  color: #3b2700;
+  background:
+    radial-gradient(circle, transparent 0 66%, rgba(110, 72, 0, 0.45) 67%, transparent 69.5%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 0.8px, transparent 1.3px) 0 0 / 5px 5px,
+    radial-gradient(circle at 34% 28%, #fff4c7 0, #f6d36a 28%, #d9a520 62%, #a8740c 100%);
+  box-shadow:
+    0 0 0 4px #eef1f5,
+    0 0 0 6px #9aa3af,
+    0 0 0 7px #5f6773,
+    inset 0 0 0 3px rgba(255, 255, 255, 0.35),
+    inset 0 -8px 14px rgba(90, 55, 0, 0.35),
+    0 12px 28px rgba(0, 0, 0, 0.5);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.25), 0 0 34px rgba(243, 200, 90, 0.55);
 }
 
-.vs__coin-face b {
-  font: 900 2rem / 1 var(--ar-display);
-}
-
-.vs__coin-face small {
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-}
-
-.vs__coin-face--left {
-  box-shadow: inset 0 0 0 6px var(--vs-blue), 0 0 34px var(--vs-blue-glow);
-}
-
-.vs__coin-face--right {
+.vs__coin-face--jlas {
   transform: rotateY(180deg);
-  box-shadow: inset 0 0 0 6px var(--vs-red), 0 0 34px var(--vs-red-glow);
+  gap: 2px;
+}
+
+/* Khắc nổi: bóng sáng dưới, bóng tối trên (filter ở lớp ngoài vì mask cắt mất filter của chính nó). */
+.vs__coin-emboss {
+  display: block;
+  /* aspect-ratio thay cho height %: hàng grid co theo nội dung nên % chiều cao tính ra 0. */
+  width: 70%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 1px 0 rgba(255, 244, 200, 0.9)) drop-shadow(0 -1px 0 rgba(80, 48, 0, 0.55));
+}
+
+.vs__coin-fox {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #9a6a00, #5c3a00);
+  -webkit-mask: url("/arena/images/vs/coin-fox.png") center / contain no-repeat;
+  mask: url("/arena/images/vs/coin-fox.png") center / contain no-repeat;
+}
+
+.vs__coin-face--jlas b {
+  color: #7a5200;
+  font: 900 calc(var(--coin) * 0.26) / 1 var(--ar-display);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 0 rgba(255, 244, 200, 0.95), 0 -1px 0 rgba(70, 40, 0, 0.5);
+}
+
+.vs__coin-face--jlas small {
+  color: #8a5e00;
+  font-size: calc(var(--coin) * 0.09);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 0 rgba(255, 244, 200, 0.8);
+}
+
+.vs__coin-name {
+  max-width: 140px;
+  overflow: hidden;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(61, 123, 255, 0.28);
+  color: var(--vs-ink);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vs__coin--right .vs__coin-name {
+  background: rgba(255, 61, 110, 0.28);
+}
+
+.vs__coin.is-winner .vs__coin-name {
+  background: linear-gradient(135deg, #f59e0b, #eab308);
+  color: #3b2300;
 }
 
 .vs__banner {
@@ -2555,8 +2749,7 @@ body.is-vs-room .ar-page {
   }
 
   .vs__coin {
-    width: 96px;
-    height: 96px;
+    --coin: 84px;
   }
 
   .vs__plates {
@@ -2569,19 +2762,6 @@ body.is-vs-room .ar-page {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .vs__vortex i,
-  .vs__hero,
-  .vs.is-intro .vs__mark,
-  .ar-search-overlay__radar i {
-    animation: none;
-  }
-
-  .vs__coin-inner.is-flipping {
-    animation: none;
-    transform: rotateY(var(--flip-end, 1800deg));
-  }
-}
 
 /* ── Cửa hàng Trò chơi (/games/shop) ─────────────────────────────────────────── */
 .ar-coin {
@@ -2676,6 +2856,22 @@ body.is-vs-room .ar-page {
   aspect-ratio: 1;
   background-size: 600% 100%;
 }
+
+.ar-character-art {
+  display: block;
+  width: 82%;
+  aspect-ratio: 1;
+}
+.ar-character-art img,
+.ar-character-art canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ar-character-art [hidden] { display: none; }
+/* A ship atlas uses four rows/columns; show the first pose while its canvas loads. */
+.ar-spaceship-art { position: relative; overflow: hidden; }
+.ar-spaceship-art img[data-character-fallback] { position: absolute; width: 400%; height: 400%; max-width: none; object-fit: fill; inset: 0 auto auto 0; }
 
 .ar-plane-fly {
   position: relative;
@@ -2823,13 +3019,6 @@ body.is-vs-room .ar-page {
 
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ar-shop-item,
-  .ar-shop-item:hover {
-    transform: none;
-    transition: none;
-  }
-}
 
 /* ── Cảnh xem trước trên thẻ game (/games): game-previews.js điều khiển nhịp, sprite chạy bằng CSS ───────── */
 .ar-preview {
@@ -3161,4 +3350,525 @@ body.is-vs-room .ar-page {
 @keyframes pv-boom-fade {
   0%, 85% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* Page-owned dark mode: css/pages/arena.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-arena-bg: #0b0d13;
+  --dm-arena-surface: #151a28;
+  --dm-arena-raised: #232b3d;
+  --dm-arena-ink: #f8fafc;
+  --dm-arena-muted: #b2bfd2;
+  --dm-arena-line: #414c65;
+  --dm-arena-accent: #c084fc;
+  --dm-arena-action: #7335a6;
+  --dm-arena-accent-soft: #2b2140;
+  --dm-arena-on-accent: #211b34;
+  --dm-arena-success: #8eddb6;
+  --dm-arena-success-bg: #1b3d32;
+  --dm-arena-success-line: #43816b;
+  --dm-arena-danger: #ffb4bd;
+  --dm-arena-danger-bg: #452832;
+  --dm-arena-danger-line: #96616d;
+  --dm-arena-warning: #f3d28a;
+  --dm-arena-warning-bg: #403522;
+  --dm-arena-warning-line: #947a46;
+  --dm-arena-pink: #f4aed2;
+  --dm-arena-pink-bg: #432d40;
+  --dm-arena-pink-line: #88637b;
+}
+html[data-theme="dark"] .arena-body {
+    --ar-line: var(--dm-arena-line);
+    --ar-line-strong: var(--dm-arena-line);
+    --ar-gold-soft: var(--dm-arena-warning-bg);
+    --ar-neko: var(--dm-arena-accent);
+    --ar-neko-soft: var(--dm-arena-raised);
+    --ar-memory: var(--dm-arena-accent);
+    --ar-memory-soft: var(--dm-arena-raised);
+    --ar-air: var(--dm-arena-accent);
+    --ar-air-soft: var(--dm-arena-raised);
+    --ar-clay: 0 1px 0 var(--dm-arena-surface) inset, 0 -3px 0 var(--dm-arena-raised) inset,
+    0 14px 30px -18px rgba(22, 29, 31, 0.38), 0 3px 0 var(--dm-arena-raised);
+    --ar-clay-press: 0 1px 0 var(--dm-arena-surface) inset, 0 1px 0 var(--dm-arena-raised)
+}
+html[data-theme="dark"] .ar-btn--primary {
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--dark {
+    --btn-ink: var(--dm-arena-ink);
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--gold {
+    --btn-ink: var(--dm-arena-ink);
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--ok {
+    --btn-ink: var(--dm-arena-ink);
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-btn--danger {
+    --btn-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-chip--gold {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .ar-dot.is-online {
+    background: var(--dm-arena-success-bg);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.30)
+}
+html[data-theme="dark"] .ar-dot.is-connecting {
+    background: var(--dm-arena-warning-bg)
+}
+html[data-theme="dark"] .ar-step__no {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-deck__thumb {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-summary__problem {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .ar-seat.is-ready {
+    border-color: var(--dm-arena-success-line)
+}
+html[data-theme="dark"] .ar-avatar {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-result-lines li.is-winner {
+    border-color: var(--dm-arena-warning-line)
+}
+html[data-theme="dark"] .ar-result-lines .ar-rank {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .ar-countdown {
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .arena-body {
+    --vs-ink: var(--dm-arena-ink);
+    --vs-muted: var(--dm-arena-muted);
+    --vs-bg: var(--dm-arena-bg);
+    --vs-blue: var(--dm-arena-accent);
+    --vs-blue-glow: var(--dm-arena-action);
+    --vs-red: var(--dm-arena-danger-bg);
+    --vs-red-glow: var(--dm-arena-danger-bg);
+    --vs-violet: var(--dm-arena-accent);
+    --vs-gold: var(--dm-arena-warning);
+    --vs-gold-deep: var(--dm-arena-warning);
+    --vs-line: var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-coin-rules__coin {
+    background: radial-gradient(circle at 35% 30%, var(--dm-arena-warning-bg), var(--vs-gold) 45%, var(--vs-gold-deep));
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .ar-search-overlay {
+    background: radial-gradient(circle at 50% 40%, var(--dm-arena-raised), rgba(7, 8, 26, 0.98))
+}
+html[data-theme="dark"] .ar-search-overlay__radar i {
+    border: 2px solid var(--dm-arena-line)
+}
+html[data-theme="dark"] .ar-search-overlay__radar::after {
+    background: radial-gradient(circle at 35% 30%, var(--dm-arena-warning-bg), var(--vs-gold) 45%, var(--vs-gold-deep));
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .vs__bg {
+    background: radial-gradient(60% 80% at 0% 100%, var(--dm-arena-action), transparent 60%),
+    radial-gradient(60% 80% at 100% 100%, var(--dm-arena-danger-bg), transparent 60%),
+    radial-gradient(40% 50% at 50% 45%, var(--dm-arena-action), transparent 70%),
+    var(--vs-bg)
+}
+html[data-theme="dark"] .vs__glow--left {
+    background: linear-gradient(90deg, var(--dm-arena-action), transparent)
+}
+html[data-theme="dark"] .vs__glow--right {
+    background: linear-gradient(270deg, var(--dm-arena-danger-bg), transparent)
+}
+html[data-theme="dark"] .vs__scan {
+    background: repeating-linear-gradient(0deg, var(--dm-arena-surface) 0 1px, transparent 1px 4px)
+}
+html[data-theme="dark"] .vs__step-no {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .vs__step.is-current {
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] .vs__step.is-current .vs__step-no {
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .vs__step.is-done .vs__step-no {
+    background: var(--dm-arena-success-bg);
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .vs__vortex i:nth-child(5) {
+    background: radial-gradient(circle, var(--dm-arena-accent-soft), transparent 70%)
+}
+/* Chỉ đổi background-image: viết tắt "background" sẽ reset background-clip: text → chữ VS thành khối gradient. */
+html[data-theme="dark"] .vs__mark {
+    background-image: linear-gradient(180deg, #ffffff 10%, var(--dm-arena-accent-soft, #c9cff5) 45%, var(--dm-arena-action, #7c86c8) 55%, #ffffff 90%);
+    -webkit-background-clip: text;
+    background-clip: text
+}
+html[data-theme="dark"] .vs__banner {
+    border-top: 1px solid var(--dm-arena-line);
+    border-bottom: 1px solid var(--dm-arena-line)
+}
+/* Nền huy hiệu "Gợi ý" vẫn vàng ở dark mode, nên chữ phải tối (chữ vàng trên nền vàng thì chìm mất). */
+html[data-theme="dark"] .vs__option em {
+    color: #3b2700
+}
+html[data-theme="dark"] .vs__option:hover {
+    box-shadow: 0 0 22px rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] .vs__timer {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .vs__btn--primary {
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .vs__plate--right {
+    background: linear-gradient(270deg, var(--dm-arena-pink-bg), rgba(70, 18, 36, 0.35))
+}
+html[data-theme="dark"] .vs__plate--right .vs__avatar {
+    background: var(--dm-arena-pink-bg)
+}
+html[data-theme="dark"] .vs__tag {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .vs__tag--ok {
+    background: var(--dm-arena-success-bg);
+    color: var(--dm-arena-success)
+}
+html[data-theme="dark"] .vs__tag--wait {
+    background: var(--dm-arena-warning-bg);
+    color: var(--dm-arena-warning)
+}
+html[data-theme="dark"] .vs__tag--bad {
+    background: var(--dm-arena-danger-bg);
+    color: var(--dm-arena-danger)
+}
+html[data-theme="dark"] .vs__case {
+    background: linear-gradient(160deg, var(--dm-arena-surface), var(--dm-arena-surface))
+}
+/* Coins stay gold in dark mode, matching the CP coin in the header (reward-fx.css). */
+html[data-theme="dark"] .ar-coin {
+    border: 2px solid #f0a500;
+    background: radial-gradient(circle at 35% 30%, #fff5c9 0 18%, #ffc857 42%, #f0a500 100%);
+    box-shadow: 0 2px 0 #8a6210
+}
+html[data-theme="dark"] .ar-shop-item__art {
+    background: radial-gradient(circle at 50% 60%, var(--dm-arena-surface), var(--game-soft) 70%)
+}
+html[data-theme="dark"] .ar-shop-grid--air-defense .ar-shop-item__art,
+html[data-theme="dark"] .ar-shop-item__art--air-defense {
+    background: radial-gradient(circle at 50% 55%, var(--dm-arena-raised), #0b0f26 75%)
+}
+html[data-theme="dark"] .ar-shop-grid--air-defense .ar-shop-item__art::before,
+html[data-theme="dark"] .ar-shop-item__art--air-defense::before {
+    background-image: radial-gradient(1.5px 1.5px at 20px 30px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 90px 70px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 140px 20px, var(--dm-arena-surface), transparent),
+    radial-gradient(1.5px 1.5px at 60px 120px, var(--dm-arena-accent-soft), transparent),
+    radial-gradient(1px 1px at 40px 60px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 120px 40px, var(--dm-arena-surface), transparent)
+}
+html[data-theme="dark"] .pv-pop {
+    color: var(--dm-arena-ink);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.47), 0 0 12px rgba(255, 214, 102, 0.9)
+}
+html[data-theme="dark"] .pv-fish {
+    color: var(--dm-arena-pink)
+}
+html[data-theme="dark"] .pv-fish--mint {
+    color: var(--dm-arena-success)
+}
+html[data-theme="dark"] .ar-preview--memory {
+    background: radial-gradient(circle at 20% 15%, var(--dm-arena-surface), transparent 45%),
+    linear-gradient(160deg, var(--dm-arena-accent-soft), var(--dm-arena-accent-soft) 60%, var(--dm-arena-accent-soft))
+}
+html[data-theme="dark"] .pv-card__back,
+html[data-theme="dark"] .pv-card__front {
+    border: 0.5cqw solid var(--dm-arena-line);
+    box-shadow: 0 1.2cqw 2cqw -1cqw rgba(0, 0, 0, 0.47)
+}
+html[data-theme="dark"] .pv-card__back {
+    background: linear-gradient(160deg, var(--dm-arena-accent-soft), var(--dm-arena-accent-soft));
+    color: var(--dm-arena-accent)
+}
+html[data-theme="dark"] .pv-card__back::before {
+    border: 0.4cqw solid var(--dm-arena-line)
+}
+html[data-theme="dark"] .pv-card__front {
+    background: linear-gradient(160deg, var(--dm-arena-action), var(--dm-arena-action));
+    color: var(--dm-arena-ink)
+}
+html[data-theme="dark"] .pv-card.is-matched .pv-card__front {
+    background: linear-gradient(160deg, var(--dm-arena-success-bg), var(--dm-arena-success-bg))
+}
+html[data-theme="dark"] .ar-preview--air-defense::before {
+    background-image: radial-gradient(1.5px 1.5px at 20px 30px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 90px 70px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 140px 20px, var(--dm-arena-surface), transparent),
+    radial-gradient(1.5px 1.5px at 60px 120px, var(--dm-arena-accent-soft), transparent),
+    radial-gradient(1px 1px at 40px 60px, var(--dm-arena-surface), transparent),
+    radial-gradient(1px 1px at 120px 40px, var(--dm-arena-surface), transparent)
+}
+html[data-theme="dark"] .pv-enemy__label {
+    border: 0.35cqw solid var(--dm-arena-line);
+    color: var(--dm-arena-ink);
+    box-shadow: 0 0 1.6cqw rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .pv-enemy--red .pv-enemy__label {
+    border-color: var(--dm-arena-warning-line);
+    box-shadow: 0 0 1.6cqw rgba(0, 0, 0, 0.50)
+}
+html[data-theme="dark"] .pv-laser {
+    background: linear-gradient(90deg, var(--dm-arena-action), var(--dm-arena-accent-soft) 40%, var(--dm-arena-surface));
+    box-shadow: 0 0 1.4cqw #5ee7ff, 0 0 3cqw rgba(0, 0, 0, 0.50)
+}
+
+/* Bắn máy bay requires a physical keyboard; keep it out of phone entry points. */
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+    .arena-body .ar-game-card--air-defense, .arena-body .ar-game-option--air-defense { display: none; }
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .arena-body{--color-background:var(--dm-arena-bg);--color-surface:var(--dm-arena-bg);--color-surface-lowest:var(--dm-arena-surface);--color-surface-low:var(--dm-arena-raised);--color-surface-mid:var(--dm-arena-raised);--color-surface-high:var(--dm-arena-raised);--color-surface-container:var(--dm-arena-raised);--color-surface-container-high:var(--dm-arena-raised);--color-on-surface:var(--dm-arena-ink);--color-on-surface-variant:var(--dm-arena-muted);--color-secondary:var(--dm-arena-muted);--color-outline:var(--dm-arena-muted);--color-outline-variant:var(--dm-arena-line);--color-primary:var(--dm-arena-accent);--color-primary-container:var(--dm-arena-action);--color-on-primary:var(--dm-arena-on-accent);--color-on-primary-container:var(--dm-arena-ink);--color-primary-fixed:var(--dm-arena-accent-soft);--color-on-primary-fixed:var(--dm-arena-accent);--color-secondary-container:var(--dm-arena-accent-soft);--color-secondary-fixed:var(--dm-arena-accent-soft);--color-success:var(--dm-arena-success);--color-success-bg:var(--dm-arena-success-bg);--color-error:var(--dm-arena-danger);--color-error-container:var(--dm-arena-danger-bg);--color-on-error-container:var(--dm-arena-danger);--color-tertiary:var(--dm-arena-warning);--color-tertiary-container:var(--dm-arena-warning-bg);--color-on-tertiary-container:var(--dm-arena-warning);--color-focus:var(--dm-arena-accent);--jlab-base-page-background:var(--dm-arena-bg);}
+html[data-theme="dark"] .arena-body .btn--primary{background:var(--dm-arena-action)!important;color:var(--dm-arena-ink)!important;}
+html[data-theme="dark"] .arena-body .btn--primary:hover{background:#8166c4!important;}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"] .arena-body{--ar-paper:var(--dm-arena-surface);--ar-paper-2:var(--dm-arena-raised);--ar-ink:var(--dm-arena-ink);--ar-muted:var(--dm-arena-muted);--ar-line:var(--dm-arena-line);--ar-line-strong:#70809e;--ar-neko:#ffba96;--ar-neko-soft:#45302b;--ar-memory:#8bdaec;--ar-memory-soft:#243c48;--ar-air:#b4bcff;--ar-air-soft:#303651;--ar-clay:0 1px 0 #ffffff0c inset,0 9px 20px #0004;--ar-clay-press:0 1px 0 #ffffff0a inset;--ar-gold-soft:var(--dm-arena-warning-bg);}
+html[data-theme="dark"] .arena-body .ar-btn--primary{background:var(--dm-arena-action);color:var(--dm-arena-ink);}
+html[data-theme="dark"] .arena-body .ar-btn--primary:hover{background:#8468c8;color:var(--dm-arena-ink);}
+
+/* Mobile hub: keep the room-code control on the same row as the shop. */
+@media (max-width: 900px) {
+  .ar-hub .ar-section-head--hub {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 12px 8px;
+  }
+  .ar-hub .ar-section-head--hub > div { display: contents; }
+  .ar-hub .ar-section-head--hub h1 { grid-column: 1 / -1; }
+  .ar-hub .ar-hub-shop {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 48px;
+    height: 52px;
+    padding-inline: 12px;
+  }
+  .ar-hub .ar-join { grid-column: 2; grid-row: 2; width: 100%; min-width: 0; }
+  .ar-hub .ar-join > .ar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .ar-hub .ar-join__row {
+    flex-direction: row;
+    gap: 0;
+    min-height: 52px;
+    border: 2px solid var(--ar-line-strong);
+    border-radius: var(--ar-radius-sm);
+    background: var(--ar-paper);
+    overflow: hidden;
+  }
+  .ar-hub .ar-join__row:focus-within { outline: 2px solid var(--ar-accent); outline-offset: 2px; }
+  .ar-hub .ar-join__row .ar-input {
+    width: 0;
+    min-height: 44px;
+    padding-inline: 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 16px;
+    letter-spacing: .06em;
+    box-shadow: none;
+  }
+  .ar-hub .ar-join__row .ar-input::placeholder { color: var(--ar-muted); letter-spacing: 0; text-transform: none; opacity: 1; }
+  .ar-hub .ar-join__row .ar-btn {
+    flex: 0 0 44px;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+  }
+  .ar-hub .ar-join__row .ar-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -5px; }
+  .ar-hub .ar-join__submit-text { display: none; }
+  .ar-hub .ar-join__submit-icon { display: block; width: 20px; height: 20px; }
+  .ar-hub .ar-join__row .ar-btn[data-loading="true"] .ar-join__submit-icon { display: none; }
+  .ar-hub .ar-join > .ar-error-text { margin-top: 6px; }
+}
+
+/* ================= Cửa hàng → Khung avatar (shop-page.js, components/avatar-frame.css) ================= */
+.ar-shop-grid--frames { --game: #7c3aed; --game-soft: rgba(124, 58, 237, .14); }
+.ar-shop-grid--frames .ar-shop-item__art,
+.ar-shop-item__art--frames,
+html[data-theme="dark"] .ar-shop-grid--frames .ar-shop-item__art,
+html[data-theme="dark"] .ar-shop-item__art--frames {
+  background: radial-gradient(circle at 50% 45%, #2a2342 0, #12101c 72%);
+}
+/* Avatar 58% ô xem trước → khung (1,5 ×) chiếm 87%. */
+.ar-frame-art {
+  position: relative;
+  display: grid;
+  width: 58%;
+  aspect-ratio: 1;
+}
+/* Hai class: jlab-base-shell.css nạp lại user-menu.css sau cùng, .user-avatar (40px) đè luật một class. */
+.ar-frame-art > .ar-frame-art__avatar {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  cursor: default;
+}
+.ar-frame-art__avatar .user-avatar__initials {
+  font-size: 1.6rem;
+}
+/* Thẻ khung thẳng hàng: tên 1 dòng, mô tả đúng 3 dòng, màu tên 1 dòng (phần bị cắt xem ở title). */
+.ar-shop-grid--frames .ar-shop-item h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ar-shop-grid--frames .ar-shop-item__desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  height: calc(1.5em * 3);
+  margin-bottom: 10px;
+}
+.ar-shop-item__name-style {
+  margin: 0 0 10px;
+  /* Chừa chỗ cho quầng sáng của màu tên khỏi bị cắt khi giới hạn 1 dòng. */
+  padding: 2px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .85rem;
+  color: var(--ar-muted, inherit);
+}
+.ar-shop-item__name-style strong {
+  font-size: 1rem;
+}
+
+/* ================= Khung avatar người chơi: phòng chờ + màn đối đầu (room-page.js, vs-room.js) ================= */
+.vs__plate--right .vs__avatar-host {
+  order: 3;
+}
+/* Có khung: avatar tròn, bỏ viền/bóng riêng để khớp lỗ tròn của khung; chừa chỗ cho khung tràn 25%. */
+.af-host.has-frame > .ar-avatar,
+.af-host.has-frame > .vs__avatar {
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+}
+.ar-avatar-host.has-frame {
+  margin: 20px 0 16px;
+}
+.vs__avatar-host.has-frame {
+  margin: 0 10px;
+}
+
+/* ================= Màn đối đầu trên điện thoại (vs-room.js): bố cục riêng, gọn ================= */
+/* Thứ tự: tiêu đề → các bước (cuộn ngang) → hai người chơi cạnh nhau → VS / đồng xu → thông báo → lựa chọn. */
+@media (max-width: 640px) {
+  .vs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: auto;
+    padding: 12px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .vs .vs__top { order: 1; flex-wrap: nowrap; align-items: center; }
+  .vs .vs__top > div { min-width: 0; }
+  .vs .vs__kicker { font-size: 10px; letter-spacing: 0.1em; }
+  .vs .vs__deck { overflow: hidden; margin: 2px 0 0; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  .vs .vs__conn { flex: none; font-size: 11px; }
+
+  .vs .vs__steps {
+    order: 2;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin: 0 -12px;
+    padding: 2px 12px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .vs .vs__steps::-webkit-scrollbar { display: none; }
+  .vs .vs__step { flex: none; padding: 4px 10px 4px 4px; scroll-snap-align: start; }
+  .vs .vs__step em small { display: none; }
+
+  .vs .vs__plates {
+    order: 3;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    margin: 0;
+  }
+  .vs .vs__plate,
+  .vs .vs__plate--right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 10px 8px 12px;
+    border-radius: 14px;
+    text-align: center;
+  }
+  .vs .vs__plate--right { background: linear-gradient(180deg, rgba(70, 18, 36, 0.92), rgba(70, 18, 36, 0.4)); }
+  .vs .vs__plate--left { background: linear-gradient(180deg, rgba(20, 28, 70, 0.92), rgba(20, 28, 70, 0.4)); }
+  .vs .vs__plate > *,
+  .vs .vs__plate--right > * { order: 0; }
+  .vs .vs__who { width: 100%; text-align: center; }
+  .vs .vs__who strong { font-size: 15px; }
+  .vs .vs__who span,
+  .vs .vs__plate--right .vs__who span { justify-content: center; }
+  .vs .vs__case { display: none; }
+  .vs .vs__avatar { width: 52px; height: 52px; }
+  /* Khung tràn 25% quanh avatar 52px; người không khung cũng chừa như vậy để hai avatar thẳng hàng. */
+  .vs .vs__avatar-host { margin: 13px 0 7px; }
+
+  .vs .vs__stage,
+  .vs.is-compact .vs__stage {
+    order: 4;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    min-height: 0;
+    height: 140px;
+  }
+  .vs .vs__hero { display: none; }
+  .vs .vs__core { width: 140px; height: 140px; }
+  .vs .vs__mark,
+  .vs.is-compact .vs__mark { font-size: 3.2rem; }
+  .vs .vs__coin { --coin: 74px; }
+  .vs .vs__coins { gap: 18px; }
+
+  .vs .vs__banner { order: 5; width: 100%; min-height: 0; margin: 0; padding: 10px 12px; font-size: 14px; }
+  .vs .vs__panel { order: 6; margin: 0; }
+  .vs .vs__options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+  .vs .vs__option { min-width: 0; padding: 12px 10px 10px; }
+  .vs .vs__summary { width: 100%; }
+  .vs .vs__summary li { flex: 1 1 calc(50% - 8px); }
+  .vs .vs__actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); width: 100%; }
+  .vs .vs__btn { padding: 0 12px; }
 }

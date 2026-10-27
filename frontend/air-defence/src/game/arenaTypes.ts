@@ -104,6 +104,32 @@ export interface AirConfigView {
   attackMilestones: number[];
 }
 
+export interface ShopItemView {
+  id: number;
+  renderCode: string;
+  code: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  starter: boolean;
+  owned: boolean;
+  equipped: boolean;
+}
+
+export interface ShopSectionView {
+  gameType: GameType;
+  gameName: string;
+  title: string;
+  equippedCode: string;
+  items: ShopItemView[];
+}
+
+export interface ShopView {
+  balance: number;
+  sections: ShopSectionView[];
+}
+
 export interface AirPlayerView {
   userId: number;
   displayName: string;
@@ -208,6 +234,8 @@ export interface JlasArenaApi {
   me(): Promise<{ userId: number; name: string; avatarUrl: string | null }>;
   esc(value: unknown): string;
   fieldLabel(field: DeckField): string;
+  phoneMedia: MediaQueryList;
+  canPlayGame(type: GameType): boolean;
 }
 
 export interface ArenaError extends Error {

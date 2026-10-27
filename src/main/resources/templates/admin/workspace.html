@@ -1,40 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Trang quản trị | JLAS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
-    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/admin.css(v=20260925)}"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
-    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-</head>
-<body id="jlabBasePage" class="page-admin">
-<div id="jlabBaseShellMount"></div>
+<head th:replace="~{fragments/admin-head :: head('Trang quản trị | JLAS', 'admin')}"></head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-admin admin-portal">
+<link rel="stylesheet" th:if="${section == 'game-effects'}" th:href="@{/css/pages/game-effects.css}"/>
+<link rel="stylesheet" th:if="${section == 'game-skins' or section == 'avatar-frames'}" th:href="@{/css/pages/admin-game-skins.css(v='20261015')}"/>
+<link rel="stylesheet" th:if="${section == 'avatar-frames'}" th:href="@{/css/components/avatar-frame.css(v='20261021-catalog')}"/>
+<link rel="stylesheet" th:if="${section == 'avatar-frames'}" th:href="@{/css/pages/admin-avatar-frames.css(v='20261021')}"/>
+<link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+<div id="adminShellMount"></div>
 
-<main id="jlabBaseContent">
+<main id="jlabBaseContent" hidden>
     <div class="adm-layout" id="admRoot" th:attr="data-section=${section}">
-        <aside class="adm-sidebar" aria-label="Các mục quản trị">
-            <div class="adm-sidebar__head">
-                <span class="adm-sidebar__icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
-                <div>
-                    <strong>Trang quản trị</strong>
-                    <span id="admRole" class="adm-muted"></span>
-                </div>
-            </div>
-            <nav id="admNav"></nav>
-        </aside>
-
         <section class="adm-main" aria-live="polite">
             <header class="adm-header">
                 <h1 class="adm-title" id="admTitle">Trang quản trị</h1>
-                <p class="adm-subtitle" id="admSubtitle"></p>
+                <p class="adm-subtitle" id="admSubtitle" hidden></p>
             </header>
             <div id="admContent">
                 <div class="adm-empty"><span class="adm-spinner" aria-hidden="true"></span><span>Đang tải…</span></div>
@@ -43,11 +23,16 @@
     </div>
 </main>
 
-<script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/admin-core.js(v=20260925)}"></script>
-<script th:src="@{/js/pages/admin-moderation-review.js(v=20260925)}"></script>
+<script th:src="@{/js/pages/admin-core.js(v=20261021-frames)}"></script>
+<script th:src="@{/js/admin-shell.js}"></script>
+<script th:src="@{/js/pages/admin-moderation-review.js(v=20261021-video-block)}"></script>
 <script th:src="@{/js/pages/admin-moderation-tools.js(v=20260925)}"></script>
-<script th:src="@{/js/pages/admin-boot.js(v=20260925)}"></script>
+<script th:src="@{/js/pages/admin-system.js(v=20261014-roles)}"></script>
+<script th:src="@{/js/pages/admin-game-effects.js}"></script>
+<script th:if="${section == 'game-skins'}" th:src="@{/arena/js/character-skin-preview.js(v='20261005-aligned-1')}"></script>
+<script th:if="${section == 'game-skins'}" th:src="@{/js/pages/admin-game-skins.js(v=20261015)}"></script>
+<script th:if="${section == 'avatar-frames'}" th:src="@{/js/components/avatar-frame.js(v='20261021-catalog')}"></script>
+<script th:if="${section == 'avatar-frames'}" th:src="@{/js/pages/admin-avatar-frames.js(v='20261021')}"></script>
+<script th:src="@{/js/pages/admin-boot.js(v=20261013portal)}"></script>
 </body>
 </html>

@@ -18,6 +18,18 @@
   var contextSetId = null;
   var contextSetVisibility = null;
   var exportSet = null;
+  var mobileLibrary = window.matchMedia('(max-width: 900px)');
+
+  /** Số thẻ SRS đến hạn cạnh mục "Ôn hôm nay"; lỗi thì chỉ ẩn nhãn. */
+  function loadDueBadge() {
+    var badge = document.getElementById('srs-due-badge');
+    if (!badge) return;
+    FlashApi.get('/api/study/due?limit=1').then(function (queue) {
+      var due = queue && queue.dueCount ? queue.dueCount : 0;
+      badge.textContent = due > 99 ? '99+' : String(due);
+      badge.hidden = due === 0;
+    }).catch(function () { badge.hidden = true; });
+  }
 
   document.addEventListener('DOMContentLoaded', function () {
     var redirectTarget = window.location.pathname + window.location.search;
@@ -52,6 +64,7 @@
       handleContextAction(action.getAttribute('data-context-action'));
     });
     bindExportModal();
+    loadDueBadge();
     document.addEventListener('click', function (event) {
       if (!event.target.closest('#lib-context-menu')) closeContextMenu();
     });
@@ -104,6 +117,20 @@
     });
 
     folderPanel.hidden = false;
+    bindMobileFilters();
+    updateLibraryScope();
+    loadFolders().then(load).catch(function (e) {
+      FlashShell.showToast(e.message || 'Không tải được thư mục', 'err');
+      load();
+    });
+  });
+
+  function updateLibraryScope() {
+    var scope = document.getElementById('lib-scope-filter');
+    if (scope) scope.value = state.tab;
+    document.querySelectorAll('[data-sidebar-tab]').forEach(function (item) {
+      item.classList.toggle('is-active', item.getAttribute('data-sidebar-tab') === state.tab);
+    });
     if (state.tab === 'my') {
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-folder-open"></i></span> Bộ thẻ của tôi';
       document.getElementById('library-subheading').textContent = 'Bản nháp và các bộ thẻ được sắp xếp theo thư mục của bạn.';
@@ -111,13 +138,60 @@
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-rectangle-list"></i></span> Bộ thẻ công khai';
       document.getElementById('library-subheading').textContent = 'Khám phá các bộ thẻ được chia sẻ bởi cộng đồng.';
     }
-    loadFolders().then(load).catch(function (e) {
-      FlashShell.showToast(e.message || 'Không tải được thư mục', 'err');
+  }
+
+  function bindMobileFilters() {
+    var scope = document.getElementById('lib-scope-filter');
+    var dropdown = document.getElementById('lib-folder-filter');
+    var create = document.querySelector('.library-create-btn');
+    if (!scope || !dropdown || !create) return;
+    var createAnchor = document.createComment('desktop create button');
+    var folderAnchor = document.createComment('desktop folder panel');
+    create.before(createAnchor);
+    folderPanel.before(folderAnchor);
+    var desktopPlaceholder = searchInput.placeholder;
+    function adaptLibrary() {
+      dropdown.open = false;
+      searchInput.placeholder = mobileLibrary.matches ? 'Tìm bộ thẻ' : desktopPlaceholder;
+      if (mobileLibrary.matches) {
+        document.querySelector('.lib-toolbar').append(create);
+        dropdown.append(folderPanel);
+      } else {
+        createAnchor.after(create);
+        folderAnchor.after(folderPanel);
+      }
+    }
+    scope.addEventListener('change', function () {
+      state.tab = scope.value;
+      state.folderId = null;
+      state.page = 0;
+      dropdown.open = false;
+      updateLibraryUrl();
+      paintActiveFolder();
       load();
     });
-  });
+    document.addEventListener('click', function (event) {
+      if (!dropdown.contains(event.target)) dropdown.open = false;
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && dropdown.open) {
+        dropdown.open = false;
+        dropdown.querySelector('summary').focus();
+      }
+    });
+    mobileLibrary.addEventListener('change', adaptLibrary);
+    adaptLibrary();
+  }
+
+  function updateLibraryUrl() {
+    var url = new URL(window.location.href);
+    if (state.tab === 'my') url.searchParams.set('tab', 'my');
+    else url.searchParams.delete('tab');
+    window.history.replaceState(window.history.state, '', url);
+  }
 
   async function load() {
+    updateLibraryScope();
     grid.innerHTML = '<div class="lib-loading"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải...</div>';
     empty.hidden = true;
     try {
@@ -172,6 +246,15 @@
   }
 
   function selectFolder(value) {
+    if (mobileLibrary.matches) {
+      state.tab = 'my';
+      updateLibraryUrl();
+      var dropdown = document.getElementById('lib-folder-filter');
+      if (dropdown) {
+        dropdown.open = false;
+        dropdown.querySelector('summary').focus({ preventScroll: true });
+      }
+    }
     state.folderId = value === 'all' ? null : Number(value);
     state.page = 0;
     paintActiveFolder();
@@ -179,6 +262,9 @@
   }
 
   function paintActiveFolder() {
+    var label = document.getElementById('lib-folder-label');
+    var selected = state.folders.find(function (folder) { return folder.id === state.folderId; });
+    if (label) label.textContent = state.folderId === null ? 'Thư mục' : state.folderId === 0 ? 'Chưa phân loại' : selected ? selected.name : 'Thư mục';
     document.querySelectorAll('[data-folder-filter]').forEach(function (button) {
       var value = button.getAttribute('data-folder-filter');
       button.classList.toggle('is-active', state.folderId === null ? value === 'all' : Number(value) === state.folderId);
@@ -186,7 +272,7 @@
   }
 
   async function createFolder() {
-    var name = prompt('Tên thư mục mới:');
+    var name = await FlashShell.requestFolderName();
     if (!name || !name.trim()) return;
     try {
       await FlashApi.post('/api/flashcards/folders', { name: name.trim() });
@@ -199,11 +285,13 @@
 
   async function renameFolder(id) {
     var current = state.folders.find(function (folder) { return folder.id === id; });
-    var name = prompt('Tên mới của thư mục:', current ? current.name : '');
+    var name = await FlashShell.requestFolderName({ rename: true, name: current ? current.name : '' });
     if (!name || !name.trim()) return;
     try {
       await FlashApi.put('/api/flashcards/folders/' + id, { name: name.trim() });
       await loadFolders();
+      var renameButton = folderList.querySelector('[data-folder-rename="' + id + '"]');
+      if (renameButton) renameButton.focus({ preventScroll: true });
     } catch (e) {
       FlashShell.showToast(e.message || 'Không đổi được tên thư mục', 'err');
     }
@@ -488,11 +576,18 @@
     return String(value || '').replace(/\s*[\r\n]+\s*/g, ' ').trim();
   }
 
-  /* Same columns and fallback as the server export: front, back (or reading — meaning), Hán Việt. */
+  /* Nghĩa: the stored meaning, else the back without its "reading — " prefix (same as the server export). */
+  function exportMeaning(card) {
+    if (card.meaning) return card.meaning;
+    var back = card.back || '';
+    var prefix = card.reading ? card.reading + ' — ' : '';
+    return prefix && back.indexOf(prefix) === 0 ? back.slice(prefix.length) : back;
+  }
+
+  /* Same four columns as the server export: Kanji, Cách đọc, Nghĩa, Hán Việt (the last one optional). */
   function exportRows() {
     return ((exportSet && exportSet.cards) || []).map(function (card) {
-      var back = card.back || [card.reading, card.meaning].filter(Boolean).join(' — ');
-      var cells = [card.front, back];
+      var cells = [card.front, card.reading, exportMeaning(card)];
       if (withHanViet()) cells.push(card.hanViet);
       return cells.map(flattenCell);
     });
@@ -503,14 +598,14 @@
     var termSep = selectedSeparator('export-term-sep', TERM_SEPARATORS, 'export-term-custom');
     var rowSep = selectedSeparator('export-row-sep', ROW_SEPARATORS, 'export-row-custom');
     return exportRows().map(function (cells) {
-      // Drop an empty trailing Hán Việt cell so the line does not end with a separator.
-      while (cells.length > 2 && !cells[cells.length - 1]) cells.pop();
+      // Drop an empty trailing Hán Việt cell; Kanji/Cách đọc/Nghĩa always stay so the import keeps column order.
+      while (cells.length > 3 && !cells[cells.length - 1]) cells.pop();
       return cells.join(termSep);
     }).join(rowSep);
   }
 
   function buildExportTable() {
-    var header = ['#', 'Mặt trước', 'Mặt sau'];
+    var header = ['#', 'Kanji', 'Cách đọc', 'Nghĩa'];
     if (withHanViet()) header.push('Hán Việt');
     var body = exportRows().map(function (cells, index) {
       return '<tr><th scope="row">' + (index + 1) + '</th>' +

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const sortSelect = document.getElementById('sort-select');
     const categoryFilter = document.getElementById('category-filter');
+    const genreFilter = document.getElementById('genre-filter');
     const levelFilter = document.getElementById('level-filter');
     const scopeBtns = document.querySelectorAll('[data-scope]');
     const statusTabs = document.getElementById('status-tabs');
@@ -18,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStatus = '';     // '' | READY | DRAFT | PROCESSING | FAILED
     let allVideos = [];
     let searchTimer = null;
+    let loadVersion = 0;
+    let currentPage = 1;
+    const pager = window.ShadowingLibraryUi.createPager(document.getElementById('video-pagination'), page => loadVideos(page));
 
     function authHeaders(json) {
         if (window.JlasAuth && typeof JlasAuth.authHeaders === 'function') {
@@ -52,31 +56,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const initial = new URLSearchParams(window.location?.search || '');
+    const initialScope = initial.get('scope');
+    if ((initialScope === 'my' && isLoggedIn()) || initialScope === 'favorites') {
+        currentScope = initialScope;
+        scopeBtns.forEach(b => b.classList.toggle('active', b.dataset.scope === initialScope));
+        statusTabs.hidden = initialScope !== 'my';
+        const initialStatus = initial.get('status') || '';
+        if (initialScope === 'my' && Array.from(statusBtns).some(b => (b.dataset.status || '') === initialStatus)) {
+            currentStatus = initialStatus;
+            statusBtns.forEach(b => b.classList.toggle('active', (b.dataset.status || '') === initialStatus));
+        }
+    }
+    const initialPage = Math.max(1, Math.floor(Number(initial.get('page'))) || 1);
+
     statusBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             statusBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentStatus = btn.dataset.status || '';
-            render();
+            loadVideos();
         });
     });
 
     searchInput?.addEventListener('input', () => {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(loadVideos, 300);
+        searchTimer = setTimeout(reloadVisibleVideos, 300);
     });
 
-    sortSelect?.addEventListener('change', loadVideos);
-    categoryFilter?.addEventListener('change', loadVideos);
-    levelFilter?.addEventListener('change', loadVideos);
+    function reloadVisibleVideos() {
+        if (document.getElementById('series-grid')?.hidden !== false) loadVideos();
+    }
+    sortSelect?.addEventListener('change', reloadVisibleVideos);
+    categoryFilter?.addEventListener('change', reloadVisibleVideos);
+    genreFilter?.addEventListener('change', reloadVisibleVideos);
+    levelFilter?.addEventListener('change', reloadVisibleVideos);
 
-    async function loadVideos() {
+    async function loadVideos(page = 1) {
+        const version = ++loadVersion;
         const q = (searchInput?.value || '').trim();
-        const sort = sortSelect?.value || 'newest';
+        const sort = sortSelect?.value || 'popular';
         const category = categoryFilter?.value || '';
-        const params = new URLSearchParams({ clientId, sort });
+        const genre = genreFilter?.value || '';
+        const params = new URLSearchParams({ sort, page: String(page), size: '12' });
+        if (currentScope === 'my' && currentStatus) params.set('status', currentStatus);
         if (q) params.set('q', q);
         if (category) params.set('category', category);
+        if (genre) params.set('genre', genre);
         if (levelFilter?.value) params.set('level', levelFilter.value);
 
         if (currentScope === 'favorites') {
@@ -88,13 +114,35 @@ document.addEventListener('DOMContentLoaded', () => {
             params.set('scope', 'public');
         }
 
+        pager.setBusy(true);
+        videoGrid.setAttribute('aria-busy', 'true');
+        if (videoEmptyState) videoEmptyState.hidden = true;
         try {
-            const res = await fetch(`/api/videos?${params}`, { headers: authHeaders() });
-            if (!res.ok) throw new Error('load failed');
-            allVideos = await res.json();
+            const res = await fetch(`/api/videos/library?${params}`, { headers: authHeaders() });
+            if (!res.ok) throw new Error(res.status === 401 ? 'Vui lòng đăng nhập lại để xem thư viện.' : 'Không tải được thư viện. Hãy thử lại.');
+            const body = await res.json();
+            const data = body.data;
+            if (!body.success || !data || !Array.isArray(data.items)) throw new Error('Không tải được thư viện. Hãy thử lại.');
+            if (version !== loadVersion) return;
+            allVideos = data.items;
+            const pageChanged = currentPage !== data.page;
+            currentPage = data.page;
+            window.ShadowingLibraryUi.remember?.({
+                scope: currentScope === 'public' ? '' : currentScope,
+                status: currentScope === 'my' ? currentStatus : '',
+                page: currentPage > 1 ? String(currentPage) : ''
+            });
             render();
+            watchProcessing();
+            pager.render(data);
+            if (videoGrid.hidden) pager.hide();
+            if (pageChanged && !videoGrid.hidden) videoGrid.scrollIntoView({ block: 'start', behavior: 'auto' });
         } catch (e) {
-            videoGrid.innerHTML = '<p class="lead" style="grid-column:1/-1;text-align:center;">Không tải được thư viện.</p>';
+            if (version !== loadVersion) return;
+            pager.hide();
+            videoGrid.innerHTML = `<p class="lead library-load-error" role="alert">${esc(e.message || 'Không tải được thư viện. Hãy thử lại.')}</p>`;
+        } finally {
+            if (version === loadVersion) { pager.setBusy(false); videoGrid.setAttribute('aria-busy', 'false'); }
         }
     }
 
@@ -114,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         v.favorited = data.favorited;
         btn.classList.toggle('favorited', v.favorited);
         btn.querySelector('i').className = v.favorited ? 'fa-solid fa-star' : 'fa-regular fa-star';
+        if (currentScope === 'favorites' && !v.favorited) loadVideos(currentPage);
     }
 
     async function toggleVisibility(e, v) {
@@ -131,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         v.visibility = next;
         showToast(next === 'PUBLIC' ? 'Đã đặt công khai' : 'Đã đặt riêng tư');
-        loadVideos();
+        loadVideos(currentPage);
     }
 
     async function shareCard(e, v) {
@@ -143,10 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function render() {
-        let videos = allVideos;
-        if (currentScope === 'my' && currentStatus) {
-            videos = videos.filter(v => v.status === currentStatus);
-        }
+        const videos = allVideos;
 
         videoGrid.innerHTML = '';
         if (videoEmptyState) videoEmptyState.hidden = true;
@@ -177,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 videoEmptyAction.textContent = emptyContent.action;
                 videoEmptyAction.href = emptyContent.href;
             }
-            if (videoEmptyState) videoEmptyState.hidden = false;
+            if (videoEmptyState) videoEmptyState.hidden = videoGrid.hidden;
             return;
         }
 
@@ -220,15 +266,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="badge badge-category"><i class="fa-solid fa-folder"></i> ${esc(category)}</span>
                     <span class="badge badge-lesson"><i class="fa-solid fa-closed-captioning"></i> ${v.subtitleCount || 0} câu</span>
                 </div>
+                ${v.genres && v.genres.length ? `<div class="video-card-genres" aria-label="Thể loại">${window.ShadowingGenres.badges(v.genres, 3)}</div>` : ''}
                 <div class="video-card-stats">
                     <div class="card-avg-rating" data-avg-rating title="Độ nổi bật (trung bình sao)"></div>
                     <span class="caption" title="Lượt xem: nghe thật ≥ 30 giây, mỗi tài khoản tối đa 1 lượt/24 giờ"><i class="fa-solid fa-eye"></i> ${v.viewCount || 0} lượt xem</span>
                     ${v.commentCount ? `<span class="caption"><i class="fa-solid fa-comment"></i> ${v.commentCount}</span>` : ''}
                 </div>
                 ${v.status === 'PROCESSING' ? `
-                    <div class="card-progress">
+                    <div class="card-progress" data-processing-id="${Number(v.id)}">
                         <div class="progress-bar progress-bar-lg"><div class="progress-fill" style="width:${v.progressPercent || 0}%"></div></div>
-                        <span class="caption"><i class="fa-solid fa-spinner"></i> Đang xử lý ${v.progressPercent || 0}%</span>
+                        <span class="caption"><i class="fa-solid fa-spinner fa-spin"></i> <span data-processing-text>${esc(processingText(v))}</span></span>
                     </div>` : ''}
                 <div class="card-actions">
                     <button class="text-link card-open-btn" title="Mở bài học" aria-label="Mở bài học"><i class="fa-solid fa-play"></i></button>
@@ -238,6 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                     <button class="text-link card-edit-btn" title="Sửa" aria-label="Sửa" ${canManage ? '' : 'style="display:none"'}><i class="fa-solid fa-pen"></i></button>
                     <button class="text-link card-delete-btn" title="Xóa" aria-label="Xóa" style="color:var(--red);${canManage ? '' : 'display:none'}"><i class="fa-solid fa-trash"></i></button>
+                    ${window.ShadowingLibraryUi.ratingHtml(v.avgRating, v.ratingCount)}
                 </div>
             `;
 
@@ -284,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         showToast('Không thể xóa video. Thử lại sau.');
                         return;
                     }
-                    loadVideos();
+                    loadVideos(currentPage);
                 });
             }
 
@@ -298,5 +346,57 @@ document.addEventListener('DOMContentLoaded', () => {
         return d.innerHTML;
     }
 
-    loadVideos();
+    const PROCESSING_POLL_MS = 5000;
+    const PROCESSING_STEPS = {
+        UPLOADED: 'Đang bắt đầu',
+        YOUTUBE_DOWNLOAD: 'Đang hoàn tất',
+        SUBTITLE_DOWNLOAD: 'Đang tải phụ đề',
+        EXTRACTING_AUDIO: 'Đang tách âm thanh',
+        TRANSCRIBING: 'Đang nhận dạng giọng nói',
+        AI_PROCESSING: 'AI đang thêm furigana và bản dịch'
+    };
+    let processingTimer = null;
+
+    function processingText(v) {
+        return (PROCESSING_STEPS[v.processingStep] || 'Đang xử lý') + ' · ' + (v.progressPercent || 0) + '%';
+    }
+
+    // Videos being processed update in place, so the owner sees progress without reloading the page.
+    function watchProcessing() {
+        clearTimeout(processingTimer);
+        processingTimer = null;
+        if (currentScope !== 'my' || !allVideos.some(v => v.status === 'PROCESSING')) return;
+        processingTimer = setTimeout(refreshProcessing, PROCESSING_POLL_MS);
+    }
+
+    async function refreshProcessing() {
+        if (document.hidden) { watchProcessing(); return; }
+        const version = loadVersion;
+        const finished = [];
+        await Promise.all(allVideos.filter(v => v.status === 'PROCESSING').map(async v => {
+            try {
+                const res = await fetch(`/api/videos/${v.id}/status`, { headers: authHeaders() });
+                if (!res.ok || version !== loadVersion) return;
+                const s = await res.json();
+                v.processingStep = s.processingStep;
+                v.progressPercent = s.progressPercent;
+                if (s.status !== 'PROCESSING') { finished.push({ video: v, status: s.status }); return; }
+                const box = videoGrid.querySelector(`[data-processing-id="${Number(v.id)}"]`);
+                if (!box) return;
+                box.querySelector('.progress-fill').style.width = (s.progressPercent || 0) + '%';
+                box.querySelector('[data-processing-text]').textContent = processingText(v);
+            } catch (e) { /* the next tick retries */ }
+        }));
+        if (version !== loadVersion) return;
+        if (finished.length) {
+            finished.forEach(f => showToast(f.status === 'FAILED'
+                ? `「${f.video.title}」 bị dừng khi tạo phụ đề`
+                : `「${f.video.title}」 đã tạo xong phụ đề`, 5000));
+            loadVideos(currentPage);
+            return;
+        }
+        watchProcessing();
+    }
+
+    loadVideos(initialPage);
 });

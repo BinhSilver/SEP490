@@ -37,4 +37,26 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
             group by lt.tag.id
             """)
     List<Object[]> countLessonsByTagTypeAndStatus(@Param("tagType") String tagType, @Param("status") String status);
+
+    /**
+     * Cho CONTENT_CREATOR ở màn hình duyệt thường: số bài theo tag, trừ bản đã lưu trữ ở cả hai tầng.
+     * Đối xứng với {@link #countLessonsByTagTypeAndStatus} nhưng loại trừ thay vì lọc bằng.
+     */
+    @Query("""
+            select lt.tag.id, count(l.id) from LessonTag lt
+              join lt.tag tg
+              join lt.lesson l
+              join l.unit u
+              join u.textbook t
+            where tg.tagType = :tagType and l.status <> :excludedStatus and t.status <> :excludedStatus
+            group by lt.tag.id
+            """)
+    List<Object[]> countLessonsByTagTypeAndStatusNot(@Param("tagType") String tagType,
+                                                     @Param("excludedStatus") String excludedStatus);
+
+    /** Tag của một loại, xếp theo tên để đổ dropdown ở màn hình quản lý nội dung. */
+    List<Tag> findByTagTypeOrderByNameAsc(String tagType);
+
+    /** tag.code có UNIQUE (uk_tag_code) nên kiểm tra trước khi tạo để trả 409 thay vì lỗi DB. */
+    boolean existsByCode(String code);
 }

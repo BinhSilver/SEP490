@@ -1,0 +1,43 @@
+.page-admin #jlabBaseContent .adm-main { min-width: 0; }
+.page-admin #jlabBaseContent #admContent { min-width: 0; }
+.skin-admin, .skin-admin__results { min-width: 0; max-width: 100%; }
+.skin-editor [hidden] { display: none !important; }
+.page-admin .adm-toast.adm-toast--success { background: #d2f4df; color: #125a36; }
+.page-admin .adm-toast.adm-toast--success i { color: inherit; }
+.skin-admin__toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.skin-admin__toolbar input { flex: 1; min-width: 180px; }
+.skin-admin__toolbar select { width: auto; }
+.skin-admin__toolbar .btn { white-space: nowrap; }
+.skin-admin__results { overflow-x: auto; }
+.skin-admin__table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+.skin-admin__table th { color: var(--text-secondary); font-weight: 600; padding: 12px; }
+.skin-admin__table td { padding: 12px; border-top: 1px solid var(--color-outline-variant); }
+.skin-admin__identity { display: flex; align-items: center; gap: 12px; min-width: 180px; }
+.skin-admin__identity img, .skin-admin__identity canvas { flex: none; object-fit: contain; border-radius: 8px; background: var(--color-surface-low); }
+.skin-admin__identity strong, .skin-admin__identity small { display: block; }
+.skin-admin__identity small { margin-top: 4px; color: var(--text-secondary); }
+.skin-admin__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.skin-admin__status { display: inline-block; white-space: nowrap; padding: 4px 8px; border-radius: 6px; font-size: 12px; background: #e4e8ee; color: #354154; }
+.skin-admin__status[data-state=active] { background: #d2f4df; color: #125a36; }
+.skin-admin__status[data-state=deleted] { background: #ffe0de; color: #8a2525; }
+.skin-editor { padding: 20px; margin-bottom: 24px; border: 1px solid var(--color-outline-variant); border-radius: 12px; background: var(--color-surface-lowest); }
+.skin-editor header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.skin-editor h2 { font-size: 20px; margin: 0; }
+.skin-editor__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.skin-editor label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+.skin-editor__description { grid-column: 1 / -1; }
+.skin-editor__art { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.skin-editor__art img, .skin-editor__art canvas { width: 80px; height: 80px; object-fit: contain; border-radius: 8px; background: var(--color-surface-low); }
+.skin-editor__art label { position: relative; overflow: hidden; cursor: pointer; }
+.skin-editor__art input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.skin-editor label.skin-editor__active { flex-direction: row; align-items: center; gap: 8px; }
+.skin-editor footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.skin-editor .input, .skin-editor .textarea { width: 100%; min-width: 0; }
+.skin-admin button, .skin-editor input, .skin-editor select { min-height: 44px; }
+@media (max-width: 600px) {
+  .skin-admin__toolbar input { flex-basis: 100%; }
+  .skin-admin__toolbar select { flex: 1; min-width: 0; }
+  .skin-admin__toolbar > .btn { width: 100%; }
+  .skin-editor { padding: 14px; }
+  .skin-editor__grid { grid-template-columns: minmax(0, 1fr); }
+}

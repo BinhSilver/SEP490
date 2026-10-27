@@ -14,7 +14,8 @@
     MEMORY_MATCH: ['/arena/images/vs/memory-left.webp', '/arena/images/vs/memory-right.webp'],
     AIR_DEFENSE: ['/arena/images/vs/air-left.png', '/arena/images/vs/air-right.png']
   };
-  var reduceMotion = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Luôn tung đồng xu có hoạt ảnh, không theo prefers-reduced-motion của hệ điều hành (quyết định sản phẩm).
+  var reduceMotion = false;
 
   var root = null;
   var ctx = null;
@@ -71,10 +72,7 @@
       + '  <figure class="vs__hero vs__hero--left" data-vs-hero="0"><img alt=""></figure>'
       + '  <div class="vs__core">'
       + '    <div class="vs__vortex" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>'
-      + '    <div class="vs__coin" data-vs-coin hidden aria-hidden="true"><div class="vs__coin-inner" data-vs-coin-inner>'
-      + '      <span class="vs__coin-face vs__coin-face--left" data-vs-face="left"></span>'
-      + '      <span class="vs__coin-face vs__coin-face--right" data-vs-face="right"></span>'
-      + '    </div></div>'
+      + '    <div class="vs__coins" data-vs-coins hidden aria-hidden="true">' + coinHtml(0) + coinHtml(1) + '</div>'
       + '    <strong class="vs__mark" data-vs-mark aria-hidden="true">VS</strong>'
       + '  </div>'
       + '  <figure class="vs__hero vs__hero--right" data-vs-hero="1"><img alt=""></figure>'
@@ -86,6 +84,15 @@
       + '  <div class="vs__plate vs__plate--right" data-vs-plate="1"></div>'
       + '</div>';
     root.addEventListener('click', onClick);
+  }
+
+  /** Đồng xu của một người chơi: mặt trước khắc cáo (thắng), mặt sau chữ JLAS. */
+  function coinHtml(slot) {
+    return '<div class="vs__coin vs__coin--' + (slot ? 'right' : 'left') + '" data-vs-coin="' + slot + '">'
+      + '<div class="vs__coin-inner" data-vs-coin-inner>'
+      + '<span class="vs__coin-face vs__coin-face--fox"><span class="vs__coin-emboss"><i class="vs__coin-fox"></i></span></span>'
+      + '<span class="vs__coin-face vs__coin-face--jlas"><b>JLAS</b><small>コツコツ</small></span>'
+      + '</div><small class="vs__coin-name" data-vs-coin-name></small></div>';
   }
 
   function q(selector) {
@@ -127,10 +134,15 @@
       }
       if (!p.online) tags.push('<span class="vs__tag vs__tag--bad">Mất kết nối</span>');
       var avatar = p.avatarUrl ? '<img src="' + esc(p.avatarUrl) + '" alt="">' : esc(initials(p.displayName));
-      plate.innerHTML = '<div class="vs__avatar">' + avatar + '</div>'
-        + '<div class="vs__who"><strong>' + esc(p.displayName) + '</strong><span>' + tags.join('') + '</span></div>'
+      // Khung avatar + màu tên người chơi mua ở Cửa hàng (components/avatar-frame.js).
+      var frames = window.JlasAvatarFrame;
+      var face = '<div class="vs__avatar">' + avatar + '</div>';
+      plate.innerHTML = (frames ? frames.host(face, p.avatarFrame, 'vs__avatar-host') : face)
+        + '<div class="vs__who"><strong' + (frames ? frames.nameAttr(p.nameStyle) : '') + '>' + esc(p.displayName)
+        + '</strong><span>' + tags.join('') + '</span></div>'
         + '<div class="vs__case" title="Bộ thẻ"><i class="fa-solid fa-layer-group" aria-hidden="true"></i>'
         + '<span>' + esc(room.settings && room.settings.setTitle || '') + '</span></div>';
+      if (frames) frames.mountAll(plate);
     }
   }
 
@@ -158,37 +170,58 @@
     return draft.steps.find(function (step) { return step.phase === 'TOSS' || step.phase === 'CHOOSE'; }) || null;
   }
 
-  /** Đồng xu: mỗi lần tung một cài đặt mới thì lật lại từ đầu; tải lại trang giữa chừng thì hiện mặt đã ngửa. */
+  /**
+   * Hai đồng xu, mỗi người một đồng, tung cùng lúc. Backend đã bốc sẵn người thắng (tossWinnerUserId):
+   * đồng của người đó đáp mặt cáo, đồng còn lại đáp mặt JLAS. Mỗi cài đặt mới tung lại từ đầu; tải lại trang
+   * giữa chừng thì hiện luôn kết quả.
+   */
   function renderCoin() {
     var step = currentStep();
-    var coin = q('[data-vs-coin]');
-    var inner = q('[data-vs-coin-inner]');
-    var left = playerBySlot(0);
-    var right = playerBySlot(1);
-    q('[data-vs-face="left"]').innerHTML = '<b>' + esc(initials(left && left.displayName)) + '</b><small>NGỬA</small>';
-    q('[data-vs-face="right"]').innerHTML = '<b>' + esc(initials(right && right.displayName)) + '</b><small>NGỬA</small>';
+    var coins = q('[data-vs-coins]');
     if (!step) {
-      coin.hidden = true;
+      coins.hidden = true;
       lastToss = null;
       return;
     }
-    coin.hidden = false;
+    coins.hidden = false;
+    var winnerSide = sideOf(step.tossWinnerUserId);
     var key = step.key + ':' + step.tossWinnerUserId + ':' + room.draft.index;
-    var side = sideOf(step.tossWinnerUserId);
-    inner.style.setProperty('--flip-end', side === 'left' ? '1800deg' : '1980deg');
-    if (key !== lastToss) {
-      lastToss = key;
+    var restart = key !== lastToss;
+    var animate = restart && step.phase === 'TOSS' && !reduceMotion;
+    lastToss = key;
+    [0, 1].forEach(function (slot) {
+      var coin = q('[data-vs-coin="' + slot + '"]');
+      var inner = coin.querySelector('[data-vs-coin-inner]');
+      var p = playerBySlot(slot);
+      var fox = (slot === 1 ? 'right' : 'left') === winnerSide;
+      coin.querySelector('[data-vs-coin-name]').textContent = p ? (p.userId === ctx.meId ? 'Bạn' : p.displayName) : '';
+      // Số vòng chẵn → mặt cáo; lệch nửa vòng → mặt JLAS. Đồng bên phải quay ngược chiều cho đỡ đơn điệu.
+      inner.style.setProperty('--flip-end', (slot === 1 ? -1 : 1) * (fox ? 1800 : 1980) + 'deg');
+      if (!restart) return;
+      coin.classList.remove('is-winner', 'is-loser');
       inner.classList.remove('is-flipping', 'is-landed');
-      if (step.phase === 'TOSS' && !reduceMotion) {
+      if (animate) {
         void inner.offsetWidth;
         inner.classList.add('is-flipping');
-        tossLandsAt = Date.now() + FLIP_MS;
       } else {
         inner.classList.add('is-landed');
-        tossLandsAt = 0;
+        coin.classList.add(fox ? 'is-winner' : 'is-loser');
       }
-    }
-    coin.dataset.side = side;
+    });
+    tossLandsAt = animate ? Date.now() + FLIP_MS : (restart ? 0 : tossLandsAt);
+  }
+
+  /** Xu vừa đáp: làm nổi đồng ra mặt cáo, làm mờ đồng còn lại. */
+  function markLanded() {
+    var step = currentStep();
+    if (!step) return;
+    var winnerSide = sideOf(step.tossWinnerUserId);
+    [0, 1].forEach(function (slot) {
+      var fox = (slot === 1 ? 'right' : 'left') === winnerSide;
+      var coin = q('[data-vs-coin="' + slot + '"]');
+      coin.classList.toggle('is-winner', fox);
+      coin.classList.toggle('is-loser', !fox);
+    });
   }
 
   function renderStage() {
@@ -237,9 +270,11 @@
     var flipping = tossLandsAt > Date.now();
     var mine = step.chooserUserId === ctx.meId;
     if (step.phase === 'TOSS' || flipping) {
+      // Bước "Lượt lật đầu tiên" không có lượt chọn: ai ra mặt cáo đi trước luôn.
+      var reward = step.key === 'first' ? 'đi trước' : 'được quyền chọn ' + esc(step.title.toLowerCase());
       banner.innerHTML = flipping
-        ? '<span>Tung đồng xu · <b>' + esc(step.title) + '</b></span>'
-        : '<span><b>' + esc(nameOf(step.tossWinnerUserId)) + '</b> ra mặt ngửa · được quyền chọn ' + esc(step.title.toLowerCase()) + '</span>';
+        ? '<span>Tung đồng xu · <b>' + esc(step.title) + '</b> · ai ra mặt cáo ' + reward + '</span>'
+        : '<span><b>' + esc(nameOf(step.tossWinnerUserId)) + '</b> ra mặt cáo · ' + reward + '</span>';
       panel.innerHTML = '';
       return;
     }
@@ -301,6 +336,7 @@
     var draft = room.draft;
     if (tossLandsAt && Date.now() >= tossLandsAt) {
       tossLandsAt = 0;
+      markLanded();
       renderStage();
     }
     var left = root.querySelector('[data-vs-left]');

@@ -1,3 +1,7 @@
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V3
+ * Existing feature layout; color redesign follows Git 110f0bf (Neon Ronin).
+ * Keep neutral reading surfaces, paired actions, and distinct feedback colors.
+ */
 :root {
   /* JLAS index tokens — Tokyo Night Sakura */
   --bg: transparent;
@@ -616,3 +620,336 @@ body.show-suggestions .suggest-row { display: flex; }
 .feedback-card .ok { color: var(--success) !important; }
 .cv-messages { background: var(--surface-2) !important; }
 .typing, .translation-line { color: var(--muted) !important; }
+
+/* Page-owned dark mode: css/aicall-conversation.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-ai-bg: #0b0d13;
+  --dm-ai-surface: #12151f;
+  --dm-ai-raised: #1e2332;
+  --dm-ai-ink: #f8fafc;
+  --dm-ai-muted: #b2bfd2;
+  --dm-ai-line: #394155;
+  --dm-ai-accent: #c084fc;
+  --dm-ai-action: #7335a6;
+  --dm-ai-accent-soft: #281d3a;
+  --dm-ai-on-accent: #211b34;
+  --dm-ai-success: #8eddb6;
+  --dm-ai-success-bg: #1b3d32;
+  --dm-ai-success-line: #43816b;
+  --dm-ai-danger: #ffb4bd;
+  --dm-ai-danger-bg: #452832;
+  --dm-ai-danger-line: #96616d;
+  --dm-ai-warning: #f3d28a;
+  --dm-ai-warning-bg: #403522;
+  --dm-ai-warning-line: #947a46;
+  --dm-ai-pink: #f4aed2;
+  --dm-ai-pink-bg: #432d40;
+  --dm-ai-pink-line: #88637b;
+}
+html[data-theme="dark"] {
+    --surface: var(--dm-ai-surface);
+    --surface-2: var(--dm-ai-raised);
+    --border: var(--dm-ai-line);
+    --text: var(--dm-ai-ink);
+    --muted: var(--dm-ai-muted);
+    --accent: var(--dm-ai-accent);
+    --accent-soft: var(--dm-ai-accent-soft);
+    --ai-bubble: var(--dm-ai-surface);
+    --user-bubble: var(--dm-ai-pink-bg);
+    --success: var(--dm-ai-success);
+    --danger: var(--dm-ai-danger);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.42);
+    --color-primary: var(--dm-ai-accent);
+    --color-secondary: var(--dm-ai-muted)
+}
+html[data-theme="dark"] {
+    --bg: var(--dm-ai-bg);
+    --surface: var(--dm-ai-surface);
+    --surface-2: var(--dm-ai-raised);
+    --border: var(--dm-ai-line);
+    --text: var(--dm-ai-ink);
+    --muted: var(--dm-ai-muted);
+    --accent: var(--dm-ai-accent);
+    --accent-soft: var(--dm-ai-accent-soft);
+    --ai-bubble: var(--dm-ai-accent-soft);
+    --user-bubble: var(--dm-ai-accent-soft);
+    --success: var(--dm-ai-success);
+    --danger: var(--dm-ai-danger);
+    --color-primary: var(--dm-ai-accent);
+    --color-secondary: var(--dm-ai-muted)
+}
+html[data-theme="dark"] .topic-chip:hover {
+    border-color: var(--dm-ai-line)
+}
+html[data-theme="dark"] .cv-header {
+    background: var(--dm-ai-surface)
+}
+html[data-theme="dark"] .icon-btn:hover {
+    border-color: var(--dm-ai-line)
+}
+html[data-theme="dark"] .cv-main {
+    border: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .cv-main-top {
+    border-bottom: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .cv-main-top h1 {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .cv-main-top .sub {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .badge {
+    background: var(--dm-ai-surface);
+    color: var(--dm-ai-ink);
+    border: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .badge-blue {
+    background: var(--dm-ai-accent-soft);
+    color: var(--dm-ai-accent)
+}
+html[data-theme="dark"] .badge-done {
+    background: var(--dm-ai-success-bg);
+    color: var(--dm-ai-success)
+}
+html[data-theme="dark"] .avatar {
+    background: var(--dm-ai-accent-soft);
+    color: var(--dm-ai-accent);
+    border: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .msg-row.user .avatar {
+    background: var(--dm-ai-success-bg);
+    color: var(--dm-ai-success);
+    border: 1px solid var(--dm-ai-success-line)
+}
+html[data-theme="dark"] .msg-meta {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .bubble {
+    border: 1px solid var(--dm-ai-line);
+    background: var(--dm-ai-surface);
+    color: var(--dm-ai-ink);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32)
+}
+html[data-theme="dark"] .msg-row.user .bubble {
+    background: var(--dm-ai-pink-bg);
+    border-color: var(--dm-ai-pink-line);
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .bubble-text {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .bubble-text rt {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .tool-chip {
+    background: var(--dm-ai-surface);
+    color: var(--dm-ai-ink);
+    border: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .tool-chip:hover {
+    border-color: var(--dm-ai-pink-line)
+}
+html[data-theme="dark"] .translation-line {
+    color: var(--dm-ai-ink);
+    border-top: 1px dashed var(--dm-ai-line)
+}
+html[data-theme="dark"] .feedback-card {
+    background: var(--dm-ai-danger-bg);
+    border: 1px solid var(--dm-ai-danger-line);
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .feedback-card summary {
+    color: var(--dm-ai-danger)
+}
+html[data-theme="dark"] .feedback-card .bad {
+    color: var(--dm-ai-danger)
+}
+html[data-theme="dark"] .feedback-card .ok {
+    color: var(--dm-ai-success)
+}
+html[data-theme="dark"] .feedback-card .reason {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .typing {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .typing span {
+    background: var(--dm-ai-raised)
+}
+html[data-theme="dark"] .cv-compose {
+    border-top: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .suggest-chip {
+    border: 1px solid var(--dm-ai-line);
+    background: var(--dm-ai-surface);
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .compose-row input {
+    border: 1px solid var(--dm-ai-line);
+    background: var(--dm-ai-surface);
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .compose-row input::placeholder {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .compose-row input:focus {
+    background: var(--dm-ai-surface)
+}
+html[data-theme="dark"] .btn-send,
+html[data-theme="dark"] .btn-mic {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.42);
+    color: var(--dm-ai-on-accent)
+}
+html[data-theme="dark"] .btn-mic {
+    background: var(--dm-ai-surface);
+    color: var(--dm-ai-ink);
+    border: 1px solid var(--dm-ai-line)
+}
+html[data-theme="dark"] .btn-mic:hover,
+html[data-theme="dark"] .btn-mic.recording {
+    border-color: var(--dm-ai-pink-line)
+}
+html[data-theme="dark"] .side-card {
+    border: 1px solid var(--dm-ai-line);
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .side-card h3 {
+    color: var(--dm-ai-ink)
+}
+html[data-theme="dark"] .progress-bar {
+    background: var(--dm-ai-accent-soft)
+}
+html[data-theme="dark"] .progress-bar > i {
+    background: linear-gradient(90deg, var(--accent), var(--dm-ai-action))
+}
+html[data-theme="dark"] .switch {
+    background: var(--dm-ai-accent-soft)
+}
+html[data-theme="dark"] .switch::after {
+    background: var(--dm-ai-surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] .tts-gender-btn:hover {
+    border-color: var(--dm-ai-line);
+    background: var(--dm-ai-accent-soft)
+}
+html[data-theme="dark"] .tts-gender-btn[aria-pressed="true"] {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] .tts-gender-btn .fa-venus {
+    color: var(--dm-ai-pink)
+}
+html[data-theme="dark"] .tts-gender-btn .fa-mars {
+    color: var(--dm-ai-accent)
+}
+html[data-theme="dark"] .btn-tts-test:hover {
+    border-color: var(--dm-ai-line);
+    background: var(--dm-ai-accent-soft)
+}
+html[data-theme="dark"] .vocab-item,
+html[data-theme="dark"] .grammar-item {
+    background: var(--dm-ai-surface) !important;
+    border: 1px solid var(--dm-ai-line) !important;
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .vocab-item:hover,
+html[data-theme="dark"] .grammar-item:hover,
+html[data-theme="dark"] .vocab-item:focus,
+html[data-theme="dark"] .grammar-item:focus,
+html[data-theme="dark"] .vocab-item.active,
+html[data-theme="dark"] .grammar-item.active,
+html[data-theme="dark"] .vocab-item.selected,
+html[data-theme="dark"] .grammar-item.selected {
+    border-color: var(--dm-ai-pink-line) !important;
+    background: linear-gradient(135deg, var(--dm-ai-pink-bg), var(--dm-ai-pink-bg)) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.42) !important
+}
+html[data-theme="dark"] .vocab-item .word {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .vocab-item .reading {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .vocab-item .meaning {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .grammar-item .pattern {
+    color: var(--dm-ai-danger) !important
+}
+html[data-theme="dark"] .grammar-item .exp {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .grammar-item .ex {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .word-modal {
+    border: 1px solid var(--dm-ai-line) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.50);
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .word-modal h4 {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .word-modal .reading {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .word-modal #wordModalMeaning {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] #btnSaveFlashcard {
+    background: var(--dm-ai-raised) !important;
+    border: 1px solid var(--dm-ai-line) !important;
+    color: var(--dm-ai-accent) !important
+}
+html[data-theme="dark"] #btnSaveFlashcard i {
+    color: var(--dm-ai-accent) !important
+}
+html[data-theme="dark"] #btnSaveFlashcard:hover {
+    background: linear-gradient(135deg, var(--dm-ai-raised), var(--dm-ai-action)) !important;
+    border-color: var(--dm-ai-line) !important;
+    color: var(--dm-ai-ink) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.50) !important
+}
+html[data-theme="dark"] #btnSaveFlashcard:hover i {
+    color: var(--dm-ai-ink) !important
+}
+html[data-theme="dark"] .complete-overlay {
+    background: var(--dm-ai-accent-soft)
+}
+html[data-theme="dark"] .complete-card {
+    background: var(--dm-ai-surface)
+}
+html[data-theme="dark"] .btn-primary {
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.37);
+    color: var(--dm-ai-on-accent)
+}
+html[data-theme="dark"] .btn-secondary {
+    background: var(--dm-ai-surface)
+}
+html[data-theme="dark"] .cv-main-top,
+html[data-theme="dark"] .side-card,
+html[data-theme="dark"] .search-box,
+html[data-theme="dark"] .word-modal,
+html[data-theme="dark"] .complete-card,
+html[data-theme="dark"] .feedback-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] .btn-send {
+    color: var(--dm-ai-on-accent) !important
+}
+
+/* Dark interaction and state pairs for this page. */
+html[data-theme="dark"]{--color-background:var(--dm-ai-bg);--color-surface:var(--dm-ai-bg);--color-surface-lowest:var(--dm-ai-surface);--color-surface-low:var(--dm-ai-raised);--color-surface-mid:var(--dm-ai-raised);--color-surface-high:var(--dm-ai-raised);--color-surface-container:var(--dm-ai-raised);--color-surface-container-high:var(--dm-ai-raised);--color-on-surface:var(--dm-ai-ink);--color-on-surface-variant:var(--dm-ai-muted);--color-secondary:var(--dm-ai-muted);--color-outline:var(--dm-ai-muted);--color-outline-variant:var(--dm-ai-line);--color-primary:var(--dm-ai-accent);--color-primary-container:var(--dm-ai-action);--color-on-primary:var(--dm-ai-on-accent);--color-on-primary-container:var(--dm-ai-ink);--color-primary-fixed:var(--dm-ai-accent-soft);--color-on-primary-fixed:var(--dm-ai-accent);--color-secondary-container:var(--dm-ai-accent-soft);--color-secondary-fixed:var(--dm-ai-accent-soft);--color-success:var(--dm-ai-success);--color-success-bg:var(--dm-ai-success-bg);--color-error:var(--dm-ai-danger);--color-error-container:var(--dm-ai-danger-bg);--color-on-error-container:var(--dm-ai-danger);--color-tertiary:var(--dm-ai-warning);--color-tertiary-container:var(--dm-ai-warning-bg);--color-on-tertiary-container:var(--dm-ai-warning);--color-focus:var(--dm-ai-accent);--jlab-base-page-background:var(--dm-ai-bg);--bg:var(--dm-ai-bg);--bg-base:var(--dm-ai-bg);--surface:var(--dm-ai-surface);--bg-surface:var(--dm-ai-surface);--surface-2:var(--dm-ai-raised);--bg-elevated:var(--dm-ai-raised);--text:var(--dm-ai-ink);--text-primary:var(--dm-ai-ink);--text-secondary:var(--dm-ai-muted);--text-muted:var(--dm-ai-muted);--muted:var(--dm-ai-muted);--accent:var(--dm-ai-accent);--accent-2:var(--dm-ai-action);--accent-soft:var(--dm-ai-accent-soft);--success:var(--dm-ai-success);--danger:var(--dm-ai-danger);--user-bubble:#342b4f;}
+html[data-theme="dark"] :is(.btn-primary,.btn-send){background:var(--dm-ai-action)!important;color:var(--dm-ai-ink)!important;}
+html[data-theme="dark"] :is(.btn-primary,.btn-send):hover{background:#8065ca!important;}
+html[data-theme="dark"] .mode-card{background-color:var(--dm-ai-surface);}
+html[data-theme="dark"] .mode-card :is(h3,.jp,.mode-desc){color:var(--dm-ai-ink);}
+html[data-theme="dark"] .word-modal{background:var(--dm-ai-surface);color:var(--dm-ai-ink);}
+html[data-theme="dark"] body:not(.mode-free-chat) .cv-main{background-color:var(--dm-ai-bg)!important;background-image:linear-gradient(90deg,rgba(17,25,39,.92),rgba(17,25,39,.78)),var(--scenario-chat-background-image,none)!important;}
+html[data-theme="dark"] .cv-messages{background:rgba(26,38,56,.9)!important;}
+html[data-theme="dark"] .cv-messages .bubble{background:var(--dm-ai-raised)!important;}
+html[data-theme="dark"] .msg-row.user .bubble{background:#342b4f!important;}
+html[data-theme="dark"] .msg-row .token:hover{background:var(--dm-ai-accent-soft);color:var(--dm-ai-accent);}

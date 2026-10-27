@@ -8,6 +8,7 @@ import com.jlas.game.dto.NekoDtos.NekoStateView;
 public interface NekoCatchService extends GameEngine {
 
     NekoStateView state(String sessionId, long userId);
+    NekoStateView state(String sessionId, long userId, int choiceLimit);
 
     /** Mèo bắt trúng một con cá (đúng hoặc sai do server quyết định). */
     NekoActionResult catchChoice(String sessionId, long userId, String roundId, String choiceId);

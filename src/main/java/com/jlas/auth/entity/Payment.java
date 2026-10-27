@@ -30,10 +30,28 @@ public class Payment {
     private User user;
 
     /** Gói được mua. */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "premium_plan_id", nullable = false,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "premium_plan_id",
             foreignKey = @ForeignKey(name = "fk_payment_plan"))
     private PremiumPlan premiumPlan;
+
+    @Column(name = "product_type", nullable = false, length = 20)
+    @Builder.Default private String productType = "PREMIUM";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "credit_package_id", foreignKey = @ForeignKey(name = "fk_payment_credit_package"))
+    private com.jlas.billing.entity.CreditPackage creditPackage;
+
+    @Column(name = "credit_amount_snapshot") private Integer creditAmountSnapshot;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", foreignKey = @ForeignKey(name = "fk_payment_coupon"))
+    private com.jlas.billing.entity.Coupon coupon;
+
+    @Column(name = "coupon_code_snapshot", length = 40) private String couponCodeSnapshot;
+    @Column(name = "original_amount", precision = 12, scale = 2) private BigDecimal originalAmount;
+    @Column(name = "discount_amount", nullable = false, precision = 12, scale = 2)
+    @Builder.Default private BigDecimal discountAmount = BigDecimal.ZERO;
 
     /** Cổng thanh toán, ví dụ VNPAY/MOMO. */
     @Column(name = "provider", nullable = false, length = 30)
@@ -47,7 +65,19 @@ public class Payment {
     @Column(name = "provider_transaction_id", length = 150)
     private String providerTransactionId;
 
-    /** PENDING/PAID/FAILED/CANCELLED/REFUNDED. */
+    /** Mã link thanh toán PayOS. */
+    @Column(name = "payment_link_id", length = 100)
+    private String paymentLinkId;
+
+    /** Trang thanh toán của cổng. */
+    @Column(name = "checkout_url", length = 500)
+    private String checkoutUrl;
+
+    /** Chuỗi VietQR để hiện mã QR. */
+    @Column(name = "qr_code", length = 1000)
+    private String qrCode;
+
+    /** PENDING/PAID/FAILED/CANCELLED/EXPIRED/REFUNDED. */
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private String status = "PENDING";
@@ -70,12 +100,24 @@ public class Payment {
     private String planNameSnapshot;
 
     /** Số ngày được mua tại lúc giao dịch. */
-    @Column(name = "duration_days_snapshot", nullable = false)
+    @Column(name = "duration_days_snapshot")
     private Integer durationDaysSnapshot;
 
     /** Thời điểm thanh toán thành công. */
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
+    /** Link thanh toán hết hạn lúc này. */
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
+    /** Lần gần nhất server hỏi trạng thái ở cổng thanh toán. */
+    @Column(name = "checked_at")
+    private LocalDateTime checkedAt;
+
+    /** Premium có hiệu lực đến đâu sau khi đơn này được cộng. */
+    @Column(name = "premium_until")
+    private LocalDateTime premiumUntil;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

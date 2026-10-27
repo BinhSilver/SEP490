@@ -5,8 +5,10 @@ import com.jlas.dictionary.entity.KanjiReading;
 import com.jlas.dictionary.repository.KanjiReadingRepository;
 import com.jlas.dictionary.repository.KanjiRepository;
 import com.jlas.learning.dto.KanjiStudyState;
+import com.jlas.learning.dto.MicroCheckDraftAnswer;
 import com.jlas.learning.dto.MicroCheckResponse;
 import com.jlas.learning.dto.MicroCheckResult;
+import com.jlas.learning.dto.MicroCheckSaveDraftRequest;
 import com.jlas.learning.dto.MicroCheckStateResponse;
 import com.jlas.learning.dto.MicroCheckSubmitRequest;
 import com.jlas.learning.enums.LearningActivityType;
@@ -27,9 +29,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** [JLAS-W0193] Task 5 — Kanji study + micro-check. Reuses the exact Vocabulary (Task 4) contract — flip-before-
@@ -85,6 +90,12 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
 
     @Override
     @Transactional
+    public java.util.List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        return engine.saveDraft(userId, activityId, request);
+    }
+
+    @Override
+    @Transactional
     public MicroCheckStateResponse microCheckState(Long userId, Long activityId) {
         return engine.microCheckState(userId, activityId);
     }
@@ -93,6 +104,36 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
     @Transactional
     public MicroCheckStateResponse completeReview(Long userId, Long activityId) {
         return engine.completeReview(userId, activityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public KanjiStudyState reviewState(Long userId, Long activityId) {
+        return toDto(engine.reviewState(userId, activityId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.AttemptFeedbackResponse> reviewFeedback(Long userId, Long activityId) {
+        return engine.reviewFeedback(userId, activityId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.jlas.learning.dto.QuizAttemptHistoryResponse> quizAttemptHistory(Long userId, Long activityId) {
+        return engine.quizAttemptHistory(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResponse issuePractice(Long userId, Long activityId) {
+        return engine.issuePractice(userId, activityId);
+    }
+
+    @Override
+    @Transactional
+    public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
+        return engine.submitPractice(userId, activityId, request);
     }
 
     private KanjiStudyState toDto(EngineStudyState<KanjiEntry> s) {
@@ -107,11 +148,12 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
                     c.flipped(), c.remembered());
         }).toList();
         return new KanjiStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
-                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards);
+                s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(), cards,
+                s.partIndex(), s.partCount());
     }
 
     /** Canonical Kanji + its On/Kun readings, loaded once per batch — never fabricated when absent. */
-    private record KanjiEntry(Kanji kanji, List<String> onReadings, List<String> kunReadings) {
+    record KanjiEntry(Kanji kanji, List<String> onReadings, List<String> kunReadings) {
         String primaryReading() {
             if (!onReadings.isEmpty()) return onReadings.get(0);
             if (!kunReadings.isEmpty()) return kunReadings.get(0);
@@ -121,7 +163,7 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
 
     /** Kanji-specific seam: canonical loading (Kanji + KanjiReading) + deterministic, no-AI question generation
      * across the four required shapes (Kanji→reading, reading→Kanji, Kanji→meaning, matching). */
-    private static final class KanjiContentAdapter implements InteractiveContentAdapter<KanjiEntry> {
+    static final class KanjiContentAdapter implements InteractiveContentAdapter<KanjiEntry> {
         private final KanjiRepository kanjiRepo;
         private final KanjiReadingRepository kanjiReadingRepo;
 
@@ -165,28 +207,49 @@ public class InteractiveKanjiServiceImpl implements InteractiveKanjiService {
         @Override
         public List<QuestionSpec> buildQuestions(List<KanjiEntry> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
+            Set<String> duplicatedReadings = duplicatedPrimaryReadings(batch);
             long qid = 1;
             for (int i = 0; i < batch.size(); i++) {
                 KanjiEntry e = batch.get(i);
-                String type = pickAvailableType(e, i + variationSeed);
+                String type = pickAvailableType(e, i + variationSeed, duplicatedReadings);
                 if (type == null) continue; // no usable field at all (should not happen with approved data)
                 specs.add(optionQuestion(qid++, i + variationSeed, type, selectPrompt(type, e), selectCorrect(type, e),
                         selectDistractors(type, e, batch)));
             }
-            for (int i = 0; i < batch.size(); i++) {
-                KanjiEntry e = batch.get(i);
-                if (e.kanji().getMeaningVi() == null) continue;
-                specs.add(optionQuestion(qid++, i + variationSeed, "MATCHING",
-                        "Ghép chữ “" + e.kanji().getCharacter() + "” với nghĩa đúng.",
-                        e.kanji().getMeaningVi(), batch.stream().map(b -> b.kanji().getMeaningVi()).toList()));
+            List<String> meanings = batch.stream().map(e -> e.kanji().getMeaningVi()).toList();
+            if (meanings.size() >= 2 && meanings.stream().allMatch(value -> value != null && !value.isBlank())
+                    && new HashSet<>(meanings).size() == meanings.size()) {
+                List<String> commonOptions = new ArrayList<>(meanings);
+                Collections.rotate(commonOptions, (variationSeed + batchIndex + 1) % commonOptions.size());
+                for (KanjiEntry entry : batch) {
+                    specs.add(new QuestionSpec(qid++, "MATCHING", entry.kanji().getCharacter(),
+                            commonOptions, commonOptions.indexOf(entry.kanji().getMeaningVi()) + 1,
+                            entry.kanji().getMeaningVi()));
+                }
             }
             return specs;
         }
 
+        private static Set<String> duplicatedPrimaryReadings(List<KanjiEntry> batch) {
+            Set<String> seen = new HashSet<>();
+            Set<String> duplicated = new HashSet<>();
+            for (KanjiEntry entry : batch) {
+                String reading = entry.primaryReading();
+                if (reading != null && !reading.isBlank() && !seen.add(reading)) duplicated.add(reading);
+            }
+            return duplicated;
+        }
+
         /** Reading-based question types need a real reading; falls back to Kanji→meaning (always populated
-         * for approved content) rather than fabricating a reading. */
-        private static String pickAvailableType(KanjiEntry e, int rotateSeed) {
+         * for approved content) rather than fabricating a reading. A {@code READING_TO_KANJI} question also
+         * falls back when the reading is shared by another kanji in the batch, since "which kanji reads X?"
+         * would otherwise have two valid answers. */
+        private static String pickAvailableType(KanjiEntry e, int rotateSeed, Set<String> duplicatedReadings) {
             String preferred = SELECT_TYPES[rotateSeed % SELECT_TYPES.length];
+            if ("READING_TO_KANJI".equals(preferred) && e.primaryReading() != null
+                    && duplicatedReadings.contains(e.primaryReading())) {
+                return e.kanji().getMeaningVi() != null ? "KANJI_TO_MEANING" : "KANJI_TO_READING";
+            }
             boolean needsReading = !"KANJI_TO_MEANING".equals(preferred);
             if (needsReading && e.primaryReading() == null) {
                 return e.kanji().getMeaningVi() != null ? "KANJI_TO_MEANING" : null;
