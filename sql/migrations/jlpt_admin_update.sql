@@ -20,6 +20,65 @@ CREATE TABLE IF NOT EXISTS jlpt_practice_type_config (
         REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ===== 041_jlpt_remove_source_and_audio_offsets.sql =====
+-- [JLAS2-270] Align an existing JLPT database with the standalone-audio schema.
+-- Run after the legacy JLPT full setup/seeds and before any seed written for this schema.
+-- Safe to rerun. DDL commits implicitly in MySQL.
+
+SET @jlpt_schema = DATABASE();
+
+SELECT IF(COUNT(*) > 0,
+    'ALTER TABLE jlpt_question DROP INDEX uk_jlpt_question_source', 'SELECT 1') INTO @ddl
+FROM information_schema.statistics
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_question'
+  AND index_name='uk_jlpt_question_source';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE jlpt_transcript_segment ADD INDEX idx_jlpt_transcript_mondai_order (mondai_id, order_index)',
+    'SELECT 1') INTO @ddl
+FROM information_schema.statistics
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_transcript_segment'
+  AND index_name='idx_jlpt_transcript_mondai_order';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0,
+    'ALTER TABLE jlpt_transcript_segment DROP INDEX idx_jlpt_transcript_time', 'SELECT 1') INTO @ddl
+FROM information_schema.statistics
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_transcript_segment'
+  AND index_name='idx_jlpt_transcript_time';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0, 'ALTER TABLE jlpt_exam DROP COLUMN source_name', 'SELECT 1') INTO @ddl
+FROM information_schema.columns
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_exam' AND column_name='source_name';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0, 'ALTER TABLE jlpt_question DROP COLUMN source_question_id', 'SELECT 1') INTO @ddl
+FROM information_schema.columns
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_question' AND column_name='source_question_id';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0, 'ALTER TABLE jlpt_audio_clip DROP COLUMN start_seconds', 'SELECT 1') INTO @ddl
+FROM information_schema.columns
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_audio_clip' AND column_name='start_seconds';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0, 'ALTER TABLE jlpt_audio_clip DROP COLUMN end_seconds', 'SELECT 1') INTO @ddl
+FROM information_schema.columns
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_audio_clip' AND column_name='end_seconds';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0, 'ALTER TABLE jlpt_transcript_segment DROP COLUMN start_seconds', 'SELECT 1') INTO @ddl
+FROM information_schema.columns
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_transcript_segment' AND column_name='start_seconds';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
+SELECT IF(COUNT(*) > 0, 'ALTER TABLE jlpt_transcript_segment DROP COLUMN end_seconds', 'SELECT 1') INTO @ddl
+FROM information_schema.columns
+WHERE table_schema=@jlpt_schema AND table_name='jlpt_transcript_segment' AND column_name='end_seconds';
+PREPARE jlpt_stmt FROM @ddl; EXECUTE jlpt_stmt; DEALLOCATE PREPARE jlpt_stmt;
+
 -- ===== 042_jlpt_target_vocabulary.sql =====
 USE jlas;
 SET NAMES utf8mb4;
