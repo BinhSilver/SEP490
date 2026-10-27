@@ -54,3 +54,22 @@
 .jlpt-practice-segment__time:hover{text-decoration:underline}.jlpt-practice-audio__bar button[aria-pressed=true]{background:#e1edff}
 @media(max-width:760px){.jlpt-practice-audio__bar>input{order:0;width:auto;flex:1 1 120px}.jlpt-practice-audio__bar>time{order:0;margin:0;min-width:0}.jlpt-practice-audio__bar>button:not(.jlpt-practice-audio__play){font-size:12px}.jlpt-practice-segment{grid-template-columns:42px minmax(0,1fr);gap:7px;padding:9px 6px}.jlpt-practice-segment--plain{grid-template-columns:1fr}.jlpt-practice-segment__text p{font-size:15px}.jlpt-practice-segment__text small{font-size:13px}}
 .jlpt-practice-audio .jp-audio-icon{width:22px;height:22px;flex-shrink:0;vertical-align:middle}
+
+/* Listening and usage presentation refinements. */
+.jlpt-practice-question>div:has(>img){display:flex;justify-content:center;width:100%;margin:18px 0 24px}
+.jlpt-practice-question>div>img{display:block;width:auto;height:auto;max-width:min(100%,760px);max-height:430px;margin:0 auto;object-fit:contain}
+.jlpt-practice-speaker{font-family:var(--font-body);font-weight:800;color:#3567a6}
+.jlpt-practice-transcript-line{display:block;margin-bottom:13px}
+.jlpt-practice-transcript-line:last-child{margin-bottom:0}
+.jlpt-practice-transcript-line>small{margin-top:4px}
+.jlpt-practice-transcript__translation{margin:10px 8px 4px;padding:10px 12px;border-left:3px solid #9bbceb;border-radius:7px;background:#f5f9ff;color:#627b9a;font:400 14px/1.65 var(--font-body);white-space:pre-line}
+.jlpt-practice-choice .jlpt-usage-term{text-decoration:underline 2px currentColor;text-underline-offset:4px;font-weight:750}
+
+/* Transcript rows follow the official-test timestamp layout. */
+.jlpt-practice-transcript{padding:8px 14px}
+.jlpt-practice-segment{grid-template-columns:58px minmax(0,1fr);gap:18px;padding:14px 8px;border-bottom:1px solid #edf1f7;border-radius:0}
+.jlpt-practice-segment:last-child{border-bottom:0}
+.jlpt-practice-segment__time{padding-top:3px!important;font-size:12px!important;line-height:1.7!important}
+.jlpt-practice-segment__text p{font-size:16px;line-height:1.75}
+.jlpt-practice-segment .jlpt-practice-transcript-line{margin-bottom:0}
+@media(max-width:760px){.jlpt-practice-segment{grid-template-columns:46px minmax(0,1fr);gap:10px;padding:12px 4px}}
