@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: standard('Quản lý đề JLPT - JLAS', 'jlpt-admin')}"></head>
-<body id="jlabBasePage" class="app-body jlpt-admin-body">
-<div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="jlpt-admin">
+<head th:replace="~{fragments/admin-head :: head('Quản lý đề JLPT - JLAS', 'jlpt-admin')}"></head>
+<body id="jlabBasePage" class="admin-portal jlpt-admin-body">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="jlpt-admin" hidden>
     <section id="catalogView" class="jlpt-admin-view">
         <header class="jlpt-admin-hero">
             <div><span class="jlpt-admin__eyebrow">CONTENT CREATOR</span><h1>Quản lý đề JLPT</h1><p>Tạo đề, biên tập câu hỏi và kiểm soát nội dung trước khi phát hành.</p></div>
-            <button id="createExamButton" class="jlpt-admin-button is-primary" type="button"><span class="material-symbols-outlined">add</span>Tạo đề mới</button>
+            <div class="jlpt-admin-editor-hero__actions"><a class="jlpt-admin-button is-secondary" href="/admin/jlpt/practice-types"><span class="material-symbols-outlined">tune</span>Quản lý dạng luyện</a><button id="importExamButton" class="jlpt-admin-button is-secondary" type="button"><span class="material-symbols-outlined">upload_file</span>Import Excel</button><button id="createExamButton" class="jlpt-admin-button is-primary" type="button"><span class="material-symbols-outlined">add</span>Tạo đề mới</button></div>
         </header>
         <section class="jlpt-admin-overview" aria-label="Tổng quan nội dung">
             <div><strong id="examStat">0</strong><span>đề thi</span></div><div><strong id="questionStat">0</strong><span>câu hỏi</span></div><div><strong id="publishedStat">0</strong><span>đang phát hành</span></div><div><strong id="draftStat">0</strong><span>bản nháp</span></div>
@@ -45,6 +45,18 @@
     </section>
 </main>
 
+<dialog id="importDialog" class="jlpt-admin-dialog"><form id="importForm" method="dialog">
+    <header><div><span class="jlpt-admin__eyebrow">NHẬP NỘI DUNG ĐỀ</span><h2>Import đề từ Excel</h2></div><button class="jlpt-admin-dialog__close" type="button" data-dialog-close aria-label="Đóng"><span class="material-symbols-outlined">close</span></button></header>
+    <div class="jlpt-admin-form-section jlpt-admin-import">
+        <p>Một file .xlsx gồm 4 sheet: <b>Exam</b>, <b>Mondai</b>, <b>Passages</b>, <b>Questions</b>. Audio và ảnh được tham chiếu bằng đường dẫn local đã có trên máy chủ. Đề được tạo ở trạng thái bản nháp.</p>
+        <button id="downloadImportTemplate" class="jlpt-admin-button is-secondary" type="button"><span class="material-symbols-outlined">download</span>Tải file Excel mẫu</button>
+        <label for="importFile">Chọn file Excel</label><input id="importFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required />
+        <button id="previewImportButton" class="jlpt-admin-button is-secondary" type="button"><span class="material-symbols-outlined">fact_check</span>Kiểm tra file</button>
+        <div id="importPreview" class="jlpt-admin-import__preview" aria-live="polite" hidden></div>
+    </div>
+    <footer><span></span><button class="jlpt-admin-button is-secondary" type="button" data-dialog-close>Hủy</button><button id="submitImportButton" class="jlpt-admin-button is-primary" type="button" disabled>Import bản nháp</button></footer>
+</form></dialog>
+
 <dialog id="examDialog" class="jlpt-admin-dialog"><form id="examForm" method="dialog">
     <header><div><span class="jlpt-admin__eyebrow">ĐỀ THI</span><h2 id="examDialogTitle">Tạo đề JLPT</h2></div><button class="jlpt-admin-dialog__close" type="button" data-dialog-close aria-label="Đóng"><span class="material-symbols-outlined">close</span></button></header>
     <div class="jlpt-admin-form-section"><h3>Thông tin cơ bản</h3><div class="jlpt-admin-form-grid">
@@ -56,12 +68,14 @@
 <dialog id="questionDialog" class="jlpt-admin-dialog is-large"><form id="questionForm" method="dialog">
     <header><div><span class="jlpt-admin__eyebrow">CÂU HỎI</span><h2 id="questionDialogTitle">Thêm câu hỏi</h2></div><button class="jlpt-admin-dialog__close" type="button" data-dialog-close aria-label="Đóng"><span class="material-symbols-outlined">close</span></button></header>
     <div class="jlpt-admin-form-section"><h3>Vị trí và nội dung</h3><div class="jlpt-admin-form-grid"><label><span>Phần thi</span><select id="questionSection" name="sectionId" required></select></label><label><span>問題</span><select id="questionMondai" name="mondaiIndex" required></select></label><label><span>Số câu</span><input name="number" type="number" min="1" required /></label><label><span>Loại câu hỏi</span><input name="type" required placeholder="GRAMMAR_SELECTION" /></label><label class="is-wide"><span>Câu hỏi</span><textarea name="prompt" rows="3" required lang="ja"></textarea></label><label class="is-wide"><span>Đoạn văn / tài liệu dùng chung</span><textarea name="passage" rows="4" lang="ja"></textarea></label></div></div>
-    <div class="jlpt-admin-form-section"><h3>Đáp án</h3><fieldset class="jlpt-admin-choice-editor"><legend>Có thể để trống nếu lựa chọn nằm trong hình</legend><label><b>1</b><textarea name="choice1" rows="2"></textarea></label><label><b>2</b><textarea name="choice2" rows="2"></textarea></label><label><b>3</b><textarea name="choice3" rows="2"></textarea></label><label><b>4</b><textarea name="choice4" rows="2"></textarea></label></fieldset><div class="jlpt-admin-form-grid"><label><span>Đáp án đúng</span><select name="correctChoice"><option value="">Chưa xác định</option><option value="1">Đáp án 1</option><option value="2">Đáp án 2</option><option value="3">Đáp án 3</option><option value="4">Đáp án 4</option></select></label><label><span>Thứ tự đúng của câu ★</span><input name="correctOrder" placeholder="Ví dụ: 1,3,4,2" aria-describedby="correctOrderHelp" /><small id="correctOrderHelp">Nhập số lựa chọn theo thứ tự trái sang phải. Để trống nếu chưa xác định.</small></label><label><span>Trang nguồn</span><input name="sourcePage" type="number" min="1" /></label><label class="is-wide"><span>Giải thích đáp án</span><textarea name="explanation" rows="3"></textarea></label></div></div>
-    <details class="jlpt-admin-form-section jlpt-admin-media-section"><summary><span class="material-symbols-outlined">perm_media</span>Hình ảnh và audio <small>Mở khi câu hỏi có media</small></summary><div class="jlpt-admin-form-grid"><label class="is-wide"><span>Script nghe (tiếng Nhật)</span><textarea name="scriptText" rows="5" lang="ja"></textarea></label><label class="is-wide"><span>Bản dịch script (tiếng Việt)</span><textarea name="scriptTranslation" rows="4"></textarea></label><label class="is-wide"><span>Đường dẫn hình</span><input name="imageRef" placeholder="/JLPT/images/..." /></label><label class="is-wide"><span>Đường dẫn audio</span><input name="audioUrl" placeholder="/audio/JLPT/..." /></label><label><span>Bắt đầu (giây)</span><input name="audioStart" type="number" min="0" step="0.001" /></label><label><span>Kết thúc (giây)</span><input name="audioEnd" type="number" min="0" step="0.001" /></label></div></details>
+    <div class="jlpt-admin-form-section"><h3>Đáp án</h3><fieldset class="jlpt-admin-choice-editor"><legend>Có thể để trống nếu lựa chọn nằm trong hình</legend><label><b>1</b><textarea name="choice1" rows="2"></textarea></label><label><b>2</b><textarea name="choice2" rows="2"></textarea></label><label><b>3</b><textarea name="choice3" rows="2"></textarea></label><label><b>4</b><textarea name="choice4" rows="2"></textarea></label></fieldset><div class="jlpt-admin-form-grid"><label><span>Đáp án đúng</span><select name="correctChoice"><option value="">Chưa xác định</option><option value="1">Đáp án 1</option><option value="2">Đáp án 2</option><option value="3">Đáp án 3</option><option value="4">Đáp án 4</option></select></label><label><span>Thứ tự đúng của câu ★</span><input name="correctOrder" placeholder="Ví dụ: 1,3,4,2" aria-describedby="correctOrderHelp" /><small id="correctOrderHelp">Nhập số lựa chọn theo thứ tự trái sang phải. Để trống nếu chưa xác định.</small></label><label><span>Trang nguồn</span><input name="sourcePage" type="number" min="1" /></label><label><span>ID từ mục tiêu (Goi)</span><input name="targetVocabularyId" type="number" min="1" placeholder="ID trong từ điển; chỉ dùng cho Goi" /></label><label class="is-wide"><span>Giải thích đáp án</span><textarea name="explanation" rows="3"></textarea></label></div></div>
+    <details class="jlpt-admin-form-section jlpt-admin-media-section"><summary><span class="material-symbols-outlined">perm_media</span>Hình ảnh và audio <small>Mở khi câu hỏi có media</small></summary><div class="jlpt-admin-form-grid"><label class="is-wide"><span>Script nghe (tiếng Nhật)</span><textarea name="scriptText" rows="5" lang="ja"></textarea></label><label class="is-wide"><span>Bản dịch script (tiếng Việt)</span><textarea name="scriptTranslation" rows="4"></textarea></label><label class="is-wide"><span>Đường dẫn hình</span><input name="imageRef" placeholder="/JLPT/images/..." /></label><label class="is-wide"><span>Đường dẫn audio</span><input name="audioUrl" placeholder="/audio/JLPT/..." /></label></div></details>
     <footer><button class="jlpt-admin-button is-danger" id="deleteQuestionButton" type="button" hidden><span class="material-symbols-outlined">delete</span>Xóa câu</button><span></span><button class="jlpt-admin-button is-secondary" type="button" data-dialog-close>Hủy</button><button class="jlpt-admin-button is-primary" type="submit">Tiếp tục lưu</button></footer>
 </form></dialog>
 
-<dialog id="confirmDialog" class="jlpt-admin-confirm"><form method="dialog"><div class="jlpt-admin-confirm__mascot"><img src="/images/kitsu.png" alt="Linh vật Kitsu" /></div><span class="jlpt-admin__eyebrow">XÁC NHẬN THAO TÁC</span><h2 id="confirmTitle">Bạn có chắc không?</h2><p id="confirmMessage"></p><footer><button class="jlpt-admin-button is-secondary" value="cancel">Quay lại</button><button id="confirmActionButton" class="jlpt-admin-button is-primary" value="confirm">Xác nhận</button></footer></form></dialog>
+<dialog id="confirmDialog" class="jlpt-admin-confirm"><form method="dialog"><div class="jlpt-admin-confirm__mascot"><img src="/images/mascots/kitsu/kitsu-crying-30.webp" alt="Linh vật Kitsu" /></div><span class="jlpt-admin__eyebrow">XÁC NHẬN THAO TÁC</span><h2 id="confirmTitle">Bạn có chắc không?</h2><p id="confirmMessage"></p><footer><button class="jlpt-admin-button is-secondary" value="cancel">Quay lại</button><button id="confirmActionButton" class="jlpt-admin-button is-primary" value="confirm">Xác nhận</button></footer></form></dialog>
 <div id="adminToast" class="jlpt-admin-toast" role="status" aria-live="polite" hidden></div>
-<script th:src="@{/js/jlab-base-shell.js?v=7}"></script><script th:src="@{/js/pages/jlpt-admin.js?v=6}"></script>
+<script th:src="@{/js/pages/admin-core.js}"></script>
+<script th:src="@{/js/admin-shell.js}"></script>
+<script th:src="@{/js/pages/jlpt-admin.js?v=8}"></script>
 </body></html>
