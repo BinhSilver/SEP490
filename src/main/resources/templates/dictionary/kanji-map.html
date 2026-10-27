@@ -57,15 +57,19 @@
     <aside id="km-detail" class="km-detail" aria-labelledby="km-detail-title" hidden></aside>
   </section>
 </main>
-<dialog id="km-notebook-dialog" class="km-dialog" aria-labelledby="km-notebook-title">
+<dialog id="km-notebook-dialog" class="km-dialog km-notebook-dialog" aria-labelledby="km-notebook-title" aria-describedby="km-notebook-description">
   <form id="km-notebook-form">
-    <div class="km-dialog-heading"><h2 id="km-notebook-title">Lưu vào sổ tay</h2><button id="km-notebook-close" type="button" class="km-button" aria-label="Đóng chọn sổ tay">×</button></div>
-    <p id="km-notebook-characters" class="km-notebook-characters" lang="ja"></p>
-    <label for="km-notebook-select">Chọn sổ tay</label><select id="km-notebook-select"></select>
-    <details class="km-notebook-create"><summary>Tạo sổ tay mới</summary><label for="km-notebook-name">Tên sổ tay</label><div class="km-search-row"><input id="km-notebook-name" maxlength="120" placeholder="Ví dụ: Kanji cần nhớ"/><button id="km-notebook-create" type="button" class="km-button">Tạo</button></div></details>
-    <p id="km-notebook-error" class="km-error" role="alert" hidden></p>
+    <div class="km-dialog-heading"><div><span class="km-notebook-eyebrow">BỘ SƯU TẬP CỦA BẠN</span><h2 id="km-notebook-title">Lưu Kanji vào sổ tay</h2></div><button id="km-notebook-close" type="button" class="km-notebook-close" aria-label="Đóng chọn sổ tay">×</button></div>
+    <div class="km-notebook-preview"><p id="km-notebook-characters" class="km-notebook-characters" lang="ja"></p><p id="km-notebook-description">Giữ lại để xem và ôn tập trong sổ tay.</p></div>
+    <div class="km-notebook-section-label" id="km-notebook-list-label">CHỌN SỔ TAY</div>
+    <div id="km-notebook-select" class="km-notebook-options" role="radiogroup" aria-labelledby="km-notebook-list-label"></div>
+    <p id="km-notebook-context" class="km-notebook-context" role="status"></p>
     <div class="km-dialog-actions km-notebook-actions"><a id="km-notebook-link" href="/learning/notebook">Mở sổ tay ↗</a><button id="km-notebook-save" class="km-button km-primary" type="submit">Lưu Kanji</button></div>
   </form>
+  <details id="km-notebook-create-section" class="km-notebook-create"><summary><span aria-hidden="true">＋</span> Tạo sổ tay mới</summary>
+    <form id="km-notebook-create-form"><label for="km-notebook-name">Tên sổ tay</label><div class="km-search-row"><input id="km-notebook-name" maxlength="120" required autocomplete="off" placeholder="Ví dụ: Kanji N3 cần nhớ"/><button id="km-notebook-create" type="submit" class="km-button">Tạo sổ</button></div></form>
+  </details>
+  <p id="km-notebook-error" class="km-error" role="alert" hidden></p>
 </dialog>
 <dialog id="km-compare-dialog" class="km-dialog km-compare-dialog" aria-labelledby="km-compare-title">
   <div class="km-dialog-heading"><h2 id="km-compare-title">So sánh cấu tạo</h2><button id="km-compare-close" type="button" class="km-button" aria-label="Đóng so sánh">×</button></div>
@@ -80,7 +84,7 @@
 </dialog>
 <script th:src="@{/js/pages/kanji-map-model.js}"></script>
 <script th:src="@{/js/pages/kanji-map-diagram.js}"></script>
-<script th:src="@{/js/pages/kanji-map-notebook.js}"></script>
+<script th:src="@{/js/pages/kanji-map-notebook.js(v='20261027-notebook-cards')}"></script>
 <script th:src="@{/js/pages/kanji-map.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body></html>

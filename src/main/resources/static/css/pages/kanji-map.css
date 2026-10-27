@@ -233,6 +233,38 @@
 .km-notebook-create summary { cursor:pointer; color:var(--km-primary); }
 .km-notebook-actions { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .km-notebook-actions a { color:var(--km-primary); font-size:13px; }
+.km-notebook-dialog { width:min(480px,calc(100vw - 32px)); padding:28px; box-shadow:0 24px 80px #100a2940; }
+.km-notebook-dialog::backdrop { background:#100d24a8; backdrop-filter:blur(5px); }
+.km-notebook-eyebrow { font:600 10px system-ui,sans-serif; letter-spacing:.14em; color:var(--km-muted); }
+.km-notebook-dialog .km-dialog-heading h2 { margin:7px 0 0; font-size:21px; letter-spacing:-.02em; }
+.km-notebook-close { display:grid; place-items:center; flex-shrink:0; width:32px; height:32px; padding:0; border:1px solid var(--km-line); border-radius:50%; background:transparent; color:var(--km-muted); font-size:22px; cursor:pointer; }
+.km-notebook-close:hover { color:var(--km-primary); background:var(--km-soft); }
+.km-notebook-preview { display:flex; align-items:center; gap:18px; margin:24px 0; padding:16px; border:1px solid var(--km-line); border-radius:13px; background:var(--km-bg); }
+.km-notebook-preview .km-notebook-characters { flex-shrink:0; max-width:50%; margin:0; font-size:34px; line-height:1.35; overflow-wrap:anywhere; }
+.km-notebook-preview #km-notebook-description { margin:0; font-size:12px; line-height:1.7; }
+.km-notebook-section-label { font:650 10px system-ui,sans-serif; letter-spacing:.1em; margin-bottom:10px; color:var(--km-muted); }
+.km-notebook-options { display:grid; gap:9px; max-height:240px; overflow-y:auto; padding:3px; margin:-3px; }
+.km-page .km-notebook-option { display:flex; align-items:center; gap:12px; position:relative; margin:0; padding:13px; border:1px solid var(--km-line); border-radius:12px; cursor:pointer; background:var(--km-panel); transition:border-color .15s,background .15s; }
+.km-notebook-option:hover { border-color:var(--km-primary); }
+.km-notebook-option:has(input:checked) { border-color:var(--km-primary); background:color-mix(in srgb,var(--km-primary) 8%,var(--km-panel)); }
+.km-notebook-option:has(input:focus-visible) { outline:2px solid var(--km-primary); outline-offset:1px; }
+.km-notebook-option:has(input:disabled) { opacity:.65; cursor:wait; }
+.km-notebook-option input { position:absolute; width:1px; height:1px; opacity:0; padding:0; }
+.km-notebook-option-icon { display:grid; place-items:center; width:39px; height:43px; flex-shrink:0; border:1px solid var(--km-line); border-radius:9px; color:var(--km-primary); background:var(--km-bg); }
+.km-notebook-option-icon svg { width:22px; height:22px; }
+.km-notebook-option-text { display:grid; gap:5px; flex:1; min-width:0; }
+.km-notebook-option-text strong { color:var(--km-ink); font-size:13px; font-weight:600; overflow-wrap:anywhere; }
+.km-notebook-option-text small { color:var(--km-muted); font-size:11px; font-weight:400; }
+.km-notebook-option-check { display:grid; place-items:center; width:19px; height:19px; flex-shrink:0; border:1px solid var(--km-line); border-radius:50%; color:transparent; }
+.km-notebook-option:has(input:checked) .km-notebook-option-check { color:var(--km-on-primary); border-color:var(--km-primary); background:var(--km-primary); }
+.km-notebook-dialog .km-notebook-context { margin:13px 0 0; min-height:18px; font-size:11px; overflow-wrap:anywhere; }
+.km-notebook-dialog .km-notebook-actions { margin-top:17px; padding-top:17px; border-top:1px solid var(--km-line); flex-wrap:wrap; }
+.km-notebook-dialog .km-notebook-create { margin-top:18px; padding:14px 0 0; border-top:1px solid var(--km-line); }
+.km-notebook-create summary { width:fit-content; font-size:12px; font-weight:600; list-style:none; }
+.km-notebook-create summary::-webkit-details-marker { display:none; }
+.km-notebook-create summary span { margin-right:5px; }
+.km-notebook-dialog .km-error { color:#ce6458; }
+@media(max-width:420px) { .km-notebook-dialog { padding:21px; }.km-notebook-dialog .km-dialog-heading h2 { font-size:19px; }.km-notebook-create .km-search-row { flex-direction:column; gap:8px; } }
 .km-atlas-actions button:hover { filter:brightness(.96); }
 .km-atlas-actions #km-review-count { position:static; min-width:20px; height:20px; padding:0 5px; border-radius:6px; background:var(--km-soft); color:var(--km-on-soft); font:700 10px/20px system-ui,sans-serif; }
 .km-map-area { inset:76px 0 0; }
