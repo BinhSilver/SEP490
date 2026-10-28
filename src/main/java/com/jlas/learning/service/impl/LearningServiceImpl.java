@@ -183,7 +183,50 @@ public class LearningServiceImpl implements LearningService {
     @Override
     @Transactional
     public CreateLearningPathResult create(Long userId, Long assessmentAttemptId) {
+        return create(userId, assessmentAttemptId, null);
+    }
+
+    @Override
+    @Transactional
+    public CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel) {
+        return create(userId, assessmentAttemptId, reviewStartLevel, null);
+    }
+
+    @Override
+    @Transactional
+    public CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel,
+            String discrepancyChoice) {
+        return create(userId, assessmentAttemptId, reviewStartLevel, discrepancyChoice, null, null);
+    }
+
+    /** Owner 2026-10-25: the questions the learner must answer on this Smart Test result before a path is created. */
+    @Override
+    @Transactional(readOnly = true)
+    public com.jlas.learning.dto.LearningEntryQuestions entryQuestions(Long userId, Long assessmentAttemptId) {
         requirePositiveUserId(userId);
+        if (assessmentAttemptId == null || assessmentAttemptId <= 0) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "A finalized assessment attempt is required.");
+        }
+        LearningProfileSnapshot profile = profileSource().loadForUser(userId, assessmentAttemptId);
+        if (profile == null || !userId.equals(profile.userId())) throw new ApiException(ErrorCode.FORBIDDEN);
+        return LearningEntryPolicy.questions(profile);
+    }
+
+    @Override
+    @Transactional
+    public CreateLearningPathResult create(Long userId, Long assessmentAttemptId, String reviewStartLevel,
+            String discrepancyChoice, Boolean kanaKnown, String entryChoice) {
+        requirePositiveUserId(userId);
+        boolean hasReviewStart = reviewStartLevel != null && !reviewStartLevel.isBlank();
+        boolean hasDiscrepancyChoice = discrepancyChoice != null && !discrepancyChoice.isBlank();
+        if (hasReviewStart && hasDiscrepancyChoice) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                    "A review start and a lower-result choice cannot be combined.");
+        }
+        String choice = hasDiscrepancyChoice ? discrepancyChoice.trim().toUpperCase(java.util.Locale.ROOT) : null;
+        if (choice != null && !java.util.Set.of("ACCEPT_RECOMMENDATION", "DECLINE_RECOMMENDATION").contains(choice)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Unsupported lower-result choice.");
+        }
         if (assessmentAttemptId == null || assessmentAttemptId <= 0) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "A finalized assessment attempt is required.");
         }
@@ -193,6 +236,22 @@ public class LearningServiceImpl implements LearningService {
         if (profile == null || !userId.equals(profile.userId())) {
             throw new ApiException(ErrorCode.FORBIDDEN);
         }
+        // Answers only make sense for a finalized result: an unfinished survey/test is a conflict, not a missing answer.
+        if (!profile.surveyCompleted() || !profile.assessmentFinalized()) {
+            throw new ApiException(ErrorCode.CONFLICT, "Complete the survey and finalize Smart Test results first.");
+        }
+        if (profile.partial() && (hasReviewStart || choice != null)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                    "Bài Smart Test chưa hoàn thành dùng câu hỏi xác nhận riêng, không dùng lựa chọn cấp ôn.");
+        }
+        if (hasReviewStart) {
+            profile = profile.withReviewStartLevel(reviewStartLevel.trim().toUpperCase(java.util.Locale.ROOT));
+        }
+        if (choice != null) {
+            profile = profile.withDiscrepancyChoice(choice);
+        }
+        String entry = entryChoice == null || entryChoice.isBlank() ? null : entryChoice.trim().toUpperCase(java.util.Locale.ROOT);
+        profile = LearningEntryPolicy.apply(profile.withEntryAnswers(kanaKnown, entry));
         return createPath(user, profile, scopeSource());
     }
 
@@ -233,6 +292,16 @@ public class LearningServiceImpl implements LearningService {
         LearningCatalogScope scope = scopeSource.resolve(user.getId(), profile);
         LearningSelectionResult selection = selector.select(user.getId(), profile, scope);
         var schedule = scheduler.schedule(selection.resources(), profile.minutesPerDay());
+        String pathPolicyVersion = selection.policyVersion();
+        if (profile.reviewStartLevel() != null) {
+            // policy_version is VARCHAR(100) and the selection policy string is already ~75 chars.
+            pathPolicyVersion += ":REVIEW_FROM_" + profile.reviewStartLevel();
+        }
+        if (profile.discrepancyChoice() != null) {
+            pathPolicyVersion += "ACCEPT_RECOMMENDATION".equals(profile.discrepancyChoice()) ? ":LOWER_ACCEPT" : ":LOWER_DECLINE";
+        }
+        // Owner 2026-10-25: each set of entry answers is its own path (policy_version is VARCHAR(100); codes are short).
+        pathPolicyVersion += LearningEntryPolicy.policySuffix(profile);
 
         // The user-row lock above already serializes concurrent creation for this user.
         // [JLAS-W0122] Chỉ xét path ACTIVE: replan giữ nguyên generation identity qua các version,
@@ -242,10 +311,10 @@ public class LearningServiceImpl implements LearningService {
                 ? LearningExperienceVersion.INTERACTIVE_V2 : LearningExperienceVersion.LEGACY_V1;
         var existing = profile.assessmentAttemptId() == null
                 ? paths.findByUserIdAndAssessmentAttemptIdIsNullAndAssessmentRevisionAndPolicyVersionAndExperienceVersionAndStatus(
-                        user.getId(), profile.assessmentRevision(), selection.policyVersion(), requestedExperience, "ACTIVE")
+                        user.getId(), profile.assessmentRevision(), pathPolicyVersion, requestedExperience, "ACTIVE")
                 : paths.findByUserIdAndAssessmentAttemptIdAndAssessmentRevisionAndPolicyVersionAndExperienceVersionAndStatus(
                         user.getId(), profile.assessmentAttemptId(), profile.assessmentRevision(),
-                        selection.policyVersion(), requestedExperience, "ACTIVE");
+                        pathPolicyVersion, requestedExperience, "ACTIVE");
         if (existing.isPresent()) {
             return new CreateLearningPathResult(loadResponse(existing.get()), false);
         }
@@ -265,11 +334,13 @@ public class LearningServiceImpl implements LearningService {
                 .title(buildTitle(profile))
                 .goal(profile.goalCode())
                 .targetLevel(profile.targetLevel())
-                .currentLevel(profile.assessedLevel())
+                .currentLevel(profile.reviewStartLevel() != null ? profile.reviewStartLevel()
+                        : "DECLINE_RECOMMENDATION".equals(profile.discrepancyChoice()) ? profile.surveyLevel()
+                        : profile.assessedLevel())
                 .surveyId(profile.surveyId())
                 .assessmentAttemptId(profile.assessmentAttemptId())
                 .assessmentRevision(profile.assessmentRevision())
-                .policyVersion(selection.policyVersion())
+                .policyVersion(pathPolicyVersion)
                 .minutesPerDay(profile.minutesPerDay())
                 .coverageGapsJson(mapper.writeCoverageGaps(selection.coverageGaps()))
                 .experienceVersion(requestedExperience)
@@ -346,8 +417,7 @@ public class LearningServiceImpl implements LearningService {
                 allGaps.addAll(warmUpGaps);
                 allGaps.addAll(composition.gaps());
                 path.setCoverageGapsJson(mapper.writeCoverageGaps(allGaps));
-                throw new ApiException(ErrorCode.BLOCKED_CONTENT,
-                        "Lộ trình V2 chưa được phát hành vì thiếu học liệu: " + composition.gaps());
+                throw new ApiException(ErrorCode.BLOCKED_CONTENT, blockedPathMessage(composition.gaps()));
             }
             // Published paths still record non-blocking notes, e.g. listening lessons deferred until their audio exists.
             if (!warmUpGaps.isEmpty() || !composition.gaps().isEmpty()) {
@@ -721,7 +791,8 @@ public class LearningServiceImpl implements LearningService {
         Map<Long, QuizAnswerKey> answerKey = new LinkedHashMap<>();
         for (String skill : STAGE_FINAL_SKILLS) {
             List<AssessmentQuestion> bank = questionRepository
-                    .findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(skill, level);
+                    .findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(skill, level)
+                    .stream().filter(LearningServiceImpl::quizEligible).toList();
             if (bank.size() < STAGE_FINAL_QUESTIONS_PER_SKILL) {
                 throw new ApiException(ErrorCode.QUIZ_NOT_READY);
             }
@@ -1083,13 +1154,13 @@ public class LearningServiceImpl implements LearningService {
         if (!items.findLessonIdsIn(pathId, List.of("WEAK_READING_ITEM")).isEmpty()) {
             questionRepository.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(
                             WeaknessEvidence.SKILL_READING, path.getCurrentLevel())
-                    .stream().limit(GATE_COMPREHENSION_SIZE)
+                    .stream().filter(LearningServiceImpl::quizEligible).limit(GATE_COMPREHENSION_SIZE)
                     .forEach(question -> putIfRoom(ordered, question.getId(), toGateQuestion(question)));
         }
         if (!items.findLessonIdsIn(pathId, List.of("WEAK_LISTENING_ITEM")).isEmpty()) {
             questionRepository.findByIsActiveTrueAndSkillAndJlptLevelOrderByIdAsc(
                             WeaknessEvidence.SKILL_LISTENING, path.getCurrentLevel())
-                    .stream().limit(GATE_COMPREHENSION_SIZE)
+                    .stream().filter(LearningServiceImpl::quizEligible).limit(GATE_COMPREHENSION_SIZE)
                     .forEach(question -> putIfRoom(ordered, question.getId(), toGateQuestion(question)));
         }
         questionRepository.findByIsActiveTrueAndKnowledgeTagCodeInOrderByIdAsc(warmUpTagCodes(pathId))
@@ -1099,6 +1170,21 @@ public class LearningServiceImpl implements LearningService {
             putIfRoom(ordered, question.questionId(), question);
         }
         return List.copyOf(ordered.values());
+    }
+
+    private static final com.fasterxml.jackson.databind.ObjectMapper QUIZ_CONTEXT = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /** Learning-owned study copies (Minna, Speed Master N3) declare {@code quiz_eligible=false}: they are study
+     * material for the path and never enter a scored quiz drawn from the shared bank. */
+    static boolean quizEligible(AssessmentQuestion question) {
+        String context = question.getContextJson();
+        if (context == null || context.isBlank()) return true;
+        try {
+            var flag = QUIZ_CONTEXT.readTree(context).path("quiz_eligible");
+            return !(flag.isBoolean() && !flag.asBoolean());
+        } catch (Exception unreadable) {
+            return true;
+        }
     }
 
     private void putIfRoom(LinkedHashMap<Long, GateQuestion> ordered, Long id, GateQuestion question) {
@@ -1547,7 +1633,48 @@ public class LearningServiceImpl implements LearningService {
         return stage != null ? stage.getId() : (firstStage == null ? null : firstStage.getId());
     }
 
+    private static final Map<String, String> SKILL_NAMES_VI = Map.of("VOCABULARY", "Từ vựng", "KANJI", "Kanji",
+            "GRAMMAR", "Ngữ pháp", "READING", "Đọc", "LISTENING", "Nghe");
+
+    /** Spec §2.1: a refused partial path names, per level, the required skills that have no content yet. */
+    static String blockedPathMessage(List<CoverageGap> gaps) {
+        Map<String, List<String>> missing = new java.util.LinkedHashMap<>();
+        for (CoverageGap gap : gaps) {
+            if (gap.reasonCode() == null || !gap.reasonCode().startsWith("MISSING_SKILL_")
+                    || gap.tagCode() == null || !gap.tagCode().startsWith("LEVEL:")) {
+                return "Lộ trình V2 chưa được phát hành vì thiếu học liệu: " + gaps;
+            }
+            String skill = gap.reasonCode().substring("MISSING_SKILL_".length());
+            missing.computeIfAbsent(gap.tagCode().substring("LEVEL:".length()), level -> new ArrayList<>())
+                    .add(SKILL_NAMES_VI.getOrDefault(skill, skill));
+        }
+        String levels = missing.entrySet().stream()
+                .map(entry -> "cấp " + entry.getKey() + " còn thiếu " + String.join(", ", entry.getValue()))
+                .collect(java.util.stream.Collectors.joining("; "));
+        return "Chưa thể tạo lộ trình đầy đủ: " + levels
+                + ". J-LAS không tạo lộ trình thiếu kỹ năng — nội dung sẽ được bổ sung trước khi mở "
+                + (missing.size() > 1 ? "các cấp này." : "cấp này.");
+    }
+
+    private static String levelLabel(String level) {
+        if ("BELOW_N5".equals(level) || "FROM_ZERO".equals(level)) {
+            return "Bắt đầu từ đầu";
+        }
+        return level;
+    }
+
     private String buildTitle(LearningProfileSnapshot profile) {
+        if ("ACCEPT_RECOMMENDATION".equals(profile.discrepancyChoice())) {
+            return "JLPT " + levelLabel(profile.assessedLevel()) + " đến " + profile.targetLevel() + " · Củng cố theo Smart Test";
+        }
+        if ("DECLINE_RECOMMENDATION".equals(profile.discrepancyChoice())) {
+            return "JLPT " + levelLabel(profile.surveyLevel()) + " đến " + profile.targetLevel()
+                    + " · Theo khảo sát (Smart Test: " + levelLabel(profile.assessedLevel()) + ")";
+        }
+        if (profile.reviewStartLevel() != null) {
+            return "JLPT " + profile.reviewStartLevel() + " đến " + profile.targetLevel()
+                    + " · Ôn theo lựa chọn (Smart Test: " + levelLabel(profile.assessedLevel()) + ")";
+        }
         // [JLAS-W0108] From-zero: tiêu đề thân thiện thay vì "JLPT BELOW_N5 to N5".
         if ("BELOW_N5".equals(profile.assessedLevel())) {
             return "JLPT " + profile.targetLevel() + " (từ con số 0)";

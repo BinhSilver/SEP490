@@ -29,6 +29,8 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     private final AssessmentComprehensionContentAdapter listeningAdapter;
     private final InteractiveStudyEngine<ComprehensionContent> readingEngine;
     private final InteractiveStudyEngine<ComprehensionContent> listeningEngine;
+    private final AssessmentQuestionRepository questionRows;
+    private final ComprehensionRevisionRebind revisionRebind;
 
     public InteractiveComprehensionServiceImpl(UserLearningPathItemRepository items,
             LearningActivityMemberRepository members, LearningStudySessionRepository studySessions,
@@ -37,6 +39,8 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
             ComprehensionExerciseCatalog catalog, LearningMapper mapper) {
         this.items = items;
         this.members = members;
+        this.questionRows = questions;
+        this.revisionRebind = new ComprehensionRevisionRebind(members, quizSessions, mapper);
         this.readingAdapter = new AssessmentComprehensionContentAdapter(LearningActivityType.READING, questions, catalog);
         this.listeningAdapter = new AssessmentComprehensionContentAdapter(LearningActivityType.LISTENING, questions, catalog);
         this.readingEngine = new InteractiveStudyEngine<>(items, members, studySessions, studyCards,
@@ -49,7 +53,6 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
     public ComprehensionStudyState studyState(Long userId, Long activityId) {
         UserLearningPathItem activity = ownedComprehension(userId, activityId);
         var engine = engine(activity.getActivityType());
-        MicroCheckStateResponse check = engine.microCheckState(userId, activityId);
         var adapter = adapter(activity.getActivityType());
         List<LearningActivityMember> membership = membership(activityId);
         Map<Long, ComprehensionContent> loaded = adapter.loadByIds(
@@ -58,7 +61,11 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         if (ordered.stream().anyMatch(java.util.Objects::isNull)) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Nội dung bài đọc/nghe không còn sẵn sàng.");
         }
+        // OD-D2-04: an edited explanation (or spacing) must not lock an activity the learner can still use.
+        revisionRebind.rebindIfSafe(activity, membership, ordered, adapter.currentRevision(ordered));
         adapter.validateSourceRevision(membership.getFirst().getSourceRevision(), ordered);
+        // After the rebind: the engine re-validates the revision while it computes the check state.
+        MicroCheckStateResponse check = engine.microCheckState(userId, activityId);
         List<List<ComprehensionContent>> batches = adapter.partition(ordered);
         int selected = Math.min(check.currentBatch(), batches.size() - 1);
         List<ComprehensionContent> batch = batches.get(selected);
@@ -69,8 +76,57 @@ public class InteractiveComprehensionServiceImpl implements InteractiveComprehen
         List<ComprehensionStudyQuestion> questions = batch.stream()
                 .map(content -> new ComprehensionStudyQuestion(content.question().id(),
                         content.question().prompt(), content.question().options())).toList();
+        var stored = activity.getActivityState();
+        boolean passed = stored == com.jlas.learning.enums.LearningActivityState.PASSED
+                || stored == com.jlas.learning.enums.LearningActivityState.COMPLETED;
         return new ComprehensionStudyState(activityId, activity.getActivityType(), check.activityState(),
-                membership.getFirst().getSourceRevision(), batches.size(), selected, source, questions, check);
+                membership.getFirst().getSourceRevision(), batches.size(), selected, source, questions, check,
+                sourceNote(batch.stream().map(content -> content.question().id()).toList()),
+                passed && activity.getActivityType() == LearningActivityType.READING ? passageTranslations(batches) : List.of());
+    }
+
+    /** The source's own line-by-line translation of each passage (context_json.passage_translation), in batch order;
+     * an empty list for a passage the source did not translate. */
+    private List<List<ComprehensionStudyState.TranslationLine>> passageTranslations(List<List<ComprehensionContent>> batches) {
+        List<Long> firstIds = batches.stream().map(batch -> batch.getFirst().question().id()).toList();
+        Map<Long, String> contexts = new java.util.HashMap<>();
+        questionRows.findAllById(firstIds).forEach(row -> contexts.put(row.getId(), row.getContextJson()));
+        List<List<ComprehensionStudyState.TranslationLine>> result = new java.util.ArrayList<>();
+        for (Long id : firstIds) {
+            List<ComprehensionStudyState.TranslationLine> lines = new java.util.ArrayList<>();
+            String context = contexts.get(id);
+            try {
+                if (context != null && !context.isBlank()) {
+                    for (var line : CONTEXT.readTree(context).path("passage_translation")) {
+                        String ja = line.path("ja").asText(""), vi = line.path("vi").asText("");
+                        if (!ja.isBlank() && !vi.isBlank()) lines.add(new ComprehensionStudyState.TranslationLine(ja, vi));
+                    }
+                }
+            } catch (Exception unreadable) {
+                lines.clear(); // a row without a readable context has no translation to show
+            }
+            result.add(lines);
+        }
+        return result;
+    }
+
+    private static final com.fasterxml.jackson.databind.ObjectMapper CONTEXT = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /** OD-44 follow-up (review 2026-10-20): unreviewed Learning-owned rows (e.g. Speed Master N3) carry their own
+     * source label in context_json; the note follows that content wherever it is studied, never the book status. */
+    private String sourceNote(List<Long> questionIds) {
+        for (var row : questionRows.findAllById(questionIds)) {
+            String context = row.getContextJson();
+            if (context == null || context.isBlank()) continue;
+            try {
+                var node = CONTEXT.readTree(context);
+                String label = node.path("label").asText("");
+                if ("CHUA_DUYET".equals(node.path("review_status").asText("")) && !label.isBlank()) return label;
+            } catch (Exception unreadable) {
+                // A row without a readable context has no label to show.
+            }
+        }
+        return null;
     }
 
     @Override @Transactional

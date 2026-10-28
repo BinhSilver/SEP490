@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface LessonLearningScopeRepository extends JpaRepository<LessonLearningScope, Long> {
     List<LessonLearningScope> findByGoalIdAndReviewStatusOrderByScopeOrderAsc(Long goalId, String reviewStatus);
+
+    List<LessonLearningScope> findByLessonIdIn(java.util.Collection<Long> lessonIds);
 }

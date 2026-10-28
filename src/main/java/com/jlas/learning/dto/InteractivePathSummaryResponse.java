@@ -24,7 +24,12 @@ import java.util.List;
  * ({@code MockTestDestinationProvider.resolveDestination}), never composed or decided by the browser. No
  * real Mock Test owner contract exists in this codebase (re-audited fresh at RC Task 7 time), so this is
  * {@code BLOCKED_INTEGRATION} by default — an honest state the summary page must render as a disabled
- * button, never a fabricated link. */
+ * button, never a fabricated link.
+ *
+ * <p>[JLAS-W0193] §2.24 — {@code communicationGoal} is true for BA/Travel/Daily Life paths, which have no
+ * quiz: Vocabulary/Grammar evidence comes from the activities' own PASSED/COMPLETED state (no micro-check
+ * scores), there is no Kanji card, and the summary page renders content-completion wording instead of the
+ * standard first/latest/best table. */
 public record InteractivePathSummaryResponse(
         Long pathId,
         String status,
@@ -36,14 +41,15 @@ public record InteractivePathSummaryResponse(
         InteractiveReadinessConfidence readiness,
         boolean certificateEligible,
         MockTestDestination mockTest,
-        List<InteractiveStudyLink> studyLinks
+        List<InteractiveStudyLink> studyLinks,
+        boolean communicationGoal
 ) {
     public InteractivePathSummaryResponse(Long pathId, String status, LocalDateTime completedAt,
             List<InteractiveSkillProgress> skills, InteractiveDialogueSummary dialogue,
             List<InteractiveComprehensionEvidence> comprehension, List<InteractiveSkillProgress> comprehensionInPath,
             InteractiveReadinessConfidence readiness, boolean certificateEligible, MockTestDestination mockTest) {
         this(pathId, status, completedAt, skills, dialogue, comprehension, comprehensionInPath, readiness,
-                certificateEligible, mockTest, List.of());
+                certificateEligible, mockTest, List.of(), false);
     }
 
     public InteractivePathSummaryResponse {

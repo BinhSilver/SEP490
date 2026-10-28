@@ -8,6 +8,7 @@ import com.jlas.learning.dto.InteractivePathSummaryResponse;
 import com.jlas.learning.dto.InteractiveReadinessConfidence;
 import com.jlas.learning.dto.InteractiveSkillProgress;
 import com.jlas.learning.dto.InteractiveUnresolvedBatch;
+import com.jlas.learning.dto.FinalEligibilityResponse;
 import com.jlas.learning.dto.MockTestDestination;
 import com.jlas.learning.dto.SkillScore;
 import com.jlas.learning.dto.WeaknessEvidence;
@@ -79,6 +80,10 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
     @Autowired(required = false)
     private LearningProfileSource profileSource;
 
+    /** Owner 2026-10-26 (lỗi #3): the roadmap's Mock Test rule; optional so slice tests need not wire it. */
+    @Autowired(required = false)
+    private com.jlas.learning.service.LearningFinalEligibilityService finalEligibility;
+
     @Override
     @Transactional(readOnly = true)
     public InteractivePathSummaryResponse summary(Long userId) {
@@ -88,30 +93,46 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
 
         List<UserLearningPathItem> activities = items.findByLearningPathIdOrderByOrderIndex(path.getId());
 
-        List<InteractiveSkillProgress> skills = SCORED_SKILLS.stream()
-                .map(type -> skillProgress(type, activities))
-                .toList();
+        // [JLAS-W0193] RC Task 7 — the server, never the browser, decides availability/destination; only
+        // the path's own target level is ever passed to the provider (no internal id, no JWT).
+        boolean communicationGoal = GoalEntryPolicy.isCommunicationGoal(path.getGoal());
+        // [JLAS-W0193] §2.24 — communication-goal paths have no quiz: Vocabulary/Grammar evidence is the
+        // activities' own PASSED/COMPLETED state (no micro-check scores), and there is no Kanji card.
+        List<InteractiveSkillProgress> skills = communicationGoal
+                ? communicationSkillProgress(activities)
+                : SCORED_SKILLS.stream().map(type -> skillProgress(type, activities)).toList();
 
         InteractiveDialogueSummary dialogue = dialogueSummary(activities);
         List<InteractiveComprehensionEvidence> comprehension = comprehensionEvidence(userId, path);
         // [JLAS-W0193] RC Task 6 — in-path Reading/Listening evidence, aggregated the same way as skills
         // above, kept as a *separate* list from the Smart Test baseline (`comprehension`) so neither ever
         // silently overwrites or averages into the other (RC plan Task 6, rule 3).
-        List<InteractiveSkillProgress> comprehensionInPath = COMPREHENSION_SKILLS.stream()
-                .map(type -> skillProgress(type, activities))
-                .toList();
-        InteractiveReadinessConfidence readiness = readiness(skills, dialogue, comprehension, comprehensionInPath);
+        List<InteractiveSkillProgress> comprehensionInPath = communicationGoal ? List.of()
+                : COMPREHENSION_SKILLS.stream()
+                        .map(type -> skillProgress(type, activities))
+                        .toList();
+        // [JLAS-W0193] §2.24 — communication paths have neither micro-check nor a Smart Test baseline, so
+        // readiness only ever looks at content completion; the standard wording would force LOW forever.
+        InteractiveReadinessConfidence readiness = communicationGoal
+                ? communicationReadiness(skills, dialogue)
+                : readiness(skills, dialogue, comprehension, comprehensionInPath);
         boolean certificateEligible = isCertificateEligible(path);
-        // [JLAS-W0193] RC Task 7 — the server, never the browser, decides availability/destination; only
-        // the path's own target level is ever passed to the provider (no internal id, no JWT).
-        boolean communicationGoal = GoalEntryPolicy.isCommunicationGoal(path.getGoal());
         MockTestDestination mockTest = communicationGoal
                 ? MockTestDestination.notApplicable()
                 : mockTestDestinationProvider.resolveDestination(path.getTargetLevel());
+        // Owner 2026-10-26 (lỗi #3): the summary opens the Mock Test under the roadmap's rule — every prior stage
+        // 100% and the target stage at least 50% — never earlier.
+        if (mockTest != null && mockTest.available() && finalEligibility != null) {
+            FinalEligibilityResponse eligibility = finalEligibility.forPath(path.getId());
+            if (!eligibility.eligible()) {
+                mockTest = MockTestDestination.lockedByProgress(path.getTargetLevel(), eligibility.reasonCode(),
+                        eligibility.requiredTargetPercent());
+            }
+        }
 
         return new InteractivePathSummaryResponse(path.getId(), path.getStatus(), path.getCompletedAt(),
                 skills, dialogue, comprehension, comprehensionInPath, readiness, certificateEligible, mockTest,
-                studyLinks(activities));
+                studyLinks(activities), communicationGoal);
     }
 
     /** Finished activities with owned replay contracts, including score-free Dialogue rehearsal. */
@@ -167,6 +188,36 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
                 .toList();
 
         return new InteractiveSkillProgress(type.name(), true, first, latest, best, unresolved.isEmpty(), unresolved);
+    }
+
+    // ---- Vocabulary/Grammar for communication goals: completion evidence, no scores, no Kanji ----
+
+    /** [JLAS-W0193] §2.24 — communication-goal paths (BA/Travel/Daily Life) carry Vocabulary and Grammar
+     * content with no quiz: completion is evidenced by the activities' own PASSED/COMPLETED state, so there
+     * are no micro-check scores and no Kanji card (Kanji is not part of the communication trio). */
+    private List<InteractiveSkillProgress> communicationSkillProgress(List<UserLearningPathItem> activities) {
+        return List.of(LearningActivityType.VOCABULARY, LearningActivityType.GRAMMAR).stream()
+                .map(type -> {
+                    List<UserLearningPathItem> ofType = activities.stream()
+                            .filter(a -> a.getActivityType() == type)
+                            .toList();
+                    if (ofType.isEmpty()) {
+                        return new InteractiveSkillProgress(type.name(), false, null, null, null, false, List.of());
+                    }
+                    boolean resolved = ofType.stream().allMatch(a ->
+                            a.getActivityState() == LearningActivityState.PASSED
+                                    || a.getActivityState() == LearningActivityState.COMPLETED);
+                    List<InteractiveUnresolvedBatch> unresolved = resolved
+                            ? List.of()
+                            : ofType.stream()
+                                    .filter(a -> a.getActivityState() != LearningActivityState.PASSED
+                                            && a.getActivityState() != LearningActivityState.COMPLETED)
+                                    .map(a -> new InteractiveUnresolvedBatch(a.getId(), a.getOrderIndex(),
+                                            null, false, null))
+                                    .toList();
+                    return new InteractiveSkillProgress(type.name(), true, null, null, null, resolved, unresolved);
+                })
+                .toList();
     }
 
     // ---- Dialogue: completion count only, never a score ----
@@ -281,6 +332,34 @@ public class InteractivePathSummaryServiceImpl implements InteractivePathSummary
         // comprehension activities from a proven Smart Test weakness) and is never re-verified against the
         // full JLPT skill/level range the way Vocabulary/Kanji/Grammar's own micro-check gate is. RC plan
         // Task 6, rule 5: never claim HIGH merely because Reading/Listening activities now exist.
+        return new InteractiveReadinessConfidence("MEDIUM", explanation.toString());
+    }
+
+    /** [JLAS-W0193] §2.24 — communication-goal paths have no quiz and no Smart Test baseline, so readiness
+     * only ever looks at Vocabulary/Grammar content completion and Dialogue. The standard micro-check gap
+     * wording above ("chưa đạt micro-check", "không có dữ liệu Smart Test") must never apply to these
+     * paths — it would force LOW forever on a goal that is complete by design without a quiz. */
+    private InteractiveReadinessConfidence communicationReadiness(List<InteractiveSkillProgress> skills,
+            InteractiveDialogueSummary dialogue) {
+        List<String> gaps = new ArrayList<>();
+        for (InteractiveSkillProgress skill : skills) {
+            if (!skill.hasEvidence()) {
+                gaps.add(skill.skill() + ": chưa có bằng chứng trong lộ trình");
+            } else if (!skill.resolved()) {
+                gaps.add(skill.skill() + ": còn nội dung chưa hoàn thành trong lộ trình");
+            }
+        }
+        if (!gaps.isEmpty()) {
+            return new InteractiveReadinessConfidence("LOW",
+                    "Chưa đủ bằng chứng để ước tính độ sẵn sàng đáng tin cậy: " + String.join("; ", gaps) + ".");
+        }
+
+        StringBuilder explanation = new StringBuilder(
+                "Từ vựng và Ngữ pháp đã hoàn thành nội dung trong lộ trình giao tiếp.");
+        if (!dialogue.allCompleted()) {
+            explanation.append(" Hội thoại chưa hoàn thành toàn bộ.");
+        }
+        explanation.append(" Lộ trình giao tiếp không có bài kiểm tra — mức sẵn sàng phản ánh nội dung đã hoàn thành.");
         return new InteractiveReadinessConfidence("MEDIUM", explanation.toString());
     }
 
