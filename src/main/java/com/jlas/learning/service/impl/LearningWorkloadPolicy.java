@@ -14,6 +14,9 @@ public final class LearningWorkloadPolicy {
     private static final int QUIZ_BATCH_SIZE = 10;
     private static final int QUIZ_MINUTES_PER_BATCH = 3;
     private static final int MAX_FLASHCARD_PART_SIZE = 15;
+    /** A JLPT grammar activity studies and checks at most three patterns. Since D3-05 (owner 2026-10-24) a day has
+     * no count limit of its own: grammar, reading and listening fill it by minutes like every other activity. */
+    public static final int JLPT_GRAMMAR_POINTS_PER_ACTIVITY = 3;
 
     public record ActivityPlan(LearningActivityType activityType, LearningMemberType memberType,
             List<Long> memberIds, int estimatedMinutes) {
@@ -68,8 +71,14 @@ public final class LearningWorkloadPolicy {
     }
 
     public List<List<Long>> partition(LearningActivityType type, List<Long> canonicalIds, int dailyMinutes) {
+        return partition(type, canonicalIds, dailyMinutes, Integer.MAX_VALUE);
+    }
+
+    /** As {@link #partition(LearningActivityType, List, int)}, with no activity larger than {@code memberCap}. */
+    public List<List<Long>> partition(LearningActivityType type, List<Long> canonicalIds, int dailyMinutes, int memberCap) {
         if (canonicalIds == null) throw new IllegalArgumentException("Canonical member ids are required.");
-        int maxMembers = maxMembersPerActivity(type, dailyMinutes);
+        if (memberCap <= 0) throw new IllegalArgumentException("The member cap must be positive.");
+        int maxMembers = Math.min(maxMembersPerActivity(type, dailyMinutes), memberCap);
         LinkedHashSet<Long> distinct = new LinkedHashSet<>(canonicalIds);
         if (distinct.contains(null)) throw new IllegalArgumentException("Canonical member ids cannot contain null.");
         List<Long> ids = List.copyOf(distinct);

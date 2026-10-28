@@ -90,7 +90,7 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 session.getDailyStudyMinutes() != null ? session.getDailyStudyMinutes() : survey.getDailyStudyMinutes(),
                 aggregateWeaknesses(effectiveAnswers),
                 aggregateSkillScores(effectiveAnswers), surveyLevel(session, survey),
-                assessmentResult.abilityBand());
+                assessmentResult.abilityBand()).withPartial(assessmentResult.partial());
     }
 
     /**
