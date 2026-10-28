@@ -27,6 +27,7 @@ import com.jlas.learning.service.InteractiveVocabularyService;
 import com.jlas.learning.service.impl.engine.EngineStudyState;
 import com.jlas.learning.service.impl.engine.InteractiveContentAdapter;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
+import com.jlas.learning.service.impl.text.ReviewedWordType;
 import com.jlas.learning.service.impl.engine.QuestionSpec;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,9 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     private static final String[] SELECT_TYPES = {"WORD_TO_MEANING", "READING_TO_WORD", "MEANING_TO_WORD"};
 
     private final InteractiveStudyEngine<VocabularyEntry> engine;
+    /** OD-D2-05: "Ôn" words of a deduplicated JLPT chapter; absent in slice tests. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private LessonReviewLookup reviewLookup;
 
     public InteractiveVocabularyServiceImpl(UserLearningPathItemRepository items, LearningActivityMemberRepository members,
             LearningStudySessionRepository studySessions, LearningStudyCardRepository studyCards,
@@ -69,6 +73,12 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     @Transactional
     public VocabularyStudyState flip(Long userId, Long activityId, Long memberId) {
         return toDto(engine.flip(userId, activityId, memberId));
+    }
+
+    @Override
+    @Transactional
+    public VocabularyStudyState markStudied(Long userId, Long activityId) {
+        return toDto(engine.markStudied(userId, activityId));
     }
 
     @Override
@@ -140,16 +150,19 @@ public class InteractiveVocabularyServiceImpl implements InteractiveVocabularySe
     private VocabularyStudyState toDto(EngineStudyState<VocabularyEntry> s) {
         List<VocabularyStudyState.VocabularyStudyCard> cards = s.cards().stream().map(c -> {
             VocabularyEntry e = c.entity();
+            String sourceWordType = value(e, VocabularyEntry::getWordType);
+            boolean generated = sourceWordType == null || sourceWordType.isBlank();
+            String wordType = ReviewedWordType.labelFor(value(e, VocabularyEntry::getExpression), sourceWordType);
             return new VocabularyStudyState.VocabularyStudyCard(c.memberId(), c.orderIndex(),
                     value(e, VocabularyEntry::getExpression), value(e, VocabularyEntry::getReading),
-                    value(e, VocabularyEntry::getMeaning), value(e, VocabularyEntry::getWordType),
+                    value(e, VocabularyEntry::getMeaning), wordType,
                     value(e, VocabularyEntry::getJlptLevel), value(e, VocabularyEntry::getExampleJa),
-                    value(e, VocabularyEntry::getExampleVi), c.flipped(), c.remembered());
+                    value(e, VocabularyEntry::getExampleVi), c.flipped(), c.remembered(), generated && wordType != null);
         }).toList();
         return new VocabularyStudyState(s.activityId(), s.activityType(), s.activityState(), s.sourceRevision(),
                 s.totalCards(), s.flippedCount(), s.rememberedCount(), s.reviewRemaining(), s.checkEligible(),
                 s.checkRequired(), cards,
-                s.partIndex(), s.partCount());
+                s.partIndex(), s.partCount(), reviewLookup == null ? List.of() : reviewLookup.vocabulary(s.activityId()));
     }
 
     private static String value(VocabularyEntry entry, java.util.function.Function<VocabularyEntry, String> getter) {

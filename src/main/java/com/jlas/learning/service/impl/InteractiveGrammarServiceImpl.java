@@ -39,8 +39,11 @@ import com.jlas.learning.service.impl.engine.InteractiveContentAdapter;
 import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
 import com.jlas.learning.service.impl.InteractiveActivityStatePolicy;
 import com.jlas.learning.service.impl.engine.QuestionSpec;
+import com.jlas.learning.service.impl.grammar.GrammarExampleHold;
 import com.jlas.learning.service.impl.grammar.GrammarTextAnalyzer;
 import com.jlas.learning.service.impl.grammar.GrammarTextAnalyzer.Role;
+import com.jlas.learning.service.impl.grammar.GrammarPhraseSegmenter;
+import com.jlas.learning.service.impl.grammar.GrammarPhraseSegmenter.Practice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +100,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         for (LearningActivityMember member : membership) {
             GrammarPoint point = byId.get(member.getCanonicalId());
             LearningGrammarPracticeProgress p = currentProgress(activityId, member);
-            GrammarPointView view = toView(member, point, p);
+            GrammarPointView view = toView(member, point, p, false);
             if (view.gateSatisfied()) satisfied++;
             views.add(view);
         }
@@ -128,7 +131,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         Map<Long, GrammarPoint> byId = loadPoints(membership);
         List<GrammarPointView> views = membership.stream().map(member ->
                 toView(member, byId.get(member.getCanonicalId()),
-                        currentProgress(activityId, member))).toList();
+                        currentProgress(activityId, member), true)).toList();
         return new GrammarStudyState(activity.getId(), activity.getActivityType(), activity.getActivityState(),
                 membership.getFirst().getSourceRevision(), membership.size(),
                 (int) views.stream().filter(GrammarPointView::gateSatisfied).count(), false,
@@ -143,7 +146,8 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         UserLearningPathItem activity = loadActivity(userId, activityId);
         LearningActivityMember member = requireMember(activity, grammarPointId);
         GrammarPoint point = requirePoint(grammarPointId);
-        List<String> words = exampleWords(point);
+        Practice practice = practice(point);
+        List<String> words = practice.parts();
         if (words.isEmpty()) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Mẫu ngữ pháp này chưa có câu ví dụ để luyện tập.");
         }
@@ -157,7 +161,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         }
         progress.save(state);
 
-        String correctText = String.join(" ", words);
+        String correctText = practice.text();
         String explanation = correct
                 ? "Chính xác! Câu đúng thứ tự là: " + correctText
                 : "Câu đúng là: " + correctText + ". " + meaningExplanation(point);
@@ -172,12 +176,11 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         UserLearningPathItem activity = loadActivity(userId, activityId);
         LearningActivityMember member = requireMember(activity, grammarPointId);
         GrammarPoint point = requirePoint(grammarPointId);
-        List<String> words = exampleWords(point);
-        int blankIndex = GrammarTextAnalyzer.chooseBlankIndex(words);
-        if (blankIndex < 0) {
+        Practice practice = practice(point);
+        if (practice.blankIndex() < 0) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT, "Mẫu ngữ pháp này chưa có câu ví dụ để luyện tập.");
         }
-        String canonicalAnswer = words.get(blankIndex);
+        String canonicalAnswer = practice.answer();
         boolean correct = GrammarTextAnalyzer.normalizeAnswer(request.answer())
                 .equals(GrammarTextAnalyzer.normalizeAnswer(canonicalAnswer));
 
@@ -323,26 +326,30 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         return state;
     }
 
+    /** {@code reveal}: a read-only review of a finished activity shows every point solved, as it was when completed. */
     private GrammarPointView toView(LearningActivityMember member, GrammarPoint point,
-            LearningGrammarPracticeProgress p) {
+            LearningGrammarPracticeProgress p, boolean reveal) {
         String pattern = point == null ? null : point.getPattern();
         String[] meaningParts = splitFirstLine(point == null ? null : point.getMeaning());
-        String[] exampleParts = splitFirstLine(point == null ? null : point.getExample());
+        String[] exampleParts = studiedExample(point);
+        boolean exampleUnderReview = point != null && exampleParts[0] == null && point.getExample() != null
+                && !point.getExample().isBlank();
         List<ComponentToken> components = pattern == null ? List.of()
                 : GrammarTextAnalyzer.classifyPattern(pattern).stream()
                         .map(t -> new ComponentToken(t.text(), t.role().name())).toList();
         ExampleView example = exampleParts[0] == null ? null : new ExampleView(exampleParts[0], exampleParts[1]);
 
-        List<String> words = exampleParts[0] == null ? List.of() : GrammarTextAnalyzer.splitWords(exampleParts[0]);
-        boolean orderingDone = p != null && p.isOrderingDone();
-        boolean fillDone = p != null && p.isFillDone();
-        OrderingPractice ordering = buildOrderingView(member.getCanonicalId(), words, orderingDone);
-        FillPractice fill = buildFillView(words, fillDone);
+        Practice practice = GrammarPhraseSegmenter.practice(exampleParts[0], pattern);
+        boolean orderingDone = reveal || p != null && p.isOrderingDone();
+        boolean fillDone = reveal || p != null && p.isFillDone();
+        OrderingPractice ordering = buildOrderingView(member.getCanonicalId(), practice.parts(), orderingDone);
+        FillPractice fill = practice.parts().isEmpty() ? new FillPractice(null, fillDone) : new FillPractice(practice.prompt(), fillDone,
+                fillDone ? practice.answer() : null);
 
         boolean gateSatisfied = orderingDone && fillDone;
         String note = point == null || point.getNote() == null || point.getNote().isBlank() ? null : point.getNote();
         return new GrammarPointView(member.getCanonicalId(), member.getOrderIndex(), pattern, meaningParts[0],
-                meaningParts[1], components, example, note, ordering, fill, gateSatisfied);
+                meaningParts[1], components, example, note, ordering, fill, gateSatisfied, exampleUnderReview);
     }
 
     private OrderingPractice buildOrderingView(long seed, List<String> words, boolean completed) {
@@ -352,20 +359,16 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
         return new OrderingPractice(view, completed);
     }
 
-    private FillPractice buildFillView(List<String> words, boolean completed) {
-        if (words.isEmpty()) return new FillPractice(null, completed);
-        int blankIndex = GrammarTextAnalyzer.chooseBlankIndex(words);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < words.size(); i++) {
-            if (i > 0) sb.append(' ');
-            sb.append(i == blankIndex ? "_____" : words.get(i));
-        }
-        return new FillPractice(sb.toString(), completed);
+    /** Ordering parts and fill blank of the point's first example line: spaced JLPT units as they are, plain communication
+     * sentences cut into phrase chunks with the pattern as the blank (owner 2026-10-21). */
+    private Practice practice(GrammarPoint point) {
+        return GrammarPhraseSegmenter.practice(studiedExample(point)[0], point.getPattern());
     }
 
-    private List<String> exampleWords(GrammarPoint point) {
-        String[] parts = splitFirstLine(point.getExample());
-        return parts[0] == null ? List.of() : GrammarTextAnalyzer.splitWords(parts[0]);
+    /** The point's first example line and the rest, or nothing when that example is held for review. */
+    private static String[] studiedExample(GrammarPoint point) {
+        String[] parts = splitFirstLine(point == null ? null : point.getExample());
+        return point != null && GrammarExampleHold.held(point.getPattern(), parts[0]) ? new String[]{null, null} : parts;
     }
 
     private String meaningExplanation(GrammarPoint point) {
@@ -394,10 +397,17 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
     static final class GrammarContentAdapter implements InteractiveContentAdapter<GrammarPoint> {
         private final GrammarPointRepository grammarPoints;
         private final LearningGrammarPracticeProgressRepository progress;
+        private final ReviewedGrammarApplications reviewed;
 
         GrammarContentAdapter(GrammarPointRepository grammarPoints, LearningGrammarPracticeProgressRepository progress) {
+            this(grammarPoints, progress, ReviewedGrammarApplications.shared());
+        }
+
+        GrammarContentAdapter(GrammarPointRepository grammarPoints, LearningGrammarPracticeProgressRepository progress,
+                ReviewedGrammarApplications reviewed) {
             this.grammarPoints = grammarPoints;
             this.progress = progress;
+            this.reviewed = reviewed;
         }
 
         @Override
@@ -421,67 +431,78 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
                     .collect(Collectors.toMap(GrammarPoint::getId, g -> g));
         }
 
+        /** GAP-N5-GRA-02 (spec §2.13): one MEANING_MATCH per point. A usage question needs a reviewed sentence other than
+         * the example just studied, with its own key, distractors and explanation; the canonical data has none yet, so no
+         * usage question is generated rather than re-asking the studied example. */
         @Override
         public List<QuestionSpec> buildQuestions(List<GrammarPoint> batch, int batchIndex, int variationSeed) {
             List<QuestionSpec> specs = new ArrayList<>();
             long qid = 1;
             for (int i = 0; i < batch.size(); i++) {
                 GrammarPoint point = batch.get(i);
-                String[] meaningParts = splitFirstLine(point.getMeaning());
-                String[] exampleParts = splitFirstLine(point.getExample());
-                String meaningSummary = meaningParts[0];
-                String exampleJapanese = exampleParts[0];
+                String meaningSummary = splitFirstLine(point.getMeaning())[0];
+                if (meaningSummary == null) continue;
 
                 List<GrammarPoint> distractorPool = new ArrayList<>(batch);
                 if (point.getLesson() != null && point.getLesson().getId() != null) {
-                    grammarPoints.findByLessonIdOrderByOrderIndexAsc(point.getLesson().getId()).stream()
-                            .filter(candidate -> candidate.getId() == null || !candidate.getId().equals(point.getId()))
-                            .forEach(distractorPool::add);
+                    distractorPool.addAll(grammarPoints.findByLessonIdOrderByOrderIndexAsc(point.getLesson().getId()));
                 }
-
-                if (meaningSummary != null) {
-                    List<String> distractors = distractorPool.stream()
-                            .map(b -> splitFirstLine(b.getMeaning())[0]).toList();
-                    QuestionSpec question = optionQuestion(qid, i + variationSeed, "MEANING_MATCH",
-                            "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors);
-                    if (question != null) { specs.add(question); qid++; }
-                }
-                Boolean exampleMatchesPattern = grammarApplicability(point.getPattern(), exampleJapanese);
-                if (exampleJapanese != null && !Boolean.FALSE.equals(exampleMatchesPattern)) {
-                    List<String> distractors = distractorPool.stream()
-                            .map(b -> splitFirstLine(b.getExample())[0])
-                            .filter(candidate -> !Boolean.TRUE.equals(grammarApplicability(point.getPattern(), candidate)))
-                            .toList();
-                    QuestionSpec question = optionQuestion(qid, i + variationSeed, "USAGE_SELECT",
-                            "Câu nào dùng đúng mẫu “" + point.getPattern() + "”?", exampleJapanese, distractors);
-                    if (question != null) { specs.add(question); qid++; }
-                }
+                // The same pattern repeated in another point (spiral review) would be a second correct answer.
+                String pattern = normalizedPattern(point.getPattern());
+                List<String> distractors = distractorPool.stream()
+                        .filter(candidate -> !pattern.equals(normalizedPattern(candidate.getPattern())))
+                        .map(candidate -> splitFirstLine(candidate.getMeaning())[0]).toList();
+                QuestionSpec question = optionQuestion(qid, i + variationSeed, "MEANING_MATCH",
+                        "Mẫu “" + point.getPattern() + "” có nghĩa là gì?", meaningSummary, distractors,
+                        meaningExplanation(point, meaningSummary));
+                if (question != null) { specs.add(question); qid++; }
+                // OD-D2-01: an owner-reviewed application sentence for this pattern, one per attempt, rotating.
+                QuestionSpec usage = reviewedUsage(qid, point, variationSeed + i);
+                if (usage != null) { specs.add(usage); qid++; }
             }
             return specs;
         }
 
-        /** Returns null for patterns whose structure is not covered by this conservative validator. */
-        private static Boolean grammarApplicability(String pattern, String example) {
-            if (pattern == null || example == null || example.isBlank()) return false;
-            String p = pattern.replaceAll("\\s+", "");
-            String text = example.replaceAll("\\s+", "").replace("。", "").trim();
-            if (p.contains("はじめまして")) return text.contains("はじめまして") && text.contains("よろしく");
-            if (p.contains("なんさい") || p.contains("何歳"))
-                return text.contains("なんさい") || text.contains("何歳") || text.contains("おいくつ");
-            if (p.contains("じゃありません") || p.contains("ではありません"))
-                return text.contains("じゃありません") || text.contains("ではありません");
-            if (p.contains("ですか")) return text.endsWith("ですか");
-            if (p.contains("も")) return text.contains("も") && text.endsWith("です");
-            if (p.contains("の")) return text.contains("の");
-            if (p.contains("さん")) return text.contains("さん");
-            if (p.contains("N1はN2です"))
-                return text.contains("は") && !text.contains("も") && !text.contains("じゃありません")
-                        && !text.contains("ではありません") && !text.endsWith("ですか") && text.endsWith("です");
-            return null;
+        private QuestionSpec reviewedUsage(long questionId, GrammarPoint point, int seed) {
+            if (reviewed == null) return null;
+            List<ReviewedGrammarApplications.Item> items = reviewed.forPattern(point.getPattern(), levelOf(point));
+            if (items.isEmpty()) return null;
+            ReviewedGrammarApplications.Item item = items.get(Math.floorMod(seed, items.size()));
+            if (item.correctIndex() < 1 || item.correctIndex() > item.options().size()) return null;
+            String answer = item.options().get(item.correctIndex() - 1);
+            List<String> others = new ArrayList<>(item.options());
+            others.remove(item.correctIndex() - 1);
+            String prompt = (item.contextVi().isBlank() ? "" : item.contextVi() + " — ") + item.promptJa();
+            String explanation = item.explanationVi() + (item.answerJa().isBlank() ? ""
+                    : " Câu đúng: " + item.answerJa() + (item.answerVi().isBlank() ? "" : " (" + item.answerVi() + ")"));
+            return optionQuestion(questionId, seed, "USAGE_REVIEWED", prompt, answer, others, explanation.trim());
+        }
+
+        private static String levelOf(GrammarPoint point) {
+            var lesson = point.getLesson();
+            var textbook = lesson == null || lesson.getUnit() == null ? null : lesson.getUnit().getTextbook();
+            return textbook == null ? null : textbook.getJlptLevel();
+        }
+
+        private static String normalizedPattern(String pattern) {
+            return pattern == null ? "" : java.text.Normalizer.normalize(pattern, java.text.Normalizer.Form.NFKC)
+                    .replaceAll("[\\s〜～~]+", "");
+        }
+
+        /** Why the key is right: the meaning, then the example studied with this pattern as context (never as an option). */
+        private static String meaningExplanation(GrammarPoint point, String meaningSummary) {
+            String[] example = studiedExample(point);
+            StringBuilder text = new StringBuilder("Mẫu “").append(point.getPattern()).append("” nghĩa là: ")
+                    .append(meaningSummary.replaceAll("[.。!?！？]+$", "")).append('.');
+            if (example[0] != null) {
+                text.append(" Ví dụ trong bài: ").append(example[0]);
+                if (example[1] != null) text.append(" (").append(example[1].lines().findFirst().orElse("").trim()).append(')');
+            }
+            return text.toString();
         }
 
         private static QuestionSpec optionQuestion(long questionId, int rotateSeed, String type, String prompt,
-                String correctValue, List<String> distractorValues) {
+                String correctValue, List<String> distractorValues, String explanation) {
             LinkedHashSet<String> set = new LinkedHashSet<>();
             if (correctValue != null) set.add(correctValue);
             for (String d : distractorValues) {
@@ -495,7 +516,7 @@ public class InteractiveGrammarServiceImpl implements InteractiveGrammarService 
             List<String> rotated = new ArrayList<>(size);
             for (int k = 0; k < size; k++) rotated.add(options.get((k + rotate) % size));
             int correctOption = (options.indexOf(correctValue) - rotate + size) % size + 1;
-            return new QuestionSpec(questionId, type, prompt, rotated, correctOption, correctValue);
+            return new QuestionSpec(questionId, type, prompt, rotated, correctOption, explanation);
         }
     }
 }

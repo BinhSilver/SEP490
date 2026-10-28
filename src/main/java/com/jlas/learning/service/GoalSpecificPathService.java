@@ -61,7 +61,7 @@ public class GoalSpecificPathService {
                 .learningMode(selected.learningMode()).surveyId(submissionId)
                 .assessmentAttemptId(null)
                 .assessmentRevision("goal-survey-v1").policyVersion("GOAL_PATH_R1")
-                .currentLevel(null).minutesPerDay(20)
+                .currentLevel(null).minutesPerDay(selected.minutesPerDay())
                 .experienceVersion(LearningExperienceVersion.INTERACTIVE_V2)
                 .status("ACTIVE").version(paths.findMaxVersionByUserId(userId) + 1).build());
 
