@@ -15,6 +15,8 @@
     PENDING_SMART_TEST: 'Sẽ được xác nhận sau khi bạn làm Smart Test.'
   };
   var NEUTRAL_REASON = 'Mục tiêu này chưa khả dụng với trình độ hiện tại.';
+  // Owner 2026-10-21 (OD-34): still selectable; the path is created once the level is released.
+  var PENDING_RELEASE_NOTE = 'Lộ trình cấp này chưa phát hành — bạn vẫn làm Smart Test, kết quả được lưu để tạo lộ trình khi cấp mở.';
   var ASSESSED = ['UNKNOWN', 'FROM_ZERO', 'BELOW_N5', 'N5', 'N4', 'N3', 'N2', 'N1'];
 
   function stageLabel(levels) {
@@ -34,7 +36,8 @@
         level: option.targetLevel,
         disabled: !allowed,
         recommended: allowed && named[option.targetLevel] === true,
-        reason: allowed ? '' : (REASON_TEXT[option.reasonCode] || NEUTRAL_REASON),
+        reason: allowed ? (option.reasonCode === 'PENDING_RELEASE' ? PENDING_RELEASE_NOTE : '')
+          : (REASON_TEXT[option.reasonCode] || NEUTRAL_REASON),
         stageLabel: stageLabel(option.stageLevels)
       };
     });

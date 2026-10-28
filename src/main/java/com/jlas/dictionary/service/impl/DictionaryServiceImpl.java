@@ -1,5 +1,6 @@
 package com.jlas.dictionary.service.impl;
 
+import com.jlas.common.learning.DraftStudySourcePolicy;
 import com.jlas.auth.repository.UserRepository;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.common.exception.ApiException;
@@ -481,6 +482,17 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Transactional(readOnly = true)
     public List<TextbookResponse> listTextbooks() {
         List<Textbook> textbooks = textbookRepository.findLibraryTextbooks(canViewDraft(), STATUS_PUBLISHED);
+        if (!canViewDraft() && CurrentUser.current().isPresent()) {
+            // OD-45: signed-in learners also see the owner-opened DRAFT N3 textbook, labelled by its DRAFT status.
+            List<Textbook> withOpenDraft = new ArrayList<>(textbooks);
+            textbookRepository.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(
+                            List.copyOf(DraftStudySourcePolicy.OPEN_DRAFT_LEVELS), "DRAFT").stream()
+                    .filter(this::isOpenDraftForLearner)
+                    .filter(t -> withOpenDraft.stream().noneMatch(existing -> existing.getId().equals(t.getId())))
+                    .forEach(withOpenDraft::add);
+            withOpenDraft.sort(Comparator.comparing(Textbook::getId));
+            textbooks = withOpenDraft;
+        }
         if (textbooks.isEmpty()) return Collections.emptyList();
 
         List<Long> textbookIds = textbooks.stream().map(Textbook::getId).toList();
@@ -506,14 +518,16 @@ public class DictionaryServiceImpl implements DictionaryService {
         // Giáo trình đã lưu trữ coi như không tồn tại ở màn hình duyệt, kể cả với CONTENT_CREATOR.
         Textbook textbook = (viewDraft
                 ? textbookRepository.findByIdAndStatusNot(textbookId, STATUS_ARCHIVED)
-                : textbookRepository.findByIdAndStatus(textbookId, STATUS_PUBLISHED))
+                : textbookRepository.findByIdAndStatus(textbookId, STATUS_PUBLISHED)
+                        .or(() -> textbookRepository.findById(textbookId).filter(this::isOpenDraftForLearner)))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Textbook not found: " + textbookId));
+        boolean openDraft = !viewDraft && isOpenDraftForLearner(textbook);
         if (textbookRepository.countOnyomiLessonsByTextbookId(textbookId) > 0) {
             throw new ApiException(ErrorCode.NOT_FOUND, "Textbook not found: " + textbookId);
         }
 
         List<Unit> units = unitRepository.findByTextbookIdOrderByOrderIndexAscIdAsc(textbookId);
-        List<Lesson> lessons = viewDraft
+        List<Lesson> lessons = viewDraft || openDraft
                 ? lessonRepository.findByTextbookIdAndStatusNot(textbookId, STATUS_ARCHIVED)
                 : lessonRepository.findByTextbookIdAndStatus(textbookId, STATUS_PUBLISHED);
 
@@ -707,7 +721,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     public LessonContentResponse getLessonContent(Long lessonId) {
         Lesson lesson = lessonRepository.findWithUnitById(lessonId)
                 .filter(l -> !("AMON".equals(l.getLessonType()) && "ONYOMI".equals(l.getSkill())))
-                .filter(l -> canViewDraft() || isPublished(l))
+                .filter(l -> canViewDraft() || isPublished(l) || isOpenDraftLessonForLearner(l))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found: " + lessonId));
 
         LessonContentResponse response = mapper.toLessonContentResponse(lesson);
@@ -1083,6 +1097,22 @@ public class DictionaryServiceImpl implements DictionaryService {
     private static boolean isTopicBased(Textbook textbook, long situationTaggedLessons) {
         String level = textbook.getJlptLevel();
         return (level == null || level.isBlank()) && situationTaggedLessons > 0;
+    }
+
+    /**
+     * OD-45 (owner 2026-10-20): learner đã đăng nhập được mở giáo trình N3 của J-LAS dù còn DRAFT (spec §2.28,
+     * {@link DraftStudySourcePolicy}); trạng thái giữ nguyên và giao diện hiện "Chưa duyệt". Khách chưa đăng nhập
+     * và mọi sách DRAFT khác vẫn 404.
+     */
+    private boolean isOpenDraftForLearner(Textbook textbook) {
+        return textbook != null && CurrentUser.current().isPresent()
+                && DraftStudySourcePolicy.isOpenDraftTextbook(textbook.getStatus(),
+                        textbook.getIsLearningPathSource(), textbook.getJlptLevel());
+    }
+
+    private boolean isOpenDraftLessonForLearner(Lesson lesson) {
+        return lesson.getUnit() != null && isOpenDraftForLearner(lesson.getUnit().getTextbook())
+                && !STATUS_ARCHIVED.equals(lesson.getStatus());
     }
 
     /** Bài chỉ công khai khi chính nó lẫn giáo trình chứa nó đều PUBLISHED. Yêu cầu lesson đã fetch join unit.textbook. */

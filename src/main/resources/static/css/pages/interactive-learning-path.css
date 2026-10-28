@@ -73,13 +73,13 @@
 .ilp-skill-card:hover { border-color: color-mix(in srgb, var(--color-primary) 35%, var(--lp-line)); box-shadow: 0 8px 20px rgba(24, 38, 62, .07); transform: translateY(-1px); }
 .ilp-skill-card__toggle { display: grid; width: 100%; grid-template-columns: 38px minmax(0, 1fr) auto 14px; align-items: center; gap: 11px; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
 .ilp-skill-card__toggle:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; border-radius: 8px; }
-.ilp-skill-card__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: color-mix(in srgb, var(--color-tertiary-container) 18%, white); color: var(--color-on-tertiary-container); font-size: 17px; font-weight: 800; }
+.ilp-skill-card__icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: color-mix(in srgb, var(--color-primary-container) 18%, white); color: var(--color-primary); font-size: 17px; font-weight: 800; }
 .ilp-skill-card--completed .ilp-skill-card__icon { background: color-mix(in srgb, var(--color-success) 14%, white); color: var(--color-success); }
 .ilp-skill-card__summary { display: grid; gap: 5px; min-width: 0; }
 .ilp-skill-card__summary strong { color: var(--lp-ink); font-size: 16px; }
 .ilp-skill-card__summary > span { color: var(--lp-muted); font-size: 12px; line-height: 1.5; }
 .ilp-skill-card__status { padding: 5px 8px; border-radius: 999px; background: var(--lp-surface); color: var(--lp-muted); font-size: 10px; font-weight: 700; white-space: nowrap; }
-.ilp-skill-card--in_progress .ilp-skill-card__status { background: color-mix(in srgb, var(--color-tertiary-container) 20%, white); color: var(--color-on-tertiary-container); }
+.ilp-skill-card--in_progress .ilp-skill-card__status { background: color-mix(in srgb, var(--color-primary-container) 20%, white); color: var(--color-primary); }
 .ilp-skill-card--completed .ilp-skill-card__status { background: color-mix(in srgb, var(--color-success) 12%, white); color: var(--color-success); }
 .ilp-skill-card__chevron { color: var(--lp-muted); transition: transform 140ms ease; }
 .ilp-skill-card__toggle[aria-expanded="true"] .ilp-skill-card__chevron { transform: rotate(180deg); }
@@ -95,14 +95,16 @@
 .ilp-skill-part__title small { color: var(--lp-muted); font-size: 11px; }
 .ilp-skill-part__number { color: var(--color-primary) !important; font-weight: 700; }
 .ilp-skill-part__actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
-.ilp-skill-part__start, .ilp-skill-part__continue { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; padding: 7px 11px; border: 1px solid var(--lp-line); border-radius: 8px; background: var(--lp-surface); color: var(--color-primary); font: 700 11px var(--font-body); text-decoration: none; cursor: pointer; }
-.ilp-skill-part__start { border-color: var(--color-primary); background: var(--color-primary); color: white; }
+.ilp-skill-part__start, .ilp-skill-part__continue { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid var(--lp-line); border-radius: 8px; background: var(--lp-surface); color: var(--color-primary); font: 700 11px var(--font-body); text-decoration: none; cursor: pointer; }
+.ilp-skill-part__start:focus-visible, .ilp-skill-part__continue:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.ilp-skill-part__start { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
 .ilp-skill-part__lock { max-width: 210px; color: var(--lp-muted); text-align: right; }
-.ilp-skill-part .ilp-activity__mode { min-height: 34px; }
-.ilp-chapter__progress { height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--color-tertiary-container) 18%, white); }
-.ilp-chapter__progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-tertiary-container); transition: width 180ms ease; }
+.ilp-skill-part .ilp-activity__mode { min-height: 40px; }
+.ilp-chapter__progress { height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--color-primary-container) 18%, white); }
+.ilp-chapter__progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary-container); transition: width 180ms ease; }
 .ilp-reference { margin-top: 8px; font-size: 13px; }
-.ilp-reference summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; font-weight: 700; }
+.ilp-reference summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; font-weight: 700; }
+.ilp-reference summary:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; border-radius: 6px; }
 .ilp-reference ul { padding-left: 20px; overflow-wrap: anywhere; }
 .ilp-reference li { margin: 6px 0; }
 .ilp-day--collapsed h3 { margin: 0; font-size: 15px; }
@@ -116,10 +118,10 @@
 .ilp-day--locked .ilp-status { background: var(--lp-canvas); color: var(--lp-muted); }
 
 .ilp-aside { align-self: start; padding: 22px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); position: sticky; top: 20px; }
-.ilp-aside dl div { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--lp-line); }
+.ilp-aside dl div { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--lp-line); }
 .ilp-aside dl div:last-child { border-bottom: 0; }
 .ilp-aside dt { color: var(--lp-muted); }
-.ilp-aside dd { font-weight: 700; margin: 0; }
+.ilp-aside dd { font-weight: 700; margin: 0; overflow-wrap: anywhere; }
 .ilp-note { padding: 14px; border-radius: var(--lp-radius-interactive); background: var(--lp-lime-soft); color: var(--lp-on-lime-soft); line-height: 1.6; font-size: 13px; margin-top: 16px; }
 
 .ilp-state, .ilp-empty { text-align: center; padding: 70px 20px; }
@@ -189,7 +191,7 @@
 .ilp-summary-card.is-pending { color: var(--lp-muted); }
 .ilp-summary-card.is-secondary { background: var(--lp-canvas); }
 .ilp-summary-card h3 { margin: 0 0 10px; font-size: 15px; }
-.ilp-summary-scores { display: flex; justify-content: space-between; gap: 8px; margin: 0 0 10px; }
+.ilp-summary-scores { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 0 0 10px; }
 .ilp-summary-scores div { text-align: center; }
 .ilp-summary-scores dt { color: var(--lp-muted); font: 700 11px var(--font-mono); text-transform: uppercase; }
 .ilp-summary-scores dd { margin: 2px 0 0; font-weight: 800; font-size: 19px; }
@@ -236,13 +238,17 @@
 .ilp-pace__actions button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-interactive); background: var(--lp-surface); color: var(--lp-ink); font-weight: 700; cursor: pointer; }
 .ilp-pace__actions button:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 3px; }
 .ilp-activity__modes { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
-.ilp-activity__mode { min-height: 32px; display: inline-flex; align-items: center; padding: 4px 12px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); color: var(--lp-purple); font: 700 12px var(--font-body); text-decoration: none; }
+.ilp-activity__mode { min-height: 40px; display: inline-flex; align-items: center; padding: 6px 12px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-chip); color: var(--lp-purple); font: 700 12px var(--font-body); text-decoration: none; }
 .ilp-activity__mode:focus-visible { outline: 3px solid var(--lp-purple); outline-offset: 2px; }
 .ilp-popup a.ilp-popup__secondary { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .ilp-popup__note { font-size: 13px; }
 .ilp-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); max-width: min(420px, calc(100% - 28px)); padding: 12px 18px; border-radius: var(--lp-radius-interactive); background: var(--lp-ink); color: var(--lp-surface); font-weight: 700; box-shadow: var(--lp-shadow-popup); z-index: 60; animation: ilpToastIn .2s ease-out; }
 @keyframes ilpToastIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
-@media (prefers-reduced-motion: reduce) { .ilp-toast { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ilp-toast, .ilp-loader, .ilp-day.is-highlighted { animation: none; }
+  .ilp-skill-card, .ilp-skill-card__chevron, .ilp-skill-card__go, .ilp-chapter__progress span,
+  .ilp-page :is(.ilp-button, .ilp-activity__cta, .ilp-activity__mode, .ilp-pace__actions button, .ilp-phase-tabs button) { transition: none; }
+}
 @media (max-width: 820px) { .ilp-mock-gate { flex-direction: column; align-items: stretch; } }
 @media (max-width: 520px) {
   .ilp-stage-progress { padding: 16px 14px; }
@@ -294,7 +300,7 @@
 .ilp-page .ilp-label {
   padding: 0 0 0 12px;
   border-radius: 0;
-  border-left: 3px solid var(--color-tertiary-container);
+  border-left: 3px solid var(--color-primary-container);
   background: transparent;
   color: var(--color-on-surface-variant);
   font: 700 13px/1.5 var(--font-body);
@@ -320,13 +326,13 @@
   align-content: center;
   padding: 4px 0 4px 22px;
   border: 0;
-  border-left: 3px solid var(--color-tertiary-container);
+  border-left: 3px solid var(--color-primary-container);
   border-radius: 0;
   background: transparent;
 }
 .ilp-page .ilp-total div { color: var(--lp-muted); font: 600 13px var(--font-body); }
-.ilp-page .ilp-total strong { color: var(--color-on-tertiary-container); font-size: 34px; line-height: 1; }
-.ilp-page .ilp-total progress { height: 7px; accent-color: var(--color-tertiary-container); }
+.ilp-page .ilp-total strong { color: var(--color-primary); font-size: 34px; line-height: 1; }
+.ilp-page .ilp-total progress { height: 7px; accent-color: var(--color-primary-container); }
 .ilp-page .ilp-total small { color: var(--lp-muted); }
 
 .ilp-page .ilp-stage-progress {
@@ -338,15 +344,15 @@
   background: transparent;
 }
 .ilp-page .ilp-kicker { color: var(--color-on-surface-variant); font: 700 12px/1.5 var(--font-body); letter-spacing: .02em; }
-.ilp-page .ilp-stage progress { accent-color: var(--color-tertiary-container); }
+.ilp-page .ilp-stage progress { accent-color: var(--color-primary-container); }
 .ilp-page .ilp-stage.is-done .ilp-stage__head span { color: var(--color-success); }
 .ilp-page .ilp-phase-tabs button { border-radius: 0; }
 .ilp-page .ilp-phase-tabs button.is-active {
   color: var(--lp-ink);
   background: transparent;
-  box-shadow: inset 0 -3px var(--color-tertiary-container);
+  box-shadow: inset 0 -3px var(--color-primary-container);
 }
-.ilp-page .ilp-phase-tabs button:hover { color: var(--color-on-tertiary-container); }
+.ilp-page .ilp-phase-tabs button:hover { color: var(--color-primary); }
 .ilp-page .ilp-days { gap: 0; margin-top: 10px; }
 .ilp-page .ilp-chapter {
   gap: 10px;
@@ -396,31 +402,31 @@
 .ilp-page .ilp-day--available {
   padding: 16px 18px;
   border: 0;
-  border-left: 3px solid var(--color-tertiary-container);
+  border-left: 3px solid var(--color-primary-container);
   border-radius: 0;
-  background: color-mix(in srgb, var(--color-tertiary-container) 12%, var(--lp-surface));
+  background: color-mix(in srgb, var(--color-primary-container) 12%, var(--lp-surface));
   box-shadow: none;
 }
-.ilp-page .ilp-day__number { border-radius: 50%; background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
-.ilp-page .ilp-day__progress { background: color-mix(in srgb, var(--color-tertiary-container) 24%, white); }
-.ilp-page .ilp-day__progress span { background: var(--color-tertiary-container); }
+.ilp-page .ilp-day__number { border-radius: 50%; background: var(--color-primary-container); color: var(--color-on-primary); }
+.ilp-page .ilp-day__progress { background: color-mix(in srgb, var(--color-primary-container) 24%, white); }
+.ilp-page .ilp-day__progress span { background: var(--color-primary-container); }
 .ilp-page .ilp-status { padding: 0; border-radius: 0; background: transparent; color: var(--lp-muted); font: 600 12px var(--font-body); }
 .ilp-page .ilp-activity { padding: 11px 4px; }
 .ilp-page .ilp-activity__mark { width: 24px; background: transparent; color: var(--lp-muted); font: 600 12px var(--font-body); }
 .ilp-page .ilp-activity.is-done .ilp-activity__mark { color: var(--color-success); }
 .ilp-page .ilp-activity.is-active { border-radius: 0; background: transparent; }
-.ilp-page .ilp-activity.is-active .ilp-activity__mark { background: transparent; color: var(--color-on-tertiary-container); }
+.ilp-page .ilp-activity.is-active .ilp-activity__mark { background: transparent; color: var(--color-primary); }
 .ilp-page .ilp-activity__cta,
 .ilp-page .ilp-button {
   border-radius: 7px;
-  background: var(--color-tertiary-container);
-  color: var(--color-on-tertiary-container);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   box-shadow: none;
 }
 .ilp-page .ilp-activity__cta { padding: 9px 13px; }
 .ilp-page .ilp-activity__mode {
-  min-height: 36px;
-  padding: 4px 6px;
+  min-height: 40px;
+  padding: 6px 8px;
   border: 0;
   border-radius: 0;
   color: var(--color-primary);
@@ -437,8 +443,8 @@
   box-shadow: none;
 }
 .ilp-page .ilp-pace__actions button {
-  min-height: 38px;
-  padding: 7px 2px;
+  min-height: 40px;
+  padding: 8px 4px;
   border: 0;
   border-bottom: 1px solid var(--lp-line);
   border-radius: 0;
@@ -451,16 +457,162 @@
   transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 .ilp-page :is(.ilp-button, .ilp-activity__cta, .ilp-activity__mode, .ilp-pace__actions button, .ilp-phase-tabs button):hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-tertiary-container) 24%, var(--lp-surface));
-  color: var(--color-on-tertiary-container);
+  background-color: color-mix(in srgb, var(--color-primary-container) 24%, var(--lp-surface));
+  color: var(--color-primary);
 }
 .ilp-page :is(.ilp-button, .ilp-activity__cta, .ilp-activity__mode, .ilp-pace__actions button, .ilp-phase-tabs button):active:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-tertiary-container) 78%, var(--color-on-tertiary-container));
-  color: var(--color-on-tertiary-container);
+  background-color: color-mix(in srgb, var(--color-primary-container) 78%, var(--color-primary));
+  color: var(--color-on-primary);
   transform: translateY(1px);
 }
 .ilp-page .ilp-button:disabled:hover,
 .ilp-page .ilp-button:disabled:active { background-color: var(--lp-line); color: var(--lp-muted); transform: none; }
+
+/* [JLAS-W0108] JLPT roadmaps follow the communication template (owner 2026-10-20) without changing their structure:
+   plum accents and one level of framing — a skill stays a card, its parts become plain rows inside it. */
+.ilp-page .ilp-chapter__head h3 { color: var(--color-primary); }
+.ilp-page .ilp-skill-card__parts { gap: 0; margin-top: 12px; border-top: 1px solid var(--lp-line); }
+.ilp-page .ilp-skill-card__parts .ilp-skill-part { padding: 10px 0; border: 0; border-bottom: 1px solid var(--lp-line); border-radius: 0; background: none; }
+.ilp-page .ilp-skill-card__parts .ilp-skill-part:last-child { padding-bottom: 0; border-bottom: 0; }
+.ilp-page .ilp-skill-card__parts .ilp-skill-part.is-done .ilp-activity__mark { color: var(--color-success); }
+
+/* §2.28 / OD-44: the server's note on a chapter from an unreviewed textbook. */
+.ilp-page .ilp-chapter__hint {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--color-primary-container);
+  background: color-mix(in srgb, var(--color-primary-fixed) 35%, transparent);
+  color: var(--lp-ink);
+  font: 500 13px/1.5 var(--font-body);
+}
+
+/* [JLAS-W0108] Communication roadmap (owner 2026-10-19 topics; 2026-10-20 option A, balanced): one topic per page
+   behind a tab bar and one level of framing — a tinted topic header, the topic vocabulary as one panel and one card
+   per situation, parts as plain rows inside it. Plum primary only. */
+.ilp-page .ilp-comm { display: grid; min-width: 0; margin-top: 8px; }
+.ilp-page .ilp-topic-tabs { display: flex; flex-wrap: wrap; gap: 0 22px; min-width: 0; margin: 0 0 18px; padding: 4px 4px 0; border-bottom: 1px solid var(--lp-line); }
+.ilp-page .ilp-topic-tabs button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--lp-muted);
+  font: 500 14px/1.4 var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ilp-page .ilp-topic-tabs button small { color: var(--lp-muted); font-size: 12px; font-weight: 400; }
+.ilp-page .ilp-topic-tabs button:hover { color: var(--color-primary); }
+.ilp-page .ilp-topic-tabs button[aria-selected="true"] { border-bottom-color: var(--color-primary); color: var(--color-primary); font-weight: 650; }
+.ilp-page .ilp-topic-tabs button[aria-selected="true"] small { color: var(--color-primary); }
+.ilp-page .ilp-topic-tabs__done { color: var(--color-primary-container); }
+.ilp-page .ilp-topic { display: grid; gap: 14px; }
+.ilp-page .ilp-topic[hidden] { display: none; }
+.ilp-page .ilp-topic__head {
+  padding: 18px 20px 16px;
+  border-radius: var(--lp-radius-panel);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary-fixed) 62%, var(--lp-surface)), color-mix(in srgb, var(--color-primary-fixed) 18%, var(--lp-surface)));
+}
+.ilp-page .ilp-topic__head h2 { margin: 0; color: var(--color-primary); font-size: clamp(21px, 2.4vw, 26px); line-height: 1.25; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.ilp-page .ilp-topic__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 6px; color: var(--lp-muted); font-size: 13px; }
+.ilp-page .ilp-topic__priority { padding: 1px 10px; border-radius: 999px; background: var(--color-primary-fixed); color: var(--color-primary); font: 600 12px/1.6 var(--font-body); }
+.ilp-page .ilp-topic__progress { max-width: 420px; height: 4px; margin-top: 12px; overflow: hidden; border-radius: 999px; background: var(--lp-surface); }
+.ilp-page .ilp-topic__progress span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary-container); }
+.ilp-page .ilp-topic-vocab {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--lp-line);
+  border-left: 4px solid var(--color-primary-container);
+  border-radius: var(--lp-radius-interactive);
+  background: var(--lp-surface);
+}
+.ilp-page .ilp-topic-vocab__text strong { display: block; font-size: 15px; }
+.ilp-page .ilp-topic-vocab :is(.ilp-situation__parts, .ilp-chapter__hint) { grid-column: 1 / -1; }
+.ilp-page .ilp-topic__sub { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 10px 0 -4px; }
+.ilp-page .ilp-topic__sub strong { font-size: 16px; }
+.ilp-page .ilp-topic__sub span { color: var(--lp-muted); font-size: 13px; }
+.ilp-page .ilp-situations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ilp-page .ilp-situation {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--lp-line);
+  border-radius: var(--lp-radius-interactive);
+  background: var(--lp-surface);
+}
+.ilp-page .ilp-situation.is-done { background: color-mix(in srgb, var(--color-primary-fixed) 22%, var(--lp-surface)); }
+.ilp-page .ilp-situation:has([data-situation-toggle][aria-expanded="true"]) { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--color-primary-container) 45%, var(--lp-line)); }
+.ilp-page .ilp-situation__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.ilp-page .ilp-situation__top h3 { margin: 0; font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; }
+.ilp-page .ilp-situation__level { flex: none; padding: 1px 8px; border-radius: 6px; background: color-mix(in srgb, var(--color-primary-fixed) 70%, var(--lp-surface)); color: var(--color-primary); font: 600 12px/1.6 var(--font-body); }
+.ilp-page .ilp-situation__level.is-harder { border: 1px dashed color-mix(in srgb, var(--color-primary-container) 55%, var(--lp-surface)); background: var(--lp-surface); }
+.ilp-page :is(.ilp-situation__status, .ilp-situation__hint) { margin: 0; color: var(--lp-muted); font-size: 13px; line-height: 1.5; }
+.ilp-page .ilp-situation__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: auto; padding-top: 6px; }
+.ilp-page .ilp-topic-vocab .ilp-situation__actions { margin-top: 0; padding-top: 0; }
+.ilp-page :is(.ilp-situation__toggle, .ilp-topic__go) {
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid var(--lp-line);
+  border-radius: 8px;
+  background: var(--lp-surface);
+  color: var(--color-primary);
+  font: 600 13px/1.3 var(--font-body);
+  cursor: pointer;
+}
+.ilp-page :is(.ilp-situation__toggle, .ilp-topic__go):hover { border-color: var(--color-primary-container); background: color-mix(in srgb, var(--color-primary-fixed) 35%, var(--lp-surface)); }
+.ilp-page .ilp-situation__toggle[aria-expanded="true"] { border-color: transparent; background: var(--color-primary-fixed); }
+.ilp-page :is(.ilp-topic-tabs button, .ilp-situation__toggle, .ilp-topic__go):focus-visible { outline: 3px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+.ilp-page .ilp-situation__parts { display: grid; margin: 6px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--lp-line); }
+.ilp-page .ilp-situation__parts[hidden] { display: none; }
+.ilp-page .ilp-situation__parts .ilp-skill-part { padding: 10px 0; border: 0; border-bottom: 1px solid var(--lp-line); border-radius: 0; background: none; }
+.ilp-page .ilp-situation__parts .ilp-skill-part:last-child { padding-bottom: 0; border-bottom: 0; }
+.ilp-page .ilp-situation__parts .ilp-skill-part__title strong { font-size: 14px; }
+.ilp-page .ilp-situation__parts .ilp-activity__mark { color: var(--color-primary-container); }
+.ilp-page .ilp-skill-part__hint { display: block; }
+.ilp-page .ilp-comm .ilp-skill-part__continue { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+.ilp-page .ilp-comm :is(.ilp-skill-part__start, .ilp-skill-part__continue) { font-size: 13px; }
+.ilp-page .ilp-topic__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px; color: var(--lp-muted); font-size: 13px; }
+.ilp-page .ilp-topic__nav { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.ilp-page .ilp-topic__source { margin: 0; color: var(--lp-muted); font-size: 12px; }
+@media (max-width: 720px) {
+  .ilp-page .ilp-situations, .ilp-page .ilp-topic-vocab { grid-template-columns: 1fr; }
+  /* Narrow screens: one swipeable row with a thin visible scrollbar as the cue that more topics follow. */
+  .ilp-page .ilp-topic-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+  .ilp-page .ilp-topic__head { padding: 16px; }
+  .ilp-page .ilp-topic__nav { width: 100%; margin-left: 0; }
+  .ilp-page .ilp-topic__go { flex: 1 1 100%; }
+}
+
+/* BrSE optional textbook suggestions (owner 2026-10-19, Q5): never gating. */
+.ilp-page .ilp-books { margin: 18px 0 14px; padding: 14px 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-panel); background: var(--lp-surface); }
+.ilp-page .ilp-books h2 { margin: 0 0 6px; font-size: 1rem; }
+.ilp-page .ilp-books p { margin: 0 0 8px; color: var(--lp-muted); font-size: .9rem; }
+.ilp-page .ilp-books ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.ilp-page .ilp-books__link { color: var(--color-primary); font-weight: 700; overflow-wrap: anywhere; }
+.ilp-page .ilp-books__link:focus-visible { outline: 3px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+.ilp-page .ilp-books__pending { color: var(--lp-muted); overflow-wrap: anywhere; }
+/* OD-45 / §2.28: a DRAFT J-LAS textbook is studied but never presented as reviewed. */
+.ilp-page .ilp-books__unreviewed {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  font-size: 0.8em;
+  font-weight: 700;
+}
+/* end communication roadmap */
 
 @media (max-width: 820px) {
   .ilp-page .ilp-hero { grid-template-columns: 1fr; gap: 18px; }
@@ -477,4 +629,34 @@
   .ilp-page .ilp-day--available { padding: 14px 12px; }
   .ilp-page .ilp-chapter__head { align-items: flex-start; }
   .ilp-page .ilp-chapter .ilp-status { width: 100%; margin-left: 0; }
+}
+
+/* Owner 2026-10-23: a skill card opens the skill's own page (no counts, no dropdown); the chapter header is compact. */
+.ilp-page .ilp-skill-card { display: grid; grid-template-columns: 38px minmax(0, 1fr) 14px; align-items: center; gap: 11px; color: inherit; text-decoration: none; cursor: pointer; }
+.ilp-page .ilp-skill-card:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+.ilp-skill-card__go { color: var(--lp-muted); font-size: 22px; line-height: 1; transition: transform 140ms ease, color 140ms ease; }
+.ilp-skill-card:hover .ilp-skill-card__go { color: var(--color-primary); transform: translateX(2px); }
+.ilp-skill-card--locked { opacity: .78; }
+.ilp-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.ilp-chapter__pick { color: var(--lp-muted); font-size: 12px; font-weight: 600; letter-spacing: .02em; }
+.ilp-page .ilp-chapter__progress { margin-bottom: 14px; }
+.ilp-skill-page { display: grid; gap: 14px; min-width: 0; }
+.ilp-skill-page__back { display: inline-flex; align-items: center; min-height: 40px; justify-self: start; color: var(--color-primary); font-weight: 700; text-decoration: none; }
+.jlas-confirm__actions button { min-height: 44px; min-width: 44px; padding: 10px 18px; }
+.jlas-confirm__actions button:focus-visible { outline: 3px solid var(--color-focus, var(--lp-purple)); outline-offset: 2px; }
+.ilp-skill-page__back:hover { text-decoration: underline; }
+.ilp-skill-page__back:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; border-radius: 6px; }
+.ilp-skill-page__head { display: grid; gap: 4px; }
+.ilp-skill-page__head h2 { margin: 2px 0 0; color: var(--lp-ink); font-size: clamp(22px, 2.6vw, 28px); }
+.ilp-skill-page__head h2:focus { outline: none; }
+.ilp-skill-page__head p { margin: 0; color: var(--lp-muted); line-height: 1.55; }
+.ilp-skill-page .ilp-skill-page__chapter { color: var(--color-primary); font-weight: 700; }
+/* Title keeps a readable width; the actions wrap under it instead of squeezing it into a one-word column. */
+.ilp-skill-page .ilp-skill-part { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.ilp-skill-page .ilp-skill-part__title { flex: 1 1 220px; min-width: 0; }
+.ilp-skill-page .ilp-skill-part__actions { flex: 0 1 auto; padding-left: 0; }
+.ilp-skill-page .ilp-skill-part__title > div { min-width: 0; }
+.ilp-skill-page .ilp-skill-part__title strong { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .ilp-page .ilp-skill-card { grid-template-columns: 34px minmax(0, 1fr) 12px; }
 }

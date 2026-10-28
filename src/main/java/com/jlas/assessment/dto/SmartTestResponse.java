@@ -45,8 +45,31 @@ public record SmartTestResponse(
             int selectedSkillCount,
             List<String> recommendations,
             List<SkillResultView> skills,
-            List<AnswerReviewView> review
-    ) { }
+            List<AnswerReviewView> review,
+            String selfReportedLevel,
+            /** Why the target is not a direct route, e.g. PENDING_RELEASE or TARGET_TOO_FAR; null when it is. */
+            String targetReasonCode
+    ) {
+        public ResultView(String estimatedOverallLevel, String abilityBand, BigDecimal overallMasteryScore,
+                String confidence, String readinessLevel, String targetLevel, String recommendedTarget,
+                List<String> recommendedStageLevels, boolean requiresTargetConfirmation, boolean partial,
+                int correctAnswers, int totalQuestions, int selectedSkillCount, List<String> recommendations,
+                List<SkillResultView> skills, List<AnswerReviewView> review, String selfReportedLevel) {
+            this(estimatedOverallLevel, abilityBand, overallMasteryScore, confidence, readinessLevel, targetLevel,
+                    recommendedTarget, recommendedStageLevels, requiresTargetConfirmation, partial, correctAnswers,
+                    totalQuestions, selectedSkillCount, recommendations, skills, review, selfReportedLevel, null);
+        }
+        /** Callers without a survey snapshot (tests/adapters) carry no self-reported level. */
+        public ResultView(String estimatedOverallLevel, String abilityBand, BigDecimal overallMasteryScore,
+                String confidence, String readinessLevel, String targetLevel, String recommendedTarget,
+                List<String> recommendedStageLevels, boolean requiresTargetConfirmation, boolean partial,
+                int correctAnswers, int totalQuestions, int selectedSkillCount, List<String> recommendations,
+                List<SkillResultView> skills, List<AnswerReviewView> review) {
+            this(estimatedOverallLevel, abilityBand, overallMasteryScore, confidence, readinessLevel, targetLevel,
+                    recommendedTarget, recommendedStageLevels, requiresTargetConfirmation, partial, correctAnswers,
+                    totalQuestions, selectedSkillCount, recommendations, skills, review, null, null);
+        }
+    }
 
     public record SkillResultView(
             String skill,
@@ -92,6 +115,8 @@ public record SmartTestResponse(
             boolean correct,
             String explanation,
             String grammarPattern,
-            String grammarMeaning
+            String grammarMeaning,
+            /** The sentence/passage the question was asked on (holds the underlined part); null for listening scripts. */
+            String passageHtml
     ) { }
 }

@@ -71,7 +71,7 @@
       if (label) label.classList.toggle('is-disabled', input.disabled);
       if (detail) {
         detail.textContent = !match ? 'Chưa tải được lựa chọn từ máy chủ.'
-          : match.disabled ? match.reason
+          : match.disabled || match.reason ? match.reason
           : (match.recommended ? 'Gợi ý · ' : '') + (match.stageLabel ? 'Lộ trình: ' + match.stageLabel : '');
       }
       if (input.disabled && input.checked) input.checked = false;
@@ -98,11 +98,12 @@
   function showInvitation(survey) {
     savedSurvey = survey;
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
-    var surveyOnlyGoal = survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE';
+    // [JLAS-W0108] BA/TRAVEL/DAILY_LIFE are survey-only (owner decision 2026-10-14); none may offer Smart Test.
+    var surveyOnlyGoal = survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE';
     var needsPathOnly = fromZero || surveyOnlyGoal;
     if (surveyOnlyGoal) {
       document.getElementById('inviteTitle').textContent = 'Chọn tình huống bạn muốn luyện!';
-      document.getElementById('inviteText').textContent = 'Du lịch và đời sống không dùng Smart Test. J-LAS sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
+      document.getElementById('inviteText').textContent = 'Mục tiêu giao tiếp không dùng Smart Test. J-LAS sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
     } else if (fromZero) {
       document.getElementById('inviteTitle').textContent = 'Bạn sẽ bắt đầu từ con số 0!';
       document.getElementById('inviteText').textContent = 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. J-LAS sẽ xây lộ trình học từ đầu cho bạn.';
@@ -147,11 +148,12 @@
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
-  goHome.addEventListener('click', function () {
+  goHome.addEventListener('click', async function () {
     if (!noTest) return window.location.assign('/');
     if (savedSurvey && savedSurvey.goal !== 'JLPT') {
       return window.location.assign('/learning/goals/' + encodeURIComponent(savedSurvey.goal) + '/survey');
     }
+    try { await api('/api/learning/paths/from-zero', { method: 'POST', body: '{}' }); } catch (error) { showError(error.message); return; }
     window.location.assign('/learning/path');
   });
   document.getElementById('surveyEdit').addEventListener('click', function () {
