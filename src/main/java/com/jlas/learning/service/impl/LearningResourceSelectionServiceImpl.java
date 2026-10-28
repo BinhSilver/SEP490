@@ -343,9 +343,27 @@ public class LearningResourceSelectionServiceImpl implements LearningResourceSel
         if (!"JLPT".equals(profile.goalCode())) {
             throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "This learning goal does not have a selection policy yet.");
         }
-        if (rank(profile.assessedLevel()) < 0 || rank(profile.targetLevel()) < 1
-                || rank(profile.targetLevel()) < rank(profile.assessedLevel())
-                || profile.minutesPerDay() == null || profile.minutesPerDay() < 5 || profile.minutesPerDay() > 180) {
+        boolean validLevels = rank(profile.assessedLevel()) >= 0 && rank(profile.targetLevel()) >= 1
+                && rank(profile.targetLevel()) >= rank(profile.assessedLevel());
+        if (profile.reviewStartLevel() != null) {
+            try {
+                new com.jlas.common.learning.JlptPathPolicy().confirmedHigherAssessmentReviewStages(
+                        profile.surveyLevel(), profile.assessedLevel(), profile.targetLevel(), profile.reviewStartLevel());
+                validLevels = true;
+            } catch (IllegalArgumentException ex) {
+                validLevels = false;
+            }
+        }
+        if (profile.discrepancyChoice() != null) {
+            try {
+                new com.jlas.common.learning.JlptPathPolicy().confirmedStages(profile.surveyLevel(),
+                        profile.assessedLevel(), profile.targetLevel(),
+                        com.jlas.common.learning.JlptPathPolicy.Choice.valueOf(profile.discrepancyChoice()));
+            } catch (IllegalArgumentException ex) {
+                validLevels = false;
+            }
+        }
+        if (!validLevels || profile.minutesPerDay() == null || profile.minutesPerDay() < 5 || profile.minutesPerDay() > 180) {
             invalid("Valid assessed/target levels and 5 to 180 daily study minutes are required.");
         }
         if (profile.weaknesses() != null) {

@@ -10,6 +10,8 @@
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
 
+  var StudyModeLib = typeof window !== 'undefined' && window.InteractiveStudyMode ? window.InteractiveStudyMode
+    : (typeof require === 'function' ? require('./interactive-study-mode.js') : null);
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
   // [JLAS-W0125] "Phần x / n" only when a pace change split this skill into ordered parts of the package.
@@ -69,23 +71,30 @@
       reviewRemaining: num(data.reviewRemaining),
       checkEligible: !!data.checkEligible,
       checkRequired: data.checkRequired !== false,
+      reviewItems: Array.isArray(data.reviewItems) ? data.reviewItems : [],
       current: current,
       cards: cards
     };
+  }
+
+  // D3-09: the derived word types were reviewed and the owner took the review as approved, so no "tự gán" label.
+  function wordTypeChip(card) {
+    if (!card.wordType) return '';
+    return '<span class="ilp-chip">' + esc(card.wordType) + '</span>';
   }
 
   function cardFace(card) {
     if (!card) return '<div class="ilp-card__empty"><h2>Chưa có thẻ từ vựng</h2></div>';
     return '<div class="ilp-card__inner">' +
       '<div class="ilp-card__front"' + (card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
-      '<span class="ilp-card__kicker">' + (card.wordType ? esc(card.wordType) : 'TỪ VỰNG') + '</span>' +
+      '<span class="ilp-card__kicker">' + (card.wordType && !card.wordTypeGenerated ? esc(card.wordType) : 'TỪ VỰNG') + '</span>' +
       '<h2 class="ilp-card__word">' + esc(card.front) + '</h2>' +
       '<span class="ilp-card__reading">' + esc(card.reading) + '</span>' +
       '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.front) + '" aria-label="Nghe phát âm ' + esc(card.front) + '">🔊</button>' +
       '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span></div>' +
       '<div class="ilp-card__back"' + (!card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
         '<span class="ilp-card__meaning">' + esc(card.meaning) + '</span>' +
-        '<div class="ilp-card__chips">' + (card.wordType ? '<span class="ilp-chip">' + esc(card.wordType) + '</span>' : '') +
+        '<div class="ilp-card__chips">' + wordTypeChip(card) +
         (card.jlptLevel ? '<span class="ilp-chip">' + esc(card.jlptLevel) + '</span>' : '') + '</div>' +
         (card.exampleJa ? '<p class="ilp-card__example"><strong>' + esc(card.exampleJa) + '</strong>' +
           (card.exampleVi ? '<span>' + esc(card.exampleVi) + '</span>' : '') + '</p>' : '') +
@@ -123,6 +132,14 @@
 
   // Study view. `gate` is the optional server micro-check state; the check action only opens when the
   // server says every card is remembered AND the batch is attemptable (no cooldown / review pending).
+  function studiedDone(v) { return v.activityState === 'PASSED' || v.activityState === 'COMPLETED'; }
+  /** Owner 2026-10-21: communication vocabulary has no quiz; the learner may finish it here without flipping every card. */
+  function markStudiedBlock(v) {
+    return studiedDone(v)
+      ? '<p class="ilp-study__done" data-studied-done>Bạn đã hoàn thành phần Từ vựng này. <a href="/learning/path/v2">Về lộ trình</a></p>'
+      : '<button class="ilp-check" type="button" data-mark-studied>Đánh dấu hoàn thành</button>';
+  }
+
   function renderStudy(v, gate, activeTab, partIndex, ui) {
     activeTab = activeTab === 'flashcards' ? 'flashcards' : 'content';
     ui = ui || {};
@@ -139,7 +156,8 @@
       : partCards[browseIndex] || null;
     var shownCard = card && flashMode === 'browse' ? Object.assign({}, card,
       { flipped: !!ui.browseFlipped }) : card;
-    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
+    var position = StudyModeLib.positionHeader(activeTab === 'flashcards' && !(v.checkRequired && flashMode === 'check'),
+      partCards.indexOf(card) + 1, partCards.length);
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
     var canCheck = v.checkRequired && v.checkEligible && !gateBlocked;
     var checkLabel = checkButtonLabel(gate);
@@ -165,23 +183,26 @@
           '<span>' + (partCards.length ? browseIndex + 1 : 0) + '/' + partCards.length + ' trong phần này</span>' +
           '<button type="button" data-browse-step="1"' + (browseIndex >= partCards.length - 1 ? ' disabled' : '') + '>Tiếp →</button></div>' + gateNote +
           (readOnly || gate && gate.passed || !v.checkRequired ? '' : '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>') +
-          (!readOnly && !v.checkRequired ? '<p class="ilp-result__pass">Xem hết các thẻ để hoàn tất kỹ năng này; tình huống giao tiếp không có bài kiểm tra.</p>' : '');
+          (!readOnly && !ui.replay && !v.checkRequired ? markStudiedBlock(v) : '');
     return '<section class="ilp-study">' +
-      '<header class="ilp-study__head"><div><span class="ilp-kicker">VOCABULARY // ' +
-      (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Từ vựng</h1>' + partLabel(v) +
-      '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p></div>' +
-      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
-      '<span style="width:' + progress + '%"></span></div>' +
+      '<header class="ilp-study__head"><div>' + (v.checkRequired === false
+        ? '' : '<span class="ilp-kicker">VOCABULARY // ' +
+      (gate && gate.passed || v.activityState === 'PASSED' ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span>') +
+      '<h1>Từ vựng' + (v.checkRequired === false && studiedDone(v) ? ' <span class="ilp-done-pill">Đã hoàn thành</span>' : '') + '</h1>' + partLabel(v) +
+      '<p>Xem toàn bộ từ trong bài, nghe phát âm rồi học bằng Flashcard.</p>' +
+      (readOnly || ui.replay ? '' : StudyModeLib.completionGuide(v.checkRequired === false ? 'MARK' : 'CHECK', 'từ', gate, studiedDone(v))) +
+      '</div>' + position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học từ vựng">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'flashcards') + '" data-study-tab="flashcards">Học bằng Flashcard</button></div>' +
       '<section role="tabpanel"' + (activeTab === 'content' ? '' : ' hidden') + '><h2>Các từ trong phần này</h2>' +
       partNavigation(groups, partIndex) +
-      renderVocabularyList(groups[partIndex] || []) +
-      (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next"><button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
-        (v.checkRequired ? '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button><p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p>' :
-          '<p>Xem hết các thẻ để hoàn thành phần Từ vựng của tình huống.</p>') + '</div>') + '</section>' +
+      renderVocabularyList(groups[partIndex] || []) + StudyModeLib.reviewItemsBlock(v.reviewItems) +
+      (readOnly || gate && gate.passed ? '' : v.checkRequired === false
+        ? '<div class="ilp-study__next"><button class="ilp-check ilp-check--ghost" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+          (ui.replay ? '' : markStudiedBlock(v)) + '</div>'
+        : '<div class="ilp-study__next"><button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+        '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button><p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p></div>') + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
       partNavigation(groups, partIndex) + flashContent +
       '</section>' +
@@ -408,6 +429,9 @@
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
     var rehearsalState = null;
+    // Owner 2026-10-23: a finished part's "Xem lại bài giảng" replays the lesson from scratch (cards unseen, quiz
+    // available) through the practice endpoints, so every replayed quiz is saved in the attempt history.
+    var replayLecture = false;
     var selectedTab = mode === 'PRACTICE' || new URLSearchParams(window.location.search).get('tab') === 'flashcards'
       ? 'flashcards' : 'content';
     var currentStudy = null;
@@ -430,23 +454,33 @@
     var draftDirty = false;
     var draftInFlight = null;
     var draftSeq = 0;
-    function renderRehearsal() {
-      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
+    function focusActiveFlashcard() {
+      if (!flashUi.restoreCardFocus) return;
+      flashUi.restoreCardFocus = false;
+      var nextCard = node.querySelector('[data-card], [data-browse-card]');
+      if (nextCard && typeof nextCard.focus === 'function') nextCard.focus();
     }
-    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/vocabulary', id, ['REVIEW', 'PRACTICE']) : '';
+    function renderRehearsal() {
+      node.innerHTML = StudyMode.banner(replayLecture ? 'REPLAY' : 'PRACTICE') +
+        renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, Object.assign({}, flashUi, { replay: replayLecture }));
+      focusActiveFlashcard();
+    }
+    var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/vocabulary', id, ['REVIEW', 'PRACTICE', 'RESULTS']) : '';
+    function celebrateIfFinished(wasDone) {
+      if (wasDone || !currentStudy || !studiedDone(currentStudy) || !StudyMode || !StudyMode.celebrate) return;
+      StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã hoàn thành phần Từ vựng.', activityId: id });
+    }
     function showStudy() {
       if (mode === 'PRACTICE') return renderRehearsal();
       if (mode === 'REVIEW' && reviewStudy) {
         node.innerHTML = renderReview(viewModel(reviewStudy), null, selectedTab, selectedPart, flashUi);
+        focusActiveFlashcard();
         return;
       }
       if (!currentStudy) return;
-      if (currentStudy.activityState === 'PASSED' && currentStudy.checkRequired === false) {
-        node.innerHTML = renderPassed(PASSED_ACTIONS);
-        return;
-      }
       node.innerHTML = renderStudy(viewModel(currentStudy), currentGate, selectedTab, selectedPart, flashUi) +
         (currentGate && currentGate.passed ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
+      focusActiveFlashcard();
     }
 
     async function api(path, options) {
@@ -477,9 +511,11 @@
     async function flushDraft() {
       var form = node.querySelector('.ilp-check__form');
       if (!form) return true; // quiz already submitted or navigated away — nothing left to save
-      if (draftInFlight) return draftInFlight; // serialise writes; never stack two saves for the same form
+      if (draftInFlight) return draftInFlight.then(function (ok) {
+        return ok && draftDirty ? flushDraft() : ok;
+      }); // serialise writes, including edits made during the first request
       if (!draftDirty) return true;
-      var seq = ++draftSeq;
+      var seq = draftSeq;
       var attemptId = Number(form.dataset.attemptId);
       setDraftStatus('Đang lưu…');
       var pending = api(draftPath, {
@@ -487,13 +523,13 @@
         headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
         body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
       }).then(function () {
-        if (seq !== draftSeq) return false; // a newer edit superseded this write; keep the draft dirty
+        if (seq !== draftSeq) return true; // keep dirty and save the newer selection next
         draftRetries = 0;
         draftDirty = false;
         setDraftStatus('Đã lưu');
         return true;
       }, function () {
-        if (seq !== draftSeq) return false;
+        if (seq !== draftSeq) return true;
         draftRetries += 1;
         if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
           setDraftStatus('Lưu thất bại — thử lại…', true);
@@ -504,15 +540,102 @@
         return false;
       }).finally(function () { draftInFlight = null; });
       draftInFlight = pending;
-      return pending;
+      return pending.then(function (ok) { return ok && draftDirty ? flushDraft() : ok; });
     }
 
     function scheduleDraftSave(form) {
       if (mode !== 'LEARN' || !form) return;
       draftDirty = true;
+      draftSeq += 1;
       if (draftTimer) clearTimeout(draftTimer);
       setDraftStatus('Đang lưu…');
       draftTimer = setTimeout(flushDraft, 800);
+    }
+
+    var PRACTICE_RESULT_STATE_KEY = 'jlasVocabPracticeResult';
+    var LEARN_RESULT_STATE_KEY = 'jlasVocabLearnResult';
+
+    function savedPracticeResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[PRACTICE_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result ? saved : null;
+    }
+
+    function rememberPracticeResult(result, attempts) {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[PRACTICE_RESULT_STATE_KEY] = {
+        activityId: Number(id), result: result, attempts: Array.isArray(attempts) ? attempts : []
+      };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearPracticeResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[PRACTICE_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[PRACTICE_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function savedLearnResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[LEARN_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result && saved.attemptId ? saved : null;
+    }
+
+    function rememberLearnResult(result, attemptId) {
+      if (!window.history || typeof window.history.replaceState !== 'function' || !(attemptId > 0)) return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[LEARN_RESULT_STATE_KEY] = { activityId: Number(id), attemptId: attemptId, result: result };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearLearnResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[LEARN_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[LEARN_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function issuedKey() { return 'jlasVocabIssued:' + id; }
+    function rememberIssuedAttempt(attemptId) {
+      if (mode !== 'LEARN' || !(Number(attemptId) > 0)) return;
+      try { window.sessionStorage.setItem(issuedKey(), String(Number(attemptId))); } catch (ignored) { /* storage unavailable */ }
+    }
+    function issuedAttempt() {
+      try { return Number(window.sessionStorage.getItem(issuedKey())) || 0; } catch (ignored) { return 0; }
+    }
+
+    async function restoreLearnResult(saved) {
+      var attempts;
+      try { attempts = await api('/attempt-history'); } catch (historyError) { return false; }
+      var learnAttempts = Array.isArray(attempts) ? attempts.filter(function (attempt) { return attempt.mode !== 'PRACTICE'; }) : [];
+      var latest = learnAttempts.length ? learnAttempts[learnAttempts.length - 1] : null;
+      if (!latest || String(latest.attemptId) !== String(saved.attemptId) || issuedAttempt() > Number(saved.attemptId)) {
+        clearLearnResult();
+        return false;
+      }
+      node.innerHTML = renderResult(saved.result);
+      var resultPanel = node.querySelector('.ilp-result');
+      if (resultPanel && attempts.length && StudyMode && StudyMode.attemptHistory)
+        resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+      if (saved.result.passed && saved.result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        await StudyMode.showNextAction(node, id);
+      return true;
+    }
+
+    function renderSavedPracticeResult(saved) {
+      node.innerHTML = StudyMode.practiceResult(saved.result);
+      if (saved.attempts.length && StudyMode && StudyMode.attemptHistory) {
+        var resultPanel = node.querySelector('.ilp-result');
+        if (resultPanel) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(saved.attempts));
+      }
     }
 
     async function loadStudy() {
@@ -525,7 +648,25 @@
         }
         if (mode === 'REVIEW') {
           reviewStudy = await api(modeApi.study);
+          if (StudyMode.isFinished && StudyMode.isFinished(reviewStudy)) {
+            replayLecture = true;
+            mode = 'PRACTICE';
+            issuePath = '/practice';
+            submitPath = '/practice/submit';
+            rehearsalState = StudyMode.rehearsal(reviewStudy);
+            var savedReplay = savedPracticeResult();
+            if (savedReplay) renderSavedPracticeResult(savedReplay);
+            else renderRehearsal();
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           showStudy();
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          var gate = null;
+          if (reviewStudy && reviewStudy.checkRequired !== false) {
+            try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+          }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, '/learning/v2/vocabulary', id));
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -540,7 +681,14 @@
             return;
           }
           rehearsalState = StudyMode.rehearsal(practiceSource);
-          renderRehearsal();
+          var savedPractice = savedPracticeResult();
+          if (savedPractice) renderSavedPracticeResult(savedPractice);
+          else renderRehearsal();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        var savedLearn = mode === 'LEARN' ? savedLearnResult() : null;
+        if (savedLearn && await restoreLearnResult(savedLearn)) {
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -549,14 +697,19 @@
         if (currentStudy.checkRequired !== false) {
           try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
         }
-        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
-          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/vocabulary', id, renderPassed(PASSED_ACTIONS));
-        } else showStudy();
+        if (mode === 'LEARN' && currentGate && !currentGate.passed && num(currentGate.inProgressAttemptId) > 0) {
+          await doCheck();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        // Owner 2026-10-21: a finished part reopens on its own page (done state), never on an empty result screen.
+        showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
 
     async function doPractice() {
+      clearPracticeResult();
       try {
         selectedWord = null; selectedMeaning = null;
         var practiceCheck = await api(issuePath, { method: 'POST' });
@@ -566,15 +719,29 @@
     }
 
     async function doCheck() {
+      clearLearnResult();
       try {
         selectedWord = null; selectedMeaning = null;
         var check = await api(issuePath, { method: 'POST' });
+        rememberIssuedAttempt(check && check.attemptId);
         node.innerHTML = renderCheck(check);
         restoreCheckForm(node.querySelector('.ilp-check__form'));
       } catch (e) { node.innerHTML = error(e.message); }
     }
 
     node.addEventListener('click', async function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
+      var markStudied = event.target.closest('[data-mark-studied]');
+      if (markStudied) {
+        if (markStudied.disabled) return;
+        markStudied.disabled = true;
+        var doneBefore = studiedDone(currentStudy);
+        try { currentStudy = await api('/complete', { method: 'POST' }); }
+        catch (e) { markStudied.disabled = false; node.innerHTML = error(e.message); return; }
+        showStudy();
+        celebrateIfFinished(doneBefore);
+        return;
+      }
       var tab = event.target.closest('[data-study-tab]');
       if (tab) {
         selectedTab = tab.dataset.studyTab;
@@ -668,23 +835,26 @@
         } catch (e) { node.innerHTML = error(e.message); }
         return;
       }
-      if (event.target.closest('[data-retry]')) return loadStudy();
-      if (event.target.closest('[data-practice-again]')) return doPractice();
+      if (event.target.closest('[data-retry]')) { clearLearnResult(); return loadStudy(); }
+      if (event.target.closest('[data-practice-again]')) { clearPracticeResult(); return doPractice(); }
       if (event.target.closest('[data-practice-review]')) {
+        clearPracticeResult();
         rehearsalState = StudyMode.rehearsal(rehearsalState);
         selectedTab = 'flashcards'; selectedPart = 0;
         flashUi = { mode: 'browse', browseIndex: 0, browseFlipped: false, typedFeedback: '' };
         renderRehearsal();
         return;
       }
-      if (event.target.closest('[data-check-next]')) return doCheck();
+      if (event.target.closest('[data-check-next]')) { clearLearnResult(); return doCheck(); }
       if (event.target.closest('[data-check]')) {
         if (mode === 'LEARN' && currentStudy && currentStudy.flippedCount < currentStudy.totalCards &&
             !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Bạn muốn kiểm tra ngay hay tiếp tục ôn thẻ?',
               { confirmText: 'Vẫn kiểm tra', cancelText: 'Ôn hết thẻ' }))) return;
+        clearLearnResult();
         return doCheck();
       }
       if (event.target.closest('[data-review]')) {
+        clearLearnResult();
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
         selectedTab = 'flashcards'; flashUi.mode = 'browse';
         return loadStudy();
@@ -701,9 +871,15 @@
           if (!shouldPersistFlip(mode, flashUi.mode)) StudyMode.rehearseCard(rehearsalState, flip.dataset.card, 'flip');
           else {
             flipPending = true;
+            var doneBeforeFlip = studiedDone(currentStudy);
             try { currentStudy = await api('/cards/' + encodeURIComponent(flip.dataset.card) + '/flip', { method: 'POST' }); }
             catch (e) { node.innerHTML = error(e.message); return; }
             finally { flipPending = false; }
+            flashUi.browseFlipped = !flashUi.browseFlipped;
+            flashUi.turning = true;
+            showStudy();
+            celebrateIfFinished(doneBeforeFlip);
+            return;
           }
         }
         flashUi.browseFlipped = !flashUi.browseFlipped;
@@ -746,9 +922,10 @@
     });
 
     node.addEventListener('keydown', function (event) {
-      var card = event.target.closest('[data-card]');
+      var card = event.target.closest('[data-card], [data-browse-card]');
       if (!card || event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
       event.preventDefault();
+      flashUi.restoreCardFocus = true;
       card.click();
     });
 
@@ -783,14 +960,21 @@
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
+        if (mode === 'PRACTICE') rememberPracticeResult(result, []);
+        else rememberLearnResult(result, Number(form.dataset.attemptId));
         node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result);
         try {
           var attempts = await api('/attempt-history');
           var resultPanel = node.querySelector('.ilp-result');
-          if (resultPanel && attempts && attempts.length) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+          if (resultPanel && attempts && attempts.length) {
+            resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+            if (mode === 'PRACTICE') rememberPracticeResult(result, attempts);
+          }
         } catch (historyError) { /* Keep the current quiz result usable if the optional history request fails. */ }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần Từ vựng.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     });

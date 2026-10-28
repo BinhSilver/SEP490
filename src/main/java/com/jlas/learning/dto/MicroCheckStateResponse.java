@@ -17,5 +17,25 @@ public record MicroCheckStateResponse(
         boolean passed,
         Integer firstScore,
         Integer latestScore,
-        Integer bestScore
-) { }
+        Integer bestScore,
+        Long inProgressAttemptId
+) {
+    public MicroCheckStateResponse(
+            Long activityId,
+            LearningActivityState activityState,
+            int batchCount,
+            int currentBatch,
+            int attemptsUsed,
+            int attemptsRemaining,
+            LocalDateTime cooldownUntil,
+            boolean reviewRequired,
+            boolean checkEligible,
+            boolean passed,
+            Integer firstScore,
+            Integer latestScore,
+            Integer bestScore
+    ) {
+        this(activityId, activityState, batchCount, currentBatch, attemptsUsed, attemptsRemaining,
+                cooldownUntil, reviewRequired, checkEligible, passed, firstScore, latestScore, bestScore, null);
+    }
+}

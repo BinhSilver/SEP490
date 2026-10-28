@@ -14,11 +14,17 @@ package com.jlas.learning.dto;
  * relative route or an approved application origin — never an arbitrary redirect. {@code targetLevel} is
  * the only learner-related field ever echoed back — no internal path/package/activity id, no JWT.
  */
-public record MockTestDestination(boolean available, String status, String url, String targetLevel) {
+public record MockTestDestination(boolean available, String status, String url, String targetLevel,
+        /** Owner 2026-10-26 (lỗi #3): why a configured Mock Test is still locked by the learner's progress
+         * ({@code PRIOR_STAGE_INCOMPLETE}, {@code TARGET_STAGE_BELOW_THRESHOLD}, {@code BLOCKED_CONTENT}); null otherwise. */
+        String reasonCode,
+        Integer requiredTargetPercent) {
 
     public static final String STATUS_AVAILABLE = "AVAILABLE";
     public static final String STATUS_BLOCKED_INTEGRATION = "BLOCKED_INTEGRATION";
     public static final String STATUS_NOT_APPLICABLE = "NOT_APPLICABLE";
+    /** The Mock Test exists but the path has not reached the roadmap's eligibility rule yet. */
+    public static final String STATUS_LOCKED_PROGRESS = "LOCKED_PROGRESS";
 
     public MockTestDestination {
         if (available && (url == null || url.isBlank())) {
@@ -27,6 +33,15 @@ public record MockTestDestination(boolean available, String status, String url, 
         if (status == null) {
             status = available ? STATUS_AVAILABLE : STATUS_BLOCKED_INTEGRATION;
         }
+    }
+
+    public MockTestDestination(boolean available, String status, String url, String targetLevel) {
+        this(available, status, url, targetLevel, null, null);
+    }
+
+    /** Same rule as the roadmap ({@code LearningFinalEligibilityService}): no link until the path is eligible. */
+    public static MockTestDestination lockedByProgress(String targetLevel, String reasonCode, int requiredTargetPercent) {
+        return new MockTestDestination(false, STATUS_LOCKED_PROGRESS, null, targetLevel, reasonCode, requiredTargetPercent);
     }
 
     /** The honest default/fallback: no owner contract, no fabricated link. */

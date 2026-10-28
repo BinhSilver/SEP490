@@ -101,6 +101,21 @@ public class InteractiveStudyEngine<T> {
         return buildStudyState(activity, session, membership);
     }
 
+    /** Owner 2026-10-21: a communication learner may finish the part from its content page without flipping every card.
+     * Scored JLPT parts keep their check, so they refuse this. */
+    public EngineStudyState<T> markStudied(Long userId, Long activityId) {
+        UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
+        if (!GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Phần này hoàn thành qua bài kiểm tra.");
+        }
+        List<LearningActivityMember> membership = loadMembership(activity);
+        LearningStudySession session = getOrCreateSession(activity, revisionOf(membership), membership);
+        if (activity.getActivityState() == LearningActivityState.STUDYING) {
+            activity.setActivityState(LearningActivityState.PASSED);
+        }
+        return buildStudyState(activity, session, membership);
+    }
+
     public EngineStudyState<T> remember(Long userId, Long activityId, Long memberId, boolean remembered) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
         List<LearningActivityMember> membership = loadMembership(activity);
@@ -129,10 +144,7 @@ public class InteractiveStudyEngine<T> {
 
     public MicroCheckResponse issueMicroCheck(Long userId, Long activityId) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
-        if (GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
-            throw new ApiException(ErrorCode.CONFLICT,
-                    "Bài tình huống giao tiếp hoàn thành bằng hoạt động học, không có bài kiểm tra.");
-        }
+        assertQuizAllowed(activity);
         List<LearningActivityMember> membership = loadMembership(activity);
         if (adapter.requiresPracticeGate()) {
             adapter.assertPracticeGateSatisfied(activityId, membership);
@@ -192,6 +204,7 @@ public class InteractiveStudyEngine<T> {
 
     public MicroCheckResult submitMicroCheck(Long userId, Long activityId, MicroCheckSubmitRequest request) {
         UserLearningPathItem activity = loadActivityForUpdate(userId, activityId);
+        assertQuizAllowed(activity);
         LearningQuizSession session = quizSessions.findOwnedByActivity(
                         request.attemptId(), userId, adapter.microCheckType(), activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên kiểm tra không hợp lệ."));
@@ -268,6 +281,8 @@ public class InteractiveStudyEngine<T> {
      * score/state or rewards — it only persists the draft for the next reopen/restore. A submitted attempt is
      * rejected outright (CONFLICT) so a late autosave from another tab can never overwrite a graded attempt. */
     public List<MicroCheckDraftAnswer> saveDraft(Long userId, Long activityId, MicroCheckSaveDraftRequest request) {
+        UserLearningPathItem activity = loadOwnedActivity(userId, activityId);
+        assertQuizAllowed(activity);
         LearningQuizSession session = quizSessions.findOwnedByActivity(
                         request.attemptId(), userId, adapter.microCheckType(), activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên kiểm tra không hợp lệ."));
@@ -478,6 +493,7 @@ public class InteractiveStudyEngine<T> {
 
     public PracticeIssue issuePracticeWithSource(Long userId, Long activityId) {
         UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        assertQuizAllowed(activity);
         Map<Integer, LearningQuizSession> latestByBatch = new java.util.TreeMap<>();
         for (LearningQuizSession original : quizSessions
                 .findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
@@ -522,6 +538,7 @@ public class InteractiveStudyEngine<T> {
      * complete, reward, unlock, consume attempts or lower the activity state or any best score. */
     public MicroCheckResult submitPractice(Long userId, Long activityId, MicroCheckSubmitRequest request) {
         UserLearningPathItem activity = loadFinishedActivity(userId, activityId);
+        assertQuizAllowed(activity);
         LearningQuizSession session = quizSessions.findOwnedByActivity(
                         request.attemptId(), userId, PRACTICE_REPLAY, activityId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FORBIDDEN, "Phiên luyện tập không hợp lệ."));
@@ -566,6 +583,13 @@ public class InteractiveStudyEngine<T> {
             throw new ApiException(ErrorCode.NOT_FOUND);
         }
         return activity;
+    }
+
+    private static void assertQuizAllowed(UserLearningPathItem activity) {
+        if (GoalPathPolicy.isCommunicationGoal(activity.getLearningPath())) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Bài tình huống giao tiếp hoàn thành bằng hoạt động học, không có bài kiểm tra.");
+        }
     }
 
     // ---- Internal helpers ----
@@ -732,7 +756,13 @@ public class InteractiveStudyEngine<T> {
                 attemptsUsed, attemptsRemaining(attemptsUsed), state == null ? null : state.getCooldownUntil(),
                 state != null && state.isReviewRequired(), checkEligible, allPassed,
                 state == null ? null : state.getFirstScore(), state == null ? null : state.getLatestScore(),
-                state == null ? null : state.getBestScore());
+                state == null ? null : state.getBestScore(),
+                (!allPassed && activity.getLearningPath() != null && activity.getLearningPath().getUser() != null && quizSessions != null)
+                        ? quizSessions.findFirstByActivityIdAndQuizTypeAndBatchIndexAndUserIdAndStatusOrderByIdDesc(
+                                activity.getId(), adapter.microCheckType(), currentBatch,
+                                activity.getLearningPath().getUser().getId(), "ISSUED")
+                        .map(LearningQuizSession::getId).orElse(null)
+                        : null);
     }
 
     private MicroCheckResult reconstructResult(LearningQuizSession session, UserLearningPathItem activity) {
