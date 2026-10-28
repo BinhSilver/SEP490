@@ -38,6 +38,12 @@ public class InteractiveVocabularyController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.flip(user.userId(), activityId, memberId)));
     }
 
+    @PostMapping("/complete")
+    public ResponseEntity<ApiResponse<VocabularyStudyState>> complete(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.markStudied(user.userId(), activityId)));
+    }
+
     @PostMapping("/cards/{memberId}/remember")
     public ResponseEntity<ApiResponse<VocabularyStudyState>> remember(
             @PathVariable Long activityId, @PathVariable Long memberId,

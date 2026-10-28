@@ -13,6 +13,8 @@
   // (Vocabulary, Task 4): the server-owned study + micro-check contract is identical, only the card content
   // and the API base path differ, mirroring the InteractiveStudyEngine split on the backend.
 
+  var StudyModeLib = typeof window !== 'undefined' && window.InteractiveStudyMode ? window.InteractiveStudyMode
+    : (typeof require === 'function' ? require('./interactive-study-mode.js') : null);
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]; }); }
   function num(value) { value = Number(value); return Number.isFinite(value) ? value : 0; }
   // [JLAS-W0125] "Phần x / n" only when a pace change split this skill into ordered parts of the package.
@@ -61,6 +63,8 @@
     return {
       activityId: data.activityId, partIndex: num(data.partIndex), partCount: num(data.partCount),
       activityState: data.activityState,
+      meaningAttribution: data.meaningAttribution || null,
+      reviewItems: list(data.reviewItems),
       totalCards: num(data.totalCards),
       flippedCount: num(data.flippedCount),
       rememberedCount: num(data.rememberedCount),
@@ -77,6 +81,12 @@
     return '<span class="ilp-chip">' + esc(label) + ': ' + esc(values.join('、')) + '</span>';
   }
 
+  // D3-03 (supersedes OD-13): the card shows only the Vietnamese meaning (VNJPClub or J-LAS), never English.
+  function meaningHtml(card, className) {
+    if (card.meaningVi) return '<span class="' + className + '">' + esc(card.meaningVi) + '</span>';
+    return '';
+  }
+
   function cardFace(card) {
     if (!card) return '<div class="ilp-card__empty"><h2>Chưa có thẻ Kanji</h2></div>';
     return '<div class="ilp-card__inner"><div class="ilp-card__front"' + (card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
@@ -86,7 +96,7 @@
       '<span class="ilp-card__hint">Lật thẻ để xem nghĩa</span></div>' +
       '<div class="ilp-card__back"' + (!card.flipped ? ' aria-hidden="true" inert' : '') + '>' +
         '<span class="ilp-kanji-glyph">' + esc(card.character) + '</span>' +
-        '<span class="ilp-card__meaning">' + esc(card.meaningVi) + '</span>' +
+        meaningHtml(card, 'ilp-card__meaning') +
         '<div class="ilp-kanji-details">' +
         (card.hanViet ? '<span class="ilp-chip">' + esc(card.hanViet) + '</span>' : '') +
         (card.jlptLevel ? '<span class="ilp-chip">' + esc(card.jlptLevel) + '</span>' : '') +
@@ -98,7 +108,7 @@
   function renderKanjiList(cards) {
     return '<ol class="ilp-study-items ilp-kanji-list">' + cards.map(function (card) {
       return '<li class="ilp-study-items__item"><span class="ilp-study-items__word">' + esc(card.character) + '</span>' +
-        '<span class="ilp-study-items__meaning">' + esc(card.meaningVi) + '</span>' +
+        meaningHtml(card, 'ilp-study-items__meaning') +
         (card.hanViet ? '<span class="ilp-study-items__reading">' + esc(card.hanViet) + '</span>' : '') +
         '<div class="ilp-kanji-list__readings">' + readingChip('On', card.onReadings) + readingChip('Kun', card.kunReadings) + '</div>' +
         '<button class="ilp-study-audio" type="button" data-speak="' + esc(card.character) + '" aria-label="Nghe phát âm ' + esc(card.character) + '">🔊</button></li>';
@@ -130,7 +140,7 @@
     var card = partCards[browseIndex] || null;
     var shownCard = card && flashMode === 'browse' ? Object.assign({}, card,
       { flipped: !!ui.browseFlipped }) : card;
-    var progress = v.totalCards ? Math.round(v.flippedCount / v.totalCards * 100) : 0;
+    var position = StudyModeLib.positionHeader(activeTab === 'flashcards' && flashMode !== 'check', browseIndex + 1, partCards.length);
     var gateBlocked = gate && (gate.reviewRequired || !gate.checkEligible) && !gate.passed;
     var canCheck = !readOnly && v.checkEligible && !gateBlocked;
     var checkLabel = checkButtonLabel(gate);
@@ -159,10 +169,10 @@
     return '<section class="ilp-study">' +
       '<header class="ilp-study__head"><div><span class="ilp-kicker">KANJI // ' +
       (gate && gate.passed ? 'ĐÃ HOÀN THÀNH' : v.checkEligible ? 'SẴN SÀNG KIỂM TRA' : 'ĐANG ÔN') + '</span><h1>Chữ Hán</h1>' + partLabel(v) +
-      '<p>Xem chữ, nghĩa và âm đọc trước; sau đó học bằng Flashcard.</p></div>' +
-      '<div class="ilp-study__count"><strong>' + v.flippedCount + '/' + v.totalCards + '</strong><span>đã xem</span></div></header>' +
-      '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.flippedCount + '" aria-valuemin="0" aria-valuemax="' + v.totalCards + '">' +
-      '<span style="width:' + progress + '%"></span></div>' +
+      '<p>Xem chữ, nghĩa và âm đọc trước; sau đó học bằng Flashcard.</p>' +
+      (readOnly || ui.replay ? '' : StudyModeLib.completionGuide('CHECK', 'chữ', gate,
+        v.activityState === 'PASSED' || v.activityState === 'COMPLETED')) + '</div>' +
+      position.count + '</header>' + position.bar +
       '<div class="ilp-study-tabs" role="tablist" aria-label="Cách học Kanji">' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'content') + '" data-study-tab="content">Nội dung bài học</button>' +
       '<button type="button" role="tab" aria-selected="' + (activeTab === 'flashcards') + '" data-study-tab="flashcards">Học bằng Flashcard</button></div>' +
@@ -170,7 +180,14 @@
       (groups.length > 1 ? '<div class="ilp-study-parts" aria-label="Các phần Kanji">' + groups.map(function (_, index) {
         return '<button type="button" data-study-part="' + index + '" aria-current="' + (index === partIndex) + '">Phần ' + (index + 1) + '</button>';
       }).join('') + '</div>' : '') +
-      renderKanjiList(groups[partIndex] || []) + '</section>' +
+      renderKanjiList(groups[partIndex] || []) + StudyModeLib.reviewItemsBlock(v.reviewItems) +
+      (v.meaningAttribution ? '<p class="ilp-source-note">' + esc(v.meaningAttribution) + '</p>' : '') +
+      // [JLAS-W0193] §2.6 — the quiz entry must be visible on the content tab too, not only inside the
+      // flashcard panel; hidden entirely once the activity is passed or the view is read-only (review).
+      (readOnly || gate && gate.passed ? '' : '<div class="ilp-study__next">' +
+        '<button class="ilp-check" type="button" data-study-tab="flashcards">Học bằng Flashcard</button>' +
+        '<button class="ilp-check" type="button" data-check>' + checkLabel + '</button>' +
+        '<p>Học thẻ rồi kiểm tra để hoàn thành phần này. Bạn cũng có thể kiểm tra ngay.</p></div>') + '</section>' +
       '<section role="tabpanel" class="ilp-flashcards"' + (activeTab === 'flashcards' ? '' : ' hidden') + '>' +
       flashContent +
       '</section>' +
@@ -216,6 +233,12 @@
   }
   function renderCheck(check) {
     var all = list(check.questions);
+    // [JLAS-W0113] Restore previously autosaved selections (questionId -> selectedOption) so a reopen/reload
+    // shows the learner's saved MCQ choices and matching pairs instead of a blank quiz.
+    var selectedByQuestion = {};
+    list(check.draftAnswers).forEach(function (d) {
+      if (d && d.selectedOption != null) selectedByQuestion[String(d.questionId)] = Number(d.selectedOption);
+    });
     var matching = all.filter(function (q) { return q.questionType === 'MATCHING'; });
     var canPair = matching.length >= 2 && matching.every(function (q) {
       return q.options && q.options.length === matching.length && q.options.every(function (option, index) {
@@ -224,7 +247,8 @@
     });
     var questions = all.filter(function (q) { return !canPair || q.questionType !== 'MATCHING'; }).map(function (q, i) {
       var options = list(q.options).map(function (opt, oi) {
-        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
+        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '"' +
+          (selectedByQuestion[String(q.questionId)] === (oi + 1) ? ' checked' : '') + '>' +
           '<span class="ilp-option__mark">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(opt) + '</span></label>';
       }).join('');
       return '<fieldset class="ilp-question"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
@@ -245,7 +269,8 @@
         '</div><div class="ilp-matching__column"><h2>Nghĩa</h2>' +
         matchOrder.meaningOrder.map(function (idx, i) { return '<button type="button" data-match-meaning="' + idx + '" aria-pressed="false"><span>' + String.fromCharCode(65 + i) + '.</span> ' + esc(matchMeaningByIndex[idx]) + '</button>'; }).join('') +
         '</div></div><div class="ilp-matching__answers">' + matching.map(function (q) {
-          return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '">'; }).join('');
+          return q.options.map(function (_, i) { return '<input type="radio" hidden name="q-' + q.questionId + '" value="' + (i + 1) + '"' +
+            (selectedByQuestion[String(q.questionId)] === (i + 1) ? ' checked' : '') + '>'; }).join('');
         }).join('') + '</div></fieldset>';
     }
     return '<section class="ilp-check no-inline-dictionary">' +
@@ -253,6 +278,7 @@
       '<h1>Bài kiểm tra nhỏ</h1><p>Hoàn thành phần trắc nghiệm và ghép các cặp chữ Hán – nghĩa.</p><span class="ilp-check__answered" role="status" data-check-progress>' +
         checkProgressText(0, canPair ? all.length - matching.length : all.length, 0, canPair ? matching.length : 0) + '</span></div></header>' +
       '<form class="ilp-check__form" data-submit data-attempt-id="' + esc(check.attemptId) + '">' + questions +
+      '<span class="ilp-check__draft" data-draft-status role="status" aria-live="polite"></span>' +
       '<button class="ilp-check__submit" type="submit">Nộp bài</button></form>' +
       '</section>';
   }
@@ -309,6 +335,15 @@
     var output = form.querySelector('[data-check-progress]');
     if (!output) { var section = form.closest('.ilp-check'); if (section) output = section.querySelector('[data-check-progress]'); }
     if (output) output.textContent = checkProgressText(answeredQuestions, questionNames.size, answeredPairs, pairNames.size);
+  }
+
+  // [JLAS-W0113] Re-run the derived UI after the form HTML (with restored `checked` radios) is in the DOM:
+  // refresh matching highlights and the answered progress counter so a reopened/reloaded attempt shows its
+  // saved state, not a blank quiz.
+  function restoreCheckForm(form) {
+    if (!form) return;
+    syncMatchingHighlights(form, null, null);
+    updateCheckProgress(form);
   }
 
   function formatCooldown(value) {
@@ -377,6 +412,8 @@
     var issuePath = (modeApi && modeApi.issue) || '/micro-check';
     var submitPath = (modeApi && modeApi.submit) || '/micro-check/submit';
     var rehearsalState = null;
+    // Owner 2026-10-23: "Xem lại bài giảng" of a finished part replays it from scratch with the practice quiz.
+    var replayLecture = false;
     var selectedTab = new URLSearchParams(window.location.search).get('tab') === 'flashcards' ? 'flashcards' : 'content';
     var currentStudy = null;
     var currentGate = null;
@@ -385,8 +422,24 @@
     var selectedPart = 0;
     var flashUi = { mode: 'browse', browseIndex: null, browseFlipped: false, turning: false, typedFeedback: '' };
     var flipPending = false;
+    // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
+    // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
+    var draftPath = '/micro-check/draft';
+    var draftTimer = null;
+    var draftRetries = 0;
+    var draftDirty = false;
+    var draftInFlight = null;
+    var draftSeq = 0;
+    function focusActiveFlashcard() {
+      if (!flashUi.restoreCardFocus) return;
+      flashUi.restoreCardFocus = false;
+      var nextCard = node.querySelector('[data-card], [data-browse-card]');
+      if (nextCard && typeof nextCard.focus === 'function') nextCard.focus();
+    }
     function renderRehearsal() {
-      node.innerHTML = StudyMode.banner('PRACTICE') + renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, flashUi);
+      node.innerHTML = StudyMode.banner(replayLecture ? 'REPLAY' : 'PRACTICE') +
+        renderStudy(viewModel(rehearsalState), null, selectedTab, selectedPart, Object.assign({}, flashUi, { replay: replayLecture }));
+      focusActiveFlashcard();
     }
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions('/learning/v2/kanji', id, ['REVIEW', 'PRACTICE']) : '';
     function showStudy() {
@@ -396,6 +449,7 @@
         ? renderReview(viewModel(currentStudy), selectedTab, selectedPart, flashUi)
         : renderStudy(viewModel(currentStudy), currentGate, selectedTab, selectedPart, flashUi)) +
         (currentGate && currentGate.passed ? '<div class="ilp-result__actions">' + PASSED_ACTIONS + '</div>' : '');
+      focusActiveFlashcard();
     }
 
     async function api(path, options) {
@@ -403,6 +457,154 @@
       var body = await response.json().catch(function () { return {}; });
       if (!response.ok) throw new Error(body.message || 'Không thể kết nối tới máy chủ.');
       return body.data;
+    }
+
+    // [JLAS-W0113] Autosave a draft of the learner's in-progress selections. The draft is the FULL current
+    // checked set (an unselected/unpaired answer is simply omitted, and the server drops it), so "unselect" is
+    // represented naturally. Autosave never grades and never consumes quota/rewards — the server only writes
+    // `draft_answers_json` and rejects the write once the attempt is submitted.
+    function setDraftStatus(text, isError) {
+      var el = node.querySelector('[data-draft-status]');
+      if (el) {
+        el.textContent = text;
+        el.classList.toggle('is-error', !!isError);
+      }
+    }
+
+    function collectDraft(form) {
+      return Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
+        return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
+      });
+    }
+
+    async function flushDraft() {
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return true; // quiz already submitted or navigated away — nothing left to save
+      if (draftInFlight) return draftInFlight.then(function (ok) {
+        return ok && draftDirty ? flushDraft() : ok;
+      }); // serialise writes, including edits made during the first request
+      if (!draftDirty) return true;
+      var seq = draftSeq;
+      var attemptId = Number(form.dataset.attemptId);
+      setDraftStatus('Đang lưu…');
+      var pending = api(draftPath, {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+        body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+      }).then(function () {
+        if (seq !== draftSeq) return true; // keep dirty and save the newer selection next
+        draftRetries = 0;
+        draftDirty = false;
+        setDraftStatus('Đã lưu');
+        return true;
+      }, function () {
+        if (seq !== draftSeq) return true;
+        draftRetries += 1;
+        if (draftRetries <= 3 && node.querySelector('.ilp-check__form')) {
+          setDraftStatus('Lưu thất bại — thử lại…', true);
+          draftTimer = setTimeout(flushDraft, 2500);
+        } else {
+          setDraftStatus('Chưa lưu được nháp. Kiểm tra kết nối.', true);
+        }
+        return false;
+      }).finally(function () { draftInFlight = null; });
+      draftInFlight = pending;
+      return pending.then(function (ok) { return ok && draftDirty ? flushDraft() : ok; });
+    }
+
+    function scheduleDraftSave(form) {
+      if (mode !== 'LEARN' || !form) return;
+      draftDirty = true;
+      draftSeq += 1;
+      if (draftTimer) clearTimeout(draftTimer);
+      setDraftStatus('Đang lưu…');
+      draftTimer = setTimeout(flushDraft, 800);
+    }
+
+    var PRACTICE_RESULT_STATE_KEY = 'jlasKanjiPracticeResult';
+    var LEARN_RESULT_STATE_KEY = 'jlasKanjiLearnResult';
+
+    function savedPracticeResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[PRACTICE_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result ? saved : null;
+    }
+
+    function rememberPracticeResult(result, attempts) {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[PRACTICE_RESULT_STATE_KEY] = {
+        activityId: Number(id), result: result, attempts: Array.isArray(attempts) ? attempts : []
+      };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearPracticeResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[PRACTICE_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[PRACTICE_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function savedLearnResult() {
+      var state = window.history && window.history.state;
+      var saved = state && state[LEARN_RESULT_STATE_KEY];
+      return saved && String(saved.activityId) === String(id) && saved.result && saved.attemptId ? saved : null;
+    }
+
+    function rememberLearnResult(result, attemptId) {
+      if (!window.history || typeof window.history.replaceState !== 'function' || !(attemptId > 0)) return;
+      var current = window.history.state;
+      var state = current && typeof current === 'object' ? Object.assign({}, current) : {};
+      state[LEARN_RESULT_STATE_KEY] = { activityId: Number(id), attemptId: attemptId, result: result };
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function clearLearnResult() {
+      if (!window.history || typeof window.history.replaceState !== 'function') return;
+      var current = window.history.state;
+      if (!current || !current[LEARN_RESULT_STATE_KEY]) return;
+      var state = Object.assign({}, current);
+      delete state[LEARN_RESULT_STATE_KEY];
+      window.history.replaceState(state, '', window.location.href);
+    }
+
+    function issuedKey() { return 'jlasKanjiIssued:' + id; }
+    function rememberIssuedAttempt(attemptId) {
+      if (mode !== 'LEARN' || !(Number(attemptId) > 0)) return;
+      try { window.sessionStorage.setItem(issuedKey(), String(Number(attemptId))); } catch (ignored) { /* storage unavailable */ }
+    }
+    function issuedAttempt() {
+      try { return Number(window.sessionStorage.getItem(issuedKey())) || 0; } catch (ignored) { return 0; }
+    }
+
+    async function restoreLearnResult(saved) {
+      var attempts;
+      try { attempts = await api('/attempt-history'); } catch (historyError) { return false; }
+      var learnAttempts = Array.isArray(attempts) ? attempts.filter(function (attempt) { return attempt.mode !== 'PRACTICE'; }) : [];
+      var latest = learnAttempts.length ? learnAttempts[learnAttempts.length - 1] : null;
+      if (!latest || String(latest.attemptId) !== String(saved.attemptId) || issuedAttempt() > Number(saved.attemptId)) {
+        clearLearnResult();
+        return false;
+      }
+      node.innerHTML = renderResult(saved.result);
+      var resultPanel = node.querySelector('.ilp-result');
+      if (resultPanel && attempts.length && StudyMode && StudyMode.attemptHistory)
+        resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+      if (saved.result.passed && saved.result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        await StudyMode.showNextAction(node, id);
+      return true;
+    }
+
+    function renderSavedPracticeResult(saved) {
+      node.innerHTML = StudyMode.practiceResult(saved.result);
+      if (saved.attempts.length && StudyMode && StudyMode.attemptHistory) {
+        var resultPanel = node.querySelector('.ilp-result');
+        if (resultPanel) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(saved.attempts));
+      }
     }
 
     async function loadStudy() {
@@ -415,7 +617,25 @@
         }
         if (mode === 'REVIEW') {
           currentStudy = await api(modeApi.study);
+          if (StudyMode.isFinished && StudyMode.isFinished(currentStudy)) {
+            replayLecture = true;
+            mode = 'PRACTICE';
+            issuePath = '/practice';
+            submitPath = '/practice/submit';
+            rehearsalState = StudyMode.rehearsal(currentStudy);
+            var savedReplay = savedPracticeResult();
+            if (savedReplay) renderSavedPracticeResult(savedReplay);
+            else renderRehearsal();
+            node.setAttribute('aria-busy', 'false');
+            return;
+          }
           showStudy();
+          // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
+          var gate = null;
+          if (currentStudy && currentStudy.checkRequired !== false) {
+            try { gate = await api('/micro-check/state'); } catch (e) { gate = null; }
+          }
+          if (gate && !gate.passed) node.insertAdjacentHTML('beforeend', StudyMode.reviewGateActions(gate, '/learning/v2/kanji', id));
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -432,35 +652,57 @@
           rehearsalState = StudyMode.rehearsal(practiceSource);
           selectedTab = 'flashcards';
           flashUi.mode = 'browse';
-          renderRehearsal();
+          var savedPractice = savedPracticeResult();
+          if (savedPractice) renderSavedPracticeResult(savedPractice);
+          else renderRehearsal();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        var savedLearn = mode === 'LEARN' ? savedLearnResult() : null;
+        if (savedLearn && await restoreLearnResult(savedLearn)) {
           node.setAttribute('aria-busy', 'false');
           return;
         }
         currentStudy = await api('/study');
         currentGate = null;
         try { currentGate = await api('/micro-check/state'); } catch (e) { currentGate = null; }
-        if (currentStudy.activityState === 'PASSED' || currentGate && currentGate.passed) {
-          await StudyMode.restoreCompletedResult(node, api, '/learning/v2/kanji', id, renderPassed(PASSED_ACTIONS));
-        } else showStudy();
+        if (mode === 'LEARN' && currentGate && !currentGate.passed && num(currentGate.inProgressAttemptId) > 0) {
+          await doCheck();
+          node.setAttribute('aria-busy', 'false');
+          return;
+        }
+        // Owner 2026-10-21: a finished part reopens on its own page, never on an empty result screen.
+        showStudy();
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
     }
 
     async function doPractice() {
+      clearPracticeResult();
       selectedWord = null;
       selectedMeaning = null;
-      try { node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' })); }
+      try {
+        node.innerHTML = StudyMode.banner('PRACTICE') + renderCheck(await api(issuePath, { method: 'POST' }));
+        restoreCheckForm(node.querySelector('.ilp-check__form'));
+      }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
     async function doCheck() {
+      clearLearnResult();
       selectedWord = null;
       selectedMeaning = null;
-      try { node.innerHTML = renderCheck(await api(issuePath, { method: 'POST' })); }
+      try {
+        var check = await api(issuePath, { method: 'POST' });
+        rememberIssuedAttempt(check && check.attemptId);
+        node.innerHTML = renderCheck(check);
+        restoreCheckForm(node.querySelector('.ilp-check__form'));
+      }
       catch (e) { node.innerHTML = error(e.message); }
     }
 
     node.addEventListener('click', async function (event) {
+      if (StudyMode && StudyMode.isSelectingText && StudyMode.isSelectingText(node)) return; // a lookup selection, not a click
       var tab = event.target.closest('[data-study-tab]');
       if (tab) {
         selectedTab = tab.dataset.studyTab;
@@ -510,10 +752,12 @@
           selectedWord = null;
         } else {
           selectedWord = wordId;
-          if (selectedMeaning) selectMatchingAnswer(form, wordId, selectedMeaning);
+          // A pair is made: clear the selection, as Vocabulary does, so the next word does not take this meaning.
+          if (selectedMeaning) { selectMatchingAnswer(form, wordId, selectedMeaning); selectedWord = null; selectedMeaning = null; }
         }
         syncMatchingHighlights(form, selectedWord, selectedMeaning);
         updateCheckProgress(form);
+        scheduleDraftSave(form);
         return;
       }
       var matchMeaning = event.target.closest('[data-match-meaning]');
@@ -529,21 +773,25 @@
           selectedMeaning = null;
         } else {
           selectedMeaning = value;
-          if (selectedWord) selectMatchingAnswer(mform, selectedWord, value);
+          if (selectedWord) { selectMatchingAnswer(mform, selectedWord, value); selectedWord = null; selectedMeaning = null; }
         }
         syncMatchingHighlights(mform, selectedWord, selectedMeaning);
         updateCheckProgress(mform);
+        scheduleDraftSave(mform);
         return;
       }
-      if (event.target.closest('[data-retry]')) return loadStudy();
-      if (event.target.closest('[data-practice-review]')) return loadStudy();
-      if (event.target.closest('[data-check-next]')) return doCheck();
+      if (event.target.closest('[data-retry]')) { clearLearnResult(); return loadStudy(); }
+      if (event.target.closest('[data-practice-review]')) { clearPracticeResult(); return loadStudy(); }
+      if (event.target.closest('[data-check-next]')) { clearLearnResult(); return doCheck(); }
       if (event.target.closest('[data-check]')) {
         if (mode === 'LEARN' && currentStudy && currentStudy.flippedCount < currentStudy.totalCards &&
-            !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Chọn OK để vẫn kiểm tra; chọn Hủy để lướt ôn tập hết thẻ.'))) return;
+            !(await window.JlasConfirm('Bạn chưa lướt hết các thẻ. Bạn muốn kiểm tra ngay hay tiếp tục ôn thẻ?',
+              { confirmText: 'Vẫn kiểm tra', cancelText: 'Ôn hết thẻ' }))) return;
+        clearLearnResult();
         return doCheck();
       }
       if (event.target.closest('[data-review]')) {
+        clearLearnResult();
         try { await api('/micro-check/review', { method: 'POST' }); } catch (e) { node.innerHTML = error(e.message); return; }
         return loadStudy();
       }
@@ -587,7 +835,9 @@
 
     node.addEventListener('change', function (event) {
       if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
-        updateCheckProgress(event.target.closest('form'));
+        var changeForm = event.target.closest('form');
+        updateCheckProgress(changeForm);
+        scheduleDraftSave(changeForm);
       }
     });
 
@@ -601,9 +851,10 @@
     });
 
     node.addEventListener('keydown', function (event) {
-      var card = event.target.closest('[data-card]');
+      var card = event.target.closest('[data-card], [data-browse-card]');
       if (!card || event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
       event.preventDefault();
+      flashUi.restoreCardFocus = true;
       card.click();
     });
 
@@ -621,6 +872,9 @@
       var form = event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      // A submitted attempt must never be re-autosaved: stop any pending debounce and cancel in-flight retries.
+      if (draftTimer) { clearTimeout(draftTimer); draftTimer = null; }
+      draftDirty = false;
       var unanswered = new Set(Array.prototype.map.call(form.querySelectorAll('input[type="radio"]'), function (input) {
         return input.name;
       })).size - form.querySelectorAll('input[type="radio"]:checked').length;
@@ -635,19 +889,74 @@
           headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
           body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: answers })
         });
+        if (mode === 'PRACTICE') rememberPracticeResult(result, []);
+        else rememberLearnResult(result, Number(form.dataset.attemptId));
         node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result) : renderResult(result);
         if (StudyMode && StudyMode.attemptHistory) {
           try {
             var attempts = await api('/attempt-history');
             var resultPanel = node.querySelector('.ilp-result');
-            if (resultPanel && attempts && attempts.length)
+            if (resultPanel && attempts && attempts.length) {
               resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
+              if (mode === 'PRACTICE') rememberPracticeResult(result, attempts);
+            }
           } catch (historyError) { /* Keep the scored result usable if optional history is unavailable. */ }
         }
-        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction)
+        if (mode === 'LEARN' && result.passed && result.activityState === 'PASSED' && StudyMode && StudyMode.showNextAction) {
           await StudyMode.showNextAction(node, id);
+          if (StudyMode.celebrate) StudyMode.celebrate(node, { title: 'Chúc mừng!', message: 'Bạn đã vượt qua phần ' + 'Kanji' + '.', activityId: id });
+        }
       } catch (e) { node.innerHTML = error(e.message); }
       node.setAttribute('aria-busy', 'false');
+    });
+
+    // [JLAS-W0126] App-controlled page-leave protection for the in-progress micro-check draft. The browser
+    // cannot reliably block unload, so we own the two navigations the app performs while a dirty draft is on
+    // screen — in-page anchors (breadcrumb/shell links) and the shared "Quay lại" button — and flush the draft
+    // first, warning only when the flush genuinely fails. A pagehide keepalive POST is a best-effort backstop
+    // for tab close/reload (not guaranteed: the server may never see it).
+    if (typeof document.addEventListener === 'function') document.addEventListener('click', function (event) {
+      if (!draftDirty) return;
+      var target = event.target && event.target.closest ? event.target : null;
+      if (!target) return;
+      var back = target.closest('.lp-page-nav__back');
+      var anchor = back ? null : target.closest('a[href]');
+      var href = anchor ? anchor.getAttribute('href') : null;
+      if (!back && (!href || href.charAt(0) === '#')) return; // in-page jump, not a leave
+      event.preventDefault();
+      event.stopPropagation();
+      flushDraft().then(function (ok) {
+        var proceed = ok ? Promise.resolve(true)
+          : (window.JlasConfirm ? window.JlasConfirm('Chưa lưu được nháp của bạn. Vẫn rời trang?') : Promise.resolve(true));
+        proceed.then(function (yes) {
+          if (!yes) return;
+          if (back) {
+            var nav = window.JlasPageNavigation;
+            var action = nav && nav.resolveBackAction
+              ? nav.resolveBackAction(document.referrer, window.location.origin, '/learning/path/v2')
+              : { type: 'fallback', href: '/learning/path/v2' };
+            if (action.type === 'history') window.history.back();
+            else window.location.assign(action.href);
+          } else {
+            window.location.assign(href);
+          }
+        });
+      });
+    }, true);
+
+    if (typeof window.addEventListener === 'function') window.addEventListener('pagehide', function () {
+      if (!draftDirty) return;
+      var form = node.querySelector('.ilp-check__form');
+      if (!form) return;
+      var attemptId = Number(form.dataset.attemptId);
+      // sendBeacon cannot carry the JWT header, so use fetch(keepalive) for the authenticated draft write.
+      if (typeof fetch === 'function') {
+        fetch(base + draftPath, {
+          method: 'POST', keepalive: true,
+          headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+          body: JSON.stringify({ attemptId: attemptId, answers: collectDraft(form) })
+        });
+      }
     });
 
     loadStudy();

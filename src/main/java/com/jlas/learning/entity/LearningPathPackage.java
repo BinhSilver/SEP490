@@ -7,10 +7,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 import com.jlas.dictionary.entity.Lesson;
 
-/** [JLAS-W0193] One resumable day package in an interactive learning path. */
+/** [JLAS-W0193] One resumable package in an interactive learning path. Since D3-05 (owner 2026-10-24) two JLPT
+ * packages may share a day (the next chapter starts in what is left of the day), so day_number is not unique. */
 @Entity
-@Table(name = "learning_path_package", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_learning_package_path_day", columnNames = {"learning_path_id", "day_number"}),
+@Table(name = "learning_path_package", indexes = {
+        @Index(name = "idx_learning_package_path_day", columnList = "learning_path_id, day_number")
+}, uniqueConstraints = {
         @UniqueConstraint(name = "uk_learning_package_path_order", columnNames = {"learning_path_id", "order_index"}),
         @UniqueConstraint(name = "uk_learning_package_path_source_segment",
                 columnNames = {"learning_path_id", "source_lesson_id", "source_segment_index"})

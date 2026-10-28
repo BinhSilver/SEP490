@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Chứng nhận kết quả thi thử JLPT - J-LAS', 'jlas-certificates')}"></head>
+<body id="jlabBasePage" class="app-body jlpt-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jcert-page">
+    <article class="jcert-sheet jcert-sheet--mock">
+        <div class="jcert-inner">
+            <header class="jcert-brand"><img class="jcert-mark" src="/images/jlas-logo.png" alt="J-LAS" /><div><strong>J-LAS</strong><small>Japanese Learning &amp; Assessment System</small></div></header>
+            <p class="jcert-kicker">KẾT QUẢ ĐÁNH GIÁ NỘI BỘ</p>
+            <h1>Chứng nhận<br />đạt bài thi thử JLPT</h1>
+            <p class="jcert-lead">Chứng nhận này được trao cho</p>
+            <p class="jcert-name" th:text="${learnerName}">Người học</p>
+            <p class="jcert-copy">đã đạt ngưỡng đánh giá của bài thi thử JLPT cấp <strong th:text="${result.level}">N5</strong> trên hệ thống J-LAS.</p>
+            <dl class="jcert-details">
+                <div><dt>Cấp độ</dt><dd th:text="${result.level}">N5</dd></div>
+                <div><dt>Kết quả</dt><dd th:text="${result.correctCount + ' / ' + result.questionCount + ' câu · ' + result.scorePercent + '%'}">93 / 93 câu · 100%</dd></div>
+                <div><dt>Ngày hoàn thành</dt><dd th:text="${#temporals.format(result.submittedAt, 'dd/MM/yyyy')}">16/10/2026</dd></div>
+            </dl>
+            <footer class="jcert-footer"><div class="jcert-seal" aria-label="Dấu xác nhận J-LAS">J<br /><span>LAS</span></div>
+                <p><strong th:text="${'MOCK-' + result.attemptId}">MOCK-000001</strong><br />Chứng nhận tự đánh giá nội bộ của J-LAS</p></footer>
+            <p class="jcert-notice">Không phải chứng chỉ JLPT chính thức và không thay thế kết quả do đơn vị tổ chức JLPT cấp.</p>
+        </div>
+    </article>
+    <nav class="jcert-actions" aria-label="Tùy chọn chứng nhận">
+        <button type="button" onclick="window.print()">In / Lưu PDF</button>
+        <a th:href="@{/jlpt/result(level=${result.level})}">Xem lại bài thi</a>
+    </nav>
+</main>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script>
+</body>
+</html>
