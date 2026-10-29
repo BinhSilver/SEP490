@@ -89,8 +89,6 @@
     popup.tabIndex = -1;
     document.body.appendChild(popup);
     popup.addEventListener('click', function (event) {
-      var save = event.target.closest('[data-inline-save]');
-      if (!save) return;
       var notebookButton = event.target.closest('[data-inline-notebook-open]');
       if (notebookButton) { openNotebooks(notebookButton); return; }
       var save = event.target.closest('[data-inline-save]');
@@ -123,22 +121,101 @@
       }).join('');
       var chooser = document.createElement('div');
       chooser.className = 'inline-dict__notebooks';
-      chooser.innerHTML = '<strong>Chọn sổ tay</strong>' + choices;
+      chooser.innerHTML = '<strong>Chọn sổ tay</strong><div class="inline-dict__notebook-list">' + choices + '</div>' +
+        '<button type="button" data-inline-notebook-new>+ Tạo sổ tay mới</button>' +
+        '<form class="inline-dict__create" hidden>' +
+        '<label>Tên sổ tay<input name="name" type="text" maxlength="120" required autocomplete="off" placeholder="Ví dụ: Từ vựng N3"></label>' +
+        '<div class="inline-dict__create-actions"><button type="submit">Tạo và lưu</button>' +
+        '<button type="button" data-inline-notebook-cancel>Hủy</button></div></form>';
       popup.appendChild(chooser);
       button.setAttribute('aria-expanded', 'true');
+      var newButton = chooser.querySelector('[data-inline-notebook-new]');
+      var form = chooser.querySelector('form');
+      var input = form.querySelector('input');
+      var submit = form.querySelector('[type="submit"]');
+      var cancel = form.querySelector('[data-inline-notebook-cancel]');
+      var creating = false;
+
+      function finishSaving(name) {
+        chooser.remove();
+        button.setAttribute('aria-expanded', 'false');
+        status.textContent = 'Đã thêm vào ' + name + '.';
+      }
+
+      function showNotebook(book) {
+        var choice = document.createElement('button');
+        choice.type = 'button';
+        choice.dataset.inlineNotebook = String(book.id);
+        choice.textContent = book.name;
+        var count = document.createElement('small');
+        count.textContent = '0 từ';
+        choice.appendChild(count);
+        chooser.querySelector('.inline-dict__notebook-list').appendChild(choice);
+      }
+
       chooser.addEventListener('click', async function (event) {
+        if (event.target.closest('[data-inline-notebook-new]')) {
+          form.hidden = false;
+          newButton.hidden = true;
+          status.textContent = '';
+          input.focus();
+          return;
+        }
+        if (event.target.closest('[data-inline-notebook-cancel]')) {
+          if (creating) return;
+          form.hidden = true;
+          newButton.hidden = false;
+          status.textContent = '';
+          newButton.focus();
+          return;
+        }
         var choice = event.target.closest('[data-inline-notebook]');
-        if (!choice) return;
+        if (!choice || creating || choice.disabled) return;
         choice.disabled = true;
         try {
           await request('/api/dictionary/notebooks/' + encodeURIComponent(choice.dataset.inlineNotebook) + '/entries/' +
             encodeURIComponent(button.dataset.inlineNotebookOpen), { method: 'POST' });
-          chooser.remove();
-          button.setAttribute('aria-expanded', 'false');
-          status.textContent = 'Đã thêm vào ' + choice.firstChild.textContent + '.';
+          finishSaving(choice.firstChild.textContent);
         } catch (error) {
           status.textContent = error.message;
           choice.disabled = false;
+        }
+      });
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        if (creating) return;
+        var name = input.value.trim();
+        if (!name || name.length > 120) {
+          status.textContent = 'Tên sổ tay phải từ 1 đến 120 ký tự.';
+          input.focus();
+          return;
+        }
+        creating = true;
+        submit.disabled = true;
+        cancel.disabled = true;
+        input.disabled = true;
+        status.textContent = 'Đang tạo sổ tay và lưu từ...';
+        var created = null;
+        try {
+          created = await request('/api/dictionary/notebooks', { method: 'POST',
+            headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) });
+          // Keep the new notebook selectable if adding the word fails, so retry never creates a duplicate.
+          showNotebook(created);
+          form.hidden = true;
+          newButton.hidden = false;
+          input.value = '';
+          await request('/api/dictionary/notebooks/' + encodeURIComponent(created.id) + '/entries/' +
+            encodeURIComponent(button.dataset.inlineNotebookOpen), { method: 'POST' });
+          finishSaving(created.name);
+        } catch (error) {
+          status.textContent = created
+            ? 'Đã tạo sổ tay. Chưa lưu được từ: ' + error.message + ' Chọn sổ vừa tạo để thử lại.'
+            : error.message;
+        } finally {
+          creating = false;
+          submit.disabled = false;
+          cancel.disabled = false;
+          input.disabled = false;
         }
       });
     } catch (error) {
