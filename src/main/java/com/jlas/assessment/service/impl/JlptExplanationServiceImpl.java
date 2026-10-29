@@ -108,7 +108,7 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
                 SELECT t.text_ja,t.text_vi FROM jlpt_transcript_segment t
                 LEFT JOIN jlpt_audio_clip c ON c.id=t.audio_clip_id
                 WHERE t.mondai_id=? AND (t.audio_clip_id IS NULL OR c.question_id=?)
-                ORDER BY t.start_seconds
+                ORDER BY t.order_index
                 """, question.get("mondai_id"), request.questionId());
         boolean correct = request.selectedChoice() != null && request.selectedChoice().equals(correctChoice);
         if (apiKey == null || apiKey.isBlank()) {

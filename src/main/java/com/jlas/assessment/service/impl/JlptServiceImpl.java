@@ -104,7 +104,7 @@ public class JlptServiceImpl implements JlptService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dạng luyện này hiện đang ẩn.");
         }
         List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT q.id,q.source_question_id,q.question_number,q.question_text,q.question_furigana,
+                SELECT q.id,q.question_number,q.question_text,q.question_furigana,
                        q.question_html,q.correct_option,q.correct_order,q.score,q.image_url,q.mondai_id,
                        m.instruction_html,m.audio_url AS mondai_audio_url,m.mondai_number,p.part_code,
                        e.exam_code,e.title AS exam_title,e.jlpt_level,
@@ -178,29 +178,28 @@ public class JlptServiceImpl implements JlptService {
 
     private JlptExamResponse.AudioClip practiceClip(long questionId) {
         List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT id,clip_type,audio_url,start_seconds,end_seconds
+                SELECT id,clip_type,audio_url
                 FROM jlpt_audio_clip WHERE question_id=?
                 """, questionId);
         if (rows.isEmpty()) return null;
         Map<String, Object> row = rows.getFirst();
         long clipId = longValue(row.get("id"));
         List<JlptExamResponse.TranscriptSegment> transcript = jdbc.query("""
-                SELECT start_seconds,end_seconds,text_ja,text_ja_furigana,text_vi
+                SELECT text_ja,text_ja_furigana,text_vi
                 FROM jlpt_transcript_segment WHERE audio_clip_id=? ORDER BY order_index
                 """, (rs, index) -> new JlptExamResponse.TranscriptSegment(
-                rs.getDouble("start_seconds"), rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                null, null, rs.getString("text_ja"),
                 rs.getString("text_ja_furigana"), rs.getString("text_vi")), clipId);
         return new JlptExamResponse.AudioClip(clipId, string(row.get("clip_type")),
-                string(row.get("audio_url")), ((Number) row.get("start_seconds")).doubleValue(),
-                ((Number) row.get("end_seconds")).doubleValue(), transcript);
+                string(row.get("audio_url")), 0, null, transcript, false);
     }
 
     private List<JlptExamResponse.TranscriptSegment> practiceTranscript(long mondaiId) {
         return jdbc.query("""
-                SELECT start_seconds,end_seconds,text_ja,text_ja_furigana,text_vi
+                SELECT text_ja,text_ja_furigana,text_vi
                 FROM jlpt_transcript_segment WHERE mondai_id=? ORDER BY order_index
                 """, (rs, row) -> new JlptExamResponse.TranscriptSegment(
-                rs.getDouble("start_seconds"), rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                null, null, rs.getString("text_ja"),
                 rs.getString("text_ja_furigana"), rs.getString("text_vi")), mondaiId);
     }
 
@@ -370,13 +369,14 @@ public class JlptServiceImpl implements JlptService {
                         rs.getInt("question_number"), id, clip);
             }
             result.computeIfAbsent(rs.getLong("mondai_id"), ignored -> new java.util.ArrayList<>())
-                    .add(new JlptExamResponse.Question(id, rs.getLong("source_question_id"),
+                    .add(new JlptExamResponse.Question(id,
                             rs.getInt("question_number"), rs.getString("question_text"),
                             rs.getString("question_furigana"), rs.getString("question_html"),
                             rs.getString("question_type"), correct,
                             rs.getBigDecimal("score"), rs.getString("image_url"),
                             nullableInt(rs.getObject("source_page")), rs.getString("explanation"), passage, clip,
-                            options.getOrDefault(id, List.of()), JlptSentenceOrder.read(rs.getString("correct_order"))));
+                            options.getOrDefault(id, List.of()), JlptSentenceOrder.read(rs.getString("correct_order")),
+                            nullableLong(rs.getObject("target_vocabulary_id"))));
         }, examId);
         return result;
     }
@@ -388,11 +388,11 @@ public class JlptServiceImpl implements JlptService {
                 JOIN jlpt_audio_clip c ON c.id=t.audio_clip_id
                 JOIN jlpt_mondai m ON m.id=c.mondai_id
                 JOIN jlpt_part p ON p.id=m.part_id
-                WHERE p.exam_id=? ORDER BY t.audio_clip_id,t.start_seconds
+                WHERE p.exam_id=? ORDER BY t.audio_clip_id,t.order_index
                 """, (RowCallbackHandler) rs -> result
                 .computeIfAbsent(rs.getLong("audio_clip_id"), ignored -> new java.util.ArrayList<>())
-                .add(new JlptExamResponse.TranscriptSegment(rs.getDouble("start_seconds"),
-                        rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                .add(new JlptExamResponse.TranscriptSegment(null,
+                        null, rs.getString("text_ja"),
                         rs.getString("text_ja_furigana"), rs.getString("text_vi"))), examId);
         return result;
     }
@@ -409,8 +409,8 @@ public class JlptServiceImpl implements JlptService {
             long clipId = rs.getLong("id");
             result.put(rs.getLong("question_id"), new JlptExamResponse.AudioClip(
                     clipId, rs.getString("clip_type"), rs.getString("audio_url"),
-                    rs.getDouble("start_seconds"), rs.getDouble("end_seconds"),
-                    transcripts.getOrDefault(clipId, List.of())));
+                    0, null,
+                    transcripts.getOrDefault(clipId, List.of()), false));
         }, examId);
         return result;
     }
@@ -423,8 +423,8 @@ public class JlptServiceImpl implements JlptService {
                 JOIN jlpt_part p ON p.id=m.part_id
                 WHERE p.exam_id=? ORDER BY t.mondai_id,t.order_index
                 """, (RowCallbackHandler) rs -> result.computeIfAbsent(rs.getLong("mondai_id"), ignored -> new java.util.ArrayList<>())
-                .add(new JlptExamResponse.TranscriptSegment(rs.getDouble("start_seconds"),
-                        rs.getDouble("end_seconds"), rs.getString("text_ja"),
+                .add(new JlptExamResponse.TranscriptSegment(null,
+                        null, rs.getString("text_ja"),
                         rs.getString("text_ja_furigana"), rs.getString("text_vi"))), examId);
         return result;
     }

@@ -1490,7 +1490,6 @@ CREATE TABLE jlpt_exam (
     jlpt_level VARCHAR(10) NOT NULL,
     exam_year SMALLINT UNSIGNED NULL,
     exam_month TINYINT UNSIGNED NULL,
-    source_name VARCHAR(100) NULL,
     source_url VARCHAR(500) NULL,
     source_pack_path VARCHAR(500) NULL,
     passing_score INT UNSIGNED NOT NULL DEFAULT 95,
@@ -1564,7 +1563,6 @@ CREATE TABLE jlpt_question (
     mondai_id BIGINT UNSIGNED NOT NULL,
     passage_id BIGINT UNSIGNED NULL,
     question_type_id BIGINT UNSIGNED NULL,
-    source_question_id BIGINT NOT NULL,
     question_number INT UNSIGNED NOT NULL,
     question_text MEDIUMTEXT NULL,
     question_furigana MEDIUMTEXT NULL,
@@ -1575,17 +1573,20 @@ CREATE TABLE jlpt_question (
     image_url VARCHAR(1000) NULL,
     source_page INT UNSIGNED NULL,
     explanation MEDIUMTEXT NULL,
+    target_vocabulary_id BIGINT UNSIGNED NULL,
     order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_jlpt_question_source (mondai_id, source_question_id),
     KEY idx_jlpt_question_order (mondai_id, order_index),
     KEY idx_jlpt_question_type (question_type_id),
+    KEY idx_jlpt_question_target_vocabulary (target_vocabulary_id),
     CONSTRAINT fk_jlpt_question_mondai FOREIGN KEY (mondai_id)
         REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
     CONSTRAINT fk_jlpt_question_passage FOREIGN KEY (passage_id)
         REFERENCES jlpt_passage(id) ON DELETE SET NULL,
     CONSTRAINT fk_jlpt_question_type FOREIGN KEY (question_type_id)
-        REFERENCES jlpt_question_type(id) ON DELETE SET NULL
+        REFERENCES jlpt_question_type(id) ON DELETE SET NULL,
+    CONSTRAINT fk_jlpt_question_target_vocabulary FOREIGN KEY (target_vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE jlpt_option (
@@ -1608,8 +1609,6 @@ CREATE TABLE jlpt_audio_clip (
     question_id BIGINT UNSIGNED NOT NULL,
     clip_type VARCHAR(20) NOT NULL DEFAULT 'QUESTION',
     audio_url VARCHAR(1000) NOT NULL,
-    start_seconds DECIMAL(10,3) NOT NULL,
-    end_seconds DECIMAL(10,3) NOT NULL,
     order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_jlpt_audio_clip_question (question_id),
@@ -1624,14 +1623,12 @@ CREATE TABLE jlpt_transcript_segment (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     mondai_id BIGINT UNSIGNED NOT NULL,
     audio_clip_id BIGINT UNSIGNED NULL,
-    start_seconds DECIMAL(10,3) NOT NULL,
-    end_seconds DECIMAL(10,3) NOT NULL,
     text_ja TEXT NULL,
     text_ja_furigana TEXT NULL,
     text_vi TEXT NULL,
     order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
-    KEY idx_jlpt_transcript_time (mondai_id, start_seconds),
+    KEY idx_jlpt_transcript_mondai_order (mondai_id, order_index),
     KEY idx_jlpt_transcript_clip_order (audio_clip_id, order_index),
     CONSTRAINT fk_jlpt_transcript_mondai FOREIGN KEY (mondai_id)
         REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
