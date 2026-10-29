@@ -32,7 +32,7 @@
     STABLE: function () { return 'Trình độ hiện tại của bạn đã ổn định — tiếp tục duy trì và mở rộng vùng kiến thức.'; },
     PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
   };
-  var state = { attemptId: null, currentQuestion: null, goal: null };
+  var state = { attemptId: null, currentQuestion: null, goal: null, result: null };
   var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
@@ -43,10 +43,19 @@
 
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/smart-test')) return;
 
-  function show(view) {
+  /** {@code anchor}: keep the learner's place on the next question — its card lands just under the header (with the
+   * timer bar) instead of the page jumping back above the hero; without it the page starts at the top. */
+  function show(view, anchor) {
     [questionView, resultView, emptyView].forEach(function (item) { item.hidden = item !== view; });
     notice.hidden = true;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** Question-bank markup (<u> marking the hidden kanji, line breaks) is rendered, never shown as raw text. */
+  function setSafeHtml(element, value) {
+    if (window.SmartTestSafeHtml) element.innerHTML = window.SmartTestSafeHtml.html(value);
+    else element.textContent = value == null ? '' : String(value);
   }
 
   function showError(message) {
@@ -159,6 +168,7 @@
     state.goal = data.goal || state.goal;
     if (data.status === 'SUBMITTED' && data.result) {
       localStorage.removeItem(ACTIVE_ATTEMPT_KEY);
+      state.result = data.result;
       renderResult(data.result);
       return;
     }
@@ -169,6 +179,9 @@
   function renderQuestion(data) {
     var q = data.currentQuestion;
     if (!q) return showError('Không tìm thấy câu hỏi tiếp theo.');
+    // Test-support: expose the canonical question id so the E2E answer oracle
+    // can look up the correct option without a privileged route.
+    questionView.setAttribute('data-question-id', q.id);
     var storedSkills = [];
     try {
       var parsedSkills = JSON.parse(localStorage.getItem(SELECTED_SKILLS_KEY) || '[]');
@@ -197,7 +210,7 @@
     document.getElementById('questionTitle').textContent = q.title || '';
 
     var questionText = document.getElementById('questionText');
-    questionText.textContent = q.questionText || '';
+    setSafeHtml(questionText, q.questionText || '');
     // Hide auxiliary prompts for vocabulary/grammar. Kanji tasks retain their
     // reading/spelling/component instructions (including the component reading hint).
     var passageUsesAuxiliaryPrompt = q.passageHtml && ['VOCABULARY', 'GRAMMAR'].includes(q.skill);
@@ -253,12 +266,15 @@
       var input = document.createElement('input'); input.type = 'radio'; input.name = 'answer'; input.value = String(index + 1);
       input.addEventListener('change', function () { document.getElementById('answerButton').disabled = false; });
       var marker = document.createElement('span'); marker.className = 'option-index'; marker.textContent = String.fromCharCode(65 + index);
-      var text = document.createElement('span'); text.textContent = option;
+      var text = document.createElement('span'); setSafeHtml(text, option);
       label.append(input, marker, text); list.appendChild(label);
     });
     document.getElementById('answerButton').disabled = true;
     scheduleTimer(q);
-    show(questionView);
+    var firstQuestion = questionView.hidden;
+    show(questionView, firstQuestion ? null : questionView.querySelector('.exam-card'));
+    var focusTarget = questionText.hidden ? passage : questionText;
+    if (focusTarget && !firstQuestion) focusTarget.focus({ preventScroll: true });
   }
 
   function renderResult(result) {
@@ -323,7 +339,26 @@
     section.hidden = !result.readinessLevel && !recommendations.length && !grammarPoints.length;
 
     banner.hidden = true; banner.innerHTML = '';
-    var copy = readinessCopy[result.readinessLevel];
+    var targetLevel = String(result.targetLevel || '').toUpperCase();
+    var assessedLevel = String(result.estimatedOverallLevel || '').toUpperCase();
+    var isHigherThanTarget = Boolean(result.requiresTargetConfirmation && levelValue[assessedLevel] &&
+      levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
+    var selfLevel = String(result.selfReportedLevel || '').toUpperCase();
+    var route = window.SmartTestResultRoute ? window.SmartTestResultRoute.notice(result) : { kind: null };
+    var createButton = document.getElementById('createPathButton');
+    if (createButton) createButton.hidden = Boolean(route.blockCreate);
+    var copy = route.kind === 'PENDING_RELEASE' || route.kind === 'UNKNOWN_FAR'
+      ? function () { return route.text; }
+      : isLowerThanSelfReport(result)
+      ? function () { return 'Kết quả Smart Test của bạn là ' + assessedLevel + ', thấp hơn mức bạn tự khai ' + selfLevel +
+        '. Khi tạo lộ trình, bạn có thể chọn củng cố nền từ ' + assessedLevel + ' hoặc giữ theo khảo sát; mục tiêu ' +
+        targetLevel + ' không thay đổi.'; }
+      : isHigherThanTarget
+      ? function () { return 'Kết quả Smart Test của bạn là ' + assessedLevel + ', cao hơn mục tiêu đã chọn ' + targetLevel +
+        '. Kết quả đánh giá được giữ nguyên; hãy chọn cấp muốn ôn trước khi tạo lộ trình.'; }
+      : route.kind === 'INTRO_STAGE' && readinessCopy[result.readinessLevel]
+      ? function (target) { return readinessCopy[result.readinessLevel](target) + ' ' + route.text; }
+      : readinessCopy[result.readinessLevel];
     if (copy) {
       var icon = document.createElement('span');
       icon.className = 'material-symbols-outlined';
@@ -387,8 +422,22 @@
 
     var question = document.createElement('p');
     question.className = 'review-item__question';
-    question.textContent = item.questionText || '';
+    setSafeHtml(question, item.questionText || '');
     article.append(header, question);
+    if (item.passageHtml) {
+      // The sentence the instruction refers to (the underlined part, the blank), as it was shown in the test.
+      var passage = document.createElement(item.skill === 'READING' ? 'details' : 'div');
+      passage.className = 'review-item__passage';
+      var body = document.createElement('div');
+      setSafeHtml(body, item.passageHtml);
+      if (item.skill === 'READING') {
+        var summary = document.createElement('summary');
+        summary.textContent = 'Xem đoạn văn';
+        passage.appendChild(summary);
+      }
+      passage.appendChild(body);
+      article.appendChild(passage);
+    }
 
     var options = document.createElement('ul');
     options.className = 'review-options';
@@ -401,7 +450,9 @@
       var mark = document.createElement('span');
       mark.className = 'review-option__mark';
       mark.textContent = String.fromCharCode(65 + index);
-      li.append(mark, document.createTextNode(option));
+      var optionText = document.createElement('span');
+      setSafeHtml(optionText, option);
+      li.append(mark, optionText);
       options.appendChild(li);
     });
     article.appendChild(options);
@@ -566,20 +617,184 @@
     }
   });
 
+  // Owner 2026-10-19: a JLPT result below a known self-reported level needs the learner's explicit answer.
+  function isLowerThanSelfReport(result) {
+    if (!result || state.goal === 'BA') return false;
+    var self = String(result.selfReportedLevel || '').toUpperCase();
+    var assessed = String(result.estimatedOverallLevel || '').toUpperCase();
+    return Boolean(levelValue[self] && levelValue[assessed] && result.targetLevel && levelValue[assessed] < levelValue[self]);
+  }
+
+  // Owner 2026-10-25: a question answered by one of several buttons; "Quay lại" (or Esc) answers null.
+  // The dialog's grid/flex styles override the [hidden] attribute, so display is switched inline.
+  function askChoice(title, message, options) {
+    var box = document.getElementById('smartChoiceOptions');
+    var yes = document.getElementById('smartConfirmYes');
+    var no = document.getElementById('smartConfirmNo');
+    var actions = no.parentNode;
+    var noText = no.textContent;
+    box.innerHTML = '';
+    options.forEach(function (option) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = option.primary ? 'smart-confirm__yes' : 'smart-confirm__no';
+      button.textContent = option.label;
+      button.addEventListener('click', function () { closeConfirmation(option.value); });
+      box.appendChild(button);
+    });
+    box.style.display = 'grid'; yes.style.display = 'none'; actions.style.gridTemplateColumns = '1fr';
+    var answer = askConfirmation(title, message);
+    no.textContent = 'Quay lại';
+    return answer.then(function (value) {
+      box.style.display = 'none'; box.innerHTML = ''; yes.style.display = ''; actions.style.gridTemplateColumns = '';
+      no.textContent = noText;
+      return typeof value === 'string' ? value : null;
+    });
+  }
+
+  function nextLevel(level) {
+    var order = ['N5', 'N4', 'N3', 'N2', 'N1'];
+    var index = order.indexOf(level);
+    return index >= 0 && index < order.length - 1 ? order[index + 1] : level;
+  }
+
+  function mistakeSummary(level) {
+    var wrong = (state.result && state.result.skills || []).filter(function (skill) {
+      return skill.totalQuestions > 0 && skill.correctAnswers < skill.totalQuestions;
+    }).map(function (skill) {
+      return (labels[skill.skill] || skill.skill) + ' sai ' + (skill.totalQuestions - skill.correctAnswers) + '/' + skill.totalQuestions;
+    });
+    return wrong.length ? 'Smart Test còn câu sai ở ' + level + ': ' + wrong.join(', ') + '.' : 'Smart Test còn một số câu sai ở ' + level + '.';
+  }
+
+  async function retakeSmartTest() {
+    var survey = await api('/api/assessment/survey');
+    var payload = survey && survey.survey ? survey.survey : survey;
+    var test = await api('/api/assessment/smart-tests', { method: 'POST', body: JSON.stringify(payload) });
+    localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
+    render(test);
+    window.location.assign('/smart-test');
+  }
+
+  /** Asks the server's entry questions in order; null when the learner went back or started a new Smart Test. */
+  async function askEntryQuestions(questions) {
+    var answers = { kanaKnown: null, entryChoice: null };
+    if (!questions) return answers;
+    if (questions.askKana) {
+      var kana = await askChoice('Bạn đã đọc được bảng chữ cái chưa?', questions.partial
+        ? 'Bạn chưa hoàn thành Smart Test, nên hệ thống cần biết bạn đã đọc được Hiragana và Katakana chưa.'
+        : 'Kết quả Smart Test ở dưới N5. Nếu bạn chưa đọc được Hiragana và Katakana, lộ trình bắt đầu từ bảng chữ cái.',
+        [{ value: 'NO', label: 'Chưa — học bảng chữ cái trước', primary: true }, { value: 'YES', label: 'Đã đọc được' }]);
+      if (kana === null) return null;
+      answers.kanaKnown = kana === 'YES';
+      if (!answers.kanaKnown) return answers;
+    }
+    var level = questions.level;
+    var target = questions.targetLevel;
+    var next = nextLevel(level);
+    var spec = {
+      INCOMPLETE_FOUNDATION: { title: 'Bạn đã vững ' + level + ' chưa?',
+        text: 'Bạn chưa hoàn thành bài test, vì vậy hệ thống không thể xác định được bạn đã vững cấp độ ' + level + ' hay chưa.',
+        options: [{ value: 'SOLID', label: 'Vững rồi — không cần học lại ' + level },
+          { value: 'NOT_SOLID', label: 'Chưa vững — học thêm ' + level + ' trong lộ trình', primary: true },
+          { value: 'RETAKE', label: 'Làm lại Smart Test' }] },
+      INTRO_LEVEL: { title: 'Học lại ' + level + ' trước?',
+        text: 'Kết quả ở mức Nhập môn: nền tảng ' + level + ' còn mỏng. Học lại ' + level + ' giúp bạn theo kịp ' + target + '.',
+        options: [{ value: 'STUDY_LEVEL', label: 'Học lại ' + level + ' rồi lên ' + target + ' (khuyến nghị)', primary: true },
+          { value: 'SKIP_LEVEL', label: next === target ? 'Vào thẳng ' + target : 'Bỏ qua ' + level + ', học từ ' + next }] },
+      MISTAKE_REVIEW: { title: 'Ôn lỗi ' + level + ' trước?',
+        text: mistakeSummary(level) + ' Bạn muốn ôn các lỗi này trước khi học tiếp?',
+        options: [{ value: 'REVIEW_MISTAKES', label: 'Ôn các lỗi này trước (khởi động)', primary: true },
+          { value: 'SKIP_REVIEW', label: next === target ? 'Bỏ qua, vào thẳng ' + target : 'Bỏ qua, học tiếp từ ' + next }] }
+    }[questions.choiceKind];
+    if (!spec) return answers;
+    var choice = await askChoice(spec.title, spec.text, spec.options);
+    if (choice === null) return null;
+    if (choice === 'RETAKE') {
+      await retakeSmartTest();
+      return null;
+    }
+    answers.entryChoice = choice;
+    return answers;
+  }
+
   var createPathButton = document.getElementById('createPathButton');
   if (createPathButton) {
-    createPathButton.addEventListener('click', function (event) {
+    createPathButton.addEventListener('click', async function (event) {
       event.preventDefault();
       if (!state.attemptId) return;
+      var targetLevel = state.result && String(state.result.targetLevel || '').toUpperCase();
+      var assessedLevel = state.result && String(state.result.estimatedOverallLevel || '').toUpperCase();
+      var entryQuestions = null;
+      if (state.goal !== 'BA') {
+        try {
+          entryQuestions = await api('/api/learning/paths/entry-questions?assessmentAttemptId=' + encodeURIComponent(state.attemptId));
+        } catch (error) { showError(error.message); return; }
+      }
+      // An unfinished test has its own questions; the result-based choices below need a finished test.
+      var unfinished = Boolean(entryQuestions && entryQuestions.partial);
+      var needsReviewChoice = !unfinished && Boolean(state.result && state.result.requiresTargetConfirmation &&
+        levelValue[assessedLevel] && levelValue[targetLevel] && levelValue[assessedLevel] > levelValue[targetLevel]);
+      var reviewStartLevel = null;
+      var discrepancyChoice = null;
+      var route = window.SmartTestResultRoute && !unfinished ? window.SmartTestResultRoute.notice(state.result) : { kind: null };
+      if (route.blockCreate) return;
+      if (route.kind === 'UNKNOWN_FAR') {
+        // Owner 2026-10-21 (OD-35): no self-declared level to fall back to — accept the chain or pick another target.
+        var agreed = await askConfirmation('Học từ ' + route.stages[0] + ' lên ' + targetLevel + '?',
+          'Smart Test ước lượng bạn ở ' + assessedLevel + '. Lộ trình sẽ đi lần lượt ' + route.stages.join(' → ') +
+          '; mục tiêu ' + targetLevel + ' giữ nguyên. Nếu muốn mục tiêu gần hơn, hãy chọn "Thực hiện khảo sát mới".',
+          'Tạo lộ trình');
+        if (!agreed) return;
+        discrepancyChoice = 'ACCEPT_RECOMMENDATION';
+      }
+      if (!unfinished && !discrepancyChoice && !needsReviewChoice && isLowerThanSelfReport(state.result)) {
+        var selfLevel = String(state.result.selfReportedLevel || '').toUpperCase();
+        var choicePicker = document.getElementById('discrepancyPicker');
+        choicePicker.querySelector('[data-discrepancy-accept]').textContent =
+          'Củng cố nền từ ' + assessedLevel + ' rồi đi tiếp tới ' + targetLevel + ' (khuyến nghị)';
+        choicePicker.querySelector('[data-discrepancy-decline]').textContent =
+          'Giữ theo khảo sát: ' + selfLevel + ' → ' + targetLevel + ' (có thể hụt nền tảng)';
+        choicePicker.querySelector('input[value="ACCEPT_RECOMMENDATION"]').checked = true;
+        choicePicker.hidden = false;
+        var confirmed = await askConfirmation('Kết quả thấp hơn mức tự khai',
+          'Smart Test ước lượng bạn ở ' + assessedLevel + ', thấp hơn mức tự khai ' + selfLevel + '. Mục tiêu ' + targetLevel +
+          ' được giữ nguyên; hãy chọn cách bắt đầu. Bạn có thể học mọi phần theo nhịp của mình.', 'Tạo lộ trình');
+        choicePicker.hidden = true;
+        if (!confirmed) return;
+        discrepancyChoice = choicePicker.querySelector('input[name="discrepancyChoice"]:checked').value;
+      }
+      if (needsReviewChoice) {
+        var picker = document.getElementById('reviewStartPicker');
+        var select = document.getElementById('reviewStartLevel');
+        Array.from(select.options).forEach(function (option) {
+          option.hidden = option.disabled = levelValue[option.value] > levelValue[targetLevel];
+        });
+        select.value = 'N5';
+        picker.hidden = false;
+        var accepted = await askConfirmation('Chọn cấp bắt đầu ôn',
+          'Smart Test ước lượng bạn ở ' + assessedLevel + ', còn target bạn chọn là ' + targetLevel +
+          '. Hãy chọn cấp bắt đầu. Lộ trình sẽ đi lần lượt đến target; kết quả Smart Test không thay đổi.', 'Tạo lộ trình');
+        picker.hidden = true;
+        if (!accepted) return;
+        reviewStartLevel = select.value;
+      }
+      // Owner 2026-10-25: the server's entry questions (kana known? solid at a level? review mistakes? study again?).
+      var entry; try { entry = await askEntryQuestions(entryQuestions); } catch (error) { showError(error.message); return; }
+      if (entry === null) return;
       var destination = state.goal === 'BA'
         ? '/learning/goals/BA/survey?assessmentAttemptId=' + state.attemptId
-        : '/learning/path?assessmentAttemptId=' + state.attemptId;
+        : '/learning/path?assessmentAttemptId=' + state.attemptId +
+          (entry.kanaKnown !== null ? '&kanaKnown=' + entry.kanaKnown : '') +
+          (entry.entryChoice ? '&entryChoice=' + encodeURIComponent(entry.entryChoice) : '') +
+          (reviewStartLevel ? '&reviewStartLevel=' + encodeURIComponent(reviewStartLevel) : '') +
+          (discrepancyChoice ? '&discrepancyChoice=' + encodeURIComponent(discrepancyChoice) : '');
       window.location.assign(destination);
     });
   }
 
   document.getElementById('restartButton').addEventListener('click', function () {
-    state = { attemptId: null, currentQuestion: null, goal: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
+    state = { attemptId: null, currentQuestion: null, goal: null, result: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);

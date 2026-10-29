@@ -67,10 +67,39 @@
     if (!storage || typeof storage.getItem !== 'function') return null;
     return positiveInteger(storage.getItem('assessmentAttemptId'));
   }
-  function pathCreationRequest(attemptId) {
-    return attemptId
-      ? { url: '/api/learning/paths', body: JSON.stringify({ assessmentAttemptId: attemptId }) }
-      : { url: '/api/learning/paths/from-zero', body: '{}' };
+  function resolveReviewStartLevel(search) {
+    var level = new URLSearchParams(search || '').get('reviewStartLevel');
+    return /^(N5|N4|N3)$/.test(String(level || '')) ? level : null;
+  }
+  // The learner's answer to a Smart Test result below the self-reported level (owner 2026-10-19).
+  function resolveDiscrepancyChoice(search) {
+    var choice = new URLSearchParams(search || '').get('discrepancyChoice');
+    return /^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(choice || '')) ? choice : null;
+  }
+  // Owner 2026-10-25: the learner's answers to the Smart Test entry questions (kana known? solid / review / study level).
+  var ENTRY_CHOICES = /^(SOLID|NOT_SOLID|STUDY_LEVEL|SKIP_LEVEL|REVIEW_MISTAKES|SKIP_REVIEW)$/;
+  function resolveEntryAnswers(search) {
+    var params = new URLSearchParams(search || '');
+    var kana = params.get('kanaKnown');
+    var choice = params.get('entryChoice');
+    return { kanaKnown: kana === 'true' ? true : kana === 'false' ? false : null,
+      entryChoice: ENTRY_CHOICES.test(String(choice || '')) ? choice : null };
+  }
+  function pathCreationRequest(attemptId, reviewStartLevel, discrepancyChoice, entry) {
+    if (!attemptId) return { url: '/api/learning/paths/from-zero', body: '{}' };
+    var body = { assessmentAttemptId: attemptId,
+      reviewStartLevel: /^(N5|N4|N3)$/.test(String(reviewStartLevel || '')) ? reviewStartLevel : null };
+    if (/^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(discrepancyChoice || ''))) body.discrepancyChoice = discrepancyChoice;
+    if (entry && typeof entry.kanaKnown === 'boolean') body.kanaKnown = entry.kanaKnown;
+    if (entry && ENTRY_CHOICES.test(String(entry.entryChoice || ''))) body.entryChoice = entry.entryChoice;
+    return { url: '/api/learning/paths', body: JSON.stringify(body) };
+  }
+  function levelLabel(level) {
+    var raw = String(level || '').trim();
+    if (!raw) return '—';
+    if (raw === 'BELOW_N5' || raw === 'FROM_ZERO') return 'Bắt đầu từ đầu';
+    if (raw === 'UNKNOWN') return 'Chưa xác định';
+    return raw;
   }
   function viewModel(data) {
     data = data || {};
@@ -81,14 +110,17 @@
       pkg.canStart = pkg.status === 'AVAILABLE';
     });
     return {
-      title: String(data.title || 'Lộ trình cá nhân').replace(/^\[DEMO\]\s*/i, ''), goal: data.goal || 'JLPT', currentLevel: data.currentLevel || '—',
-      targetLevel: data.targetLevel || '—', minutesPerDay: num(data.minutesPerDay), progressPercent: num(data.progressPercent),
+      title: String(data.title || 'Lộ trình cá nhân').replace(/^\[DEMO\]\s*/i, '').replace(/\b(BELOW_N5|FROM_ZERO)\b/g, 'Bắt đầu từ đầu'),
+      goal: data.goal || 'JLPT', currentLevel: levelLabel(data.currentLevel),
+      targetLevel: levelLabel(data.targetLevel), minutesPerDay: num(data.minutesPerDay), progressPercent: num(data.progressPercent),
       completedPackages: num(data.completedPackages), totalPackages: num(data.totalPackages), packages: packages,
       smartTestReviewOnlyTargets: Array.isArray(data.smartTestReviewOnlyTargets)
         ? data.smartTestReviewOnlyTargets.filter(function (target) {
           return target && (target.skill === 'VOCABULARY' || target.skill === 'KANJI') &&
             target.target;
-        }) : []
+        }) : [],
+      communicationGuide: data.communicationGuide && Array.isArray(data.communicationGuide.topics)
+        ? data.communicationGuide : null
     };
   }
   function renderMockResult(result) {
@@ -122,7 +154,8 @@
     });
     return next ? ACTIVITY_PATH[next.type] + '?activity=' + encodeURIComponent(next.id) : null;
   }
-  function chapterSkillCards(parts, communicationGoal) {
+  /** Skills of one chapter or situation, each with its ordered (package, session, activity) entries. */
+  function collectSkills(parts) {
     var skills = {};
     parts.forEach(function (pkg) {
       var sessions = Array.isArray(pkg.sessions) ? pkg.sessions : [];
@@ -147,59 +180,105 @@
         });
       });
     });
-    var skillOrder = ['VOCABULARY', 'KANJI', 'GRAMMAR', 'READING', 'LISTENING', 'DIALOGUE'];
-    var skillCards = skillOrder.filter(function (type) { return skills[type]; }).map(function (type) {
-      var skill = skills[type];
-      var completed = skill.entries.filter(function (entry) { return activityDone(entry.activity); }).length;
-      var state = completed === skill.entries.length ? 'COMPLETED' :
-        skill.entries.some(function (entry) { return entry.pkg.status === 'IN_PROGRESS'; }) ? 'IN_PROGRESS' :
-        skill.entries.some(function (entry) { return entry.pkg.status === 'AVAILABLE'; }) ? 'AVAILABLE' : 'LOCKED';
-      var rows = skill.entries.map(function (entry, index) {
-        var pkg = entry.pkg, session = entry.session, activity = entry.activity;
-        var done = activityDone(activity);
-        var actions = session.legacy && done ? modesFor(type) :
-          (Array.isArray(session.allowedActions) ? session.allowedActions : []);
-        var childActions = done && (actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0) ? modesFor(type) : actions;
-        if (done && RESULTS_TYPES[type] && childActions.indexOf('REVIEW') >= 0 && childActions.indexOf('RESULTS') < 0) childActions = childActions.concat('RESULTS');
-        var links = childActions.filter(function (action) {
-          return done && (action === 'REVIEW' || action === 'PRACTICE' || action === 'RESULTS') && ACTIVITY_PATH[type];
-        }).map(function (action) {
-          return '<a class="ilp-activity__mode" href="' + modeHref(type, activity.id, action) + '">' + modeLinkLabel(type, action) + '</a>';
-        }).join('');
-        var active = ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(activity.state) >= 0;
-        // The activity state is the server-owned access decision. Keep the link usable even when an
-        // older response still reports the package as AVAILABLE while its selected child is STUDYING.
-        var continueLink = active && ACTIVITY_PATH[type]
-          ? '<a class="ilp-skill-part__continue" href="' + ACTIVITY_PATH[type] + '?activity=' + encodeURIComponent(activity.id) + '">Tiếp tục học</a>' : '';
-        var start = pkg.status === 'AVAILABLE' && !done && !active ? '<button class="ilp-skill-part__start" type="button" data-start-package="' + esc(String(pkg.id)) +
-          '" data-preferred-activity="' + esc(String(activity.id)) + '">Bắt đầu phần học</button>' : '';
-        var locked = pkg.status === 'LOCKED' ? '<small class="ilp-skill-part__lock">' + esc(pkg.lockReason || 'Hoàn thành phần trước để mở.') + '</small>' : '';
-        var stateLabel = pkg.status === 'LOCKED' ? 'Đang khóa' : pkg.status === 'AVAILABLE' ? 'Sẵn sàng' :
-          ACTIVITY_STATE_LABEL[activity.state] || activity.state || '';
-        var part = positiveInteger(pkg.segmentCount) > 1 ? '<small class="ilp-skill-part__number">' + esc(partLabel(pkg)) + '</small>' : '';
-        return '<li class="ilp-skill-part' + (done ? ' is-done' : '') + '" data-package-card="' + esc(String(pkg.id)) + '">' +
-          '<div class="ilp-skill-part__title"><span class="ilp-activity__mark">' + (done ? '✓' : String(index + 1).padStart(2, '0')) + '</span><div>' + part +
-          '<strong>' + esc(activityLabel(activity)) + '</strong><small>' + esc(stateLabel) + '</small></div></div>' +
-          (start || locked || continueLink || links ? '<div class="ilp-skill-part__actions">' + start + locked + continueLink + links + '</div>' : '') + '</li>';
-      }).join('');
-      var unit = { VOCABULARY: 'từ mới', KANJI: 'chữ Kanji', GRAMMAR: 'mẫu ngữ pháp', DIALOGUE: 'lượt thoại', READING: 'bài đọc', LISTENING: 'bài nghe' }[type];
-      var words = skill.words.map(function (word) { return '<li><strong lang="ja">' + esc(word.expression) + '</strong>' +
-        (word.reading ? ' <span lang="ja">' + esc(word.reading) + '</span>' : '') + (word.meaning ? ' — ' + esc(word.meaning) : '') + '</li>'; }).join('');
-      return '<article class="ilp-skill-card ilp-skill-card--' + esc(state.toLowerCase()) + '"><button class="ilp-skill-card__toggle" type="button" data-skill-toggle aria-expanded="false">' +
-        '<span class="ilp-skill-card__icon" aria-hidden="true">' + (state === 'COMPLETED' ? '✓' : '✦') + '</span><span class="ilp-skill-card__summary"><strong>' + esc(ACTIVITY_LABEL[type] || type) +
-        '</strong><span>' + esc((communicationGoal ? COMMUNICATION_SKILL_DESCRIPTION[type] : null) || SKILL_DESCRIPTION[type] || 'Học và hoàn thành nội dung kỹ năng này.') + '</span></span><span class="ilp-skill-card__status">' +
-        completed + '/' + skill.entries.length + ' hoạt động</span><span class="ilp-skill-card__chevron" aria-hidden="true">⌄</span></button>' +
-        '<div class="ilp-skill-card__details" hidden>' + (skill.count ? '<p class="ilp-skill-card__meta">' + skill.count + ' ' + unit + '</p>' : '') +
-        '<ol class="ilp-skill-card__parts">' + rows + '</ol>' + (words ? '<details class="ilp-reference"><summary>Từ tham khảo ngắn (' + skill.words.length + ')</summary><ul>' + words + '</ul></details>' : '') +
-        '</div></article>';
+    return skills;
+  }
+  /** What one part (package activity) of a skill offers right now: start, continue, review links or a lock. */
+  function partActions(entry, type, communicationGoal) {
+    var pkg = entry.pkg, session = entry.session, activity = entry.activity;
+    var done = activityDone(activity);
+    var actions = session.legacy && done ? modesFor(type) :
+      (Array.isArray(session.allowedActions) ? session.allowedActions : []);
+    var childActions = done && (actions.indexOf('START') >= 0 || actions.indexOf('CONTINUE') >= 0) ? modesFor(type) : actions;
+    // [JLAS-W0193] §2.24 — communication-goal paths have no quiz: a completed vocabulary/grammar activity
+    // offers only its read-only review, never RESULTS or scored Practice-style modes.
+    if (communicationGoal && done && (type === 'VOCABULARY' || type === 'GRAMMAR')) {
+      childActions = childActions.filter(function (action) { return action === 'REVIEW'; });
+    }
+    if (done && !communicationGoal && RESULTS_TYPES[type] && childActions.indexOf('REVIEW') >= 0 && childActions.indexOf('RESULTS') < 0) childActions = childActions.concat('RESULTS');
+    var links = childActions.filter(function (action) {
+      return done && (action === 'REVIEW' || action === 'PRACTICE' || action === 'RESULTS') && ACTIVITY_PATH[type];
+    }).map(function (action) {
+      return '<a class="ilp-activity__mode" href="' + modeHref(type, activity.id, action) + '">' + modeLinkLabel(type, action) + '</a>';
+    }).join('');
+    var active = ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(activity.state) >= 0;
+    // The activity state is the server-owned access decision. Keep the link usable even when an
+    // older response still reports the package as AVAILABLE while its selected child is STUDYING.
+    var continueHref = active && ACTIVITY_PATH[type] ? ACTIVITY_PATH[type] + '?activity=' + encodeURIComponent(activity.id) : '';
+    var canStart = pkg.status === 'AVAILABLE' && !done && !active;
+    return {
+      done: done, active: active, links: links, continueHref: continueHref, canStart: canStart,
+      start: function (label) {
+        return canStart ? '<button class="ilp-skill-part__start" type="button" data-start-package="' + esc(String(pkg.id)) +
+          '" data-preferred-activity="' + esc(String(activity.id)) + '">' + label + '</button>' : '';
+      },
+      continueLink: continueHref ? '<a class="ilp-skill-part__continue" href="' + continueHref + '">Tiếp tục học</a>' : '',
+      locked: pkg.status === 'LOCKED' ? '<small class="ilp-skill-part__lock">' + esc(pkg.lockReason || 'Hoàn thành phần trước để mở.') + '</small>' : '',
+      stateLabel: pkg.status === 'LOCKED' ? 'Đang khóa' : pkg.status === 'AVAILABLE' ? 'Sẵn sàng' :
+        ACTIVITY_STATE_LABEL[activity.state] || activity.state || '',
+      part: positiveInteger(pkg.segmentCount) > 1 ? '<small class="ilp-skill-part__number">' + esc(partLabel(pkg)) + '</small>' : ''
+    };
+  }
+  var SKILL_ORDER = ['VOCABULARY', 'KANJI', 'GRAMMAR', 'READING', 'LISTENING', 'DIALOGUE'];
+  var SKILL_UNIT = { VOCABULARY: 'từ mới', KANJI: 'chữ Kanji', GRAMMAR: 'mẫu ngữ pháp', DIALOGUE: 'lượt thoại', READING: 'bài đọc', LISTENING: 'bài nghe' };
+  var SKILL_STATE_TEXT = { COMPLETED: 'Đã hoàn thành', IN_PROGRESS: 'Đang học', AVAILABLE: 'Sẵn sàng', LOCKED: 'Chưa mở' };
+  function skillState(skill) {
+    var completed = skill.entries.filter(function (entry) { return activityDone(entry.activity); }).length;
+    return completed === skill.entries.length ? 'COMPLETED' :
+      skill.entries.some(function (entry) { return entry.pkg.status === 'IN_PROGRESS' || ['STUDYING', 'CHECK_READY', 'COOLDOWN'].indexOf(entry.activity.state) >= 0; }) ? 'IN_PROGRESS' :
+      skill.entries.some(function (entry) { return entry.pkg.status === 'AVAILABLE'; }) ? 'AVAILABLE' : 'LOCKED';
+  }
+  function skillDescription(type, communicationGoal) {
+    return (communicationGoal ? COMMUNICATION_SKILL_DESCRIPTION[type] : null) || SKILL_DESCRIPTION[type] || 'Học và hoàn thành nội dung kỹ năng này.';
+  }
+  /** Owner 2026-10-23: a skill opens its own page; the roadmap card shows no counts and no dropdown. */
+  function skillHash(chapter, type) { return '#chuong=' + encodeURIComponent(chapter) + '&ky-nang=' + encodeURIComponent(type); }
+  function skillFromHash(hash) {
+    var params = new URLSearchParams(String(hash || '').replace(/^#/, ''));
+    var chapter = params.get('chuong'), type = params.get('ky-nang');
+    return chapter && type && SKILL_ORDER.indexOf(type) >= 0 ? { chapter: chapter, type: type } : null;
+  }
+  function skillPartRows(skill, type, communicationGoal) {
+    return skill.entries.map(function (entry, index) {
+      var pkg = entry.pkg, activity = entry.activity;
+      var a = partActions(entry, type, communicationGoal);
+      var start = a.start('Bắt đầu phần học');
+      return '<li class="ilp-skill-part' + (a.done ? ' is-done' : '') + '" data-package-card="' + esc(String(pkg.id)) + '">' +
+        '<div class="ilp-skill-part__title"><span class="ilp-activity__mark">' + (a.done ? '✓' : String(index + 1).padStart(2, '0')) + '</span><div>' + a.part +
+        '<strong>' + esc(activityLabel(activity)) + '</strong><small>' + esc(a.stateLabel) + '</small></div></div>' +
+        (start || a.locked || a.continueLink || a.links ? '<div class="ilp-skill-part__actions">' + start + a.locked + a.continueLink + a.links + '</div>' : '') + '</li>';
+    }).join('');
+  }
+  function chapterSkillCards(parts, communicationGoal, chapter) {
+    var skills = collectSkills(parts);
+    var skillCards = SKILL_ORDER.filter(function (type) { return skills[type]; }).map(function (type) {
+      var state = skillState(skills[type]);
+      var icon = state === 'COMPLETED' ? '✓' : '✦';
+      return '<a class="ilp-skill-card ilp-skill-card--' + esc(state.toLowerCase()) + '" href="' + skillHash(chapter, type) + '" data-skill-open>' +
+        '<span class="ilp-skill-card__icon" aria-hidden="true">' + icon + '</span><span class="ilp-skill-card__summary"><strong>' + esc(ACTIVITY_LABEL[type] || type) +
+        '</strong><span>' + esc(skillDescription(type, communicationGoal)) + '</span></span>' +
+        '<span class="ilp-sr-only">' + esc(SKILL_STATE_TEXT[state]) + '</span><span class="ilp-skill-card__go" aria-hidden="true">›</span></a>';
     });
     if (!skillCards.length) return '';
-    return '<section class="ilp-skill-choices" aria-label="Kỹ năng trong ' + (communicationGoal ? 'tình huống' : 'chương') + '"><header class="ilp-skill-choices__head"><div><span class="ilp-kicker">' +
-      (communicationGoal ? 'NỘI DUNG TÌNH HUỐNG' : 'NỘI DUNG CHƯƠNG') + '</span><h4>Chọn kỹ năng muốn học</h4></div>' +
-      '<p>' + (communicationGoal
-        ? 'Bạn có thể học Từ vựng, Ngữ pháp hoặc Hội thoại theo thứ tự phù hợp. Hoàn thành cả ba kỹ năng để hoàn tất tình huống.'
-        : 'Chọn kỹ năng bất kỳ trong chương. Mỗi kỹ năng gồm các phần nhỏ; hoàn thành mọi mục bắt buộc để mở chương tiếp theo.') + '</p></header>' +
-      '<div class="ilp-skill-grid">' + skillCards.join('') + '</div></section>';
+    return '<div class="ilp-skill-grid" aria-label="Kỹ năng trong ' + (communicationGoal ? 'tình huống' : 'chương') + '">' + skillCards.join('') + '</div>';
+  }
+  /** The page of one skill in one chapter: every part with its start / continue / review actions. */
+  function skillPage(packages, view, communicationGoal) {
+    if (!view) return '';
+    var parts = packages.filter(function (pkg) { return chapterKey(pkg) === view.chapter; });
+    var skill = parts.length ? collectSkills(parts)[view.type] : null;
+    if (!skill) return '';
+    var first = parts[0];
+    var unit = SKILL_UNIT[view.type];
+    var words = skill.words.map(function (word) { return '<li><strong lang="ja">' + esc(word.expression) + '</strong>' +
+      (word.reading ? ' <span lang="ja">' + esc(word.reading) + '</span>' : '') + (word.meaning ? ' — ' + esc(word.meaning) : '') + '</li>'; }).join('');
+    return '<section class="ilp-skill-page" aria-labelledby="ilpSkillPageTitle"><a class="ilp-skill-page__back" href="#" data-skill-back>← Về lộ trình</a>' +
+      '<header class="ilp-skill-page__head"><span class="ilp-kicker">' + chapterKicker(first, communicationGoal) + '</span>' +
+      '<p class="ilp-skill-page__chapter">' + esc(chapterTitle(first)) + '</p>' +
+      '<h2 id="ilpSkillPageTitle" tabindex="-1">' + esc(ACTIVITY_LABEL[view.type] || view.type) + '</h2>' +
+      '<p>' + esc(skillDescription(view.type, communicationGoal)) + (skill.count && unit ? ' · ' + skill.count + ' ' + unit : '') + '</p></header>' +
+      '<ol class="ilp-skill-card__parts">' + skillPartRows(skill, view.type, communicationGoal) + '</ol>' +
+      (words ? '<details class="ilp-reference"><summary>Từ tham khảo ngắn (' + skill.words.length + ')</summary><ul>' + words + '</ul></details>' : '') +
+      '</section>';
   }
   function foundationRows(parts) {
     var entries = [];
@@ -285,7 +364,7 @@
         '" data-stage-level="' + esc(st.level) + '"><div class="ilp-stage__head"><strong>' + esc(stageName(st.level)) +
         '</strong><span>' + esc(status) + '</span></div><progress max="100" value="' + percent + '" aria-label="' +
         esc(stageName(st.level)) + '">' + percent + '%</progress><small>' + num(st.completedPackages) + '/' +
-        num(st.totalPackages) + ' ngày · ' + percent + '%</small></li>';
+        num(st.totalPackages) + ' phần học · ' + percent + '%</small></li>';
     }).join('');
     return '<section class="ilp-stage-progress" aria-label="Tiến độ theo chặng"><span class="ilp-kicker">TIẾN ĐỘ THEO CHẶNG</span>' +
       '<ol class="ilp-stages">' + items + '</ol></section>';
@@ -357,8 +436,9 @@
   function chapterKey(pkg) {
     return positiveInteger(pkg.chapterLessonId) ? pkg.phase + ':' + pkg.chapterLessonId : 'PACKAGE:' + pkg.id;
   }
-  /** Consecutive packages from one source lesson render as a single chapter with skills spanning all parts. */
-  function chapterCards(packages, communicationGoal) {
+  /** Consecutive packages from one source lesson render as a single chapter with skills spanning all parts.
+   * {@code kickerFor}/{@code noteFor} let the communication topic view relabel a card without changing it. */
+  function chapterCards(packages, communicationGoal, kickerFor, noteFor) {
     var groups = [];
     packages.forEach(function (pkg) {
       var last = groups[groups.length - 1];
@@ -374,11 +454,216 @@
       var total = activities.length;
       var progress = total ? Math.round(done * 100 / total) : 0;
       return '<section class="ilp-chapter" data-chapter="' + esc(group.key) + '"><header class="ilp-chapter__head"><div>' +
-        '<span class="ilp-kicker">' + chapterKicker(first, communicationGoal) + '</span><h3>' + esc(chapterTitle(first)) + '</h3></div>' +
-        '<span class="ilp-status">' + (total ? done + '/' + total + ' hoạt động đã hoàn thành' : 'Chưa có hoạt động học') + '</span></header>' +
+        '<span class="ilp-kicker">' + (kickerFor ? kickerFor(first) : chapterKicker(first, communicationGoal)) + '</span>' +
+        (total ? '<span class="ilp-chapter__pick"> · Chọn kỹ năng muốn học</span>' : '') + '<h3>' + esc(chapterTitle(first)) + '</h3></div>' +
+        '<span class="ilp-status">' + (total ? (progress === 100 ? 'Đã hoàn thành' : progress + '%') : 'Chưa có hoạt động học') + '</span></header>' +
+        (noteFor ? noteFor(first) : '') + sourceReviewNote(first) +
         '<div class="ilp-chapter__progress" role="progressbar" aria-label="Tiến độ ' + (communicationGoal ? 'tình huống ' : 'chương ') + chapterNumber(first) + '" aria-valuenow="' + progress + '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + progress + '%"></span></div>' +
-        foundationRows(group.parts) + chapterSkillCards(group.parts, communicationGoal) + '</section>';
+        foundationRows(group.parts) + chapterSkillCards(group.parts, communicationGoal, group.key) + '</section>';
     }).join('');
+  }
+  /** §2.28 / OD-44: the server notes a chapter whose textbook is still DRAFT; it is studied, never called reviewed. */
+  function sourceReviewNote(pkg) {
+    return pkg && pkg.sourceReviewNote
+      ? '<p class="ilp-chapter__hint ilp-chapter__unreviewed">' + esc(pkg.sourceReviewNote) + '</p>' : '';
+  }
+  /** §2.24 (owner 2026-10-19, Q5): optional J-LAS textbooks for BrSE learners; a book learners cannot open yet has no link.
+   * OD-45 (owner 2026-10-20): a book open while still DRAFT links normally and carries a "Chưa duyệt" label. */
+  function bookSuggestions(guide) {
+    var books = guide && Array.isArray(guide.bookSuggestions) ? guide.bookSuggestions : [];
+    if (!books.length) return '';
+    return '<aside class="ilp-books" aria-label="Sách tham khảo"><h2>Sách tham khảo (tự nguyện)</h2>' +
+      '<p>Không bắt buộc — bạn vẫn học mọi tình huống bình thường. Đọc thêm giáo trình giúp nắm chắc nền ngữ pháp và từ vựng.</p><ul>' +
+      books.map(function (book) {
+        var label = 'Giáo trình ' + esc(book.level) + ' — ' + esc(book.title);
+        return '<li>' + (book.available && Number(book.textbookId) > 0
+          ? '<a class="ilp-books__link" href="/textbooks/' + encodeURIComponent(book.textbookId) + '">' + label + '</a>' +
+            (book.unreviewed ? ' <span class="ilp-books__unreviewed" title="Giáo trình chưa được duyệt — nội dung có thể còn sai sót.">Chưa duyệt</span>' : '')
+          : '<span class="ilp-books__pending">' + label + ' · đang được biên soạn, sẽ mở khi phát hành</span>') + '</li>';
+      }).join('') + '</ul></aside>';
+  }
+
+  // Owner 2026-10-19: a communication roadmap groups units by topic — topic vocabulary first, then its dialogue
+  // situations easy → hard, survey focus topics first. Display only: every unit stays freely selectable.
+  // Owner 2026-10-20 (option A, balanced): one topic per page behind a tab bar; one level of framing — a tinted topic
+  // header, the topic vocabulary as one panel, each situation as one card whose parts open on demand.
+  var JLPT_RANK = { FROM_ZERO: 0, N5: 1, N4: 2, N3: 3, N2: 4, N1: 5 };
+  var COMMUNICATION_PART_LABEL = { VOCABULARY: 'Từ vựng', GRAMMAR: 'Mẫu câu', DIALOGUE: 'Hội thoại' };
+  var COMMUNICATION_PART_HINT = { DIALOGUE: 'Lật thẻ Từ & cụm từ rồi luyện từng lượt thoại' };
+  var COMMUNICATION_SKILL_ORDER = ['VOCABULARY', 'GRAMMAR', 'DIALOGUE', 'KANJI', 'READING', 'LISTENING'];
+  var OTHER_TOPIC = '__OTHER__';
+  var TOPIC_HASH = /^#chu-de=([A-Za-z0-9_-]{1,40})$/;
+  function topicFromHash(hash) {
+    var match = TOPIC_HASH.exec(String(hash || ''));
+    return match ? match[1] : null;
+  }
+  function topicHash(code) { return '#chu-de=' + code; }
+  /** The supplement label is shown once per topic, so titles drop their "J-LAS · " prefix. */
+  function situationTitle(pkg) { return chapterTitle(pkg).replace(/^\s*J-LAS\s*·\s*/, ''); }
+  function joinNames(names) { return names.length > 1 ? names.slice(0, -1).join(', ') + ' và ' + names[names.length - 1] : names[0]; }
+  function upperFirst(text) { return text.charAt(0).toUpperCase() + text.slice(1); }
+  /** One situation or topic-vocabulary unit: its parts, progress, a one-line status and the next step. */
+  function communicationUnit(parts) {
+    var skills = collectSkills(parts);
+    var rows = [], doneNames = [], activeNames = [], openNames = [];
+    var total = 0, finished = 0, primary = '';
+    var continueAction = '', startAction = '';
+    COMMUNICATION_SKILL_ORDER.filter(function (type) { return skills[type]; }).forEach(function (type) {
+      var label = COMMUNICATION_PART_LABEL[type] || ACTIVITY_LABEL[type] || type;
+      var skillDone = true, skillActive = false;
+      skills[type].entries.forEach(function (entry) {
+        var a = partActions(entry, type, true);
+        total++;
+        if (a.done) finished++; else skillDone = false;
+        if (a.active) skillActive = true;
+        if (!continueAction && a.continueHref) continueAction = a.continueLink;
+        if (!startAction && a.canStart) startAction = a.start('Bắt đầu');
+        var count = positiveInteger(entry.activity.partCount), index = positiveInteger(entry.activity.partIndex);
+        var name = label + (count > 1 && index ? ' · Phần ' + index + '/' + count : '');
+        var hint = !a.done && COMMUNICATION_PART_HINT[type] ? '<small class="ilp-skill-part__hint">' + esc(COMMUNICATION_PART_HINT[type]) + '</small>' : '';
+        var start = a.start('Bắt đầu');
+        rows.push('<li class="ilp-skill-part' + (a.done ? ' is-done' : '') + '" data-package-card="' + esc(String(entry.pkg.id)) + '">' +
+          '<div class="ilp-skill-part__title"><span class="ilp-activity__mark" aria-hidden="true">' + (a.done ? '✓' : '○') + '</span><div>' + a.part +
+          '<strong>' + esc(name) + '</strong><small>' + esc(a.done ? 'Đã hoàn thành' : a.stateLabel) + '</small>' + hint + '</div></div>' +
+          (start || a.locked || a.continueLink || a.links ? '<div class="ilp-skill-part__actions">' + start + a.locked + a.continueLink + a.links + '</div>' : '') + '</li>');
+      });
+      var skillStarted = skills[type].entries.some(function (entry) { return activityDone(entry.activity); });
+      if (skillDone) doneNames.push(label);
+      // A pace split can finish part 1 of a skill while part 2 waits: that skill is under way, not untouched.
+      else if (skillActive || skillStarted) activeNames.push(label);
+      else openNames.push(label);
+    });
+    primary = continueAction || startAction;
+    var status;
+    if (total && finished === total) status = 'Đã hoàn thành';
+    else if (!doneNames.length && !activeNames.length) status = 'Chưa bắt đầu';
+    else {
+      var bits = [];
+      if (doneNames.length) bits.push(joinNames(doneNames) + ' đã xong');
+      if (activeNames.length) bits.push('đang học ' + joinNames(activeNames));
+      else if (openNames.length) bits.push('còn ' + joinNames(openNames));
+      status = upperFirst(bits.join(', '));
+    }
+    return { rows: rows.join(''), total: total, finished: finished, done: total > 0 && finished === total,
+      active: activeNames.length > 0 || finished > 0 && finished < total ||
+        parts.some(function (pkg) { return pkg.status === 'IN_PROGRESS'; }) && finished < total,
+      status: status, primary: primary };
+  }
+  function unitDomId(key) { return 'ilp-parts-' + String(key).replace(/[^A-Za-z0-9_-]/g, '-'); }
+  function unitActions(unit, key) {
+    return '<div class="ilp-situation__actions">' + unit.primary +
+      '<button class="ilp-situation__toggle" type="button" data-situation-toggle aria-expanded="false" aria-controls="' + unitDomId(key) + '">' +
+      (unit.done ? 'Ôn lại các phần' : 'Xem các phần') + '</button></div>' +
+      '<ol class="ilp-situation__parts" id="' + unitDomId(key) + '" hidden>' + unit.rows + '</ol>';
+  }
+  function communicationTopics(packages, guide, requestedTopic) {
+    var byLesson = {};
+    packages.forEach(function (pkg) {
+      var key = String(pkg.chapterLessonId || '');
+      (byLesson[key] = byLesson[key] || []).push(pkg);
+    });
+    var selfKey = String(guide.learnerSelfLevel || '').toUpperCase();
+    var selfRank = Object.prototype.hasOwnProperty.call(JLPT_RANK, selfKey) ? JLPT_RANK[selfKey] : null;
+    var used = {};
+    var topics = guide.topics.map(function (topic) {
+      var units = [];
+      (Array.isArray(topic.units) ? topic.units : []).forEach(function (unit) {
+        var key = String(unit.lessonId);
+        if (!byLesson[key] || used[key]) return;
+        used[key] = true;
+        units.push({ meta: unit, parts: byLesson[key] });
+      });
+      return { code: String(topic.code), title: topic.titleVi, priority: !!topic.priority, units: units };
+    }).filter(function (topic) { return topic.units.length; });
+    // The code is the DOM id and URL-hash key; a code outside that alphabet gets a positional key, never dropped.
+    topics.forEach(function (topic, index) { if (!/^[A-Za-z0-9_-]{1,40}$/.test(topic.code)) topic.code = 'T' + (index + 1); });
+    var rest = packages.filter(function (pkg) { return !used[String(pkg.chapterLessonId || '')]; });
+    if (rest.length) {
+      var restGroups = [];
+      rest.forEach(function (pkg) {
+        var last = restGroups[restGroups.length - 1];
+        if (last && chapterKey(last.parts[0]) === chapterKey(pkg)) last.parts.push(pkg);
+        else restGroups.push({ meta: {}, parts: [pkg] });
+      });
+      topics.push({ code: OTHER_TOPIC, title: 'Khác', priority: false, units: restGroups });
+    }
+    if (!topics.length) return '';
+    topics.forEach(function (topic) {
+      topic.units.forEach(function (unit) { unit.view = communicationUnit(unit.parts); });
+      topic.total = topic.units.reduce(function (sum, unit) { return sum + unit.view.total; }, 0);
+      topic.finished = topic.units.reduce(function (sum, unit) { return sum + unit.view.finished; }, 0);
+      topic.done = topic.total > 0 && topic.finished === topic.total;
+      topic.active = topic.units.some(function (unit) { return unit.view.active; });
+    });
+    var byCode = function (code) { return topics.filter(function (topic) { return topic.code === code; })[0]; };
+    var selected = byCode(requestedTopic) ||
+      topics.filter(function (topic) { return topic.active; })[0] ||
+      topics.filter(function (topic) { return topic.priority && !topic.done; })[0] ||
+      topics.filter(function (topic) { return !topic.done; })[0] || topics[0];
+    var tabs = '<div class="ilp-topic-tabs" role="tablist" aria-label="Chủ đề">' + topics.map(function (topic) {
+      var on = topic === selected;
+      return '<button type="button" data-topic-tab="' + esc(topic.code) + '" role="tab" id="ilp-topic-tab-' + esc(topic.code) +
+        '" aria-controls="ilp-topic-' + esc(topic.code) + '" aria-selected="' + on + '" tabindex="' + (on ? '0' : '-1') + '">' +
+        (topic.done ? '<span class="ilp-topic-tabs__done" aria-hidden="true">✓</span>' : '') + esc(topic.title) +
+        '<small>' + topic.finished + '/' + topic.total + '</small></button>';
+    }).join('') + '</div>';
+    var sections = topics.map(function (topic, index) {
+      var vocabulary = topic.units.filter(function (unit) { return unit.meta.vocabularyTopic; });
+      var situations = topic.units.filter(function (unit) { return !unit.meta.vocabularyTopic; });
+      var percent = topic.total ? Math.round(topic.finished * 100 / topic.total) : 0;
+      var head = '<header class="ilp-topic__head"><h2>' + esc(topic.title) + '</h2><div class="ilp-topic__meta">' +
+        (topic.priority ? '<span class="ilp-topic__priority">Ưu tiên của bạn</span>' : '') +
+        (situations.length ? '<span>' + situations.length + ' tình huống</span>' : '') +
+        '<span>' + topic.finished + '/' + topic.total + ' hoạt động đã xong</span></div>' +
+        '<div class="ilp-topic__progress" role="progressbar" aria-label="Tiến độ chủ đề ' + esc(topic.title) + '" aria-valuenow="' + percent +
+        '" aria-valuemin="0" aria-valuemax="100"><span style="width:' + percent + '%"></span></div></header>';
+      var vocabularyHtml = vocabulary.map(function (unit) {
+        var key = chapterKey(unit.parts[0]), view = unit.view;
+        var progress = view.done ? 'Đã xong ' + view.total + '/' + view.total + ' phần' : view.finished || view.active
+          ? 'Đã xong ' + view.finished + '/' + view.total + ' phần' : 'Chưa bắt đầu, ' + view.total + ' phần';
+        return '<div class="ilp-topic-vocab' + (view.done ? ' is-done' : '') + '" data-chapter="' + esc(key) + '"><div class="ilp-topic-vocab__text">' +
+          '<strong>' + (situations.length ? 'Nên học trước: từ vựng chủ đề' : 'Từ vựng chủ đề') + '</strong><p class="ilp-situation__status">' + esc(progress) +
+          (situations.length ? '. Các từ này dùng trong các tình huống bên dưới.' : '.') + '</p></div>' + sourceReviewNote(unit.parts[0]) + unitActions(view, key) + '</div>';
+      }).join('');
+      var cards = situations.map(function (unit) {
+        var key = chapterKey(unit.parts[0]), view = unit.view;
+        var level = String(unit.meta.jlptLevel || '').toUpperCase();
+        var harder = selfRank !== null && JLPT_RANK[level] > selfRank;
+        var levelChip = JLPT_RANK[level] ? '<span class="ilp-situation__level' + (harder ? ' is-harder' : '') + '"' +
+          (harder ? ' title="Khó hơn trình độ hiện tại của bạn (' + esc(selfKey === 'FROM_ZERO' ? 'mới bắt đầu' : selfKey) + ')"' : '') + '>' +
+          esc(level) + (harder ? ', khó hơn' : '') + '</span>' : '';
+        return '<article class="ilp-situation' + (view.done ? ' is-done' : '') + '" data-chapter="' + esc(key) + '">' +
+          '<div class="ilp-situation__top"><h3>' + esc(situationTitle(unit.parts[0])) + '</h3>' + levelChip + '</div>' +
+          '<p class="ilp-situation__status">' + esc(view.status) + '</p>' +
+          (harder && !view.done ? '<p class="ilp-situation__hint">Nên học từ vựng chủ đề trước, bật bản dịch và dùng “Nghe chậm”.</p>' : '') +
+          sourceReviewNote(unit.parts[0]) + unitActions(view, key) + '</article>';
+      }).join('');
+      var previous = topics[index - 1], next = topics[index + 1];
+      var nav = (previous ? '<button type="button" class="ilp-topic__go" data-topic-go="' + esc(previous.code) + '">Chủ đề trước: ' + esc(previous.title) + '</button>' : '') +
+        (next ? '<button type="button" class="ilp-topic__go is-next" data-topic-go="' + esc(next.code) + '">Chủ đề tiếp theo: ' + esc(next.title) + '</button>' : '');
+      return '<section class="ilp-topic" id="ilp-topic-' + esc(topic.code) + '" role="tabpanel" aria-labelledby="ilp-topic-tab-' + esc(topic.code) +
+        '" data-topic="' + esc(topic.code) + '"' + (topic === selected ? '' : ' hidden') + '>' + head + vocabularyHtml +
+        (cards ? '<p class="ilp-topic__sub"><strong>Tình huống</strong><span>Chọn tình huống bất kỳ, không cần theo thứ tự</span></p>' +
+          '<div class="ilp-situations">' + cards + '</div>' : '') +
+        '<footer class="ilp-topic__foot"><span>Chủ đề ' + (index + 1) + ' trên ' + topics.length + '</span><span class="ilp-topic__nav">' + nav + '</span></footer>' +
+        '<p class="ilp-topic__source">Nội dung bổ sung do J-LAS biên soạn, giọng đọc tiếng Nhật tổng hợp.</p></section>';
+    }).join('');
+    return '<div class="ilp-comm">' + tabs + sections + '</div>';
+  }
+  /** Shows one topic panel and marks its tab; returns false when the code names no rendered topic. */
+  function showTopic(node, code) {
+    var tabs = node.querySelectorAll('[data-topic-tab]');
+    var found = Array.prototype.some.call(tabs, function (tab) { return tab.getAttribute('data-topic-tab') === code; });
+    if (!found) return false;
+    Array.prototype.forEach.call(tabs, function (tab) {
+      var on = tab.getAttribute('data-topic-tab') === code;
+      tab.setAttribute('aria-selected', String(on));
+      tab.tabIndex = on ? 0 : -1;
+    });
+    Array.prototype.forEach.call(node.querySelectorAll('.ilp-topic[data-topic]'), function (section) {
+      section.hidden = section.getAttribute('data-topic') !== code;
+    });
+    return true;
   }
   function phaseTabs(activePhase) {
     var tabs = [{ value: 'ALL', label: 'Tất cả' }, { value: 'WARM_UP', label: 'Khởi động' },
@@ -411,6 +696,7 @@
     var communicationGoal = ['BA', 'TRAVEL', 'DAILY_LIFE'].indexOf(v.goal) >= 0;
     phaseFilter = phaseFilter || 'ALL';
     var visiblePackages = communicationGoal || phaseFilter === 'ALL' ? v.packages : v.packages.filter(function (pkg) { return pkg.phase === phaseFilter; });
+    var openSkill = skillPage(v.packages, extras.skill, communicationGoal);
     return '<section class="ilp-hero"><div><span class="ilp-label">Lộ trình của bạn</span><h1>' + esc(v.title) +
       '</h1><p>Mỗi phần học được chia vừa sức. Bạn có thể tiếp tục từ nơi đã dừng.</p><div class="ilp-metrics"><span>' +
       esc(v.currentLevel) + ' → ' + esc(v.targetLevel) + '</span>' + (v.minutesPerDay ? '<span>' + v.minutesPerDay + ' phút/ngày</span>' : '') +
@@ -418,8 +704,10 @@
       v.progressPercent + '%</strong></div><progress max="100" value="' + v.progressPercent + '">' + v.progressPercent + '%</progress><small>' +
       v.completedPackages + '/' + v.totalPackages + ' bài hoàn thành</small></div></section>' +
       (communicationGoal ? '' : renderMockResult(extras.mockResult) + renderStageProgress(extras.eligibility) + renderMockGate(extras.eligibility) + renderSmartTestReviewOnly(v.smartTestReviewOnlyTargets)) +
-      '<div class="ilp-layout"><section>' + (communicationGoal ? '' : phaseTabs(phaseFilter)) + '<div class="ilp-days">' +
-      (visiblePackages.length ? chapterCards(visiblePackages, communicationGoal) : '<div class="ilp-empty"><h2>Chưa có bài học trong giai đoạn này</h2><p>Nội dung đang được hoàn thiện để phát hành.</p></div>') +
+      '<div class="ilp-layout"><section>' + (communicationGoal || openSkill ? '' : phaseTabs(phaseFilter)) + '<div class="ilp-days">' +
+      (openSkill ? openSkill : visiblePackages.length ? (communicationGoal && v.communicationGuide
+        ? bookSuggestions(v.communicationGuide) + communicationTopics(visiblePackages, v.communicationGuide, extras.topic)
+        : chapterCards(visiblePackages, communicationGoal)) :'<div class="ilp-empty"><h2>Chưa có bài học trong giai đoạn này</h2><p>Nội dung đang được hoàn thiện để phát hành.</p></div>') +
       '</div></section><aside class="ilp-aside"><span class="ilp-kicker">MỤC TIÊU HIỆN TẠI</span><dl><div><dt>Cấp độ</dt><dd>' + esc(v.currentLevel) + ' → ' + esc(v.targetLevel) +
       '</dd></div>' + (v.minutesPerDay ? '<div><dt>Cường độ</dt><dd>' + v.minutesPerDay + ' phút/ngày</dd></div>' : '') +
       '</dl>' + renderPaceControls(v.minutesPerDay) + '</aside></div>' +
@@ -429,6 +717,8 @@
     if (code === 'BLOCKED_CONTENT' || /CoverageGap|thiếu học liệu|chưa được phát hành/i.test(message || '')) {
       return '<section class="ilp-state ilp-state--readiness"><span class="ilp-state__icon" aria-hidden="true">文</span>' +
         '<h1>Học liệu đang được hoàn thiện</h1><p>Lộ trình của bạn đã được phân tích, nhưng một số nội dung chưa đủ điều kiện phát hành. Tiến độ Smart Test vẫn được giữ nguyên.</p>' +
+        // OD-48 + spec §2.1: the readiness gate's learner message names the level and the missing skills.
+        (/^Chưa thể tạo lộ trình đầy đủ:/.test(message || '') ? '<p class="ilp-state__detail">' + esc(message) + '</p>' : '') +
         '<div class="ilp-state__actions"><button data-retry type="button">Kiểm tra lại</button>' +
         '<a href="/smart-test">Quay lại Smart Test</a></div></section>';
     }
@@ -451,13 +741,18 @@
     var attemptedBootstrap = false;
     var currentPathData = null;
     var phaseFilter = 'ALL';
+    // Communication roadmap: the topic on screen, remembered in the URL hash so reload and Back return to it.
+    var activeTopic = topicFromHash(window.location.hash);
     var eligibilityData = null;
     var latestMockResult = null;
     var toastMessage = '';
     var toastTimer = null;
     var assessmentAttemptId = resolveAssessmentAttemptId(window.location.search, window.localStorage);
+    var reviewStartLevel = resolveReviewStartLevel(window.location.search);
+    var discrepancyChoice = resolveDiscrepancyChoice(window.location.search);
+    var entryAnswers = resolveEntryAnswers(window.location.search);
     async function bootstrapPath() {
-      var request = pathCreationRequest(assessmentAttemptId);
+      var request = pathCreationRequest(assessmentAttemptId, reviewStartLevel, discrepancyChoice, entryAnswers);
       var response = await fetch(request.url, {
         method: 'POST', headers: window.JlasAuth.authHeaders(), body: request.body
       });
@@ -476,7 +771,35 @@
         return response.ok && body.data ? body.data : null;
       } catch (e) { return null; }
     }
-    function viewExtras() { return { eligibility: eligibilityData, mockResult: latestMockResult, toast: toastMessage }; }
+    var activeSkill = skillFromHash(window.location.hash);
+    function viewExtras() { return { eligibility: eligibilityData, mockResult: latestMockResult, toast: toastMessage, topic: activeTopic, skill: activeSkill }; }
+    /** Skill page <-> roadmap follow the URL hash, so Back, reload and a shared link land on the same view. */
+    function showSkillFromHash() {
+      var previous = activeSkill;
+      activeSkill = skillFromHash(window.location.hash);
+      if (!currentPathData || (!activeSkill && !previous)) return;
+      rerender();
+      var heading = activeSkill && node.querySelector('#ilpSkillPageTitle');
+      if (heading) { heading.focus({ preventScroll: true }); node.scrollIntoView({ block: 'start' }); return; }
+      var chapter = previous && node.querySelector('[data-chapter="' + CSS.escape(previous.chapter) + '"]');
+      if (chapter) chapter.scrollIntoView({ block: 'start' });
+    }
+    if (typeof window.addEventListener === 'function') window.addEventListener('hashchange', showSkillFromHash);
+    function selectTopic(code, focusTab) {
+      if (!showTopic(node, code)) return;
+      activeTopic = code;
+      try { window.history.replaceState(window.history.state, '', topicHash(code)); } catch (e) { /* hash memory is best effort */ }
+      var tab = node.querySelector('[data-topic-tab="' + CSS.escape(code) + '"]');
+      if (!tab) return;
+      if (typeof tab.scrollIntoView === 'function') tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (focusTab) tab.focus();
+    }
+    function setPartsOpen(toggle, open) {
+      var list = toggle && node.querySelector('#' + CSS.escape(toggle.getAttribute('aria-controls') || ''));
+      if (!list) return;
+      toggle.setAttribute('aria-expanded', String(open));
+      list.hidden = !open;
+    }
     async function loadLatestMockResult(level) {
       if (!/^N[1-5]$/.test(String(level || ''))) return null;
       try {
@@ -499,12 +822,24 @@
     }
     async function load() {
       node.setAttribute('aria-busy', 'true');
-      try { var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() }); var body = await response.json();
+      try {
+        var explicitAttemptInUrl = positiveInteger(new URLSearchParams(window.location.search || '').get('assessmentAttemptId'));
+        if (explicitAttemptInUrl && !attemptedBootstrap) {
+          attemptedBootstrap = true;
+          try { await bootstrapPath(); }
+          catch (failure) { attemptedBootstrap = false; throw failure; }
+          try {
+            if (window.history && typeof window.history.replaceState === 'function') {
+              window.history.replaceState(window.history.state, '', (window.location.pathname || '/learning/path/v2') + (window.location.hash || ''));
+            }
+          } catch (e) { /* query cleanup is best effort */ }
+        }
+        var response = await fetch('/api/learning/v2/paths/current', { headers: window.JlasAuth.authHeaders() }); var body = await response.json();
         if ((response.status === 404 || body.code === 'NOT_FOUND') && !attemptedBootstrap) {
           attemptedBootstrap = true;
           // A completed path is absent from /current. Ordinary navigation must not create a new one.
           // Only an explicit assessment URL requests generation for a new goal; ignore stale storage here.
-          if (!positiveInteger(new URLSearchParams(window.location.search || '').get('assessmentAttemptId'))) {
+          if (!explicitAttemptInUrl) {
             var completedDestination = await completedPathDestination(fetch, window.JlasAuth.authHeaders());
             if (completedDestination) {
               var finishedResponse = await fetch('/api/learning/v2/paths/completed/roadmap', { headers: window.JlasAuth.authHeaders() });
@@ -524,7 +859,9 @@
               return;
             }
           }
-          await bootstrapPath();
+          try { await bootstrapPath(); }
+          // A refused creation (e.g. the OD-48 readiness gate) is re-attempted by "Kiểm tra lại", not skipped.
+          catch (failure) { attemptedBootstrap = false; throw failure; }
           return load();
         }
         if (response.ok && body.data) {
@@ -550,7 +887,17 @@
     function highlightPackage(packageId) {
       if (!packageId) return;
       var card = node.querySelector('[data-package-card="' + CSS.escape(packageId) + '"]');
+      if (!card) {
+        // Parts live on the skill pages now: on the roadmap, bring the part's chapter into view instead.
+        var pkg = currentPathData && (currentPathData.packages || []).filter(function (p) { return String(p.id) === String(packageId); })[0];
+        card = pkg ? node.querySelector('[data-chapter="' + CSS.escape(chapterKey(pkg)) + '"]') : null;
+      }
       if (!card) return;
+      // A communication part lives in one topic panel and a collapsed parts list: reveal both before scrolling.
+      var topic = card.closest('.ilp-topic[data-topic]');
+      if (topic && topic.hidden) selectTopic(topic.getAttribute('data-topic'), false);
+      var parts = card.closest('.ilp-situation__parts');
+      if (parts && parts.hidden) setPartsOpen(node.querySelector('[aria-controls="' + CSS.escape(parts.id) + '"]'), true);
       card.scrollIntoView({ block: 'center', behavior: 'auto' });
       card.classList.add('is-highlighted');
       var clear = function () { card.classList.remove('is-highlighted'); };
@@ -570,11 +917,23 @@
     function trapFocus(event) { trapDialogFocus(event, node.querySelector('[data-popup]')); }
     node.addEventListener('click', async function (event) {
       if (event.target.closest('[data-retry]')) return load();
-      var skillToggle = event.target.closest('[data-skill-toggle]');
-      if (skillToggle) {
-        var expanded = skillToggle.getAttribute('aria-expanded') === 'true';
-        skillToggle.setAttribute('aria-expanded', String(!expanded));
-        skillToggle.closest('.ilp-skill-card').querySelector('.ilp-skill-card__details').hidden = expanded;
+      if (event.target.closest('[data-skill-back]')) {
+        event.preventDefault();
+        if (node.__skillOpenedHere) { node.__skillOpenedHere = false; window.history.back(); return; }
+        try { window.history.pushState(null, '', window.location.pathname + window.location.search); } catch (e) { /* best effort */ }
+        showSkillFromHash();
+        return;
+      }
+      if (event.target.closest('[data-skill-open]')) node.__skillOpenedHere = true;
+      var topicButton = event.target.closest('[data-topic-tab], [data-topic-go]');
+      if (topicButton) {
+        var fromTab = topicButton.hasAttribute('data-topic-tab');
+        selectTopic(topicButton.getAttribute(fromTab ? 'data-topic-tab' : 'data-topic-go'), !fromTab);
+        return;
+      }
+      var partsToggle = event.target.closest('[data-situation-toggle]');
+      if (partsToggle) {
+        setPartsOpen(partsToggle, partsToggle.getAttribute('aria-expanded') !== 'true');
         return;
       }
       var phaseButton = event.target.closest('[data-phase-filter]');
@@ -660,6 +1019,17 @@
         trapDialogFocus(event, node.querySelector('[data-pace-dialog]'));
         return;
       }
+      // WAI-ARIA tabs: arrow keys, Home and End move between topics and show the focused one.
+      var focusedTab = event.target.closest && event.target.closest('[data-topic-tab]');
+      if (focusedTab && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(event.key) >= 0) {
+        var tabs = Array.prototype.slice.call(node.querySelectorAll('[data-topic-tab]'));
+        var at = tabs.indexOf(focusedTab);
+        var to = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 :
+          (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        event.preventDefault();
+        selectTopic(tabs[to].getAttribute('data-topic-tab'), true);
+        return;
+      }
       var popup = node.querySelector('[data-popup]'); if (!popup) return;
       if (event.key === 'Escape') { closePopup(); return; }
       trapFocus(event);
@@ -667,12 +1037,20 @@
     load();
   }
   function afterRender(node) {
+    // On a narrow screen the topic strip scrolls sideways: bring the selected topic into view without moving the page.
+    var selectedTab = node.querySelector('[data-topic-tab][aria-selected="true"]');
+    var strip = selectedTab && selectedTab.parentElement;
+    if (strip && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = Math.max(0, selectedTab.offsetLeft - strip.offsetLeft - 16);
     var popup = node.querySelector('[data-popup]');
     if (popup) popup.focus();
   }
   return { viewModel: viewModel, render: render, mount: mount, modesFor: modesFor, renderStageProgress: renderStageProgress,
     renderMockGate: renderMockGate, renderMockResult: renderMockResult, renderPaceControls: renderPaceControls, renderPaceDialog: renderPaceDialog,
     paceRequestBody: paceRequestBody, renderToast: renderToast, nextFocusIndex: nextFocusIndex, popupModel: popupModel, renderPopup: renderPopup, errorState: errorState,
-    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId, pathCreationRequest: pathCreationRequest,
+    afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId,
+    resolveReviewStartLevel: resolveReviewStartLevel, resolveDiscrepancyChoice: resolveDiscrepancyChoice,
+    resolveEntryAnswers: resolveEntryAnswers,
+    pathCreationRequest: pathCreationRequest, topicFromHash: topicFromHash, topicHash: topicHash, showTopic: showTopic,
+    skillHash: skillHash, skillFromHash: skillFromHash,
     startedPackageStudyHref: startedPackageStudyHref, completedPathDestination: completedPathDestination };
 });

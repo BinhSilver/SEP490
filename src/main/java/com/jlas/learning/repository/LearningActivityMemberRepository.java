@@ -12,6 +12,11 @@ public interface LearningActivityMemberRepository extends JpaRepository<Learning
             + "order by m.activity.orderIndex, m.orderIndex, m.id")
     List<LearningActivityMember> findByPathInStudyOrder(@Param("pathId") Long pathId);
     List<LearningActivityMember> findByActivityIdOrderByOrderIndex(Long activityId);
+
+    /** One query for many activities (roadmap reconcilers), in the same per-activity order as above. */
+    @Query("select m from LearningActivityMember m where m.activity.id in :activityIds "
+            + "order by m.activity.id, m.orderIndex, m.id")
+    List<LearningActivityMember> findByActivityIdsInOrder(@Param("activityIds") java.util.Collection<Long> activityIds);
     long countByActivityLearningPackageIdAndMemberType(Long packageId, LearningMemberType memberType);
 
     @Query("""

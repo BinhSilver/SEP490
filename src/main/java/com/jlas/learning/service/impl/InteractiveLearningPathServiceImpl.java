@@ -23,6 +23,9 @@ import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.repository.UserLearningPathItemRepository;
 import com.jlas.learning.repository.UserLearningPathRepository;
 import com.jlas.learning.repository.UserLearningStageRepository;
+import com.jlas.learning.repository.LessonLearningScopeRepository;
+import com.jlas.learning.service.GoalPathPolicy;
+import com.jlas.learning.repository.LearningTopicRepository;
 import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.service.InteractiveLearningPathService;
 import com.jlas.learning.service.InteractiveContentCatalog;
@@ -37,10 +40,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -100,6 +105,20 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
     private LearningActivityMemberRepository activityMembers;
     @Autowired(required = false)
     private InteractiveContentCatalog contentCatalog;
+    @Autowired(required = false)
+    private InteractiveComprehensionPathUpgradeService comprehensionPathUpgrade;
+    @Autowired(required = false)
+    private HeldComprehensionQuestionPruner heldQuestionPruner;
+    @Autowired(required = false)
+    private InteractiveCommunicationPathUpgradeService communicationPathUpgrade;
+    @Autowired(required = false)
+    private com.jlas.learning.service.CommunicationGuideService communicationGuides;
+    @Autowired(required = false)
+    private LessonLearningScopeRepository learningScopes;
+    @Autowired(required = false)
+    private LearningTopicRepository learningTopics;
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
     @Override
     @Transactional
     public InteractiveLearningPathResponse current(Long userId) {
@@ -115,12 +134,25 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
                     "EMPTY_LESSON: Lộ trình chưa có package học hợp lệ.");
         }
+        // OD-09: checks switched off at the source leave unstarted activities before the shape upgrade inspects them.
+        if (heldQuestionPruner != null) heldQuestionPruner.prune(userId, path);
+        if (comprehensionPathUpgrade != null) comprehensionPathUpgrade.reconcile(userId, path);
+        if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         unlockCurrentChapterSegments(packageEntities);
         Long justCompletedId = refreshInProgressPackage(userId, packageEntities);
+        return readOnlyPhase(() -> currentView(path, packageEntities, justCompletedId));
+    }
+
+    /** Builds the roadmap view; reads only, so it runs after the reconcilers' writes are flushed. */
+    private InteractiveLearningPathResponse currentView(UserLearningPath path, List<LearningPathPackage> packageEntities,
+            Long justCompletedId) {
         Map<Long, Map<LearningMemberType, Integer>> countsByPackage = memberCounts(packageEntities);
+        Map<Long, Long> topicKeys = topicKeys(packageEntities);
+        Map<Long, List<UserLearningPathItem>> activitiesByPackage = activitiesByPackage(path.getId());
+        Map<Long, List<ReferenceVocabularyResponse>> referenceCache = new HashMap<>();
         List<InteractiveLearningPackageResponse> packageViews = packageEntities.stream()
-                .map(p -> mapPackage(p, orderedActivities(p), packageEntities,
-                        p.getId().equals(justCompletedId), countsByPackage))
+                .map(p -> mapPackage(p, orderedActivities(p, activitiesByPackage), packageEntities,
+                        p.getId().equals(justCompletedId), countsByPackage, topicKeys, referenceCache))
                 .toList();
         int completed = (int) packageViews.stream()
                 .filter(view -> view.status() == LearningPackageStatus.COMPLETED).count();
@@ -133,24 +165,63 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
                 packageViews.size(), percent(completed, packageViews.size()), currentId, packageViews,
-                smartTestReviewOnlyTargets(path));
+                smartTestReviewOnlyTargets(path), communicationGuide(path, packageEntities));
     }
 
-    /** Read-only roadmap replay: never refresh, unlock or grant rewards on a finished path. */
+    /**
+     * The roadmap view runs hundreds of small reads over a large persistence context (path items, members,
+     * catalog rows). With AUTO flush Hibernate dirty-checks every managed entity before each of them, which made a
+     * roadmap read take seconds. The writes (reconcilers, unlock, progress refresh) are flushed once here; the
+     * read-only view then queries without auto flush. Commit still flushes as usual.
+     */
+    private <T> T readOnlyPhase(java.util.function.Supplier<T> view) {
+        if (entityManager == null) return view.get();
+        entityManager.flush();
+        jakarta.persistence.FlushModeType previous = entityManager.getFlushMode();
+        entityManager.setFlushMode(jakarta.persistence.FlushModeType.COMMIT);
+        try {
+            return view.get();
+        } finally {
+            entityManager.setFlushMode(previous);
+        }
+    }
+
+    /** Owner 2026-10-19: topic grouping for communication roadmaps (display only; never locks a unit). */
+    private com.jlas.learning.dto.CommunicationGuide communicationGuide(UserLearningPath path,
+            List<LearningPathPackage> packageEntities) {
+        if (communicationGuides == null) return null;
+        List<Long> lessonIds = packageEntities.stream().map(LearningPathPackage::getSourceLesson)
+                .filter(java.util.Objects::nonNull).map(lesson -> lesson.getId()).distinct().toList();
+        return communicationGuides.guide(path, lessonIds);
+    }
+
+    /** Finished-roadmap replay upgrades old Reading activity shape, but never refreshes, unlocks, or grants rewards. */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public InteractiveLearningPathResponse completedRoadmap(Long userId) {
         UserLearningPath path = paths.findTopByUserIdAndExperienceVersionOrderByIdDesc(
                 userId, LearningExperienceVersion.INTERACTIVE_V2)
                 .filter(p -> "COMPLETED".equals(p.getStatus()))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
+        packages.findByPathForUpdate(path.getId());
+        if (comprehensionPathUpgrade != null) comprehensionPathUpgrade.reconcile(userId, path);
+        if (communicationPathUpgrade != null) communicationPathUpgrade.reconcile(userId, path);
         var entities = packages.findByLearningPathIdOrderByOrderIndex(path.getId());
+        return readOnlyPhase(() -> completedView(path, entities));
+    }
+
+    private InteractiveLearningPathResponse completedView(UserLearningPath path, List<LearningPathPackage> entities) {
         var counts = memberCounts(entities);
-        var views = entities.stream().map(p -> mapPackage(p, orderedActivities(p), entities, false, counts)).toList();
+        var topics = topicKeys(entities);
+        var byPackage = activitiesByPackage(path.getId());
+        Map<Long, List<ReferenceVocabularyResponse>> referenceCache = new HashMap<>();
+        var views = entities.stream()
+                .map(p -> mapPackage(p, orderedActivities(p, byPackage), entities, false, counts, topics, referenceCache)).toList();
         int completed = (int) views.stream().filter(p -> p.status() == LearningPackageStatus.COMPLETED).count();
         return new InteractiveLearningPathResponse(path.getId(), path.getTitle(), path.getGoal(),
                 path.getCurrentLevel(), path.getTargetLevel(), path.getMinutesPerDay(), completed,
-                views.size(), percent(completed, views.size()), null, views, smartTestReviewOnlyTargets(path));
+                views.size(), percent(completed, views.size()), null, views, smartTestReviewOnlyTargets(path),
+                communicationGuide(path, entities));
     }
 
     private List<SmartTestReviewTarget> smartTestReviewOnlyTargets(UserLearningPath path) {
@@ -190,7 +261,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
             unlockChapterSegments(learningPackage, siblings);
         }
         boolean justCompleted = refresh(userId, learningPackage, activities, siblings);
-        return mapPackage(learningPackage, activities, siblings, justCompleted, memberCounts(siblings));
+        return mapPackage(learningPackage, activities, siblings, justCompleted, memberCounts(siblings), topicKeys(siblings));
     }
 
     @Override
@@ -216,7 +287,7 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         unlockActivities(learningPackage, activities);
         List<LearningPathPackage> siblings = siblingsOf(learningPackage);
         unlockChapterSegments(learningPackage, siblings);
-        return mapPackage(learningPackage, activities, siblings, false, memberCounts(siblings));
+        return mapPackage(learningPackage, activities, siblings, false, memberCounts(siblings), topicKeys(siblings));
     }
 
     // ---- Task 8: package completion, unlock, score, reward ----
@@ -516,6 +587,26 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         return activities;
     }
 
+    /** Roadmap reads: activities of a package from one path-wide query; a package missing from it is read on its own. */
+    private List<UserLearningPathItem> orderedActivities(LearningPathPackage learningPackage,
+            Map<Long, List<UserLearningPathItem>> activitiesByPackage) {
+        List<UserLearningPathItem> activities = activitiesByPackage.get(learningPackage.getId());
+        if (activities == null) return orderedActivities(learningPackage);
+        validateTargetPackage(learningPackage, activities);
+        return activities;
+    }
+
+    private Map<Long, List<UserLearningPathItem>> activitiesByPackage(Long pathId) {
+        Map<Long, List<UserLearningPathItem>> result = new HashMap<>();
+        List<UserLearningPathItem> pathItems = items.findByLearningPathIdOrderByOrderIndex(pathId);
+        if (pathItems == null) return result;
+        for (UserLearningPathItem item : pathItems) {
+            if (item.getLearningPackage() == null || item.getLearningPackage().getId() == null) continue;
+            result.computeIfAbsent(item.getLearningPackage().getId(), ignored -> new ArrayList<>()).add(item);
+        }
+        return result;
+    }
+
     private void validateTargetPackage(LearningPathPackage learningPackage, List<UserLearningPathItem> activities) {
         if (!"GOAL_LEARNING".equals(learningPackage.getPhase())) return;
         if (learningPackage.getSourceLesson() == null || learningPackage.getContentRevision() == null
@@ -544,7 +635,14 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
 
     private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
             List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
-            Map<Long, Map<LearningMemberType, Integer>> countsByPackage) {
+            Map<Long, Map<LearningMemberType, Integer>> countsByPackage, Map<Long, Long> topicKeys) {
+        return mapPackage(learningPackage, activities, siblings, justCompleted, countsByPackage, topicKeys, new HashMap<>());
+    }
+
+    private InteractiveLearningPackageResponse mapPackage(LearningPathPackage learningPackage,
+            List<UserLearningPathItem> activities, List<LearningPathPackage> siblings, boolean justCompleted,
+            Map<Long, Map<LearningMemberType, Integer>> countsByPackage, Map<Long, Long> topicKeys,
+            Map<Long, List<ReferenceVocabularyResponse>> referenceCache) {
         Map<LearningActivityType, Long> partCounts = activities.stream()
                 .filter(item -> item.getActivityType() != null)
                 .collect(Collectors.groupingBy(UserLearningPathItem::getActivityType,
@@ -569,7 +667,9 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
         if ("GOAL_LEARNING".equals(learningPackage.getPhase())
                 && activityViews.stream().noneMatch(view -> view.type() == LearningActivityType.VOCABULARY)
                 && contentCatalog != null && learningPackage.getSourceLesson() != null) {
-            references = contentCatalog.referenceVocabularyForLesson(learningPackage.getSourceLesson().getId());
+            // Segments of one chapter share the lesson: read its reference words once per roadmap.
+            references = referenceCache.computeIfAbsent(learningPackage.getSourceLesson().getId(),
+                    contentCatalog::referenceVocabularyForLesson);
         }
         List<com.jlas.learning.dto.InteractiveLearningSessionResponse> sessions = "GOAL_LEARNING".equals(learningPackage.getPhase())
                 ? sessionProjector.project(learningPackage.getStatus(), lockReason, activityViews,
@@ -585,7 +685,37 @@ public class InteractiveLearningPathServiceImpl implements InteractiveLearningPa
                 isLastPackage(learningPackage, siblings), justCompleted, sessions,
                 chapterLessonId(learningPackage), chapterTitle(learningPackage), chapterNumber(learningPackage, siblings),
                 learningPackage.getSourceSegmentIndex() == null ? 1 : learningPackage.getSourceSegmentIndex(),
-                segmentCount(learningPackage, siblings));
+                segmentCount(learningPackage, siblings), sourceReviewNote(learningPackage),
+                learningPackage.getSourceLesson() == null ? null : topicKeys.get(learningPackage.getSourceLesson().getId()));
+    }
+
+    /** Communication paths only: source lesson id -> root topic id (its vocabulary lesson and its situations share it). */
+    private Map<Long, Long> topicKeys(List<LearningPathPackage> pathPackages) {
+        if (learningScopes == null || learningTopics == null || pathPackages.isEmpty()
+                || !GoalPathPolicy.isCommunicationGoal(pathPackages.getFirst().getLearningPath())) return Map.of();
+        List<Long> lessonIds = pathPackages.stream().map(LearningPathPackage::getSourceLesson).filter(Objects::nonNull)
+                .map(com.jlas.dictionary.entity.Lesson::getId).distinct().toList();
+        if (lessonIds.isEmpty()) return Map.of();
+        Map<Long, Long> topicByLesson = new HashMap<>();
+        learningScopes.findByLessonIdIn(lessonIds).stream().filter(scope -> scope.getTopicId() != null)
+                .forEach(scope -> topicByLesson.putIfAbsent(scope.getLessonId(), scope.getTopicId()));
+        Map<Long, Long> rootByTopic = new HashMap<>();
+        learningTopics.findAllById(topicByLesson.values().stream().distinct().toList())
+                .forEach(topic -> rootByTopic.put(topic.getId(), topic.rootTopicId()));
+        Map<Long, Long> result = new HashMap<>();
+        topicByLesson.forEach((lessonId, topicId) -> result.put(lessonId, rootByTopic.getOrDefault(topicId, topicId)));
+        return result;
+    }
+
+    static final String UNREVIEWED_SOURCE_NOTE = "Giáo trình chưa duyệt — nội dung đang được rà soát.";
+
+    /** §2.28 / OD-44: the owner opened the DRAFT J-LAS N3 textbook for study without calling it reviewed. */
+    private static String sourceReviewNote(LearningPathPackage pkg) {
+        var lesson = pkg.getSourceLesson();
+        var textbook = lesson == null || lesson.getUnit() == null ? null : lesson.getUnit().getTextbook();
+        return textbook != null && com.jlas.common.learning.DraftStudySourcePolicy.isOpenDraftTextbook(
+                textbook.getStatus(), textbook.getIsLearningPathSource(), textbook.getJlptLevel())
+                ? UNREVIEWED_SOURCE_NOTE : null;
     }
 
     // ---- Chapter view (owner decision 2026-10-06): a source lesson is a chapter, its day segments are parts ----
