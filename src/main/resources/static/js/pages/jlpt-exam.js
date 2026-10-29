@@ -112,6 +112,86 @@
     return wrapper.innerHTML;
   }
 
+  function transcriptTextHtml(value) {
+    return String(value || '').split(/\r?\n/).map(function (line) {
+      var match = line.match(/^\s*(narrator|man|woman|người dẫn|nam|nữ|ナレーター|男|女)(\d*)\s*[:：]\s*/i);
+      if (!match) return safeHtml(line);
+      var role = match[1].toLowerCase();
+      var label = role === 'narrator' || role === 'người dẫn' || role === 'ナレーター' ? 'ナレーター'
+        : role === 'man' || role === 'nam' || role === '男' ? '男' : '女';
+      return '<span class="jlpt-exam-speaker">' + label + (match[2] ? ' ' + match[2] : '') + ':</span> ' +
+        safeHtml(line.slice(match[0].length));
+    }).join('<br>');
+  }
+
+  function transcriptTurns(value) {
+    var speaker = /^\s*(?:narrator|man|woman|người dẫn|nam|nữ|ナレーター|男|女)\d*\s*[:：]/i;
+    return String(value || '').split(/\r?\n/).reduce(function (turns, line) {
+      var clean = line.trim();
+      if (!clean) return turns;
+      if (!turns.length || speaker.test(clean)) turns.push(clean);
+      else turns[turns.length - 1] += ' ' + clean;
+      return turns;
+    }, []);
+  }
+
+  function transcriptBilingualHtml(japanese, vietnamese) {
+    if (!translationOpen || !String(vietnamese || '').trim()) return transcriptTextHtml(japanese);
+    var japaneseLines = transcriptTurns(japanese);
+    var vietnameseLines = transcriptTurns(vietnamese);
+    var lineCount = Math.max(japaneseLines.length, vietnameseLines.length);
+    var rows = [];
+    for (var index = 0; index < lineCount; index++) {
+      var japaneseLine = japaneseLines[index] || '';
+      var vietnameseLine = vietnameseLines[index] || '';
+      rows.push('<span class="jlpt-exam-transcript-line">' +
+        (japaneseLine ? transcriptTextHtml(japaneseLine) : '') +
+        (vietnameseLine ? '<small lang="vi">' + esc(vietnameseLine) + '</small>' : '') + '</span>');
+    }
+    return rows.join('');
+  }
+
+  function usageTarget(question) {
+    if (String(question.questionType || '').toUpperCase() !== 'USAGE') return '';
+    var probe = document.createElement('div');
+    probe.innerHTML = safeHtml(question.html || question.text || '');
+    return probe.textContent.replace(/^\s*\d+\s*[.)．。]\s*/, '').trim();
+  }
+
+  function usagePattern(word) {
+    var escapePattern = function (value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+    if (!word || word.length < 2) return null;
+    if (word.endsWith('する')) return new RegExp(escapePattern(word.slice(0, -2)) + '(?:する|した|して|しない|します|された|される)', '');
+    if (word.endsWith('る')) return new RegExp(escapePattern(word.slice(0, -1)) + '(?:る|った|って|らない|られ|り|れ|ろ|ります|れば)', '');
+    return new RegExp(escapePattern(word), '');
+  }
+
+  function highlightUsageTarget(question, html) {
+    var pattern = usagePattern(usageTarget(question));
+    if (!pattern) return html;
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    var walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        return node.parentElement && node.parentElement.closest('u') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var node;
+    while ((node = walker.nextNode())) {
+      var match = node.nodeValue.match(pattern);
+      if (!match) continue;
+      var fragment = document.createDocumentFragment();
+      fragment.append(document.createTextNode(node.nodeValue.slice(0, match.index)));
+      var underline = document.createElement('u');
+      underline.className = 'jlpt-usage-term';
+      underline.textContent = match[0];
+      fragment.append(underline, document.createTextNode(node.nodeValue.slice(match.index + match[0].length)));
+      node.replaceWith(fragment);
+      break;
+    }
+    return wrapper.innerHTML;
+  }
+
   function currentPart() { return exam.parts[partIndex]; }
 
   function practiceRows() {
@@ -434,9 +514,10 @@
     block.querySelector('.jlpt-exam-choices').innerHTML = question.options.map(function (option) {
       var correct = show && Number(option.number) === Number(question.correctOption);
       var wrong = show && Number(option.number) === Number(selected) && !correct;
+      var optionHtml = highlightUsageTarget(question, displayQuestionHtml(option));
       return '<label class="jlpt-exam-choice ' + (correct ? 'is-correct ' : wrong ? 'is-wrong ' : '') + '"><input type="radio" name="jlpt-choice-' + question.id +
         '" data-question="' + question.id + '" value="' + option.number + '"' + (Number(selected) === Number(option.number) ? ' checked' : '') + '><b>' + option.number + '</b><span>' +
-        (hideText ? '' : displayQuestionHtml(option)) + '</span></label>';
+        (hideText ? '' : optionHtml) + '</span></label>';
     }).join('');
   }
 
@@ -449,7 +530,7 @@
     var visible = list.map(function (row) { return { row: row, originalIndex: questionPosition(row.question.id) }; }).filter(function (item) {
       var question = item.row.question;
       var isAnswered = isQuestionAnswered(question);
-      var isMarked = !!marked[question.sourceId];
+      var isMarked = !!marked[question.id];
       if (filterMode === 'unanswered') return !isAnswered;
       if (filterMode === 'answered') return isAnswered;
       if (filterMode === 'marked') return isMarked;
@@ -458,8 +539,8 @@
     $('jlptPalette').innerHTML = visible.length ? visible.map(function (item) {
       var question = item.row.question;
       var targetPage = pageIndexForQuestion(question.id);
-      var classes = (targetPage === pageIndex ? 'is-current ' : '') + (isQuestionAnswered(question) ? 'is-answered ' : '') + (marked[question.sourceId] ? 'is-marked ' : '');
-      var tooltip = marked[question.sourceId] ? 'Câu đã đánh dấu' : 'Câu ' + (item.originalIndex + 1);
+      var classes = (targetPage === pageIndex ? 'is-current ' : '') + (isQuestionAnswered(question) ? 'is-answered ' : '') + (marked[question.id] ? 'is-marked ' : '');
+      var tooltip = marked[question.id] ? 'Câu đã đánh dấu' : 'Câu ' + (item.originalIndex + 1);
       return '<button type="button" data-page-index="' + targetPage + '" data-question-id="' + question.id + '" class="' + classes + '" title="' + tooltip + '">' + (item.originalIndex + 1) + '</button>';
     }).join('') : '<span class="jlpt-exam-filter-empty">Không có câu phù hợp</span>';
   }
@@ -481,7 +562,7 @@
   }
 
   function toggleBookmark(question) {
-    var key = String(question.sourceId);
+    var key = String(question.id);
     if (marked[key]) delete marked[key]; else marked[key] = true;
     saveMarks();
     renderBookmark(question);
@@ -491,7 +572,7 @@
   function renderBookmark(question) {
     var block = questionBlock(question);
     if (!block) return;
-    var active = !!marked[String(question.sourceId)];
+    var active = !!marked[String(question.id)];
     var button = block.querySelector('[data-action="bookmark"]');
     button.classList.toggle('is-active', active);
     button.setAttribute('aria-pressed', String(active));
@@ -516,15 +597,18 @@
     }
     var currentTime = audio ? audio.currentTime : null;
     var wasPlaying = audio ? !audio.paused : false;
-    if (action.dataset.action === 'script') scriptOpen = !scriptOpen;
-    if (action.dataset.action === 'translation') { translationOpen = !translationOpen; scriptOpen = true; }
     var page = currentPage();
-    renderAudio(page.mondai, page.questions[0].audioClip, currentTime, wasPlaying);
+    var clip = page.questions[0].audioClip;
+    if (action.dataset.action === 'script') scriptOpen = !scriptOpen;
+    if (action.dataset.action === 'translation') {
+      translationOpen = !translationOpen; scriptOpen = true;
+    }
+    renderAudio(page.mondai, clip, currentTime, wasPlaying);
   }
 
   function renderAudio(mondai, clip, resumeTime, resumePlay) {
     var element = $('jlptAudio');
-    var data = clip || { audioUrl: mondai.audioUrl, start: 0, end: null, transcript: mondai.transcript || [] };
+    var data = clip || { audioUrl: mondai.audioUrl, start: 0, end: null, transcript: mondai.transcript || [], transcriptAligned: false };
     var segments = data.transcript || [];
     var aligned = data.transcriptAligned !== false;
     var audioUrl = data.audioUrl || mondai.audioUrl;
@@ -541,8 +625,7 @@
       (!isExamMode && segments.length ? '<button type="button" data-action="script"><span class="material-symbols-outlined">article</span>' + (scriptOpen ? 'Ẩn script' : 'Script') + '</button>' : '') +
       (!isExamMode && hasTranslation ? '<button type="button" data-action="translation"><span class="material-symbols-outlined">translate</span>' + (translationOpen ? 'Ẩn dịch' : 'Dịch') + '</button>' : '') + '</div>';
     var script = !isExamMode && scriptOpen ? '<div class="jlpt-exam-transcript">' + segments.map(function (item) {
-      return '<div class="jlpt-exam-segment' + (aligned ? '' : ' jlpt-exam-segment--plain') + '"' + (aligned ? ' data-time="' + item.start + '"' : '') + '>' + (aligned ? '<time>' + formatTime(Math.max(0, Number(item.start) - start)) + '</time>' : '') + '<p>' + safeHtml(item.ja) +
-        (translationOpen && item.vi ? '<small>' + esc(item.vi) + '</small>' : '') + '</p></div>';
+      return '<div class="jlpt-exam-segment' + (aligned ? '' : ' jlpt-exam-segment--plain') + '"' + (aligned ? ' data-time="' + item.start + '"' : '') + '>' + (aligned ? '<time>' + formatTime(Math.max(0, Number(item.start) - start)) + '</time>' : '') + '<p>' + transcriptBilingualHtml(item.ja, item.vi) + '</p></div>';
     }).join('') + '</div>' : '';
     element.innerHTML = controls + script;
     var audio = element.querySelector('audio');
@@ -655,14 +738,13 @@
         if (usesSentenceOrder(question)) renderChoices(question);
         else Array.from(block.querySelectorAll('.jlpt-exam-choice span')).forEach(function (element, index) {
           var optionText = question.options[index].html || question.options[index].text || '';
-          element.innerHTML = displayQuestionHtml({ html: furiganaCache[optionText] || optionText });
+          element.innerHTML = highlightUsageTarget(question, displayQuestionHtml({ html: furiganaCache[optionText] || optionText }));
         });
         block.querySelector('.jlpt-exam-question-text').innerHTML = displayQuestionHtml({ html: furiganaCache[questionText] || questionText });
       });
       if (scriptOpen) Array.from($('jlptAudio').querySelectorAll('.jlpt-exam-segment p')).forEach(function (element, index) {
         var segment = segments[index];
-        var translation = translationOpen && segment.vi ? '<small>' + esc(segment.vi) + '</small>' : '';
-        element.innerHTML = safeHtml(furiganaCache[segment.ja || ''] || segment.ja || '') + translation;
+        element.innerHTML = transcriptBilingualHtml(furiganaCache[segment.ja || ''] || segment.ja || '', segment.vi);
       });
     }).catch(function () {
       var first = questionBlock(page.questions[0]);
@@ -997,7 +1079,7 @@
         var correct = isQuestionCorrect(question);
         var answered = isQuestionAnswered(question);
         var reviewState = !answered ? 'unanswered' : (correct ? 'correct' : 'wrong');
-        var isMarked = !!marked[question.sourceId];
+        var isMarked = !!marked[question.id];
         var state = !answered ? 'is-missing' : (correct ? 'is-correct' : 'is-wrong');
         var stateLabel = !answered ? 'Chưa trả lời' : (correct ? 'Đúng' : 'Sai');
         var passage = question.passage ? '<div class="jlpt-review-passage">' + passageHtml(question.passage) + '</div>' : '';
