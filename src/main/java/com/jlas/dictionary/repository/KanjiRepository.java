@@ -29,6 +29,25 @@ public interface KanjiRepository extends JpaRepository<Kanji, Long> {
             nativeQuery = true)
     List<Kanji> findByCharacterIn(@Param("values") List<String> characters);
 
+    /** Match ON exactly and KUN by its stem or complete reading, ignoring affix hyphens. */
+    @Query(value = "select k.* from kanji k join kanji_reading r on r.kanji_id = k.id "
+            + "where (r.reading_type = 'ON' and r.reading_text = :katakana) "
+            + "or (r.reading_type = 'KUN' and ("
+            + "trim(both '-' from substring_index(r.reading_text, '.', 1)) = :hiragana "
+            + "or trim(both '-' from replace(r.reading_text, '.', '')) = :hiragana)) "
+            + "group by k.id "
+            + "order by min(case when r.reading_type = 'ON' "
+            + "or trim(both '-' from replace(r.reading_text, '.', '')) = :hiragana "
+            + "then 0 else 1 end), "
+            + "case k.jlpt_level when 'N5' then 0 when 'N4' then 1 "
+            + "when 'N3' then 2 when 'N2' then 3 when 'N1' then 4 else 5 end, "
+            + "max(r.is_common) desc, k.stroke_count is null, k.stroke_count asc, k.id asc "
+            + "limit :limit",
+            nativeQuery = true)
+    List<Kanji> findByKanaReading(@Param("hiragana") String hiragana,
+                                  @Param("katakana") String katakana,
+                                  @Param("limit") int limit);
+
     /**
      * Kanji có một âm Hán Việt trùng với từ cần tìm, ví dụ "học" -> 学. Cột han_viet lưu dạng
      * "THỰC, TỰ"; so khớp đúng dấu, không phân biệt hoa/thường. Bảng kanji ~13 nghìn dòng, quét nhanh.

@@ -261,7 +261,7 @@
       path.indexOf('/learning/flashcards') === 0;
     var isGame = path === '/games' || path.indexOf('/games/') === 0;
     var isDictionary = path === '/dictionary/index' || path === '/dictionary' ||
-      path.indexOf('/dictionary/') === 0;
+      path.indexOf('/dictionary/') === 0 || path === '/search' || path.indexOf('/search/') === 0;
     var isAiCall = path === '/ai-call' ||
       path.indexOf('/ai-call/') === 0 ||
       path.indexOf('/category/') === 0 ||

@@ -11,12 +11,18 @@ import com.jlas.dictionary.dto.SearchResultResponse;
 import com.jlas.dictionary.dto.VocabularyResponse;
 import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
 import com.jlas.dictionary.service.DictionaryService;
+import com.jlas.dictionary.service.AzureTtsService;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Controller xử lý các API từ điển (Dictionary Search / Kanji Search / Vocabulary Search).
@@ -28,6 +34,19 @@ import java.util.List;
 public class DictionaryController {
     private final DictionaryService dictionaryService;
     private final HandwritingRateLimiter handwritingRateLimiter;
+    private final AzureTtsService azureTtsService;
+
+    @GetMapping(value = "/tts", produces = "audio/mpeg")
+    public ResponseEntity<byte[]> tts(@RequestParam(required = false) String text,
+                                      @AuthenticationPrincipal UserPrincipal user,
+                                      HttpServletRequest request) {
+        String clientKey = user == null ? "ip:" + request.getRemoteAddr() : "user:" + user.userId();
+        byte[] audio = azureTtsService.synthesize(text, clientKey);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("audio/mpeg"))
+                .cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic())
+                .body(audio);
+    }
 
     @GetMapping("/search")
     public ApiResponse<SearchResultResponse> search(

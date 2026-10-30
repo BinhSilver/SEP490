@@ -13,6 +13,17 @@ import java.util.List;
 @Repository
 public interface VocabularyGlossRepository extends JpaRepository<VocabularyGloss, Long> {
 
+    @Query(value = "select s.vocabulary_id as vocabularyId, g.gloss_text as glossText "
+            + "from vocabulary_sense s join vocabulary_gloss g on g.sense_id = s.id "
+            + "where s.vocabulary_id in (:ids) and g.language_code in ('vie', 'vi') "
+            + "order by s.vocabulary_id, s.sense_order, g.id", nativeQuery = true)
+    List<VietnameseGlossRow> findVietnameseGlosses(@Param("ids") List<Long> ids);
+
+    interface VietnameseGlossRow {
+        Long getVocabularyId();
+        String getGlossText();
+    }
+
     /** Load gloss của nhiều sense cùng lúc, tránh N+1 khi map danh sách kết quả search. */
     List<VocabularyGloss> findBySense_IdIn(List<Long> senseIds);
 

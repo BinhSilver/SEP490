@@ -45,6 +45,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     /** Chặn trên tổng số candidate gộp từ mọi tier trong một lần search, tránh query quá nặng. */
     private static final int MAX_TOTAL_CANDIDATES = 200;
     private static final int KANJI_RESULT_LIMIT = 8;
+    private static final int KANJI_READING_RESULT_LIMIT = 20;
     private static final int RELATED_VOCABULARY_LIMIT = 50;
     private static final int HANDWRITING_CANDIDATE_LIMIT = 8;
     /** Số Kanji tối đa trả về cho một lần tra bộ thủ (bộ phận 口 có gần 3.000 Kanji). */
@@ -61,6 +62,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     private final VocabularySenseRepository vocabularySenseRepository;
     private final VocabularyGlossRepository vocabularyGlossRepository;
     private final VocabularyReadingRepository vocabularyReadingRepository;
+    private final VocabularyAntonymRepository vocabularyAntonymRepository;
+    private final VocabularyPitchAccentRepository vocabularyPitchAccentRepository;
     private final KanjiRepository kanjiRepository;
     private final KanjiReadingRepository kanjiReadingRepository;
     private final DictionarySearchHistoryRepository searchHistoryRepository;
@@ -120,7 +123,50 @@ public class DictionaryServiceImpl implements DictionaryService {
     public VocabularyResponse getVocabularyDetail(Long vocabularyId) {
         VocabularyEntry entry = vocabularyEntryRepository.findById(vocabularyId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy từ vựng"));
-        return toVocabularyResponses(List.of(entry)).get(0);
+        VocabularyResponse response = toVocabularyResponses(List.of(entry)).get(0);
+        response.setAntonyms(resolveAntonyms(vocabularyAntonymRepository.findByVocabularyIdOrderByIdAsc(vocabularyId)));
+        vocabularyPitchAccentRepository.findDetail(vocabularyId).ifPresent(row -> {
+            response.setPitchAccent(Integer.valueOf(row.getAccents().split(",", 2)[0]));
+            response.setPitchAccentSource(row.getSourceCode());
+        });
+        return response;
+    }
+
+    private List<AntonymResponse> resolveAntonyms(List<VocabularyAntonym> antonyms) {
+        if (antonyms.isEmpty()) return List.of();
+        Set<String> expressions = new LinkedHashSet<>();
+        for (VocabularyAntonym antonym : antonyms) {
+            expressions.add(DictionaryUtil.normalizeText(antonym.getAntonymText()));
+        }
+        Map<String, List<VocabularyEntry>> candidates = new HashMap<>();
+        for (VocabularyEntry entry : vocabularyEntryRepository
+                .findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(expressions, PUBLISHED)) {
+            candidates.computeIfAbsent(entry.getNormalizedExpression(), ignored -> new ArrayList<>()).add(entry);
+        }
+        Map<VocabularyAntonym, VocabularyEntry> matches = new LinkedHashMap<>();
+        for (VocabularyAntonym antonym : antonyms) {
+            List<VocabularyEntry> matching = candidates.getOrDefault(
+                    DictionaryUtil.normalizeText(antonym.getAntonymText()), List.of()).stream()
+                    .filter(entry -> antonym.getAntonymReading() == null
+                            || entry.getNormalizedReading().equals(DictionaryUtil.normalizeText(antonym.getAntonymReading())))
+                    .toList();
+            // Keep an ambiguous reference unresolved instead of choosing an arbitrary entry.
+            if (matching.size() == 1) matches.put(antonym, matching.get(0));
+        }
+        List<Long> matchIds = matches.values().stream().map(VocabularyEntry::getId).distinct().toList();
+        Map<Long, List<String>> vietnamese = new HashMap<>();
+        if (!matchIds.isEmpty()) {
+            for (VocabularyGlossRepository.VietnameseGlossRow row : vocabularyGlossRepository.findVietnameseGlosses(matchIds)) {
+                List<String> glosses = vietnamese.computeIfAbsent(row.getVocabularyId(), ignored -> new ArrayList<>());
+                if (glosses.size() < 3 && !glosses.contains(row.getGlossText())) glosses.add(row.getGlossText());
+            }
+        }
+        return antonyms.stream().map(antonym -> {
+            VocabularyEntry match = matches.get(antonym);
+            List<String> glosses = match == null ? List.of() : vietnamese.getOrDefault(match.getId(), List.of());
+            return new AntonymResponse(antonym.getAntonymText(), antonym.getAntonymReading(),
+                    match == null ? null : match.getId(), glosses.isEmpty() ? null : String.join("; ", glosses));
+        }).toList();
     }
 
     @Override
@@ -452,12 +498,15 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     // -------------------------------------------------------------------
-    // Kanji results (chỉ khi mode == KANJI)
+    // Kanji results
     // -------------------------------------------------------------------
 
     private List<KanjiResponse> findKanjiResults(String normalizedQuery, DictionaryUtil.SearchMode mode) {
         if (mode == DictionaryUtil.SearchMode.VIETNAMESE || mode == DictionaryUtil.SearchMode.ROMAJI) {
             return findKanjiByHanViet(normalizedQuery);
+        }
+        if (mode == DictionaryUtil.SearchMode.HIRAGANA || mode == DictionaryUtil.SearchMode.KATAKANA) {
+            return findKanjiByKanaReading(normalizedQuery);
         }
         if (mode != DictionaryUtil.SearchMode.KANJI) return List.of();
 
@@ -484,6 +533,21 @@ public class DictionaryServiceImpl implements DictionaryService {
             }
         }
         return results;
+    }
+
+    private List<KanjiResponse> findKanjiByKanaReading(String normalizedQuery) {
+        String hiragana = DictionaryUtil.normalizeReading(normalizedQuery);
+        StringBuilder katakana = new StringBuilder(hiragana.length());
+        hiragana.codePoints().forEach(cp -> katakana.appendCodePoint(
+                cp >= 0x3041 && cp <= 0x3096 ? cp + 0x60 : cp));
+        List<Kanji> kanjis = kanjiRepository.findByKanaReading(
+                hiragana, katakana.toString(), KANJI_READING_RESULT_LIMIT);
+        Map<Long, List<KanjiReadingResponse>> readingsByKanjiId =
+                groupReadings(kanjis.stream().map(Kanji::getId).toList());
+        return kanjis.stream()
+                .map(kanji -> mapper.toKanjiResponse(kanji,
+                        readingsByKanjiId.getOrDefault(kanji.getId(), List.of())))
+                .toList();
     }
 
     /** Một âm tiết Hán Việt ("học", "thực") -> các Kanji có âm đó. */

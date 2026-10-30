@@ -704,6 +704,34 @@ CREATE TABLE vocabulary_external_reference (
         REFERENCES dictionary_source(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE vocabulary_antonym (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    vocabulary_id    BIGINT UNSIGNED NOT NULL,
+    antonym_text     VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    antonym_reading  VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    antonym_sense    INT NULL,
+    source_id        BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_vocabulary_antonym (vocabulary_id, antonym_text, antonym_reading),
+    KEY idx_vocabulary_antonym_source (source_id),
+    CONSTRAINT fk_vocabulary_antonym_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_antonym_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE vocabulary_pitch_accent (
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    accents       VARCHAR(50) NOT NULL,
+    source_id     BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (vocabulary_id),
+    KEY idx_vocabulary_pitch_accent_source (source_id),
+    CONSTRAINT fk_vocabulary_pitch_accent_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_pitch_accent_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 INSERT INTO dictionary_source
     (code, name, source_url, license_name, license_url, is_active)
 VALUES
@@ -724,7 +752,11 @@ VALUES
      NULL, NULL, 1),
     ('RADKFILE', 'RADKFILE/KRADFILE', 'https://www.edrdg.org/krad/kradinf.html',
      'Creative Commons Attribution-ShareAlike 4.0',
-     'https://www.edrdg.org/edrdg/licence.html', 1);
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('UNIDIC_CWJ', '現代書き言葉UniDic 2025.12', 'https://clrd.ninjal.ac.jp/unidic/',
+     'GPL-2.0 / LGPL-2.1 / BSD-3-Clause', NULL, 1),
+    ('KANJIUM', 'Kanjium', 'https://github.com/mifunetoshiro/kanjium',
+     'CC BY-SA 4.0', 'https://creativecommons.org/licenses/by-sa/4.0/', 1);
 
 -- Lich su tra cuu dung chung cho moi truy van tu dien.
 -- Khi user chon Kanji/tu trong hop nhan dien, frontend xoa net ve, dua gia tri
@@ -1917,7 +1949,7 @@ CREATE TABLE user_notification (
 
 CREATE TABLE content_comment (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK.
+    target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK/VOCABULARY/KANJI.
     target_id   BIGINT UNSIGNED NOT NULL,
     user_id     BIGINT UNSIGNED NOT NULL,
     content     TEXT NOT NULL,
@@ -1931,7 +1963,21 @@ CREATE TABLE content_comment (
     CONSTRAINT fk_content_comment_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_content_comment_target_type
-        CHECK (target_type IN ('FLASHCARD_SET','VIDEO','LESSON','SCENARIO','TEXTBOOK'))
+        CHECK (target_type IN ('FLASHCARD_SET','VIDEO','LESSON','SCENARIO','TEXTBOOK','VOCABULARY','KANJI'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE content_comment_vote (
+    comment_id BIGINT UNSIGNED NOT NULL,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    vote       TINYINT NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (comment_id, user_id),
+    KEY idx_content_comment_vote_user (user_id),
+    CONSTRAINT fk_content_comment_vote_comment FOREIGN KEY (comment_id)
+        REFERENCES content_comment(id) ON DELETE CASCADE,
+    CONSTRAINT fk_content_comment_vote_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_content_comment_vote CHECK (vote IN (-1, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ban dich ben vung cua cau user nhap tu do; khong phai cache TTL.

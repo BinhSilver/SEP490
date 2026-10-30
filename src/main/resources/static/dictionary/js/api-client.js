@@ -37,6 +37,42 @@
     vocabularyDetail: function (id) {
       return fetch('/api/dictionary/vocabulary/' + encodeURIComponent(id), { headers: authHeaders() }).then(parse);
     },
+    vocabularyContributions: function (id, page, size) {
+      var params = new URLSearchParams({ page: String(page || 0), size: String(size || 5) });
+      return fetch('/api/dictionary/vocabulary/' + encodeURIComponent(id) + '/contributions?' + params,
+        { headers: authHeaders() }).then(parse);
+    },
+    addVocabularyContribution: function (id, content) {
+      var headers = authHeaders();
+      headers['Content-Type'] = 'application/json';
+      return fetch('/api/dictionary/vocabulary/' + encodeURIComponent(id) + '/contributions',
+        { method: 'POST', headers: headers, body: JSON.stringify({ content: content }) }).then(parse);
+    },
+    kanjiContributions: function (character, page, size) {
+      var params = new URLSearchParams({ page: String(page || 0), size: String(size || 5) });
+      return fetch('/api/dictionary/kanji/' + encodeURIComponent(character) + '/contributions?' + params,
+        { headers: authHeaders() }).then(parse);
+    },
+    addKanjiContribution: function (character, content) {
+      var headers = authHeaders();
+      headers['Content-Type'] = 'application/json';
+      return fetch('/api/dictionary/kanji/' + encodeURIComponent(character) + '/contributions',
+        { method: 'POST', headers: headers, body: JSON.stringify({ content: content }) }).then(parse);
+    },
+    voteContribution: function (id, vote) {
+      var headers = authHeaders();
+      headers['Content-Type'] = 'application/json';
+      return fetch('/api/dictionary/contributions/' + encodeURIComponent(id) + '/vote',
+        { method: 'PUT', headers: headers, body: JSON.stringify({ vote: vote }) }).then(parse);
+    },
+    reportContribution: function (id) {
+      return fetch('/api/dictionary/contributions/' + encodeURIComponent(id) + '/report',
+        { method: 'POST', headers: authHeaders() }).then(parse);
+    },
+    deleteContribution: function (id) {
+      return fetch('/api/dictionary/contributions/' + encodeURIComponent(id),
+        { method: 'DELETE', headers: authHeaders() }).then(parse);
+    },
     kanjiDetail: function (character) {
       return fetch('/api/dictionary/kanji/' + encodeURIComponent(character), { headers: authHeaders() }).then(parse);
     },
