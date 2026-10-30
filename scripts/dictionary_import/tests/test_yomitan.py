@@ -7,6 +7,7 @@ from pathlib import Path
 from scripts.dictionary_import.jlas_import.models import InvalidRecord
 from scripts.dictionary_import.jlas_import.yomitan import (
     decode_kanjidic2_code,
+    drop_mangled_meanings,
     format_kanji_meanings,
     iter_kanjidict_vn,
     iter_mazii_vi,
@@ -98,6 +99,16 @@ class YomitanParserTest(unittest.TestCase):
     def test_mazii_without_pos_file_uses_deinflection_rules(self):
         eat = next(r for r in iter_mazii_vi(self.mazii) if getattr(r, "expression", "") == "食べる")
         self.assertEqual(["v1"], [p.code for p in eat.senses[0].parts_of_speech])
+
+    def test_mangled_copies_are_dropped_but_real_questions_kept(self):
+        self.assertEqual(
+            ["lò xo", "sự co giãn; tính đàn hồi"],
+            drop_mangled_meanings(["lò xo", "l? xo", "sự co giãn; tính đàn hồi", "s? co gỉn; t?nh ??n h?i"]),
+        )
+        self.assertEqual(["Cái gì?", "Hãy đến một lần nữa?"],
+                         drop_mangled_meanings(["Cái gì?", "Hãy đến một lần nữa?"]))
+        self.assertEqual(["what", "what?"], drop_mangled_meanings(["what", "what?"]))
+        self.assertEqual(["s? l?n men"], drop_mangled_meanings(["s? l?n men"]))
 
     def test_pos_labels_keep_ui_filter_keywords(self):
         self.assertEqual("Động từ nhóm I", pos_name_vi("v5k-s"))

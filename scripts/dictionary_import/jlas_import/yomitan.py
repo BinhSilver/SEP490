@@ -7,6 +7,7 @@ Vietnamese build) are searched as well.
 
 from __future__ import annotations
 
+import difflib
 import hashlib
 import io
 import json
@@ -200,6 +201,27 @@ def parse_mazii_definition(text: str) -> tuple[str | None, list[str]]:
     return han_viet or None, [meaning for meaning in cleaned if meaning]
 
 
+def drop_mangled_meanings(meanings: list[str]) -> list[str]:
+    """Drop copies whose Vietnamese letters were saved as ``?`` ("l? xo" next to "lò xo").
+
+    Mazii repeats some meanings in a lossy encoding. A meaning with ``?`` is dropped only
+    when an intact meaning with diacritics matches it once its non-ASCII letters are
+    masked, so real questions ("bạn khỏe không?", "what?") are kept.
+    """
+
+    intact = [_mask_non_ascii(m) for m in meanings if "?" not in m and not m.isascii()]
+    return [
+        meaning
+        for meaning in meanings
+        if "?" not in meaning
+        or not any(difflib.SequenceMatcher(None, other, meaning).ratio() >= 0.8 for other in intact)
+    ]
+
+
+def _mask_non_ascii(text: str) -> str:
+    return "".join(char if char.isascii() else "?" for char in text)
+
+
 def _clean_meaning(value: str) -> str:
     text = _WHITESPACE.sub(" ", value).strip()
     # Some community entries repeat the number ("1. 1.Công ty ma").
@@ -327,8 +349,9 @@ def _mazii_record(
     warnings = list(group.warnings)
     codes = jmdict_codes or tuple(group.rules)
     parts_of_speech = tuple(CatalogValue(code, None, pos_name_vi(code)) for code in codes)
+    meanings = drop_mangled_meanings(group.meanings)
     senses = []
-    for order, meaning in enumerate(group.meanings, start=1):
+    for order, meaning in enumerate(meanings, start=1):
         if len(meaning) > MAX_GLOSS_LENGTH:
             meaning = meaning[: MAX_GLOSS_LENGTH - 1] + "…"
             warnings.append(ImportWarning("GLOSS_TRUNCATED", f"Meaning {order} was truncated"))
@@ -340,7 +363,7 @@ def _mazii_record(
                 parts_of_speech=parts_of_speech if order == 1 else (),
             )
         )
-    summary = "; ".join(group.meanings[:MEANING_SUMMARY_SENSES])
+    summary = "; ".join(meanings[:MEANING_SUMMARY_SENSES])
     if len(summary) > MEANING_SUMMARY_LENGTH:
         summary = summary[: MEANING_SUMMARY_LENGTH - 1] + "…"
     return VocabularyRecord(
