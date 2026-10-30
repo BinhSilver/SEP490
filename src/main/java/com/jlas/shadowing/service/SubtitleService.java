@@ -1,5 +1,7 @@
 package com.jlas.shadowing.service;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.SubtitleRepository;
@@ -8,6 +10,7 @@ import com.jlas.shadowing.repository.VocabularyEntryRepository;
 import com.jlas.shadowing.util.NullSafe;
 import com.jlas.shadowing.util.SubtitleText;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
+import com.jlas.shadowing.util.VideoOwnership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ public class SubtitleService {
     @Autowired private VocabularyEntryRepository vocabularyEntryRepository;
     @Autowired private OpenRouterService openRouterService;
     @Autowired @Lazy private ProcessingJobService processingJobService;
+    @Autowired private SubtitleQualityReviewService subtitleQualityReviewService;
 
     public List<Subtitle> getByVideoId(Long videoId) {
         List<Subtitle> subtitles = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
@@ -37,7 +41,7 @@ public class SubtitleService {
 
     @Transactional
     public Subtitle update(Long id, SubtitleUpdateRequest req) {
-        Subtitle sub = getById(id);
+        Subtitle sub = getEditableSubtitle(id);
         if (req.getText() != null) sub.setText(req.getText());
         if (req.getFurigana() != null) sub.setFurigana(req.getFurigana());
         if (req.getTranslation() != null) sub.setTranslation(req.getTranslation());
@@ -50,6 +54,7 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> bulkUpdate(Long videoId, List<SubtitleUpdateRequest> requests) {
+        Video video = getEditableVideo(videoId);
         List<Subtitle> subs = getByVideoId(videoId);
         for (int i = 0; i < Math.min(subs.size(), requests.size()); i++) {
             SubtitleUpdateRequest req = requests.get(i);
@@ -61,13 +66,14 @@ public class SubtitleService {
             if (req.getEndTime() != null) sub.setEndTime(req.getEndTime());
             NullSafe.ref(subtitleRepository.save(sub));
         }
-        markModerationStale(videoRepository.findById(NullSafe.longId(videoId)).orElse(null));
+        markModerationStale(video);
         return getByVideoId(videoId);
     }
 
     @Transactional
     public Subtitle create(Long videoId, SubtitleCreateRequest req) {
-        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        Video video = getEditableVideo(videoId);
+        if (Boolean.TRUE.equals(req.getManual())) requirePublishableTiming(video, req);
         Subtitle sub = new Subtitle();
         sub.setVideo(video);
         sub.setText(req.getText() != null ? req.getText() : "");
@@ -84,7 +90,7 @@ public class SubtitleService {
 
     @Transactional
     public void delete(Long id) {
-        Subtitle subtitle = subtitleRepository.findById(NullSafe.longId(id)).orElseThrow();
+        Subtitle subtitle = getEditableSubtitle(id);
         Video video = subtitle.getVideo();
 
         // A blank subtitle is created only by the manual "add at playhead"
@@ -112,19 +118,43 @@ public class SubtitleService {
         markModerationStale(video);
     }
 
+    /**
+     * A line added by hand must not create an error that later blocks publishing (see {@link #validate}):
+     * it needs text, a positive length inside the video, and no overlap with another line.
+     * Undo restores old lines through the same endpoint without {@code manual}, so it is not checked here.
+     */
+    private void requirePublishableTiming(Video video, SubtitleCreateRequest req) {
+        Double start = req.getStartTime();
+        Double end = req.getEndTime();
+        if (req.getText() == null || req.getText().isBlank())
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy nhập nội dung tiếng Nhật cho câu mới.");
+        if (start == null || end == null || start < 0 || end - start < 0.3)
+            throw new ApiException(ErrorCode.BAD_REQUEST,
+                    "Thời gian không hợp lệ: kết thúc phải sau bắt đầu ít nhất 0,3 giây.");
+        if (video.getDuration() != null && video.getDuration() > 0 && end > video.getDuration() + 0.05)
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Thời gian kết thúc vượt quá độ dài video.");
+        List<Subtitle> existing = getByVideoId(video.getId());
+        for (int i = 0; i < existing.size(); i++) {
+            Subtitle other = existing.get(i);
+            if (other.getStartTime() == null || other.getEndTime() == null) continue;
+            if (start < other.getEndTime() - 0.15 && end > other.getStartTime() + 0.15)
+                throw new ApiException(ErrorCode.CONFLICT, "Câu mới chồng thời gian với câu #" + (i + 1)
+                        + ". Hãy chọn khoảng trống khác.");
+        }
+    }
+
     private boolean sameTime(Double left, Double right) {
         return left != null && right != null && Math.abs(left - right) < 0.0001d;
     }
 
     @Transactional
     public Subtitle regenerate(Long id, String overrideText) {
-        Subtitle sub = getById(id);
+        Subtitle sub = getEditableSubtitle(id);
         String text = overrideText != null && !overrideText.isBlank() ? overrideText : sub.getText();
         String cleanText = SubtitleText.normalizeJapanese(text);
-        sub.setText(cleanText);
-
         String lang = sub.getVideo().getTargetLanguage() != null ? sub.getVideo().getTargetLanguage() : "vi";
-        Map<String, String> processed = openRouterService.processJapanese(cleanText, lang);
+        Map<String, String> processed = openRouterService.regenerateJapanese(cleanText, lang);
+        sub.setText(cleanText);
         sub.setFurigana(processed.get("furigana"));
         sub.setTranslation(processed.get("translation"));
         sub.setAiStatus(AiStatus.COMPLETED);
@@ -135,7 +165,7 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> split(Long id, SplitSubtitleRequest req) {
-        Subtitle original = getById(id);
+        Subtitle original = getEditableSubtitle(id);
         double splitTime = req.getSplitAtTime() != null ? req.getSplitAtTime()
                 : (original.getStartTime() + original.getEndTime()) / 2;
 
@@ -162,8 +192,13 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> merge(MergeSubtitleRequest req) {
-        Subtitle s1 = getById(req.getId1());
-        Subtitle s2 = getById(req.getId2());
+        Subtitle s1 = getEditableSubtitle(req.getId1());
+        Subtitle s2 = getEditableSubtitle(req.getId2());
+        if (Objects.equals(s1.getId(), s2.getId())
+                || !Objects.equals(s1.getVideo().getId(), s2.getVideo().getId())) {
+            throw new ApiException(ErrorCode.BAD_REQUEST,
+                    "Chỉ có thể ghép hai câu phụ đề khác nhau trong cùng một video");
+        }
 
         Subtitle merged = new Subtitle();
         merged.setVideo(s1.getVideo());
@@ -183,6 +218,7 @@ public class SubtitleService {
 
     @Transactional
     public List<Subtitle> reorder(Long videoId, List<Long> order) {
+        Video video = getEditableVideo(videoId);
         List<Subtitle> subs = getByVideoId(videoId);
         Map<Long, Subtitle> map = new HashMap<>();
         subs.forEach(s -> map.put(s.getId(), s));
@@ -219,12 +255,26 @@ public class SubtitleService {
             finalOrder.get(i).setSortOrder(i);
         }
         subtitleRepository.saveAll(finalOrder);
-        markModerationStale(videoRepository.findById(NullSafe.longId(videoId)).orElse(null));
+        markModerationStale(video);
         return subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
     }
 
     public void regenerateAllSubtitles(Long videoId) {
+        getEditableVideo(videoId);
         processingJobService.regenerateTranscript(videoId);
+    }
+
+    private Video getEditableVideo(Long videoId) {
+        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        VideoOwnership.requireOwner(video);
+        return video;
+    }
+
+    private Subtitle getEditableSubtitle(Long id) {
+        Subtitle subtitle = subtitleRepository.findById(NullSafe.longId(id)).orElseThrow();
+        VideoOwnership.requireOwner(subtitle.getVideo());
+        attachRuntimeFurigana(subtitle);
+        return subtitle;
     }
 
     private void attachRuntimeFurigana(Subtitle subtitle) {
@@ -234,7 +284,7 @@ public class SubtitleService {
     }
 
     private void markModerationStale(Video video) {
-        if (video == null) return;
+        if (video == null || com.jlas.shadowing.util.ShadowingModerationState.isLocked(video.getModerationStatus())) return;
         video.setModerationStatus("NOT_SCANNED");
         video.setModerationSummary(null);
         video.setModerationCheckedAt(null);
@@ -283,6 +333,12 @@ public class SubtitleService {
             errors.add("Chưa có câu phụ đề nào");
         }
 
+        int pendingQualityReviews = subtitleQualityReviewService.countNeedsReview(videoId);
+        if (pendingQualityReviews > 0) {
+            errors.add("Còn " + pendingQualityReviews
+                    + " câu phụ đề cần xác nhận theo audio trước khi xuất bản");
+        }
+
         String transcript = subs.stream()
                 .map(Subtitle::getText)
                 .filter(text -> text != null && !text.isBlank())
@@ -309,6 +365,9 @@ public class SubtitleService {
             }
         }
 
+        addRecheckHint(warnings, subs, SubtitleText::hasLatinInJapanese, "có chữ Latin, có thể là lỗi nhận dạng");
+        addRecheckHint(warnings, subs, SubtitleText::hasRepeatedRun, "có chuỗi ký tự lặp (tiếng hét hoặc lỗi nhận dạng)");
+
         // Only extreme gaps (broken timeline). 3–8s pauses in speech are normal.
         final double gapWarnSeconds = 20.0;
         for (int i = 1; i < subs.size(); i++) {
@@ -331,6 +390,20 @@ public class SubtitleService {
         result.put("errors", errors);
         result.put("warnings", warnings);
         result.put("canPublish", errors.isEmpty());
+        result.put("pendingQualityReviews", pendingQualityReviews);
         return result;
+    }
+
+    /** Advisory only: names the lines a creator may want to re-listen to; never blocks publish. */
+    private static void addRecheckHint(List<String> warnings, List<Subtitle> subs,
+                                       java.util.function.Predicate<String> suspicious, String reason) {
+        List<String> lines = new ArrayList<>();
+        for (int i = 0; i < subs.size(); i++) {
+            if (suspicious.test(subs.get(i).getText())) lines.add("#" + (i + 1));
+        }
+        if (lines.isEmpty()) return;
+        int shown = Math.min(lines.size(), 15);
+        warnings.add(lines.size() + " câu " + reason + ", nên nghe và kiểm tra lại: "
+                + String.join(", ", lines.subList(0, shown)) + (lines.size() > shown ? ", …" : ""));
     }
 }

@@ -23,13 +23,12 @@ are kept and enriched with Vietnamese Han Viet readings and meanings.
 > for development/testing; confirm redistribution rights before any public
 > release.
 
-Schema changes are in `sql/migrations/005_vietnamese_dictionary.sql`:
-`vocabulary_entry.han_viet`, binary collation for the normalized Japanese
-lookup keys (so は/ば and つ/っ are distinct words and the Java exact/prefix
-queries can use their indexes), binary collation for `kanji.character` (all
-characters outside the BMP otherwise collide on the unique key) and
-`kanji_reading.reading_text` (ハク/バク of 博 were collapsed), and the two
-source rows above.
+Schema changes are in `sql/migrations/059_vietnamese_dictionary.sql`:
+`vocabulary_entry.han_viet`, `utf8mb4_0900_as_cs` for the normalized Japanese
+lookup keys and `kanji_reading.reading_text` (so は/ば, つ/っ, and ハク/バク
+remain distinct and the Java exact/prefix queries can use their indexes),
+`utf8mb4_bin` for `kanji.character` (characters outside the BMP otherwise
+collide on the unique key), and the two source rows above.
 
 Team members do not run these imports: they restore the Git LFS seed with
 `seed_bootstrap.py` (see `docs/HUONG-DAN-CHAY-DU-AN.md`). The steps below rebuild
@@ -38,9 +37,10 @@ order matters because each step links to rows created by the previous ones
 (vocabulary is linked to the Kanji that already exist when it is imported).
 
 ```powershell
-# 1-2. Schema: jlas_schema.sql already contains migrations 005 and 006. For an older database:
-mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/005_vietnamese_dictionary.sql
-mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/006_kanji_component_lookup.sql
+# Schema: jlas_schema.sql already contains migrations 058–060. For an older database:
+mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/058_dictionary_import_metadata.sql
+mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/059_vietnamese_dictionary.sql
+mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/060_kanji_component_lookup.sql
 
 # 3. Every KANJIDIC2 character (the vocabulary uses ~5,000 Kanji, not only the 2,136 Joyo),
 #    then KanjiVG stroke SVGs for the new rows.
@@ -81,7 +81,7 @@ Japanese, 64 composed, 1 Chinese order: 鷉). The remaining 27 very rare charact
 Overall 5,006 of the 5,033 Kanji used by vocabulary have stroke order.
 
 Radical lookup ("Tra theo bộ thủ" in the dictionary page) uses
-`sql/migrations/006_kanji_component_lookup.sql`: `kanji_component` holds the 253
+`sql/migrations/060_kanji_component_lookup.sql`: `kanji_component` holds the 253
 RADKFILE components (shown with their real glyph, e.g. 亻 instead of RADKFILE's
 substitute 化, and linked to the Kangxi radical for the Vietnamese name) and
 `kanji_component_map` links 12,156 Kanji to their components.
@@ -204,7 +204,7 @@ already has `vocabulary_entry`, apply only the additive migration:
 
 ```text
 mysql --default-character-set=utf8mb4 -u <schema-user> -p < jlas_schema.sql
-mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/004_dictionary_import_metadata.sql
+mysql --default-character-set=utf8mb4 -u <schema-user> -p jlas < sql/migrations/058_dictionary_import_metadata.sql
 ```
 
 The migration adds exactly three tables: `dictionary_source`,

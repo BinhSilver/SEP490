@@ -57,6 +57,13 @@ public class InteractionController {
         return ResponseEntity.ok(interactionService.addComment(id, req));
     }
 
+    @PostMapping("/comments/{id}/reactions")
+    public ResponseEntity<CommentReactionDto> react(
+            @PathVariable Long id,
+            @RequestBody CommentReactionRequest req) {
+        return ResponseEntity.ok(interactionService.react(id, req));
+    }
+
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Map<String, String>> deleteComment(
             @PathVariable Long id,

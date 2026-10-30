@@ -5,7 +5,7 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.auth.security.CurrentUser;
 import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.model.ModerationVerdict;
-import com.jlas.common.event.LearningActivityCompleted;
+import com.jlas.common.event.LearningEvent;
 import com.jlas.moderation.service.ContentModerationPort;
 import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.shadowing.dto.*;
@@ -16,8 +16,15 @@ import com.jlas.shadowing.repository.TagRepository;
 import com.jlas.shadowing.repository.VideoFavoriteRepository;
 import com.jlas.shadowing.repository.VideoRatingRepository;
 import com.jlas.shadowing.repository.VideoRepository;
+import com.jlas.shadowing.repository.VideoViewRepository;
+import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
 import com.jlas.shadowing.repository.VideoWatchSessionRepository;
 import com.jlas.shadowing.util.NullSafe;
+import com.jlas.shadowing.util.ShadowingModerationState;
+import com.jlas.shadowing.util.VideoOwnership;
+import com.jlas.shadowing.util.LibraryFilters;
+import com.jlas.shadowing.util.LibraryPopularity;
+import com.jlas.shadowing.repository.ShadowingLibraryCatalog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +41,9 @@ import java.util.stream.Collectors;
 @Service
 public class VideoService {
 
+    private static final String USER_CANCELLED_MESSAGE = "Đã dừng xử lý theo yêu cầu.";
+    private static final String USER_ABANDONED_MESSAGE = "Đã bỏ tiến trình tạo bài.";
+
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private TagRepository tagRepository;
@@ -45,7 +55,12 @@ public class VideoService {
     @Autowired private VideoRatingRepository ratingRepository;
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
+    @Autowired private VideoViewRepository videoViews;
+    @Autowired private ShadowingLibraryCatalog libraryCatalog;
+    @Autowired private ShadowingVideoTags videoTags;
+    @Autowired private ShadowingQuestionBankRepository questionBank;
     @Autowired private YoutubeImportService youtubeImportService;
+    @Autowired private YoutubeImportJobService youtubeImportJobService;
     @Autowired private ContentModerationPort moderationPort;
     @Autowired private VideoModerationService videoModerationService;
     @Autowired private UserActionPolicyPort actionPolicy;
@@ -78,23 +93,31 @@ public class VideoService {
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false, null);
     }
 
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, null);
+    }
+
+    @Transactional
+    public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
+                             String category, List<String> tagNames, String targetLanguage,
+                             Boolean generateFurigana, List<String> genres) throws Exception {
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres);
     }
 
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
-                             Boolean generateFurigana) throws Exception {
-        actionPolicy.assertCanAct(CurrentUser.requireUserId());
+                             Boolean generateFurigana, List<String> genres) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
+        // Checked before the file is stored, so an invalid genre never leaves an orphan upload.
+        List<Tag> genreTags = videoTags.genreTags(genres);
 
         String originalFilename = file.getOriginalFilename();
         String extension = resolveExtension(originalFilename, file.getContentType());
@@ -153,6 +176,7 @@ public class VideoService {
         } else {
             video.setTags(resolveCategory(CategoryConstants.DEFAULT));
         }
+        video.setTags(ShadowingVideoTags.withGenres(video.getTags(), genreTags));
         if (thumbnail != null && !thumbnail.isEmpty()) {
             video.setThumbnailPath(saveThumbnail(thumbnail));
         }
@@ -202,8 +226,7 @@ public class VideoService {
     }
 
     public VideoStatusDto getStatus(Long id) {
-        // Progress polling for processing page — only exposes status fields, not media/subtitles
-        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        Video video = getVideo(id);
         VideoStatusDto dto = new VideoStatusDto();
         dto.setId(video.getId());
         dto.setTitle(video.getTitle());
@@ -215,6 +238,7 @@ public class VideoService {
     }
 
     public List<Subtitle> getSubtitles(Long videoId) {
+        getVideo(videoId);
         return subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
     }
 
@@ -240,12 +264,14 @@ public class VideoService {
 
     /**
      * @param scope public | my | all (legacy). Default public.
+     * @param level N5–N1; blank means every level.
      */
     public List<VideoSummaryDto> search(String query, String tag, String category, String clientId,
-                                        String sort, Boolean favoritesOnly, String scope) {
+                                        String sort, Boolean favoritesOnly, String scope, String level) {
         String sc = scope == null || scope.isBlank() ? "public" : scope.trim().toLowerCase(Locale.ROOT);
         Long me = CurrentUser.currentUserId().orElse(null);
         String catFilter = category != null && !category.isBlank() ? category : tag;
+        Set<String> categories = LibraryFilters.values(catFilter);
         List<Video> videos;
 
         if ("my".equals(sc)) {
@@ -255,13 +281,6 @@ public class VideoService {
             List<VideoStatus> mineStatuses = List.of(
                     VideoStatus.READY, VideoStatus.DRAFT, VideoStatus.PROCESSING, VideoStatus.FAILED);
             videos = videoRepository.findByOwnerIdAndStatusInOrderByCreatedAtDesc(me, mineStatuses);
-            if (catFilter != null && !catFilter.isBlank()) {
-                String cat = catFilter;
-                videos = videos.stream()
-                        .filter(v -> v.getTags() != null && v.getTags().stream()
-                                .anyMatch(t -> t.getName() != null && t.getName().equalsIgnoreCase(cat)))
-                        .collect(Collectors.toList());
-            }
             if (query != null && !query.isBlank()) {
                 String q = query.toLowerCase(Locale.ROOT);
                 videos = videos.stream()
@@ -272,10 +291,10 @@ public class VideoService {
             // Legacy: all statuses (admin-ish) — still filter private of others
             List<VideoStatus> statuses = List.of(
                     VideoStatus.READY, VideoStatus.DRAFT, VideoStatus.PROCESSING, VideoStatus.FAILED);
-            if (catFilter != null && !catFilter.isBlank()) {
-                videos = videoRepository.findByTag(catFilter, statuses);
-            } else if (query != null && !query.isBlank()) {
+            if (query != null && !query.isBlank()) {
                 videos = videoRepository.search(query, statuses);
+            } else if (categories.size() == 1) {
+                videos = videoRepository.findByTag(catFilter, statuses);
             } else {
                 videos = videoRepository.findByStatusInOrderByCreatedAtDesc(statuses);
             }
@@ -285,9 +304,7 @@ public class VideoService {
                     .collect(Collectors.toList());
         } else {
             // public: READY + PUBLIC (or null visibility legacy)
-            if (catFilter != null && !catFilter.isBlank()) {
-                videos = videoRepository.findPublicByTag(catFilter);
-            } else if (query != null && !query.isBlank()) {
+            if (query != null && !query.isBlank()) {
                 LinkedHashMap<Long, Video> matches = new LinkedHashMap<>();
                 for (String term : query.trim().split("\\s+")) {
                     if (term.length() >= 2) {
@@ -295,9 +312,22 @@ public class VideoService {
                     }
                 }
                 videos = matches.isEmpty() ? videoRepository.searchPublic(query) : new ArrayList<>(matches.values());
+            } else if (categories.size() == 1) {
+                videos = videoRepository.findPublicByTag(catFilter);
             } else {
                 videos = videoRepository.findAllPublicReady();
             }
+        }
+
+        // Removed videos never show up in any list, not even to their owner; reported ones only to the owner.
+        videos = videos.stream()
+                .filter(v -> !ShadowingModerationState.isRemoved(v.getModerationStatus()))
+                .collect(Collectors.toList());
+
+        if (!categories.isEmpty()) {
+            videos = videos.stream().filter(v -> v.getTags() != null && v.getTags().stream()
+                    .anyMatch(t -> t.getName() != null && categories.contains(t.getName().toLowerCase(Locale.ROOT))))
+                    .collect(Collectors.toList());
         }
 
         Set<Long> favoriteIds = interactionService.getFavoriteVideoIds(clientId);
@@ -311,7 +341,35 @@ public class VideoService {
         List<VideoSummaryDto> summaries = videos.stream()
                 .map(v -> toSummary(v, clientId, favoriteIds, userRatings, currentUser))
                 .collect(Collectors.toList());
+        Set<String> levels = LibraryFilters.values(level);
+        if (!levels.isEmpty()) {
+            summaries = summaries.stream()
+                    .filter(dto -> dto.getEstimatedLevel() != null
+                            && levels.contains(dto.getEstimatedLevel().toLowerCase(Locale.ROOT)))
+                    .collect(Collectors.toList());
+        }
         return sortSummaries(summaries, sort);
+    }
+
+    /** Rank and paginate lightweight metadata before loading subtitles and per-user state. */
+    public LibraryPageDto<VideoSummaryDto> searchPage(String query, String category, String level, String sort,
+            String scope, String status, boolean favorites, int page, int size) {
+        return searchPage(query, category, null, level, sort, scope, status, favorites, page, size);
+    }
+
+    public LibraryPageDto<VideoSummaryDto> searchPage(String query, String category, String genre, String level,
+            String sort, String scope, String status, boolean favorites, int page, int size) {
+        Long me = CurrentUser.currentUserId().orElse(null);
+        String client = me == null ? null : String.valueOf(me);
+        return libraryCatalog.videos(query, category, genre, level, sort, scope, status, favorites, me, page, size)
+                .map(entry -> {
+                    VideoSummaryDto dto = getSummary(entry.id(), client);
+                    dto.setAvgRating(entry.metrics().ratingCount() > 0 ? entry.metrics().averageRating() : null);
+                    dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().ratingCount()));
+                    dto.setViewCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().views()));
+                    dto.setEstimatedLevel(entry.level());
+                    return dto;
+                });
     }
 
     private static boolean isPublicReady(Video v) {
@@ -321,29 +379,44 @@ public class VideoService {
         String ms = v.getModerationStatus();
         if (ms != null) {
             String u = ms.toUpperCase(Locale.ROOT);
-            if ("REVIEW".equals(u) || "BLOCKED".equals(u)) return false;
+            if ("REVIEW".equals(u) || "BLOCKED".equals(u) || ShadowingModerationState.isLocked(u)) return false;
         }
         return true;
     }
 
+    private static boolean isModerator() {
+        return CurrentUser.hasRole("ROLE_MODERATOR") || CurrentUser.hasRole("ROLE_ADMIN")
+                || CurrentUser.hasRole("ROLE_SUPER_ADMIN");
+    }
+
     private static boolean isOwner(Video v, Long userId) {
-        return userId != null && userId.equals(v.getOwnerId());
+        return VideoOwnership.isOwner(v, userId);
+    }
+
+    public boolean canEdit(Video video) {
+        return VideoOwnership.canEdit(video);
     }
 
     public void requireOwner(Video video) {
-        Long me = CurrentUser.requireUserId();
-        if (video.getOwnerId() != null && !me.equals(video.getOwnerId())) {
-            throw new ApiException(ErrorCode.FORBIDDEN, "Chỉ chủ sở hữu mới được sửa hoặc xóa video này");
-        }
+        VideoOwnership.requireOwner(video);
     }
 
     public void requireReadable(Video video) {
         Long me = CurrentUser.currentUserId().orElse(null);
+        // Removed for a valid report: nobody may open it any more, owner included.
+        if (ShadowingModerationState.isRemoved(video.getModerationStatus())) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Video này đã bị gỡ do vi phạm bản quyền hoặc quy định cộng đồng.");
+        }
+        // Reported and hidden: only its owner and moderators (who decide the report) may still open it.
+        if (ShadowingModerationState.REPORTED.equalsIgnoreCase(video.getModerationStatus())
+                && (isOwner(video, me) || isModerator())) {
+            return;
+        }
         // Public library items, or owner (draft/private/processing)
         if (isPublicReady(video) || isOwner(video, me)) {
             return;
         }
-        // Legacy rows without owner: any logged-in user (matches requireOwner null-owner rule)
+        // Legacy rows remain readable by logged-in users, but carry no editing rights.
         if (video.getOwnerId() == null && me != null) {
             return;
         }
@@ -355,7 +428,22 @@ public class VideoService {
     }
 
     private List<VideoSummaryDto> sortSummaries(List<VideoSummaryDto> summaries, String sort) {
-        if (sort == null || sort.isBlank() || "newest".equals(sort)) {
+        if ("duration-asc".equals(sort) || "duration-desc".equals(sort)) {
+            return summaries.stream().sorted(LibraryFilters.duration(VideoSummaryDto::getDuration,
+                    "duration-desc".equals(sort))).collect(Collectors.toList());
+        }
+        if (sort == null || sort.isBlank() || "popular".equals(sort)) {
+            var snapshot = libraryCatalog.snapshot();
+            var caps = snapshot.caps();
+            Map<Long, Long> recentViews = snapshot.entries().stream().collect(Collectors.toMap(
+                    ShadowingLibraryCatalog.Entry::id, e -> e.metrics().recentViews()));
+            return summaries.stream().sorted(ShadowingLibraryCatalog.order("popular",
+                    v -> new LibraryPopularity.Metrics(v.getAvgRating() == null ? 0 : v.getAvgRating(),
+                            v.getRatingCount(), v.getViewCount(), recentViews.getOrDefault(v.getId(), 0L)),
+                    VideoSummaryDto::getDuration, VideoSummaryDto::getTitle, VideoSummaryDto::getCreatedAt,
+                    VideoSummaryDto::getId, caps)).collect(Collectors.toList());
+        }
+        if ("newest".equals(sort)) {
             return summaries.stream()
                     .sorted(Comparator.comparing(
                             (VideoSummaryDto v) -> v.getCreatedAt(),
@@ -407,14 +495,25 @@ public class VideoService {
         requireOwner(video);
         if (req.getTitle() != null) {
             video.setTitle(req.getTitle());
-            video.setModerationStatus("NOT_SCANNED");
-            video.setModerationSummary(null);
-            video.setModerationCheckedAt(null);
+            // A reported or removed video stays locked; a rename must not clear that and trigger a fresh scan.
+            if (!ShadowingModerationState.isLocked(video.getModerationStatus())) {
+                video.setModerationStatus("NOT_SCANNED");
+                video.setModerationSummary(null);
+                video.setModerationCheckedAt(null);
+            }
         }
+        // Format and genres each replace only their own tags; level and series tags stay.
         if (req.getCategory() != null && !req.getCategory().isBlank()) {
-            video.setTags(resolveCategory(req.getCategory()));
+            video.setTags(ShadowingVideoTags.withFormat(video.getTags(), resolveCategory(req.getCategory())));
         } else if (req.getTags() != null) {
             video.setTags(resolveTags(req.getTags()));
+        }
+        if (req.getGenres() != null) {
+            try {
+                video.setTags(ShadowingVideoTags.withGenres(video.getTags(), videoTags.genreTags(req.getGenres())));
+            } catch (IllegalArgumentException e) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, e.getMessage());
+            }
         }
         if (req.getVisibility() != null && !req.getVisibility().isBlank()) {
             try {
@@ -431,6 +530,12 @@ public class VideoService {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
         actionPolicy.assertCanAct(CurrentUser.requireUserId());
+        if (ShadowingModerationState.isRemoved(video.getModerationStatus())) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Video này đã bị gỡ do vi phạm bản quyền hoặc quy định cộng đồng.");
+        }
+        if (ShadowingModerationState.isLocked(video.getModerationStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Video đang bị báo cáo, hãy chờ quản trị viên xem xét.");
+        }
         boolean wasPublic = video.getVisibility() == VideoVisibility.PUBLIC;
         Map<String, Object> validation = subtitleService.validate(id);
         // Only hard errors block publish — warnings (gaps, missing translation) are ignored here
@@ -496,7 +601,7 @@ public class VideoService {
         video.setModerationStatus(ModerationVerdict.SAFE.name());
         Video published = NullSafe.ref(videoRepository.save(video));
         if (!wasPublic && published.getOwnerId() != null) {
-            eventPublisher.publishEvent(LearningActivityCompleted.shadowingPublished(
+            eventPublisher.publishEvent(LearningEvent.shadowingPublished(
                     published.getOwnerId(), published.getId()));
         }
         return published;
@@ -527,6 +632,73 @@ public class VideoService {
         }
     }
 
+    public void resumeProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        if (video.getStatus() != VideoStatus.FAILED
+                || video.getErrorMessage() == null
+                || !video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE)) {
+            throw new IllegalStateException("Chỉ có thể tiếp tục bài học đã được bạn dừng.");
+        }
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        if (video.getSourceUrl() != null && !video.getSourceUrl().isBlank()) {
+            youtubeImportService.resumeImport(id);
+        } else {
+            processingJobService.resumeProcessing(id);
+        }
+    }
+
+    @Transactional
+    public void abandonProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        boolean isRunning = video.getStatus() == VideoStatus.PROCESSING;
+        boolean isPaused = video.getStatus() == VideoStatus.FAILED
+                && video.getErrorMessage() != null
+                && video.getErrorMessage().startsWith(USER_CANCELLED_MESSAGE);
+        if (!isRunning && !isPaused) {
+            throw new IllegalStateException("Chỉ có thể bỏ một tiến trình đang chạy hoặc đang tạm dừng.");
+        }
+        if (isRunning) {
+            processingJobService.cancel(id);
+            youtubeImportJobService.cancel(id);
+        }
+        video.setStatus(VideoStatus.FAILED);
+        video.setErrorMessage(USER_ABANDONED_MESSAGE
+                + " Bản nháp được giữ lại; bạn có thể tạo lại từ đầu khi quay lại.");
+        videoRepository.save(video);
+    }
+
+    @Transactional
+    public void cancelProcessing(Long id) {
+        Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
+        requireOwner(video);
+        if (video.getStatus() != VideoStatus.PROCESSING) {
+            throw new IllegalStateException("Bài học này không còn trong quá trình xử lý.");
+        }
+        processingJobService.cancel(id);
+        youtubeImportJobService.cancel(id);
+        video.setStatus(VideoStatus.FAILED);
+        video.setErrorMessage(USER_CANCELLED_MESSAGE + " Bạn có thể tiếp tục với thiết lập hiện tại hoặc tạo bài mới.");
+        videoRepository.save(video);
+    }
+
+    /** Falls back to the level chosen (or suggested by AI) on the question preparation page. */
+    private void applyPreparedLevel(VideoSummaryDto dto, Long videoId) {
+        String[] levels = questionBank.jlptLevels(videoId);
+        if (levels == null) return;
+        String selected = levels[0], suggested = levels[1];
+        if (selected != null && !selected.isBlank()) {
+            dto.setEstimatedLevel(selected.toUpperCase(Locale.ROOT));
+            dto.setLevelSource(selected.equalsIgnoreCase(suggested) ? "AI" : "CREATOR");
+        } else if (suggested != null && !suggested.isBlank()) {
+            dto.setEstimatedLevel(suggested.toUpperCase(Locale.ROOT));
+            dto.setLevelSource("AI");
+        }
+    }
+
     private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds,
                                       Map<Long, Integer> userRatings) {
         return toSummary(v, clientId, favoriteIds, userRatings, CurrentUser.currentUserId().orElse(null));
@@ -540,23 +712,26 @@ public class VideoService {
         dto.setStatus(v.getStatus());
         dto.setThumbnailPath(v.getThumbnailPath());
         dto.setDuration(v.getDuration());
+        dto.setProcessingStep(v.getProcessingStep());
         dto.setProgressPercent(v.getProgressPercent());
         dto.setCreatedAt(v.getCreatedAt());
         dto.setTags(v.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList()));
         dto.setCategory(extractCategory(v));
+        dto.setGenres(ShadowingVideoTags.genresOf(v.getTags()));
         v.getTags().stream().map(Tag::getName).filter(Objects::nonNull)
                 .map(String::trim).filter(name -> name.matches("(?i)N[1-5]"))
                 .findFirst().ifPresent(level -> {
                     dto.setEstimatedLevel(level.toUpperCase(Locale.ROOT));
                     dto.setLevelSource("CREATOR");
                 });
+        if (dto.getEstimatedLevel() == null) applyPreparedLevel(dto, v.getId());
         dto.setSubtitleCount(subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(v.getId()).size());
         dto.setOwnerId(v.getOwnerId());
         dto.setVisibility(v.getVisibility() != null ? v.getVisibility().name() : VideoVisibility.PRIVATE.name());
         dto.setOwnedByMe(currentUserId != null && currentUserId.equals(v.getOwnerId()));
-        dto.setViewCount((int) watchSessionRepository.countViewsByVideoId(v.getId()));
-        dto.setAvgRating(v.getAvgRating());
-        dto.setRatingCount(v.getRatingCount() != null ? v.getRatingCount() : 0);
+        dto.setViewCount(videoViews.viewCount(v.getId()));
+        dto.setAvgRating(ratingRepository.averageByVideoId(v.getId()));
+        dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, ratingRepository.countByVideoId(v.getId())));
         dto.setCommentCount(commentRepository.countByVideoId(v.getId()));
         if (clientId != null) {
             dto.setFavorited(favoriteIds.contains(v.getId()));

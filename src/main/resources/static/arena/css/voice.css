@@ -1,0 +1,106 @@
+.arena-voice {
+  position: fixed;
+  z-index: 2147483000;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: min(320px, calc(100vw - 32px));
+  padding: 12px;
+  border: 1px solid #cfc6dc;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(31, 24, 55, .22);
+  color: #221b32;
+  font: 600 14px/1.4 system-ui, sans-serif;
+}
+.arena-voice[hidden] { display: none; }
+.arena-voice__top { display: flex; align-items: center; gap: 8px; }
+.arena-voice__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.arena-voice__top { margin-bottom: 10px; }
+.arena-voice__dot { width: 10px; height: 10px; flex: none; border-radius: 50%; background: #857c91; }
+.arena-voice__dot[data-state="online"] { background: #08734e; }
+.arena-voice__dot[data-state="pending"] { background: #a97500; }
+.arena-voice__dot[data-state="warning"] { background: #a97500; }
+.arena-voice__dot[data-state="error"] { background: #ba1a1a; }
+.arena-voice__status { overflow-wrap: anywhere; }
+.arena-voice__button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #75658f;
+  border-radius: 10px;
+  background: #fff;
+  color: #392954;
+  font: inherit;
+  cursor: pointer;
+}
+.arena-voice__button--primary { background: #4f378a; color: #fff; border-color: #4f378a; }
+.arena-voice__button--leave { grid-column: 1 / -1; background: #f6f2fa; }
+.arena-voice__button:focus-visible { outline: 3px solid #d0bcff; outline-offset: 2px; }
+.arena-voice__button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 520px) {
+  .arena-voice { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100vw - 16px)); }
+}
+
+/* Page-owned dark mode: arena/css/voice.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-arena-bg: #0b0d13;
+  --dm-arena-surface: #151a28;
+  --dm-arena-raised: #232b3d;
+  --dm-arena-ink: #f8fafc;
+  --dm-arena-muted: #b2bfd2;
+  --dm-arena-line: #414c65;
+  --dm-arena-accent: #c084fc;
+  --dm-arena-action: #7335a6;
+  --dm-arena-accent-soft: #2b2140;
+  --dm-arena-on-accent: #211b34;
+  --dm-arena-success: #8eddb6;
+  --dm-arena-success-bg: #1b3d32;
+  --dm-arena-success-line: #43816b;
+  --dm-arena-danger: #ffb4bd;
+  --dm-arena-danger-bg: #452832;
+  --dm-arena-danger-line: #96616d;
+  --dm-arena-warning: #f3d28a;
+  --dm-arena-warning-bg: #403522;
+  --dm-arena-warning-line: #947a46;
+  --dm-arena-pink: #f4aed2;
+  --dm-arena-pink-bg: #432d40;
+  --dm-arena-pink-line: #88637b;
+}
+html[data-theme="dark"] .arena-voice {
+    border: 1px solid var(--dm-arena-line);
+    background: var(--dm-arena-surface);
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+    color: var(--dm-arena-accent)
+}
+html[data-theme="dark"] .arena-voice__dot {
+    background: var(--dm-arena-raised)
+}
+html[data-theme="dark"] .arena-voice__dot[data-state="online"] {
+    background: var(--dm-arena-success-bg)
+}
+html[data-theme="dark"] .arena-voice__dot[data-state="pending"] {
+    background: var(--dm-arena-warning-bg)
+}
+html[data-theme="dark"] .arena-voice__dot[data-state="warning"] {
+    background: var(--dm-arena-warning-bg)
+}
+html[data-theme="dark"] .arena-voice__dot[data-state="error"] {
+    background: var(--dm-arena-danger-bg)
+}
+html[data-theme="dark"] .arena-voice__button {
+    border: 1px solid var(--dm-arena-line);
+    background: var(--dm-arena-surface);
+    color: var(--dm-arena-accent)
+}
+html[data-theme="dark"] .arena-voice__button--primary {
+    background: var(--dm-arena-raised);
+    color: var(--dm-arena-ink);
+    border-color: var(--dm-arena-line)
+}
+html[data-theme="dark"] .arena-voice__button--leave {
+    background: var(--dm-arena-accent-soft)
+}
+html[data-theme="dark"] .arena-voice__button:focus-visible {
+    outline: 3px solid var(--dm-arena-line)
+}

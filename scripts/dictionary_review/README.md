@@ -14,7 +14,7 @@ mvn -o -q compile
 java -cp target/classes scripts/dictionary_review/FindInflectedEntries.java entries.tsv data/dictionary-review/muc-dang-chia-va-cau.csv
 ```
 
-Kết quả với seed 20261016 sau migration 007 là `inflected=219 sentences=95`, tổng cộng 314 dòng.
+Kết quả với seed 20261016 sau migration 061 là `inflected=219 sentences=95`, tổng cộng 314 dòng.
 
 Các mục không đưa vào danh sách, vì không phải lỗi:
 

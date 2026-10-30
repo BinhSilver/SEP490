@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * Repository cho {@link VocabularyReading} (các cách đọc phụ của một vocabulary_entry).
- * {@code normalized_reading} là cột utf8mb4_bin (migration 005) nên so sánh trực tiếp, dùng index.
+ * {@code normalized_reading} dùng utf8mb4_0900_as_cs (accent/case-sensitive, phân biệt
+ * dakuten); query so sánh trực tiếp, không ép COLLATE, để dùng index (migration 059).
  */
 @Repository
 public interface VocabularyReadingRepository extends JpaRepository<VocabularyReading, Long> {

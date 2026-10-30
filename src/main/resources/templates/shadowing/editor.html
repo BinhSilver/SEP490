@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chỉnh sửa phụ đề | JLAS Shadowing</title>
@@ -9,12 +10,14 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261021-ack">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260910-editor-play-button"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261009-editor-spacing"/>
+    <link rel="stylesheet" href="/shadowing/css/editor-ai-dialog.css?v=20261017-add-subtitle-2"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-editor">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-editor">
     <div id="jlabBaseShellMount"></div>
 
     <input type="hidden" id="video-id" th:value="${videoId}">
@@ -31,9 +34,12 @@
             <div class="editor-toolbar-actions">
                 <button id="undo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-left"></i> Hoàn tác</button>
                 <button id="redo-btn" class="button-secondary btn-sm" disabled><i class="fa-solid fa-rotate-right"></i> Làm lại</button>
+                <button id="add-subtitle-btn" class="button-secondary btn-sm" title="Thêm câu phụ đề tại vị trí đang phát"><i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm câu</button>
                 <button id="focus-mode-btn" class="button-secondary btn-sm"><i class="fa-solid fa-crosshairs"></i> Tập trung</button>
                 <button id="regenerate-all-btn" class="button-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> Tạo lại phụ đề</button>
+                <button id="editor-ai-progress" class="button-secondary btn-sm" hidden>Xem tiến trình AI</button>
                 <button id="validate-btn" class="button-secondary btn-sm"><i class="fa-solid fa-clipboard-check"></i> Kiểm tra</button>
+                <a id="prepare-exercises-link" class="button-secondary btn-sm" th:href="@{/shadowing/prepare/{id}(id=${videoId})}"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Chuẩn bị bài tập</a>
                 <button id="publish-btn" class="button-primary"><i class="fa-solid fa-upload"></i> Xuất bản</button>
             </div>
         </div>
@@ -44,7 +50,7 @@
                 <input type="text" id="meta-title" class="form-input">
             </div>
             <div class="form-group">
-                <label class="form-label" for="meta-category">Thể loại</label>
+                <label class="form-label" for="meta-category">Hình thức</label>
                 <select id="meta-category" class="form-input form-select">
                     <option value="Podcast">Podcast</option>
                     <option value="Anime">Anime</option>
@@ -56,6 +62,7 @@
                     <option value="JLPT">JLPT</option>
                 </select>
             </div>
+            <div th:replace="~{shadowing/genre-picker :: picker('meta-genres')}"></div>
             <button id="save-meta-btn" class="button-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Lưu thông tin</button>
         </div>
 
@@ -66,14 +73,25 @@
                         <video id="editor-video"></video>
                     </div>
                     <div class="player-controls" style="justify-content: center;">
-                        <button id="editor-play-btn" class="control-btn play-main">
+                        <button id="editor-play-btn" class="control-btn play-main" aria-label="Phát video">
                             <i class="fa-solid fa-play" id="editor-play-icon"></i>
                         </button>
                     </div>
                 </div>
                 <div class="timeline-card">
-                    <p class="caption" style="margin:0 0 8px;"><i class="fa-solid fa-chart-gantt"></i> Dòng thời gian</p>
+                    <div class="timeline-head">
+                        <p class="caption timeline-title"><i class="fa-solid fa-chart-gantt"></i> Dòng thời gian</p>
+                        <div class="timeline-zoom" role="group" aria-label="Thu phóng dòng thời gian">
+                            <button type="button" class="timeline-zoom__btn" id="timeline-zoom-out" title="Thu nhỏ (Ctrl + lăn chuột)" aria-label="Thu nhỏ"><i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i></button>
+                            <input type="range" id="timeline-zoom" class="timeline-zoom__slider" min="0" max="100" step="1" value="0" aria-label="Mức phóng to dòng thời gian">
+                            <button type="button" class="timeline-zoom__btn" id="timeline-zoom-in" title="Phóng to (Ctrl + lăn chuột)" aria-label="Phóng to"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>
+                            <button type="button" class="timeline-zoom__btn" id="timeline-zoom-fit" title="Xem toàn bộ" aria-label="Xem toàn bộ"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+                            <span class="caption timeline-zoom__label" id="timeline-zoom-label" aria-live="polite">Toàn bộ</span>
+                        </div>
+                    </div>
                     <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+                    <input type="range" id="timeline-scroll" class="timeline-scroll" min="0" max="1000" step="1" value="0" aria-label="Di chuyển dòng thời gian" hidden>
+                    <p class="caption timeline-hint">Ctrl + lăn chuột để phóng to · kéo hoặc lăn chuột để di chuyển · bấm để tua tới · nhấp đúp chỗ trống để thêm câu</p>
                 </div>
             </div>
 
@@ -82,12 +100,78 @@
 
     </main>
 
+    <dialog id="editor-add-dialog" class="editor-ai-dialog editor-add-dialog" aria-labelledby="editor-add-title" aria-describedby="editor-add-description">
+        <header class="editor-ai-dialog__header">
+            <span class="editor-ai-dialog__symbol"><i class="fa-solid fa-closed-captioning" aria-hidden="true"></i></span>
+            <div><h2 id="editor-add-title">Thêm câu phụ đề</h2><p id="editor-add-description">Đặt thời gian trước để câu mới không chồng lên câu khác và vẫn xuất bản được.</p></div>
+            <button type="button" class="editor-ai-dialog__close" data-add-close aria-label="Đóng popup"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        <form id="editor-add-form" class="editor-ai-dialog__body editor-add" novalidate>
+            <fieldset class="editor-add__step">
+                <legend>1. Thời gian</legend>
+                <div class="editor-add__times">
+                    <div class="editor-add__time">
+                        <label for="add-start">Bắt đầu (giây)</label>
+                        <input type="number" id="add-start" step="0.1" min="0" inputmode="decimal" required>
+                        <button type="button" class="editor-add__take" data-take="start"><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> Lấy vị trí đang phát</button>
+                    </div>
+                    <div class="editor-add__time">
+                        <label for="add-end">Kết thúc (giây)</label>
+                        <input type="number" id="add-end" step="0.1" min="0" inputmode="decimal" required>
+                        <button type="button" class="editor-add__take" data-take="end"><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> Lấy vị trí đang phát</button>
+                    </div>
+                </div>
+                <p class="editor-add__summary" id="add-range-label"></p>
+                <div class="editor-add__actions">
+                    <button type="button" class="button-secondary btn-sm" id="add-preview"><i class="fa-solid fa-play" aria-hidden="true"></i> Nghe thử đoạn này</button>
+                    <button type="button" class="button-secondary btn-sm" id="add-fit" hidden>Tự chỉnh cho vừa khoảng trống</button>
+                </div>
+                <ul class="editor-add__status" id="add-time-status" role="status" aria-live="polite"></ul>
+            </fieldset>
+            <fieldset class="editor-add__step">
+                <legend>2. Nội dung</legend>
+                <label for="add-text">Tiếng Nhật</label>
+                <textarea id="add-text" rows="2" lang="ja" required></textarea>
+                <label for="add-furigana">Cách đọc <span class="caption">(không bắt buộc)</span></label>
+                <textarea id="add-furigana" rows="1" lang="ja"></textarea>
+                <label for="add-translation">Bản dịch <span class="caption">(không bắt buộc)</span></label>
+                <textarea id="add-translation" rows="1"></textarea>
+                <label class="editor-add__check"><input type="checkbox" id="add-ai" checked> Để AI tạo cách đọc và bản dịch sau khi thêm</label>
+            </fieldset>
+        </form>
+        <footer class="editor-ai-dialog__footer">
+            <button type="button" class="button-secondary" data-add-close>Hủy</button>
+            <button type="submit" form="editor-add-form" class="button-primary" id="add-submit" disabled>Thêm câu</button>
+        </footer>
+    </dialog>
+
+    <dialog id="editor-ai-dialog" class="editor-ai-dialog" aria-labelledby="editor-ai-title" aria-describedby="editor-ai-description">
+        <header class="editor-ai-dialog__header">
+            <span class="editor-ai-dialog__symbol"><i class="fa-solid fa-language" aria-hidden="true"></i></span>
+            <div><h2 id="editor-ai-title">Tạo lại AI</h2><p id="editor-ai-description" hidden>Tạo cách đọc và bản dịch cho câu phụ đề.</p></div>
+            <button type="button" class="editor-ai-dialog__close" data-ai-close aria-label="Đóng popup"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        <div class="editor-ai-dialog__body">
+            <p class="editor-ai-dialog__source" id="editor-ai-source" lang="ja"></p>
+            <div class="editor-ai-dialog__status" role="status" aria-live="polite" aria-atomic="true">
+                <span class="editor-ai-dialog__marker" aria-hidden="true"></span>
+                <div><strong id="editor-ai-status">Đang xử lý…</strong><p id="editor-ai-detail">AI đang xử lý câu phụ đề bạn đã chọn.</p></div>
+            </div>
+        </div>
+        <footer class="editor-ai-dialog__footer">
+            <button type="button" class="button-secondary" data-ai-close>Xem trang</button>
+            <button type="button" class="button-primary" id="editor-ai-primary" disabled>Đang xử lý…</button>
+        </footer>
+    </dialog>
+
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js"></script>
-    <script src="/shadowing/js/client.js?v=20260712"></script>
-    <script src="/shadowing/js/confirm-modal.js?v=20260829"></script>
+    <script src="/shadowing/js/client.js?v=20261017-genres"></script>
+    <script src="/shadowing/js/confirm-modal.js?v=20261021-ack"></script>
     <script src="/flashcard/js/prevalidation.js"></script>
-    <script src="/shadowing/js/editor.js?v=20260910-publish-copy"></script>
+    <script src="/shadowing/js/editor-operations.js?v=20261017-add-subtitle"></script>
+    <script src="/shadowing/js/youtube-media.js?v=20261021-yt"></script>
+    <script src="/shadowing/js/editor.js?v=20261021-dangtai"></script>
     <script>
       // BR-11 — Pre-validation cho tiêu đề video Shadowing
       document.addEventListener('DOMContentLoaded', function () {

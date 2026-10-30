@@ -1,14 +1,22 @@
 package com.jlas.learning.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.time.LocalDateTime;
+import java.util.List;
 
-/** Response thông tin lộ trình học của người dùng. */
-@Data
-@Builder
-public class LearningPathResponse {
-    private Long id;
-    private Long userId;
-    private String currentLevel;
-    private int completedLessons;
+/**
+ * Read model of the user's active learning path: two phases with daily scheduling,
+ * coverage gaps and overall totals.
+ */
+public record LearningPathResponse(Long id, Long userId, Long assessmentAttemptId, String goal, String targetLevel,
+        String currentLevel, Integer minutesPerDay, String status, int version, LocalDateTime createdAt,
+        List<LearningPhaseGroup> phases, List<CoverageGap> coverageGaps,
+        int totalLessons, int totalMinutes, int totalDays, int completedLessons,
+        boolean warmUpCompleted, boolean gatePassed, JsonNode aiPlan, List<LearningStageResponse> stages,
+        LocalDateTime completedAt, NextTargetRecommendation nextTargetRecommendation) {
+    public LearningPathResponse {
+        phases = List.copyOf(phases);
+        coverageGaps = List.copyOf(coverageGaps);
+        stages = List.copyOf(stages);
+    }
 }

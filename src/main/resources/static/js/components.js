@@ -13,6 +13,12 @@
     if (!host) {
       host = document.createElement('div');
       host.id = 'toast-host';
+      // Bắt buộc: toast.css chỉ định nghĩa .toast-host (class), không có #toast-host. Thiếu class này
+      // thì host mất position:fixed và toast rơi xuống cuối <body>, ngoài tầm nhìn rồi tự xoá sau 4.5s —
+      // trang nào không nhúng fragments/components/toast.html sẽ nuốt lỗi âm thầm.
+      host.className = 'toast-host';
+      host.setAttribute('aria-live', 'polite');
+      host.setAttribute('aria-atomic', 'true');
       document.body.appendChild(host);
     }
 
@@ -170,7 +176,8 @@
     closeTimer: null
   };
 
-  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Luôn chạy hoạt ảnh, không theo prefers-reduced-motion của hệ điều hành (quyết định sản phẩm).
+  var prefersReducedMotion = false;
 
   function ensureAiProgressModal() {
     var modal = document.getElementById('sakura-ai-progress-modal');

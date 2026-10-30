@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const replayBtn = document.getElementById('replay-btn');
     const playBtn = document.getElementById('play-btn');
     const nextBtn = document.getElementById('next-btn');
-    const loopBtn = document.getElementById('loop-btn');
-    const loopCountSelect = document.getElementById('loop-count');
     const playIcon = document.getElementById('play-icon');
     const translationToggleBtn = document.getElementById('translation-toggle-btn');
     const furiganaToggleBtn = document.getElementById('furigana-toggle-btn');
@@ -23,12 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedMenu = document.getElementById('speed-menu');
     const speedToggleLabel = document.getElementById('speed-toggle-label');
     const speedBtns = document.querySelectorAll('.speed-menu .speed-btn');
-    const playerControls = document.getElementById('player-controls');
-    const playerControlsSlot = document.getElementById('player-controls-slot');
-    const playerControlsToggle = document.getElementById('player-controls-toggle');
-    const timelineFill = document.getElementById('timeline-fill');
-    const timelineTime = document.getElementById('timeline-time');
-    const timelineTrack = document.getElementById('timeline-track');
     const lessonTitle = document.getElementById('lesson-title');
     const lessonDurationBadge = document.getElementById('lesson-duration-badge');
     const lessonCategoryBadge = document.getElementById('lesson-category-badge');
@@ -65,13 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let videoMeta = null;
     let isFavorited = false;
-    let watchSent = false;
-    let lastWatchPing = 0;
     let isAudioOnly = false;
 
     let subtitles = [];
     let currentActiveIndex = -1;
     let pronunciationSubtitleIndex = -1;
+    let listenRecord = null;
 
     window.getShadowingPronunciationContext = function (requestedIndex) {
         const index = Number.isInteger(requestedIndex) ? requestedIndex : pronunciationSubtitleIndex;
@@ -91,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index < 0 || !subtitles[index] || pronunciationSubtitleIndex === index) return;
         pronunciationSubtitleIndex = index;
         const context = window.getShadowingPronunciationContext();
+        listenRecord?.select(context);
         window.dispatchEvent(new CustomEvent('shadowing:pronunciation-context-change', {
             detail: { ...context, source }
         }));
@@ -98,9 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.selectShadowingPronunciationSubtitle = selectPronunciationSubtitle;
     let isFuriganaVisible = true;
     let isTranslationVisible = true;
-    let isLoopEnabled = false;
-    let loopCountMax = 0;
-    let currentLoopCount = 0;
     let scrollAnimFrame = null;
     const FOLLOW_ANCHOR_RATIO = 0.32;
     playerContainer.classList.add('show-furigana');
@@ -214,37 +203,182 @@ document.addEventListener('DOMContentLoaded', () => {
         return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
+    /** Reactions a learner can leave on a comment (same list as CommentThreadRepository.REACTIONS). */
+    const COMMENT_REACTIONS = [
+        { key: 'LIKE', emoji: '👍', label: 'Thích' },
+        { key: 'LOVE', emoji: '❤️', label: 'Yêu thích' },
+        { key: 'HAHA', emoji: '😂', label: 'Haha' },
+        { key: 'WOW', emoji: '😮', label: 'Wow' },
+        { key: 'SAD', emoji: '😢', label: 'Buồn' },
+        { key: 'CLAP', emoji: '👏', label: 'Hoan hô' }
+    ];
+    const reactionOf = key => COMMENT_REACTIONS.find(r => r.key === key);
+
     function renderComments(comments) {
         if (!commentList) return;
         commentList.innerHTML = '';
-        if (commentCountEl) commentCountEl.textContent = `(${comments.length})`;
+        const total = comments.reduce((n, c) => n + 1 + (c.replies || []).length, 0);
+        if (commentCountEl) commentCountEl.textContent = `(${total})`;
         if (!comments.length) {
             commentList.innerHTML = '<p class="caption">Chưa có bình luận. Hãy là người đầu tiên!</p>';
             return;
         }
         comments.forEach(c => {
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `
-                <div class="comment-item-header">
-                    <strong>${escHtml(c.displayName || 'Người dùng')}</strong>
-                    <span class="caption">${formatCommentDate(c.createdAt)}</span>
-                    ${c.own ? '<button class="text-link comment-delete-btn" style="color:var(--red);font-size:13px;">Xóa</button>' : ''}
-                </div>
-                <p class="comment-content">${escHtml(c.content)}</p>
-            `;
-            if (c.rating) {
-                const ratingWrap = document.createElement('div');
-                ratingWrap.className = 'comment-rating';
-                ratingWrap.appendChild(renderStars(c.rating, false));
-                item.insertBefore(ratingWrap, item.querySelector('.comment-content'));
-            }
-            item.querySelector('.comment-delete-btn')?.addEventListener('click', async () => {
-                await fetch(`/api/comments/${c.id}?clientId=${clientId}`, { method: 'DELETE' });
-                loadComments();
-            });
-            commentList.appendChild(item);
+            const thread = document.createElement('div');
+            thread.className = 'comment-thread';
+            thread.appendChild(commentItem(c, c));
+            const replies = document.createElement('div');
+            replies.className = 'comment-replies';
+            (c.replies || []).forEach(reply => replies.appendChild(commentItem(reply, c)));
+            thread.appendChild(replies);
+            commentList.appendChild(thread);
         });
+        if (window.JlasAvatarFrame) window.JlasAvatarFrame.mountAll(commentList);
+    }
+
+    /** One comment (top-level or reply) with its reactions, "Trả lời" and, for the author, "Xóa". */
+    function commentItem(c, root) {
+        const item = document.createElement('div');
+        item.className = 'comment-item' + (c.parentId ? ' comment-item--reply' : '');
+        item.dataset.commentId = c.id;
+        item.innerHTML = `
+            <div class="comment-item-header">
+                ${commentAvatar(c)}
+                <strong${c.nameStyle && /^[a-z]+$/.test(c.nameStyle) ? ` data-name-style="${c.nameStyle}"` : ''}>${escHtml(c.displayName || 'Người dùng')}</strong>
+                <span class="caption">${formatCommentDate(c.createdAt)}</span>
+                ${c.own ? '<button class="text-link comment-delete-btn" style="color:var(--red);font-size:13px;">Xóa</button>' : ''}
+            </div>
+            <p class="comment-content">${escHtml(c.content)}</p>
+            <div class="comment-actions">
+                <div class="comment-react">
+                    <button type="button" class="comment-action comment-react-btn" aria-haspopup="true" aria-expanded="false"></button>
+                    <div class="comment-react-picker" role="group" aria-label="Thả cảm xúc" hidden>
+                        ${COMMENT_REACTIONS.map(r => `<button type="button" data-reaction="${r.key}" title="${r.label}" aria-label="${r.label}">${r.emoji}</button>`).join('')}
+                    </div>
+                </div>
+                <button type="button" class="comment-action comment-reply-btn">Trả lời</button>
+                <span class="comment-reaction-summary"></span>
+            </div>
+        `;
+        if (c.rating && !c.parentId) {
+            const ratingWrap = document.createElement('div');
+            ratingWrap.className = 'comment-rating';
+            ratingWrap.appendChild(renderStars(c.rating, false));
+            item.insertBefore(ratingWrap, item.querySelector('.comment-content'));
+        }
+        paintReactions(item, c.reactions || {}, c.myReaction || null);
+
+        const reactBtn = item.querySelector('.comment-react-btn');
+        const picker = item.querySelector('.comment-react-picker');
+        const togglePicker = open => {
+            picker.hidden = !open;
+            reactBtn.setAttribute('aria-expanded', String(open));
+        };
+        // Click toggles the picker; picking a reaction again removes it (handled by the server).
+        reactBtn.addEventListener('click', () => togglePicker(picker.hidden));
+        picker.addEventListener('click', async event => {
+            const button = event.target.closest('[data-reaction]');
+            if (!button) return;
+            togglePicker(false);
+            const res = await fetch(`/api/comments/${c.id}/reactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reaction: button.dataset.reaction })
+            });
+            if (!res.ok) {
+                showAlert({ title: 'Lỗi', message: 'Không thả được cảm xúc. Thử lại sau.', variant: 'error' });
+                return;
+            }
+            const data = await res.json();
+            paintReactions(item, data.reactions || {}, data.myReaction || null);
+        });
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !picker.hidden) { togglePicker(false); reactBtn.focus(); }
+        });
+
+        item.querySelector('.comment-reply-btn').addEventListener('click', () => {
+            // A reply to a reply goes into the same thread and starts with @name, like comments under a post.
+            openReplyForm(root, c.parentId ? `@${c.displayName || 'Người dùng'} ` : '');
+        });
+        item.querySelector('.comment-delete-btn')?.addEventListener('click', async () => {
+            await fetch(`/api/comments/${c.id}?clientId=${clientId}`, { method: 'DELETE' });
+            loadComments();
+        });
+        return item;
+    }
+
+    function paintReactions(item, reactions, mine) {
+        const button = item.querySelector('.comment-react-btn');
+        const chosen = reactionOf(mine);
+        button.textContent = chosen ? `${chosen.emoji} ${chosen.label}` : '👍 Thích';
+        button.classList.toggle('is-active', Boolean(chosen));
+        item.querySelectorAll('.comment-react-picker [data-reaction]').forEach(b => {
+            b.setAttribute('aria-pressed', String(b.dataset.reaction === mine));
+        });
+        const total = Object.values(reactions).reduce((n, v) => n + Number(v || 0), 0);
+        const top = Object.entries(reactions).sort((a, b) => b[1] - a[1]).slice(0, 3)
+            .map(([key]) => reactionOf(key)?.emoji || '').join('');
+        const summary = item.querySelector('.comment-reaction-summary');
+        summary.textContent = total ? `${top} ${total}` : '';
+        summary.title = Object.entries(reactions).map(([key, n]) => `${reactionOf(key)?.label || key}: ${n}`).join(' · ');
+    }
+
+    /** Inline reply box under a thread; one open at a time. */
+    function openReplyForm(root, prefill) {
+        commentList.querySelectorAll('.comment-reply-form').forEach(form => form.remove());
+        const thread = commentList.querySelector(`.comment-item[data-comment-id="${root.id}"]`)?.closest('.comment-thread');
+        if (!thread) return;
+        const form = document.createElement('div');
+        form.className = 'comment-reply-form';
+        form.innerHTML = `
+            <textarea class="form-input" rows="2" placeholder="Trả lời ${escHtml(root.displayName || 'bình luận')}..."></textarea>
+            <div class="comment-reply-form__actions">
+                <button type="button" class="text-link comment-reply-cancel">Hủy</button>
+                <button type="button" class="button-primary btn-sm comment-reply-send"><i class="fa-solid fa-paper-plane"></i> Trả lời</button>
+            </div>
+        `;
+        thread.appendChild(form);
+        const input = form.querySelector('textarea');
+        input.value = prefill;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        form.querySelector('.comment-reply-cancel').addEventListener('click', () => form.remove());
+        form.querySelector('.comment-reply-send').addEventListener('click', async () => {
+            const content = input.value.trim();
+            if (!content) return;
+            const res = await fetch(`/api/videos/${videoId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ clientId, content, parentId: root.id })
+            });
+            if (!res.ok) {
+                showAlert({ title: 'Lỗi', message: 'Không thể gửi trả lời. Thử lại sau.', variant: 'error' });
+                return;
+            }
+            loadComments();
+        });
+    }
+
+    // Clicking anywhere else closes an open reaction picker.
+    document.addEventListener('click', event => {
+        if (!commentList || event.target.closest('.comment-react')) return;
+        commentList.querySelectorAll('.comment-react-picker:not([hidden])').forEach(picker => {
+            picker.hidden = true;
+            picker.previousElementSibling?.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    /**
+     * Ảnh đại diện người bình luận + khung avatar mua ở Cửa hàng. Khung được gắn bởi avatar-frame.js
+     * (shell tự nạp; nạp xong cũng tự gắn cho các [data-frame-host] đã có trên trang).
+     */
+    function commentAvatar(c) {
+        const name = String(c.displayName || 'Người dùng').trim();
+        const face = c.avatarUrl
+            ? `<img src="${escHtml(c.avatarUrl).replace(/"/g, '&quot;')}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+            : escHtml(name.charAt(0).toUpperCase() || '?');
+        const frame = /^frame-[a-z]+$/.test(c.avatarFrame || '') ? ` data-frame-host="${c.avatarFrame}"` : '';
+        return `<span class="af-host comment-avatar-host"${frame}><span class="comment-avatar" aria-hidden="true">${face}</span></span>`;
     }
 
     function escHtml(s) {
@@ -267,29 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFavoriteUI();
         if (ratingRes.ok) updateRatingUI(await ratingRes.json());
         loadComments();
-    }
-
-    async function recordWatchProgress() {
-        if (!video.duration || watchSent) return;
-        const now = Date.now();
-        if (now - lastWatchPing < 5000) return;
-        lastWatchPing = now;
-        const res = await fetch(`/api/videos/${videoId}/watch`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                clientId,
-                currentTime: video.currentTime,
-                duration: video.duration,
-                // BR-03 — gửi userId nếu đã đăng nhập để ghi credit creator
-                userId: (window.JlasAuth && JlasAuth.user && JlasAuth.user.id) || null
-            })
-        });
-        if (res.ok) {
-            const data = await res.json();
-            if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${data.viewCount} lượt xem`;
-            if (data.countedAsView) watchSent = true;
-        }
     }
 
     function detectAudioOnly(meta) {
@@ -315,6 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (surface) surface.innerHTML = '';
             if (shell) shell.classList.add('audio-shell');
         } else {
+            video.controls = false;
+            video.setAttribute('playsinline', '');
             video.classList.add('media-engine', 'media-engine--video');
             video.classList.remove('media-engine--audio');
             if (surface && video.parentElement !== surface) {
@@ -330,37 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.classList.toggle('audio-mode', isAudioOnly);
         mountMediaEngine(isAudioOnly);
 
-        // Audio: toolbar ngang dưới lyrics (kiểu music player)
-        const controls = document.getElementById('player-controls');
-        if (controls) {
-            controls.classList.toggle('floating-toolbar', !isAudioOnly);
-            controls.classList.toggle('audio-control-bar', isAudioOnly);
-        }
-    }
-
-    function setupPlayerControlsToggle() {
-        if (!playerControls || !playerControlsToggle || isAudioOnly) return;
-        const storageKey = 'jlas-shadowing-player-controls-collapsed';
-
-        const setCollapsed = collapsed => {
-            playerControls.classList.toggle('is-collapsed', collapsed);
-            playerControlsSlot?.classList.toggle('is-collapsed', collapsed);
-            playerControlsToggle.setAttribute('aria-expanded', String(!collapsed));
-            playerControlsToggle.setAttribute('aria-label', collapsed ? 'Mở công cụ phát' : 'Thu gọn công cụ');
-            playerControlsToggle.title = collapsed ? 'Mở công cụ' : 'Thu gọn công cụ';
-            const icon = playerControlsToggle.querySelector('i');
-            if (icon) icon.className = collapsed
-                ? 'fa-solid fa-chevron-left'
-                : 'fa-solid fa-chevron-right';
-        };
-
-        setCollapsed(localStorage.getItem(storageKey) === '1');
-        playerControlsToggle.addEventListener('click', event => {
-            event.stopPropagation();
-            const collapsed = !playerControls.classList.contains('is-collapsed');
-            setCollapsed(collapsed);
-            localStorage.setItem(storageKey, collapsed ? '1' : '0');
-        });
     }
 
     async function initPlayer() {
@@ -372,12 +454,16 @@ document.addEventListener('DOMContentLoaded', () => {
             subtitles = subResponse.ok ? await subResponse.json() : [];
             if (videoResponse.ok) {
                 videoMeta = await videoResponse.json();
-                if (lessonTitle && videoMeta.title) lessonTitle.textContent = `Tiêu đề: ${videoMeta.title}`;
+                if (lessonTitle && videoMeta.title) {
+                    const titleText = document.getElementById('lesson-title-text');
+                    if (titleText) titleText.textContent = videoMeta.title;
+                    else lessonTitle.textContent = `Tiêu đề: ${videoMeta.title}`;
+                    lessonTitle.title = videoMeta.title;
+                }
                 const cat = extractCategory(videoMeta);
                 if (lessonCategoryBadge) lessonCategoryBadge.innerHTML = `<i class="fa-solid fa-folder"></i> ${getCategoryLabel(cat)}`;
                 if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${videoMeta.viewCount || 0} lượt xem`;
                 applyAudioMode(videoMeta);
-                setupPlayerControlsToggle();
             } else {
                 mountMediaEngine(false);
                 if (videoResponse.status === 401 || videoResponse.status === 403) {
@@ -390,7 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-            video.src = streamUrl();
+            // Video YouTube phát bằng trình phát nhúng của YouTube; chỉ video tải lên mới phát từ file trên server.
+            await window.ShadowingYoutube.load(video, videoId, { meta: videoMeta, streamUrl: streamUrl() });
             renderSubtitles();
             if (typeof window.loadPronunciationAttempts === 'function') {
                 window.loadPronunciationAttempts(videoId);
@@ -408,8 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function bindSubtitleActions(div, sub, index) {
         div.querySelector('[data-action="replay"]')?.addEventListener('click', e => {
             e.stopPropagation();
-            video.currentTime = sub.startTime;
-            video.play();
+            playSentence(index);
         });
         div.querySelector('[data-action="favorite"]')?.addEventListener('click', async e => {
             e.stopPropagation();
@@ -433,15 +519,15 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <div class="sub-card-header">
                     <span class="sub-num">#${index + 1}</span>
-                    <span class="sub-time">${formatTime(sub.startTime)}</span>
+                    <span class="sub-time" title="Câu bắt đầu ở ${formatTime(sub.startTime)} trong video">${formatTime(sub.startTime)}</span>
                 </div>
                 <div class="sub-jp">${formatFurigana(sub.furigana || sub.text)}</div>
-                <div class="sub-tr">${sub.translation || ''}</div>
+                <div class="sub-tr">${window.ShadowingSubtitleDisplay.escape(sub.translation || '')}</div>
                 <div class="sub-card-actions">
                     <button class="sub-action-btn" data-action="replay" title="Phát lại"><i class="fa-solid fa-play"></i></button>
                     <button class="sub-action-btn" data-action="favorite" title="Yêu thích"><i class="fa-regular fa-star"></i></button>
                     <button class="sub-action-btn sub-pron-record-btn" data-action="record" title="Thu câu này" aria-label="Thu câu này"><i class="fa-solid fa-microphone"></i></button>
-                    <button class="sub-pron-score-badge" data-action="score" title="Chấm câu này" disabled>--</button>
+                    <button class="sub-pron-score-badge" data-action="score" title="Chấm câu này" disabled aria-label="Chưa có điểm phát âm">--</button>
                 </div>
                 <div class="sub-pronunciation-panel" data-pronunciation-panel hidden>
                     <span class="sub-pronunciation-status" data-record-status>Sẵn sàng</span>
@@ -496,12 +582,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             div.addEventListener('click', event => {
                 if (event.target.closest('[data-action]')) return;
-                selectPronunciationSubtitle(index);
-                video.currentTime = sub.startTime;
-                video.play();
+                // Highlighting words to look them up (js/inline-dictionary.js) must not jump the video.
+                if (!window.getSelection().isCollapsed) return;
+                playSentence(index);
             });
             bindSubtitleActions(div, sub, index);
-            makeWordsClickable(div.querySelector('.sub-jp'));
             subtitleList.appendChild(div);
         });
         window.dispatchEvent(new CustomEvent('shadowing:subtitles-rendered'));
@@ -509,52 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatFurigana(text) {
-        return text.replace(/([^\x00-\x7F\s、。！？]+)[\(（]([^）\)]+)[\)）]/g, '<ruby>$1<rt>$2</rt></ruby>');
-    }
-
-    function makeWordsClickable(el) {
-        if (!el) return;
-        el.querySelectorAll('ruby').forEach(ruby => {
-            ruby.style.cursor = 'pointer';
-            ruby.addEventListener('click', e => {
-                e.stopPropagation();
-                lookupWord(ruby.childNodes[0].textContent);
-            });
-        });
-    }
-
-    async function lookupWord(word) {
-        document.querySelectorAll('.dict-popup, .dict-overlay').forEach(e => e.remove());
-        const overlay = document.createElement('div');
-        overlay.className = 'dict-overlay';
-        overlay.onclick = () => { overlay.remove(); popup.remove(); };
-        document.body.appendChild(overlay);
-
-        const popup = document.createElement('div');
-        popup.className = 'dict-popup';
-        popup.style.top = '50%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.innerHTML = '<p>Đang tra...</p>';
-        document.body.appendChild(popup);
-
-        try {
-            const res = await fetch(`/api/dictionary?q=${encodeURIComponent(word)}`);
-            const data = await res.json();
-            let html = `<h4>${word}</h4>`;
-            if (data.results?.length) {
-                data.results.forEach(r => {
-                    html += `<div class="reading">${r.reading || r.word}</div><ul>`;
-                    (r.meanings || []).slice(0, 3).forEach(m => html += `<li>${m}</li>`);
-                    html += '</ul>';
-                });
-            } else {
-                html += '<p class="caption">Không tìm thấy.</p>';
-            }
-            popup.innerHTML = html;
-        } catch {
-            popup.innerHTML = '<p>Lỗi tra từ.</p>';
-        }
+        return window.ShadowingSubtitleDisplay.furigana(text);
     }
 
     furiganaToggleBtn.addEventListener('click', () => {
@@ -572,58 +612,77 @@ document.addEventListener('DOMContentLoaded', () => {
         fitSubtitleViewer();
     });
 
-    playBtn.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+    const modeButton = document.getElementById('listen-record-mode');
+    const micButton = document.getElementById('listen-record-mic');
+    const modeStatus = document.getElementById('listen-record-status');
+    listenRecord = window.ShadowingListenRecord.create({
+        video,
+        record: (index, options) => window.ShadowingRecorder.record(index, options),
+        cancelRecording: () => window.ShadowingRecorder?.cancel(),
+        onChange(state) {
+            modeButton?.classList.toggle('active', state.enabled);
+            modeButton?.setAttribute('aria-pressed', String(state.enabled));
+            if (micButton) {
+                micButton.disabled = state.busy || !state.context || (state.enabled && state.phase === 'listening');
+                micButton.classList.toggle('recording', state.phase === 'recording');
+                micButton.setAttribute('aria-busy', String(state.busy));
+            }
+            if (modeStatus) { modeStatus.hidden = !state.message; modeStatus.textContent = state.message; }
+            if (currentActiveIndex === -1) viewerJapanese.textContent = window.ShadowingSubtitleDisplay.gapLabel(video.currentTime, subtitles, state.enabled);
+            [prevBtn, nextBtn, replayBtn, playBtn, speedToggleBtn].forEach(button => { if (button) button.disabled = state.busy; });
+            const timeline = document.getElementById('timeline-track');
+            if (timeline) timeline.disabled = state.busy || !Number.isFinite(video.duration) || video.duration <= 0;
+        }
+    });
+    window.shadowingListenRecord = listenRecord;
+    modeButton?.addEventListener('click', () => {
+        listenRecord.setEnabled(!listenRecord.isEnabled());
+        listenRecord.select(window.getShadowingPronunciationContext());
+    });
+    micButton?.addEventListener('click', () => listenRecord.record());
+    playBtn.addEventListener('click', () => {
+        if (listenRecord.busy()) return;
+        if (video.paused) video.play()?.catch(() => {}); else video.pause();
+    });
     function updatePlayIcon() {
         if (!playIcon) return;
         playIcon.className = video.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
     }
 
-    function updateTimeline() {
-        if (!video.duration) return;
-        const pct = (video.currentTime / video.duration) * 100;
-        if (timelineFill) timelineFill.style.width = `${pct}%`;
-        if (timelineTime) {
-            timelineTime.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+    video.addEventListener('play', () => { listenRecord.beforePlay(); updatePlayIcon(); });
+    video.addEventListener('seeking', () => {
+        if (!listenRecord.isEnabled()) return;
+        const index = subtitles.findIndex(sub => video.currentTime >= sub.startTime && video.currentTime < sub.endTime);
+        if (index >= 0 && index !== currentActiveIndex) {
+            currentActiveIndex = index;
+            updateActiveSubtitle(index);
         }
-    }
-
-    timelineTrack?.addEventListener('click', e => {
-        const rect = timelineTrack.getBoundingClientRect();
-        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        if (video.duration) video.currentTime = ratio * video.duration;
     });
-    video.addEventListener('play', updatePlayIcon);
     video.addEventListener('pause', updatePlayIcon);
+    video.addEventListener('ended', () => listenRecord.timeUpdate());
 
-    replayBtn.addEventListener('click', () => {
-        if (currentActiveIndex !== -1) {
-            video.currentTime = subtitles[currentActiveIndex].startTime;
-            video.play();
-        }
-    });
-    prevBtn.addEventListener('click', () => {
-        if (currentActiveIndex > 0) {
-            video.currentTime = subtitles[currentActiveIndex - 1].startTime;
-            video.play();
-        }
-    });
-    nextBtn.addEventListener('click', () => {
-        if (currentActiveIndex < subtitles.length - 1) {
-            video.currentTime = subtitles[currentActiveIndex + 1].startTime;
-            video.play();
-        }
-    });
+    // Explicit timeline seeks release the held sentence, even within the same cue or in a gap.
+    window.seekShadowingVideo = function (time) {
+        if (listenRecord.busy()) return;
+        const index = subtitles.findIndex(sub => time >= sub.startTime && time < sub.endTime);
+        currentActiveIndex = index;
+        pronunciationSubtitleIndex = -1;
+        video.currentTime = time;
+        updateActiveSubtitle(index);
+        listenRecord.seek(window.getShadowingPronunciationContext());
+    };
 
-    loopBtn.addEventListener('click', () => {
-        isLoopEnabled = !isLoopEnabled;
-        loopBtn.classList.toggle('active', isLoopEnabled);
-        currentLoopCount = 0;
-    });
-
-    loopCountSelect?.addEventListener('change', () => {
-        loopCountMax = parseInt(loopCountSelect.value, 10);
-        currentLoopCount = 0;
-    });
+    function playSentence(index) {
+        if (!subtitles[index] || listenRecord.busy()) return;
+        currentActiveIndex = index;
+        selectPronunciationSubtitle(index, 'user');
+        updateActiveSubtitle(index);
+        video.currentTime = subtitles[index].startTime;
+        video.play()?.catch(() => {});
+    }
+    replayBtn.addEventListener('click', () => playSentence(currentActiveIndex));
+    prevBtn.addEventListener('click', () => playSentence(currentActiveIndex - 1));
+    nextBtn.addEventListener('click', () => playSentence(currentActiveIndex + 1));
 
     function closeSpeedMenu() {
         if (!speedMenu) return;
@@ -706,8 +765,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCommentStars();
 
     video.addEventListener('timeupdate', () => {
-        updateTimeline();
-        recordWatchProgress();
+        const held = listenRecord.timeUpdate();
+        if (held) return;
         const currentTime = video.currentTime;
         let newIndex = -1;
         for (let i = 0; i < subtitles.length; i++) {
@@ -715,31 +774,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 newIndex = i; break;
             }
         }
-        if (newIndex !== currentActiveIndex) {
+        if (newIndex !== currentActiveIndex || newIndex === -1) {
             currentActiveIndex = newIndex;
             updateActiveSubtitle(newIndex);
-            currentLoopCount = 0;
-        }
-
-        const pronunciationRecording = typeof window.isShadowingPronunciationRecording === 'function'
-            && window.isShadowingPronunciationRecording();
-        if (isLoopEnabled && currentActiveIndex >= 0 && !pronunciationRecording) {
-            const sub = subtitles[currentActiveIndex];
-            if (currentTime >= sub.endTime - 0.05) {
-                if (loopCountMax > 0) {
-                    currentLoopCount++;
-                    if (currentLoopCount >= loopCountMax) {
-                        currentLoopCount = 0;
-                        isLoopEnabled = false;
-                        loopBtn.classList.remove('active');
-                        if (currentActiveIndex < subtitles.length - 1) {
-                            video.currentTime = subtitles[currentActiveIndex + 1].startTime;
-                        }
-                        return;
-                    }
-                }
-                video.currentTime = sub.startTime;
-            }
         }
     });
 
@@ -757,8 +794,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             updateViewer(index);
         } else {
-            viewerJapanese.innerHTML = '';
-            viewerTranslation.innerHTML = '';
+            viewerJapanese.textContent = window.ShadowingSubtitleDisplay.gapLabel(video.currentTime, subtitles, listenRecord.isEnabled());
+            viewerJapanese.classList.add('is-gap');
+            viewerJapanese.classList.remove('viewer-fade');
+            viewerTranslation.classList.remove('viewer-fade');
+            viewerJapanese.classList.remove('is-short', 'is-medium', 'is-long', 'is-extra-long');
+            viewerJapanese.style.fontSize = '';
+            viewerTranslation.textContent = '';
+            selectPronunciationSubtitle(subtitles.findIndex(s => s.startTime > video.currentTime), 'playback');
         }
     }
 
@@ -768,29 +811,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         viewerJapanese.style.fontSize = '';
         viewerTranslation.style.fontSize = '';
+        if (window.matchMedia('(max-width: 900px)').matches) return;
 
         requestAnimationFrame(() => {
-            const padX = 40;
-            const maxW = Math.max(160, viewer.clientWidth - padX);
-            const maxTotalH = Math.max(120, viewer.clientHeight - 28);
+            const layout = getComputedStyle(viewer);
+            const maxTotalH = Math.max(60, viewer.clientHeight - parseFloat(layout.paddingTop) - parseFloat(layout.paddingBottom));
             const blocks = [
-                { el: viewerJapanese, min: 14 },
-                { el: viewerTranslation, min: 14 }
-            ];
+                { el: viewerJapanese, min: 16 },
+                { el: viewerTranslation, min: 13 }
+            ].filter(({ el }) => el?.textContent?.trim() && getComputedStyle(el).display !== 'none');
 
             blocks.forEach(({ el, min }) => {
                 if (!el?.textContent?.trim()) return;
                 let size = parseFloat(getComputedStyle(el).fontSize);
                 el.style.fontSize = size + 'px';
                 let guard = 0;
-                while (el.scrollWidth > maxW && size > min && guard++ < 80) {
+                // Both DOM widths use the same pixel rounding; tolerate one pixel.
+                while (el.scrollWidth > el.clientWidth + 1 && size > min && guard++ < 80) {
                     size -= 1;
                     el.style.fontSize = size + 'px';
                 }
             });
 
-            const gap = viewerTranslation.textContent?.trim() ? 16 : 0;
-            const totalH = viewerJapanese.offsetHeight + viewerTranslation.offsetHeight + gap;
+            const totalH = blocks.reduce((height, { el }) => {
+                const style = getComputedStyle(el);
+                return height + el.offsetHeight + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+            }, 0);
             if (totalH > maxTotalH) {
                 const ratio = maxTotalH / totalH;
                 blocks.forEach(({ el, min }) => {
@@ -804,12 +850,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateViewer(index) {
         const sub = subtitles[index];
+        const length = Array.from((sub.text || '').replace(/\s/g, '')).length;
+        viewerJapanese.classList.remove('is-gap');
+        viewerJapanese.classList.toggle('is-short', length <= 25);
+        viewerJapanese.classList.toggle('is-medium', length > 25 && length < 40);
+        viewerJapanese.classList.toggle('is-long', length >= 40);
+        viewerJapanese.classList.toggle('is-extra-long', length >= 70);
         viewerJapanese.classList.add('viewer-fade');
         viewerTranslation.classList.add('viewer-fade');
         requestAnimationFrame(() => {
+            if (currentActiveIndex !== index) return;
             viewerJapanese.innerHTML = formatFurigana(sub.furigana || sub.text);
-            viewerTranslation.innerHTML = sub.translation || '';
-            makeWordsClickable(viewerJapanese);
+            viewerTranslation.textContent = sub.translation || '';
             viewerJapanese.classList.remove('viewer-fade');
             viewerTranslation.classList.remove('viewer-fade');
             fitSubtitleViewer();
@@ -822,7 +874,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fitViewerTimer = setTimeout(fitSubtitleViewer, 120);
     });
 
-    video.addEventListener('ended', () => recordWatchProgress());
+    window.attachWatchTracker(video, videoId, data => {
+        if (lessonViewsBadge) lessonViewsBadge.innerHTML = `<i class="fa-solid fa-eye"></i> ${data.viewCount} lượt xem`;
+    });
 
     initPlayer();
 });

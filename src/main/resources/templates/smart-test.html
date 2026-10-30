@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Smart Test - JLAS', 'smart-test')}"></head>
+<body id="jlabBasePage" class="app-body smart-test-body journey-ui"><div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="smart-test-page"><div class="smart-test-wrap smart-test-wrap--exam">
+    <header class="assessment-header assessment-header--compact">
+        <div class="assessment-header__icon"><span class="material-symbols-outlined">psychology</span></div>
+        <div><span class="assessment-kicker">Đánh giá thích ứng</span><h1>Smart Test</h1><p>Hoàn thành từng kỹ năng để xác định trình độ tiếng Nhật của bạn.</p></div>
+    </header>
+    <div id="smartTestNotice" class="smart-test-notice" role="alert" hidden></div>
+    <section id="questionView" class="exam-layout" hidden aria-live="polite">
+        <aside class="exam-sidebar">
+            <div class="exam-mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
+            <div class="exam-guide"><span>Kitsu nhắc bạn</span><p id="examTip">Bình tĩnh đọc kỹ và chọn đáp án phù hợp nhất nhé!</p></div>
+            <div class="exam-roadmap">
+                <span class="exam-roadmap__label">Lộ trình bài thi</span>
+                <ol id="skillRoadmap">
+                    <li data-skill="KANJI"><i>1</i><span>Kanji</span></li>
+                    <li data-skill="VOCABULARY"><i>2</i><span>Từ vựng</span></li>
+                    <li data-skill="GRAMMAR"><i>3</i><span>Ngữ pháp</span></li>
+                    <li data-skill="READING"><i>4</i><span>Đọc hiểu</span></li>
+                    <li data-skill="LISTENING"><i>5</i><span>Nghe hiểu</span></li>
+                </ol>
+            </div>
+        </aside>
+        <article class="assessment-card exam-card">
+            <div class="question-sticky">
+                <div class="question-topbar"><div class="question-context"><span id="questionSkill" class="question-badge">Kỹ năng</span><span id="questionLevel" class="question-badge question-badge--level">N3</span><span id="questionTag" class="question-badge question-badge--tag">GENERAL</span></div><span id="questionTimer" class="question-timer" role="timer" aria-label="Thời gian còn lại"><span class="material-symbols-outlined">timer</span><b>--:--</b></span></div>
+                <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
+            </div>
+            <div id="questionMedia" class="question-media" hidden></div><div id="questionPassage" class="question-passage" tabindex="-1" hidden></div>
+            <p id="questionTitle" class="question-kicker"></p><h2 id="questionText" class="question-text" tabindex="-1"></h2>
+            <form id="answerForm"><div id="optionList" class="option-list"></div><div class="question-actions">
+                <button id="finishButton" class="smart-test-finish" type="button"><span class="material-symbols-outlined">stop_circle</span><span>Kết thúc bài thi</span></button>
+                <button id="answerButton" class="smart-test-primary" type="submit" disabled><span>Trả lời và tiếp tục</span><span class="material-symbols-outlined">arrow_forward</span></button>
+            </div></form>
+        </article>
+    </section>
+    <section id="resultView" class="assessment-card result-card" hidden aria-live="polite">
+        <header class="result-heading">
+            <div class="result-heading__mark"><span class="material-symbols-outlined">verified</span></div>
+            <div><span class="result-eyebrow">Hoàn thành Smart Test</span><h2>Trình độ theo kỹ năng</h2><p id="resultSummary" class="result-summary"></p></div>
+        </header>
+        <section class="result-overall" aria-labelledby="overallTitle">
+            <div class="result-overall__label"><span class="material-symbols-outlined">target</span><span>Trình độ tổng quát</span></div>
+            <div class="result-overall__value"><strong id="overallLevel">—</strong><span id="overallBand"></span></div>
+            <p id="overallScope">Được tính từ các kỹ năng đã kiểm tra.</p>
+        </section>
+        <div class="result-dashboard result-dashboard--spider">
+            <section class="result-chart-panel" aria-labelledby="resultChartTitle">
+                <div class="result-section-heading"><span>So với trình độ tổng quát</span><h3 id="resultChartTitle">Bản đồ năng lực</h3></div>
+                <div id="skillRadar" class="skill-radar" role="img" aria-label="Biểu đồ mạng nhện so sánh từng kỹ năng với trình độ tổng quát"></div>
+                <div class="spider-legend"><span><i class="spider-legend__skills"></i>Kỹ năng</span><span><i class="spider-legend__overall"></i>Overall</span></div>
+            </section>
+            <section class="result-skill-panel" aria-labelledby="skillResultTitle">
+                <div class="result-section-heading"><span>Kết quả từng kỹ năng</span><h3 id="skillResultTitle">Mức độ theo kỹ năng</h3></div>
+                <div id="skillResults" class="spider-skill-list" aria-label="So sánh trình độ từng kỹ năng với trình độ tổng quát"></div>
+            </section>
+        </div>
+        <section id="feedbackSection" class="result-recommendations" aria-labelledby="feedbackTitle" hidden>
+            <div class="result-section-heading"><span>Gợi ý từ hệ thống</span><h3 id="feedbackTitle">Đề xuất cải thiện</h3></div>
+            <div id="readinessBanner" class="readiness-banner" hidden></div>
+            <ul id="recommendationList"></ul>
+            <div id="grammarWeakness" class="grammar-weakness" hidden>
+                <div class="result-section-heading"><span>Ngữ pháp</span><h4>Điểm ngữ pháp cần ôn lại</h4></div>
+                <div id="grammarWeaknessList" class="grammar-weakness__list"></div>
+            </div>
+        </section>
+        <div id="resultNote" class="result-note"><span class="material-symbols-outlined">info</span><p>Mức JLPT là ước lượng từ các câu đã làm; đây chưa phải chứng chỉ JLPT chính thức.</p></div>
+        <section id="questionReview" class="result-review" aria-labelledby="reviewTitle" hidden>
+            <div class="result-section-heading"><span>Xem lại bài làm</span><h3 id="reviewTitle">Đáp án & giải thích từng câu</h3></div>
+            <div id="reviewList" class="review-list"></div>
+        </section>
+        <div class="result-actions"><a id="createPathButton" class="smart-test-primary" href="#"><span>Tạo lộ trình học</span><span class="material-symbols-outlined">route</span></a><button id="restartButton" class="smart-test-secondary" type="button"><span>Thực hiện khảo sát mới</span><span class="material-symbols-outlined">refresh</span></button></div>
+    </section>
+    <section id="emptyView" class="assessment-card empty-card" hidden><span class="material-symbols-outlined">assignment</span><h2>Chưa có bài kiểm tra</h2><p>Hoàn thành khảo sát đầu vào trước khi bắt đầu Smart Test.</p><a class="smart-test-primary" href="/survey"><span>Đi đến khảo sát</span><span class="material-symbols-outlined">arrow_forward</span></a></section>
+</div></main>
+<div id="smartConfirm" class="smart-confirm" hidden role="dialog" aria-modal="true" aria-labelledby="smartConfirmTitle" aria-describedby="smartConfirmMessage">
+    <div class="smart-confirm__card">
+        <div class="smart-confirm__mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
+        <div class="smart-confirm__content"><span class="smart-confirm__eyebrow">Kitsu hỏi bạn</span><h2 id="smartConfirmTitle">Bạn có chắc không?</h2><p id="smartConfirmMessage"></p>
+            <fieldset id="discrepancyPicker" class="discrepancy-picker" hidden>
+                <legend>Bạn muốn bắt đầu thế nào?</legend>
+                <label><input type="radio" name="discrepancyChoice" value="ACCEPT_RECOMMENDATION" checked> <span data-discrepancy-accept>Củng cố nền theo kết quả Smart Test</span></label>
+                <label><input type="radio" name="discrepancyChoice" value="DECLINE_RECOMMENDATION"> <span data-discrepancy-decline>Giữ theo khảo sát</span></label>
+            </fieldset>
+            <label id="reviewStartPicker" class="review-start-picker" hidden for="reviewStartLevel">Bắt đầu ôn từ cấp
+                <select id="reviewStartLevel"><option value="N5">N5</option><option value="N4">N4</option><option value="N3">N3</option></select>
+            </label>
+        </div>
+        <div id="smartChoiceOptions" class="smart-confirm__actions" style="display:none;grid-template-columns:1fr" aria-label="Lựa chọn"></div>
+        <div class="smart-confirm__actions"><button id="smartConfirmNo" class="smart-confirm__no" type="button">Không, ở lại</button><button id="smartConfirmYes" class="smart-confirm__yes" type="button"><span class="material-symbols-outlined">check_circle</span><span>Đồng ý</span></button></div>
+    </div>
+</div>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-result-route.js?v=20261025-entry}"></script><script th:src="@{/js/pages/smart-test-safe-html.js?v=20261022}"></script><script th:src="@{/js/pages/smart-test.js?v=20261030-merge}"></script>
+</body></html>

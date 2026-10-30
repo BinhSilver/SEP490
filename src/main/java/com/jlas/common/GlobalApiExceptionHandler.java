@@ -2,11 +2,17 @@ package com.jlas.common;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.common.exception.ApiException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
@@ -14,6 +20,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalApiExceptionHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalApiExceptionHandler.class);
 
     @ExceptionHandler(ApiException.class)
     ResponseEntity<ApiResponse<Void>> api(ApiException exception) {
@@ -40,10 +47,31 @@ public class GlobalApiExceptionHandler {
                 .body(ApiResponse.fail(message, codeFor(message), null));
     }
 
+    /** Database failures never expose SQL to the client (UAT 2026-10-06 showed a raw "Duplicate entry" insert);
+     * the detail stays in the server log. */
+    @ExceptionHandler(DataAccessException.class)
+    ResponseEntity<ApiResponse<Void>> dataAccess(DataAccessException exception) {
+        if (exception instanceof DataIntegrityViolationException) {
+            LOG.warn("Data integrity violation", exception);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.fail(
+                    "Dữ liệu vừa thay đổi hoặc bị trùng. Vui lòng tải lại trang và thử lại.", "CONFLICT", null));
+        }
+        LOG.error("Database access failure", exception);
+        return ResponseEntity.internalServerError().body(ApiResponse.fail(
+                "Hệ thống đang gặp sự cố khi xử lý dữ liệu. Vui lòng thử lại sau.", "INTERNAL_ERROR", null));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<ApiResponse<Void>> unreadableBody(HttpMessageNotReadableException exception) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.fail("Dữ liệu gửi lên không đúng định dạng.", "MALFORMED_REQUEST", null));
+    }
+
+    /** File vượt spring.servlet.multipart.max-file-size / max-request-size: bị chặn trước khi tới controller. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiResponse<Void>> uploadTooLarge(MaxUploadSizeExceededException exception) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiResponse.fail("File tải lên vượt quá dung lượng cho phép.", "PAYLOAD_TOO_LARGE", null));
     }
 
     private static String codeFor(String message) {

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Luyện JLPT theo dạng - JLAS', 'jlpt-practice')}"></head>
+<body id="jlabBasePage" class="app-body jlpt-practice-body">
+<div id="jlabBaseShellMount"></div>
+<main class="jlpt-practice-page" data-inline-dictionary>
+    <header class="jlpt-practice-hero">
+        <div class="jp-hero-copy"><a class="jp-back" href="/jlpt">← Thư viện JLPT</a><span class="jp-eyebrow">MỖI NGÀY, VỮNG THÊM MỘT CHÚT</span><h1>Từng dạng nhỏ.<br /><em>Tiến bộ lớn.</em></h1><p>Chọn một kỹ năng, luyện đúng phần cần củng cố.<br />Một phiên ngắn hôm nay, thêm tự tin cho kỳ thi.</p><div class="jp-hero-tags"><span>✦ N5 → N1</span><span>4 nhóm kỹ năng</span><span>Câu hỏi từ kho đề JLPT</span></div></div>
+        <div class="jp-hero-art" aria-hidden="true"><div class="jp-paper-back"></div><div class="jp-paper"><small>今日も、少しずつ。</small><b>練習</b><span>LUYỆN TẬP THEO DẠNG</span><div class="jp-paper-progress"><i></i></div><footer>✓ Mỗi câu, một bước tiến</footer></div><span class="jp-art-star">✧</span></div>
+    </header>
+
+    <section id="practiceSetup" class="jlpt-practice-setup">
+        <div class="jlpt-filter-block"><strong><span class="jp-step">01</span> Cấp độ của bạn</strong><nav id="practiceLevels" aria-label="Cấp độ JLPT"></nav></div>
+        <div class="jlpt-filter-block"><strong><span class="jp-step">02</span> Hôm nay, mình luyện gì?</strong><nav id="practiceSections" aria-label="Nhóm kỹ năng"></nav></div>
+        <div class="jlpt-filter-block jp-types-block"><strong><span class="jp-step">03</span> Chọn dạng cần củng cố</strong><div id="practiceTypes" class="jlpt-practice-types" aria-live="polite"></div></div>
+        <aside class="jp-session-card"><span class="jp-eyebrow">PHIÊN LUYỆN CỦA BẠN</span><div class="jp-session-level" id="practiceSummaryLevel">N3</div><h2 id="practiceSummaryType">Chọn dạng câu hỏi</h2><p id="practiceSummarySection">Một chút tập trung, một bước tiến bộ.</p><div class="jp-session-note"><span aria-hidden="true">✦</span><p>Kiểm tra đáp án sau mỗi câu. Xem giải thích để hiểu rõ chỗ chưa chắc.</p></div></aside>
+        <footer>
+            <label>Số câu<select id="practiceLimit"><option value="10">10 câu</option><option value="20" selected>20 câu</option><option value="30">30 câu</option><option value="50">50 câu</option></select></label>
+            <button id="practiceStart" type="button" disabled>Bắt đầu luyện →</button>
+        </footer>
+        <p id="practiceSetupNotice" class="jlpt-practice-notice" role="alert" hidden></p>
+    </section>
+
+    <section id="practiceRunner" class="jlpt-practice-runner" hidden>
+        <header><button id="practiceExit" type="button" aria-label="Về chọn dạng câu">←</button><div><span id="practiceTypeLabel"></span><strong id="practiceProgress"></strong></div><button id="practiceFurigana" class="jp-furigana-switch" type="button" aria-label="Bật Furigana" aria-pressed="false"><span>Furigana</span><i aria-hidden="true"><b></b></i></button><div class="jlpt-practice-progress" role="progressbar" aria-label="Tiến độ câu hỏi" aria-valuemin="0" aria-valuemax="100" id="practiceProgressTrack"><i id="practiceProgressBar"></i></div></header>
+        <article class="jlpt-practice-question">
+            <div class="jlpt-practice-meta"><span id="practiceSource"></span><span id="practiceClipBadge" hidden>Clip ước lượng</span></div>
+            <div id="practiceInstruction" class="jlpt-practice-instruction" lang="ja"></div>
+            <section id="practicePassage" class="jlpt-practice-passage" lang="ja" hidden></section>
+            <section id="practiceAudio" class="jlpt-practice-audio" hidden></section>
+            <h2 id="practicePrompt" lang="ja"></h2>
+            <div id="practiceChoices" class="jlpt-practice-choices"></div>
+            <div class="jlpt-practice-actions"><span id="practiceFeedback" role="status"></span><button id="practiceExplain" type="button" hidden>✦ Giải thích AI</button><button id="practiceCheck" type="button">Kiểm tra</button></div>
+            <section id="practiceExplanation" class="jlpt-practice-explanation" hidden></section>
+            <footer><button id="practicePrevious" type="button">Câu trước</button><button id="practiceNext" type="button">Câu tiếp</button></footer>
+        </article>
+    </section>
+
+    <section id="practiceResult" class="jlpt-practice-result" hidden>
+        <span class="jp-result-symbol" aria-hidden="true">✦</span><span class="jp-eyebrow">THÊM MỘT PHIÊN, THÊM TỰ TIN</span><h2>Bạn vừa tiến thêm một bước!</h2><div class="jp-score-ring"><strong id="practiceScore"></strong><small>câu trả lời đúng</small></div><p id="practiceResultText"></p><p id="practiceResultDetail"></p><div><button id="practiceRetry" type="button">Luyện bộ câu khác →</button><button id="practiceBackSetup" type="button">Đổi dạng câu</button></div>
+    </section>
+</main>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script>
+<script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
+<script th:src="@{/js/pages/jlpt-practice.js?v=8-furigana}"></script>
+</body>
+</html>

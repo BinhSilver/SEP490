@@ -13,22 +13,36 @@
       var html = '';
       if (typeof d.dailyMinutes === 'number') {
         html += '<li>Hôm nay: <strong>' + d.dailyMinutes.toFixed(1) + '</strong>/' +
-                (d.dailyLimitMin != null ? d.dailyLimitMin.toFixed(0) : '∞') + ' phút</li>';
+                (d.dailyLimitMin != null && d.dailyLimitMin < 1e9 ? d.dailyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.monthlyMinutes === 'number') {
         html += '<li>Tháng này: <strong>' + d.monthlyMinutes.toFixed(1) + '</strong>/' +
-                (d.monthlyLimitMin != null ? d.monthlyLimitMin.toFixed(0) : '∞') + ' phút</li>';
+                (d.monthlyLimitMin != null && d.monthlyLimitMin < 1e9 ? d.monthlyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.creditBalance === 'number') {
-        html += '<li>Điểm: <strong>' + d.creditBalance + '</strong></li>';
+        html += '<li>CP hiện có: <strong>' + d.creditBalance + '</strong>'
+          + (typeof d.creditPerTurn === 'number' ? ' (1 lượt = ' + d.creditPerTurn + ' CP)' : '') + '</li>';
       }
       usage.innerHTML = html;
     }
     modal.hidden = false;
     var close = document.getElementById('btnCloseQuota');
     if (close) close.onclick = function () { modal.hidden = true; };
+    var useCp = document.getElementById('btnQuotaUseCredit');
+    if (useCp) {
+      var d2 = (data && data.data) || {};
+      var cost = d2.creditPerTurn;
+      var canPay = data && data.code === 'QUOTA_EXCEEDED' && typeof cost === 'number' && cost > 0
+        && typeof d2.creditBalance === 'number' && d2.creditBalance >= cost;
+      useCp.hidden = !canPay;
+      if (canPay) useCp.innerHTML = '<i class="fa-solid fa-coins"></i> Dùng ' + cost + ' CP cho lượt này';
+      useCp.onclick = function () {
+        modal.hidden = true;
+        if (window.AICallUI && typeof window.AICallUI.onUseCredit === 'function') window.AICallUI.onUseCredit();
+      };
+    }
     var buy = document.getElementById('btnQuotaBuy');
-    if (buy) buy.onclick = function () { window.location.href = '/profile?tab=credits'; };
+    if (buy) buy.onclick = function () { window.location.href = '/profile'; };
     var up = document.getElementById('btnQuotaUpgrade');
     if (up) up.onclick = function () { window.location.href = '/profile?tab=premium'; };
   }
@@ -50,20 +64,18 @@
   const scenarioId = body.dataset.scenarioId;
   const freeChat = body.dataset.freeChat === 'true' || window.__FREE_CHAT__ === true;
   const scenarioBackgroundUrl = body.dataset.backgroundUrl;
-  if (!freeChat && scenarioBackgroundUrl) {
-    const chatFrame = document.querySelector('.cv-main');
-    if (chatFrame) {
-      chatFrame.style.setProperty(
-        '--scenario-chat-background-image',
-        'url(' + JSON.stringify(scenarioBackgroundUrl) + ')'
-      );
-    }
-  }
+  const setSceneBackground = window.AiCallSceneImage.createSceneImageLoader(function(url){
+    if(freeChat)return;
+    const chatFrame=document.querySelector('.cv-main');
+    if(chatFrame)chatFrame.style.setProperty('--scenario-chat-background-image','url('+JSON.stringify(url)+')');
+  },function(){return new Image();});
+  if(!freeChat)setSceneBackground(scenarioBackgroundUrl);
   let ended = body.dataset.ended === 'true';
 
   const messagesEl = document.getElementById('chatMessages');
   const input = document.getElementById('messageInput');
   const btnSend = document.getElementById('btnSend');
+  const composeError = document.getElementById('composeError');
   const btnMic = document.getElementById('btnMic');
   const suggestRow = document.getElementById('suggestRow');
   const typing = document.getElementById('typingIndicator');
@@ -74,12 +86,25 @@
   const completeOverlay = document.getElementById('completeOverlay');
   const btnResult = document.getElementById('btnResult');
 
+  // The sentence a learner sent into yesterday's free chat, waiting in today's input.
+  const PENDING_FREE_CHAT_KEY = 'jlas.aicall.freechat.pending';
+  if (freeChat && input && !input.disabled) {
+    try {
+      const pending = sessionStorage.getItem(PENDING_FREE_CHAT_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_FREE_CHAT_KEY);
+        input.value = pending;
+      }
+    } catch (e) {}
+  }
+
   let busy = false;
   let settings = loadSettings();
+  const hasCast = body.dataset.hasCast === 'true';
+  const teacherVoice = body.dataset.teacherVoice === 'true';
+  if (teacherVoice) settings.ttsGender = settings.teacherGender || 'male';
   if (freeChat) {
-    // Trò chuyện tự do: chỉ phản hồi ngữ pháp cơ bản (không furigana/dịch/gợi ý/nhiệm vụ)
-    settings.furigana = false;
-    settings.translation = false;
+    // Free chat keeps reading/translation preferences; suggestions remain scenario-only.
     settings.suggestions = false;
     // feedback defaults true via defaultSettings; user can toggle in sidebar
   }
@@ -100,6 +125,7 @@
   }
 
   const ttsRateRange = document.getElementById('ttsRateRange');
+  const ttsGenderSelect = document.getElementById('ttsGenderSelect');
   const ttsRateLabel = document.getElementById('ttsRateLabel');
   const btnTtsTest = document.getElementById('btnTtsTest');
   const btnTtsFemale = document.getElementById('btnTtsFemale');
@@ -162,6 +188,8 @@
         prefs.favoriteTopics = prefs.favoriteTopics.map(function (t) {
           return t === 'Programming' || t === 'Lập trình' ? 'Technology' : t;
         });
+      } else {
+        prefs.favoriteTopics = [];
       }
       return prefs;
     } catch (e) {
@@ -182,6 +210,8 @@
     const level = document.getElementById('fcLevel');
     const style = document.getElementById('fcStyle');
     const initiative = document.getElementById('fcInitiative');
+    const topicInputs = [...document.querySelectorAll('#favoriteTopicsCard input[data-topic]')];
+    const topicSummary = document.getElementById('fcTopicSummary');
 
     function applyDriveUi() {
       if (btnDrive) {
@@ -190,7 +220,7 @@
       }
       if (topicsCard) {
         topicsCard.style.opacity = freeChatPrefs.conversationActive ? '1' : '0.45';
-        topicsCard.style.pointerEvents = freeChatPrefs.conversationActive ? '' : 'none';
+        topicInputs.forEach(function (input) { input.disabled = !freeChatPrefs.conversationActive; });
       }
     }
 
@@ -202,23 +232,31 @@
       });
     }
 
-    document.querySelectorAll('#favoriteTopicChips .topic-chip').forEach(function (chip) {
-      const topic = chip.dataset.topic;
-      if ((freeChatPrefs.favoriteTopics || []).indexOf(topic) >= 0) chip.classList.add('active');
-      chip.addEventListener('click', function () {
-        const list = freeChatPrefs.favoriteTopics || [];
-        const i = list.indexOf(topic);
-        if (i >= 0) {
-          list.splice(i, 1);
-          chip.classList.remove('active');
-        } else {
-          list.push(topic);
-          chip.classList.add('active');
-        }
-        freeChatPrefs.favoriteTopics = list;
+    function applyTopicSummary() {
+      if (topicSummary) topicSummary.textContent = freeChatPrefs.favoriteTopics.length
+        ? freeChatPrefs.favoriteTopics.length + ' đã chọn' : 'Chưa chọn';
+    }
+    topicInputs.forEach(function (input) {
+      input.checked = (freeChatPrefs.favoriteTopics || []).includes(input.dataset.topic);
+      input.addEventListener('change', function () {
+        freeChatPrefs.favoriteTopics = topicInputs.filter(function (item) { return item.checked; })
+          .map(function (item) { return item.dataset.topic; });
         saveFreeChatPrefs();
+        applyTopicSummary();
       });
     });
+    applyTopicSummary();
+    if (topicsCard) {
+      document.addEventListener('click', function (event) {
+        if (!topicsCard.contains(event.target)) topicsCard.open = false;
+      });
+      topicsCard.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          topicsCard.open = false;
+          topicsCard.querySelector('summary').focus();
+        }
+      });
+    }
 
     function bindSelect(el, key) {
       if (!el) return;
@@ -351,6 +389,7 @@
 
   function applyGenderButtons() {
     const g = normalizeGender(settings.ttsGender);
+    if (ttsGenderSelect) ttsGenderSelect.value = g;
     if (btnTtsFemale) {
       btnTtsFemale.setAttribute('aria-pressed', g === 'female' ? 'true' : 'false');
     }
@@ -391,11 +430,13 @@
   function bindTtsControls() {
     function setGender(g) {
       settings.ttsGender = normalizeGender(g);
+      if (teacherVoice) settings.teacherGender = settings.ttsGender;
       saveSettings();
       applyGenderButtons();
       updateTtsHint();
     }
 
+    if (ttsGenderSelect) ttsGenderSelect.addEventListener('change', function () { setGender(ttsGenderSelect.value); });
     if (btnTtsFemale) {
       btnTtsFemale.addEventListener('click', function () { setGender('female'); });
     }
@@ -415,6 +456,10 @@
     }
     if (btnTtsTest) {
       btnTtsTest.addEventListener('click', function () {
+        if (hasCast) {
+          const latest = [...messagesEl.querySelectorAll('.msg-row.assistant[data-message-id]')].pop();
+          if (latest) return speak(latest.dataset.text, latest.querySelector('.btn-tts'));
+        }
         speak('こんにちは。よろしくお願いします。', btnTtsTest);
       });
     }
@@ -424,6 +469,8 @@
       .then(function (data) {
         if (ttsHint && data && data.configured === false) {
           ttsHint.textContent = 'Chưa cấu hình Fish Audio — điền fish.audio.api.key và voice model id trong application.properties';
+        } else if (ttsHint && hasCast) {
+          updateTtsHint();
         } else if (ttsHint && data && data.model) {
         ttsHint.textContent = 'Fish Audio · mô hình ' + data.model + ' · '
             + (normalizeGender(settings.ttsGender) === 'male' ? 'Nam' : 'Nữ');
@@ -434,6 +481,7 @@
 
   function updateTtsHint() {
     if (!ttsHint) return;
+    if (hasCast) { ttsHint.textContent = 'Giọng đọc theo nhân vật trong câu chuyện'; return; }
     const g = normalizeGender(settings.ttsGender) === 'male' ? 'Nam' : 'Nữ';
     ttsHint.textContent = 'Fish Audio · giọng ' + g + ' (model id trong application.properties)';
   }
@@ -509,22 +557,7 @@
         setTimeout(function () { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Chép'; }, 1200);
       });
     });
-    row.querySelectorAll('.btn-ruby').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        settings.furigana = true;
-        saveSettings();
-        applySettings();
-        ensureAnnotations(row, true);
-      });
-    });
-    row.querySelectorAll('.btn-tr').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        settings.translation = true;
-        saveSettings();
-        applySettings();
-        ensureAnnotations(row, true);
-      });
-    });
+
   }
 
   async function ensureAnnotations(row, force) {
@@ -571,7 +604,7 @@
       }
     }
 
-    if ((settings.translation || force) && trEl && !row.dataset.trDone) {
+    if (settings.translation && trEl && !row.dataset.trDone) {
       try {
         const res = await fetch('/api/conversation/' + sessionId + '/translate', {
           method: 'POST',
@@ -579,11 +612,16 @@
           body: JSON.stringify({ text: text })
         });
         const data = await res.json();
-        trEl.textContent = data.translation || '';
+        if (!res.ok || !data.translation) throw new Error('Không thể tải bản dịch.');
+        trEl.textContent = data.translation;
         trEl.hidden = false;
         trEl.classList.add('show');
         row.dataset.trDone = '1';
-      } catch (e) {}
+      } catch (e) {
+        trEl.textContent = 'Không thể tải bản dịch. Tắt rồi bật lại công tắc dịch trong Công cụ để thử lại.';
+        trEl.hidden = false;
+        trEl.classList.add('show');
+      }
     } else if (trEl && row.dataset.trDone) {
       trEl.classList.add('show');
       trEl.hidden = false;
@@ -669,6 +707,8 @@
   function bindCompose() {
     btnSend.addEventListener('click', send);
     input.addEventListener('keydown', function (e) {
+      // Enter commits a Japanese IME candidate before it submits a chat turn.
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         send();
@@ -718,18 +758,73 @@
     });
   }
 
+  // Mỗi lần gửi có một mã riêng: server dùng nó để không tính phí hai lần khi request bị gửi lặp (JLAS-W0199).
+  function newRequestId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+
+  // Lượt vừa bị chặn vì hết hạn mức: nếu người học bấm "Dùng CP" thì gửi lại đúng lượt đó (cùng mã).
+  let creditRetry = null;
+  window.AICallUI.onUseCredit = function () {
+    if (!creditRetry || busy || ended) return;
+    const retry = creditRetry;
+    creditRetry = null;
+    busy = true;
+    btnSend.disabled = true;
+    showTyping(true);
+    postTurn(retry.text, retry.learnerRow, retry.requestId, true);
+  };
+
+  function addChargeNote(row, text, isError) {
+    if (!row) return;
+    const col = row.querySelector('.msg-col') || row;
+    const note = document.createElement('div');
+    note.className = 'turn-charge-note';
+    note.style.cssText = 'font-size:.75rem;margin-top:4px;color:' + (isError ? 'var(--wrong, #b42318)' : 'var(--muted, #667085)') + ';';
+    note.textContent = text;
+    col.appendChild(note);
+  }
+
+  function showComposeError(message) {
+    if (composeError) { composeError.textContent = message || ''; composeError.hidden = !message; }
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+  }
+
+  // Fast script check for typing/STT; the server also validates ambiguous Kanji-only text.
+  function hasJapaneseInput(text) {
+    const content = text.normalize('NFKC').replace(/(?<![A-Za-z0-9])(?:JLPT|AI|N[1-5])(?![A-Za-z0-9])/g, '');
+    if (!/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(content)) return false;
+    return ![...content].some(function (char) {
+      return (/\p{L}/u.test(char) && !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]/u.test(char))
+        || (/[\p{Cc}\p{Cf}]/u.test(char) && !/\s/u.test(char) && char !== '\u200d');
+    });
+  }
+
+  if (input) input.addEventListener('input', function () { showComposeError(''); });
+
   async function send() {
     if (busy || ended) return;
     const text = (input.value || '').trim();
     if (!text) return;
+    if (!hasJapaneseInput(text)) {
+      showComposeError('AI Call chỉ nhận tiếng Nhật. Vui lòng nhập bằng Hiragana/Katakana hoặc viết câu Kanji kèm kana.');
+      input.focus();
+      return;
+    }
+    showComposeError('');
     busy = true;
     btnSend.disabled = true;
     const learnerRow = addMessageRow('user', text);
     input.value = '';
     showTyping(true);
+    creditRetry = null;
+    await postTurn(text, learnerRow, newRequestId(), false);
+  }
 
+  async function postTurn(text, learnerRow, requestId, useCredit) {
     try {
-      const payload = { sessionId: Number(sessionId), message: text };
+      const payload = { sessionId: Number(sessionId), message: text, clientRequestId: requestId, useCredit: !!useCredit };
       const fc = buildFreeChatSettingsPayload();
       if (fc) payload.freeChatSettings = fc;
       const res = await fetch('/api/conversation/chat', {
@@ -737,34 +832,72 @@
         headers: jsonHeaders(),
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      const data = await res.json().catch(function () { return {}; });
       showTyping(false);
 
-      // BR-05 — Quota exceeded  hiện modal nâng cấp
+      // A tab left open overnight: yesterday's chat is closed, so carry the sentence to today's.
+      if (!res.ok && data.code === 'AICALL_FREE_CHAT_NEW_DAY') {
+        try { sessionStorage.setItem(PENDING_FREE_CHAT_KEY, text); } catch (e) {}
+        window.location.href = '/ai-call/free-chat/start';
+        return;
+      }
+
+      if (!res.ok && data.code === 'AICALL_JAPANESE_REQUIRED') {
+        if (learnerRow) learnerRow.remove();
+        if (!input.value) input.value = text;
+        showComposeError(data.message || 'AI Call chỉ nhận tiếng Nhật.');
+        input.focus();
+        return;
+      }
+
+      // Hết hạn mức (hoặc không đủ CP): hiện modal chờ hạn mức mới / dùng CP / nâng cấp.
       if (res.status === 402) {
+        if (data && data.code === 'QUOTA_EXCEEDED') creditRetry = { text: text, learnerRow: learnerRow, requestId: requestId };
         showQuotaModal(data);
         return;
       }
-      if (res.status === 403 && data && data.message && data.message.indexOf('tắt tiếng') >= 0) {
+      // Tài khoản đang bị chế tài: server trả 403 kèm lý do.
+      if (res.status === 403) {
         showMuteModal(data);
+        return;
+      }
+      // 409: lượt trước chưa xong / đang xử lý; 503: quá tải (chưa bị tính phí).
+      if (!res.ok) {
+        addChargeNote(learnerRow, '⚠️ ' + ((data && (data.message || data.error)) || 'Không gửi được, thử lại nhé.'), true);
         return;
       }
 
       if (data.error && !data.assistantReply) {
         addMessageRow('assistant', data.error);
       } else {
-        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, data.assistantTranslation);
+        const row = addMessageRow('assistant', data.assistantReply || '…', null, data.assistantTokens, null, data.assistantSpeaker, data.assistantMessageId);
         if (data.feedback) appendFeedbackCard(learnerRow, data.feedback);
         if (data.error) {
           // hiện lỗi kỹ thuật nhỏ dưới bubble (không giả làm thoại AI)
           const note = document.createElement('div');
-          note.style.cssText = 'font-size:.78rem;color:#b42318;margin-top:4px;';
+          note.style.cssText = 'font-size:.78rem;color:var(--wrong, #b42318);margin-top:4px;';
           note.textContent = '⚠️ ' + data.error;
           row.querySelector('.msg-col').appendChild(note);
         }
         if (data.sceneTransition) addSceneTransition(data.sceneTransition);
-        if (settings.autoplay) speak(data.assistantReply || '', row.querySelector('.btn-tts'));
-        if (settings.furigana || settings.translation) ensureAnnotations(row, true);
+        if (data.sceneImageUrl) setSceneBackground(data.sceneImageUrl);
+        let audibleRow = row;
+        if (data.speakerOpening) {
+          const opening = data.speakerOpening;
+          audibleRow = addMessageRow('assistant', opening.text, null, null, null, opening.speaker, opening.messageId);
+          if (settings.furigana || settings.translation) ensureAnnotations(audibleRow, settings.furigana);
+        }
+        if (data.currentSpeaker) {
+          window.__AI_ROLE__ = data.currentSpeaker.name;
+          document.querySelectorAll('[data-current-speaker]').forEach(function (label) { label.textContent = data.currentSpeaker.name; });
+        }
+        if (settings.autoplay) speak(audibleRow.dataset.text || '', audibleRow.querySelector('.btn-tts'));
+        if (settings.furigana || settings.translation) ensureAnnotations(row, settings.furigana);
+      }
+      if (data.chargeRefunded) {
+        addChargeNote(learnerRow, 'AI gặp lỗi nên lượt này không bị tính.', false);
+      } else if (data.creditCharged > 0) {
+        addChargeNote(learnerRow, '−' + data.creditCharged + ' CP cho lượt này', false);
       }
 
       if (!freeChat) {
@@ -776,6 +909,7 @@
         ended = true;
         input.disabled = true;
         btnSend.disabled = true;
+        if (btnEndSession) btnEndSession.hidden = true;
         if (completeOverlay) completeOverlay.classList.add('show');
       }
     } catch (e) {
@@ -788,29 +922,47 @@
     }
   }
 
-  function addMessageRow(role, text, feedback, tokens, translation) {
+  // Người học chủ động kết thúc phiên (JLAS-W0205): kịch bản thì chấm điểm rồi sang trang kết quả.
+  const btnEndSession = document.getElementById('btnEndSession');
+  if (btnEndSession) {
+    btnEndSession.addEventListener('click', async function () {
+      if (busy) return;
+      if (!window.confirm('Kết thúc cuộc hội thoại này?')) return;
+      btnEndSession.disabled = true;
+      try {
+        const res = await fetch('/api/conversation/' + sessionId + '/end', { method: 'POST', headers: jsonHeaders() });
+        const data = await res.json().catch(function () { return {}; });
+        if (!res.ok) throw new Error((data && data.message) || 'HTTP ' + res.status);
+        window.location.href = data.redirectUrl || body.dataset.homeUrl || '/ai-call';
+      } catch (e) {
+        btnEndSession.disabled = false;
+        window.alert('Không kết thúc được phiên: ' + e.message);
+      }
+    });
+  }
+
+  function addMessageRow(role, text, feedback, tokens, translation, speaker, messageId) {
     const row = document.createElement('div');
     row.className = 'msg-row ' + role;
     row.dataset.role = role;
     row.dataset.text = text;
+    if (messageId) row.dataset.messageId = messageId;
+    if (speaker) row.dataset.speakerCode = speaker.code;
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const learnerRole = window.__USER_ROLE__ || 'Bạn';
     const roleLabel = role === 'assistant'
-      ? (window.__AI_ROLE__ || 'AI')
+      ? (speaker ? speaker.name : window.__AI_ROLE__ || 'AI')
       : (freeChat || learnerRole === 'Bạn' ? 'Bạn' : 'Bạn · ' + learnerRole);
 
     let bubbleInner = '<div class="bubble-text jp msg-text"></div>';
     if (role === 'assistant') {
       bubbleInner +=
-        (freeChat ? '' : '<div class="translation-line" hidden></div>') +
+        '<div class="translation-line" hidden></div>' +
         '<div class="bubble-tools">' +
         '<button type="button" class="tool-chip btn-tts"><i class="fa-solid fa-volume-high"></i> Phát</button>' +
         '<button type="button" class="tool-chip btn-copy"><i class="fa-solid fa-copy"></i> Chép</button>' +
-        (freeChat ? '' :
-          '<button type="button" class="tool-chip btn-ruby"><i class="fa-solid fa-language"></i> あ</button>' +
-          '<button type="button" class="tool-chip btn-tr"><i class="fa-solid fa-globe"></i> Việt</button>') +
         '</div>';
     }
 
@@ -886,6 +1038,31 @@
     if (feedback.mistakeType === 'vocab_help') card.classList.add('is-vocab-help');
     column.appendChild(card);
     scrollBottom();
+    if (feedback.mistakeType !== 'vocab_help') showCorrectionReadings(card.querySelector('.ok'), feedback.correctedText);
+  }
+
+  // Learners speak their answer, so the correction always shows how its kanji are read (一人 → ひとり),
+  // whatever the furigana toggle says.
+  async function showCorrectionReadings(el, text) {
+    if (!el || !/[一-鿿]/.test(text || '')) return;
+    for (const allowAi of [false, true]) {
+      try {
+        const res = await fetch('/api/conversation/' + sessionId + '/furigana', {
+          method: 'POST',
+          headers: jsonHeaders(),
+          body: JSON.stringify({ text: text, allowAi: allowAi })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.tokens || !data.tokens.length) continue;
+        el.innerHTML = tokensToRuby(data.tokens);
+        bindTokenClicks(el);
+        if (hasCompleteKanjiReadings(data.tokens)) return;
+      } catch (e) {
+        console.error('[JLAS Furigana] Không thể tải cách đọc của câu sửa', e);
+        return;
+      }
+    }
   }
 
   function updateProgress(data) {
@@ -930,12 +1107,19 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function ttsPayload(text) {
-    return JSON.stringify({
+  function ttsPayload(text, btn) {
+    const payload = {
       text: text,
       gender: normalizeGender(settings.ttsGender),
       speed: clampTtsRate(settings.ttsRate)
-    });
+    };
+    const row = btn && btn.closest('.msg-row');
+    if (row && row.dataset.messageId) payload.messageId = Number(row.dataset.messageId);
+    else if (btn && btn.dataset.speakerCode) {
+      payload.sessionId = sessionId;
+      payload.speakerCode = btn.dataset.speakerCode;
+    }
+    return JSON.stringify(payload);
   }
 
   async function ttsResponseError(res) {
@@ -1041,7 +1225,7 @@
     const responsePromise = fetch('/api/tts/speak-stream', {
       method: 'POST',
       headers: jsonHeaders(),
-      body: ttsPayload(text),
+      body: ttsPayload(text, btn),
       signal: controller.signal
     });
 
@@ -1127,7 +1311,7 @@
       const res = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: jsonHeaders(),
-        body: ttsPayload(text),
+        body: ttsPayload(text, btn),
         signal: controller.signal
       });
 

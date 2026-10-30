@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Kết quả · JLAS</title>
@@ -15,15 +16,17 @@
     <link rel="stylesheet" th:href="@{/css/app.css}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
 
-<body id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
 
     <section class="container" style="padding:40px 0 64px;max-width:820px">
         <div class="panel" style="text-align:center">
-            <div class="badge badge-done"><i class="fa-solid fa-trophy"></i> Hoàn thành nhiệm vụ</div>
+            <div class="badge badge-done"><i class="fa-solid fa-trophy" aria-hidden="true"></i> <span th:text="${chatSession.contentReview ? 'Kết quả kiểm tra nội dung' : chatSession.stageCode != null ? (chatSession.stagePassed ? 'Đã vượt màn — nhánh tiếp theo được mở' : 'Chưa vượt màn') : 'Kết quả hội thoại'}"></span></div>
+            <p th:if="${stageDefinition != null}" th:text="${stageDefinition.title}"></p>
             <h1 style="margin:12px 0" th:text="${scenario.title}">Kịch bản</h1>
 
             <div th:if="${score != null}">
@@ -38,9 +41,18 @@
                     · Số lỗi:
                     <span th:text="${score.mistakesCount}">0</span>
                 </p>
-                <pre th:if="${score.detailsJson != null}"
-                    style="text-align:left;background:var(--surface-2);padding:12px;border-radius:12px;margin-top:16px;overflow:auto;border:1px solid var(--border)"
-                    th:text="${score.detailsJson}"></pre>
+                <ul th:if="${!#maps.isEmpty(scoreDetails)}" class="list-clean"
+                    style="text-align:left;margin:16px auto 0;max-width:420px;display:grid;gap:10px">
+                    <li th:each="d : ${scoreDetails}">
+                        <div style="display:flex;justify-content:space-between;font-weight:600">
+                            <span th:text="${d.key}">Ngữ pháp</span>
+                            <span th:text="${d.value} + '/100'">90/100</span>
+                        </div>
+                        <div style="height:8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden">
+                            <div th:style="'height:100%;background:var(--accent);width:' + ${d.value} + '%'"></div>
+                        </div>
+                    </li>
+                </ul>
             </div>
             <div th:if="${score == null}" style="margin:20px 0;color:var(--muted)">
                 Phiên đã kết thúc. Điểm sẽ hiển thị khi hệ thống ghi nhận hoàn thành.
@@ -58,9 +70,11 @@
             </div>
 
             <div class="hero-actions" style="justify-content:center;margin-top:24px">
-                <a class="btn btn-primary" th:href="@{'/scenario/' + ${scenario.id} + '/start'}">
+                <a class="btn btn-primary" th:href="@{/scenario/{id}/start(id=${scenario.id},stage=${chatSession.stageCode})}">
                     <i class="fa-solid fa-rotate-left"></i> Luyện lại
                 </a>
+                <a class="btn btn-secondary" th:href="@{/scenario/{id}(id=${scenario.id})}"><i class="fa-solid fa-route" aria-hidden="true"></i> Màn tiếp theo</a>
+                <a class="btn btn-ghost" th:href="@{/scenario/{id}/history(id=${scenario.id})}"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Lịch sử</a>
                 <a class="btn btn-secondary" th:href="@{'/category/' + ${scenario.category.id}}">
                     <i class="fa-solid fa-forward"></i> Kịch bản khác
                 </a>

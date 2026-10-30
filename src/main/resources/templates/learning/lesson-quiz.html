@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Bài kiểm tra - JLAS', 'lesson-quiz')}"></head>
+<body id="jlabBasePage" class="app-body lesson-quiz-body journey-ui">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="lesson-quiz-page">
+    <nav class="lq-breadcrumb" aria-label="Breadcrumb">
+        <a th:href="@{/learning/path}">Lộ trình của tôi</a>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <span aria-current="page" data-lq-breadcrumb="Kiểm tra">Kiểm tra</span>
+    </nav>
+
+    <div id="lessonQuizRoot"
+         class="lq-root"
+         aria-live="polite"
+         aria-busy="true"
+         th:attr="data-quiz-mode=${quizMode}, data-lesson-id=${quizLessonId}, data-grammar-point-id=${quizGrammarPointId}, data-stage-id=${quizStageId}">
+        <section class="lq-state lq-state--loading" role="status">
+            <span class="lq-spinner" aria-hidden="true"></span>
+            <h1>Đang tải bài kiểm tra</h1>
+            <p>JLAS đang chuẩn bị câu hỏi cho bạn.</p>
+        </section>
+    </div>
+</main>
+
+<script th:src="@{/js/pages/lesson-quiz.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

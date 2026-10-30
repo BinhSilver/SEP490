@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /**
  * Repository cho {@link Kanji}. Cột {@code kanji.character} dùng collation {@code utf8mb4_bin}
- * (migration 005; unicode_ci coi mọi ký tự ngoài BMP là bằng nhau) nên so sánh trực tiếp vừa đúng
+ * (migration 059; unicode_ci coi mọi ký tự ngoài BMP là bằng nhau) nên so sánh trực tiếp vừa đúng
  * byte vừa dùng được index uk_kanji_character.
  */
 @Repository

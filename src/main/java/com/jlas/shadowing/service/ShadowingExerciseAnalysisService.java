@@ -80,6 +80,20 @@ public class ShadowingExerciseAnalysisService {
         return repository.findBySubtitleIds(eligible.stream().map(Subtitle::getId).toList());
     }
 
+    /** Read-only path for starting a session. AI work belongs to the preparation job. */
+    public Map<Long, ShadowingExerciseAnalysis> cachedAnalyses(List<Subtitle> subtitles) {
+        Map<Long, Subtitle> byId = new HashMap<>();
+        subtitles.forEach(subtitle -> byId.put(subtitle.getId(), subtitle));
+        Map<Long, ShadowingExerciseAnalysis> cached = repository.findBySubtitleIds(
+                subtitles.stream().map(Subtitle::getId).toList());
+        cached.entrySet().removeIf(entry -> {
+            Subtitle subtitle = byId.get(entry.getKey());
+            return subtitle == null || !analysisHash(subtitle).equals(entry.getValue().getSourceHash())
+                    || !PROMPT_VERSION.equals(entry.getValue().getPromptVersion());
+        });
+        return cached;
+    }
+
     private void enrichWithAi(List<Subtitle> selected, Map<Long, ShadowingExerciseAnalysis> analyses) {
         for (int offset = 0; offset < selected.size(); offset += AI_BATCH_SIZE) {
             List<Subtitle> batch = selected.subList(offset, Math.min(selected.size(), offset + AI_BATCH_SIZE));

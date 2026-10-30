@@ -1,5 +1,10 @@
 @import url("/css/components/dropdowns.css");
-@import url("/css/components/user-menu.css?v=20260825-unified-bell");
+@import url("/css/components/user-menu.css?v=20261014-frames");
+
+@import url("/css/components/theme-switch.css?v=20261009-nav-switch");
+
+html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
+#jlabBaseLearningPathLink[aria-disabled="true"] { background:transparent; border:0; color:var(--color-on-surface-variant); opacity:.55; cursor:not-allowed; }
 
 /*
  * JLAS shared feature shell.
@@ -11,6 +16,7 @@
 
 #jlabBaseDocument {
   overflow-x: clip !important;
+  scrollbar-gutter: stable;
 }
 
 #jlabBasePage {
@@ -18,7 +24,8 @@
   isolation: isolate;
   min-height: 100dvh;
   overflow-x: clip !important;
-  padding-top: 84px !important;
+  /* Nav phủ kín mép trên (64px) + 12px cách nội dung. */
+  padding-top: 76px !important;
   background: var(--jlab-base-page-background, transparent) !important;
   animation: none !important;
 }
@@ -57,22 +64,64 @@
   animation: none !important;
 }
 
+#jlabBaseHeader,
+#jlabBaseBottomNav,
+#jlabBaseBottomNavToggle {
+  /* Navigation owns its tokens: page palettes must not change its appearance. */
+  --color-primary: #7c3aed;
+  --color-primary-container: #6d28d9;
+  --color-on-primary: #ffffff;
+  --color-primary-fixed: #f3eaff;
+  --color-surface-lowest: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-low: #f8fafc;
+  --color-surface-mid: #f1f5f9;
+  --color-surface-high: #e2e8f0;
+  --color-surface-container: #f1f5f9;
+  --color-on-surface: #172033;
+  --color-on-surface-variant: #64748b;
+  --color-outline-variant: #e2e8f0;
+}
+
+/* Thanh nav phủ kín mép trên, trái và phải (không còn là khối nổi bo góc). */
 #jlabBaseHeader {
   position: fixed;
-  top: 10px;
-  right: clamp(12px, 2vw, 32px);
-  left: clamp(12px, 2vw, 32px);
+  top: 0;
+  right: 0;
+  left: 0;
   z-index: var(--z-header, 50);
   height: 64px;
   display: flex;
   align-items: center;
   color: var(--color-on-surface, #161d1f);
-  /* The global navigation is a consistent white surface. The landing page
-     deliberately overrides this to transparent so it can sit on its hero. */
-  background: #fff;
-  border: 1px solid var(--color-outline-variant, #cbc4d2);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: var(--shadow-1, 0 4px 20px rgba(22, 29, 31, 0.08));
+  background: var(--color-surface-lowest);
+  border: 0;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 0;
+  box-shadow: 0 4px 20px rgba(22, 29, 31, 0.08);
+}
+
+html[data-theme="dark"] #jlabBaseHeader,
+html[data-theme="dark"] #jlabBaseBottomNav,
+html[data-theme="dark"] #jlabBaseBottomNavToggle {
+  --color-primary: #c084fc;
+  --color-primary-container: #a855f7;
+  --color-on-primary: #20102e;
+  --color-primary-fixed: #292239;
+  --color-surface-lowest: #171b26;
+  --color-surface: #10131d;
+  --color-surface-low: #10131d;
+  --color-surface-mid: #202534;
+  --color-surface-high: #2a3041;
+  --color-surface-container: #202534;
+  --color-on-surface: #f5f6fa;
+  --color-on-surface-variant: #a0aec0;
+  --color-outline-variant: #2b3040;
+}
+
+#jlabBaseHeader :is(#jlabBaseExamsMenu,#jlabBaseToolsMenu,#jlabBaseAccountMenu,#jlabBaseNotificationPanel) {
+  background:var(--color-surface-lowest);
+  color:var(--color-on-surface);
 }
 
 #jlabBaseHeaderInner {
@@ -114,8 +163,61 @@
   gap: clamp(14px, 2vw, 24px);
 }
 
+#jlabBasePrimaryNav[hidden] {
+  display: none;
+}
+
+#jlabBaseBottomNav,
+#jlabBaseBottomNavToggle {
+  display: none;
+}
+
+#jlabBaseBottomNav[hidden] {
+  display: none;
+}
+
+#jlabBaseBottomNav > [hidden] {
+  display: none;
+}
+
+#jlabBaseNavToggle {
+  display: none;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-surface);
+  background: transparent;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-sizing: border-box;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+#jlabBaseNavToggle svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+#jlabBaseNavToggle:hover,
+#jlabBaseNavToggle[aria-expanded="true"] {
+  color: var(--color-primary);
+  background: var(--color-primary-fixed);
+}
+
+#jlabBaseNavToggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
 #jlabBaseHomeLink,
 #jlabBaseLearningPathLink,
+#jlabBaseTextbooksLink,
 #jlabBaseLookupLink,
 #jlabBaseGameLink,
 #jlabBaseAboutLink {
@@ -139,11 +241,13 @@
 
 #jlabBaseHomeLink:hover,
 #jlabBaseLearningPathLink:hover,
+#jlabBaseTextbooksLink:hover,
 #jlabBaseLookupLink:hover,
 #jlabBaseGameLink:hover,
 #jlabBaseAboutLink:hover,
 #jlabBaseHomeLink[aria-current="page"],
 #jlabBaseLearningPathLink[aria-current="page"],
+#jlabBaseTextbooksLink[aria-current="page"],
 #jlabBaseLookupLink[aria-current="page"],
 #jlabBaseGameLink[aria-current="page"] {
   color: var(--color-primary, #4f378a);
@@ -151,6 +255,7 @@
 
 #jlabBaseHomeLink[aria-current="page"]::after,
 #jlabBaseLearningPathLink[aria-current="page"]::after,
+#jlabBaseTextbooksLink[aria-current="page"]::after,
 #jlabBaseLookupLink[aria-current="page"]::after,
 #jlabBaseGameLink[aria-current="page"]::after {
   content: "";
@@ -198,6 +303,7 @@
 #jlabBaseRegisterLink:focus-visible,
 #jlabBaseHomeLink:focus-visible,
 #jlabBaseLearningPathLink:focus-visible,
+#jlabBaseTextbooksLink:focus-visible,
 #jlabBaseLookupLink:focus-visible,
 #jlabBaseGameLink:focus-visible,
 #jlabBaseAboutLink:focus-visible,
@@ -205,7 +311,12 @@
 #jlabBaseFlashcardLink:focus-visible,
 #jlabBaseQuizLink:focus-visible,
 #jlabBaseShadowingLink:focus-visible,
+#jlabBaseSmartTestLink:focus-visible,
+#jlabBaseLearnPathItem:focus-visible,
 #jlabBaseProfileLink:focus-visible,
+#jlabBaseMyLearningPathLink:focus-visible,
+#jlabBaseStreakLink:focus-visible,
+#jlabBaseAdminLink:focus-visible,
 #jlabBaseSecurityLink:focus-visible {
   outline: 2px solid var(--color-primary, #4f378a);
   outline-offset: 3px;
@@ -268,6 +379,7 @@
 #jlabBaseNotificationBadge[hidden],
 #jlabBaseAvatarButtonImage[hidden],
 #jlabBaseAvatarButtonInitials[hidden],
+#jlabBaseAdminLink[hidden],
 #jlabBaseAccountAvatarImage[hidden],
 #jlabBaseAccountAvatarInitials[hidden] {
   display: none;
@@ -277,7 +389,12 @@
 #jlabBaseFlashcardLink,
 #jlabBaseQuizLink,
 #jlabBaseShadowingLink,
+#jlabBaseSmartTestLink,
+#jlabBaseLearnPathItem,
 #jlabBaseProfileLink,
+#jlabBaseMyLearningPathLink,
+#jlabBaseStreakLink,
+#jlabBaseAdminLink,
 #jlabBaseSecurityLink,
 #jlabBaseLogoutButton {
   width: 100%;
@@ -301,13 +418,27 @@
 #jlabBaseFlashcardLink:hover,
 #jlabBaseQuizLink:hover,
 #jlabBaseShadowingLink:hover,
+#jlabBaseSmartTestLink:hover,
+#jlabBaseLearnPathItem:hover,
+#jlabBaseExamJlptItem:hover,
+#jlabBaseExamJlptPracticeItem:hover,
 #jlabBaseProfileLink:hover,
+#jlabBaseMyLearningPathLink:hover,
+#jlabBaseStreakLink:hover,
+#jlabBaseAdminLink:hover,
 #jlabBaseSecurityLink:hover,
 #jlabBaseLogoutButton:hover,
 #jlabBaseAiCallLink[aria-current="page"],
 #jlabBaseFlashcardLink[aria-current="page"],
 #jlabBaseQuizLink[aria-current="page"],
-#jlabBaseShadowingLink[aria-current="page"] {
+#jlabBaseShadowingLink[aria-current="page"],
+#jlabBaseSmartTestLink[aria-current="page"],
+#jlabBaseLearnPathItem[aria-current="page"],
+#jlabBaseMyLearningPathLink[aria-current="page"],
+#jlabBaseStreakLink[aria-current="page"],
+#jlabBaseAdminLink[aria-current="page"],
+#jlabBaseExamJlptItem[aria-current="page"],
+#jlabBaseExamJlptPracticeItem[aria-current="page"] {
   color: var(--color-primary, #4f378a);
   background: var(--color-primary-fixed, #e9ddff);
 }
@@ -401,17 +532,10 @@
   transition: none;
 }
 
+/* The bell has no hover or open-state effect: it keeps the same look at all times. */
 #jlabBaseNotificationButton:hover,
 #jlabBaseNotificationButton[aria-expanded="true"] {
-  background: var(--color-primary-fixed, #e9ddff);
   transform: none;
-}
-
-/* Hover keeps the bell visually still; the expanded state remains visible after click. */
-#jlabBaseNotificationButton.notification-center__trigger:hover:not([aria-expanded="true"]) {
-  color: var(--color-on-surface, #161d1f) !important;
-  background: var(--color-surface-high, #dfe7e9) !important;
-  transform: none !important;
 }
 
 #jlabBaseNotificationIcon {
@@ -450,8 +574,144 @@
 }
 
 #jlabBaseNotificationPanelHeader {
-  padding: 18px 20px 14px;
+  padding: 14px 16px 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationMarkAll {
+  padding: 6px 10px;
+  color: var(--color-primary, #4f378a);
+  font: 600 0.8125rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#jlabBaseNotificationMarkAll:hover,
+#jlabBaseNotificationMarkAll:focus-visible {
+  background: var(--color-primary-fixed, #e9ddff);
+  outline: none;
+}
+
+#jlabBaseNotificationMarkAll[hidden] {
+  display: none;
+}
+
+#jlabBaseNotificationViewAll {
+  display: block;
+  padding: 12px 20px;
+  color: var(--color-primary, #4f378a);
+  font: 600 0.875rem/1.3 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  text-align: center;
+  text-decoration: none;
+  border-top: 1px solid var(--color-outline-variant, #cbc4d2);
+}
+
+#jlabBaseNotificationViewAll:hover,
+#jlabBaseNotificationViewAll:focus-visible {
+  background: var(--color-primary-fixed, #e9ddff);
+  outline: none;
+}
+
+/* Notification rows live here (not in user-menu.css) so every page using the shell renders them. */
+#jlabBaseNotificationList {
+  max-height: min(420px, calc(100vh - 170px));
+  overflow-y: auto;
+}
+
+#jlabBaseNotificationList .jlab-notif {
+  width: 100%;
+  padding: 12px 16px 12px 20px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 10px;
+  align-items: start;
+  gap: 12px;
+  color: var(--color-on-surface, #161d1f);
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-outline-variant, #cbc4d2);
+  box-sizing: border-box;
+  cursor: pointer;
+  font: inherit;
+}
+
+#jlabBaseNotificationList .jlab-notif:hover,
+#jlabBaseNotificationList .jlab-notif:focus-visible {
+  background: var(--color-surface-low, #eef5f7);
+  outline: none;
+}
+
+#jlabBaseNotificationList .jlab-notif.is-unread {
+  background: #f7f2ff;
+}
+
+/* Unread rows use the notification shell's dark pair, rather than the light tint. */
+html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif.is-unread {
+  background: var(--color-primary-fixed);
+  color: var(--color-on-surface);
+}
+
+html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif:hover,
+html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif:focus-visible {
+  background: var(--color-surface-high);
+}
+
+#jlabBaseNotificationList .jlab-notif__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+  border-radius: 50%;
+}
+
+#jlabBaseNotificationList .jlab-notif__icon .jlab-base-icon {
+  width: 18px;
+  height: 18px;
+}
+
+#jlabBaseNotificationList .jlab-notif__body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+#jlabBaseNotificationList .jlab-notif__body strong {
+  font: 700 0.875rem/1.35 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__message {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-on-surface-variant, #494551);
+  font: 400 0.8125rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseNotificationList .jlab-notif__time {
+  color: var(--color-outline, #7a7582);
+  font: 400 0.75rem/1.3 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
+  color: var(--color-on-surface-variant);
+}
+
+#jlabBaseNotificationList .jlab-notif__dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  background: var(--color-primary, #4f378a);
+  border-radius: 50%;
 }
 
 #jlabBaseNotificationTitle {
@@ -586,103 +846,499 @@
   100% { background-position: 0% 50%; }
 }
 
+/* =============================================================================
+ * [JLAS] Nav "Học tập"/"Tạo đề" (Tạo đề chỉ CONTENT_CREATOR — xem NAV_ROLES trong jlab-base-shell.js).
+ * Icon render bằng inline SVG (khuôn của fa712cb, xem replaceShellIcons trong jlab-base-shell.js),
+ * không dùng Font Awesome ::before glyph; kích thước theo .jlab-base-icon / .jlab-base-icon--chevron.
+ * ============================================================================= */
+#jlabBaseExamsWrapper { position:relative; }
+#jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant, #494551); font:500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; cursor:pointer; }
+#jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
+#jlabBaseExamsChevron { transition: transform 180ms ease; }
+#jlabBaseExamJlptPracticeIcon { display:inline-block; width:18px; font-family:"Font Awesome 6 Free"; font-weight:900; font-style:normal; }
+#jlabBaseExamJlptPracticeIcon::before { content:"\f03a"; }
+#jlabBaseExamsButton[aria-expanded="true"] #jlabBaseExamsChevron { transform:rotate(180deg); }
+#jlabBaseExamsMenu { position:absolute; top:calc(100% + 10px); left:0; z-index:2147483002; min-width:208px; padding:8px; display:grid; gap:3px; border:1px solid var(--color-outline-variant); border-radius:12px; background:var(--color-surface-lowest, #ffffff); box-shadow:0 10px 40px rgba(22,29,31,.14); }
+#jlabBaseExamsMenu[hidden] { display:none; }
+#jlabBaseExamsMenu>.dropdown__item,.nav-tools-menu>.dropdown__item { display:grid!important; grid-template-columns:18px minmax(0,1fr); align-items:center; column-gap:10px; min-height:40px; padding:10px 12px; box-sizing:border-box; font:500 .875rem/1.25 var(--font-body); }
+#jlabBaseExamsMenu>.dropdown__item>:first-child,.nav-tools-menu>.dropdown__item>:first-child { display:flex; align-items:center; justify-content:center; width:18px; min-width:18px; height:18px; }
+#jlabBaseExamsMenu>.dropdown__item>.jlab-base-icon,.nav-tools-menu>.dropdown__item>.jlab-base-icon { width:18px; height:18px; }
+#jlabBaseExamJlptItem,#jlabBaseExamJlptPracticeItem { display:flex; align-items:center; gap:8px; width:100%; min-height:40px; padding:10px 12px; border:0; background:transparent; color:var(--color-on-surface-variant, #494551); font:500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; text-align:left; opacity:1; cursor:pointer; }
+#jlabBaseExamsMenu .nav-soon { margin-left:auto; padding:2px 8px; border-radius:99px; font-size:11px; background:var(--color-surface-container,#e8eff1); white-space:nowrap; }
+#jlabBaseExamsButton:focus-visible,#jlabBaseExamJlptItem:focus-visible,#jlabBaseExamJlptPracticeItem:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+#jlabBaseTestBuilderWrapper {
+  position: relative;
+}
+
+/* RULE CHUNG cho nav theo role (NAV_ROLES trong jlab-base-shell.js) — KHÔNG phải rule per-id như xung quanh:
+ * áp cho MỌI mục con trực tiếp của nav bị syncNavRoles() đặt `hidden`, hiện tại là Tạo đề / Game / Công cụ và
+ * mọi mục khai báo về sau. Cần thiết vì các rule per-id (`display: inline-flex`, mobile `display: flex`) đè
+ * `[hidden]` của trình duyệt; specificity (1,1,0) của rule này thắng per-id (1,0,0). ĐỪNG xoá dù thấy trùng. */
+#jlabBasePrimaryNav > [hidden] {
+  display: none;
+}
+
+#jlabBaseTestBuilderWrapper[hidden] {
+  display: none; /* bắt buộc: rule mobile `display: flex` bên dưới sẽ đè [hidden] của UA */
+}
+
+#jlabBaseTestBuilderButton {
+  min-width: max-content;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+#jlabBaseTestBuilderButton:hover,
+#jlabBaseTestBuilderButton[aria-expanded="true"],
+#jlabBaseTestBuilderButton[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+}
+
+#jlabBaseTestBuilderButton:focus-visible,
+#jlabBaseSmartTestItem:focus-visible,
+#jlabBaseJlptItem:focus-visible {
+  outline: 2px solid var(--color-primary, #4f378a);
+  outline-offset: 3px;
+}
+
+#jlabBaseTestBuilderChevron {
+  transition: transform 180ms ease;
+}
+
+#jlabBaseTestBuilderButton[aria-expanded="true"] #jlabBaseTestBuilderChevron {
+  transform: rotate(180deg);
+}
+
+#jlabBaseTestBuilderMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 2147483002;
+  min-width: 208px;
+  padding: 8px;
+  display: grid;
+  gap: 3px;
+  color: var(--color-on-surface, #161d1f);
+  background: var(--color-surface-lowest, #ffffff);
+  border: 1px solid var(--color-outline-variant, #cbc4d2);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(22, 29, 31, 0.14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-sizing: border-box;
+}
+
+#jlabBaseTestBuilderMenu[hidden] {
+  display: none;
+}
+
+#jlabBaseSmartTestItem,
+#jlabBaseJlptItem {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-on-surface-variant, #494551);
+  font: 500 0.875rem/1.25 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+#jlabBaseSmartTestItem:hover,
+#jlabBaseJlptItem:hover,
+#jlabBaseSmartTestItem[aria-current="page"],
+#jlabBaseJlptItem[aria-current="page"] {
+  color: var(--color-primary, #4f378a);
+  background: var(--color-primary-fixed, #e9ddff);
+}
+
+/* Item chưa có trang: vô hiệu (theo tiền lệ "Tra cứu" aria-disabled), hover không đổi màu, nhãn "sắp có" */
+#jlabBaseSmartTestItem[aria-disabled="true"],
+#jlabBaseJlptItem[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+#jlabBaseSmartTestItem[aria-disabled="true"]:hover,
+#jlabBaseJlptItem[aria-disabled="true"]:hover {
+  color: var(--color-on-surface-variant, #494551);
+  background: transparent;
+}
+
+#jlabBaseSmartTestLabel,
+#jlabBaseJlptLabel {
+  white-space: nowrap;
+}
+
+#jlabBaseTestBuilderMenu .nav-soon {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-on-surface-variant, #494551);
+  background: var(--color-surface-container, #e8eff1);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   #jlabBasePage {
-    padding-top: 122px !important;
+    --jlab-mobile-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    padding-top: 72px !important;
+    padding-bottom: calc(var(--jlab-mobile-bottom) + 16px) !important;
+  }
+
+  #jlabBaseDocument {
+    scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   }
 
   #jlabBaseHeader {
-    top: 8px;
-    right: 12px;
-    left: 12px;
-    height: 106px;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 64px;
   }
 
   #jlabBaseHeaderInner {
-    padding: 10px 20px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: 46px 40px;
-    gap: 6px 14px;
-  }
-
-  #jlabBasePrimaryNav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    width: 100%;
-    justify-content: center;
+    padding: 0 14px;
+    gap: 10px;
   }
 
   #jlabBaseActions {
-    grid-column: 3;
-    grid-row: 1;
+    margin-left: auto;
+    gap: 0;
+  }
+
+  #jlabBaseNavToggle {
+    display: inline-flex;
+  }
+
+  #jlabBaseGuestActions,
+  #jlabBaseAvatarButton {
+    display: none;
+  }
+
+  #jlabBaseBottomNav {
+    --mobile-nav-active: #c8102e;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--z-header, 50);
+    height: calc(80px + env(safe-area-inset-bottom, 0px));
+    padding: 8px calc(56px + env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 4px;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-lowest);
+    border-top: 1px solid var(--color-outline-variant);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 24px rgba(22, 29, 31, 0.08);
+    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+  }
+
+  #jlabBaseBottomNavToggle {
+    position: fixed;
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    bottom: calc((var(--jlab-mobile-bottom) - 44px + env(safe-area-inset-bottom, 0px)) / 2);
+    z-index: var(--z-header, 50);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 10px;
+    color: var(--color-on-surface-variant);
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #jlabBaseBottomNavToggle .jlab-base-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  #jlabBaseBottomNavToggle[aria-expanded="false"] {
+    /* Keep the compact control in the viewport corner, outside the composer gutter. */
+    right: 0;
+    bottom: 0;
+    width: 32px;
+    height: 32px;
+    padding: 8px;
+    isolation: isolate;
+    background: transparent;
+    border-radius: 12px 0 0 0;
+  }
+
+  #jlabBaseBottomNavToggle[aria-expanded="false"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-surface-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: inherit;
+  }
+
+  #jlabBaseBottomNavToggle[aria-expanded="false"] .jlab-base-icon {
+    width: 16px;
+    height: 16px;
+    transform: rotate(180deg);
+  }
+
+  #jlabBaseBottomNavToggle:hover {
+    color: var(--color-on-surface);
+    background: var(--color-surface-mid);
+  }
+
+  #jlabBaseBottomNavToggle[aria-expanded="false"]:hover::before {
+    background: var(--color-surface-mid);
+  }
+
+  #jlabBaseBottomNavToggle:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  html[data-theme="dark"] #jlabBaseBottomNav {
+    --mobile-nav-active: #ff8a9b;
+  }
+
+  #jlabBaseBottomNav > a,
+  #jlabBaseBottomAccountButton {
+    min-width: 0;
+    min-height: 60px;
+    margin: 0;
+    padding: 4px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    font: 600 0.8125rem/1.25 -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    box-sizing: border-box;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #jlabBaseBottomNav .jlab-base-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  #jlabBaseBottomNav > [aria-current="page"],
+  #jlabBaseBottomAccountButton[aria-expanded="true"] {
+    color: var(--mobile-nav-active);
+    font-weight: 800;
+  }
+
+  #jlabBaseBottomNav > [aria-current="page"] .jlab-base-icon {
+    stroke-width: 2.5;
+  }
+
+  #jlabBaseBottomNav > a:hover,
+  #jlabBaseBottomAccountButton:hover {
+    color: var(--mobile-nav-active);
+    background: var(--color-surface-mid);
+  }
+
+  #jlabBaseBottomNav > a:focus-visible,
+  #jlabBaseBottomAccountButton:focus-visible {
+    outline: 2px solid var(--mobile-nav-active);
+    outline-offset: -2px;
+  }
+
+  #jlabBaseBottomNav > a::after,
+  #jlabBaseBottomNav > a[aria-current="page"]::after {
+    content: none;
+  }
+
+  #jlabBaseAccountMenu {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    left: auto;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    min-width: 0;
+    max-height: calc(100dvh - 184px - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+  }
+
+  #jlabBaseNotificationPanel {
+    max-height: calc(100dvh - 184px - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+  }
+
+  #jlabBaseNotice {
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #jlabBasePrimaryNav {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: auto;
+    width: max-content;
+    max-width: 100%;
+    max-height: calc(100dvh - 184px - env(safe-area-inset-bottom, 0px));
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    color: var(--color-on-surface);
+    background: var(--color-surface-lowest);
+    border: 1px solid var(--color-outline-variant);
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(22, 29, 31, 0.14);
+    box-sizing: border-box;
+  }
+
+  #jlabBasePrimaryNav > a,
+  #jlabBasePrimaryNav > .dropdown > button {
+    width: 100%;
+    min-height: 44px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    border-radius: 9px;
+    font-size: 0.9375rem;
+    box-sizing: border-box;
+  }
+
+  #jlabBasePrimaryNav > .dropdown:not([hidden]) {
+    display: block;
+  }
+
+  #jlabBasePrimaryNav > a:hover,
+  #jlabBasePrimaryNav > a[aria-current="page"],
+  #jlabBasePrimaryNav > .dropdown > button:hover,
+  #jlabBasePrimaryNav > .dropdown > button[aria-current="page"],
+  #jlabBasePrimaryNav > .dropdown > button[aria-expanded="true"] {
+    color: var(--color-primary);
+    background: var(--color-primary-fixed);
+  }
+
+  #jlabBasePrimaryNav > a::after {
+    content: none;
+  }
+
+  #jlabBasePrimaryNav .jlab-base-icon--chevron {
+    margin-left: auto;
+  }
+
+  #jlabBaseToolsMenu,
+  #jlabBaseExamsMenu,
+  #jlabBaseTestBuilderMenu {
+    position: static;
+    min-width: 0;
+    margin: 4px 0 4px 12px;
+    padding: 4px;
+    border: 0 !important;
+    border-radius: 0;
+    box-shadow: none !important;
+  }
+
+  #jlabBasePrimaryNav [role="menuitem"] {
+    min-height: 44px;
+  }
+
+  /* Include collapsed submenus in max-content sizing without adding height or
+     exposing their links to focus, so the widest item sets the width up front. */
+  #jlabBasePrimaryNav > .dropdown > [role="menu"][hidden] {
+    display: grid !important; /* Override the shared mobile [hidden] reset. */
+    visibility: hidden;
+    height: 0;
+    margin-block: 0;
+    padding-block: 0;
+    overflow: hidden;
   }
 }
 
 @media (max-width: 560px) {
   #jlabBaseHeaderInner {
-    padding-inline: 14px;
-    grid-template-columns: 36px minmax(0, 1fr) auto;
-  }
-
-  #jlabBasePrimaryNav {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding-inline: 8px;
     gap: 6px;
   }
 
-  #jlabBaseHomeLink,
-  #jlabBaseLearningPathLink,
-  #jlabBaseGameLink,
-  #jlabBaseToolsWrapper {
-    display: flex;
-    justify-content: center;
+  #jlabBaseBrandLogo {
+    width: 32px;
+    height: 32px;
   }
 
-  #jlabBaseHomeLabel,
-  #jlabBaseLearningPathLabel,
-  #jlabBaseGameLabel,
-  #jlabBaseToolsLabel,
-  #jlabBaseAboutLabel {
+  #jlabBaseGuestActions,
+  #jlabBaseUserActions {
+    gap: 4px;
+  }
+
+  #jlabBaseRewardChip {
     display: none;
-  }
-
-  #jlabBaseToolsButton {
-    min-width: 0;
-    padding-inline: 8px;
-  }
-
-  #jlabBaseGuestActions {
-    gap: 5px;
   }
 
   #jlabBaseLoginLink,
   #jlabBaseRegisterLink {
-    padding-inline: 8px;
+    min-height: 44px;
+    padding-inline: 6px;
     font-size: 0.75rem;
   }
 
-  #jlabBaseToolsMenu,
-  #jlabBaseAccountMenu {
-    position: fixed;
-    right: 12px;
-    left: 12px;
-    min-width: 0;
-    max-height: calc(100dvh - 128px);
-    overflow-y: auto;
+  #jlabBaseHeader #jlasThemeSwitch {
+    width: 52px;
+    flex-basis: 52px;
+    margin-right: 4px;
   }
 
-  #jlabBaseToolsMenu {
-    top: 120px;
-  }
-
-  #jlabBaseAccountMenu {
-    top: 64px;
+  #jlabBaseHeader #jlasThemeSwitch[aria-checked="true"] .theme-switch__thumb {
+    transform: translateX(20px);
   }
 
   #jlabBaseNotificationPanel {
     position: fixed;
-    top: 64px;
+    top: 80px;
     right: 12px;
     left: auto;
     width: min(360px, calc(100vw - 24px));
@@ -690,6 +1346,265 @@
 
   #jlabBaseNotice {
     right: 12px;
-    bottom: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  #jlabBaseLoginLink,
+  #jlabBaseRegisterLink {
+    padding-inline: 4px;
+  }
+
+  #jlabBaseHeader #jlasThemeSwitch {
+    width: 44px;
+    flex-basis: 44px;
+  }
+
+  #jlabBaseHeader #jlasThemeSwitch[aria-checked="true"] .theme-switch__thumb {
+    transform: translateX(12px);
+  }
+}
+
+
+/* Active sanction banner (normal flow, directly under the fixed header) and one-time dialog. */
+#jlabBaseSanctionBanner {
+  width: min(1400px, calc(100% - 24px));
+  margin: 0 auto 12px;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  font: 500 0.875rem/1.45 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseSanctionBanner[hidden] { display: none; }
+#jlabBaseSanctionBanner.is-mute { color: #6b4500; background: #fff1d6; border: 1px solid #f0c36d; }
+#jlabBaseSanctionBanner.is-ban { color: #93000a; background: #ffdad6; border: 1px solid #f2a39b; }
+
+#jlabBaseSanctionBanner a {
+  flex: none;
+  padding: 6px 12px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--color-primary, #4f378a);
+  border-radius: 999px;
+}
+
+#jlabBaseSanctionDialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay, 120);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(22, 29, 31, 0.5);
+}
+
+#jlabBaseSanctionDialog > div {
+  width: min(440px, 100%);
+  padding: 22px;
+  color: var(--color-on-surface, #161d1f);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 14px 42px rgba(22, 29, 31, 0.2);
+  font: 400 0.9375rem/1.5 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#jlabBaseSanctionDialog h2 { margin: 0 0 8px; font-size: 1.2rem; }
+#jlabBaseSanctionDialog p { margin: 0 0 8px; color: var(--color-on-surface-variant, #494551); }
+#jlabBaseSanctionDialog p:empty { display: none; }
+#jlabBaseSanctionDialog > div > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+#jlabBaseSanctionDialog a,
+#jlabBaseSanctionDialog button {
+  padding: 9px 16px;
+  font: 600 0.875rem/1.2 inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#jlabBaseSanctionDialog a { color: #fff; background: var(--color-primary, #4f378a); border: 0; }
+#jlabBaseSanctionDialog button { color: var(--color-on-surface, #161d1f); background: #fff; border: 1px solid var(--color-outline-variant, #cbc4d2); }
+
+/* Header and sanction overlays keep their own readable dark pairs on every page. */
+html[data-theme="dark"] #jlabBaseHeader .reward-chip {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-variant);
+}
+html[data-theme="dark"] #jlabBaseSanctionDialog {
+  background: rgba(0, 0, 0, .65);
+}
+html[data-theme="dark"] #jlabBaseSanctionDialog > div {
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-variant);
+}
+html[data-theme="dark"] #jlabBaseSanctionDialog a {
+  background: #7335a6;
+  color: #f8fafc;
+}
+html[data-theme="dark"] #jlabBaseSanctionBanner a {
+  background: #7335a6;
+  color: #f8fafc;
+}
+html[data-theme="dark"] #jlabBaseSanctionDialog button {
+  background: var(--color-surface-low);
+  color: var(--color-on-surface);
+}
+
+/* Owned mobile pages share one set of insets with their fixed content. */
+@media (max-width: 900px) {
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) {
+    --jlab-mobile-top: 64px;
+    --jlab-mobile-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-top: var(--jlab-mobile-top) !important;
+    padding-bottom: calc(var(--jlab-mobile-bottom) + 8px) !important;
+    scroll-padding-bottom: calc(var(--jlab-mobile-bottom) + 8px);
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) #jlabBaseHeader {
+    height: 56px;
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) #jlabBaseBottomNav {
+    height: var(--jlab-mobile-bottom);
+    padding-top: 4px;
+    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+    border-radius: 16px 16px 0 0;
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) #jlabBaseBottomNav > :is(a, button) {
+    min-height: 48px;
+    gap: 3px;
+    font-size: 12px;
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) #jlabBaseBottomNav .jlab-base-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) :is(#jlabBaseAccountMenu, #jlabBaseNotice) {
+    bottom: calc(var(--jlab-mobile-bottom) + 8px);
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) :is(#jlabBaseAccountMenu, #jlabBaseNotificationPanel, #jlabBasePrimaryNav) {
+    max-height: calc(100dvh - var(--jlab-mobile-top) - var(--jlab-mobile-bottom) - 16px);
+  }
+
+  #jlabBasePage:is([data-mobile-adapt="owned"], .arena-play, .memory-page) #jlabBaseNotificationPanel {
+    top: var(--jlab-mobile-top);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] .ar-setup .ar-mobile-bar {
+    bottom: var(--jlab-mobile-bottom);
+  }
+
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent.cv-shell {
+    height: calc(var(--conversation-viewport-height, 100dvh) - var(--jlab-mobile-top) - var(--jlab-mobile-bottom) - 8px);
+  }
+
+  /* Game renderers use a bounded viewport while setup/results show navigation. */
+  #jlabBasePage.arena-play:not(.site-nav-hidden) :is(#neko-root, #air-defense-root) {
+    position: fixed;
+    top: var(--jlab-mobile-top);
+    right: 0;
+    bottom: var(--jlab-mobile-bottom);
+    left: 0;
+    min-height: 0;
+  }
+
+  #jlabBasePage.arena-play:not(.site-nav-hidden) :is(.neko-stage, .ad-app) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  #jlabBasePage.arena-play:not(.site-nav-hidden) .neko-stage [role="dialog"] {
+    max-height: 100%;
+  }
+
+  #jlabBasePage.arena-play.site-nav-hidden {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #jlabBasePage[data-bottom-nav-collapsed="true"] {
+    --jlab-mobile-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  #jlabBasePage[data-bottom-nav-collapsed="true"] #jlabBaseContent.cv-shell .compose-row {
+    padding-right: 20px;
+  }
+
+  #jlabBaseDocument[data-bottom-nav-collapsed="true"],
+  #jlabBasePage[data-bottom-nav-collapsed="true"] {
+    scroll-padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+}
+html[data-theme="dark"] #jlabBaseSanctionBanner.is-mute {
+  background: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+}
+html[data-theme="dark"] #jlabBaseSanctionBanner.is-ban {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+#jlabBaseSanctionDialog a:focus-visible,
+#jlabBaseSanctionDialog button:focus-visible { outline: 2px solid var(--color-primary, #4f378a); outline-offset: 2px; }
+
+/* Mobile popovers use equal viewport gutters and only the space their content needs. */
+@media (max-width: 767px) {
+  #jlabBaseNotificationPanel {
+    position: fixed;
+    top: var(--jlab-mobile-top, 80px);
+    right: 16px;
+    left: 16px;
+    width: auto;
+    min-width: 0;
+    max-width: 420px;
+    height: auto;
+    max-height: calc(100dvh - var(--jlab-mobile-top, 80px) - var(--jlab-mobile-bottom, 88px) - 16px);
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  #jlabBaseNotificationPanelHeader { flex: 0 0 auto; padding: 12px 16px; gap: 8px; }
+  #jlabBaseNotificationTitle { font-size: 16px !important; }
+  #jlabBaseNotificationMarkAll { min-height: 44px; padding: 6px 8px; font-size: 12px; }
+  #jlabBaseNotificationEmpty { min-height: 0; padding: 24px 16px; }
+  #jlabBaseNotificationEmptyIcon { width: 40px; height: 40px; margin-bottom: 10px; font-size: 20px; }
+  #jlabBaseNotificationEmptyTitle { font-size: 14px; }
+  #jlabBaseNotificationEmptyText { font-size: 12px; }
+  #jlabBaseNotificationViewAll { flex: 0 0 auto; min-height: 44px; padding: 12px 16px; font-size: 13px; }
+  #jlabBaseNotificationList { min-height: 0; overscroll-behavior: contain; }
+  #jlabBaseNotificationList .jlab-notif { padding: 10px 14px; gap: 10px; }
+  #jlabBaseNotificationList .jlab-notif__body strong { font-size: 13px; }
+  #jlabBaseNotificationList .jlab-notif__message { font-size: 12px; }
+}
+
+/* Khung avatar trên header + menu tài khoản (components/avatar-frame.css). Khung tràn 10px quanh avatar 40px. */
+#jlabBaseAvatarFrameHost.has-frame {
+  margin: 0 6px;
+}
+#jlabBaseAccountAvatarFrameHost {
+  flex: 0 0 auto;
+}
+#jlabBaseAccountAvatarFrameHost.has-frame {
+  margin: 6px 8px 6px 4px;
+}
+@media (max-width: 900px) {
+  #jlabBaseAvatarFrameHost {
+    display: none;
   }
 }

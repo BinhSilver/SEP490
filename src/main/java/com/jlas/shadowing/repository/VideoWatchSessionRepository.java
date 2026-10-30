@@ -15,15 +15,11 @@ public class VideoWatchSessionRepository {
     }
     public VideoWatchSession save(VideoWatchSession session) {
         Long user = userId(session.getClientId());
-        VideoUserState state = states.findByUserIdAndVideoId(user, session.getVideo().getId())
-                .orElseGet(() -> VideoUserState.builder().userId(user).videoId(session.getVideo().getId()).build());
-        state.setMaxPositionSec(session.getMaxPositionSec());
-        state.setCountedAsView(Boolean.TRUE.equals(session.getCountedAsView()));
-        state.setLastWatchedAt(LocalDateTime.now());
-        states.save(state); return projection(state);
+        states.storeWatch(user, session.getVideo().getId(), session.getMaxPositionSec(),
+                Boolean.TRUE.equals(session.getCountedAsView()));
+        return session;
     }
     public void deleteByVideoId(Long video) { states.deleteByVideoId(video); }
-    public long countViewsByVideoId(Long video) { return states.countByVideoIdAndCountedAsViewTrue(video); }
     private VideoWatchSession projection(VideoUserState state) {
         VideoWatchSession value = new VideoWatchSession(); value.setClientId(String.valueOf(state.getUserId()));
         value.setMaxPositionSec(state.getMaxPositionSec()); value.setCountedAsView(state.isCountedAsView());

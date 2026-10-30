@@ -19,10 +19,10 @@ trên máy khác. Cách cài dự án từ đầu xem [HUONG-DAN-CHAY-DU-AN.md](
 2. Nạp seed nếu máy chưa có database `jlas_dictionary_test`. Làm theo bước 3–6 trong
    [HUONG-DAN-CHAY-DU-AN.md](HUONG-DAN-CHAY-DU-AN.md).
 
-3. **Bắt buộc:** chạy migration 007, vì seed `20261016` chưa có bản sửa này:
+3. **Bắt buộc:** chạy migration 061, vì seed `20261016` chưa có bản sửa này:
 
    ```powershell
-   Get-Content sql/migrations/007_drop_mangled_vietnamese_glosses.sql |
+   Get-Content sql/migrations/061_drop_mangled_vietnamese_glosses.sql |
      mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
    ```
 
@@ -70,7 +70,7 @@ ngay cạnh `lò xo`. Có **22 nghĩa trong 17 mục**, toàn là mục bắt đ
   ("bạn khỏe không?", "what?") và đã được giữ nguyên.
 - **Tiêu chí:** một nghĩa chỉ bị xoá khi giống một nghĩa có dấu khác trong cùng mục, sau khi thay
   chữ có dấu bằng `?` (độ giống ≥ 0,8).
-- **Migration:** [007_drop_mangled_vietnamese_glosses.sql](../sql/migrations/007_drop_mangled_vietnamese_glosses.sql)
+- **Migration:** [061_drop_mangled_vietnamese_glosses.sql](../sql/migrations/061_drop_mangled_vietnamese_glosses.sql)
   xoá các nghĩa lỗi, đánh số lại `sense_order` và tính lại cột tóm tắt `meaning`. Đã chạy trên DB
   của máy cũ.
 - **Importer:** hàm `drop_mangled_meanings` trong
@@ -108,14 +108,14 @@ Lưu ý khi duyệt:
 
 ### Việc cần làm tiếp
 
-1. **Duyệt CSV, rồi viết migration 008** để xoá các mục đã chốt. Có thể theo khuôn của 007: liệt
+1. **Duyệt CSV, rồi viết migration tiếp theo sau 064** để xoá các mục đã chốt. Có thể theo khuôn của 061: liệt
    kê id cụ thể, kèm điều kiện an toàn, chạy lại nhiều lần được. Chỉ cần
    `DELETE FROM vocabulary_entry WHERE id IN (...)`: mọi khoá ngoại tới `vocabulary_entry` và
    `vocabulary_sense` đều là `ON DELETE CASCADE`, nên sense, gloss, từ loại, `vocabulary_kanji`,
    `dictionary_favorite`, `content_vocabulary`… tự xoá theo. Riêng `dictionary_search_history`
    được đặt về NULL. Cần kiểm tra trước: mục nào có trong `content_vocabulary` (giáo trình) thì
    không nên xoá.
-2. **Xuất lại seed** sau khi chạy 007 và 008, để cả nhóm nạp được bản sạch, không phải chạy
+2. **Xuất lại seed** sau khi chạy 061 và migration tiếp theo, để cả nhóm nạp được bản sạch, không phải chạy
    migration tay. Dùng `python scripts/dictionary_import/export_seed.py --snapshot <tên>`; công cụ
    này cập nhật luôn `manifest.json`. Sau đó sửa tên file seed trong `HUONG-DAN-CHAY-DU-AN.md`.
 3. **Bổ sung các dạng chia còn thiếu** vào `VerbDeinflector`. Các dạng sau đã thử và chưa ra thể
@@ -158,7 +158,7 @@ Lưu ý khi duyệt:
 - **Không mở file `.gz` / `.zip` trong `data/dictionary-seed/` bằng trình soạn thảo**, cũng như
   không chạy script đọc chúng ở chế độ văn bản. Đó là cách seed bị hỏng ở mục 4.
 - **Nhánh đang chậm 570 commit so với `origin/develop`.** Develop có nhận diện viết tay riêng, và
-  database `jlas` của nhóm được dựng từ develop, chưa có migration 005–007. Việc port phần từ điển
+  database `jlas` của nhóm được dựng từ develop, chưa có migration 058–061. Việc port phần từ điển
   sang develop và migrate `jlas` vẫn chưa chốt. Chạy nhánh này với database `jlas` sẽ lỗi kiểm tra
   schema.
 
@@ -171,7 +171,7 @@ Lưu ý khi duyệt:
 | `src/main/java/com/jlas/dictionary/repository/VocabularyEntryRepository.java` | Truy vấn từ loại theo danh sách từ |
 | `src/test/java/com/jlas/dictionary/util/VerbDeinflectorTest.java` | 61 test dạng chia |
 | `src/test/java/com/jlas/dictionary/service/impl/DictionaryServiceImplInflectionSearchTest.java` | Thứ tự kết quả, lọc theo từ loại, kana |
-| `sql/migrations/007_drop_mangled_vietnamese_glosses.sql` | Xoá 22 nghĩa lỗi mã hoá |
+| `sql/migrations/061_drop_mangled_vietnamese_glosses.sql` | Xoá 22 nghĩa lỗi mã hoá |
 | `scripts/dictionary_import/jlas_import/yomitan.py` | `drop_mangled_meanings` trong importer |
 | `scripts/dictionary_review/` | Công cụ tạo danh sách duyệt |
 | `data/dictionary-review/muc-dang-chia-va-cau.csv` | 314 mục chờ duyệt |

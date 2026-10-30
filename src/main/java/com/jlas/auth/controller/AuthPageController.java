@@ -73,6 +73,18 @@ public class AuthPageController {
         return "goals";
     }
 
+    @GetMapping("/kana-connect")
+    public String kanaConnect(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "kana-connect";
+    }
+
+    @GetMapping("/credit-history")
+    public String creditHistory(Model model) {
+        model.addAttribute("layoutMode", "app");
+        return "credit-history";
+    }
+
     @GetMapping("/retention-demo")
     public String retentionDemo() {
         return "retention-demo";

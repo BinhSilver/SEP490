@@ -117,6 +117,23 @@
   background: radial-gradient(circle at 50% 35%, #fff4df 0, #ece9ff 42%, #252a35 150%);
 }
 
+html[data-theme="dark"] .retention-live-onboarding__backdrop {
+  background: radial-gradient(circle at 50% 35%, var(--color-primary-fixed), var(--color-background) 70%);
+}
+html[data-theme="dark"] #retentionRewardCard {
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-variant);
+}
+html[data-theme="dark"] #retentionRewardCard :is(.retention-reward__icon, .retention-reward-icon) {
+  background: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+}
+html[data-theme="dark"] #retentionRewardClose {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
 .retention-live-onboarding__device {
   position: relative;
   z-index: 1;
@@ -257,11 +274,3 @@ body.retention-live-open {
   100% { opacity: 0; transform: translate(var(--particle-x), var(--particle-y)) scale(.7); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .retention-live-onboarding__device,
-  #retentionRewardCard,
-  .retention-firework {
-    animation-duration: .01ms;
-    animation-iteration-count: 1;
-  }
-}

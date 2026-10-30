@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Quản lý dạng luyện JLPT - JLAS', 'jlpt-practice-admin')}"></head>
+<body id="jlabBasePage" class="app-body jpta-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jpta">
+    <a class="jpta__back" href="/admin/jlpt"><span class="material-symbols-outlined">arrow_back</span>Quản lý đề JLPT</a>
+    <header class="jpta__hero">
+        <div><span class="jpta__eyebrow">NGƯỜI BIÊN SOẠN · LUYỆN TẬP</span><h1>Quản lý dạng luyện</h1><p>Các dạng được tổng hợp từ câu hỏi trong ngân hàng đề. Tại đây bạn có thể ẩn dạng, đổi tên hiển thị và sắp xếp thứ tự.</p></div>
+        <div class="jpta__actions"><button id="reloadButton" class="jpta-button is-secondary" type="button">Tải lại</button><button id="saveButton" class="jpta-button is-primary" type="button" disabled>Lưu thay đổi</button></div>
+    </header>
+    <section class="jpta__workspace">
+        <div class="jpta__toolbar">
+            <label class="jpta__search"><span class="material-symbols-outlined">search</span><input id="searchFilter" type="search" placeholder="Tìm dạng luyện" /></label>
+            <select id="levelFilter" aria-label="Lọc cấp độ"><option value="">Tất cả cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+            <select id="sectionFilter" aria-label="Lọc phần thi"><option value="">Tất cả phần thi</option><option value="vocabulary">Từ vựng</option><option value="grammar">Ngữ pháp</option><option value="reading">Đọc hiểu</option><option value="listening">Nghe hiểu</option></select>
+            <label class="jpta__enabled-filter"><input id="enabledOnly" type="checkbox" /> Chỉ hiện đang bật</label>
+        </div>
+        <div class="jpta__table-wrap"><table><thead><tr><th>Dạng luyện</th><th>Cấp độ / Phần thi</th><th>Số câu</th><th>Tên hiển thị · Tiếng Việt</th><th>Tên hiển thị · Tiếng Nhật</th><th>Thứ tự</th><th>Hiển thị</th></tr></thead><tbody id="typeRows"></tbody></table>
+            <div id="loadingState" class="jpta__empty">Đang tải danh sách dạng luyện…</div>
+            <div id="emptyState" class="jpta__empty" hidden>Không tìm thấy dạng luyện phù hợp.</div>
+        </div>
+        <footer class="jpta__footer"><span id="resultCount">0 dạng luyện</span><span>Để trống tên thay thế để dùng tên mặc định.</span></footer>
+    </section>
+</main>
+<dialog id="questionsDialog" class="jpta-dialog">
+    <header class="jpta-dialog__header"><div><span class="jpta__eyebrow">NGÂN HÀNG CÂU HỎI</span><h2 id="questionsTitle">Câu hỏi của dạng luyện</h2><p id="questionsMeta"></p></div><button id="closeQuestions" type="button" aria-label="Đóng"><span class="material-symbols-outlined">close</span></button></header>
+    <div id="questionsLoading" class="jpta-dialog__state">Đang tải câu hỏi…</div>
+    <div id="questionsError" class="jpta-dialog__state is-error" role="alert" hidden><p id="questionsErrorText"></p><button id="retryQuestions" type="button">Thử tải lại</button></div>
+    <div id="questionsEmpty" class="jpta-dialog__state" hidden>Dạng này chưa có câu hỏi.</div>
+    <div id="questionsList" class="jpta-dialog__list"></div>
+    <footer class="jpta-dialog__footer"><span id="questionsPageLabel"></span><div><button id="questionsPrev" type="button">← Trước</button><button id="questionsNext" type="button">Tiếp →</button></div></footer>
+</dialog>
+<div id="adminToast" class="jpta-toast" role="status" aria-live="polite" hidden></div>
+<script th:src="@{/js/jlab-base-shell.js?v=7}"></script><script th:src="@{/js/pages/jlpt-practice-admin.js?v=2}"></script>
+</body></html>

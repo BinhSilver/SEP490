@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Lỗi · JLAS</title>
@@ -20,8 +21,9 @@
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/components.js}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
-<body id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="auth-wrap">
     <div class="panel auth-card" style="text-align:center">

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{fragments/head :: standard(${pageTitle}, 'learning-lesson')}"></head>
+<body id="jlabBasePage" class="app-body learning-lesson-body">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent" class="learning-lesson-page" data-inline-dictionary>
+    <div class="ll-page-shell">
+        <nav class="ll-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/}">Học tập</a>
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            <a th:href="@{/learning/path}">Lộ trình của tôi</a>
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            <span aria-current="page" th:text="${lesson.title}">Bài học</span>
+        </nav>
+
+        <article class="ll-hero">
+            <div class="ll-hero__copy">
+                <span class="ll-eyebrow">
+                    <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                    <span th:switch="${lesson.skill}">
+                        <th:block th:case="'VOCABULARY'">Từ vựng</th:block>
+                        <th:block th:case="'GRAMMAR'">Ngữ pháp</th:block>
+                        <th:block th:case="'READING'">Đọc hiểu</th:block>
+                        <th:block th:case="'LISTENING'">Nghe hiểu</th:block>
+                        <th:block th:case="'SPEAKING'">Nói</th:block>
+                        <th:block th:case="'ONYOMI'">Onyomi</th:block>
+                        <th:block th:case="'KUNYOMI'">Kunyomi</th:block>
+                        <th:block th:case="*" th:text="${lesson.skill}">Kỹ năng</th:block>
+                    </span>
+                </span>
+                <h1 th:text="${lesson.title}">Bài học</h1>
+                <div class="ll-hero__facts">
+                    <span>
+                        <span class="material-symbols-outlined" aria-hidden="true">school</span>
+                        <span th:if="${lesson.textbookLevel}" th:text="'JLPT ' + ${lesson.textbookLevel}">JLPT N5</span>
+                        <span th:unless="${lesson.textbookLevel}">Chưa xếp cấp</span>
+                    </span>
+                    <span>
+                        <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                        <span th:text="${lesson.estimatedMinutes != null ? lesson.estimatedMinutes + ' phút' : 'Chưa xác định'}">5 phút</span>
+                    </span>
+                    <span th:if="${lesson.knowledgeTagName}">
+                        <span class="material-symbols-outlined" aria-hidden="true">sell</span>
+                        <span th:text="${lesson.knowledgeTagName}">Trợ từ</span>
+                    </span>
+                </div>
+                <p class="ll-hero__desc" th:text="${lesson.description ?: 'Bài học này chưa có mô tả chi tiết.'}">
+                    Mô tả bài học.
+                </p>
+            </div>
+        </article>
+
+        <section id="lessonProgressRoot" class="ll-progress" th:attr="data-lesson-id=${lesson.id}" aria-live="polite">
+            <div class="ll-progress__loading" role="status">
+                <span class="ll-spinner" aria-hidden="true"></span>
+                <span>Đang tải trạng thái bài học…</span>
+            </div>
+        </section>
+
+        <section id="lessonContentRoot" class="ll-content" aria-live="polite">
+            <div class="ll-content__loading" role="status">
+                <span class="ll-spinner" aria-hidden="true"></span>
+                <span>Đang tải nội dung bài học…</span>
+            </div>
+        </section>
+
+        <section class="ll-context" aria-labelledby="ll-context-title">
+            <div class="ll-context__icon" aria-hidden="true">
+                <span class="material-symbols-outlined">auto_stories</span>
+            </div>
+            <div class="ll-context__body">
+                <span class="ll-context__kicker">Nguồn bài học</span>
+                <h2 id="ll-context-title" th:text="${lesson.textbookTitle ?: 'Giáo trình'}">Giáo trình</h2>
+                <p th:if="${lesson.unitTitle}" th:text="${lesson.unitTitle}">Chương</p>
+                <p class="ll-context__note">Khi học xong, nhấn "Hoàn thành bài" để ghi nhận tiến độ vào lộ trình của bạn.</p>
+            </div>
+            <a class="ll-button ll-button--primary" th:href="@{/learning/path}">
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+                Quay lại lộ trình
+            </a>
+        </section>
+    </div>
+</main>
+
+<script th:src="@{/js/pages/learning-lesson.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

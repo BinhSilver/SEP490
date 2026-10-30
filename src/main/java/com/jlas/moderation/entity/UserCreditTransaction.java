@@ -11,7 +11,10 @@ import java.time.LocalDateTime;
  * Table: user_credit_transaction
  */
 @Entity
-@Table(name = "user_credit_transaction")
+@Table(name = "user_credit_transaction",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_credit_transaction_reference",
+                columnNames = {"user_id", "reason", "reference_type", "reference_id"}))
 @Getter
 @Setter
 @NoArgsConstructor

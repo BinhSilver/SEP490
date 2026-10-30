@@ -25,6 +25,7 @@ import com.jlas.auth.service.AuthService;
 import com.jlas.auth.service.EmailService;
 import com.jlas.auth.service.GoogleTokenService;
 import com.jlas.auth.service.LoginAttemptThrottle;
+import com.jlas.auth.service.PasswordResetService;
 import com.jlas.notification.service.UserNotificationPort;
 import com.jlas.auth.util.JwtUtil;
 import com.jlas.common.exception.ApiException;
@@ -52,11 +53,9 @@ import java.util.Locale;
 public class AuthServiceImpl implements AuthService {
     private static final String REFRESH = "REFRESH";
     private static final String VERIFY_EMAIL = "VERIFY_EMAIL";
-    private static final String RESET_PASSWORD = "RESET_PASSWORD";
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int VERIFICATION_RESEND_LIMIT_PER_HOUR = 5;
     private static final int VERIFICATION_RESEND_COOLDOWN_MINUTES = 3;
-    private static final long PASSWORD_RESET_OTP_TTL_MINUTES = 15;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -67,7 +66,10 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final GoogleTokenService googleTokenService;
     private final LoginAttemptThrottle loginAttemptThrottle;
+    private final PasswordResetService passwordResets;
     private final UserNotificationPort notifications;
+    private final com.jlas.auth.service.AvatarUploadService avatarUploads;
+    private final com.jlas.moderation.service.ContentModerationPort moderation;
 
     @Value("${jlas.auth.verification-token-ttl:900}")
     private long verificationTokenTtl;
@@ -83,19 +85,19 @@ public class AuthServiceImpl implements AuthService {
         loginAttemptThrottle.assertAllowed(email, clientIp);
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            loginAttemptThrottle.recordFailure(email, clientIp);
             throw unauthorized("Invalid email or password");
         }
         if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            loginAttemptThrottle.recordFailure(email, clientIp);
             throw unauthorized("Invalid email or password");
         }
-        loginAttemptThrottle.recordSuccess(email, clientIp);
+        assertUnlocked(user);
         if (!Boolean.TRUE.equals(user.getIsVerified())) {
             throw new ApiException(ErrorCode.EMAIL_UNVERIFIED,
                     "Email is not verified. Please verify your email before logging in.");
         }
+        loginAttemptThrottle.recordSuccess(email, clientIp);
         user.setLastLoginAt(LocalDateTime.now());
+        notifications.greetDaily(user.getId(), user.getFullName());
         return issueTokens(user, clientIp, deviceInfo);
     }
 
@@ -114,6 +116,7 @@ public class AuthServiceImpl implements AuthService {
         if (username != null && userRepository.existsByUsername(username)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already registered");
         }
+        checkProfileText(request.getUsername(), request.getFullName());
         Role learner = roleRepository.findByName("LEARNER")
                 .orElseGet(() -> roleRepository.save(Role.builder().name("LEARNER").description("Learner").build()));
         User user = User.builder()
@@ -140,6 +143,7 @@ public class AuthServiceImpl implements AuthService {
                 .filter(token -> token.getRevokedAt() == null && token.getUsedAt() == null)
                 .filter(token -> token.getExpiresAt().isAfter(LocalDateTime.now()))
                 .orElseThrow(() -> unauthorized("Invalid or expired refresh token"));
+        assertUnlocked(stored.getUser());
         stored.setUsedAt(LocalDateTime.now());
         stored.setRevokedAt(LocalDateTime.now());
         return issueTokens(stored.getUser(), stored.getIpAddress(), stored.getDeviceInfo());
@@ -152,11 +156,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
-        User user = findUser(userId);
+        User user = userRepository.findForProfileUpdate(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND));
         String username = blankToNull(request.getUsername());
         if (username != null && !username.equals(user.getUsername()) && userRepository.existsByUsername(username)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already registered");
         }
+        checkProfileText(request.getUsername(), request.getFullName());
+        String avatar = blankToNull(request.getAvatar());
+        if (avatar != null && !avatar.equals(user.getAvatarUrl())) avatarUploads.assertApproved(userId, avatar);
         if (request.getUsername() != null) user.setUsername(username);
         if (request.getFullName() != null) user.setFullName(blankToNull(request.getFullName()));
         if (request.getPhoneNumber() != null) user.setPhoneNumber(blankToNull(request.getPhoneNumber()));
@@ -164,6 +172,15 @@ public class AuthServiceImpl implements AuthService {
         if (request.getJapaneseLevel() != null) user.setJapaneseLevel(blankToNull(request.getJapaneseLevel()));
         if (request.getAvatar() != null) user.setAvatarUrl(blankToNull(request.getAvatar()));
         return userMapper.toResponse(userRepository.save(user));
+    }
+
+    private void checkProfileText(String username, String fullName) {
+        for (String text : new String[] { username, fullName }) {
+            if (text == null || text.isBlank()) continue;
+            var result = moderation.scanText(text);
+            if (!result.isSafe()) throw new ApiException(result.isBlocked() ? ErrorCode.CONTENT_BLOCKED
+                    : ErrorCode.CONTENT_PENDING_REVIEW, "Tên tài khoản hoặc tên hiển thị không phù hợp. Vui lòng chọn tên khác");
+        }
     }
 
     @Override
@@ -176,6 +193,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Verification token has expired");
         }
         User user = token.getUser();
+        assertUnlocked(user);
         if (Boolean.TRUE.equals(user.getIsVerified())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already verified");
         }
@@ -220,8 +238,10 @@ public class AuthServiceImpl implements AuthService {
         GoogleTokenService.GoogleUserInfo googleUser = googleTokenService.verify(request.getIdToken());
         String email = normalizeEmail(googleUser.email());
         User user = userRepository.findByGoogleId(googleUser.googleId())
-                .orElseGet(() -> userRepository.findByEmail(email).orElse(null));
+                .orElseGet(() -> userRepository.findForAuthentication(email).orElse(null));
         if (user == null) {
+            String googleName = blankToNull(googleUser.fullName());
+            if (googleName != null && !moderation.scanText(googleName).isSafe()) googleName = "Người học";
             Role learner = roleRepository.findByName("LEARNER")
                     .orElseGet(() -> roleRepository.save(Role.builder().name("LEARNER").description("Learner").build()));
             user = User.builder()
@@ -229,56 +249,52 @@ public class AuthServiceImpl implements AuthService {
                     .email(email)
                     .googleId(googleUser.googleId())
                     .loginType(LoginType.GOOGLE.name())
-                    .fullName(blankToNull(googleUser.fullName()))
+                    .fullName(googleName)
                     .avatarUrl(blankToNull(googleUser.avatar()))
                     .creditBalance(0)
                     .isVerified(true)
                     .build();
         } else {
-            if (blankToNull(user.getGoogleId()) == null) user.setGoogleId(googleUser.googleId());
+            assertUnlocked(user);
+            String linkedId = blankToNull(user.getGoogleId());
+            if (linkedId != null && !linkedId.equals(googleUser.googleId())) {
+                throw new ApiException(ErrorCode.CONFLICT, "Email này đã liên kết với tài khoản Google khác.");
+            }
+            if (linkedId == null && Boolean.TRUE.equals(user.getIsVerified())) {
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Vui lòng đăng nhập bằng mật khẩu rồi liên kết Google trong phần bảo mật tài khoản.");
+            }
+            if (!Boolean.TRUE.equals(user.getIsVerified())) {
+                // Google proves mailbox ownership; pre-registration does not prove the old local credential.
+                user.setPasswordHash(null);
+                user.setLoginType(LoginType.GOOGLE.name());
+                for (String type : List.of(REFRESH, VERIFY_EMAIL, "RESET_PASSWORD")) {
+                    authTokenRepository.deleteByUser_IdAndTokenType(user.getId(), type);
+                }
+            }
+            user.setGoogleId(googleUser.googleId());
             if (blankToNull(user.getAvatarUrl()) == null) user.setAvatarUrl(blankToNull(googleUser.avatar()));
             user.setIsVerified(true);
         }
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
+        notifications.greetDaily(user.getId(), user.getFullName());
         return issueTokens(user, clientIp, deviceInfo);
     }
 
     @Override
     public void forgotPassword(ForgotPasswordRequest request) {
-        userRepository.findByEmail(normalizeEmail(request.getEmail())).ifPresent(user -> {
-            authTokenRepository.deleteByUser_IdAndTokenType(user.getId(), RESET_PASSWORD);
-            String otp = String.format(Locale.ROOT, "%06d", RANDOM.nextInt(1_000_000));
-            authTokenRepository.save(AuthToken.builder()
-                    .user(user)
-                    .tokenType(RESET_PASSWORD)
-                    .tokenHash(hash(randomToken()))
-                    .otpHash(hash(otp))
-                    .expiresAt(LocalDateTime.now().plusMinutes(PASSWORD_RESET_OTP_TTL_MINUTES))
-                    .build());
-            emailService.sendPasswordResetOtp(user.getEmail(), user.getFullName(), otp);
-        });
+        passwordResets.issue(request.getEmail());
     }
 
     @Override
     public void resetPassword(ResetPasswordRequest request) {
-        AuthToken resetToken = findPasswordResetToken(request.getEmail(), request.getOtp());
-
-        User user = resetToken.getUser();
-        if (user.getPasswordHash() != null && passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Mật khẩu mới phải khác mật khẩu hiện tại.");
-        }
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        resetToken.setUsedAt(LocalDateTime.now());
-        userRepository.save(user);
-        authTokenRepository.save(resetToken);
-        authTokenRepository.deleteByUser_IdAndTokenType(user.getId(), REFRESH);
+        passwordResets.reset(request);
     }
 
     @Override
     public void verifyPasswordResetOtp(VerifyPasswordResetOtpRequest request) {
-        findPasswordResetToken(request.getEmail(), request.getOtp());
+        passwordResets.verify(request.getEmail(), request.getOtp());
     }
 
     @Override
@@ -294,6 +310,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginResponse issueTokens(User user, String clientIp, String deviceInfo) {
+        assertUnlocked(user);
         String normalizedIp = truncate(blankToNull(clientIp), 45);
         String normalizedDevice = truncate(blankToNull(deviceInfo), 255);
         notifyOnNewLogin(user, normalizedIp, normalizedDevice);
@@ -372,15 +389,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP code"));
     }
 
-    private AuthToken findPasswordResetToken(String email, String otp) {
-        return authTokenRepository
-                .findByTokenTypeAndOtpHashAndUser_EmailAndUsedAtIsNullAndRevokedAtIsNull(
-                        RESET_PASSWORD, hash(otp), normalizeEmail(email))
-                .filter(token -> token.getExpiresAt().isAfter(LocalDateTime.now()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Mã OTP không đúng hoặc đã hết hạn."));
-    }
-
     private void issueAndSendVerification(User user, boolean enforceResendLimit) {
         LocalDateTime now = LocalDateTime.now();
         if (enforceResendLimit) {
@@ -420,6 +428,10 @@ public class AuthServiceImpl implements AuthService {
     private User findUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    private static void assertUnlocked(User user) {
+        if (user.getLockedAt() != null) throw new ApiException(ErrorCode.ACCOUNT_LOCKED);
     }
 
     private static ResponseStatusException unauthorized(String message) {

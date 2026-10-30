@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Repository thao tác dữ liệu cho {@link PremiumPlan}.
  */
 @Repository
-public interface PremiumPlanRepository extends JpaRepository<PremiumPlan, Integer> {
+public interface PremiumPlanRepository extends JpaRepository<PremiumPlan, Long> {
 }

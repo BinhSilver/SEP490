@@ -28,7 +28,7 @@ public class SmartTestSession {
             foreignKey = @ForeignKey(name = "fk_smart_test_session_attempt"))
     private AssessmentAttempt attempt;
 
-    /** JLPT/TRAVEL/BA/FROM_ZERO. */
+    /** Assessment goals in Release 1: JLPT or BA (Japanese foundation). */
     @Column(name = "goal", nullable = false, length = 30)
     private String goal;
 
@@ -50,7 +50,7 @@ public class SmartTestSession {
     @Column(name = "overall_mastery_score", precision = 5, scale = 2)
     private BigDecimal overallMasteryScore;
 
-    /** LOW/MEDIUM/HIGH. */
+    /** Persisted compatibility value: LOW/MEDIUM/HIGH. */
     @Column(name = "readiness_level", length = 20)
     private String readinessLevel;
 }

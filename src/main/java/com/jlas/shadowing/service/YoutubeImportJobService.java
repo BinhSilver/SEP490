@@ -7,9 +7,11 @@ import com.jlas.shadowing.repository.SubtitleRepository;
 import com.jlas.shadowing.repository.VideoRepository;
 import com.jlas.shadowing.util.youtube.SubtitleAligner;
 import com.jlas.shadowing.util.youtube.SubtitleParser;
+import com.jlas.shadowing.util.youtube.ThemeSongDetector;
 import com.jlas.shadowing.util.youtube.TranslationTrack;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
 import com.jlas.shadowing.util.NullSafe;
+import com.jlas.shadowing.util.SubtitleSegmenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -38,12 +40,18 @@ public class YoutubeImportJobService {
     @Value("${processing.ai.max.duration.seconds:1200}")
     private int aiMaxDurationSeconds;
 
+    @Value("${youtube.subtitle.skip-theme-songs.enabled:true}")
+    private boolean skipThemeSongs;
+
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private YoutubeService youtubeService;
     @Autowired private YoutubeAnalyzeService youtubeAnalyzeService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
+    @Autowired private SubtitleQualityReviewService subtitleQualityReviewService;
+    @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
+    @Autowired private ShadowingProcessingNotifier notifier;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -60,22 +68,27 @@ public class YoutubeImportJobService {
             subtitleRepository.deleteByVideoId(videoId);
             if (!isActiveRun(videoId, runId)) return;
 
-            List<SubtitleDto> dtos = resolveSubtitles(url, meta, videoId, runId);
+            ResolvedSubtitles resolved = resolveSubtitles(url, meta, videoId, runId);
+            List<SubtitleDto> dtos = resolved.subtitles();
             if (dtos == null || dtos.isEmpty()) {
                 throw new IllegalArgumentException(
                         "Không tạo được phụ đề từ video này. "
                                 + "Hãy chọn video có phụ đề tiếng Nhật (CC), hoặc video ≤ 5 phút để dùng AI STT.");
             }
-            // Extra collapse pass for rolling auto-captions (safety if source skipped parser)
-            int beforeCollapse = dtos.size();
-            dtos = SubtitleParser.collapseRollingCaptions(dtos);
-            if (dtos.size() != beforeCollapse) {
-                System.out.println("[YouTube import] collapsed rolling captions "
-                        + beforeCollapse + "  " + dtos.size());
+            int beforeSplit = dtos.size();
+            dtos = SubtitleSegmenter.splitLongCues(dtos);
+            if (dtos.size() != beforeSplit) {
+                System.out.println("[YouTube import] split long subtitles "
+                        + beforeSplit + " -> " + dtos.size());
             }
             if (!isActiveRun(videoId, runId)) return;
 
             List<Subtitle> savedSubs = saveSubtitles(video, dtos);
+            if (subtitleQualityReviewService.shouldCompare(meta.getDuration(), resolved.source())) {
+                List<SubtitleDto> audioTranscript = transcribeWithDeepgram(url, video, videoId, runId);
+                if (!isActiveRun(videoId, runId)) return;
+                subtitleQualityReviewService.recordYoutubeComparison(savedSubs, audioTranscript, resolved.source());
+            }
             markSubtitlesReady(video);
             processAiBatches(video, savedSubs, lang(video), 40, 20, videoId, runId);
             if (!isActiveRun(videoId, runId)) return;
@@ -83,11 +96,7 @@ public class YoutubeImportJobService {
             downloadVideoWithProgress(video, url, meta, videoId, runId);
             if (!isActiveRun(videoId, runId)) return;
 
-            video.setStatus(VideoStatus.DRAFT);
-            video.setProcessingStep(ProcessingStep.DONE);
-            video.setProgressPercent(100);
-            video.setErrorMessage(null);
-            videoRepository.save(video);
+            finishImport(video);
             System.out.println("[YouTube import] done videoId=" + videoId);
 
         } catch (Exception e) {
@@ -95,13 +104,79 @@ public class YoutubeImportJobService {
                 video.setStatus(VideoStatus.FAILED);
                 video.setErrorMessage(e.getMessage());
                 videoRepository.save(video);
+                notifier.failed(video, e.getMessage());
                 System.err.println("[YouTube import] failed videoId=" + videoId + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
 
+    /** Continues from a saved subtitle, AI, or downloaded-video checkpoint. */
+    @Async
+    public void resumeImport(Long videoId, String url, YoutubeAnalyzeResultDto meta) {
+        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (video == null) return;
+
+        ProcessingStep step = video.getProcessingStep();
+        List<Subtitle> savedSubs = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
+        if (step != ProcessingStep.AI_PROCESSING && step != ProcessingStep.YOUTUBE_DOWNLOAD) {
+            // There is no complete subtitle checkpoint before this stage.
+            processImport(videoId, url, meta);
+            return;
+        }
+
+        long runId = nextRunId(videoId);
+        try {
+            video.setStatus(VideoStatus.PROCESSING);
+            video.setErrorMessage(null);
+            videoRepository.save(video);
+            if (step == ProcessingStep.AI_PROCESSING) {
+                if (savedSubs.isEmpty()) {
+                    processImport(videoId, url, meta);
+                    return;
+                }
+                processAiBatches(video, savedSubs, lang(video), 40, 20, videoId, runId, true);
+                if (!isActiveRun(videoId, runId)) return;
+            }
+            if (video.getVideoPath() == null || video.getVideoPath().isBlank()) {
+                downloadVideoWithProgress(video, url, meta, videoId, runId);
+                if (!isActiveRun(videoId, runId)) return;
+            }
+            finishImport(video);
+            System.out.println("[YouTube import] resumed videoId=" + videoId + " from " + step);
+        } catch (Exception e) {
+            failImport(videoId, runId, e);
+        }
+    }
+
+    /**
+     * Last import step. Embeddable YouTube videos are played through the YouTube embed, so nothing is downloaded:
+     * only the duration and a thumbnail are stored. Videos whose owner does not allow embedding
+     * (playback mode FILE) are downloaded as before and played from the file.
+     */
     private void downloadVideoWithProgress(Video video, String url, YoutubeAnalyzeResultDto meta,
+                                           Long videoId, long runId) throws Exception {
+        if (Video.PLAYBACK_FILE.equals(video.getPlaybackMode())) {
+            downloadVideoFile(video, url, meta, videoId, runId);
+            return;
+        }
+        updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 90, null);
+        if (!isActiveRun(videoId, runId)) return;
+        video.setDuration((double) meta.getDuration());
+        if (video.getThumbnailPath() == null) {
+            try {
+                String thumb = meta.getThumbnail() != null && !meta.getThumbnail().isBlank()
+                        ? youtubeService.downloadThumbnailFromUrl(meta.getThumbnail())
+                        : youtubeService.downloadThumbnailWithYtdlp(url);
+                video.setThumbnailPath(thumb);
+            } catch (Exception e) {
+                System.err.println("Thumbnail download failed: " + e.getMessage());
+            }
+        }
+        updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 95, null);
+    }
+
+    private void downloadVideoFile(Video video, String url, YoutubeAnalyzeResultDto meta,
                                            Long videoId, long runId) throws Exception {
         updateProgress(video, ProcessingStep.YOUTUBE_DOWNLOAD, 65, null);
         int minutes = Math.max(15, meta.getDuration() / 60 + 10);
@@ -151,7 +226,7 @@ public class YoutubeImportJobService {
         }
     }
 
-    private List<SubtitleDto> resolveSubtitles(String url, YoutubeAnalyzeResultDto meta,
+    private ResolvedSubtitles resolveSubtitles(String url, YoutubeAnalyzeResultDto meta,
                                                Long videoId, long runId) throws Exception {
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
 
@@ -162,18 +237,19 @@ public class YoutubeImportJobService {
             if (fromYt != null && !fromYt.isEmpty()) {
                 System.out.println("[YouTube import] loaded " + fromYt.size()
                         + " JP cues from YouTube (lang=" + jaTrack.get().langCode() + ")");
-                return fromYt;
+                return new ResolvedSubtitles(fromYt, sourceOf(jaTrack.get()));
             }
             System.err.println("[YouTube import] JP track detected but parse empty; trying alternate download");
             // Retry JA only, force both manual + auto flags
             List<SubtitleDto> retry = loadJapaneseOnly(url, jaTrack.get());
             if (retry != null && !retry.isEmpty()) {
-                return retry;
+                return new ResolvedSubtitles(retry, sourceOf(jaTrack.get()));
             }
             // Last resort for short videos: STT even if analyze thought there were JP subs
             if (meta.getDuration() <= maxDurationNoSubtitleSeconds) {
                 System.err.println("[YouTube import] falling back to Deepgram STT");
-                return transcribeWithDeepgram(url, video, videoId, runId);
+                return new ResolvedSubtitles(transcribeWithDeepgram(url, video, videoId, runId),
+                        SubtitleQualitySource.DEEPGRAM);
             }
             throw new IllegalArgumentException(
                     "Có phụ đề tiếng Nhật trên YouTube nhưng không tải/đọc được (yt-dlp). "
@@ -184,18 +260,27 @@ public class YoutubeImportJobService {
             throw new IllegalArgumentException(
                     "Video quá dài vì không có phụ đề. Vui lòng chọn video dưới 5 phút.");
         }
-        return transcribeWithDeepgram(url, video, videoId, runId);
+        return new ResolvedSubtitles(transcribeWithDeepgram(url, video, videoId, runId),
+                SubtitleQualitySource.DEEPGRAM);
     }
 
     private List<SubtitleDto> transcribeWithDeepgram(String url, Video video, Long videoId, long runId)
             throws Exception {
         updateProgress(video, ProcessingStep.EXTRACTING_AUDIO, 20, null);
         String audioPath = youtubeService.downloadAudio(url);
-        if (!isActiveRun(videoId, runId)) return List.of();
-        updateProgress(video, ProcessingStep.TRANSCRIBING, 30, null);
-        List<SubtitleDto> transcript = deepgramService.transcribe(audioPath);
-        requireJapaneseTranscript(transcript);
-        return transcript;
+        try {
+            if (!isActiveRun(videoId, runId)) return List.of();
+            updateProgress(video, ProcessingStep.TRANSCRIBING, 30, null);
+            List<SubtitleDto> transcript = deepgramService.transcribe(audioPath);
+            requireJapaneseTranscript(transcript);
+            return transcript;
+        } finally {
+            Files.deleteIfExists(Path.of(audioPath));
+        }
+    }
+
+    private static SubtitleQualitySource sourceOf(TranslationTrack track) {
+        return track.autoOnly() ? SubtitleQualitySource.YOUTUBE_AUTO : SubtitleQualitySource.YOUTUBE_CREATOR;
     }
 
     private void requireJapaneseTranscript(List<SubtitleDto> subtitles) {
@@ -225,7 +310,7 @@ public class YoutubeImportJobService {
                 Path jaFile = files.get(t.langCode());
                 if (jaFile == null) continue;
                 long size = Files.exists(jaFile) ? Files.size(jaFile) : -1;
-                List<SubtitleDto> japanese = SubtitleParser.parseVtt(jaFile);
+                List<SubtitleDto> japanese = parseJapanese(jaFile);
                 if (!japanese.isEmpty()) {
                     System.out.println("[YouTube import] JA-only OK lang=" + t.langCode()
                             + " auto=" + t.autoOnly() + " cues=" + japanese.size());
@@ -264,7 +349,7 @@ public class YoutubeImportJobService {
         }
 
         try {
-            List<SubtitleDto> japanese = SubtitleParser.parseVtt(jaFile);
+            List<SubtitleDto> japanese = parseJapanese(jaFile);
             if (japanese.isEmpty()) {
                 long size = Files.size(jaFile);
                 String head = Files.readString(jaFile).substring(0, (int) Math.min(size, 400));
@@ -306,6 +391,19 @@ public class YoutubeImportJobService {
         }
     }
 
+    /** Japanese cues without the opening/ending song lyrics YouTube transcribes as if they were dialogue. */
+    private List<SubtitleDto> parseJapanese(Path jaFile) throws java.io.IOException {
+        List<SubtitleDto> japanese = SubtitleParser.parseVtt(jaFile);
+        if (!skipThemeSongs || japanese.isEmpty()) return japanese;
+        List<ThemeSongDetector.Interval> songs = ThemeSongDetector.detect(Files.readString(jaFile));
+        List<SubtitleDto> kept = ThemeSongDetector.dropSongCues(japanese, songs);
+        if (kept.size() < japanese.size()) {
+            System.out.println("[YouTube import] dropped " + (japanese.size() - kept.size())
+                    + " theme-song cues in " + songs);
+        }
+        return kept;
+    }
+
     private static void cleanupSubtitleTemp(Path jaFile) {
         if (jaFile == null) return;
         Path tempRoot = jaFile.getParent();
@@ -335,9 +433,17 @@ public class YoutubeImportJobService {
         return runGeneration.computeIfAbsent(videoId, id -> new AtomicLong(0)).incrementAndGet();
     }
 
+    /** Invalidates the active run so it cannot persist any later pipeline result. */
+    public void cancel(Long videoId) {
+        nextRunId(videoId);
+    }
+
     private boolean isActiveRun(Long videoId, long runId) {
         AtomicLong gen = runGeneration.get(videoId);
         return gen != null && gen.get() == runId;
+    }
+
+    private record ResolvedSubtitles(List<SubtitleDto> subtitles, SubtitleQualitySource source) {
     }
 
     private List<Subtitle> saveSubtitles(Video video, List<SubtitleDto> dtos) {
@@ -370,15 +476,27 @@ public class YoutubeImportJobService {
     private void processAiBatches(Video video, List<Subtitle> savedSubs, String lang,
                                   int progressStart, int progressRange,
                                   Long videoId, long runId) {
-        if (savedSubs.isEmpty()) return;
+        processAiBatches(video, savedSubs, lang, progressStart, progressRange, videoId, runId, false);
+    }
+
+    private void processAiBatches(Video video, List<Subtitle> savedSubs, String lang,
+                                  int progressStart, int progressRange,
+                                  Long videoId, long runId, boolean onlyUnfinished) {
+        List<Subtitle> workItems = onlyUnfinished
+                ? savedSubs.stream().filter(sub -> sub.getAiStatus() != AiStatus.COMPLETED).toList()
+                : savedSubs;
+        if (workItems.isEmpty()) {
+            updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart + progressRange, null);
+            return;
+        }
 
         boolean wantFurigana = Boolean.TRUE.equals(video.getGenerateFurigana());
-        long withYtTrans = savedSubs.stream()
+        long withYtTrans = workItems.stream()
                 .filter(s -> s.getTranslation() != null && !s.getTranslation().isBlank())
                 .count();
 
         System.out.println("[YouTube import] AI phase generateFurigana=" + wantFurigana
-                + " subtitles=" + savedSubs.size()
+                + " subtitles=" + workItems.size()
                 + " withYtTranslation=" + withYtTrans);
 
         // Safety net (startImport should already reject)
@@ -392,7 +510,7 @@ public class YoutubeImportJobService {
         // Furigana OFF  never call OpenRouter. Keep YouTube translation if present; furigana = plain JP.
         if (!wantFurigana) {
             updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart, null);
-            for (Subtitle sub : savedSubs) {
+            for (Subtitle sub : workItems) {
                 sub.setFurigana(sub.getText());
                 if (sub.getTranslation() == null) sub.setTranslation("");
                 sub.setAiStatus(AiStatus.COMPLETED);
@@ -406,16 +524,8 @@ public class YoutubeImportJobService {
 
         updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart, null);
 
-        List<Subtitle> needsAi = new ArrayList<>();
-        for (Subtitle sub : savedSubs) {
-            boolean hasTrans = sub.getTranslation() != null && !sub.getTranslation().isBlank();
-            if (hasTrans) {
-                // Has YT translation but user wants furigana — still need AI for furigana
-                needsAi.add(sub);
-            } else {
-                needsAi.add(sub);
-            }
-        }
+        // Resume sends only unfinished lines; each chunk keeps an existing YouTube translation (furigana-only call).
+        List<Subtitle> needsAi = workItems;
 
         if (needsAi.isEmpty()) {
             updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart + progressRange, null);
@@ -423,27 +533,20 @@ public class YoutubeImportJobService {
         }
 
         int batchSize = resolveAiBatchSize(needsAi.size());
-        int totalRounds = (needsAi.size() + batchSize - 1) / batchSize;
+        int totalBatches = (needsAi.size() + batchSize - 1) / batchSize;
         System.out.println("[YouTube import] AI batches: " + needsAi.size() + " lines  "
-                + totalRounds + " round(s) × ~" + batchSize);
+                + totalBatches + " batch(es) × ~" + batchSize);
 
-        for (int i = 0, round = 1; i < needsAi.size(); i += batchSize, round++) {
-            if (!isActiveRun(videoId, runId)) return;
-            int end = Math.min(i + batchSize, needsAi.size());
-            List<Subtitle> batch = needsAi.subList(i, end);
-            List<String> texts = batch.stream().map(Subtitle::getText).toList();
-            System.out.println("[YouTube import] AI round " + round + "/" + totalRounds
-                    + " lines " + (i + 1) + "–" + end);
-            // generateFurigana=true here
-            List<Map<String, String>> results =
-                    openRouterService.processJapaneseBatch(texts, lang, true);
+        aiBatchProcessor.process(needsAi, batchSize, lang, true, true,
+                () -> isActiveRun(videoId, runId), (batch, results, end) -> {
             if (!isActiveRun(videoId, runId)) return;
             for (int j = 0; j < batch.size(); j++) {
                 Subtitle sub = batch.get(j);
                 String furi = results.get(j).get("furigana");
                 String trans = results.get(j).get("translation");
                 sub.setFurigana(furi != null && !furi.isBlank() ? furi : sub.getText());
-                if (trans != null && !trans.isBlank()) {
+                if ((sub.getTranslation() == null || sub.getTranslation().isBlank())
+                        && trans != null && !trans.isBlank()) {
                     sub.setTranslation(trans);
                 } else if (sub.getTranslation() == null || sub.getTranslation().isBlank()) {
                     sub.setTranslation("");
@@ -453,23 +556,35 @@ public class YoutubeImportJobService {
             }
             int progress = progressStart + (int) ((end / (double) needsAi.size()) * progressRange);
             updateProgress(video, ProcessingStep.AI_PROCESSING, progress, null);
+        });
+    }
+
+    private void finishImport(Video video) {
+        video.setStatus(VideoStatus.DRAFT);
+        video.setProcessingStep(ProcessingStep.DONE);
+        video.setProgressPercent(100);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        notifier.ready(video);
+    }
+
+    private void failImport(Long videoId, long runId, Exception e) {
+        if (!isActiveRun(videoId, runId)) return;
+        Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (failed != null) {
+            failed.setStatus(VideoStatus.FAILED);
+            failed.setErrorMessage(e.getMessage());
+            videoRepository.save(failed);
+            notifier.failed(failed, e.getMessage());
         }
     }
 
-    /**
-     * Ít câu: 1 lượt theo batch config.
-     * Cỡ podcast hiện tại (≤100): chia 2 lượt.
-     * Dài hơn: chia 3 lượt — tránh hàng chục request bị rate-limit.
-     */
+    /** Bound each AI request so batches can run concurrently without oversized responses. */
     private int resolveAiBatchSize(int total) {
         if (total <= 0) {
             return Math.max(1, aiBatchSize);
         }
-        if (total <= 40) {
-            return Math.min(Math.max(1, aiBatchSize), total);
-        }
-        int rounds = total <= 100 ? 2 : 3;
-        return (int) Math.ceil(total / (double) rounds);
+        return Math.min(Math.max(4, aiBatchSize), 16);
     }
 
     private String lang(Video video) {

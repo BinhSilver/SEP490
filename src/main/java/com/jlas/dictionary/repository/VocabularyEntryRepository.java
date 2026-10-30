@@ -1,11 +1,13 @@
 package com.jlas.dictionary.repository;
 
 import com.jlas.dictionary.entity.VocabularyEntry;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -14,17 +16,41 @@ import java.util.Optional;
  * Repository cho {@link VocabularyEntry}.
  *
  * <p>Collation mặc định {@code utf8mb4_unicode_ci} coi các cặp thanh/trọc/bán trọc âm (は/ば/ぱ,
- * か/が...) là tương đương, nên có thể lẫn "はは" với "ばば". Từ migration 005, cột
- * normalized_expression/normalized_reading dùng {@code utf8mb4_bin} nên các query dưới đây so sánh
- * trực tiếp. Không thêm {@code COLLATE} tường minh: dù trùng collation cột, MySQL khi đó bỏ index
- * uk_vocabulary_normalized và quét theo khoá chính (đo được ~340 ms thay vì ~3 ms cho prefix).
+ * か/が...) là tương đương, nên có thể lẫn "はは" với "ばば". Từ migration 059, cột
+ * normalized_expression/normalized_reading dùng {@code utf8mb4_0900_as_cs} (accent/case-sensitive),
+ * phân biệt dakuten. Các query dưới đây so sánh trực tiếp, không ép {@code COLLATE}, để dùng
+ * index uk_vocabulary_normalized.
  * Romaji/nghĩa (Latin) giữ collation không phân biệt hoa/thường.</p>
+ *
+ * <p>Editor search uses the default collation of expression/reading, so a missing dakuten can
+ * still return a useful match; duplicate checks use the accent- and case-sensitive normalized columns.</p>
  */
 @Repository
 public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry, Long> {
+
+    List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatus(Collection<String> expressions, String status);
+
     List<VocabularyEntry> findByReadingContainingIgnoreCase(String keyword);
 
     List<VocabularyEntry> findByIdIn(List<Long> ids);
+
+    /**
+     * Kiểm trùng trước khi tạo từ mới. Cố ý so sánh bằng collation của chính cột (KHÔNG ép COLLATE tường minh)
+     * để kết quả trùng khớp đúng với cách uk_vocabulary_normalized đánh giá hai giá trị là bằng nhau.
+     */
+    @Query(value = "select * from vocabulary_entry "
+            + "where normalized_expression = :expression and normalized_reading = :reading limit 1",
+            nativeQuery = true)
+    Optional<VocabularyEntry> findByNormalizedPair(@Param("expression") String normalizedExpression,
+                                                   @Param("reading") String normalizedReading);
+
+    /**
+     * Cặp (normalized_expression, normalized_reading) của các cách viết cho trước — một query cho cả bài, dùng để
+     * xác định chữ Hán nào trong đề "cách đọc chữ Hán" có cách đọc đúng bằng đáp án (gạch chân đúng chữ).
+     */
+    @Query(value = "select normalized_expression, normalized_reading from vocabulary_entry "
+            + "where normalized_expression in (:expressions)", nativeQuery = true)
+    List<Object[]> findReadingsByNormalizedExpressions(@Param("expressions") Collection<String> normalizedExpressions);
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression = :expression "
@@ -37,6 +63,12 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(
             @Param("expressions") Collection<String> normalizedExpressions, @Param("status") String dictionaryStatus);
+
+    @Query(value = "select * from vocabulary_entry "
+            + "where normalized_expression = :expression "
+            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
+            @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression like concat(:prefix, '%') "
@@ -112,4 +144,24 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
         String getTerm();
         String getPartOfSpeech();
     }
+
+    List<VocabularyEntry> findByMeaningContainingAndDictionaryStatusOrderByIdAsc(
+            String meaningInfix, String dictionaryStatus, Pageable pageable);
+
+    /** Published entries with the same spelling, shown to moderators to avoid duplicates. */
+    List<VocabularyEntry> findTop5ByNormalizedExpressionAndDictionaryStatusAndIdNot(
+            String normalizedExpression, String dictionaryStatus, Long id);
+    /**
+     * Tìm từ để gắn vào bài, CÓ PHÂN TRANG (bảng đang hơn 9.000 dòng, không trả hết một lần).
+     * Khớp trên cột thường theo chủ ý nêu ở javadoc lớp — đây là đường đọc cho người dùng, không phải
+     * đường kiểm trùng. Từ khoá rỗng thì trả toàn bộ theo trang, để giao diện mở ra đã có gì đó để xem.
+     */
+    @Query("""
+            select v from VocabularyEntry v
+            where :keyword = ''
+               or v.expression like concat('%', :keyword, '%')
+               or v.reading like concat('%', :keyword, '%')
+               or v.readingRomaji like concat('%', :keyword, '%')
+            """)
+    Page<VocabularyEntry> searchForEditor(@Param("keyword") String keyword, Pageable pageable);
 }

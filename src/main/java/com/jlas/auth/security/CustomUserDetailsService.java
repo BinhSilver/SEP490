@@ -3,6 +3,7 @@ package com.jlas.auth.security;
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +23,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        String role = user.getRole() == null ? "LEARNER" : user.getRole().getName();
+        if (user.getLockedAt() != null) {
+            throw new LockedException("Tài khoản đã bị khóa.");
+        }
+        String role = Roles.canonical(user.getRole() == null ? null : user.getRole().getName());
         return new UserPrincipal(user.getId(), user.getEmail(), user.getPasswordHash(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + role)));
     }

@@ -478,9 +478,6 @@
   background: var(--fc-error-soft) !important;
 }
 
-#jlabBasePage.flashcard-page--editor .import-guide { margin-bottom: 6px; }
-#jlabBasePage.flashcard-page--editor .import-example { margin-bottom: 12px; font-size: .88rem; }
-#jlabBasePage.flashcard-page--editor .import-result-note { margin-top: 10px; font-size: .85rem; }
 
 @media (max-width: 1100px) {
   #jlabBasePage.flashcard-page--editor .editor-sheet {
@@ -571,8 +568,22 @@
 
 #jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-meta__top-row {
   display: grid;
-  grid-template-columns: minmax(0, 2.4fr) minmax(210px, .8fr);
+  grid-template-columns: minmax(0, 1.7fr) minmax(180px, .8fr) minmax(180px, .8fr);
   gap: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-folder-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  gap: 7px;
+  align-items: center;
+}
+
+#jlabBasePage.flashcard-page--editor .editor-folder-add {
+  width: 36px;
+  min-width: 36px;
+  height: 40px;
+  padding: 0;
 }
 
 #jlabBasePage.flashcard-page--editor .editor-meta--sheet .editor-meta__privacy .select {
@@ -792,7 +803,16 @@
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__field .label {
+  min-height: 24px;
   margin-bottom: 7px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+#jlabBasePage.flashcard-page--editor .edit-card__field .optional-label {
+  font-size: 12px;
+  line-height: 20px;
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__field .input-wrap {
@@ -810,18 +830,20 @@
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__field input[data-f] {
+  display: block;
+  box-sizing: border-box;
   width: 100%;
+  height: 50px;
   min-height: 50px;
   padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
   color: var(--fc-on-surface);
   background: transparent !important;
   border: 0 !important;
   outline: 0;
-}
-
-#jlabBasePage.flashcard-page--editor .edit-card__field input[data-f="front"] {
-  font-family: "Noto Sans JP", sans-serif;
-  font-size: 21px;
 }
 
 #jlabBasePage.flashcard-page--editor .edit-card__image-control {
@@ -900,3 +922,343 @@
   #jlabBasePage.flashcard-page--editor .ai-review-item__value { grid-column: 2; }
   #jlabBasePage.flashcard-page--editor .ai-review-item__warning { grid-column: 2; }
 }
+
+/* Import dialog: compact selects for mode and separators. */
+#import-modal .import-options { display: flex; flex-wrap: wrap; gap: 12px 16px; margin: 4px 0 12px; }
+#import-modal .import-option { display: grid; gap: 6px; flex: 1 1 140px; min-width: 0; }
+#import-modal .import-option > label { white-space: nowrap; }
+#import-modal .import-option--mode { flex: 2 1 200px; }
+#import-modal .import-option > label { color: var(--fc-on-surface); font-size: 13px; font-weight: 700; }
+#import-modal .import-option__row { display: flex; gap: 8px; }
+#jlabBasePage.flashcard-page--editor #import-modal select.import-select,
+#jlabBasePage.flashcard-page--editor #import-modal .import-sep-custom {
+  height: 38px;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: 8px !important;
+  background-color: var(--fc-surface);
+  color: var(--fc-on-surface);
+  font-size: 14px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal select.import-select { flex: 1 1 auto; min-width: 0; width: 100%; padding: 0 32px 0 10px; }
+#import-modal .import-sep-custom { flex: 0 0 96px; width: 96px; padding: 0 10px; }
+#import-modal :is(select.import-select, .import-sep-custom):focus-visible { outline: none; border-color: var(--fc-primary) !important; box-shadow: 0 0 0 3px rgba(79, 55, 138, .15); }
+
+/* Quad mode line template: rows of "[ký tự] → [trường]" the user arranges freely. */
+#import-modal .import-template { margin: 0 0 12px; padding: 0; border: 0; }
+#import-modal .import-template legend { margin-bottom: 8px; padding: 0; color: var(--fc-on-surface); font-size: 13px; font-weight: 700; }
+#import-modal .import-template-info { margin-left: 4px; color: var(--fc-on-variant); cursor: help; }
+#import-modal .import-template-slots { display: grid; gap: 8px; margin: 0 0 10px; padding: 0; list-style: none; }
+#import-modal .import-template-slot { display: flex; align-items: center; gap: 8px; }
+#import-modal .import-template-start,
+#import-modal .import-template-sep { flex: 0 0 120px; width: 120px; }
+#import-modal .import-template-start { color: var(--fc-on-variant); font-size: 13px; }
+#import-modal .import-template-sep,
+#import-modal .import-template-field {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: 8px;
+  background: var(--fc-surface);
+  color: var(--fc-on-surface);
+  font-size: 14px;
+}
+#import-modal .import-template-field { flex: 1 1 auto; min-width: 0; }
+/* A shared `.modal select { border: none !important }` rule strips select borders; keep the template's
+ * field picker boxed like its separator inputs (this selector is more specific, so it wins). */
+#jlabBasePage.flashcard-page--editor #import-modal select.import-template-field {
+  height: 38px;
+  padding: 0 32px 0 10px;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: 8px !important;
+  background-color: var(--fc-surface);
+}
+#import-modal .import-template-sep:focus-visible,
+#import-modal .import-template-field:focus-visible { outline: none; border-color: var(--fc-primary); box-shadow: 0 0 0 3px rgba(79, 55, 138, .15); }
+#import-modal .import-template-remove { flex: none; width: 36px; height: 36px; }
+#import-modal .import-template-error { margin: 8px 0 0; color: var(--color-error, #b3261e); font-size: 13px; font-weight: 600; }
+
+/* Live preview: one column per card field. */
+#import-modal .import-preview { margin: 0 0 4px; }
+#import-modal .import-preview h4 { margin: 0 0 8px; color: var(--fc-on-surface); font-size: 14px; font-weight: 700; }
+#import-modal .import-preview h4 span { font-weight: 500; color: var(--fc-on-variant); }
+#import-modal .import-preview-list {
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--fc-outline-soft);
+  border-radius: 12px;
+  background: var(--fc-surface-lowest);
+}
+#import-modal .import-preview-list > p.muted:only-child { margin: 0; padding: 10px 12px; }
+#import-modal .import-preview-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+#import-modal .import-preview-table th,
+#import-modal .import-preview-table td { padding: 8px 10px; border-bottom: 1px solid var(--fc-outline-soft); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+#import-modal .import-preview-table th { position: sticky; top: 0; background: var(--fc-surface); color: var(--fc-on-variant); font-size: 12px; font-weight: 700; }
+#import-modal .import-preview-table tbody tr:last-child td { border-bottom: 0; }
+#import-modal .import-preview-table td:first-child { color: var(--fc-on-surface); font-weight: 700; }
+#import-modal .import-preview-table td.is-empty { color: var(--fc-on-variant); }
+#import-modal .import-preview-more { margin: 0; padding: 8px 12px; font-size: 13px; }
+@media (max-width: 560px) {
+  #import-modal .import-option { flex-basis: 100%; }
+  #import-modal .import-template-start,
+  #import-modal .import-template-sep { flex-basis: 80px; width: 80px; }
+}
+
+/* AI import preview stays beside its source data in the existing import dialog. */
+#import-modal .import-ai-cards { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+#import-modal .import-ai-card { display: flex; gap: 10px; padding: 12px; border: 1px solid var(--fc-outline-soft); border-radius: 12px; background: var(--fc-surface-lowest); }
+#import-modal .import-ai-card__number { flex-shrink: 0; color: var(--fc-on-variant); font-size: 14px; }
+#import-modal .import-ai-card > div { min-width: 0; overflow-wrap: anywhere; }
+#import-modal .import-ai-card strong { display: inline-block; margin-right: 16px; font-size: 20px; }
+#import-modal .import-ai-card p { margin: 4px 0; }
+#import-modal .import-ai-card small { color: var(--fc-on-variant); font-size: 14px; }
+
+/* Import dialog shares the website palette, including legacy button variables. */
+#jlabBasePage.flashcard-page--editor > #import-modal {
+  --bg-base: var(--fc-surface);
+  --bg-surface: var(--fc-surface);
+  --bg-elevated: var(--fc-surface-low);
+  --accent: var(--fc-primary);
+  --accent-soft: var(--fc-primary-soft);
+  --text-primary: var(--fc-on-surface);
+  --text-secondary: var(--fc-on-variant);
+  --text-muted: var(--fc-on-variant);
+  --border: var(--fc-outline-soft);
+  --border-strong: var(--fc-outline);
+  --wrong: var(--fc-error);
+  --wrong-bg: var(--fc-error-soft);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal {
+  background: var(--fc-surface) !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header,
+#jlabBasePage.flashcard-page--editor #import-modal .modal-footer {
+  padding: 12px 20px;
+  gap: 8px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header h3 {
+  margin: 0;
+  color: var(--fc-on-surface);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header i {
+  color: var(--fc-primary);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body {
+  padding: 16px 20px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body > p {
+  margin: 0 0 10px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .form-group {
+  margin: 12px 0;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .input-wrap {
+  background: var(--fc-surface);
+  border-color: var(--fc-outline-soft);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .input-wrap:focus-within {
+  border-color: var(--fc-primary);
+  box-shadow: 0 0 0 3px rgba(79, 55, 138, .15);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body code {
+  color: var(--fc-primary);
+  background: var(--fc-primary-soft);
+  border-color: var(--fc-outline-soft);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .import-actions {
+  gap: 8px;
+  margin: 0 0 10px;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn {
+  min-height: 44px;
+  padding: 10px 16px;
+  box-shadow: none !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn-primary {
+  color: #fff;
+  background: var(--fc-primary);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn-primary:hover {
+  background: var(--fc-primary-hover);
+}
+#jlabBasePage.flashcard-page--editor #import-modal .btn-ghost {
+  color: var(--fc-primary);
+  background: var(--fc-surface);
+}
+#jlabBasePage.flashcard-page--editor #import-modal #import-ai-status:empty {
+  display: none;
+}
+@media (max-width: 640px) {
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-header,
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-body,
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-footer {
+    padding-inline: 16px;
+  }
+  #jlabBasePage.flashcard-page--editor #import-modal .modal-footer {
+    flex-wrap: wrap;
+  }
+}
+
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon,
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon i {
+  color: var(--fc-primary) !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon {
+  background: var(--fc-surface) !important;
+  border-color: var(--fc-outline-soft) !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .modal-header .btn-icon:hover {
+  background: var(--fc-primary-soft) !important;
+  border-color: var(--fc-primary) !important;
+}
+
+/* Page-owned dark mode: flashcard/editor-theme.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-section {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-meta--sheet .input-wrap:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.24)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-toolbar--sheet {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-table tbody tr {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-table .input-wrap:focus-within {
+    background: var(--dm-flashcard-surface) !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.23)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .editor-table-footer {
+    border: 1px dashed var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor kbd {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .validation-banner {
+    color: var(--dm-flashcard-danger)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .edit-card {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor .edit-card__field .input-wrap:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.23)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .input-wrap:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .btn-primary {
+    color: var(--dm-flashcard-on-accent)
+}
+
+/* Import dialog alignment pass — one rhythm everywhere: 16px between blocks, 8px from a label to its
+ * control, 12px between side-by-side controls, every control and button 44px tall, one label style,
+ * and every block's left/right edge flush with the source textarea. Kept last so it wins over the
+ * shared modal/input rules above. */
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body { display: grid; gap: 16px; }
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body > * { margin: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .form-group { display: grid; gap: 8px; margin: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal :is(.form-group > .label, .import-option > label, .import-template legend, .import-preview h4) {
+  margin: 0;
+  padding: 0;
+  color: var(--fc-on-surface);
+  font-size: 13px;
+  font-weight: 700 !important;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+/* Single frame around the textarea (the wrapper draws it; the textarea itself has none). */
+#jlabBasePage.flashcard-page--editor #import-modal .input-wrap { padding: 0; border: 1px solid var(--fc-outline-soft); border-radius: 12px; overflow: hidden; }
+#jlabBasePage.flashcard-page--editor #import-modal textarea.textarea {
+  display: block;
+  width: 100%;
+  min-height: 176px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent;
+  resize: vertical;
+}
+/* Two equal buttons spanning the textarea's width. */
+#jlabBasePage.flashcard-page--editor #import-modal .import-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-actions .btn { width: 100%; height: 44px; min-height: 44px; justify-content: center; }
+/* One equal column per visible option (3 in pair mode, 2 in quad mode — same grid as the buttons). */
+#jlabBasePage.flashcard-page--editor #import-modal .import-options { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; margin: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-option { display: grid; gap: 8px; min-width: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-option > label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-option__row { gap: 8px; }
+#jlabBasePage.flashcard-page--editor #import-modal :is(select.import-select, select.import-template-field, .import-sep-custom, .import-template-sep) {
+  height: 44px !important;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+/* Line template rows: separator (120px) → arrow → field picker → 44px remove slot, so all edges line up. */
+#jlabBasePage.flashcard-page--editor #import-modal .import-template { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-template legend { margin-bottom: 8px; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-template-slots { gap: 8px; margin: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-template-slot { gap: 8px; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-template-start { display: flex; align-items: center; height: 44px; padding: 0 11px; }
+#jlabBasePage.flashcard-page--editor #import-modal :is(.import-template-remove, .import-template-remove-slot) { flex: none; width: 44px; height: 44px; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-template-remove { display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 1px solid var(--fc-outline-soft); border-radius: 8px; }
+#jlabBasePage.flashcard-page--editor #import-modal #btn-template-add { justify-self: start; height: 44px; min-height: 44px; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-template-error { margin: 0; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-preview { display: grid; gap: 8px; margin: 0; }
+@media (max-width: 560px) {
+  #jlabBasePage.flashcard-page--editor #import-modal :is(.import-actions, .import-options) { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); }
+  #jlabBasePage.flashcard-page--editor #import-modal :is(.import-template-start, .import-template-sep) { flex-basis: 80px; width: 80px; }
+}
+
+/* Preview warnings: rows whose fields look wrong (missing Nghĩa, non-kana Cách đọc). */
+#jlabBasePage.flashcard-page--editor #import-modal .import-preview h4 .import-preview-issues {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border: 1px solid #b45309;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 12px;
+  font-weight: 700;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .import-preview-table tr.has-issue td { background: #fffbeb; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-preview-table td.is-suspect { color: #9a3412; font-weight: 600; cursor: help; }
+#jlabBasePage.flashcard-page--editor #import-modal .import-preview-table td.is-suspect i { color: #b45309; }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .import-preview h4 .import-preview-issues { border-color: #fbbf24; background: #422006; color: #fde68a; }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .import-preview-table tr.has-issue td { background: rgba(251, 191, 36, .08); }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .import-preview-table td.is-suspect { color: #fde68a; }
+html[data-theme="dark"] #jlabBasePage.flashcard-page--editor #import-modal .import-preview-table td.is-suspect i { color: #fbbf24; }
+
+/* "Cách nhập": manual / AI / file are independent, so each shows only its own parts. */
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body[data-source="manual"] [data-import-source]:not([data-import-source~="manual"]),
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body[data-source="ai"] [data-import-source]:not([data-import-source~="ai"]),
+#jlabBasePage.flashcard-page--editor #import-modal .modal-body[data-source="file"] [data-import-source]:not([data-import-source~="file"]) {
+  display: none !important;
+}
+#jlabBasePage.flashcard-page--editor #import-modal .import-actions--single { grid-template-columns: minmax(0, 1fr); }

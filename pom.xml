@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<e2e.excludedGroups>e2e</e2e.excludedGroups>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -68,6 +69,11 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.19.4</version>
 		</dependency>
+		<dependency>
+			<groupId>com.atilika.kuromoji</groupId>
+			<artifactId>kuromoji-ipadic</artifactId>
+			<version>0.9.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -84,6 +90,11 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -110,13 +121,57 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.27.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>5.9.2</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- AI Call: runtime state của phiên hội thoại (TTL + giới hạn số phiên). Phiên bản do Spring Boot quản lý. -->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
+			<version>8.20.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.livekit</groupId>
+			<artifactId>livekit-server</artifactId>
+			<version>0.16.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>tools</directory>
+				<targetPath>shadowing</targetPath>
+				<includes><include>youtube_media.py</include></includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludedGroups>${e2e.excludedGroups}</excludedGroups>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -156,5 +211,35 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<!-- Analysis: ./mvnw -Psecurity compile spotbugs:spotbugs; then python scripts/check_security_report.py.
+	     spotbugs:check enforces zero findings, including the documented existing backlog. -->
+	<profiles>
+		<profile>
+			<id>security</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs-maven-plugin</artifactId>
+						<version>4.10.4.1</version>
+						<configuration>
+							<effort>Max</effort>
+							<threshold>High</threshold>
+							<includeFilterFile>${project.basedir}/config/security/spotbugs-include.xml</includeFilterFile>
+							<xmlOutput>true</xmlOutput>
+							<plugins>
+								<plugin>
+									<groupId>com.h3xstream.findsecbugs</groupId>
+									<artifactId>findsecbugs-plugin</artifactId>
+									<version>1.14.0</version>
+								</plugin>
+							</plugins>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

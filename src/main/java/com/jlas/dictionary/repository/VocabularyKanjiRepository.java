@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -15,12 +16,25 @@ import java.util.List;
  * chứa một Kanji thông qua quan hệ dữ liệu (idx_vocabulary_kanji_prefix /
  * idx_vocabulary_kanji_lookup), thay vì LIKE '%kanji%' trên expression.
  *
- * <p>{@code kanji.character} là cột utf8mb4_bin (migration 005) nên điều kiện so sánh trực tiếp
+ * <p>{@code kanji.character} là cột utf8mb4_bin (migration 059) nên điều kiện so sánh trực tiếp
  * dùng được index uk_kanji_character; bọc {@code BINARY} sẽ làm MySQL quét toàn bảng nối.</p>
  */
 @Repository
 public interface VocabularyKanjiRepository
         extends JpaRepository<VocabularyKanji, VocabularyKanji.VocabularyKanjiId> {
+
+    /**
+     * Liên kết từ ↔ Kanji của một tập từ vựng, kèm Kanji và bộ thủ (fetch join), 1 query.
+     * Từ kết quả này service suy ra cả tập Kanji của bài lẫn các từ chứa từng chữ.
+     */
+    @Query("""
+            select vk from VocabularyKanji vk
+              join fetch vk.kanji k
+              left join fetch k.radical
+            where vk.id.vocabularyId in :vocabularyIds
+            order by k.id, vk.id.vocabularyId, vk.id.characterPosition
+            """)
+    List<VocabularyKanji> findByVocabularyIdIn(@Param("vocabularyIds") Collection<Long> vocabularyIds);
 
     /** Vocabulary mà Kanji đứng ở vị trí đầu tiên (character_position = 1). */
     @Query(value = "select ve.* from vocabulary_kanji vk "

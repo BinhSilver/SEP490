@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html class="dark" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Đăng ký - JLAS', 'register')}"></head>
-<body class="app-body app-body--auth page-register-body">
+<body data-mobile-adapt="owned" class="app-body app-body--auth page-register-body">
 <div class="register-background" aria-hidden="true"></div>
 
 <main id="jlabBaseContent" class="app-main app-main--auth">
     <div class="app-main--auth-inner register-auth-inner">
-        <section class="card card--accent-top register-card" aria-labelledby="registerTitle">
+        <section class="card register-card" aria-labelledby="registerTitle">
             <div class="card__body">
                 <div th:replace="~{fragments/components/alert :: alert('alert')}"></div>
 
@@ -98,7 +98,6 @@
 
                         <button id="submitBtn" type="submit" class="btn btn--primary btn--block">
                             <span class="btn__label">Tạo tài khoản</span>
-                            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                         </button>
                     </form>
 

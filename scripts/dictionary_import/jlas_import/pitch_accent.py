@@ -100,7 +100,7 @@ def import_pitch_accents(connection, tagger, kanjium: dict[tuple[str, str], str]
     sources = dict(cursor.fetchall())
     missing = [code for code in SOURCE_CODES if code not in sources]
     if missing:
-        raise ValueError(f"Apply migration 010 first; missing dictionary_source {missing}")
+        raise ValueError(f"Apply migration 064 first; missing dictionary_source {missing}")
 
     last_id = 0
     while True:

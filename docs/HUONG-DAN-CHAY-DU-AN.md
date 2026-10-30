@@ -92,9 +92,9 @@ File seed được tạo ngày 16/10, chưa có 3 bảng mà các tính năng m�
 Chạy lần lượt (mỗi lệnh hỏi mật khẩu MySQL):
 
 ```powershell
-Get-Content sql/migrations/008_vocabulary_antonym.sql | mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
-Get-Content sql/migrations/009_dictionary_contributions.sql | mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
-Get-Content sql/migrations/010_vocabulary_pitch_accent.sql | mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
+Get-Content sql/migrations/062_vocabulary_antonym.sql | mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
+Get-Content sql/migrations/063_dictionary_contributions.sql | mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
+Get-Content sql/migrations/064_vocabulary_pitch_accent.sql | mysql --default-character-set=utf8mb4 -u root -p jlas_dictionary_test
 ```
 
 Các file migration chạy lại nhiều lần không lỗi. Sau bước này các bảng mới còn trống: từ trái
@@ -366,7 +366,7 @@ Thư mục test Java (`src/test`) đã được gỡ khỏi nhánh này, nên `m
 | Viết tay báo "Tính năng viết tay tạm thời chưa sẵn sàng" | Chưa giải nén SVG: chạy lại bước 4. |
 | Trang Hán tự không có hoạt ảnh nét cho chữ hiếm | Thiếu `stroke-order-extra`: chạy lại bước 4. (Khoảng 27 chữ cực hiếm không có dữ liệu nét là bình thường.) |
 | Đăng nhập báo sai mật khẩu | Chưa chạy bước 7. |
-| `import_pitch_accent.py` báo `Apply migration 010 first` | Chưa chạy bước 5. |
+| `import_pitch_accent.py` báo `Apply migration 064 first` | Chưa chạy bước 5. |
 
 ## Tài liệu liên quan
 

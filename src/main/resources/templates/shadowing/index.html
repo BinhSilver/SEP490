@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thư viện luyện nghe | JLAS</title>
@@ -9,21 +10,24 @@
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261017-genres-2">
     <link rel="icon" href="/images/logo.png" type="image/png"/>
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20260901-library-compact9"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261017-genres"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20260901-no-bell-hover"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-1">
+    <link rel="stylesheet" href="/shadowing/css/library-mobile.css?v=20261020-filter-apply">
 </head>
-<body id="jlabBasePage" class="page-shadowing page-shadowing-library">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-library">
     <div id="jlabBaseShellMount"></div>
 
     <main id="jlabBaseContent" class="container">
         <section>
             <div class="search-bar">
-                <input type="text" id="search-input" class="search-input" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
-                <select id="category-filter" class="form-input form-select" style="width:auto; border-radius:9999px;">
-                    <option value="">Tất cả thể loại</option>
+                <input type="search" id="search-input" autocomplete="off" class="search-input" aria-label="Tìm video hoặc câu thoại" placeholder="Tìm theo chủ đề, tiêu đề, câu thoại...">
+                <select id="category-filter" autocomplete="off" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo hình thức">
+                    <option value="">Mọi hình thức</option>
                     <option value="Podcast">Podcast</option>
                     <option value="Anime">Anime</option>
                     <option value="Drama">Phim kịch</option>
@@ -33,12 +37,33 @@
                     <option value="Story">Truyện</option>
                     <option value="JLPT">JLPT</option>
                 </select>
-                <select id="sort-select" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                <select id="genre-filter" autocomplete="off" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo thể loại">
+                    <option value="">Mọi thể loại</option>
+                    <option th:each="genre : ${shadowingGenres}" th:value="${genre.code()}" th:text="${genre.label()}">Hành động</option>
+                </select>
+                <select id="level-filter" autocomplete="off" class="form-input form-select" style="width:auto; border-radius:9999px;" aria-label="Lọc theo cấp độ JLPT">
+                    <option value="">Mọi cấp độ</option>
+                    <option value="N5">N5</option>
+                    <option value="N4">N4</option>
+                    <option value="N3">N3</option>
+                    <option value="N2">N2</option>
+                    <option value="N1">N1</option>
+                </select>
+                <select id="sort-select" autocomplete="off" aria-label="Sắp xếp thư viện" class="form-input form-select" style="width:auto; border-radius:9999px;">
+                    <option value="popular" selected>Phổ biến</option>
                     <option value="newest">Mới nhất</option>
                     <option value="title">Tên A-Z</option>
-                    <option value="rating">Nổi bật (sao cao)</option>
-                    <option value="views">Lượt xem nhiều</option>
+                    <option value="rating">Đánh giá cao nhất</option>
+                    <option value="views">Lượt xem nhiều nhất</option>
+                    <option value="duration-asc">Ngắn nhất</option>
+                    <option value="duration-desc">Dài nhất</option>
                 </select>
+                <button type="button" id="library-filter-toggle" class="library-filter-toggle" aria-label="Bộ lọc" aria-expanded="false" aria-controls="library-filter-panel" title="Bộ lọc">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="library-filter-label" aria-hidden="true">Bộ lọc</span><span id="library-filter-count" hidden></span>
+                </button>
+                <div id="library-filter-panel" class="library-filter-panel" role="region" aria-label="Lọc thư viện" hidden>
+                    <div class="library-filter-header"><strong>Bộ lọc</strong><button id="library-filter-reset" type="button">Đặt lại</button><button id="library-filter-close" type="button" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+                </div>
             </div>
 
             <div class="library-navigation">
@@ -64,9 +89,13 @@
                     <button type="button" class="tab-btn" data-status="READY">Sẵn sàng</button>
                     <button type="button" class="tab-btn" data-status="DRAFT">Bản nháp</button>
                     <button type="button" class="tab-btn" data-status="PROCESSING">Đang xử lý</button>
+                    <button type="button" class="tab-btn" data-status="FAILED">Đã dừng / lỗi</button>
                 </div>
 
                 <div class="library-tabs__actions">
+                    <a href="/shadowing/progress" class="button-icon-circular" title="Tiến độ của tôi" aria-label="Tiến độ của tôi">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </a>
                     <button type="button" id="create-series-btn" class="button-icon-circular" title="Tạo series từ video của tôi" aria-label="Tạo series">
                         <i class="fa-solid fa-list-check"></i>
                     </button>
@@ -77,7 +106,9 @@
             </div>
 
             <div id="video-grid" class="video-grid"></div>
+            <nav id="video-pagination" class="library-pagination" aria-label="Phân trang video" hidden></nav>
             <div id="series-grid" class="video-grid" hidden></div>
+            <nav id="series-pagination" class="library-pagination" aria-label="Phân trang danh sách" hidden></nav>
             <section id="video-empty-state" hidden>
                 <div th:replace="~{fragments/components/kitsu-guide :: guide(
                     'Kitsu-chan chưa tìm thấy video',
@@ -97,7 +128,6 @@
         <form method="dialog" id="series-form" class="store-utility-card">
             <button type="button" id="series-dialog-close" class="dialog-close" aria-label="Đóng">×</button>
             <h2>Tạo chuỗi luyện nghe</h2>
-            <p class="caption">Gom các video đã tạo thành một danh sách học như playlist.</p>
             <input id="series-title" class="form-input" required maxlength="255" placeholder="Tên series, ví dụ: Luyện nghe gọi món ramen">
             <textarea id="series-description" class="form-input" rows="2" placeholder="Mô tả ngắn (tùy chọn)"></textarea>
             <div class="series-form-grid">
@@ -112,15 +142,12 @@
         </form>
     </dialog>
 
-    <footer class="footer">
-        <p class="fine-print">© 2026 JLAS — Luyện shadowing tiếng Nhật</p>
-    </footer>
-
     <script src="/js/auth-session.js"></script>
     <script src="/js/jlab-base-shell.js?v=20260901-logo3"></script>
-    <script src="/shadowing/js/client.js"></script>
+    <script src="/shadowing/js/client.js?v=20261017-genres"></script>
     <script src="/shadowing/js/confirm-modal.js"></script>
-    <script src="/shadowing/js/library.js?v=20260829-kitsu"></script>
-    <script src="/shadowing/js/series-library.js?v=20260829-kitsu"></script>
+    <script src="/shadowing/js/library-controls.js?v=20261020-filter-apply"></script>
+    <script src="/shadowing/js/library.js?v=20261017-genres-2"></script>
+    <script src="/shadowing/js/series-library.js?v=20261017-genres"></script>
 </body>
 </html>

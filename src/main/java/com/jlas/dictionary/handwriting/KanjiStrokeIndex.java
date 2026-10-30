@@ -83,6 +83,7 @@ public class KanjiStrokeIndex {
         String firstProblem = null;
         for (Kanji kanji : all) {
             String uri = kanji.getStrokeSvgUri();
+            if (uri == null) continue;
             String file = uri.substring(uri.lastIndexOf('/') + 1);
             if (!SVG_FILE.matcher(file).matches()) {
                 skipped++;

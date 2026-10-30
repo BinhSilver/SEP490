@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="/js/theme-init.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Thông báo | JLAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
+    <link rel="stylesheet" th:href="@{/css/pages/notifications.css(v=20260925)}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+</head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-notifications">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent">
+    <div class="ntf-page">
+        <header class="ntf-header">
+            <div>
+                <h1 class="ntf-title">Thông báo</h1>
+                <p class="ntf-subtitle" id="ntfSummary">Đang tải…</p>
+            </div>
+            <button type="button" class="btn btn--secondary btn--sm" id="ntfMarkAll" hidden>
+                <i class="fa-solid fa-check-double" aria-hidden="true"></i> Đánh dấu đã đọc tất cả
+            </button>
+        </header>
+
+        <div class="ntf-tabs" role="tablist" aria-label="Lọc thông báo">
+            <button type="button" class="ntf-tab" role="tab" data-unread="false" aria-selected="true">Tất cả</button>
+            <button type="button" class="ntf-tab" role="tab" data-unread="true" aria-selected="false">Chưa đọc</button>
+        </div>
+
+        <section class="ntf-list" id="ntfList" aria-live="polite"></section>
+
+        <nav class="ntf-pager" id="ntfPager" aria-label="Phân trang" hidden>
+            <button type="button" class="btn btn--secondary btn--sm" data-step="-1">Trang trước</button>
+            <span id="ntfPageInfo"></span>
+            <button type="button" class="btn btn--secondary btn--sm" data-step="1">Trang sau</button>
+        </nav>
+
+        <p class="ntf-note">Thông báo cũ hơn 90 ngày sẽ được tự động xoá.</p>
+    </div>
+</main>
+
+<script th:src="@{/js/auth-session.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/pages/notifications.js(v=20261017-shadowing-processing)}"></script>
+</body>
+</html>

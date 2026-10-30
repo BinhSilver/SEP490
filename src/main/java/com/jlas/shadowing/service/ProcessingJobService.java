@@ -5,6 +5,7 @@ import com.jlas.shadowing.model.*;
 import com.jlas.shadowing.repository.SubtitleRepository;
 import com.jlas.shadowing.repository.VideoRepository;
 import com.jlas.shadowing.util.SubtitleText;
+import com.jlas.shadowing.util.SubtitleSegmenter;
 import com.jlas.shadowing.util.NullSafe;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,12 @@ public class ProcessingJobService {
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private FfmpegService ffmpegService;
+    @Autowired private YoutubeService youtubeService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
+    @Autowired private ShadowingAiBatchProcessor aiBatchProcessor;
     @Autowired private VideoModerationService videoModerationService;
+    @Autowired private ShadowingProcessingNotifier notifier;
 
     private final ConcurrentHashMap<Long, AtomicLong> runGeneration = new ConcurrentHashMap<>();
 
@@ -54,11 +58,11 @@ public class ProcessingJobService {
             clearSubtitles(videoId);
             if (!isActiveRun(videoId, runId)) return;
 
-            String audioPath = ffmpegService.prepareAudioForStt(video.getVideoPath());
+            String audioPath = audioForStt(video);
             updateProgress(video, ProcessingStep.TRANSCRIBING, 30, null);
             if (!isActiveRun(videoId, runId)) return;
 
-            List<SubtitleDto> dtos = deepgramService.transcribe(audioPath);
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(transcribe(video, audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -77,6 +81,7 @@ public class ProcessingJobService {
             } catch (Exception modEx) {
                 System.err.println("regenerateTranscript: moderation failed id=" + videoId + " " + modEx.getMessage());
             }
+            notifier.ready(video);
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
                 Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
@@ -84,6 +89,7 @@ public class ProcessingJobService {
                     failed.setStatus(VideoStatus.FAILED);
                     failed.setErrorMessage(e.getMessage());
                     videoRepository.save(failed);
+                    notifier.failed(failed, e.getMessage());
                 }
             }
         }
@@ -106,6 +112,40 @@ public class ProcessingJobService {
         runPipeline(videoId, runId, false);
     }
 
+    /** Continues from the last durable checkpoint without discarding completed AI batches. */
+    @Async
+    public void resumeProcessing(Long videoId) {
+        long runId = nextRunId(videoId);
+        Video video = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (video == null) return;
+
+        List<Subtitle> savedSubs = subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(videoId);
+        if (video.getProcessingStep() == ProcessingStep.AI_PROCESSING && !savedSubs.isEmpty()) {
+            try {
+                video.setStatus(VideoStatus.PROCESSING);
+                video.setErrorMessage(null);
+                video.setProgressPercent(Math.max(55, safeProgress(video.getProgressPercent())));
+                videoRepository.save(video);
+                processAiBatches(video, savedSubs, lang(video), 55, 40, videoId, runId, true);
+                if (!isActiveRun(videoId, runId)) return;
+                finishProcessing(video, videoId);
+            } catch (Exception e) {
+                failProcessing(videoId, runId, e);
+            }
+            return;
+        }
+
+        // A stop can land between saving subtitles and recording the AI checkpoint.
+        // Those incomplete rows must not be combined with a new transcription.
+        if (!savedSubs.isEmpty()) {
+            clearSubtitles(videoId);
+        }
+        video.setStatus(VideoStatus.PROCESSING);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        runPipeline(videoId, runId, false);
+    }
+
     private void runPipeline(Long videoId, long runId, boolean clearSubsAtStart) {
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
         if (video == null) {
@@ -125,11 +165,11 @@ public class ProcessingJobService {
             }
 
             updateProgress(video, ProcessingStep.EXTRACTING_AUDIO, 10, null);
-            String audioPath = ffmpegService.prepareAudioForStt(video.getVideoPath());
+            String audioPath = audioForStt(video);
             if (!isActiveRun(videoId, runId)) return;
 
             updateProgress(video, ProcessingStep.TRANSCRIBING, 25, null);
-            List<SubtitleDto> dtos = deepgramService.transcribe(audioPath);
+            List<SubtitleDto> dtos = SubtitleSegmenter.splitLongCues(transcribe(video, audioPath));
             requireJapaneseTranscript(dtos);
             if (!isActiveRun(videoId, runId)) return;
 
@@ -138,24 +178,14 @@ public class ProcessingJobService {
             processAiBatches(video, savedSubs, lang(video), 55, 40, videoId, runId);
 
             if (!isActiveRun(videoId, runId)) return;
-            video.setStatus(VideoStatus.DRAFT);
-            video.setProcessingStep(ProcessingStep.DONE);
-            video.setProgressPercent(100);
-            video.setErrorMessage(null);
-            videoRepository.save(video);
-
-            // Text + quick/targeted vision (async-friendly; runs after DRAFT ready)
-            try {
-                videoModerationService.moderateVideo(videoId);
-            } catch (Exception modEx) {
-                System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
-            }
+            finishProcessing(video, videoId);
 
         } catch (Exception e) {
             if (isActiveRun(videoId, runId)) {
                 video.setStatus(VideoStatus.FAILED);
                 video.setErrorMessage(e.getMessage());
                 videoRepository.save(video);
+                notifier.failed(video, e.getMessage());
                 e.printStackTrace();
             } else {
                 System.out.println("processVideo: error ignored (superseded) id=" + videoId + " runId=" + runId);
@@ -165,6 +195,11 @@ public class ProcessingJobService {
 
     private long nextRunId(Long videoId) {
         return runGeneration.computeIfAbsent(videoId, id -> new AtomicLong(0)).incrementAndGet();
+    }
+
+    /** Invalidates the active run so it cannot persist any later pipeline result. */
+    public void cancel(Long videoId) {
+        nextRunId(videoId);
     }
 
     private boolean isActiveRun(Long videoId, long runId) {
@@ -210,6 +245,30 @@ public class ProcessingJobService {
         }
     }
 
+    /** Transcribes {@code audioPath}; a temporary YouTube audio file is deleted whatever the outcome. */
+    private List<SubtitleDto> transcribe(Video video, String audioPath) throws Exception {
+        try {
+            return deepgramService.transcribe(audioPath);
+        } finally {
+            if (video.getVideoPath() == null || video.getVideoPath().isBlank()) {
+                try { java.nio.file.Files.deleteIfExists(java.nio.file.Path.of(audioPath)); } catch (Exception ignored) { }
+            }
+        }
+    }
+
+    /**
+     * Audio to transcribe. Uploaded files are prepared from their stored media; YouTube videos keep no file on
+     * the server, so their audio is fetched temporarily from the link.
+     */
+    private String audioForStt(Video video) throws Exception {
+        String path = video.getVideoPath();
+        if (path != null && !path.isBlank()) return ffmpegService.prepareAudioForStt(path);
+        if (ShadowingTakedownService.sourceKey(video.getSourceUrl()).isPresent()) {
+            return youtubeService.downloadAudio(video.getSourceUrl());
+        }
+        throw new IllegalStateException("Video không có tệp âm thanh để tạo phụ đề.");
+    }
+
     /**
      * After STT: stay PROCESSING (not DRAFT). DRAFT only when AI finishes at 100%,
      * otherwise UI shows "Hoàn thành" while bar is still 55%.
@@ -229,27 +288,31 @@ public class ProcessingJobService {
     private void processAiBatches(Video video, List<Subtitle> savedSubs, String lang,
                                     int progressStart, int progressRange,
                                     Long videoId, long runId) {
-        if (savedSubs.isEmpty()) return;
+        processAiBatches(video, savedSubs, lang, progressStart, progressRange, videoId, runId, false);
+    }
+
+    private void processAiBatches(Video video, List<Subtitle> savedSubs, String lang,
+                                  int progressStart, int progressRange,
+                                  Long videoId, long runId, boolean onlyUnfinished) {
+        List<Subtitle> workItems = onlyUnfinished
+                ? savedSubs.stream().filter(sub -> sub.getAiStatus() != AiStatus.COMPLETED).toList()
+                : savedSubs;
+        if (workItems.isEmpty()) {
+            updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart + progressRange, null);
+            return;
+        }
 
         updateProgress(video, ProcessingStep.AI_PROCESSING, progressStart, null);
 
-        int batchSize = resolveAiBatchSize(savedSubs.size());
-        int totalRounds = (savedSubs.size() + batchSize - 1) / batchSize;
-        System.out.println("[Upload AI] " + savedSubs.size() + " lines  "
-                + totalRounds + " round(s) × ~" + batchSize);
+        // Resume only sends unfinished lines (workItems); batches run through the shared parallel AI pool.
+        int batchSize = resolveAiBatchSize(workItems.size());
+        int totalBatches = (workItems.size() + batchSize - 1) / batchSize;
+        System.out.println("[Upload AI] " + workItems.size() + " lines  "
+                + totalBatches + " batch(es) × ~" + batchSize);
 
-        for (int i = 0, round = 1; i < savedSubs.size(); i += batchSize, round++) {
-            if (!isActiveRun(videoId, runId)) return;
-
-            int end = Math.min(i + batchSize, savedSubs.size());
-            List<Subtitle> batch = savedSubs.subList(i, end);
-            List<String> texts = batch.stream().map(sub -> sub.getText()).toList();
-            System.out.println("[Upload AI] round " + round + "/" + totalRounds
-                    + " lines " + (i + 1) + "–" + end);
-
-            boolean wantFurigana = Boolean.TRUE.equals(video.getGenerateFurigana());
-            List<Map<String, String>> results =
-                    openRouterService.processJapaneseBatch(texts, lang, wantFurigana);
+        aiBatchProcessor.process(workItems, batchSize, lang,
+                Boolean.TRUE.equals(video.getGenerateFurigana()), false,
+                () -> isActiveRun(videoId, runId), (batch, results, end) -> {
             if (!isActiveRun(videoId, runId)) return;
 
             for (int j = 0; j < batch.size(); j++) {
@@ -267,24 +330,46 @@ public class ProcessingJobService {
                 subtitleRepository.save(sub);
             }
 
-            int progress = progressStart + (int) ((end / (double) savedSubs.size()) * progressRange);
+            int progress = progressStart + (int) ((end / (double) workItems.size()) * progressRange);
             updateProgress(video, ProcessingStep.AI_PROCESSING, progress, null);
+        });
+    }
+
+    private void finishProcessing(Video video, Long videoId) {
+        video.setStatus(VideoStatus.DRAFT);
+        video.setProcessingStep(ProcessingStep.DONE);
+        video.setProgressPercent(100);
+        video.setErrorMessage(null);
+        videoRepository.save(video);
+        try {
+            videoModerationService.moderateVideo(videoId);
+        } catch (Exception modEx) {
+            System.err.println("processVideo: moderation failed id=" + videoId + " " + modEx.getMessage());
+        }
+        notifier.ready(video);
+    }
+
+    private void failProcessing(Long videoId, long runId, Exception e) {
+        if (!isActiveRun(videoId, runId)) return;
+        Video failed = videoRepository.findById(NullSafe.longId(videoId)).orElse(null);
+        if (failed != null) {
+            failed.setStatus(VideoStatus.FAILED);
+            failed.setErrorMessage(e.getMessage());
+            videoRepository.save(failed);
+            notifier.failed(failed, e.getMessage());
         }
     }
 
-    /**
-     * Ít câu: 1 lượt theo batch config.
-     * Cỡ podcast (≤100): 2 lượt. Dài hơn: 3 lượt.
-     */
+    private int safeProgress(Integer progress) {
+        return progress == null ? 0 : progress;
+    }
+
+    /** Bound each AI request so batches can run concurrently without oversized responses. */
     private int resolveAiBatchSize(int total) {
         if (total <= 0) {
             return Math.max(1, aiBatchSize);
         }
-        if (total <= 40) {
-            return Math.min(Math.max(1, aiBatchSize), total);
-        }
-        int rounds = total <= 100 ? 2 : 3;
-        return (int) Math.ceil(total / (double) rounds);
+        return Math.min(Math.max(4, aiBatchSize), 16);
     }
 
     private String lang(Video video) {

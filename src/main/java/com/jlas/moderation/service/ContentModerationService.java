@@ -1,6 +1,7 @@
 package com.jlas.moderation.service;
 
 import com.jlas.moderation.dto.ModerationResult;
+import com.jlas.moderation.dto.TextHighlight;
 import com.jlas.moderation.model.ContentModerationLog;
 import com.jlas.moderation.model.ModerationReviewQueue;
 import com.jlas.moderation.model.ModerationVerdict;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,64 +39,13 @@ public class ContentModerationService {
     private final ModerationReviewQueueRepository queueRepository;
     private final ObjectMapper objectMapper;
     private final OpenRouterVisionClient visionClient;
+    private final DenylistService denylist;
 
     @Value("${moderation.enabled:true}")
     private boolean enabled;
 
     @Value("${moderation.image.enabled:true}")
     private boolean imageEnabled;
-
-    /**
-     * Từ cấm rõ (BLOCKED) — EN + VI + JP.
-     * Tránh từ JLPT học thuật đơn lẻ (vd. 死ぬ, 裸足) để giảm false-positive.
-     * Cụm không mơ hồ sau khi normalize (lower EN/VI, giữ kana/kanji).
-     */
-    private static final List<String> BLOCK_TERMS = List.of(
-            // ── English ──
-            "porn", "xxx", "onlyfans", "nsfw", "rape", "pedophil", "child porn",
-            "go fuck", "fuck you", "motherfucker",
-            // ── Vietnamese ──
-            "dit me", "deo ma", "thằng chó", "thang cho", "óc chó", "oc cho",
-            "giết hết", "giet het", "terrorist bomb",
-            // ── Japanese NSFW / 性的 (clear adult slang, not JLPT core) ──
-            "ポルノ", "ぽるの", "エロ動画", "エロ画像", "エロサイト",
-            "アダルトビデオ", "アダルト動画", "セックス", "せっくす",
-            "フェラチオ", "フェラ", "まんこ", "おまんこ", "ちんこ", "ちんぽ", "チンポ",
-            "おっぱい揉", "中出し", "なかだし", "顔射", "ぶっかけ",
-            "レイプ", "れいぷ", "強姦", "ごうかん",
-            "児童ポルノ", "じどうぽるの", "ロリコン動画", "ショタコン",
-            // ── Japanese abuse / hate (direct attack phrases) ──
-            "死ねボケ", "くたばれ", "クソガキ", "くそがき",
-            "殺しに行く", "ころしにいく", "皆殺し", "みなごろし",
-            "在日叩き", "朝鮮人は出てけ"
-    );
-
-    /**
-     * Từ chửi tiếng Việt ngắn phải giữ nguyên dấu. Nếu bỏ dấu, các/lớn/buổi
-     * sẽ lần lượt biến thành cac/lon/buoi và tạo false-positive.
-     */
-    private static final List<String> ACCENT_SENSITIVE_BLOCK_TERMS = List.of(
-            "địt", "đụ", "lồn", "cặc", "buồi", "đéo"
-    );
-
-    /**
-     * Nghi ngờ  REVIEW (không auto-public).
-     * Có thể dính ngữ cảnh tin tức / từ vựng nâng cao  admin duyệt.
-     */
-    private static final List<String> REVIEW_TERMS = List.of(
-            // ── EN / VI ──
-            "nude", "naked", "sex video", "only fans",
-            "giết người", "giet nguoi", "tự tử", "tu tu huong dan",
-            "hate speech", "kill yourself",
-            // ── Japanese sensitive (review, not hard-block) ──
-            "エロ", "えろい", "えっち", "エッチ", "ヌード", "ぬーど",
-            "全裸", "ぜんら", "裸体", "らたい", "下着姿",
-            "自殺", "じさつ", "自殺方法", "自殺サイト",
-            "他殺", "テロリズム", "爆破予告", "爆破予告",
-            "死ね", "しね!", "しね！",
-            "殺すぞ", "ころすぞ", "ぶっ殺", "ぶっころ",
-            "障害者は消えろ", "部落", "在日朝鮮人"
-    );
 
     private static final Pattern URL_SPAM = Pattern.compile(
             "(?i)(https?://|www\\.)\\S{8,}", Pattern.UNICODE_CASE);
@@ -106,10 +57,93 @@ public class ContentModerationService {
     public List<DenylistMatch> findDenylistMatches(String text) {
         if (!StringUtils.hasText(text)) return List.of();
         String lower = text.toLowerCase(Locale.ROOT);
+        DenylistService.Snapshot terms = denylist.current();
         List<DenylistMatch> matches = new ArrayList<>();
-        addLiteralMatches(text, lower, ACCENT_SENSITIVE_BLOCK_TERMS, matches);
-        addLiteralMatches(text, lower, BLOCK_TERMS, matches);
+        addLiteralMatches(text, lower, terms.accentSensitiveBlock(), matches);
+        addLiteralMatches(text, lower, terms.block(), matches);
         return matches;
+    }
+
+    public record DenylistHit(String term, String action) {}
+
+    /**
+     * Admin "try a text" tool: every active term that matches, using exactly the same
+     * matching rules as {@link #scanText(String)} but without caching or logging.
+     */
+    public List<DenylistHit> testDenylist(String text) {
+        if (!StringUtils.hasText(text)) return List.of();
+        String canonical = canonicalForMatch(text);
+        String normalized = normalize(text);
+        DenylistService.Snapshot terms = denylist.current();
+        List<DenylistHit> hits = new ArrayList<>();
+        for (String term : terms.accentSensitiveBlock()) {
+            if (containsBounded(canonical, canonicalForMatch(term), false)) {
+                hits.add(new DenylistHit(term, DenylistService.BLOCK));
+            }
+        }
+        for (String term : terms.block()) {
+            if (matchesTerm(normalized, term)) hits.add(new DenylistHit(term, DenylistService.BLOCK));
+        }
+        for (String term : terms.review()) {
+            if (matchesTerm(normalized, term)) hits.add(new DenylistHit(term, DenylistService.REVIEW));
+        }
+        return hits;
+    }
+
+    /**
+     * Positions of every term reported by {@link #testDenylist(String)} in the original text.
+     * Matching folds case and Vietnamese accents one character at a time, so indexes stay aligned
+     * with the original string. Obfuscated spellings (e.g. "p o r n") are still listed by
+     * testDenylist but cannot be located, so they get no span.
+     */
+    public List<TextHighlight> highlight(String text) {
+        if (!StringUtils.hasText(text)) return List.of();
+        String lower = text.toLowerCase(Locale.ROOT);
+        String folded = foldPerChar(text);
+        List<TextHighlight> spans = new ArrayList<>();
+        Set<String> accentSensitive = Set.copyOf(denylist.current().accentSensitiveBlock());
+        for (DenylistHit hit : testDenylist(text)) {
+            boolean exact = accentSensitive.contains(hit.term());
+            String haystack = exact ? lower : folded;
+            String needle = exact ? hit.term().toLowerCase(Locale.ROOT) : foldPerChar(hit.term());
+            if (needle.isEmpty() || needle.length() > haystack.length()) continue;
+            boolean bounded = !containsJapanese(needle);
+            int from = 0;
+            while ((from = haystack.indexOf(needle, from)) >= 0) {
+                int end = from + needle.length();
+                boolean ok = !bounded || ((from == 0 || !Character.isLetterOrDigit(haystack.charAt(from - 1)))
+                        && (end == haystack.length() || !Character.isLetterOrDigit(haystack.charAt(end))));
+                if (ok) spans.add(new TextHighlight(from, end, hit.term(), hit.action()));
+                from = end;
+            }
+        }
+        spans.sort(Comparator.comparingInt(TextHighlight::start)
+                .thenComparing(Comparator.comparingInt(TextHighlight::end).reversed()));
+        List<TextHighlight> merged = new ArrayList<>();
+        int lastEnd = -1;
+        for (TextHighlight span : spans) {
+            if (span.start() >= lastEnd) {
+                merged.add(span);
+                lastEnd = span.end();
+            }
+        }
+        return merged;
+    }
+
+    /** Lowercases and strips accents per character; output length always equals input length. */
+    private static String foldPerChar(String text) {
+        StringBuilder out = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char c = Character.toLowerCase(text.charAt(i));
+            if (c == 'đ') {
+                out.append('d');
+                continue;
+            }
+            String base = java.text.Normalizer.normalize(String.valueOf(c), java.text.Normalizer.Form.NFKD)
+                    .replaceAll("\\p{M}", "");
+            out.append(base.length() == 1 ? Character.toLowerCase(base.charAt(0)) : c);
+        }
+        return out.toString();
     }
 
     private static void addLiteralMatches(String text, String lower, List<String> terms,
@@ -136,7 +170,9 @@ public class ContentModerationService {
         }
         String canonical = canonicalForMatch(text);
         String normalized = normalize(text);
-        String hash = sha256("text-v2|" + canonical);
+        DenylistService.Snapshot terms = denylist.current();
+        // The denylist version is part of the key so cached verdicts expire when terms change.
+        String hash = sha256("text-v2|" + terms.version() + "|" + canonical);
 
         // Cache hit (cùng nội dung đã chuẩn hóa chống lách)
         return logRepository.findFirstByContentHashOrderByCreatedAtDesc(hash)
@@ -148,7 +184,7 @@ public class ContentModerationService {
                         .summary(l.getSummary())
                         .modelName(l.getModelName() != null ? l.getModelName() : "keyword-cache")
                         .build())
-                .orElseGet(() -> runScan(canonical, normalized, hash));
+                .orElseGet(() -> runScan(terms, canonical, normalized, hash));
     }
 
     public ModerationResult scanCombined(List<String> parts) {
@@ -174,7 +210,7 @@ public class ContentModerationService {
         }
         if (filenameOrUrl != null) {
             String lower = filenameOrUrl.toLowerCase(Locale.ROOT);
-            for (String t : BLOCK_TERMS) {
+            for (String t : denylist.current().block()) {
                 if (lower.contains(t)) {
                     return ModerationResult.builder()
                             .verdict(ModerationVerdict.BLOCKED)
@@ -428,22 +464,23 @@ public class ContentModerationService {
                 .build());
     }
 
-    private ModerationResult runScan(String canonical, String normalized, String hash) {
+    private ModerationResult runScan(DenylistService.Snapshot terms, String canonical, String normalized,
+                                     String hash) {
         List<String> cats = new ArrayList<>();
 
-        for (String term : ACCENT_SENSITIVE_BLOCK_TERMS) {
+        for (String term : terms.accentSensitiveBlock()) {
             if (containsBounded(canonical, canonicalForMatch(term), false)) {
                 return blockedKeywordResult(hash, cats);
             }
         }
 
-        for (String term : BLOCK_TERMS) {
+        for (String term : terms.block()) {
             if (matchesTerm(normalized, term)) {
                 return blockedKeywordResult(hash, cats);
             }
         }
 
-        for (String term : REVIEW_TERMS) {
+        for (String term : terms.review()) {
             if (matchesTerm(normalized, term)) {
                 cats.add("SENSITIVE_TOPIC");
                 return cacheAndReturn(hash, ModerationResult.builder()

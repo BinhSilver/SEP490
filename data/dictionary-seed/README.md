@@ -9,7 +9,7 @@ Snapshot `JLAS2-34-ja-vi-2026-10-16`: 278,131 Japanese-Vietnamese words with Han
 Viet, 13,033 Kanji (all KANJIDIC2 characters, Vietnamese readings/meanings),
 40,397 Kanji readings, 505,412 word-Kanji links, 253 radical lookup components
 with 54,321 Kanji-component links (RADKFILE). Migrations
-`sql/migrations/005_vietnamese_dictionary.sql` and `006_kanji_component_lookup.sql`
+`sql/migrations/059_vietnamese_dictionary.sql` and `060_kanji_component_lookup.sql`
 are already part of the schema.
 
 ## Included artifacts

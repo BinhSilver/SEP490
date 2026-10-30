@@ -1,10 +1,13 @@
 /* Stitch library screen, adapted to the shared JLAS shell. */
 
+.lib-mobile-filters { display: none; }
+
 #jlabBasePage.flashcard-page--library .library-content {
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
-  padding: 24px 60px 80px !important;
+  padding: 24px 36px 64px !important;
+  background: #ffffff;
 }
 
 #jlabBasePage.flashcard-page--library .folder-panel {
@@ -65,29 +68,13 @@
 #jlabBasePage.flashcard-page--library .folder-icon-btn:hover { color: var(--fc-primary); background: rgba(70,72,212,.09); }
 #jlabBasePage.flashcard-page--library .folder-icon-btn--danger:hover { color: var(--fc-error); background: var(--fc-error-soft); }
 
-#jlabBasePage.flashcard-page--library .lib-control-dock {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 18px;
-  margin: 0 0 40px;
-  padding: 8px;
-  background: rgba(255,255,255,.96);
-  border: 1px solid rgba(199,196,215,.35);
-  border-radius: var(--fc-radius-md);
-  box-shadow: 0 8px 24px rgba(33,49,69,.12);
-  backdrop-filter: blur(14px);
-}
-
 #jlabBasePage.flashcard-page--library .lib-toolbar {
   display: grid;
   align-items: center;
   grid-template-columns: minmax(280px, 1fr) 210px;
   gap: 14px;
   width: 100%;
-  margin: 0;
+  margin: 0 0 28px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -120,6 +107,37 @@
   outline: 0;
 }
 
+/* The rounded search field owns focus; its inner input has no second frame. */
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search {
+  min-height: 48px;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search:focus-within {
+  border-color: var(--fc-primary) !important;
+}
+#jlabBasePage.flashcard-page--library #jlabBaseContent #lib-search {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 16px;
+}
+#jlabBasePage.flashcard-page--library #jlabBaseContent #lib-search:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 #jlabBasePage.flashcard-page--library .lib-sort-field {
   display: grid;
   color: transparent;
@@ -135,7 +153,7 @@
   min-height: 44px;
   color: var(--fc-on-surface) !important;
   background: var(--fc-surface-low) !important;
-  border: 0 !important;
+  border: 1px solid var(--fc-outline-soft) !important;
   font: 500 14px/1.2 "Inter", sans-serif !important;
 }
 
@@ -144,7 +162,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 #jlabBasePage.flashcard-page--library .library-results-heading h2 {
@@ -162,7 +180,7 @@
   height: 36px;
   place-items: center;
   color: #fff;
-  background: var(--fc-success-strong);
+  background: var(--fc-primary);
   border-radius: 50%;
   font-size: 15px;
 }
@@ -173,10 +191,22 @@
   font-size: 13px;
 }
 
+/* Always-visible entry to the editor (the empty-state button only shows when the list is empty). */
+#jlabBasePage.flashcard-page--library .library-create-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  #jlabBasePage.flashcard-page--library .library-results-heading { flex-wrap: wrap; align-items: center; gap: 12px; }
+  #jlabBasePage.flashcard-page--library .library-create-btn { width: 100%; justify-content: center; }
+}
+
 #jlabBasePage.flashcard-page--library .lib-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 #jlabBasePage.flashcard-page--library .lib-loading {
@@ -192,7 +222,7 @@
   overflow: hidden;
   background: var(--fc-surface-lowest);
   border: 1px solid rgba(199,196,215,.28);
-  border-radius: 20px;
+  border-radius: 14px;
   box-shadow: var(--fc-shadow);
   transition: transform .3s ease, box-shadow .3s ease;
 }
@@ -205,11 +235,9 @@
 #jlabBasePage.flashcard-page--library .lib-card__link {
   position: relative;
   display: block;
-  height: 180px;
+  height: 112px;
   overflow: hidden;
-  background:
-    linear-gradient(150deg, rgba(70,72,212,.1), rgba(0,136,93,.1)),
-    var(--fc-surface-mid);
+  background: var(--fc-surface-low);
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__thumb {
@@ -223,33 +251,45 @@
   transform: scale(1.05);
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__thumb--ph {
-  display: grid;
-  height: 100%;
-  place-items: center;
-  color: var(--fc-primary);
-  background:
-    radial-gradient(circle at 28% 38%, rgba(255,255,255,.72) 0 28px, transparent 29px),
-    linear-gradient(145deg, #dce9ff, #eff4ff 52%, #d8f8e9);
-  font-size: 42px;
-}
-
 #jlabBasePage.flashcard-page--library .lib-card__meta {
   position: absolute;
   z-index: 2;
-  top: 14px;
-  right: 14px;
+  top: 11px;
+  right: 11px;
   display: flex;
   gap: 6px;
 }
 
+#jlabBasePage.flashcard-page--library .lib-card__meta--no-thumb {
+  z-index: 3;
+  top: 14px;
+  right: 14px;
+  min-height: 0;
+  padding: 0;
+}
+
+#jlabBasePage.flashcard-page--library .lib-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  color: var(--fc-on-variant);
+  background: rgba(255,255,255,.94);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(33,49,69,.08);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+#jlabBasePage.flashcard-page--library .lib-card__rating i { color: var(--color-star, #f5a400); }
+
 #jlabBasePage.flashcard-page--library .tag {
   display: inline-flex;
   align-items: center;
-  padding: 6px 11px;
+  padding: 5px 8px;
   border-radius: 999px;
   box-shadow: 0 2px 8px rgba(33,49,69,.08);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -280,26 +320,38 @@
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__count {
-  display: none;
+  color: var(--fc-on-variant);
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__body {
   position: relative;
   z-index: 2;
   display: flex;
-  min-height: 318px;
   flex-direction: column;
-  gap: 10px;
-  margin: -30px 14px 0;
-  padding: 24px 18px 18px;
+  gap: 8px;
+  margin: -16px 8px 0;
+  padding: 12px;
   background: var(--fc-surface-lowest);
   border-radius: var(--fc-radius-md) var(--fc-radius-md) 0 0;
 }
 
+#jlabBasePage.flashcard-page--library .lib-card--no-thumb .lib-card__body {
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--fc-radius-md);
+}
+
+#jlabBasePage.flashcard-page--library .lib-card--no-thumb .lib-card__title {
+  padding-inline-end: 56px;
+}
+
 #jlabBasePage.flashcard-page--library .lib-card__title {
   margin: 0;
-  font-size: 20px;
+  font-size: 15px;
   line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__title a {
@@ -309,20 +361,7 @@
 
 #jlabBasePage.flashcard-page--library .lib-card__title a:hover { color: var(--fc-primary); }
 
-#jlabBasePage.flashcard-page--library .lib-card__desc {
-  display: -webkit-box;
-  min-height: 45px;
-  margin: 0;
-  overflow: hidden;
-  color: var(--fc-on-variant);
-  font-size: 14px;
-  line-height: 1.55;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-#jlabBasePage.flashcard-page--library .lib-card__foot,
-#jlabBasePage.flashcard-page--library .lib-card__social {
+#jlabBasePage.flashcard-page--library .lib-card__foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -332,16 +371,20 @@
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__foot {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid var(--fc-outline-soft);
+  order: 3;
+  padding-top: 0;
 }
+
+#jlabBasePage.flashcard-page--library .lib-card__title { order: 0; }
+#jlabBasePage.flashcard-page--library .lib-card__count { order: 1; }
+#jlabBasePage.flashcard-page--library .lib-folder-select { order: 2; }
+#jlabBasePage.flashcard-page--library .lib-card__actions { order: 4; }
 
 #jlabBasePage.flashcard-page--library .lib-card__owner {
   display: inline-flex;
   min-width: 0;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -349,50 +392,561 @@
 
 #jlabBasePage.flashcard-page--library .lib-card__avatar {
   display: inline-grid;
-  width: 27px;
-  height: 27px;
+  width: 22px;
+  height: 22px;
   flex: 0 0 auto;
   place-items: center;
   color: #fff;
   background: var(--fc-primary);
   border-radius: 50%;
+  font-size: 11px;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__social {
-  justify-content: flex-start;
-  color: var(--fc-success);
+#jlabBasePage.flashcard-page--library .lib-card__usage {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__actions {
+/* Compact icon actions; preserve larger touch targets on narrow/touch screens. */
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions {
   display: flex;
   align-items: stretch;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 0;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__actions > .btn:not(.lib-icon-action) {
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-icon-action {
+  flex: 0 0 32px;
+  width: 32px;
   min-width: 0;
-  flex: 1 1 110px;
-  white-space: normal;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 !important;
+  justify-content: center;
+  font-size: 14px;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  #jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-icon-action {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .btn-ghost {
+  /* !important: flashcard-ui.css and buttons.css force ghost buttons transparent with !important. */
+  color: var(--fc-on-surface) !important;
+  background: var(--fc-surface-lowest) !important;
+  border: 1px solid var(--fc-outline-soft) !important;
+  border-radius: var(--fc-radius-sm) !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .btn-ghost:hover:not(:disabled) {
+  color: var(--fc-primary) !important;
+  background: var(--fc-primary-soft) !important;
+  border-color: var(--fc-primary) !important;
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-icon-action:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* ── Export modal ─────────────────────────────────────────── */
+.lib-export {
+  --lx-accent: #6a3fd6;
+  --lx-accent-strong: #5530c0;
+  --lx-accent-soft: #f1ebff;
+  --lx-accent-line: #d9ccfb;
+  --lx-ink: #1f1a33;
+  --lx-muted: #6b6680;
+  --lx-line: #e7e3f0;
+  --lx-row-alt: #faf8fe;
+  --lx-badge-bg: #e8f0fe;
+  --lx-badge-fg: #2f6fde;
+  --lx-text: 14px;
+  --lx-title: 18px;
+  position: relative;
+  width: min(700px, 100%);
+  height: min(90dvh, 640px);
+  overflow: hidden;
+}
+
+/* Matches the specificity of the shared flashcard modal rules in flashcard-ui.css. */
+#jlabBasePage.flashcard-page > .modal-backdrop .modal.lib-export {
+  color: var(--lx-ink);
+  background: #fff;
+  border: 1px solid var(--lx-line);
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(52, 33, 110, .22);
+}
+
+/* flashcard-ui.css forces modal inputs with !important; restore the export design. */
+#jlabBasePage.flashcard-page > .modal-backdrop .lib-export__preview {
+  background: #fcfbfe !important;
+  border-color: var(--lx-line) !important;
+  border-radius: 12px !important;
+}
+
+#jlabBasePage.flashcard-page > .modal-backdrop .lib-export__custom {
+  border-color: var(--lx-line) !important;
+  border-radius: 10px !important;
+}
+
+#jlabBasePage.flashcard-page > .modal-backdrop .lib-export__custom:focus {
+  border-color: var(--lx-accent) !important;
+}
+
+#jlabBasePage.flashcard-page > .modal-backdrop .lib-export__custom:disabled {
+  background: #f6f5f9 !important;
+}
+
+.lib-export[data-format="xlsx"] { --lx-badge-bg: #e3f5ea; --lx-badge-fg: #1d7a46; }
+.lib-export[data-format="csv"] { --lx-badge-bg: #fdf0e3; --lx-badge-fg: #c7650b; }
+
+.lib-export__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 24px 15px;
+  overflow: hidden;
+}
+
+.lib-export__badge {
+  display: grid;
+  flex: 0 0 auto;
+  width: 51px;
+  height: 51px;
+  place-items: center;
+  color: var(--lx-badge-fg);
+  background: var(--lx-badge-bg);
+  border-radius: 15px;
+  font-size: 24px;
+  transition: background .2s, color .2s;
+}
+
+.lib-export__heading {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.lib-export__heading h2 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--lx-ink);
+  font: 700 var(--lx-title)/1.25 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lib-export__heading p {
+  margin: 4px 0 0;
+  color: var(--lx-muted);
+  font-size: var(--lx-text);
+}
+
+.lib-export__deco {
+  position: absolute;
+  top: -6px;
+  right: 60px;
+  color: var(--lx-accent);
+  font-size: 82px;
+  opacity: .07;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.lib-export__close {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  align-self: flex-start;
+  color: var(--lx-muted);
+  background: #fff;
+  border: 1px solid var(--lx-line);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(52, 33, 110, .08);
+  cursor: pointer;
+  font-size: var(--lx-text);
+}
+
+.lib-export__close:hover { color: var(--lx-ink); }
+
+.lib-export__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 24px 7px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.lib-export__body > [data-export-panel] {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.lib-export__tabs {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding: 0;
+  margin-bottom: 15px;
+  overflow: hidden;
+  background: #f5f2fd;
+  border: 0;
+  border-radius: 12px;
+}
+
+.lib-export__tab {
+  display: inline-flex;
+  min-height: 39px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #3d3852;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  font: 600 var(--lx-text)/1.2 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+}
+
+.lib-export__tab i { color: #6b6680; }
+.lib-export__tab:hover { background: #ebe4fb; }
+
+.lib-export__tab.is-active {
+  color: var(--lx-accent-strong);
+  background: #e2d6fb;
+}
+
+.lib-export__tab.is-active i { color: var(--lx-accent); }
+
+.lib-export__tab:focus-visible { outline: 2px solid var(--lx-accent); outline-offset: -2px; }
+
+.lib-export__close:focus-visible,
+.lib-export__btn:focus-visible,
+.lib-export__sheet:focus-visible {
+  outline: 2px solid var(--lx-accent);
+  outline-offset: 2px;
+}
+
+.lib-export__check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.lib-export__check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lib-export__checkbox {
+  display: grid;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: #fff;
+  background: #fff;
+  border: 2px solid #c9c2dc;
+  border-radius: 6px;
+  font-size: 11px;
+  transition: background .15s, border-color .15s;
+}
+
+.lib-export__checkbox i { opacity: 0; }
+
+.lib-export__check input:checked + .lib-export__checkbox {
+  background: var(--lx-accent);
+  border-color: var(--lx-accent);
+}
+
+.lib-export__check input:checked + .lib-export__checkbox i { opacity: 1; }
+
+.lib-export__check input:focus-visible + .lib-export__checkbox {
+  outline: 2px solid var(--lx-accent);
+  outline-offset: 2px;
+}
+
+.lib-export__check-text strong {
+  display: block;
+  font-size: var(--lx-text);
+  font-weight: 700;
+}
+
+.lib-export__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+
+.lib-export__group legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: var(--lx-text);
+  font-weight: 700;
+}
+
+.lib-export__chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lib-export__chip span {
+  display: inline-flex;
+  min-height: 31px;
+  align-items: center;
+  padding: 0 14px;
+  color: #3d3852;
+  background: #fff;
+  border: 1px solid var(--lx-line);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: var(--lx-text);
+  font-weight: 600;
+}
+
+.lib-export__chip span:hover { background: #f8f6fd; }
+
+.lib-export__chip input:checked + span {
+  color: var(--lx-accent-strong);
+  background: var(--lx-accent-soft);
+  border-color: var(--lx-accent-line);
+}
+
+.lib-export__chip input:focus-visible + span {
+  outline: 2px solid var(--lx-accent);
+  outline-offset: 2px;
+}
+
+.lib-export__custom {
+  width: 82px;
+  min-height: 31px;
+  padding: 0 10px;
+  color: var(--lx-ink);
+  background: #fff;
+  border: 1px solid var(--lx-line);
+  border-radius: 10px;
+  font-size: var(--lx-text);
+}
+
+.lib-export__custom:disabled {
+  background: #f6f5f9;
+  opacity: .6;
+}
+
+.lib-export__custom:focus {
+  border-color: var(--lx-accent);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(106, 63, 214, .15);
+}
+
+.lib-export__preview {
+  display: block;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 120px;
+  padding: 12px 14px;
+  resize: none;
+  color: var(--lx-ink);
+  background: #fcfbfe;
+  border: 1px solid var(--lx-line);
+  border-radius: 12px;
+  font: var(--lx-text)/1.7 "Noto Sans JP", "JetBrains Mono", monospace;
+  white-space: pre;
+  tab-size: 4;
+}
+
+.lib-export__preview:focus {
+  border-color: var(--lx-accent-line);
+  outline: 0;
+}
+
+.lib-export__sheet {
+  flex: 1 1 auto;
+  min-height: 120px;
+  overflow: auto;
+  border: 1px solid var(--lx-line);
+  border-radius: 12px;
+}
+
+.lib-export__sheet table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--lx-text);
+}
+
+.lib-export__sheet th,
+.lib-export__sheet td {
+  padding: 8px 17px;
+  border-right: 1px solid var(--lx-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.lib-export__sheet th:last-child,
+.lib-export__sheet td:last-child { border-right: 0; }
+
+.lib-export__sheet td { font-family: "Noto Sans JP", "Inter", sans-serif; }
+
+.lib-export__sheet thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-block: 12px;
+  color: #3d3852;
+  background: #f3f0fb;
+  border-bottom: 1px solid var(--lx-line);
+  font-weight: 600;
   text-align: center;
 }
 
-#jlabBasePage.flashcard-page--library .lib-card__owner-actions {
+.lib-export__sheet tbody th {
+  width: 61px;
+  color: var(--lx-muted);
+  font-weight: 500;
+  text-align: center;
+}
+
+.lib-export__sheet tbody tr:nth-child(even) { background: var(--lx-row-alt); }
+
+.lib-export__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 7px 24px 0;
+  padding: 15px 0 20px;
+  border-top: 1px solid var(--lx-line);
+}
+
+.lib-export__count {
   display: inline-flex;
-  gap: 2px;
-  margin-left: auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--lx-accent-strong);
+  font-size: var(--lx-text);
+  font-weight: 600;
 }
 
-#jlabBasePage.flashcard-page--library .lib-icon-action {
-  width: 36px;
-  padding: 0 !important;
-  background: transparent !important;
+.lib-export__count i { font-size: var(--lx-text); }
+
+.lib-export__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-#jlabBasePage.flashcard-page--library .lib-icon-action--danger:hover {
-  color: var(--fc-error) !important;
-  background: var(--fc-error-soft) !important;
+.lib-export__actions [hidden] { display: none; }
+
+.lib-export__btn {
+  display: inline-flex;
+  min-height: 43px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 19px;
+  color: #3d3852;
+  background: #fff;
+  border: 1px solid var(--lx-line);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(52, 33, 110, .06);
+  cursor: pointer;
+  font: 600 var(--lx-text)/1 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+}
+
+.lib-export__btn:hover { background: #f8f6fd; }
+
+.lib-export__btn--primary {
+  min-width: 136px;
+  color: #fff;
+  background: linear-gradient(135deg, #7446e6, var(--lx-accent-strong));
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(106, 63, 214, .32);
+}
+
+.lib-export__btn--primary:hover { background: linear-gradient(135deg, #6a3fd6, #4a28aa); }
+
+.lib-export__btn:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+@media (max-width: 600px) {
+  .lib-export__head { padding: 20px 16px 14px; gap: 12px; }
+  .lib-export__badge { width: 48px; height: 48px; font-size: 22px; border-radius: 14px; }
+  .lib-export__deco { display: none; }
+  .lib-export__body { padding: 0 16px 8px; }
+  .lib-export__foot { margin-inline: 16px; }
+  .lib-export__tab { gap: 6px; }
+  .lib-export__sheet th, .lib-export__sheet td { padding-inline: 10px; }
+  .lib-export__actions { width: 100%; }
+  .lib-export__btn { flex: 1 1 auto; }
+}
+
+#jlabBasePage.flashcard-page--library .lib-context-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 190px;
+  padding: 6px;
+  color: var(--fc-on-surface);
+  background: #fff;
+  border: 1px solid #d8d2e5;
+  border-radius: var(--fc-radius-sm);
+  box-shadow: 0 14px 30px rgba(33,49,69,.24);
+}
+
+#jlabBasePage.flashcard-page--library .lib-context-menu button {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  color: var(--fc-on-variant);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font: 600 12px/1.2 "Plus Jakarta Sans", sans-serif;
+  text-align: left;
+}
+
+#jlabBasePage.flashcard-page--library .lib-context-menu button:hover,
+#jlabBasePage.flashcard-page--library .lib-context-menu button:focus-visible {
+  color: var(--fc-primary);
+  background: var(--fc-surface-low);
+  outline: 0;
+}
+
+#jlabBasePage.flashcard-page--library .lib-context-menu button.is-danger:hover,
+#jlabBasePage.flashcard-page--library .lib-context-menu button.is-danger:focus-visible {
+  color: var(--fc-error);
+  background: var(--fc-error-soft);
 }
 
 #jlabBasePage.flashcard-page--library .lib-empty {
@@ -430,18 +984,242 @@
 
 @media (max-width: 1000px) {
   #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #jlabBasePage.flashcard-page--library .lib-control-dock { align-items: stretch; flex-direction: column; }
   #jlabBasePage.flashcard-page--library .lib-toolbar { width: 100%; }
+}
+
+@media (min-width: 1001px) and (max-width: 1240px) {
+  #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 720px) {
   #jlabBasePage.flashcard-page--library .library-content { padding-inline: 16px; }
-  #jlabBasePage.flashcard-page--library .lib-control-dock {
-    margin-bottom: 32px;
-  }
   #jlabBasePage.flashcard-page--library .lib-toolbar {
     grid-template-columns: 1fr;
     width: 100%;
+    margin-bottom: 32px;
   }
   #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: 1fr; }
 }
+
+/* Page-owned dark mode: flashcard/library-theme.css.
+ * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
+ * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: #0b0d13;
+  --dm-flashcard-surface: #171b26;
+  --dm-flashcard-raised: #232938;
+  --dm-flashcard-ink: #f8fafc;
+  --dm-flashcard-muted: #b2bfd2;
+  --dm-flashcard-line: #40485d;
+  --dm-flashcard-accent: #c084fc;
+  --dm-flashcard-action: #7335a6;
+  --dm-flashcard-accent-soft: #2a203d;
+  --dm-flashcard-on-accent: #211b34;
+  --dm-flashcard-success: #8eddb6;
+  --dm-flashcard-success-bg: #1b3d32;
+  --dm-flashcard-success-line: #43816b;
+  --dm-flashcard-danger: #ffb4bd;
+  --dm-flashcard-danger-bg: #452832;
+  --dm-flashcard-danger-line: #96616d;
+  --dm-flashcard-warning: #f3d28a;
+  --dm-flashcard-warning-bg: #403522;
+  --dm-flashcard-warning-line: #947a46;
+  --dm-flashcard-pink: #f4aed2;
+  --dm-flashcard-pink-bg: #432d40;
+  --dm-flashcard-pink-line: #88637b;
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .library-content {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-filter:hover,
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-filter.is-active {
+    background: var(--dm-flashcard-accent-soft);
+    color: var(--dm-flashcard-accent)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-icon-btn:hover {
+    background: var(--dm-flashcard-action)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search:focus-within {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .library-results-heading__icon {
+    color: var(--dm-flashcard-on-accent)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card {
+    border: 1px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card__rating {
+    background: var(--dm-flashcard-surface);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card__rating i {
+    color: var(--dm-flashcard-warning)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-public {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-private {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-review {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-draft {
+    color: var(--dm-flashcard-warning);
+    background: var(--dm-flashcard-warning-bg)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-folder {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card__avatar {
+    color: var(--dm-flashcard-on-accent)
+}
+html[data-theme="dark"] .lib-export {
+    --lx-accent: var(--dm-flashcard-accent);
+    --lx-accent-strong: var(--dm-flashcard-action);
+    --lx-accent-soft: var(--dm-flashcard-accent-soft);
+    --lx-accent-line: var(--dm-flashcard-line);
+    --lx-ink: var(--dm-flashcard-ink);
+    --lx-muted: var(--dm-flashcard-muted);
+    --lx-line: var(--dm-flashcard-line);
+    --lx-row-alt: var(--dm-flashcard-accent-soft);
+    --lx-badge-bg: var(--dm-flashcard-bg);
+    --lx-badge-fg: var(--dm-flashcard-action)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop .modal.lib-export {
+    background: var(--dm-flashcard-surface);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.34)
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop .lib-export__preview {
+    background: var(--dm-flashcard-accent-soft) !important
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop .lib-export__custom:disabled {
+    background: var(--dm-flashcard-accent-soft) !important
+}
+html[data-theme="dark"] .lib-export[data-format="xlsx"] {
+    --lx-badge-bg: var(--dm-flashcard-bg);
+    --lx-badge-fg: var(--dm-flashcard-success-bg)
+}
+html[data-theme="dark"] .lib-export[data-format="csv"] {
+    --lx-badge-bg: var(--dm-flashcard-bg);
+    --lx-badge-fg: var(--dm-flashcard-warning-bg)
+}
+html[data-theme="dark"] .lib-export__close {
+    background: var(--dm-flashcard-surface);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.20)
+}
+html[data-theme="dark"] .lib-export__tabs {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__tab {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] .lib-export__tab i {
+    color: var(--dm-flashcard-muted)
+}
+html[data-theme="dark"] .lib-export__tab:hover {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__tab.is-active {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__checkbox {
+    color: var(--dm-flashcard-ink);
+    background: var(--dm-flashcard-surface);
+    border: 2px solid var(--dm-flashcard-line)
+}
+html[data-theme="dark"] .lib-export__chip span {
+    color: var(--dm-flashcard-muted);
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] .lib-export__chip span:hover {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__custom {
+    background: var(--dm-flashcard-surface)
+}
+html[data-theme="dark"] .lib-export__custom:disabled {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__custom:focus {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.27)
+}
+html[data-theme="dark"] .lib-export__preview {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__sheet thead th {
+    color: var(--dm-flashcard-muted);
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__btn {
+    color: var(--dm-flashcard-muted);
+    background: var(--dm-flashcard-surface);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18)
+}
+html[data-theme="dark"] .lib-export__btn:hover {
+    background: var(--dm-flashcard-accent-soft)
+}
+html[data-theme="dark"] .lib-export__btn--primary {
+    color: var(--dm-flashcard-ink);
+    background: linear-gradient(135deg, var(--dm-flashcard-action), var(--lx-accent-strong));
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.44)
+}
+html[data-theme="dark"] .lib-export__btn--primary:hover {
+    background: linear-gradient(135deg, var(--dm-flashcard-action), var(--dm-flashcard-raised))
+}
+html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu {
+    background: var(--dm-flashcard-surface);
+    border: 1px solid var(--dm-flashcard-line);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.36)
+}
+
+/* Mobile library: search/sort/create, then scope and folder filters. */
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #jlabBaseContent .fc-stitch-sidebar { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content { padding: 16px 16px 32px !important; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-toolbar { grid-template-columns: minmax(0, 1fr) 96px 44px; gap: 8px; margin-bottom: 10px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.lib-search, .lib-sort-field) { min-width: 0; width: 100%; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-search { padding-inline: 10px; gap: 8px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-sort-field .field-select { min-height: 48px; padding: 8px 4px 8px 8px; font-size: 14px !important; text-overflow: ellipsis; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-create-btn { display: grid; place-items: center; width: 44px; min-width: 44px; height: 48px; padding: 0; border-radius: 10px; font-size: 20px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.library-create-btn > span, .library-results-heading, .lib-empty > a) { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-mobile-filters { position: relative; z-index: 20; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 8px; margin-bottom: 20px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #lib-scope-filter,
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary {
+    min-width: 0; width: 100%; min-height: 48px; padding: 10px 8px;
+    color: var(--fc-on-surface); background: var(--fc-surface-low);
+    border: 1px solid var(--fc-outline-soft); border-radius: 10px;
+    font: 500 14px/1.3 var(--font-body, sans-serif); cursor: pointer;
+  }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #lib-scope-filter { padding-inline: 4px; font-size: 14px !important; font-weight: 500; text-overflow: ellipsis; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown { position: relative; min-width: 0; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary { display: flex; align-items: center; gap: 6px; list-style: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary::-webkit-details-marker { display: none; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary i { flex-shrink: 0; font-size: 12px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-panel {
+    position: absolute; top: calc(100% + 8px); right: 0; z-index: 25;
+    width: min(340px, calc(100vw - 32px)); max-height: min(360px, 55dvh); overflow-y: auto;
+    margin: 0; padding: 12px; border: 1px solid var(--fc-outline-soft); border-radius: 12px;
+    color: var(--fc-on-surface); background: var(--fc-surface); box-shadow: 0 8px 24px rgba(22, 29, 31, .16);
+  }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-row { grid-template-columns: minmax(0, 1fr) 44px 44px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-icon-btn { width: 44px; height: 44px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown .folder-list { max-height: none; overflow: visible; }
+}
+
+/* "Ôn hôm nay" tab (?tab=review): the SRS panel takes the place of the set list. On phones the source
+   picker stays so the learner can switch back; everything that filters or lists sets is hidden. */
+#jlabBasePage.flashcard-page--library .library-content.is-review > :not(.lib-mobile-filters):not(#library-review),
+#jlabBasePage.flashcard-page--library .library-content.is-review #lib-folder-filter { display: none !important; }
+#jlabBasePage.flashcard-page--library .library-content > #library-review { max-width: none; margin: 0; padding: 0 0 48px; }
+@media (max-width: 900px) {
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-review .lib-mobile-filters { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Heart toggle on set cards; filled and tinted once the set is a favorite. */
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite,
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions > .lib-favorite.is-favorite i { color: var(--color-error, #e5484d); }
