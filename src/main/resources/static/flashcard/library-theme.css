@@ -68,29 +68,13 @@
 #jlabBasePage.flashcard-page--library .folder-icon-btn:hover { color: var(--fc-primary); background: rgba(70,72,212,.09); }
 #jlabBasePage.flashcard-page--library .folder-icon-btn--danger:hover { color: var(--fc-error); background: var(--fc-error-soft); }
 
-#jlabBasePage.flashcard-page--library .lib-control-dock {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 18px;
-  margin: 0 0 28px;
-  padding: 8px;
-  background: rgba(255,255,255,.96);
-  border: 1px solid rgba(199,196,215,.35);
-  border-radius: var(--fc-radius-md);
-  box-shadow: 0 8px 24px rgba(33,49,69,.12);
-  backdrop-filter: blur(14px);
-}
-
 #jlabBasePage.flashcard-page--library .lib-toolbar {
   display: grid;
   align-items: center;
   grid-template-columns: minmax(280px, 1fr) 210px;
   gap: 14px;
   width: 100%;
-  margin: 0;
+  margin: 0 0 28px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -1000,7 +984,6 @@
 
 @media (max-width: 1000px) {
   #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #jlabBasePage.flashcard-page--library .lib-control-dock { align-items: stretch; flex-direction: column; }
   #jlabBasePage.flashcard-page--library .lib-toolbar { width: 100%; }
 }
 
@@ -1010,12 +993,10 @@
 
 @media (max-width: 720px) {
   #jlabBasePage.flashcard-page--library .library-content { padding-inline: 16px; }
-  #jlabBasePage.flashcard-page--library .lib-control-dock {
-    margin-bottom: 32px;
-  }
   #jlabBasePage.flashcard-page--library .lib-toolbar {
     grid-template-columns: 1fr;
     width: 100%;
+    margin-bottom: 32px;
   }
   #jlabBasePage.flashcard-page--library .lib-grid { grid-template-columns: 1fr; }
 }
@@ -1057,11 +1038,6 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-filter.is-
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .folder-icon-btn:hover {
     background: var(--dm-flashcard-action)
-}
-html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-control-dock {
-    background: var(--dm-flashcard-surface);
-    border: 1px solid var(--dm-flashcard-line);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search:focus-within {
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30)
@@ -1204,14 +1180,13 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
 @media (max-width: 900px) {
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #jlabBaseContent .fc-stitch-sidebar { display: none; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content { padding: 16px 16px 32px !important; }
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-control-dock { display: grid; gap: 10px; }
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-toolbar { grid-template-columns: minmax(0, 1fr) 96px 44px; gap: 8px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-toolbar { grid-template-columns: minmax(0, 1fr) 96px 44px; gap: 8px; margin-bottom: 10px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.lib-search, .lib-sort-field) { min-width: 0; width: 100%; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-search { padding-inline: 10px; gap: 8px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-sort-field .field-select { min-height: 48px; padding: 8px 4px 8px 8px; font-size: 14px !important; text-overflow: ellipsis; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-create-btn { display: grid; place-items: center; width: 44px; min-width: 44px; height: 48px; padding: 0; border-radius: 10px; font-size: 20px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library :is(.library-create-btn > span, .library-results-heading, .lib-empty > a) { display: none; }
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-mobile-filters { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 8px; }
+  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-mobile-filters { position: relative; z-index: 20; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 8px; margin-bottom: 20px; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library #lib-scope-filter,
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .lib-folder-dropdown > summary {
     min-width: 0; width: 100%; min-height: 48px; padding: 10px 8px;
@@ -1238,13 +1213,10 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
 
 /* "Ôn hôm nay" tab (?tab=review): the SRS panel takes the place of the set list. On phones the source
    picker stays so the learner can switch back; everything that filters or lists sets is hidden. */
-#jlabBasePage.flashcard-page--library .library-content.is-review > :not(.lib-control-dock):not(#library-review),
-#jlabBasePage.flashcard-page--library .library-content.is-review .lib-toolbar,
+#jlabBasePage.flashcard-page--library .library-content.is-review > :not(.lib-mobile-filters):not(#library-review),
 #jlabBasePage.flashcard-page--library .library-content.is-review #lib-folder-filter { display: none !important; }
-#jlabBasePage.flashcard-page--library .library-content.is-review .lib-control-dock { display: none; }
 #jlabBasePage.flashcard-page--library .library-content > #library-review { max-width: none; margin: 0; padding: 0 0 48px; }
 @media (max-width: 900px) {
-  #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-review .lib-control-dock { display: grid; }
   #jlabBasePage[data-mobile-adapt="owned"].flashcard-page--library .library-content.is-review .lib-mobile-filters { grid-template-columns: minmax(0, 1fr); }
 }
 

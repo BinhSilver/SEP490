@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261014-srs-due" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261025-favorite" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261029-no-dock" />
   <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261025-review-tab" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -46,35 +46,33 @@
       </section>
     </aside>
     <section class="container library-content">
-      <div class="lib-control-dock">
-        <div class="lib-toolbar" aria-label="Tìm kiếm và sắp xếp">
-          <label class="input-wrap lib-search" for="lib-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" />
-            <span class="sr-only">Tìm bộ thẻ</span>
-          </label>
-          <label class="lib-sort-field" for="lib-sort">
-            <span>Sắp xếp</span>
-            <select id="lib-sort" class="field-select" aria-label="Sắp xếp">
-              <option value="NEWEST">Mới nhất</option>
-              <option value="HIGHEST_RATED">Đánh giá cao nhất</option>
-              <option value="MOST_STUDIED">Học nhiều nhất</option>
-              <option value="MOST_CARDS">Nhiều thẻ nhất</option>
-              <option value="RECENTLY_UPDATED">Cập nhật gần đây</option>
-            </select>
-          </label>
-        </div>
-        <div class="lib-mobile-filters" aria-label="Lọc bộ thẻ">
-          <select id="lib-scope-filter" aria-label="Nguồn bộ thẻ">
-            <option value="public">Bộ thẻ công khai</option>
-            <option value="my">Bộ thẻ của tôi</option>
-            <option value="favorites">Yêu thích</option>
-            <option value="review">Ôn hôm nay</option>
+      <div class="lib-toolbar" aria-label="Tìm kiếm và sắp xếp">
+        <label class="input-wrap lib-search" for="lib-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" />
+          <span class="sr-only">Tìm bộ thẻ</span>
+        </label>
+        <label class="lib-sort-field" for="lib-sort">
+          <span>Sắp xếp</span>
+          <select id="lib-sort" class="field-select" aria-label="Sắp xếp">
+            <option value="NEWEST">Mới nhất</option>
+            <option value="HIGHEST_RATED">Đánh giá cao nhất</option>
+            <option value="MOST_STUDIED">Học nhiều nhất</option>
+            <option value="MOST_CARDS">Nhiều thẻ nhất</option>
+            <option value="RECENTLY_UPDATED">Cập nhật gần đây</option>
           </select>
-          <details id="lib-folder-filter" class="lib-folder-dropdown">
-            <summary aria-label="Lọc theo thư mục"><i class="fa-regular fa-folder" aria-hidden="true"></i><span id="lib-folder-label">Thư mục của tôi</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
-          </details>
-        </div>
+        </label>
+      </div>
+      <div class="lib-mobile-filters" aria-label="Lọc bộ thẻ">
+        <select id="lib-scope-filter" aria-label="Nguồn bộ thẻ">
+          <option value="public">Bộ thẻ công khai</option>
+          <option value="my">Bộ thẻ của tôi</option>
+          <option value="favorites">Yêu thích</option>
+          <option value="review">Ôn hôm nay</option>
+        </select>
+        <details id="lib-folder-filter" class="lib-folder-dropdown">
+          <summary aria-label="Lọc theo thư mục"><i class="fa-regular fa-folder" aria-hidden="true"></i><span id="lib-folder-label">Thư mục của tôi</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        </details>
       </div>
 
       <!-- "Ôn hôm nay" (?tab=review): SRS queue across every set; js/review-page.js starts it on first open. -->
