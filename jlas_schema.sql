@@ -1490,7 +1490,6 @@ CREATE TABLE jlpt_exam (
     jlpt_level VARCHAR(10) NOT NULL,
     exam_year SMALLINT UNSIGNED NULL,
     exam_month TINYINT UNSIGNED NULL,
-    source_name VARCHAR(100) NULL,
     source_url VARCHAR(500) NULL,
     source_pack_path VARCHAR(500) NULL,
     passing_score INT UNSIGNED NOT NULL DEFAULT 95,
@@ -1564,7 +1563,6 @@ CREATE TABLE jlpt_question (
     mondai_id BIGINT UNSIGNED NOT NULL,
     passage_id BIGINT UNSIGNED NULL,
     question_type_id BIGINT UNSIGNED NULL,
-    source_question_id BIGINT NOT NULL,
     question_number INT UNSIGNED NOT NULL,
     question_text MEDIUMTEXT NULL,
     question_furigana MEDIUMTEXT NULL,
@@ -1575,17 +1573,20 @@ CREATE TABLE jlpt_question (
     image_url VARCHAR(1000) NULL,
     source_page INT UNSIGNED NULL,
     explanation MEDIUMTEXT NULL,
+    target_vocabulary_id BIGINT UNSIGNED NULL,
     order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_jlpt_question_source (mondai_id, source_question_id),
     KEY idx_jlpt_question_order (mondai_id, order_index),
     KEY idx_jlpt_question_type (question_type_id),
+    KEY idx_jlpt_question_target_vocabulary (target_vocabulary_id),
     CONSTRAINT fk_jlpt_question_mondai FOREIGN KEY (mondai_id)
         REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
     CONSTRAINT fk_jlpt_question_passage FOREIGN KEY (passage_id)
         REFERENCES jlpt_passage(id) ON DELETE SET NULL,
     CONSTRAINT fk_jlpt_question_type FOREIGN KEY (question_type_id)
-        REFERENCES jlpt_question_type(id) ON DELETE SET NULL
+        REFERENCES jlpt_question_type(id) ON DELETE SET NULL,
+    CONSTRAINT fk_jlpt_question_target_vocabulary FOREIGN KEY (target_vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE jlpt_option (
@@ -1608,8 +1609,6 @@ CREATE TABLE jlpt_audio_clip (
     question_id BIGINT UNSIGNED NOT NULL,
     clip_type VARCHAR(20) NOT NULL DEFAULT 'QUESTION',
     audio_url VARCHAR(1000) NOT NULL,
-    start_seconds DECIMAL(10,3) NOT NULL,
-    end_seconds DECIMAL(10,3) NOT NULL,
     order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_jlpt_audio_clip_question (question_id),
@@ -1624,14 +1623,12 @@ CREATE TABLE jlpt_transcript_segment (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     mondai_id BIGINT UNSIGNED NOT NULL,
     audio_clip_id BIGINT UNSIGNED NULL,
-    start_seconds DECIMAL(10,3) NOT NULL,
-    end_seconds DECIMAL(10,3) NOT NULL,
     text_ja TEXT NULL,
     text_ja_furigana TEXT NULL,
     text_vi TEXT NULL,
     order_index INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
-    KEY idx_jlpt_transcript_time (mondai_id, start_seconds),
+    KEY idx_jlpt_transcript_mondai_order (mondai_id, order_index),
     KEY idx_jlpt_transcript_clip_order (audio_clip_id, order_index),
     CONSTRAINT fk_jlpt_transcript_mondai FOREIGN KEY (mondai_id)
         REFERENCES jlpt_mondai(id) ON DELETE CASCADE,
@@ -1906,7 +1903,9 @@ CREATE TABLE learning_path_package (
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     PRIMARY KEY (id),
-    UNIQUE KEY uk_learning_package_path_day (learning_path_id, day_number),
+    -- [JLAS-W0108] D3-05 (owner 2026-10-24): a JLPT day is filled by minutes, so two chapters may share one day;
+    -- day_number is indexed, no longer unique (migration 052 drops uk_learning_package_path_day on existing DBs).
+    KEY idx_learning_package_path_day (learning_path_id, day_number),
     UNIQUE KEY uk_learning_package_path_order (learning_path_id, order_index),
     UNIQUE KEY uk_learning_package_path_source_segment (learning_path_id, source_lesson_id, source_segment_index),
     KEY idx_learning_package_status (learning_path_id, status, order_index),
@@ -2309,6 +2308,41 @@ CREATE TABLE learning_dialogue_progress (
     UNIQUE KEY uk_dialogue_progress_activity (activity_item_id),
     CONSTRAINT fk_dialogue_progress_activity FOREIGN KEY (activity_item_id)
         REFERENCES user_learning_path_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] 2026-10-19 (owner C2/C4/G1): J-LAS supplement aids of one communication dialogue lesson, generated
+-- from learning-content.json: furigana per line ({漢字|かな} groups; the base text equals the line), "Từ & cụm từ"
+-- taken from the lines, and the optional "chọn câu đáp đúng" challenge whose answer key never leaves the server.
+-- A content change resets review_status to NEEDS_REVIEW.
+CREATE TABLE learning_dialogue_aid (
+    lesson_id       BIGINT UNSIGNED NOT NULL,
+    aid_json        MEDIUMTEXT NOT NULL,
+    content_sha256  CHAR(64) NOT NULL,
+    source_code     VARCHAR(64) NOT NULL,
+    review_status   VARCHAR(20) NOT NULL DEFAULT 'NEEDS_REVIEW',
+    updated_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
+                    ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (lesson_id),
+    CONSTRAINT fk_dialogue_aid_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE,
+    CONSTRAINT chk_dialogue_aid_review
+        CHECK (review_status IN ('NEEDS_REVIEW','APPROVED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] 2026-10-19 (owner G2/G3): first clear of a dialogue lesson's optional challenge. The row is the
+-- idempotency guard for the one-time 2 CP reward; replays never award again.
+CREATE TABLE learning_dialogue_challenge_clear (
+    user_id         BIGINT UNSIGNED NOT NULL,
+    lesson_id       BIGINT UNSIGNED NOT NULL,
+    correct_count   INT UNSIGNED NOT NULL,
+    question_count  INT UNSIGNED NOT NULL,
+    cleared_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, lesson_id),
+    KEY idx_dialogue_challenge_lesson (lesson_id),
+    CONSTRAINT fk_dialogue_challenge_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dialogue_challenge_lesson FOREIGN KEY (lesson_id)
+        REFERENCES lesson(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Goi y lesson on tap tu mot weakness.
@@ -3526,6 +3560,9 @@ CREATE TABLE learning_topic (
     title_vi VARCHAR(255) NOT NULL,
     title_ja VARCHAR(255) NULL,
     topic_order INT UNSIGNED NOT NULL,
+    -- [JLAS-W0108] 2026-10-19: approximate JLPT level of a communication dialogue situation (N5..N1);
+    -- NULL for vocabulary topics. Used only to order/label situations easy -> hard, never to lock them.
+    jlpt_level VARCHAR(10) NULL,
     description TEXT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     external_key VARCHAR(100) NULL,

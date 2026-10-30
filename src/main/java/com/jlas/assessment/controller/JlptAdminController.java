@@ -6,6 +6,7 @@ import com.jlas.assessment.dto.JlptAdminExamSummaryResponse;
 import com.jlas.assessment.dto.JlptAdminQuestionRequest;
 import com.jlas.assessment.service.JlptAdminService;
 import com.jlas.assessment.service.impl.JlptPracticeAdminService;
+import com.jlas.assessment.service.impl.JlptExcelImportService;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.common.exception.ApiException;
@@ -16,6 +17,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/admin/jlpt")
@@ -38,6 +43,26 @@ public class JlptAdminController {
 
     private final JlptAdminService service;
     private final JlptPracticeAdminService practiceAdmin;
+    private final JlptExcelImportService excelImport;
+
+    @GetMapping("/import/template")
+    public ResponseEntity<byte[]> importTemplate() {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=jlpt-import-template.xlsx")
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelImport.template());
+    }
+
+    @PostMapping(value = "/import/preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<JlptExcelImportService.Preview> previewImport(@RequestParam("file") MultipartFile file) {
+        return ApiResponse.ok("Đã kiểm tra file Excel.", excelImport.preview(file));
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<JlptAdminExamSummaryResponse> importExam(@RequestParam("file") MultipartFile file) {
+        return ApiResponse.ok("Đã nhập đề vào bản nháp.", excelImport.importDraft(file));
+    }
 
     @GetMapping("/practice-types")
     public ApiResponse<List<JlptPracticeAdminService.PracticeType>> practiceTypes() {

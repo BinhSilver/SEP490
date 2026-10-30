@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-/** Applies migration 052 (comment replies and reactions) for databases that have not run it. */
+/** Applies migration 056 (comment replies and reactions) for databases that have not run it. */
 @Component
 @Profile("!test")
 @Order(1)

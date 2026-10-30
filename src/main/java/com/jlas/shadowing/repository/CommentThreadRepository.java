@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Replies and reactions of comments (migration 052). JDBC like {@link CommentRatingRepository}: the
+ * Replies and reactions of comments (migration 056). JDBC like {@link CommentRatingRepository}: the
  * columns are added at startup, so they stay out of the JPA entity that schema validation checks.
  */
 @Repository

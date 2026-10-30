@@ -1,5 +1,5 @@
 -- =====================================================================
--- J-LAS seed: tra loi + tha cam xuc mo phong cho binh luan video Shadowing (migration 052)
+-- J-LAS seed: tra loi + tha cam xuc mo phong cho binh luan video Shadowing (migration 056)
 --
 -- CHI DUNG CHO MOI TRUONG PHAT TRIEN / DEMO. KHONG chay tren production: day la hoat dong HU CAU.
 --
@@ -13,7 +13,7 @@
 --   - Cam xuc: hau het binh luan goc co 1-9 nguoi tha, tra loi co 0-3; moi binh luan tron 2-3 loai cam xuc
 --     (phan lon LIKE/LOVE/HAHA/CLAP, thinh thoang WOW/SAD) nen thanh tong hop hien nhieu bieu tuong.
 --
--- Chay sau sql/migrations/052_comment_replies_reactions.sql va seed tuong tac Shadowing
+-- Chay sau sql/migrations/056_comment_replies_reactions.sql va seed tuong tac Shadowing
 -- (seed_data_shadowing_interactions.sql). Chay lai duoc: moi lan chay xoa tra loi + cam xuc cua hoc vien
 -- mau roi nap lai. KHONG co lenh USE: chon schema truoc khi chay, vi du
 --   mysql -u root -p --default-character-set=utf8mb4 jlas < sql/seeds/demo_comment_threads.sql

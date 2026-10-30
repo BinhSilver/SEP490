@@ -47,7 +47,9 @@ public record GrammarStudyState(
             String note,
             OrderingPractice ordering,
             FillPractice fill,
-            boolean gateSatisfied
+            boolean gateSatisfied,
+            /** The canonical example is held for review: no example or practice is shown for this point. */
+            boolean exampleUnderReview
     ) {
         public GrammarPointView {
             components = List.copyOf(components);
@@ -71,6 +73,9 @@ public record GrammarStudyState(
     public record OrderingWord(int tokenId, String text) { }
 
     /** {@code promptWithBlank} never contains the missing word — only the surrounding sentence with a
-     * placeholder marker. */
-    public record FillPractice(String promptWithBlank, boolean completed) { }
+     * placeholder marker. {@code answer} is only sent once the learner has filled it (or in a read-only review), so a
+     * finished point shows the completed sentence (owner 2026-10-21). */
+    public record FillPractice(String promptWithBlank, boolean completed, String answer) {
+        public FillPractice(String promptWithBlank, boolean completed) { this(promptWithBlank, completed, null); }
+    }
 }

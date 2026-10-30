@@ -1,5 +1,5 @@
 -- =====================================================================
--- 052: tra loi binh luan + tha cam xuc cho binh luan (content_comment).
+-- 056: tra loi binh luan + tha cam xuc cho binh luan (content_comment).
 --
 -- content_comment.parent_id: binh luan goc ma binh luan nay tra loi (mot cap, nhu binh luan duoi bai viet);
 --   NULL = binh luan goc. Xoa binh luan goc thi xoa luon cac tra loi.

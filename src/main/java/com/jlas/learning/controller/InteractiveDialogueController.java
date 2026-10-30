@@ -54,4 +54,43 @@ public class InteractiveDialogueController {
             @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.reachedBottom(user.userId(), activityId)));
     }
+
+    @PostMapping("/lines/{lineId}/practiced")
+    public ResponseEntity<ApiResponse<DialogueProgressResult>> practiceLine(
+            @PathVariable Long activityId, @PathVariable Long lineId, @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.practiceLine(user.userId(), activityId, lineId)));
+    }
+
+    @PostMapping("/phrases/{phraseIndex}/flipped")
+    public ResponseEntity<ApiResponse<DialogueProgressResult>> flipPhrase(
+            @PathVariable Long activityId, @PathVariable int phraseIndex, @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.flipPhrase(user.userId(), activityId, phraseIndex)));
+    }
+
+    // Owner 2026-10-19 (G1–G3): optional "vượt ải" reply challenge; the answer key never leaves the server.
+    @org.springframework.web.bind.annotation.GetMapping("/challenge")
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.DialogueChallenge.View>> challenge(
+            @PathVariable Long activityId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.challenge(user.userId(), activityId)));
+    }
+
+    @PostMapping("/challenge/answer")
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.DialogueChallenge.Answer>> answerChallenge(
+            @PathVariable Long activityId,
+            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody com.jlas.learning.dto.DialogueChallenge.AnswerRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.answerChallenge(user.userId(), activityId, request.turn(), request.option())));
+    }
+
+    @PostMapping("/challenge/complete")
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.DialogueChallenge.Result>> completeChallenge(
+            @PathVariable Long activityId,
+            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody com.jlas.learning.dto.DialogueChallenge.CompleteRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        rateLimit.check(user.userId(), InteractiveRateLimitService.Bucket.DIALOGUE_PRACTICE);
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.completeChallenge(user.userId(), activityId, request.answers())));
+    }
 }

@@ -17,6 +17,9 @@ public interface InteractiveVocabularyService {
 
     VocabularyStudyState flip(Long userId, Long activityId, Long memberId);
 
+    /** Communication paths only: finish the part from its content page (owner 2026-10-21). */
+    VocabularyStudyState markStudied(Long userId, Long activityId);
+
     VocabularyStudyState remember(Long userId, Long activityId, Long memberId, boolean remembered);
 
     MicroCheckResponse issueMicroCheck(Long userId, Long activityId);

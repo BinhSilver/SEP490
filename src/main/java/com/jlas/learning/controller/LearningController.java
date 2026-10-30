@@ -37,10 +37,18 @@ public class LearningController {
     public ResponseEntity<ApiResponse<LearningPathResponse>> create(
             @RequestBody CreateLearningPathRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
-        CreateLearningPathResult result = learningService.create(user.userId(), request.assessmentAttemptId());
+        CreateLearningPathResult result = learningService.create(user.userId(), request.assessmentAttemptId(),
+                request.reviewStartLevel(), request.discrepancyChoice(), request.kanaKnown(), request.entryChoice());
         return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK)
                 .body(ApiResponse.ok(result.created() ? "Learning path created" : "Learning path already exists",
                         result.path()));
+    }
+
+    /** Owner 2026-10-25: the confirmation questions a Smart Test result asks before its path is created. */
+    @GetMapping("/paths/entry-questions")
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.LearningEntryQuestions>> entryQuestions(
+            @RequestParam Long assessmentAttemptId, @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", learningService.entryQuestions(user.userId(), assessmentAttemptId)));
     }
 
     /** [JLAS-W0108] Tạo lộ trình from-zero từ survey đã hoàn thành (không cần Smart Test). */

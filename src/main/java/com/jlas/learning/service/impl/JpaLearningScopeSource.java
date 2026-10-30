@@ -2,6 +2,8 @@ package com.jlas.learning.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.learning.CompiledBookPolicy;
+import com.jlas.common.learning.DraftStudySourcePolicy;
 import com.jlas.common.learning.JlptPathPolicy;
 import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.repository.TextbookRepository;
@@ -10,6 +12,7 @@ import com.jlas.learning.dto.LearningProfileSnapshot;
 import com.jlas.learning.dto.LearningStageScope;
 import com.jlas.learning.service.LearningScopeSource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -32,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Primary
 @RequiredArgsConstructor
 public class JpaLearningScopeSource implements LearningScopeSource {
+    private static final String SUPPLEMENTARY_PREFIX = "LP-REVIEWED-";
     private final TextbookRepository textbooks;
     private final JlptPathPolicy pathPolicy = new JlptPathPolicy();
 
@@ -43,8 +47,29 @@ public class JpaLearningScopeSource implements LearningScopeSource {
                     "Curriculum scope is only available for the JLPT goal.");
         }
         boolean fromZero = "BELOW_N5".equals(profile.assessedLevel());
+        boolean confirmedReview = profile.reviewStartLevel() != null && !profile.reviewStartLevel().isBlank();
+        List<String> confirmedReviewStages = List.of();
+        if (confirmedReview) {
+            try {
+                confirmedReviewStages = pathPolicy.confirmedHigherAssessmentReviewStages(
+                        profile.surveyLevel(), profile.assessedLevel(), profile.targetLevel(), profile.reviewStartLevel());
+            } catch (IllegalArgumentException ex) {
+                throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
+                        "Lựa chọn cấp bắt đầu ôn chưa hợp lệ cho kết quả và mục tiêu của bạn.");
+            }
+        }
+        boolean confirmedDiscrepancy = profile.discrepancyChoice() != null && !profile.discrepancyChoice().isBlank();
+        if (confirmedDiscrepancy) {
+            try {
+                pathPolicy.confirmedStages(profile.surveyLevel(), profile.assessedLevel(), profile.targetLevel(),
+                        JlptPathPolicy.Choice.valueOf(profile.discrepancyChoice()));
+            } catch (IllegalArgumentException ex) {
+                throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
+                        "Lựa chọn củng cố nền chưa hợp lệ cho kết quả và mục tiêu của bạn.");
+            }
+        }
         var eligibility = pathPolicy.evaluate(profile.assessedLevel(), profile.targetLevel());
-        if (!eligibility.allowed()) {
+        if (!confirmedReview && !confirmedDiscrepancy && !eligibility.allowed()) {
             throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
                     "Mục tiêu " + profile.targetLevel() + " chưa phù hợp; hệ thống khuyến nghị "
                             + eligibility.recommendedTarget() + ".");
@@ -53,7 +78,7 @@ public class JpaLearningScopeSource implements LearningScopeSource {
         // Warm-up: from-zero = sách nền tảng bảng chữ cái; nhánh chuyển cấp Căn bản = sách ở cấp đã kết luận.
         List<Long> warmUpIds = fromZero
                 ? textbooks.findKanaFoundationByStatus("PUBLISHED").stream().map(Textbook::getId).toList()
-                : LearningStartPolicy.needsMistakeWarmUp(profile)
+                : !confirmedReview && LearningStartPolicy.needsMistakeWarmUp(profile)
                         ? realBookIds(List.of(profile.assessedLevel())) : List.of();
         if (fromZero && warmUpIds.isEmpty()) {
             throw new ApiException(ErrorCode.BLOCKED_CONTENT,
@@ -67,7 +92,7 @@ public class JpaLearningScopeSource implements LearningScopeSource {
             stages.add(new LearningStageScope("FOUNDATION",
                     curriculumVersion("FOUNDATION", foundationBooks), warmUpIds));
         }
-        List<String> goalLevels = fromZero
+        List<String> goalLevels = confirmedReview ? confirmedReviewStages : fromZero
                 ? eligibility.stageLevels().stream().filter(level -> !"FOUNDATION".equals(level)).toList()
                 : LearningStartPolicy.goalLevels(profile);
         for (String level : goalLevels) {
@@ -85,9 +110,24 @@ public class JpaLearningScopeSource implements LearningScopeSource {
     }
 
     /** [JLAS-W0108] Hướng B — chỉ textbook đã đánh cờ {@code is_learning_path_source} mới được
-     * dùng, không còn loại demo seed bằng khoảng id (cờ này đã thay hẳn vai trò đó). */
+     * dùng, không còn loại demo seed bằng khoảng id (cờ này đã thay hẳn vai trò đó). Cấp mở sách DRAFT
+     * (§2.28, {@link DraftStudySourcePolicy}) dùng thêm sách DRAFT của chính cấp đó, giữ nguyên trạng thái. */
     private List<Textbook> realBooks(List<String> levels) {
-        return textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(levels, "PUBLISHED");
+        List<Textbook> books = new ArrayList<>(
+                textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(levels, "PUBLISHED"));
+        List<String> openDraftLevels = levels.stream().filter(DraftStudySourcePolicy.OPEN_DRAFT_LEVELS::contains).toList();
+        if (!openDraftLevels.isEmpty()) {
+            books.addAll(textbooks.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(openDraftLevels, "DRAFT"));
+        }
+        // D3-04 (owner 2026-10-24): a level with a J-LAS compiled book studies only that book; the books it merges are
+        // its provenance, never a second source. A level without one keeps its own books.
+        List<Textbook> compiled = books.stream()
+                .filter(book -> CompiledBookPolicy.isCompiledBook(book.getSourceCode())).toList();
+        if (!compiled.isEmpty()) return compiled;
+        // Owner 2026-10-21 (OD-11): supplementary LP-REVIEWED books close their stage, after the core book.
+        books.sort(Comparator.comparing((Textbook book) -> book.getSourceCode() != null
+                && book.getSourceCode().startsWith(SUPPLEMENTARY_PREFIX)).thenComparing(Textbook::getId));
+        return books;
     }
 
     private List<Long> realBookIds(List<String> levels) {

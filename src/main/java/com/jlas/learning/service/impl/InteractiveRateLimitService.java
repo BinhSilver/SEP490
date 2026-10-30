@@ -36,7 +36,12 @@ public class InteractiveRateLimitService {
         MICRO_CHECK_DRAFT(120, 60_000L, "Đang lưu nháp quá nhanh. Vui lòng thử lại sau."),
         QUIZ_EXPLANATION(10, 60_000L, "Bạn đang yêu cầu giải thích quá nhanh. Vui lòng đợi một chút rồi thử lại."),
         DIALOGUE_HEARTBEAT(8, 30_000L, "Hội thoại đang gửi tín hiệu quá nhanh. Vui lòng thử lại sau."),
-        CERTIFICATE_VIEW(20, 60_000L, "Bạn đang mở chứng nhận quá nhanh. Vui lòng đợi một chút rồi thử lại.");
+        // Communication practice clicks (flip a "Từ & cụm từ" card, mark a line practised) are idempotent and one
+        // dialogue needs up to ~20 of them in quick succession, so they get their own looser bucket.
+        DIALOGUE_PRACTICE(60, 30_000L, "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau giây lát."),
+        CERTIFICATE_VIEW(20, 60_000L, "Bạn đang mở chứng nhận quá nhanh. Vui lòng đợi một chút rồi thử lại."),
+        // Owner 2026-10-21: optional AI practice sentences; each request may call the AI provider.
+        GRAMMAR_EXTRA_PRACTICE(10, 60_000L, "Bạn đang tạo câu luyện thêm quá nhanh. Vui lòng đợi một chút rồi thử lại.");
 
         private final int limit;
         private final long windowMillis;
