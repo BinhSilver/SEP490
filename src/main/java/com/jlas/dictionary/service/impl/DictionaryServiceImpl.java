@@ -11,6 +11,7 @@ import com.jlas.dictionary.mapper.DictionaryMapper;
 import com.jlas.dictionary.repository.*;
 import com.jlas.dictionary.service.DictionaryService;
 import com.jlas.dictionary.util.DictionaryUtil;
+import com.jlas.dictionary.util.VerbDeinflector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,9 @@ public class DictionaryServiceImpl implements DictionaryService {
     private static final int MAX_SELECTED_COMPONENTS = 10;
     /** Độ dài tối đa (code point) của query khi tách thành từ con: tối đa 78 chuỗi con trong IN. */
     private static final int SEGMENT_MAX_QUERY_LENGTH = 12;
+    /** Số thể từ điển ứng viên tối đa đưa vào IN, và số từ tối đa thêm vào kết quả từ chúng. */
+    private static final int INFLECTION_MAX_TERMS = 60;
+    private static final int INFLECTION_RESULT_LIMIT = 10;
 
     private final VocabularyEntryRepository vocabularyEntryRepository;
     private final VocabularyKanjiRepository vocabularyKanjiRepository;
@@ -263,6 +267,8 @@ public class DictionaryServiceImpl implements DictionaryService {
             addAll(collected, vocabularyKanjiRepository.findVocabularyContainingKanjiNotFirst(
                     query, PageRequest.of(0, remaining(collected, limit))));
         } else {
+            collectDictionaryForms(query, false, limit, collected);
+            if (collected.size() >= limit) return;
             addAll(collected, vocabularyEntryRepository
                     .findByNormalizedExpressionStartingWithAndDictionaryStatusOrderByIdAsc(
                             query, PUBLISHED, PageRequest.of(0, remaining(collected, limit))));
@@ -313,6 +319,37 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
     }
 
+    /**
+     * Dạng đã chia (行きます, 行った, 行き, 食べませんでした) -&gt; thể từ điển (行く, 食べる). Ứng viên của
+     * {@link VerbDeinflector} chỉ được nhận khi có trong từ điển với từ loại khớp; một query IN.
+     */
+    private void collectDictionaryForms(String query, boolean byReading, int limit,
+                                        LinkedHashMap<Long, VocabularyEntry> collected) {
+        List<VerbDeinflector.Candidate> candidates = VerbDeinflector.deinflect(query).stream()
+                .limit(INFLECTION_MAX_TERMS).toList();
+        if (candidates.isEmpty()) return;
+
+        Map<String, Set<VerbDeinflector.Form>> formsByTerm = new HashMap<>();
+        for (VerbDeinflector.Candidate candidate : candidates) formsByTerm.put(candidate.term(), candidate.forms());
+        List<VocabularyEntryRepository.PartOfSpeechRow> rows = byReading
+                ? vocabularyEntryRepository.findPartsOfSpeechByReadingIn(formsByTerm.keySet())
+                : vocabularyEntryRepository.findPartsOfSpeechByExpressionIn(formsByTerm.keySet());
+
+        Map<String, Set<Long>> idsByTerm = new HashMap<>();
+        for (VocabularyEntryRepository.PartOfSpeechRow row : rows) {
+            Set<VerbDeinflector.Form> forms = formsByTerm.get(row.getTerm());
+            if (forms != null && forms.stream().anyMatch(form -> form.matchesPartOfSpeech(row.getPartOfSpeech()))) {
+                idsByTerm.computeIfAbsent(row.getTerm(), key -> new LinkedHashSet<>()).add(row.getVocabularyId());
+            }
+        }
+        List<Long> ids = candidates.stream()
+                .flatMap(candidate -> idsByTerm.getOrDefault(candidate.term(), Set.of()).stream())
+                .distinct()
+                .limit(Math.min(INFLECTION_RESULT_LIMIT, remaining(collected, limit)))
+                .toList();
+        addAllById(collected, ids);
+    }
+
     /** Kanji đầu tiên của query có trong bảng kanji (để neo tier "chứa"), hoặc null. */
     private String firstKanjiInTable(String query) {
         return query.codePoints()
@@ -329,6 +366,12 @@ public class DictionaryServiceImpl implements DictionaryService {
         vocabularyEntryRepository.findFirstByNormalizedReadingAndDictionaryStatus(readingKey, PUBLISHED)
                 .ifPresent(e -> collected.put(e.getId(), e));
         if (collected.size() >= limit) return;
+
+        // Kana không có Kanji neo nên dễ nhận nhầm (まえ -> まう): chỉ chia ngược khi không có từ trùng.
+        if (collected.isEmpty()) {
+            collectDictionaryForms(readingKey, true, limit, collected);
+            if (collected.size() >= limit) return;
+        }
 
         addAll(collected, vocabularyEntryRepository
                 .findByNormalizedReadingStartingWithAndDictionaryStatusOrderByIdAsc(

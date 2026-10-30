@@ -88,4 +88,28 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             + "where han_viet = :value and han_viet collate utf8mb4_0900_as_ci = :value "
             + "and dictionary_status = 'PUBLISHED' order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByHanViet(@Param("value") String hanViet, Pageable pageable);
+
+    /** Từ loại của các mục có normalized_expression nằm trong {@code terms} (kiểm tra thể từ điển). */
+    @Query(value = "select e.id as vocabularyId, e.normalized_expression as term, p.code as partOfSpeech "
+            + "from vocabulary_entry e join vocabulary_sense s on s.vocabulary_id = e.id "
+            + "join sense_part_of_speech sp on sp.sense_id = s.id "
+            + "join dictionary_part_of_speech p on p.id = sp.part_of_speech_id "
+            + "where e.normalized_expression in (:terms) and e.dictionary_status = 'PUBLISHED' "
+            + "order by e.id asc", nativeQuery = true)
+    List<PartOfSpeechRow> findPartsOfSpeechByExpressionIn(@Param("terms") Collection<String> terms);
+
+    /** Như {@link #findPartsOfSpeechByExpressionIn} nhưng so với normalized_reading (query kana). */
+    @Query(value = "select e.id as vocabularyId, e.normalized_reading as term, p.code as partOfSpeech "
+            + "from vocabulary_entry e join vocabulary_sense s on s.vocabulary_id = e.id "
+            + "join sense_part_of_speech sp on sp.sense_id = s.id "
+            + "join dictionary_part_of_speech p on p.id = sp.part_of_speech_id "
+            + "where e.normalized_reading in (:terms) and e.dictionary_status = 'PUBLISHED' "
+            + "order by e.id asc", nativeQuery = true)
+    List<PartOfSpeechRow> findPartsOfSpeechByReadingIn(@Param("terms") Collection<String> terms);
+
+    interface PartOfSpeechRow {
+        Long getVocabularyId();
+        String getTerm();
+        String getPartOfSpeech();
+    }
 }
