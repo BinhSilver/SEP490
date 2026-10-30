@@ -120,6 +120,13 @@
   /** Ảnh xem trước chuyển động; không có dải ảnh cho game khác thì dùng ảnh tĩnh. */
   function art(item, gameType) {
     var renderer = item.renderCode || item.code;
+    // Gói skin tải lên: ảnh đại diện (đã là một khung, nên không dùng cách cắt atlas 4×4 của .ar-spaceship-art)
+    // trong lúc tải, rồi chuyển động idle vẽ từ chính gói.
+    if (renderer === 'PACK' && item.packPath) {
+      return '<span class="ar-character-art"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'
+        + '<canvas width="256" height="256" hidden data-skin-pack="' + esc(item.packPath) + '" data-skin-game="' + (gameType === 'AIR_DEFENSE' ? 'ship' : 'cat')
+        + '" role="img" aria-label="' + esc(item.name) + '"></canvas></span>';
+    }
     if (renderer === 'CUSTOM') return '<img src="' + esc(item.image) + '" alt="' + esc(item.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain">';
     if (window.JlasCharacterSkins && window.JlasCharacterSkins.supports(renderer)) {
       return '<span class="ar-character-art' + (gameType === 'AIR_DEFENSE' ? ' ar-spaceship-art' : '') + '"><img src="' + esc(item.image) + '" alt="" loading="lazy" data-character-fallback>'

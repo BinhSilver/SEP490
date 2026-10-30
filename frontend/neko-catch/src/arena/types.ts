@@ -123,6 +123,8 @@ export interface NekoStartOptions {
 export interface ShopItemView {
   id: number;
   renderCode: string;
+  /** Thư mục gói skin khi renderCode = PACK. */
+  packPath?: string | null;
   code: string;
   name: string;
   image: string;

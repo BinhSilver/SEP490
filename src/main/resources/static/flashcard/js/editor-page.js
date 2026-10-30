@@ -774,10 +774,6 @@
         });
         item.appendChild(sep);
       }
-      var arrow = document.createElement('i');
-      arrow.className = 'fa-solid fa-arrow-right import-template-arrow';
-      arrow.setAttribute('aria-hidden', 'true');
-      item.appendChild(arrow);
       var select = document.createElement('select');
       select.className = 'select import-template-field';
       select.setAttribute('aria-label', 'Trường thứ ' + (index + 1));

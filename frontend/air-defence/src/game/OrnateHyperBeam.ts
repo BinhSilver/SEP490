@@ -14,17 +14,23 @@ const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
 export function isOrnateBeamSkin(skin: string) { return skin in PALETTES; }
 
+/** Charge colours for the shared super-cannon charge (ChargeFx). */
+export function ornateColors(skin: string) {
+  const p = PALETTES[skin];
+  return p ? { primary: p.light, accent: p.accent, hot: p.hot } : null;
+}
+
 /** Render-only ornaments. The store remains the sole owner of damage and phase timing. */
 export function drawOrnateHyperBeam(g: Graphics, v: BeamVisual) {
   g.clear();
-  if (v.phase !== 'charge' && v.phase !== 'firing') return;
+  // The charge itself is drawn by ChargeFx for every plane; this draws the firing beam.
+  if (v.phase !== 'firing') return;
   const p = PALETTES[v.skin];
   if (!p) return;
   const { theme, light, deep, accent, hot } = p;
   const x = v.x, y = v.y, top = -24, height = Math.max(1, y - top);
-  // Reduced motion is a still illustration of each phase, including the charging seal.
   const t = v.motion ? v.now / 1000 : 0;
-  const strength = !v.motion ? 1 : v.phase === 'charge' ? .24 + .76 * clamp(v.elapsed / 900) : clamp(v.elapsed / 150);
+  const strength = !v.motion ? 1 : clamp(v.elapsed / 150);
   const detail = v.particles === 'high' ? 1 : .65;
   const pulse = 1 + Math.sin(t * 2.1) * .016;
   const shaftWidth = theme === 'aegis' ? 37 : theme === 'split' ? 43 : 45;
@@ -209,77 +215,22 @@ export function drawOrnateHyperBeam(g: Graphics, v: BeamVisual) {
     }
   }
 
-  function particles(charging: boolean) {
-    const count = v.particles === 'off' ? 0 : v.particles === 'low' ? (charging ? 5 : 7) : (charging ? 17 : 24);
+  function particles() {
+    const count = v.particles === 'off' ? 0 : v.particles === 'low' ? 7 : 24;
     for (let i = 0; i < count; i++) {
-      const u = v.motion ? (t * (charging ? .23 : .35) + i * .618034) % 1 : (i + .5) / count;
+      const u = v.motion ? (t * .35 + i * .618034) % 1 : (i + .5) / count;
       const side = i % 2 ? -1 : 1;
-      let px: number, py: number, alpha: number;
-      if (charging) {
-        const a = i * 2.399963 + t * .25;
-        const radius = (30 + (1 - u) * 73) * fit;
-        px = x + Math.cos(a) * radius; py = y + Math.sin(a) * radius * .72 - 5;
-        alpha = .2 + u * .7;
-      } else {
-        px = x + side * (23 + (i % 5) * 11 + Math.sin(u * Math.PI) * 12) * fit;
-        py = y - height * (.05 + u * .91);
-        alpha = (.24 + Math.sin(u * Math.PI) * .56) * detail;
-      }
+      const px = x + side * (23 + (i % 5) * 11 + Math.sin(u * Math.PI) * 12) * fit;
+      const py = y - height * (.05 + u * .91);
+      const alpha = (.24 + Math.sin(u * Math.PI) * .56) * detail;
       const color = theme === 'split' && side === 1 ? accent : light;
       if (i % 3 === 0) diamond(px, py, 2 + i % 4, color, alpha);
       else if (i % 3 === 1) sparkle(px, py, 1.6 + i % 3 * .6, hot, alpha);
       else {
-        line([px, py + (charging ? 4 : 9), px, py - 4], color, .75, alpha * .7);
+        line([px, py + 9, px, py - 4], color, .75, alpha * .7);
         g.circle(px, py, .9).fill({ color: hot, alpha: alpha * strength });
       }
     }
-  }
-
-  if (v.phase === 'charge') {
-    const radius = (32 + strength * 12) * fit;
-    glow(x, y - 3, 19, .9);
-    seal(x, y - 6, radius, .85, .82, t * .13);
-    if (theme === 'halo') {
-      seal(x, y - 6, radius + 14, .4, .43, -t * .09);
-      for (const side of [-1, 1]) {
-        // Laurel-shaped celestial feather shards fan outward from the charging circle.
-        for (let i = 0; i < 4; i++) {
-          const cy = y + 14 - i * 11;
-          const xx = x + side * (radius + 6 + i * 4);
-          g.poly([xx, cy + 6, xx + side * (13 + i * 2), cy - 4, xx + side * 4, cy - 6])
-            .fill({ color: light, alpha: (.32 + strength * .3) * strength })
-            .stroke({ color: accent, width: 1.1, alpha: .94 * strength });
-        }
-      }
-      sparkle(x, y - radius - 17, 6, hot);
-    } else if (theme === 'aegis') {
-      polygon(x, y - 6, radius + 11, 6, .86, -Math.PI / 2, accent, .75);
-      polygon(x, y - 6, radius - 10, 6, .86, -Math.PI / 2, light, .5);
-      for (const side of [-1, 1]) wing(side, y, fit, .75);
-      // A compact guardian crest within the outer seal.
-      line([x - 13, y - 19, x, y - 25, x + 13, y - 19, x + 10, y - 3,
-        x, y + 5, x - 10, y - 3, x - 13, y - 19], accent, 1.1, .75);
-    } else if (theme === 'split') {
-      arc(x - 17 * fit, y - 4, radius, .68, .1, TAU - .1, light, 1.25, .7);
-      arc(x + 17 * fit, y - 4, radius, .68, .1, TAU - .1, accent, 1.25, .7);
-      for (const side of [-1, 1]) {
-        const color = side === 1 ? accent : light;
-        glow(x + side * 14 * fit, y - 5, 7, 1);
-        sparkle(x + side * 14 * fit, y - 5, 7, color);
-        diamond(x + side * 52 * fit, y - 24, 5, color, .85);
-      }
-      line([x - 52 * fit, y - 24, x - 14 * fit, y - 5, x, y - 32,
-        x + 14 * fit, y - 5, x + 52 * fit, y - 24], accent, .8, .47);
-    } else {
-      for (const side of [-1, 1]) scythe(side, y - 6, 58, 89, .76);
-      diamond(x, y - radius - 20, 5, light, .9, 2.1);
-      polygon(x, y - 6, radius - 11, 4, .86, -Math.PI / 2, light, .5);
-    }
-    // The concentrated charge is a pointed jewel instead of a circular white disc.
-    diamond(x, y - 5, 7 + strength * 3, accent, .9, 1.6);
-    if (theme !== 'split') sparkle(x, y - 5, 6 + strength * 4, hot);
-    particles(true);
-    return;
   }
 
   // Concentric tinted plumes create restrained bloom; the solid cutting core stays only 2–6px wide.
@@ -396,5 +347,5 @@ export function drawOrnateHyperBeam(g: Graphics, v: BeamVisual) {
   if (theme !== 'split') sparkle(x, y - 5, 8, hot);
   diamond(x, y - 3, 5, accent, .9, 1.6);
   line([x - 28 * fit, y - 4, x + 28 * fit, y - 4], accent, .65, .38);
-  particles(false);
+  particles();
 }

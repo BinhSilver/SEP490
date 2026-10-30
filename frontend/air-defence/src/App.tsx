@@ -1199,7 +1199,6 @@ function WeakWordRow({ word, match }: { word: WeakWord; match: MatchInfo }) {
           <span lang={isJapaneseField(match.questionField) ? "ja" : "vi"} style={{ fontSize: 20, fontWeight: 700, color: "var(--ok-primary)", fontFamily: fontFor(match.questionField), overflowWrap: "anywhere" }}>
             {word.prompt}
           </span>
-          <i className="fa-solid fa-arrow-right" style={{ fontSize: 11, color: "var(--ok-on-surface-variant)" }} aria-hidden="true" />
           <span lang={isJapaneseField(match.answerField) ? "ja" : "vi"} style={{ fontSize: 15, fontWeight: 600, color: "var(--ok-on-surface)", fontFamily: fontFor(match.answerField), overflowWrap: "anywhere" }}>
             {word.answer}
           </span>
@@ -1412,7 +1411,7 @@ function ResultScreen() {
               <OkBadge variant={weakWords.length > 0 ? "error" : "success"}>{weakWords.length} từ</OkBadge>
             </div>
             <p style={{ fontSize: 12, color: "var(--ok-on-surface-variant)", margin: "0 0 8px" }}>
-              Hỏi: {match.questionLabel} <i className="fa-solid fa-arrow-right" style={{ fontSize: 10 }} aria-hidden="true" /> Đáp: {match.answerLabel}
+              Hỏi: {match.questionLabel} · Đáp: {match.answerLabel}
             </p>
             <div style={{ maxHeight: 300, overflowY: "auto" }}>
               {sortedWeak.length > 0 ? (

@@ -10,6 +10,13 @@
  *   data-kind        practice | final; sent with the onyomi:quiz-passed event
  *   data-title, data-intro, data-start-label   texts of the intro card
  *   data-next-url, data-next-label             optional link offered once the quiz is passed
+ *   data-back-url, data-back-label             optional link on the result card (e.g. back to the stage)
+ *   data-autostart                             open the attempt right away instead of showing the intro
+ *   data-variant="exam"                        timed test page: rules screen, fullscreen, server clock,
+ *                                              integrity monitor (leaving the page is logged and, past the
+ *                                              limit, closes the attempt), lettered options, no "Làm lại".
+ *                                              Uses [data-exam-time], [data-exam-leaves], [data-exam-warning]
+ *                                              and [data-exam-exit] on the page around the quiz.
  *
  * Each answer is checked (and recorded) through /api/learning/quizzes/attempts/{id}/answers, so it
  * cannot be changed afterwards: going back to an answered question shows its answer and explanation.
@@ -40,8 +47,15 @@
       intro: root.dataset.intro || '',
       startLabel: root.dataset.startLabel || 'Bắt đầu',
       nextUrl: root.dataset.nextUrl || '',
-      nextLabel: root.dataset.nextLabel || 'Tiếp tục'
+      nextLabel: root.dataset.nextLabel || 'Tiếp tục',
+      backUrl: root.dataset.backUrl || '',
+      backLabel: root.dataset.backLabel || 'Quay lại',
+      exam: root.dataset.variant === 'exam'
     };
+    // Timed test only: the server clock, how often the learner left, and why it was submitted.
+    var exam = { on: false, deadline: 0, timer: null, startedAt: 0, leaves: 0, limit: 3, lastLeave: 0,
+                 fullscreen: false, reason: '', confirmSubmit: false, channel: null,
+                 tab: Math.random().toString(36).slice(2), lastReport: {} };
     var state = { attemptId: null, questions: [], index: 0, feedback: {}, busy: false, cardHeight: 0, confirmRestart: false };
 
     // `running` widens the quiz to make room for the question list next to the question
@@ -55,6 +69,23 @@
     }
 
     function paintIntro() {
+      if (config.exam) {
+        paint(panel('oy-quiz__intro oy-exam__rules',
+          '<h2>Trước khi bắt đầu</h2>' +
+          '<ul>' +
+          '<li><i class="fa-regular fa-clock" aria-hidden="true"></i><span><strong>20 câu trong 10 phút.</strong> ' +
+            'Đồng hồ tính trên máy chủ: tải lại trang hay đóng trang, giờ vẫn chạy.</span></li>' +
+          '<li><i class="fa-solid fa-expand" aria-hidden="true"></i><span>Bài làm ở <strong>chế độ toàn màn hình</strong>. ' +
+            'Rời tab, chuyển cửa sổ, thoát toàn màn hình hay tải lại trang đều tính là <strong>rời bài</strong>.</span></li>' +
+          '<li><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span><strong>Rời bài 3 lần hoặc hết giờ</strong>, ' +
+            'bài tự nộp với các câu đã trả lời.</span></li>' +
+          '<li><i class="fa-solid fa-ban" aria-hidden="true"></i><span>Sao chép, dán, chuột phải và phím mở công cụ nhà phát triển ' +
+            'bị chặn và được ghi lại.</span></li>' +
+          '</ul>' +
+          '<button class="oy-button oy-button--primary" type="button" data-action="start">' +
+          '<i class="fa-solid fa-play" aria-hidden="true"></i><span>Bắt đầu làm bài</span></button>'));
+        return;
+      }
       paint(panel('oy-quiz__intro',
         '<h3>' + escapeHtml(config.title) + '</h3>' +
         (config.intro ? '<p>' + escapeHtml(config.intro) + '</p>' : '') +
@@ -89,16 +120,28 @@
       return '<div class="oy-quiz__options">' + (question.options || []).map(function (option, i) {
         var number = i + 1;
         var className = 'oy-quiz__option';
-        if (feedback) {
+        if (feedback && config.exam) {
+          if (feedback.selectedOption === number) className += ' is-selected';
+        } else if (feedback) {
           if (feedback.correctOption === number) className += ' is-correct';
           else if (feedback.selectedOption === number) className += ' is-wrong';
         }
+        var locked = feedback && !config.exam;
+        var letter = config.exam ? '<span class="oy-quiz__letter" aria-hidden="true">' + 'ABCD'.charAt(i) + '</span>' : '';
         return '<button class="' + className + '" type="button" data-action="choose" data-option="' + number + '"' +
-          (feedback ? ' disabled' : '') + '>' + escapeHtml(option) + '</button>';
+          (locked ? ' disabled' : '') + (config.exam ? ' aria-pressed="' + Boolean(feedback && feedback.selectedOption === number) + '"' : '') +
+          '>' + letter + '<span lang="ja">' + escapeHtml(option) + '</span></button>';
       }).join('') + '</div>';
     }
 
     function typingHtml(question, feedback) {
+      if (config.exam) {
+        return '<div class="oy-quiz__typing">' +
+          '<input class="oy-quiz__input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"' +
+          ' aria-label="Câu trả lời" placeholder="コウ / こう / kou" value="' + escapeHtml(feedback ? feedback.answerText : '') + '" />' +
+          '<button class="oy-button oy-button--primary" type="button" data-action="check-text">' + (feedback ? 'Lưu lại' : 'Lưu') + '</button>' +
+          '</div><p class="oy-quiz__typing-hint">Gõ Katakana, Hiragana hoặc romaji đều được.</p>';
+      }
       var mark = feedback ? (feedback.correct ? ' is-correct' : ' is-wrong') : '';
       return '<div class="oy-quiz__typing">' +
         '<input class="oy-quiz__input' + mark + '" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"' +
@@ -124,6 +167,7 @@
 
     // the question list: one number per question, back / forward, then what is left or the results button
     function sideHtml() {
+      if (config.exam) return examSideHtml();
       var total = state.questions.length;
       var left = total - answeredCount();
       var steps = state.questions.map(function (question, i) {
@@ -146,8 +190,40 @@
         (left
           ? '<p class="oy-quiz__left">Còn ' + left + ' câu chưa làm</p>'
           : '<button class="oy-button oy-button--primary oy-quiz__finish" type="button" data-action="submit">' +
-            '<span>Xem kết quả</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>') +
+            '<span>Xem kết quả</span></button>') +
         '</aside>';
+    }
+
+    // Exam: no "Làm lại" (it would reset the clock); "Nộp bài" any time, asking first while questions are left.
+    function examSideHtml() {
+      var total = state.questions.length;
+      var left = total - answeredCount();
+      var steps = state.questions.map(function (question, i) {
+        var answered = Boolean(state.feedback[question.questionId]);
+        return '<button class="oy-quiz__step' + (answered ? ' is-answered' : '') + '" type="button" data-action="go" data-index="' + i + '"' +
+          (i === state.index ? ' aria-current="step"' : '') +
+          ' aria-label="Câu ' + (i + 1) + ', ' + (answered ? 'đã làm' : 'chưa làm') + '">' + (i + 1) + '</button>';
+      }).join('');
+      var submitArea = exam.confirmSubmit
+        ? '<div class="oy-quiz__confirm" role="group" aria-labelledby="oy-submit-early">' +
+          '<p id="oy-submit-early">Còn ' + left + ' câu chưa làm sẽ tính là sai. Nộp bài và chấm điểm ngay?</p>' +
+          '<button class="oy-button oy-button--primary" type="button" data-action="submit">Nộp bài</button>' +
+          '<button class="oy-button" type="button" data-action="submit-cancel">Làm tiếp</button></div>'
+        : '<button class="oy-button' + (left ? '' : ' oy-button--primary') + ' oy-quiz__finish" type="button" data-action="' +
+          (left ? 'submit-ask' : 'submit') + '"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Nộp bài</span></button>';
+      return '<aside class="oy-panel oy-quiz__side" aria-label="Danh sách câu hỏi">' +
+        '<div class="oy-exam__side-head"><p class="oy-quiz__side-title"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Câu hỏi</p>' +
+        '<span class="oy-exam__chip">' + (left ? 'Còn ' + left + ' câu chưa làm' : 'Đã làm đủ ' + total + ' câu') + '</span></div>' +
+        '<nav class="oy-quiz__steps" aria-label="Chọn câu hỏi">' + steps + '</nav>' +
+        '<ul class="oy-exam__legend" aria-hidden="true">' +
+        '<li><i class="oy-exam__swatch"></i>Chưa làm</li><li><i class="oy-exam__swatch is-answered"></i>Đã làm</li>' +
+        '<li><i class="oy-exam__swatch is-current"></i>Đang chọn</li></ul>' +
+        '<div class="oy-quiz__nav">' +
+        '<button class="oy-button" type="button" data-action="prev"' + (state.index === 0 ? ' disabled' : '') + '>' +
+        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Câu trước</span></button>' +
+        '<button class="oy-button oy-button--primary" type="button" data-action="forward"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
+        '<span>Câu sau</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
+        submitArea + '</aside>';
     }
 
     // "Làm lại" drops this attempt for a new one; once something is answered it asks first, in place
@@ -168,6 +244,7 @@
      * Right after an answer the focus goes to the results button once nothing is left, else to "Câu sau".
      */
     function paintQuestion(focusSelector) {
+      if (config.exam) { paintExamQuestion(focusSelector); return; }
       var question = current();
       var feedback = state.feedback[question.questionId];
       var total = state.questions.length;
@@ -193,10 +270,42 @@
       if (focusTarget) focusTarget.focus({ preventScroll: true });
     }
 
+    function paintExamQuestion(focusSelector) {
+      var question = current();
+      var feedback = state.feedback[question.questionId];
+      var total = state.questions.length;
+      var done = answeredCount();
+      paint('<div class="oy-quiz__layout oy-exam__layout"><div class="oy-exam__main">' +
+        panel('oy-exam__progress',
+          '<div class="oy-exam__progress-row"><span class="oy-exam__count"><i class="fa-regular fa-circle-question" aria-hidden="true"></i>' +
+          'Câu ' + (state.index + 1) + ' / ' + total + '</span>' +
+          '<span class="oy-exam__done">' + done + ' / ' + total + ' câu đã trả lời</span></div>' +
+          '<div class="oy-progress" aria-hidden="true"><div class="oy-progress__fill" style="width:' +
+          Math.round(done * 100 / total) + '%"></div></div>') +
+        panel('oy-quiz__card oy-exam__card',
+          '<span class="oy-exam__chip"><i class="fa-solid fa-language" aria-hidden="true"></i> Hán Việt → âm On</span>' +
+          (question.focus ? '<div class="oy-quiz__focus" lang="ja">' + escapeHtml(question.focus) + '</div>' : '') +
+          '<p class="oy-quiz__question">' + escapeHtml(question.questionText) + '</p>' +
+          '<p class="oy-exam__sub">Chọn cách đọc On đúng theo quy tắc chuyển âm đã học.</p>') +
+        '<p class="oy-exam__pick"><i class="fa-regular fa-hand-pointer" aria-hidden="true"></i> Chọn 1 trong 4 đáp án bên dưới:</p>' +
+        (question.questionType === 'FILL_BLANK' ? typingHtml(question, feedback) : optionsHtml(question, feedback)) +
+        '<p class="oy-exam__saved" role="status">' + (feedback
+          ? '<i class="fa-solid fa-check" aria-hidden="true"></i> Đã lưu lựa chọn, bạn vẫn đổi được trước khi nộp bài. Bài chỉ được chấm khi nộp.'
+          : '<i class="fa-regular fa-circle" aria-hidden="true"></i> Chưa chọn đáp án.') + '</p>' +
+        '<p class="oy-quiz__alert" role="alert" hidden></p></div>' +
+        sideHtml() + '</div>', true);
+      var focusTarget = (focusSelector && root.querySelector(focusSelector)) ||
+        (focusSelector && root.querySelector('[data-action="go"][aria-current]')) ||
+        (feedback ? root.querySelector('[data-action="forward"]:not(:disabled)') || root.querySelector('.oy-quiz__option.is-selected')
+          : root.querySelector('.oy-quiz__option') || root.querySelector('.oy-quiz__input'));
+      if (focusTarget) focusTarget.focus({ preventScroll: true });
+    }
+
     function goTo(index, focusSelector) {
       if (state.busy || index < 0 || index >= state.questions.length) return;
       state.index = index;
       state.confirmRestart = false;
+      exam.confirmSubmit = false;
       paintQuestion(focusSelector);
     }
 
@@ -225,6 +334,7 @@
 
     async function start() {
       if (!window.JlasAuth || !window.JlasAuth.requireLogin()) return;
+      if (config.exam) enterFullscreen();
       paintState('Đang mở bài…');
       try {
         var response = await fetch(config.startUrl, { method: 'POST', headers: window.JlasAuth.authHeaders() });
@@ -246,9 +356,17 @@
           return;
         }
         state.index = firstUnanswered();
+        if (config.exam) {
+          examBegin(body.data);
+          if (!exam.on) return;
+        }
         if (state.index >= state.questions.length) {
-          submit();
-          return;
+          // In the exam every question having a choice is not the end: choices can change until "Nộp bài".
+          if (!config.exam) {
+            submit();
+            return;
+          }
+          state.index = 0;
         }
         paintQuestion();
       } catch (error) {
@@ -266,6 +384,12 @@
           body: JSON.stringify(payload)
         });
         var body = await readBody(response);
+        if (config.exam && response.status === 409) {
+          state.busy = false;
+          exam.reason = exam.reason || (body.message || '');
+          submit();
+          return;
+        }
         if (!response.ok || body.success === false || !body.data) {
           setBusy(false);
           showAlert(body.message || 'Không kiểm tra được câu trả lời. Vui lòng thử lại.');
@@ -282,14 +406,15 @@
 
     function choose(option) {
       var question = current();
-      if (!question || state.feedback[question.questionId]) return;
+      var saved = question && state.feedback[question.questionId];
+      if (!question || (saved && (!config.exam || saved.selectedOption === option))) return;
       sendAnswer({ questionId: question.questionId, selectedOption: option });
     }
 
     function checkText() {
       var question = current();
       var input = root.querySelector('.oy-quiz__input');
-      if (!question || !input || state.feedback[question.questionId]) return;
+      if (!question || !input || (state.feedback[question.questionId] && !config.exam)) return;
       var text = input.value.trim();
       if (!text) {
         showAlert('Hãy gõ câu trả lời trước khi kiểm tra.');
@@ -331,6 +456,8 @@
     }
 
     async function submit() {
+      if (config.exam) examStop();
+      exam.confirmSubmit = false;
       paintState('Đang chấm bài…');
       var answers = state.questions
         .map(function (question) {
@@ -353,6 +480,7 @@
           paintState(body.message || 'Không nộp được bài. Vui lòng thử lại.', 'submit');
           return;
         }
+        if (config.exam) await loadDetails();
         paintResult(body.data);
         if (body.data.passed) {
           root.dispatchEvent(new CustomEvent('onyomi:quiz-passed', {
@@ -364,6 +492,36 @@
       } catch (error) {
         paintState('Không thể kết nối tới máy chủ. Vui lòng thử lại.', 'submit');
       }
+    }
+
+    // Graded answers of the submitted attempt (correct answer + explanation); the exam hides them until now.
+    async function loadDetails() {
+      state.details = null;
+      try {
+        var response = await fetch('/api/learning/quizzes/attempts/' + state.attemptId + '/result', {
+          headers: window.JlasAuth.authHeaders()
+        });
+        var body = await readBody(response);
+        if (response.ok && body.data) {
+          state.details = {};
+          (body.data.answers || []).forEach(function (d) { state.details[d.questionId] = d; });
+        }
+      } catch (error) { /* the score is still shown; only the review is missing */ }
+    }
+
+    function examReviewHtml() {
+      if (!state.details) return '<p class="oy-quiz__review-missing">Không tải được phần giải thích. Tải lại trang để xem.</p>';
+      return '<ol class="oy-quiz__review oy-exam__review">' + state.questions.map(function (question, i) {
+        var d = state.details[question.questionId] || {};
+        var picked = d.selectedOption && d.options ? d.options[d.selectedOption - 1] : d.answerText;
+        var right = d.isCorrect === true;
+        return '<li class="' + (right ? 'is-correct' : 'is-wrong') + '">' +
+          '<strong><span class="oy-exam__mark" aria-label="' + (right ? 'Đúng' : 'Sai') + '">' + (right ? '✓' : '✗') + '</span> Câu ' + (i + 1) +
+          ': ' + escapeHtml(question.questionText) + '</strong>' +
+          '<span>Bạn chọn: ' + (picked ? '<b lang="ja">' + escapeHtml(picked) + '</b>' : '<i>bỏ trống</i>') + '</span>' +
+          (right ? '' : '<span>Đáp án: <b lang="ja">' + escapeHtml(d.correctAnswerText || '') + '</b></span>') +
+          (d.explanation ? '<span class="oy-exam__why">' + escapeHtml(d.explanation) + '</span>' : '') + '</li>';
+      }).join('') + '</ol>';
     }
 
     function verdictText(passed) {
@@ -381,7 +539,7 @@
         var feedback = state.feedback[question.questionId];
         return feedback && !feedback.correct;
       });
-      var review = wrong.length
+      var review = config.exam ? examReviewHtml() : wrong.length
         ? '<ul class="oy-quiz__review">' + wrong.map(function (question) {
           var feedback = state.feedback[question.questionId];
           return '<li><strong>' + escapeHtml(question.questionText) + '</strong>' +
@@ -391,16 +549,27 @@
         : '';
       var nextLink = result.passed && config.nextUrl
         ? '<a class="oy-button oy-button--primary" href="' + escapeHtml(config.nextUrl) + '">' +
-          escapeHtml(config.nextLabel) + ' <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>'
+          escapeHtml(config.nextLabel) + '</a>'
         : '';
+      var examInfo = '';
+      if (config.exam) {
+        var used = Math.min(LIMIT_SECONDS(), Math.round((Date.now() - exam.startedAt) / 1000));
+        examInfo = (exam.reason ? '<p class="oy-exam__reason" role="status"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
+            escapeHtml(exam.reason) + '</p>' : '') +
+          '<ul class="oy-exam__stats"><li><i class="fa-regular fa-clock" aria-hidden="true"></i> Thời gian làm: ' + clock(used) + '</li>' +
+          '<li><i class="fa-regular fa-eye" aria-hidden="true"></i> Số lần rời bài: ' + exam.leaves + ' / ' + exam.limit + '</li></ul>';
+      }
       paint(panel('oy-quiz__result',
+        examInfo +
         '<div class="oy-quiz__score">' + score.toFixed(0) + '<small>/100</small></div>' +
         '<p>Đúng ' + result.correctCount + '/' + result.totalCount + ' câu</p>' +
         '<p class="oy-quiz__verdict ' + (result.passed ? 'is-passed' : 'is-failed') + '">' +
         escapeHtml(verdictText(result.passed)) + '</p>' +
         '<div class="oy-quiz__actions">' + nextLink +
         '<button class="oy-button" type="button" data-action="start">' +
-        '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>Làm lượt mới</span></button></div>' +
+        '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>Làm lượt mới</span></button>' +
+        (config.backUrl ? '<a class="oy-button" href="' + escapeHtml(config.backUrl) + '">' + escapeHtml(config.backLabel) + '</a>' : '') +
+        '</div>' +
         review));
     }
 
@@ -417,6 +586,8 @@
           goTo(Number(action.dataset.index), '[data-action="go"][data-index="' + action.dataset.index + '"]');
           break;
         case 'submit': submit(); break;
+        case 'submit-ask': exam.confirmSubmit = true; paintQuestion('[data-action="submit-cancel"]'); break;
+        case 'submit-cancel': exam.confirmSubmit = false; paintQuestion('[data-action="submit-ask"]'); break;
         case 'restart': askRestart(true); break;
         case 'restart-cancel': askRestart(false); break;
         case 'restart-confirm': if (!state.busy) restart(); break;
@@ -445,7 +616,189 @@
       }
     });
 
-    paintIntro();
+    // ── Exam: server clock + integrity monitor ─────────────────────────────────────────────────
+    var timeEl = document.querySelector('[data-exam-time]');
+    var leavesEl = document.querySelector('[data-exam-leaves]');
+    var warningEl = document.querySelector('[data-exam-warning]');
+    var exitEl = document.querySelector('[data-exam-exit]');
+    var limitSeconds = 600;
+    function LIMIT_SECONDS() { return limitSeconds; }
+
+    function clock(seconds) {
+      seconds = Math.max(0, Math.round(seconds));
+      return String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+    }
+
+    function enterFullscreen() {
+      var el = document.documentElement;
+      if (document.fullscreenElement || !el.requestFullscreen) return;
+      el.requestFullscreen().then(function () { exam.fullscreen = true; }).catch(function () { /* refused: still watched */ });
+    }
+
+    function examBegin(data) {
+      if (data.timeLimitSeconds == null) return;   // not a timed attempt: behave like a normal quiz
+      limitSeconds = data.timeLimitSeconds;
+      exam.limit = data.leaveLimit || 3;
+      exam.leaves = data.leaveCount || 0;
+      exam.deadline = Date.now() + (data.secondsLeft || 0) * 1000;
+      exam.startedAt = exam.deadline - limitSeconds * 1000;
+      exam.on = true;
+      exam.reason = '';
+      if (document.fullscreenElement) exam.fullscreen = true;
+      paintLeaves();
+      if (timeEl) timeEl.closest('[data-exam-timer]').hidden = false;
+      tick();
+      exam.timer = setInterval(tick, 250);
+      if ('BroadcastChannel' in window) {
+        exam.channel = new BroadcastChannel('jlas-exam-' + config.startUrl);
+        exam.channel.onmessage = function (event) {
+          // The test was opened again in another tab: that tab takes over (the server counted it as leaving).
+          if (event.data && event.data.type === 'open' && event.data.tab !== exam.tab && exam.on) {
+            examStop();
+            paintState('Bài kiểm tra đang được làm ở một tab khác. Hãy đóng tab này.');
+          }
+        };
+        exam.channel.postMessage({ type: 'open', tab: exam.tab });
+      }
+      if (exam.leaves >= exam.limit) {
+        exam.reason = 'Bạn đã rời khỏi bài ' + exam.leaves + ' lần, bài được nộp tự động.';
+        submit();
+        return;
+      }
+      if (exam.leaves > 0 && (data.answered || []).length) showWarning('Bạn vừa mở lại bài giữa chừng, lần này được tính là rời bài.');
+    }
+
+    function tick() {
+      var left = (exam.deadline - Date.now()) / 1000;
+      if (timeEl) {
+        timeEl.textContent = clock(left);
+        timeEl.closest('[data-exam-timer]').classList.toggle('is-low', left <= 60);
+      }
+      if (left <= 0 && exam.on) {
+        exam.reason = 'Hết giờ, bài được nộp tự động với các câu đã trả lời.';
+        report('TIME_UP');
+        submit();
+      }
+    }
+
+    function paintLeaves() {
+      if (!leavesEl) return;
+      leavesEl.hidden = false;
+      leavesEl.querySelector('b').textContent = exam.leaves + '/' + exam.limit;
+      leavesEl.classList.toggle('is-warn', exam.leaves > 0);
+    }
+
+    function examStop() {
+      exam.on = false;
+      clearInterval(exam.timer);
+      if (timeEl) timeEl.closest('[data-exam-timer]').hidden = true;   // submitted: the clock no longer matters
+      if (exam.channel) { exam.channel.close(); exam.channel = null; }
+      if (warningEl) warningEl.hidden = true;
+      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {});
+      exam.fullscreen = false;
+    }
+
+    /** Sends one event; leaving events come back with the server's count, which decides the auto-submit. */
+    async function report(type, detail) {
+      if (!state.attemptId) return null;
+      try {
+        var response = await fetch('/api/learning/quizzes/attempts/' + state.attemptId + '/integrity', {
+          method: 'POST',
+          headers: window.JlasAuth.authHeaders(),
+          body: JSON.stringify({ type: type, detail: detail || null })
+        });
+        var body = await readBody(response);
+        return body && body.data ? body.data : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    async function leave(type) {
+      if (!exam.on) return;
+      var now = Date.now();
+      if (now - exam.lastLeave < 1500) return;   // a tab switch fires both blur and hidden: count it once
+      exam.lastLeave = now;
+      var data = await report(type);
+      if (!exam.on) return;
+      exam.leaves = data ? data.leaveCount : exam.leaves + 1;
+      paintLeaves();
+      if ((data && data.locked) || exam.leaves >= exam.limit) {
+        exam.reason = 'Bạn đã rời khỏi bài ' + exam.leaves + ' lần, bài được nộp tự động.';
+        submit();
+        return;
+      }
+      showWarning(type === 'FULLSCREEN_EXIT' ? 'Bạn vừa thoát chế độ toàn màn hình.' : 'Bạn vừa rời khỏi trang làm bài.');
+    }
+
+    function blocked(type) {
+      if (!exam.on) return;
+      var now = Date.now();
+      if (now - (exam.lastReport[type] || 0) < 3000) return;
+      exam.lastReport[type] = now;
+      report(type);
+    }
+
+    function showWarning(message) {
+      if (!warningEl) return;
+      warningEl.querySelector('[data-exam-warning-text]').textContent = message + ' Đây là lần ' + exam.leaves + '/' + exam.limit +
+        '. Rời bài đủ ' + exam.limit + ' lần, bài sẽ tự nộp.';
+      warningEl.hidden = false;
+      var back = warningEl.querySelector('[data-exam-resume]');
+      if (back) back.focus();
+    }
+
+    if (config.exam) {
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) leave('TAB_HIDDEN');
+      });
+      window.addEventListener('blur', function () {
+        setTimeout(function () { if (!document.hidden && !document.hasFocus()) leave('WINDOW_BLUR'); }, 400);
+      });
+      document.addEventListener('fullscreenchange', function () {
+        if (document.fullscreenElement) { exam.fullscreen = true; return; }
+        if (exam.fullscreen) { exam.fullscreen = false; leave('FULLSCREEN_EXIT'); }
+      });
+      ['copy', 'cut', 'paste', 'contextmenu'].forEach(function (name) {
+        document.addEventListener(name, function (event) {
+          if (!exam.on) return;
+          event.preventDefault();
+          blocked(name === 'contextmenu' ? 'CONTEXT_MENU' : name === 'paste' ? 'PASTE' : 'COPY');
+        });
+      });
+      document.addEventListener('keydown', function (event) {
+        if (!exam.on) return;
+        var key = (event.key || '').toUpperCase();
+        var devtools = key === 'F12' || ((event.ctrlKey || event.metaKey) && event.shiftKey && 'IJC'.indexOf(key) !== -1 && key) ||
+          ((event.ctrlKey || event.metaKey) && key === 'U');
+        if (devtools) { event.preventDefault(); blocked('DEVTOOLS'); }
+      });
+      window.addEventListener('beforeunload', function (event) {
+        if (!exam.on) return;
+        event.preventDefault();
+        event.returnValue = '';
+      });
+      if (warningEl) {
+        warningEl.addEventListener('click', function (event) {
+          if (!event.target.closest('[data-exam-resume]')) return;
+          warningEl.hidden = true;
+          enterFullscreen();
+        });
+      }
+      if (exitEl) {
+        exitEl.addEventListener('click', function (event) {
+          if (!exam.on) return;
+          if (!window.confirm('Thoát bây giờ? Đồng hồ vẫn chạy và câu đã làm được lưu; quay lại làm tiếp sẽ tính là 1 lần rời bài.')) {
+            event.preventDefault();
+            return;
+          }
+          examStop();
+        });
+      }
+    }
+
+    if (root.hasAttribute('data-autostart')) start();
+    else paintIntro();
   }
 
   function mountAll() {

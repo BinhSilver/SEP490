@@ -35,6 +35,12 @@ public interface AdminUserRepository extends JpaRepository<User, Long>, JpaSpeci
 
     long countByCreatedAtGreaterThanEqual(LocalDateTime from);
 
+    long countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(LocalDateTime from, LocalDateTime to);
+
+    /** [year, accounts created that year] for accounts created on or after {@code from}. */
+    @Query("select year(u.createdAt), count(u) from User u where u.createdAt >= :from group by year(u.createdAt)")
+    List<Object[]> countCreatedByYearSince(@Param("from") LocalDateTime from);
+
     /** Same Premium rule as everywhere else: a non-FREE plan that has not expired yet. */
     @Query("select count(u) from User u where u.premiumPlan is not null"
             + " and upper(u.premiumPlan.name) <> 'FREE' and u.premiumExpiredAt > :now")

@@ -26,3 +26,11 @@ condition = "AND"
 paths = ['''(^|/)src/main/java/com/jlas/learning/service/impl/JpaInteractiveContentCatalog\.java$''']
 regexTarget = "match"
 regexes = ['''^gapKey\s*,\s*"[A-Z0-9_]+"?$''']
+
+[[allowlists]]
+description = "Learning-owned content seed_key values are UPPER-KEBAB record codes such as KANJI-DIVERSE-N4-003"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(^|/)data/learning-owned/learning-content\.json$''']
+regexTarget = "match"
+regexes = ['''^seed_key"\s*:\s*"[A-Z0-9]+(-[A-Z0-9]+)*"?$''']

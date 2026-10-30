@@ -1,12 +1,10 @@
-/* Trang admin "Khung avatar": dùng chung bố cục với "Trang phục game" (admin-game-skins.css). */
-.frame-admin__avatar { flex: none; margin: 12px; border-radius: 50%; }
+/* Trang admin "Khung avatar": lưới thẻ dùng chung với "Trang phục game" (admin-game-skins.css). */
+.frame-admin__avatar { flex: none; border-radius: 50%; }
+/* Avatar mẫu: nổi trên nền tối của sân khấu, khung động bao quanh (khung = 1,5 × avatar). */
 .frame-admin__face {
-  display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%;
-  color: var(--color-on-primary-container, #21005d); background: var(--color-primary-container, #eaddff);
-  font-size: 45%;
+  display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; font-size: 42%;
+  color: #fff; background: radial-gradient(circle at 35% 30%, #8f7bd6, #4f378a 70%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .45), inset 0 0 0 2px rgba(255, 255, 255, .18);
 }
-.frame-admin .skin-admin__identity { gap: 16px; }
 .frame-admin__muted { display: block; margin-top: 4px; color: var(--text-secondary, var(--color-on-surface-variant)); font-size: 12px; font-weight: 400; }
-.skin-editor__art .frame-admin__avatar { margin: 26px; }
-.skin-admin__status[data-state=hidden] { background: #fff1d6; color: #7a4b00; }
-html[data-theme="dark"] .skin-admin__status[data-state=hidden] { background: #4a3410; color: #ffd98a; }
+.frame-admin .ga-stage [data-preview-slot] > .af-host { animation: ga-float 5s ease-in-out infinite; }

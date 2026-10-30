@@ -1,5 +1,6 @@
 import { Graphics } from 'pixi.js';
-import { drawOrnateHyperBeam, isOrnateBeamSkin } from './OrnateHyperBeam';
+import type { ChargeColors } from './ChargeFx';
+import { drawOrnateHyperBeam, isOrnateBeamSkin, ornateColors } from './OrnateHyperBeam';
 
 type BeamPhase = 'idle' | 'charge' | 'firing' | 'cooldown';
 export interface BeamVisual {
@@ -7,7 +8,12 @@ export interface BeamVisual {
   motion: boolean; particles: 'high' | 'low' | 'off'; color: number;
 }
 
-/** Only draws the weapon. Damage, charge and cooldown remain in the match store. */
+/** Colours of the shared super-cannon charge (ChargeFx) for a plane's weapon theme. */
+export function beamColors(skin: string, fallback: number): ChargeColors {
+  return ornateColors(skin) ?? { primary: fallback, accent: 0xffbfca, hot: 0xffffff };
+}
+
+/** Only draws the firing beam; ChargeFx draws the charge. Damage and timing remain in the match store. */
 export function drawHyperBeam(g: Graphics, v: BeamVisual) {
   if (isOrnateBeamSkin(v.skin)) {
     drawOrnateHyperBeam(g, v);
@@ -19,7 +25,7 @@ export function drawHyperBeam(g: Graphics, v: BeamVisual) {
 // Existing planes retain their original weapon art.
 function drawLegacyHyperBeam(g: Graphics, v: BeamVisual) {
   g.clear();
-  if (v.phase !== 'charge' && v.phase !== 'firing') return;
+  if (v.phase !== 'firing') return;
   const halo = v.skin === 'plane-halo-fighter';
   const aegis = v.skin === 'plane-aegis-frame';
   const split = v.skin === 'plane-split-core';
@@ -28,7 +34,7 @@ function drawLegacyHyperBeam(g: Graphics, v: BeamVisual) {
   const accent = split ? 0x77efff : halo ? 0xfff0bd : aegis ? 0xc5f3ff : 0xffbfca;
   const t = v.motion ? v.now / 1000 : 0;
   const x = v.x, y = v.y, top = -24, height = y - top;
-  const strength = v.phase === 'charge' ? Math.min(1, v.elapsed / 900) : v.motion ? Math.min(1, v.elapsed / 150) : 1;
+  const strength = v.motion ? Math.min(1, v.elapsed / 150) : 1;
   const pulse = 1 + Math.sin(t * 9) * .025;
 
   function ring(radius: number, squash: number, alpha: number, cy = y, width = 1.4) {
@@ -38,26 +44,6 @@ function drawLegacyHyperBeam(g: Graphics, v: BeamVisual) {
     g.moveTo(cx - size, cy).lineTo(cx + size, cy).stroke({ color: accent, width: 1, alpha });
     g.moveTo(cx, cy - size * 1.6).lineTo(cx, cy + size * 1.6).stroke({ color: 0xffffff, width: 1, alpha });
   }
-  if (v.phase === 'charge') {
-    const r = 18 + strength * 19;
-    ring(r + 10, halo ? .42 : .7, .65);
-    ring(r + 5, .35, .45, y + 5);
-    for (let layer = 4; layer >= 1; layer--) {
-      g.circle(x, y, (5 + strength * 9) * layer).fill({ color, alpha: .028 + (4 - layer) * .025 });
-    }
-    g.circle(x, y, 3 + strength * 6).fill({ color: 0xf9fdff, alpha: .9 });
-    const count = v.particles === 'off' ? 0 : v.particles === 'low' ? 4 : 10;
-    for (let i = 0; i < count; i++) {
-      const angle = i * Math.PI * 2 / count + t * .55;
-      const travel = v.motion ? (t * .7 + i / count) % 1 : .5;
-      const distance = 12 + (1 - travel) * 66;
-      const px = x + Math.cos(angle) * distance, py = y + Math.sin(angle) * distance * .75;
-      g.moveTo(px, py).lineTo(px + Math.cos(angle) * 9, py + Math.sin(angle) * 7)
-        .stroke({ color: accent, width: 1.6, alpha: travel * .8 });
-    }
-    return;
-  }
-
   // A softly layered, tapered plume; the white core stays narrow enough to see targets.
   function plume(cx: number, width: number, shade: number, alpha: number) {
     g.moveTo(cx - 3, y)

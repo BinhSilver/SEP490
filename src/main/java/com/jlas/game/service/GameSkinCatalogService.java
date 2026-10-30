@@ -19,12 +19,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GameSkinCatalogService {
     private final GameSkinRepository repository;
+    private final GameSkinPackService packs;
 
+    /**
+     * {@code renderCode}: {@code PACK} (gói skin tải lên, cần {@code packPath}) hoặc mã một skin gốc (dùng lại chuyển
+     * động của nó). {@code weaponTheme}: chỉ cho máy bay dùng gói skin, một trong
+     * {@link GameSkinPackService#WEAPON_THEMES} hoặc null (vũ khí mặc định).
+     */
     public record SkinInput(@NotBlank @Pattern(regexp="[a-z0-9][a-z0-9-]{1,39}") String code,
                             @NotNull GameType gameType, @NotBlank @Size(max=100) String name,
                             @Size(max=500) String description, @Min(0) @Max(1000000) int price,
                             @NotBlank @Size(max=1024) String image,
-                            @NotBlank @Size(max=40) String renderCode, boolean active) { }
+                            @NotBlank @Size(max=40) String renderCode, boolean active,
+                            @Size(max=255) String packPath, @Size(max=40) String weaponTheme) {
+        public SkinInput(String code, GameType gameType, String name, String description, int price, String image,
+                         String renderCode, boolean active) {
+            this(code, gameType, name, description, price, image, renderCode, active, null, null);
+        }
+    }
 
     public List<ShopItem> all() { return repository.all(); }
     public Optional<ShopItem> find(String code) { return repository.find(code); }
@@ -43,13 +55,27 @@ public class GameSkinCatalogService {
         String image = input.image().trim();
         if (!(image.startsWith("/arena/") || image.startsWith("/uploads/game-skins/")) || !image.matches("(?i).+\\.(png|jpe?g|webp)") || image.contains("..") || image.contains("\\") || image.contains("?") || image.contains("#"))
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn ảnh trò chơi hoặc tải ảnh trang phục lên");
-        boolean custom = "CUSTOM".equals(input.renderCode());
-        if (!custom && GameShopCatalog.find(input.renderCode()).filter(item -> item.gameType() == input.gameType()).isEmpty())
+        String render = input.renderCode();
+        boolean pack = GameShopCatalog.RENDER_PACK.equals(render);
+        boolean custom = GameShopCatalog.RENDER_CUSTOM.equals(render);
+        // Ảnh tĩnh không cho ra skin thật trong game: chỉ trang phục đã tạo kiểu này trước đây được giữ.
+        if (custom && (current == null || !GameShopCatalog.RENDER_CUSTOM.equals(current.renderCode())))
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tải gói skin (.zip) lên hoặc chọn chuyển động có sẵn");
+        if (!custom && !pack && GameShopCatalog.find(render).filter(item -> item.gameType() == input.gameType()).isEmpty())
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mẫu chuyển động không hợp lệ");
+        String packPath = null;
+        if (pack) {
+            packPath = input.packPath() == null ? null : input.packPath().trim();
+            packs.requirePack(packPath, input.gameType());
+        }
+        String weapon = input.weaponTheme() == null || input.weaponTheme().isBlank() ? null : input.weaponTheme().trim();
+        if (weapon != null && (!pack || input.gameType() != GameType.AIR_DEFENSE || !GameSkinPackService.WEAPON_THEMES.contains(weapon)))
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bộ vũ khí chỉ chọn được cho máy bay dùng gói skin");
         boolean starter = current != null && current.starter();
         if (starter && (input.price() != 0 || !input.active())) throw new ApiException(ErrorCode.CONFLICT, "Trang phục mặc định phải miễn phí và luôn hoạt động");
         return new ShopItem(current == null ? 0 : current.id(), input.code(), input.gameType(), input.name().trim(),
-                input.description() == null ? "" : input.description().trim(), input.price(), image, starter, input.renderCode(), input.active(), false);
+                input.description() == null ? "" : input.description().trim(), input.price(), image, starter, render,
+                input.active(), false, packPath, weapon);
     }
     @Transactional
     public ShopItem create(SkinInput input) {
@@ -64,6 +90,18 @@ public class GameSkinCatalogService {
         repository.update(item);
         return require(code);
     }
+    /** Skin mặc định của game: miễn phí cho mọi người, tự dùng cho người chưa chọn skin. Mỗi game đúng một skin. */
+    @Transactional
+    public ShopItem setStarter(String code) {
+        ShopItem item = require(code);
+        if (item.deleted()) throw new ApiException(ErrorCode.CONFLICT, "Trang phục đã bị xóa");
+        if (!GameShopCatalog.SHOP_GAMES.contains(item.gameType())) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Game chưa hỗ trợ trang phục");
+        ShopItem current = starter(item.gameType());
+        if (current != null && current.code().equals(code)) return item;
+        repository.setStarter(item.gameType(), current == null ? null : current.code(), code);
+        return require(code);
+    }
+
     @Transactional
     public void delete(String code) {
         if (require(code).starter()) throw new ApiException(ErrorCode.CONFLICT, "Không xóa trang phục mặc định");

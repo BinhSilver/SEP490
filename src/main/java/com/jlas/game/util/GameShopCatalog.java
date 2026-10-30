@@ -14,14 +14,23 @@ import java.util.Optional;
  */
 public final class GameShopCatalog {
 
-    /** {@code id} cố định: dùng làm reference_id trong sổ CP để mỗi món chỉ bị trừ tiền một lần. */
+    /**
+     * {@code id} cố định: dùng làm reference_id trong sổ CP để mỗi món chỉ bị trừ tiền một lần.
+     * {@code renderCode}: mã chuyển động có sẵn trong game, {@code PACK} = gói skin admin tải lên ({@code packPath}),
+     * {@code CUSTOM} = ảnh tĩnh (kiểu cũ, chỉ còn cho trang phục đã tạo trước đây).
+     * {@code weaponTheme}: máy bay dùng gói skin mượn bộ vũ khí của máy bay gốc nào (null = vũ khí mặc định).
+     */
     public record ShopItem(long id, String code, GameType gameType, String name, String description, int price,
-                           String image, boolean starter, String renderCode, boolean active, boolean deleted) {
+                           String image, boolean starter, String renderCode, boolean active, boolean deleted,
+                           String packPath, String weaponTheme) {
         public ShopItem(long id, String code, GameType gameType, String name, String description, int price,
                         String image, boolean starter) {
-            this(id, code, gameType, name, description, price, image, starter, code, true, false);
+            this(id, code, gameType, name, description, price, image, starter, code, true, false, null, null);
         }
     }
+
+    public static final String RENDER_PACK = "PACK";
+    public static final String RENDER_CUSTOM = "CUSTOM";
 
     private static final List<ShopItem> ITEMS = List.of(
             new ShopItem(1101, "cat-classic", GameType.NEKO_CATCH, "Mèo cam",

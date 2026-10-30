@@ -12,13 +12,17 @@
     '<header class="admin-topbar"><button id="adminShellToggle" class="admin-menu-button" type="button" ' +
     'aria-label="Mở menu quản trị" aria-controls="adminShellSidebar" aria-expanded="false">' +
     '<i class="fa-solid fa-bars" aria-hidden="true"></i></button>' +
-    '<span id="adminShellTitle">J-LAS Admin</span><div class="admin-account">' +
-    '<span id="adminShellName"></span><span id="adminShellRole" class="admin-role"></span>' +
-    '<button id="adminShellLogout" class="admin-logout" type="button">Đăng xuất</button></div></header>' +
+    '<span id="adminShellTitle">Quản trị J-LAS</span></header>' +
     '<aside id="adminShellSidebar" class="admin-sidebar" aria-label="Quản trị J-LAS">' +
     '<div class="admin-brand"><img src="/images/jlab.png" alt="" width="36" height="36">' +
-    '<strong>J-LAS <span>Admin Portal</span></strong></div>' +
-    '<nav id="adminShellNav" aria-label="Chức năng quản trị"></nav></aside>' +
+    '<strong>J-LAS <span>Cổng quản trị</span></strong></div>' +
+    '<nav id="adminShellNav" aria-label="Chức năng quản trị"></nav>' +
+    '<div class="admin-sidebar__footer">' +
+      '<div class="admin-sidebar__account"><span id="adminShellInitials" class="admin-sidebar__avatar"></span>' +
+        '<div class="admin-sidebar__info"><span id="adminShellName"></span><span id="adminShellRole" class="admin-role"></span></div></div>' +
+      '<button id="adminShellLogout" class="admin-logout" type="button">' +
+        '<i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Đăng xuất</span></button>' +
+    '</div></aside>' +
     '<div id="adminShellStatus" class="admin-status" role="status">Đang xác thực tài khoản…</div>';
 
   var toggle = document.getElementById('adminShellToggle');
@@ -41,18 +45,65 @@
     await global.JlasAuth.logout('/login');
   });
 
+  var NAV_STATE_KEY = 'jlas-admin-nav-collapsed';
+  function readCollapsed() {
+    try { return JSON.parse(global.localStorage.getItem(NAV_STATE_KEY) || '{}'); } catch (ignored) { return {}; }
+  }
+  function writeCollapsed(state) {
+    try { global.localStorage.setItem(NAV_STATE_KEY, JSON.stringify(state)); } catch (ignored) { /* ignore */ }
+  }
+
+  // Every menu item is a full page load: carry the sidebar's scroll offset over so it doesn't jump back to the top.
+  var SCROLL_KEY = 'jlas-admin-sidebar-scroll';
+  sidebar.addEventListener('click', function (event) {
+    if (!event.target.closest || !event.target.closest('a[href]')) return;
+    try { global.sessionStorage.setItem(SCROLL_KEY, String(sidebar.scrollTop || 0)); } catch (ignored) { /* ignore */ }
+  });
+  function restoreScroll() {
+    var saved = null;
+    try { saved = global.sessionStorage.getItem(SCROLL_KEY); } catch (ignored) { /* ignore */ }
+    if (saved !== null) sidebar.scrollTop = Number(saved) || 0;
+    var active = document.getElementById('adminShellNav').querySelectorAll('[aria-current="page"]')[0];
+    if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
+  }
+
   shell.renderNav = function (counts) {
-    document.getElementById('adminShellNav').innerHTML = admin.MODULES.map(function (group) {
+    var collapsed = readCollapsed();
+    var nav = document.getElementById('adminShellNav');
+    nav.innerHTML = admin.MODULES.map(function (group, index) {
       var items = group.items.filter(function (item) { return admin.can(item.roles); });
       if (!items.length) return '';
-      return (group.title ? '<p class="admin-nav-group">' + admin.esc(group.title) + '</p>' : '') +
-        '<ul class="admin-nav-list">' + items.map(function (item) {
-          var count = item.badge && counts && Number(counts[item.badge]);
-          return '<li><a href="' + admin.esc(item.href) + '"' + (item === current ? ' aria-current="page"' : '') + '>' +
-            '<i class="fa-solid ' + admin.esc(item.icon) + '" aria-hidden="true"></i><span>' + admin.esc(item.label) + '</span>' +
-            (Number.isFinite(count) && count > 0 ? '<span class="admin-nav-count">' + count + '</span>' : '') + '</a></li>';
-        }).join('') + '</ul>';
+      if (!group.title) {
+        return '<ul class="admin-nav-list">' + items.map(renderItem).join('') + '</ul>';
+      }
+      var groupId = 'adminNavGroup' + index;
+      var hasCurrent = items.indexOf(current) !== -1;
+      var isOpen = hasCurrent || collapsed[group.title] !== true;
+      return '<button type="button" class="admin-nav-group" data-group="' + admin.esc(group.title) + '" ' +
+          'aria-expanded="' + isOpen + '" aria-controls="' + groupId + '">' +
+          '<span>' + admin.esc(group.title) + '</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>' +
+        '</button>' +
+        '<ul class="admin-nav-list" id="' + groupId + '"' + (isOpen ? '' : ' hidden') + '>' +
+          items.map(renderItem).join('') + '</ul>';
+
+      function renderItem(item) {
+        var count = item.badge && counts && Number(counts[item.badge]);
+        return '<li><a href="' + admin.esc(item.href) + '"' + (item === current ? ' aria-current="page"' : '') + '>' +
+          '<i class="fa-solid ' + admin.esc(item.icon) + '" aria-hidden="true"></i><span>' + admin.esc(item.label) + '</span>' +
+          (Number.isFinite(count) && count > 0 ? '<span class="admin-nav-count">' + count + '</span>' : '') + '</a></li>';
+      }
     }).join('');
+
+    nav.querySelectorAll('.admin-nav-group').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var open = button.getAttribute('aria-expanded') !== 'true';
+        button.setAttribute('aria-expanded', String(open));
+        document.getElementById(button.getAttribute('aria-controls')).hidden = !open;
+        var state = readCollapsed();
+        state[button.dataset.group] = !open;
+        writeCollapsed(state);
+      });
+    });
   };
 
   async function boot() {
@@ -80,8 +131,12 @@
         group.items.forEach(function (item) { if (item.href === route) current = item; });
       });
       shell.renderNav(null);
-      document.getElementById('adminShellName').textContent = shell.user.fullName || shell.user.email || '';
+      restoreScroll();
+      var name =shell.user.fullName || shell.user.email || '';
+      document.getElementById('adminShellName').textContent = name;
       document.getElementById('adminShellRole').textContent = admin.ROLE_LABELS[admin.role()] || '';
+      document.getElementById('adminShellInitials').textContent =
+        name.split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(-2).toUpperCase();
       if (!current || !admin.can(current.roles)) {
         status.innerHTML = admin.empty('fa-lock', 'Bạn không có quyền xem mục này', 'Liên hệ quản trị viên nếu cần được cấp quyền.');
         return false;

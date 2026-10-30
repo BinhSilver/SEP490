@@ -73,7 +73,7 @@
 
         body.append(
             label('Gợi ý'),
-            button('Mở gợi ý ngay (bỏ chờ 1 phút)', async function () {
+            button('Mở gợi ý ngay (bỏ chờ 30 giây)', async function () {
                 await post('/api/dev/kana/hint-ready', { challengeId: board().id });
                 await refresh('Gợi ý đã mở, bấm nút Gợi ý trên bàn để dùng');
             }),

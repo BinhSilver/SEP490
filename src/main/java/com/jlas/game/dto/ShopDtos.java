@@ -12,8 +12,10 @@ public final class ShopDtos {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
+    /** {@code packPath}: thư mục gói skin (khi renderCode = PACK); {@code weaponTheme}: bộ vũ khí máy bay mượn. */
     public record ShopItemView(String code, String name, String description, int price, String image,
-                               boolean starter, boolean owned, boolean equipped, long id, String renderCode) {
+                               boolean starter, boolean owned, boolean equipped, long id, String renderCode,
+                               String packPath, String weaponTheme) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)

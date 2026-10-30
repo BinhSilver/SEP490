@@ -107,6 +107,9 @@ export interface AirConfigView {
 export interface ShopItemView {
   id: number;
   renderCode: string;
+  /** Thư mục gói skin khi renderCode = PACK; weaponTheme: bộ vũ khí máy bay gốc được mượn. */
+  packPath?: string | null;
+  weaponTheme?: string | null;
   code: string;
   name: string;
   description: string;

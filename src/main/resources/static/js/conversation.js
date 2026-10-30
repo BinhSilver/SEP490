@@ -86,6 +86,18 @@
   const completeOverlay = document.getElementById('completeOverlay');
   const btnResult = document.getElementById('btnResult');
 
+  // The sentence a learner sent into yesterday's free chat, waiting in today's input.
+  const PENDING_FREE_CHAT_KEY = 'jlas.aicall.freechat.pending';
+  if (freeChat && input && !input.disabled) {
+    try {
+      const pending = sessionStorage.getItem(PENDING_FREE_CHAT_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_FREE_CHAT_KEY);
+        input.value = pending;
+      }
+    } catch (e) {}
+  }
+
   let busy = false;
   let settings = loadSettings();
   const hasCast = body.dataset.hasCast === 'true';
@@ -822,6 +834,13 @@
       });
       const data = await res.json().catch(function () { return {}; });
       showTyping(false);
+
+      // A tab left open overnight: yesterday's chat is closed, so carry the sentence to today's.
+      if (!res.ok && data.code === 'AICALL_FREE_CHAT_NEW_DAY') {
+        try { sessionStorage.setItem(PENDING_FREE_CHAT_KEY, text); } catch (e) {}
+        window.location.href = '/ai-call/free-chat/start';
+        return;
+      }
 
       if (!res.ok && data.code === 'AICALL_JAPANESE_REQUIRED') {
         if (learnerRow) learnerRow.remove();
