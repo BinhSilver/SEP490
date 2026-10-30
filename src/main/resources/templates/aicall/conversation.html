@@ -10,13 +10,13 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261017-correction-ruby')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261029-topic-popup')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261021-notebooks)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261030-merge)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261011-flush-corner')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -43,6 +43,10 @@
             <div>
                 <h1 th:text="${freeChat} ? 'Trò Chuyện AI' : (${stageDefinition != null ? stageDefinition.title : scenario.title})">Kịch bản</h1>
                 <p th:if="${chatSession.contentReview}" class="badge">Kiểm tra nội dung — không cộng vào tiến trình học</p>
+                <p class="freechat-past" th:if="${freeChat and !inProgress}">
+                    <span th:text="'Phiên ' + ${#temporals.format(chatSession.startedAt, 'dd/MM')} + ' đã kết thúc, chỉ xem lại.'">Phiên 28/10 đã kết thúc, chỉ xem lại.</span>
+                    <a th:href="@{/ai-call/free-chat/start}">Về cuộc trò chuyện hôm nay</a>
+                </p>
                 <div class="sub" th:unless="${freeChat}">
                         <span data-current-speaker th:text="${aiRoleName}">AI</span> · Bạn: <span th:text="${userRoleName}">Học viên</span>
                 </div>
@@ -336,11 +340,6 @@
                 </button>
             </div>
         </div>
-        <div class="side-card" data-conversation-settings>
-            <a class="btn btn-secondary btn-block" th:href="@{/ai-call}" style="width:100%;">
-                <i class="fa-solid fa-house"></i> Về chọn chế độ
-            </a>
-        </div>
     </aside>
 </main>
 
@@ -423,11 +422,11 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
-<script defer th:src="@{/js/inline-dictionary.js(v='20261021-notebooks')}"></script>
+<script defer th:src="@{/js/inline-dictionary.js(v=20261030-merge)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261017-correction-ruby')}"></script>
+<script th:src="@{/js/conversation.js(v='20261029-topic-popup')}"></script>
 <script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
 </body>
 </html>

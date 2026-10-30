@@ -20,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,6 +44,7 @@ public class InteractionService {
     @Autowired private VideoRatingRepository ratingRepository;
     @Autowired private CommentRepository commentRepository;
     @Autowired private CommentRatingRepository commentRatingRepository;
+    @Autowired private CommentThreadRepository threads;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private VideoRepository videoRepository;
     @Autowired private UserDirectoryPort userDirectory;
@@ -99,15 +103,40 @@ public class InteractionService {
         return getRatingSummary(effectiveClientId, videoId);
     }
 
+    /**
+     * Top-level comments, newest first, each with its replies oldest first (like comments under a post),
+     * the reactions left on every comment and the one the current user left.
+     */
     public List<CommentDto> getComments(Long videoId, String clientId) {
-        String currentClientId = CurrentUser.currentUserId().map(String::valueOf).orElse(null);
-        return withProfiles(commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId).stream()
+        Long currentUserId = CurrentUser.currentUserId().orElse(null);
+        String currentClientId = currentUserId == null ? null : String.valueOf(currentUserId);
+        List<Comment> visible = commentRepository.findByVideoIdOrderByCreatedAtDesc(videoId).stream()
                 .filter(c -> !Boolean.TRUE.equals(c.getHidden()))
+                .toList();
+        List<Long> ids = visible.stream().map(Comment::getId).toList();
+        Map<Long, Long> parents = threads.parents(ids);
+        Map<Long, Map<String, Long>> reactions = threads.counts(ids);
+        Map<Long, String> mine = threads.mine(ids, currentUserId);
+        List<CommentDto> all = withProfiles(visible.stream()
                 .map(c -> {
                     commentRatingRepository.find(c.getId()).ifPresent(c::setRating);
-                    return toCommentDto(c, currentClientId);
+                    CommentDto dto = toCommentDto(c, currentClientId);
+                    dto.setParentId(parents.get(c.getId()));
+                    dto.setReactions(reactions.getOrDefault(c.getId(), new LinkedHashMap<>()));
+                    dto.setMyReaction(mine.get(c.getId()));
+                    return dto;
                 })
                 .collect(Collectors.toList()));
+        Map<Long, CommentDto> topLevel = new LinkedHashMap<>();
+        all.stream().filter(dto -> dto.getParentId() == null).forEach(dto -> topLevel.put(dto.getId(), dto));
+        // The list is newest first, so walking it backwards keeps every thread's replies oldest first.
+        for (int i = all.size() - 1; i >= 0; i--) {
+            CommentDto reply = all.get(i);
+            if (reply.getParentId() == null) continue;
+            CommentDto root = topLevel.get(reply.getParentId());
+            if (root != null) root.getReplies().add(reply);
+        }
+        return new ArrayList<>(topLevel.values());
     }
 
     /**
@@ -163,6 +192,19 @@ public class InteractionService {
         // JLAS-W0250: community comments publish immediately; a REVIEW verdict only queues a post-hoc check.
         boolean flagged = mod.needsReview();
         Video video = videoRepository.findById(NullSafe.longId(videoId)).orElseThrow();
+        // A reply joins the top-level thread of the comment it answers; replies carry no star rating.
+        Comment repliedTo = null;
+        Comment root = null;
+        if (req.getParentId() != null) {
+            repliedTo = commentRepository.findById(NullSafe.longId(req.getParentId()))
+                    .filter(c -> "VIDEO".equals(c.getTargetType()) && video.getId().equals(c.getTargetId())
+                            && !Boolean.TRUE.equals(c.getHidden()))
+                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Bình luận bạn trả lời không còn nữa"));
+            Long rootId = threads.parents(List.of(repliedTo.getId())).getOrDefault(repliedTo.getId(), repliedTo.getId());
+            root = rootId.equals(repliedTo.getId()) ? repliedTo
+                    : commentRepository.findById(rootId).orElse(repliedTo);
+            req.setRating(null);
+        }
         Comment comment = new Comment();
         comment.setTargetId(video.getId());
         comment.setUserId(userId);
@@ -175,6 +217,7 @@ public class InteractionService {
             saveRating(String.valueOf(userId), videoId, req.getRating());
         }
         Comment saved = commentRepository.save(comment);
+        if (root != null) threads.setParent(saved.getId(), root.getId());
         if (req.getRating() != null && req.getRating() >= 1 && req.getRating() <= 5) {
             commentRatingRepository.save(saved.getId(), req.getRating());
         }
@@ -183,12 +226,40 @@ public class InteractionService {
             moderationPort.enqueueReview(logEntity, "VIDEO_COMMENT", saved.getId(), userId,
                     "Video comment #" + videoId, mod.getSummary());
         }
-        if (video.getOwnerId() != null && !video.getOwnerId().equals(userId)) {
+        if (repliedTo != null) {
+            notifyReply(repliedTo.getUserId(), userId, saved, video);
+            if (!root.getUserId().equals(repliedTo.getUserId())) notifyReply(root.getUserId(), userId, saved, video);
+        } else if (video.getOwnerId() != null && !video.getOwnerId().equals(userId)) {
             notifications.notifyUser(video.getOwnerId(), "SHADOWING_COMMENT", "Bình luận mới về bài Shadowing",
                     saved.getDisplayName() + " đã bình luận về “" + video.getTitle() + "”.",
-                    "/shadowing/player/" + video.getId(), "SHADOWING_COMMENT_" + saved.getId());
+                    "/shadowing/player/" + video.getId() + "?mode=shadowing", "SHADOWING_COMMENT_" + saved.getId());
         }
-        return withProfiles(List.of(toCommentDto(saved, String.valueOf(userId)))).get(0);
+        CommentDto dto = toCommentDto(saved, String.valueOf(userId));
+        if (root != null) dto.setParentId(root.getId());
+        return withProfiles(List.of(dto)).get(0);
+    }
+
+    private void notifyReply(Long recipientId, Long authorId, Comment reply, Video video) {
+        if (recipientId == null || recipientId.equals(authorId)) return;
+        notifications.notifyUser(recipientId, "SHADOWING_COMMENT", "Có người trả lời bình luận của bạn",
+                reply.getDisplayName() + " đã trả lời bình luận của bạn trong “" + video.getTitle() + "”.",
+                "/shadowing/player/" + video.getId() + "?mode=shadowing", "SHADOWING_REPLY_" + reply.getId() + "_" + recipientId);
+    }
+
+    /** Leaves, changes or (picking the same one again) removes the current user's reaction on a comment. */
+    @Transactional
+    public CommentReactionDto react(Long commentId, CommentReactionRequest req) {
+        Long userId = CurrentUser.requireUserId();
+        String reaction = req == null || req.getReaction() == null ? "" : req.getReaction().trim().toUpperCase(Locale.ROOT);
+        if (!CommentThreadRepository.REACTIONS.contains(reaction)) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Cảm xúc không hợp lệ");
+        }
+        Comment comment = commentRepository.findById(NullSafe.longId(commentId))
+                .filter(c -> "VIDEO".equals(c.getTargetType()) && !Boolean.TRUE.equals(c.getHidden()))
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy bình luận"));
+        String now = threads.toggle(comment.getId(), userId, reaction);
+        return new CommentReactionDto(comment.getId(),
+                threads.counts(List.of(comment.getId())).getOrDefault(comment.getId(), new LinkedHashMap<>()), now);
     }
 
     @Transactional

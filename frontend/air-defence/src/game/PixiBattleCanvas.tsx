@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
-import { useAirDefenseStore, bossHpForWave, isJapaneseField, playerPlaneSprite, playerSpaceshipCode, isCustomPlaneSkin } from "./useAirDefenseStore";
+import { useAirDefenseStore, bossHpForWave, isJapaneseField, playerPlaneSprite, playerSpaceshipCode, playerWeaponCode, isCustomPlaneSkin } from "./useAirDefenseStore";
 import {loadSpaceship, setSpaceshipFrame, type SpaceshipTextures} from './spaceshipSprites';
 import { GAME_CONFIG } from "./gameConfig";
 import { ComboSplashOverlay } from "./ComboSplashOverlay";
 import { serverNow } from "./arenaClient";
 import { useVisualSettings } from "./visualSettings";
-import { drawHyperBeam } from "./HyperBeamEffect";
+import { beamColors, drawHyperBeam } from "./HyperBeamEffect";
+import { ChargeFx } from "./ChargeFx";
 import { loadOrnateWeaponSprites, ornateWeaponSkin, ORNATE_WEAPON_THEMES } from './OrnateWeaponSprites';
 import { WeaponVfx } from './WeaponVfx';
 
@@ -223,7 +224,7 @@ export const PixiBattleCanvas: React.FC = () => {
       let spaceship: SpaceshipTextures | null = null;
       let energySprite: Sprite | null = null;
       const equippedShipCode = playerSpaceshipCode();
-      const weaponSkin = ornateWeaponSkin(equippedShipCode);
+      const weaponSkin = ornateWeaponSkin(playerWeaponCode());
 
       // Base Sci-Fi ship body
       const baseShipG = new Graphics();
@@ -374,6 +375,7 @@ export const PixiBattleCanvas: React.FC = () => {
       fxLayer.addChild(laserG);
       fxLayer.addChild(hyperBeamG);
       fxLayer.addChild(cosmeticBulletsLayer);
+      const chargeFx = new ChargeFx(fxLayer, explosionLayer);
 
       interface CosmeticTypingBullet {
         g: Graphics | Sprite;
@@ -1016,12 +1018,14 @@ export const PixiBattleCanvas: React.FC = () => {
           alive: state.hp > 0, charge: state.hyperBeamCharge, combo: state.combo,
           phase: beamPhase, shield: state.shield
         }, prefs, spaceship ? -46 : -32);
-        drawHyperBeam(hyperBeamG, {
-          phase: beamPhase, skin: playerSpaceshipCode(),
+        const beamVisual = {
+          phase: beamPhase, skin: playerWeaponCode(),
           x: playerShipContainer.x, y: playerShipContainer.y - (spaceship ? 46 : 32),
           now: performance.now(), elapsed: performance.now() - beamPhaseStarted,
           motion, particles: prefs.particles, color: sceneColor
-        });
+        };
+        drawHyperBeam(hyperBeamG, beamVisual);
+        chargeFx.update({ ...beamVisual, colors: beamColors(beamVisual.skin, sceneColor) });
       });
 
       // Handle Resize smoothly

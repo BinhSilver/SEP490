@@ -80,15 +80,16 @@
 /* ── Main area ───────────────────────────────────────────────────────── */
 
 #jlabBaseContent .adm-main { min-width: 0; display: grid; gap: 16px; }
-#jlabBaseContent .adm-header { margin-bottom: 4px; }
+/* Sections append toolbar, detail box and list as direct siblings: space them evenly; empty slots take no room. */
+#jlabBaseContent #admContent { display: grid; gap: 16px; min-width: 0; }
+#jlabBaseContent #admContent > :empty { display: none; }
+#jlabBaseContent #admContent > p.adm-toolbar { margin: 0; }
+/* The sidebar nav already names the current page (highlighted item + browser tab title), so the in-content
+   header would just repeat it. Hidden as a whole (not only the h1) so it leaves no empty row/gap above the content;
+   kept in the DOM because admin-boot.js still writes the title into it. */
+#jlabBaseContent .adm-header { display: none; }
 
-#jlabBaseContent .adm-title {
-  margin: 0;
-  font: 700 clamp(26px, 3vw, 34px)/1.2 "Hanken Grotesk", var(--font-headline);
-  letter-spacing: -0.02em;
-}
-
-#jlabBaseContent .adm-subtitle { margin: 6px 0 0; color: var(--color-on-surface-variant); font-size: 15px; line-height: 1.5; }
+#jlabBaseContent .adm-subtitle { margin: 0; color: var(--color-on-surface-variant); font-size: 15px; line-height: 1.5; }
 #jlabBaseContent .adm-muted { color: var(--color-on-surface-variant); font-size: 13px; }
 #jlabBaseContent .adm-error, .adm-modal .adm-error { color: var(--color-error, #ba1a1a); font-size: 13px; margin: 4px 0 0; }
 #jlabBaseContent .adm-error:empty, .adm-modal .adm-error:empty { display: none; }
@@ -114,6 +115,7 @@
 #jlabBaseContent .adm-toolbar .select { width: auto; flex: 1 1 180px; }
 #jlabBaseContent .adm-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-on-surface-variant); }
 #jlabBaseContent .adm-inline .input { flex: none; width: 160px; }
+
 
 #jlabBaseContent .adm-check, .adm-modal .adm-check {
   display: flex;
@@ -179,6 +181,26 @@
 
 #jlabBaseContent .adm-card__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
+/* Collapsible card: header only; clicking it reveals the body. */
+#jlabBaseContent .adm-card--collapsible { gap: 0; padding: 14px 18px; transition: border-color var(--transition); }
+#jlabBaseContent .adm-card--collapsible:hover { border-color: var(--color-primary-container); }
+#jlabBaseContent .adm-card__summary {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 6px; align-items: start;
+  width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+#jlabBaseContent .adm-card__summary > .adm-card__head,
+#jlabBaseContent .adm-card__summary > .adm-card__title { grid-column: 1; }
+#jlabBaseContent .adm-card__chevron {
+  grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--color-on-surface-variant); transition: transform .15s ease;
+}
+#jlabBaseContent .adm-card__summary[aria-expanded="true"] .adm-card__chevron { transform: rotate(180deg); }
+#jlabBaseContent .adm-card__summary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: 6px; }
+#jlabBaseContent .adm-card__body { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-outline-variant); }
+
+/* Section without a card around it (title + content straight on the page background). */
+#jlabBaseContent .adm-section { display: grid; gap: 12px; }
+#jlabBaseContent .adm-section > :empty { display: none; }
+
 #jlabBaseContent .adm-badge {
   display: inline-flex;
   align-items: center;
@@ -213,7 +235,12 @@
 #jlabBaseContent .adm-note--warn { background: #fff1d6; color: #6b4500; }
 #jlabBaseContent .adm-note--ok { background: var(--color-success-bg, #d6f5e7); color: var(--color-success); }
 
-#jlabBaseContent .adm-user { display: grid; gap: 2px; }
+#jlabBaseContent span.adm-user { display: grid; gap: 2px; }
+#jlabBaseContent td.adm-user > * { display: block; }
+#jlabBaseContent td.adm-user > * + * { margin-top: 2px; }
+#jlabBaseContent .adm-row-link { cursor: pointer; }
+#jlabBaseContent .adm-row-link:hover td { background: var(--color-surface-low); }
+#jlabBaseContent .adm-row-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -2px; }
 
 /* ── Flagged terms ───────────────────────────────────────────────────── */
 

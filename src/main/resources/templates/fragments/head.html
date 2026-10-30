@@ -39,13 +39,13 @@
     <link rel="stylesheet" th:href="@{/css/components/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/components/user-menu.css?v=20261014-frames}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261027-notebook-create)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261030-merge)}" />
     <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
     <link rel="stylesheet" th:href="@{/css/components/avatar-frame.css?v=20261021-catalog}" />
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261016-deck-list-top' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261014-profile-trybuy' : '20260929'))))}}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261011-full-background' : (pageCss == 'arena' ? '20261016-deck-list-top' : (pageCss == 'login' ? '20261012-login-desktop-theme' : (pageCss == 'profile' ? '20261014-profile-trybuy' : (pageCss == 'onyomi' ? '20261028-card-rows' : '20260929')))))}}" />
     <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=5}" />
     <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=13}" />
     <link th:if="${pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-practice.css?v=20261027-furigana}" />
@@ -60,7 +60,7 @@
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/sakura-background.js}"></script>
-    <script defer th:src="@{/js/inline-dictionary.js(v=20261027-notebook-create)}"></script>
+    <script defer th:src="@{/js/inline-dictionary.js(v=20261030-merge)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2" />
 </head>
@@ -93,10 +93,10 @@
     <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
     <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
     <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261027-notebook-create)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261030-merge)}" />
     <link th:if="${extraCss != null and !#strings.isEmpty(extraCss)}" rel="stylesheet" th:href="@{${extraCss}}" />
     <script th:src="@{/js/sakura-background.js}"></script>
-    <script defer th:src="@{/js/inline-dictionary.js(v=20261027-notebook-create)}"></script>
+    <script defer th:src="@{/js/inline-dictionary.js(v=20261030-merge)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2" />
 </head>

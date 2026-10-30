@@ -22,6 +22,45 @@ interface ActionBundle {
   actions: Record<CatAction, ActionConfig>;
 }
 const bundles: Record<number, ActionBundle> = { 1: cowboy, 2: wizard, 3: godzilla, 4: ronova, 5: zenitsu, 6: tanjiro };
+export const CAT_ACTIONS: CatAction[] = ['idle', 'run', 'catch_success', 'catch_wrong', 'win', 'lose'];
+
+/**
+ * Gói skin admin tải lên (render code PACK): manifest.json cùng định dạng skin gốc, đường dẫn ảnh tương đối trong gói.
+ * Đổi sang đường dẫn tuyệt đối dưới thư mục gói rồi đăng ký như một nhân vật có sẵn.
+ */
+export function registerCatPack(skin: number, packPath: string, manifest: ActionBundle) {
+  const base = packPath.endsWith('/') ? packPath : `${packPath}/`;
+  const absolute = (path: string) => base + path.replace(/^\/+/, '');
+  const rebase = (config: ActionConfig): ActionConfig => ({ ...config, path: absolute(config.path) });
+  const actions = {} as Record<CatAction, ActionConfig>;
+  for (const action of CAT_ACTIONS) {
+    if (!manifest.actions?.[action]) throw new Error(`Gói skin thiếu hành động ${action}`);
+    actions[action] = rebase(manifest.actions[action]);
+  }
+  bundles[skin] = {
+    cellSize: manifest.cellSize, baseline: manifest.baseline, actions,
+    portrait: manifest.portrait ? absolute(manifest.portrait) : undefined,
+    lobby: manifest.lobby ? rebase(manifest.lobby) : undefined,
+  };
+}
+
+const packLoads = new Map<number, Promise<void>>();
+/** Tải manifest của gói một lần; lỗi thì nhân vật dùng mèo cam thay vì làm hỏng trận. */
+export function loadCatPack(skin: number, packPath: string): Promise<void> {
+  let pending = packLoads.get(skin);
+  if (!pending) {
+    const base = packPath.endsWith('/') ? packPath : `${packPath}/`;
+    pending = fetch(`${base}manifest.json`)
+      .then(response => { if (!response.ok) throw new Error('Không tải được gói skin'); return response.json(); })
+      .then(manifest => registerCatPack(skin, base, manifest as ActionBundle))
+      .catch(() => { packLoads.delete(skin); });
+    packLoads.set(skin, pending);
+  }
+  return pending;
+}
+export function catPackLoading(skin: number): Promise<void> | undefined {
+  return packLoads.get(skin);
+}
 const clocks = new WeakMap<CatPlayer, { key: string; start: number; last: number }>();
 const actionFor = (state: CatPlayer['state']): CatAction => state === 'run_left' || state === 'run_right' ? 'run' : state;
 

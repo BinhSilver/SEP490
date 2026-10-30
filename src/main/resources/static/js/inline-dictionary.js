@@ -253,7 +253,14 @@
     var panel = ensurePopup();
     if (matchMedia('(max-width: 640px)').matches) { panel.style.left = ''; panel.style.top = ''; return; }
     var left = Math.min(window.innerWidth - 340, Math.max(12, rect.left + rect.width / 2 - 160));
-    var top = rect.bottom + 10;
+    // Below the selection when it fits, otherwise above it (e.g. Shadowing subtitles near the bottom);
+    // if neither side fits, keep the whole panel on screen.
+    var height = panel.offsetHeight, margin = 12, gap = 10;
+    var top = rect.bottom + gap;
+    if (top + height > window.innerHeight - margin) {
+      top = rect.top - gap - height >= margin ? rect.top - gap - height
+        : Math.max(margin, window.innerHeight - margin - height);
+    }
     panel.style.left = left + 'px'; panel.style.top = top + 'px';
   }
 

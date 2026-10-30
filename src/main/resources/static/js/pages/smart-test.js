@@ -69,6 +69,11 @@
     return (tmp.textContent || '').trim();
   }
 
+  // Data câu điền kanji dùng □ làm chỗ trống; hiển thị thành ô trống gạch chân thay vì ô vuông.
+  function markBlanks(html) {
+    return (html || '').replace(/□/g, '<span class="kanji-blank" aria-label="ô trống">　</span>');
+  }
+
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
   }
@@ -211,6 +216,7 @@
 
     var questionText = document.getElementById('questionText');
     setSafeHtml(questionText, q.questionText || '');
+    questionText.innerHTML = markBlanks(questionText.innerHTML);
     // Hide auxiliary prompts for vocabulary/grammar. Kanji tasks retain their
     // reading/spelling/component instructions (including the component reading hint).
     var passageUsesAuxiliaryPrompt = q.passageHtml && ['VOCABULARY', 'GRAMMAR'].includes(q.skill);
@@ -232,7 +238,7 @@
     // exposing the answer source while the learner is doing the test.
     passage.hidden = !q.passageHtml || q.skill === 'LISTENING';
     passage.classList.toggle('question-passage--reading', q.skill === 'READING');
-    passage.innerHTML = q.passageHtml || '';
+    passage.innerHTML = markBlanks(q.passageHtml);
 
     var media = document.getElementById('questionMedia');
     media.innerHTML = '';
@@ -423,6 +429,7 @@
     var question = document.createElement('p');
     question.className = 'review-item__question';
     setSafeHtml(question, item.questionText || '');
+    question.innerHTML = markBlanks(question.innerHTML);
     article.append(header, question);
     if (item.passageHtml) {
       // The sentence the instruction refers to (the underlined part, the blank), as it was shown in the test.

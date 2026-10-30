@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { errorMessage, getArena } from "./game/arenaClient";
 import type { ShopItemView, ShopView } from "./game/arenaTypes";
 import { setPlaneSkin } from "./game/useAirDefenseStore";
-import manifests from "./game/spaceship-manifests.json";
 import { animatePlanePreview } from "./game/planePreview";
+import { registerSpaceshipPack, spaceshipSource } from "./game/spaceshipSprites";
 import "./air-hangar.css";
 
 const money = (value: number) => value.toLocaleString("vi-VN");
@@ -13,16 +13,21 @@ function PlanePreview({ item }: { item: ShopItemView }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const name = (item.renderCode || item.code).replace(/^plane-/, "");
-  const bundle = Object.prototype.hasOwnProperty.call(manifests, name)
-    ? manifests[name as keyof typeof manifests] : null;
+  const code = item.renderCode === "PACK" ? item.code : (item.renderCode || item.code);
   useEffect(() => {
     setLoaded(false);
     setFailed(false);
     if (!canvas.current) return;
-    return animatePlanePreview(canvas.current, bundle, item.image, import.meta.env.BASE_URL,
-      () => setLoaded(true), () => setFailed(true));
-  }, [bundle, item.image]);
+    if (item.renderCode === "PACK" && item.packPath) registerSpaceshipPack(item.code, item.packPath);
+    let stop: (() => void) | null = null;
+    let cancelled = false;
+    void spaceshipSource(code).then((source) => {
+      if (cancelled || !canvas.current) return;
+      stop = animatePlanePreview(canvas.current, source?.bundle ?? null, item.image,
+        source?.base ?? import.meta.env.BASE_URL, () => setLoaded(true), () => setFailed(true));
+    });
+    return () => { cancelled = true; stop?.(); };
+  }, [code, item.code, item.image, item.packPath, item.renderCode]);
   return <span className="ad-hangar__preview" aria-hidden="true">
     <canvas ref={canvas} width={200} height={160} hidden={!loaded} />
     {!loaded && (failed ? <i className="fa-solid fa-jet-fighter" /> : <span className="ad-hangar__preview-loading">Đang tải ảnh…</span>)}
@@ -48,7 +53,7 @@ export function AirHangar({ starting, onBusyChange }: {
     setShop(view);
     setBalance(view.balance);
     const equipped = shopItems(view).find((item) => item.equipped);
-    if (equipped) setPlaneSkin(equipped.code, equipped.renderCode, equipped.image);
+    if (equipped) setPlaneSkin(equipped.code, equipped.renderCode, equipped.image, equipped.packPath, equipped.weaponTheme, equipped.name);
     setPreviewCode((code) => code ?? equipped?.code ?? shopItems(view)[0]?.code ?? null);
   };
 

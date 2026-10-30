@@ -14,7 +14,19 @@
   var dueCount = 0;
   var el = {};
 
+  var panel = null;
+  var started = false;
+
+  // Inside the library (?tab=review) the panel is lazy: library-page.js calls start() when the tab opens.
+  window.FlashReviewPage = { start: start };
+
   document.addEventListener('DOMContentLoaded', function () {
+    panel = document.querySelector('[data-srs-lazy]');
+    if (!panel) start();
+  });
+
+  function start() {
+    if (started) return;
     var redirectTarget = window.location.pathname + window.location.search;
     if (window.JlasAuth && typeof JlasAuth.requireLogin === 'function') {
       if (!JlasAuth.requireLogin(redirectTarget)) return;
@@ -22,6 +34,7 @@
       window.location.href = '/login?redirect=' + encodeURIComponent(redirectTarget);
       return;
     }
+    started = true;
     ['due', 'today', 'streak', 'retention', 'progress', 'progress-label', 'progress-fill', 'card', 'card-set',
       'card-relearn', 'speak', 'front', 'back', 'reading', 'meaning', 'hanviet', 'example', 'reveal', 'grades',
       'relearn-next', 'empty', 'empty-title', 'empty-text', 'loading', 'forecast', 'heatmap', 'counts'
@@ -38,10 +51,11 @@
 
     loadQueue();
     loadStats();
-  });
+  }
 
   function onKey(event) {
     if (!current || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (panel && panel.hidden) return;
     if (event.target && /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();

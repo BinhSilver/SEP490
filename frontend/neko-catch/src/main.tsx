@@ -30,7 +30,7 @@ function ensureFonts() {
 
 function readHostConfig(root: HTMLElement): HostConfig {
   const data = root.dataset;
-  if (data.skin && data.skinId) registerShopSkins([{ id: Number(data.skinId), code: data.skin, name: data.skinName || '', renderCode: data.skinRenderCode || data.skin, image: data.skinImage || '' }]);
+  if (data.skin && data.skinId) registerShopSkins([{ id: Number(data.skinId), code: data.skin, name: data.skinName || '', renderCode: data.skinRenderCode || data.skin, image: data.skinImage || '', packPath: data.skinPack || null }]);
   const mode: PlayMode = String(data.mode || '').toUpperCase() === 'VERSUS' ? 'VERSUS' : 'SOLO';
   const meId = Number(data.meId);
   const fallbackBack = mode === 'VERSUS' ? '/games/lobby' : '/games';

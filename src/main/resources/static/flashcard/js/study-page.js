@@ -735,6 +735,37 @@
     }
   }
 
+  /** Heart toggle next to the rating; the set then shows in the library's "Yêu thích" tab. */
+  function renderFavorite(set) {
+    var button = document.getElementById('btn-favorite-set');
+    if (!button || set.draft || !set.id) return;
+    paintFavorite(button, Boolean(set.favorited));
+    button.hidden = false;
+    if (button.dataset.bound) return;
+    button.dataset.bound = '1';
+    button.addEventListener('click', async function () {
+      button.disabled = true;
+      try {
+        var result = await FlashApi.post('/api/flashcards/' + set.id + '/favorite', {});
+        var favorited = Boolean(result && result.favorited);
+        paintFavorite(button, favorited);
+        FlashShell.showToast(favorited ? 'Đã thêm vào Yêu thích' : 'Đã bỏ khỏi Yêu thích', 'ok');
+      } catch (e) {
+        FlashShell.showToast(e.message || 'Không cập nhật được Yêu thích', 'err');
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+
+  function paintFavorite(button, favorited) {
+    button.setAttribute('aria-pressed', String(favorited));
+    button.classList.toggle('is-favorite', favorited);
+    button.title = favorited ? 'Bỏ yêu thích' : 'Thêm vào Yêu thích';
+    button.querySelector('i').className = (favorited ? 'fa-solid' : 'fa-regular') + ' fa-heart';
+    button.querySelector('span').textContent = favorited ? 'Đã yêu thích' : 'Yêu thích';
+  }
+
   function renderSetRating(set) {
     var ratingCount = Number(set.ratingCount || 0);
     document.getElementById('study-set-rating-value').textContent = ratingCount
@@ -756,6 +787,7 @@
     var canRate = !set.ownedByMe;
     ratingButton.disabled = !canRate;
     ratingButton.title = canRate ? 'Đánh giá bộ thẻ' : 'Bạn không thể đánh giá bộ thẻ của mình';
+    renderFavorite(set);
     renderStudyCardList(set.cards || []);
     list.hidden = false;
   }

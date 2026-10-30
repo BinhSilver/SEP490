@@ -2,6 +2,8 @@ package com.jlas.learning.service;
 
 import com.jlas.learning.dto.QuizAnswerFeedbackResponse;
 import com.jlas.learning.dto.QuizAnswerSubmission;
+import com.jlas.learning.dto.QuizIntegrityRequest;
+import com.jlas.learning.dto.QuizIntegrityResponse;
 import com.jlas.learning.dto.QuizResultResponse;
 import com.jlas.learning.dto.QuizStartResponse;
 import com.jlas.learning.dto.QuizSubmitRequest;
@@ -16,11 +18,23 @@ public interface LessonQuizService {
     /** Quizzes with a larger question bank show this many questions per attempt. */
     int QUESTIONS_PER_ATTEMPT = 20;
 
+    /** Whole time allowed for a unit's final test (UNIT_FINAL), counted on the server from the attempt start. */
+    int UNIT_FINAL_TIME_LIMIT_SECONDS = 10 * 60;
+
+    /** Leaving a timed test this many times (tab, window, fullscreen, second tab, reload) closes the attempt. */
+    int LEAVE_LIMIT = 3;
+
     /** Creates a fresh IN_PROGRESS attempt for the published quiz of a lesson and returns its questions. */
     QuizStartResponse start(Long userId, Long lessonId);
 
     /** Like {@link #start}, for the final test (UNIT_FINAL) of a unit. */
     QuizStartResponse startUnitFinal(Long userId, Long unitId);
+
+    /**
+     * Records an integrity event of an open timed attempt and returns how often the learner has left it.
+     * Untimed attempts ignore the event.
+     */
+    QuizIntegrityResponse recordIntegrity(Long userId, Long attemptId, QuizIntegrityRequest event);
 
     /**
      * Grades one answer while the attempt is open and records it, so the learner sees right away whether
