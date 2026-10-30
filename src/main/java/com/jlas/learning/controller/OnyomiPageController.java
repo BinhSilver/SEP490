@@ -83,4 +83,21 @@ public class OnyomiPageController {
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/final";
     }
+
+    /** The test itself on its own page; the stage page above only shows the stage and a start button. */
+    @GetMapping("/stages/{unitId}/final/test")
+    public String stageFinalTest(@PathVariable("unitId") Long unitId, @AuthenticationPrincipal UserPrincipal user,
+                                 Model model) {
+        OnyomiFinalView stage = courseService.stageFinal(user.userId(), unitId).orElse(null);
+        if (stage == null || stage.quizId() == null) {
+            return "redirect:" + COURSE;
+        }
+        if (!stage.unlocked()) {
+            return "redirect:" + COURSE + "?locked=final";
+        }
+        model.addAttribute("stage", stage);
+        model.addAttribute("pageTitle", "Làm bài kiểm tra giai đoạn " + stage.stageOrder() + " - Onyomi - JLAS");
+        model.addAttribute("layoutMode", "app");
+        return "learning/onyomi/final-test";
+    }
 }
