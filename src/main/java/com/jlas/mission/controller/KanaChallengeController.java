@@ -23,11 +23,12 @@ public class KanaChallengeController {
         return ResponseEntity.ok(ApiResponse.ok("Thử thách hôm nay", service.today(user.userId(), level)));
     }
 
-    /** Reveals one kana of an unsolved word; available once a minute. */
+    /** Reveals the kana in the empty slot the learner picked; available every 30 seconds of play. */
     @PostMapping("/hint")
     public ResponseEntity<ApiResponse<Today>> hint(@AuthenticationPrincipal UserPrincipal user,
-                                                   @Valid @RequestBody HintRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã mở một chữ", service.hint(user.userId(), request.challengeId())));
+                                                   @Valid @RequestBody HintPick request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã mở một chữ", service.hint(user.userId(), request.challengeId(),
+                request.wordId(), request.index())));
     }
 
     /** Stops this board's clock while the learner is away; opening the board again resumes it. */

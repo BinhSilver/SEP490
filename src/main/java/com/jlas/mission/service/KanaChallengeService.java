@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class KanaChallengeService {
     public static final String MIX = "MIX";
     static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1", MIX);
     static final int LEADERBOARD_SIZE = 5;
-    static final Duration HINT_COOLDOWN = Duration.ofMinutes(1);
+    static final Duration HINT_COOLDOWN = Duration.ofSeconds(30);
 
     private final KanaChallengeRepository repository;
     private final UserZoneService zones;
@@ -156,53 +155,38 @@ public class KanaChallengeService {
     }
 
     /**
-     * Reveals one kana of an unsolved word, continuing the word hinted last (see {@link #nextReveal}).
-     * The first hint opens after a minute of play on this board, each next one a minute later.
+     * Reveals the kana in the slot the learner picked: any still-empty slot of any unsolved word, so the
+     * middle of a long word can be opened first. The first hint opens after 30 seconds of play on this
+     * board, each next one 30 seconds later.
      */
     @Transactional
-    public Today hint(Long userId, Long challengeId) {
+    public Today hint(Long userId, Long challengeId, long wordId, int index) {
         repository.lockUser(userId);
         Challenge challenge = current(userId, challengeId);
         if (challenge.completedAt() != null) throw new ApiException(ErrorCode.KANA_HINT_UNAVAILABLE);
         Puzzle puzzle = read(challenge.board().puzzleJson(), Puzzle.class);
         Instant now = clock.now();
         Progress progress = read(challenge.solutionJson(), Progress.class).resumed(now);
-        Reveal next = nextReveal(puzzle, progress)
-                .orElseThrow(() -> new ApiException(ErrorCode.KANA_HINT_UNAVAILABLE));
+        if (!anyHidden(puzzle, progress)) throw new ApiException(ErrorCode.KANA_HINT_UNAVAILABLE);
         long waitMs = progress.hintWaitMs(now);
         if (waitMs > 0) {
             long seconds = Math.max(1, (waitMs + 999) / 1000);
             throw new ApiException(ErrorCode.KANA_HINT_NOT_READY, "Gợi ý tiếp theo mở sau " + seconds + " giây.");
         }
+        Reveal pick = new Reveal(wordId, index);
+        boolean open = puzzle.words().stream().anyMatch(w -> w.id() == wordId && index >= 0 && index < w.tokens().size())
+                && !progress.solvedWordIds().contains(wordId) && !progress.reveals().contains(pick);
+        if (!open) throw new ApiException(ErrorCode.KANA_HINT_UNAVAILABLE, "Ô này đã có chữ. Hãy chọn một ô trống khác.");
         List<Reveal> reveals = new ArrayList<>(progress.reveals());
-        reveals.add(next);
+        reveals.add(pick);
         repository.saveHint(challenge.id(), write(progress.withHint(List.copyOf(reveals), now)));
         return view(repository.findById(userId, challenge.id()).orElseThrow(), defaultLevel(userId));
     }
 
-    /**
-     * Hints stay on one word: keep revealing the most recently hinted word, kana by kana, until the
-     * learner solves it or it is fully shown; only then start the next unsolved word in board order.
-     */
-    private static Optional<Reveal> nextReveal(Puzzle puzzle, Progress progress) {
-        if (!progress.reveals().isEmpty()) {
-            long current = progress.reveals().getLast().wordId();
-            Optional<Reveal> more = puzzle.words().stream().filter(w -> w.id() == current)
-                    .findFirst().flatMap(w -> nextKana(w, progress));
-            if (more.isPresent()) return more;
-        }
-        return puzzle.words().stream().map(w -> nextKana(w, progress))
-                .flatMap(Optional::stream).findFirst();
-    }
-
-    /** The first kana of this word that is not shown yet; empty once it is solved or fully shown. */
-    private static Optional<Reveal> nextKana(Entry word, Progress progress) {
-        if (progress.solvedWordIds().contains(word.id())) return Optional.empty();
-        for (int index = 0; index < word.tokens().size(); index++) {
-            Reveal candidate = new Reveal(word.id(), index);
-            if (!progress.reveals().contains(candidate)) return Optional.of(candidate);
-        }
-        return Optional.empty();
+    /** Whether some unsolved word still has an empty slot a hint could open. */
+    private static boolean anyHidden(Puzzle puzzle, Progress progress) {
+        return puzzle.words().stream().anyMatch(w -> !progress.solvedWordIds().contains(w.id())
+                && progress.reveals().stream().filter(r -> r.wordId() == w.id()).count() < w.tokens().size());
     }
 
     /** Today's ranking for one board; an untouched board simply has no finishers yet. */
@@ -300,7 +284,7 @@ public class KanaChallengeService {
                 .map(r -> new HintView(r.wordId(), r.index(), byId.get(r.wordId()).tokens().get(r.index()))).toList();
         Instant now = clock.now();
         long playedMs = c.completedAt() != null && c.elapsedSeconds() != null ? c.elapsedSeconds() * 1000L : progress.playedMs(now);
-        Instant nextHint = c.completedAt() != null || nextReveal(puzzle, progress).isEmpty() ? null
+        Instant nextHint = c.completedAt() != null || !anyHidden(puzzle, progress) ? null
                 : now.plusMillis(progress.hintWaitMs(now));
         String level = c.board().level();
         return new Today(c.id(), puzzle.version(), c.board().date(),

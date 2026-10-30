@@ -194,28 +194,43 @@
         return wrap;
     }
 
-    /* ---------- hint demo (step 4) ---------- */
+    /* ---------- hint demo (step 5): press Gợi ý, then pick any empty slot ---------- */
     function hintDemo() {
-        var kana = ['で', 'ん', 'しゃ'], shown = [false, false, false];
+        var kana = ['ゆ', 'う', 'び', 'ん', 'きょ', 'く'], shown = kana.map(function () { return false; }), picking = false;
         var box = el('div', 'kc-tut-hint');
         var row = el('div', 'kc-tut-hint__row');
         var button = el('button', 'kc-hint', null); button.type = 'button';
-        button.innerHTML = '<i class="fa-regular fa-lightbulb" aria-hidden="true"></i> Bấm thử Gợi ý';
-        var note = el('p', 'kc-tut-note', 'Từ 3 ô này chưa giải. Mỗi lần bấm mở thêm 1 chữ của chính từ đó.');
+        var note = el('p', 'kc-tut-note', 'Từ 6 ô này chưa giải. Bấm Gợi ý, rồi chọn ô bạn muốn mở.');
         note.setAttribute('role', 'status');
         function render() {
-            row.replaceChildren(slots(kana, shown, 'is-hint-demo'), button);
-            var count = shown.filter(Boolean).length;
-            if (count === kana.length) {
-                button.disabled = true;
-                note.textContent = 'Đã hiện hết: でんしゃ (電車 · tàu điện). Lần gợi ý sau sẽ chuyển sang từ chưa giải tiếp theo.';
-            }
+            var word = el('span', 'kc-tut-slots is-hint-demo'); word.lang = 'ja';
+            kana.forEach(function (k, i) {
+                var slot;
+                if (picking && !shown[i]) {
+                    slot = el('button', 'kc-tut-slot is-pickable'); slot.type = 'button';
+                    slot.setAttribute('aria-label', 'Mở chữ thứ ' + (i + 1));
+                    slot.addEventListener('click', function () {
+                        shown[i] = true; picking = false;
+                        note.textContent = shown.indexOf(false) < 0
+                            ? 'Đã hiện hết: ゆうびんきょく (郵便局 · bưu điện).'
+                            : 'Đã mở chữ ở ô thứ ' + (i + 1) + '. Trong game, lượt gợi ý sau mở lại sau 30 giây; ở đây bạn bấm thử tiếp được ngay.';
+                        render(); button.focus();
+                    });
+                } else {
+                    slot = el('span', 'kc-tut-slot' + (shown[i] ? ' is-filled' : ''), shown[i] ? k : '');
+                }
+                if (k.length > 1) slot.classList.add('is-compound');
+                word.append(slot);
+            });
+            button.disabled = shown.indexOf(false) < 0;
+            button.innerHTML = '<i class="fa-regular fa-lightbulb" aria-hidden="true"></i> ' + (picking ? 'Hủy chọn' : 'Bấm thử Gợi ý');
+            row.replaceChildren(word, button);
         }
         button.addEventListener('click', function () {
-            var i = shown.indexOf(false); if (i < 0) return;
-            shown[i] = true;
-            if (i < kana.length - 1) note.textContent = 'Đã mở chữ thứ ' + (i + 1) + '. Bấm nữa để mở tiếp chữ thứ ' + (i + 2) + ' của cùng từ này.';
+            picking = !picking;
+            note.textContent = picking ? 'Chọn một ô trống bất kỳ, ví dụ ô ở giữa từ.' : 'Từ 6 ô này chưa giải. Bấm Gợi ý, rồi chọn ô bạn muốn mở.';
             render();
+            if (picking) row.querySelector('.is-pickable').focus();
         });
         render();
         box.append(row, note);
@@ -250,7 +265,7 @@
                 example];
         } },
         { title: 'Gợi ý khi bí', render: function () {
-            return [el('p', 'kc-tut-lead', 'Cứ mỗi 1 phút chơi, nút Gợi ý mở một lần và hiện 1 chữ của một từ chưa giải. Gợi ý bám theo từ đang gợi ý dở cho tới khi bạn giải xong từ đó.'),
+            return [el('p', 'kc-tut-lead', 'Cứ mỗi 30 giây chơi, nút Gợi ý mở một lần. Bấm Gợi ý rồi chạm vào bất kỳ ô trống nào trong danh sách từ, kể cả ô ở giữa một từ dài: chữ ở ô đó sẽ hiện ra.'),
                 hintDemo()];
         } },
         { title: 'Cấp độ và xếp hạng', render: function () {
