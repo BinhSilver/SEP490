@@ -144,6 +144,9 @@ openrouter:
     url: ${OPENROUTER_SITE_URL:http://localhost:8080}
     name: ${OPENROUTER_SITE_NAME:JLAS}
   model: ${OPENROUTER_MODEL:openai/gpt-4o-mini}
+  # AI Call turns: reasoning effort (none/minimal/low/...; off = no reasoning parameter) and provider sort.
+  reasoning-effort: ${OPENROUTER_REASONING_EFFORT:low}
+  provider-sort: ${OPENROUTER_PROVIDER_SORT:}
   shadowing:
     model: ${OPENROUTER_SHADOWING_MODEL:${openrouter.model}}
     max-tokens: ${OPENROUTER_SHADOWING_MAX_TOKENS:8192}
