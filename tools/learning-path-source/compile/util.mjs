@@ -8,6 +8,10 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
 
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
+export const LEVEL_RANK = { N5: 0, N4: 1, N3: 2, N2: 3, N1: 4 };
+// katakana→hiragana(NFKC(text)); ー (U+30FC) and ・ (U+30FB) are outside the shifted range and stay as they are.
+export const normalizeJapanese = value => String(value ?? '').normalize('NFKC')
+  .replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
 export const stable = value => Array.isArray(value) ? value.map(stable) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).sort().map(key => [key, stable(value[key])])) : value;
 export const json = value => JSON.stringify(stable(value), null, 1) + '\n';
