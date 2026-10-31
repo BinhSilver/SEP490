@@ -98,19 +98,21 @@ export function buildPackets(level, { size = 40, sizeByKind = {} } = {}) {
 const reviewContext = {
   REVIEW_VOCAB: v => ({ expression: v.expression, reading: v.reading, romaji: v.romaji, variants: v.variants, meaning_vi: v.meaning_vi,
     word_type_label: v.word_type_label, topic_vi: v.topic_vi, mnemonic_vi: v.mnemonic_vi, confusable_ids: v.confusable_ids,
-    examples: v.examples.map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana, vi: e.vi })) }),
+    examples: v.examples.map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana, vi: e.vi, source: e.source })) }),
   REVIEW_KANJI: k => ({ ...kanjiContext(k), han_viet_alt: k.han_viet_alt, stroke_count: k.stroke_count, compound_ids: k.compound_ids,
     mnemonic_vi: k.mnemonic_vi, confusable_ids: k.confusable_ids }),
   REVIEW_GRAMMAR: g => ({ pattern: g.pattern, pattern_variants: g.pattern_variants, unit_no: g.unit_no, unit_title_vi: g.unit_title_vi,
-    ...Object.fromEntries(GRAMMAR_TEXT.map(f => [f, g[f]])), examples: g.examples.map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana, vi: e.vi })),
+    ...Object.fromEntries(GRAMMAR_TEXT.map(f => [f, g[f]])), examples: g.examples.map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana, vi: e.vi, source: e.source })),
     ...Object.fromEntries(Object.keys(BANK).map(f => [f, g[f] ?? []])) })
 };
+
+const lockedFields = x => Object.entries(SOURCE_OF).filter(([f, src]) => f in x && /REVIEWED/.test(x.provenance?.[src] ?? '')).map(([f]) => f);
 
 // extra(kind, item) adds what the item alone does not carry (dictionary meaning, check findings, spelling twins).
 export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRAMMAR: 10 }, extra = () => ({}) } = {}) {
   const lists = [['REVIEW_VOCAB', level.vocabulary], ['REVIEW_KANJI', level.kanji], ['REVIEW_GRAMMAR', level.grammar]];
   return lists.filter(([, items]) => items.length).flatMap(([kind, items]) => chunk(items.map(x => ({ id: x.id, fields_needed: ['verdict'],
-    context: { ...reviewContext[kind](x), ...extra(kind, x) } })), sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
+    context: { ...reviewContext[kind](x), locked_fields: lockedFields(x), ...extra(kind, x) } })), sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
 }
 
 // Review packets for items no review packet covers yet; existing files are never rewritten.
