@@ -2,7 +2,7 @@
 import { LEVEL_RANK, normalizeJapanese } from './util.mjs';
 import { formatMeaningVi } from './normalize.mjs';
 
-export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING', 'SAME_SPELLING']);
+export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING', 'SAME_SPELLING', 'EXAMPLE_KANA_ABOVE_LEVEL']);
 const EXAMPLE_LENGTH = { N5: [8, 25], N4: [8, 32], N3: [8, 40], N2: [8, 48], N1: [8, 56] };
 const BANK_TYPES = ['FILL', 'ORDER_STAR', 'MEANING', 'ERROR'];
 const HAS_KANJI = /[一-龯々]/;
@@ -21,20 +21,111 @@ export function similarity(a, b) {
   return (2 * shared) / ((x.length - 1) + (y.length - 1));
 }
 
-function wordsAbove(sentence, levelOfWord, level) {
-  const text = normalizeJapanese(sentence);
-  const found = [];
-  for (let i = 0; i < text.length;) {
-    let matched = 0;
-    for (let len = Math.min(8, text.length - i); len >= 1; len--) {
-      const w = text.slice(i, i + len);
-      if (!(HAS_KANJI.test(w) || len >= 3)) continue;
-      const lvl = levelOfWord.get(w);
-      if (lvl) { if (LEVEL_RANK[lvl] > LEVEL_RANK[level]) found.push(w); matched = len; break; }
+// Every lookup form of a dictionary-style expression: without 〜, without ＜する＞/（する） or with する joined,
+// with the optional [お] kept or dropped.
+export function wordForms(expression) {
+  const s = String(expression ?? '').normalize('NFKC');
+  const strip = t => t.replace(/^[〜~～]+|[〜~～]+$/g, '').replace(/\s+/g, '').trim();
+  return [...new Set([
+    strip(s.replace(/[＜<（(][^＞>）)]*[＞>）)]/g, '')), strip(s.replace(/[＜<（(]([^＞>）)]*)[＞>）)]/g, '$1')),
+    strip(s.replace(/[[［]([^\]］]*)[\]］]/g, '$1')), strip(s.replace(/[[［][^\]］]*[\]］]/g, ''))
+  ].map(normalizeJapanese))].filter(Boolean);
+}
+
+const INFLECTING_END = /[うくぐすつぬぶむるい]$/;
+// Level of every word and kanji: the compiled levels (all spellings and readings, lowest level wins), then the
+// J-LAS dictionary for words no level lists. A listed verb or い-adjective also gives its stem (降る → 降, 開ける →
+// 開け, 暖かい → 暖か) so its conjugations read at the word's level even when its kanji is listed higher.
+// kanaLevel holds only words the path itself spells in kana: not the dictionary's odd kana entries (ました, がある),
+// not readings of kanji words (しま of 島 would split しました).
+export function buildLevelIndex({ levels, dictionary }) {
+  const levelOfWord = new Map(), kanaLevel = new Map(), kanjiLevel = new Map();
+  const note = (map, key, lvl) => { if (!key || !(lvl in LEVEL_RANK)) return; const cur = map.get(key);
+    if (!cur || LEVEL_RANK[lvl] < LEVEL_RANK[cur]) map.set(key, lvl); };
+  for (const { level, vocabulary = [], kanji = [] } of levels) {
+    for (const v of vocabulary) {
+      const spellings = [v.expression, ...(v.variants ?? [])].flatMap(wordForms);
+      for (const f of [...spellings, ...wordForms(v.normalized_reading)]) note(levelOfWord, f, level);
+      for (const f of spellings) {
+        if (!HAS_KANJI.test(f)) note(kanaLevel, f, level);
+        else if (INFLECTING_END.test(f) && HAS_KANJI.test(f.slice(0, -1))) note(levelOfWord, f.slice(0, -1), level);
+      }
     }
-    i += matched || 1;
+    for (const k of kanji) note(kanjiLevel, k.character, level);
   }
-  return found;
+  for (const e of dictionary?.entryById?.values() ?? []) for (const f of [e.expression, e.reading].flatMap(wordForms)) note(levelOfWord, f, e.jlpt_level);
+  for (const [ch, k] of dictionary?.kanjiByChar ?? []) note(kanjiLevel, ch, k.jlpt_level);
+  return { levelOfWord, kanaLevel, kanjiLevel };
+}
+
+const KANA_RUN = { hira: /[ぁ-ゖ]/, kata: /[ァ-ヺー]/ };
+const PARTICLES = ['から', 'まで', 'より', 'だけ', 'など', 'しか', 'ので', 'のに', 'けど', 'でも', 'って', 'ても',
+  'は', 'が', 'を', 'に', 'へ', 'で', 'と', 'も', 'の', 'や', 'か', 'ね', 'よ', 'な'];
+
+// Whether a hiragana run splits into particles and the path's kana words at or below the level (うちに = うち + に).
+function splitsWithin(run, kanaLevel, exempt, limit) {
+  const ok = Array(run.length + 1).fill(false);
+  ok[0] = true;
+  for (let p = 0; p < run.length; p++) {
+    if (!ok[p]) continue;
+    for (const pt of PARTICLES) if (run.startsWith(pt, p)) ok[p + pt.length] = true;
+    for (let len = 2; p + len <= run.length; len++) {
+      const w = run.slice(p, p + len), lvl = kanaLevel.get(w);
+      if (exempt.has(w) || (lvl && LEVEL_RANK[lvl] <= limit)) ok[p + len] = true;
+    }
+  }
+  return ok[run.length];
+}
+
+// Words of a sentence above the level. Kanji are firm evidence: the sentence is read the way that keeps it lowest —
+// a word with kanji, or a lone kanji at its kanji level (N1 when no list has it) — and what stays above blocks. Kana
+// are weak evidence (Mirai spells most words of every level in kana, conjugated forms included), so they only warn:
+// a whole katakana word above the level, or a standalone hiragana run that is itself a word above the level and does
+// not split into lower words and particles (ほうがいい never yields うがい). Okurigana after a kanji is free; the
+// item's own word or pattern (`exempt`) is never above level.
+function wordsAbove(sentence, ctx, level, exempt) {
+  const text = String(sentence).normalize('NFKC'), n = text.length, limit = LEVEL_RANK[level];
+  const kanjiLevel = ctx.kanjiLevel ?? new Map(), kanaMap = ctx.kanaLevel ?? ctx.levelOfWord;
+  const levelOf = (w, map = ctx.levelOfWord) => { const k = normalizeJapanese(w); return exempt.has(k) ? null : map.get(k) ?? null; };
+  const best = Array(n + 1).fill(null);
+  best[0] = { cost: -1, kanji: [], kana: [] };
+  const step = (i, j, lvl, w, kana = false) => {
+    const r = lvl ? LEVEL_RANK[lvl] : -1, above = r > limit;
+    const cost = kana ? best[i].cost : Math.max(best[i].cost, r);
+    const next = { cost, kanji: above && !kana ? [...best[i].kanji, w] : best[i].kanji, kana: above && kana ? [...best[i].kana, w] : best[i].kana };
+    if (!best[j] || cost < best[j].cost || (cost === best[j].cost && next.kanji.length < best[j].kanji.length)) best[j] = next;
+  };
+  const runEnd = (i, re) => { let j = i; while (j < n && re.test(text[j])) j++; return j; };
+  for (let i = 0; i < n; i++) {
+    if (!best[i]) continue;
+    const c = text[i];
+    for (let len = 1; len <= Math.min(10, n - i); len++) {
+      const w = text.slice(i, i + len), k = normalizeJapanese(w);
+      if (exempt.has(k)) step(i, i + len, null, w);
+      else if (HAS_KANJI.test(w) && ctx.levelOfWord.has(k)) step(i, i + len, levelOf(w), w);
+    }
+    const kind = KANA_RUN.kata.test(c) ? 'kata' : KANA_RUN.hira.test(c) ? 'hira' : null;
+    if (kind && !(i > 0 && KANA_RUN[kind].test(text[i - 1]))) {
+      const j = runEnd(i, KANA_RUN[kind]), w = text.slice(i, j), k = normalizeJapanese(w);
+      let lvl = kind === 'kata' ? levelOf(w) : null;
+      if (kind === 'hira' && j - i >= 2 && !(i > 0 && HAS_KANJI.test(text[i - 1]))) {
+        const exact = levelOf(w, kanaMap);
+        if (exact && LEVEL_RANK[exact] > limit && !splitsWithin(k, kanaMap, exempt, limit)) lvl = exact;
+      }
+      step(i, j, lvl, w, true);
+      continue;
+    }
+    step(i, i + 1, HAS_KANJI.test(c) ? kanjiLevel.get(c) ?? 'N1' : null, c);
+  }
+  return best[n] ?? { kanji: [], kana: [] };
+}
+
+const JAPANESE_RUN = /[ぁ-ゖァ-ヺー一-龯々]+/g;
+// The item's own word (vocabulary: every spelling and the reading) or its pattern's words (grammar).
+function ownWords(item) {
+  if (item.pattern) return new Set([item.pattern, ...(item.pattern_variants ?? []), item.family_key]
+    .flatMap(p => String(p ?? '').match(JAPANESE_RUN) ?? []).map(normalizeJapanese));
+  return new Set([item.expression, ...(item.variants ?? []), item.reading].flatMap(wordForms));
 }
 
 const stripFurigana = text => String(text).replace(/[(（][^)）]*[)）]/g, '');
@@ -47,8 +138,9 @@ function checkExamples(item, examples, minCount, level, ctx, err, warn) {
     if (e.ja_furigana && stripFurigana(e.ja_furigana) !== e.ja) err('FURIGANA_MISMATCH', e.ja);
     if (!e.ja_furigana && HAS_KANJI.test(e.ja)) warn('FURIGANA_MISSING', e.ja);
     if (e.source !== 'CLAUDE') continue;
-    const above = wordsAbove(e.ja, ctx.levelOfWord, level);
-    if (above.length) err('EXAMPLE_ABOVE_LEVEL', `${e.ja} → ${above.join(',')}`);
+    const above = wordsAbove(e.ja, ctx, level, ownWords(item));
+    if (above.kanji.length) err('EXAMPLE_ABOVE_LEVEL', `${e.ja} → ${above.kanji.join(',')}`);
+    if (above.kana.length) warn('EXAMPLE_KANA_ABOVE_LEVEL', `${e.ja} → ${above.kana.join(',')}`);
     const len = e.ja.replace(/\s/g, '').length, [min, max] = EXAMPLE_LENGTH[level];
     if (len < min || len > max) err('EXAMPLE_LENGTH', `${len}: ${e.ja}`);
     const ref = ctx.miraiExamples?.find(r => similarity(r, e.ja) > 0.7);

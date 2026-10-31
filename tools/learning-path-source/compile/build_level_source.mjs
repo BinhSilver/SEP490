@@ -2,26 +2,28 @@
 // Output data/learning-path/compiled/<level>.json is deterministic; --check compares bytes instead of writing.
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { LEVELS, LEVEL_RANK, ROOT, argValue, normalizeJapanese, readJson, writeOrCheck } from './util.mjs';
+import { LEVELS, ROOT, argValue, normalizeJapanese, readJson, writeOrCheck } from './util.mjs';
 import { compileFromInputs, loadCompileInputs, loadReference } from './inputs.mjs';
 import { applyPackets, authoringDir, emitReviewPackets, readPackets, reviewCorrections } from './authoring.mjs';
-import { applyStatuses, runChecks, WARNING_CODES } from './checks.mjs';
+import { applyStatuses, buildLevelIndex, runChecks, WARNING_CODES } from './checks.mjs';
 import { writeReport, REPORT_DIR } from './report.mjs';
 
 export const compiledFile = level => path.join(ROOT, 'data/learning-path/compiled', `${level}.json`);
 
-function checkContext(inputs, level, outFile) {
-  const levelOfWord = new Map();
-  const note = (expression, lvl) => {
-    if (!expression || !lvl || !(lvl in LEVEL_RANK)) return;
-    const k = normalizeJapanese(expression), cur = levelOfWord.get(k);
-    if (!cur || LEVEL_RANK[lvl] < LEVEL_RANK[cur]) levelOfWord.set(k, lvl);
-  };
-  for (const l of LEVELS) {
-    for (const v of inputs.jlasLevels[l].vocabulary) note(v.expression, l);
-    for (const v of inputs.frames[l].vocabulary) note(v.expression, l);
-  }
-  for (const e of inputs.dictionary.entryById.values()) note(e.expression, e.jlpt_level);
+// Word and kanji levels come from the merged levels (a kana Mirai word counts at its merged word's level, a reviewed
+// spelling fix counts), so they are compiled once per inputs and corrections.
+const levelIndexes = new WeakMap();
+function levelIndex(inputs, corrections) {
+  const key = JSON.stringify([[...(corrections.identity ?? [])], [...(corrections.identityByForm ?? [])], corrections.sameWord ?? []]);
+  if (!levelIndexes.has(inputs)) levelIndexes.set(inputs, new Map());
+  const cache = levelIndexes.get(inputs);
+  if (!cache.has(key)) cache.set(key, buildLevelIndex({
+    levels: LEVELS.map(l => compileFromInputs({ ...inputs, corrections }, l)), dictionary: inputs.dictionary }));
+  return cache.get(key);
+}
+
+function checkContext(inputs, level, outFile, corrections = {}) {
+  const { levelOfWord, kanaLevel, kanjiLevel } = levelIndex(inputs, corrections);
 
   const miraiReference = new Map();
   let miraiExamples = [];
@@ -43,14 +45,15 @@ function checkContext(inputs, level, outFile) {
     const other = readJson(file);
     for (const x of [...other.vocabulary, ...other.kanji, ...other.grammar, ...(other.merged_ids ?? [])]) otherLevelIds.add(x.id);
   }
-  return { levelOfWord, miraiReference, miraiExamples, expectedIds, otherLevelIds };
+  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiExamples, expectedIds, otherLevelIds };
 }
 
 export function buildLevel(level, { inputs = loadCompileInputs(), outFile = compiledFile(level), reportDir = REPORT_DIR,
   packetsDir = authoringDir(level), check = false, date = new Date().toISOString().slice(0, 10) } = {}) {
   const packets = readPackets(packetsDir);
-  const applied = applyPackets(compileFromInputs({ ...inputs, corrections: reviewCorrections(packets) }, level), packets);
-  const result = runChecks(applied, checkContext(inputs, level, outFile));
+  const corrections = reviewCorrections(packets);
+  const applied = applyPackets(compileFromInputs({ ...inputs, corrections }, level), packets);
+  const result = runChecks(applied, checkContext(inputs, level, outFile, corrections));
   const compiled = applyStatuses(applied, result);
   const ok = writeOrCheck(outFile, { ...compiled, generated_by: 'tools/learning-path-source/compile/build_level_source.mjs' }, check);
   if (!check) writeReport({ level, compiled, result, date }, reportDir);
