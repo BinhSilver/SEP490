@@ -22,6 +22,13 @@ public class DictionaryPageController {
 
     private final LessonRepository lessonRepository;
 
+    @GetMapping({"/search", "/search/{tab:word|kanji|example|grammar|japanese}",
+            "/search/{tab:word|kanji|example|grammar|japanese}/{query}",
+            "/search/grammar_details/{id}"})
+    public String page() {
+        return "forward:/dictionary/index.html";
+    }
+
     @GetMapping("/textbooks")
     public String textbooks(Model model) {
         model.addAttribute("layoutMode", "app");

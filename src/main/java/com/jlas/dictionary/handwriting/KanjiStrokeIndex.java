@@ -27,8 +27,15 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class KanjiStrokeIndex {
 
-    /** Thư mục static chứa file KanjiVG (khôi phục bằng seed_bootstrap.py); luôn đọc từ đây. */
+    /** Thư mục static chứa file KanjiVG (khôi phục bằng seed_bootstrap.py); mặc định đọc từ đây. */
     private static final String ASSET_DIR = "classpath:/static/assets/kanjivg/kanji/";
+    /**
+     * SVG thứ tự nét cho Kanji hiếm KanjiVG không có (sinh bởi build_extra_stroke_svgs.py, cùng layout
+     * và khung 109x109 của KanjiVG; seed_bootstrap.py giải nén từ data/dictionary-seed/stroke-order-extra.zip).
+     * Chỉ URI có đúng tiền tố này mới đọc ở đây.
+     */
+    private static final String EXTRA_URI_PREFIX = "/assets/stroke-order-extra/";
+    private static final String EXTRA_ASSET_DIR = "classpath:/static/assets/stroke-order-extra/";
     /** Chỉ chấp nhận tên file KanjiVG (vd. 04f5c.svg) nên URI trong DB không thể trỏ ra ngoài thư mục. */
     private static final Pattern SVG_FILE = Pattern.compile("[0-9a-f]{5}(?:-[A-Za-z0-9]+)?\\.svg");
 
@@ -61,24 +68,30 @@ public class KanjiStrokeIndex {
     }
 
     /**
-     * Dựng chỉ mục từ mọi Kanji trong DB. Nếu thiếu file SVG (thư mục KanjiVG là dữ liệu được khôi phục
-     * riêng, bị gitignore) và chỉ mục rỗng hoặc mất quá nửa thì ném lỗi 503 và KHÔNG cache, để lần gọi sau
-     * dựng lại được sau khi sửa dữ liệu, thay vì trả 200 với danh sách rỗng suốt vòng đời process.
+     * Dựng chỉ mục từ mọi Kanji có SVG trong DB. Kanji không có {@code stroke_svg_uri} (chữ rất hiếm,
+     * không nguồn mở nào có dữ liệu nét) chỉ đơn giản là không nhận diện được và không tính vào ngưỡng.
+     * Nếu thiếu file SVG (thư mục KanjiVG là dữ liệu được khôi phục riêng, bị gitignore) và chỉ mục rỗng
+     * hoặc mất quá nửa số Kanji có SVG thì ném lỗi 503 và KHÔNG cache, để lần gọi sau dựng lại được sau
+     * khi sửa dữ liệu, thay vì trả 200 với danh sách rỗng suốt vòng đời process.
      */
     private List<StrokeMatcher.Ref> load() {
         List<StrokeMatcher.Ref> result = new ArrayList<>();
-        List<Kanji> all = kanjiRepository.findAll();
+        List<Kanji> all = kanjiRepository.findAll().stream()
+                .filter(kanji -> kanji.getStrokeSvgUri() != null)
+                .toList();
         int skipped = 0;
         String firstProblem = null;
         for (Kanji kanji : all) {
             String uri = kanji.getStrokeSvgUri();
-            String file = uri == null ? null : uri.substring(uri.lastIndexOf('/') + 1);
-            if (file == null || !SVG_FILE.matcher(file).matches()) {
+            if (uri == null) continue;
+            String file = uri.substring(uri.lastIndexOf('/') + 1);
+            if (!SVG_FILE.matcher(file).matches()) {
                 skipped++;
                 if (firstProblem == null) firstProblem = kanji.getCharacter() + ": stroke_svg_uri không hợp lệ (" + uri + ")";
                 continue;
             }
-            Resource resource = resourceLoader.getResource(ASSET_DIR + file);
+            String directory = uri.startsWith(EXTRA_URI_PREFIX) ? EXTRA_ASSET_DIR : ASSET_DIR;
+            Resource resource = resourceLoader.getResource(directory + file);
             try (var in = resource.getInputStream()) {
                 List<List<double[]>> strokes = KanjiVgPath.strokesOf(new String(in.readAllBytes(), StandardCharsets.UTF_8));
                 if (strokes.isEmpty()) throw new IllegalStateException("không có nét nào trong SVG");

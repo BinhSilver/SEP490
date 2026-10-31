@@ -199,6 +199,17 @@ azure:
       max-audio-bytes: ${AZURE_SPEECH_MAX_AUDIO_BYTES:5242880}
       max-audio-seconds: ${AZURE_SPEECH_MAX_AUDIO_SECONDS:30}
       requests-per-minute: ${AZURE_SPEECH_REQUESTS_PER_MINUTE:20}
+    tts:
+      key: ${AZURE_SPEECH_TTS_KEY:${azure.speech.pronunciation.key}}
+      region: ${AZURE_SPEECH_TTS_REGION:${azure.speech.pronunciation.region}}
+      voice: ${AZURE_SPEECH_TTS_VOICE:ja-JP-NanamiNeural}
+      output-format: ${AZURE_SPEECH_TTS_OUTPUT_FORMAT:audio-24khz-48kbitrate-mono-mp3}
+
+dictionary:
+  tts:
+    cache-dir: ${DICTIONARY_TTS_CACHE_DIR:uploads/tts-cache}
+    max-chars: ${DICTIONARY_TTS_MAX_CHARS:200}
+    requests-per-minute: ${DICTIONARY_TTS_REQUESTS_PER_MINUTE:30}
 
 pronunciation:
   storage:

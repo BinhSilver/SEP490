@@ -26,7 +26,7 @@
 
 **Files:**
 - Modify: `jlas_schema.sql`
-- Create: `sql/migrations/004_dictionary_import_metadata.sql`
+- Create: `sql/migrations/058_dictionary_import_metadata.sql`
 - Create: `scripts/dictionary_import/tests/test_schema_contract.py`
 
 **Interfaces:**
@@ -69,7 +69,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```text
-git add jlas_schema.sql sql/migrations/004_dictionary_import_metadata.sql scripts/dictionary_import/tests/test_schema_contract.py
+git add jlas_schema.sql sql/migrations/058_dictionary_import_metadata.sql scripts/dictionary_import/tests/test_schema_contract.py
 git commit -m "feat: add dictionary import metadata schema"
 ```
 
@@ -460,6 +460,6 @@ Spring startup file changed.
 - [ ] **Step 6: Commit verification-only fixes, if any**
 
 ```text
-git add -- jlas_schema.sql sql/migrations/004_dictionary_import_metadata.sql scripts/dictionary_import docs/dictionary-import.md
+git add -- jlas_schema.sql sql/migrations/058_dictionary_import_metadata.sql scripts/dictionary_import docs/dictionary-import.md
 git commit -m "fix: complete dictionary import verification"
 ```

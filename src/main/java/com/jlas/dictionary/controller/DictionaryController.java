@@ -2,33 +2,35 @@ package com.jlas.dictionary.controller;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
-import com.jlas.dictionary.dto.HandwritingRequest;
-import com.jlas.dictionary.dto.KanjiResponse;
-import com.jlas.dictionary.dto.LessonContentResponse;
-import com.jlas.dictionary.dto.LessonImportResult;
-import com.jlas.dictionary.dto.LessonKanjiRequest;
-import com.jlas.dictionary.dto.LessonSummaryResponse;
-import com.jlas.dictionary.dto.SearchHistoryResponse;
-import com.jlas.dictionary.dto.SearchResultResponse;
 import com.jlas.dictionary.dto.AttachVocabularyRequest;
+import com.jlas.dictionary.dto.ComponentSearchResponse;
 import com.jlas.dictionary.dto.DialogueLineResponse;
 import com.jlas.dictionary.dto.DialogueLineUpsertRequest;
 import com.jlas.dictionary.dto.DialogueRoleResponse;
 import com.jlas.dictionary.dto.DialogueRoleUpsertRequest;
 import com.jlas.dictionary.dto.DialogueSceneResponse;
 import com.jlas.dictionary.dto.DialogueSceneUpsertRequest;
+import com.jlas.dictionary.dto.DictionaryFavoriteResponse;
 import com.jlas.dictionary.dto.ExampleSentenceResponse;
 import com.jlas.dictionary.dto.ExampleSentenceUpsertRequest;
 import com.jlas.dictionary.dto.GrammarPointResponse;
 import com.jlas.dictionary.dto.GrammarPointUpsertRequest;
+import com.jlas.dictionary.dto.HandwritingRequest;
+import com.jlas.dictionary.dto.InlineLookupResponse;
+import com.jlas.dictionary.dto.KanjiComponentResponse;
+import com.jlas.dictionary.dto.KanjiResponse;
+import com.jlas.dictionary.dto.LessonContentResponse;
+import com.jlas.dictionary.dto.LessonImportResult;
+import com.jlas.dictionary.dto.LessonKanjiRequest;
+import com.jlas.dictionary.dto.LessonSummaryResponse;
 import com.jlas.dictionary.dto.LessonUpsertRequest;
+import com.jlas.dictionary.dto.PagedResponse;
 import com.jlas.dictionary.dto.ReorderRequest;
+import com.jlas.dictionary.dto.SearchHistoryResponse;
+import com.jlas.dictionary.dto.SearchResultResponse;
 import com.jlas.dictionary.dto.SectionResponse;
 import com.jlas.dictionary.dto.SectionUpsertRequest;
-import com.jlas.dictionary.dto.PagedResponse;
 import com.jlas.dictionary.dto.TagResponse;
-import com.jlas.dictionary.dto.VocabularyCreateRequest;
-import com.jlas.dictionary.dto.VocabularySearchItem;
 import com.jlas.dictionary.dto.TagUpsertRequest;
 import com.jlas.dictionary.dto.TextbookResponse;
 import com.jlas.dictionary.dto.TextbookUnitsResponse;
@@ -38,16 +40,23 @@ import com.jlas.dictionary.dto.TopicResponse;
 import com.jlas.dictionary.dto.UnitResponse;
 import com.jlas.dictionary.dto.UnitUpsertRequest;
 import com.jlas.dictionary.dto.UpdateStatusRequest;
+import com.jlas.dictionary.dto.VocabularyCreateRequest;
 import com.jlas.dictionary.dto.VocabularyResponse;
+import com.jlas.dictionary.dto.VocabularySearchItem;
 import com.jlas.dictionary.handwriting.HandwritingRateLimiter;
+import com.jlas.dictionary.service.AzureTtsService;
 import com.jlas.dictionary.service.ContentAdminService;
-import com.jlas.dictionary.service.DictionaryService;
 import com.jlas.dictionary.service.DictionaryEngagementService;
-import com.jlas.dictionary.dto.DictionaryFavoriteResponse;
-import com.jlas.dictionary.dto.InlineLookupResponse;
+import com.jlas.dictionary.service.DictionaryService;
 import com.jlas.dictionary.service.LessonImportService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -56,13 +65,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import org.springframework.data.domain.Page;
 
 /**
  * Controller xử lý các API từ điển (Dictionary Search / Kanji Search / Vocabulary Search — cũng là API
@@ -79,9 +82,22 @@ import org.springframework.data.domain.Page;
 public class DictionaryController {
     private final DictionaryService dictionaryService;
     private final HandwritingRateLimiter handwritingRateLimiter;
+    private final AzureTtsService azureTtsService;
     private final DictionaryEngagementService engagementService;
     private final ContentAdminService contentAdminService;
     private final LessonImportService lessonImportService;
+
+    @GetMapping(value = "/tts", produces = "audio/mpeg")
+    public ResponseEntity<byte[]> tts(@RequestParam(required = false) String text,
+                                      @AuthenticationPrincipal UserPrincipal user,
+                                      HttpServletRequest request) {
+        String clientKey = user == null ? "ip:" + request.getRemoteAddr() : "user:" + user.userId();
+        byte[] audio = azureTtsService.synthesize(text, clientKey);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("audio/mpeg"))
+                .cacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic())
+                .body(audio);
+    }
 
     // ---------------------------------------------------------------------
     // Tra cứu từ điển
@@ -113,6 +129,19 @@ public class DictionaryController {
             @AuthenticationPrincipal UserPrincipal user) {
         handwritingRateLimiter.check(id(user));
         return ApiResponse.ok("OK", dictionaryService.recognizeHandwriting(request));
+    }
+
+    /** Bảng bộ phận (bộ thủ) để tra Kanji, đã sắp theo số nét. */
+    @GetMapping("/components")
+    public ApiResponse<List<KanjiComponentResponse>> kanjiComponents() {
+        return ApiResponse.ok("OK", dictionaryService.listKanjiComponents());
+    }
+
+    /** Kanji chứa tất cả bộ phận đã chọn, ví dụ {@code ?ids=12,40} (亻 + 木). */
+    @GetMapping("/components/search")
+    public ApiResponse<ComponentSearchResponse> searchByComponents(
+            @RequestParam(name = "ids", required = false) List<Integer> componentIds) {
+        return ApiResponse.ok("OK", dictionaryService.searchByComponents(componentIds));
     }
 
     @GetMapping("/history")
