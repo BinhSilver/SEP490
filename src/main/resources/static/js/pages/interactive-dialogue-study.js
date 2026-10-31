@@ -342,6 +342,11 @@
       '</section>';
   }
 
+  function clockTime(seconds) {
+    seconds = Math.floor(Math.max(0, num(seconds)));
+    return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+  }
+
   /** The friendly nudge text is derived purely from server-reported numbers — never invents progress. */
   function renderProgress(v, timingState) {
     if (v.lineByLinePractice) {
@@ -369,27 +374,27 @@
         : v.reachedBottom
           ? 'Đang xác nhận hoàn thành...'
           : 'Hãy cuộn xuống hết đoạn hội thoại để hoàn thành.';
+    var countdown = (!v.completed && v.remainingSeconds > 0)
+      ? ' <span class="ilp-dialogue__countdown">(' + clockTime(v.remainingSeconds) + ')</span>'
+      : '';
     var timingNote = v.completed ? '' : timingState === 'paused'
       ? 'Đang tạm dừng — thời gian sẽ tiếp tục khi trang hiển thị và máy chủ xác nhận.'
       : timingState === 'error' ? 'Đang tạm dừng cập nhật — chưa kết nối được máy chủ, sẽ tự thử lại.'
         : timingState === 'resumed' ? 'Đã tiếp tục tính thời gian sau khi quay lại trang.' : '';
     // Display server evidence only; never run a client countdown or round 179 seconds up to 3 minutes.
-    function clockTime(seconds) {
-      seconds = Math.floor(Math.max(0, seconds));
-      return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
-    }
     return '<div class="ilp-dialogue__progress" role="status" aria-live="polite">' +
       '<div class="ilp-progress" role="progressbar" aria-valuenow="' + v.accumulatedSeconds +
       '" aria-valuemin="0" aria-valuemax="' + v.requiredSeconds + '">' +
       '<span style="width:' + v.percent + '%"></span></div>' +
-      '<p class="ilp-dialogue__note">' + esc(note) + '</p>' +
+      '<p class="ilp-dialogue__note">' + esc(note) + countdown + '</p>' +
       '<p class="ilp-dialogue__timing-hint">Thời gian chỉ được tính khi trang đang mở trên màn hình</p>' +
       (timingNote ? '<p class="ilp-dialogue__timing-state">' + esc(timingNote) + '</p>' : '') +
       '<ul class="ilp-dialogue__evidence">' +
       '<li class="' + (v.reachedBottom ? 'is-done' : '') + '">Đã cuộn đến cuối</li>' +
       '<li title="Đủ ' + v.requiredSeconds + ' giây hoạt động" class="' +
       (v.accumulatedSeconds >= v.requiredSeconds ? 'is-done' : '') + '">Thời gian học: ' +
-      clockTime(Math.min(v.accumulatedSeconds, v.requiredSeconds)) + ' / ' + clockTime(v.requiredSeconds) + '</li></ul></div>';
+      clockTime(Math.min(v.accumulatedSeconds, v.requiredSeconds)) + ' / ' + clockTime(v.requiredSeconds) +
+      (v.remainingSeconds > 0 ? ' (còn ' + clockTime(v.remainingSeconds) + ')' : '') + '</li></ul></div>';
   }
 
   /** {@code v} (optional): the study view model, whose aids feed "Tóm tắt cuối bài" for communication dialogues. */
@@ -445,12 +450,34 @@
     if (StudyMode && StudyMode.bindNextAction) StudyMode.bindNextAction(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var heartbeatTimer = null;
+    var resumedTimer = null;
     var observer = null;
     var bottomReported = false;
     var bottomVisible = false;
     var finished = false;
     var timingState = document.visibilityState === 'visible' ? '' : 'paused';
     var visibilityVersion = 0;
+
+    function clearResumedTimer() {
+      if (resumedTimer) {
+        var clearFn = typeof clearTimeout === 'function' ? clearTimeout : (typeof window !== 'undefined' && window.clearTimeout);
+        if (clearFn) clearFn(resumedTimer);
+        resumedTimer = null;
+      }
+    }
+
+    function scheduleResumedAutoHide() {
+      clearResumedTimer();
+      var setFn = typeof setTimeout === 'function' ? setTimeout : (typeof window !== 'undefined' && window.setTimeout);
+      if (!setFn) return;
+      resumedTimer = setFn(function () {
+        resumedTimer = null;
+        if (timingState === 'resumed') {
+          timingState = '';
+          refreshTimingState();
+        }
+      }, 4000);
+    }
 
     function refreshTimingState() {
       if (!current || current.lineByLinePractice || finished || mode !== 'LEARN') return;
@@ -475,6 +502,7 @@
 
     function stopTracking() {
       if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+      clearResumedTimer();
       if (observer) { observer.disconnect(); observer = null; }
     }
 
@@ -634,10 +662,14 @@
         var result = await postJson('/heartbeat', { heartbeatToken: genToken() });
         // A response started before a visibility change must not announce that timing has resumed.
         if (version === visibilityVersion && document.visibilityState === 'visible') {
-          timingState = timingState === 'paused' ? 'resumed' : '';
+          var wasPaused = timingState === 'paused';
+          timingState = wasPaused ? 'resumed' : '';
+          if (wasPaused) scheduleResumedAutoHide();
+          else clearResumedTimer();
         }
         applyProgress(result);
       } catch (e) {
+        clearResumedTimer();
         if (version === visibilityVersion && document.visibilityState === 'visible') timingState = 'error';
         refreshTimingState();
         return;
@@ -815,6 +847,7 @@
 
     document.addEventListener('visibilitychange', function () {
       visibilityVersion++;
+      clearResumedTimer();
       timingState = 'paused';
       refreshTimingState();
       if (document.visibilityState === 'visible') sendHeartbeat();
@@ -824,7 +857,7 @@
   }
 
   return {
-    viewModel: viewModel, formatRemaining: formatRemaining, renderLine: renderLine, renderScript: renderScript,
+    viewModel: viewModel, formatRemaining: formatRemaining, clockTime: clockTime, renderLine: renderLine, renderScript: renderScript,
     renderProgress: renderProgress, renderCompleted: renderCompleted, renderReplay: renderReplay, error: error, mount: mount,
     rubyHtml: rubyHtml, renderPhrases: renderPhrases, renderSummary: renderSummary,
     renderChallenge: renderChallenge, renderChallengeResult: renderChallengeResult

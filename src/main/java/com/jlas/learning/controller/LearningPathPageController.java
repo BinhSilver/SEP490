@@ -37,7 +37,7 @@ public class LearningPathPageController {
             String redirect = "redirect:/learning/path/v2?assessmentAttemptId=" + assessmentAttemptId;
             // Owner 2026-10-25: the answers to the Smart Test entry questions travel with the handoff.
             if (kanaKnown != null && List.of("true", "false").contains(kanaKnown)) redirect += "&kanaKnown=" + kanaKnown;
-            if (entryChoice != null && List.of("SOLID", "NOT_SOLID", "STUDY_LEVEL", "SKIP_LEVEL", "REVIEW_MISTAKES",
+            if (entryChoice != null && List.of("SOLID", "NOT_SOLID", "STUDY_WEAK_LEVEL", "SKIP_WEAK_LEVEL", "REVIEW_MISTAKES",
                     "SKIP_REVIEW").contains(entryChoice)) redirect += "&entryChoice=" + entryChoice;
             // List.of(...).contains(null) throws, and most Smart Test handoffs carry neither choice.
             if (reviewStartLevel != null && List.of("N5", "N4", "N3").contains(reviewStartLevel)) {

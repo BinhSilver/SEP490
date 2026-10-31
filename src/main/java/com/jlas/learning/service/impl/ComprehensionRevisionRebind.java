@@ -10,6 +10,7 @@ import com.jlas.learning.mapper.LearningMapper;
 import com.jlas.learning.repository.LearningActivityMemberRepository;
 import com.jlas.learning.repository.LearningQuizSessionRepository;
 import com.jlas.learning.service.impl.engine.ComprehensionContent;
+import com.jlas.learning.service.impl.engine.InteractiveStudyEngine;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -44,7 +45,9 @@ final class ComprehensionRevisionRebind {
         Map<Long, ComprehensionQuestionSpec> now = new HashMap<>();
         ordered.forEach(content -> now.put(content.question().id(), content.question()));
         for (LearningQuizSession attempt : quizSessions.findByActivityIdOrderByIdAsc(activity.getId())) {
-            if (attempt.getQuestionsJson() == null) continue;
+            // §2.32: an extra-practice session asks store passages, never this activity's members.
+            if (attempt.getQuestionsJson() == null
+                    || InteractiveStudyEngine.EXTRA_PRACTICE.equals(attempt.getQuizType())) continue;
             Map<Long, QuizAnswerKey> key = attempt.getAnswerKeyJson() == null ? Map.of()
                     : mapper.readQuizAnswerKey(attempt.getAnswerKeyJson());
             for (LessonQuizResponse.LessonQuizQuestion asked : mapper.readQuizQuestions(attempt.getQuestionsJson())) {
