@@ -156,7 +156,8 @@ Bằng chứng chạy và tồn đọng nằm trong execution ledger, không dù
 - Căn bản: full cùng cấp, không có warm-up riêng; popup bên dưới bảng mục tiêu nêu lỗi sai, chương chứa kiến thức và link chương thật.
 - Nhập môn: full cùng cấp từ đầu cấp đó, không quay về Kana.
 
-**Nếu assessed thấp hơn tự khai:** xử lý chênh lệch trước nhãn thành thạo.
+**Nếu assessed thấp hơn tự khai:** xử lý chênh lệch trước nhãn thành thạo. Owner 2026-10-27: khi cấp chưa vững thấp hơn
+target, luồng Đồng ý/Từ chối dưới đây được thay bằng thông báo R1 (§2.3a, W2); chỉ còn áp khi cấp đó trùng target.
 
 - Giải thích chênh lệch và cho đồng ý/từ chối đề xuất củng cố nền.
 - Đồng ý: bắt đầu theo assessed, củng cố theo mức thực tế rồi đi từng chặng hỗ trợ đến target. Ví dụ N5→N4→N3 hoặc ôn lỗi N4 rồi N4→N3. Không đổi N4 Căn bản thành N5 và không tạo ôn trùng không cần thiết.
@@ -180,9 +181,29 @@ chối; UNKNOWN xa target → OD-35) giữ nguyên và không hỏi thêm.
 | Chưa hoàn thành (mọi cấp) | Tự khai N5/UNKNOWN: "đã đọc được bảng chữ cái chưa?" | Chưa → Kana rồi N5 … target |
 | | Rồi hỏi "chưa xác định được bạn đã vững [cấp tự khai] chưa" (khi cấp đó < target); có nút "Làm lại Smart Test" | Vững → từ cấp kế tiếp; Chưa vững → học thêm cấp đó. Không khởi động ôn lỗi |
 | Hoàn thành, dưới N5 | "đã đọc được bảng chữ cái chưa?" | Chưa → Kana + N5 …; Rồi → N5 từ chương đầu, không Kana |
-| Hoàn thành, Nhập môn dưới target | "Học lại [cấp] trước?" | Học lại (khuyến nghị) → cấp đó … target; Bỏ qua → từ cấp kế tiếp |
+| Hoàn thành, Nhập môn dưới target | Thông báo "học lại cấp" (R1, bên dưới) | Bắt đầu học → trọn cấp đó … target; Vẫn học thẳng → từ cấp tự khai (≤ target), không khai cấp cao hơn thì từ cấp kế tiếp |
 | Hoàn thành, Căn bản dưới target | Nêu số câu sai theo kỹ năng, "Ôn lỗi trước?" | Ôn → khởi động ôn lỗi rồi target; Bỏ qua → vào thẳng, không khởi động |
 | Thành thạo / cùng cấp target | Không hỏi | Như §2.2–2.3 |
+
+**R1 — chưa vững cấp hiện tại (owner 2026-10-27).** Khi kết quả cho thấy người học chưa vững một cấp X thấp hơn target, lộ
+trình học **trọn cấp X từ chương 1** rồi từng chặng liền kề tới target; **không khởi động, không ôn lỗi, không câu hỏi chọn
+cấp**. Không thêm ngưỡng điểm mới — chỉ dùng nhãn và luật batch của §1.3:
+
+| # | Trường hợp | Cấp X |
+|---|---|---|
+| W1 | Hoàn thành, mức tổng Nhập môn | Cấp tự khai (nếu ≤ target), không thì cấp đánh giá |
+| W2 | Hoàn thành, cấp đánh giá thấp hơn cấp tự khai (thay luồng Đồng ý/Từ chối của §2.3) | Cấp đánh giá; nếu cấp đó Thành thạo thì cấp tự khai |
+| W3 | Chưa hoàn thành, đã trả lời đủ ít nhất 1 batch 5 câu ở cấp tự khai và **mọi** batch đủ 5 câu ở cấp đó đúng ≤ 2 (batch có câu bỏ trống không tính; câu hết giờ vẫn tính) | Cấp tự khai (N5 nếu không biết) |
+
+- X = target thì không có thông báo (target vốn học trọn). Kết quả dưới N5 vẫn hỏi bảng chữ cái trước; W3 với tự khai N5/UNKNOWN
+  cũng hỏi bảng chữ cái trước (chưa đọc được → Kana rồi N5…). Căn bản (sai một số chỗ) giữ câu "Ôn lỗi trước?".
+- API `entry-questions` trả `choiceKind = WEAK_LEVEL` kèm `notice` (`weakLevel`, `targetLevel`, `stages`, `skipLevel`,
+  `weakSkills` — tối đa 3 kỹ năng tỉ lệ đúng thấp nhất, rỗng với bài chưa hoàn thành —, `estimatedDays` (chưa tính, null),
+  `minutesPerDay`, `allowSkip`). Sau nút "Tạo lộ trình", giao diện hiện thông báo "Bạn nên học lại X trước…" với hai nút:
+  "Bắt đầu học X" (`entryChoice = STUDY_WEAK_LEVEL`) và — owner cho phép (Q1) — "Vẫn học thẳng {skipLevel}"
+  (`SKIP_WEAK_LEVEL`, cũng không khởi động). Owner 28/10: `skipLevel` = **cấp tự khai** khi cấp đó cao hơn X (không vượt
+  target; vd tự khai N3, mục tiêu N3, yếu N5 → "Vẫn học thẳng N3"); không khai cấp cao hơn X thì là cấp ngay trên X. Thiếu câu trả lời, câu trả lời khác hoặc gửi kèm lựa
+  chọn đồng ý/từ chối đều bị từ chối. Mã `policy_version` `:EW` / `:EX`; lộ trình đã tạo không đổi.
 
 ### 2.4 Ngân sách và xếp lịch JLPT
 
@@ -459,7 +480,7 @@ chối; UNKNOWN xa target → OD-35) giữ nguyên và không hỏi thêm.
   soát (OD-21). Ghi nguồn bằng trang nguồn + dòng nguồn tại chỗ (OD-40). Phần cần soạn thêm do AI tạo, phải khớp canonical trong DB
   (OD-06); Đọc N5/N4 dùng Speed Master N5/N4 kèm bài đọc AI bổ sung có nhãn (OD-08). Audio Sekai gắn nhãn "giọng đọc tổng hợp"
   khi chưa chứng minh là ghi âm (OD-10). Bài quy tắc Kana vào FOUNDATION với nhãn bổ sung (OD-33).
-- File data chuẩn: `data/learning-owned/learning-content.json`; SQL task-owned được áp theo thứ tự `sql/migrations/022_learning_owned_consolidated.sql` rồi `sql/seeds/learning_owned.sql`. Snapshot nguồn có trong file không chứng minh đã map và mở học runtime.
+- File data chuẩn: `data/learning-owned/learning-content.json`; SQL task-owned được áp theo thứ tự `sql/migrations/022_learning_owned_consolidated.sql` rồi `sql/seeds/learning_owned.sql` và `sql/seeds/learning_owned_part2.sql` (E5 28/10: một seed tách 2 file, mỗi file < 45 MB, nạp đúng thứ tự; `verify_learning_sql.mjs` kiểm cả hai và chặn file vượt 45 MB). Snapshot nguồn có trong file không chứng minh đã map và mở học runtime.
 - Sách J-LAS tổng hợp (owner 2026-10-24, D3-04/05/10): mỗi cấp một sách Learning-owned `LP-OWNED-JLAS-{L}-COMPILED` gộp mọi
   sách của cấp, chống trùng theo kỹ năng, dễ → khó, sách nguồn chỉ là provenance (không hiện nhãn). Dữ liệu: mục
   `jlas_compiled_book_{l}`; SQL: `build_jlas_compiled_books_sql.mjs` (N5/N4/N3; N2/N1 sau). Id theo dải riêng mỗi cấp
@@ -510,8 +531,79 @@ lộ trình giao tiếp (§2.24) không áp dụng. Đợt đầu: **Đọc + Ng
 - **Phiên luyện thêm:** `learning_quiz_session.quiz_type = EXTRA_PRACTICE`, gắn `activity_id` của bài Đọc/Nghe bắt buộc của
   chương, đóng băng đề/đáp án/nguồn trong `questions_json`/`answer_key_json`/`source_snapshot_json`; lịch sử, kết quả, chữa bài và
   đếm lượt của bài chính lọc theo loại phiên. Cần migration mở rộng `chk_quiz_session_type` (diễn tập + owner duyệt trước khi ghi).
+- **API (T4, 2026-10-27):** `GET /api/learning/v2/activities/{id}/comprehension/extra-practice` (gợi ý), `POST …/extra-practice`
+  `{passage}` (phát/mở lại phiên; bài phải còn trong gợi ý của chính người học, nên HOLD/bài tự chọn bị từ chối 409),
+  `POST …/extra-practice/submit` (chấm trên snapshot; không đổi trạng thái, lượt, điểm, CP). Hoạt động phải của người học, đã mở,
+  thuộc lộ trình JLPT có sách tổng hợp; bài khác trả danh sách rỗng + câu báo. Ứng viên: bài kho cùng cấp/kỹ năng (chương + `pool`)
+  trừ HOLD, trừ bài của chính hoạt động và bài bắt buộc chưa học tới của lộ trình (không lộ đề trước), trừ bài đã làm trong 14 ngày.
+  Bước (1) hiện dùng câu sai gần nhất của chương; khớp điểm yếu `OPEN` Smart Test (`VOCABULARY:<từ>`) với `vocab_refs` chờ bảng tra
+  `JV-…` → từ lúc chạy (chưa làm). Phiên `EXTRA_PRACTICE` không bao giờ làm chặn gắn lại revision hay tách bài cũ.
+- **Kho đợt đầu (T6, 2026-10-27):** section `jlas_store_pool` → khối seed riêng; mã `LP-OWNED-JLAS-{L}-POOL-READ-Pk-Qnnn`,
+  `context_json.pool=true`, `review=DRAFT`, `origin=JLAS_SUPPLEMENT`. N3: đoạn văn chép từ sách của đội số hóa (nguồn chỉ đọc),
+  câu hỏi/đáp án/lời giải J-LAS; N4: bài J-LAS tự viết. Nhãn kho đo so với bài chương nên không đổi nhãn/revision bài chương.
+- **Giao diện (T5, 2026-10-27):** trang Đọc/Nghe có khối "Luyện thêm (không tính điểm)" dưới bài học, màn kết quả, ôn lại và
+  luyện tập — **không** đặt dưới màn kiểm tra tính điểm (bấm vào sẽ thay mất câu đang trả lời). Thẻ gợi ý nêu lý do, nhãn bổ sung,
+  số câu/phút/độ khó; làm bài tại chỗ, kết quả có đáp án + giải thích + câu "không tính tiến độ". Không áp dụng (`chapter` rỗng)
+  thì ẩn hẳn khối; hết bài thì hiện câu báo của server. Audio bài Nghe luyện thêm không gửi bằng chứng "đã nghe" cho bài chính.
+- **Nghiệm thu (T7, 2026-10-27):** 8 tiêu chí của đề xuất (mục 9) chạy đầu-cuối trên bản sao `jlas` + 8084 với tài khoản E2E mới:
+  số gói/bài bắt buộc không đổi khi thêm kho; hai người khác điểm yếu nhận gợi ý khác, cùng dữ liệu cùng gợi ý; làm luyện thêm
+  không đổi 14 bảng của người học (điểm, mở khóa, CP, streak, nhiệm vụ, phiên chính); lịch sử/chữa bài/lượt bài chính không chứa
+  phiên luyện thêm; bài vừa làm không gợi ý lại; hết bài có câu báo; gợi ý không gọi AI; lộ trình giao tiếp không có luyện thêm.
 - **AI:** gắn nhãn/soạn bài bổ sung/đề xuất đáp án offline (đều `DRAFT`); giải thích khi dùng. AI không chấm điểm, không chọn phần
   bắt buộc, không mở khóa. AI lỗi thì gợi ý vẫn chạy theo nhãn đã lưu.
+
+### 2.33 Nguồn biên soạn linh hoạt — nhãn đơn vị (F1-1, 2026-10-27; ứng viên, chưa áp dụng)
+
+- Section `jlas_unit_labels` (`build_jlas_unit_labels.mjs`, có `--check`) gắn nhãn cho mọi từ vựng/Kanji/mẫu ngữ pháp của sách
+  tổng hợp N5–N3 theo ID sẵn có (`JV-`/`JK-`/`JG-`): `chapter`, `tier` (CORE/EXTENDED), `difficulty` 1–5 (vị trí trong cấp),
+  `topic` (khi nguồn có), `requires` (ngữ pháp → từ ≤ chương của nó + Kanji trong câu ví dụ; từ → Kanji của nó; Kanji → từ đầu
+  tiên), `minutes` (0,5 / 0,75 / 1 như ước lượng §2.4).
+- `tier` (owner chốt 2026-10-27): từ vựng CORE nếu có trong giáo trình chính (Sekai N5 / Sekai N4 / Tiếng Nhật N3) hoặc ≥ 2
+  sách nguồn; Kanji đều CORE; ngữ pháp **luôn CORE** tới khi gộp mẫu theo chức năng (B6) xong (mỗi sách ghi tên mẫu một kiểu
+  nên "≥ 2 sách" chưa đo được). Chỉ CORE: N5 29 → 24 ngày, N4 37 → 30, N3 82 → 52 (45 phút, Từ vựng + Kanji + Ngữ pháp).
+- **F1-2 (2026-10-27):** gói không tách và thứ tự phụ thuộc **đã được bộ tạo lộ trình bảo đảm**: trong chương học Từ vựng →
+  Kanji → Ngữ pháp → Hội thoại → Đọc → Nghe; chia phần chỉ cắt giữa các member (mẫu ngữ pháp, bài đọc/nghe là một khối); đổi
+  nhịp chỉ cắt Từ vựng/Kanji/Ngữ pháp liên tiếp. Generator nhãn kiểm `kanji_before_first_word = 0` (khác 0 thì dừng) và liệt kê
+  ví dụ ngữ pháp dùng từ (có Kanji, chưa có ở cấp dưới) mà chương sau mới dạy (`audit.grammar_examples_using_later_words`) —
+  việc của nội dung, không phải của thứ tự. Owner 2026-10-27: các ví dụ đó được viết lại (bản nháp AI, owner duyệt; chỉ lộ
+  trình tạo mới vì đổi ví dụ đổi revision bài ngữ pháp); bản mới phải qua lại đúng phép kiểm này.
+- `status = CANDIDATE_NOT_APPLIED`: không sinh SQL, không đổi sách/chương/revision; bộ tạo lộ trình chưa đọc nhãn này (chỉ đọc
+  danh sách từ EXTENDED ở F1-3 bên dưới).
+- **F1-3 — co theo ngày thi (2026-10-27):** khảo sát JLPT có "Ngày thi dự kiến" (không bắt buộc; sau hôm nay, tối đa 3 năm;
+  cột `user_learning_survey.exam_date`). Số ngày học còn lại = từ hôm nay tới trước ngày thi. Lộ trình JLPT dựng đầy đủ trước;
+  nếu số ngày (kể cả khởi động) vượt số ngày còn lại thì dựng lại với **chỉ từ vựng CORE** bắt buộc (mỗi chương vẫn ≥ 2 từ cho
+  câu chọn đáp án) và **2 bài Đọc + 2 bài Nghe đầu tiên của chương** (bài của giáo trình chính; mức sàn §2.32, chuẩn N3) — bài
+  Đọc/Nghe còn lại thành ứng viên Luyện thêm của chương (§2.32); Kanji, ngữ pháp, Hội thoại không đổi. Vẫn vượt → giữ bản CORE
+  và ghi chú không chặn
+  `DEADLINE_SHORT` (`PATH:<id>:DAYS:<ngày cần>/<ngày còn>`). Từ EXTENDED vẫn hiện trong bài, mục "Mở rộng — không bắt buộc" (không
+  thẻ, không kiểm tra). Danh sách từ EXTENDED: `learning/compiled-vocabulary-tiers.json` (id `content_item` của seed, sinh cùng nhãn).
+  `policy_version` thêm `:X<ngày còn>` (khác ngày thi là lộ trình khác); không có ngày thi thì như cũ. Diễn tập N4 45 phút: đủ
+  129 ngày / 147 gói / 2.016 từ → co 93 ngày / 114 gói / 1.367 từ, 50 Đọc + 50 Nghe.
+- **Ước tính lộ trình (R1, F1-3; 2026-10-27):** `GET /api/learning/paths/estimate?assessmentAttemptId=&kanaKnown=&entryChoice=`
+  dựng thử đúng lộ trình mà "Tạo lộ trình" sẽ dựng với các câu trả lời đó rồi **rollback toàn bộ** (không lưu lộ trình, điểm
+  yếu, không thay lộ trình cũ; narrative AI không chạy) → `{estimatedDays, packages, minutesPerDay}`. Mất bằng thời gian tạo lộ
+  trình (~3–9 s); hộp thông báo R1 gọi khi mở để điền "khoảng N ngày". Lỗi giống hệt lỗi khi tạo (thiếu câu trả lời → 400). Dùng ở F1-2 (gói
+  không tách được, thứ tự theo `requires`) và F1-3 (co theo ngày thi: CORE bắt buộc, EXTENDED sang Luyện thêm — không xoá).
+- **Bỏ đơn vị đã vững (F1-4, owner 2026-10-28):** lộ trình JLPT V2 tạo mới coi là đã vững (a) từ vựng/Kanji của mọi activity
+  người học đã PASSED/COMPLETED ở bất kỳ lộ trình nào trước, và (b) từ vựng của câu Smart Test Từ vựng/Kanji trả lời **đúng**
+  trong batch đủ 5 câu đã trả lời hết (cùng bằng chứng batch với R1-W3). Các đơn vị này rời phần bắt buộc (không thẻ, không
+  tính bài kiểm tra) và hiện ở nhóm **"Đã vững"** của bài (giữa "Ôn lại" và "Mở rộng"); mỗi bài vẫn giữ tối thiểu 2 từ bắt buộc
+  để câu chọn có phương án nhiễu. **Ngữ pháp luôn bắt buộc** (owner 27/10). Nếu bỏ đơn vị đã vững làm một chặng mất hẳn một kỹ
+  năng bắt buộc (hoặc sinh lỗi thiếu nội dung) mà bản đầy đủ không có, chặng giữ nội dung đầy đủ. `policy_version` thêm `:KN`
+  khi có đơn vị đã vững; lộ trình đã tạo không đổi. Áp cả khi co theo ngày thi (bỏ đã vững trước, rồi chỉ giữ CORE).
+- **Đo phút thật + gợi ý đổi nhịp (F1-6, owner 2026-10-28):** `GET /api/learning/v2/paths/current/pace/measured` (chỉ đọc)
+  so thời gian thật của các gói đã xong (bắt đầu → hoàn thành) với `estimated_minutes`. Bỏ qua gói bắt đầu và xong khác ngày
+  hoặc mở quá 240 phút (là nghỉ, không phải học). Cần ≥ 5 ngày học có gói đo được; lệch > 25% thì gợi ý một bước nhịp: nhanh
+  (≤ 75%) → FASTER (thêm phút/ngày), chậm (≥ 125%) → LIGHTER; đã ở mốc cuối thì không gợi ý. Trang lộ trình hiện một dòng gợi ý
+  dưới "Nhịp học" với nút mở đúng hộp xem trước đổi nhịp hiện có (§2.22) — **không tự đổi**, người học xác nhận. Không đọc dữ
+  liệu module Mission (`user_daily_progress`).
+- **Kỹ năng ưu tiên (F1-5, owner 2026-10-28):** khảo sát JLPT có câu "Kỹ năng muốn tập trung (không bắt buộc, tối đa 2)" chỉ
+  gồm Từ vựng / Đọc hiểu / Nghe hiểu (cột `user_learning_survey.focus_skills`, server kiểm lại; kỹ năng khác hoặc > 2 → 400).
+  Tác dụng: (1) khi lộ trình co theo ngày thi (F1-3), kỹ năng ưu tiên **không bị bớt** — Từ vựng giữ cả từ EXTENDED, Đọc/Nghe
+  giữ đủ bài của chương; (2) Luyện thêm (§2.32) của kỹ năng ưu tiên gợi ý tới 5 bài (thường 3), ghi "Kỹ năng ưu tiên của bạn"
+  và tự cuộn tới khi nộp bài xong; (3) trang lộ trình ghi "Ưu tiên: …". Không bớt phần bắt buộc của kỹ năng khác. Lộ trình lưu
+  kỹ năng ưu tiên lúc tạo trong `policy_version` (`:F` + V/R/L) — đổi khảo sát sau không đổi nhãn lộ trình cũ. Kho Luyện thêm
+  hiện chỉ có bài Đọc; ưu tiên Nghe chỉ có tác dụng (1) cho tới khi kho có bài Nghe.
 
 ## 3. AI hỗ trợ
 
@@ -519,6 +611,8 @@ lộ trình giao tiếp (§2.24) không áp dụng. Đợt đầu: **Đọc + Ng
 - Backend quyết định level/goal/stages/eligibility/quota/unlock/scoring. AI chỉ hỗ trợ narrative, hướng dẫn, giải thích hoặc đề xuất đã được backend kiểm.
 - Câu AI mới là draft có ID/key/distractors/explanation/translation/level/goal/provenance/mapping; chưa được phép scored/publish thì chỉ practice riêng. Không runtime AI tự tạo câu scored để bù ngân hàng thiếu.
 - Gemini advisory không đồng nghĩa source/teacher approval; cho phép dùng DRAFT sách nguồn (§2.28) không xóa trách nhiệm kiểm câu/mapping.
+- Narrative lộ trình (E4, 2026-10-27): sinh **sau khi** lộ trình đã commit, ngoài luồng request, ghi riêng cột `ai_plan_json`;
+  tạo lộ trình không chờ provider và không giữ khoá trong lúc gọi.
 - Timeout, retry hữu hạn và fallback; provider lỗi không làm mất tiến độ. Báo cấu hình SET/UNSET và actual-call riêng, không suy tích hợp đầy đủ từ smoke 200.
 
 ## 4. Dữ liệu, schema và phạm vi sở hữu
