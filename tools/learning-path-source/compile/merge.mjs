@@ -38,29 +38,54 @@ export function toRomaji(kana) {
 }
 
 // ---------------------------------------------------------------- vocabulary
-function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub }) {
+const sameWords = (x, y) => { const a = new Set(x.split(' ')), b = new Set(y.split(' ')); return a.size === b.size && [...a].every(w => b.has(w)); };
+const senseMatch = (x, y) => x === y ? 3 : (x.length > 1 && y.length > 1 && (x.includes(y) || y.includes(x))) || sameWords(x, y) ? 2 : 0;
+const entrySenses = e => senses([e.meaning_vi, ...(e.glosses_vi ?? [])].filter(Boolean).join('; '));
+const senseScore = (own, entry) => { const es = entrySenses(entry); return own.reduce((s, x) => s + Math.max(0, ...es.map(y => senseMatch(x, y))), 0); };
+
+function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity }) {
   const vnjpByKey = new Map();
   for (const v of vnjpclub.vocabulary ?? []) {
     const k = `${normalizeJapanese(v.normalized_expression ?? v.tu)}|${normalizeJapanese(v.normalized_reading ?? v.cach_doc)}`;
     if (!vnjpByKey.has(k)) vnjpByKey.set(k, []);
     vnjpByKey.get(k).push(v);
   }
-  const dictFor = (ne, nr) => (dictionary.vocabularyByKey.get(`${ne}|${nr}`) ?? [])
-    .slice().sort((a, b) => (b.meaning_vi ? 1 : 0) - (a.meaning_vi ? 1 : 0) || (LEVEL_RANK[a.jlpt_level] ?? 9) - (LEVEL_RANK[b.jlpt_level] ?? 9) || a.id - b.id);
+  const byPreference = (a, b) => (b.meaning_vi ? 1 : 0) - (a.meaning_vi ? 1 : 0) || (LEVEL_RANK[a.jlpt_level] ?? 9) - (LEVEL_RANK[b.jlpt_level] ?? 9) || a.id - b.id;
+  const dictFor = (ne, nr) => (dictionary.vocabularyByKey.get(`${ne}|${nr}`) ?? []).slice().sort(byPreference);
+  const byReading = nr => (dictionary.vocabularyByReading.get(nr) ?? []).slice().sort(byPreference);
+  // The dictionary entry a candidate means. A kanji spelling names its entry; a kana spelling (most Mirai N5 words)
+  // only gives the reading, so its own meaning — the J-LAS one, or Mirai's reference meaning, which is used for
+  // matching only and never copied — picks the entry among every word read that way. A kana word whose meaning
+  // matches no entry gets none (the dictionary has no 一 いち, so Mirai's いち "một" must not become いち "chợ").
+  const resolve = (c, exact, own) => {
+    const kanji = HAS_KANJI.test(c.ne);
+    const pool = kanji ? exact : [...new Set([...exact, ...byReading(c.nr)])];
+    let best = null, bestScore = 0;
+    for (const e of pool) { const s = senseScore(own, e); if (s > bestScore) { best = e; bestScore = s; } }
+    return best ?? (kanji || !own.length ? exact[0] ?? null : null);
+  };
   const out = [];
   const add = (c) => {
     c.ne = normalizeJapanese(c.expression); c.nr = normalizeJapanese(c.reading);
-    c.dict = dictFor(c.ne, c.nr); c.vnjp = vnjpByKey.get(`${c.ne}|${c.nr}`) ?? [];
+    const exact = dictFor(c.ne, c.nr);
+    const own = senses(c.src === 'JLAS' ? formatMeaningVi(c.meanings ?? []) : formatMeaningVi([miraiMeanings.get(c.mirai_ref)]));
+    c.entry = resolve(c, exact, own);
+    c.dict = c.entry ? [c.entry, ...(HAS_KANJI.test(c.ne) ? exact.filter(e => e !== c.entry) : [])] : HAS_KANJI.test(c.ne) ? exact : [];
+    // VNJPClub is keyed by spelling too, so a kana row may be a homonym (ふる "bỏ" for ふる "rơi"): keep matching rows.
+    const rows = vnjpByKey.get(`${c.ne}|${c.nr}`) ?? [];
+    const known = [...own, ...(c.entry ? entrySenses(c.entry) : [])];
+    c.vnjp = HAS_KANJI.test(c.ne) || !known.length ? rows : rows.filter(v => overlap(senses(formatMeaningVi([v.nghia_vi])), known));
     const meaning = c.src === 'JLAS' ? formatMeaningVi(c.meanings ?? [])
       : (c.dict[0]?.meaning_vi ?? c.dict[0]?.glosses_vi?.[0] ?? c.vnjp[0]?.nghia_vi ?? '');
-    c.senses = meaning ? senses(meaning) : [];
+    c.senses = [...new Set([...own, ...(meaning ? senses(meaning) : [])])];
     out.push(c);
   };
   for (const level of LEVELS) {
     for (const f of frames[level]?.vocabulary ?? []) add({ src: 'MIRAI', level, expression: f.expression, reading: f.reading,
       order: f.order, topic_key: f.topic_key, topic_vi: f.topic_vi, mirai_ref: f.mirai_ref });
+    // A reviewed spelling/reading fix (悪い read "悪い" → わるい) applies before grouping so the word meets its twins.
     for (const v of jlasLevels[level]?.vocabulary ?? []) add({ src: 'JLAS', level, id: v.id, expression: v.expression,
-      reading: v.reading, meanings: v.meanings_vi ?? [], example_ja: v.example_ja, example_vi: v.example_vi,
+      reading: v.reading, ...identity.get(v.id), meanings: v.meanings_vi ?? [], example_ja: v.example_ja, example_vi: v.example_vi,
       jlas_example: v.jlas_example, tier: v.labels?.tier ?? null, position: v.position ?? 1,
       word_types: [v.reviewed_word_type, v.word_type] });
   }
@@ -68,6 +93,16 @@ function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub }) {
 }
 
 const overlap = (a, b) => a.some(x => b.some(y => x === y || (x.length > 1 && y.length > 1 && (x.includes(y) || y.includes(x)))));
+const KATAKANA_WORD = /^[ァ-ヺー・]+$/;
+const unaccented = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+// Shared word: exact (2+ letters) or without accents (3+ letters, so "ba"/"bà" never match).
+function wordingFits(a, b) {
+  const words = list => list.flatMap(s => s.split(/[^\p{L}\p{N}]+/u)).filter(w => w.length >= 2);
+  const A = words(a), B = new Set(words(b)), Bplain = new Set([...B].filter(w => w.length >= 3).map(unaccented));
+  return overlap(a, b) || A.some(w => B.has(w) || (w.length >= 3 && Bplain.has(unaccented(w))));
+}
+
+const fullSenses = c => c.entry ? [...c.senses, ...entrySenses(c.entry)] : c.senses;
 
 function groupLexemes(candidates) {
   const parent = candidates.map((_, i) => i);
@@ -78,11 +113,23 @@ function groupLexemes(candidates) {
   for (const idxs of byReading.values()) {
     for (let x = 0; x < idxs.length; x++) for (let y = x + 1; y < idxs.length; y++) {
       const a = candidates[idxs[x]], b = candidates[idxs[y]];
-      const sameSpelling = a.ne === b.ne;
+      const share = a.senses.length && b.senses.length && overlap(a.senses, b.senses);
       const kanaPair = !HAS_KANJI.test(a.ne) || !HAS_KANJI.test(b.ne);
-      // Different kanji spellings of one reading (橋/箸) are different words; a kana spelling joins the
-      // kanji word whose meaning it shares (はし "đũa" → 箸).
-      if (sameSpelling || (kanaPair && a.senses.length && b.senses.length && overlap(a.senses, b.senses))) union(idxs[x], idxs[y]);
+      // One dictionary entry is one word (かぞく/家族). Different kanji spellings of one reading (橋/箸) are different
+      // words; a kana spelling joins the word whose meaning it shares (はし "đũa" → 箸). A katakana spelling is one
+      // loanword. One kana spelling with two entries is two words unless the dictionary just lists it twice
+      // (今日は/こんにちは — meanings fit) — 服/拭く do not fit. With an entry on one side only, the other side must
+      // fit it (いち "một" does not fit いち "chợ"); with none, differently worded meanings (もしもし "alo"/"alô") stay one.
+      // The fit test is loose on purpose (shared word, accents ignored: "bãi đỗ xe"/"bãi đậu xe"); synonyms it misses
+      // (いつも "lúc nào cũng"/"luôn luôn") surface as SAME_SPELLING warnings.
+      let same;
+      if (a.entry && b.entry && a.entry.id === b.entry.id) same = true;
+      else if (a.ne !== b.ne) same = kanaPair && (share || wordingFits(a.senses, b.senses));
+      else if (KATAKANA_WORD.test(a.expression) && a.expression === b.expression) same = true;
+      else if (a.entry && b.entry) same = wordingFits(fullSenses(a), fullSenses(b));
+      else if (HAS_KANJI.test(a.ne) || (!a.entry && !b.entry)) same = true;
+      else { const [has, other] = a.entry ? [a, b] : [b, a]; same = !other.senses.length || wordingFits(other.senses, fullSenses(has)); }
+      if (same) union(idxs[x], idxs[y]);
     }
   }
   const groups = new Map();
@@ -130,16 +177,62 @@ function vocabularyExamples(members, vnjpclub) {
     .map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
 }
 
-function buildLexeme(members, dictionary) {
+// Every id a group answers to before same-word verdicts join groups: its own id, its J-LAS ids, and the id each Mirai
+// word would have alone. Verdicts name groups by these ids; the ids a joined group no longer uses become aliases.
+function joinGroups(groups, sameWord) {
+  const keys = lexemeKeys(groups);
+  const idsOf = groups.map((g, i) => { const { jlas, mirai } = sortedMembers(g);
+    return [jlas[0]?.id ?? `JV-${sha256(`LP|${keys[i]}`).slice(0, 10)}`, ...jlas.map(m => m.id),
+      ...mirai.map(m => `JV-${sha256(`LP|${m.ne}|${m.nr}`).slice(0, 10)}`)]; });
+  const owner = new Map();
+  idsOf.forEach((ids, i) => ids.forEach(id => { if (!owner.has(id)) owner.set(id, i); }));
+  const parent = groups.map((_, i) => i);
+  const find = i => parent[i] === i ? i : (parent[i] = find(parent[i]));
+  for (const [a, b] of sameWord) if (owner.has(a) && owner.has(b)) { const [x, y] = [find(owner.get(a)), find(owner.get(b))].sort((p, q) => p - q); parent[y] = x; }
+  const joined = new Map();
+  groups.forEach((g, i) => { const r = find(i); if (!joined.has(r)) joined.set(r, { members: [], formerIds: [] });
+    joined.get(r).members.push(...g); joined.get(r).formerIds.push(...idsOf[i]); });
+  return [...joined.values()];
+}
+
+function sortedMembers(members) {
   const byLevel = (a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level];
-  const jlas = members.filter(m => m.src === 'JLAS').sort((a, b) => byLevel(a, b) || a.id.localeCompare(b.id));
-  const mirai = members.filter(m => m.src === 'MIRAI').sort((a, b) => byLevel(a, b) || a.order - b.order);
-  const display = mirai[0] ?? jlas.find(m => HAS_KANJI.test(m.ne)) ?? jlas[0];
+  return { jlas: members.filter(m => m.src === 'JLAS').sort((a, b) => byLevel(a, b) || a.id.localeCompare(b.id)),
+    mirai: members.filter(m => m.src === 'MIRAI').sort((a, b) => byLevel(a, b) || a.order - b.order) };
+}
+
+// Shown spelling: a kanji spelling from Mirai or J-LAS (the dictionary's usual form, かぞく → 家族), else Mirai's kana.
+function displayOf(members) {
+  const { jlas, mirai } = sortedMembers(members);
+  return mirai.find(m => HAS_KANJI.test(m.ne)) ?? jlas.find(m => HAS_KANJI.test(m.ne)) ?? mirai[0] ?? jlas[0];
+}
+
+// Homonyms spelled alike (ふく 服/拭く, かみ 紙/髪) share expression|reading; the first — a J-LAS word, else the earliest
+// Mirai one — keeps the plain key (and so the id it always had), the others get "#<dictionary entry id>".
+function lexemeKeys(groups) {
+  const keys = groups.map(g => { const d = displayOf(g); return `${d.ne}|${d.nr}`; });
+  const rank = g => { const { jlas, mirai } = sortedMembers(g);
+    return [jlas.length ? 0 : 1, mirai[0] ? LEVEL_RANK[mirai[0].level] : 9, mirai[0]?.order ?? Infinity, g.find(m => m.entry)?.entry.id ?? Infinity]; };
+  const compare = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i] ? -1 : 1; return 0; };
+  const byKey = new Map();
+  keys.forEach((k, i) => { if (!byKey.has(k)) byKey.set(k, []); byKey.get(k).push(i); });
+  for (const [key, idxs] of byKey) if (idxs.length > 1) {
+    idxs.sort((a, b) => compare(rank(groups[a]), rank(groups[b])) || a - b);
+    for (const i of idxs.slice(1)) {
+      const entry = groups[i].find(m => m.entry)?.entry, m = sortedMembers(groups[i]).mirai[0];
+      keys[i] = `${key}#${entry ? entry.id : m ? `${m.level}-${m.order}` : groups[i][0].id}`;
+    }
+  }
+  return keys;
+}
+
+function buildLexeme(members, key) {
+  const { jlas, mirai } = sortedMembers(members);
+  const display = displayOf(members);
   const allDict = members.flatMap(m => m.dict);
   const level = lowest([...members.map(m => m.level), ...allDict.map(d => d.jlpt_level)]);
-  const key = `${display.ne}|${display.nr}`;
   const id = jlas[0]?.id ?? `JV-${sha256(`LP|${key}`).slice(0, 10)}`;
-  const dictEntry = display.dict[0] ?? allDict[0] ?? null;
+  const dictEntry = display.entry ?? members.find(m => m.entry)?.entry ?? display.dict[0] ?? allDict[0] ?? null;
   const jlasMeaning = formatMeaningVi(jlas.flatMap(m => m.meanings));
   const vnjpMeaning = formatMeaningVi(members.flatMap(m => m.vnjp.map(v => v.nghia_vi)));
   const dictMeaning = formatMeaningVi(dictEntry ? [dictEntry.meaning_vi ?? dictEntry.glosses_vi[0]] : []);
@@ -155,7 +248,8 @@ function buildLexeme(members, dictionary) {
   return { id, merged_ids: jlas.slice(1).map(m => m.id).filter(x => x !== id), key, level, members, mirai, jlas,
     item: { id, level, expression: display.expression, reading: display.reading, normalized_expression: display.ne,
       normalized_reading: display.nr, romaji: toRomaji(display.reading),
-      variants: [...new Set(members.map(m => m.expression))].filter(e => e !== display.expression).sort(),
+      variants: [...new Set([...members.map(m => m.expression), HAS_KANJI.test(dictEntry?.expression ?? '') ? dictEntry.expression : null])]
+        .filter(e => e && e !== display.expression).sort(),
       dictionary_entry_id: dictEntry?.id ?? null, key, topic_key: mirai[0]?.topic_key ?? 'khac',
       topic_vi: mirai[0]?.topic_vi ?? 'Từ thông dụng khác', order: 0, meaning_vi: meaning, word_type_label: wordType,
       examples: [], mnemonic_vi: null, confusable_ids: [], priority: 0, tier: jlas[0]?.tier ?? 'CORE', status: 'DRAFT',
@@ -259,11 +353,22 @@ function grammarItems({ frames, jlasLevels }, level) {
 }
 
 // ---------------------------------------------------------------- entry point
-export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub }) {
-  const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub });
-  const lexemes = groupLexemes(candidates).map(members => buildLexeme(members, dictionary));
+export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, miraiMeanings = new Map(),
+  corrections = { identity: new Map(), sameWord: [] } }) {
+  const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity: corrections.identity });
+  const joined = joinGroups(groupLexemes(candidates), corrections.sameWord);
+  const groups = joined.map(j => j.members);
+  const keys = lexemeKeys(groups);
+  const lexemes = groups.map((members, i) => buildLexeme(members, keys[i]));
+  // An id a word answered to before (a Mirai word that stood alone, a word joined by a same-word verdict) becomes an
+  // alias of the word it is now part of, so content written for that id still lands (packets resolve merged ids).
+  const live = new Set(lexemes.map(l => l.id));
+  const aliases = new Map();
+  lexemes.forEach((l, i) => { for (const old of joined[i].formerIds)
+    if (!live.has(old) && !l.merged_ids.includes(old) && !aliases.has(old)) aliases.set(old, l.id); });
   const pool = lexemes.filter(l => LEVEL_RANK[l.level] <= LEVEL_RANK[level]).map(l => l.item);
   const here = lexemes.filter(l => l.level === level);
+  const hereIds = new Set(here.map(l => l.id));
   const conflicts = here.flatMap(l => l.conflicts);
   const levelMoves = [];
   for (const l of here) for (const from of [...new Set(l.members.map(m => m.level))].filter(x => x !== level))
@@ -282,7 +387,15 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub }
   });
   vocabulary.forEach((v, i) => { v.order = i + 1; v.priority = i + 1; });
   const grammar = grammarItems({ frames, jlasLevels }, level);
+  // Same spelling and reading kept as two words (any level): homonyms, or synonyms the fit test missed — for review.
+  const base = l => l.key.split('#')[0];
+  const bySpelling = new Map();
+  for (const l of lexemes) { if (!bySpelling.has(base(l))) bySpelling.set(base(l), []); bySpelling.get(base(l)).push(l); }
+  const spellingTwins = here.flatMap(l => bySpelling.get(base(l)).filter(o => o !== l)
+    .map(o => ({ id: l.id, twin_id: o.id, twin_level: o.level })))
+    .sort((a, b) => a.id.localeCompare(b.id) || a.twin_id.localeCompare(b.twin_id));
   return { level, vocabulary, kanji: kanjiItems({ frames, jlasLevels, dictionary }, level, pool),
-    grammar: grammar.items, conflicts, level_moves: levelMoves, unmatched,
-    merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))), ...grammar.merged] };
+    grammar: grammar.items, conflicts, level_moves: levelMoves, unmatched, spelling_twins: spellingTwins,
+    merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))),
+      ...[...aliases].filter(([, into]) => hereIds.has(into)).map(([id, into]) => ({ id, into })), ...grammar.merged] };
 }

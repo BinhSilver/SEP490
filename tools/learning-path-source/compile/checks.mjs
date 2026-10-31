@@ -2,7 +2,7 @@
 import { LEVEL_RANK, normalizeJapanese } from './util.mjs';
 import { formatMeaningVi } from './normalize.mjs';
 
-export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING']);
+export const WARNING_CODES = new Set(['FURIGANA_MISSING', 'RADICAL_NAME_MISSING', 'SAME_SPELLING']);
 const EXAMPLE_LENGTH = { N5: [8, 25], N4: [8, 32], N3: [8, 40], N2: [8, 48], N1: [8, 56] };
 const BANK_TYPES = ['FILL', 'ORDER_STAR', 'MEANING', 'ERROR'];
 const HAS_KANJI = /[一-龯々]/;
@@ -82,6 +82,7 @@ export function runChecks(compiled, ctx) {
   dup(compiled.kanji, k => k.character);
   dup(compiled.grammar, g => g.family_key);
   dup([...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar], x => x.id);
+  for (const t of compiled.spelling_twins ?? []) errors.push({ code: 'SAME_SPELLING', id: t.id, detail: `${t.twin_id} (${t.twin_level})`, warning: true });
 
   for (const v of compiled.vocabulary) {
     const { err, warn } = sink(v.id);

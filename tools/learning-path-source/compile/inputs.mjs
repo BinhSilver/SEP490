@@ -15,7 +15,9 @@ export function loadCompileInputs() {
     frames: Object.fromEntries(LEVELS.map(l => [l, loadMiraiFrame(MIRAI_PACK, l)])),
     jlasLevels: Object.fromEntries(LEVELS.map(l => [l, readJson(path.join(ROOT, 'data/learning-path/jlpt', `${l}.json`))])),
     dictionary: loadDictionaryIndex(),
-    vnjpclub: { vocabulary: gz('tu_vung'), examples: gz('vi_du') }
+    vnjpclub: { vocabulary: gz('tu_vung'), examples: gz('vi_du') },
+    // Mirai's own meanings only pick which dictionary entry a kana-listed word is; they are never written out.
+    miraiMeanings: new Map(LEVELS.flatMap(l => loadMiraiReference(MIRAI_PACK, l).vocabulary.map(r => [r.mirai_ref, r.meaning_vi])))
   };
 }
 
