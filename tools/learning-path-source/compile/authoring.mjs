@@ -72,10 +72,12 @@ const packetId = (kind, n) => `${kind}-${String(n).padStart(3, '0')}`;
 const toPacket = (kind, n, level, items) => ({ packet_id: packetId(kind, n), kind, level: level.level, header: header(kind, level),
   items: items.map(({ id, fields_needed, context }) => ({ id, fields_needed, context, answer: null })) });
 
-export function buildPackets(level, { size = 40 } = {}) {
+export const DEFAULT_SIZE_BY_KIND = { GRAMMAR_BANK: 10 };
+
+export function buildPackets(level, { size = 40, sizeByKind = {} } = {}) {
   const byKind = new Map();
   for (const n of needs(level)) { if (!byKind.has(n.kind)) byKind.set(n.kind, []); byKind.get(n.kind).push(n); }
-  return [...byKind].flatMap(([kind, items]) => chunk(items, size).map((c, i) => toPacket(kind, i + 1, level, c)));
+  return [...byKind].flatMap(([kind, items]) => chunk(items, sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
 }
 
 export function readPackets(dir) {
@@ -83,7 +85,7 @@ export function readPackets(dir) {
   return readdirSync(dir).filter(f => f.endsWith('.json')).sort().map(f => readJson(path.join(dir, f)));
 }
 
-export function emitPackets(level, dir, { size = 40 } = {}) {
+export function emitPackets(level, dir, { size = 40, sizeByKind = {} } = {}) {
   const existing = readPackets(dir);
   const present = new Set(existing.flatMap(p => p.items.map(i => `${p.kind}|${i.id}`)));
   const lastNumber = kind => Math.max(0, ...existing.filter(p => p.kind === kind).map(p => Number(p.packet_id.slice(-3))));
@@ -92,7 +94,7 @@ export function emitPackets(level, dir, { size = 40 } = {}) {
   for (const n of fresh) { if (!byKind.has(n.kind)) byKind.set(n.kind, []); byKind.get(n.kind).push(n); }
   mkdirSync(dir, { recursive: true });
   const written = [];
-  for (const [kind, items] of byKind) chunk(items, size).forEach((c, i) => {
+  for (const [kind, items] of byKind) chunk(items, sizeByKind[kind] ?? size).forEach((c, i) => {
     const p = toPacket(kind, lastNumber(kind) + i + 1, level, c);
     writeFileSync(path.join(dir, `${p.packet_id}.json`), json(p));
     written.push(p.packet_id);
@@ -179,7 +181,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const compiled = compileFromInputs(loadCompileInputs(), level);
   const dir = authoringDir(level);
   if (argv.includes('--emit')) {
-    const written = emitPackets(compiled, dir, { size: 40 });
+    const written = emitPackets(compiled, dir, { size: 40, sizeByKind: DEFAULT_SIZE_BY_KIND });
     const counts = {};
     for (const id of written) { const k = id.slice(0, -4); counts[k] = (counts[k] ?? 0) + 1; }
     console.log(`${level}: ${written.length} new packets`, JSON.stringify(counts));

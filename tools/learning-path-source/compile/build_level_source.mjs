@@ -63,7 +63,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const argv = process.argv.slice(2);
   const level = argValue(argv, '--level', 'N5');
   const check = argv.includes('--check');
-  const { ok, result, compiled, blockingNonDraft } = buildLevel(level, { check });
+  // --out/--report-dir let an author validate packets into a scratch folder; --errors-json dumps every finding.
+  const outFile = argValue(argv, '--out', compiledFile(level));
+  const reportDir = argValue(argv, '--report-dir', REPORT_DIR);
+  const { ok, result, compiled, blockingNonDraft } = buildLevel(level, { check, outFile, reportDir });
+  const errorsJson = argValue(argv, '--errors-json');
+  if (errorsJson) writeOrCheck(errorsJson, result.errors, false);
   const count = list => list.reduce((a, x) => (a[x.status] = (a[x.status] ?? 0) + 1, a), {});
   console.log(`${level}: vocab ${JSON.stringify(count(compiled.vocabulary))} kanji ${JSON.stringify(count(compiled.kanji))} grammar ${JSON.stringify(count(compiled.grammar))}`);
   console.log(`errors ${JSON.stringify(result.stats.errors_by_code)}`);
