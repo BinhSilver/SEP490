@@ -83,7 +83,7 @@ export function replaceSeedSection(sql, block) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? '.');
   const dataPath = path.join(root, 'data/learning-owned/learning-content.json');
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned.sql');
+  const sqlPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
   const data = JSON.parse(await readFile(dataPath, 'utf8'));
   const section = data.sections?.sekai_n5_comprehension;
   const sectionHash = data.section_sha256?.sekai_n5_comprehension;

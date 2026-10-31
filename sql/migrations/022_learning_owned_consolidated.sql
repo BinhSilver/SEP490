@@ -194,3 +194,30 @@ SET @learning_package_ddl = IF(
 PREPARE learning_package_stmt FROM @learning_package_ddl;
 EXECUTE learning_package_stmt;
 DEALLOCATE PREPARE learning_package_stmt;
+
+-- [JLAS-W0108] §2.32 T4 (owner 2026-10-26): EXTRA_PRACTICE = a learner's optional extra Reading/Listening practice
+-- from the store, anchored to the chapter's required activity; never scored, unlocked, rewarded or completed.
+-- Widens chk_quiz_session_type only (no row changes). Re-runnable on MySQL 8.0.16+.
+SET NAMES utf8mb4;
+ALTER TABLE learning_quiz_session
+    DROP CHECK chk_quiz_session_type,
+    ADD CONSTRAINT chk_quiz_session_type CHECK
+        (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
+            'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK','FOUNDATION_MICRO_CHECK',
+            'PRACTICE_REPLAY','EXTRA_PRACTICE'));
+
+-- [JLAS-W0108] F1-3 (owner 2026-10-27): optional JLPT exam date on the learning survey. A path whose full workload does not
+-- fit before it keeps only the CORE words required (compiled-vocabulary-tiers.json); NULL keeps every word. Re-runnable.
+SET @owned_exam_date_ddl = IF(
+  EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE()
+         AND table_name = 'user_learning_survey' AND column_name = 'exam_date'),
+  'SELECT 1', 'ALTER TABLE user_learning_survey ADD COLUMN exam_date DATE NULL AFTER daily_study_minutes');
+PREPARE owned_exam_date_stmt FROM @owned_exam_date_ddl; EXECUTE owned_exam_date_stmt; DEALLOCATE PREPARE owned_exam_date_stmt;
+
+-- [JLAS-W0108] F1-5 (owner 2026-10-28): up to two JLPT focus skills (VOCABULARY, READING, LISTENING) on the learning
+-- survey; a path squeezed by the exam date keeps them in full. NULL: no focus. Re-runnable.
+SET @owned_focus_skills_ddl = IF(
+  EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE()
+         AND table_name = 'user_learning_survey' AND column_name = 'focus_skills'),
+  'SELECT 1', 'ALTER TABLE user_learning_survey ADD COLUMN focus_skills VARCHAR(40) NULL AFTER exam_date');
+PREPARE owned_focus_skills_stmt FROM @owned_focus_skills_ddl; EXECUTE owned_focus_skills_stmt; DEALLOCATE PREPARE owned_focus_skills_stmt;

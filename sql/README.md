@@ -33,9 +33,10 @@ scoped, rerunnable backfill over a full seed. See `LEARNING_OWNED_DB_SEED.md` fo
 the task-owned learning-content checkpoint and preconditions.
 
 The Learning-owned SQL has one legacy schema-upgrade file, one current incremental
-migration, and one data seed. For a database already built from the current
-canonical schema, apply `migrations/022_learning_owned_consolidated.sql`, then
-`seeds/learning_owned.sql`, after the normal base seeds. For a database from the
+migration, and one data seed split in two files (each under GitHub's 50 MB limit). For a
+database already built from the current canonical schema, apply
+`migrations/022_learning_owned_consolidated.sql`, then `seeds/learning_owned.sql` and
+`seeds/learning_owned_part2.sql`, in that order, after the normal base seeds. For a database from the
 pre-V2 schema only, `migrations/004_interactive_learning_path_v2_consolidated.sql`
 contains the former owned forward steps 004-012 and 014-015; never run that file
 on a current-schema database or one where any of those old migrations already ran.

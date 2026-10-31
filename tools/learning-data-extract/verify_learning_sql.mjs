@@ -5,13 +5,20 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const migrationFile = path.join(root, 'sql/migrations/022_learning_owned_consolidated.sql');
-const seedFile = path.join(root, 'sql/seeds/learning_owned.sql');
+// E5 (2026-10-28): the seed is split in two files under GitHub's 50 MB limit, applied in this order; the checks below
+// read them as one text. A part above the cap must be split again before a push.
+export const SEED_FILES = ['sql/seeds/learning_owned.sql', 'sql/seeds/learning_owned_part2.sql'];
+export const MAX_SEED_PART_BYTES = 45 * 1024 * 1024;
+export function readLearningSeed(base = root) {
+  return SEED_FILES.map((file) => fs.readFileSync(path.join(base, file), 'utf8')).join('\n');
+}
 // Fail closed (2026-10-19 review): every DELETE/DROP line must be one of the known, scoped forms.
 // The second DELETE form (D3-04 compiled books) is set-based, scoped to the words of that block's own temporary table.
 export const ALLOWED_DELETE = new RegExp('^DELETE cv FROM content_vocabulary cv (?:'
   + String.raw`WHERE cv\.content_item_id=@item_[a-z0-9_]+ AND cv\.vocabulary_id<>@vocab_[a-z0-9_]+`
   + String.raw`|JOIN jlas_compiled_word_n[1-5] w ON w\.item_id=cv\.content_item_id WHERE cv\.vocabulary_id<>w\.vocab_id);$`);
-export const ALLOWED_DROP = /^DROP (?:PROCEDURE (?:IF EXISTS )?jlas_[a-z0-9_]+(?:;|\/\/|\$\$)|TEMPORARY TABLE IF EXISTS jlas_[a-z0-9_]+;)$/;
+// §2.32 T4: widening a CHECK constraint drops and re-adds it inside one ALTER TABLE (no rows are touched).
+export const ALLOWED_DROP = /^DROP (?:PROCEDURE (?:IF EXISTS )?jlas_[a-z0-9_]+(?:;|\/\/|\$\$)|TEMPORARY TABLE IF EXISTS jlas_[a-z0-9_]+;|CHECK chk_[a-z0-9_]+,)$/;
 export function verify(migration, seed, content = null) {
   if (!migration.startsWith('-- [JLAS-W0108] Consolidated task-owned Learning migration.'))
     throw new Error('Unexpected Learning migration header');
@@ -31,6 +38,7 @@ export function verify(migration, seed, content = null) {
     'learning-content.json#sections.jlas_compiled_book_n5',
     'learning-content.json#sections.jlas_compiled_book_n4',
     'learning-content.json#sections.jlas_compiled_book_n3',
+    'learning-content.json#sections.jlas_store_pool',
   ]) if (!seed.split('\n').some((line) => line.startsWith('-- BEGIN ') && line.includes(`/${marker} SHA256 `)))
     throw new Error(`Missing ${marker}`);
   if (!seed.includes('-- BEGIN generated communication-goal lessons (learning-content.json)'))
@@ -67,7 +75,7 @@ export function verify(migration, seed, content = null) {
   for (const match of `${migrationSql}\n${seedSql}`.matchAll(/^\s*UPDATE\b[^;]*;/gim)) {
     if (!/\bWHERE\b/i.test(match[0])) throw new Error(`UPDATE without WHERE: ${match[0].trim().slice(0, 120)}`);
   }
-  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 21)
+  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 22)
     throw new Error('Unexpected consolidated SQL section count');
   const embeddedOutputs = [...seed.matchAll(/^-- BEGIN (outputs\/[^\r\n]+\.sql) SHA256 ([0-9a-f]{64})\r?\n/gm)];
   if (embeddedOutputs.length !== 6) throw new Error('Unexpected embedded Learning output count');
@@ -82,5 +90,9 @@ export function verify(migration, seed, content = null) {
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const content = JSON.parse(fs.readFileSync(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
-  console.log(`Verified consolidated Learning SQL SHA256 ${verify(fs.readFileSync(migrationFile, 'utf8'), fs.readFileSync(seedFile, 'utf8'), content)}`);
+  for (const file of SEED_FILES) {
+    const size = fs.statSync(path.join(root, file)).size;
+    if (size > MAX_SEED_PART_BYTES) throw new Error(`${file} is ${(size / 1048576).toFixed(1)} MB, above the ${MAX_SEED_PART_BYTES / 1048576} MB cap`);
+  }
+  console.log(`Verified consolidated Learning SQL SHA256 ${verify(fs.readFileSync(migrationFile, 'utf8'), readLearningSeed(), content)}`);
 }

@@ -284,7 +284,7 @@ export function replaceBlock(sql, block, level) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? '.');
   const data = await readLearningContent(root);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned.sql');
+  const sqlPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
   const current = await readFile(sqlPath, 'utf8');
   let updated = current;
   const outAt = process.argv.indexOf('--block-out');

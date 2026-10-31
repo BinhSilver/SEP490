@@ -106,7 +106,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const section = data.sections?.jlpt_speed_n5_n4_reading;
   const block = renderSpeedN5N4Sql(section, data.section_sha256?.jlpt_speed_n5_n4_reading);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned.sql');
+  const sqlPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
   const current = await readFile(sqlPath, 'utf8');
   const updated = replaceSpeedN5N4Block(current, block);
   if (process.argv.includes('--check')) {

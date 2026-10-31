@@ -15,7 +15,7 @@ const LFS_POINTER = 'version https://git-lfs.github.com/spec/';
 
 /**
  * Every Learning listening clip, grouped by level. A Minna clip has two equivalent places (same bytes): the repo copy
- * vnjpclub/<level>/minna-so-cap-<n>/<source folder>_<file>.mp3 in data/content-audio (Git LFS), which the catalog
+ * vnjpclub/<level>/minna-so-cap-<n>/<source folder>_<file>.mp3 in data/content-audio (team Google Drive pack, not in Git), which the catalog
  * prefers, and minna/vnjpclub/<level>/minna-so-cap-<n>/bai-<nn>/<file>.mp3 from a separately installed package.
  */
 export function referencedAudio(data) {
@@ -86,7 +86,7 @@ export async function buildManifest(data, audioRoot) {
   return {
     kind: 'LEARNING_LISTENING_AUDIO_MANIFEST',
     served_at: '/uploads/content-audio/',
-    relative_to: 'content.audio.path (application-local.yaml / CONTENT_AUDIO_PATH; default data/content-audio, Git LFS)',
+    relative_to: 'content.audio.path (application-local.yaml / CONTENT_AUDIO_PATH; default data/content-audio, unpacked from the team Google Drive audio pack — not in Git)',
     sources: ['jlpt_minna_n5_n4_listening', 'jlpt_speed_n3_comprehension'],
     note: 'Minna clips: the repo copy (data/content-audio, git lfs pull) is played first; minna/ from a separately '
       + 'installed package is the fallback. Both are the same bytes.',
@@ -96,7 +96,7 @@ export async function buildManifest(data, audioRoot) {
 }
 
 /**
- * The manifest is written from the repo audio (data/content-audio, Git LFS) only. Another installed folder (the team
+ * The manifest is written from the local audio folder (data/content-audio, unpacked from the Drive pack) only. Another installed folder (the team
  * package re-encodes vnjpclub audio to mono 64 kbps) is checked for presence and MP3 headers; its re-encoded files are
  * counted, not failed.
  */
