@@ -43,7 +43,7 @@ const senseMatch = (x, y) => x === y ? 3 : (x.length > 1 && y.length > 1 && (x.i
 const entrySenses = e => senses([e.meaning_vi, ...(e.glosses_vi ?? [])].filter(Boolean).join('; '));
 const senseScore = (own, entry) => { const es = entrySenses(entry); return own.reduce((s, x) => s + Math.max(0, ...es.map(y => senseMatch(x, y))), 0); };
 
-function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity }) {
+function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity, identityByForm }) {
   const vnjpByKey = new Map();
   for (const v of vnjpclub.vocabulary ?? []) {
     const k = `${normalizeJapanese(v.normalized_expression ?? v.tu)}|${normalizeJapanese(v.normalized_reading ?? v.cach_doc)}`;
@@ -82,7 +82,7 @@ function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiM
   };
   for (const level of LEVELS) {
     for (const f of frames[level]?.vocabulary ?? []) add({ src: 'MIRAI', level, expression: f.expression, reading: f.reading,
-      order: f.order, topic_key: f.topic_key, topic_vi: f.topic_vi, mirai_ref: f.mirai_ref });
+      ...identityByForm.get(`${f.expression}|${f.reading}`), order: f.order, topic_key: f.topic_key, topic_vi: f.topic_vi, mirai_ref: f.mirai_ref });
     // A reviewed spelling/reading fix (悪い read "悪い" → わるい) applies before grouping so the word meets its twins.
     for (const v of jlasLevels[level]?.vocabulary ?? []) add({ src: 'JLAS', level, id: v.id, expression: v.expression,
       reading: v.reading, ...identity.get(v.id), meanings: v.meanings_vi ?? [], example_ja: v.example_ja, example_vi: v.example_vi,
@@ -354,9 +354,10 @@ function grammarItems({ frames, jlasLevels }, level) {
 
 // ---------------------------------------------------------------- entry point
 export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, miraiMeanings = new Map(),
-  corrections = { identity: new Map(), sameWord: [] } }) {
-  const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity: corrections.identity });
-  const joined = joinGroups(groupLexemes(candidates), corrections.sameWord);
+  corrections = {} }) {
+  const { identity = new Map(), identityByForm = new Map(), sameWord = [] } = corrections;
+  const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity, identityByForm });
+  const joined = joinGroups(groupLexemes(candidates), sameWord);
   const groups = joined.map(j => j.members);
   const keys = lexemeKeys(groups);
   const lexemes = groups.map((members, i) => buildLexeme(members, keys[i]));

@@ -131,14 +131,19 @@ export function emitReviewPackets(level, dir, opts = {}) {
 }
 
 // Spelling/reading fixes and same-word verdicts, which must reach the merge before words are grouped.
+// identity is keyed by item id (reaches J-LAS words), identityByForm by the reviewed "expression|reading" (reaches
+// Mirai words, which carry no id before the merge).
 export function reviewCorrections(packets) {
-  const identity = new Map(), sameWord = [];
-  for (const p of packets.filter(p => p.kind === 'REVIEW_VOCAB')) for (const { id, answer } of p.items) {
+  const identity = new Map(), identityByForm = new Map(), sameWord = [];
+  for (const p of packets.filter(p => p.kind === 'REVIEW_VOCAB')) for (const { id, context, answer } of p.items) {
     const fix = Object.fromEntries(['expression', 'reading'].filter(f => !empty(answer?.fix?.[f])).map(f => [f, answer.fix[f]]));
-    if (Object.keys(fix).length) identity.set(id, fix);
+    if (Object.keys(fix).length) {
+      identity.set(id, fix);
+      if (context?.expression && context?.reading) identityByForm.set(`${context.expression}|${context.reading}`, fix);
+    }
     if (answer?.same_word_as) sameWord.push([id, answer.same_word_as]);
   }
-  return { identity, sameWord };
+  return { identity, identityByForm, sameWord };
 }
 
 export function readPackets(dir) {
