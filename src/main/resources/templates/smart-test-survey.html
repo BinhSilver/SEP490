@@ -69,6 +69,19 @@
                     <label class="survey-option"><input type="radio" name="targetLevel" value="N2"><span class="level-mark">N2</span><span><strong>N2 · Nâng cao</strong><small>Sử dụng tiếng Nhật khá thành thạo</small></span><i class="survey-radio"></i></label>
                     <label class="survey-option"><input type="radio" name="targetLevel" value="N1"><span class="level-mark">N1</span><span><strong>N1 · Thành thạo</strong><small>Sử dụng tiếng Nhật thành thạo, chuyên sâu</small></span><i class="survey-radio"></i></label>
                 </div>
+                <div class="survey-exam-date" id="surveyExamDateField">
+                    <label for="surveyExamDateInput" class="survey-exam-date__label">Ngày thi dự kiến (không bắt buộc)</label>
+                    <input type="date" id="surveyExamDateInput" name="examDate" class="survey-exam-date__input">
+                    <p class="survey-exam-date__hint">Nếu không kịp học đủ trước ngày thi, J-LAS giữ phần cốt lõi và đưa phần mở rộng sang mục không bắt buộc.</p>
+                    <div class="survey-exam-date__error" id="surveyExamDateError" role="alert" hidden></div>
+                    <fieldset class="survey-focus" id="surveyFocusField">
+                        <legend class="survey-exam-date__label">Kỹ năng muốn tập trung (không bắt buộc, tối đa 2)</legend>
+                        <label class="survey-focus__option"><input type="checkbox" name="focusSkills" value="VOCABULARY"> Từ vựng</label>
+                        <label class="survey-focus__option"><input type="checkbox" name="focusSkills" value="READING"> Đọc hiểu</label>
+                        <label class="survey-focus__option"><input type="checkbox" name="focusSkills" value="LISTENING"> Nghe hiểu</label>
+                        <p class="survey-exam-date__hint">Kỹ năng bạn chọn không bị bớt khi lộ trình rút gọn theo ngày thi, và có thêm bài luyện sau mỗi bài.</p>
+                    </fieldset>
+                </div>
             </section>
             <section class="survey-slide" data-survey-step="minutes">
                 <div class="survey-question"><div><span class="survey-eyebrow">Thời gian học</span><h1>Bạn có thể dành ra bao nhiêu phút mỗi ngày để học tiếng Nhật?</h1><p>Hãy chọn quỹ thời gian thực tế bạn có thể dành cho việc học mỗi ngày.</p></div></div>
@@ -83,5 +96,5 @@
         </form>
     </div>
 </main>
-<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-survey-targets.js?v=20261021-od34}"></script><script th:src="@{/js/pages/smart-test-survey.js?v=20261025-fromzero}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-survey-targets.js?v=20261021-od34}"></script><script th:src="@{/js/pages/smart-test-survey.js?v=20261028-focus}"></script>
 </body></html>

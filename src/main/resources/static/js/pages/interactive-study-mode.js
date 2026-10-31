@@ -42,17 +42,31 @@
     return '';
   }
 
-  /** OD-D2-05: the chapter's words/Kanji already learnt in an earlier chapter — shown, never carded or checked. */
+  /**
+   * OD-D2-05: the chapter's words/Kanji already learnt in an earlier chapter — shown, never carded or checked.
+   * F1-3: items without `learnedIn` are EXTENDED words a path squeezed by its exam date left out — "Mở rộng".
+   */
   function reviewItemsBlock(items) {
     items = Array.isArray(items) ? items : [];
     if (!items.length) return '';
-    return '<section class="ilp-review-items" aria-label="Mục ôn"><h3>Ôn lại</h3>' +
+    function row(item, note) {
+      return '<li><strong lang="ja">' + esc(item.front) + '</strong>' + (item.reading ? ' <span lang="ja">' + esc(item.reading) + '</span>' : '') +
+        (item.meaning ? ' — ' + esc(item.meaning) : '') + (note ? '<small class="ilp-review-items__from">' + note + '</small>' : '') + '</li>';
+    }
+    var learnt = items.filter(function (item) { return item.learnedIn; });
+    // F1-4: words/Kanji the learner already proved (earlier path or a full Smart Test batch) — "Đã vững".
+    var known = items.filter(function (item) { return !item.learnedIn && item.known; });
+    var extended = items.filter(function (item) { return !item.learnedIn && !item.known; });
+    return (learnt.length ? '<section class="ilp-review-items" aria-label="Mục ôn"><h3>Ôn lại</h3>' +
       '<p>Đã học ở bài trước, chỉ để ôn: không tính vào bài kiểm tra của chương này.</p><ul>' +
-      items.map(function (item) {
-        return '<li><strong lang="ja">' + esc(item.front) + '</strong>' + (item.reading ? ' <span lang="ja">' + esc(item.reading) + '</span>' : '') +
-          (item.meaning ? ' — ' + esc(item.meaning) : '') + '<small class="ilp-review-items__from">Ôn — đã học ở bài “' +
-          esc(item.learnedIn) + '”</small></li>';
-      }).join('') + '</ul></section>';
+      learnt.map(function (item) { return row(item, 'Ôn — đã học ở bài “' + esc(item.learnedIn) + '”'); }).join('') + '</ul></section>' : '') +
+      (known.length ? '<section class="ilp-review-items ilp-review-items--known" aria-label="Mục đã vững"><h3>Đã vững</h3>' +
+      '<p>Bạn đã chứng minh vững các mục này (qua ở lộ trình trước hoặc trả lời đúng trong Smart Test), nên không bắt buộc học lại ' +
+      'và không tính vào bài kiểm tra. Lướt qua để ôn nhanh.</p><ul>' + known.map(function (item) { return row(item, ''); }).join('') +
+      '</ul></section>' : '') +
+      (extended.length ? '<section class="ilp-review-items ilp-review-items--extended" aria-label="Mục mở rộng"><h3>Mở rộng</h3>' +
+      '<p>Từ mở rộng, không bắt buộc: lộ trình đã rút gọn cho kịp ngày thi nên các từ này không có thẻ và không tính vào bài kiểm tra. ' +
+      'Học thêm nếu bạn có thời gian.</p><ul>' + extended.map(function (item) { return row(item, ''); }).join('') + '</ul></section>' : '');
   }
 
   /** A part the learner already finished: only then can its lesson be replayed with a practice quiz. */

@@ -78,7 +78,7 @@
 <div id="smartConfirm" class="smart-confirm" hidden role="dialog" aria-modal="true" aria-labelledby="smartConfirmTitle" aria-describedby="smartConfirmMessage">
     <div class="smart-confirm__card">
         <div class="smart-confirm__mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></div>
-        <div class="smart-confirm__content"><span class="smart-confirm__eyebrow">Kitsu hỏi bạn</span><h2 id="smartConfirmTitle">Bạn có chắc không?</h2><p id="smartConfirmMessage"></p>
+        <div class="smart-confirm__content"><span class="smart-confirm__eyebrow">Kitsu hỏi bạn</span><h2 id="smartConfirmTitle">Bạn có chắc không?</h2><p id="smartConfirmMessage" aria-live="polite"></p>
             <fieldset id="discrepancyPicker" class="discrepancy-picker" hidden>
                 <legend>Bạn muốn bắt đầu thế nào?</legend>
                 <label><input type="radio" name="discrepancyChoice" value="ACCEPT_RECOMMENDATION" checked> <span data-discrepancy-accept>Củng cố nền theo kết quả Smart Test</span></label>
@@ -92,5 +92,5 @@
         <div class="smart-confirm__actions"><button id="smartConfirmNo" class="smart-confirm__no" type="button">Không, ở lại</button><button id="smartConfirmYes" class="smart-confirm__yes" type="button"><span class="material-symbols-outlined">check_circle</span><span>Đồng ý</span></button></div>
     </div>
 </div>
-<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-result-route.js?v=20261025-entry}"></script><script th:src="@{/js/pages/smart-test-safe-html.js?v=20261022}"></script><script th:src="@{/js/pages/smart-test.js?v=20261025-retake}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=6}"></script><script th:src="@{/js/pages/smart-test-result-route.js?v=20261025-entry}"></script><script th:src="@{/js/pages/smart-test-safe-html.js?v=20261022}"></script><script th:src="@{/js/pages/smart-test.js?v=20261028-estimate45}"></script>
 </body></html>

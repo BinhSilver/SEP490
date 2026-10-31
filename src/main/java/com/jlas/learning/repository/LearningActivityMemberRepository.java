@@ -13,6 +13,13 @@ public interface LearningActivityMemberRepository extends JpaRepository<Learning
     List<LearningActivityMember> findByPathInStudyOrder(@Param("pathId") Long pathId);
     List<LearningActivityMember> findByActivityIdOrderByOrderIndex(Long activityId);
 
+    /** F1-4: words/Kanji of every activity the user passed or completed, in any of their paths. */
+    @Query("select distinct m.memberType, m.canonicalId from LearningActivityMember m where m.activity.learningPath.user.id = :userId "
+            + "and m.activity.activityState in :states and m.memberType in :types")
+    List<Object[]> findPassedMemberIdsOfUser(@Param("userId") Long userId,
+            @Param("states") java.util.Collection<com.jlas.learning.enums.LearningActivityState> states,
+            @Param("types") java.util.Collection<com.jlas.learning.enums.LearningMemberType> types);
+
     /** One query for many activities (roadmap reconcilers), in the same per-activity order as above. */
     @Query("select m from LearningActivityMember m where m.activity.id in :activityIds "
             + "order by m.activity.id, m.orderIndex, m.id")

@@ -68,8 +68,11 @@ public class JpaLearningScopeSource implements LearningScopeSource {
                         "Lựa chọn củng cố nền chưa hợp lệ cho kết quả và mục tiêu của bạn.");
             }
         }
+        // Owner 2026-10-25/27: an entry answer (LearningEntryPolicy) fixes the first stage the learner confirmed, e.g. the
+        // R1 notice "học lại N5 → N4 → N3"; like the confirmations above it lifts the assessed-to-target distance gate.
+        boolean confirmedEntryStart = profile.entryStartLevel() != null;
         var eligibility = pathPolicy.evaluate(profile.assessedLevel(), profile.targetLevel());
-        if (!confirmedReview && !confirmedDiscrepancy && !eligibility.allowed()) {
+        if (!confirmedReview && !confirmedDiscrepancy && !confirmedEntryStart && !eligibility.allowed()) {
             throw new ApiException(ErrorCode.TARGET_LEVEL_NOT_ALLOWED,
                     "Mục tiêu " + profile.targetLevel() + " chưa phù hợp; hệ thống khuyến nghị "
                             + eligibility.recommendedTarget() + ".");

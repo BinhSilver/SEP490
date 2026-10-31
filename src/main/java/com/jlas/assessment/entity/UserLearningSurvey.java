@@ -24,6 +24,12 @@ public class UserLearningSurvey {
     private Integer studyDurationMonths;
     @Column(name = "daily_study_minutes")
     private Integer dailyStudyMinutes;
+    /** [JLAS-W0108] F1-3: optional JLPT exam date; drives the CORE-only squeeze of a path that cannot finish before it. */
+    @Column(name = "exam_date")
+    private java.time.LocalDate examDate;
+    /** [JLAS-W0108] F1-5: up to two focus skills (VOCABULARY, READING, LISTENING), comma-separated; null = no focus. */
+    @Column(name = "focus_skills", length = 40)
+    private String focusSkills;
     @Column(nullable = false, length = 100)
     private String skills;
     @Column(name = "completed_at", nullable = false)

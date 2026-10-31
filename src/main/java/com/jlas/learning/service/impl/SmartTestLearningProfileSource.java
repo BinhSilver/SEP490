@@ -53,6 +53,9 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
     private static final String FROM_ZERO_LEVEL = "BELOW_N5";
     /** [JLAS-W0108] Giá trị survey lưu cho trình độ tự khai "chưa từng học" (khác với cấp kết luận). */
     private static final String FROM_ZERO_SELF_REPORTED = "FROM_ZERO";
+    /** Smart Test batch size and its "lower the level" bound (§1.3: a batch with ≤ 2 correct lowers the level). */
+    private static final int FULL_BATCH = 5;
+    private static final int FAILED_BATCH_MAX_CORRECT = 2;
 
     /** [JLAS-W0108] Thứ tự ổn định 5 skill khi ghi điểm số (deterministic trong snapshot). */
     private static final List<String> SKILL_ORDER = List.of(
@@ -90,7 +93,68 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
                 session.getDailyStudyMinutes() != null ? session.getDailyStudyMinutes() : survey.getDailyStudyMinutes(),
                 aggregateWeaknesses(effectiveAnswers),
                 aggregateSkillScores(effectiveAnswers), surveyLevel(session, survey),
-                assessmentResult.abilityBand()).withPartial(assessmentResult.partial());
+                assessmentResult.abilityBand()).withPartial(assessmentResult.partial())
+                .withFailedBatchLevels(failedBatchLevels(assessmentAttemptId))
+                .withExamDate(survey.getExamDate());
+    }
+
+    /**
+     * Owner 2026-10-27 (R1): levels where the learner answered at least one full batch and every full batch had at most
+     * {@link #FAILED_BATCH_MAX_CORRECT} correct — the Smart Test's own "lower the level" rule (§1.3). A batch with a
+     * question never answered is skipped: a blank proves nothing (owner 2026-10-25); a timed-out answer still counts.
+     */
+    /** F1-5 (owner 2026-10-28): the survey's focus skills (VOCABULARY, READING, LISTENING), in stored order. */
+    @Override
+    public List<String> focusSkills(Long userId) {
+        String stored = surveys.findById(userId).map(UserLearningSurvey::getFocusSkills).orElse(null);
+        return stored == null || stored.isBlank() ? List.of() : List.of(stored.split(","));
+    }
+
+    /**
+     * F1-4 (owner 2026-10-28): words answered right in a full, fully answered Vocabulary or Kanji batch — the same batch
+     * evidence as {@link #failedBatchLevels}. A single right answer outside such a batch proves too little.
+     */
+    @Override
+    public java.util.Set<Long> knownVocabularyIds(Long assessmentAttemptId) {
+        if (assessmentAttemptId == null) return java.util.Set.of();
+        Map<Long, AssessmentAnswer> answered = new HashMap<>();
+        answers.findWithQuestionContextByAttemptId(assessmentAttemptId).forEach(a -> answered.put(a.getQuestion().getId(), a));
+        Map<String, List<SmartTestSessionQuestion>> batches = new LinkedHashMap<>();
+        for (SmartTestSessionQuestion item : sessionQuestions.findAllForAttempt(assessmentAttemptId)) {
+            if (item.getBatchNumber() == null || item.getQuestion() == null) continue;
+            String skill = item.getQuestion().getSkill();
+            if (!"VOCABULARY".equals(skill) && !"KANJI".equals(skill)) continue;
+            batches.computeIfAbsent(skill + "#" + item.getBatchNumber(), k -> new ArrayList<>()).add(item);
+        }
+        java.util.Set<Long> known = new java.util.TreeSet<>();
+        for (List<SmartTestSessionQuestion> batch : batches.values()) {
+            if (batch.size() < FULL_BATCH || batch.stream().anyMatch(i -> !answered.containsKey(i.getQuestion().getId()))) continue;
+            for (SmartTestSessionQuestion item : batch) {
+                var question = item.getQuestion();
+                if (question.getVocabularyEntry() != null && !isWrong(answered.get(question.getId()))) {
+                    known.add(question.getVocabularyEntry().getId());
+                }
+            }
+        }
+        return known;
+    }
+
+    private List<String> failedBatchLevels(Long attemptId) {
+        Map<Long, AssessmentAnswer> answered = new HashMap<>();
+        answers.findWithQuestionContextByAttemptId(attemptId).forEach(a -> answered.put(a.getQuestion().getId(), a));
+        Map<String, List<SmartTestSessionQuestion>> batches = new LinkedHashMap<>();
+        for (SmartTestSessionQuestion item : sessionQuestions.findAllForAttempt(attemptId)) {
+            if (item.getBatchNumber() == null || item.getQuestion() == null) continue;
+            batches.computeIfAbsent(item.getQuestion().getSkill() + "#" + item.getBatchNumber(), k -> new ArrayList<>()).add(item);
+        }
+        Map<String, Boolean> allFailed = new LinkedHashMap<>();
+        for (List<SmartTestSessionQuestion> batch : batches.values()) {
+            if (batch.size() < FULL_BATCH || batch.stream().anyMatch(i -> !answered.containsKey(i.getQuestion().getId()))) continue;
+            long correct = batch.stream().map(i -> answered.get(i.getQuestion().getId()))
+                    .filter(a -> !isWrong(a)).count();
+            allFailed.merge(batch.get(0).getQuestion().getJlptLevel(), correct <= FAILED_BATCH_MAX_CORRECT, Boolean::logicalAnd);
+        }
+        return allFailed.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).sorted().toList();
     }
 
     /**
@@ -119,7 +183,7 @@ public class SmartTestLearningProfileSource implements LearningProfileSource {
         return new LearningProfileSnapshot(userId, null, userId, FROM_ZERO_REVISION,
                 true, true, FROM_ZERO_LEVEL, survey.getTargetLevel(), survey.getGoal(),
                 survey.getDailyStudyMinutes(), List.of(), List.of(),
-                survey.getSelfReportedLevel(), null);
+                survey.getSelfReportedLevel(), null).withExamDate(survey.getExamDate());
     }
 
     private static String assessedLevel(SmartTestSession session) {

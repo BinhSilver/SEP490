@@ -77,7 +77,7 @@
     return /^(ACCEPT|DECLINE)_RECOMMENDATION$/.test(String(choice || '')) ? choice : null;
   }
   // Owner 2026-10-25: the learner's answers to the Smart Test entry questions (kana known? solid / review / study level).
-  var ENTRY_CHOICES = /^(SOLID|NOT_SOLID|STUDY_LEVEL|SKIP_LEVEL|REVIEW_MISTAKES|SKIP_REVIEW)$/;
+  var ENTRY_CHOICES = /^(SOLID|NOT_SOLID|STUDY_WEAK_LEVEL|SKIP_WEAK_LEVEL|REVIEW_MISTAKES|SKIP_REVIEW)$/;
   function resolveEntryAnswers(search) {
     var params = new URLSearchParams(search || '');
     var kana = params.get('kanaKnown');
@@ -386,6 +386,39 @@
       '<p>' + num(minutesPerDay) + ' phút/ngày</p><div class="ilp-pace__actions">' +
       '<button type="button" data-pace-preview="LIGHTER">' + PACE_LABEL.LIGHTER + '</button>' +
       '<button type="button" data-pace-preview="FASTER">' + PACE_LABEL.FASTER + '</button></div></div>';
+  }
+  /** F1-5 (owner 2026-10-28): the skills this path was made to focus on — never trimmed by an exam date. */
+  var FOCUS_LABEL = { VOCABULARY: 'Từ vựng', READING: 'Đọc', LISTENING: 'Nghe' };
+  function focusLabel(skills) {
+    var names = (Array.isArray(skills) ? skills : []).map(function (skill) { return FOCUS_LABEL[skill]; }).filter(Boolean);
+    return names.length ? '<span class="ilp-focus" title="Kỹ năng ưu tiên: không bị bớt khi rút gọn theo ngày thi">Ưu tiên: ' +
+      esc(names.join(', ')) + '</span>' : '';
+  }
+
+  /**
+   * F1-6 (owner 2026-10-28): after ≥ 5 study days the server compares real time on finished parts with their estimates;
+   * a gap over 25% shows one suggestion. The button opens the usual pace preview — nothing changes until the learner confirms.
+   */
+  function renderPaceSuggestion(measure) {
+    if (!measure || !measure.suggestion || !measure.suggestedMinutesPerDay || measure.percentOfEstimate == null) return '';
+    var faster = measure.suggestion === 'FASTER';
+    var text = faster
+      ? 'Bạn học nhanh hơn dự kiến (khoảng ' + num(measure.percentOfEstimate) + '% thời gian ước tính trong ' + num(measure.studyDays) +
+        ' ngày học). Có thể tăng lên ' + num(measure.suggestedMinutesPerDay) + ' phút/ngày để về đích sớm hơn.'
+      : 'Bạn đang cần nhiều thời gian hơn dự kiến (khoảng ' + num(measure.percentOfEstimate) + '% thời gian ước tính trong ' +
+        num(measure.studyDays) + ' ngày học). Có thể giảm xuống ' + num(measure.suggestedMinutesPerDay) + ' phút/ngày cho vừa sức.';
+    return '<div class="ilp-pace__suggestion" role="note"><p>' + text + '</p>' +
+      '<button type="button" data-pace-preview="' + (faster ? 'FASTER' : 'LIGHTER') + '">Xem thử ' +
+      num(measure.suggestedMinutesPerDay) + ' phút/ngày</button></div>';
+  }
+  async function showPaceSuggestion(root) {
+    try {
+      var response = await fetch('/api/learning/v2/paths/current/pace/measured', { headers: window.JlasAuth.authHeaders() });
+      var body = await response.json();
+      var html = response.ok && body && body.data ? renderPaceSuggestion(body.data) : '';
+      var pace = root.querySelector('.ilp-pace');
+      if (html && pace && !pace.querySelector('.ilp-pace__suggestion')) pace.insertAdjacentHTML('beforeend', html);
+    } catch (e) { /* a suggestion is optional; the roadmap works without it */ }
   }
   function renderPaceDialog(preview) {
     if (!preview) return '';
@@ -700,6 +733,7 @@
     return '<section class="ilp-hero"><div><span class="ilp-label">Lộ trình của bạn</span><h1>' + esc(v.title) +
       '</h1><p>Mỗi phần học được chia vừa sức. Bạn có thể tiếp tục từ nơi đã dừng.</p><div class="ilp-metrics"><span>' +
       esc(v.currentLevel) + ' → ' + esc(v.targetLevel) + '</span>' + (v.minutesPerDay ? '<span>' + v.minutesPerDay + ' phút/ngày</span>' : '') +
+      focusLabel(data && data.focusSkills) +
       '<span>' + v.totalPackages + ' bài học</span></div></div><div class="ilp-total"><div><span>TIẾN ĐỘ TỔNG</span><strong>' +
       v.progressPercent + '%</strong></div><progress max="100" value="' + v.progressPercent + '">' + v.progressPercent + '%</progress><small>' +
       v.completedPackages + '/' + v.totalPackages + ' bài hoàn thành</small></div></section>' +
@@ -870,6 +904,7 @@
           latestMockResult = await loadLatestMockResult(currentPathData.targetLevel);
           node.innerHTML = render(body.data, phaseFilter, viewExtras());
           clearToastSoon();
+          showPaceSuggestion(node);
         }
         else node.innerHTML = errorState(body.code, body.message);
         afterRender(node); }
@@ -1045,7 +1080,7 @@
     if (popup) popup.focus();
   }
   return { viewModel: viewModel, render: render, mount: mount, modesFor: modesFor, renderStageProgress: renderStageProgress,
-    renderMockGate: renderMockGate, renderMockResult: renderMockResult, renderPaceControls: renderPaceControls, renderPaceDialog: renderPaceDialog,
+    renderMockGate: renderMockGate, renderMockResult: renderMockResult, renderPaceControls: renderPaceControls, renderPaceSuggestion: renderPaceSuggestion, focusLabel: focusLabel, renderPaceDialog: renderPaceDialog,
     paceRequestBody: paceRequestBody, renderToast: renderToast, nextFocusIndex: nextFocusIndex, popupModel: popupModel, renderPopup: renderPopup, errorState: errorState,
     afterRender: afterRender, resolveAssessmentAttemptId: resolveAssessmentAttemptId,
     resolveReviewStartLevel: resolveReviewStartLevel, resolveDiscrepancyChoice: resolveDiscrepancyChoice,

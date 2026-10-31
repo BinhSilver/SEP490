@@ -48,6 +48,12 @@
     nextButton.querySelector('span').textContent =
       currentIndex === activeSlides.length - 1 ? 'Hoàn thành khảo sát' : 'Tiếp tục';
     notice.hidden = true;
+    var goalInput = document.querySelector('input[name="goal"]:checked');
+    var isJlpt = goalInput && goalInput.value === 'JLPT';
+    var examDateField = document.getElementById('surveyExamDateField');
+    if (examDateField) {
+      examDateField.hidden = !isJlpt;
+    }
     if (active && active.dataset.surveyStep === 'target') refreshTargetOptions();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -124,6 +130,67 @@
     (needsPathOnly ? goHome : startTest).focus();
   }
 
+  function getVietnamToday() {
+    var now = new Date();
+    var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (7 * 3600000));
+  }
+
+  function formatDateISO(d) {
+    var year = d.getFullYear();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
+  function getExamDateConstraints() {
+    var vnToday = getVietnamToday();
+    var tomorrow = new Date(vnToday.getFullYear(), vnToday.getMonth(), vnToday.getDate() + 1);
+    var maxDate = new Date(vnToday.getFullYear() + 3, vnToday.getMonth(), vnToday.getDate());
+    return {
+      min: formatDateISO(tomorrow),
+      max: formatDateISO(maxDate)
+    };
+  }
+
+  function initExamDateConstraints(input) {
+    if (!input) return;
+    var constraints = getExamDateConstraints();
+    input.min = constraints.min;
+    input.max = constraints.max;
+  }
+
+  function buildSurveyBody(formEl) {
+    var f = formEl || form || document;
+    var goalEl = f.querySelector('input[name="goal"]:checked');
+    var studiedEl = f.querySelector('input[name="studied"]:checked');
+    var targetEl = f.querySelector('input[name="targetLevel"]:checked');
+    var selfLevelEl = f.querySelector('input[name="selfLevel"]:checked');
+    var durationEl = f.querySelector('input[name="duration"]:checked');
+    var minutesEl = f.querySelector('input[name="minutes"]:checked');
+    var examDateInput = f.querySelector('input[name="examDate"]') || document.getElementById('surveyExamDateInput');
+
+    var goal = goalEl ? goalEl.value : null;
+    var studied = studiedEl ? studiedEl.value : null;
+
+    var body = {
+      goal: goal,
+      targetLevel: goal === 'JLPT' && targetEl ? targetEl.value : null,
+      selfReportedLevel: studied === 'YES' && selfLevelEl ? selfLevelEl.value : 'FROM_ZERO',
+      studyDurationMonths: studied === 'YES' && durationEl ? Number(durationEl.value) : 0,
+      dailyStudyMinutes: minutesEl ? Number(minutesEl.value) : 30
+    };
+
+    if (goal === 'JLPT') {
+      var dateStr = examDateInput && examDateInput.value ? examDateInput.value.trim() : '';
+      body.examDate = dateStr ? dateStr : null;
+      // F1-5 (owner 2026-10-28): up to two focus skills; the server checks them again.
+      var focusBoxes = typeof f.querySelectorAll === 'function' ? f.querySelectorAll('input[name="focusSkills"]:checked') : [];
+      body.focusSkills = Array.prototype.map.call(focusBoxes, function (input) { return input.value; }).slice(0, 2);
+    }
+    return body;
+  }
+
   function fillSurvey(survey) {
     var values = { studied: survey.selfReportedLevel === 'FROM_ZERO' ? 'NO' : 'YES',
       goal: survey.goal, targetLevel: survey.targetLevel, selfLevel: survey.selfReportedLevel,
@@ -134,7 +201,24 @@
         input.checked = String(input.value) === String(values[name]);
       });
     });
+    var examDateInput = document.getElementById('surveyExamDateInput');
+    if (examDateInput) {
+      examDateInput.value = survey.examDate ? String(survey.examDate).substring(0, 10) : '';
+    }
+    var focus = Array.isArray(survey.focusSkills) ? survey.focusSkills : [];
+    form.querySelectorAll('input[name="focusSkills"]').forEach(function (input) { input.checked = focus.indexOf(input.value) >= 0; });
+    limitFocusSkills();
   }
+
+  /** F1-5: at most two focus skills — the third box is disabled until one is unticked. */
+  function limitFocusSkills() {
+    var boxes = form.querySelectorAll('input[name="focusSkills"]');
+    var ticked = Array.prototype.filter.call(boxes, function (box) { return box.checked; }).length;
+    boxes.forEach(function (box) { box.disabled = !box.checked && ticked >= 2; });
+  }
+  form.addEventListener('change', function (event) {
+    if (event.target && event.target.name === 'focusSkills') limitFocusSkills();
+  });
 
   async function beginTest(survey) {
     startTest.disabled = true;
@@ -185,26 +269,64 @@
     var activeSlides = visibleSlides();
     if (!hasAnswer(activeSlides[currentIndex])) return;
     if (currentIndex < activeSlides.length - 1) { currentIndex++; render(); return; }
-    var goal = document.querySelector('input[name="goal"]:checked').value;
-    var studied = document.querySelector('input[name="studied"]:checked').value;
-    var target = document.querySelector('input[name="targetLevel"]:checked');
-    var body = {
-      goal: goal,
-      targetLevel: goal === 'JLPT' ? target.value : null,
-      selfReportedLevel: studied === 'YES' ? document.querySelector('input[name="selfLevel"]:checked').value : 'FROM_ZERO',
-      studyDurationMonths: studied === 'YES' ? Number(document.querySelector('input[name="duration"]:checked').value) : 0,
-      dailyStudyMinutes: Number(document.querySelector('input[name="minutes"]:checked').value)
-    };
+    var body = buildSurveyBody(form);
     nextButton.disabled = true; nextButton.querySelector('span').textContent = 'Đang lưu khảo sát...';
     try {
       var data = await api('/api/assessment/survey', { method: 'POST', body: JSON.stringify(body) });
       showInvitation(data.survey);
     }
-    catch (error) { showError(error.message); }
+    catch (error) {
+      var msg = error && error.message ? error.message : '';
+      if (msg.indexOf('Ngày thi') !== -1 || msg.indexOf('examDate') !== -1) {
+        var errEl = document.getElementById('surveyExamDateError');
+        if (errEl) {
+          errEl.textContent = msg;
+          errEl.hidden = false;
+        }
+        var active = visibleSlides();
+        var targetIndex = -1;
+        for (var i = 0; i < active.length; i++) {
+          if (active[i].dataset.surveyStep === 'target') {
+            targetIndex = i;
+            break;
+          }
+        }
+        if (targetIndex !== -1) {
+          currentIndex = targetIndex;
+          render();
+        }
+        var examDateInput = document.getElementById('surveyExamDateInput');
+        if (examDateInput) examDateInput.focus();
+      } else {
+        showError(msg);
+      }
+    }
     finally { nextButton.disabled = false; nextButton.querySelector('span').textContent = 'Hoàn thành khảo sát'; }
   });
+  var examDateInput = document.getElementById('surveyExamDateInput');
+  if (examDateInput) {
+    initExamDateConstraints(examDateInput);
+    examDateInput.addEventListener('input', function () {
+      var errEl = document.getElementById('surveyExamDateError');
+      if (errEl) {
+        errEl.textContent = '';
+        errEl.hidden = true;
+      }
+    });
+  }
   render();
   api('/api/assessment/survey').then(function (data) {
     if (data.completed && data.survey) { showInvitation(data.survey); }
   }).catch(function (error) { showError(error.message); });
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      buildSurveyBody: buildSurveyBody,
+      getVietnamToday: getVietnamToday,
+      formatDateISO: formatDateISO,
+      getExamDateConstraints: getExamDateConstraints,
+      initExamDateConstraints: initExamDateConstraints,
+      fillSurvey: fillSurvey
+    };
+  }
 })();

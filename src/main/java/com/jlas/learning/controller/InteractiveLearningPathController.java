@@ -75,6 +75,13 @@ public class InteractiveLearningPathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", paceService.preview(user.userId(), direction)));
     }
 
+    /** F1-6 (owner 2026-10-28) - read-only: real study time against estimates and a pace suggestion (never applied). */
+    @GetMapping("/paths/current/pace/measured")
+    public ResponseEntity<ApiResponse<com.jlas.learning.dto.LearningPaceMeasurement>> paceMeasured(
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", paceService.measure(user.userId())));
+    }
+
     /** [JLAS-W0108] Task 10 - applies a previewed pace; only day layout and minutes per day change. */
     @PostMapping("/paths/current/pace")
     public ResponseEntity<ApiResponse<LearningPacePreviewResponse>> applyPace(
