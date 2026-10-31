@@ -235,7 +235,8 @@ function grammarItems({ frames, jlasLevels }, level) {
     const id = j?.id ?? `JG-${sha256(`LP|${f.family}`).slice(0, 10)}`;
     const patterns = [...new Set([...f.jlas, ...f.mirai].map(x => normalizeGrammarPattern(x.pattern)))];
     const pattern = normalizeGrammarPattern(j?.pattern ?? m.pattern);
-    return { family: f.family, mirai: m?.level === level ? m : null, position: j?.position ?? 1, item: {
+    const merged = f.jlas.map(x => x.id).filter(x => x !== id).map(x => ({ id: x, into: id }));
+    return { family: f.family, merged, mirai: m?.level === level ? m : null, position: j?.position ?? 1, item: {
       id, level, pattern, pattern_variants: patterns.filter(p => p !== pattern), family_key: f.family,
       unit_no: m?.unit_no ?? 0, unit_title_vi: null, order: 0, meaning_vi: j?.meaning?.trim() || null, formation: null,
       usage_vi: j?.note ?? null, nuance_vi: null, common_mistakes_vi: null, related_ids: [],
@@ -252,9 +253,9 @@ function grammarItems({ frames, jlasLevels }, level) {
     a.item.related_ids = out.filter(b => b !== a && commonPrefixLength(aw, wordChars(b.family)) >= 2)
       .map(b => b.item.id).slice(0, 3);
   }
-  return out.sort((a, b) => (a.mirai ? 0 : 1) - (b.mirai ? 0 : 1) || (a.mirai?.order ?? 0) - (b.mirai?.order ?? 0)
-    || a.position - b.position || a.item.pattern.localeCompare(b.item.pattern))
-    .map((x, i) => ({ ...x.item, order: i + 1 }));
+  const sorted = out.sort((a, b) => (a.mirai ? 0 : 1) - (b.mirai ? 0 : 1) || (a.mirai?.order ?? 0) - (b.mirai?.order ?? 0)
+    || a.position - b.position || a.item.pattern.localeCompare(b.item.pattern));
+  return { items: sorted.map((x, i) => ({ ...x.item, order: i + 1 })), merged: sorted.flatMap(x => x.merged) };
 }
 
 // ---------------------------------------------------------------- entry point
@@ -280,7 +281,8 @@ export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub }
     return (a.tier === 'CORE' ? 0 : 1) - (b.tier === 'CORE' ? 0 : 1) || jlasPos.get(a.id) - jlasPos.get(b.id) || a.key.localeCompare(b.key);
   });
   vocabulary.forEach((v, i) => { v.order = i + 1; v.priority = i + 1; });
+  const grammar = grammarItems({ frames, jlasLevels }, level);
   return { level, vocabulary, kanji: kanjiItems({ frames, jlasLevels, dictionary }, level, pool),
-    grammar: grammarItems({ frames, jlasLevels }, level), conflicts, level_moves: levelMoves, unmatched,
-    merged_ids: here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))) };
+    grammar: grammar.items, conflicts, level_moves: levelMoves, unmatched,
+    merged_ids: [...here.flatMap(l => l.merged_ids.map(m => ({ id: m, into: l.id }))), ...grammar.merged] };
 }
