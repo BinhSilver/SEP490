@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * Repository cho {@link VocabularyReading} (các cách đọc phụ của một vocabulary_entry).
- * So khớp bằng native query + {@code BINARY} (xem ghi chú ở {@link VocabularyEntryRepository}).
+ * {@code normalized_reading} dùng utf8mb4_0900_as_cs (accent/case-sensitive, phân biệt
+ * dakuten); query so sánh trực tiếp, không ép COLLATE, để dùng index (migration 059).
  */
 @Repository
 public interface VocabularyReadingRepository extends JpaRepository<VocabularyReading, Long> {
@@ -20,7 +21,7 @@ public interface VocabularyReadingRepository extends JpaRepository<VocabularyRea
     /** Tier fallback: reading chính không khớp, thử các reading phụ. */
     @Query(value = "select distinct ve.* from vocabulary_reading vr "
             + "join vocabulary_entry ve on ve.id = vr.vocabulary_id "
-            + "where binary vr.normalized_reading = binary :reading "
+            + "where vr.normalized_reading = :reading "
             + "and ve.dictionary_status = 'PUBLISHED'", nativeQuery = true)
     List<VocabularyEntry> findVocabularyByNormalizedReading(
             @Param("reading") String normalizedReading, Pageable pageable);

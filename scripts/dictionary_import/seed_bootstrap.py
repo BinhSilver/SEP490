@@ -1,4 +1,4 @@
-"""Install a versioned dictionary test snapshot and KanjiVG assets."""
+"""Install a versioned dictionary test snapshot, KanjiVG and extra stroke-order assets."""
 
 from __future__ import annotations
 
@@ -28,6 +28,11 @@ _DEFAULT_MANIFEST = _PROJECT_ROOT / "data" / "dictionary-seed" / "manifest.json"
 _DEFAULT_ASSET_TARGET = (
     _PROJECT_ROOT / "src" / "main" / "resources" / "static" / "assets" / "kanjivg"
 )
+# Stroke-order SVGs for rare Kanji missing from KanjiVG (built by build_extra_stroke_svgs.py).
+_DEFAULT_EXTRA_ASSET_TARGET = (
+    _PROJECT_ROOT / "src" / "main" / "resources" / "static" / "assets" / "stroke-order-extra"
+)
+_EXTRA_SUFFIXES = (".svg", ".md", ".txt")
 
 
 def validate_test_database_name(name):
@@ -91,7 +96,18 @@ def verify_artifact(path, expected_sha256, expected_size):
         raise BootstrapError(f"artifact checksum mismatch: {artifact}")
 
 
-def extract_zip_safely(archive_path, destination, expected_file_count=None):
+def extract_zip_safely(
+    archive_path,
+    destination,
+    expected_file_count=None,
+    root_folder="kanji",
+    allowed_suffixes=(".svg",),
+):
+    """Atomically replace ``destination`` with the ZIP content.
+
+    Entries must live directly under ``root_folder`` (KanjiVG: ``kanji/04e00.svg``), or
+    directly at the ZIP root when ``root_folder`` is None.
+    """
     target_root = Path(destination).resolve()
     target_root.parent.mkdir(parents=True, exist_ok=True)
     entries = []
@@ -108,13 +124,15 @@ def extract_zip_safely(archive_path, destination, expected_file_count=None):
             relative = PurePosixPath(info.filename)
             if relative.is_absolute() or ".." in relative.parts:
                 raise BootstrapError(f"unsafe path in ZIP archive: {info.filename}")
+            expected_parts = 1 if root_folder is None else 2
             if (
-                len(relative.parts) != 2
-                or relative.parts[0] != "kanji"
-                or relative.suffix.lower() != ".svg"
+                len(relative.parts) != expected_parts
+                or (root_folder is not None and relative.parts[0] != root_folder)
+                or relative.suffix.lower() not in allowed_suffixes
             ):
+                location = "the ZIP root" if root_folder is None else f"{root_folder}/"
                 raise BootstrapError(
-                    f"KanjiVG ZIP files must be directly under kanji/: {info.filename}"
+                    f"ZIP files must be directly under {location}: {info.filename}"
                 )
             normalized_name = relative.as_posix().casefold()
             if normalized_name in names:
@@ -123,7 +141,7 @@ def extract_zip_safely(archive_path, destination, expected_file_count=None):
             entries.append((info, relative))
         if expected_file_count is not None and len(entries) != int(expected_file_count):
             raise BootstrapError(
-                f"KanjiVG file count mismatch: expected {expected_file_count}, "
+                f"ZIP file count mismatch: expected {expected_file_count}, "
                 f"got {len(entries)}"
             )
 
@@ -175,6 +193,7 @@ def _parser():
     parser.add_argument("--username")
     parser.add_argument("--mysql-bin")
     parser.add_argument("--asset-target", default=str(_DEFAULT_ASSET_TARGET))
+    parser.add_argument("--extra-asset-target", default=str(_DEFAULT_EXTRA_ASSET_TARGET))
     parser.add_argument(
         "--replace",
         action="store_true",
@@ -205,6 +224,11 @@ def _load_manifest(path):
             raise BootstrapError(f"manifest database is missing {field}")
     if "file_count" not in manifest["kanjivg"]:
         raise BootstrapError("manifest kanjivg is missing file_count")
+    extra = manifest.get("stroke_order_extra")
+    if extra is not None:
+        for field in ("file", "sha256", "size_bytes", "file_count"):
+            if field not in extra:
+                raise BootstrapError(f"manifest stroke_order_extra is missing {field}")
     return manifest_path, manifest
 
 
@@ -381,6 +405,13 @@ def main(argv=None, *, environ=None, stdout=None, stderr=None):
             kanjivg_metadata["sha256"],
             kanjivg_metadata["size_bytes"],
         )
+        extra_metadata = manifest.get("stroke_order_extra")
+        extra_artifact = None
+        if extra_metadata is not None:
+            extra_artifact = _artifact_path(manifest_path, extra_metadata["file"])
+            verify_artifact(
+                extra_artifact, extra_metadata["sha256"], extra_metadata["size_bytes"]
+            )
         mysql_binary = _find_mysql_binary(args.mysql_bin)
         expected_counts = {
             table: int(count)
@@ -436,6 +467,15 @@ def main(argv=None, *, environ=None, stdout=None, stderr=None):
         extracted = extract_zip_safely(
             kanjivg_artifact, args.asset_target, expected_files
         )
+        extra_extracted = 0
+        if extra_artifact is not None:
+            extra_extracted = extract_zip_safely(
+                extra_artifact,
+                args.extra_asset_target,
+                int(extra_metadata["file_count"]),
+                root_folder=None,
+                allowed_suffixes=_EXTRA_SUFFIXES,
+            )
         print(
             json.dumps(
                 {
@@ -444,6 +484,7 @@ def main(argv=None, *, environ=None, stdout=None, stderr=None):
                     "snapshot": manifest.get("snapshot"),
                     "dictionary_tables": len(expected_counts),
                     "kanjivg_files": extracted,
+                    "stroke_order_extra_files": extra_extracted,
                     "asset_target": str(Path(args.asset_target).resolve()),
                 },
                 ensure_ascii=False,

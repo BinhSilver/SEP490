@@ -4,6 +4,8 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.kaiwa.model.ConversationSession;
 import com.jlas.kaiwa.model.FreeChatSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import static com.jlas.kaiwa.memory.MemoryTypes.*;
 /** Durable memory attached to real AI Call sessions, without replacing their routes or transcript. */
 @Service
 public class ConversationMemoryBridge {
+    private static final Logger log = LoggerFactory.getLogger(ConversationMemoryBridge.class);
     private final JdbcTemplate jdbc;
     private final MemoryStore store;
     private final MemoryContext context;
@@ -43,6 +46,9 @@ public class ConversationMemoryBridge {
         if (session.getEngineStateJson() != null)
             jdbc.update("UPDATE kaiwa_conversation_memory SET engine_state_json=? WHERE conversation_session_id=? AND user_id=?",
                     session.getEngineStateJson(), session.getId(), session.getUserId());
+        // The next turn's memory search then finds this reply already embedded.
+        try { context.prefetchNext(store.session(session.getUserId(), link.memorySessionId())); }
+        catch (RuntimeException e) { log.warn("Memory prefetch skipped ({})", e.getClass().getSimpleName()); }
     }
 
     @Transactional

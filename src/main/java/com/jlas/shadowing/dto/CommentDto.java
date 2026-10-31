@@ -17,4 +17,12 @@ public class CommentDto {
     private String avatarUrl;
     private String avatarFrame;
     private String nameStyle;
+    /** Top-level comment this one replies to; null for a top-level comment. */
+    private Long parentId;
+    /** Replies of a top-level comment, oldest first; empty for replies themselves. */
+    private java.util.List<CommentDto> replies = new java.util.ArrayList<>();
+    /** Reaction (LIKE, LOVE, HAHA, WOW, SAD, CLAP) → how many people left it. */
+    private java.util.Map<String, Long> reactions = new java.util.LinkedHashMap<>();
+    /** The reaction the current user left on this comment, or null. */
+    private String myReaction;
 }

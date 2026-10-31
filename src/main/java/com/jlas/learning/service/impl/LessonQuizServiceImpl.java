@@ -17,6 +17,8 @@ import com.jlas.learning.dto.QuizAnswerDetailResponse;
 import com.jlas.learning.dto.QuizAnswerFeedbackResponse;
 import com.jlas.learning.dto.QuizAnswerSubmission;
 import com.jlas.learning.dto.QuizQuestionResponse;
+import com.jlas.learning.dto.QuizIntegrityRequest;
+import com.jlas.learning.dto.QuizIntegrityResponse;
 import com.jlas.learning.dto.QuizResultResponse;
 import com.jlas.learning.dto.QuizStartResponse;
 import com.jlas.learning.dto.QuizSubmitRequest;
@@ -53,6 +55,9 @@ public class LessonQuizServiceImpl implements LessonQuizService {
 
     private static final String ATTEMPT_TYPE_QUIZ = "QUIZ";
     private static final String QUIZ_TYPE_LESSON = "LESSON";
+    private static final String QUIZ_TYPE_UNIT_FINAL = "UNIT_FINAL";
+    /** Answers sent this long after the deadline still count (network delay, the page auto-submitting). */
+    private static final long DEADLINE_GRACE_SECONDS = 5;
     private static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
     private static final String STATUS_SUBMITTED = "SUBMITTED";
     private static final String STATUS_ABANDONED = "ABANDONED";
@@ -71,6 +76,7 @@ public class LessonQuizServiceImpl implements LessonQuizService {
     private final ObjectMapper objectMapper;
     private final EntityManager em;
     private final ApplicationEventPublisher events;
+    private final com.jlas.learning.repository.QuizIntegrityRepository integrity;
 
     @Override
     @Transactional
@@ -102,9 +108,31 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         if (!STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
             throw new ApiException(ErrorCode.CONFLICT, "Quiz has already been submitted.");
         }
+        AssessmentQuiz answeredQuiz = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
+                .map(AssessmentQuizAttempt::getQuiz).orElse(null);
+        if (isTimed(answeredQuiz)) {
+            if (secondsLeft(attempt) + DEADLINE_GRACE_SECONDS <= 0) {
+                throw new ApiException(ErrorCode.CONFLICT, "Đã hết giờ làm bài, bài được nộp với các câu đã trả lời.");
+            }
+            if (integrity.leavingCount(attemptId) >= LEAVE_LIMIT) {
+                throw new ApiException(ErrorCode.CONFLICT, "Bạn đã rời khỏi bài quá " + LEAVE_LIMIT
+                        + " lần, bài được nộp với các câu đã trả lời.");
+            }
+        }
         Optional<AssessmentAnswer> recorded = answerRepository
                 .findWithQuestionByAttemptIdAndQuestionId(attemptId, submission.questionId());
-        if (recorded.isPresent()) {
+        if (isTimed(answeredQuiz)) {
+            // Timed test: the choice is saved (and may be changed until submitting) but not revealed.
+            if (recorded.isPresent()) {
+                AssessmentAnswer answer = recorded.get();
+                AssessmentAnswer regraded = gradedAnswer(attempt, answer.getQuestion(), submission);
+                answer.setSelectedOption(regraded.getSelectedOption());
+                answer.setAnswerText(regraded.getAnswerText());
+                answer.setIsCorrect(regraded.getIsCorrect());
+                answer.setAnsweredAt(LocalDateTime.now());
+                return toHiddenFeedback(answerRepository.save(answer));
+            }
+        } else if (recorded.isPresent()) {
             return toFeedback(recorded.get());
         }
         AssessmentQuestion question = questionsOfAttempt(attemptId).stream()
@@ -113,7 +141,8 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 .findFirst()
                 .orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED,
                         "Answer references a question outside this quiz."));
-        return toFeedback(answerRepository.save(gradedAnswer(attempt, question, submission)));
+        AssessmentAnswer saved = answerRepository.save(gradedAnswer(attempt, question, submission));
+        return isTimed(answeredQuiz) ? toHiddenFeedback(saved) : toFeedback(saved);
     }
 
     @Override
@@ -132,6 +161,13 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         }
 
         Map<Long, QuizAnswerSubmission> submissions = indexSubmissions(request);
+        // A timed test may be submitted (or closed by the clock) with questions left blank: they count as wrong.
+        boolean blanksAllowed = isTimed(quizAttempt.getQuiz());
+        // A timed test closed by the clock or by leaving it keeps only the answers recorded while it was open.
+        if (isTimed(quizAttempt.getQuiz()) && (secondsLeft(attempt) + DEADLINE_GRACE_SECONDS <= 0
+                || integrity.leavingCount(attemptId) >= LEAVE_LIMIT)) {
+            submissions.clear();
+        }
         Map<Long, AssessmentAnswer> recorded = new HashMap<>();
         answerRepository.findWithQuestionByAttemptId(attemptId)
                 .forEach(answer -> recorded.put(answer.getQuestion().getId(), answer));
@@ -145,7 +181,8 @@ public class LessonQuizServiceImpl implements LessonQuizService {
             // an answer already checked during the attempt keeps its result
             AssessmentAnswer answer = recorded.get(question.getId());
             if (answer == null) {
-                answer = gradedAnswer(attempt, question, submission);
+                answer = submission == null && blanksAllowed ? blankAnswer(attempt, question)
+                        : gradedAnswer(attempt, question, submission);
                 newAnswers.add(answer);
             }
             BigDecimal rawScore = link.getRawScore() != null ? link.getRawScore() : BigDecimal.ONE;
@@ -230,9 +267,18 @@ public class LessonQuizServiceImpl implements LessonQuizService {
                 .findInProgressByUserIdAndQuizId(userId, quiz.getId());
         Long attemptId;
         List<QuizAnswerFeedbackResponse> answered;
+        if (resumed.isPresent() && isTimed(quiz) && secondsLeft(resumed.get().getAttempt()) + DEADLINE_GRACE_SECONDS <= 0) {
+            // The clock ran out while the page was closed: grade what was answered, then open a fresh attempt.
+            integrity.record(resumed.get().getAttemptId(), "TIME_UP", "expired while away");
+            submit(userId, resumed.get().getAttemptId(), new QuizSubmitRequest(List.of()));
+            resumed = Optional.empty();
+        }
         if (resumed.isPresent()) {
             attemptId = resumed.get().getAttemptId();
-            answered = answerRepository.findWithQuestionByAttemptId(attemptId).stream().map(this::toFeedback).toList();
+            answered = answerRepository.findWithQuestionByAttemptId(attemptId).stream()
+                    .map(isTimed(quiz) ? LessonQuizServiceImpl::toHiddenFeedback : this::toFeedback).toList();
+            // Reopening a running timed test (reload, new tab, back from elsewhere) counts as leaving it.
+            if (isTimed(quiz)) integrity.record(attemptId, "RESUME", null);
         } else {
             AssessmentAttempt attempt = attemptRepository.save(AssessmentAttempt.builder()
                     .user(em.getReference(User.class, userId))
@@ -246,13 +292,54 @@ public class LessonQuizServiceImpl implements LessonQuizService {
             attemptId = attempt.getId();
             answered = List.of();
         }
+        boolean timed = isTimed(quiz);
+        AssessmentAttempt opened = timed ? attemptRepository.findById(attemptId).orElse(null) : null;
         return new QuizStartResponse(
                 attemptId,
                 quiz.getId(),
                 quiz.getTitle(),
                 lessonId,
                 forAttempt(attemptId, supported).stream().map(this::toQuestion).toList(),
-                answered);
+                answered,
+                timed ? UNIT_FINAL_TIME_LIMIT_SECONDS : null,
+                opened != null ? Math.max(0, secondsLeft(opened)) : null,
+                timed ? integrity.leavingCount(attemptId) : null,
+                timed ? LEAVE_LIMIT : null);
+    }
+
+    @Override
+    @Transactional
+    public QuizIntegrityResponse recordIntegrity(Long userId, Long attemptId, QuizIntegrityRequest event) {
+        String type = event == null || event.type() == null ? "" : event.type().trim().toUpperCase(java.util.Locale.ROOT);
+        if (!com.jlas.learning.repository.QuizIntegrityRepository.TYPES.contains(type) || "RESUME".equals(type)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Unknown integrity event.");
+        }
+        AssessmentAttempt attempt = ownedAttemptForUpdate(userId, attemptId);
+        AssessmentQuiz quiz = attemptDetailRepository.findWithQuizByAttemptId(attemptId)
+                .map(AssessmentQuizAttempt::getQuiz).orElse(null);
+        if (!isTimed(quiz) || !STATUS_IN_PROGRESS.equals(attempt.getStatus())) {
+            return new QuizIntegrityResponse(0, LEAVE_LIMIT, false);
+        }
+        // A page that floods events cannot grow the log without bound.
+        if (integrity.count(attemptId) < 500) {
+            String detail = event.detail() == null ? null : event.detail().strip();
+            integrity.record(attemptId, type, detail == null || detail.isEmpty() ? null
+                    : detail.substring(0, Math.min(detail.length(), 255)));
+        }
+        int left = integrity.leavingCount(attemptId);
+        return new QuizIntegrityResponse(left, LEAVE_LIMIT, left >= LEAVE_LIMIT);
+    }
+
+    /** Only a unit's final test is timed and watched. */
+    private static boolean isTimed(AssessmentQuiz quiz) {
+        return quiz != null && QUIZ_TYPE_UNIT_FINAL.equals(quiz.getQuizType());
+    }
+
+    /** Seconds left on a timed attempt, by the server clock; negative once the deadline has passed. */
+    private static long secondsLeft(AssessmentAttempt attempt) {
+        if (attempt == null || attempt.getStartedAt() == null) return UNIT_FINAL_TIME_LIMIT_SECONDS;
+        long elapsed = java.time.Duration.between(attempt.getStartedAt(), LocalDateTime.now()).getSeconds();
+        return UNIT_FINAL_TIME_LIMIT_SECONDS - elapsed;
     }
 
     /** The questions an attempt shows, in the same order as when it was opened. */
@@ -377,6 +464,16 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         return map;
     }
 
+    /** A question of a timed test left unanswered when it was submitted: recorded as wrong. */
+    private static AssessmentAnswer blankAnswer(AssessmentAttempt attempt, AssessmentQuestion question) {
+        return AssessmentAnswer.builder()
+                .attempt(attempt)
+                .question(question)
+                .isCorrect(false)
+                .answeredAt(LocalDateTime.now())
+                .build();
+    }
+
     private AssessmentAnswer gradedAnswer(AssessmentAttempt attempt, AssessmentQuestion question,
                                           QuizAnswerSubmission submission) {
         boolean correct = grade(question, submission);
@@ -438,6 +535,12 @@ public class LessonQuizServiceImpl implements LessonQuizService {
         } catch (JsonProcessingException exception) {
             return null;
         }
+    }
+
+    /** The learner's own choice only: nothing about whether it is right, for a timed test in progress. */
+    private static QuizAnswerFeedbackResponse toHiddenFeedback(AssessmentAnswer answer) {
+        return new QuizAnswerFeedbackResponse(answer.getQuestion().getId(), null, answer.getSelectedOption(),
+                answer.getAnswerText(), null, null, null);
     }
 
     private QuizAnswerFeedbackResponse toFeedback(AssessmentAnswer answer) {

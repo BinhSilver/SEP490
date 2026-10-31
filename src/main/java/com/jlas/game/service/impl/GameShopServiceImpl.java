@@ -47,7 +47,8 @@ public class GameShopServiceImpl implements GameShopService {
                     .filter(item -> item.starter() || (item.active() && !item.deleted()) || owned.contains(item.code()))
                     .map(item -> new ShopItemView(item.code(), item.name(), item.description(), item.price(),
                             item.image(), item.starter(), item.starter() || owned.contains(item.code()),
-                            item.code().equals(equipped), item.id(), item.renderCode()))
+                            item.code().equals(equipped), item.id(), item.renderCode(), item.packPath(),
+                            item.weaponTheme()))
                     .toList();
             return new ShopSectionView(gameType, GameRules.gameName(gameType), GameShopCatalog.sectionTitle(gameType),
                     equipped, items);

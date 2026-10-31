@@ -1,5 +1,6 @@
 /* Ôn hôm nay (SRS) — dùng token --color-* nên tự đổi theo theme sáng/tối. */
-#jlabBaseContent.srs-page {
+#jlabBaseContent.srs-page,
+#jlabBaseContent .srs-page {
   --srs-radius: 18px;
   --srs-line: var(--color-outline-variant, #d8d8e0);
   --srs-muted: var(--color-on-surface-variant, #5f5f6b);
@@ -17,7 +18,7 @@
 }
 
 #jlabBaseContent .srs-head { display: grid; gap: 16px; }
-#jlabBaseContent .srs-head h1 { margin: 6px 0 4px; font-family: var(--font-headline, inherit); font-size: clamp(1.6rem, 4vw, 2.1rem); }
+#jlabBaseContent .srs-head :is(h1, .srs-title) { margin: 6px 0 4px; font-family: var(--font-headline, inherit); font-size: clamp(1.6rem, 4vw, 2.1rem); }
 #jlabBaseContent .srs-head p { margin: 0; color: var(--srs-muted); }
 
 #jlabBaseContent .srs-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }

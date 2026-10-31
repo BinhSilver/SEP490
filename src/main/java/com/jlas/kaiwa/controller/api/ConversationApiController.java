@@ -10,7 +10,9 @@ import com.jlas.kaiwa.dto.ChatTurnResponse;
 import com.jlas.kaiwa.dto.FuriganaTokenDto;
 import com.jlas.kaiwa.model.ConversationSession;
 import com.jlas.kaiwa.model.FreeChatSupport;
+import com.jlas.kaiwa.model.SessionStatus;
 import com.jlas.kaiwa.repository.ConversationSessionRepository;
+import com.jlas.kaiwa.service.FreeChatSessionService;
 import com.jlas.kaiwa.service.ai.AIConversationService;
 import com.jlas.kaiwa.service.learning.AnnotationService;
 import com.jlas.kaiwa.service.learning.SuggestedReplyService;
@@ -20,6 +22,7 @@ import com.jlas.kaiwa.service.turn.AiCallTurnService;
 import com.jlas.kaiwa.service.understanding.JapaneseChatInputValidator;
 import com.jlas.moderation.service.UserSanctionService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -70,7 +73,11 @@ public class ConversationApiController {
             return ResponseEntity.badRequest().body(err);
         }
         UserPrincipal current = currentUser();
-        ownedSession(request.getSessionId(), current);
+        ConversationSession session = ownedSession(request.getSessionId(), current);
+        // A free chat tab left open overnight: today's conversation is a new session (the page moves there).
+        if (FreeChatSupport.isFreeChat(session) && session.getStatus() == SessionStatus.IN_PROGRESS
+                && !FreeChatSessionService.current(session, LocalDateTime.now()))
+            throw new ApiException(ErrorCode.AICALL_FREE_CHAT_NEW_DAY);
         sanctions.assertCanAct(current.userId());
         inputValidator.validate(request.getMessage());
         // Giữ chỗ hạn mức/CP -> gọi AI -> chốt hoặc hoàn (JLAS-W0199).

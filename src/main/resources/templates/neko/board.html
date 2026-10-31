@@ -11,12 +11,12 @@
 </head>
 <body id="arenaGamePage" class="arena-play arena-play--neko">
 <div id="neko-root"
-     th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin},data-skin-id=${skinItem?.id},data-skin-render-code=${skinItem?.renderCode},data-skin-image=${skinItem?.image},data-skin-name=${skinItem?.name}">
+     th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin},data-skin-id=${skinItem?.id},data-skin-render-code=${skinItem?.renderCode},data-skin-image=${skinItem?.image},data-skin-pack=${skinItem?.packPath},data-skin-weapon=${skinItem?.weaponTheme},data-skin-name=${skinItem?.name}">
 </div>
 <noscript>Trình duyệt này chưa chạy được game. Hãy mở bằng Chrome, Edge hoặc Safari bản mới.</noscript>
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/arena/js/arena-client.js}"></script>
 <script th:src="@{/arena/js/voice-client.js}"></script>
-<script type="module" th:src="@{/arena/app/neko/neko-app.js(v='20261016-skin-dropdown')}"></script>
+<script type="module" th:src="@{/arena/app/neko/neko-app.js(v='20261022-packs')}"></script>
 </body>
 </html>

@@ -18,7 +18,8 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261014-srs-due" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261011-search-focus" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261029-no-dock" />
+  <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261025-review-tab" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -31,8 +32,8 @@
       <nav class="fc-stitch-sidebar__nav">
         <a data-sidebar-tab="public" href="/flashcard/library.html"><i class="fa-regular fa-rectangle-list"></i> Bộ thẻ công khai</a>
         <a data-sidebar-tab="my" href="/flashcard/library.html?tab=my"><i class="fa-regular fa-folder-open"></i> Bộ thẻ của tôi</a>
-        <a href="/flashcard/review.html"><i class="fa-regular fa-calendar-check"></i> Ôn hôm nay <span class="fc-srs-due-badge" id="srs-due-badge" hidden></span></a>
-        <span class="fc-stitch-sidebar__item is-muted" aria-disabled="true"><i class="fa-regular fa-star"></i> Yêu thích</span>
+        <a data-sidebar-tab="review" href="/flashcard/library.html?tab=review"><i class="fa-regular fa-calendar-check"></i> Ôn hôm nay <span class="fc-srs-due-badge" id="srs-due-badge" hidden></span></a>
+        <a data-sidebar-tab="favorites" href="/flashcard/library.html?tab=favorites"><i class="fa-regular fa-heart"></i> Yêu thích</a>
       </nav>
       <section id="folder-panel" class="folder-panel" hidden>
         <div class="folder-panel__heading">
@@ -45,34 +46,99 @@
       </section>
     </aside>
     <section class="container library-content">
-      <div class="lib-control-dock">
-        <div class="lib-toolbar" aria-label="Tìm kiếm và sắp xếp">
-          <label class="input-wrap lib-search" for="lib-search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" />
-            <span class="sr-only">Tìm bộ thẻ</span>
-          </label>
-          <label class="lib-sort-field" for="lib-sort">
-            <span>Sắp xếp</span>
-            <select id="lib-sort" class="field-select" aria-label="Sắp xếp">
-              <option value="NEWEST">Mới nhất</option>
-              <option value="HIGHEST_RATED">Đánh giá cao nhất</option>
-              <option value="MOST_STUDIED">Học nhiều nhất</option>
-              <option value="MOST_CARDS">Nhiều thẻ nhất</option>
-              <option value="RECENTLY_UPDATED">Cập nhật gần đây</option>
-            </select>
-          </label>
-        </div>
-        <div class="lib-mobile-filters" aria-label="Lọc bộ thẻ">
-          <select id="lib-scope-filter" aria-label="Nguồn bộ thẻ">
-            <option value="public">Bộ thẻ công khai</option>
-            <option value="my">Bộ thẻ của tôi</option>
+      <div class="lib-toolbar" aria-label="Tìm kiếm và sắp xếp">
+        <label class="input-wrap lib-search" for="lib-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" />
+          <span class="sr-only">Tìm bộ thẻ</span>
+        </label>
+        <label class="lib-sort-field" for="lib-sort">
+          <span>Sắp xếp</span>
+          <select id="lib-sort" class="field-select" aria-label="Sắp xếp">
+            <option value="NEWEST">Mới nhất</option>
+            <option value="HIGHEST_RATED">Đánh giá cao nhất</option>
+            <option value="MOST_STUDIED">Học nhiều nhất</option>
+            <option value="MOST_CARDS">Nhiều thẻ nhất</option>
+            <option value="RECENTLY_UPDATED">Cập nhật gần đây</option>
           </select>
-          <details id="lib-folder-filter" class="lib-folder-dropdown">
-            <summary aria-label="Lọc theo thư mục"><i class="fa-regular fa-folder" aria-hidden="true"></i><span id="lib-folder-label">Thư mục của tôi</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
-          </details>
-        </div>
+        </label>
       </div>
+      <div class="lib-mobile-filters" aria-label="Lọc bộ thẻ">
+        <select id="lib-scope-filter" aria-label="Nguồn bộ thẻ">
+          <option value="public">Bộ thẻ công khai</option>
+          <option value="my">Bộ thẻ của tôi</option>
+          <option value="favorites">Yêu thích</option>
+          <option value="review">Ôn hôm nay</option>
+        </select>
+        <details id="lib-folder-filter" class="lib-folder-dropdown">
+          <summary aria-label="Lọc theo thư mục"><i class="fa-regular fa-folder" aria-hidden="true"></i><span id="lib-folder-label">Thư mục của tôi</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+        </details>
+      </div>
+
+      <!-- "Ôn hôm nay" (?tab=review): SRS queue across every set; js/review-page.js starts it on first open. -->
+      <section id="library-review" class="srs-page library-review" data-srs-lazy hidden aria-label="Ôn hôm nay">
+      <header class="srs-head">
+        <div>
+          <h2 class="srs-title">Ôn hôm nay</h2>
+        </div>
+        <dl class="srs-tiles" aria-label="Tổng quan ôn tập">
+          <div><dt>Đến hạn</dt><dd id="srs-due">–</dd></div>
+          <div><dt>Đã ôn hôm nay</dt><dd id="srs-today">–</dd></div>
+          <div><dt>Chuỗi ngày</dt><dd id="srs-streak">–</dd></div>
+          <div><dt>Tỉ lệ nhớ 30 ngày</dt><dd id="srs-retention">–</dd></div>
+        </dl>
+      </header>
+
+      <section class="srs-session" aria-label="Phiên ôn tập">
+        <div class="srs-progress" id="srs-progress" hidden>
+          <span id="srs-progress-label">0 / 0</span>
+          <div class="srs-progress__bar"><i id="srs-progress-fill"></i></div>
+        </div>
+
+        <article class="srs-card" id="srs-card" hidden aria-live="polite">
+          <div class="srs-card__meta">
+            <a id="srs-card-set" class="srs-chip" href="#"></a>
+            <span id="srs-card-relearn" class="srs-chip srs-chip--warn" hidden>Xem lại</span>
+            <button type="button" class="srs-icon-btn" id="srs-speak" title="Nghe phát âm" aria-label="Nghe phát âm"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+          </div>
+          <div class="srs-card__front" id="srs-front" lang="ja"></div>
+          <div class="srs-card__back" id="srs-back" hidden>
+            <div class="srs-card__reading" id="srs-reading" lang="ja"></div>
+            <div class="srs-card__meaning" id="srs-meaning"></div>
+            <div class="srs-card__hanviet" id="srs-hanviet"></div>
+            <div class="srs-card__example" id="srs-example"></div>
+          </div>
+          <div class="srs-actions">
+            <button type="button" class="btn btn-primary srs-reveal" id="srs-reveal">Hiện đáp án <kbd>Space</kbd></button>
+            <div class="srs-grades" id="srs-grades" hidden role="group" aria-label="Bạn nhớ thẻ này thế nào?"></div>
+            <button type="button" class="btn btn-primary srs-reveal" id="srs-relearn-next" hidden>Nhớ rồi, tiếp tục <kbd>Space</kbd></button>
+          </div>
+        </article>
+
+        <div class="srs-empty" id="srs-empty" hidden>
+          <span class="srs-empty__icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+          <h2 id="srs-empty-title">Không còn thẻ đến hạn</h2>
+          <p id="srs-empty-text">Hãy quay lại theo lịch dự báo bên dưới, hoặc học thêm bộ thẻ mới.</p>
+          <a class="btn btn-ghost" href="/flashcard/library.html?tab=my">Mở bộ thẻ của tôi</a>
+        </div>
+        <p class="srs-loading" id="srs-loading">Đang tải hàng ôn…</p>
+      </section>
+
+      <section class="srs-stats" aria-label="Thống kê ôn tập">
+        <div class="srs-panel">
+          <h2>Dự báo 7 ngày</h2>
+          <div class="srs-forecast" id="srs-forecast"></div>
+        </div>
+        <div class="srs-panel">
+          <div class="srs-panel__head">
+            <h2>Lịch học 26 tuần</h2>
+            <span class="srs-legend" aria-hidden="true">Ít <i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i> Nhiều</span>
+          </div>
+          <div class="srs-heatmap" id="srs-heatmap" role="img" aria-label="Số lượt ôn mỗi ngày"></div>
+          <p class="srs-counts" id="srs-counts"></p>
+        </div>
+      </section>
+      </section>
 
       <div class="library-results-heading">
         <div>
@@ -84,8 +150,8 @@
       <div id="lib-grid" class="lib-grid" aria-live="polite"></div>
       <div id="lib-empty" class="lib-empty" hidden>
         <span class="lib-empty__icon"><i class="fa-solid fa-layer-group"></i></span>
-        <h2>Chưa tìm thấy bộ thẻ phù hợp</h2>
-        <p>Thử đổi từ khóa, chuyển tab hoặc tạo bộ thẻ đầu tiên của riêng bạn.</p>
+        <h2 id="lib-empty-title">Chưa tìm thấy bộ thẻ phù hợp</h2>
+        <p id="lib-empty-text">Thử đổi từ khóa, chuyển tab hoặc tạo bộ thẻ đầu tiên của riêng bạn.</p>
         <a class="btn btn--primary btn-primary" href="/flashcard/editor.html"><i class="fa-solid fa-plus"></i> Tạo bộ thẻ</a>
       </div>
       <div class="lib-pager" id="lib-pager" hidden>
@@ -186,6 +252,8 @@
   <script src="/js/components.js"></script>
   <script src="/flashcard/js/api-client.js?v=4"></script>
   <script src="/flashcard/js/shell.js"></script>
-  <script src="/flashcard/js/library-page.js?v=20261015-four-cols"></script>
+  <script src="/flashcard/js/srs-review.js?v=20261014-srs"></script>
+  <script src="/flashcard/js/review-page.js?v=20261025-review-tab"></script>
+  <script src="/flashcard/js/library-page.js?v=20261025-favorite"></script>
 </body>
 </html>

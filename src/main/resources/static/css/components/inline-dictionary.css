@@ -1,6 +1,6 @@
 /* Popup tra từ nhanh. Chỉ dùng token màu hệ thống (tokens.css / theme-bridge.css), nên tự theo theme sáng/tối. */
 .inline-dict {
-  position: fixed; z-index: 1300; width: min(320px, calc(100vw - 24px)); padding: 18px;
+  position: fixed; z-index: 1300; width: min(320px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow-y: auto; padding: 18px;
   color: var(--color-on-surface, #1d1b20); background: var(--color-surface-lowest, #fff);
   border: 1px solid var(--color-outline-variant, #cbc4d2); border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, .18);
@@ -67,3 +67,14 @@ html[data-theme="dark"] .inline-dict { box-shadow: 0 16px 40px rgba(0, 0, 0, .5)
 .inline-dict__notebooks button:hover { border-color: var(--color-primary, #4f378a); }
 .inline-dict__notebooks button:disabled { opacity: .6; cursor: progress; }
 .inline-dict__notebooks small { color: var(--color-on-surface-variant, #49454f); }
+.inline-dict__notebook-list { display: grid; gap: 6px; }
+.inline-dict__notebooks [hidden] { display: none; }
+.inline-dict__create { display: grid; gap: 8px; }
+.inline-dict__create label { display: grid; gap: 6px; font-size: 12px; }
+.inline-dict__create input {
+  box-sizing: border-box; width: 100%; min-height: 40px; padding: 8px 10px;
+  border: 1px solid var(--color-outline-variant, #cbc4d2); border-radius: 10px;
+  color: var(--color-on-surface, #1d1b20); background: var(--color-surface-lowest, #fff); font: inherit;
+}
+.inline-dict__create-actions { display: flex; gap: 8px; }
+.inline-dict__create-actions button { flex: 1; justify-content: center; }

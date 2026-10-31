@@ -4,6 +4,8 @@ import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.learning.dto.QuizAnswerFeedbackResponse;
 import com.jlas.learning.dto.QuizAnswerSubmission;
+import com.jlas.learning.dto.QuizIntegrityRequest;
+import com.jlas.learning.dto.QuizIntegrityResponse;
 import com.jlas.learning.dto.QuizResultResponse;
 import com.jlas.learning.dto.QuizStartResponse;
 import com.jlas.learning.dto.QuizSubmitRequest;
@@ -55,6 +57,15 @@ public class LessonQuizController {
             @RequestBody QuizSubmitRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("Quiz submitted", quizService.submit(user.userId(), attemptId, request)));
+    }
+
+    /** Logs what the test page saw (tab switch, fullscreen exit, copy…) for a timed attempt. */
+    @PostMapping("/attempts/{attemptId}/integrity")
+    public ResponseEntity<ApiResponse<QuizIntegrityResponse>> integrity(
+            @PathVariable("attemptId") Long attemptId,
+            @RequestBody QuizIntegrityRequest event,
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Recorded", quizService.recordIntegrity(user.userId(), attemptId, event)));
     }
 
     /** Drops an unfinished attempt without grading it, so the next start opens a new one. */

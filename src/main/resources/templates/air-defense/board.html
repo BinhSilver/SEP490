@@ -7,18 +7,18 @@
     <title th:text="${pageTitle}">Bắn máy bay · JLAS</title>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" th:href="@{/arena/app/air-defense/air-defense-app.css(v='20261015-setup-dropdowns')}" />
+    <link rel="stylesheet" th:href="@{/arena/app/air-defense/air-defense-app.css(v='20261025-noarrow')}" />
     <link rel="stylesheet" th:href="@{/arena/css/voice.css}" />
 </head>
 <body id="arenaGamePage" class="arena-play arena-play--air-defense">
 <div id="air-defense-root" aria-label="Khu vực trò chơi Bắn máy bay"
-     th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin},data-skin-id=${skinItem?.id},data-skin-render-code=${skinItem?.renderCode},data-skin-image=${skinItem?.image},data-skin-name=${skinItem?.name}">
+     th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin},data-skin-id=${skinItem?.id},data-skin-render-code=${skinItem?.renderCode},data-skin-image=${skinItem?.image},data-skin-pack=${skinItem?.packPath},data-skin-weapon=${skinItem?.weaponTheme},data-skin-name=${skinItem?.name}">
 </div>
 <noscript>Trình duyệt này chưa chạy được game. Hãy mở bằng Chrome, Edge hoặc Safari bản mới.</noscript>
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/arena/js/arena-client.js(v='20261010-device')}"></script>
 <script th:src="@{/arena/js/voice-client.js}"></script>
 <!-- Pixi chunks import this entry by its canonical URL. A query string would load it twice. -->
-<script type="module" th:src="@{/arena/app/air-defense/air-defense-app.js}"></script>
+<script type="module" th:src="@{/arena/app/air-defense/air-defense-app.js(v='20261025-noarrow')}"></script>
 </body>
 </html>

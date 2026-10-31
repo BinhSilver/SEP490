@@ -39,9 +39,9 @@
           '</section>' +
         '</div>' +
         '<section class="adm-panel">' +
-          '<div class="adm-toolbar">' +
+          '<div class="adm-toolbar" data-filter-bar>' +
             '<input type="search" class="input" data-search placeholder="Tìm từ khoá" maxlength="100" aria-label="Tìm từ khoá">' +
-            '<select class="select" data-filter aria-label="Lọc hành động"><option value="">Mọi hành động</option>' +
+            '<select class="select" data-filter aria-label="Hành động"><option value="">Mọi hành động</option>' +
               '<option value="BLOCK">Chặn</option><option value="REVIEW">Cần xem lại</option><option value="OFF">Đang tắt</option></select>' +
             '<span class="adm-muted" data-count></span>' +
           '</div>' +
@@ -52,6 +52,7 @@
         '</section>';
 
       var rows = root.querySelector('[data-rows]');
+      A.filterPopover(root.querySelector('[data-filter-bar]'));
 
       function render() {
         var q = state.query.toLowerCase();
@@ -188,7 +189,7 @@
     render: async function (root, ctx) {
       var found = null;
       root.innerHTML =
-        '<section class="adm-panel">' +
+        '<section class="adm-section">' +
           '<h2 class="adm-panel__title">Tìm người dùng</h2>' +
           '<form class="adm-toolbar" data-lookup novalidate>' +
             '<input type="email" class="input" id="admEmail" placeholder="Email người dùng" maxlength="255" aria-label="Email người dùng">' +
@@ -196,7 +197,7 @@
           '</form>' +
           '<div data-user></div>' +
         '</section>' +
-        '<section class="adm-panel"><h2 class="adm-panel__title">Chế tài đang hiệu lực</h2><div data-active></div></section>';
+        '<section class="adm-section"><h2 class="adm-panel__title">Chế tài đang hiệu lực</h2><div data-active></div></section>';
 
       async function loadActive() {
         root.querySelector('[data-active]').innerHTML = sanctionTable(await A.api.get(API + '/sanctions/active'), true);
@@ -341,16 +342,17 @@
       var page = 0;
       var rowsById = {};
       root.innerHTML =
-        '<form class="adm-toolbar adm-panel" data-filters novalidate>' +
+        '<form class="adm-toolbar" data-filters novalidate>' +
           '<select class="select" name="action" aria-label="Hành động"><option value="">Mọi hành động</option>' +
             Object.keys(AUDIT_ACTIONS).map(function (k) { return '<option value="' + k + '">' + AUDIT_ACTIONS[k] + '</option>'; }).join('') +
           '</select>' +
-          '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác">' +
-          '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
-          '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label>' +
-          '<button type="submit" class="btn btn--primary btn--sm">Lọc</button>' +
+          '<input class="input" name="actorId" inputmode="numeric" maxlength="12" placeholder="Mã người thao tác" aria-label="Mã người thao tác" data-in-filter="Người thao tác">' +
+          '<div class="adm-filter-range" data-in-filter="Khoảng thời gian">' +
+            '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
+            '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
         '</form><div data-list></div>';
       var form = root.querySelector('[data-filters]');
+      A.filterPopover(form);
       A.digitsOnly(form.elements.actorId);
 
       async function load() {

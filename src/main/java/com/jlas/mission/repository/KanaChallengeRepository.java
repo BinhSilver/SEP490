@@ -1,5 +1,6 @@
 package com.jlas.mission.repository;
 
+import com.jlas.mission.util.KanaPuzzle;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -120,14 +121,18 @@ public class KanaChallengeRepository {
     }
 
     public List<Word> words(String level) {
+        // Textbook entries keep the lesson's wording (食べます, でしょう, …); the board only takes real words.
         return jdbc.query("""
-                SELECT id, expression, reading, meaning, jlpt_level FROM vocabulary_entry
+                SELECT id, expression, reading, meaning, jlpt_level, usage_scope FROM vocabulary_entry
                 WHERE dictionary_status = 'PUBLISHED' AND jlpt_level IN ('N5','N4','N3','N2','N1')
                     AND meaning IS NOT NULL AND TRIM(meaning) <> ''
                 """ + (level == null ? "" : " AND jlpt_level = ?") + " ORDER BY id",
-                (rs, row) -> new Word(rs.getLong("id"), rs.getString("expression"), rs.getString("reading"),
-                        rs.getString("meaning"), rs.getString("jlpt_level")),
-                level == null ? new Object[]{} : new Object[]{level});
+                (rs, row) -> KanaPuzzle.isLessonForm(rs.getString("reading"), "TEXTBOOK".equals(rs.getString("usage_scope")))
+                        ? null
+                        : new Word(rs.getLong("id"), rs.getString("expression"), rs.getString("reading"),
+                                rs.getString("meaning"), rs.getString("jlpt_level")),
+                level == null ? new Object[]{} : new Object[]{level})
+                .stream().filter(java.util.Objects::nonNull).toList();
     }
 
     /**

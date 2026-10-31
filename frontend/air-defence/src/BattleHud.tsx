@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import type {MatchInfo} from './game/useAirDefenseStore';
+import {playerShipName, type MatchInfo} from './game/useAirDefenseStore';
 import type {LiveStatus} from './game/arenaTypes';
 import './battle-hud-mobile.css';
 
@@ -44,7 +44,7 @@ export function BattleHud(p: HudProps) {
           </button>
         </div>
         <h1 title={p.match.deckTitle}>{p.match.deckTitle}</h1>
-        <span className="ad-hud__fields">{p.match.questionLabel}<i className="fa-solid fa-arrow-right" aria-hidden="true"/>{p.match.answerLabel}</span>
+        <span className="ad-hud__fields">{p.match.questionLabel} · {p.match.answerLabel}</span>
         {(p.liveStatus === 'offline' || p.liveStatus === 'connecting') && <span role="status" className="ad-hud__connection">{p.liveStatus === 'offline' ? 'Đang kết nối lại…' : 'Đang kết nối…'}</span>}
       </div>
       <div className="ad-hud__readouts">
@@ -78,7 +78,7 @@ export function BattleHud(p: HudProps) {
         <div role="meter" aria-label="Máu hành tinh của bạn" aria-valuemin={0} aria-valuemax={p.maxHp} aria-valuenow={Math.max(0,Math.round(p.hp))} className="ad-health__track"><span style={{width:`${hpPct}%`}}/></div>
         {p.shield > 0 && <span className="ad-health__shield"><i className="fa-solid fa-shield-halved" aria-hidden="true"/> Giáp {p.shield}</span>}
       </div>
-      <div className="ad-ship-name"><i className="fa-solid fa-jet-fighter" aria-hidden="true"/>{SHIP_NAMES[p.ship] || 'Chiến cơ'}</div>
+      <div className="ad-ship-name"><i className="fa-solid fa-jet-fighter" aria-hidden="true"/>{SHIP_NAMES[p.ship] || playerShipName() || 'Chiến cơ'}</div>
       <button type="button" className={`ad-super ${ready ? 'is-ready' : ''}`} onClick={p.onBeam} disabled={!ready || p.disabled} aria-label={ready ? 'Siêu pháo sẵn sàng — bấm Shift để bắn' : `Siêu pháo đang nạp ${Math.round(p.charge)} phần trăm`} title="Bắn siêu pháo · Shift" style={{'--charge':`${p.charge}%`} as CSSProperties}>
         <span className="ad-super__title"><i className="fa-solid fa-bolt" aria-hidden="true"/> {ready ? 'Siêu pháo sẵn sàng' : 'Siêu pháo'}<kbd>Shift</kbd></span>
         <span className="ad-super__track" role="meter" aria-label="Năng lượng siêu pháo" aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.charge}><span/></span><strong>{Math.round(p.charge)}<small>%</small></strong>

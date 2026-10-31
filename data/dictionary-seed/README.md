@@ -1,16 +1,26 @@
 # J-LAS Dictionary Test Snapshot
 
 This directory contains a versioned test snapshot distributed through Git LFS.
-It lets another developer restore the complete Dictionary/Kanji dataset without
-running the approximately 40-minute JMdict import.
+It lets another developer restore the complete Japanese-Vietnamese
+Dictionary/Kanji dataset without rerunning the imports in
+`docs/dictionary-import.md` (Mazii vocabulary, KANJIDIC2, KanjiDictVN, KanjiVG).
+
+Snapshot `JLAS2-34-ja-vi-2026-10-16`: 278,131 Japanese-Vietnamese words with Han
+Viet, 13,033 Kanji (all KANJIDIC2 characters, Vietnamese readings/meanings),
+40,397 Kanji readings, 505,412 word-Kanji links, 253 radical lookup components
+with 54,321 Kanji-component links (RADKFILE). Migrations
+`sql/migrations/059_vietnamese_dictionary.sql` and `060_kanji_component_lookup.sql`
+are already part of the schema.
 
 ## Included artifacts
 
-- `jlas-dictionary-test-seed-20260916.sql.gz`: all application table
-  definitions plus data for only the 16 Dictionary/Kanji tables listed in
+- `jlas-dictionary-test-seed-20261016.sql.gz`: all application table
+  definitions plus data for only the 18 Dictionary/Kanji tables listed in
   `manifest.json`. It contains no account, profile, user progress, content, or
   other business-table rows.
 - `kanjivg-r20250816.zip`: 11,661 KanjiVG SVG files under `kanji/`.
+  Stroke-order files for 113 rarer Kanji that KanjiVG lacks are committed in
+  `src/main/resources/static/assets/stroke-order-extra` (no extraction needed).
 - `manifest.json`: artifact checksums, byte sizes, source versions, and exact
   expected database row counts.
 
@@ -87,12 +97,27 @@ export SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD"
 ./mvnw spring-boot:run
 ```
 
+## Regenerating the snapshot
+
+After changing the dictionary data in `jlas_dictionary_test`, export a new
+snapshot (writes the dated `.sql.gz`, removes the previous one and rewrites
+`manifest.json`), then verify it in a scratch database:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/dictionary_import/export_seed.py --snapshot <label>
+.\.venv\Scripts\python.exe scripts/dictionary_import/seed_bootstrap.py --database jlas_seedcheck_test
+```
+
 ## Licensing and attribution
 
-JMdict and KANJIDIC2 are distributed by the Electronic Dictionary Research and
-Development Group under the EDRDG General Dictionary Licence / CC BY-SA 4.0.
-KanjiVG is copyright Ulrich Apel and distributed under CC BY-SA 3.0.
+KANJIDIC2, RADKFILE and the JMdict part-of-speech tags are distributed by the Electronic
+Dictionary Research and Development Group under the EDRDG General Dictionary
+Licence / CC BY-SA 4.0. KanjiVG is copyright Ulrich Apel and distributed under
+CC BY-SA 3.0. The Mazii-derived vocabulary
+(<https://github.com/Buiduyanh20/yomitan-japanese-vietnamese-dictionary>) and
+KanjiDictVN (<https://github.com/trungnt2910/KanjiDictVN>, readings/meanings
+from hvdic.thivien.net) publish no explicit licence: confirm redistribution
+rights before a public release.
 
-- <https://www.edrdg.org/wiki/JMdict-EDICT_Dictionary_Project.html>
 - <https://www.edrdg.org/wiki/KANJIDIC_Project.html>
 - <https://github.com/KanjiVG/kanjivg>

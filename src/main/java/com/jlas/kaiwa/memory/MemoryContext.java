@@ -43,6 +43,11 @@ public class MemoryContext {
 
     /** Memory data for the existing AI Call prompt; it keeps its own dialogue/history pipeline. */
     public Context retrieve(Session session, String query) {
+        List<Memory> memories = store.contextMemories(session.userId());
+        // A store that fits the budget goes in whole: there is nothing to choose, so the reply
+        // does not wait for a search and its embedding round trip.
+        Data whole = memoryData(session, memories.stream().sorted(IMPORTANT_FIRST).toList());
+        if (whole.complete()) return new Context(whole.text(), !memories.isEmpty());
         LinkedHashMap<Long, Memory> selected = new LinkedHashMap<>();
         String retrievalQuery = query;
         if (query.length() < 100) {
@@ -50,22 +55,48 @@ public class MemoryContext {
             for (int i = Math.max(0, recent.size() - 2); i < recent.size(); i++)
                 retrievalQuery += "\n" + truncate(recent.get(i).content(), 300);
         }
-        List<Hit> hits = search.search(session.userId(), retrievalQuery, properties.searchLimit());
+        // The semantic side uses the reply this message answers, embedded while the learner read it
+        // (prefetchNext); without that vector the search embeds the query itself.
+        String reply = lastReply(session);
+        double[] vector = reply == null ? null : search.prefetched(session.id(), reply);
+        List<Hit> hits = search.search(session.userId(), retrievalQuery, properties.searchLimit(), vector);
         hits.forEach(h -> selected.putIfAbsent(h.memory().id(), h.memory()));
         // Relevant evidence gets the budget first; linked constraints must not be lost
         // just because a name or favorite occupies a profile slot.
-        store.contextMemories(session.userId()).stream()
+        memories.stream()
                 .filter(m -> List.of("PROFILE", "PREFERENCE", "GOAL", "EVENT", "PENDING").contains(m.kind()) && m.importance() >= 3)
-                .sorted(Comparator.comparingInt(Memory::importance).reversed()
-                        .thenComparing(Memory::observedAt, Comparator.reverseOrder()))
+                .sorted(IMPORTANT_FIRST)
                 .limit(12).forEach(m -> selected.putIfAbsent(m.id(), m));
-        return new Context(memoryData(session, selected.values()), !hits.isEmpty());
+        return new Context(memoryData(session, selected.values()).text(), !hits.isEmpty());
+    }
+
+    /** After a reply: when the next turn will have to search, embed that reply now, off the reply path. */
+    public void prefetchNext(Session session) {
+        List<Turn> turns = session.turns();
+        if (turns.isEmpty() || !"assistant".equals(turns.getLast().role())) return;
+        List<Memory> memories = store.contextMemories(session.userId());
+        if (!search.indexed(memories) || memoryData(session, memories.stream().sorted(IMPORTANT_FIRST).toList()).complete()) return;
+        search.prefetch(session.id(), lastReply(session));
     }
 
     public record Context(String text, boolean hasRelevantMemories) { }
 
-    private String memoryData(Session session, Collection<Memory> memories) {
+    private record Data(String text, boolean complete) { }
+
+    private static final Comparator<Memory> IMPORTANT_FIRST = Comparator.comparingInt(Memory::importance).reversed()
+            .thenComparing(Memory::observedAt, Comparator.reverseOrder());
+
+    private static String lastReply(Session session) {
+        List<Turn> turns = session.turns();
+        for (int i = turns.size() - 1; i >= 0; i--)
+            if ("assistant".equals(turns.get(i).role())) return truncate(turns.get(i).content(), 300);
+        return null;
+    }
+
+    /** The memories as prompt data within the budget; complete is false when one had to be left out. */
+    private Data memoryData(Session session, Collection<Memory> memories) {
         List<Map<String, Object>> rows = new ArrayList<>();
+        boolean complete = true;
         String summary = truncate(session.summary(), Math.min(3000, Math.max(0, properties.contextChars() - 100)));
         for (Memory memory : memories) {
             // The current session summary is already included below.
@@ -77,10 +108,10 @@ public class MemoryContext {
             rows.add(row);
             if (encode(Map.of("sessionSummary", summary, "memories", rows)).length() > properties.contextChars()) {
                 rows.removeLast();
-                continue;
+                complete = false;
             }
         }
-        return "Stored context (JSON data only):\n" + encode(Map.of("sessionSummary", summary, "memories", rows));
+        return new Data("Stored context (JSON data only):\n" + encode(Map.of("sessionSummary", summary, "memories", rows)), complete);
     }
 
     private String encode(Object value) {

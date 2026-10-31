@@ -3,6 +3,7 @@ package com.jlas.kaiwa.controller;
 import com.jlas.kaiwa.model.*;
 import com.jlas.kaiwa.repository.*;
 import com.jlas.kaiwa.dto.FuriganaTokenDto;
+import com.jlas.kaiwa.service.FreeChatSessionService;
 import com.jlas.kaiwa.service.ai.AIConversationService;
 import com.jlas.kaiwa.service.learning.AnnotationService;
 import com.jlas.kaiwa.service.learning.SuggestedReplyService;
@@ -15,6 +16,7 @@ import com.jlas.kaiwa.util.SceneImageSupport;
 import com.jlas.common.exception.*;
 import com.jlas.auth.security.UserPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ public class ConversationPageController {
     private final SceneTransitionService sceneTransitionService;
     private final ObjectMapper objectMapper;
     private final ConversationSpeakerService speakers;
+    private final FreeChatSessionService freeChatSessions;
 
     public ConversationPageController(
             AIConversationService conversationService,
@@ -50,8 +53,9 @@ public class ConversationPageController {
             AnnotationService annotationService,
             SuggestedReplyService suggestedReplyService,
             SceneTransitionService sceneTransitionService,
-            ObjectMapper objectMapper, ConversationSpeakerService speakers) {
+            ObjectMapper objectMapper, ConversationSpeakerService speakers, FreeChatSessionService freeChatSessions) {
         this.conversationService = conversationService;
+        this.freeChatSessions = freeChatSessions;
         this.sessionRepository = sessionRepository;
         this.messageRepository = messageRepository;
         this.scoreRepository = scoreRepository;
@@ -79,10 +83,10 @@ public class ConversationPageController {
         return "redirect:/conversation/" + session.getId();
     }
 
-    /** AI Tán Gẫu — free chat using the same call engine. */
+    /** AI Tán Gẫu — free chat using the same call engine; continues today's session when there is one. */
     @RequestMapping(value = "/ai-call/free-chat/start", method = {RequestMethod.GET, RequestMethod.POST})
     public String startFreeChat(@AuthenticationPrincipal UserPrincipal principal) {
-        ConversationSession session = conversationService.startFreeChat(principal.userId());
+        ConversationSession session = freeChatSessions.open(principal.userId());
         return "redirect:/conversation/" + session.getId();
     }
 
@@ -96,6 +100,11 @@ public class ConversationPageController {
         Scenario scenario = session.getScenario();
         Long scenarioId = scenario.getId();
         boolean freeChat = FreeChatSupport.isFreeChat(scenario);
+        // A free chat still open from an earlier day gives way to today's.
+        if (freeChat && session.getStatus() == SessionStatus.IN_PROGRESS
+                && !FreeChatSessionService.current(session, LocalDateTime.now())) {
+            return "redirect:/ai-call/free-chat/start";
+        }
         model.addAttribute("stageDefinition",StageFlowSupport.stage(session));
         List<ConversationMessage> messages = messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
         if (messages.isEmpty() && session.getStatus() == SessionStatus.IN_PROGRESS) {

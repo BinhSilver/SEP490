@@ -1,11 +1,13 @@
 package com.jlas.kaiwa.memory;
 
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.*;
 import static com.jlas.kaiwa.memory.MemoryTypes.*;
 
 @Service
@@ -14,21 +16,63 @@ public class MemorySearch {
     private final MemoryStore store;
     private final MemoryAiClient ai;
     private final MemoryProperties properties;
+    // Query vectors embedded off the reply path, by memory session (MemoryContext.prefetchNext): an
+    // embedding takes ~1.5 s through OpenRouter, too long to wait for before every reply.
+    private final Map<Long, Prefetch> prefetched = new ConcurrentHashMap<>();
+    private final ExecutorService prefetcher = Executors.newFixedThreadPool(2, task -> {
+        var thread = new Thread(task, "kaiwa-memory-prefetch");
+        thread.setDaemon(true);
+        return thread;
+    });
+
+    private record Prefetch(String text, Future<double[]> vector) { }
 
     public MemorySearch(MemoryStore store, MemoryAiClient ai, MemoryProperties properties) {
         this.store = store; this.ai = ai; this.properties = properties;
     }
 
     public List<Hit> search(long userId, String query, int limit) {
+        return search(userId, query, limit, null);
+    }
+
+    /** As search, with the semantic side taken from a vector embedded earlier; null embeds the query now. */
+    public List<Hit> search(long userId, String query, int limit, double[] queryVector) {
         List<Memory> memories = store.contextMemories(userId);
         if (memories.isEmpty()) return List.of();
-        double[] vector = null;
-        if (!query.isBlank() && memories.stream().anyMatch(m -> ai.embeddingModel().equals(m.embeddingModel()) && m.embedding() != null)) {
+        double[] vector = queryVector;
+        if (vector == null && !query.isBlank() && indexed(memories)) {
             try { vector = ai.embed(query); }
             catch (RuntimeException e) { log.warn("Memory embedding query unavailable; using keyword retrieval ({})", e.getClass().getSimpleName()); }
         }
         return rank(userId, memories, query, vector, ai.embeddingModel(), LocalDateTime.now(),
                 properties.semanticThreshold(), Math.min(Math.max(1, limit), 20));
+    }
+
+    /** True when a memory has a vector of the current embedding model, so a search embeds its query. */
+    public boolean indexed(List<Memory> memories) {
+        return memories.stream().anyMatch(m -> ai.embeddingModel().equals(m.embeddingModel()) && m.embedding() != null);
+    }
+
+    /** Starts embedding the text the next search of this session will use, without waiting for it. */
+    public void prefetch(long sessionId, String text) {
+        if (!ai.available() || text.isBlank()) return;
+        // One entry per active session; past the bound the next turns just embed their query themselves.
+        if (prefetched.size() >= 1000) prefetched.clear();
+        prefetched.put(sessionId, new Prefetch(text, CompletableFuture.supplyAsync(() -> ai.embed(text), prefetcher)));
+    }
+
+    /** The vector prefetched for exactly this text, waiting briefly for one still in flight; else null. */
+    public double[] prefetched(long sessionId, String text) {
+        Prefetch prefetch = prefetched.get(sessionId);
+        if (prefetch == null || !prefetch.text().equals(text)) return null;
+        try { return prefetch.vector().get(2, TimeUnit.SECONDS); }
+        catch (InterruptedException e) { Thread.currentThread().interrupt(); return null; }
+        catch (ExecutionException | TimeoutException e) { return null; }
+    }
+
+    @PreDestroy
+    public void stop() {
+        prefetcher.shutdownNow();
     }
 
     static List<Hit> rank(long userId, List<Memory> memories, String query, double[] vector, String model,

@@ -13,6 +13,7 @@ from .models import (
     ImportWarning,
     KanjiRecord,
     KanjiSvgRecord,
+    KanjiVietnameseRecord,
     VocabularyRecord,
 )
 from .normalization import (
@@ -22,6 +23,7 @@ from .normalization import (
     reading_to_romaji,
 )
 from .pipeline import ImportOutcome, ImportSummary
+from .radk import KanjiComponentRecord
 
 
 _SAVEPOINT_NAME = re.compile(r"^record_[0-9]+$")
@@ -182,6 +184,10 @@ class MySqlDictionaryStore:
             return self._upsert_kanji(record)
         if isinstance(record, KanjiSvgRecord):
             return self._update_kanji_svg(record)
+        if isinstance(record, KanjiVietnameseRecord):
+            return self._update_kanji_vietnamese(record)
+        if isinstance(record, KanjiComponentRecord):
+            return self._upsert_kanji_component(record)
         raise TypeError(f"Unsupported import record: {type(record).__name__}")
 
     def _upsert_vocabulary(
@@ -193,7 +199,7 @@ class MySqlDictionaryStore:
             raise ValueError("Vocabulary expression and reading are required")
 
         row = self._fetchone(
-            "SELECT v.id, v.expression, v.reading, v.usage_scope "
+            "SELECT v.id, v.expression, v.reading, v.usage_scope, v.han_viet, v.meaning "
             "FROM vocabulary_external_reference r "
             "JOIN vocabulary_entry v ON v.id = r.vocabulary_id "
             "WHERE r.source_id = %s AND r.external_entry_id = %s",
@@ -201,8 +207,9 @@ class MySqlDictionaryStore:
         )
         if row is None:
             row = self._fetchone(
-                "SELECT id, expression, reading, usage_scope FROM vocabulary_entry "
-                "WHERE normalized_expression = %s AND normalized_reading = %s",
+                "SELECT id, expression, reading, usage_scope, han_viet, meaning "
+                "FROM vocabulary_entry WHERE normalized_expression = %s "
+                "AND normalized_reading = %s",
                 (normalized_expression, normalized_reading),
             )
 
@@ -212,14 +219,16 @@ class MySqlDictionaryStore:
             vocabulary_id = self._insert(
                 "INSERT INTO vocabulary_entry "
                 "(expression, normalized_expression, reading, normalized_reading, "
-                "reading_romaji, usage_scope, dictionary_status) "
-                "VALUES (%s, %s, %s, %s, %s, 'DICTIONARY', 'PUBLISHED')",
+                "reading_romaji, han_viet, meaning, usage_scope, dictionary_status) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, 'DICTIONARY', 'PUBLISHED')",
                 (
                     record.expression,
                     normalized_expression,
                     record.reading,
                     normalized_reading,
                     reading_to_romaji(record.reading),
+                    record.han_viet,
+                    record.meaning,
                 ),
             )
             changed = True
@@ -246,6 +255,7 @@ class MySqlDictionaryStore:
                         vocabulary_id,
                     ),
                 ) > 0
+            changed |= self._update_vietnamese_summary(vocabulary_id, row, record)
 
         changed |= self._execute(
             "INSERT INTO vocabulary_external_reference "
@@ -359,15 +369,44 @@ class MySqlDictionaryStore:
         action = "inserted" if inserted else "updated" if changed else "skipped"
         return ImportOutcome(action, tuple(outcome_warnings))
 
+    def _update_vietnamese_summary(
+        self, vocabulary_id: int, row: dict, record: VocabularyRecord
+    ) -> bool:
+        """Fill Han Viet/meaning; curated textbook meanings are never overwritten."""
+        changed = False
+        if record.han_viet and row.get("han_viet") != record.han_viet and (
+            row["usage_scope"] == "DICTIONARY" or not row.get("han_viet")
+        ):
+            changed |= self._execute(
+                "UPDATE vocabulary_entry SET han_viet = %s WHERE id = %s",
+                (record.han_viet, vocabulary_id),
+            ) > 0
+        if record.meaning and row.get("meaning") != record.meaning and (
+            row["usage_scope"] == "DICTIONARY" or not row.get("meaning")
+        ):
+            changed |= self._execute(
+                "UPDATE vocabulary_entry SET meaning = %s WHERE id = %s",
+                (record.meaning, vocabulary_id),
+            ) > 0
+        return changed
+
     def _catalog_id(
         self, table: str, cache: dict[str, int], value: CatalogValue
     ) -> tuple[int, bool]:
         if value.code in cache:
             return cache[value.code], False
-        row = self._fetchone(f"SELECT id FROM {table} WHERE code = %s", (value.code,))
+        row = self._fetchone(
+            f"SELECT id, name_vi FROM {table} WHERE code = %s", (value.code,)
+        )
         changed = False
+        if row is not None and value.name_vi and row["name_vi"] != value.name_vi:
+            # Replace English fallback labels left by the JMdict import.
+            self._execute(
+                f"UPDATE {table} SET name_vi = %s WHERE id = %s",
+                (value.name_vi, int(row["id"])),
+            )
         if row is None:
-            fallback_name = value.name_en or value.code
+            fallback_name = value.name_vi or value.name_en or value.code
             if table == "dictionary_domain":
                 catalog_id = self._insert(
                     "INSERT INTO dictionary_domain "
@@ -404,7 +443,7 @@ class MySqlDictionaryStore:
 
         row = self._fetchone(
             "SELECT id, `character`, unicode_code, radical_id, stroke_count "
-            "FROM kanji WHERE unicode_code = %s OR `character` = %s LIMIT 1",
+            "FROM kanji WHERE unicode_code = %s OR `character` COLLATE utf8mb4_bin = %s LIMIT 1",
             (record.unicode_code, record.literal),
         )
         inserted = row is None
@@ -476,11 +515,103 @@ class MySqlDictionaryStore:
         )
         return ImportOutcome("updated")
 
+    def _update_kanji_vietnamese(self, record: KanjiVietnameseRecord) -> ImportOutcome:
+        row = self._fetchone(
+            "SELECT id, han_viet, meaning_vi FROM kanji "
+            "WHERE `character` COLLATE utf8mb4_bin = %s LIMIT 1",
+            (record.literal,),
+        )
+        if row is None:
+            # KanjiDictVN covers ~10k characters; only Kanji already imported are enriched.
+            return ImportOutcome("skipped")
+        changed = False
+        desired = (record.han_viet or row["han_viet"], record.meaning_vi or row["meaning_vi"])
+        if (row["han_viet"], row["meaning_vi"]) != desired:
+            changed |= self._execute(
+                "UPDATE kanji SET han_viet = %s, meaning_vi = %s WHERE id = %s",
+                (*desired, int(row["id"])),
+            ) > 0
+        if record.radical_character and record.radical_name_vi:
+            changed |= self._execute(
+                "UPDATE radical SET name_vi = %s WHERE `character` COLLATE utf8mb4_bin = %s "
+                "AND name_vi IS NULL",
+                (record.radical_name_vi, record.radical_character),
+            ) > 0
+        return ImportOutcome("updated" if changed else "skipped")
+
+    def _upsert_kanji_component(self, record: KanjiComponentRecord) -> ImportOutcome:
+        radical = self._fetchone(
+            "SELECT id FROM radical WHERE `character` COLLATE utf8mb4_bin = %s",
+            (record.radical_character,),
+        )
+        radical_id = int(radical["id"]) if radical else None
+        row = self._fetchone(
+            "SELECT id, `character`, stroke_count, radical_id, display_order FROM kanji_component "
+            "WHERE source_character = %s",
+            (record.source_character,),
+        )
+        desired = (record.character, record.stroke_count, radical_id, record.display_order)
+        changed = False
+        if row is None:
+            component_id = self._insert(
+                "INSERT INTO kanji_component "
+                "(`character`, source_character, stroke_count, radical_id, display_order) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                (record.character, record.source_character, record.stroke_count,
+                 radical_id, record.display_order),
+            )
+            changed = True
+        else:
+            component_id = int(row["id"])
+            existing = (row["character"], row["stroke_count"], row["radical_id"], row["display_order"])
+            if existing != desired:
+                self._execute(
+                    "UPDATE kanji_component SET `character` = %s, stroke_count = %s, "
+                    "radical_id = %s, display_order = %s WHERE id = %s",
+                    (*desired, component_id),
+                )
+                changed = True
+
+        kanji_ids = self._kanji_ids(record.kanji)
+        cursor = self.connection.cursor()
+        try:
+            cursor.executemany(
+                "INSERT IGNORE INTO kanji_component_map (kanji_id, component_id) VALUES (%s, %s)",
+                [(kanji_id, component_id) for kanji_id in kanji_ids.values()],
+            )
+            changed |= cursor.rowcount > 0
+        finally:
+            cursor.close()
+        warnings = ()
+        missing = len(record.kanji) - len(kanji_ids)
+        if missing:
+            warnings = (ImportWarning(
+                "COMPONENT_KANJI_NOT_FOUND",
+                f"{missing} of {len(record.kanji)} kanji are not in the kanji table",
+            ),)
+        action = "inserted" if row is None else "updated" if changed else "skipped"
+        return ImportOutcome(action, warnings)
+
+    def _kanji_ids(self, characters: tuple[str, ...]) -> dict[str, int]:
+        result: dict[str, int] = {}
+        for start in range(0, len(characters), 500):
+            chunk = characters[start:start + 500]
+            placeholders = ", ".join(["%s"] * len(chunk))
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(
+                    f"SELECT `character`, id FROM kanji WHERE `character` IN ({placeholders})", chunk
+                )
+                result.update({character: int(kanji_id) for character, kanji_id in cursor.fetchall()})
+            finally:
+                cursor.close()
+        return result
+
     def _find_kanji_by_character(self, character: str) -> int | None:
         if character in self._kanji_character_cache:
             return self._kanji_character_cache[character]
         row = self._fetchone(
-            "SELECT id FROM kanji WHERE `character` = %s", (character,)
+            "SELECT id FROM kanji WHERE `character` COLLATE utf8mb4_bin = %s", (character,)
         )
         kanji_id = int(row["id"]) if row else None
         self._kanji_character_cache[character] = kanji_id

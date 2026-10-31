@@ -25,10 +25,13 @@ const lootTypes = {credit:'CREDIT_CRYSTAL',repair:'REPAIR_PACK',energy:'HYPER_OR
 function loot(type:LootItem['type'],index=0):LootItem {
   return {id:`preview-loot-${index}`,type,x:50+index*15,y:35,vx:0,vy:0,value:10,collected:false,spawnTime:Date.now()};
 }
-export function AirScene({skin,action,replay,audio}:{skin:string;action:string;replay:number;audio:GameEffectsAudio}) {
+/** Máy bay cần xem: máy bay gốc (renderCode = mã) hoặc trang phục cửa hàng (gói skin, bộ vũ khí mượn). */
+export interface PlaneSkin { code:string; renderCode:string; name:string; image?:string; packPath?:string|null; weaponTheme?:string|null }
+export function AirScene({skin,action,replay,audio}:{skin:PlaneSkin;action:string;replay:number;audio:GameEffectsAudio}) {
   const [ready,setReady]=useState(false);
+  const skinKey=`${skin.code}|${skin.renderCode}|${skin.packPath||''}|${skin.weaponTheme||''}`;
   useEffect(()=>{
-    audio.restartScene(); setPlaneSkin(skin); resetAir(); setReady(true);
+    audio.restartScene(); setPlaneSkin(skin.code,skin.renderCode,skin.image,skin.packPath,skin.weaponTheme,skin.name); resetAir(); setReady(true);
     const timers=new Set<number>(); let animation=0;
     const later=(fn:()=>void,ms:number)=>{ const id=window.setTimeout(()=>{timers.delete(id);fn();},ms);timers.add(id); };
     const patch=useAirDefenseStore.setState;
@@ -50,7 +53,12 @@ export function AirScene({skin,action,replay,audio}:{skin:string;action:string;r
       if (action==='miss') later(()=>{patch({wrongInputs:1,comboBreakActive:true});},450);
       if (action==='danger') patch({hp:15,dangerZoneActive:true});
       if (action==='shield'||action==='shield_block') {patch({shield:3});if(action==='shield_block')later(()=>{patch({shield:2,screenShake:true});audio.playEffect('air',action);},650);}
-      if (action==='charge') patch({hyperBeamPhase:'charge'});
+      if (action==='charge') {
+        // The real sequence: a 900 ms charge, the release, then rest before the loop repeats.
+        patch({hyperBeamPhase:'charge'});
+        later(()=>patch({hyperBeamPhase:'firing',hyperBeamActive:true}),900);
+        later(()=>patch({hyperBeamPhase:'idle',hyperBeamActive:false}),1500);
+      }
       if (action==='beam') patch({hyperBeamPhase:'firing',hyperBeamActive:true});
       if (action==='beam_ready') patch({hyperBeamCharge:100});
       if (action==='beam_cooldown') {patch({hyperBeamPhase:'firing',hyperBeamActive:true});later(()=>patch({hyperBeamPhase:'cooldown',hyperBeamActive:false}),1000);}
@@ -88,11 +96,12 @@ export function AirScene({skin,action,replay,audio}:{skin:string;action:string;r
     // Repeat finite combat reactions without interrupting music, draft interactions or long introductions.
     const repeat=window.setInterval(()=>{
       if(action==='fire')shoot();
-      else if(['hit','impact','explode','boss_hit','boss_explode','shield_block','combo_break'].includes(action)||/^combo(?:5|10|20|50)$/.test(action))run();
+      else if(['hit','impact','explode','boss_hit','boss_explode','shield_block','combo_break','charge'].includes(action)||/^combo(?:5|10|20|50)$/.test(action))run();
     },action==='fire'?200:2600);
     return ()=>{timers.forEach(clearTimeout);clearInterval(repeat);cancelAnimationFrame(animation);audio.stop();resetAir();};
-  },[skin,action,replay,audio]);
-  return ready?<><PixiBattleCanvas key={`${skin}-${replay}`} />
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[skinKey,action,replay,audio]);
+  return ready?<><PixiBattleCanvas key={`${skinKey}-${replay}`} />
     {(action==='augment_draft'||action.startsWith('augment:'))&&<div className="ge-augment"><AugmentDraft key={`${action}-${replay}`} preview={{sound:id=>audio.playEffect('air',id),autoSelect:action.startsWith('augment:')}} /></div>}
   </>:<p>Đang tải máy bay…</p>;
 }

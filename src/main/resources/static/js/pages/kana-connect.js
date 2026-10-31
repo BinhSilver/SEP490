@@ -6,6 +6,8 @@
     var board = document.getElementById('kanaBoard'), message = document.getElementById('kanaMessage');
     var challenge, state, busy = false, activePointer = null, dragged = false, pointerStart;
     var suppressClick = false, expiryTimer, pendingCheck;
+    // True after pressing Gợi ý: the empty slots of the word list become buttons until one is picked.
+    var picking = false;
     // null until the first load: the server then opens the learner's learning-path level (MIX without one).
     var level = null, levels = document.getElementById('kanaLevels');
     function say(text, error) { message.textContent = text; message.classList.toggle('is-error', !!error); }
@@ -55,26 +57,40 @@
         document.getElementById('kanaClock').textContent = String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
         hintButton();
     }
-    // One hint a minute: the server decides; the button only mirrors its next opening time.
+    // One hint every 30 seconds of play: the server decides; the button only mirrors its next opening time.
     function hintButton() {
         var button = document.getElementById('kanaHint'), label = document.getElementById('kanaHintLabel');
         if (!challenge || challenge.completed || !challenge.nextHintAt) {
+            if (picking) setPicking(false);
             button.disabled = true; label.textContent = challenge && challenge.completed ? 'Gợi ý' : 'Hết gợi ý'; return;
         }
         var wait = Math.ceil((Date.parse(challenge.nextHintAt) - Date.now()) / 1000);
         button.disabled = busy || wait > 0;
-        label.textContent = wait > 0 ? 'Gợi ý ' + Math.floor(wait / 60) + ':' + String(wait % 60).padStart(2, '0') : 'Gợi ý';
-        button.setAttribute('aria-label', wait > 0 ? 'Gợi ý mở sau ' + wait + ' giây' : 'Mở một chữ gợi ý');
+        button.setAttribute('aria-pressed', String(picking));
+        label.textContent = picking ? 'Hủy chọn' : wait > 0 ? 'Gợi ý ' + Math.floor(wait / 60) + ':' + String(wait % 60).padStart(2, '0') : 'Gợi ý';
+        button.setAttribute('aria-label', picking ? 'Hủy chọn ô gợi ý' : wait > 0 ? 'Gợi ý mở sau ' + wait + ' giây' : 'Chọn một ô trống để mở chữ');
     }
-    async function useHint() {
+    // Picking mode: every empty slot of an unsolved word turns into a button (see wordList).
+    function setPicking(on) {
+        picking = on;
+        document.getElementById('kanaWords').classList.toggle('is-picking', on);
+        if (challenge && state) wordList();
+    }
+    function togglePicking() {
+        if (busy || !challenge || challenge.completed) return;
+        setPicking(!picking); hintButton();
+        say(picking ? 'Chạm vào một ô trống bất kỳ trong danh sách từ để mở chữ ở ô đó.' : '');
+        if (picking) { var first = document.querySelector('#kanaWords [data-pick-index]'); if (first) first.focus({ preventScroll: true }); }
+    }
+    async function openSlot(wordId, index) {
         if (busy || !challenge || challenge.completed) return;
         busy = true; hintButton();
         var keep = state.path.slice();
         try {
-            challenge = accept(await api('hint', { challengeId: challenge.id }));
-            state.sync(challenge); state.restore(keep); wordList(); save(); say('');
+            challenge = accept(await api('hint', { challengeId: challenge.id, wordId: wordId, index: index }));
+            state.sync(challenge); state.restore(keep); save(); say('');
         } catch (error) { say(error.message, true); }
-        finally { busy = false; draw(); hintButton(); }
+        finally { busy = false; setPicking(false); draw(); hintButton(); }
     }
     function center(id) { var c = state.cells[id]; return [c.col * 100 + 50, c.row * 100 + 50]; }
     function svgNode(name, attrs) {
@@ -122,14 +138,21 @@
             var found = !!(solution && word.expression);
             var item = document.createElement('li');
             item.className = 'kc-word' + (found ? ' is-found' : '');
-            var slots = document.createElement('span'); slots.className = 'kc-slots'; slots.lang = 'ja'; slots.setAttribute('aria-hidden', 'true');
+            var slots = document.createElement('span'); slots.className = 'kc-slots'; slots.lang = 'ja';
+            // While picking a hint the empty slots are buttons, so the row is no longer decoration.
+            if (found || !picking) slots.setAttribute('aria-hidden', 'true');
             for (var i = 0; i < word.kanaCount; i++) {
-                var slot = document.createElement('span'); slot.className = 'kc-slot';
                 var kana = found && solution.path[i] != null ? state.cells[solution.path[i]].kana : '';
-                if (!found) {
-                    var hint = challenge.hints.find(function (h) { return h.wordId === word.id && h.index === i; });
-                    if (hint) { kana = hint.kana; slot.classList.add('is-hint'); }
+                var hint = found ? null : challenge.hints.find(function (h) { return h.wordId === word.id && h.index === i; });
+                var slot;
+                if (!found && !hint && picking) {
+                    slot = document.createElement('button'); slot.type = 'button'; slot.className = 'kc-slot is-pickable';
+                    slot.dataset.pickWord = word.id; slot.dataset.pickIndex = i;
+                    slot.setAttribute('aria-label', 'Mở chữ thứ ' + (i + 1) + ' của từ ' + word.kanaCount + ' kana');
+                } else {
+                    slot = document.createElement('span'); slot.className = 'kc-slot';
                 }
+                if (hint) { kana = hint.kana; slot.classList.add('is-hint'); }
                 if (kana.length > 1) slot.classList.add('is-compound');
                 slot.textContent = kana; slots.append(slot);
             }
@@ -247,7 +270,7 @@
     }
     async function load() {
         if (busy) return;
-        busy = true; board.hidden = true; document.getElementById('kanaPlay').hidden = true;
+        busy = true; board.hidden = true; document.getElementById('kanaPlay').hidden = true; setPicking(false);
         document.getElementById('kanaRetry').hidden = true; say('Đang chuẩn bị bàn chơi…');
         try {
             challenge = accept(await api('today' + (level ? '?level=' + encodeURIComponent(level) : '')));
@@ -325,7 +348,14 @@
         if (next) board.querySelector('[data-cell="' + next.id + '"]').focus();
     });
     document.getElementById('kanaRetry').addEventListener('click', load);
-    document.getElementById('kanaHint').addEventListener('click', useHint);
+    document.getElementById('kanaHint').addEventListener('click', togglePicking);
+    document.getElementById('kanaWords').addEventListener('click', function (event) {
+        var slot = event.target.closest('[data-pick-index]');
+        if (slot && picking) openSlot(Number(slot.dataset.pickWord), Number(slot.dataset.pickIndex));
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && picking && !busy) { setPicking(false); hintButton(); say(''); }
+    });
     // Read-only hooks for the dev demo panel (kana-demo-panel.js); it never changes state directly.
     window.JlasKana = {
         current: function () { return challenge ? { id: challenge.id, level: challenge.jlptLevel, completed: challenge.completed } : null; },

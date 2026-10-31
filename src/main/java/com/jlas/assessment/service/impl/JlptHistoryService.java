@@ -31,10 +31,12 @@ public class JlptHistoryService {
 
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+    private final JlptWeaknessNotebookService weaknessNotebook;
 
-    public JlptHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+    public JlptHistoryService(JdbcTemplate jdbc, ObjectMapper objectMapper, JlptWeaknessNotebookService weaknessNotebook) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
+        this.weaknessNotebook = weaknessNotebook;
     }
 
     @Transactional
@@ -52,7 +54,7 @@ public class JlptHistoryService {
 
         String partClause = request.partCode() == null ? "" : " AND p.part_code = ?";
         String sql = """
-                SELECT q.id, p.part_code, m.format_code, q.correct_option, q.correct_order
+                SELECT q.id, p.part_code, m.format_code, q.correct_option, q.correct_order,q.target_vocabulary_id
                 FROM jlpt_question q
                 JOIN jlpt_mondai m ON m.id = q.mondai_id
                 JOIN jlpt_part p ON p.id = m.part_id
@@ -97,6 +99,8 @@ public class JlptHistoryService {
                 correct++;
                 partScores.get(scoringSection(level, request.partCode(), question)).correct++;
             }
+            if (!isCorrect && selected != null && "vocabulary".equals(question.partCode()))
+                weaknessNotebook.recordWrongAnswer(userId, question.id(), selected);
         }
         boolean fullAttempt = request.partCode() == null;
         Map<String, Integer> sectionScores = new HashMap<>();

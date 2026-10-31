@@ -50,9 +50,8 @@
     folderList = document.getElementById('folder-list');
     contextMenu = document.getElementById('lib-context-menu');
     exportModal = document.getElementById('export-modal');
-    if (new URLSearchParams(window.location.search).get('tab') === 'my') {
-      state.tab = 'my';
-    }
+    var tabParam = new URLSearchParams(window.location.search).get('tab');
+    if (tabParam === 'my' || tabParam === 'favorites' || tabParam === 'review') state.tab = tabParam;
     document.getElementById('cancel-delete-set').addEventListener('click', closeDeleteModal);
     document.getElementById('confirm-delete-set').addEventListener('click', confirmDelete);
     document.getElementById('delete-set-modal').addEventListener('click', function (event) {
@@ -119,11 +118,24 @@
     folderPanel.hidden = false;
     bindMobileFilters();
     updateLibraryScope();
-    loadFolders().then(load).catch(function (e) {
+    loadFolders().then(showTab).catch(function (e) {
       FlashShell.showToast(e.message || 'Không tải được thư mục', 'err');
-      load();
+      showTab();
     });
   });
+
+  /** "Ôn hôm nay" (tab=review) replaces the set list with the SRS panel; the other tabs list sets. */
+  function showTab() {
+    var review = state.tab === 'review';
+    document.querySelector('.library-content').classList.toggle('is-review', review);
+    document.getElementById('library-review').hidden = !review;
+    if (review) {
+      updateLibraryScope();
+      if (window.FlashReviewPage) window.FlashReviewPage.start();
+    } else {
+      load();
+    }
+  }
 
   function updateLibraryScope() {
     var scope = document.getElementById('lib-scope-filter');
@@ -134,6 +146,9 @@
     if (state.tab === 'my') {
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-folder-open"></i></span> Bộ thẻ của tôi';
       document.getElementById('library-subheading').textContent = 'Bản nháp và các bộ thẻ được sắp xếp theo thư mục của bạn.';
+    } else if (state.tab === 'favorites') {
+      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-heart"></i></span> Bộ thẻ yêu thích';
+      document.getElementById('library-subheading').textContent = 'Các bộ thẻ bạn đã bấm tim. Bấm tim lần nữa để bỏ khỏi danh sách.';
     } else {
       document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-rectangle-list"></i></span> Bộ thẻ công khai';
       document.getElementById('library-subheading').textContent = 'Khám phá các bộ thẻ được chia sẻ bởi cộng đồng.';
@@ -168,7 +183,7 @@
       dropdown.open = false;
       updateLibraryUrl();
       paintActiveFolder();
-      load();
+      showTab();
     });
     document.addEventListener('click', function (event) {
       if (!dropdown.contains(event.target)) dropdown.open = false;
@@ -185,7 +200,7 @@
 
   function updateLibraryUrl() {
     var url = new URL(window.location.href);
-    if (state.tab === 'my') url.searchParams.set('tab', 'my');
+    if (state.tab !== 'public') url.searchParams.set('tab', state.tab);
     else url.searchParams.delete('tab');
     window.history.replaceState(window.history.state, '', url);
   }
@@ -206,6 +221,8 @@
 
       if (state.tab === 'my') {
         path = '/api/flashcards/my?' + q.toString();
+      } else if (state.tab === 'favorites') {
+        path = '/api/flashcards/favorites?' + q.toString();
       } else {
         path = '/api/flashcards/public?' + q.toString();
       }
@@ -257,8 +274,10 @@
     }
     state.folderId = value === 'all' ? null : Number(value);
     state.page = 0;
+    // A folder belongs to "Bộ thẻ của tôi": picking one from the review tab switches back to that list.
+    if (state.tab !== 'my') { state.tab = 'my'; updateLibraryUrl(); }
     paintActiveFolder();
-    load();
+    showTab();
   }
 
   function paintActiveFolder() {
@@ -350,6 +369,11 @@
 
     if (!items.length) {
       grid.innerHTML = '';
+      var noFavorites = state.tab === 'favorites' && !state.title;
+      document.getElementById('lib-empty-title').textContent = noFavorites ? 'Chưa có bộ thẻ yêu thích' : 'Chưa tìm thấy bộ thẻ phù hợp';
+      document.getElementById('lib-empty-text').textContent = noFavorites
+        ? 'Bấm biểu tượng tim trên một bộ thẻ để lưu nó vào đây.'
+        : 'Thử đổi từ khóa, chuyển tab hoặc tạo bộ thẻ đầu tiên của riêng bạn.';
       empty.hidden = false;
       return;
     }
@@ -380,6 +404,7 @@
       actions +=
           '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action" data-export="' + s.id + '" title="Xuất bộ thẻ" aria-label="Xuất bộ thẻ" aria-haspopup="dialog"><i class="fa-solid fa-download"></i></button>';
       if (!s.draft) {
+        actions += favoriteButton(s.id, Boolean(s.favorited));
         // Only public sets can be opened by other people, so only they get a share link.
         var shareable = s.visibility === 'PUBLIC';
         actions +=
@@ -422,6 +447,9 @@
     grid.querySelectorAll('[data-export]').forEach(function (btn) {
       btn.addEventListener('click', function () { openExportModal(Number(btn.getAttribute('data-export'))); });
     });
+    grid.querySelectorAll('[data-favorite]').forEach(function (btn) {
+      btn.addEventListener('click', function () { toggleFavorite(btn); });
+    });
     grid.querySelectorAll('[data-share]').forEach(function (btn) {
       btn.addEventListener('click', function () { doShare(Number(btn.getAttribute('data-share'))); });
     });
@@ -430,6 +458,30 @@
         moveSetToFolder(Number(select.getAttribute('data-move-set')), select.value);
       });
     });
+  }
+
+  function favoriteButton(id, favorited) {
+    return '<button type="button" class="btn btn--ghost btn-ghost btn-sm lib-icon-action lib-favorite' + (favorited ? ' is-favorite' : '') +
+      '" data-favorite="' + id + '" aria-pressed="' + favorited + '" title="' + (favorited ? 'Bỏ yêu thích' : 'Yêu thích') +
+      '" aria-label="Yêu thích bộ thẻ"><i class="fa-' + (favorited ? 'solid' : 'regular') + ' fa-heart" aria-hidden="true"></i></button>';
+  }
+
+  /** Heart toggle; in the "Yêu thích" tab an un-favorited set leaves the list right away. */
+  async function toggleFavorite(btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    try {
+      var result = await FlashApi.post('/api/flashcards/' + btn.getAttribute('data-favorite') + '/favorite', {});
+      var favorited = Boolean(result && result.favorited);
+      if (!favorited && state.tab === 'favorites') { load(); return; }
+      btn.outerHTML = favoriteButton(Number(btn.getAttribute('data-favorite')), favorited);
+      var fresh = grid.querySelector('[data-favorite="' + btn.getAttribute('data-favorite') + '"]');
+      if (fresh) fresh.addEventListener('click', function () { toggleFavorite(fresh); });
+      FlashShell.showToast(favorited ? 'Đã thêm vào Yêu thích' : 'Đã bỏ khỏi Yêu thích', 'ok');
+    } catch (e) {
+      btn.disabled = false;
+      FlashShell.showToast(e.message || 'Không cập nhật được Yêu thích', 'err');
+    }
   }
 
   function openContextMenu(id, visibility, draft, x, y) {

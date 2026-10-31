@@ -96,7 +96,7 @@ Trách nhiệm được chia thành các lớp độc lập:
 ### 5.1. Database
 
 - `jlas_schema.sql`: đưa ba bảng mới và source seed vào schema đầy đủ dành cho database mới.
-- `sql/migrations/004_dictionary_import_metadata.sql`: migration cộng thêm dành cho database hiện hữu.
+- `sql/migrations/058_dictionary_import_metadata.sql`: migration cộng thêm dành cho database hiện hữu.
 - `src/test/java/com/jlas/dictionary/importer/DictionaryImportSchemaTest.java`: chạy migration bằng H2 MySQL mode và kiểm tra tables/constraints.
 
 ### 5.2. Importer
@@ -195,7 +195,7 @@ Ràng buộc quan trọng:
 
 ### 6.4. Cách áp dụng schema
 
-Database mới có thể dùng toàn bộ `jlas_schema.sql`. Database hiện hữu đã có `vocabulary_entry` chỉ áp dụng migration `004_dictionary_import_metadata.sql`.
+Database mới có thể dùng toàn bộ `jlas_schema.sql`. Database hiện hữu đã có `vocabulary_entry` chỉ áp dụng migration `058_dictionary_import_metadata.sql`.
 
 Migration này có tính cộng thêm: không drop hay đổi tên bảng hiện hữu. Cuối file có hướng dẫn rollback thủ công, nhưng rollback là phá hủy dữ liệu audit và không được importer tự gọi.
 
@@ -485,7 +485,7 @@ Với database mới, chạy toàn bộ `jlas_schema.sql`.
 Với database hiện hữu, chạy:
 
 ```text
-sql/migrations/004_dictionary_import_metadata.sql
+sql/migrations/058_dictionary_import_metadata.sql
 ```
 
 Có thể dùng MySQL Workbench, migration runner của dự án hoặc MySQL CLI. Account chạy migration cần quyền DDL. Sau migration, xác nhận đúng ba bảng mới tồn tại và ba source rows có `is_active = 1`.
@@ -897,7 +897,7 @@ $env:DB_NAME = 'jlas'
 $env:DB_USERNAME = 'jlas_importer'
 $env:DB_PASSWORD = '<local password>'
 
-# 3. Apply sql/migrations/004_dictionary_import_metadata.sql
+# 3. Apply sql/migrations/058_dictionary_import_metadata.sql
 # 4. Dry-run, sau đó bỏ --dry-run để import thật
 python scripts/dictionary_import/import_data.py --source kanjidic2 --file data/kanjidic2.xml --source-version <version> --dry-run
 python scripts/dictionary_import/import_data.py --source jmdict --file data/JMdict.xml --source-version <version> --dry-run

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   window.Admin.section('game-effects', {
-    subtitle: 'Chọn skin để xem hiệu ứng và nghe thử âm thanh của trò chơi.',
+    subtitle: 'Chọn trang phục để xem hiệu ứng và nghe thử âm thanh của trò chơi.',
     render: function (root) {
       var frame = document.createElement('iframe');
       frame.src = '/admin/game-effects/preview';
