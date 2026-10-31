@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { LEVELS, LEVEL_RANK, ROOT, argValue, normalizeJapanese, readJson, writeOrCheck } from './util.mjs';
 import { compileFromInputs, loadCompileInputs, loadReference } from './inputs.mjs';
-import { applyPackets, authoringDir, readPackets } from './authoring.mjs';
+import { applyPackets, authoringDir, emitReviewPackets, readPackets, reviewCorrections } from './authoring.mjs';
 import { applyStatuses, runChecks, WARNING_CODES } from './checks.mjs';
 import { writeReport, REPORT_DIR } from './report.mjs';
 
@@ -48,7 +48,8 @@ function checkContext(inputs, level, outFile) {
 
 export function buildLevel(level, { inputs = loadCompileInputs(), outFile = compiledFile(level), reportDir = REPORT_DIR,
   packetsDir = authoringDir(level), check = false, date = new Date().toISOString().slice(0, 10) } = {}) {
-  const applied = applyPackets(compileFromInputs(inputs, level), readPackets(packetsDir));
+  const packets = readPackets(packetsDir);
+  const applied = applyPackets(compileFromInputs({ ...inputs, corrections: reviewCorrections(packets) }, level), packets);
   const result = runChecks(applied, checkContext(inputs, level, outFile));
   const compiled = applyStatuses(applied, result);
   const ok = writeOrCheck(outFile, { ...compiled, generated_by: 'tools/learning-path-source/compile/build_level_source.mjs' }, check);
@@ -59,6 +60,26 @@ export function buildLevel(level, { inputs = loadCompileInputs(), outFile = comp
   return { ok, result, compiled, blockingNonDraft };
 }
 
+// Review context beyond the item: the J-LAS dictionary meaning it links to, this build's findings on it, and the
+// words it shares a spelling with (any level) so a reviewer can say "same word".
+export function reviewExtra(inputs, compiled, result) {
+  const findings = new Map();
+  for (const e of result.errors) { if (!findings.has(e.id)) findings.set(e.id, []); findings.get(e.id).push(e.detail ? `${e.code}: ${e.detail}` : e.code); }
+  const levels = new Map([[compiled.level, compiled]]);
+  const levelOf = l => { if (!levels.has(l)) levels.set(l, compileFromInputs(inputs, l)); return levels.get(l); };
+  const twinsOf = new Map();
+  for (const t of compiled.spelling_twins ?? []) {
+    const twin = levelOf(t.twin_level).vocabulary.find(v => v.id === t.twin_id);
+    if (!twinsOf.has(t.id)) twinsOf.set(t.id, []);
+    twinsOf.get(t.id).push({ id: t.twin_id, level: t.twin_level, expression: twin?.expression ?? null, meaning_vi: twin?.meaning_vi ?? null, topic_vi: twin?.topic_vi ?? null });
+  }
+  return (kind, item) => ({
+    ...(kind === 'REVIEW_VOCAB' ? { dictionary_meaning: inputs.dictionary.entryById.get(item.dictionary_entry_id)?.meaning_vi ?? null,
+      twins: twinsOf.get(item.id) ?? [] } : {}),
+    findings: findings.get(item.id) ?? []
+  });
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))) {
   const argv = process.argv.slice(2);
   const level = argValue(argv, '--level', 'N5');
@@ -66,7 +87,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   // --out/--report-dir let an author validate packets into a scratch folder; --errors-json dumps every finding.
   const outFile = argValue(argv, '--out', compiledFile(level));
   const reportDir = argValue(argv, '--report-dir', REPORT_DIR);
-  const { ok, result, compiled, blockingNonDraft } = buildLevel(level, { check, outFile, reportDir });
+  const inputs = loadCompileInputs();
+  const { ok, result, compiled, blockingNonDraft } = buildLevel(level, { inputs, check, outFile, reportDir });
+  if (argv.includes('--emit-review')) {
+    const written = emitReviewPackets(compiled, authoringDir(level), { extra: reviewExtra(inputs, compiled, result) });
+    console.log(`${level}: ${written.length} review packets written`);
+  }
   const errorsJson = argValue(argv, '--errors-json');
   if (errorsJson) writeOrCheck(errorsJson, result.errors, false);
   const count = list => list.reduce((a, x) => (a[x.status] = (a[x.status] ?? 0) + 1, a), {});

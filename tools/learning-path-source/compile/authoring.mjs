@@ -1,10 +1,14 @@
 // Authoring packets: the content still missing after the merge is written by J-LAS (Claude) into JSON packets under
 // data/learning-path/authoring/<level>/, then applied back. Packets only fill empty fields; they never overwrite
 // J-LAS, book, dictionary or reviewed content. Files are never rewritten once emitted, so answers stay stable.
+// Review packets (REVIEW_*, a second pass by a different author) cover every item and may correct any value that
+// does not come from a reviewed source; they apply last. Spelling/reading fixes and "same word" verdicts also feed
+// the merge (reviewCorrections) so the corrected word groups with its twins.
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, argValue, json, readJson } from './util.mjs';
+import { ROOT, argValue, json, normalizeJapanese, readJson } from './util.mjs';
 import { formatMeaningVi } from './normalize.mjs';
+import { toRomaji } from './merge.mjs';
 
 const BANK = { check_bank: 8, order_items: 2, fill_items: 2, extra_practice: 3 };
 const GRAMMAR_TEXT = ['meaning_vi', 'formation', 'usage_vi', 'nuance_vi', 'common_mistakes_vi'];
@@ -22,6 +26,17 @@ const INSTRUCTIONS = {
   GRAMMAR_UNIT: 'unit_no: số bài (theo header.units) phù hợp nhất; unit_title_vi tùy chọn.',
   GRAMMAR_BANK: 'check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng.'
 };
+const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>".';
+for (const k of ['REVIEW_VOCAB', 'REVIEW_KANJI', 'REVIEW_GRAMMAR']) INSTRUCTIONS[k] = REVIEW_INSTRUCTION;
+
+// Fields a review may correct; a value from a reviewed source (…_REVIEWED provenance) is never replaced.
+const FIXABLE = {
+  REVIEW_VOCAB: ['expression', 'reading', 'meaning_vi', 'word_type_label', 'topic_key', 'topic_vi', 'examples', 'mnemonic_vi', 'confusable_ids'],
+  REVIEW_KANJI: ['han_viet', 'han_viet_alt', 'meanings_vi', 'mnemonic_vi', 'confusable_ids'],
+  REVIEW_GRAMMAR: [...GRAMMAR_TEXT, 'examples', 'unit_no', 'unit_title_vi', ...Object.keys(BANK)]
+};
+const REVIEW_KINDS = new Set(Object.keys(FIXABLE));
+const SOURCE_OF = { meaning_vi: 'meaning_source', meanings_vi: 'meaning_source', examples: 'example_source' };
 
 const vocabContext = v => ({ expression: v.expression, reading: v.reading, meaning_vi: v.meaning_vi, word_type_label: v.word_type_label,
   topic_vi: v.topic_vi, examples: v.examples.map(e => ({ ja: e.ja, vi: e.vi })) });
@@ -80,6 +95,52 @@ export function buildPackets(level, { size = 40, sizeByKind = {} } = {}) {
   return [...byKind].flatMap(([kind, items]) => chunk(items, sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
 }
 
+const reviewContext = {
+  REVIEW_VOCAB: v => ({ expression: v.expression, reading: v.reading, romaji: v.romaji, variants: v.variants, meaning_vi: v.meaning_vi,
+    word_type_label: v.word_type_label, topic_vi: v.topic_vi, mnemonic_vi: v.mnemonic_vi, confusable_ids: v.confusable_ids,
+    examples: v.examples.map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana, vi: e.vi })) }),
+  REVIEW_KANJI: k => ({ ...kanjiContext(k), han_viet_alt: k.han_viet_alt, stroke_count: k.stroke_count, compound_ids: k.compound_ids,
+    mnemonic_vi: k.mnemonic_vi, confusable_ids: k.confusable_ids }),
+  REVIEW_GRAMMAR: g => ({ pattern: g.pattern, pattern_variants: g.pattern_variants, unit_no: g.unit_no, unit_title_vi: g.unit_title_vi,
+    ...Object.fromEntries(GRAMMAR_TEXT.map(f => [f, g[f]])), examples: g.examples.map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana, vi: e.vi })),
+    ...Object.fromEntries(Object.keys(BANK).map(f => [f, g[f] ?? []])) })
+};
+
+// extra(kind, item) adds what the item alone does not carry (dictionary meaning, check findings, spelling twins).
+export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRAMMAR: 10 }, extra = () => ({}) } = {}) {
+  const lists = [['REVIEW_VOCAB', level.vocabulary], ['REVIEW_KANJI', level.kanji], ['REVIEW_GRAMMAR', level.grammar]];
+  return lists.filter(([, items]) => items.length).flatMap(([kind, items]) => chunk(items.map(x => ({ id: x.id, fields_needed: ['verdict'],
+    context: { ...reviewContext[kind](x), ...extra(kind, x) } })), sizeByKind[kind] ?? size).map((c, i) => toPacket(kind, i + 1, level, c)));
+}
+
+// Review packets for items no review packet covers yet; existing files are never rewritten.
+export function emitReviewPackets(level, dir, opts = {}) {
+  const existing = readPackets(dir).filter(p => REVIEW_KINDS.has(p.kind));
+  const present = new Set(existing.flatMap(p => p.items.map(i => `${p.kind}|${i.id}`)));
+  const fresh = { ...level, vocabulary: level.vocabulary.filter(v => !present.has(`REVIEW_VOCAB|${v.id}`)),
+    kanji: level.kanji.filter(k => !present.has(`REVIEW_KANJI|${k.id}`)), grammar: level.grammar.filter(g => !present.has(`REVIEW_GRAMMAR|${g.id}`)) };
+  const lastNumber = kind => Math.max(0, ...existing.filter(p => p.kind === kind).map(p => Number(p.packet_id.slice(-3))));
+  const offset = Object.fromEntries([...REVIEW_KINDS].map(k => [k, lastNumber(k)]));
+  mkdirSync(dir, { recursive: true });
+  return buildReviewPackets(fresh, opts).map(p => {
+    const n = offset[p.kind] + Number(p.packet_id.slice(-3));
+    const packet = { ...p, packet_id: packetId(p.kind, n) };
+    writeFileSync(path.join(dir, `${packet.packet_id}.json`), json(packet));
+    return packet.packet_id;
+  });
+}
+
+// Spelling/reading fixes and same-word verdicts, which must reach the merge before words are grouped.
+export function reviewCorrections(packets) {
+  const identity = new Map(), sameWord = [];
+  for (const p of packets.filter(p => p.kind === 'REVIEW_VOCAB')) for (const { id, answer } of p.items) {
+    const fix = Object.fromEntries(['expression', 'reading'].filter(f => !empty(answer?.fix?.[f])).map(f => [f, answer.fix[f]]));
+    if (Object.keys(fix).length) identity.set(id, fix);
+    if (answer?.same_word_as) sameWord.push([id, answer.same_word_as]);
+  }
+  return { identity, sameWord };
+}
+
 export function readPackets(dir) {
   if (!existsSync(dir)) return [];
   return readdirSync(dir).filter(f => f.endsWith('.json')).sort().map(f => readJson(path.join(dir, f)));
@@ -120,11 +181,35 @@ function addExamples(item, examples, max) {
   item.provenance.example_source = item.examples[0].source;
 }
 
+function applyFix(item, field, value) {
+  if (/REVIEWED/.test(item.provenance?.[SOURCE_OF[field]] ?? '')) return;
+  if (field === 'meaning_vi' || field === 'meanings_vi') { item[field] = formatMeaningVi([].concat(value)); item.provenance.meaning_source = 'CLAUDE'; }
+  else if (field === 'examples') {
+    if (!Array.isArray(value) || !value.length) return;
+    item.examples = value.filter(e => e?.ja).slice(0, 3).map((e, i) => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null, vi: e.vi ?? null,
+      source: 'CLAUDE', role: i === 0 ? 'MAIN' : 'EXTRA' }));
+    item.provenance.example_source = 'CLAUDE';
+  } else if (field === 'expression' || field === 'reading') {
+    item[field] = value;
+    item[`normalized_${field}`] = normalizeJapanese(value);
+    if (field === 'reading') item.romaji = toRomaji(value);
+  } else item[field] = field === 'unit_no' ? Number(value) : value;
+  item.provenance.fixed_fields = [...new Set([...(item.provenance.fixed_fields ?? []), field])].sort();
+  (item.provenance.claude_fields ??= []).push(field);
+}
+
 export function applyPackets(level, packets) {
   const out = structuredClone(level);
   const byId = new Map([...out.vocabulary, ...out.kanji, ...out.grammar].map(x => [x.id, x]));
-  for (const p of packets) for (const { id, answer } of p.items) {
+  for (const m of out.merged_ids ?? []) if (!byId.has(m.id) && byId.has(m.into)) byId.set(m.id, byId.get(m.into));
+  const ordered = [...packets.filter(p => !REVIEW_KINDS.has(p.kind)), ...packets.filter(p => REVIEW_KINDS.has(p.kind))];
+  for (const p of ordered) for (const { id, answer } of p.items) {
     if (!answer) continue;
+    if (REVIEW_KINDS.has(p.kind)) {
+      const item = byId.get(id);
+      if (item && answer.fix) for (const f of FIXABLE[p.kind]) if (!empty(answer.fix[f])) applyFix(item, f, answer.fix[f]);
+      continue;
+    }
     if (p.kind === 'RADICAL_NAME') {
       const n = Number(id.slice(2));
       for (const k of out.kanji) if (k.radical?.number === n && !k.radical.name_vi) k.radical.name_vi = answer.name_vi ?? null;
@@ -178,8 +263,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const argv = process.argv.slice(2);
   const level = argValue(argv, '--level', 'N5');
   const { loadCompileInputs, compileFromInputs } = await import('./inputs.mjs');
-  const compiled = compileFromInputs(loadCompileInputs(), level);
   const dir = authoringDir(level);
+  const existing = readPackets(dir);
+  // Gaps are what is still empty after every packet already written (an alias may have filled an item).
+  const compiled = applyPackets(compileFromInputs({ ...loadCompileInputs(), corrections: reviewCorrections(existing) }, level), existing);
   if (argv.includes('--emit')) {
     const written = emitPackets(compiled, dir, { size: 40, sizeByKind: DEFAULT_SIZE_BY_KIND });
     const counts = {};
