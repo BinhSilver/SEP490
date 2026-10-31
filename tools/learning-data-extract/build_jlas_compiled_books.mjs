@@ -193,12 +193,50 @@ function assignSlots(items, previous) {
   for (const item of items) item.slot = known.get(item.id) ?? ++next;
 }
 
+/**
+ * Owner 2026-10-27: typing errors in the digitization team's word list, fixed in Learning's copy only (their data is never
+ * edited). Keyed by the id the misspelt word had (`JV-` + hash of its cleaned expression|reading) → the right spelling;
+ * found when example sentences were written for every N3 word. Phrases and valid conjugations are left as they are.
+ */
+export const SOURCE_WORD_FIXES = Object.freeze({
+  'JV-740627b051': ['酔っ払う', 'よっぱらう'], 'JV-b380727ef8': ['冷える', 'ひえる'], 'JV-b778393778': ['魚を焼く', 'さかなをやく'],
+  'JV-d7c1435569': ['砂糖', 'さとう'], 'JV-2abba7cd65': ['旅館に泊まる', 'りょかんにとまる'], 'JV-7b89c69cfb': ['応援する', 'おうえんする'],
+  'JV-83390b4f2f': ['スポーツジム', 'スポーツジム'], 'JV-9f8766ea66': ['見物（をする）', 'けんぶつ（をする）'], 'JV-2f33f84210': ['トン', 'トン'],
+  'JV-7e7cc36a78': ['絵はがき', 'えはがき'], 'JV-a691a1b0c5': ['はがきを出す', 'はがきをだす'], 'JV-4b84234997': ['まったく', 'まったく'],
+  'JV-ace2cdd3e0': ['印象・評価', 'いんしょう・ひょうか'], 'JV-dc547ed78b': ['陽気な', 'ようきな'],
+  'JV-29ceea8933': ['気持ち（が）悪い生き物', 'きもち（が）わるいいきもの'], 'JV-ed980ca6eb': ['詳しい地図', 'くわしいちず'],
+  'JV-1da0c13b50': ['鍋で煮る', 'なべでにる'], 'JV-056c25550f': ['たまに会う', 'たまにあう'],
+  'JV-06b9293aff': ['普通（は）行かない', 'ふつう（は）いかない'], 'JV-368a226833': ['意外に軽い', 'いがいにかるい'],
+  'JV-3b19795c31': ['普段（は）静か', 'ふだん（は）しずか'], 'JV-4ef092cf26': ['たいてい断る', 'たいていことわる'],
+  'JV-cf6a8fad89': ['結構好き', 'けっこうすき'], 'JV-914fcef4c4': ['ジムに通う', 'ジムにかよう'],
+  'JV-67bc41e23a': ['コンクールに出る', 'コンクールにでる'], 'JV-58444e8255': ['革のコート', 'かわのコート'],
+  'JV-b8c0768320': ['ボランティア', 'ボランティア'], 'JV-5c96497892': ['シートベルトを締める', 'シートベルトをしめる'],
+  'JV-e62685dcf7': ['誤りを見落とす', 'あやまりをみおとす'], 'JV-13c5810560': ['宿題を出す', 'しゅくだいをだす'],
+  'JV-2c5d8162ab': ['年をとる', 'としをとる'], 'JV-1478df866a': ['交通事故が起こる', 'こうつうじこがおこる'],
+  'JV-fefa62bb26': ['話題にする', 'わだいにする'], 'JV-5657148390': ['どこかの国から攻撃を受ける', 'どこかのくにからこうげきをうける'],
+  'JV-ecd1b349fe': ['駅で友達を見かける', 'えきでともだちをみかける'],
+  // Owner 2026-10-28: 感想する glossed "khô ráo" is 乾燥する, a word N3 already has (chapter 11) — the fix merges them.
+  'JV-65dcfc4915': ['乾燥する', 'かんそうする'],
+});
+
+/** The id a SOURCE_WORD_FIXES word has once fixed (unchanged for any other id). */
+export function fixedWordId(id) {
+  const fix = SOURCE_WORD_FIXES[id];
+  return fix ? `JV-${shortId(vocabKey(fix[0], fix[1]))}` : id;
+}
+
+/** The cleaned word with a SOURCE_WORD_FIXES spelling applied (unchanged when it is not a known typing error). */
+export function fixSourceWord(word) {
+  const fix = SOURCE_WORD_FIXES[`JV-${shortId(vocabKey(word.expression, word.reading))}`];
+  return fix ? { ...word, expression: fix[0], reading: fix[1] } : word;
+}
+
 /** Pure: the five compiled books from the canonical sources; `previous` (level → stored book) keeps slots stable. */
 export function compileBooks(data, vnjp, previous = {}) {
   const rows = sourceRows(data, vnjp);
   const vocab = new Map();
   for (const r of rows.vocabulary) {
-    for (const word of cleanVocabulary(r.expression, r.reading)) {
+    for (const word of cleanVocabulary(r.expression, r.reading).map(fixSourceWord)) {
       const key = vocabKey(word.expression, word.reading);
       if (!key.replace('|', '')) continue;
       let item = vocab.get(key);
@@ -219,6 +257,15 @@ export function compileBooks(data, vnjp, previous = {}) {
       if (!item.variants.some((v) => v[0] === variant[0] && v[1] === variant[1])) item.variants.push(variant);
       pushUnique(item.books, r.book);
     }
+  }
+  // Owner 2026-10-27: a word whose sources have no example takes the checked J-LAS example (build_n3_supplement_content),
+  // labelled in its translation; a source example always wins.
+  const supplement = data.sections.jlas_n3_vocab_examples;
+  for (const item of vocab.values()) {
+    const ex = supplement?.items?.[item.id];
+    if (item.example_ja || !ex) continue;
+    item.example_ja = ex.example_ja;
+    item.example_vi = `${ex.example_vi} · Ví dụ ${supplement.label}`;
   }
   const dic = new Map(data.sections.kanji_n5_n1.content.kanji.map((k) => [k.character, k]));
   const kanjiPos = lessonPositions(vnjp.kanji);
@@ -284,6 +331,15 @@ export function compileBooks(data, vnjp, previous = {}) {
       Object.assign(item, fix, { meaning_supplemented: true });
     }
   }
+  // F1-2 follow-up (owner 2026-10-28): an example that used a word a later chapter teaches is replaced by the checked
+  // J-LAS rewrite (build_grammar_example_rewrites.mjs), labelled like every other J-LAS example.
+  const rewrites = data.sections.jlas_grammar_example_rewrites;
+  for (const item of grammar.values()) {
+    const rewrite = rewrites?.items?.[`JG-${shortId(item.key)}`];
+    if (!rewrite) continue;
+    item.example = `${rewrite.example_ja}\n${rewrite.example_vi} · Ví dụ ${rewrites.label}`;
+    item.example_rewritten = true;
+  }
   const comprehension = readyComprehension(data);
   const books = {};
   for (const level of LEVELS) {
@@ -324,7 +380,7 @@ export function compileBooks(data, vnjp, previous = {}) {
         minutes, days: Object.fromEntries([30, 45, 60, 90].map((m) => [m, Math.ceil(minutes / m)])),
       },
       vocabulary: v, kanji: k, grammar: g, reading: r, listening: l,
-      // §2.32: store items not placed in any chapter (extra practice only); filled from T6 on.
+      // §2.32: store items not placed in any chapter live in their own section, jlas_store_pool (T6).
       pool: { reading: [], listening: [] },
       held_grammar: heldGrammar.filter((x) => x.level === level),
     };
@@ -357,22 +413,26 @@ export function grammarFragments(pattern) {
  * grammar patterns its text uses (ids of this compiled book, in book order, at most 30 each), and a 1–5 difficulty: the
  * quintile of its length × (1 + kanji share) among the same level and skill. The text itself is not stored.
  */
+const labelWords = (vocabulary) => vocabulary.filter((w) => {
+  const e = String(w.expression ?? '');
+  return (e.match(JA_KANJI) ?? []).length ? e.length >= 2 : e.length >= 3;
+});
+const labelPatterns = (grammar) => grammar.map((p) => ({ id: p.id, ways: grammarFragments(p.pattern) })).filter((p) => p.ways.length);
+const weight = (x) => {
+  const text = x._text ?? '';
+  const chars = (text.match(JA_CHARS) ?? []).length;
+  return chars * (1 + (chars ? (text.match(JA_KANJI) ?? []).length / chars : 0));
+};
+const patternsIn = (patterns, text) => patterns
+  .filter((p) => p.ways.some((pieces) => pieces.every((piece) => (text ?? '').includes(piece)))).map((p) => p.id);
+
 export function attachLabels(items, dealt, level, skill, vocabulary, grammar) {
   const chapterOf = new Map();
   dealt.forEach((list, index) => list.forEach((x) => chapterOf.set(x.id, index + 1)));
-  const words = vocabulary.filter((w) => {
-    const e = String(w.expression ?? '');
-    return (e.match(JA_KANJI) ?? []).length ? e.length >= 2 : e.length >= 3;
-  });
-  const patterns = grammar.map((p) => ({ id: p.id, ways: grammarFragments(p.pattern) })).filter((p) => p.ways.length);
-  const weight = (x) => {
-    const text = x._text ?? '';
-    const chars = (text.match(JA_CHARS) ?? []).length;
-    return chars * (1 + (chars ? (text.match(JA_KANJI) ?? []).length / chars : 0));
-  };
+  const words = labelWords(vocabulary);
+  const patterns = labelPatterns(grammar);
   // A pattern found in more than 40% of the level's passages of this skill cannot tell passages apart: not a label.
-  const found = new Map(items.map((x) => [x.id, patterns
-    .filter((p) => p.ways.some((pieces) => pieces.every((piece) => (x._text ?? '').includes(piece)))).map((p) => p.id)]));
+  const found = new Map(items.map((x) => [x.id, patternsIn(patterns, x._text)]));
   const spread = new Map();
   for (const ids of found.values()) for (const id of ids) spread.set(id, (spread.get(id) ?? 0) + 1);
   const telling = (id) => spread.get(id) <= items.length * 0.4;
@@ -394,10 +454,34 @@ export function attachLabels(items, dealt, level, skill, vocabulary, grammar) {
   }
 }
 
+/**
+ * §2.32 T6 — labels of store pool passages (never placed in a chapter), measured against the level's chapter passages
+ * {@code peers} (still carrying {@code _text}) so the chapter labels stay exactly as they are: the same words/patterns
+ * rule (a pattern found in more than 40% of the peers is not telling), and the 1–5 difficulty is the quintile the pool
+ * passage's weight takes among the peers. The pool passage keeps its own chapter hint, origin and review.
+ */
+export function poolLabels(item, peers, level, skill, vocabulary, grammar) {
+  const words = labelWords(vocabulary);
+  const patterns = labelPatterns(grammar);
+  const spread = new Map();
+  for (const peer of peers) for (const id of patternsIn(patterns, peer._text)) spread.set(id, (spread.get(id) ?? 0) + 1);
+  const text = item.text_lines.join(' ');
+  const below = peers.filter((peer) => weight(peer) < weight({ _text: text })).length;
+  return {
+    level, chapter_hint: item.chapter_hint, skill, format: item.format ?? null,
+    grammar_refs: patternsIn(patterns, text).filter((id) => (spread.get(id) ?? 0) <= peers.length * 0.4).slice(0, MAX_REFS),
+    vocab_refs: words.filter((w) => text.includes(w.expression)).map((w) => w.id).slice(0, MAX_REFS),
+    difficulty: peers.length ? Math.min(5, Math.floor((below * 5) / peers.length) + 1) : 3,
+    minutes: skill === 'READING' ? item.questions.length * MINUTES.reading_question : MINUTES.listening_clip,
+    has_translation: (item.passage_translation ?? []).length > 0, has_audio: false,
+    origin: item.origin, review: item.review,
+  };
+}
+
 const stripHtml = (html) => String(html ?? '').replace(/<[^>]+>/g, '\n').replace(/&[a-z]+;/g, ' ');
 
 /** Reading/listening already parsed and checked (Minna, Speed Master), by the source group code of their DB rows. */
-function readyComprehension(data) {
+export function readyComprehension(data) {
   const reading = []; const listening = [];
   const groups = new Map();
   for (const row of data.sections.jlpt_minna_n5_n4_reading?.exercises ?? []) {
