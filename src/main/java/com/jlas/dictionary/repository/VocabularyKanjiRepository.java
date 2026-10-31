@@ -16,8 +16,8 @@ import java.util.List;
  * chứa một Kanji thông qua quan hệ dữ liệu (idx_vocabulary_kanji_prefix /
  * idx_vocabulary_kanji_lookup), thay vì LIKE '%kanji%' trên expression.
  *
- * <p>So khớp {@code kanji.character} dùng native query + {@code BINARY} (xem ghi chú ở
- * {@link VocabularyEntryRepository}) vì utf8mb4_unicode_ci coi は/ば/ぱ... là tương đương.</p>
+ * <p>{@code kanji.character} là cột utf8mb4_bin (migration 059) nên điều kiện so sánh trực tiếp
+ * dùng được index uk_kanji_character; bọc {@code BINARY} sẽ làm MySQL quét toàn bảng nối.</p>
  */
 @Repository
 public interface VocabularyKanjiRepository
@@ -40,17 +40,32 @@ public interface VocabularyKanjiRepository
     @Query(value = "select ve.* from vocabulary_kanji vk "
             + "join kanji k on k.id = vk.kanji_id "
             + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
-            + "where binary k.`character` = binary :kanjiChar and vk.character_position = 1 "
+            + "where k.`character` = :kanjiChar and vk.character_position = 1 "
             + "and ve.dictionary_status = 'PUBLISHED' "
             + "order by vk.vocabulary_id asc", nativeQuery = true)
     List<VocabularyEntry> findVocabularyStartingWithKanji(
             @Param("kanjiChar") String character, Pageable pageable);
 
+    /**
+     * Vocabulary có expression chứa {@code infix}, tìm qua một Kanji neo của chính infix đó: mọi từ
+     * chứa infix đều chứa Kanji neo, nên kết quả trùng với LIKE '%infix%' trên toàn bảng nhưng chỉ
+     * phải lọc vài nghìn từ có Kanji neo thay vì quét ~280 nghìn dòng (食べる: ~5 ms thay vì ~400 ms).
+     */
+    @Query(value = "select distinct ve.* from vocabulary_kanji vk "
+            + "join kanji k on k.id = vk.kanji_id "
+            + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
+            + "where k.`character` = :anchor "
+            + "and ve.normalized_expression like concat('%', :infix, '%') "
+            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "order by ve.id asc", nativeQuery = true)
+    List<VocabularyEntry> findVocabularyContainingViaKanji(
+            @Param("anchor") String anchorKanji, @Param("infix") String likeEscapedInfix, Pageable pageable);
+
     /** Vocabulary chứa Kanji nhưng không ở vị trí đầu. */
     @Query(value = "select ve.* from vocabulary_kanji vk "
             + "join kanji k on k.id = vk.kanji_id "
             + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
-            + "where binary k.`character` = binary :kanjiChar and vk.character_position > 1 "
+            + "where k.`character` = :kanjiChar and vk.character_position > 1 "
             + "and ve.dictionary_status = 'PUBLISHED' "
             + "order by vk.vocabulary_id asc", nativeQuery = true)
     List<VocabularyEntry> findVocabularyContainingKanjiNotFirst(
@@ -67,7 +82,7 @@ public interface VocabularyKanjiRepository
     @Query(value = "select ve.* from vocabulary_kanji vk "
             + "join kanji k on k.id = vk.kanji_id "
             + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
-            + "where binary k.`character` = binary :kanjiChar "
+            + "where k.`character` = :kanjiChar "
             + "and ve.dictionary_status = 'PUBLISHED' "
             + "order by vk.character_position asc, vk.vocabulary_id asc", nativeQuery = true)
     List<VocabularyEntry> findVocabularyByKanjiCharacter(
