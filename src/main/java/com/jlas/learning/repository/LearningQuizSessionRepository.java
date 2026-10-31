@@ -63,6 +63,18 @@ public interface LearningQuizSessionRepository extends JpaRepository<LearningQui
     Optional<LearningQuizSession> findFirstByActivityIdAndQuizTypeAndBatchIndexAndUserIdAndStatusOrderByIdDesc(
             Long activityId, String quizType, Integer batchIndex, Long userId, String status);
 
+    /** §2.32 extra practice: everything the learner submitted since {@code since} (passages done in the last 14 days). */
+    List<LearningQuizSession> findByUserIdAndStatusAndSubmittedAtAfter(Long userId, String status,
+            java.time.LocalDateTime since);
+
+    /** §2.32 extra practice: the learner's two latest scored checks of one skill on the given activities. */
+    List<LearningQuizSession> findTop2ByUserIdAndQuizTypeAndStatusAndActivityIdInOrderBySubmittedAtDesc(
+            Long userId, String quizType, String status, java.util.Collection<Long> activityIds);
+
+    /** §2.32 extra practice: submitted sessions of one quiz type on a chapter's activities, newest first. */
+    List<LearningQuizSession> findByActivityIdInAndQuizTypeAndStatusOrderBySubmittedAtDesc(
+            java.util.Collection<Long> activityIds, String quizType, String status);
+
     /** [JLAS-W0108] REVIEW feedback source: submitted sessions of one quiz type, newest first. */
     List<LearningQuizSession> findByActivityIdAndQuizTypeAndStatusOrderBySubmittedAtDesc(
             Long activityId, String quizType, String status);

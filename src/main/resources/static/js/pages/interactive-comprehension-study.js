@@ -1,4 +1,4 @@
-(function (root, factory) {
+﻿(function (root, factory) {
   'use strict';
   var api = factory();
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -317,6 +317,191 @@
       '<button data-retry type="button">Thử lại</button></section>';
   }
 
+  // =========================================================================
+  // §2.32 (owner 2026-10-26) — "Luyện thêm (không tính điểm)"
+  // =========================================================================
+  var REASON_MAP = {
+    WEAKNESS: 'Trúng chỗ bạn sai',
+    DIFFICULTY: 'Độ khó hợp với bạn',
+    SAME_CHAPTER: 'Cùng chương'
+  };
+  function formatReason(code) {
+    return REASON_MAP[code] || String(code || '');
+  }
+
+  function renderExtraPracticeSection(data, loading, errorMsg) {
+    var title = '<header class="ilp-extra-practice__head">' +
+      '<div><span class="ilp-kicker">MỞ RỘNG // BỔ TRỢ</span>' +
+      '<h2 id="ilpExtraPracticeTitle" class="ilp-extra-practice__title">Luyện thêm <span class="ilp-extra-practice__pill">Không tính điểm</span></h2>' +
+      '<p class="ilp-extra-practice__desc">Các bài đọc/nghe thêm phù hợp với bạn. Làm thêm không ảnh hưởng tiến độ học tập.</p>' +
+      // F1-5 (owner 2026-10-28): the learner chose this skill as a focus — more passages, offered up front.
+      (data && data.focus ? '<p class="ilp-extra-practice__focus" role="note">Kỹ năng ưu tiên của bạn: J-LAS gợi ý thêm bài luyện cho kỹ năng này.</p>' : '') +
+      '</div></header>';
+
+    if (loading) {
+      return '<section class="ilp-extra-practice" aria-labelledby="ilpExtraPracticeTitle" aria-busy="true">' +
+        title +
+        '<div class="ilp-extra-practice__loading" role="status"><span class="ilp-loader" aria-hidden="true"></span> Đang tải gợi ý luyện thêm…</div>' +
+        '</section>';
+    }
+
+    if (errorMsg) {
+      return '<section class="ilp-extra-practice" aria-labelledby="ilpExtraPracticeTitle">' +
+        title +
+        '<div class="ilp-extra-practice__empty is-error" data-extra-error role="status">' +
+        '<p>' + esc(errorMsg) + '</p>' +
+        '<button type="button" class="ilp-check ilp-check--ghost ilp-check--sm" data-extra-retry>Thử lại</button>' +
+        '</div></section>';
+    }
+
+    var items = list(data && data.items);
+    // No chapter means extra practice does not apply here (communication goal, non-compiled path): show nothing.
+    if (!items.length && data && data.chapter == null) return '';
+    if (!items.length) {
+      var msg = (data && data.message) || 'Chưa có bài luyện thêm cho phần này.';
+      return '<section class="ilp-extra-practice" aria-labelledby="ilpExtraPracticeTitle">' +
+        title +
+        '<div class="ilp-extra-practice__empty" data-extra-empty role="status">' +
+        '<p>' + esc(msg) + '</p>' +
+        '</div></section>';
+    }
+
+    var currentChapter = data && data.chapter != null ? num(data.chapter) : null;
+    var cards = items.map(function (item, idx) {
+      var reasons = list(item.reasons).map(function (r) {
+        return '<span class="ilp-extra-badge ilp-extra-badge--reason ilp-extra-badge--' + esc(String(r).toLowerCase()) + '">' +
+          esc(formatReason(r)) + '</span>';
+      }).join('');
+      var meta = [];
+      if (item.questionCount) meta.push('<span class="ilp-extra-meta">' + num(item.questionCount) + ' câu hỏi</span>');
+      if (item.minutes) meta.push('<span class="ilp-extra-meta">' + num(item.minutes) + ' phút</span>');
+      if (item.difficulty) meta.push('<span class="ilp-extra-meta">Độ khó ' + num(item.difficulty) + '/5</span>');
+
+      var subtitle = '';
+      if (item.chapterHint != null) {
+        subtitle = (currentChapter != null && num(item.chapterHint) === currentChapter)
+          ? 'Cùng chương'
+          : 'Mức gần chương ' + num(item.chapterHint);
+      }
+
+      return '<article class="ilp-extra-card" data-extra-passage="' + esc(item.passage) + '">' +
+        '<div class="ilp-extra-card__head">' +
+          '<div class="ilp-extra-card__tags">' +
+            reasons +
+            (item.label ? '<span class="ilp-extra-badge ilp-extra-badge--label" role="note">' + esc(item.label) + '</span>' : '') +
+          '</div>' +
+          '<div class="ilp-extra-card__meta-group">' + meta.join(' · ') + '</div>' +
+        '</div>' +
+        '<div class="ilp-extra-card__body">' +
+          '<div class="ilp-extra-card__info">' +
+            '<h3 class="ilp-extra-card__title">Bài luyện thêm ' + (idx + 1) + '</h3>' +
+            (subtitle ? '<p class="ilp-extra-card__subtitle">' + esc(subtitle) + '</p>' : '') +
+          '</div>' +
+          '<button type="button" class="ilp-check ilp-check--sm ilp-extra-card__start-btn" data-extra-start="' + esc(item.passage) + '" ' +
+            'aria-label="Luyện bài ' + (idx + 1) + ': ' + num(item.questionCount) + ' câu hỏi">' +
+            'Luyện bài này <span aria-hidden="true">→</span></button>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+
+    return '<section class="ilp-extra-practice" aria-labelledby="ilpExtraPracticeTitle">' +
+      title +
+      '<div class="ilp-extra-practice__grid">' + cards + '</div>' +
+      '</section>';
+  }
+
+  function renderExtraCheckForm(issue, isListening) {
+    var questions = list(issue.questions).map(function (q, i) {
+      var options = list(q.options).map(function (opt, oi) {
+        return '<label class="ilp-option"><input type="radio" name="q-' + q.questionId + '" value="' + (oi + 1) + '">' +
+          '<span class="ilp-option__mark">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(opt) + '</span></label>';
+      }).join('');
+      return '<fieldset class="ilp-question" data-question-page="' + i + '"' + (i === 0 ? '' : ' hidden') +
+        ' tabindex="-1"><legend><span class="ilp-question__num">' + (i + 1) + '</span>' +
+        '<span>' + esc(q.questionText || q.prompt || '') + '</span></legend><div class="ilp-options">' + options + '</div></fieldset>';
+    }).join('');
+    var questionCount = list(issue.questions).length;
+    var lastIndex = Math.max(0, questionCount - 1);
+    return '<form class="ilp-check__form" data-extra-submit data-question-pager data-attempt-id="' + esc(issue.attemptId) + '">' + questions +
+      '<nav class="ilp-question-pager" aria-label="Điều hướng câu hỏi">' +
+      '<button class="ilp-check ilp-check--ghost" type="button" data-question-prev disabled>Câu trước</button>' +
+      '<span data-question-counter role="status" aria-live="polite">Câu 1 / ' + questionCount + '</span>' +
+      '<button class="ilp-check ilp-check--ghost" type="button" data-question-next' + (lastIndex === 0 ? ' hidden' : '') + '>Câu tiếp</button>' +
+      '</nav>' +
+      '<button class="ilp-check__submit" type="submit" data-question-submit' + (lastIndex > 0 ? ' hidden' : '') + '>' +
+      'Nộp bài luyện thêm</button></form>';
+  }
+
+  function renderExtraPracticeScreen(issue, currentType) {
+    var isListening = currentType === 'LISTENING';
+    var banner = '<div class="ilp-mode-banner" role="note" data-mode-banner="EXTRA_PRACTICE">' +
+      '<strong>Luyện thêm (không tính điểm)</strong> — Bài tập bổ trợ kỹ năng, không ảnh hưởng tiến độ, điểm số hay việc mở khóa bài tiếp theo.</div>';
+    var labelNote = issue.label ? '<p class="ilp-comprehension__source-note">' + esc(issue.label) + '</p>' : '';
+    var kicker = (isListening ? 'NGHE HIỂU' : 'ĐỌC HIỂU') + ' // LUYỆN THÊM';
+    var title = isListening ? 'Luyện nghe hiểu thêm' : 'Luyện đọc hiểu thêm';
+    var questionCount = list(issue.questions).length;
+
+    return banner + '<section class="ilp-comprehension no-inline-dictionary ilp-extra-practice-active">' +
+      '<header class="ilp-comprehension__head"><div><span class="ilp-kicker">' + kicker + '</span>' +
+      '<h1>' + title + '</h1>' +
+      '<p>' + (isListening ? 'Nghe nội dung và chọn đáp án đúng cho từng câu hỏi.' : 'Đọc kỹ đoạn văn và chọn đáp án đúng cho từng câu hỏi.') + '</p></div>' +
+      '<div class="ilp-extra-head-actions">' +
+        '<span class="ilp-comprehension__progress-badge">Luyện thêm · ' + questionCount + ' câu hỏi</span>' +
+        '<button type="button" class="ilp-check ilp-check--ghost ilp-check--sm" data-extra-cancel>Về bài chính</button>' +
+      '</div></header>' +
+      labelNote +
+      renderSourcePanel({ activityType: currentType, passage: issue.source && issue.source.passage, audioUrl: issue.source && issue.source.audioUrl }, false, false) +
+      renderExtraCheckForm(issue, isListening) +
+      '</section>';
+  }
+
+  function renderExtraPracticeResult(result, issue, currentType) {
+    var isListening = currentType === 'LISTENING';
+    var passed = !!result.passed;
+    var reviews = list(result.review);
+    var questionMap = {};
+    if (issue && Array.isArray(issue.questions)) {
+      issue.questions.forEach(function (q) { questionMap[String(q.questionId)] = q; });
+    }
+
+    var reviewsHtml = reviews.map(function (rev, idx) {
+      var isCorrect = !!rev.correct;
+      var q = questionMap[String(rev.questionId)] || {};
+      var qText = q.questionText || q.prompt || '';
+      var options = list(q.options);
+      var selectedText = rev.selectedOption != null && options[rev.selectedOption - 1] ? options[rev.selectedOption - 1] : '';
+      var correctText = rev.correctOption != null && options[rev.correctOption - 1] ? options[rev.correctOption - 1] : '';
+      var explanation = rev.explanation || '';
+
+      return '<article class="ilp-extra-review-item ' + (isCorrect ? 'is-correct' : 'is-wrong') + '" tabindex="0">' +
+        '<div class="ilp-extra-review-item__head">' +
+          '<span class="ilp-extra-review-item__badge">' + (isCorrect ? '✓ Câu ' + (idx + 1) + ' đúng' : '✗ Câu ' + (idx + 1) + ' chưa đúng') + '</span>' +
+        '</div>' +
+        (qText ? '<p class="ilp-extra-review-item__q"><strong>' + esc(qText) + '</strong></p>' : '') +
+        '<div class="ilp-extra-review-item__answers">' +
+          (selectedText ? '<p class="ilp-extra-review-item__user-ans">Lựa chọn của bạn: <span>' + esc(selectedText) + '</span></p>' : '') +
+          (!isCorrect && correctText ? '<p class="ilp-extra-review-item__correct-ans">Đáp án đúng: <span>' + esc(correctText) + '</span></p>' : '') +
+        '</div>' +
+        (explanation ? '<div class="ilp-extra-review-item__explanation"><span class="ilp-extra-review-item__exp-label">Giải thích:</span> <p>' + esc(explanation) + '</p></div>' : '') +
+      '</article>';
+    }).join('');
+
+    return '<section class="ilp-result ilp-extra-result">' +
+      '<div class="ilp-mode-banner" role="note">' +
+        '<strong>Luyện thêm hoàn tất</strong> — Kết quả này không ảnh hưởng đến tiến độ học tập, điểm số hay việc mở khóa bài tiếp theo.' +
+      '</div>' +
+      '<header class="ilp-study__head"><div><span class="ilp-kicker">KẾT QUẢ // LUYỆN THÊM</span>' +
+      '<h1>' + (passed ? 'Đã hoàn thành bài luyện thêm' : 'Đã nộp bài luyện thêm') + '</h1></div>' +
+      '<div class="ilp-score ' + (passed ? 'is-pass' : 'is-fail') + '"><strong>' + num(result.scorePercent) + '%</strong></div></header>' +
+      '<p class="ilp-result__meta">' + num(result.correctAnswers) + '/' + num(result.totalQuestions) + ' câu đúng</p>' +
+      '<p class="ilp-result__pass">Kết quả luyện thêm không tính vào tiến độ hoàn thành của lộ trình.</p>' +
+      (reviewsHtml ? '<div class="ilp-extra-result__reviews">' + reviewsHtml + '</div>' : '') +
+      '<div class="ilp-result__actions">' +
+        '<button class="ilp-check" type="button" data-extra-back-to-study>Quay lại bài chính</button>' +
+        '<button class="ilp-check ilp-check--ghost" type="button" data-extra-more>Luyện bài khác</button>' +
+      '</div></section>';
+  }
+
   function mount() {
     var node = document.getElementById('interactiveComprehensionStudyRoot');
     var id = activityId();
@@ -335,6 +520,7 @@
     if (StudyMode && StudyMode.bindAttemptHistory) StudyMode.bindAttemptHistory(node);
     var mode = StudyMode ? StudyMode.resolveMode(window.location.search) : 'LEARN';
     var replayLecture = false;
+    var currentExtraIssue = null;
     var PASSED_ACTIONS = StudyMode ? StudyMode.passedActions(fallbackPath, id, ['REVIEW', 'PRACTICE']) : '';
     // [JLAS-W0113] Autosave state (same contract as interactive-study.js): drafts only ever autosave in LEARN
     // mode; PRACTICE and REVIEW replays are ephemeral and never write a draft.
@@ -426,7 +612,8 @@
         return false;
       }
       currentType = saved.activityType === 'LISTENING' ? 'LISTENING' : 'READING';
-      node.innerHTML = renderResult(saved.result, currentType, id);
+      node.innerHTML = renderResult(saved.result, currentType, id) + '<div data-extra-practice-mount></div>';
+      attachExtraPractice();
       var resultPanel = node.querySelector('.ilp-result');
       if (resultPanel && attempts.length && StudyMode && StudyMode.attemptHistory)
         resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(attempts));
@@ -436,7 +623,8 @@
     }
 
     function renderSavedPracticeResult(saved) {
-      node.innerHTML = StudyMode.practiceResult(saved.result, 'Ôn bài rồi kiểm tra lại');
+      node.innerHTML = StudyMode.practiceResult(saved.result, 'Ôn bài rồi kiểm tra lại') + '<div data-extra-practice-mount></div>';
+      attachExtraPractice();
       if (saved.attempts.length && StudyMode.attemptHistory) {
         var resultPanel = node.querySelector('.ilp-result');
         if (resultPanel) resultPanel.insertAdjacentHTML('beforeend', StudyMode.attemptHistory(saved.attempts));
@@ -539,6 +727,63 @@
       });
     }
 
+    function watchExtraAudioError() {
+      var audio = node.querySelector('[data-comprehension-audio]');
+      if (!audio) return;
+      audio.addEventListener('error', function () {
+        var message = node.querySelector('[data-audio-error]');
+        if (message) message.hidden = false;
+      });
+    }
+
+    async function attachExtraPractice() {
+      var mountNode = node.querySelector('[data-extra-practice-mount]');
+      if (!mountNode) return;
+      mountNode.innerHTML = renderExtraPracticeSection(null, true, null);
+      try {
+        var suggestions = await api('/extra-practice');
+        if (mountNode && mountNode.parentNode) {
+          mountNode.innerHTML = renderExtraPracticeSection(suggestions, false, null);
+          // F1-5: a focus skill opens its extra practice for the learner instead of leaving it below the fold.
+          var section = suggestions && suggestions.focus && list(suggestions.items).length ? mountNode.querySelector('.ilp-extra-practice') : null;
+          if (section && typeof section.scrollIntoView === 'function') section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } catch (err) {
+        if (mountNode && mountNode.parentNode) {
+          mountNode.innerHTML = renderExtraPracticeSection(null, false, err.message || 'Không thể tải danh sách luyện thêm.');
+        }
+      }
+    }
+
+    async function doExtraPractice(passage) {
+      if (!passage) return;
+      node.setAttribute('aria-busy', 'true');
+      stopWatching();
+      try {
+        var issue = await api('/extra-practice', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+          body: JSON.stringify({ passage: passage })
+        });
+        currentExtraIssue = issue;
+        node.innerHTML = renderExtraPracticeScreen(issue, currentType);
+        // Not the main audio watcher: its "ended" hook sends review evidence for the required activity.
+        watchExtraAudioError();
+        var firstQ = node.querySelector('fieldset[data-question-page]');
+        if (firstQ && typeof firstQ.focus === 'function') firstQ.focus();
+        if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        var mountNode = node.querySelector('[data-extra-practice-mount]');
+        if (mountNode) {
+          mountNode.innerHTML = renderExtraPracticeSection(null, false, e.message || 'Không thể bắt đầu bài luyện thêm.');
+        } else {
+          alert(e.message || 'Không thể bắt đầu bài luyện thêm.');
+        }
+      } finally {
+        node.setAttribute('aria-busy', 'false');
+      }
+    }
+
     async function loadStudy() {
       node.setAttribute('aria-busy', 'true');
       stopWatching();
@@ -561,7 +806,8 @@
             node.setAttribute('aria-busy', 'false');
             return;
           }
-          node.innerHTML = renderReview(await api('/review/attempts'), currentType);
+          node.innerHTML = renderReview(await api('/review/attempts'), currentType) + '<div data-extra-practice-mount></div>';
+          attachExtraPractice();
           // [JLAS-W0193] §2.23 — a review reopened mid-check must still offer the remaining batch.
           // The comprehension study payload carries the gate inside `microCheck`, not on the attempts feed.
           var gate = null;
@@ -577,7 +823,8 @@
             node.setAttribute('aria-busy', 'false');
             return;
           }
-          node.innerHTML = renderPracticeSources(await api('/review/attempts'), currentType);
+          node.innerHTML = renderPracticeSources(await api('/review/attempts'), currentType) + '<div data-extra-practice-mount></div>';
+          attachExtraPractice();
           node.setAttribute('aria-busy', 'false');
           return;
         }
@@ -596,16 +843,21 @@
           var doneSources = [], doneAttempts = [];
           try { doneSources = await api('/review/attempts'); } catch (e) { doneSources = []; }
           try { doneAttempts = await api('/attempt-history'); } catch (e) { doneAttempts = []; }
-          node.innerHTML = renderDoneLesson(doneSources, doneAttempts, v.activityType, PASSED_ACTIONS, v.passageTranslations);
+          node.innerHTML = renderDoneLesson(doneSources, doneAttempts, v.activityType, PASSED_ACTIONS, v.passageTranslations) +
+            '<div data-extra-practice-mount></div>';
+          attachExtraPractice();
         }
         else if (shouldOpenInlineQuestions(v)) {
           var inlineCheck = await postJson('/micro-check');
           rememberIssuedAttempt(inlineCheck && inlineCheck.attemptId);
+          // Extra practice stays off the scored check screen: starting one would replace the unsent answers.
           node.innerHTML = renderCheckScreen(v, inlineCheck);
         }
         else {
-          node.innerHTML = renderStudy(v, false);
+          node.innerHTML = renderStudy(v, false) +
+            '<div data-extra-practice-mount></div>';
           if (v.activityType === 'LISTENING') watchAudioPlay(); else watchPassageEnd();
+          attachExtraPractice();
         }
       } catch (e) { node.innerHTML = error(e.message, e.code); }
       node.setAttribute('aria-busy', 'false');
@@ -634,12 +886,53 @@
       if (event.target.closest('[data-practice-review]')) { clearPracticeResult(); return loadStudy(); }
       if (event.target.closest('[data-reached-passage]')) return sendReviewEvidence();
       if (event.target.closest('[data-next-exercise]') || event.target.closest('[data-back-to-study]')) { clearLearnResult(); return loadStudy(); }
+      if (event.target.closest('[data-extra-start]')) {
+        var extraBtn = event.target.closest('[data-extra-start]');
+        return doExtraPractice(extraBtn.getAttribute('data-extra-start'));
+      }
+      if (event.target.closest('[data-extra-cancel]') || event.target.closest('[data-extra-back-to-study]')) {
+        currentExtraIssue = null;
+        return loadStudy();
+      }
+      if (event.target.closest('[data-extra-more]')) {
+        currentExtraIssue = null;
+        await loadStudy();
+        var extraSec = node.querySelector('.ilp-extra-practice');
+        if (extraSec && typeof extraSec.scrollIntoView === 'function') {
+          extraSec.scrollIntoView({ behavior: 'smooth' });
+        }
+        return;
+      }
+      if (event.target.closest('[data-extra-retry]')) {
+        return attachExtraPractice();
+      }
     });
 
     node.addEventListener('submit', async function (event) {
-      var form = event.target.closest('[data-submit]');
+      var extraForm = event.target.closest('[data-extra-submit]');
+      var form = extraForm || event.target.closest('[data-submit]');
       if (!form) return;
       event.preventDefault();
+      if (extraForm) {
+        var extraAnswers = Array.prototype.slice.call(form.querySelectorAll('input[type="radio"]:checked')).map(function (input) {
+          return { questionId: Number(input.name.slice(2)), selectedOption: Number(input.value) };
+        });
+        node.setAttribute('aria-busy', 'true');
+        try {
+          var extraResult = await api('/extra-practice/submit', {
+            method: 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+            body: JSON.stringify({ attemptId: Number(form.dataset.attemptId), answers: extraAnswers })
+          });
+          node.innerHTML = renderExtraPracticeResult(extraResult, currentExtraIssue, currentType);
+          if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+          node.innerHTML = error(e.message, e.code);
+        } finally {
+          node.setAttribute('aria-busy', 'false');
+        }
+        return;
+      }
       // A submitted attempt must never be re-autosaved: stop any pending debounce and cancel in-flight retries.
       if (draftTimer) { clearTimeout(draftTimer); draftTimer = null; }
       draftDirty = false;
@@ -655,7 +948,9 @@
         });
         if (mode === 'PRACTICE') rememberPracticeResult(result, []);
         else rememberLearnResult(result, Number(form.dataset.attemptId));
-        node.innerHTML = mode === 'PRACTICE' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, currentType, id);
+        node.innerHTML = (mode === 'PRACTICE' ? StudyMode.practiceResult(result, 'Ôn bài rồi kiểm tra lại') : renderResult(result, currentType, id)) +
+          '<div data-extra-practice-mount></div>';
+        attachExtraPractice();
         if (StudyMode && StudyMode.attemptHistory) {
           try {
             var attempts = await api('/attempt-history');
@@ -689,7 +984,10 @@
 
     node.addEventListener('change', function (event) {
       if (event.target.matches && event.target.matches('.ilp-check__form input[type="radio"]')) {
-        scheduleDraftSave(event.target.closest('form'));
+        var form = event.target.closest('form');
+        if (form && !form.hasAttribute('data-extra-submit')) {
+          scheduleDraftSave(form);
+        }
       }
     });
 
@@ -729,7 +1027,7 @@
 
     if (typeof window.addEventListener === 'function') window.addEventListener('pagehide', function () {
       if (!draftDirty) return;
-      var form = node.querySelector('.ilp-check__form');
+      var form = node.querySelector('.ilp-check__form:not([data-extra-submit])');
       if (!form) return;
       var attemptId = Number(form.dataset.attemptId);
       // sendBeacon cannot carry the JWT header, so use fetch(keepalive) for the authenticated draft write.
@@ -752,6 +1050,8 @@
     showQuestionPage: showQuestionPage,
     renderCheckScreen: renderCheckScreen, renderResult: renderResult, renderPassed: renderPassed, renderDoneLesson: renderDoneLesson,
     renderPractice: renderPractice, renderReview: renderReview, renderPracticeSources: renderPracticeSources,
+    formatReason: formatReason, renderExtraPracticeSection: renderExtraPracticeSection,
+    renderExtraPracticeScreen: renderExtraPracticeScreen, renderExtraPracticeResult: renderExtraPracticeResult,
     error: error, mount: mount
   };
 });
