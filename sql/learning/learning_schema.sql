@@ -13,7 +13,8 @@
 -- Replaces: sql/migrations/004-012, 014, 015 (Learning parts) and 022_learning_owned_consolidated.sql.
 -- jlas_schema.sql keeps its copy of the Learning tables until the team schema is merged; both describe the same shape.
 --
--- How to run (MySQL 8.0.16+): select the target database, verify it, then run this file and then learning_data.sql:
+-- How to run (MySQL 8.0.16+): select the target database, verify it, run this file, then the data files in order
+-- (learning_data_common.sql, learning_data_N5.sql ... learning_data_N1.sql; see sql/learning/README.md):
 --   mysql -u root -p <db> -e "SELECT DATABASE()"      -- must print the intended database
 --   mysql -u root -p <db> < sql/learning/learning_schema.sql
 -- There is no USE line on purpose. Re-runnable: tables use CREATE TABLE IF NOT EXISTS; every later column, index,
@@ -1084,7 +1085,7 @@ CALL jlas_ls_add_column('assessment_question', 'source_code', 'VARCHAR(100) NULL
 CALL jlas_ls_add_index('assessment_question', 'uk_assessment_question_source_code',
     'UNIQUE KEY uk_assessment_question_source_code (source_code)');
 -- [JLAS-W0108] (former 005) is_learning_path_source = 1 marks the textbooks the path composer may use.
--- The flag values themselves are data (learning_data.sql); this only adds the column.
+-- The flag values themselves are data (learning_data_common.sql); this only adds the column.
 CALL jlas_ls_add_column('textbook', 'is_learning_path_source', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER version');
 CALL jlas_ls_add_index('textbook', 'idx_textbook_learning_path_source',
     'KEY idx_textbook_learning_path_source (is_learning_path_source, jlpt_level, status)');
@@ -1118,7 +1119,7 @@ CALL jlas_ls_check('user_learning_path', 'chk_learning_path_mode', 'BALANCED', N
 CALL jlas_ls_check('user_learning_path', 'chk_learning_path_status', 'COMPLETED', NULL,
     'status IN (''ACTIVE'',''SUPERSEDED'',''COMPLETED'')');
 
--- --- B4. learning_path_package (day packages; former 014 and 052) ------------------------------------------
+-- --- B4. learning_path_package (day packages; former 014, and 022 (ex-052)) --------------------------------
 -- [JLAS-W0193] one curriculum lesson may continue over ordered day segments; the new uniqueness is installed before
 -- the old one is removed.
 CALL jlas_ls_add_column('learning_path_package', 'source_segment_index',
