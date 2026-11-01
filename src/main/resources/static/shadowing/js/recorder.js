@@ -720,6 +720,28 @@
     setDetailsVisible(card, addToHistory !== false);
   }
 
+  // "Tự dùng CP cho các câu sau trong buổi luyện này", chosen on the CP popup; resets on reload.
+  let creditForSession = false;
+
+  async function confirmCreditCheck() {
+    let quota = {};
+    try {
+      const response = await fetch('/api/pronunciation/quota', { headers: authHeaders() });
+      if (response.ok) quota = await response.json();
+    } catch (ignored) { /* the popup still shows the price */ }
+    const price = quota.creditPrice || 5;
+    if (!window.JlasCpConfirm) return { confirmed: false, option: false };
+    return window.JlasCpConfirm.open({
+      title: 'Hết lượt chấm miễn phí hôm nay',
+      message: 'Bạn đã dùng ' + (quota.usedToday != null ? quota.usedToday : '') + '/' + (quota.dailyLimit || '') +
+        ' lượt chấm hôm nay. Chấm câu này bằng CP?',
+      cost: price,
+      balance: quota.creditBalance,
+      confirmLabel: 'Chấm bằng ' + price + ' CP',
+      option: 'Tự dùng CP cho các câu sau trong buổi luyện này'
+    });
+  }
+
   async function assess(card) {
     const state = stateFor(card);
     if (state.assessing) return state.assessing;
@@ -756,17 +778,37 @@
     const controller = new AbortController();
     const requestTimeout = setTimeout(() => controller.abort(), 60000);
     try {
-      const form = new FormData();
-      const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
-      form.append('subtitleId', String(state.context.subtitleId));
-      form.append('audio', state.blob, 'shadowing-recording.' + extension);
-      const response = await fetch('/api/pronunciation/assess', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: form,
-        signal: controller.signal
-      });
-      const result = await response.json().catch(() => ({}));
+      const send = function (useCredit) {
+        const form = new FormData();
+        const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
+        form.append('subtitleId', String(state.context.subtitleId));
+        form.append('audio', state.blob, 'shadowing-recording.' + extension);
+        if (useCredit) form.append('useCredit', 'true');
+        return fetch('/api/pronunciation/assess', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: form,
+          signal: controller.signal
+        });
+      };
+      let response = await send(creditForSession);
+      let result = await response.json().catch(() => ({}));
+      // Hết lượt chấm miễn phí hôm nay: báo trước số CP rồi mới chấm bằng CP.
+      if (response.status === 402 && result.code === 'PRONUNCIATION_QUOTA_EXCEEDED') {
+        const choice = await confirmCreditCheck();
+        if (!choice.confirmed) {
+          if (scoreButton) {
+            scoreButton.disabled = false;
+            scoreButton.textContent = 'Chấm';
+          }
+          const message = result.message || 'Bạn đã hết lượt chấm phát âm miễn phí hôm nay';
+          setStatus(card, message);
+          return { status: 'error', message };
+        }
+        creditForSession = choice.option;
+        response = await send(true);
+        result = await response.json().catch(() => ({}));
+      }
       if (!response.ok) {
         console.error('[Pronunciation] assessment request failed', {
           subtitleId: state.context.subtitleId,

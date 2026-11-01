@@ -4,6 +4,7 @@ import com.jlas.auth.security.CurrentUser;
 import com.jlas.shadowing.dto.PronunciationAssessmentDto;
 import com.jlas.shadowing.service.AzurePronunciationAssessmentService;
 import com.jlas.shadowing.service.PronunciationAttemptService;
+import com.jlas.shadowing.service.PronunciationQuotaService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,18 +22,37 @@ import org.springframework.web.multipart.MultipartFile;
 public class PronunciationAssessmentController {
     private final AzurePronunciationAssessmentService assessmentService;
     private final PronunciationAttemptService attemptService;
+    private final PronunciationQuotaService quotaService;
 
     public PronunciationAssessmentController(AzurePronunciationAssessmentService assessmentService,
-                                             PronunciationAttemptService attemptService) {
+                                             PronunciationAttemptService attemptService,
+                                             PronunciationQuotaService quotaService) {
         this.assessmentService = assessmentService;
         this.attemptService = attemptService;
+        this.quotaService = quotaService;
     }
 
+    /**
+     * Chấm một câu. Hết lượt miễn phí trong ngày thì trả 402 PRONUNCIATION_QUOTA_EXCEEDED; trang hỏi người học rồi
+     * gửi lại với {@code useCredit=true} để trả bằng CP. Lần chấm lỗi được hoàn lượt hoặc CP.
+     */
     @PostMapping(value = "/assess", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PronunciationAssessmentDto assess(
             @RequestParam Long subtitleId,
-            @RequestParam("audio") MultipartFile audio) {
-        return assessmentService.assess(subtitleId, audio);
+            @RequestParam("audio") MultipartFile audio,
+            @RequestParam(value = "useCredit", defaultValue = "false") boolean useCredit) {
+        PronunciationQuotaService.Charge charge = quotaService.reserve(CurrentUser.requireUserId(), useCredit);
+        try {
+            return assessmentService.assess(subtitleId, audio);
+        } catch (RuntimeException failure) {
+            quotaService.release(charge);
+            throw failure;
+        }
+    }
+
+    @GetMapping("/quota")
+    public PronunciationQuotaService.Status quota() {
+        return quotaService.status(CurrentUser.requireUserId());
     }
 
     @GetMapping("/attempts/latest")
