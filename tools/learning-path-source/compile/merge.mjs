@@ -3,6 +3,7 @@
 // supply content and may lower an item's level. Each item lands in exactly one level: the lowest one any source gives.
 import { LEVELS, LEVEL_RANK, normalizeJapanese, sha256 } from './util.mjs';
 import { formatMeaningVi, grammarFamilyKey, normalizeGrammarPattern, wordTypeLabel } from './normalize.mjs';
+import { KANJI_READING_OVERRIDES, dictionaryCompounds, kanjiForms, wordReadings } from './kanji-readings.mjs';
 
 const HAS_KANJI = /[一-龯々]/;
 const JAPANESE = /[ぁ-ゖァ-ヺ一-龯々]/;
@@ -267,6 +268,16 @@ function kanjiItems({ frames, jlasLevels, dictionary }, level, vocabPool) {
     for (const f of frames[l]?.kanji ?? []) take(f.character).mirai.push({ level: l, order: f.order });
     for (const k of jlasLevels[l]?.kanji ?? []) take(k.character).jlas.push({ level: l, ...k });
   }
+  // Forms the other kanji of a word may take, from the dictionary readings (or the override table).
+  const formsByChar = new Map();
+  const neighbours = c => {
+    if (!formsByChar.has(c)) {
+      const d = dictionary.kanjiByChar.get(c);
+      const r = d?.readings_on?.length || d?.readings_kun?.length ? { on: d.readings_on, kun: d.readings_kun } : KANJI_READING_OVERRIDES[c];
+      formsByChar.set(c, r ? kanjiForms(r.on, r.kun) : null);
+    }
+    return formsByChar.get(c);
+  };
   const out = [];
   for (const [ch, g] of byChar) {
     const dict = dictionary.kanjiByChar.get(ch) ?? null;
@@ -274,30 +285,33 @@ function kanjiItems({ frames, jlasLevels, dictionary }, level, vocabPool) {
     if (lvl !== level) continue;
     const j = g.jlas.sort((a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level])[0] ?? null;
     const hv = String(j?.han_viet ?? dict?.han_viet ?? '').split(/[,、/;]/).map(s => s.trim()).filter(Boolean);
-    const on = (j?.readings_on?.length ? j.readings_on : dict?.readings_on) ?? [];
-    const kun = (j?.readings_kun?.length ? j.readings_kun : dict?.readings_kun) ?? [];
+    let on = (j?.readings_on?.length ? j.readings_on : dict?.readings_on) ?? [];
+    let kun = (j?.readings_kun?.length ? j.readings_kun : dict?.readings_kun) ?? [];
+    if (!on.length && !kun.length && KANJI_READING_OVERRIDES[ch]) ({ on, kun } = KANJI_READING_OVERRIDES[ch]);
     const words = vocabPool.filter(v => v.expression.includes(ch));
-    const matchesReading = (r, isOn) => {
-      if (isOn) { const kana = normalizeJapanese(r).replace(/[-.]/g, ''); return w => w.normalized_reading.includes(kana); }
-      const [stem, okuri = ''] = r.replace(/^-|-$/g, '').split('.');
-      return w => w.normalized_reading.includes(stem + okuri) && (!okuri || w.expression.includes(ch + okuri));
-    };
     const readings = [...on.map(r => [normalizeJapanese(r), r, true]), ...kun.map(r => [r, r, false])];
+    // No level word is written with the kanji (九, 七 at N5): common dictionary words stand in for compounds and readings.
+    const dictWords = words.length ? [] : dictionaryCompounds(dictionary, ch, e => wordReadings([e], ch, readings, neighbours).length > 0);
+    const readingWords = words.length ? words : dictWords;
     const levelReadings = [], compounds = [];
-    for (const [label, raw, isOn] of readings) {
-      const w = words.find(matchesReading(raw, isOn));
+    const used = wordReadings(readingWords, ch, readings, neighbours);
+    for (const [index, [label]] of readings.entries()) {
+      const w = used.find(([, at]) => at === index)?.[0];
       if (!w) continue;
       if (!levelReadings.includes(label)) levelReadings.push(label);
-      if (!compounds.includes(w.id)) compounds.push(w.id);
+      if (words.length && !compounds.includes(w.id)) compounds.push(w.id);
     }
     for (const w of words) if (compounds.length < 5 && !compounds.includes(w.id)) compounds.push(w.id);
+    // Words read only as a whole (昨日 きのう, 果物 くだもの) use no reading of the kanji: the card shows its first reading.
+    let readingsSource = levelReadings.length ? (words.length ? 'LEVEL_WORDS' : 'DICTIONARY_WORDS') : null;
+    if (!levelReadings.length && readingWords.length && readings.length) { levelReadings.push(readings[0][0]); readingsSource = 'FIRST_READING'; }
     const meanings = j?.reviewed_meaning_vi ? [j.reviewed_meaning_vi] : j?.meanings_vi?.length ? j.meanings_vi : [dict?.meaning_vi];
     out.push({ mirai: g.mirai.find(m => m.level === level) ?? null, position: j?.position ?? 1, item: {
       id: `JK-${hexOf(ch)}`, level, character: ch, han_viet: hv[0] ?? null, han_viet_alt: hv.slice(1),
       meanings_vi: formatMeaningVi(meanings), readings_on: on, readings_kun: kun, level_readings: levelReadings,
       stroke_count: j?.stroke_count ?? dict?.stroke_count ?? null, radical: dict?.radical ?? null, frequency: null,
-      compound_ids: compounds.slice(0, 5), mnemonic_vi: null, order: 0, status: 'DRAFT',
-      provenance: { frame: g.mirai.length ? 'MIRAI' : null,
+      compound_ids: compounds.slice(0, 5), dictionary_compounds: dictWords, mnemonic_vi: null, order: 0, status: 'DRAFT',
+      provenance: { frame: g.mirai.length ? 'MIRAI' : null, level_readings_source: readingsSource,
         sources: ['MIRAI', 'JLAS', 'DICTIONARY'].filter(s => s === 'MIRAI' ? g.mirai.length : s === 'JLAS' ? g.jlas.length : !!dict),
         meaning_source: j?.reviewed_meaning_vi ? 'JLAS_REVIEWED' : j?.meanings_vi?.length ? 'JLAS' : dict?.meaning_vi ? 'DICTIONARY' : null } } });
   }
