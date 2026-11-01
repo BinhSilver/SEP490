@@ -106,7 +106,7 @@ const reviewContext = {
     ...Object.fromEntries(Object.keys(BANK).map(f => [f, g[f] ?? []])) })
 };
 
-const lockedFields = x => Object.entries(SOURCE_OF).filter(([f, src]) => f in x && /REVIEWED/.test(x.provenance?.[src] ?? '')).map(([f]) => f);
+const lockedFields = x => Object.entries(SOURCE_OF).filter(([f, src]) => f !== 'examples' && f in x && /REVIEWED/.test(x.provenance?.[src] ?? '')).map(([f]) => f);
 
 // extra(kind, item) adds what the item alone does not carry (dictionary meaning, check findings, spelling twins).
 export function buildReviewPackets(level, { size = 40, sizeByKind = { REVIEW_GRAMMAR: 10 }, extra = () => ({}) } = {}) {
@@ -188,14 +188,19 @@ function addExamples(item, examples, max) {
   item.provenance.example_source = item.examples[0].source;
 }
 
+const reviewed = source => /REVIEWED/.test(source ?? '');
+
 function applyFix(item, field, value) {
-  if (/REVIEWED/.test(item.provenance?.[SOURCE_OF[field]] ?? '')) return;
+  if (field !== 'examples' && reviewed(item.provenance?.[SOURCE_OF[field]])) return;
   if (field === 'meaning_vi' || field === 'meanings_vi') { item[field] = formatMeaningVi([].concat(value)); item.provenance.meaning_source = 'CLAUDE'; }
   else if (field === 'examples') {
     if (!Array.isArray(value) || !value.length) return;
-    item.examples = value.filter(e => e?.ja).slice(0, 3).map((e, i) => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null, vi: e.vi ?? null,
-      source: 'CLAUDE', role: i === 0 ? 'MAIN' : 'EXTRA' }));
-    item.provenance.example_source = 'CLAUDE';
+    // Reviewed sentences stay (first); the review's own sentences replace the rest.
+    const kept = item.examples.filter(e => reviewed(e.source));
+    const fresh = value.filter(e => e?.ja && !kept.some(k => k.ja === e.ja)).map(e => ({ ja: e.ja, ja_furigana: e.ja_furigana ?? null,
+      vi: e.vi ?? null, source: 'CLAUDE' }));
+    item.examples = [...kept, ...fresh].slice(0, 3).map((e, i) => ({ ...e, role: i === 0 ? 'MAIN' : 'EXTRA' }));
+    item.provenance.example_source = item.examples[0]?.source ?? null;
   } else if (field === 'expression' || field === 'reading') {
     item[field] = value;
     item[`normalized_${field}`] = normalizeJapanese(value);
