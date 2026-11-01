@@ -2,12 +2,14 @@ package com.jlas.moderation.credit.service;
 
 import com.jlas.auth.entity.User;
 import com.jlas.auth.repository.UserRepository;
+import com.jlas.auth.service.PremiumAccess;
 import com.jlas.common.event.CreditEarned;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import com.jlas.moderation.repository.UserCreditTransactionRepository;
 import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,14 +22,22 @@ public class UserCreditService implements UserCreditPort {
     private final UserCreditTransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher events;
+    private final CreditEarnCapProperties earnCap;
 
     public record CreditTransactionView(Long id, int amount, String reason,
                                         String referenceType, Long referenceId,
                                         String note, LocalDateTime createdAt) {
     }
 
-    /** Outcome of a ledger write; {@code applied} is false when the same reference was already recorded. */
-    public record CreditResult(boolean applied, long balance) {
+    /**
+     * Outcome of a ledger write; {@code applied} is false when the same reference was already recorded.
+     * {@code amount} is what actually moved: an earn can be cut below the request (even to 0) by the daily earn cap.
+     */
+    public record CreditResult(boolean applied, long balance, int amount) {
+    }
+
+    /** CP earned today from capped study rewards, against today's cap (Free and Pro caps differ). */
+    public record EarnCapStatus(long earnedToday, int dailyCap) {
     }
 
     @Override
@@ -49,9 +59,24 @@ public class UserCreditService implements UserCreditPort {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public EarnCapStatus earnCapStatus(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "User not found"));
+        return new EarnCapStatus(earnedToday(userId), dailyCap(user, LocalDateTime.now()));
+    }
+
+    /** Positive ledger entries for {@code reason} since midnight, e.g. word contributions already paid today. */
+    @Transactional(readOnly = true)
+    public long countEarnedToday(Long userId, CreditReason reason) {
+        LocalDateTime from = LocalDate.now().atStartOfDay();
+        return transactionRepository.countEarnedBetween(userId, reason.name(), from, from.plusDays(1));
+    }
+
     /**
      * The only way to add credits. Calls with the same (reason, referenceType, referenceId) are applied
      * once: the user row lock serialises the duplicate check and uk_credit_transaction_reference backs it up.
+     * Study rewards are cut to what is left of today's earn cap; a reward cut to 0 writes nothing.
      */
     @Transactional
     public CreditResult earn(Long userId, int amount, CreditReason reason,
@@ -59,14 +84,18 @@ public class UserCreditService implements UserCreditPort {
         if (amount <= 0) throw new ApiException(ErrorCode.BAD_REQUEST, "Earn amount must be > 0");
         User user = lockUser(userId);
         if (isDuplicate(userId, reason, referenceType, referenceId)) {
-            return new CreditResult(false, user.getCreditBalance());
+            return new CreditResult(false, user.getCreditBalance(), 0);
         }
-        user.setCreditBalance(Math.addExact(user.getCreditBalance(), amount));
+        int granted = capped(user, amount, reason, referenceType);
+        if (granted == 0) {
+            return new CreditResult(true, user.getCreditBalance(), 0);
+        }
+        user.setCreditBalance(Math.addExact(user.getCreditBalance(), granted));
         userRepository.save(user);
-        saveTransaction(user, amount, reason, referenceType, referenceId, note);
-        events.publishEvent(new CreditEarned(userId, amount, reason.name(), referenceType, referenceId, note,
+        saveTransaction(user, granted, reason, referenceType, referenceId, note);
+        events.publishEvent(new CreditEarned(userId, granted, reason.name(), referenceType, referenceId, note,
                 user.getCreditBalance()));
-        return new CreditResult(true, user.getCreditBalance());
+        return new CreditResult(true, user.getCreditBalance(), granted);
     }
 
     /** The only way to remove credits; idempotent per reference like {@link #earn}. */
@@ -76,7 +105,7 @@ public class UserCreditService implements UserCreditPort {
         if (amount <= 0) throw new ApiException(ErrorCode.BAD_REQUEST, "Spend amount must be > 0");
         User user = lockUser(userId);
         if (isDuplicate(userId, reason, referenceType, referenceId)) {
-            return new CreditResult(false, user.getCreditBalance());
+            return new CreditResult(false, user.getCreditBalance(), 0);
         }
         if (user.getCreditBalance() < amount) {
             throw new ApiException(ErrorCode.INSUFFICIENT_CREDIT,
@@ -85,7 +114,7 @@ public class UserCreditService implements UserCreditPort {
         user.setCreditBalance(Math.subtractExact(user.getCreditBalance(), amount));
         userRepository.save(user);
         saveTransaction(user, -amount, reason, referenceType, referenceId, note);
-        return new CreditResult(true, user.getCreditBalance());
+        return new CreditResult(true, user.getCreditBalance(), -amount);
     }
 
     /**
@@ -110,6 +139,26 @@ public class UserCreditService implements UserCreditPort {
         saveTransaction(user, applied, applied > 0 ? gainReason : lossReason,
                 "MODERATION_REVISION", revisionId, note);
         return applied;
+    }
+
+    private int capped(User user, int amount, CreditReason reason, String referenceType) {
+        if (!earnCap.cappedReasons().contains(reason.name())
+                || (referenceType != null && earnCap.exemptReferenceTypes().contains(referenceType))) {
+            return amount;
+        }
+        long left = dailyCap(user, LocalDateTime.now()) - earnedToday(user.getId());
+        return (int) Math.max(0, Math.min(amount, left));
+    }
+
+    private long earnedToday(Long userId) {
+        LocalDateTime from = LocalDate.now().atStartOfDay();
+        // An empty NOT IN list is invalid JPQL; no reference type is ever named "-".
+        List<String> exempt = earnCap.exemptReferenceTypes().isEmpty() ? List.of("-") : earnCap.exemptReferenceTypes();
+        return transactionRepository.earnedBetween(userId, earnCap.cappedReasons(), exempt, from, from.plusDays(1));
+    }
+
+    private int dailyCap(User user, LocalDateTime now) {
+        return PremiumAccess.isActive(user, now) ? earnCap.proDaily() : earnCap.freeDaily();
     }
 
     private User lockUser(Long userId) {
