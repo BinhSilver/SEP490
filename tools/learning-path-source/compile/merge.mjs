@@ -82,7 +82,7 @@ function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiM
   };
   for (const level of LEVELS) {
     for (const f of frames[level]?.vocabulary ?? []) add({ src: 'MIRAI', level, expression: f.expression, reading: f.reading,
-      ...identityByForm.get(`${f.expression}|${f.reading}`), order: f.order, topic_key: f.topic_key, topic_vi: f.topic_vi, mirai_ref: f.mirai_ref });
+      ...identityByForm.get(`${f.expression}|${f.reading}`), listed: [f.expression, f.reading], order: f.order, topic_key: f.topic_key, topic_vi: f.topic_vi, mirai_ref: f.mirai_ref });
     // A reviewed spelling/reading fix (悪い read "悪い" → わるい) applies before grouping so the word meets its twins.
     for (const v of jlasLevels[level]?.vocabulary ?? []) add({ src: 'JLAS', level, id: v.id, expression: v.expression,
       reading: v.reading, ...identity.get(v.id), meanings: v.meanings_vi ?? [], example_ja: v.example_ja, example_vi: v.example_vi,
@@ -178,12 +178,12 @@ function vocabularyExamples(members, vnjpclub) {
 }
 
 // Every id a group answers to before same-word verdicts join groups: its own id, its J-LAS ids, and the id each Mirai
-// word would have alone. Verdicts name groups by these ids; the ids a joined group no longer uses become aliases.
+// word would have alone (as listed and as corrected). Verdicts name groups by these ids; the ids a joined group no longer uses become aliases.
 function joinGroups(groups, sameWord) {
   const keys = lexemeKeys(groups);
   const idsOf = groups.map((g, i) => { const { jlas, mirai } = sortedMembers(g);
     return [jlas[0]?.id ?? `JV-${sha256(`LP|${keys[i]}`).slice(0, 10)}`, ...jlas.map(m => m.id),
-      ...mirai.map(m => `JV-${sha256(`LP|${m.ne}|${m.nr}`).slice(0, 10)}`)]; });
+      ...mirai.flatMap(m => [[m.ne, m.nr], m.listed.map(normalizeJapanese)]).map(([e, r]) => `JV-${sha256(`LP|${e}|${r}`).slice(0, 10)}`)]; });
   const owner = new Map();
   idsOf.forEach((ids, i) => ids.forEach(id => { if (!owner.has(id)) owner.set(id, i); }));
   const parent = groups.map((_, i) => i);
