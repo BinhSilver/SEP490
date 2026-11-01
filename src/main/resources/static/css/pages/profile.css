@@ -188,6 +188,128 @@
   transition: width 0.3s ease;
 }
 
+/* Mức sử dụng hôm nay (js/pages/profile-usage.js): một dòng mỗi hạn mức, thanh đỏ khi đã hết lượt miễn phí. */
+.profile-usage__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.profile-usage__balance {
+  color: var(--color-secondary);
+  font-size: var(--text-sm);
+}
+
+.profile-usage__row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-outline-variant, rgba(0, 0, 0, 0.08));
+}
+
+.profile-usage__row:last-of-type {
+  border-bottom: 0;
+}
+
+.profile-usage__line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.profile-usage__bar {
+  height: 6px;
+  margin-top: 6px;
+  background: var(--color-surface-high);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.profile-usage__fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.profile-usage__fill.is-full {
+  background: var(--color-error, #ba1a1a);
+}
+
+.profile-usage__detail {
+  margin: 4px 0 0;
+  color: var(--color-secondary);
+  font-size: 12px;
+}
+
+.profile-usage__upgrade {
+  margin-top: var(--space-3);
+}
+
+/* Popup trong trang hồ sơ: "Mức sử dụng" (menu) và "Khung avatar & màu tên" (nút "Đổi khung viền" dưới tên). */
+.profile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.profile-modal[hidden] {
+  display: none;
+}
+
+.profile-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.profile-modal__dialog {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  margin: 0;
+}
+
+.profile-modal__dialog--wide {
+  width: min(760px, 100%);
+}
+
+.profile-modal__head {
+  align-items: center;
+}
+
+.profile-modal__close {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: var(--radius-full);
+  color: var(--color-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.profile-card__head--actions .profile-modal__close {
+  margin-left: 0;
+}
+
+.profile-modal__close:hover {
+  background: var(--color-surface-high);
+}
+
+.profile-sidebar__frame-btn {
+  margin: 4px auto 0;
+}
+
 .profile-nav {
   display: flex;
   flex-direction: column;
