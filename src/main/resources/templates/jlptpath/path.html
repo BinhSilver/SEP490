@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Temporary JLPT path shell (Task 7); the path page itself replaces it. -->
+<head th:replace="~{fragments/head :: standard('Lộ trình JLPT - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets(null)}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page" data-inline-dictionary
+      th:attr="data-jpath-tab=${jpathTab},data-jpath-topic=${jpathTopic}">
+    <section class="jp-state" role="status">
+        <h1>Đang tải lộ trình</h1>
+    </section>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

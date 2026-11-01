@@ -1,7 +1,11 @@
 package com.jlas.learning.controller;
 
+import com.jlas.auth.security.UserPrincipal;
+import com.jlas.jlptpath.service.JpathEntryRoute;
+import com.jlas.jlptpath.service.JpathEntryRouter;
 import com.jlas.learning.config.InteractiveLearningV2Properties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LearningPathPageController {
     private final InteractiveLearningV2Properties interactiveV2Properties;
+    /** [JLAS-W0108] JLPT-goal learners use the topic-based JLPT path instead of this one. */
+    private final JpathEntryRouter jpathEntryRouter;
 
     @GetMapping("/learning/notebook")
     public String weaknessNotebook(Model model) {
@@ -20,18 +26,23 @@ public class LearningPathPageController {
         return "learning/weakness-notebook";
     }
 
-    /** The Smart Test handoff without entry answers. */
+    /** The Smart Test handoff without entry answers and without a signed-in learner. */
     public String learningPath(Model model, Long assessmentAttemptId, String reviewStartLevel, String discrepancyChoice) {
-        return learningPath(model, assessmentAttemptId, reviewStartLevel, discrepancyChoice, null, null);
+        return learningPath(null, model, assessmentAttemptId, reviewStartLevel, discrepancyChoice, null, null);
     }
 
     @GetMapping("/learning/path")
-    public String learningPath(Model model,
+    public String learningPath(@AuthenticationPrincipal UserPrincipal principal, Model model,
             @RequestParam(required = false) Long assessmentAttemptId,
             @RequestParam(required = false) String reviewStartLevel,
             @RequestParam(required = false) String discrepancyChoice,
             @RequestParam(required = false) String kanaKnown,
             @RequestParam(required = false) String entryChoice) {
+        if (jpathEntryRouter.route(userId(principal)) != JpathEntryRoute.LEGACY) {
+            // [JLAS-W0108] The JLPT path confirms a Smart Test result on its own entry page.
+            return assessmentAttemptId == null ? "redirect:/learning"
+                    : "redirect:/learning/jlpt/confirm?source=SMART_TEST&assessmentAttemptId=" + assessmentAttemptId;
+        }
         if (interactiveV2Properties.isEnabled()) {
             if (assessmentAttemptId == null) return "redirect:/learning/path/v2";
             String redirect = "redirect:/learning/path/v2?assessmentAttemptId=" + assessmentAttemptId;
@@ -52,7 +63,8 @@ public class LearningPathPageController {
     }
 
     @GetMapping("/learning/path/v2")
-    public String interactiveLearningPath(Model model) {
+    public String interactiveLearningPath(@AuthenticationPrincipal UserPrincipal principal, Model model) {
+        if (jpathEntryRouter.route(userId(principal)) == JpathEntryRoute.JPATH_PAGE) return "redirect:/learning";
         model.addAttribute("layoutMode", "app");
         return "learning/interactive-path";
     }
@@ -112,5 +124,9 @@ public class LearningPathPageController {
         model.addAttribute("layoutMode", "app");
         model.addAttribute("comprehensionKind", "listening");
         return "learning/interactive-comprehension-study";
+    }
+
+    private static Long userId(UserPrincipal principal) {
+        return principal == null ? null : principal.userId();
     }
 }
