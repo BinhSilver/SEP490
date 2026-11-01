@@ -31,4 +31,6 @@ public class VideoSummaryDto {
     private Long ownerId;
     private String visibility;
     private boolean ownedByMe;
+    /** Lần gần nhất người dùng mở video này; chỉ có ở tab Lịch sử. */
+    private LocalDateTime viewedAt;
 }

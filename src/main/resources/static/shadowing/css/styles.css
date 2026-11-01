@@ -4448,3 +4448,34 @@ html[data-theme="dark"] .btn-recording {
 .badge-genre { background: transparent; color: var(--color-text-secondary); box-shadow: inset 0 0 0 1px var(--color-border); }
 .video-card-genres { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .video-card-genres .badge { white-space: nowrap; }
+
+/* "Lịch sử" tab: one heading per day of visits and a clear-all button; newest visit first. */
+.video-grid > .history-day {
+    grid-column: 1 / -1;
+    margin: 8px 0 -4px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+.video-grid > .history-day:first-child { margin-top: 0; }
+.history-clear-btn {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px;
+    color: inherit;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: .8;
+    cursor: pointer;
+}
+.history-clear-btn[hidden] { display: none; }
+.history-clear-btn:hover { color: var(--red); opacity: 1; }

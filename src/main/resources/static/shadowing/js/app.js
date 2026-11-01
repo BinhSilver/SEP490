@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!videoIdInput) return;
 
     const videoId = videoIdInput.value;
+    // Lịch sử: mở trình phát một video là một lần ghé (bỏ qua khi chưa đăng nhập hay lỗi mạng).
+    fetch('/api/videos/' + encodeURIComponent(videoId) + '/visit', { method: 'POST', headers: headers() }).catch(() => {});
     const playerContainer = document.getElementById('player-container');
     const video = document.getElementById('main-video');
     const subtitleList = document.getElementById('subtitle-list');

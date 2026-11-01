@@ -56,6 +56,7 @@ public class VideoService {
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
     @Autowired private VideoViewRepository videoViews;
+    @Autowired private com.jlas.common.history.ViewHistoryRepository viewHistory;
     @Autowired private ShadowingLibraryCatalog libraryCatalog;
     @Autowired private ShadowingVideoTags videoTags;
     @Autowired private ShadowingQuestionBankRepository questionBank;
@@ -361,15 +362,36 @@ public class VideoService {
             String sort, String scope, String status, boolean favorites, int page, int size) {
         Long me = CurrentUser.currentUserId().orElse(null);
         String client = me == null ? null : String.valueOf(me);
+        Map<Long, LocalDateTime> viewed = "history".equals(scope) && me != null
+                ? viewHistory.recent(me, com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO) : Map.of();
         return libraryCatalog.videos(query, category, genre, level, sort, scope, status, favorites, me, page, size)
                 .map(entry -> {
                     VideoSummaryDto dto = getSummary(entry.id(), client);
+                    dto.setViewedAt(viewed.get(entry.id()));
                     dto.setAvgRating(entry.metrics().ratingCount() > 0 ? entry.metrics().averageRating() : null);
                     dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().ratingCount()));
                     dto.setViewCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().views()));
                     dto.setEstimatedLevel(entry.level());
                     return dto;
                 });
+    }
+
+    /** Lịch sử: người đã đăng nhập mở trang luyện một video có thật thì ghi lại lần ghé. */
+    public void recordVisit(Long videoId) {
+        CurrentUser.currentUserId().filter(me -> videoRepository.existsById(videoId))
+                .ifPresent(me -> viewHistory.record(me, com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO, videoId));
+    }
+
+    public void removeHistory(Long videoId) {
+        viewHistory.remove(requireLogin(), com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO, videoId);
+    }
+
+    public void clearHistory() {
+        viewHistory.clear(requireLogin(), com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO);
+    }
+
+    private static Long requireLogin() {
+        return CurrentUser.currentUserId().orElseThrow(() -> new ApiException(ErrorCode.UNAUTHORIZED, "Vui lòng đăng nhập"));
     }
 
     private static boolean isPublicReady(Video v) {

@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/flashcard/styles.css" />
   <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261014-srs-due" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261029-no-dock" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261030-history" />
   <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261025-review-tab" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -34,6 +34,7 @@
         <a data-sidebar-tab="my" href="/flashcard/library.html?tab=my"><i class="fa-regular fa-folder-open"></i> Bộ thẻ của tôi</a>
         <a data-sidebar-tab="review" href="/flashcard/library.html?tab=review"><i class="fa-regular fa-calendar-check"></i> Ôn hôm nay <span class="fc-srs-due-badge" id="srs-due-badge" hidden></span></a>
         <a data-sidebar-tab="favorites" href="/flashcard/library.html?tab=favorites"><i class="fa-regular fa-heart"></i> Yêu thích</a>
+        <a data-sidebar-tab="history" href="/flashcard/library.html?tab=history"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử</a>
       </nav>
       <section id="folder-panel" class="folder-panel" hidden>
         <div class="folder-panel__heading">
@@ -47,11 +48,12 @@
     </aside>
     <section class="container library-content">
       <div class="lib-toolbar" aria-label="Tìm kiếm và sắp xếp">
-        <label class="input-wrap lib-search" for="lib-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" />
-          <span class="sr-only">Tìm bộ thẻ</span>
-        </label>
+        <!-- Searches on Enter or the button only, not on every keystroke. -->
+        <form class="input-wrap lib-search" id="lib-search-form" role="search">
+          <label class="sr-only" for="lib-search">Tìm bộ thẻ</label>
+          <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" enterkeyhint="search" />
+          <button type="submit" class="lib-search__submit" aria-label="Tìm" title="Tìm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        </form>
         <label class="lib-sort-field" for="lib-sort">
           <span>Sắp xếp</span>
           <select id="lib-sort" class="field-select" aria-label="Sắp xếp">
@@ -69,6 +71,7 @@
           <option value="my">Bộ thẻ của tôi</option>
           <option value="favorites">Yêu thích</option>
           <option value="review">Ôn hôm nay</option>
+          <option value="history">Lịch sử</option>
         </select>
         <details id="lib-folder-filter" class="lib-folder-dropdown">
           <summary aria-label="Lọc theo thư mục"><i class="fa-regular fa-folder" aria-hidden="true"></i><span id="lib-folder-label">Thư mục của tôi</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
@@ -145,6 +148,7 @@
           <h2 id="library-heading"><span class="library-results-heading__icon"><i class="fa-solid fa-fire"></i></span> Đang thịnh hành</h2>
           <p id="library-subheading" hidden>Khám phá các bộ thẻ được cộng đồng JLAS sử dụng nhiều.</p>
         </div>
+        <button type="button" class="lib-history-clear" id="lib-history-clear" hidden><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Xoá toàn bộ lịch sử</button>
         <a class="btn btn--primary btn-primary library-create-btn" href="/flashcard/editor.html" aria-label="Tạo bộ thẻ" title="Tạo bộ thẻ"><i class="fa-solid fa-plus" aria-hidden="true"></i><span> Tạo bộ thẻ</span></a>
       </div>
       <div id="lib-grid" class="lib-grid" aria-live="polite"></div>
@@ -254,6 +258,6 @@
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/srs-review.js?v=20261014-srs"></script>
   <script src="/flashcard/js/review-page.js?v=20261025-review-tab"></script>
-  <script src="/flashcard/js/library-page.js?v=20261025-favorite"></script>
+  <script src="/flashcard/js/library-page.js?v=20261030-history"></script>
 </body>
 </html>

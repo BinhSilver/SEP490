@@ -92,6 +92,25 @@ public class VideoController {
         }
     }
 
+    /** Trang luyện vừa mở video này: ghi vào Lịch sử của người đang đăng nhập. */
+    @PostMapping("/{id}/visit")
+    public ResponseEntity<Void> visit(@PathVariable Long id) {
+        videoService.recordVisit(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/history/{id}")
+    public ResponseEntity<Void> removeHistory(@PathVariable Long id) {
+        videoService.removeHistory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/history")
+    public ResponseEntity<Void> clearHistory() {
+        videoService.clearHistory();
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideo(@PathVariable Long id) {
         return ResponseEntity.ok(videoService.getVideo(id));
