@@ -73,8 +73,32 @@
     var response = window.JlasAuth && window.JlasAuth.authFetch
       ? await window.JlasAuth.authFetch(url, options || {}) : await fetch(url, options || {});
     var payload = await response.json();
-    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể tra từ lúc này.');
+    if (!response.ok || !payload.success) {
+      var error = new Error(payload.message || 'Không thể tra từ lúc này.');
+      error.code = payload.code;
+      throw error;
+    }
     return payload.data;
+  }
+
+  /**
+   * Hết lượt tra từ nhanh: báo trước số CP sẽ trừ và số dư sau khi mua, hoặc số CP còn thiếu.
+   * {@code allowance} is GET /api/dictionary/inline/allowance.
+   */
+  function paywallMarkup(allowance) {
+    var price = allowance.packPrice;
+    var balance = allowance.creditBalance;
+    var enough = balance >= price;
+    var detail = enough
+      ? 'Mua ' + allowance.packLookups + ' lượt tra: <strong>' + price + ' CP</strong>. Số dư: ' + balance + ' CP → ' + (balance - price) + ' CP.'
+      : 'Mua ' + allowance.packLookups + ' lượt tra cần ' + price + ' CP. Bạn có ' + balance + ' CP, còn thiếu <strong>' + (price - balance) + ' CP</strong>.';
+    var buy = enough
+      ? '<button type="button" data-inline-buy>Mua ' + allowance.packLookups + ' lượt (' + price + ' CP)</button>'
+      : '<a href="/profile">Nạp CP</a>';
+    return '<div class="inline-dict__paywall"><strong>Bạn đã hết lượt tra từ nhanh</strong><p>' + detail + '</p>' +
+      '<p class="inline-dict__hint">Tài khoản Pro tra từ không giới hạn. Tra lại một từ trong cùng ngày không tốn lượt.</p></div>' +
+      '<div class="inline-dict__actions">' + buy + '<a href="/profile?tab=premium">Nâng cấp Pro</a></div>' +
+      '<p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 
   function ensurePopup() {
@@ -89,6 +113,8 @@
     popup.tabIndex = -1;
     document.body.appendChild(popup);
     popup.addEventListener('click', function (event) {
+      var buyButton = event.target.closest('[data-inline-buy]');
+      if (buyButton) { buyPack(buyButton); return; }
       var notebookButton = event.target.closest('[data-inline-notebook-open]');
       if (notebookButton) { openNotebooks(notebookButton); return; }
       var save = event.target.closest('[data-inline-save]');
@@ -266,26 +292,58 @@
 
   function close() { if (popup) popup.hidden = true; }
 
+  // The text and place of the lookup that hit the paywall, retried after buying a pack.
+  var pendingLookup = null;
+
+  function showPanel(markup, rect) {
+    var panel = ensurePopup();
+    // In native fullscreen (Shadowing focus mode) only the fullscreen element renders.
+    var host = document.fullscreenElement || document.body;
+    if (panel.parentNode !== host) host.appendChild(panel);
+    panel.innerHTML = markup; panel.hidden = false; position(rect);
+    panel.focus({ preventScroll: true });
+    return panel;
+  }
+
+  async function lookupText(text, rect) {
+    var current = ++requestNumber;
+    try {
+      var word = await request('/api/dictionary/inline?q=' + encodeURIComponent(text));
+      if (current !== requestNumber) return;
+      var panel = showPanel(popupMarkup(word), rect);
+      var saveButton = panel.querySelector('[data-inline-save]');
+      saveButton.serverSaved = word.saved === true;
+    } catch (error) {
+      if (current !== requestNumber || error.code !== 'QUICK_LOOKUP_EXHAUSTED') { close(); return; }
+      try {
+        var allowance = await request('/api/dictionary/inline/allowance');
+        if (current !== requestNumber) return;
+        pendingLookup = { text: text, rect: rect };
+        showPanel(paywallMarkup(allowance), rect);
+      } catch (ignored) { close(); }
+    }
+  }
+
+  async function buyPack(button) {
+    var status = popup.querySelector('.inline-dict__status');
+    button.disabled = true;
+    try {
+      await request('/api/dictionary/inline/pack', { method: 'POST' });
+      if (pendingLookup) await lookupText(pendingLookup.text, pendingLookup.rect);
+      pendingLookup = null;
+    } catch (error) {
+      button.disabled = false;
+      if (status) status.textContent = error.message;
+    }
+  }
+
   async function lookupSelection() {
     var selection = window.getSelection && window.getSelection();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
     var text = normalizeSelection(rangeText(selection.getRangeAt(0)));
     var node = selection.anchorNode && (selection.anchorNode.nodeType === 3 ? selection.anchorNode.parentElement : selection.anchorNode);
     if (!isEligibleNode(node, text)) return;
-    var rect = selection.getRangeAt(0).getBoundingClientRect();
-    var current = ++requestNumber;
-    try {
-      var word = await request('/api/dictionary/inline?q=' + encodeURIComponent(text));
-      if (current !== requestNumber) return;
-      var panel = ensurePopup();
-      // In native fullscreen (Shadowing focus mode) only the fullscreen element renders.
-      var host = document.fullscreenElement || document.body;
-      if (panel.parentNode !== host) host.appendChild(panel);
-      panel.innerHTML = popupMarkup(word); panel.hidden = false; position(rect);
-      var saveButton = panel.querySelector('[data-inline-save]');
-      saveButton.serverSaved = word.saved === true;
-      panel.focus({ preventScroll: true });
-    } catch (error) { close(); }
+    await lookupText(text, selection.getRangeAt(0).getBoundingClientRect());
   }
 
   // Clicks and keys inside the popup (e.g. "Lưu từ") must not look the still-selected text up again:
@@ -309,5 +367,5 @@
   }
 
   return { escapeHtml: escapeHtml, normalizeSelection: normalizeSelection, rangeText: rangeText, isEligibleNode: isEligibleNode,
-    popupMarkup: popupMarkup, saveButtonMarkup: saveButtonMarkup, syncSaved: syncSaved, setSaved: setSaved, mount: mount };
+    popupMarkup: popupMarkup, paywallMarkup: paywallMarkup, saveButtonMarkup: saveButtonMarkup, syncSaved: syncSaved, setSaved: setSaved, mount: mount };
 });
