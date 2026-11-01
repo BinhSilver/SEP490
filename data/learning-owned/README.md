@@ -12,7 +12,7 @@ The four N3 draft-review checkpoints from `outputs/2026-10-12-owned-draft-review
 
 The `n1_grammar_review_draft` section preserves the N1 reviewer packets and draft bundle with their checksums. Its scratch-only SQL can be regenerated from the stored bundle with `renderSeed(bundle, { publish: false })`; the section's `draft_seed_sha256` guards the result. This is not an approved N1 release.
 
-The `n2_grammar_review_draft` section preserves the eight N2 v2 reviewer JSON files. Its SQL is included in `sql/seeds/learning_owned.sql` and is not separately applied from `outputs/`.
+The `n2_grammar_review_draft` section preserves the eight N2 v2 reviewer JSON files. Its SQL is included in `sql/learning/learning_data.sql` and is not separately applied from `outputs/`.
 
 The `historical_context_candidates` section preserves the four files from the superseded direct-content experiment byte-for-byte, including its inactive seed SQL. This archive is not part of the import sequence; current content uses `supplement_selection` and the v14 review bundle.
 
@@ -24,7 +24,7 @@ The `source_aligned_pilot_archive` section preserves the unpublished reading/lis
 
 The `supplement_selection` section is the source of the current v14 Vocabulary/Grammar supplement. The v9–v13 generated bundles were intermediate correction runs: compared with v14, they differ only in version, corrected vocabulary fields, canonical review status, and catalog hold flags. The old expected values and replacements that matter for regeneration are recorded in `supplement_selection.vocabulary_corrections`; the current generated v14 bundle is retained for review and tests. Intermediate seeds must not be applied over the current bundle.
 
-`learning-content.json` is the single task-owned JSON source. On a DB using the current canonical schema, apply `sql/migrations/022_learning_owned_consolidated.sql` and then `sql/seeds/learning_owned.sql` followed by `sql/seeds/learning_owned_part2.sql` (one seed split under GitHub's 50 MB limit) after the normal base seeds on an explicitly selected DB, following a verified backup/restore. The pre-V2 schema upgrade is consolidated in `sql/migrations/004_interactive_learning_path_v2_consolidated.sql`; do not run it on a current-schema DB or after any old 004-012/014-015 migration. These files do not replace the shared `jlas_schema.sql` or source-team seeds. On 2026-10-15 the local web DB received an independent owned Sekai N4 copy and 12 sourced N4 Kanji questions; the source book and learner-progress signature stayed unchanged.
+`learning-content.json` is the single task-owned JSON source. On a DB using the current canonical schema, apply `sql/learning/learning_schema.sql` and then `sql/learning/learning_data.sql` (the one schema file and the one data file of the Learning flow, owner 2026-11-01) after the normal base seeds on an explicitly selected DB, following a verified backup/restore. The former pre-V2 upgrade (old migration 004) is part B of `learning_schema.sql`, guarded so it is safe on any schema state. These files do not replace the shared `jlas_schema.sql` or source-team seeds. On 2026-10-15 the local web DB received an independent owned Sekai N4 copy and 12 sourced N4 Kanji questions; the source book and learner-progress signature stayed unchanged.
 
 The `availability` field is a gate ledger, not a promise of full coverage. Status rechecked 2026-10-18:
 

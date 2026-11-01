@@ -29,20 +29,18 @@ that continues after SQL errors.
 ## Existing database
 
 Back up the exact database and verify the backup before writes. Prefer a narrowly
-scoped, rerunnable backfill over a full seed. See `LEARNING_OWNED_DB_SEED.md` for
-the task-owned learning-content checkpoint and preconditions.
+scoped, rerunnable backfill over a full seed.
 
-The Learning-owned SQL has one legacy schema-upgrade file, one current incremental
-migration, and one data seed split in two files (each under GitHub's 50 MB limit). For a
-database already built from the current canonical schema, apply
-`migrations/022_learning_owned_consolidated.sql`, then `seeds/learning_owned.sql` and
-`seeds/learning_owned_part2.sql`, in that order, after the normal base seeds. For a database from the
-pre-V2 schema only, `migrations/004_interactive_learning_path_v2_consolidated.sql`
-contains the former owned forward steps 004-012 and 014-015; never run that file
-on a current-schema database or one where any of those old migrations already ran.
-The current migration includes the former colliding `021_jlpt_mock_attempt.sql` change;
-the seed contains the task-owned content sections in one file. These do not replace
-full-app setup or the digitization team's final seed. Verify the current migration/seed with
+## Learning flow (`learning/`)
+
+The Learning flow (Smart Test survey, learning path, goal curriculum, jpath) keeps
+exactly two SQL files: `learning/learning_schema.sql` (every Learning table, column,
+index, FK and CHECK; re-runnable, upgrades older Learning tables in place) and
+`learning/learning_data.sql` (every Learning seed row; re-runnable). Run the schema,
+then the data, after the normal base seeds. They replace the former Learning
+migrations 004-012, 014, 015, 022 and seeds `learning_owned.sql` /
+`learning_owned_part2.sql`. New Learning tables and data go into these two files, not
+into `migrations/` or `seeds/`. See `learning/README.md`; verify with
 `node tools/learning-data-extract/verify_learning_sql.mjs`.
 
 The Learning practice/source holding tables and their seeds are included in

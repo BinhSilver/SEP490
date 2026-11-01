@@ -88,7 +88,7 @@ Bằng chứng chạy và tồn đọng nằm trong execution ledger, không dù
     N5, N5→N4, N3 đều đủ trên `jlas`, **owner bật ENFORCE (OD-48)**: `application.yaml` đặt
     `learning.interactive-v2.readiness-gate: ${LEARNING_READINESS_GATE:ENFORCE}` (mã nguồn vẫn mặc định REPORT để test tự chọn).
     Chỉ áp cho path JLPT tạo mới; path đã có và goal giao tiếp không đổi. Trang lộ trình hiện đúng câu "cấp … còn thiếu …".
-    DB nào chưa áp `learning_owned.sql` mới (khối Speed N3) sẽ bị chặn tạo path N3. Ma trận N5–N1 đã có trong code nhưng N2/N1
+    DB nào chưa áp `sql/learning/learning_data.sql` mới (khối Speed N3) sẽ bị chặn tạo path N3. Ma trận N5–N1 đã có trong code nhưng N2/N1
     chỉ mở cùng dữ liệu đủ kỹ năng.
   - Triển khai 2026-10-20 (OD-44, §2.28): chặng N3 dùng thêm giáo trình J-LAS "Tiếng Nhật N3" (sách nguồn lộ trình, vẫn DRAFT)
     qua `DraftStudySourcePolicy` — không đổi trạng thái sách/bài; chương hiện "Giáo trình chưa duyệt — nội dung đang được rà soát.";
@@ -480,7 +480,7 @@ cấp**. Không thêm ngưỡng điểm mới — chỉ dùng nhãn và luật b
   soát (OD-21). Ghi nguồn bằng trang nguồn + dòng nguồn tại chỗ (OD-40). Phần cần soạn thêm do AI tạo, phải khớp canonical trong DB
   (OD-06); Đọc N5/N4 dùng Speed Master N5/N4 kèm bài đọc AI bổ sung có nhãn (OD-08). Audio Sekai gắn nhãn "giọng đọc tổng hợp"
   khi chưa chứng minh là ghi âm (OD-10). Bài quy tắc Kana vào FOUNDATION với nhãn bổ sung (OD-33).
-- File data chuẩn: `data/learning-owned/learning-content.json`; SQL task-owned được áp theo thứ tự `sql/migrations/022_learning_owned_consolidated.sql` rồi `sql/seeds/learning_owned.sql` và `sql/seeds/learning_owned_part2.sql` (E5 28/10: một seed tách 2 file, mỗi file < 45 MB, nạp đúng thứ tự; `verify_learning_sql.mjs` kiểm cả hai và chặn file vượt 45 MB). Snapshot nguồn có trong file không chứng minh đã map và mở học runtime.
+- File data chuẩn: `data/learning-owned/learning-content.json`; SQL của luồng Learning gồm đúng 2 file (owner 01/11): `sql/learning/learning_schema.sql` rồi `sql/learning/learning_data.sql` (thay migration 022 + 2 phần seed E5; `verify_learning_sql.mjs` kiểm cả hai, chặn file data vượt 95 MB; xem `sql/learning/README.md`). Snapshot nguồn có trong file không chứng minh đã map và mở học runtime.
 - Sách J-LAS tổng hợp (owner 2026-10-24, D3-04/05/10): mỗi cấp một sách Learning-owned `LP-OWNED-JLAS-{L}-COMPILED` gộp mọi
   sách của cấp, chống trùng theo kỹ năng, dễ → khó, sách nguồn chỉ là provenance (không hiện nhãn). Dữ liệu: mục
   `jlas_compiled_book_{l}`; SQL: `build_jlas_compiled_books_sql.mjs` (N5/N4/N3; N2/N1 sau). Id theo dải riêng mỗi cấp
