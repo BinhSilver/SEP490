@@ -10,13 +10,13 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261029-topic-popup')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261031-pro-cp')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261030-merge)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261031-pro-cp)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261011-flush-corner')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -402,6 +402,10 @@
     <div class="modal-body">
       <p id="quotaMessage" class="muted">Bạn đã dùng hết thời lượng hội thoại miễn phí hôm nay.</p>
       <ul class="quota-usage" id="quotaUsage"></ul>
+      <label class="quota-auto" id="quotaAutoWrap" hidden>
+        <input type="checkbox" id="quotaAutoCredit">
+        <span>Tự dùng CP cho các lượt sau trong cuộc gọi này (tối đa <span id="quotaAutoCap">100</span> CP)</span>
+      </label>
       <div class="quota-actions">
         <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden><i class="fa-solid fa-coins"></i> Dùng CP cho lượt này</button>
         <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Xem lịch sử CP</button>
@@ -422,11 +426,11 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
-<script defer th:src="@{/js/inline-dictionary.js(v=20261030-merge)}"></script>
+<script defer th:src="@{/js/inline-dictionary.js(v=20261031-pro-cp)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261029-topic-popup')}"></script>
+<script th:src="@{/js/conversation.js(v='20261031-pro-cp')}"></script>
 <script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
 </body>
 </html>

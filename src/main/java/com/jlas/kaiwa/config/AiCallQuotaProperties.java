@@ -15,10 +15,10 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  */
 @ConfigurationProperties(prefix = "aicall.quota")
 public record AiCallQuotaProperties(
-        @DefaultValue("5") double freeDailyMinutes,
-        @DefaultValue("300") double freeMonthlyMinutes,
-        @DefaultValue("30") double premiumDailyMinutes,
-        @DefaultValue("0") double premiumMonthlyMinutes,
+        @DefaultValue("3") double freeDailyMinutes,
+        @DefaultValue("15") double freeMonthlyMinutes,
+        @DefaultValue("10") double premiumDailyMinutes,
+        @DefaultValue("40") double premiumMonthlyMinutes,
         @DefaultValue("0.2") double minutesPerTurn,
-        @DefaultValue("5") int creditPerTurn) {
+        @DefaultValue("10") int creditPerTurn) {
 }
