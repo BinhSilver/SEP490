@@ -23,7 +23,7 @@ public class ContentComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK. */
+    /** FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK/VOCABULARY/KANJI. */
     @Column(name = "target_type", nullable = false, length = 30)
     private String targetType;
 

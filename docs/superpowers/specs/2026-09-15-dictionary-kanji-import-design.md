@@ -266,7 +266,7 @@ than represented as passed.
 
 ```text
 jlas_schema.sql
-sql/migrations/004_dictionary_import_metadata.sql
+sql/migrations/058_dictionary_import_metadata.sql
 scripts/dictionary_import/import_data.py
 scripts/dictionary_import/requirements.txt
 scripts/dictionary_import/jlas_import/__init__.py

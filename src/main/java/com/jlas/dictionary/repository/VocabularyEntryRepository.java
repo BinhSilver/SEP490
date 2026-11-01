@@ -15,17 +15,15 @@ import java.util.Optional;
 /**
  * Repository cho {@link VocabularyEntry}.
  *
- * <p>Các cột tiếng Nhật (normalized_expression, normalized_reading) và toàn bộ schema JLAS2-19
- * đều dùng collation {@code utf8mb4_unicode_ci} (mặc định toàn dự án). Collation này coi các cặp
- * thanh/trọc/bán trọc âm (は/ば/ぱ, か/が, た/だ...) là tương đương khi so sánh chuỗi, nên so khớp
- * mặc định có thể lẫn "はは" với "ばば". Các query tra cứu chính xác/prefix theo Kanji/Kana dưới
- * đây ép {@code COLLATE utf8mb4_bin} ngay tại câu query (không đổi collation cột/schema) để so
- * khớp đúng byte, còn romaji/meaning (ASCII/Latin) không bị ảnh hưởng nên giữ derived query.</p>
+ * <p>Collation mặc định {@code utf8mb4_unicode_ci} coi các cặp thanh/trọc/bán trọc âm (は/ば/ぱ,
+ * か/が...) là tương đương, nên có thể lẫn "はは" với "ばば". Từ migration 059, cột
+ * normalized_expression/normalized_reading dùng {@code utf8mb4_0900_as_cs} (accent/case-sensitive),
+ * phân biệt dakuten. Các query dưới đây so sánh trực tiếp, không ép {@code COLLATE}, để dùng
+ * index uk_vocabulary_normalized.
+ * Romaji/nghĩa (Latin) giữ collation không phân biệt hoa/thường.</p>
  *
- * <p>Ngoại lệ có chủ ý: {@link #searchForEditor} (tìm từ để gắn vào bài ở màn biên soạn) giữ so khớp
- * mặc định trên cột {@code expression} / {@code reading}, vì bỏ qua dakuten (バス = パス) ở đây là
- * điểm lợi: người biên soạn gõ thiếu dấu đục vẫn tìm ra từ. Kiểm trùng khi ghi thì phải so khớp đúng
- * byte như các query tra cứu chính xác ở trên.</p>
+ * <p>Editor search uses the default collation of expression/reading, so a missing dakuten can
+ * still return a useful match; duplicate checks use the accent- and case-sensitive normalized columns.</p>
  */
 @Repository
 public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry, Long> {
@@ -37,7 +35,7 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
     List<VocabularyEntry> findByIdIn(List<Long> ids);
 
     /**
-     * Kiểm trùng trước khi tạo từ mới. Cố ý so sánh bằng collation của chính cột (KHÔNG ép utf8mb4_bin)
+     * Kiểm trùng trước khi tạo từ mới. Cố ý so sánh bằng collation của chính cột (KHÔNG ép COLLATE tường minh)
      * để kết quả trùng khớp đúng với cách uk_vocabulary_normalized đánh giá hai giá trị là bằng nhau.
      */
     @Query(value = "select * from vocabulary_entry "
@@ -55,49 +53,97 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
     List<Object[]> findReadingsByNormalizedExpressions(@Param("expressions") Collection<String> normalizedExpressions);
 
     @Query(value = "select * from vocabulary_entry "
-            + "where normalized_expression collate utf8mb4_bin = :expression "
-            + "and dictionary_status = :status limit 1", nativeQuery = true)
+            + "where normalized_expression = :expression "
+            + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByNormalizedExpressionAndDictionaryStatus(
             @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
-            + "where normalized_expression collate utf8mb4_bin = :expression "
+            + "where normalized_expression in (:expressions) "
+            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(
+            @Param("expressions") Collection<String> normalizedExpressions, @Param("status") String dictionaryStatus);
+
+    @Query(value = "select * from vocabulary_entry "
+            + "where normalized_expression = :expression "
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionAndDictionaryStatusOrderByIdAsc(
             @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
-            + "where normalized_expression collate utf8mb4_bin like concat(:prefix, '%') "
+            + "where normalized_expression like concat(:prefix, '%') "
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionStartingWithAndDictionaryStatusOrderByIdAsc(
             @Param("prefix") String normalizedExpressionPrefix, @Param("status") String dictionaryStatus,
             Pageable pageable);
 
     @Query(value = "select * from vocabulary_entry "
-            + "where normalized_expression collate utf8mb4_bin like concat('%', :infix, '%') "
+            + "where normalized_expression like concat('%', :infix, '%') "
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionContainingAndDictionaryStatusOrderByIdAsc(
             @Param("infix") String normalizedExpressionInfix, @Param("status") String dictionaryStatus,
             Pageable pageable);
 
     @Query(value = "select * from vocabulary_entry "
-            + "where normalized_reading collate utf8mb4_bin = :reading "
-            + "and dictionary_status = :status limit 1", nativeQuery = true)
+            + "where normalized_reading = :reading "
+            + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByNormalizedReadingAndDictionaryStatus(
             @Param("reading") String normalizedReading, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
-            + "where normalized_reading collate utf8mb4_bin like concat(:prefix, '%') "
+            + "where normalized_reading like concat(:prefix, '%') "
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedReadingStartingWithAndDictionaryStatusOrderByIdAsc(
             @Param("prefix") String normalizedReadingPrefix, @Param("status") String dictionaryStatus,
             Pageable pageable);
 
+    // reading_romaji dùng collation unicode_ci (vốn không phân biệt hoa/thường) nên so sánh trực
+    // tiếp để MySQL dùng index idx_vocabulary_romaji; derived query "IgnoreCase" sinh upper(...)
+    // làm mất index và quét toàn bảng.
+    @Query(value = "select * from vocabulary_entry where reading_romaji = :romaji "
+            + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByReadingRomajiIgnoreCaseAndDictionaryStatus(
-            String readingRomaji, String dictionaryStatus);
+            @Param("romaji") String readingRomaji, @Param("status") String dictionaryStatus);
 
+    @Query(value = "select * from vocabulary_entry where reading_romaji like concat(:prefix, '%') "
+            + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByReadingRomajiStartingWithIgnoreCaseAndDictionaryStatusOrderByIdAsc(
-            String readingRomajiPrefix, String dictionaryStatus, Pageable pageable);
+            @Param("prefix") String readingRomajiPrefix, @Param("status") String dictionaryStatus,
+            Pageable pageable);
+
+    /**
+     * Âm Hán Việt của cả từ, so khớp đúng dấu tiếng Việt nhưng không phân biệt hoa/thường
+     * ({@code utf8mb4_0900_as_ci}); điều kiện {@code han_viet = :value} theo collation cột
+     * (unicode_ci, bỏ dấu) chỉ để dùng index idx_vocabulary_han_viet rồi lọc lại đúng dấu.
+     */
+    @Query(value = "select * from vocabulary_entry "
+            + "where han_viet = :value and han_viet collate utf8mb4_0900_as_ci = :value "
+            + "and dictionary_status = 'PUBLISHED' order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findByHanViet(@Param("value") String hanViet, Pageable pageable);
+
+    /** Từ loại của các mục có normalized_expression nằm trong {@code terms} (kiểm tra thể từ điển). */
+    @Query(value = "select e.id as vocabularyId, e.normalized_expression as term, p.code as partOfSpeech "
+            + "from vocabulary_entry e join vocabulary_sense s on s.vocabulary_id = e.id "
+            + "join sense_part_of_speech sp on sp.sense_id = s.id "
+            + "join dictionary_part_of_speech p on p.id = sp.part_of_speech_id "
+            + "where e.normalized_expression in (:terms) and e.dictionary_status = 'PUBLISHED' "
+            + "order by e.id asc", nativeQuery = true)
+    List<PartOfSpeechRow> findPartsOfSpeechByExpressionIn(@Param("terms") Collection<String> terms);
+
+    /** Như {@link #findPartsOfSpeechByExpressionIn} nhưng so với normalized_reading (query kana). */
+    @Query(value = "select e.id as vocabularyId, e.normalized_reading as term, p.code as partOfSpeech "
+            + "from vocabulary_entry e join vocabulary_sense s on s.vocabulary_id = e.id "
+            + "join sense_part_of_speech sp on sp.sense_id = s.id "
+            + "join dictionary_part_of_speech p on p.id = sp.part_of_speech_id "
+            + "where e.normalized_reading in (:terms) and e.dictionary_status = 'PUBLISHED' "
+            + "order by e.id asc", nativeQuery = true)
+    List<PartOfSpeechRow> findPartsOfSpeechByReadingIn(@Param("terms") Collection<String> terms);
+
+    interface PartOfSpeechRow {
+        Long getVocabularyId();
+        String getTerm();
+        String getPartOfSpeech();
+    }
 
     List<VocabularyEntry> findByMeaningContainingAndDictionaryStatusOrderByIdAsc(
             String meaningInfix, String dictionaryStatus, Pageable pageable);

@@ -489,7 +489,7 @@ CREATE TABLE radical (
 -- khong tron vao bang cach doc tieng Nhat.
 CREATE TABLE kanji (
     id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, -- Khoa chinh Kanji.
-    `character`    VARCHAR(8) NOT NULL,                      -- Ky tu Kanji duy nhat, vi du 間.
+    `character`    VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, -- Ky tu Kanji duy nhat, vi du 間.
     unicode_code   VARCHAR(10) NOT NULL,                     -- Ma Unicode, vi du 9593.
     radical_id     SMALLINT UNSIGNED NULL,                   -- FK -> radical.id; bo thu chinh.
     stroke_count   TINYINT UNSIGNED NULL,                    -- Tong so net cua Kanji.
@@ -536,6 +536,38 @@ CREATE TABLE kanji_reading (
         CHECK (reading_type IN ('ON','KUN','NANORI','OTHER'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Bo phan dung de tra Kanji theo bo thu (multi-radical lookup, du lieu RADKFILE cua EDRDG).
+-- `character` la glyph hien thi (vi du 亻); source_character la ky tu RADKFILE dung thay khi
+-- glyph khong co trong JIS (vi du 化 cho 亻).
+-- Quan he: kanji (N) <-> (N) kanji_component qua kanji_component_map.
+CREATE TABLE kanji_component (
+    id               SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `character`      VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    source_character VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    stroke_count     TINYINT UNSIGNED NOT NULL,
+    radical_id       SMALLINT UNSIGNED NULL,       -- Bo thu Khang Hi tuong ung (lay ten tieng Viet).
+    display_order    SMALLINT UNSIGNED NOT NULL,   -- Thu tu trong RADKFILE (theo so net).
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_kanji_component_character (`character`),
+    UNIQUE KEY uk_kanji_component_source (source_character),
+    KEY idx_kanji_component_order (stroke_count, display_order),
+    CONSTRAINT fk_kanji_component_radical FOREIGN KEY (radical_id)
+        REFERENCES radical(id) ON DELETE SET NULL,
+    CONSTRAINT chk_kanji_component_strokes CHECK (stroke_count > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Kanji chua bo phan nao. Tra nhieu bo phan = giao cac tap kanji_id.
+CREATE TABLE kanji_component_map (
+    kanji_id     BIGINT UNSIGNED NOT NULL,
+    component_id SMALLINT UNSIGNED NOT NULL,
+    PRIMARY KEY (kanji_id, component_id),
+    KEY idx_kanji_component_map_component (component_id, kanji_id),
+    CONSTRAINT fk_kanji_component_map_kanji FOREIGN KEY (kanji_id)
+        REFERENCES kanji(id) ON DELETE CASCADE,
+    CONSTRAINT fk_kanji_component_map_component FOREIGN KEY (component_id)
+        REFERENCES kanji_component(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Tu hoan chinh; reading la cach doc CHINH va la nguon furigana uu tien.
 -- Quan he:
 --   vocabulary_entry (1) -> (N) vocabulary_reading: cac cach doc khac.
@@ -556,6 +588,7 @@ CREATE TABLE vocabulary_entry (
     -- ha = ba = pa; unique key uk_vocabulary_normalized chan khong cho luu ca hai tu.
     normalized_reading    VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL, -- Cach doc da chuan hoa.
     reading_romaji        VARCHAR(255) NULL,                       -- Romaji cua cach doc chinh.
+    han_viet              VARCHAR(255) NULL,                       -- Am Han Viet cua ca tu, vi du THOI GIAN.
     meaning               TEXT NULL,                               -- Nghia tom tat cho noi dung giao trinh.
     word_type             VARCHAR(50) NULL,                        -- Tu loai tom tat cho giao trinh.
     jlpt_level            VARCHAR(10) NULL,                        -- Cap JLPT N5..N1.
@@ -572,6 +605,7 @@ CREATE TABLE vocabulary_entry (
     KEY idx_vocabulary_expression (normalized_expression),
     KEY idx_vocabulary_reading (normalized_reading),
     KEY idx_vocabulary_romaji (reading_romaji),
+    KEY idx_vocabulary_han_viet (han_viet),
     KEY idx_vocabulary_jlpt (jlpt_level),
     CONSTRAINT chk_vocabulary_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')),
@@ -789,6 +823,34 @@ CREATE TABLE vocabulary_external_reference (
         REFERENCES dictionary_source(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE vocabulary_antonym (
+    id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    vocabulary_id    BIGINT UNSIGNED NOT NULL,
+    antonym_text     VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    antonym_reading  VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    antonym_sense    INT NULL,
+    source_id        BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_vocabulary_antonym (vocabulary_id, antonym_text, antonym_reading),
+    KEY idx_vocabulary_antonym_source (source_id),
+    CONSTRAINT fk_vocabulary_antonym_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_antonym_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE vocabulary_pitch_accent (
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    accents       VARCHAR(50) NOT NULL,
+    source_id     BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (vocabulary_id),
+    KEY idx_vocabulary_pitch_accent_source (source_id),
+    CONSTRAINT fk_vocabulary_pitch_accent_vocabulary FOREIGN KEY (vocabulary_id)
+        REFERENCES vocabulary_entry(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vocabulary_pitch_accent_source FOREIGN KEY (source_id)
+        REFERENCES dictionary_source(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 INSERT INTO dictionary_source
     (code, name, source_url, license_name, license_url, is_active)
 VALUES
@@ -800,7 +862,20 @@ VALUES
      'https://www.edrdg.org/edrdg/licence.html', 1),
     ('KANJIVG', 'KanjiVG', 'https://kanjivg.tagaini.net/',
      'Creative Commons Attribution-ShareAlike 3.0',
-     'https://creativecommons.org/licenses/by-sa/3.0/', 1);
+     'https://creativecommons.org/licenses/by-sa/3.0/', 1),
+    ('MAZII_VI', 'Tu dien Nhat - Viet (Mazii, ban Yomitan)',
+     'https://github.com/Buiduyanh20/yomitan-japanese-vietnamese-dictionary',
+     NULL, NULL, 1),
+    ('KANJIDICT_VN', 'Tu dien Han Nom (KanjiDictVN)',
+     'https://github.com/trungnt2910/KanjiDictVN',
+     NULL, NULL, 1),
+    ('RADKFILE', 'RADKFILE/KRADFILE', 'https://www.edrdg.org/krad/kradinf.html',
+     'Creative Commons Attribution-ShareAlike 4.0',
+     'https://www.edrdg.org/edrdg/licence.html', 1),
+    ('UNIDIC_CWJ', '現代書き言葉UniDic 2025.12', 'https://clrd.ninjal.ac.jp/unidic/',
+     'GPL-2.0 / LGPL-2.1 / BSD-3-Clause', NULL, 1),
+    ('KANJIUM', 'Kanjium', 'https://github.com/mifunetoshiro/kanjium',
+     'CC BY-SA 4.0', 'https://creativecommons.org/licenses/by-sa/4.0/', 1);
 
 -- Lich su tra cuu dung chung cho moi truy van tu dien.
 -- Khi user chon Kanji/tu trong hop nhan dien, frontend xoa net ve, dua gia tri
@@ -2742,7 +2817,7 @@ CREATE TABLE user_notification (
 
 CREATE TABLE content_comment (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK.
+    target_type VARCHAR(30) NOT NULL,       -- FLASHCARD_SET/VIDEO/LESSON/SCENARIO/TEXTBOOK/VOCABULARY/KANJI.
     target_id   BIGINT UNSIGNED NOT NULL,
     user_id     BIGINT UNSIGNED NOT NULL,
     content     TEXT NOT NULL,
@@ -2756,7 +2831,21 @@ CREATE TABLE content_comment (
     CONSTRAINT fk_content_comment_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_content_comment_target_type
-        CHECK (target_type IN ('FLASHCARD_SET','VIDEO','LESSON','SCENARIO','TEXTBOOK'))
+        CHECK (target_type IN ('FLASHCARD_SET','VIDEO','LESSON','SCENARIO','TEXTBOOK','VOCABULARY','KANJI'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE content_comment_vote (
+    comment_id BIGINT UNSIGNED NOT NULL,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    vote       TINYINT NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (comment_id, user_id),
+    KEY idx_content_comment_vote_user (user_id),
+    CONSTRAINT fk_content_comment_vote_comment FOREIGN KEY (comment_id)
+        REFERENCES content_comment(id) ON DELETE CASCADE,
+    CONSTRAINT fk_content_comment_vote_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_content_comment_vote CHECK (vote IN (-1, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ban dich ben vung cua cau user nhap tu do; khong phai cache TTL.

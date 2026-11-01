@@ -15,13 +15,20 @@ from .parsers import iter_jmdict, iter_kanjidic2, iter_kanjivg
 from .pipeline import ImportMetadata, ImportPipeline, sanitize_error
 from .reporting import JsonlReportWriter
 from .store import MySqlDictionaryStore
+from .radk import iter_radkfile
+from .yomitan import iter_kanjidict_vn, iter_mazii_vi
 
 
 _SOURCE_CODES = {
     "jmdict": "JMDICT",
     "kanjidic2": "KANJIDIC2",
     "kanjivg": "KANJIVG",
+    "mazii-vi": "MAZII_VI",
+    "kanjidict-vn": "KANJIDICT_VN",
+    "radkfile": "RADKFILE",
 }
+# Yomitan dictionaries may be given as an extracted folder or the ZIP archive.
+_DIRECTORY_SOURCES = {"kanjivg", "mazii-vi", "kanjidict-vn"}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -38,6 +45,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--svg-uri-prefix", default="/kanjivg/kanji", help="KanjiVG URI prefix"
+    )
+    parser.add_argument(
+        "--all-kanji",
+        action="store_true",
+        help="kanjidic2 only: import every character, not just Joyo",
+    )
+    parser.add_argument(
+        "--variants-file",
+        help="kanjidict-vn only: KANJIDIC2 XML whose variant links fill meanings "
+        "listed only under the traditional form (駅 -> 驛)",
+    )
+    parser.add_argument(
+        "--pos-file",
+        help="mazii-vi only: Yomitan JMdict (Vietnamese) folder/ZIP used for parts of speech",
     )
     return parser
 
@@ -60,8 +81,19 @@ def main(
     if not input_path.exists():
         print("error: input path does not exist", file=err)
         return 2
-    if args.source != "kanjivg" and not input_path.is_file():
-        print("error: JMdict and KANJIDIC2 input must be a file", file=err)
+    if args.source not in _DIRECTORY_SOURCES and not input_path.is_file():
+        print("error: JMdict, KANJIDIC2 and RADKFILE input must be a file", file=err)
+        return 2
+    if args.pos_file and (args.source != "mazii-vi" or not Path(args.pos_file).exists()):
+        print("error: --pos-file must exist and is only valid for mazii-vi", file=err)
+        return 2
+    if args.all_kanji and args.source != "kanjidic2":
+        print("error: --all-kanji is only valid for kanjidic2", file=err)
+        return 2
+    if args.variants_file and (
+        args.source != "kanjidict-vn" or not Path(args.variants_file).is_file()
+    ):
+        print("error: --variants-file must exist and is only valid for kanjidict-vn", file=err)
         return 2
     if args.chunk_size <= 0:
         print("error: chunk size must be positive", file=err)
@@ -90,6 +122,13 @@ def main(
 
     try:
         checksum = compute_checksum(input_path)
+        for extra_input in (args.pos_file, args.variants_file):
+            if extra_input:
+                checksum = hashlib.sha256(
+                    (checksum + compute_checksum(extra_input)).encode("ascii")
+                ).hexdigest()
+        if args.all_kanji:
+            checksum = hashlib.sha256((checksum + ":all-kanji").encode("ascii")).hexdigest()
     except OSError as error:
         print(
             f"error: cannot read input: {sanitize_error(error, secrets)}", file=err
@@ -107,7 +146,7 @@ def main(
             charset="utf8mb4",
             autocommit=False,
         )
-        records = _records(args.source, input_path, args.svg_uri_prefix)
+        records = _records(args.source, input_path, args.svg_uri_prefix, args)
         metadata = ImportMetadata(
             source_code=_SOURCE_CODES[args.source],
             source_version=args.source_version or input_path.name,
@@ -144,11 +183,17 @@ def main(
             connection.close()
 
 
-def _records(source: str, input_path: Path, svg_uri_prefix: str):
+def _records(source: str, input_path: Path, svg_uri_prefix: str, args=None):
     if source == "jmdict":
         return iter_jmdict(input_path)
     if source == "kanjidic2":
-        return iter_kanjidic2(input_path)
+        return iter_kanjidic2(input_path, getattr(args, "all_kanji", False))
+    if source == "mazii-vi":
+        return iter_mazii_vi(input_path, getattr(args, "pos_file", None))
+    if source == "kanjidict-vn":
+        return iter_kanjidict_vn(input_path, getattr(args, "variants_file", None))
+    if source == "radkfile":
+        return iter_radkfile(input_path)
     return iter_kanjivg(input_path, svg_uri_prefix)
 
 

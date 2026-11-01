@@ -12,7 +12,11 @@ public class VocabularyResponse {
     private String expression;
     private String reading;
     private String readingRomaji;
-    /** Nghĩa tóm tắt cho nội dung giáo trình; có thể null với vocabulary thuần DICTIONARY. */
+    private Integer pitchAccent;
+    private String pitchAccentSource;
+    /** Âm Hán Việt của cả từ; null nếu nguồn không có. */
+    private String hanViet;
+    /** Nghĩa tóm tắt (giáo trình hoặc vài nghĩa đầu của từ điển Nhật-Việt). */
     private String meaning;
     private String wordType;
     private String jlptLevel;
@@ -24,4 +28,5 @@ public class VocabularyResponse {
     private List<SenseResponse> senses;
     /** Các Kanji cấu thành expression, theo đúng vị trí ký tự. */
     private List<KanjiCompositionResponse> kanjiComposition;
+    private List<AntonymResponse> antonyms;
 }

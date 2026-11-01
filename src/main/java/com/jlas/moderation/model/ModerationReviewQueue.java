@@ -35,6 +35,9 @@ public class ModerationReviewQueue {
     @Column(name = "owner_user_id")
     private Long ownerUserId;
 
+    @Column(name = "requester_user_id")
+    private Long requesterUserId;
+
     @Column(name = "title_snapshot", length = 255)
     private String titleSnapshot;
 
