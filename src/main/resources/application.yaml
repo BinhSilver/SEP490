@@ -286,6 +286,17 @@ learning:
     # Owner decision 2026-10-06 (option A): the JLPT module from develop is a self-assessment link, not a gate.
     destination-url: ${LEARNING_MOCK_TEST_DESTINATION_URL:/jlpt}
     approved-origins: ${LEARNING_MOCK_TEST_APPROVED_ORIGINS:}
+  # [JLAS-W0108] Lộ trình JLPT theo chủ đề. Tắt = /learning về lộ trình cũ, không đụng dữ liệu cũ.
+  jlpt-path:
+    enabled: ${LEARNING_JLPT_PATH_ENABLED:false}
+    # CHỈ dùng thử local (jlas_mirai): hiện cả mục DRAFT khi nội dung chưa qua bộ kiểm. Không bao giờ bật ở bản chính.
+    preview-draft: ${LEARNING_JLPT_PATH_PREVIEW_DRAFT:false}
+    force-released-levels: ${LEARNING_JLPT_PATH_FORCE_RELEASED:}
+    audio-base-url: /uploads/content-audio/
+    reminder:
+      job-enabled: ${LEARNING_JLPT_PATH_REMINDER_JOB:true}
+      email-enabled: ${LEARNING_JLPT_PATH_REMINDER_EMAIL:false}
+      default-time: "20:00"
 assessment:
   jlpt:
     # [JLAS-W0108] Mock Test policy versions whose attempt snapshots may complete a learning path.

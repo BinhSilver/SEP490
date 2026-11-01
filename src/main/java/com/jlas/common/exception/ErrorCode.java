@@ -44,6 +44,30 @@ public enum ErrorCode {
     BLOCKED_CONTENT(HttpStatus.UNPROCESSABLE_ENTITY, "Chưa có đủ học liệu cho cấp độ này"),
     /** [JLAS-W0108] A legacy issued quiz has no immutable passage/audio snapshot and cannot be replayed safely. */
     SOURCE_SNAPSHOT_UNAVAILABLE(HttpStatus.CONFLICT, "Lượt học cũ không có bản nguồn để ôn lại an toàn"),
+    // [JLAS-W0108] Lộ trình JLPT theo chủ đề (module jlptpath).
+    JPATH_DISABLED(HttpStatus.NOT_FOUND, "Lộ trình JLPT mới chưa được bật."),
+    JPATH_NO_ACTIVE_PATH(HttpStatus.NOT_FOUND, "Bạn chưa có lộ trình JLPT."),
+    JPATH_ACTIVE_PATH_EXISTS(HttpStatus.CONFLICT, "Bạn đã có một lộ trình JLPT đang học."),
+    JPATH_LEVEL_NOT_RELEASED(HttpStatus.CONFLICT, "Cấp này sắp có, hiện chưa mở."),
+    JPATH_LEVEL_LOCKED(HttpStatus.FORBIDDEN, "Cấp này chưa mở. Hãy hoàn thành cấp hiện tại và Thi thử JLPT."),
+    JPATH_TARGET_TOO_SOON(HttpStatus.BAD_REQUEST, "Ngày thi quá gần để kịp mục tiêu này."),
+    JPATH_ADJUSTMENTS_EXHAUSTED(HttpStatus.CONFLICT, "Bạn đã dùng hết 2 lần chỉnh của cấp này."),
+    JPATH_SLIDER_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Số mục mỗi ngày nằm ngoài giới hạn cho phép."),
+    JPATH_SKILL_DAYS_INVALID(HttpStatus.BAD_REQUEST,
+            "Hãy chọn đúng 2 ngày kỹ năng và tối đa 2 ngày nghỉ, không trùng nhau."),
+    JPATH_SMART_TEST_IN_PROGRESS(HttpStatus.CONFLICT, "Bạn đang làm dở Smart Test."),
+    JPATH_RESTART_CONFIRM_MISMATCH(HttpStatus.BAD_REQUEST, "Hãy gõ đúng BẮT ĐẦU LẠI để xác nhận."),
+    JPATH_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy mục học."),
+    JPATH_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy lượt học."),
+    JPATH_CHECK_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bài kiểm tra."),
+    JPATH_CHECK_CLOSED(HttpStatus.CONFLICT, "Bài kiểm tra này đã nộp hoặc đã hết hạn."),
+    JPATH_CHECK_INCOMPLETE(HttpStatus.BAD_REQUEST, "Bạn chưa trả lời hết các câu."),
+    JPATH_REPORT_DUPLICATE(HttpStatus.CONFLICT, "Bạn đã báo sai mục này, người biên soạn đang xem."),
+    JPATH_GRAMMAR_NO_NOTEBOOK(HttpStatus.BAD_REQUEST, "Mẫu ngữ pháp không đưa vào sổ tay."),
+    JPATH_REVIEW_DAY_NOT_ALLOWED(HttpStatus.CONFLICT,
+            "Hôm nay bạn đã bắt đầu học mới, chỉ đổi sang ngày ôn được khi chưa học mục mới nào."),
+    JPATH_EXTRA_NOT_READY(HttpStatus.CONFLICT, "Xong phần hôm nay của tab này trước khi học thêm."),
+    JPATH_CONTENT_NOT_LEARNABLE(HttpStatus.CONFLICT, "Mục này chưa sẵn sàng để học."),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;
