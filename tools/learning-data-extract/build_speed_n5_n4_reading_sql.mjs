@@ -1,8 +1,9 @@
-// [JLAS-W0108] OD-08 (owner 2026-10-24): renders the Speed Master N5/N4 reading section into its learning_data.sql block.
+// [JLAS-W0108] OD-08 (owner 2026-10-24): renders the Speed Master N5/N4 reading section into the N5 and N4 data files (one block each).
 //   node tools/learning-data-extract/build_speed_n5_n4_reading_sql.mjs . [--check]
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile, levelMarker, replaceDataBlock } from './learning_data_files.mjs';
 import { CHAPTERS } from './build_speed_n5_n4_reading.mjs';
 
 const MARKER = 'data/learning-owned/learning-content.json#sections.jlpt_speed_n5_n4_reading';
@@ -52,10 +53,11 @@ function validate(section, sectionHash) {
   }
 }
 
-export function renderSpeedN5N4Sql(section, sectionHash) {
+// Owner 2026-11-01: one block per JLPT level (in learning_data_N5.sql / learning_data_N4.sql); no level renders both.
+export function renderSpeedN5N4Sql(section, sectionHash, onlyLevel = null) {
   validate(section, sectionHash);
   const lines = [
-    `-- BEGIN ${MARKER} SHA256 ${sectionHash}`,
+    `-- BEGIN ${levelMarker(MARKER, onlyLevel)} SHA256 ${sectionHash}`,
     '-- [JLAS-W0108] OD-08 (owner 2026-10-24): Speed Master N5 reading → Sekai N5 chapters 13–25, N4 → Sekai N4 chapters 26–50.',
     '-- Learning-path study material only (never Smart Test or a scored quiz); source VNJPClub, CHUA_DUYET.',
     '-- Rows dropped from the canonical set are retired first; current rows are upserted by source_code and re-activated.',
@@ -63,9 +65,10 @@ export function renderSpeedN5N4Sql(section, sectionHash) {
     `INSERT INTO tag (code,name,tag_type) VALUES (${hex(TAG)},${hex('Learning-owned Speed Master N5/N4 reading')},'KNOWLEDGE') ON DUPLICATE KEY UPDATE name=VALUES(name);`,
     // A plain ASCII literal: comparing tag.code with CONVERT(... USING utf8mb4) mixes collations in MySQL.
     `SET @owned_speed_n5n4_tag=(SELECT id FROM tag WHERE code='${TAG}' LIMIT 1);`,
-    "UPDATE assessment_question SET is_active=0 WHERE source_code LIKE 'LP-OWNED-SPEED-N5-L%' OR source_code LIKE 'LP-OWNED-SPEED-N4-L%';",
+    onlyLevel ? `UPDATE assessment_question SET is_active=0 WHERE source_code LIKE 'LP-OWNED-SPEED-${onlyLevel}-L%';`
+      : "UPDATE assessment_question SET is_active=0 WHERE source_code LIKE 'LP-OWNED-SPEED-N5-L%' OR source_code LIKE 'LP-OWNED-SPEED-N4-L%';",
   ];
-  for (const exercise of section.exercises) {
+  for (const exercise of section.exercises.filter((e) => !onlyLevel || e.level === onlyLevel)) {
     const html = exercise.text_lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('');
     for (const question of exercise.questions) {
       const context = JSON.stringify({
@@ -84,11 +87,12 @@ export function renderSpeedN5N4Sql(section, sectionHash) {
       lines.push(`INSERT INTO assessment_question (source_code,knowledge_tag_id,skill,jlpt_level,difficulty,question_type,title,passage_html,audio_url,question_text,answer_text,option_1,option_2,option_3,option_4,correct_option,explanation,context_json,is_active) VALUES (${hex(question.source_code)},@owned_speed_n5n4_tag,'READING','${exercise.level}','EASY','MULTIPLE_CHOICE',${hex(exercise.title)},${hex(html)},NULL,${hex(question.prompt)},${hex(question.answer_text)},${options.join(',')},${question.correct_option},${nullableHex(question.explanation)},${hex(context)},1) ON DUPLICATE KEY UPDATE knowledge_tag_id=VALUES(knowledge_tag_id),skill=VALUES(skill),jlpt_level=VALUES(jlpt_level),difficulty=VALUES(difficulty),question_type=VALUES(question_type),title=VALUES(title),passage_html=VALUES(passage_html),audio_url=VALUES(audio_url),question_text=VALUES(question_text),answer_text=VALUES(answer_text),option_1=VALUES(option_1),option_2=VALUES(option_2),option_3=VALUES(option_3),option_4=VALUES(option_4),correct_option=VALUES(correct_option),explanation=VALUES(explanation),context_json=VALUES(context_json),is_active=1;`);
     }
   }
-  lines.push('COMMIT;', `-- END ${MARKER}`, '');
+  lines.push('COMMIT;', `-- END ${levelMarker(MARKER, onlyLevel)}`, '');
   return lines.join('\n');
 }
 
-export function replaceSpeedN5N4Block(sql, block) {
+export function replaceSpeedN5N4Block(sql, block, level = null) {
+  if (level) return replaceDataBlock(sql, levelMarker(MARKER, level), block);
   const newline = sql.includes('\r\n') ? '\r\n' : '\n';
   const formattedBlock = block.replace(/\r?\n/g, newline);
   const begin = `-- BEGIN ${MARKER} SHA256 `;
@@ -105,17 +109,21 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const root = path.resolve(process.argv[2] ?? '.');
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const section = data.sections?.jlpt_speed_n5_n4_reading;
-  const block = renderSpeedN5N4Sql(section, data.section_sha256?.jlpt_speed_n5_n4_reading);
-  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
-  const current = await readFile(sqlPath, 'utf8');
-  const updated = replaceSpeedN5N4Block(current, block);
-  if (process.argv.includes('--check')) {
-    if (current !== updated) throw new Error('Speed Master N5/N4 SQL block is stale.');
-  } else {
-    await writeFile(sqlPath, updated, 'utf8');
+  const blocks = [];
+  for (const level of ['N5', 'N4']) {
+    const block = renderSpeedN5N4Sql(section, data.section_sha256?.jlpt_speed_n5_n4_reading, level);
+    blocks.push(block);
+    const sqlPath = learningDataFile(root, level);
+    const current = await readFile(sqlPath, 'utf8');
+    const updated = replaceSpeedN5N4Block(current, block, level);
+    if (process.argv.includes('--check')) {
+      if (current !== updated) throw new Error(`Speed Master ${level} SQL block is stale.`);
+    } else {
+      await writeFile(sqlPath, updated, 'utf8');
+    }
   }
   if (process.argv.includes('--block-out')) {
-    await writeFile(process.argv[process.argv.indexOf('--block-out') + 1], block, 'utf8');
+    await writeFile(process.argv[process.argv.indexOf('--block-out') + 1], blocks.join('\n'), 'utf8');
   }
   console.log(`Rendered ${section.counts.N5.questions + section.counts.N4.questions} Speed Master N5/N4 Learning rows.`);
 }

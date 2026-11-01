@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile } from './learning_data_files.mjs';
 
 const MARKER = 'data/learning-owned/learning-content.json#sections.jlpt_speed_n3_comprehension';
 const TAG = 'LP-OWNED-SPEED-N3-COMPREHENSION';
@@ -111,7 +112,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const section = data.sections?.jlpt_speed_n3_comprehension;
   const block = renderSpeedN3Sql(section, data.section_sha256?.jlpt_speed_n3_comprehension);
-  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
+  const sqlPath = learningDataFile(root, 'N3');
   const current = await readFile(sqlPath, 'utf8');
   const updated = replaceSpeedN3Block(current, block);
   if (process.argv.includes('--check')) {

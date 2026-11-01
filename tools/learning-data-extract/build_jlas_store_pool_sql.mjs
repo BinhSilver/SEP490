@@ -1,8 +1,9 @@
-// [JLAS-W0108] §2.32 T6 (owner 2026-10-27): renders the store pool section into its learning_data.sql block.
+// [JLAS-W0108] §2.32 T6 (owner 2026-10-27): renders the store pool section into one block per level (learning_data_N4.sql, learning_data_N3.sql).
 //   node tools/learning-data-extract/build_jlas_store_pool_sql.mjs . [--check] [--block-out file]
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile, levelMarker, replaceDataBlock } from './learning_data_files.mjs';
 
 const MARKER = 'data/learning-owned/learning-content.json#sections.jlas_store_pool';
 const TAG = 'LP-OWNED-JLAS-STORE-POOL';
@@ -38,18 +39,19 @@ function validate(section, sectionHash) {
   }
 }
 
-export function renderStorePoolSql(section, sectionHash) {
+// Owner 2026-11-01: one block per JLPT level (in learning_data_N4.sql / learning_data_N3.sql); no level renders all.
+export function renderStorePoolSql(section, sectionHash, onlyLevel = null) {
   validate(section, sectionHash);
   const lines = [
-    `-- BEGIN ${MARKER} SHA256 ${sectionHash}`,
+    `-- BEGIN ${levelMarker(MARKER, onlyLevel)} SHA256 ${sectionHash}`,
     '-- [JLAS-W0108] §2.32 T6 (owner 2026-10-27): Learning store pool — extra practice only (context_json.pool, review DRAFT);',
     '-- never a required part, Smart Test or scored quiz. Rows dropped from the section are retired, current rows upserted.',
     'START TRANSACTION;',
     `INSERT INTO tag (code,name,tag_type) VALUES (${hex(TAG)},${hex('Learning store pool (extra practice)')},'KNOWLEDGE') ON DUPLICATE KEY UPDATE name=VALUES(name);`,
     `SET @owned_store_pool_tag=(SELECT id FROM tag WHERE code='${TAG}' LIMIT 1);`,
-    "UPDATE assessment_question SET is_active=0 WHERE source_code LIKE 'LP-OWNED-JLAS-N_-POOL-%';",
+    `UPDATE assessment_question SET is_active=0 WHERE source_code LIKE 'LP-OWNED-JLAS-${onlyLevel ?? 'N_'}-POOL-%';`,
   ];
-  for (const p of section.passages) {
+  for (const p of section.passages.filter((x) => !onlyLevel || x.level === onlyLevel)) {
     const html = p.text_lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('');
     for (const q of p.questions) {
       const context = JSON.stringify({
@@ -64,11 +66,12 @@ export function renderStorePoolSql(section, sectionHash) {
       lines.push(`INSERT INTO assessment_question (source_code,knowledge_tag_id,skill,jlpt_level,difficulty,question_type,title,passage_html,audio_url,question_text,answer_text,option_1,option_2,option_3,option_4,correct_option,explanation,context_json,is_active) VALUES (${hex(q.source_code)},@owned_store_pool_tag,'READING','${p.level}','${bankDifficulty(p.labels.difficulty)}','MULTIPLE_CHOICE',${hex(p.title)},${hex(html)},NULL,${hex(q.prompt)},${hex(q.answer_text)},${options.join(',')},${q.correct_option},${hex(q.explanation)},${hex(context)},1) ON DUPLICATE KEY UPDATE knowledge_tag_id=VALUES(knowledge_tag_id),skill=VALUES(skill),jlpt_level=VALUES(jlpt_level),difficulty=VALUES(difficulty),question_type=VALUES(question_type),title=VALUES(title),passage_html=VALUES(passage_html),audio_url=VALUES(audio_url),question_text=VALUES(question_text),answer_text=VALUES(answer_text),option_1=VALUES(option_1),option_2=VALUES(option_2),option_3=VALUES(option_3),option_4=VALUES(option_4),correct_option=VALUES(correct_option),explanation=VALUES(explanation),context_json=VALUES(context_json),is_active=1;`);
     }
   }
-  lines.push('COMMIT;', `-- END ${MARKER}`, '');
+  lines.push('COMMIT;', `-- END ${levelMarker(MARKER, onlyLevel)}`, '');
   return lines.join('\n');
 }
 
-export function replaceStorePoolBlock(sql, block) {
+export function replaceStorePoolBlock(sql, block, level = null) {
+  if (level) return replaceDataBlock(sql, levelMarker(MARKER, level), block);
   const newline = sql.includes('\r\n') ? '\r\n' : '\n';
   const formattedBlock = block.replace(/\r?\n/g, newline);
   const begin = `-- BEGIN ${MARKER} SHA256 `;
@@ -85,17 +88,22 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const root = path.resolve(process.argv[2] ?? '.');
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const section = data.sections?.jlas_store_pool;
-  const block = renderStorePoolSql(section, data.section_sha256?.jlas_store_pool);
-  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
-  const current = await readFile(sqlPath, 'utf8');
-  const updated = replaceStorePoolBlock(current, block);
-  if (process.argv.includes('--check')) {
-    if (current !== updated) throw new Error('Store pool SQL block is stale.');
-  } else if (!process.argv.includes('--dry-run')) {
-    await writeFile(sqlPath, updated, 'utf8');
+  const levels = ['N5', 'N4', 'N3', 'N2', 'N1'].filter((level) => section.passages.some((p) => p.level === level));
+  const blocks = [];
+  for (const level of levels) {
+    const block = renderStorePoolSql(section, data.section_sha256?.jlas_store_pool, level);
+    blocks.push(block);
+    const sqlPath = learningDataFile(root, level);
+    const current = await readFile(sqlPath, 'utf8');
+    const updated = replaceStorePoolBlock(current, block, level);
+    if (process.argv.includes('--check')) {
+      if (current !== updated) throw new Error(`Store pool ${level} SQL block is stale.`);
+    } else if (!process.argv.includes('--dry-run')) {
+      await writeFile(sqlPath, updated, 'utf8');
+    }
   }
   if (process.argv.includes('--block-out')) {
-    await writeFile(process.argv[process.argv.indexOf('--block-out') + 1], block, 'utf8');
+    await writeFile(process.argv[process.argv.indexOf('--block-out') + 1], blocks.join('\n'), 'utf8');
   }
   console.log(`Rendered ${section.passages.reduce((n, p) => n + p.questions.length, 0)} store pool rows.`);
 }

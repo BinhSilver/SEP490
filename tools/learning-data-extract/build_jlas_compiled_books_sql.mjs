@@ -1,4 +1,4 @@
-// [JLAS-W0108] D3-04 (2026-10-24): renders each J-LAS compiled book (N5, N4, N3) into its learning_data.sql block — a
+// [JLAS-W0108] D3-04 (2026-10-24): renders each J-LAS compiled book (N5, N4, N3) into its block of learning_data_<level>.sql — a
 // Learning-owned textbook whose chapters link existing dictionary entries / Kanji, carry their own grammar points, copy the
 // dialogues of the chapter book of the same number and copy the checked Minna / Speed Master reading & listening rows.
 //   node tools/learning-data-extract/build_jlas_compiled_books_sql.mjs . [--check] [--block-out <dir>]
@@ -7,6 +7,7 @@
 import { readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile } from './learning_data_files.mjs';
 import { CHAPTERS, DIALOGUE_BOOKS } from './build_jlas_compiled_books.mjs';
 import { readLearningContent } from './learning_content_store.mjs';
 
@@ -134,12 +135,16 @@ export function renderCompiledBookSql(book, hash, level) {
   lines.push(`INSERT INTO lesson_section (id,lesson_id,title,section_type,order_index) VALUES (${id(OFFSET.section, ARCHIVE_SECTION)},`
     + `${id(OFFSET.lesson, ARCHIVE_LESSON)},${hex('Lưu trữ')},'EXPLANATION',1) ON DUPLICATE KEY UPDATE lesson_id=VALUES(lesson_id);`);
   // Park every generated row of this book; the upserts below put each current one back in its chapter.
+  // [JLAS-W0108] 2026-11-01: only rows that sit in this book are parked. Auto-increment rows inserted after this block (a
+  // higher level's data file, or any other module) can land inside the reserved id range and must never be taken over.
   const range = (offset) => `BETWEEN ${B + offset} AND ${B + offset + 99_999_999}`;
+  const bookLessons = `(SELECT l.id FROM lesson l JOIN unit u ON u.id=l.unit_id WHERE u.textbook_id=${B})`;
+  const bookSections = `(SELECT s.id FROM lesson_section s JOIN lesson l ON l.id=s.lesson_id JOIN unit u ON u.id=l.unit_id WHERE u.textbook_id=${B})`;
   lines.push(`UPDATE content_item SET section_id=${id(OFFSET.section, ARCHIVE_SECTION)},order_index=1000000+(id-${B + OFFSET.vocabularyItem})`
-    + ` WHERE id ${range(OFFSET.vocabularyItem)};`);
+    + ` WHERE id ${range(OFFSET.vocabularyItem)} AND section_id IN ${bookSections};`);
   lines.push(`UPDATE grammar_point SET lesson_id=${id(OFFSET.lesson, ARCHIVE_LESSON)},order_index=1000000+(id-${B + OFFSET.grammar})`
-    + ` WHERE id ${range(OFFSET.grammar)};`);
-  lines.push(`UPDATE lesson_kanji SET lesson_id=${id(OFFSET.lesson, ARCHIVE_LESSON)} WHERE id ${range(OFFSET.kanji)};`);
+    + ` WHERE id ${range(OFFSET.grammar)} AND lesson_id IN ${bookLessons};`);
+  lines.push(`UPDATE lesson_kanji SET lesson_id=${id(OFFSET.lesson, ARCHIVE_LESSON)} WHERE id ${range(OFFSET.kanji)} AND lesson_id IN ${bookLessons};`);
 
   // Vocabulary, set-based: one temporary-table row per word (raw hex literals), then a few statements add missing dictionary
   // entries and link every word. Far smaller than a statement group per word, so the seed stays under GitHub's 50 MB warning.
@@ -284,19 +289,18 @@ export function replaceBlock(sql, block, level) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? '.');
   const data = await readLearningContent(root);
-  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
-  const current = await readFile(sqlPath, 'utf8');
-  let updated = current;
   const outAt = process.argv.indexOf('--block-out');
+  // Owner 2026-11-01: each compiled book lives in the data file of its level.
   for (const level of COMPILED_LEVELS) {
-    const name = `jlas_compiled_book_${level.toLowerCase()}`;
-    const block = renderCompiledBookSql(data.sections[name], data.section_sha256[name], level);
-    updated = replaceBlock(updated, block, level);
-    if (outAt > 0) await writeFile(path.join(process.argv[outAt + 1], `compiled-${level.toLowerCase()}-block.sql`), block, 'utf8');
-    console.log(`${level}: ${block.split('\n').length} lines, ${(block.length / 1e6).toFixed(1)} MB`);
-  }
+  const sqlPath = learningDataFile(root, level);
+  const current = await readFile(sqlPath, 'utf8');
+  const name = `jlas_compiled_book_${level.toLowerCase()}`;
+  const block = renderCompiledBookSql(data.sections[name], data.section_sha256[name], level);
+  const updated = replaceBlock(current, block, level);
+  if (outAt > 0) await writeFile(path.join(process.argv[outAt + 1], `compiled-${level.toLowerCase()}-block.sql`), block, 'utf8');
+  console.log(`${level}: ${block.split('\n').length} lines, ${(block.length / 1e6).toFixed(1)} MB`);
   if (process.argv.includes('--check')) {
-    if (updated !== current) throw new Error('Compiled book SQL blocks are stale.');
+    if (updated !== current) throw new Error(`Compiled book ${level} SQL block is stale.`);
   } else {
     // Windows may hold the large seed open for a moment (editor/indexer): write beside it, then swap it in, retrying.
     await writeFile(`${sqlPath}.tmp`, updated, 'utf8');
@@ -309,5 +313,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
         await new Promise((resolve) => setTimeout(resolve, 750 * attempt));
       }
     }
+  }
   }
 }

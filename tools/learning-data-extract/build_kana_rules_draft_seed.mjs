@@ -171,7 +171,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   if (process.argv[2] === '--embed') {
     // node build_kana_rules_draft_seed.mjs --embed <mapping-manifest.json> [--check]
     const bundle = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
-    const seedPath = path.resolve('sql/learning/learning_data.sql');
+    const seedPath = path.resolve('sql/learning/learning_data_common.sql');
     const seed = await fs.readFile(seedPath, 'utf8');
     const updated = embedKanaRuleBlock(seed, bundle);
     if (process.argv.includes('--check')) {
