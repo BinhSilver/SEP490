@@ -4,26 +4,30 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { LEVELS, ROOT, argValue, normalizeJapanese, readJson, writeOrCheck } from './util.mjs';
 import { compileFromInputs, loadCompileInputs, loadReference } from './inputs.mjs';
-import { applyPackets, authoringDir, emitReviewPackets, readPackets, reviewCorrections } from './authoring.mjs';
+import { applyPackets, authoringDir, correctionDirs as allCorrectionDirs, emitReviewPackets, globalCorrections, readPackets } from './authoring.mjs';
 import { applyStatuses, buildLevelIndex, runChecks, WARNING_CODES } from './checks.mjs';
 import { writeReport, REPORT_DIR } from './report.mjs';
 
 export const compiledFile = level => path.join(ROOT, 'data/learning-path/compiled', `${level}.json`);
 
-// Word and kanji levels come from the merged levels (a kana Mirai word counts at its merged word's level, a reviewed
-// spelling fix counts), so they are compiled once per inputs and corrections.
-const levelIndexes = new WeakMap();
-function levelIndex(inputs, corrections) {
+// Every level compiled in memory with the same corrections: word and kanji levels come from them (a kana Mirai word
+// counts at its merged word's level, a reviewed spelling fix counts), and they tell where each J-LAS id went.
+const levelCompiles = new WeakMap();
+function compiledLevels(inputs, corrections) {
   const key = JSON.stringify([[...(corrections.identity ?? [])], [...(corrections.identityByForm ?? [])], corrections.sameWord ?? []]);
-  if (!levelIndexes.has(inputs)) levelIndexes.set(inputs, new Map());
-  const cache = levelIndexes.get(inputs);
-  if (!cache.has(key)) cache.set(key, buildLevelIndex({
-    levels: LEVELS.map(l => compileFromInputs({ ...inputs, corrections }, l)), dictionary: inputs.dictionary }));
+  if (!levelCompiles.has(inputs)) levelCompiles.set(inputs, new Map());
+  const cache = levelCompiles.get(inputs);
+  if (!cache.has(key)) {
+    const levels = LEVELS.map(l => compileFromInputs({ ...inputs, corrections }, l));
+    cache.set(key, { levels, index: buildLevelIndex({ levels, dictionary: inputs.dictionary }) });
+  }
   return cache.get(key);
 }
 
+const idsOf = c => [...c.vocabulary, ...c.kanji, ...c.grammar, ...(c.merged_ids ?? [])].map(x => x.id);
+
 function checkContext(inputs, level, outFile, corrections = {}) {
-  const { levelOfWord, kanaLevel, kanjiLevel } = levelIndex(inputs, corrections);
+  const { levels, index: { levelOfWord, kanaLevel, kanjiLevel } } = compiledLevels(inputs, corrections);
 
   const miraiReference = new Map();
   let miraiExamples = [];
@@ -38,21 +42,27 @@ function checkContext(inputs, level, outFile, corrections = {}) {
   }
   const src = inputs.jlasLevels[level];
   const expectedIds = new Set([...src.vocabulary, ...src.kanji, ...src.grammar].map(x => x.id));
-  const otherLevelIds = new Set();
-  for (const l of LEVELS.filter(x => x !== level)) {
+  // Another level counts as its compiled file beside this one; with no file there yet (a scratch --out), as this
+  // compiler builds it. An id the compiler puts in a level whose file lacks it is lost until that level is rebuilt.
+  const otherLevelIds = new Set(), compiledAt = new Map();
+  for (const [i, l] of LEVELS.entries()) {
+    if (l === level) continue;
+    for (const id of idsOf(levels[i])) if (!compiledAt.has(id)) compiledAt.set(id, l);
     const file = path.join(path.dirname(outFile), `${l}.json`);
-    if (!existsSync(file)) continue;
-    const other = readJson(file);
-    for (const x of [...other.vocabulary, ...other.kanji, ...other.grammar, ...(other.merged_ids ?? [])]) otherLevelIds.add(x.id);
+    for (const id of existsSync(file) ? idsOf(readJson(file)) : idsOf(levels[i])) otherLevelIds.add(id);
   }
-  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiExamples, expectedIds, otherLevelIds };
+  const lostDetail = id => compiledAt.has(id) ? `compiled into ${compiledAt.get(id)}; ${compiledAt.get(id)}.json is stale` : '';
+  return { levelOfWord, kanaLevel, kanjiLevel, miraiReference, miraiExamples, expectedIds, otherLevelIds, lostDetail };
 }
 
 export function buildLevel(level, { inputs = loadCompileInputs(), outFile = compiledFile(level), reportDir = REPORT_DIR,
-  packetsDir = authoringDir(level), check = false, date = new Date().toISOString().slice(0, 10) } = {}) {
+  packetsDir = authoringDir(level), correctionDirs = allCorrectionDirs(), check = false,
+  date = new Date().toISOString().slice(0, 10) } = {}) {
   const packets = readPackets(packetsDir);
-  const corrections = reviewCorrections(packets);
-  const applied = applyPackets(compileFromInputs({ ...inputs, corrections }, level), packets);
+  // Review corrections come from every level's packets (packetsDir included even when it is a scratch folder).
+  const dirs = [...new Set([...correctionDirs, packetsDir].map(d => path.resolve(d)))];
+  const corrections = globalCorrections(dirs);
+  const applied = applyPackets(compiledLevels(inputs, corrections).levels[LEVELS.indexOf(level)], packets);
   const result = runChecks(applied, checkContext(inputs, level, outFile, corrections));
   const compiled = applyStatuses(applied, result);
   const ok = writeOrCheck(outFile, { ...compiled, generated_by: 'tools/learning-path-source/compile/build_level_source.mjs' }, check);
@@ -60,16 +70,16 @@ export function buildLevel(level, { inputs = loadCompileInputs(), outFile = comp
   const statusOf = new Map([...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].map(x => [x.id, x.status]));
   const blockingNonDraft = result.errors.filter(e => !e.warning && !WARNING_CODES.has(e.code)
     && statusOf.has(e.id) && statusOf.get(e.id) !== 'DRAFT');
-  return { ok, result, compiled, blockingNonDraft };
+  return { ok, result, compiled, blockingNonDraft, corrections };
 }
 
 // Review context beyond the item: the J-LAS dictionary meaning it links to, this build's findings on it, and the
 // words it shares a spelling with (any level) so a reviewer can say "same word".
-export function reviewExtra(inputs, compiled, result) {
+export function reviewExtra(inputs, compiled, result, corrections = {}) {
   const findings = new Map();
   for (const e of result.errors) { if (!findings.has(e.id)) findings.set(e.id, []); findings.get(e.id).push(e.detail ? `${e.code}: ${e.detail}` : e.code); }
   const levels = new Map([[compiled.level, compiled]]);
-  const levelOf = l => { if (!levels.has(l)) levels.set(l, compileFromInputs(inputs, l)); return levels.get(l); };
+  const levelOf = l => levels.get(l) ?? compiledLevels(inputs, corrections).levels[LEVELS.indexOf(l)];
   const twinsOf = new Map();
   for (const t of compiled.spelling_twins ?? []) {
     const twin = levelOf(t.twin_level).vocabulary.find(v => v.id === t.twin_id);
@@ -91,9 +101,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const outFile = argValue(argv, '--out', compiledFile(level));
   const reportDir = argValue(argv, '--report-dir', REPORT_DIR);
   const inputs = loadCompileInputs();
-  const { ok, result, compiled, blockingNonDraft } = buildLevel(level, { inputs, check, outFile, reportDir });
+  const { ok, result, compiled, blockingNonDraft, corrections } = buildLevel(level, { inputs, check, outFile, reportDir });
   if (argv.includes('--emit-review')) {
-    const written = emitReviewPackets(compiled, authoringDir(level), { extra: reviewExtra(inputs, compiled, result) });
+    const written = emitReviewPackets(compiled, authoringDir(level), { extra: reviewExtra(inputs, compiled, result, corrections) });
     console.log(`${level}: ${written.length} review packets written`);
   }
   const errorsJson = argValue(argv, '--errors-json');

@@ -207,7 +207,7 @@ export function runChecks(compiled, ctx) {
 
   const ids = new Set([...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar].map(x => x.id));
   for (const m of compiled.merged_ids ?? []) ids.add(m.id);
-  for (const id of ctx.expectedIds) if (!ids.has(id) && !ctx.otherLevelIds.has(id)) errors.push({ code: 'ITEM_LOST', id, detail: '' });
+  for (const id of ctx.expectedIds) if (!ids.has(id) && !ctx.otherLevelIds.has(id)) errors.push({ code: 'ITEM_LOST', id, detail: ctx.lostDetail?.(id) ?? '' });
   for (const id of ids) if (ctx.otherLevelIds.has(id)) errors.push({ code: 'MULTI_LEVEL', id, detail: '' });
 
   const byCode = {};

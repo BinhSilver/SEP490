@@ -6,7 +6,7 @@
 // the merge (reviewCorrections) so the corrected word groups with its twins.
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, argValue, json, normalizeJapanese, readJson } from './util.mjs';
+import { LEVELS, ROOT, argValue, json, normalizeJapanese, readJson } from './util.mjs';
 import { formatMeaningVi } from './normalize.mjs';
 import { toRomaji } from './merge.mjs';
 
@@ -148,6 +148,11 @@ export function reviewCorrections(packets) {
   return { identity, identityByForm, sameWord };
 }
 
+// Corrections are global: a review at one level (N5 どなた same_word_as a J-LAS N4 word) also moves or fixes the word
+// when another level is compiled, so every level reads the review packets of every level (in level order).
+export const correctionDirs = () => LEVELS.map(authoringDir);
+export const globalCorrections = (dirs = correctionDirs()) => reviewCorrections(dirs.flatMap(readPackets));
+
 export function readPackets(dir) {
   if (!existsSync(dir)) return [];
   return readdirSync(dir).filter(f => f.endsWith('.json')).sort().map(f => readJson(path.join(dir, f)));
@@ -278,7 +283,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const dir = authoringDir(level);
   const existing = readPackets(dir);
   // Gaps are what is still empty after every packet already written (an alias may have filled an item).
-  const compiled = applyPackets(compileFromInputs({ ...loadCompileInputs(), corrections: reviewCorrections(existing) }, level), existing);
+  const compiled = applyPackets(compileFromInputs({ ...loadCompileInputs(), corrections: globalCorrections() }, level), existing);
   if (argv.includes('--emit')) {
     const written = emitPackets(compiled, dir, { size: 40, sizeByKind: DEFAULT_SIZE_BY_KIND });
     const counts = {};
