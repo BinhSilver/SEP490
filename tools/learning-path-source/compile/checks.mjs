@@ -59,6 +59,8 @@ export function buildLevelIndex({ levels, dictionary }) {
 }
 
 const KANA_RUN = { hira: /[ぁ-ゖ]/, kata: /[ァ-ヺー]/ };
+// Family names N5 textbooks use for their characters (the brief allows them); their kanji (田, 鈴...) are not N5 kanji.
+const TEXTBOOK_NAMES = new Set(['山田', '田中', '鈴木', '佐藤', '木村', '中村', '山本', '高橋', '小林', '吉田']);
 const PARTICLES = ['から', 'まで', 'より', 'だけ', 'など', 'しか', 'ので', 'のに', 'けど', 'でも', 'って', 'ても',
   'は', 'が', 'を', 'に', 'へ', 'で', 'と', 'も', 'の', 'や', 'か', 'ね', 'よ', 'な'];
 
@@ -101,7 +103,7 @@ function wordsAbove(sentence, ctx, level, exempt) {
     const c = text[i];
     for (let len = 1; len <= Math.min(10, n - i); len++) {
       const w = text.slice(i, i + len), k = normalizeJapanese(w);
-      if (exempt.has(k)) step(i, i + len, null, w);
+      if (exempt.has(k) || TEXTBOOK_NAMES.has(w)) step(i, i + len, null, w);
       else if (HAS_KANJI.test(w) && ctx.levelOfWord.has(k)) step(i, i + len, levelOf(w), w);
     }
     const kind = KANA_RUN.kata.test(c) ? 'kata' : KANA_RUN.hira.test(c) ? 'hira' : null;
