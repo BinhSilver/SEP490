@@ -15,6 +15,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 		"com.jlas.dictionary.entity",
 		"com.jlas.flashcard.entity",
 		"com.jlas.game.entity",
+		"com.jlas.jlptpath.entity", // [JLAS-W0108]
 		"com.jlas.kaiwa.model",
 		"com.jlas.learning.entity",
 		"com.jlas.mission.entity",
