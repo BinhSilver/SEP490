@@ -1,4 +1,4 @@
-// [JLAS-W0108] §2.32 T6 (owner 2026-10-27): renders the store pool section into its learning_owned.sql block.
+// [JLAS-W0108] §2.32 T6 (owner 2026-10-27): renders the store pool section into its learning_data.sql block.
 //   node tools/learning-data-extract/build_jlas_store_pool_sql.mjs . [--check] [--block-out file]
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -86,7 +86,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const section = data.sections?.jlas_store_pool;
   const block = renderStorePoolSql(section, data.section_sha256?.jlas_store_pool);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
+  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
   const current = await readFile(sqlPath, 'utf8');
   const updated = replaceStorePoolBlock(current, block);
   if (process.argv.includes('--check')) {

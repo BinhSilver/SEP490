@@ -4,11 +4,12 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const migrationFile = path.join(root, 'sql/migrations/022_learning_owned_consolidated.sql');
-// E5 (2026-10-28): the seed is split in two files under GitHub's 50 MB limit, applied in this order; the checks below
-// read them as one text. A part above the cap must be split again before a push.
-export const SEED_FILES = ['sql/seeds/learning_owned.sql', 'sql/seeds/learning_owned_part2.sql'];
-export const MAX_SEED_PART_BYTES = 45 * 1024 * 1024;
+// Owner 2026-11-01: the Learning flow keeps ONE schema file and ONE data file (formerly migration 022 + two seed parts).
+const migrationFile = path.join(root, 'sql/learning/learning_schema.sql');
+// The data file is one file by owner decision (2026-11-01), replacing the E5 split. GitHub warns above 50 MB and
+// rejects a file above 100 MB, so the cap stays below the hard limit.
+export const SEED_FILES = ['sql/learning/learning_data.sql'];
+export const MAX_SEED_PART_BYTES = 95 * 1024 * 1024;
 export function readLearningSeed(base = root) {
   return SEED_FILES.map((file) => fs.readFileSync(path.join(base, file), 'utf8')).join('\n');
 }
@@ -20,9 +21,9 @@ export const ALLOWED_DELETE = new RegExp('^DELETE cv FROM content_vocabulary cv 
 // §2.32 T4: widening a CHECK constraint drops and re-adds it inside one ALTER TABLE (no rows are touched).
 export const ALLOWED_DROP = /^DROP (?:PROCEDURE (?:IF EXISTS )?jlas_[a-z0-9_]+(?:;|\/\/|\$\$)|TEMPORARY TABLE IF EXISTS jlas_[a-z0-9_]+;|CHECK chk_[a-z0-9_]+,)$/;
 export function verify(migration, seed, content = null) {
-  if (!migration.startsWith('-- [JLAS-W0108] Consolidated task-owned Learning migration.'))
-    throw new Error('Unexpected Learning migration header');
-  if (!seed?.startsWith('-- [JLAS-W0108] Consolidated task-owned Learning seed.'))
+  if (!migration.startsWith('-- [JLAS-W0108] Learning flow schema'))
+    throw new Error('Unexpected Learning schema header');
+  if (!seed?.startsWith('-- [JLAS-W0108] Learning flow data'))
     throw new Error('Unexpected Learning seed header');
   for (const marker of [
     'learning_practice_draft_question', 'learning_owned_source_draft',
@@ -60,7 +61,8 @@ export function verify(migration, seed, content = null) {
     if (!seed.includes(key)) throw new Error(`Missing ${key}`);
   const migrationSql = migration.split('\n').filter((line) => !/^\s*--/.test(line)).join('\n');
   const seedSql = seed.split('\n').filter((line) => !/^\s*--/.test(line)).join('\n');
-  if (/^\s*(?:DROP\s+TABLE|TRUNCATE\b|DELETE\s+FROM|CREATE\s+DATABASE|USE\s+\S+|SOURCE\s+\S+)/im.test(`${migrationSql}\n${seedSql}`))
+  // SOURCE is a one-argument client command; a column definition such as "source VARCHAR(255) NULL," is not.
+  if (/^\s*(?:DROP\s+TABLE|TRUNCATE\b|DELETE\s+FROM|CREATE\s+DATABASE|USE\s+\S+|SOURCE\s+\S+\s*;?\s*$)/im.test(`${migrationSql}\n${seedSql}`))
     throw new Error('Destructive or DB-switching SQL');
   if (/^\s*(?:CREATE\s+(?!TEMPORARY\s+TABLE)TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b/im.test(seedSql))
     throw new Error('Schema DDL must stay in the migration');
@@ -75,7 +77,11 @@ export function verify(migration, seed, content = null) {
   for (const match of `${migrationSql}\n${seedSql}`.matchAll(/^\s*UPDATE\b[^;]*;/gim)) {
     if (!/\bWHERE\b/i.test(match[0])) throw new Error(`UPDATE without WHERE: ${match[0].trim().slice(0, 120)}`);
   }
-  if ((migration.match(/-- BEGIN /g) || []).length !== 4 || (seed.match(/-- BEGIN /g) || []).length !== 22)
+  for (const part of ['-- PART A.', '-- PART B.', '-- PART C.'])
+    if (!migration.includes(part)) throw new Error(`Learning schema lacks ${part}`);
+  if (!/^-- BEGIN GENERATED jpath\r?$/m.test(seed) || !/^-- END GENERATED jpath\r?$/m.test(seed))
+    throw new Error('Learning data lacks the GENERATED jpath region');
+  if ((seed.match(/-- BEGIN /g) || []).length !== 23)
     throw new Error('Unexpected consolidated SQL section count');
   const embeddedOutputs = [...seed.matchAll(/^-- BEGIN (outputs\/[^\r\n]+\.sql) SHA256 ([0-9a-f]{64})\r?\n/gm)];
   if (embeddedOutputs.length !== 6) throw new Error('Unexpected embedded Learning output count');

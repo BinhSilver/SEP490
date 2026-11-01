@@ -352,7 +352,7 @@ const VALIDATOR = `DELIMITER //\nDROP PROCEDURE IF EXISTS jlas_validate_comm_pat
 export async function writeCommunicationPathSeed(root = ROOT, { check = false } = {}) {
   const canonical = await readLearningContent(root);
   const generated = renderCommunicationPathSeed(canonical);
-  const seedPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
+  const seedPath = path.join(root, 'sql/learning/learning_data.sql');
   const original = await fs.readFile(seedPath, 'utf8');
   const start = original.indexOf(BEGIN);
   const finish = start < 0 ? -1 : original.indexOf(END, start);
@@ -368,6 +368,6 @@ export async function writeCommunicationPathSeed(root = ROOT, { check = false } 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const check = process.argv.includes('--check');
   const ok = await writeCommunicationPathSeed(ROOT, { check });
-  if (check && !ok) { console.error('learning_owned_part2.sql communication block is stale.'); process.exitCode = 1; }
-  else console.log(check ? 'Communication path seed block is current.' : 'Generated communication path data in sql/seeds/learning_owned_part2.sql.');
+  if (check && !ok) { console.error('learning_data.sql communication block is stale.'); process.exitCode = 1; }
+  else console.log(check ? 'Communication path seed block is current.' : 'Generated communication path data in sql/learning/learning_data.sql.');
 }

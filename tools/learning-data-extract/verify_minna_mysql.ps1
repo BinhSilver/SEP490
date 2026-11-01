@@ -31,9 +31,8 @@ try {
     if ($schema -match '(?m)^USE jlas;') { throw 'Scratch schema rewrite failed.' }
     $schema | & $mysql -h $dbHost -P $port -u $user --default-character-set=utf8mb4
     if ($LASTEXITCODE -ne 0) { throw 'Canonical schema failed on scratch.' }
-    # E5 (2026-10-28): the seed is split in two parts; the Minna blocks live in part 2.
-    $bundle = (Get-Content -LiteralPath (Join-Path $root 'sql\seeds\learning_owned.sql') -Raw -Encoding UTF8) + "`n" +
-        (Get-Content -LiteralPath (Join-Path $root 'sql\seeds\learning_owned_part2.sql') -Raw -Encoding UTF8)
+    # Owner 2026-11-01: the Learning flow keeps one data file (formerly two seed parts).
+    $bundle = Get-Content -LiteralPath (Join-Path $root 'sql\learning\learning_data.sql') -Raw -Encoding UTF8
     function BundleBlock([string]$marker) {
         $begin = '-- BEGIN ' + $marker + ' SHA256 '
         $end = '-- END ' + $marker

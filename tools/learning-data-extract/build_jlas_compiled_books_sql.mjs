@@ -1,4 +1,4 @@
-// [JLAS-W0108] D3-04 (2026-10-24): renders each J-LAS compiled book (N5, N4, N3) into its learning_owned.sql block — a
+// [JLAS-W0108] D3-04 (2026-10-24): renders each J-LAS compiled book (N5, N4, N3) into its learning_data.sql block — a
 // Learning-owned textbook whose chapters link existing dictionary entries / Kanji, carry their own grammar points, copy the
 // dialogues of the chapter book of the same number and copy the checked Minna / Speed Master reading & listening rows.
 //   node tools/learning-data-extract/build_jlas_compiled_books_sql.mjs . [--check] [--block-out <dir>]
@@ -284,7 +284,7 @@ export function replaceBlock(sql, block, level) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? '.');
   const data = await readLearningContent(root);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
+  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
   const current = await readFile(sqlPath, 'utf8');
   let updated = current;
   const outAt = process.argv.indexOf('--block-out');

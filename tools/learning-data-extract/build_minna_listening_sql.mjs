@@ -84,7 +84,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   const block = renderMinnaSql(data.sections?.jlpt_minna_n5_n4_listening,
     data.section_sha256?.jlpt_minna_n5_n4_listening);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned_part2.sql');
+  const sqlPath = path.join(root, 'sql/learning/learning_data.sql');
   const sql = await readFile(sqlPath, 'utf8');
   const updated = replaceMinnaBlock(sql, block);
   if (process.argv.includes('--check')) {
