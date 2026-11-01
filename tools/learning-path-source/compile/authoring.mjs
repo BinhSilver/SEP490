@@ -26,7 +26,7 @@ const INSTRUCTIONS = {
   GRAMMAR_UNIT: 'unit_no: số bài (theo header.units) phù hợp nhất; unit_title_vi tùy chọn.',
   GRAMMAR_BANK: 'check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng.'
 };
-const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>".';
+const REVIEW_INSTRUCTION = 'verdict: {"ok": true} nếu mục đúng; sai thì {"fix": {<trường>: <giá trị mới>}, "note": "lý do ngắn"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một "twins" là cùng một từ thì thêm "same_word_as": "<id twin>"; mục bị ghép nhầm với một từ khác thì thêm "not_same_word_as": "<id từ kia>" hoặc "drop_variant": "<cách viết sai>" (bỏ một cách viết thuộc từ khác khỏi "variants").';
 for (const k of ['REVIEW_VOCAB', 'REVIEW_KANJI', 'REVIEW_GRAMMAR']) INSTRUCTIONS[k] = REVIEW_INSTRUCTION;
 
 // Fields a review may correct; a value from a reviewed source (…_REVIEWED provenance) is never replaced.
@@ -132,11 +132,12 @@ export function emitReviewPackets(level, dir, opts = {}) {
   });
 }
 
-// Spelling/reading fixes and same-word verdicts, which must reach the merge before words are grouped.
+// Spelling/reading fixes and same-word / not-same-word / dropped-variant verdicts, which must reach the merge before
+// words are grouped.
 // identity is keyed by item id (reaches J-LAS words), identityByForm by the reviewed "expression|reading" (reaches
 // Mirai words, which carry no id before the merge).
 export function reviewCorrections(packets) {
-  const identity = new Map(), identityByForm = new Map(), sameWord = [];
+  const identity = new Map(), identityByForm = new Map(), sameWord = [], notSameWord = [], dropVariant = new Map();
   for (const p of packets.filter(p => p.kind === 'REVIEW_VOCAB')) for (const { id, context, answer } of p.items) {
     const fix = Object.fromEntries(['expression', 'reading'].filter(f => !empty(answer?.fix?.[f])).map(f => [f, answer.fix[f]]));
     if (Object.keys(fix).length) {
@@ -144,8 +145,11 @@ export function reviewCorrections(packets) {
       if (context?.expression && context?.reading) identityByForm.set(`${context.expression}|${context.reading}`, fix);
     }
     if (answer?.same_word_as) sameWord.push([id, answer.same_word_as]);
+    for (const other of [].concat(answer?.not_same_word_as ?? [])) notSameWord.push([id, other]);
+    const dropped = [].concat(answer?.drop_variant ?? []).filter(Boolean);
+    if (dropped.length) dropVariant.set(id, new Set([...(dropVariant.get(id) ?? []), ...dropped]));
   }
-  return { identity, identityByForm, sameWord };
+  return { identity, identityByForm, sameWord, notSameWord, dropVariant };
 }
 
 // Corrections are global: a review at one level (N5 どなた same_word_as a J-LAS N4 word) also moves or fixes the word

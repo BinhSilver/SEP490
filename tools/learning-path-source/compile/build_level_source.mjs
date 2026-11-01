@@ -14,7 +14,8 @@ export const compiledFile = level => path.join(ROOT, 'data/learning-path/compile
 // counts at its merged word's level, a reviewed spelling fix counts), and they tell where each J-LAS id went.
 const levelCompiles = new WeakMap();
 function compiledLevels(inputs, corrections) {
-  const key = JSON.stringify([[...(corrections.identity ?? [])], [...(corrections.identityByForm ?? [])], corrections.sameWord ?? []]);
+  const key = JSON.stringify([[...(corrections.identity ?? [])], [...(corrections.identityByForm ?? [])], corrections.sameWord ?? [],
+    corrections.notSameWord ?? [], [...(corrections.dropVariant ?? [])].map(([id, s]) => [id, [...s]])]);
   if (!levelCompiles.has(inputs)) levelCompiles.set(inputs, new Map());
   const cache = levelCompiles.get(inputs);
   if (!cache.has(key)) {

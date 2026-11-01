@@ -76,6 +76,8 @@ function vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiM
   const out = [];
   const add = (c) => {
     c.ne = normalizeJapanese(c.expression); c.nr = normalizeJapanese(c.reading); c.form = spellingForm(c.ne); c.rkey = c.nr;
+    // The ids a review may name this candidate by: its J-LAS id, or the id a Mirai word has alone (as listed and as corrected).
+    c.ids = c.src === 'JLAS' ? [c.id] : [...new Set([[c.ne, c.nr], c.listed.map(normalizeJapanese)].map(([e, r]) => `JV-${sha256(`LP|${e}|${r}`).slice(0, 10)}`))];
     const exact = dictFor(c.ne, c.nr);
     const own = senses(c.src === 'JLAS' ? formatMeaningVi(c.meanings ?? []) : formatMeaningVi([miraiMeanings.get(c.mirai_ref)]));
     c.entry = resolve(c, exact, own);
@@ -249,7 +251,7 @@ function vocabularyExamples(members, vnjpclub) {
 
 // Every id a group answers to before same-word verdicts join groups: its own id, its J-LAS ids, and the id each Mirai
 // word would have alone (as listed and as corrected). Verdicts name groups by these ids; the ids a joined group no longer uses become aliases.
-function joinGroups(groups, sameWord) {
+function joinGroups(groups, sameWord, barred = () => false) {
   const keys = lexemeKeys(groups);
   const idsOf = groups.map((g, i) => { const { jlas, mirai } = sortedMembers(g);
     return [jlas[0]?.id ?? `JV-${sha256(`LP|${keys[i]}`).slice(0, 10)}`, ...jlas.map(m => m.id),
@@ -258,7 +260,12 @@ function joinGroups(groups, sameWord) {
   idsOf.forEach((ids, i) => ids.forEach(id => { if (!owner.has(id)) owner.set(id, i); }));
   const parent = groups.map((_, i) => i);
   const find = i => parent[i] === i ? i : (parent[i] = find(parent[i]));
-  for (const [a, b] of sameWord) if (owner.has(a) && owner.has(b)) { const [x, y] = [find(owner.get(a)), find(owner.get(b))].sort((p, q) => p - q); parent[y] = x; }
+  const membersOf = groups.map(g => [...g]);
+  for (const [a, b] of sameWord) if (owner.has(a) && owner.has(b)) {
+    const [x, y] = [find(owner.get(a)), find(owner.get(b))].sort((p, q) => p - q);
+    if (x === y || membersOf[x].some(m => membersOf[y].some(n => barred(m, n)))) continue;
+    parent[y] = x; membersOf[x].push(...membersOf[y]);
+  }
   const joined = new Map();
   groups.forEach((g, i) => { const r = find(i); if (!joined.has(r)) joined.set(r, { members: [], formerIds: [] });
     joined.get(r).members.push(...g); joined.get(r).formerIds.push(...idsOf[i]); });
@@ -296,7 +303,7 @@ function lexemeKeys(groups) {
   return keys;
 }
 
-function buildLexeme(members, key) {
+function buildLexeme(members, key, dropVariant = new Map()) {
   const { jlas, mirai } = sortedMembers(members);
   const display = displayOf(members);
   const allDict = members.flatMap(m => m.dict);
@@ -319,12 +326,22 @@ function buildLexeme(members, key) {
     item: { id, level, expression: display.expression, reading: display.reading, normalized_expression: display.ne,
       normalized_reading: display.nr, romaji: toRomaji(display.reading),
       variants: [...new Set([...members.map(m => m.expression), HAS_KANJI.test(dictEntry?.expression ?? '') ? dictEntry.expression : null])]
-        .filter(e => e && e !== display.expression).sort(),
+        .filter(e => e && e !== display.expression && !droppedFrom(dropVariant, id, e)).sort(),
       dictionary_entry_id: dictEntry?.id ?? null, key, topic_key: mirai[0]?.topic_key ?? 'khac',
       topic_vi: mirai[0]?.topic_vi ?? 'Từ thông dụng khác', order: 0, meaning_vi: meaning, word_type_label: wordType,
       examples: [], mnemonic_vi: null, confusable_ids: [], priority: 0, tier: jlas[0]?.tier ?? 'CORE', status: 'DRAFT',
       provenance: { frame: mirai.length ? 'MIRAI' : null, sources, meaning_source: meaningSource, example_source: null } },
     conflicts };
+}
+
+// A review's "not the same word" (two ids) and "drop this variant" (an id and a spelling) bar those candidates from
+// sharing a group, in either direction.
+const droppedFrom = (dropVariant, id, expression) => [...(dropVariant.get(id) ?? [])].some(s => normalizeJapanese(s) === normalizeJapanese(expression));
+function reviewBars(notSameWord, dropVariant) {
+  if (!notSameWord.length && !dropVariant.size) return () => false;
+  const pairs = new Set(notSameWord.flatMap(([a, b]) => [`${a}|${b}`, `${b}|${a}`]));
+  const one = (x, y) => x.ids.some(a => y.ids.some(b => pairs.has(`${a}|${b}`)) || droppedFrom(dropVariant, a, y.expression));
+  return (x, y) => one(x, y) || one(y, x);
 }
 
 // ---------------------------------------------------------------- kanji
@@ -438,13 +455,14 @@ function grammarItems({ frames, jlasLevels }, level) {
 // ---------------------------------------------------------------- entry point
 export function compileLevel({ level, frames, jlasLevels, dictionary, vnjpclub, miraiMeanings = new Map(),
   corrections = {} }) {
-  const { identity = new Map(), identityByForm = new Map(), sameWord = [] } = corrections;
+  const { identity = new Map(), identityByForm = new Map(), sameWord = [], notSameWord = [], dropVariant = new Map() } = corrections;
   const candidates = vocabularyCandidates({ frames, jlasLevels, dictionary, vnjpclub, miraiMeanings, identity, identityByForm });
-  const automatic = groupLexemes(candidates);
-  const joined = joinGroups(automatic, sameWord);
+  const barred = reviewBars(notSameWord, dropVariant);
+  const automatic = groupLexemes(candidates, barred);
+  const joined = joinGroups(automatic, sameWord, barred);
   const groups = joined.map(j => j.members);
   const keys = lexemeKeys(groups);
-  const lexemes = groups.map((members, i) => buildLexeme(members, keys[i]));
+  const lexemes = groups.map((members, i) => buildLexeme(members, keys[i], dropVariant));
   // An id a word answered to before (a Mirai word that stood alone, a word joined by a same-word verdict) becomes an
   // alias of the word it is now part of, so content written for that id still lands (packets resolve merged ids).
   const lexemeOf = new Map(groups.flatMap((g, i) => g.map(c => [c, lexemes[i]])));
