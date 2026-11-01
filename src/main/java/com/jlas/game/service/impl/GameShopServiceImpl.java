@@ -45,10 +45,13 @@ public class GameShopServiceImpl implements GameShopService {
             String equipped = equippedCode(userId, gameType, owned);
             var items = catalog.all().stream().filter(item -> item.gameType() == gameType)
                     .filter(item -> item.starter() || (item.active() && !item.deleted()) || owned.contains(item.code()))
+                    // Mặc định trước, rồi Thường → Hiếm → Huyền thoại.
+                    .sorted(java.util.Comparator.comparing((GameShopCatalog.ShopItem item) -> !item.starter())
+                            .thenComparing(GameShopCatalog.ShopItem::tier).thenComparingLong(GameShopCatalog.ShopItem::id))
                     .map(item -> new ShopItemView(item.code(), item.name(), item.description(), item.price(),
                             item.image(), item.starter(), item.starter() || owned.contains(item.code()),
                             item.code().equals(equipped), item.id(), item.renderCode(), item.packPath(),
-                            item.weaponTheme()))
+                            item.weaponTheme(), item.tier().name(), item.tier().label()))
                     .toList();
             return new ShopSectionView(gameType, GameRules.gameName(gameType), GameShopCatalog.sectionTitle(gameType),
                     equipped, items);

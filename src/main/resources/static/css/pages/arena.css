@@ -2829,6 +2829,24 @@ body.is-vs-room .ar-page {
   border-color: var(--game);
 }
 
+/* Bậc trang phục: Thường xám, Hiếm xanh, Huyền thoại vàng; nhãn nằm góc trên trái của ảnh. */
+.ar-shop-tier {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: #6b7280;
+}
+.ar-shop-tier--starter { color: var(--ar-ink, #1f2937); background: rgba(255, 255, 255, .9); }
+.ar-shop-tier--rare { background: #2563eb; }
+.ar-shop-tier--legendary { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.ar-shop-item--legendary:not(.is-equipped) { border-color: #f5c46b; }
+
 .ar-shop-item__art {
   display: grid;
   place-items: center;
