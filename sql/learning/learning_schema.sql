@@ -1221,5 +1221,580 @@ DROP PROCEDURE IF EXISTS jlas_ls_add_column;
 DROP PROCEDURE IF EXISTS jlas_ls_exec;
 
 -- =============================================================================
--- PART C. jpath (JLPT path v2, Plan 2). Tasks 1+ add their tables here as CREATE TABLE IF NOT EXISTS.
+-- PART C. jpath (JLPT path v2, Plan 2): the 27 jpath_* tables as CREATE TABLE IF NOT EXISTS (needs users).
 -- =============================================================================
+
+-- [JLAS-W0108] Lộ trình JLPT theo chủ đề: 27 bảng jpath_*, thứ tự theo hợp đồng dữ liệu của Kế hoạch 2.
+-- Chạy lại an toàn (CREATE TABLE IF NOT EXISTS); không đụng bảng cũ. Cột/index/CHECK thêm sau này đi qua helper có
+-- kiểm information_schema như PART B, đặt ở cuối phần này.
+-- Bảng nội dung (1-12) do seed ghi, ứng dụng chỉ đọc (quản trị Báo sai được sửa). Bảng 13-27 là trạng thái người học.
+-- Mọi cột mã là VARCHAR(24). Cờ thường active_flag/open_flag (không dùng cột sinh STORED, vì MySQL 8 không cho FK
+-- ON DELETE CASCADE trên cột gốc của cột sinh) + UNIQUE + CHECK bảo đảm một lộ trình ACTIVE / một báo OPEN mỗi người.
+-- CHECK cờ dùng <=> (so sánh an toàn với NULL): với "= 1", dòng ACTIVE có cờ NULL cho kết quả UNKNOWN, CHECK vẫn cho qua
+-- và UNIQUE không chặn được NULL, nên hai lộ trình ACTIVE cùng người sẽ lọt.
+-- Cột SRS của jpath_user_item lưu giờ địa phương của người học; mọi cột thời gian khác lưu giờ server.
+
+-- 1. Cấp JLPT và trạng thái phát hành.
+CREATE TABLE IF NOT EXISTS jpath_level (
+    level VARCHAR(2) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    released TINYINT(1) NOT NULL DEFAULT 0,
+    released_at DATETIME(6) NULL,
+    seed_version VARCHAR(16) NULL,
+    release_note VARCHAR(500) NULL,
+    planned_vocab INT UNSIGNED NOT NULL DEFAULT 0,
+    planned_kanji INT UNSIGNED NOT NULL DEFAULT 0,
+    planned_grammar INT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (level),
+    CONSTRAINT chk_jpath_level_level CHECK (level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Chủ đề từ vựng của một cấp ('khac' = "Từ thông dụng khác").
+CREATE TABLE IF NOT EXISTS jpath_vocab_topic (
+    level VARCHAR(2) NOT NULL,
+    topic_key VARCHAR(60) NOT NULL,
+    title_vi VARCHAR(120) NOT NULL,
+    sort_order SMALLINT UNSIGNED NOT NULL,
+    PRIMARY KEY (level, topic_key),
+    CONSTRAINT fk_jpath_vocab_topic_level FOREIGN KEY (level) REFERENCES jpath_level(level)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. Từ vựng. dictionary_entry_id trỏ mềm sang từ điển (không FK).
+CREATE TABLE IF NOT EXISTS jpath_vocabulary (
+    code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    topic_key VARCHAR(60) NOT NULL,
+    sort_order INT UNSIGNED NOT NULL,
+    priority INT UNSIGNED NOT NULL,
+    tier VARCHAR(10) NOT NULL DEFAULT 'CORE',
+    expression VARCHAR(120) NOT NULL,
+    reading VARCHAR(120) NOT NULL,
+    normalized_expression VARCHAR(120) NOT NULL,
+    normalized_reading VARCHAR(120) NOT NULL,
+    romaji VARCHAR(160) NULL,
+    kana_only TINYINT(1) NOT NULL DEFAULT 0,
+    variants_json JSON NULL,
+    meaning_vi VARCHAR(255) NULL,
+    word_type_label VARCHAR(40) NULL,
+    mnemonic_vi VARCHAR(500) NULL,
+    dictionary_entry_id BIGINT UNSIGNED NULL,
+    audio_path VARCHAR(255) NULL,
+    audio_sha256 CHAR(64) NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_vocab_queue (level, status, sort_order),
+    KEY idx_jpath_vocab_topic (level, topic_key, sort_order),
+    KEY idx_jpath_vocab_dict (dictionary_entry_id),
+    KEY idx_jpath_vocab_norm (normalized_expression, normalized_reading),
+    CONSTRAINT fk_jpath_vocabulary_topic FOREIGN KEY (level, topic_key) REFERENCES jpath_vocab_topic(level, topic_key),
+    CONSTRAINT chk_jpath_vocabulary_tier CHECK (tier IN ('CORE','EXTENDED')),
+    CONSTRAINT chk_jpath_vocabulary_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Kanji. `character` so khớp nhị phân (utf8mb4_bin) để hai chữ khác nhau không bị coi là trùng.
+CREATE TABLE IF NOT EXISTS jpath_kanji (
+    code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    `character` VARCHAR(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    sort_order INT UNSIGNED NOT NULL,
+    han_viet VARCHAR(40) NULL,
+    han_viet_alt_json JSON NULL,
+    meanings_vi VARCHAR(255) NULL,
+    readings_on_json JSON NULL,
+    readings_kun_json JSON NULL,
+    level_readings_json JSON NULL,
+    stroke_count TINYINT UNSIGNED NULL,
+    radical_number SMALLINT UNSIGNED NULL,
+    radical_name_vi VARCHAR(40) NULL,
+    frequency INT UNSIGNED NULL,
+    mnemonic_vi VARCHAR(500) NULL,
+    dictionary_kanji_id BIGINT UNSIGNED NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    UNIQUE KEY uk_jpath_kanji_char (`character`),
+    KEY idx_jpath_kanji_queue (level, status, sort_order),
+    KEY idx_jpath_kanji_radical (radical_number),
+    CONSTRAINT chk_jpath_kanji_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. Từ ghép của một Kanji (tối đa 5, xóa-chèn lại theo cấp khi seed).
+CREATE TABLE IF NOT EXISTS jpath_kanji_compound (
+    kanji_code VARCHAR(24) NOT NULL,
+    vocab_code VARCHAR(24) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    PRIMARY KEY (kanji_code, vocab_code),
+    CONSTRAINT fk_jpath_kanji_compound_kanji FOREIGN KEY (kanji_code) REFERENCES jpath_kanji(code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. Bài (unit) ngữ pháp của một cấp.
+CREATE TABLE IF NOT EXISTS jpath_grammar_unit (
+    level VARCHAR(2) NOT NULL,
+    unit_no SMALLINT UNSIGNED NOT NULL,
+    title_vi VARCHAR(120) NULL,
+    PRIMARY KEY (level, unit_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Mẫu ngữ pháp.
+CREATE TABLE IF NOT EXISTS jpath_grammar (
+    code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    unit_no SMALLINT UNSIGNED NOT NULL,
+    sort_order INT UNSIGNED NOT NULL,
+    priority INT UNSIGNED NOT NULL,
+    pattern VARCHAR(120) NOT NULL,
+    pattern_variants_json JSON NULL,
+    family_key VARCHAR(120) NOT NULL,
+    meaning_vi VARCHAR(1000) NULL,
+    formation VARCHAR(255) NULL,
+    usage_vi TEXT NULL,
+    nuance_vi TEXT NULL,
+    common_mistakes_vi TEXT NULL,
+    related_codes_json JSON NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_grammar_queue (level, status, unit_no, sort_order),
+    CONSTRAINT fk_jpath_grammar_unit FOREIGN KEY (level, unit_no) REFERENCES jpath_grammar_unit(level, unit_no),
+    CONSTRAINT chk_jpath_grammar_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. Câu ví dụ của từ / Kanji / mẫu ngữ pháp (MAIN = ví dụ 1). ja_furigana dạng "父親(ちちおや)は…".
+CREATE TABLE IF NOT EXISTS jpath_example (
+    code VARCHAR(24) NOT NULL,
+    owner_type VARCHAR(8) NOT NULL,
+    owner_code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    role VARCHAR(5) NOT NULL,
+    ja VARCHAR(255) NOT NULL,
+    ja_furigana VARCHAR(600) NULL,
+    vi VARCHAR(500) NULL,
+    audio_path VARCHAR(255) NULL,
+    audio_sha256 CHAR(64) NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_example_owner (owner_type, owner_code, sort_order),
+    CONSTRAINT chk_jpath_example_owner_type CHECK (owner_type IN ('VOCAB','KANJI','GRAMMAR')),
+    CONSTRAINT chk_jpath_example_role CHECK (role IN ('MAIN','EXTRA')),
+    CONSTRAINT chk_jpath_example_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. Câu hỏi ngữ pháp. Đáp án (answer_index, answer_order_json, answer_text, accept_json) không bao giờ ra API trước khi
+-- câu bị khóa. accept_json (FILL_TEXT): mảng đáp án đồng nghĩa cũng được chấm đúng; NULL khi không có.
+CREATE TABLE IF NOT EXISTS jpath_grammar_question (
+    code VARCHAR(24) NOT NULL,
+    grammar_code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    bank VARCHAR(6) NOT NULL,
+    question_type VARCHAR(12) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    prompt_ja VARCHAR(500) NOT NULL,
+    prompt_furigana VARCHAR(800) NULL,
+    options_json JSON NULL,
+    answer_index TINYINT UNSIGNED NULL,
+    pieces_json JSON NULL,
+    answer_order_json JSON NULL,
+    answer_text VARCHAR(255) NULL,
+    accept_json JSON NULL,
+    explanation_vi VARCHAR(1000) NULL,
+    status VARCHAR(12) NOT NULL DEFAULT 'DRAFT',
+    report_hidden TINYINT(1) NOT NULL DEFAULT 0,
+    authored TINYINT(1) NOT NULL DEFAULT 0,
+    seed_version VARCHAR(16) NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (code),
+    KEY idx_jpath_gq_bank (grammar_code, bank, sort_order),
+    CONSTRAINT fk_jpath_grammar_question_grammar FOREIGN KEY (grammar_code) REFERENCES jpath_grammar(code),
+    CONSTRAINT chk_jpath_grammar_question_bank CHECK (bank IN ('CHECK','ORDER','FILL','EXTRA')),
+    CONSTRAINT chk_jpath_grammar_question_type CHECK (question_type IN ('FILL','ORDER_STAR','MEANING','ERROR','ORDER','FILL_TEXT')),
+    CONSTRAINT chk_jpath_grammar_question_status CHECK (status IN ('REVIEWED','AI_CHECKED','DRAFT','HOLD'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. Cặp dễ nhầm (code_a < code_b; level = cấp cao hơn của hai mục).
+CREATE TABLE IF NOT EXISTS jpath_confusable_pair (
+    item_type VARCHAR(8) NOT NULL,
+    code_a VARCHAR(24) NOT NULL,
+    code_b VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    PRIMARY KEY (item_type, code_a, code_b),
+    KEY idx_jpath_confusable_b (item_type, code_b),
+    CONSTRAINT chk_jpath_confusable_item_type CHECK (item_type IN ('VOCAB','KANJI')),
+    CONSTRAINT chk_jpath_confusable_order CHECK (code_a < code_b)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 11. Hàng kana (Hiragana 1-18, Katakana 19-36).
+CREATE TABLE IF NOT EXISTS jpath_kana_row (
+    code VARCHAR(24) NOT NULL,
+    script VARCHAR(8) NOT NULL,
+    sort_order TINYINT UNSIGNED NOT NULL,
+    title_vi VARCHAR(60) NOT NULL,
+    row_kind VARCHAR(10) NOT NULL,
+    PRIMARY KEY (code),
+    CONSTRAINT chk_jpath_kana_row_script CHECK (script IN ('HIRAGANA','KATAKANA')),
+    CONSTRAINT chk_jpath_kana_row_kind CHECK (row_kind IN ('BASIC','DAKUTEN','HANDAKUTEN','YOON'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. Chữ kana. kana so khớp nhị phân (utf8mb4_bin): は/ば/ぱ là ba chữ khác nhau.
+CREATE TABLE IF NOT EXISTS jpath_kana (
+    code VARCHAR(24) NOT NULL,
+    row_code VARCHAR(24) NOT NULL,
+    script VARCHAR(8) NOT NULL,
+    sort_order SMALLINT UNSIGNED NOT NULL,
+    kana VARCHAR(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    romaji VARCHAR(8) NOT NULL,
+    PRIMARY KEY (code),
+    UNIQUE KEY uk_jpath_kana (script, kana),
+    CONSTRAINT fk_jpath_kana_row FOREIGN KEY (row_code) REFERENCES jpath_kana_row(code),
+    CONSTRAINT chk_jpath_kana_script CHECK (script IN ('HIRAGANA','KATAKANA'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. Câu trả lời lúc vào lộ trình.
+CREATE TABLE IF NOT EXISTS jpath_entry_preference (
+    user_id BIGINT UNSIGNED NOT NULL,
+    studied_before TINYINT(1) NOT NULL,
+    kana_choice VARCHAR(10) NOT NULL,
+    skill_days VARCHAR(16) NOT NULL DEFAULT 'WED,SAT',
+    rest_days VARCHAR(16) NOT NULL DEFAULT '',
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_jpath_entry_pref_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_entry_pref_kana_choice CHECK (kana_choice IN ('REMEMBER','REVIEW','NONE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 14. Lộ trình của người học. active_flag = 1 khi ACTIVE, NULL khi khác: UNIQUE (user_id, active_flag) cho phép nhiều
+-- lộ trình cũ nhưng chỉ một lộ trình ACTIVE mỗi người.
+CREATE TABLE IF NOT EXISTS jpath_user_path (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE',
+    open_level VARCHAR(2) NOT NULL,
+    target_level VARCHAR(2) NOT NULL,
+    exam_date DATE NULL,
+    daily_minutes SMALLINT UNSIGNED NOT NULL,
+    skill_days VARCHAR(16) NOT NULL,
+    rest_days VARCHAR(16) NOT NULL DEFAULT '',
+    third_skill_day VARCHAR(3) NULL,
+    study_mode VARCHAR(8) NOT NULL,
+    suggested_mode VARCHAR(8) NOT NULL,
+    suggestion_reason VARCHAR(20) NOT NULL,
+    kana_tab TINYINT(1) NOT NULL DEFAULT 0,
+    kana_completed_at DATETIME(6) NULL,
+    entry_source VARCHAR(16) NOT NULL,
+    assessment_attempt_id BIGINT UNSIGNED NULL,
+    smart_vocab_score DECIMAL(5,2) NULL,
+    smart_kanji_score DECIMAL(5,2) NULL,
+    smart_grammar_score DECIMAL(5,2) NULL,
+    smart_ability_band VARCHAR(40) NULL,
+    study_duration_months SMALLINT UNSIGNED NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    archived_at DATETIME(6) NULL,
+    active_flag TINYINT(1) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_path_active (user_id, active_flag),
+    KEY idx_jpath_path_user_status (user_id, status),
+    CONSTRAINT fk_jpath_path_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_path_status CHECK (status IN ('ACTIVE','PAUSED','ARCHIVED')),
+    CONSTRAINT chk_jpath_path_study_mode CHECK (study_mode IN ('COMBINED','SPLIT')),
+    CONSTRAINT chk_jpath_path_suggested_mode CHECK (suggested_mode IN ('COMBINED','SPLIT')),
+    CONSTRAINT chk_jpath_path_entry_source CHECK (entry_source IN ('SMART_TEST','FROM_ZERO','ABANDONED_TEST')),
+    CONSTRAINT chk_jpath_path_active_flag CHECK ((status = 'ACTIVE' AND active_flag <=> 1) OR (status <> 'ACTIVE' AND active_flag IS NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 15. Cài đặt hiển thị của người học. quiz_timer_on: đồng hồ bài V/K (mặc định tắt); grammar_timer_on: đồng hồ ngữ pháp
+-- (mặc định bật); hai cột riêng để mỗi nút tắt được nhớ.
+CREATE TABLE IF NOT EXISTS jpath_user_settings (
+    user_id BIGINT UNSIGNED NOT NULL,
+    furigana_hidden_all TINYINT(1) NOT NULL DEFAULT 0,
+    romaji_mode VARCHAR(4) NOT NULL DEFAULT 'AUTO',
+    font_size VARCHAR(1) NOT NULL DEFAULT 'M',
+    sound_on TINYINT(1) NOT NULL DEFAULT 1,
+    autoplay_audio TINYINT(1) NOT NULL DEFAULT 1,
+    quiz_timer_on TINYINT(1) NOT NULL DEFAULT 0,
+    grammar_timer_on TINYINT(1) NOT NULL DEFAULT 1,
+    reminder_web TINYINT(1) NOT NULL DEFAULT 1,
+    reminder_email TINYINT(1) NOT NULL DEFAULT 0,
+    reminder_time TIME NOT NULL DEFAULT '20:00:00',
+    vocab_list_view VARCHAR(6) NOT NULL DEFAULT 'TOPICS',
+    tour_done_at DATETIME(6) NULL,
+    swipe_hint_done_at DATETIME(6) NULL,
+    team_notebook_id BIGINT UNSIGNED NULL,
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_jpath_settings_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_settings_romaji_mode CHECK (romaji_mode IN ('AUTO','ON','OFF')),
+    CONSTRAINT chk_jpath_settings_font_size CHECK (font_size IN ('S','M','L')),
+    CONSTRAINT chk_jpath_settings_vocab_list_view CHECK (vocab_list_view IN ('TOPICS','FLAT'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 16. Một cấp trong lộ trình: giai đoạn, thanh trượt và số lần chỉnh (tối đa 2).
+CREATE TABLE IF NOT EXISTS jpath_user_level (
+    path_id BIGINT UNSIGNED NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    stage VARCHAR(16) NOT NULL DEFAULT 'STUDY',
+    slider_vocab TINYINT UNSIGNED NOT NULL,
+    slider_kanji TINYINT UNSIGNED NOT NULL,
+    slider_grammar TINYINT UNSIGNED NOT NULL,
+    adjustments_used TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    first_drag_used TINYINT(1) NOT NULL DEFAULT 0,
+    priority_mode TINYINT(1) NOT NULL DEFAULT 0,
+    opened_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    skill_practice_at DATETIME(6) NULL,
+    passed_at DATETIME(6) NULL,
+    mock_attempt_id BIGINT UNSIGNED NULL,
+    PRIMARY KEY (path_id, level),
+    CONSTRAINT fk_jpath_user_level_path FOREIGN KEY (path_id) REFERENCES jpath_user_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_user_level_stage CHECK (stage IN ('STUDY','SKILL_PRACTICE','EXAM','PASSED')),
+    CONSTRAINT chk_jpath_user_level_adjustments CHECK (adjustments_used <= 2)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 17. Lịch sử chỉnh thanh trượt.
+CREATE TABLE IF NOT EXISTS jpath_slider_adjustment (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    path_id BIGINT UNSIGNED NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    kind VARCHAR(14) NOT NULL,
+    counted TINYINT(1) NOT NULL,
+    vocab_before TINYINT UNSIGNED NULL,
+    vocab_after TINYINT UNSIGNED NOT NULL,
+    kanji_before TINYINT UNSIGNED NULL,
+    kanji_after TINYINT UNSIGNED NOT NULL,
+    grammar_before TINYINT UNSIGNED NULL,
+    grammar_after TINYINT UNSIGNED NOT NULL,
+    daily_minutes SMALLINT UNSIGNED NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_jpath_slider_path (path_id, level, created_at),
+    CONSTRAINT fk_jpath_slider_path FOREIGN KEY (path_id) REFERENCES jpath_user_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_slider_kind CHECK (kind IN ('INITIAL','CONFIRM','FIRST_DRAG','UPDATE','REBALANCE','TARGET_CHANGE','LEVEL_START'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 18. Trạng thái học của từng mục (không có dòng = "Chưa học"). Cột SRS lưu giờ địa phương của người học.
+-- known_source: USER|SKIP_CHECK|TOPIC_CHECK; 'TOPIC_PEND' trên dòng LEARNING = mục chủ đề chưa hỏi, chờ xác nhận.
+CREATE TABLE IF NOT EXISTS jpath_user_item (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    item_type VARCHAR(8) NOT NULL,
+    item_code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NULL,
+    state VARCHAR(10) NOT NULL,
+    repetitions SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    interval_days INT UNSIGNED NOT NULL DEFAULT 0,
+    easiness DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    next_review_at DATETIME(6) NULL,
+    last_reviewed_at DATETIME(6) NULL,
+    first_learned_at DATETIME(6) NULL,
+    counted_at DATETIME(6) NULL,
+    forget_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    correct_streak SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    notebook_source VARCHAR(12) NULL,
+    notebook_since DATETIME(6) NULL,
+    notebook_hits TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    notebook_last_hit_day DATE NULL,
+    known_at DATETIME(6) NULL,
+    known_source VARCHAR(12) NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_item_user_code (user_id, item_type, item_code),
+    KEY idx_jpath_item_due (user_id, item_type, state, next_review_at),
+    KEY idx_jpath_item_progress (user_id, level, item_type, counted_at),
+    CONSTRAINT fk_jpath_item_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_item_type CHECK (item_type IN ('VOCAB','KANJI','GRAMMAR','KANA')),
+    CONSTRAINT chk_jpath_item_state CHECK (state IN ('LEARNING','NOTEBOOK','KNOWN')),
+    CONSTRAINT chk_jpath_item_grammar_notebook CHECK (NOT (item_type = 'GRAMMAR' AND state = 'NOTEBOOK'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 19. Kế hoạch một ngày học (study_day = ngày của người học). cp_awarded: số CP hook đã trả cho ngày này (không gồm huy hiệu).
+CREATE TABLE IF NOT EXISTS jpath_daily_plan (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    path_id BIGINT UNSIGNED NOT NULL,
+    study_day DATE NOT NULL,
+    level VARCHAR(2) NOT NULL,
+    day_kind VARCHAR(12) NOT NULL,
+    kana_phase TINYINT(1) NOT NULL DEFAULT 0,
+    skill_makeup TINYINT(1) NOT NULL DEFAULT 0,
+    reviews_cleared_at DATETIME(6) NULL,
+    all_done_at DATETIME(6) NULL,
+    cp_awarded SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_plan_user_day (user_id, study_day),
+    CONSTRAINT fk_jpath_plan_path FOREIGN KEY (path_id) REFERENCES jpath_user_path(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_plan_day_kind CHECK (day_kind IN ('STUDY','SKILL','REST','REVIEW_ONLY'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 20. Một tab trong kế hoạch ngày.
+CREATE TABLE IF NOT EXISTS jpath_daily_tab (
+    plan_id BIGINT UNSIGNED NOT NULL,
+    tab VARCHAR(8) NOT NULL,
+    new_target SMALLINT UNSIGNED NOT NULL,
+    new_done SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    extra_done SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    review_cap SMALLINT UNSIGNED NOT NULL,
+    review_done SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    check_passed_at DATETIME(6) NULL,
+    done_at DATETIME(6) NULL,
+    too_fast TINYINT(1) NOT NULL DEFAULT 0,
+    PRIMARY KEY (plan_id, tab),
+    CONSTRAINT fk_jpath_daily_tab_plan FOREIGN KEY (plan_id) REFERENCES jpath_daily_plan(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_daily_tab_tab CHECK (tab IN ('VOCAB','KANJI','GRAMMAR','KANA','SKILL'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 21. Phiên học (hàng đợi bước học đã đóng băng).
+CREATE TABLE IF NOT EXISTS jpath_study_session (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    plan_id BIGINT UNSIGNED NULL,
+    tab VARCHAR(8) NOT NULL,
+    mode VARCHAR(12) NOT NULL,
+    status VARCHAR(10) NOT NULL DEFAULT 'OPEN',
+    queue_json JSON NOT NULL,
+    `position` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    total SMALLINT UNSIGNED NOT NULL,
+    started_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    completed_at DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    KEY idx_jpath_session_user (user_id, status, plan_id, tab),
+    CONSTRAINT fk_jpath_session_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_session_status CHECK (status IN ('OPEN','COMPLETED','ABANDONED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 22. Sự kiện học (client_event_id chống gửi trùng khi phát lại hàng đợi offline).
+CREATE TABLE IF NOT EXISTS jpath_study_event (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    session_id BIGINT UNSIGNED NULL,
+    client_event_id VARCHAR(40) NOT NULL,
+    item_type VARCHAR(8) NOT NULL,
+    item_code VARCHAR(24) NOT NULL,
+    action VARCHAR(12) NOT NULL,
+    rating VARCHAR(10) NULL,
+    quality TINYINT UNSIGNED NULL,
+    correct TINYINT(1) NULL,
+    elapsed_ms INT UNSIGNED NULL,
+    study_day DATE NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_event_client (user_id, client_event_id),
+    KEY idx_jpath_event_day (user_id, study_day),
+    CONSTRAINT fk_jpath_event_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 23. Đề đã phát. issue_json: echo công khai của yêu cầu phát đề. answers_json không bao giờ trả ra API.
+CREATE TABLE IF NOT EXISTS jpath_check_set (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    token CHAR(36) NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    plan_id BIGINT UNSIGNED NULL,
+    session_id BIGINT UNSIGNED NULL,
+    kind VARCHAR(16) NOT NULL,
+    tab VARCHAR(8) NOT NULL,
+    level VARCHAR(2) NULL,
+    attempt_no TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    status VARCHAR(10) NOT NULL DEFAULT 'ISSUED',
+    timer_on TINYINT(1) NOT NULL DEFAULT 0,
+    issue_json JSON NULL,
+    questions_json JSON NOT NULL,
+    answers_json JSON NOT NULL,
+    progress_json JSON NULL,
+    item_codes_json JSON NOT NULL,
+    issued_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    last_answer_at DATETIME(6) NULL,
+    submitted_at DATETIME(6) NULL,
+    submit_key VARCHAR(40) NULL,
+    correct_count SMALLINT UNSIGNED NULL,
+    total_count SMALLINT UNSIGNED NOT NULL,
+    score_pct DECIMAL(5,2) NULL,
+    passed TINYINT(1) NULL,
+    too_fast TINYINT(1) NOT NULL DEFAULT 0,
+    result_json JSON NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_check_token (token),
+    KEY idx_jpath_check_session (user_id, session_id, kind, status),
+    KEY idx_jpath_check_submitted (user_id, submitted_at),
+    CONSTRAINT fk_jpath_check_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_check_kind CHECK (kind IN ('MICRO_CHECK','GROUP_EXERCISE','SKIP_ONE','TOPIC_KNOWN','FREE_QUIZ','CONFUSABLE','KANA_ROW','GRAMMAR_PRACTICE','GRAMMAR_EXTRA','GRAMMAR_REVIEW')),
+    CONSTRAINT chk_jpath_check_status CHECK (status IN ('ISSUED','SUBMITTED','EXPIRED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 24. Báo sai nội dung. open_flag = 1 khi OPEN, NULL khi khác: mỗi người chỉ một báo OPEN cho một mục.
+CREATE TABLE IF NOT EXISTS jpath_content_report (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    reporter_user_id BIGINT UNSIGNED NOT NULL,
+    target_type VARCHAR(8) NOT NULL,
+    target_code VARCHAR(24) NOT NULL,
+    item_type VARCHAR(8) NOT NULL,
+    item_code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NULL,
+    error_type VARCHAR(8) NOT NULL,
+    note VARCHAR(500) NULL,
+    page_context VARCHAR(40) NULL,
+    status VARCHAR(10) NOT NULL DEFAULT 'OPEN',
+    resolved_by BIGINT UNSIGNED NULL,
+    resolved_at DATETIME(6) NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    open_flag TINYINT(1) NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jpath_report_open (target_type, target_code, reporter_user_id, open_flag),
+    KEY idx_jpath_report_target (target_type, target_code, status),
+    KEY idx_jpath_report_queue (status, level, created_at),
+    CONSTRAINT fk_jpath_report_user FOREIGN KEY (reporter_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_jpath_report_target_type CHECK (target_type IN ('VOCAB','KANJI','GRAMMAR','KANA','EXAMPLE','QUESTION')),
+    CONSTRAINT chk_jpath_report_error_type CHECK (error_type IN ('MEANING','EXAMPLE','AUDIO','KANJI','OTHER')),
+    CONSTRAINT chk_jpath_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED')),
+    CONSTRAINT chk_jpath_report_open_flag CHECK ((status = 'OPEN' AND open_flag <=> 1) OR (status <> 'OPEN' AND open_flag IS NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 25. Nhật ký sửa nội dung (editor_user_id = 0: hệ thống); exported_at: đã xuất ngược về nguồn.
+CREATE TABLE IF NOT EXISTS jpath_content_edit (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    editor_user_id BIGINT UNSIGNED NOT NULL,
+    target_type VARCHAR(8) NOT NULL,
+    target_code VARCHAR(24) NOT NULL,
+    level VARCHAR(2) NULL,
+    field_name VARCHAR(40) NOT NULL,
+    old_value MEDIUMTEXT NULL,
+    new_value MEDIUMTEXT NULL,
+    report_id BIGINT UNSIGNED NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    exported_at DATETIME(6) NULL,
+    PRIMARY KEY (id),
+    KEY idx_jpath_edit_export (level, exported_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 26. Huy hiệu đã nhận.
+CREATE TABLE IF NOT EXISTS jpath_user_badge (
+    user_id BIGINT UNSIGNED NOT NULL,
+    badge_code VARCHAR(30) NOT NULL,
+    earned_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (user_id, badge_code),
+    CONSTRAINT fk_jpath_badge_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 27. Nhắc học đã gửi (reminder_day = ngày của người học).
+CREATE TABLE IF NOT EXISTS jpath_reminder_log (
+    user_id BIGINT UNSIGNED NOT NULL,
+    reminder_day DATE NOT NULL,
+    sent_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    channels VARCHAR(20) NOT NULL,
+    PRIMARY KEY (user_id, reminder_day),
+    CONSTRAINT fk_jpath_reminder_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
