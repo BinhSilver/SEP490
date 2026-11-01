@@ -176,6 +176,8 @@ export function runChecks(compiled, ctx) {
   dup(compiled.kanji, k => k.character);
   dup(compiled.grammar, g => g.family_key);
   dup([...compiled.vocabulary, ...compiled.kanji, ...compiled.grammar], x => x.id);
+  for (const m of compiled.mixed_entries ?? []) errors.push({ code: 'MIXED_ENTRIES', id: m.id,
+    detail: m.spellings.map(s => `${s.expression}#${s.entry_id}`).join(', ') });
   for (const t of compiled.spelling_twins ?? []) errors.push({ code: 'SAME_SPELLING', id: t.id, detail: `${t.twin_id} (${t.twin_level})`, warning: true });
 
   for (const v of compiled.vocabulary) {
