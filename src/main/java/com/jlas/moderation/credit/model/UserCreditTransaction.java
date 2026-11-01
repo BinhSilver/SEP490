@@ -23,6 +23,10 @@ public final class UserCreditTransaction {
         WORD_CONTRIBUTION_REVOKED,
         GAME_ITEM_PURCHASE,
         /** Một lượt AI Call trả bằng CP sau khi hết hạn mức (JLAS-W0199); lỗi AI thì hoàn bằng REFUND. */
-        AI_CALL_TURN
+        AI_CALL_TURN,
+        /** Gói lượt tra từ nhanh (bôi đen để tra) cho tài khoản không có Pro. */
+        QUICK_LOOKUP_PACK,
+        /** Một lần chấm phát âm sau khi hết lượt miễn phí trong ngày; lỗi chấm thì hoàn bằng REFUND. */
+        PRONUNCIATION_CHECK
     }
 }

@@ -19,6 +19,10 @@ public enum ErrorCode {
     CONTENT_PENDING_REVIEW(HttpStatus.BAD_REQUEST, "Content requires review before publishing"),
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
     INSUFFICIENT_CREDIT(HttpStatus.PAYMENT_REQUIRED, "Not enough credits"),
+    /** Hết lượt tra từ nhanh: mua thêm lượt bằng CP hoặc nâng cấp Pro. */
+    QUICK_LOOKUP_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt tra từ nhanh."),
+    /** Hết lượt chấm phát âm miễn phí hôm nay: dùng CP hoặc nâng cấp Pro. */
+    PRONUNCIATION_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt chấm phát âm miễn phí hôm nay."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     /** [JLAS2-XX] Ảnh tải lên sai định dạng hoặc nội dung không phải ảnh thật (magic bytes không khớp). */
     INVALID_IMAGE(HttpStatus.BAD_REQUEST, "Ảnh chỉ nhận định dạng JPG, PNG hoặc WEBP"),
