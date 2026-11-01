@@ -1,0 +1,43 @@
+/* [JLAS-W0108] JLPT path base styles. Pages colour only through --jp-*; each maps to a Learning V2 --lp-* alias
+   or, where V2 has none (ok, warn), to the shared theme-aware --color-* token, so light/dark follow tokens.css. */
+:root {
+  --jp-canvas: var(--lp-canvas);
+  --jp-surface: var(--lp-surface);
+  --jp-ink: var(--lp-ink);
+  --jp-muted: var(--lp-muted);
+  --jp-primary: var(--lp-purple);
+  --jp-primary-soft: var(--lp-purple-soft);
+  --jp-line: var(--lp-line);
+  --jp-danger: var(--lp-danger);
+  --jp-danger-soft: var(--lp-danger-soft);
+  --jp-ok: var(--color-success);
+  --jp-warn: var(--color-tertiary);
+  --jp-radius-panel: var(--lp-radius-panel);
+  --jp-radius-interactive: var(--lp-radius-interactive);
+  --jp-radius-chip: var(--lp-radius-chip);
+  --jp-font-scale: 1;
+}
+
+/* Learner font-size setting (S/M/L); page styles multiply their sizes by var(--jp-font-scale). */
+.jp-font-S { --jp-font-scale: .9; }
+.jp-font-M { --jp-font-scale: 1; }
+.jp-font-L { --jp-font-scale: 1.15; }
+
+.jp-kanji { font-family: 'Klee One', 'Noto Serif JP', serif; }
+.jp-ja { font-family: 'Noto Sans JP', sans-serif; }
+
+.jp-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  color: var(--jp-ink);
+}
+
+/* Let flex/grid children shrink so long Japanese text never forces horizontal scroll at 375 px. */
+.jp-page * { min-width: 0; }
+
+@media (max-width: 480px) {
+  .jp-page { padding: 12px; }
+}

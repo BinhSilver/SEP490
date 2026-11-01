@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Shared JLPT path page kit. Every path page (except print.html and admin pages) includes
+     assets('<page-css>') right after fragments/head :: standard(...) and scripts before its own page script. -->
+
+<th:block th:fragment="assets(pageCss)">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&amp;display=swap" />
+    <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css(v=${jpathAssetVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/pages/jpath-base.css(v=${jpathAssetVersion})}" />
+    <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
+          th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
+</th:block>
+
+<th:block th:fragment="scripts">
+    <!-- fragments/head does not load confirm-dialog.js; path pages use window.JlasConfirm. -->
+    <script th:src="@{/js/pages/confirm-dialog.js(v=${jpathAssetVersion})}"></script>
+    <script th:src="@{/js/jlptpath/jpath-api.js(v=${jpathAssetVersion})}"></script>
+</th:block>
+
+</html>
